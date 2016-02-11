@@ -344,7 +344,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         //this is the first time we have seen this heartbeat
         //Let us first turn on the data streams
         mavlink_request_data_stream_t request;
-        request.target_system = 0;
+        request.target_system = systemID;
         request.target_component = 0;
         request.start_stop = 1;
 

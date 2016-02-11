@@ -109,9 +109,10 @@ else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_generic/ -lmodule_vehicle_gener
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/release/ -lmodule_vehicle_MAVLINK
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/debug/ -lmodule_vehicle_MAVLINK
-else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_MACELINK/ -lmodule_vehicle_MAVLINK
+else:unix:!macx: LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/ -lmodule_vehicle_MAVLINK
+
+INCLUDEPATH += $$PWD/../module_vehicle_MAVLINK
+DEPENDPATH += $$PWD/../module_vehicle_MAVLINK
 
 
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
-
-

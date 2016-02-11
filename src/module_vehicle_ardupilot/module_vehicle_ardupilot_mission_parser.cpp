@@ -44,11 +44,10 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
             mavlink_message_t msg;
             int indexRequest = status.remainingItems.at(0)+1;
 
-            std::cout << "Requesting: " << indexRequest << std::endl;
-
             mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,indexRequest); //we have to index this +1 because ardupilot indexes 0 as home
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         }else{
+            std::cout<<"I have seen a whole mission from the solo"<<std::endl;
             //We should update the core
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
                 ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
