@@ -1,0 +1,6 @@
+The main code implements Centroidal Voronoi Tessellation. First, fortune's algorithm is used to make a voronoi diagram. 
+Next, the centroids are found using CVT library and the intial generators are updated with them.  
+
+To run in Ubuntu-
+1.  g++ main.cpp -lGL -lGLU -lglut -o main
+2. ./main
