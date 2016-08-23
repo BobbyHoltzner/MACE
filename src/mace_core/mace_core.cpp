@@ -2,6 +2,9 @@
 
 #include <stdexcept>
 
+namespace MaceCore
+{
+
 Mace_core::Mace_core()
 {
 }
@@ -24,6 +27,8 @@ void Mace_core::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleC
 
     m_VehicleIDToPtr.insert({ID, vehicle});
 
+    m_DataFusion->AddVehicle(ID);
+
     m_RTA->NewVehicle(ID, vehicle->getModuleMetaData());
 }
 
@@ -34,6 +39,8 @@ void Mace_core::RemoveVehicle(const std::string &ID)
         throw std::runtime_error("Vehicle does not exists");
 
     m_VehicleIDToPtr.erase(m_VehicleIDToPtr.find(ID));
+
+    m_DataFusion->RemoveVehicle(ID);
 
     m_RTA->RemoveVehicle(ID);
 }
@@ -93,3 +100,6 @@ void Mace_core::NewVehicleLife(const void* sender, const TIME &time, const Vehic
 /////////////////////////////////////////////////////////////////////////
 /// MACE COMMS EVENTS
 /////////////////////////////////////////////////////////////////////////
+
+
+} //END MaceCore Namespace

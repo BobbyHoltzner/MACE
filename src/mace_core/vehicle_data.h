@@ -9,6 +9,7 @@ typedef int TIME;
 
 class VehicleLife
 {
+public:
     double batteryPercent;
     OptionalParameter<double> flightTimeInSec;
     OptionalParameter<double> flightDistanceInMeters;
@@ -17,6 +18,7 @@ class VehicleLife
 
 class VectorDynamics
 {
+public:
     VECTOR3D dx0;
     VECTOR3D dx1;
 };

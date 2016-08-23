@@ -17,6 +17,9 @@
 #include <map>
 #include <memory>
 
+namespace MaceCore
+{
+
 class MACE_CORESHARED_EXPORT Mace_core : public IModuleEventsVehicle, public IModuleEventsRTA, public IModuleEventsPathPlanning
 {
 
@@ -81,5 +84,7 @@ private:
 
     std::shared_ptr<MaceData> m_DataFusion;
 };
+
+} //END MaceCore Namespace
 
 #endif // MACE_CORE_H

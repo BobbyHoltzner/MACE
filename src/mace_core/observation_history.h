@@ -10,7 +10,7 @@
 #include "mace_core_global.h"
 
 
-typedef int SimulationTime;
+typedef int T;
 
 namespace MaceCore
 {
@@ -42,7 +42,7 @@ enum SearchDirection
  *  When an observation is no longer usefull it is written to an underlaying stream and removed from the object.
  *  This helps keep the data contained in this object small which speeds up searching.
  */
-template <class T> class ObservationHistory
+template <class T, class D> class ObservationHistory
 {
 public:
 
@@ -56,6 +56,13 @@ public:
         this->m_MillisecondsToKeep = millisecondToKeep;
     }
 
+    ObservationHistory(const ObservationHistory &that) :
+        m_MillisecondsToKeep(that.m_MillisecondsToKeep),
+        m_CurrentMapFull(that.m_CurrentMapFull)
+    {
+
+    }
+
     //! Destructor
     /*!
    * Write all data in current tree into the stream then delete it all.
@@ -66,7 +73,7 @@ public:
         std::lock_guard<std::mutex> guard(m_Mutex);
         UNUSED(guard);
 
-        typename std::map<SimulationTime, T>::iterator KeyValueIterationFull;
+        typename std::map<T, D>::iterator KeyValueIterationFull;
 
         //delete each value in the map
         KeyValueIterationFull=m_CurrentMapFull.begin();
@@ -88,19 +95,19 @@ public:
      * \param time Time of observation.
      * \param observation The observation inserting.
      */
-    Observation_Status InsertObservation(const SimulationTime &time, const T &observation)
+    Observation_Status InsertObservation(const T &time, const D &observation)
     {
         //lock the mutex
         std::lock_guard<std::mutex> guard(m_Mutex);
         UNUSED(guard);
 
-        typename std::map<SimulationTime, T>::iterator KeyValueIterationFull;
+        typename std::map<T, D>::iterator KeyValueIterationFull;
 
         this->m_CurrentMapFull.insert({time, observation});
 
 
         //determine what time to look for in key history and delete everythig with values less than this
-        //SimulationTime Time_Prior_To_Erase = time - 1000*m_MillisecondsToKeep;
+        //T Time_Prior_To_Erase = time - 1000*m_MillisecondsToKeep;
 
         //point the iterator to the first key in MAP
         KeyValueIterationFull=m_CurrentMapFull.begin();
@@ -111,8 +118,9 @@ public:
         {
 
             //remove the element if its time is prior to the threshold
-            const int64_t TimeDelta = (m_CurrentMapFull.end() - 1).key() - KeyValueIterationFull.key();
-            if(TimeDelta > 0 && ((HSI_UINT64)TimeDelta) > 1000*m_MillisecondsToKeep)
+            typename std::map<T, D>::iterator lastItem = (m_CurrentMapFull.end()--);
+            const int64_t TimeDelta = lastItem->first - KeyValueIterationFull->first;
+            if(TimeDelta > 0 && ((uint64_t)TimeDelta) > 1000*m_MillisecondsToKeep)
             {
 
                 //T* tmpV = KeyValueIterationFull.value();
@@ -140,7 +148,7 @@ public:
      * \param millisecondRange Range of the observation request.
      * \param rangedTimes Set to include the observations inside the time range described in the parameters passed.
      */
-    Observation_Status Get_Observations_Range(const SimulationTime &centerTime, const SimulationTime &timeRange, std::map<SimulationTime, T*> &QMap_Modify)
+    Observation_Status Get_Observations_Range(const T &centerTime, const T &timeRange, std::map<T, D*> &QMap_Modify)
     {
         /*
         if(m_CurrentMapFull.empty()==true)
@@ -150,14 +158,14 @@ public:
         //lock the mutex
         std::lock_guard<std::mutex> guard(m_Mutex);
         UNUSED(guard);
-        typename QMap<SimulationTime, T*>::iterator KeyValueIterationFull;
-        typename QMap<SimulationTime, T*>::iterator KeyValueIterationBeg;
-        typename QMap<SimulationTime, T*>::iterator KeyValueIterationEnd;
+        typename QMap<T, T*>::iterator KeyValueIterationFull;
+        typename QMap<T, T*>::iterator KeyValueIterationBeg;
+        typename QMap<T, T*>::iterator KeyValueIterationEnd;
         //find the beginning of the dataset of interest (subset will >= value)
-        SimulationTime begin_capture_dead = centerTime - timeRange;
+        T begin_capture_dead = centerTime - timeRange;
         KeyValueIterationBeg=m_CurrentMapFull.lowerBound(begin_capture_dead);
         //find the end of the dataset of interest (subset will <= value)
-        SimulationTime end_capture_dead = centerTime + timeRange;
+        T end_capture_dead = centerTime + timeRange;
         KeyValueIterationEnd=m_CurrentMapFull.upperBound(end_capture_dead) - 1;
         //KeyValueIterationEnd--;
         //find the ending key value relating to subset period of interest and assign subset MAP values
@@ -182,7 +190,7 @@ public:
      * \param[out] observation List of observations
      * \param[out] times List of times for associated observations
      */
-    void GetClosestObservation(const SimulationTime &time, const SearchDirection &direction, const int &N, std::vector<T> &Observations, std::vector<SimulationTime> &times) const
+    void GetClosestObservation(const T &time, const SearchDirection &direction, const int &N, std::vector<D> &Observations, std::vector<T> &times) const
     {
         //lock the mutex
         std::lock_guard<std::mutex> guard(m_Mutex);
@@ -196,7 +204,7 @@ public:
             return;
 
         //Get an iterator to the closest greater than our target time
-        typename std::map<SimulationTime, T>::const_iterator iterator = m_CurrentMapFull.lowerBound(time);
+        typename std::map<T, D>::const_iterator iterator = m_CurrentMapFull.lower_bound(time);
 
         //number of observations found
         int observationsFound = 0;
@@ -204,12 +212,12 @@ public:
         //going foward
         if(direction == FORWARD_INCLUSION)
         {
-
+            typename std::map<T, D>::const_iterator last_element = (m_CurrentMapFull.end()--);
             //if target time is equal to end then there is only one.
-            if(time == (m_CurrentMapFull.end()-1).key())
+            if(time == last_element->first)
             {
-                Observations.append((m_CurrentMapFull.end()-1).value());
-                times.append((m_CurrentMapFull.end()-1).key());
+                Observations.push_back(last_element->second);
+                times.push_back(last_element->first);
                 observationsFound++;
                 return;
             }
@@ -217,8 +225,8 @@ public:
             //append until we reach the end or the target number of observations
             while( observationsFound < N && iterator != m_CurrentMapFull.end() )
             {
-                Observations.append(iterator.value());
-                times.append(iterator.key());
+                Observations.push_back(iterator->second);
+                times.push_back(iterator->first);
                 iterator++;
                 observationsFound++;
             }
@@ -229,7 +237,7 @@ public:
         {
 
             //if the time is previous to first time then there is no valid entry
-            if(time < m_CurrentMapFull.begin().key())
+            if(time < m_CurrentMapFull.begin()->first)
                 return;
 
             // we are either above the target or at the target.
@@ -242,8 +250,8 @@ public:
             while(observationsFound < N)
             {
 
-                Observations.append(iterator.value());
-                times.append(iterator.key());
+                Observations.push_back(iterator->second);
+                times.push_back(iterator->first);
 
                 if(iterator == m_CurrentMapFull.begin())
                     break;
@@ -260,7 +268,7 @@ public:
      * \param Number_of_Observations The number of observations desired for observance
      * \param QMap_Modify An empty map to return the values in
      */
-    Observation_Status GetPreviousNumberObservations(const int Number_of_Observations, std::vector<T*> &Observations)
+    Observation_Status GetPreviousNumberObservations(const int Number_of_Observations, std::vector<D*> &Observations)
     {
 
         std::lock_guard<std::mutex> guard(m_Mutex);
@@ -269,7 +277,7 @@ public:
         Observations.clear();
 
         //Get an iterator to the end of the map
-        typename std::map<SimulationTime, T*>::iterator iterator = m_CurrentMapFull.end();
+        typename std::map<T, D*>::iterator iterator = m_CurrentMapFull.end();
 
         //number of observations found
         int observationsFound = 0;
@@ -328,13 +336,10 @@ public:
 private:
 
     //! The current full observation list
-    std::map<SimulationTime, T> m_CurrentMapFull;
+    std::map<T, D> m_CurrentMapFull;
 
     //! Mutex to protect against insertions to this datastructure.
-    std::mutex m_Mutex;
-
-    //! Stream to write expired observations
-    std::ostream m_HistStream;
+    mutable std::mutex m_Mutex;
 
     //! The amount of time each observation is allowed to remain in the current list
     uint64_t m_MillisecondsToKeep;
