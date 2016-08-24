@@ -104,6 +104,37 @@ private:
         m_VehicleLifeHistory.at(rn).InsertObservation(time, life);
     }
 
+
+    //!
+    //! \brief set the Target list of a specific vehicle
+    //!
+    //! The target is a macro-level list, a vehicle should not be flown based on targets.
+    //! \param vehicleID Id of Vehicle
+    //! \param targetPos List of targeted positions.
+    //!
+    void setVehicleTarget(const std::string vehicleID, std::vector<Eigen::Vector3d> targetPos)
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
+
+        m_VehicleTargetPositionList[vehicleID] = targetPos;
+    }
+
+
+    //!
+    //! \brief set the dynamics for a specific vehicle.
+    //!
+    //! Commands are micro-level list of dynamics the vehicle is to physically achieve to reach a target.
+    //! \param vehicleID ID of vehicle whose commands are being modified on
+    //! \param locationalCommands List of commands to asign to vehicle
+    //!
+    void setVehicleDynamicsCommands(const std::string vehicleID, std::vector<FullVehicleDynamics> commands)
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
+
+        m_VehicleCommandDynamicsList[vehicleID] = commands;
+    }
+
+
 public:
 
 
@@ -142,6 +173,44 @@ public:
         std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
 
         return GetObservation<VehicleLife>(m_VehicleLifeHistory.at(rn), time, life, [this](const TIME& t, const VehicleLife& d0, const TIME& t0, const VehicleLife& d1, const TIME& t1){ return FuseVehicleLife(t, d0, t0, d1, t1);});
+    }
+
+
+    //!
+    //! \brief get the Target list of a specific vehicle
+    //!
+    //! The target is a macro-level list, a vehicle should not be flown based on targets.
+    //! Will return empty array if no targets are desired for vehicle
+    //! \param vehicleID Id of Vehicle
+    //! \return List of targeted positions.
+    //!
+    std::vector<Eigen::Vector3d> getVehicleTarget(const std::string vehicleID) const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
+
+        if(m_VehicleTargetPositionList.find(vehicleID) == m_VehicleTargetPositionList.cend())
+            return {};
+
+        return m_VehicleTargetPositionList.at(vehicleID);
+    }
+
+
+    //!
+    //! \brief get the command dynamics for a specific vehicle.
+    //!
+    //! Commands are micro-level list of attitudes the vehicle is to physically achieve to reach a target.
+    //! Will return empty array if no attitudes are commanded for vehicle
+    //! \param vehicleID ID of Vehicle
+    //! \return list of commanded dynamics
+    //!
+    std::vector<FullVehicleDynamics> getVehicleDynamicsCommands(const std::string vehicleID) const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
+
+        if(m_VehicleCommandDynamicsList.find(vehicleID) == m_VehicleCommandDynamicsList.cend())
+            return {};
+
+        return m_VehicleCommandDynamicsList.at(vehicleID);
     }
 
 
@@ -254,6 +323,14 @@ private:
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_AttitudeDynamicsHistory;
 
     std::map<std::string, ObservationHistory<TIME, VehicleLife> > m_VehicleLifeHistory;
+
+
+    std::map<std::string, std::vector<Eigen::Vector3d> > m_VehicleTargetPositionList;
+
+
+    std::map<std::string, std::vector<FullVehicleDynamics> > m_VehicleCommandDynamicsList;
+
+
 
     Eigen::MatrixXd m_OccupancyMap;
 

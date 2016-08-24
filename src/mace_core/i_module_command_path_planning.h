@@ -39,6 +39,13 @@ public:
     virtual void UpdateDynamicsState(const std::string &vehicleID) = 0;
 
     virtual void UpdatedVehicleLife(const std::string &vehicleID) = 0;
+
+
+    //!
+    //! \brief New targets have been assigned to the given vehicle
+    //! \param vehicleID ID of vehicle
+    //!
+    virtual void NewVehicleTarget(const std::string &vehicleID) = 0;
 };
 
 } //End MaceCore Namespace

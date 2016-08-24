@@ -42,11 +42,26 @@ public:
     //!
     virtual void start();
 
+
+public:
+
+
     //!
-    //! \brief Issue a new target position for the vehicle
-    //! \param position Position for the vehicle to achieve
+    //! \brief New commands have been updated that the vehicle is to follow immediatly
     //!
-    virtual void IssueTarget(const Eigen::Vector3d &position);
+    virtual void FollowNewCommands();
+
+
+    //!
+    //! \brief New commands have been issued to vehicle that are to be followed once current command is finished
+    //!
+    virtual void FinishAndFollowNewCommands();
+
+
+    //!
+    //! \brief New commands have been appended to existing commands
+    //!
+    virtual void CommandsAppended();
 
 };
 

@@ -26,6 +26,14 @@ public:
     Eigen::Vector3d dx1;
 };
 
+
+class FullVehicleDynamics
+{
+public:
+    VectorDynamics positional;
+    VectorDynamics attitude;
+};
+
 } //End MaceCore Namespace
 
 #endif // VEHICLE_DATA_H

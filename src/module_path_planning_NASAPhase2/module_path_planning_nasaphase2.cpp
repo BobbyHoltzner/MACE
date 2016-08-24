@@ -46,3 +46,13 @@ void ModulePathPlanningNASAPhase2::UpdatedVehicleLife(const std::string &vehicle
 {
 
 }
+
+
+//!
+//! \brief New targets have been assigned to the given vehicle
+//! \param vehicleID ID of vehicle
+//!
+void ModulePathPlanningNASAPhase2::NewVehicleTarget(const std::string &vehicleID)
+{
+
+}

@@ -30,11 +30,23 @@ public:
 
 public:
 
+
     //!
-    //! \brief Issue a new target position for the vehicle
-    //! \param position Position for the vehicle to achieve
+    //! \brief New commands have been updated that the vehicle is to follow immediatly
     //!
-    virtual void IssueTarget(const Eigen::Vector3d &position) = 0;
+    virtual void FollowNewCommands() = 0;
+
+
+    //!
+    //! \brief New commands have been issued to vehicle that are to be followed once current command is finished
+    //!
+    virtual void FinishAndFollowNewCommands() = 0;
+
+
+    //!
+    //! \brief New commands have been appended to existing commands
+    //!
+    virtual void CommandsAppended() = 0;
 
 };
 

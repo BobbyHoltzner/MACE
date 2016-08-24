@@ -21,9 +21,27 @@ void ModuleVehicleMAVLINK::start()
 
 
 //!
-//! \brief Issue a new target position for the vehicle
-//! \param position Position for the vehicle to achieve
+//! \brief New commands have been updated that the vehicle is to follow immediatly
 //!
-void ModuleVehicleMAVLINK::IssueTarget(const Eigen::Vector3d &position)
+void ModuleVehicleMAVLINK::FollowNewCommands()
 {
+
+}
+
+
+//!
+//! \brief New commands have been issued to vehicle that are to be followed once current command is finished
+//!
+void ModuleVehicleMAVLINK::FinishAndFollowNewCommands()
+{
+
+}
+
+
+//!
+//! \brief New commands have been appended to existing commands
+//!
+void ModuleVehicleMAVLINK::CommandsAppended()
+{
+
 }

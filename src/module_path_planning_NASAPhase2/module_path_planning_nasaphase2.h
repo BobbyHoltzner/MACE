@@ -30,6 +30,13 @@ public:
     virtual void UpdateDynamicsState(const std::string &vehicleID);
 
     virtual void UpdatedVehicleLife(const std::string &vehicleID);
+
+
+    //!
+    //! \brief New targets have been assigned to the given vehicle
+    //! \param vehicleID ID of vehicle
+    //!
+    virtual void NewVehicleTarget(const std::string &vehicleID);
 };
 
 #endif // MODULE_PATH_PLANNING_NASAPHASE2_H

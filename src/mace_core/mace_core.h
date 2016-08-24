@@ -62,12 +62,25 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 
+    //!
+    //! \brief Event fired when a new list of targets are produced for a specific vehicle
+    //! \param vehicleID Vechile new targets are to be applied to
+    //! \param target List of positional targets
+    //!
+    virtual void NewVehicleTargets(const std::string &vehicleID, const std::vector<Eigen::Vector3d> &target);
+
 public:
 
     /////////////////////////////////////////////////////////////////////////
     /// PATH PLANNING EVENTS
     /////////////////////////////////////////////////////////////////////////
 
+
+    virtual void ReplaceVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands);
+
+    virtual void ReplaceAfterCurrentVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands);
+
+    virtual void AppendVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands);
 
 public:
 

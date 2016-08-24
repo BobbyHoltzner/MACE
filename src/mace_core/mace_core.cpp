@@ -102,11 +102,46 @@ void MaceCore::NewVehicleLife(const void* sender, const TIME &time, const Vehicl
 /////////////////////////////////////////////////////////////////////////
 
 
+//!
+//! \brief Event fired when a new list of targets are produced for a specific vehicle
+//! \param vehicleID Vechile new targets are to be applied to
+//! \param target List of positional targets
+//!
+void MaceCore::NewVehicleTargets(const std::string &vehicleID, const std::vector<Eigen::Vector3d> &target)
+{
+    m_DataFusion->setVehicleTarget(vehicleID, target);
+
+    m_PathPlanning->NewVehicleTarget(vehicleID);
+}
+
 
 /////////////////////////////////////////////////////////////////////////
 /// PATH PLANNING EVENTS
 /////////////////////////////////////////////////////////////////////////
 
+
+void MaceCore::ReplaceVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands)
+{
+    m_DataFusion->setVehicleDynamicsCommands(vehicleID, movementCommands);
+
+    m_VehicleIDToPtr.at(vehicleID)->FollowNewCommands();
+}
+
+void MaceCore::ReplaceAfterCurrentVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands)
+{
+    m_DataFusion->setVehicleDynamicsCommands(vehicleID, movementCommands);
+
+    m_VehicleIDToPtr.at(vehicleID)->FinishAndFollowNewCommands();
+}
+
+void MaceCore::AppendVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands)
+{
+    std::vector<FullVehicleDynamics> commands = m_DataFusion->getVehicleDynamicsCommands(vehicleID);
+    commands.insert(commands.end(), movementCommands.begin(), movementCommands.end());
+    m_DataFusion->setVehicleDynamicsCommands(vehicleID, commands);
+
+    m_VehicleIDToPtr.at(vehicleID)->CommandsAppended();
+}
 
 /////////////////////////////////////////////////////////////////////////
 /// MACE COMMS EVENTS
