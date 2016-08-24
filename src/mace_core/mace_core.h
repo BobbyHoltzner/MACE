@@ -20,11 +20,11 @@
 namespace MaceCore
 {
 
-class MACE_CORESHARED_EXPORT Mace_core : public IModuleEventsVehicle, public IModuleEventsRTA, public IModuleEventsPathPlanning
+class MACE_CORESHARED_EXPORT MaceCore : public IModuleEventsVehicle, public IModuleEventsRTA, public IModuleEventsPathPlanning
 {
 
 public:
-    Mace_core();
+    MaceCore();
 
 
 public:
@@ -38,6 +38,10 @@ public:
     void AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle);
 
     void RemoveVehicle(const std::string &ID);
+
+    void AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta);
+
+    void AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning);
 
 public:
 

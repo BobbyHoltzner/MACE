@@ -6,6 +6,17 @@ ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2(const MaceCore::Metad
 {
 }
 
+//!
+//! \brief function that is to kick off the path planning event loop
+//!
+void ModulePathPlanningNASAPhase2::start()
+{
+    while(true)
+    {
+        std::this_thread::sleep_for (std::chrono::milliseconds(10));
+    }
+}
+
 
 void ModulePathPlanningNASAPhase2::NewVehicle(const std::string &ID, const MaceCore::MetadataVehicle &vehicle)
 {

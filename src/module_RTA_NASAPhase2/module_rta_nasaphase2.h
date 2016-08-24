@@ -11,8 +11,14 @@ class MODULE_RTA_NASAPHASE2SHARED_EXPORT ModuleRTANASAPhase2 : public MaceCore::
 public:
     ModuleRTANASAPhase2(const MaceCore::Metadata_RTA metaData);
 
+    //!
+    //! \brief function that is to kick off the RTA event loop of the module
+    //!
+    virtual void start();
 
-    virtual void NewVehicle(const std::string &ID, const MaceCore::MetadataVehicle &vehicle) = 0;
+public:
+
+    virtual void NewVehicle(const std::string &ID, const MaceCore::MetadataVehicle &vehicle);
 
     virtual void RemoveVehicle(const std::string &ID);
 

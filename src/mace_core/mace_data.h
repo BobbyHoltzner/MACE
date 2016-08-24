@@ -16,10 +16,11 @@
 namespace MaceCore
 {
 
-
+class MaceCore;
 
 class MaceData
 {
+friend class MaceCore;
 
     static const uint64_t DEFAULT_MS_RECORD_TO_KEEP = 1000;
 
@@ -51,6 +52,8 @@ public:
     /////////////////////////////////////////////////////////
     /// VEHICLE DATA
     /////////////////////////////////////////////////////////
+
+private:
 
     void AddVehicle(const std::string &rn)
     {
@@ -101,6 +104,8 @@ public:
         m_VehicleLifeHistory.at(rn).InsertObservation(time, life);
     }
 
+public:
+
 
     bool GetPositionDynamics(const std::string rn, const TIME &time, Eigen::Vector3d &pos, Eigen::Vector3d &velocity) const
     {
@@ -144,6 +149,7 @@ public:
     /// PATH PLANNING DATA
     /////////////////////////////////////////////////////////
 
+private:
 
     //!
     //! \brief Entirely replaces the stored occupancy map with given matrix
@@ -171,6 +177,7 @@ public:
         func(m_OccupancyMap);
     }
 
+public:
 
     //!
     //! \brief Retreive a copy of the occupancy map

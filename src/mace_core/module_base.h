@@ -7,6 +7,8 @@
 
 #include "mace_core_global.h"
 
+#include "mace_data.h"
+
 namespace MaceCore
 {
 
@@ -29,6 +31,12 @@ public:
     virtual std::string ModuleName() const = 0;
 
 
+    //!
+    //! \brief function that is to kick off the event loop of the module
+    //!
+    virtual void start() = 0;
+
+
     void addListener(const I *listener)
     {
         m_Listeners.push_back(listener);
@@ -42,11 +50,25 @@ public:
         }
     }
 
+
+    void setDataObject(const std::shared_ptr<MaceData> &data)
+    {
+        m_Data = data;
+    }
+
+    std::shared_ptr<const MaceData> getDataObject() const
+    {
+        return m_Data;
+    }
+
+
 private:
 
     T m_MetaData;
 
     std::vector<I*> m_Listeners;
+
+    std::shared_ptr<const MaceData> m_Data;
 };
 
 

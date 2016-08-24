@@ -5,7 +5,7 @@
 namespace MaceCore
 {
 
-Mace_core::Mace_core()
+MaceCore::MaceCore()
 {
 }
 
@@ -15,12 +15,12 @@ Mace_core::Mace_core()
 /////////////////////////////////////////////////////////////////////////
 
 
-void Mace_core::AddDataFusion(const std::shared_ptr<MaceData> dataFusion)
+void MaceCore::AddDataFusion(const std::shared_ptr<MaceData> dataFusion)
 {
     m_DataFusion = dataFusion;
 }
 
-void Mace_core::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle)
+void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle)
 {
     if(m_VehicleIDToPtr.find(ID) != m_VehicleIDToPtr.cend())
         throw std::runtime_error("Vehicle ID already exists");
@@ -33,7 +33,7 @@ void Mace_core::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleC
 }
 
 
-void Mace_core::RemoveVehicle(const std::string &ID)
+void MaceCore::RemoveVehicle(const std::string &ID)
 {
     if(m_VehicleIDToPtr.find(ID) == m_VehicleIDToPtr.cend())
         throw std::runtime_error("Vehicle does not exists");
@@ -46,11 +46,22 @@ void Mace_core::RemoveVehicle(const std::string &ID)
 }
 
 
+void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
+{
+    m_RTA = rta;
+}
+
+void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning)
+{
+    m_PathPlanning = pathPlanning;
+}
+
+
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
 
-void Mace_core::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
+void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
 {
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     std::string rn = m_VehiclePTRToID.at(vehicle);
@@ -62,7 +73,7 @@ void Mace_core::NewPositionDynamics(const void* sender, const TIME &time, const 
 }
 
 
-void Mace_core::NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate)
+void MaceCore::NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate)
 {
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     std::string rn = m_VehiclePTRToID.at(vehicle);
@@ -74,7 +85,7 @@ void Mace_core::NewDynamicsDynamics(const void* sender, const TIME &time, const 
 }
 
 
-void Mace_core::NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &life)
+void MaceCore::NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &life)
 {
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     std::string rn = m_VehiclePTRToID.at(vehicle);

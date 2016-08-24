@@ -13,6 +13,13 @@ public:
 
 public:
 
+    //!
+    //! \brief function that is to kick off the path planning event loop
+    //!
+    virtual void start();
+
+public:
+
 
     virtual void NewVehicle(const std::string &ID, const MaceCore::MetadataVehicle &vehicle);
 
