@@ -3,10 +3,12 @@
 
 #include <string>
 #include <vector>
+#include <functional>
 
-#include "resource_number_generator.h"
+#include "mace_core_global.h"
 
-static ResourceNumberGenerator G_RNGenerator;
+namespace MaceCore
+{
 
 template<typename T, typename I>
 class ModuleBase
@@ -16,7 +18,6 @@ public:
     ModuleBase(const T &metaData) :
         m_MetaData(metaData)
     {
-        m_RN = G_RNGenerator.GenerateNumber(ModuleName());
     }
 
     T getModuleMetaData()
@@ -27,24 +28,29 @@ public:
 
     virtual std::string ModuleName() const = 0;
 
-    std::string ResourceName() const
-    {
-        return m_RN;
-    }
 
-    void addListener(const I &listener)
+    void addListener(const I *listener)
     {
         m_Listeners.push_back(listener);
+    }
+
+    void NotifyListeners(const std::function<void(I*)> &func)
+    {
+        for(auto it = m_Listeners.cbegin() ; it != m_Listeners.cend() ; ++it)
+        {
+            func(*it);
+        }
     }
 
 private:
 
     T m_MetaData;
 
-    std::string m_RN;
-
-    std::vector<I> m_Listeners;
+    std::vector<I*> m_Listeners;
 };
+
+
+} //End MaceCore Namespace
 
 
 #endif // MODULE_INTERFACE_H

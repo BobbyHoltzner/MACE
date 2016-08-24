@@ -45,9 +45,9 @@ public:
     /// VEHICLE EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    virtual void NewPositionDynamics(const void* sender, const TIME &time, const VECTOR3D &position, const VECTOR3D &attitude);
+    virtual void NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &position, const Eigen::Vector3d &attitude);
 
-    virtual void NewDynamicsDynamics(const void* sender, const TIME &time, const VECTOR3D &attitude, const VECTOR3D &attitudeRate);
+    virtual void NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate);
 
     virtual void NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &life);
 
@@ -75,6 +75,8 @@ private:
 
 
     std::map<std::string, std::shared_ptr<IModuleCommandVehicle>> m_VehicleIDToPtr;
+
+    std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
 
 
     std::shared_ptr<IModuleCommandRTA> m_RTA;

@@ -13,6 +13,9 @@
 
 #include "vehicle_data.h"
 
+namespace MaceCore
+{
+
 class IModuleCommandRTA : public ModuleBase<Metadata_RTA, IModuleEventsRTA>
 {
 public:
@@ -41,5 +44,7 @@ public:
 
     virtual void UpdatedOccupancyMap() = 0;
 };
+
+} //End MaceCore Namespace
 
 #endif // I_RTA_H

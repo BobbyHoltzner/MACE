@@ -14,14 +14,12 @@ DEFINES += MACE_CORE_LIBRARY
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += mace_core.cpp \
-    resource_number_generator.cpp \
     mace_data.cpp
 
 HEADERS += mace_core.h\
         mace_core_global.h \
     metadata_vehicle.h \
     metadata_rta.h \
-    resource_number_generator.h \
     module_base.h \
     i_module_command_RTA.h \
     i_module_command_vehicle.h \

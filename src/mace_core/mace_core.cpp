@@ -50,10 +50,10 @@ void Mace_core::RemoveVehicle(const std::string &ID)
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
 
-void Mace_core::NewPositionDynamics(const void* sender, const TIME &time, const VECTOR3D &pos, const VECTOR3D &vel)
+void Mace_core::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
 {
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-    std::string rn = vehicle->ResourceName();
+    std::string rn = m_VehiclePTRToID.at(vehicle);
 
     m_DataFusion->AddPositionDynamics(rn, time, pos, vel);
 
@@ -62,10 +62,10 @@ void Mace_core::NewPositionDynamics(const void* sender, const TIME &time, const 
 }
 
 
-void Mace_core::NewDynamicsDynamics(const void* sender, const TIME &time, const VECTOR3D &attitude, const VECTOR3D &attitudeRate)
+void Mace_core::NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate)
 {
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-    std::string rn = vehicle->ResourceName();
+    std::string rn = m_VehiclePTRToID.at(vehicle);
 
     m_DataFusion->AddAttitudeDynamics(rn, time, attitude, attitudeRate);
 
@@ -77,7 +77,7 @@ void Mace_core::NewDynamicsDynamics(const void* sender, const TIME &time, const 
 void Mace_core::NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &life)
 {
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-    std::string rn = vehicle->ResourceName();
+    std::string rn = m_VehiclePTRToID.at(vehicle);
 
     m_DataFusion->AddVehicleLife(rn, time, life);
 

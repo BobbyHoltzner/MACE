@@ -4,6 +4,10 @@
 #include <string>
 #include <map>
 #include <stdexcept>
+#include <functional>
+#include <mutex>
+
+#include <Eigen/Dense>
 
 #include "vehicle_data.h"
 
@@ -45,7 +49,7 @@ public:
 
 
     /////////////////////////////////////////////////////////
-    /// VEHICLE DATA STORAGE
+    /// VEHICLE DATA
     /////////////////////////////////////////////////////////
 
     void AddVehicle(const std::string &rn)
@@ -68,8 +72,10 @@ public:
         m_VehicleLifeHistory.erase(rn);
     }
 
-    void AddPositionDynamics(const std::string rn, const TIME &time, const VECTOR3D &pos, const VECTOR3D &velocity)
+    void AddPositionDynamics(const std::string rn, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &velocity)
     {
+        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
+
         VectorDynamics obj;
         obj.dx0 = pos;
         obj.dx1 = velocity;
@@ -77,8 +83,10 @@ public:
         m_PositionDynamicsHistory.at(rn).InsertObservation(time, obj);
     }
 
-    void AddAttitudeDynamics(const std::string rn, const TIME &time, const VECTOR3D &att, const VECTOR3D &att_rates)
+    void AddAttitudeDynamics(const std::string rn, const TIME &time, const Eigen::Vector3d &att, const Eigen::Vector3d &att_rates)
     {
+        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
+
         VectorDynamics obj;
         obj.dx0 = att;
         obj.dx1 = att_rates;
@@ -88,93 +96,126 @@ public:
 
     void AddVehicleLife(const std::string &rn, const TIME &time, const VehicleLife &life)
     {
+        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
+
         m_VehicleLifeHistory.at(rn).InsertObservation(time, life);
     }
 
 
-    bool GetPositionDynamics(const std::string rn, const TIME &time, VECTOR3D &pos, VECTOR3D &velocity) const
+    bool GetPositionDynamics(const std::string rn, const TIME &time, Eigen::Vector3d &pos, Eigen::Vector3d &velocity) const
     {
-        std::vector<TIME> prevTimes;
-        std::vector<VectorDynamics> prevDyn;
-        m_PositionDynamicsHistory.at(rn).GetClosestObservation(time, BACKWARD_EXCLUSION, 1, prevDyn, prevTimes);
+        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
 
-        std::vector<TIME> nextTimes;
-        std::vector<VectorDynamics> nextDyn;
-        m_PositionDynamicsHistory.at(rn).GetClosestObservation(time, FORWARD_INCLUSION, 1, nextDyn, nextTimes);
+        VectorDynamics vec;
+        bool success = GetObservation<VectorDynamics>(m_PositionDynamicsHistory.at(rn), time, vec, [&](const TIME& t, const VectorDynamics& d0, const TIME& t0, const VectorDynamics& d1, const TIME& t1){ return FuseDynamics(t, d0, t0, d1, t1);});
 
-        //if neither vector has data then we cant get anything so return false.
-        if(prevTimes.size() == 0 && nextTimes.size() == 0)
+        if(success == false)
             return false;
 
-        //if previous is empty then return what is in next
-        if(prevTimes.size() == 0)
-        {
-            pos = nextDyn.at(0).dx0;
-            velocity = nextDyn.at(0).dx1;
-            return true;
-        }
-
-        //if next is empty then return what is in prev
-        if(nextTimes.size() == 0)
-        {
-            pos = prevDyn.at(0).dx0;
-            velocity = prevDyn.at(0).dx1;
-            return true;
-        }
-
-        //neither is empty so call fusion method and return
-        VectorDynamics vec = FuseDynamics(time, prevDyn.at(0), prevTimes.at(0), nextDyn.at(0), nextTimes.at(0));
         pos = vec.dx0;
         velocity = vec.dx1;
         return true;
     }
 
-    bool GetAttitudeDynamics(const std::string rn, const TIME &time, VECTOR3D &att, VECTOR3D &att_rates) const
+    bool GetAttitudeDynamics(const std::string rn, const TIME &time, Eigen::Vector3d &att, Eigen::Vector3d &att_rates) const
     {
-        std::vector<TIME> prevTimes;
-        std::vector<VectorDynamics> prevDyn;
-        m_AttitudeDynamicsHistory.at(rn).GetClosestObservation(time, BACKWARD_EXCLUSION, 1, prevDyn, prevTimes);
+        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
 
-        std::vector<TIME> nextTimes;
-        std::vector<VectorDynamics> nextDyn;
-        m_AttitudeDynamicsHistory.at(rn).GetClosestObservation(time, FORWARD_INCLUSION, 1, nextDyn, nextTimes);
+        VectorDynamics vec;
+        bool success = GetObservation<VectorDynamics>(m_AttitudeDynamicsHistory.at(rn), time, vec, [&](const TIME& t, const VectorDynamics& d0, const TIME& t0, const VectorDynamics& d1, const TIME& t1){ return FuseDynamics(t, d0, t0, d1, t1);});
 
-        //if neither vector has data then we cant get anything so return false.
-        if(prevTimes.size() == 0 && nextTimes.size() == 0)
+        if(success == false)
             return false;
 
-        //if previous is empty then return what is in next
-        if(prevTimes.size() == 0)
-        {
-            att = nextDyn.at(0).dx0;
-            att_rates = nextDyn.at(0).dx1;
-            return true;
-        }
-
-        //if next is empty then return what is in prev
-        if(nextTimes.size() == 0)
-        {
-            att = prevDyn.at(0).dx0;
-            att_rates = prevDyn.at(0).dx1;
-            return true;
-        }
-
-        //neither is empty so call fusion method and return
-        VectorDynamics vec = FuseDynamics(time, prevDyn.at(0), prevTimes.at(0), nextDyn.at(0), nextTimes.at(0));
         att = vec.dx0;
         att_rates = vec.dx1;
         return true;
     }
 
-    bool GetVehicleLife(const std::string &rn, const TIME &time, VehicleLife &life)
+    bool GetVehicleLife(const std::string &rn, const TIME &time, VehicleLife &life) const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
+
+        return GetObservation<VehicleLife>(m_VehicleLifeHistory.at(rn), time, life, [this](const TIME& t, const VehicleLife& d0, const TIME& t0, const VehicleLife& d1, const TIME& t1){ return FuseVehicleLife(t, d0, t0, d1, t1);});
+    }
+
+
+    /////////////////////////////////////////////////////////
+    /// PATH PLANNING DATA
+    /////////////////////////////////////////////////////////
+
+
+    //!
+    //! \brief Entirely replaces the stored occupancy map with given matrix
+    //! \param occupancy map to replace with
+    //!
+    void ReplaceOccupanyMap(const Eigen::MatrixXd &newOccupancyMap)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
+
+        m_OccupancyMap = newOccupancyMap;
+    }
+
+
+    //!
+    //! \brief Call lambda function to modify components of Occupancy map
+    //!
+    //! Thread Safe
+    //! May be faster than ReplaceOccupanyMap if operations are sparse
+    //! \param func Lambda function to modify map
+    //!
+    void OperateOnOccupanyMap(std::function<void(Eigen::MatrixXd &)> &func)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
+
+        func(m_OccupancyMap);
+    }
+
+
+    //!
+    //! \brief Retreive a copy of the occupancy map
+    //!
+    //! Thread safe
+    //! \return Copy of occupancy map
+    //!
+    Eigen::MatrixXd GetOccupancyMapCopy() const
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
+
+        return m_OccupancyMap;
+    }
+
+
+    //!
+    //! \brief Call lambda to read from occupancy map
+    //!
+    //! Thread Safe
+    //! May be faster than GetOccupancyMapCopy if matrix is large.
+    //! \param func Lambda function to read from map
+    //!
+    void UseOccupancyMap(std::function<void(const Eigen::MatrixXd &)> &func)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
+
+        func(m_OccupancyMap);
+    }
+
+
+
+
+private:
+
+
+    template <typename T>
+    bool GetObservation(const ObservationHistory<TIME, T> &history, const TIME time, T &data, const std::function<T(const TIME&, const T&, const TIME&, const T&, const TIME&)> &reckoning) const
     {
         std::vector<TIME> prevTimes;
-        std::vector<VehicleLife> prevLife;
-        m_VehicleLifeHistory.at(rn).GetClosestObservation(time, BACKWARD_EXCLUSION, 1, prevLife, prevTimes);
+        std::vector<T> prevData;
+        history.GetClosestObservation(time, BACKWARD_EXCLUSION, 1, prevData, prevTimes);
 
         std::vector<TIME> nextTimes;
-        std::vector<VehicleLife> nextLife;
-        m_VehicleLifeHistory.at(rn).GetClosestObservation(time, FORWARD_INCLUSION, 1, nextLife, nextTimes);
+        std::vector<T> nextData;
+        history.GetClosestObservation(time, FORWARD_INCLUSION, 1, nextData, nextTimes);
 
         //if neither vector has data then we cant get anything so return false.
         if(prevTimes.size() == 0 && nextTimes.size() == 0)
@@ -183,33 +224,21 @@ public:
         //if previous is empty then return what is in next
         if(prevTimes.size() == 0)
         {
-            life = nextLife.at(0);
+            data = nextData.at(0);
             return true;
         }
 
         //if next is empty then return what is in prev
         if(nextTimes.size() == 0)
         {
-            life = prevLife.at(0);
+            data = prevData.at(0);
             return true;
         }
 
         //neither is empty so call fusion method and return
-        life = FuseVehicleLife(time, prevLife.at(0), prevTimes.at(0), nextLife.at(0), nextTimes.at(0));
+        data = reckoning(time, prevData.at(0), prevTimes.at(0), nextData.at(0), nextTimes.at(0));
         return true;
     }
-
-
-    /////////////////////////////////////////////////////////
-    /// PATH PLANNING STORAGE
-    /////////////////////////////////////////////////////////
-
-    virtual void UpdateOccupanyMap(void* occupancyMap) = 0;
-
-    virtual void* GetOccupancyMap() const = 0;
-
-
-private:
 
     uint64_t m_MSTOKEEP;
 
@@ -218,6 +247,12 @@ private:
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_AttitudeDynamicsHistory;
 
     std::map<std::string, ObservationHistory<TIME, VehicleLife> > m_VehicleLifeHistory;
+
+    Eigen::MatrixXd m_OccupancyMap;
+
+
+    mutable std::mutex m_VehicleDataMutex;
+    mutable std::mutex m_Mutex_OccupancyMap;
 
 
 };

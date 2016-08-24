@@ -10,6 +10,9 @@
 
 #include "metadata_vehicle.h"
 
+namespace MaceCore
+{
+
 class IModuleCommandPathPlanning  : public ModuleBase<MetadataPathPlanning, IModuleEventsPathPlanning>
 {
 public:
@@ -37,5 +40,7 @@ public:
 
     virtual void UpdatedVehicleLife(const std::string &vehicleID) = 0;
 };
+
+} //End MaceCore Namespace
 
 #endif // I_MODULE_COMMAND_PATH_PLANNING_H

@@ -3,7 +3,10 @@
 
 #include "optional_parameter.h"
 
-typedef double VECTOR3D;
+#include <Eigen/Dense>
+
+namespace MaceCore
+{
 
 typedef int TIME;
 
@@ -19,10 +22,10 @@ public:
 class VectorDynamics
 {
 public:
-    VECTOR3D dx0;
-    VECTOR3D dx1;
+    Eigen::Vector3d dx0;
+    Eigen::Vector3d dx1;
 };
 
-
+} //End MaceCore Namespace
 
 #endif // VEHICLE_DATA_H
