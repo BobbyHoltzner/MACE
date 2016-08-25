@@ -20,7 +20,7 @@ class IModuleCommandRTA : public ModuleBase<Metadata_RTA, IModuleEventsRTA>
 {
 public:
 
-    IModuleCommandRTA(Metadata_RTA metadata):
+    IModuleCommandRTA(const Metadata_RTA &metadata):
         ModuleBase(metadata)
     {
 

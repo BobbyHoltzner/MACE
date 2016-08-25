@@ -6,6 +6,28 @@ ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2(const MaceCore::Metad
 {
 }
 
+
+//!
+//! \brief Describes the strucure of the parameters for this module
+//! \return Strucure
+//!
+std::shared_ptr<MaceCore::ModuleParameterStructure> ModulePathPlanningNASAPhase2::ModuleConfigurationStructure() const
+{
+    MaceCore::ModuleParameterStructure structure;
+    return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
+}
+
+
+//!
+//! \brief Provides object contains parameters values to configure module with
+//! \param params Parameters to configure
+//!
+void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
+{
+
+}
+
+
 //!
 //! \brief function that is to kick off the path planning event loop
 //!

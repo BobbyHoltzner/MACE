@@ -9,6 +9,8 @@
 
 #include "mace_data.h"
 
+#include "module_parameters.h"
+
 namespace MaceCore
 {
 
@@ -16,6 +18,9 @@ template<typename T, typename I>
 class ModuleBase
 {
 public:
+
+
+
 
     ModuleBase(const T &metaData) :
         m_MetaData(metaData)
@@ -60,6 +65,21 @@ public:
     {
         return m_Data;
     }
+
+
+    //!
+    //! \brief Describes the strucure of the parameters for this module
+    //! \return Strucure
+    //!
+    virtual std::shared_ptr<ModuleParameterStructure> ModuleConfigurationStructure() const = 0;
+
+
+    //!
+    //! \brief Provides object contains parameters values to configure module with
+    //! \param params Parameters to configure
+    //!
+    virtual void ConfigureModule(const std::shared_ptr<ModuleParameterValue> &params) = 0;
+
 
 
 private:

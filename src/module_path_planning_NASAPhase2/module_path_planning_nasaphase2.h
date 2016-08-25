@@ -14,9 +14,26 @@ public:
 public:
 
     //!
+    //! \brief Describes the strucure of the parameters for this module
+    //! \return Strucure
+    //!
+    virtual std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleConfigurationStructure() const;
+
+
+    //!
+    //! \brief Provides object contains parameters values to configure module with
+    //! \param params Parameters to configure
+    //!
+    virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
+
+
+    //!
     //! \brief function that is to kick off the path planning event loop
     //!
     virtual void start();
+
+
+
 
 public:
 

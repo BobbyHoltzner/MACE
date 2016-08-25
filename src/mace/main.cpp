@@ -52,5 +52,6 @@ int main(int argc, char *argv[])
     pathPlanning_thread.join();
     vehicle1_thread.join();
 
+
     return 0;
 }

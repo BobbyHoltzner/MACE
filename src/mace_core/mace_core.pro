@@ -31,7 +31,8 @@ HEADERS += mace_core.h\
     i_module_events_path_planning.h \
     metadata_path_planning.h \
     mace_data.h \
-    observation_history.h
+    observation_history.h \
+    module_parameters.h
 
 unix {
     target.path = /usr/lib

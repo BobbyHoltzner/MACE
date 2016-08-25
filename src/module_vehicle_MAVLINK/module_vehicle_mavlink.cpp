@@ -8,6 +8,27 @@ ModuleVehicleMAVLINK::ModuleVehicleMAVLINK(const MaceCore::MetadataVehicle &vehi
 
 
 //!
+//! \brief Describes the strucure of the parameters for this module
+//! \return Strucure
+//!
+std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::ModuleConfigurationStructure() const
+{
+    MaceCore::ModuleParameterStructure structure;
+    return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
+}
+
+
+//!
+//! \brief Provides object contains parameters values to configure module with
+//! \param params Parameters to configure
+//!
+void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
+{
+
+}
+
+
+//!
 //! \brief function that is to kick off the Vehicle Comms event loop
 //!
 void ModuleVehicleMAVLINK::start()
