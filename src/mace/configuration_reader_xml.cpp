@@ -21,6 +21,20 @@ static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pug
 {
     std::shared_ptr<MaceCore::ModuleParameterValue> valueContainer = std::make_shared<MaceCore::ModuleParameterValue>();
 
+
+    //prepare map of all expected paramters, to be set when they are seen
+    std::unordered_map<std::string, bool> seenTerminals;
+    std::unordered_map<std::string, bool> seenNonTerminals;
+    for(std::string item : structure->getNonTerminalNames())
+    {
+        seenNonTerminals.insert({item, false});
+    }
+    for(std::string item : structure->getTerminalNames())
+    {
+        seenTerminals.insert({item, false});
+    }
+
+
     //loop through all "Parameter" Tags
     for (pugi::xml_node parameter = node.child("Parameter"); parameter; parameter = parameter.next_sibling("Parameter"))
     {
@@ -30,17 +44,62 @@ static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pug
         {
             std::string terminalStringValue = std::string(parameter.child_value());
             valueContainer->AddTerminalValueFromString(parameterName, terminalStringValue, structure->getTerminalType(parameterName));
+
+            seenTerminals[parameterName] = true;
         }
         else if(structure->NonTerminalExists(parameterName) == true)
         {
             valueContainer->AddNonTerminal(parameterName, ParseParameters(parameter, structure->getNonTerminalStructure(parameterName), result));
+
+            seenNonTerminals[parameterName] = true;
         }
         else
         {
             //The paramter in XML file is not defined in the structure, set as warning and continue;
-            result.warnings.push_back("A Parameter Tag does not associate to any expected nonterminal/terminal structure");
+            result.warnings.push_back(parameterName + " paramater present in configuration does not associate to any expected nonterminal/terminal structure");
         }
     }
+
+
+    //go through an check for any unused paramters
+    for(auto it = seenTerminals.cbegin() ; it != seenTerminals.cend() ; ++it)
+    {
+        //entry not present, check if required, otherwise add default value
+        if(it->second == false)
+        {
+            if(structure->IsTagRequired(it->first) == true)
+            {
+                result.error = it->first + " Parameter is not present and is marked as required";
+                result.success = false;
+                return valueContainer;
+            }
+            else
+            {
+                std::string defaultValue = structure->getDefaultTerminalValue(it->first);
+                result.warnings.push_back(it->first + " Not set, using default value of " + defaultValue);
+                valueContainer->AddTerminalValueFromString(it->first, defaultValue, structure->getTerminalType(it->first));
+            }
+        }
+    }
+    for(auto it = seenNonTerminals.cbegin() ; it != seenNonTerminals.cend() ; ++it)
+    {
+        //entry not present, check if required, otherwise add default value
+        if(it->second == false)
+        {
+            if(structure->IsTagRequired(it->first) == true)
+            {
+                result.error = it->first + " Parameter is not present and is marked as required";
+                result.success = false;
+                return valueContainer;
+            }
+            else
+            {
+                result.warnings.push_back(it->first + " Not set, using default value");
+                valueContainer->AddNonTerminal(it->first, structure->getDefaultNonTerminalValue(it->first));
+            }
+        }
+    }
+
 
     return valueContainer;
 }

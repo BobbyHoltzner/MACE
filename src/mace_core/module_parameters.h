@@ -75,96 +75,7 @@ private:
 };
 
 
-class ModuleParameterStructure
-{
-public:
 
-
-
-    void AddTerminalParameters(const std::string &name, const ModuleParameterTerminalTypes &type)
-    {
-        m_TerminalParams.insert({name, type});
-    }
-
-    void AddNonTerminal(const std::string &name, const std::shared_ptr<ModuleParameterStructure> &type)
-    {
-        m_NonTerminalParams.insert({name, type});
-    }
-
-
-    std::vector<std::string> getTerminalNames() const
-    {
-        std::vector<std::string> keys;
-        for(auto it = m_TerminalParams.cbegin() ; it != m_TerminalParams.cend() ; ++it)
-            keys.push_back(it->first);
-        return keys;
-    }
-
-    ModuleParameterTerminalTypes getTerminalType(const std::string &parameterName) const
-    {
-        if(m_TerminalParams.find(parameterName) == m_TerminalParams.cend())
-            throw std::runtime_error("Parameter does not exists");
-
-        return m_TerminalParams.at(parameterName);
-    }
-
-
-    std::vector<std::string> getNonTerminalNames() const
-    {
-        std::vector<std::string> keys;
-        for(auto it = m_NonTerminalParams.cbegin() ; it != m_NonTerminalParams.cend() ; ++it)
-            keys.push_back(it->first);
-        return keys;
-    }
-
-    std::shared_ptr<ModuleParameterStructure> getNonTerminalStructure(const std::string &parameterName) const
-    {
-        if(m_NonTerminalParams.find(parameterName) == m_NonTerminalParams.cend())
-            throw std::runtime_error("Parameter does not exists");
-
-        return m_NonTerminalParams.at(parameterName);
-    }
-
-
-    //!
-    //! \brief returns true if the given parameter name is a terminal
-    //! \param paramName Name of parameter
-    //! \return true is exists
-    //!
-    bool TerminalExists(const std::string &paramName)
-    {
-        for(auto it = m_TerminalParams.cbegin() ; it != m_TerminalParams.cend() ; ++it)
-        {
-            if(it->first == paramName)
-                return true;
-        }
-
-        return false;
-    }
-
-
-    //!
-    //! \brief returns true if the given parameter name is a non terminal
-    //! \param paramName Name of parameter
-    //! \return true is exists
-    //!
-    bool NonTerminalExists(const std::string &paramName)
-    {
-        for(auto it = m_NonTerminalParams.cbegin() ; it != m_NonTerminalParams.cend() ; ++it)
-        {
-            if(it->first == paramName)
-                return true;
-        }
-
-        return false;
-    }
-
-private:
-
-
-    std::unordered_map<std::string, ModuleParameterTerminalTypes> m_TerminalParams;
-    std::unordered_map<std::string, std::shared_ptr<ModuleParameterStructure> > m_NonTerminalParams;
-};
 
 
 
@@ -281,6 +192,135 @@ private:
 
     std::unordered_map<std::string, std::shared_ptr<void> > m_TerminalValues;
     std::unordered_map<std::string, std::shared_ptr<ModuleParameterValue> > m_NonTerminalValues;
+};
+
+
+class ModuleParameterStructure
+{
+public:
+
+
+
+    void AddTerminalParameters(const std::string &name, const ModuleParameterTerminalTypes &type, bool required = false, const std::string &defaultValue = "")
+    {
+        m_TerminalParams.insert({name, type});
+        m_IsTagRequired.insert({name, required});
+        m_TerminalDefaultValue.insert({name, defaultValue});
+    }
+
+    void AddNonTerminal(const std::string &name, const std::shared_ptr<ModuleParameterStructure> &type, bool required = false, const std::shared_ptr<ModuleParameterValue> &defaultValue = std::make_shared<ModuleParameterValue>())
+    {
+        m_NonTerminalParams.insert({name, type});
+        m_IsTagRequired.insert({name, required});
+        m_NonTerminalDefaultValue.insert({name, defaultValue});
+    }
+
+
+    std::vector<std::string> getTerminalNames() const
+    {
+        std::vector<std::string> keys;
+        for(auto it = m_TerminalParams.cbegin() ; it != m_TerminalParams.cend() ; ++it)
+            keys.push_back(it->first);
+        return keys;
+    }
+
+    ModuleParameterTerminalTypes getTerminalType(const std::string &parameterName) const
+    {
+        if(m_TerminalParams.find(parameterName) == m_TerminalParams.cend())
+            throw std::runtime_error("Parameter does not exists");
+
+        return m_TerminalParams.at(parameterName);
+    }
+
+
+    std::string getDefaultTerminalValue(const std::string &parameterName) const
+    {
+        if(m_TerminalDefaultValue.find(parameterName) == m_TerminalDefaultValue.cend())
+            throw std::runtime_error("Parameter does not exists");
+
+        return m_TerminalDefaultValue.at(parameterName);
+    }
+
+
+    std::vector<std::string> getNonTerminalNames() const
+    {
+        std::vector<std::string> keys;
+        for(auto it = m_NonTerminalParams.cbegin() ; it != m_NonTerminalParams.cend() ; ++it)
+            keys.push_back(it->first);
+        return keys;
+    }
+
+    const std::shared_ptr<ModuleParameterStructure> getNonTerminalStructure(const std::string &parameterName) const
+    {
+        if(m_NonTerminalParams.find(parameterName) == m_NonTerminalParams.cend())
+            throw std::runtime_error("Parameter does not exists");
+
+        return m_NonTerminalParams.at(parameterName);
+    }
+
+
+    std::shared_ptr<ModuleParameterValue> getDefaultNonTerminalValue(const std::string &parameterName) const
+    {
+        if(m_NonTerminalDefaultValue.find(parameterName) == m_NonTerminalDefaultValue.cend())
+            throw std::runtime_error("Parameter does not exists");
+
+        return m_NonTerminalDefaultValue.at(parameterName);
+    }
+
+
+    //!
+    //! \brief returns true if the given parameter name is a terminal
+    //! \param paramName Name of parameter
+    //! \return true is exists
+    //!
+    bool TerminalExists(const std::string &paramName) const
+    {
+        for(auto it = m_TerminalParams.cbegin() ; it != m_TerminalParams.cend() ; ++it)
+        {
+            if(it->first == paramName)
+                return true;
+        }
+
+        return false;
+    }
+
+
+    //!
+    //! \brief returns true if the given parameter name is a non terminal
+    //! \param paramName Name of parameter
+    //! \return true is exists
+    //!
+    bool NonTerminalExists(const std::string &paramName) const
+    {
+        for(auto it = m_NonTerminalParams.cbegin() ; it != m_NonTerminalParams.cend() ; ++it)
+        {
+            if(it->first == paramName)
+                return true;
+        }
+
+        return false;
+    }
+
+
+    //!
+    //! \brief Return if provided tag is required in the structure
+    //! \param paramName Param to look for required status
+    //! \return True if required
+    //!
+    bool IsTagRequired(const std::string &paramName) const
+    {
+        return m_IsTagRequired.at(paramName);
+    }
+
+private:
+
+    std::unordered_map<std::string, std::string> m_TerminalDefaultValue;
+    std::unordered_map<std::string, std::shared_ptr<ModuleParameterValue>> m_NonTerminalDefaultValue;
+
+    std::unordered_map<std::string, bool> m_IsTagRequired;
+
+    std::unordered_map<std::string, ModuleParameterTerminalTypes> m_TerminalParams;
+    std::unordered_map<std::string, std::shared_ptr<ModuleParameterStructure> > m_NonTerminalParams;
 };
 
 } //End MaceCore Namespace
