@@ -14,13 +14,13 @@ DEFINES += MACE_CORE_LIBRARY
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += mace_core.cpp \
-    mace_data.cpp
+    mace_data.cpp \
+    module_command_initialization.cpp
 
 HEADERS += mace_core.h\
         mace_core_global.h \
     metadata_vehicle.h \
     metadata_rta.h \
-    module_base.h \
     i_module_command_RTA.h \
     i_module_command_vehicle.h \
     i_module_events_rta.h \
@@ -32,7 +32,10 @@ HEADERS += mace_core.h\
     metadata_path_planning.h \
     mace_data.h \
     observation_history.h \
-    module_parameters.h
+    module_parameters.h \
+    abstract_module_base.h \
+    abstract_module_event_listeners.h \
+    module_factory.h
 
 unix {
     target.path = /usr/lib

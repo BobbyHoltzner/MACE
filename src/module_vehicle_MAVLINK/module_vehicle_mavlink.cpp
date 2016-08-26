@@ -1,8 +1,9 @@
 #include "module_vehicle_mavlink.h"
 
+#include "mace_core/module_factory.h"
 
-ModuleVehicleMAVLINK::ModuleVehicleMAVLINK(const MaceCore::MetadataVehicle &vehicleMetaData) :
-    MaceCore::IModuleCommandVehicle(vehicleMetaData)
+ModuleVehicleMAVLINK::ModuleVehicleMAVLINK() :
+    MaceCore::IModuleCommandVehicle()
 {
 }
 
@@ -14,6 +15,14 @@ ModuleVehicleMAVLINK::ModuleVehicleMAVLINK(const MaceCore::MetadataVehicle &vehi
 std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::ModuleConfigurationStructure() const
 {
     MaceCore::ModuleParameterStructure structure;
+
+    structure.AddTerminalParameters("Int1", MaceCore::ModuleParameterTerminalTypes::INT);
+
+    MaceCore::ModuleParameterStructure nest1;
+    nest1.AddTerminalParameters("Int1", MaceCore::ModuleParameterTerminalTypes::INT);
+
+    structure.AddNonTerminal("Nest1", std::make_shared<MaceCore::ModuleParameterStructure>(nest1));
+
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
 
@@ -24,7 +33,9 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::Module
 //!
 void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
+    std::cout << params->GetTerminalValue<int>("Int1") << std::endl;
 
+    std::cout << params->GetNonTerminalValue("Nest1")->GetTerminalValue<int>("Int1") << std::endl;
 }
 
 

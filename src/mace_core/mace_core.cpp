@@ -29,7 +29,8 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
 
     m_DataFusion->AddVehicle(ID);
 
-    m_RTA->NewVehicle(ID, vehicle->getModuleMetaData());
+    if(m_RTA != NULL)
+        m_RTA->NewVehicle(ID, vehicle->getModuleMetaData());
 }
 
 
@@ -42,7 +43,8 @@ void MaceCore::RemoveVehicle(const std::string &ID)
 
     m_DataFusion->RemoveVehicle(ID);
 
-    m_RTA->RemoveVehicle(ID);
+    if(m_RTA != NULL)
+        m_RTA->RemoveVehicle(ID);
 }
 
 

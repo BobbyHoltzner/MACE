@@ -3,54 +3,106 @@
 
 #include "mace_core/mace_core.h"
 
-#include "module_RTA_NASAPhase2/module_rta_nasaphase2.h"
-#include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
-#include "module_path_planning_NASAPhase2/module_path_planning_nasaphase2.h"
+#include "configuration_reader_xml.h"
 
 
 #include "data_interpolation.h"
 
+#include "module_collection.h"
+
 
 int main(int argc, char *argv[])
 {
+
+    //generate the factory that can make module instances
+    MaceCore::ModuleFactory* factory = ModuleCollection::GenerateFactory();
 
     //Initialize core and configure data object
     MaceCore::MaceCore core;
     std::shared_ptr<MaceCore::MaceData> data = std::make_shared<DataInterpolation>();
     core.AddDataFusion(data);
 
+    ConfigurationReader_XML parser(factory);
+    ConfigurationParseResult parseResult = parser.Parse("MaceSetup.xml");
+    if(parseResult.success == false)
+    {
+        std::cerr << "Error parsing configuration file: " << std::endl;
+        std::cerr << parseResult.error << std::endl;
+        return 1;
+    }
 
-    // Add RTA Module
-    MaceCore::Metadata_RTA RTAMetaData;
-    std::shared_ptr<ModuleRTANASAPhase2> rtaModule = std::make_shared<ModuleRTANASAPhase2>(RTAMetaData);
-    rtaModule->setDataObject(data);
-    core.AddRTAModule(rtaModule);
-
-
-    //Add Path Planning Module
-    MaceCore::MetadataPathPlanning pathPlanningData;
-    std::shared_ptr<ModulePathPlanningNASAPhase2> pathPlanningModule = std::make_shared<ModulePathPlanningNASAPhase2>(pathPlanningData);
-    pathPlanningModule->setDataObject(data);
-    core.AddPathPlanningModule(pathPlanningModule);
-
-
-    //Add Vehicle(s)
-    MaceCore::MetadataVehicle vehicle1MetaData;
-    std::shared_ptr<ModuleVehicleMAVLINK> vehicle1Module = std::make_shared<ModuleVehicleMAVLINK>(vehicle1MetaData);
-    vehicle1Module->setDataObject(data);
-    core.AddVehicle("Vehicle1", vehicle1Module);
+    if(parseResult.warnings.size() > 0)
+    {
+        std::cout << "Configuration Parse Warnings:" << std::endl;
+        for(auto it = parseResult.warnings.cbegin() ; it != parseResult.warnings.cend() ; ++it)
+            std::cout << *it << std::endl;
+    }
 
 
-    //Start Threads
-    std::thread rta_thread ([&](){rtaModule->start();});
-    std::thread pathPlanning_thread ([&](){pathPlanningModule->start();});
-    std::thread vehicle1_thread ([&](){vehicle1Module->start();});
+    bool addedPathPlanning = false;
+    bool addedRTA = false;
+    int numVehicles = 1;
+    std::vector<std::shared_ptr<MaceCore::ModuleBase> > modules = parser.GetCreatedModules();
+    std::vector<std::thread> threads;
+
+    for(std::shared_ptr<MaceCore::ModuleBase> module: modules)
+    {
+        //set data object of module
+        module->setDataObject(data);
+
+        //configure module
+        module->ConfigureModule(parser.GetModuleConfiguration(module));
+
+        //start thread
+        threads.push_back(std::thread([module](){module->start();}));
+
+        //add to core (and check if too many have been added)
+        MaceCore::ModuleBase::Classes moduleClass = module->ModuleClass();
+        switch (moduleClass) {
+        case MaceCore::ModuleBase::PATH_PLANNING:
+        {
+            if(addedPathPlanning == true)
+            {
+                std::cerr << "Only one path planning module can be added" << std::endl;
+                return 1;
+            }
+            core.AddPathPlanningModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandPathPlanning>(module));
+            addedPathPlanning = true;
+            break;
+        }
+        case MaceCore::ModuleBase::RTA:
+        {
+            if(addedRTA == true)
+            {
+                std::cerr << "Only one RTA module can be added" << std::endl;
+                return 1;
+            }
+            core.AddRTAModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandRTA>(module));
+            addedRTA = true;
+            break;
+            break;
+        }
+        case MaceCore::ModuleBase::VEHICLE_COMMS:
+        {
+            core.AddVehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));
+            numVehicles++;
+            break;
+        }
+        default:
+        {
+            std::cerr << "Unknown module parsed" << std::endl;
+            return 1;
+        }
+        }
+
+    }
 
 
-    //Wait for thread to finish
-    rta_thread.join();
-    pathPlanning_thread.join();
-    vehicle1_thread.join();
+    //wait for all threads to complete
+    for(std::thread& thread: threads)
+    {
+        thread.join();
+    }
 
 
     return 0;

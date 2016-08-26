@@ -1,0 +1,150 @@
+#include "configuration_reader_xml.h"
+
+#include "pugixml.hpp"
+#include "mace_core/module_factory.h"
+
+
+ConfigurationReader_XML::ConfigurationReader_XML(const MaceCore::ModuleFactory *factory) :
+    m_Factory(factory)
+{
+
+}
+
+
+//!
+//! \brief Parse all Parameter tags from an XML Node
+//! \param node XML node that contains "Parameter" tags
+//! \param structure Structure that parsing is expecting for this node
+//! \return Resulting ModuleParameterValue object
+//!
+static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pugi::xml_node &node, const std::shared_ptr<MaceCore::ModuleParameterStructure> structure, ConfigurationParseResult &result)
+{
+    std::shared_ptr<MaceCore::ModuleParameterValue> valueContainer = std::make_shared<MaceCore::ModuleParameterValue>();
+
+    //loop through all "Parameter" Tags
+    for (pugi::xml_node parameter = node.child("Parameter"); parameter; parameter = parameter.next_sibling("Parameter"))
+    {
+        std::string parameterName = parameter.attribute("Name").as_string();
+
+        if(structure->TerminalExists(parameterName) == true)
+        {
+            std::string terminalStringValue = std::string(parameter.child_value());
+            valueContainer->AddTerminalValueFromString(parameterName, terminalStringValue, structure->getTerminalType(parameterName));
+        }
+        else if(structure->NonTerminalExists(parameterName) == true)
+        {
+            valueContainer->AddNonTerminal(parameterName, ParseParameters(parameter, structure->getNonTerminalStructure(parameterName), result));
+        }
+        else
+        {
+            //The paramter in XML file is not defined in the structure, set as warning and continue;
+            result.warnings.push_back("A Parameter Tag does not associate to any expected nonterminal/terminal structure");
+        }
+    }
+
+    return valueContainer;
+}
+
+
+//!
+//! \brief Parse an given XML file
+//!
+//! What parser will be lookign for is dependent on what modules were added with AddModule
+//! \param filename Filename to parse
+//! \return True if parsing was success
+//!
+ConfigurationParseResult ConfigurationReader_XML::Parse(const std::string &filename)
+{
+    ConfigurationParseResult parseProgress;
+
+
+    pugi::xml_document doc;
+    pugi::xml_parse_result result = doc.load_file(filename.c_str());
+    if(!result)
+        return ConfigurationParseResult("Not Valid XML File");
+
+
+    //loop through each "Module" tag in the XML document under "ModuleConfigurations" tag
+    pugi::xml_node moduleConfigurationsNode = doc.child("ModuleConfigurations");
+    for (pugi::xml_node module = moduleConfigurationsNode.child("Module"); module; module = module.next_sibling("Module"))
+    {
+        //if module is disabled then skip parsing
+        if(module.attribute("Enabled").empty() == false)
+        {
+            if(module.attribute("Enabled").as_bool() == false)
+                continue;
+        }
+
+        //determine module class, error if unsuccessfull
+        std::string moduleClassName = module.attribute("Class").as_string();
+        MaceCore::ModuleBase::Classes moduleClass;
+        try
+        {
+            moduleClass = MaceCore::ModuleBase::StringToModuleClass(moduleClassName);
+        }
+        catch(const std::runtime_error &e)
+        {
+            parseProgress.success = false;
+            parseProgress.error = moduleClassName + " is not valid module class";
+            return parseProgress;
+        }
+
+
+        //attempt to create module, error if unsuccesfull
+        std::shared_ptr<MaceCore::ModuleBase> newModule;
+        try
+        {
+            newModule = m_Factory->Create(moduleClass, module.attribute("Type").as_string());
+        }
+        catch (const std::runtime_error &e)
+        {
+            parseProgress.success = false;
+            parseProgress.error = "Unable to create module: " + std::string(e.what());
+            return parseProgress;
+        }
+
+
+        //parse parameters
+        std::shared_ptr<MaceCore::ModuleParameterStructure> structure = newModule->ModuleConfigurationStructure();
+        std::shared_ptr<MaceCore::ModuleParameterValue> moduleValue = ParseParameters(module, structure, parseProgress);
+
+
+        //if not successfull return
+        if(parseProgress.success == false)
+            return parseProgress;
+
+
+        //insert in map
+        m_Parameters.insert({newModule, moduleValue});
+    }
+
+
+    return parseProgress;
+}
+
+
+//!
+//! \brief Get modules created after parsing
+//! \return List of created modules.
+//!
+std::vector<std::shared_ptr<MaceCore::ModuleBase>> ConfigurationReader_XML::GetCreatedModules() const
+{
+    std::vector<std::shared_ptr<MaceCore::ModuleBase>> vec;
+    for(auto it = m_Parameters.cbegin(); it != m_Parameters.cend() ; ++it)
+        vec.push_back(it->first);
+
+    return vec;
+}
+
+
+//!
+//! \brief Get the configuration for a module after parse
+//!
+//! Must be called after Parse is called and returns with a value of true
+//! \param module Pointer to module to get configuration of
+//! \return Configuration for module
+//!
+std::shared_ptr<MaceCore::ModuleParameterValue> ConfigurationReader_XML::GetModuleConfiguration(const std::shared_ptr<MaceCore::ModuleBase> &module)
+{
+    return m_Parameters.at(module);
+}

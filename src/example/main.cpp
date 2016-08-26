@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
     // Create Example Module
     ExampleMetaData metaData;
-    std::shared_ptr<ExampleModule> exampleModule = std::make_shared<ExampleModule>(metaData);
+    std::shared_ptr<ExampleModule> exampleModule = std::make_shared<ExampleModule>();
     exampleModule->setDataObject(data);
 
 

@@ -9,7 +9,7 @@ class MODULE_RTA_NASAPHASE2SHARED_EXPORT ModuleRTANASAPhase2 : public MaceCore::
 {
 
 public:
-    ModuleRTANASAPhase2(const MaceCore::Metadata_RTA metaData);
+    ModuleRTANASAPhase2();
 
 
     //!

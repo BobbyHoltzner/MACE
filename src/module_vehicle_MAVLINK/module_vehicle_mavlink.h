@@ -34,7 +34,8 @@ class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK : public MaceCore
 {
 
 public:
-    ModuleVehicleMAVLINK(const MaceCore::MetadataVehicle &vehicleMetaData);
+    ModuleVehicleMAVLINK();
+
 
 
     //!

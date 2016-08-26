@@ -1,7 +1,7 @@
 #ifndef I_VEHICLE_COMMS_H
 #define I_VEHICLE_COMMS_H
 
-#include "module_base.h"
+#include "abstract_module_event_listeners.h"
 #include "metadata_vehicle.h"
 
 #include "i_module_events_vehicle.h"
@@ -12,19 +12,21 @@
 namespace MaceCore
 {
 
-class IModuleCommandVehicle : public ModuleBase<MetadataVehicle, IModuleEventsVehicle>
+class IModuleCommandVehicle : public AbstractModule_EventListeners<MetadataVehicle, IModuleEventsVehicle>
 {
 public:
 
-    IModuleCommandVehicle(MetadataVehicle metadata):
-        ModuleBase(metadata)
+    static Classes moduleClass;
+
+    IModuleCommandVehicle():
+        AbstractModule_EventListeners()
     {
 
     }
 
-    virtual std::string ModuleName() const
+    virtual Classes ModuleClass() const
     {
-        return "Vehicle";
+        return moduleClass;
     }
 
 

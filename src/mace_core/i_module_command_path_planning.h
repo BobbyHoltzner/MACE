@@ -4,28 +4,32 @@
 #include <string>
 #include <map>
 
-#include "module_base.h"
+#include "abstract_module_event_listeners.h"
 #include "metadata_path_planning.h"
 #include "i_module_events_path_planning.h"
+
+
 
 #include "metadata_vehicle.h"
 
 namespace MaceCore
 {
 
-class IModuleCommandPathPlanning  : public ModuleBase<MetadataPathPlanning, IModuleEventsPathPlanning>
+class IModuleCommandPathPlanning  : public AbstractModule_EventListeners<MetadataPathPlanning, IModuleEventsPathPlanning>
 {
 public:
 
-    IModuleCommandPathPlanning(MetadataPathPlanning metadata):
-        ModuleBase(metadata)
+    static Classes moduleClass;
+
+    IModuleCommandPathPlanning():
+        AbstractModule_EventListeners()
     {
 
     }
 
-    virtual std::string ModuleName() const
+    virtual Classes ModuleClass() const
     {
-        return "PathPlanning";
+        return moduleClass;
     }
 
 public:

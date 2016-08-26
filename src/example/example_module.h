@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "mace_core/module_base.h"
+#include "mace_core/abstract_module_event_listeners.h"
 
 
 /*
@@ -44,21 +44,22 @@ class ExampleModuleEvents
 //!     2) Some data may be updated at a high rate, so changing one and calling a notify modules of new data is prefered over sending new data
 //! Each module has read access to the MaceData object, but not write access.
 //!
-class ExampleModule : public MaceCore::ModuleBase<ExampleMetaData, ExampleModuleEvents>
+class ExampleModule : public MaceCore::AbstractModule_EventListeners<ExampleMetaData, ExampleModuleEvents>
 {
 
 public:
-    ExampleModule(const ExampleMetaData &metaData) :
-        MaceCore::ModuleBase<ExampleMetaData, ExampleModuleEvents>(metaData),
+    ExampleModule() :
+        MaceCore::AbstractModule_EventListeners<ExampleMetaData, ExampleModuleEvents>(),
         CommandIssue(false)
     {
 
     }
 
-    virtual std::string ModuleName() const
+    virtual MaceCore::ModuleBase::Classes ModuleClass() const
     {
-        return "Example";
+        return VEHICLE_COMMS;
     }
+
 
 
     //!

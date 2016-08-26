@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 
-#include "module_base.h"
+#include "abstract_module_event_listeners.h"
 #include "metadata_rta.h"
 
 #include "i_module_events_rta.h"
@@ -16,19 +16,21 @@
 namespace MaceCore
 {
 
-class IModuleCommandRTA : public ModuleBase<Metadata_RTA, IModuleEventsRTA>
+class IModuleCommandRTA : public AbstractModule_EventListeners<Metadata_RTA, IModuleEventsRTA>
 {
 public:
 
-    IModuleCommandRTA(const Metadata_RTA &metadata):
-        ModuleBase(metadata)
+    static Classes moduleClass;
+
+    IModuleCommandRTA():
+        AbstractModule_EventListeners()
     {
 
     }
 
-    virtual std::string ModuleName() const
+    virtual Classes ModuleClass() const
     {
-        return "RTA";
+        return moduleClass;
     }
 
 public:
@@ -44,6 +46,7 @@ public:
 
     virtual void UpdatedOccupancyMap() = 0;
 };
+
 
 } //End MaceCore Namespace
 

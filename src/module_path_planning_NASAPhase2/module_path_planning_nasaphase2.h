@@ -5,11 +5,12 @@
 
 #include "mace_core/i_module_command_path_planning.h"
 
+
 class ModulePathPlanningNASAPhase2 : public MaceCore::IModuleCommandPathPlanning
 {
 
 public:
-    ModulePathPlanningNASAPhase2(const MaceCore::MetadataPathPlanning metaData);
+    ModulePathPlanningNASAPhase2();
 
 public:
 

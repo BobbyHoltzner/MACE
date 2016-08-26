@@ -1,8 +1,9 @@
 #include "module_rta_nasaphase2.h"
 
+#include "mace_core/module_factory.h"
 
-ModuleRTANASAPhase2::ModuleRTANASAPhase2(const MaceCore::Metadata_RTA metaData) :
-    MaceCore::IModuleCommandRTA(metaData)
+ModuleRTANASAPhase2::ModuleRTANASAPhase2() :
+    MaceCore::IModuleCommandRTA()
 
 {
 }

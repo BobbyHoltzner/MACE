@@ -18,6 +18,63 @@ enum class ModuleParameterTerminalTypes
 };
 
 
+
+class ParameterConversion
+{
+public:
+
+
+    template<typename T>
+    static T ConvertFromString(const std::string &string)
+    {
+        T value;
+        bool success = FromString(string, value);
+
+        if(success == false)
+            throw std::runtime_error("Error convering string");
+
+        return value;
+    }
+
+
+private:
+
+
+    static bool FromString(const std::string &string, int &value)
+    {
+        try
+        {
+            value = std::stoi (string);
+            return true;
+        }
+        catch(const std::invalid_argument)
+        {
+            return false;
+        }
+    }
+
+    static bool FromString(const std::string &string, double &value)
+    {
+        try
+        {
+            value = std::stod (string);
+            return true;
+        }
+        catch(const std::invalid_argument)
+        {
+            return false;
+        }
+    }
+
+    static bool FromString(const std::string &string, std::string &value)
+    {
+        value = string;
+        return true;
+    }
+
+};
+
+
 class ModuleParameterStructure
 {
 public:
@@ -32,6 +89,74 @@ public:
     void AddNonTerminal(const std::string &name, const std::shared_ptr<ModuleParameterStructure> &type)
     {
         m_NonTerminalParams.insert({name, type});
+    }
+
+
+    std::vector<std::string> getTerminalNames() const
+    {
+        std::vector<std::string> keys;
+        for(auto it = m_TerminalParams.cbegin() ; it != m_TerminalParams.cend() ; ++it)
+            keys.push_back(it->first);
+        return keys;
+    }
+
+    ModuleParameterTerminalTypes getTerminalType(const std::string &parameterName) const
+    {
+        if(m_TerminalParams.find(parameterName) == m_TerminalParams.cend())
+            throw std::runtime_error("Parameter does not exists");
+
+        return m_TerminalParams.at(parameterName);
+    }
+
+
+    std::vector<std::string> getNonTerminalNames() const
+    {
+        std::vector<std::string> keys;
+        for(auto it = m_NonTerminalParams.cbegin() ; it != m_NonTerminalParams.cend() ; ++it)
+            keys.push_back(it->first);
+        return keys;
+    }
+
+    std::shared_ptr<ModuleParameterStructure> getNonTerminalStructure(const std::string &parameterName) const
+    {
+        if(m_NonTerminalParams.find(parameterName) == m_NonTerminalParams.cend())
+            throw std::runtime_error("Parameter does not exists");
+
+        return m_NonTerminalParams.at(parameterName);
+    }
+
+
+    //!
+    //! \brief returns true if the given parameter name is a terminal
+    //! \param paramName Name of parameter
+    //! \return true is exists
+    //!
+    bool TerminalExists(const std::string &paramName)
+    {
+        for(auto it = m_TerminalParams.cbegin() ; it != m_TerminalParams.cend() ; ++it)
+        {
+            if(it->first == paramName)
+                return true;
+        }
+
+        return false;
+    }
+
+
+    //!
+    //! \brief returns true if the given parameter name is a non terminal
+    //! \param paramName Name of parameter
+    //! \return true is exists
+    //!
+    bool NonTerminalExists(const std::string &paramName)
+    {
+        for(auto it = m_NonTerminalParams.cbegin() ; it != m_NonTerminalParams.cend() ; ++it)
+        {
+            if(it->first == paramName)
+                return true;
+        }
+
+        return false;
     }
 
 private:
@@ -76,6 +201,32 @@ private:
     };
 
 public:
+
+    void AddTerminalValueFromString(const std::string &name, const std::string &valueStr, const ModuleParameterTerminalTypes &type)
+    {
+        switch(type)
+        {
+        case ModuleParameterTerminalTypes::INT:
+        {
+            AddTerminalValue(name, ParameterConversion::ConvertFromString<int>(valueStr));
+            break;
+        }
+        case ModuleParameterTerminalTypes::DOUBLE:
+        {
+            AddTerminalValue(name, ParameterConversion::ConvertFromString<double>(valueStr));
+            break;
+        }
+        case ModuleParameterTerminalTypes::STRING:
+        {
+            AddTerminalValue(name, ParameterConversion::ConvertFromString<std::string>(valueStr));
+            break;
+        }
+        default:
+        {
+            throw std::runtime_error("Unknown type");
+        }
+        }
+    }
 
     void AddTerminalValue(const std::string &name, const int &value)
     {

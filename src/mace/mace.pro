@@ -4,7 +4,9 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    data_interpolation.cpp
+    data_interpolation.cpp \
+    configuration_reader_xml.cpp \
+    pugixml.cpp
 
 QMAKE_CXXFLAGS += -std=c++11
 
@@ -33,4 +35,8 @@ INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
 
 HEADERS += \
-    data_interpolation.h
+    data_interpolation.h \
+    configuration_reader_xml.h \
+    pugixml.hpp \
+    pugiconfig.hpp \
+    module_collection.h

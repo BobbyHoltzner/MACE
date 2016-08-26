@@ -1,8 +1,9 @@
 #include "module_path_planning_nasaphase2.h"
 
+#include "mace_core/module_factory.h"
 
-ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2(const MaceCore::MetadataPathPlanning metaData) :
-    MaceCore::IModuleCommandPathPlanning(metaData)
+ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
+    MaceCore::IModuleCommandPathPlanning()
 {
 }
 
