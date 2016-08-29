@@ -16,7 +16,13 @@
 namespace MaceCore
 {
 
-class IModuleCommandRTA : public AbstractModule_VehicleListener<Metadata_RTA, IModuleEventsRTA>
+enum class RTACommands
+{
+    BASE_MODULE_VEHICLE_LISTENER_ENUMS,
+    UPDATED_OCCUPANCY_MAP
+};
+
+class IModuleCommandRTA : public AbstractModule_VehicleListener<Metadata_RTA, IModuleEventsRTA, RTACommands>
 {
 public:
 
@@ -25,7 +31,9 @@ public:
     IModuleCommandRTA():
         AbstractModule_VehicleListener()
     {
-
+        m_EventLooper.AddLambda(RTACommands::UPDATED_OCCUPANCY_MAP, [this](){
+            UpdatedOccupancyMap();
+        });
     }
 
     virtual Classes ModuleClass() const

@@ -28,18 +28,11 @@ public:
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
 
-    //!
-    //! \brief function that is to kick off the path planning event loop
-    //!
-    virtual void start();
-
-
-
 
 public:
 
 
-    virtual void NewVehicle(const std::string &ID, const MaceCore::MetadataVehicle &vehicle);
+    virtual void NewVehicle(const std::string &ID);
 
     virtual void RemoveVehicle(const std::string &ID);
 

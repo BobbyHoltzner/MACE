@@ -37,7 +37,8 @@ HEADERS += mace_core.h\
     abstract_module_event_listeners.h \
     module_factory.h \
     abstract_module_base_vehicle_listener.h \
-    matrix_operations.h
+    matrix_operations.h \
+    command_marshler.h
 
 unix {
     target.path = /usr/lib

@@ -12,8 +12,18 @@
 namespace MaceCore
 {
 
-class IModuleCommandVehicle : public AbstractModule_EventListeners<MetadataVehicle, IModuleEventsVehicle>
+enum class VehicleCommands
 {
+    FOLLOW_NEW_COMMANDS,
+    FINISH_AND_FOLLOW_COMMANDS,
+    COMMANDS_APPENDED
+};
+
+class MaceCore;
+
+class IModuleCommandVehicle : public AbstractModule_EventListeners<MetadataVehicle, IModuleEventsVehicle, VehicleCommands>
+{
+friend class MaceCore;
 public:
 
     static Classes moduleClass;
@@ -21,7 +31,17 @@ public:
     IModuleCommandVehicle():
         AbstractModule_EventListeners()
     {
+        m_EventLooper.AddLambda(VehicleCommands::FOLLOW_NEW_COMMANDS, [this](){
+            FollowNewCommands();
+        });
 
+        m_EventLooper.AddLambda(VehicleCommands::FINISH_AND_FOLLOW_COMMANDS, [this](){
+            FinishAndFollowNewCommands();
+        });
+
+        m_EventLooper.AddLambda(VehicleCommands::COMMANDS_APPENDED, [this](){
+            CommandsAppended();
+        });
     }
 
     virtual Classes ModuleClass() const
@@ -32,11 +52,10 @@ public:
 
 public:
 
-
     //!
     //! \brief New commands have been updated that the vehicle is to follow immediatly
     //!
-    //! Commands are to be retreived through the MaceData available through getDataObject()
+    //! Command Data can be retreived through the MaceData available through getDataObject()
     //!
     virtual void FollowNewCommands() = 0;
 
@@ -44,7 +63,7 @@ public:
     //!
     //! \brief New commands have been issued to vehicle that are to be followed once current command is finished
     //!
-    //! Commands are to be retreived through the MaceData available through getDataObject()
+    //! Command Data are to be retreived through the MaceData available through getDataObject()
     //!
     virtual void FinishAndFollowNewCommands() = 0;
 
@@ -52,7 +71,7 @@ public:
     //!
     //! \brief New commands have been appended to existing commands
     //!
-    //! Commands are to be retreived through the MaceData available through getDataObject()
+    //! Command Data are to be retreived through the MaceData available through getDataObject()
     //!
     virtual void CommandsAppended() = 0;
 

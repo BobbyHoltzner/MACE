@@ -52,17 +52,15 @@ public:
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
 
-    //!
-    //! \brief function that is to kick off the Vehicle Comms event loop
-    //!
-    virtual void start();
-
-
 public:
 
 
     //!
     //! \brief New commands have been updated that the vehicle is to follow immediatly
+    //!
+    //! Commands are to be retreived through the MaceData available through getDataObject()
+    //! Method will be called on module's thread
+    //!
     //!
     virtual void FollowNewCommands();
 
@@ -70,11 +68,17 @@ public:
     //!
     //! \brief New commands have been issued to vehicle that are to be followed once current command is finished
     //!
+    //! Commands are to be retreived through the MaceData available through getDataObject()
+    //! Method will be called on module's thread
+    //!
     virtual void FinishAndFollowNewCommands();
 
 
     //!
     //! \brief New commands have been appended to existing commands
+    //!
+    //! Commands are to be retreived through the MaceData available through getDataObject()
+    //! Method will be called on module's thread
     //!
     virtual void CommandsAppended();
 

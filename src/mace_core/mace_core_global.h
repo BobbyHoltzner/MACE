@@ -19,4 +19,15 @@
 
 #define UNUSED(x) (void)(x)
 
+#include <cstddef>
+
+struct EnumClassHash
+{
+    template <typename ET>
+    std::size_t operator()(ET t) const
+    {
+        return static_cast<std::size_t>(t);
+    }
+};
+
 #endif // MACE_CORE_GLOBAL_H

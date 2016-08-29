@@ -30,7 +30,7 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
     m_DataFusion->AddVehicle(ID);
 
     if(m_RTA != NULL)
-        m_RTA->NewVehicle(ID, vehicle->getModuleMetaData());
+        m_RTA->MarshalCommand(RTACommands::NEW_VEHICLE, ID);
 }
 
 
@@ -44,7 +44,7 @@ void MaceCore::RemoveVehicle(const std::string &ID)
     m_DataFusion->RemoveVehicle(ID);
 
     if(m_RTA != NULL)
-        m_RTA->RemoveVehicle(ID);
+        m_RTA->MarshalCommand(RTACommands::REMOVE_VEHICLE, ID);
 }
 
 
@@ -66,36 +66,36 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
 void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
 {
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-    std::string rn = m_VehiclePTRToID.at(vehicle);
+    std::string ID = m_VehiclePTRToID.at(vehicle);
 
-    m_DataFusion->AddPositionDynamics(rn, time, pos, vel);
+    m_DataFusion->AddPositionDynamics(ID, time, pos, vel);
 
-    m_RTA->UpdatedPositionDynamics(rn);
-    m_PathPlanning->UpdatedPositionDynamics(rn);
+    m_RTA->MarshalCommand(RTACommands::UPDATED_POSITION_DYNAMICS, ID);
+    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
 }
 
 
 void MaceCore::NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate)
 {
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-    std::string rn = m_VehiclePTRToID.at(vehicle);
+    std::string ID = m_VehiclePTRToID.at(vehicle);
 
-    m_DataFusion->AddAttitudeDynamics(rn, time, attitude, attitudeRate);
+    m_DataFusion->AddAttitudeDynamics(ID, time, attitude, attitudeRate);
 
-    m_RTA->UpdateAttitudeDynamics(rn);
-    m_PathPlanning->UpdateAttitudeDynamics(rn);
+    m_RTA->MarshalCommand(RTACommands::UPDATED_ATTITUDE_DYNAMICS, ID);
+    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
 }
 
 
 void MaceCore::NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &life)
 {
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-    std::string rn = m_VehiclePTRToID.at(vehicle);
+    std::string ID = m_VehiclePTRToID.at(vehicle);
 
-    m_DataFusion->AddVehicleLife(rn, time, life);
+    m_DataFusion->AddVehicleLife(ID, time, life);
 
-    m_RTA->UpdatedVehicleLife(rn);
-    m_PathPlanning->UpdatedVehicleLife(rn);
+    m_RTA->MarshalCommand(RTACommands::UPDATED_VEHICLE_LIFE, ID);
+    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_VEHICLE_LIFE, ID);
 }
 
 
@@ -134,14 +134,14 @@ void MaceCore::ReplaceVehicleCommands(const std::string &vehicleID, const std::v
 {
     m_DataFusion->setVehicleDynamicsCommands(vehicleID, movementCommands);
 
-    m_VehicleIDToPtr.at(vehicleID)->FollowNewCommands();
+    m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::FOLLOW_NEW_COMMANDS);
 }
 
 void MaceCore::ReplaceAfterCurrentVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands)
 {
     m_DataFusion->setVehicleDynamicsCommands(vehicleID, movementCommands);
 
-    m_VehicleIDToPtr.at(vehicleID)->FinishAndFollowNewCommands();
+    m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::FINISH_AND_FOLLOW_COMMANDS);
 }
 
 void MaceCore::AppendVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands)
@@ -150,8 +150,9 @@ void MaceCore::AppendVehicleCommands(const std::string &vehicleID, const std::ve
     commands.insert(commands.end(), movementCommands.begin(), movementCommands.end());
     m_DataFusion->setVehicleDynamicsCommands(vehicleID, commands);
 
-    m_VehicleIDToPtr.at(vehicleID)->CommandsAppended();
+    m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::COMMANDS_APPENDED);
 }
+
 
 //!
 //! \brief Event fired when a new occupancy map to be invoked when PathPlanning module generates a new occupancy map.

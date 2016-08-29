@@ -30,19 +30,7 @@ void ModuleRTANASAPhase2::ConfigureModule(const std::shared_ptr<MaceCore::Module
 }
 
 
-//!
-//! \brief function that is to kick off the RTA event loop of the module
-//!
-void ModuleRTANASAPhase2::start()
-{
-    while(true)
-    {
-        std::this_thread::sleep_for (std::chrono::milliseconds(10));
-    }
-}
-
-
-void ModuleRTANASAPhase2::NewVehicle(const std::string &ID, const MaceCore::MetadataVehicle &vehicle)
+void ModuleRTANASAPhase2::NewVehicle(const std::string &ID)
 {
 
 }

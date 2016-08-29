@@ -41,22 +41,10 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
 
 //!
-//! \brief function that is to kick off the Vehicle Comms event loop
-//!
-void ModuleVehicleMAVLINK::start()
-{
-    while(true)
-    {
-
-        std::this_thread::sleep_for (std::chrono::milliseconds(10));
-    }
-}
-
-
-//!
 //! \brief New commands have been updated that the vehicle is to follow immediatly
 //!
 //! Commands are to be retreived through the MaceData available through getDataObject()
+//! Method will be called on module's thread
 //!
 void ModuleVehicleMAVLINK::FollowNewCommands()
 {
@@ -68,6 +56,7 @@ void ModuleVehicleMAVLINK::FollowNewCommands()
 //! \brief New commands have been issued to vehicle that are to be followed once current command is finished
 //!
 //! Commands are to be retreived through the MaceData available through getDataObject()
+//! Method will be called on module's thread
 //!
 void ModuleVehicleMAVLINK::FinishAndFollowNewCommands()
 {
@@ -79,6 +68,7 @@ void ModuleVehicleMAVLINK::FinishAndFollowNewCommands()
 //! \brief New commands have been appended to existing commands.
 //!
 //! Commands are to be retreived through the MaceData available through getDataObject()
+//! Method will be called on module's thread
 //!
 void ModuleVehicleMAVLINK::CommandsAppended()
 {
