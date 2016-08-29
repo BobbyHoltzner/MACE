@@ -36,17 +36,23 @@ public:
     //!
     //! \brief New commands have been updated that the vehicle is to follow immediatly
     //!
+    //! Commands are to be retreived through the MaceData available through getDataObject()
+    //!
     virtual void FollowNewCommands() = 0;
 
 
     //!
     //! \brief New commands have been issued to vehicle that are to be followed once current command is finished
     //!
+    //! Commands are to be retreived through the MaceData available through getDataObject()
+    //!
     virtual void FinishAndFollowNewCommands() = 0;
 
 
     //!
     //! \brief New commands have been appended to existing commands
+    //!
+    //! Commands are to be retreived through the MaceData available through getDataObject()
     //!
     virtual void CommandsAppended() = 0;
 

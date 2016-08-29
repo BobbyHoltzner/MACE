@@ -35,7 +35,9 @@ HEADERS += mace_core.h\
     module_parameters.h \
     abstract_module_base.h \
     abstract_module_event_listeners.h \
-    module_factory.h
+    module_factory.h \
+    abstract_module_base_vehicle_listener.h \
+    matrix_operations.h
 
 unix {
     target.path = /usr/lib

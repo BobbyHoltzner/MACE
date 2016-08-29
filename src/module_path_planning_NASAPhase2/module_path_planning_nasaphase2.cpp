@@ -53,13 +53,13 @@ void ModulePathPlanningNASAPhase2::RemoveVehicle(const std::string &ID)
 }
 
 
-void ModulePathPlanningNASAPhase2::UpdatedPosition(const std::string &vehicleID)
+void ModulePathPlanningNASAPhase2::UpdatedPositionDynamics(const std::string &vehicleID)
 {
 
 }
 
 
-void ModulePathPlanningNASAPhase2::UpdateDynamicsState(const std::string &vehicleID)
+void ModulePathPlanningNASAPhase2::UpdateAttitudeDynamics(const std::string &vehicleID)
 {
 
 }
@@ -76,6 +76,15 @@ void ModulePathPlanningNASAPhase2::UpdatedVehicleLife(const std::string &vehicle
 //! \param vehicleID ID of vehicle
 //!
 void ModulePathPlanningNASAPhase2::NewVehicleTarget(const std::string &vehicleID)
+{
+
+}
+
+
+//!
+//! \brief For one reason or another a recomputation of all vehicles' paths is requested
+//!
+void ModulePathPlanningNASAPhase2::RecomputePaths()
 {
 
 }

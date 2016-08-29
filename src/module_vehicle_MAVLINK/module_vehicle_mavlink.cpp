@@ -16,6 +16,14 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::Module
 {
     MaceCore::ModuleParameterStructure structure;
 
+    structure.AddTerminalParameters("Int1", MaceCore::ModuleParameterTerminalTypes::INT, false, "1");
+
+
+    MaceCore::ModuleParameterStructure nest1;
+    nest1.AddTerminalParameters("Int1", MaceCore::ModuleParameterTerminalTypes::INT, false, "2");
+
+    structure.AddNonTerminal("Nest1", std::make_shared<MaceCore::ModuleParameterStructure>(nest1), true);
+
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
 
@@ -26,6 +34,9 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::Module
 //!
 void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
+    std::cout << params->GetTerminalValue<int>("Int1") << std::endl;
+
+    std::cout << params->GetNonTerminalValue("Nest1")->GetTerminalValue<int>("Int1") << std::endl;
 }
 
 
@@ -45,6 +56,8 @@ void ModuleVehicleMAVLINK::start()
 //!
 //! \brief New commands have been updated that the vehicle is to follow immediatly
 //!
+//! Commands are to be retreived through the MaceData available through getDataObject()
+//!
 void ModuleVehicleMAVLINK::FollowNewCommands()
 {
 
@@ -54,6 +67,8 @@ void ModuleVehicleMAVLINK::FollowNewCommands()
 //!
 //! \brief New commands have been issued to vehicle that are to be followed once current command is finished
 //!
+//! Commands are to be retreived through the MaceData available through getDataObject()
+//!
 void ModuleVehicleMAVLINK::FinishAndFollowNewCommands()
 {
 
@@ -61,7 +76,9 @@ void ModuleVehicleMAVLINK::FinishAndFollowNewCommands()
 
 
 //!
-//! \brief New commands have been appended to existing commands
+//! \brief New commands have been appended to existing commands.
+//!
+//! Commands are to be retreived through the MaceData available through getDataObject()
 //!
 void ModuleVehicleMAVLINK::CommandsAppended()
 {

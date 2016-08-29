@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 
-#include "abstract_module_event_listeners.h"
+#include "abstract_module_base_vehicle_listener.h"
 #include "metadata_path_planning.h"
 #include "i_module_events_path_planning.h"
 
@@ -15,14 +15,14 @@
 namespace MaceCore
 {
 
-class IModuleCommandPathPlanning  : public AbstractModule_EventListeners<MetadataPathPlanning, IModuleEventsPathPlanning>
+class IModuleCommandPathPlanning  : public AbstractModule_VehicleListener<MetadataPathPlanning, IModuleEventsPathPlanning>
 {
 public:
 
     static Classes moduleClass;
 
     IModuleCommandPathPlanning():
-        AbstractModule_EventListeners()
+        AbstractModule_VehicleListener()
     {
 
     }
@@ -32,24 +32,18 @@ public:
         return moduleClass;
     }
 
-public:
-
-    virtual void NewVehicle(const std::string &ID, const MetadataVehicle &vehicle) = 0;
-
-    virtual void RemoveVehicle(const std::string &ID) = 0;
-
-    virtual void UpdatedPosition(const std::string &vehicleID) = 0;
-
-    virtual void UpdateDynamicsState(const std::string &vehicleID) = 0;
-
-    virtual void UpdatedVehicleLife(const std::string &vehicleID) = 0;
-
 
     //!
     //! \brief New targets have been assigned to the given vehicle
     //! \param vehicleID ID of vehicle
     //!
     virtual void NewVehicleTarget(const std::string &vehicleID) = 0;
+
+
+    //!
+    //! \brief For one reason or another a recomputation of all vehicles' paths is requested
+    //!
+    virtual void RecomputePaths() = 0;
 };
 
 } //End MaceCore Namespace

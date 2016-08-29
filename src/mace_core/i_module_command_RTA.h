@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 
-#include "abstract_module_event_listeners.h"
+#include "abstract_module_base_vehicle_listener.h"
 #include "metadata_rta.h"
 
 #include "i_module_events_rta.h"
@@ -16,14 +16,14 @@
 namespace MaceCore
 {
 
-class IModuleCommandRTA : public AbstractModule_EventListeners<Metadata_RTA, IModuleEventsRTA>
+class IModuleCommandRTA : public AbstractModule_VehicleListener<Metadata_RTA, IModuleEventsRTA>
 {
 public:
 
     static Classes moduleClass;
 
     IModuleCommandRTA():
-        AbstractModule_EventListeners()
+        AbstractModule_VehicleListener()
     {
 
     }
@@ -34,17 +34,18 @@ public:
     }
 
 public:
-    virtual void NewVehicle(const std::string &ID, const MetadataVehicle &vehicle) = 0;
 
-    virtual void RemoveVehicle(const std::string &ID) = 0;
 
-    virtual void UpdatedPosition(const std::string &vehicleID) = 0;
 
-    virtual void UpdateDynamicsState(const std::string &vehicleID) = 0;
 
-    virtual void UpdatedVehicleLife(const std::string &vehicleID) = 0;
-
+    //!
+    //! \brief Signal indicating the Occupancy Map has been updated
+    //!
+    //! The map data can be read from using MaceData object in getDataObject()
+    //!
     virtual void UpdatedOccupancyMap() = 0;
+
+
 };
 
 

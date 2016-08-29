@@ -37,9 +37,9 @@ public:
 
     virtual void RemoveVehicle(const std::string &ID);
 
-    virtual void UpdatedPosition(const std::string &vehicleID);
+    virtual void UpdatedPositionDynamics(const std::string &vehicleID);
 
-    virtual void UpdateDynamicsState(const std::string &vehicleID);
+    virtual void UpdateAttitudeDynamics(const std::string &vehicleID);
 
     virtual void UpdatedVehicleLife(const std::string &vehicleID);
 

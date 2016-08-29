@@ -220,6 +220,34 @@ public:
 
 private:
 
+
+    //!
+    //! \brief Entirely replaces the stored Resource map with given matrix
+    //! \param occupancy map to replace with
+    //!
+    void ReplaceResourceMap(const Eigen::MatrixXd &newResourceMap)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_ResourceMap);
+
+        m_ResourceMap = newResourceMap;
+    }
+
+
+    //!
+    //! \brief Call lambda function to modify components of Resource map
+    //!
+    //! Thread Safe
+    //! May be faster than ReplaceResourceMap if operations are sparse
+    //! \param func Lambda function to modify map
+    //!
+    void OperateOnResourceMap(std::function<void(Eigen::MatrixXd &)> &func)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_ResourceMap);
+
+        func(m_ResourceMap);
+    }
+
+
     //!
     //! \brief Entirely replaces the stored occupancy map with given matrix
     //! \param occupancy map to replace with
@@ -244,6 +272,33 @@ private:
         std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
 
         func(m_OccupancyMap);
+    }
+
+
+    //!
+    //! \brief Entirely replaces the stored Probility map with given matrix
+    //! \param occupancy map to replace with
+    //!
+    void ReplaceProbabilityMap(const Eigen::MatrixXd &newProbabilityMap)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_ProbabilityMap);
+
+        m_ProbabilityMap = newProbabilityMap;
+    }
+
+
+    //!
+    //! \brief Call lambda function to modify components of Probility map
+    //!
+    //! Thread Safe
+    //! May be faster than ReplaceProbabilityMap if operations are sparse
+    //! \param func Lambda function to modify map
+    //!
+    void OperateOnProbabilityMap(std::function<void(Eigen::MatrixXd &)> &func)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_ProbabilityMap);
+
+        func(m_ProbabilityMap);
     }
 
 public:
@@ -331,12 +386,18 @@ private:
     std::map<std::string, std::vector<FullVehicleDynamics> > m_VehicleCommandDynamicsList;
 
 
+    Eigen::MatrixXd m_ResourceMap;
 
     Eigen::MatrixXd m_OccupancyMap;
 
+    Eigen::MatrixXd m_ProbabilityMap;
+
 
     mutable std::mutex m_VehicleDataMutex;
+
+    mutable std::mutex m_Mutex_ResourceMap;
     mutable std::mutex m_Mutex_OccupancyMap;
+    mutable std::mutex m_Mutex_ProbabilityMap;
 
 
 };

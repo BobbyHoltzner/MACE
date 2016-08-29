@@ -70,8 +70,8 @@ void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const E
 
     m_DataFusion->AddPositionDynamics(rn, time, pos, vel);
 
-    m_RTA->UpdatedPosition(rn);
-    m_PathPlanning->UpdatedPosition(rn);
+    m_RTA->UpdatedPositionDynamics(rn);
+    m_PathPlanning->UpdatedPositionDynamics(rn);
 }
 
 
@@ -82,8 +82,8 @@ void MaceCore::NewDynamicsDynamics(const void* sender, const TIME &time, const E
 
     m_DataFusion->AddAttitudeDynamics(rn, time, attitude, attitudeRate);
 
-    m_RTA->UpdateDynamicsState(rn);
-    m_PathPlanning->UpdateDynamicsState(rn);
+    m_RTA->UpdateAttitudeDynamics(rn);
+    m_PathPlanning->UpdateAttitudeDynamics(rn);
 }
 
 
@@ -121,6 +121,14 @@ void MaceCore::NewVehicleTargets(const std::string &vehicleID, const std::vector
 /// PATH PLANNING EVENTS
 /////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief Event fired to indicate what planning horizon is being utilized by the path planning module
+//! \param horizon ID of the horizon being utilized
+//!
+void MaceCore::PlanningHorizon(const std::string &horizon)
+{
+    throw std::runtime_error("Not Implimented");
+}
 
 void MaceCore::ReplaceVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands)
 {
@@ -144,6 +152,37 @@ void MaceCore::AppendVehicleCommands(const std::string &vehicleID, const std::ve
 
     m_VehicleIDToPtr.at(vehicleID)->CommandsAppended();
 }
+
+//!
+//! \brief Event fired when a new occupancy map to be invoked when PathPlanning module generates a new occupancy map.
+//! \param occupancyMap New occupancy map
+//!
+void MaceCore::NewOccupancyMap(const Eigen::MatrixXd &occupancyMap)
+{
+    m_DataFusion->ReplaceOccupanyMap(occupancyMap);
+
+    m_RTA->UpdatedOccupancyMap();
+}
+
+
+//!
+//! \brief Event fired when the PathPlanning modules determines that a set of cells should be modified on the occupancy map.
+//!
+//! This event may be faster than NewOccupancyMap when the matrix is large and the modifcations are sparse
+//! \param commands List of cells to modify
+//!
+void MaceCore::ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>> &commands)
+{
+
+    std::function<void(Eigen::MatrixXd &)> func = [&commands](Eigen::MatrixXd &mat){
+        OperateOnMatrixd(mat, commands);
+    };
+
+    m_DataFusion->OperateOnOccupanyMap(func);
+
+    m_RTA->UpdatedOccupancyMap();
+}
+
 
 /////////////////////////////////////////////////////////////////////////
 /// MACE COMMS EVENTS

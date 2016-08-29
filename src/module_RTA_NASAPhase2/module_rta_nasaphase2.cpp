@@ -54,13 +54,13 @@ void ModuleRTANASAPhase2::RemoveVehicle(const std::string &ID)
 }
 
 
-void ModuleRTANASAPhase2::UpdatedPosition(const std::string &vehicleID)
+void ModuleRTANASAPhase2::UpdatedPositionDynamics(const std::string &vehicleID)
 {
 
 }
 
 
-void ModuleRTANASAPhase2::UpdateDynamicsState(const std::string &vehicleID)
+void ModuleRTANASAPhase2::UpdateAttitudeDynamics(const std::string &vehicleID)
 {
 
 }
