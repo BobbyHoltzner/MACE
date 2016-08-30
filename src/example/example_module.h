@@ -29,6 +29,11 @@ class ExampleModuleEvents
     virtual void Event2(const int&) = 0;
 };
 
+enum class ExampleCommands
+{
+    Command1
+};
+
 
 //!
 //! \brief Command module that is to impliment the module's event loop and general behavior.
@@ -44,12 +49,12 @@ class ExampleModuleEvents
 //!     2) Some data may be updated at a high rate, so changing one and calling a notify modules of new data is prefered over sending new data
 //! Each module has read access to the MaceData object, but not write access.
 //!
-class ExampleModule : public MaceCore::AbstractModule_EventListeners<ExampleMetaData, ExampleModuleEvents>
+class ExampleModule : public MaceCore::AbstractModule_EventListeners<ExampleMetaData, ExampleModuleEvents, ExampleCommands>
 {
 
 public:
     ExampleModule() :
-        MaceCore::AbstractModule_EventListeners<ExampleMetaData, ExampleModuleEvents>(),
+        MaceCore::AbstractModule_EventListeners<ExampleMetaData, ExampleModuleEvents, ExampleCommands>(),
         CommandIssue(false)
     {
 

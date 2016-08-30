@@ -134,6 +134,8 @@ public:
     void AddLambda(T event, const std::function<void()> &lambda)
     {
         m_EventProcedures.insert({event, std::make_shared<ZeroParamCaller>(lambda)});
+        m_CallRate.insert({event, std::chrono::milliseconds(0)});
+        m_LastCallTime.insert({event, 0});
     }
 
 

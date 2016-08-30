@@ -22,8 +22,12 @@ int main(int argc, char *argv[])
     std::shared_ptr<MaceCore::MaceData> data = std::make_shared<DataInterpolation>();
     core.AddDataFusion(data);
 
+    std::string filename = "MaceSetup.xml";
+
+    std::cout << "Reading MACE configuration file from: " << filename << std::endl;
+
     ConfigurationReader_XML parser(factory);
-    ConfigurationParseResult parseResult = parser.Parse("MaceSetup.xml");
+    ConfigurationParseResult parseResult = parser.Parse(filename);
     if(parseResult.success == false)
     {
         std::cerr << "Error parsing configuration file: " << std::endl;
@@ -42,11 +46,15 @@ int main(int argc, char *argv[])
     bool addedPathPlanning = false;
     bool addedRTA = false;
     int numVehicles = 1;
-    std::vector<std::shared_ptr<MaceCore::ModuleBase> > modules = parser.GetCreatedModules();
-    std::vector<std::thread> threads;
+    std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string > modules = parser.GetCreatedModules();
+    std::vector<std::thread*> threads;
 
-    for(std::shared_ptr<MaceCore::ModuleBase> module: modules)
+    for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
     {
+        std::shared_ptr<MaceCore::ModuleBase> module = it->first;
+        std::string moduleType = it->second;
+        std::cout << "Creating a " << MaceCore::ModuleBase::ModuleTypeToString(module->ModuleClass()) << " module of type: " << moduleType << std::endl;
+
         //set data object of module
         module->setDataObject(data);
 
@@ -54,7 +62,11 @@ int main(int argc, char *argv[])
         module->ConfigureModule(parser.GetModuleConfiguration(module));
 
         //start thread
-        threads.push_back(std::thread([module](){module->start();}));
+        std::thread *thread = new std::thread([module]()
+        {
+            module->start();
+        });
+        threads.push_back(thread);
 
         //add to core (and check if too many have been added)
         MaceCore::ModuleBase::Classes moduleClass = module->ModuleClass();
@@ -99,9 +111,9 @@ int main(int argc, char *argv[])
 
 
     //wait for all threads to complete
-    for(std::thread& thread: threads)
+    for(std::thread* thread: threads)
     {
-        thread.join();
+        thread->join();
     }
 
 

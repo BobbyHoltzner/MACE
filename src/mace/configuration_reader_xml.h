@@ -49,7 +49,7 @@ public:
     //! \brief Get modules created after parsing
     //! \return List of created modules.
     //!
-    std::vector<std::shared_ptr<MaceCore::ModuleBase>> GetCreatedModules() const;
+    std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string> GetCreatedModules() const;
 
 
     //!
@@ -67,6 +67,7 @@ private:
 
     std::vector<std::shared_ptr<MaceCore::ModuleBase> > m_Modules;
 
+    std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string> m_ModuleTypes;
     std::map<std::shared_ptr<MaceCore::ModuleBase>, std::shared_ptr<MaceCore::ModuleParameterValue> > m_Parameters;
 };
 

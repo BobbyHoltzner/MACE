@@ -16,14 +16,6 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::Module
 {
     MaceCore::ModuleParameterStructure structure;
 
-    structure.AddTerminalParameters("Int1", MaceCore::ModuleParameterTerminalTypes::INT, false, "1");
-
-
-    MaceCore::ModuleParameterStructure nest1;
-    nest1.AddTerminalParameters("Int1", MaceCore::ModuleParameterTerminalTypes::INT, false, "2");
-
-    structure.AddNonTerminal("Nest1", std::make_shared<MaceCore::ModuleParameterStructure>(nest1), true);
-
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
 
@@ -34,9 +26,6 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::Module
 //!
 void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-    std::cout << params->GetTerminalValue<int>("Int1") << std::endl;
-
-    std::cout << params->GetNonTerminalValue("Nest1")->GetTerminalValue<int>("Int1") << std::endl;
 }
 
 

@@ -151,9 +151,10 @@ ConfigurationParseResult ConfigurationReader_XML::Parse(const std::string &filen
 
         //attempt to create module, error if unsuccesfull
         std::shared_ptr<MaceCore::ModuleBase> newModule;
+        std::string moduleType = module.attribute("Type").as_string();
         try
         {
-            newModule = m_Factory->Create(moduleClass, module.attribute("Type").as_string());
+            newModule = m_Factory->Create(moduleClass, moduleType);
         }
         catch (const std::runtime_error &e)
         {
@@ -174,6 +175,7 @@ ConfigurationParseResult ConfigurationReader_XML::Parse(const std::string &filen
 
 
         //insert in map
+        m_ModuleTypes.insert({newModule, moduleType});
         m_Parameters.insert({newModule, moduleValue});
     }
 
@@ -186,13 +188,13 @@ ConfigurationParseResult ConfigurationReader_XML::Parse(const std::string &filen
 //! \brief Get modules created after parsing
 //! \return List of created modules.
 //!
-std::vector<std::shared_ptr<MaceCore::ModuleBase>> ConfigurationReader_XML::GetCreatedModules() const
+std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string> ConfigurationReader_XML::GetCreatedModules() const
 {
-    std::vector<std::shared_ptr<MaceCore::ModuleBase>> vec;
-    for(auto it = m_Parameters.cbegin(); it != m_Parameters.cend() ; ++it)
-        vec.push_back(it->first);
+    std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string> map;
+    for(auto it = m_ModuleTypes.cbegin(); it != m_ModuleTypes.cend() ; ++it)
+        map.insert({it->first, it->second});
 
-    return vec;
+    return map;
 }
 
 
