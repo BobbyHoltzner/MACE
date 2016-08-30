@@ -1,3 +1,7 @@
 build-src*
 src/src.pro.user*
 *~
+build/
+bin/
+include/
+lib/
