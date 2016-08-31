@@ -36,3 +36,30 @@ Finally make
 make
 make install
 ```
+
+###Develop with QT IDE
+
+Install QT onto the host machine by downloading QT source from  
+`https://www.qt.io/download-open-source/`
+
+You will need to download two things: the QT source and QT Creator source.
+
+The following instructions are based on Qt's own instructions: [http://doc.qt.io/qt-5/build-sources.html](http://doc.qt.io/qt-5/build-sources.html)
+To build QT Tool chain navigate a shell to the unziped folder and run
+```
+./configure
+make
+make install
+```
+Next add 
+```
+PATH=/usr/local/Qt-%VERSION%/bin
+export PATH
+```
+to `.profile`, after this change log-off/log-on would be required.
+
+To build QT Creator navigate a shell to the unzipped folder and run
+```
+
+```
+
