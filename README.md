@@ -46,7 +46,7 @@ The following steps detail how to develop with Qt on the odroid and how to build
 Install Qt onto the host machine by downloading Qt source from  
 `https://www.qt.io/download-open-source/`
 
-The following instructions are based on Qt's own instructions: [http://doc.qt.io/qt-5/build-sources.html](http://doc.qt.io/qt-5/build-sources.html)
+The following instructions are based on Qt's own instructions: [http://doc.qt.io/qt-5/linux-building.html](http://doc.qt.io/qt-5/linux-building.html)
 To build Qt Tool chain navigate a shell to the unziped folder and run
 ```
 ./configure
