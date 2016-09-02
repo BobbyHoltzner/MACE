@@ -91,3 +91,4 @@ Set Qt version to "Qt %VERSION% in PATH".
 Apply changes.
 
 Now open MACE/src/src.pro ensuring that it is using the kit you just created and build MACE project as you wish.
+Under "Project" option on right you may want to check "Shallow build" this helps keep your source directory clean of build artifacts.
