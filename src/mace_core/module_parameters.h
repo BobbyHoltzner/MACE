@@ -14,7 +14,8 @@ enum class ModuleParameterTerminalTypes
 {
     INT,
     DOUBLE,
-    STRING
+    STRING,
+    BOOLEAN
 };
 
 
@@ -70,6 +71,21 @@ private:
     {
         value = string;
         return true;
+    }
+
+    static bool FromString(const std::string &string, bool &value)
+    {
+        if(string == "true" || string == "True" || string == "TRUE")
+        {
+            value = true;
+            return true;
+        }
+        if(string == "false" || string == "False" || string == "FALSE")
+        {
+            value = false;
+            return true;
+        }
+        return false;
     }
 
 };
@@ -132,6 +148,11 @@ public:
             AddTerminalValue(name, ParameterConversion::ConvertFromString<std::string>(valueStr));
             break;
         }
+        case ModuleParameterTerminalTypes::BOOLEAN:
+        {
+            AddTerminalValue(name, ParameterConversion::ConvertFromString<bool>(valueStr));
+            break;
+        }
         default:
         {
             throw std::runtime_error("Unknown type");
@@ -154,9 +175,29 @@ public:
         m_TerminalValues.insert({name, std::make_shared<SingleParameterValue<std::string> >(SingleParameterValue<std::string>(value))});;
     }
 
+    void AddTerminalValue(const std::string &name, const bool &value)
+    {
+        m_TerminalValues.insert({name, std::make_shared<SingleParameterValue<bool> >(SingleParameterValue<bool>(value))});;
+    }
+
     void AddNonTerminal(const std::string &name, const std::shared_ptr<ModuleParameterValue> &value)
     {
         m_NonTerminalValues.insert({name, value});
+    }
+
+    bool HasTerminal(const std::string &name) const
+    {
+        //check that given parameter exists
+        if(m_TerminalValues.find(name) == m_TerminalValues.cend())
+            return false;
+        return true;
+    }
+
+    bool HasNonTerminal(const std::string &name) const
+    {
+        if(m_NonTerminalValues.find(name) == m_NonTerminalValues.cend())
+            return false;
+        return true;
     }
 
 

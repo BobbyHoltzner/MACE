@@ -4,6 +4,7 @@
 #
 #-------------------------------------------------
 
+QT += serialport
 QT       -= core gui
 
 TARGET = module_vehicle_MAVLINK
@@ -23,12 +24,21 @@ unix {
     INSTALLS += target
 }
 
+
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
 else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
 
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../comms/release/ -lcomms
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../comms/debug/ -lcomms
+else:unix: LIBS += -L$$OUT_PWD/../comms/ -lcomms
 
+
+
+INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
+

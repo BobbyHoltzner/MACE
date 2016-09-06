@@ -1,7 +1,7 @@
 TEMPLATE = app
 CONFIG += console c++11
 CONFIG -= app_bundle
-CONFIG -= qt
+QT += serialport
 
 SOURCES += main.cpp \
     data_interpolation.cpp \
@@ -34,9 +34,16 @@ else:unix: LIBS += -L$$OUT_PWD/../module_RTA_NASAPhase2/ -lmodule_RTA_NASAPhase2
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
 
+INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
+
 HEADERS += \
     data_interpolation.h \
     configuration_reader_xml.h \
     pugixml.hpp \
     pugiconfig.hpp \
     module_collection.h
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../comms/release/ -lcomms
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../comms/debug/ -lcomms
+else:unix: LIBS += -L$$OUT_PWD/../comms/ -lcomms
+
