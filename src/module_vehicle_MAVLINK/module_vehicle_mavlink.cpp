@@ -75,12 +75,12 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
         if(protocolName == "Mavlink")
         {
-            std::shared_ptr<Comms::MavlinkComms> protocol = std::make_shared<Comms::MavlinkComms>();
+            std::shared_ptr<Comms::MavlinkProtocol> protocol = std::make_shared<Comms::MavlinkProtocol>();
             protocol->AddListner(this);
 
             if(versionName == "V1")
             {
-                protocol->SetVersion(Comms::MavlinkComms::MavlinkVersion::MavlinkVersionAlways1);
+                protocol->SetVersion(Comms::MavlinkProtocol::MavlinkVersion::MavlinkVersionAlways1);
             }
 
             m_LinkMarshler->AddProtocol(Comms::Protocols::MAVLINK, std::dynamic_pointer_cast<Comms::IProtocol>(protocol));
