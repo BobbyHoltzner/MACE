@@ -1,6 +1,8 @@
 #ifndef OBSERVATION_HISTORY_H
 #define OBSERVATION_HISTORY_H
 
+#include "common/common.h"
+
 #include <string>
 #include <map>
 #include <vector>

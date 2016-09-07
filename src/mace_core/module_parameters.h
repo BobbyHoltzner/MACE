@@ -14,7 +14,8 @@ enum class ModuleParameterTerminalTypes
 {
     INT,
     DOUBLE,
-    STRING
+    STRING,
+    BOOLEAN
 };
 
 
@@ -72,13 +73,30 @@ private:
         return true;
     }
 
+    static bool FromString(const std::string &string, bool &value)
+    {
+        if(string == "true" || string == "True" || string == "TRUE")
+        {
+            value = true;
+            return true;
+        }
+        if(string == "false" || string == "False" || string == "FALSE")
+        {
+            value = false;
+            return true;
+        }
+        return false;
+    }
+
 };
 
 
 
 
 
-
+//!
+//! \brief Class that holds parameter values for a module
+//!
 class ModuleParameterValue
 {
 private:
@@ -132,6 +150,11 @@ public:
             AddTerminalValue(name, ParameterConversion::ConvertFromString<std::string>(valueStr));
             break;
         }
+        case ModuleParameterTerminalTypes::BOOLEAN:
+        {
+            AddTerminalValue(name, ParameterConversion::ConvertFromString<bool>(valueStr));
+            break;
+        }
         default:
         {
             throw std::runtime_error("Unknown type");
@@ -154,13 +177,50 @@ public:
         m_TerminalValues.insert({name, std::make_shared<SingleParameterValue<std::string> >(SingleParameterValue<std::string>(value))});;
     }
 
+    void AddTerminalValue(const std::string &name, const bool &value)
+    {
+        m_TerminalValues.insert({name, std::make_shared<SingleParameterValue<bool> >(SingleParameterValue<bool>(value))});;
+    }
+
     void AddNonTerminal(const std::string &name, const std::shared_ptr<ModuleParameterValue> &value)
     {
         m_NonTerminalValues.insert({name, value});
     }
 
 
+    //!
+    //! \brief Determine if given terminal parameter exists
+    //! \param name Parameter name
+    //! \return True if exists
+    //!
+    bool HasTerminal(const std::string &name) const
+    {
+        //check that given parameter exists
+        if(m_TerminalValues.find(name) == m_TerminalValues.cend())
+            return false;
+        return true;
+    }
 
+
+    //!
+    //! \brief Determine if given non-terminal parameter exists
+    //! \param name Parameter name
+    //! \return True if exists
+    //!
+    bool HasNonTerminal(const std::string &name) const
+    {
+        if(m_NonTerminalValues.find(name) == m_NonTerminalValues.cend())
+            return false;
+        return true;
+    }
+
+
+    //!
+    //! \brief Get value of a terminal parameter
+    //! \param name Name of parameter
+    //! \return Value
+    //! \throws std::runtime_error Thrown if given terminal does not exists
+    //!
     template<typename T>
     T GetTerminalValue(const std::string &name) const
     {
@@ -179,6 +239,13 @@ public:
         return ptr->GetValue();
     }
 
+
+    //!
+    //! \brief Get the value of a non-terminal parameter
+    //! \param name Name of non-terminal parameter
+    //! \return Value
+    //! \throws std::runtime_error Thrown if given non-terminal does not exists
+    //!
     std::shared_ptr<ModuleParameterValue> GetNonTerminalValue(const std::string &name) const
     {
         if(m_NonTerminalValues.find(name) == m_NonTerminalValues.cend())
@@ -195,24 +262,52 @@ private:
 };
 
 
+//!
+//! \brief Class that describes the structure of a parameters allowed by a module
+//!
+//! This class will be used to parse incomming settings and ensure the settings are of the form the module is expecting
+//!
 class ModuleParameterStructure
 {
 public:
 
 
 
-    void AddTerminalParameters(const std::string &name, const ModuleParameterTerminalTypes &type, bool required = false, const std::string &defaultValue = "")
+    //!
+    //! \brief Add a terminal to known parameters
+    //!
+    //! A non terminal paramter is an actuall piece of data to store as a setting to a module
+    //! \param name Name of parameter
+    //! \param type Data type expecting
+    //! \param required True if value is required
+    //! \param defaultValue Value to set if parameter is not required and not present.
+    //! \param allowedEntires Descrete set of value that are stricktly allowed
+    //!
+    void AddTerminalParameters(const std::string &name, const ModuleParameterTerminalTypes &type, bool required = false, const std::string &defaultValue = "", const std::vector<std::string> &allowedEntires = {})
     {
         m_TerminalParams.insert({name, type});
         m_IsTagRequired.insert({name, required});
         m_TerminalDefaultValue.insert({name, defaultValue});
+        m_TerminalAllowedEntries.insert({name, allowedEntires});
     }
 
-    void AddNonTerminal(const std::string &name, const std::shared_ptr<ModuleParameterStructure> &type, bool required = false, const std::shared_ptr<ModuleParameterValue> &defaultValue = std::make_shared<ModuleParameterValue>())
+
+    //!
+    //! \brief Add a non terminal to known parameters
+    //!
+    //! A nonterminal is a "parameter set", it is a catatory which is expected to contain other terminals with actual data.
+    //! \param name Name of non terminal parameter set
+    //! \param type Expected format of non-terminal
+    //! \param required True if required
+    //! \param defaultValue Default value to set if not required and not present in settings
+    //! \param multipleEntiresAllowed True if multiple entires of this non-terminal are allowed (not implimented)
+    //!
+    void AddNonTerminal(const std::string &name, const std::shared_ptr<ModuleParameterStructure> &type, bool required = false, const std::shared_ptr<ModuleParameterValue> &defaultValue = std::make_shared<ModuleParameterValue>(), bool multipleEntiresAllowed = false)
     {
         m_NonTerminalParams.insert({name, type});
         m_IsTagRequired.insert({name, required});
         m_NonTerminalDefaultValue.insert({name, defaultValue});
+        m_NonTerminalMultipleAllowed.insert({name, multipleEntiresAllowed});
     }
 
 
@@ -242,6 +337,20 @@ public:
     }
 
 
+    //!
+    //! \brief Given a pameter return the entires allowed for that parameter
+    //! \param parameterName Name of parameter
+    //! \return Descrite values allowed. Empty if unrestricted.
+    //!
+    std::vector<std::string> getTerminalAllowedEntires(const std::string &parameterName) const
+    {
+        if(m_TerminalAllowedEntries.find(parameterName) == m_TerminalAllowedEntries.cend())
+            throw std::runtime_error("Parameter does not exists");
+
+        return m_TerminalAllowedEntries.at(parameterName);
+    }
+
+
     std::vector<std::string> getNonTerminalNames() const
     {
         std::vector<std::string> keys;
@@ -265,6 +374,14 @@ public:
             throw std::runtime_error("Parameter does not exists");
 
         return m_NonTerminalDefaultValue.at(parameterName);
+    }
+
+    bool getNonTerminalMultipleEntriesAllowed(const std::string &parameterName) const
+    {
+        if(m_NonTerminalMultipleAllowed.find(parameterName) == m_NonTerminalMultipleAllowed.cend())
+            throw std::runtime_error("Parameter does not exists");
+
+        return m_NonTerminalMultipleAllowed.at(parameterName);
     }
 
 
@@ -317,10 +434,14 @@ private:
     std::unordered_map<std::string, std::string> m_TerminalDefaultValue;
     std::unordered_map<std::string, std::shared_ptr<ModuleParameterValue>> m_NonTerminalDefaultValue;
 
+    std::unordered_map<std::string, std::vector<std::string>> m_TerminalAllowedEntries;
+
     std::unordered_map<std::string, bool> m_IsTagRequired;
 
     std::unordered_map<std::string, ModuleParameterTerminalTypes> m_TerminalParams;
     std::unordered_map<std::string, std::shared_ptr<ModuleParameterStructure> > m_NonTerminalParams;
+
+    std::unordered_map<std::string, bool> m_NonTerminalMultipleAllowed;
 };
 
 } //End MaceCore Namespace
