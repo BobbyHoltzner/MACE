@@ -49,7 +49,7 @@ Install Qt onto the host machine by downloading Qt source from
 The following instructions are based on Qt's own instructions: [http://doc.qt.io/qt-5/linux-building.html](http://doc.qt.io/qt-5/linux-building.html)
 To build Qt Tool chain navigate a shell to the unziped folder and run
 ```
-./configure
+./configure -opensource -confirm-license
 make
 make install
 ```
