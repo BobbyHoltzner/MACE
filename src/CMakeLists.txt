@@ -11,6 +11,11 @@ macro(use_cxx11)
   endif ()
 endmacro(use_cxx11)
 
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
+find_package(Eigen3 REQUIRED)
+message("Using Eigen library at: " ${EIGEN3_INCLUDE_DIR})
+include_directories(${EIGEN3_INCLUDE_DIR})
+
 set (CMAKE_C_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
 set (CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
 
