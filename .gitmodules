@@ -2,6 +2,3 @@
 [submodule "mavlink_cpp/V2"]
 	path = mavlink_cpp/V2
 	url = git@github.com:mavlink/c_library_v2.git
-[submodule "mavlink_cpp/V1"]
-	path = mavlink_cpp/V1
-	url = git@github.com:mavlink/c_library_v1.git
