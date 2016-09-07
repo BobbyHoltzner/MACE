@@ -51,6 +51,7 @@ The following instructions are largely based on Qt's own instructions: [http://d
 Prior to building ensure libxcb is installed by running:
 ```
 apt-get install libxcb1-dev
+apt-get install libx11-dev
 ```
 
 To build Qt Tool chain navigate a shell to the unziped folder and run
