@@ -33,6 +33,25 @@ public:
         }
     }
 
+    //!
+    //! \brief Set the name of the link
+    //! \param str Name of link
+    //!
+    virtual void SetLinkName(const std::string &str)
+    {
+        m_LinkName = str;
+    }
+
+
+    //!
+    //! \brief Get the name of link
+    //! \return Name of link
+    //!
+    virtual std::string GetLinkName() const
+    {
+        return m_LinkName;
+    }
+
     virtual void RequestReset() = 0;
 
     virtual void WriteBytes(const char *bytes, int length) const = 0;
@@ -55,6 +74,8 @@ public:
     virtual void Disconnect(void) = 0;
 
 private:
+
+    std::string m_LinkName;
 
     std::vector<const ILinkEvents*> m_Listeners;
 };

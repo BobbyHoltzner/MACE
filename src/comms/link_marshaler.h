@@ -45,11 +45,35 @@ public:
 
     LinkMarshaler();
 
-    void AddProtocol(const Protocols &type, const std::shared_ptr<IProtocol> protocol);
+    //!
+    //! \brief Create a mavlink protocol to be used as transport layer of a link
+    //! \param config Configuration of mavlink
+    //! \param ptr Listener object to issue events onto
+    //!
+    void AddProtocol(const MavlinkConfiguration &config, IMavlinkCommsEvents * ptr);
 
-    void AddLink(std::shared_ptr<ILink> link);
 
-    void SetProtocolForLink(std::shared_ptr<ILink> link, Protocols protocol);
+    //!
+    //! \brief Adds a serial link that can be used
+    //! \param name Name of link for use when referencing it later
+    //! \param config Configuration of serial link
+    //!
+    void AddLink(const std::string &name, const SerialConfiguration &config);
+
+
+    //!
+    //! \brief Set the protocol which a link is to use
+    //! \param linkName Link name to set protocol of
+    //! \param protocol Protocol type that link is to use
+    //!
+    void SetProtocolForLink(const std::string &linkName, Protocols protocol);
+
+
+    //!
+    //! \brief Connect to an already created link
+    //! \param linkName Name of link to connect to
+    //!
+    void ConnectToLink(const std::string &linkName);
 
 
     //////////////////////////////////////////////////////////////
@@ -61,7 +85,7 @@ public:
     //! \param link Link to be used
     //! \return Channel for that link
     //!
-    uint8_t GetProtocolChannel(std::shared_ptr<ILink> link) const;
+    uint8_t GetProtocolChannel(const std::string &linkName) const;
 
 
     //!
@@ -72,7 +96,8 @@ public:
     //! \param message Message to send
     //!
     template <typename T>
-    void SendMessage(std::shared_ptr<ILink> link, const T& message);
+    void SendMessage(const std::string &linkName, const T& message);
+
 
 
 private:
@@ -94,7 +119,8 @@ private:
 private:
 
     std::unordered_map<Protocols, std::shared_ptr<IProtocol>, EnumClassHash> m_ProtocolObjects;
-    std::vector<std::shared_ptr<ILink>> m_Links;
+
+    std::unordered_map<std::string, std::shared_ptr<ILink>> m_CreatedLinks;
 
     std::unordered_map<ILink*, Protocols> m_LinksProtocol;
 

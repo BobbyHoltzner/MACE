@@ -17,7 +17,8 @@ SOURCES += \
     serial_link.cpp \
     mavlink_protocol.cpp \
     link_marshaler.cpp \
-    serial_configuration.cpp
+    serial_configuration.cpp \
+    mavlink_configuration.cpp
 
 HEADERS +=\
     i_link.h \
@@ -29,7 +30,9 @@ HEADERS +=\
     i_mavlink_protocol_events.h \
     i_link_events.h \
     serial_configuration.h \
-    link_configuration.h
+    link_configuration.h \
+    protocol_configuration.h \
+    mavlink_configuration.h
 
 unix {
     target.path = /usr/lib

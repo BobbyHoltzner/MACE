@@ -15,30 +15,22 @@
 
 #include "i_protocol.h"
 
+#include "mavlink_configuration.h"
+
+
+
 namespace Comms
 {
 
 class COMMSSHARED_EXPORT MavlinkProtocol : public IProtocol
 {
-public:
-    enum class MavlinkVersion
-    {
-        MavlinkVersion2IfVehicle2,
-        MavlinkVersionAlways2,
-        MavlinkVersionAlways1
-    };
 
 public:
-
-    MavlinkVersion m_version;
-
-public:
-    MavlinkProtocol();
+    MavlinkProtocol(const MavlinkConfiguration &config);
 
     void AddListner(const IMavlinkCommsEvents* listener);
 
-
-    void SetVersion(MavlinkVersion version);
+    MavlinkConfiguration Configuration() const;
 
 
     int getSystemId();
@@ -95,6 +87,8 @@ private:
 
 private:
 
+    MavlinkConfiguration m_config;
+
     int m_systemId;
 
     int lastIndex[256][256];    ///< Store the last received sequence ID for each system/componenet pair
@@ -108,6 +102,8 @@ private:
     std::vector<const IMavlinkCommsEvents*> m_Listners;
 
     std::unordered_map<const ILink*, uint8_t> m_MavlinkChannels;
+
+
 };
 
 

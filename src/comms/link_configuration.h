@@ -9,11 +9,6 @@ namespace Comms
 class LinkConfiguration
 {
 public:
-    enum LinkType
-    {
-        TypeSerial
-    };
-
 
     virtual void copyFrom(LinkConfiguration* source)
     {

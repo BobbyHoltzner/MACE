@@ -1,6 +1,8 @@
 #ifndef MODULE_VEHICLE_MAVLINK_H
 #define MODULE_VEHICLE_MAVLINK_H
 
+#include "common/common.h"
+
 #include "module_vehicle_mavlink_global.h"
 
 #include "mace_core/i_module_command_vehicle.h"
@@ -122,7 +124,7 @@ public:
     //! \param vehicleFirmwareType
     //! \param vehicleType
     //!
-    virtual void VehicleHeartbeatInfo(const Comms::ILink* link, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const;
+    virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const;
 
     virtual void ReceiveLossPercentChanged(int uasId, float lossPercent) const;
     virtual void ReceiveLossTotalChanged(int uasId, int totalLoss) const;
@@ -139,11 +141,13 @@ public:
     //! \param noise
     //! \param remnoise
     //!
-    virtual void RadioStatusChanged(const Comms::ILink *link, unsigned rxerrors, unsigned fixed, int rssi, int remrssi, unsigned txbuf, unsigned noise, unsigned remnoise) const;
+    virtual void RadioStatusChanged(const std::string &linkName, unsigned rxerrors, unsigned fixed, int rssi, int remrssi, unsigned txbuf, unsigned noise, unsigned remnoise) const;
 
 private:
 
     Comms::LinkMarshaler *m_LinkMarshler;
+
+    std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
 
 };
 

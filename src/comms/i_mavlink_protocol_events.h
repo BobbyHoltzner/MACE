@@ -40,7 +40,7 @@ public:
     //! \param vehicleFirmwareType
     //! \param vehicleType
     //!
-    virtual void VehicleHeartbeatInfo(const ILink* link, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const = 0;
+    virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const = 0;
 
     virtual void ReceiveLossPercentChanged(int uasId, float lossPercent) const = 0;
     virtual void ReceiveLossTotalChanged(int uasId, int totalLoss) const = 0;
@@ -57,7 +57,7 @@ public:
     //! \param noise
     //! \param remnoise
     //!
-    virtual void RadioStatusChanged(const ILink *link, unsigned rxerrors, unsigned fixed, int rssi, int remrssi, unsigned txbuf, unsigned noise, unsigned remnoise) const = 0;
+    virtual void RadioStatusChanged(const std::string &linkName, unsigned rxerrors, unsigned fixed, int rssi, int remrssi, unsigned txbuf, unsigned noise, unsigned remnoise) const = 0;
 };
 
 

@@ -1,11 +1,12 @@
 #include "mavlink_protocol.h"
 
+#include <iostream>
 
 namespace Comms
 {
 
-MavlinkProtocol::MavlinkProtocol() :
-    m_version(MavlinkProtocol::MavlinkVersion::MavlinkVersionAlways1)
+MavlinkProtocol::MavlinkProtocol(const MavlinkConfiguration &config) :
+    m_config(config)
 {
     memset(&totalReceiveCounter, 0, sizeof(totalReceiveCounter));
     memset(&totalLossCounter, 0, sizeof(totalLossCounter));
@@ -19,12 +20,10 @@ void MavlinkProtocol::AddListner(const IMavlinkCommsEvents* listener)
     m_Listners.push_back(listener);
 }
 
-
-void MavlinkProtocol::SetVersion(MavlinkVersion version)
+MavlinkConfiguration MavlinkProtocol::Configuration() const
 {
-    m_version = version;
+    return m_config;
 }
-
 
 int MavlinkProtocol::getSystemId()
 {
@@ -209,7 +208,7 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
                     remrssi = (int8_t) rstatus.remrssi;
                 }
 
-                Emit([&](const IMavlinkCommsEvents* ptr){ptr->RadioStatusChanged(link, rstatus.rxerrors, rstatus.fixed, rssi, remrssi, rstatus.txbuf, rstatus.noise, rstatus.remnoise);});
+                Emit([&](const IMavlinkCommsEvents* ptr){ptr->RadioStatusChanged(link->GetLinkName(), rstatus.rxerrors, rstatus.fixed, rssi, remrssi, rstatus.txbuf, rstatus.noise, rstatus.remnoise);});
             }
 
             /*
@@ -264,7 +263,7 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
 
                 mavlink_heartbeat_t heartbeat;
                 mavlink_msg_heartbeat_decode(&message, &heartbeat);
-                Emit([&](const IMavlinkCommsEvents* ptr){ptr->VehicleHeartbeatInfo(link, message.sysid, heartbeat.mavlink_version, heartbeat.autopilot, heartbeat.type);});
+                Emit([&](const IMavlinkCommsEvents* ptr){ptr->VehicleHeartbeatInfo(link->GetLinkName(), message.sysid, heartbeat.mavlink_version, heartbeat.autopilot, heartbeat.type);});
             }
 
             // Increase receive counter

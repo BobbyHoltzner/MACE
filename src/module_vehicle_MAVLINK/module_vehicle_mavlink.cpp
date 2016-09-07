@@ -67,23 +67,35 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::Module
 //!
 void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
+    std::shared_ptr<Comms::ProtocolConfiguration> protocolConfig;
     if(params->HasNonTerminal("ProtocolParameters"))
     {
         std::shared_ptr<MaceCore::ModuleParameterValue> protocolSettings = params->GetNonTerminalValue("ProtocolParameters");
         std::string protocolName = protocolSettings->GetTerminalValue<std::string>("Name");
         std::string versionName = protocolSettings->GetTerminalValue<std::string>("Version");
 
+
         if(protocolName == "Mavlink")
         {
-            std::shared_ptr<Comms::MavlinkProtocol> protocol = std::make_shared<Comms::MavlinkProtocol>();
-            protocol->AddListner(this);
+            std::shared_ptr<Comms::MavlinkConfiguration> mavlinkConfig = std::make_shared<Comms::MavlinkConfiguration>();
 
             if(versionName == "V1")
             {
-                protocol->SetVersion(Comms::MavlinkProtocol::MavlinkVersion::MavlinkVersionAlways1);
+                mavlinkConfig->SetVersion(Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways1);
+            }
+            else if(versionName == "V2")
+            {
+                mavlinkConfig->SetVersion(Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways2);
+            }
+            else
+            {
+                throw std::runtime_error("Unknown mavlink version seen");
             }
 
-            m_LinkMarshler->AddProtocol(Comms::Protocols::MAVLINK, std::dynamic_pointer_cast<Comms::IProtocol>(protocol));
+            m_LinkMarshler->AddProtocol(*mavlinkConfig, this);
+
+            m_AvailableProtocols.insert({Comms::Protocols::MAVLINK, std::static_pointer_cast<Comms::ProtocolConfiguration>(mavlinkConfig)});
+            protocolConfig = mavlinkConfig;
         }
         else
         {
@@ -105,6 +117,7 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         int flowControl = serialSettings->GetTerminalValue<int>("FlowControl");
 
 
+        Comms::Protocols protocolToUse = Comms::Protocols::MAVLINK;
 
         Comms::SerialConfiguration config("config");
         config.setPortName(portName);
@@ -114,23 +127,55 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         config.setParity(parity);
         config.setFlowControl(flowControl);
 
-        std::shared_ptr<Comms::SerialLink> link = std::make_shared<Comms::SerialLink>(config);
-        m_LinkMarshler->AddLink(link);
+        m_LinkMarshler->AddLink("link1", config);
 
-        m_LinkMarshler->SetProtocolForLink(link, Comms::Protocols::MAVLINK);
 
-        link->Connect();
+        //now configure to use link with desired protocol
+        if(protocolToUse == Comms::Protocols::MAVLINK)
+        {
+            m_LinkMarshler->SetProtocolForLink("link1", Comms::Protocols::MAVLINK);
+
+            std::shared_ptr<Comms::MavlinkConfiguration> mavlinkConfig = std::static_pointer_cast<Comms::MavlinkConfiguration>(m_AvailableProtocols.at(Comms::Protocols::MAVLINK));
+
+            //set version on mavlink channel
+            // I would prefer to put this in Comms library, but because the mavlinkstatus is static variable, things get messed up when linking
+            uint8_t chan = m_LinkMarshler->GetProtocolChannel("link1");
+            mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(chan);
+            std::cout << mavlinkStatus << std::endl;
+            switch (mavlinkConfig->GetVersion()) {
+            case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersion2IfVehicle2:
+                if (mavlinkStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) {
+                    mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                    break;
+                }
+                // Fallthrough to set version 2
+            case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways2:
+                mavlinkStatus->flags &= ~MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                break;
+            default:
+            case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways1:
+                mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                break;
+            }
+        }
+
+
+        //connect link
+        m_LinkMarshler->ConnectToLink("link1");
+
 
         //test statements that will issue a log_request_list to device
-        //uint8_t chan = m_LinkMarshler->GetProtocolChannel(link);
+        //uint8_t chan = m_LinkMarshler->GetProtocolChannel("link1");
         //mavlink_message_t msg;
         //mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,0,0,0,0xFFFF);
-        //m_LinkMarshler->SendMessage<mavlink_message_t>(link, msg);
+        //m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
+
     }
     else
     {
         throw std::runtime_error("No Link has been configured for the vehicle MAVLINK module");
     }
+
 }
 
 
@@ -210,7 +255,7 @@ void ModuleVehicleMAVLINK::MessageReceived(const mavlink_message_t &message) con
 //! \param vehicleFirmwareType
 //! \param vehicleType
 //!
-void ModuleVehicleMAVLINK::VehicleHeartbeatInfo(const Comms::ILink* link, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
+void ModuleVehicleMAVLINK::VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
 {
     //std::cout << "Heartbeat" << std::endl;
 }
@@ -239,7 +284,7 @@ void ModuleVehicleMAVLINK::ReceiveLossTotalChanged(int uasId, int totalLoss) con
 //! \param noise
 //! \param remnoise
 //!
-void ModuleVehicleMAVLINK::RadioStatusChanged(const Comms::ILink *link, unsigned rxerrors, unsigned fixed, int rssi, int remrssi, unsigned txbuf, unsigned noise, unsigned remnoise) const
+void ModuleVehicleMAVLINK::RadioStatusChanged(const std::string &linkName, unsigned rxerrors, unsigned fixed, int rssi, int remrssi, unsigned txbuf, unsigned noise, unsigned remnoise) const
 {
 
 }

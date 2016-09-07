@@ -36,7 +36,6 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../comms/debug/ -lc
 else:unix: LIBS += -L$$OUT_PWD/../comms/ -lcomms
 
 
-
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
 INCLUDEPATH += $$PWD/../

@@ -41,7 +41,6 @@ public:
     static std::string cleanPortDisplayname(const std::string &name);
 
     /// From LinkConfiguration
-    LinkType    type            () { return LinkConfiguration::TypeSerial; }
     void        copyFrom        (LinkConfiguration* source);
     //void        loadSettings    (Settings& settings, const QString& root);
     //void        saveSettings    (Settings& settings, const QString& root);
