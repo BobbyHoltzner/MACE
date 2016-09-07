@@ -15,9 +15,10 @@ ConfigurationReader_XML::ConfigurationReader_XML(const MaceCore::ModuleFactory *
 //! \brief Parse all Parameter tags from an XML Node
 //! \param node XML node that contains "Parameter" tags
 //! \param structure Structure that parsing is expecting for this node
+//! \param superParameter Name of nested parameter that is being parsed, used for printouts, empty if top root.
 //! \return Resulting ModuleParameterValue object
 //!
-static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pugi::xml_node &node, const std::shared_ptr<MaceCore::ModuleParameterStructure> structure, ConfigurationParseResult &result)
+static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pugi::xml_node &node, const std::shared_ptr<MaceCore::ModuleParameterStructure> structure, ConfigurationParseResult &result, const std::string &superParameter = "")
 {
     std::shared_ptr<MaceCore::ModuleParameterValue> valueContainer = std::make_shared<MaceCore::ModuleParameterValue>();
 
@@ -40,23 +41,76 @@ static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pug
     {
         std::string parameterName = parameter.attribute("Name").as_string();
 
+        std::string nestedName = "";
+        if(superParameter != "")
+            nestedName += superParameter + ".";
+        nestedName += parameterName;
+
         if(structure->TerminalExists(parameterName) == true)
         {
             std::string terminalStringValue = std::string(parameter.child_value());
+
+            std::vector<std::string> allowedValues = structure->getTerminalAllowedEntires(parameterName);
+            bool isAllowed;
+            if(allowedValues.size() == 0)
+                isAllowed = true;
+            else
+            {
+                isAllowed = false;
+                for(std::string str : allowedValues)
+                {
+                    if(str == terminalStringValue)
+                    {
+                        isAllowed = true;
+                        break;
+                    }
+                }
+            }
+
+            if(isAllowed == false)
+            {
+                std::string allowedValuesStr = "[";
+                int i = 0;
+                for(std::string str : allowedValues)
+                {
+                    if(i != 0)
+                        allowedValuesStr += ", ";
+                    allowedValuesStr += str;
+                    i++;
+                }
+                allowedValuesStr += "]";
+
+                result.error = nestedName + " value of " + terminalStringValue + " does not match one of allowed values of " + allowedValuesStr;
+                result.success = false;
+                return valueContainer;
+            }
+
             valueContainer->AddTerminalValueFromString(parameterName, terminalStringValue, structure->getTerminalType(parameterName));
 
             seenTerminals[parameterName] = true;
         }
         else if(structure->NonTerminalExists(parameterName) == true)
         {
-            valueContainer->AddNonTerminal(parameterName, ParseParameters(parameter, structure->getNonTerminalStructure(parameterName), result));
+            //check if there are multiple entires for the non-terminal
+            if(valueContainer->HasNonTerminal(parameterName))
+            {
+                if(structure->getNonTerminalMultipleEntriesAllowed(parameterName) == true)
+                    throw std::runtime_error("Support for multiple entires of same tag not implimented");
+                else
+                {
+                    result.error = nestedName + " is present multiple times";
+                    result.success = false;
+                    return valueContainer;
+                }
+            }
+            valueContainer->AddNonTerminal(parameterName, ParseParameters(parameter, structure->getNonTerminalStructure(parameterName), result, nestedName));
 
             seenNonTerminals[parameterName] = true;
         }
         else
         {
             //The paramter in XML file is not defined in the structure, set as warning and continue;
-            result.warnings.push_back(parameterName + " paramater present in configuration does not associate to any expected nonterminal/terminal structure");
+            result.warnings.push_back(nestedName + " paramater present in configuration does not associate to any expected nonterminal/terminal structure");
         }
     }
 
@@ -64,37 +118,47 @@ static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pug
     //go through an check for any unused paramters
     for(auto it = seenTerminals.cbegin() ; it != seenTerminals.cend() ; ++it)
     {
+        std::string nestedName = "";
+        if(superParameter != "")
+            nestedName += superParameter + ".";
+        nestedName += it->first;
+
         //entry not present, check if required, otherwise add default value
         if(it->second == false)
         {
             if(structure->IsTagRequired(it->first) == true)
             {
-                result.error = it->first + " Parameter is not present and is marked as required";
+                result.error = nestedName + " not present and is marked as required";
                 result.success = false;
                 return valueContainer;
             }
             else
             {
                 std::string defaultValue = structure->getDefaultTerminalValue(it->first);
-                result.warnings.push_back(it->first + " Not set, using default value of " + defaultValue);
+                result.warnings.push_back(nestedName + " not set, using default value of " + defaultValue);
                 valueContainer->AddTerminalValueFromString(it->first, defaultValue, structure->getTerminalType(it->first));
             }
         }
     }
     for(auto it = seenNonTerminals.cbegin() ; it != seenNonTerminals.cend() ; ++it)
     {
+        std::string nestedName = "";
+        if(superParameter != "")
+            nestedName += superParameter + ".";
+        nestedName += it->first;
+
         //entry not present, check if required, otherwise add default value
         if(it->second == false)
         {
             if(structure->IsTagRequired(it->first) == true)
             {
-                result.error = it->first + " Parameter is not present and is marked as required";
+                result.error = nestedName + " not present and is marked as required";
                 result.success = false;
                 return valueContainer;
             }
             else
             {
-                result.warnings.push_back(it->first + " Not set, using default value");
+                result.warnings.push_back(nestedName + " not set, using default value");
                 valueContainer->AddNonTerminal(it->first, structure->getDefaultNonTerminalValue(it->first));
             }
         }
