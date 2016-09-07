@@ -62,7 +62,7 @@ make install
 ```
 Next add 
 ```
-PATH=/usr/local/Qt-%VERSION%/bin
+PATH=/usr/local/Qt-%VERSION%/bin:$PATH
 export PATH
 ```
 to `.profile`, after this change log-off/log-on would be required.
