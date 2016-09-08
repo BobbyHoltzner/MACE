@@ -11,37 +11,15 @@ List which MACE has been successfully targeted.
 
 ###Dependencies
 
+##Eigen
+
 install the download the lastest Eigen library from  
 `http://eigen.tuxfamily.org/index.php?title=Main_Page`
 
-###Compile MACE From Source With CMake
+##Qt Libraries
 
-From the project's root directoy create a build folder
-```
-mkdir build
-cd build
-``` 
-
-Next run CMake to generate build scripts
-```
-cmake -DBUILD_SHARED_LIBS=YES ../src
-```
-To instead place build outputs into projects directory
-```
-cmake -DBUILD_SHARED_LIBS=YES -DCMAKE_INSTALL_PREFIX="${PWD}/../" ../src
-```
-
-Finally make
-```
-make
-make install
-```
-
-###Develop with QT IDE
-
-The following steps detail how to develop with Qt on the odroid and how to build install nessessary components to build with qmake. Throughout these instructions %VERSION% will refer to the version of Qt installing, for me it was 5.7.0, but it may be different depending on your preference.
-
-####Install Qt
+Currently we utialize QtSerialPort library to faciliate communication to vehicles therefore Qt's libraries are required. However it is not required to use Qt's toolchain to build/develop MACE.
+Throughout these instructions %VERSION% will refer to the version of Qt installing, for me it was 5.7.0, but it may be different depending on your preference.
 
 Install Qt onto the host machine by downloading Qt source from  
 `https://www.qt.io/download-open-source/`
@@ -66,6 +44,52 @@ PATH=/usr/local/Qt-%VERSION%/bin:$PATH
 export PATH
 ```
 to `.profile`, after this change log-off/log-on would be required.
+
+###Compile MACE With CMake
+
+From the project's root directoy create a build folder
+```
+mkdir build
+cd build
+``` 
+
+Next run CMake to generate build scripts
+```
+cmake -DBUILD_SHARED_LIBS=YES ../src -DCMAKE_PREFIX_PATH=/usr/local/Qt-%VERSION%/
+```
+To instead place build outputs into projects directory
+```
+cmake -DBUILD_SHARED_LIBS=YES -DCMAKE_INSTALL_PREFIX="${PWD}/../" ../src -DCMAKE_PREFIX_PATH=/usr/local/Qt-%VERSION%/
+```
+
+Finally make
+```
+make
+make install
+```
+
+###Compile MACE With QMake
+
+From the project's root directoy create a build folder
+```
+mkdir build
+cd build
+```
+
+Next run CMake to generate build scripts
+```
+qmake ../src/src.pro
+```
+
+Finally make
+```
+make
+make install
+```
+
+###Develop with QT IDE
+
+The following steps detail how to develop with Qt on the odroid and how to install and operate qtcreator on the odroid to build MACE.
 
 ####Install QtCreator
 
@@ -98,4 +122,4 @@ Set Qt version to "Qt %VERSION% in PATH".
 Apply changes.
 
 Now open MACE/src/src.pro ensuring that it is using the kit you just created and build MACE project as you wish.
-Under "Project" option on right you may want to check "Shallow build" this helps keep your source directory clean of build artifacts.
+Under "Project" option on left you may want to check "Shadow build" this helps keep your source directory clean of build artifacts.
