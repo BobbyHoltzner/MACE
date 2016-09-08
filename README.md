@@ -55,7 +55,7 @@ cd build
 
 Next run CMake to generate build scripts
 ```
-cmake -DBUILD_SHARED_LIBS=YES ../src
+cmake -DBUILD_SHARED_LIBS=YES ../src -DCMAKE_PREFIX_PATH=/usr/local/%VERSION%/
 ```
 To instead place build outputs into projects directory
 ```
