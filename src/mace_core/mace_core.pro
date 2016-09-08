@@ -45,4 +45,10 @@ unix {
     INSTALLS += target
 }
 
+
+EigenInclude = $$system(pkg-config --cflags eigen3)
+EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
+INCLUDEPATH += $$EigenInclude
+
+
 INCLUDEPATH += $$PWD/../

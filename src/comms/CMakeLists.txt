@@ -7,14 +7,11 @@ find_package(Qt5SerialPort)
 
 include_directories(${PROJECT_SOURCE_DIR}/../mavlink_cpp/V2/ardupilotmega)
 
-add_library(module_vehicle_MAVLINK ${lib_srcs} ${lib_hdrs})
+add_library(comms ${lib_srcs} ${lib_hdrs})
  
-target_link_libraries(module_vehicle_MAVLINK mace_core)
-target_link_libraries(module_vehicle_MAVLINK comms)
-target_link_libraries(module_vehicle_MAVLINK Qt5::SerialPort)
+target_link_libraries(comms Qt5::SerialPort)
  
-install(TARGETS module_vehicle_MAVLINK
-  # IMPORTANT: Add the libjpeg library to the "export-set"
+install(TARGETS comms
   EXPORT MACETargets
   RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
   LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
@@ -22,6 +19,6 @@ install(TARGETS module_vehicle_MAVLINK
     
     
 INSTALL(FILES ${lib_hdrs}
-    DESTINATION "${INSTALL_INCLUDE_DIR}/module_vehicle_MAVLINK"
+    DESTINATION "${INSTALL_INCLUDE_DIR}/comms"
     )
     

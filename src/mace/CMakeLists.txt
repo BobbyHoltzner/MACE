@@ -4,16 +4,22 @@ file(GLOB lib_srcs *.cpp)
 file(GLOB lib_hdrs *.h)
 file(GLOB lib_hppdrs *.hpp)
 
+find_package(Qt5SerialPort)
+
 add_executable(MACE ${lib_srcs} ${lib_hdrs} ${lib_hppdrs})
 
 find_package (Threads)
 
+include_directories(${PROJECT_SOURCE_DIR}/../mavlink_cpp/V2/ardupilotmega)
+
 target_link_libraries (MACE ${CMAKE_THREAD_LIBS_INIT})
 
 target_link_libraries(MACE mace_core)
+target_link_libraries(MACE comms)
 target_link_libraries(MACE module_path_planning_NASAPhase2)
 target_link_libraries(MACE module_RTA_NASAPhase2)
 target_link_libraries(MACE module_vehicle_MAVLINK)
+target_link_libraries(MACE Qt5::SerialPort)
 
 #ADD_LIBRARY(exif_lib STATIC IMPORTED)
 #SET_TARGET_PROPERTIES(exif_lib PROPERTIES

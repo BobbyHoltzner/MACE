@@ -16,6 +16,8 @@ find_package(Eigen3 REQUIRED)
 message("Using Eigen library at: " ${EIGEN3_INCLUDE_DIR})
 include_directories(${EIGEN3_INCLUDE_DIR})
 
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 set (CMAKE_C_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
 set (CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS}")
 
@@ -57,6 +59,7 @@ include_directories(
  
 # Add sub-directories
 add_subdirectory(mace_core)
+add_subdirectory(comms)
 add_subdirectory(module_path_planning_NASAPhase2)
 add_subdirectory(module_RTA_NASAPhase2)
 add_subdirectory(module_vehicle_MAVLINK)
@@ -66,7 +69,7 @@ add_subdirectory(mace)
 # ===============================
  
 # Add all targets to the build-tree export set
-export(TARGETS mace_core module_path_planning_NASAPhase2 module_RTA_NASAPhase2 module_vehicle_MAVLINK MACE
+export(TARGETS mace_core comms module_path_planning_NASAPhase2 module_RTA_NASAPhase2 module_vehicle_MAVLINK MACE
   FILE "${PROJECT_BINARY_DIR}/MACETargets.cmake")
  
 # Export the package for use from the build-tree
