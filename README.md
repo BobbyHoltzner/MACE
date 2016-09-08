@@ -9,14 +9,14 @@ Use information bellow to buld entire source tree for your platform
 List which MACE has been successfully targeted.
 * GCC 4.6.4 or later
 
-###Dependencies
+### Dependencies
 
-##Eigen
+#### Eigen
 
 install the download the lastest Eigen library from  
 `http://eigen.tuxfamily.org/index.php?title=Main_Page`
 
-##Qt Libraries
+#### Qt Libraries
 
 Currently we utialize QtSerialPort library to faciliate communication to vehicles therefore Qt's libraries are required. However it is not required to use Qt's toolchain to build/develop MACE.
 Throughout these instructions %VERSION% will refer to the version of Qt installing, for me it was 5.7.0, but it may be different depending on your preference.
