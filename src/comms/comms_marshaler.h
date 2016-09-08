@@ -9,9 +9,11 @@
 
 #include "i_link.h"
 #include "serial_link.h"
-#include "mavlink_protocol.h"
+#include "protocol_mavlink.h"
 
 #include "i_link_events.h"
+
+#include "comms_events.h"
 
 namespace Comms
 {
@@ -35,7 +37,7 @@ enum class Protocols
 //!
 //! When multiple links are using the same protol, they utilize protocol channels to differiciante themselves.
 //!
-class LinkMarshaler : private ILinkEvents
+class CommsMarshaler : public Publisher<CommsEvents>, private ILinkEvents, private IProtocolMavlinkEvents
 {
 public:
 
@@ -43,14 +45,13 @@ public:
     /// Setup
     //////////////////////////////////////////////////////////////
 
-    LinkMarshaler();
+    CommsMarshaler();
 
     //!
     //! \brief Create a mavlink protocol to be used as transport layer of a link
     //! \param config Configuration of mavlink
-    //! \param ptr Listener object to issue events onto
     //!
-    void AddProtocol(const MavlinkConfiguration &config, IMavlinkCommsEvents * ptr);
+    void AddProtocol(const MavlinkConfiguration &config);
 
 
     //!
@@ -116,11 +117,72 @@ private:
 
     virtual void ConnectionRemoved(const void *sender) const;
 
+
+    //////////////////////////////////////////////////////////////
+    /// Generic Protocol Events
+    //////////////////////////////////////////////////////////////
+
+
+    //!
+    //! \brief A message about protocol has been generated
+    //! \param linkName Link identifier which generated call
+    //! \param title
+    //! \param message
+    //!
+    virtual void ProtocolStatusMessage(const ILink* link_ptr, const std::string &title, const std::string &message) const;
+
+
+
+    virtual void ReceiveLossPercentChanged(const ILink* link_ptr, int uasId, float lossPercent) const;
+    virtual void ReceiveLossTotalChanged(const ILink* link_ptr, int uasId, int totalLoss) const;
+
+
+
+
+    //////////////////////////////////////////////////////////////
+    /// MAVLINK Protocol Events
+    //////////////////////////////////////////////////////////////
+
+
+    //!
+    //! \brief A Message has been received over Mavlink protocol
+    //! \param linkName Link identifier which generated call
+    //! \param message Message that has been received
+    //!
+    virtual void MessageReceived(const ILink* link_ptr, const mavlink_message_t &message) const;
+
+
+    //!
+    //! \brief Heartbeat of vehicle received
+    //! \param link
+    //! \param vehicleId
+    //! \param vehicleMavlinkVersion
+    //! \param vehicleFirmwareType
+    //! \param vehicleType
+    //!
+    virtual void VehicleHeartbeatInfo(const ILink* link_ptr, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const;
+
+
+    //!
+    //! \brief A new radio status packet received
+    //! \param link
+    //! \param rxerrors
+    //! \param fixed
+    //! \param rssi
+    //! \param remrssi
+    //! \param txbuf
+    //! \param noise
+    //! \param remnoise
+    //!
+    virtual void RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors, unsigned fixed, int rssi, int remrssi, unsigned txbuf, unsigned noise, unsigned remnoise) const;
+
+
 private:
 
     std::unordered_map<Protocols, std::shared_ptr<IProtocol>, EnumClassHash> m_ProtocolObjects;
 
-    std::unordered_map<std::string, std::shared_ptr<ILink>> m_CreatedLinks;
+    std::unordered_map<std::string, std::shared_ptr<ILink>> m_CreatedLinksNameToPtr;
+    std::unordered_map<const ILink*, std::string> m_CreatedLinksPtrToName;
 
     std::unordered_map<ILink*, Protocols> m_LinksProtocol;
 

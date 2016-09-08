@@ -1,4 +1,4 @@
-#include "link_marshaler.h"
+#include "comms_marshaler.h"
 
 namespace Comms
 {
@@ -8,7 +8,7 @@ namespace Comms
 /// Setup
 //////////////////////////////////////////////////////////////
 
-LinkMarshaler::LinkMarshaler() :
+CommsMarshaler::CommsMarshaler() :
     m_MavlinkChannelsUsedBitMask(1)
 {
 
@@ -18,16 +18,14 @@ LinkMarshaler::LinkMarshaler() :
 //!
 //! \brief Create a mavlink protocol to be used as transport layer of a link
 //! \param config Configuration of mavlink
-//! \param ptr Listener object to issue events onto
 //!
-void LinkMarshaler::AddProtocol(const MavlinkConfiguration &config, IMavlinkCommsEvents *ptr)
+void CommsMarshaler::AddProtocol(const MavlinkConfiguration &config)
 {
     if(m_ProtocolObjects.find(Protocols::MAVLINK) != m_ProtocolObjects.cend())
         throw std::runtime_error("Mavlink protocol has already been created");
 
     std::shared_ptr<MavlinkProtocol> protocol = std::make_shared<MavlinkProtocol>(config);
-
-    protocol->AddListner(ptr);
+    protocol->AddListner(this);
 
     m_ProtocolObjects.insert({Protocols::MAVLINK, protocol});
 }
@@ -38,14 +36,15 @@ void LinkMarshaler::AddProtocol(const MavlinkConfiguration &config, IMavlinkComm
 //! \param name Name of link for use when referencing it later
 //! \param config Configuration of serial link
 //!
-void LinkMarshaler::AddLink(const std::string &name, const SerialConfiguration &config)
+void CommsMarshaler::AddLink(const std::string &name, const SerialConfiguration &config)
 {
-    if(m_CreatedLinks.find(name) != m_CreatedLinks.cend())
+    if(m_CreatedLinksNameToPtr.find(name) != m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name already exists");
 
     std::shared_ptr<ILink> link = std::make_shared<SerialLink>(config);
 
-    m_CreatedLinks.insert({name, link});
+    m_CreatedLinksNameToPtr.insert({name, link});
+    m_CreatedLinksPtrToName.insert({link.get(), name});
     link->AddListener(this);
 }
 
@@ -55,12 +54,12 @@ void LinkMarshaler::AddLink(const std::string &name, const SerialConfiguration &
 //! \param linkName Link name to set protocol of
 //! \param protocol Protocol type that link is to use
 //!
-void LinkMarshaler::SetProtocolForLink(const std::string &linkName, Protocols protocol)
+void CommsMarshaler::SetProtocolForLink(const std::string &linkName, Protocols protocol)
 {
-    if(m_CreatedLinks.find(linkName) == m_CreatedLinks.cend())
+    if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
 
-    std::shared_ptr<ILink> link = m_CreatedLinks.at(linkName);
+    std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(linkName);
 
     ILink* link_ptr = link.get();
     if(m_LinksProtocol.find(link_ptr) == m_LinksProtocol.cend())
@@ -100,12 +99,12 @@ void LinkMarshaler::SetProtocolForLink(const std::string &linkName, Protocols pr
 //! \brief Connect to an already created link
 //! \param linkName Name of link to connect to
 //!
-void LinkMarshaler::ConnectToLink(const std::string &linkName)
+void CommsMarshaler::ConnectToLink(const std::string &linkName)
 {
-    if(m_CreatedLinks.find(linkName) == m_CreatedLinks.cend())
+    if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
 
-    std::shared_ptr<ILink> link = m_CreatedLinks.at(linkName);
+    std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(linkName);
 
     link->Connect();
 }
@@ -125,12 +124,12 @@ void LinkMarshaler::ConnectToLink(const std::string &linkName)
 //! \param link Link to be used
 //! \return Channel for that link
 //!
-uint8_t LinkMarshaler::GetProtocolChannel(const std::string &linkName) const
+uint8_t CommsMarshaler::GetProtocolChannel(const std::string &linkName) const
 {
-    if(m_CreatedLinks.find(linkName) == m_CreatedLinks.cend())
+    if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
 
-    std::shared_ptr<ILink> link = m_CreatedLinks.at(linkName);
+    std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(linkName);
 
     Protocols protocol = m_LinksProtocol.at(link.get());
     std::shared_ptr<IProtocol> protocolObj =  m_ProtocolObjects.at(protocol);
@@ -147,12 +146,12 @@ uint8_t LinkMarshaler::GetProtocolChannel(const std::string &linkName) const
 //! \param message Message to send
 //!
 template <typename T>
-void LinkMarshaler::SendMessage(const std::string &linkName, const T& message)
+void CommsMarshaler::SendMessage(const std::string &linkName, const T& message)
 {
-    if(m_CreatedLinks.find(linkName) == m_CreatedLinks.cend())
+    if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
 
-    std::shared_ptr<ILink> link = m_CreatedLinks.at(linkName);
+    std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(linkName);
 
     switch(m_LinksProtocol.at(link.get()))
     {
@@ -175,7 +174,7 @@ void LinkMarshaler::SendMessage(const std::string &linkName, const T& message)
 /// React to Link Events
 //////////////////////////////////////////////////////////////
 
-void LinkMarshaler::ReceiveData(const void *sender, const std::vector<uint8_t> &buffer) const
+void CommsMarshaler::ReceiveData(const void *sender, const std::vector<uint8_t> &buffer) const
 {
     ILink *link= (ILink*)sender;
 
@@ -191,26 +190,115 @@ void LinkMarshaler::ReceiveData(const void *sender, const std::vector<uint8_t> &
 }
 
 
-void LinkMarshaler::CommunicationError(const std::string &type, const std::string &msg) const
+void CommsMarshaler::CommunicationError(const std::string &type, const std::string &msg) const
 {
     std::cout << "Error Type:" << type << "  Message:" << msg << std::endl;
 }
 
-void LinkMarshaler::CommunicationUpdate(const std::string &name, const std::string &msg) const
+void CommsMarshaler::CommunicationUpdate(const std::string &name, const std::string &msg) const
 {
     std::cout << "Update Type:" << name << "  Message:" << msg << std::endl;
 }
 
-void LinkMarshaler::Connected() const
+void CommsMarshaler::Connected() const
 {
     std::cout << "Connected" << std::endl;
 }
 
-void LinkMarshaler::ConnectionRemoved(const void *sender) const
+void CommsMarshaler::ConnectionRemoved(const void *sender) const
 {
     std::cout << "Connection removed" << std::endl;
 }
 
-template void LinkMarshaler::SendMessage<mavlink_message_t>(const std::string &, const mavlink_message_t&);
+
+
+//////////////////////////////////////////////////////////////
+/// Generic Protocol Events
+//////////////////////////////////////////////////////////////
+
+
+//!
+//! \brief A message about protocol has been generated
+//! \param linkName Link identifier which generated call
+//! \param title
+//! \param message
+//!
+void CommsMarshaler::ProtocolStatusMessage(const ILink* link_ptr, const std::string &title, const std::string &message) const
+{
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+}
+
+
+void CommsMarshaler::ReceiveLossPercentChanged(const ILink* link_ptr, int uasId, float lossPercent) const
+{
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+}
+
+void CommsMarshaler::ReceiveLossTotalChanged(const ILink* link_ptr, int uasId, int totalLoss) const
+{
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+}
+
+
+
+
+//////////////////////////////////////////////////////////////
+/// MAVLINK Protocol Events
+//////////////////////////////////////////////////////////////
+
+
+//!
+//! \brief A Message has been received over Mavlink protocol
+//! \param linkName Link identifier which generated call
+//! \param message Message that has been received
+//!
+void CommsMarshaler::MessageReceived(const ILink* link_ptr, const mavlink_message_t &message) const
+{
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](const CommsEvents *ptr){ptr->MavlinkMessage(m_CreatedLinksPtrToName.at(link_ptr), message);});
+}
+
+
+//!
+//! \brief Heartbeat of vehicle received
+//! \param link
+//! \param vehicleId
+//! \param vehicleMavlinkVersion
+//! \param vehicleFirmwareType
+//! \param vehicleType
+//!
+void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
+{
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+}
+
+
+//!
+//! \brief A new radio status packet received
+//! \param link
+//! \param rxerrors
+//! \param fixed
+//! \param rssi
+//! \param remrssi
+//! \param txbuf
+//! \param noise
+//! \param remnoise
+//!
+void CommsMarshaler::RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors, unsigned fixed, int rssi, int remrssi, unsigned txbuf, unsigned noise, unsigned remnoise) const
+{
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+}
+
+
+
+
+template void CommsMarshaler::SendMessage<mavlink_message_t>(const std::string &, const mavlink_message_t&);
 
 }//END Comms

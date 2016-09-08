@@ -7,8 +7,8 @@
 
 #include "mace_core/i_module_command_vehicle.h"
 
-#include "comms/link_marshaler.h"
-#include "comms/i_mavlink_protocol_events.h"
+#include "comms/comms_marshaler.h"
+#include "comms/i_protocol_mavlink_events.h"
 
 #include "comms/serial_configuration.h"
 
@@ -35,7 +35,7 @@
  *
  * */
 
-class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK : public MaceCore::IModuleCommandVehicle, public Comms::IMavlinkCommsEvents
+class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK : public MaceCore::IModuleCommandVehicle, public Comms::CommsEvents
 {
 
 public:
@@ -96,53 +96,20 @@ public:
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///              PROTOCOL EVENTS
+    ///              COMM EVENTS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     //!
-    //! \brief A message about protocol has been generated
-    //! \param title
-    //! \param message
+    //! \brief New Mavlink message received over a link
+    //! \param linkName Name of link message received over
+    //! \param msg Message received
     //!
-    virtual void ProtocolStatusMessage(const std::string &title, const std::string &message) const;
-
-    //!
-    //! \brief A Message has been received over Mavlink protocol
-    //! \param message Message that has been received
-    //!
-    virtual void MessageReceived(const mavlink_message_t &message) const;
-
-    //!
-    //! \brief Heartbeat of vehicle received
-    //! \param link
-    //! \param vehicleId
-    //! \param vehicleMavlinkVersion
-    //! \param vehicleFirmwareType
-    //! \param vehicleType
-    //!
-    virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const;
-
-    virtual void ReceiveLossPercentChanged(int uasId, float lossPercent) const;
-    virtual void ReceiveLossTotalChanged(int uasId, int totalLoss) const;
-
-
-    //!
-    //! \brief A new radio status packet received
-    //! \param link
-    //! \param rxerrors
-    //! \param fixed
-    //! \param rssi
-    //! \param remrssi
-    //! \param txbuf
-    //! \param noise
-    //! \param remnoise
-    //!
-    virtual void RadioStatusChanged(const std::string &linkName, unsigned rxerrors, unsigned fixed, int rssi, int remrssi, unsigned txbuf, unsigned noise, unsigned remnoise) const;
+    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg) const;
 
 private:
 
-    Comms::LinkMarshaler *m_LinkMarshler;
+    Comms::CommsMarshaler *m_LinkMarshler;
 
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
 

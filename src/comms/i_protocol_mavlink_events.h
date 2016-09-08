@@ -8,6 +8,8 @@
 
 #include "i_link.h"
 
+#include "i_protocol_events.h"
+
 
 namespace Comms
 {
@@ -15,22 +17,17 @@ namespace Comms
 //!
 //! \brief Interface that it to be implimented by users of MavlinkComms to listen for any events it fired
 //!
-class IMavlinkCommsEvents
+class IProtocolMavlinkEvents : public IProtocolEvents
 {
 public:
 
     //!
-    //! \brief A message about protocol has been generated
-    //! \param title
-    //! \param message
-    //!
-    virtual void ProtocolStatusMessage(const std::string &title, const std::string &message) const = 0;
-
-    //!
     //! \brief A Message has been received over Mavlink protocol
+    //! \param linkName Link identifier which generated command
     //! \param message Message that has been received
     //!
-    virtual void MessageReceived(const mavlink_message_t &message) const = 0;
+    virtual void MessageReceived(const ILink* link_ptr, const mavlink_message_t &message) const = 0;
+
 
     //!
     //! \brief Heartbeat of vehicle received
@@ -40,10 +37,7 @@ public:
     //! \param vehicleFirmwareType
     //! \param vehicleType
     //!
-    virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const = 0;
-
-    virtual void ReceiveLossPercentChanged(int uasId, float lossPercent) const = 0;
-    virtual void ReceiveLossTotalChanged(int uasId, int totalLoss) const = 0;
+    virtual void VehicleHeartbeatInfo(const ILink* link_ptr, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const = 0;
 
 
     //!
@@ -57,7 +51,7 @@ public:
     //! \param noise
     //! \param remnoise
     //!
-    virtual void RadioStatusChanged(const std::string &linkName, unsigned rxerrors, unsigned fixed, int rssi, int remrssi, unsigned txbuf, unsigned noise, unsigned remnoise) const = 0;
+    virtual void RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors, unsigned fixed, int rssi, int remrssi, unsigned txbuf, unsigned noise, unsigned remnoise) const = 0;
 };
 
 

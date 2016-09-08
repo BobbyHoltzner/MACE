@@ -14,5 +14,6 @@ DEFINES += COMMON_LIBRARY
 SOURCES +=
 
 HEADERS += common.h\
-    enum_class_hash.h
+    enum_class_hash.h \
+    publisher.h
 

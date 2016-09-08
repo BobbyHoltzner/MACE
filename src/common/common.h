@@ -5,6 +5,7 @@
 #define UNUSED(x) (void)(x)
 
 #include "enum_class_hash.h"
+#include "publisher.h"
 
 #include <cstddef>
 

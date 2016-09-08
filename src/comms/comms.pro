@@ -15,24 +15,26 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
     serial_link.cpp \
-    mavlink_protocol.cpp \
-    link_marshaler.cpp \
     serial_configuration.cpp \
-    mavlink_configuration.cpp
+    mavlink_configuration.cpp \
+    comms_marshaler.cpp \
+    protocol_mavlink.cpp
 
 HEADERS +=\
     i_link.h \
     serial_link.h \
     i_protocol.h \
     comms_global.h \
-    mavlink_protocol.h \
-    link_marshaler.h \
-    i_mavlink_protocol_events.h \
     i_link_events.h \
     serial_configuration.h \
     link_configuration.h \
     protocol_configuration.h \
-    mavlink_configuration.h
+    mavlink_configuration.h \
+    comms_marshaler.h \
+    i_protocol_events.h \
+    i_protocol_mavlink_events.h \
+    protocol_mavlink.h \
+    comms_events.h
 
 unix {
     target.path = /usr/local/lib

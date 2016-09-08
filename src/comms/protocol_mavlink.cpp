@@ -1,4 +1,4 @@
-#include "mavlink_protocol.h"
+#include "protocol_mavlink.h"
 
 #include <iostream>
 
@@ -15,7 +15,7 @@ MavlinkProtocol::MavlinkProtocol(const MavlinkConfiguration &config) :
     memset(&currLossCounter, 0, sizeof(currLossCounter));
 }
 
-void MavlinkProtocol::AddListner(const IMavlinkCommsEvents* listener)
+void MavlinkProtocol::AddListner(const IProtocolMavlinkEvents* listener)
 {
     m_Listners.push_back(listener);
 }
@@ -134,9 +134,9 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
 
             // Obviously the user tries to use a 0.9 autopilot
             // with QGroundControl built for version 1.0
-            Emit([](const IMavlinkCommsEvents* ptr)
+            Emit([&link](const IProtocolMavlinkEvents* ptr)
             {
-                ptr->ProtocolStatusMessage("MAVLINK Protocol", std::string("There is a MAVLink Version or Baud Rate Mismatch. ") +
+                ptr->ProtocolStatusMessage(link, "MAVLINK Protocol", std::string("There is a MAVLink Version or Baud Rate Mismatch. ") +
                                                                "Your MAVLink device seems to use the deprecated version 0.9, while QGroundControl only supports version 1.0+. " +
                                                                "Please upgrade the MAVLink version of your autopilot. " +
                                                                "If your autopilot is using version 1.0, check if the baud rates of QGroundControl and your autopilot are the same.");
@@ -157,9 +157,9 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
                 else
                 {
                     warnedUserNonMavlink = true;
-                    Emit([](const IMavlinkCommsEvents* ptr)
+                    Emit([&link](const IProtocolMavlinkEvents* ptr)
                     {
-                        ptr->ProtocolStatusMessage("MAVLINK Protocol", std::string("There is a MAVLink Version or Baud Rate Mismatch. ") +
+                        ptr->ProtocolStatusMessage(link, "MAVLINK Protocol", std::string("There is a MAVLink Version or Baud Rate Mismatch. ") +
                                                                        "Please check if the baud rates of QGroundControl and your autopilot are the same.");
                     });
                 }
@@ -208,7 +208,7 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
                     remrssi = (int8_t) rstatus.remrssi;
                 }
 
-                Emit([&](const IMavlinkCommsEvents* ptr){ptr->RadioStatusChanged(link->GetLinkName(), rstatus.rxerrors, rstatus.fixed, rssi, remrssi, rstatus.txbuf, rstatus.noise, rstatus.remnoise);});
+                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->RadioStatusChanged(link, rstatus.rxerrors, rstatus.fixed, rssi, remrssi, rstatus.txbuf, rstatus.noise, rstatus.remnoise);});
             }
 
             /*
@@ -263,7 +263,7 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
 
                 mavlink_heartbeat_t heartbeat;
                 mavlink_msg_heartbeat_decode(&message, &heartbeat);
-                Emit([&](const IMavlinkCommsEvents* ptr){ptr->VehicleHeartbeatInfo(link->GetLinkName(), message.sysid, heartbeat.mavlink_version, heartbeat.autopilot, heartbeat.type);});
+                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->VehicleHeartbeatInfo(link, message.sysid, heartbeat.mavlink_version, heartbeat.autopilot, heartbeat.type);});
             }
 
             // Increase receive counter
@@ -305,14 +305,14 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
                 receiveLossPercent *= 100.0f;
                 currLossCounter[mavlinkChannel] = 0;
                 currReceiveCounter[mavlinkChannel] = 0;
-                Emit([&](const IMavlinkCommsEvents* ptr){ptr->ReceiveLossPercentChanged(message.sysid, receiveLossPercent);});
-                Emit([&](const IMavlinkCommsEvents* ptr){ptr->ReceiveLossPercentChanged(message.sysid, totalLossCounter[mavlinkChannel]);});
+                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->ReceiveLossPercentChanged(link, message.sysid, receiveLossPercent);});
+                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->ReceiveLossPercentChanged(link, message.sysid, totalLossCounter[mavlinkChannel]);});
             }
 
             // The packet is emitted as a whole, as it is only 255 - 261 bytes short
             // kind of inefficient, but no issue for a groundstation pc.
             // It buys as reentrancy for the whole code over all threads
-            Emit([&message](const IMavlinkCommsEvents* ptr){ptr->MessageReceived(message);});
+            Emit([&message,&link](const IProtocolMavlinkEvents* ptr){ptr->MessageReceived(link, message);});
         }
     }
 }

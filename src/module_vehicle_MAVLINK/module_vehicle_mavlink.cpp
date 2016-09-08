@@ -7,7 +7,7 @@
 #include <QSerialPort>
 
 #include "comms/serial_link.h"
-#include "comms/mavlink_protocol.h"
+#include "comms/protocol_mavlink.h"
 
 
 /*
@@ -29,8 +29,9 @@
 
 ModuleVehicleMAVLINK::ModuleVehicleMAVLINK() :
     MaceCore::IModuleCommandVehicle(),
-    m_LinkMarshler(new Comms::LinkMarshaler)
+    m_LinkMarshler(new Comms::CommsMarshaler)
 {
+    m_LinkMarshler->AddSubscriber(this);
 }
 
 
@@ -92,7 +93,7 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
                 throw std::runtime_error("Unknown mavlink version seen");
             }
 
-            m_LinkMarshler->AddProtocol(*mavlinkConfig, this);
+            m_LinkMarshler->AddProtocol(*mavlinkConfig);
 
             m_AvailableProtocols.insert({Comms::Protocols::MAVLINK, std::static_pointer_cast<Comms::ProtocolConfiguration>(mavlinkConfig)});
             protocolConfig = mavlinkConfig;
@@ -218,24 +219,16 @@ void ModuleVehicleMAVLINK::CommandsAppended()
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-///              PROTOCOL EVENTS
+///              COMM EVENTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//!
-//! \brief A message about protocol has been generated
-//! \param title
-//! \param message
-//!
-void ModuleVehicleMAVLINK::ProtocolStatusMessage(const std::string &title, const std::string &message) const
-{
-}
 
 
 //!
 //! \brief A Message has been received over Mavlink protocol
+//! \param linkName Link identifier which generated call
 //! \param message Message that has been received
 //!
-void ModuleVehicleMAVLINK::MessageReceived(const mavlink_message_t &message) const
+void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message) const
 {
     //std::cout << "Message" << std::endl;
     std::cout << "  ID: " << message.msgid << std::endl;
@@ -243,45 +236,3 @@ void ModuleVehicleMAVLINK::MessageReceived(const mavlink_message_t &message) con
         std::cout << "AsdfaSD" << std::endl;
 }
 
-
-//!
-//! \brief Heartbeat of vehicle received
-//! \param link
-//! \param vehicleId
-//! \param vehicleMavlinkVersion
-//! \param vehicleFirmwareType
-//! \param vehicleType
-//!
-void ModuleVehicleMAVLINK::VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
-{
-    //std::cout << "Heartbeat" << std::endl;
-}
-
-
-void ModuleVehicleMAVLINK::ReceiveLossPercentChanged(int uasId, float lossPercent) const
-{
-
-}
-
-
-void ModuleVehicleMAVLINK::ReceiveLossTotalChanged(int uasId, int totalLoss) const
-{
-
-}
-
-
-//!
-//! \brief A new radio status packet received
-//! \param link
-//! \param rxerrors
-//! \param fixed
-//! \param rssi
-//! \param remrssi
-//! \param txbuf
-//! \param noise
-//! \param remnoise
-//!
-void ModuleVehicleMAVLINK::RadioStatusChanged(const std::string &linkName, unsigned rxerrors, unsigned fixed, int rssi, int remrssi, unsigned txbuf, unsigned noise, unsigned remnoise) const
-{
-
-}

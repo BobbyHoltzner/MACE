@@ -11,7 +11,7 @@
 
 #include "mavlink.h"
 #include "i_link.h"
-#include "i_mavlink_protocol_events.h"
+#include "i_protocol_mavlink_events.h"
 
 #include "i_protocol.h"
 
@@ -28,7 +28,7 @@ class COMMSSHARED_EXPORT MavlinkProtocol : public IProtocol
 public:
     MavlinkProtocol(const MavlinkConfiguration &config);
 
-    void AddListner(const IMavlinkCommsEvents* listener);
+    void AddListner(const IProtocolMavlinkEvents* listener);
 
     MavlinkConfiguration Configuration() const;
 
@@ -79,9 +79,9 @@ public:
 
 private:
 
-    void Emit(const std::function<void(const IMavlinkCommsEvents*)> func)
+    void Emit(const std::function<void(const IProtocolMavlinkEvents*)> func)
     {
-        for(const IMavlinkCommsEvents* listener : m_Listners)
+        for(const IProtocolMavlinkEvents* listener : m_Listners)
             func(listener);
     }
 
@@ -99,7 +99,7 @@ private:
     int currLossCounter[MAVLINK_COMM_NUM_BUFFERS];        ///< Lost messages during this sample time window. Used for calculating loss %.
 
 
-    std::vector<const IMavlinkCommsEvents*> m_Listners;
+    std::vector<const IProtocolMavlinkEvents*> m_Listners;
 
     std::unordered_map<const ILink*, uint8_t> m_MavlinkChannels;
 
