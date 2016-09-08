@@ -25,23 +25,23 @@ public:
     AbstractModule_VehicleListener() :
         AbstractModule_EventListeners<T,I, CT>()
     {
-        this->m_EventLooper.template AddLambda<std::string>(CT::NEW_VEHICLE, [this](const std::string &ID){
+        this->template AddCommandLogic<std::string>(CT::NEW_VEHICLE, [this](const std::string &ID){
             NewVehicle(ID);
         });
 
-        this->m_EventLooper.template AddLambda<std::string>(CT::REMOVE_VEHICLE, [this](const std::string &ID){
+        this->template AddCommandLogic<std::string>(CT::REMOVE_VEHICLE, [this](const std::string &ID){
             RemoveVehicle(ID);
         });
 
-        this->m_EventLooper.template AddLambda<std::string>(CT::UPDATED_POSITION_DYNAMICS, [this](const std::string &ID){
+        this->template AddCommandLogic<std::string>(CT::UPDATED_POSITION_DYNAMICS, [this](const std::string &ID){
             UpdatedPositionDynamics(ID);
         });
 
-        this->m_EventLooper.template AddLambda<std::string>(CT::UPDATED_ATTITUDE_DYNAMICS, [this](const std::string &ID){
+        this->template AddCommandLogic<std::string>(CT::UPDATED_ATTITUDE_DYNAMICS, [this](const std::string &ID){
             UpdateAttitudeDynamics(ID);
         });
 
-        this->m_EventLooper.template AddLambda<std::string>(CT::UPDATED_VEHICLE_LIFE, [this](const std::string &ID){
+        this->template AddCommandLogic<std::string>(CT::UPDATED_VEHICLE_LIFE, [this](const std::string &ID){
             UpdatedVehicleLife(ID);
         });
 

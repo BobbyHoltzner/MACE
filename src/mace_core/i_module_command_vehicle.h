@@ -31,15 +31,15 @@ public:
     IModuleCommandVehicle():
         AbstractModule_EventListeners()
     {
-        m_EventLooper.AddLambda(VehicleCommands::FOLLOW_NEW_COMMANDS, [this](){
+        AddCommandLogic(VehicleCommands::FOLLOW_NEW_COMMANDS, [this](){
             FollowNewCommands();
         });
 
-        m_EventLooper.AddLambda(VehicleCommands::FINISH_AND_FOLLOW_COMMANDS, [this](){
+        AddCommandLogic(VehicleCommands::FINISH_AND_FOLLOW_COMMANDS, [this](){
             FinishAndFollowNewCommands();
         });
 
-        m_EventLooper.AddLambda(VehicleCommands::COMMANDS_APPENDED, [this](){
+        AddCommandLogic(VehicleCommands::COMMANDS_APPENDED, [this](){
             CommandsAppended();
         });
     }

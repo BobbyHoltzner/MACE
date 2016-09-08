@@ -32,11 +32,11 @@ public:
     IModuleCommandPathPlanning():
         AbstractModule_VehicleListener()
     {
-        m_EventLooper.AddLambda<std::string>(PathPlanningCommands::NEW_VEHICLE_TARGET, [this](const std::string &vehicleID){
+        AddCommandLogic<std::string>(PathPlanningCommands::NEW_VEHICLE_TARGET, [this](const std::string &vehicleID){
             NewVehicleTarget(vehicleID);
         });
 
-        m_EventLooper.AddLambda(PathPlanningCommands::RECOMPUTE_PATHS, [this](){
+        AddCommandLogic(PathPlanningCommands::RECOMPUTE_PATHS, [this](){
             RecomputePaths();
         });
     }

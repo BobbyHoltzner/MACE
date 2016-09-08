@@ -31,7 +31,7 @@ public:
     IModuleCommandRTA():
         AbstractModule_VehicleListener()
     {
-        m_EventLooper.AddLambda(RTACommands::UPDATED_OCCUPANCY_MAP, [this](){
+        AddCommandLogic(RTACommands::UPDATED_OCCUPANCY_MAP, [this](){
             UpdatedOccupancyMap();
         });
     }
