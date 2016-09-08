@@ -20,7 +20,7 @@ HEADERS += module_vehicle_mavlink.h\
         module_vehicle_mavlink_global.h
 
 unix {
-    target.path = /usr/lib
+    target.path = /usr/local/lib
     INSTALLS += target
 }
 

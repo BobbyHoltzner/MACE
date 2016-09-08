@@ -35,7 +35,7 @@ HEADERS +=\
     mavlink_configuration.h
 
 unix {
-    target.path = /usr/lib
+    target.path = /usr/local/lib
     INSTALLS += target
 }
 

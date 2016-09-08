@@ -41,7 +41,7 @@ HEADERS += mace_core.h\
     command_marshler.h
 
 unix {
-    target.path = /usr/lib
+    target.path = /usr/local/lib
     INSTALLS += target
 }
 

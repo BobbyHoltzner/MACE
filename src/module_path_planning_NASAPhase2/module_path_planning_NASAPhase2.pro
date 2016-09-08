@@ -19,7 +19,7 @@ HEADERS += module_path_planning_nasaphase2.h \
     module_path_planning_nasaphase2_global.h
 
 unix {
-    target.path = /usr/lib
+    target.path = /usr/local/lib
     INSTALLS += target
 }
 

@@ -19,7 +19,7 @@ HEADERS += module_rta_nasaphase2.h\
         module_rta_nasaphase2_global.h
 
 unix {
-    target.path = /usr/lib
+    target.path = /usr/local/lib
     INSTALLS += target
 }
 

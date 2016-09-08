@@ -23,6 +23,8 @@ int main(int argc, char *argv[])
     core.AddDataFusion(data);
 
     std::string filename = "MaceSetup.xml";
+    if(argc >= 2)
+        filename = argv[1];
 
     std::cout << "Reading MACE configuration file from: " << filename << std::endl;
 
