@@ -55,11 +55,11 @@ cd build
 
 Next run CMake to generate build scripts
 ```
-cmake -DBUILD_SHARED_LIBS=YES ../src -DCMAKE_PREFIX_PATH=/usr/local/%VERSION%/
+cmake -DBUILD_SHARED_LIBS=YES ../src -DCMAKE_PREFIX_PATH=/usr/local/Qt-%VERSION%/
 ```
 To instead place build outputs into projects directory
 ```
-cmake -DBUILD_SHARED_LIBS=YES -DCMAKE_INSTALL_PREFIX="${PWD}/../" ../src -DCMAKE_PREFIX_PATH=/usr/local/%VERSION%/
+cmake -DBUILD_SHARED_LIBS=YES -DCMAKE_INSTALL_PREFIX="${PWD}/../" ../src -DCMAKE_PREFIX_PATH=/usr/local/Qt-%VERSION%/
 ```
 
 Finally make
