@@ -45,7 +45,7 @@ export PATH
 ```
 to `.profile`, after this change log-off/log-on would be required.
 
-###Compile MACE From Source With CMake
+###Compile MACE With CMake
 
 From the project's root directoy create a build folder
 ```
@@ -59,7 +59,26 @@ cmake -DBUILD_SHARED_LIBS=YES ../src
 ```
 To instead place build outputs into projects directory
 ```
-cmake -DBUILD_SHARED_LIBS=YES -DCMAKE_INSTALL_PREFIX="${PWD}/../" ../src
+cmake -DBUILD_SHARED_LIBS=YES -DCMAKE_INSTALL_PREFIX="${PWD}/../" ../src -DCMAKE_PREFIX_PATH=/usr/local/%VERSION%/
+```
+
+Finally make
+```
+make
+make install
+```
+
+###Compile MACE With QMake
+
+From the project's root directoy create a build folder
+```
+mkdir build
+cd build
+```
+
+Next run CMake to generate build scripts
+```
+qmake ../src/src.pro
 ```
 
 Finally make
@@ -70,7 +89,7 @@ make install
 
 ###Develop with QT IDE
 
-The following steps detail how to develop with Qt on the odroid and how to build install nessessary components to build with qmake. It is assumed Qt is installed as previously instructed.
+The following steps detail how to develop with Qt on the odroid and how to install and operate qtcreator on the odroid to build MACE.
 
 ####Install QtCreator
 
@@ -103,4 +122,4 @@ Set Qt version to "Qt %VERSION% in PATH".
 Apply changes.
 
 Now open MACE/src/src.pro ensuring that it is using the kit you just created and build MACE project as you wish.
-Under "Project" option on right you may want to check "Shallow build" this helps keep your source directory clean of build artifacts.
+Under "Project" option on left you may want to check "Shadow build" this helps keep your source directory clean of build artifacts.
