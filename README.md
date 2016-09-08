@@ -14,7 +14,7 @@ List which MACE has been successfully targeted.
 install the download the lastest Eigen library from  
 `http://eigen.tuxfamily.org/index.php?title=Main_Page`
 
-###Compile From Source
+###Compile MACE From Source With CMake
 
 From the project's root directoy create a build folder
 ```
