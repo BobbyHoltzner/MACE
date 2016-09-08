@@ -11,8 +11,39 @@ List which MACE has been successfully targeted.
 
 ###Dependencies
 
+##Eigen
+
 install the download the lastest Eigen library from  
 `http://eigen.tuxfamily.org/index.php?title=Main_Page`
+
+##Qt Libraries
+
+Currently we utialize QtSerialPort library to faciliate communication to vehicles therefore Qt's libraries are required. However it is not required to use Qt's toolchain to build/develop MACE.
+Throughout these instructions %VERSION% will refer to the version of Qt installing, for me it was 5.7.0, but it may be different depending on your preference.
+
+Install Qt onto the host machine by downloading Qt source from  
+`https://www.qt.io/download-open-source/`
+
+The following instructions are largely based on Qt's own instructions: [http://doc.qt.io/qt-5/linux-building.html](http://doc.qt.io/qt-5/linux-building.html).
+
+Prior to building ensure libxcb is installed by running:
+```
+apt-get install libxcb1-dev
+apt-get install libx11-dev
+```
+
+To build Qt Tool chain navigate a shell to the unziped folder and run
+```
+./configure -opensource -confirm-license -qt-xcb
+make
+make install
+```
+Next add 
+```
+PATH=/usr/local/Qt-%VERSION%/bin:$PATH
+export PATH
+```
+to `.profile`, after this change log-off/log-on would be required.
 
 ###Compile MACE From Source With CMake
 
@@ -39,33 +70,7 @@ make install
 
 ###Develop with QT IDE
 
-The following steps detail how to develop with Qt on the odroid and how to build install nessessary components to build with qmake. Throughout these instructions %VERSION% will refer to the version of Qt installing, for me it was 5.7.0, but it may be different depending on your preference.
-
-####Install Qt
-
-Install Qt onto the host machine by downloading Qt source from  
-`https://www.qt.io/download-open-source/`
-
-The following instructions are largely based on Qt's own instructions: [http://doc.qt.io/qt-5/linux-building.html](http://doc.qt.io/qt-5/linux-building.html).
-
-Prior to building ensure libxcb is installed by running:
-```
-apt-get install libxcb1-dev
-apt-get install libx11-dev
-```
-
-To build Qt Tool chain navigate a shell to the unziped folder and run
-```
-./configure -opensource -confirm-license -qt-xcb
-make
-make install
-```
-Next add 
-```
-PATH=/usr/local/Qt-%VERSION%/bin:$PATH
-export PATH
-```
-to `.profile`, after this change log-off/log-on would be required.
+The following steps detail how to develop with Qt on the odroid and how to build install nessessary components to build with qmake. It is assumed Qt is installed as previously instructed.
 
 ####Install QtCreator
 
