@@ -13,6 +13,8 @@
 
 #include "observation_history.h"
 
+#include "matrix_operations.h"
+
 namespace MaceCore
 {
 
@@ -177,9 +179,10 @@ public:
 
 
     //!
-    //! \brief get the Target list of a specific vehicle
+    //! \brief get the list of targets that a specific vehicle is to move to
     //!
-    //! The target is a macro-level list, a vehicle should not be flown based on targets.
+    //! The target is a macro-level list, of general positions a vehicle is to acheive.
+    //! Targets may not express the actuall path a vehicle is to take, therefore a vehicle should not be flown based on targets.
     //! Will return empty array if no targets are desired for vehicle
     //! \param vehicleID Id of Vehicle
     //! \return List of targeted positions.
@@ -198,7 +201,7 @@ public:
     //!
     //! \brief get the command dynamics for a specific vehicle.
     //!
-    //! Commands are micro-level list of attitudes the vehicle is to physically achieve to reach a target.
+    //! Commands are micro-level list of positions/attitude the vehicle is to physically achieve to reach a target.
     //! Will return empty array if no attitudes are commanded for vehicle
     //! \param vehicleID ID of Vehicle
     //! \return list of commanded dynamics
@@ -225,7 +228,7 @@ private:
     //! \brief Entirely replaces the stored Resource map with given matrix
     //! \param occupancy map to replace with
     //!
-    void ReplaceResourceMap(const Eigen::MatrixXd &newResourceMap)
+    void ResourceMap_ReplaceMatrix(const Eigen::MatrixXd &newResourceMap)
     {
         std::lock_guard<std::mutex> guard(m_Mutex_ResourceMap);
 
@@ -234,13 +237,28 @@ private:
 
 
     //!
+    //! \brief Replace a discrete set of cells in the resource map
+    //!
+    //! Thread Safe
+    //! May be faster than ResourceMap_ReplaceMatrix if operations are sparse
+    //! \param cells Vector of cells to replace in the resourse map
+    //!
+    void ResourceMap_ReplaceCells(const std::vector<MatrixCellData<double>> &cells)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_ResourceMap);
+
+        ReplaceCellsInMatrix(m_ResourceMap, cells);
+    }
+
+
+    //!
     //! \brief Call lambda function to modify components of Resource map
     //!
     //! Thread Safe
-    //! May be faster than ReplaceResourceMap if operations are sparse
+    //! May be faster than ResourceMap_ReplaceMatrix if operations are sparse
     //! \param func Lambda function to modify map
     //!
-    void OperateOnResourceMap(std::function<void(Eigen::MatrixXd &)> &func)
+    void ResourceMap_GenericOperation(const std::function<void(Eigen::MatrixXd &)> &func)
     {
         std::lock_guard<std::mutex> guard(m_Mutex_ResourceMap);
 
@@ -248,11 +266,14 @@ private:
     }
 
 
+
+
+
     //!
     //! \brief Entirely replaces the stored occupancy map with given matrix
     //! \param occupancy map to replace with
     //!
-    void ReplaceOccupanyMap(const Eigen::MatrixXd &newOccupancyMap)
+    void OccupancyMap_ReplaceMatrix(const Eigen::MatrixXd &newOccupancyMap)
     {
         std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
 
@@ -261,13 +282,28 @@ private:
 
 
     //!
+    //! \brief Replace a discrete set of cells in the occupancy map
+    //!
+    //! Thread Safe
+    //! May be faster than OccupancyMap_ReplaceMatrix if operations are sparse
+    //! \param cells Vector of cells to replace in the resourse map
+    //!
+    void OccupanyMap_ReplaceCells(const std::vector<MatrixCellData<double>> &cells)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
+
+        ReplaceCellsInMatrix(m_OccupancyMap, cells);
+    }
+
+
+    //!
     //! \brief Call lambda function to modify components of Occupancy map
     //!
     //! Thread Safe
-    //! May be faster than ReplaceOccupanyMap if operations are sparse
+    //! May be faster than OccupancyMap_ReplaceMatrix if operations are sparse
     //! \param func Lambda function to modify map
     //!
-    void OperateOnOccupanyMap(std::function<void(Eigen::MatrixXd &)> &func)
+    void OccupancyMap_GenericOperation(const std::function<void(Eigen::MatrixXd &)> &func)
     {
         std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
 
@@ -279,7 +315,7 @@ private:
     //! \brief Entirely replaces the stored Probility map with given matrix
     //! \param occupancy map to replace with
     //!
-    void ReplaceProbabilityMap(const Eigen::MatrixXd &newProbabilityMap)
+    void ProbabilityMap_ReplaceMatrix(const Eigen::MatrixXd &newProbabilityMap)
     {
         std::lock_guard<std::mutex> guard(m_Mutex_ProbabilityMap);
 
@@ -288,13 +324,28 @@ private:
 
 
     //!
+    //! \brief Replace a discrete set of cells in the probibility map
+    //!
+    //! Thread Safe
+    //! May be faster than ProbabilityMap_ReplaceMatrix if operations are sparse
+    //! \param cells Vector of cells to replace in the resourse map
+    //!
+    void ProbabilityMap_ReplaceCells(const std::vector<MatrixCellData<double>> &cells)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_ProbabilityMap);
+
+        ReplaceCellsInMatrix(m_ProbabilityMap, cells);
+    }
+
+
+    //!
     //! \brief Call lambda function to modify components of Probility map
     //!
     //! Thread Safe
-    //! May be faster than ReplaceProbabilityMap if operations are sparse
+    //! May be faster than ProbabilityMap_ReplaceMatrix if operations are sparse
     //! \param func Lambda function to modify map
     //!
-    void OperateOnProbabilityMap(std::function<void(Eigen::MatrixXd &)> &func)
+    void ProbabilityMap_GenericOperation(const std::function<void(Eigen::MatrixXd &)> &func)
     {
         std::lock_guard<std::mutex> guard(m_Mutex_ProbabilityMap);
 
@@ -304,12 +355,55 @@ private:
 public:
 
     //!
+    //! \brief Retreive a copy of the Resource map
+    //!
+    //! Thread safe
+    //! \return Copy of Resource map
+    //!
+    Eigen::MatrixXd ResourceMap_GetCopy() const
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_ResourceMap);
+
+        return m_ResourceMap;
+    }
+
+
+    //!
+    //! \brief Read specific cells from resourse map
+    //! \param cells Vector of cells to read
+    //!
+    void ResourceMap_ReadCells(std::vector<MatrixCellData<double>> &cells)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_ResourceMap);
+
+        ReadCellsInMatrix(m_ResourceMap, cells);
+    }
+
+
+    //!
+    //! \brief Call lambda to perform a generic const operation on Resource map
+    //!
+    //! Thread Safe
+    //! May be faster than GetResourceMapCopy if matrix is large.
+    //! \param func Lambda function to read from map
+    //!
+    void ResourceMap_GenericConstOperation(std::function<void(const Eigen::MatrixXd &)> &func) const
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_ResourceMap);
+
+        func(m_ResourceMap);
+    }
+
+
+
+
+    //!
     //! \brief Retreive a copy of the occupancy map
     //!
     //! Thread safe
     //! \return Copy of occupancy map
     //!
-    Eigen::MatrixXd GetOccupancyMapCopy() const
+    Eigen::MatrixXd OccupancyMap_GetCopy() const
     {
         std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
 
@@ -317,19 +411,76 @@ public:
     }
 
 
+
     //!
-    //! \brief Call lambda to read from occupancy map
+    //! \brief Read specific cells from occupancy map
+    //! \param cells Vector of cells to read
+    //!
+    void OccupancyMap_ReadCells(std::vector<MatrixCellData<double>> &cells)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
+
+        ReadCellsInMatrix(m_OccupancyMap, cells);
+    }
+
+
+    //!
+    //! \brief Call lambda to perform a generic const operation on occupancy map
     //!
     //! Thread Safe
     //! May be faster than GetOccupancyMapCopy if matrix is large.
     //! \param func Lambda function to read from map
     //!
-    void UseOccupancyMap(std::function<void(const Eigen::MatrixXd &)> &func)
+    void OccupancyMap_GenericConstOperation(std::function<void(const Eigen::MatrixXd &)> &func) const
     {
         std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
 
         func(m_OccupancyMap);
     }
+
+
+
+
+    //!
+    //! \brief Retreive a copy of the Probibility map
+    //!
+    //! Thread safe
+    //! \return Copy of Probibility map
+    //!
+    Eigen::MatrixXd ProbibilityMap_GetCopy() const
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_ProbibilityMap);
+
+        return m_ProbibilityMap;
+    }
+
+
+    //!
+    //! \brief Read specific cells from Probibility map
+    //! \param cells Vector of cells to read
+    //!
+    void ProbibilityMap_ReadCells(std::vector<MatrixCellData<double>> &cells)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_ProbibilityMap);
+
+        ReadCellsInMatrix(m_ProbibilityMap, cells);
+    }
+
+
+    //!
+    //! \brief Call lambda to perform a generic const operation on Probibility map
+    //!
+    //! Thread Safe
+    //! May be faster than GetProbibilityMapCopy if matrix is large.
+    //! \param func Lambda function to read from map
+    //!
+    void ProbibilityMap_GenericConstOperation(std::function<void(const Eigen::MatrixXd &)> &func) const
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_ProbibilityMap);
+
+        func(m_ProbibilityMap);
+    }
+
 
 
 
@@ -387,9 +538,7 @@ private:
 
 
     Eigen::MatrixXd m_ResourceMap;
-
     Eigen::MatrixXd m_OccupancyMap;
-
     Eigen::MatrixXd m_ProbabilityMap;
 
 

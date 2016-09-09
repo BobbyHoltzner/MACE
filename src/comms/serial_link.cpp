@@ -118,7 +118,7 @@ u_int64_t SerialLink::getConnectionSpeed() const
 void SerialLink::_emitLinkError(const std::string& errorMsg) const
 {
     std::string msg = "Error on link " + getPortName() + ". " + errorMsg;
-    EmitEvent([&](const ILinkEvents *ptr){ptr->CommunicationError("Link Error", msg);});
+    EmitEvent([&](const ILinkEvents *ptr){ptr->CommunicationError(this, "Link Error", msg);});
 }
 
 LinkConfiguration SerialLink::getLinkConfiguration()
@@ -219,7 +219,7 @@ bool SerialLink::_hardwareConnect(QSerialPort::SerialPortError& error, QString& 
         //std::cerr << "open failed" << m_port->errorString().toStdString() << m_port->error() << getName() << _config.isAutoConnect() << std::endl;
         error = m_port->error();
         errorString = m_port->errorString();
-        EmitEvent([&](const ILinkEvents *ptr){ptr->CommunicationUpdate(getPortName(), "Error opening port: " + errorString.toStdString());});
+        EmitEvent([&](const ILinkEvents *ptr){ptr->CommunicationUpdate(this, getPortName(), "Error opening port: " + errorString.toStdString());});
         m_port->close();
         delete m_port;
         m_port = NULL;
@@ -234,8 +234,8 @@ bool SerialLink::_hardwareConnect(QSerialPort::SerialPortError& error, QString& 
     m_port->setStopBits     (static_cast<QSerialPort::StopBits>     (_config.stopBits()));
     m_port->setParity       (static_cast<QSerialPort::Parity>       (_config.parity()));
 
-    EmitEvent([this](const ILinkEvents *ptr){ptr->CommunicationUpdate(getPortName(), "Opened port!");});
-    EmitEvent([](const ILinkEvents *ptr){ptr->Connected();});
+    EmitEvent([this](const ILinkEvents *ptr){ptr->CommunicationUpdate(this, getPortName(), "Opened port!");});
+    EmitEvent([this](const ILinkEvents *ptr){ptr->Connected(this);});
 
     std::cout << "Connection SeriaLink: " << "with settings " << _config.portName() << " "
              << _config.baud() << " " << _config.dataBits() << " " << _config.parity() << " " << _config.stopBits() << std::endl;

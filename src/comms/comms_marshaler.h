@@ -107,15 +107,15 @@ private:
     /// React to Link Events
     //////////////////////////////////////////////////////////////
 
-    virtual void ReceiveData(const void *sender, const std::vector<uint8_t> &buffer) const;
+    virtual void ReceiveData(ILink *link_ptr, const std::vector<uint8_t> &buffer) const;
 
-    virtual void CommunicationError(const std::string &type, const std::string &msg) const;
+    virtual void CommunicationError(const ILink* link_ptr, const std::string &type, const std::string &msg) const;
 
-    virtual void CommunicationUpdate(const std::string &name, const std::string &msg) const;
+    virtual void CommunicationUpdate(const ILink *link_ptr, const std::string &name, const std::string &msg) const;
 
-    virtual void Connected() const;
+    virtual void Connected(const ILink* link_ptr) const;
 
-    virtual void ConnectionRemoved(const void *sender) const;
+    virtual void ConnectionRemoved(const ILink *link_ptr) const;
 
 
     //////////////////////////////////////////////////////////////
@@ -184,7 +184,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<ILink>> m_CreatedLinksNameToPtr;
     std::unordered_map<const ILink*, std::string> m_CreatedLinksPtrToName;
 
-    std::unordered_map<ILink*, Protocols> m_LinksProtocol;
+    std::unordered_map<const ILink*, Protocols> m_LinksProtocol;
 
 private:
 

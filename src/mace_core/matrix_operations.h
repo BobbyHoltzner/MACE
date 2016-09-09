@@ -17,11 +17,30 @@ struct MatrixCellData
 };
 
 
-static void OperateOnMatrixd(Eigen::MatrixXd &mat, const std::vector<MatrixCellData<double>> &operations)
+//!
+//! \brief Replace a set of cells in a matrix
+//! \param mat matrix to operate on
+//! \param operations Cells to replace with
+//!
+static void ReplaceCellsInMatrix(Eigen::MatrixXd &mat, const std::vector<MatrixCellData<double>> &operations)
 {
     for(MatrixCellData<double> cell : operations)
     {
         mat(cell.i, cell.j) = cell.data;
+    }
+}
+
+
+//!
+//! \brief Replace a set of cells in a matrix
+//! \param mat matrix to operate on
+//! \param operations Cells to replace with
+//!
+static void ReadCellsInMatrix(Eigen::MatrixXd &mat, std::vector<MatrixCellData<double>> &operations)
+{
+    for(MatrixCellData<double> cell : operations)
+    {
+        cell.data = mat(cell.i, cell.j);
     }
 }
 

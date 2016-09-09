@@ -174,10 +174,8 @@ void CommsMarshaler::SendMessage(const std::string &linkName, const T& message)
 /// React to Link Events
 //////////////////////////////////////////////////////////////
 
-void CommsMarshaler::ReceiveData(const void *sender, const std::vector<uint8_t> &buffer) const
+void CommsMarshaler::ReceiveData(ILink* link, const std::vector<uint8_t> &buffer) const
 {
-    ILink *link= (ILink*)sender;
-
     if(m_LinksProtocol.find(link) == m_LinksProtocol.cend())
         throw std::runtime_error("Protocol is not set for given link");
     Protocols protocol = m_LinksProtocol.at(link);
@@ -190,24 +188,36 @@ void CommsMarshaler::ReceiveData(const void *sender, const std::vector<uint8_t> 
 }
 
 
-void CommsMarshaler::CommunicationError(const std::string &type, const std::string &msg) const
+void CommsMarshaler::CommunicationError(const ILink* link_ptr, const std::string &type, const std::string &msg) const
 {
-    std::cout << "Error Type:" << type << "  Message:" << msg << std::endl;
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](const CommsEvents *ptr){ptr->LinkCommunicationError(m_CreatedLinksPtrToName.at(link_ptr), type, msg);});
 }
 
-void CommsMarshaler::CommunicationUpdate(const std::string &name, const std::string &msg) const
+void CommsMarshaler::CommunicationUpdate(const ILink* link_ptr, const std::string &name, const std::string &msg) const
 {
-    std::cout << "Update Type:" << name << "  Message:" << msg << std::endl;
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](const CommsEvents *ptr){ptr->LinkCommunicationUpdate(m_CreatedLinksPtrToName.at(link_ptr), name, msg);});
 }
 
-void CommsMarshaler::Connected() const
+void CommsMarshaler::Connected(const ILink* link_ptr) const
 {
-    std::cout << "Connected" << std::endl;
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](const CommsEvents *ptr){ptr->LinkConnected(m_CreatedLinksPtrToName.at(link_ptr));});
 }
 
-void CommsMarshaler::ConnectionRemoved(const void *sender) const
+void CommsMarshaler::ConnectionRemoved(const ILink* link_ptr) const
 {
-    std::cout << "Connection removed" << std::endl;
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](const CommsEvents *ptr){ptr->LinkConnectionRemoved(m_CreatedLinksPtrToName.at(link_ptr));});
 }
 
 
@@ -227,6 +237,8 @@ void CommsMarshaler::ProtocolStatusMessage(const ILink* link_ptr, const std::str
 {
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](const CommsEvents *ptr){ptr->ProtocolStatusMessage(m_CreatedLinksPtrToName.at(link_ptr), title, message);});
 }
 
 
@@ -234,12 +246,16 @@ void CommsMarshaler::ReceiveLossPercentChanged(const ILink* link_ptr, int uasId,
 {
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](const CommsEvents *ptr){ptr->ReceiveLossPercentChanged(m_CreatedLinksPtrToName.at(link_ptr), uasId, lossPercent);});
 }
 
 void CommsMarshaler::ReceiveLossTotalChanged(const ILink* link_ptr, int uasId, int totalLoss) const
 {
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](const CommsEvents *ptr){ptr->ReceiveLossTotalChanged(m_CreatedLinksPtrToName.at(link_ptr), uasId, totalLoss);});
 }
 
 
@@ -276,6 +292,8 @@ void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, int vehicleId, 
 {
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](const CommsEvents *ptr){ptr->VehicleHeartbeatInfo(m_CreatedLinksPtrToName.at(link_ptr), vehicleId, vehicleMavlinkVersion, vehicleFirmwareType, vehicleType);});
 }
 
 
@@ -294,6 +312,8 @@ void CommsMarshaler::RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors
 {
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](const CommsEvents *ptr){ptr->RadioStatusChanged(m_CreatedLinksPtrToName.at(link_ptr), rxerrors, fixed, rssi, remrssi, txbuf, noise, remnoise);});
 }
 
 

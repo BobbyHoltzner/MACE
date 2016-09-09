@@ -160,7 +160,7 @@ void MaceCore::AppendVehicleCommands(const std::string &vehicleID, const std::ve
 //!
 void MaceCore::NewOccupancyMap(const Eigen::MatrixXd &occupancyMap)
 {
-    m_DataFusion->ReplaceOccupanyMap(occupancyMap);
+    m_DataFusion->OccupancyMap_ReplaceMatrix(occupancyMap);
 
     m_RTA->UpdatedOccupancyMap();
 }
@@ -176,10 +176,10 @@ void MaceCore::ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>
 {
 
     std::function<void(Eigen::MatrixXd &)> func = [&commands](Eigen::MatrixXd &mat){
-        OperateOnMatrixd(mat, commands);
+        ReplaceCellsInMatrix(mat, commands);
     };
 
-    m_DataFusion->OperateOnOccupanyMap(func);
+    m_DataFusion->OccupancyMap_GenericOperation(func);
 
     m_RTA->UpdatedOccupancyMap();
 }
