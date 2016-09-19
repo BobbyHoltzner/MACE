@@ -58,4 +58,5 @@ class TrimWaypoints:
                 reducedArray.append(geoLocationArray[i-1])
                 # reducedArray.append(geoLocationArray[i])
 
+        reducedArray.append(geoLocationArray[len(geoLocationArray) - 1])
         return reducedArray

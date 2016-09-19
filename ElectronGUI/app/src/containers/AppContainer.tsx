@@ -9,6 +9,7 @@ import { Map, Marker, Popup, TileLayer, FeatureGroup, Polyline, LayerGroup  } fr
 import { EditControl } from "react-leaflet-draw";
 import RaisedButton from 'material-ui/RaisedButton';
 import {Card, CardTitle, CardText} from 'material-ui/Card';
+import Checkbox from 'material-ui/Checkbox';
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 import Slider from 'material-ui/Slider';
 import Toggle from 'material-ui/Toggle';
@@ -71,7 +72,8 @@ type State = {
   openPorts?: string[],
   showAircraftCommands?: boolean,
   selectedAircraftPort?: number,
-  aircraftMarkers?: MarkerType[]
+  aircraftMarkers?: MarkerType[],
+  sendToAllAircraft?: boolean
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -79,8 +81,11 @@ export default class AppContainer extends React.Component<Props, State> {
   mercatorConverter: MercatorConversion;
   leafletMap: L.Map;
   notificationSystem: NotificationSystem;
+  backgroundColors: string[];
   constructor() {
     super();
+
+    this.backgroundColors = ['rgba(255,0,0,0.4)', 'rgba(0,0,255,0.4)', 'rgba(0,0,0,0.4)', 'rgba(0,255,0,0.4)', 'rgba(255,255,0,0.4)', 'rgba(255,153,0,0.4)'];
 
     this.utmConverter = new UtmConverter();
 
@@ -108,11 +113,11 @@ export default class AppContainer extends React.Component<Props, State> {
       aircraftPorts: [],
       openPorts: [],
       showAircraftCommands: false,
-      selectedAircraftPort: 0
+      selectedAircraftPort: 0,
+      sendToAllAircraft: false
     }
-
-
   }
+
   componentDidMount(){
     this.leafletMap = this.refs.map;
     this.notificationSystem = this.refs.notificationSystem;
@@ -188,8 +193,6 @@ export default class AppContainer extends React.Component<Props, State> {
   startPythonServerAjax = () => {
     console.log("Python server start sent");
 
-    console.log('')
-
     let options = {
       mode: "text",
       pythonOptions: ["-u"],
@@ -228,7 +231,7 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   connectToAircraftCallback = (result: any) => {
-    console.log("Connect to aircraft callback: " + JSON.parse(result));
+    // console.log("Connect to aircraft callback: " + JSON.parse(result));
 
     let tmpAircraftPorts: AircraftType[] = this.state.aircraftPorts;
     tmpAircraftPorts.push({
@@ -242,7 +245,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
 
   getAircraftLocations = () => {
-    console.log("Get aircraft locations");
+    // console.log("Get aircraft locations");
       for(let i = 0; i < this.state.aircraftPorts.length; i++){
         let homeData = {
           comm_port: this.state.aircraftPorts[i].comm_port
@@ -261,28 +264,71 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleUpdateVehicleLocations = (results: any) => {
-    console.log("UPDATE VEHICLE LOCATIONS: " +  + results.latitude + " / " + results.longitude + " / " + results.altitude);
+    // console.log("UPDATE VEHICLE LOCATIONS: " +  + results.latitude + " / " + results.longitude + " / " + results.altitude + " / " + results.heading);
+
+    for(let key in this.leafletMap.leafletElement._layers){
+      if(this.leafletMap.leafletElement._layers[key]._latlng){
+        let tmpIcon: string = this.leafletMap.leafletElement._layers[key].options.icon.options.iconUrl;
+        let tmpIconTitle: string = this.leafletMap.leafletElement._layers[key].options.title;
+        for(let i = 0; i < this.state.aircraftPorts.length; i++){
+          if(this.state.aircraftPorts[i].comm_port === tmpIconTitle){
+            // let tmpMarker = this.leafletMap.leafletElement._layers[key];
+            // this.leafletMap.leafletElement.removeLayer(this.leafletMap.leafletElement._layers[key]);
+
+            let tmpAircraftMarkers = this.state.aircraftMarkers;
+            // let iconHTML = '<img src="./images/drone-icon.png" alt="Drone icon" style="background-color: transparent; width:41px; height:41px; -webkit-transform: rotate(' + results.heading + 'deg); -moz-transform: rotate(' + results.heading + 'deg); -o-transform: rotate(' + results.heading + 'deg); -ms-transform: rotate(' + results.heading + 'deg); transform: rotate(' + results.heading + 'deg);">';
+            let iconHTML = '<div style="background-color: ' + this.backgroundColors[i] + '; color: white; width: 41px; text-align: center;">' + this.state.aircraftPorts[i].comm_port + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + results.heading + 'deg); -moz-transform: rotate(' + results.heading + 'deg); -o-transform: rotate(' + results.heading + 'deg); -ms-transform: rotate(' + results.heading + 'deg); transform: rotate(' + results.heading + 'deg);">';
+            let updatedMarker: MarkerType = {
+              comm_port: this.state.aircraftPorts[i].comm_port,
+              position: new L.LatLng(results.latitude, results.longitude),
+              icon: new L.DivIcon({
+                html: iconHTML,
+                iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
+                popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
+              })
+              // icon: new L.Icon({
+              //     iconUrl: './images/drone-icon.png',
+              //     iconSize: [41, 41], // size of the icon
+              //     iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
+              //     popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
+              //   })
+            }
+            tmpAircraftMarkers[i] = updatedMarker;
+            this.setState({aircraftMarkers: tmpAircraftMarkers});
+          }
+        }
+      }
+    }
   }
 
   handleUpdateHomeLocations = (results: any) => {
-    console.log("HOME LOCATIONS: " + results.latitude + " / " + results.longitude + " / " + results.altitude);
+    // console.log("HOME LOCATIONS: " + results.latitude + " / " + results.longitude + " / " + results.altitude);
 
+    let iconHTML = '<img src="./images/drone-icon.png" alt="Drone icon" style="width:41px;height:41px;">'
+    let tmpMarker: MarkerType = {
+      position: new L.LatLng(results.latitude, results.longitude),
+      icon: new L.DivIcon({
+        html: iconHTML,
+        iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
+        popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
+      }),
+      // icon: new L.Icon({
+      //     iconUrl: './images/drone-icon.png',
+      //     iconSize: [41, 41], // size of the icon
+      //     iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
+      //     popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
+      //   }),
+      comm_port: this.state.openPorts[this.state.selectedAircraftPort]
+    };
 
-    // let tmpMarker: MarkerType = {
-    //   position: results[i],
-    //   icon: new L.Icon({
-    //       iconUrl: './images/marker-icon.png',
-    //       iconSize: [25, 41], // size of the icon
-    //       iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
-    //       popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-    //     })
-    // };
+    let tmpAircraftMarkers = this.state.aircraftMarkers;
+    tmpAircraftMarkers.push(tmpMarker);
+    this.setState({aircraftMarkers: tmpAircraftMarkers});
 
-
-    // Get locations of all connected aircraft:
+    // // Get locations of all connected aircraft:
     setInterval(function() {
         this.getAircraftLocations();
-    }.bind(this), 3000);
+    }.bind(this), 1000);
   }
 
   disconnectFromAircraftAjax = () => {
@@ -292,7 +338,6 @@ export default class AppContainer extends React.Component<Props, State> {
       comm_port: this.state.openPorts[this.state.selectedAircraftPort],
       // any other data to send?
     }
-
 
     this.ajaxAction('disconnect', connectData, this.connectToAircraftCallback);
   }
@@ -343,26 +388,51 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   sendWPsToACAjax = () => {
-    let aircraftWithComm = this.state.aircraftPorts.findIndex((item: AircraftType) => {
-      return item.comm_port === this.state.openPorts[this.state.selectedAircraftPort];
-    });
+    if(this.state.sendToAllAircraft){
+      for(let i = 0; i < this.state.openPorts.length; i++){
+        let aircraftWithComm = this.state.aircraftPorts.findIndex((item: AircraftType) => {
+          return item.comm_port === this.state.openPorts[i];
+        });
 
-    let waypointData = {
-      comm_port: this.state.openPorts[this.state.selectedAircraftPort],
-      waypoints: this.state.aircraftPaths[aircraftWithComm].waypoints.map((item) => {
-        return [item.lat, item.lng];
-      })
+        if(aircraftWithComm < 0){
+          continue;
+        }
+        else {
+          let waypointData = {
+            comm_port: this.state.openPorts[i],
+            waypoints: this.state.aircraftPaths[aircraftWithComm].waypoints.map((item) => {
+              return [item.lat, item.lng];
+            })
+          }
+
+          this.ajaxAction('sendWaypoints', waypointData, this.sendWPsToACCallback);
+        }
+      }
+    }
+    else {
+      let aircraftWithComm = this.state.aircraftPorts.findIndex((item: AircraftType) => {
+        return item.comm_port === this.state.openPorts[this.state.selectedAircraftPort];
+      });
+
+      let waypointData = {
+        comm_port: this.state.openPorts[this.state.selectedAircraftPort],
+        waypoints: this.state.aircraftPaths[aircraftWithComm].waypoints.map((item) => {
+          return [item.lat, item.lng];
+        })
+      }
+
+      this.ajaxAction('sendWaypoints', waypointData, this.sendWPsToACCallback);
     }
 
-    this.ajaxAction('sendWaypoints', waypointData, this.sendWPsToACCallback);
   }
 
   sendWPsToACCallback = (results: any) => {
-    console.log("Waypoints received")
+    let msg = 'Waypoints received';
+    this.showNotification('Success!', msg, 'success', 'bc', 'Got it');
   }
 
   getAircraftPositionsAjax = () => {
-    console.log("get aircraft positions sent");
+    // console.log("get aircraft positions sent");
     let aircraftData = {
       comm_port: this.state.openPorts[this.state.selectedAircraftPort],
     }
@@ -392,31 +462,43 @@ export default class AppContainer extends React.Component<Props, State> {
 
   aircraftCommand = (command: string) => {
     // connect, takeoff, land, guided, rtl, disconnect, sendWaypoints, genWaypoints
-    if(command === 'launch') {
-      this.ajaxAction('launch', {comm_port: this.state.openPorts[this.state.selectedAircraftPort]}, this.takeoffCallback);
+    let commPorts: string[] = [];
+    if(this.state.sendToAllAircraft){
+      for(let i = 0; i < this.state.aircraftPorts.length; i++){
+        commPorts.push(this.state.aircraftPorts[i].comm_port);
+      }
     }
-    if(command === 'land') {
-      this.ajaxAction('land', {comm_port: this.state.openPorts[this.state.selectedAircraftPort]}, this.landCallback);
-    }
-    if(command === 'rtl') {
-      this.ajaxAction('rtl', {comm_port: this.state.openPorts[this.state.selectedAircraftPort]}, this.rtlCallback);
-    }
-
-    if(command === 'guided') {
-      this.ajaxAction('guided', {comm_port: this.state.openPorts[this.state.selectedAircraftPort]}, this.guidedCallback);
+    else {
+      commPorts.push(this.state.openPorts[this.state.selectedAircraftPort]);
     }
 
-    if(command === 'loiter') {
-      this.ajaxAction('loiter', {comm_port: this.state.openPorts[this.state.selectedAircraftPort]}, this.loiterCallback);
+    for(let j = 0; j < commPorts.length; j++){
+      if(command === 'launch') {
+        this.ajaxAction('launch', {comm_port: commPorts[j]}, this.takeoffCallback);
+      }
+      if(command === 'land') {
+        this.ajaxAction('land', {comm_port: commPorts[j]}, this.landCallback);
+      }
+      if(command === 'rtl') {
+        this.ajaxAction('rtl', {comm_port: commPorts[j]}, this.rtlCallback);
+      }
+      if(command === 'guided') {
+        this.ajaxAction('guided', {comm_port: commPorts[j]}, this.guidedCallback);
+      }
+
+      if(command === 'loiter') {
+        this.ajaxAction('loiter', {comm_port: commPorts[j]}, this.loiterCallback);
+      }
+      if(command === 'mission') {
+        this.ajaxAction('mission', {comm_port: commPorts[j]}, this.missionCallback);
+      }
     }
-    if(command === 'mission') {
-      this.ajaxAction('mission', {comm_port: this.state.openPorts[this.state.selectedAircraftPort]}, this.missionCallback);
-    }
+
   }
 
   ajaxAction = (postAction: string, data: any, successFn: any) => {
     let postUrl: string = "http://localhost:10081/" + postAction;
-    console.log(data);
+    // console.log(data);
     $.ajax({
         type: "POST",
         url: postUrl,
@@ -486,7 +568,6 @@ export default class AppContainer extends React.Component<Props, State> {
   plotPoints = (results: any[]) => {
     let tmpMarkers = this.state.markers;
     for(let i = 0; i < results.length; i++){
-      // for(let j = 0; j < results.length; j++){
         let tmpMarker: MarkerType = {
           position: results[i],
           icon: new L.Icon({
@@ -498,7 +579,6 @@ export default class AppContainer extends React.Component<Props, State> {
         };
 
         tmpMarkers.push(tmpMarker);
-      // }
     }
 
     this.setState({markers: tmpMarkers});
@@ -578,7 +658,6 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleDropdownChange = (event: any, index: number, value: number) => {
-    console.log("DROPDOWN CHANGED:" + value);
     this.setState({selectedAircraftPort: value});
   }
 
@@ -587,9 +666,9 @@ export default class AppContainer extends React.Component<Props, State> {
     const position = [37.889231, -76.810302];
     var width = window.screen.width;
     var height = window.screen.height;
-    const wpColors = ['red', 'blue', 'black'];
-    const boundaryColors = ['red', 'blue', 'black'];
-    const backgroundColors = ['rgba(255,0,0,0.4)', 'rgba(0,0,255,0.3)', 'rgba(0,0,0,0.3)'];
+    const wpColors = ['red', 'blue', 'black', 'green', 'yellow', 'orange'];
+    const boundaryColors = ['red', 'blue', 'black', 'green', 'yellow', 'orange'];
+    const backgroundColors = ['rgba(255,0,0,0.2)', 'rgba(0,0,255,0.2)', 'rgba(0,0,0,0.2)', 'rgba(0,255,0,0.2)', 'rgba(255,255,0,0.2)', 'rgba(255,153,0,0.2)'];
     const parentStyle = {height: height + 'px', width: width + 'px'};
     const mapStyle = { top: 0, left: 0, height: height + 'px', width: width + 'px' };
     const buttonContainer = { position: 'absolute', top: 15, right: 15, zIndex: 999};
@@ -603,6 +682,8 @@ export default class AppContainer extends React.Component<Props, State> {
     const initialZoom = 18;
     const maxZoom = 20;
     const toggleStyle = { marginBottom: 16 };
+    const toggleContainer = { position: 'relative', width: 200, top: 16, right: -275 };
+    const checkbox = { marginBottom: 16 }
     let connectOrDisconnectButton: any = null;
 
     if (this.state.aircraftPorts[this.state.selectedAircraftPort] && this.state.aircraftPorts[this.state.selectedAircraftPort].isConnected){
@@ -665,11 +746,13 @@ export default class AppContainer extends React.Component<Props, State> {
           <div style={sliderContainer}>
             <MuiThemeProvider muiTheme={lightMuiTheme}>
               <Card containerStyle={{backgroundColor: backgroundColors[this.state.selectedAircraftPort]}}>
-                <Toggle
-                  label="Show Path/Show Aircraft Commands"
-                  style={toggleStyle}
-                  onToggle={() => this.setState({showAircraftCommands: !this.state.showAircraftCommands})}
-                  />
+                  <div style={toggleContainer}>
+                    <Toggle
+                      label="Show Path/Show Aircraft Commands"
+                      style={toggleStyle}
+                      onToggle={() => this.setState({showAircraftCommands: !this.state.showAircraftCommands})}
+                      />
+                  </div>
 
                   {!this.state.showAircraftCommands &&
                     <div>
@@ -719,6 +802,13 @@ export default class AppContainer extends React.Component<Props, State> {
                 <div>
                     <CardTitle title="Aircraft commands" />
                     <CardText>
+
+                      <Checkbox
+                        label="Send to all aircraft"
+                        style={checkbox}
+                        onCheck={() => this.setState({sendToAllAircraft: !this.state.sendToAllAircraft})}
+                      />
+
                       <MuiThemeProvider muiTheme={lightMuiTheme}>
                         <RaisedButton style={aircraftCommand} label="Launch" onClick={() => this.aircraftCommand('launch')}/>
                       </MuiThemeProvider>
@@ -733,9 +823,11 @@ export default class AppContainer extends React.Component<Props, State> {
                       <MuiThemeProvider muiTheme={lightMuiTheme}>
                         <RaisedButton style={aircraftCommand} label="Land" onClick={() => this.aircraftCommand('land')}/>
                       </MuiThemeProvider>
+                      {/*
                       <MuiThemeProvider muiTheme={lightMuiTheme}>
                         <RaisedButton style={aircraftCommand} label="Start Mission" onClick={() => this.aircraftCommand('mission')}/>
                       </MuiThemeProvider>
+                      */}
                       <MuiThemeProvider muiTheme={lightMuiTheme}>
                         <RaisedButton style={aircraftCommand} label="Switch to Guided" onClick={() => this.aircraftCommand('guided')}/>
                       </MuiThemeProvider>
@@ -759,12 +851,7 @@ export default class AppContainer extends React.Component<Props, State> {
                   onCreated={this._onCreate}
                   onDeleted={this._onDeleted}
                   draw={{
-                      polyline: {
-                          shapeOptions: {
-                              color: '#f357a1',
-                              weight: 10
-                          }
-                      },
+                      polyline: false,
                       polygon: {
                           allowIntersection: true, // Restricts shapes to simple polygons
                           drawError: {
@@ -796,10 +883,22 @@ export default class AppContainer extends React.Component<Props, State> {
             <LayerGroup>
               {this.state.markers.map((item: MarkerType, i: number) => {
                 return (
-                  <Marker key={i} position={item.position} icon={item.icon}>
+                  <Marker key={i} position={item.position} icon={item.icon} title={"TEST"}>
                     <Popup>
                       <span>A pretty CSS3 popup.<br/>Easily customizable.</span>
                     </Popup>
+                  </Marker>
+                );
+              })}
+
+              {this.state.aircraftMarkers.map((item: MarkerType, i: number) => {
+                return (
+                  <Marker key={i} position={item.position} icon={item.icon} title={item.comm_port}>
+                  {/*
+                    <Popup open={true}>
+                      <span>{item.comm_port}</span>
+                    </Popup>
+                    */}
                   </Marker>
                 );
               })}

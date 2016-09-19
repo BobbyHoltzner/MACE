@@ -12,6 +12,7 @@ class Aircraft:
         self.home_location = None
         self.location = None
         self.in_mission = False
+        self.heading = 0
 
     def set_mission_from_positions(self, position_targets, altitude=20, radius=5, frame=mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT):
         waypoint_loader = mavwp.MAVWPLoader()
@@ -54,6 +55,7 @@ class Aircraft:
                     print('Bad data for mission', msg.data)
             else:
                 print(msg)
+        self.in_mission = False
 
     def clear_mission(self):
         self.mav_link.mission_clear_all_send(self.mav_connection.target_system,
@@ -85,7 +87,8 @@ class Aircraft:
     def wait_set_home_location(self):
         msg = self.mav_connection.recv_match(type="MISSION_ITEM", blocking=True)
         # 2, 3, 4 aircraft lat lon alt
-        self.location = LocationGlobal(msg.param2, msg.param3, msg.param4)
+        self.location = LocationGlobal(msg.param1, msg.param2, msg.param3)
+        self.heading = msg.param4
         self.home_location = LocationGlobal(msg.x, msg.y, msg.z)
         return self.home_location
 
@@ -93,9 +96,10 @@ class Aircraft:
         if not self.in_mission:
             msg = self.mav_connection.recv_match(type="MISSION_ITEM", blocking=True)
             # 2, 3, 4 aircraft lat lon alt
-            self.location = LocationGlobal(msg.param2, msg.param3, msg.param4)
+            self.location = LocationGlobal(msg.param1, msg.param2, msg.param3)
+            self.heading = msg.param4
             self.home_location = LocationGlobal(msg.x, msg.y, msg.z)
-        return self.location
+        return self.location, self.heading
 
     def disconnect(self):
         self.mav_connection.close()

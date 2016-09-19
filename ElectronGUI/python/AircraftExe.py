@@ -95,9 +95,10 @@ def heartbeatTimer(m, interval):
         mavlinkMSG.heartbeat_send(mavlink.MAV_TYPE_GCS, mavlink.MAV_AUTOPILOT_GENERIC, 0, 0, mavlink.MAV_STATE_ACTIVE)
 
         home = LocationGlobal(vehicle.home_location.lat, vehicle.home_location.lon, vehicle.home_location.alt)
-        mavlinkMSG.mission_item_send(0, 0, 0, 0, 0, 0, 0, 0, vehicle.location.global_frame.lat,
-                                     vehicle.location.global_frame.lon, vehicle.location.global_frame.alt, home.lat,
+        mavlinkMSG.mission_item_send(0, 0, 0, 0, 0, 0, 0, vehicle.location.global_frame.lat,
+                                     vehicle.location.global_frame.lon, vehicle.location.global_frame.alt, vehicle.heading, home.lat,
                                      home.lon, home.alt)
+
         #msg = m.recv_match(type="COMMAND_ACK", blocking=False)
         #if msg:
         #    break
@@ -182,7 +183,7 @@ if __name__ == '__main__':
     master = mavutil.mavlink_connection(args.device, baud=args.baudrate)
 
     mavlinkMSG = mavlink.MAVLink(master)
-    heartbeatThread = Thread(target = heartbeatTimer, args = (master,2))
+    heartbeatThread = Thread(target = heartbeatTimer, args = (master,1))
     heartbeatThread.start()
     #heartbeatTimer(master, 2)
 #    home = LocationGlobal(vehicle.home_location.lat, vehicle.home_location.lon, vehicle.home_location.alt)

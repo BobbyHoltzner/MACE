@@ -30,8 +30,8 @@ class GroundControl:
         return {"latitude": location.lat, "longitude": location.lon, "altitude": location.alt}
 
     def get_location(self, comm_port):
-        location = self.aircrafts[comm_port].get_location()
-        return {"latitude": location.lat, "longitude": location.lon, "altitude": location.alt}
+        location, heading = self.aircrafts[comm_port].get_location()
+        return {"latitude": location.lat, "longitude": location.lon, "altitude": location.alt, "heading": heading}
 
     def takeoff(self, comm_port):
         self.aircrafts[comm_port].takeoff()
