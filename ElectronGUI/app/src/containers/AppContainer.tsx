@@ -73,7 +73,9 @@ type State = {
   showAircraftCommands?: boolean,
   selectedAircraftPort?: number,
   aircraftMarkers?: MarkerType[],
-  sendToAllAircraft?: boolean
+  sendToAllAircraft?: boolean,
+  useTestPoints?: boolean,
+  getAircraftLocationsStarted?: boolean
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -85,7 +87,7 @@ export default class AppContainer extends React.Component<Props, State> {
   constructor() {
     super();
 
-    this.backgroundColors = ['rgba(255,0,0,0.4)', 'rgba(0,0,255,0.4)', 'rgba(0,0,0,0.4)', 'rgba(0,255,0,0.4)', 'rgba(255,255,0,0.4)', 'rgba(255,153,0,0.4)'];
+    this.backgroundColors = ['rgba(0,0,255,0.4)', 'rgba(255,0,0,0.4)', 'rgba(0,0,0,0.4)', 'rgba(0,255,0,0.4)', 'rgba(255,255,0,0.4)', 'rgba(255,153,0,0.4)'];
 
     this.utmConverter = new UtmConverter();
 
@@ -114,7 +116,9 @@ export default class AppContainer extends React.Component<Props, State> {
       openPorts: [],
       showAircraftCommands: false,
       selectedAircraftPort: 0,
-      sendToAllAircraft: false
+      sendToAllAircraft: false,
+      useTestPoints: true,
+      getAircraftLocationsStarted: false
     }
   }
 
@@ -159,7 +163,10 @@ export default class AppContainer extends React.Component<Props, State> {
       this.setState({
         boundaryVerts: tmpLayerGroup,
         boundaryLayers: tmpLayers
-      })
+      });
+
+      console.log("BOUNDARY POINTS:");
+      console.log(tmpLayerGroup.latLons);
     }
     else if (layerType === 'marker'){
       latLons.push(e.layer._latlng);
@@ -177,7 +184,10 @@ export default class AppContainer extends React.Component<Props, State> {
       this.setState({
         pointsOfInterest: tmpPOIs,
         hotSpotLayers: tmpLayers
-      })
+      });
+
+      console.log("HOT SPOTS:");
+      console.log(tmpLayerGroup.latLons);
     }
   }
 
@@ -221,6 +231,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
   connectToAircraftAjax = () => {
     console.log("Connect to aircraft pressed");
+    console.log(this.state.openPorts[this.state.selectedAircraftPort]);
 
     let connectData = {
       comm_port: this.state.openPorts[this.state.selectedAircraftPort],
@@ -250,7 +261,13 @@ export default class AppContainer extends React.Component<Props, State> {
         let homeData = {
           comm_port: this.state.aircraftPorts[i].comm_port
         }
-        this.ajaxAction('getLocation', homeData, this.handleUpdateVehicleLocations);
+
+        // console.log('TEST COMM PORTS SEND: ' + this.state.aircraftPorts[i].comm_port);
+        if(this.state.aircraftPorts[i].isConnected){
+          console.log("In get location if statement");
+          console.log("COMM PORT: " + this.state.aircraftPorts[i]);
+          this.ajaxAction('getLocation', homeData, this.handleUpdateVehicleLocations);
+        }
       }
   }
 
@@ -259,19 +276,21 @@ export default class AppContainer extends React.Component<Props, State> {
       let homeData = {
         comm_port: this.state.aircraftPorts[i].comm_port
       }
-      this.ajaxAction('getHomeLocation', homeData, this.handleUpdateHomeLocations);
+      if(this.state.aircraftPorts[i].isConnected){
+        this.ajaxAction('getHomeLocation', homeData, this.handleUpdateHomeLocations);
+      }
     }
   }
 
   handleUpdateVehicleLocations = (results: any) => {
-    // console.log("UPDATE VEHICLE LOCATIONS: " +  + results.latitude + " / " + results.longitude + " / " + results.altitude + " / " + results.heading);
+    // console.log("UPDATE VEHICLE LOCATIONS: " +  + results.latitude + " / " + results.longitude + " / " + results.altitude + " / " + results.heading + " / " + results.comm_port);
 
     for(let key in this.leafletMap.leafletElement._layers){
       if(this.leafletMap.leafletElement._layers[key]._latlng){
         let tmpIcon: string = this.leafletMap.leafletElement._layers[key].options.icon.options.iconUrl;
         let tmpIconTitle: string = this.leafletMap.leafletElement._layers[key].options.title;
         for(let i = 0; i < this.state.aircraftPorts.length; i++){
-          if(this.state.aircraftPorts[i].comm_port === tmpIconTitle){
+          if(this.state.aircraftPorts[i].comm_port === results.comm_port){
             // let tmpMarker = this.leafletMap.leafletElement._layers[key];
             // this.leafletMap.leafletElement.removeLayer(this.leafletMap.leafletElement._layers[key]);
 
@@ -294,6 +313,7 @@ export default class AppContainer extends React.Component<Props, State> {
               //   })
             }
             tmpAircraftMarkers[i] = updatedMarker;
+            console.log("IN UPDATE VEHICLE LOCATIONS: " + tmpAircraftMarkers[i].comm_port)
             this.setState({aircraftMarkers: tmpAircraftMarkers});
           }
         }
@@ -326,9 +346,14 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({aircraftMarkers: tmpAircraftMarkers});
 
     // // Get locations of all connected aircraft:
-    setInterval(function() {
-        this.getAircraftLocations();
-    }.bind(this), 1000);
+    if(this.state.getAircraftLocationsStarted){
+      setInterval(function() {
+          this.getAircraftLocations();
+      }.bind(this), 1000);
+
+      this.setState({getAircraftLocationsStarted: true});
+    }
+
   }
 
   disconnectFromAircraftAjax = () => {
@@ -344,32 +369,57 @@ export default class AppContainer extends React.Component<Props, State> {
 
   generateWaypointsAjax = () => {
     console.log("Generate waypoints pressed");
-    if(this.state.boundaryVerts === null){
-      // console.log('NO BOUNDARY');
-      this.showNotification('Error!', 'You have to define a boundary before generating waypoints.', 'error', 'tr', 'Got it')
-      return
-    }
-    if(this.state.pointsOfInterest.length <= 0){
-      this.showNotification('Error!', 'You have to define at least one one point of interest before generating waypoints.', 'error', 'tr', 'Got it')
-      return
-    }
-
     let boundaryVerts: any = [];
-    for(let i = 0; i < this.state.boundaryVerts.latLons.length; i++){
-      boundaryVerts.push([this.state.boundaryVerts.latLons[i].lat, this.state.boundaryVerts.latLons[i].lng]);
+    let hotSpots: any = [];
+
+    // Change to false to have the test points used:
+    // Default parameters:
+    let pSliderVal = 0.01;
+    let gridSliderVal = 0.5;
+    let pathDirection = "NorthSouth";
+    if(this.state.useTestPoints === true){
+      // Boundary Verticies:
+      boundaryVerts.push([37.88866901916639, -76.81350946426392]);
+      boundaryVerts.push([37.88981208998668, -76.81350946426392]);
+      boundaryVerts.push([37.88981208998668, -76.8103176355362]);
+      boundaryVerts.push([37.88866901916639, -76.8103176355362]);
+
+      // Hot spots:
+      hotSpots.push([37.88938873249277, -76.81289792060852]);
+      hotSpots.push([37.88901194227583, -76.81118667125702]);
+
+      this.plotPoints(hotSpots);
+    }
+    else {
+      if(this.state.boundaryVerts === null){
+        // console.log('NO BOUNDARY');
+        this.showNotification('Error!', 'You have to define a boundary before generating waypoints.', 'error', 'tr', 'Got it')
+        return
+      }
+      if(this.state.pointsOfInterest.length <= 0){
+        this.showNotification('Error!', 'You have to define at least one one point of interest before generating waypoints.', 'error', 'tr', 'Got it')
+        return
+      }
+
+      for(let i = 0; i < this.state.boundaryVerts.latLons.length; i++){
+        boundaryVerts.push([this.state.boundaryVerts.latLons[i].lat, this.state.boundaryVerts.latLons[i].lng]);
+      }
+      for(let i = 0; i < this.state.pointsOfInterest.length; i++){
+        hotSpots.push([this.state.pointsOfInterest[i].latLons[0].lat, this.state.pointsOfInterest[i].latLons[0].lng]);
+      }
+
+      pSliderVal = this.state.pSliderVal;
+      gridSliderVal = this.state.gridSliderVal;
+      pathDirection = this.state.pathDirection;
     }
 
-    let hotSpots: any = [];
-    for(let i = 0; i < this.state.pointsOfInterest.length; i++){
-      hotSpots.push([this.state.pointsOfInterest[i].latLons[0].lat, this.state.pointsOfInterest[i].latLons[0].lng]);
-    }
 
     let waypointData = {
       boundaryVerts: boundaryVerts,
       hotSpots: hotSpots,
-      pSliderVal: this.state.pSliderVal,
-      gridSliderVal: this.state.gridSliderVal,
-      pathDirection: this.state.pathDirection
+      pSliderVal: pSliderVal,
+      gridSliderVal: gridSliderVal,
+      pathDirection: pathDirection
     }
 
     this.ajaxAction('generateWaypoints', waypointData, this.generateWaypointsCallback);
@@ -398,6 +448,10 @@ export default class AppContainer extends React.Component<Props, State> {
           continue;
         }
         else {
+
+          console.log("IN SEND WPS TO AC AJAX");
+          console.log("Mission length: " + this.state.aircraftPaths[aircraftWithComm].waypoints.length)
+
           let waypointData = {
             comm_port: this.state.openPorts[i],
             waypoints: this.state.aircraftPaths[aircraftWithComm].waypoints.map((item) => {
@@ -405,7 +459,9 @@ export default class AppContainer extends React.Component<Props, State> {
             })
           }
 
-          this.ajaxAction('sendWaypoints', waypointData, this.sendWPsToACCallback);
+          if(this.state.aircraftPorts[aircraftWithComm].isConnected){
+            this.ajaxAction('sendWaypoints', waypointData, this.sendWPsToACCallback);
+          }
         }
       }
     }
@@ -414,37 +470,36 @@ export default class AppContainer extends React.Component<Props, State> {
         return item.comm_port === this.state.openPorts[this.state.selectedAircraftPort];
       });
 
+
+      console.log("IN SEND WPS TO AC AJAX");
+      console.log("Mission length: " + this.state.aircraftPaths[aircraftWithComm].waypoints.length)
+
       let waypointData = {
         comm_port: this.state.openPorts[this.state.selectedAircraftPort],
+        // waypoints: this.state.aircraftPaths[1].waypoints.map((item) => {
+        //   return [item.lat, item.lng];
+        // })
         waypoints: this.state.aircraftPaths[aircraftWithComm].waypoints.map((item) => {
           return [item.lat, item.lng];
         })
       }
 
-      this.ajaxAction('sendWaypoints', waypointData, this.sendWPsToACCallback);
+      // PAT -- IF THIS DOESNT WORK, JUST COMMENT OUT IF STATEMENT AND LEAVE AJAX
+      console.log("BEFORE SEND WP IF STATEMENT.....")
+      if(this.state.aircraftPorts[aircraftWithComm].isConnected){
+        console.log("IN SEND WP IF STATEMENT for COMM: " + this.state.aircraftPorts[aircraftWithComm].comm_port);
+        this.ajaxAction('sendWaypoints', waypointData, this.sendWPsToACCallback);
+      }
     }
 
   }
 
   sendWPsToACCallback = (results: any) => {
     let msg = 'Waypoints received';
+    console.log(msg);
     this.showNotification('Success!', msg, 'success', 'bc', 'Got it');
   }
 
-  getAircraftPositionsAjax = () => {
-    // console.log("get aircraft positions sent");
-    let aircraftData = {
-      comm_port: this.state.openPorts[this.state.selectedAircraftPort],
-    }
-
-    this.ajaxAction('getACPositions', aircraftData, this.sendWPsToACCallback);
-  }
-
-  updateACPositionsOnMap = (results: any) => {
-    console.log("update AC Positions On Map");
-
-    console.log("Latitude: " + results.latitude);
-  }
 
   // TODO: What to do with these?
   takeoffCallback = () => {
@@ -462,10 +517,14 @@ export default class AppContainer extends React.Component<Props, State> {
 
   aircraftCommand = (command: string) => {
     // connect, takeoff, land, guided, rtl, disconnect, sendWaypoints, genWaypoints
+    console.log("IN AIRCRAFT COMMAND: " + command);
+    console.log("IN AIRCRAFT COMMAND: " + this.state.sendToAllAircraft);
     let commPorts: string[] = [];
     if(this.state.sendToAllAircraft){
       for(let i = 0; i < this.state.aircraftPorts.length; i++){
-        commPorts.push(this.state.aircraftPorts[i].comm_port);
+        if(this.state.aircraftPorts[i].isConnected){
+          commPorts.push(this.state.aircraftPorts[i].comm_port);
+        }
       }
     }
     else {
@@ -498,6 +557,8 @@ export default class AppContainer extends React.Component<Props, State> {
 
   ajaxAction = (postAction: string, data: any, successFn: any) => {
     let postUrl: string = "http://localhost:10081/" + postAction;
+    // console.log("AJAX ACTION")
+    // console.log(postAction);
     // console.log(data);
     $.ajax({
         type: "POST",
@@ -525,7 +586,8 @@ export default class AppContainer extends React.Component<Props, State> {
               msg = 'Uncaught Error.\n' + jqXHR.responseText;
             }
 
-            this.showNotification('Error!', msg, 'error', 'tr', 'Got it');
+            console.log('Error!: ' + msg);
+            // this.showNotification('Error!', msg, 'error', 'tr', 'Got it');
         }.bind(this)
     });
   }
@@ -666,12 +728,13 @@ export default class AppContainer extends React.Component<Props, State> {
     const position = [37.889231, -76.810302];
     var width = window.screen.width;
     var height = window.screen.height;
-    const wpColors = ['red', 'blue', 'black', 'green', 'yellow', 'orange'];
-    const boundaryColors = ['red', 'blue', 'black', 'green', 'yellow', 'orange'];
+    const wpColors = ['blue', 'red', 'black', 'green', 'yellow', 'orange'];
+    const boundaryColors = ['blue', 'red', 'black', 'green', 'yellow', 'orange'];
     const backgroundColors = ['rgba(255,0,0,0.2)', 'rgba(0,0,255,0.2)', 'rgba(0,0,0,0.2)', 'rgba(0,255,0,0.2)', 'rgba(255,255,0,0.2)', 'rgba(255,153,0,0.2)'];
     const parentStyle = {height: height + 'px', width: width + 'px'};
     const mapStyle = { top: 0, left: 0, height: height + 'px', width: width + 'px' };
     const buttonContainer = { position: 'absolute', top: 15, right: 15, zIndex: 999};
+    const useTestPointsContainer = { position: 'absolute', top: 60, right: 0, width: 200, zIndex: 999};
     const aircraftCommsContainer = { position: 'absolute', bottom: 20, left: 15, zIndex: 999};
     const sliderContainer = { position: 'absolute', bottom: 15, right: 15, zIndex: 999, width: 500};
     const radioContainer = {marginBottom: 16};
@@ -686,16 +749,16 @@ export default class AppContainer extends React.Component<Props, State> {
     const checkbox = { marginBottom: 16 }
     let connectOrDisconnectButton: any = null;
 
-    if (this.state.aircraftPorts[this.state.selectedAircraftPort] && this.state.aircraftPorts[this.state.selectedAircraftPort].isConnected){
-      connectOrDisconnectButton = (<MuiThemeProvider muiTheme={lightMuiTheme}>
-        <RaisedButton backgroundColor={backgroundColors[this.state.selectedAircraftPort]} style={buttonStyle} label="Disconnect from aircraft" onClick={this.disconnectFromAircraftAjax}/>
-      </MuiThemeProvider>);
-    }
-    else{
+    // if (this.state.aircraftPorts[this.state.selectedAircraftPort] && this.state.aircraftPorts[this.state.selectedAircraftPort].isConnected){
+    //   connectOrDisconnectButton = (<MuiThemeProvider muiTheme={lightMuiTheme}>
+    //     <RaisedButton backgroundColor={backgroundColors[this.state.selectedAircraftPort]} style={buttonStyle} label="Disconnect from aircraft" onClick={this.disconnectFromAircraftAjax}/>
+    //   </MuiThemeProvider>);
+    // }
+    // else{
       connectOrDisconnectButton = (<MuiThemeProvider muiTheme={lightMuiTheme}>
         <RaisedButton backgroundColor={backgroundColors[this.state.selectedAircraftPort]} style={buttonStyle} label="Connect to aircraft" onClick={this.connectToAircraftAjax}/>
       </MuiThemeProvider>);
-    }
+    // }
 
     return (
 
@@ -721,6 +784,17 @@ export default class AppContainer extends React.Component<Props, State> {
               <RaisedButton style={buttonStyle} label="Generate Waypoints" onClick={this.generateWaypointsAjax}/>
             </MuiThemeProvider>
 
+          </div>
+
+          <div style={useTestPointsContainer}>
+            <MuiThemeProvider muiTheme={darkMuiTheme}>
+              <Checkbox
+                label="Use test points"
+                style={checkbox}
+                checked={this.state.useTestPoints}
+                onCheck={() => this.setState({useTestPoints: !this.state.useTestPoints})}
+              />
+            </MuiThemeProvider>
           </div>
 
           {this.state.openPorts.length > 0 &&
@@ -786,7 +860,7 @@ export default class AppContainer extends React.Component<Props, State> {
                         <MuiThemeProvider muiTheme={lightMuiTheme}>
                           <Slider
                             description={'Current value for grid density: ' + this.state.gridSliderVal}
-                            min={0.75}
+                            min={0.25}
                             max={2}
                             value={this.state.gridSliderVal}
                             onChange={(e: any, value: number) => this.handleSliderChange(e, value, 'grid')}
@@ -828,9 +902,12 @@ export default class AppContainer extends React.Component<Props, State> {
                         <RaisedButton style={aircraftCommand} label="Start Mission" onClick={() => this.aircraftCommand('mission')}/>
                       </MuiThemeProvider>
                       */}
-                      <MuiThemeProvider muiTheme={lightMuiTheme}>
-                        <RaisedButton style={aircraftCommand} label="Switch to Guided" onClick={() => this.aircraftCommand('guided')}/>
-                      </MuiThemeProvider>
+                     {!this.state.useTestPoints &&
+                       <MuiThemeProvider muiTheme={lightMuiTheme}>
+                         <RaisedButton style={aircraftCommand} label="Switch to Guided" onClick={() => this.aircraftCommand('guided')}/>
+                       </MuiThemeProvider>
+                     }
+
                     </CardText>
                   </div>
               }
