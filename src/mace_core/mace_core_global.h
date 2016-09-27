@@ -1,8 +1,12 @@
 #ifndef MACE_CORE_GLOBAL_H
 #define MACE_CORE_GLOBAL_H
 
-#if defined(MACE_CORE_LIBRARY)
-#  define MACE_CORESHARED_EXPORT
+#ifdef _MSC_VER
+#  if defined(MACE_CORE_LIBRARY)
+#    define MACE_CORESHARED_EXPORT  __declspec(dllexport)
+#  else
+#    define MACE_CORESHARED_EXPORT  __declspec(dllimport)
+#  endif
 #else
 #  define MACE_CORESHARED_EXPORT
 #endif

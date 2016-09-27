@@ -41,9 +41,14 @@ INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
 
-EigenInclude = $$system(pkg-config --cflags eigen3)
-EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
-INCLUDEPATH += $$EigenInclude
+unix{
+    EigenInclude = $$system(pkg-config --cflags eigen3)
+    EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
+    INCLUDEPATH += $$EigenInclude
+}
+win32{
+    INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
+}
 
 
 HEADERS += \

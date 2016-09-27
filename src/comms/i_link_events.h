@@ -1,6 +1,8 @@
 #ifndef I_LINK_EVENTS_H
 #define I_LINK_EVENTS_H
 
+#include "comms_global.h"
+
 #include <cstdlib>
 #include <vector>
 #include <string>

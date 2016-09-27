@@ -6,7 +6,7 @@
 #include "mace_core/i_module_command_path_planning.h"
 
 
-class ModulePathPlanningNASAPhase2 : public MaceCore::IModuleCommandPathPlanning
+class MODULE_PATH_PLANNING_NASAPHASE2SHARED_EXPORT ModulePathPlanningNASAPhase2 : public MaceCore::IModuleCommandPathPlanning
 {
 
 public:

@@ -70,7 +70,7 @@ std::string SerialLink::getPortName() const
 //! \brief Get the maximum connection speed for this interface.
 //! \return The nominal data rate of the interface in bit per second, 0 if unknown
 //!
-u_int64_t SerialLink::getConnectionSpeed() const
+uint64_t SerialLink::getConnectionSpeed() const
 {
     int baudRate;
     if (m_port) {
@@ -78,7 +78,7 @@ u_int64_t SerialLink::getConnectionSpeed() const
     } else {
         baudRate = _config.baud();
     }
-    u_int64_t dataRate;
+    uint64_t dataRate;
     switch (baudRate)
     {
         case QSerialPort::Baud1200:
@@ -279,7 +279,7 @@ void SerialLink::_readBytes(void)
         buffer.resize(byteCount);
         m_port->read(buffer.data(), buffer.size());
 
-        std::vector<u_int8_t> vec_buffer = std::vector<u_int8_t>(buffer.begin(), buffer.end());
+        std::vector<uint8_t> vec_buffer = std::vector<uint8_t>(buffer.begin(), buffer.end());
 
         EmitEvent([this,&vec_buffer](const ILinkEvents *ptr){ptr->ReceiveData(this, vec_buffer);});
     }

@@ -22,7 +22,7 @@ enum class RTACommands
     UPDATED_OCCUPANCY_MAP
 };
 
-class IModuleCommandRTA : public AbstractModule_VehicleListener<Metadata_RTA, IModuleEventsRTA, RTACommands>
+class MACE_CORESHARED_EXPORT IModuleCommandRTA : public AbstractModule_VehicleListener<Metadata_RTA, IModuleEventsRTA, RTACommands>
 {
 public:
 

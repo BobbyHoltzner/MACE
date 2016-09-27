@@ -64,7 +64,7 @@ public:
     //! This function exists purley to simplify the need to loop over all listners
     //! \param func Lambda function that invokes event on some object
     //!
-    void NotifyListeners(const std::function<void(I*)> &func)
+    void NotifyListeners(const std::function<void(const I*)> &func)
     {
         for(auto it = m_Listeners.cbegin() ; it != m_Listeners.cend() ; ++it)
         {
@@ -170,7 +170,7 @@ public:
     //!
     void InvokeCommandOnModuleEventLoop(const CT command, const bool &value)
     {
-        m_DefaultMarshalCommandOnEventLoop[command] = value;
+        m_MarshalCommandsOnEventLoop[command] = value;
     }
 
 protected:
@@ -230,7 +230,7 @@ private:
 
     T m_MetaData;
 
-    std::vector<I*> m_Listeners;
+    std::vector<const I*> m_Listeners;
 
     std::chrono::milliseconds m_LoopSleepTime;
 

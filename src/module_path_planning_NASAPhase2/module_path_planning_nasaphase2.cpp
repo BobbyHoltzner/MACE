@@ -43,7 +43,7 @@ void ModulePathPlanningNASAPhase2::RemoveVehicle(const std::string &ID)
 
 void ModulePathPlanningNASAPhase2::UpdatedPositionDynamics(const std::string &vehicleID)
 {
-    std::shared_ptr<MaceCore::MaceData> data = this->getDataObject();
+    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
 
     MaceCore::TIME time;
     //get current time

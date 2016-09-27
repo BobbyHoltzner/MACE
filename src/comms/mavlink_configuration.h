@@ -3,6 +3,8 @@
 
 #include "protocol_configuration.h"
 
+#include "comms_global.h"
+
 namespace Comms
 {
 
@@ -10,7 +12,7 @@ namespace Comms
 //!
 //! \brief Class that configures a mavlink protocol.
 //!
-class MavlinkConfiguration : public ProtocolConfiguration
+class COMMSSHARED_EXPORT MavlinkConfiguration : public ProtocolConfiguration
 {
 public:
 

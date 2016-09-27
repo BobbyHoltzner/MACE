@@ -2,6 +2,7 @@ build-src*
 src/src.pro.user*
 *~
 build/
+build*
 bin/
 include/
 lib/

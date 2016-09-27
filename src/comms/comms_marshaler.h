@@ -37,7 +37,7 @@ enum class Protocols
 //!
 //! When multiple links are using the same protol, they utilize protocol channels to differiciante themselves.
 //!
-class CommsMarshaler : public Publisher<CommsEvents>, private ILinkEvents, private IProtocolMavlinkEvents
+class COMMSSHARED_EXPORT CommsMarshaler : public Publisher<CommsEvents>, private ILinkEvents, private IProtocolMavlinkEvents
 {
 public:
 

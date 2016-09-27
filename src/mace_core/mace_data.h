@@ -38,7 +38,7 @@ class MaceCore;
 //! These methods describe how to combine multiple observations and used to expose a continuous-time data-space with descrite-time observations.
 //! The exact method in how this interpolation is done (pick closests, linear, more advanced methods) is left to the user of MaceData.
 //!
-class MaceData
+class MACE_CORESHARED_EXPORT MaceData
 {
 friend class MaceCore;
 

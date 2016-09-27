@@ -9,6 +9,9 @@ QT       -= core gui
 TARGET = common
 TEMPLATE = lib
 
+
+CONFIG += staticlib
+
 DEFINES += COMMON_LIBRARY
 
 SOURCES +=

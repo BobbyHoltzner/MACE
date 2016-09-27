@@ -1,6 +1,8 @@
 #ifndef SERIALLINK_H
 #define SERIALLINK_H
 
+#include "comms_global.h"
+
 #include <mutex>
 #include <iostream>
 #include <thread>
@@ -17,7 +19,7 @@ namespace Comms
 
 
 
-class SerialLink : public ILink
+class COMMSSHARED_EXPORT SerialLink : public ILink
 {
 public:
 
@@ -43,7 +45,7 @@ public:
     //! \brief Get the maximum connection speed for this interface.
     //! \return The nominal data rate of the interface in bit per second, 0 if unknown
     //!
-    virtual u_int64_t getConnectionSpeed() const;
+    virtual uint64_t getConnectionSpeed() const;
 
 
 

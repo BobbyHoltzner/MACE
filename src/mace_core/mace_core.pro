@@ -8,6 +8,7 @@ QT       -= core gui
 
 TARGET = mace_core
 TEMPLATE = lib
+win32:TARGET_EXT += .dll
 
 DEFINES += MACE_CORE_LIBRARY
 
@@ -46,9 +47,14 @@ unix {
 }
 
 
-EigenInclude = $$system(pkg-config --cflags eigen3)
-EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
-INCLUDEPATH += $$EigenInclude
+unix{
+    EigenInclude = $$system(pkg-config --cflags eigen3)
+    EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
+    INCLUDEPATH += $$EigenInclude
+}
+win32{
+    INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
+}
 
 
 INCLUDEPATH += $$PWD/../

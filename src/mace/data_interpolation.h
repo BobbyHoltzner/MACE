@@ -12,10 +12,10 @@ public:
     DataInterpolation(uint64_t historyToKeepInms);
 
 
-    virtual MaceCore::VectorDynamics FuseDynamics(const MaceCore::TIME &time, const MaceCore::VectorDynamics &v0, const MaceCore::TIME &t0, const MaceCore::VectorDynamics &v1, const MaceCore::TIME &t1) const;
+    virtual MaceCore::VectorDynamics Fuse_VehicleDynamics(const MaceCore::TIME &time, const MaceCore::VectorDynamics &v0, const MaceCore::TIME &t0, const MaceCore::VectorDynamics &v1, const MaceCore::TIME &t1) const;
 
 
-    virtual MaceCore::VehicleLife FuseVehicleLife(const MaceCore::TIME &time, const MaceCore::VehicleLife &v0, const MaceCore::TIME &t0, const MaceCore::VehicleLife &v1, const MaceCore::TIME &t1) const;
+    virtual MaceCore::VehicleLife Fuse_VehicleLife(const MaceCore::TIME &time, const MaceCore::VehicleLife &v0, const MaceCore::TIME &t0, const MaceCore::VehicleLife &v1, const MaceCore::TIME &t1) const;
 
 };
 

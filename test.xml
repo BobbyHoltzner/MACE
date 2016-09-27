@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModuleConfigurations>
+  <Module Class="VehicleComms" Type="MAVLINK">
+    <Parameter Name="Int1">"1"</Parameter>
+  </Module>
+  <Module Class="RTA" Type="NASAPhase2" />
+  <Module Class="PathPlanning" Type="NASAPhase2" />
+</ModuleConfigurations>

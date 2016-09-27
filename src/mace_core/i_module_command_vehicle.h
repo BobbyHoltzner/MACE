@@ -21,7 +21,7 @@ enum class VehicleCommands
 
 class MaceCore;
 
-class IModuleCommandVehicle : public AbstractModule_EventListeners<MetadataVehicle, IModuleEventsVehicle, VehicleCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandVehicle : public AbstractModule_EventListeners<MetadataVehicle, IModuleEventsVehicle, VehicleCommands>
 {
 friend class MaceCore;
 public:

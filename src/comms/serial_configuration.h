@@ -6,11 +6,13 @@
 
 #include "link_configuration.h"
 
+#include "comms_global.h"
+
 namespace Comms
 {
 
 
-class SerialConfiguration : public LinkConfiguration
+class COMMSSHARED_EXPORT SerialConfiguration : public LinkConfiguration
 {
 
 public:

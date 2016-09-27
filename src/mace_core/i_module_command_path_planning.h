@@ -23,7 +23,7 @@ enum class PathPlanningCommands
     RECOMPUTE_PATHS
 };
 
-class IModuleCommandPathPlanning  : public AbstractModule_VehicleListener<MetadataPathPlanning, IModuleEventsPathPlanning, PathPlanningCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandPathPlanning  : public AbstractModule_VehicleListener<MetadataPathPlanning, IModuleEventsPathPlanning, PathPlanningCommands>
 {
 public:
 
