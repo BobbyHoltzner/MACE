@@ -236,3 +236,17 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
         std::cout << "AsdfaSD" << std::endl;
 }
 
+
+//!
+//! \brief New heartbeat from MAVLINK received over a link
+//! \param linkName Name of link
+//! \param vehicleId
+//! \param vehicleMavlinkVersion
+//! \param vehicleFirmwareType
+//! \param vehicleType
+//!
+virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
+{
+    //incomming heartbeats
+}
+

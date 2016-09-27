@@ -20,6 +20,24 @@ namespace MaceCore
 
 class MaceCore;
 
+//!
+//! \brief Object that is to hold all data that MACE modules may need
+//!
+//! It it intended that a single MaceData object will be created and passed to each module.
+//! Therefore all of this objects methods are thread safe as they may be stimulated from multiple module's threads.
+//!
+//! The reason for a single data storage object over simply passing data in command methods was done for three reasons:
+//!     1) Some modules may require the same data, so a centrailized container is simplier over distrubtiting idential data.
+//!     2) Some data may be updated at a high rate, so changing one and calling a notify modules of new data is prefered over sending new data
+//!     3) Commands may be marsheled at a different rate than they are generated, so a centralize data bin gives the module full access to data without over-invoking
+//!
+//! Only MaceCore object will be able of manipulating data inside this object, while any module can read data out of it.
+//! If a module must write to this object it must issue an event to MaceCore first.
+//!
+//! Use of the MaceData object requires implimentaiton of various Fuse_* methods.
+//! These methods describe how to combine multiple observations and used to expose a continuous-time data-space with descrite-time observations.
+//! The exact method in how this interpolation is done (pick closests, linear, more advanced methods) is left to the user of MaceData.
+//!
 class MaceData
 {
 friend class MaceCore;
@@ -45,10 +63,32 @@ public:
     /////////////////////////////////////////////////////////
 
 
-    virtual VectorDynamics FuseDynamics(const TIME &time, const VectorDynamics &v0, const TIME &t0, const VectorDynamics &v1, const TIME &t1) const = 0;
+    //!
+    //! \brief Abstract method to interpolate vehicle dynamics
+    //!
+    //! This method is to be implimented by the instantiator of MaceData
+    //! \param time Time to interpolate to
+    //! \param v0 Value0
+    //! \param t0 Time0
+    //! \param v1 Value1
+    //! \param t1 Time1
+    //! \return Interpolated vehicle dynamics
+    //!
+    virtual VectorDynamics Fuse_VehicleDynamics(const TIME &time, const VectorDynamics &v0, const TIME &t0, const VectorDynamics &v1, const TIME &t1) const = 0;
 
 
-    virtual VehicleLife FuseVehicleLife(const TIME &time, const VehicleLife &v0, const TIME &t0, const VehicleLife &v1, const TIME &t1) const = 0;
+    //!
+    //! \brief Abstract method to interpolate vehicle life
+    //!
+    //! This method is to be implimented by the instantiator of MaceData
+    //! \param time Time to interpolate to
+    //! \param v0 Value0
+    //! \param t0 Time0
+    //! \param v1 Value1
+    //! \param t1 Time1
+    //! \return Interpolated vehicle life
+    //!
+    virtual VehicleLife Fuse_VehicleLife(const TIME &time, const VehicleLife &v0, const TIME &t0, const VehicleLife &v1, const TIME &t1) const = 0;
 
 
     /////////////////////////////////////////////////////////
@@ -145,7 +185,7 @@ public:
         std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
 
         VectorDynamics vec;
-        bool success = GetObservation<VectorDynamics>(m_PositionDynamicsHistory.at(rn), time, vec, [&](const TIME& t, const VectorDynamics& d0, const TIME& t0, const VectorDynamics& d1, const TIME& t1){ return FuseDynamics(t, d0, t0, d1, t1);});
+        bool success = GetObservation<VectorDynamics>(m_PositionDynamicsHistory.at(rn), time, vec, [&](const TIME& t, const VectorDynamics& d0, const TIME& t0, const VectorDynamics& d1, const TIME& t1){ return Fuse_VehicleDynamics(t, d0, t0, d1, t1);});
 
         if(success == false)
             return false;
@@ -160,7 +200,7 @@ public:
         std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
 
         VectorDynamics vec;
-        bool success = GetObservation<VectorDynamics>(m_AttitudeDynamicsHistory.at(rn), time, vec, [&](const TIME& t, const VectorDynamics& d0, const TIME& t0, const VectorDynamics& d1, const TIME& t1){ return FuseDynamics(t, d0, t0, d1, t1);});
+        bool success = GetObservation<VectorDynamics>(m_AttitudeDynamicsHistory.at(rn), time, vec, [&](const TIME& t, const VectorDynamics& d0, const TIME& t0, const VectorDynamics& d1, const TIME& t1){ return Fuse_VehicleDynamics(t, d0, t0, d1, t1);});
 
         if(success == false)
             return false;
@@ -174,7 +214,7 @@ public:
     {
         std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
 
-        return GetObservation<VehicleLife>(m_VehicleLifeHistory.at(rn), time, life, [this](const TIME& t, const VehicleLife& d0, const TIME& t0, const VehicleLife& d1, const TIME& t1){ return FuseVehicleLife(t, d0, t0, d1, t1);});
+        return GetObservation<VehicleLife>(m_VehicleLifeHistory.at(rn), time, life, [this](const TIME& t, const VehicleLife& d0, const TIME& t0, const VehicleLife& d1, const TIME& t1){ return Fuse_VehicleLife(t, d0, t0, d1, t1);});
     }
 
 
