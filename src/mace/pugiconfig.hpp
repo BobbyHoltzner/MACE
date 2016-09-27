@@ -40,12 +40,14 @@
 // #define PUGIXML_MEMORY_OUTPUT_STACK 10240
 // #define PUGIXML_MEMORY_XPATH_PAGE_SIZE 4096
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #   ifdef _DLL
 #       define PUGIXML_API __declspec(dllexport)
 #   else
 #       define PUGIXML_API __declspec(dllimport)
 #   endif
+#else
+#   define PUGIXMM_APP
 #endif
 
 // Uncomment this to switch to header-only version
