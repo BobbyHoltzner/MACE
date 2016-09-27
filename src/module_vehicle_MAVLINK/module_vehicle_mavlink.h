@@ -108,6 +108,14 @@ public:
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg) const;
 
 
+    //!
+    //! \brief New heartbeat from MAVLINK received over a link
+    //! \param linkName Name of link
+    //! \param vehicleId
+    //! \param vehicleMavlinkVersion
+    //! \param vehicleFirmwareType
+    //! \param vehicleType
+    //!
     virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const;
 
 private:

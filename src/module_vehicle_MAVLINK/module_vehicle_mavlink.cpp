@@ -245,7 +245,7 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
 //! \param vehicleFirmwareType
 //! \param vehicleType
 //!
-virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
+void ModuleVehicleMAVLINK::VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
 {
     //incomming heartbeats
 }

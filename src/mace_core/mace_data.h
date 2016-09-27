@@ -489,9 +489,9 @@ public:
     //!
     Eigen::MatrixXd ProbibilityMap_GetCopy() const
     {
-        std::lock_guard<std::mutex> guard(m_Mutex_ProbibilityMap);
+        std::lock_guard<std::mutex> guard(m_Mutex_ProbabilityMap);
 
-        return m_ProbibilityMap;
+        return m_ProbabilityMap;
     }
 
 
@@ -501,9 +501,9 @@ public:
     //!
     void ProbibilityMap_ReadCells(std::vector<MatrixCellData<double>> &cells)
     {
-        std::lock_guard<std::mutex> guard(m_Mutex_ProbibilityMap);
+        std::lock_guard<std::mutex> guard(m_Mutex_ProbabilityMap);
 
-        ReadCellsInMatrix(m_ProbibilityMap, cells);
+        ReadCellsInMatrix(m_ProbabilityMap, cells);
     }
 
 
@@ -516,9 +516,9 @@ public:
     //!
     void ProbibilityMap_GenericConstOperation(std::function<void(const Eigen::MatrixXd &)> &func) const
     {
-        std::lock_guard<std::mutex> guard(m_Mutex_ProbibilityMap);
+        std::lock_guard<std::mutex> guard(m_Mutex_ProbabilityMap);
 
-        func(m_ProbibilityMap);
+        func(m_ProbabilityMap);
     }
 
 
