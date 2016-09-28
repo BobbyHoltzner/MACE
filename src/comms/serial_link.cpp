@@ -3,6 +3,30 @@
 namespace Comms
 {
 
+
+class AppThread : public QThread
+{
+public:
+    AppThread()
+    {
+        if(QCoreApplication::instance() == NULL)
+        {
+            int argc = 0;
+            char * argv[] = {(char *)"sharedlib.app"};
+            pApp = new QCoreApplication(argc, argv);
+        }
+    }
+
+    virtual void run()
+    {
+        exec();
+    }
+
+private:
+
+    QCoreApplication *pApp;
+};
+
 SerialLink::SerialLink(const SerialConfiguration &config) :
     _config(config)
 {
@@ -240,8 +264,18 @@ bool SerialLink::_hardwareConnect(QSerialPort::SerialPortError& error, QString& 
     std::cout << "Connection SeriaLink: " << "with settings " << _config.portName() << " "
              << _config.baud() << " " << _config.dataBits() << " " << _config.parity() << " " << _config.stopBits() << std::endl;
 
+
+
+    m_ListenThread = new AppThread();
+    m_port->moveToThread(m_ListenThread);
+    m_ListenThread->start();
+
+
     //start port's event loop
     m_CommsThread = new std::thread([this](){this->PortEventLoop();});
+
+
+
 
     return true; // successful connection
 }
