@@ -1,9 +1,14 @@
 #include "serial_link.h"
 
+#include <QCoreApplication>
+
 namespace Comms
 {
 
 
+//!
+//! \brief This class defines a thread such that a QObject can run in peace.
+//!
 class AppThread : public QThread
 {
 public:
