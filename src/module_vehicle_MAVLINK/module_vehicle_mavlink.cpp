@@ -166,10 +166,27 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
 
         //test statements that will issue a log_request_list to device
-        //uint8_t chan = m_LinkMarshler->GetProtocolChannel("link1");
-        //mavlink_message_t msg;
-        //mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,0,0,0,0xFFFF);
+        uint8_t chan = m_LinkMarshler->GetProtocolChannel("link1");
+        mavlink_message_t msg;
+        mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,0,0,0,0xFFFF);
+        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
+
+        //mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,10,4,1);
         //m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
+
+        //param 1 is the message id
+        //interval between two messages in microseconds
+
+        //mavlink_msg_command_long_pack_chan(255,190,chan,&msg,0,0,511,0,30,500000,0,0,0,0,0);
+        //m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
+
+
+//        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,11,4,1);
+//        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
+
+//        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,12,4,1);
+//        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
+
 
     }
     else
@@ -230,10 +247,72 @@ void ModuleVehicleMAVLINK::CommandsAppended()
 //!
 void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message) const
 {
-    //std::cout << "Message" << std::endl;
-    std::cout << "  ID: " << message.msgid << std::endl;
-    if(message.msgid == 118)
-        std::cout << "AsdfaSD" << std::endl;
+    switch (message.msgid)
+    {
+    case MAVLINK_MSG_ID_BATTERY_STATUS:
+    {
+        std::cout << "A battery message was seen" << std::endl;
+        mavlink_battery_status_t decodedMSG;
+        mavlink_msg_battery_status_decode(&message,&decodedMSG);
+        break;
+    }
+    case MAVLINK_MSG_ID_GPS_RAW_INT:
+    {
+        std::cout << "A gps raw message was seen" << std::endl;
+        mavlink_gps_raw_int_t decodedMSG;
+        mavlink_msg_gps_raw_int_decode(&message,&decodedMSG);
+        break;
+    }
+    case MAVLINK_MSG_ID_HEARTBEAT:
+    {
+        std::cout << "A heartbeat message was seen" << std::endl;
+        std::cout<<"The aircraft id is: "<<(int)message.sysid<<std::endl;
+        mavlink_heartbeat_t decodedMSG;
+        mavlink_msg_heartbeat_decode(&message,&decodedMSG);
+        break;
+    }
+    case MAVLINK_MSG_ID_ATTITUDE:
+    {
+        std::cout << "An attitude message was seen" << std::endl;
+        mavlink_attitude_t decodedMSG;
+        mavlink_msg_attitude_decode(&message,&decodedMSG);
+        break;
+    }
+    case MAVLINK_MSG_ID_HOME_POSITION:
+    {
+        std::cout << "A home message was seen" << std::endl;
+        mavlink_home_position_t decodedMSG;
+        mavlink_msg_home_position_decode(&message,&decodedMSG);
+        break;
+    }
+    case MAVLINK_MSG_ID_VFR_HUD:
+    {
+        std::cout << "A vfr hud message was seen" << std::endl;
+        mavlink_vfr_hud_t decodedMSG;
+        mavlink_msg_vfr_hud_decode(&message,&decodedMSG);
+        break;
+    }
+    case MAVLINK_MSG_ID_RADIO_STATUS:
+    {
+        std::cout << "A vfr hud message was seen" << std::endl;
+        mavlink_radio_status_t decodedMSG;
+        mavlink_msg_radio_status_decode(&message,&decodedMSG);
+        break;
+    }
+    case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
+    {
+        std::cout << "A global position message was seen" << std::endl;
+        mavlink_global_position_int_t decodedMSG;
+        mavlink_msg_global_position_int_decode(&message,&decodedMSG);
+        break;
+    }
+    default:
+        std::cout<<"I saw a message with the ID"<<message.msgid<<std::endl;
+    }
+    Eigen::Vector3d tmpVector;
+    NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->NewPositionDynamics(this,MaceCore::TIME(), tmpVector ,tmpVector);
+        });
 }
 
 
