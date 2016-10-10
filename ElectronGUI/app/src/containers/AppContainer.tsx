@@ -742,6 +742,12 @@ export default class AppContainer extends React.Component<Props, State> {
       console.log('Data written to waypoints_' + i + '.txt');
     }
 
+    fs.writeFile('wpParameters.txt', '', function(){
+      console.log('Overwriting contents of wpParameters.txt');
+    });
+    let paramterData = 'pVal: ' + this.state.pSliderVal + '\ngridSpacing: ' + this.state.gridSliderVal;
+    fs.appendFileSync('wpParameters.txt', paramterData);
+
   }
 
   render() {
