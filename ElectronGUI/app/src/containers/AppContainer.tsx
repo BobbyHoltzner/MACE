@@ -735,7 +735,8 @@ export default class AppContainer extends React.Component<Props, State> {
 
       for(let j = 0; j < this.state.aircraftPaths[i].waypoints.length; j++) {
         let filename = 'waypoints_' + i + '.txt';
-        let appendData = j + '   0   3   16  0.000000    0.000000    0.000000    0.000000    ' + this.state.aircraftPaths[i].waypoints[j].lat + '    ' + this.state.aircraftPaths[i].waypoints[j].lng + '    100.000000  1\n';
+        let index = j+1;
+        let appendData = index + '   0   3   16  0.000000    0.000000    0.000000    0.000000    ' + this.state.aircraftPaths[i].waypoints[j].lat + '    ' + this.state.aircraftPaths[i].waypoints[j].lng + '    100.000000  1\n';
 
         fs.appendFileSync(filename, appendData);
       }
