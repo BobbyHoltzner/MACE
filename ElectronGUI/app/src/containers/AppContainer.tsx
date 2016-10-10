@@ -20,6 +20,7 @@ var NotificationSystem = require('react-notification-system');
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import * as $ from 'jquery';
+var fs = require('fs')
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 // var $ = require('jquery');
@@ -75,6 +76,7 @@ type State = {
   aircraftMarkers?: MarkerType[],
   sendToAllAircraft?: boolean,
   useTestPoints?: boolean,
+  disableWriteToFile?: boolean,
   getAircraftLocationsStarted?: boolean
 }
 
@@ -117,7 +119,8 @@ export default class AppContainer extends React.Component<Props, State> {
       showAircraftCommands: false,
       selectedAircraftPort: 0,
       sendToAllAircraft: false,
-      useTestPoints: true,
+      useTestPoints: false,
+      disableWriteToFile: false,
       getAircraftLocationsStarted: false
     }
   }
@@ -434,7 +437,7 @@ export default class AppContainer extends React.Component<Props, State> {
     // let parsedPathResults = JSON.parse(results.vehiclePaths);
     this.updateAircraftPaths(results.vehiclePaths);
 
-    this.setState({disableRegenerate: true});
+    this.setState({disableRegenerate: true, disableWriteToFile: false});
   }
 
   sendWPsToACAjax = () => {
@@ -723,6 +726,24 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({selectedAircraftPort: value});
   }
 
+  writeToFile = () => {
+
+    for(let i = 0; i < this.state.aircraftPaths.length; i++) {
+      fs.writeFile('waypoints_' + i + '.txt', '', function(){
+        console.log('Overwriting contents of waypoints_' + i + '.txt');
+      });
+
+      for(let j = 0; j < this.state.aircraftPaths[i].waypoints.length; j++) {
+        let filename = 'waypoints_' + i + '.txt';
+        let appendData = j + '   0   3   16  0.000000    0.000000    0.000000    0.000000    ' + this.state.aircraftPaths[i].waypoints[j].lat + '    ' + this.state.aircraftPaths[i].waypoints[j].lng + '    100.000000  1\n';
+
+        fs.appendFileSync(filename, appendData);
+      }
+      console.log('Data written to waypoints_' + i + '.txt');
+    }
+
+  }
+
   render() {
 
     const position = [37.889231, -76.810302];
@@ -868,6 +889,9 @@ export default class AppContainer extends React.Component<Props, State> {
                         </MuiThemeProvider>
                         <MuiThemeProvider muiTheme={lightMuiTheme}>
                           <RaisedButton style={centerButtonStyle} disabled={this.state.disableRegenerate} label="Regenerate Waypoints" onClick={this.generateWaypointsAjax}/>
+                        </MuiThemeProvider>
+                        <MuiThemeProvider muiTheme={lightMuiTheme}>
+                          <RaisedButton style={centerButtonStyle} disabled={this.state.disableWriteToFile} label="Write Waypoints to file(s)" onClick={this.writeToFile}/>
                         </MuiThemeProvider>
                       </CardText>
                     </div>
