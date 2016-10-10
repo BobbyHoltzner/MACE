@@ -746,6 +746,16 @@ export default class AppContainer extends React.Component<Props, State> {
       console.log('Overwriting contents of wpParameters.txt');
     });
     let paramterData = 'pVal: ' + this.state.pSliderVal + '\ngridSpacing: ' + this.state.gridSliderVal;
+    let boundaryVerticies = 'Boundary Verticies:\n';
+    for(let i = 0; i < this.state.boundaryVerts.latLons.length; i++){
+      boundaryVerticies = boundaryVerticies + this.state.boundaryVerts.latLons[i].lat + '    ' + this.state.boundaryVerts.latLons[i].lng + '\n'
+    }
+    let hotSpots = 'Hot Spots:\n';
+    for(let i = 0; i < this.state.pointsOfInterest.length; i++){
+      hotSpots = hotSpots + this.state.pointsOfInterest[i].latLons[0].lat + '    ' + this.state.pointsOfInterest[i].latLons[0].lng + '\n'
+    }
+    fs.appendFileSync('wpParameters.txt', boundaryVerticies);
+    fs.appendFileSync('wpParameters.txt', hotSpots);
     fs.appendFileSync('wpParameters.txt', paramterData);
 
   }
