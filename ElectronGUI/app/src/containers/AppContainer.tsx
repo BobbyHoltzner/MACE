@@ -110,8 +110,8 @@ export default class AppContainer extends React.Component<Props, State> {
       hotSpotLayers: [],
       screenWidth: 500,
       screenHeight: 500,
-      pSliderVal: 0.05,
-      gridSliderVal: 1.5,
+      pSliderVal: 0.5,
+      gridSliderVal: 35,
       disableRegenerate: true,
       pathDirection: 'EastWest',
       aircraftPorts: [],
@@ -763,7 +763,8 @@ export default class AppContainer extends React.Component<Props, State> {
 
   render() {
 
-    const position = [37.889231, -76.810302];
+    // const position = [37.889231, -76.810302];
+    const position = [35.73833646796758, -78.84764179587364];
     var width = window.screen.width;
     var height = window.screen.height;
     const wpColors = ['blue', 'red', 'black', 'green', 'yellow', 'orange'];
@@ -898,8 +899,9 @@ export default class AppContainer extends React.Component<Props, State> {
                         <MuiThemeProvider muiTheme={lightMuiTheme}>
                           <Slider
                             description={'Current value for grid density: ' + this.state.gridSliderVal}
-                            min={0.25}
-                            max={2}
+                            min={10}
+                            max={40}
+                            step={1}
                             value={this.state.gridSliderVal}
                             onChange={(e: any, value: number) => this.handleSliderChange(e, value, 'grid')}
                           />
