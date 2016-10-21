@@ -16,6 +16,7 @@ def planPath(boundaryPoints, pathDirection, gridSpacing, originPoint, pVal):
     # gridSpacing = 0.5
     # const = 20
     m = 10 ** (- p + 1)
+    # m = 0.1
     xOrigin = originPoint[0]
     yOrigin = originPoint[1]
 
@@ -36,10 +37,10 @@ def planPath(boundaryPoints, pathDirection, gridSpacing, originPoint, pVal):
     xvals = []
     yvals = []
     for i in range(1, len(xBoundary)-1):
-        xvals.extend(np.linspace(xBoundary[i-1], xBoundary[i], 10))
-        yvals.extend(np.linspace(yBoundary[i-1], yBoundary[i], 10))
-    xvals.extend(np.linspace(xvals[len(xvals)-1], xvals[0], 10))
-    yvals.extend(np.linspace(yvals[len(yvals)-1], yvals[0], 10))
+        xvals.extend(np.linspace(xBoundary[i-1], xBoundary[i], 10*gridSpacing))
+        yvals.extend(np.linspace(yBoundary[i-1], yBoundary[i], 10*gridSpacing))
+    xvals.extend(np.linspace(xvals[len(xvals)-1], xvals[0], 10*gridSpacing))
+    yvals.extend(np.linspace(yvals[len(yvals)-1], yvals[0], 10*gridSpacing))
 
 
     # Z-plane (complex plane)
@@ -80,8 +81,8 @@ def planPath(boundaryPoints, pathDirection, gridSpacing, originPoint, pVal):
     if rect[3].real >= rect[1].real:
         maxGridVal = rect[3].real
 
-    meshX = np.linspace(rect[0], rect[1], gridSpacing)  # (maxGridVal - minGridVal)/gridSpacing))
-    meshY = np.linspace(rect[2], rect[3], gridSpacing)  # (maxGridVal - minGridVal)/gridSpacing))
+    meshX = np.linspace(rect[0], rect[1], 50*gridSpacing)  # (maxGridVal - minGridVal)/gridSpacing))
+    meshY = np.linspace(rect[2], rect[3], 50*gridSpacing)  # (maxGridVal - minGridVal)/gridSpacing))
 
     # Create meshgrid in bounding box:
     if pathDirection == "NorthSouth":
@@ -184,7 +185,7 @@ def planPath(boundaryPoints, pathDirection, gridSpacing, originPoint, pVal):
         #     magLawnZ.append(((1 / m) * np.absolute(Lawn[i])) ** (1 / 0.7))
         # else:
         #     magLawnZ.append(((1 / m) * np.absolute(Lawn[i])))
-        magLawnZ.append(((1 / (1)) * np.absolute(Lawn[i])) ** (1 / (p)))
+        magLawnZ.append(((1 / (m)) * np.absolute(Lawn[i])) ** (1 / (p)))
 
         angLawnZ.append(np.angle(Lawn[i]))
         realLawnZ.append(magLawnZ[i].real * cmath.cos(angLawnZ[i].real) + xOrigin)
