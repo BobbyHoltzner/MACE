@@ -4,13 +4,28 @@ CONFIG -= app_bundle
 QT += serialport
 
 TARGET = MACE
+QMAKE_CXXFLAGS += -std=c++11
+
 
 SOURCES += main.cpp \
     data_interpolation.cpp \
     configuration_reader_xml.cpp \
     pugixml.cpp
 
-QMAKE_CXXFLAGS += -std=c++11
+
+HEADERS += \
+    data_interpolation.h \
+    configuration_reader_xml.h \
+    pugixml.hpp \
+    pugiconfig.hpp \
+    module_collection.h
+
+
+# Copy Files
+target.path = $$(MACE_ROOT)/bin
+INSTALLS += target
+
+INCLUDEPATH += $$(MACE_ROOT)/include
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
@@ -36,6 +51,11 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../comms/debug/ -lc
 else:unix: LIBS += -L$$OUT_PWD/../comms/ -lcomms
 
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../vehicle_GENERIC/release/ -lvehicle_GENERIC
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../vehicle_GENERIC/debug/ -lvehicle_GENERIC
+else:unix: LIBS += -L$$OUT_PWD/../vehicle_GENERIC/ -lvehicle_GENERIC
+
+
 INCLUDEPATH += $$PWD/../
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
@@ -50,18 +70,5 @@ win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
 
-
-HEADERS += \
-    data_interpolation.h \
-    configuration_reader_xml.h \
-    pugixml.hpp \
-    pugiconfig.hpp \
-    module_collection.h
-
-
-unix{
-    target.path = /usr/local/bin
-    INSTALLS += target
-}
 
 

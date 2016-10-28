@@ -36,12 +36,23 @@ HEADERS +=\
     protocol_mavlink.h \
     comms_events.h
 
-unix {
-    target.path = /usr/local/lib
+INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
+
+# Unix lib Install
+unix:!symbian {
+    target.path = $$(MACE_ROOT)/lib
     INSTALLS += target
 }
 
+# Windows lib install
+lib.path    = $$(MACE_ROOT)/lib
+win32:CONFIG(release, debug|release):       lib.files   += release/comms.lib release/comms.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/comms.lib debug/comms.dll
+INSTALLS += lib
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
+#Header file copy
+headers.path    = $$(MACE_ROOT)/include/comms
+headers.files   += $$HEADERS
+INSTALLS       += headers
 
-INCLUDEPATH += $$PWD/../
+INCLUDEPATH += $$(MACE_ROOT)/include

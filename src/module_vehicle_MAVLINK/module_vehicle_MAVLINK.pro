@@ -19,11 +19,25 @@ SOURCES += module_vehicle_mavlink.cpp
 HEADERS += module_vehicle_mavlink.h\
         module_vehicle_mavlink_global.h
 
-unix {
-    target.path = /usr/local/lib
+
+# Unix lib Install
+unix:!symbian {
+    target.path = $$(MACE_ROOT)/lib
     INSTALLS += target
 }
 
+# Windows lib install
+lib.path    = $$(MACE_ROOT)/lib
+win32:CONFIG(release, debug|release):       lib.files   += release/module_vehicle_MAVLINK.lib release/module_vehicle_MAVLINK.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_MAVLINK.lib debug/module_vehicle_MAVLINK.dll
+INSTALLS += lib
+
+#Header file copy
+headers.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK
+headers.files   += $$HEADERS
+INSTALLS       += headers
+
+INCLUDEPATH += $$(MACE_ROOT)/include
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core

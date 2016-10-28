@@ -41,10 +41,24 @@ HEADERS += mace_core.h\
     matrix_operations.h \
     command_marshler.h
 
-unix {
-    target.path = /usr/local/lib
+# Unix lib Install
+unix:!symbian {
+    target.path = $$(MACE_ROOT)/lib
     INSTALLS += target
 }
+
+# Windows lib install
+lib.path    = $$(MACE_ROOT)/lib
+win32:CONFIG(release, debug|release):       lib.files   += release/mace_core.lib release/mace_core.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/mace_core.lib debug/mace_core.dll
+INSTALLS += lib
+
+#Header file copy
+headers.path    = $$(MACE_ROOT)/include/mace_core
+headers.files   += $$HEADERS
+INSTALLS       += headers
+
+INCLUDEPATH += $$(MACE_ROOT)/include
 
 
 unix{
@@ -58,3 +72,10 @@ win32{
 
 
 INCLUDEPATH += $$PWD/../
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../vehicle_GENERIC/release/ -lvehicle_GENERIC
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../vehicle_GENERIC/debug/ -lvehicle_GENERIC
+else:unix: LIBS += -L$$OUT_PWD/../vehicle_GENERIC/ -lvehicle_GENERIC
+
+INCLUDEPATH += $$PWD/../vehicle_GENERIC
+DEPENDPATH += $$PWD/../vehicle_GENERIC
