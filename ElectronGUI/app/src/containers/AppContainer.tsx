@@ -25,23 +25,12 @@ var injectTapEventPlugin = require("react-tap-event-plugin");
 
 
 // **** TESTING FOR C++ LIBRARY INTERFACE:
-// var ffi = require('ffi');
-// var ref = require('ref');
-// var int = ref.types.int;
 
 var libElectronTest = require('mace-api/build/Release/mace-api');
+var maceAPI = new libElectronTest.MaceAPI();
+console.log(maceAPI.addOne(4));
+console.log(maceAPI.getTestDouble());
 
-// var maceLib = ffi.Library('C:/Code/MACE/gui_dlls/node_gyp/build/Release/mace-api.dll', {});
-// console.log(maceLib);
-// var maceAPI = new maceLib.MaceAPI();
-// console.log(maceAPI.c_addOne(5));
-
-// var maceAPI = ffi.Library('C:/Code/MACE/gui_dlls/node_gyp/build/Release/mace-api.dll', {
-//     "c_addOne": ["double", ["double"]]
-// });
-// console.log(libElectronTest);
-// var test = new libElectronTest.ElectronTest();
-// console.log(maceAPI.c_addOne(5));
 // **** END TESTING 
 
 

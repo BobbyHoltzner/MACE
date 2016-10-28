@@ -13,6 +13,11 @@ public:
 
     double addOne(double input);
 
+    double getTestDouble();
+
+private:
+    double m_testDouble;
+
 };
 
 #endif // MACE_API_H
