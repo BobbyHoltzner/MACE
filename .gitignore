@@ -6,3 +6,5 @@ build*
 bin/
 include/
 lib/
+
+node_modules
