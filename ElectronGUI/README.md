@@ -1,32 +1,48 @@
-# electron-quick-start
+# Electron GUI README
 
-**Clone and run for a quick way to see an Electron in action.**
+This is the GUI for the ground side of the MACE software suite. The goal of this GUI is to link a user interface to the MACE modules/libraries for display and high-level control of multiple vehicles. 
 
-This is a minimal Electron application based on the [Quick Start Guide](http://electron.atom.io/docs/latest/tutorial/quick-start) within the Electron documentation.
+TODO:
 
-**Use this app along with the [Electron API Demos](http://electron.atom.io/#get-started) app for API code examples to help you get started.**
+- Link with the ArduPilot simulation environment to remove the need for hardware.
 
-A basic Electron application needs just these files:
+## Install
+To build the GUI from source, you will need [npm](http://npmjs.com) and [gulp](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md) installed. You will also need [SWIG](http://www.swig.org/Doc1.3/Windows.html) if you plan to make any changes to the mace-api c++ Node package.
 
-- `package.json` - Points to the app's main file and lists its details and dependencies.
-- `main.js` - Starts the app and creates a browser window to render HTML. This is the app's **main process**.
-- `index.html` - A web page to render. This is the app's **renderer process**.
-
-You can learn more about each of these components within the [Quick Start Guide](http://electron.atom.io/docs/latest/tutorial/quick-start).
-
-## To Use
-
-To clone and run this repository you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. From your command line:
+Open a new console and change directories into the `MACE/node_packages/mace-api` directory. Link the package:
 
 ```bash
-# Clone this repository
-git clone https://github.com/electron/electron-quick-start
-# Go into the repository
-cd electron-quick-start
-# Install dependencies and run the app
-npm install && npm start
+npm link
 ```
+This will tell npm where the mace-api package is to later be linked to the ElectronGUI.
 
-Learn more about Electron and its API in the [documentation](http://electron.atom.io/docs/latest).
+Open a new console and change directories into the `MACE/ElectronGUI` directory. Install Node dependencies, link the `mace-api` package, and build the React project:
 
-#### License [CC0 (Public Domain)](LICENSE.md)
+```bash
+npm i
+npm link mace-api
+gulp defaultBuild
+npm run rebuild
+```
+Note that linking only needs to be done once. If you delete the node_modules folder for whatever reason, re-run the above commands.
+
+Now start the GUI:
+
+```bash
+npm start
+```
+If any changes are made to the React project, you can simply run `gulp defaultBuild` from the `MACE/ElectronGUI` directory and then press `Ctrl + R` in the electron GUI to refresh the application. 
+
+
+### mace-api Node package
+The linking steps above will allow you to make changes in the `node_packages/mace-api` directory and have them be reflected in the ElectronGUI's node_modules directory. Howeveer, if any changes are made, you will need to rebuild the `mace-api` node package for electron. Open a new console and change directories into the `MACE/node_packages/mace-api` directory. Run SWIG to re-build the C wrapper for Node:
+
+```bash
+swig -c++ -javascript -node ./src/mace_api.i
+```
+Now change directories to `MACE/ElectronGUI` and rebuild the package for electron:
+
+```bash
+cd ../../ElectronGUI
+npm run rebuild
+```
