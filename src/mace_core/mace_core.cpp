@@ -1,12 +1,14 @@
 #include "mace_core.h"
 
 #include <stdexcept>
+#include <iostream>
 
 namespace MaceCore
 {
 
 MaceCore::MaceCore()
 {
+    Vehicle_GENERIC* tmpVehicle = new Vehicle_GENERIC;
 }
 
 

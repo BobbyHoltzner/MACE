@@ -18,10 +18,24 @@ SOURCES += module_path_planning_nasaphase2.cpp
 HEADERS += module_path_planning_nasaphase2.h \
     module_path_planning_nasaphase2_global.h
 
-unix {
-    target.path = /usr/local/lib
+# Unix lib Install
+unix:!symbian {
+    target.path = $$(MACE_ROOT)/lib
     INSTALLS += target
 }
+
+# Windows lib install
+lib.path    = $$(MACE_ROOT)/lib
+win32:CONFIG(release, debug|release):       lib.files   += release/module_path_planning_NASAPhase2.lib release/module_path_planning_NASAPhase2.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_path_planning_NASAPhase2.lib debug/module_path_planning_NASAPhase2.dll
+INSTALLS += lib
+
+#Header file copy
+headers.path    = $$(MACE_ROOT)/include/module_path_planning_NASAPhase2
+headers.files   += $$HEADERS
+INSTALLS       += headers
+
+INCLUDEPATH += $$(MACE_ROOT)/include
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core

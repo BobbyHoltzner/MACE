@@ -9,4 +9,5 @@ SUBDIRS += \
     example \
     comms \
     common \
-    vehicle
+    vehicle\
+    vehicle_GENERIC
