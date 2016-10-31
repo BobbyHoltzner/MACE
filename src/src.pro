@@ -8,4 +8,5 @@ SUBDIRS += \
     mace \
     example \
     comms \
-    common
+    common \
+    vehicle_GENERIC

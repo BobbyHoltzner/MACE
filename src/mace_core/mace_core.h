@@ -17,6 +17,8 @@
 #include <map>
 #include <memory>
 
+#include <vehicle_GENERIC/vehicle_generic.h>
+
 namespace MaceCore
 {
 
