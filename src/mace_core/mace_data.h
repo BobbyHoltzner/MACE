@@ -1,6 +1,7 @@
 #ifndef I_MACE_DATA_H
 #define I_MACE_DATA_H
 
+#include <iostream>
 #include <string>
 #include <map>
 #include <stdexcept>

@@ -49,6 +49,10 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../comms/release/ -lco
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../comms/debug/ -lcomms
 else:unix: LIBS += -L$$OUT_PWD/../comms/ -lcomms
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle/release/ -ldata_vehicle
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle/debug/ -ldata_vehicle
+else:unix: LIBS += -L$$OUT_PWD/../data_vehicle/ -ldata_vehicle
+
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
@@ -65,4 +69,3 @@ win32{
 
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../
-

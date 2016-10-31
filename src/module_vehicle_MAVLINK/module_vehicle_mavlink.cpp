@@ -9,7 +9,6 @@
 #include "comms/serial_link.h"
 #include "comms/protocol_mavlink.h"
 
-
 /*
  *
  * EXAMPLE ON HOW TO GENERATE MAVLINK MESSAGE:
@@ -26,6 +25,15 @@
 ///             CONFIGURE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+ModuleVehicleMAVLINK::gotInfoTest(const Data::VehicleProtocol protocol, const Data::VehicleStateData &messageData)
+{
+    switch(messageData.getVehicleData()->getProtocolDefinition())
+    {
+        case Data::PROTOCOL_ARDUPILOT:
+        Data::Arducopter *arducopterMessage = (Data::Arducopter*)messageData.getVehicleData().get();
+        break;
+    }
+}
 
 ModuleVehicleMAVLINK::ModuleVehicleMAVLINK() :
     MaceCore::IModuleCommandVehicle(),
@@ -42,7 +50,6 @@ ModuleVehicleMAVLINK::ModuleVehicleMAVLINK() :
 std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::ModuleConfigurationStructure() const
 {
     MaceCore::ModuleParameterStructure structure;
-
     std::shared_ptr<MaceCore::ModuleParameterStructure> serialSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
     serialSettings->AddTerminalParameters("PortName", MaceCore::ModuleParameterTerminalTypes::STRING, true);
     serialSettings->AddTerminalParameters("BaudRate", MaceCore::ModuleParameterTerminalTypes::INT, true);
@@ -506,10 +513,10 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
         //std::cout<<"I saw a message with the ID"<<message.msgid<<std::endl;
         double temphold = 0.0;
     }
-    //Eigen::Vector3d tmpVector;
-    //NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-    //        ptr->NewPositionDynamics(this,MaceCore::TIME(), tmpVector ,tmpVector);
-    //    });
+    Eigen::Vector3d tmpVector;
+    NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->NewPositionDynamics(this,MaceCore::TIME(), tmpVector ,tmpVector);
+        });
 }
 
 

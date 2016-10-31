@@ -67,6 +67,7 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
 
 void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
 {
+    std::cout<<"I am in here of the mace core"<<std::endl;
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     std::string ID = m_VehiclePTRToID.at(vehicle);
 

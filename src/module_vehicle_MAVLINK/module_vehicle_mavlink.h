@@ -12,6 +12,9 @@
 
 #include "comms/serial_configuration.h"
 
+#include "vehicleData/vehicle_state_data.h"
+#include "vehicleData/arducopter_collection.h"
+
 
 /*
  *
@@ -39,16 +42,12 @@ class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK : public MaceCore
 {
 
 public:
+    void gotInfoTest(const Data::VehicleProtocol protocol, const Data::VehicleStateData &messageData);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
     ModuleVehicleMAVLINK();
-
-
-
     //!
     //! \brief Describes the strucure of the parameters for this module
     //! \return Strucure
@@ -68,7 +67,6 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///              MACE COMMANDS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     //!
     //! \brief New commands have been updated that the vehicle is to follow immediatly
