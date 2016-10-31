@@ -8,7 +8,7 @@
     "version": "electron -v",
     "start": "electron ./main.js",
     "watch": "watchify app/app.js -t babelify -o ./build/app.js --debug --verbose",
-    "rebuild": "electron-rebuild -v 1.2.2"
+    "rebuild": "electron-rebuild -v 1.2.2 -l -f"
   },
   "author": "Scotch",
   "license": "MIT",
