@@ -5,4 +5,3 @@ using namespace Data;
 VehicleData::~VehicleData(){
 
 }
-

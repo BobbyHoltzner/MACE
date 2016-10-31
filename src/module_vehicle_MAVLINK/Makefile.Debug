@@ -17,7 +17,7 @@ CXXFLAGS      = -pipe -fno-keep-inline-dllexport -std=c++11 -g -std=gnu++11 -frt
 INCPATH       = -I. -I../../include -I../../mavlink_cpp/V2/ardupilotmega -I"../../../../Program Files (x86)/Eigen/include/eigen3" -I../../src -I../../../../Qt/5.7/mingw53_32/include -I../../../../Qt/5.7/mingw53_32/include/QtSerialPort -I../../../../Qt/5.7/mingw53_32/include/QtCore -Idebug -I../../../../Qt/5.7/mingw53_32/mkspecs/win32-g++ 
 LINKER      =        g++
 LFLAGS        =        -shared -Wl,-subsystem,windows -mthreads -Wl,--out-implib,debug/libmodule_vehicle_MAVLINK.a
-LIBS        =        -LC:/Github/MACE/src/mace_core/debug -lmace_core -LC:/Github/MACE/src/comms/debug -lcomms -LC:/Qt/5.7/mingw53_32/lib C:/Qt/5.7/mingw53_32/lib/libQt5SerialPortd.a C:/Qt/5.7/mingw53_32/lib/libQt5Cored.a 
+LIBS        =        -LC:/Github/MACE/src/mace_core/debug -lmace_core -LC:/Github/MACE/src/comms/debug -lcomms -LC:/Github/MACE/src/data_vehicle/debug -ldata_vehicle -LC:/Qt/5.7/mingw53_32/lib C:/Qt/5.7/mingw53_32/lib/libQt5SerialPortd.a C:/Qt/5.7/mingw53_32/lib/libQt5Cored.a 
 QMAKE         = C:/Qt/5.7/mingw53_32/bin/qmake.exe
 IDC           = idc
 IDL           = midl
@@ -591,6 +591,11 @@ debug/module_vehicle_mavlink.o: module_vehicle_mavlink.cpp module_vehicle_mavlin
 		../comms/mavlink_configuration.h \
 		../comms/protocol_configuration.h \
 		../comms/comms_events.h \
+		../data_vehicle/vehicle_state_data.h \
+		../data_vehicle/data_vehicle_global.h \
+		../../include/data_vehicle/arducopter_collection.h \
+		../../include/data_vehicle/arducopter_data.h \
+		../data_vehicle/vehicle_data.h \
 		../mace_core/module_factory.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/module_vehicle_mavlink.o module_vehicle_mavlink.cpp
 

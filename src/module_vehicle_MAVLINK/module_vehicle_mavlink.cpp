@@ -25,12 +25,12 @@
 ///             CONFIGURE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ModuleVehicleMAVLINK::gotInfoTest(const Data::VehicleProtocol protocol, const Data::VehicleStateData &messageData)
-{
+void ModuleVehicleMAVLINK::gotInfoTest(const Data::VehicleStateData &messageData)
+{            
     switch(messageData.getVehicleData()->getProtocolDefinition())
     {
         case Data::PROTOCOL_ARDUPILOT:
-        Data::Arducopter *arducopterMessage = (Data::Arducopter*)messageData.getVehicleData().get();
+        Data::ArducopterData *arducopterMessage = (Data::ArducopterData*)messageData.getVehicleData().get();
         break;
     }
 }

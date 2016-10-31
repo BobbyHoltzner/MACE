@@ -13,7 +13,6 @@ DEFINES += DATA_VEHICLE_LIBRARY
 
 SOURCES += vehicle_state_data.cpp \
         vehicle_data.cpp \
-        Arducopter/arducopter.cpp \
         Arducopter/arducopter_data.cpp
 
 
@@ -21,7 +20,6 @@ SOURCES += vehicle_state_data.cpp \
 HEADERS += vehicle_state_data.h\
         data_vehicle_global.h \
         vehicle_data.h \
-        Arducopter/arducopter.h \
         Arducopter/arducopter_data.h \
         Arducopter/arducopter_collection.h \
 
@@ -39,7 +37,7 @@ else:win32:CONFIG(debug, debug|release):    lib.files   += debug/data_vehicle.li
 INSTALLS += lib
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/vehicleData
+headers.path    = $$(MACE_ROOT)/include/data_vehicle
 headers.files   += $$HEADERS
 INSTALLS       += headers
 

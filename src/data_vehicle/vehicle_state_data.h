@@ -4,7 +4,8 @@
 #include <memory>
 
 #include "data_vehicle_global.h"
-#include "Arducopter/arducopter_collection.h"
+
+#include "vehicle_data.h"
 
 namespace Data {
 
