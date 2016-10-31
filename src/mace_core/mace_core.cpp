@@ -8,7 +8,7 @@ namespace MaceCore
 
 MaceCore::MaceCore()
 {
-    Vehicle_GENERIC* tmpVehicle = new Vehicle_GENERIC;
+
 }
 
 

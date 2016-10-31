@@ -106,6 +106,68 @@ compiler_clean:
 ####### Compile
 
 release/module_vehicle_mavlink.o: module_vehicle_mavlink.cpp module_vehicle_mavlink.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/QMap \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qmap.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qiterator.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qglobal.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qconfig.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qfeatures.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qsystemdetection.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qprocessordetection.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qcompilerdetection.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qtypeinfo.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qtypetraits.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qisenum.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qsysinfo.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qlogging.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qflags.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qatomic.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qbasicatomic.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qatomic_bootstrap.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qgenericatomic.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qatomic_cxx11.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qatomic_msvc.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qglobalstatic.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qmutex.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qnumeric.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qversiontagging.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qlist.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qalgorithms.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qrefcount.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qarraydata.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qhashfunctions.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qchar.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qpair.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qbytearraylist.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qbytearray.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qnamespace.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qstring.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qstringbuilder.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qstringlist.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qregexp.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qstringmatcher.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qdebug.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qhash.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qtextstream.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qiodevice.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qobject.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qobjectdefs.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qobjectdefs_impl.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qcoreevent.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qscopedpointer.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qmetatype.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qvarlengtharray.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qcontainerfwd.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qobject_impl.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qlocale.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qvariant.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qshareddata.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qvector.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qpoint.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qset.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qcontiguouscache.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qsharedpointer.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qsharedpointer_impl.h \
 		../common/common.h \
 		../common/enum_class_hash.h \
 		../common/publisher.h \
@@ -327,57 +389,9 @@ release/module_vehicle_mavlink.o: module_vehicle_mavlink.cpp module_vehicle_mavl
 		../comms/serial_link.h \
 		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/QSerialPortInfo \
 		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/qserialportinfo.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qlist.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qalgorithms.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qglobal.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qconfig.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qfeatures.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qsystemdetection.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qprocessordetection.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qcompilerdetection.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qtypeinfo.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qtypetraits.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qisenum.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qsysinfo.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qlogging.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qflags.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qatomic.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qbasicatomic.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qatomic_bootstrap.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qgenericatomic.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qatomic_cxx11.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qatomic_msvc.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qglobalstatic.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qmutex.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qnumeric.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qversiontagging.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qiterator.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qrefcount.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qarraydata.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qhashfunctions.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qchar.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qpair.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qbytearraylist.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qbytearray.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qnamespace.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qstring.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qstringbuilder.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qstringlist.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qregexp.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qstringmatcher.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qscopedpointer.h \
 		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/qserialportglobal.h \
 		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/QSerialPort \
 		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/qserialport.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qiodevice.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qobject.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qobjectdefs.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qobjectdefs_impl.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qcoreevent.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qmetatype.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qvarlengtharray.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qcontainerfwd.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qobject_impl.h \
 		../../../../Qt/5.7/mingw53_32/include/QtCore/QThread \
 		../../../../Qt/5.7/mingw53_32/include/QtCore/qthread.h \
 		../comms/serial_configuration.h \
@@ -593,9 +607,13 @@ release/module_vehicle_mavlink.o: module_vehicle_mavlink.cpp module_vehicle_mavl
 		../comms/comms_events.h \
 		../data_vehicle/vehicle_state_data.h \
 		../data_vehicle/data_vehicle_global.h \
+		../../include/data_vehicle/arducopter_main.h \
 		../../include/data_vehicle/arducopter_collection.h \
 		../../include/data_vehicle/arducopter_data.h \
 		../data_vehicle/vehicle_data.h \
+		../../include/data_vehicle/arducopter_gps.h \
+		../../include/data_vehicle/arducopter_properties.h \
+		../../include/data_vehicle/arducopter_attitude.h \
 		../mace_core/module_factory.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/module_vehicle_mavlink.o module_vehicle_mavlink.cpp
 

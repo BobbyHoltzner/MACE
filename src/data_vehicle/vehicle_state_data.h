@@ -40,7 +40,7 @@ public:
     void setVehicleData(const std::shared_ptr<VehicleData> &vehicleData);
 
 
-private:
+protected:
     VehicleProtocol m_VehicleProtocol;
     std::shared_ptr<VehicleData> m_VehicleData;
 };

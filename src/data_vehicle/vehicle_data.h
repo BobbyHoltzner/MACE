@@ -36,6 +36,9 @@ public:
      */
     virtual VehicleProtocol getProtocolDefinition() const = 0;
 
+    void setSendingID(const int &id);
+    int getSendingID();
+
     // //////////////////////////////////////////////////////////////
     // ////////////// STATIC METHODS ////////////////////////////////
     // //////////////////////////////////////////////////////////////
@@ -55,6 +58,7 @@ public:
     static VehicleProtocol StringToVehicleProtocolEnum(const std::string &protocolString);
 
 private:
+    int m_VehicleID;
 
 };
 

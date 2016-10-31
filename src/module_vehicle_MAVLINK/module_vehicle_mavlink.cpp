@@ -30,7 +30,17 @@ void ModuleVehicleMAVLINK::gotInfoTest(const Data::VehicleStateData &messageData
     switch(messageData.getVehicleData()->getProtocolDefinition())
     {
         case Data::PROTOCOL_ARDUPILOT:
-        Data::ArducopterData *arducopterMessage = (Data::ArducopterData*)messageData.getVehicleData().get();
+            Data::ArducopterData *arducopterMessage = (Data::ArducopterData*)messageData.getVehicleData().get();
+            gotArducopterMessage(*arducopterMessage);
+            break;
+    }
+}
+void ModuleVehicleMAVLINK::gotArducopterMessage(const Data::ArducopterData &messageArducopter)
+{
+    switch(messageArducopter.getMessageDef())
+    {
+        case Data::MESSAGE_ATTITUDE:
+            Data::ArducopterAttitude arducopterAttitude = (Data::ArducopterAttitude&)messageArducopter;
         break;
     }
 }
@@ -254,6 +264,19 @@ void ModuleVehicleMAVLINK::CommandsAppended()
 //!
 void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message) const
 {
+//    Data::ArducopterMain sendingVehicle;
+//    int sendingID = (int)message.sysid;
+//    std::cout<<"I made it to one"<<std::endl;
+//    if(!m_VehicleData.contains(sendingID))
+//    {
+//        std::cout<<"The map did not contain the ID"<<std::endl;
+//        m_VehicleData.insert(sendingID,sendingVehicle);
+//    }else{
+//        std::cout<<"The map did contain the ID"<<std::endl;
+//        sendingVehicle = m_VehicleData.value(sendingID);
+//    }
+
+//    std::cout<<"About to enter the swtich statement"<<std::endl;
     switch (message.msgid)
     {
     case MAVLINK_MSG_ID_HEARTBEAT:
@@ -513,10 +536,10 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
         //std::cout<<"I saw a message with the ID"<<message.msgid<<std::endl;
         double temphold = 0.0;
     }
-    Eigen::Vector3d tmpVector;
-    NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-            ptr->NewPositionDynamics(this,MaceCore::TIME(), tmpVector ,tmpVector);
-        });
+//    Eigen::Vector3d tmpVector;
+//    NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+//            ptr->NewPositionDynamics(this,MaceCore::TIME(), tmpVector ,tmpVector);
+//        });
 }
 
 

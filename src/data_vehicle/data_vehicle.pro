@@ -13,8 +13,11 @@ DEFINES += DATA_VEHICLE_LIBRARY
 
 SOURCES += vehicle_state_data.cpp \
         vehicle_data.cpp \
-        Arducopter/arducopter_data.cpp
-
+        Arducopter/arducopter_data.cpp \
+    Arducopter/arducopter_properties.cpp \
+    Arducopter/arducopter_gps.cpp \
+    Arducopter/arducopter_attitude.cpp \
+    Arducopter/arducopter_main.cpp
 
 
 HEADERS += vehicle_state_data.h\
@@ -22,7 +25,10 @@ HEADERS += vehicle_state_data.h\
         vehicle_data.h \
         Arducopter/arducopter_data.h \
         Arducopter/arducopter_collection.h \
-
+    Arducopter/arducopter_properties.h \
+    Arducopter/arducopter_gps.h \
+    Arducopter/arducopter_attitude.h \
+    Arducopter/arducopter_main.h
 
 # Unix lib Install
 unix:!symbian {
@@ -42,3 +48,5 @@ headers.files   += $$HEADERS
 INSTALLS       += headers
 
 INCLUDEPATH += $$(MACE_ROOT)/include
+
+INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega

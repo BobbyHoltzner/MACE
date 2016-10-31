@@ -318,8 +318,6 @@ debug/main.o: main.cpp ../mace_core/mace_core.h \
 		../mace_core/i_module_command_path_planning.h \
 		../mace_core/metadata_path_planning.h \
 		../mace_core/i_module_events_path_planning.h \
-		../vehicle_GENERIC/vehicle_generic.h \
-		../vehicle_GENERIC/vehicle_generic_global.h \
 		example_module.h \
 		data_interpolation.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/main.o main.cpp

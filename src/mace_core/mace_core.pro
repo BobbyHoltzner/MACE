@@ -72,10 +72,3 @@ win32{
 
 
 INCLUDEPATH += $$PWD/../
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../vehicle_GENERIC/release/ -lvehicle_GENERIC
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../vehicle_GENERIC/debug/ -lvehicle_GENERIC
-else:unix: LIBS += -L$$OUT_PWD/../vehicle_GENERIC/ -lvehicle_GENERIC
-
-INCLUDEPATH += $$PWD/../vehicle_GENERIC
-DEPENDPATH += $$PWD/../vehicle_GENERIC

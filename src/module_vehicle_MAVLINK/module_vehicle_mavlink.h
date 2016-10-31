@@ -1,6 +1,8 @@
 #ifndef MODULE_VEHICLE_MAVLINK_H
 #define MODULE_VEHICLE_MAVLINK_H
 
+#include <QMap>
+
 #include "common/common.h"
 
 #include "module_vehicle_mavlink_global.h"
@@ -13,8 +15,8 @@
 #include "comms/serial_configuration.h"
 
 #include "data_vehicle/vehicle_state_data.h"
+#include "data_vehicle/arducopter_main.h"
 #include "data_vehicle/arducopter_collection.h"
-
 
 /*
  *
@@ -43,6 +45,8 @@ class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK : public MaceCore
 
 public:
     void gotInfoTest(const Data::VehicleStateData &messageData);
+    void gotArducopterMessage(const Data::ArducopterData &messageArducopter);
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
@@ -117,7 +121,6 @@ public:
     virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const;
 
 private:
-
     Comms::CommsMarshaler *m_LinkMarshler;
 
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;

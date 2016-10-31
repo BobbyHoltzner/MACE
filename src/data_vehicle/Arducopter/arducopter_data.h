@@ -9,7 +9,10 @@ namespace Data {
 
 enum ArducopterMessageDef{
     MESSAGE_ATTITUDE,
-    MESSAGE_POSITION
+    MESSAGE_GPS,
+    MESSAGE_POSITION,
+    MESSAGE_PROPERTIES,
+
 };
 
 class ArducopterData : public VehicleData
@@ -17,9 +20,9 @@ class ArducopterData : public VehicleData
 public:
     ArducopterData();
 
-    virtual ~ArducopterData();
-
     virtual VehicleProtocol getProtocolDefinition() const;
+
+    virtual ArducopterMessageDef getMessageDef() const = 0;
 
     virtual std::string getMessageDescription() const = 0;
 
@@ -31,6 +34,7 @@ public:
     static std::string MessageTypeToString(const ArducopterMessageDef &messageType);
 
     static ArducopterMessageDef StringToMessageTypeEnum(const std::string &messageString);
+
 };
 
 } //end of namespace Data

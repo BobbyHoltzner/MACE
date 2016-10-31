@@ -14,10 +14,10 @@ CXX           = g++
 DEFINES       = -DUNICODE -DMACE_CORE_LIBRARY -DQT_QML_DEBUG -DQT_NO_DEBUG
 CFLAGS        = -pipe -fno-keep-inline-dllexport -O2 -Wall -Wextra $(DEFINES)
 CXXFLAGS      = -pipe -fno-keep-inline-dllexport -std=c++11 -O2 -std=gnu++11 -frtti -Wall -Wextra -fexceptions -mthreads $(DEFINES)
-INCPATH       = -I. -I../../include -I"../../../../Program Files (x86)/Eigen/include/eigen3" -I../../src -I../vehicle_GENERIC -I../../../../Qt/5.7/mingw53_32/mkspecs/win32-g++ 
+INCPATH       = -I. -I../../include -I"../../../../Program Files (x86)/Eigen/include/eigen3" -I../../src -I../../../../Qt/5.7/mingw53_32/mkspecs/win32-g++ 
 LINKER      =        g++
 LFLAGS        =        -Wl,-s -shared -Wl,-subsystem,windows -mthreads -Wl,--out-implib,release/libmace_core.a
-LIBS        =        -LC:/Github/MACE/src/vehicle_GENERIC/release -lvehicle_GENERIC 
+LIBS        =         
 QMAKE         = C:/Qt/5.7/mingw53_32/bin/qmake.exe
 IDC           = idc
 IDL           = midl
@@ -341,9 +341,7 @@ release/mace_core.o: mace_core.cpp mace_core.h \
 		i_module_events_rta.h \
 		i_module_command_path_planning.h \
 		metadata_path_planning.h \
-		i_module_events_path_planning.h \
-		../../include/vehicle_GENERIC/vehicle_generic.h \
-		../../include/vehicle_GENERIC/vehicle_generic_global.h
+		i_module_events_path_planning.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/mace_core.o mace_core.cpp
 
 release/mace_data.o: mace_data.cpp mace_data.h \

@@ -14,10 +14,10 @@ CXX           = g++
 DEFINES       = -DUNICODE -DMACE_CORE_LIBRARY -DQT_QML_DEBUG
 CFLAGS        = -pipe -fno-keep-inline-dllexport -g -Wall -Wextra $(DEFINES)
 CXXFLAGS      = -pipe -fno-keep-inline-dllexport -std=c++11 -g -std=gnu++11 -frtti -Wall -Wextra -fexceptions -mthreads $(DEFINES)
-INCPATH       = -I. -I../../include -I"../../../../Program Files (x86)/Eigen/include/eigen3" -I../../src -I../vehicle_GENERIC -I../../../../Qt/5.7/mingw53_32/mkspecs/win32-g++ 
+INCPATH       = -I. -I../../include -I"../../../../Program Files (x86)/Eigen/include/eigen3" -I../../src -I../../../../Qt/5.7/mingw53_32/mkspecs/win32-g++ 
 LINKER      =        g++
 LFLAGS        =        -shared -Wl,-subsystem,windows -mthreads -Wl,--out-implib,debug/libmace_core.a
-LIBS        =        -LC:/Github/MACE/src/vehicle_GENERIC/debug -lvehicle_GENERIC 
+LIBS        =         
 QMAKE         = C:/Qt/5.7/mingw53_32/bin/qmake.exe
 IDC           = idc
 IDL           = midl
@@ -341,9 +341,7 @@ debug/mace_core.o: mace_core.cpp mace_core.h \
 		i_module_events_rta.h \
 		i_module_command_path_planning.h \
 		metadata_path_planning.h \
-		i_module_events_path_planning.h \
-		../../include/vehicle_GENERIC/vehicle_generic.h \
-		../../include/vehicle_GENERIC/vehicle_generic_global.h
+		i_module_events_path_planning.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/mace_core.o mace_core.cpp
 
 debug/mace_data.o: mace_data.cpp mace_data.h \
@@ -778,15 +776,6 @@ debug/module_command_initialization.o: module_command_initialization.cpp i_modul
 
 ####### Install
 
-install_lib: first FORCE
-	@test -d C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib || mkdir -p C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib
-	-$(INSTALL_FILE) C:/Github/MACE/src/mace_core/debug/mace_core.dll C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib/
-
-uninstall_lib: FORCE
-	-$(DEL_FILE) -r C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib/mace_core.dll
-	-$(DEL_DIR) C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib/ 
-
-
 install_headers: first FORCE
 	@test -d C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core || mkdir -p C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core
 	-$(INSTALL_FILE) C:/Github/MACE/src/mace_core/mace_core.h C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/
@@ -838,9 +827,9 @@ uninstall_headers: FORCE
 	-$(DEL_DIR) C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/ 
 
 
-install: install_lib install_headers  FORCE
+install: install_headers  FORCE
 
-uninstall: uninstall_lib uninstall_headers  FORCE
+uninstall: uninstall_headers  FORCE
 
 FORCE:
 
