@@ -265,9 +265,9 @@ void ModuleVehicleMAVLINK::CommandsAppended()
 //!
 void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message) const
 {
-//    Data::ArducopterMain sendingVehicle;
-//    int sendingID = (int)message.sysid;
-//    std::cout<<"I made it to one"<<std::endl;
+    //Data::ArducopterMain sendingVehicle;
+    //int sendingID = (int)message.sysid;
+    //std::cout<<"I made it to one"<<std::endl;
 //    if(!m_VehicleData.contains(sendingID))
 //    {
 //        std::cout<<"The map did not contain the ID"<<std::endl;
@@ -537,8 +537,7 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
     default:
         std::cout<<"I saw a message with the ID"<<message.msgid<<std::endl;
     }
-    double value = message.seq;
-    Eigen::Vector3d tmpVector(value,2,3);
+    Eigen::Vector3d tmpVector(1,2,3);
     NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
             ptr->NewPositionDynamics(this,MaceCore::TIME(), tmpVector ,tmpVector);
         });

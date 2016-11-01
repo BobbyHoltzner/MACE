@@ -7,6 +7,9 @@
 
 namespace Data {
 
+//!
+//! \brief Enumeration of the available arducopter messages
+//!
 enum ArducopterMessageDef{
     MESSAGE_ATTITUDE,
     MESSAGE_GPS,

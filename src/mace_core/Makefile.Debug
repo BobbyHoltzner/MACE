@@ -776,15 +776,6 @@ debug/module_command_initialization.o: module_command_initialization.cpp i_modul
 
 ####### Install
 
-install_lib: first FORCE
-	@test -d C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib || mkdir -p C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib
-	-$(INSTALL_FILE) C:/Github/MACE/src/mace_core/debug/mace_core.dll C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib/
-
-uninstall_lib: FORCE
-	-$(DEL_FILE) -r C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib/mace_core.dll
-	-$(DEL_DIR) C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib/ 
-
-
 install_headers: first FORCE
 	@test -d C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core || mkdir -p C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core
 	-$(INSTALL_FILE) C:/Github/MACE/src/mace_core/mace_core.h C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/
@@ -836,9 +827,9 @@ uninstall_headers: FORCE
 	-$(DEL_DIR) C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/ 
 
 
-install: install_lib install_headers  FORCE
+install: install_headers  FORCE
 
-uninstall: uninstall_lib uninstall_headers  FORCE
+uninstall: uninstall_headers  FORCE
 
 FORCE:
 

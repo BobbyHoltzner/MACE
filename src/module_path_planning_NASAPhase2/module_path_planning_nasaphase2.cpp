@@ -45,7 +45,7 @@ void ModulePathPlanningNASAPhase2::RemoveVehicle(const std::string &ID)
 
 void ModulePathPlanningNASAPhase2::UpdatedPositionDynamics(const std::string &vehicleID)
 {
-    std::cout<<"I am in here yes sir"<<std::endl;
+    std::cout<<"Path planning module | new positional information"<<std::endl;
     std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
 
     MaceCore::TIME time;
