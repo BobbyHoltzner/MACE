@@ -31,6 +31,8 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
 
     m_DataFusion->AddVehicle(ID);
 
+    vehicle->addListener(this);
+
     if(m_RTA != NULL)
         m_RTA->MarshalCommand(RTACommands::NEW_VEHICLE, ID);
 }
@@ -52,11 +54,13 @@ void MaceCore::RemoveVehicle(const std::string &ID)
 
 void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
 {
+    rta->addListener(this);
     m_RTA = rta;
 }
 
 void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning)
 {
+    pathPlanning->addListener(this);
     m_PathPlanning = pathPlanning;
 }
 
