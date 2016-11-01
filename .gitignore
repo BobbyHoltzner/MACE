@@ -12,3 +12,4 @@ lib/
 *.Debug
 *.Release
 *.exe
+node_modules

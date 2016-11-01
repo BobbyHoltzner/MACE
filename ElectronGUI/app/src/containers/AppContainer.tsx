@@ -22,6 +22,19 @@ import MenuItem from 'material-ui/MenuItem';
 import * as $ from 'jquery';
 var fs = require('fs')
 var injectTapEventPlugin = require("react-tap-event-plugin");
+
+
+// **** TESTING FOR C++ LIBRARY INTERFACE:
+
+var libElectronTest = require('mace-api/build/Release/mace-api');
+var maceAPI = new libElectronTest.MaceAPI();
+console.log(maceAPI.addOne(4));
+console.log(maceAPI.getTestDouble());
+
+// **** END TESTING 
+
+
+
 injectTapEventPlugin();
 // var $ = require('jquery');
 // var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
@@ -89,7 +102,7 @@ export default class AppContainer extends React.Component<Props, State> {
   constructor() {
     super();
 
-    this.backgroundColors = ['rgba(255,255,255, 1)', 'rgba(0,0,255,0.4)', 'rgba(255,0,0,0.4)', 'rgba(0,0,0,0.4)', 'rgba(0,255,0,0.4)', 'rgba(255,255,0,0.4)', 'rgba(255,153,0,0.4)'];
+    this.backgroundColors = ['rgba(0,0,255,0.4)', 'rgba(255,0,0,0.4)', 'rgba(0,0,0,0.4)', 'rgba(0,255,0,0.4)', 'rgba(255,255,0,0.4)', 'rgba(255,153,0,0.4)'];
 
     this.utmConverter = new UtmConverter();
 
@@ -110,8 +123,8 @@ export default class AppContainer extends React.Component<Props, State> {
       hotSpotLayers: [],
       screenWidth: 500,
       screenHeight: 500,
-      pSliderVal: 0.5,
-      gridSliderVal: 35,
+      pSliderVal: 0.05,
+      gridSliderVal: 1.5,
       disableRegenerate: true,
       pathDirection: 'EastWest',
       aircraftPorts: [],
@@ -377,32 +390,19 @@ export default class AppContainer extends React.Component<Props, State> {
 
     // Change to false to have the test points used:
     // Default parameters:
-    let pSliderVal = 0.3;
-    let gridSliderVal = 0.7;
+    let pSliderVal = 0.01;
+    let gridSliderVal = 0.5;
     let pathDirection = "NorthSouth";
     if(this.state.useTestPoints === true){
-      // // Boundary Verticies:
-      // boundaryVerts.push([37.88866901916639, -76.81350946426392]);
-      // boundaryVerts.push([37.88981208998668, -76.81350946426392]);
-      // boundaryVerts.push([37.88981208998668, -76.8103176355362]);
-      // boundaryVerts.push([37.88866901916639, -76.8103176355362]);
-      //
-      // // Hot spots:
-      // hotSpots.push([37.88938873249277, -76.81289792060852]);
-      // hotSpots.push([37.88901194227583, -76.81118667125702]);
       // Boundary Verticies:
-      boundaryVerts.push([35.491791486028944, -78.38223159313202]);
-      boundaryVerts.push([35.49088736658452, -78.38189899921417]);
-      boundaryVerts.push([35.490210362272094, -78.38163077831267]);
-      boundaryVerts.push([35.49015794879713, -78.37869644165039]);
-      boundaryVerts.push([35.49045932581138, -78.37832629680634]);
-      boundaryVerts.push([35.49138528869654, -78.37819755077362]);
-      boundaryVerts.push([35.49178275062404, -78.37885737419128]);
+      boundaryVerts.push([37.88866901916639, -76.81350946426392]);
+      boundaryVerts.push([37.88981208998668, -76.81350946426392]);
+      boundaryVerts.push([37.88981208998668, -76.8103176355362]);
+      boundaryVerts.push([37.88866901916639, -76.8103176355362]);
 
       // Hot spots:
-      hotSpots.push([35.49159493918902, -78.38196337223053]);
-      hotSpots.push([35.490267143498095, -78.38040769100189]);
-      hotSpots.push([35.49093977958373, -78.37903439998627]);
+      hotSpots.push([37.88938873249277, -76.81289792060852]);
+      hotSpots.push([37.88901194227583, -76.81118667125702]);
 
       this.plotPoints(hotSpots);
     }
@@ -759,7 +759,7 @@ export default class AppContainer extends React.Component<Props, State> {
     fs.writeFile('wpParameters.txt', '', function(){
       console.log('Overwriting contents of wpParameters.txt');
     });
-    let paramterData = 'pVal: ' + this.state.pSliderVal + '\ngridSpacing: ' + this.state.gridSliderVal + '\npathDirection: ' + this.state.pathDirection;
+    let paramterData = 'pVal: ' + this.state.pSliderVal + '\ngridSpacing: ' + this.state.gridSliderVal;
     let boundaryVerticies = 'Boundary Verticies:\n';
     for(let i = 0; i < this.state.boundaryVerts.latLons.length; i++){
       boundaryVerticies = boundaryVerticies + this.state.boundaryVerts.latLons[i].lat + '    ' + this.state.boundaryVerts.latLons[i].lng + '\n'
@@ -776,14 +776,12 @@ export default class AppContainer extends React.Component<Props, State> {
 
   render() {
 
-    // const position = [37.889231, -76.810302];
-    const position = [35.49159493918902, -78.38196337223053];
-    // const position = [35.73833646796758, -78.84764179587364];
+    const position = [37.889231, -76.810302];
     var width = window.screen.width;
     var height = window.screen.height;
     const wpColors = ['blue', 'red', 'black', 'green', 'yellow', 'orange'];
     const boundaryColors = ['blue', 'red', 'black', 'green', 'yellow', 'orange'];
-    const backgroundColors = ['rgba(255,255,255, 1)', 'rgba(255,0,0,0.2)', 'rgba(0,0,255,0.2)', 'rgba(0,0,0,0.2)', 'rgba(0,255,0,0.2)', 'rgba(255,255,0,0.2)', 'rgba(255,153,0,0.2)'];
+    const backgroundColors = ['rgba(255,0,0,0.2)', 'rgba(0,0,255,0.2)', 'rgba(0,0,0,0.2)', 'rgba(0,255,0,0.2)', 'rgba(255,255,0,0.2)', 'rgba(255,153,0,0.2)'];
     const parentStyle = {height: height + 'px', width: width + 'px'};
     const mapStyle = { top: 0, left: 0, height: height + 'px', width: width + 'px' };
     const buttonContainer = { position: 'absolute', top: 15, right: 15, zIndex: 999};
@@ -913,9 +911,8 @@ export default class AppContainer extends React.Component<Props, State> {
                         <MuiThemeProvider muiTheme={lightMuiTheme}>
                           <Slider
                             description={'Current value for grid density: ' + this.state.gridSliderVal}
-                            min={1}
-                            max={40}
-                            step={1}
+                            min={0.25}
+                            max={2}
                             value={this.state.gridSliderVal}
                             onChange={(e: any, value: number) => this.handleSliderChange(e, value, 'grid')}
                           />
