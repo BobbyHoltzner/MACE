@@ -51,7 +51,7 @@ public:
     //! Multiple listners can be added if desired
     //! \param listener Listener to invoke module events onto
     //!
-    void addListener(const I *listener)
+    void addListener(I *listener)
     {
         m_Listeners.push_back(listener);
     }
