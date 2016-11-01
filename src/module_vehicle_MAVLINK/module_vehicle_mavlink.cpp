@@ -285,9 +285,10 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
         //This is message definition 0
         //The heartbeat message shows that a system is present and responding. The type of the MAV and Autopilot hardware allow the receiving system to treat further messages from this system appropriate (e.g. by laying out the user interface based on the autopilot).
         std::cout << "A heartbeat message was seen" << std::endl;
-        std::cout<<"The aircraft id is: "<<(int)message.sysid<<std::endl;
+        std::cout<<"The aircraft id is: "<<(int)message.seq<<std::endl;
         mavlink_heartbeat_t decodedMSG;
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
+
         break;
     }
     case MAVLINK_MSG_ID_SYSTEM_TIME:
@@ -534,10 +535,10 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
         break;
     }
     default:
-        //std::cout<<"I saw a message with the ID"<<message.msgid<<std::endl;
-        double temphold = 0.0;
+        std::cout<<"I saw a message with the ID"<<message.msgid<<std::endl;
     }
-    Eigen::Vector3d tmpVector;
+    double value = message.seq;
+    Eigen::Vector3d tmpVector(value,2,3);
     NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
             ptr->NewPositionDynamics(this,MaceCore::TIME(), tmpVector ,tmpVector);
         });
