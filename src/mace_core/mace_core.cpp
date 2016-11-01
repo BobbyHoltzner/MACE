@@ -27,7 +27,8 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
     if(m_VehicleIDToPtr.find(ID) != m_VehicleIDToPtr.cend())
         throw std::runtime_error("Vehicle ID already exists");
 
-    m_VehicleIDToPtr.insert({ID, vehicle});
+    m_VehicleIDToPtr.insert({ID, vehicle.get()});
+    m_VehiclePTRToID.insert({vehicle.get(), ID});
 
     m_DataFusion->AddVehicle(ID);
 
@@ -43,7 +44,9 @@ void MaceCore::RemoveVehicle(const std::string &ID)
     if(m_VehicleIDToPtr.find(ID) == m_VehicleIDToPtr.cend())
         throw std::runtime_error("Vehicle does not exists");
 
+    m_VehiclePTRToID.erase(m_VehicleIDToPtr.at(ID));
     m_VehicleIDToPtr.erase(m_VehicleIDToPtr.find(ID));
+
 
     m_DataFusion->RemoveVehicle(ID);
 
