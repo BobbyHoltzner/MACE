@@ -115,7 +115,7 @@ public:
 private:
 
 
-    std::map<std::string, std::shared_ptr<IModuleCommandVehicle>> m_VehicleIDToPtr;
+    std::map<std::string, IModuleCommandVehicle*> m_VehicleIDToPtr;
 
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
 
