@@ -74,15 +74,13 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
 
 void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
 {
-    double value = pos(0);
-    std::cout<<"I am in here of the mace core with a value of"<<value<<std::endl;
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     std::string ID = m_VehiclePTRToID.at(vehicle);
 
     m_DataFusion->AddPositionDynamics(ID, time, pos, vel);
 
     m_RTA->MarshalCommand(RTACommands::UPDATED_POSITION_DYNAMICS, ID);
-    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
+    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, ID);
 }
 
 
