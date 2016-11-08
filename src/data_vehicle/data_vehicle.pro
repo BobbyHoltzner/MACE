@@ -17,7 +17,9 @@ SOURCES += vehicle_state_data.cpp \
     Arducopter/arducopter_properties.cpp \
     Arducopter/arducopter_gps.cpp \
     Arducopter/arducopter_attitude.cpp \
-    Arducopter/arducopter_main.cpp
+    Arducopter/arducopter_main.cpp \
+    Arducopter/arducopter_status.cpp \
+    Arducopter/ardupilot_flightmode.cpp
 
 
 HEADERS += vehicle_state_data.h\
@@ -28,7 +30,9 @@ HEADERS += vehicle_state_data.h\
     Arducopter/arducopter_properties.h \
     Arducopter/arducopter_gps.h \
     Arducopter/arducopter_attitude.h \
-    Arducopter/arducopter_main.h
+    Arducopter/arducopter_main.h \
+    Arducopter/arducopter_status.h \
+    Arducopter/ardupilot_flightmode.h
 
 # Unix lib Install
 unix:!symbian {

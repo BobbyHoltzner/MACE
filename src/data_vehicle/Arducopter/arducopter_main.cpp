@@ -2,7 +2,7 @@
 namespace Data {
 
 ArducopterMain::ArducopterMain()
-    :mAttitude(),mGPS(),mProperties()
+    :mAttitude(),mGPS()
 {
 
 }

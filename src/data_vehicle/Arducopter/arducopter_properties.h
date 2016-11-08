@@ -3,6 +3,21 @@
 
 #include <stdint.h>
 
+namespace Arductoper{
+
+enum FrameTypes{
+    FRAME_UNDEFINED = 0,
+    FRAME_QUADROTOR = 1,
+    FRAME_TRICOPTER = 2,
+    FRAME_HEXACOPTER = 3,
+    FRAME_Y6 = 4,
+    FRAME_OCTOCOPTER = 5,
+    FRAME_HELICOPTER = 6,
+    FRAME_OCTAQUAD = 7,
+    FRAME_SINGLE = 8,
+    FRAME_COAX = 9
+};
+
 class ArducopterProperties
 {
 public:
@@ -15,5 +30,7 @@ private:
     uint32_t mCustomMode; /**< A bitfield for use for autopilot-specific flags. */
     uint8_t mSystemStatus; /**< System status flag, see MAV_STATE ENUM. */
 };
+
+} //end of namespace arducopter
 
 #endif // ARDUCOPTERPROPERTIES_H

@@ -15,7 +15,6 @@ public:
 public:
     ArducopterAttitude mAttitude;
     ArducopterGPS mGPS;
-    ArducopterProperties mProperties;
 private:
 
 };
