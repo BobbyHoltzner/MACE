@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2016-10-30T18:26:26
+# Project created by QtCreator 2016-11-09T09:11:59
 #
 #-------------------------------------------------
 
@@ -11,28 +11,10 @@ TEMPLATE = lib
 
 DEFINES += DATA_VEHICLE_LIBRARY
 
-SOURCES += vehicle_state_data.cpp \
-        vehicle_data.cpp \
-        Arducopter/arducopter_data.cpp \
-    Arducopter/arducopter_properties.cpp \
-    Arducopter/arducopter_gps.cpp \
-    Arducopter/arducopter_attitude.cpp \
-    Arducopter/arducopter_main.cpp \
-    Arducopter/arducopter_status.cpp \
-    Arducopter/ardupilot_flightmode.cpp
+SOURCES += data_vehicle.cpp
 
-
-HEADERS += vehicle_state_data.h\
-        data_vehicle_global.h \
-        vehicle_data.h \
-        Arducopter/arducopter_data.h \
-        Arducopter/arducopter_collection.h \
-    Arducopter/arducopter_properties.h \
-    Arducopter/arducopter_gps.h \
-    Arducopter/arducopter_attitude.h \
-    Arducopter/arducopter_main.h \
-    Arducopter/arducopter_status.h \
-    Arducopter/ardupilot_flightmode.h
+HEADERS += data_vehicle.h\
+        data_vehicle_global.h
 
 # Unix lib Install
 unix:!symbian {
@@ -53,4 +35,23 @@ INSTALLS       += headers
 
 INCLUDEPATH += $$(MACE_ROOT)/include
 
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
+else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
+
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
+
+
+unix{
+    EigenInclude = $$system(pkg-config --cflags eigen3)
+    EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
+    INCLUDEPATH += $$EigenInclude
+}
+win32{
+    INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
+}
+
+
+INCLUDEPATH += $$PWD/../
+DEPENDPATH += $$PWD/../

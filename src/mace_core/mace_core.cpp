@@ -8,7 +8,7 @@ namespace MaceCore
 
 MaceCore::MaceCore()
 {
-
+    insertFlag = false;
 }
 
 
@@ -71,6 +71,33 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
+void MaceCore::NewConstructedVehicle(const void *sender, VehicleObject &vehicleObject)
+{
+      //int vID = 1;
+      //VehicleObject* tmpObject = dynamic_cast<VehicleObject*>vehicleObject;
+      VehicleObject* tmpObject = &vehicleObject;
+      std::cout<<"The vehilce ID on the newly constructed is: "<<(int)tmpObject->getVehicleID()<<std::endl;
+      //m_VehicleData.insert({vID,tmpObject});
+//    std::cout<<"I have seen a newly constructed vehicle!"<<std::endl;
+//    std::cout<<"And the ID is: "<<vehicleObject.getVehicleID()<<std::endl;
+//    if (insertFlag == false){
+//        insertFlag = true;
+//        int VID = 1;
+//        //m_VehicleData.insert({VID, &vehicleObject});
+//    }
+    //int ID = 1;
+    //m_VehicleData.insert({ID,vehicleObject});
+}
+
+void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const VehicleMessage &vehicleMessage)
+{
+    //int seenVehicle =  vehicleMessage.getDataObject().get()->getVehicleID();
+    //std::cout<<"The vehicle id is: "<<seenVehicle<<std::endl;
+    //get the apprpriate vehicle object and update it
+    //DataArdupilot* tmpVehicle = new DataArdupilot();
+    //int ID = 1;
+    //m_VehicleData.insert({ID,tmpVehicle});
+}
 
 void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
 {

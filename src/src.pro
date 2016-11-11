@@ -6,7 +6,7 @@ SUBDIRS += \
     module_path_planning_NASAPhase2 \
     module_RTA_NASAPhase2 \
     mace \
-    example \
     comms \
     common \
-    data_vehicle
+    data_vehicle \
+    data_ardupilot

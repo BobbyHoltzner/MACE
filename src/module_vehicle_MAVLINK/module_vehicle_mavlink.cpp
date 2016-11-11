@@ -21,13 +21,21 @@
  *
  * */
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///             CONFIGURE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
 void ModuleVehicleMAVLINK::gotInfoTest(const Data::VehicleStateData &messageData)
-{            
+{
+    int vID = 1;
+    VFRData* tmpData = new VFRData(vID);
+    tmpData->airspeedData = 10.0;
+
+    //std::shared_ptr<AbstractVehicleMessage> tmpAbstractType = std::shared_ptr<AbstractVehicleMessage>(tmpData);
+    VehicleMessage tmpMessage;
+    tmpMessage.setDataObject(std::shared_ptr<AbstractVehicleMessage>(tmpData));
+\
     switch(messageData.getVehicleData()->getProtocolDefinition())
     {
         case Data::PROTOCOL_ARDUPILOT:
@@ -45,6 +53,7 @@ void ModuleVehicleMAVLINK::gotArducopterMessage(const Data::ArducopterData &mess
         break;
     }
 }
+*/
 
 ModuleVehicleMAVLINK::ModuleVehicleMAVLINK() :
     MaceCore::IModuleCommandVehicle(),
@@ -265,30 +274,30 @@ void ModuleVehicleMAVLINK::CommandsAppended()
 //!
 void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message) const
 {
-    //Data::ArducopterMain sendingVehicle;
-    //int sendingID = (int)message.sysid;
-    //std::cout<<"I made it to one"<<std::endl;
-//    if(!m_VehicleData.contains(sendingID))
-//    {
-//        std::cout<<"The map did not contain the ID"<<std::endl;
-//        m_VehicleData.insert(sendingID,sendingVehicle);
-//    }else{
-//        std::cout<<"The map did contain the ID"<<std::endl;
-//        sendingVehicle = m_VehicleData.value(sendingID);
-//    }
+    bool validityFlag = false;
+    VehicleMessage tmpMessage;
 
-//    std::cout<<"About to enter the swtich statement"<<std::endl;
     switch (message.msgid)
     {
     case MAVLINK_MSG_ID_HEARTBEAT:
     {
-        //This is message definition 0
-        //The heartbeat message shows that a system is present and responding. The type of the MAV and Autopilot hardware allow the receiving system to treat further messages from this system appropriate (e.g. by laying out the user interface based on the autopilot).
+        int vID = (int)message.seq;
+        //DataArdupilot* tmpArdupilot = std::make_shared<DataArdupilot>(vID);
+        DataArdupilot tmpArdupilot(vID);
+
+        NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+               ptr->NewConstructedVehicle(this,tmpArdupilot);
+            });
+
         std::cout << "A heartbeat message was seen" << std::endl;
         std::cout<<"The aircraft id is: "<<(int)message.seq<<std::endl;
         mavlink_heartbeat_t decodedMSG;
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
 
+        HEARTBEATData* tmpData = new HEARTBEATData(vID);
+        tmpData->updateFromMAVLINK(decodedMSG);
+        tmpMessage.setDataObject(std::shared_ptr<AbstractVehicleMessage>(tmpData));
+        validityFlag = true;
         break;
     }
     case MAVLINK_MSG_ID_SYSTEM_TIME:
@@ -345,6 +354,12 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mavlink_attitude_t decodedMSG;
         mavlink_msg_attitude_decode(&message,&decodedMSG);
+
+        int vID = (int)message.seq;
+        ATTITUDEData* tmpData = new ATTITUDEData(vID);
+        tmpData->updateFromMAVLINK(decodedMSG);
+        tmpMessage.setDataObject(std::shared_ptr<AbstractVehicleMessage>(tmpData));
+        validityFlag = true;
         break;
     }
     case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
@@ -537,10 +552,11 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
     default:
         std::cout<<"I saw a message with the ID"<<message.msgid<<std::endl;
     }
-    Eigen::Vector3d tmpVector(1,2,3);
-    NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-            ptr->NewPositionDynamics(this,MaceCore::TIME(), tmpVector ,tmpVector);
-        });
+//    if(validityFlag == true){
+//        NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+//                ptr->NewVehicleMessage(this,MaceCore::TIME(),tmpMessage);
+//            });
+//    }
 }
 
 

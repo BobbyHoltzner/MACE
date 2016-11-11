@@ -1,22 +1,24 @@
 #ifndef MODULE_VEHICLE_MAVLINK_H
 #define MODULE_VEHICLE_MAVLINK_H
 
+#include "module_vehicle_mavlink_global.h"
+
 #include <QMap>
 
 #include "common/common.h"
+#include "message_definition_mavlink.h"
 
-#include "module_vehicle_mavlink_global.h"
 
 #include "mace_core/i_module_command_vehicle.h"
+#include "mace_core/vehicle_message.h"
+#include "mace_core/vehicle_object.h"
 
 #include "comms/comms_marshaler.h"
 #include "comms/i_protocol_mavlink_events.h"
-
 #include "comms/serial_configuration.h"
 
-#include "data_vehicle/vehicle_state_data.h"
-#include "data_vehicle/arducopter_main.h"
-#include "data_vehicle/arducopter_collection.h"
+#include "data_ardupilot/data_ardupilot.h"
+
 
 /*
  *
@@ -42,10 +44,10 @@
 
 class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK : public MaceCore::IModuleCommandVehicle, public Comms::CommsEvents
 {
-
 public:
-    void gotInfoTest(const Data::VehicleStateData &messageData);
-    void gotArducopterMessage(const Data::ArducopterData &messageArducopter);
+//    AbstractVehicleMessage* ConstructMessage();
+//    void gotInfoTest(const Data::VehicleStateData &messageData);
+//    void gotArducopterMessage(const Data::ArducopterData &messageArducopter);
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////

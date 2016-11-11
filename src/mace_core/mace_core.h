@@ -1,9 +1,13 @@
 #ifndef MACE_CORE_H
 #define MACE_CORE_H
 
-#include "mace_core_global.h"
+#include <string>
+#include <map>
+#include <memory>
 
+#include "mace_core_global.h"
 #include "mace_data.h"
+#include "vehicle_object.h"
 
 #include "i_module_command_vehicle.h"
 #include "i_module_command_RTA.h"
@@ -13,9 +17,8 @@
 #include "i_module_events_rta.h"
 #include "i_module_events_path_planning.h"
 
-#include <string>
-#include <map>
-#include <memory>
+#include <data_vehicle/data_vehicle.h>
+#include <data_ardupilot/data_ardupilot.h>
 
 namespace MaceCore
 {
@@ -49,6 +52,10 @@ public:
     /////////////////////////////////////////////////////////////////////////
     /// VEHICLE EVENTS
     /////////////////////////////////////////////////////////////////////////
+
+    virtual void NewConstructedVehicle(const void* sender, VehicleObject &vehicleObject);
+
+    virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage);
 
     virtual void NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &position, const Eigen::Vector3d &attitude);
 
@@ -114,6 +121,8 @@ public:
 
 private:
 
+    bool insertFlag;
+    std::map<int, VehicleObject*> m_VehicleData;
 
     std::map<std::string, IModuleCommandVehicle*> m_VehicleIDToPtr;
 

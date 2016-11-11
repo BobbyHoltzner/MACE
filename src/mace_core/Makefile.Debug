@@ -45,10 +45,14 @@ OBJECTS_DIR   = debug/
 
 SOURCES       = mace_core.cpp \
 		mace_data.cpp \
-		module_command_initialization.cpp 
+		module_command_initialization.cpp \
+		vehicle_message.cpp \
+		vehicle_object.cpp 
 OBJECTS       = debug/mace_core.o \
 		debug/mace_data.o \
-		debug/module_command_initialization.o
+		debug/module_command_initialization.o \
+		debug/vehicle_message.o \
+		debug/vehicle_object.o
 
 DIST          =  mace_core.h \
 		mace_core_global.h \
@@ -71,9 +75,13 @@ DIST          =  mace_core.h \
 		module_factory.h \
 		abstract_module_base_vehicle_listener.h \
 		matrix_operations.h \
-		command_marshler.h mace_core.cpp \
+		command_marshler.h \
+		vehicle_message.h \
+		vehicle_object.h mace_core.cpp \
 		mace_data.cpp \
-		module_command_initialization.cpp
+		module_command_initialization.cpp \
+		vehicle_message.cpp \
+		vehicle_object.cpp
 QMAKE_TARGET  = mace_core
 DESTDIR        = debug/ #avoid trailing-slash linebreak
 TARGET         = mace_core.dll
@@ -96,7 +104,7 @@ dist:
 	$(ZIP) mace_core.zip $(SOURCES) $(DIST) mace_core.pro ../../../../Qt/5.7/mingw53_32/mkspecs/features/spec_pre.prf ../../../../Qt/5.7/mingw53_32/mkspecs/qdevice.pri ../../../../Qt/5.7/mingw53_32/mkspecs/features/device_config.prf ../../../../Qt/5.7/mingw53_32/mkspecs/common/angle.conf ../../../../Qt/5.7/mingw53_32/mkspecs/qconfig.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dcore.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dcore_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dextras.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dextras_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dinput.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dinput_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dlogic.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dlogic_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dquick.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dquick_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dquickextras.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dquickextras_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dquickinput.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dquickinput_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dquickrender.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3dquickrender_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3drender.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_3drender_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_axbase.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_axbase_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_axcontainer.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_axcontainer_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_axserver.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_axserver_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_bluetooth.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_bluetooth_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_bootstrap_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_charts.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_charts_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_clucene_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_concurrent.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_concurrent_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_core.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_core_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_datavisualization.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_datavisualization_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_dbus.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_dbus_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_designer.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_designer_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_designercomponents_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_gamepad.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_gamepad_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_gui.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_gui_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_help.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_help_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_location.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_location_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_multimedia.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_multimedia_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_multimediawidgets.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_multimediawidgets_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_network.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_network_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_nfc.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_nfc_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_opengl.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_opengl_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_openglextensions.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_openglextensions_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_packetprotocol_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_platformsupport_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_positioning.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_positioning_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_printsupport.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_printsupport_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_purchasing.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_purchasing_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_qml.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_qml_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_qmldebug_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_qmldevtools_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_qmltest.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_qmltest_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_qtmultimediaquicktools_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_quick.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_quick_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_quickcontrols2.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_quickcontrols2_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_quickparticles_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_quicktemplates2_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_quickwidgets.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_quickwidgets_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_script.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_script_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_scripttools.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_scripttools_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_scxml.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_scxml_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_sensors.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_sensors_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_serialbus.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_serialbus_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_serialport.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_serialport_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_sql.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_sql_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_svg.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_svg_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_testlib.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_testlib_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_uiplugin.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_uitools.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_uitools_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_webchannel.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_webchannel_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_websockets.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_websockets_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_widgets.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_widgets_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_winextras.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_winextras_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_xml.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_xml_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_xmlpatterns.pri ../../../../Qt/5.7/mingw53_32/mkspecs/modules/qt_lib_xmlpatterns_private.pri ../../../../Qt/5.7/mingw53_32/mkspecs/features/qt_functions.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/qt_config.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/win32/qt_config.prf ../../../../Qt/5.7/mingw53_32/mkspecs/win32-g++/qmake.conf ../../../../Qt/5.7/mingw53_32/mkspecs/features/spec_post.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/exclusive_builds.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/default_pre.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/win32/default_pre.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/resolve_config.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/exclusive_builds_post.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/default_post.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/build_pass.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/qml_debug.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/win32/rtti.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/precompile_header.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/warn_on.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/qt.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/file_copies.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/win32/windows.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/testcase_targets.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/exceptions.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/yacc.prf ../../../../Qt/5.7/mingw53_32/mkspecs/features/lex.prf mace_core.pro  NO_PCH_SOURCES YACCSOURCES YACCSOURCES LEXSOURCES 
 
 clean: compiler_clean 
-	-$(DEL_FILE) debug/mace_core.o debug/mace_data.o debug/module_command_initialization.o
+	-$(DEL_FILE) debug/mace_core.o debug/mace_data.o debug/module_command_initialization.o debug/vehicle_message.o debug/vehicle_object.o
 	-$(DEL_FILE) debug/libmace_core.a
 
 distclean: clean 
@@ -328,6 +336,8 @@ debug/mace_core.o: mace_core.cpp mace_core.h \
 		../../include/common/enum_class_hash.h \
 		../../include/common/publisher.h \
 		matrix_operations.h \
+		vehicle_object.h \
+		vehicle_message.h \
 		i_module_command_vehicle.h \
 		abstract_module_event_listeners.h \
 		abstract_module_base.h \
@@ -341,7 +351,13 @@ debug/mace_core.o: mace_core.cpp mace_core.h \
 		i_module_events_rta.h \
 		i_module_command_path_planning.h \
 		metadata_path_planning.h \
-		i_module_events_path_planning.h
+		i_module_events_path_planning.h \
+		../../include/data_vehicle/data_vehicle.h \
+		../../include/data_vehicle/data_vehicle_global.h \
+		../../include/mace_core/vehicle_message.h \
+		../../include/data_ardupilot/data_ardupilot.h \
+		../../include/data_ardupilot/data_ardupilot_global.h \
+		../../include/mace_core/vehicle_object.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/mace_core.o mace_core.cpp
 
 debug/mace_data.o: mace_data.cpp mace_data.h \
@@ -771,10 +787,28 @@ debug/module_command_initialization.o: module_command_initialization.cpp i_modul
 		metadata_rta.h \
 		i_module_events_rta.h \
 		i_module_command_vehicle.h \
-		i_module_events_vehicle.h
+		i_module_events_vehicle.h \
+		vehicle_message.h \
+		vehicle_object.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/module_command_initialization.o module_command_initialization.cpp
 
+debug/vehicle_message.o: vehicle_message.cpp vehicle_message.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/vehicle_message.o vehicle_message.cpp
+
+debug/vehicle_object.o: vehicle_object.cpp vehicle_object.h \
+		vehicle_message.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/vehicle_object.o vehicle_object.cpp
+
 ####### Install
+
+install_lib: first FORCE
+	@test -d C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib || mkdir -p C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib
+	-$(INSTALL_FILE) C:/Github/MACE/src/mace_core/debug/mace_core.dll C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib/
+
+uninstall_lib: FORCE
+	-$(DEL_FILE) -r C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib/mace_core.dll
+	-$(DEL_DIR) C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/lib/ 
+
 
 install_headers: first FORCE
 	@test -d C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core || mkdir -p C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core
@@ -800,8 +834,12 @@ install_headers: first FORCE
 	-$(INSTALL_FILE) C:/Github/MACE/src/mace_core/abstract_module_base_vehicle_listener.h C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/
 	-$(INSTALL_FILE) C:/Github/MACE/src/mace_core/matrix_operations.h C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/
 	-$(INSTALL_FILE) C:/Github/MACE/src/mace_core/command_marshler.h C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/
+	-$(INSTALL_FILE) C:/Github/MACE/src/mace_core/vehicle_message.h C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/
+	-$(INSTALL_FILE) C:/Github/MACE/src/mace_core/vehicle_object.h C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/
 
 uninstall_headers: FORCE
+	-$(DEL_FILE) -r C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/vehicle_object.h
+	-$(DEL_FILE) -r C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/vehicle_message.h
 	-$(DEL_FILE) -r C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/command_marshler.h
 	-$(DEL_FILE) -r C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/matrix_operations.h
 	-$(DEL_FILE) -r C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/abstract_module_base_vehicle_listener.h
@@ -827,9 +865,9 @@ uninstall_headers: FORCE
 	-$(DEL_DIR) C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/mace_core/ 
 
 
-install: install_headers  FORCE
+install: install_lib install_headers  FORCE
 
-uninstall: uninstall_headers  FORCE
+uninstall: uninstall_lib uninstall_headers  FORCE
 
 FORCE:
 

@@ -17,8 +17,10 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += module_vehicle_mavlink.cpp
 
 HEADERS += module_vehicle_mavlink.h\
-        module_vehicle_mavlink_global.h
+        module_vehicle_mavlink_global.h \
+    message_definition_mavlink.h
 
+INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
 # Unix lib Install
 unix:!symbian {
@@ -39,22 +41,17 @@ INSTALLS       += headers
 
 INCLUDEPATH += $$(MACE_ROOT)/include
 
-
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
 else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_ardupilot/release/ -ldata_ardupilot
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_ardupilot/debug/ -ldata_ardupilot
+else:unix: LIBS += -L$$OUT_PWD/../data_ardupilot/ -ldata_ardupilot
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../comms/release/ -lcomms
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../comms/debug/ -lcomms
 else:unix: LIBS += -L$$OUT_PWD/../comms/ -lcomms
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle/release/ -ldata_vehicle
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle/debug/ -ldata_vehicle
-else:unix: LIBS += -L$$OUT_PWD/../data_vehicle/ -ldata_vehicle
-
-
-INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
 
 unix{
@@ -65,7 +62,3 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
-
-
-INCLUDEPATH += $$PWD/../
-DEPENDPATH += $$PWD/../

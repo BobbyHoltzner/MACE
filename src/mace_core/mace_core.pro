@@ -16,7 +16,9 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += mace_core.cpp \
     mace_data.cpp \
-    module_command_initialization.cpp
+    module_command_initialization.cpp \
+    vehicle_message.cpp \
+    vehicle_object.cpp
 
 HEADERS += mace_core.h\
         mace_core_global.h \
@@ -39,8 +41,9 @@ HEADERS += mace_core.h\
     module_factory.h \
     abstract_module_base_vehicle_listener.h \
     matrix_operations.h \
-    command_marshler.h
-
+    command_marshler.h \
+    vehicle_message.h \
+    vehicle_object.h
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib
