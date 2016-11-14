@@ -282,8 +282,7 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
     case MAVLINK_MSG_ID_HEARTBEAT:
     {
         int vID = (int)message.seq;
-        //DataArdupilot* tmpArdupilot = std::make_shared<DataArdupilot>(vID);
-        DataArdupilot tmpArdupilot(vID);
+        std::shared_ptr<DataArdupilot> tmpArdupilot = std::make_shared<DataArdupilot>(vID);
 
         NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
                ptr->NewConstructedVehicle(this,tmpArdupilot);

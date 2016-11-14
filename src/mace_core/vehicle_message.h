@@ -6,6 +6,17 @@
 
 //namespace MaceCore
 //{
+
+enum VehicleTypeENUM{
+    VT_GENERIC,
+    VT_FIXED_WING,
+    VT_TRICOPTER,
+    VT_QUADROTOR,
+    VT_HEXACOPTER,
+    VT_OCTOCOPTER,
+    VT_HELICOPTER
+};
+
 class AbstractVehicleMessage{
 public:
     enum MsgProtocolENUM{
@@ -20,7 +31,7 @@ public:
 
     //virtual void getProtocol() const = 0;
     //virtual void setProtocol(VehicleProtocolENUM protocol);
-    virtual int getMessageType() = 0;
+    virtual std::string getMessageType() const = 0;
     virtual std::string getDescription() const = 0;
 protected:
     int m_VehicleID;

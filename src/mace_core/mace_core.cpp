@@ -71,22 +71,21 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
-void MaceCore::NewConstructedVehicle(const void *sender, VehicleObject &vehicleObject)
+void MaceCore::NewConstructedVehicle(const void *sender, std::shared_ptr<VehicleObject> vehicleObject)
 {
-      //int vID = 1;
+      int vID = 1;
+
       //VehicleObject* tmpObject = dynamic_cast<VehicleObject*>vehicleObject;
-      VehicleObject* tmpObject = &vehicleObject;
-      std::cout<<"The vehilce ID on the newly constructed is: "<<(int)tmpObject->getVehicleID()<<std::endl;
-      //m_VehicleData.insert({vID,tmpObject});
-//    std::cout<<"I have seen a newly constructed vehicle!"<<std::endl;
-//    std::cout<<"And the ID is: "<<vehicleObject.getVehicleID()<<std::endl;
-//    if (insertFlag == false){
-//        insertFlag = true;
-//        int VID = 1;
-//        //m_VehicleData.insert({VID, &vehicleObject});
-//    }
-    //int ID = 1;
-    //m_VehicleData.insert({ID,vehicleObject});
+      if(m_VehicleData.find(vID) == m_VehicleData.cend())
+      {
+          std::shared_ptr<VehicleObject> tmpObject = vehicleObject;
+          std::cout<<"A previous one wasnt found inserting a new one!"<<std::endl;
+          std::cout<<"The vehicle ID for this object is actually: "<<(int)tmpObject->getVehicleID()<<std::endl;
+          m_VehicleData.insert({vID,tmpObject});
+      }else{
+          std::shared_ptr<VehicleObject> tmpObject = m_VehicleData[vID];
+          std::cout<<"I have found an object with the information as: "<<(int)tmpObject->getVehicleID()<<std::endl;
+      }
 }
 
 void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const VehicleMessage &vehicleMessage)

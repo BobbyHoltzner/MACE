@@ -53,7 +53,7 @@ public:
     /// VEHICLE EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    virtual void NewConstructedVehicle(const void* sender, VehicleObject &vehicleObject);
+    virtual void NewConstructedVehicle(const void* sender, std::shared_ptr<VehicleObject> vehicleObject);
 
     virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage);
 
@@ -122,7 +122,7 @@ public:
 private:
 
     bool insertFlag;
-    std::map<int, VehicleObject*> m_VehicleData;
+    std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
 
     std::map<std::string, IModuleCommandVehicle*> m_VehicleIDToPtr;
 

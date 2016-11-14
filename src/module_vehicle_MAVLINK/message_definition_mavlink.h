@@ -24,7 +24,7 @@ struct HEARTBEATData: public AbstractVehicleMessage{
     }
     void updateFromMAVLINK(const mavlink_heartbeat_t &dataObject){
         custom_mode = dataObject.custom_mode;
-        type = dataObject.type;
+        type = parseVehicleType(dataObject.type);
         autopilot = dataObject.autopilot;
         base_mode = dataObject.base_mode;
         system_status = dataObject.system_status;
@@ -35,12 +35,42 @@ struct HEARTBEATData: public AbstractVehicleMessage{
         std::string rtnString = "This message contains HEARTBEAT data";
         return rtnString;
     }
-    virtual int getMessageType(){
-        return MSG_HEARTBEAT;
+    virtual std::string getMessageType()const{
+        return "MSG_HEARTBEAT";
+    }
+
+    VehicleTypeENUM parseVehicleType(const uint8_t &type){
+        int returnValue = 0;
+        switch (type) {
+        case MAV_TYPE_GENERIC:
+            returnValue = VT_GENERIC;
+            break;
+        case MAV_TYPE_TRICOPTER:
+            returnValue = VT_TRICOPTER;
+            break;
+        case MAV_TYPE_QUADROTOR:
+            returnValue = VT_QUADROTOR;
+            break;
+        case MAV_TYPE_HEXAROTOR:
+            returnValue = VT_HEXACOPTER;
+            break;
+        case MAV_TYPE_OCTOROTOR:
+            returnValue = VT_OCTOCOPTER;
+            break;
+        case MAV_TYPE_HELICOPTER:
+            returnValue = VT_HELICOPTER;
+            break;
+        case MAV_TYPE_FIXED_WING:
+            returnValue = VT_FIXED_WING;
+            break;
+        default:
+            returnValue = 0;
+            break;
+        }
     }
 
     uint32_t custom_mode; /*< A bitfield for use for autopilot-specific flags.*/
-    uint8_t type; /*< Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM)*/
+    VehicleTypeENUM type; /*< Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM)*/
     uint8_t autopilot; /*< Autopilot type / class. defined in MAV_AUTOPILOT ENUM*/
     uint8_t base_mode; /*< System mode bitfield, see MAV_MODE_FLAG ENUM in mavlink/include/mavlink_types.h*/
     uint8_t system_status; /*< System status flag, see MAV_STATE ENUM*/
@@ -66,8 +96,8 @@ struct ATTITUDEData: public AbstractVehicleMessage{
         std::string rtnString = "This message contains ATTITUDE data";
         return rtnString;
     }
-    virtual int getMessageType(){
-        return MSG_ATTITUDE;
+    virtual std::string getMessageType() const{
+        return "MSG_ATTITUDE";
     }
 
     double roll; /*< Roll angle (rad, -pi..+pi)*/
@@ -89,8 +119,8 @@ struct VFRData: public AbstractVehicleMessage{
         std::string rtnString = "This message contains VFR data";
         return rtnString;
     }
-    virtual int getMessageType(){
-        return MSG_VFR;
+    virtual std::string getMessageType() const{
+        return "MSG_VFR";
     }
     double airspeedData;
 };
@@ -118,8 +148,8 @@ struct GPSRAWData: public AbstractVehicleMessage{
         std::string rtnString = "This message contains ATTITUDE data";
         return rtnString;
     }
-    virtual int getMessageType(){
-        return MSG_ATTITUDE;
+    virtual std::string getMessageType() const{
+        return "MSG_ATTITUDE";
     }
 
     uint64_t time_usec; /*< Timestamp (microseconds since UNIX epoch or microseconds since system boot)*/
