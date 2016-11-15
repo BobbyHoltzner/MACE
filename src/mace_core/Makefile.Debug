@@ -357,6 +357,7 @@ debug/mace_core.o: mace_core.cpp mace_core.h \
 		../../include/mace_core/vehicle_message.h \
 		../../include/data_ardupilot/data_ardupilot.h \
 		../../include/data_ardupilot/data_ardupilot_global.h \
+		../../include/data_ardupilot/ardupilot_flightmode.h \
 		../../include/mace_core/vehicle_object.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/mace_core.o mace_core.cpp
 

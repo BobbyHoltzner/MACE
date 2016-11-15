@@ -6,6 +6,9 @@
 
 class DATA_VEHICLESHARED_EXPORT DataVehicle
 {
+enum VehicleTypeENUM{
+
+};
 
 public:
     DataVehicle(const int &vehicleID);

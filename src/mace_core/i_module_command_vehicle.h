@@ -14,6 +14,7 @@ namespace MaceCore
 
 enum class VehicleCommands
 {
+    CREATE_VEHICLE_OBJECT,
     FOLLOW_NEW_COMMANDS,
     FINISH_AND_FOLLOW_COMMANDS,
     COMMANDS_APPENDED
@@ -31,6 +32,10 @@ public:
     IModuleCommandVehicle():
         AbstractModule_EventListeners()
     {
+        AddCommandLogic<int>(VehicleCommands::CREATE_VEHICLE_OBJECT, [this](const int &vehicleID){
+            CreateNewVehicleObjectWhenAvailable(vehicleID);
+        });
+
         AddCommandLogic(VehicleCommands::FOLLOW_NEW_COMMANDS, [this](){
             FollowNewCommands();
         });
@@ -51,6 +56,8 @@ public:
 
 
 public:
+
+    virtual void CreateNewVehicleObjectWhenAvailable(const int &vehicleID) = 0;
 
     //!
     //! \brief New commands have been updated that the vehicle is to follow immediatly

@@ -74,6 +74,8 @@ public:
     ///              MACE COMMANDS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    virtual void CreateNewVehicleObjectWhenAvailable(const int &vehicleID);
+
     //!
     //! \brief New commands have been updated that the vehicle is to follow immediatly
     //!
@@ -109,7 +111,7 @@ public:
     //! \param linkName Name of link message received over
     //! \param msg Message received
     //!
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg) const;
+    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
 
 
     //!
@@ -123,6 +125,8 @@ public:
     virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const;
 
 private:
+    std::list<int> m_NeededVehicleObjects;
+
     Comms::CommsMarshaler *m_LinkMarshler;
 
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;

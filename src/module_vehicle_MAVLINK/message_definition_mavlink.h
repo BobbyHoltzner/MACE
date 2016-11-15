@@ -5,17 +5,7 @@
 #include "mavlink.h"
 
 #include "mace_core/vehicle_message.h"
-
-enum MSG_MAVLINK{
-    MSG_HEARTBEAT = 1,
-    MSG_ATTITUDE = 2,
-    MSG_VFR = 3,
-    MSG_GPSRAW = 4,
-    MSG_POSINT = 5,
-    MSG_RADIO = 6,
-    MSG_BATTERY = 7,
-    MSG_HOME =8
-};
+#include "mace_core/vehicle_object.h"
 
 struct HEARTBEATData: public AbstractVehicleMessage{
     HEARTBEATData(const int &vehicleID)
@@ -36,7 +26,7 @@ struct HEARTBEATData: public AbstractVehicleMessage{
         return rtnString;
     }
     virtual std::string getMessageType()const{
-        return "MSG_HEARTBEAT";
+        return "MAVLINK_MSG_HEARTBEAT";
     }
 
     VehicleTypeENUM parseVehicleType(const uint8_t &type){
@@ -97,7 +87,7 @@ struct ATTITUDEData: public AbstractVehicleMessage{
         return rtnString;
     }
     virtual std::string getMessageType() const{
-        return "MSG_ATTITUDE";
+        return "MAVLINK_MSG_ATTITUDE";
     }
 
     double roll; /*< Roll angle (rad, -pi..+pi)*/
@@ -120,7 +110,7 @@ struct VFRData: public AbstractVehicleMessage{
         return rtnString;
     }
     virtual std::string getMessageType() const{
-        return "MSG_VFR";
+        return "MAVLINK_MSG_VFR";
     }
     double airspeedData;
 };
@@ -149,7 +139,7 @@ struct GPSRAWData: public AbstractVehicleMessage{
         return rtnString;
     }
     virtual std::string getMessageType() const{
-        return "MSG_ATTITUDE";
+        return "MAVLINK_MSG_GPSRAW";
     }
 
     uint64_t time_usec; /*< Timestamp (microseconds since UNIX epoch or microseconds since system boot)*/

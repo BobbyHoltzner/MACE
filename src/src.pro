@@ -8,5 +8,4 @@ SUBDIRS += \
     mace \
     comms \
     common \
-    data_vehicle \
     data_ardupilot

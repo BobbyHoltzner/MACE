@@ -7,16 +7,6 @@
 //namespace MaceCore
 //{
 
-enum VehicleTypeENUM{
-    VT_GENERIC,
-    VT_FIXED_WING,
-    VT_TRICOPTER,
-    VT_QUADROTOR,
-    VT_HEXACOPTER,
-    VT_OCTOCOPTER,
-    VT_HELICOPTER
-};
-
 class AbstractVehicleMessage{
 public:
     enum MsgProtocolENUM{

@@ -11,10 +11,12 @@ TEMPLATE = lib
 
 DEFINES += DATA_ARDUPILOT_LIBRARY
 
-SOURCES += data_ardupilot.cpp
+SOURCES += data_ardupilot.cpp \
+    ardupilot_flightmode.cpp
 
 HEADERS += data_ardupilot.h\
-        data_ardupilot_global.h
+        data_ardupilot_global.h \
+    ardupilot_flightmode.h
 
 # Unix lib Install
 unix:!symbian {

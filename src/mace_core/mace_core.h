@@ -123,6 +123,8 @@ private:
 
     bool insertFlag;
     std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
+    std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;
+    std::map<IModuleCommandVehicle*, int> m_PortToVehicleID;
 
     std::map<std::string, IModuleCommandVehicle*> m_VehicleIDToPtr;
 

@@ -229,6 +229,25 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+void ModuleVehicleMAVLINK::CreateNewVehicleObjectWhenAvailable(const int &vehicleID)
+{
+    std::cout<<"When I learn of the type of object I should send it back!"<<std::endl;
+    std::list<int>::iterator it;
+    for (it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
+    {
+        if(*it == vehicleID)
+        {
+            std::cout<<"This item was already in the list to update when more info is learned."<<std::endl;
+            //This implies that the module is already aware an object needs to be created
+            break;
+        }
+    }
+    if(it == m_NeededVehicleObjects.end()){
+        std::cout<<"This item was not already in the list."<<std::endl;
+        m_NeededVehicleObjects.push_back(vehicleID);
+    }
+}
+
 //!
 //! \brief New commands have been updated that the vehicle is to follow immediatly
 //!
@@ -272,8 +291,10 @@ void ModuleVehicleMAVLINK::CommandsAppended()
 //! \param linkName Link identifier which generated call
 //! \param message Message that has been received
 //!
-void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message) const
+void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
+    int sendersID = (int)message.sysid;
+
     bool validityFlag = false;
     VehicleMessage tmpMessage;
 
@@ -281,22 +302,37 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
     {
     case MAVLINK_MSG_ID_HEARTBEAT:
     {
-        int vID = (int)message.seq;
-        std::shared_ptr<DataArdupilot> tmpArdupilot = std::make_shared<DataArdupilot>(vID);
-
-        NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-               ptr->NewConstructedVehicle(this,tmpArdupilot);
-            });
-
-        std::cout << "A heartbeat message was seen" << std::endl;
-        std::cout<<"The aircraft id is: "<<(int)message.seq<<std::endl;
         mavlink_heartbeat_t decodedMSG;
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
 
-        HEARTBEATData* tmpData = new HEARTBEATData(vID);
+        HEARTBEATData* tmpData = new HEARTBEATData(sendersID);
         tmpData->updateFromMAVLINK(decodedMSG);
         tmpMessage.setDataObject(std::shared_ptr<AbstractVehicleMessage>(tmpData));
-        validityFlag = true;
+
+        if(m_NeededVehicleObjects.size() != 0)
+        {
+            std::cout<<"There are this many items in the list: "<<m_NeededVehicleObjects.size()<<std::endl;
+            for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
+            {
+                if(*it == sendersID)
+                {
+                    it = m_NeededVehicleObjects.erase(it);
+                    Ardupilot::DataArdupilot tmpObject(sendersID,1,1);
+                    std::cout<<"The value at this iterator position matches the sending ID!"<<std::endl;
+                    std::shared_ptr<Ardupilot::DataArdupilot> tmpArdupilot = std::make_shared<Ardupilot::DataArdupilot>(tmpObject);
+
+                    NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+                           ptr->NewConstructedVehicle(this,tmpArdupilot);
+                        });
+                    break;
+                }
+            }
+        }
+
+
+        NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->NewVehicleMessage(this,MaceCore::TIME(),tmpMessage);
+        });
         break;
     }
     case MAVLINK_MSG_ID_SYSTEM_TIME:
