@@ -60,6 +60,11 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
     m_PathPlanning = pathPlanning;
 }
 
+void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
+{
+    m_GroundStation = groundStation;
+}
+
 
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
@@ -116,6 +121,21 @@ void MaceCore::NewVehicleTargets(const std::string &vehicleID, const std::vector
     m_DataFusion->setVehicleTarget(vehicleID, target);
 
     m_PathPlanning->NewVehicleTarget(vehicleID);
+}
+
+
+/////////////////////////////////////////////////////////////////////////
+/// GROUND STATION EVENTS
+/////////////////////////////////////////////////////////////////////////
+
+
+//!
+//! \brief Event fired when a new list of targets are produced for a specific vehicle
+//! \param vehicleID Vechile new targets are to be applied to
+//! \param target List of positional targets
+//!
+void MaceCore::GroundStationEvent()
+{
 }
 
 

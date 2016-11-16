@@ -9,6 +9,8 @@
 
 #include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
 
+#include "module_ground_station/module_ground_station.h"
+
 
 #include "mace_core/module_factory.h"
 
@@ -24,6 +26,7 @@ public:
         Register<ModulePathPlanningNASAPhase2>(factory, "NASAPhase2");
         Register<ModuleRTANASAPhase2>(factory, "NASAPhase2");
         Register<ModuleVehicleMAVLINK>(factory, "MAVLINK");
+        Register<ModuleGroundStation>(factory, "NASAPhase2");
 
         return factory;
     }
@@ -42,7 +45,5 @@ private:
         factory->RegisterFactory(T::moduleClass, T::moduleName, [](){return std::make_shared<T>();});
     }
 };
-
-class ModuleRTANASAPhase2;
 
 #endif // MODULE_COLLECTION_H

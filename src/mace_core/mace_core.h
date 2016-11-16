@@ -8,10 +8,12 @@
 #include "i_module_command_vehicle.h"
 #include "i_module_command_RTA.h"
 #include "i_module_command_path_planning.h"
+#include "i_module_command_ground_station.h"
 
 #include "i_module_events_vehicle.h"
 #include "i_module_events_rta.h"
 #include "i_module_events_path_planning.h"
+#include "i_module_events_ground_station.h"
 
 #include <string>
 #include <map>
@@ -22,7 +24,7 @@
 namespace MaceCore
 {
 
-class MACE_CORESHARED_EXPORT MaceCore : public IModuleEventsVehicle, public IModuleEventsRTA, public IModuleEventsPathPlanning
+class MACE_CORESHARED_EXPORT MaceCore : public IModuleEventsVehicle, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsGroundStation
 {
 
 
@@ -45,6 +47,8 @@ public:
     void AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta);
 
     void AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning);
+
+    void AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation);
 
 public:
 
@@ -71,6 +75,20 @@ public:
     //! \param target List of positional targets
     //!
     virtual void NewVehicleTargets(const std::string &vehicleID, const std::vector<Eigen::Vector3d> &target);
+
+public:
+
+    /////////////////////////////////////////////////////////////////////////
+    /// GROUND STATION EVENTS
+    /////////////////////////////////////////////////////////////////////////
+
+
+    //!
+    //! \brief Event fired when a new list of targets are produced for a specific vehicle
+    //! \param vehicleID Vechile new targets are to be applied to
+    //! \param target List of positional targets
+    //!
+    virtual void GroundStationEvent();
 
 public:
 
@@ -116,7 +134,6 @@ public:
 
 private:
 
-
     std::map<std::string, std::shared_ptr<IModuleCommandVehicle>> m_VehicleIDToPtr;
 
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
@@ -125,6 +142,8 @@ private:
     std::shared_ptr<IModuleCommandRTA> m_RTA;
 
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;
+
+    std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
 
 
     std::shared_ptr<MaceData> m_DataFusion;

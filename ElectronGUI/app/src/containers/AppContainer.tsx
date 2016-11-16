@@ -1,24 +1,16 @@
-// Material Design Default Themes:
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
-const lightMuiTheme = getMuiTheme();
-const darkMuiTheme = getMuiTheme(darkBaseTheme);
 import * as React from 'react';
-import { Map, Marker, Popup, TileLayer, FeatureGroup, Polyline, LayerGroup  } from 'react-leaflet';
-import { EditControl } from "react-leaflet-draw";
-import RaisedButton from 'material-ui/RaisedButton';
-import {Card, CardTitle, CardText} from 'material-ui/Card';
-import Checkbox from 'material-ui/Checkbox';
-import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
-import Slider from 'material-ui/Slider';
-import Toggle from 'material-ui/Toggle';
+
 var PythonShell = require('python-shell');
 var UtmConverter = require('utm-converter');
 import MercatorConversion from '../helpers/MercatorConversion';
 var NotificationSystem = require('react-notification-system');
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
+import { Map, Marker, Popup, TileLayer, FeatureGroup, Polyline, LayerGroup  } from 'react-leaflet';
+import { EditControl } from "react-leaflet-draw";
+import {ControlContainer} from './ControlContainer';
+import {MapControlButtons, LayerGroupType, PathType} from './MapControlButtons';
+import {AircraftConnectionButtons} from './AircraftConnectionButtons';
+
+
 import * as $ from 'jquery';
 var fs = require('fs')
 var injectTapEventPlugin = require("react-tap-event-plugin");
@@ -26,12 +18,54 @@ var injectTapEventPlugin = require("react-tap-event-plugin");
 
 // **** TESTING FOR C++ LIBRARY INTERFACE:
 
-var libElectronTest = require('mace-api/build/Release/mace-api');
-var maceAPI = new libElectronTest.MaceAPI();
-console.log(maceAPI.addOne(4));
-console.log(maceAPI.getTestDouble());
+// var libElectronTest = require('mace-api/build/Release/mace-api');
+// var maceAPI = new libElectronTest.MaceAPI();
+// console.log(maceAPI.addOne(4));
+// console.log(maceAPI.getTestDouble());
 
-// **** END TESTING 
+
+// var ffi = require('ffi');
+// var ref = require('ref');
+// var int = ref.types.int;
+// var maceLib = ffi.Library('C:/Code/MACE/gui_dlls/Qt/mace-api/debug/mace-api.dll', {
+// // var maceLib = ffi.Library('C:/Code/MACE/node_packages/gui-api/build/Release/gui-api.dll', {
+//   "c_addOne": [ "double", ["double"]]
+// });
+// console.log(maceLib);
+// console.log(maceLib.c_addOne(5));
+// console.log(maceLib.c_startMACECore());
+
+// **** END TESTING
+
+
+// **** TESTING FOR TCP ITERFACE:
+
+var net = require('net');
+var HOST = '127.0.0.1';
+var PORT = 6969;
+
+var client = new net.Socket();
+client.connect(PORT, HOST, function() {
+  console.log('Connected to: ' + HOST + ':' + PORT);
+  client.write('I am Chuck Norris!');
+});
+
+// Add a 'data' event handler for the client socket
+// data is what the server sent to this socket
+client.on('data', function(data: any) {
+    
+    console.log('DATA: ' + data);
+    // Close the client socket completely
+    client.destroy();
+    
+});
+
+// Add a 'close' event handler for the client socket
+client.on('close', function() {
+    console.log('Connection closed');
+});
+
+// **** END TESTIG 
 
 
 
@@ -45,14 +79,6 @@ type MarkerType = {
   comm_port?: string
 }
 
-type LayerGroupType = {
-  type: string,
-  latLons: L.LatLng[]
-}
-
-type PathType = {
-  waypoints: L.LatLng[]
-}
 
 type UTMPropertiesType = {
   utmZone: number,
@@ -244,6 +270,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
     this.setState({openPorts: tmpPorts})
   }
+
 
   connectToAircraftAjax = () => {
     console.log("Connect to aircraft pressed");
@@ -531,7 +558,7 @@ export default class AppContainer extends React.Component<Props, State> {
   missionCallback = () => {
   }
 
-  aircraftCommand = (command: string) => {
+  sendAircraftCommand = (command: string) => {
     // connect, takeoff, land, guided, rtl, disconnect, sendWaypoints, genWaypoints
     console.log("IN AIRCRAFT COMMAND: " + command);
     console.log("IN AIRCRAFT COMMAND: " + this.state.sendToAllAircraft);
@@ -735,10 +762,6 @@ export default class AppContainer extends React.Component<Props, State> {
     }
   }
 
-  handleDropdownChange = (event: any, index: number, value: number) => {
-    this.setState({selectedAircraftPort: value});
-  }
-
   writeToFile = () => {
 
     for(let i = 0; i < this.state.aircraftPaths.length; i++) {
@@ -781,195 +804,41 @@ export default class AppContainer extends React.Component<Props, State> {
     var height = window.screen.height;
     const wpColors = ['blue', 'red', 'black', 'green', 'yellow', 'orange'];
     const boundaryColors = ['blue', 'red', 'black', 'green', 'yellow', 'orange'];
-    const backgroundColors = ['rgba(255,0,0,0.2)', 'rgba(0,0,255,0.2)', 'rgba(0,0,0,0.2)', 'rgba(0,255,0,0.2)', 'rgba(255,255,0,0.2)', 'rgba(255,153,0,0.2)'];
     const parentStyle = {height: height + 'px', width: width + 'px'};
     const mapStyle = { top: 0, left: 0, height: height + 'px', width: width + 'px' };
-    const buttonContainer = { position: 'absolute', top: 15, right: 15, zIndex: 999};
-    const useTestPointsContainer = { position: 'absolute', top: 60, right: 0, width: 200, zIndex: 999};
-    const aircraftCommsContainer = { position: 'absolute', bottom: 20, left: 15, zIndex: 999};
-    const sliderContainer = { position: 'absolute', bottom: 15, right: 15, zIndex: 999, width: 500};
-    const radioContainer = {marginBottom: 16};
-    const radioButton = {display: 'inline-block', width: '150px'}
-    const buttonStyle = { marginLeft: 10 };
-    const centerButtonStyle = { width: 100 + '%' };
-    const aircraftCommand = { width: 100 + '%', marginBottom: 16 };
     const initialZoom = 18;
     const maxZoom = 20;
-    const toggleStyle = { marginBottom: 16 };
-    const toggleContainer = { position: 'relative', width: 200, top: 16, right: -275 };
-    const checkbox = { marginBottom: 16 }
-    let connectOrDisconnectButton: any = null;
 
-    // if (this.state.aircraftPorts[this.state.selectedAircraftPort] && this.state.aircraftPorts[this.state.selectedAircraftPort].isConnected){
-    //   connectOrDisconnectButton = (<MuiThemeProvider muiTheme={lightMuiTheme}>
-    //     <RaisedButton backgroundColor={backgroundColors[this.state.selectedAircraftPort]} style={buttonStyle} label="Disconnect from aircraft" onClick={this.disconnectFromAircraftAjax}/>
-    //   </MuiThemeProvider>);
-    // }
-    // else{
-      connectOrDisconnectButton = (<MuiThemeProvider muiTheme={lightMuiTheme}>
-        <RaisedButton backgroundColor={backgroundColors[this.state.selectedAircraftPort]} style={buttonStyle} label="Connect to aircraft" onClick={this.connectToAircraftAjax}/>
-      </MuiThemeProvider>);
-    // }
 
     return (
-
         <div style={parentStyle}>
-          <div style={buttonContainer}>
-            {this.state.aircraftPaths.length > 0 &&
-              <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <RaisedButton style={buttonStyle} label="Clear Waypoints" onClick={this.clearWaypoints}/>
-              </MuiThemeProvider>
-            }
-            {this.state.pointsOfInterest.length > 0 &&
-              <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <RaisedButton style={buttonStyle} label="Clear Hot Spots" onClick={this.clearPointsofInterest}/>
-              </MuiThemeProvider>
-            }
-            {this.state.boundaryVerts !== null &&
-              <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <RaisedButton style={buttonStyle} label="Clear All" onClick={this.clearBoundary}/>
-              </MuiThemeProvider>
-            }
 
-            <MuiThemeProvider muiTheme={lightMuiTheme}>
-              <RaisedButton style={buttonStyle} label="Generate Waypoints" onClick={this.generateWaypointsAjax}/>
-            </MuiThemeProvider>
+          <MapControlButtons
+              boundaryVerts={this.state.boundaryVerts}
+              pointsOfInterest={this.state.pointsOfInterest}
+              aircraftPaths={this.state.aircraftPaths}
+              clearBoundary={this.clearBoundary}
+              clearWaypoints={this.clearWaypoints}
+              clearPointsofInterest={this.clearPointsofInterest}
+              generateWaypointsAjax={this.generateWaypointsAjax}
+           />
 
-          </div>
+          <AircraftConnectionButtons
+            openPorts={this.state.openPorts}
+            connectToAircraftAjax={this.connectToAircraftAjax}
+            sendWPsToACAjax={this.sendWPsToACAjax}
+            handleSelectedAircraftPortChange={(port: number) => this.setState({selectedAircraftPort: port})}
+           />        
 
-          <div style={useTestPointsContainer}>
-            <MuiThemeProvider muiTheme={darkMuiTheme}>
-              <Checkbox
-                label="Use test points"
-                style={checkbox}
-                checked={this.state.useTestPoints}
-                onCheck={() => this.setState({useTestPoints: !this.state.useTestPoints})}
-              />
-            </MuiThemeProvider>
-          </div>
-
-          {this.state.openPorts.length > 0 &&
-            <div style={aircraftCommsContainer}>
-              <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <DropDownMenu style={{width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftPort} onChange={this.handleDropdownChange}>
-                  {this.state.openPorts.map((item: string, i: number) => {
-                    return(
-                      <MenuItem key={i} value={i} primaryText={this.state.openPorts[i]} label={this.state.openPorts[i]} />
-                    );
-                  })}
-                </DropDownMenu>
-              </MuiThemeProvider>
-              {connectOrDisconnectButton}
-
-              <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <RaisedButton backgroundColor={backgroundColors[this.state.selectedAircraftPort]} style={buttonStyle} label="Send waypoints to aircraft" onClick={this.sendWPsToACAjax}/>
-              </MuiThemeProvider>
-            </div>
-          }
-
-
-          <div style={sliderContainer}>
-            <MuiThemeProvider muiTheme={lightMuiTheme}>
-              <Card containerStyle={{backgroundColor: backgroundColors[this.state.selectedAircraftPort]}}>
-                  <div style={toggleContainer}>
-                    <Toggle
-                      label="Show Path/Show Aircraft Commands"
-                      style={toggleStyle}
-                      onToggle={() => this.setState({showAircraftCommands: !this.state.showAircraftCommands})}
-                      />
-                  </div>
-
-                  {!this.state.showAircraftCommands &&
-                    <div>
-                      <CardTitle title="Adjust path parameters" />
-                      <CardText>
-                        <div style={{marginBottom: 8}}>
-                          Path direction:
-                        </div>
-                        <RadioButtonGroup style={radioContainer} name="pathDirection" defaultSelected="EastWest" onChange={(e: any, selected: string) => this.updatePathDirection(selected)}>
-                          <RadioButton
-                            value="EastWest"
-                            label="East-West"
-                            style={radioButton}
-                          />
-                          <RadioButton
-                            value="NorthSouth"
-                            label="North-South"
-                            style={radioButton}
-                          />
-                        </RadioButtonGroup>
-
-                        <MuiThemeProvider muiTheme={lightMuiTheme}>
-                          <Slider
-                            description={'Current value for "p": ' + this.state.pSliderVal}
-                            min={0.01}
-                            max={1}
-                            value={this.state.pSliderVal}
-                            onChange={(e: any, value: number) => this.handleSliderChange(e, value, 'pVal')}
-                          />
-                        </MuiThemeProvider>
-                        <MuiThemeProvider muiTheme={lightMuiTheme}>
-                          <Slider
-                            description={'Current value for grid density: ' + this.state.gridSliderVal}
-                            min={0.25}
-                            max={2}
-                            value={this.state.gridSliderVal}
-                            onChange={(e: any, value: number) => this.handleSliderChange(e, value, 'grid')}
-                          />
-                        </MuiThemeProvider>
-                        <MuiThemeProvider muiTheme={lightMuiTheme}>
-                          <RaisedButton style={centerButtonStyle} disabled={this.state.disableRegenerate} label="Regenerate Waypoints" onClick={this.generateWaypointsAjax}/>
-                        </MuiThemeProvider>
-                        <MuiThemeProvider muiTheme={lightMuiTheme}>
-                          <RaisedButton style={centerButtonStyle} disabled={this.state.disableWriteToFile} label="Write Waypoints to file(s)" onClick={this.writeToFile}/>
-                        </MuiThemeProvider>
-                      </CardText>
-                    </div>
-              }
-              {this.state.showAircraftCommands &&
-                <div>
-                    <CardTitle title="Aircraft commands" />
-                    <CardText>
-
-                      <Checkbox
-                        label="Send to all aircraft"
-                        style={checkbox}
-                        onCheck={() => this.setState({sendToAllAircraft: !this.state.sendToAllAircraft})}
-                      />
-
-                      <MuiThemeProvider muiTheme={lightMuiTheme}>
-                        <RaisedButton style={aircraftCommand} label="Launch" onClick={() => this.aircraftCommand('launch')}/>
-                      </MuiThemeProvider>
-                      {/*
-                        <MuiThemeProvider muiTheme={lightMuiTheme}>
-                          <RaisedButton style={aircraftCommand} label="Loiter" onClick={() => this.aircraftCommand('loiter')}/>
-                        </MuiThemeProvider>
-                      */}
-                      <MuiThemeProvider muiTheme={lightMuiTheme}>
-                        <RaisedButton style={aircraftCommand} label="Return to Launch" onClick={() => this.aircraftCommand('rtl')}/>
-                      </MuiThemeProvider>
-                      <MuiThemeProvider muiTheme={lightMuiTheme}>
-                        <RaisedButton style={aircraftCommand} label="Land" onClick={() => this.aircraftCommand('land')}/>
-                      </MuiThemeProvider>
-                      {/*
-                      <MuiThemeProvider muiTheme={lightMuiTheme}>
-                        <RaisedButton style={aircraftCommand} label="Start Mission" onClick={() => this.aircraftCommand('mission')}/>
-                      </MuiThemeProvider>
-                      */}
-                     {!this.state.useTestPoints &&
-                       <MuiThemeProvider muiTheme={lightMuiTheme}>
-                         <RaisedButton style={aircraftCommand} label="Switch to Guided" onClick={() => this.aircraftCommand('guided')}/>
-                       </MuiThemeProvider>
-                     }
-
-                    </CardText>
-                  </div>
-              }
-
-              </Card>
-            </MuiThemeProvider>
-          </div>
-
+          <ControlContainer
+            backgroundColor={'white'}
+            selectedAircraftPort={this.state.selectedAircraftPort}
+            sendAircraftCommand={(command: string) => this.sendAircraftCommand(command)}
+            updatePathDirection={(path: string) => this.updatePathDirection(path)}
+            handleSliderChange={(e: any, value: number, slider: string) => this.handleSliderChange(e, value, slider)} 
+            generateWaypointsAjax={this.generateWaypointsAjax}
+            writeToFile={this.writeToFile}
+           />
 
           <Map ref="map" center={position} zoom={initialZoom} style={mapStyle} >
               {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}

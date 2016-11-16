@@ -489,10 +489,11 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
         //std::cout<<"I saw a message with the ID"<<message.msgid<<std::endl;
         double temphold = 0.0;
     }
-    //Eigen::Vector3d tmpVector;
-    //NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-    //        ptr->NewPositionDynamics(this,MaceCore::TIME(), tmpVector ,tmpVector);
-    //    });
+
+    Eigen::Vector3d tmpVector;
+    NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->NewPositionDynamics(this,MaceCore::TIME(), tmpVector ,tmpVector);
+        });
 }
 
 

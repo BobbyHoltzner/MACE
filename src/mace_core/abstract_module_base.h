@@ -28,6 +28,7 @@ public:
         PATH_PLANNING,
         RTA,
         VEHICLE_COMMS,
+        GROUND_STATION,
         NR_TYPES
     };
 
@@ -40,6 +41,8 @@ public:
             return "RTA";
         case PATH_PLANNING:
             return "PathPlanning";
+        case GROUND_STATION:
+            return "GroundStation";
         default:
             throw std::runtime_error("Unknown module type");
         }
@@ -54,6 +57,8 @@ public:
             return RTA;
         if(string == "PathPlanning")
             return PATH_PLANNING;
+        if(string == "GroundStation")
+            return GROUND_STATION;
 
         throw std::runtime_error("Unknown module type");
     }

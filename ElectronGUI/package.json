@@ -8,7 +8,7 @@
     "version": "electron -v",
     "start": "electron ./main.js",
     "watch": "watchify app/app.js -t babelify -o ./build/app.js --debug --verbose",
-    "rebuild": "electron-rebuild -v 1.2.2 -l -f"
+    "rebuild": "electron-rebuild -v 1.2.2 -l -f -w mace-api"
   },
   "author": "Scotch",
   "license": "MIT",
@@ -18,10 +18,12 @@
     "babelify": "^7.2.0",
     "electron-prebuilt": "1.2.2",
     "electron-reload": "^0.2.0",
+    "ffi": "^2.2.0",
     "jquery": "^2.2.4",
     "leaflet": "^0.7.7",
     "leaflet-draw": "^0.3.2",
     "material-ui": "^0.15.0",
+    "net": "^1.0.2",
     "python-shell": "^0.4.0",
     "react": "^15.3.1",
     "react-autocomplete": "^1.0.0-rc2",
