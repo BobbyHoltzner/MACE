@@ -32,7 +32,7 @@ public:
         AbstractModule_VehicleListener()
     {
         AddCommandLogic(GroundStationCommands::UPDATED_OCCUPANCY_MAP_GS, [this](){
-            UpdatedOccupancyMapGS();
+            StartTCPServer();
         });
     }
 
@@ -51,7 +51,7 @@ public:
     //!
     //! The map data can be read from using MaceData object in getDataObject()
     //!
-    virtual void UpdatedOccupancyMapGS() = 0;
+    virtual bool StartTCPServer() = 0;
 
 
 };

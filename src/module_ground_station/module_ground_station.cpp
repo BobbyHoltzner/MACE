@@ -10,16 +10,8 @@ ModuleGroundStation::ModuleGroundStation() :
 {
     m_TcpServer = new QTcpServer(this);
     connect(m_TcpServer, SIGNAL(newConnection()), this, SLOT(on_newConnection()));
-
-    if(!m_TcpServer->listen(QHostAddress::LocalHost, 1234))
-    {
-        std::cout << "Server could not start..." << std::endl;
-    }
-    else
-    {
-        std::cout << "Server started" << std::endl;
-    }
 }
+
 
 void ModuleGroundStation::on_newConnection()
 {
@@ -54,9 +46,20 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
 
 }
 
-void ModuleGroundStation::UpdatedOccupancyMapGS()
+bool ModuleGroundStation::StartTCPServer()
 {
+    bool started = m_TcpServer->listen(QHostAddress::LocalHost, 1234);
 
+    if(!started)
+    {
+        std::cout << "Server could not start..." << std::endl;
+    }
+    else
+    {
+        std::cout << "Server started" << std::endl;
+    }
+
+    return started;
 }
 
 

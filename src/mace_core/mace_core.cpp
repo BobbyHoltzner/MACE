@@ -69,7 +69,7 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
 
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
 {
-//    groundStation->addListener(this);
+    groundStation->StartTCPServer();
     m_GroundStation = groundStation;
 }
 

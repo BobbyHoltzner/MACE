@@ -19,6 +19,8 @@ class MODULE_GROUND_STATIONSHARED_EXPORT ModuleGroundStation : public QObject, p
 public:
     ModuleGroundStation();
 
+//    bool startTCPServer();
+
 
     //!
     //! \brief Describes the strucure of the parameters for this module
@@ -33,7 +35,7 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
-    virtual void UpdatedOccupancyMapGS();
+    virtual bool StartTCPServer();
 
 
     //!
