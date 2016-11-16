@@ -22,7 +22,16 @@ int main(int argc, char *argv[])
     std::shared_ptr<MaceCore::MaceData> data = std::make_shared<DataInterpolation>();
     core.AddDataFusion(data);
 
-    std::string filename = "MaceSetup.xml";
+    std::string filename = "";
+    char* MACEPath = getenv("MACE_ROOT");
+
+    if(MACEPath){
+        std::string rootPath(MACEPath);
+        std::cout <<"The current MACE_ROOT path is: "<<rootPath<<std::endl;
+        filename = rootPath + "\\MaceSetup.xml";
+    }else{
+        filename = "MaceSetup.xml";
+    }
     if(argc >= 2)
         filename = argv[1];
 
@@ -47,6 +56,7 @@ int main(int argc, char *argv[])
 
     bool addedPathPlanning = false;
     bool addedRTA = false;
+    bool addedGroundStation = false;
     int numVehicles = 1;
     std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string > modules = parser.GetCreatedModules();
     std::vector<std::thread*> threads;
@@ -100,6 +110,17 @@ int main(int argc, char *argv[])
         {
             core.AddVehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));
             numVehicles++;
+            break;
+        }
+        case  MaceCore::ModuleBase::GROUND_STATION:
+        {
+            if(addedGroundStation == true)
+            {
+                std::cerr << "Only one GUI module can be added" << std::endl;
+                return 1;
+            }
+            core.AddGroundStationModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandGroundStation>(module));
+            addedGroundStation = true;
             break;
         }
         default:

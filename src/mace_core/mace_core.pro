@@ -21,10 +21,13 @@ SOURCES += mace_core.cpp \
 HEADERS += mace_core.h\
         mace_core_global.h \
     metadata_vehicle.h \
+    metadata_ground_station.h \
     metadata_rta.h \
     i_module_command_RTA.h \
+    i_module_command_ground_station.h \
     i_module_command_vehicle.h \
     i_module_events_rta.h \
+    i_module_events_ground_station.h \
     i_module_events_vehicle.h \
     optional_parameter.h \
     vehicle_data.h \

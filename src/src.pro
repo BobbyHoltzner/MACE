@@ -9,4 +9,6 @@ SUBDIRS += \
     example \
     comms \
     common \
-    vehicle_GENERIC
+    vehicle_GENERIC \
+    module_ground_station \
+    serverTest
