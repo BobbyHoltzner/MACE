@@ -73,30 +73,34 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
 /////////////////////////////////////////////////////////////////////////
 void MaceCore::NewConstructedVehicle(const void *sender, std::shared_ptr<VehicleObject> vehicleObject)
 {
-      std::cout<<"I have been told to add a new vehicle to the map."<<std::endl;
-      //First let us check to see if one is already in the map with the same ID
-      std::shared_ptr<VehicleObject> tmpObject = vehicleObject;
-      int sendersID = tmpObject->getVehicleID();
+    IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
+    std::cout<<"I have been told to add a new vehicle to the map."<<std::endl;
+    //First let us check to see if one is already in the map with the same ID
+    std::shared_ptr<VehicleObject> tmpObject = vehicleObject;
+    int sendersID = tmpObject->getVehicleID();
 
-      if(m_VehicleData.find(sendersID) == m_VehicleData.cend())
-      {
-          std::cout<<"A previous one wasnt found inserting a new one!"<<std::endl;
-          m_VehicleData.insert({sendersID,tmpObject});
-      }else{
-          std::cout<<"A previous one was found let us check the type!"<<std::endl;
-          std::shared_ptr<VehicleObject> currentObj = m_VehicleData[sendersID];
-          if(currentObj->getVehicleProtocol() == VP_GENERIC)
-          {
-              std::cout<<"It was originally a generic vehicle type let us replace it with the current correct type!"<<std::endl;
-              //Probably should get the data and update this new object from the old object
-              m_VehicleData.erase(sendersID);
-              m_VehicleData.insert({sendersID,tmpObject});
-          }else{
-              std::cout<<"This was already a specific vehicle...I do not know how to handle."<<std::endl;
-          }
-          std::cout<<"I have found an object with the information as: "<<(int)tmpObject->getVehicleID()<<std::endl;
-      }
-      //VehicleObject* tmpObject = dynamic_cast<VehicleObject*>vehicleObject;
+    if(m_VehicleData.find(sendersID) == m_VehicleData.cend())
+    {
+        std::cout<<"A previous one wasnt found inserting a new one!"<<std::endl;
+        m_VehicleData.insert({sendersID,tmpObject});
+    }else{
+        std::cout<<"A previous one was found let us check the type!"<<std::endl;
+        std::shared_ptr<VehicleObject> currentObj = m_VehicleData[sendersID];
+        if(currentObj->getVehicleProtocol() == VP_GENERIC)
+        {
+            std::cout<<"It was originally a generic vehicle type let us replace it with the current correct type!"<<std::endl;
+            //Probably should get the data and update this new object from the old object
+            m_VehicleData.erase(sendersID);
+            m_VehicleData.insert({sendersID,tmpObject});
+        }else{
+            std::cout<<"This was already a specific vehicle...I do not know how to handle."<<std::endl;
+        }
+        std::cout<<"I have found an object with the information as: "<<(int)tmpObject->getVehicleID()<<std::endl;
+    }
+
+    vehicleModule->MarshalCommand(VehicleCommands::REMOVE_VEHICLE_OBJECT, sendersID);
+
+    //VehicleObject* tmpObject = dynamic_cast<VehicleObject*>vehicleObject;
 
 }
 

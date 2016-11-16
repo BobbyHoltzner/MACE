@@ -49,7 +49,7 @@ public:
 //    void gotInfoTest(const Data::VehicleStateData &messageData);
 //    void gotArducopterMessage(const Data::ArducopterData &messageArducopter);
 
-
+    void vehicleObjectCheck(const int &sendersID) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,7 +74,9 @@ public:
     ///              MACE COMMANDS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    virtual void CreateNewVehicleObjectWhenAvailable(const int &vehicleID);
+    virtual void CreateVehicleObject(const int &vehicleID);
+
+    virtual void RemoveVehicleObject(const int &vehicleID);
 
     //!
     //! \brief New commands have been updated that the vehicle is to follow immediatly
@@ -111,7 +113,7 @@ public:
     //! \param linkName Name of link message received over
     //! \param msg Message received
     //!
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
+    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg) const;
 
 
     //!

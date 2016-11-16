@@ -229,7 +229,7 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void ModuleVehicleMAVLINK::CreateNewVehicleObjectWhenAvailable(const int &vehicleID)
+void ModuleVehicleMAVLINK::CreateVehicleObject(const int &vehicleID)
 {
     std::cout<<"When I learn of the type of object I should send it back!"<<std::endl;
     std::list<int>::iterator it;
@@ -245,6 +245,20 @@ void ModuleVehicleMAVLINK::CreateNewVehicleObjectWhenAvailable(const int &vehicl
     if(it == m_NeededVehicleObjects.end()){
         std::cout<<"This item was not already in the list."<<std::endl;
         m_NeededVehicleObjects.push_back(vehicleID);
+    }
+}
+
+void ModuleVehicleMAVLINK::RemoveVehicleObject(const int &sendersID)
+{
+    std::cout<<"I have been told to remove the vehicle object from my list"<<std::endl;
+    for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
+    {
+        if(*it == sendersID)
+        {
+            std::cout<<"I am removing it"<<std::endl;
+            it = m_NeededVehicleObjects.erase(it);
+            break;
+        }
     }
 }
 
@@ -284,14 +298,31 @@ void ModuleVehicleMAVLINK::CommandsAppended()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///              COMM EVENTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID) const
+{
+    for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
+    {
+        if(*it == sendersID)
+        {
+            //it = m_NeededVehicleObjects.erase(it);
+            Ardupilot::DataArdupilot tmpObject(sendersID,1,1);
+            std::cout<<"The value at this iterator position matches the sending ID!"<<std::endl;
+            std::shared_ptr<Ardupilot::DataArdupilot> tmpArdupilot = std::make_shared<Ardupilot::DataArdupilot>(tmpObject);
 
+            NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+                   ptr->NewConstructedVehicle(this,tmpArdupilot);
+                });
+            break;
+        }
+    }
+}
 
 //!
 //! \brief A Message has been received over Mavlink protocol
 //! \param linkName Link identifier which generated call
 //! \param message Message that has been received
 //!
-void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
+void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message) const
 {
     int sendersID = (int)message.sysid;
 
@@ -312,21 +343,7 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
         if(m_NeededVehicleObjects.size() != 0)
         {
             std::cout<<"There are this many items in the list: "<<m_NeededVehicleObjects.size()<<std::endl;
-            for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
-            {
-                if(*it == sendersID)
-                {
-                    it = m_NeededVehicleObjects.erase(it);
-                    Ardupilot::DataArdupilot tmpObject(sendersID,1,1);
-                    std::cout<<"The value at this iterator position matches the sending ID!"<<std::endl;
-                    std::shared_ptr<Ardupilot::DataArdupilot> tmpArdupilot = std::make_shared<Ardupilot::DataArdupilot>(tmpObject);
-
-                    NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                           ptr->NewConstructedVehicle(this,tmpArdupilot);
-                        });
-                    break;
-                }
-            }
+            vehicleObjectCheck(sendersID);
         }
 
 
