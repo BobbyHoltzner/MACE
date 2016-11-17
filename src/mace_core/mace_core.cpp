@@ -9,6 +9,7 @@ namespace MaceCore
 MaceCore::MaceCore()
 {
     insertFlag = false;
+    counter = 0;
 }
 
 
@@ -106,6 +107,8 @@ void MaceCore::NewConstructedVehicle(const void *sender, std::shared_ptr<Vehicle
 
 void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const VehicleMessage &vehicleMessage)
 {
+    counter = counter + 1;
+    std::cout<<"The new value of the counter is: "<<counter<<std::endl;
     IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
     int sendersID =  vehicleMessage.getDataObject()->getVehicleID();
 
@@ -114,7 +117,7 @@ void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const Veh
     //VehicleObject* tmpObject = dynamic_cast<VehicleObject*>vehicleObject;
     if(m_VehicleData.find(sendersID) == m_VehicleData.cend())
     {
-        std::cout<<"A previous vehicle object was not found in the map!"<<std::endl;
+        std::cout<<"A previous vehicle object was not found in the map with the ID of: "<<sendersID<<std::endl;
         vehicleModule->MarshalCommand(VehicleCommands::CREATE_VEHICLE_OBJECT, sendersID);
         //For now I think we are just going to drop this message not desirable but moving on
 
@@ -123,7 +126,7 @@ void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const Veh
 //        m_VehicleData.insert({vID,tmpObject});
     }else{
         std::shared_ptr<VehicleObject> tmpObject = m_VehicleData[sendersID];
-        std::cout<<"I have found an object with the information as: "<<(int)tmpObject->getVehicleID()<<std::endl;
+        std::cout<<"I am parsing a new vehicle message with the ID of: "<<(int)tmpObject->getVehicleID()<<std::endl;
     }
 
     //int seenVehicle =  vehicleMessage.getDataObject().get()->getVehicleID();

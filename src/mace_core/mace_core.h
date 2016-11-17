@@ -120,7 +120,7 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 private:
-
+    int counter;
     bool insertFlag;
     std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
     std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;

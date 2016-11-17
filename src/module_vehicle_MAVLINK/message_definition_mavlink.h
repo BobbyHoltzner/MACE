@@ -7,6 +7,24 @@
 #include "mace_core/vehicle_message.h"
 #include "mace_core/vehicle_object.h"
 
+template<class msgStruct>
+class VehicleData_MAVLINK: public AbstractVehicleMessage{
+public:
+    VehicleData_MAVLINK(const int &vehicleID){
+        m_VehicleID = vehicleID;
+    }
+
+    void msgUpdate_MAVLINK(msgStruct msgData){
+        this->msgData = msgData;
+    }
+
+
+
+private:
+    msgStruct msgData;
+
+};
+
 struct HEARTBEATData: public AbstractVehicleMessage{
     HEARTBEATData(const int &vehicleID)
     {

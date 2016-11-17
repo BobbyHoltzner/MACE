@@ -51,7 +51,8 @@ OBJECTS       = debug/module_vehicle_mavlink.o \
 DIST          =  module_vehicle_mavlink.h \
 		module_vehicle_mavlink_global.h \
 		message_definition_mavlink.h \
-		vehicle_generic_mavlink.h module_vehicle_mavlink.cpp \
+		vehicle_generic_mavlink.h \
+		generic_message_definition_mavlink.h module_vehicle_mavlink.cpp \
 		vehicle_generic_mavlink.cpp
 QMAKE_TARGET  = module_vehicle_MAVLINK
 DESTDIR        = debug/ #avoid trailing-slash linebreak
@@ -382,6 +383,7 @@ debug/module_vehicle_mavlink.o: module_vehicle_mavlink.cpp module_vehicle_mavlin
 		../../mavlink_cpp/V2/uAvionix/mavlink_msg_uavionix_adsb_transceiver_health_report.h \
 		../../include/mace_core/vehicle_message.h \
 		../../include/mace_core/vehicle_object.h \
+		generic_message_definition_mavlink.h \
 		../../include/mace_core/i_module_command_vehicle.h \
 		../../include/mace_core/abstract_module_event_listeners.h \
 		../../include/mace_core/abstract_module_base.h \
@@ -641,8 +643,10 @@ install_headers: first FORCE
 	-$(INSTALL_FILE) C:/Github/MACE/src/module_vehicle_MAVLINK/module_vehicle_mavlink_global.h C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/module_vehicle_MAVLINK/
 	-$(INSTALL_FILE) C:/Github/MACE/src/module_vehicle_MAVLINK/message_definition_mavlink.h C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/module_vehicle_MAVLINK/
 	-$(INSTALL_FILE) C:/Github/MACE/src/module_vehicle_MAVLINK/vehicle_generic_mavlink.h C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/module_vehicle_MAVLINK/
+	-$(INSTALL_FILE) C:/Github/MACE/src/module_vehicle_MAVLINK/generic_message_definition_mavlink.h C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/module_vehicle_MAVLINK/
 
 uninstall_headers: FORCE
+	-$(DEL_FILE) -r C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/module_vehicle_MAVLINK/generic_message_definition_mavlink.h
 	-$(DEL_FILE) -r C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/module_vehicle_MAVLINK/vehicle_generic_mavlink.h
 	-$(DEL_FILE) -r C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/module_vehicle_MAVLINK/message_definition_mavlink.h
 	-$(DEL_FILE) -r C:$(INSTALL_ROOT:@msyshack@%=%)/Github/MACE/include/module_vehicle_MAVLINK/module_vehicle_mavlink_global.h

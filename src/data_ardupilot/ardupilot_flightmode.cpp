@@ -4,7 +4,7 @@ using namespace Ardupilot;
 ArdupilotFlightMode::ArdupilotFlightMode()
 {
 //    availableFM = &arducopterFM;
-//    this->vehicleType = MAV_TYPE_GENERIC;
+//    this->vehicleType = VT_GENERIC;
 //    this->flightMode = ACFM_UNKNOWN;
 }
 

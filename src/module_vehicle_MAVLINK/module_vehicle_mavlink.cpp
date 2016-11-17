@@ -231,31 +231,30 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
 void ModuleVehicleMAVLINK::CreateVehicleObject(const int &vehicleID)
 {
-    std::cout<<"When I learn of the type of object I should send it back!"<<std::endl;
     std::list<int>::iterator it;
     for (it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
     {
         if(*it == vehicleID)
         {
-            std::cout<<"This item was already in the list to update when more info is learned."<<std::endl;
+            //std::cout<<"This item was already in the list to update when more info is learned."<<std::endl;
             //This implies that the module is already aware an object needs to be created
             break;
         }
     }
     if(it == m_NeededVehicleObjects.end()){
-        std::cout<<"This item was not already in the list."<<std::endl;
+        //std::cout<<"This item was not already in the list adding one with the ID of: "<<vehicleID<<std::endl;
         m_NeededVehicleObjects.push_back(vehicleID);
     }
 }
 
 void ModuleVehicleMAVLINK::RemoveVehicleObject(const int &sendersID)
 {
-    std::cout<<"I have been told to remove the vehicle object from my list"<<std::endl;
+    //std::cout<<"I have been told to remove the vehicle object from my list with the ID of: "<<sendersID<<std::endl;
     for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
     {
         if(*it == sendersID)
         {
-            std::cout<<"I am removing it"<<std::endl;
+            //std::cout<<"I am removing it"<<std::endl;
             it = m_NeededVehicleObjects.erase(it);
             break;
         }
@@ -298,20 +297,32 @@ void ModuleVehicleMAVLINK::CommandsAppended()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///              COMM EVENTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID) const
+void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &autopilotType) const
 {
+    std::cout<<"The senders ID I am looking for is: "<<sendersID<<std::endl;
     for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
     {
+        std::cout<<"The ID at this position in the map is: "<<*it<<std::endl;
+
         if(*it == sendersID)
         {
-            //it = m_NeededVehicleObjects.erase(it);
-            Ardupilot::DataArdupilot tmpObject(sendersID,1,1);
-            std::cout<<"The value at this iterator position matches the sending ID!"<<std::endl;
-            std::shared_ptr<Ardupilot::DataArdupilot> tmpArdupilot = std::make_shared<Ardupilot::DataArdupilot>(tmpObject);
+            switch (autopilotType) {
+            case MAV_AUTOPILOT_ARDUPILOTMEGA:
+            {
+                Ardupilot::DataArdupilot tmpObject(sendersID,1,1);
+                //std::cout<<"The value at this iterator position matches the sending ID!"<<std::endl;
+                std::shared_ptr<Ardupilot::DataArdupilot> tmpArdupilot = std::make_shared<Ardupilot::DataArdupilot>(tmpObject);
 
-            NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                   ptr->NewConstructedVehicle(this,tmpArdupilot);
-                });
+                NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+                       ptr->NewConstructedVehicle(this,tmpArdupilot);
+                    });
+                break;
+            }
+            default:
+                std::cout<<"The type of autopilot seen with ID: "<<sendersID<<" is not currently supported."<<std::endl;
+                break;
+            }
+
             break;
         }
     }
@@ -325,31 +336,38 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID) const
 void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message) const
 {
     int sendersID = (int)message.sysid;
+    if(sendersID == 51)
+    {
+        return;
+    }
+    int messageID = (int)message.msgid;
+    std::cout<<"The senders ID seen here is: "<<sendersID<<std::endl;
+    GenericMsgDef_MAVLINK<mavlink_message_t>* tmpMsgObj = new GenericMsgDef_MAVLINK<mavlink_message_t>(sendersID, message);
 
-    bool validityFlag = false;
+    if(messageID == MAVLINK_MSG_ID_HEARTBEAT)
+    {
+        if(m_NeededVehicleObjects.size() != 0)
+        {
+            //std::cout<<"The size of the list is currently: "<<m_NeededVehicleObjects.size()<<std::endl;
+            mavlink_heartbeat_t decodedMSG;
+            mavlink_msg_heartbeat_decode(&message,&decodedMSG);
+            vehicleObjectCheck(sendersID,(int)decodedMSG.autopilot);
+        }
+    }
+
     VehicleMessage tmpMessage;
-
-    switch (message.msgid)
+    tmpMessage.setDataObject(std::shared_ptr<AbstractVehicleMessage>(tmpMsgObj));
+    NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+        ptr->NewVehicleMessage(this,MaceCore::TIME(),tmpMessage);
+    });
+    /*
+    switch (messageID)
     {
     case MAVLINK_MSG_ID_HEARTBEAT:
     {
-        mavlink_heartbeat_t decodedMSG;
-        mavlink_msg_heartbeat_decode(&message,&decodedMSG);
 
         HEARTBEATData* tmpData = new HEARTBEATData(sendersID);
         tmpData->updateFromMAVLINK(decodedMSG);
-        tmpMessage.setDataObject(std::shared_ptr<AbstractVehicleMessage>(tmpData));
-
-        if(m_NeededVehicleObjects.size() != 0)
-        {
-            std::cout<<"There are this many items in the list: "<<m_NeededVehicleObjects.size()<<std::endl;
-            vehicleObjectCheck(sendersID);
-        }
-
-
-        NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-            ptr->NewVehicleMessage(this,MaceCore::TIME(),tmpMessage);
-        });
         break;
     }
     case MAVLINK_MSG_ID_SYSTEM_TIME:
@@ -411,7 +429,6 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
         ATTITUDEData* tmpData = new ATTITUDEData(vID);
         tmpData->updateFromMAVLINK(decodedMSG);
         tmpMessage.setDataObject(std::shared_ptr<AbstractVehicleMessage>(tmpData));
-        validityFlag = true;
         break;
     }
     case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
@@ -609,6 +626,8 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
 //                ptr->NewVehicleMessage(this,MaceCore::TIME(),tmpMessage);
 //            });
 //    }
+
+*/
 }
 
 

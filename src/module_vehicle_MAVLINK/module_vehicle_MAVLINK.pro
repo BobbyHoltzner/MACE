@@ -20,7 +20,8 @@ SOURCES += module_vehicle_mavlink.cpp \
 HEADERS += module_vehicle_mavlink.h\
         module_vehicle_mavlink_global.h \
     message_definition_mavlink.h \
-    vehicle_generic_mavlink.h
+    vehicle_generic_mavlink.h \
+    generic_message_definition_mavlink.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 

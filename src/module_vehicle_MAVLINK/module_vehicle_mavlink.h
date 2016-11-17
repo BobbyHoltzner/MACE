@@ -7,7 +7,7 @@
 
 #include "common/common.h"
 #include "message_definition_mavlink.h"
-
+#include "generic_message_definition_mavlink.h"
 
 #include "mace_core/i_module_command_vehicle.h"
 #include "mace_core/vehicle_message.h"
@@ -49,7 +49,7 @@ public:
 //    void gotInfoTest(const Data::VehicleStateData &messageData);
 //    void gotArducopterMessage(const Data::ArducopterData &messageArducopter);
 
-    void vehicleObjectCheck(const int &sendersID) const;
+    void vehicleObjectCheck(const int &sendersID, const int &autopilotType) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////

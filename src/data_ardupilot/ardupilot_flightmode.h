@@ -6,6 +6,9 @@
 #include <map>
 #include <memory>
 
+#include "mace_core/vehicle_object.h"
+//#include "mavlink.h"
+
 namespace Ardupilot{
 
 enum Arducopter_FM {
