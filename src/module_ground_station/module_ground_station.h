@@ -12,12 +12,13 @@
 
 using namespace std;
 
-class MODULE_GROUND_STATIONSHARED_EXPORT ModuleGroundStation : public QObject, public MaceCore::IModuleCommandGroundStation
+class MODULE_GROUND_STATIONSHARED_EXPORT ModuleGroundStation : public MaceCore::IModuleCommandGroundStation
 {
-    Q_OBJECT
 
 public:
     ModuleGroundStation();
+
+    ~ModuleGroundStation();
 
 //    bool startTCPServer();
 
@@ -88,6 +89,8 @@ public slots:
 private:
 
     QTcpServer *m_TcpServer;
+
+    QThread *m_ListenThread;
 
 };
 

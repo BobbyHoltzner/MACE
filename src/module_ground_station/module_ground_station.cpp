@@ -2,14 +2,57 @@
 
 #include <iostream>
 
+#include <QApplication>
+#include <QThread>
+
+#include <functional>
+
 #include "mace_core/module_factory.h"
 
 
-ModuleGroundStation::ModuleGroundStation() :
-    MaceCore::IModuleCommandGroundStation()
+class ServerThread : public QThread
 {
-    m_TcpServer = new QTcpServer(this);
-    connect(m_TcpServer, SIGNAL(newConnection()), this, SLOT(on_newConnection()));
+public:
+    ServerThread(const std::function<void(void)> &func):
+        m_func(func)
+    {
+        if(QCoreApplication::instance() == NULL)
+        {
+            int argc = 0;
+            char * argv[] = {(char *)"sharedlib.app"};
+            pApp = new QCoreApplication(argc, argv);
+        }
+    }
+
+    virtual void run()
+    {
+        while(true)
+        {
+            QCoreApplication::processEvents();
+            m_func();
+        }
+    }
+
+private:
+
+    std::function<void(void)> m_func;
+    QCoreApplication *pApp;
+};
+
+ModuleGroundStation::ModuleGroundStation() :
+    MaceCore::IModuleCommandGroundStation(),
+    m_ListenThread(NULL)
+{
+
+
+}
+
+ModuleGroundStation::~ModuleGroundStation()
+{
+    if(m_ListenThread != NULL)
+    {
+        delete m_ListenThread;
+    }
 }
 
 
@@ -24,6 +67,7 @@ void ModuleGroundStation::on_newConnection()
 
     socket->close();
 }
+
 
 
 //!
@@ -48,7 +92,15 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
 
 bool ModuleGroundStation::StartTCPServer()
 {
+    m_TcpServer = new QTcpServer();
+    m_ListenThread = new ServerThread([&](){
+        if(m_TcpServer->hasPendingConnections())
+            this->on_newConnection();
+    });
     bool started = m_TcpServer->listen(QHostAddress::LocalHost, 1234);
+    m_TcpServer->moveToThread(m_ListenThread);
+    m_ListenThread->start();
+
 
     if(!started)
     {
