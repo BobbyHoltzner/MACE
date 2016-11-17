@@ -33,9 +33,9 @@ public slots:
     void newValue(double value);
 
 private:
-    //ArdupilotFlightMode* m_FlightMode;
-    //ArdupilotAttitude* m_Attitude;
-    //ArdupilotStatus* m_Status;
+    ArdupilotFlightMode* m_FlightMode;
+    ArdupilotAttitude* m_Attitude;
+    ArdupilotStatus* m_Status;
 
 
 };

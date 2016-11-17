@@ -23,7 +23,7 @@ void ArdupilotAttitude::updateAttitudeMavlink(mavlink_attitude_t msgAttitude)
     yaw = msgAttitude.yaw;
     yaw_rate = msgAttitude.yawspeed;
 
-    emit valueChanged(roll);
+    //emit valueChanged(roll);
 
 }
 } //end of namespace Ardupilot

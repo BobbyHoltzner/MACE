@@ -7,11 +7,11 @@ namespace Ardupilot {
 DataArdupilot::DataArdupilot(const int &vehicleID, const int &vehicleProtocol, const int &vehicleType)
     :VehicleObject(vehicleID,vehicleProtocol,vehicleType)
 {
-    //m_FlightMode = new ArdupilotFlightMode();
-    //m_Attitude = new ArdupilotAttitude();
-    //m_Status = new ArdupilotStatus();
+    m_FlightMode = new ArdupilotFlightMode();
+    m_Attitude = new ArdupilotAttitude();
+    m_Status = new ArdupilotStatus();
 
-    //m_FlightMode->setVehicleType(vehicleType);
+    m_FlightMode->setVehicleType(vehicleType);
 
     //QObject::connect(m_Attitude, SIGNAL(valueChanged(double)), this, SLOT(newValue(double)));
 }
@@ -19,6 +19,13 @@ DataArdupilot::DataArdupilot(const int &vehicleID, const int &vehicleProtocol, c
 DataArdupilot::DataArdupilot(DataArdupilot &copyObj)
     :VehicleObject(copyObj.getVehicleID(),copyObj.getVehicleProtocol(),copyObj.getVehicleType())
 {
+    m_FlightMode = new ArdupilotFlightMode();
+    m_Attitude = new ArdupilotAttitude();
+    m_Status = new ArdupilotStatus();
+
+    *m_FlightMode = *copyObj.m_FlightMode;
+    *m_Attitude = *copyObj.m_Attitude;
+    *m_Status = *copyObj.m_Status;
 
 }
 
