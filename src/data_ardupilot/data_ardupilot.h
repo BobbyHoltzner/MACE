@@ -14,9 +14,8 @@
 
 namespace Ardupilot{
 
-class DATA_ARDUPILOTSHARED_EXPORT DataArdupilot : public QObject, public VehicleObject
+class DATA_ARDUPILOTSHARED_EXPORT DataArdupilot : public VehicleObject
 {
-    Q_OBJECT
 public:
     DataArdupilot(const int &vehicleID, const int &vehicleProtocol, const int &vehicleType);
 

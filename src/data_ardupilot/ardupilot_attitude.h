@@ -18,9 +18,6 @@ private:
     double yaw;
     double yaw_rate;
 
-//signals:
-//    void valueChanged(double newRoll);
-
 };
 } //end of namespace Ardupilot
 

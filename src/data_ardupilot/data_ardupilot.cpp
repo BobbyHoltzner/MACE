@@ -13,7 +13,6 @@ DataArdupilot::DataArdupilot(const int &vehicleID, const int &vehicleProtocol, c
 
     m_FlightMode->setVehicleType(vehicleType);
 
-    //QObject::connect(m_Attitude, SIGNAL(valueChanged(double)), this, SLOT(newValue(double)));
 }
 
 DataArdupilot::DataArdupilot(DataArdupilot &copyObj)
