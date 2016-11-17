@@ -3,8 +3,8 @@
 # Project created by QtCreator 2016-11-09T11:52:32
 #
 #-------------------------------------------------
-
-QT       -= core gui
+QT += core
+QT       = core gui
 
 TARGET = data_ardupilot
 TEMPLATE = lib
@@ -12,11 +12,21 @@ TEMPLATE = lib
 DEFINES += DATA_ARDUPILOT_LIBRARY
 
 SOURCES += data_ardupilot.cpp \
-    ardupilot_flightmode.cpp
+    ardupilot_flightmode.cpp \
+    ardupilot_status.cpp \
+    ardupilot_attitude.cpp \
+    ardupilot_gps_status.cpp \
+    ardupilot_position.cpp
 
 HEADERS += data_ardupilot.h\
         data_ardupilot_global.h \
-    ardupilot_flightmode.h
+    ardupilot_flightmode.h \
+    ardupilot_status.h \
+    ardupilot_attitude.h \
+    ardupilot_gps_status.h \
+    ardupilot_position.h
+
+INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
 # Unix lib Install
 unix:!symbian {
@@ -37,13 +47,13 @@ INSTALLS       += headers
 
 INCLUDEPATH += $$(MACE_ROOT)/include
 
-
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
 else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
-
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/release/ -lmodule_vehicle_MAVLINK
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/debug/ -lmodule_vehicle_MAVLINK
+else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/ -lmodule_vehicle_MAVLINK
 
 unix{
     EigenInclude = $$system(pkg-config --cflags eigen3)
@@ -55,12 +65,4 @@ win32{
 }
 
 
-INCLUDEPATH += $$PWD/../
-DEPENDPATH += $$PWD/../
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/release/ -lmodule_vehicle_MAVLINK
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/debug/ -lmodule_vehicle_MAVLINK
-else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/ -lmodule_vehicle_MAVLINK
-
-INCLUDEPATH += $$PWD/../module_vehicle_MAVLINK
-DEPENDPATH += $$PWD/../module_vehicle_MAVLINK

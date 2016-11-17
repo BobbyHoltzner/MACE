@@ -64,11 +64,15 @@ public:
     ArdupilotFlightMode(Arduplane_FM flightMode);
 
     void updateVehicleMode(int vehicleType, int flightMode);
+
     void setVehicleType(int vehicleType);
     void setFlightMode(int flightMode);
 
     void getCurrentVehicleMode(std::string vehicleMode);
     void getCurrentVehicleMode(int vehicleMode);
+
+    void vehicleTypeChanged();
+    void vehicleModeChanged();
 
     std::string FMtoString(const int vehicleType, const int flightMode);
 

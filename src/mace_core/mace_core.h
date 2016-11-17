@@ -17,9 +17,6 @@
 #include "i_module_events_rta.h"
 #include "i_module_events_path_planning.h"
 
-#include <data_vehicle/data_vehicle.h>
-#include <data_ardupilot/data_ardupilot.h>
-
 namespace MaceCore
 {
 

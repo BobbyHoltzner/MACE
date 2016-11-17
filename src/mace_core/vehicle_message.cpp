@@ -1,10 +1,5 @@
 #include "vehicle_message.h"
 
-//namespace MaceCore {
-//AbstractVehicleMessage::AbstractVehicleMessage(const int &vehicleID)
-//{
-//    m_VehicleID = vehicleID;
-//}
 AbstractVehicleMessage::~AbstractVehicleMessage()
 {
 

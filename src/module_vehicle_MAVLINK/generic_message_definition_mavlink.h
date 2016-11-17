@@ -1,8 +1,6 @@
 #ifndef GENERICMSGDEF_MAVLINK_H
 #define GENERICMSGDEF_MAVLINK_H
 
-#include "mavlink.h"
-
 #include "mace_core/vehicle_message.h"
 #include "mace_core/vehicle_object.h"
 
@@ -11,7 +9,6 @@ template<class T> class GenericMsgDef_MAVLINK: public AbstractVehicleMessage
 {
 public:
     GenericMsgDef_MAVLINK(const int &sendersID, const T &msgData){
-        std::cout<<"The msg object is being constructed with an ID of: "<<sendersID<<std::endl;
         m_VehicleID = sendersID;
         this->messageData = msgData;
     }

@@ -3,8 +3,8 @@
 # Project created by QtCreator 2016-08-22T13:49:38
 #
 #-------------------------------------------------
-
-QT       -= core gui
+QT       += core
+QT       -= gui
 
 TARGET = mace_core
 TEMPLATE = lib

@@ -79,7 +79,7 @@ void MaceCore::NewConstructedVehicle(const void *sender, std::shared_ptr<Vehicle
     //First let us check to see if one is already in the map with the same ID
     std::shared_ptr<VehicleObject> tmpObject = vehicleObject;
     int sendersID = tmpObject->getVehicleID();
-
+    std::cout<<"The newly constructed vehicle here is: "<<sendersID<<std::endl;
     if(m_VehicleData.find(sendersID) == m_VehicleData.cend())
     {
         std::cout<<"A previous one wasnt found inserting a new one!"<<std::endl;
@@ -126,7 +126,7 @@ void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const Veh
 //        m_VehicleData.insert({vID,tmpObject});
     }else{
         std::shared_ptr<VehicleObject> tmpObject = m_VehicleData[sendersID];
-        std::cout<<"I am parsing a new vehicle message with the ID of: "<<(int)tmpObject->getVehicleID()<<std::endl;
+        tmpObject->handleMessage(vehicleMessage);
     }
 
     //int seenVehicle =  vehicleMessage.getDataObject().get()->getVehicleID();

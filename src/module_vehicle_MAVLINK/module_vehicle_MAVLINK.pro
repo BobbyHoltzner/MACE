@@ -14,13 +14,11 @@ DEFINES += MODULE_VEHICLE_MAVLINK_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-SOURCES += module_vehicle_mavlink.cpp \
-    vehicle_generic_mavlink.cpp
+SOURCES += module_vehicle_mavlink.cpp
 
 HEADERS += module_vehicle_mavlink.h\
         module_vehicle_mavlink_global.h \
     message_definition_mavlink.h \
-    vehicle_generic_mavlink.h \
     generic_message_definition_mavlink.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
