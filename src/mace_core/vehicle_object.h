@@ -36,11 +36,13 @@ public:
     {
         m_VehicleID = data;
     }
-    int getVehicleID(){
+    int getVehicleID() const
+    {
         return m_VehicleID;
     }
 
-    int getVehicleType(){
+    int getVehicleType() const
+    {
         return m_VehicleType;
     }
     void setVehicleType(const int &data)
@@ -49,7 +51,8 @@ public:
     }
 
 
-    int getVehicleProtocol(){
+    int getVehicleProtocol() const
+    {
         return m_VehicleProtocol;
     }
     void setVehicleProtocol(const int &data)

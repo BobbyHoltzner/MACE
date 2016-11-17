@@ -16,6 +16,11 @@ DataArdupilot::DataArdupilot(const int &vehicleID, const int &vehicleProtocol, c
     //QObject::connect(m_Attitude, SIGNAL(valueChanged(double)), this, SLOT(newValue(double)));
 }
 
+DataArdupilot::DataArdupilot(const DataArdupilot &copyObj)
+    :VehicleObject(copyObj.getVehicleID(),copyObj.getVehicleProtocol(),copyObj.getVehicleType())
+{
+
+}
 
 DataArdupilot::~DataArdupilot()
 {

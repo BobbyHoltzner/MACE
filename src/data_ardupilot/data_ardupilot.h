@@ -20,6 +20,8 @@ class DATA_ARDUPILOTSHARED_EXPORT DataArdupilot : public QObject, public Vehicle
 public:
     DataArdupilot(const int &vehicleID, const int &vehicleProtocol, const int &vehicleType);
 
+    DataArdupilot(const DataArdupilot &copyObj);
+
     ~DataArdupilot();
 
     virtual void handleMessage(VehicleMessage msgIn) const;
