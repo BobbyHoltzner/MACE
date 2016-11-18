@@ -27,9 +27,12 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
     if(m_VehicleIDToPtr.find(ID) != m_VehicleIDToPtr.cend())
         throw std::runtime_error("Vehicle ID already exists");
 
-    m_VehicleIDToPtr.insert({ID, vehicle});
+    m_VehicleIDToPtr.insert({ID, vehicle.get()});
+    m_VehiclePTRToID.insert({vehicle.get(), ID});
 
     m_DataFusion->AddVehicle(ID);
+
+    vehicle->addListener(this);
 
     if(m_RTA != NULL)
         m_RTA->MarshalCommand(RTACommands::NEW_VEHICLE, ID);
@@ -41,7 +44,9 @@ void MaceCore::RemoveVehicle(const std::string &ID)
     if(m_VehicleIDToPtr.find(ID) == m_VehicleIDToPtr.cend())
         throw std::runtime_error("Vehicle does not exists");
 
+    m_VehiclePTRToID.erase(m_VehicleIDToPtr.at(ID));
     m_VehicleIDToPtr.erase(m_VehicleIDToPtr.find(ID));
+
 
     m_DataFusion->RemoveVehicle(ID);
 
@@ -52,16 +57,19 @@ void MaceCore::RemoveVehicle(const std::string &ID)
 
 void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
 {
+    rta->addListener(this);
     m_RTA = rta;
 }
 
 void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning)
 {
+    pathPlanning->addListener(this);
     m_PathPlanning = pathPlanning;
 }
 
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
 {
+    groundStation->StartTCPServer();
     m_GroundStation = groundStation;
 }
 
@@ -72,13 +80,14 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
 
 void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
 {
+
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     std::string ID = m_VehiclePTRToID.at(vehicle);
 
     m_DataFusion->AddPositionDynamics(ID, time, pos, vel);
 
     m_RTA->MarshalCommand(RTACommands::UPDATED_POSITION_DYNAMICS, ID);
-    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
+    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, ID);
 }
 
 
@@ -121,6 +130,20 @@ void MaceCore::NewVehicleTargets(const std::string &vehicleID, const std::vector
     m_DataFusion->setVehicleTarget(vehicleID, target);
 
     m_PathPlanning->NewVehicleTarget(vehicleID);
+}
+
+/////////////////////////////////////////////////////////////////////////
+/// GROUND STATION EVENTS
+/////////////////////////////////////////////////////////////////////////
+
+
+//!
+//! \brief Event fired when a new list of targets are produced for a specific vehicle
+//! \param vehicleID Vechile new targets are to be applied to
+//! \param target List of positional targets
+//!
+void MaceCore::GroundStationEvent()
+{
 }
 
 

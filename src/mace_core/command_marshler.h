@@ -106,7 +106,7 @@ private:
             m_Param1.clear();
             this->m_Mutex.unlock();
 
-            for(FT param : m_Param1)
+            for(FT param : listCpy)
                 m_Func(param);
         }
 

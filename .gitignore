@@ -19,3 +19,6 @@ src/module_RTA_NASAPhase2/release/*
 
 
 node_modules
+
+gui_dlls
+node_packages

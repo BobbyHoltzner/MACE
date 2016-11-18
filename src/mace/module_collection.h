@@ -12,6 +12,8 @@
 #include "module_ground_station/module_ground_station.h"
 
 
+#include "module_ground_station/module_ground_station.h"
+
 #include "mace_core/module_factory.h"
 
 

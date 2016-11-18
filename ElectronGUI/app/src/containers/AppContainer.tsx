@@ -16,28 +16,6 @@ var fs = require('fs')
 var injectTapEventPlugin = require("react-tap-event-plugin");
 
 
-// **** TESTING FOR C++ LIBRARY INTERFACE:
-
-// var libElectronTest = require('mace-api/build/Release/mace-api');
-// var maceAPI = new libElectronTest.MaceAPI();
-// console.log(maceAPI.addOne(4));
-// console.log(maceAPI.getTestDouble());
-
-
-// var ffi = require('ffi');
-// var ref = require('ref');
-// var int = ref.types.int;
-// var maceLib = ffi.Library('C:/Code/MACE/gui_dlls/Qt/mace-api/debug/mace-api.dll', {
-// // var maceLib = ffi.Library('C:/Code/MACE/node_packages/gui-api/build/Release/gui-api.dll', {
-//   "c_addOne": [ "double", ["double"]]
-// });
-// console.log(maceLib);
-// console.log(maceLib.c_addOne(5));
-// console.log(maceLib.c_startMACECore());
-
-// **** END TESTING
-
-
 // **** TESTING FOR TCP ITERFACE:
 
 var net = require('net');

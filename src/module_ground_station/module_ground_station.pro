@@ -4,6 +4,7 @@
 #
 #-------------------------------------------------
 QT       += network
+QT += widgets
 QT       -= gui
 
 TARGET = module_ground_station

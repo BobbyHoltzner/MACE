@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 
     if(MACEPath){
         std::string rootPath(MACEPath);
-        std::cout <<"The current MACE_ROOT path is: "<<rootPath<<std::endl;
+        std::cout << "The current MACE_ROOT path is: " << rootPath << std::endl;
         filename = rootPath + "\\MaceSetup.xml";
     }else{
         filename = "MaceSetup.xml";
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
         {
             if(addedGroundStation == true)
             {
-                std::cerr << "Only one GUI module can be added" << std::endl;
+                std::cerr << "Only one Ground Station module can be added" << std::endl;
                 return 1;
             }
             core.AddGroundStationModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandGroundStation>(module));

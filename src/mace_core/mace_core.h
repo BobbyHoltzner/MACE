@@ -76,6 +76,21 @@ public:
     //!
     virtual void NewVehicleTargets(const std::string &vehicleID, const std::vector<Eigen::Vector3d> &target);
 
+
+public:
+
+    /////////////////////////////////////////////////////////////////////////
+    /// GROUND STATION EVENTS
+    /////////////////////////////////////////////////////////////////////////
+
+
+    //!
+    //! \brief Event fired when a new list of targets are produced for a specific vehicle
+    //! \param vehicleID Vechile new targets are to be applied to
+    //! \param target List of positional targets
+    //!
+    virtual void GroundStationEvent();
+
 public:
 
     /////////////////////////////////////////////////////////////////////////
@@ -134,8 +149,8 @@ public:
 
 private:
 
-    std::map<std::string, std::shared_ptr<IModuleCommandVehicle>> m_VehicleIDToPtr;
 
+    std::map<std::string, IModuleCommandVehicle*> m_VehicleIDToPtr;
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
 
 
