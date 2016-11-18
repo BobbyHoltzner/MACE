@@ -28,8 +28,8 @@ public:
 //    virtual int getVehicleProtocol() const;
 //    virtual int getVehicleType() const;
 
-public slots:
-    void newValue(double value);
+//public slots:
+//    void newValue(double value);
 
 private:
     ArdupilotFlightMode* m_FlightMode;

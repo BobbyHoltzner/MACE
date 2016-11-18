@@ -33,11 +33,6 @@ DataArdupilot::~DataArdupilot()
 
 }
 
-void DataArdupilot::newValue(double value)
-{
-    std::cout<<"A new value was seen in the attitude: "<<value<<std::endl;
-}
-
 void DataArdupilot::handleMessage(VehicleMessage msgIn) const
 {
     std::shared_ptr<AbstractVehicleMessage> tmpAbstractMessage = msgIn.getDataObject();

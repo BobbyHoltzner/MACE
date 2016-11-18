@@ -2,9 +2,9 @@
 
 namespace Ardupilot{
 
+
 ArdupilotPosition::ArdupilotPosition()
 {
 
 }
-
 } //end of namespace Ardupilot

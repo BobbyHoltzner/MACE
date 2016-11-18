@@ -1,26 +1,17 @@
 #ifndef ARDUPILOTPOSITION_H
 #define ARDUPILOTPOSITION_H
 
+#include "mavlink.h"
+
 namespace Ardupilot{
-
-struct LocalPosition{
-    double xPosition;
-    double yPosition;
-    double zPosition;
-    double xVelocity;
-    double yVelocity;
-    double zVelocity;
-
-};
-
-struct GlobalPosition{
-
-};
 
 class ArdupilotPosition
 {
 public:
     ArdupilotPosition();
+
+private:
+
 };
 
 } //end of namespace Ardupilot

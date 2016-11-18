@@ -3,8 +3,7 @@
 # Project created by QtCreator 2016-11-09T11:52:32
 #
 #-------------------------------------------------
-QT += core
-QT       = core gui
+QT       -= core gui
 
 TARGET = data_ardupilot
 TEMPLATE = lib
@@ -16,7 +15,9 @@ SOURCES += data_ardupilot.cpp \
     ardupilot_status.cpp \
     ardupilot_attitude.cpp \
     ardupilot_gps_status.cpp \
-    ardupilot_position.cpp
+    ardupilot_position.cpp \
+    ardupilot_global_position.cpp \
+    ardupilot_local_position.cpp
 
 HEADERS += data_ardupilot.h\
         data_ardupilot_global.h \
@@ -24,7 +25,9 @@ HEADERS += data_ardupilot.h\
     ardupilot_status.h \
     ardupilot_attitude.h \
     ardupilot_gps_status.h \
-    ardupilot_position.h
+    ardupilot_position.h \
+    ardupilot_global_position.h \
+    ardupilot_local_position.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
