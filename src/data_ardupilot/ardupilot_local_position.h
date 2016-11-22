@@ -5,6 +5,26 @@
 
 namespace Ardupilot{
 
+struct LocalPositionStruct{
+    double xPosition;
+    double yPosition;
+    double zPosition;
+    double xVelocity;
+    double yVelocity;
+    double zVelocity;
+    double xAcceleration;
+    double yAcceleration;
+    double zAcceleration;
+    double yaw;
+    double yawRate;
+
+    LocalPositionStruct();
+
+    bool operator ==(const LocalPositionStruct &rhs) const;
+
+    bool operator !=(const LocalPositionStruct &rhs) const;
+};
+
 class ArdupilotLocalPosition
 {
 public:
@@ -19,12 +39,8 @@ public:
     bool operator !=(const ArdupilotLocalPosition &rhs) const;
 
 public:
-    double xPosition;
-    double yPosition;
-    double zPosition;
-    double xVelocity;
-    double yVelocity;
-    double zVelocity;
+
+    //should house the current commanded local position target and the current target local
 };
 
 } //end of namespace Ardupilot

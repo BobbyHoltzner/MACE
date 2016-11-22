@@ -17,7 +17,8 @@ SOURCES += data_ardupilot.cpp \
     ardupilot_gps_status.cpp \
     ardupilot_position.cpp \
     ardupilot_global_position.cpp \
-    ardupilot_local_position.cpp
+    ardupilot_local_position.cpp \
+    ardupilot_mission.cpp
 
 HEADERS += data_ardupilot.h\
         data_ardupilot_global.h \
@@ -27,7 +28,8 @@ HEADERS += data_ardupilot.h\
     ardupilot_gps_status.h \
     ardupilot_position.h \
     ardupilot_global_position.h \
-    ardupilot_local_position.h
+    ardupilot_local_position.h \
+    ardupilot_mission.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 

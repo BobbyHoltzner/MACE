@@ -5,8 +5,30 @@
 
 namespace Ardupilot{
 
+struct GlobalPositionStruct{
+    double latitude;
+    double longitude;
+    double zPosition;
+    double xVelocity;
+    double yVelocity;
+    double zVelocity;
+    double xAcceleration;
+    double yAcceleration;
+    double zAcceleration;
+    double yaw;
+    double yawRate;
+
+    GlobalPositionStruct();
+
+    bool operator ==(const GlobalPositionStruct &rhs) const;
+
+    bool operator !=(const GlobalPositionStruct &rhs) const;
+};
+
 class ArdupilotGlobalPosition
 {
+
+
 public:
     ArdupilotGlobalPosition();
 

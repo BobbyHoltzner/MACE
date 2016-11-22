@@ -2,6 +2,44 @@
 
 namespace Ardupilot{
 
+GlobalPositionStruct::GlobalPositionStruct()
+{
+    this->latitude = 0.0;
+    this->longitude = 0.0;
+    this->zPosition = 0.0;
+    this->xVelocity = 0.0;
+    this->yVelocity = 0.0;
+    this->zVelocity = 0.0;
+    this->xVelocity = 0.0;
+    this->yVelocity = 0.0;
+    this->zVelocity = 0.0;
+    this->yaw = 0.0;
+    this->yawRate = 0.0;
+}
+
+bool GlobalPositionStruct::operator ==(const GlobalPositionStruct &rhs) const
+{
+    if(abs(rhs.latitude - this->latitude) < 0.0001)
+        if(abs(rhs.longitude - this->longitude) < 0.0001)
+            if(abs(rhs.zPosition - this->zPosition) < 0.0001)
+                if(abs(rhs.xVelocity - this->xVelocity) < 0.0001)
+                    if(abs(rhs.yVelocity - this->yVelocity) < 0.0001)
+                        if(abs(rhs.zVelocity - this->zVelocity) < 0.0001)
+                            if(abs(rhs.xAcceleration - this->xAcceleration) < 0.0001)
+                                if(abs(rhs.yAcceleration - this->yAcceleration) < 0.0001)
+                                    if(abs(rhs.zAcceleration - this->zAcceleration) < 0.0001)
+                                        if(abs(rhs.yaw - this->yaw) < 0.0001)
+                                            if(abs(rhs.yawRate - this->yawRate) < 0.0001)
+                                                return(true);
+    return(false);
+}
+
+bool GlobalPositionStruct::operator !=(const GlobalPositionStruct &rhs) const
+{
+    return !(*this == rhs);
+}
+
+
 ArdupilotGlobalPosition::ArdupilotGlobalPosition()
 {
     this->latitude = 0.0;

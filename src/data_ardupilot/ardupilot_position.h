@@ -3,6 +3,7 @@
 
 #include "mavlink.h"
 
+//This class will handle the local, global and home positioning elements of a vehicle
 namespace Ardupilot{
 
 class ArdupilotPosition
