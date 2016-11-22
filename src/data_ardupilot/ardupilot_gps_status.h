@@ -12,7 +12,7 @@ public:
 
     void updateFromMavlink(const mavlink_gps_status_t &localPositionMSG);
 
-private:
+public:
     int fixStatus;
     int numberOfSats;
     int horizontalDOP;

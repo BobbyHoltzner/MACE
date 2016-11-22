@@ -7,6 +7,12 @@ class ArdupilotMission
 {
 public:
     ArdupilotMission();
+
+    void getCurrentMissionItem();
+
+    void getMissionItem(const int &index);
+
+
 };
 
 } //end of namespace Ardupilot

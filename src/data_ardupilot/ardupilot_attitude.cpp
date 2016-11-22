@@ -12,16 +12,16 @@ ArdupilotAttitude::ArdupilotAttitude()
     yaw = 0.0;
     yaw_rate = 0.0;
 }
-void ArdupilotAttitude::updateAttitudeMavlink(mavlink_attitude_t msgAttitude)
+void ArdupilotAttitude::updateAttitudeMavlink(const mavlink_attitude_t &msgData)
 {
-    roll = msgAttitude.roll;
-    roll_rate = msgAttitude.rollspeed;
+    roll = msgData.roll;
+    roll_rate = msgData.rollspeed;
 
-    pitch = msgAttitude.pitch;
-    pitch_rate = msgAttitude.pitchspeed;
+    pitch = msgData.pitch;
+    pitch_rate = msgData.pitchspeed;
 
-    yaw = msgAttitude.yaw;
-    yaw_rate = msgAttitude.yawspeed;
+    yaw = msgData.yaw;
+    yaw_rate = msgData.yawspeed;
 
     //emit valueChanged(roll);
 

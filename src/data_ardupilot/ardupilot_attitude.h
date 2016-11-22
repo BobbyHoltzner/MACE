@@ -8,7 +8,7 @@ class ArdupilotAttitude
 {
 public:
     ArdupilotAttitude();
-    void updateAttitudeMavlink(mavlink_attitude_t msgAttitude);
+    void updateAttitudeMavlink(const mavlink_attitude_t &msgData);
 
 private:
     double roll;
