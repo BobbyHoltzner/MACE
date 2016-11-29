@@ -18,7 +18,7 @@ public:
     //! \param vehicleID Vechile new targets are to be applied to
     //! \param target List of positional targets
     //!
-//    virtual void NewVehicleTargets(const std::string &vehicleID, const std::vector<Eigen::Vector3d> &target) = 0;
+    virtual void NewVehicleTargets(const std::string &vehicleID, const std::vector<Eigen::Vector3d> &target) = 0;
 };
 
 } //End MaceCore Namespace

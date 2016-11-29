@@ -39,6 +39,8 @@ private:
     QCoreApplication *pApp;
 };
 
+
+
 ModuleGroundStation::ModuleGroundStation() :
     MaceCore::IModuleCommandGroundStation(),
     m_ListenThread(NULL)
@@ -60,12 +62,17 @@ void ModuleGroundStation::on_newConnection()
 {
     std::cout << "New connection..." << std::endl;
     QTcpSocket *socket = m_TcpServer->nextPendingConnection();
+
+
+
+
+
     socket->write("Hello client \r\n");
     socket->flush();
 
     socket->waitForBytesWritten(3000);
 
-    socket->close();
+//    socket->close();
 }
 
 //!
@@ -112,4 +119,67 @@ bool ModuleGroundStation::StartTCPServer()
     return started;
 }
 
+
+void ModuleGroundStation::UpdatedVehicleLife(const std::string &vehicleID)
+{
+    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+
+    MaceCore::TIME time;
+    // get current time
+
+    MaceCore::VehicleLife life;
+
+    data->GetVehicleLife(vehicleID, time, life);
+
+    //do something with life (send back to GUI)
+}
+
+
+void ModuleGroundStation::UpdatedPositionDynamics(const std::string &vehicleID)
+{
+    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+
+    MaceCore::TIME time;
+    //get current time
+
+    Eigen::Vector3d pos;
+    Eigen::Vector3d vel;
+    data->GetPositionDynamics(vehicleID, time, pos, vel);
+
+    //do something with pos and vel (send back to GUI)
+}
+
+
+void ModuleGroundStation::UpdateAttitudeDynamics(const std::string &vehicleID)
+{
+    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+
+    MaceCore::TIME time;
+    //get current time
+
+    Eigen::Vector3d att;
+    Eigen::Vector3d attRates;
+    data->GetAttitudeDynamics(vehicleID, time, att, attRates);
+
+    //do something with att and attRates (send back to GUI)
+}
+
+//!
+//! \brief New targets have been assigned to the given vehicle
+//! \param vehicleID ID of vehicle
+//!
+void ModuleGroundStation::NewVehicleTarget(const std::string &vehicleID)
+{
+    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+
+    std::vector<Eigen::Vector3d> targets = data->getVehicleTarget(vehicleID);
+
+    //do something with targets (send back to GUI)
+}
+
+
+//TODO: Metadata for each vehicle
+std::string ModuleGroundStation::getVehicleData(int vehicleID)
+{
+}
 

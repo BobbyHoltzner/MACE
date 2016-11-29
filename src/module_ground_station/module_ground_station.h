@@ -34,6 +34,10 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
+    //!
+    //! \brief Starts the TCP server for the GCS to send requests to
+    //! \return
+    //!
     virtual bool StartTCPServer();
 
 
@@ -59,7 +63,7 @@ public:
     //! The vehicle's position can be retreived from MaceData object in getDataObject()
     //! \param vehicleID ID of vehicle
     //!
-    virtual void UpdatedPositionDynamics(const std::string &vehicleID) {}
+    virtual void UpdatedPositionDynamics(const std::string &vehicleID);
 
 
     //!
@@ -68,7 +72,7 @@ public:
     //! The vehicle's attitude can be retreived from MaceData object in getDataObject()
     //! \param vehicleID ID of vehicle
     //!
-    virtual void UpdateAttitudeDynamics(const std::string &vehicleID) {}
+    virtual void UpdateAttitudeDynamics(const std::string &vehicleID);
 
 
     //!
@@ -77,7 +81,21 @@ public:
     //! The vehicle's life can be retreived from MaceData object in getDataObject()
     //! \param vehicleID ID of vehicle
     //!
-    virtual void UpdatedVehicleLife(const std::string &vehicleID) {}
+    virtual void UpdatedVehicleLife(const std::string &vehicleID);
+
+
+    //!
+    //! \brief New targets have been assigned to the given vehicle
+    //! \param vehicleID ID of vehicle
+    //!
+    virtual void NewVehicleTarget(const std::string &vehicleID);
+
+    //!
+    //! \brief Returns the vehicle data of the given vehicle ID
+    //! \param vehicleID of the requested vehicle
+    //! \return
+    //!
+    std::string getVehicleData(int vehicleID);
 
 public slots:
     void on_newConnection();

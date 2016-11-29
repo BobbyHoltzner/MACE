@@ -9,6 +9,7 @@
 
 #include "i_link.h"
 #include "serial_link.h"
+#include "udp_link.h"
 #include "protocol_mavlink.h"
 
 #include "i_link_events.h"
@@ -20,7 +21,8 @@ namespace Comms
 
 enum class LinkTypes
 {
-    SERIAL
+    SERIAL,
+    UDP
 };
 
 enum class Protocols
@@ -60,6 +62,14 @@ public:
     //! \param config Configuration of serial link
     //!
     void AddLink(const std::string &name, const SerialConfiguration &config);
+
+
+    //!
+    //! \brief Adds a UDP link that can be used
+    //! \param name Name of link for use when referencing it later
+    //! \param config Configuration of UDP link
+    //!
+    void AddUDPLink(const std::string &name, const UdpConfiguration &config);
 
 
     //!

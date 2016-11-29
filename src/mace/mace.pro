@@ -2,6 +2,7 @@ TEMPLATE = app
 CONFIG += console c++11
 CONFIG -= app_bundle
 QT += serialport
+QT += network
 
 TARGET = MACE
 QMAKE_CXXFLAGS += -std=c++11

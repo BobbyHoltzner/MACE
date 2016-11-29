@@ -4,6 +4,7 @@
 #
 #-------------------------------------------------
 QT += serialport
+QT += network
 QT       -= core gui
 
 TARGET = comms
@@ -18,7 +19,9 @@ SOURCES += \
     serial_configuration.cpp \
     mavlink_configuration.cpp \
     comms_marshaler.cpp \
-    protocol_mavlink.cpp
+    protocol_mavlink.cpp \
+    udp_configuration.cpp \
+    udp_link.cpp
 
 HEADERS +=\
     i_link.h \
@@ -34,7 +37,9 @@ HEADERS +=\
     i_protocol_events.h \
     i_protocol_mavlink_events.h \
     protocol_mavlink.h \
-    comms_events.h
+    comms_events.h \
+    udp_configuration.h \
+    udp_link.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 

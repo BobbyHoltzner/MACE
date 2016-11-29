@@ -20,7 +20,7 @@ var injectTapEventPlugin = require("react-tap-event-plugin");
 
 var net = require('net');
 var HOST = '127.0.0.1';
-var PORT = 6969;
+var PORT = 1234;
 
 var client = new net.Socket();
 client.connect(PORT, HOST, function() {
@@ -43,6 +43,10 @@ client.on('close', function() {
     console.log('Connection closed');
 });
 
+// Add an 'error' event handler
+client.on('error', function(err: any) {
+    console.log('Error: ' + err);
+});
 // **** END TESTIG 
 
 
