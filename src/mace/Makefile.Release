@@ -323,6 +323,8 @@ release/main.o: main.cpp ../../include/mace_core/mace_core.h \
 		../../include/common/enum_class_hash.h \
 		../../include/common/publisher.h \
 		../../include/mace_core/matrix_operations.h \
+		../../include/mace_core/vehicle_object.h \
+		../../include/mace_core/vehicle_message.h \
 		../../include/mace_core/i_module_command_vehicle.h \
 		../../include/mace_core/abstract_module_event_listeners.h \
 		../../include/mace_core/abstract_module_base.h \
@@ -330,7 +332,6 @@ release/main.o: main.cpp ../../include/mace_core/mace_core.h \
 		../../include/mace_core/command_marshler.h \
 		../../include/mace_core/metadata_vehicle.h \
 		../../include/mace_core/i_module_events_vehicle.h \
-		../../include/mace_core/vehicle_message.h \
 		../../include/mace_core/i_module_command_RTA.h \
 		../../include/mace_core/abstract_module_base_vehicle_listener.h \
 		../../include/mace_core/metadata_rta.h \
@@ -410,7 +411,22 @@ release/main.o: main.cpp ../../include/mace_core/mace_core.h \
 		../../../../Qt/5.7/mingw53_32/include/QtCore/qcontiguouscache.h \
 		../../../../Qt/5.7/mingw53_32/include/QtCore/qsharedpointer.h \
 		../../../../Qt/5.7/mingw53_32/include/QtCore/qsharedpointer_impl.h \
-		../../include/module_vehicle_MAVLINK/message_definition_mavlink.h \
+		../../include/module_vehicle_MAVLINK/generic_message_definition_mavlink.h \
+		../../include/comms/comms_marshaler.h \
+		../../include/comms/comms_global.h \
+		../../include/comms/i_link.h \
+		../../include/comms/i_link_events.h \
+		../../include/comms/serial_link.h \
+		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/QSerialPortInfo \
+		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/qserialportinfo.h \
+		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/qserialportglobal.h \
+		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/QSerialPort \
+		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/qserialport.h \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/QThread \
+		../../../../Qt/5.7/mingw53_32/include/QtCore/qthread.h \
+		../../include/comms/serial_configuration.h \
+		../../include/comms/link_configuration.h \
+		../../include/comms/protocol_mavlink.h \
 		../../mavlink_cpp/V2/ardupilotmega/mavlink.h \
 		../../mavlink_cpp/V2/ardupilotmega/version.h \
 		../../mavlink_cpp/V2/ardupilotmega/ardupilotmega.h \
@@ -613,27 +629,20 @@ release/main.o: main.cpp ../../include/mace_core/mace_core.h \
 		../../mavlink_cpp/V2/uAvionix/mavlink_msg_uavionix_adsb_out_cfg.h \
 		../../mavlink_cpp/V2/uAvionix/mavlink_msg_uavionix_adsb_out_dynamic.h \
 		../../mavlink_cpp/V2/uAvionix/mavlink_msg_uavionix_adsb_transceiver_health_report.h \
-		../../include/comms/comms_marshaler.h \
-		../../include/comms/comms_global.h \
-		../../include/comms/i_link.h \
-		../../include/comms/i_link_events.h \
-		../../include/comms/serial_link.h \
-		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/QSerialPortInfo \
-		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/qserialportinfo.h \
-		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/qserialportglobal.h \
-		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/QSerialPort \
-		../../../../Qt/5.7/mingw53_32/include/QtSerialPort/qserialport.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/QThread \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/qthread.h \
-		../../include/comms/serial_configuration.h \
-		../../include/comms/link_configuration.h \
-		../../include/comms/protocol_mavlink.h \
 		../../include/comms/i_protocol_mavlink_events.h \
 		../../include/comms/i_protocol_events.h \
 		../../include/comms/i_protocol.h \
 		../../include/comms/mavlink_configuration.h \
 		../../include/comms/protocol_configuration.h \
-		../../include/comms/comms_events.h
+		../../include/comms/comms_events.h \
+		../../include/module_vehicle_MAVLINK/data_ardupilot.h \
+		../../include/module_vehicle_MAVLINK/data_ardupilot_global.h \
+		../../include/module_vehicle_MAVLINK/ardupilot_attitude.h \
+		../../include/module_vehicle_MAVLINK/ardupilot_flightmode.h \
+		../../include/module_vehicle_MAVLINK/ardupilot_position.h \
+		../../include/module_vehicle_MAVLINK/ardupilot_global_position.h \
+		../../include/module_vehicle_MAVLINK/ardupilot_local_position.h \
+		../../include/module_vehicle_MAVLINK/ardupilot_status.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/main.o main.cpp
 
 release/data_interpolation.o: data_interpolation.cpp data_interpolation.h \
@@ -842,7 +851,9 @@ release/data_interpolation.o: data_interpolation.cpp data_interpolation.h \
 		../../include/common/enum_class_hash.h \
 		../../include/common/publisher.h \
 		../../include/mace_core/mace_core_global.h \
-		../../include/mace_core/matrix_operations.h
+		../../include/mace_core/matrix_operations.h \
+		../../include/mace_core/vehicle_object.h \
+		../../include/mace_core/vehicle_message.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/data_interpolation.o data_interpolation.cpp
 
 release/configuration_reader_xml.o: configuration_reader_xml.cpp configuration_reader_xml.h \
@@ -1054,6 +1065,8 @@ release/configuration_reader_xml.o: configuration_reader_xml.cpp configuration_r
 		../../include/common/enum_class_hash.h \
 		../../include/common/publisher.h \
 		../../include/mace_core/matrix_operations.h \
+		../../include/mace_core/vehicle_object.h \
+		../../include/mace_core/vehicle_message.h \
 		../../include/mace_core/module_factory.h \
 		pugixml.hpp \
 		pugiconfig.hpp
