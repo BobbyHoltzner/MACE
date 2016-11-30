@@ -1,4 +1,6 @@
 #include "ardupilot_attitude.h"
+#include <iostream>
+
 namespace Ardupilot{
 
 ArdupilotAttitude::ArdupilotAttitude()
@@ -14,6 +16,7 @@ ArdupilotAttitude::ArdupilotAttitude()
 }
 void ArdupilotAttitude::updateAttitudeMavlink(const mavlink_attitude_t &msgData)
 {
+    std::cout<<"Updating the attitude"<<std::endl;
     roll = msgData.roll;
     roll_rate = msgData.rollspeed;
 
@@ -25,5 +28,12 @@ void ArdupilotAttitude::updateAttitudeMavlink(const mavlink_attitude_t &msgData)
 
     //emit valueChanged(roll);
 
+}
+
+void ArdupilotAttitude::getAttitude(Eigen::Vector3d &attitudeVector)
+{
+    attitudeVector(0) = roll;
+    attitudeVector(1) = pitch;
+    attitudeVector(2) = yaw;
 }
 } //end of namespace Ardupilot

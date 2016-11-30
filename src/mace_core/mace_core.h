@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <memory>
+#include <functional>
 
 #include "mace_core_global.h"
 #include "mace_data.h"
@@ -53,6 +54,8 @@ public:
     virtual void NewConstructedVehicle(const void* sender, std::shared_ptr<VehicleObject> vehicleObject);
 
     virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage);
+
+    virtual void TestNewVehicleMessage(const void* sender, const TIME &time, std::function<std::vector<std::string>(VehicleObject*)> vehicleFunction);
 
     virtual void NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &position, const Eigen::Vector3d &attitude);
 

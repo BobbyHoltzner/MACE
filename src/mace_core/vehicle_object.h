@@ -1,6 +1,8 @@
 #ifndef VEHICLEOBJECT_H
 #define VEHICLEOBJECT_H
-#include <QObject>
+
+#include <string>
+#include <Eigen/Dense>
 
 #include "vehicle_message.h"
 
@@ -60,7 +62,11 @@ public:
         m_VehicleProtocol = data;
     }
 
-    virtual void handleMessage(VehicleMessage message) const = 0;
+    virtual void handleMessage(VehicleMessage message) = 0;
+
+    virtual void getVehiclePosition(Eigen::Vector3d &rtnVector) = 0;
+    virtual void getVehicleMode(std::string &rtnString) = 0;
+    virtual void getVehicleAttitude(Eigen::Vector3d &rtnVector) = 0;
 
 private:
     int m_VehicleID;

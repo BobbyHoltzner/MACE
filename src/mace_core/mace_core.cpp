@@ -75,66 +75,28 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
 void MaceCore::NewConstructedVehicle(const void *sender, std::shared_ptr<VehicleObject> vehicleObject)
 {
     IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
-    std::cout<<"I have been told to add a new vehicle to the map."<<std::endl;
-    //First let us check to see if one is already in the map with the same ID
-    std::shared_ptr<VehicleObject> tmpObject = vehicleObject;
-    int sendersID = tmpObject->getVehicleID();
-    std::cout<<"The newly constructed vehicle here is: "<<sendersID<<std::endl;
-    if(m_VehicleData.find(sendersID) == m_VehicleData.cend())
-    {
-        std::cout<<"A previous one wasnt found inserting a new one!"<<std::endl;
-        m_VehicleData.insert({sendersID,tmpObject});
-    }else{
-        std::cout<<"A previous one was found let us check the type!"<<std::endl;
-        std::shared_ptr<VehicleObject> currentObj = m_VehicleData[sendersID];
-        if(currentObj->getVehicleProtocol() == VP_GENERIC)
-        {
-            std::cout<<"It was originally a generic vehicle type let us replace it with the current correct type!"<<std::endl;
-            //Probably should get the data and update this new object from the old object
-            m_VehicleData.erase(sendersID);
-            m_VehicleData.insert({sendersID,tmpObject});
-        }else{
-            std::cout<<"This was already a specific vehicle...I do not know how to handle."<<std::endl;
-        }
-        std::cout<<"I have found an object with the information as: "<<(int)tmpObject->getVehicleID()<<std::endl;
-    }
+    int sendersID = 0;
+    bool rtnValue = m_DataFusion->AddNewVehicle(vehicleObject,sendersID);
+    vehicleModule->MarshalCommand(VehicleCommands::REMOVE_VEHICLE_OBJECT, rtnValue);
+}
 
-    vehicleModule->MarshalCommand(VehicleCommands::REMOVE_VEHICLE_OBJECT, sendersID);
-
-    //VehicleObject* tmpObject = dynamic_cast<VehicleObject*>vehicleObject;
-
+void MaceCore::TestNewVehicleMessage(const void *sender, const TIME &time, std::function<std::vector<std::string> (VehicleObject *)> vehicleFunction)
+{
+//    std::shared_ptr<VehicleObject> tmpObject = m_VehicleData[1];
+//    vehicleFunction(tmpObject);
 }
 
 void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const VehicleMessage &vehicleMessage)
 {
-    counter = counter + 1;
-    std::cout<<"The new value of the counter is: "<<counter<<std::endl;
     IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
-    int sendersID =  vehicleMessage.getDataObject()->getVehicleID();
-
-    //std::shared_ptr<VehicleObject> tmpObject = vehicleObject;
-    //int sendersID = tmpObject->getVehicleID();
-    //VehicleObject* tmpObject = dynamic_cast<VehicleObject*>vehicleObject;
-    if(m_VehicleData.find(sendersID) == m_VehicleData.cend())
-    {
-        std::cout<<"A previous vehicle object was not found in the map with the ID of: "<<sendersID<<std::endl;
+    int sendersID = 0;
+    bool rtnValue = m_DataFusion->HandleVehicleMessage(vehicleMessage,sendersID);
+    if(rtnValue == false){
         vehicleModule->MarshalCommand(VehicleCommands::CREATE_VEHICLE_OBJECT, sendersID);
-        //For now I think we are just going to drop this message not desirable but moving on
-
-//        std::shared_ptr<VehicleObject> tmpObject = vehicleObject;
-//        std::cout<<"The vehicle ID for this object is actually: "<<(int)tmpObject->getVehicleID()<<std::endl;
-//        m_VehicleData.insert({vID,tmpObject});
     }else{
-        std::shared_ptr<VehicleObject> tmpObject = m_VehicleData[sendersID];
-        tmpObject->handleMessage(vehicleMessage);
+        std::string tmpString = "NA";
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, tmpString);
     }
-
-    //int seenVehicle =  vehicleMessage.getDataObject().get()->getVehicleID();
-    //std::cout<<"The vehicle id is: "<<seenVehicle<<std::endl;
-    //get the apprpriate vehicle object and update it
-    //DataArdupilot* tmpVehicle = new DataArdupilot();
-    //int ID = 1;
-    //m_VehicleData.insert({ID,tmpVehicle});
 }
 
 void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)

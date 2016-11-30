@@ -379,13 +379,6 @@ release/module_vehicle_mavlink.o: module_vehicle_mavlink.cpp module_vehicle_mavl
 		../../mavlink_cpp/V2/uAvionix/mavlink_msg_uavionix_adsb_transceiver_health_report.h \
 		../../include/mace_core/vehicle_message.h \
 		../../include/mace_core/vehicle_object.h \
-		../../../../Qt/5.7/mingw53_32/include/QtCore/QObject \
-		generic_message_definition_mavlink.h \
-		../../include/mace_core/i_module_command_vehicle.h \
-		../../include/mace_core/abstract_module_event_listeners.h \
-		../../include/mace_core/abstract_module_base.h \
-		../../include/mace_core/mace_core_global.h \
-		../../include/mace_core/mace_data.h \
 		../../../../Program\ Files\ (x86)/Eigen/include/eigen3/Eigen/Dense \
 		../../../../Program\ Files\ (x86)/Eigen/include/eigen3/Eigen/Core \
 		../../../../Program\ Files\ (x86)/Eigen/include/eigen3/Eigen/src/Core/util/DisableStupidWarnings.h \
@@ -583,6 +576,12 @@ release/module_vehicle_mavlink.o: module_vehicle_mavlink.cpp module_vehicle_mavl
 		../../../../Program\ Files\ (x86)/Eigen/include/eigen3/Eigen/src/Eigenvalues/RealSchur_MKL.h \
 		../../../../Program\ Files\ (x86)/Eigen/include/eigen3/Eigen/src/Eigenvalues/ComplexSchur_MKL.h \
 		../../../../Program\ Files\ (x86)/Eigen/include/eigen3/Eigen/src/Eigenvalues/SelfAdjointEigenSolver_MKL.h \
+		generic_message_definition_mavlink.h \
+		../../include/mace_core/i_module_command_vehicle.h \
+		../../include/mace_core/abstract_module_event_listeners.h \
+		../../include/mace_core/abstract_module_base.h \
+		../../include/mace_core/mace_core_global.h \
+		../../include/mace_core/mace_data.h \
 		../../include/mace_core/vehicle_data.h \
 		../../include/mace_core/optional_parameter.h \
 		../../include/mace_core/observation_history.h \
@@ -616,6 +615,9 @@ release/module_vehicle_mavlink.o: module_vehicle_mavlink.cpp module_vehicle_mavl
 		../../include/data_ardupilot/data_ardupilot_global.h \
 		../../include/data_ardupilot/ardupilot_attitude.h \
 		../../include/data_ardupilot/ardupilot_flightmode.h \
+		../../include/data_ardupilot/ardupilot_position.h \
+		../../include/data_ardupilot/ardupilot_global_position.h \
+		../../include/data_ardupilot/ardupilot_local_position.h \
 		../../include/data_ardupilot/ardupilot_status.h \
 		../../include/module_vehicle_MAVLINK/generic_message_definition_mavlink.h \
 		../../include/mace_core/module_factory.h

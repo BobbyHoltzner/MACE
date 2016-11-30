@@ -2,11 +2,14 @@
 #define DATA_ARDUPILOT_H
 
 #include "mavlink.h"
+#include <string>
+#include <Eigen/Dense>
 
 #include "data_ardupilot_global.h"
 
 #include "ardupilot_attitude.h"
 #include "ardupilot_flightmode.h"
+#include "ardupilot_position.h"
 #include "ardupilot_status.h"
 
 #include "mace_core/vehicle_object.h"
@@ -23,7 +26,11 @@ public:
 
     ~DataArdupilot();
 
-    virtual void handleMessage(VehicleMessage msgIn) const;
+    virtual void handleMessage(VehicleMessage msgIn);
+    virtual void getVehicleMode(std::string &rtnString);
+    virtual void getVehicleAttitude(Eigen::Vector3d &rtnString);
+    virtual void getVehiclePosition(Eigen::Vector3d &rtnVector);
+
 //    virtual int getVehicleID() const;
 //    virtual int getVehicleProtocol() const;
 //    virtual int getVehicleType() const;
@@ -35,7 +42,7 @@ private:
     ArdupilotFlightMode* m_FlightMode;
     ArdupilotAttitude* m_Attitude;
     ArdupilotStatus* m_Status;
-
+    ArdupilotPosition* m_Position;
 
 };
 } //end of namespace ardupilot

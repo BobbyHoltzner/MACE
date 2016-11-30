@@ -1,6 +1,7 @@
 #ifndef ARDUPILOTGLOBALPOSITION_H
 #define ARDUPILOTGLOBALPOSITION_H
 
+#include <Eigen/Dense>
 #include "mavlink.h"
 
 namespace Ardupilot{
@@ -35,6 +36,8 @@ public:
     //ArdupilotGlobalPosition(const ArdupilotGlobalPosition &copyObj);
 
     void updateFromMavlink(const mavlink_global_position_int_t &globalPositionMSG);
+
+    void getGlobalPosition(Eigen::Vector3d &positionVector);
 
     bool operator ==(const ArdupilotGlobalPosition &rhs) const;
 

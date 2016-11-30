@@ -198,8 +198,11 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,0,0,0,0xFFFF);
         m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
 
-        //mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,10,4,1);
-        //m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
+        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,9,4,1);
+        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
+
+        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,10,4,1);
+        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
 
         //param 1 is the message id
         //interval between two messages in microseconds
@@ -207,9 +210,6 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         //mavlink_msg_command_long_pack_chan(255,190,chan,&msg,0,0,511,0,30,500000,0,0,0,0,0);
         //m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
 
-
-//        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,11,4,1);
-//        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
 
 //        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,12,4,1);
 //        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);

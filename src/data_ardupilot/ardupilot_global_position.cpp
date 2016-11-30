@@ -39,7 +39,6 @@ bool GlobalPositionStruct::operator !=(const GlobalPositionStruct &rhs) const
     return !(*this == rhs);
 }
 
-
 ArdupilotGlobalPosition::ArdupilotGlobalPosition()
 {
     this->latitude = 0.0;
@@ -51,6 +50,13 @@ ArdupilotGlobalPosition::ArdupilotGlobalPosition()
     this->groundSpeed_Y = 0.0;
     this->groundSpeed_Z = 0.0;
     this->heading = 0.0;
+}
+
+void ArdupilotGlobalPosition::getGlobalPosition(Eigen::Vector3d &positionVector)
+{
+    positionVector(0) = latitude;
+    positionVector(1) = longitude;
+    positionVector(2) = altitude;
 }
 
 void ArdupilotGlobalPosition::updateFromMavlink(const mavlink_global_position_int_t &globalPositionMSG)

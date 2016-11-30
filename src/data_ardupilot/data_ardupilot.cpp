@@ -33,7 +33,22 @@ DataArdupilot::~DataArdupilot()
 
 }
 
-void DataArdupilot::handleMessage(VehicleMessage msgIn) const
+void DataArdupilot::getVehicleMode(std::string &rtnString)
+{
+
+}
+
+void DataArdupilot::getVehiclePosition(Eigen::Vector3d &rtnVector)
+{
+    m_Position->getGlobalPosition(rtnVector);
+}
+
+void DataArdupilot::getVehicleAttitude(Eigen::Vector3d &rtnVector)
+{
+    m_Attitude->getAttitude(rtnVector);
+}
+
+void DataArdupilot::handleMessage(VehicleMessage msgIn)
 {
     std::shared_ptr<AbstractVehicleMessage> tmpAbstractMessage = msgIn.getDataObject();
     std::shared_ptr<GenericMsgDef_MAVLINK<mavlink_message_t>> newMsg = std::dynamic_pointer_cast<GenericMsgDef_MAVLINK<mavlink_message_t>>(tmpAbstractMessage);
@@ -108,6 +123,8 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn) const
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mavlink_attitude_t decodedMSG;
         mavlink_msg_attitude_decode(&message,&decodedMSG);
+        m_Attitude->updateAttitudeMavlink(decodedMSG);
+
         //m_Attitude->updateAttitudeMavlink(decodedMSG);
         break;
     }
