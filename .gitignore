@@ -6,18 +6,12 @@ build*
 bin/
 include/
 lib/
-
-*.lib
-*.dll
-*.obj
-*.a
 *.o
+*.a
+*.dll
 *.Debug
-
-src/module_RTA_NASAPhase2/debug/*
-src/module_RTA_NASAPhase2/release/*
-
-
+*.Release
+*.exe
 node_modules
 
 gui_dlls

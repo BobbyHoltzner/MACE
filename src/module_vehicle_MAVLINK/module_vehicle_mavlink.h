@@ -1,16 +1,23 @@
 #ifndef MODULE_VEHICLE_MAVLINK_H
 #define MODULE_VEHICLE_MAVLINK_H
 
-#include "common/common.h"
-
 #include "module_vehicle_mavlink_global.h"
 
+#include <QMap>
+
+#include "common/common.h"
+#include "message_definition_mavlink.h"
+#include "generic_message_definition_mavlink.h"
+
 #include "mace_core/i_module_command_vehicle.h"
+#include "mace_core/vehicle_message.h"
+#include "mace_core/vehicle_object.h"
 
 #include "comms/comms_marshaler.h"
 #include "comms/i_protocol_mavlink_events.h"
-
 #include "comms/serial_configuration.h"
+
+#include "data_ardupilot/data_ardupilot.h"
 
 
 /*
@@ -37,18 +44,16 @@
 
 class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK : public MaceCore::IModuleCommandVehicle, public Comms::CommsEvents
 {
-
 public:
+//    AbstractVehicleMessage* ConstructMessage();
+//    void gotInfoTest(const Data::VehicleStateData &messageData);
+//    void gotArducopterMessage(const Data::ArducopterData &messageArducopter);
 
+    void vehicleObjectCheck(const int &sendersID, const int &autopilotType) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
     ModuleVehicleMAVLINK();
-
-
-
     //!
     //! \brief Describes the strucure of the parameters for this module
     //! \return Strucure
@@ -69,6 +74,9 @@ public:
     ///              MACE COMMANDS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    virtual void CreateVehicleObject(const int &vehicleID);
+
+    virtual void RemoveVehicleObject(const int &vehicleID);
 
     //!
     //! \brief New commands have been updated that the vehicle is to follow immediatly
@@ -119,6 +127,7 @@ public:
     virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const;
 
 private:
+    std::list<int> m_NeededVehicleObjects;
 
     Comms::CommsMarshaler *m_LinkMarshler;
 

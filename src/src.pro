@@ -6,9 +6,8 @@ SUBDIRS += \
     module_path_planning_NASAPhase2 \
     module_RTA_NASAPhase2 \
     mace \
-    example \
     comms \
     common \
     vehicle_GENERIC \
     module_ground_station \
-    serverTest
+    data_ardupilot

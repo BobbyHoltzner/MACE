@@ -8,7 +8,8 @@ namespace MaceCore
 
 MaceCore::MaceCore()
 {
-    Vehicle_GENERIC* tmpVehicle = new Vehicle_GENERIC;
+    insertFlag = false;
+    counter = 0;
 }
 
 
@@ -77,10 +78,35 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
+void MaceCore::NewConstructedVehicle(const void *sender, std::shared_ptr<VehicleObject> vehicleObject)
+{
+    IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
+    int sendersID = 0;
+    bool rtnValue = m_DataFusion->AddNewVehicle(vehicleObject,sendersID);
+    vehicleModule->MarshalCommand(VehicleCommands::REMOVE_VEHICLE_OBJECT, rtnValue);
+}
+
+void MaceCore::TestNewVehicleMessage(const void *sender, const TIME &time, std::function<std::vector<std::string> (VehicleObject *)> vehicleFunction)
+{
+//    std::shared_ptr<VehicleObject> tmpObject = m_VehicleData[1];
+//    vehicleFunction(tmpObject);
+}
+
+void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const VehicleMessage &vehicleMessage)
+{
+    IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
+    int sendersID = 0;
+    bool rtnValue = m_DataFusion->HandleVehicleMessage(vehicleMessage,sendersID);
+    if(rtnValue == false){
+        vehicleModule->MarshalCommand(VehicleCommands::CREATE_VEHICLE_OBJECT, sendersID);
+    }else{
+        std::string tmpString = "NA";
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, tmpString);
+    }
+}
 
 void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
 {
-
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     std::string ID = m_VehiclePTRToID.at(vehicle);
 
