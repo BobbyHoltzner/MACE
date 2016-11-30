@@ -6,5 +6,10 @@ build*
 bin/
 include/
 lib/
-
+*.o
+*.a
+*.dll
+*.Debug
+*.Release
+*.exe
 node_modules

@@ -2,6 +2,8 @@
 
 #include "mace_core/module_factory.h"
 
+#include <iostream>
+
 ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
     MaceCore::IModuleCommandPathPlanning()
 {
@@ -43,16 +45,27 @@ void ModulePathPlanningNASAPhase2::RemoveVehicle(const std::string &ID)
 
 void ModulePathPlanningNASAPhase2::UpdatedPositionDynamics(const std::string &vehicleID)
 {
-    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
-
-    MaceCore::TIME time;
+    //std::cout<<"Path planning module | new positional information"<<std::endl;
+    //MaceCore::TIME time;
     //get current time
 
-    Eigen::Vector3d pos;
-    Eigen::Vector3d vel;
-    data->GetPositionDynamics(vehicleID, time, pos, vel);
+    //Eigen::Vector3d pos;
+    //Eigen::Vector3d vel;
+    //data->GetPositionDynamics(vehicleID, time, pos, vel);
 
-    //do something with pos and vel
+    //This is a sample of how to get data from the map containing vehicle information
+//    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+//    std::map<int, std::shared_ptr<VehicleObject>> vehicleDataMap;
+//    data->GetVehicleMap(vehicleDataMap);
+
+//    Eigen::Vector3d attitudeVector(10.0,10.0,10.0);
+//    if(vehicleDataMap.find(1) == vehicleDataMap.cend())
+//    {
+//        std::cout<<"The vehicle with that ID is not there."<<std::endl;
+//    }else{
+//        vehicleDataMap.at(1)->getVehicleAttitude(attitudeVector);
+//        std::cout<<"The new vehicle roll attitude is: "<<attitudeVector(0)<<std::endl;
+//    }
 }
 
 

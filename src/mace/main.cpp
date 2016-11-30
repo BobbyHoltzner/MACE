@@ -22,7 +22,16 @@ int main(int argc, char *argv[])
     std::shared_ptr<MaceCore::MaceData> data = std::make_shared<DataInterpolation>();
     core.AddDataFusion(data);
 
-    std::string filename = "MaceSetup.xml";
+    std::string filename = "";
+    char* MACEPath = getenv("MACE_ROOT");
+
+    if(MACEPath){
+        std::string rootPath(MACEPath);
+        std::cout <<"The current MACE_ROOT path is: "<<rootPath<<std::endl;
+        filename = rootPath + "\\MaceSetup.xml";
+    }else{
+        filename = "MaceSetup.xml";
+    }
     if(argc >= 2)
         filename = argv[1];
 

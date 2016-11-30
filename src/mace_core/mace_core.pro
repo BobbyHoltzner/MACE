@@ -3,8 +3,8 @@
 # Project created by QtCreator 2016-08-22T13:49:38
 #
 #-------------------------------------------------
-
-QT       -= core gui
+QT       += core
+QT       -= gui
 
 TARGET = mace_core
 TEMPLATE = lib
@@ -16,7 +16,9 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += mace_core.cpp \
     mace_data.cpp \
-    module_command_initialization.cpp
+    module_command_initialization.cpp \
+    vehicle_message.cpp \
+    vehicle_object.cpp
 
 HEADERS += mace_core.h\
         mace_core_global.h \
@@ -39,8 +41,9 @@ HEADERS += mace_core.h\
     module_factory.h \
     abstract_module_base_vehicle_listener.h \
     matrix_operations.h \
-    command_marshler.h
-
+    command_marshler.h \
+    vehicle_message.h \
+    vehicle_object.h
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib
@@ -72,10 +75,3 @@ win32{
 
 
 INCLUDEPATH += $$PWD/../
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../vehicle_GENERIC/release/ -lvehicle_GENERIC
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../vehicle_GENERIC/debug/ -lvehicle_GENERIC
-else:unix: LIBS += -L$$OUT_PWD/../vehicle_GENERIC/ -lvehicle_GENERIC
-
-INCLUDEPATH += $$PWD/../vehicle_GENERIC
-DEPENDPATH += $$PWD/../vehicle_GENERIC

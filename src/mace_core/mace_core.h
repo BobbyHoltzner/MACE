@@ -1,9 +1,14 @@
 #ifndef MACE_CORE_H
 #define MACE_CORE_H
 
-#include "mace_core_global.h"
+#include <string>
+#include <map>
+#include <memory>
+#include <functional>
 
+#include "mace_core_global.h"
 #include "mace_data.h"
+#include "vehicle_object.h"
 
 #include "i_module_command_vehicle.h"
 #include "i_module_command_RTA.h"
@@ -12,12 +17,6 @@
 #include "i_module_events_vehicle.h"
 #include "i_module_events_rta.h"
 #include "i_module_events_path_planning.h"
-
-#include <string>
-#include <map>
-#include <memory>
-
-#include <vehicle_GENERIC/vehicle_generic.h>
 
 namespace MaceCore
 {
@@ -51,6 +50,12 @@ public:
     /////////////////////////////////////////////////////////////////////////
     /// VEHICLE EVENTS
     /////////////////////////////////////////////////////////////////////////
+
+    virtual void NewConstructedVehicle(const void* sender, std::shared_ptr<VehicleObject> vehicleObject);
+
+    virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage);
+
+    virtual void TestNewVehicleMessage(const void* sender, const TIME &time, std::function<std::vector<std::string>(VehicleObject*)> vehicleFunction);
 
     virtual void NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &position, const Eigen::Vector3d &attitude);
 
@@ -115,7 +120,11 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 private:
-
+    int counter;
+    bool insertFlag;
+    std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
+    std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;
+    std::map<IModuleCommandVehicle*, int> m_PortToVehicleID;
 
     std::map<std::string, IModuleCommandVehicle*> m_VehicleIDToPtr;
 

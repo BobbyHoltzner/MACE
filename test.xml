@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModuleConfigurations>
   <Module Class="VehicleComms" Type="MAVLINK">
-    <Parameter Name="Int1">"1"</Parameter>
+    <Parameter Name="ProtocolParameters">
+      <Parameter Name="Name">Mavlink</Parameter>
+      <Parameter Name="Version">V1</Parameter>
+    </Parameter>
+    <Parameter Name="SerialParameters">
+      <Parameter Name="PortName">ttyACM0</Parameter>
+      <Parameter Name="BaudRate">115200</Parameter>
+      <Parameter Name="DataBits">8</Parameter>
+      <Parameter Name="StopBits">1</Parameter>
+      <Parameter Name="Parity">false</Parameter>
+      <Parameter Name="FlowControl">1</Parameter>
+    </Parameter>
   </Module>
   <Module Class="RTA" Type="NASAPhase2" />
-  <Module Class="PathPlanning" Type="NASAPhase2" />
+  <Module Class="PathPlanning" Type="NASAPhase2"/>
 </ModuleConfigurations>
