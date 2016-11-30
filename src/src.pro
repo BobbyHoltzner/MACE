@@ -7,5 +7,4 @@ SUBDIRS += \
     module_RTA_NASAPhase2 \
     mace \
     comms \
-    common \
-    data_ardupilot
+    common

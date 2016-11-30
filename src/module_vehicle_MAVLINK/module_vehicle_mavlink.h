@@ -6,7 +6,6 @@
 #include <QMap>
 
 #include "common/common.h"
-#include "message_definition_mavlink.h"
 #include "generic_message_definition_mavlink.h"
 
 #include "mace_core/i_module_command_vehicle.h"
@@ -17,7 +16,7 @@
 #include "comms/i_protocol_mavlink_events.h"
 #include "comms/serial_configuration.h"
 
-#include "data_ardupilot/data_ardupilot.h"
+#include "module_vehicle_MAVLINK/data_ardupilot.h"
 
 
 /*
