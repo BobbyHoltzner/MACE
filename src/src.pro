@@ -8,6 +8,5 @@ SUBDIRS += \
     mace \
     comms \
     common \
-    vehicle_GENERIC \
     module_ground_station \
     data_ardupilot
