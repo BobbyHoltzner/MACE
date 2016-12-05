@@ -35,7 +35,7 @@ DataArdupilot::~DataArdupilot()
 
 void DataArdupilot::getVehicleMode(std::string &rtnString)
 {
-
+    m_FlightMode->getCurrentVehicleMode(rtnString);
 }
 
 void DataArdupilot::getVehiclePosition(Eigen::Vector3d &rtnVector)
@@ -61,12 +61,8 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
     {
         mavlink_heartbeat_t decodedMSG;
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
-        //m_FlightMode->setVehicleType(decodedMSG.type);
-        //m_Status->setVehicleStatus(decodedMSG.system_status);
-
-        //m_FlightMode->setFlightMode(decodedMSG.custom_mode);
-        std::string vehicleMode = "";
-        //m_FlightMode->getCurrentVehicleMode(vehicleMode);
+        m_FlightMode->setVehicleType(decodedMSG.type);
+        m_FlightMode->setFlightMode(decodedMSG.custom_mode);
         break;
     }
     case MAVLINK_MSG_ID_SYSTEM_TIME:
