@@ -15,20 +15,17 @@ void ArdupilotFlightMode::getCurrentVehicleMode(int vehicleMode)
     vehicleMode = flightMode;
 }
 
-void ArdupilotFlightMode::getCurrentVehicleMode(std::string vehicleMode)
+void ArdupilotFlightMode::getCurrentVehicleMode(std::string &vehicleMode)
 {
     vehicleMode = availableFM->at(flightMode);
 }
 
-void ArdupilotFlightMode::setFlightMode(uint32_t flightMode)
+void ArdupilotFlightMode::setFlightMode(int flightMode)
 {
-    std::cout<<"I am updating the current flight mode to: "<<std::endl;
     this->flightMode = flightMode;
-    std::cout<<"The flight mode is: "<<availableFM->at(flightMode)<<std::endl;
 }
 
 void ArdupilotFlightMode::setVehicleType(int vehicleType){
-    std::cout<<"I am updating the vehicle type"<<std::endl;
     this->flightMode = APFM_UNKNOWN;
 
     switch (vehicleType) {

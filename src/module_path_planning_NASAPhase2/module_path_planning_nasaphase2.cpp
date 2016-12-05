@@ -54,18 +54,18 @@ void ModulePathPlanningNASAPhase2::UpdatedPositionDynamics(const std::string &ve
     //data->GetPositionDynamics(vehicleID, time, pos, vel);
 
     //This is a sample of how to get data from the map containing vehicle information
-//    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
-//    std::map<int, std::shared_ptr<VehicleObject>> vehicleDataMap;
-//    data->GetVehicleMap(vehicleDataMap);
+    std::string flightMode = "";
+    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+    std::map<int, std::shared_ptr<VehicleObject>> vehicleDataMap;
+    data->GetVehicleMap(vehicleDataMap);
 
-//    Eigen::Vector3d attitudeVector(10.0,10.0,10.0);
-//    if(vehicleDataMap.find(1) == vehicleDataMap.cend())
-//    {
-//        std::cout<<"The vehicle with that ID is not there."<<std::endl;
-//    }else{
-//        vehicleDataMap.at(1)->getVehicleAttitude(attitudeVector);
-//        std::cout<<"The new vehicle roll attitude is: "<<attitudeVector(0)<<std::endl;
-//    }
+    if(vehicleDataMap.find(1) == vehicleDataMap.cend())
+    {
+        std::cout<<"The vehicle with that ID is not there."<<std::endl;
+    }else{
+        vehicleDataMap.at(1)->getVehicleMode(flightMode);
+        std::cout<<"The vehicle flight mode is currently: "<<flightMode<<std::endl;
+    }
 }
 
 

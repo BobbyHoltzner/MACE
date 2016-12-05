@@ -65,9 +65,9 @@ public:
     void updateVehicleMode(int vehicleType, int flightMode);
 
     void setVehicleType(int vehicleType);
-    void setFlightMode(uint32_t flightMode);
+    void setFlightMode(int flightMode);
 
-    void getCurrentVehicleMode(std::string vehicleMode);
+    void getCurrentVehicleMode(std::string &vehicleMode);
     void getCurrentVehicleMode(int vehicleMode);
 
     void vehicleTypeChanged();

@@ -16,7 +16,6 @@ ArdupilotAttitude::ArdupilotAttitude()
 }
 void ArdupilotAttitude::updateAttitudeMavlink(const mavlink_attitude_t &msgData)
 {
-    std::cout<<"Updating the attitude"<<std::endl;
     roll = msgData.roll;
     roll_rate = msgData.rollspeed;
 
