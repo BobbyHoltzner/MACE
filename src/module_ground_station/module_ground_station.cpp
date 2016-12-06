@@ -1,14 +1,14 @@
 #include "module_ground_station.h"
 
 #include <iostream>
-
-#include <QApplication>
-#include <QThread>
-
 #include <functional>
 
-#include "mace_core/module_factory.h"
+#include <QApplication>
+#include <QString>
+#include <QDataStream>
 
+
+#include "mace_core/module_factory.h"
 
 class ServerThread : public QThread
 {
@@ -43,7 +43,8 @@ private:
 
 ModuleGroundStation::ModuleGroundStation() :
     MaceCore::IModuleCommandGroundStation(),
-    m_ListenThread(NULL)
+    m_ListenThread(NULL),
+    m_TcpServer(NULL)
 {
 
 
@@ -61,19 +62,77 @@ ModuleGroundStation::~ModuleGroundStation()
 void ModuleGroundStation::on_newConnection()
 {
     std::cout << "New connection..." << std::endl;
-    QTcpSocket *socket = m_TcpServer->nextPendingConnection();
 
+    while (m_TcpServer->hasPendingConnections())
+    {
+        QTcpSocket *socket = m_TcpServer->nextPendingConnection();
+        while (socket->waitForReadyRead())
+        {
+            QByteArray data = socket->readAll();
+            QByteArray returnData;
 
+            std::cout << "Incoming data: " << data.toStdString() << std::endl;
 
+            QJsonObject jsonObj;
+            QJsonDocument doc = QJsonDocument::fromJson(data);
 
+            // check validity of the document
+            if(!doc.isNull())
+            {
+                if(doc.isObject())
+                {
+                    jsonObj = doc.object();
+                    parseTCPRequest(jsonObj, returnData);
+                }
+                else
+                {
+                    std::cout << "Command is not a valid JSON object." << std::endl;
+                    return;
+                }
+            }
+            else
+            {
+                std::cout << "Invalid JSON..." << std::endl;
+                return;
+            }
 
-    socket->write("Hello client \r\n");
-    socket->flush();
+            socket->write(returnData);
+            socket->flush();
+            socket->waitForBytesWritten(3000);
+        }
 
-    socket->waitForBytesWritten(3000);
-
-//    socket->close();
+        socket->close();
+    }
 }
+
+
+void ModuleGroundStation::parseTCPRequest(QJsonObject jsonObj, QByteArray &returnData)
+{
+    QString command = jsonObj["command"].toString();
+    int vehicleID = jsonObj["vehicleID"].toInt();
+    QByteArray data;
+    if(command == "GET_POSITION")
+    {
+        std::cout << "TCP: Get vehicle position" << std::endl;
+        std::string vehiclePosition;
+//        getVehiclePosition(vehicleID, data);
+    }
+    else if (command == "GET_ATTITUDE")
+    {
+        std::cout << "TCP: Get vehicle attitude" << std::endl;
+        std::string vehicleAttitude;
+        getVehicleAttitude(vehicleID, data);
+    }
+    else
+    {
+        std::cout << "Command " << command.toStdString() << " not recognized." << std::endl;
+        data = "command_not_recognized";
+        return;
+    }
+
+    returnData = data;
+}
+
 
 //!
 //! \brief Describes the strucure of the parameters for this module
@@ -102,12 +161,17 @@ bool ModuleGroundStation::StartTCPServer()
         if(m_TcpServer->hasPendingConnections())
             this->on_newConnection();
     });
-    bool started = m_TcpServer->listen(QHostAddress::LocalHost, 1234);
+
+//    while (!m_TcpServer->isListening())
+//    {
+        m_TcpServer->listen(QHostAddress::LocalHost, 1234);
+//    }
+
     m_TcpServer->moveToThread(m_ListenThread);
     m_ListenThread->start();
 
 
-    if(!started)
+    if(!m_TcpServer->isListening())
     {
         std::cout << "Server could not start..." << std::endl;
     }
@@ -116,70 +180,70 @@ bool ModuleGroundStation::StartTCPServer()
         std::cout << "Server started" << std::endl;
     }
 
-    return started;
+    return m_TcpServer->isListening();
+}
+
+void ModuleGroundStation::UpdatedVehicleMap(const std::string &vehicleID)
+{
+    //This is a sample of how to get data from the map containing vehicle information
+    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+//    std::map<int, std::shared_ptr<VehicleObject>> vehicleDataMap;
+    data->GetVehicleMap(m_VehicleMap);
 }
 
 
 void ModuleGroundStation::UpdatedVehicleLife(const std::string &vehicleID)
 {
-    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
-
-    MaceCore::TIME time;
-    // get current time
-
-    MaceCore::VehicleLife life;
-
-    data->GetVehicleLife(vehicleID, time, life);
-
-    //do something with life (send back to GUI)
+    UpdatedVehicleMap(vehicleID);
 }
 
 
 void ModuleGroundStation::UpdatedPositionDynamics(const std::string &vehicleID)
 {
-    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
-
-    MaceCore::TIME time;
-    //get current time
-
-    Eigen::Vector3d pos;
-    Eigen::Vector3d vel;
-    data->GetPositionDynamics(vehicleID, time, pos, vel);
-
-    //do something with pos and vel (send back to GUI)
+    UpdatedVehicleMap(vehicleID);
 }
 
 
 void ModuleGroundStation::UpdateAttitudeDynamics(const std::string &vehicleID)
 {
-    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
-
-    MaceCore::TIME time;
-    //get current time
-
-    Eigen::Vector3d att;
-    Eigen::Vector3d attRates;
-    data->GetAttitudeDynamics(vehicleID, time, att, attRates);
-
-    //do something with att and attRates (send back to GUI)
+    UpdatedVehicleMap(vehicleID);
 }
 
-//!
-//! \brief New targets have been assigned to the given vehicle
-//! \param vehicleID ID of vehicle
-//!
-void ModuleGroundStation::NewVehicleTarget(const std::string &vehicleID)
+
+void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &vehiclePosition)
 {
-    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+    Eigen::Vector3d positionVector(10.0,10.0,10.0);
+    if(m_VehicleMap.find(vehicleID) == m_VehicleMap.cend())
+    {
+        std::cout << "The vehicle with that ID is not there." << std::endl;
+    }else{        
+        m_VehicleMap.at(vehicleID)->getVehiclePosition(positionVector);
 
-    std::vector<Eigen::Vector3d> targets = data->getVehicleTarget(vehicleID);
+        QJsonObject json;
+        json["x"] = positionVector(0);
+        json["y"] = positionVector(1);
+        json["z"] = positionVector(2);
 
-    //do something with targets (send back to GUI)
+        QJsonDocument doc(json);
+        vehiclePosition = doc.toJson();
+    }
 }
 
-
-//TODO: Metadata for each vehicle
-std::string ModuleGroundStation::getVehicleData(int vehicleID)
+void ModuleGroundStation::getVehicleAttitude(const int &vehicleID, QByteArray &vehicleAttitude)
 {
-}
+    Eigen::Vector3d attitudeVector(10.0,10.0,10.0);
+    if(m_VehicleMap.find(vehicleID) == m_VehicleMap.cend())
+    {
+        std::cout << "The vehicle with that ID is not there." << std::endl;
+    }else{
+        m_VehicleMap.at(vehicleID)->getVehicleAttitude(attitudeVector);
 
+        QJsonObject json;
+        json["roll"] = attitudeVector(0);
+        json["pitch"] = attitudeVector(1);
+        json["yaw"] = attitudeVector(2);
+
+        QJsonDocument doc(json);
+        vehicleAttitude = doc.toJson();
+    }
+}

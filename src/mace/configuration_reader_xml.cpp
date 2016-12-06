@@ -4,7 +4,7 @@
 #include "mace_core/module_factory.h"
 
 
-#include "module_ground_station.h"
+#include "module_ground_station/module_ground_station.h"
 
 
 ConfigurationReader_XML::ConfigurationReader_XML(const MaceCore::ModuleFactory *factory) :

@@ -70,7 +70,7 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
 
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
 {
-    groundStation->StartTCPServer();
+    bool serverStarted = groundStation->StartTCPServer();
     m_GroundStation = groundStation;
 }
 
@@ -102,6 +102,7 @@ void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const Veh
     }else{
         std::string tmpString = "NA";
         m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, tmpString);
+        m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, tmpString);
     }
 }
 
@@ -159,7 +160,6 @@ void MaceCore::NewVehicleTargets(const std::string &vehicleID, const std::vector
     m_DataFusion->setVehicleTarget(vehicleID, target);
 
     m_PathPlanning->NewVehicleTarget(vehicleID);
-    m_GroundStation->NewVehicleTarget(vehicleID);
 }
 
 /////////////////////////////////////////////////////////////////////////

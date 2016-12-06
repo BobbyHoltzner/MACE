@@ -9,47 +9,10 @@ import { EditControl } from "react-leaflet-draw";
 import {ControlContainer} from './ControlContainer';
 import {MapControlButtons, LayerGroupType, PathType} from './MapControlButtons';
 import {AircraftConnectionButtons} from './AircraftConnectionButtons';
-
-
 import * as $ from 'jquery';
 var fs = require('fs')
 var injectTapEventPlugin = require("react-tap-event-plugin");
-
-
-// **** TESTING FOR TCP ITERFACE:
-
 var net = require('net');
-var HOST = '127.0.0.1';
-var PORT = 1234;
-
-var client = new net.Socket();
-client.connect(PORT, HOST, function() {
-  console.log('Connected to: ' + HOST + ':' + PORT);
-  client.write('I am Chuck Norris!');
-});
-
-// Add a 'data' event handler for the client socket
-// data is what the server sent to this socket
-client.on('data', function(data: any) {
-    
-    console.log('DATA: ' + data);
-    // Close the client socket completely
-    client.destroy();
-    
-});
-
-// Add a 'close' event handler for the client socket
-client.on('close', function() {
-    console.log('Connection closed');
-});
-
-// Add an 'error' event handler
-client.on('error', function(err: any) {
-    console.log('Error: ' + err);
-});
-// **** END TESTIG 
-
-
 
 injectTapEventPlugin();
 // var $ = require('jquery');
@@ -98,7 +61,10 @@ type State = {
   sendToAllAircraft?: boolean,
   useTestPoints?: boolean,
   disableWriteToFile?: boolean,
-  getAircraftLocationsStarted?: boolean
+  getAircraftLocationsStarted?: boolean,
+  tcpClient?: any,
+  tcpHost?: string,
+  tcpPort?: number
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -142,7 +108,10 @@ export default class AppContainer extends React.Component<Props, State> {
       sendToAllAircraft: false,
       useTestPoints: false,
       disableWriteToFile: false,
-      getAircraftLocationsStarted: false
+      getAircraftLocationsStarted: false,
+      tcpClient: new net.Socket(),
+      tcpHost: '127.0.0.1',
+      tcpPort: 1234
     }
   }
 
@@ -159,9 +128,43 @@ export default class AppContainer extends React.Component<Props, State> {
       });
     });
 
-    this.startPythonServerAjax();
+    this.setupTCPClient();
+    this.makeTCPRequest("GET_ATTITUDE", 1);
+    // this.startPythonServerAjax();
   }
 
+  makeTCPRequest = (command: string, vehicleID: number) => {
+    this.state.tcpClient.connect(this.state.tcpPort, this.state.tcpHost, function() {
+      console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
+      let attitudeRequest = {
+        command: command,
+        vehicleID: vehicleID
+      };
+      this.state.tcpClient.write(JSON.stringify(attitudeRequest));
+    }.bind(this));
+  }
+  
+  setupTCPClient = () => {
+      // Add a 'data' event handler for the client socket
+      // data is what the server sent to this socket
+      this.state.tcpClient.on('data', function(data: any) {        
+          console.log('DATA: ' + data);
+          let jsonData = JSON.parse(data);
+          console.log(jsonData["roll"]);
+          // Close the client socket completely
+          this.state.tcpClient.destroy();        
+      }.bind(this));
+
+      // Add a 'close' event handler for the client socket
+      this.state.tcpClient.on('close', function() {
+          console.log('Connection closed');
+      }.bind(this));
+
+      // Add an 'error' event handler
+      this.state.tcpClient.on('error', function(err: any) {
+          console.log('Error: ' + err);
+      }.bind(this));
+  }
 
   _onEditPath = (e: L.LeafletEvent) => {
     // console.log('Path edited !');
@@ -222,7 +225,6 @@ export default class AppContainer extends React.Component<Props, State> {
   _mounted = (drawControl: L.LeafletEvent) => {
     // console.log('Component mounted !');
   }
-
 
   startPythonServerAjax = () => {
     console.log("Python server start sent");

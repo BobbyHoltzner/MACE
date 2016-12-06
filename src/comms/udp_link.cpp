@@ -218,8 +218,6 @@ void UdpLink::processPendingDatagrams(void)
         // TODO: TEST THIS!!!
         std::vector<uint8_t> vec_buffer = std::vector<uint8_t>(datagram.begin(), datagram.end());
         EmitEvent([this,&vec_buffer](const ILinkEvents *ptr){ptr->ReceiveData(this, vec_buffer);});
-
-        std::cout << "Received datagram: " << datagram.data() << std::endl;
     }
 }
 

@@ -364,10 +364,9 @@ void ModuleVehicleMAVLINK::CommandsAppended()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &autopilotType) const
 {
-    std::cout<<"The senders ID I am looking for is: "<<sendersID<<std::endl;
     for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
     {
-        std::cout<<"The ID at this position in the map is: "<<*it<<std::endl;
+//        std::cout << "The ID at this position in the map is: " << *it << std::endl;
 
         if(*it == sendersID)
         {
@@ -384,7 +383,7 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &a
                 break;
             }
             default:
-                std::cout<<"The type of autopilot seen with ID: "<<sendersID<<" is not currently supported."<<std::endl;
+                std::cout << "The type of autopilot seen with ID: " << sendersID << " is not currently supported." << std::endl;
                 break;
             }
 
@@ -407,14 +406,13 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
     {
         return;
     }
-    std::cout<<"The senders ID seen here is: "<<sendersID<<std::endl;
+//    std::cout << "The senders ID seen here is: " << sendersID << std::endl;
     GenericMsgDef_MAVLINK<mavlink_message_t>* tmpMsgObj = new GenericMsgDef_MAVLINK<mavlink_message_t>(sendersID, message);
 
     if(messageID == MAVLINK_MSG_ID_HEARTBEAT)
     {
         mavlink_heartbeat_t decodedMSG;
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
-        std::cout<<"The custom mode is: "<<decodedMSG.custom_mode<<std::endl;
 
         if(m_NeededVehicleObjects.size() != 0)
         {

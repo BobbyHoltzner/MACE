@@ -2,11 +2,14 @@
 #define MODULE_GROUND_STATION_H
 
 #include "module_ground_station_global.h"
+
 #include <string>
+
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
-#include <QDataStream>
-#include <QString>
+#include <QThread>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 #include "../mace_core/i_module_command_ground_station.h"
 
@@ -84,18 +87,15 @@ public:
     virtual void UpdatedVehicleLife(const std::string &vehicleID);
 
 
-    //!
-    //! \brief New targets have been assigned to the given vehicle
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void NewVehicleTarget(const std::string &vehicleID);
 
-    //!
-    //! \brief Returns the vehicle data of the given vehicle ID
-    //! \param vehicleID of the requested vehicle
-    //! \return
-    //!
-    std::string getVehicleData(int vehicleID);
+private:
+    void UpdatedVehicleMap(const std::string &vehicleID);
+
+    void getVehiclePosition(const int &vehicleID, QByteArray &vehiclePosition);
+
+    void getVehicleAttitude(const int &vehicleID, QByteArray &vehicleAttitude);
+
+    void parseTCPRequest(QJsonObject jsonObj, QByteArray &returnData);
 
 public slots:
     void on_newConnection();
@@ -106,6 +106,8 @@ private:
 
     QTcpServer *m_TcpServer;
     QThread *m_ListenThread;
+
+    std::map<int, std::shared_ptr<VehicleObject>> m_VehicleMap;
 	
 };
 
