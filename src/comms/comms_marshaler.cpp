@@ -50,6 +50,26 @@ void CommsMarshaler::AddLink(const std::string &name, const SerialConfiguration 
 
 
 //!
+//! \brief Adds a UDP link that can be used
+//! \param name Name of link for use when referencing it later
+//! \param config Configuration of UDP link
+//!
+void CommsMarshaler::AddUDPLink(const std::string &name, const UdpConfiguration &config)
+{
+    if(m_CreatedLinksNameToPtr.find(name) != m_CreatedLinksNameToPtr.cend())
+        throw std::runtime_error("The provided link name already exists");
+
+    std::shared_ptr<ILink> link = std::make_shared<UdpLink>(config);
+
+    m_CreatedLinksNameToPtr.insert({name, link});
+    m_CreatedLinksPtrToName.insert({link.get(), name});
+    link->AddListener(this);
+}
+
+
+
+
+//!
 //! \brief Set the protocol which a link is to use
 //! \param linkName Link name to set protocol of
 //! \param protocol Protocol type that link is to use

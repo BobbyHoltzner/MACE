@@ -7,4 +7,5 @@ SUBDIRS += \
     module_RTA_NASAPhase2 \
     mace \
     comms \
-    common
+    common \
+    module_ground_station

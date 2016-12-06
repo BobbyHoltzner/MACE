@@ -5,7 +5,6 @@
 
 #include "configuration_reader_xml.h"
 
-
 #include "data_interpolation.h"
 
 #include "module_collection.h"
@@ -13,7 +12,6 @@
 
 int main(int argc, char *argv[])
 {
-
     //generate the factory that can make module instances
     MaceCore::ModuleFactory* factory = ModuleCollection::GenerateFactory();
 
@@ -27,10 +25,10 @@ int main(int argc, char *argv[])
 
     if(MACEPath){
         std::string rootPath(MACEPath);
-        std::cout <<"The current MACE_ROOT path is: "<<rootPath<<std::endl;
-        filename = rootPath + "\\MaceSetup.xml";
+        std::cout << "The current MACE_ROOT path is: " << rootPath << std::endl;
+        filename = rootPath + "\\MaceSetup_UDP.xml";
     }else{
-        filename = "MaceSetup.xml";
+        filename = "MaceSetup_UDP.xml";
     }
     if(argc >= 2)
         filename = argv[1];
@@ -56,9 +54,12 @@ int main(int argc, char *argv[])
 
     bool addedPathPlanning = false;
     bool addedRTA = false;
+    bool addedGroundStation = false;
     int numVehicles = 1;
     std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string > modules = parser.GetCreatedModules();
     std::vector<std::thread*> threads;
+
+
 
     for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
     {
@@ -103,12 +104,22 @@ int main(int argc, char *argv[])
             core.AddRTAModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandRTA>(module));
             addedRTA = true;
             break;
-            break;
         }
         case MaceCore::ModuleBase::VEHICLE_COMMS:
         {
             core.AddVehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));
             numVehicles++;
+            break;
+        }
+        case  MaceCore::ModuleBase::GROUND_STATION:
+        {
+            if(addedGroundStation == true)
+            {
+                std::cerr << "Only one Ground Station module can be added" << std::endl;
+                return 1;
+            }
+            core.AddGroundStationModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandGroundStation>(module));
+            addedGroundStation = true;
             break;
         }
         default:

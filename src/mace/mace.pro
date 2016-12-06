@@ -2,6 +2,7 @@ TEMPLATE = app
 CONFIG += console c++11
 CONFIG -= app_bundle
 QT += serialport
+QT += network
 
 TARGET = MACE
 QMAKE_CXXFLAGS += -std=c++11
@@ -50,6 +51,12 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../comms/release/ -lco
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../comms/debug/ -lcomms
 else:unix: LIBS += -L$$OUT_PWD/../comms/ -lcomms
 
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_ground_station/release/ -lmodule_ground_station
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_ground_station/debug/ -lmodule_ground_station
+else:unix:!macx: LIBS += -L$$OUT_PWD/../module_ground_station/ -lmodule_ground_station
+
+
 INCLUDEPATH += $$PWD/../
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
@@ -63,6 +70,3 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
-
-
-

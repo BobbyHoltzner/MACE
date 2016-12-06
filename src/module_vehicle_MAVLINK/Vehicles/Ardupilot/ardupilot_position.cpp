@@ -39,7 +39,7 @@ void ArdupilotPosition::handleMAVLINKMessage(const mavlink_message_t &posMSG)
         break;
     }
     default:
-        std::cout<<"I found another type of message"<<messageID<<std::endl;
+        std::cout << "I found another type of message" << messageID << std::endl;
     }
 }
 } //end of namespace Ardupilot
