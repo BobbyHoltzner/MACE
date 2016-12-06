@@ -33,16 +33,12 @@ public:
     IModuleCommandGroundStation():
         AbstractModule_VehicleListener()
     {
-        AddCommandLogic(GroundStationCommands::START_TCP_SERVER, [this](){
-            StartTCPServer();
-        });
+//        AddCommandLogic(GroundStationCommands::START_TCP_SERVER, [this](){
+//            StartTCPServer();
+//        });
 
-        AddCommandLogic<std::string>(GroundStationCommands::NEW_VEHICLE_TARGET, [this](const std::string &vehicleID){
-            NewVehicleTarget(vehicleID);
-        });
-
-//        AddCommandLogic(GroundStationCommands::UPDATED_POSITION_DYNAMICS, [this](){
-//            UpdatedPositionDynamics();
+//        AddCommandLogic<std::string>(GroundStationCommands::NEW_VEHICLE_TARGET, [this](const std::string &vehicleID){
+//            NewVehicleTarget(vehicleID);
 //        });
     }
 
@@ -64,17 +60,11 @@ public:
     virtual bool StartTCPServer() = 0;
 
 
-    //!
-    //! \brief New targets have been assigned to the given vehicle
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void NewVehicleTarget(const std::string &vehicleID) = 0;
-
-//    virtual void UpdatedPositionDynamics() = 0;
-
-//    virtual void UpdateAttitudeDynamics() = 0;
-
-//    virtual void UpdatedVehicleLife() = 0;
+//    //!
+//    //! \brief New targets have been assigned to the given vehicle
+//    //! \param vehicleID ID of vehicle
+//    //!
+//    virtual void NewVehicleTarget(const std::string &vehicleID) = 0;
 
 };
 
