@@ -365,11 +365,7 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &a
 {
     for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
     {
-<<<<<<< HEAD
-=======
 //        std::cout << "The ID at this position in the map is: " << *it << std::endl;
-
->>>>>>> master
         if(*it == sendersID)
         {
             switch (autopilotType) {
@@ -385,10 +381,7 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &a
                 break;
             }
             default:
-<<<<<<< HEAD
-=======
                 std::cout << "The type of autopilot seen with ID: " << sendersID << " is not currently supported." << std::endl;
->>>>>>> master
                 break;
             }
 
@@ -411,10 +404,7 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
     {
         return;
     }
-<<<<<<< HEAD
-=======
 //    std::cout << "The senders ID seen here is: " << sendersID << std::endl;
->>>>>>> master
     GenericMsgDef_MAVLINK<mavlink_message_t>* tmpMsgObj = new GenericMsgDef_MAVLINK<mavlink_message_t>(sendersID, message);
 
     if(messageID == MAVLINK_MSG_ID_HEARTBEAT)
