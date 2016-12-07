@@ -29,7 +29,8 @@ public:
     virtual void handleMessage(VehicleMessage msgIn);
     virtual void getVehicleMode(std::string &rtnString);
     virtual void getVehicleAttitude(Eigen::Vector3d &rtnString);
-    virtual void getVehiclePosition(Eigen::Vector3d &rtnVector);
+    virtual void getVehiclePosition(int &positionFix, int &numSats, Eigen::Vector3d &posVector);
+    virtual void getVehicleFuel(Eigen::Vector2d &rtnVector);
 
 //    virtual int getVehicleID() const;
 //    virtual int getVehicleProtocol() const;

@@ -16,11 +16,16 @@ public:
     ArdupilotPosition();
     void handleMAVLINKMessage(const mavlink_message_t &posMSG);
     void getGlobalPosition(Eigen::Vector3d &positionVector);
-
+    void getGPSStatus(int &fixCode, int &numSats);
 
 private:
     ArdupilotLocalPosition* m_LocalPosition;
     ArdupilotGlobalPosition* m_GlobalPosition;
+
+    int fixStatus;
+    int numberOfSats;
+    int horizontalDOP;
+    int verticalDOP;
 };
 
 } //end of namespace Ardupilot

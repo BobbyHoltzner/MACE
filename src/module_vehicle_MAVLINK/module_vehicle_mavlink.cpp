@@ -210,6 +210,9 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,10,4,1);
         m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
 
+        mavlink_msg_set_mode_pack(255, 0, &msg, 0, 0, 0);
+        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
+
         //param 1 is the message id
         //interval between two messages in microseconds
 
@@ -301,25 +304,21 @@ void ModuleVehicleMAVLINK::CreateVehicleObject(const int &vehicleID)
     {
         if(*it == vehicleID)
         {
-            //std::cout<<"This item was already in the list to update when more info is learned."<<std::endl;
             //This implies that the module is already aware an object needs to be created
             break;
         }
     }
     if(it == m_NeededVehicleObjects.end()){
-        //std::cout<<"This item was not already in the list adding one with the ID of: "<<vehicleID<<std::endl;
         m_NeededVehicleObjects.push_back(vehicleID);
     }
 }
 
 void ModuleVehicleMAVLINK::RemoveVehicleObject(const int &sendersID)
 {
-    //std::cout<<"I have been told to remove the vehicle object from my list with the ID of: "<<sendersID<<std::endl;
     for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
     {
         if(*it == sendersID)
         {
-            //std::cout<<"I am removing it"<<std::endl;
             it = m_NeededVehicleObjects.erase(it);
             break;
         }
@@ -367,7 +366,6 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &a
     for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
     {
 //        std::cout << "The ID at this position in the map is: " << *it << std::endl;
-
         if(*it == sendersID)
         {
             switch (autopilotType) {
@@ -416,7 +414,6 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
 
         if(m_NeededVehicleObjects.size() != 0)
         {
-            //std::cout<<"The size of the list is currently: "<<m_NeededVehicleObjects.size()<<std::endl;
             vehicleObjectCheck(sendersID,(int)decodedMSG.autopilot);
         }
     }

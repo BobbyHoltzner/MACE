@@ -35,17 +35,24 @@ DataArdupilot::~DataArdupilot()
 
 void DataArdupilot::getVehicleMode(std::string &rtnString)
 {
-
+    m_FlightMode->getCurrentVehicleMode(rtnString);
 }
 
-void DataArdupilot::getVehiclePosition(Eigen::Vector3d &rtnVector)
+void DataArdupilot::getVehiclePosition(int &positionFix, int &numSats, Eigen::Vector3d &posVector)
 {
-    m_Position->getGlobalPosition(rtnVector);
+    m_Position->getGPSStatus(positionFix, numSats);
+    m_Position->getGlobalPosition(posVector);
 }
 
 void DataArdupilot::getVehicleAttitude(Eigen::Vector3d &rtnVector)
 {
     m_Attitude->getAttitude(rtnVector);
+}
+
+void DataArdupilot::getVehicleFuel(Eigen::Vector2d &rtnVector)
+{
+    rtnVector[0] = 14.8;
+    rtnVector[1] = 10;
 }
 
 void DataArdupilot::handleMessage(VehicleMessage msgIn)
@@ -61,12 +68,8 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
     {
         mavlink_heartbeat_t decodedMSG;
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
-        //m_FlightMode->setVehicleType(decodedMSG.type);
-        //m_Status->setVehicleStatus(decodedMSG.system_status);
-
-        //m_FlightMode->setFlightMode(decodedMSG.custom_mode);
-        std::string vehicleMode = "";
-        //m_FlightMode->getCurrentVehicleMode(vehicleMode);
+        m_FlightMode->setVehicleType(decodedMSG.type);
+        m_FlightMode->setFlightMode(decodedMSG.custom_mode);
         break;
     }
     case MAVLINK_MSG_ID_SYSTEM_TIME:
@@ -117,6 +120,13 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         mavlink_msg_gps_raw_int_decode(&message,&decodedMSG);
         break;
     }
+    case MAVLINK_MSG_ID_GPS_STATUS:
+    {
+        //This is message definition 25
+        //The positioning status, as reported by GPS. This message is intended to display status information about each satellite visible to the receiver. See message GLOBAL_POSITION for the global position estimate. This message can contain information for up to 20 satellites.
+        m_Position->handleMAVLINKMessage(message);
+        break;
+    }
     case MAVLINK_MSG_ID_ATTITUDE:
     {
         //This is message definition 30
@@ -128,10 +138,11 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
     }
     case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
     {
+        m_Position->handleMAVLINKMessage(message);
         //This is message definition 33
         //The filtered global position (e.g. fused GPS and accelerometers). The position is in GPS-frame (right-handed, Z-up). It is designed as scaled integer message since the resolution of float is not sufficient.
-        mavlink_global_position_int_t decodedMSG;
-        mavlink_msg_global_position_int_decode(&message,&decodedMSG);
+        //mavlink_global_position_int_t decodedMSG;
+        //mavlink_msg_global_position_int_decode(&message,&decodedMSG);
         break;
     }
     case MAVLINK_MSG_ID_MISSION_REQUEST_PARTIAL_LIST:
