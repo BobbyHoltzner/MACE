@@ -68,6 +68,12 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
     m_PathPlanning = pathPlanning;
 }
 
+void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
+{
+    bool serverStarted = groundStation->StartTCPServer();
+    m_GroundStation = groundStation;
+}
+
 
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
@@ -96,6 +102,7 @@ void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const Veh
     }else{
         std::string tmpString = "NA";
         m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, tmpString);
+        m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, tmpString);
     }
 }
 
@@ -108,6 +115,7 @@ void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const E
 
     m_RTA->MarshalCommand(RTACommands::UPDATED_POSITION_DYNAMICS, ID);
     m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, ID);
+    m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, ID);
 }
 
 
@@ -120,6 +128,7 @@ void MaceCore::NewDynamicsDynamics(const void* sender, const TIME &time, const E
 
     m_RTA->MarshalCommand(RTACommands::UPDATED_ATTITUDE_DYNAMICS, ID);
     m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
+    m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
 }
 
 
@@ -132,6 +141,7 @@ void MaceCore::NewVehicleLife(const void* sender, const TIME &time, const Vehicl
 
     m_RTA->MarshalCommand(RTACommands::UPDATED_VEHICLE_LIFE, ID);
     m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_VEHICLE_LIFE, ID);
+    m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_VEHICLE_LIFE, ID);
 }
 
 
@@ -150,6 +160,20 @@ void MaceCore::NewVehicleTargets(const std::string &vehicleID, const std::vector
     m_DataFusion->setVehicleTarget(vehicleID, target);
 
     m_PathPlanning->NewVehicleTarget(vehicleID);
+}
+
+/////////////////////////////////////////////////////////////////////////
+/// GROUND STATION EVENTS
+/////////////////////////////////////////////////////////////////////////
+
+
+//!
+//! \brief Event fired when a new list of targets are produced for a specific vehicle
+//! \param vehicleID Vechile new targets are to be applied to
+//! \param target List of positional targets
+//!
+void MaceCore::GroundStationEvent()
+{
 }
 
 

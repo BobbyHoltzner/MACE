@@ -134,8 +134,6 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         mavlink_attitude_t decodedMSG;
         mavlink_msg_attitude_decode(&message,&decodedMSG);
         m_Attitude->updateAttitudeMavlink(decodedMSG);
-
-        //m_Attitude->updateAttitudeMavlink(decodedMSG);
         break;
     }
     case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
@@ -327,7 +325,9 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         break;
     }
     default:
-        std::cout<<"I saw a message with the ID"<<message.msgid<<std::endl;
+    {
+//        std::cout << "I saw a message with the ID "<< message.msgid << std::endl;
+    }
     }
 
 

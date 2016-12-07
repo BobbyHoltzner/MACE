@@ -14,6 +14,7 @@ ArdupilotAttitude::ArdupilotAttitude()
     yaw = 0.0;
     yaw_rate = 0.0;
 }
+
 void ArdupilotAttitude::updateAttitudeMavlink(const mavlink_attitude_t &msgData)
 {
     roll = msgData.roll;
@@ -26,7 +27,6 @@ void ArdupilotAttitude::updateAttitudeMavlink(const mavlink_attitude_t &msgData)
     yaw_rate = msgData.yawspeed;
 
     //emit valueChanged(roll);
-
 }
 
 void ArdupilotAttitude::getAttitude(Eigen::Vector3d &attitudeVector)
