@@ -2,6 +2,10 @@ import * as React from 'react';
 
 var NotificationSystem = require('react-notification-system');
 import { Map, TileLayer  } from 'react-leaflet';
+import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
+import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
+import { VehicleType } from '../components/VehicleHUD'
+import { VehicleCommandsContainer } from './VehicleCommandsContainer';
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 var net = require('net');
@@ -15,7 +19,9 @@ type State = {
   tcpPort?: number,
   maxZoom?: number,
   initialZoom?: number,
-  mapCenter?: number[]
+  mapCenter?: number[],
+  connectedVehicles?: VehicleType[],
+  vehicleWarnings?: VehicleWarning[]
 }
 
 export default class AppContainer extends React.Component<Props, State> {  
@@ -30,7 +36,9 @@ export default class AppContainer extends React.Component<Props, State> {
       tcpPort: 1234,
       maxZoom: 20,
       initialZoom: 18,
-      mapCenter: [37.889231, -76.810302]
+      mapCenter: [37.889231, -76.810302],
+      connectedVehicles: [],
+      vehicleWarnings: []
     }
   }
 
@@ -101,6 +109,18 @@ export default class AppContainer extends React.Component<Props, State> {
 
     return (
         <div style={parentStyle}>
+
+          <ConnectedVehiclesContainer
+            connectedVehicles={this.state.connectedVehicles}
+           />
+
+          <VehicleCommandsContainer
+           />
+
+          <VehicleWarningsContainer
+            vehicleWarnings={this.state.vehicleWarnings}
+           />
+
 
           <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} >
               {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
