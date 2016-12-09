@@ -1,5 +1,7 @@
 #include "global_position.h"
 
+namespace Data {
+
 GlobalPosition::GlobalPosition()
 {
     this->latitude = 0.0;
@@ -97,3 +99,5 @@ double GlobalPosition::convertRadiansToDegrees(const double &radians)
     double degrees = radians * (180.0/pi);
     return degrees;
 }
+
+} //end of namespace Data

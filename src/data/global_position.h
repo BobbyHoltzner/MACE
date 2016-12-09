@@ -2,6 +2,7 @@
 #define GLOBAL_POSITION_H
 
 #include <math.h>
+namespace Data{
 
 class GlobalPosition
 {
@@ -40,4 +41,5 @@ private:
     double altitude;
 };
 
+} //end of namespace Data
 #endif // GLOBAL_POSITION_H

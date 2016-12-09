@@ -1,5 +1,7 @@
 #include "local_position.h"
 
+namespace Data{
+
 LocalPosition::LocalPosition()
 {
     this->posX = 0.0;
@@ -80,3 +82,5 @@ double LocalPosition::convertRadiansToDegrees(const double &radians)
     double degrees = radians * (180.0/pi);
     return degrees;
 }
+
+} //end of namespace Data

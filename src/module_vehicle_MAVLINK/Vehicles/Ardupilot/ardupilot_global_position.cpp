@@ -52,11 +52,9 @@ ArdupilotGlobalPosition::ArdupilotGlobalPosition()
     this->heading = 0.0;
 }
 
-void ArdupilotGlobalPosition::getGlobalPosition(Eigen::Vector3d &positionVector)
+void ArdupilotGlobalPosition::getGlobalPosition(Data::GlobalPosition &position)
 {
-    positionVector(0) = latitude;
-    positionVector(1) = longitude;
-    positionVector(2) = altitude;
+    position.setPosition(latitude, longitude, altitude);
 }
 
 void ArdupilotGlobalPosition::updateFromMavlink(const mavlink_global_position_int_t &globalPositionMSG)
