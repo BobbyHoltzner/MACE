@@ -14,6 +14,13 @@ LocalPosition::LocalPosition(const double &x, const double &y, const double &z)
     this->posZ = z;
 }
 
+LocalPosition::LocalPosition(const LocalPosition &copyObj)
+{
+    this->posX = copyObj.getX();
+    this->posY = copyObj.getY();
+    this->posZ = copyObj.getZ();
+}
+
 void LocalPosition::setPosition(const double &x, const double &y, const double &z)
 {
     this->posX = x;

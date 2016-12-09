@@ -14,6 +14,13 @@ GlobalPosition::GlobalPosition(const double &latitude, const double &longitude, 
     this->altitude = altitude;
 }
 
+GlobalPosition::GlobalPosition(const GlobalPosition &copyObj)
+{
+    this->latitude = copyObj.getLatitude();
+    this->longitude = copyObj.getLongitude();
+    this->altitude = copyObj.getAltitude();
+}
+
 void GlobalPosition::setPosition(const double &latitude, const double &longitude, const double &altitude)
 {
     this->latitude = latitude;

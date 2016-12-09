@@ -10,6 +10,8 @@ public:
 
     GlobalPosition(const double &latitude, const double &longitude, const double &altitude);
 
+    GlobalPosition(const GlobalPosition &copyObj);
+
     void setPosition(const double &latitude, const double &longitude, const double &altitude);
 
     double getLatitude() const;
