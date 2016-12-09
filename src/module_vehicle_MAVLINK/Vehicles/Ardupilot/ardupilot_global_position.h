@@ -4,6 +4,8 @@
 #include <Eigen/Dense>
 #include "mavlink.h"
 
+#include "data/global_position.h"
+
 namespace Ardupilot{
 
 struct GlobalPositionStruct{
@@ -29,7 +31,6 @@ struct GlobalPositionStruct{
 class ArdupilotGlobalPosition
 {
 
-
 public:
     ArdupilotGlobalPosition();
 
@@ -37,7 +38,7 @@ public:
 
     void updateFromMavlink(const mavlink_global_position_int_t &globalPositionMSG);
 
-    void getGlobalPosition(Eigen::Vector3d &positionVector);
+    void getGlobalPosition(Data::GlobalPosition &position);
 
     bool operator ==(const ArdupilotGlobalPosition &rhs) const;
 

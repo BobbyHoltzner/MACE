@@ -16,7 +16,7 @@ ArdupilotPosition::ArdupilotPosition()
     verticalDOP = 0;
 }
 
-void ArdupilotPosition::getGlobalPosition(Eigen::Vector3d &positionVector)
+void ArdupilotPosition::getGlobalPosition(Data::GlobalPosition &positionVector)
 {
     m_GlobalPosition->getGlobalPosition(positionVector);
 }

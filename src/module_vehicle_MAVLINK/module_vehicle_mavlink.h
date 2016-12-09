@@ -16,7 +16,7 @@
 #include "comms/i_protocol_mavlink_events.h"
 #include "comms/serial_configuration.h"
 
-#include "module_vehicle_MAVLINK/data_ardupilot.h"
+#include "Vehicles/Ardupilot/data_ardupilot.h"
 
 
 /*

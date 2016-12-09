@@ -3,12 +3,16 @@
 
 #include <math.h>
 
+namespace Data {
+
 class LocalPosition
 {
 public:
     LocalPosition();
 
     LocalPosition(const double &x, const double &y, const double &z);
+
+    LocalPosition(const LocalPosition &copyObj);
 
     void setPosition(const double &x, const double &y, const double &z);
 
@@ -37,5 +41,7 @@ private:
     double posY;
     double posZ;
 };
+
+} //end of namespace Data
 
 #endif // LOCAL_POSITION_H
