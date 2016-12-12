@@ -7,6 +7,9 @@
 #include "ardupilot_global_position.h"
 #include "ardupilot_local_position.h"
 
+#include "data/global_position.h"
+#include "data/local_position.h"
+
 //This class will handle the local, global and home positioning elements of a vehicle
 namespace Ardupilot{
 
@@ -15,7 +18,7 @@ class ArdupilotPosition
 public:
     ArdupilotPosition();
     void handleMAVLINKMessage(const mavlink_message_t &posMSG);
-    void getGlobalPosition(Eigen::Vector3d &positionVector);
+    void getGlobalPosition(Data::GlobalPosition &position);
     void getGPSStatus(int &fixCode, int &numSats);
 
 private:

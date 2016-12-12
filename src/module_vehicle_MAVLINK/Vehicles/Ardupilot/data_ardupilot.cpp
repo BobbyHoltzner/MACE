@@ -52,10 +52,10 @@ void DataArdupilot::getVehicleMode(std::string &rtnString)
     m_FlightMode->getCurrentVehicleMode(rtnString);
 }
 
-void DataArdupilot::getVehiclePosition(int &positionFix, int &numSats, Eigen::Vector3d &posVector)
+void DataArdupilot::getVehiclePosition(int &positionFix, int &numSats, Data::GlobalPosition &position)
 {
     m_Position->getGPSStatus(positionFix, numSats);
-    m_Position->getGlobalPosition(posVector);
+    m_Position->getGlobalPosition(position);
 }
 
 void DataArdupilot::getVehicleAttitude(Eigen::Vector3d &rtnVector)
