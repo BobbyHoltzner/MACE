@@ -10,6 +10,7 @@ DataArdupilot::DataArdupilot(const int &vehicleID, const int &vehicleProtocol, c
     m_FlightMode = new ArdupilotFlightMode();
     m_Attitude = new ArdupilotAttitude();
     m_Status = new ArdupilotStatus();
+    m_Position = new ArdupilotPosition();
 
     m_FlightMode->setVehicleType(vehicleType);
 
@@ -21,6 +22,8 @@ DataArdupilot::DataArdupilot(DataArdupilot &copyObj)
     m_FlightMode = new ArdupilotFlightMode();
     m_Attitude = new ArdupilotAttitude();
     m_Status = new ArdupilotStatus();
+    m_Position = new ArdupilotPosition();
+
 
     *m_FlightMode = *copyObj.m_FlightMode;
     *m_Attitude = *copyObj.m_Attitude;
