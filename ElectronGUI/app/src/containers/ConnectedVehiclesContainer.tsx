@@ -27,6 +27,7 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
         }
     }
 
+
     toggleContainerCollapse = () => {
         this.setState({showConnectedVehicles: !this.state.showConnectedVehicles});
     }

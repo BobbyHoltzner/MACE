@@ -64,7 +64,7 @@ void ModulePathPlanningNASAPhase2::UpdatedPositionDynamics(const std::string &ve
         std::cout<<"The vehicle with that ID is not there."<<std::endl;
     }else{
         vehicleDataMap.at(1)->getVehicleMode(flightMode);
-        std::cout<<"The vehicle flight mode is currently: "<<flightMode<<std::endl;
+//        std::cout<<"The vehicle flight mode is currently: "<<flightMode<<std::endl;
     }
 
 //    //This is a sample of how to get data from the map containing vehicle information

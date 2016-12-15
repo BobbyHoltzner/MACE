@@ -10,6 +10,7 @@ import { VehicleCommandsContainer } from './VehicleCommandsContainer';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme();
+import * as deepcopy from 'deepcopy';
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
@@ -56,8 +57,12 @@ type State = {
 export default class AppContainer extends React.Component<Props, State> {    
   leafletMap: L.Map;
   notificationSystem: NotificationSystem;
+  m_AttitudeInterval: number;
+  m_AttitudeTimeout: number;
   constructor() {
     super();  
+
+    this.m_AttitudeTimeout = 1111;
 
     this.state = {
       tcpClient: new net.Socket(),
@@ -66,32 +71,7 @@ export default class AppContainer extends React.Component<Props, State> {
       maxZoom: 20,
       initialZoom: 18,
       mapCenter: [37.889231, -76.810302],
-      connectedVehicles: {
-        "1": {
-          position: {
-              lat: 1,
-              lon: 1,
-              alt: 1
-          },
-          attitude: {
-              roll: 1,
-              pitch: 1,
-              yaw: 1
-          }
-        },
-        "2": {
-          position: {
-              lat: 1,
-              lon: 1,
-              alt: 1
-          },
-          attitude: {
-              roll: 1,
-              pitch: 1,
-              yaw: 1
-          }
-        }
-      },
+      connectedVehicles: {},
       vehicleWarnings: []
     }
   }
@@ -101,9 +81,11 @@ export default class AppContainer extends React.Component<Props, State> {
     this.notificationSystem = this.refs.notificationSystem;
 
     this.setupTCPClient();
-    this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
 
-    // this.startPythonServerAjax();
+    setInterval(() => {
+      this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
+    }, 3000);
+    // this.testTCPRequest();
   }
 
   testTCPRequest = () => {
@@ -112,7 +94,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
   makeTCPRequest = (command: string, vehicleID: number) => {
     this.state.tcpClient.connect(this.state.tcpPort, this.state.tcpHost, function() {
-      console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
+      // console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
       let attitudeRequest = {
         command: command,
         vehicleID: vehicleID
@@ -125,38 +107,38 @@ export default class AppContainer extends React.Component<Props, State> {
       // Add a 'data' event handler for the client socket
       // data is what the server sent to this socket
       this.state.tcpClient.on('data', function(data: any) {        
-          console.log('DATA: ' + data);
+          // console.log('DATA: ' + data);
           let jsonData = JSON.parse(data);
           this.parseTCPResponse(jsonData);
           // Close the client socket completely
-          // this.state.tcpClient.destroy();        
+          this.state.tcpClient.destroy();        
       }.bind(this));
 
       // Add a 'close' event handler for the client socket
       this.state.tcpClient.on('close', function() {
-          console.log('Connection closed');
-      }.bind(this));
+          // console.log('Connection closed');
+      }.bind(this));      
 
       // Add an 'error' event handler
       this.state.tcpClient.on('error', function(err: any) {
           console.log('Error: ' + err);
+          this.state.tcpClient.destroy();
       }.bind(this));
   }
 
   parseTCPResponse = (jsonData: TCPReturnType) => {
+    let stateCopy = deepcopy(this.state.connectedVehicles);
+
     if(jsonData.dataType === "ConnectedVehicles"){
-      let stateCopy = this.state.connectedVehicles;
       let jsonVehicles = jsonData as ConnectedVehiclesType;
-      console.log("In Connected Vehicles response");
-      console.log("Test 1: " + this.state.connectedVehicles["1"]);
 
       // Check if vehicle is already in the map. If so, do nothing. If not, add it:
       for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
-        if (this.state.connectedVehicles[i.toString()] !== undefined){
+        if (stateCopy[jsonVehicles.connectedVehicles[i].toString()] !== undefined){          
           return;
         }
         else {
-          stateCopy[jsonVehicles.connectedVehicles[i]] = generateNewVehicle();
+          stateCopy[jsonVehicles.connectedVehicles[i].toString()] = generateNewVehicle();
         }
       }
 
@@ -171,13 +153,38 @@ export default class AppContainer extends React.Component<Props, State> {
         }
       }
 
+      if (Object.keys(stateCopy).length > 0 && this.m_AttitudeInterval === undefined){
+        this.m_AttitudeInterval = setInterval(() => {
+          this.makeTCPRequest("GET_ATTITUDE", 1);
+        }, this.m_AttitudeTimeout);
+      }      
+
       this.setState({connectedVehicles: stateCopy});
     }
-    if(jsonData.dataType === "VehiclePosition"){
+
+    else if(jsonData.dataType === "VehiclePosition"){
       let vehiclePosition = jsonData as VehiclePositionType;
+
+      let idArrays: string[] = Object.keys(stateCopy);
+      for(let i = 0; i < idArrays.length; i++){
+        if(parseInt(idArrays[i]) === vehiclePosition.vehicleID) {
+          stateCopy[idArrays[i]].position.lat = vehiclePosition.lat;
+          stateCopy[idArrays[i]].position.lon = vehiclePosition.lon;
+          stateCopy[idArrays[i]].position.alt = vehiclePosition.alt;
+        }
+      }
+
+      this.setState({connectedVehicles: stateCopy});
     }
-    if(jsonData.dataType === "VehicleAttitude"){
+
+    else if(jsonData.dataType === "VehicleAttitude"){
       let vehicleAttitude = jsonData as VehicleAttitudeType;
+
+      stateCopy[vehicleAttitude.vehicleID].attitude.roll = vehicleAttitude.roll;
+      stateCopy[vehicleAttitude.vehicleID].attitude.pitch = vehicleAttitude.pitch;
+      stateCopy[vehicleAttitude.vehicleID].attitude.yaw = vehicleAttitude.yaw;
+
+      this.setState({connectedVehicles: stateCopy});
     }
   }
 

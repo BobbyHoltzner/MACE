@@ -61,8 +61,6 @@ ModuleGroundStation::~ModuleGroundStation()
 
 void ModuleGroundStation::on_newConnection()
 {
-    std::cout << "New connection..." << std::endl;
-
     while (m_TcpServer->hasPendingConnections())
     {
         QTcpSocket *socket = m_TcpServer->nextPendingConnection();
@@ -87,12 +85,14 @@ void ModuleGroundStation::on_newConnection()
                 else
                 {
                     std::cout << "Command is not a valid JSON object." << std::endl;
+                    socket->close();
                     return;
                 }
             }
             else
             {
                 std::cout << "Invalid JSON..." << std::endl;
+                socket->close();
                 return;
             }
 
@@ -101,7 +101,7 @@ void ModuleGroundStation::on_newConnection()
             socket->waitForBytesWritten(3000);
         }
 
-//        socket->close();
+        socket->close();
     }
 }
 

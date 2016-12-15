@@ -152,7 +152,7 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
     }
     case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
     {
-        m_Position->handleMAVLINKMessage(message);
+//        m_Position->handleMAVLINKMessage(message);
         //This is message definition 33
         //The filtered global position (e.g. fused GPS and accelerometers). The position is in GPS-frame (right-handed, Z-up). It is designed as scaled integer message since the resolution of float is not sufficient.
         //mavlink_global_position_int_t decodedMSG;
