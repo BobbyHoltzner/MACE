@@ -70,6 +70,8 @@ public:
     void getCurrentVehicleMode(std::string &vehicleMode);
     void getCurrentVehicleMode(int vehicleMode);
 
+    bool getVehicleModeID(const std::string &vehicleModeString, int vehicleModeID);
+
     void vehicleTypeChanged();
     void vehicleModeChanged();
 

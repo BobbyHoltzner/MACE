@@ -5,6 +5,10 @@
 #include <string>
 #include <Eigen/Dense>
 
+#include "comms/comms_marshaler.h"
+#include "comms/i_protocol_mavlink_events.h"
+#include "comms/serial_configuration.h"
+
 #include "data_ardupilot_global.h"
 
 #include "ardupilot_attitude.h"
@@ -35,6 +39,9 @@ public:
     virtual void getVehiclePosition(int &positionFix, int &numSats, Data::GlobalPosition &position);
     virtual void getVehicleFuel(Eigen::Vector2d &rtnVector);
 
+    virtual void setVehicleMode(const std::string &vehicleMode);
+
+
 //    virtual int getVehicleID() const;
 //    virtual int getVehicleProtocol() const;
 //    virtual int getVehicleType() const;
@@ -43,6 +50,11 @@ public:
 //    void newValue(double value);
 
 private:
+
+    Comms::CommsMarshaler *m_LinkMarshler;
+    std::string mLinkName;
+    int vehicleID;
+
     ArdupilotFlightMode* m_FlightMode;
     ArdupilotAttitude* m_Attitude;
     ArdupilotStatus* m_Status;

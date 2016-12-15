@@ -72,6 +72,8 @@ public:
     virtual void getVehicleAttitude(Eigen::Vector3d &rtnVector) = 0;
     virtual void getVehicleFuel(Eigen::Vector2d &rtnVector) = 0;
 
+    virtual void setVehicleMode(const std::string &vehicleMode) = 0;
+
 private:
     int m_VehicleID;
     int m_VehicleProtocol;

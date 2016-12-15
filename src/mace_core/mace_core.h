@@ -96,6 +96,8 @@ public:
     //!
     virtual void GroundStationEvent();
 
+    virtual void CommandNewVehicleMode(const std::string &vehicleMode);
+
 
 public:
 

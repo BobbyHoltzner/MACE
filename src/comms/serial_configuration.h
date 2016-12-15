@@ -2,6 +2,8 @@
 #define SERIALCONFIGURATION_H
 
 #include <QSerialPort>
+#include <QStringList>
+
 #include <string>
 
 #include "link_configuration.h"

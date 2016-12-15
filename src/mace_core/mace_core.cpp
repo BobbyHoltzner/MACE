@@ -85,7 +85,6 @@ void MaceCore::NewConstructedVehicle(const void *sender, std::shared_ptr<Vehicle
     bool rtnValue = m_DataFusion->AddNewVehicle(vehicleObject,sendersID);
     vehicleModule->MarshalCommand(VehicleCommands::REMOVE_VEHICLE_OBJECT, rtnValue);
 }
-
 void MaceCore::TestNewVehicleMessage(const void *sender, const TIME &time, std::function<std::vector<std::string> (VehicleObject *)> vehicleFunction)
 {
 //    std::shared_ptr<VehicleObject> tmpObject = m_VehicleData[1];
@@ -174,6 +173,11 @@ void MaceCore::NewVehicleTargets(const std::string &vehicleID, const std::vector
 //!
 void MaceCore::GroundStationEvent()
 {
+}
+
+void MaceCore::CommandNewVehicleMode(const std::string &vehicleMode)
+{
+
 }
 
 

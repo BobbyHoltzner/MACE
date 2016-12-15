@@ -20,6 +20,19 @@ void ArdupilotFlightMode::getCurrentVehicleMode(std::string &vehicleMode)
     vehicleMode = availableFM->at(flightMode);
 }
 
+bool ArdupilotFlightMode::getVehicleModeID(const std::string &vehicleModeString, int vehicleModeID){
+
+    for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
+    {
+        if(it->second == vehicleModeString)
+        {
+            vehicleModeID = it->first;
+            return true;
+        }
+    }
+    return false;
+}
+
 void ArdupilotFlightMode::setFlightMode(int flightMode)
 {
     this->flightMode = flightMode;
