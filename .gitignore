@@ -21,6 +21,8 @@ node_modules
 /src/common/release/*
 /src/comms/debug/*
 /src/comms/release/*
+/src/data/debug/*
+/src/data/release/*
 /src/mace/debug/*
 /src/mace/release/*
 /src/mace_core/debug/*

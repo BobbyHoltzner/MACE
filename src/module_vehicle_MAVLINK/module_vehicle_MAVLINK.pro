@@ -56,8 +56,24 @@ INSTALLS += lib
 
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK
-headers.files   += $$HEADERS
+headers.files   += \
+        module_vehicle_mavlink.h \
+        module_vehicle_mavlink_global.h \
+        generic_message_definition_mavlink.h
 INSTALLS       += headers
+
+headers_Vehicle_Ardupilot.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK/Vehicles/Ardupilot
+headers_Vehicle_Ardupilot.files   += Vehicles/Ardupilot/ardupilot_attitude.h \
+    Vehicles/Ardupilot/ardupilot_flightmode.h \
+    Vehicles/Ardupilot/ardupilot_global_position.h \
+    Vehicles/Ardupilot/ardupilot_gps_status.h \
+    Vehicles/Ardupilot/ardupilot_local_position.h \
+    Vehicles/Ardupilot/ardupilot_mission.h \
+    Vehicles/Ardupilot/ardupilot_position.h \
+    Vehicles/Ardupilot/ardupilot_status.h \
+    Vehicles/Ardupilot/data_ardupilot.h \
+    Vehicles/Ardupilot/data_ardupilot_global.h
+INSTALLS       += headers_Vehicle_Ardupilot
 
 INCLUDEPATH += $$(MACE_ROOT)/include
 
@@ -69,6 +85,10 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../comms/release/ -lco
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../comms/debug/ -lcomms
 else:unix: LIBS += -L$$OUT_PWD/../comms/ -lcomms
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
+else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
+
 
 unix{
     EigenInclude = $$system(pkg-config --cflags eigen3)
@@ -78,3 +98,6 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
+
+
+

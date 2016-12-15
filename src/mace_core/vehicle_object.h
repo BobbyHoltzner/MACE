@@ -4,6 +4,9 @@
 #include <string>
 #include <Eigen/Dense>
 
+#include "data/global_position.h"
+#include "data/local_position.h"
+
 #include "vehicle_message.h"
 
 enum VehicleTypeENUM{
@@ -64,9 +67,10 @@ public:
 
     virtual void handleMessage(VehicleMessage message) = 0;
 
-    virtual void getVehiclePosition(Eigen::Vector3d &rtnVector) = 0;
+    virtual void getVehiclePosition(int &positionFix, int &numSats, Data::GlobalPosition &position) = 0;
     virtual void getVehicleMode(std::string &rtnString) = 0;
     virtual void getVehicleAttitude(Eigen::Vector3d &rtnVector) = 0;
+    virtual void getVehicleFuel(Eigen::Vector2d &rtnVector) = 0;
 
 private:
     int m_VehicleID;

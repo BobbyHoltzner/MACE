@@ -8,4 +8,5 @@ SUBDIRS += \
     mace \
     comms \
     common \
-    module_ground_station
+    module_ground_station \
+    data

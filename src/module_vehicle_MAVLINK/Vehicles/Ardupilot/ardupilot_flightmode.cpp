@@ -1,4 +1,6 @@
 #include "ardupilot_flightmode.h"
+#include <iostream>
+
 using namespace Ardupilot;
 
 ArdupilotFlightMode::ArdupilotFlightMode()
@@ -13,9 +15,14 @@ void ArdupilotFlightMode::getCurrentVehicleMode(int vehicleMode)
     vehicleMode = flightMode;
 }
 
-void ArdupilotFlightMode::getCurrentVehicleMode(std::string vehicleMode)
+void ArdupilotFlightMode::getCurrentVehicleMode(std::string &vehicleMode)
 {
+    vehicleMode = availableFM->at(flightMode);
+}
 
+void ArdupilotFlightMode::setFlightMode(int flightMode)
+{
+    this->flightMode = flightMode;
 }
 
 void ArdupilotFlightMode::setVehicleType(int vehicleType){

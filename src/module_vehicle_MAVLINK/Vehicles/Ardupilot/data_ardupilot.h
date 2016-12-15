@@ -12,6 +12,9 @@
 #include "ardupilot_position.h"
 #include "ardupilot_status.h"
 
+#include "data/global_position.h"
+#include "data/local_position.h"
+
 #include "mace_core/vehicle_object.h"
 #include "generic_message_definition_mavlink.h"
 
@@ -29,7 +32,8 @@ public:
     virtual void handleMessage(VehicleMessage msgIn);
     virtual void getVehicleMode(std::string &rtnString);
     virtual void getVehicleAttitude(Eigen::Vector3d &rtnString);
-    virtual void getVehiclePosition(Eigen::Vector3d &rtnVector);
+    virtual void getVehiclePosition(int &positionFix, int &numSats, Data::GlobalPosition &position);
+    virtual void getVehicleFuel(Eigen::Vector2d &rtnVector);
 
 //    virtual int getVehicleID() const;
 //    virtual int getVehicleProtocol() const;
