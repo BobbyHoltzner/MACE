@@ -41,7 +41,7 @@ type Props = {
     vehicleID: string,
     aircraft: VehicleStateType,
     isSelected: boolean,
-    handleAircraftCommand: (vehicleID: number, command: string) => void
+    handleAircraftCommand: (vehicleID: string, command: string) => void
 }
 
 type State = {
@@ -54,10 +54,10 @@ export class VehicleHUD extends React.Component<Props, State> {
     }
 
     handleLoiter = () => {
-        this.props.handleAircraftCommand(this.props.aircraft.id, "Loiter");
+        this.props.handleAircraftCommand(this.props.vehicleID, "Loiter");
     }
     handleRTL = () => {
-        this.props.handleAircraftCommand(this.props.aircraft.id, "RTL");
+        this.props.handleAircraftCommand(this.props.vehicleID, "RTL");
     }
 
     render() {

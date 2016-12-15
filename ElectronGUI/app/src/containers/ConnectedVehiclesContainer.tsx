@@ -30,7 +30,7 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
     toggleContainerCollapse = () => {
         this.setState({showConnectedVehicles: !this.state.showConnectedVehicles});
     }
-    handleAircraftCommand = (vehicleID: number, command: string) => {
+    handleAircraftCommand = (vehicleID: string, command: string) => {
         console.log("Command: " + command + " for vehicleID: " + vehicleID);
     }
 
