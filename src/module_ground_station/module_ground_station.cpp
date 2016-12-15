@@ -101,7 +101,7 @@ void ModuleGroundStation::on_newConnection()
             socket->waitForBytesWritten(3000);
         }
 
-        socket->close();
+//        socket->close();
     }
 }
 
@@ -111,16 +111,19 @@ void ModuleGroundStation::parseTCPRequest(QJsonObject jsonObj, QByteArray &retur
     QString command = jsonObj["command"].toString();
     int vehicleID = jsonObj["vehicleID"].toInt();
     QByteArray data;
-    if(command == "GET_POSITION")
+    if(command == "GET_CONNECTED_VEHICLES")
+    {
+        std::cout << "TCP: Get connected vehicles" << std::endl;
+        getConnectedVehicles(data);
+    }
+    else if(command == "GET_POSITION")
     {
         std::cout << "TCP: Get vehicle position" << std::endl;
-        std::string vehiclePosition;
 //        getVehiclePosition(vehicleID, data);
     }
     else if (command == "GET_ATTITUDE")
     {
         std::cout << "TCP: Get vehicle attitude" << std::endl;
-        std::string vehicleAttitude;
         getVehicleAttitude(vehicleID, data);
     }
     else
@@ -209,6 +212,28 @@ void ModuleGroundStation::UpdateAttitudeDynamics(const std::string &vehicleID)
     UpdatedVehicleMap(vehicleID);
 }
 
+void ModuleGroundStation::getConnectedVehicles(QByteArray &connectedVehicles)
+{
+    if(m_VehicleMap.size() > 0)
+    {
+        QJsonArray ids;
+        for (std::map<int, std::shared_ptr<VehicleObject>>::iterator it = m_VehicleMap.begin(); it != m_VehicleMap.end(); it++)
+        {
+            std::cout << "Element ID: " << it->first << std::endl;
+            ids.append(it->first);
+        }
+
+        QJsonObject json;
+        json["dataType"] = "ConnectedVehicles";
+        json["vehicleID"] = 0;
+        json["connectedVehicles"] = ids;
+
+        QJsonDocument doc(json);
+        connectedVehicles = doc.toJson();
+    }else{
+        std::cout << "The vehicle map is empty. Not connected vehicles" << std::endl;
+    }
+}
 
 void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &vehiclePosition)
 {
@@ -217,9 +242,11 @@ void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &v
     {
         std::cout << "The vehicle with that ID is not there." << std::endl;
     }else{        
-        m_VehicleMap.at(vehicleID)->getVehiclePosition(positionVector);
+//        m_VehicleMap.at(vehicleID)->getVehiclePosition(positionVector);
 
         QJsonObject json;
+        json["dataType"] = "VehiclePosition";
+        json["vehicleID"] = vehicleID;
         json["x"] = positionVector(0);
         json["y"] = positionVector(1);
         json["z"] = positionVector(2);
@@ -239,6 +266,8 @@ void ModuleGroundStation::getVehicleAttitude(const int &vehicleID, QByteArray &v
         m_VehicleMap.at(vehicleID)->getVehicleAttitude(attitudeVector);
 
         QJsonObject json;
+        json["dataType"] = "VehicleAttitude";
+        json["vehicleID"] = vehicleID;
         json["roll"] = attitudeVector(0);
         json["pitch"] = attitudeVector(1);
         json["yaw"] = attitudeVector(2);

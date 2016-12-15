@@ -9,6 +9,7 @@
 #include <QtNetwork/QTcpSocket>
 #include <QThread>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QJsonDocument>
 
 #include "../mace_core/i_module_command_ground_station.h"
@@ -90,6 +91,8 @@ public:
 
 private:
     void UpdatedVehicleMap(const std::string &vehicleID);
+
+    void getConnectedVehicles(QByteArray &connectedVehicles);
 
     void getVehiclePosition(const int &vehicleID, QByteArray &vehiclePosition);
 

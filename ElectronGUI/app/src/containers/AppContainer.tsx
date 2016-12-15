@@ -1,14 +1,43 @@
 import * as React from 'react';
 
 var NotificationSystem = require('react-notification-system');
-import { Map, TileLayer  } from 'react-leaflet';
+import { Map, TileLayer } from 'react-leaflet';
 import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
 import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
-import { VehicleType } from '../components/VehicleHUD'
+import { VehicleMapType, generateNewVehicle } from '../components/VehicleHUD'
 import { VehicleCommandsContainer } from './VehicleCommandsContainer';
+
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+const lightMuiTheme = getMuiTheme();
+
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 var net = require('net');
+
+type TCPDescriptorType = {
+  dataType: string,
+  vehicleID: number
+}
+
+type ConnectedVehiclesType = TCPDescriptorType & {
+  connectedVehicles: number[]
+}
+
+type VehiclePositionType = TCPDescriptorType & {
+  lat: number,
+  lon: number,
+  alt: number
+}
+
+type VehicleAttitudeType = TCPDescriptorType & {
+  roll: number,
+  pitch: number,
+  yaw: number
+}
+
+type TCPReturnType = ConnectedVehiclesType | VehiclePositionType | VehicleAttitudeType;
+
 
 type Props = {
 }
@@ -20,11 +49,11 @@ type State = {
   maxZoom?: number,
   initialZoom?: number,
   mapCenter?: number[],
-  connectedVehicles?: VehicleType[],
+  connectedVehicles?: VehicleMapType,
   vehicleWarnings?: VehicleWarning[]
 }
 
-export default class AppContainer extends React.Component<Props, State> {  
+export default class AppContainer extends React.Component<Props, State> {    
   leafletMap: L.Map;
   notificationSystem: NotificationSystem;
   constructor() {
@@ -37,7 +66,32 @@ export default class AppContainer extends React.Component<Props, State> {
       maxZoom: 20,
       initialZoom: 18,
       mapCenter: [37.889231, -76.810302],
-      connectedVehicles: [],
+      connectedVehicles: {
+        "1": {
+          position: {
+              lat: 1,
+              lon: 1,
+              alt: 1
+          },
+          attitude: {
+              roll: 1,
+              pitch: 1,
+              yaw: 1
+          }
+        },
+        "2": {
+          position: {
+              lat: 1,
+              lon: 1,
+              alt: 1
+          },
+          attitude: {
+              roll: 1,
+              pitch: 1,
+              yaw: 1
+          }
+        }
+      },
       vehicleWarnings: []
     }
   }
@@ -47,8 +101,13 @@ export default class AppContainer extends React.Component<Props, State> {
     this.notificationSystem = this.refs.notificationSystem;
 
     this.setupTCPClient();
-    this.makeTCPRequest("GET_ATTITUDE", 1);
+    this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
+
     // this.startPythonServerAjax();
+  }
+
+  testTCPRequest = () => {
+    this.makeTCPRequest("GET_ATTITUDE", 1);
   }
 
   makeTCPRequest = (command: string, vehicleID: number) => {
@@ -68,9 +127,9 @@ export default class AppContainer extends React.Component<Props, State> {
       this.state.tcpClient.on('data', function(data: any) {        
           console.log('DATA: ' + data);
           let jsonData = JSON.parse(data);
-          console.log(jsonData["roll"]);
+          this.parseTCPResponse(jsonData);
           // Close the client socket completely
-          this.state.tcpClient.destroy();        
+          // this.state.tcpClient.destroy();        
       }.bind(this));
 
       // Add a 'close' event handler for the client socket
@@ -82,6 +141,44 @@ export default class AppContainer extends React.Component<Props, State> {
       this.state.tcpClient.on('error', function(err: any) {
           console.log('Error: ' + err);
       }.bind(this));
+  }
+
+  parseTCPResponse = (jsonData: TCPReturnType) => {
+    if(jsonData.dataType === "ConnectedVehicles"){
+      let stateCopy = this.state.connectedVehicles;
+      let jsonVehicles = jsonData as ConnectedVehiclesType;
+      console.log("In Connected Vehicles response");
+      console.log("Test 1: " + this.state.connectedVehicles["1"]);
+
+      // Check if vehicle is already in the map. If so, do nothing. If not, add it:
+      for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
+        if (this.state.connectedVehicles[i.toString()] !== undefined){
+          return;
+        }
+        else {
+          stateCopy[jsonVehicles.connectedVehicles[i]] = generateNewVehicle();
+        }
+      }
+
+      // Check if we need to remove a vehicle from the state. If we find it, continue. Else, delete it:
+      let idArrays: string[] = Object.keys(stateCopy);
+      for(let i = 0; i < idArrays.length; i++){
+        if(jsonVehicles.connectedVehicles.indexOf(parseInt(idArrays[i])) >= 0) {
+          continue;
+        }
+        else {
+          delete stateCopy[idArrays[i]];
+        }
+      }
+
+      this.setState({connectedVehicles: stateCopy});
+    }
+    if(jsonData.dataType === "VehiclePosition"){
+      let vehiclePosition = jsonData as VehiclePositionType;
+    }
+    if(jsonData.dataType === "VehicleAttitude"){
+      let vehicleAttitude = jsonData as VehicleAttitudeType;
+    }
   }
 
 
@@ -107,6 +204,8 @@ export default class AppContainer extends React.Component<Props, State> {
     const parentStyle = {height: height + 'px', width: width + 'px'};
     const mapStyle = { top: 0, left: 0, height: height + 'px', width: width + 'px' };
 
+    // const centerButtonStyle = { width: 100 + '%' };
+
     return (
         <div style={parentStyle}>
 
@@ -121,6 +220,12 @@ export default class AppContainer extends React.Component<Props, State> {
             vehicleWarnings={this.state.vehicleWarnings}
            />
 
+           {/* 
+          <MuiThemeProvider muiTheme={lightMuiTheme}>
+              <FlatButton style={centerButtonStyle} label="Test Button" onClick={this.testTCPRequest}/>
+          </MuiThemeProvider>
+          */}
+           
 
           <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} >
               {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
