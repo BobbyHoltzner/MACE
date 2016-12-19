@@ -212,17 +212,23 @@ void ModuleGroundStation::UpdateAttitudeDynamics(const std::string &vehicleID)
 
 void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &vehiclePosition)
 {
+    int satFix = 0;
+    int numSats = 0;
+    Data::GlobalPosition tmpGlobalPosition(0.0,0.0,0.0);
+
     Eigen::Vector3d positionVector(10.0,10.0,10.0);
+
     if(m_VehicleMap.find(vehicleID) == m_VehicleMap.cend())
     {
         std::cout << "The vehicle with that ID is not there." << std::endl;
-    }else{        
-        m_VehicleMap.at(vehicleID)->getVehiclePosition(positionVector);
+    }else{
+        m_VehicleMap.at(vehicleID)->getVehiclePosition(satFix, numSats, tmpGlobalPosition);
+        //m_VehicleMap.at(vehicleID)->getVehiclePosition(positionVector);
 
         QJsonObject json;
-        json["x"] = positionVector(0);
-        json["y"] = positionVector(1);
-        json["z"] = positionVector(2);
+        json["x"] = tmpGlobalPosition.getLatitude();
+        json["y"] = tmpGlobalPosition.getLongitude();
+        json["z"] = tmpGlobalPosition.getAltitude();
 
         QJsonDocument doc(json);
         vehiclePosition = doc.toJson();

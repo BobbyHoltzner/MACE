@@ -22,10 +22,13 @@ void ArdupilotFlightMode::getCurrentVehicleMode(std::string &vehicleMode)
 
 bool ArdupilotFlightMode::getVehicleModeID(const std::string &vehicleModeString, int vehicleModeID){
 
-    for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
+    std::map<int,std::string>::iterator it;
+    for (it=availableFM->begin(); it != availableFM->end(); it++)
     {
+        std::cout<<"The value of the flight mode at this iterator is: "<<it->second<<std::endl;
         if(it->second == vehicleModeString)
         {
+            std::cout<<"They had matched"<<std::endl;
             vehicleModeID = it->first;
             return true;
         }

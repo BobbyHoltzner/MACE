@@ -20,7 +20,7 @@
 #include "data/local_position.h"
 
 #include "mace_core/vehicle_object.h"
-#include "generic_message_definition_mavlink.h"
+#include "module_vehicle_MAVLINK/generic_message_definition_mavlink.h"
 
 namespace Ardupilot{
 

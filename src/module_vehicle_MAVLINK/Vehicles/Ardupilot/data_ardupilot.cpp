@@ -38,15 +38,18 @@ DataArdupilot::~DataArdupilot()
 
 void DataArdupilot::setVehicleMode(const std::string &vehicleMode)
 {
+    std::cout<<"Attempting to change the vehicle mode"<<std::endl;
     int vehicleModeID = 0;
     bool modeFound = m_FlightMode->getVehicleModeID(vehicleMode,vehicleModeID);
+    std::cout<<"Done getting the vehicle mode ID"<<std::endl;
     if(modeFound == true)
     {
+        std::cout<<"The vehicle mode was found."<<std::endl;
         mavlink_message_t msg;
         mavlink_msg_set_mode_pack(255,190,&msg,vehicleID,0,vehicleModeID);
         m_LinkMarshler->SendMessage(mLinkName,msg);
     }else{
-
+        std::cout<<"The vehicle mode was not found."<<std::endl;
     }
 }
 
