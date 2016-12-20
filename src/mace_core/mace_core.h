@@ -43,6 +43,8 @@ public:
 
     void RemoveVehicle(const std::string &ID);
 
+    bool VehicleCheck(const int &vehicleID);
+
     void AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta);
 
     void AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning);
@@ -144,7 +146,7 @@ private:
     int counter;
     bool insertFlag;
 
-    std::list<int> m_NeededVehicleObjects;
+    std::list<int> m_VehicleObjectRequired;
 
     std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
     std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;

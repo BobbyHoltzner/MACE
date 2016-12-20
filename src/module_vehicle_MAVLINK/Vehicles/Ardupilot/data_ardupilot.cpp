@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 
 #include "data_ardupilot.h"
 
@@ -90,7 +91,8 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
         m_FlightMode->setVehicleType(decodedMSG.type);
         m_FlightMode->setFlightMode(decodedMSG.custom_mode);
-//        counter = counter + 1;
+        counter = counter + 1;
+        std::cout<<"A new heartbeat was seen: "<<counter<< " " << std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch()).count() << std::endl;
 //        if(counter > 20){
 //            this->setVehicleMode("STABILIZE");
 //        }

@@ -347,13 +347,17 @@ void SerialLink::PortEventLoop()
 {
     while(true)
     {
-        if(m_port->waitForReadyRead(50))
+        if(m_port->bytesAvailable())
             this->_readBytes();
+
+
 
         if(m_port->errorString() != "")
         {
             linkError(m_port->error());
         }
+        //this value could be modified to help the port not bog down the threading application so badly
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 

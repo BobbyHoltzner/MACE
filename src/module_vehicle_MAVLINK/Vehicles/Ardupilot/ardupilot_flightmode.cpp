@@ -41,13 +41,11 @@ void ArdupilotFlightMode::setFlightMode(int flightMode)
 }
 
 void ArdupilotFlightMode::setVehicleType(int vehicleType){
-    std::cout<<"The vehicle type here is: "<<vehicleType<<std::endl;
     if(this->vehicleType != vehicleType)
     {
         switch (vehicleType) {
         case MAV_TYPE_FIXED_WING:
         {
-            std::cout<<"It says its a fixed wing"<<std::endl;
             this->vehicleType = vehicleType;
             availableFM = arduplaneFM;
             break;
@@ -57,7 +55,6 @@ void ArdupilotFlightMode::setVehicleType(int vehicleType){
         case MAV_TYPE_HEXAROTOR:
         case MAV_TYPE_OCTOROTOR:
         {
-            std::cout<<"It says its a multirotor"<<std::endl;
             this->vehicleType = vehicleType;
             availableFM = arducopterFM;
             break;

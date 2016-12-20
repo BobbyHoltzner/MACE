@@ -315,14 +315,12 @@ void ModuleVehicleMAVLINK::CreateVehicleObject(const int &vehicleID)
 
 void ModuleVehicleMAVLINK::RemoveVehicleObject(const int &sendersID)
 {
-    for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
-    {
-        if(*it == sendersID)
-        {
-            it = m_NeededVehicleObjects.erase(it);
-            break;
-        }
-    }
+    m_NeededVehicleObjects.remove(sendersID);
+}
+
+void ModuleVehicleMAVLINK::UpdateVehicleObjectList(const std::list<int> &vehicleObjectList)
+{
+    m_NeededVehicleObjects = vehicleObjectList;
 }
 
 //!
@@ -365,14 +363,15 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &a
 {
     for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
     {
-//        std::cout << "The ID at this position in the map is: " << *it << std::endl;
         if(*it == sendersID)
         {
+            //m_NeededVehicleObjects.erase(it);
+            m_NeededVehicleObjects.remove(sendersID);
+
             switch (autopilotType) {
             case MAV_AUTOPILOT_ARDUPILOTMEGA:
             {
                 Ardupilot::DataArdupilot tmpObject(sendersID,VP_MAVLINK,vehicleType);
-                //std::cout<<"The value at this iterator position matches the sending ID!"<<std::endl;
                 std::shared_ptr<Ardupilot::DataArdupilot> tmpArdupilot = std::make_shared<Ardupilot::DataArdupilot>(tmpObject);
 
                 NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){

@@ -77,6 +77,8 @@ public:
 
     virtual void RemoveVehicleObject(const int &vehicleID);
 
+    virtual void UpdateVehicleObjectList(const std::list<int> &vehicleObjectList);
+
     //!
     //! \brief New commands have been updated that the vehicle is to follow immediatly
     //!
@@ -126,7 +128,7 @@ public:
     virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const;
 
 private:
-    std::list<int> m_NeededVehicleObjects;
+    mutable std::list<int> m_NeededVehicleObjects;
 
     Comms::CommsMarshaler *m_LinkMarshler;
 
