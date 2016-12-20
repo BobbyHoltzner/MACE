@@ -10,6 +10,7 @@ MaceCore::MaceCore()
 {
     insertFlag = false;
     counter = 0;
+    counter_new_vehicle = 0;
 }
 
 
@@ -80,15 +81,14 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
 /////////////////////////////////////////////////////////////////////////
 void MaceCore::NewConstructedVehicle(const void *sender, std::shared_ptr<VehicleObject> vehicleObject)
 {
+    counter_new_vehicle = counter_new_vehicle + 1;
     IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
     int sendersID = 0;
     bool rtnValue = m_DataFusion->AddNewVehicle(vehicleObject,sendersID);
     vehicleModule->MarshalCommand(VehicleCommands::REMOVE_VEHICLE_OBJECT, rtnValue);
-}
-void MaceCore::TestNewVehicleMessage(const void *sender, const TIME &time, std::function<std::vector<std::string> (VehicleObject *)> vehicleFunction)
-{
-//    std::shared_ptr<VehicleObject> tmpObject = m_VehicleData[1];
-//    vehicleFunction(tmpObject);
+    if(rtnValue == true){
+        std::cout<<"A new vehicle has been added to the map. Notify everyone."<<std::endl;
+    }
 }
 
 void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const VehicleMessage &vehicleMessage)
@@ -100,8 +100,8 @@ void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const Veh
         vehicleModule->MarshalCommand(VehicleCommands::CREATE_VEHICLE_OBJECT, sendersID);
     }else{
         std::string tmpString = "NA";
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, tmpString);
-        m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, tmpString);
+        //m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, tmpString);
+        //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, tmpString);
     }
 }
 
@@ -114,7 +114,7 @@ void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const E
 
     m_RTA->MarshalCommand(RTACommands::UPDATED_POSITION_DYNAMICS, ID);
     m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, ID);
-    m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, ID);
+    //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, ID);
 }
 
 
@@ -127,7 +127,7 @@ void MaceCore::NewDynamicsDynamics(const void* sender, const TIME &time, const E
 
     m_RTA->MarshalCommand(RTACommands::UPDATED_ATTITUDE_DYNAMICS, ID);
     m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
-    m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
+    //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
 }
 
 
@@ -140,7 +140,7 @@ void MaceCore::NewVehicleLife(const void* sender, const TIME &time, const Vehicl
 
     m_RTA->MarshalCommand(RTACommands::UPDATED_VEHICLE_LIFE, ID);
     m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_VEHICLE_LIFE, ID);
-    m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_VEHICLE_LIFE, ID);
+    //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_VEHICLE_LIFE, ID);
 }
 
 

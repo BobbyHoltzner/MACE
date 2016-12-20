@@ -90,6 +90,10 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
         m_FlightMode->setVehicleType(decodedMSG.type);
         m_FlightMode->setFlightMode(decodedMSG.custom_mode);
+//        counter = counter + 1;
+//        if(counter > 20){
+//            this->setVehicleMode("STABILIZE");
+//        }
         break;
     }
     case MAVLINK_MSG_ID_SYSTEM_TIME:

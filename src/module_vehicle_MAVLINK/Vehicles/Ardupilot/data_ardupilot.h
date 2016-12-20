@@ -50,6 +50,7 @@ public:
 //    void newValue(double value);
 
 private:
+    int counter = 0;
 
     Comms::CommsMarshaler *m_LinkMarshler;
     std::string mLinkName;

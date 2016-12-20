@@ -48,7 +48,7 @@ public:
 //    void gotInfoTest(const Data::VehicleStateData &messageData);
 //    void gotArducopterMessage(const Data::ArducopterData &messageArducopter);
 
-    void vehicleObjectCheck(const int &sendersID, const int &autopilotType) const;
+    void vehicleObjectCheck(const int &sendersID, const int &autopilotType, const int &vehicleType) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////

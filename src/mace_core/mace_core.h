@@ -59,8 +59,6 @@ public:
 
     virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage);
 
-    virtual void TestNewVehicleMessage(const void* sender, const TIME &time, std::function<std::vector<std::string>(VehicleObject*)> vehicleFunction);
-
     virtual void NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &position, const Eigen::Vector3d &attitude);
 
     virtual void NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate);
@@ -142,8 +140,12 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 private:
+    int counter_new_vehicle;
     int counter;
     bool insertFlag;
+
+    std::list<int> m_NeededVehicleObjects;
+
     std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
     std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;
     std::map<IModuleCommandVehicle*, int> m_PortToVehicleID;

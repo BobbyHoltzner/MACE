@@ -5,7 +5,7 @@ using namespace Ardupilot;
 
 ArdupilotFlightMode::ArdupilotFlightMode()
 {
-    availableFM = &arducopterFM;
+    availableFM = arducopterFM;
     this->vehicleType = MAV_TYPE_GENERIC;
     this->flightMode = ACFM_UNKNOWN;
 }
@@ -17,15 +17,14 @@ void ArdupilotFlightMode::getCurrentVehicleMode(int vehicleMode)
 
 void ArdupilotFlightMode::getCurrentVehicleMode(std::string &vehicleMode)
 {
-    vehicleMode = availableFM->at(flightMode);
+    vehicleMode = availableFM.at(flightMode);
 }
 
 bool ArdupilotFlightMode::getVehicleModeID(const std::string &vehicleModeString, int vehicleModeID){
 
     std::map<int,std::string>::iterator it;
-    for (it=availableFM->begin(); it != availableFM->end(); it++)
+    for (it=availableFM.begin(); it != availableFM.end(); it++)
     {
-        std::cout<<"The value of the flight mode at this iterator is: "<<it->second<<std::endl;
         if(it->second == vehicleModeString)
         {
             std::cout<<"They had matched"<<std::endl;
@@ -42,21 +41,29 @@ void ArdupilotFlightMode::setFlightMode(int flightMode)
 }
 
 void ArdupilotFlightMode::setVehicleType(int vehicleType){
-    this->flightMode = APFM_UNKNOWN;
-
-    switch (vehicleType) {
-    case MAV_TYPE_FIXED_WING:
-        this->vehicleType = vehicleType;
-        availableFM = &arduplaneFM;
-        break;
-    case MAV_TYPE_TRICOPTER:
-    case MAV_TYPE_QUADROTOR:
-    case MAV_TYPE_HEXAROTOR:
-    case MAV_TYPE_OCTOROTOR:
-        this->vehicleType = vehicleType;
-        availableFM = &arducopterFM;
-        break;
-    default:
-        break;
+    std::cout<<"The vehicle type here is: "<<vehicleType<<std::endl;
+    if(this->vehicleType != vehicleType)
+    {
+        switch (vehicleType) {
+        case MAV_TYPE_FIXED_WING:
+        {
+            std::cout<<"It says its a fixed wing"<<std::endl;
+            this->vehicleType = vehicleType;
+            availableFM = arduplaneFM;
+            break;
+        }
+        case MAV_TYPE_TRICOPTER:
+        case MAV_TYPE_QUADROTOR:
+        case MAV_TYPE_HEXAROTOR:
+        case MAV_TYPE_OCTOROTOR:
+        {
+            std::cout<<"It says its a multirotor"<<std::endl;
+            this->vehicleType = vehicleType;
+            availableFM = arducopterFM;
+            break;
+        }
+        default:
+            break;
+        }
     }
 }
