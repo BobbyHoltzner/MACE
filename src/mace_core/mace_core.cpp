@@ -79,7 +79,7 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
-void MaceCore::NewConstructedVehicle(const void *sender, std::shared_ptr<VehicleObject> vehicleObject)
+void MaceCore::NewConstructedVehicle(const void *sender, const std::shared_ptr<VehicleObject> &vehicleObject)
 {
     counter_new_vehicle = counter_new_vehicle + 1;
     std::cout<<"The number of times a new vehicle has been constructed is: "<<counter_new_vehicle<<std::endl;

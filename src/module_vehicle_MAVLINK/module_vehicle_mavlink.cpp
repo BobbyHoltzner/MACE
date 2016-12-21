@@ -371,7 +371,9 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &a
             switch (autopilotType) {
             case MAV_AUTOPILOT_ARDUPILOTMEGA:
             {
+                std::string linkString = "link1";
                 Ardupilot::DataArdupilot tmpObject(sendersID,VP_MAVLINK,vehicleType);
+                tmpObject.updateVehicleCommsObject(m_LinkMarshler,linkString);
                 std::shared_ptr<Ardupilot::DataArdupilot> tmpArdupilot = std::make_shared<Ardupilot::DataArdupilot>(tmpObject);
 
                 NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){

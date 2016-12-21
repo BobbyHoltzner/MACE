@@ -33,6 +33,8 @@ public:
 
     ~DataArdupilot();
 
+    void updateVehicleCommsObject(Comms::CommsMarshaler* marshaler, std::string linkString);
+
     virtual void handleMessage(VehicleMessage msgIn);
     virtual void getVehicleMode(std::string &rtnString);
     virtual void getVehicleAttitude(Eigen::Vector3d &rtnString);
@@ -41,6 +43,7 @@ public:
 
     virtual void setVehicleMode(const std::string &vehicleMode);
 
+    std::string getLinkName();
 
 //    virtual int getVehicleID() const;
 //    virtual int getVehicleProtocol() const;
@@ -53,7 +56,7 @@ private:
     int counter = 0;
 
     Comms::CommsMarshaler *m_LinkMarshler;
-    std::string mLinkName;
+    std::string linkName;
     int vehicleID;
 
     ArdupilotFlightMode* m_FlightMode;

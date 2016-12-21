@@ -38,6 +38,7 @@ bool ArdupilotFlightMode::getVehicleModeID(const std::string &vehicleModeString,
 void ArdupilotFlightMode::setFlightMode(int flightMode)
 {
     this->flightMode = flightMode;
+    std::cout<<"The flight mode is now: "<<flightMode<<std::endl;
 }
 
 void ArdupilotFlightMode::setVehicleType(int vehicleType){

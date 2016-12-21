@@ -24,12 +24,15 @@ DataArdupilot::DataArdupilot(DataArdupilot &copyObj)
     m_Attitude = new ArdupilotAttitude();
     m_Status = new ArdupilotStatus();
     m_Position = new ArdupilotPosition();
-
+    m_LinkMarshler = new Comms::CommsMarshaler;
 
     *m_FlightMode = *copyObj.m_FlightMode;
     *m_Attitude = *copyObj.m_Attitude;
     *m_Status = *copyObj.m_Status;
+    *m_Position = *copyObj.m_Position;
 
+    linkName = copyObj.getLinkName();
+    m_LinkMarshler = copyObj.m_LinkMarshler;
 }
 
 DataArdupilot::~DataArdupilot()
@@ -37,9 +40,22 @@ DataArdupilot::~DataArdupilot()
 
 }
 
+std::string DataArdupilot::getLinkName()
+{
+    return(linkName);
+}
+
+void DataArdupilot::updateVehicleCommsObject(Comms::CommsMarshaler* marshaler, std::string linkString)
+{
+    m_LinkMarshler = marshaler;
+    linkName = linkString;
+}
+
+void DataArdupilot::updateVehicleModule()
+
 void DataArdupilot::setVehicleMode(const std::string &vehicleMode)
 {
-    std::cout<<"Attempting to change the vehicle mode"<<std::endl;
+     std::cout<<"Attempting to change the vehicle mode"<<std::endl;
     int vehicleModeID = 0;
     bool modeFound = m_FlightMode->getVehicleModeID(vehicleMode,vehicleModeID);
     std::cout<<"Done getting the vehicle mode ID"<<std::endl;
@@ -48,7 +64,9 @@ void DataArdupilot::setVehicleMode(const std::string &vehicleMode)
         std::cout<<"The vehicle mode was found."<<std::endl;
         mavlink_message_t msg;
         mavlink_msg_set_mode_pack(255,190,&msg,vehicleID,0,vehicleModeID);
-        m_LinkMarshler->SendMessage(mLinkName,msg);
+        std::cout<<"The message was developed."<<std::endl;
+        m_LinkMarshler->SendMessage(linkName,msg);
+        std::cout<<"The message was sent."<<std::endl;
     }else{
         std::cout<<"The vehicle mode was not found."<<std::endl;
     }
@@ -93,9 +111,9 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         m_FlightMode->setFlightMode(decodedMSG.custom_mode);
         counter = counter + 1;
         std::cout<<"A new heartbeat was seen: "<<counter<< " " << std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch()).count() << std::endl;
-//        if(counter > 20){
-//            this->setVehicleMode("STABILIZE");
-//        }
+        if(counter > 20){
+            this->setVehicleMode("STABILIZE");
+        }
         break;
     }
     case MAVLINK_MSG_ID_SYSTEM_TIME:
