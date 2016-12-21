@@ -162,7 +162,8 @@ static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pug
             else
             {
                 result.warnings.push_back(nestedName + " not set, using default value");
-                valueContainer->AddNonTerminal(it->first, structure->getDefaultNonTerminalValue(it->first));
+                // TODO-PAT: Implement adding default values for non-required NonTerminals
+//                valueContainer->AddNonTerminal(it->first, structure->getDefaultNonTerminalValue(it->first));
             }
         }
     }

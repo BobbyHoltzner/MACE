@@ -46,7 +46,7 @@ UdpLink::UdpLink(const UdpConfiguration &config) :
     m_stopp    = false;
     m_reqReset = false;
 
-    std::cout << "Create UdpLink: " << config.address() << config.portNumber() << std::endl;
+    std::cout << "Create UdpLink: " << config.address() << ":" << config.portNumber() << std::endl;
 }
 
 UdpLink::~UdpLink()

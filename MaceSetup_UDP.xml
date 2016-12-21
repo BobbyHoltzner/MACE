@@ -5,17 +5,29 @@
       <Parameter Name="Name">Mavlink</Parameter>
       <Parameter Name="Version">V1</Parameter>
     </Parameter>
-	<Parameter Name="SerialParameters">
-      <Parameter Name="PortName">COM3</Parameter>
-      <Parameter Name="BaudRate">115200</Parameter>
-      <Parameter Name="DataBits">8</Parameter>
-      <Parameter Name="StopBits">1</Parameter>
-      <Parameter Name="Parity">false</Parameter>
-      <Parameter Name="FlowControl">1</Parameter>
-    </Parameter>
-    <Parameter Name="UDPParameters">
+	<Parameter Name="UDPParameters">
       <Parameter Name="Address">127.0.0.1</Parameter>
-      <Parameter Name="PortNumber">45454</Parameter>
+      <Parameter Name="PortNumber">14552</Parameter>
+    </Parameter>
+  </Module>
+  <Module Class="VehicleComms" Type="MAVLINK">
+    <Parameter Name="ProtocolParameters">
+      <Parameter Name="Name">Mavlink</Parameter>
+      <Parameter Name="Version">V1</Parameter>
+    </Parameter>
+	<Parameter Name="UDPParameters">
+      <Parameter Name="Address">127.0.0.1</Parameter>
+      <Parameter Name="PortNumber">14553</Parameter>
+    </Parameter>
+  </Module>
+  <Module Class="VehicleComms" Type="MAVLINK">
+    <Parameter Name="ProtocolParameters">
+      <Parameter Name="Name">Mavlink</Parameter>
+      <Parameter Name="Version">V1</Parameter>
+    </Parameter>
+	<Parameter Name="UDPParameters">
+      <Parameter Name="Address">127.0.0.1</Parameter>
+      <Parameter Name="PortNumber">14554</Parameter>
     </Parameter>
   </Module>
   <Module Class="RTA" Type="NASAPhase2" />

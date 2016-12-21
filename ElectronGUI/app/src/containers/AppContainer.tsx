@@ -28,7 +28,9 @@ type ConnectedVehiclesType = TCPDescriptorType & {
 type VehiclePositionType = TCPDescriptorType & {
   lat: number,
   lon: number,
-  alt: number
+  alt: number,
+  positionFix: number,
+  numSats: number
 }
 
 type VehicleAttitudeType = TCPDescriptorType & {
@@ -57,12 +59,17 @@ type State = {
 export default class AppContainer extends React.Component<Props, State> {    
   leafletMap: L.Map;
   notificationSystem: NotificationSystem;
-  m_AttitudeInterval: number;
+  m_AttitudeInterval: number[];
   m_AttitudeTimeout: number;
+  m_PositionInterval: number[];
+  m_PositionTimeout: number;
   constructor() {
     super();  
 
+    this.m_AttitudeInterval = [];
+    this.m_PositionInterval = [];
     this.m_AttitudeTimeout = 1111;
+    this.m_PositionTimeout = 1234;
 
     this.state = {
       tcpClient: new net.Socket(),
@@ -128,9 +135,11 @@ export default class AppContainer extends React.Component<Props, State> {
 
   parseTCPResponse = (jsonData: TCPReturnType) => {
     let stateCopy = deepcopy(this.state.connectedVehicles);
-
+    
     if(jsonData.dataType === "ConnectedVehicles"){
-      let jsonVehicles = jsonData as ConnectedVehiclesType;
+      let jsonVehicles = jsonData as ConnectedVehiclesType;      
+
+      console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
 
       // Check if vehicle is already in the map. If so, do nothing. If not, add it:
       for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
@@ -153,11 +162,28 @@ export default class AppContainer extends React.Component<Props, State> {
         }
       }
 
-      if (Object.keys(stateCopy).length > 0 && this.m_AttitudeInterval === undefined){
-        this.m_AttitudeInterval = setInterval(() => {
-          this.makeTCPRequest("GET_ATTITUDE", 1);
-        }, this.m_AttitudeTimeout);
-      }      
+      // Set intervals:
+      if (Object.keys(stateCopy).length > 0){
+        idArrays = Object.keys(stateCopy);
+        console.log("ID ARRAY: " + idArrays);
+        for(let i = 0; i < idArrays.length; i++){
+          if(this.m_AttitudeInterval[i] === undefined){
+            this.m_AttitudeInterval[i] = setInterval(() => {
+              this.makeTCPRequest("GET_ATTITUDE", parseInt(idArrays[i]));
+            }, this.m_AttitudeTimeout + 20 + i);
+          }
+        }
+      }
+      if (Object.keys(stateCopy).length > 0){
+        idArrays = Object.keys(stateCopy);
+        for(let i = 0; i < idArrays.length; i++){
+          if(this.m_PositionInterval[i] === undefined){
+            this.m_PositionInterval[i] = setInterval(() => {
+              this.makeTCPRequest("GET_POSITION", parseInt(idArrays[i]));
+            }, this.m_PositionTimeout + 23 + i);
+          }
+        }
+      }
 
       this.setState({connectedVehicles: stateCopy});
     }
@@ -171,6 +197,8 @@ export default class AppContainer extends React.Component<Props, State> {
           stateCopy[idArrays[i]].position.lat = vehiclePosition.lat;
           stateCopy[idArrays[i]].position.lon = vehiclePosition.lon;
           stateCopy[idArrays[i]].position.alt = vehiclePosition.alt;
+          stateCopy[idArrays[i]].position.numSats = vehiclePosition.numSats;
+          stateCopy[idArrays[i]].position.positionFix = vehiclePosition.positionFix;
         }
       }
 

@@ -10,12 +10,14 @@ export type VehicleStateType = {
     position: {
         lat: number,
         lon: number,
-        alt: number
+        alt: number,
+        numSats: number,
+        positionFix: number
     },
     attitude: {
         roll: number,
         pitch: number,
-        yaw: number
+        yaw: number 
     }
 }
 
@@ -24,7 +26,9 @@ export function generateNewVehicle(): VehicleStateType {
         position: {
             lat: 0,
             lon: 0,
-            alt: 0
+            alt: 0,
+            numSats: 0,
+            positionFix: 0
         },
         attitude: {
             roll: 0,
@@ -90,15 +94,37 @@ export class VehicleHUD extends React.Component<Props, State> {
                         actAsExpander={true}
                         showExpandableButton={false}
                     />
-                    <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
-                        {"Roll: " + this.props.aircraft.attitude.roll.toFixed(2)} 
-                    </CardText>
-                    <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
-                        {"Pitch: " + this.props.aircraft.attitude.pitch.toFixed(2)} 
-                    </CardText>
-                    <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
-                        {"Yaw: " + this.props.aircraft.attitude.yaw.toFixed(2)} 
-                    </CardText>
+
+                    <div className="row">
+                        <div className="col-xs-6">
+                            <div className="box">
+                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
+                                    {"Lat: " + this.props.aircraft.position.lat.toFixed(2)} 
+                                </CardText>
+                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
+                                    {"Lon: " + this.props.aircraft.position.lon.toFixed(2)} 
+                                </CardText>
+                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
+                                    {"Alt: " + this.props.aircraft.position.alt.toFixed(2)} 
+                                </CardText>
+                            </div>
+                        </div>
+                        <div className="col-xs-6">
+                            <div className="box">
+                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
+                                    {"Roll: " + this.props.aircraft.attitude.roll.toFixed(2)} 
+                                </CardText>
+                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
+                                    {"Pitch: " + this.props.aircraft.attitude.pitch.toFixed(2)} 
+                                </CardText>
+                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
+                                    {"Yaw: " + this.props.aircraft.attitude.yaw.toFixed(2)} 
+                                </CardText>                                
+                            </div>
+                        </div>
+                    </div>
+
+                    
                     <CardActions style={{textAlign: "center"}}>
                         <FlatButton 
                             label="Loiter" 

@@ -158,7 +158,7 @@ private:
 
         if(m_VehicleData.find(sendersID) == m_VehicleData.cend())
         {
-            std::cout<<"A previous vehicle object was not found in the map with the ID of: "<<sendersID<<std::endl;
+            std::cout << "A previous vehicle object was not found in the map with the ID of: " << sendersID << std::endl;
             return(false);
             //For now I think we are just going to drop this message not desirable but moving on
 

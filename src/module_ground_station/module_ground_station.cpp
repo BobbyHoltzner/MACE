@@ -69,7 +69,7 @@ void ModuleGroundStation::on_newConnection()
             QByteArray data = socket->readAll();
             QByteArray returnData;
 
-            std::cout << "Incoming data: " << data.toStdString() << std::endl;
+//            std::cout << "Incoming data: " << data.toStdString() << std::endl;
 
             QJsonObject jsonObj;
             QJsonDocument doc = QJsonDocument::fromJson(data);
@@ -92,6 +92,7 @@ void ModuleGroundStation::on_newConnection()
             else
             {
                 std::cout << "Invalid JSON..." << std::endl;
+                std::cout << data.toStdString() << std::endl;
                 socket->close();
                 return;
             }
@@ -113,17 +114,17 @@ void ModuleGroundStation::parseTCPRequest(QJsonObject jsonObj, QByteArray &retur
     QByteArray data;
     if(command == "GET_CONNECTED_VEHICLES")
     {
-        std::cout << "TCP: Get connected vehicles" << std::endl;
+//        std::cout << "TCP: Get connected vehicles" << std::endl;
         getConnectedVehicles(data);
     }
     else if(command == "GET_POSITION")
     {
-        std::cout << "TCP: Get vehicle position" << std::endl;
-//        getVehiclePosition(vehicleID, data);
+//        std::cout << "TCP: Get vehicle position" << std::endl;
+        getVehiclePosition(vehicleID, data);
     }
     else if (command == "GET_ATTITUDE")
     {
-        std::cout << "TCP: Get vehicle attitude" << std::endl;
+//        std::cout << "TCP: Get vehicle attitude" << std::endl;
         getVehicleAttitude(vehicleID, data);
     }
     else
@@ -180,7 +181,7 @@ bool ModuleGroundStation::StartTCPServer()
     }
     else
     {
-        std::cout << "Server started" << std::endl;
+        std::cout << "GUI TCP Server started" << std::endl;
     }
 
     return m_TcpServer->isListening();
@@ -237,19 +238,23 @@ void ModuleGroundStation::getConnectedVehicles(QByteArray &connectedVehicles)
 
 void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &vehiclePosition)
 {
-    Eigen::Vector3d positionVector(10.0,10.0,10.0);
+    int positionFix = 0;
+    int numSats = 0;
+    Data::GlobalPosition positionVector;
     if(m_VehicleMap.find(vehicleID) == m_VehicleMap.cend())
     {
         std::cout << "The vehicle with that ID is not there." << std::endl;
-    }else{        
-//        m_VehicleMap.at(vehicleID)->getVehiclePosition(positionVector);
+    }else{
+        m_VehicleMap.at(vehicleID)->getVehiclePosition(positionFix, numSats, positionVector);
 
         QJsonObject json;
         json["dataType"] = "VehiclePosition";
         json["vehicleID"] = vehicleID;
-        json["x"] = positionVector(0);
-        json["y"] = positionVector(1);
-        json["z"] = positionVector(2);
+        json["lat"] = positionVector.getLatitude();
+        json["lon"] = positionVector.getLongitude();
+        json["alt"] = positionVector.getAltitude();
+        json["positionFix"] = positionFix;
+        json["numSats"] = numSats;
 
         QJsonDocument doc(json);
         vehiclePosition = doc.toJson();

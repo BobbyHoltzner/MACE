@@ -12,6 +12,9 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 
+#include "data/global_position.h"
+#include "data/local_position.h"
+
 #include "../mace_core/i_module_command_ground_station.h"
 
 using namespace std;
