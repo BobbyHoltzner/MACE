@@ -15,11 +15,15 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
     global_position.cpp \
-    local_position.cpp
+    local_position.cpp \
+    positional_aid.cpp \
+    data_aid.cpp
 
 HEADERS += data_global.h \
     global_position.h \
-    local_position.h
+    local_position.h \
+    positional_aid.h \
+    data_aid.h
 
 # Unix lib Install
 unix:!symbian {

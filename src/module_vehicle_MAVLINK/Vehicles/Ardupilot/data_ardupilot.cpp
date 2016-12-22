@@ -51,7 +51,6 @@ void DataArdupilot::updateVehicleCommsObject(Comms::CommsMarshaler* marshaler, s
     linkName = linkString;
 }
 
-void DataArdupilot::updateVehicleModule()
 
 void DataArdupilot::setVehicleMode(const std::string &vehicleMode)
 {

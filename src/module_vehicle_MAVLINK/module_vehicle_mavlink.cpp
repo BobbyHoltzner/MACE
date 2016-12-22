@@ -58,9 +58,9 @@ void ModuleVehicleMAVLINK::gotArducopterMessage(const Data::ArducopterData &mess
 
 ModuleVehicleMAVLINK::ModuleVehicleMAVLINK() :
     MaceCore::IModuleCommandVehicle(),
-    m_LinkMarshler(new Comms::CommsMarshaler)
+    m_LinkMarshaler(new Comms::CommsMarshaler)
 {
-    m_LinkMarshler->AddSubscriber(this);
+    m_LinkMarshaler->AddSubscriber(this);
 }
 
 
@@ -126,7 +126,7 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
                 throw std::runtime_error("Unknown mavlink version seen");
             }
 
-            m_LinkMarshler->AddProtocol(*mavlinkConfig);
+            m_LinkMarshaler->AddProtocol(*mavlinkConfig);
 
             m_AvailableProtocols.insert({Comms::Protocols::MAVLINK, std::static_pointer_cast<Comms::ProtocolConfiguration>(mavlinkConfig)});
             protocolConfig = mavlinkConfig;
@@ -161,19 +161,19 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         config.setParity(parity);
         config.setFlowControl(flowControl);
 
-        m_LinkMarshler->AddLink("link1", config);
+        m_LinkMarshaler->AddLink("link1", config);
 
 
         //now configure to use link with desired protocol
         if(protocolToUse == Comms::Protocols::MAVLINK)
         {
-            m_LinkMarshler->SetProtocolForLink("link1", Comms::Protocols::MAVLINK);
+            m_LinkMarshaler->SetProtocolForLink("link1", Comms::Protocols::MAVLINK);
 
             std::shared_ptr<Comms::MavlinkConfiguration> mavlinkConfig = std::static_pointer_cast<Comms::MavlinkConfiguration>(m_AvailableProtocols.at(Comms::Protocols::MAVLINK));
 
             //set version on mavlink channel
             // I would prefer to put this in Comms library, but because the mavlinkstatus is static variable, things get messed up when linking
-            uint8_t chan = m_LinkMarshler->GetProtocolChannel("link1");
+            uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
             mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(chan);
             std::cout << mavlinkStatus << std::endl;
             switch (mavlinkConfig->GetVersion()) {
@@ -195,7 +195,7 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
 
         //connect link
-        m_LinkMarshler->ConnectToLink("link1");
+        m_LinkMarshaler->ConnectToLink("link1");
 
 
         //test statements that will issue a log_request_list to device
@@ -240,19 +240,19 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         config.setAddress(address);
         config.setPortNumber(portNumber);
 
-        m_LinkMarshler->AddUDPLink("udplink1", config);
+        m_LinkMarshaler->AddUDPLink("udplink1", config);
 
 
         //now configure to use link with desired protocol
         if(protocolToUse == Comms::Protocols::MAVLINK)
         {
-            m_LinkMarshler->SetProtocolForLink("udplink1", Comms::Protocols::MAVLINK);
+            m_LinkMarshaler->SetProtocolForLink("udplink1", Comms::Protocols::MAVLINK);
 
             std::shared_ptr<Comms::MavlinkConfiguration> mavlinkConfig = std::static_pointer_cast<Comms::MavlinkConfiguration>(m_AvailableProtocols.at(Comms::Protocols::MAVLINK));
 
             //set version on mavlink channel
             // I would prefer to put this in Comms library, but because the mavlinkstatus is static variable, things get messed up when linking
-            uint8_t chan = m_LinkMarshler->GetProtocolChannel("udplink1");
+            uint8_t chan = m_LinkMarshaler->GetProtocolChannel("udplink1");
             mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(chan);
             std::cout << mavlinkStatus << std::endl;
             switch (mavlinkConfig->GetVersion()) {
@@ -274,7 +274,7 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
 
         //connect link
-        m_LinkMarshler->ConnectToLink("udplink1");
+        m_LinkMarshaler->ConnectToLink("udplink1");
 
 
         //test statements that will issue a log_request_list to device
@@ -373,7 +373,7 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &a
             {
                 std::string linkString = "link1";
                 Ardupilot::DataArdupilot tmpObject(sendersID,VP_MAVLINK,vehicleType);
-                tmpObject.updateVehicleCommsObject(m_LinkMarshler,linkString);
+                tmpObject.updateVehicleCommsObject(m_LinkMarshaler,linkString);
                 std::shared_ptr<Ardupilot::DataArdupilot> tmpArdupilot = std::make_shared<Ardupilot::DataArdupilot>(tmpObject);
 
                 NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){

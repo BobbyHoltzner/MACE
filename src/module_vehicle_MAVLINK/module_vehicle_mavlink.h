@@ -129,7 +129,7 @@ public:
 private:
     mutable std::list<int> m_NeededVehicleObjects;
 
-    Comms::CommsMarshaler *m_LinkMarshler;
+    Comms::CommsMarshaler *m_LinkMarshaler;
 
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
 
