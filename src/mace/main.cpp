@@ -9,6 +9,12 @@
 
 #include "module_collection.h"
 
+const char kPathSeparator =
+#ifdef _WIN32
+                            '\\';
+#else
+                            '/';
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -26,7 +32,7 @@ int main(int argc, char *argv[])
     if(MACEPath){
         std::string rootPath(MACEPath);
         std::cout << "The current MACE_ROOT path is: " << rootPath << std::endl;
-        filename = rootPath + "\\MaceSetup.xml";
+        filename = rootPath + kPathSeparator + "MaceSetup.xml";
     }else{
         filename = "MaceSetup_UDP.xml";
     }

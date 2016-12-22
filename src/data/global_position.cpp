@@ -147,7 +147,7 @@ double GlobalPosition::distanceBetween2D(const GlobalPosition &position)
 double GlobalPosition::distanceBetween3D(const GlobalPosition &position)
 {
     double distance2D = this->distanceBetween2D(position);
-    double deltaAltitude = abs(this->altitude - position.getAltitude());
+    double deltaAltitude = fabs(this->altitude - position.getAltitude());
     return(sqrt(deltaAltitude * deltaAltitude + distance2D * distance2D));
 }
 
