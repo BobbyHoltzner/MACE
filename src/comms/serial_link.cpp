@@ -1,6 +1,9 @@
 #include "serial_link.h"
 
+#include <functional>
+
 #include <QCoreApplication>
+#include <QTimer>
 
 namespace Comms
 {
@@ -12,7 +15,7 @@ namespace Comms
 class AppThread : public QThread
 {
 public:
-    AppThread()
+    AppThread(const size_t interval, std::function<void()> func)
     {
         if(QCoreApplication::instance() == NULL)
         {
@@ -20,16 +23,27 @@ public:
             char * argv[] = {(char *)"sharedlib.app"};
             pApp = new QCoreApplication(argc, argv);
         }
+
+        m_Interval = interval;
+        m_Func = func;
     }
 
     virtual void run()
     {
+        QTimer *timer = new QTimer(0);
+        timer->moveToThread(this);
+        pApp->connect(timer, &QTimer::timeout, m_Func);
+        timer->start(m_Interval);
+
         exec();
     }
 
 private:
 
     QCoreApplication *pApp;
+
+    std::function<void()> m_Func;
+    size_t m_Interval;
 };
 
 SerialLink::SerialLink(const SerialConfiguration &config) :
@@ -271,13 +285,19 @@ bool SerialLink::_hardwareConnect(QSerialPort::SerialPortError& error, QString& 
 
 
 
-    m_ListenThread = new AppThread();
+    m_ListenThread = new AppThread(10, [&](){
+        this->PortEventLoop();
+    });
     m_port->moveToThread(m_ListenThread);
     m_ListenThread->start();
 
 
+    /*
     //start port's event loop
-    m_CommsThread = new std::thread([this](){this->PortEventLoop();});
+    m_CommsThread = new std::thread([this](){
+        this->PortEventLoop();
+    });
+    */
 
 
 
@@ -345,19 +365,14 @@ void SerialLink::linkError(QSerialPort::SerialPortError error)
 
 void SerialLink::PortEventLoop()
 {
-    while(true)
+    if(m_port->bytesAvailable())
+        this->_readBytes();
+
+
+
+    if(m_port->errorString() != "")
     {
-        if(m_port->bytesAvailable())
-            this->_readBytes();
-
-
-
-        if(m_port->errorString() != "")
-        {
-            linkError(m_port->error());
-        }
-        //this value could be modified to help the port not bog down the threading application so badly
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        linkError(m_port->error());
     }
 }
 

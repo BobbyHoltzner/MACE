@@ -58,11 +58,13 @@ void DataArdupilot::setVehicleMode(const std::string &vehicleMode)
     int vehicleModeID = 0;
     bool modeFound = m_FlightMode->getVehicleModeID(vehicleMode,vehicleModeID);
     std::cout<<"Done getting the vehicle mode ID"<<std::endl;
+    std::cout << "Setting vehicle mode to: " << vehicleModeID << std::endl;
     if(modeFound == true)
     {
         std::cout<<"The vehicle mode was found."<<std::endl;
+        uint8_t chan = m_LinkMarshler->GetProtocolChannel(linkName);
         mavlink_message_t msg;
-        mavlink_msg_set_mode_pack(255,190,&msg,vehicleID,0,vehicleModeID);
+        mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,this->getVehicleID(),0,vehicleModeID);
         std::cout<<"The message was developed."<<std::endl;
         m_LinkMarshler->SendMessage(linkName,msg);
         std::cout<<"The message was sent."<<std::endl;

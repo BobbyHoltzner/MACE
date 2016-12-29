@@ -91,7 +91,6 @@ private:
     QSerialPort* m_port;
     quint64 m_bytesRead;
     int     m_timeout;
-    std::thread *m_CommsThread;
     QThread *m_ListenThread;
     std::mutex  m_dataMutex;       // Mutex for reading data from _port
     std::mutex  m_writeMutex;      // Mutex for accessing the _transmitBuffer.

@@ -57,7 +57,6 @@ private:
 
     Comms::CommsMarshaler *m_LinkMarshler;
     std::string linkName;
-    int vehicleID;
 
     ArdupilotFlightMode* m_FlightMode;
     ArdupilotAttitude* m_Attitude;

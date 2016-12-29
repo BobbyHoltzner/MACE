@@ -199,10 +199,6 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
 
         //test statements that will issue a log_request_list to device
-//        uint8_t chan = m_LinkMarshler->GetProtocolChannel("link1");
-//        mavlink_message_t msg;
-//        mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,0,0,0,0xFFFF);
-//        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
 
 //        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,9,4,1);
 //        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
@@ -222,6 +218,8 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
 //        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,12,4,1);
 //        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
+
+
 
 
     }
@@ -372,6 +370,7 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &a
             case MAV_AUTOPILOT_ARDUPILOTMEGA:
             {
                 std::string linkString = "link1";
+                std::cout << "creating Mav_AutoPilot: VehicleID: " << sendersID << std::endl;
                 Ardupilot::DataArdupilot tmpObject(sendersID,VP_MAVLINK,vehicleType);
                 tmpObject.updateVehicleCommsObject(m_LinkMarshaler,linkString);
                 std::shared_ptr<Ardupilot::DataArdupilot> tmpArdupilot = std::make_shared<Ardupilot::DataArdupilot>(tmpObject);
@@ -398,6 +397,20 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &a
 //!
 void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message) const
 {
+    //test statements that will issue a log_request_list to device
+    //can be used to verify 2 way communication works
+//    static bool requestLogs = false;
+//    if(requestLogs == false){
+//        uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
+//        mavlink_message_t msg;
+//        mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,0,0,0,0xFFFF);
+//        m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+//        requestLogs = true;
+//    }
+//    if(message.msgid == 118)
+//            std::cout << "Mavlink 118 message received" << std::endl;
+
+
     int sendersID = (int)message.sysid;
     int messageID = (int)message.msgid;
 
