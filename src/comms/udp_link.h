@@ -54,6 +54,10 @@ public:
 
     virtual void Disconnect(void);
 
+    virtual void MarshalOnThread(std::function<void()> func){
+        throw std::runtime_error("Not Implimented");
+    }
+
 private:
 
 

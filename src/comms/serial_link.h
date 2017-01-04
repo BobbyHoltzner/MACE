@@ -8,6 +8,7 @@
 #include <iostream>
 #include <thread>
 
+#include <QCoreApplication>
 #include <QSerialPortInfo>
 #include <QSerialPort>
 #include <QThread>
@@ -62,7 +63,37 @@ public:
 
     virtual void Disconnect(void);
 
+    virtual void MarshalOnThread(std::function<void()> func){
+        ///////////////////
+        /// Determine what thread to run function on
+        QThread *threadToMashalOn = m_ListenThread;
+        QThread *currentThread = QThread::currentThread();
+
+        //the current thread is the thread that link operates on
+        if(threadToMashalOn == currentThread)
+        {
+            func();
+        }
+
+        postToThread([func](){
+            func();
+        }, m_port);
+
+    }
+
 private:
+
+    template <typename F>
+    static void postToThread(F && fun, QObject * obj = qApp) {
+      struct Event : public QEvent {
+        F fun;
+        Event(F && fun) : QEvent(QEvent::None), fun(std::move(fun)) {}
+        ~Event() {
+            fun();
+        }
+      };
+      QCoreApplication::postEvent(obj, new Event(std::move(fun)));
+    }
 
 
     /// Performs the actual hardware port connection.
