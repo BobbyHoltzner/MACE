@@ -195,7 +195,10 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
 
         //connect link
-        m_LinkMarshaler->ConnectToLink("link1");
+        bool success = m_LinkMarshaler->ConnectToLink("link1");
+        if(success == false) {
+            throw std::runtime_error("Connection to link failed");
+        }
 
 
         uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");

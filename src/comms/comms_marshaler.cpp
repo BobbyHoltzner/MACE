@@ -118,15 +118,16 @@ void CommsMarshaler::SetProtocolForLink(const std::string &linkName, Protocols p
 //!
 //! \brief Connect to an already created link
 //! \param linkName Name of link to connect to
+//! \return True if connection succesfull, false otherwise
 //!
-void CommsMarshaler::ConnectToLink(const std::string &linkName)
+bool CommsMarshaler::ConnectToLink(const std::string &linkName)
 {
     if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
 
     std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(linkName);
 
-    link->Connect();
+    return link->Connect();
 }
 
 
