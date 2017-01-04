@@ -54,23 +54,37 @@ void DataArdupilot::updateVehicleCommsObject(Comms::CommsMarshaler* marshaler, s
 
 void DataArdupilot::setVehicleMode(const std::string &vehicleMode)
 {
-     std::cout<<"Attempting to change the vehicle mode"<<std::endl;
-    int vehicleModeID = 0;
-    bool modeFound = m_FlightMode->getVehicleModeID(vehicleMode,vehicleModeID);
-    std::cout<<"Done getting the vehicle mode ID"<<std::endl;
-    std::cout << "Setting vehicle mode to: " << vehicleModeID << std::endl;
-    if(modeFound == true)
-    {
-        std::cout<<"The vehicle mode was found."<<std::endl;
-        uint8_t chan = m_LinkMarshler->GetProtocolChannel(linkName);
-        mavlink_message_t msg;
-        mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,this->getVehicleID(),0,vehicleModeID);
-        std::cout<<"The message was developed."<<std::endl;
-        m_LinkMarshler->SendMessage(linkName,msg);
-        std::cout<<"The message was sent."<<std::endl;
-    }else{
-        std::cout<<"The vehicle mode was not found."<<std::endl;
-    }
+    uint8_t chan = m_LinkMarshler->GetProtocolChannel(linkName);
+    mavlink_message_t msg;
+
+    mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
+    m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
+
+    std::cout<<"The message was sent."<<std::endl;
+
+
+//     std::cout<<"Attempting to change the vehicle mode"<<std::endl;
+//    int vehicleModeID = 0;
+//    bool modeFound = m_FlightMode->getVehicleModeID(vehicleMode,vehicleModeID);
+//    std::cout<<"Done getting the vehicle mode ID"<<std::endl;
+//    std::cout << "Setting vehicle mode to: " << vehicleModeID << std::endl;
+//    if(modeFound == true)
+//    {
+//        std::cout<<"The vehicle mode was found with a value of:"<<vehicleModeID<<std::endl;
+
+//        std::cout<<"The vehicle ID used here is: "<<this->getVehicleID()<<std::endl;
+//        mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,this->getVehicleID(),MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,vehicleModeID);
+//        //mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,this->getVehicleID(),vehicleModeID,0);
+//        //std::cout<<"The message was developed."<<std::endl;
+
+
+
+//        //m_LinkMarshler->SendMessage<mavlink_message_t>(linkName,msg);
+
+//        std::cout<<"The message was sent."<<std::endl;
+//    }else{
+//        std::cout<<"The vehicle mode was not found."<<std::endl;
+//    }
 }
 
 void DataArdupilot::getVehicleMode(std::string &rtnString)
@@ -104,6 +118,38 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
     int messageID = message.msgid;
     switch (messageID)
     {
+    case MAVLINK_MSG_ID_LOG_ENTRY:
+    {
+        std::cout<<"A log entry message was received!"<<std::endl;
+        break;
+    }
+    case MAVLINK_MSG_ID_COMMAND_ACK:
+    {
+        mavlink_command_ack_t decodedMSG;
+        mavlink_msg_command_ack_decode(&message,&decodedMSG);
+        std::cout<<"The command acknowledgement came from: "<<decodedMSG.command<<std::endl;
+        switch(decodedMSG.result)
+        {
+            case MAV_RESULT_ACCEPTED:
+                std::cout<<"MAV result accepted"<<std::endl;
+                break;
+            case MAV_RESULT_TEMPORARILY_REJECTED:
+                std::cout<<"MAV result rejected"<<std::endl;
+                break;
+            case MAV_RESULT_DENIED:
+                std::cout<<"MAV result denied"<<std::endl;
+                break;
+            case MAV_RESULT_UNSUPPORTED:
+                std::cout<<"MAV result unsupported"<<std::endl;
+                break;
+            case MAV_RESULT_FAILED:
+                std::cout<<"MAV result failed"<<std::endl;
+                break;
+            default:
+                std::cout<<"Uknown ack!"<<std::endl;
+        }
+        break;
+    }
     case MAVLINK_MSG_ID_HEARTBEAT:
     {
         mavlink_heartbeat_t decodedMSG;
@@ -371,7 +417,7 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
     }
     default:
     {
-//        std::cout << "I saw a message with the ID "<< message.msgid << std::endl;
+       // std::cout << "I saw a message with the ID "<< message.msgid << std::endl;
     }
     }
 
