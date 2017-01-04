@@ -42,7 +42,7 @@ headers.path    = $$(MACE_ROOT)/include/data
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
-INCLUDEPATH += $$(MACE_ROOT)/include
+INCLUDEPATH += $$PWD/../
 
 
 unix{

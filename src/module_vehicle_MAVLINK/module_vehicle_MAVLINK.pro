@@ -77,7 +77,7 @@ headers_Vehicle_Ardupilot.files   += Vehicles/Ardupilot/ardupilot_attitude.h \
     Vehicles/Ardupilot/data_ardupilot_global.h
 INSTALLS       += headers_Vehicle_Ardupilot
 
-INCLUDEPATH += $$(MACE_ROOT)/include
+INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
