@@ -238,14 +238,16 @@ void ModuleGroundStation::getConnectedVehicles(QByteArray &connectedVehicles)
 
 void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &vehiclePosition)
 {
-    int positionFix = 0;
+    int satFix = 0;
     int numSats = 0;
     Data::GlobalPosition positionVector;
+
+    Eigen::Vector3d positionVector(10.0,10.0,10.0);
     if(m_VehicleMap.find(vehicleID) == m_VehicleMap.cend())
     {
         std::cout << "The vehicle with that ID is not there." << std::endl;
     }else{
-        m_VehicleMap.at(vehicleID)->getVehiclePosition(positionFix, numSats, positionVector);
+        m_VehicleMap.at(vehicleID)->getVehiclePosition(satFix, numSats, positionVector);
 
         QJsonObject json;
         json["dataType"] = "VehiclePosition";

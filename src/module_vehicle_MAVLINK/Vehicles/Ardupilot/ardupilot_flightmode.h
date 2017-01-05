@@ -80,10 +80,10 @@ public:
 private:
     int vehicleType;
     int flightMode;
-    std::map<int, std::string>* availableFM;
+    std::map<int, std::string> availableFM;
 
 private:
-    std::map<int, std::string> arducopterFM = {{ACFM_STABILIZE,"MANUAL"},
+    std::map<int, std::string> arducopterFM = {{ACFM_STABILIZE,"STABILIZE"},
                                                {ACFM_ACRO,"ACRO"},
                                                {ACFM_ALT_HOLD,"ALT HOLD"},
                                                {ACFM_AUTO,"AUTO"},

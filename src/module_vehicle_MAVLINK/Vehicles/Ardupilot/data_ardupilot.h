@@ -20,7 +20,7 @@
 #include "data/local_position.h"
 
 #include "mace_core/vehicle_object.h"
-#include "module_vehicle_MAVLINK/generic_message_definition_mavlink.h"
+#include "../../generic_message_definition_mavlink.h"
 
 namespace Ardupilot{
 
@@ -33,6 +33,8 @@ public:
 
     ~DataArdupilot();
 
+    void updateVehicleCommsObject(Comms::CommsMarshaler* marshaler, std::string linkString);
+
     virtual void handleMessage(VehicleMessage msgIn);
     virtual void getVehicleMode(std::string &rtnString);
     virtual void getVehicleAttitude(Eigen::Vector3d &rtnString);
@@ -41,6 +43,7 @@ public:
 
     virtual void setVehicleMode(const std::string &vehicleMode);
 
+    std::string getLinkName();
 
 //    virtual int getVehicleID() const;
 //    virtual int getVehicleProtocol() const;
@@ -50,10 +53,10 @@ public:
 //    void newValue(double value);
 
 private:
+    int counter = 0;
 
     Comms::CommsMarshaler *m_LinkMarshler;
-    std::string mLinkName;
-    int vehicleID;
+    std::string linkName;
 
     ArdupilotFlightMode* m_FlightMode;
     ArdupilotAttitude* m_Attitude;

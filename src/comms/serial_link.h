@@ -3,10 +3,12 @@
 
 #include "comms_global.h"
 
+#include <chrono>
 #include <mutex>
 #include <iostream>
 #include <thread>
 
+#include <QCoreApplication>
 #include <QSerialPortInfo>
 #include <QSerialPort>
 #include <QThread>
@@ -61,7 +63,37 @@ public:
 
     virtual void Disconnect(void);
 
+    virtual void MarshalOnThread(std::function<void()> func){
+        ///////////////////
+        /// Determine what thread to run function on
+        QThread *threadToMashalOn = m_ListenThread;
+        QThread *currentThread = QThread::currentThread();
+
+        //the current thread is the thread that link operates on
+        if(threadToMashalOn == currentThread)
+        {
+            func();
+        }
+
+        postToThread([func](){
+            func();
+        }, m_port);
+
+    }
+
 private:
+
+    template <typename F>
+    static void postToThread(F && fun, QObject * obj = qApp) {
+      struct Event : public QEvent {
+        F fun;
+        Event(F && fun) : QEvent(QEvent::None), fun(std::move(fun)) {}
+        ~Event() {
+            fun();
+        }
+      };
+      QCoreApplication::postEvent(obj, new Event(std::move(fun)));
+    }
 
 
     /// Performs the actual hardware port connection.
@@ -90,7 +122,6 @@ private:
     QSerialPort* m_port;
     quint64 m_bytesRead;
     int     m_timeout;
-    std::thread *m_CommsThread;
     QThread *m_ListenThread;
     std::mutex  m_dataMutex;       // Mutex for reading data from _port
     std::mutex  m_writeMutex;      // Mutex for accessing the _transmitBuffer.

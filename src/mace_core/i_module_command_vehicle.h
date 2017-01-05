@@ -16,6 +16,7 @@ enum class VehicleCommands
 {
     CREATE_VEHICLE_OBJECT,
     REMOVE_VEHICLE_OBJECT,
+    UPDATE_VEHICLE_OBJECT_LIST,
     FOLLOW_NEW_COMMANDS,
     FINISH_AND_FOLLOW_COMMANDS,
     COMMANDS_APPENDED
@@ -42,6 +43,10 @@ public:
             RemoveVehicleObject(vehicleID);
         });
 
+        AddCommandLogic<std::list<int>>(VehicleCommands::UPDATE_VEHICLE_OBJECT_LIST, [this](const std::list<int> &vehicleObjectList){
+            UpdateVehicleObjectList(vehicleObjectList);
+        });
+
         AddCommandLogic(VehicleCommands::FOLLOW_NEW_COMMANDS, [this](){
             FollowNewCommands();
         });
@@ -53,6 +58,7 @@ public:
         AddCommandLogic(VehicleCommands::COMMANDS_APPENDED, [this](){
             CommandsAppended();
         });
+
     }
 
     virtual Classes ModuleClass() const
@@ -67,6 +73,7 @@ public:
 
     virtual void RemoveVehicleObject(const int &vehicleID) = 0;
 
+    virtual void UpdateVehicleObjectList(const std::list<int> &vehicleObjectList) = 0;
 
     //!
     //! \brief New commands have been updated that the vehicle is to follow immediatly

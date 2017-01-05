@@ -10,6 +10,7 @@ MaceCore::MaceCore()
 {
     insertFlag = false;
     counter = 0;
+    counter_new_vehicle = 0;
 }
 
 
@@ -78,17 +79,35 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
-void MaceCore::NewConstructedVehicle(const void *sender, std::shared_ptr<VehicleObject> vehicleObject)
+void MaceCore::NewConstructedVehicle(const void *sender, const std::shared_ptr<VehicleObject> &vehicleObject)
 {
+    counter_new_vehicle = counter_new_vehicle + 1;
+    std::cout<<"The number of times a new vehicle has been constructed is: "<<counter_new_vehicle<<std::endl;
+
     IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
     int sendersID = 0;
     bool rtnValue = m_DataFusion->AddNewVehicle(vehicleObject,sendersID);
-    vehicleModule->MarshalCommand(VehicleCommands::REMOVE_VEHICLE_OBJECT, rtnValue);
+
+    m_VehicleObjectRequired.remove(sendersID);
+    std::cout<<"The size of the list is now: "<<m_VehicleObjectRequired.size()<<std::endl;
+    //vehicleModule->MarshalCommand(VehicleCommands::REMOVE_VEHICLE_OBJECT, sendersID);
+    if(rtnValue == true){
+        std::cout<<"A new vehicle has been added to the map. Notify everyone."<<std::endl;
+    }
 }
-void MaceCore::TestNewVehicleMessage(const void *sender, const TIME &time, std::function<std::vector<std::string> (VehicleObject *)> vehicleFunction)
+
+bool MaceCore::VehicleCheck(const int &vehicleID)
 {
-//    std::shared_ptr<VehicleObject> tmpObject = m_VehicleData[1];
-//    vehicleFunction(tmpObject);
+    std::list<int>::iterator it;
+    for (it=m_VehicleObjectRequired.begin(); it != m_VehicleObjectRequired.end(); ++it)
+    {
+        if(*it == vehicleID)
+        {
+            return true;
+        }
+    }
+    m_VehicleObjectRequired.push_back(vehicleID);
+    return false;
 }
 
 void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const VehicleMessage &vehicleMessage)
@@ -96,12 +115,14 @@ void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const Veh
     IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
     int sendersID = 0;
     bool rtnValue = m_DataFusion->HandleVehicleMessage(vehicleMessage,sendersID);
-    if(rtnValue == false){
+    if(rtnValue == false && this->VehicleCheck(sendersID) == false){
+        std::cout<<"The value of counter is: "<<counter<<std::endl;
+        counter = counter + 1;
         vehicleModule->MarshalCommand(VehicleCommands::CREATE_VEHICLE_OBJECT, sendersID);
     }else{
         std::string tmpString = "NA";
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, tmpString);
-        m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, tmpString);
+        //m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, tmpString);
+        //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, tmpString);
     }
 }
 
@@ -114,7 +135,7 @@ void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const E
 
     m_RTA->MarshalCommand(RTACommands::UPDATED_POSITION_DYNAMICS, ID);
     m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, ID);
-    m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, ID);
+    //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, ID);
 }
 
 
@@ -127,7 +148,7 @@ void MaceCore::NewDynamicsDynamics(const void* sender, const TIME &time, const E
 
     m_RTA->MarshalCommand(RTACommands::UPDATED_ATTITUDE_DYNAMICS, ID);
     m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
-    m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
+    //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
 }
 
 
@@ -140,7 +161,7 @@ void MaceCore::NewVehicleLife(const void* sender, const TIME &time, const Vehicl
 
     m_RTA->MarshalCommand(RTACommands::UPDATED_VEHICLE_LIFE, ID);
     m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_VEHICLE_LIFE, ID);
-    m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_VEHICLE_LIFE, ID);
+    //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_VEHICLE_LIFE, ID);
 }
 
 

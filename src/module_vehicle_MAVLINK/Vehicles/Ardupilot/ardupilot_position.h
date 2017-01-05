@@ -19,6 +19,8 @@ public:
     ArdupilotPosition();
     void handleMAVLINKMessage(const mavlink_message_t &posMSG);
     void getGlobalPosition(Data::GlobalPosition &position);
+    void getLocalPosition(Data::LocalPosition &position);
+
     void getGPSStatus(int &fixCode, int &numSats);
 
 private:

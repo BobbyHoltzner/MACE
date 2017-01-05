@@ -14,17 +14,17 @@ LocalPositionStruct::LocalPositionStruct()
 
 bool LocalPositionStruct::operator ==(const LocalPositionStruct &rhs) const
 {
-    if(abs(rhs.xPosition - this->xPosition) < 0.0001)
-        if(abs(rhs.yPosition - this->yPosition) < 0.0001)
-            if(abs(rhs.zPosition - this->zPosition) < 0.0001)
-                if(abs(rhs.xVelocity - this->xVelocity) < 0.0001)
-                    if(abs(rhs.yVelocity - this->yVelocity) < 0.0001)
-                        if(abs(rhs.zVelocity - this->zVelocity) < 0.0001)
-                            if(abs(rhs.xAcceleration - this->xAcceleration) < 0.0001)
-                                if(abs(rhs.yAcceleration - this->yAcceleration) < 0.0001)
-                                    if(abs(rhs.zAcceleration - this->zAcceleration) < 0.0001)
-                                        if(abs(rhs.yaw - this->yaw) < 0.0001)
-                                            if(abs(rhs.yawRate - this->yawRate) < 0.0001)
+    if(fabs(rhs.xPosition - this->xPosition) < 0.0001)
+        if(fabs(rhs.yPosition - this->yPosition) < 0.0001)
+            if(fabs(rhs.zPosition - this->zPosition) < 0.0001)
+                if(fabs(rhs.xVelocity - this->xVelocity) < 0.0001)
+                    if(fabs(rhs.yVelocity - this->yVelocity) < 0.0001)
+                        if(fabs(rhs.zVelocity - this->zVelocity) < 0.0001)
+                            if(fabs(rhs.xAcceleration - this->xAcceleration) < 0.0001)
+                                if(fabs(rhs.yAcceleration - this->yAcceleration) < 0.0001)
+                                    if(fabs(rhs.zAcceleration - this->zAcceleration) < 0.0001)
+                                        if(fabs(rhs.yaw - this->yaw) < 0.0001)
+                                            if(fabs(rhs.yawRate - this->yawRate) < 0.0001)
                                                 return(true);
     return(false);
 }
