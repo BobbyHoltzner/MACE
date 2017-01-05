@@ -79,9 +79,9 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::Module
     serialSettings->AddTerminalParameters("Parity", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
     serialSettings->AddTerminalParameters("FlowControl", MaceCore::ModuleParameterTerminalTypes::INT, true);
 
-//    std::shared_ptr<MaceCore::ModuleParameterStructure> udpSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
-//    udpSettings->AddTerminalParameters("Address", MaceCore::ModuleParameterTerminalTypes::STRING, true);
-//    udpSettings->AddTerminalParameters("PortNumber", MaceCore::ModuleParameterTerminalTypes::INT, true);
+    std::shared_ptr<MaceCore::ModuleParameterStructure> udpSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
+    udpSettings->AddTerminalParameters("Address", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+    udpSettings->AddTerminalParameters("PortNumber", MaceCore::ModuleParameterTerminalTypes::INT, true);
 
     std::shared_ptr<MaceCore::ModuleParameterStructure> protocolSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
     protocolSettings->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true, "Mavlink", {"Mavlink"});
@@ -255,19 +255,19 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         config.setPortNumber(portNumber);
 
         std::string linkName = "udplink_" + std::to_string(portNumber);
-        m_LinkMarshler->AddUDPLink(linkName, config);
+        m_LinkMarshaler->AddUDPLink(linkName, config);
 
 
         //now configure to use link with desired protocol
         if(protocolToUse == Comms::Protocols::MAVLINK)
         {
-            m_LinkMarshler->SetProtocolForLink(linkName, Comms::Protocols::MAVLINK);
+            m_LinkMarshaler->SetProtocolForLink(linkName, Comms::Protocols::MAVLINK);
 
             std::shared_ptr<Comms::MavlinkConfiguration> mavlinkConfig = std::static_pointer_cast<Comms::MavlinkConfiguration>(m_AvailableProtocols.at(Comms::Protocols::MAVLINK));
 
             //set version on mavlink channel
             // I would prefer to put this in Comms library, but because the mavlinkstatus is static variable, things get messed up when linking
-            uint8_t chan = m_LinkMarshler->GetProtocolChannel(linkName);
+            uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
             mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(chan);
             std::cout << mavlinkStatus << std::endl;
             switch (mavlinkConfig->GetVersion()) {
@@ -289,7 +289,7 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
 
         //connect link
-        m_LinkMarshler->ConnectToLink(linkName);
+        m_LinkMarshaler->ConnectToLink(linkName);
 
 
         //test statements that will issue a log_request_list to device

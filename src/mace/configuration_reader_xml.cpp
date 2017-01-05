@@ -98,7 +98,7 @@ static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pug
             if(valueContainer->HasNonTerminal(parameterName))
             {
                 if(structure->getNonTerminalMultipleEntriesAllowed(parameterName) == true)
-                    throw std::runtime_error("Support for multiple entires of same tag not implimented");
+                    throw std::runtime_error("Support for multiple entires of same tag not implemented");
                 else
                 {
                     result.error = nestedName + " is present multiple times";

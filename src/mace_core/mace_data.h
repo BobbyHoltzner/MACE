@@ -37,7 +37,7 @@ class MaceCore;
 //! Only MaceCore object will be able of manipulating data inside this object, while any module can read data out of it.
 //! If a module must write to this object it must issue an event to MaceCore first.
 //!
-//! Use of the MaceData object requires implimentaiton of various Fuse_* methods.
+//! Use of the MaceData object requires implementaiton of various Fuse_* methods.
 //! These methods describe how to combine multiple observations and used to expose a continuous-time data-space with descrite-time observations.
 //! The exact method in how this interpolation is done (pick closests, linear, more advanced methods) is left to the user of MaceData.
 //!
@@ -69,7 +69,7 @@ public:
     //!
     //! \brief Abstract method to interpolate vehicle dynamics
     //!
-    //! This method is to be implimented by the instantiator of MaceData
+    //! This method is to be implemented by the instantiator of MaceData
     //! \param time Time to interpolate to
     //! \param v0 Value0
     //! \param t0 Time0
@@ -83,7 +83,7 @@ public:
     //!
     //! \brief Abstract method to interpolate vehicle life
     //!
-    //! This method is to be implimented by the instantiator of MaceData
+    //! This method is to be implemented by the instantiator of MaceData
     //! \param time Time to interpolate to
     //! \param v0 Value0
     //! \param t0 Time0

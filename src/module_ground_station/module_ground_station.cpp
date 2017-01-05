@@ -242,7 +242,6 @@ void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &v
     int numSats = 0;
     Data::GlobalPosition positionVector;
 
-    Eigen::Vector3d positionVector(10.0,10.0,10.0);
     if(m_VehicleMap.find(vehicleID) == m_VehicleMap.cend())
     {
         std::cout << "The vehicle with that ID is not there." << std::endl;
@@ -255,7 +254,7 @@ void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &v
         json["lat"] = positionVector.getLatitude();
         json["lon"] = positionVector.getLongitude();
         json["alt"] = positionVector.getAltitude();
-        json["positionFix"] = positionFix;
+        json["satFix"] = satFix;
         json["numSats"] = numSats;
 
         QJsonDocument doc(json);

@@ -35,7 +35,7 @@
  * The start method is the entry point for the thread that the module is to run on.
  * The start() method should contain an event loop of some sort that responds to commands made.
  *
- * Each module will impliment commands as defined by it's interface.
+ * Each module will implement commands as defined by it's interface.
  * These commands will NOT be invoked on the thread the module is operating on.
  * If the command is to kick off some action on the module's thread, it will have to marshaled onto the event loop in some way.
  *

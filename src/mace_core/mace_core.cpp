@@ -212,7 +212,7 @@ void MaceCore::CommandNewVehicleMode(const std::string &vehicleMode)
 //!
 void MaceCore::PlanningHorizon(const std::string &horizon)
 {
-    throw std::runtime_error("Not Implimented");
+    throw std::runtime_error("Not Implemented");
 }
 
 void MaceCore::ReplaceVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands)

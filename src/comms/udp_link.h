@@ -7,6 +7,7 @@
 #include <iostream>
 #include <thread>
 
+#include <QCoreApplication>
 #include <QThread>
 #include <QUdpSocket>
 
@@ -55,10 +56,35 @@ public:
     virtual void Disconnect(void);
 
     virtual void MarshalOnThread(std::function<void()> func){
-        throw std::runtime_error("Not Implimented");
+        ///////////////////
+        /// Determine what thread to run function on
+        QThread *threadToMashalOn = m_ListenThread;
+        QThread *currentThread = QThread::currentThread();
+
+        //the current thread is the thread that link operates on
+        if(threadToMashalOn == currentThread)
+        {
+            func();
+        }
+
+        postToThread([func](){
+            func();
+        }, m_socket);
     }
 
 private:
+
+    template <typename F>
+    static void postToThread(F && fun, QObject * obj = qApp) {
+      struct Event : public QEvent {
+        F fun;
+        Event(F && fun) : QEvent(QEvent::None), fun(std::move(fun)) {}
+        ~Event() {
+            fun();
+        }
+      };
+      QCoreApplication::postEvent(obj, new Event(std::move(fun)));
+    }
 
 
     /// Performs the actual hardware port connection.

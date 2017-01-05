@@ -302,7 +302,7 @@ public:
     //! \param type Expected format of non-terminal
     //! \param required True if required
     //! \param defaultValue Default value to set if not required and not present in settings
-    //! \param multipleEntiresAllowed True if multiple entires of this non-terminal are allowed (not implimented)
+    //! \param multipleEntiresAllowed True if multiple entires of this non-terminal are allowed (not implemented)
     //!
     void AddNonTerminal(const std::string &name, const std::shared_ptr<ModuleParameterStructure> &type, bool required = false, const std::shared_ptr<ModuleParameterValue> &defaultValue = std::make_shared<ModuleParameterValue>(), bool multipleEntiresAllowed = false)
     {

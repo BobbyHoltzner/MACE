@@ -54,11 +54,11 @@ void DataArdupilot::updateVehicleCommsObject(Comms::CommsMarshaler* marshaler, s
 
 void DataArdupilot::setVehicleMode(const std::string &vehicleMode)
 {
-    uint8_t chan = m_LinkMarshler->GetProtocolChannel(linkName);
+    uint8_t chan = m_LinkMarshler->GetProtocolChannel("udplink_14552");
     mavlink_message_t msg;
 
     mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
-    m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
+    m_LinkMarshler->SendMessage<mavlink_message_t>("udplink_14552", msg);
 
     std::cout<<"The message was sent."<<std::endl;
 
