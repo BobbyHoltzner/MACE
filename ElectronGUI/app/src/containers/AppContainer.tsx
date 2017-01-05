@@ -1,15 +1,23 @@
 import * as React from 'react';
 
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+const lightMuiTheme = getMuiTheme();
+
 var NotificationSystem = require('react-notification-system');
 import { Map, TileLayer } from 'react-leaflet';
 import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
 import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
-import { VehicleMapType, generateNewVehicle } from '../components/VehicleHUD'
+import { generateNewVehicle } from '../components/VehicleHUD'
 import { VehicleCommandsContainer } from './VehicleCommandsContainer';
+import { AppDrawer } from './AppDrawer';
+import AppBar from 'material-ui/AppBar';
+import * as colors from 'material-ui/styles/colors';
+import IconMenu from 'material-ui/IconMenu';
+import MenuItem from 'material-ui/MenuItem';
+import IconButton from 'material-ui/IconButton';
+import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-const lightMuiTheme = getMuiTheme();
 import * as deepcopy from 'deepcopy';
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
@@ -54,6 +62,8 @@ type State = {
   mapCenter?: number[],
   connectedVehicles?: VehicleMapType,
   vehicleWarnings?: VehicleWarning[]
+  selectedVehicleID?: string,
+  openDrawer?: boolean
 }
 
 export default class AppContainer extends React.Component<Props, State> {    
@@ -63,8 +73,8 @@ export default class AppContainer extends React.Component<Props, State> {
   m_AttitudeTimeout: number;
   m_PositionInterval: number[];
   m_PositionTimeout: number;
-  constructor() {
-    super();  
+  constructor(props: Props) {
+        super(props);
 
     this.m_AttitudeInterval = [];
     this.m_PositionInterval = [];
@@ -79,7 +89,8 @@ export default class AppContainer extends React.Component<Props, State> {
       initialZoom: 18,
       mapCenter: [37.889231, -76.810302],
       connectedVehicles: {},
-      vehicleWarnings: []
+      vehicleWarnings: [],
+      openDrawer: false
     }
   }
 
@@ -87,16 +98,11 @@ export default class AppContainer extends React.Component<Props, State> {
     this.leafletMap = this.refs.map;
     this.notificationSystem = this.refs.notificationSystem;
 
-    this.setupTCPClient();
+    // this.setupTCPClient();
 
-    setInterval(() => {
-      this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
-    }, 3000);
-    // this.testTCPRequest();
-  }
-
-  testTCPRequest = () => {
-    this.makeTCPRequest("GET_ATTITUDE", 1);
+    // setInterval(() => {
+    //   this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
+    // }, 3000);
   }
 
   makeTCPRequest = (command: string, vehicleID: number) => {
@@ -231,6 +237,14 @@ export default class AppContainer extends React.Component<Props, State> {
     this.notificationSystem.addNotification(notification);
   }
 
+  handleSelectedAircraftChange = (id: string) => {}
+
+  handleAircraftCommand = (id: string, command: string) => {}
+
+  handleDrawerAction = (action: string) => {
+    console.log("Action: " + action);
+  }
+
 
   render() {
 
@@ -239,39 +253,66 @@ export default class AppContainer extends React.Component<Props, State> {
     const parentStyle = {height: height + 'px', width: width + 'px'};
     const mapStyle = { top: 0, left: 0, height: height + 'px', width: width + 'px' };
 
-    // const centerButtonStyle = { width: 100 + '%' };
+    const MoreVertMenu = () => (
+      <IconMenu
+        iconButtonElement={<IconButton><MoreVertIcon color="white" /></IconButton>}
+        anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+        targetOrigin={{horizontal: 'right', vertical: 'top'}}
+      >
+        <MenuItem onClick={() => console.log("RTA")} primaryText="RTA Parameters" />
+        <MenuItem onClick={() => console.log("Path Planning")} primaryText="Path Planning Parameters" />
+      </IconMenu>
+    );
 
     return (
-        <div style={parentStyle}>
+        <MuiThemeProvider muiTheme={lightMuiTheme}>
+          <div style={parentStyle}>
 
-          <ConnectedVehiclesContainer
-            connectedVehicles={this.state.connectedVehicles}
-           />
+            <AppBar
+                title="MACE"
+                style={{backgroundColor: colors.orange700}}
+                onLeftIconButtonTouchTap={() => this.setState({openDrawer: !this.state.openDrawer})}
+                iconElementRight={<MoreVertMenu />}
+            />
 
-          <VehicleCommandsContainer
-           />
+            <AppDrawer
+              openDrawer={this.state.openDrawer}
+              onToggleDrawer={(open: boolean) => this.setState({openDrawer: open})}
+              onDrawerAction={(action: string) => this.handleDrawerAction(action)}
+             />
 
-          <VehicleWarningsContainer
-            vehicleWarnings={this.state.vehicleWarnings}
-           />
+            <ConnectedVehiclesContainer
+              connectedVehicles={this.state.connectedVehicles}
+            />
 
-           {/* 
-          <MuiThemeProvider muiTheme={lightMuiTheme}>
-              <FlatButton style={centerButtonStyle} label="Test Button" onClick={this.testTCPRequest}/>
-          </MuiThemeProvider>
-          */}
-           
+            <VehicleCommandsContainer
+              connectedVehicles={this.state.connectedVehicles}
+              onSelectedAircraftChange={this.handleSelectedAircraftChange}
+              onAircraftCommand={this.handleAircraftCommand}
+            />
 
-          <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} >
-              {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
-              <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.state.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
-          </Map>
+            <VehicleWarningsContainer
+              vehicleWarnings={this.state.vehicleWarnings}
+            />
 
-          <div>
-            <NotificationSystem ref="notificationSystem" />
+            {/* 
+            <MuiThemeProvider muiTheme={lightMuiTheme}>
+                <FlatButton style={centerButtonStyle} label="Test Button" onClick={this.testTCPRequest}/>
+            </MuiThemeProvider>
+            */}
+            
+
+            <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} >
+                {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
+                <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.state.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
+            </Map>
+
+            <div>
+              <NotificationSystem ref="notificationSystem" />
+            </div>
+
           </div>
-
-        </div>
+        </MuiThemeProvider>
     );
   }
 }

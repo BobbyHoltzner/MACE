@@ -6,21 +6,6 @@ import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
 // import deepEqual from '../helpers/DeepEqual';
 
-export type VehicleStateType = {
-    position: {
-        lat: number,
-        lon: number,
-        alt: number,
-        numSats: number,
-        positionFix: number
-    },
-    attitude: {
-        roll: number,
-        pitch: number,
-        yaw: number 
-    }
-}
-
 export function generateNewVehicle(): VehicleStateType {
     let vehicleState = {
         position: {
@@ -38,8 +23,6 @@ export function generateNewVehicle(): VehicleStateType {
     };
     return vehicleState;
 }
-
-export type VehicleMapType = {[id: string]: VehicleStateType};
 
 
 type Props = {

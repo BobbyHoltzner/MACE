@@ -17,8 +17,8 @@ type State = {
 
 export class VehicleWarningsContainer extends React.Component<Props, State> {
 
-    constructor() {
-        super();
+    constructor(props: Props) {
+        super(props);
     }
 
 
