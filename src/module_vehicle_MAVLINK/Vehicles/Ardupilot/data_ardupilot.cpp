@@ -54,11 +54,11 @@ void DataArdupilot::updateVehicleCommsObject(Comms::CommsMarshaler* marshaler, s
 
 void DataArdupilot::setVehicleMode(const std::string &vehicleMode)
 {
-    uint8_t chan = m_LinkMarshler->GetProtocolChannel("udplink_14552");
+    uint8_t chan = m_LinkMarshler->GetProtocolChannel(linkName);
     mavlink_message_t msg;
 
     mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
-    m_LinkMarshler->SendMessage<mavlink_message_t>("udplink_14552", msg);
+    m_LinkMarshler->SendMessage<mavlink_message_t>(linkName, msg);
 
     std::cout<<"The message was sent."<<std::endl;
 
@@ -158,7 +158,7 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         m_FlightMode->setFlightMode(decodedMSG.custom_mode);
         counter = counter + 1;
         std::cout<<"A new heartbeat was seen: "<<counter<< " " << std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch()).count() << std::endl;
-        if(counter > 20){
+        if(counter > 10){
             this->setVehicleMode("STABILIZE");
         }
         break;

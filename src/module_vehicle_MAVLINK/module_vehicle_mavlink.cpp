@@ -374,7 +374,7 @@ void ModuleVehicleMAVLINK::CommandsAppended()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///              COMM EVENTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &autopilotType, const int &vehicleType) const
+void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &autopilotType, const int &vehicleType, const std::string &linkString) const
 {
     for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
     {
@@ -386,7 +386,7 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &a
             switch (autopilotType) {
             case MAV_AUTOPILOT_ARDUPILOTMEGA:
             {
-                std::string linkString = "link1";
+//                std::string linkString = "link1";
                 std::cout << "creating Mav_AutoPilot: VehicleID: " << sendersID << std::endl;
                 Ardupilot::DataArdupilot tmpObject(sendersID,VP_MAVLINK,vehicleType);
                 tmpObject.updateVehicleCommsObject(m_LinkMarshaler,linkString);
@@ -444,7 +444,7 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
 
         if(m_NeededVehicleObjects.size() != 0)
         {
-            vehicleObjectCheck(sendersID,(int)decodedMSG.autopilot,(int)decodedMSG.type);
+            vehicleObjectCheck(sendersID,(int)decodedMSG.autopilot,(int)decodedMSG.type, linkName);
         }
     }
 
