@@ -74,6 +74,12 @@ public:
 
     virtual void setVehicleMode(const std::string &vehicleMode) = 0;
 
+    virtual void setVehicleTakeoff(const double &altitude) = 0;
+
+    virtual void setVehicleArm(const bool &arm) = 0;
+
+    virtual void setVehicleMotorTest(const int &motorNumber, const int &throttlePercentage, const int &timeout) = 0;
+
 private:
     int m_VehicleID;
     int m_VehicleProtocol;
