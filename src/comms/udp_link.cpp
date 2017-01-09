@@ -118,7 +118,30 @@ bool UdpLink::_hardwareConnect(QAbstractSocket::SocketError &error, QString& err
     std::cout << "UdpLink: hardwareConnect to " << _config.address() << ":" << _config.portNumber() << std::endl;
 
     m_socket = new QUdpSocket();
-    m_socket->bind(_config.portNumber(), QUdpSocket::ShareAddress);
+    m_socket->bind(QHostAddress(QString::fromStdString((_config.address()))), _config.portNumber(), QUdpSocket::ShareAddress);
+    //m_socket->connectToHost(QHostAddress(QString::fromStdString((_config.address()))), _config.portNumber());
+    //m_socket->waitForConnected(1000);
+    //m_socket->bind(_config.portNumber(), QUdpSocket::ShareAddress);
+
+    for (int openRetries = 0; openRetries < 4; openRetries++) {
+        if (!m_socket->open(QIODevice::ReadWrite)) {
+            //std::cout << "Port open failed, retrying" << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        } else {
+            break;
+        }
+    }
+
+    if (!m_socket->isOpen() ) {
+        //std::cerr << "open failed" << m_port->errorString().toStdString() << m_port->error() << getName() << _config.isAutoConnect() << std::endl;
+        error = m_socket->error();
+        errorString = m_socket->errorString();
+        EmitEvent([&](const ILinkEvents *ptr){ptr->CommunicationUpdate(this, _config.address(), "Error opening port: " + errorString.toStdString());});
+        m_socket->close();
+        delete m_socket;
+        m_socket = NULL;
+        return false; // couldn't open udp port
+    }
 
 
     // TODO: Figure out the alternative to this:
@@ -149,7 +172,9 @@ void UdpLink::WriteBytes(const char *bytes, int length) const
     QByteArray data(bytes, length);
     if(m_socket && m_socket->isOpen()) {
         //_logOutputDataRate(data.size(), QDateTime::currentMSecsSinceEpoch());
-        m_socket->write(data);
+        m_socket->writeDatagram(data, QHostAddress(QString::fromStdString(_config.address())), _config.portNumber());
+//        m_socket->writeDatagram(data, QHostAddress::LocalHost, 14552);
+        //m_socket->write(data);
     } else {
         // Error occured
         _emitLinkError("Could not send data - link " + getAddress() + ":" + std::to_string(getPortNumber()) + " is disconnected!");

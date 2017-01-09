@@ -6,28 +6,8 @@
       <Parameter Name="Version">V1</Parameter>
     </Parameter>
 	<Parameter Name="UDPParameters">
-      <Parameter Name="Address">127.0.0.1</Parameter>
-      <Parameter Name="PortNumber">14552</Parameter>
-    </Parameter>
-  </Module>
-  <Module Class="VehicleComms" Type="MAVLINK">
-    <Parameter Name="ProtocolParameters">
-      <Parameter Name="Name">Mavlink</Parameter>
-      <Parameter Name="Version">V1</Parameter>
-    </Parameter>
-	<Parameter Name="UDPParameters">
-      <Parameter Name="Address">127.0.0.1</Parameter>
-      <Parameter Name="PortNumber">14553</Parameter>
-    </Parameter>
-  </Module>
-  <Module Class="VehicleComms" Type="MAVLINK">
-    <Parameter Name="ProtocolParameters">
-      <Parameter Name="Name">Mavlink</Parameter>
-      <Parameter Name="Version">V1</Parameter>
-    </Parameter>
-	<Parameter Name="UDPParameters">
-      <Parameter Name="Address">127.0.0.1</Parameter>
-      <Parameter Name="PortNumber">14554</Parameter>
+      <Parameter Name="Address">192.168.1.33</Parameter>
+      <Parameter Name="PortNumber">14557</Parameter>
     </Parameter>
   </Module>
   <Module Class="RTA" Type="NASAPhase2" />

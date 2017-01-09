@@ -289,7 +289,16 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
 
         //connect link
-        m_LinkMarshaler->ConnectToLink(linkName);
+        if(m_LinkMarshaler->ConnectToLink(linkName) == false){
+            throw std::runtime_error("Connection to udp link failed");
+        }
+
+        uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
+        mavlink_message_t msg;
+
+        mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,2,1,0,0xFFFF);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
+
 
 
         //test statements that will issue a log_request_list to device
@@ -424,8 +433,8 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
 //        m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
 //        requestLogs = true;
 //    }
-//    if(message.msgid == 118)
-//            std::cout << "Mavlink 118 message received" << std::endl;
+    if(message.msgid == 118)
+            std::cout << "Mavlink 118 message received" << std::endl;
 
 
     int sendersID = (int)message.sysid;
