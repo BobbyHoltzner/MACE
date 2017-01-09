@@ -46,7 +46,7 @@ UdpLink::UdpLink(const UdpConfiguration &config) :
     m_stopp    = false;
     m_reqReset = false;
 
-    std::cout << "Create UdpLink: " << config.address() << ":" << config.portNumber() << std::endl;
+    std::cout << "Create UdpLink: " << config.listenAddress() << ":" << config.listenPortNumber() << std::endl;
 }
 
 UdpLink::~UdpLink()
@@ -115,10 +115,10 @@ bool UdpLink::_hardwareConnect(QAbstractSocket::SocketError &error, QString& err
         m_socket = NULL;
     }
 
-    std::cout << "UdpLink: hardwareConnect to " << _config.address() << ":" << _config.portNumber() << std::endl;
+    std::cout << "UdpLink: hardwareConnect to " << _config.listenAddress() << ":" << _config.listenPortNumber() << std::endl;
 
     m_socket = new QUdpSocket();
-    m_socket->bind(QHostAddress(QString::fromStdString((_config.address()))), _config.portNumber(), QUdpSocket::ShareAddress);
+    m_socket->bind(QHostAddress(QString::fromStdString((_config.listenAddress()))), _config.listenPortNumber(), QUdpSocket::ShareAddress);
     //m_socket->connectToHost(QHostAddress(QString::fromStdString((_config.address()))), _config.portNumber());
     //m_socket->waitForConnected(1000);
     //m_socket->bind(_config.portNumber(), QUdpSocket::ShareAddress);
@@ -136,7 +136,7 @@ bool UdpLink::_hardwareConnect(QAbstractSocket::SocketError &error, QString& err
         //std::cerr << "open failed" << m_port->errorString().toStdString() << m_port->error() << getName() << _config.isAutoConnect() << std::endl;
         error = m_socket->error();
         errorString = m_socket->errorString();
-        EmitEvent([&](const ILinkEvents *ptr){ptr->CommunicationUpdate(this, _config.address(), "Error opening port: " + errorString.toStdString());});
+        EmitEvent([&](const ILinkEvents *ptr){ptr->CommunicationUpdate(this, _config.listenAddress(), "Error opening port: " + errorString.toStdString());});
         m_socket->close();
         delete m_socket;
         m_socket = NULL;
@@ -145,10 +145,10 @@ bool UdpLink::_hardwareConnect(QAbstractSocket::SocketError &error, QString& err
 
 
     // TODO: Figure out the alternative to this:
-    EmitEvent([this](const ILinkEvents *ptr){ptr->CommunicationUpdate(this, getAddress(), "Opened port!");});
+    EmitEvent([this](const ILinkEvents *ptr){ptr->CommunicationUpdate(this, getListenAddress(), "Opened port!");});
     EmitEvent([this](const ILinkEvents *ptr){ptr->Connected(this);});
 
-    std::cout << "Connection UdpLink: " << "with settings " << _config.address() << ":" << _config.portNumber() << std::endl;
+    std::cout << "Connection UdpLink: " << "with settings " << _config.listenAddress() << ":" << _config.listenPortNumber() << std::endl;
 
 
     m_ListenThread = new ReceiverThread([&](){
@@ -171,13 +171,12 @@ void UdpLink::WriteBytes(const char *bytes, int length) const
 {
     QByteArray data(bytes, length);
     if(m_socket && m_socket->isOpen()) {
-        //_logOutputDataRate(data.size(), QDateTime::currentMSecsSinceEpoch());
-        m_socket->writeDatagram(data, QHostAddress(QString::fromStdString(_config.address())), _config.portNumber());
-//        m_socket->writeDatagram(data, QHostAddress::LocalHost, 14552);
-        //m_socket->write(data);
+        // TODO: Listen for UDP messages, identify sender port, set _config.senderPort (or something), use that to send.
+        //          --May want to have a senderAddress as well...
+        m_socket->writeDatagram(data, QHostAddress(QString::fromStdString(_config.senderAddress())), _config.senderPortNumber());
     } else {
         // Error occured
-        _emitLinkError("Could not send data - link " + getAddress() + ":" + std::to_string(getPortNumber()) + " is disconnected!");
+        _emitLinkError("Could not send data - link " + getSenderAddress() + ":" + std::to_string(getSenderPortNumber()) + " is disconnected!");
     }
 }
 
@@ -201,7 +200,7 @@ bool UdpLink::isConnected() const
 
 void UdpLink::_emitLinkError(const std::string& errorMsg) const
 {
-    std::string msg = "Error on link " + getAddress() + ":" + std::to_string(getPortNumber()) + " - " + errorMsg;
+    std::string msg = "Error on link " + getListenAddress() + ":" + std::to_string(getListenPortNumber()) + " - " + errorMsg;
     EmitEvent([&](const ILinkEvents *ptr){ptr->CommunicationError(this, "Link Error", msg);});
 }
 
@@ -210,14 +209,26 @@ LinkConfiguration UdpLink::getLinkConfiguration()
     return _config;
 }
 
-std::string UdpLink::getAddress() const
+std::string UdpLink::getListenAddress() const
 {
-    return _config.address();
+    return _config.listenAddress();
 }
 
-int UdpLink::getPortNumber() const
+int UdpLink::getListenPortNumber() const
 {
-    return _config.portNumber();
+    return _config.listenPortNumber();
+}
+
+std::string UdpLink::getSenderAddress() const
+{
+    // TODO-PAT: Handle when senderAddress has not been set, as this is an optional parameter
+    return _config.senderAddress();
+}
+
+int UdpLink::getSenderPortNumber() const
+{
+    // TODO-PAT: Handle when senderPortNumber has not been set, as this is an optional parameter
+    return _config.senderPortNumber();
 }
 
 void UdpLink::processPendingDatagrams(void)

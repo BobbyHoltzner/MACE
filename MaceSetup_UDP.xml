@@ -6,8 +6,10 @@
       <Parameter Name="Version">V1</Parameter>
     </Parameter>
 	<Parameter Name="UDPParameters">
-      <Parameter Name="Address">192.168.1.33</Parameter>
-      <Parameter Name="PortNumber">14557</Parameter>
+      <Parameter Name="ListenAddress">192.168.1.4</Parameter>
+      <Parameter Name="ListenPortNumber">14558</Parameter>
+	  <Parameter Name="SenderAddress">192.168.1.31</Parameter>
+      <Parameter Name="SenderPortNumber">47465</Parameter>
     </Parameter>
   </Module>
   <Module Class="RTA" Type="NASAPhase2" />

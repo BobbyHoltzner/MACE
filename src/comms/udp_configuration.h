@@ -15,14 +15,19 @@ class COMMSSHARED_EXPORT UdpConfiguration : public LinkConfiguration
 {
 public:
 
-    UdpConfiguration(const std::string& address, const int& port);
+    UdpConfiguration(const std::__cxx11::string &listenAddress, const int &listenPort);
+    UdpConfiguration(const std::string& listenAddress, const int &listenPort, const std::string& senderAddress, const int &senderPort);
     UdpConfiguration(UdpConfiguration* copy);
 
-    const int portNumber() const { return _portNumber; }
-    const std::string address() const { return _address; }
+    const int listenPortNumber() const { return _listenPortNumber; }
+    const std::string listenAddress() const { return _listenAddress; }
+    const int senderPortNumber() const { return _senderPortNumber; }
+    const std::string senderAddress() const { return _senderAddress; }
 
-    void setPortNumber(int portNumber);
-    void setAddress(std::string address);
+    void setListenPortNumber(int portNumber);
+    void setListenAddress(std::string address);
+    void setSenderPortNumber(int portNumber);
+    void setSenderAddress(std::string address);
 
     /// From LinkConfiguration
     void        copyFrom        (LinkConfiguration* source);
@@ -32,8 +37,10 @@ public:
     //QString     settingsURL     () { return "SerialSettings.qml"; }
 
 private:
-    int _portNumber;
-    std::string _address;
+    int _listenPortNumber;
+    std::string _listenAddress;
+    int _senderPortNumber;
+    std::string _senderAddress;
 };
 
 }

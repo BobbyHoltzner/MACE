@@ -40,8 +40,10 @@ public:
     //!
     virtual bool isConnected() const;
 
-    std::string getAddress() const;
-    int getPortNumber() const;
+    std::string getListenAddress() const;
+    int getListenPortNumber() const;
+    std::string getSenderAddress() const;
+    int getSenderPortNumber() const;
 
 
 

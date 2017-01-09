@@ -80,8 +80,10 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::Module
     serialSettings->AddTerminalParameters("FlowControl", MaceCore::ModuleParameterTerminalTypes::INT, true);
 
     std::shared_ptr<MaceCore::ModuleParameterStructure> udpSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
-    udpSettings->AddTerminalParameters("Address", MaceCore::ModuleParameterTerminalTypes::STRING, true);
-    udpSettings->AddTerminalParameters("PortNumber", MaceCore::ModuleParameterTerminalTypes::INT, true);
+    udpSettings->AddTerminalParameters("ListenAddress", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+    udpSettings->AddTerminalParameters("ListenPortNumber", MaceCore::ModuleParameterTerminalTypes::INT, true);
+    udpSettings->AddTerminalParameters("SenderAddress", MaceCore::ModuleParameterTerminalTypes::STRING, false);
+    udpSettings->AddTerminalParameters("SenderPortNumber", MaceCore::ModuleParameterTerminalTypes::INT, false);
 
     std::shared_ptr<MaceCore::ModuleParameterStructure> protocolSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
     protocolSettings->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true, "Mavlink", {"Mavlink"});
@@ -244,17 +246,24 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         std::shared_ptr<MaceCore::ModuleParameterValue> udpSettings = params->GetNonTerminalValue("UDPParameters");
 
 
-        std::string address = udpSettings->GetTerminalValue<std::string>("Address");
-        int portNumber = udpSettings->GetTerminalValue<int>("PortNumber");
+        std::string listenAddress = udpSettings->GetTerminalValue<std::string>("ListenAddress");
+        int listenPortNumber = udpSettings->GetTerminalValue<int>("ListenPortNumber");
+        // TODO-PAT: Handle if "SenderAddress" and/or "SenderPortNumber" have been set
+//        std::string senderAddress = udpSettings->GetTerminalValue<std::string>("ListenAddress");
+//        int senderPortNumber = udpSettings->GetTerminalValue<int>("ListenPortNumber");
 
         Comms::Protocols protocolToUse = Comms::Protocols::MAVLINK;
 
-        Comms::UdpConfiguration config(address, portNumber);
+        // TODO-PAT: If sender port and address are set, use other constructor.
+        Comms::UdpConfiguration config(listenAddress, listenPortNumber);
+//        config.setListenAddress(listenAddress);
+//        config.setListenPortNumber(listenPortNumber);
 
-        config.setAddress(address);
-        config.setPortNumber(portNumber);
+        // TODO-PAT: Listen for UDP messages -- get sender address and port, and then set the sender address and port in the config:
+        config.setSenderAddress("192.168.1.31");
+        config.setSenderPortNumber(47465);
 
-        std::string linkName = "udplink_" + std::to_string(portNumber);
+        std::string linkName = "udplink_" + std::to_string(listenPortNumber);
         m_LinkMarshaler->AddUDPLink(linkName, config);
 
 
@@ -293,20 +302,11 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
             throw std::runtime_error("Connection to udp link failed");
         }
 
+        //test statements that will issue a set_mode to device (ID=1)
         uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
         mavlink_message_t msg;
-
-        mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,2,1,0,0xFFFF);
+        mavlink_msg_set_mode_pack(255, 190, &msg, 1, MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 0);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
-
-
-
-        //test statements that will issue a log_request_list to device
-        //uint8_t chan = m_LinkMarshler->GetProtocolChannel("udplink1");
-        //mavlink_message_t msg;
-        //mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,0,0,0,0xFFFF);
-        //m_LinkMarshler->SendMessage<mavlink_message_t>("udplink1", msg);
-
     }
     else
     {
