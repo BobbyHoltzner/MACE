@@ -94,6 +94,21 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::Module
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
 
+std::vector<std::pair<std::string, MaceCore::Topic>> ModuleVehicleMAVLINK::GetTopics()
+{
+    MaceCore::TopicDatagramStructure topicType;
+
+    MaceCore::TopicDatagramStructure _3vector;
+    _3vector.AddTerminal<double>("x");
+    _3vector.AddTerminal<double>("y");
+    _3vector.AddTerminal<double>("z");
+
+    MaceCore::Topic topic;
+    topic.AddDatagram("position", _3vector, false);
+
+    return {{"VehicleData", topic}};
+}
+
 
 //!
 //! \brief Provides object contains parameters values to configure module with
@@ -420,6 +435,21 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
 //    }
 //    if(message.msgid == 118)
 //            std::cout << "Mavlink 118 message received" << std::endl;
+
+
+    MaceCore::TopicValues topicValues;
+
+    MaceCore::TopicValues positionValues;
+    positionValues.AddTerminal<int>("x", 1);
+    positionValues.AddTerminal<int>("y", 1);
+    positionValues.AddTerminal<int>("z", 1);
+
+    topicValues.AddNonTerminal("position", positionValues);
+
+    NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+        ptr->NewTopicDataValues(this, MaceCore::TIME(), "VehicleData", topicValues);
+    });
+
 
 
     int sendersID = (int)message.sysid;

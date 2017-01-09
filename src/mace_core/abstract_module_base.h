@@ -11,6 +11,8 @@
 
 #include "module_parameters.h"
 
+#include "topic.h"
+
 namespace MaceCore
 {
 
@@ -89,6 +91,13 @@ public:
     //! \param params Parameters to configure
     //!
     virtual void ConfigureModule(const std::shared_ptr<ModuleParameterValue> &params) = 0;
+
+
+    virtual std::vector<std::pair<std::string, Topic>> GetTopics()
+    {
+        //TODO make pure
+        return {};
+    }
 
 
     void setDataObject(const std::shared_ptr<MaceData> &data)

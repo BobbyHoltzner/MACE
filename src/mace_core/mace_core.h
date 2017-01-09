@@ -20,6 +20,8 @@
 #include "i_module_events_path_planning.h"
 #include "i_module_events_ground_station.h"
 
+#include "topic.h"
+
 namespace MaceCore
 {
 
@@ -50,6 +52,28 @@ public:
     void AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning);
 
     void AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation);
+
+public:
+
+    void AddTopic(const std::string &topicName, const Topic &topic) {
+        m_Topics.insert({topicName, topic});
+    }
+
+    virtual void NewTopicDataValues(const void* sender, const TIME &time, const std::string &topicName, const TopicValues &values) {
+        //const Topic& topic = this->m_Topics.at(topicName);
+        //topic.
+
+        std::vector<std::string> terminalNames = values.ListTerminals();
+        std::vector<std::string> nonTerminalNames = values.ListNonTerminals();
+        std::cout << "Topic: " << topicName << " received" << std::endl;
+        std::cout << "  Contained Elements:" << std::endl;
+        for(size_t i = 0 ; i < terminalNames.size() ; i++) {
+            std::cout << "  " << terminalNames.at(i) << std::endl;
+        }
+        for(size_t i = 0 ; i < nonTerminalNames.size() ; i++) {
+            std::cout << "  " << nonTerminalNames.at(i) << std::endl;
+        }
+    }
 
 public:
 
@@ -145,6 +169,8 @@ private:
     int counter_new_vehicle;
     int counter;
     bool insertFlag;
+
+    std::unordered_map<std::string, Topic> m_Topics;
 
     std::list<int> m_VehicleObjectRequired;
 

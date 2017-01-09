@@ -5,6 +5,7 @@
 #include "vehicle_data.h"
 #include "vehicle_message.h"
 #include "vehicle_object.h"
+#include "topic.h"
 
 namespace MaceCore
 {
@@ -22,6 +23,8 @@ public:
     virtual void NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate) = 0;
 
     virtual void NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &health) = 0;
+
+    virtual void NewTopicDataValues(const void* sender, const TIME &time, const std::string &topicName, const TopicValues &values) = 0;
 
 };
 
