@@ -14,7 +14,9 @@ public:
 
     void setVehicleStatus(const int &status);
 
-private:
+    void updatedVehicleHeartbeat(const mavlink_heartbeat_t msg);
+
+private:    
     int statusCode;
     std::string statusDescription;
     std::string statusState;

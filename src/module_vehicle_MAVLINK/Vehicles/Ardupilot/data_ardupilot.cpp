@@ -12,8 +12,10 @@ DataArdupilot::DataArdupilot(const int &vehicleID, const int &vehicleProtocol, c
     m_Attitude = new ArdupilotAttitude();
     m_Status = new ArdupilotStatus();
     m_Position = new ArdupilotPosition();
+    //m_Power = new ArdupilotPower();
 
     m_FlightMode->setVehicleType(vehicleType);
+
 
 }
 
@@ -24,12 +26,14 @@ DataArdupilot::DataArdupilot(DataArdupilot &copyObj)
     m_Attitude = new ArdupilotAttitude();
     m_Status = new ArdupilotStatus();
     m_Position = new ArdupilotPosition();
+    m_Power = new ArdupilotPower();
     m_LinkMarshaler = new Comms::CommsMarshaler;
 
     *m_FlightMode = *copyObj.m_FlightMode;
     *m_Attitude = *copyObj.m_Attitude;
     *m_Status = *copyObj.m_Status;
     *m_Position = *copyObj.m_Position;
+    //*m_Power = *copyObj.m_Power;
 
     linkName = copyObj.getLinkName();
     m_LinkMarshaler = copyObj.m_LinkMarshaler;
@@ -79,6 +83,7 @@ void DataArdupilot::setVehicleTakeoff(const double &altitude)
 
 void DataArdupilot::setVehicleMode(const std::string &vehicleMode)
 {
+    //This is message number 11. Upon acceptance of the message we should see an ack message acknowledging number 11 was accepted.
     mavlink_message_t msg;
     int vehicleModeID = 0;
     bool modeFound = m_FlightMode->getVehicleModeID(vehicleMode,vehicleModeID);
@@ -110,8 +115,8 @@ void DataArdupilot::getVehicleAttitude(Eigen::Vector3d &rtnVector)
 
 void DataArdupilot::getVehicleFuel(Eigen::Vector2d &rtnVector)
 {
-    rtnVector[0] = 14.8;
-    rtnVector[1] = 10;
+    rtnVector[0] = m_Power->getBatteryVoltage();
+    rtnVector[1] = m_Power->getBatteryCurrent();
 }
 
 void DataArdupilot::handleMessage(VehicleMessage msgIn)
@@ -163,8 +168,8 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
         m_FlightMode->setVehicleType(decodedMSG.type);
         m_FlightMode->setFlightMode(decodedMSG.custom_mode);
+
         counter = counter + 1;
-        std::cout<<"A new heartbeat was seen: "<<counter<< " " << std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch()).count() << std::endl;
         if(counter > 20){
             this->setVehicleMode("STABILIZE");
         }
