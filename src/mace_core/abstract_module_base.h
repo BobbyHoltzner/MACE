@@ -93,7 +93,7 @@ public:
     virtual void ConfigureModule(const std::shared_ptr<ModuleParameterValue> &params) = 0;
 
 
-    virtual std::vector<std::pair<std::string, Topic>> GetTopics()
+    virtual std::unordered_map<std::string, TopicStructure> GetTopics()
     {
         //TODO make pure
         return {};

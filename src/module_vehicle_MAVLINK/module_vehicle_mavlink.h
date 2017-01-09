@@ -66,7 +66,7 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
-    virtual std::vector<std::pair<std::string, MaceCore::Topic>> GetTopics();
+    virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics();
 
 public:
 

@@ -9,4 +9,5 @@ SUBDIRS += \
     comms \
     common \
     module_ground_station \
-    data
+    data \
+    module_vehicle_generic

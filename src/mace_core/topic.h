@@ -10,12 +10,12 @@ namespace MaceCore
 {
 
 
-class TopicDatagramStructure
+class TopicComponentStructure
 {
 public:
 
 
-    TopicDatagramStructure()
+    TopicComponentStructure()
     {
 
     }
@@ -27,35 +27,35 @@ public:
         m_TerminalDataFields.insert({str, typeid(T).name()});
     }
 
-    void AddNonTerminal(const std::string &str, const TopicDatagramStructure &fields)
+    void AddNonTerminal(const std::string &str, const TopicComponentStructure &fields)
     {
-        m_NonTerminalDataFields.insert({str, std::make_shared<TopicDatagramStructure>(fields)});
+        m_NonTerminalDataFields.insert({str, std::make_shared<TopicComponentStructure>(fields)});
     }
 
 private:
 
     std::unordered_map<std::string, std::string> m_TerminalDataFields;
-    std::unordered_map<std::string, std::shared_ptr<TopicDatagramStructure>> m_NonTerminalDataFields;
+    std::unordered_map<std::string, std::shared_ptr<TopicComponentStructure>> m_NonTerminalDataFields;
 };
 
 
-class Topic
+class TopicStructure
 {
 public:
 
-    Topic()
+    TopicStructure()
     {
 
     }
 
-    AddDatagram(const std::string &name, const TopicDatagramStructure &datagram, bool required = true){
-        m_Datagrams.insert({name, datagram});
-        m_DatagramsRequired.insert({name, required});
+    AddComponent(const std::string &name, const TopicComponentStructure &datagram, bool required = true){
+        m_Components.insert({name, datagram});
+        m_ComponentRequired.insert({name, required});
     }
 
 private:
-    std::unordered_map<std::string, TopicDatagramStructure> m_Datagrams;
-    std::unordered_map<std::string, bool> m_DatagramsRequired;
+    std::unordered_map<std::string, TopicComponentStructure> m_Components;
+    std::unordered_map<std::string, bool> m_ComponentRequired;
 };
 
 
@@ -63,7 +63,7 @@ private:
 
 
 
-class TopicValues
+class TopicDatagram
 {
 private:
     template<typename T>
@@ -118,12 +118,12 @@ public:
     }
 
 
-    void AddNonTerminal(const std::string &str, const TopicValues &values) {
-        std::shared_ptr<TopicValues> ptr = std::make_shared<TopicValues>(values);
+    void AddNonTerminal(const std::string &str, const TopicDatagram &values) {
+        std::shared_ptr<TopicDatagram> ptr = std::make_shared<TopicDatagram>(values);
         m_NonTerminalValues.insert({str, ptr});
     }
 
-    std::shared_ptr<TopicValues> GetNonTerminal(const std::string &str){
+    std::shared_ptr<TopicDatagram> GetNonTerminal(const std::string &str){
         return m_NonTerminalValues.at(str);
     }
 
@@ -142,10 +142,29 @@ public:
         return keys;
     }
 
+    void MergeDatagram(const TopicDatagram &dataToMerge){
+        for(auto it = dataToMerge.m_TerminalValues.cbegin() ; it != dataToMerge.m_TerminalValues.cend() ; ++it) {
+            if(m_TerminalValues.find(it->first) == m_TerminalValues.cend()) {
+                this->m_TerminalValues.insert({it->first, it->second});
+            }
+            else {
+                this->m_TerminalValues[it->first] = it->second;
+            }
+        }
+        for(auto it = dataToMerge.m_NonTerminalValues.cbegin() ; it != dataToMerge.m_NonTerminalValues.cend() ; ++it) {
+            if(m_NonTerminalValues.find(it->first) == m_NonTerminalValues.cend()) {
+                this->m_NonTerminalValues.insert({it->first, it->second});
+            }
+            else {
+                this->m_NonTerminalValues[it->first] = it->second;
+            }
+        }
+    }
+
 private:
 
     std::unordered_map<std::string, std::shared_ptr<void> > m_TerminalValues;
-    std::unordered_map<std::string, std::shared_ptr<TopicValues> > m_NonTerminalValues;
+    std::unordered_map<std::string, std::shared_ptr<TopicDatagram> > m_NonTerminalValues;
 };
 
 }

@@ -39,9 +39,9 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
     if(m_RTA != NULL)
         m_RTA->MarshalCommand(RTACommands::NEW_VEHICLE, ID);
 
-    std::vector<std::pair<std::string, Topic>> topics = vehicle->GetTopics();
-    for(int i = 0 ; i < topics.size() ; i++) {
-        this->AddTopic(topics.at(i).first, topics.at(i).second);
+    std::unordered_map<std::string, TopicStructure> topics = vehicle->GetTopics();
+    for(auto it = topics.cbegin() ; it != topics.cend() ; ++it) {
+        this->AddTopic(it->first, it->second);
     }
 }
 

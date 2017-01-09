@@ -24,7 +24,7 @@ public:
 
     virtual void NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &health) = 0;
 
-    virtual void NewTopicDataValues(const void* sender, const TIME &time, const std::string &topicName, const TopicValues &values) = 0;
+    virtual void NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) = 0;
 
 };
 

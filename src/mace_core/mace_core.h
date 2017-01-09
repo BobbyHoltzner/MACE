@@ -55,23 +55,29 @@ public:
 
 public:
 
-    void AddTopic(const std::string &topicName, const Topic &topic) {
+    void AddTopic(const std::string &topicName, const TopicStructure &topic) {
         m_Topics.insert({topicName, topic});
     }
 
-    virtual void NewTopicDataValues(const void* sender, const TIME &time, const std::string &topicName, const TopicValues &values) {
+    virtual void NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
         //const Topic& topic = this->m_Topics.at(topicName);
         //topic.
 
-        std::vector<std::string> terminalNames = values.ListTerminals();
-        std::vector<std::string> nonTerminalNames = values.ListNonTerminals();
-        std::cout << "Topic: " << topicName << " received" << std::endl;
-        std::cout << "  Contained Elements:" << std::endl;
+        if(m_LatestTopic.find(topicName) == m_LatestTopic.cend()) {
+            m_LatestTopic.insert({topicName, {}});
+        }
+        if(m_LatestTopic[topicName].find(senderID) == m_LatestTopic[topicName].cend()) {
+            m_LatestTopic[topicName].insert({senderID, TopicDatagram()});
+        }
+        m_LatestTopic[topicName][senderID].MergeDatagram(value);
+
+        std::vector<std::string> terminalNames = value.ListTerminals();
+        std::vector<std::string> nonTerminalNames = value.ListNonTerminals();
         for(size_t i = 0 ; i < terminalNames.size() ; i++) {
-            std::cout << "  " << terminalNames.at(i) << std::endl;
+            m_LatestTopicComponentUpdateTime[topicName][senderID][terminalNames.at(i)] = time;
         }
         for(size_t i = 0 ; i < nonTerminalNames.size() ; i++) {
-            std::cout << "  " << nonTerminalNames.at(i) << std::endl;
+            m_LatestTopicComponentUpdateTime[topicName][senderID][nonTerminalNames.at(i)] = time;
         }
     }
 
@@ -170,7 +176,10 @@ private:
     int counter;
     bool insertFlag;
 
-    std::unordered_map<std::string, Topic> m_Topics;
+    std::unordered_map<std::string, TopicStructure> m_Topics;
+
+    std::unordered_map<std::string, std::unordered_map<int, TopicDatagram>> m_LatestTopic;
+    std::unordered_map<std::string, std::unordered_map<int, std::unordered_map<std::string, TIME>>> m_LatestTopicComponentUpdateTime;
 
     std::list<int> m_VehicleObjectRequired;
 
