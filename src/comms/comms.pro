@@ -60,4 +60,4 @@ headers.path    = $$(MACE_ROOT)/include/comms
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
-INCLUDEPATH += $$(MACE_ROOT)/include
+INCLUDEPATH += $$PWD/../

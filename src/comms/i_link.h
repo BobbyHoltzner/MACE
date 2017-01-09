@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <QThread>
 
 #include "i_link_events.h"
 
@@ -72,6 +73,8 @@ public:
 
     virtual bool Connect(void) = 0;
     virtual void Disconnect(void) = 0;
+
+    virtual void MarshalOnThread(std::function<void()> func) = 0;
 
 private:
 

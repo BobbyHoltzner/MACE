@@ -10,4 +10,10 @@ void ArdupilotStatus::setVehicleStatus(const int &status)
 {
     this->statusCode = status;
 }
+
+void ArdupilotStatus::updatedVehicleHeartbeat(const mavlink_heartbeat_t msg)
+{
+
+}
+
 } //end of namespace Ardupilot

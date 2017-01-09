@@ -83,8 +83,9 @@ public:
     //!
     //! \brief Connect to an already created link
     //! \param linkName Name of link to connect to
+    //! \return True if connection succesfull, false otherwise
     //!
-    void ConnectToLink(const std::string &linkName);
+    bool ConnectToLink(const std::string &linkName);
 
 
     //////////////////////////////////////////////////////////////

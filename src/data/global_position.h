@@ -15,13 +15,22 @@ public:
 
     void setPosition(const double &latitude, const double &longitude, const double &altitude);
 
+public:
     double getLatitude() const;
+    double setLatitude(const double &latitude);
 
     double getLongitude() const;
+    double setLongitude(const double &longitude);
 
     double getAltitude() const;
+    double setAltitude(const double &altitude);
 
-    double distanceBetween(const GlobalPosition &position);
+public:
+    void NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag, GlobalPosition &newPosition);
+
+
+    double distanceBetween2D(const GlobalPosition &position);
+    double distanceBetween3D(const GlobalPosition &position);
 
     double bearingBetween(const GlobalPosition &position);
 

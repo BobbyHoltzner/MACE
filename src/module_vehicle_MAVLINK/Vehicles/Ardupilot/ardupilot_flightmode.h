@@ -62,6 +62,8 @@ public:
     ArdupilotFlightMode();
     ArdupilotFlightMode(Arduplane_FM flightMode);
 
+    void updateVehicleHeartbeat(const mavlink_heartbeat_t msg);
+
     void updateVehicleMode(int vehicleType, int flightMode);
 
     void setVehicleType(int vehicleType);
@@ -70,18 +72,21 @@ public:
     void getCurrentVehicleMode(std::string &vehicleMode);
     void getCurrentVehicleMode(int vehicleMode);
 
+    bool getVehicleModeID(const std::string &vehicleModeString, int vehicleModeID);
+
     void vehicleTypeChanged();
     void vehicleModeChanged();
 
     std::string FMtoString(const int vehicleType, const int flightMode);
 
 private:
+    bool vehicleArmed;
     int vehicleType;
     int flightMode;
-    std::map<int, std::string>* availableFM;
+    std::map<int, std::string> availableFM;
 
 private:
-    std::map<int, std::string> arducopterFM = {{ACFM_STABILIZE,"MANUAL"},
+    std::map<int, std::string> arducopterFM = {{ACFM_STABILIZE,"STABILIZE"},
                                                {ACFM_ACRO,"ACRO"},
                                                {ACFM_ALT_HOLD,"ALT HOLD"},
                                                {ACFM_AUTO,"AUTO"},

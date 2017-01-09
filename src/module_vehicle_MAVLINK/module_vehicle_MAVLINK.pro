@@ -24,7 +24,9 @@ SOURCES += module_vehicle_mavlink.cpp \
     Vehicles/Ardupilot/ardupilot_mission.cpp \
     Vehicles/Ardupilot/ardupilot_position.cpp \
     Vehicles/Ardupilot/ardupilot_status.cpp \
-    Vehicles/Ardupilot/data_ardupilot.cpp
+    Vehicles/Ardupilot/data_ardupilot.cpp \
+    Vehicles/Ardupilot/ardupilot_home_position.cpp \
+    Vehicles/Ardupilot/ardupilot_power.cpp
 
 HEADERS += module_vehicle_mavlink.h\
         module_vehicle_mavlink_global.h \
@@ -38,7 +40,9 @@ HEADERS += module_vehicle_mavlink.h\
     Vehicles/Ardupilot/ardupilot_position.h \
     Vehicles/Ardupilot/ardupilot_status.h \
     Vehicles/Ardupilot/data_ardupilot.h \
-    Vehicles/Ardupilot/data_ardupilot_global.h
+    Vehicles/Ardupilot/data_ardupilot_global.h \
+    Vehicles/Ardupilot/ardupilot_home_position.h \
+    Vehicles/Ardupilot/ardupilot_power.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
@@ -75,7 +79,7 @@ headers_Vehicle_Ardupilot.files   += Vehicles/Ardupilot/ardupilot_attitude.h \
     Vehicles/Ardupilot/data_ardupilot_global.h
 INSTALLS       += headers_Vehicle_Ardupilot
 
-INCLUDEPATH += $$(MACE_ROOT)/include
+INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core

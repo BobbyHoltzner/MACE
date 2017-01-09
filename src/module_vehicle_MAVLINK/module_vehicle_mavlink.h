@@ -48,7 +48,7 @@ public:
 //    void gotInfoTest(const Data::VehicleStateData &messageData);
 //    void gotArducopterMessage(const Data::ArducopterData &messageArducopter);
 
-    void vehicleObjectCheck(const int &sendersID, const int &autopilotType) const;
+    void vehicleObjectCheck(const int &sendersID, const int &autopilotType, const int &vehicleType) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,6 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
-
 public:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +75,8 @@ public:
     virtual void CreateVehicleObject(const int &vehicleID);
 
     virtual void RemoveVehicleObject(const int &vehicleID);
+
+    virtual void UpdateVehicleObjectList(const std::list<int> &vehicleObjectList);
 
     //!
     //! \brief New commands have been updated that the vehicle is to follow immediatly
@@ -126,9 +127,9 @@ public:
     virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const;
 
 private:
-    std::list<int> m_NeededVehicleObjects;
+    mutable std::list<int> m_NeededVehicleObjects;
 
-    Comms::CommsMarshaler *m_LinkMarshler;
+    Comms::CommsMarshaler *m_LinkMarshaler;
 
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
 

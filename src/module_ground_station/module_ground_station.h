@@ -13,6 +13,8 @@
 
 #include "../mace_core/i_module_command_ground_station.h"
 
+#include "data/global_position.h"
+
 using namespace std;
 
 class MODULE_GROUND_STATIONSHARED_EXPORT ModuleGroundStation : public MaceCore::IModuleCommandGroundStation

@@ -118,15 +118,16 @@ void CommsMarshaler::SetProtocolForLink(const std::string &linkName, Protocols p
 //!
 //! \brief Connect to an already created link
 //! \param linkName Name of link to connect to
+//! \return True if connection succesfull, false otherwise
 //!
-void CommsMarshaler::ConnectToLink(const std::string &linkName)
+bool CommsMarshaler::ConnectToLink(const std::string &linkName)
 {
     if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
 
     std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(linkName);
 
-    link->Connect();
+    return link->Connect();
 }
 
 
@@ -158,6 +159,9 @@ uint8_t CommsMarshaler::GetProtocolChannel(const std::string &linkName) const
 }
 
 
+
+
+
 //!
 //! \brief Issue a message to a given link
 //!
@@ -173,17 +177,26 @@ void CommsMarshaler::SendMessage(const std::string &linkName, const T& message)
 
     std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(linkName);
 
-    switch(m_LinksProtocol.at(link.get()))
-    {
-    case Protocols::MAVLINK:
-    {
-        std::shared_ptr<MavlinkProtocol> protocol = std::static_pointer_cast<MavlinkProtocol>(m_ProtocolObjects.at(Protocols::MAVLINK));
-        protocol->SendMessage(link.get(), message);
-        break;
-    }
-    default:
-        throw std::runtime_error("Attempting to send a message on an unknown protocol");
-    }
+    Protocols protocol_code = m_LinksProtocol.at(link.get());
+    std::shared_ptr<IProtocol> protocol_obj = m_ProtocolObjects.at(protocol_code);
+
+    ///////////////////
+    /// Define function that sends the given message
+    auto func = [protocol_code, protocol_obj, link, message]() {
+        switch(protocol_code)
+        {
+        case Protocols::MAVLINK:
+        {
+            std::shared_ptr<MavlinkProtocol> protocol = std::static_pointer_cast<MavlinkProtocol>(protocol_obj);
+            protocol->SendMessage(link.get(), message);
+            break;
+        }
+        default:
+            throw std::runtime_error("Attempting to send a message on an unknown protocol");
+        }
+    };
+
+    link->MarshalOnThread(func);
 }
 
 

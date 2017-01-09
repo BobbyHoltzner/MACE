@@ -64,8 +64,6 @@ headers.path    = $$(MACE_ROOT)/include/mace_core
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
-INCLUDEPATH += $$(MACE_ROOT)/include
-
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
 else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
