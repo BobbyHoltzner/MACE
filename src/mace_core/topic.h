@@ -48,7 +48,7 @@ public:
 
     }
 
-    AddComponent(const std::string &name, const TopicComponentStructure &datagram, bool required = true){
+    void AddComponent(const std::string &name, const TopicComponentStructure &datagram, bool required = true){
         m_Components.insert({name, datagram});
         m_ComponentRequired.insert({name, required});
     }
@@ -102,14 +102,14 @@ public:
     }
 
     template<typename T>
-    T GetTerminal(const std::string &str) {
+    T GetTerminal(const std::string &str) const {
         if(m_TerminalValues.find(str) == m_TerminalValues.cend()) {
             throw std::runtime_error("Given string does not exists as a value in this topic data");
         }
 
         std::shared_ptr<void> void_ptr = m_TerminalValues.at(str);
 
-        std::shared_ptr<SingleParameterValue<T>> ptr = std::dynamic_pointer_cast<SingleParameterValue<T>>(void_ptr);
+        const SingleParameterValue<T>* ptr = (const SingleParameterValue<T>*)void_ptr.get();
         if(ptr == NULL){
             throw std::runtime_error("Given value type does not match expected type");
         }
@@ -123,7 +123,11 @@ public:
         m_NonTerminalValues.insert({str, ptr});
     }
 
-    std::shared_ptr<TopicDatagram> GetNonTerminal(const std::string &str){
+    void AddNonTerminal(const std::string &str, const std::shared_ptr<TopicDatagram> &values) {
+        m_NonTerminalValues.insert({str, values});
+    }
+
+    std::shared_ptr<TopicDatagram> GetNonTerminal(const std::string &str) const {
         return m_NonTerminalValues.at(str);
     }
 

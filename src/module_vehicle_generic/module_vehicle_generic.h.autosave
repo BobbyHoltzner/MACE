@@ -40,7 +40,7 @@ public:
 
 private:
 
-    std::unordered_map<std::string, std::function<DataVehicleGeneric::IVehicleTopicComponent()>> m_Factory;
+    std::unordered_map<std::string, std::function<DataVehicleGeneric::IVehicleTopicComponent(const MaceCore::TopicDatagram &datagram)>> m_Factory;
     //std::unordered_map<int, std::unordered_map<std::string, std::shared_ptr<MaceCore::ITopicComponentObject>>> m_Vehicles;
 };
 

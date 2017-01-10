@@ -10,4 +10,6 @@ SUBDIRS += \
     common \
     module_ground_station \
     data \
-    module_vehicle_generic
+    module_vehicle_generic \
+    data_vehicle_generic \
+    data_vehicle_MAVLINK

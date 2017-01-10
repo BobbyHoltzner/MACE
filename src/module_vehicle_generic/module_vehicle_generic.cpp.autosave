@@ -16,7 +16,6 @@ std::unordered_map<std::string, MaceCore::TopicStructure> ModuleVehicleGeneric::
 
     MaceCore::TopicStructure topic;
 
-    template <typename T>
     auto TopicInserter = [&](const std::string &name, const MaceCore::TopicStructure &structure, const std::function<DataVehicleGeneric::IVehicleTopicComponent(const MaceCore::TopicDatagram &datagram)> &func) {
         topic.AddComponent(name, structure, false);
         m_Factory.insert({name, func});

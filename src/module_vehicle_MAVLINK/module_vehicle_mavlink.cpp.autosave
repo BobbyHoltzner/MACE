@@ -466,7 +466,10 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
 
 
 
-    MaceCore::TopicDatagram topicDatagram = this->getDataObject()->GetTopic("VehicleData", 1);
+    MaceCore::TopicDatagram read_topicDatagram = getDataObject()->GetCurrentTopicDatagram("VehicleData", 1);
+    read_topicDatagram.ListNonTerminals();
+    std::shared_ptr<MaceCore::TopicDatagram> componentDatagram = read_topicDatagram.GetNonTerminal("position");
+    std::shared_ptr<DataVehicleGeneric::IVehicleTopicComponent> component = CraftComponent("position", componentDatagarm);
 
 }
 

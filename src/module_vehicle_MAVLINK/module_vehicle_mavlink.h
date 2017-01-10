@@ -8,15 +8,15 @@
 #include "common/common.h"
 #include "generic_message_definition_mavlink.h"
 
-#include "mace_core/i_module_command_vehicle.h"
-#include "mace_core/vehicle_message.h"
-#include "mace_core/vehicle_object.h"
+#include "module_vehicle_generic/module_vehicle_generic.h"
 
 #include "comms/comms_marshaler.h"
 #include "comms/i_protocol_mavlink_events.h"
 #include "comms/serial_configuration.h"
 
 #include "Vehicles/Ardupilot/data_ardupilot.h"
+
+#include "data_vehicle_MAVLINK/mavlink_parser.h"
 
 
 /*
@@ -41,7 +41,7 @@
  *
  * */
 
-class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK : public MaceCore::IModuleCommandVehicle, public Comms::CommsEvents
+class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK : public ModuleVehicleGeneric, public Comms::CommsEvents
 {
 public:
 //    AbstractVehicleMessage* ConstructMessage();
@@ -134,6 +134,8 @@ private:
     Comms::CommsMarshaler *m_LinkMarshaler;
 
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
+
+    DataVehicleMAVLINK::MAVLINKParser m_MAVLINKParser;
 
 };
 
