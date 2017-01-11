@@ -13,7 +13,6 @@
 
 #include "../mace_core/i_module_command_ground_station.h"
 
-#include "data/global_position.h"
 
 using namespace std;
 
@@ -109,7 +108,7 @@ private:
     QTcpServer *m_TcpServer;
     QThread *m_ListenThread;
 
-    std::map<int, std::shared_ptr<VehicleObject>> m_VehicleMap;
+    //std::map<int, std::shared_ptr<VehicleObject>> m_VehicleMap;
 	
 };
 

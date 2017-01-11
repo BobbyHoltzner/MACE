@@ -131,6 +131,13 @@ public:
         return m_NonTerminalValues.at(str);
     }
 
+    bool HasNonTerminal(const std::string &str) const {
+        if(m_NonTerminalValues.find(str) == m_NonTerminalValues.cend()){
+            return false;
+        }
+        return true;
+    }
+
     std::vector<std::string> ListTerminals() const{
         std::vector<std::string> keys;
         for(auto it = m_TerminalValues.cbegin() ; it != m_TerminalValues.cend() ; ++it)

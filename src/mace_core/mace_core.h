@@ -55,31 +55,9 @@ public:
 
 public:
 
-    void AddTopic(const std::string &topicName, const TopicStructure &topic) {
-        m_Topics.insert({topicName, topic});
-    }
+    void AddTopic(const std::string &topicName, const TopicStructure &topic);
 
-    virtual void NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
-        //const Topic& topic = this->m_Topics.at(topicName);
-        //topic.
-
-        if(m_LatestTopic.find(topicName) == m_LatestTopic.cend()) {
-            m_LatestTopic.insert({topicName, {}});
-        }
-        if(m_LatestTopic[topicName].find(senderID) == m_LatestTopic[topicName].cend()) {
-            m_LatestTopic[topicName].insert({senderID, TopicDatagram()});
-        }
-        m_LatestTopic[topicName][senderID].MergeDatagram(value);
-
-        std::vector<std::string> terminalNames = value.ListTerminals();
-        std::vector<std::string> nonTerminalNames = value.ListNonTerminals();
-        for(size_t i = 0 ; i < terminalNames.size() ; i++) {
-            m_LatestTopicComponentUpdateTime[topicName][senderID][terminalNames.at(i)] = time;
-        }
-        for(size_t i = 0 ; i < nonTerminalNames.size() ; i++) {
-            m_LatestTopicComponentUpdateTime[topicName][senderID][nonTerminalNames.at(i)] = time;
-        }
-    }
+    virtual void NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value);
 
 public:
 
@@ -87,9 +65,9 @@ public:
     /// VEHICLE EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    virtual void NewConstructedVehicle(const void* sender, const std::shared_ptr<VehicleObject> &vehicleObject);
+    //virtual void NewConstructedVehicle(const void* sender, const std::shared_ptr<VehicleObject> &vehicleObject);
 
-    virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage);
+    //virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage);
 
     virtual void NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &position, const Eigen::Vector3d &attitude);
 
@@ -178,12 +156,9 @@ private:
 
     std::unordered_map<std::string, TopicStructure> m_Topics;
 
-    std::unordered_map<std::string, std::unordered_map<int, TopicDatagram>> m_LatestTopic;
-    std::unordered_map<std::string, std::unordered_map<int, std::unordered_map<std::string, TIME>>> m_LatestTopicComponentUpdateTime;
-
     std::list<int> m_VehicleObjectRequired;
 
-    std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
+    //std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
     std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;
     std::map<IModuleCommandVehicle*, int> m_PortToVehicleID;
 

@@ -81,9 +81,26 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
 }
 
 
+
+void MaceCore::AddTopic(const std::string &topicName, const TopicStructure &topic) {
+    m_Topics.insert({topicName, topic});
+}
+
+void MaceCore::NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
+
+    m_DataFusion->setTopicDatagram(topicName, senderID, time, value);
+
+    //notify attached modules of updated topic.
+    //m_RTA->MarshalCommand(RTACommands::UPDATED_POSITION_DYNAMICS, ID);
+    //m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, ID);
+}
+
+
+
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
+/*
 void MaceCore::NewConstructedVehicle(const void *sender, const std::shared_ptr<VehicleObject> &vehicleObject)
 {
     counter_new_vehicle = counter_new_vehicle + 1;
@@ -100,6 +117,7 @@ void MaceCore::NewConstructedVehicle(const void *sender, const std::shared_ptr<V
         std::cout<<"A new vehicle has been added to the map. Notify everyone."<<std::endl;
     }
 }
+*/
 
 bool MaceCore::VehicleCheck(const int &vehicleID)
 {
@@ -115,6 +133,7 @@ bool MaceCore::VehicleCheck(const int &vehicleID)
     return false;
 }
 
+/*
 void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const VehicleMessage &vehicleMessage)
 {
     IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
@@ -130,6 +149,7 @@ void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const Veh
         //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, tmpString);
     }
 }
+*/
 
 void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
 {

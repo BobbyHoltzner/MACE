@@ -17,6 +17,7 @@
 #include "ardupilot_status.h"
 #include "ardupilot_power.h"
 
+/*
 #include "data/global_position.h"
 #include "data/local_position.h"
 
@@ -74,5 +75,5 @@ private:
 
 };
 } //end of namespace ardupilot
-
+*/
 #endif // DATA_ARDUPILOT_H

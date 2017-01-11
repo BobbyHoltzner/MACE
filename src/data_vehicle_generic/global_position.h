@@ -2,12 +2,12 @@
 #define DATAVEHICLEGENERIC_GLOBALPOSITION_H
 
 
-#include "i_vehicle_topic_component.h"
+#include "data/i_topic_component_data_object.h"
 
 namespace DataVehicleGeneric
 {
 
-class GlobalPosition : public IVehicleTopicComponent
+class GlobalPosition : public Data::ITopicComponentDataObject
 {
 public:
     static MaceCore::TopicComponentStructure TopicStructure();

@@ -9,39 +9,35 @@
 
 #include "mace_core/i_module_command_vehicle.h"
 
-#include "data_vehicle_generic/i_vehicle_topic_component.h"
+#include "data_vehicle_generic/local_position.h"
+#include "data_vehicle_generic/local_velocity.h"
+#include "data_vehicle_generic/global_position.h"
+#include "data_vehicle_generic/global_velocity.h"
 
 
+#include "data/topic_data_object_collection.h"
 
 
+template <typename ...VehicleTopicAdditionalComponents>
 class MODULE_VEHICLE_GENERICSHARED_EXPORT ModuleVehicleGeneric : public MaceCore::IModuleCommandVehicle
 {
 
 public:
-    ModuleVehicleGeneric();
+    ModuleVehicleGeneric() :
+        MaceCore::IModuleCommandVehicle(),
+        m_VehicleDataTopic("vehicleData")
+    {
 
-    virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics();
-
-    virtual std::shared_ptr<DataVehicleGeneric::IVehicleTopicComponent> CraftComponent(const std::string &componentName, const MaceCore::TopicDatagram &datagram);
-
-    //void UpdateComponentData(const int &vehicleID, const std::shared_ptr<DataVehicleGeneric::IVehicleTopicComponent> &component);
-
-    /*
-    template <typename T>
-    std::shared_ptr<MaceCore::ITopicComponentObject> GetCurrentComponent(const int vehicleID) const {
-        if(m_Vehicles.find(vehicleID) == m_Vehicles.cend()){
-            throw std::runtime_error("Vehicle does not exists");
-        }
-
-        std::type_info &info = typeid(T);
-        return m_Vehicles.at(vehicleID).at(info.name());
     }
-    */
 
-private:
+protected:
 
-    std::unordered_map<std::string, std::function<DataVehicleGeneric::IVehicleTopicComponent()>> m_Factory;
-    //std::unordered_map<int, std::unordered_map<std::string, std::shared_ptr<MaceCore::ITopicComponentObject>>> m_Vehicles;
+    Data::TopicDataObjectCollection<
+        VehicleTopicAdditionalComponents...,
+        DataVehicleGeneric::LocalPosition,
+        DataVehicleGeneric::LocalVelocity,
+        DataVehicleGeneric::GlobalPosition,
+        DataVehicleGeneric::GlobalVelocity> m_VehicleDataTopic;
 };
 
 #endif // MODULE_VEHICLE_GENERIC_H

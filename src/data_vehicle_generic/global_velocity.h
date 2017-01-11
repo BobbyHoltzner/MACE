@@ -1,14 +1,14 @@
 #ifndef DATAVEHICLEGENERIC_GLOBALVELOCITY_H
 #define DATAVEHICLEGENERIC_GLOBALVELOCITY_H
 
-#include "i_vehicle_topic_component.h"
+#include "data/i_topic_component_data_object.h"
 
 #include "coordinate_frame.h"
 
 namespace DataVehicleGeneric
 {
 
-class GlobalVelocity : public IVehicleTopicComponent
+class GlobalVelocity : public Data::ITopicComponentDataObject
 {
 public:
 

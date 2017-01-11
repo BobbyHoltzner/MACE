@@ -3,7 +3,7 @@
 
 #include <string>
 #include <Eigen/Dense>
-
+/*
 #include "data/global_position.h"
 #include "data/local_position.h"
 
@@ -85,5 +85,6 @@ private:
     int m_VehicleProtocol;
     int m_VehicleType;
 };
+*/
 
 #endif // VEHICLEOBJECT_H

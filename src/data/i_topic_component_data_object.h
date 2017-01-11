@@ -1,13 +1,11 @@
-#ifndef I_VEHICLE_TOPIC_COMPONENT_H
-#define I_VEHICLE_TOPIC_COMPONENT_H
+#ifndef I_TOPIC_COMPONENT_DATA_OBJECT_H
+#define I_TOPIC_COMPONENT_DATA_OBJECT_H
 
-#include <string>
 #include "mace_core/topic.h"
 
-namespace DataVehicleGeneric
-{
+namespace Data {
 
-class IVehicleTopicComponent{
+class ITopicComponentDataObject{
 
 public:
 
@@ -19,4 +17,4 @@ public:
 
 }
 
-#endif // I_VEHICLE_TOPIC_COMPONENT_H
+#endif // I_TOPIC_COMPONENT_DATA_OBJECT_H

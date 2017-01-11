@@ -1,14 +1,14 @@
 #ifndef DATAVEHICLEGENERIC_LOCALPOSITION_H
 #define DATAVEHICLEGENERIC_LOCALPOSITION_H
 
-#include "i_vehicle_topic_component.h"
+#include "data/i_topic_component_data_object.h"
 
 #include "coordinate_frame.h"
 
 namespace DataVehicleGeneric
 {
 
-class LocalPosition : public IVehicleTopicComponent
+class LocalPosition : public Data::ITopicComponentDataObject
 {
 public:
 

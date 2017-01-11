@@ -19,6 +19,9 @@
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
 
 
+#include "data_vehicle_generic/local_position.h"
+#include "data_vehicle_generic/local_velocity.h"
+
 /*
  *
  * USAGE:
@@ -41,7 +44,9 @@
  *
  * */
 
-class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK : public ModuleVehicleGeneric, public Comms::CommsEvents
+class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK :
+        public ModuleVehicleGeneric<DataVehicleGeneric::LocalPosition>,
+        public Comms::CommsEvents
 {
 public:
 //    AbstractVehicleMessage* ConstructMessage();

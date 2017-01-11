@@ -9,9 +9,9 @@ namespace DataVehicleMAVLINK
 {
 
 
-std::unordered_map<std::string, std::shared_ptr<DataVehicleGeneric::IVehicleTopicComponent>> MAVLINKParser::Parse(const mavlink_message_t* message) const{
+std::unordered_map<std::string, std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Parse(const mavlink_message_t* message) const{
 
-    std::unordered_map<std::string, std::shared_ptr<DataVehicleGeneric::IVehicleTopicComponent>> components;
+    std::unordered_map<std::string, std::shared_ptr<Data::ITopicComponentDataObject>> components;
 
     int messageID = (int)message->msgid;
 
@@ -31,9 +31,8 @@ std::unordered_map<std::string, std::shared_ptr<DataVehicleGeneric::IVehicleTopi
         vel_ptr->z = decodedMSG.vz;
         vel_ptr->frame = DataVehicleGeneric::CoordinateFrame::NED;
 
-        components.insert({"asdf", NULL});
-        //components.insert({DataVehicleGeneric::LocalPosition::Name(), std::dynamic_pointer_cast<DataVehicleGeneric::IVehicleTopicComponent>(pos_ptr)});
-        //components.insert({DataVehicleGeneric::LocalVelocity::Name(), vel_ptr});
+        components.insert({DataVehicleGeneric::LocalPosition::Name(), pos_ptr});
+        components.insert({DataVehicleGeneric::LocalVelocity::Name(), vel_ptr});
     }
 
     if(messageID == MAVLINK_MSG_ID_GLOBAL_POSITION_INT) {
@@ -57,8 +56,8 @@ std::unordered_map<std::string, std::shared_ptr<DataVehicleGeneric::IVehicleTopi
         vel_ptr->heading = decodedMSG.hdg;
         vel_ptr->frame = DataVehicleGeneric::CoordinateFrame::NED;
 
-        //components.insert({DataVehicleGeneric::GlobalPosition::Name(), pos_ptr});
-        //components.insert({DataVehicleGeneric::GlobalVelocity::Name(), vel_ptr});
+        components.insert({DataVehicleGeneric::GlobalPosition::Name(), pos_ptr});
+        components.insert({DataVehicleGeneric::GlobalVelocity::Name(), vel_ptr});
     }
 
     return components;

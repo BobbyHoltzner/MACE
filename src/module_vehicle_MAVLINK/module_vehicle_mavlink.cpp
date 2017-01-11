@@ -13,6 +13,8 @@
 
 #include "data_vehicle_MAVLINK/altitude_reference_frames.h"
 
+#include "data_vehicle_generic/local_position.h"
+
 /*
  *
  * EXAMPLE ON HOW TO GENERATE MAVLINK MESSAGE:
@@ -389,6 +391,7 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &a
             {
                 std::string linkString = "link1";
                 std::cout << "creating Mav_AutoPilot: VehicleID: " << sendersID << std::endl;
+                /*
                 Ardupilot::DataArdupilot tmpObject(sendersID,VP_MAVLINK,vehicleType);
                 tmpObject.updateVehicleCommsObject(m_LinkMarshaler,linkString);
                 std::shared_ptr<Ardupilot::DataArdupilot> tmpArdupilot = std::make_shared<Ardupilot::DataArdupilot>(tmpObject);
@@ -396,6 +399,7 @@ void ModuleVehicleMAVLINK::vehicleObjectCheck(const int &sendersID, const int &a
                 NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
                        ptr->NewConstructedVehicle(this,tmpArdupilot);
                     });
+                */
                 break;
             }
             default:
@@ -451,7 +455,7 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
     }
 
     //get maping of all vehicle data components
-    std::unordered_map<std::string, std::shared_ptr<DataVehicleGeneric::IVehicleTopicComponent>> components =  m_MAVLINKParser.Parse(&message);
+    std::unordered_map<std::string, std::shared_ptr<Data::ITopicComponentDataObject>> components =  m_MAVLINKParser.Parse(&message);
 
     //topic to populate
     MaceCore::TopicDatagram topicDatagram;
@@ -465,8 +469,12 @@ void ModuleVehicleMAVLINK::MavlinkMessage(const std::string &linkName, const mav
     });
 
 
-
-    MaceCore::TopicDatagram topicDatagram = this->getDataObject()->GetTopic("VehicleData", 1);
+    //example read
+    MaceCore::TopicDatagram read_topicDatagram = getDataObject()->GetCurrentTopicDatagram("VehicleData", 1);
+    std::shared_ptr<DataVehicleGeneric::LocalPosition> position_component = m_VehicleDataTopic.GetComponent(read_topicDatagram);
+    if(position_component != NULL) {
+        std::cout << position_component->x << " " << position_component->y << " " << position_component->z << std::endl;
+    }
 
 }
 

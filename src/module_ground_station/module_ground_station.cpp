@@ -188,7 +188,7 @@ void ModuleGroundStation::UpdatedVehicleMap(const std::string &vehicleID)
     //This is a sample of how to get data from the map containing vehicle information
     std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
 //    std::map<int, std::shared_ptr<VehicleObject>> vehicleDataMap;
-    data->GetVehicleMap(m_VehicleMap);
+    //data->GetVehicleMap(m_VehicleMap);
 }
 
 
@@ -214,10 +214,11 @@ void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &v
 {
     int satFix = 0;
     int numSats = 0;
-    Data::GlobalPosition tmpGlobalPosition(0.0,0.0,0.0);
+    //Data::GlobalPosition tmpGlobalPosition(0.0,0.0,0.0);
 
     Eigen::Vector3d positionVector(10.0,10.0,10.0);
 
+    /*
     if(m_VehicleMap.find(vehicleID) == m_VehicleMap.cend())
     {
         std::cout << "The vehicle with that ID is not there." << std::endl;
@@ -233,10 +234,12 @@ void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &v
         QJsonDocument doc(json);
         vehiclePosition = doc.toJson();
     }
+    */
 }
 
 void ModuleGroundStation::getVehicleAttitude(const int &vehicleID, QByteArray &vehicleAttitude)
 {
+    /*
     Eigen::Vector3d attitudeVector(10.0,10.0,10.0);
     if(m_VehicleMap.find(vehicleID) == m_VehicleMap.cend())
     {
@@ -252,4 +255,5 @@ void ModuleGroundStation::getVehicleAttitude(const int &vehicleID, QByteArray &v
         QJsonDocument doc(json);
         vehicleAttitude = doc.toJson();
     }
+    */
 }
