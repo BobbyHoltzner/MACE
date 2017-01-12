@@ -1,22 +1,34 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-01-09T17:42:07
+# Project created by QtCreator 2017-01-12T14:51:44
 #
 #-------------------------------------------------
 
+QT += serialport
+QT += network
 QT       -= core gui
 
-TARGET = module_vehicle_generic
+TARGET = module_vehicle_ardupilot
 TEMPLATE = lib
 
-DEFINES += MODULE_VEHICLE_GENERIC_LIBRARY
+DEFINES += MODULE_VEHICLE_ARDUPILOT_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-SOURCES += module_vehicle_generic.cpp
+SOURCES += module_vehicle_ardupilot.cpp
 
-HEADERS += module_vehicle_generic.h\
-        module_vehicle_generic_global.h
+HEADERS += module_vehicle_ardupilot.h\
+        module_vehicle_ardupilot_global.h
+
+INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
+
+
+
+# Unix lib Install
+unix:!symbian {
+    target.path = $$(MACE_ROOT)/lib
+    INSTALLS += target
+}
 
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib
@@ -31,6 +43,8 @@ headers.files   += \
         module_vehicle_mavlink_global.h \
         generic_message_definition_mavlink.h
 INSTALLS       += headers
+
+
 
 INCLUDEPATH += $$PWD/../
 
@@ -50,6 +64,21 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generi
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic/debug/ -ldata_vehicle_generic
 else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_generic/ -ldata_vehicle_generic
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/release/ -ldata_vehicle_MAVLINK
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/debug/ -ldata_vehicle_MAVLINK
+else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/ -ldata_vehicle_MAVLINK
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/release/ -ldata_vehicle_ardupilot
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/debug/ -ldata_vehicle_ardupilot
+else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/ -ldata_vehicle_ardupilot
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_generic/release/ -lmodule_vehicle_generic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_generic/debug/ -lmodule_vehicle_generic
+else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_generic/ -lmodule_vehicle_generic
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/release/ -lmodule_vehicle_MAVLINK
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/debug/ -lmodule_vehicle_MAVLINK
+else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/ -lmodule_vehicle_MAVLINK
 
 unix{
     EigenInclude = $$system(pkg-config --cflags eigen3)
@@ -59,5 +88,3 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
-
-

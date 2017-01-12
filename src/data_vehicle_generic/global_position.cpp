@@ -6,19 +6,17 @@ namespace DataVehicleGeneric
 {
 
 
-MaceCore::TopicComponentStructure GlobalPosition::TopicStructure() {
+const char GlobalPosition_name[] = "global_position";
+const MaceCore::TopicComponentStructure GlobalPosition_structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<double>("latitude");
     structure.AddTerminal<double>("longitude");
     structure.AddTerminal<std::unordered_map<int, double>>("altitude");
 
     return structure;
-}
+}();
 
 
-std::string GlobalPosition::Name() {
-    return "global_position";
-}
 
 
 MaceCore::TopicDatagram GlobalPosition::GenerateDatagram() const {

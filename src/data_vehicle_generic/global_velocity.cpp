@@ -5,8 +5,8 @@
 namespace DataVehicleGeneric
 {
 
-
-MaceCore::TopicComponentStructure GlobalVelocity::TopicStructure() {
+const char GlobalVelocity_name[] = "global_velocity";
+const MaceCore::TopicComponentStructure GlobalVelocity_structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<double>("x");
     structure.AddTerminal<double>("y");
@@ -15,12 +15,9 @@ MaceCore::TopicComponentStructure GlobalVelocity::TopicStructure() {
     structure.AddTerminal<CoordinateFrame>("frame");
 
     return structure;
-}
+}();
 
 
-std::string GlobalVelocity::Name(){
-    return "global_velocity";
-}
 
 
 MaceCore::TopicDatagram GlobalVelocity::GenerateDatagram() const {

@@ -8,14 +8,14 @@
 namespace DataVehicleGeneric
 {
 
-class LocalVelocity : public Data::ITopicComponentDataObject
+extern const char LocalVelocity_name[];
+extern const MaceCore::TopicComponentStructure LocalVelocity_structure;
+
+class LocalVelocity : public Data::NamedTopicComponentDataObject<LocalVelocity_name, &LocalVelocity_structure>
 {
 public:
 
-    static MaceCore::TopicComponentStructure TopicStructure();
-
-
-    static std::string Name();
+    //static MaceCore::TopicComponentStructure TopicStructure();
 
 
     virtual MaceCore::TopicDatagram GenerateDatagram() const;

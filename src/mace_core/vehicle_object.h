@@ -2,7 +2,6 @@
 #define VEHICLEOBJECT_H
 
 #include <string>
-#include <Eigen/Dense>
 /*
 #include "data/global_position.h"
 #include "data/local_position.h"

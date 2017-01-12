@@ -7,14 +7,12 @@
 namespace DataVehicleGeneric
 {
 
-class GlobalPosition : public Data::ITopicComponentDataObject
+extern const char GlobalPosition_name[];
+extern const MaceCore::TopicComponentStructure GlobalPosition_structure;
+
+class GlobalPosition : public Data::NamedTopicComponentDataObject<GlobalPosition_name, &GlobalPosition_structure>
 {
 public:
-    static MaceCore::TopicComponentStructure TopicStructure();
-
-
-    static std::string Name();
-
 
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
 

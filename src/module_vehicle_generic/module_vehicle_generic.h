@@ -17,12 +17,17 @@
 
 #include "data/topic_data_object_collection.h"
 
-
-template <typename ...VehicleTopicAdditionalComponents>
+/*
 class MODULE_VEHICLE_GENERICSHARED_EXPORT ModuleVehicleGeneric : public MaceCore::IModuleCommandVehicle
 {
-
 public:
+
+    typedef Data::TopicDataObjectCollection<
+    DataVehicleGeneric::LocalPosition,
+    DataVehicleGeneric::LocalVelocity,
+    DataVehicleGeneric::GlobalPosition,
+    DataVehicleGeneric::GlobalVelocity> VehicleDataTopicType;
+
     ModuleVehicleGeneric() :
         MaceCore::IModuleCommandVehicle(),
         m_VehicleDataTopic("vehicleData")
@@ -32,12 +37,36 @@ public:
 
 protected:
 
-    Data::TopicDataObjectCollection<
-        VehicleTopicAdditionalComponents...,
-        DataVehicleGeneric::LocalPosition,
-        DataVehicleGeneric::LocalVelocity,
-        DataVehicleGeneric::GlobalPosition,
-        DataVehicleGeneric::GlobalVelocity> m_VehicleDataTopic;
+    VehicleDataTopicType m_VehicleDataTopic;
 };
+*/
+
+
+
+template <typename ...VehicleTopicAdditionalComponents>
+class MODULE_VEHICLE_GENERICSHARED_EXPORT ModuleVehicleGeneric : public MaceCore::IModuleCommandVehicle
+{
+public:
+
+    typedef Data::TopicDataObjectCollection<
+    VehicleTopicAdditionalComponents...,
+    DataVehicleGeneric::LocalPosition,
+    DataVehicleGeneric::LocalVelocity,
+    DataVehicleGeneric::GlobalPosition,
+    DataVehicleGeneric::GlobalVelocity> VehicleDataTopicType;
+
+    ModuleVehicleGeneric() :
+        MaceCore::IModuleCommandVehicle(),
+        m_VehicleDataTopic("vehicleData")
+    {
+
+    }
+
+public:
+
+    VehicleDataTopicType m_VehicleDataTopic;
+};
+
+
 
 #endif // MODULE_VEHICLE_GENERIC_H

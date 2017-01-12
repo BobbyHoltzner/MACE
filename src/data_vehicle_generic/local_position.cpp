@@ -6,7 +6,8 @@ namespace DataVehicleGeneric
 {
 
 
-MaceCore::TopicComponentStructure LocalPosition::TopicStructure() {
+const char LocalPosition_name[] = "local_position";
+const MaceCore::TopicComponentStructure LocalPosition_structure = [](){
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<double>("x");
     structure.AddTerminal<double>("y");
@@ -14,12 +15,8 @@ MaceCore::TopicComponentStructure LocalPosition::TopicStructure() {
     structure.AddTerminal<CoordinateFrame>("frame");
 
     return structure;
-}
+}();
 
-
-std::string LocalPosition::Name(){
-    return "local_position";
-}
 
 
 MaceCore::TopicDatagram LocalPosition::GenerateDatagram() const {

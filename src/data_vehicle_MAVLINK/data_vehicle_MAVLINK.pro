@@ -14,11 +14,13 @@ DEFINES += DATA_VEHICLE_MAVLINK_LIBRARY
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
-    mavlink_parser.cpp
+    mavlink_parser.cpp \
+    Components/gps_status.cpp
 
 HEADERS +=\
     altitude_reference_frames.h \
-    mavlink_parser.h
+    mavlink_parser.h \
+    Components/gps_status.h
 
 # Unix lib Install
 unix:!symbian {

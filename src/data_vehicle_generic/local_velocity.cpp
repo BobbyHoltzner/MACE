@@ -6,20 +6,18 @@ namespace DataVehicleGeneric
 {
 
 
-MaceCore::TopicComponentStructure LocalVelocity::TopicStructure() {
-    MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<double>("x");
-    structure.AddTerminal<double>("y");
-    structure.AddTerminal<double>("z");
-    structure.AddTerminal<CoordinateFrame>("frame");
+const char LocalVelocity_name[] = "local_velocity";
+const MaceCore::TopicComponentStructure LocalVelocity_structure = [](){
+        MaceCore::TopicComponentStructure structure;
+        structure.AddTerminal<double>("x");
+        structure.AddTerminal<double>("y");
+        structure.AddTerminal<double>("z");
+        structure.AddTerminal<CoordinateFrame>("frame");
 
-    return structure;
-}
+        return structure;
+    }();
 
 
-std::string LocalVelocity::Name(){
-    return "local_velocity";
-}
 
 
 MaceCore::TopicDatagram LocalVelocity::GenerateDatagram() const {

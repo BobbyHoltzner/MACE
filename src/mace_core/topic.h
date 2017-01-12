@@ -172,6 +172,12 @@ public:
         }
     }
 
+    bool isEmpty() {
+        if(m_TerminalValues.size() == 0 && m_NonTerminalValues.size() == 0)
+            return true;
+        return false;
+    }
+
 private:
 
     std::unordered_map<std::string, std::shared_ptr<void> > m_TerminalValues;

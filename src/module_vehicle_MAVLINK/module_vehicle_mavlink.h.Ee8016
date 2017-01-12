@@ -113,8 +113,9 @@ public:
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ModuleVehicleMAVLINK() :
-        ModuleVehicleGeneric<VehicleTopicAdditionalComponents...>(),
-        m_LinkMarshaler(new Comms::CommsMarshaler)
+        ModuleVehicleGeneric(),
+        m_LinkMarshaler(new Comms::CommsMarshaler),
+        m_MAVLINKParser(NULL)
     {
         m_LinkMarshaler->AddSubscriber(this);
     }
@@ -358,7 +359,7 @@ public:
 
     virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics()
     {
-        //return IModuleCommandVehicle::GetTopics();
+        return IModuleCommandVehicle::GetTopics();
     }
 
 public:
@@ -385,7 +386,7 @@ public:
 
     virtual void RemoveVehicleObject(const int &vehicleID)
     {
-        m_NeededVehicleObjects.remove(vehicleID);
+        m_NeededVehicleObjects.remove(sendersID);
     }
 
     virtual void UpdateVehicleObjectList(const std::list<int> &vehicleObjectList)
@@ -438,11 +439,31 @@ public:
     //! \param linkName Name of link message received over
     //! \param msg Message received
     //!
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message) const
+    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg) const
     {
+        //test statements that will issue a log_request_list to device
+        //can be used to verify 2 way communication works
+    //    static bool requestLogs = false;
+    //    if(requestLogs == false){
+    //        uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
+    //        mavlink_message_t msg;
+    //        mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,0,0,0,0xFFFF);
+    //        m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+    //        requestLogs = true;
+    //    }
+    //    if(message.msgid == 118)
+    //            std::cout << "Mavlink 118 message received" << std::endl;
+
 
         int sendersID = (int)message.sysid;
         int messageID = (int)message.msgid;
+
+        if(sendersID == 51)
+        {
+            return;
+        }
+
+
 
         if(messageID == MAVLINK_MSG_ID_HEARTBEAT)
         {
@@ -455,20 +476,18 @@ public:
             }
         }
 
-        typename ModuleVehicleMAVLINK<VehicleTopicAdditionalComponents...>::VehicleDataTopicType *VehicleDataTopicPtr = &ModuleVehicleMAVLINK<VehicleTopicAdditionalComponents...>::m_VehicleDataTopic;
-
         //get maping of all vehicle data components
-        MaceCore::TopicDatagram topicDatagram = m_MAVLINKParser.Parse<typename ModuleVehicleGeneric<VehicleTopicAdditionalComponents...>::VehicleDataTopicType>(&message, VehicleDataTopicPtr);
+        MaceCore::TopicDatagram topicDatagram = m_MAVLINKParser.Parse<ModuleVehicleGeneric::VehicleDataTopicType>(&message, &m_VehicleDataTopic);
 
         //notify of new topic datagram
-        ModuleVehicleGeneric<VehicleTopicAdditionalComponents...>::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-            ptr->NewTopicDataValues(VehicleDataTopicPtr->Name(), 1, MaceCore::TIME(), topicDatagram);
+        NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
         });
 
 
         //example read
-        MaceCore::TopicDatagram read_topicDatagram = ModuleVehicleGeneric<VehicleTopicAdditionalComponents...>::getDataObject()->GetCurrentTopicDatagram(VehicleDataTopicPtr->Name(), 1);
-        std::shared_ptr<DataVehicleGeneric::GlobalPosition> position_component = ((Data::TopicDataObjectCollection<DataVehicleGeneric::GlobalPosition>)*VehicleDataTopicPtr).GetComponent(read_topicDatagram);
+        MaceCore::TopicDatagram read_topicDatagram = getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), 1);
+        std::shared_ptr<DataVehicleGeneric::GlobalPosition> position_component = ((Data::TopicDataObjectCollection<DataVehicleGeneric::GlobalPosition>)m_VehicleDataTopic).GetComponent(read_topicDatagram);
         if(position_component != NULL) {
             std::cout << position_component->latitude << " " << position_component->longitude << std::endl;
         }
@@ -496,7 +515,9 @@ private:
 
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
 
-    DataVehicleMAVLINK::MAVLINKParser m_MAVLINKParser;
+protected:
+
+    DataVehicleMAVLINK::MAVLINKParser *m_MAVLINKParser;
 
 };
 
