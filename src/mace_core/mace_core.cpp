@@ -102,8 +102,11 @@ void MaceCore::NewTopicDataValues(const std::string &topicName, const int sender
 
 
     //list through all interested parties and notify of new topic data
-    for(auto it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
-        (*it)->NewTopic(topicName, senderID, components);
+    if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
+    {
+        for(auto it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
+            (*it)->NewTopic(topicName, senderID, components);
+        }
     }
 
     //notify attached modules of updated topic.
