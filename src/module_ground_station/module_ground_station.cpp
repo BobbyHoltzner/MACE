@@ -154,6 +154,11 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
 
 }
 
+void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
+{
+
+}
+
 bool ModuleGroundStation::StartTCPServer()
 {
     m_TcpServer = new QTcpServer();

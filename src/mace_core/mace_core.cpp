@@ -86,9 +86,25 @@ void MaceCore::AddTopic(const std::string &topicName, const TopicStructure &topi
     m_Topics.insert({topicName, topic});
 }
 
+void MaceCore::Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &senderIDs, const std::vector<std::string> &components)
+{
+    if(m_TopicNotifier.find(topicName) == m_TopicNotifier.cend()) {
+        m_TopicNotifier.insert({topicName, {}});
+    }
+    m_TopicNotifier[topicName].push_back(sender);
+}
+
 void MaceCore::NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
 
+    std::vector<std::string> components = value.ListNonTerminals();
+
     m_DataFusion->setTopicDatagram(topicName, senderID, time, value);
+
+
+    //list through all interested parties and notify of new topic data
+    for(auto it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
+        (*it)->NewTopic(topicName, senderID, components);
+    }
 
     //notify attached modules of updated topic.
     //m_RTA->MarshalCommand(RTACommands::UPDATED_POSITION_DYNAMICS, ID);

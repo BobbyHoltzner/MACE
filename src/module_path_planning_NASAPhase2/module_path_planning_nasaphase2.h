@@ -27,7 +27,7 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
-
+    void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
 public:
 

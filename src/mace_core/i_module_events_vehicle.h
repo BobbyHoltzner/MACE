@@ -18,14 +18,6 @@ public:
 
    // virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage) = 0;
 
-    virtual void NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &position, const Eigen::Vector3d &attitude) = 0;
-
-    virtual void NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate) = 0;
-
-    virtual void NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &health) = 0;
-
-    virtual void NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) = 0;
-
 };
 
 } //End MaceCore Namespace

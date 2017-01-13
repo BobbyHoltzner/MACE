@@ -65,9 +65,12 @@
 
 template <typename ...VehicleTopicAdditionalComponents>
 class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK :
-        public ModuleVehicleGeneric<VehicleTopicAdditionalComponents...>,
+        public ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataVehicleMAVLINK::GPSStatus>,
         public Comms::CommsEvents
 {
+
+    typedef ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataVehicleMAVLINK::GPSStatus> ModuleVehicleMavlinkBase;
+
 public:
 //    AbstractVehicleMessage* ConstructMessage();
 //    void gotInfoTest(const Data::VehicleStateData &messageData);
@@ -113,7 +116,7 @@ public:
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ModuleVehicleMAVLINK() :
-        ModuleVehicleGeneric<VehicleTopicAdditionalComponents...>(),
+        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataVehicleMAVLINK::GPSStatus>(),
         m_LinkMarshaler(new Comms::CommsMarshaler)
     {
         m_LinkMarshaler->AddSubscriber(this);
@@ -438,7 +441,7 @@ public:
     //! \param linkName Name of link message received over
     //! \param msg Message received
     //!
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message) const
+    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
     {
 
         int sendersID = (int)message.sysid;
@@ -455,24 +458,17 @@ public:
             }
         }
 
-        typename ModuleVehicleMAVLINK<VehicleTopicAdditionalComponents...>::VehicleDataTopicType *VehicleDataTopicPtr = &ModuleVehicleMAVLINK<VehicleTopicAdditionalComponents...>::m_VehicleDataTopic;
+        //void *test = (void*)&m_VehicleDataTopic;
+
+        //typename ModuleVehicleGeneric<VehicleTopicAdditionalComponents...>::VehicleDataTopicType *VehicleDataTopicPtr = &ModuleVehicleMAVLINK<VehicleTopicAdditionalComponents...>::m_VehicleDataTopic;
 
         //get maping of all vehicle data components
-        MaceCore::TopicDatagram topicDatagram = m_MAVLINKParser.Parse<typename ModuleVehicleGeneric<VehicleTopicAdditionalComponents...>::VehicleDataTopicType>(&message, VehicleDataTopicPtr);
+        MaceCore::TopicDatagram topicDatagram = m_MAVLINKParser.Parse<typename ModuleVehicleMavlinkBase::VehicleDataTopicType>(&message, ModuleVehicleMavlinkBase::m_VehicleDataTopic);
 
         //notify of new topic datagram
-        ModuleVehicleGeneric<VehicleTopicAdditionalComponents...>::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-            ptr->NewTopicDataValues(VehicleDataTopicPtr->Name(), 1, MaceCore::TIME(), topicDatagram);
+        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(ModuleVehicleMavlinkBase::m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
         });
-
-
-        //example read
-        MaceCore::TopicDatagram read_topicDatagram = ModuleVehicleGeneric<VehicleTopicAdditionalComponents...>::getDataObject()->GetCurrentTopicDatagram(VehicleDataTopicPtr->Name(), 1);
-        std::shared_ptr<DataVehicleGeneric::GlobalPosition> position_component = ((Data::TopicDataObjectCollection<DataVehicleGeneric::GlobalPosition>)*VehicleDataTopicPtr).GetComponent(read_topicDatagram);
-        if(position_component != NULL) {
-            std::cout << position_component->latitude << " " << position_component->longitude << std::endl;
-        }
-
     }
 
 

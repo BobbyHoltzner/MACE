@@ -38,6 +38,9 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
+
+    void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
+
     //!
     //! \brief Starts the TCP server for the GCS to send requests to
     //! \return

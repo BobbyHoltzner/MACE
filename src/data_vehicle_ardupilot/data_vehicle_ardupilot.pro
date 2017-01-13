@@ -13,11 +13,14 @@ DEFINES += DATA_VEHICLE_ARDUPILOT_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-SOURCES +=
+SOURCES += \
+    components/vehicle_operating_parameters.cpp
 
 HEADERS +=\
         data_vehicle_ardupilot_global.h \
-    mavlink_parser_ardupilot.h
+    mavlink_parser_ardupilot.h \
+    ardu_platforms.h \
+    components/vehicle_operating_parameters.h
 
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib

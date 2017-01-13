@@ -4,7 +4,7 @@
 #include "abstract_module_event_listeners.h"
 #include "metadata_vehicle.h"
 
-#include "i_module_events_vehicle.h"
+#include "i_module_topic_events.h"
 
 #include <Eigen/Dense>
 
@@ -25,7 +25,7 @@ enum class VehicleCommands
 
 class MaceCore;
 
-class MACE_CORESHARED_EXPORT IModuleCommandVehicle : public AbstractModule_EventListeners<MetadataVehicle, IModuleEventsVehicle, VehicleCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandVehicle : public AbstractModule_EventListeners<MetadataVehicle, IModuleTopicEvents, VehicleCommands>
 {
 friend class MaceCore;
 public:

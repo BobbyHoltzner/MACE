@@ -20,12 +20,14 @@
 #include "i_module_events_path_planning.h"
 #include "i_module_events_ground_station.h"
 
+#include "i_module_topic_events.h"
+
 #include "topic.h"
 
 namespace MaceCore
 {
 
-class MACE_CORESHARED_EXPORT MaceCore : public IModuleEventsVehicle, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsGroundStation
+class MACE_CORESHARED_EXPORT MaceCore : public IModuleTopicEvents, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsGroundStation
 {
 
 
@@ -56,6 +58,8 @@ public:
 public:
 
     void AddTopic(const std::string &topicName, const TopicStructure &topic);
+
+    virtual void Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &senderIDs = {}, const std::vector<std::string> &components = {}) = 0;
 
     virtual void NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value);
 
@@ -155,6 +159,8 @@ private:
     bool insertFlag;
 
     std::unordered_map<std::string, TopicStructure> m_Topics;
+
+    std::unordered_map<std::string, std::vector<ModuleBase*>> m_TopicNotifier;
 
     std::list<int> m_VehicleObjectRequired;
 

@@ -29,6 +29,11 @@ void ModuleRTANASAPhase2::ConfigureModule(const std::shared_ptr<MaceCore::Module
 
 }
 
+void ModuleRTANASAPhase2::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
+{
+
+}
+
 
 void ModuleRTANASAPhase2::NewVehicle(const std::string &ID)
 {

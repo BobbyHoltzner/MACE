@@ -30,6 +30,11 @@ void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCor
 
 }
 
+void ModulePathPlanningNASAPhase2::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
+{
+
+}
+
 
 void ModulePathPlanningNASAPhase2::NewVehicle(const std::string &ID)
 {

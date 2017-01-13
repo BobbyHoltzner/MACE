@@ -29,7 +29,7 @@ class MAVLINKParser
 public:
 
     template<typename T>
-    MaceCore::TopicDatagram Parse(const mavlink_message_t* message, const T* topic) const{
+    MaceCore::TopicDatagram Parse(const mavlink_message_t* message, const T &topic) const{
         static_assert(std::is_base_of<Data::TopicDataObjectCollection<>, T>::value, "T must derive from Data::TopicDataObjectCollection");
 
         MaceCore::TopicDatagram datagram;
@@ -52,8 +52,8 @@ public:
             vel_ptr->z = decodedMSG.vz;
             vel_ptr->frame = DataVehicleGeneric::CoordinateFrame::NED;
 
-            ((Data::TopicDataObjectCollection<DataVehicleGeneric::LocalPosition>*)topic)->SetComponent(pos_ptr, &datagram);
-            ((Data::TopicDataObjectCollection<DataVehicleGeneric::LocalVelocity>*)topic)->SetComponent(vel_ptr, &datagram);
+            ((Data::TopicDataObjectCollection<DataVehicleGeneric::LocalPosition>)topic).SetComponent(pos_ptr, &datagram);
+            ((Data::TopicDataObjectCollection<DataVehicleGeneric::LocalVelocity>)topic).SetComponent(vel_ptr, &datagram);
 
             return datagram;
         }
@@ -79,8 +79,8 @@ public:
             vel_ptr->heading = decodedMSG.hdg;
             vel_ptr->frame = DataVehicleGeneric::CoordinateFrame::NED;
 
-            ((Data::TopicDataObjectCollection<DataVehicleGeneric::GlobalPosition>*)topic)->SetComponent(pos_ptr, &datagram);
-            ((Data::TopicDataObjectCollection<DataVehicleGeneric::GlobalVelocity>*)topic)->SetComponent(vel_ptr, &datagram);
+            ((Data::TopicDataObjectCollection<DataVehicleGeneric::GlobalPosition>)topic).SetComponent(pos_ptr, &datagram);
+            ((Data::TopicDataObjectCollection<DataVehicleGeneric::GlobalVelocity>)topic).SetComponent(vel_ptr, &datagram);
 
             return datagram;
         }
@@ -101,7 +101,7 @@ public:
             gpsStatus->numberOfSats = (int)decodedMSG.satellite_used;
             //TODO: NOT SURE HOW TO GET REST OF FIELDS.
 
-            ((Data::TopicDataObjectCollection<DataVehicleMAVLINK::GPSStatus>*)topic)->SetComponent(gpsStatus, &datagram);
+            ((Data::TopicDataObjectCollection<DataVehicleMAVLINK::GPSStatus>)topic).SetComponent(gpsStatus, &datagram);
 
             return datagram;
         }
