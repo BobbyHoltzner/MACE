@@ -49,7 +49,11 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             std::cout << "  " << componentsUpdated.at(i) << std::endl;
             if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleOperatingParameters::Name()) {
                 std::shared_ptr<DataVehicleArdupilot::VehicleOperatingParameters> component = ((Data::TopicDataObjectCollection<DataVehicleArdupilot::VehicleOperatingParameters>)m_VehicleDataTopic).GetComponent(read_topicDatagram);
-                std::cout << "  Vehicle Type: " << (int)component->getPlatform() << std::endl;
+                std::cout << "    Vehicle Type: " << (int)component->getPlatform() << std::endl;
+            }
+            if(componentsUpdated.at(i) == DataVehicleGeneric::GlobalPosition::Name()) {
+                std::shared_ptr<DataVehicleGeneric::GlobalPosition> component = ((Data::TopicDataObjectCollection<DataVehicleGeneric::GlobalPosition>)m_VehicleDataTopic).GetComponent(read_topicDatagram);
+                std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
             }
         }
     }
