@@ -18,9 +18,24 @@ class IModuleTopicEvents
 public:
 
 
-    virtual void Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &senderIDs = {}, const std::vector<std::string> &components = {}) = 0;
+    //!
+    //! \brief Subscribe to a topic being distrubted by MACE
+    //! \param sender Pointer to object that is subscribing
+    //! \param topicName Name of topic to subscribe to
+    //! \param entityIDs Optional list of ids such that module will only be notified when a topic with entity of given ID is sent
+    //! \param components Optional list of components such that module will only be notified when a component is updated
+    //!
+    virtual void Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &entityIDs = {}, const std::vector<std::string> &components = {}) = 0;
 
-    virtual void NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) = 0;
+
+    //!
+    //! \brief Publish a new topic to MACE to distribute to all other modules
+    //! \param topicName Name of topic
+    //! \param entityID ID of entity that generated the topic
+    //! \param time Time topic is valid for
+    //! \param value Datagram for topic
+    //!
+    virtual void NewTopicDataValues(const std::string &topicName, const int entityID, const TIME &time, const TopicDatagram &value) = 0;
 
 };
 

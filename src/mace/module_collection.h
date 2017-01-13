@@ -7,7 +7,7 @@
 #include "module_RTA_NASAPhase2/module_rta_nasaphase2.h"
 
 
-#include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
+#include "module_vehicle_ardupilot/module_vehicle_ardupilot.h"
 
 #include "module_ground_station/module_ground_station.h"
 
@@ -27,7 +27,7 @@ public:
 
         Register<ModulePathPlanningNASAPhase2>(factory, "NASAPhase2");
         Register<ModuleRTANASAPhase2>(factory, "NASAPhase2");
-        Register<ModuleVehicleMAVLINK>(factory, "MAVLINK");
+        Register<ModuleVehicleArdupilot>(factory, "Ardupilot");
         Register<ModuleGroundStation>(factory, "NASAPhase2");
 
         return factory;
