@@ -5,6 +5,8 @@
 
 #include "command_marshler.h"
 
+#include "i_module_topic_events.h"
+
 namespace MaceCore
 {
 
@@ -54,6 +56,7 @@ public:
     void addListener(I *listener)
     {
         m_Listeners.push_back(listener);
+        AttachedAsModule(listener);
     }
 
 
@@ -71,6 +74,13 @@ public:
             func(*it);
         }
     }
+
+
+    //!
+    //! \brief This module as been attached as a module
+    //! \param ptr pointer to object that attached this instance to itself
+    //!
+    virtual void AttachedAsModule(I* ptr) = 0;
 
 
     //////////////////////////////////////////////////////////////////////

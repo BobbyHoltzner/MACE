@@ -17,6 +17,8 @@
 
 #include "data/topic_data_object_collection.h"
 
+#include "data_vehicle_generic/components.h"
+
 /*
 class MODULE_VEHICLE_GENERICSHARED_EXPORT ModuleVehicleGeneric : public MaceCore::IModuleCommandVehicle
 {
@@ -50,10 +52,7 @@ public:
 
     typedef Data::TopicDataObjectCollection<
     VehicleTopicAdditionalComponents...,
-    DataVehicleGeneric::LocalPosition,
-    DataVehicleGeneric::LocalVelocity,
-    DataVehicleGeneric::GlobalPosition,
-    DataVehicleGeneric::GlobalVelocity> VehicleDataTopicType;
+    DATA_VEHICLE_GENERIC_TYPES> VehicleDataTopicType;
 
     ModuleVehicleGeneric() :
         MaceCore::IModuleCommandVehicle(),

@@ -14,6 +14,7 @@
 #include "i_module_command_RTA.h"
 #include "i_module_command_path_planning.h"
 #include "i_module_command_ground_station.h"
+#include "i_module_command_external_link.h"
 
 #include "i_module_events_vehicle.h"
 #include "i_module_events_rta.h"
@@ -54,6 +55,8 @@ public:
     void AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning);
 
     void AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation);
+
+    void AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink);
 
 public:
 

@@ -128,6 +128,11 @@ int main(int argc, char *argv[])
             addedGroundStation = true;
             break;
         }
+        case MaceCore::ModuleBase::EXTERNAL_LINK:
+        {
+            core.AddExternalLink(std::dynamic_pointer_cast<MaceCore::IModuleCommandExternalLink>(module));
+            break;
+        }
         default:
         {
             std::cerr << "Unknown module parsed" << std::endl;

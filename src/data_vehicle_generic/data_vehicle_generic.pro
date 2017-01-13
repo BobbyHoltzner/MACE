@@ -25,7 +25,8 @@ HEADERS +=\
     local_velocity.h \
     global_position.h \
     global_velocity.h \
-    coordinate_frame.h
+    coordinate_frame.h \
+    components.h
 
 
 

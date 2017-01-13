@@ -14,6 +14,8 @@
 
 #include "module_ground_station/module_ground_station.h"
 
+#include "module_external_link/module_external_link.h"
+
 #include "mace_core/module_factory.h"
 
 
@@ -29,6 +31,7 @@ public:
         Register<ModuleRTANASAPhase2>(factory, "NASAPhase2");
         Register<ModuleVehicleArdupilot>(factory, "Ardupilot");
         Register<ModuleGroundStation>(factory, "NASAPhase2");
+        Register<ModuleExternalLink>(factory, "NASAPhase2");
 
         return factory;
     }

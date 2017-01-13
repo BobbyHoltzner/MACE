@@ -80,6 +80,10 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
     m_GroundStation = groundStation;
 }
 
+void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink) {
+    externalLink->addListener(this);
+}
+
 
 
 void MaceCore::AddTopic(const std::string &topicName, const TopicStructure &topic) {

@@ -98,7 +98,7 @@ public:
 
             std::shared_ptr<DataVehicleMAVLINK::GPSStatus> gpsStatus = std::make_shared<DataVehicleMAVLINK::GPSStatus>();
 
-            gpsStatus->numberOfSats = (int)decodedMSG.satellite_used;
+            gpsStatus->numberOfSats = (int)decodedMSG.satellites_visible;
             //TODO: NOT SURE HOW TO GET REST OF FIELDS.
 
             ((Data::TopicDataObjectCollection<DataVehicleMAVLINK::GPSStatus>)topic).SetComponent(gpsStatus, &datagram);

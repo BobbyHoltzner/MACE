@@ -41,6 +41,8 @@
 
 #include "data_vehicle_generic/local_position.h"
 
+#include "data_vehicle_MAVLINK/components.h"
+
 /*
  *
  * USAGE:
@@ -65,11 +67,11 @@
 
 template <typename ...VehicleTopicAdditionalComponents>
 class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK :
-        public ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataVehicleMAVLINK::GPSStatus>,
+        public ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES>,
         public Comms::CommsEvents
 {
 
-    typedef ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataVehicleMAVLINK::GPSStatus> ModuleVehicleMavlinkBase;
+    typedef ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES> ModuleVehicleMavlinkBase;
 
 public:
 //    AbstractVehicleMessage* ConstructMessage();
@@ -362,6 +364,7 @@ public:
     virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics()
     {
         //return IModuleCommandVehicle::GetTopics();
+        return {};
     }
 
 public:
@@ -466,9 +469,11 @@ public:
         MaceCore::TopicDatagram topicDatagram = m_MAVLINKParser.Parse<typename ModuleVehicleMavlinkBase::VehicleDataTopicType>(&message, ModuleVehicleMavlinkBase::m_VehicleDataTopic);
 
         //notify of new topic datagram
-        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(ModuleVehicleMavlinkBase::m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
-        });
+        if(topicDatagram.isEmpty() == false) {
+            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
+                ptr->NewTopicDataValues(ModuleVehicleMavlinkBase::m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+            });
+        }
     }
 
 

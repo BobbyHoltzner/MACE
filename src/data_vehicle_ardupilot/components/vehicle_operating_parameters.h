@@ -95,7 +95,7 @@ public:
 
 public:
 
-    operator == (const VehicleOperatingParameters &rhs) {
+    bool operator == (const VehicleOperatingParameters &rhs) {
         if(this->m_FlightMode != rhs.m_FlightMode){
             return false;
         }
@@ -105,7 +105,7 @@ public:
         return true;
     }
 
-    operator != (const VehicleOperatingParameters &rhs) {
+    bool operator != (const VehicleOperatingParameters &rhs) {
         return !(*this == rhs);
     }
 

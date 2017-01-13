@@ -11,6 +11,14 @@ class MODULE_RTA_NASAPHASE2SHARED_EXPORT ModuleRTANASAPhase2 : public MaceCore::
 public:
     ModuleRTANASAPhase2();
 
+    //!
+    //! \brief This module as been attached as a module
+    //! \param ptr pointer to object that attached this instance to itself
+    //!
+    virtual void AttachedAsModule(MaceCore::IModuleEventsRTA* ptr)
+    {
+
+    }
 
     //!
     //! \brief Describes the strucure of the parameters for this module
@@ -25,7 +33,7 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
-    void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
+    virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
 public:
 

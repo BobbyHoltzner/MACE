@@ -15,6 +15,16 @@ public:
 public:
 
     //!
+    //! \brief This module as been attached as a module
+    //! \param ptr pointer to object that attached this instance to itself
+    //!
+    virtual void AttachedAsModule(MaceCore::IModuleEventsPathPlanning* ptr)
+    {
+
+    }
+
+
+    //!
     //! \brief Describes the strucure of the parameters for this module
     //! \return Strucure
     //!
@@ -27,7 +37,7 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
-    void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
+    virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
 public:
 

@@ -20,7 +20,8 @@ SOURCES += \
 HEADERS +=\
     altitude_reference_frames.h \
     mavlink_parser.h \
-    Components/gps_status.h
+    Components/gps_status.h \
+    components.h
 
 # Unix lib Install
 unix:!symbian {

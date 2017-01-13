@@ -21,7 +21,14 @@ public:
     //!
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
 
-    void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
+    virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
+
+
+    //!
+    //! \brief This module as been attached as a module
+    //! \param ptr pointer to object that attached this instance to itself
+    //!
+    virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
 
 private:
 

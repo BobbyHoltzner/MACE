@@ -31,6 +31,7 @@ public:
         RTA,
         VEHICLE_COMMS,
         GROUND_STATION,
+        EXTERNAL_LINK,
         NR_TYPES
     };
 
@@ -45,6 +46,8 @@ public:
             return "PathPlanning";
         case GROUND_STATION:
             return "GroundStation";
+        case EXTERNAL_LINK:
+            return "ExternalLink";
         default:
             throw std::runtime_error("Unknown module type");
         }
@@ -61,6 +64,8 @@ public:
             return PATH_PLANNING;
         if(string == "GroundStation")
             return GROUND_STATION;
+        if(string == "ExternalLink")
+            return EXTERNAL_LINK;
 
         throw std::runtime_error("Unknown module type");
     }
@@ -94,6 +99,7 @@ public:
 
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated) = 0;
+
 
     virtual std::unordered_map<std::string, TopicStructure> GetTopics()
     {

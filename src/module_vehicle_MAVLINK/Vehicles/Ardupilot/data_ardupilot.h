@@ -15,7 +15,7 @@
 #include "ardupilot_flightmode.h"
 #include "ardupilot_position.h"
 #include "ardupilot_status.h"
-#include "ardupilot_power.h"
+//#include "ardupilot_power.h"
 
 /*
 #include "data/global_position.h"
