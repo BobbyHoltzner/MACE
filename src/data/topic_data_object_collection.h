@@ -4,6 +4,7 @@
 #include <functional>
 #include <unordered_map>
 #include <memory>
+#include <stdexcept>
 
 
 #include "i_topic_component_data_object.h"
@@ -30,6 +31,18 @@ public:
     }
 
 
+    void SetComponent(std::shared_ptr<ITopicComponentDataObject> ptr, MaceCore::TopicDatagram &datagram) const {
+        //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
+        throw std::runtime_error("Unknown component passed to topic");
+    }
+
+
+    bool GetComponent(std::shared_ptr<ITopicComponentDataObject> ptr, const MaceCore::TopicDatagram &datagram) const {
+        //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
+        throw std::runtime_error("Unknown component passed to topic");
+    }
+
+
     std::string Name() {
         return m_TopicName;
     }
@@ -43,11 +56,13 @@ protected:
 
 
 template <typename T, typename... Args>
-class TopicDataObjectCollection<T, Args...> : public TopicDataObjectCollection<T>, public TopicDataObjectCollection<Args...>
+class TopicDataObjectCollection<T, Args...> : public TopicDataObjectCollection<Args...>
 {
 public:
+    //using TopicDataObjectCollection<Args...>::SetComponent;
+    //using TopicDataObjectCollection<Args...>::GetComponent;
+
     TopicDataObjectCollection(const std::string &topicName) :
-        TopicDataObjectCollection<T>(topicName),
         TopicDataObjectCollection<Args...>(topicName),
         m_TopicName(topicName)
     {
@@ -57,48 +72,43 @@ public:
         return m_TopicName;
     }
 
+    void SetComponent(std::shared_ptr<ITopicComponentDataObject> ptr, MaceCore::TopicDatagram &datagram) const {
+        if(std::dynamic_pointer_cast<T>(ptr) != 0) {
+            SetComponent(std::dynamic_pointer_cast<T>(ptr), datagram);
+        }
+        else {
+            TopicDataObjectCollection<Args...>::SetComponent(ptr, datagram);
+        }
+    }
+
+
+    bool GetComponent(std::shared_ptr<ITopicComponentDataObject> ptr, const MaceCore::TopicDatagram &datagram) const {
+        if(std::dynamic_pointer_cast<T>(ptr) != 0) {
+            return GetComponent(datagram, std::dynamic_pointer_cast<T>(ptr));
+        }
+        else {
+            return TopicDataObjectCollection<Args...>::GetComponent(ptr, datagram);
+        }
+
+    }
+
+    void SetComponent(const std::shared_ptr<T> &component, MaceCore::TopicDatagram &datagram) const {
+        datagram.AddNonTerminal(T::Name(), component->GenerateDatagram());
+    }
+
+
+    bool GetComponent(const MaceCore::TopicDatagram &datagram, std::shared_ptr<T> value) const{
+        if(datagram.HasNonTerminal(T::Name()) == false) {
+            return false;
+        }
+
+        value->CreateFromDatagram(*datagram.GetNonTerminal(T::Name()));
+        return true;
+    }
+
 private:
     std::string m_TopicName;
 
-};
-
-template <typename T>
-class TopicDataObjectCollection<T> : public TopicDataObjectCollection<>
-{
-
-public:
-    TopicDataObjectCollection<T>(const std::string &topicName) :
-        TopicDataObjectCollection<>(topicName)
-    {
-    }
-
-
-
-    MaceCore::TopicStructure GetTopicStructure() {
-
-        /*
-        auto topic = TopicDataObjectCollection<T>::GetTopicStructure();
-
-        topic.AddComponent(T::Name(), T::TopicStructure(), false);
-
-        return topic;
-        */
-    }
-
-
-    void SetComponent(const std::shared_ptr<T> &component, MaceCore::TopicDatagram *datagram) const {
-        datagram->AddNonTerminal(T::Name(), component->GenerateDatagram());
-    }
-
-
-    std::shared_ptr<T> GetComponent(const MaceCore::TopicDatagram &datagram) const{
-        if(datagram.HasNonTerminal(T::Name()) == false) {
-            return std::shared_ptr<T>(NULL);
-        }
-        std::shared_ptr<T> ptr = std::make_shared<T>();
-        ptr->CreateFromDatagram(*datagram.GetNonTerminal(T::Name()));
-        return ptr;
-    }
 };
 
 }

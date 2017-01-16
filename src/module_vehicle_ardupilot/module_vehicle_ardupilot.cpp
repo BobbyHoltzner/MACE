@@ -3,7 +3,7 @@
 #include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
-    ModuleVehicleMAVLINK<>()
+    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>()
 {
 }
 
@@ -24,24 +24,34 @@ void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 //!
 void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
-    ModuleVehicleMAVLINK<>::MavlinkMessage(linkName, message);
+    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>::MavlinkMessage(linkName, message);
 
     int sendersID = (int)message.sysid;
     int messageID = (int)message.msgid;
 
 
     //generate topic datagram from given mavlink message
-    std::shared_ptr<MaceCore::TopicDatagram> topicDatagram = m_ArduPilotMAVLINKParser.Parse<VehicleDataTopicType>(&message, &m_VehicleDataTopic);
+    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_ArduPilotMAVLINKParser.Parse(&message);
 
 
-    //if we generated something then notify any attached MaceCore::IModuleTopicEvents listeners
-    if(topicDatagram != NULL)
+    //procede to send components only if there is 1 or more
+    if(components.size() > 0)
     {
-        //notify of new topic datagram
-        NotifyListeners([&, topicDatagram](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), *topicDatagram);
+
+        //construct datagram
+        MaceCore::TopicDatagram topicDatagram;
+        for(size_t i = 0 ; i < components.size() ; i++)
+        {
+            m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
+        }
+
+
+        //notify listneres of topic
+        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
         });
     }
+
 
 }
 

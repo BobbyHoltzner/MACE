@@ -22,8 +22,7 @@ public:
     }
 
 
-    template<typename T>
-    std::shared_ptr<MaceCore::TopicDatagram> Parse(const mavlink_message_t* message, const T* topic){
+    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> Parse(const mavlink_message_t* message){
 
         switch ((int)message->msgid) {
 
@@ -41,15 +40,12 @@ public:
 
                 if(m_CurrentArduVehicleState == NULL || *ptr != *m_CurrentArduVehicleState)
                 {
-                    std::shared_ptr<MaceCore::TopicDatagram> datagram = std::make_shared<MaceCore::TopicDatagram>();
-                    ((Data::TopicDataObjectCollection<VehicleOperatingParameters>*)topic)->SetComponent(ptr, datagram.get());
-                    m_CurrentArduVehicleState = ptr;
-                    return datagram;
+                    return {ptr};
                 }
-                return NULL;
+                return {};
             }
             default:
-                return NULL;
+                return {};
         }
 
     }

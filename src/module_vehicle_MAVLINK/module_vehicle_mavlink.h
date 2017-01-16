@@ -70,7 +70,7 @@ class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK :
         public ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES>,
         public Comms::CommsEvents
 {
-
+protected:
     typedef ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES> ModuleVehicleMavlinkBase;
 
 public:
@@ -461,15 +461,22 @@ public:
             }
         }
 
-        //void *test = (void*)&m_VehicleDataTopic;
-
-        //typename ModuleVehicleGeneric<VehicleTopicAdditionalComponents...>::VehicleDataTopicType *VehicleDataTopicPtr = &ModuleVehicleMAVLINK<VehicleTopicAdditionalComponents...>::m_VehicleDataTopic;
-
         //get maping of all vehicle data components
-        MaceCore::TopicDatagram topicDatagram = m_MAVLINKParser.Parse<typename ModuleVehicleMavlinkBase::VehicleDataTopicType>(&message, ModuleVehicleMavlinkBase::m_VehicleDataTopic);
+        std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_MAVLINKParser.Parse(&message);
 
-        //notify of new topic datagram
-        if(topicDatagram.isEmpty() == false) {
+        //procede to send components only if there is 1 or more
+        if(components.size() > 0)
+        {
+
+            //construct datagram
+            MaceCore::TopicDatagram topicDatagram;
+            for(size_t i = 0 ; i < components.size() ; i++)
+            {
+                ModuleVehicleMavlinkBase::m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
+            }
+
+
+            //notify listneres of topic
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
                 ptr->NewTopicDataValues(ModuleVehicleMavlinkBase::m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
             });
