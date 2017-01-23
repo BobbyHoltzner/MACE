@@ -33,23 +33,6 @@ public:
         MaceCore::TopicDatagram datagram;
 
         int messageID = (int)message->msgid;
-        switch (messageID)
-        {
-        case MAVLINK_MSG_ID_ATTITUDE:
-        {
-            //This is message definition 30
-            //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
-            mavlink_attitude_t decodedMSG;
-            mavlink_msg_attitude_decode(&message,&decodedMSG);
-
-            break;
-        }
-        default:
-        {
-
-        }
-        }
-
         if(messageID == MAVLINK_MSG_ID_LOCAL_POSITION_NED) {
             mavlink_local_position_ned_t decodedMSG;
             mavlink_msg_local_position_ned_decode(message, &decodedMSG);
