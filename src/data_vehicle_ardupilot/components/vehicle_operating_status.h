@@ -29,9 +29,6 @@ public:
         if(this->m_Armed != rhs.m_Armed){
             return false;
         }
-        if(this->m_Armed != rhs.m_Armed) {
-            return false;
-        }
         return true;
     }
 
