@@ -52,6 +52,11 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                 m_VehicleDataTopic.GetComponent(read_topicDatagram, component);
                 std::cout << "    Vehicle Type: " << (int)component->getPlatform() << std::endl;
             }
+            if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleOperatingStatus::Name()) {
+                std::shared_ptr<DataVehicleArdupilot::VehicleOperatingStatus> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingStatus>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                std::cout << "    Vehicle Armed: " << (int)component->getVehicleArmed() << std::endl;
+            }
             if(componentsUpdated.at(i) == DataVehicleGeneric::GlobalPosition::Name()) {
                 std::shared_ptr<DataVehicleGeneric::GlobalPosition> component = std::make_shared<DataVehicleGeneric::GlobalPosition>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
