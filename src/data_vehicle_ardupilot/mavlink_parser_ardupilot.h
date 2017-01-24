@@ -51,6 +51,7 @@ public:
                 {
                     rtnVector.push_back(ptrStatus);
                 }
+                break;
             }
 
         case MAVLINK_MSG_ID_LOG_ENTRY:
