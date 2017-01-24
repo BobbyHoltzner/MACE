@@ -27,5 +27,11 @@ void VehicleOperatingParameters::CreateFromDatagram(const MaceCore::TopicDatagra
     m_FlightMode = datagram.GetTerminal<uint32_t>("flightMode");
 }
 
+void VehicleOperatingParameters::parseMAVLINK(const mavlink_heartbeat_t &msg)
+{
+    this->setPlatform((Arduplatforms)msg.type);
+    this->setFlightMode(msg.custom_mode);
+}
+
 
 }

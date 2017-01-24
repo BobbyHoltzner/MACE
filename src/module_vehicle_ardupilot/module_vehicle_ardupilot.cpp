@@ -26,10 +26,6 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 {
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>::MavlinkMessage(linkName, message);
 
-    int sendersID = (int)message.sysid;
-    int messageID = (int)message.msgid;
-
-
     //generate topic datagram from given mavlink message
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_ArduPilotMAVLINKParser.Parse(&message);
 
@@ -45,14 +41,11 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
             m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
         }
 
-
         //notify listneres of topic
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
         });
     }
-
-
 }
 
 

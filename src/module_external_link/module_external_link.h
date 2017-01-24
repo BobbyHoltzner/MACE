@@ -7,8 +7,6 @@
 
 #include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
 
-#include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
-
 #include "data_vehicle_generic/components.h"
 #include "data_vehicle_MAVLINK/components.h"
 #include "data_vehicle_ardupilot/components.h"

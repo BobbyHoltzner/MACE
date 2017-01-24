@@ -446,35 +446,18 @@ public:
     //!
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
     {
-
-        int sendersID = (int)message.sysid;
-        int messageID = (int)message.msgid;
-
-        if(messageID == MAVLINK_MSG_ID_HEARTBEAT)
-        {
-            mavlink_heartbeat_t decodedMSG;
-            mavlink_msg_heartbeat_decode(&message,&decodedMSG);
-
-            if(m_NeededVehicleObjects.size() != 0)
-            {
-                vehicleObjectCheck(sendersID,(int)decodedMSG.autopilot,(int)decodedMSG.type);
-            }
-        }
-
         //get maping of all vehicle data components
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_MAVLINKParser.Parse(&message);
 
-        //procede to send components only if there is 1 or more
+        //proceed to send components only if there is 1 or more
         if(components.size() > 0)
         {
-
             //construct datagram
             MaceCore::TopicDatagram topicDatagram;
             for(size_t i = 0 ; i < components.size() ; i++)
             {
                 ModuleVehicleMavlinkBase::m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
             }
-
 
             //notify listneres of topic
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){

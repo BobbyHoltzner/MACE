@@ -17,7 +17,8 @@ SOURCES += \
     local_position.cpp \
     local_velocity.cpp \
     global_position.cpp \
-    global_velocity.cpp
+    global_velocity.cpp \
+    attitude.cpp
 
 HEADERS +=\
         data_vehicle_generic_global.h \
@@ -26,7 +27,8 @@ HEADERS +=\
     global_position.h \
     global_velocity.h \
     coordinate_frame.h \
-    components.h
+    components.h \
+    attitude.h
 
 
 
@@ -46,6 +48,7 @@ INSTALLS += lib
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/data_vehicle_generic
 headers.files   += \
+        attitude.h \
         local_position.h \
         local_velocity.h \
         global_position.h \

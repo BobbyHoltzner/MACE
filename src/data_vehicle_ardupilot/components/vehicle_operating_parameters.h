@@ -1,7 +1,7 @@
 #ifndef FLIGHTMODE_H
 #define FLIGHTMODE_H
 
-
+#include "mavlink.h"
 #include "data/i_topic_component_data_object.h"
 
 #include "../ardu_platforms.h"
@@ -71,6 +71,7 @@ public:
 
 public:
 
+    void parseMAVLINK(const mavlink_heartbeat_t &msg);
 
     void setPlatform(const Arduplatforms platform) {
         m_Platform = platform;

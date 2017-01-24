@@ -47,9 +47,14 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
 
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             std::cout << "  " << componentsUpdated.at(i) << std::endl;
+            if(componentsUpdated.at(i) == DataVehicleGeneric::Attitude::Name()) {
+                std::shared_ptr<DataVehicleGeneric::Attitude> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingAttitude>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                std::cout << "    Vehicle Attitude: " << component->getRoll() << std::endl;
+            }
             if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleOperatingParameters::Name()) {
                 std::shared_ptr<DataVehicleArdupilot::VehicleOperatingParameters> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingParameters>();
-                m_VehicleDataTopic.GetComponent(read_topicDatagram, component);
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
                 std::cout << "    Vehicle Type: " << (int)component->getPlatform() << std::endl;
             }
             if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleOperatingStatus::Name()) {
@@ -64,11 +69,4 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             }
         }
     }
-    /*
-    MaceCore::TopicDatagram read_topicDatagram = ModuleVehicleGeneric<VehicleTopicAdditionalComponents...>::getDataObject()->GetCurrentTopicDatagram(VehicleDataTopicPtr->Name(), 1);
-    std::shared_ptr<DataVehicleGeneric::GlobalPosition> position_component = ((Data::TopicDataObjectCollection<DataVehicleGeneric::GlobalPosition>)*VehicleDataTopicPtr).GetComponent(read_topicDatagram);
-    if(position_component != NULL) {
-        std::cout << position_component->latitude << " " << position_component->longitude << std::endl;
-    }
-    */
 }
