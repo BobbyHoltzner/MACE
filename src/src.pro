@@ -15,4 +15,5 @@ SUBDIRS += \
     data_vehicle_MAVLINK \
     data_vehicle_ardupilot \
     module_vehicle_ardupilot \
-    module_external_link
+    module_external_link\
+    module_vehicle_sensors

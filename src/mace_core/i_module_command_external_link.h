@@ -9,8 +9,6 @@
 
 #include "i_module_topic_events.h"
 
-#include "metadata_ground_station.h"
-
 #include "vehicle_data.h"
 
 namespace MaceCore
