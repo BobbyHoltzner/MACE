@@ -57,11 +57,12 @@ int main(int argc, char *argv[])
             std::cout << *it << std::endl;
     }
 
-
+    bool addedGroundStation = false;
     bool addedPathPlanning = false;
     bool addedRTA = false;
-    bool addedGroundStation = false;
+    bool addedSensors = false;
     int numVehicles = 1;
+
     std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string > modules = parser.GetCreatedModules();
     std::vector<std::thread*> threads;
 
@@ -89,6 +90,33 @@ int main(int argc, char *argv[])
         //add to core (and check if too many have been added)
         MaceCore::ModuleBase::Classes moduleClass = module->ModuleClass();
         switch (moduleClass) {
+        case MaceCore::ModuleBase::EXTERNAL_LINK:
+        {
+            core.AddExternalLink(std::dynamic_pointer_cast<MaceCore::IModuleCommandExternalLink>(module));
+            break;
+        }
+        case  MaceCore::ModuleBase::GROUND_STATION:
+        {
+            if(addedGroundStation == true)
+            {
+                std::cerr << "Only one Ground Station module can be added" << std::endl;
+                return 1;
+            }
+            core.AddGroundStationModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandGroundStation>(module));
+            addedGroundStation = true;
+            break;
+        }
+        case MaceCore::ModuleBase::SENSORS:
+        {
+            if(addedPathPlanning == true)
+            {
+                std::cerr << "Only one sensors module can be added" << std::endl;
+                return 1;
+            }
+            core.AddSensorsModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandSensors>(module));
+            addedSensors = true;
+            break;
+        }
         case MaceCore::ModuleBase::PATH_PLANNING:
         {
             if(addedPathPlanning == true)
@@ -115,22 +143,6 @@ int main(int argc, char *argv[])
         {
             core.AddVehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));
             numVehicles++;
-            break;
-        }
-        case  MaceCore::ModuleBase::GROUND_STATION:
-        {
-            if(addedGroundStation == true)
-            {
-                std::cerr << "Only one Ground Station module can be added" << std::endl;
-                return 1;
-            }
-            core.AddGroundStationModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandGroundStation>(module));
-            addedGroundStation = true;
-            break;
-        }
-        case MaceCore::ModuleBase::EXTERNAL_LINK:
-        {
-            core.AddExternalLink(std::dynamic_pointer_cast<MaceCore::IModuleCommandExternalLink>(module));
             break;
         }
         default:

@@ -6,14 +6,17 @@
 #include "Eigen/Dense"
 
 #include "mace_core/i_module_topic_events.h"
+
+#include "data/i_topic_component_data_object.h"
+#include "data/topic_data_object_collection.h"
+
+#include "data_vehicle_sensors/components.h"
 #include "mace_core/i_module_command_sensors.h"
 
 class MODULE_VEHICLE_SENSORSSHARED_EXPORT ModuleVehicleSensors
 {
 
 public:
-
-
     ModuleVehicleSensors();
 
     //!
@@ -41,7 +44,9 @@ public:
 
 private:
 
-    //Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
+    //std::shared_ptr<VehicleOperatingParameters> m_CurrentArduVehicleState;
+
 
 };
 

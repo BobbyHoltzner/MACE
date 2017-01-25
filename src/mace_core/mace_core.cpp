@@ -62,16 +62,9 @@ void MaceCore::RemoveVehicle(const std::string &ID)
 }
 
 
-void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
-{
-    rta->addListener(this);
-    m_RTA = rta;
-}
-
-void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning)
-{
-    pathPlanning->addListener(this);
-    m_PathPlanning = pathPlanning;
+//The following add the appropriate modules to the core
+void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink) {
+    externalLink->addListener(this);
 }
 
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
@@ -80,10 +73,25 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
     m_GroundStation = groundStation;
 }
 
-void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink) {
-    externalLink->addListener(this);
+void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning)
+{
+    pathPlanning->addListener(this);
+    m_PathPlanning = pathPlanning;
 }
 
+void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
+{
+    rta->addListener(this);
+    m_RTA = rta;
+}
+
+void MaceCore::AddSensorsModule(const std::shared_ptr<IModuleCommandSensors> &sensors)
+{
+    sensors->addListener(this);
+    m_Sensors = sensors;
+}
+
+//This ends the functions adding appropriate modules
 
 
 void MaceCore::AddTopic(const std::string &topicName, const TopicStructure &topic) {

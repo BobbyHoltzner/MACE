@@ -10,16 +10,19 @@
 #include "mace_data.h"
 #include "vehicle_object.h"
 
-#include "i_module_command_vehicle.h"
-#include "i_module_command_RTA.h"
-#include "i_module_command_path_planning.h"
-#include "i_module_command_ground_station.h"
 #include "i_module_command_external_link.h"
+#include "i_module_command_ground_station.h"
+#include "i_module_command_path_planning.h"
+#include "i_module_command_RTA.h"
+#include "i_module_command_sensors.h"
+#include "i_module_command_vehicle.h"
 
-#include "i_module_events_vehicle.h"
-#include "i_module_events_rta.h"
-#include "i_module_events_path_planning.h"
 #include "i_module_events_ground_station.h"
+#include "i_module_events_path_planning.h"
+#include "i_module_events_rta.h"
+#include "i_module_events_sensors.h"
+#include "i_module_events_vehicle.h"
+
 
 #include "i_module_topic_events.h"
 
@@ -50,13 +53,18 @@ public:
 
     bool VehicleCheck(const int &vehicleID);
 
-    void AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta);
 
-    void AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning);
+public: //The following functions add specific modules to connect to mace core
 
     void AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation);
 
     void AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink);
+
+    void AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning);
+
+    void AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta);
+
+    void AddSensorsModule(const std::shared_ptr<IModuleCommandSensors> &sensors);
 
 public:
 
@@ -176,11 +184,13 @@ private:
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
 
 
+    std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
+    std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;
+    std::shared_ptr<IModuleCommandSensors> m_Sensors;
     std::shared_ptr<IModuleCommandRTA> m_RTA;
 
-    std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;
 
-    std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
+
 
 
     std::shared_ptr<MaceData> m_DataFusion;

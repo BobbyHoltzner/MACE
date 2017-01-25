@@ -22,7 +22,7 @@ public:
 
     static Classes moduleClass;
 
-    IModuleCommandExternalLink():
+    IModuleCommandSensors():
         AbstractModule_EventListeners()
     {
 
