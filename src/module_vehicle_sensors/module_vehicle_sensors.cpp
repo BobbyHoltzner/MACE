@@ -5,7 +5,8 @@
 //{
 //}
 
-ModuleVehicleSensors::ModuleVehicleSensors()
+ModuleVehicleSensors::ModuleVehicleSensors():
+    m_SensorDataTopic("sensorData")
 {
 
 }
