@@ -14,7 +14,7 @@
       <Parameter Name="FlowControl">1</Parameter>
     </Parameter>
   </Module>
-    <Module Class="Sensors" Type="NASAPhase2">
+  <Module Class="Sensors" Type="NASAPhase2">
     <Parameter Name="CameraParameters">
       <Parameter Name="CameraName">MapIR</Parameter>
 	  <Parameter Name="FocalLength">3.0</Parameter>
