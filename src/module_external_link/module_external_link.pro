@@ -40,8 +40,6 @@ INSTALLS       += headers
 
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/common
-
-
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core

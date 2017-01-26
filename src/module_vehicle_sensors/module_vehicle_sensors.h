@@ -13,7 +13,6 @@
 #include "data_vehicle_sensors/components.h"
 #include "mace_core/i_module_command_sensors.h"
 
-
 #include "data_vehicle_generic/components.h"
 
 class MODULE_VEHICLE_SENSORSSHARED_EXPORT ModuleVehicleSensors : public MaceCore::IModuleCommandSensors

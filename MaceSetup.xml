@@ -14,7 +14,16 @@
       <Parameter Name="FlowControl">1</Parameter>
     </Parameter>
   </Module>
-  <Module Class="Sensors" Type="NASAPhase2" />
+    <Module Class="Sensors" Type="NASAPhase2">
+    <Parameter Name="CameraParameters">
+      <Parameter Name="CameraName">MapIR</Parameter>
+	  <Parameter Name="FocalLength">3.0</Parameter>
+	  <Parameter Name="SensorWidth">6.16</Parameter>
+	  <Parameter Name="SensorHeight">4.62</Parameter>
+	  <Parameter Name="ImageWidth">3000</Parameter>
+	  <Parameter Name="ImageHeight">2250</Parameter>
+    </Parameter>
+  </Module>
   <Module Class="RTA" Type="NASAPhase2" />
   <Module Class="PathPlanning" Type="NASAPhase2"/>
   <Module Class="ExternalLink" Type="NASAPhase2"/>

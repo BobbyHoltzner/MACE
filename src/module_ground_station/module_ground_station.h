@@ -11,7 +11,16 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
-#include "../mace_core/i_module_command_ground_station.h"
+#include "mace_core/i_module_topic_events.h"
+#include "mace_core/i_module_command_ground_station.h"
+
+#include "data_vehicle_sensors/components.h"
+#include "data_vehicle_generic/components.h"
+#include "data_vehicle_MAVLINK/components.h"
+#include "data_vehicle_ardupilot/components.h"
+
+#include "data/i_topic_component_data_object.h"
+#include "data/topic_data_object_collection.h"
 
 
 using namespace std;
@@ -28,10 +37,7 @@ public:
     //! \brief This module as been attached as a module
     //! \param ptr pointer to object that attached this instance to itself
     //!
-    virtual void AttachedAsModule(MaceCore::IModuleEventsGroundStation* ptr)
-    {
-
-    }
+    virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
 
 
     //!
@@ -120,8 +126,9 @@ private:
     QTcpServer *m_TcpServer;
     QThread *m_ListenThread;
 
-    //std::map<int, std::shared_ptr<VehicleObject>> m_VehicleMap;
-	
+    Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;
+
 };
 
 #endif // MODULE_GROUND_STATION_H
