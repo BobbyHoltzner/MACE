@@ -1,12 +1,7 @@
 #include "module_vehicle_sensors.h"
 
-//ModuleVehicleSensors::ModuleVehicleSensors() :
-//    m_VehicleDataTopic("vehicleData")
-//{
-//}
-
 ModuleVehicleSensors::ModuleVehicleSensors():
-    m_SensorDataTopic("sensorData")
+    m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData")
 {
 
 }
@@ -17,7 +12,7 @@ ModuleVehicleSensors::ModuleVehicleSensors():
 //!
 void ModuleVehicleSensors::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
-    ptr->Subscribe(this, m_SensorDataTopic.Name());
+    ptr->Subscribe(this, m_VehicleDataTopic.Name());
 }
 
 //!
@@ -75,7 +70,11 @@ void ModuleVehicleSensors::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
 void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
-
+    //example read of vehicle data
+    if(topicName == m_VehicleDataTopic.Name())
+    {
+        std::cout << "VehicleData topic received for vehicle: " << senderID << std::endl;
+    }
 }
 
 void ModuleVehicleSensors::computeVehicleFootprint(const double &roll, const double &pitch, const double &yaw, const double &altitude)

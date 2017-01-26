@@ -8,10 +8,9 @@
 #include "module_path_planning_NASAPhase2/module_path_planning_nasaphase2.h"
 #include "module_RTA_NASAPhase2/module_rta_nasaphase2.h"
 
+#include "module_vehicle_sensors/module_vehicle_sensors.h"
+
 #include "module_vehicle_ardupilot/module_vehicle_ardupilot.h"
-
-
-
 
 #include "mace_core/module_factory.h"
 
@@ -26,8 +25,9 @@ public:
 
         Register<ModuleExternalLink>(factory, "NASAPhase2");
         Register<ModuleGroundStation>(factory, "NASAPhase2");
-        Register<ModuleRTANASAPhase2>(factory, "NASAPhase2");
         Register<ModulePathPlanningNASAPhase2>(factory, "NASAPhase2");
+        Register<ModuleRTANASAPhase2>(factory, "NASAPhase2");
+        Register<ModuleVehicleSensors>(factory, "NASAPhase2");
         Register<ModuleVehicleArdupilot>(factory, "Ardupilot");
 
         return factory;

@@ -13,6 +13,9 @@
 #include "data_vehicle_sensors/components.h"
 #include "mace_core/i_module_command_sensors.h"
 
+
+#include "data_vehicle_generic/components.h"
+
 class MODULE_VEHICLE_SENSORSSHARED_EXPORT ModuleVehicleSensors : public MaceCore::IModuleCommandSensors
 {
 
@@ -45,7 +48,7 @@ public:
 private:
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
-    //std::shared_ptr<VehicleOperatingParameters> m_CurrentArduVehicleState;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;
 
 
 };
