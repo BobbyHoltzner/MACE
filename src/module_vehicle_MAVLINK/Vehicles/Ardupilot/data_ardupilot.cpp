@@ -57,34 +57,25 @@ void DataArdupilot::setVehicleMode(const std::string &vehicleMode)
     uint8_t chan = m_LinkMarshler->GetProtocolChannel(linkName);
     mavlink_message_t msg;
 
-    mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
-    m_LinkMarshler->SendMessage<mavlink_message_t>(linkName, msg);
+//    mavlink_msg_set_mode_pack(255, 190, &msg, 1, MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 0);
+//    mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
+//    m_LinkMarshler->SendMessage<mavlink_message_t>(linkName, msg);
 
-    std::cout<<"The message was sent."<<std::endl;
+//    std::cout<<"The message was sent."<<std::endl;
 
+    int vehicleModeID = 0;
+    bool modeFound = m_FlightMode->getVehicleModeID(vehicleMode,vehicleModeID);
+    std::cout << "Setting vehicle mode to: " << vehicleModeID << std::endl;
+    if(modeFound == true)
+    {
+        mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,this->getVehicleID(),MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,vehicleModeID);
 
-//     std::cout<<"Attempting to change the vehicle mode"<<std::endl;
-//    int vehicleModeID = 0;
-//    bool modeFound = m_FlightMode->getVehicleModeID(vehicleMode,vehicleModeID);
-//    std::cout<<"Done getting the vehicle mode ID"<<std::endl;
-//    std::cout << "Setting vehicle mode to: " << vehicleModeID << std::endl;
-//    if(modeFound == true)
-//    {
-//        std::cout<<"The vehicle mode was found with a value of:"<<vehicleModeID<<std::endl;
+        m_LinkMarshler->SendMessage<mavlink_message_t>(linkName, msg);
 
-//        std::cout<<"The vehicle ID used here is: "<<this->getVehicleID()<<std::endl;
-//        mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,this->getVehicleID(),MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,vehicleModeID);
-//        //mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,this->getVehicleID(),vehicleModeID,0);
-//        //std::cout<<"The message was developed."<<std::endl;
-
-
-
-//        //m_LinkMarshler->SendMessage<mavlink_message_t>(linkName,msg);
-
-//        std::cout<<"The message was sent."<<std::endl;
-//    }else{
-//        std::cout<<"The vehicle mode was not found."<<std::endl;
-//    }
+        std::cout<<"The message was sent."<<std::endl;
+    }else{
+        std::cout<<"The vehicle mode was not found."<<std::endl;
+    }
 }
 
 void DataArdupilot::getVehicleMode(std::string &rtnString)

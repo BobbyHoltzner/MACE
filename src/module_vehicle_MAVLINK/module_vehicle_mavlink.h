@@ -4,6 +4,7 @@
 #include "module_vehicle_mavlink_global.h"
 
 #include <QMap>
+#include <QThread>
 
 #include "common/common.h"
 #include "generic_message_definition_mavlink.h"
@@ -132,6 +133,9 @@ private:
     Comms::CommsMarshaler *m_LinkMarshaler;
 
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
+
+
+    QThread *m_udpListenThread;
 
 };
 

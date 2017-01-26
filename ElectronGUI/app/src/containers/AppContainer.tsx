@@ -8,7 +8,7 @@ var NotificationSystem = require('react-notification-system');
 import { Map, TileLayer } from 'react-leaflet';
 import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
 import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
-import { generateNewVehicle } from '../components/VehicleHUD'
+// import { generateNewVehicle } from '../components/VehicleHUD'
 import { VehicleCommandsContainer } from './VehicleCommandsContainer';
 import { AppDrawer } from './AppDrawer';
 import AppBar from 'material-ui/AppBar';
@@ -18,36 +18,13 @@ import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 
+import { Vehicle } from '../Vehicle';
+
 import * as deepcopy from 'deepcopy';
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 var net = require('net');
-
-type TCPDescriptorType = {
-  dataType: string,
-  vehicleID: number
-}
-
-type ConnectedVehiclesType = TCPDescriptorType & {
-  connectedVehicles: number[]
-}
-
-type VehiclePositionType = TCPDescriptorType & {
-  lat: number,
-  lon: number,
-  alt: number,
-  positionFix: number,
-  numSats: number
-}
-
-type VehicleAttitudeType = TCPDescriptorType & {
-  roll: number,
-  pitch: number,
-  yaw: number
-}
-
-type TCPReturnType = ConnectedVehiclesType | VehiclePositionType | VehicleAttitudeType;
 
 
 type Props = {
@@ -60,7 +37,8 @@ type State = {
   maxZoom?: number,
   initialZoom?: number,
   mapCenter?: number[],
-  connectedVehicles?: VehicleMapType,
+  // connectedVehicles?: VehicleMapType,
+  connectedVehicles?: {[id: string]: Vehicle}
   vehicleWarnings?: VehicleWarning[]
   selectedVehicleID?: string,
   openDrawer?: boolean
@@ -74,7 +52,7 @@ export default class AppContainer extends React.Component<Props, State> {
   m_PositionInterval: number[];
   m_PositionTimeout: number;
   constructor(props: Props) {
-        super(props);
+    super(props);
 
     this.m_AttitudeInterval = [];
     this.m_PositionInterval = [];
@@ -88,6 +66,7 @@ export default class AppContainer extends React.Component<Props, State> {
       maxZoom: 20,
       initialZoom: 18,
       mapCenter: [37.889231, -76.810302],
+      // mapCenter: [45.283410, -111.400850],
       connectedVehicles: {},
       vehicleWarnings: [],
       openDrawer: false
@@ -146,14 +125,14 @@ export default class AppContainer extends React.Component<Props, State> {
       let jsonVehicles = jsonData as ConnectedVehiclesType;      
 
       console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
-
+      
       // Check if vehicle is already in the map. If so, do nothing. If not, add it:
       for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
         if (stateCopy[jsonVehicles.connectedVehicles[i].toString()] !== undefined){          
           return;
         }
         else {
-          stateCopy[jsonVehicles.connectedVehicles[i].toString()] = generateNewVehicle();
+          stateCopy[jsonVehicles.connectedVehicles[i].toString()] = new Vehicle(jsonVehicles.connectedVehicles[i]);
         }
       }
 
@@ -195,7 +174,7 @@ export default class AppContainer extends React.Component<Props, State> {
     }
 
     else if(jsonData.dataType === "VehiclePosition"){
-      let vehiclePosition = jsonData as VehiclePositionType;
+      let vehiclePosition = jsonData as TCPPositionType;
 
       let idArrays: string[] = Object.keys(stateCopy);
       for(let i = 0; i < idArrays.length; i++){
@@ -212,7 +191,7 @@ export default class AppContainer extends React.Component<Props, State> {
     }
 
     else if(jsonData.dataType === "VehicleAttitude"){
-      let vehicleAttitude = jsonData as VehicleAttitudeType;
+      let vehicleAttitude = jsonData as TCPAttitudeType;
 
       stateCopy[vehicleAttitude.vehicleID].attitude.roll = vehicleAttitude.roll;
       stateCopy[vehicleAttitude.vehicleID].attitude.pitch = vehicleAttitude.pitch;
@@ -305,6 +284,7 @@ export default class AppContainer extends React.Component<Props, State> {
             <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} >
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.state.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
+                
             </Map>
 
             <div>

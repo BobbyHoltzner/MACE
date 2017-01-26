@@ -11,6 +11,43 @@
 #include "comms/udp_link.h"
 #include "comms/protocol_mavlink.h"
 
+
+//!
+//! \brief This class defines a thread such that a QObject can run in peace.
+//!
+class UDPListenThread : public QThread
+{
+public:
+    UDPListenThread(const std::function<void(void)> &func):
+        m_func(func)
+    {
+        if(QCoreApplication::instance() == NULL)
+        {
+            int argc = 0;
+            char * argv[] = {(char *)"sharedlib.app"};
+            pApp = new QCoreApplication(argc, argv);
+        }
+    }
+
+    virtual void run()
+    {
+        while(true)
+        {
+            QCoreApplication::processEvents();
+            m_func();
+        }
+    }
+
+private:
+
+    std::function<void(void)> m_func;
+    QCoreApplication *pApp;
+};
+
+
+
+
+
 /*
  *
  * EXAMPLE ON HOW TO GENERATE MAVLINK MESSAGE:
@@ -211,61 +248,30 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
         mavlink_message_t msg;
 
-        mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+//        //test statements that will issue a log_request_list to device
+//        mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
+//        m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
 
-        std::cout<<"The message was sent."<<std::endl;
-
-        //test statements that will issue a log_request_list to device
-
-//        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,9,4,1);
-//        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-//        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,10,4,1);
-//        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-//        mavlink_msg_set_mode_pack(255, 0, &msg, 0, 0, 0);
-//        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-        //param 1 is the message id
-        //interval between two messages in microseconds
-
-        //mavlink_msg_command_long_pack_chan(255,190,chan,&msg,0,0,511,0,30,500000,0,0,0,0,0);
-        //m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-
-//        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,12,4,1);
-//        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-
-
-
+//        std::cout<<"The message was sent."<<std::endl;
     }
     else if(params->HasNonTerminal("UDPParameters"))
     {
         std::shared_ptr<MaceCore::ModuleParameterValue> udpSettings = params->GetNonTerminalValue("UDPParameters");
 
-
         std::string listenAddress = udpSettings->GetTerminalValue<std::string>("ListenAddress");
         int listenPortNumber = udpSettings->GetTerminalValue<int>("ListenPortNumber");
-        // TODO-PAT: Handle if "SenderAddress" and/or "SenderPortNumber" have been set
-//        std::string senderAddress = udpSettings->GetTerminalValue<std::string>("ListenAddress");
-//        int senderPortNumber = udpSettings->GetTerminalValue<int>("ListenPortNumber");
 
         Comms::Protocols protocolToUse = Comms::Protocols::MAVLINK;
-
-        // TODO-PAT: If sender port and address are set, use other constructor.
         Comms::UdpConfiguration config(listenAddress, listenPortNumber);
-//        config.setListenAddress(listenAddress);
-//        config.setListenPortNumber(listenPortNumber);
 
-        // TODO-PAT: Listen for UDP messages -- get sender address and port, and then set the sender address and port in the config:
-        config.setSenderAddress("192.168.1.31");
-        config.setSenderPortNumber(47465);
+        // ********************************************************************************************
+        // TODO-PAT: This function is blocking while it listens for the sender port.
+        //             --Need to figure out a way to move this to a thread to execute in the background until
+        //                  a UDP connection is seen on this address and port number.
+        config.listenForPort(listenAddress, listenPortNumber);
 
         std::string linkName = "udplink_" + std::to_string(listenPortNumber);
         m_LinkMarshaler->AddUDPLink(linkName, config);
-
 
         //now configure to use link with desired protocol
         if(protocolToUse == Comms::Protocols::MAVLINK)
@@ -296,17 +302,21 @@ void ModuleVehicleMAVLINK::ConfigureModule(const std::shared_ptr<MaceCore::Modul
             }
         }
 
+        //  TODO-PAT: Everything above this to the previous "TODO-PAT" should be moved onto a thread
+        // ********************************************************************************************
 
         //connect link
         if(m_LinkMarshaler->ConnectToLink(linkName) == false){
             throw std::runtime_error("Connection to udp link failed");
         }
 
-        //test statements that will issue a set_mode to device (ID=1)
-        uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
-        mavlink_message_t msg;
-        mavlink_msg_set_mode_pack(255, 190, &msg, 1, MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 0);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
+
+
+//        //test statements that will issue a set_mode to device (ID=1)
+//        uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
+//        mavlink_message_t msg;
+//        mavlink_msg_set_mode_pack(255, 190, &msg, 1, MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 0);
+//        m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
     }
     else
     {

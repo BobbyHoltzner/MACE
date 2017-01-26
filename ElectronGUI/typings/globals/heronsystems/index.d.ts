@@ -1,16 +1,50 @@
+type PositionType = {
+    lat: number,
+    lon: number,
+    alt: number
+};
+
+type AttitudeType = {
+    roll: number,
+    pitch: number,
+    yaw: number
+};
+
+type VehicleModeType = 'LOITER' | 'RTL' | 'LAND' | 'AUTO' | 'GUIDED' | 'UNKNOWN';
+
 type VehicleStateType = {
-    position: {
-        lat: number,
-        lon: number,
-        alt: number,
-        numSats: number,
-        positionFix: number
-    },
-    attitude: {
-        roll: number,
-        pitch: number,
-        yaw: number 
-    }
-}
+    position: PositionType,
+    attitude: AttitudeType,
+    numSats: number,
+    positionFix: number,
+    vehicleMode: VehicleModeType
+};
 
 type VehicleMapType = {[id: string]: VehicleStateType};
+
+
+
+type TCPDescriptorType = {
+  dataType: string,
+  vehicleID: number
+}
+
+type ConnectedVehiclesType = TCPDescriptorType & {
+  connectedVehicles: number[]
+}
+
+type TCPPositionType = TCPDescriptorType & {
+  lat: number,
+  lon: number,
+  alt: number,
+  positionFix: number,
+  numSats: number
+}
+
+type TCPAttitudeType = TCPDescriptorType & {
+  roll: number,
+  pitch: number,
+  yaw: number
+}
+
+type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType;

@@ -9,6 +9,17 @@ UdpConfiguration::UdpConfiguration(const std::string& listenAddress, const int &
     _listenPortNumber    = listenPort;
 //    _senderAddress       = senderAddress;
 //    _senderPortNumber    = senderPort;
+    m_socket = new QUdpSocket();
+}
+
+UdpConfiguration::~UdpConfiguration()
+{
+    // Delete socket and break out of this loop:
+    if (m_socket) {
+        m_socket->close();
+        delete m_socket;
+        m_socket = NULL;
+    }
 }
 
 UdpConfiguration::UdpConfiguration(const std::string& listenAddress, const int &listenPort, const std::string& senderAddress, const int &senderPort)
@@ -56,6 +67,42 @@ void UdpConfiguration::setSenderAddress(std::string address)
 void UdpConfiguration::setSenderPortNumber(int portNumber)
 {
     _senderPortNumber = portNumber;
+}
+
+
+
+// Set up a UDP socket to listen for UDP messages on, and set the sender address and port
+void UdpConfiguration::listenForPort(const std::__cxx11::string &listenAddress, const int &listenPortNumber)
+{
+    m_socket->bind(QHostAddress(QString::fromStdString(listenAddress)), listenPortNumber, QUdpSocket::ShareAddress);
+
+    if(m_socket->waitForReadyRead(300))
+    {
+        while (m_socket->hasPendingDatagrams())
+        {
+            QByteArray datagram;
+            datagram.resize(m_socket->pendingDatagramSize());
+            QHostAddress sender;
+            quint16 senderPort;
+            m_socket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
+
+            setSenderAddress(sender.toString().toStdString());
+            setSenderPortNumber(senderPort);
+
+            // Delete socket and break out of this loop:
+            if (m_socket) {
+                m_socket->close();
+                delete m_socket;
+                m_socket = NULL;
+            }
+
+            break;
+        }
+    }
+    else
+    {
+        this->listenForPort(listenAddress, listenPortNumber);
+    }
 }
 
 

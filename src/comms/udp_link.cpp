@@ -233,25 +233,17 @@ int UdpLink::getSenderPortNumber() const
 
 void UdpLink::processPendingDatagrams(void)
 {
-    // TODO: Read bytes from UDP socket. Readdatagram???
-//    while (m_socket->hasPendingDatagrams()) {
-//        QByteArray datagram;
-//        datagram.resize(m_socket->pendingDatagramSize());
-//        QHostAddress sender;
-//        quint16 senderPort;
-
-//        m_socket->readDatagram(datagram.data(), datagram.size(),
-//                                &sender, &senderPort);
-
-//        std::cout << "UDP Data: " << datagram.data() << " - Received from: " << sender.toString().toStdString() << std::endl;
-//    }
-
     while (m_socket->hasPendingDatagrams()) {
         QByteArray datagram;
         datagram.resize(m_socket->pendingDatagramSize());
-        m_socket->readDatagram(datagram.data(), datagram.size());
+        QHostAddress sender;
+        quint16 senderPort;
+        m_socket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
 
-        // TODO: TEST THIS!!!
+        _config.setSenderAddress(sender.toString().toStdString());
+        _config.setSenderPortNumber(senderPort);
+
+        // TODO-PAT: TEST THIS!!!
         std::vector<uint8_t> vec_buffer = std::vector<uint8_t>(datagram.begin(), datagram.end());
         EmitEvent([this,&vec_buffer](const ILinkEvents *ptr){ptr->ReceiveData(this, vec_buffer);});
     }
