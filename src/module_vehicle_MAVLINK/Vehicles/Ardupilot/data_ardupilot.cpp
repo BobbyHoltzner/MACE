@@ -12,8 +12,10 @@ DataArdupilot::DataArdupilot(const int &vehicleID, const int &vehicleProtocol, c
     m_Attitude = new ArdupilotAttitude();
     m_Status = new ArdupilotStatus();
     m_Position = new ArdupilotPosition();
+    //m_Power = new ArdupilotPower();
 
     m_FlightMode->setVehicleType(vehicleType);
+
 
 }
 
@@ -24,15 +26,17 @@ DataArdupilot::DataArdupilot(DataArdupilot &copyObj)
     m_Attitude = new ArdupilotAttitude();
     m_Status = new ArdupilotStatus();
     m_Position = new ArdupilotPosition();
-    m_LinkMarshler = new Comms::CommsMarshaler;
+    m_Power = new ArdupilotPower();
+    m_LinkMarshaler = new Comms::CommsMarshaler;
 
     *m_FlightMode = *copyObj.m_FlightMode;
     *m_Attitude = *copyObj.m_Attitude;
     *m_Status = *copyObj.m_Status;
     *m_Position = *copyObj.m_Position;
+    //*m_Power = *copyObj.m_Power;
 
     linkName = copyObj.getLinkName();
-    m_LinkMarshler = copyObj.m_LinkMarshler;
+    m_LinkMarshaler = copyObj.m_LinkMarshaler;
 }
 
 DataArdupilot::~DataArdupilot()
@@ -47,34 +51,49 @@ std::string DataArdupilot::getLinkName()
 
 void DataArdupilot::updateVehicleCommsObject(Comms::CommsMarshaler* marshaler, std::string linkString)
 {
-    m_LinkMarshler = marshaler;
+    m_LinkMarshaler = marshaler;
     linkName = linkString;
 }
 
+void DataArdupilot::setVehicleArm(const bool &arm)
+{
+    //command number 400
+    mavlink_message_t msg;
+    uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
+    mavlink_msg_command_long_pack_chan(255,190,chan,&msg,this->getVehicleID(),0,400,0,arm,0.0,0.0,0.0,0.0,0.0,0.0);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName,msg);
+}
+
+void DataArdupilot::setVehicleMotorTest(const int &motorNumber, const int &throttlePercentage, const int &timeout)
+{
+    //command number 209
+    mavlink_message_t msg;
+    uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
+    mavlink_msg_command_long_pack_chan(255,190,chan,&msg,this->getVehicleID(),0,209,0,motorNumber,MOTOR_TEST_THROTTLE_PERCENT,throttlePercentage,timeout,0.0,0.0,0.0);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName,msg);
+}
+
+void DataArdupilot::setVehicleTakeoff(const double &altitude)
+{
+    mavlink_message_t msg;
+    uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
+    mavlink_msg_command_long_pack_chan(255,190,chan,&msg,this->getVehicleID(),0,22,0,0.0,0.0,0.0,0.0,0.0,0.0,altitude);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName,msg);
+}
 
 void DataArdupilot::setVehicleMode(const std::string &vehicleMode)
 {
-    uint8_t chan = m_LinkMarshler->GetProtocolChannel(linkName);
+    //This is message number 11. Upon acceptance of the message we should see an ack message acknowledging number 11 was accepted.
     mavlink_message_t msg;
-
-//    mavlink_msg_set_mode_pack(255, 190, &msg, 1, MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 0);
-//    mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
-//    m_LinkMarshler->SendMessage<mavlink_message_t>(linkName, msg);
-
-//    std::cout<<"The message was sent."<<std::endl;
-
     int vehicleModeID = 0;
     bool modeFound = m_FlightMode->getVehicleModeID(vehicleMode,vehicleModeID);
-    std::cout << "Setting vehicle mode to: " << vehicleModeID << std::endl;
     if(modeFound == true)
     {
+        uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
         mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,this->getVehicleID(),MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,vehicleModeID);
-
-        m_LinkMarshler->SendMessage<mavlink_message_t>(linkName, msg);
-
-        std::cout<<"The message was sent."<<std::endl;
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName,msg);
     }else{
-        std::cout<<"The vehicle mode was not found."<<std::endl;
+        std::cout<<"The vehicle mode requested was not found for this type of aircraft."<<std::endl;
     }
 }
 
@@ -96,8 +115,8 @@ void DataArdupilot::getVehicleAttitude(Eigen::Vector3d &rtnVector)
 
 void DataArdupilot::getVehicleFuel(Eigen::Vector2d &rtnVector)
 {
-    rtnVector[0] = 14.8;
-    rtnVector[1] = 10;
+    rtnVector[0] = m_Power->getBatteryVoltage();
+    rtnVector[1] = m_Power->getBatteryCurrent();
 }
 
 void DataArdupilot::handleMessage(VehicleMessage msgIn)
@@ -111,7 +130,9 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
     {
     case MAVLINK_MSG_ID_LOG_ENTRY:
     {
-        std::cout<<"A log entry message was received!"<<std::endl;
+        mavlink_log_entry_t decodedMSG;
+        mavlink_msg_log_entry_decode(&message,&decodedMSG);
+        std::cout<<"A log entry message was received! ID: "<<decodedMSG.id<<" Out of: "<<decodedMSG.num_logs<<"With a size of: "<<decodedMSG.size<<std::endl;
         break;
     }
     case MAVLINK_MSG_ID_COMMAND_ACK:
@@ -147,11 +168,17 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
         m_FlightMode->setVehicleType(decodedMSG.type);
         m_FlightMode->setFlightMode(decodedMSG.custom_mode);
+
         counter = counter + 1;
 //        std::cout<<"A new heartbeat was seen: "<<counter<< " " << std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch()).count() << std::endl;
         if(counter > 10){
             this->setVehicleMode("STABILIZE");
         }
+        break;
+    }
+    case MAVLINK_MSG_ID_SYS_STATUS:
+    {
+        //This is message definition 1
         break;
     }
     case MAVLINK_MSG_ID_SYSTEM_TIME:
@@ -209,6 +236,16 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         m_Position->handleMAVLINKMessage(message);
         break;
     }
+    case MAVLINK_MSG_ID_RAW_IMU:
+    {
+        //This is message definition 27
+        break;
+    }
+    case MAVLINK_MSG_ID_SCALED_PRESSURE:
+    {
+        //This is message definition 29
+        break;
+    }
     case MAVLINK_MSG_ID_ATTITUDE:
     {
         //This is message definition 30
@@ -225,6 +262,17 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         //The filtered global position (e.g. fused GPS and accelerometers). The position is in GPS-frame (right-handed, Z-up). It is designed as scaled integer message since the resolution of float is not sufficient.
         //mavlink_global_position_int_t decodedMSG;
         //mavlink_msg_global_position_int_decode(&message,&decodedMSG);
+        break;
+    }
+
+    case MAVLINK_MSG_ID_RC_CHANNELS_RAW:
+    {
+        //This is message definition 35
+        break;
+    }
+    case MAVLINK_MSG_ID_SERVO_OUTPUT_RAW:
+    {
+        //This is message definition 36
         break;
     }
     case MAVLINK_MSG_ID_MISSION_REQUEST_PARTIAL_LIST:
@@ -339,12 +387,27 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         mavlink_msg_radio_status_decode(&message,&decodedMSG);
         break;
     }
+    case MAVLINK_MSG_ID_SCALED_IMU2:
+    {
+        //This is message definition 116
+        break;
+    }
+    case MAVLINK_MSG_ID_POWER_STATUS:
+    {
+        //This is message definition 125
+        break;
+    }
     case MAVLINK_MSG_ID_BATTERY_STATUS:
     {
         //This is message definition 147
         //Battery information
         mavlink_battery_status_t decodedMSG;
         mavlink_msg_battery_status_decode(&message,&decodedMSG);
+        break;
+    }
+    case MAVLINK_MSG_ID_SENSOR_OFFSETS:
+    {
+        //This is message definition 150
         break;
     }
     case MAVLINK_MSG_ID_MOUNT_STATUS:
@@ -383,6 +446,10 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         mavlink_msg_hwstatus_decode(&message,&decodedMSG);
         break;
     }
+    case MAVLINK_MSG_ID_AHRS3:{
+        //This is message definition 182
+        break;
+    }
     case MAVLINK_MSG_ID_EKF_STATUS_REPORT:{
         //This is message definition 193
         //
@@ -406,9 +473,17 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         mavlink_msg_home_position_decode(&message,&decodedMSG);
         break;
     }
+    case MAVLINK_MSG_ID_STATUSTEXT:
+    {
+        //This is message definition 253
+        mavlink_statustext_t decodedMSG;
+        mavlink_msg_statustext_decode(&message,&decodedMSG);
+        std::cout<<"A new status text: "<<decodedMSG.text<<std::endl;
+        break;
+    }
     default:
     {
-       // std::cout << "I saw a message with the ID "<< message.msgid << std::endl;
+        std::cout << "I saw a message with the ID "<< message.msgid << std::endl;
     }
     }
 

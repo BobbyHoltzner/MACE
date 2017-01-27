@@ -18,6 +18,8 @@ public:
     void getAttitude(Eigen::Vector3d &attitudeVector);
     void getAttitudeRates(Eigen::Vector3d &attitudeRateVector);
 
+public:
+
 
 private:
     double roll;

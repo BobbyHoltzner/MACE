@@ -10,6 +10,17 @@ ArdupilotFlightMode::ArdupilotFlightMode()
     this->flightMode = ACFM_UNKNOWN;
 }
 
+
+void ArdupilotFlightMode::updateVehicleHeartbeat(const mavlink_heartbeat_t msg)
+{
+    bool newArmed = msg.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY;
+    if (newArmed != vehicleArmed)
+    {
+        //the vehicle mode has changed....alert everybody
+    }
+    vehicleArmed = newArmed;
+}
+
 void ArdupilotFlightMode::getCurrentVehicleMode(int vehicleMode)
 {
     vehicleMode = flightMode;

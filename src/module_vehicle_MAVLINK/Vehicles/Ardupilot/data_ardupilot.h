@@ -15,6 +15,7 @@
 #include "ardupilot_flightmode.h"
 #include "ardupilot_position.h"
 #include "ardupilot_status.h"
+#include "ardupilot_power.h"
 
 #include "data/global_position.h"
 #include "data/local_position.h"
@@ -43,6 +44,13 @@ public:
 
     virtual void setVehicleMode(const std::string &vehicleMode);
 
+    virtual void setVehicleTakeoff(const double &altitude);
+
+    virtual void setVehicleArm(const bool &arm);
+
+    virtual void setVehicleMotorTest(const int &motorNumber, const int &throttlePercentage, const int &timeout);
+
+
     std::string getLinkName();
 
 //    virtual int getVehicleID() const;
@@ -55,13 +63,14 @@ public:
 private:
     int counter = 0;
 
-    Comms::CommsMarshaler *m_LinkMarshler;
+    Comms::CommsMarshaler *m_LinkMarshaler;
     std::string linkName;
 
     ArdupilotFlightMode* m_FlightMode;
     ArdupilotAttitude* m_Attitude;
     ArdupilotStatus* m_Status;
     ArdupilotPosition* m_Position;
+    ArdupilotPower* m_Power;
 
 };
 } //end of namespace ardupilot

@@ -25,7 +25,8 @@ SOURCES += module_vehicle_mavlink.cpp \
     Vehicles/Ardupilot/ardupilot_position.cpp \
     Vehicles/Ardupilot/ardupilot_status.cpp \
     Vehicles/Ardupilot/data_ardupilot.cpp \
-    Vehicles/Ardupilot/ardupilot_home_position.cpp
+    Vehicles/Ardupilot/ardupilot_home_position.cpp \
+    Vehicles/Ardupilot/ardupilot_power.cpp
 
 HEADERS += module_vehicle_mavlink.h\
         module_vehicle_mavlink_global.h \
@@ -40,7 +41,8 @@ HEADERS += module_vehicle_mavlink.h\
     Vehicles/Ardupilot/ardupilot_status.h \
     Vehicles/Ardupilot/data_ardupilot.h \
     Vehicles/Ardupilot/data_ardupilot_global.h \
-    Vehicles/Ardupilot/ardupilot_home_position.h
+    Vehicles/Ardupilot/ardupilot_home_position.h \
+    Vehicles/Ardupilot/ardupilot_power.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
