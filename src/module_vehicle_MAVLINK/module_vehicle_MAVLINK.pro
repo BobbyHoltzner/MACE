@@ -76,7 +76,8 @@ headers_Vehicle_Ardupilot.files   += Vehicles/Ardupilot/ardupilot_attitude.h \
     Vehicles/Ardupilot/ardupilot_position.h \
     Vehicles/Ardupilot/ardupilot_status.h \
     Vehicles/Ardupilot/data_ardupilot.h \
-    Vehicles/Ardupilot/data_ardupilot_global.h
+    Vehicles/Ardupilot/data_ardupilot_global.h \
+    Vehicles/Ardupilot/ardupilot_power.h
 INSTALLS       += headers_Vehicle_Ardupilot
 
 INCLUDEPATH += $$PWD/../
