@@ -5,7 +5,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme();
 
 var NotificationSystem = require('react-notification-system');
-import { Map, TileLayer } from 'react-leaflet';
+import { Map, TileLayer, LayerGroup, Marker, Popup } from 'react-leaflet';
 import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
 import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
 // import { generateNewVehicle } from '../components/VehicleHUD'
@@ -77,11 +77,11 @@ export default class AppContainer extends React.Component<Props, State> {
     this.leafletMap = this.refs.map;
     this.notificationSystem = this.refs.notificationSystem;
 
-    // this.setupTCPClient();
+    this.setupTCPClient();
 
-    // setInterval(() => {
-    //   this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
-    // }, 3000);
+    setInterval(() => {
+      this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
+    }, 3000);
   }
 
   makeTCPRequest = (command: string, vehicleID: number) => {
@@ -176,16 +176,13 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(jsonData.dataType === "VehiclePosition"){
       let vehiclePosition = jsonData as TCPPositionType;
 
-      let idArrays: string[] = Object.keys(stateCopy);
-      for(let i = 0; i < idArrays.length; i++){
-        if(parseInt(idArrays[i]) === vehiclePosition.vehicleID) {
-          stateCopy[idArrays[i]].position.lat = vehiclePosition.lat;
-          stateCopy[idArrays[i]].position.lon = vehiclePosition.lon;
-          stateCopy[idArrays[i]].position.alt = vehiclePosition.alt;
-          stateCopy[idArrays[i]].position.numSats = vehiclePosition.numSats;
-          stateCopy[idArrays[i]].position.positionFix = vehiclePosition.positionFix;
-        }
-      }
+      stateCopy[vehiclePosition.vehicleID].position.lat = vehiclePosition.lat;
+      stateCopy[vehiclePosition.vehicleID].position.lon = vehiclePosition.lon;
+      stateCopy[vehiclePosition.vehicleID].position.alt = vehiclePosition.alt;
+      stateCopy[vehiclePosition.vehicleID].numSats = vehiclePosition.numSats;
+      stateCopy[vehiclePosition.vehicleID].positionFix = vehiclePosition.positionFix;
+
+      stateCopy[vehiclePosition.vehicleID].updateMarker(vehiclePosition);
 
       this.setState({connectedVehicles: stateCopy});
     }
@@ -196,6 +193,8 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[vehicleAttitude.vehicleID].attitude.roll = vehicleAttitude.roll;
       stateCopy[vehicleAttitude.vehicleID].attitude.pitch = vehicleAttitude.pitch;
       stateCopy[vehicleAttitude.vehicleID].attitude.yaw = vehicleAttitude.yaw;
+
+      stateCopy[vehicleAttitude.vehicleID].updateMarker(vehicleAttitude);
 
       this.setState({connectedVehicles: stateCopy});
     }
@@ -284,7 +283,19 @@ export default class AppContainer extends React.Component<Props, State> {
             <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} >
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.state.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
-                
+                <LayerGroup>
+                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
+                    return (
+                      <Marker key={key} position={this.state.connectedVehicles[key].position} icon={this.state.connectedVehicles[key].vehicleMarker} title={key}>
+                      {/*
+                        <Popup open={true}>
+                          <span>{item.vehicleId}</span>
+                        </Popup>
+                        */}
+                      </Marker>
+                    );
+                  })}
+                </LayerGroup>
             </Map>
 
             <div>

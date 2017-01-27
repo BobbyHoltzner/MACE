@@ -6,23 +6,23 @@ import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
 // import deepEqual from '../helpers/DeepEqual';
 
-export function generateNewVehicle(): VehicleStateType {
-    let vehicleState = {
-        position: {
-            lat: 0,
-            lon: 0,
-            alt: 0,
-            numSats: 0,
-            positionFix: 0
-        },
-        attitude: {
-            roll: 0,
-            pitch: 0,
-            yaw: 0
-        }
-    };
-    return vehicleState;
-}
+// export function generateNewVehicle(): VehicleStateType {
+//     let vehicleState = {
+//         position: {
+//             lat: 0,
+//             lon: 0,
+//             alt: 0,
+//             numSats: 0,
+//             positionFix: 0
+//         },
+//         attitude: {
+//             roll: 0,
+//             pitch: 0,
+//             yaw: 0
+//         }
+//     };
+//     return vehicleState;
+// }
 
 
 type Props = {

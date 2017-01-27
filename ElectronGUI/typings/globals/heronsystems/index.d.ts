@@ -48,3 +48,20 @@ type TCPAttitudeType = TCPDescriptorType & {
 }
 
 type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType;
+
+
+type MarkerType = {
+  position: L.LatLng,
+  icon: L.Icon,
+  vehicleId?: number
+}
+
+type LayerGroupType = {
+  type: string,
+  latLons: L.LatLng[]
+}
+
+type PathType = {
+  waypoints: L.LatLng[]
+}
+

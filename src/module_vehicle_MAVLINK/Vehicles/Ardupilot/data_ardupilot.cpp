@@ -118,11 +118,11 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
     {
         mavlink_command_ack_t decodedMSG;
         mavlink_msg_command_ack_decode(&message,&decodedMSG);
-        std::cout<<"The command acknowledgement came from: "<<decodedMSG.command<<std::endl;
+//        std::cout<<"The command acknowledgement came from: "<<decodedMSG.command<<std::endl;
         switch(decodedMSG.result)
         {
             case MAV_RESULT_ACCEPTED:
-                std::cout<<"MAV result accepted"<<std::endl;
+//                std::cout<<"MAV result accepted"<<std::endl;
                 break;
             case MAV_RESULT_TEMPORARILY_REJECTED:
                 std::cout<<"MAV result rejected"<<std::endl;
@@ -148,7 +148,7 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
         m_FlightMode->setVehicleType(decodedMSG.type);
         m_FlightMode->setFlightMode(decodedMSG.custom_mode);
         counter = counter + 1;
-        std::cout<<"A new heartbeat was seen: "<<counter<< " " << std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch()).count() << std::endl;
+//        std::cout<<"A new heartbeat was seen: "<<counter<< " " << std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch()).count() << std::endl;
         if(counter > 10){
             this->setVehicleMode("STABILIZE");
         }

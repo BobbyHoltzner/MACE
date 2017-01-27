@@ -119,8 +119,8 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleMAVLINK::Module
     std::shared_ptr<MaceCore::ModuleParameterStructure> udpSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
     udpSettings->AddTerminalParameters("ListenAddress", MaceCore::ModuleParameterTerminalTypes::STRING, true);
     udpSettings->AddTerminalParameters("ListenPortNumber", MaceCore::ModuleParameterTerminalTypes::INT, true);
-    udpSettings->AddTerminalParameters("SenderAddress", MaceCore::ModuleParameterTerminalTypes::STRING, false);
-    udpSettings->AddTerminalParameters("SenderPortNumber", MaceCore::ModuleParameterTerminalTypes::INT, false);
+//    udpSettings->AddTerminalParameters("SenderAddress", MaceCore::ModuleParameterTerminalTypes::STRING, false);
+//    udpSettings->AddTerminalParameters("SenderPortNumber", MaceCore::ModuleParameterTerminalTypes::INT, false);
 
     std::shared_ptr<MaceCore::ModuleParameterStructure> protocolSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
     protocolSettings->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true, "Mavlink", {"Mavlink"});

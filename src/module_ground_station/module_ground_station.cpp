@@ -102,6 +102,7 @@ void ModuleGroundStation::on_newConnection()
             socket->waitForBytesWritten(3000);
         }
 
+        // TODO-PAT: Try to leave this socket open if possible??
         socket->close();
     }
 }
@@ -114,7 +115,7 @@ void ModuleGroundStation::parseTCPRequest(QJsonObject jsonObj, QByteArray &retur
     QByteArray data;
     if(command == "GET_CONNECTED_VEHICLES")
     {
-//        std::cout << "TCP: Get connected vehicles" << std::endl;
+        std::cout << "TCP: Get connected vehicles" << std::endl;
         getConnectedVehicles(data);
     }
     else if(command == "GET_POSITION")
@@ -232,7 +233,7 @@ void ModuleGroundStation::getConnectedVehicles(QByteArray &connectedVehicles)
         QJsonDocument doc(json);
         connectedVehicles = doc.toJson();
     }else{
-        std::cout << "The vehicle map is empty. Not connected vehicles" << std::endl;
+        std::cout << "The vehicle map is empty. No connected vehicles" << std::endl;
     }
 }
 
