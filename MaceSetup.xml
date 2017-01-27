@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModuleConfigurations>
-  <Module Class="VehicleComms" Type="MAVLINK">
+  <Module Class="VehicleComms" Type="Ardupilot">
     <Parameter Name="ProtocolParameters">
       <Parameter Name="Name">Mavlink</Parameter>
       <Parameter Name="Version">V1</Parameter>
@@ -14,6 +14,21 @@
       <Parameter Name="FlowControl">1</Parameter>
     </Parameter>
   </Module>
+  <Module Class="Sensors" Type="NASAPhase2">
+    <Parameter Name="CameraParameters">
+      <Parameter Name="CameraName">MapIR</Parameter>
+	  <Parameter Name="FocalLength">3.0</Parameter>
+	  <Parameter Name="SensorWidth">6.16</Parameter>
+	  <Parameter Name="SensorHeight">4.62</Parameter>
+	  <Parameter Name="ImageWidth">3000</Parameter>
+	  <Parameter Name="ImageHeight">2250</Parameter>
+	  <Parameter Name="FOVWidth">0.0</Parameter>
+	  <Parameter Name="FOVHeight">0.0</Parameter>
+	  <Parameter Name="Frequency">0.0</Parameter>
+    </Parameter>
+  </Module>
+  <Module Class="GroundStation" Type="NASAPhase2" />
   <Module Class="RTA" Type="NASAPhase2" />
   <Module Class="PathPlanning" Type="NASAPhase2"/>
+  <Module Class="ExternalLink" Type="NASAPhase2"/>
 </ModuleConfigurations>

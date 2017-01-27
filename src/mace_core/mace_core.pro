@@ -46,7 +46,13 @@ HEADERS += mace_core.h\
     matrix_operations.h \
     command_marshler.h \
     vehicle_message.h \
-    vehicle_object.h
+    vehicle_object.h \
+    topic.h \
+    i_module_topic_events.h \
+    i_module_command_external_link.h \
+    i_module_command_sensors.h \
+    i_module_events_sensors.h \
+    metadata_sensors.h
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib

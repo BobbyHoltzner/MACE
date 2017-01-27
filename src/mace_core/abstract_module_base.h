@@ -11,6 +11,8 @@
 
 #include "module_parameters.h"
 
+#include "topic.h"
+
 namespace MaceCore
 {
 
@@ -25,24 +27,30 @@ public:
     //!
     enum Classes
     {
+        EXTERNAL_LINK,
+        GROUND_STATION,
         PATH_PLANNING,
         RTA,
+        SENSORS,
         VEHICLE_COMMS,
-        GROUND_STATION,
         NR_TYPES
     };
 
     static std::string ModuleTypeToString(const Classes &type)
     {
         switch (type) {
-        case VEHICLE_COMMS:
-            return "VehicleComms";
-        case RTA:
-            return "RTA";
-        case PATH_PLANNING:
-            return "PathPlanning";
+        case EXTERNAL_LINK:
+            return "ExternalLink";
         case GROUND_STATION:
             return "GroundStation";
+        case PATH_PLANNING:
+            return "PathPlanning";
+        case RTA:
+            return "RTA";
+        case SENSORS:
+            return "Sensors";
+        case VEHICLE_COMMS:
+            return "VehicleComms";
         default:
             throw std::runtime_error("Unknown module type");
         }
@@ -51,15 +59,18 @@ public:
 
     static Classes StringToModuleClass(const std::string &string)
     {
-        if(string == "VehicleComms")
-            return VEHICLE_COMMS;
-        if(string == "RTA")
-            return RTA;
-        if(string == "PathPlanning")
-            return PATH_PLANNING;
+        if(string == "ExternalLink")
+            return EXTERNAL_LINK;
         if(string == "GroundStation")
             return GROUND_STATION;
-
+        if(string == "PathPlanning")
+            return PATH_PLANNING;
+        if(string == "RTA")
+            return RTA;
+        if(string == "Sensors")
+            return SENSORS;
+        if(string == "VehicleComms")
+            return VEHICLE_COMMS;
         throw std::runtime_error("Unknown module type");
     }
 
@@ -89,6 +100,16 @@ public:
     //! \param params Parameters to configure
     //!
     virtual void ConfigureModule(const std::shared_ptr<ModuleParameterValue> &params) = 0;
+
+
+    virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated) = 0;
+
+
+    virtual std::unordered_map<std::string, TopicStructure> GetTopics()
+    {
+        //TODO make pure
+        return {};
+    }
 
 
     void setDataObject(const std::shared_ptr<MaceData> &data)

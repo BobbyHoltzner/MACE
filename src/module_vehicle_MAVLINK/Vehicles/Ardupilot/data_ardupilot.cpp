@@ -5,6 +5,7 @@
 
 namespace Ardupilot {
 
+/*
 DataArdupilot::DataArdupilot(const int &vehicleID, const int &vehicleProtocol, const int &vehicleType)
     :VehicleObject(vehicleID,vehicleProtocol,vehicleType)
 {
@@ -488,5 +489,6 @@ void DataArdupilot::handleMessage(VehicleMessage msgIn)
 
 
 }
+*/
 
 } //end of namespace Ardupilot

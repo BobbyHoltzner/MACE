@@ -24,7 +24,7 @@ enum class GroundStationCommands
 //    UPDATED_POSITION_DYNAMICS
 };
 
-class MACE_CORESHARED_EXPORT IModuleCommandGroundStation : public AbstractModule_VehicleListener<Metadata_GroundStation, IModuleEventsGroundStation, GroundStationCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandGroundStation : public AbstractModule_VehicleListener<Metadata_GroundStation, IModuleTopicEvents, GroundStationCommands>
 {
 public:
 

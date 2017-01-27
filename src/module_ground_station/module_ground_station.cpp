@@ -42,7 +42,7 @@ private:
 
 
 ModuleGroundStation::ModuleGroundStation() :
-    MaceCore::IModuleCommandGroundStation(),
+    m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData"),
     m_ListenThread(NULL),
     m_TcpServer(NULL)
 {
@@ -154,6 +154,47 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
 
 }
 
+void ModuleGroundStation::AttachedAsModule(MaceCore::IModuleTopicEvents *ptr)
+{
+    ptr->Subscribe(this, m_VehicleDataTopic.Name());
+    ptr->Subscribe(this, m_SensorDataTopic.Name());
+}
+
+void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
+{
+    //example read of vehicle data
+    if(topicName == m_VehicleDataTopic.Name())
+    {
+        //get latest datagram from mace_data
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+
+        //example of how to get data and parse through the components that were updated
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+            std::cout << "  " << componentsUpdated.at(i) << std::endl;
+            if(componentsUpdated.at(i) == DataVehicleGeneric::Attitude::Name()) {
+                std::shared_ptr<DataVehicleGeneric::Attitude> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingAttitude>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                std::cout << "    Vehicle Attitude: " << component->getRoll() << std::endl;
+            }
+            if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleOperatingParameters::Name()) {
+                std::shared_ptr<DataVehicleArdupilot::VehicleOperatingParameters> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingParameters>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                std::cout << "    Vehicle Type: " << (int)component->getPlatform() << std::endl;
+            }
+            if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleOperatingStatus::Name()) {
+                std::shared_ptr<DataVehicleArdupilot::VehicleOperatingStatus> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingStatus>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                std::cout << "    Vehicle Armed: " << component->getVehicleArmed() << std::endl;
+            }
+            if(componentsUpdated.at(i) == DataVehicleGeneric::GlobalPosition::Name()) {
+                std::shared_ptr<DataVehicleGeneric::GlobalPosition> component = std::make_shared<DataVehicleGeneric::GlobalPosition>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
+            }
+        }
+    }
+}
+
 bool ModuleGroundStation::StartTCPServer()
 {
     m_TcpServer = new QTcpServer();
@@ -188,7 +229,7 @@ void ModuleGroundStation::UpdatedVehicleMap(const std::string &vehicleID)
     //This is a sample of how to get data from the map containing vehicle information
     std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
 //    std::map<int, std::shared_ptr<VehicleObject>> vehicleDataMap;
-    data->GetVehicleMap(m_VehicleMap);
+    //data->GetVehicleMap(m_VehicleMap);
 }
 
 
@@ -214,10 +255,11 @@ void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &v
 {
     int satFix = 0;
     int numSats = 0;
-    Data::GlobalPosition tmpGlobalPosition(0.0,0.0,0.0);
+    //Data::GlobalPosition tmpGlobalPosition(0.0,0.0,0.0);
 
     Eigen::Vector3d positionVector(10.0,10.0,10.0);
 
+    /*
     if(m_VehicleMap.find(vehicleID) == m_VehicleMap.cend())
     {
         std::cout << "The vehicle with that ID is not there." << std::endl;
@@ -233,10 +275,12 @@ void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &v
         QJsonDocument doc(json);
         vehiclePosition = doc.toJson();
     }
+    */
 }
 
 void ModuleGroundStation::getVehicleAttitude(const int &vehicleID, QByteArray &vehicleAttitude)
 {
+    /*
     Eigen::Vector3d attitudeVector(10.0,10.0,10.0);
     if(m_VehicleMap.find(vehicleID) == m_VehicleMap.cend())
     {
@@ -252,4 +296,5 @@ void ModuleGroundStation::getVehicleAttitude(const int &vehicleID, QByteArray &v
         QJsonDocument doc(json);
         vehicleAttitude = doc.toJson();
     }
+    */
 }

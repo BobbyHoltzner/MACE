@@ -4,7 +4,7 @@
 
 namespace Ardupilot{
 
-
+/*
 ArdupilotPosition::ArdupilotPosition()
 {
     m_LocalPosition = new ArdupilotLocalPosition();
@@ -66,4 +66,5 @@ void ArdupilotPosition::handleMAVLINKMessage(const mavlink_message_t &posMSG)
         std::cout << "I found another type of message" << messageID << std::endl;
     }
 }
+*/
 } //end of namespace Ardupilot

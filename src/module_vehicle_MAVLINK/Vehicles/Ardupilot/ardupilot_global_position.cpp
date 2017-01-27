@@ -2,6 +2,7 @@
 
 namespace Ardupilot{
 
+/*
 GlobalPositionStruct::GlobalPositionStruct()
 {
     this->latitude = 0.0;
@@ -90,4 +91,5 @@ bool ArdupilotGlobalPosition::operator !=(const ArdupilotGlobalPosition &rhs) co
 {
     return !(*this == rhs);
 }
+*/
 } //end of namespace Ardupilot

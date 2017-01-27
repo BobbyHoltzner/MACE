@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include "mavlink.h"
 
+/*
 #include "data/global_position.h"
 
 namespace Ardupilot{
@@ -56,5 +57,7 @@ public:
 
 };
 
+
 } //end of namespace Ardupilot
+*/
 #endif // ARDUPILOTGLOBALPOSITION_H

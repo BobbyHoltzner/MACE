@@ -6,7 +6,7 @@
 #include "mavlink.h"
 #include "ardupilot_global_position.h"
 #include "ardupilot_local_position.h"
-
+/*
 #include "data/global_position.h"
 #include "data/local_position.h"
 
@@ -34,5 +34,7 @@ private:
 };
 
 } //end of namespace Ardupilot
+
+*/
 
 #endif // ARDUPILOTPOSITION_H

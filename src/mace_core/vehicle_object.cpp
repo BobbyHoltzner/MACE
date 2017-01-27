@@ -7,10 +7,12 @@
 //    m_VehicleType = vehicleType;
 //}
 
+/*
 VehicleObject::~VehicleObject()
 {
 
 }
+*/
 
 //int VehicleObject::getVehicleID() const
 //{

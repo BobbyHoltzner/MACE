@@ -38,6 +38,11 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
 
     if(m_RTA != NULL)
         m_RTA->MarshalCommand(RTACommands::NEW_VEHICLE, ID);
+
+    std::unordered_map<std::string, TopicStructure> topics = vehicle->GetTopics();
+    for(auto it = topics.cbegin() ; it != topics.cend() ; ++it) {
+        this->AddTopic(it->first, it->second);
+    }
 }
 
 
@@ -57,10 +62,17 @@ void MaceCore::RemoveVehicle(const std::string &ID)
 }
 
 
-void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
+//The following add the appropriate modules to the core
+void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink)
 {
-    rta->addListener(this);
-    m_RTA = rta;
+    externalLink->addListener(this);
+}
+
+void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
+{
+    groundStation->addListener(this);
+    //bool serverStarted = groundStation->StartTCPServer();
+    m_GroundStation = groundStation;
 }
 
 void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning)
@@ -69,16 +81,59 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
     m_PathPlanning = pathPlanning;
 }
 
-void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
+void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
 {
-    bool serverStarted = groundStation->StartTCPServer();
-    m_GroundStation = groundStation;
+    rta->addListener(this);
+    m_RTA = rta;
 }
+
+void MaceCore::AddSensorsModule(const std::shared_ptr<IModuleCommandSensors> &sensors)
+{
+    sensors->addListener(this);
+    m_Sensors = sensors;
+}
+
+//This ends the functions adding appropriate modules
+
+
+void MaceCore::AddTopic(const std::string &topicName, const TopicStructure &topic) {
+    m_Topics.insert({topicName, topic});
+}
+
+void MaceCore::Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &senderIDs, const std::vector<std::string> &components)
+{
+    if(m_TopicNotifier.find(topicName) == m_TopicNotifier.cend()) {
+        m_TopicNotifier.insert({topicName, {}});
+    }
+    m_TopicNotifier[topicName].push_back(sender);
+}
+
+void MaceCore::NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
+
+    std::vector<std::string> components = value.ListNonTerminals();
+
+    m_DataFusion->setTopicDatagram(topicName, senderID, time, value);
+
+
+    //list through all interested parties and notify of new topic data
+    if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
+    {
+        for(auto it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
+            (*it)->NewTopic(topicName, senderID, components);
+        }
+    }
+
+    //notify attached modules of updated topic.
+    //m_RTA->MarshalCommand(RTACommands::UPDATED_POSITION_DYNAMICS, ID);
+    //m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, ID);
+}
+
 
 
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
+/*
 void MaceCore::NewConstructedVehicle(const void *sender, const std::shared_ptr<VehicleObject> &vehicleObject)
 {
     counter_new_vehicle = counter_new_vehicle + 1;
@@ -95,6 +150,7 @@ void MaceCore::NewConstructedVehicle(const void *sender, const std::shared_ptr<V
         std::cout<<"A new vehicle has been added to the map. Notify everyone."<<std::endl;
     }
 }
+*/
 
 bool MaceCore::VehicleCheck(const int &vehicleID)
 {
@@ -110,6 +166,7 @@ bool MaceCore::VehicleCheck(const int &vehicleID)
     return false;
 }
 
+/*
 void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const VehicleMessage &vehicleMessage)
 {
     IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
@@ -125,6 +182,7 @@ void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const Veh
         //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, tmpString);
     }
 }
+*/
 
 void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
 {

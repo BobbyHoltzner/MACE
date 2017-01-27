@@ -309,7 +309,7 @@ void CommsMarshaler::MessageReceived(const ILink* link_ptr, const mavlink_messag
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](const CommsEvents *ptr){ptr->MavlinkMessage(m_CreatedLinksPtrToName.at(link_ptr), message);});
+    Emit([&](CommsEvents *ptr){ptr->MavlinkMessage(m_CreatedLinksPtrToName.at(link_ptr), message);});
 }
 
 

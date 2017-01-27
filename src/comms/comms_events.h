@@ -69,7 +69,7 @@ public:
     //! \param linkName Name of link message received over
     //! \param msg Message received
     //!
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg) const
+    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg)
     {
 
     }

@@ -1,18 +1,16 @@
 #ifndef MODULE_COLLECTION_H
 #define MODULE_COLLECTION_H
 
+
+#include "module_external_link/module_external_link.h"
+#include "module_ground_station/module_ground_station.h"
+
 #include "module_path_planning_NASAPhase2/module_path_planning_nasaphase2.h"
-
-
 #include "module_RTA_NASAPhase2/module_rta_nasaphase2.h"
 
+#include "module_vehicle_sensors/module_vehicle_sensors.h"
 
-#include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
-
-#include "module_ground_station/module_ground_station.h"
-
-
-#include "module_ground_station/module_ground_station.h"
+#include "module_vehicle_ardupilot/module_vehicle_ardupilot.h"
 
 #include "mace_core/module_factory.h"
 
@@ -25,10 +23,12 @@ public:
     {
         MaceCore::ModuleFactory* factory = new MaceCore::ModuleFactory();
 
+        Register<ModuleExternalLink>(factory, "NASAPhase2");
+        Register<ModuleGroundStation>(factory, "NASAPhase2");
         Register<ModulePathPlanningNASAPhase2>(factory, "NASAPhase2");
         Register<ModuleRTANASAPhase2>(factory, "NASAPhase2");
-        Register<ModuleVehicleMAVLINK>(factory, "MAVLINK");
-        Register<ModuleGroundStation>(factory, "NASAPhase2");
+        Register<ModuleVehicleSensors>(factory, "NASAPhase2");
+        Register<ModuleVehicleArdupilot>(factory, "Ardupilot");
 
         return factory;
     }

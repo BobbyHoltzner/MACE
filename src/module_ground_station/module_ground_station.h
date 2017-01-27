@@ -11,9 +11,17 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
-#include "../mace_core/i_module_command_ground_station.h"
+#include "mace_core/i_module_topic_events.h"
+#include "mace_core/i_module_command_ground_station.h"
 
-#include "data/global_position.h"
+#include "data_vehicle_sensors/components.h"
+#include "data_vehicle_generic/components.h"
+#include "data_vehicle_MAVLINK/components.h"
+#include "data_vehicle_ardupilot/components.h"
+
+#include "data/i_topic_component_data_object.h"
+#include "data/topic_data_object_collection.h"
+
 
 using namespace std;
 
@@ -24,6 +32,12 @@ public:
     ModuleGroundStation();
 
     ~ModuleGroundStation();
+
+    //!
+    //! \brief This module as been attached as a module
+    //! \param ptr pointer to object that attached this instance to itself
+    //!
+    virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
 
 
     //!
@@ -38,6 +52,9 @@ public:
     //! \param params Parameters to configure
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
+
+
+    virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
     //!
     //! \brief Starts the TCP server for the GCS to send requests to
@@ -109,8 +126,9 @@ private:
     QTcpServer *m_TcpServer;
     QThread *m_ListenThread;
 
-    std::map<int, std::shared_ptr<VehicleObject>> m_VehicleMap;
-	
+    Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;
+
 };
 
 #endif // MODULE_GROUND_STATION_H
