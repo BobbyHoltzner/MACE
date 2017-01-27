@@ -42,7 +42,6 @@ private:
 
 
 ModuleGroundStation::ModuleGroundStation() :
-    MaceCore::IModuleCommandGroundStation(),
     m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData"),
     m_ListenThread(NULL),
     m_TcpServer(NULL)
@@ -166,11 +165,10 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
-        std::cout << "VehicleData topic received for vehicle: " << senderID << std::endl;
-
         //get latest datagram from mace_data
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
 
+        //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             std::cout << "  " << componentsUpdated.at(i) << std::endl;
             if(componentsUpdated.at(i) == DataVehicleGeneric::Attitude::Name()) {

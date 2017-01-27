@@ -63,13 +63,15 @@ void MaceCore::RemoveVehicle(const std::string &ID)
 
 
 //The following add the appropriate modules to the core
-void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink) {
+void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink)
+{
     externalLink->addListener(this);
 }
 
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
 {
-    bool serverStarted = groundStation->StartTCPServer();
+    groundStation->addListener(this);
+    //bool serverStarted = groundStation->StartTCPServer();
     m_GroundStation = groundStation;
 }
 

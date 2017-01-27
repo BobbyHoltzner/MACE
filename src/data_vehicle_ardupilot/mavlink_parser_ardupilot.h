@@ -30,29 +30,29 @@ public:
 
         switch ((int)message->msgid) {
 
-            case MAVLINK_MSG_ID_HEARTBEAT:
+        case MAVLINK_MSG_ID_HEARTBEAT:
+        {
+            mavlink_heartbeat_t decodedMSG;
+            mavlink_msg_heartbeat_decode(message,&decodedMSG);
+
+            std::shared_ptr<VehicleOperatingParameters> ptrParameters = std::make_shared<VehicleOperatingParameters>();
+            ptrParameters->setPlatform((Arduplatforms)decodedMSG.type);
+            ptrParameters->setFlightMode(decodedMSG.custom_mode);
+            //check that something has actually changed
+            if(m_CurrentArduVehicleState == NULL || *ptrParameters != *m_CurrentArduVehicleState)
             {
-                mavlink_heartbeat_t decodedMSG;
-                mavlink_msg_heartbeat_decode(message,&decodedMSG);
-
-                std::shared_ptr<VehicleOperatingParameters> ptrParameters = std::make_shared<VehicleOperatingParameters>();
-                ptrParameters->setPlatform((Arduplatforms)decodedMSG.type);
-                ptrParameters->setFlightMode(decodedMSG.custom_mode);
-                //check that something has actually changed
-                if(m_CurrentArduVehicleState == NULL || *ptrParameters != *m_CurrentArduVehicleState)
-                {
-                    rtnVector.push_back(ptrParameters);
-                }
-
-                std::shared_ptr<VehicleOperatingStatus> ptrStatus = std::make_shared<VehicleOperatingStatus>();
-                ptrStatus->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
-                //check that something has actually changed
-                if(m_CurrentArduVehicleStatus == NULL || *ptrStatus != *m_CurrentArduVehicleStatus)
-                {
-                    rtnVector.push_back(ptrStatus);
-                }
-                break;
+                rtnVector.push_back(ptrParameters);
             }
+
+            std::shared_ptr<VehicleOperatingStatus> ptrStatus = std::make_shared<VehicleOperatingStatus>();
+            ptrStatus->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
+            //check that something has actually changed
+            if(m_CurrentArduVehicleStatus == NULL || *ptrStatus != *m_CurrentArduVehicleStatus)
+            {
+                rtnVector.push_back(ptrStatus);
+            }
+            break;
+        }
 
         case MAVLINK_MSG_ID_LOG_ENTRY:
         {
@@ -397,7 +397,10 @@ public:
         }
 
         default:
-                std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
+        {
+
+        }
+                //std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
         }
 
 

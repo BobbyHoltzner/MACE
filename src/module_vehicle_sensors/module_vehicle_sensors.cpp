@@ -73,7 +73,7 @@ void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, 
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
-        std::cout << "VehicleData topic received for vehicle: " << senderID << std::endl;
+        //std::cout << "VehicleData topic received for vehicle: " << senderID << std::endl;
     }
 }
 
