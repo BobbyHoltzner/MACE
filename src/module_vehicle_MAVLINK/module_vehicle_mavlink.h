@@ -136,11 +136,17 @@ public:
         serialSettings->AddTerminalParameters("StopBits", MaceCore::ModuleParameterTerminalTypes::INT, true);
         serialSettings->AddTerminalParameters("Parity", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
         serialSettings->AddTerminalParameters("FlowControl", MaceCore::ModuleParameterTerminalTypes::INT, true);
-        structure.AddNonTerminal("SerialParameters", serialSettings, true);
+//        structure.AddNonTerminal("SerialParameters", serialSettings, true);
+
+        std::shared_ptr<MaceCore::ModuleParameterStructure> udpSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
+        udpSettings->AddTerminalParameters("ListenAddress", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+        udpSettings->AddTerminalParameters("ListenPortNumber", MaceCore::ModuleParameterTerminalTypes::INT, true);
 
         std::shared_ptr<MaceCore::ModuleParameterStructure> protocolSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
         protocolSettings->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true, "Mavlink", {"Mavlink"});
         protocolSettings->AddTerminalParameters("Version", MaceCore::ModuleParameterTerminalTypes::STRING, true, "V1", {"V1", "V2"});
+
+        structure.AddMutuallyExclusiveNonTerminal({{"SerialParameters", serialSettings}, {"UDPParameters", udpSettings}}, false);
         structure.AddNonTerminal("ProtocolParameters", protocolSettings, true);
 
         return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
@@ -290,30 +296,31 @@ public:
         {
             std::shared_ptr<MaceCore::ModuleParameterValue> udpSettings = params->GetNonTerminalValue("UDPParameters");
 
-
-            std::string address = udpSettings->GetTerminalValue<std::string>("Address");
-            int portNumber = udpSettings->GetTerminalValue<int>("PortNumber");
+            std::string listenAddress = udpSettings->GetTerminalValue<std::string>("ListenAddress");
+            int listenPortNumber = udpSettings->GetTerminalValue<int>("ListenPortNumber");
 
             Comms::Protocols protocolToUse = Comms::Protocols::MAVLINK;
+            Comms::UdpConfiguration config(listenAddress, listenPortNumber);
 
-            Comms::UdpConfiguration config(address, portNumber);
+            // ********************************************************************************************
+            // TODO-PAT: This function is blocking while it listens for the sender port.
+            //             --Need to figure out a way to move this to a thread to execute in the background until
+            //                  a UDP connection is seen on this address and port number.
+            config.listenForPort(listenAddress, listenPortNumber);
 
-            config.setAddress(address);
-            config.setPortNumber(portNumber);
-
-            m_LinkMarshaler->AddUDPLink("udplink1", config);
-
+            std::string linkName = "udplink_" + std::to_string(listenPortNumber);
+            m_LinkMarshaler->AddUDPLink(linkName, config);
 
             //now configure to use link with desired protocol
             if(protocolToUse == Comms::Protocols::MAVLINK)
             {
-                m_LinkMarshaler->SetProtocolForLink("udplink1", Comms::Protocols::MAVLINK);
+                m_LinkMarshaler->SetProtocolForLink(linkName, Comms::Protocols::MAVLINK);
 
                 std::shared_ptr<Comms::MavlinkConfiguration> mavlinkConfig = std::static_pointer_cast<Comms::MavlinkConfiguration>(m_AvailableProtocols.at(Comms::Protocols::MAVLINK));
 
                 //set version on mavlink channel
                 // I would prefer to put this in Comms library, but because the mavlinkstatus is static variable, things get messed up when linking
-                uint8_t chan = m_LinkMarshaler->GetProtocolChannel("udplink1");
+                uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
                 mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(chan);
                 std::cout << mavlinkStatus << std::endl;
                 switch (mavlinkConfig->GetVersion()) {
@@ -333,17 +340,21 @@ public:
                 }
             }
 
+            //  TODO-PAT: Everything above this to the previous "TODO-PAT" should be moved onto a thread
+            // ********************************************************************************************
 
             //connect link
-            m_LinkMarshaler->ConnectToLink("udplink1");
+            if(m_LinkMarshaler->ConnectToLink(linkName) == false){
+                throw std::runtime_error("Connection to udp link failed");
+            }
 
 
-            //test statements that will issue a log_request_list to device
-            //uint8_t chan = m_LinkMarshler->GetProtocolChannel("udplink1");
-            //mavlink_message_t msg;
-            //mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,0,0,0,0xFFFF);
-            //m_LinkMarshler->SendMessage<mavlink_message_t>("udplink1", msg);
 
+    //        //test statements that will issue a set_mode to device (ID=1)
+    //        uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
+    //        mavlink_message_t msg;
+    //        mavlink_msg_set_mode_pack(255, 190, &msg, 1, MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 0);
+    //        m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
         }
         else
         {

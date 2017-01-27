@@ -258,25 +258,25 @@ void ModuleGroundStation::UpdateAttitudeDynamics(const std::string &vehicleID)
 
 void ModuleGroundStation::getConnectedVehicles(QByteArray &connectedVehicles)
 {
-    if(m_VehicleMap.size() > 0)
-    {
-        QJsonArray ids;
-        for (std::map<int, std::shared_ptr<VehicleObject>>::iterator it = m_VehicleMap.begin(); it != m_VehicleMap.end(); it++)
-        {
-            std::cout << "Element ID: " << it->first << std::endl;
-            ids.append(it->first);
-        }
+//    if(m_VehicleMap.size() > 0)
+//    {
+//        QJsonArray ids;
+//        for (std::map<int, std::shared_ptr<VehicleObject>>::iterator it = m_VehicleMap.begin(); it != m_VehicleMap.end(); it++)
+//        {
+//            std::cout << "Element ID: " << it->first << std::endl;
+//            ids.append(it->first);
+//        }
 
-        QJsonObject json;
-        json["dataType"] = "ConnectedVehicles";
-        json["vehicleID"] = 0;
-        json["connectedVehicles"] = ids;
+//        QJsonObject json;
+//        json["dataType"] = "ConnectedVehicles";
+//        json["vehicleID"] = 0;
+//        json["connectedVehicles"] = ids;
 
-        QJsonDocument doc(json);
-        connectedVehicles = doc.toJson();
-    }else{
-        std::cout << "The vehicle map is empty. No connected vehicles" << std::endl;
-    }
+//        QJsonDocument doc(json);
+//        connectedVehicles = doc.toJson();
+//    }else{
+//        std::cout << "The vehicle map is empty. No connected vehicles" << std::endl;
+//    }
 }
 
 void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &vehiclePosition)
