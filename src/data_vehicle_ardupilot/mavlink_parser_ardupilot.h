@@ -6,7 +6,7 @@
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
 
 #include "components/vehicle_operating_attitude.h"
-#include "components/vehicle_operating_parameters.h"
+#include "components/vehicle_flightMode.h"
 #include "components/vehicle_operating_status.h"
 
 
@@ -32,16 +32,20 @@ public:
 
         case MAVLINK_MSG_ID_HEARTBEAT:
         {
+            //might want to figure out a way to handle the case of sending an
+            //empty heartbeat back just to acknowledge the aircraft is still there
+            //then again the streaming other messages may handle this...so maybe
+            //timer should be since last time heard.
             mavlink_heartbeat_t decodedMSG;
             mavlink_msg_heartbeat_decode(message,&decodedMSG);
 
-            std::shared_ptr<VehicleOperatingParameters> ptrParameters = std::make_shared<VehicleOperatingParameters>();
-            ptrParameters->setPlatform((Arduplatforms)decodedMSG.type);
-            ptrParameters->setFlightMode(decodedMSG.custom_mode);
+            std::shared_ptr<VehicleFlightMode> ptrParameters = std::make_shared<VehicleFlightMode>();
+            ptrParameters->parseMAVLINK(decodedMSG);
             //check that something has actually changed
             if(m_CurrentArduVehicleState == NULL || *ptrParameters != *m_CurrentArduVehicleState)
             {
                 rtnVector.push_back(ptrParameters);
+                m_CurrentArduVehicleState = ptrParameters;
             }
 
             std::shared_ptr<VehicleOperatingStatus> ptrStatus = std::make_shared<VehicleOperatingStatus>();
@@ -50,6 +54,7 @@ public:
             if(m_CurrentArduVehicleStatus == NULL || *ptrStatus != *m_CurrentArduVehicleStatus)
             {
                 rtnVector.push_back(ptrStatus);
+                m_CurrentArduVehicleStatus = ptrStatus;
             }
             break;
         }
@@ -416,7 +421,7 @@ public:
 
 private:
 
-    std::shared_ptr<VehicleOperatingParameters> m_CurrentArduVehicleState;
+    std::shared_ptr<VehicleFlightMode> m_CurrentArduVehicleState;
     std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
     std::shared_ptr<VehicleOperatingAttitude> m_CurrentArduVehicleAttitude;
 

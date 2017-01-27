@@ -176,10 +176,11 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
                 std::cout << "    Vehicle Attitude: " << component->getRoll() << std::endl;
             }
-            if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleOperatingParameters::Name()) {
-                std::shared_ptr<DataVehicleArdupilot::VehicleOperatingParameters> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingParameters>();
+            if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleFlightMode::Name()) {
+                std::shared_ptr<DataVehicleArdupilot::VehicleFlightMode> component = std::make_shared<DataVehicleArdupilot::VehicleFlightMode>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "    Vehicle Type: " << (int)component->getPlatform() << std::endl;
+                std::cout << "    Vehicle Type: " << (int)component->getVehicleType() << std::endl;
+                std::cout << "    Vehicle Mode: " << (int)component->getFlightMode() << std::endl;
             }
             if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleOperatingStatus::Name()) {
                 std::shared_ptr<DataVehicleArdupilot::VehicleOperatingStatus> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingStatus>();

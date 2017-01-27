@@ -8,7 +8,6 @@
 
 #include "mace_core_global.h"
 #include "mace_data.h"
-#include "vehicle_object.h"
 
 #include "i_module_command_external_link.h"
 #include "i_module_command_ground_station.h"

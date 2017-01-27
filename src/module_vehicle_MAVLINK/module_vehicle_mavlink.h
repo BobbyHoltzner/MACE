@@ -8,7 +8,6 @@
 #include <QMap>
 
 #include "common/common.h"
-#include "generic_message_definition_mavlink.h"
 
 #include "module_vehicle_generic/module_vehicle_generic.h"
 
@@ -74,9 +73,6 @@ protected:
     typedef ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES> ModuleVehicleMavlinkBase;
 
 public:
-//    AbstractVehicleMessage* ConstructMessage();
-//    void gotInfoTest(const Data::VehicleStateData &messageData);
-//    void gotArducopterMessage(const Data::ArducopterData &messageArducopter);
 
     void vehicleObjectCheck(const int &sendersID, const int &autopilotType, const int &vehicleType) const
     {
