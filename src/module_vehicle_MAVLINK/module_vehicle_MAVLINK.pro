@@ -30,7 +30,6 @@ SOURCES += module_vehicle_mavlink.cpp \
 
 HEADERS += module_vehicle_mavlink.h\
         module_vehicle_mavlink_global.h \
-    generic_message_definition_mavlink.h \
     Vehicles/Ardupilot/ardupilot_attitude.h \
     Vehicles/Ardupilot/ardupilot_flightmode.h \
     Vehicles/Ardupilot/ardupilot_global_position.h \
@@ -93,6 +92,20 @@ else:unix: LIBS += -L$$OUT_PWD/../comms/ -lcomms
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
 else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic/release/ -ldata_vehicle_generic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic/debug/ -ldata_vehicle_generic
+else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_generic/ -ldata_vehicle_generic
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/release/ -ldata_vehicle_MAVLINK
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/debug/ -ldata_vehicle_MAVLINK
+else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/ -ldata_vehicle_MAVLINK
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_generic/release/ -lmodule_vehicle_generic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_generic/debug/ -lmodule_vehicle_generic
+else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_generic/ -lmodule_vehicle_generic
+
+
 
 
 unix{

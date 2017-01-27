@@ -13,17 +13,11 @@ DEFINES += DATA_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-SOURCES += \
-    global_position.cpp \
-    local_position.cpp \
-    positional_aid.cpp \
-    data_aid.cpp
+SOURCES +=
 
 HEADERS += data_global.h \
-    global_position.h \
-    local_position.h \
-    positional_aid.h \
-    data_aid.h
+    i_topic_component_data_object.h \
+    topic_data_object_collection.h
 
 # Unix lib Install
 unix:!symbian {

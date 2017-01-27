@@ -1,0 +1,116 @@
+#ifndef TOPIC_COMPONENT_COLLECTION_H
+#define TOPIC_COMPONENT_COLLECTION_H
+
+#include <functional>
+#include <unordered_map>
+#include <memory>
+#include <stdexcept>
+
+
+#include "i_topic_component_data_object.h"
+
+namespace Data {
+
+template <typename... Args>
+class TopicDataObjectCollection;
+
+template <>
+class TopicDataObjectCollection<>
+{
+public:
+    TopicDataObjectCollection(const std::string &name) :
+        m_TopicName(name)
+    {
+
+    }
+
+
+    MaceCore::TopicDatagram GenerateDatagram(const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &list) const
+    {
+
+    }
+
+
+    void SetComponent(std::shared_ptr<ITopicComponentDataObject> ptr, MaceCore::TopicDatagram &datagram) const {
+        //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
+        throw std::runtime_error("Unknown component passed to topic");
+    }
+
+
+    bool GetComponent(std::shared_ptr<ITopicComponentDataObject> ptr, const MaceCore::TopicDatagram &datagram) const {
+        //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
+        throw std::runtime_error("Unknown component passed to topic");
+    }
+
+
+    std::string Name() {
+        return m_TopicName;
+    }
+
+
+
+protected:
+    std::string m_TopicName;
+};
+
+
+
+template <typename T, typename... Args>
+class TopicDataObjectCollection<T, Args...> : public TopicDataObjectCollection<Args...>
+{
+public:
+    //using TopicDataObjectCollection<Args...>::SetComponent;
+    //using TopicDataObjectCollection<Args...>::GetComponent;
+
+    TopicDataObjectCollection(const std::string &topicName) :
+        TopicDataObjectCollection<Args...>(topicName),
+        m_TopicName(topicName)
+    {
+    }
+
+    std::string Name() const {
+        return m_TopicName;
+    }
+
+    void SetComponent(std::shared_ptr<ITopicComponentDataObject> ptr, MaceCore::TopicDatagram &datagram) const {
+        if(std::dynamic_pointer_cast<T>(ptr) != 0) {
+            SetComponent(std::dynamic_pointer_cast<T>(ptr), datagram);
+        }
+        else {
+            TopicDataObjectCollection<Args...>::SetComponent(ptr, datagram);
+        }
+    }
+
+
+    bool GetComponent(std::shared_ptr<ITopicComponentDataObject> ptr, const MaceCore::TopicDatagram &datagram) const {
+        if(std::dynamic_pointer_cast<T>(ptr) != 0) {
+            return GetComponent(datagram, std::dynamic_pointer_cast<T>(ptr));
+        }
+        else {
+            return TopicDataObjectCollection<Args...>::GetComponent(ptr, datagram);
+        }
+
+    }
+
+    void SetComponent(const std::shared_ptr<T> &component, MaceCore::TopicDatagram &datagram) const {
+        datagram.AddNonTerminal(T::Name(), component->GenerateDatagram());
+    }
+
+
+    bool GetComponent(const MaceCore::TopicDatagram &datagram, std::shared_ptr<T> value) const{
+        if(datagram.HasNonTerminal(T::Name()) == false) {
+            return false;
+        }
+
+        value->CreateFromDatagram(*datagram.GetNonTerminal(T::Name()));
+        return true;
+    }
+
+private:
+    std::string m_TopicName;
+
+};
+
+}
+
+#endif // TOPIC_COMPONENT_COLLECTION_H

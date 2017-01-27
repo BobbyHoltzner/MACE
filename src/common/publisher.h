@@ -9,15 +9,15 @@ class Publisher
 {
 public:
 
-    void AddSubscriber(const Subscriber* ptr)
+    void AddSubscriber(Subscriber* ptr)
     {
         m_Subscribers.push_back(ptr);
     }
 
 
-    void Emit(const std::function<void(const Subscriber *)> &func) const
+    void Emit(const std::function<void(Subscriber *)> &func) const
     {
-        for(const Subscriber *sub : m_Subscribers)
+        for(Subscriber *sub : m_Subscribers)
         {
             func(sub);
         }
@@ -25,7 +25,7 @@ public:
 
 private:
 
-    std::vector<const Subscriber*> m_Subscribers;
+    std::vector<Subscriber*> m_Subscribers;
 };
 
 #endif // PUBLISHER_H

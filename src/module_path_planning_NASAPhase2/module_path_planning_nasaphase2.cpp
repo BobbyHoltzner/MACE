@@ -30,6 +30,11 @@ void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCor
 
 }
 
+void ModulePathPlanningNASAPhase2::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
+{
+
+}
+
 
 void ModulePathPlanningNASAPhase2::NewVehicle(const std::string &ID)
 {
@@ -56,6 +61,8 @@ void ModulePathPlanningNASAPhase2::UpdatedPositionDynamics(const std::string &ve
     //This is a sample of how to get data from the map containing vehicle information
     std::string flightMode = "";
     std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+
+    /*
     std::map<int, std::shared_ptr<VehicleObject>> vehicleDataMap;
     data->GetVehicleMap(vehicleDataMap);
 
@@ -66,6 +73,7 @@ void ModulePathPlanningNASAPhase2::UpdatedPositionDynamics(const std::string &ve
         vehicleDataMap.at(1)->getVehicleMode(flightMode);
 //        std::cout<<"The vehicle flight mode is currently: "<<flightMode<<std::endl;
     }
+    */
 
 //    //This is a sample of how to get data from the map containing vehicle information
 //    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();

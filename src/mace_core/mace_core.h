@@ -8,22 +8,29 @@
 
 #include "mace_core_global.h"
 #include "mace_data.h"
-#include "vehicle_object.h"
 
-#include "i_module_command_vehicle.h"
-#include "i_module_command_RTA.h"
-#include "i_module_command_path_planning.h"
+#include "i_module_command_external_link.h"
 #include "i_module_command_ground_station.h"
+#include "i_module_command_path_planning.h"
+#include "i_module_command_RTA.h"
+#include "i_module_command_sensors.h"
+#include "i_module_command_vehicle.h"
 
-#include "i_module_events_vehicle.h"
-#include "i_module_events_rta.h"
-#include "i_module_events_path_planning.h"
 #include "i_module_events_ground_station.h"
+#include "i_module_events_path_planning.h"
+#include "i_module_events_rta.h"
+#include "i_module_events_sensors.h"
+#include "i_module_events_vehicle.h"
+
+
+#include "i_module_topic_events.h"
+
+#include "topic.h"
 
 namespace MaceCore
 {
 
-class MACE_CORESHARED_EXPORT MaceCore : public IModuleEventsVehicle, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsGroundStation
+class MACE_CORESHARED_EXPORT MaceCore : public IModuleTopicEvents, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsGroundStation
 {
 
 
@@ -45,11 +52,27 @@ public:
 
     bool VehicleCheck(const int &vehicleID);
 
-    void AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta);
+
+public: //The following functions add specific modules to connect to mace core
+
+    void AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation);
+
+    void AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink);
 
     void AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning);
 
-    void AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation);
+    void AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta);
+
+    void AddSensorsModule(const std::shared_ptr<IModuleCommandSensors> &sensors);
+
+public:
+
+    void AddTopic(const std::string &topicName, const TopicStructure &topic);
+
+
+    virtual void Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &senderIDs = {}, const std::vector<std::string> &components = {});
+
+    virtual void NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value);
 
 public:
 
@@ -57,9 +80,9 @@ public:
     /// VEHICLE EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    virtual void NewConstructedVehicle(const void* sender, const std::shared_ptr<VehicleObject> &vehicleObject);
+    //virtual void NewConstructedVehicle(const void* sender, const std::shared_ptr<VehicleObject> &vehicleObject);
 
-    virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage);
+    //virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage);
 
     virtual void NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &position, const Eigen::Vector3d &attitude);
 
@@ -146,9 +169,13 @@ private:
     int counter;
     bool insertFlag;
 
+    std::unordered_map<std::string, TopicStructure> m_Topics;
+
+    std::unordered_map<std::string, std::vector<ModuleBase*>> m_TopicNotifier;
+
     std::list<int> m_VehicleObjectRequired;
 
-    std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
+    //std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
     std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;
     std::map<IModuleCommandVehicle*, int> m_PortToVehicleID;
 
@@ -156,11 +183,13 @@ private:
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
 
 
+    std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
+    std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;
+    std::shared_ptr<IModuleCommandSensors> m_Sensors;
     std::shared_ptr<IModuleCommandRTA> m_RTA;
 
-    std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;
 
-    std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
+
 
 
     std::shared_ptr<MaceData> m_DataFusion;

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <stdexcept>
 #include <functional>
 #include <mutex>
@@ -16,7 +17,7 @@
 
 #include "matrix_operations.h"
 
-#include "vehicle_object.h"
+#include "topic.h"
 
 namespace MaceCore
 {
@@ -120,65 +121,6 @@ private:
         m_VehicleLifeHistory.erase(rn);
     }
 
-    bool AddNewVehicle(std::shared_ptr<VehicleObject> vehicleObject, int &sendersID){
-        //First let us check to see if one is already in the map with the same ID
-        std::shared_ptr<VehicleObject> tmpObject = vehicleObject;
-        sendersID = tmpObject->getVehicleID();
-
-        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
-
-        if(m_VehicleData.find(sendersID) == m_VehicleData.cend())
-        {
-            m_VehicleData.insert({sendersID,tmpObject});
-        }else{
-            std::shared_ptr<VehicleObject> currentObj = m_VehicleData[sendersID];
-            if(currentObj->getVehicleProtocol() == VP_GENERIC)
-            {
-                //Probably should get the data and update this new object from the old object
-                m_VehicleData.erase(sendersID);
-                m_VehicleData.insert({sendersID,tmpObject});
-            }else{
-            }
-//            std::cout<<"I have found an object with the information as: "<<(int)tmpObject->getVehicleID()<<std::endl;
-            return(true);
-        }
-
-
-        //VehicleObject* tmpObject = dynamic_cast<VehicleObject*>vehicleObject;
-    }
-
-    bool HandleVehicleMessage(const VehicleMessage &vehicleMessage, int &sendersID)
-    {
-        sendersID =  vehicleMessage.getDataObject()->getVehicleID();
-
-        //std::shared_ptr<VehicleObject> tmpObject = vehicleObject;
-        //int sendersID = tmpObject->getVehicleID();
-        //VehicleObject* tmpObject = dynamic_cast<VehicleObject*>vehicleObject;
-        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
-
-        if(m_VehicleData.find(sendersID) == m_VehicleData.cend())
-        {
-            std::cout << "A previous vehicle object was not found in the map with the ID of: " << sendersID << std::endl;
-            return(false);
-            //For now I think we are just going to drop this message not desirable but moving on
-
-    //        std::shared_ptr<VehicleObject> tmpObject = vehicleObject;
-    //        std::cout<<"The vehicle ID for this object is actually: "<<(int)tmpObject->getVehicleID()<<std::endl;
-    //        m_VehicleData.insert({vID,tmpObject});
-        }else{
-            std::shared_ptr<VehicleObject> tmpObject = m_VehicleData[sendersID];
-            tmpObject->handleMessage(vehicleMessage);
-            return(true);
-        }
-
-        //int seenVehicle =  vehicleMessage.getDataObject().get()->getVehicleID();
-        //std::cout<<"The vehicle id is: "<<seenVehicle<<std::endl;
-        //get the apprpriate vehicle object and update it
-        //DataArdupilot* tmpVehicle = new DataArdupilot();
-        //int ID = 1;
-        //m_VehicleData.insert({ID,tmpVehicle});
-    }
-
     void AddPositionDynamics(const std::string rn, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &velocity)
     {
         std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
@@ -238,15 +180,36 @@ private:
         m_VehicleCommandDynamicsList[vehicleID] = commands;
     }
 
+public:
+
+    void setTopicDatagram(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
+
+        if(m_LatestTopic.find(topicName) == m_LatestTopic.cend()) {
+            m_LatestTopic.insert({topicName, {}});
+        }
+        if(m_LatestTopic[topicName].find(senderID) == m_LatestTopic[topicName].cend()) {
+            m_LatestTopic[topicName].insert({senderID, TopicDatagram()});
+        }
+        m_LatestTopic[topicName][senderID].MergeDatagram(value);
+
+        std::vector<std::string> terminalNames = value.ListTerminals();
+        std::vector<std::string> nonTerminalNames = value.ListNonTerminals();
+        for(size_t i = 0 ; i < terminalNames.size() ; i++) {
+            m_LatestTopicComponentUpdateTime[topicName][senderID][terminalNames.at(i)] = time;
+        }
+        for(size_t i = 0 ; i < nonTerminalNames.size() ; i++) {
+            m_LatestTopicComponentUpdateTime[topicName][senderID][nonTerminalNames.at(i)] = time;
+        }
+    }
+
+
+    TopicDatagram GetCurrentTopicDatagram(const std::string &topicName, const int senderID) const {
+        return m_LatestTopic.at(topicName).at(senderID);
+    }
+
 
 public:
 
-
-    void GetVehicleMap(std::map<int, std::shared_ptr<VehicleObject>> &vehicleDataMap) const
-    {
-        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
-        vehicleDataMap = m_VehicleData;
-    }
 
     bool GetPositionDynamics(const std::string rn, const TIME &time, Eigen::Vector3d &pos, Eigen::Vector3d &velocity) const
     {
@@ -630,7 +593,10 @@ private:
         return true;
     }
 
-    std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
+    //std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
+
+    std::unordered_map<std::string, std::unordered_map<int, TopicDatagram>> m_LatestTopic;
+    std::unordered_map<std::string, std::unordered_map<int, std::unordered_map<std::string, TIME>>> m_LatestTopicComponentUpdateTime;
 
     uint64_t m_MSTOKEEP;
 

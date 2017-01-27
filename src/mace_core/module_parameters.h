@@ -33,7 +33,7 @@ public:
         bool success = FromString(string, value);
 
         if(success == false)
-            throw std::runtime_error("Error convering string");
+            throw std::runtime_error("Error converting string");
 
         return value;
     }
