@@ -4,8 +4,6 @@
 
 #include <functional>
 #include "vehicle_data.h"
-#include "vehicle_message.h"
-#include "vehicle_object.h"
 #include "topic.h"
 
 #include "abstract_module_base.h"

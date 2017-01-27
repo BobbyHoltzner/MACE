@@ -16,9 +16,7 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += mace_core.cpp \
     mace_data.cpp \
-    module_command_initialization.cpp \
-    vehicle_message.cpp \
-    vehicle_object.cpp
+    module_command_initialization.cpp
 
 HEADERS += mace_core.h\
         mace_core_global.h \
@@ -45,8 +43,6 @@ HEADERS += mace_core.h\
     abstract_module_base_vehicle_listener.h \
     matrix_operations.h \
     command_marshler.h \
-    vehicle_message.h \
-    vehicle_object.h \
     topic.h \
     i_module_topic_events.h \
     i_module_command_external_link.h \

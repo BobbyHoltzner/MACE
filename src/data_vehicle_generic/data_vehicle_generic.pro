@@ -28,7 +28,8 @@ HEADERS +=\
     global_velocity.h \
     coordinate_frame.h \
     components.h \
-    attitude.h
+    attitude.h \
+    vehicle_types.h
 
 
 

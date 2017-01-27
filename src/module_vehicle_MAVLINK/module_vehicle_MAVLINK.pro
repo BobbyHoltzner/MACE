@@ -30,7 +30,6 @@ SOURCES += module_vehicle_mavlink.cpp \
 
 HEADERS += module_vehicle_mavlink.h\
         module_vehicle_mavlink_global.h \
-    generic_message_definition_mavlink.h \
     Vehicles/Ardupilot/ardupilot_attitude.h \
     Vehicles/Ardupilot/ardupilot_flightmode.h \
     Vehicles/Ardupilot/ardupilot_global_position.h \
