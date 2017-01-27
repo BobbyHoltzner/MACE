@@ -3,7 +3,7 @@
 #include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
-    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>()
+    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),m_CommandVehicleTopic("commandData")
 {
 }
 
@@ -14,6 +14,7 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 //!
 void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
+    ptr->Subscribe(this, m_CommandVehicleTopic.Name());
 }
 
 
@@ -51,5 +52,24 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 
 void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
+    if(topicName == m_CommandVehicleTopic.Name())
+    {
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_CommandVehicleTopic.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+            if(componentsUpdated.at(i) == DataVehicleCommands::CommandVehicleMode::Name()) {
+                std::shared_ptr<DataVehicleCommands::CommandVehicleMode> component = std::make_shared<DataVehicleCommands::CommandVehicleMode>();
+                m_CommandVehicleTopic.GetComponent(component, read_topicDatagram);
+                //should find a better way to do this
+                if(m_ArduPilotMAVLINKParser.heartbeatUpdated())
+                {
+                    int newMode = m_ArduPilotMAVLINKParser.getFlightModeFromString(component->getVehicleRequestMode());
+                    uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
+                    mavlink_message_t msg;
+                    mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,1,newMode,0);
+                    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+                }
 
+            }
+        }
+    }
 }

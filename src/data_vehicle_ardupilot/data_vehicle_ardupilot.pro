@@ -27,6 +27,12 @@ HEADERS +=\
     components/vehicle_operating_attitude.h \
     components/vehicle_flightMode.h
 
+# Unix lib Install
+unix:!symbian {
+    target.path = $$(MACE_ROOT)/lib
+    INSTALLS += target
+}
+
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib
 win32:CONFIG(release, debug|release):       lib.files   += release/data_vehicle_ardupilot.lib release/data_vehicle_ardupilot.dll
