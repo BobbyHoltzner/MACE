@@ -25,14 +25,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += data_vehicle_commands.cpp \
-    actionCommandComponents/command_vehicle_mode.cpp
+    actionCommandComponents/command_vehicle_mode.cpp \
+    actionCommandComponents/command_vehicle_takeoff.cpp \
+    actionCommandComponents/command_vehicle_land.cpp
 
 HEADERS += data_vehicle_commands.h\
         data_vehicle_commands_global.h \
     command_types.h \
     missionCommandComponents/command_typesN.h \
     actionCommandComponents/command_vehicle_mode.h \
-    action_command_components.h
+    action_command_components.h \
+    actionCommandComponents/command_vehicle_takeoff.h \
+    actionCommandComponents/command_vehicle_land.h
 
 # Unix lib Install
 unix:!symbian {
@@ -58,7 +62,10 @@ INSTALLS       += headers
 #Header file copy
 headers_actionComponents.path    = $$(MACE_ROOT)/include/data_vehicle_commands/actionCommandComponents
 headers_actionComponents.files   += \
-        actionCommandComponents/command_vehicle_mode.h
+        actionCommandComponents/command_vehicle_mode.h \
+        actionCommandComponents/command_vehicle_takeoff.h \
+        actionCommandComponents/command_vehicle_land.h
+
 
 INSTALLS       += headers_actionComponents
 
@@ -74,3 +81,6 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ 
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
 else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic/release/ -ldata_vehicle_generic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic/debug/ -ldata_vehicle_generic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_generic/ -ldata_vehicle_generic
