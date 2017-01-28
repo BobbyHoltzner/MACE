@@ -65,7 +65,7 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
                     int newMode = m_ArduPilotMAVLINKParser.getFlightModeFromString(component->getVehicleRequestMode());
                     uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
                     mavlink_message_t msg;
-                    mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,1,newMode,0);
+                    mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,1,MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,newMode);
                     m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
                 }
 
