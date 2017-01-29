@@ -5,21 +5,20 @@
 
 namespace DataVehicleCommands {
 
-enum class MissionItemTypes{
+enum class MissionCommandTypes{
     LAND,
     TAKEOFF,
-    WAYPOINT,
-    GENERAL
+    WAYPOINT
 };
 
-class GeneralMissionItem
+class AbstractMissionCommand
 {
 public:
-    virtual CommandTypes getCommandType() const;
+    virtual CommandTypes getCommandType() const = 0;
 
-    virtual MissionItemTypes getMissionType() const;
+    virtual MissionCommandTypes getMissionType() const = 0;
 
-    virtual std::string getDescription() const;
+    virtual std::string getDescription() const = 0;
 };
 
 } //end of namespace DataVehicleCommands

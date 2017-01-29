@@ -24,29 +24,31 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES += data_vehicle_commands.cpp \
+SOURCES += \
     actionCommandComponents/command_vehicle_mode.cpp \
     actionCommandComponents/command_vehicle_takeoff.cpp \
     actionCommandComponents/command_vehicle_land.cpp \
-    general_mission_item.cpp \
-    mission_item_topic.cpp \
-    general_action_item.cpp \
-    action_item_topic.cpp
+    action_command_topic.cpp \
+    mission_list_topic.cpp \
+    missionCommandComponents/command_mission_list.cpp \
+    mission_command_topic.cpp \
+    missionCommandComponents/command_mission_waypoint.cpp
 
-HEADERS += data_vehicle_commands.h\
+HEADERS +=\
         data_vehicle_commands_global.h \
     command_types.h \
-    missionCommandComponents/command_typesN.h \
     actionCommandComponents/command_vehicle_mode.h \
-    action_command_components.h \
     actionCommandComponents/command_vehicle_takeoff.h \
     actionCommandComponents/command_vehicle_land.h \
-    general_mission_item.h \
-    mission_item_topic.h \
-    general_action_item.h \
-    action_item_topic.h \
     mission_components.h \
-    action_components.h
+    action_components.h \
+    abstract_action_command.h \
+    abstract_mission_command.h \
+    action_command_topic.h \
+    mission_list_topic.h \
+    missionCommandComponents/command_mission_list.h \
+    mission_command_topic.h \
+    missionCommandComponents/command_mission_waypoint.h
 
 # Unix lib Install
 unix:!symbian {

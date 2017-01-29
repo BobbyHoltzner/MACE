@@ -11,8 +11,6 @@
 #include "data_vehicle_MAVLINK/components.h"
 #include "data_vehicle_ardupilot/components.h"
 
-#include "data_vehicle_commands/action_command_components.h"
-
 #include "mace_core/i_module_command_external_link.h"
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink : public MaceCore::IModuleCommandExternalLink
@@ -43,7 +41,6 @@ public:
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
 private:
-    Data::TopicDataObjectCollection<DATA_VEHICLE_COMMANDS_ACTION> m_CommandVehicleTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;
 };
 

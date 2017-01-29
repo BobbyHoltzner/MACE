@@ -2,7 +2,7 @@
 
 
 ModuleExternalLink::ModuleExternalLink() :
-    m_VehicleDataTopic("vehicleData"), m_CommandVehicleTopic("commandData")
+    m_VehicleDataTopic("vehicleData")
 {
 }
 
@@ -13,7 +13,7 @@ ModuleExternalLink::ModuleExternalLink() :
 void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
-    ptr->Subscribe(this, m_CommandVehicleTopic.Name());
+    //ptr->Subscribe(this, m_CommandVehicleTopic.Name());
 }
 
 //!
@@ -66,17 +66,6 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
                 //std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
             }
-        }
-    }else if(topicName == m_CommandVehicleTopic.Name())
-    {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_CommandVehicleTopic.Name(), senderID);
-        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-//            if(componentsUpdated.at(i) == DataVehicleCommands::CommandVehicleMode::Name()) {
-//                std::shared_ptr<DataVehicleCommands::CommandVehicleMode> component = std::make_shared<DataVehicleCommands::CommandVehicleMode>();
-//                m_CommandVehicleTopic.GetComponent(component, read_topicDatagram);
-
-//                //std::cout << "    Vehicle Attitude: " << component->getRoll() << std::endl;
-//            }
         }
     }
 }

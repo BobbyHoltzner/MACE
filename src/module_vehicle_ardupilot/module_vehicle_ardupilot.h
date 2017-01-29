@@ -32,12 +32,16 @@ public:
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
-
     //!
     //! \brief This module as been attached as a module
     //! \param ptr pointer to object that attached this instance to itself
     //!
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
+
+public:
+    void HandleCommandTopic();
+
+    void HandleMissionTopic();
 
 private:
     Data::TopicDataObjectCollection<DATA_VEHICLE_ACTION_COMMAND_TYPES> m_CommandVehicleTopic;

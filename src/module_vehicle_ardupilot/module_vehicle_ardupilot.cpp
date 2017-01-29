@@ -56,15 +56,13 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_CommandVehicleTopic.Name(), senderID);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == DataVehicleCommands::ActionItemTopic::Name()) {
-                std::shared_ptr<DataVehicleCommands::ActionItemTopic> component = std::make_shared<DataVehicleCommands::ActionItemTopic>();
+            if(componentsUpdated.at(i) == DataVehicleCommands::ActionCommandTopic::Name()) {
+                std::shared_ptr<DataVehicleCommands::ActionCommandTopic> component = std::make_shared<DataVehicleCommands::ActionCommandTopic>();
                 m_CommandVehicleTopic.GetComponent(component, read_topicDatagram);             
                 switch(component->getActionItemType())
                 {
-                case(DataVehicleCommands::ActionItemTypes::CHANGE_MODE):
+                case(DataVehicleCommands::ActionCommandTypes::CHANGE_MODE):
                 {
-
-                    //const DataVehicleCommands::CommandVehicleMode tmpChangeMode = dynamic_cast<DataVehicleCommands::CommandVehicleMode&>(component->getActionItem());
                     //should find a better way to do this
                     if(m_ArduPilotMAVLINKParser.heartbeatUpdated())
                     {
@@ -78,9 +76,6 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
                     break;
                 }
                 }
-
-
-
             }
         }
     }

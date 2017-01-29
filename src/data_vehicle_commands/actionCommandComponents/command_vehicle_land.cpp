@@ -1,6 +1,22 @@
 #include "command_vehicle_land.h"
 
 namespace DataVehicleCommands {
+
+CommandTypes CommandVehicleLand::getCommandType() const
+{
+    return CommandTypes::ACTION;
+}
+
+ActionCommandTypes CommandVehicleLand::getActionItemType() const
+{
+    return ActionCommandTypes::LAND;
+}
+
+std::string CommandVehicleLand::getDescription() const
+{
+    return "This will command the aircraft to land.";
+}
+
 template<>
 CommandVehicleLand<DataVehicleGeneric::GlobalPosition>::CommandVehicleLand(){
     m_PositionFrame = DataVehicleGeneric::PositionFrame::GLOBAL;

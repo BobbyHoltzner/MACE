@@ -78,7 +78,7 @@ void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, 
         //DataVehicleCommands::CommandVehicleMode newVehicleMode;
         //newVehicleMode.setRequestMode("AUTO");
 
-        std::shared_ptr<DataVehicleCommands::ActionItemTopic> cmdPtr = std::make_shared<DataVehicleCommands::ActionItemTopic>();
+        std::shared_ptr<DataVehicleCommands::ActionCommandTopic> cmdPtr = std::make_shared<DataVehicleCommands::ActionCommandTopic>();
         cmdPtr->setActionItem(newVehicleMode);
 //        //proceed to send components only if there is 1 or more
 //            //construct datagram
