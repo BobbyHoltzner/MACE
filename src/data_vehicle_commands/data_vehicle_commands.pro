@@ -42,10 +42,11 @@ HEADERS += data_vehicle_commands.h\
     actionCommandComponents/command_vehicle_takeoff.h \
     actionCommandComponents/command_vehicle_land.h \
     general_mission_item.h \
-    mission_item_types.h \
     mission_item_topic.h \
     general_action_item.h \
-    action_item_topic.h
+    action_item_topic.h \
+    mission_components.h \
+    action_components.h
 
 # Unix lib Install
 unix:!symbian {
@@ -65,7 +66,13 @@ headers.files   += \
         action_command_components.h \
         command_types.h \
         data_vehicle_commands.h \
-        data_vehicle_commands_global.h
+        data_vehicle_commands_global.h \
+        general_mission_item.h \
+        mission_item_topic.h \
+        general_action_item.h \
+        action_item_topic.h \
+        mission_components.h \
+        action_components.h
 INSTALLS       += headers
 
 #Header file copy

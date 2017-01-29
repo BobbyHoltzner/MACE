@@ -2,30 +2,19 @@
 
 namespace DataVehicleCommands {
 
-const char CommandVehicleMode_Name[] = "CommandVehicleMode";
-const MaceCore::TopicComponentStructure CommandVehicleMode_Structure = []{
-    MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<std::string>("mode");
-    return structure;
-}();
-
-MaceCore::TopicDatagram CommandVehicleMode::GenerateDatagram() const {
-    MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<std::string>("mode", m_CommandVehicleMode);
-    return datagram;
-}
-
-void CommandVehicleMode::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    m_CommandVehicleMode = datagram.GetTerminal<std::string>("mode");
-}
-DataVehicleCommands::CommandTypes CommandVehicleMode::getCommandType()
+CommandTypes CommandVehicleMode::getCommandType() const
 {
-    return DataVehicleCommands::CommandTypes::ACTION;
+    return CommandTypes::ACTION;
 }
 
-DataVehicleCommands::MissionItemType CommandVehicleMode::getMissionType()
+ActionItemTypes CommandVehicleMode::getActionItemType() const
 {
-    return DataMissionItem::MissionItemType::
+    return ActionItemTypes::CHANGE_MODE;
+}
+
+std::string CommandVehicleMode::getDescription() const
+{
+    return "This will change the mode of the aircraft";
 }
 
 }

@@ -13,6 +13,7 @@
 
 #include "data_vehicle_commands/action_command_components.h"
 
+#include "data_vehicle_commands/action_components.h"
 
 
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
@@ -39,7 +40,7 @@ public:
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
 
 private:
-    Data::TopicDataObjectCollection<DATA_VEHICLE_COMMANDS_ACTION> m_CommandVehicleTopic;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_ACTION_COMMAND_TYPES> m_CommandVehicleTopic;
 
 private:
     DataVehicleArdupilot::MAVLINKParserArduPilot m_ArduPilotMAVLINKParser;

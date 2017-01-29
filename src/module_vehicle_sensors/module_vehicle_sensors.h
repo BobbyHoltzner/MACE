@@ -13,7 +13,8 @@
 #include "data_vehicle_sensors/components.h"
 #include "mace_core/i_module_command_sensors.h"
 
-#include "data_vehicle_commands/action_command_components.h"
+//#include "data_vehicle_commands/action_command_components.h"
+#include "data_vehicle_commands/action_components.h"
 
 #include "data_vehicle_generic/components.h"
 
@@ -48,7 +49,7 @@ public:
 
 private:
 
-    Data::TopicDataObjectCollection<DATA_VEHICLE_COMMANDS_ACTION> m_CommandVehicleTopic;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_ACTION_COMMAND_TYPES> m_CommandVehicleTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;
 

@@ -2,12 +2,12 @@
 
 namespace DataVehicleCommands {
 template<>
-void CommandVehicleLand<DataVehicleGeneric::GlobalPosition>::CommandVehicleLand(){
+CommandVehicleLand<DataVehicleGeneric::GlobalPosition>::CommandVehicleLand(){
     m_PositionFrame = DataVehicleGeneric::PositionFrame::GLOBAL;
 }
 
 template<>
-void CommandVehicleLand<DataVehicleGeneric::LocalPosition>::CommandVehicleLand(){
+CommandVehicleLand<DataVehicleGeneric::LocalPosition>::CommandVehicleLand(){
     m_PositionFrame = DataVehicleGeneric::PositionFrame::LOCAL;
 }
 

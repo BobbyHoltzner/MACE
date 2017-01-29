@@ -14,7 +14,7 @@ enum class CommandTypes{
 };
 
 inline std::string CommandTypeToString(const CommandTypes &cmdType) {
-    switch (frame) {
+    switch (cmdType) {
     case CommandTypes::ACTION:
         return "ACTION";
     case CommandTypes::MISSION:

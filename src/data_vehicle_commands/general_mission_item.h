@@ -2,22 +2,24 @@
 #define GENERAL_MISSION_ITEM_H
 
 #include "command_types.h"
-#include "mission_item_types.h"
 
 namespace DataVehicleCommands {
+
+enum class MissionItemTypes{
+    LAND,
+    TAKEOFF,
+    WAYPOINT,
+    GENERAL
+};
 
 class GeneralMissionItem
 {
 public:
-    GeneralMissionItem();
+    virtual CommandTypes getCommandType() const;
 
-    virtual ~GeneralMissionItem();
+    virtual MissionItemTypes getMissionType() const;
 
-    virtual CommandTypes getCommandType() const = 0;
-
-    virtual MissionItemTypes getMissionType() const = 0;
-
-    virtual std::string getDescription() const = 0;
+    virtual std::string getDescription() const;
 };
 
 } //end of namespace DataVehicleCommands

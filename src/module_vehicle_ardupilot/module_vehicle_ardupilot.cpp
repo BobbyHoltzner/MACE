@@ -56,18 +56,30 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_CommandVehicleTopic.Name(), senderID);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == DataVehicleCommands::CommandVehicleMode::Name()) {
-                std::shared_ptr<DataVehicleCommands::CommandVehicleMode> component = std::make_shared<DataVehicleCommands::CommandVehicleMode>();
-                m_CommandVehicleTopic.GetComponent(component, read_topicDatagram);
-                //should find a better way to do this
-                if(m_ArduPilotMAVLINKParser.heartbeatUpdated())
+            if(componentsUpdated.at(i) == DataVehicleCommands::ActionItemTopic::Name()) {
+                std::shared_ptr<DataVehicleCommands::ActionItemTopic> component = std::make_shared<DataVehicleCommands::ActionItemTopic>();
+                m_CommandVehicleTopic.GetComponent(component, read_topicDatagram);             
+                switch(component->getActionItemType())
                 {
-                    int newMode = m_ArduPilotMAVLINKParser.getFlightModeFromString(component->getVehicleRequestMode());
-                    uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
-                    mavlink_message_t msg;
-                    mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,1,MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,newMode);
-                    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+                case(DataVehicleCommands::ActionItemTypes::CHANGE_MODE):
+                {
+
+                    //const DataVehicleCommands::CommandVehicleMode tmpChangeMode = dynamic_cast<DataVehicleCommands::CommandVehicleMode&>(component->getActionItem());
+                    //should find a better way to do this
+                    if(m_ArduPilotMAVLINKParser.heartbeatUpdated())
+                    {
+                        DataVehicleCommands::CommandVehicleMode* cmdMode = (DataVehicleCommands::CommandVehicleMode*)component->getActionItem().get();
+                        int newMode = m_ArduPilotMAVLINKParser.getFlightModeFromString(cmdMode->getRequestMode());
+                        uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
+                        mavlink_message_t msg;
+                        mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,1,MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,newMode);
+                        m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+                    }
+                    break;
                 }
+                }
+
+
 
             }
         }
