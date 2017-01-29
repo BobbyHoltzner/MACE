@@ -2,7 +2,7 @@
 
 namespace DataVehicleCommands {
 
-const char MissionItemTopic_Name[] = "CommandVehicleLand";
+const char MissionItemTopic_Name[] = "MissionItemTopic";
 
 const MaceCore::TopicComponentStructure MissionItemTopic_Structure = []{
     MaceCore::TopicComponentStructure structure;

@@ -1,17 +1,17 @@
-#ifndef GENERAL_MISSION_ITEM_H
-#define GENERAL_MISSION_ITEM_H
+#ifndef GENERAL_ACTION_ITEM_H
+#define GENERAL_ACTION_ITEM_H
 
 #include "command_types.h"
 #include "mission_item_types.h"
 
 namespace DataVehicleCommands {
 
-class GeneralMissionItem
+class GeneralActionItem
 {
 public:
-    GeneralMissionItem();
+    GeneralActionItem();
 
-    virtual ~GeneralMissionItem();
+    virtual ~GeneralActionItem();
 
     virtual CommandTypes getCommandType() const = 0;
 
@@ -22,4 +22,4 @@ public:
 
 } //end of namespace DataVehicleCommands
 
-#endif // GENERAL_MISSION_ITEM_H
+#endif // GENERAL_ACTION_ITEM_H
