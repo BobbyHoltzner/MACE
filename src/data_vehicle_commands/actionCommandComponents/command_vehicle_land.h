@@ -6,21 +6,23 @@
 #include "data_vehicle_generic/global_position.h"
 #include "data_vehicle_generic/local_position.h"
 
-#include "data/i_topic_component_data_object.h"
+#include "general_mission_item.h"
+#include "data_vehicle_generic/coordinate_frame.h"
 
 namespace DataVehicleCommands {
 
-extern const char CommandVehicleLand_Name[];
-extern const MaceCore::TopicComponentStructure CommandVehicleLand_Structure;
-
 template<class T>
-class CommandVehicleLand : public Data::NamedTopicComponentDataObject<CommandVehicleLand_Name, &CommandVehicleLand_Structure>
+class CommandVehicleLand : public GeneralMissionItem
 {
 public:
-    virtual MaceCore::TopicDatagram GenerateDatagram() const;
-    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
+    CommandVehicleLand();
 
 public:
+
+    DataVehicleGeneric::PositionFrame getLocationType(){
+        return m_PositionFrame;
+    }
+
     void setLocation(const T &location);
     T getLocation();
 
@@ -33,6 +35,7 @@ public:
     }
 
 private:
+    DataVehicleGeneric::PositionFrame m_PositionFrame;
     T m_Location;
     double m_yawAngle;
 

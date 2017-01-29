@@ -5,6 +5,8 @@
 
 #include "data/i_topic_component_data_object.h"
 
+#include "general_mission_item.h"
+
 namespace DataVehicleCommands {
 
 extern const char CommandVehicleMode_Name[];

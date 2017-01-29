@@ -27,7 +27,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += data_vehicle_commands.cpp \
     actionCommandComponents/command_vehicle_mode.cpp \
     actionCommandComponents/command_vehicle_takeoff.cpp \
-    actionCommandComponents/command_vehicle_land.cpp
+    actionCommandComponents/command_vehicle_land.cpp \
+    general_mission_item.cpp \
+    mission_item_topic.cpp
 
 HEADERS += data_vehicle_commands.h\
         data_vehicle_commands_global.h \
@@ -36,7 +38,10 @@ HEADERS += data_vehicle_commands.h\
     actionCommandComponents/command_vehicle_mode.h \
     action_command_components.h \
     actionCommandComponents/command_vehicle_takeoff.h \
-    actionCommandComponents/command_vehicle_land.h
+    actionCommandComponents/command_vehicle_land.h \
+    general_mission_item.h \
+    mission_item_types.h \
+    mission_item_topic.h
 
 # Unix lib Install
 unix:!symbian {

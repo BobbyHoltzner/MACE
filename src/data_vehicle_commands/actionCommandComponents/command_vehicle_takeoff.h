@@ -6,19 +6,16 @@
 #include "data_vehicle_generic/global_position.h"
 #include "data_vehicle_generic/local_position.h"
 
+#include "general_mission_item.h"
+
 #include "data/i_topic_component_data_object.h"
 
 namespace DataVehicleCommands {
 
-extern const char CommandVehicleTakeoff_Name[];
-extern const MaceCore::TopicComponentStructure CommandVehicleTakeoff_Structure;
-
 template<class T>
-class CommandVehicleTakeoff : public Data::NamedTopicComponentDataObject<CommandVehicleTakeoff_Name, &CommandVehicleTakeoff_Structure>
+class CommandVehicleTakeoff :public GeneralMissionItem
 {
 public:
-    virtual MaceCore::TopicDatagram GenerateDatagram() const;
-    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
 public:
     void setLocation(const T &location);

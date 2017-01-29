@@ -18,6 +18,15 @@ MaceCore::TopicDatagram CommandVehicleMode::GenerateDatagram() const {
 void CommandVehicleMode::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
     m_CommandVehicleMode = datagram.GetTerminal<std::string>("mode");
 }
+DataVehicleCommands::CommandTypes CommandVehicleMode::getCommandType()
+{
+    return DataVehicleCommands::CommandTypes::ACTION;
+}
+
+DataVehicleCommands::MissionItemType CommandVehicleMode::getMissionType()
+{
+    return DataMissionItem::MissionItemType::
+}
 
 }
 
