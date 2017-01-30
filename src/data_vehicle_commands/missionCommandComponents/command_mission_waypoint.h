@@ -27,6 +27,7 @@ public:
     }
 
     void setLocation(const T &location);
+    void setLocation(const double &latitude, const double &longitude, const double &altitude);
     T getLocation();
 
 private:

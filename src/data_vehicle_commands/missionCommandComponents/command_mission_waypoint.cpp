@@ -36,6 +36,15 @@ namespace DataVehicleCommands {
         m_Location.longitude = location.longitude;
         m_Location.altitude = location.altitude;
     }
+
+    template <>
+    void CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>::setLocation(const double &latitude, const double &longitude, const double &altitude)
+    {
+        m_Location.latitude = latitude;
+        m_Location.longitude = longitude;
+        //fix the altitude component
+    }
+
     template <>
     void CommandMissionWaypoint<DataVehicleGeneric::LocalPosition>::setLocation(const DataVehicleGeneric::LocalPosition &location)
     {

@@ -3,7 +3,7 @@
 #include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
-    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),m_CommandVehicleTopic("commandData")
+    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),m_CommandVehicleTopic("commandData"),m_CommandVehicleMissionList("vehicleMissionList")
 {
 }
 
@@ -15,6 +15,8 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
     ptr->Subscribe(this, m_CommandVehicleTopic.Name());
+    ptr->Subscribe(this, m_CommandVehicleMissionList.Name());
+
 }
 
 
@@ -80,6 +82,17 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
                     break;
                 }
                 }
+            }
+        }
+    } else if(topicName == m_CommandVehicleMissionList.Name())
+    {
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_CommandVehicleMissionList.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+            if(componentsUpdated.at(i) == DataVehicleCommands::VehicleMissionList::Name()) {
+                std::shared_ptr<DataVehicleCommands::VehicleMissionList> component = std::make_shared<DataVehicleCommands::VehicleMissionList>();
+                std::cout<<"The before"<<std::endl;
+                m_CommandVehicleMissionList.GetComponent(component, read_topicDatagram);
+                std::cout<<"The after"<<std::endl;
             }
         }
     }

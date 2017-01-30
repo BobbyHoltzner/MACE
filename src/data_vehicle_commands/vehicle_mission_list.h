@@ -22,7 +22,7 @@ public:
     VehicleMissionList();
 
     //void setMissionList(const std::shared_ptr<std::list<AbstractMissionCommand>> &missionList);
-    //std::shared_ptr<std::list<AbstractMissionCommand> > getMissionList();
+    std::list<AbstractMissionCommand*> getMissionList();
 
     void setMissionName(const std::string &name)
     {
@@ -33,7 +33,7 @@ public:
         return missionName;
     }
 
-    void appendCommand(const AbstractMissionCommand &missionCommand);
+    void appendCommand(AbstractMissionCommand *missionCommand);
 
     void removeCommand(const int &index);
 
@@ -44,7 +44,7 @@ private:
     std::string missionName;
     double missionLength;
     double missionDuration;
-    std::list<std::shared_ptr<AbstractMissionCommand>> missionList;
+    std::list<AbstractMissionCommand*> missionList;
     //std::shared_ptr<std::list<AbstractMissionCommand>> missionList;
 
 };

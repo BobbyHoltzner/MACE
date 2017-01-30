@@ -43,6 +43,8 @@ public:
 
 private:
     Data::TopicDataObjectCollection<DATA_VEHICLE_ACTION_COMMAND_TYPES> m_CommandVehicleTopic;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_MISSION_LIST> m_CommandVehicleMissionList;
+
 
 private:
     DataVehicleArdupilot::MAVLINKParserArduPilot m_ArduPilotMAVLINKParser;
