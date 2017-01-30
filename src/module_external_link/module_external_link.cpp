@@ -13,6 +13,7 @@ ModuleExternalLink::ModuleExternalLink() :
 void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
+    //ptr->Subscribe(this, m_CommandVehicleTopic.Name());
 }
 
 //!
@@ -46,7 +47,6 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
 
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            std::cout << "  " << componentsUpdated.at(i) << std::endl;
             if(componentsUpdated.at(i) == DataVehicleGeneric::Attitude::Name()) {
                 std::shared_ptr<DataVehicleGeneric::Attitude> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingAttitude>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);

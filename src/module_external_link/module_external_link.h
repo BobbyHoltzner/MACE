@@ -41,7 +41,6 @@ public:
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
 private:
-
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;
 };
 

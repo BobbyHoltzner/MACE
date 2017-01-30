@@ -1,7 +1,7 @@
 #include "module_vehicle_sensors.h"
 
 ModuleVehicleSensors::ModuleVehicleSensors():
-    m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData")
+    m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData"), m_CommandVehicleTopic("commandData"), m_CommandVehicleMissionList("vehicleMissionList")
 {
 
 }
@@ -73,6 +73,40 @@ void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, 
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
+        DataVehicleCommands::CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>* newWP = new DataVehicleCommands::CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>();
+        newWP->setLocation(35.7470021,-78.8395026,0.0);
+        //newWP->setLocation(35.7463033,-78.8386631,0.0);
+        //newWP->setLocation(35.7459724,-78.8390923,0.0);
+        //newWP->setLocation(35.7466538,-78.8399184,0.0);
+
+        //Example of a setWP
+
+        std::shared_ptr<DataVehicleCommands::VehicleMissionList> newVehicleList = std::make_shared<DataVehicleCommands::VehicleMissionList>();
+        newVehicleList->appendCommand(newWP);
+
+        MaceCore::TopicDatagram topicDatagram;
+        ModuleVehicleSensors::m_CommandVehicleMissionList.SetComponent(newVehicleList, topicDatagram);
+
+        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(ModuleVehicleSensors::m_CommandVehicleMissionList.Name(), 1, MaceCore::TIME(), topicDatagram);
+        });
+
+        //Example of a change mode
+
+        std::shared_ptr<DataVehicleCommands::CommandVehicleMode> newVehicleMode = std::make_shared<DataVehicleCommands::CommandVehicleMode>();
+        newVehicleMode->setRequestMode("AUTO");
+
+        std::shared_ptr<DataVehicleCommands::ActionCommandTopic> cmdPtr = std::make_shared<DataVehicleCommands::ActionCommandTopic>();
+        cmdPtr->setActionItem(newVehicleMode);
+//        //proceed to send components only if there is 1 or more
+//            //construct datagram
+            ModuleVehicleSensors::m_CommandVehicleTopic.SetComponent(cmdPtr, topicDatagram);
+
+//            //notify listneres of topic
+            ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
+                ptr->NewTopicDataValues(ModuleVehicleSensors::m_CommandVehicleTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+            });
+
         //std::cout << "VehicleData topic received for vehicle: " << senderID << std::endl;
     }
 }

@@ -1,6 +1,8 @@
 #ifndef MODULE_VEHICLE_ARDUPILOT_H
 #define MODULE_VEHICLE_ARDUPILOT_H
 
+#include <mavlink.h>
+
 #include "module_vehicle_ardupilot_global.h"
 
 #include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
@@ -8,6 +10,9 @@
 #include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
 
 #include "data_vehicle_ardupilot/components.h"
+#include "data_vehicle_commands/action_components.h"
+#include "data_vehicle_commands/mission_components.h"
+
 
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
 {
@@ -25,15 +30,23 @@ public:
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
-
     //!
     //! \brief This module as been attached as a module
     //! \param ptr pointer to object that attached this instance to itself
     //!
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
 
-private:
+public:
+    void HandleCommandTopic();
 
+    void HandleMissionTopic();
+
+private:
+    Data::TopicDataObjectCollection<DATA_VEHICLE_ACTION_COMMAND_TYPES> m_CommandVehicleTopic;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_MISSION_LIST> m_CommandVehicleMissionList;
+
+
+private:
     DataVehicleArdupilot::MAVLINKParserArduPilot m_ArduPilotMAVLINKParser;
 };
 

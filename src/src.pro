@@ -17,4 +17,5 @@ SUBDIRS += \
     module_vehicle_ardupilot \
     module_external_link\
     module_vehicle_sensors \
-    data_vehicle_sensors
+    data_vehicle_sensors \
+    data_vehicle_commands

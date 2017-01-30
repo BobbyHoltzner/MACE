@@ -94,6 +94,8 @@ public:
         return (m_FlightMode);
     }
 
+    int getFlightMode(const std::string &flightMode);
+
     void getAvailableFlightModes(const VehicleTypes &vehicleType, std::map<int, std::string> &availableFM);
 
 
@@ -157,7 +159,7 @@ private:
                                                {(int)Arduplane_FM::APFM_UNKNOWN,"UNKNOWN"}};
 private:
 
-    uint32_t m_FlightMode;
+    int m_FlightMode;
     VehicleTypes m_VehicleType;
 
 };

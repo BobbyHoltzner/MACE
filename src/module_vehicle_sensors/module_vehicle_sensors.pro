@@ -71,6 +71,10 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generi
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic/debug/ -ldata_vehicle_generic
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_generic/ -ldata_vehicle_generic
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_commands/release/ -ldata_vehicle_commands
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_commands/debug/ -ldata_vehicle_commands
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_commands/ -ldata_vehicle_commands
+
 unix{
     EigenInclude = $$system(pkg-config --cflags eigen3)
     EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
@@ -79,3 +83,4 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
+
