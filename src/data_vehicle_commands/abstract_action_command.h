@@ -6,8 +6,10 @@
 namespace DataVehicleCommands {
 
 enum class ActionCommandTypes{
+    ARM,
     CHANGE_MODE,
     LAND,
+    RTL,
     TAKEOFF
 };
 
@@ -23,10 +25,14 @@ public:
 
     inline std::string CommandActionTypeToString(const ActionCommandTypes &cmdType) {
         switch (frame) {
+        case ActionCommandTypes::ARM:
+            return "ARM";
         case ActionCommandTypes::CHANGE_MODE:
             return "CHANGE_MODE";
         case ActionCommandTypes::LAND:
             return "LAND";
+        case ActionCommandTypes::RTL:
+            return "RTL";
         case ActionCommandTypes::TAKEOFF:
             return "TAKEOFF";
         default:
@@ -35,10 +41,14 @@ public:
     }
 
     inline CommandTypes CommandActionTypeFromString(const std::string &str) {
+        if(str == "ARM")
+            return ActionCommandTypes::ARM;
         if(str == "CHANGE_MODE")
             return ActionCommandTypes::CHANGE_MODE;
         if(str == "LAND")
             return ActionCommandTypes::LAND;
+        if(str == "RTL")
+            return ActionCommandTypes::RTL;
         if(str == "TAKEOFF")
             return ActionCommandTypes::TAKEOFF;
         throw std::runtime_error("Unknown action command type seen");

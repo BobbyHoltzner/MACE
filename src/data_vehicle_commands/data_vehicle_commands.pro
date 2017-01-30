@@ -29,10 +29,11 @@ SOURCES += \
     actionCommandComponents/command_vehicle_takeoff.cpp \
     actionCommandComponents/command_vehicle_land.cpp \
     action_command_topic.cpp \
-    mission_list_topic.cpp \
-    missionCommandComponents/command_mission_list.cpp \
     mission_command_topic.cpp \
-    missionCommandComponents/command_mission_waypoint.cpp
+    missionCommandComponents/command_mission_waypoint.cpp \
+    actionCommandComponents/command_vehicle_arm.cpp \
+    actionCommandComponents/command_vehicle_rtl.cpp \
+    vehicle_mission_list.cpp
 
 HEADERS +=\
         data_vehicle_commands_global.h \
@@ -45,10 +46,11 @@ HEADERS +=\
     abstract_action_command.h \
     abstract_mission_command.h \
     action_command_topic.h \
-    mission_list_topic.h \
-    missionCommandComponents/command_mission_list.h \
     mission_command_topic.h \
-    missionCommandComponents/command_mission_waypoint.h
+    missionCommandComponents/command_mission_waypoint.h \
+    actionCommandComponents/command_vehicle_arm.h \
+    actionCommandComponents/command_vehicle_rtl.h \
+    vehicle_mission_list.h
 
 # Unix lib Install
 unix:!symbian {

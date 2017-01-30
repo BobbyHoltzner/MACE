@@ -44,5 +44,5 @@ private:
 
 };
 
-}
+} //end of namespace DataVehicleCommands
 #endif // COMMAND_VEHICLE_LAND_H

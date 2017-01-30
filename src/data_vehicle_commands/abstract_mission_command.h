@@ -6,8 +6,6 @@
 namespace DataVehicleCommands {
 
 enum class MissionCommandTypes{
-    LAND,
-    TAKEOFF,
     WAYPOINT
 };
 

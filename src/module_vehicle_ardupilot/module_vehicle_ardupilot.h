@@ -10,10 +10,8 @@
 #include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
 
 #include "data_vehicle_ardupilot/components.h"
-
-#include "data_vehicle_commands/action_command_components.h"
-
 #include "data_vehicle_commands/action_components.h"
+#include "data_vehicle_commands/mission_components.h"
 
 
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
