@@ -1,18 +1,20 @@
 #include "command_vehicle_takeoff.h"
 
 namespace DataVehicleCommands {
-
-CommandTypes CommandVehicleTakeoff::getCommandType() const
+template<class T>
+CommandTypes CommandVehicleTakeoff<T>::getCommandType() const
 {
     return CommandTypes::ACTION;
 }
 
-ActionCommandTypes CommandVehicleTakeoff::getActionItemType() const
+template<class T>
+ActionCommandTypes CommandVehicleTakeoff<T>::getActionItemType() const
 {
     return ActionCommandTypes::TAKEOFF;
 }
 
-std::string CommandVehicleTakeoff::getDescription() const
+template<class T>
+std::string CommandVehicleTakeoff<T>::getDescription() const
 {
     return "This will command the aircraft to takeoff.";
 }

@@ -12,15 +12,15 @@ const MaceCore::TopicComponentStructure MissionCommandTopic_Structure = []{
 
 MaceCore::TopicDatagram MissionCommandTopic::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<AbstractMissionCommand>("missionCommand", m_MissionItem);
+    datagram.AddTerminal<std::shared_ptr<AbstractMissionCommand>>("missionCommand", m_MissionItem);
     return datagram;
 }
 
 void MissionCommandTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    m_MissionItem = datagram.GetTerminal<AbstractMissionCommand>("missionCommand");
+    m_MissionItem = datagram.GetTerminal<std::shared_ptr<AbstractMissionCommand>>("missionCommand");
 }
 
-void MissionCommandTopic::setMissionItem(const AbstractMissionCommand &missionItem)
+void MissionCommandTopic::setMissionItem(const std::shared_ptr<AbstractMissionCommand> &missionItem)
 {
     m_MissionItem = missionItem;
 }

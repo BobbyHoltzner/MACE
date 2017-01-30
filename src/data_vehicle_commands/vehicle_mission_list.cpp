@@ -7,9 +7,9 @@ const char VehicleMissionList_Name[] = "VehicleMissionList";
 const MaceCore::TopicComponentStructure VehicleMissionList_Structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<std::string>("missionName");
-    structure.AddTerminal<std::list<AbstractMissionCommand>("missionList");
     structure.AddTerminal<double>("missionLength");
     structure.AddTerminal<double>("missionDuration");
+    //structure.AddTerminal<std::shared_ptr<std::list<AbstractMissionCommand>>("missionList");
     return structure;
 }();
 
@@ -18,35 +18,35 @@ MaceCore::TopicDatagram VehicleMissionList::GenerateDatagram() const {
     datagram.AddTerminal<std::string>("missionName", missionName);
     datagram.AddTerminal<double>("missionLength", missionLength);
     datagram.AddTerminal<double>("missionDuration", missionDuration);
-    datagram.AddTerminal<std::list<AbstractMissionCommand>("missionList", missionList);
+    //datagram.AddTerminal<std::shared_ptr<std::list<AbstractMissionCommand>>("missionList", missionList);
     return datagram;
 }
 
 void VehicleMissionList::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    missionName = datagram.GetTerminal<std::list<AbstractMissionCommand>("missionName");
-    missionLength = datagram.GetTerminal<std::list<AbstractMissionCommand>("missionLength");
-    missionDuration = datagram.GetTerminal<std::list<AbstractMissionCommand>("missionDuration");
-    missionList = datagram.GetTerminal<std::list<AbstractMissionCommand>("missionList");
+    missionName = datagram.GetTerminal<std::string>("missionName");
+    missionLength = datagram.GetTerminal<double>("missionLength");
+    missionDuration = datagram.GetTerminal<double>("missionDuration");
+    //missionList = datagram.GetTerminal<std::shared_ptr<std::list<AbstractMissionCommand>>("missionList");
 }
 
-void VehicleMissionList::setMissionList(const std::list<AbstractMissionCommand> &missionList)
-{
-    this->missionList = missionList;
-}
+//void VehicleMissionList::setMissionList(const std::shared_ptr<std::list<AbstractMissionCommand>> &missionList)
+//{
+//    this->missionList = missionList;
+//}
 
-std::list<AbstractMissionCommand> VehicleMissionList::getMissionList()
-{
-    return missionList;
-}
+//std::shared_ptr<std::list<AbstractMissionCommand>> VehicleMissionList::getMissionList()
+//{
+//    return missionList;
+//}
 
 void VehicleMissionList::appendCommand(const AbstractMissionCommand &missionCommand)
 {
-    m_MissionCommandList.push_back(missionCommand);
+    //missionList->push_back(missionCommand);
 }
 
 void VehicleMissionList::clearCommands()
 {
-    m_MissionCommandList.clear();
+    //missionList->clear();
 }
 
 void VehicleMissionList::removeCommand(const int &index)

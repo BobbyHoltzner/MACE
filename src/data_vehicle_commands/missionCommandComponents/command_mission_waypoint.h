@@ -20,6 +20,7 @@ public:
     virtual std::string getDescription() const;
 
 public:
+    CommandMissionWaypoint();
 
     DataVehicleGeneric::PositionFrame getLocationType(){
         return m_PositionFrame;

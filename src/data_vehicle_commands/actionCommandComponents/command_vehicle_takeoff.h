@@ -12,7 +12,7 @@
 namespace DataVehicleCommands {
 
 template<class T>
-class CommandVehicleTakeoff :public AbstractMissionCommand
+class CommandVehicleTakeoff : public AbstractActionCommand
 {
 public:
     virtual CommandTypes getCommandType() const;
@@ -22,6 +22,8 @@ public:
     virtual std::string getDescription() const;
 
 public:
+    CommandVehicleTakeoff();
+
     void setLocation(const T &location);
     T getLocation();
 

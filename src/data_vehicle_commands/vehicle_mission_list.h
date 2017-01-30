@@ -21,8 +21,8 @@ public:
 public:
     VehicleMissionList();
 
-    void setMissionList(const std::list<AbstractMissionCommand> &missionList);
-    std::list<AbstractMissionCommand> getMissionList();
+    //void setMissionList(const std::shared_ptr<std::list<AbstractMissionCommand>> &missionList);
+    //std::shared_ptr<std::list<AbstractMissionCommand> > getMissionList();
 
     void setMissionName(const std::string &name)
     {
@@ -44,7 +44,7 @@ private:
     std::string missionName;
     double missionLength;
     double missionDuration;
-    std::list<AbstractMissionCommand> missionList;
+    //std::shared_ptr<std::list<AbstractMissionCommand>> missionList;
 
 };
 } //end of namespace DataVehicleCommands

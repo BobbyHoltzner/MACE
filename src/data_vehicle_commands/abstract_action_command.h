@@ -1,5 +1,5 @@
-#ifndef GENERAL_ACTION_ITEM_H
-#define GENERAL_ACTION_ITEM_H
+#ifndef ABSTRACT_ACTION_COMMAND_H
+#define ABSTRACT_ACTION_COMMAND_H
 
 #include "command_types.h"
 
@@ -24,7 +24,7 @@ public:
     virtual std::string getDescription() const = 0;
 
     inline std::string CommandActionTypeToString(const ActionCommandTypes &cmdType) {
-        switch (frame) {
+        switch (cmdType) {
         case ActionCommandTypes::ARM:
             return "ARM";
         case ActionCommandTypes::CHANGE_MODE:
@@ -40,7 +40,7 @@ public:
         }
     }
 
-    inline CommandTypes CommandActionTypeFromString(const std::string &str) {
+    inline ActionCommandTypes CommandActionTypeFromString(const std::string &str) {
         if(str == "ARM")
             return ActionCommandTypes::ARM;
         if(str == "CHANGE_MODE")
@@ -52,9 +52,10 @@ public:
         if(str == "TAKEOFF")
             return ActionCommandTypes::TAKEOFF;
         throw std::runtime_error("Unknown action command type seen");
+    }
 
 };
 
 } //end of namespace DataVehicleCommands
 
-#endif // GENERAL_ACTION_ITEM_H
+#endif // ABSTRACT_ACTION_COMMAND_H

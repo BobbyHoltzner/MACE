@@ -1,29 +1,31 @@
 #include "command_mission_waypoint.h"
 
 namespace DataVehicleCommands {
-
-    CommandTypes CommandMissionWaypoint::getCommandType()
+    template<class T>
+    CommandTypes CommandMissionWaypoint<T>::getCommandType() const
     {
         return CommandTypes::MISSION;
     }
 
-    MissionCommandTypes CommandMissionWaypoint::getMissionType()
+    template<class T>
+    MissionCommandTypes CommandMissionWaypoint<T>::getMissionType() const
     {
         return MissionCommandTypes::WAYPOINT;
     }
 
-    std::string CommandMissionWaypoint::getDescription()
+    template<class T>
+    std::string CommandMissionWaypoint<T>::getDescription() const
     {
         return "This is a waypoint mission item";
     }
 
     template<>
-    CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>::CommandVehicleLand(){
+    CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>::CommandMissionWaypoint(){
         m_PositionFrame = DataVehicleGeneric::PositionFrame::GLOBAL;
     }
 
     template<>
-    CommandMissionWaypoint<DataVehicleGeneric::LocalPosition>::CommandVehicleLand(){
+    CommandMissionWaypoint<DataVehicleGeneric::LocalPosition>::CommandMissionWaypoint(){
         m_PositionFrame = DataVehicleGeneric::PositionFrame::LOCAL;
     }
 

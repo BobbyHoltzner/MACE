@@ -1,18 +1,20 @@
 #include "command_vehicle_land.h"
 
 namespace DataVehicleCommands {
-
-CommandTypes CommandVehicleLand::getCommandType() const
+template<class T>
+CommandTypes CommandVehicleLand<T>::getCommandType() const
 {
     return CommandTypes::ACTION;
 }
 
-ActionCommandTypes CommandVehicleLand::getActionItemType() const
+template<class T>
+ActionCommandTypes CommandVehicleLand<T>::getActionItemType() const
 {
     return ActionCommandTypes::LAND;
 }
 
-std::string CommandVehicleLand::getDescription() const
+template<class T>
+std::string CommandVehicleLand<T>::getDescription() const
 {
     return "This will command the aircraft to land.";
 }

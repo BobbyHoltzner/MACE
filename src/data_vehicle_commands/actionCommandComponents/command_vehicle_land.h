@@ -20,7 +20,9 @@ public:
     virtual ActionCommandTypes getActionItemType() const;
 
     virtual std::string getDescription() const;
+
 public:
+    CommandVehicleLand();
 
     DataVehicleGeneric::PositionFrame getLocationType(){
         return m_PositionFrame;

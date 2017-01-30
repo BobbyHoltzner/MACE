@@ -1,5 +1,5 @@
-#ifndef GENERAL_MISSION_ITEM_H
-#define GENERAL_MISSION_ITEM_H
+#ifndef ABSTRACT_MISSION_COMMAND_H
+#define ABSTRACT_MISSION_COMMAND_H
 
 #include "command_types.h"
 
@@ -21,4 +21,4 @@ public:
 
 } //end of namespace DataVehicleCommands
 
-#endif // GENERAL_MISSION_ITEM_H
+#endif // ABSTRACT_MISSION_COMMAND_H

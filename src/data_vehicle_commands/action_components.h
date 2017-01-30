@@ -1,5 +1,5 @@
-#ifndef ACTIONCOMPONENTS_H
-#define ACTIONCOMPONENTS_H
+#ifndef ACTION_COMPONENTS_H
+#define ACTION_COMPONENTS_H
 
 #define DATA_VEHICLE_ACTION_COMMAND_TYPES DataVehicleCommands::ActionItemTopic
 
@@ -11,4 +11,4 @@
 #include "actionCommandComponents/command_vehicle_mode.h"
 #include "actionCommandComponents/command_vehicle_takeoff.h"
 
-#endif // ACTIONCOMPONENTS_H
+#endif // ACTION_COMPONENTS_H

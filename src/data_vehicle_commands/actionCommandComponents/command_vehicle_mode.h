@@ -1,5 +1,5 @@
-#ifndef COMMAND_FLIGHTMODE_H
-#define COMMAND_FLIGHTMODE_H
+#ifndef COMMAND_VEHICLE_MODE_H
+#define COMMAND_VEHICLE_MODE_H
 
 #include <string>
 
@@ -33,4 +33,4 @@ private:
 
 }
 
-#endif // COMMAND_FLIGHTMODE_H
+#endif // COMMAND_VEHICLE_MODE_H
