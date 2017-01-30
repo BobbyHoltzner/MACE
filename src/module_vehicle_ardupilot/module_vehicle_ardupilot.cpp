@@ -75,6 +75,10 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
                     }
                     break;
                 }
+                case(DataVehicleCommands::ActionCommandTypes::ARM):
+                {
+                    break;
+                }
                 }
             }
         }
