@@ -9,7 +9,7 @@ const MaceCore::TopicComponentStructure VehicleMissionList_Structure = []{
     structure.AddTerminal<std::string>("missionName");
     structure.AddTerminal<double>("missionLength");
     structure.AddTerminal<double>("missionDuration");
-    //structure.AddTerminal<std::shared_ptr<std::list<AbstractMissionCommand>>("missionList");
+    structure.AddTerminal<std::list<std::shared_ptr<AbstractMissionCommand>>>("missionList");
     return structure;
 }();
 
@@ -18,7 +18,7 @@ MaceCore::TopicDatagram VehicleMissionList::GenerateDatagram() const {
     datagram.AddTerminal<std::string>("missionName", missionName);
     datagram.AddTerminal<double>("missionLength", missionLength);
     datagram.AddTerminal<double>("missionDuration", missionDuration);
-    //datagram.AddTerminal<std::shared_ptr<std::list<AbstractMissionCommand>>("missionList", missionList);
+    datagram.AddTerminal<std::list<std::shared_ptr<AbstractMissionCommand>>>("missionList", missionList);
     return datagram;
 }
 
@@ -26,7 +26,7 @@ void VehicleMissionList::CreateFromDatagram(const MaceCore::TopicDatagram &datag
     missionName = datagram.GetTerminal<std::string>("missionName");
     missionLength = datagram.GetTerminal<double>("missionLength");
     missionDuration = datagram.GetTerminal<double>("missionDuration");
-    //missionList = datagram.GetTerminal<std::shared_ptr<std::list<AbstractMissionCommand>>("missionList");
+    missionList = datagram.GetTerminal<std::list<std::shared_ptr<AbstractMissionCommand>>>("missionList");
 }
 
 //void VehicleMissionList::setMissionList(const std::shared_ptr<std::list<AbstractMissionCommand>> &missionList)

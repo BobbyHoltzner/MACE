@@ -44,6 +44,7 @@ private:
     std::string missionName;
     double missionLength;
     double missionDuration;
+    std::list<std::shared_ptr<AbstractMissionCommand>> missionList;
     //std::shared_ptr<std::list<AbstractMissionCommand>> missionList;
 
 };
