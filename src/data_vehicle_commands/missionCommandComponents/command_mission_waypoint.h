@@ -1,7 +1,7 @@
 #ifndef COMMAND_MISSION_WAYPOINT_H
 #define COMMAND_MISSION_WAYPOINT_H
 
-#include "abstract_mission_command.h"
+#include "data_vehicle_commands/abstract_mission_command.h"
 
 #include "data_vehicle_generic/coordinate_frame.h"
 #include "data_vehicle_generic/global_position.h"

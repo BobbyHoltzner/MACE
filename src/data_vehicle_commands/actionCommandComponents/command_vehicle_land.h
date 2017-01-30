@@ -2,11 +2,11 @@
 #define COMMAND_VEHICLE_LAND_H
 
 #include <string>
+#include "data_vehicle_commands/abstract_action_command.h"
 
 #include "data_vehicle_generic/global_position.h"
 #include "data_vehicle_generic/local_position.h"
 
-#include "data_vehicle_commands/abstract_action_command.h"
 #include "data_vehicle_generic/coordinate_frame.h"
 
 namespace DataVehicleCommands {

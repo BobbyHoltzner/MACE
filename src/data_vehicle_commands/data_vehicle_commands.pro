@@ -67,31 +67,33 @@ INSTALLS += lib
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/data_vehicle_commands
 headers.files   += \
-        action_command_components.h \
-        command_types.h \
-        data_vehicle_commands.h \
-        data_vehicle_commands_global.h \
-        general_mission_item.h \
-        mission_item_topic.h \
-        general_action_item.h \
-        action_item_topic.h \
-        mission_components.h \
-        action_components.h
+    data_vehicle_commands_global.h \
+    command_types.h \
+    mission_components.h \
+    action_components.h \
+    abstract_action_command.h \
+    abstract_mission_command.h \
+    action_command_topic.h \
+    mission_command_topic.h \
+    vehicle_mission_list.h
 INSTALLS       += headers
 
 #Header file copy
 headers_actionComponents.path    = $$(MACE_ROOT)/include/data_vehicle_commands/actionCommandComponents
 headers_actionComponents.files   += \
-        actionCommandComponents/command_vehicle_mode.h \
-        actionCommandComponents/command_vehicle_takeoff.h \
-        actionCommandComponents/command_vehicle_land.h
-
+    actionCommandComponents/command_vehicle_mode.h \
+    actionCommandComponents/command_vehicle_takeoff.h \
+    actionCommandComponents/command_vehicle_land.h \
+    actionCommandComponents/command_vehicle_arm.h \
+    actionCommandComponents/command_vehicle_rtl.h
 
 INSTALLS       += headers_actionComponents
 
 #Header file copy
 headers_missionComponents.path    = $$(MACE_ROOT)/include/data_vehicle_commands/missionCommandComponents
 headers_missionComponents.files   += \
+    missionCommandComponents/command_mission_waypoint.h \
+
 
 INSTALLS       += headers_missionComponents
 
