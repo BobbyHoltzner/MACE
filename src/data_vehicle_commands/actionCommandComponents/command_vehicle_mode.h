@@ -12,7 +12,7 @@ class CommandVehicleMode : public AbstractActionCommand
 public:
     virtual CommandTypes getCommandType() const;
 
-    virtual ActionItemTypes getActionItemType() const;
+    virtual ActionCommandTypes getActionItemType() const;
 
     virtual std::string getDescription() const;
 

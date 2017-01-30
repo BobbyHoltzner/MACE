@@ -21,10 +21,10 @@ public:
 
     std::shared_ptr<AbstractActionCommand> getActionItem() const;
 
-    ActionItemTypes getActionItemType() const;
+    ActionCommandTypes getActionItemType() const;
 
 private:
-    ActionItemTypes m_ActionItemType;
+    ActionCommandTypes m_ActionItemType;
     std::shared_ptr<AbstractActionCommand> m_ActionCommand;
 };
 } //end of namespace DataVehicleCommands

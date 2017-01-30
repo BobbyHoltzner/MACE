@@ -7,9 +7,9 @@ CommandTypes CommandVehicleTakeoff::getCommandType() const
     return CommandTypes::ACTION;
 }
 
-ActionItemTypes CommandVehicleTakeoff::getActionItemType() const
+ActionCommandTypes CommandVehicleTakeoff::getActionItemType() const
 {
-    return ActionItemTypes::TAKEOFF;
+    return ActionCommandTypes::TAKEOFF;
 }
 
 std::string CommandVehicleTakeoff::getDescription() const

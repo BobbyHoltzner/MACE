@@ -22,10 +22,10 @@ public:
 
     std::shared_ptr<AbstractMissionCommand> getActionItem() const;
 
-    MissionItemTypes getActionItemType() const;
+    MissionCommandTypes getActionItemType() const;
 
 private:
-    MissionItemTypes m_MissionCommandType;
+    MissionCommandTypes m_MissionCommandType;
     AbstractMissionCommand m_MissionItem;
 };
 } //end of namespace DataVehicleCommands

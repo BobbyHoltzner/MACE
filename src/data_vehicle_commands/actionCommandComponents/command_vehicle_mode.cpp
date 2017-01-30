@@ -7,9 +7,9 @@ CommandTypes CommandVehicleMode::getCommandType() const
     return CommandTypes::ACTION;
 }
 
-ActionItemTypes CommandVehicleMode::getActionItemType() const
+ActionCommandTypes CommandVehicleMode::getActionItemType() const
 {
-    return ActionItemTypes::CHANGE_MODE;
+    return ActionCommandTypes::CHANGE_MODE;
 }
 
 std::string CommandVehicleMode::getDescription() const
