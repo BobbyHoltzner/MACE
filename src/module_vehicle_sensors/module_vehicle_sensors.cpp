@@ -84,16 +84,15 @@ void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, 
         //Example of a setWP
 
        // DataVehicleSensors::SensorVertices<DataVehicleGeneric::GlobalPosition>* newSensorV = new DataVehicleSensors::SensorVertices<DataVehicleGeneric::GlobalPosition>("TestSensor");
-        std::shared_ptr<DataVehicleSensors::SensorVertices> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices>("MapIR");
+//        std::shared_ptr<DataVehicleSensors::SensorVertices<DataVehicleGeneric::GlobalPosition>> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices<DataVehicleGeneric::GlobalPosition>>("MapIR");
+//        newSensorV->insertSensorVertice(newGlobalPosition);
 
-        newSensorV->insertSensorVertice(newGlobalPosition);
+//        MaceCore::TopicDatagram topicDatagram;
+//        ModuleVehicleSensors::m_SensorFootprintDataTopic.SetComponent(newSensorV, topicDatagram);
 
-        MaceCore::TopicDatagram topicDatagram;
-        ModuleVehicleSensors::m_SensorFootprintDataTopic.SetComponent(newSensorV, topicDatagram);
-
-        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(ModuleVehicleSensors::m_SensorFootprintDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
-        });
+//        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(ModuleVehicleSensors::m_SensorFootprintDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+//        });
 
 
 // Example of a mission list being sent
