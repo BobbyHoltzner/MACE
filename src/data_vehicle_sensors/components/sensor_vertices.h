@@ -12,13 +12,14 @@
 #include "data/i_topic_component_data_object.h"
 #include "data_vehicle_commands/abstract_mission_command.h"
 
+#include "data/positional_coordinate_frame.h"
 
 namespace DataVehicleSensors
 {
 extern const char SensorVertices_Name[];
 extern const MaceCore::TopicComponentStructure SensorVertices_Structure;
 
-template <class T>
+template <class T = DataVehicleGeneric::LocalPosition>
 class SensorVertices : public Data::NamedTopicComponentDataObject<SensorVertices_Name, &SensorVertices_Structure>
 {
 public:
@@ -26,7 +27,7 @@ public:
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
 public:
-//    SensorVertices();
+    SensorVertices();
     SensorVertices(const std::string &sensorName);
     std::list<T*> getSensorVertices();
     void setSensorVertices(const std::list<T*> &sensorVertices);
@@ -34,10 +35,11 @@ public:
 
 private:
     std::string sensorName;
-    DataVehicleGeneric::PositionFrame positionFrame;
+    Data::PositionalFrame positionFrame;
     std::list<T*> verticeLocations;
-
 };
+
+
 
 }
 #endif // SENSOR_VERTICES_H

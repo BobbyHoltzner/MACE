@@ -26,16 +26,15 @@ unix:!symbian {
 
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib
-win32:CONFIG(release, debug|release):       lib.files   += release/module_vehicle_MAVLINK.lib release/module_vehicle_MAVLINK.dll
-else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_MAVLINK.lib debug/module_vehicle_MAVLINK.dll
+win32:CONFIG(release, debug|release):       lib.files   += release/module_vehicle_MAVLINK.lib release/module_external_link.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_MAVLINK.lib debug/module_external_link.dll
 INSTALLS += lib
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK
+headers.path    = $$(MACE_ROOT)/include/module_external_link
 headers.files   += \
-        module_vehicle_mavlink.h \
-        module_vehicle_mavlink_global.h \
-        generic_message_definition_mavlink.h
+        module_external_link.h\
+        module_external_link_global.h
 INSTALLS       += headers
 
 

@@ -22,7 +22,7 @@ public:
 public:
     CommandMissionWaypoint();
 
-    DataVehicleGeneric::PositionFrame getLocationType(){
+    Data::PositionalFrame getLocationType(){
         return m_PositionFrame;
     }
 
@@ -31,7 +31,7 @@ public:
     T getLocation();
 
 private:
-    DataVehicleGeneric::PositionFrame m_PositionFrame;
+    Data::PositionalFrame m_PositionFrame;
     T m_Location;
 
 };
