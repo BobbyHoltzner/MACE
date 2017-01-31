@@ -81,18 +81,19 @@ void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, 
         //newWP->setLocation(35.7459724,-78.8390923,0.0);
         //newWP->setLocation(35.7466538,-78.8399184,0.0);
         DataVehicleGeneric::GlobalPosition* newGlobalPosition = new DataVehicleGeneric::GlobalPosition(35.7470021,-78.8395026,0.0);
-        //Example of a setWP
+        DataVehicleGeneric::LocalPosition* newLocalPosition = new DataVehicleGeneric::LocalPosition(1.0,-2.0,3.0);
 
-       // DataVehicleSensors::SensorVertices<DataVehicleGeneric::GlobalPosition>* newSensorV = new DataVehicleSensors::SensorVertices<DataVehicleGeneric::GlobalPosition>("TestSensor");
-//        std::shared_ptr<DataVehicleSensors::SensorVertices<DataVehicleGeneric::GlobalPosition>> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices<DataVehicleGeneric::GlobalPosition>>("MapIR");
-//        newSensorV->insertSensorVertice(newGlobalPosition);
+        //std::shared_ptr<DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition,DataVehicleSensors::SensorVerticesLocal_Name,&DataVehicleSensors::SensorVerticesLocal_Structure>> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition,DataVehicleSensors::SensorVerticesLocal_Name,&DataVehicleSensors::SensorVerticesLocal_Structure>>("MapIR");
+        std::shared_ptr<DataVehicleSensors::SensorVertices_Local> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices_Local>("MapIR");
 
-//        MaceCore::TopicDatagram topicDatagram;
-//        ModuleVehicleSensors::m_SensorFootprintDataTopic.SetComponent(newSensorV, topicDatagram);
+        newSensorV->insertSensorVertice(newLocalPosition);
 
-//        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-//            ptr->NewTopicDataValues(ModuleVehicleSensors::m_SensorFootprintDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
-//        });
+        MaceCore::TopicDatagram topicDatagram;
+        ModuleVehicleSensors::m_SensorFootprintDataTopic.SetComponent(newSensorV, topicDatagram);
+
+        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(ModuleVehicleSensors::m_SensorFootprintDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+        });
 
 
 // Example of a mission list being sent

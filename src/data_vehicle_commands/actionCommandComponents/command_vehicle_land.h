@@ -24,7 +24,7 @@ public:
 public:
     CommandVehicleLand();
 
-    DataVehicleGeneric::PositionFrame getLocationType(){
+    Data::PositionalFrame getLocationType(){
         return m_PositionFrame;
     }
 
@@ -40,7 +40,7 @@ public:
     }
 
 private:
-    DataVehicleGeneric::PositionFrame m_PositionFrame;
+    Data::PositionalFrame m_PositionFrame;
     T m_Location;
     double m_yawAngle;
 

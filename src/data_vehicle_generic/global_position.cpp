@@ -7,7 +7,7 @@ namespace DataVehicleGeneric
 const char GlobalPosition_name[] = "global_position";
 const MaceCore::TopicComponentStructure GlobalPosition_structure = []{
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<PositionFrame>("PositionFrame");
+    structure.AddTerminal<Data::PositionalFrame>("PositionFrame");
     structure.AddTerminal<CoordinateFrame>("CoordinateFrame");
     structure.AddTerminal<double>("latitude");
     structure.AddTerminal<double>("longitude");
@@ -21,7 +21,7 @@ const MaceCore::TopicComponentStructure GlobalPosition_structure = []{
 
 MaceCore::TopicDatagram GlobalPosition::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<PositionFrame>("PositionFrame", m_PositionFrame);
+    datagram.AddTerminal<Data::PositionalFrame>("PositionFrame", m_PositionFrame);
     datagram.AddTerminal<CoordinateFrame>("CoordinateFrame", m_CoordinateFrame);
     datagram.AddTerminal<double>("latitude", latitude);
     datagram.AddTerminal<double>("longitude", longitude);
@@ -32,7 +32,7 @@ MaceCore::TopicDatagram GlobalPosition::GenerateDatagram() const {
 
 
 void GlobalPosition::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    m_PositionFrame = datagram.GetTerminal<PositionFrame>("PositionFrame");
+    m_PositionFrame = datagram.GetTerminal<Data::PositionalFrame>("PositionFrame");
     m_CoordinateFrame = datagram.GetTerminal<CoordinateFrame>("CoordinateFrame");
     latitude = datagram.GetTerminal<double>("latitude");
     longitude = datagram.GetTerminal<double>("longitude");
@@ -41,26 +41,26 @@ void GlobalPosition::CreateFromDatagram(const MaceCore::TopicDatagram &datagram)
 
 
 GlobalPosition::GlobalPosition():
-    Position(PositionFrame::GLOBAL)
+    Position(Data::PositionalFrame::GLOBAL)
 {
 
 }
 
 GlobalPosition::GlobalPosition(const CoordinateFrame &frame):
-    Position(PositionFrame::GLOBAL, frame)
+    Position(Data::PositionalFrame::GLOBAL, frame)
 {
 
 }
 
 GlobalPosition::GlobalPosition(const double &latitude, const double &longitude, const double &altitude):
-    Position(PositionFrame::GLOBAL)
+    Position(Data::PositionalFrame::GLOBAL)
 {
     this->latitude = latitude;
     this->longitude = longitude;
 }
 
 GlobalPosition::GlobalPosition(const CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude):
-    Position(PositionFrame::GLOBAL,frame)
+    Position(Data::PositionalFrame::GLOBAL,frame)
 {
 
 }

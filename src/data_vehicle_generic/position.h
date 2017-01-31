@@ -1,28 +1,23 @@
 #ifndef POSITION_H
 #define POSITION_H
 
+#include "data/positional_coordinate_frame.h"
 #include "coordinate_frame.h"
 
 namespace DataVehicleGeneric {
-
-enum class PositionFrame{
-    LOCAL,
-    GLOBAL
-};
-
 
 class Position
 {
 public:
     Position();
 
-    Position(const PositionFrame &positionFrame);
+    Position(const Data::PositionalFrame &positionFrame);
 
-    Position(const PositionFrame &positionFrame, const CoordinateFrame &coordinateFrame);
+    Position(const Data::PositionalFrame &positionFrame, const CoordinateFrame &coordinateFrame);
 
     virtual ~Position();
 
-    PositionFrame getPositionFrame();
+    Data::PositionalFrame  getPositionFrame();
 
 protected:
     static double convertDegreesToRadians(const double &degrees);
@@ -30,7 +25,7 @@ protected:
     static double convertRadiansToDegrees(const double &radians);
 
 protected:
-    PositionFrame m_PositionFrame = PositionFrame::GLOBAL;
+    Data::PositionalFrame m_PositionFrame = Data::PositionalFrame::GLOBAL;
     CoordinateFrame m_CoordinateFrame = CoordinateFrame::NED;
 };
 
