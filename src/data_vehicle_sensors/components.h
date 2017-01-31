@@ -2,7 +2,7 @@
 #define COMPONENTS_H
 
 #define DATA_VEHICLE_SENSORS DataVehicleSensors::SensorCamera
-#define DATA_VEHICLE_SENSOR_FOOTPRINT DataVehicleSensors::SensorVertices<DataVehicleGeneric::GlobalPosition>,DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition>
+#define DATA_VEHICLE_SENSOR_FOOTPRINT DataVehicleSensors::SensorVertices_Global,DataVehicleSensors::SensorVertices_Local
 
 #include "data/positional_coordinate_frame.h"
 

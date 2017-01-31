@@ -16,30 +16,44 @@
 
 namespace DataVehicleSensors
 {
-extern const char SensorVertices_Name[];
-extern const MaceCore::TopicComponentStructure SensorVertices_Structure;
+extern const char SensorVerticesLocal_Name[];
+extern const MaceCore::TopicComponentStructure SensorVerticesLocal_Structure;
 
-template <class T = DataVehicleGeneric::LocalPosition>
-class SensorVertices : public Data::NamedTopicComponentDataObject<SensorVertices_Name, &SensorVertices_Structure>
+extern const char SensorVerticesGlobal_Name[];
+extern const MaceCore::TopicComponentStructure SensorVerticesGlobal_Structure;
+
+template <class T>
+class SensorVerticesBase
 {
 public:
-    virtual MaceCore::TopicDatagram GenerateDatagram() const;
-    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
-
-public:
-    SensorVertices();
-    SensorVertices(const std::string &sensorName);
     std::list<T*> getSensorVertices();
     void setSensorVertices(const std::list<T*> &sensorVertices);
     void insertSensorVertice(T* verticePosition);
 
-private:
+protected:
     std::string sensorName;
     Data::PositionalFrame positionFrame;
     std::list<T*> verticeLocations;
 };
 
+class SensorVertices_Global : public SensorVerticesBase<DataVehicleGeneric::GlobalPosition>, public Data::NamedTopicComponentDataObject<SensorVerticesGlobal_Name, &SensorVerticesGlobal_Structure>
+{
+public:
+    virtual MaceCore::TopicDatagram GenerateDatagram() const;
+    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
+public:
+    SensorVertices_Global(const std::string &sensorName);
 
+};
+
+class SensorVertices_Local : public SensorVerticesBase<DataVehicleGeneric::LocalPosition>, public Data::NamedTopicComponentDataObject<SensorVerticesLocal_Name, &SensorVerticesLocal_Structure>
+{
+public:
+    virtual MaceCore::TopicDatagram GenerateDatagram() const;
+    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
+public:
+    SensorVertices_Local(const std::string &sensorName);
+};
 
 }
 #endif // SENSOR_VERTICES_H

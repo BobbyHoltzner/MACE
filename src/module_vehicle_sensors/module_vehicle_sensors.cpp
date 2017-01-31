@@ -83,7 +83,9 @@ void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, 
         DataVehicleGeneric::GlobalPosition* newGlobalPosition = new DataVehicleGeneric::GlobalPosition(35.7470021,-78.8395026,0.0);
         DataVehicleGeneric::LocalPosition* newLocalPosition = new DataVehicleGeneric::LocalPosition(1.0,-2.0,3.0);
 
-        std::shared_ptr<DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition>> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition>>("MapIR");
+        //std::shared_ptr<DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition,DataVehicleSensors::SensorVerticesLocal_Name,&DataVehicleSensors::SensorVerticesLocal_Structure>> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition,DataVehicleSensors::SensorVerticesLocal_Name,&DataVehicleSensors::SensorVerticesLocal_Structure>>("MapIR");
+        std::shared_ptr<DataVehicleSensors::SensorVertices_Local> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices_Local>("MapIR");
+
         newSensorV->insertSensorVertice(newLocalPosition);
 
         MaceCore::TopicDatagram topicDatagram;
