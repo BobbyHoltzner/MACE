@@ -6,8 +6,6 @@
 
 namespace DataVehicleGeneric
 {
-
-
 enum class CoordinateFrame{
     NED,
     NWU

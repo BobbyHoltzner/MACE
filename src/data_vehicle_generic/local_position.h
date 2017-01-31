@@ -3,6 +3,7 @@
 
 #include "data/i_topic_component_data_object.h"
 
+#include "position.h"
 #include "coordinate_frame.h"
 
 namespace DataVehicleGeneric
@@ -11,15 +12,21 @@ namespace DataVehicleGeneric
 extern const char LocalPosition_name[];
 extern const MaceCore::TopicComponentStructure LocalPosition_structure;
 
-class LocalPosition : public Data::NamedTopicComponentDataObject<LocalPosition_name, &LocalPosition_structure>
+class LocalPosition : public Position, public Data::NamedTopicComponentDataObject<LocalPosition_name, &LocalPosition_structure>
 {
 public:
 
-    //static MaceCore::TopicComponentStructure TopicStructure();
+    LocalPosition();
 
+    LocalPosition(const CoordinateFrame &frame);
+
+    LocalPosition(const double &x, const double &y, const double &z);
+
+    LocalPosition(const CoordinateFrame &frame, const double &x, const double &y, const double &z);
+
+public:
 
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
-
 
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
@@ -34,8 +41,6 @@ public:
     double initialBearing(const LocalPosition &postion);
 
 public:
-
-    CoordinateFrame frame;
     double x;
     double y;
     double z;
