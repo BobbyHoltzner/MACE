@@ -71,8 +71,8 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_SensorFootprintDataTopic.Name(), senderID);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices<DataVehicleGeneric::GlobalPosition>::Name()) {
-                std::shared_ptr<DataVehicleSensors::SensorVertices<DataVehicleGeneric::GlobalPosition>> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices<DataVehicleGeneric::GlobalPosition>>("TestM");
+            if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices<>::Name()) {
+                std::shared_ptr<DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition>> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition>>("TestM");
                 m_SensorFootprintDataTopic.GetComponent(newSensorV, read_topicDatagram);
             }
         }
