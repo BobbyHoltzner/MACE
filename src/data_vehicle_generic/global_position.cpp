@@ -55,7 +55,8 @@ GlobalPosition::GlobalPosition(const CoordinateFrame &frame):
 GlobalPosition::GlobalPosition(const double &latitude, const double &longitude, const double &altitude):
     Position(PositionFrame::GLOBAL)
 {
-
+    this->latitude = latitude;
+    this->longitude = longitude;
 }
 
 GlobalPosition::GlobalPosition(const CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude):
