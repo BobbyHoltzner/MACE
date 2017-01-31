@@ -1,8 +1,9 @@
 #ifndef DATAVEHICLEGENERIC_GLOBALPOSITION_H
 #define DATAVEHICLEGENERIC_GLOBALPOSITION_H
 
-
 #include "data/i_topic_component_data_object.h"
+
+#include "position.h"
 
 namespace DataVehicleGeneric
 {
@@ -10,18 +11,23 @@ namespace DataVehicleGeneric
 extern const char GlobalPosition_name[];
 extern const MaceCore::TopicComponentStructure GlobalPosition_structure;
 
-class GlobalPosition : public Data::NamedTopicComponentDataObject<GlobalPosition_name, &GlobalPosition_structure>
+class GlobalPosition : public Position, public Data::NamedTopicComponentDataObject<GlobalPosition_name, &GlobalPosition_structure>
 {
 public:
-
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
-
-
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
 public:
 
+    GlobalPosition();
 
+    GlobalPosition(const CoordinateFrame &frame);
+
+    GlobalPosition(const double &latitude, const double &longitude, const double &altitude);
+
+    GlobalPosition(const CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude);
+
+public:
     GlobalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag);
 
 
@@ -33,11 +39,6 @@ public:
     double finalBearing(const GlobalPosition &postion);
 
     double initialBearing(const GlobalPosition &postion);
-
-private:
-    static double convertDegreesToRadians(const double &degrees);
-
-    static double convertRadiansToDegrees(const double &radians);
 
 public:
 

@@ -6,16 +6,9 @@
 
 namespace DataVehicleGeneric
 {
-
-
 enum class CoordinateFrame{
     NED,
     NWU
-};
-
-enum class PositionFrame{
-    LOCAL,
-    GLOBAL
 };
 
 inline std::string CoordinateFrameToString(const CoordinateFrame &frame) {

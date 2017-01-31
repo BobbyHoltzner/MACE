@@ -9,11 +9,11 @@ namespace DataVehicleGeneric
 const char LocalPosition_name[] = "local_position";
 const MaceCore::TopicComponentStructure LocalPosition_structure = [](){
     MaceCore::TopicComponentStructure structure;
+    structure.AddTerminal<PositionFrame>("PositionFrame");
+    structure.AddTerminal<CoordinateFrame>("CoordinateFrame");
     structure.AddTerminal<double>("x");
     structure.AddTerminal<double>("y");
     structure.AddTerminal<double>("z");
-    structure.AddTerminal<CoordinateFrame>("frame");
-
     return structure;
 }();
 
@@ -21,22 +21,50 @@ const MaceCore::TopicComponentStructure LocalPosition_structure = [](){
 
 MaceCore::TopicDatagram LocalPosition::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
+    datagram.AddTerminal<PositionFrame>("PositionFrame", m_PositionFrame);
+    datagram.AddTerminal<CoordinateFrame>("CoordinateFrame", m_CoordinateFrame);
     datagram.AddTerminal<double>("x", x);
     datagram.AddTerminal<double>("y", y);
     datagram.AddTerminal<double>("z", z);
-    datagram.AddTerminal<CoordinateFrame>("frame", frame);
-
     return datagram;
 }
 
 
 void LocalPosition::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
+    m_PositionFrame = datagram.GetTerminal<PositionFrame>("PositionFrame");
+    m_CoordinateFrame = datagram.GetTerminal<CoordinateFrame>("CoordinateFrame");
     x = datagram.GetTerminal<double>("x");
     y = datagram.GetTerminal<double>("y");
     z = datagram.GetTerminal<double>("z");
-    frame = datagram.GetTerminal<CoordinateFrame>("frame");
 }
 
+LocalPosition::LocalPosition():
+    Position(PositionFrame::LOCAL)
+{
+
+}
+
+LocalPosition::LocalPosition(const CoordinateFrame &frame):
+    Position(PositionFrame::LOCAL, frame)
+{
+
+}
+
+LocalPosition::LocalPosition(const double &x, const double &y, const double &z):
+    Position(PositionFrame::LOCAL)
+{
+    this->x = x;
+    this->y = y;
+    this->z = z;
+}
+
+LocalPosition::LocalPosition(const CoordinateFrame &frame, const double &x, const double &y, const double &z):
+    Position(PositionFrame::LOCAL,frame)
+{
+    this->x = x;
+    this->y = y;
+    this->z = z;
+}
 
 double LocalPosition::bearingBetween(const LocalPosition &position)
 {

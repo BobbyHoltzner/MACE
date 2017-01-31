@@ -46,7 +46,6 @@ private:
     T m_Location;
     double m_pitch;
     double m_yawAngle;
-
 };
 
 }

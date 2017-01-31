@@ -4,11 +4,11 @@
 
 namespace DataVehicleGeneric
 {
-
-
 const char GlobalPosition_name[] = "global_position";
 const MaceCore::TopicComponentStructure GlobalPosition_structure = []{
     MaceCore::TopicComponentStructure structure;
+    structure.AddTerminal<PositionFrame>("PositionFrame");
+    structure.AddTerminal<CoordinateFrame>("CoordinateFrame");
     structure.AddTerminal<double>("latitude");
     structure.AddTerminal<double>("longitude");
     structure.AddTerminal<std::unordered_map<int, double>>("altitude");
@@ -21,6 +21,8 @@ const MaceCore::TopicComponentStructure GlobalPosition_structure = []{
 
 MaceCore::TopicDatagram GlobalPosition::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
+    datagram.AddTerminal<PositionFrame>("PositionFrame", m_PositionFrame);
+    datagram.AddTerminal<CoordinateFrame>("CoordinateFrame", m_CoordinateFrame);
     datagram.AddTerminal<double>("latitude", latitude);
     datagram.AddTerminal<double>("longitude", longitude);
     datagram.AddTerminal<std::unordered_map<int, double>>("altitude", altitude);
@@ -30,11 +32,37 @@ MaceCore::TopicDatagram GlobalPosition::GenerateDatagram() const {
 
 
 void GlobalPosition::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
+    m_PositionFrame = datagram.GetTerminal<PositionFrame>("PositionFrame");
+    m_CoordinateFrame = datagram.GetTerminal<CoordinateFrame>("CoordinateFrame");
     latitude = datagram.GetTerminal<double>("latitude");
     longitude = datagram.GetTerminal<double>("longitude");
     altitude = datagram.GetTerminal<std::unordered_map<int, double>>("altitude");
 }
 
+
+GlobalPosition::GlobalPosition():
+    Position(PositionFrame::GLOBAL)
+{
+
+}
+
+GlobalPosition::GlobalPosition(const CoordinateFrame &frame):
+    Position(PositionFrame::GLOBAL, frame)
+{
+
+}
+
+GlobalPosition::GlobalPosition(const double &latitude, const double &longitude, const double &altitude):
+    Position(PositionFrame::GLOBAL)
+{
+
+}
+
+GlobalPosition::GlobalPosition(const CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude):
+    Position(PositionFrame::GLOBAL,frame)
+{
+
+}
 
 /**
  * @brief GlobalPosition::NewPositionFromHeadingBearing
@@ -143,31 +171,6 @@ double GlobalPosition::distanceBetween3D(const GlobalPosition &position, const i
     double distance2D = this->distanceBetween2D(position);
     double deltaAltitude = fabs(this->altitude.at(altitudeCode) - position.altitude.at(altitudeCode));
     return(sqrt(deltaAltitude * deltaAltitude + distance2D * distance2D));
-}
-
-
-/**
- * @brief GlobalPosition::convertDegreesToRadians
- * @param degrees
- * @return
- */
-double GlobalPosition::convertDegreesToRadians(const double &degrees)
-{
-    double pi = 3.14159265358979323846;
-    double radians = degrees * (pi/180.0);
-    return radians;
-}
-
-/**
- * @brief GlobalPosition::convertRadiansToDegrees
- * @param radians
- * @return
- */
-double GlobalPosition::convertRadiansToDegrees(const double &radians)
-{
-    double pi = 3.14159265358979323846;
-    double degrees = radians * (180.0/pi);
-    return degrees;
 }
 
 }

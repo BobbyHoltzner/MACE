@@ -18,7 +18,8 @@ SOURCES += \
     local_velocity.cpp \
     global_position.cpp \
     global_velocity.cpp \
-    attitude.cpp
+    attitude.cpp \
+    position.cpp
 
 HEADERS +=\
         data_vehicle_generic_global.h \
@@ -29,7 +30,8 @@ HEADERS +=\
     coordinate_frame.h \
     components.h \
     attitude.h \
-    vehicle_types.h
+    vehicle_types.h \
+    position.h
 
 
 
@@ -55,6 +57,7 @@ headers.files   += \
         global_position.h \
         global_velocity.h \
         coordinate_frame.h \
+        position.h \
         data_vehicle_generic_global.h
 INSTALLS       += headers
 

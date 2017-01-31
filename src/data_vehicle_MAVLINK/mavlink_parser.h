@@ -42,7 +42,6 @@ public:
             pos_ptr->x = decodedMSG.x;
             pos_ptr->y = decodedMSG.y;
             pos_ptr->z = decodedMSG.z;
-            pos_ptr->frame = DataVehicleGeneric::CoordinateFrame::NED;
 
             vel_ptr->x = decodedMSG.vx;
             vel_ptr->y = decodedMSG.vy;

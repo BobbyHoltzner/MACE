@@ -26,11 +26,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    components/sensor_camera.cpp
+    components/sensor_camera.cpp \
+    components/sensor_vertices.cpp
 
 HEADERS += data_vehicle_sensors_global.h \
     components.h \
-    components/sensor_camera.h
+    components/sensor_camera.h \
+    components/sensor_vertices.h
 
 # Unix lib Install
 unix:!symbian {
@@ -54,7 +56,9 @@ INSTALLS       += headers
 #Header file copy
 headers_Components.path    = $$(MACE_ROOT)/include/data_vehicle_sensors/Components
 headers_Components.files   += \
-        components/sensor_camera.h
+        components/sensor_camera.h \
+        components/sensor_vertices.h
+
 INSTALLS       += headers_Components
 
 
@@ -67,3 +71,7 @@ else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
 else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic/release/ -ldata_vehicle_generic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic/debug/ -ldata_vehicle_generic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_generic/ -ldata_vehicle_generic
