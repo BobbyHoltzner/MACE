@@ -26,16 +26,15 @@ unix:!symbian {
 
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib
-win32:CONFIG(release, debug|release):       lib.files   += release/module_vehicle_MAVLINK.lib release/module_vehicle_MAVLINK.dll
-else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_MAVLINK.lib debug/module_vehicle_MAVLINK.dll
+win32:CONFIG(release, debug|release):       lib.files   += release/module_vehicle_MAVLINK.lib release/module_external_link.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_MAVLINK.lib debug/module_external_link.dll
 INSTALLS += lib
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK
+headers.path    = $$(MACE_ROOT)/include/module_external_link
 headers.files   += \
-        module_vehicle_mavlink.h \
-        module_vehicle_mavlink_global.h \
-        generic_message_definition_mavlink.h
+        module_external_link.h\
+        module_external_link_global.h
 INSTALLS       += headers
 
 
@@ -66,6 +65,13 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_ardupi
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/debug/ -ldata_vehicle_ardupilot
 else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/ -ldata_vehicle_ardupilot
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_commands/release/ -ldata_vehicle_commands
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_commands/debug/ -ldata_vehicle_commands
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_commands/ -ldata_vehicle_commands
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sensors/release/ -ldata_vehicle_sensors
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sensors/debug/ -ldata_vehicle_sensors
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_sensors/ -ldata_vehicle_sensors
 
 unix{
     EigenInclude = $$system(pkg-config --cflags eigen3)
@@ -75,3 +81,4 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
+

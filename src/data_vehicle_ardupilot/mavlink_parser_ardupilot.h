@@ -24,7 +24,6 @@ public:
 
     }
 
-
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> Parse(const mavlink_message_t* message){
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
 
@@ -56,6 +55,7 @@ public:
                 rtnVector.push_back(ptrStatus);
                 m_CurrentArduVehicleStatus = ptrStatus;
             }
+            heartbeatSeen = true;
             break;
         }
 
@@ -419,8 +419,19 @@ public:
     }
 
 
+public:
+
+    int getFlightModeFromString(const std::string &flightString){
+        return m_CurrentArduVehicleState->getFlightMode(flightString);
+    }
+
+    bool heartbeatUpdated(){
+        return heartbeatSeen;
+    }
+
 private:
 
+    bool heartbeatSeen = false;
     std::shared_ptr<VehicleFlightMode> m_CurrentArduVehicleState;
     std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
     std::shared_ptr<VehicleOperatingAttitude> m_CurrentArduVehicleAttitude;

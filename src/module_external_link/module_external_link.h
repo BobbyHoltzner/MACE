@@ -13,6 +13,8 @@
 
 #include "mace_core/i_module_command_external_link.h"
 
+#include "data_vehicle_sensors/components.h"
+
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink : public MaceCore::IModuleCommandExternalLink
 {
 
@@ -41,8 +43,9 @@ public:
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
 private:
-
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;
+
 };
 
 #endif // MODULE_EXTERNAL_LINK_H

@@ -10,4 +10,7 @@
 #include "global_velocity.h"
 #include "attitude.h"
 
+#include "coordinate_frame.h"
+#include "position.h"
+
 #endif // DATA_VEHICLE_GENERIC_COMPONENTS_H

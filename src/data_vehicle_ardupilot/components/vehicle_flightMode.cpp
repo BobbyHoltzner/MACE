@@ -7,7 +7,7 @@ const char VehicleOperatingParameters_name[] = "vehicle_operating_parameters";
 const MaceCore::TopicComponentStructure VehicleOperatingParameters_structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<int>("vehicleType");
-    structure.AddTerminal<uint32_t>("flightMode");
+    structure.AddTerminal<int>("flightMode");
 
     return structure;
 }();
@@ -16,7 +16,7 @@ const MaceCore::TopicComponentStructure VehicleOperatingParameters_structure = [
 MaceCore::TopicDatagram VehicleFlightMode::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<int>("vehicleType", (int)m_VehicleType);
-    datagram.AddTerminal<uint32_t>("flightMode", m_FlightMode);
+    datagram.AddTerminal<int>("flightMode", m_FlightMode);
 
     return datagram;
 }
@@ -25,6 +25,36 @@ MaceCore::TopicDatagram VehicleFlightMode::GenerateDatagram() const {
 void VehicleFlightMode::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
     m_VehicleType = (VehicleTypes)datagram.GetTerminal<int>("vehicleType");
     m_FlightMode = datagram.GetTerminal<uint32_t>("flightMode");
+}
+
+int VehicleFlightMode::getFlightMode(const std::string &flightMode){
+
+    std::map<int,std::string> availableFM;
+
+    if(m_VehicleType == VehicleTypes::PLANE){
+        availableFM = arduplaneFM;
+    }else{
+        availableFM = arducopterFM;
+    }
+
+    std::map<int,std::string>::iterator it;
+    int vehicleModeID = 0;
+
+    for (it=availableFM.begin(); it != availableFM.end(); it++)
+    {
+        if(it->second == flightMode)
+        {
+            vehicleModeID = it->first;
+            return vehicleModeID;
+        }
+    }
+    //Probably dont want to error here but what would be the safest method
+    throw std::runtime_error("The flight mode provided does not exist");
+}
+
+void VehicleFlightMode::getAvailableFlightModes(const VehicleTypes &vehicleType, std::map<int, std::string> &availableFM)
+{
+
 }
 
 void VehicleFlightMode::parseMAVLINK(const mavlink_heartbeat_t &msg)
