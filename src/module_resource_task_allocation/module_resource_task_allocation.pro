@@ -1,23 +1,33 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-01-13T16:56:01
+# Project created by QtCreator 2017-01-31T19:28:14
 #
 #-------------------------------------------------
 
 QT       -= core gui
 
-TARGET = module_external_link
+TARGET = module_resource_task_allocation
 TEMPLATE = lib
-
-DEFINES += MODULE_EXTERNAL_LINK_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-SOURCES += module_external_link.cpp
+DEFINES += MODULE_RESOURCE_TASK_ALLOCATION_LIBRARY
 
-HEADERS += module_external_link.h\
-        module_external_link_global.h
+# The following define makes your compiler emit warnings if you use
+# any feature of Qt which as been marked as deprecated (the exact warnings
+# depend on your compiler). Please consult the documentation of the
+# deprecated API in order to know how to port your code away from it.
+DEFINES += QT_DEPRECATED_WARNINGS
 
+# You can also make your code fail to compile if you use deprecated APIs.
+# In order to do so, uncomment the following line.
+# You can also select to disable deprecated APIs only up to a certain version of Qt.
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+
+SOURCES += module_rta.cpp
+
+HEADERS += module_rta.h\
+        module_resource_task_allocation_global.h
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib
@@ -26,15 +36,15 @@ unix:!symbian {
 
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib
-win32:CONFIG(release, debug|release):       lib.files   += release/module_vehicle_MAVLINK.lib release/module_external_link.dll
-else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_MAVLINK.lib debug/module_external_link.dll
+win32:CONFIG(release, debug|release):       lib.files   += release/module_resource_task_allocation.lib release/module_resource_task_allocation.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_resource_task_allocation.lib debug/module_resource_task_allocation.dll
 INSTALLS += lib
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_external_link
+headers.path    = $$(MACE_ROOT)/include/module_resource_task_allocation
 headers.files   += \
-        module_external_link.h\
-        module_external_link_global.h
+        module_resource_task_allocation_global.h\
+        module_rta.h
 INSTALLS       += headers
 
 
@@ -81,4 +91,3 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
-

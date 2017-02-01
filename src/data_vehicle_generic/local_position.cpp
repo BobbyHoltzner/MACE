@@ -9,7 +9,7 @@ namespace DataVehicleGeneric
 const char LocalPosition_name[] = "local_position";
 const MaceCore::TopicComponentStructure LocalPosition_structure = [](){
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<PositionFrame>("PositionFrame");
+    structure.AddTerminal<Data::PositionalFrame>("PositionFrame");
     structure.AddTerminal<CoordinateFrame>("CoordinateFrame");
     structure.AddTerminal<double>("x");
     structure.AddTerminal<double>("y");
@@ -21,7 +21,7 @@ const MaceCore::TopicComponentStructure LocalPosition_structure = [](){
 
 MaceCore::TopicDatagram LocalPosition::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<PositionFrame>("PositionFrame", m_PositionFrame);
+    datagram.AddTerminal<Data::PositionalFrame>("PositionFrame", m_PositionFrame);
     datagram.AddTerminal<CoordinateFrame>("CoordinateFrame", m_CoordinateFrame);
     datagram.AddTerminal<double>("x", x);
     datagram.AddTerminal<double>("y", y);
@@ -31,7 +31,7 @@ MaceCore::TopicDatagram LocalPosition::GenerateDatagram() const {
 
 
 void LocalPosition::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    m_PositionFrame = datagram.GetTerminal<PositionFrame>("PositionFrame");
+    m_PositionFrame = datagram.GetTerminal<Data::PositionalFrame>("PositionFrame");
     m_CoordinateFrame = datagram.GetTerminal<CoordinateFrame>("CoordinateFrame");
     x = datagram.GetTerminal<double>("x");
     y = datagram.GetTerminal<double>("y");
@@ -39,19 +39,19 @@ void LocalPosition::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) 
 }
 
 LocalPosition::LocalPosition():
-    Position(PositionFrame::LOCAL)
+    Position(Data::PositionalFrame::LOCAL)
 {
 
 }
 
 LocalPosition::LocalPosition(const CoordinateFrame &frame):
-    Position(PositionFrame::LOCAL, frame)
+    Position(Data::PositionalFrame::LOCAL, frame)
 {
 
 }
 
 LocalPosition::LocalPosition(const double &x, const double &y, const double &z):
-    Position(PositionFrame::LOCAL)
+    Position(Data::PositionalFrame::LOCAL)
 {
     this->x = x;
     this->y = y;
@@ -59,7 +59,7 @@ LocalPosition::LocalPosition(const double &x, const double &y, const double &z):
 }
 
 LocalPosition::LocalPosition(const CoordinateFrame &frame, const double &x, const double &y, const double &z):
-    Position(PositionFrame::LOCAL,frame)
+    Position(Data::PositionalFrame::LOCAL,frame)
 {
     this->x = x;
     this->y = y;

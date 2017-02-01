@@ -1,28 +1,26 @@
-#ifndef MODULE_VEHICLE_SENSORS_H
-#define MODULE_VEHICLE_SENSORS_H
+#ifndef MODULE_RTA_H
+#define MODULE_RTA_H
 
-#include "module_vehicle_sensors_global.h"
+#include "module_resource_task_allocation_global.h"
 
 #include "Eigen/Dense"
 
 #include "mace_core/i_module_topic_events.h"
-
 #include "data/i_topic_component_data_object.h"
 #include "data/topic_data_object_collection.h"
+#include "mace_core/i_module_command_RTA.h"
+
 
 #include "data_vehicle_sensors/components.h"
-#include "mace_core/i_module_command_sensors.h"
-
 #include "data_vehicle_commands/action_components.h"
 #include "data_vehicle_commands/mission_components.h"
-
 #include "data_vehicle_generic/components.h"
 
-class MODULE_VEHICLE_SENSORSSHARED_EXPORT ModuleVehicleSensors : public MaceCore::IModuleCommandSensors
+class MODULE_RESOURCE_TASK_ALLOCATIONSHARED_EXPORT ModuleRTA : public MaceCore::IModuleCommandRTA
 {
 
 public:
-    ModuleVehicleSensors();
+    ModuleRTA();
 
     //!
     //! \brief This module as been attached as a module
@@ -45,10 +43,7 @@ public:
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
-    void computeVehicleFootprint(const double &roll, const double &pitch, const double &yaw, const double &altitude);
-
 private:
-
     Data::TopicDataObjectCollection<DATA_VEHICLE_ACTION_COMMAND_TYPES> m_CommandVehicleTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_MISSION_LIST> m_CommandVehicleMissionList;
     Data::TopicDataObjectCollection<DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;
@@ -56,9 +51,7 @@ private:
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;
 
-
-
-
 };
 
-#endif // MODULE_VEHICLE_SENSORS_H
+#endif // MODULE_RTA_H
+

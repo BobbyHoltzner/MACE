@@ -21,12 +21,12 @@ namespace DataVehicleCommands {
 
     template<>
     CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>::CommandMissionWaypoint(){
-        m_PositionFrame = DataVehicleGeneric::PositionFrame::GLOBAL;
+        m_PositionFrame = Data::PositionalFrame::GLOBAL;
     }
 
     template<>
     CommandMissionWaypoint<DataVehicleGeneric::LocalPosition>::CommandMissionWaypoint(){
-        m_PositionFrame = DataVehicleGeneric::PositionFrame::LOCAL;
+        m_PositionFrame = Data::PositionalFrame::LOCAL;
     }
 
     template <>

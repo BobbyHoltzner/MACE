@@ -19,7 +19,6 @@ template<const char* CompName, const MaceCore::TopicComponentStructure *Structur
 class NamedTopicComponentDataObject : public ITopicComponentDataObject{
 
 public:
-
     static std::string Name() {
         return std::string(CompName);
     }
@@ -30,6 +29,7 @@ public:
 
 
 };
+
 
 }
 

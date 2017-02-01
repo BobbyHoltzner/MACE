@@ -21,12 +21,12 @@ std::string CommandVehicleLand<T>::getDescription() const
 
 template<>
 CommandVehicleLand<DataVehicleGeneric::GlobalPosition>::CommandVehicleLand(){
-    m_PositionFrame = DataVehicleGeneric::PositionFrame::GLOBAL;
+    m_PositionFrame = Data::PositionalFrame::GLOBAL;
 }
 
 template<>
 CommandVehicleLand<DataVehicleGeneric::LocalPosition>::CommandVehicleLand(){
-    m_PositionFrame = DataVehicleGeneric::PositionFrame::LOCAL;
+    m_PositionFrame = Data::PositionalFrame::LOCAL;
 }
 
 template <>
