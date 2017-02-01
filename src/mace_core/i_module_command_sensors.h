@@ -25,7 +25,9 @@ public:
     IModuleCommandSensors():
         AbstractModule_EventListeners()
     {
-
+        AddCommandLogic<int>(VehicleCommands::CREATE_VEHICLE_OBJECT, [this](const int &vehicleID){
+            CreateVehicleObject(vehicleID);
+        });
     }
 
     virtual Classes ModuleClass() const

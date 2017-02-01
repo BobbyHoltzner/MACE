@@ -8,9 +8,7 @@ namespace MaceCore
 
 MaceCore::MaceCore()
 {
-    insertFlag = false;
-    counter = 0;
-    counter_new_vehicle = 0;
+
 }
 
 
@@ -26,20 +24,20 @@ void MaceCore::AddDataFusion(const std::shared_ptr<MaceData> dataFusion)
 
 void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle)
 {
-//    if(m_VehicleIDToPtr.find(ID) != m_VehicleIDToPtr.cend())
-//        throw std::runtime_error("Vehicle ID already exists");
+    if(m_VehicleIDToPtr.find(ID) != m_VehicleIDToPtr.cend())
+        throw std::runtime_error("Vehicle ID already exists");
 
-//    m_VehicleIDToPtr.insert({ID, vehicle.get()});
-//    m_VehiclePTRToID.insert({vehicle.get(), ID});
+    m_VehicleIDToPtr.insert({ID, vehicle.get()});
+    m_VehiclePTRToID.insert({vehicle.get(), ID});
 
-//    m_DataFusion->AddVehicle(ID);
+    //m_DataFusion->AddVehicle(ID);
 
-//    vehicle->addListener(this);
+    vehicle->addListener(this);
 
-//    std::unordered_map<std::string, TopicStructure> topics = vehicle->GetTopics();
-//    for(auto it = topics.cbegin() ; it != topics.cend() ; ++it) {
-//        this->AddTopic(it->first, it->second);
-//    }
+    std::unordered_map<std::string, TopicStructure> topics = vehicle->GetTopics();
+    for(auto it = topics.cbegin() ; it != topics.cend() ; ++it) {
+        this->AddTopic(it->first, it->second);
+    }
 }
 
 
@@ -125,22 +123,12 @@ void MaceCore::NewTopicDataValues(const std::string &topicName, const int sender
 /////////////////////////////////////////////////////////////////////////
 void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
 {
-    std::cout<<"I made it into here"<<std::endl;
+    std::cout<<"A new vehicle was seen"<<std::endl;
+    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
+    m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
+    m_DataFusion->AddAvailableVehicle(newVehicleObserved);
 }
 
-bool MaceCore::VehicleCheck(const int &vehicleID)
-{
-    std::list<int>::iterator it;
-    for (it=m_VehicleObjectRequired.begin(); it != m_VehicleObjectRequired.end(); ++it)
-    {
-        if(*it == vehicleID)
-        {
-            return true;
-        }
-    }
-    m_VehicleObjectRequired.push_back(vehicleID);
-    return false;
-}
 
 /*
 void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const VehicleMessage &vehicleMessage)

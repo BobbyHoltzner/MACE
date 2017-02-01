@@ -50,8 +50,6 @@ public:
 
     void RemoveVehicle(const std::string &ID);
 
-    bool VehicleCheck(const int &vehicleID);
-
 
 public: //The following functions add specific modules to connect to mace core
 
@@ -157,18 +155,10 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 private:
-    int counter_new_vehicle;
-    int counter;
-    bool insertFlag;
-
     std::unordered_map<std::string, TopicStructure> m_Topics;
     std::unordered_map<std::string, std::vector<ModuleBase*>> m_TopicNotifier;
 
-    std::list<int> m_VehicleObjectRequired;
-
-    //std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
     std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;
-    std::map<IModuleCommandVehicle*, int> m_PortToVehicleID;
 
     std::map<std::string, IModuleCommandVehicle*> m_VehicleIDToPtr;
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
@@ -178,10 +168,6 @@ private:
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;
     std::shared_ptr<IModuleCommandSensors> m_Sensors;
     std::shared_ptr<IModuleCommandRTA> m_RTA;
-
-
-
-
 
     std::shared_ptr<MaceData> m_DataFusion;
 };

@@ -31,7 +31,7 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
     int newSystemID = message.sysid;
     try{
         tmpParser = m_ArduPilotMAVLINKParser.at(newSystemID);
-//        NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+//        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
 //               ptr->NewConstructedVehicle(this,newSystemID);
 //            });
     }catch(const std::out_of_range &oor)
