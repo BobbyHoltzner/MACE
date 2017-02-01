@@ -18,4 +18,5 @@ SUBDIRS += \
     module_external_link\
     module_vehicle_sensors \
     data_vehicle_sensors \
-    data_vehicle_commands
+    data_vehicle_commands \
+    module_resource_task_allocation
