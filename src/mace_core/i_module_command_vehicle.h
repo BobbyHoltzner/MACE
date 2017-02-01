@@ -23,7 +23,7 @@ enum class VehicleCommands
 
 class MaceCore;
 
-class MACE_CORESHARED_EXPORT IModuleCommandVehicle : public AbstractModule_EventListeners<MetadataVehicle, IModuleTopicEvents, VehicleCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandVehicle : public AbstractModule_EventListeners<MetadataVehicle, IModuleEventsVehicle, VehicleCommands>
 {
 friend class MaceCore;
 public:
@@ -33,6 +33,7 @@ public:
     IModuleCommandVehicle():
         AbstractModule_EventListeners()
     {
+        //These are from MACE Core to modules
         AddCommandLogic<int>(VehicleCommands::CREATE_VEHICLE_OBJECT, [this](const int &vehicleID){
             CreateVehicleObject(vehicleID);
         });

@@ -48,6 +48,8 @@ public:
     }
 
 
+
+
     //!
     //! \brief Add a listener to the module
     //! Multiple listners can be added if desired
@@ -56,7 +58,20 @@ public:
     void addListener(I *listener)
     {
         m_Listeners.push_back(listener);
+    }
+
+    void addTopicListener(IModuleTopicEvents *listener)
+    {
+        m_TopicListeners.push_back(listener);
         AttachedAsModule(listener);
+    }
+
+    void NotifyListenersOfTopic(const std::function<void(IModuleTopicEvents*)> &func) const
+    {
+        for(auto it = m_TopicListeners.cbegin() ; it != m_TopicListeners.cend() ; ++it)
+        {
+            func(*it);
+        }
     }
 
 
@@ -80,7 +95,7 @@ public:
     //! \brief This module as been attached as a module
     //! \param ptr pointer to object that attached this instance to itself
     //!
-    virtual void AttachedAsModule(I* ptr) = 0;
+    virtual void AttachedAsModule(IModuleTopicEvents* ptr) = 0;
 
 
     //////////////////////////////////////////////////////////////////////
@@ -241,6 +256,7 @@ private:
     T m_MetaData;
 
     std::vector<I*> m_Listeners;
+    std::vector<IModuleTopicEvents*> m_TopicListeners;
 
     std::chrono::milliseconds m_LoopSleepTime;
 

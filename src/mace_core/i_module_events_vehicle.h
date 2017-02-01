@@ -12,6 +12,7 @@ namespace MaceCore
 class IModuleEventsVehicle
 {
 public:
+    //A vehicle module can indicate something has happened
     virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved) = 0;
 
 

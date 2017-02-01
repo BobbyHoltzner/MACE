@@ -56,9 +56,14 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         }
 
         //notify listneres of topic
-        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
+        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
         });
+
+        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->NewConstructedVehicle(this, 1);
+        });
+
     }
 }
 
