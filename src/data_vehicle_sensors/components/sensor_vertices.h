@@ -27,8 +27,8 @@ class SensorVerticesBase
 {
 public:
     std::list<T*> getSensorVertices();
-    void setSensorVertices(const std::list<T*> &sensorVertices);
-    void insertSensorVertice(T* verticePosition);
+    void setSensorVertices(const std::list<T*> verticeList);
+    void insertSensorVertice(T *verticePosition);
 
 protected:
     std::string sensorName;

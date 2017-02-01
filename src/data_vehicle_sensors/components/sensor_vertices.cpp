@@ -68,6 +68,18 @@ void SensorVerticesBase<T>::insertSensorVertice(T *verticePosition)
     verticeLocations.push_back(verticePosition);
 }
 
+template <class T>
+std::list<T*> SensorVerticesBase<T>::getSensorVertices()
+{
+    return verticeLocations;
+}
+
+template <class T>
+void SensorVerticesBase<T>::setSensorVertices(const std::list<T*> verticeList)
+{
+    verticeLocations = verticeList;
+}
+
 } //end of namespace DataVehicleSensors
 template class DataVehicleSensors::SensorVerticesBase<DataVehicleGeneric::GlobalPosition>;
 template class DataVehicleSensors::SensorVerticesBase<DataVehicleGeneric::LocalPosition>;
