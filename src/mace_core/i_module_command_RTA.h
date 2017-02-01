@@ -4,36 +4,28 @@
 #include <string>
 #include <map>
 
-#include "abstract_module_base_vehicle_listener.h"
+#include "abstract_module_event_listeners.h"
 #include "metadata_rta.h"
-
-#include "i_module_events_rta.h"
-
-#include "metadata_vehicle.h"
-
-#include "vehicle_data.h"
+#include "i_module_topic_events.h"
 
 namespace MaceCore
 {
 
 enum class RTACommands
 {
-    BASE_MODULE_VEHICLE_LISTENER_ENUMS,
-    UPDATED_OCCUPANCY_MAP
+
 };
 
-class MACE_CORESHARED_EXPORT IModuleCommandRTA : public AbstractModule_VehicleListener<Metadata_RTA, IModuleEventsRTA, RTACommands>
+class MACE_CORESHARED_EXPORT IModuleCommandRTA : public AbstractModule_EventListeners<Metadata_RTA, IModuleTopicEvents, RTACommands>
 {
 public:
 
     static Classes moduleClass;
 
     IModuleCommandRTA():
-        AbstractModule_VehicleListener()
+        AbstractModule_EventListeners()
     {
-        AddCommandLogic(RTACommands::UPDATED_OCCUPANCY_MAP, [this](){
-            UpdatedOccupancyMap();
-        });
+
     }
 
     virtual Classes ModuleClass() const
@@ -44,19 +36,9 @@ public:
 public:
 
 
-
-
-    //!
-    //! \brief Signal indicating the Occupancy Map has been updated
-    //!
-    //! The map data can be read from using MaceData object in getDataObject()
-    //!
-    virtual void UpdatedOccupancyMap() = 0;
-
-
 };
-
 
 } //End MaceCore Namespace
 
 #endif // I_RTA_H
+

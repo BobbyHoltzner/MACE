@@ -4,7 +4,6 @@ SUBDIRS += \
     mace_core \
     module_vehicle_MAVLINK \
     module_path_planning_NASAPhase2 \
-    module_RTA_NASAPhase2 \
     mace \
     comms \
     common \
@@ -18,4 +17,5 @@ SUBDIRS += \
     module_external_link\
     module_vehicle_sensors \
     data_vehicle_sensors \
-    data_vehicle_commands
+    data_vehicle_commands \
+    module_resource_task_allocation
