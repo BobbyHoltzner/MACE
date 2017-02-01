@@ -46,9 +46,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_path_plannin
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_path_planning_NASAPhase2/debug/ -lmodule_path_planning_NASAPhase2
 else:unix: LIBS += -L$$OUT_PWD/../module_path_planning_NASAPhase2/ -lmodule_path_planning_NASAPhase2
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_RTA_NASAPhase2/release/ -lmodule_RTA_NASAPhase2
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_RTA_NASAPhase2/debug/ -lmodule_RTA_NASAPhase2
-else:unix: LIBS += -L$$OUT_PWD/../module_RTA_NASAPhase2/ -lmodule_RTA_NASAPhase2
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/release/ -lmodule_resource_task_allocation
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/debug/ -lmodule_resource_task_allocation
+else:unix:!macx: LIBS += -L$$OUT_PWD/../module_resource_task_allocation/ -lmodule_resource_task_allocation
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_ground_station/release/ -lmodule_ground_station
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_ground_station/debug/ -lmodule_ground_station
@@ -110,3 +110,6 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
+
+
+

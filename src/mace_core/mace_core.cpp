@@ -36,9 +36,6 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
 
     vehicle->addListener(this);
 
-    if(m_RTA != NULL)
-        m_RTA->MarshalCommand(RTACommands::NEW_VEHICLE, ID);
-
     std::unordered_map<std::string, TopicStructure> topics = vehicle->GetTopics();
     for(auto it = topics.cbegin() ; it != topics.cend() ; ++it) {
         this->AddTopic(it->first, it->second);
@@ -56,9 +53,6 @@ void MaceCore::RemoveVehicle(const std::string &ID)
 
 
     m_DataFusion->RemoveVehicle(ID);
-
-    if(m_RTA != NULL)
-        m_RTA->MarshalCommand(RTACommands::REMOVE_VEHICLE, ID);
 }
 
 
@@ -122,10 +116,6 @@ void MaceCore::NewTopicDataValues(const std::string &topicName, const int sender
             (*it)->NewTopic(topicName, senderID, components);
         }
     }
-
-    //notify attached modules of updated topic.
-    //m_RTA->MarshalCommand(RTACommands::UPDATED_POSITION_DYNAMICS, ID);
-    //m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, ID);
 }
 
 
@@ -191,7 +181,6 @@ void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const E
 
     m_DataFusion->AddPositionDynamics(ID, time, pos, vel);
 
-    m_RTA->MarshalCommand(RTACommands::UPDATED_POSITION_DYNAMICS, ID);
     m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, ID);
     //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, ID);
 }
@@ -204,7 +193,6 @@ void MaceCore::NewDynamicsDynamics(const void* sender, const TIME &time, const E
 
     m_DataFusion->AddAttitudeDynamics(ID, time, attitude, attitudeRate);
 
-    m_RTA->MarshalCommand(RTACommands::UPDATED_ATTITUDE_DYNAMICS, ID);
     m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
     //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
 }
@@ -217,7 +205,6 @@ void MaceCore::NewVehicleLife(const void* sender, const TIME &time, const Vehicl
 
     m_DataFusion->AddVehicleLife(ID, time, life);
 
-    m_RTA->MarshalCommand(RTACommands::UPDATED_VEHICLE_LIFE, ID);
     m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_VEHICLE_LIFE, ID);
     //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_VEHICLE_LIFE, ID);
 }
@@ -305,7 +292,6 @@ void MaceCore::NewOccupancyMap(const Eigen::MatrixXd &occupancyMap)
 {
     m_DataFusion->OccupancyMap_ReplaceMatrix(occupancyMap);
 
-    m_RTA->UpdatedOccupancyMap();
 }
 
 
@@ -324,7 +310,6 @@ void MaceCore::ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>
 
     m_DataFusion->OccupancyMap_GenericOperation(func);
 
-    m_RTA->UpdatedOccupancyMap();
 }
 
 
