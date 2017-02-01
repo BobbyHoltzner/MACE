@@ -5,9 +5,7 @@
 #include "metadata_vehicle.h"
 
 #include "i_module_topic_events.h"
-
-#include <Eigen/Dense>
-
+#include "i_module_events_vehicle.h"
 
 namespace MaceCore
 {

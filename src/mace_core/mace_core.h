@@ -80,15 +80,7 @@ public:
     /// VEHICLE EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    virtual void NewConstructedVehicle(const void* sender, const std::shared_ptr<VehicleObject> &vehicleObject);
-
-    virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage);
-
-    virtual void NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &position, const Eigen::Vector3d &attitude);
-
-    virtual void NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate);
-
-    virtual void NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &life);
+    virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
 
 public:
 
@@ -170,7 +162,6 @@ private:
     bool insertFlag;
 
     std::unordered_map<std::string, TopicStructure> m_Topics;
-
     std::unordered_map<std::string, std::vector<ModuleBase*>> m_TopicNotifier;
 
     std::list<int> m_VehicleObjectRequired;

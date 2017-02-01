@@ -1,7 +1,5 @@
 #include "module_vehicle_ardupilot.h"
 
-#include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
-
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),m_CommandVehicleTopic("commandData"),m_CommandVehicleMissionList("vehicleMissionList")
 {
@@ -29,9 +27,22 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 {
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>::MavlinkMessage(linkName, message);
 
-    //generate topic datagram from given mavlink message
-    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_ArduPilotMAVLINKParser.Parse(&message);
+    DataVehicleArdupilot::MAVLINKParserArduPilot* tmpParser;
+    int newSystemID = message.sysid;
+    try{
+        tmpParser = m_ArduPilotMAVLINKParser.at(newSystemID);
+//        NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+//               ptr->NewConstructedVehicle(this,newSystemID);
+//            });
+    }catch(const std::out_of_range &oor)
+    {
+        std::cout<<"This vehicle parser was not currently in the map. Going to add one."<<std::endl;
+        tmpParser = new DataVehicleArdupilot::MAVLINKParserArduPilot();
+        m_ArduPilotMAVLINKParser.insert({newSystemID,tmpParser});
+    }
 
+    //generate topic datagram from given mavlink message
+    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = tmpParser->Parse(&message);
 
     //procede to send components only if there is 1 or more
     if(components.size() > 0)
@@ -66,15 +77,15 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
                 case(DataVehicleCommands::ActionCommandTypes::CHANGE_MODE):
                 {
                     //should find a better way to do this
-                    if(m_ArduPilotMAVLINKParser.heartbeatUpdated())
-                    {
-                        DataVehicleCommands::CommandVehicleMode* cmdMode = (DataVehicleCommands::CommandVehicleMode*)component->getActionItem().get();
-                        int newMode = m_ArduPilotMAVLINKParser.getFlightModeFromString(cmdMode->getRequestMode());
-                        uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
-                        mavlink_message_t msg;
-                        mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,1,MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,newMode);
-                        m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
-                    }
+//                    if(m_ArduPilotMAVLINKParser.heartbeatUpdated())
+//                    {
+//                        DataVehicleCommands::CommandVehicleMode* cmdMode = (DataVehicleCommands::CommandVehicleMode*)component->getActionItem().get();
+//                        int newMode = m_ArduPilotMAVLINKParser.getFlightModeFromString(cmdMode->getRequestMode());
+//                        uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
+//                        mavlink_message_t msg;
+//                        mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,1,MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,newMode);
+//                        m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+//                    }
                     break;
                 }
                 case(DataVehicleCommands::ActionCommandTypes::ARM):

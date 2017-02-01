@@ -5,12 +5,15 @@
 #include "vehicle_data.h"
 #include "topic.h"
 
+#include "i_module_topic_events.h"
+
 namespace MaceCore
 {
 
-class IModuleEventsVehicle
+class IModuleEventsVehicle : public IModuleTopicEvents
 {
 public:
+    virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved) = 0;
 
 
 };
