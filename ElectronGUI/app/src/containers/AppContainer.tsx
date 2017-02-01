@@ -65,8 +65,9 @@ export default class AppContainer extends React.Component<Props, State> {
       tcpPort: 1234,
       maxZoom: 20,
       initialZoom: 18,
-      mapCenter: [37.889231, -76.810302],
-      // mapCenter: [45.283410, -111.400850],
+      // mapCenter: [37.889231, -76.810302], // Bob's Farm
+      mapCenter: [-35.363272, 149.165249], // SITL Default
+      // mapCenter: [45.283410, -111.400850], // Big Sky
       connectedVehicles: {},
       vehicleWarnings: [],
       openDrawer: false
@@ -77,11 +78,11 @@ export default class AppContainer extends React.Component<Props, State> {
     this.leafletMap = this.refs.map;
     this.notificationSystem = this.refs.notificationSystem;
 
-    this.setupTCPClient();
+    // this.setupTCPClient();
 
-    setInterval(() => {
-      this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
-    }, 3000);
+    // setInterval(() => {
+    //   this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
+    // }, 3000);
   }
 
   makeTCPRequest = (command: string, vehicleID: number) => {
