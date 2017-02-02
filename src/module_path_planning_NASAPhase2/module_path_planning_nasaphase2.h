@@ -39,31 +39,6 @@ public:
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
-public:
-
-
-    virtual void NewVehicle(const std::string &ID);
-
-    virtual void RemoveVehicle(const std::string &ID);
-
-    virtual void UpdatedPositionDynamics(const std::string &vehicleID);
-
-    virtual void UpdateAttitudeDynamics(const std::string &vehicleID);
-
-    virtual void UpdatedVehicleLife(const std::string &vehicleID);
-
-
-    //!
-    //! \brief New targets have been assigned to the given vehicle
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void NewVehicleTarget(const std::string &vehicleID);
-
-
-    //!
-    //! \brief For one reason or another a recomputation of all vehicles' paths is requested
-    //!
-    virtual void RecomputePaths();
 };
 
 #endif // MODULE_PATH_PLANNING_NASAPHASE2_H

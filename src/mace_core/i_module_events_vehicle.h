@@ -1,11 +1,6 @@
 #ifndef I_VEHICLE_EVENTS_H
 #define I_VEHICLE_EVENTS_H
 
-#include <functional>
-#include "vehicle_data.h"
-#include "topic.h"
-#include "i_module_topic_events.h"
-
 namespace MaceCore
 {
 

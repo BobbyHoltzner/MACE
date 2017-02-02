@@ -82,3 +82,4 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
         }
     }
 }
+

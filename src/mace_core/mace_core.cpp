@@ -127,6 +127,11 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
     m_DataFusion->AddAvailableVehicle(newVehicleObserved);
+
+//    m_GroundStation->NewlyAvailableVehicle(newVehicleObserved);
+    m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
+//    m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
+//    m_PathPlanning->MarshalCommand(PathPlanningCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
 }
 
 
@@ -198,7 +203,7 @@ void MaceCore::NewVehicleTargets(const std::string &vehicleID, const std::vector
 {
     m_DataFusion->setVehicleTarget(vehicleID, target);
 
-    m_PathPlanning->NewVehicleTarget(vehicleID);
+    //m_PathPlanning->NewVehicleTarget(vehicleID);
 }
 
 /////////////////////////////////////////////////////////////////////////

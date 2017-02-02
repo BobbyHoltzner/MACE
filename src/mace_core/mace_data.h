@@ -100,6 +100,12 @@ public:
     /// VEHICLE DATA
     /////////////////////////////////////////////////////////
 
+public:
+    void GetAvailableVehicles(std::vector<int> &vehicleIDs) const
+    {
+        std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
+        vehicleIDs = m_AvailableVehicles;
+    }
 private:
 
     void AddAvailableVehicle(const int &vehicleID)
@@ -108,11 +114,6 @@ private:
         m_AvailableVehicles.push_back(vehicleID);
         std::sort( m_AvailableVehicles.begin(), m_AvailableVehicles.end());
         m_AvailableVehicles.erase( unique( m_AvailableVehicles.begin(), m_AvailableVehicles.end() ), m_AvailableVehicles.end() );
-    }
-
-    void GetAvailableVehicles(std::vector<int> &vehicleIDs)
-    {
-        vehicleIDs = m_AvailableVehicles;
     }
 
 //    void RemoveVehicle(const int &vehicleID){

@@ -106,6 +106,11 @@ public:
     virtual void UpdatedVehicleLife(const std::string &vehicleID);
 
 
+    //! Virtual functions as defined by IModuleCommandSensors
+public:
+
+    virtual void NewlyAvailableVehicle(const int &vehicleID);
+
 
 private:
     void UpdatedVehicleMap(const std::string &vehicleID);

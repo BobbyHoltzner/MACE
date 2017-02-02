@@ -8,19 +8,19 @@
 #include "metadata_ground_station.h"
 
 #include "i_module_topic_events.h"
-
-#include "vehicle_data.h"
+#include "i_module_events_sensors.h"
 
 namespace MaceCore
 {
 
 enum class ExternalLinkCommands
 {
+    NEW_AVAILABLE_VEHICLE
 };
 
-
-class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_EventListeners<Metadata_GroundStation, IModuleTopicEvents, ExternalLinkCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_EventListeners<Metadata_GroundStation, IModuleEventsSensors, ExternalLinkCommands>
 {
+    friend class MaceCore;
 public:
 
     static Classes moduleClass;
@@ -37,8 +37,6 @@ public:
     }
 
 public:
-
-
 
 };
 
