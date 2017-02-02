@@ -27,12 +27,14 @@ public:
 
     GlobalPosition(const CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude);
 
+    void setPosition(const double &latitude, const double &longitude, const double &altitude);
+
 public:
     GlobalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag);
 
 
     double distanceBetween2D(const GlobalPosition &position);
-    double distanceBetween3D(const GlobalPosition &position, const int &altitudeCode);
+    double distanceBetween3D(const GlobalPosition &position);
 
     double bearingBetween(const GlobalPosition &position);
 
@@ -40,11 +42,30 @@ public:
 
     double initialBearing(const GlobalPosition &postion);
 
+
+public:
+    bool operator == (const GlobalPosition &rhs) {
+        if(this->latitude != rhs.latitude){
+            return false;
+        }
+        if(this->longitude != rhs.longitude){
+            return false;
+        }
+        if(this->altitude != rhs.altitude){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const GlobalPosition &rhs) {
+        return !(*this == rhs);
+    }
+
 public:
 
     double latitude;
     double longitude;
-    std::unordered_map<int, double> altitude;
+    double altitude;
 };
 
 }

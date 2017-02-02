@@ -42,6 +42,7 @@ public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 public:
+    SensorVertices_Global();
     SensorVertices_Global(const std::string &sensorName);
 
 };
@@ -52,6 +53,7 @@ public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 public:
+    SensorVertices_Local();
     SensorVertices_Local(const std::string &sensorName);
 };
 

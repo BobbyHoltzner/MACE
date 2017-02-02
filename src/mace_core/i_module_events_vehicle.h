@@ -1,16 +1,14 @@
 #ifndef I_VEHICLE_EVENTS_H
 #define I_VEHICLE_EVENTS_H
 
-#include <functional>
-#include "vehicle_data.h"
-#include "topic.h"
-
 namespace MaceCore
 {
 
 class IModuleEventsVehicle
 {
 public:
+    //A vehicle module can indicate something has happened
+    virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved) = 0;
 
 
 };

@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <functional>
 #include <mutex>
+#include <list>
 
 #include <Eigen/Dense>
 
@@ -99,17 +100,25 @@ public:
     /// VEHICLE DATA
     /////////////////////////////////////////////////////////
 
+public:
+    void GetAvailableVehicles(std::vector<int> &vehicleIDs) const
+    {
+        std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
+        vehicleIDs = m_AvailableVehicles;
+    }
 private:
 
-    void AddVehicle(const std::string &rn)
+    void AddAvailableVehicle(const int &vehicleID)
     {
-        if(m_PositionDynamicsHistory.find(rn) != m_PositionDynamicsHistory.cend())
-            throw std::runtime_error("resource name already exists");
-
-        m_PositionDynamicsHistory.insert({rn, ObservationHistory<TIME, VectorDynamics>(m_MSTOKEEP)});
-        m_AttitudeDynamicsHistory.insert({rn, ObservationHistory<TIME, VectorDynamics>(m_MSTOKEEP)});
-        m_VehicleLifeHistory.insert({rn, ObservationHistory<TIME, VehicleLife>(m_MSTOKEEP)});
+        std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
+        m_AvailableVehicles.push_back(vehicleID);
+        std::sort( m_AvailableVehicles.begin(), m_AvailableVehicles.end());
+        m_AvailableVehicles.erase( unique( m_AvailableVehicles.begin(), m_AvailableVehicles.end() ), m_AvailableVehicles.end() );
     }
+
+//    void RemoveVehicle(const int &vehicleID){
+
+//    }
 
     void RemoveVehicle(const std::string &rn)
     {
@@ -598,6 +607,9 @@ private:
 
     std::unordered_map<std::string, std::unordered_map<int, TopicDatagram>> m_LatestTopic;
     std::unordered_map<std::string, std::unordered_map<int, std::unordered_map<std::string, TIME>>> m_LatestTopicComponentUpdateTime;
+
+    mutable std::mutex m_AvailableVehicleMutex;
+    std::vector<int> m_AvailableVehicles;
 
     uint64_t m_MSTOKEEP;
 

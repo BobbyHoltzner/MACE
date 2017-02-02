@@ -43,6 +43,12 @@ public:
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
+
+    //! Virtual functions as defined by IModuleCommandRTA
+public:
+
+    virtual void NewlyAvailableVehicle(const int &vehicleID);
+
 private:
     Data::TopicDataObjectCollection<DATA_VEHICLE_ACTION_COMMAND_TYPES> m_CommandVehicleTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_MISSION_LIST> m_CommandVehicleMissionList;

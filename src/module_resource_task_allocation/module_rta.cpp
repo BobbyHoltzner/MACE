@@ -118,3 +118,8 @@ void ModuleRTA::NewTopic(const std::string &topicName, int senderID, std::vector
     //            ptr->NewTopicDataValues(ModuleVehicleSensors::m_CommandVehicleMissionList.Name(), 1, MaceCore::TIME(), topicDatagram);
     //        });
 }
+
+void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
+{
+
+}

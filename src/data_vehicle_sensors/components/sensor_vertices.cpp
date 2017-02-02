@@ -50,12 +50,24 @@ void SensorVertices_Local::CreateFromDatagram(const MaceCore::TopicDatagram &dat
     verticeLocations = datagram.GetTerminal<std::list<DataVehicleGeneric::LocalPosition*>>("SensorVertices");
 }
 
+
+SensorVertices_Global::SensorVertices_Global()
+{
+    this->positionFrame = Data::PositionalFrame::GLOBAL;
+    this->sensorName = "";
+}
 SensorVertices_Global::SensorVertices_Global(const std::string &sensorName)
 {
     this->positionFrame = Data::PositionalFrame::GLOBAL;
     this->sensorName = sensorName;
 }
 
+
+SensorVertices_Local::SensorVertices_Local()
+{
+    this->positionFrame = Data::PositionalFrame::LOCAL;
+    this->sensorName = "";
+}
 SensorVertices_Local::SensorVertices_Local(const std::string &sensorName)
 {
     this->positionFrame = Data::PositionalFrame::LOCAL;
