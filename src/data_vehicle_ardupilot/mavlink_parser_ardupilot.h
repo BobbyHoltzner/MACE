@@ -19,7 +19,7 @@ class MAVLINKParserArduPilot
 public:
 
     MAVLINKParserArduPilot() :
-        m_CurrentArduVehicleState(NULL), m_CurrentArduVehicleStatus(NULL)
+        m_CurrentArduVehicleState(NULL), m_CurrentArduVehicleStatus(NULL), m_CurrentArduGlobalPosition(NULL)
     {
 
     }
@@ -169,9 +169,9 @@ public:
             mavlink_attitude_t decodedMSG;
             mavlink_msg_attitude_decode(message,&decodedMSG);
             std::shared_ptr<DataVehicleGeneric::Attitude> ptrAttitude = std::make_shared<DataVehicleGeneric::Attitude>();
-            ptrAttitude->setRoll(decodedMSG.roll);
-            //ptrAttitude->handleMSG(decodedMSG);
-            //check that something has actually changed
+            ptrAttitude->setAttitude(decodedMSG.roll,decodedMSG.pitch,decodedMSG.yaw);
+            ptrAttitude->setAttitudeRates(decodedMSG.rollspeed,decodedMSG.pitchspeed,decodedMSG.yawspeed);
+
             if(m_CurrentArduVehicleAttitude == NULL || *ptrAttitude != *m_CurrentArduVehicleAttitude)
             {
                 rtnVector.push_back(ptrAttitude);
@@ -182,8 +182,17 @@ public:
         {
             //This is message definition 33
             //The filtered global position (e.g. fused GPS and accelerometers). The position is in GPS-frame (right-handed, Z-up). It is designed as scaled integer message since the resolution of float is not sufficient.
-            //mavlink_global_position_int_t decodedMSG;
-            //mavlink_msg_global_position_int_decode(&message,&decodedMSG);
+            mavlink_global_position_int_t decodedMSG;
+            mavlink_msg_global_position_int_decode(message,&decodedMSG);
+            double power = pow(10,7);
+            std::shared_ptr<DataVehicleGeneric::GlobalPosition> ptrPosition = std::make_shared<DataVehicleGeneric::GlobalPosition>();
+            ptrPosition->setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
+            //check that something has actually changed
+            if(m_CurrentArduGlobalPosition == NULL || *ptrPosition != *m_CurrentArduGlobalPosition)
+            {
+                rtnVector.push_back(ptrPosition);
+                m_CurrentArduGlobalPosition = ptrPosition;
+            }
             break;
         }
 
@@ -433,6 +442,7 @@ private:
 
     bool heartbeatSeen = false;
     std::shared_ptr<VehicleFlightMode> m_CurrentArduVehicleState;
+    std::shared_ptr<DataVehicleGeneric::GlobalPosition> m_CurrentArduGlobalPosition;
     std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
     std::shared_ptr<VehicleOperatingAttitude> m_CurrentArduVehicleAttitude;
 

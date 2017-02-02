@@ -13,19 +13,24 @@ namespace MaceCore
 
 enum class SensorCommands
 {
+    CREATE_VEHICLE_OBJECT
 };
 
+class MaceCore;
 
 class MACE_CORESHARED_EXPORT IModuleCommandSensors : public AbstractModule_EventListeners<Metadata_Sensors, IModuleTopicEvents, SensorCommands>
 {
-public:
+    friend class MaceCore;
 
+public:
     static Classes moduleClass;
 
     IModuleCommandSensors():
         AbstractModule_EventListeners()
     {
-
+        AddCommandLogic<int>(SensorCommands::CREATE_VEHICLE_OBJECT, [this](const int &vehicleID){
+            CreateVehicleObject(vehicleID);
+        });
     }
 
     virtual Classes ModuleClass() const
@@ -34,8 +39,7 @@ public:
     }
 
 public:
-
-
+    virtual void CreateVehicleObject(const int &vehicleID) = 0;
 
 };
 

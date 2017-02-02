@@ -11,7 +11,7 @@ const MaceCore::TopicComponentStructure GlobalPosition_structure = []{
     structure.AddTerminal<CoordinateFrame>("CoordinateFrame");
     structure.AddTerminal<double>("latitude");
     structure.AddTerminal<double>("longitude");
-    structure.AddTerminal<std::unordered_map<int, double>>("altitude");
+    structure.AddTerminal<double>("altitude");
 
     return structure;
 }();
@@ -25,7 +25,7 @@ MaceCore::TopicDatagram GlobalPosition::GenerateDatagram() const {
     datagram.AddTerminal<CoordinateFrame>("CoordinateFrame", m_CoordinateFrame);
     datagram.AddTerminal<double>("latitude", latitude);
     datagram.AddTerminal<double>("longitude", longitude);
-    datagram.AddTerminal<std::unordered_map<int, double>>("altitude", altitude);
+    datagram.AddTerminal<double>("altitude", altitude);
 
     return datagram;
 }
@@ -36,7 +36,7 @@ void GlobalPosition::CreateFromDatagram(const MaceCore::TopicDatagram &datagram)
     m_CoordinateFrame = datagram.GetTerminal<CoordinateFrame>("CoordinateFrame");
     latitude = datagram.GetTerminal<double>("latitude");
     longitude = datagram.GetTerminal<double>("longitude");
-    altitude = datagram.GetTerminal<std::unordered_map<int, double>>("altitude");
+    altitude = datagram.GetTerminal<double>("altitude");
 }
 
 
@@ -57,12 +57,20 @@ GlobalPosition::GlobalPosition(const double &latitude, const double &longitude, 
 {
     this->latitude = latitude;
     this->longitude = longitude;
+    this->altitude = altitude;
 }
 
 GlobalPosition::GlobalPosition(const CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude):
     Position(Data::PositionalFrame::GLOBAL,frame)
 {
 
+}
+
+void GlobalPosition::setPosition(const double &latitude, const double &longitude, const double &altitude)
+{
+    this->latitude = latitude;
+    this->longitude = longitude;
+    this->altitude = altitude;
 }
 
 /**
@@ -167,10 +175,10 @@ double GlobalPosition::distanceBetween2D(const GlobalPosition &position)
  * @param position
  * @return
  */
-double GlobalPosition::distanceBetween3D(const GlobalPosition &position, const int &altitudeCode)
+double GlobalPosition::distanceBetween3D(const GlobalPosition &position)
 {
     double distance2D = this->distanceBetween2D(position);
-    double deltaAltitude = fabs(this->altitude.at(altitudeCode) - position.altitude.at(altitudeCode));
+    double deltaAltitude = fabs(this->altitude - position.altitude);
     return(sqrt(deltaAltitude * deltaAltitude + distance2D * distance2D));
 }
 

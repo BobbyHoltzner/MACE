@@ -16,28 +16,28 @@ public:
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
 public:
-    //declare some gets/sets
-    double getRoll();
-    void setRoll(const double &roll);
+    void setAttitude(const double &roll, const double &pitch, const double &yaw);
+    void setAttitudeRates(const double &rollRate, const double &pitchRate, const double &yawRate);
+
 
 public:
     bool operator == (const Attitude &rhs) {
-        if(this->m_roll != rhs.m_roll){
+        if(this->roll != rhs.roll){
             return false;
         }
-        if(this->m_rollRate != rhs.m_rollRate){
+        if(this->rollRate != rhs.rollRate){
             return false;
         }
-        if(this->m_pitch != rhs.m_pitch){
+        if(this->pitch != rhs.pitch){
             return false;
         }
-        if(this->m_pitchRate != rhs.m_pitchRate){
+        if(this->pitchRate != rhs.pitchRate){
             return false;
         }
-        if(this->m_yaw != rhs.m_yaw){
+        if(this->yaw != rhs.yaw){
             return false;
         }
-        if(this->m_yawRate != rhs.m_yawRate){
+        if(this->yawRate != rhs.yawRate){
             return false;
         }
         return true;
@@ -48,12 +48,12 @@ public:
     }
 
 protected:
-    double m_roll;
-    double m_rollRate;
-    double m_pitch;
-    double m_pitchRate;
-    double m_yaw;
-    double m_yawRate;
+    double roll;
+    double rollRate;
+    double pitch;
+    double pitchRate;
+    double yaw;
+    double yawRate;
 
 };
 

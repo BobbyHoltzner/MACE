@@ -18,32 +18,35 @@ const MaceCore::TopicComponentStructure Attitude_structure = []{
 
 MaceCore::TopicDatagram Attitude::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<double>("roll", m_roll);
-    datagram.AddTerminal<double>("rollRate", m_rollRate);
-    datagram.AddTerminal<double>("pitch", m_pitch);
-    datagram.AddTerminal<double>("pitchRate", m_pitchRate);
-    datagram.AddTerminal<double>("yaw", m_yaw);
-    datagram.AddTerminal<double>("yawRate", m_yawRate);
+    datagram.AddTerminal<double>("roll", roll);
+    datagram.AddTerminal<double>("rollRate", rollRate);
+    datagram.AddTerminal<double>("pitch", pitch);
+    datagram.AddTerminal<double>("pitchRate", pitchRate);
+    datagram.AddTerminal<double>("yaw", yaw);
+    datagram.AddTerminal<double>("yawRate", yawRate);
     return datagram;
 }
 
 void Attitude::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    m_roll = datagram.GetTerminal<double>("roll");
-    m_rollRate = datagram.GetTerminal<double>("rollRate");
-    m_pitch = datagram.GetTerminal<double>("pitch");
-    m_pitchRate = datagram.GetTerminal<double>("pitchRate");
-    m_yaw = datagram.GetTerminal<double>("yaw");
-    m_yawRate = datagram.GetTerminal<double>("yawRate");
+    roll = datagram.GetTerminal<double>("roll");
+    rollRate = datagram.GetTerminal<double>("rollRate");
+    pitch = datagram.GetTerminal<double>("pitch");
+    pitchRate = datagram.GetTerminal<double>("pitchRate");
+    yaw = datagram.GetTerminal<double>("yaw");
+    yawRate = datagram.GetTerminal<double>("yawRate");
 }
 
-void Attitude::setRoll(const double &roll)
+void Attitude::setAttitude(const double &roll, const double &pitch, const double &yaw)
 {
-    m_roll = roll;
+    this->roll = roll;
+    this->pitch = pitch;
+    this->yaw = yaw;
 }
 
-double Attitude::getRoll(){
-    return m_roll;
+void Attitude::setAttitudeRates(const double &rollRate, const double &pitchRate, const double &yawRate)
+{
+    this->rollRate = rollRate;
+    this->pitchRate =pitchRate;
+    this->yawRate = yawRate;
 }
-
-
 } //end of namespace DataVehicleGeneric

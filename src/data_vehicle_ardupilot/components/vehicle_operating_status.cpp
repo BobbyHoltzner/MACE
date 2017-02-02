@@ -14,14 +14,14 @@ const MaceCore::TopicComponentStructure VehicleOperatingStatus_structure = []{
 
 MaceCore::TopicDatagram VehicleOperatingStatus::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<bool>("vehicleArmed", m_Armed);
+    datagram.AddTerminal<bool>("vehicleArmed", vehicleArmed);
 
     return datagram;
 }
 
 
 void VehicleOperatingStatus::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    m_Armed = datagram.GetTerminal<bool>("vehicleArmed");
+    vehicleArmed = datagram.GetTerminal<bool>("vehicleArmed");
 }
 
 
