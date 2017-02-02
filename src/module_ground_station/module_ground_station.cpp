@@ -179,7 +179,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             if(componentsUpdated.at(i) == DataVehicleGeneric::Attitude::Name()) {
                 std::shared_ptr<DataVehicleGeneric::Attitude> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingAttitude>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "    Vehicle Attitude: " << component->getRoll() << std::endl;
             }
             if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleFlightMode::Name()) {
                 std::shared_ptr<DataVehicleArdupilot::VehicleFlightMode> component = std::make_shared<DataVehicleArdupilot::VehicleFlightMode>();
@@ -287,4 +286,12 @@ void ModuleGroundStation::getVehicleAttitude(const int &vehicleID, QByteArray &v
 
     QJsonDocument doc(json);
     vehicleAttitude = doc.toJson();
+}
+
+void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
+{
+    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+    std::vector<int> newVehicleList;
+    data->GetAvailableVehicles(newVehicleList);
+    std::cout<<"I think I got all of the data?"<<std::endl;
 }

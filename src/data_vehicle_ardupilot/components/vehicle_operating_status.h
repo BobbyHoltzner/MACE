@@ -17,16 +17,16 @@ public:
 
 public:
     void setVehicleArmed(const bool armed){
-        m_Armed = armed;
+        vehicleArmed = armed;
     }
 
     bool getVehicleArmed(){
-        return(m_Armed);
+        return(vehicleArmed);
     }
 
 public:
     bool operator == (const VehicleOperatingStatus &rhs) {
-        if(this->m_Armed != rhs.m_Armed){
+        if(this->vehicleArmed != rhs.vehicleArmed){
             return false;
         }
         return true;
@@ -38,7 +38,7 @@ public:
 
 private:
 
-    bool m_Armed;
+    bool vehicleArmed;
 
 };
 

@@ -25,19 +25,17 @@ void ModuleRTA::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 //!
 std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurationStructure() const
 {
+    //An example of parameters that can be configured at runtime through the xml schema.
+    //This is good for variables that may get changed or would be changing through testing.
+    //All you do is set them up in this function. See ConfigureModule for where you would
+    //receive them.
     MaceCore::ModuleParameterStructure structure;
 //    std::shared_ptr<MaceCore::ModuleParameterStructure> cameraSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
 //    cameraSettings->AddTerminalParameters("CameraName", MaceCore::ModuleParameterTerminalTypes::STRING, true);
 //    cameraSettings->AddTerminalParameters("FocalLength", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-//    cameraSettings->AddTerminalParameters("SensorWidth", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-//    cameraSettings->AddTerminalParameters("SensorHeight", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-//    cameraSettings->AddTerminalParameters("ImageWidth", MaceCore::ModuleParameterTerminalTypes::INT, false);
-//    cameraSettings->AddTerminalParameters("ImageHeight", MaceCore::ModuleParameterTerminalTypes::INT, false);
-//    cameraSettings->AddTerminalParameters("FOVWidth", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
-//    cameraSettings->AddTerminalParameters("FOVHeight", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
-//    cameraSettings->AddTerminalParameters("Frequency", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+//    cameraSettings->AddTerminalParameters("SensorWidth", MaceCore::ModuleParameterTerminalTypes::INT, true);
+//    cameraSettings->AddTerminalParameters("SensorHeight", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
 //    structure.AddNonTerminal("CameraParameters", cameraSettings, false);
-
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
 
@@ -70,23 +68,24 @@ void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
 //    {
 //        throw std::runtime_error("Unknown sensor parameters encountered");
 //    }
+
 }
+
 
 void ModuleRTA::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
-        //std::cout << "VehicleData topic received for vehicle: " << senderID << std::endl;
-
-        //get latest datagram from mace_data
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
-
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == DataVehicleGeneric::GlobalPosition::Name()) {
-                std::shared_ptr<DataVehicleGeneric::GlobalPosition> component = std::make_shared<DataVehicleGeneric::GlobalPosition>();
-                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                //std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
+                std::shared_ptr<DataVehicleGeneric::GlobalPosition> globalPositionData = std::make_shared<DataVehicleGeneric::GlobalPosition>();
+                m_VehicleDataTopic.GetComponent(globalPositionData, read_topicDatagram);
+            }else if(componentsUpdated.at(i) == DataVehicleGeneric::LocalPosition::Name()) {
+                std::shared_ptr<DataVehicleGeneric::LocalPosition> localPositionData = std::make_shared<DataVehicleGeneric::LocalPosition>();
+                m_VehicleDataTopic.GetComponent(localPositionData, read_topicDatagram);
+
             }
         }
     }else if(topicName == m_SensorFootprintDataTopic.Name())
@@ -94,9 +93,31 @@ void ModuleRTA::NewTopic(const std::string &topicName, int senderID, std::vector
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_SensorFootprintDataTopic.Name(), senderID);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Local::Name()) {
-                std::shared_ptr<DataVehicleSensors::SensorVertices_Local> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices_Local>("TestM");
-                m_SensorFootprintDataTopic.GetComponent(newSensorV, read_topicDatagram);
+                std::shared_ptr<DataVehicleSensors::SensorVertices_Local> sensorVerticesGlobal = std::make_shared<DataVehicleSensors::SensorVertices_Local>("TestM");
+                m_SensorFootprintDataTopic.GetComponent(sensorVerticesGlobal, read_topicDatagram);
+            }else if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
+                std::shared_ptr<DataVehicleSensors::SensorVertices_Local> sensorVerticesLocal = std::make_shared<DataVehicleSensors::SensorVertices_Local>("TestM");
+                m_SensorFootprintDataTopic.GetComponent(sensorVerticesLocal, read_topicDatagram);
             }
         }
     }
+
+    //    DataVehicleGeneric::GlobalPosition* newGlobalPosition = new DataVehicleGeneric::GlobalPosition(35.7470021,-78.8395026,0.0);
+    //    DataVehicleGeneric::LocalPosition* newLocalPosition = new DataVehicleGeneric::LocalPosition(1.0,-2.0,3.0);
+
+    // Example of a mission list being sent
+    //        std::shared_ptr<DataVehicleCommands::VehicleMissionList> newVehicleList = std::make_shared<DataVehicleCommands::VehicleMissionList>();
+    //        newVehicleList->appendCommand(newWP);
+
+    //        MaceCore::TopicDatagram topicDatagram;
+    //        ModuleVehicleSensors::m_CommandVehicleMissionList.SetComponent(newVehicleList, topicDatagram);
+
+    //        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
+    //            ptr->NewTopicDataValues(ModuleVehicleSensors::m_CommandVehicleMissionList.Name(), 1, MaceCore::TIME(), topicDatagram);
+    //        });
+}
+
+void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
+{
+
 }

@@ -50,12 +50,24 @@ void SensorVertices_Local::CreateFromDatagram(const MaceCore::TopicDatagram &dat
     verticeLocations = datagram.GetTerminal<std::list<DataVehicleGeneric::LocalPosition*>>("SensorVertices");
 }
 
+
+SensorVertices_Global::SensorVertices_Global()
+{
+    this->positionFrame = Data::PositionalFrame::GLOBAL;
+    this->sensorName = "";
+}
 SensorVertices_Global::SensorVertices_Global(const std::string &sensorName)
 {
     this->positionFrame = Data::PositionalFrame::GLOBAL;
     this->sensorName = sensorName;
 }
 
+
+SensorVertices_Local::SensorVertices_Local()
+{
+    this->positionFrame = Data::PositionalFrame::LOCAL;
+    this->sensorName = "";
+}
 SensorVertices_Local::SensorVertices_Local(const std::string &sensorName)
 {
     this->positionFrame = Data::PositionalFrame::LOCAL;
@@ -66,6 +78,18 @@ template <class T>
 void SensorVerticesBase<T>::insertSensorVertice(T *verticePosition)
 {
     verticeLocations.push_back(verticePosition);
+}
+
+template <class T>
+std::list<T*> SensorVerticesBase<T>::getSensorVertices()
+{
+    return verticeLocations;
+}
+
+template <class T>
+void SensorVerticesBase<T>::setSensorVertices(const std::list<T*> verticeList)
+{
+    verticeLocations = verticeList;
 }
 
 } //end of namespace DataVehicleSensors

@@ -30,7 +30,7 @@
 namespace MaceCore
 {
 
-class MACE_CORESHARED_EXPORT MaceCore : public IModuleTopicEvents, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsGroundStation
+class MACE_CORESHARED_EXPORT MaceCore : public IModuleTopicEvents, public IModuleEventsVehicle, public IModuleEventsSensors, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsGroundStation
 {
 
 
@@ -49,8 +49,6 @@ public:
     void AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle);
 
     void RemoveVehicle(const std::string &ID);
-
-    bool VehicleCheck(const int &vehicleID);
 
 
 public: //The following functions add specific modules to connect to mace core
@@ -80,15 +78,7 @@ public:
     /// VEHICLE EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    //virtual void NewConstructedVehicle(const void* sender, const std::shared_ptr<VehicleObject> &vehicleObject);
-
-    //virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage);
-
-    virtual void NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &position, const Eigen::Vector3d &attitude);
-
-    virtual void NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate);
-
-    virtual void NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &life);
+    virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
 
 public:
 
@@ -165,19 +155,10 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 private:
-    int counter_new_vehicle;
-    int counter;
-    bool insertFlag;
-
     std::unordered_map<std::string, TopicStructure> m_Topics;
-
     std::unordered_map<std::string, std::vector<ModuleBase*>> m_TopicNotifier;
 
-    std::list<int> m_VehicleObjectRequired;
-
-    //std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
     std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;
-    std::map<IModuleCommandVehicle*, int> m_PortToVehicleID;
 
     std::map<std::string, IModuleCommandVehicle*> m_VehicleIDToPtr;
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
@@ -187,10 +168,6 @@ private:
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;
     std::shared_ptr<IModuleCommandSensors> m_Sensors;
     std::shared_ptr<IModuleCommandRTA> m_RTA;
-
-
-
-
 
     std::shared_ptr<MaceData> m_DataFusion;
 };

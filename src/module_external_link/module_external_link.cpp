@@ -75,6 +75,11 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                 std::shared_ptr<DataVehicleSensors::SensorVertices_Local> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices_Local>("TestM");
                 m_SensorFootprintDataTopic.GetComponent(newSensorV, read_topicDatagram);
             }
+            if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
+                std::shared_ptr<DataVehicleSensors::SensorVertices_Global> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices_Global>("TestM");
+                m_SensorFootprintDataTopic.GetComponent(newSensorV, read_topicDatagram);
+            }
         }
     }
 }
+

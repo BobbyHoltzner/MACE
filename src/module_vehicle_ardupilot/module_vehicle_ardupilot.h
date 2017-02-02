@@ -1,6 +1,8 @@
 #ifndef MODULE_VEHICLE_ARDUPILOT_H
 #define MODULE_VEHICLE_ARDUPILOT_H
 
+#include <map>
+
 #include <mavlink.h>
 
 #include "module_vehicle_ardupilot_global.h"
@@ -47,7 +49,9 @@ private:
 
 
 private:
-    DataVehicleArdupilot::MAVLINKParserArduPilot m_ArduPilotMAVLINKParser;
+    //DataVehicleArdupilot::MAVLINKParserArduPilot m_ArduPilotMAVLINKParser;
+    std::map<int,DataVehicleArdupilot::MAVLINKParserArduPilot*> m_ArduPilotMAVLINKParser;
+
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H
