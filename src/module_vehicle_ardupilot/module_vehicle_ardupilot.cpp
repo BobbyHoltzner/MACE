@@ -31,14 +31,14 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
     int newSystemID = message.sysid;
     try{
         tmpParser = m_ArduPilotMAVLINKParser.at(newSystemID);
-//        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-//               ptr->NewConstructedVehicle(this,newSystemID);
-//            });
     }catch(const std::out_of_range &oor)
     {
         std::cout<<"This vehicle parser was not currently in the map. Going to add one."<<std::endl;
         tmpParser = new DataVehicleArdupilot::MAVLINKParserArduPilot();
         m_ArduPilotMAVLINKParser.insert({newSystemID,tmpParser});
+        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->NewConstructedVehicle(this, newSystemID);
+        });
     }
 
     //generate topic datagram from given mavlink message
@@ -59,11 +59,6 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
         });
-
-        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-            ptr->NewConstructedVehicle(this, 1);
-        });
-
     }
 }
 
