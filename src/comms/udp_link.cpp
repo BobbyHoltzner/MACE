@@ -108,7 +108,7 @@ void UdpLink::Disconnect(void)
 bool UdpLink::_hardwareConnect(QAbstractSocket::SocketError &error, QString& errorString)
 {
     if (m_socket) {
-        std::cout << "UdpLink:" << QString::number((long)this, 16).toStdString() << "closing port" << std::endl; // TODO: What is this doing??
+        std::cout << "UdpLink:" << QString::number((long)this, 16).toStdString() << "closing port" << std::endl;
         m_socket->close();
         std::this_thread::sleep_for(std::chrono::microseconds(50000));
         delete m_socket;

@@ -209,10 +209,7 @@ bool ModuleGroundStation::StartTCPServer()
             this->on_newConnection();
     });
 
-//    while (!m_TcpServer->isListening())
-//    {
-        m_TcpServer->listen(QHostAddress::LocalHost, 1234);
-//    }
+    m_TcpServer->listen(QHostAddress::LocalHost, 1234);
 
     m_TcpServer->moveToThread(m_ListenThread);
     m_ListenThread->start();
@@ -230,104 +227,64 @@ bool ModuleGroundStation::StartTCPServer()
     return m_TcpServer->isListening();
 }
 
-void ModuleGroundStation::UpdatedVehicleMap(const std::string &vehicleID)
-{
-    //This is a sample of how to get data from the map containing vehicle information
-    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
-//    std::map<int, std::shared_ptr<VehicleObject>> vehicleDataMap;
-    //data->GetVehicleMap(m_VehicleMap);
-}
-
-
-void ModuleGroundStation::UpdatedVehicleLife(const std::string &vehicleID)
-{
-    UpdatedVehicleMap(vehicleID);
-}
-
-
-void ModuleGroundStation::UpdatedPositionDynamics(const std::string &vehicleID)
-{
-    UpdatedVehicleMap(vehicleID);
-}
-
-
-void ModuleGroundStation::UpdateAttitudeDynamics(const std::string &vehicleID)
-{
-    UpdatedVehicleMap(vehicleID);
-}
-
 void ModuleGroundStation::getConnectedVehicles(QByteArray &connectedVehicles)
 {
-//    if(m_VehicleMap.size() > 0)
-//    {
-//        QJsonArray ids;
-//        for (std::map<int, std::shared_ptr<VehicleObject>>::iterator it = m_VehicleMap.begin(); it != m_VehicleMap.end(); it++)
-//        {
-//            std::cout << "Element ID: " << it->first << std::endl;
-//            ids.append(it->first);
-//        }
+    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+    std::vector<int> vehicleIDs;
+//    data->GetAvailableVehicles(vehicleIDs);
 
-//        QJsonObject json;
-//        json["dataType"] = "ConnectedVehicles";
-//        json["vehicleID"] = 0;
-//        json["connectedVehicles"] = ids;
+    if(vehicleIDs.size() > 0){
+        QJsonArray ids;
+        for (const int& i : vehicleIDs) {
+            ids.append(i);
+        }
 
-//        QJsonDocument doc(json);
-//        connectedVehicles = doc.toJson();
-//    }else{
-//        std::cout << "The vehicle map is empty. No connected vehicles" << std::endl;
-//    }
+        QJsonObject json;
+        json["dataType"] = "ConnectedVehicles";
+        json["vehicleID"] = 0;
+        json["connectedVehicles"] = ids;
+
+        QJsonDocument doc(json);
+        connectedVehicles = doc.toJson();
+    } else {
+        std::cout << "No vehicles currently available" << std::endl;
+    }
 }
 
 void ModuleGroundStation::getVehiclePosition(const int &vehicleID, QByteArray &vehiclePosition)
 {
-    int satFix = 0;
-    int numSats = 0;
-    //Data::GlobalPosition tmpGlobalPosition(0.0,0.0,0.0);
+    MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), vehicleID);
+    std::shared_ptr<DataVehicleGeneric::GlobalPosition> component = std::make_shared<DataVehicleGeneric::GlobalPosition>();
+    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+//    std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
 
-    Eigen::Vector3d positionVector(10.0,10.0,10.0);
+    QJsonObject json;
+    json["dataType"] = "VehiclePosition";
+    json["vehicleID"] = vehicleID;
+    json["lat"] = component->latitude;
+    json["lon"] = component->longitude;
+    json["alt"] = component->altitude;
+    json["satFix"] = 0; // TODO-PAT: Move to vehicle stats?
+    json["numSats"] = 0; // TODO-PAT: Move to vehicle stats?
 
-    /*
-    if(m_VehicleMap.find(vehicleID) == m_VehicleMap.cend())
-    {
-        std::cout << "The vehicle with that ID is not there." << std::endl;
-    }else{
-        m_VehicleMap.at(vehicleID)->getVehiclePosition(satFix, numSats, positionVector);
-
-        QJsonObject json;
-        json["dataType"] = "VehiclePosition";
-        json["vehicleID"] = vehicleID;
-        json["lat"] = positionVector.getLatitude();
-        json["lon"] = positionVector.getLongitude();
-        json["alt"] = positionVector.getAltitude();
-        json["satFix"] = satFix;
-        json["numSats"] = numSats;
-
-        QJsonDocument doc(json);
-        vehiclePosition = doc.toJson();
-    }
-    */
+    QJsonDocument doc(json);
+    vehiclePosition = doc.toJson();
 }
 
 void ModuleGroundStation::getVehicleAttitude(const int &vehicleID, QByteArray &vehicleAttitude)
 {
-    /*
-    Eigen::Vector3d attitudeVector(10.0,10.0,10.0);
-    if(m_VehicleMap.find(vehicleID) == m_VehicleMap.cend())
-    {
-        std::cout << "The vehicle with that ID is not there." << std::endl;
-    }else{
-        m_VehicleMap.at(vehicleID)->getVehicleAttitude(attitudeVector);
+    MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), vehicleID);
+    std::shared_ptr<DataVehicleGeneric::Attitude> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingAttitude>();
+    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+//    std::cout << "    Vehicle Attitude: " << component->getRoll() << std::endl;
 
-        QJsonObject json;
-        json["dataType"] = "VehicleAttitude";
-        json["vehicleID"] = vehicleID;
-        json["roll"] = attitudeVector(0);
-        json["pitch"] = attitudeVector(1);
-        json["yaw"] = attitudeVector(2);
+    QJsonObject json;
+    json["dataType"] = "VehicleAttitude";
+    json["vehicleID"] = vehicleID;
+    json["roll"] = component->getRoll();
+    json["pitch"] = component->getPitch();
+    json["yaw"] = component->getYaw();
 
-        QJsonDocument doc(json);
-        vehicleAttitude = doc.toJson();
-    }
-    */
+    QJsonDocument doc(json);
+    vehicleAttitude = doc.toJson();
 }

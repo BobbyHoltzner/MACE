@@ -44,7 +44,7 @@ type State = {
   openDrawer?: boolean
 }
 
-export default class AppContainer extends React.Component<Props, State> {    
+export default class AppContainer extends React.Component<Props, State> {
   leafletMap: L.Map;
   notificationSystem: NotificationSystem;
   m_AttitudeInterval: number[];
@@ -78,11 +78,11 @@ export default class AppContainer extends React.Component<Props, State> {
     this.leafletMap = this.refs.map;
     this.notificationSystem = this.refs.notificationSystem;
 
-    // this.setupTCPClient();
+    this.setupTCPClient();
 
-    // setInterval(() => {
-    //   this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
-    // }, 3000);
+    setInterval(() => {
+      this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
+    }, 3000);
   }
 
   makeTCPRequest = (command: string, vehicleID: number) => {
@@ -95,22 +95,22 @@ export default class AppContainer extends React.Component<Props, State> {
       this.state.tcpClient.write(JSON.stringify(attitudeRequest));
     }.bind(this));
   }
-  
+
   setupTCPClient = () => {
       // Add a 'data' event handler for the client socket
       // data is what the server sent to this socket
-      this.state.tcpClient.on('data', function(data: any) {        
+      this.state.tcpClient.on('data', function(data: any) {
           // console.log('DATA: ' + data);
           let jsonData = JSON.parse(data);
           this.parseTCPResponse(jsonData);
           // Close the client socket completely
-          this.state.tcpClient.destroy();        
+          this.state.tcpClient.destroy();
       }.bind(this));
 
       // Add a 'close' event handler for the client socket
       this.state.tcpClient.on('close', function() {
           // console.log('Connection closed');
-      }.bind(this));      
+      }.bind(this));
 
       // Add an 'error' event handler
       this.state.tcpClient.on('error', function(err: any) {
@@ -121,15 +121,15 @@ export default class AppContainer extends React.Component<Props, State> {
 
   parseTCPResponse = (jsonData: TCPReturnType) => {
     let stateCopy = deepcopy(this.state.connectedVehicles);
-    
+
     if(jsonData.dataType === "ConnectedVehicles"){
-      let jsonVehicles = jsonData as ConnectedVehiclesType;      
+      let jsonVehicles = jsonData as ConnectedVehiclesType;
 
       console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
-      
+
       // Check if vehicle is already in the map. If so, do nothing. If not, add it:
       for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
-        if (stateCopy[jsonVehicles.connectedVehicles[i].toString()] !== undefined){          
+        if (stateCopy[jsonVehicles.connectedVehicles[i].toString()] !== undefined){
           return;
         }
         else {
@@ -274,12 +274,12 @@ export default class AppContainer extends React.Component<Props, State> {
               vehicleWarnings={this.state.vehicleWarnings}
             />
 
-            {/* 
+            {/*
             <MuiThemeProvider muiTheme={lightMuiTheme}>
                 <FlatButton style={centerButtonStyle} label="Test Button" onClick={this.testTCPRequest}/>
             </MuiThemeProvider>
             */}
-            
+
 
             <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} >
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}

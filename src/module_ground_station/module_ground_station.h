@@ -22,6 +22,8 @@
 #include "data/i_topic_component_data_object.h"
 #include "data/topic_data_object_collection.h"
 
+#include "gcsvehicle.h"
+
 
 using namespace std;
 
@@ -85,7 +87,7 @@ public:
     //! The vehicle's position can be retreived from MaceData object in getDataObject()
     //! \param vehicleID ID of vehicle
     //!
-    virtual void UpdatedPositionDynamics(const std::string &vehicleID);
+    virtual void UpdatedPositionDynamics(const std::string &vehicleID) {}
 
 
     //!
@@ -94,7 +96,7 @@ public:
     //! The vehicle's attitude can be retreived from MaceData object in getDataObject()
     //! \param vehicleID ID of vehicle
     //!
-    virtual void UpdateAttitudeDynamics(const std::string &vehicleID);
+    virtual void UpdateAttitudeDynamics(const std::string &vehicleID) {}
 
 
     //!
@@ -103,13 +105,11 @@ public:
     //! The vehicle's life can be retreived from MaceData object in getDataObject()
     //! \param vehicleID ID of vehicle
     //!
-    virtual void UpdatedVehicleLife(const std::string &vehicleID);
+    virtual void UpdatedVehicleLife(const std::string &vehicleID) {}
 
 
 
 private:
-    void UpdatedVehicleMap(const std::string &vehicleID);
-
     void getConnectedVehicles(QByteArray &connectedVehicles);
 
     void getVehiclePosition(const int &vehicleID, QByteArray &vehiclePosition);
@@ -127,6 +127,7 @@ private:
 
     QTcpServer *m_TcpServer;
     QThread *m_ListenThread;
+
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;

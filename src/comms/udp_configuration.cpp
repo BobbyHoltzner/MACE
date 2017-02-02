@@ -1,5 +1,7 @@
 #include "udp_configuration.h"
 
+#include <iostream>
+
 namespace Comms
 {
 
@@ -74,6 +76,10 @@ void UdpConfiguration::setSenderPortNumber(int portNumber)
 // Set up a UDP socket to listen for UDP messages on, and set the sender address and port
 void UdpConfiguration::listenForPort(const std::__cxx11::string &listenAddress, const int &listenPortNumber)
 {
+    if (m_socket) {
+        m_socket->close();
+    }
+
     m_socket->bind(QHostAddress(QString::fromStdString(listenAddress)), listenPortNumber, QUdpSocket::ShareAddress);
 
     if(m_socket->waitForReadyRead(300))
@@ -92,6 +98,7 @@ void UdpConfiguration::listenForPort(const std::__cxx11::string &listenAddress, 
             // Delete socket and break out of this loop:
             if (m_socket) {
                 m_socket->close();
+                m_socket->waitForDisconnected();
                 delete m_socket;
                 m_socket = NULL;
             }
@@ -103,6 +110,7 @@ void UdpConfiguration::listenForPort(const std::__cxx11::string &listenAddress, 
     {
         this->listenForPort(listenAddress, listenPortNumber);
     }
+
 }
 
 
