@@ -47,7 +47,7 @@ public:
         return !(*this == rhs);
     }
 
-protected:
+public:
     double roll;
     double rollRate;
     double pitch;

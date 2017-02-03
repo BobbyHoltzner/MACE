@@ -50,7 +50,7 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             if(componentsUpdated.at(i) == DataVehicleGeneric::Attitude::Name()) {
                 std::shared_ptr<DataVehicleGeneric::Attitude> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingAttitude>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                //std::cout << "    Vehicle Attitude: " << component->getRoll() << std::endl;
+                std::cout << "    Vehicle Attitude: " << component->roll << std::endl;
             }
             if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleFlightMode::Name()) {
                 std::shared_ptr<DataVehicleArdupilot::VehicleFlightMode> component = std::make_shared<DataVehicleArdupilot::VehicleFlightMode>();

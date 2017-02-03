@@ -16,9 +16,6 @@ const MaceCore::TopicComponentStructure GlobalPosition_structure = []{
     return structure;
 }();
 
-
-
-
 MaceCore::TopicDatagram GlobalPosition::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<Data::PositionalFrame>("PositionFrame", m_PositionFrame);
@@ -29,7 +26,6 @@ MaceCore::TopicDatagram GlobalPosition::GenerateDatagram() const {
 
     return datagram;
 }
-
 
 void GlobalPosition::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
     m_PositionFrame = datagram.GetTerminal<Data::PositionalFrame>("PositionFrame");

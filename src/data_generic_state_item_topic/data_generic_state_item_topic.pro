@@ -24,10 +24,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES +=
+SOURCES += \
+    state_attitude_topic.cpp \
+    state_global_position_topic.cpp \
+    state_local_position_topic.cpp \
+    state_global_velocity_topic.cpp \
+    state_local_velocity_topic.cpp
 
 HEADERS +=\
-        data_generic_state_item_topic_global.h
+        data_generic_state_item_topic_global.h \
+    state_attitude_topic.h \
+    state_global_position_topic.h \
+    state_local_position_topic.h \
+    state_global_velocity_topic.h \
+    state_local_velocity_topic.h
 
 # Unix lib Install
 unix:!symbian {
@@ -53,3 +63,11 @@ INCLUDEPATH += $$PWD/../
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
 else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
+else:unix:!macx: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_item/release/ -ldata_generic_state_item
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_item/debug/ -ldata_generic_state_item
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_state_item/ -ldata_generic_state_item
