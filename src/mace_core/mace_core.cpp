@@ -63,7 +63,7 @@ void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink>
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
 {
     groundStation->addListener(this);
-    //bool serverStarted = groundStation->StartTCPServer();
+//    bool serverStarted = groundStation->StartTCPServer();
     m_GroundStation = groundStation;
 }
 

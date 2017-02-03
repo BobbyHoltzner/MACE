@@ -44,10 +44,9 @@ private:
 ModuleGroundStation::ModuleGroundStation() :
     m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData"),
     m_ListenThread(NULL),
-    m_TcpServer(NULL)
+    m_TcpServer(NULL),
+    m_TcpSocket(NULL)
 {
-
-
 }
 
 ModuleGroundStation::~ModuleGroundStation()
@@ -201,7 +200,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 }
 
 bool ModuleGroundStation::StartTCPServer()
-{
+{    
     m_TcpServer = new QTcpServer();
     m_ListenThread = new ServerThread([&](){
         if(m_TcpServer->hasPendingConnections())
@@ -230,7 +229,7 @@ void ModuleGroundStation::getConnectedVehicles(QByteArray &connectedVehicles)
 {
     std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
     std::vector<int> vehicleIDs;
-//    data->GetAvailableVehicles(vehicleIDs);
+    data->GetAvailableVehicles(vehicleIDs);
 
     if(vehicleIDs.size() > 0){
         QJsonArray ids;
@@ -280,9 +279,9 @@ void ModuleGroundStation::getVehicleAttitude(const int &vehicleID, QByteArray &v
     QJsonObject json;
     json["dataType"] = "VehicleAttitude";
     json["vehicleID"] = vehicleID;
-    json["roll"] = component->getRoll();
-    json["pitch"] = component->getPitch();
-    json["yaw"] = component->getYaw();
+    json["roll"] = 0.0;
+    json["pitch"] = 0.0;
+    json["yaw"] = 0.0;
 
     QJsonDocument doc(json);
     vehicleAttitude = doc.toJson();
@@ -290,8 +289,57 @@ void ModuleGroundStation::getVehicleAttitude(const int &vehicleID, QByteArray &v
 
 void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
 {
+    // TODO-PAT: Instead of grabbing all vehicles, only send the one thats added to the GUI
+    //          -Eventually, handle the removal of a vehicle as well.
+
     std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
-    std::vector<int> newVehicleList;
-    data->GetAvailableVehicles(newVehicleList);
+    std::vector<int> vehicleIDs;
+    data->GetAvailableVehicles(vehicleIDs);
     std::cout<<"I think I got all of the data?"<<std::endl;
+    QByteArray connectedVehicles;
+    if(vehicleIDs.size() > 0){
+        QJsonArray ids;
+        for (const int& i : vehicleIDs) {
+            ids.append(i);
+        }
+
+        QJsonObject json;
+        json["dataType"] = "ConnectedVehicles";
+        json["vehicleID"] = 0;
+        json["connectedVehicles"] = ids;
+
+        QJsonDocument doc(json);
+        connectedVehicles = doc.toJson();
+
+        // Test TCP Client message to update GUI on active vehicles
+        bool bytesWritten = writeTCPData(connectedVehicles);
+
+        if(bytesWritten){
+            m_TcpSocket->close();
+        }
+        else {
+            std::cout << "Write TCP Data failed..." << std::endl;
+        }
+    } else {
+        std::cout << "No vehicles currently available" << std::endl;
+    }
+
+
+
 }
+
+bool ModuleGroundStation::writeTCPData(QByteArray data)
+{
+    m_TcpSocket = new QTcpSocket();
+    m_TcpSocket->connectToHost(QHostAddress::LocalHost, 1234);
+    m_TcpSocket->waitForConnected();
+    if(m_TcpSocket->state() == QAbstractSocket::ConnectedState)
+    {
+        m_TcpSocket->write(data); //write the data itself
+        m_TcpSocket->flush();
+        return m_TcpSocket->waitForBytesWritten();
+    }
+    else
+        return false;
+}
+

@@ -41,7 +41,9 @@ type State = {
   connectedVehicles?: {[id: string]: Vehicle}
   vehicleWarnings?: VehicleWarning[]
   selectedVehicleID?: string,
-  openDrawer?: boolean
+  openDrawer?: boolean,
+  tcpSockets?: any[],
+  tcpServer?: any
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -70,7 +72,9 @@ export default class AppContainer extends React.Component<Props, State> {
       // mapCenter: [45.283410, -111.400850], // Big Sky
       connectedVehicles: {},
       vehicleWarnings: [],
-      openDrawer: false
+      openDrawer: false,
+      tcpSockets: [],
+      tcpServer: null
     }
   }
 
@@ -78,44 +82,95 @@ export default class AppContainer extends React.Component<Props, State> {
     this.leafletMap = this.refs.map;
     this.notificationSystem = this.refs.notificationSystem;
 
-    this.setupTCPClient();
+    // this.setupTCPClient();
+    this.setupTCPServer();
 
-    setInterval(() => {
-      this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
-    }, 3000);
+    // setInterval(() => {
+    //   this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
+    // }, 3000);
   }
 
+  setupTCPServer = () => {
+    // Create a TCP socket listener
+    this.state.tcpServer = net.Server(function (socket: any) {
+
+        // Add the new client socket connection to the array of
+        // sockets
+        // let sockets = deepcopy(this.state.tcpSockets);
+        this.state.tcpSockets.push(socket);
+        // this.setState({tcpSockets: sockets});
+
+        // 'data' is an event that means that a message was just sent by the
+        // client application
+        socket.on('data', function (msg_sent: any) {
+          console.log("Data from socket: " + msg_sent);
+
+            // Loop through all of our sockets and send the data
+            for (var i = 0; i < this.state.tcpSockets.length; i++) {
+                // Don't send the data back to the original sender
+                // if (this.state.tcpSockets[i] == socket) // don't send the message to yourself
+                //     continue;
+                // Write the msg sent by chat client
+                this.state.tcpSockets[i].write("TEST RETURN");
+            }
+        }.bind(this));
+        // Use splice to get rid of the socket that is ending.
+        // The 'end' event means tcp client has disconnected.
+        socket.on('end', function () {
+            // let sockets = deepcopy(this.state.tcpSockets);
+            let i = this.state.tcpSockets.indexOf(socket);
+            this.state.tcpSockets.splice(i, 1);
+            // this.setState({tcpSockets: sockets});
+        }.bind(this));
+
+
+    }.bind(this));
+
+    this.state.tcpServer.listen(1234);
+    console.log('System waiting at http://localhost:1234');
+  }
+
+
+
+
+
+
+
+
   makeTCPRequest = (command: string, vehicleID: number) => {
-    this.state.tcpClient.connect(this.state.tcpPort, this.state.tcpHost, function() {
+    let socket = new net.Socket();
+    this.setupTCPClient(socket);
+    // this.state.tcpClient.connect(this.state.tcpPort, this.state.tcpHost, function() {
+    socket.connect(this.state.tcpPort, this.state.tcpHost, function() {
       // console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
       let attitudeRequest = {
         command: command,
         vehicleID: vehicleID
       };
-      this.state.tcpClient.write(JSON.stringify(attitudeRequest));
+      socket.write(JSON.stringify(attitudeRequest));
     }.bind(this));
   }
 
-  setupTCPClient = () => {
+  setupTCPClient = (socket: any) => {
       // Add a 'data' event handler for the client socket
       // data is what the server sent to this socket
-      this.state.tcpClient.on('data', function(data: any) {
+      socket.on('data', function(data: any) {
           // console.log('DATA: ' + data);
           let jsonData = JSON.parse(data);
           this.parseTCPResponse(jsonData);
           // Close the client socket completely
-          this.state.tcpClient.destroy();
+          socket.destroy();
       }.bind(this));
 
       // Add a 'close' event handler for the client socket
-      this.state.tcpClient.on('close', function() {
+      socket.on('close', function() {
           // console.log('Connection closed');
       }.bind(this));
 
       // Add an 'error' event handler
-      this.state.tcpClient.on('error', function(err: any) {
+      socket.on('error', function(err: any) {
           console.log('Error: ' + err);
-          this.state.tcpClient.destroy();
+          socket.destroy();
       }.bind(this));
   }
 

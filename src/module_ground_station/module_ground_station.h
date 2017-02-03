@@ -22,8 +22,6 @@
 #include "data/i_topic_component_data_object.h"
 #include "data/topic_data_object_collection.h"
 
-#include "gcsvehicle.h"
-
 
 using namespace std;
 
@@ -123,6 +121,8 @@ private:
 
     void parseTCPRequest(QJsonObject jsonObj, QByteArray &returnData);
 
+    bool writeTCPData(QByteArray data);
+
 public slots:
     void on_newConnection();
 
@@ -131,6 +131,7 @@ public slots:
 private:
 
     QTcpServer *m_TcpServer;
+    QTcpSocket *m_TcpSocket;
     QThread *m_ListenThread;
 
 
