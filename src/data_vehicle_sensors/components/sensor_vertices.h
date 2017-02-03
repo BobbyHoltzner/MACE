@@ -6,10 +6,13 @@
 #include "math.h"
 
 #include "data/i_topic_component_data_object.h"
-#include "data_generic_state_topics/components.h"
-#include "data_generic_state_items/components.h"
 
+#include "data_vehicle_generic/components.h"
+
+#include "data/i_topic_component_data_object.h"
 #include "data_vehicle_commands/abstract_mission_item.h"
+
+#include "data/positional_coordinate_frame.h"
 
 namespace DataVehicleSensors
 {
@@ -33,7 +36,7 @@ protected:
     std::list<T*> verticeLocations;
 };
 
-class SensorVertices_Global : public SensorVerticesBase<DataState::GlobalPosition>, public Data::NamedTopicComponentDataObject<SensorVerticesGlobal_Name, &SensorVerticesGlobal_Structure>
+class SensorVertices_Global : public SensorVerticesBase<DataVehicleGeneric::GlobalPosition>, public Data::NamedTopicComponentDataObject<SensorVerticesGlobal_Name, &SensorVerticesGlobal_Structure>
 {
 public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
@@ -44,7 +47,7 @@ public:
 
 };
 
-class SensorVertices_Local : public SensorVerticesBase<DataState::LocalPosition>, public Data::NamedTopicComponentDataObject<SensorVerticesLocal_Name, &SensorVerticesLocal_Structure>
+class SensorVertices_Local : public SensorVerticesBase<DataVehicleGeneric::LocalPosition>, public Data::NamedTopicComponentDataObject<SensorVerticesLocal_Name, &SensorVerticesLocal_Structure>
 {
 public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;

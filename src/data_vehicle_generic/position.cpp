@@ -1,6 +1,32 @@
 #include "position.h"
 
-namespace DataState {
+namespace DataVehicleGeneric {
+
+Position::Position()
+{
+
+}
+
+Position::Position(const Data::PositionalFrame &frame)
+{
+    m_PositionFrame = frame;
+}
+
+Position::Position(const Data::PositionalFrame &positionFrame, const CoordinateFrame &coordinateFrame)
+{
+    m_PositionFrame = positionFrame;
+    m_CoordinateFrame = coordinateFrame;
+}
+
+Position::~Position()
+{
+
+}
+
+Data::PositionalFrame Position::getPositionFrame()
+{
+    return m_PositionFrame;
+}
 
 /**
  * @brief Position::convertDegreesToRadians

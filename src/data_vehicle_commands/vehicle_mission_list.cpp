@@ -32,4 +32,45 @@ void VehicleMissionList::CreateFromDatagram(const MaceCore::TopicDatagram &datag
     missionList = datagram.GetTerminal<std::list<AbstractMissionItem*>>("missionList");
 }
 
+VehicleMissionList::VehicleMissionList():
+    missionType(CommandTypes::MISSION), missionName(""),missionLength(0.0),missionDuration(0.0)
+{
+
+}
+
+void VehicleMissionList::setMissionType(const CommandTypes &missionType)
+{
+    this->missionType = missionType;
+}
+
+CommandTypes VehicleMissionList::getMissionType()
+{
+    return missionType;
+}
+
+//void VehicleMissionList::setMissionList(const std::shared_ptr<std::list<AbstractMissionCommand>> &missionList)
+//{
+//    this->missionList = missionList;
+//}
+
+std::list<AbstractMissionItem*> VehicleMissionList::getMissionList()
+{
+    return missionList;
+}
+
+void VehicleMissionList::appendCommand(AbstractMissionItem *missionCommand)
+{
+    missionList.push_back(missionCommand);
+}
+
+void VehicleMissionList::clearCommands()
+{
+    missionList.clear();
+}
+
+void VehicleMissionList::removeCommand(const int &index)
+{
+
+}
+
 }

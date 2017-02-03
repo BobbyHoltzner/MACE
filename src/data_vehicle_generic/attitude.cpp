@@ -1,6 +1,6 @@
-#include "attitude_topic.h"
+#include "attitude.h"
 
-namespace DataStateTopic
+namespace DataVehicleGeneric
 {
 
 const char Attitude_name[] = "attitude";
@@ -16,7 +16,7 @@ const MaceCore::TopicComponentStructure Attitude_structure = []{
     return structure;
 }();
 
-MaceCore::TopicDatagram AttitudeTopic::GenerateDatagram() const {
+MaceCore::TopicDatagram Attitude::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<double>("roll", roll);
     datagram.AddTerminal<double>("rollRate", rollRate);
@@ -27,7 +27,7 @@ MaceCore::TopicDatagram AttitudeTopic::GenerateDatagram() const {
     return datagram;
 }
 
-void AttitudeTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
+void Attitude::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
     roll = datagram.GetTerminal<double>("roll");
     rollRate = datagram.GetTerminal<double>("rollRate");
     pitch = datagram.GetTerminal<double>("pitch");
@@ -36,4 +36,17 @@ void AttitudeTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) 
     yawRate = datagram.GetTerminal<double>("yawRate");
 }
 
-} //end of namespace DataStateTopic
+void Attitude::setAttitude(const double &roll, const double &pitch, const double &yaw)
+{
+    this->roll = roll;
+    this->pitch = pitch;
+    this->yaw = yaw;
+}
+
+void Attitude::setAttitudeRates(const double &rollRate, const double &pitchRate, const double &yawRate)
+{
+    this->rollRate = rollRate;
+    this->pitchRate =pitchRate;
+    this->yawRate = yawRate;
+}
+} //end of namespace DataVehicleGeneric

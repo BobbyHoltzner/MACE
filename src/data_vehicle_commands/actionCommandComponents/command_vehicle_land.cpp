@@ -20,24 +20,24 @@ std::string CommandVehicleLand<T>::getDescription() const
 }
 
 template<>
-CommandVehicleLand<DataState::GlobalPosition>::CommandVehicleLand(){
+CommandVehicleLand<DataVehicleGeneric::GlobalPosition>::CommandVehicleLand(){
     m_PositionFrame = Data::PositionalFrame::GLOBAL;
 }
 
 template<>
-CommandVehicleLand<DataState::LocalPosition>::CommandVehicleLand(){
+CommandVehicleLand<DataVehicleGeneric::LocalPosition>::CommandVehicleLand(){
     m_PositionFrame = Data::PositionalFrame::LOCAL;
 }
 
 template <>
-void CommandVehicleLand<DataState::GlobalPosition>::setLocation(const DataState::GlobalPosition &location)
+void CommandVehicleLand<DataVehicleGeneric::GlobalPosition>::setLocation(const DataVehicleGeneric::GlobalPosition &location)
 {
     m_Location.latitude = location.latitude;
     m_Location.longitude = location.longitude;
     m_Location.altitude = location.altitude;
 }
 template <>
-void CommandVehicleLand<DataState::LocalPosition>::setLocation(const DataState::LocalPosition &location)
+void CommandVehicleLand<DataVehicleGeneric::LocalPosition>::setLocation(const DataVehicleGeneric::LocalPosition &location)
 {
     m_Location.x = location.x;
     m_Location.y = location.y;

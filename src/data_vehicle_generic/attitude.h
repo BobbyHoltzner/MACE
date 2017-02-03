@@ -1,14 +1,24 @@
 #ifndef ATTITUDE_H
 #define ATTITUDE_H
 
-namespace DataState
+#include "data/i_topic_component_data_object.h"
+
+namespace DataVehicleGeneric
 {
 
-class Attitude
+extern const char Attitude_name[];
+extern const MaceCore::TopicComponentStructure Attitude_structure;
+
+class Attitude : public Data::NamedTopicComponentDataObject<Attitude_name, &Attitude_structure>
 {
+public:
+    virtual MaceCore::TopicDatagram GenerateDatagram() const;
+    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
+
 public:
     void setAttitude(const double &roll, const double &pitch, const double &yaw);
     void setAttitudeRates(const double &rollRate, const double &pitchRate, const double &yawRate);
+
 
 public:
     bool operator == (const Attitude &rhs) {
@@ -37,7 +47,7 @@ public:
         return !(*this == rhs);
     }
 
-public:
+protected:
     double roll;
     double rollRate;
     double pitch;

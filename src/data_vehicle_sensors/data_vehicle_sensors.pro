@@ -71,9 +71,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldat
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
 else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_items/release/ -ldata_generic_state_items
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_items/debug/ -ldata_generic_state_items
-else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_state_items/ -ldata_generic_state_items
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic/release/ -ldata_vehicle_generic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic/debug/ -ldata_vehicle_generic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_generic/ -ldata_vehicle_generic
 
 
 unix{
@@ -84,4 +84,3 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
-

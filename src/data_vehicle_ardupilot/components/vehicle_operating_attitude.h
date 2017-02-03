@@ -4,11 +4,11 @@
 #include "mavlink.h"
 
 #include "data/i_topic_component_data_object.h"
-#include "data_generic_state_topics/attitude_topic.h"
+#include "data_vehicle_generic/attitude.h"
 
 namespace DataVehicleArdupilot
 {
-class VehicleOperatingAttitude : public DataStateTopic::AttitudeTopic
+class VehicleOperatingAttitude : public DataVehicleGeneric::Attitude
 {
 public:
     //declare some gets here

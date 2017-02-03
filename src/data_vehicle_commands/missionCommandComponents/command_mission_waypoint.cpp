@@ -20,17 +20,17 @@ namespace DataVehicleCommands {
     }
 
     template<>
-    CommandMissionWaypoint<DataState::GlobalPosition>::CommandMissionWaypoint(){
+    CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>::CommandMissionWaypoint(){
         m_PositionFrame = Data::PositionalFrame::GLOBAL;
     }
 
     template<>
-    CommandMissionWaypoint<DataState::LocalPosition>::CommandMissionWaypoint(){
+    CommandMissionWaypoint<DataVehicleGeneric::LocalPosition>::CommandMissionWaypoint(){
         m_PositionFrame = Data::PositionalFrame::LOCAL;
     }
 
     template <>
-    void CommandMissionWaypoint<DataState::GlobalPosition>::setLocation(const DataState::GlobalPosition &location)
+    void CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>::setLocation(const DataVehicleGeneric::GlobalPosition &location)
     {
         m_Location.latitude = location.latitude;
         m_Location.longitude = location.longitude;
@@ -38,7 +38,7 @@ namespace DataVehicleCommands {
     }
 
     template <>
-    void CommandMissionWaypoint<DataState::GlobalPosition>::setLocation(const double &latitude, const double &longitude, const double &altitude)
+    void CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>::setLocation(const double &latitude, const double &longitude, const double &altitude)
     {
         m_Location.latitude = latitude;
         m_Location.longitude = longitude;
@@ -46,7 +46,7 @@ namespace DataVehicleCommands {
     }
 
     template <>
-    void CommandMissionWaypoint<DataState::LocalPosition>::setLocation(const DataState::LocalPosition &location)
+    void CommandMissionWaypoint<DataVehicleGeneric::LocalPosition>::setLocation(const DataVehicleGeneric::LocalPosition &location)
     {
         m_Location.x = location.x;
         m_Location.y = location.y;
