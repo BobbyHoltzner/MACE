@@ -1,6 +1,6 @@
 #include "state_global_velocity_topic.h"
 
-using namespace DataStateTopic;
+namespace DataStateTopic{
 
 const char GlobalVelocityTopic_name[] = "globalVelocity";
 const MaceCore::TopicComponentStructure GlobalVelocityTopic_structure = []{
@@ -32,7 +32,5 @@ void StateGlobalVelocityTopic::CreateFromDatagram(const MaceCore::TopicDatagram 
     heading = datagram.GetTerminal<double>("heading");
 }
 
-StateGlobalVelocityTopic::StateGlobalVelocityTopic()
-{
+} //end of namespace DataStateTopic
 
-}

@@ -1,7 +1,6 @@
 #include "state_local_velocity_topic.h"
 
-using namespace DataStateTopic;
-
+namespace DataStateTopic{
 
 const char LocalVelocityTopic_name[] = "localVelocity";
 const MaceCore::TopicComponentStructure LocalVelocityTopic_structure = [](){
@@ -26,7 +25,4 @@ void StateLocalVelocityTopic::CreateFromDatagram(const MaceCore::TopicDatagram &
     z = datagram.GetTerminal<double>("z");
 }
 
-StateLocalVelocityTopic::StateLocalVelocityTopic()
-{
-
-}
+} //end of namespace DataStateTopic

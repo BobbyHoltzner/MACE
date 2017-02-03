@@ -17,9 +17,6 @@ class StateLocalPositionTopic : public DataState::StateLocalPosition, public Dat
 public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
-
-public:
-    StateLocalPositionTopic();
 };
 
 } //end of namespace DataStateTopic

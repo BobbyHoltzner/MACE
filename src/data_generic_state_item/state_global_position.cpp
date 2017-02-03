@@ -1,7 +1,7 @@
 #include "state_global_position.h"
 #include <math.h>
 
-using namespace DataState;
+namespace DataState{
 
 StateGlobalPosition::StateGlobalPosition()
 {
@@ -186,4 +186,6 @@ double StateGlobalPosition::convertRadiansToDegrees(const double &radians)
     double pi = 3.14159265358979323846;
     double degrees = radians * (180.0/pi);
     return degrees;
+}
+
 }

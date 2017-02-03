@@ -18,8 +18,6 @@ public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
-public:
-    StateGlobalPositionTopic();
 };
 
 } //end of namespace DataStateTopic

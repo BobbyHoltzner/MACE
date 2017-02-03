@@ -1,6 +1,6 @@
 #include "state_local_position_topic.h"
 
-using namespace DataStateTopic;
+namespace DataStateTopic{
 
 const char LocalPositionTopic_name[] = "localPosition";
 const MaceCore::TopicComponentStructure LocalPositionTopic_structure = [](){
@@ -34,7 +34,4 @@ void StateLocalPositionTopic::CreateFromDatagram(const MaceCore::TopicDatagram &
     z = datagram.GetTerminal<double>("z");
 }
 
-StateLocalPositionTopic::StateLocalPositionTopic()
-{
-
-}
+} //end of namespace DataStateTopic
