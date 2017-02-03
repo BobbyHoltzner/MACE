@@ -18,7 +18,10 @@ SOURCES +=
 HEADERS += data_global.h \
     i_topic_component_data_object.h \
     topic_data_object_collection.h \
-    positional_coordinate_frame.h
+    positional_coordinate_frame.h \
+    vehicle_command_types.h \
+    vehicle_types.h \
+    coordinate_frame.h
 
 # Unix lib Install
 unix:!symbian {

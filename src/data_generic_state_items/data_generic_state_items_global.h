@@ -1,0 +1,15 @@
+#ifndef DATA_GENERIC_STATE_ITEMS_GLOBAL_H
+#define DATA_GENERIC_STATE_ITEMS_GLOBAL_H
+
+#ifdef _MSC_VER
+#  if defined(DATA_GENERIC_STATE_ITEMS_LIBRARY)
+#    define DATA_GENERIC_STATE_ITEMSSHARED_EXPORT  __declspec(dllexport)
+#  else
+#    define DATA_GENERIC_STATE_ITEMSSHARED_EXPORT  __declspec(dllimport)
+#  endif
+#else
+#  define DATA_GENERIC_STATE_ITEMSSHARED_EXPORT
+#endif
+
+
+#endif // DATA_GENERIC_STATE_ITEMS_GLOBAL_H

@@ -1,36 +1,32 @@
-#ifndef DATAVEHICLEGENERIC_GLOBALPOSITION_H
-#define DATAVEHICLEGENERIC_GLOBALPOSITION_H
-
-#include "data/i_topic_component_data_object.h"
+#ifndef DATASTATE_GLOBALPOSITION_H
+#define DATASTATE_GLOBALPOSITION_H
 
 #include "position.h"
 
-namespace DataVehicleGeneric
+namespace DataState
 {
 
-extern const char GlobalPosition_name[];
-extern const MaceCore::TopicComponentStructure GlobalPosition_structure;
-
-class GlobalPosition : public Position, public Data::NamedTopicComponentDataObject<GlobalPosition_name, &GlobalPosition_structure>
+class GlobalPosition : public Position
 {
-public:
-    virtual MaceCore::TopicDatagram GenerateDatagram() const;
-    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
-
 public:
 
     GlobalPosition();
 
-    GlobalPosition(const CoordinateFrame &frame);
+    GlobalPosition(const Data::CoordinateFrame &frame);
 
     GlobalPosition(const double &latitude, const double &longitude, const double &altitude);
 
-    GlobalPosition(const CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude);
+    GlobalPosition(const Data::CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude);
 
     void setPosition(const double &latitude, const double &longitude, const double &altitude);
 
 public:
-    GlobalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag);
+    virtual Data::CoordinateFrame getCoordinateFrame();
+    virtual Data::PositionalFrame getPositionFrame();
+
+
+public:
+    //GlobalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag);
 
 
     double distanceBetween2D(const GlobalPosition &position);
@@ -62,7 +58,6 @@ public:
     }
 
 public:
-
     double latitude;
     double longitude;
     double altitude;
@@ -71,4 +66,4 @@ public:
 }
 
 
-#endif // DATAVEHICLEGENERIC_GLOBALPOSITION_H
+#endif // DATASTATE_GLOBALPOSITION_H

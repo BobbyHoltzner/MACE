@@ -10,7 +10,6 @@ SUBDIRS += \
     module_ground_station \
     data \
     module_vehicle_generic \
-    data_vehicle_generic \
     data_vehicle_MAVLINK \
     data_vehicle_ardupilot \
     module_vehicle_ardupilot \
@@ -18,4 +17,8 @@ SUBDIRS += \
     module_vehicle_sensors \
     data_vehicle_sensors \
     data_vehicle_commands \
-    module_resource_task_allocation
+    data_generic_mission_items\
+    module_resource_task_allocation \
+    data_generic_mission_items \
+    data_generic_state_items \
+    data_generic_state_topics

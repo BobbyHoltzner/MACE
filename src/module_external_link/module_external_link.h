@@ -5,14 +5,9 @@
 
 #include "mace_core/i_module_topic_events.h"
 
-#include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
-
-#include "data_vehicle_generic/components.h"
-#include "data_vehicle_MAVLINK/components.h"
 #include "data_vehicle_ardupilot/components.h"
 
 #include "mace_core/i_module_command_external_link.h"
-
 #include "data_vehicle_sensors/components.h"
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink : public MaceCore::IModuleCommandExternalLink

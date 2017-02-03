@@ -20,8 +20,7 @@
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
 
 
-#include "data_vehicle_generic/local_position.h"
-#include "data_vehicle_generic/local_velocity.h"
+#include "data_generic_state_topics/components.h"
 
 
 #include <iostream>
@@ -38,7 +37,7 @@
 
 #include "data_vehicle_MAVLINK/altitude_reference_frames.h"
 
-#include "data_vehicle_generic/local_position.h"
+#include "data_generic_state_topics/components.h"
 
 #include "data_vehicle_MAVLINK/components.h"
 

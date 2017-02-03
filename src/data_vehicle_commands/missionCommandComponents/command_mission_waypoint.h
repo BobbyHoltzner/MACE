@@ -3,9 +3,10 @@
 
 #include "data_vehicle_commands/abstract_mission_item.h"
 
-#include "data_vehicle_generic/coordinate_frame.h"
-#include "data_vehicle_generic/global_position.h"
-#include "data_vehicle_generic/local_position.h"
+#include "data/coordinate_frame.h"
+
+#include "data_generic_state_items/global_position.h"
+#include "data_generic_state_items/local_position.h"
 
 namespace DataVehicleCommands {
 
