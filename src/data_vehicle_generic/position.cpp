@@ -12,7 +12,7 @@ Position::Position(const Data::PositionalFrame &frame)
     m_PositionFrame = frame;
 }
 
-Position::Position(const Data::PositionalFrame &positionFrame, const CoordinateFrame &coordinateFrame)
+Position::Position(const Data::PositionalFrame &positionFrame, const Data::CoordinateFrame &coordinateFrame)
 {
     m_PositionFrame = positionFrame;
     m_CoordinateFrame = coordinateFrame;

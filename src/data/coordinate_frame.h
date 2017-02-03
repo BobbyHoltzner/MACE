@@ -4,8 +4,9 @@
 #include <string>
 #include <stdexcept>
 
-namespace DataVehicleGeneric
+namespace Data
 {
+
 enum class CoordinateFrame{
     NED,
     NWU

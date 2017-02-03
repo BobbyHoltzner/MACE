@@ -7,8 +7,6 @@
 #include "data_vehicle_generic/global_position.h"
 #include "data_vehicle_generic/local_position.h"
 
-#include "data_vehicle_generic/coordinate_frame.h"
-
 namespace DataVehicleCommands {
 
 template<class T>

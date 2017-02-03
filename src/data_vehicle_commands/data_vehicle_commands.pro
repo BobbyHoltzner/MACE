@@ -72,7 +72,7 @@ headers.files   += \
     mission_components.h \
     action_components.h \
     abstract_action_command.h \
-    abstract_mission_command.h \
+    abstract_mission_item.h \
     action_command_topic.h \
     mission_command_topic.h \
     vehicle_mission_list.h
@@ -98,6 +98,10 @@ headers_missionComponents.files   += \
 INSTALLS       += headers_missionComponents
 
 INCLUDEPATH += $$PWD/../
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
+else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core

@@ -2,7 +2,7 @@
 #define POSITION_H
 
 #include "data/positional_coordinate_frame.h"
-#include "coordinate_frame.h"
+#include "data/coordinate_frame.h"
 
 namespace DataVehicleGeneric {
 
@@ -13,7 +13,7 @@ public:
 
     Position(const Data::PositionalFrame &positionFrame);
 
-    Position(const Data::PositionalFrame &positionFrame, const CoordinateFrame &coordinateFrame);
+    Position(const Data::PositionalFrame &positionFrame, const Data::CoordinateFrame &coordinateFrame);
 
     virtual ~Position();
 
@@ -26,7 +26,7 @@ protected:
 
 protected:
     Data::PositionalFrame m_PositionFrame = Data::PositionalFrame::GLOBAL;
-    CoordinateFrame m_CoordinateFrame = CoordinateFrame::NED;
+    Data::CoordinateFrame m_CoordinateFrame = Data::CoordinateFrame::NED;
 };
 
 } //end of namespace DataVehicleGeneric

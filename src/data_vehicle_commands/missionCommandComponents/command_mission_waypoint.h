@@ -3,7 +3,8 @@
 
 #include "data_vehicle_commands/abstract_mission_item.h"
 
-#include "data_vehicle_generic/coordinate_frame.h"
+#include "data/coordinate_frame.h"
+#include "data/positional_coordinate_frame.h"
 #include "data_vehicle_generic/global_position.h"
 #include "data_vehicle_generic/local_position.h"
 

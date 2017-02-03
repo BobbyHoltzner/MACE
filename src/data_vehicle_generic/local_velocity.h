@@ -2,8 +2,7 @@
 #define DATAVEHICLEGENERIC_LOCALVELOCITY_H
 
 #include "data/i_topic_component_data_object.h"
-
-#include "coordinate_frame.h"
+#include "data/coordinate_frame.h"
 
 namespace DataVehicleGeneric
 {
@@ -23,7 +22,7 @@ public:
 
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
-    CoordinateFrame frame;
+    Data::CoordinateFrame frame;
     double x;
     double y;
     double z;

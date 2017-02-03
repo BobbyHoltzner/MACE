@@ -8,7 +8,7 @@ const char GlobalPosition_name[] = "global_position";
 const MaceCore::TopicComponentStructure GlobalPosition_structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<Data::PositionalFrame>("PositionFrame");
-    structure.AddTerminal<CoordinateFrame>("CoordinateFrame");
+    structure.AddTerminal<Data::CoordinateFrame>("CoordinateFrame");
     structure.AddTerminal<double>("latitude");
     structure.AddTerminal<double>("longitude");
     structure.AddTerminal<double>("altitude");
@@ -22,7 +22,7 @@ const MaceCore::TopicComponentStructure GlobalPosition_structure = []{
 MaceCore::TopicDatagram GlobalPosition::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<Data::PositionalFrame>("PositionFrame", m_PositionFrame);
-    datagram.AddTerminal<CoordinateFrame>("CoordinateFrame", m_CoordinateFrame);
+    datagram.AddTerminal<Data::CoordinateFrame>("CoordinateFrame", m_CoordinateFrame);
     datagram.AddTerminal<double>("latitude", latitude);
     datagram.AddTerminal<double>("longitude", longitude);
     datagram.AddTerminal<double>("altitude", altitude);
@@ -33,7 +33,7 @@ MaceCore::TopicDatagram GlobalPosition::GenerateDatagram() const {
 
 void GlobalPosition::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
     m_PositionFrame = datagram.GetTerminal<Data::PositionalFrame>("PositionFrame");
-    m_CoordinateFrame = datagram.GetTerminal<CoordinateFrame>("CoordinateFrame");
+    m_CoordinateFrame = datagram.GetTerminal<Data::CoordinateFrame>("CoordinateFrame");
     latitude = datagram.GetTerminal<double>("latitude");
     longitude = datagram.GetTerminal<double>("longitude");
     altitude = datagram.GetTerminal<double>("altitude");
@@ -46,7 +46,7 @@ GlobalPosition::GlobalPosition():
 
 }
 
-GlobalPosition::GlobalPosition(const CoordinateFrame &frame):
+GlobalPosition::GlobalPosition(const Data::CoordinateFrame &frame):
     Position(Data::PositionalFrame::GLOBAL, frame)
 {
 
@@ -60,7 +60,7 @@ GlobalPosition::GlobalPosition(const double &latitude, const double &longitude, 
     this->altitude = altitude;
 }
 
-GlobalPosition::GlobalPosition(const CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude):
+GlobalPosition::GlobalPosition(const Data::CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude):
     Position(Data::PositionalFrame::GLOBAL,frame)
 {
 

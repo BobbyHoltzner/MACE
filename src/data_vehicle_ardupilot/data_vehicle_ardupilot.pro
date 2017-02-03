@@ -21,7 +21,6 @@ SOURCES += \
 HEADERS +=\
         data_vehicle_ardupilot_global.h \
     mavlink_parser_ardupilot.h \
-    ardu_platforms.h \
     components.h \
     components/vehicle_operating_status.h \
     components/vehicle_operating_attitude.h \

@@ -2,9 +2,9 @@
 #define DATAVEHICLEGENERIC_LOCALPOSITION_H
 
 #include "data/i_topic_component_data_object.h"
+#include "data/coordinate_frame.h"
 
 #include "position.h"
-#include "coordinate_frame.h"
 
 namespace DataVehicleGeneric
 {
@@ -18,11 +18,11 @@ public:
 
     LocalPosition();
 
-    LocalPosition(const CoordinateFrame &frame);
+    LocalPosition(const Data::CoordinateFrame &frame);
 
     LocalPosition(const double &x, const double &y, const double &z);
 
-    LocalPosition(const CoordinateFrame &frame, const double &x, const double &y, const double &z);
+    LocalPosition(const Data::CoordinateFrame &frame, const double &x, const double &y, const double &z);
 
 public:
 

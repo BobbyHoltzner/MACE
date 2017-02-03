@@ -10,7 +10,7 @@ const char LocalPosition_name[] = "local_position";
 const MaceCore::TopicComponentStructure LocalPosition_structure = [](){
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<Data::PositionalFrame>("PositionFrame");
-    structure.AddTerminal<CoordinateFrame>("CoordinateFrame");
+    structure.AddTerminal<Data::CoordinateFrame>("CoordinateFrame");
     structure.AddTerminal<double>("x");
     structure.AddTerminal<double>("y");
     structure.AddTerminal<double>("z");
@@ -22,7 +22,7 @@ const MaceCore::TopicComponentStructure LocalPosition_structure = [](){
 MaceCore::TopicDatagram LocalPosition::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<Data::PositionalFrame>("PositionFrame", m_PositionFrame);
-    datagram.AddTerminal<CoordinateFrame>("CoordinateFrame", m_CoordinateFrame);
+    datagram.AddTerminal<Data::CoordinateFrame>("CoordinateFrame", m_CoordinateFrame);
     datagram.AddTerminal<double>("x", x);
     datagram.AddTerminal<double>("y", y);
     datagram.AddTerminal<double>("z", z);
@@ -32,7 +32,7 @@ MaceCore::TopicDatagram LocalPosition::GenerateDatagram() const {
 
 void LocalPosition::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
     m_PositionFrame = datagram.GetTerminal<Data::PositionalFrame>("PositionFrame");
-    m_CoordinateFrame = datagram.GetTerminal<CoordinateFrame>("CoordinateFrame");
+    m_CoordinateFrame = datagram.GetTerminal<Data::CoordinateFrame>("CoordinateFrame");
     x = datagram.GetTerminal<double>("x");
     y = datagram.GetTerminal<double>("y");
     z = datagram.GetTerminal<double>("z");
@@ -44,7 +44,7 @@ LocalPosition::LocalPosition():
 
 }
 
-LocalPosition::LocalPosition(const CoordinateFrame &frame):
+LocalPosition::LocalPosition(const Data::CoordinateFrame &frame):
     Position(Data::PositionalFrame::LOCAL, frame)
 {
 
@@ -58,7 +58,7 @@ LocalPosition::LocalPosition(const double &x, const double &y, const double &z):
     this->z = z;
 }
 
-LocalPosition::LocalPosition(const CoordinateFrame &frame, const double &x, const double &y, const double &z):
+LocalPosition::LocalPosition(const Data::CoordinateFrame &frame, const double &x, const double &y, const double &z):
     Position(Data::PositionalFrame::LOCAL,frame)
 {
     this->x = x;

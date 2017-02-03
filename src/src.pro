@@ -18,4 +18,6 @@ SUBDIRS += \
     module_vehicle_sensors \
     data_vehicle_sensors \
     data_vehicle_commands \
-    module_resource_task_allocation
+    module_resource_task_allocation \
+    data_generic_state_item \
+    data_generic_state_item_topic

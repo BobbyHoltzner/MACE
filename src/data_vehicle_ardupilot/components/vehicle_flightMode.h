@@ -7,9 +7,8 @@
 
 #include "mavlink.h"
 #include "data/i_topic_component_data_object.h"
-#include "data_vehicle_generic/vehicle_types.h"
 
-#include "../ardu_platforms.h"
+#include "data/vehicle_types.h"
 
 namespace DataVehicleArdupilot
 {
@@ -80,7 +79,7 @@ public:
 
     void setVehicleType(int vehicleType);
 
-    VehicleTypes getVehicleType() const
+    Data::VehicleTypes getVehicleType() const
     {
         return (m_VehicleType);
     }
@@ -96,7 +95,7 @@ public:
 
     int getFlightMode(const std::string &flightMode);
 
-    void getAvailableFlightModes(const VehicleTypes &vehicleType, std::map<int, std::string> &availableFM);
+    void getAvailableFlightModes(const Data::VehicleTypes &vehicleType, std::map<int, std::string> &availableFM);
 
 
 public:
@@ -160,7 +159,7 @@ private:
 private:
 
     int m_FlightMode;
-    VehicleTypes m_VehicleType;
+    Data::VehicleTypes m_VehicleType;
 
 };
 

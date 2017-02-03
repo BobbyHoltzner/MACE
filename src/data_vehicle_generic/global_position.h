@@ -2,7 +2,7 @@
 #define DATAVEHICLEGENERIC_GLOBALPOSITION_H
 
 #include "data/i_topic_component_data_object.h"
-
+#include "data/coordinate_frame.h"
 #include "position.h"
 
 namespace DataVehicleGeneric
@@ -21,11 +21,11 @@ public:
 
     GlobalPosition();
 
-    GlobalPosition(const CoordinateFrame &frame);
+    GlobalPosition(const Data::CoordinateFrame &frame);
 
     GlobalPosition(const double &latitude, const double &longitude, const double &altitude);
 
-    GlobalPosition(const CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude);
+    GlobalPosition(const Data::CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude);
 
     void setPosition(const double &latitude, const double &longitude, const double &altitude);
 
