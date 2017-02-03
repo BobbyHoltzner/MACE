@@ -19,7 +19,8 @@ SOURCES += \
     global_position.cpp \
     global_velocity.cpp \
     attitude.cpp \
-    position.cpp
+    position.cpp \
+    testdummy.cpp
 
 HEADERS +=\
         data_vehicle_generic_global.h \
@@ -29,7 +30,8 @@ HEADERS +=\
     global_velocity.h \
     components.h \
     attitude.h \
-    position.h
+    position.h \
+    testdummy.h
 
 
 

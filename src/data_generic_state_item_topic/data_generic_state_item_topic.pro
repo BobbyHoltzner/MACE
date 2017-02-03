@@ -37,7 +37,8 @@ HEADERS +=\
     state_global_position_topic.h \
     state_local_position_topic.h \
     state_global_velocity_topic.h \
-    state_local_velocity_topic.h
+    state_local_velocity_topic.h \
+    state_topic_components.h
 
 # Unix lib Install
 unix:!symbian {

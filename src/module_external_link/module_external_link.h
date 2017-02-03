@@ -4,16 +4,16 @@
 #include "module_external_link_global.h"
 
 #include "mace_core/i_module_topic_events.h"
+#include "mace_core/i_module_command_external_link.h"
+#include "data/i_topic_component_data_object.h"
+#include "data/topic_data_object_collection.h"
 
-#include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
-
+#include "data_generic_state_item_topic/state_topic_components.h"
 #include "data_vehicle_generic/components.h"
 #include "data_vehicle_MAVLINK/components.h"
 #include "data_vehicle_ardupilot/components.h"
-
-#include "mace_core/i_module_command_external_link.h"
-
 #include "data_vehicle_sensors/components.h"
+
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink : public MaceCore::IModuleCommandExternalLink
 {
@@ -48,7 +48,8 @@ public:
 
 
 private:
-    Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;
+
+    Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_VEHICLE_GENERIC_TYPES, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;
 
 };
