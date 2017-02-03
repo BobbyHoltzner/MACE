@@ -44,13 +44,13 @@ HEADERS +=\
     mission_components.h \
     action_components.h \
     abstract_action_command.h \
-    abstract_mission_command.h \
     action_command_topic.h \
     mission_command_topic.h \
     missionCommandComponents/command_mission_waypoint.h \
     actionCommandComponents/command_vehicle_arm.h \
     actionCommandComponents/command_vehicle_rtl.h \
-    vehicle_mission_list.h
+    vehicle_mission_list.h \
+    abstract_mission_item.h
 
 # Unix lib Install
 unix:!symbian {

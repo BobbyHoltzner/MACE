@@ -8,9 +8,9 @@ namespace DataVehicleCommands {
     }
 
     template<class T>
-    MissionCommandTypes CommandMissionWaypoint<T>::getMissionType() const
+    MissionItemTypes CommandMissionWaypoint<T>::getMissionType() const
     {
-        return MissionCommandTypes::WAYPOINT;
+        return MissionItemTypes::WAYPOINT;
     }
 
     template<class T>

@@ -3,7 +3,7 @@
 
 #include "data/i_topic_component_data_object.h"
 
-#include "abstract_mission_command.h"
+#include "abstract_mission_item.h"
 
 namespace DataVehicleCommands
 {
@@ -18,15 +18,15 @@ public:
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
 public:
-    void setMissionItem(const std::shared_ptr<AbstractMissionCommand> &actionItem);
+    void setMissionItem(const std::shared_ptr<AbstractMissionItem> &actionItem);
 
-    std::shared_ptr<AbstractMissionCommand> getActionItem() const;
+    std::shared_ptr<AbstractMissionItem> getActionItem() const;
 
-    MissionCommandTypes getActionItemType() const;
+    MissionItemTypes getActionItemType() const;
 
 private:
-    MissionCommandTypes m_MissionCommandType;
-    std::shared_ptr<AbstractMissionCommand> m_MissionItem;
+    MissionItemTypes m_MissionCommandType;
+    std::shared_ptr<AbstractMissionItem> m_MissionItem;
 };
 } //end of namespace DataVehicleCommands
 #endif // MISSION_COMMAND_TOPIC_H
