@@ -10,7 +10,6 @@ SUBDIRS += \
     module_ground_station \
     data \
     module_vehicle_generic \
-    data_vehicle_generic \
     data_vehicle_MAVLINK \
     data_vehicle_ardupilot \
     module_vehicle_ardupilot \
