@@ -81,11 +81,11 @@ void ModuleRTA::NewTopic(const std::string &topicName, int senderID, std::vector
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == DataVehicleGeneric::GlobalPosition::Name()) {
-                std::shared_ptr<DataVehicleGeneric::GlobalPosition> globalPositionData = std::make_shared<DataVehicleGeneric::GlobalPosition>();
+            if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> globalPositionData = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(globalPositionData, read_topicDatagram);
-            }else if(componentsUpdated.at(i) == DataVehicleGeneric::LocalPosition::Name()) {
-                std::shared_ptr<DataVehicleGeneric::LocalPosition> localPositionData = std::make_shared<DataVehicleGeneric::LocalPosition>();
+            }else if(componentsUpdated.at(i) == DataStateTopic::StateLocalPositionTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateLocalPositionTopic> localPositionData = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(localPositionData, read_topicDatagram);
 
             }
