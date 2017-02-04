@@ -168,7 +168,7 @@ public:
             //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
             mavlink_attitude_t decodedMSG;
             mavlink_msg_attitude_decode(message,&decodedMSG);
-            std::shared_ptr<DataVehicleGeneric::Attitude> ptrAttitude = std::make_shared<DataVehicleGeneric::Attitude>();
+            std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>();
             ptrAttitude->setAttitude(decodedMSG.roll,decodedMSG.pitch,decodedMSG.yaw);
             ptrAttitude->setAttitudeRates(decodedMSG.rollspeed,decodedMSG.pitchspeed,decodedMSG.yawspeed);
 
@@ -185,7 +185,7 @@ public:
             mavlink_global_position_int_t decodedMSG;
             mavlink_msg_global_position_int_decode(message,&decodedMSG);
             double power = pow(10,7);
-            std::shared_ptr<DataVehicleGeneric::GlobalPosition> ptrPosition = std::make_shared<DataVehicleGeneric::GlobalPosition>();
+            std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
             ptrPosition->setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
             //check that something has actually changed
             if(m_CurrentArduGlobalPosition == NULL || *ptrPosition != *m_CurrentArduGlobalPosition)
@@ -442,7 +442,7 @@ private:
 
     bool heartbeatSeen = false;
     std::shared_ptr<VehicleFlightMode> m_CurrentArduVehicleState;
-    std::shared_ptr<DataVehicleGeneric::GlobalPosition> m_CurrentArduGlobalPosition;
+    std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentArduGlobalPosition;
     std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
     std::shared_ptr<VehicleOperatingAttitude> m_CurrentArduVehicleAttitude;
 

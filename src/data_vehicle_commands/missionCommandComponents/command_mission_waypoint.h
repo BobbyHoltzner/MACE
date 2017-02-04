@@ -5,8 +5,8 @@
 
 #include "data/coordinate_frame.h"
 #include "data/positional_coordinate_frame.h"
-#include "data_vehicle_generic/global_position.h"
-#include "data_vehicle_generic/local_position.h"
+#include "data_generic_state_item/state_global_position.h"
+#include "data_generic_state_item/state_local_position.h"
 
 namespace DataVehicleCommands {
 

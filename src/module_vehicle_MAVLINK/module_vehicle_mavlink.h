@@ -5,7 +5,10 @@
 
 #include "module_vehicle_mavlink_global.h"
 
+#include <iostream>
 #include <QMap>
+#include <QSerialPort>
+
 
 #include "common/common.h"
 
@@ -15,26 +18,16 @@
 #include "comms/i_protocol_mavlink_events.h"
 #include "comms/serial_configuration.h"
 
+#include "comms/serial_link.h"
+#include "comms/udp_link.h"
+#include "comms/protocol_mavlink.h"
+
 #include "Vehicles/Ardupilot/data_ardupilot.h"
-
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
-
-
-#include "data_vehicle_generic/local_position.h"
-#include "data_vehicle_generic/local_velocity.h"
-
-
-#include <iostream>
 
 #include "module_vehicle_mavlink.h"
 
 #include "mace_core/module_factory.h"
-
-#include <QSerialPort>
-
-#include "comms/serial_link.h"
-#include "comms/udp_link.h"
-#include "comms/protocol_mavlink.h"
 
 #include "data_vehicle_MAVLINK/altitude_reference_frames.h"
 
