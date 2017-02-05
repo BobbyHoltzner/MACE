@@ -19,4 +19,5 @@ SUBDIRS += \
     data_vehicle_commands \
     module_resource_task_allocation \
     data_generic_state_item \
-    data_generic_state_item_topic
+    data_generic_state_item_topic \
+    data_generic_mission_item
