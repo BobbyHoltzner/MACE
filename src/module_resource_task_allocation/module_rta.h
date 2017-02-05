@@ -12,8 +12,6 @@
 
 #include "data_generic_state_item_topic/state_topic_components.h"
 #include "data_vehicle_sensors/components.h"
-#include "data_vehicle_commands/action_components.h"
-#include "data_vehicle_commands/mission_components.h"
 
 class MODULE_RESOURCE_TASK_ALLOCATIONSHARED_EXPORT ModuleRTA : public MaceCore::IModuleCommandRTA
 {
@@ -49,8 +47,6 @@ public:
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
 private:
-    Data::TopicDataObjectCollection<DATA_VEHICLE_ACTION_COMMAND_TYPES> m_CommandVehicleTopic;
-    Data::TopicDataObjectCollection<DATA_VEHICLE_MISSION_LIST> m_CommandVehicleMissionList;
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;

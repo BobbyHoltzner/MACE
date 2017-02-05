@@ -1,14 +1,18 @@
 #ifndef MAVLINK_PARSER_ARDUPILOT_H
 #define MAVLINK_PARSER_ARDUPILOT_H
 
+#include <iostream>
+
 #include "mavlink.h"
 
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
 
+#include "data_generic_state_item_topic/state_topic_components.h"
+#include "data_generic_mission_item/mission_item_components.h"
+
 #include "components/vehicle_operating_attitude.h"
 #include "components/vehicle_flightMode.h"
 #include "components/vehicle_operating_status.h"
-
 
 namespace DataVehicleArdupilot
 {
@@ -23,6 +27,8 @@ public:
     {
 
     }
+
+    mavlink_message_t generateArdupilotMessage(MissionItem::AbstractMissionItem &missionItem, const uint8_t &chan);
 
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> Parse(const mavlink_message_t* message){
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;

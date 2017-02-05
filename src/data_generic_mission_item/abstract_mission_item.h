@@ -13,7 +13,7 @@ public:
 
     virtual MissionItemType getMissionType() const = 0;
 
-    virtual bool hasSpatialInfluence() const = 0;
+    virtual bool hasSpatialMissionInfluence() const = 0;
 
     virtual std::string getDescription() const = 0;
 

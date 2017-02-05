@@ -2,17 +2,17 @@
 
 namespace MissionItem {
 
-MissionItemType ActionArm::getMissionType()
+MissionItemType ActionArm::getMissionType() const
 {
     return MissionItemType::ARM;
 }
 
-std::string ActionArm::getDescription()
+std::string ActionArm::getDescription() const
 {
     return "This arms the vehicle";
 }
 
-bool ActionArm::hasSpatialInfluence()
+bool ActionArm::hasSpatialMissionInfluence() const
 {
     return false;
 }

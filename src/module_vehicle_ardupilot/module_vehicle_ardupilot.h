@@ -12,8 +12,6 @@
 #include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
 
 #include "data_vehicle_ardupilot/components.h"
-#include "data_vehicle_commands/action_components.h"
-#include "data_vehicle_commands/mission_components.h"
 
 
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
@@ -38,14 +36,20 @@ public:
     //!
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
 
+//public:
+//    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
+
+//    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
+
+
 public:
     void HandleCommandTopic();
 
     void HandleMissionTopic();
 
 private:
-    Data::TopicDataObjectCollection<DATA_VEHICLE_ACTION_COMMAND_TYPES> m_CommandVehicleTopic;
-    Data::TopicDataObjectCollection<DATA_VEHICLE_MISSION_LIST> m_CommandVehicleMissionList;
+    //Data::TopicDataObjectCollection<DATA_VEHICLE_ACTION_COMMAND_TYPES> m_CommandVehicleTopic;
+    //Data::TopicDataObjectCollection<DATA_VEHICLE_MISSION_LIST> m_CommandVehicleMissionList;
 
 
 private:

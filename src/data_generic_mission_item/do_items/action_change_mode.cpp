@@ -2,17 +2,17 @@
 
 namespace MissionItem {
 
-MissionItemType ActionChangeMode::getMissionType()
+MissionItemType ActionChangeMode::getMissionType() const
 {
     return MissionItemType::ARM;
 }
 
-std::string ActionChangeMode::getDescription()
+std::string ActionChangeMode::getDescription() const
 {
     return "This changes the mode of the vehicle";
 }
 
-bool ActionChangeMode::hasSpatialInfluence()
+bool ActionChangeMode::hasSpatialMissionInfluence() const
 {
     return false;
 }

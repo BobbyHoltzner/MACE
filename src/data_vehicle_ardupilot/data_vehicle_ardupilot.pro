@@ -16,7 +16,8 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += \
     components/vehicle_operating_status.cpp \
     components/vehicle_operating_attitude.cpp \
-    components/vehicle_flightMode.cpp
+    components/vehicle_flightMode.cpp \
+    mavlink_parser_ardupilot.cpp
 
 HEADERS +=\
         data_vehicle_ardupilot_global.h \

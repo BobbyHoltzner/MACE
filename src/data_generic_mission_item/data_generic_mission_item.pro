@@ -43,7 +43,8 @@ HEADERS +=\
     spatial_items/spatial_rtl.h \
     spatial_items/spatial_components.h \
     do_items/do_components.h \
-    mission_item_types.h
+    mission_item_types.h \
+    mission_item_components.h
 
 # Unix lib Install
 unix:!symbian {
@@ -63,15 +64,16 @@ headers.files   += \
         data_generic_mission_item_global.h \
     abstract_mission_item.h \
     mission_list.h \
-    mission_item_types.h
+    mission_item_types.h \
+    mission_item_components.h
 INSTALLS       += headers
 
 #Header file copy
 headers_doComponents.path    = $$(MACE_ROOT)/include/data_generic_mission_item/do_items
 headers_doComponents.files   += \
     do_items/action_arm.h \
-    do_items/action_change_mode.h
-
+    do_items/action_change_mode.h \
+    do_items/do_components.h
 INSTALLS       += headers_doComponents
 
 #Header file copy

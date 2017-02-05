@@ -3,7 +3,6 @@
 
 ModuleRTA::ModuleRTA():
     m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData"),
-    m_CommandVehicleTopic("commandData"), m_CommandVehicleMissionList("vehicleMissionList"),
     m_SensorFootprintDataTopic("sensorFootprint")
 {
 

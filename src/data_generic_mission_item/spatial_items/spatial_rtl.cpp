@@ -2,17 +2,17 @@
 
 namespace MissionItem {
 
-MissionItemType SpatialRTL::getMissionType()
+MissionItemType SpatialRTL::getMissionType() const
 {
     return MissionItemType::RTL;
 }
 
-std::string SpatialRTL::getDescription()
+std::string SpatialRTL::getDescription() const
 {
     return "This causes the vehicle to return to the launch location";
 }
 
-bool SpatialRTL::hasSpatialInfluence()
+bool SpatialRTL::hasSpatialMissionInfluence() const
 {
     return true;
 }

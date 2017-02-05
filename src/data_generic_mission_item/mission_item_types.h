@@ -52,6 +52,6 @@ inline MissionItemType MissionTypeFromString(const std::string &str) {
     throw std::runtime_error("Unknown mission item type seen");
 }
 
-} //end of namespace DataVehicleCommands
+} //end of namespace MissionItem
 
 #endif // MISSION_ITEM_TYPES_H

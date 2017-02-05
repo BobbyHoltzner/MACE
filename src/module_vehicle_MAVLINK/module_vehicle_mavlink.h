@@ -31,8 +31,6 @@
 
 #include "data_vehicle_MAVLINK/altitude_reference_frames.h"
 
-#include "data_vehicle_generic/local_position.h"
-
 #include "data_vehicle_MAVLINK/components.h"
 
 /*
@@ -355,6 +353,16 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///              MACE COMMANDS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
+    {
+
+    }
+
+    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
+    {
+
+    }
 
     virtual void CreateVehicleObject(const int &vehicleID)
     {

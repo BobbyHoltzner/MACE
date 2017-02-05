@@ -11,11 +11,6 @@
 
 #include "data_generic_state_item_topic/state_topic_components.h"
 
-//#include "data_vehicle_generic/local_position.h"
-//#include "data_vehicle_generic/local_velocity.h"
-//#include "data_vehicle_generic/global_position.h"
-//#include "data_vehicle_generic/global_velocity.h"
-
 #include "data_vehicle_MAVLINK/Components/gps_status.h"
 
 

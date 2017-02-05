@@ -13,8 +13,6 @@
 
 #include "data_vehicle_MAVLINK/altitude_reference_frames.h"
 
-#include "data_vehicle_generic/local_position.h"
-
 
 
 
