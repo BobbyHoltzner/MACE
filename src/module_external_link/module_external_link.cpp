@@ -78,3 +78,8 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
     }
 }
 
+void ModuleExternalLink::NewlyAvailableVehicle(const int &vehicleID)
+{
+
+}
+

@@ -40,8 +40,10 @@ public:
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
 
-    //! Virtual functions as defined by IModuleCommandSensors
+    //! Virtual functions as defined by IModuleExternalLink
 public:
+
+    virtual void NewlyAvailableVehicle(const int &vehicleID);
 
 
 private:

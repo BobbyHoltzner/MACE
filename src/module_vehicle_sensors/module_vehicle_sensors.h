@@ -45,6 +45,12 @@ public:
 
     void computeVehicleFootprint(const double &roll, const double &pitch, const double &yaw, const double &altitude);
 
+
+    //! Virtual functions as defined by IModuleCommandSensors
+public:
+
+    virtual void NewlyAvailableVehicle(const int &vehicleID);
+
 private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
 
