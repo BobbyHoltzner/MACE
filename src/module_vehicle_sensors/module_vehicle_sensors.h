@@ -57,9 +57,6 @@ private:
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;
 
-
-
-
 };
 
 #endif // MODULE_VEHICLE_SENSORS_H

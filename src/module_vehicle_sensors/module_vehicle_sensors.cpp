@@ -145,3 +145,8 @@ void ModuleVehicleSensors::computeVehicleFootprint(const double &roll, const dou
     Eigen::Matrix3d dcm;
 
 }
+
+void ModuleVehicleSensors::NewlyAvailableVehicle(const int &vehicleID)
+{
+
+}
