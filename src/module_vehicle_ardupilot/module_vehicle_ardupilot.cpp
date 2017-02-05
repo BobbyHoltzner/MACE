@@ -4,7 +4,6 @@ void ModuleVehicleArdupilot::ChangeVehicleArm(const MissionItem::ActionArm &vehi
     MissionItem::ActionArm* armMsg = new MissionItem::ActionArm(vehicleArm);
     uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
     mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleArm.getVehicleID())->generateArdupilotMessage(armMsg,chan);
-    std::cout<<"A new message was made"<<std::endl;
     m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
 
 }
@@ -14,7 +13,6 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
     MissionItem::ActionChangeMode* armMsg = new MissionItem::ActionChangeMode(vehicleMode);
     uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
     mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleMode.getVehicleID())->generateArdupilotMessage(armMsg,chan);
-    std::cout<<"A new message was made"<<std::endl;
     m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
 }
 
@@ -73,6 +71,7 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         }
 
         //notify listneres of topic
+
         ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
         });

@@ -23,7 +23,6 @@
 
 
 
-
 using namespace std;
 
 class MODULE_GROUND_STATIONSHARED_EXPORT ModuleGroundStation : public MaceCore::IModuleCommandGroundStation

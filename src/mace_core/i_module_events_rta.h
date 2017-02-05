@@ -1,15 +1,13 @@
 #ifndef I_RTA_EVENTS_H
 #define I_RTA_EVENTS_H
 
-#include <string>
-#include <vector>
+#include "i_module_events_general.h"
 
-#include <Eigen/Dense>
 
 namespace MaceCore
 {
 
-class IModuleEventsRTA
+class IModuleEventsRTA  : public IModuleEventsGeneral
 {
 public:
 

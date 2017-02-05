@@ -128,13 +128,11 @@ void MaceCore::NewTopicDataValues(const std::string &topicName, const int sender
 /////////////////////////////////////////////////////////////////////////
 void MaceCore::RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm)
 {
-    std::cout<<"A vehicle request for arming was made."<<std::endl;
     int vehicleID = arm.getVehicleID();
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_ARM,arm);
 }
 void MaceCore::RequestVehicleMode(const void *sender, const MissionItem::ActionChangeMode &changeMode)
 {
-    std::cout<<"A vehicle request for changing mode was made."<<std::endl;
     int vehicleID = changeMode.getVehicleID();
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_MODE,changeMode);
 }

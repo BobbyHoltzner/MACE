@@ -47,7 +47,6 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout<<"The new vehicle roll is: "<<component->roll<<std::endl;
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
@@ -61,7 +60,6 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
 //            if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleOperatingStatus::Name()) {
 //                std::shared_ptr<DataVehicleArdupilot::VehicleOperatingStatus> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingStatus>();
 //                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-//                //std::cout << "    Vehicle Armed: " << component->getVehicleArmed() << std::endl;
 //            }
         }
     }else if(topicName == m_SensorFootprintDataTopic.Name())
