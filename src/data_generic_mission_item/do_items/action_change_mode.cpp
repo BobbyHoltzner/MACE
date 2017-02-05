@@ -4,7 +4,7 @@ namespace MissionItem {
 
 MissionItemType ActionChangeMode::getMissionType() const
 {
-    return MissionItemType::ARM;
+    return MissionItemType::CHANGE_MODE;
 }
 
 std::string ActionChangeMode::getDescription() const
@@ -15,6 +15,23 @@ std::string ActionChangeMode::getDescription() const
 bool ActionChangeMode::hasSpatialMissionInfluence() const
 {
     return false;
+}
+
+ActionChangeMode::ActionChangeMode()
+{
+
+}
+
+ActionChangeMode::ActionChangeMode(const int &vehicleID, const std::string &mode)
+{
+    m_VehicleID = vehicleID;
+    m_CommandVehicleMode = mode;
+}
+
+ActionChangeMode::ActionChangeMode(const ActionChangeMode &actionChangeMode)
+{
+    this->m_VehicleID = actionChangeMode.m_VehicleID;
+    this->m_CommandVehicleMode = actionChangeMode.m_CommandVehicleMode;
 }
 
 }

@@ -28,7 +28,7 @@ public:
 
     }
 
-    mavlink_message_t generateArdupilotMessage(MissionItem::AbstractMissionItem &missionItem, const uint8_t &chan);
+    mavlink_message_t generateArdupilotMessage(MissionItem::AbstractMissionItem *missionItem, const uint8_t &chan);
 
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> Parse(const mavlink_message_t* message){
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;

@@ -20,6 +20,7 @@ public:
 
 public:
     SpatialLand();
+
 };
 
 } //end of namespace MissionItem

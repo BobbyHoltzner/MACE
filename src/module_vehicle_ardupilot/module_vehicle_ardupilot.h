@@ -14,6 +14,7 @@
 #include "data_vehicle_ardupilot/components.h"
 
 
+
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
 {
 
@@ -36,10 +37,10 @@ public:
     //!
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
 
-//public:
-//    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
+public:
+    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
 
-//    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
+    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
 
 
 public:

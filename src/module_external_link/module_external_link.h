@@ -9,14 +9,15 @@
 #include "data/topic_data_object_collection.h"
 
 #include "data_generic_state_item_topic/state_topic_components.h"
+
 #include "data_vehicle_sensors/components.h"
+
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink : public MaceCore::IModuleCommandExternalLink
 {
 
 public:
     ModuleExternalLink();
-
     //!
     //! \brief This module as been attached as a module
     //! \param ptr pointer to object that attached this instance to itself

@@ -76,6 +76,18 @@ void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, 
     {
         MaceCore::TopicDatagram topicDatagram;
 
+        std::cout<<"A new topic was seen in the sensor library."<<std::endl;
+//        MissionItem::ActionArm tmpArm;
+//        tmpArm.setVehicleArm(true);
+//        tmpArm.setVehicleID(1);
+
+        MissionItem::ActionChangeMode tmpMode;
+        tmpMode.setVehicleID(1);
+        tmpMode.setRequestMode("AUTO");
+        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleEventsSensors* ptr){
+            ptr->RequestVehicleMode(this,tmpMode);
+        });
+
 //        DataVehicleCommands::CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>* newWP = new DataVehicleCommands::CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>();
 //        newWP->setLocation(35.7470021,-78.8395026,0.0);
 //        //newWP->setLocation(35.7463033,-78.8386631,0.0);

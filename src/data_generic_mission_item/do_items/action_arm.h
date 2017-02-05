@@ -16,6 +16,12 @@ public:
     virtual bool hasSpatialMissionInfluence() const;
 
 public:
+    ActionArm();
+    ActionArm(const int &vehicleID, const bool &arm);
+
+    ActionArm(const ActionArm &actionArm);
+
+public:
     void setVehicleArm(const bool &arm)
     {
         m_ActionArm = arm;
@@ -25,7 +31,32 @@ public:
         return m_ActionArm;
     }
 
+    void setVehicleID(const int &vehicleID){
+        m_VehicleID = vehicleID;
+    }
+
+    int getVehicleID() const{
+        return m_VehicleID;
+    }
+
+
+public:
+    bool operator == (const ActionArm &rhs) {
+        if(this->m_ActionArm != rhs.m_ActionArm){
+            return false;
+        }
+        if(this->m_VehicleID != rhs.m_VehicleID){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const ActionArm &rhs) {
+        return !(*this == rhs);
+    }
+
 private:
+    int m_VehicleID;
     bool m_ActionArm;
 
 };

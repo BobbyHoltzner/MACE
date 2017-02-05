@@ -43,8 +43,17 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
     {
         //get latest datagram from mace_data
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
-
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+            if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                std::cout<<"The new vehicle roll is: "<<component->roll<<std::endl;
+            }
+            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+            }
+
 //            if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleFlightMode::Name()) {
 //                std::shared_ptr<DataVehicleArdupilot::VehicleFlightMode> component = std::make_shared<DataVehicleArdupilot::VehicleFlightMode>();
 //                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
@@ -54,11 +63,6 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
 //                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 //                //std::cout << "    Vehicle Armed: " << component->getVehicleArmed() << std::endl;
 //            }
-            if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
-                std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
-                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                //std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
-            }
         }
     }else if(topicName == m_SensorFootprintDataTopic.Name())
     {

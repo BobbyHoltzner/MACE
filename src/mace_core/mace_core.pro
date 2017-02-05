@@ -48,7 +48,8 @@ HEADERS += mace_core.h\
     i_module_command_external_link.h \
     i_module_command_sensors.h \
     i_module_events_sensors.h \
-    metadata_sensors.h
+    metadata_sensors.h \
+    i_module_events_external_link.h
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib
