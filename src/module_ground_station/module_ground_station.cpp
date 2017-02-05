@@ -166,13 +166,13 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
     if(topicName == m_VehicleDataTopic.Name())
     {
 
-        MissionItem::ActionChangeMode tmpMode;
-        tmpMode.setVehicleID(1);
-        tmpMode.setRequestMode("AUTO");
+//        MissionItem::ActionChangeMode tmpMode;
+//        tmpMode.setVehicleID(1);
+//        tmpMode.setRequestMode("AUTO");
 
-        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->RequestVehicleMode(this,tmpMode);
-        });
+//        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+//            ptr->RequestVehicleMode(this,tmpMode);
+//        });
 
         //get latest datagram from mace_data
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
@@ -313,5 +313,4 @@ void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
     std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
     std::vector<int> newVehicleList;
     data->GetAvailableVehicles(newVehicleList);
-    std::cout<<"I think I got all of the data?"<<std::endl;
 }

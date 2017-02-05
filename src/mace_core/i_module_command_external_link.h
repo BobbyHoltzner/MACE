@@ -28,7 +28,9 @@ public:
     IModuleCommandExternalLink():
         AbstractModule_EventListeners()
     {
-
+        AddCommandLogic<int>(ExternalLinkCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID){
+            NewlyAvailableVehicle(vehicleID);
+        });
     }
 
     virtual Classes ModuleClass() const
@@ -37,6 +39,7 @@ public:
     }
 
 public:
+    virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
 };
 

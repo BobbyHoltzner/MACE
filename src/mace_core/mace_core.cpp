@@ -161,7 +161,6 @@ void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const Veh
     int sendersID = 0;
     bool rtnValue = m_DataFusion->HandleVehicleMessage(vehicleMessage,sendersID);
     if(rtnValue == false && this->VehicleCheck(sendersID) == false){
-        std::cout<<"The value of counter is: "<<counter<<std::endl;
         counter = counter + 1;
         vehicleModule->MarshalCommand(VehicleCommands::CREATE_VEHICLE_OBJECT, sendersID);
     }else{
