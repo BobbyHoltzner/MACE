@@ -42,12 +42,20 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
     MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>* newWP = new MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>();
     newWP->position.setPosition(35.7470021,-78.8395026,0.0);
 
-    std::shared_ptr<MissionTopic::MissionItemTopic> newMissionItem = std::make_shared<MissionTopic::MissionItemTopic>(MissionTopic::MissionType::GUIDED);
-    newMissionItem->setMissionItem(newWP);
-    newMissionItem->setVehicleID(1);
+    //std::shared_ptr<MissionTopic::MissionItemTopic> newMissionItem = std::make_shared<MissionTopic::MissionItemTopic>(MissionTopic::MissionType::GUIDED);
+    //newMissionItem->setMissionItem(newWP);
+    //newMissionItem->setVehicleID(1);
+
+    MissionItem::MissionList* newMissionList = new MissionItem::MissionList();
+    newMissionList->insertMissionItem(newWP);
+    newMissionList->insertMissionItem(newWP);
+
+    std::shared_ptr<MissionTopic::MissionListTopic> newMissionListTopic = std::make_shared<MissionTopic::MissionListTopic>(MissionTopic::MissionType::GUIDED);
+    newMissionListTopic->setVehicleID(1);
+    newMissionListTopic->setMissionList(newMissionList);
 
     MaceCore::TopicDatagram topicDatagram;
-    m_MissionDataTopic.SetComponent(newMissionItem, topicDatagram);
+    m_MissionDataTopic.SetComponent(newMissionListTopic, topicDatagram);
 
     ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
         ptr->NewTopicDataValues(m_MissionDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);

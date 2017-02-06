@@ -35,4 +35,15 @@ MissionListTopic::MissionListTopic(const MissionType &missionType)
     this->missionType = missionType;
 }
 
+
+void MissionListTopic::setMissionList(MissionItem::MissionList *missionList)
+{
+    this->missionList = missionList;
+}
+
+MissionItem::MissionList* MissionListTopic::getMissionList()
+{
+    return missionList;
+}
+
 } //end of namespace MissionTopic

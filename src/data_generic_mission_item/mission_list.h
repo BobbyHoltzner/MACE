@@ -12,6 +12,7 @@ public:
     MissionList();
 
     void insertMissionItem(AbstractMissionItem* missionItem);
+    int getQueueSize();
 
 public:
     std::list<AbstractMissionItem*> missionQueue;

@@ -441,9 +441,9 @@ public:
 
 public:
 
-    void updateMissionList(MissionItem::MissionList* missionList){
-        m_CurrentMissionQueue = missionList;
-    }
+//    void updateMissionList(MissionItem::MissionList* missionList){
+//        m_CurrentMissionQueue = missionList;
+//    }
 
     int getFlightModeFromString(const std::string &flightString){
         return m_CurrentArduVehicleState->getFlightMode(flightString);
@@ -460,7 +460,7 @@ private:
     std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentArduGlobalPosition;
     std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
     std::shared_ptr<VehicleOperatingAttitude> m_CurrentArduVehicleAttitude;
-    MissionItem::MissionList* m_CurrentMissionQueue;
+    //MissionItem::MissionList* m_CurrentMissionQueue;
 
 };
 

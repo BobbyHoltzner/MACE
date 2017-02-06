@@ -20,6 +20,10 @@ public:
     MissionListTopic();
     MissionListTopic(const MissionType &missionType);
 
+    void setMissionList(MissionItem::MissionList *missionList);
+
+    MissionItem::MissionList* getMissionList();
+
     void setVehicleID(const int &vehicleID){
         this->vehicleID = vehicleID;
     }
