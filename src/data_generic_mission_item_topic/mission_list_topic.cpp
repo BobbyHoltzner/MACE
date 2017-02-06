@@ -1,13 +1,12 @@
 #include "mission_list_topic.h"
 
-namespace MissionTopic {
+namespace MissionTopic{
 
-const char MissionListTopic_name[] = "missionListTopic";
+const char MissionListTopic_name[] = "AT";
 const MaceCore::TopicComponentStructure MissionListTopic_structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<MissionType>("missionType");
     structure.AddTerminal<MissionItem::MissionList*>("missionList");
-
     return structure;
 }();
 
@@ -33,4 +32,4 @@ MissionListTopic::MissionListTopic(const MissionType &missionType)
     this->missionType = missionType;
 }
 
-}
+} //end of namespace MissionTopic

@@ -3,22 +3,19 @@
 
 #include "data/i_topic_component_data_object.h"
 
-#include "command_type.h"
+#include "command_mission_type.h"
 #include "data_generic_mission_item/mission_list.h"
 
+namespace MissionTopic{
 
-namespace MissionTopic
-{
+extern const char MissionListTopic_name[];
+extern const MaceCore::TopicComponentStructure MissionListTopic_structure;
 
-extern const char MissionListTopic_Name[];
-extern const MaceCore::TopicComponentStructure MissionListTopic_Structure;
-
-class MissionListTopic : public Data::NamedTopicComponentDataObject<MissionListTopic_Name, &MissionListTopic_Structure>
+class MissionListTopic :public Data::NamedTopicComponentDataObject<MissionListTopic_name, &MissionListTopic_structure>
 {
 public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
-
 public:
     MissionListTopic();
     MissionListTopic(const MissionType &missionType);

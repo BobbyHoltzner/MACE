@@ -80,6 +80,7 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 
 void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
+    //MissionTopic::MissionType newType = MissionTopic::MissionType::ACTION;
     if(topicName == m_VehicleMission.Name())
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleMission.Name(), senderID);
@@ -87,7 +88,8 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
             if(componentsUpdated.at(i) == MissionTopic::MissionItemTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemTopic> component = std::make_shared<MissionTopic::MissionItemTopic>();
                 m_VehicleMission.GetComponent(component, read_topicDatagram);
-            }else if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()){
+            }
+            else if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()){
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_VehicleMission.GetComponent(component, read_topicDatagram);
             }

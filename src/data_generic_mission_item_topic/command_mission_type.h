@@ -1,5 +1,5 @@
-#ifndef COMMAND_TYPE_H
-#define COMMAND_TYPE_H
+#ifndef COMMAND_MISSION_TYPE_H
+#define COMMAND_MISSION_TYPE_H
 
 #include <string>
 #include <stdexcept>
@@ -39,4 +39,4 @@ inline MissionType CommandTypeFromString(const std::string &str) {
 
 } //end of namespace MissionTopic
 
-#endif // COMMAND_TYPE_H
+#endif // COMMAND_MISSION_TYPE_H

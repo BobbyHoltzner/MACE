@@ -3,17 +3,15 @@
 
 #include "data/i_topic_component_data_object.h"
 
-#include "command_type.h"
+#include "command_mission_type.h"
 #include "data_generic_mission_item/abstract_mission_item.h"
 
+namespace MissionTopic{
 
-namespace MissionTopic
-{
+extern const char MissionItemTopic_name[];
+extern const MaceCore::TopicComponentStructure MissionItemTopic_structure;
 
-extern const char MissionItemTopic_Name[];
-extern const MaceCore::TopicComponentStructure MissionItemTopic_Structure;
-
-class MissionItemTopic : public Data::NamedTopicComponentDataObject<MissionItemTopic_Name, &MissionItemTopic_Structure>
+class MissionItemTopic :public Data::NamedTopicComponentDataObject<MissionItemTopic_name, &MissionItemTopic_structure>
 {
 public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
