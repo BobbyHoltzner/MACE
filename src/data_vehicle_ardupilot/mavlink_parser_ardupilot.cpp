@@ -30,12 +30,12 @@ mavlink_message_t MAVLINKParserArduPilot::generateArdupilotMessage(MissionItem::
         if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
         {
             MissionItem::SpatialLand<DataState::StateGlobalPosition>* item = dynamic_cast<MissionItem::SpatialLand<DataState::StateGlobalPosition>*>(missionItem);
-            if(item->getLandFlag() == true)
-            {
-                mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),0,21,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
-            }else{
+//            if(item->getLandFlag() == true)
+//            {
+//                mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),0,21,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+//            }else{
                 mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),0,21,0,0.0,0.0,0.0,0.0,item->position.latitude,item->position.longitude,item->position.altitude);
-            }
+            //}
         }else{
             MissionItem::SpatialLand<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialLand<DataState::StateLocalPosition>*>(missionItem);
         }

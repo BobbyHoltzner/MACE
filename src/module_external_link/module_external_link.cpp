@@ -48,8 +48,8 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
     MaceCore::TopicDatagram topicDatagram;
     m_MissionDataTopic.SetComponent(newMissionItem, topicDatagram);
 
-    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(ModuleExternalLink::m_MissionDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+    ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(m_MissionDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
     });
 
     //example read of vehicle data

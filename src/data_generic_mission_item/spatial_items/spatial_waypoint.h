@@ -20,6 +20,9 @@ public:
     virtual bool hasSpatialMissionInfluence()const;
 
 public:
+    SpatialWaypoint();
+
+public:
     T position;
 };
 

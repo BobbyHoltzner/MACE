@@ -6,11 +6,8 @@
 #include <mavlink.h>
 
 #include "module_vehicle_ardupilot_global.h"
-
 #include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
-
 #include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
-
 #include "data_vehicle_ardupilot/components.h"
 
 
@@ -19,6 +16,7 @@
 
 #include "data_generic_mission_item/mission_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
+
 
 
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>

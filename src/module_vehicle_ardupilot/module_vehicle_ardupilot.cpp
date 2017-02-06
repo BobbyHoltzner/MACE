@@ -71,7 +71,6 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         }
 
         //notify listneres of topic
-
         ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
         });
@@ -81,7 +80,7 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 
 void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
-    if(topicName == m_VehicleMission.name())
+    if(topicName == m_VehicleMission.Name())
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleMission.Name(), senderID);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++){

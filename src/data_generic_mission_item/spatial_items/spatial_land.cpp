@@ -2,32 +2,49 @@
 
 namespace MissionItem {
 
-MissionItemType SpatialLand::getMissionType() const
+template <class T>
+MissionItemType SpatialLand<T>::getMissionType() const
 {
     return MissionItemType::LAND;
 }
 
-std::string SpatialLand::getDescription() const
+template <class T>
+std::string SpatialLand<T>::getDescription() const
 {
     return "This causes the vehicle to land either at the current location or prescribed location";
 }
 
-bool SpatialLand::hasSpatialMissionInfluence() const
+template <class T>
+bool SpatialLand<T>::hasSpatialMissionInfluence() const
 {
     return true;
 }
 
-bool SpatialLand::getLandFlag()
+template<>
+SpatialLand<DataState::StateGlobalPosition>::SpatialLand()
+{
+    m_PositionalFrame = Data::PositionalFrame::GLOBAL;
+}
+
+template<>
+SpatialLand<DataState::StateLocalPosition>::SpatialLand()
+{
+    m_PositionalFrame = Data::PositionalFrame::LOCAL;
+}
+
+template <class T>
+bool SpatialLand<T>::getLandFlag()
 {
     return landFlag;
 }
 
-void SpatialLand::setLandFlag(const bool &landFlag)
+template <class T>
+void SpatialLand<T>::setLandFlag(const bool &landFlag)
 {
     this->landFlag = landFlag;
 }
 
-}
+} //end of namespace MissionItem
 
 template class MissionItem::SpatialLand<DataState::StateGlobalPosition>;
 template class MissionItem::SpatialLand<DataState::StateLocalPosition>;

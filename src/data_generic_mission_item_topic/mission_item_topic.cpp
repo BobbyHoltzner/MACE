@@ -4,11 +4,10 @@
 namespace MissionTopic {
 
 const char MissionItemTopic_name[] = "missionItemTopic";
-const MaceCore::TopicComponentStructure MissionItemTopic_structure = []{
+const MaceCore::TopicComponentStructure MissionItemTopic_Structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<MissionType>("missionType");
     structure.AddTerminal<MissionItem::AbstractMissionItem*>("missionItem");
-
     return structure;
 }();
 
@@ -24,12 +23,17 @@ void MissionItemTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagra
     missionItem = datagram.GetTerminal<MissionItem::AbstractMissionItem*>("missionItem");
 }
 
+MissionItemTopic::MissionItemTopic()
+{
+
+}
+
 MissionItemTopic::MissionItemTopic(const MissionType &missionType)
 {
     this->missionType = missionType;
 }
 
-void MissionItemTopic::setMissionItem(const MissionItem::AbstractMissionItem *missionItem)
+void MissionItemTopic::setMissionItem(MissionItem::AbstractMissionItem *missionItem)
 {
     this->missionItem = missionItem;
 }

@@ -20,6 +20,8 @@ public:
     virtual bool hasSpatialMissionInfluence()const;
 
 public:
+    SpatialLand();
+
     bool getLandFlag();
     void setLandFlag(const bool &landFlag);
 

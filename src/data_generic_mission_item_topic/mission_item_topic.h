@@ -1,14 +1,11 @@
 #ifndef MISSION_ITEM_TOPIC_H
 #define MISSION_ITEM_TOPIC_H
 
-#include <list>
-#include <string>
-
 #include "data/i_topic_component_data_object.h"
 
+#include "command_type.h"
 #include "data_generic_mission_item/abstract_mission_item.h"
 
-#include "command_type.h"
 
 namespace MissionTopic
 {
@@ -23,9 +20,10 @@ public:
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
 public:
+    MissionItemTopic();
     MissionItemTopic(const MissionType &missionType);
 
-    void setMissionItem(const MissionItem::AbstractMissionItem* missionItem);
+    void setMissionItem(MissionItem::AbstractMissionItem *missionItem);
 
     MissionItem::AbstractMissionItem* getMissionItem();
 

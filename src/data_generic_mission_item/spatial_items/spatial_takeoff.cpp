@@ -1,18 +1,20 @@
 #include "spatial_takeoff.h"
 
 namespace MissionItem {
-
-MissionItemType SpatialTakeoff::getMissionType() const
+template <class T>
+MissionItemType SpatialTakeoff<T>::getMissionType() const
 {
     return MissionItemType::TAKEOFF;
 }
 
-std::string SpatialTakeoff::getDescription() const
+template <class T>
+std::string SpatialTakeoff<T>::getDescription() const
 {
     return "This causes the vehicle to perform a takeoff action";
 }
 
-bool SpatialTakeoff::hasSpatialMissionInfluence() const
+template <class T>
+bool SpatialTakeoff<T>::hasSpatialMissionInfluence() const
 {
     return true;
 }
