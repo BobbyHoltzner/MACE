@@ -25,7 +25,16 @@ public:
 
     MissionItem::AbstractMissionItem* getMissionItem();
 
+    void setVehicleID(const int &vehicleID){
+        this->vehicleID = vehicleID;
+    }
+
+    int getVehicleID() const{
+        return vehicleID;
+    }
+
 private:
+    int vehicleID;
     MissionType missionType;
     MissionItem::AbstractMissionItem* missionItem;
 };

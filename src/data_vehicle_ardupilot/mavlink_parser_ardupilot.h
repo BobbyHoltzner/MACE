@@ -246,6 +246,7 @@ public:
             //Request the information of the mission item with the sequence number seq. The response of the system to this message should be a MISSION_ITEM message. http://qgroundcontrol.org/mavlink/waypoint_protocol
             mavlink_mission_request_t decodedMSG;
             mavlink_msg_mission_request_decode(message,&decodedMSG);
+            std::cout<<"The aircraft is requesting item number: "<<decodedMSG.seq<<std::endl;
             break;
         }
         case MAVLINK_MSG_ID_MISSION_SET_CURRENT:
@@ -440,6 +441,10 @@ public:
 
 public:
 
+    void updateMissionList(MissionItem::MissionList* missionList){
+        m_CurrentMissionQueue = missionList;
+    }
+
     int getFlightModeFromString(const std::string &flightString){
         return m_CurrentArduVehicleState->getFlightMode(flightString);
     }
@@ -455,6 +460,7 @@ private:
     std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentArduGlobalPosition;
     std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
     std::shared_ptr<VehicleOperatingAttitude> m_CurrentArduVehicleAttitude;
+    MissionItem::MissionList* m_CurrentMissionQueue;
 
 };
 

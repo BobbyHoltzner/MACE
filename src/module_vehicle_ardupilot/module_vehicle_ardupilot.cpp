@@ -62,7 +62,6 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
     //procede to send components only if there is 1 or more
     if(components.size() > 0)
     {
-
         //construct datagram
         MaceCore::TopicDatagram topicDatagram;
         for(size_t i = 0 ; i < components.size() ; i++)
@@ -81,6 +80,8 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
     //MissionTopic::MissionType newType = MissionTopic::MissionType::ACTION;
+    uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
+
     if(topicName == m_VehicleMission.Name())
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleMission.Name(), senderID);
@@ -88,6 +89,7 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
             if(componentsUpdated.at(i) == MissionTopic::MissionItemTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemTopic> component = std::make_shared<MissionTopic::MissionItemTopic>();
                 m_VehicleMission.GetComponent(component, read_topicDatagram);
+                mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(component->getVehicleID())->generateArdupilotMessage(component->getMissionItem(),chan);
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()){
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
@@ -96,3 +98,5 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
         }
     }
 }
+
+

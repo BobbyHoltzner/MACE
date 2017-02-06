@@ -34,7 +34,7 @@ mavlink_message_t MAVLINKParserArduPilot::generateArdupilotMessage(MissionItem::
 //            {
 //                mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),0,21,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
 //            }else{
-                mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),0,21,0,0.0,0.0,0.0,0.0,item->position.latitude,item->position.longitude,item->position.altitude);
+                //mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),0,21,0,0.0,0.0,0.0,0.0,item->position.latitude,item->position.longitude,item->position.altitude);
             //}
         }else{
             MissionItem::SpatialLand<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialLand<DataState::StateLocalPosition>*>(missionItem);
@@ -68,6 +68,7 @@ mavlink_message_t MAVLINKParserArduPilot::generateArdupilotMessage(MissionItem::
         {
             MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>* item = dynamic_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>*>(missionItem);
             mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),0,16,0,0.0,0.0,0.0,0.0,item->position.latitude,item->position.longitude,item->position.altitude);
+
         }else{
             MissionItem::SpatialLand<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialLand<DataState::StateLocalPosition>*>(missionItem);
         }

@@ -44,6 +44,7 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
 
     std::shared_ptr<MissionTopic::MissionItemTopic> newMissionItem = std::make_shared<MissionTopic::MissionItemTopic>(MissionTopic::MissionType::GUIDED);
     newMissionItem->setMissionItem(newWP);
+    newMissionItem->setVehicleID(1);
 
     MaceCore::TopicDatagram topicDatagram;
     m_MissionDataTopic.SetComponent(newMissionItem, topicDatagram);
