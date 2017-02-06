@@ -39,14 +39,14 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
 
-    MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>* newWP = new MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>();
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    //MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>* newWP = new MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>();
     newWP->position.setPosition(35.7470021,-78.8395026,0.0);
 
     //std::shared_ptr<MissionTopic::MissionItemTopic> newMissionItem = std::make_shared<MissionTopic::MissionItemTopic>(MissionTopic::MissionType::GUIDED);
     //newMissionItem->setMissionItem(newWP);
     //newMissionItem->setVehicleID(1);
-
-    MissionItem::MissionList* newMissionList = new MissionItem::MissionList();
+    std::shared_ptr<MissionItem::MissionList> newMissionList = std::make_shared<MissionItem::MissionList>();
     newMissionList->insertMissionItem(newWP);
     newMissionList->insertMissionItem(newWP);
 

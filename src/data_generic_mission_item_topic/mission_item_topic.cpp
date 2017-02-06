@@ -6,7 +6,7 @@ const MaceCore::TopicComponentStructure MissionItemTopic_structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<int>("vehicleID");
     structure.AddTerminal<MissionType>("missionType");
-    structure.AddTerminal<MissionItem::AbstractMissionItem*>("missionItem");
+    structure.AddTerminal<std::shared_ptr<MissionItem::AbstractMissionItem>>("missionItem");
     return structure;
 }();
 
@@ -14,7 +14,7 @@ MaceCore::TopicDatagram MissionItemTopic::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<int>("vehicleID",vehicleID);
     datagram.AddTerminal<MissionType>("missionType",missionType);
-    datagram.AddTerminal<MissionItem::AbstractMissionItem*>("missionItem", missionItem);
+    datagram.AddTerminal<std::shared_ptr<MissionItem::AbstractMissionItem>>("missionItem", missionItem);
     return datagram;
 }
 
@@ -22,7 +22,7 @@ void MissionItemTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagra
 {
     vehicleID = datagram.GetTerminal<int>("vehicleID");
     missionType = datagram.GetTerminal<MissionType>("missionType");
-    missionItem = datagram.GetTerminal<MissionItem::AbstractMissionItem*>("missionItem");
+    missionItem = datagram.GetTerminal<std::shared_ptr<MissionItem::AbstractMissionItem>>("missionItem");
 }
 
 
@@ -36,12 +36,12 @@ MissionItemTopic::MissionItemTopic(const MissionType &missionType)
     this->missionType = missionType;
 }
 
-void MissionItemTopic::setMissionItem(MissionItem::AbstractMissionItem *missionItem)
+void MissionItemTopic::setMissionItem(const std::shared_ptr<MissionItem::AbstractMissionItem> missionItem)
 {
     this->missionItem = missionItem;
 }
 
-MissionItem::AbstractMissionItem* MissionItemTopic::getMissionItem()
+std::shared_ptr<MissionItem::AbstractMissionItem> MissionItemTopic::getMissionItem()
 {
     return missionItem;
 }

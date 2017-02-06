@@ -89,11 +89,12 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
             if(componentsUpdated.at(i) == MissionTopic::MissionItemTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemTopic> component = std::make_shared<MissionTopic::MissionItemTopic>();
                 m_VehicleMission.GetComponent(component, read_topicDatagram);
-                mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(component->getVehicleID())->generateArdupilotMessage(component->getMissionItem(),chan);
+                //mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(component->getVehicleID())->generateArdupilotMessage(component->getMissionItem(),chan);
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()){
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_VehicleMission.GetComponent(component, read_topicDatagram);
+                //m_ArduPilotMAVLINKParser.at(component->getVehicleID())->generateArdupilotMessage(component->getMissionItem(),chan);
             }
         }
     }

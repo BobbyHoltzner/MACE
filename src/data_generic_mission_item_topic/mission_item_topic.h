@@ -21,9 +21,9 @@ public:
     MissionItemTopic();
     MissionItemTopic(const MissionType &missionType);
 
-    void setMissionItem(MissionItem::AbstractMissionItem *missionItem);
+    void setMissionItem(const std::shared_ptr<MissionItem::AbstractMissionItem> missionItem);
 
-    MissionItem::AbstractMissionItem* getMissionItem();
+    std::shared_ptr<MissionItem::AbstractMissionItem> getMissionItem();
 
     void setVehicleID(const int &vehicleID){
         this->vehicleID = vehicleID;
@@ -36,7 +36,7 @@ public:
 private:
     int vehicleID;
     MissionType missionType;
-    MissionItem::AbstractMissionItem* missionItem;
+    std::shared_ptr<MissionItem::AbstractMissionItem> missionItem;
 };
 
 } //end of namespace MissionTopic

@@ -7,7 +7,7 @@ MissionList::MissionList()
 
 }
 
-void MissionList::insertMissionItem(AbstractMissionItem *missionItem)
+void MissionList::insertMissionItem(const std::shared_ptr<AbstractMissionItem> missionItem)
 {
     missionQueue.push_back(missionItem);
 }
