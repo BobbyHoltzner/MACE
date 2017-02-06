@@ -18,7 +18,7 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
 
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
-    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>()
+    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(), m_VehicleMission("vehicleMission")
 {
 }
 
@@ -29,7 +29,7 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 //!
 void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
-
+    ptr->Subscribe(this, m_VehicleMission.Name());
 }
 
 
@@ -81,46 +81,17 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 
 void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
-//    if(topicName == m_CommandVehicleTopic.Name())
-//    {
-//        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_CommandVehicleTopic.Name(), senderID);
-//        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-//            if(componentsUpdated.at(i) == DataVehicleCommands::ActionCommandTopic::Name()) {
-//                std::shared_ptr<DataVehicleCommands::ActionCommandTopic> component = std::make_shared<DataVehicleCommands::ActionCommandTopic>();
-//                m_CommandVehicleTopic.GetComponent(component, read_topicDatagram);
-//                switch(component->getActionItemType())
-//                {
-//                case(DataVehicleCommands::ActionCommandTypes::CHANGE_MODE):
-//                {
-//                    //should find a better way to do this
-////                    if(m_ArduPilotMAVLINKParser.heartbeatUpdated())
-////                    {
-////                        DataVehicleCommands::CommandVehicleMode* cmdMode = (DataVehicleCommands::CommandVehicleMode*)component->getActionItem().get();
-////                        int newMode = m_ArduPilotMAVLINKParser.getFlightModeFromString(cmdMode->getRequestMode());
-////                        uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
-////                        mavlink_message_t msg;
-////                        mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,1,MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,newMode);
-////                        m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
-////                    }
-//                    break;
-//                }
-//                case(DataVehicleCommands::ActionCommandTypes::ARM):
-//                {
-//                    break;
-//                }
-//                }
-//            }
-//        }
-//    } else if(topicName == m_CommandVehicleMissionList.Name())
-//    {
-//        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_CommandVehicleMissionList.Name(), senderID);
-//        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-//            if(componentsUpdated.at(i) == DataVehicleCommands::VehicleMissionList::Name()) {
-//                std::shared_ptr<DataVehicleCommands::VehicleMissionList> component = std::make_shared<DataVehicleCommands::VehicleMissionList>();
-//                std::cout<<"The before"<<std::endl;
-//                m_CommandVehicleMissionList.GetComponent(component, read_topicDatagram);
-//                std::cout<<"The after"<<std::endl;
-//            }
-//        }
-//    }
+    if(topicName == m_VehicleMission.name())
+    {
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleMission.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
+            if(componentsUpdated.at(i) == MissionTopic::MissionItemTopic::Name()) {
+                std::shared_ptr<MissionTopic::MissionItemTopic> component = std::make_shared<MissionTopic::MissionItemTopic>();
+                m_VehicleMission.GetComponent(component, read_topicDatagram);
+            }else if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()){
+                std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
+                m_VehicleMission.GetComponent(component, read_topicDatagram);
+            }
+        }
+    }
 }

@@ -17,5 +17,17 @@ bool SpatialLand::hasSpatialMissionInfluence() const
     return true;
 }
 
+bool SpatialLand::getLandFlag()
+{
+    return landFlag;
 }
 
+void SpatialLand::setLandFlag(const bool &landFlag)
+{
+    this->landFlag = landFlag;
+}
+
+}
+
+template class MissionItem::SpatialLand<DataState::StateGlobalPosition>;
+template class MissionItem::SpatialLand<DataState::StateLocalPosition>;

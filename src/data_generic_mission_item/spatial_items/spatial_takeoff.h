@@ -9,6 +9,7 @@
 
 namespace MissionItem {
 
+template <class T>
 class SpatialTakeoff : public AbstractMissionItem
 {
 public:
@@ -19,7 +20,7 @@ public:
     virtual bool hasSpatialMissionInfluence()const;
 
 public:
-    SpatialTakeoff();
+    T position;
 };
 
 } //end of namespace MissionItem

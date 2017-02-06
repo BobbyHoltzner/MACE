@@ -19,3 +19,5 @@ bool SpatialTakeoff::hasSpatialMissionInfluence() const
 
 }
 
+template class MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>;
+template class MissionItem::SpatialTakeoff<DataState::StateLocalPosition>;

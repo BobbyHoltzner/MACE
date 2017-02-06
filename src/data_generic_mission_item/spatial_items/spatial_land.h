@@ -9,6 +9,7 @@
 
 namespace MissionItem {
 
+template <class T>
 class SpatialLand : public AbstractMissionItem
 {
 public:
@@ -19,7 +20,14 @@ public:
     virtual bool hasSpatialMissionInfluence()const;
 
 public:
-    SpatialLand();
+    bool getLandFlag();
+    void setLandFlag(const bool &landFlag);
+
+public:
+    T position;
+
+private:
+    bool landFlag;
 
 };
 

@@ -14,6 +14,12 @@
 #include "data_vehicle_ardupilot/components.h"
 
 
+#include "data_generic_state_item/state_item_components.h"
+#include "data_generic_state_item_topic/state_topic_components.h"
+
+#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_mission_item_topic/mission_item_topic_components.h"
+
 
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
 {
@@ -55,6 +61,8 @@ private:
 
 private:
     //DataVehicleArdupilot::MAVLINKParserArduPilot m_ArduPilotMAVLINKParser;
+    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
+
     std::map<int,DataVehicleArdupilot::MAVLINKParserArduPilot*> m_ArduPilotMAVLINKParser;
 
 };

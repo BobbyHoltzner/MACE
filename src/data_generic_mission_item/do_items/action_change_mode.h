@@ -33,13 +33,6 @@ public:
         return m_CommandVehicleMode;
     }
 
-    void setVehicleID(const int &vehicleID){
-        m_VehicleID = vehicleID;
-    }
-
-    int getVehicleID() const{
-        return m_VehicleID;
-    }
 
 public:
     bool operator == (const ActionChangeMode &rhs) {

@@ -22,6 +22,7 @@ class MAVLINKParserArduPilot
 {
 public:
 
+
     MAVLINKParserArduPilot() :
         m_CurrentArduVehicleState(NULL), m_CurrentArduVehicleStatus(NULL), m_CurrentArduGlobalPosition(NULL)
     {

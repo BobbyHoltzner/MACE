@@ -22,7 +22,6 @@ public:
     virtual std::string getDescription() const = 0;
 
 public:
-
     Data::CoordinateFrame getCoordinateFrame() const{
         return m_CoordinateFrame;
     }
