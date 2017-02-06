@@ -18,7 +18,7 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
 
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
-    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(), m_VehicleMission("vehicleMission")
+    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(), m_VehicleMission("externalMission")
 {
 }
 

@@ -32,12 +32,12 @@ unix:!symbian {
 
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib
-win32:CONFIG(release, debug|release):       lib.files   += release/module_vehicle_MAVLINK.lib release/module_vehicle_MAVLINK.dll
-else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_MAVLINK.lib debug/module_vehicle_MAVLINK.dll
+win32:CONFIG(release, debug|release):       lib.files   += release/module_vehicle_ardupilot.lib release/module_vehicle_ardupilot.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_ardupilot.lib debug/module_vehicle_ardupilot.dll
 INSTALLS += lib
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK
+headers.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot
 headers.files   += \
         module_vehicle_mavlink.h \
         module_vehicle_mavlink_global.h \
