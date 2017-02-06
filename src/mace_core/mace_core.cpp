@@ -33,6 +33,7 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
     //m_DataFusion->AddVehicle(ID);
 
     vehicle->addListener(this);
+    vehicle->addTopicListener(this);
 
     std::unordered_map<std::string, TopicStructure> topics = vehicle->GetTopics();
     for(auto it = topics.cbegin() ; it != topics.cend() ; ++it) {
@@ -58,30 +59,35 @@ void MaceCore::RemoveVehicle(const std::string &ID)
 void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink)
 {
     externalLink->addListener(this);
+    externalLink->addTopicListener(this);
 }
 
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
 {
     groundStation->addListener(this);
-//    bool serverStarted = groundStation->StartTCPServer();
+    groundStation->addTopicListener(this);
+    //bool serverStarted = groundStation->StartTCPServer();
     m_GroundStation = groundStation;
 }
 
 void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning)
 {
     pathPlanning->addListener(this);
+    pathPlanning->addTopicListener(this);
     m_PathPlanning = pathPlanning;
 }
 
 void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
 {
     rta->addListener(this);
+    rta->addTopicListener(this);
     m_RTA = rta;
 }
 
 void MaceCore::AddSensorsModule(const std::shared_ptr<IModuleCommandSensors> &sensors)
 {
     sensors->addListener(this);
+    sensors->addTopicListener(this);
     m_Sensors = sensors;
 }
 
