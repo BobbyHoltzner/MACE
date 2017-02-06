@@ -25,6 +25,10 @@ public:
 public:
     MissionItemTopic(const MissionType &missionType);
 
+    void setMissionItem(const MissionItem::AbstractMissionItem* missionItem);
+
+    MissionItem::AbstractMissionItem* getMissionItem();
+
 private:
     MissionType missionType;
     MissionItem::AbstractMissionItem* missionItem;

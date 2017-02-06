@@ -1,5 +1,5 @@
-#ifndef SPATIAL_TAKEOFF_H
-#define SPATIAL_TAKEOFF_H
+#ifndef SPATIAL_WAYPOINT_H
+#define SPATIAL_WAYPOINT_H
 
 #include "data_generic_mission_item/abstract_mission_item.h"
 #include "data_generic_mission_item/mission_item_types.h"
@@ -9,7 +9,8 @@
 
 namespace MissionItem {
 
-class SpatialTakeoff : public AbstractMissionItem
+template <class T>
+class SpatialWaypoint : public AbstractMissionItem
 {
 public:
     virtual MissionItemType getMissionType()const;
@@ -19,9 +20,8 @@ public:
     virtual bool hasSpatialMissionInfluence()const;
 
 public:
-    SpatialTakeoff();
+    T position;
 };
 
 } //end of namespace MissionItem
-
-#endif // SPATIAL_TAKEOFF_H
+#endif // SPATIAL_WAYPOINT_H

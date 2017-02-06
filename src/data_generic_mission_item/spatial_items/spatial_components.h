@@ -4,5 +4,6 @@
 #include "spatial_land.h"
 #include "spatial_rtl.h"
 #include "spatial_takeoff.h"
+#include "spatial_waypoint.h"
 
 #endif // SPATIAL_COMPONENTS_H

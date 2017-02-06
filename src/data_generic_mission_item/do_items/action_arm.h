@@ -31,14 +31,6 @@ public:
         return m_ActionArm;
     }
 
-    void setVehicleID(const int &vehicleID){
-        m_VehicleID = vehicleID;
-    }
-
-    int getVehicleID() const{
-        return m_VehicleID;
-    }
-
 
 public:
     bool operator == (const ActionArm &rhs) {
@@ -56,7 +48,6 @@ public:
     }
 
 private:
-    int m_VehicleID;
     bool m_ActionArm;
 
 };

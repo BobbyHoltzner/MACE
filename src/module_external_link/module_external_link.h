@@ -8,9 +8,13 @@
 #include "data/i_topic_component_data_object.h"
 #include "data/topic_data_object_collection.h"
 
+#include "data_vehicle_sensors/components.h"
+
+#include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
-#include "data_vehicle_sensors/components.h"
+#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink : public MaceCore::IModuleCommandExternalLink
@@ -49,6 +53,7 @@ public:
 private:
 
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
+    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 
     //Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;

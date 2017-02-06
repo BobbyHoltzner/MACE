@@ -6,7 +6,7 @@
 
 #include "data/i_topic_component_data_object.h"
 
-#include "data_generic_mission_item/abstract_mission_item.h"
+#include "data_generic_mission_item/mission_list.h"
 
 #include "command_type.h"
 
@@ -27,7 +27,7 @@ public:
 
 private:
     MissionType missionType;
-    std::list<MissionItem::AbstractMissionItem*> missionList;
+    MissionItem::MissionList* missionList;
 };
 
 } //end of namespace MissionTopic

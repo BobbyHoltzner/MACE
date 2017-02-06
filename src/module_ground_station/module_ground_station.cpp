@@ -160,20 +160,29 @@ void ModuleGroundStation::AttachedAsModule(MaceCore::IModuleTopicEvents *ptr)
     ptr->Subscribe(this, m_SensorDataTopic.Name());
 }
 
+
+//Examples For Items
+/*
+MissionItem::ActionChangeMode tmpMode;
+tmpMode.setVehicleID(1); // the vehicle ID coordinates to the specific vehicle //vehicle 0 is reserved for all connected vehicles
+tmpMode.setRequestMode("AUTO"); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
+
+ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+    ptr->RequestVehicleMode(this,tmpMode);
+});
+
+MissionItem::ActionArm tmpArm;
+tmpArm.setVehicleArm(true);
+tmpArm.setVehicleID(1);
+ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+    ptr->RequestVehicleArm(this,tmpMode);
+});
+*/
 void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
-
-//        MissionItem::ActionChangeMode tmpMode;
-//        tmpMode.setVehicleID(1);
-//        tmpMode.setRequestMode("AUTO");
-
-//        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-//            ptr->RequestVehicleMode(this,tmpMode);
-//        });
-
         //get latest datagram from mace_data
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
 

@@ -32,7 +32,8 @@ HEADERS +=\
         data_generic_mission_item_topic_global.h \
     command_type.h \
     mission_item_topic.h \
-    mission_list_topic.h
+    mission_list_topic.h \
+    mission_item_topic_components.h
 
 # Unix lib Install
 unix:!symbian {

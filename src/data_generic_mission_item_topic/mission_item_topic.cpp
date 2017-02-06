@@ -29,4 +29,14 @@ MissionItemTopic::MissionItemTopic(const MissionType &missionType)
     this->missionType = missionType;
 }
 
+void MissionItemTopic::setMissionItem(const MissionItem::AbstractMissionItem *missionItem)
+{
+    this->missionItem = missionItem;
+}
+
+MissionItem::AbstractMissionItem* MissionItemTopic::getMissionItem()
+{
+    return missionItem;
+}
+
 }

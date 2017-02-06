@@ -2,7 +2,7 @@
 
 
 ModuleExternalLink::ModuleExternalLink() :
-    m_VehicleDataTopic("vehicleData"),m_SensorFootprintDataTopic("sensorFootprint")
+    m_VehicleDataTopic("vehicleData"),m_SensorFootprintDataTopic("sensorFootprint"),m_MissionDataTopic("externalMission")
 {
 }
 
@@ -38,6 +38,20 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
+
+    MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>* newWP = new MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>();
+    newWP->position.setPosition(35.7470021,-78.8395026,0.0);
+
+    std::shared_ptr<MissionTopic::MissionItemTopic> newMissionItem = std::make_shared<MissionTopic::MissionItemTopic>(MissionTopic::MissionType::GUIDED);
+    newMissionItem->setMissionItem(newWP);
+
+    MaceCore::TopicDatagram topicDatagram;
+    m_MissionDataTopic.SetComponent(newMissionItem, topicDatagram);
+
+    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(ModuleExternalLink::m_MissionDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+    });
+
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
