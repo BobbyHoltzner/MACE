@@ -12,6 +12,11 @@ void MissionList::insertMissionItem(const std::shared_ptr<AbstractMissionItem> m
     missionQueue.push_back(missionItem);
 }
 
+std::shared_ptr<AbstractMissionItem> MissionList::getMissionItem(const int &index)
+{
+    return missionQueue.at(index);
+}
+
 int MissionList::getQueueSize()
 {
     return missionQueue.size();

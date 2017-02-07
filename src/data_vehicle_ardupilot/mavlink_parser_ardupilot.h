@@ -2,6 +2,7 @@
 #define MAVLINK_PARSER_ARDUPILOT_H
 
 #include <iostream>
+#include <functional>
 
 #include "mavlink.h"
 
@@ -32,7 +33,6 @@ public:
     }
 
     mavlink_message_t generateArdupilotMessage(MissionItem::AbstractMissionItem *missionItem, const uint8_t &chan);
-
 
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForVehicleData(const mavlink_message_t* message){
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
@@ -247,6 +247,8 @@ public:
             mavlink_mission_request_t decodedMSG;
             mavlink_msg_mission_request_decode(message,&decodedMSG);
             std::cout<<"The aircraft is requesting item number: "<<decodedMSG.seq<<std::endl;
+            std::shared_ptr<MissionTopic::MissionItemRequestTopic> itemRequest = std::make_shared<MissionTopic::MissionItemRequestTopic>(message->sysid,(int)decodedMSG.seq);
+            rtnVector.push_back(itemRequest);
             break;
         }
         case MAVLINK_MSG_ID_MISSION_SET_CURRENT:

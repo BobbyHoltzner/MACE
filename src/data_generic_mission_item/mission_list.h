@@ -2,7 +2,7 @@
 #define MISSION_LIST_H
 
 #include <memory>
-#include <list>
+#include <vector>
 #include "abstract_mission_item.h"
 
 namespace MissionItem {
@@ -13,10 +13,12 @@ public:
     MissionList();
 
     void insertMissionItem(const std::shared_ptr<AbstractMissionItem> missionItem);
+    std::shared_ptr<AbstractMissionItem> getMissionItem(const int &index);
+
     int getQueueSize();
 
 public:
-    std::list<std::shared_ptr<AbstractMissionItem>> missionQueue;
+    std::vector<std::shared_ptr<AbstractMissionItem>> missionQueue;
 };
 
 } //end of namespace MissionItem

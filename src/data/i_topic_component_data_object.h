@@ -5,10 +5,14 @@
 
 namespace Data {
 
+enum TopicType{
+    VEHICLESTATE,
+    VEHICLEMISSION
+};
+
 class ITopicComponentDataObject {
 
 public:
-
     virtual MaceCore::TopicDatagram GenerateDatagram() const = 0;
 
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram) = 0;

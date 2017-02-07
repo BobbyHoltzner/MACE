@@ -39,16 +39,34 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
 
+    if(executedOnce == false){
+    executedOnce = true;
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
     //MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>* newWP = new MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>();
     newWP->position.setPosition(35.7470021,-78.8395026,0.0);
+    newWP->setVehicleID(senderID);
 
-    //std::shared_ptr<MissionTopic::MissionItemTopic> newMissionItem = std::make_shared<MissionTopic::MissionItemTopic>(MissionTopic::MissionType::GUIDED);
-    //newMissionItem->setMissionItem(newWP);
-    //newMissionItem->setVehicleID(1);
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP1 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    //MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>* newWP = new MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>();
+    newWP1->position.setPosition(35.7463033,-78.8386631,0.0);
+    newWP1->setVehicleID(senderID);
+
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP2 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    //MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>* newWP = new MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>();
+    newWP2->position.setPosition(35.7459724,-78.8390923,0.0);
+    newWP2->setVehicleID(senderID);
+
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP3 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    //MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>* newWP = new MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>();
+    newWP3->position.setPosition(35.7466538,-78.8399184,0.0);
+    newWP3->setVehicleID(senderID);
+
+
     std::shared_ptr<MissionItem::MissionList> newMissionList = std::make_shared<MissionItem::MissionList>();
     newMissionList->insertMissionItem(newWP);
-    newMissionList->insertMissionItem(newWP);
+    newMissionList->insertMissionItem(newWP1);
+    newMissionList->insertMissionItem(newWP2);
+    newMissionList->insertMissionItem(newWP3);
 
     std::shared_ptr<MissionTopic::MissionListTopic> newMissionListTopic = std::make_shared<MissionTopic::MissionListTopic>(MissionTopic::MissionType::MISSION);
     newMissionListTopic->setVehicleID(1);
@@ -60,6 +78,8 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
     ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
         ptr->NewTopicDataValues(m_MissionDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
     });
+
+    }
 
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())

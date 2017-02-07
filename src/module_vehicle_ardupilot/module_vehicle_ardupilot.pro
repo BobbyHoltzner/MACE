@@ -15,10 +15,12 @@ DEFINES += MODULE_VEHICLE_ARDUPILOT_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-SOURCES += module_vehicle_ardupilot.cpp
+SOURCES += module_vehicle_ardupilot.cpp \
+    mission_parser_vehicle_ardupilot.cpp
 
 HEADERS += module_vehicle_ardupilot.h\
-        module_vehicle_ardupilot_global.h
+        module_vehicle_ardupilot_global.h \
+    mission_parser_vehicle_ardupilot.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
