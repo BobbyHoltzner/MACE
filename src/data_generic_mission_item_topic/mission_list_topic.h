@@ -32,6 +32,10 @@ public:
         return vehicleID;
     }
 
+    MissionType getMissionType() const{
+        return missionType;
+    }
+
 private:
     int vehicleID;
     MissionType missionType;

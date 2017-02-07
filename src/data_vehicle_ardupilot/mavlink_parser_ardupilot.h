@@ -25,7 +25,6 @@ class MAVLINKParserArduPilot
 {
 public:
 
-
     MAVLINKParserArduPilot() :
         m_CurrentArduVehicleState(NULL), m_CurrentArduVehicleStatus(NULL), m_CurrentArduGlobalPosition(NULL)
     {
@@ -34,7 +33,8 @@ public:
 
     mavlink_message_t generateArdupilotMessage(MissionItem::AbstractMissionItem *missionItem, const uint8_t &chan);
 
-    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> Parse(const mavlink_message_t* message){
+
+    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForVehicleData(const mavlink_message_t* message){
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
 
         switch ((int)message->msgid) {
@@ -441,10 +441,6 @@ public:
 
 public:
 
-    void updateMissionList(MissionItem::MissionList* missionList){
-
-    }
-
     int getFlightModeFromString(const std::string &flightString){
         return m_CurrentArduVehicleState->getFlightMode(flightString);
     }
@@ -460,7 +456,6 @@ private:
     std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentArduGlobalPosition;
     std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
     std::shared_ptr<VehicleOperatingAttitude> m_CurrentArduVehicleAttitude;
-    std::shared_ptr<MissionItem::MissionList> m_CurrentMissionQueue;
 
 };
 

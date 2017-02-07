@@ -31,7 +31,9 @@ SOURCES += \
     spatial_items/spatial_land.cpp \
     spatial_items/spatial_takeoff.cpp \
     spatial_items/spatial_rtl.cpp \
-    spatial_items/spatial_waypoint.cpp
+    spatial_items/spatial_waypoint.cpp \
+    spatial_items/action_land.cpp \
+    spatial_items/action_takeoff.cpp
 
 HEADERS +=\
         data_generic_mission_item_global.h \
@@ -46,7 +48,9 @@ HEADERS +=\
     do_items/do_components.h \
     mission_item_types.h \
     mission_item_components.h \
-    spatial_items/spatial_waypoint.h
+    spatial_items/spatial_waypoint.h \
+    spatial_items/action_land.h \
+    spatial_items/action_takeoff.h
 
 # Unix lib Install
 unix:!symbian {

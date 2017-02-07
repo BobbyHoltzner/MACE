@@ -47,18 +47,15 @@ public:
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
 
 
-public:
-    void HandleCommandTopic();
-
-    void HandleMissionTopic();
-
 private:
-    //Data::TopicDataObjectCollection<DATA_VEHICLE_ACTION_COMMAND_TYPES> m_CommandVehicleTopic;
-    //Data::TopicDataObjectCollection<DATA_VEHICLE_MISSION_LIST> m_CommandVehicleMissionList;
+    std::map<int,MissionItem::MissionList> m_CurrentMissionQueue;
+    std::map<int,MissionItem::MissionList> m_ProposedMissionQueue;
+
+    std::map<int,MissionItem::MissionList> m_CurrentGuidedQueue;
+    std::map<int,MissionItem::MissionList> m_ProposedGuidedQueue;
 
 
 private:
-    //DataVehicleArdupilot::MAVLINKParserArduPilot m_ArduPilotMAVLINKParser;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
 
     std::map<int,DataVehicleArdupilot::MAVLINKParserArduPilot*> m_ArduPilotMAVLINKParser;
