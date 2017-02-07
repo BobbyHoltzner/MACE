@@ -93,8 +93,8 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_VehicleMission.GetComponent(component, read_topicDatagram);
                 if(component->getMissionType() == MissionTopic::MissionType::MISSION){
-//                    m_ProposedMissionQueue[component->getVehicleID()] = *component->getMissionList();
-//                    mavlink_message_t msg;
+                    m_ProposedMissionQueue[component->getVehicleID()] = *component->getMissionList();
+                    mavlink_message_t msg;
 //                    mavlink_msg_mission_count_pack_chan(255,190,chan,&msg,component->getVehicleID(),0,*component->getMissionList()->getQueueSize());
 //                    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
                 }else if(component->getMissionType() == MissionTopic::MissionType::GUIDED){
