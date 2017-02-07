@@ -19,14 +19,20 @@
 
 #include "mission_parser_vehicle_ardupilot.h"
 
-
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
 {
+enum ArdupilotMissionMode{
+    NONE,
+    REQUESTING,
+    TRANSMITTING
+};
 
 public:
     ModuleVehicleArdupilot();
 
     bool ParseForMissionMessage(const std::string &linkName, const mavlink_message_t *message);
+
+    void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
 
 public:
@@ -58,6 +64,11 @@ private:
     std::map<int,MissionItem::MissionList> m_CurrentGuidedQueue;
     std::map<int,MissionItem::MissionList> m_ProposedGuidedQueue;
 
+private:
+    ArdupilotMissionMode missionMode;
+    int msgDumpCounter;
+    int missionItemIndex;
+    int missionItemsAvailable;
 
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;

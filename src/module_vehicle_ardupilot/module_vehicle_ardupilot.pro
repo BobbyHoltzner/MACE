@@ -16,7 +16,8 @@ DEFINES += MODULE_VEHICLE_ARDUPILOT_LIBRARY
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += module_vehicle_ardupilot.cpp \
-    mission_parser_vehicle_ardupilot.cpp
+    mission_parser_vehicle_ardupilot.cpp \
+    module_vehicle_ardupilot_mission_parser.cpp
 
 HEADERS += module_vehicle_ardupilot.h\
         module_vehicle_ardupilot_global.h \

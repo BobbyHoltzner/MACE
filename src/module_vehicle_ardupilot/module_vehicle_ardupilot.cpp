@@ -1,4 +1,12 @@
 #include "module_vehicle_ardupilot.h"
+
+ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
+    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(), m_VehicleMission("externalMission"),
+    msgDumpCounter(0),missionMode(NONE),missionItemIndex(0),missionItemsAvailable(0)
+{
+
+}
+
 void ModuleVehicleArdupilot::ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
 {
     MissionItem::ActionArm* armMsg = new MissionItem::ActionArm(vehicleArm);
@@ -14,12 +22,6 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
     uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
     mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleMode.getVehicleID())->generateArdupilotMessage(armMsg,chan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
-}
-
-
-ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
-    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(), m_VehicleMission("externalMission")
-{
 }
 
 
@@ -78,87 +80,6 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
     }
 }
 
-
-
-bool ModuleVehicleArdupilot::ParseForMissionMessage(const std::string &linkName, const mavlink_message_t* message)
-{
-    bool parsedMissionMSG = true;
-    int sysID = message->sysid;
-    int compID = message->compid;
-    uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
-
-    switch ((int)message->msgid) {
-
-    case MAVLINK_MSG_ID_MISSION_REQUEST:
-    {
-        //This is message definition 40
-        //Request the information of the mission item with the sequence number seq. The response of the system to this message should be a MISSION_ITEM message. http://qgroundcontrol.org/mavlink/waypoint_protocol
-        mavlink_mission_request_t decodedMSG;
-        mavlink_msg_mission_request_decode(message,&decodedMSG);
-        std::cout<<"The aircraft is requesting item number: "<<decodedMSG.seq<<std::endl;
-        std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = m_ProposedMissionQueue.at(sysID).getMissionItem(decodedMSG.seq);
-        mavlink_message_t msg = MissionParserArdupilot::generateMissionMessage(missionItem,decodedMSG.seq,compID,chan);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
-        break;
-    }
-    case MAVLINK_MSG_ID_MISSION_SET_CURRENT:
-    {
-        //This is message definition 41
-        //Set the mission item with sequence number seq as current item. This means that the MAV will continue to this mission item on the shortest path (not following the mission items in-between).
-        mavlink_mission_set_current_t decodedMSG;
-        mavlink_msg_mission_set_current_decode(message,&decodedMSG);
-        break;
-    }
-    case MAVLINK_MSG_ID_MISSION_CURRENT:
-    {
-        //This is message definition 42
-        //Message that announces the sequence number of the current active mission item. The MAV will fly towards this mission item.
-        mavlink_mission_current_t decodedMSG;
-        mavlink_msg_mission_current_decode(message,&decodedMSG);
-        break;
-    }
-    case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:
-    {
-        //This is message definition 43
-        //Request the overall list of mission items from the system/component.
-        mavlink_mission_request_list_t decodedMSG;
-        mavlink_msg_mission_request_list_decode(message,&decodedMSG);
-        break;
-    }
-    case MAVLINK_MSG_ID_MISSION_COUNT:
-    {
-        //This is message definition 44
-        //This message is emitted as response to MISSION_REQUEST_LIST by the MAV and to initiate a write transaction. The GCS can then request the individual mission item based on the knowledge of the total number of MISSIONs.
-        mavlink_mission_count_t decodedMSG;
-        mavlink_msg_mission_count_decode(message,&decodedMSG);
-        break;
-    }
-    case MAVLINK_MSG_ID_MISSION_CLEAR_ALL:
-    {
-        //This is message definition 45
-        //Delete all mission items at once.
-        mavlink_mission_clear_all_t decodedMSG;
-        mavlink_msg_mission_clear_all_decode(message,&decodedMSG);
-        break;
-    }
-    case MAVLINK_MSG_ID_MISSION_ACK:
-    {
-        //This is message definition 47
-        //Ack message during MISSION handling. The type field states if this message is a positive ack (type=0) or if an error happened (type=non-zero).
-        mavlink_mission_ack_t decodedMSG;
-        mavlink_msg_mission_ack_decode(message,&decodedMSG);
-        std::cout<<"Mission Acknowledged?"<<std::endl;
-        break;
-    }
-
-    default:
-    {
-        parsedMissionMSG = false;
-    }
-    }
-    return parsedMissionMSG;
-}
-
 void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
     uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
@@ -179,8 +100,12 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
                     int vehicleID = component->getVehicleID();
                     m_ProposedMissionQueue[vehicleID] = *component->getMissionList();
                     mavlink_message_t msg;
-                    mavlink_msg_mission_count_pack_chan(255,190,chan,&msg,vehicleID,0,m_ProposedMissionQueue.at(vehicleID).getQueueSize());
+//                    mavlink_msg_mission_count_pack_chan(255,190,chan,&msg,vehicleID,0,m_ProposedMissionQueue.at(vehicleID).getQueueSize());
+//                    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+                    missionMode = REQUESTING;
+                    mavlink_msg_mission_request_list_pack_chan(255,190,chan,&msg,1,0);
                     m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+
                 }else if(component->getMissionType() == MissionTopic::MissionType::GUIDED){
 
                 }else if(component->getMissionType() == MissionTopic::MissionType::ACTION){
@@ -191,5 +116,6 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
         }
     }
 }
+
 
 
