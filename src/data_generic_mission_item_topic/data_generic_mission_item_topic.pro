@@ -26,16 +26,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     mission_item_topic.cpp \
-    mission_list_topic.cpp \
-    mission_item_request_topic.cpp
+    mission_list_topic.cpp
 
 HEADERS +=\
         data_generic_mission_item_topic_global.h \
     mission_item_topic.h \
     mission_item_topic_components.h \
     command_mission_type.h \
-    mission_list_topic.h \
-    mission_item_request_topic.h
+    mission_list_topic.h
 
 # Unix lib Install
 unix:!symbian {

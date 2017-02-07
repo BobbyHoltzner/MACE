@@ -66,16 +66,11 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         MaceCore::TopicDatagram topicDatagram;
         for(size_t i = 0 ; i < components.size() ; i++)
         {
-            if(components.at(i) == MissionTopic::MissionItemRequestTopic.Name())
-            {
-                std::cout<<"Handle it as a request for mission object."<<std::endl;
-            }else{
                 m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
                 //notify listneres of topic
                 ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
                     ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
                 });
-            }
         }
     } //if there is information available
 }
@@ -98,11 +93,10 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_VehicleMission.GetComponent(component, read_topicDatagram);
                 if(component->getMissionType() == MissionTopic::MissionType::MISSION){
-                    m_ProposedMissionQueue[component->getVehicleID()] = *component->getMissionList();
-                    mavlink_message_t msg;
-                    mavlink_msg_mission_count_pack_chan(255,190,chan,&msg,component->getVehicleID(),0,*component->getMissionList()->getQueueSize());
-                    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
-
+//                    m_ProposedMissionQueue[component->getVehicleID()] = *component->getMissionList();
+//                    mavlink_message_t msg;
+//                    mavlink_msg_mission_count_pack_chan(255,190,chan,&msg,component->getVehicleID(),0,*component->getMissionList()->getQueueSize());
+//                    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
                 }else if(component->getMissionType() == MissionTopic::MissionType::GUIDED){
 
                 }else if(component->getMissionType() == MissionTopic::MissionType::ACTION){

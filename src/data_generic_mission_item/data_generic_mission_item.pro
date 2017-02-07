@@ -48,9 +48,7 @@ HEADERS +=\
     do_items/do_components.h \
     mission_item_types.h \
     mission_item_components.h \
-    spatial_items/spatial_waypoint.h \
-    spatial_items/action_land.h \
-    spatial_items/action_takeoff.h
+    spatial_items/spatial_waypoint.h
 
 # Unix lib Install
 unix:!symbian {
