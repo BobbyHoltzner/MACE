@@ -10,6 +10,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
     switch ((int)message->msgid) {
     case MAVLINK_MSG_ID_MISSION_ITEM:
     {
+        std::cout<<"I have gotten a mission item"<<std::endl;
         //This is message definition 39
         //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
         mavlink_mission_item_t decodedMSG;
@@ -83,16 +84,11 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         mavlink_mission_count_t decodedMSG;
         mavlink_msg_mission_count_decode(message,&decodedMSG);
         missionItemsAvailable = decodedMSG.count;
-        msgDumpCounter++;
-        if(msgDumpCounter == 2){
-            //then we can go ahead and request messages
-            msgDumpCounter = 0;
-            if(missionMode == REQUESTING)
-            {
-                mavlink_message_t msg;
-                mavlink_msg_mission_request_pack_chan(255,190,chan,&msg,sysID,compID,missionItemIndex);
-                m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
-            }
+        if(missionMode == REQUESTING)
+        {
+            mavlink_message_t msg;
+            mavlink_msg_mission_request_pack_chan(255,190,chan,&msg,sysID,compID,missionItemIndex);
+            m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
         }
         break;
     }

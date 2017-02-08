@@ -11,7 +11,7 @@ class IModuleEventsGeneral
 public:
     virtual void RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm) = 0;
     virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode) = 0;
-
+    virtual void RequestCurrentVehicleMission(const void* sender, const int &vehicleID) = 0;
 };
 
 } //End MaceCore Namespace

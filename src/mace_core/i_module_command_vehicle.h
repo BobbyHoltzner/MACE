@@ -16,6 +16,8 @@ enum class VehicleCommands
 {
     CHANGE_VEHICLE_ARM,
     CHANGE_VEHICLE_MODE,
+    REQUEST_CURRENT_MISSION_QUEUE,
+    REQUEST_CURRENT_GUIDED_QUEUE,
     CREATE_VEHICLE_OBJECT,
     REMOVE_VEHICLE_OBJECT,
     UPDATE_VEHICLE_OBJECT_LIST,
@@ -45,6 +47,15 @@ public:
         AddCommandLogic<MissionItem::ActionChangeMode>(VehicleCommands::CHANGE_VEHICLE_MODE, [this](const MissionItem::ActionChangeMode &vehicleMode){
             ChangeVehicleOperationalMode(vehicleMode);
         });
+
+        AddCommandLogic<int>(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE, [this](const int &vehicleID){
+            RequestCurrentMissionQueue(vehicleID);
+        });
+
+
+
+
+
 
         AddCommandLogic<int>(VehicleCommands::CREATE_VEHICLE_OBJECT, [this](const int &vehicleID){
             CreateVehicleObject(vehicleID);
@@ -83,6 +94,9 @@ public:
     virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm) = 0;
 
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
+
+    virtual void RequestCurrentMissionQueue(const int &vehicleID) = 0;
+
 
     virtual void CreateVehicleObject(const int &vehicleID) = 0;
 

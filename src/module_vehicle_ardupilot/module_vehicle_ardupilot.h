@@ -56,6 +56,8 @@ public:
 
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
 
+    virtual void RequestCurrentMissionQueue (const int &vehicleID);
+
 
 private:
     std::map<int,MissionItem::MissionList> m_CurrentMissionQueue;

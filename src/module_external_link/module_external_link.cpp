@@ -40,6 +40,11 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
 {
 
     if(executedOnce == false){
+
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+            ptr->RequestCurrentVehicleMission(this,1);
+        });
+
     executedOnce = true;
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
     //MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>* newWP = new MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>();

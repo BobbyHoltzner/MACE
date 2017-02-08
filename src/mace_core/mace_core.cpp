@@ -124,7 +124,7 @@ void MaceCore::NewTopicDataValues(const std::string &topicName, const int sender
 
 
 /////////////////////////////////////////////////////////////////////////
-/// SENSOR EVENTS
+/// GENERAL MODULE EVENTS
 /////////////////////////////////////////////////////////////////////////
 void MaceCore::RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm)
 {
@@ -135,6 +135,11 @@ void MaceCore::RequestVehicleMode(const void *sender, const MissionItem::ActionC
 {
     int vehicleID = changeMode.getVehicleID();
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_MODE,changeMode);
+}
+
+void MaceCore::RequestCurrentVehicleMission(const void *sender, const int &vehicleID)
+{
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
 }
 
 /////////////////////////////////////////////////////////////////////////
