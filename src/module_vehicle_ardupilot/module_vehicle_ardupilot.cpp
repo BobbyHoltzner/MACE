@@ -58,9 +58,9 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         });
     }
 
-    bool wasMissionMSG = ParseForMissionMessage(linkName, &message);
+    bool wasMissionMSG = ParseMAVLINKMissionMessage(linkName, &message);
 
-    if( wasMissionMSG == false){
+    if(wasMissionMSG == false){
         //generate topic datagram from given mavlink message
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = tmpParser->ParseForVehicleData(&message);
         //procede to send components only if there is 1 or more

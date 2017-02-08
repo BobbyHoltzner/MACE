@@ -17,7 +17,8 @@ SOURCES += \
     components/vehicle_operating_status.cpp \
     components/vehicle_operating_attitude.cpp \
     components/vehicle_flightMode.cpp \
-    mavlink_parser_ardupilot.cpp
+    mavlink_parser_ardupilot.cpp \
+    ardupilot_to_mace_mission.cpp
 
 HEADERS +=\
         data_vehicle_ardupilot_global.h \
@@ -25,7 +26,8 @@ HEADERS +=\
     components.h \
     components/vehicle_operating_status.h \
     components/vehicle_operating_attitude.h \
-    components/vehicle_flightMode.h
+    components/vehicle_flightMode.h \
+    ardupilot_to_mace_mission.h
 
 # Unix lib Install
 unix:!symbian {
@@ -45,7 +47,9 @@ headers.files   += \
         ardu_platforms.h \
         components.h \
         mavlink_parser_ardupilot.h \
-        data_vehicle_ardupilot_global.h
+        data_vehicle_ardupilot_global.h \
+        ardupilot_to_mace_mission.h
+
 INSTALLS       += headers
 
 #Header file copy

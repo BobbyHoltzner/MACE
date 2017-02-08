@@ -1,11 +1,11 @@
 #include "module_vehicle_ardupilot.h"
 
-bool ModuleVehicleArdupilot::ParseForMissionMessage(const std::string &linkName, const mavlink_message_t* message)
+bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkName, const mavlink_message_t* message)
 {
     bool parsedMissionMSG = true;
     int sysID = message->sysid;
     int compID = message->compid;
-    std::cout<<"The sequence ID is"<<message->seq<<std::endl;
+    std::cout<<"The sequence ID is"<<(int)message->seq<<std::endl;
     uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
 
     switch ((int)message->msgid) {
@@ -15,13 +15,23 @@ bool ModuleVehicleArdupilot::ParseForMissionMessage(const std::string &linkName,
         //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(message,&decodedMSG);
-        std::cout<<"I received another mission item for index"<<decodedMSG.seq<<std::endl;
+
+        MissionItem::AbstractMissionItem* missionItem = NULL;
+        DataVehicleArdupilot::ArdupilotToMACEMission::MAVLINKMissionToMACEMission(decodedMSG,missionItem);
+        if(missionItem){
+            std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem(missionItem);
+            m_CurrentMissionQueue.at(sysID).replaceMissionItemAtIndex(newMissionItem,decodedMSG.seq);
+        }
+
         if(decodedMSG.seq < missionItemsAvailable - 1)
         {
+            //This may not get handled correctly
             missionItemIndex++;
             mavlink_message_t msg;
             mavlink_msg_mission_request_pack_chan(255,190,chan,&msg,sysID,compID,missionItemIndex);
             m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
+
+            //The zero item is the home position
         }else{
             //reset all of the information
             missionItemIndex = 0;

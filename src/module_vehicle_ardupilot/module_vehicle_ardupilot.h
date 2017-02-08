@@ -30,7 +30,7 @@ enum ArdupilotMissionMode{
 public:
     ModuleVehicleArdupilot();
 
-    bool ParseForMissionMessage(const std::string &linkName, const mavlink_message_t *message);
+    bool ParseMAVLINKMissionMessage(const std::string &linkName, const mavlink_message_t *message);
 
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
