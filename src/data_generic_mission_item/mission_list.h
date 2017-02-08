@@ -2,7 +2,7 @@
 #define MISSION_LIST_H
 
 #include <memory>
-#include <map>
+#include <vector>
 #include "abstract_mission_item.h"
 
 namespace MissionItem {
@@ -11,7 +11,7 @@ class MissionList
 {
 public:
     MissionList();
-
+    void initializeQueue(const int &size);
     void insertMissionItem(const std::shared_ptr<AbstractMissionItem> missionItem);
     void replaceMissionItemAtIndex(const std::shared_ptr<AbstractMissionItem> missionItem, const int &index);
 
@@ -20,7 +20,8 @@ public:
     int getQueueSize();
 
 public:
-    std::map<int,std::shared_ptr<AbstractMissionItem>> missionQueue;
+
+    std::vector<std::shared_ptr<AbstractMissionItem>> missionQueue;
 };
 
 } //end of namespace MissionItem

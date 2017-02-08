@@ -29,7 +29,7 @@ void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
     uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
     mavlink_message_t msg;
     missionMode = REQUESTING;
-    mavlink_msg_mission_request_list_pack_chan(255,190,chan,&msg,1,0);
+    mavlink_msg_mission_request_list_pack_chan(255,190,chan,&msg,vehicleID,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
 }
 
@@ -62,6 +62,14 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         std::cout<<"This vehicle parser was not currently in the map. Going to add one."<<std::endl;
         tmpParser = new DataVehicleArdupilot::MAVLINKParserArduPilot();
         m_ArduPilotMAVLINKParser.insert({newSystemID,tmpParser});
+
+        MissionItem::MissionList newMissionList;
+        m_CurrentMissionQueue.insert({newSystemID,newMissionList});
+        m_ProposedMissionQueue.insert({newSystemID,newMissionList});
+
+        m_CurrentGuidedQueue.insert({newSystemID,newMissionList});
+        m_ProposedGuidedQueue.insert({newSystemID,newMissionList});
+
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
             ptr->NewConstructedVehicle(this, newSystemID);
         });

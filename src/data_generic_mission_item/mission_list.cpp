@@ -7,9 +7,16 @@ MissionList::MissionList()
 
 }
 
+void MissionList::initializeQueue(const int &size)
+{
+    missionQueue.clear();
+    std::vector<std::shared_ptr<AbstractMissionItem>> tmpVector(size,NULL);
+    missionQueue = tmpVector;
+}
+
 void MissionList::insertMissionItem(const std::shared_ptr<AbstractMissionItem> missionItem)
 {
-    missionQueue.insert({missionQueue.size(),missionItem});
+    missionQueue.push_back(missionItem);
 }
 
 void MissionList::replaceMissionItemAtIndex(const std::shared_ptr<AbstractMissionItem> missionItem, const int &index)
@@ -19,7 +26,7 @@ void MissionList::replaceMissionItemAtIndex(const std::shared_ptr<AbstractMissio
 
 std::shared_ptr<AbstractMissionItem> MissionList::getMissionItem(const int &index)
 {
-    return missionQueue.at(index);
+    return missionQueue[index];
 }
 
 int MissionList::getQueueSize()

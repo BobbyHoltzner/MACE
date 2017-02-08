@@ -2,7 +2,7 @@
 
 namespace MissionTopic{
 
-const char MissionListTopic_name[] = "missionList";
+const char MissionListTopic_name[] = "MissionList";
 const MaceCore::TopicComponentStructure MissionListTopic_structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<int>("vehicleID");

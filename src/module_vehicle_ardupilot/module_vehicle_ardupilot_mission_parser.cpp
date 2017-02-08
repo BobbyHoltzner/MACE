@@ -10,19 +10,24 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
     switch ((int)message->msgid) {
     case MAVLINK_MSG_ID_MISSION_ITEM:
     {
-        std::cout<<"I have gotten a mission item"<<std::endl;
+        std::cout<<"I saw a mission item msg"<<std::endl;
+
         //This is message definition 39
         //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(message,&decodedMSG);
         std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = DataVehicleArdupilot::ArdupilotToMACEMission::MAVLINKMissionToMACEMission(decodedMSG);
-        if(missionItem){
-            if(m_CurrentMissionQueue.find(sysID) == m_CurrentMissionQueue.end())
+
+        //check to make sure the item isnt NULL
+        if(missionItem)
+        {
+            if(decodedMSG.seq == 0)
             {
-                MissionItem::MissionList newMissionList;
-                m_CurrentMissionQueue.insert({sysID,newMissionList});
+                //this is the home position item associated with the vehicle
+            }else{
+                int missionIndex = decodedMSG.seq - 1;
+                m_CurrentMissionQueue.at(sysID).replaceMissionItemAtIndex(missionItem,missionIndex);
             }
-            m_CurrentMissionQueue.at(sysID).replaceMissionItemAtIndex(missionItem,decodedMSG.seq);
         }
 
         if(decodedMSG.seq < missionItemsAvailable - 1)
@@ -81,11 +86,14 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
     {
         //This is message definition 44
         //This message is emitted as response to MISSION_REQUEST_LIST by the MAV and to initiate a write transaction. The GCS can then request the individual mission item based on the knowledge of the total number of MISSIONs.
+        std::cout<<"I saw a mission count msg"<<std::endl;
         mavlink_mission_count_t decodedMSG;
         mavlink_msg_mission_count_decode(message,&decodedMSG);
-        missionItemsAvailable = decodedMSG.count;
         if(missionMode == REQUESTING)
         {
+            missionItemsAvailable = decodedMSG.count;
+            m_CurrentMissionQueue.at(sysID).initializeQueue(missionItemsAvailable - 1);
+
             mavlink_message_t msg;
             mavlink_msg_mission_request_pack_chan(255,190,chan,&msg,sysID,compID,missionItemIndex);
             m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
