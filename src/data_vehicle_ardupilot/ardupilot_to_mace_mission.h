@@ -1,6 +1,8 @@
 #ifndef ARDUPILOT_TO_MACE_MISSION_H
 #define ARDUPILOT_TO_MACE_MISSION_H
 
+#include <memory>
+
 #include "mavlink.h"
 
 #include "data_generic_state_item/state_item_components.h"
@@ -16,7 +18,7 @@ class ArdupilotToMACEMission
 {
 public:
 
-    static void MAVLINKMissionToMACEMission(const mavlink_mission_item_t &missionItem, MissionItem::AbstractMissionItem *newMissionItem);
+    static std::shared_ptr<MissionItem::AbstractMissionItem> MAVLINKMissionToMACEMission(const mavlink_mission_item_t &missionItem);
 };
 
 }

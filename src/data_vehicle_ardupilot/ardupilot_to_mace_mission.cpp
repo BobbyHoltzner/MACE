@@ -3,10 +3,10 @@
 namespace DataVehicleArdupilot
 {
 
-void ArdupilotToMACEMission::MAVLINKMissionToMACEMission(const mavlink_mission_item_t &missionItem, MissionItem::AbstractMissionItem* newMissionItem)
+std::shared_ptr<MissionItem::AbstractMissionItem> ArdupilotToMACEMission::MAVLINKMissionToMACEMission(const mavlink_mission_item_t &missionItem)
 {
-    switch(missionItem.command){
-    case 16:
+
+    if(missionItem.command == 16)
     {
         //This is the MAV_CMD_NAV_WAYPOINT case
     /*
@@ -18,21 +18,13 @@ void ArdupilotToMACEMission::MAVLINKMissionToMACEMission(const mavlink_mission_i
     Mission Param #6	Longitude
     Mission Param #7	Altitude
     */
-        if(missionItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
-        {
-            MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> tmp;
-            tmp.position.latitude = missionItem.x;
-            tmp.position.longitude = missionItem.y;
-            tmp.position.altitude = missionItem.z;
-            newMissionItem = &tmp;
-        }
-
-        break;
-    }
-    default:
-    {
-        break;
-    }
+        std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> returnItem = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+        returnItem->position.latitude = missionItem.x;
+        returnItem->position.longitude = missionItem.y;
+        returnItem->position.altitude = missionItem.z;
+        return returnItem;
+    }else{
+        return NULL;
     }
 
 }

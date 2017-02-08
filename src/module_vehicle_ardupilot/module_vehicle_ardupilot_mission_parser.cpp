@@ -5,7 +5,6 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
     bool parsedMissionMSG = true;
     int sysID = message->sysid;
     int compID = message->compid;
-    std::cout<<"The sequence ID is"<<(int)message->seq<<std::endl;
     uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
 
     switch ((int)message->msgid) {
@@ -15,12 +14,14 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(message,&decodedMSG);
-
-        MissionItem::AbstractMissionItem* missionItem = NULL;
-        DataVehicleArdupilot::ArdupilotToMACEMission::MAVLINKMissionToMACEMission(decodedMSG,missionItem);
+        std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = DataVehicleArdupilot::ArdupilotToMACEMission::MAVLINKMissionToMACEMission(decodedMSG);
         if(missionItem){
-            std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem(missionItem);
-            m_CurrentMissionQueue.at(sysID).replaceMissionItemAtIndex(newMissionItem,decodedMSG.seq);
+            if(m_CurrentMissionQueue.find(sysID) == m_CurrentMissionQueue.end())
+            {
+                MissionItem::MissionList newMissionList;
+                m_CurrentMissionQueue.insert({sysID,newMissionList});
+            }
+            m_CurrentMissionQueue.at(sysID).replaceMissionItemAtIndex(missionItem,decodedMSG.seq);
         }
 
         if(decodedMSG.seq < missionItemsAvailable - 1)
