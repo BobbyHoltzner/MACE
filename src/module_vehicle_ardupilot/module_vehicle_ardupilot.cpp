@@ -1,7 +1,7 @@
 #include "module_vehicle_ardupilot.h"
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
-    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(), m_VehicleMission("externalMission"),
+    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(), m_VehicleMission("vehicleMission"),
     msgDumpCounter(0),missionMode(NONE),missionItemIndex(0),missionItemsAvailable(0)
 {
 

@@ -2,7 +2,7 @@
 
 
 ModuleExternalLink::ModuleExternalLink() :
-    m_VehicleDataTopic("vehicleData"),m_SensorFootprintDataTopic("sensorFootprint"),m_MissionDataTopic("externalMission")
+    m_VehicleDataTopic("vehicleData"),m_SensorFootprintDataTopic("sensorFootprint"),m_MissionDataTopic("vehicleMission")
 {
 }
 
@@ -14,6 +14,8 @@ void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
     ptr->Subscribe(this, m_SensorFootprintDataTopic.Name());
+    ptr->Subscribe(this, m_MissionDataTopic.Name());
+
 }
 
 //!
@@ -100,15 +102,6 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
             }
-
-//            if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleFlightMode::Name()) {
-//                std::shared_ptr<DataVehicleArdupilot::VehicleFlightMode> component = std::make_shared<DataVehicleArdupilot::VehicleFlightMode>();
-//                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-//            }
-//            if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleOperatingStatus::Name()) {
-//                std::shared_ptr<DataVehicleArdupilot::VehicleOperatingStatus> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingStatus>();
-//                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-//            }
         }
     }else if(topicName == m_SensorFootprintDataTopic.Name())
     {
@@ -121,6 +114,17 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
                 std::shared_ptr<DataVehicleSensors::SensorVertices_Global> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices_Global>("TestM");
                 m_SensorFootprintDataTopic.GetComponent(newSensorV, read_topicDatagram);
+            }
+        }
+    }
+    else if(topicName == m_MissionDataTopic.Name())
+    {
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+            if(componentsUpdated.at(i) == MissionTopic::MissionHomeTopic::Name()) {
+                std::shared_ptr<MissionTopic::MissionHomeTopic> newHome = std::make_shared<MissionTopic::MissionHomeTopic>();
+                m_MissionDataTopic.GetComponent(newHome, read_topicDatagram);
+                std::cout<<"I saw a new home position"<<std::endl;
             }
         }
     }
