@@ -20,9 +20,6 @@ public:
     virtual bool hasSpatialMissionInfluence()const;
 
 public:
-    SpatialHome();
-
-public:
     DataState::StateGlobalPosition position;
 };
 

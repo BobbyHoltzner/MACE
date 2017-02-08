@@ -10,7 +10,6 @@ namespace MissionItem {
 class MissionList
 {
 public:
-    MissionList();
     void initializeQueue(const int &size);
     void insertMissionItem(const std::shared_ptr<AbstractMissionItem> missionItem);
     void replaceMissionItemAtIndex(const std::shared_ptr<AbstractMissionItem> missionItem, const int &index);

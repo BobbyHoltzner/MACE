@@ -67,11 +67,11 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
     newWP3->setVehicleID(senderID);
 
 
-    std::shared_ptr<MissionItem::MissionList> newMissionList = std::make_shared<MissionItem::MissionList>();
-    newMissionList->insertMissionItem(newWP);
-    newMissionList->insertMissionItem(newWP1);
-    newMissionList->insertMissionItem(newWP2);
-    newMissionList->insertMissionItem(newWP3);
+    MissionItem::MissionList newMissionList;
+    newMissionList.insertMissionItem(newWP);
+    newMissionList.insertMissionItem(newWP1);
+    newMissionList.insertMissionItem(newWP2);
+    newMissionList.insertMissionItem(newWP3);
 
     std::shared_ptr<MissionTopic::MissionListTopic> newMissionListTopic = std::make_shared<MissionTopic::MissionListTopic>(MissionTopic::MissionType::MISSION);
     newMissionListTopic->setVehicleID(1);

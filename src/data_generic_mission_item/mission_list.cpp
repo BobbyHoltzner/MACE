@@ -2,11 +2,6 @@
 
 namespace MissionItem {
 
-MissionList::MissionList()
-{
-
-}
-
 void MissionList::initializeQueue(const int &size)
 {
     missionQueue.clear();

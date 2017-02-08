@@ -23,24 +23,40 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         {
             if(decodedMSG.seq == 0)
             {
-                //this is the home position item associated with the vehicle
+                //This is the home position item associated with the vehicle
+                MissionItem::SpatialHome newHome;
+                newHome.position.latitude = decodedMSG.x;
+                newHome.position.longitude = decodedMSG.y;
+                newHome.position.altitude = decodedMSG.z;
+                std::shared_ptr<MissionTopic::MissionHomeTopic> homeTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+                homeTopic->setVehicleID(sysID);
+                homeTopic->setHome(newHome);
+
+                MaceCore::TopicDatagram topicDatagram;
+                m_VehicleMission.SetComponent(homeTopic, topicDatagram);
+
+                //notify listneres of topic
+                ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+                    ptr->NewTopicDataValues(m_VehicleMission.Name(), 1, MaceCore::TIME(), topicDatagram);
+                });
             }else{
                 int missionIndex = decodedMSG.seq - 1;
                 m_CurrentMissionQueue.at(sysID).replaceMissionItemAtIndex(missionItem,missionIndex);
             }
         }
 
-        if(decodedMSG.seq < missionItemsAvailable - 1)
+        if(missionItemIndex < missionItemsAvailable)
         {
             //This may not get handled correctly
             missionItemIndex++;
+            std::cout<<"The index we are now requesting is: "<<missionItemIndex<<std::endl;
             mavlink_message_t msg;
             mavlink_msg_mission_request_pack_chan(255,190,chan,&msg,sysID,compID,missionItemIndex);
             m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
 
             //The zero item is the home position
         }else{
-            //reset all of the information
+            //Reset all of the information as we have requested them all
             missionItemIndex = 0;
             missionItemsAvailable = 0;
         }
