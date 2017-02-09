@@ -116,10 +116,6 @@ private:
         m_AvailableVehicles.erase( unique( m_AvailableVehicles.begin(), m_AvailableVehicles.end() ), m_AvailableVehicles.end() );
     }
 
-//    void RemoveVehicle(const int &vehicleID){
-
-//    }
-
     void RemoveVehicle(const std::string &rn)
     {
         if(m_PositionDynamicsHistory.find(rn) == m_PositionDynamicsHistory.cend())

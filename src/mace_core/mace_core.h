@@ -73,6 +73,24 @@ public:
     virtual void NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value);
 
 public:
+    /////////////////////////////////////////////////////////////////////////
+    /// GENERAL MODULE EVENTS
+    /////////////////////////////////////////////////////////////////////////
+
+    virtual void RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm);
+    virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode);
+    virtual void RequestCurrentVehicleMission(const void* sender, const int &vehicleID);
+    virtual void RequestVehicleHomePosition(const void* sender, const int &vehicleID);
+    virtual void RequestVehicleClearAutoMission(const void* sender, const int &vehicleID);
+    virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
+
+
+public:
+
+    /////////////////////////////////////////////////////////////////////////
+    /// SENSOR EVENTS
+    /////////////////////////////////////////////////////////////////////////
+
 
     /////////////////////////////////////////////////////////////////////////
     /// VEHICLE EVENTS

@@ -5,7 +5,10 @@
 
 #include "module_vehicle_mavlink_global.h"
 
+#include <iostream>
 #include <QMap>
+#include <QSerialPort>
+
 
 #include "common/common.h"
 
@@ -15,30 +18,18 @@
 #include "comms/i_protocol_mavlink_events.h"
 #include "comms/serial_configuration.h"
 
+#include "comms/serial_link.h"
+#include "comms/udp_link.h"
+#include "comms/protocol_mavlink.h"
+
 #include "Vehicles/Ardupilot/data_ardupilot.h"
-
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
-
-
-#include "data_vehicle_generic/local_position.h"
-#include "data_vehicle_generic/local_velocity.h"
-
-
-#include <iostream>
 
 #include "module_vehicle_mavlink.h"
 
 #include "mace_core/module_factory.h"
 
-#include <QSerialPort>
-
-#include "comms/serial_link.h"
-#include "comms/udp_link.h"
-#include "comms/protocol_mavlink.h"
-
 #include "data_vehicle_MAVLINK/altitude_reference_frames.h"
-
-#include "data_vehicle_generic/local_position.h"
 
 #include "data_vehicle_MAVLINK/components.h"
 
@@ -255,10 +246,8 @@ public:
             uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
             mavlink_message_t msg;
 
-            mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
-            m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
-
-            std::cout<<"The message was sent."<<std::endl;
+//            mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
+//            m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
 
             //test statements that will issue a log_request_list to device
 
@@ -362,6 +351,16 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///              MACE COMMANDS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
+    {
+
+    }
+
+    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
+    {
+
+    }
 
     virtual void CreateVehicleObject(const int &vehicleID)
     {

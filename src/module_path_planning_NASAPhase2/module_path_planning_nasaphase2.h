@@ -39,6 +39,10 @@ public:
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
+    //! Virtual functions as defined by IModuleCommandPathPlanning
+public:
+
+    virtual void NewlyAvailableVehicle(const int &vehicleID);
 };
 
 #endif // MODULE_PATH_PLANNING_NASAPHASE2_H

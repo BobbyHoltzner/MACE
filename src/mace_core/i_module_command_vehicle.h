@@ -1,6 +1,8 @@
 #ifndef I_VEHICLE_COMMS_H
 #define I_VEHICLE_COMMS_H
 
+#include "data_generic_mission_item/mission_item_components.h"
+
 #include "abstract_module_event_listeners.h"
 #include "metadata_vehicle.h"
 
@@ -12,6 +14,13 @@ namespace MaceCore
 
 enum class VehicleCommands
 {
+    CHANGE_VEHICLE_ARM,
+    CHANGE_VEHICLE_MODE,
+    REQUEST_VEHICLE_HOME,
+    REQUEST_CURRENT_MISSION_QUEUE,
+    REQUEST_CURRENT_GUIDED_QUEUE,
+    REQUEST_CLEAR_MISSION_QUEUE,
+    REQUEST_CLEAR_GUIDED_QUEUE,
     CREATE_VEHICLE_OBJECT,
     REMOVE_VEHICLE_OBJECT,
     UPDATE_VEHICLE_OBJECT_LIST,
@@ -34,6 +43,33 @@ public:
         AbstractModule_EventListeners()
     {
         //These are from MACE Core to modules
+        AddCommandLogic<MissionItem::ActionArm>(VehicleCommands::CHANGE_VEHICLE_ARM, [this](const MissionItem::ActionArm &vehicleArm){
+            ChangeVehicleArm(vehicleArm);
+        });
+
+        AddCommandLogic<MissionItem::ActionChangeMode>(VehicleCommands::CHANGE_VEHICLE_MODE, [this](const MissionItem::ActionChangeMode &vehicleMode){
+            ChangeVehicleOperationalMode(vehicleMode);
+        });
+
+        AddCommandLogic<int>(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE, [this](const int &vehicleID){
+            RequestCurrentMissionQueue(vehicleID);
+        });
+
+        AddCommandLogic<int>(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE, [this](const int &vehicleID){
+            RequestClearMissionQueue(vehicleID);
+        });
+
+        AddCommandLogic<int>(VehicleCommands::REQUEST_CURRENT_GUIDED_QUEUE, [this](const int &vehicleID){
+            RequestCurrentGuidedQueue(vehicleID);
+        });
+
+        AddCommandLogic<int>(VehicleCommands::REQUEST_CLEAR_GUIDED_QUEUE, [this](const int &vehicleID){
+            RequestClearGuidedQueue(vehicleID);
+        });
+
+
+
+
         AddCommandLogic<int>(VehicleCommands::CREATE_VEHICLE_OBJECT, [this](const int &vehicleID){
             CreateVehicleObject(vehicleID);
         });
@@ -67,6 +103,19 @@ public:
 
 
 public:
+
+    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm) = 0;
+
+    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
+
+    virtual void RequestCurrentMissionQueue(const int &vehicleID) = 0;
+
+    virtual void RequestClearMissionQueue(const int &vehicleID) = 0;
+
+    virtual void RequestCurrentGuidedQueue(const int &vehicleID) = 0;
+
+    virtual void RequestClearGuidedQueue(const int &vehicleID) = 0;
+
 
     virtual void CreateVehicleObject(const int &vehicleID) = 0;
 

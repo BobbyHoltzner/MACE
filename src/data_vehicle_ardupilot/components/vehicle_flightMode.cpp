@@ -8,7 +8,6 @@ const MaceCore::TopicComponentStructure VehicleOperatingParameters_structure = [
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<int>("vehicleType");
     structure.AddTerminal<int>("flightMode");
-
     return structure;
 }();
 
@@ -17,13 +16,12 @@ MaceCore::TopicDatagram VehicleFlightMode::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<int>("vehicleType", (int)m_VehicleType);
     datagram.AddTerminal<int>("flightMode", m_FlightMode);
-
     return datagram;
 }
 
 
 void VehicleFlightMode::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    m_VehicleType = (VehicleTypes)datagram.GetTerminal<int>("vehicleType");
+    m_VehicleType = (Data::VehicleTypes)datagram.GetTerminal<int>("vehicleType");
     m_FlightMode = datagram.GetTerminal<uint32_t>("flightMode");
 }
 
@@ -31,7 +29,7 @@ int VehicleFlightMode::getFlightMode(const std::string &flightMode){
 
     std::map<int,std::string> availableFM;
 
-    if(m_VehicleType == VehicleTypes::PLANE){
+    if(m_VehicleType == Data::VehicleTypes::PLANE){
         availableFM = arduplaneFM;
     }else{
         availableFM = arducopterFM;
@@ -52,7 +50,7 @@ int VehicleFlightMode::getFlightMode(const std::string &flightMode){
     throw std::runtime_error("The flight mode provided does not exist");
 }
 
-void VehicleFlightMode::getAvailableFlightModes(const VehicleTypes &vehicleType, std::map<int, std::string> &availableFM)
+void VehicleFlightMode::getAvailableFlightModes(const Data::VehicleTypes &vehicleType, std::map<int, std::string> &availableFM)
 {
 
 }
@@ -67,7 +65,7 @@ void VehicleFlightMode::setVehicleType(int vehicleType){
         switch (vehicleType) {
         case MAV_TYPE_FIXED_WING:
         {
-            m_VehicleType = VehicleTypes::PLANE;
+            m_VehicleType = Data::VehicleTypes::PLANE;
             break;
         }
         case MAV_TYPE_TRICOPTER:
@@ -75,7 +73,7 @@ void VehicleFlightMode::setVehicleType(int vehicleType){
         case MAV_TYPE_HEXAROTOR:
         case MAV_TYPE_OCTOROTOR:
         {
-            m_VehicleType = VehicleTypes::COPTER;
+            m_VehicleType = Data::VehicleTypes::COPTER;
             break;
         }
         default:

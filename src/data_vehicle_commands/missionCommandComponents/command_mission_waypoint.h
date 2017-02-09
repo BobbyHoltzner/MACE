@@ -1,21 +1,22 @@
 #ifndef COMMAND_MISSION_WAYPOINT_H
 #define COMMAND_MISSION_WAYPOINT_H
 
-#include "data_vehicle_commands/abstract_mission_command.h"
+#include "data_vehicle_commands/abstract_mission_item.h"
 
-#include "data_vehicle_generic/coordinate_frame.h"
-#include "data_vehicle_generic/global_position.h"
-#include "data_vehicle_generic/local_position.h"
+#include "data/coordinate_frame.h"
+#include "data/positional_coordinate_frame.h"
+#include "data_generic_state_item/state_global_position.h"
+#include "data_generic_state_item/state_local_position.h"
 
 namespace DataVehicleCommands {
 
 template<class T>
-class CommandMissionWaypoint : public AbstractMissionCommand
+class CommandMissionWaypoint : public AbstractMissionItem
 {
 public:
     virtual CommandTypes getCommandType() const;
 
-    virtual MissionCommandTypes getMissionType() const;
+    virtual MissionItemTypes getMissionType() const;
 
     virtual std::string getDescription() const;
 

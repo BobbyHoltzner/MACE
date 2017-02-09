@@ -2,7 +2,7 @@
 
 
 ModuleExternalLink::ModuleExternalLink() :
-    m_VehicleDataTopic("vehicleData"),m_SensorFootprintDataTopic("sensorFootprint")
+    m_VehicleDataTopic("vehicleData"),m_SensorFootprintDataTopic("sensorFootprint"),m_MissionDataTopic("vehicleMission")
 {
 }
 
@@ -14,6 +14,8 @@ void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
     ptr->Subscribe(this, m_SensorFootprintDataTopic.Name());
+    ptr->Subscribe(this, m_MissionDataTopic.Name());
+
 }
 
 //!
@@ -38,33 +40,27 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
+
+    if(executedOnce == false){
+        executedOnce = true;
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+            ptr->RequestCurrentVehicleMission(this,1);
+        });
+    }
+
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
-        //std::cout << "VehicleData topic received for vehicle: " << senderID << std::endl;
-
         //get latest datagram from mace_data
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
-
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == DataVehicleGeneric::Attitude::Name()) {
-                std::shared_ptr<DataVehicleGeneric::Attitude> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingAttitude>();
-                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                //std::cout << "    Vehicle Attitude: " << component->getRoll() << std::endl;
-            }
-            if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleFlightMode::Name()) {
-                std::shared_ptr<DataVehicleArdupilot::VehicleFlightMode> component = std::make_shared<DataVehicleArdupilot::VehicleFlightMode>();
+            if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
             }
-            if(componentsUpdated.at(i) == DataVehicleArdupilot::VehicleOperatingStatus::Name()) {
-                std::shared_ptr<DataVehicleArdupilot::VehicleOperatingStatus> component = std::make_shared<DataVehicleArdupilot::VehicleOperatingStatus>();
+            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                //std::cout << "    Vehicle Armed: " << component->getVehicleArmed() << std::endl;
-            }
-            if(componentsUpdated.at(i) == DataVehicleGeneric::GlobalPosition::Name()) {
-                std::shared_ptr<DataVehicleGeneric::GlobalPosition> component = std::make_shared<DataVehicleGeneric::GlobalPosition>();
-                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                //std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
             }
         }
     }else if(topicName == m_SensorFootprintDataTopic.Name())
@@ -81,5 +77,23 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             }
         }
     }
+    else if(topicName == m_MissionDataTopic.Name())
+    {
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+            if(componentsUpdated.at(i) == MissionTopic::MissionHomeTopic::Name()) {
+                std::shared_ptr<MissionTopic::MissionHomeTopic> newHome = std::make_shared<MissionTopic::MissionHomeTopic>();
+                m_MissionDataTopic.GetComponent(newHome, read_topicDatagram);
+            }
+            else if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()) {
+                //I should do something when I see a new mission from the vehicle
+            }
+        }
+    }
+}
+
+void ModuleExternalLink::NewlyAvailableVehicle(const int &vehicleID)
+{
+
 }
 

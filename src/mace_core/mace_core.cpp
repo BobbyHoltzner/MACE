@@ -123,13 +123,45 @@ void MaceCore::NewTopicDataValues(const std::string &topicName, const int sender
 }
 
 
+/////////////////////////////////////////////////////////////////////////
+/// GENERAL MODULE EVENTS
+/////////////////////////////////////////////////////////////////////////
+void MaceCore::RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm)
+{
+    int vehicleID = arm.getVehicleID();
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_ARM,arm);
+}
+void MaceCore::RequestVehicleMode(const void *sender, const MissionItem::ActionChangeMode &changeMode)
+{
+    int vehicleID = changeMode.getVehicleID();
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_MODE,changeMode);
+}
+
+void MaceCore::RequestCurrentVehicleMission(const void *sender, const int &vehicleID)
+{
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
+}
+
+void MaceCore::RequestVehicleHomePosition(const void* sender, const int &vehicleID)
+{
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
+}
+
+void MaceCore::RequestVehicleClearAutoMission(const void* sender, const int &vehicleID)
+{
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,vehicleID);
+}
+
+void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID)
+{
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_GUIDED_QUEUE,vehicleID);
+}
 
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
 void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
 {
-    std::cout<<"A new vehicle was seen"<<std::endl;
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
     m_DataFusion->AddAvailableVehicle(newVehicleObserved);
@@ -148,7 +180,6 @@ void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const Veh
     int sendersID = 0;
     bool rtnValue = m_DataFusion->HandleVehicleMessage(vehicleMessage,sendersID);
     if(rtnValue == false && this->VehicleCheck(sendersID) == false){
-        std::cout<<"The value of counter is: "<<counter<<std::endl;
         counter = counter + 1;
         vehicleModule->MarshalCommand(VehicleCommands::CREATE_VEHICLE_OBJECT, sendersID);
     }else{

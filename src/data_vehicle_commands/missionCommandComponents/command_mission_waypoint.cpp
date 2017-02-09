@@ -8,9 +8,9 @@ namespace DataVehicleCommands {
     }
 
     template<class T>
-    MissionCommandTypes CommandMissionWaypoint<T>::getMissionType() const
+    MissionItemTypes CommandMissionWaypoint<T>::getMissionType() const
     {
-        return MissionCommandTypes::WAYPOINT;
+        return MissionItemTypes::WAYPOINT;
     }
 
     template<class T>
@@ -20,17 +20,17 @@ namespace DataVehicleCommands {
     }
 
     template<>
-    CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>::CommandMissionWaypoint(){
+    CommandMissionWaypoint<DataState::StateGlobalPosition>::CommandMissionWaypoint(){
         m_PositionFrame = Data::PositionalFrame::GLOBAL;
     }
 
     template<>
-    CommandMissionWaypoint<DataVehicleGeneric::LocalPosition>::CommandMissionWaypoint(){
+    CommandMissionWaypoint<DataState::StateLocalPosition>::CommandMissionWaypoint(){
         m_PositionFrame = Data::PositionalFrame::LOCAL;
     }
 
     template <>
-    void CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>::setLocation(const DataVehicleGeneric::GlobalPosition &location)
+    void CommandMissionWaypoint<DataState::StateGlobalPosition>::setLocation(const DataState::StateGlobalPosition &location)
     {
         m_Location.latitude = location.latitude;
         m_Location.longitude = location.longitude;
@@ -38,7 +38,7 @@ namespace DataVehicleCommands {
     }
 
     template <>
-    void CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>::setLocation(const double &latitude, const double &longitude, const double &altitude)
+    void CommandMissionWaypoint<DataState::StateGlobalPosition>::setLocation(const double &latitude, const double &longitude, const double &altitude)
     {
         m_Location.latitude = latitude;
         m_Location.longitude = longitude;
@@ -46,7 +46,7 @@ namespace DataVehicleCommands {
     }
 
     template <>
-    void CommandMissionWaypoint<DataVehicleGeneric::LocalPosition>::setLocation(const DataVehicleGeneric::LocalPosition &location)
+    void CommandMissionWaypoint<DataState::StateLocalPosition>::setLocation(const DataState::StateLocalPosition &location)
     {
         m_Location.x = location.x;
         m_Location.y = location.y;

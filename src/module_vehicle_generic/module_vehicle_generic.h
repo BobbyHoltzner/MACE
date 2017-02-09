@@ -7,17 +7,13 @@
 
 #include "common/common.h"
 
+
+#include "mace_core/i_module_topic_events.h"
 #include "mace_core/i_module_command_vehicle.h"
-
-#include "data_vehicle_generic/local_position.h"
-#include "data_vehicle_generic/local_velocity.h"
-#include "data_vehicle_generic/global_position.h"
-#include "data_vehicle_generic/global_velocity.h"
-
-
+#include "data/i_topic_component_data_object.h"
 #include "data/topic_data_object_collection.h"
 
-#include "data_vehicle_generic/components.h"
+#include "data_generic_state_item_topic/state_topic_components.h"
 
 
 template <typename ...VehicleTopicAdditionalComponents>
@@ -27,7 +23,7 @@ public:
 
     typedef Data::TopicDataObjectCollection<
     VehicleTopicAdditionalComponents...,
-    DATA_VEHICLE_GENERIC_TYPES> VehicleDataTopicType;
+    DATA_STATE_GENERIC_TOPICS> VehicleDataTopicType;
 
     ModuleVehicleGeneric() :
         MaceCore::IModuleCommandVehicle(),
@@ -39,6 +35,7 @@ public:
 public:
 
     VehicleDataTopicType m_VehicleDataTopic;
+
 };
 
 

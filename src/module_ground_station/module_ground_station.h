@@ -13,14 +13,14 @@
 
 #include "mace_core/i_module_topic_events.h"
 #include "mace_core/i_module_command_ground_station.h"
+#include "data/i_topic_component_data_object.h"
+#include "data/topic_data_object_collection.h"
 
+#include "data_generic_state_item_topic/state_topic_components.h"
 #include "data_vehicle_sensors/components.h"
-#include "data_vehicle_generic/components.h"
 #include "data_vehicle_MAVLINK/components.h"
 #include "data_vehicle_ardupilot/components.h"
 
-#include "data/i_topic_component_data_object.h"
-#include "data/topic_data_object_collection.h"
 
 
 using namespace std;
@@ -132,7 +132,7 @@ private:
     QThread *m_ListenThread;
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
-    Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
 
 };
 

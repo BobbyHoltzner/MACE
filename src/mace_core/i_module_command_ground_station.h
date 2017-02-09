@@ -32,13 +32,6 @@ public:
         AddCommandLogic<int>(GroundStationCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID){
             NewlyAvailableVehicle(vehicleID);
         });
-//        AddCommandLogic(GroundStationCommands::START_TCP_SERVER, [this](){
-//            StartTCPServer();
-//        });
-
-//        AddCommandLogic<std::string>(GroundStationCommands::NEW_VEHICLE_TARGET, [this](const std::string &vehicleID){
-//            NewVehicleTarget(vehicleID);
-//        });
     }
 
     virtual Classes ModuleClass() const
