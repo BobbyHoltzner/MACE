@@ -35,3 +35,8 @@ void ModulePathPlanningNASAPhase2::NewTopic(const std::string &topicName, int se
 
 }
 
+void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
+{
+
+}
+

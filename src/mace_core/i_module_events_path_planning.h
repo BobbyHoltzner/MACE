@@ -1,17 +1,12 @@
 #ifndef I_MODULE_EVENTS_PATH_PLANNING_H
 #define I_MODULE_EVENTS_PATH_PLANNING_H
 
-#include <string>
-#include <vector>
-
-#include "vehicle_data.h"
-
-#include "matrix_operations.h"
+#include "i_module_events_general.h"
 
 namespace MaceCore
 {
 
-class IModuleEventsPathPlanning
+class IModuleEventsPathPlanning  : public IModuleEventsGeneral
 {
 
 

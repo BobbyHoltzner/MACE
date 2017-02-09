@@ -28,13 +28,9 @@ public:
     IModuleCommandPathPlanning():
         AbstractModule_EventListeners()
     {
-//        AddCommandLogic<std::string>(PathPlanningCommands::NEW_VEHICLE_TARGET, [this](const std::string &vehicleID){
-//            NewVehicleTarget(vehicleID);
-//        });
-
-//        AddCommandLogic(PathPlanningCommands::RECOMPUTE_PATHS, [this](){
-//            RecomputePaths();
-//        });
+        AddCommandLogic<int>(PathPlanningCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID){
+            NewlyAvailableVehicle(vehicleID);
+        });
     }
 
     virtual Classes ModuleClass() const
@@ -43,6 +39,8 @@ public:
     }
 
 public:
+    virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
+
 //    //!
 //    //! \brief New targets have been assigned to the given vehicle
 //    //! \param vehicleID ID of vehicle

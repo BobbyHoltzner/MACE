@@ -20,14 +20,14 @@ std::string CommandVehicleTakeoff<T>::getDescription() const
 }
 
 template <>
-void CommandVehicleTakeoff<DataVehicleGeneric::GlobalPosition>::setLocation(const DataVehicleGeneric::GlobalPosition &location)
+void CommandVehicleTakeoff<DataState::StateGlobalPosition>::setLocation(const DataState::StateGlobalPosition &location)
 {
     m_Location.latitude = location.latitude;
     m_Location.longitude = location.longitude;
     m_Location.altitude = location.altitude;
 }
 template <>
-void CommandVehicleTakeoff<DataVehicleGeneric::LocalPosition>::setLocation(const DataVehicleGeneric::LocalPosition &location)
+void CommandVehicleTakeoff<DataState::StateLocalPosition>::setLocation(const DataState::StateLocalPosition &location)
 {
     m_Location.x = location.x;
     m_Location.y = location.y;

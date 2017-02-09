@@ -1,7 +1,5 @@
 #ifndef I_MODULE_TOPIC_EVENTS_H
 #define I_MODULE_TOPIC_EVENTS_H
-
-
 #include <functional>
 #include "vehicle_data.h"
 #include "topic.h"
@@ -14,7 +12,6 @@ namespace MaceCore
 class IModuleTopicEvents
 {
 public:
-
 
     //!
     //! \brief Subscribe to a topic being distrubted by MACE

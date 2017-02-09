@@ -8,8 +8,6 @@
 
 #include "data/positional_coordinate_frame.h"
 
-#include "data_vehicle_generic/components.h"
-
 #include "components/sensor_camera.h"
 #include "components/sensor_vertices.h"
 

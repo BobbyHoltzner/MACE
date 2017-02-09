@@ -1,14 +1,22 @@
 #ifndef MAVLINK_PARSER_ARDUPILOT_H
 #define MAVLINK_PARSER_ARDUPILOT_H
 
+#include <iostream>
+#include <functional>
+
 #include "mavlink.h"
 
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
 
+#include "data_generic_state_item/state_item_components.h"
+#include "data_generic_state_item_topic/state_topic_components.h"
+
+#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_mission_item_topic/mission_item_topic_components.h"
+
 #include "components/vehicle_operating_attitude.h"
 #include "components/vehicle_flightMode.h"
 #include "components/vehicle_operating_status.h"
-
 
 namespace DataVehicleArdupilot
 {
@@ -24,7 +32,10 @@ public:
 
     }
 
-    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> Parse(const mavlink_message_t* message){
+    mavlink_message_t generateArdupilotMessage(MissionItem::AbstractMissionItem *missionItem, const uint8_t &chan);
+
+
+    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForVehicleData(const mavlink_message_t* message){
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
 
         switch ((int)message->msgid) {
@@ -168,7 +179,7 @@ public:
             //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
             mavlink_attitude_t decodedMSG;
             mavlink_msg_attitude_decode(message,&decodedMSG);
-            std::shared_ptr<DataVehicleGeneric::Attitude> ptrAttitude = std::make_shared<DataVehicleGeneric::Attitude>();
+            std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>();
             ptrAttitude->setAttitude(decodedMSG.roll,decodedMSG.pitch,decodedMSG.yaw);
             ptrAttitude->setAttitudeRates(decodedMSG.rollspeed,decodedMSG.pitchspeed,decodedMSG.yawspeed);
 
@@ -185,7 +196,7 @@ public:
             mavlink_global_position_int_t decodedMSG;
             mavlink_msg_global_position_int_decode(message,&decodedMSG);
             double power = pow(10,7);
-            std::shared_ptr<DataVehicleGeneric::GlobalPosition> ptrPosition = std::make_shared<DataVehicleGeneric::GlobalPosition>();
+            std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
             ptrPosition->setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
             //check that something has actually changed
             if(m_CurrentArduGlobalPosition == NULL || *ptrPosition != *m_CurrentArduGlobalPosition)
@@ -222,20 +233,15 @@ public:
             mavlink_msg_mission_write_partial_list_decode(message,&decodedMSG);
             break;
         }
-        case MAVLINK_MSG_ID_MISSION_ITEM:
-        {
-            //This is message definition 39
-            //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
-            mavlink_mission_item_t decodedMSG;
-            mavlink_msg_mission_item_decode(message,&decodedMSG);
-            break;
-        }
         case MAVLINK_MSG_ID_MISSION_REQUEST:
         {
             //This is message definition 40
             //Request the information of the mission item with the sequence number seq. The response of the system to this message should be a MISSION_ITEM message. http://qgroundcontrol.org/mavlink/waypoint_protocol
             mavlink_mission_request_t decodedMSG;
             mavlink_msg_mission_request_decode(message,&decodedMSG);
+            std::cout<<"The aircraft is requesting item number: "<<decodedMSG.seq<<std::endl;
+            std::shared_ptr<MissionTopic::MissionItemRequestTopic> itemRequest = std::make_shared<MissionTopic::MissionItemRequestTopic>(message->sysid,(int)decodedMSG.seq);
+            rtnVector.push_back(itemRequest);
             break;
         }
         case MAVLINK_MSG_ID_MISSION_SET_CURRENT:
@@ -393,14 +399,6 @@ public:
             mavlink_msg_vibration_decode(message,&decodedMSG);
             break;
         }
-        case MAVLINK_MSG_ID_HOME_POSITION:
-        {
-            //This is message definition 242
-            //This message can be requested by sending the MAV_CMD_GET_HOME_POSITION command. The position the system will return to and land on. The position is set automatically by the system during the takeoff in case it was not explicitely set by the operator before or after. The position the system will return to and land on. The global and local positions encode the position in the respective coordinate frames, while the q parameter encodes the orientation of the surface. Under normal conditions it describes the heading and terrain slope, which can be used by the aircraft to adjust the approach. The approach 3D vector describes the point to which the system should fly in normal flight mode and then perform a landing sequence along the vector.
-            mavlink_home_position_t decodedMSG;
-            mavlink_msg_home_position_decode(message,&decodedMSG);
-            break;
-        }
         case MAVLINK_MSG_ID_STATUSTEXT:
         {
             //This is message definition 253
@@ -442,7 +440,7 @@ private:
 
     bool heartbeatSeen = false;
     std::shared_ptr<VehicleFlightMode> m_CurrentArduVehicleState;
-    std::shared_ptr<DataVehicleGeneric::GlobalPosition> m_CurrentArduGlobalPosition;
+    std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentArduGlobalPosition;
     std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
     std::shared_ptr<VehicleOperatingAttitude> m_CurrentArduVehicleAttitude;
 

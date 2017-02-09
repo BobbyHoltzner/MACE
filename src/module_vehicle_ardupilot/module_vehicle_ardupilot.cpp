@@ -1,8 +1,56 @@
 #include "module_vehicle_ardupilot.h"
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
-    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),m_CommandVehicleTopic("commandData"),m_CommandVehicleMissionList("vehicleMissionList")
+    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(), m_VehicleMission("vehicleMission"),
+    missionMSGCounter(0),missionMode(NONE),missionItemIndex(0),missionItemsAvailable(0)
 {
+
+}
+
+void ModuleVehicleArdupilot::ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
+{
+    MissionItem::ActionArm* armMsg = new MissionItem::ActionArm(vehicleArm);
+    mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleArm.getVehicleID())->generateArdupilotMessage(armMsg,m_LinkChan);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
+}
+
+void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
+{
+    MissionItem::ActionChangeMode* armMsg = new MissionItem::ActionChangeMode(vehicleMode);
+    mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleMode.getVehicleID())->generateArdupilotMessage(armMsg,m_LinkChan);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+}
+
+void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
+{
+    mavlink_message_t msg = DataVehicleArdupilot::ArdupilotToMACEMission::generateGetHomePosition(vehicleID,m_LinkChan);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+}
+
+void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
+{
+    mavlink_message_t msg;
+    missionMode = REQUESTING;
+    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+}
+
+void ModuleVehicleArdupilot::RequestClearMissionQueue(const int &vehicleID)
+{
+    mavlink_message_t msg;
+    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+}
+
+void ModuleVehicleArdupilot::RequestCurrentGuidedQueue(const int &vehicleID)
+{
+
+}
+
+void ModuleVehicleArdupilot::RequestClearGuidedQueue(const int &vehicleID)
+{
+
 }
 
 
@@ -12,9 +60,7 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 //!
 void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
-    ptr->Subscribe(this, m_CommandVehicleTopic.Name());
-    ptr->Subscribe(this, m_CommandVehicleMissionList.Name());
-
+    ptr->Subscribe(this, m_VehicleMission.Name());
 }
 
 
@@ -33,78 +79,67 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         tmpParser = m_ArduPilotMAVLINKParser.at(newSystemID);
     }catch(const std::out_of_range &oor)
     {
-        std::cout<<"This vehicle parser was not currently in the map. Going to add one."<<std::endl;
         tmpParser = new DataVehicleArdupilot::MAVLINKParserArduPilot();
         m_ArduPilotMAVLINKParser.insert({newSystemID,tmpParser});
+
+        MissionItem::MissionList newMissionList;
+        m_CurrentMissionQueue.insert({newSystemID,newMissionList});
+        m_ProposedMissionQueue.insert({newSystemID,newMissionList});
+
+        m_CurrentGuidedQueue.insert({newSystemID,newMissionList});
+        m_ProposedGuidedQueue.insert({newSystemID,newMissionList});
+
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
             ptr->NewConstructedVehicle(this, newSystemID);
         });
     }
 
-    //generate topic datagram from given mavlink message
-    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = tmpParser->Parse(&message);
+    bool wasMissionMSG = ParseMAVLINKMissionMessage(linkName, &message);
 
-    //procede to send components only if there is 1 or more
-    if(components.size() > 0)
-    {
-
-        //construct datagram
-        MaceCore::TopicDatagram topicDatagram;
-        for(size_t i = 0 ; i < components.size() ; i++)
+    if(wasMissionMSG == false){
+        //generate topic datagram from given mavlink message
+        std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = tmpParser->ParseForVehicleData(&message);
+        //procede to send components only if there is 1 or more
+        if(components.size() > 0)
         {
-            m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
-        }
-
-        //notify listneres of topic
-        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
-        });
+            //construct datagram
+            MaceCore::TopicDatagram topicDatagram;
+            for(size_t i = 0 ; i < components.size() ; i++)
+            {
+                m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
+                //notify listneres of topic
+                ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+                    ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+                });
+            }
+        } //if there is information available
     }
 }
-
 
 void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
-    if(topicName == m_CommandVehicleTopic.Name())
+    if(topicName == m_VehicleMission.Name())
     {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_CommandVehicleTopic.Name(), senderID);
-        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == DataVehicleCommands::ActionCommandTopic::Name()) {
-                std::shared_ptr<DataVehicleCommands::ActionCommandTopic> component = std::make_shared<DataVehicleCommands::ActionCommandTopic>();
-                m_CommandVehicleTopic.GetComponent(component, read_topicDatagram);             
-                switch(component->getActionItemType())
-                {
-                case(DataVehicleCommands::ActionCommandTypes::CHANGE_MODE):
-                {
-                    //should find a better way to do this
-//                    if(m_ArduPilotMAVLINKParser.heartbeatUpdated())
-//                    {
-//                        DataVehicleCommands::CommandVehicleMode* cmdMode = (DataVehicleCommands::CommandVehicleMode*)component->getActionItem().get();
-//                        int newMode = m_ArduPilotMAVLINKParser.getFlightModeFromString(cmdMode->getRequestMode());
-//                        uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
-//                        mavlink_message_t msg;
-//                        mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,1,MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,newMode);
-//                        m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
-//                    }
-                    break;
-                }
-                case(DataVehicleCommands::ActionCommandTypes::ARM):
-                {
-                    break;
-                }
-                }
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleMission.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
+            if(componentsUpdated.at(i) == MissionTopic::MissionItemTopic::Name()) {
+                std::shared_ptr<MissionTopic::MissionItemTopic> component = std::make_shared<MissionTopic::MissionItemTopic>();
+                m_VehicleMission.GetComponent(component, read_topicDatagram);
             }
-        }
-    } else if(topicName == m_CommandVehicleMissionList.Name())
-    {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_CommandVehicleMissionList.Name(), senderID);
-        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == DataVehicleCommands::VehicleMissionList::Name()) {
-                std::shared_ptr<DataVehicleCommands::VehicleMissionList> component = std::make_shared<DataVehicleCommands::VehicleMissionList>();
-                std::cout<<"The before"<<std::endl;
-                m_CommandVehicleMissionList.GetComponent(component, read_topicDatagram);
-                std::cout<<"The after"<<std::endl;
+            else if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()){
+                std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
+                m_VehicleMission.GetComponent(component, read_topicDatagram);
+                if(component->getMissionType() == MissionTopic::MissionType::MISSION){
+
+                }else if(component->getMissionType() == MissionTopic::MissionType::GUIDED){
+
+                }else if(component->getMissionType() == MissionTopic::MissionType::ACTION){
+
+                }
             }
         }
     }
 }
+
+
+

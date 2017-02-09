@@ -7,6 +7,8 @@
 #include "components/vehicle_operating_status.h"
 #include "components/vehicle_operating_attitude.h"
 
+#include "ardupilot_to_mace_mission.h"
+
 namespace DataVehicleArdupilot
 {
 }
