@@ -5,6 +5,8 @@
 
 #include <mavlink.h>
 
+#include "data/timer.h"
+
 #include "module_vehicle_ardupilot_global.h"
 #include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
 #include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
@@ -56,8 +58,15 @@ public:
 
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
 
+    virtual void RequestVehicleHomePosition (const int &vehicleID);
+
     virtual void RequestCurrentMissionQueue (const int &vehicleID);
 
+    virtual void RequestClearMissionQueue (const int &vehicleID);
+
+    virtual void RequestCurrentGuidedQueue (const int &vehicleID);
+
+    virtual void RequestClearGuidedQueue (const int &vehicleID);
 
 private:
     std::map<int,MissionItem::MissionList> m_CurrentMissionQueue;
@@ -68,9 +77,11 @@ private:
 
 private:
     ArdupilotMissionMode missionMode;
-    int msgDumpCounter;
+    int missionMSGCounter;
     int missionItemIndex;
     int missionItemsAvailable;
+
+    Timer t;
 
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;

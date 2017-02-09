@@ -10,6 +10,13 @@ mavlink_message_t ArdupilotToMACEMission::generateChangeMode(std::shared_ptr<Mis
     return msg;
 }
 
+mavlink_message_t ArdupilotToMACEMission::generateGetHomePosition(const int &vehicleID, const int &chan)
+{
+    mavlink_message_t msg;
+    mavlink_msg_command_long_pack_chan(255,190,chan,&msg,vehicleID,0,410,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+    return msg;
+}
+
 mavlink_message_t ArdupilotToMACEMission::generateArdupilotCommandMessage(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_message_t msg;

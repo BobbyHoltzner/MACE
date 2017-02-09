@@ -20,6 +20,18 @@ public:
     virtual bool hasSpatialMissionInfluence()const;
 
 public:
+    bool operator == (const SpatialHome &rhs) {
+        if(this->position != rhs.position){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const SpatialHome &rhs) {
+        return !(*this == rhs);
+    }
+
+public:
     DataState::StateGlobalPosition position;
 };
 

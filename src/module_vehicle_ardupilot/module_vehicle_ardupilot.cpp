@@ -2,7 +2,7 @@
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(), m_VehicleMission("vehicleMission"),
-    msgDumpCounter(0),missionMode(NONE),missionItemIndex(0),missionItemsAvailable(0)
+    missionMSGCounter(0),missionMode(NONE),missionItemIndex(0),missionItemsAvailable(0)
 {
 
 }
@@ -24,6 +24,13 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
     m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
 }
 
+void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
+{
+    uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
+    mavlink_message_t msg = DataVehicleArdupilot::ArdupilotToMACEMission::generateGetHomePosition(vehicleID,chan);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+}
+
 void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
 {
     uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
@@ -31,6 +38,24 @@ void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
     missionMode = REQUESTING;
     mavlink_msg_mission_request_list_pack_chan(255,190,chan,&msg,vehicleID,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+}
+
+void ModuleVehicleArdupilot::RequestClearMissionQueue(const int &vehicleID)
+{
+    uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
+    mavlink_message_t msg;
+    mavlink_msg_mission_clear_all_pack_chan(255,190,chan,&msg,vehicleID,0);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+}
+
+void ModuleVehicleArdupilot::RequestCurrentGuidedQueue(const int &vehicleID)
+{
+
+}
+
+void ModuleVehicleArdupilot::RequestClearGuidedQueue(const int &vehicleID)
+{
+
 }
 
 
@@ -59,7 +84,6 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         tmpParser = m_ArduPilotMAVLINKParser.at(newSystemID);
     }catch(const std::out_of_range &oor)
     {
-        std::cout<<"This vehicle parser was not currently in the map. Going to add one."<<std::endl;
         tmpParser = new DataVehicleArdupilot::MAVLINKParserArduPilot();
         m_ArduPilotMAVLINKParser.insert({newSystemID,tmpParser});
 

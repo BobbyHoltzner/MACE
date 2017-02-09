@@ -80,6 +80,9 @@ public:
     virtual void RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm);
     virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode);
     virtual void RequestCurrentVehicleMission(const void* sender, const int &vehicleID);
+    virtual void RequestVehicleHomePosition(const void* sender, const int &vehicleID);
+    virtual void RequestVehicleClearAutoMission(const void* sender, const int &vehicleID);
+    virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
 
 
 public:

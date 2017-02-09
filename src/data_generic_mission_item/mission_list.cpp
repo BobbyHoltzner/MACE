@@ -29,4 +29,9 @@ int MissionList::getQueueSize()
     return missionQueue.size();
 }
 
+bool MissionList::unpopulatedMissionItems()
+{
+
+}
+
 }//end of namespace MissionItem

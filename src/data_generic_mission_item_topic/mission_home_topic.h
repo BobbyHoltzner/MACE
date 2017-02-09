@@ -34,6 +34,19 @@ public:
         return vehicleID;
     }
 
+
+public:
+    bool operator == (const MissionHomeTopic &rhs) {
+        if(this->vehicleHome != rhs.vehicleHome){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const MissionHomeTopic &rhs) {
+        return !(*this == rhs);
+    }
+
 private:
     int vehicleID;
     MissionItem::SpatialHome vehicleHome;

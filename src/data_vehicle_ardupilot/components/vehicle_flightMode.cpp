@@ -8,7 +8,6 @@ const MaceCore::TopicComponentStructure VehicleOperatingParameters_structure = [
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<int>("vehicleType");
     structure.AddTerminal<int>("flightMode");
-
     return structure;
 }();
 
@@ -17,7 +16,6 @@ MaceCore::TopicDatagram VehicleFlightMode::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<int>("vehicleType", (int)m_VehicleType);
     datagram.AddTerminal<int>("flightMode", m_FlightMode);
-
     return datagram;
 }
 

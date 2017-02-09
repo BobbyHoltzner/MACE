@@ -19,8 +19,8 @@ SOURCES += \
     components/vehicle_flightMode.cpp \
     mavlink_parser_ardupilot.cpp \
     ardupilot_to_mace_mission.cpp \
-    mace_action_to_ardupilot.cpp \
-    mace_mission_to_ardupilot.cpp
+    mace_mission_to_ardupilot.cpp \
+    mace_to_ardupilot_action.cpp
 
 HEADERS +=\
         data_vehicle_ardupilot_global.h \

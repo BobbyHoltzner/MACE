@@ -20,4 +20,5 @@ SUBDIRS += \
     data_generic_state_item \
     data_generic_state_item_topic \
     data_generic_mission_item \
-    data_generic_mission_item_topic
+    data_generic_mission_item_topic \
+    TestCodeHolder

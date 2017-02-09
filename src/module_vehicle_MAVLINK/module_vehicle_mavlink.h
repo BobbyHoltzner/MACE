@@ -246,10 +246,8 @@ public:
             uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
             mavlink_message_t msg;
 
-            mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
-            m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
-
-            std::cout<<"The message was sent."<<std::endl;
+//            mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
+//            m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
 
             //test statements that will issue a log_request_list to device
 

@@ -7,11 +7,11 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
     int compID = message->compid;
     uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
 
+    mavlink_message_t msg;
+
     switch ((int)message->msgid) {
     case MAVLINK_MSG_ID_MISSION_ITEM:
     {
-        std::cout<<"I saw a mission item msg"<<std::endl;
-
         //This is message definition 39
         //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
         mavlink_mission_item_t decodedMSG;
@@ -23,6 +23,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         {
             if(decodedMSG.seq == 0)
             {
+
                 //This is the home position item associated with the vehicle
                 MissionItem::SpatialHome newHome;
                 newHome.position.latitude = decodedMSG.x;
@@ -37,28 +38,45 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
 
                 //notify listneres of topic
                 ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-                    ptr->NewTopicDataValues(m_VehicleMission.Name(), 1, MaceCore::TIME(), topicDatagram);
+                    ptr->NewTopicDataValues(m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
                 });
             }else{
                 int missionIndex = decodedMSG.seq - 1;
                 m_CurrentMissionQueue.at(sysID).replaceMissionItemAtIndex(missionItem,missionIndex);
             }
         }
+        if(missionItemIndex == decodedMSG.seq){
+            missionMSGCounter++;
+            if(missionMSGCounter == 2)
+            {
+                missionMSGCounter = 0;
+                missionItemIndex++;
+                if(missionItemIndex < missionItemsAvailable)
+                {
+                    //This may not get handled correctly
+                    mavlink_msg_mission_request_pack_chan(255,190,chan,&msg,sysID,compID,missionItemIndex);
+                    m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
+                }else{
+                    //Reset all of the information as we have requested them all
+                    missionMode = NONE;
+                    missionItemIndex = 0;
+                    missionItemsAvailable = 0;
+                    mavlink_msg_mission_ack_pack_chan(255,190,chan,&msg,sysID,compID,MAV_MISSION_ACCEPTED);
+                    m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
 
-        if(missionItemIndex < missionItemsAvailable)
-        {
-            //This may not get handled correctly
-            missionItemIndex++;
-            std::cout<<"The index we are now requesting is: "<<missionItemIndex<<std::endl;
-            mavlink_message_t msg;
-            mavlink_msg_mission_request_pack_chan(255,190,chan,&msg,sysID,compID,missionItemIndex);
-            m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
+                    std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>();
+                    missionTopic->setVehicleID(sysID);
+                    missionTopic->setMissionList(m_CurrentMissionQueue.at(sysID));
 
-            //The zero item is the home position
-        }else{
-            //Reset all of the information as we have requested them all
-            missionItemIndex = 0;
-            missionItemsAvailable = 0;
+                    MaceCore::TopicDatagram topicDatagram;
+                    m_VehicleMission.SetComponent(missionTopic, topicDatagram);
+                    //notify listneres of topic
+                    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+                        ptr->NewTopicDataValues(m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+                    });
+
+                }
+            }
         }
         break;
     }
@@ -68,7 +86,6 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         //Request the information of the mission item with the sequence number seq. The response of the system to this message should be a MISSION_ITEM message. http://qgroundcontrol.org/mavlink/waypoint_protocol
         mavlink_mission_request_t decodedMSG;
         mavlink_msg_mission_request_decode(message,&decodedMSG);
-        std::cout<<"The aircraft is requesting item number: "<<decodedMSG.seq<<std::endl;
         std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = m_ProposedMissionQueue.at(sysID).getMissionItem(decodedMSG.seq);
         mavlink_message_t msg = MissionParserArdupilot::generateMissionMessage(missionItem,decodedMSG.seq,compID,chan);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
@@ -102,12 +119,12 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
     {
         //This is message definition 44
         //This message is emitted as response to MISSION_REQUEST_LIST by the MAV and to initiate a write transaction. The GCS can then request the individual mission item based on the knowledge of the total number of MISSIONs.
-        std::cout<<"I saw a mission count msg"<<std::endl;
         mavlink_mission_count_t decodedMSG;
         mavlink_msg_mission_count_decode(message,&decodedMSG);
         if(missionMode == REQUESTING)
         {
             missionItemsAvailable = decodedMSG.count;
+            missionItemIndex = 0;
             m_CurrentMissionQueue.at(sysID).initializeQueue(missionItemsAvailable - 1);
 
             mavlink_message_t msg;
@@ -130,6 +147,31 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         //Ack message during MISSION handling. The type field states if this message is a positive ack (type=0) or if an error happened (type=non-zero).
         mavlink_mission_ack_t decodedMSG;
         mavlink_msg_mission_ack_decode(message,&decodedMSG);
+        break;
+    }
+    case MAVLINK_MSG_ID_HOME_POSITION:
+    {
+        //This is message definition 242
+        //This message can be requested by sending the MAV_CMD_GET_HOME_POSITION command. The position the system will return to and land on. The position is set automatically by the system during the takeoff in case it was not explicitely set by the operator before or after. The position the system will return to and land on. The global and local positions encode the position in the respective coordinate frames, while the q parameter encodes the orientation of the surface. Under normal conditions it describes the heading and terrain slope, which can be used by the aircraft to adjust the approach. The approach 3D vector describes the point to which the system should fly in normal flight mode and then perform a landing sequence along the vector.
+        mavlink_home_position_t decodedMSG;
+        mavlink_msg_home_position_decode(message,&decodedMSG);
+
+        MissionItem::SpatialHome spatialHome;
+        spatialHome.position.latitude = decodedMSG.latitude;
+        spatialHome.position.longitude = decodedMSG.longitude;
+        spatialHome.position.altitude = decodedMSG.altitude;
+
+        std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+        missionTopic->setVehicleID(sysID);
+        missionTopic->setHome(spatialHome);
+
+        MaceCore::TopicDatagram topicDatagram;
+        m_VehicleMission.SetComponent(missionTopic, topicDatagram);
+        //notify listneres of topic
+        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+        });
+
         break;
     }
 

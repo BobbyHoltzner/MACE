@@ -142,12 +142,26 @@ void MaceCore::RequestCurrentVehicleMission(const void *sender, const int &vehic
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
 }
 
+void MaceCore::RequestVehicleHomePosition(const void* sender, const int &vehicleID)
+{
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
+}
+
+void MaceCore::RequestVehicleClearAutoMission(const void* sender, const int &vehicleID)
+{
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,vehicleID);
+}
+
+void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID)
+{
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_GUIDED_QUEUE,vehicleID);
+}
+
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
 void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
 {
-    std::cout<<"A new vehicle was seen"<<std::endl;
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
     m_DataFusion->AddAvailableVehicle(newVehicleObserved);

@@ -13,7 +13,8 @@ DEFINES += DATA_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-SOURCES +=
+SOURCES += \
+    timer.cpp
 
 HEADERS += data_global.h \
     i_topic_component_data_object.h \
@@ -21,7 +22,8 @@ HEADERS += data_global.h \
     positional_coordinate_frame.h \
     coordinate_frame.h \
     vehicle_command_types.h \
-    vehicle_types.h
+    vehicle_types.h \
+    timer.h
 
 # Unix lib Install
 unix:!symbian {
