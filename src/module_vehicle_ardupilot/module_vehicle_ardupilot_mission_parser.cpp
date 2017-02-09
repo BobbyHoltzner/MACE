@@ -141,6 +141,14 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         mavlink_msg_mission_clear_all_decode(message,&decodedMSG);
         break;
     }
+    case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
+    {
+        //This is message definition 46
+        //A certain mission item has been reached. The system will either hold this position (or circle on the orbit) or (if the autocontinue on the WP was set) continue to the next MISSION.
+        mavlink_mission_item_reached_t decodedMSG;
+        mavlink_msg_mission_item_reached_decode(message,&decodedMSG);
+        break;
+    }
     case MAVLINK_MSG_ID_MISSION_ACK:
     {
         //This is message definition 47

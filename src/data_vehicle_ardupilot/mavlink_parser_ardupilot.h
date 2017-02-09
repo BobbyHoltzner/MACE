@@ -189,6 +189,20 @@ public:
             }
             break;
         }
+        case MAVLINK_MSG_ID_LOCAL_POSITION_NED:
+        {
+            //This is message definition 32
+            //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
+            mavlink_local_position_ned_t decodedMSG;
+            mavlink_msg_attitude_decode(message,&decodedMSG);
+            std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
+            ptrLocalPosition->x = decodedMSG.x;
+            ptrLocalPosition->x = decodedMSG.y;
+            ptrLocalPosition->x = decodedMSG.z;
+
+            rtnVector.push_back(ptrLocalPosition);
+            break;
+        }
         case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
         {
             //This is message definition 33
@@ -223,73 +237,6 @@ public:
             //Request a partial list of mission items from the system/component. http://qgroundcontrol.org/mavlink/waypoint_protocol. If start and end index are the same, just send one waypoint.
             mavlink_mission_request_partial_list_t decodedMSG;
             mavlink_msg_mission_request_partial_list_decode(message,&decodedMSG);
-            break;
-        }
-        case MAVLINK_MSG_ID_MISSION_WRITE_PARTIAL_LIST:
-        {
-            //This is message definition 38
-            //This message is sent to the MAV to write a partial list. If start index == end index, only one item will be transmitted / updated. If the start index is NOT 0 and above the current list size, this request should be REJECTED!
-            mavlink_mission_write_partial_list_t decodedMSG;
-            mavlink_msg_mission_write_partial_list_decode(message,&decodedMSG);
-            break;
-        }
-        case MAVLINK_MSG_ID_MISSION_REQUEST:
-        {
-            //This is message definition 40
-            //Request the information of the mission item with the sequence number seq. The response of the system to this message should be a MISSION_ITEM message. http://qgroundcontrol.org/mavlink/waypoint_protocol
-            mavlink_mission_request_t decodedMSG;
-            mavlink_msg_mission_request_decode(message,&decodedMSG);
-            std::cout<<"The aircraft is requesting item number: "<<decodedMSG.seq<<std::endl;
-            std::shared_ptr<MissionTopic::MissionItemRequestTopic> itemRequest = std::make_shared<MissionTopic::MissionItemRequestTopic>(message->sysid,(int)decodedMSG.seq);
-            rtnVector.push_back(itemRequest);
-            break;
-        }
-        case MAVLINK_MSG_ID_MISSION_SET_CURRENT:
-        {
-            //This is message definition 41
-            //Set the mission item with sequence number seq as current item. This means that the MAV will continue to this mission item on the shortest path (not following the mission items in-between).
-            mavlink_mission_set_current_t decodedMSG;
-            mavlink_msg_mission_set_current_decode(message,&decodedMSG);
-            break;
-        }
-        case MAVLINK_MSG_ID_MISSION_CURRENT:
-        {
-            //This is message definition 42
-            //Message that announces the sequence number of the current active mission item. The MAV will fly towards this mission item.
-            mavlink_mission_current_t decodedMSG;
-            mavlink_msg_mission_current_decode(message,&decodedMSG);
-            break;
-        }
-        case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:
-        {
-            //This is message definition 43
-            //Request the overall list of mission items from the system/component.
-            mavlink_mission_request_list_t decodedMSG;
-            mavlink_msg_mission_request_list_decode(message,&decodedMSG);
-            break;
-        }
-        case MAVLINK_MSG_ID_MISSION_COUNT:
-        {
-            //This is message definition 44
-            //This message is emitted as response to MISSION_REQUEST_LIST by the MAV and to initiate a write transaction. The GCS can then request the individual mission item based on the knowledge of the total number of MISSIONs.
-            mavlink_mission_count_t decodedMSG;
-            mavlink_msg_mission_count_decode(message,&decodedMSG);
-            break;
-        }
-        case MAVLINK_MSG_ID_MISSION_CLEAR_ALL:
-        {
-            //This is message definition 45
-            //Delete all mission items at once.
-            mavlink_mission_clear_all_t decodedMSG;
-            mavlink_msg_mission_clear_all_decode(message,&decodedMSG);
-            break;
-        }
-        case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
-        {
-            //This is message definition 46
-            //A certain mission item has been reached. The system will either hold this position (or circle on the orbit) or (if the autocontinue on the WP was set) continue to the next MISSION.
-            mavlink_mission_item_reached_t decodedMSG;
-            mavlink_msg_mission_item_reached_decode(message,&decodedMSG);
             break;
         }
         case MAVLINK_MSG_ID_MISSION_ACK:
