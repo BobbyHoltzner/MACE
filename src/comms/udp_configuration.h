@@ -15,8 +15,8 @@ class COMMSSHARED_EXPORT UdpConfiguration : public LinkConfiguration
 {
 public:
 
-    UdpConfiguration(const std::__cxx11::string &listenAddress, const int &listenPort);
-    UdpConfiguration(const std::__cxx11::string& listenAddress, const int &listenPort, const std::__cxx11::string& senderAddress, const int &senderPort);
+    UdpConfiguration(const std::string &listenAddress, const int &listenPort);
+    UdpConfiguration(const std::string& listenAddress, const int &listenPort, const std::string& senderAddress, const int &senderPort);
     UdpConfiguration(UdpConfiguration* copy);
 
     // Destructor
@@ -40,7 +40,7 @@ public:
     //QString     settingsURL     () { return "SerialSettings.qml"; }
 
 
-    void listenForPort(const std::__cxx11::string &listenAddress, const int &listenPortNumber);
+    void listenForPort(const std::string &listenAddress, const int &listenPortNumber);
 
 private:
     int _listenPortNumber;

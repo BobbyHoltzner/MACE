@@ -74,7 +74,7 @@ void UdpConfiguration::setSenderPortNumber(int portNumber)
 
 
 // Set up a UDP socket to listen for UDP messages on, and set the sender address and port
-void UdpConfiguration::listenForPort(const std::__cxx11::string &listenAddress, const int &listenPortNumber)
+void UdpConfiguration::listenForPort(const std::string &listenAddress, const int &listenPortNumber)
 {
     if (m_socket) {
         m_socket->close();
