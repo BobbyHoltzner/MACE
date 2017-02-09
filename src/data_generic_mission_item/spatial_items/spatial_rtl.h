@@ -15,9 +15,6 @@ public:
     virtual std::string getDescription()const;
 
     virtual bool hasSpatialMissionInfluence()const;
-
-public:
-    SpatialRTL();
 };
 
 } //end of namespace MissionItem

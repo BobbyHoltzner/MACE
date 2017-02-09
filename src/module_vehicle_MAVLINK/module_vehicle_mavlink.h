@@ -65,48 +65,12 @@ protected:
 
 public:
 
-    void vehicleObjectCheck(const int &sendersID, const int &autopilotType, const int &vehicleType) const
-    {
-        for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
-        {
-            if(*it == sendersID)
-            {
-                //m_NeededVehicleObjects.erase(it);
-                m_NeededVehicleObjects.remove(sendersID);
-
-                switch (autopilotType) {
-                case MAV_AUTOPILOT_ARDUPILOTMEGA:
-                {
-                    std::string linkString = "link1";
-                    std::cout << "creating Mav_AutoPilot: VehicleID: " << sendersID << std::endl;
-                    /*
-                    Ardupilot::DataArdupilot tmpObject(sendersID,VP_MAVLINK,vehicleType);
-                    tmpObject.updateVehicleCommsObject(m_LinkMarshaler,linkString);
-                    std::shared_ptr<Ardupilot::DataArdupilot> tmpArdupilot = std::make_shared<Ardupilot::DataArdupilot>(tmpObject);
-
-                    NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                           ptr->NewConstructedVehicle(this,tmpArdupilot);
-                        });
-                    */
-                    break;
-                }
-                default:
-                    std::cout << "The type of autopilot seen with ID: " << sendersID << " is not currently supported." << std::endl;
-                    break;
-                }
-
-                break;
-            }
-        }
-    }
-
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ModuleVehicleMAVLINK() :
         ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataVehicleMAVLINK::GPSStatus>(),
-        m_LinkMarshaler(new Comms::CommsMarshaler)
+        m_LinkMarshaler(new Comms::CommsMarshaler), m_LinkName(""), m_LinkChan(0)
     {
         m_LinkMarshaler->AddSubscriber(this);
     }
@@ -203,20 +167,21 @@ public:
             config.setParity(parity);
             config.setFlowControl(flowControl);
 
-            m_LinkMarshaler->AddLink("link1", config);
+            m_LinkName = "link1";
+            m_LinkMarshaler->AddLink(m_LinkName, config);
 
 
             //now configure to use link with desired protocol
             if(protocolToUse == Comms::Protocols::MAVLINK)
             {
-                m_LinkMarshaler->SetProtocolForLink("link1", Comms::Protocols::MAVLINK);
+                m_LinkMarshaler->SetProtocolForLink(m_LinkName, Comms::Protocols::MAVLINK);
 
                 std::shared_ptr<Comms::MavlinkConfiguration> mavlinkConfig = std::static_pointer_cast<Comms::MavlinkConfiguration>(m_AvailableProtocols.at(Comms::Protocols::MAVLINK));
 
                 //set version on mavlink channel
                 // I would prefer to put this in Comms library, but because the mavlinkstatus is static variable, things get messed up when linking
-                uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
-                mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(chan);
+                m_LinkChan = m_LinkMarshaler->GetProtocolChannel(m_LinkName);
+                mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(m_LinkChan);
                 std::cout << mavlinkStatus << std::endl;
                 switch (mavlinkConfig->GetVersion()) {
                 case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersion2IfVehicle2:
@@ -237,42 +202,10 @@ public:
 
 
             //connect link
-            bool success = m_LinkMarshaler->ConnectToLink("link1");
+            bool success = m_LinkMarshaler->ConnectToLink(m_LinkName);
             if(success == false) {
                 throw std::runtime_error("Connection to link failed");
             }
-
-
-            uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
-            mavlink_message_t msg;
-
-//            mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
-//            m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
-
-            //test statements that will issue a log_request_list to device
-
-    //        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,9,4,1);
-    //        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-    //        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,10,4,1);
-    //        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-    //        mavlink_msg_set_mode_pack(255, 0, &msg, 0, 0, 0);
-    //        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-            //param 1 is the message id
-            //interval between two messages in microseconds
-
-            //mavlink_msg_command_long_pack_chan(255,190,chan,&msg,0,0,511,0,30,500000,0,0,0,0,0);
-            //m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-
-    //        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,12,4,1);
-    //        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-
-
-
         }
         else if(params->HasNonTerminal("UDPParameters"))
         {
@@ -289,20 +222,22 @@ public:
             config.setAddress(address);
             config.setPortNumber(portNumber);
 
-            m_LinkMarshaler->AddUDPLink("udplink1", config);
+            m_LinkName = "udplink1";
+
+            m_LinkMarshaler->AddUDPLink(m_LinkName, config);
 
 
             //now configure to use link with desired protocol
             if(protocolToUse == Comms::Protocols::MAVLINK)
             {
-                m_LinkMarshaler->SetProtocolForLink("udplink1", Comms::Protocols::MAVLINK);
+                m_LinkMarshaler->SetProtocolForLink(m_LinkName, Comms::Protocols::MAVLINK);
 
                 std::shared_ptr<Comms::MavlinkConfiguration> mavlinkConfig = std::static_pointer_cast<Comms::MavlinkConfiguration>(m_AvailableProtocols.at(Comms::Protocols::MAVLINK));
 
                 //set version on mavlink channel
                 // I would prefer to put this in Comms library, but because the mavlinkstatus is static variable, things get messed up when linking
-                uint8_t chan = m_LinkMarshaler->GetProtocolChannel("udplink1");
-                mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(chan);
+                m_LinkChan = m_LinkMarshaler->GetProtocolChannel(m_LinkName);
+                mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(m_LinkChan);
                 std::cout << mavlinkStatus << std::endl;
                 switch (mavlinkConfig->GetVersion()) {
                 case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersion2IfVehicle2:
@@ -323,7 +258,7 @@ public:
 
 
             //connect link
-            m_LinkMarshaler->ConnectToLink("udplink1");
+            m_LinkMarshaler->ConnectToLink(m_LinkName);
 
 
             //test statements that will issue a log_request_list to device
@@ -470,8 +405,11 @@ public:
     }
 protected:
     Comms::CommsMarshaler *m_LinkMarshaler;
+    std::string m_LinkName;
+    uint8_t m_LinkChan;
 
 private:
+
     mutable std::list<int> m_NeededVehicleObjects;
 
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;

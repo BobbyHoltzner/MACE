@@ -10,42 +10,37 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 void ModuleVehicleArdupilot::ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
 {
     MissionItem::ActionArm* armMsg = new MissionItem::ActionArm(vehicleArm);
-    uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
-    mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleArm.getVehicleID())->generateArdupilotMessage(armMsg,chan);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+    mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleArm.getVehicleID())->generateArdupilotMessage(armMsg,m_LinkChan);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
 }
 
 void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
 {
     MissionItem::ActionChangeMode* armMsg = new MissionItem::ActionChangeMode(vehicleMode);
-    uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
-    mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleMode.getVehicleID())->generateArdupilotMessage(armMsg,chan);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+    mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleMode.getVehicleID())->generateArdupilotMessage(armMsg,m_LinkChan);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
 {
-    uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
-    mavlink_message_t msg = DataVehicleArdupilot::ArdupilotToMACEMission::generateGetHomePosition(vehicleID,chan);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+    mavlink_message_t msg = DataVehicleArdupilot::ArdupilotToMACEMission::generateGetHomePosition(vehicleID,m_LinkChan);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
 {
-    uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
     mavlink_message_t msg;
     missionMode = REQUESTING;
-    mavlink_msg_mission_request_list_pack_chan(255,190,chan,&msg,vehicleID,0);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::RequestClearMissionQueue(const int &vehicleID)
 {
-    uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
     mavlink_message_t msg;
-    mavlink_msg_mission_clear_all_pack_chan(255,190,chan,&msg,vehicleID,0);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
+    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::RequestCurrentGuidedQueue(const int &vehicleID)
@@ -123,8 +118,6 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 
 void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
-    uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
-
     if(topicName == m_VehicleMission.Name())
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleMission.Name(), senderID);
@@ -132,27 +125,17 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
             if(componentsUpdated.at(i) == MissionTopic::MissionItemTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemTopic> component = std::make_shared<MissionTopic::MissionItemTopic>();
                 m_VehicleMission.GetComponent(component, read_topicDatagram);
-                //mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(component->getVehicleID())->generateArdupilotMessage(component->getMissionItem(),chan);
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()){
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_VehicleMission.GetComponent(component, read_topicDatagram);
                 if(component->getMissionType() == MissionTopic::MissionType::MISSION){
-//                    int vehicleID = component->getVehicleID();
-//                    m_ProposedMissionQueue[vehicleID] = *component->getMissionList();
-//                    mavlink_message_t msg;
-////                    mavlink_msg_mission_count_pack_chan(255,190,chan,&msg,vehicleID,0,m_ProposedMissionQueue.at(vehicleID).getQueueSize());
-////                    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
-//                    missionMode = REQUESTING;
-//                    mavlink_msg_mission_request_list_pack_chan(255,190,chan,&msg,1,0);
-//                    m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
 
                 }else if(component->getMissionType() == MissionTopic::MissionType::GUIDED){
 
                 }else if(component->getMissionType() == MissionTopic::MissionType::ACTION){
 
                 }
-                //m_ArduPilotMAVLINKParser.at(component->getVehicleID())->generateArdupilotMessage(component->getMissionItem(),chan);
             }
         }
     }
