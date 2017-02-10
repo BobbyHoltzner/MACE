@@ -1,0 +1,11 @@
+#ifndef DATA_VEHICLE_GENERIC_TOPIC_COMPONENTS_H
+#define DATA_VEHICLE_GENERIC_TOPIC_COMPONENTS_H
+
+
+#define DATA_VEHICLE_GENERIC_TOPICS DataVehicleGenericTopic::DataVehicleGenericTopic_GPS,DataVehicleGenericTopic::DataVehicleGenericTopic_Text,DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel
+
+#include "data_vehicle_generic_topic_GPS.h"
+#include "data_vehicle_generic_topic_text.h"
+#include "data_vehicle_generic_topic_fuel.h"
+
+#endif // DATA_VEHICLE_GENERIC_TOPIC_COMPONENTS_H
