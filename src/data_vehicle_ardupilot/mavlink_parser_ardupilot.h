@@ -197,8 +197,8 @@ public:
             mavlink_msg_attitude_decode(message,&decodedMSG);
             std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
             ptrLocalPosition->x = decodedMSG.x;
-            ptrLocalPosition->x = decodedMSG.y;
-            ptrLocalPosition->x = decodedMSG.z;
+            ptrLocalPosition->y = decodedMSG.y;
+            ptrLocalPosition->z = decodedMSG.z;
 
             rtnVector.push_back(ptrLocalPosition);
             break;

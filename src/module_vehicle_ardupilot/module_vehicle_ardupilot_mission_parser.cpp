@@ -105,6 +105,18 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         //Message that announces the sequence number of the current active mission item. The MAV will fly towards this mission item.
         mavlink_mission_current_t decodedMSG;
         mavlink_msg_mission_current_decode(message,&decodedMSG);
+
+        std::shared_ptr<MissionTopic::MissionItemCurrentTopic> missionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
+        missionTopic->setVehicleID(sysID);
+        missionTopic->setMissionItemIndex(decodedMSG.seq);
+
+        MaceCore::TopicDatagram topicDatagram;
+        m_VehicleMission.SetComponent(missionTopic, topicDatagram);
+        //notify listneres of topic
+        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+        });
+
         break;
     }
     case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:
@@ -147,6 +159,17 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         //A certain mission item has been reached. The system will either hold this position (or circle on the orbit) or (if the autocontinue on the WP was set) continue to the next MISSION.
         mavlink_mission_item_reached_t decodedMSG;
         mavlink_msg_mission_item_reached_decode(message,&decodedMSG);
+
+        std::shared_ptr<MissionTopic::MissionItemReachedTopic> missionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>();
+        missionTopic->setVehicleID(sysID);
+        missionTopic->setMissionItemIndex(decodedMSG.seq);
+
+        MaceCore::TopicDatagram topicDatagram;
+        m_VehicleMission.SetComponent(missionTopic, topicDatagram);
+        //notify listneres of topic
+        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+        });
         break;
     }
     case MAVLINK_MSG_ID_MISSION_ACK:
