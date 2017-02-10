@@ -10,7 +10,7 @@ const MaceCore::TopicComponentStructure MissionItemReachedTopic_structure = []{
     return structure;
 }();
 
-MaceCore::TopicDatagram MissionItemRequestTopic::GenerateDatagram() const {
+MaceCore::TopicDatagram MissionItemReachedTopic::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<int>("vehicleID",vehicleID);
     datagram.AddTerminal<int>("missionItemIndex",missionItemIndex);

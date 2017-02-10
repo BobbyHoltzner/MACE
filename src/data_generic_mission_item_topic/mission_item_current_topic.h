@@ -15,8 +15,6 @@ public:
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
 public:
-    MissionItemRequestTopic(const int &vehicleID, const int &missionItemIndex);
-
     void setVehicleID(const int &vehicleID){
         this->vehicleID = vehicleID;
     }

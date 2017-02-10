@@ -71,7 +71,18 @@ public:
             heartbeatSeen = true;
             break;
         }
+        case MAVLINK_MSG_ID_SYS_STATUS:
+        {
+            mavlink_sys_status_t decodedMSG;
+            mavlink_msg_sys_status_decode(message,&decodedMSG);
 
+            std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel> fuelTopic = std::make_shared<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel>();
+            fuelTopic->setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
+            fuelTopic->setBatteryCurrent(decodedMSG.current_battery/10000.0);
+            fuelTopic->setBatteryRemaining(decodedMSG.battery_remaining);
+            rtnVector.push_back(fuelTopic);
+            break;
+        }
         case MAVLINK_MSG_ID_LOG_ENTRY:
         {
             mavlink_log_entry_t decodedMSG;
@@ -104,11 +115,6 @@ public:
                 default:
                     std::cout<<"Uknown ack!"<<std::endl;
             }
-            break;
-        }
-        case MAVLINK_MSG_ID_SYS_STATUS:
-        {
-            //This is message definition 1
             break;
         }
         case MAVLINK_MSG_ID_SYSTEM_TIME:
@@ -196,7 +202,7 @@ public:
             //This is message definition 32
             //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
             mavlink_local_position_ned_t decodedMSG;
-            mavlink_msg_attitude_decode(message,&decodedMSG);
+            mavlink_msg_local_position_ned_decode(message,&decodedMSG);
             std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
             ptrLocalPosition->x = decodedMSG.x;
             ptrLocalPosition->y = decodedMSG.y;
@@ -353,7 +359,6 @@ public:
             //This is message definition 253
             mavlink_statustext_t decodedMSG;
             mavlink_msg_statustext_decode(message,&decodedMSG);
-
             std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Text> statusText = std::make_shared<DataVehicleGenericTopic::DataVehicleGenericTopic_Text>();
             statusText->setText(decodedMSG.text);
             rtnVector.push_back(statusText);
