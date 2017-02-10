@@ -14,6 +14,8 @@
 #include "data_generic_mission_item/mission_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
+#include "data_vehicle_generic_topic/data_vehicle_generic_topic_components.h"
+
 #include "components/vehicle_operating_attitude.h"
 #include "components/vehicle_flightMode.h"
 #include "components/vehicle_operating_status.h"
@@ -351,8 +353,11 @@ public:
             //This is message definition 253
             mavlink_statustext_t decodedMSG;
             mavlink_msg_statustext_decode(message,&decodedMSG);
-            std::cout<<"A new status text: "<<decodedMSG.text<<std::endl;
-            break;
+
+            std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Text> statusText = std::make_shared<DataVehicleGenericTopic::DataVehicleGenericTopic_Text>();
+            statusText->setText(decodedMSG.text);
+            rtnVector.push_back(statusText);
+       break;
         }
 
         default:

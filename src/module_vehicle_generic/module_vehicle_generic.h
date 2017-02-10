@@ -13,6 +13,8 @@
 #include "data/i_topic_component_data_object.h"
 #include "data/topic_data_object_collection.h"
 
+#include "data_vehicle_generic_topic/data_vehicle_generic_topic_components.h"
+
 #include "data_generic_state_item_topic/state_topic_components.h"
 
 
@@ -23,7 +25,7 @@ public:
 
     typedef Data::TopicDataObjectCollection<
     VehicleTopicAdditionalComponents...,
-    DATA_STATE_GENERIC_TOPICS> VehicleDataTopicType;
+    DATA_STATE_GENERIC_TOPICS, DATA_VEHICLE_GENERIC_TOPICS> VehicleDataTopicType;
 
     ModuleVehicleGeneric() :
         MaceCore::IModuleCommandVehicle(),
