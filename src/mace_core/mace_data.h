@@ -20,6 +20,8 @@
 
 #include "topic.h"
 
+#include "data_generic_state_item/state_global_position.h"
+
 namespace MaceCore
 {
 
@@ -606,6 +608,9 @@ private:
 
     mutable std::mutex m_AvailableVehicleMutex;
     std::vector<int> m_AvailableVehicles;
+
+    std::map<int, DataState::StateGlobalPosition> m_VehicleHomeMap;
+
 
     uint64_t m_MSTOKEEP;
 

@@ -17,6 +17,22 @@ mavlink_message_t ArdupilotToMACEMission::generateGetHomePosition(const int &veh
     return msg;
 }
 
+mavlink_message_t ArdupilotToMACEMission::generateSetHomePosition(const MissionItem::SpatialHome &vehicleHome, const int &chan)
+{
+    mavlink_message_t msg;
+    int32_t latitude = vehicleHome.position.latitude * pow(10,7);
+    int32_t longitude = vehicleHome.position.longitude * pow(10,7);
+    int32_t altitude = vehicleHome.position.altitude * 1000;
+    float qVector;
+    mavlink_msg_set_home_position_pack_chan(255,190,chan,&msg,vehicleHome.getVehicleID(),latitude,longitude,altitude,0.0,0.0,0.0,&qVector,0.0,0.0,0.0);
+
+    //mavlink_msg_command_long_pack_chan(255,190,chan,&msg,vehicleHome.getVehicleID(),0,179,0,0.0,0.0,0.0,0.0,vehicleHome.position.latitude,vehicleHome.position.longitude,vehicleHome.position.altitude);
+    //mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),0,400,0,item->getRequestArm(),0,0,0,0,0,0);
+
+
+    return msg;
+}
+
 mavlink_message_t ArdupilotToMACEMission::generateArdupilotCommandMessage(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_message_t msg;
@@ -40,7 +56,6 @@ mavlink_message_t ArdupilotToMACEMission::generateArdupilotCommandMessage(std::s
         //This is command number 21
         if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
         {
-            uint8_t frame = MAV_FRAME_GLOBAL_RELATIVE_ALT;
             std::shared_ptr<MissionItem::SpatialLand<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialLand<DataState::StateGlobalPosition>>(missionItem);
             float latitude = item->position.latitude;
             float longitude = item->position.longitude;
@@ -54,7 +69,6 @@ mavlink_message_t ArdupilotToMACEMission::generateArdupilotCommandMessage(std::s
         //This is command number 22
         if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
         {
-            uint8_t frame = MAV_FRAME_GLOBAL_RELATIVE_ALT;
             std::shared_ptr<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>>(missionItem);
             float latitude = item->position.latitude;
             float longitude = item->position.longitude;
@@ -68,7 +82,6 @@ mavlink_message_t ArdupilotToMACEMission::generateArdupilotCommandMessage(std::s
         //This is command number 16
         if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
         {
-            uint8_t frame = MAV_FRAME_GLOBAL_RELATIVE_ALT;
             std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
             float latitude = item->position.latitude;
             float longitude = item->position.longitude;

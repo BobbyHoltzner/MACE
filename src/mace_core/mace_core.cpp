@@ -147,6 +147,12 @@ void MaceCore::RequestVehicleHomePosition(const void* sender, const int &vehicle
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
 }
 
+void MaceCore::SetVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
+{
+    std::cout<<"I have been told to set the home position"<<std::endl;
+    m_VehicleIDToPort.at(vehicleHome.getVehicleID())->MarshalCommand(VehicleCommands::SET_VEHICLE_HOME,vehicleHome);
+}
+
 void MaceCore::RequestVehicleClearAutoMission(const void* sender, const int &vehicleID)
 {
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,vehicleID);

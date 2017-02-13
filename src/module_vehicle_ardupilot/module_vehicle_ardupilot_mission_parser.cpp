@@ -191,6 +191,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         spatialHome.position.latitude = decodedMSG.latitude;
         spatialHome.position.longitude = decodedMSG.longitude;
         spatialHome.position.altitude = decodedMSG.altitude;
+        spatialHome.setVehicleID(sysID);
 
         std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
         missionTopic->setVehicleID(sysID);

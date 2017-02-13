@@ -28,6 +28,13 @@ void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
+void ModuleVehicleArdupilot::SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome)
+{
+    mavlink_message_t msg = DataVehicleArdupilot::ArdupilotToMACEMission::generateSetHomePosition(vehicleHome,m_LinkChan);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+}
+
+
 void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
 {
     mavlink_message_t msg;

@@ -58,6 +58,7 @@ public:
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
 
     virtual void RequestVehicleHomePosition (const int &vehicleID);
+    virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
     virtual void RequestCurrentMissionQueue (const int &vehicleID);
 

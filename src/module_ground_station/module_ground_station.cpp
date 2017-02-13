@@ -44,7 +44,7 @@ private:
 ModuleGroundStation::ModuleGroundStation() :
     m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData"),
     m_ListenThread(NULL),
-    m_TcpServer(NULL)
+    m_TcpServer(NULL), executedOnce(false), counter(0)
 {
 
 
@@ -180,6 +180,22 @@ ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* p
 */
 void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
+
+    if(counter < 2){
+        counter++;
+        MissionItem::SpatialHome homePosition;
+        homePosition.position.latitude = 35.7483060106125;
+        homePosition.position.longitude = -78.8426126;
+        homePosition.position.altitude = 5.98;
+        homePosition.setVehicleID(senderID);
+
+        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+            ptr->SetVehicleHomePosition(this,homePosition);
+        });
+
+    }
+
+
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {

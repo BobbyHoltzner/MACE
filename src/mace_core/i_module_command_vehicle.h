@@ -16,11 +16,15 @@ enum class VehicleCommands
 {
     CHANGE_VEHICLE_ARM,
     CHANGE_VEHICLE_MODE,
-    REQUEST_VEHICLE_HOME,
+
     REQUEST_CURRENT_MISSION_QUEUE,
     REQUEST_CURRENT_GUIDED_QUEUE,
     REQUEST_CLEAR_MISSION_QUEUE,
     REQUEST_CLEAR_GUIDED_QUEUE,
+
+    REQUEST_VEHICLE_HOME,
+    SET_VEHICLE_HOME,
+
     CREATE_VEHICLE_OBJECT,
     REMOVE_VEHICLE_OBJECT,
     UPDATE_VEHICLE_OBJECT_LIST,
@@ -67,6 +71,14 @@ public:
             RequestClearGuidedQueue(vehicleID);
         });
 
+
+        AddCommandLogic<int>(VehicleCommands::REQUEST_VEHICLE_HOME, [this](const int &vehicleID){
+            RequestVehicleHomePosition(vehicleID);
+        });
+
+        AddCommandLogic<MissionItem::SpatialHome>(VehicleCommands::SET_VEHICLE_HOME, [this](const MissionItem::SpatialHome &vehicleHome){
+            SetVehicleHomePosition(vehicleHome);
+        });
 
 
 
@@ -115,6 +127,12 @@ public:
     virtual void RequestCurrentGuidedQueue(const int &vehicleID) = 0;
 
     virtual void RequestClearGuidedQueue(const int &vehicleID) = 0;
+
+
+    virtual void RequestVehicleHomePosition(const int &vehicleID) = 0;
+    virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome) = 0;
+
+
 
 
     virtual void CreateVehicleObject(const int &vehicleID) = 0;

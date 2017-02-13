@@ -17,6 +17,8 @@
 #include "data/topic_data_object_collection.h"
 
 #include "data_generic_state_item_topic/state_topic_components.h"
+#include "data_generic_mission_item/mission_item_components.h"
+
 #include "data_vehicle_sensors/components.h"
 #include "data_vehicle_MAVLINK/components.h"
 #include "data_vehicle_ardupilot/components.h"
@@ -128,6 +130,8 @@ public slots:
 
 private:
 
+    bool executedOnce;
+    int counter;
     QTcpServer *m_TcpServer;
     QThread *m_ListenThread;
 
