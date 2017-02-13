@@ -149,7 +149,6 @@ void MaceCore::RequestVehicleHomePosition(const void* sender, const int &vehicle
 
 void MaceCore::SetVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
 {
-    std::cout<<"I have been told to set the home position"<<std::endl;
     m_VehicleIDToPort.at(vehicleHome.getVehicleID())->MarshalCommand(VehicleCommands::SET_VEHICLE_HOME,vehicleHome);
 }
 
@@ -176,6 +175,12 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
     m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
 //    m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
 //    m_PathPlanning->MarshalCommand(PathPlanningCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
+}
+
+void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
+{
+    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
+    m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
 }
 
 

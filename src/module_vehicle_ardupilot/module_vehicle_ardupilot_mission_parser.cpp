@@ -193,6 +193,10 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         spatialHome.position.altitude = decodedMSG.altitude;
         spatialHome.setVehicleID(sysID);
 
+        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->NewVehicleHomePosition(this,spatialHome);
+        });
+
         std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
         missionTopic->setVehicleID(sysID);
         missionTopic->setHome(spatialHome);

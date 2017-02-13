@@ -20,7 +20,8 @@
 
 #include "topic.h"
 
-#include "data_generic_state_item/state_global_position.h"
+#include "data_generic_state_item/state_item_components.h"
+#include "data_generic_mission_item/mission_item_components.h"
 
 namespace MaceCore
 {
@@ -108,6 +109,13 @@ public:
         std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
         vehicleIDs = m_AvailableVehicles;
     }
+
+    void GetVehicleHomePostion(const int &vehicleID, MissionItem::SpatialHome &vehicleHome) const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+        vehicleHome = m_VehicleHomeMap.at(vehicleID);
+    }
+
 private:
 
     void AddAvailableVehicle(const int &vehicleID)
@@ -116,6 +124,12 @@ private:
         m_AvailableVehicles.push_back(vehicleID);
         std::sort( m_AvailableVehicles.begin(), m_AvailableVehicles.end());
         m_AvailableVehicles.erase( unique( m_AvailableVehicles.begin(), m_AvailableVehicles.end() ), m_AvailableVehicles.end() );
+    }
+
+    void UpdateVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome)
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+        m_VehicleHomeMap[vehicleHome.getVehicleID()] = vehicleHome;
     }
 
     void RemoveVehicle(const std::string &rn)
@@ -609,7 +623,8 @@ private:
     mutable std::mutex m_AvailableVehicleMutex;
     std::vector<int> m_AvailableVehicles;
 
-    std::map<int, DataState::StateGlobalPosition> m_VehicleHomeMap;
+    mutable std::mutex m_VehicleHomeMutex;
+    std::map<int, MissionItem::SpatialHome> m_VehicleHomeMap;
 
 
     uint64_t m_MSTOKEEP;

@@ -100,6 +100,8 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
     virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
+    virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
+
 
 public:
 
