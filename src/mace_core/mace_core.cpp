@@ -66,7 +66,6 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
 {
     groundStation->addListener(this);
     groundStation->addTopicListener(this);
-    //bool serverStarted = groundStation->StartTCPServer();
     m_GroundStation = groundStation;
 }
 

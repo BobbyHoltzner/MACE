@@ -7,7 +7,6 @@
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
-#include <QThread>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -55,12 +54,6 @@ public:
 
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
-
-    //!
-    //! \brief Starts the TCP server for the GCS to send requests to
-    //! \return
-    //!
-    virtual bool StartTCPServer();
 
 
     //!
@@ -113,27 +106,19 @@ public:
 
 
 private:
-    void getConnectedVehicles(QByteArray &connectedVehicles);
-
-    void getVehiclePosition(const int &vehicleID, QByteArray &vehiclePosition);
-
-    void getVehicleAttitude(const int &vehicleID, QByteArray &vehicleAttitude);
 
     void parseTCPRequest(QJsonObject jsonObj, QByteArray &returnData);
 
+    void sendPositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &component);
+
+    void sendAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
+
     bool writeTCPData(QByteArray data);
-
-public slots:
-    void on_newConnection();
-
 
 
 private:
 
-    QTcpServer *m_TcpServer;
     QTcpSocket *m_TcpSocket;
-    QThread *m_ListenThread;
-
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;

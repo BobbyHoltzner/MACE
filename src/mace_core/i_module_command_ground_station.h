@@ -39,8 +39,6 @@ public:
 public:
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
-    virtual bool StartTCPServer() = 0;
-
 
 };
 

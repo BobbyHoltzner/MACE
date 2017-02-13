@@ -227,7 +227,7 @@ public:
             // TODO-PAT: This function is blocking while it listens for the sender port.
             //             --Need to figure out a way to move this to a thread to execute in the background until
             //                  a UDP connection is seen on this address and port number.
-            config.listenForPort(listenAddress, listenPortNumber);
+            config.listenForPort(listenPortNumber);
 
             m_LinkName = "udplink_" + std::to_string(listenPortNumber);
             m_LinkMarshaler->AddUDPLink(m_LinkName, config);

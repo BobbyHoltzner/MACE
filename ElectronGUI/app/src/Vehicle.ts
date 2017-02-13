@@ -60,24 +60,20 @@ export class Vehicle{
     }
 
     setNumSats(numSats: number) {
-        this.numSats = numSats;    
+        this.numSats = numSats;
     }
 
     setPositionFix(positionFix: number) {
         this.positionFix = positionFix;
     }
 
-    updateMarker(newPos?: PositionType, newAtt?: AttitudeType) {
+    updateMarkerPosition(newPos?: PositionType) {
         let posUpdate = this.position;
         if(newPos){
             posUpdate = newPos;
         }
-        let attUpdate = this.attitude;
-        if(newAtt){
-            attUpdate = newAtt;
-        }
 
-        let iconHTML = '<div style="background-color: ' + backgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + attUpdate.yaw + 'deg); -moz-transform: rotate(' + attUpdate.yaw + 'deg); -o-transform: rotate(' + attUpdate.yaw + 'deg); -ms-transform: rotate(' + attUpdate.yaw + 'deg); transform: rotate(' + attUpdate.yaw + 'deg);">';
+        let iconHTML = '<div style="background-color: ' + backgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
             position: new L.LatLng(posUpdate.lat, posUpdate.lon),
@@ -87,8 +83,24 @@ export class Vehicle{
                 popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
             })
         };
-
     }
 
+    updateMarkerAttitude(newAtt?: AttitudeType) {
+        let attUpdate = this.attitude;
+        if(newAtt){
+            attUpdate = newAtt;
+        }
+
+        let iconHTML = '<div style="background-color: ' + backgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + attUpdate.yaw + 'deg); -moz-transform: rotate(' + attUpdate.yaw + 'deg); -o-transform: rotate(' + attUpdate.yaw + 'deg); -ms-transform: rotate(' + attUpdate.yaw + 'deg); transform: rotate(' + attUpdate.yaw + 'deg);">';
+        this.vehicleMarker = {
+            vehicleId: this.vehicleId,
+            position: new L.LatLng(this.position.lat, this.position.lon),
+            icon: new L.DivIcon({
+                html: iconHTML,
+                iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
+                popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
+            })
+        };
+    }
 
 }

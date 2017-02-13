@@ -40,7 +40,7 @@ public:
     //QString     settingsURL     () { return "SerialSettings.qml"; }
 
 
-    void listenForPort(const std::string &listenAddress, const int &listenPortNumber);
+    void listenForPort(const int &listenPortNumber);
 
 private:
     int _listenPortNumber;

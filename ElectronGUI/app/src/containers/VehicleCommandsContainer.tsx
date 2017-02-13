@@ -37,16 +37,16 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
 
     render() {
 
-        const aircraftCommsContainer = { 
-            backgroundColor: colors.orange700, 
-            position: 'absolute', 
-            bottom: 0, 
+        const aircraftCommsContainer = {
+            // backgroundColor: colors.orange700,
+            position: 'absolute',
+            bottom: 0,
             left: 0,
             height: 64,
-            zIndex: 9999, 
-            width: 100 + "%", 
+            zIndex: 9999,
+            // width: 100 + "%",
             display: "flex",
-            justifyContent: "space-around",
+            justifyContent: "center",
             alignItems: "center"
         };
         const buttonStyle = { height: 44 };
@@ -63,7 +63,7 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
 
         return(
             <div>
-                {Object.keys(this.props.connectedVehicles).length == 0 &&
+                {Object.keys(this.props.connectedVehicles).length > 0 &&
                     <div style={aircraftCommsContainer}>
                         <MuiThemeProvider muiTheme={lightMuiTheme}>
                             <DropDownMenu style={{width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>

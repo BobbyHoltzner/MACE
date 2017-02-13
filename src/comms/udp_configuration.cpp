@@ -74,13 +74,13 @@ void UdpConfiguration::setSenderPortNumber(int portNumber)
 
 
 // Set up a UDP socket to listen for UDP messages on, and set the sender address and port
-void UdpConfiguration::listenForPort(const std::string &listenAddress, const int &listenPortNumber)
+void UdpConfiguration::listenForPort(const int &listenPortNumber)
 {
     if (m_socket) {
         m_socket->close();
     }
 
-    m_socket->bind(QHostAddress(QString::fromStdString(listenAddress)), listenPortNumber, QUdpSocket::ShareAddress);
+    m_socket->bind(QHostAddress::AnyIPv4, listenPortNumber, QUdpSocket::ShareAddress);
 
     if(m_socket->waitForReadyRead(300))
     {
@@ -108,7 +108,7 @@ void UdpConfiguration::listenForPort(const std::string &listenAddress, const int
     }
     else
     {
-        this->listenForPort(listenAddress, listenPortNumber);
+        this->listenForPort(listenPortNumber);
     }
 
 }
