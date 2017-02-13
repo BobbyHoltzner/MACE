@@ -16,6 +16,8 @@ import * as colors from 'material-ui/styles/colors';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
+import {BottomNavigation, BottomNavigationItem} from 'material-ui/BottomNavigation';
+import FontIcon from 'material-ui/FontIcon';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 
 import { Vehicle } from '../Vehicle';
@@ -37,7 +39,6 @@ type State = {
   maxZoom?: number,
   initialZoom?: number,
   mapCenter?: number[],
-  // connectedVehicles?: VehicleMapType,
   connectedVehicles?: {[id: string]: Vehicle}
   vehicleWarnings?: VehicleWarning[]
   selectedVehicleID?: string,
@@ -81,38 +82,30 @@ export default class AppContainer extends React.Component<Props, State> {
   componentDidMount(){
     this.leafletMap = this.refs.map;
     this.notificationSystem = this.refs.notificationSystem;
-
-    // this.setupTCPClient();
     this.setupTCPServer();
-
-    // setInterval(() => {
-    //   this.makeTCPRequest("GET_CONNECTED_VEHICLES", 1);
-    // }, 3000);
   }
 
   setupTCPServer = () => {
     // Create a TCP socket listener
     this.state.tcpServer = net.Server(function (socket: any) {
 
-        // Add the new client socket connection to the array of
-        // sockets
-        // let sockets = deepcopy(this.state.tcpSockets);
+        // Add the new client socket connection to the array of sockets
         this.state.tcpSockets.push(socket);
-        // this.setState({tcpSockets: sockets});
 
-        // 'data' is an event that means that a message was just sent by the
-        // client application
+        // 'data' is an event that means that a message was just sent by the client application
         socket.on('data', function (msg_sent: any) {
-          console.log("Data from socket: " + msg_sent);
+          // console.log("Data from socket: " + msg_sent);
+          let jsonData: TCPReturnType = JSON.parse(msg_sent);
+          this.parseTCPClientData(jsonData);
 
             // Loop through all of our sockets and send the data
-            for (var i = 0; i < this.state.tcpSockets.length; i++) {
+            // for (var i = 0; i < this.state.tcpSockets.length; i++) {
                 // Don't send the data back to the original sender
                 // if (this.state.tcpSockets[i] == socket) // don't send the message to yourself
                 //     continue;
                 // Write the msg sent by chat client
-                this.state.tcpSockets[i].write("TEST RETURN");
-            }
+                // this.state.tcpSockets[i].write("TCP Return...");
+            // }
         }.bind(this));
         // Use splice to get rid of the socket that is ending.
         // The 'end' event means tcp client has disconnected.
@@ -120,61 +113,19 @@ export default class AppContainer extends React.Component<Props, State> {
             // let sockets = deepcopy(this.state.tcpSockets);
             let i = this.state.tcpSockets.indexOf(socket);
             this.state.tcpSockets.splice(i, 1);
-            // this.setState({tcpSockets: sockets});
         }.bind(this));
 
 
     }.bind(this));
 
+
+    // TODO: Allow for user configuration of the port and probably address too
     this.state.tcpServer.listen(1234);
-    console.log('System waiting at http://localhost:1234');
+    console.log('System listening at http://localhost:1234');
   }
 
 
-
-
-
-
-
-
-  makeTCPRequest = (command: string, vehicleID: number) => {
-    let socket = new net.Socket();
-    this.setupTCPClient(socket);
-    // this.state.tcpClient.connect(this.state.tcpPort, this.state.tcpHost, function() {
-    socket.connect(this.state.tcpPort, this.state.tcpHost, function() {
-      // console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
-      let attitudeRequest = {
-        command: command,
-        vehicleID: vehicleID
-      };
-      socket.write(JSON.stringify(attitudeRequest));
-    }.bind(this));
-  }
-
-  setupTCPClient = (socket: any) => {
-      // Add a 'data' event handler for the client socket
-      // data is what the server sent to this socket
-      socket.on('data', function(data: any) {
-          // console.log('DATA: ' + data);
-          let jsonData = JSON.parse(data);
-          this.parseTCPResponse(jsonData);
-          // Close the client socket completely
-          socket.destroy();
-      }.bind(this));
-
-      // Add a 'close' event handler for the client socket
-      socket.on('close', function() {
-          // console.log('Connection closed');
-      }.bind(this));
-
-      // Add an 'error' event handler
-      socket.on('error', function(err: any) {
-          console.log('Error: ' + err);
-          socket.destroy();
-      }.bind(this));
-  }
-
-  parseTCPResponse = (jsonData: TCPReturnType) => {
+  parseTCPClientData = (jsonData: TCPReturnType) => {
     let stateCopy = deepcopy(this.state.connectedVehicles);
 
     if(jsonData.dataType === "ConnectedVehicles"){
@@ -203,29 +154,6 @@ export default class AppContainer extends React.Component<Props, State> {
         }
       }
 
-      // Set intervals:
-      if (Object.keys(stateCopy).length > 0){
-        idArrays = Object.keys(stateCopy);
-        console.log("ID ARRAY: " + idArrays);
-        for(let i = 0; i < idArrays.length; i++){
-          if(this.m_AttitudeInterval[i] === undefined){
-            this.m_AttitudeInterval[i] = setInterval(() => {
-              this.makeTCPRequest("GET_ATTITUDE", parseInt(idArrays[i]));
-            }, this.m_AttitudeTimeout + 20 + i);
-          }
-        }
-      }
-      if (Object.keys(stateCopy).length > 0){
-        idArrays = Object.keys(stateCopy);
-        for(let i = 0; i < idArrays.length; i++){
-          if(this.m_PositionInterval[i] === undefined){
-            this.m_PositionInterval[i] = setInterval(() => {
-              this.makeTCPRequest("GET_POSITION", parseInt(idArrays[i]));
-            }, this.m_PositionTimeout + 23 + i);
-          }
-        }
-      }
-
       this.setState({connectedVehicles: stateCopy});
     }
 
@@ -238,7 +166,7 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[vehiclePosition.vehicleID].numSats = vehiclePosition.numSats;
       stateCopy[vehiclePosition.vehicleID].positionFix = vehiclePosition.positionFix;
 
-      stateCopy[vehiclePosition.vehicleID].updateMarker(vehiclePosition);
+      stateCopy[vehiclePosition.vehicleID].updateMarkerPosition(vehiclePosition);
 
       this.setState({connectedVehicles: stateCopy});
     }
@@ -250,7 +178,7 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[vehicleAttitude.vehicleID].attitude.pitch = vehicleAttitude.pitch;
       stateCopy[vehicleAttitude.vehicleID].attitude.yaw = vehicleAttitude.yaw;
 
-      stateCopy[vehicleAttitude.vehicleID].updateMarker(vehicleAttitude);
+      stateCopy[vehicleAttitude.vehicleID].updateMarkerAttitude(vehicleAttitude);
 
       this.setState({connectedVehicles: stateCopy});
     }
@@ -258,7 +186,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
 
   showNotification = (title: string, message: string, level: string, position: string, label: string) => {
-    let notification =     {
+    let notification = {
       title: title,
       message: message,
       level: level,
@@ -319,21 +247,18 @@ export default class AppContainer extends React.Component<Props, State> {
               connectedVehicles={this.state.connectedVehicles}
             />
 
+
+
             <VehicleCommandsContainer
               connectedVehicles={this.state.connectedVehicles}
               onSelectedAircraftChange={this.handleSelectedAircraftChange}
               onAircraftCommand={this.handleAircraftCommand}
             />
 
+
             <VehicleWarningsContainer
               vehicleWarnings={this.state.vehicleWarnings}
             />
-
-            {/*
-            <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <FlatButton style={centerButtonStyle} label="Test Button" onClick={this.testTCPRequest}/>
-            </MuiThemeProvider>
-            */}
 
 
             <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} >
@@ -342,12 +267,10 @@ export default class AppContainer extends React.Component<Props, State> {
                 <LayerGroup>
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
-                      <Marker key={key} position={this.state.connectedVehicles[key].position} icon={this.state.connectedVehicles[key].vehicleMarker} title={key}>
-                      {/*
+                      <Marker key={key} position={this.state.connectedVehicles[key].vehicleMarker.position} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
                         <Popup open={true}>
-                          <span>{item.vehicleId}</span>
+                          <span>Selected</span>
                         </Popup>
-                        */}
                       </Marker>
                     );
                   })}
