@@ -66,7 +66,6 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
 {
     groundStation->addListener(this);
     groundStation->addTopicListener(this);
-    //bool serverStarted = groundStation->StartTCPServer();
     m_GroundStation = groundStation;
 }
 
@@ -273,7 +272,7 @@ void MaceCore::CommandNewVehicleMode(const std::string &vehicleMode)
 //!
 void MaceCore::PlanningHorizon(const std::string &horizon)
 {
-    throw std::runtime_error("Not Implimented");
+    throw std::runtime_error("Not Implemented");
 }
 
 void MaceCore::ReplaceVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands)

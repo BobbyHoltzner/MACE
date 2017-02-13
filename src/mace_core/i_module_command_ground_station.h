@@ -13,10 +13,7 @@ namespace MaceCore
 enum class GroundStationCommands
 {
     BASE_MODULE_VEHICLE_LISTENER_ENUMS,
-    START_TCP_SERVER,
-    NEW_VEHICLE_TARGET,
     NEW_AVAILABLE_VEHICLE
-//    UPDATED_POSITION_DYNAMICS
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandGroundStation : public AbstractModule_EventListeners<Metadata_GroundStation, IModuleEventsGroundStation, GroundStationCommands>
@@ -42,19 +39,6 @@ public:
 public:
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
-    //!
-    //! \brief Signal indicating the Occupancy Map has been updated
-    //!
-    //! The map data can be read from using MaceData object in getDataObject()
-    //!
-    virtual bool StartTCPServer() = 0;
-
-
-//    //!
-//    //! \brief New targets have been assigned to the given vehicle
-//    //! \param vehicleID ID of vehicle
-//    //!
-//    virtual void NewVehicleTarget(const std::string &vehicleID) = 0;
 
 };
 

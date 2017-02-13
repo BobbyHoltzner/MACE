@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <stdexcept>
 #include <memory>
+#include <iostream>
 
 namespace MaceCore
 {
@@ -286,7 +287,8 @@ public:
     void AddTerminalParameters(const std::string &name, const ModuleParameterTerminalTypes &type, bool required = false, const std::string &defaultValue = "", const std::vector<std::string> &allowedEntires = {})
     {
         m_TerminalParams.insert({name, type});
-        m_IsTagRequired.insert({name, required});
+        std::vector<std::string> name_Vec {name};
+        m_IsTagRequired.push_back(std::make_tuple(name_Vec, required));
         m_TerminalDefaultValue.insert({name, defaultValue});
         m_TerminalAllowedEntries.insert({name, allowedEntires});
     }
@@ -300,14 +302,32 @@ public:
     //! \param type Expected format of non-terminal
     //! \param required True if required
     //! \param defaultValue Default value to set if not required and not present in settings
-    //! \param multipleEntiresAllowed True if multiple entires of this non-terminal are allowed (not implimented)
+    //! \param multipleEntiresAllowed True if multiple entires of this non-terminal are allowed (not implemented)
     //!
     void AddNonTerminal(const std::string &name, const std::shared_ptr<ModuleParameterStructure> &type, bool required = false, const std::shared_ptr<ModuleParameterValue> &defaultValue = std::make_shared<ModuleParameterValue>(), bool multipleEntiresAllowed = false)
     {
         m_NonTerminalParams.insert({name, type});
-        m_IsTagRequired.insert({name, required});
+        std::vector<std::string> name_Vec {name};
+        m_IsTagRequired.push_back(std::make_tuple(name_Vec, required));
         m_NonTerminalDefaultValue.insert({name, defaultValue});
         m_NonTerminalMultipleAllowed.insert({name, multipleEntiresAllowed});
+    }
+
+
+    //!
+    //! Mutually exclusve set of nonterminal option sets. Such as "UDPParameters" and "SerialParameters"
+    //! \param mutExlusiveParams Set of parameters
+    //! \param required An option is required
+    //!
+    void AddMutuallyExclusiveNonTerminal(std::unordered_map<std::string, const std::shared_ptr<ModuleParameterStructure>> mutExlusiveParams, bool required = false) {
+
+        std::vector<std::string> name_Vec;
+        for(auto it = mutExlusiveParams.cbegin() ; it != mutExlusiveParams.cend() ; ++it) {
+            m_NonTerminalParams.insert({it->first, it->second});
+            name_Vec.push_back(it->first);
+        }
+
+        m_IsTagRequired.push_back(std::make_tuple(name_Vec, required));
     }
 
 
@@ -415,6 +435,7 @@ public:
                 return true;
         }
 
+
         return false;
     }
 
@@ -426,7 +447,19 @@ public:
     //!
     bool IsTagRequired(const std::string &paramName) const
     {
-        return m_IsTagRequired.at(paramName);
+        for(auto it = m_IsTagRequired.cbegin() ; it != m_IsTagRequired.cend() ; ++it)
+        {
+            //search for paramName in it->first
+            std::vector<std::string> paramVec = std::get<0>(*it);
+            for(auto jt = paramVec.cbegin() ; jt != paramVec.cend() ; ++jt)
+            {
+                if(*jt == paramName)
+                {
+                    return std::get<1>(*it);
+                }
+            }
+        }
+        throw std::runtime_error("Given tag was not found");
     }
 
 private:
@@ -436,13 +469,14 @@ private:
 
     std::unordered_map<std::string, std::vector<std::string>> m_TerminalAllowedEntries;
 
-    std::unordered_map<std::string, bool> m_IsTagRequired;
+    std::vector<std::tuple<std::vector<std::string>, bool> > m_IsTagRequired;
 
     std::unordered_map<std::string, ModuleParameterTerminalTypes> m_TerminalParams;
     std::unordered_map<std::string, std::shared_ptr<ModuleParameterStructure> > m_NonTerminalParams;
 
     std::unordered_map<std::string, bool> m_NonTerminalMultipleAllowed;
-};
+
+ };
 
 } //End MaceCore Namespace
 
