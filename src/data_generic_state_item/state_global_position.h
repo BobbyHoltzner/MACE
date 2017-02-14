@@ -4,6 +4,8 @@
 #include "data/positional_coordinate_frame.h"
 #include "data/coordinate_frame.h"
 
+#include <Eigen/Dense>
+
 namespace DataState {
 
 class StateGlobalPosition
@@ -31,6 +33,8 @@ public:
 
 public:
     StateGlobalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag);
+
+    void translationTransformation(const StateGlobalPosition &position, Eigen::Vector3f &transVec);
 
     double deltaAltitude(const StateGlobalPosition &position) const;
     double distanceBetween2D(const StateGlobalPosition &position) const;

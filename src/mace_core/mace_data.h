@@ -132,12 +132,7 @@ private:
         m_VehicleHomeMap[vehicleHome.getVehicleID()] = vehicleHome;
         if(flagGlobalOrigin == true)
         {
-            double bearing = vehicleHome.position.bearingBetween(m_GlobalOrigin.position);
-            double distance = vehicleHome.position.distanceBetween2D(m_GlobalOrigin.position);
-            double distanceX = distance * sin(bearing);
-            double distanceY = distance * cos(bearing);
-            double distanceZ = vehicleHome.position.deltaAltitude(m_GlobalOrigin.position);
-            Eigen::Vector3f translation(distanceX,distanceY,distanceZ);
+
 
         }
     }
