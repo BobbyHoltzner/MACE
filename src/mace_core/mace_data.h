@@ -128,12 +128,20 @@ private:
 
     void UpdateVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome)
     {
+        //Setup a copy constructor
+        MissionItem::SpatialHome newHome;
+        newHome.setVehicleID(vehicleHome.getVehicleID());
+        newHome.position.latitude = vehicleHome.position.latitude;
+        newHome.position.longitude = vehicleHome.position.longitude;
+        newHome.position.altitude = vehicleHome.position.altitude;
+
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        m_VehicleHomeMap[vehicleHome.getVehicleID()] = vehicleHome;
+        m_VehicleHomeMap[vehicleHome.getVehicleID()] = newHome;
         if(flagGlobalOrigin == true)
         {
-
-
+            Eigen::Vector3f translation;
+            newHome.position.translationTransformation(m_GlobalOrigin.position,translation);
+            m_VehicleToGlobalTranslation.at(vehicleHome.getVehicleID()) = translation;
         }
     }
 
@@ -641,7 +649,6 @@ private:
     mutable std::mutex m_VehicleHomeMutex;
     std::map<int, MissionItem::SpatialHome> m_VehicleHomeMap;
     std::map<int, Eigen::Vector3f> m_VehicleToGlobalTranslation;
-    std::map<int, Eigen::Vector3f> m_GlobalToVehicleTranslation;
     bool flagGlobalOrigin;
     MissionItem::SpatialHome m_GlobalOrigin;
 

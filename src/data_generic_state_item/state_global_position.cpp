@@ -57,9 +57,9 @@ void StateGlobalPosition::translationTransformation(const StateGlobalPosition &p
 {
     double bearing = this->bearingBetween(position);
     double distance = this->distanceBetween2D(position);
-    double distanceZ = -this->deltaAltitude(position);
-    double distanceX = distance * sin(bearing);
-    double distanceY = distance * cos(bearing);
+    float distanceZ = -this->deltaAltitude(position);
+    float distanceX = distance * sin(bearing);
+    float distanceY = distance * cos(bearing);
     transVec(0) = distanceX;
     transVec(1) = distanceY;
     transVec(2) = distanceZ;
