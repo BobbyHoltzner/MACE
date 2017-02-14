@@ -136,7 +136,7 @@ private:
             double distance = vehicleHome.position.distanceBetween2D(m_GlobalOrigin.position);
             double distanceX = distance * sin(bearing);
             double distanceY = distance * cos(bearing);
-            double distnaceZ = vehicleHome.position.deltaAltitude(m_GlobalOrigin.position);
+            double distanceZ = vehicleHome.position.deltaAltitude(m_GlobalOrigin.position);
             Eigen::Vector3f translation(distanceX,distanceY,distanceZ);
 
         }

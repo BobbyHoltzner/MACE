@@ -8,10 +8,10 @@ class StateGlobalVelocity
 public:
     StateGlobalVelocity();
 public:
-    double x;
-    double y;
-    double z;
-    double heading;
+    float x;
+    float y;
+    float z;
+    float heading;
 };
 
 } //end of namespace DataState

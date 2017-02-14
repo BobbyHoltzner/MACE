@@ -14,11 +14,11 @@ public:
 
     StateGlobalPosition(const Data::CoordinateFrame &frame);
 
-    StateGlobalPosition(const double &latitude, const double &longitude, const double &altitude);
+    StateGlobalPosition(const float &latitude, const float &longitude, const float &altitude);
 
     StateGlobalPosition(const Data::CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude);
 
-    void setPosition(const double &latitude, const double &longitude, const double &altitude);
+    void setPosition(const float &latitude, const float &longitude, const float &altitude);
 
 public:
     static double convertDegreesToRadians(const double &degrees);
@@ -32,15 +32,15 @@ public:
 public:
     StateGlobalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag);
 
-    double deltaAltitude(const StateGlobalPosition &position);
-    double distanceBetween2D(const StateGlobalPosition &position);
-    double distanceBetween3D(const StateGlobalPosition &position);
+    double deltaAltitude(const StateGlobalPosition &position) const;
+    double distanceBetween2D(const StateGlobalPosition &position) const;
+    double distanceBetween3D(const StateGlobalPosition &position) const;
 
-    double bearingBetween(const StateGlobalPosition &position);
+    double bearingBetween(const StateGlobalPosition &position) const;
 
-    double finalBearing(const StateGlobalPosition &postion);
+    double finalBearing(const StateGlobalPosition &postion) const;
 
-    double initialBearing(const StateGlobalPosition &postion);
+    double initialBearing(const StateGlobalPosition &postion) const;
 
 
 public:
@@ -65,9 +65,9 @@ public:
     Data::PositionalFrame m_PositionFrame;
     Data::CoordinateFrame m_CoordinateFrame;
 
-    double latitude;
-    double longitude;
-    double altitude;
+    float latitude;
+    float longitude;
+    float altitude;
 };
 
 } //end of namespace DataState
