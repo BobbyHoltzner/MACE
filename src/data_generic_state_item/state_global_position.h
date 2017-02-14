@@ -32,7 +32,7 @@ public:
 public:
     StateGlobalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag);
 
-
+    double deltaAltitude(const StateGlobalPosition &position);
     double distanceBetween2D(const StateGlobalPosition &position);
     double distanceBetween3D(const StateGlobalPosition &position);
 

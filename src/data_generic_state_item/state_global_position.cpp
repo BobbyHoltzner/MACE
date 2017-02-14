@@ -104,8 +104,8 @@ double StateGlobalPosition::bearingBetween(const StateGlobalPosition &position)
             sin(convertDegreesToRadians(this->latitude)) * sin(convertDegreesToRadians(position.latitude)) *
             cos(deltaLongitude);
     double bearing = atan2(tmpY,tmpX);
-
-    return convertRadiansToDegrees(bearing);
+    return bearing;
+    //return convertRadiansToDegrees(bearing);
 }
 
 /**
@@ -128,6 +128,10 @@ double StateGlobalPosition::finalBearing(const StateGlobalPosition &position){
     throw std::runtime_error("Not Implimented");
     return 0.0;
     //return (bearingBetween(position) + 180.0) % 360.0;
+}
+double StateGlobalPosition::deltaAltitude(const StateGlobalPosition &position)
+{
+    return (this->altitude - position.altitude);
 }
 
 /**

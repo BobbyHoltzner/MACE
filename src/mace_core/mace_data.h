@@ -55,13 +55,13 @@ friend class MaceCore;
 public:
 
     MaceData() :
-        m_MSTOKEEP(DEFAULT_MS_RECORD_TO_KEEP)
+        m_MSTOKEEP(DEFAULT_MS_RECORD_TO_KEEP),flagGlobalOrigin(false)
     {
 
     }
 
     MaceData(uint64_t historyToKeepInms) :
-        m_MSTOKEEP(historyToKeepInms)
+        m_MSTOKEEP(historyToKeepInms),flagGlobalOrigin(false)
     {
 
     }
@@ -130,7 +130,27 @@ private:
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_VehicleHomeMap[vehicleHome.getVehicleID()] = vehicleHome;
+        if(flagGlobalOrigin == true)
+        {
+            double bearing = vehicleHome.position.bearingBetween(m_GlobalOrigin.position);
+            double distance = vehicleHome.position.distanceBetween2D(m_GlobalOrigin.position);
+            double distanceX = distance * sin(bearing);
+            double distanceY = distance * cos(bearing);
+            double distnaceZ = vehicleHome.position.deltaAltitude(m_GlobalOrigin.position);
+            Eigen::Vector3f translation(distanceX,distanceY,distanceZ);
+
+        }
     }
+
+    void UpdateGlobalOrigin(const MissionItem::SpatialHome &globalOrigin)
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+        m_GlobalOrigin = globalOrigin;
+        flagGlobalOrigin = true;
+        //This is where we would need to update and compute transformations
+    }
+
+
 
     void RemoveVehicle(const std::string &rn)
     {
@@ -625,6 +645,10 @@ private:
 
     mutable std::mutex m_VehicleHomeMutex;
     std::map<int, MissionItem::SpatialHome> m_VehicleHomeMap;
+    std::map<int, Eigen::Vector3f> m_VehicleToGlobalTranslation;
+    std::map<int, Eigen::Vector3f> m_GlobalToVehicleTranslation;
+    bool flagGlobalOrigin;
+    MissionItem::SpatialHome m_GlobalOrigin;
 
 
     uint64_t m_MSTOKEEP;
