@@ -7,10 +7,9 @@
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
-#include <QThread>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QJsonDocument>
-
 #include "mace_core/i_module_topic_events.h"
 #include "mace_core/i_module_command_ground_station.h"
 #include "data/i_topic_component_data_object.h"
@@ -58,12 +57,6 @@ public:
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
-    //!
-    //! \brief Starts the TCP server for the GCS to send requests to
-    //! \return
-    //!
-    virtual bool StartTCPServer();
-
 
     //!
     //! \brief Called when a new Vehicle has been introduced into MACE
@@ -87,7 +80,7 @@ public:
     //! The vehicle's position can be retreived from MaceData object in getDataObject()
     //! \param vehicleID ID of vehicle
     //!
-    virtual void UpdatedPositionDynamics(const std::string &vehicleID);
+    virtual void UpdatedPositionDynamics(const std::string &vehicleID) {}
 
 
     //!
@@ -96,7 +89,7 @@ public:
     //! The vehicle's attitude can be retreived from MaceData object in getDataObject()
     //! \param vehicleID ID of vehicle
     //!
-    virtual void UpdateAttitudeDynamics(const std::string &vehicleID);
+    virtual void UpdateAttitudeDynamics(const std::string &vehicleID) {}
 
 
     //!
@@ -105,7 +98,7 @@ public:
     //! The vehicle's life can be retreived from MaceData object in getDataObject()
     //! \param vehicleID ID of vehicle
     //!
-    virtual void UpdatedVehicleLife(const std::string &vehicleID);
+    virtual void UpdatedVehicleLife(const std::string &vehicleID) {}
 
 
     //! Virtual functions as defined by IModuleCommandSensors
@@ -115,25 +108,19 @@ public:
 
 
 private:
-    void UpdatedVehicleMap(const std::string &vehicleID);
-
-    void getVehiclePosition(const int &vehicleID, QByteArray &vehiclePosition);
-
-    void getVehicleAttitude(const int &vehicleID, QByteArray &vehicleAttitude);
 
     void parseTCPRequest(QJsonObject jsonObj, QByteArray &returnData);
 
-public slots:
-    void on_newConnection();
+    void sendPositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &component);
 
+    void sendAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
+
+    bool writeTCPData(QByteArray data);
 
 
 private:
 
-    bool executedOnce;
-    int counter;
-    QTcpServer *m_TcpServer;
-    QThread *m_ListenThread;
+    QTcpSocket *m_TcpSocket;
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;

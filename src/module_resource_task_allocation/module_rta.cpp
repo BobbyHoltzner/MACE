@@ -45,31 +45,29 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurati
 //!
 void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-    /*
-    //This is where you will receive the parameters from the above and can assign them to appropriate members.
-    if(params->HasNonTerminal("CameraParameters"))
-    {
-        std::shared_ptr<MaceCore::ModuleParameterValue> protocolSettings = params->GetNonTerminalValue("CameraParameters");
-//        protocolSettings->GetTerminalValue<std::string>("CameraName");
-//        protocolSettings->GetTerminalValue<std::string>("FocalLength");
-//        protocolSettings->GetTerminalValue<std::string>("SensorWidth");
-//        protocolSettings->GetTerminalValue<std::string>("SensorHeight");
-        if(protocolSettings->HasNonTerminal("FOVWidth") && protocolSettings->HasNonTerminal("FOVHeight"))
-        {
-            //        protocolSettings->GetNonTerminalValue("FOVWidth");
-            //        protocolSettings->GetNonTerminalValue("FOVHeight");
-        }else{
-            //update based on the sensor data
-        }
+//    if(params->HasNonTerminal("CameraParameters"))
+//    {
+//        std::shared_ptr<MaceCore::ModuleParameterValue> protocolSettings = params->GetNonTerminalValue("CameraParameters");
+////        protocolSettings->GetTerminalValue<std::string>("CameraName");
+////        protocolSettings->GetTerminalValue<std::string>("FocalLength");
+////        protocolSettings->GetTerminalValue<std::string>("SensorWidth");
+////        protocolSettings->GetTerminalValue<std::string>("SensorHeight");
+//        if(protocolSettings->HasNonTerminal("FOVWidth") && protocolSettings->HasNonTerminal("FOVHeight"))
+//        {
+//            //        protocolSettings->GetNonTerminalValue("FOVWidth");
+//            //        protocolSettings->GetNonTerminalValue("FOVHeight");
+//        }else{
+//            //update based on the sensor data
+//        }
 
-//        protocolSettings->GetNonTerminalValue("ImageWidth");
-//        protocolSettings->GetNonTerminalValue("ImageHeight");
-//        protocolSettings->GetNonTerminalValue("Frequency");
-    }else
-    {
-        throw std::runtime_error("Unknown sensor parameters encountered");
-    }
-    */
+////        protocolSettings->GetNonTerminalValue("ImageWidth");
+////        protocolSettings->GetNonTerminalValue("ImageHeight");
+////        protocolSettings->GetNonTerminalValue("Frequency");
+//    }else
+//    {
+//        throw std::runtime_error("Unknown sensor parameters encountered");
+//    }
+
 }
 
 

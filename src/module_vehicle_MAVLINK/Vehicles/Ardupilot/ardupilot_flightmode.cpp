@@ -43,6 +43,7 @@ bool ArdupilotFlightMode::getVehicleModeID(const std::string &vehicleModeString,
             return true;
         }
     }
+	
     return false;
 }
 

@@ -169,7 +169,7 @@ public:
     //! Code placed into module's command methods will be executed on module's thread.
     //!
     //! If set to false, the executation of a command will occur on the thread that decided the command must be called at the moment which it was decided.
-    //! It will then be up to the implimentor to marshal that command onto module's thread by overriding start() method.
+    //! It will then be up to the implementor to marshal that command onto module's thread by overriding start() method.
     //! \param value True if are to marshal onto event loop
     //!
     void InvokeCommandOnModuleEventLoop(const bool &value)
@@ -185,7 +185,7 @@ public:
     //! Code placed into module's command methods will be executed on module's thread.
     //!
     //! If set to false, the executation of a command will occur on the thread that decided the command must be called at the moment which it was decided.
-    //! It will then be up to the implimentor to marshal that command onto module's thread by overriding start() method.
+    //! It will then be up to the implementor to marshal that command onto module's thread by overriding start() method.
     //!
     //! If some commands are to be invoked on module's event loop and other not, the start() method will need to be overidden and a custom event loop written
     //! In that event loop, any commands who are to use built-in marshalling can be executed with "ExecuteQueuedCommands();" command.
