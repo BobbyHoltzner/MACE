@@ -29,7 +29,7 @@ type Props = {
     vehicleID: string,
     aircraft: VehicleStateType,
     isSelected: boolean,
-    handleAircraftCommand: (vehicleID: string, command: string) => void
+    handleAircraftCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void
 }
 
 type State = {
@@ -58,17 +58,20 @@ export class VehicleHUD extends React.Component<Props, State> {
     // }
 
     handleLoiter = () => {
-        this.props.handleAircraftCommand(this.props.vehicleID, "Loiter");
+        this.props.handleAircraftCommand(this.props.vehicleID, "SET_VEHICLE_MODE", "LOITER");
     }
     handleRTL = () => {
-        this.props.handleAircraftCommand(this.props.vehicleID, "RTL");
+        this.props.handleAircraftCommand(this.props.vehicleID, "SET_VEHICLE_MODE", "RTL");
+    }
+    handleGetMission = () => {
+        this.props.handleAircraftCommand(this.props.vehicleID, "GET_VEHICLE_MISSION", "")
     }
 
     render() {
-        
+
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <Card expanded={true} onExpandChange={() => console.log("TEST CLICK")} style={{position: "relative", width: 90 + "%", marginBottom: 15}}>            
+                <Card expanded={true} onExpandChange={() => console.log("TEST CLICK")} style={{position: "relative", width: 90 + "%", marginBottom: 15}}>
                     <CardHeader
                         titleStyle={{fontSize: 24}}
                         title={"ID: " + this.props.vehicleID}
@@ -82,43 +85,47 @@ export class VehicleHUD extends React.Component<Props, State> {
                         <div className="col-xs-6">
                             <div className="box">
                                 <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
-                                    {"Lat: " + this.props.aircraft.position.lat.toFixed(2)} 
+                                    {"Lat: " + this.props.aircraft.position.lat.toFixed(2)}
                                 </CardText>
                                 <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
-                                    {"Lon: " + this.props.aircraft.position.lon.toFixed(2)} 
+                                    {"Lon: " + this.props.aircraft.position.lon.toFixed(2)}
                                 </CardText>
                                 <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
-                                    {"Alt: " + this.props.aircraft.position.alt.toFixed(2)} 
+                                    {"Alt: " + this.props.aircraft.position.alt.toFixed(2)}
                                 </CardText>
                             </div>
                         </div>
                         <div className="col-xs-6">
                             <div className="box">
                                 <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
-                                    {"Roll: " + this.props.aircraft.attitude.roll.toFixed(2)} 
+                                    {"Roll: " + this.props.aircraft.attitude.roll.toFixed(2)}
                                 </CardText>
                                 <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
-                                    {"Pitch: " + this.props.aircraft.attitude.pitch.toFixed(2)} 
+                                    {"Pitch: " + this.props.aircraft.attitude.pitch.toFixed(2)}
                                 </CardText>
                                 <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
-                                    {"Yaw: " + this.props.aircraft.attitude.yaw.toFixed(2)} 
-                                </CardText>                                
+                                    {"Yaw: " + this.props.aircraft.attitude.yaw.toFixed(2)}
+                                </CardText>
                             </div>
                         </div>
                     </div>
 
-                    
+
                     <CardActions style={{textAlign: "center"}}>
-                        <FlatButton 
-                            label="Loiter" 
+                        <FlatButton
+                            label="Loiter"
                             onClick={this.handleLoiter}
                             icon={<i className="material-icons">pause</i>} />
-                        <FlatButton 
-                            label="RTL" 
+                        <FlatButton
+                            label="RTL"
                             onClick={this.handleRTL}
                             icon={<i className="material-icons">home</i>} />
+                        <FlatButton
+                            label="Sync Mission"
+                            onClick={this.handleGetMission}
+                            icon={<i className="material-icons">swap_calls</i>} />
                     </CardActions>
-                    
+
                 </Card>
             </MuiThemeProvider>
         )

@@ -65,7 +65,7 @@ export default class AppContainer extends React.Component<Props, State> {
     this.state = {
       tcpClient: new net.Socket(),
       tcpHost: '127.0.0.1',
-      tcpPort: 1234,
+      tcpPort: 5678,
       maxZoom: 20,
       initialZoom: 18,
       // mapCenter: [37.889231, -76.810302], // Bob's Farm
@@ -185,6 +185,47 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
 
+  makeTCPRequest = (vehicleID: number, tcpCommand: string, vehicleCommand: string) => {
+    let socket = new net.Socket();
+    this.setupTCPClient(socket);
+    // this.state.tcpClient.connect(this.state.tcpPort, this.state.tcpHost, function() {
+    socket.connect(this.state.tcpPort, this.state.tcpHost, function() {
+      // console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
+      let tcpRequest = {
+        tcpCommand: tcpCommand,
+        vehicleID: vehicleID,
+        vehicleCommand: vehicleCommand
+      };
+      socket.write(JSON.stringify(tcpRequest));
+    }.bind(this));
+  }
+
+
+  setupTCPClient = (socket: any) => {
+    // Add a 'data' event handler for the client socket
+    // data is what the server sent to this socket
+    socket.on('data', function(data: any) {
+        // console.log('DATA: ' + data);
+        // let jsonData = JSON.parse(data);
+        // this.parseTCPResponse(jsonData);
+        // Close the client socket completely
+        socket.destroy();
+    }.bind(this));
+
+    // Add a 'close' event handler for the client socket
+    socket.on('close', function() {
+        // console.log('Connection closed');
+        socket.destroy();
+    }.bind(this));
+
+    // Add an 'error' event handler
+    socket.on('error', function(err: any) {
+        console.log('Error: ' + err);
+        socket.destroy();
+    }.bind(this));
+  }
+
+
   showNotification = (title: string, message: string, level: string, position: string, label: string) => {
     let notification = {
       title: title,
@@ -201,7 +242,10 @@ export default class AppContainer extends React.Component<Props, State> {
 
   handleSelectedAircraftChange = (id: string) => {}
 
-  handleAircraftCommand = (id: string, command: string) => {}
+  handleAircraftCommand = (id: string, tcpCommand: string, vehicleCommand: string) => {
+    console.log(tcpCommand);
+    this.makeTCPRequest(parseInt(id), tcpCommand, vehicleCommand)
+  }
 
   handleDrawerAction = (action: string) => {
     console.log("Action: " + action);
@@ -245,6 +289,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
             <ConnectedVehiclesContainer
               connectedVehicles={this.state.connectedVehicles}
+              onAircraftCommand={this.handleAircraftCommand}
             />
 
 

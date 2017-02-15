@@ -22,7 +22,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         if(missionItem)
         {
             if(decodedMSG.seq == 0)
-            {
+            {              
 
                 //This is the home position item associated with the vehicle
                 MissionItem::SpatialHome newHome;

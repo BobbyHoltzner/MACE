@@ -8,7 +8,8 @@ import { VehicleHUD } from '../components/VehicleHUD';
 
 
 type Props = {
-    connectedVehicles: VehicleMapType
+    connectedVehicles: VehicleMapType,
+    onAircraftCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void
 }
 
 type State = {
@@ -31,14 +32,15 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
     toggleContainerCollapse = () => {
         this.setState({showConnectedVehicles: !this.state.showConnectedVehicles});
     }
-    handleAircraftCommand = (vehicleID: string, command: string) => {
-        console.log("Command: " + command + " for vehicleID: " + vehicleID);
+    handleAircraftCommand = (vehicleID: string, tcpCommand: string, vehicleCommand: string) => {
+        console.log("Command: " + vehicleCommand + " for vehicleID: " + vehicleID);
+        this.props.onAircraftCommand(vehicleID, tcpCommand, vehicleCommand);
     }
 
     render() {
-        
+
         const height = window.screen.height;
-        const connectedVehiclesContainer = { position: 'absolute', height: height, right: 0, zIndex: 999, width: 20 + "%", backgroundColor: 'rgba(255,255,255,1)', display: 'flex', alignItems: 'center', flexDirection: 'column', maxHeight: height, overflowY: "scroll" };   
+        const connectedVehiclesContainer = { position: 'absolute', height: height, right: 0, zIndex: 999, width: 20 + "%", backgroundColor: 'rgba(255,255,255,1)', display: 'flex', alignItems: 'center', flexDirection: 'column', maxHeight: height, overflowY: "scroll" };
         const openButtonContainer = { position: 'absolute', top: 15, right: 15, zIndex: 999, backgroundColor: "rgba(255,255,255,1)" };
 
         let vehicleHUDs: JSX.Element[] = [];
@@ -55,9 +57,9 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
             );
         }
 
-        return(               
-            <MuiThemeProvider muiTheme={lightMuiTheme}>   
-                <div>                  
+        return(
+            <MuiThemeProvider muiTheme={lightMuiTheme}>
+                <div>
                     {Object.keys(this.props.connectedVehicles).length > 0 &&
                         <div style={openButtonContainer}>
                             <FlatButton
@@ -66,8 +68,8 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
                                 icon={<i className="material-icons">keyboard_arrow_left</i>}
                             />
                         </div>
-                    }                                            
-                    {(this.state.showConnectedVehicles && Object.keys(this.props.connectedVehicles).length > 0) ? 
+                    }
+                    {(this.state.showConnectedVehicles && Object.keys(this.props.connectedVehicles).length > 0) ?
                         <div style={connectedVehiclesContainer}>
                             <div>
                                 <FlatButton
@@ -79,13 +81,13 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
                             </div>
 
                             {vehicleHUDs}
-                                                        
+
                         </div>
                      : null
                     }
 
                 </div>
-            </MuiThemeProvider>            
+            </MuiThemeProvider>
         )
 
     }
