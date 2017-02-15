@@ -19,6 +19,7 @@ public:
     virtual void RequestVehicleHomePosition(const void* sender, const int &vehicleID) = 0;
     virtual void SetVehicleHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome) = 0;
 
+    virtual void UpdateGlobalOriginPosition(const void* sender, const MissionItem::SpatialHome &globalHome) = 0;
 };
 
 } //End MaceCore Namespace

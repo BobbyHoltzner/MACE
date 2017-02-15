@@ -162,6 +162,11 @@ void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &v
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_GUIDED_QUEUE,vehicleID);
 }
 
+void MaceCore::UpdateGlobalOriginPosition(const void *sender, const MissionItem::SpatialHome &globalHome)
+{
+    m_DataFusion->UpdateGlobalOrigin(globalHome);
+}
+
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////

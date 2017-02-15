@@ -150,6 +150,13 @@ private:
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_GlobalOrigin = globalOrigin;
         flagGlobalOrigin = true;
+        for (std::map<int,MissionItem::SpatialHome>::iterator it=m_VehicleHomeMap.begin(); it!=m_VehicleHomeMap.end(); ++it)
+        {
+            Eigen::Vector3f translation;
+            it->second.position.translationTransformation(m_GlobalOrigin.position,translation);
+            m_VehicleToGlobalTranslation.at(it->first) = translation;
+        }
+          //std::cout << it->first << " => " << it->second << '\n';
         //This is where we would need to update and compute transformations
     }
 

@@ -86,7 +86,7 @@ public:
     virtual void RequestVehicleHomePosition(const void* sender, const int &vehicleID);
     virtual void SetVehicleHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome);
 
-
+    virtual void UpdateGlobalOriginPosition(const void* sender, const MissionItem::SpatialHome &globalHome);
 
 public:
 

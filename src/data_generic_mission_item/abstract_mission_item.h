@@ -45,6 +45,13 @@ public:
     int getVehicleID() const{
         return m_VehicleID;
     }
+public:
+    void operator = (const AbstractMissionItem &rhs)
+    {
+        this->m_VehicleID = rhs.m_VehicleID;
+        this->m_CoordinateFrame = rhs.m_CoordinateFrame;
+        this->m_PositionalFrame = rhs.m_PositionalFrame;
+    }
 
 protected:
     int m_VehicleID;

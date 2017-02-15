@@ -48,6 +48,13 @@ public:
 
 
 public:
+    void operator = (const StateGlobalPosition &rhs)
+    {
+        this->latitude = rhs.latitude;
+        this->longitude = rhs.longitude;
+        this->altitude = rhs.altitude;
+    }
+
     bool operator == (const StateGlobalPosition &rhs) {
         if(this->latitude != rhs.latitude){
             return false;
