@@ -50,7 +50,6 @@ public:
     }
 
 private:
-    int m_VehicleID;
     std::string m_CommandVehicleMode;
 
 };

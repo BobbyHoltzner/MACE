@@ -7,12 +7,14 @@ import RaisedButton from 'material-ui/RaisedButton';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import * as colors from 'material-ui/styles/colors';
+import FontIcon from 'material-ui/FontIcon';
+import { Grid, Col, Row } from 'react-bootstrap';
 
 
 type Props = {
     connectedVehicles: VehicleMapType,
     onSelectedAircraftChange: (id: string) => void,
-    onAircraftCommand: (id: string, command: string) => void
+    onAircraftCommand: (id: string, tcpCommand: string, vehicleCommand: string) => void
 }
 
 type State = {
@@ -25,7 +27,7 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
         super(props);
 
         this.state = {
-            selectedAircraftID: "0"
+            selectedAircraftID: "1"
         }
     }
 
@@ -37,19 +39,22 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
 
     render() {
 
+        const width = window.screen.width;
+        // const height = window.screen.height;
         const aircraftCommsContainer = {
             // backgroundColor: colors.orange700,
             position: 'absolute',
             bottom: 0,
-            left: 0,
-            height: 64,
+            left: 50 + '%',
+            // height: 64,
             zIndex: 9999,
-            // width: 100 + "%",
+            width: 50 + "%",
             display: "flex",
             justifyContent: "center",
-            alignItems: "center"
+            alignItems: "center",
+            marginLeft: -width*0.25
         };
-        const buttonStyle = { height: 44 };
+        const buttonStyle = { height: 104, margin: 5 };
 
 
         let vehicleIDs: JSX.Element[] = [];
@@ -63,28 +68,39 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
 
         return(
             <div>
-                {Object.keys(this.props.connectedVehicles).length > 0 &&
+                {Object.keys(this.props.connectedVehicles).length >= 0 &&
                     <div style={aircraftCommsContainer}>
-                        <MuiThemeProvider muiTheme={lightMuiTheme}>
-                            <DropDownMenu style={{width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>
-                                <MenuItem value={"0"} primaryText={"1"} label={"id 1"} />
-                                <MenuItem value={"1"} primaryText={"2"} label={"id 2"} />
-                                {vehicleIDs}
-                            </DropDownMenu>
-                        </MuiThemeProvider>
+                            <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                <DropDownMenu style={{marginRight: 10, width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>
+                                    <MenuItem value={"0"} primaryText={"1"} label={"id 1"} />
+                                    <MenuItem value={"1"} primaryText={"2"} label={"id 2"} />
+                                    {vehicleIDs}
+                                </DropDownMenu>
+                            </MuiThemeProvider>
 
-                        <MuiThemeProvider muiTheme={lightMuiTheme}>
-                            <RaisedButton style={buttonStyle} label="Launch" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "Launch")}/>
-                        </MuiThemeProvider>
-                        <MuiThemeProvider muiTheme={lightMuiTheme}>
-                            <RaisedButton style={buttonStyle} label="Land" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "Land")}/>
-                        </MuiThemeProvider>
-                        <MuiThemeProvider muiTheme={lightMuiTheme}>
-                            <RaisedButton style={buttonStyle} label="RTL" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "RTL")}/>
-                        </MuiThemeProvider>
-                        <MuiThemeProvider muiTheme={lightMuiTheme}>
-                            <RaisedButton style={buttonStyle} label="Send WPs" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SendWPs")}/>
-                        </MuiThemeProvider>
+                            <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                <RaisedButton style={buttonStyle} onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "GUIDED")} >
+                                    <Grid>
+                                        <Row>
+                                            <Col xs={12}>
+                                                <FontIcon className="material-icons">home</FontIcon>
+                                            </Col>
+                                            <Col xs={12}>
+                                                <div>Launch</div>
+                                            </Col>
+                                        </Row>
+                                    </Grid>
+                                </RaisedButton>
+                            </MuiThemeProvider>
+                            <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                <RaisedButton style={buttonStyle} label="Land" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "Land")}/>
+                            </MuiThemeProvider>
+                            <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                <RaisedButton style={buttonStyle} label="RTL" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "RTL")}/>
+                            </MuiThemeProvider>
+                            <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                <RaisedButton style={buttonStyle} label="Send WPs" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SEND_VEHICLE_WPS", "SendWPs")}/>
+                            </MuiThemeProvider>
                     </div>
                 }
             </div>

@@ -10,12 +10,18 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QThread>
 #include "mace_core/i_module_topic_events.h"
 #include "mace_core/i_module_command_ground_station.h"
 #include "data/i_topic_component_data_object.h"
 #include "data/topic_data_object_collection.h"
 
+#include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
+
+#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_mission_item_topic/mission_item_topic_components.h"
+
 #include "data_vehicle_sensors/components.h"
 #include "data_vehicle_MAVLINK/components.h"
 #include "data_vehicle_ardupilot/components.h"
@@ -31,6 +37,12 @@ public:
     ModuleGroundStation();
 
     ~ModuleGroundStation();
+
+    //!
+    //! \brief Starts the TCP server for the GCS to send requests to
+    //! \return
+    //!
+    virtual bool StartTCPServer();
 
     //!
     //! \brief This module as been attached as a module
@@ -107,22 +119,40 @@ public:
 
 private:
 
-    void parseTCPRequest(QJsonObject jsonObj, QByteArray &returnData);
 
     void sendPositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &component);
 
     void sendAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
 
+    void sendVehicleMission(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionListTopic> &component);
+
     bool writeTCPData(QByteArray data);
+
+
+    // Commands from GUI:
+    void parseTCPRequest(QJsonObject jsonObj);
+
+    void setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj);
+
+    void getVehicleMission(const int &vehicleID);
+
+
+    // Helpers:
+    void missionToJSON(const std::shared_ptr<MissionTopic::MissionListTopic> &component, QJsonArray &missionItems);
+
+
+public slots:
+    void on_newConnection();
 
 
 private:
 
-    QTcpSocket *m_TcpSocket;
+    std::shared_ptr<QTcpServer> m_TcpServer;
+    QThread *m_ListenThread;
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
-
+    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 };
 
 #endif // MODULE_GROUND_STATION_H
