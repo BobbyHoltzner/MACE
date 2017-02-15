@@ -98,7 +98,7 @@ void UdpConfiguration::listenForPort(const int &listenPortNumber)
             // Delete socket and break out of this loop:
             if (m_socket) {
                 m_socket->close();
-                m_socket->waitForDisconnected();
+//                m_socket->waitForDisconnected();
                 delete m_socket;
                 m_socket = NULL;
             }

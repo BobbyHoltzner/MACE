@@ -13,14 +13,17 @@ namespace MissionItem {
 class SpatialHome : public AbstractMissionItem
 {
 public:
+    SpatialHome();
+    SpatialHome(const SpatialHome &spatialHome);
+
+
+public:
     virtual MissionItemType getMissionType()const;
 
     virtual std::string getDescription()const;
 
     virtual bool hasSpatialMissionInfluence()const;
 
-public:
-    SpatialHome(const SpatialHome &spatialHome);
 
 public:
     void operator = (const SpatialHome &rhs)
