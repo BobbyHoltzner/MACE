@@ -80,10 +80,13 @@ public:
     virtual void RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm);
     virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode);
     virtual void RequestCurrentVehicleMission(const void* sender, const int &vehicleID);
-    virtual void RequestVehicleHomePosition(const void* sender, const int &vehicleID);
     virtual void RequestVehicleClearAutoMission(const void* sender, const int &vehicleID);
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
 
+    virtual void RequestVehicleHomePosition(const void* sender, const int &vehicleID);
+    virtual void SetVehicleHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome);
+
+    virtual void UpdateGlobalOriginPosition(const void* sender, const MissionItem::SpatialHome &globalHome);
 
 public:
 
@@ -97,6 +100,8 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
     virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
+    virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
+
 
 public:
 

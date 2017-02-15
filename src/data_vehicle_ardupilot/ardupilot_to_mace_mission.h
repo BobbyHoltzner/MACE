@@ -24,6 +24,8 @@ public:
     static mavlink_message_t generateArdupilotCommandMessage(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
 
     static mavlink_message_t generateGetHomePosition(const int &vehicleID, const int &chan);
+    static mavlink_message_t generateSetHomePosition(const MissionItem::SpatialHome &vehicleHome, const int &chan);
+
     static mavlink_message_t generateChangeMode(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const int &newMode);
 
 

@@ -185,7 +185,7 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
 
-  makeTCPRequest = (tcpCommand: string, vehicleID: number, vehicleCommand: string) => {
+  makeTCPRequest = (vehicleID: number, tcpCommand: string, vehicleCommand: string) => {
     let socket = new net.Socket();
     this.setupTCPClient(socket);
     // this.state.tcpClient.connect(this.state.tcpPort, this.state.tcpHost, function() {
@@ -244,7 +244,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
   handleAircraftCommand = (id: string, tcpCommand: string, vehicleCommand: string) => {
     console.log(tcpCommand);
-    this.makeTCPRequest(tcpCommand, parseInt(id), vehicleCommand)
+    this.makeTCPRequest(parseInt(id), tcpCommand, vehicleCommand)
   }
 
   handleDrawerAction = (action: string) => {
@@ -289,6 +289,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
             <ConnectedVehiclesContainer
               connectedVehicles={this.state.connectedVehicles}
+              onAircraftCommand={this.handleAircraftCommand}
             />
 
 

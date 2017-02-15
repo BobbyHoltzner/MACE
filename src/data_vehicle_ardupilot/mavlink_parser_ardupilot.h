@@ -359,6 +359,7 @@ public:
             //This is message definition 253
             mavlink_statustext_t decodedMSG;
             mavlink_msg_statustext_decode(message,&decodedMSG);
+            std::cout<<"The status text says: "<<decodedMSG.text<<std::endl;
             std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Text> statusText = std::make_shared<DataVehicleGenericTopic::DataVehicleGenericTopic_Text>();
             statusText->setText(decodedMSG.text);
             rtnVector.push_back(statusText);

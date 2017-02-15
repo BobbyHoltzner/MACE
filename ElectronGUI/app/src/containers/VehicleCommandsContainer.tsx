@@ -54,7 +54,7 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
             alignItems: "center",
             marginLeft: -width*0.25
         };
-        const buttonStyle = { height: 104, margin: 5 };
+        const buttonStyle = { margin: 5 };
 
 
         let vehicleIDs: JSX.Element[] = [];
@@ -79,6 +79,9 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
                             </MuiThemeProvider>
 
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                <RaisedButton icon={<i className="material-icons">flight_takeoff</i>} style={buttonStyle} label="Launch" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "TAKEOFF")}/>
+
+                                {/*
                                 <RaisedButton style={buttonStyle} onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "GUIDED")} >
                                     <Grid>
                                         <Row>
@@ -91,15 +94,16 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
                                         </Row>
                                     </Grid>
                                 </RaisedButton>
+                                */}
                             </MuiThemeProvider>
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <RaisedButton style={buttonStyle} label="Land" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "Land")}/>
+                                <RaisedButton icon={<i className="material-icons">get_app</i>} style={buttonStyle} label="Land" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "LAND")}/>
                             </MuiThemeProvider>
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <RaisedButton style={buttonStyle} label="RTL" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "RTL")}/>
+                                <RaisedButton icon={<i className="material-icons">home</i>} style={buttonStyle} label="Home" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "RTL")}/>
                             </MuiThemeProvider>
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <RaisedButton style={buttonStyle} label="Send WPs" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SEND_VEHICLE_WPS", "SendWPs")}/>
+                                <RaisedButton icon={<i className="material-icons">send</i>} style={buttonStyle} label="Send WPs" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SEND_VEHICLE_WPS", "SendWPs")}/>
                             </MuiThemeProvider>
                     </div>
                 }

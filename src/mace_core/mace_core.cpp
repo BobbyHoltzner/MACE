@@ -147,6 +147,11 @@ void MaceCore::RequestVehicleHomePosition(const void* sender, const int &vehicle
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
 }
 
+void MaceCore::SetVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
+{
+    m_VehicleIDToPort.at(vehicleHome.getVehicleID())->MarshalCommand(VehicleCommands::SET_VEHICLE_HOME,vehicleHome);
+}
+
 void MaceCore::RequestVehicleClearAutoMission(const void* sender, const int &vehicleID)
 {
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,vehicleID);
@@ -155,6 +160,11 @@ void MaceCore::RequestVehicleClearAutoMission(const void* sender, const int &veh
 void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID)
 {
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_GUIDED_QUEUE,vehicleID);
+}
+
+void MaceCore::UpdateGlobalOriginPosition(const void *sender, const MissionItem::SpatialHome &globalHome)
+{
+    m_DataFusion->UpdateGlobalOrigin(globalHome);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -170,6 +180,12 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
     m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
 //    m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
 //    m_PathPlanning->MarshalCommand(PathPlanningCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
+}
+
+void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
+{
+    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
+    m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
 }
 
 

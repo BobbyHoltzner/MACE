@@ -22,4 +22,5 @@ SUBDIRS += \
     data_generic_mission_item \
     data_generic_mission_item_topic \
     TestCodeHolder \
-    data_vehicle_generic_topic
+    data_vehicle_generic_topic \
+    TestSpatialMath

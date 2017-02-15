@@ -63,3 +63,12 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/
 else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
 
 
+
+unix{
+    EigenInclude = $$system(pkg-config --cflags eigen3)
+    EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
+    INCLUDEPATH += $$EigenInclude
+}
+win32{
+    INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
+}

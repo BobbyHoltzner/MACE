@@ -49,6 +49,7 @@ ModuleGroundStation::ModuleGroundStation() :
     m_MissionDataTopic("vehicleMission"),
     m_ListenThread(NULL)
 {
+
 }
 
 ModuleGroundStation::~ModuleGroundStation()

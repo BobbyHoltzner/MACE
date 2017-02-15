@@ -2,7 +2,7 @@
 
 namespace DataVehicleGenericTopic {
 
-const char GenericVehicleTopicFuel_name[] = "statusText";
+const char GenericVehicleTopicFuel_name[] = "vehicleFuel";
 const MaceCore::TopicComponentStructure GenericVehicleTopicFuel_structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<double>("voltage");
