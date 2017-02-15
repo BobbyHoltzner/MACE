@@ -17,6 +17,11 @@ bool SpatialHome::hasSpatialMissionInfluence() const
     return true;
 }
 
+SpatialHome::SpatialHome()
+{
+
+}
+
 SpatialHome::SpatialHome(const SpatialHome &spatialHome)
 {
     this->position = spatialHome.position;

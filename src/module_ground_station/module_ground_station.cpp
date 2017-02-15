@@ -234,7 +234,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
         //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            std::cout << "  " << componentsUpdated.at(i) << std::endl;
+//            std::cout << "  " << componentsUpdated.at(i) << std::endl;
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
@@ -270,7 +270,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
         //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            std::cout << "  " << componentsUpdated.at(i) << std::endl;
+//            std::cout << "  " << componentsUpdated.at(i) << std::endl;
             if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
