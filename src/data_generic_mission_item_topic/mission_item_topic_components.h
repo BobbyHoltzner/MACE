@@ -10,5 +10,7 @@
 #include "mission_home_topic.h"
 
 #include "mission_item_request_topic.h"
+#include "mission_item_current_topic.h"
+#include "mission_item_reached_topic.h"
 
 #endif // MISSION_ITEM_TOPIC_COMPONENTS_H
