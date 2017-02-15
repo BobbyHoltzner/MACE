@@ -6,8 +6,8 @@
       <Parameter Name="Version">V1</Parameter>
     </Parameter>
     <Parameter Name="SerialParameters">
-      <Parameter Name="PortName">COM3</Parameter>
-      <Parameter Name="BaudRate">115200</Parameter>
+      <Parameter Name="PortName">COM14</Parameter>
+      <Parameter Name="BaudRate">57600</Parameter>
       <Parameter Name="DataBits">8</Parameter>
       <Parameter Name="StopBits">1</Parameter>
       <Parameter Name="Parity">false</Parameter>

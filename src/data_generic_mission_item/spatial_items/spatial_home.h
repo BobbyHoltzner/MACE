@@ -20,6 +20,15 @@ public:
     virtual bool hasSpatialMissionInfluence()const;
 
 public:
+    SpatialHome(const SpatialHome &spatialHome);
+
+public:
+    void operator = (const SpatialHome &rhs)
+    {
+        AbstractMissionItem::operator =(rhs);
+        this->position = rhs.position;
+    }
+
     bool operator == (const SpatialHome &rhs) {
         if(this->position != rhs.position){
             return false;

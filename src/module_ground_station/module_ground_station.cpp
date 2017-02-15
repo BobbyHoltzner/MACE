@@ -16,6 +16,7 @@ ModuleGroundStation::ModuleGroundStation() :
     m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData"),
     m_TcpSocket(NULL)
 {
+
 }
 
 ModuleGroundStation::~ModuleGroundStation()
