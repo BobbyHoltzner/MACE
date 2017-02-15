@@ -21,8 +21,19 @@ public:
     int getQueueSize();
 
 public:
+    void setVehicleID(const int &vehicleID){
+        m_VehicleID = vehicleID;
+    }
 
+    int getVehicleID() const{
+        return m_VehicleID;
+    }
+
+public:
     std::vector<std::shared_ptr<AbstractMissionItem>> missionQueue;
+
+private:
+    int m_VehicleID;
 };
 
 } //end of namespace MissionItem

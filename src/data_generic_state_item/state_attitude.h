@@ -7,12 +7,25 @@ class StateAttitude
 {
 public:
     StateAttitude();
+    StateAttitude(const StateAttitude &attitude);
 
 public:
     void setAttitude(const double &roll, const double &pitch, const double &yaw);
     void setAttitudeRates(const double &rollRate, const double &pitchRate, const double &yawRate);
 
 public:
+    void operator = (const StateAttitude &rhs)
+    {
+        this->roll = rhs.roll;
+        this->rollRate = rhs.rollRate;
+
+        this->pitch = rhs.pitch;
+        this->pitchRate = rhs.pitchRate;
+
+        this->yaw = rhs.yaw;
+        this->yawRate = rhs.yawRate;
+    }
+
     bool operator == (const StateAttitude &rhs) {
         if(this->roll != rhs.roll){
             return false;

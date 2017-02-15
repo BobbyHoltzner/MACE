@@ -35,6 +35,16 @@ void ModuleVehicleArdupilot::SetVehicleHomePosition(const MissionItem::SpatialHo
 }
 
 
+
+void ModuleVehicleArdupilot::SetCurrentMissionQueue(const MissionItem::MissionList &missionList)
+{
+    int vehicleID = missionList.getVehicleID();
+    m_ProposedMissionQueue[missionList.getVehicleID()] = missionList;
+    mavlink_message_t msg;
+    mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,m_ProposedMissionQueue.at(vehicleID).getQueueSize());
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+}
+
 void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
 {
     mavlink_message_t msg;
@@ -59,7 +69,6 @@ void ModuleVehicleArdupilot::RequestClearGuidedQueue(const int &vehicleID)
 {
 
 }
-
 
 //!
 //! \brief This module as been attached as a module

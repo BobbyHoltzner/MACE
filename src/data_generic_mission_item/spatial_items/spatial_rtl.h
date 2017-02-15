@@ -15,6 +15,24 @@ public:
     virtual std::string getDescription()const;
 
     virtual bool hasSpatialMissionInfluence()const;
+
+public:
+    void operator = (const SpatialRTL &rhs)
+    {
+        AbstractMissionItem::operator =(rhs);
+    }
+
+    bool operator == (const SpatialRTL &rhs) {
+        if(!AbstractMissionItem::operator ==(rhs))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const SpatialRTL &rhs) {
+        return !(*this == rhs);
+    }
 };
 
 } //end of namespace MissionItem

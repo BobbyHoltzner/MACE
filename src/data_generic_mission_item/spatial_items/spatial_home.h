@@ -33,6 +33,10 @@ public:
     }
 
     bool operator == (const SpatialHome &rhs) {
+        if(!AbstractMissionItem::operator ==(rhs))
+        {
+            return false;
+        }
         if(this->position != rhs.position){
             return false;
         }

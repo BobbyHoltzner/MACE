@@ -12,8 +12,10 @@ public:
     virtual void RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm) = 0;
     virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode) = 0;
 
+    virtual void SetCurrentVehicleMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
     virtual void RequestCurrentVehicleMission(const void* sender, const int &vehicleID) = 0;
     virtual void RequestVehicleClearAutoMission(const void* sender, const int &vehicleID) = 0;
+
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID) = 0;
 
     virtual void RequestVehicleHomePosition(const void* sender, const int &vehicleID) = 0;

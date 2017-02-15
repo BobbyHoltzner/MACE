@@ -38,6 +38,7 @@ MissionItemTopic::MissionItemTopic(const MissionType &missionType)
 
 void MissionItemTopic::setMissionItem(const std::shared_ptr<MissionItem::AbstractMissionItem> missionItem)
 {
+    this->vehicleID = missionItem->getVehicleID();
     this->missionItem = missionItem;
 }
 

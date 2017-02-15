@@ -31,8 +31,7 @@ ActionArm::ActionArm(const int &vehicleID, const bool &arm)
 
 ActionArm::ActionArm(const ActionArm &actionArm)
 {
-    this->m_ActionArm = actionArm.m_ActionArm;
-    this->m_VehicleID = actionArm.m_VehicleID;
+    this->operator =(actionArm);
 }
 
 }

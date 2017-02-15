@@ -26,6 +26,28 @@ public:
     void setLandFlag(const bool &landFlag);
 
 public:
+    void operator = (const SpatialLand &rhs)
+    {
+        AbstractMissionItem::operator =(rhs);
+        this->position = rhs.position;
+    }
+
+    bool operator == (const SpatialLand &rhs) {
+        if(!AbstractMissionItem::operator ==(rhs))
+        {
+            return false;
+        }
+        if(this->position != rhs.position){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const SpatialLand &rhs) {
+        return !(*this == rhs);
+    }
+
+public:
     T position;
 
 private:
