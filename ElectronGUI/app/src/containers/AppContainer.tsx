@@ -5,7 +5,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme();
 
 var NotificationSystem = require('react-notification-system');
-import { Map, TileLayer, LayerGroup, Marker, Popup } from 'react-leaflet';
+import { Map, TileLayer, LayerGroup, Marker, Popup, Polyline } from 'react-leaflet';
 import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
 import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
 // import { generateNewVehicle } from '../components/VehicleHUD'
@@ -16,13 +16,13 @@ import * as colors from 'material-ui/styles/colors';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
-import {BottomNavigation, BottomNavigationItem} from 'material-ui/BottomNavigation';
-import FontIcon from 'material-ui/FontIcon';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
-
 import { Vehicle } from '../Vehicle';
+import { backgroundColors } from '../util/Colors';
 
 import * as deepcopy from 'deepcopy';
+
+
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
@@ -83,6 +83,10 @@ export default class AppContainer extends React.Component<Props, State> {
     this.leafletMap = this.refs.map;
     this.notificationSystem = this.refs.notificationSystem;
     this.setupTCPServer();
+
+    // setInterval(() => {
+    //   this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
+    // }, 3000);
   }
 
   setupTCPServer = () => {
@@ -205,9 +209,9 @@ export default class AppContainer extends React.Component<Props, State> {
     // Add a 'data' event handler for the client socket
     // data is what the server sent to this socket
     socket.on('data', function(data: any) {
-        // console.log('DATA: ' + data);
-        // let jsonData = JSON.parse(data);
-        // this.parseTCPResponse(jsonData);
+        console.log('DATA: ' + data);
+        let jsonData = JSON.parse(data);
+        this.parseTCPServerData(jsonData);
         // Close the client socket completely
         socket.destroy();
     }.bind(this));
@@ -223,6 +227,15 @@ export default class AppContainer extends React.Component<Props, State> {
         console.log('Error: ' + err);
         socket.destroy();
     }.bind(this));
+  }
+
+  parseTCPServerData = (jsonData: TCPReturnType) => {
+    if(jsonData.dataType === 'VehicleMission') {
+      let vehicleMission = jsonData as TCPMissionType;
+      let stateCopy = deepcopy(this.state.connectedVehicles);
+      stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
+      this.setState({connectedVehicles: stateCopy});
+    }
   }
 
 
@@ -309,7 +322,10 @@ export default class AppContainer extends React.Component<Props, State> {
             <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} >
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.state.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
+
                 <LayerGroup>
+
+                  {/* Aircraft Icons */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
                       <Marker key={key} position={this.state.connectedVehicles[key].vehicleMarker.position} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
@@ -317,6 +333,24 @@ export default class AppContainer extends React.Component<Props, State> {
                           <span>Selected</span>
                         </Popup>
                       </Marker>
+                    );
+                  })}
+
+                  {/* Mission Paths */}
+                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
+                    return (
+                      <Polyline key={key} positions={this.state.connectedVehicles[key].vehicleMission.latLons} color={backgroundColors[parseInt(key)]} />
+                    );
+                  })}
+
+                  {/* Mission Paths */}
+                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
+                    let markers: JSX.Element[] = [];
+                    for(let i = 0; i < this.state.connectedVehicles[key].vehicleMission.latLons.length; i++){
+                      markers.push(<Marker key={i} position={this.state.connectedVehicles[key].vehicleMission.latLons[i]} icon={this.state.connectedVehicles[key].vehicleMission.icons[i]} title={key} />);
+                    }
+                    return (
+                      markers
                     );
                   })}
                 </LayerGroup>

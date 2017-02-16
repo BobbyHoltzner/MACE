@@ -91,16 +91,17 @@ void ModuleGroundStation::on_newConnection()
 {
     while (m_TcpServer->hasPendingConnections())
     {
-        QTcpSocket *socket = m_TcpServer->nextPendingConnection();
-        while (socket->waitForReadyRead())
+//        QTcpSocket *socket = m_TcpServer->nextPendingConnection();
+
+        m_TcpSocket = m_TcpServer->nextPendingConnection();
+        while (m_TcpSocket->waitForReadyRead())
         {
-            QByteArray data = socket->readAll();
+            QByteArray data = m_TcpSocket->readAll();
 
             std::cout << "Incoming data: " << data.toStdString() << std::endl;
 
             QJsonObject jsonObj;
             QJsonDocument doc = QJsonDocument::fromJson(data);
-
             // check validity of the document
             if(!doc.isNull())
             {
@@ -112,7 +113,7 @@ void ModuleGroundStation::on_newConnection()
                 else
                 {
                     std::cout << "Command is not a valid JSON object." << std::endl;
-                    socket->close();
+                    m_TcpSocket->close();
                     return;
                 }
             }
@@ -120,24 +121,22 @@ void ModuleGroundStation::on_newConnection()
             {
                 std::cout << "Invalid JSON..." << std::endl;
                 std::cout << data.toStdString() << std::endl;
-                socket->close();
+                m_TcpSocket->close();
                 return;
             }
 
-
-            QByteArray returnData("done");
-            socket->write(returnData);
-            socket->flush();
-            socket->waitForBytesWritten(3000);
+//            socket->write(returnData);
+//            socket->flush();
+//            socket->waitForBytesWritten(3000);
         }
 
         // TODO-PAT: Try to leave this socket open if possible??
-        socket->close();
+        m_TcpSocket->close();
     }
 }
 
 
-void ModuleGroundStation::parseTCPRequest(QJsonObject jsonObj)
+void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
 {
     QString command = jsonObj["tcpCommand"].toString();
     int vehicleID = jsonObj["vehicleID"].toInt();
@@ -150,11 +149,47 @@ void ModuleGroundStation::parseTCPRequest(QJsonObject jsonObj)
     {
         getVehicleMission(vehicleID);
     }
+    else if(command == "GET_CONNECTED_VEHICLES")
+    {
+        getConnectedVehicles();
+    }
     else
     {
         std::cout << "Command " << command.toStdString() << " not recognized." << std::endl;
         data = "command_not_recognized";
         return;
+    }
+}
+
+void ModuleGroundStation::getConnectedVehicles()
+{
+    // TODO-PAT: Instead of grabbing all vehicles, only send the one thats added to the GUI
+    //          -Eventually, handle the removal of a vehicle as well.
+
+    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+    std::vector<int> vehicleIDs;
+    data->GetAvailableVehicles(vehicleIDs);
+
+    QJsonArray ids;
+    if(vehicleIDs.size() > 0){
+        for (const int& i : vehicleIDs) {
+            ids.append(i);
+        }
+    }
+    else {
+        std::cout << "No vehicles currently available" << std::endl;
+    }
+
+    QJsonObject json;
+    json["dataType"] = "ConnectedVehicles";
+    json["vehicleID"] = 0;
+    json["connectedVehicles"] = ids;
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write New Vehicle Data failed..." << std::endl;
     }
 }
 
@@ -170,7 +205,7 @@ void ModuleGroundStation::setVehicleMode(const int &vehicleID, const QJsonObject
 {
     MissionItem::ActionChangeMode tmpMode;
     tmpMode.setVehicleID(vehicleID); // the vehicle ID coordinates to the specific vehicle //vehicle 0 is reserved for all connected vehicles
-    tmpMode.setRequestMode("GUIDED"); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
+    tmpMode.setRequestMode(jsonObj["vehicleCommand"].toString().toStdString()); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->RequestVehicleMode(this, tmpMode);
@@ -226,6 +261,8 @@ ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* p
 */
 void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
+    std::cout << "New Topic: " << senderID << std::endl;
+
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
@@ -294,10 +331,17 @@ void ModuleGroundStation::sendVehicleMission(const int &vehicleID, const std::sh
     json["missionItems"] = missionItems;
 
     QJsonDocument doc(json);
-    bool bytesWritten = writeTCPData(doc.toJson());
-
-    if(!bytesWritten){
-        std::cout << "Write mission failed..." << std::endl;
+//    bool bytesWritten = writeTCPData(doc.toJson());
+    if(m_TcpSocket->state() == QAbstractSocket::ConnectedState)
+    {
+        m_TcpSocket->write(doc.toJson()); //write the data itself
+        m_TcpSocket->flush();
+        m_TcpSocket->waitForBytesWritten();
+    }
+    else
+    {
+        std::cout << "TCP socket not connected" << std::endl;
+        m_TcpSocket->close();
     }
 }
 
@@ -307,6 +351,7 @@ void ModuleGroundStation::missionToJSON(const std::shared_ptr<MissionTopic::Miss
     {
         //TODO-PAT: Look into unique_ptr or auto_ptr?? Not sure I like this...
         MissionItem::AbstractMissionItem* missionItem = component->getMissionList().getMissionItem(i).get();
+
 
         QJsonObject obj;
         obj["description"] = QString::fromStdString(missionItem->getDescription());
@@ -428,31 +473,33 @@ void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
     std::vector<int> vehicleIDs;
     data->GetAvailableVehicles(vehicleIDs);
 
+    QJsonArray ids;
     if(vehicleIDs.size() > 0){
-        QJsonArray ids;
         for (const int& i : vehicleIDs) {
             ids.append(i);
-        }
-
-        QJsonObject json;
-        json["dataType"] = "ConnectedVehicles";
-        json["vehicleID"] = 0;
-        json["connectedVehicles"] = ids;
-
-        QJsonDocument doc(json);
-        bool bytesWritten = writeTCPData(doc.toJson());
-
-        if(!bytesWritten){
-            std::cout << "Write New Vehicle Data failed..." << std::endl;
         }
     }
     else {
         std::cout << "No vehicles currently available" << std::endl;
     }
+
+    QJsonObject json;
+    json["dataType"] = "ConnectedVehicles";
+    json["vehicleID"] = 0;
+    json["connectedVehicles"] = ids;
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write New Vehicle Data failed..." << std::endl;
+    }
 }
 
 bool ModuleGroundStation::writeTCPData(QByteArray data)
 {
+//    return true;
+
 
     std::shared_ptr<QTcpSocket> tcpSocket = std::make_shared<QTcpSocket>();
     tcpSocket->connectToHost(QHostAddress::LocalHost, 1234);
@@ -470,24 +517,5 @@ bool ModuleGroundStation::writeTCPData(QByteArray data)
         tcpSocket->close();
         return false;
     }
-
-
-//    m_TcpSocket = new QTcpSocket();
-//    m_TcpSocket->connectToHost(QHostAddress::LocalHost, 1234);
-//    m_TcpSocket->waitForConnected();
-//    if(m_TcpSocket->state() == QAbstractSocket::ConnectedState)
-//    {
-//        m_TcpSocket->write(data); //write the data itself
-//        m_TcpSocket->flush();
-//        m_TcpSocket->waitForBytesWritten();
-//        return true;
-//    }
-//    else
-//    {
-//        std::cout << "TCP socket not connected" << std::endl;
-//        m_TcpSocket->close();
-//        delete m_TcpSocket;
-//        return false;
-//    }
 }
 

@@ -1,8 +1,4 @@
-
-
-// TODO: Figure out a better way to do background colors
-const backgroundColors = ['rgba(255,255,255, 1)', 'rgba(255,0,0,0.2)', 'rgba(0,0,255,0.2)', 'rgba(0,0,0,0.2)', 'rgba(0,255,0,0.2)', 'rgba(255,255,0,0.2)', 'rgba(255,153,0,0.2)'];
-
+import { backgroundColors, opaqueBackgroundColors } from './util/Colors';
 
 export class Vehicle{
 
@@ -15,6 +11,7 @@ export class Vehicle{
     positionInterval: number;
     attitudeInterval: number;
     vehicleMarker: MarkerType;
+    vehicleMission: MissionLayerType
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
         this.vehicleId = vehicleId;
@@ -35,7 +32,7 @@ export class Vehicle{
         }
 
 
-        let iconHTML = '<div style="background-color: ' + backgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
+        let iconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
             position: new L.LatLng(this.position.lat, this.position.lon),
@@ -45,6 +42,9 @@ export class Vehicle{
                 popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
             })
         };
+
+        // Set blank mission
+        this.vehicleMission = {descriptions: [], latLons: [], itemTypes: [], icons: []};
     }
 
     setPosition(position: PositionType) {
@@ -67,13 +67,30 @@ export class Vehicle{
         this.positionFix = positionFix;
     }
 
+    setVehicleMission(mission: TCPMissionType) {
+        for(let i = 0; i < mission.missionItems.length; i++) {
+            this.vehicleMission.descriptions.push(mission.missionItems[i].description);
+            this.vehicleMission.itemTypes.push(mission.missionItems[i].type);
+            let tmpLatLng = new L.LatLng(mission.missionItems[i].lat, mission.missionItems[i].lon);
+            this.vehicleMission.latLons.push(tmpLatLng);
+
+            let tmpIcon = new L.Icon({
+              iconUrl: './images/marker-icon.png',
+              iconSize: [25, 41], // size of the icon
+              iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
+              popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
+            });
+            this.vehicleMission.icons.push(tmpIcon);
+        }
+    }
+
     updateMarkerPosition(newPos?: PositionType) {
         let posUpdate = this.position;
         if(newPos){
             posUpdate = newPos;
         }
 
-        let iconHTML = '<div style="background-color: ' + backgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
+        let iconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
             position: new L.LatLng(posUpdate.lat, posUpdate.lon),
@@ -91,7 +108,7 @@ export class Vehicle{
             attUpdate = newAtt;
         }
 
-        let iconHTML = '<div style="background-color: ' + backgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + attUpdate.yaw + 'deg); -moz-transform: rotate(' + attUpdate.yaw + 'deg); -o-transform: rotate(' + attUpdate.yaw + 'deg); -ms-transform: rotate(' + attUpdate.yaw + 'deg); transform: rotate(' + attUpdate.yaw + 'deg);">';
+        let iconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + attUpdate.yaw + 'deg); -moz-transform: rotate(' + attUpdate.yaw + 'deg); -o-transform: rotate(' + attUpdate.yaw + 'deg); -ms-transform: rotate(' + attUpdate.yaw + 'deg); transform: rotate(' + attUpdate.yaw + 'deg);">';
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
             position: new L.LatLng(this.position.lat, this.position.lon),

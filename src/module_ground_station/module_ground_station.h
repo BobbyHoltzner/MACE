@@ -130,11 +130,13 @@ private:
 
 
     // Commands from GUI:
-    void parseTCPRequest(QJsonObject jsonObj);
+    void parseTCPRequest(const QJsonObject &jsonObj);
 
     void setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj);
 
     void getVehicleMission(const int &vehicleID);
+
+    void getConnectedVehicles();
 
 
     // Helpers:
@@ -149,6 +151,7 @@ private:
 
     std::shared_ptr<QTcpServer> m_TcpServer;
     QThread *m_ListenThread;
+    QTcpSocket *m_TcpSocket;
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;

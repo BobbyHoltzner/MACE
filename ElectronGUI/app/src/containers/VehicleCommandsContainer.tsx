@@ -6,9 +6,9 @@ import * as React from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
-import * as colors from 'material-ui/styles/colors';
-import FontIcon from 'material-ui/FontIcon';
-import { Grid, Col, Row } from 'react-bootstrap';
+// import * as colors from 'material-ui/styles/colors';
+// import FontIcon from 'material-ui/FontIcon';
+// import { Grid, Col, Row } from 'react-bootstrap';
 
 
 type Props = {
@@ -103,7 +103,7 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
                                 <RaisedButton icon={<i className="material-icons">home</i>} style={buttonStyle} label="Home" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "RTL")}/>
                             </MuiThemeProvider>
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <RaisedButton icon={<i className="material-icons">send</i>} style={buttonStyle} label="Send WPs" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SEND_VEHICLE_WPS", "SendWPs")}/>
+                                <RaisedButton icon={<i className="material-icons">send</i>} style={buttonStyle} label="Send WPs" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "GET_CONNECTED_VEHICLES", "")}/>
                             </MuiThemeProvider>
                     </div>
                 }

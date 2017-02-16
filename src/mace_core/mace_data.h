@@ -235,6 +235,8 @@ public:
 
     void setTopicDatagram(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
 
+        std::lock_guard<std::mutex> guard(m_TopicMutex);
+
         if(m_LatestTopic.find(topicName) == m_LatestTopic.cend()) {
             m_LatestTopic.insert({topicName, {}});
         }
@@ -255,6 +257,7 @@ public:
 
 
     TopicDatagram GetCurrentTopicDatagram(const std::string &topicName, const int senderID) const {
+        std::lock_guard<std::mutex> guard(m_TopicMutex);
         return m_LatestTopic.at(topicName).at(senderID);
     }
 
@@ -684,6 +687,7 @@ private:
     mutable std::mutex m_Mutex_ResourceMap;
     mutable std::mutex m_Mutex_OccupancyMap;
     mutable std::mutex m_Mutex_ProbabilityMap;
+    mutable std::mutex m_TopicMutex;
 
 
 };
