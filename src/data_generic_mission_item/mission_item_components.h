@@ -10,4 +10,6 @@
 #include "data_generic_mission_item/do_items/action_arm.h"
 #include "data_generic_mission_item/do_items/action_change_mode.h"
 
+#include "data_generic_mission_item/mission_list.h"
+
 #endif // MISSION_ITEM_COMPONENTS_H

@@ -26,10 +26,6 @@ mavlink_message_t ArdupilotToMACEMission::generateSetHomePosition(const MissionI
     float qVector;
     mavlink_msg_set_home_position_pack_chan(255,190,chan,&msg,vehicleHome.getVehicleID(),latitude,longitude,altitude,0.0,0.0,0.0,&qVector,0.0,0.0,0.0);
 
-    //mavlink_msg_command_long_pack_chan(255,190,chan,&msg,vehicleHome.getVehicleID(),0,179,0,0.0,0.0,0.0,0.0,vehicleHome.position.latitude,vehicleHome.position.longitude,vehicleHome.position.altitude);
-    //mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),0,400,0,item->getRequestArm(),0,0,0,0,0,0);
-
-
     return msg;
 }
 

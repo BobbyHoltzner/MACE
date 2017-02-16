@@ -31,13 +31,19 @@ public:
         return m_ActionArm;
     }
 
-
 public:
+    void operator = (const ActionArm &rhs)
+    {
+        AbstractMissionItem::operator =(rhs);
+        this->m_ActionArm = rhs.m_ActionArm;
+    }
+
     bool operator == (const ActionArm &rhs) {
-        if(this->m_ActionArm != rhs.m_ActionArm){
+        if(!AbstractMissionItem::operator ==(rhs))
+        {
             return false;
         }
-        if(this->m_VehicleID != rhs.m_VehicleID){
+        if(this->m_ActionArm != rhs.m_ActionArm){
             return false;
         }
         return true;

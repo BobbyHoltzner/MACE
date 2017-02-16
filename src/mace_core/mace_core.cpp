@@ -137,10 +137,21 @@ void MaceCore::RequestVehicleMode(const void *sender, const MissionItem::ActionC
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_MODE,changeMode);
 }
 
+
+void MaceCore::SetCurrentVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
+{
+    int vehicleID = missionList.getVehicleID();
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,missionList);
+}
 void MaceCore::RequestCurrentVehicleMission(const void *sender, const int &vehicleID)
 {
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
 }
+void MaceCore::RequestVehicleClearAutoMission(const void* sender, const int &vehicleID)
+{
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,vehicleID);
+}
+
 
 void MaceCore::RequestVehicleHomePosition(const void* sender, const int &vehicleID)
 {
@@ -150,11 +161,6 @@ void MaceCore::RequestVehicleHomePosition(const void* sender, const int &vehicle
 void MaceCore::SetVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
 {
     m_VehicleIDToPort.at(vehicleHome.getVehicleID())->MarshalCommand(VehicleCommands::SET_VEHICLE_HOME,vehicleHome);
-}
-
-void MaceCore::RequestVehicleClearAutoMission(const void* sender, const int &vehicleID)
-{
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,vehicleID);
 }
 
 void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID)

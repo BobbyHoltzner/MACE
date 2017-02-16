@@ -14,6 +14,7 @@ class StateAttitudeTopic : public DataState::StateAttitude, public Data::NamedTo
 public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
+
 };
 
 } //end of namespace DataStateTopic

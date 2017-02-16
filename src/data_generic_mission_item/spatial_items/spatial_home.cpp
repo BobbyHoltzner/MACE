@@ -24,6 +24,6 @@ SpatialHome::SpatialHome()
 
 SpatialHome::SpatialHome(const SpatialHome &spatialHome)
 {
-    this->position = spatialHome.position;
+    this->operator =(spatialHome);
 }
 }
