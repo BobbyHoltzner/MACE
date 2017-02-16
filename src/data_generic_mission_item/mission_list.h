@@ -30,6 +30,26 @@ public:
     }
 
 public:
+    void operator = (const MissionList &rhs)
+    {
+        this->m_VehicleID = rhs.m_VehicleID;
+        this->missionQueue = rhs.missionQueue;
+    }
+
+    bool operator == (const MissionList &rhs) {
+        if(this->m_VehicleID != rhs.m_VehicleID){
+            return false;
+        }
+        if(this->missionQueue != rhs.missionQueue){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const MissionList &rhs) {
+        return !(*this == rhs);
+    }
+public:
     std::vector<std::shared_ptr<AbstractMissionItem>> missionQueue;
 
 private:

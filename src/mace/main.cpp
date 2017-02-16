@@ -32,9 +32,9 @@ int main(int argc, char *argv[])
     if(MACEPath){
         std::string rootPath(MACEPath);
         std::cout << "The current MACE_ROOT path is: " << rootPath << std::endl;
-        filename = rootPath + kPathSeparator + "MaceSetup_UDP.xml";
+        filename = rootPath + kPathSeparator + "MaceSetup.xml";
     }else{
-        filename = "MaceSetup_UDP.xml";
+        filename = "MaceSetup.xml";
     }
     if(argc >= 2)
         filename = argv[1];

@@ -454,22 +454,24 @@ void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
 bool ModuleGroundStation::writeTCPData(QByteArray data)
 {
 
-    std::shared_ptr<QTcpSocket> tcpSocket = std::make_shared<QTcpSocket>();
-    tcpSocket->connectToHost(QHostAddress::LocalHost, 1234);
-    tcpSocket->waitForConnected();
-    if(tcpSocket->state() == QAbstractSocket::ConnectedState)
-    {
-        tcpSocket->write(data); //write the data itself
-        tcpSocket->flush();
-        tcpSocket->waitForBytesWritten();
-        return true;
-    }
-    else
-    {
-        std::cout << "TCP socket not connected" << std::endl;
-        tcpSocket->close();
-        return false;
-    }
+    return true;
+
+//    std::shared_ptr<QTcpSocket> tcpSocket = std::make_shared<QTcpSocket>();
+//    tcpSocket->connectToHost(QHostAddress::LocalHost, 1234);
+//    tcpSocket->waitForConnected();
+//    if(tcpSocket->state() == QAbstractSocket::ConnectedState)
+//    {
+//        tcpSocket->write(data); //write the data itself
+//        tcpSocket->flush();
+//        tcpSocket->waitForBytesWritten();
+//        return true;
+//    }
+//    else
+//    {
+//        std::cout << "TCP socket not connected" << std::endl;
+//        tcpSocket->close();
+//        return false;
+//    }
 
 
 //    m_TcpSocket = new QTcpSocket();

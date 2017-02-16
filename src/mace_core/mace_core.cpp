@@ -141,7 +141,7 @@ void MaceCore::RequestVehicleMode(const void *sender, const MissionItem::ActionC
 void MaceCore::SetCurrentVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
 {
     int vehicleID = missionList.getVehicleID();
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,vehicleID);
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,missionList);
 }
 void MaceCore::RequestCurrentVehicleMission(const void *sender, const int &vehicleID)
 {

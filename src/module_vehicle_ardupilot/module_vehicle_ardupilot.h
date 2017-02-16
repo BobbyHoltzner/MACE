@@ -88,6 +88,9 @@ private:
 
     std::map<int,DataVehicleArdupilot::MAVLINKParserArduPilot*> m_ArduPilotMAVLINKParser;
 
+
+    std::shared_ptr<MissionTopic::MissionItemCurrentTopic> m_CurrentMissionItem;
+
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H

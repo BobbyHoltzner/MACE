@@ -2,7 +2,8 @@
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(), m_VehicleMission("vehicleMission"),
-    missionMSGCounter(0),missionMode(NONE),missionItemIndex(0),missionItemsAvailable(0)
+    missionMSGCounter(0),missionMode(NONE),missionItemIndex(0),missionItemsAvailable(0),
+    m_CurrentMissionItem(NULL)
 {
 
 }
@@ -39,8 +40,9 @@ void ModuleVehicleArdupilot::SetVehicleHomePosition(const MissionItem::SpatialHo
 void ModuleVehicleArdupilot::SetCurrentMissionQueue(const MissionItem::MissionList &missionList)
 {
     int vehicleID = missionList.getVehicleID();
-    m_ProposedMissionQueue[missionList.getVehicleID()] = missionList;
+    m_ProposedMissionQueue[vehicleID] = missionList;
     mavlink_message_t msg;
+    int queueSize = m_ProposedMissionQueue.at(vehicleID).getQueueSize();
     mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,m_ProposedMissionQueue.at(vehicleID).getQueueSize());
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
