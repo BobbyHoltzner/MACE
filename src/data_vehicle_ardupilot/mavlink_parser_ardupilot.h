@@ -16,7 +16,6 @@
 
 #include "data_vehicle_generic_topic/data_vehicle_generic_topic_components.h"
 
-#include "components/vehicle_operating_attitude.h"
 #include "components/vehicle_flightMode.h"
 #include "components/vehicle_operating_status.h"
 
@@ -29,7 +28,8 @@ class MAVLINKParserArduPilot
 public:
 
     MAVLINKParserArduPilot() :
-        m_CurrentArduVehicleState(NULL), m_CurrentArduVehicleStatus(NULL), m_CurrentArduGlobalPosition(NULL)
+        m_CurrentArduVehicleState(NULL), m_CurrentArduVehicleStatus(NULL), m_CurrentArduGlobalPosition(NULL),
+        m_CurrentArduVehicleFuel(NULL)
     {
 
     }
@@ -76,11 +76,15 @@ public:
             mavlink_sys_status_t decodedMSG;
             mavlink_msg_sys_status_decode(message,&decodedMSG);
 
-            std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel> fuelTopic = std::make_shared<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel>();
-            fuelTopic->setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
-            fuelTopic->setBatteryCurrent(decodedMSG.current_battery/10000.0);
-            fuelTopic->setBatteryRemaining(decodedMSG.battery_remaining);
-            rtnVector.push_back(fuelTopic);
+            std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel> ptrFuel = std::make_shared<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel>();
+            ptrFuel->setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
+            ptrFuel->setBatteryCurrent(decodedMSG.current_battery/10000.0);
+            ptrFuel->setBatteryRemaining(decodedMSG.battery_remaining);
+            if(m_CurrentArduVehicleStatus == NULL || *ptrFuel != *m_CurrentArduVehicleStatus)
+            {
+                rtnVector.push_back(ptrFuel);
+                m_CurrentArduVehicleFuel = ptrFuel;
+            }
             break;
         }
         case MAVLINK_MSG_ID_LOG_ENTRY:
@@ -400,7 +404,8 @@ private:
     std::shared_ptr<VehicleFlightMode> m_CurrentArduVehicleState;
     std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentArduGlobalPosition;
     std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
-    std::shared_ptr<VehicleOperatingAttitude> m_CurrentArduVehicleAttitude;
+    std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel> m_CurrentArduVehicleFuel;
+    std::shared_ptr<DataStateTopic::StateAttitudeTopic> m_CurrentArduVehicleAttitude;
 
 };
 

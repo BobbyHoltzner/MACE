@@ -87,7 +87,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         mavlink_mission_request_t decodedMSG;
         mavlink_msg_mission_request_decode(message,&decodedMSG);
         std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = m_ProposedMissionQueue.at(sysID).getMissionItem(decodedMSG.seq);
-        mavlink_message_t msg = MissionParserArdupilot::generateMissionMessage(missionItem,decodedMSG.seq,compID,chan);
+        mavlink_message_t msg = DataVehicleArdupilot::ArdupilotToMACEMission::generateArdupilotMissionMessage(missionItem,chan,compID,decodedMSG.seq);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
         break;
     }

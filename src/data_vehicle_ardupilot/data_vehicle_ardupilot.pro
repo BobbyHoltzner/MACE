@@ -15,7 +15,6 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
     components/vehicle_operating_status.cpp \
-    components/vehicle_operating_attitude.cpp \
     components/vehicle_flightMode.cpp \
     mavlink_parser_ardupilot.cpp \
     ardupilot_to_mace_mission.cpp \
@@ -27,7 +26,6 @@ HEADERS +=\
     mavlink_parser_ardupilot.h \
     components.h \
     components/vehicle_operating_status.h \
-    components/vehicle_operating_attitude.h \
     components/vehicle_flightMode.h \
     ardupilot_to_mace_mission.h
 
@@ -58,9 +56,7 @@ INSTALLS       += headers
 headers_Components.path    = $$(MACE_ROOT)/include/data_vehicle_ardupilot/Components
 headers_Components.files   += \
         components/vehicle_flightMode.h \
-        components/vehicle_operating_status.h \
-        components/vehicle_operating_attitude.h
-
+        components/vehicle_operating_status.h
 INSTALLS       += headers_Components
 
 

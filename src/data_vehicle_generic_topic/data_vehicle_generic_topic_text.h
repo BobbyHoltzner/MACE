@@ -41,6 +41,27 @@ public:
         return severity;
     }
 
+public:
+    void operator = (const DataVehicleGenericTopic_Text &rhs)
+    {
+        this->severity = rhs.severity;
+        this->dataString = rhs.dataString;
+    }
+
+    bool operator == (const DataVehicleGenericTopic_Text &rhs) {
+        if(this->severity != rhs.severity){
+            return false;
+        }
+        if(this->dataString != rhs.dataString){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const DataVehicleGenericTopic_Text &rhs) {
+        return !(*this == rhs);
+    }
+
 private:
     STATUS_SEVERITY severity;
     std::string dataString;
