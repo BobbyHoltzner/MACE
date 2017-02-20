@@ -12,10 +12,12 @@ TEMPLATE = lib
 
 DEFINES += MODULE_GROUND_STATION_LIBRARY
 
-SOURCES += module_ground_station.cpp
+SOURCES += module_ground_station.cpp \
+    guitimer.cpp
 
-HEADERS += module_ground_station.h\
-        module_ground_station_global.h
+HEADERS += module_ground_station.h \
+        module_ground_station_global.h \
+    guitimer.h
 
 # Unix lib Install
 unix:!symbian {

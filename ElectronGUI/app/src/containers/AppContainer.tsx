@@ -186,6 +186,12 @@ export default class AppContainer extends React.Component<Props, State> {
 
       this.setState({connectedVehicles: stateCopy});
     }
+    else if(jsonData.dataType === 'VehicleMission') {
+      let vehicleMission = jsonData as TCPMissionType;
+      let stateCopy = deepcopy(this.state.connectedVehicles);
+      stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
+      this.setState({connectedVehicles: stateCopy});
+    }
   }
 
 
@@ -210,8 +216,9 @@ export default class AppContainer extends React.Component<Props, State> {
     // data is what the server sent to this socket
     socket.on('data', function(data: any) {
         console.log('DATA: ' + data);
-        let jsonData = JSON.parse(data);
-        this.parseTCPServerData(jsonData);
+        // let jsonData = JSON.parse(data);
+        // this.parseTCPServerData(jsonData);
+
         // Close the client socket completely
         socket.destroy();
     }.bind(this));
@@ -229,14 +236,14 @@ export default class AppContainer extends React.Component<Props, State> {
     }.bind(this));
   }
 
-  parseTCPServerData = (jsonData: TCPReturnType) => {
-    if(jsonData.dataType === 'VehicleMission') {
-      let vehicleMission = jsonData as TCPMissionType;
-      let stateCopy = deepcopy(this.state.connectedVehicles);
-      stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
-      this.setState({connectedVehicles: stateCopy});
-    }
-  }
+  // parseTCPServerData = (jsonData: TCPReturnType) => {
+  //   if(jsonData.dataType === 'VehicleMission') {
+  //     let vehicleMission = jsonData as TCPMissionType;
+  //     let stateCopy = deepcopy(this.state.connectedVehicles);
+  //     stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
+  //     this.setState({connectedVehicles: stateCopy});
+  //   }
+  // }
 
 
   showNotification = (title: string, message: string, level: string, position: string, label: string) => {
