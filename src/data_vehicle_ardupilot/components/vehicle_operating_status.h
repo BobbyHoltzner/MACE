@@ -25,6 +25,12 @@ public:
     }
 
 public:
+
+    void operator = (const VehicleOperatingStatus &rhs)
+    {
+        this->vehicleArmed = rhs.vehicleArmed;
+    }
+
     bool operator == (const VehicleOperatingStatus &rhs) {
         if(this->vehicleArmed != rhs.vehicleArmed){
             return false;
@@ -43,5 +49,26 @@ private:
 };
 
 }
+
+
+//int statusCode;
+//std::string statusDescription;
+//std::string statusState;
+
+//std::map<int, std::string> vehicleStatusDescrion = {{MAV_STATE_UNINIT,"Unitialized, booting up."},
+//                                           {MAV_STATE_BOOT,"Booting system, please wait."},
+//                                           {MAV_STATE_CALIBRATING,"Calibrating sensors, please wait."},
+//                                           {MAV_STATE_ACTIVE,"Active, normal operation."},
+//                                           {MAV_STATE_STANDBY,"Standby mode, ready for launch."},
+//                                           {MAV_STATE_CRITICAL,"FAILURE: Continuing operation."},
+//                                           {MAV_STATE_EMERGENCY,"EMERGENCY: Land Immediately!"}};
+
+//std::map<int, std::string> vehicleStatusState = {{MAV_STATE_UNINIT,"UNINIT"},
+//                                           {MAV_STATE_BOOT,"BOOT"},
+//                                           {MAV_STATE_CALIBRATING,"CALIBRATING"},
+//                                           {MAV_STATE_ACTIVE,"ACTIVE"},
+//                                           {MAV_STATE_STANDBY,"STANDBY"},
+//                                           {MAV_STATE_CRITICAL,"CRITICAL"},
+//                                           {MAV_STATE_EMERGENCY,"EMERGENCY"}};
 
 #endif // VEHICLE_OPERATING_STATUS_H
