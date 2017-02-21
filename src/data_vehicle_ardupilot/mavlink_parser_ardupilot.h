@@ -22,14 +22,13 @@
 namespace DataVehicleArdupilot
 {
 
-
 class MAVLINKParserArduPilot
 {
 public:
 
     MAVLINKParserArduPilot() :
         m_CurrentArduVehicleState(NULL), m_CurrentArduVehicleStatus(NULL), m_CurrentArduGlobalPosition(NULL),
-        m_CurrentArduVehicleFuel(NULL)
+        m_CurrentArduVehicleFuel(NULL), m_CurrentArduVehicleGPS(NULL), m_CurrentArduVehicleText(NULL)
     {
 
     }
@@ -243,30 +242,6 @@ public:
             //This is message definition 36
             break;
         }
-        case MAVLINK_MSG_ID_MISSION_REQUEST_PARTIAL_LIST:
-        {
-            //This is message definition 37
-            //Request a partial list of mission items from the system/component. http://qgroundcontrol.org/mavlink/waypoint_protocol. If start and end index are the same, just send one waypoint.
-            mavlink_mission_request_partial_list_t decodedMSG;
-            mavlink_msg_mission_request_partial_list_decode(message,&decodedMSG);
-            break;
-        }
-        case MAVLINK_MSG_ID_MISSION_ACK:
-        {
-            //This is message definition 47
-            //Ack message during MISSION handling. The type field states if this message is a positive ack (type=0) or if an error happened (type=non-zero).
-            mavlink_mission_ack_t decodedMSG;
-            mavlink_msg_mission_ack_decode(message,&decodedMSG);
-            break;
-        }
-        case MAVLINK_MSG_ID_MISSION_REQUEST_INT:
-        {
-            //This is message definition 51
-            //Request the information of the mission item with the sequence number seq. The response of the system to this message should be a MISSION_ITEM_INT message. http://qgroundcontrol.org/mavlink/waypoint_protocol
-            mavlink_mission_request_int_t decodedMSG;
-            mavlink_msg_mission_request_int_decode(message,&decodedMSG);
-            break;
-        }
         case MAVLINK_MSG_ID_VFR_HUD:
         {
             //This is message definition 74
@@ -364,18 +339,51 @@ public:
             mavlink_statustext_t decodedMSG;
             mavlink_msg_statustext_decode(message,&decodedMSG);
             std::cout<<"The status text says: "<<decodedMSG.text<<std::endl;
-            std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Text> statusText = std::make_shared<DataVehicleGenericTopic::DataVehicleGenericTopic_Text>();
-            statusText->setText(decodedMSG.text);
-            rtnVector.push_back(statusText);
+            std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Text> ptrStatusText = std::make_shared<DataVehicleGenericTopic::DataVehicleGenericTopic_Text>();
+            ptrStatusText->setText(decodedMSG.text);
+            switch (decodedMSG.severity) {
+            case MAV_SEVERITY_EMERGENCY:
+                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_EMERGENCY);
+                break;
+            case MAV_SEVERITY_ALERT:
+                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_ALERT);
+                break;
+            case MAV_SEVERITY_CRITICAL:
+                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_CRITICAL);
+                break;
+            case MAV_SEVERITY_ERROR:
+                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_ERROR);
+                break;
+            case MAV_SEVERITY_WARNING:
+                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_WARNING);
+                break;
+            case MAV_SEVERITY_NOTICE:
+                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_NOTICE);
+                break;
+            case MAV_SEVERITY_INFO:
+                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_INFO);
+                break;
+            case MAV_SEVERITY_DEBUG:
+                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_DEBUG);
+                break;
+            default:
+                break;
+            }
+            //check that something has actually changed
+            if(m_CurrentArduVehicleText == NULL || *ptrStatusText != *m_CurrentArduVehicleText)
+            {
+                rtnVector.push_back(ptrStatusText);
+                m_CurrentArduVehicleText = ptrStatusText;
+            }
        break;
         }
 
         default:
         {
+            std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
+        }
 
-        }
-                //std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
-        }
+        }//end of switch statement
 
 
 
@@ -402,9 +410,12 @@ private:
 
     bool heartbeatSeen = false;
     std::shared_ptr<VehicleFlightMode> m_CurrentArduVehicleState;
-    std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentArduGlobalPosition;
     std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
     std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel> m_CurrentArduVehicleFuel;
+    std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_GPS> m_CurrentArduVehicleGPS;
+    std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Text> m_CurrentArduVehicleText;
+
+    std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentArduGlobalPosition;
     std::shared_ptr<DataStateTopic::StateAttitudeTopic> m_CurrentArduVehicleAttitude;
 
 };
