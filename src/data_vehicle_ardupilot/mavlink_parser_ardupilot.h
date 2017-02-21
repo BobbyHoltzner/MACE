@@ -33,9 +33,6 @@ public:
 
     }
 
-    mavlink_message_t generateArdupilotMessage(MissionItem::AbstractMissionItem *missionItem, const uint8_t &chan);
-
-
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForVehicleData(const mavlink_message_t* message){
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
 
@@ -79,7 +76,7 @@ public:
             ptrFuel->setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
             ptrFuel->setBatteryCurrent(decodedMSG.current_battery/10000.0);
             ptrFuel->setBatteryRemaining(decodedMSG.battery_remaining);
-            if(m_CurrentArduVehicleStatus == NULL || *ptrFuel != *m_CurrentArduVehicleStatus)
+            if(m_CurrentArduVehicleFuel == NULL || *ptrFuel != *m_CurrentArduVehicleFuel)
             {
                 rtnVector.push_back(ptrFuel);
                 m_CurrentArduVehicleFuel = ptrFuel;

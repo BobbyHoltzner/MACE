@@ -1,9 +1,8 @@
-#include "ardupilot_to_mace_mission.h"
+#include "ardupilot_to_mace.h"
 
-namespace DataVehicleArdupilot
-{
+namespace DataVehicleArdupilot{
 
-std::shared_ptr<MissionItem::AbstractMissionItem> ArdupilotToMACEMission::MAVLINKMissionToMACEMission(const int &vehicleID, const mavlink_mission_item_t &missionItem)
+std::shared_ptr<MissionItem::AbstractMissionItem> MAVLINKMissionToMACEMission(const int &vehicleID, const mavlink_mission_item_t &missionItem)
 {
     if(missionItem.command == 16)
     {
@@ -82,5 +81,4 @@ std::shared_ptr<MissionItem::AbstractMissionItem> ArdupilotToMACEMission::MAVLIN
 
 }
 
-}
-
+} //end of namespace DataVehicleArdupilot

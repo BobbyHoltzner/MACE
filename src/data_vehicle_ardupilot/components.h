@@ -1,13 +1,10 @@
 #ifndef DATA_VEHICLE_ARDUPILOT_COMPONENTS_H
 #define DATA_VEHICLE_ARDUPILOT_COMPONENTS_H
 
-#define DATA_VEHICLE_ARDUPILOT_TYPES DataVehicleArdupilot::VehicleFlightMode,DataVehicleArdupilot::VehicleOperatingStatus,DataVehicleArdupilot::VehicleOperatingAttitude
+#define DATA_VEHICLE_ARDUPILOT_TYPES DataVehicleArdupilot::VehicleFlightMode,DataVehicleArdupilot::VehicleOperatingStatus
 
 #include "components/vehicle_flightMode.h"
 #include "components/vehicle_operating_status.h"
-#include "components/vehicle_operating_attitude.h"
-
-#include "ardupilot_to_mace_mission.h"
 
 namespace DataVehicleArdupilot
 {

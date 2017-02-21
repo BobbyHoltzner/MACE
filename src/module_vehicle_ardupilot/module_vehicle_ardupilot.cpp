@@ -10,8 +10,8 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 
 void ModuleVehicleArdupilot::ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
 {
-    MissionItem::ActionArm* armMsg = new MissionItem::ActionArm(vehicleArm);
-    mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleArm.getVehicleID())->generateArdupilotMessage(armMsg,m_LinkChan);
+    //FIX KENNY
+    mavlink_message_t msg = DataVehicleArdupilot::generateArmMessage(vehicleArm,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
 }
@@ -19,19 +19,21 @@ void ModuleVehicleArdupilot::ChangeVehicleArm(const MissionItem::ActionArm &vehi
 void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
 {
     MissionItem::ActionChangeMode* armMsg = new MissionItem::ActionChangeMode(vehicleMode);
-    mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleMode.getVehicleID())->generateArdupilotMessage(armMsg,m_LinkChan);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    //FIX KENNY
+    //mavlink_message_t msg = DataVehicleArdupilot::ArdupilotToMACEMission::generateChangeMode(vehicleArm,m_LinkChan);
+    //mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleMode.getVehicleID())->generateArdupilotMessage(armMsg,m_LinkChan);
+    //m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
 {
-    mavlink_message_t msg = DataVehicleArdupilot::ArdupilotToMACEMission::generateGetHomePosition(vehicleID,m_LinkChan);
+    mavlink_message_t msg = DataVehicleArdupilot::generateGetHomePosition(vehicleID,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome)
 {
-    mavlink_message_t msg = DataVehicleArdupilot::ArdupilotToMACEMission::generateSetHomePosition(vehicleHome,m_LinkChan);
+    mavlink_message_t msg = DataVehicleArdupilot::generateSetHomePosition(vehicleHome,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
