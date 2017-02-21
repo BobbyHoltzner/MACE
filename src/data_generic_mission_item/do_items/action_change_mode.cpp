@@ -30,8 +30,7 @@ ActionChangeMode::ActionChangeMode(const int &vehicleID, const std::string &mode
 
 ActionChangeMode::ActionChangeMode(const ActionChangeMode &actionChangeMode)
 {
-    this->m_VehicleID = actionChangeMode.m_VehicleID;
-    this->m_CommandVehicleMode = actionChangeMode.m_CommandVehicleMode;
+    this->operator =(actionChangeMode);
 }
 
 }

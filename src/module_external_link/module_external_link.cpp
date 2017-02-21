@@ -41,13 +41,6 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
 
-    if(executedOnce == false){
-        executedOnce = true;
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->RequestCurrentVehicleMission(this,1);
-        });
-    }
-
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {

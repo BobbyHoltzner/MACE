@@ -6,7 +6,22 @@
 int main(int argc, char *argv[])
 {
     DataState::StateGlobalPosition globalOne(35.7479006,-78.8425295,100);
-    DataState::StateGlobalPosition globalTwo(35.7481134,-78.8422962,250);
+    DataState::StateGlobalPosition globalTwo(globalOne);
+
+    if(globalOne == globalTwo)
+    {
+        std::cout<<"They are equal to eachother"<<std::endl;
+    }
+
+    DataState::StateGlobalPosition globalThree(globalOne);
+    globalThree.setCoordinateFrame(Data::CoordinateFrame::NWU);
+
+    if(globalOne == globalThree)
+    {
+        std::cout<<"They are equal to eachother"<<std::endl;
+    }else{
+        std::cout<<"The are not equal to eachother"<<std::endl;
+    }
 
     Eigen::Vector3f newVector;
     globalOne.translationTransformation(globalTwo, newVector);

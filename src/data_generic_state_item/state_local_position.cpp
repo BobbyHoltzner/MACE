@@ -9,6 +9,13 @@ StateLocalPosition::StateLocalPosition()
     m_CoordinateFrame = Data::CoordinateFrame::NED;
 }
 
+StateLocalPosition::StateLocalPosition(const StateLocalPosition &localPosition)
+{
+    this->x = localPosition.x;
+    this->y = localPosition.y;
+    this->z = localPosition.z;
+}
+
 StateLocalPosition::StateLocalPosition(const Data::CoordinateFrame &frame)
 {
     m_PositionFrame = Data::PositionalFrame::LOCAL;
@@ -33,16 +40,6 @@ StateLocalPosition::StateLocalPosition(const Data::CoordinateFrame &frame, const
     this->x = x;
     this->y = y;
     this->z = z;
-}
-
-Data::CoordinateFrame StateLocalPosition::getCoordinateFrame() const
-{
-    return m_CoordinateFrame;
-}
-
-Data::PositionalFrame StateLocalPosition::getPositionFrame() const
-{
-    return m_PositionFrame;
 }
 
 double StateLocalPosition::bearingBetween(const StateLocalPosition &position)

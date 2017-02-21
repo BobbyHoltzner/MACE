@@ -20,6 +20,28 @@ public:
     virtual bool hasSpatialMissionInfluence()const;
 
 public:
+    void operator = (const SpatialTakeoff &rhs)
+    {
+        AbstractMissionItem::operator =(rhs);
+        this->position = rhs.position;
+    }
+
+    bool operator == (const SpatialTakeoff &rhs) {
+        if(!AbstractMissionItem::operator ==(rhs))
+        {
+            return false;
+        }
+        if(this->position != rhs.position){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const SpatialTakeoff &rhs) {
+        return !(*this == rhs);
+    }
+
+public:
     T position;
 };
 

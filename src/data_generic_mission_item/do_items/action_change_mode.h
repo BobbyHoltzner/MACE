@@ -35,11 +35,18 @@ public:
 
 
 public:
+    void operator = (const ActionChangeMode &rhs)
+    {
+        AbstractMissionItem::operator =(rhs);
+        this->m_CommandVehicleMode = rhs.m_CommandVehicleMode;
+    }
+
     bool operator == (const ActionChangeMode &rhs) {
-        if(this->m_CommandVehicleMode != rhs.m_CommandVehicleMode){
+        if(!AbstractMissionItem::operator ==(rhs))
+        {
             return false;
         }
-        if(this->m_VehicleID != rhs.m_VehicleID){
+        if(this->m_CommandVehicleMode != rhs.m_CommandVehicleMode){
             return false;
         }
         return true;

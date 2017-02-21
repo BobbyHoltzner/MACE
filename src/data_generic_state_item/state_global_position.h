@@ -4,15 +4,19 @@
 #include "data/positional_coordinate_frame.h"
 #include "data/coordinate_frame.h"
 
+#include "state_generic_position.h"
+
 #include <Eigen/Dense>
 
 namespace DataState {
 
-class StateGlobalPosition
+class StateGlobalPosition : public StateGenericPosition
 {
 public:
 
     StateGlobalPosition();
+
+    StateGlobalPosition(const StateGlobalPosition &globalPosition);
 
     StateGlobalPosition(const Data::CoordinateFrame &frame);
 
@@ -26,10 +30,6 @@ public:
     static double convertDegreesToRadians(const double &degrees);
 
     static double convertRadiansToDegrees(const double &radians);
-
-    Data::PositionalFrame getPositionFrame() const;
-
-    Data::CoordinateFrame getCoordinateFrame() const;
 
 public:
     StateGlobalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag);
@@ -50,12 +50,17 @@ public:
 public:
     void operator = (const StateGlobalPosition &rhs)
     {
+        StateGenericPosition::operator =(rhs);
         this->latitude = rhs.latitude;
         this->longitude = rhs.longitude;
         this->altitude = rhs.altitude;
     }
 
     bool operator == (const StateGlobalPosition &rhs) {
+
+        if(!StateGenericPosition::operator ==(rhs)){
+            return false;
+        }
         if(this->latitude != rhs.latitude){
             return false;
         }
@@ -73,9 +78,6 @@ public:
     }
 
 public:
-    Data::PositionalFrame m_PositionFrame;
-    Data::CoordinateFrame m_CoordinateFrame;
-
     float latitude;
     float longitude;
     float altitude;

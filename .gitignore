@@ -7,6 +7,7 @@ mace/mace
 example/example
 *.user*
 
+/build-src-Desktop_Qt_5_7_1_MinGW_32bit-Debug/*
 
 
 *.Debug

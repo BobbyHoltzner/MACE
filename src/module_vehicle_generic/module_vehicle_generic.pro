@@ -27,9 +27,8 @@ INSTALLS += lib
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/module_vehicle_generic
 headers.files   += \
-        module_vehicle_mavlink.h \
-        module_vehicle_mavlink_global.h \
-        generic_message_definition_mavlink.h
+        module_vehicle_generic.h \
+        module_vehicle_generic_global.h
 INSTALLS       += headers
 
 INCLUDEPATH += $$PWD/../

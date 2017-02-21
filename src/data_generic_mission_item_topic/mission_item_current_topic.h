@@ -32,6 +32,27 @@ public:
     }
 
 public:
+    void operator = (const MissionItemCurrentTopic &rhs)
+    {
+        this->vehicleID = rhs.vehicleID;
+        this->missionItemIndex = rhs.missionItemIndex;
+    }
+
+    bool operator == (const MissionItemCurrentTopic &rhs) {
+        if(this->vehicleID != rhs.vehicleID){
+            return false;
+        }
+        if(this->missionItemIndex != rhs.missionItemIndex){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const MissionItemCurrentTopic &rhs) {
+        return !(*this == rhs);
+    }
+
+public:
     int vehicleID;
     int missionItemIndex;
 };

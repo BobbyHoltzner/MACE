@@ -60,8 +60,8 @@ public:
     virtual void RequestVehicleHomePosition (const int &vehicleID);
     virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
+    virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList);
     virtual void RequestCurrentMissionQueue (const int &vehicleID);
-
     virtual void RequestClearMissionQueue (const int &vehicleID);
 
     virtual void RequestCurrentGuidedQueue (const int &vehicleID);
@@ -87,6 +87,9 @@ private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
 
     std::map<int,DataVehicleArdupilot::MAVLINKParserArduPilot*> m_ArduPilotMAVLINKParser;
+
+
+    std::shared_ptr<MissionTopic::MissionItemCurrentTopic> m_CurrentMissionItem;
 
 };
 

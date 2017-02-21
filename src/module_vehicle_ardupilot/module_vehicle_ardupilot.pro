@@ -42,9 +42,9 @@ INSTALLS += lib
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot
 headers.files   += \
-        module_vehicle_mavlink.h \
-        module_vehicle_mavlink_global.h \
-        generic_message_definition_mavlink.h
+        module_vehicle_ardupilot_global.h \
+        module_vehicle_ardupilot.h \
+        mission_parser_vehicle_ardupilot.h
 INSTALLS       += headers
 
 

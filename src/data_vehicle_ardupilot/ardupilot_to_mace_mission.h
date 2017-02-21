@@ -18,7 +18,7 @@ class ArdupilotToMACEMission
 {
 public:
 
-    static std::shared_ptr<MissionItem::AbstractMissionItem> MAVLINKMissionToMACEMission(const mavlink_mission_item_t &missionItem);
+    static std::shared_ptr<MissionItem::AbstractMissionItem> MAVLINKMissionToMACEMission(const int &vehicleID, const mavlink_mission_item_t &missionItem);
 
 
     static mavlink_message_t generateArdupilotCommandMessage(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);

@@ -53,6 +53,23 @@ public:
         this->m_PositionalFrame = rhs.m_PositionalFrame;
     }
 
+    bool operator == (const AbstractMissionItem &rhs) {
+        if(this->m_VehicleID != rhs.m_VehicleID){
+            return false;
+        }
+        if(this->m_CoordinateFrame != rhs.m_CoordinateFrame){
+            return false;
+        }
+        if(this->m_PositionalFrame != rhs.m_PositionalFrame){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const AbstractMissionItem &rhs) {
+        return !(*this == rhs);
+    }
+
 protected:
     int m_VehicleID;
     Data::CoordinateFrame m_CoordinateFrame;

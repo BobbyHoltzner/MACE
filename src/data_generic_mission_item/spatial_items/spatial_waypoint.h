@@ -23,6 +23,28 @@ public:
     SpatialWaypoint();
 
 public:
+    void operator = (const SpatialWaypoint &rhs)
+    {
+        AbstractMissionItem::operator =(rhs);
+        this->position = rhs.position;
+    }
+
+    bool operator == (const SpatialWaypoint &rhs) {
+        if(!AbstractMissionItem::operator ==(rhs))
+        {
+            return false;
+        }
+        if(this->position != rhs.position){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const SpatialWaypoint &rhs) {
+        return !(*this == rhs);
+    }
+
+public:
     T position;
 };
 

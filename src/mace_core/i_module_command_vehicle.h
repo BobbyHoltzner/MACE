@@ -17,9 +17,11 @@ enum class VehicleCommands
     CHANGE_VEHICLE_ARM,
     CHANGE_VEHICLE_MODE,
 
+    SET_CURRENT_MISSION_QUEUE,
     REQUEST_CURRENT_MISSION_QUEUE,
-    REQUEST_CURRENT_GUIDED_QUEUE,
     REQUEST_CLEAR_MISSION_QUEUE,
+
+    REQUEST_CURRENT_GUIDED_QUEUE,
     REQUEST_CLEAR_GUIDED_QUEUE,
 
     REQUEST_VEHICLE_HOME,
@@ -55,6 +57,12 @@ public:
             ChangeVehicleOperationalMode(vehicleMode);
         });
 
+
+
+        AddCommandLogic<MissionItem::MissionList>(VehicleCommands::SET_CURRENT_MISSION_QUEUE, [this](const MissionItem::MissionList &missionList){
+            SetCurrentMissionQueue(missionList);
+        });
+
         AddCommandLogic<int>(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE, [this](const int &vehicleID){
             RequestCurrentMissionQueue(vehicleID);
         });
@@ -62,6 +70,10 @@ public:
         AddCommandLogic<int>(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE, [this](const int &vehicleID){
             RequestClearMissionQueue(vehicleID);
         });
+
+
+
+
 
         AddCommandLogic<int>(VehicleCommands::REQUEST_CURRENT_GUIDED_QUEUE, [this](const int &vehicleID){
             RequestCurrentGuidedQueue(vehicleID);
@@ -120,9 +132,10 @@ public:
 
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
 
+    virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList) = 0;
     virtual void RequestCurrentMissionQueue(const int &vehicleID) = 0;
-
     virtual void RequestClearMissionQueue(const int &vehicleID) = 0;
+
 
     virtual void RequestCurrentGuidedQueue(const int &vehicleID) = 0;
 

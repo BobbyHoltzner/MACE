@@ -471,7 +471,7 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
     json["pitch"] = component->pitch;
     json["yaw"] = component->yaw;
 
-    QJsonDocument doc(json);    
+    QJsonDocument doc(json);
     if(m_timeoutOccured)
     {
         bool bytesWritten = writeTCPData(doc.toJson());
