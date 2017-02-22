@@ -16,7 +16,6 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += \
     components/vehicle_operating_status.cpp \
     components/vehicle_flightMode.cpp \
-    mavlink_parser_ardupilot.cpp \
     mace_to_ardupilot.cpp \
     ardupilot_to_mace.cpp
 
