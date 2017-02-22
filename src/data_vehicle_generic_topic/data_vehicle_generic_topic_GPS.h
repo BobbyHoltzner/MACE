@@ -54,6 +54,35 @@ public:
         return VDOP;
     }
 
+public:
+    void operator = (const DataVehicleGenericTopic_GPS &rhs)
+    {
+        this->fixtype = rhs.fixtype;
+        this->satellitesVisible = rhs.satellitesVisible;
+        this->HDOP = rhs.HDOP;
+        this->VDOP = rhs.VDOP;
+    }
+
+    bool operator == (const DataVehicleGenericTopic_GPS &rhs) {
+        if(this->fixtype != rhs.fixtype){
+            return false;
+        }
+        if(this->satellitesVisible != rhs.satellitesVisible){
+            return false;
+        }
+        if(this->HDOP != rhs.HDOP){
+            return false;
+        }
+        if(this->VDOP != rhs.VDOP){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const DataVehicleGenericTopic_GPS &rhs) {
+        return !(*this == rhs);
+    }
+
 private:
     GPSFIX fixtype;
     uint16_t satellitesVisible;

@@ -15,33 +15,10 @@ DEFINES += MODULE_VEHICLE_MAVLINK_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-SOURCES += module_vehicle_mavlink.cpp \
-    Vehicles/Ardupilot/ardupilot_attitude.cpp \
-    Vehicles/Ardupilot/ardupilot_flightmode.cpp \
-    Vehicles/Ardupilot/ardupilot_global_position.cpp \
-    Vehicles/Ardupilot/ardupilot_gps_status.cpp \
-    Vehicles/Ardupilot/ardupilot_local_position.cpp \
-    Vehicles/Ardupilot/ardupilot_mission.cpp \
-    Vehicles/Ardupilot/ardupilot_position.cpp \
-    Vehicles/Ardupilot/ardupilot_status.cpp \
-    Vehicles/Ardupilot/data_ardupilot.cpp \
-    Vehicles/Ardupilot/ardupilot_home_position.cpp \
-    Vehicles/Ardupilot/ardupilot_power.cpp
+SOURCES += module_vehicle_mavlink.cpp
 
 HEADERS += module_vehicle_mavlink.h\
-        module_vehicle_mavlink_global.h \
-    Vehicles/Ardupilot/ardupilot_attitude.h \
-    Vehicles/Ardupilot/ardupilot_flightmode.h \
-    Vehicles/Ardupilot/ardupilot_global_position.h \
-    Vehicles/Ardupilot/ardupilot_gps_status.h \
-    Vehicles/Ardupilot/ardupilot_local_position.h \
-    Vehicles/Ardupilot/ardupilot_mission.h \
-    Vehicles/Ardupilot/ardupilot_position.h \
-    Vehicles/Ardupilot/ardupilot_status.h \
-    Vehicles/Ardupilot/data_ardupilot.h \
-    Vehicles/Ardupilot/data_ardupilot_global.h \
-    Vehicles/Ardupilot/ardupilot_home_position.h \
-    Vehicles/Ardupilot/ardupilot_power.h
+        module_vehicle_mavlink_global.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
@@ -64,20 +41,6 @@ headers.files   += \
         module_vehicle_mavlink_global.h \
         generic_message_definition_mavlink.h
 INSTALLS       += headers
-
-headers_Vehicle_Ardupilot.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK/Vehicles/Ardupilot
-headers_Vehicle_Ardupilot.files   += Vehicles/Ardupilot/ardupilot_attitude.h \
-    Vehicles/Ardupilot/ardupilot_flightmode.h \
-    Vehicles/Ardupilot/ardupilot_global_position.h \
-    Vehicles/Ardupilot/ardupilot_gps_status.h \
-    Vehicles/Ardupilot/ardupilot_local_position.h \
-    Vehicles/Ardupilot/ardupilot_mission.h \
-    Vehicles/Ardupilot/ardupilot_position.h \
-    Vehicles/Ardupilot/ardupilot_status.h \
-    Vehicles/Ardupilot/data_ardupilot.h \
-    Vehicles/Ardupilot/data_ardupilot_global.h \
-    Vehicles/Ardupilot/ardupilot_power.h
-INSTALLS       += headers_Vehicle_Ardupilot
 
 INCLUDEPATH += $$PWD/../
 

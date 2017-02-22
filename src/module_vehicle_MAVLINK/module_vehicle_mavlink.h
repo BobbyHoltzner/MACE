@@ -22,10 +22,7 @@
 #include "comms/udp_link.h"
 #include "comms/protocol_mavlink.h"
 
-#include "Vehicles/Ardupilot/data_ardupilot.h"
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
-
-#include "module_vehicle_mavlink.h"
 
 #include "mace_core/module_factory.h"
 

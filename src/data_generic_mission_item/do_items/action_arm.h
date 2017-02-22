@@ -27,7 +27,7 @@ public:
         m_ActionArm = arm;
     }
 
-    bool getRequestArm(){
+    bool getRequestArm() const{
         return m_ActionArm;
     }
 
