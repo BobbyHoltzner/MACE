@@ -8,12 +8,16 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 
 }
 
+////////////////////////////////////////////////////////////////////////////
+/// GENERAL VEHICLE COMMAND EVENTS: These are events that may have a direct
+/// command and action sequence that accompanies the vheicle. Expect an
+/// acknowledgement or an event to take place when calling these items.
+////////////////////////////////////////////////////////////////////////////
+
 void ModuleVehicleArdupilot::ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
 {
-    //FIX KENNY
     mavlink_message_t msg = DataVehicleArdupilot::generateArmMessage(vehicleArm,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-
 }
 
 void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
@@ -24,6 +28,12 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
     //mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleMode.getVehicleID())->generateArdupilotMessage(armMsg,m_LinkChan);
     //m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
+
+/////////////////////////////////////////////////////////////////////////////
+/// GENERAL HOME EVENTS: These events are related to establishing or setting
+/// a home position. It should be recognized that the first mission item in a
+/// mission queue should prepend this position. Just the way ardupilot works.
+/////////////////////////////////////////////////////////////////////////////
 
 void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
 {
@@ -37,7 +47,11 @@ void ModuleVehicleArdupilot::SetVehicleHomePosition(const MissionItem::SpatialHo
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-
+/////////////////////////////////////////////////////////////////////////
+/// GENERAL MISSION EVENTS: This is implying for auto mode of the vehicle.
+/// This functionality may be pertinent for vehicles not containing a
+/// direct MACE hardware module.
+/////////////////////////////////////////////////////////////////////////
 
 void ModuleVehicleArdupilot::SetCurrentMissionQueue(const MissionItem::MissionList &missionList)
 {
@@ -59,14 +73,27 @@ void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
 
 void ModuleVehicleArdupilot::RequestClearMissionQueue(const int &vehicleID)
 {
+    //This is message number 45....
+    //TODO: Do we get an acknowledgement from this?
     mavlink_message_t msg;
     mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
+////////////////////////////////////////////////////////////////////////////
+/// GENERAL GUIDED EVENTS: This is implying for guided mode of the vehicle.
+/// This functionality is pertinent for vehicles that may contain a
+/// MACE HW module, or, vehicles that have timely or ever updating changes.
+////////////////////////////////////////////////////////////////////////////
+
+void ModuleVehicleArdupilot::SetCurrentGuidedQueue(const MissionItem::MissionList &missionList)
+{
+    int vehicleID = missionList.getVehicleID();
+}
+
 void ModuleVehicleArdupilot::RequestCurrentGuidedQueue(const int &vehicleID)
 {
-
+    //This command is performed locally in the MACE instance.
 }
 
 void ModuleVehicleArdupilot::RequestClearGuidedQueue(const int &vehicleID)

@@ -45,6 +45,12 @@ public:
     //!
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
 
+    //!
+    //! \brief NewTopic
+    //! \param topicName
+    //! \param senderID
+    //! \param componentsUpdated
+    //!
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
     //!
@@ -53,21 +59,97 @@ public:
     //!
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
 
+    ////////////////////////////////////////////////////////////////////////////////
+    /// The following are public virtual functions imposed from IModuleCommandVehicle.
+    ////////////////////////////////////////////////////////////////////////////////
 public:
-    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
 
+    ////////////////////////////////////////////////////////////////////////////
+    /// GENERAL VEHICLE COMMAND EVENTS: These are events that may have a direct
+    /// command and action sequence that accompanies the vheicle. Expect an
+    /// acknowledgement or an event to take place when calling these items.
+    ////////////////////////////////////////////////////////////////////////////
+
+    //!
+    //! \brief ChangeVehicleArm
+    //! \param vehicleArm
+    //!
+    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
+    //!
+    //! \brief ChangeVehicleOperationalMode
+    //! \param vehicleMode
+    //!
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
 
-    virtual void RequestVehicleHomePosition (const int &vehicleID);
-    virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
+    /////////////////////////////////////////////////////////////////////////
+    /// GENERAL MISSION EVENTS: This is implying for auto mode of the vehicle.
+    /// This functionality may be pertinent for vehicles not containing a
+    /// direct MACE hardware module.
+    /////////////////////////////////////////////////////////////////////////
+
+    //!
+    //! \brief SetCurrentMissionQueue
+    //! \param missionList
+    //!
     virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList);
+
+    //!
+    //! \brief RequestCurrentMissionQueue
+    //! \param vehicleID
+    //!
     virtual void RequestCurrentMissionQueue (const int &vehicleID);
+
+    //!
+    //! \brief RequestClearMissionQueue
+    //! \param vehicleID
+    //!
     virtual void RequestClearMissionQueue (const int &vehicleID);
 
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// GENERAL GUIDED EVENTS: This is implying for guided mode of the vehicle.
+    /// This functionality is pertinent for vehicles that may contain a
+    /// MACE HW module, or, vehicles that have timely or ever updating changes.
+    ////////////////////////////////////////////////////////////////////////////
+
+    //!
+    //! \brief SetCurrentGuidedQueue
+    //! \param missionList
+    //!
+    virtual void SetCurrentGuidedQueue(const MissionItem::MissionList &missionList);
+
+    //!
+    //! \brief RequestCurrentGuidedQueue
+    //! \param vehicleID
+    //!
     virtual void RequestCurrentGuidedQueue (const int &vehicleID);
 
+    //!
+    //! \brief RequestClearGuidedQueue
+    //! \param vehicleID
+    //!
     virtual void RequestClearGuidedQueue (const int &vehicleID);
+
+
+    /////////////////////////////////////////////////////////////////////////////
+    /// GENERAL HOME EVENTS: These events are related to establishing or setting
+    /// a home position. It should be recognized that the first mission item in a
+    /// mission queue should prepend this position. Just the way ardupilot works.
+    /////////////////////////////////////////////////////////////////////////////
+
+    //!
+    //! \brief RequestVehicleHomePosition
+    //! \param vehicleID
+    //!
+    virtual void RequestVehicleHomePosition (const int &vehicleID);
+
+    //!
+    //! \brief SetVehicleHomePosition
+    //! \param vehicleHome
+    //!
+    virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
+
 
 private:
     std::map<int,MissionItem::MissionList> m_CurrentMissionQueue;

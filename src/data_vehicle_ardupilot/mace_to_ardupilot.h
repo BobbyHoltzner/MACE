@@ -22,5 +22,7 @@ namespace DataVehicleArdupilot{
     mavlink_message_t generateArdupilotCommandMessage(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
     mavlink_message_t MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
 
+    mavlink_message_t MACEGuidedToArdupilot(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID);
+
 } //end of namespace DataVehicleArdupilot
 #endif // MACE_TO_ARDUPILOT_H

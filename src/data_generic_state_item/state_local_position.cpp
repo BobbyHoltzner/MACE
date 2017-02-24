@@ -42,6 +42,22 @@ StateLocalPosition::StateLocalPosition(const Data::CoordinateFrame &frame, const
     this->z = z;
 }
 
+bool StateLocalPosition::essentiallyEquivalent(const StateLocalPosition &rhs, const double &percentage)
+{
+   double changeX = (fabs(this->x - rhs.x)/this->x) * 100.0;
+   double changeY = (fabs(this->y - rhs.y)/this->y) * 100.0;
+   double changeZ = (fabs(this->z - rhs.z)/this->z) * 100.0;
+
+   if(changeX > percentage)
+       return false;
+   if(changeY > percentage)
+       return false;
+   if(changeZ > percentage)
+       return false;
+
+    return true;
+}
+
 double StateLocalPosition::bearingBetween(const StateLocalPosition &position)
 {
     throw std::runtime_error("Not Implimented");
