@@ -1,6 +1,6 @@
 #include "ardupilot_to_mace.h"
 
-namespace DataVehicleArdupilot{
+namespace DataArdupilot{
 
 std::shared_ptr<MissionItem::AbstractMissionItem> MAVLINKMissionToMACEMission(const int &vehicleID, const mavlink_mission_item_t &missionItem)
 {

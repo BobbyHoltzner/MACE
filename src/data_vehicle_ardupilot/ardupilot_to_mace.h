@@ -11,7 +11,7 @@
 #include "data_generic_mission_item/mission_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
-namespace DataVehicleArdupilot{
+namespace DataArdupilot{
 
 std::shared_ptr<MissionItem::AbstractMissionItem> MAVLINKMissionToMACEMission(const int &vehicleID, const mavlink_mission_item_t &missionItem);
 

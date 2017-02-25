@@ -10,7 +10,7 @@
 
 #include "data/vehicle_types.h"
 
-namespace DataVehicleArdupilot
+namespace DataArdupilot
 {
 
 extern const char VehicleOperatingParameters_name[];

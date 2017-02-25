@@ -10,7 +10,7 @@
 #include "module_vehicle_ardupilot_global.h"
 #include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
 
-#include "data_vehicle_ardupilot/mavlink_parser_ardupilot.h"
+#include "data_vehicle_ardupilot/data_vehicle_ardupilot.h"
 #include "data_vehicle_ardupilot/ardupilot_to_mace.h"
 #include "data_vehicle_ardupilot/mace_to_ardupilot.h"
 #include "data_vehicle_ardupilot/components.h"
@@ -169,7 +169,7 @@ private:
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
 
-    std::map<int,DataVehicleArdupilot::MAVLINKParserArduPilot*> m_ArduPilotMAVLINKParser;
+    std::map<int,DataArdupilot::DataVehicleArdupilot*> m_ArduPilotData;
 
 
     std::shared_ptr<MissionTopic::MissionItemCurrentTopic> m_CurrentMissionItem;

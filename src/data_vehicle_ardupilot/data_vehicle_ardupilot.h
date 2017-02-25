@@ -5,7 +5,6 @@
 #include <functional>
 
 #include "mavlink.h"
-
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
 
 #include "data_generic_state_item/state_item_components.h"
@@ -16,19 +15,18 @@
 
 #include "data_vehicle_generic_topic/data_vehicle_generic_topic_components.h"
 
+#include "data_container_ardupilot.h"
 #include "components/vehicle_flightMode.h"
 #include "components/vehicle_operating_status.h"
 
-namespace DataVehicleArdupilot
+namespace DataArdupilot
 {
 
-class MAVLINKParserArduPilot
+class DataVehicleArdupilot : DataContainer
 {
 public:
 
-    MAVLINKParserArduPilot() :
-        m_CurrentArduVehicleState(NULL), m_CurrentArduVehicleStatus(NULL), m_CurrentArduGlobalPosition(NULL),
-        m_CurrentArduVehicleFuel(NULL), m_CurrentArduVehicleGPS(NULL), m_CurrentArduVehicleText(NULL)
+    DataVehicleArdupilot()
     {
 
     }
@@ -208,7 +206,13 @@ public:
             ptrLocalPosition->y = decodedMSG.y;
             ptrLocalPosition->z = decodedMSG.z;
 
-            rtnVector.push_back(ptrLocalPosition);
+            //check that something has actually changed
+            if(m_CurrentArduLocalPosition == NULL || *ptrLocalPosition != *m_CurrentArduLocalPosition)
+            {
+                rtnVector.push_back(ptrLocalPosition);
+                m_CurrentArduLocalPosition = ptrLocalPosition;
+            }
+
             break;
         }
         case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
@@ -284,12 +288,6 @@ public:
             //Battery information
             mavlink_battery_status_t decodedMSG;
             mavlink_msg_battery_status_decode(message,&decodedMSG);
-            break;
-        }
-
-        case MAVLINK_MSG_ID_TERRAIN_REPORT:
-        {
-            //This is message definition 136
             break;
         }
         case MAVLINK_MSG_ID_MEMINFO:
@@ -400,26 +398,13 @@ public:
 
 public:
 
-    int getFlightModeFromString(const std::string &flightString){
+    int getFlightModeFromString(const std::string &flightString) const{
         return m_CurrentArduVehicleState->getFlightMode(flightString);
     }
 
     bool heartbeatUpdated(){
         return heartbeatSeen;
     }
-
-private:
-
-    bool heartbeatSeen = false;
-    std::shared_ptr<VehicleFlightMode> m_CurrentArduVehicleState;
-    std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
-    std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel> m_CurrentArduVehicleFuel;
-    std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_GPS> m_CurrentArduVehicleGPS;
-    std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Text> m_CurrentArduVehicleText;
-
-    std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentArduGlobalPosition;
-    std::shared_ptr<DataStateTopic::StateAttitudeTopic> m_CurrentArduVehicleAttitude;
-
 };
 
 }

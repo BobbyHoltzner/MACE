@@ -16,17 +16,22 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 
 void ModuleVehicleArdupilot::ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
 {
-    mavlink_message_t msg = DataVehicleArdupilot::generateArmMessage(vehicleArm,m_LinkChan);
+    mavlink_message_t msg = DataArdupilot::generateArmMessage(vehicleArm,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
 {
-    MissionItem::ActionChangeMode* armMsg = new MissionItem::ActionChangeMode(vehicleMode);
-    //FIX KENNY
-    //mavlink_message_t msg = DataVehicleArdupilot::ArdupilotToMACEMission::generateChangeMode(vehicleArm,m_LinkChan);
-    //mavlink_message_t msg = m_ArduPilotMAVLINKParser.at(vehicleMode.getVehicleID())->generateArdupilotMessage(armMsg,m_LinkChan);
-    //m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    int vehicleID = vehicleMode.getVehicleID();
+    std::string modeString = vehicleMode.getRequestMode();
+
+    DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
+    if(tmpData->heartbeatUpdated())
+    {
+        int newFlightMode = tmpData->getFlightModeFromString(modeString);
+        mavlink_message_t msg = DataArdupilot::generateChangeMode(vehicleID,m_LinkChan,newFlightMode);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -37,13 +42,13 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
 
 void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
 {
-    mavlink_message_t msg = DataVehicleArdupilot::generateGetHomePosition(vehicleID,m_LinkChan);
+    mavlink_message_t msg = DataArdupilot::generateGetHomePosition(vehicleID,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome)
 {
-    mavlink_message_t msg = DataVehicleArdupilot::generateSetHomePosition(vehicleHome,m_LinkChan);
+    mavlink_message_t msg = DataArdupilot::generateSetHomePosition(vehicleHome,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
@@ -120,14 +125,14 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 {
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>::MavlinkMessage(linkName, message);
 
-    DataVehicleArdupilot::MAVLINKParserArduPilot* tmpParser;
+    DataArdupilot::DataVehicleArdupilot* tmpParser;
     int newSystemID = message.sysid;
     try{
-        tmpParser = m_ArduPilotMAVLINKParser.at(newSystemID);
+        tmpParser = m_ArduPilotData.at(newSystemID);
     }catch(const std::out_of_range &oor)
     {
-        tmpParser = new DataVehicleArdupilot::MAVLINKParserArduPilot();
-        m_ArduPilotMAVLINKParser.insert({newSystemID,tmpParser});
+        tmpParser = new DataArdupilot::DataVehicleArdupilot();
+        m_ArduPilotData.insert({newSystemID,tmpParser});
 
         MissionItem::MissionList newMissionList;
         m_CurrentMissionQueue.insert({newSystemID,newMissionList});
