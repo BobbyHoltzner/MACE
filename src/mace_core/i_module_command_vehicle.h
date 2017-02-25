@@ -21,6 +21,7 @@ enum class VehicleCommands
     REQUEST_CURRENT_MISSION_QUEUE,
     REQUEST_CLEAR_MISSION_QUEUE,
 
+    SET_CURRENT_GUIDED_QUEUE,
     REQUEST_CURRENT_GUIDED_QUEUE,
     REQUEST_CLEAR_GUIDED_QUEUE,
 
@@ -49,6 +50,13 @@ public:
         AbstractModule_EventListeners()
     {
         //These are from MACE Core to modules
+
+        /////////////////////////////////////////////////////////////////////////
+        /// GENERAL VEHICLE COMMAND EVENTS: These are events that may have a direct
+        /// command and action sequence that accompanies the vheicle. Expect an acknowledgement
+        /// or an event to take place when calling these items.
+        /////////////////////////////////////////////////////////////////////////
+
         AddCommandLogic<MissionItem::ActionArm>(VehicleCommands::CHANGE_VEHICLE_ARM, [this](const MissionItem::ActionArm &vehicleArm){
             ChangeVehicleArm(vehicleArm);
         });
@@ -57,7 +65,11 @@ public:
             ChangeVehicleOperationalMode(vehicleMode);
         });
 
-
+        /////////////////////////////////////////////////////////////////////////
+        /// GENERAL MISSION EVENTS: This is implying for auto mode of the vehicle.
+        /// This functionality may be pertinent for vehicles not containing a
+        /// direct MACE hardware module.
+        /////////////////////////////////////////////////////////////////////////
 
         AddCommandLogic<MissionItem::MissionList>(VehicleCommands::SET_CURRENT_MISSION_QUEUE, [this](const MissionItem::MissionList &missionList){
             SetCurrentMissionQueue(missionList);
@@ -71,9 +83,15 @@ public:
             RequestClearMissionQueue(vehicleID);
         });
 
+        /////////////////////////////////////////////////////////////////////////
+        /// GENERAL GUIDED EVENTS: This is implying for guided mode of the vehicle.
+        /// This functionality is pertinent for vehicles that may contain a
+        /// MACE HW module, or, vehicles that have timely or ever updating changes.
+        /////////////////////////////////////////////////////////////////////////
 
-
-
+        AddCommandLogic<MissionItem::MissionList>(VehicleCommands::SET_CURRENT_GUIDED_QUEUE, [this](const MissionItem::MissionList &missionList){
+            SetCurrentGuidedQueue(missionList);
+        });
 
         AddCommandLogic<int>(VehicleCommands::REQUEST_CURRENT_GUIDED_QUEUE, [this](const int &vehicleID){
             RequestCurrentGuidedQueue(vehicleID);
@@ -83,6 +101,12 @@ public:
             RequestClearGuidedQueue(vehicleID);
         });
 
+
+        /////////////////////////////////////////////////////////////////////////
+        /// GENERAL HOME EVENTS: These events are related to establishing or setting
+        /// a home position. It should be recognized that the first mission item in a
+        /// mission queue should prepend this position. Just the way ardupilot works.
+        /////////////////////////////////////////////////////////////////////////
 
         AddCommandLogic<int>(VehicleCommands::REQUEST_VEHICLE_HOME, [this](const int &vehicleID){
             RequestVehicleHomePosition(vehicleID);
@@ -136,9 +160,8 @@ public:
     virtual void RequestCurrentMissionQueue(const int &vehicleID) = 0;
     virtual void RequestClearMissionQueue(const int &vehicleID) = 0;
 
-
+    virtual void SetCurrentGuidedQueue(const MissionItem::MissionList &missionList) = 0;
     virtual void RequestCurrentGuidedQueue(const int &vehicleID) = 0;
-
     virtual void RequestClearGuidedQueue(const int &vehicleID) = 0;
 
 

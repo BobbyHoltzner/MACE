@@ -31,6 +31,11 @@ public:
 
     double initialBearing(const StateLocalPosition &postion);
 
+    bool essentiallyEquivalent_Percentage(const StateLocalPosition &rhs, const double &percentage);
+
+    bool essentiallyEquivalent_Distance(const StateLocalPosition &rhs, const double &distance);
+
+
 public:
     void operator = (const StateLocalPosition &rhs)
     {

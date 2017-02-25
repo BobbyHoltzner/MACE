@@ -1,11 +1,11 @@
 #include "mace_to_ardupilot.h"
 
-namespace DataVehicleArdupilot {
+namespace DataArdupilot {
 
-mavlink_message_t generateChangeMode(std::shared_ptr<MissionItem::ActionChangeMode> missionItem, const uint8_t &chan, const int &newMode)
+mavlink_message_t generateChangeMode(const int systemID, const uint8_t &chan, const int &newMode)
 {
     mavlink_message_t msg;
-    mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,missionItem->getVehicleID(),MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,newMode);
+    mavlink_msg_set_mode_pack_chan(255,190,chan,&msg,systemID,MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,newMode);
     return msg;
 }
 

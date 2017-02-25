@@ -3,7 +3,7 @@
 
 #include "data/i_topic_component_data_object.h"
 
-namespace DataVehicleArdupilot
+namespace DataArdupilot
 {
 
 extern const char VehicleOperatingStatus_name[];

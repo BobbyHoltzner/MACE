@@ -1,6 +1,6 @@
 #include "vehicle_flightMode.h"
 
-namespace DataVehicleArdupilot
+namespace DataArdupilot
 {
 
 const char VehicleOperatingParameters_name[] = "vehicle_operating_parameters";
