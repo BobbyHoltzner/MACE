@@ -75,11 +75,18 @@ public:
     //! \param vehicleArm
     //!
     virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
+
     //!
     //! \brief ChangeVehicleOperationalMode
     //! \param vehicleMode
     //!
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
+
+    //!
+    //! \brief IssueVehicleCommand
+    //! \param commandItem
+    //!
+    virtual void IssueVehicleCommand(const MissionItem::AbstractMissionItem &commandItem);
 
 
     /////////////////////////////////////////////////////////////////////////

@@ -43,6 +43,11 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
     }
 }
 
+void ModuleVehicleArdupilot::IssueVehicleCommand(const MissionItem::AbstractMissionItem &commandItem)
+{
+
+}
+
 /////////////////////////////////////////////////////////////////////////////
 /// GENERAL HOME EVENTS: These events are related to establishing or setting
 /// a home position. It should be recognized that the first mission item in a
@@ -79,8 +84,8 @@ void ModuleVehicleArdupilot::SetCurrentMissionQueue(const MissionItem::MissionLi
     mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,queueSize);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
-    delete tmpData;
-    tmpData = NULL;
+//    delete tmpData;
+//    tmpData = NULL;
 }
 
 void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
@@ -110,24 +115,24 @@ void ModuleVehicleArdupilot::SetCurrentGuidedQueue(const MissionItem::MissionLis
 {
     int vehicleID = missionList.getVehicleID();
     DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
-    delete tmpData;
-    tmpData = NULL;
+//    delete tmpData;
+//    tmpData = NULL;
 }
 
 void ModuleVehicleArdupilot::RequestCurrentGuidedQueue(const int &vehicleID)
 {
     //This command is performed locally in the MACE instance.
     DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
-    delete tmpData;
-    tmpData = NULL;
+//    delete tmpData;
+//    tmpData = NULL;
 }
 
 void ModuleVehicleArdupilot::RequestClearGuidedQueue(const int &vehicleID)
 {
     DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
     tmpData->m_CurrentGuidedQueue.clearQueue();
-    delete tmpData;
-    tmpData = NULL;
+//    delete tmpData;
+//    tmpData = NULL;
 }
 
 
@@ -140,24 +145,32 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 {
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>::MavlinkMessage(linkName, message);
 
-    DataArdupilot::DataVehicleArdupilot* tmpParser;
-    int newSystemID = message.sysid;
+    DataArdupilot::DataVehicleArdupilot* tmpData;
+    int systemID = message.sysid;
+
     try{
-        tmpParser = m_ArduPilotData.at(newSystemID);
+        tmpData = m_ArduPilotData.at(systemID);
     }catch(const std::out_of_range &oor)
     {
-        tmpParser = new DataArdupilot::DataVehicleArdupilot();
-        m_ArduPilotData.insert({newSystemID,tmpParser});
+        tmpData = new DataArdupilot::DataVehicleArdupilot();
+        m_ArduPilotData.insert({systemID,tmpData});
+
+        //Initialize the appropriate mission/guided queues in the data sets
+        tmpData->m_CurrentGuidedQueue.setVehicleID(systemID);
+        tmpData->m_ProposedGuidedQueue.setVehicleID(systemID);
+        tmpData->m_CurrentMissionQueue.setVehicleID(systemID);
+        tmpData->m_ProposedMissionQueue.setVehicleID(systemID);
+
 
         MissionItem::MissionList newMissionList;
-        m_CurrentMissionQueue.insert({newSystemID,newMissionList});
-        m_ProposedMissionQueue.insert({newSystemID,newMissionList});
+        m_CurrentMissionQueue.insert({systemID,newMissionList});
+        m_ProposedMissionQueue.insert({systemID,newMissionList});
 
-        m_CurrentGuidedQueue.insert({newSystemID,newMissionList});
-        m_ProposedGuidedQueue.insert({newSystemID,newMissionList});
+        m_CurrentGuidedQueue.insert({systemID,newMissionList});
+        m_ProposedGuidedQueue.insert({systemID,newMissionList});
 
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-            ptr->NewConstructedVehicle(this, newSystemID);
+            ptr->NewConstructedVehicle(this, systemID);
         });
     }
 
@@ -165,7 +178,7 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 
     if(wasMissionMSG == false){
         //generate topic datagram from given mavlink message
-        std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = tmpParser->ParseForVehicleData(&message);
+        std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = tmpData->ParseForVehicleData(&message);
         //procede to send components only if there is 1 or more
         if(components.size() > 0)
         {
@@ -181,6 +194,9 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
             }
         } //if there is information available
     }
+
+//    delete tmpData;
+//    tmpData = NULL;
 }
 
 void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)

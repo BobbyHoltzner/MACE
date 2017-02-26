@@ -7,6 +7,8 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
     int compID = message->compid;
     uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
 
+    DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(sysID);
+
     mavlink_message_t msg;
 
     switch ((int)message->msgid) {
@@ -42,6 +44,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
                 });
             }else{
                 int missionIndex = decodedMSG.seq - 1;
+                tmpData->m_CurrentMissionQueue.replaceMissionItemAtIndex(missionItem,missionIndex);
                 m_CurrentMissionQueue.at(sysID).replaceMissionItemAtIndex(missionItem,missionIndex);
             }
         }
@@ -147,6 +150,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
             missionItemsAvailable = decodedMSG.count;
             missionItemIndex = 0;
             m_CurrentMissionQueue.at(sysID).initializeQueue(missionItemsAvailable - 1);
+            tmpData->m_CurrentMissionQueue.initializeQueue(missionItemsAvailable - 1);
 
             mavlink_message_t msg;
             mavlink_msg_mission_request_pack_chan(255,190,chan,&msg,sysID,compID,missionItemIndex);
