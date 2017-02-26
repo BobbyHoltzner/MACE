@@ -52,6 +52,7 @@ public:
 
 private:
     bool executedOnce = false;
+    int count = 0;
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 

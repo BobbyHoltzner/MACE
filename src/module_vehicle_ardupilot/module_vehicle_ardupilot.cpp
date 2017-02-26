@@ -8,6 +8,15 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 
 }
 
+//!
+//! \brief This module as been attached as a module
+//! \param ptr pointer to object that attached this instance to itself
+//!
+void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
+{
+    ptr->Subscribe(this, m_VehicleMission.Name());
+}
+
 ////////////////////////////////////////////////////////////////////////////
 /// GENERAL VEHICLE COMMAND EVENTS: These are events that may have a direct
 /// command and action sequence that accompanies the vheicle. Expect an
@@ -61,11 +70,17 @@ void ModuleVehicleArdupilot::SetVehicleHomePosition(const MissionItem::SpatialHo
 void ModuleVehicleArdupilot::SetCurrentMissionQueue(const MissionItem::MissionList &missionList)
 {
     int vehicleID = missionList.getVehicleID();
-    m_ProposedMissionQueue[vehicleID] = missionList;
+    DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
+    tmpData->m_ProposedMissionQueue = missionList;
+
+    //m_ProposedMissionQueue[vehicleID] = missionList;
     mavlink_message_t msg;
-    int queueSize = m_ProposedMissionQueue.at(vehicleID).getQueueSize();
-    mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,m_ProposedMissionQueue.at(vehicleID).getQueueSize());
+    int queueSize = tmpData->m_ProposedMissionQueue.getQueueSize();
+    mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,queueSize);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
+    delete tmpData;
+    tmpData = NULL;
 }
 
 void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
@@ -94,25 +109,25 @@ void ModuleVehicleArdupilot::RequestClearMissionQueue(const int &vehicleID)
 void ModuleVehicleArdupilot::SetCurrentGuidedQueue(const MissionItem::MissionList &missionList)
 {
     int vehicleID = missionList.getVehicleID();
+    DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
+    delete tmpData;
+    tmpData = NULL;
 }
 
 void ModuleVehicleArdupilot::RequestCurrentGuidedQueue(const int &vehicleID)
 {
     //This command is performed locally in the MACE instance.
+    DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
+    delete tmpData;
+    tmpData = NULL;
 }
 
 void ModuleVehicleArdupilot::RequestClearGuidedQueue(const int &vehicleID)
 {
-
-}
-
-//!
-//! \brief This module as been attached as a module
-//! \param ptr pointer to object that attached this instance to itself
-//!
-void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
-{
-    ptr->Subscribe(this, m_VehicleMission.Name());
+    DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
+    tmpData->m_CurrentGuidedQueue.clearQueue();
+    delete tmpData;
+    tmpData = NULL;
 }
 
 
