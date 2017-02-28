@@ -9,6 +9,11 @@ void MissionList::initializeQueue(const int &size)
     missionQueue = tmpVector;
 }
 
+void MissionList::clearQueue()
+{
+    missionQueue.clear();
+}
+
 void MissionList::insertMissionItem(const std::shared_ptr<AbstractMissionItem> missionItem)
 {
     missionQueue.push_back(missionItem);

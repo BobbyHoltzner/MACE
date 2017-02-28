@@ -22,7 +22,7 @@
 namespace DataArdupilot
 {
 
-class DataVehicleArdupilot : DataContainer
+class DataVehicleArdupilot : public DataContainer
 {
 public:
 
@@ -380,7 +380,7 @@ public:
 
         default:
         {
-            std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
+            //std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
         }
 
         }//end of switch statement

@@ -3,6 +3,7 @@
 
 ModuleExternalLink::ModuleExternalLink() :
     m_VehicleDataTopic("vehicleData"),m_SensorFootprintDataTopic("sensorFootprint"),m_MissionDataTopic("vehicleMission")
+
 {
 }
 
@@ -41,6 +42,19 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
 
+    count++;
+
+    if(count > 50 && executedOnce == false)
+    {
+        executedOnce = true;
+//        MissionItem::ActionChangeMode newVehicleMode;
+//        newVehicleMode.setRequestMode("STABILIZE");
+//        newVehicleMode.setVehicleID(senderID);
+
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+            ptr->RequestCurrentVehicleMission(this, senderID);
+        });
+    }
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
