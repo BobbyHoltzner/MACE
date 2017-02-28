@@ -5,11 +5,13 @@ import * as React from 'react';
 import FlatButton from 'material-ui/FlatButton'
 
 import { VehicleHUD } from '../components/VehicleHUD';
+import { Vehicle } from '../Vehicle';
 
 
 type Props = {
-    connectedVehicles: VehicleMapType,
-    onAircraftCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void
+    connectedVehicles: {[id: string]: Vehicle},
+    onAircraftCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void,
+    handleOpenVehicleEdit: (vehicleID: string) => void
 }
 
 type State = {
@@ -48,6 +50,7 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
                     aircraft={vehicle}
                     isSelected={this.state.selectedVehicle === key ? true : false}
                     handleAircraftCommand={this.handleAircraftCommand}
+                    handleOpenVehicleEdit={this.props.handleOpenVehicleEdit}
                 />
             );
         }

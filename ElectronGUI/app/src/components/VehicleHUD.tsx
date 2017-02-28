@@ -4,32 +4,15 @@ const lightMuiTheme = getMuiTheme();
 import * as React from 'react';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-// import deepEqual from '../helpers/DeepEqual';
-
-// export function generateNewVehicle(): VehicleStateType {
-//     let vehicleState = {
-//         position: {
-//             lat: 0,
-//             lon: 0,
-//             alt: 0,
-//             numSats: 0,
-//             positionFix: 0
-//         },
-//         attitude: {
-//             roll: 0,
-//             pitch: 0,
-//             yaw: 0
-//         }
-//     };
-//     return vehicleState;
-// }
+import { Vehicle } from '../Vehicle';
 
 
 type Props = {
     vehicleID: string,
-    aircraft: VehicleStateType,
+    aircraft: Vehicle,
     isSelected: boolean,
     handleAircraftCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void
+    handleOpenVehicleEdit: (vehicleID: string) => void
 }
 
 type State = {
@@ -40,22 +23,6 @@ export class VehicleHUD extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
     }
-
-    // shouldComponentUpdate(nextProps: Props, nextState: State){
-    //     console.log("This props: " + this.props.aircraft.attitude);
-    //     console.log("Next props: " + nextProps.aircraft.attitude);
-    //     if(!deepEqual(this.props.aircraft.attitude, nextProps.aircraft.attitude)) {
-    //         console.log('In deep equal');
-    //         return true;
-    //     }
-
-    //     if(this.props.aircraft.attitude.yaw !== nextProps.aircraft.attitude.yaw){
-    //         console.log("In deep equal 2");
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
 
     handleLoiter = () => {
         this.props.handleAircraftCommand(this.props.vehicleID, "SET_VEHICLE_MODE", "LOITER");
@@ -72,11 +39,11 @@ export class VehicleHUD extends React.Component<Props, State> {
 
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <Card expanded={true} onExpandChange={() => console.log("TEST CLICK")} style={{position: "relative", width: 90 + "%", marginBottom: 15}}>
+                <Card expanded={true} onExpandChange={() => this.props.handleOpenVehicleEdit(this.props.vehicleID)} style={{position: "relative", width: 90 + "%", marginBottom: 15}}>
                     <CardHeader
                         titleStyle={{fontSize: 24}}
                         title={"ID: " + this.props.vehicleID}
-                        subtitle={"Vehicle type??"}
+                        subtitle={this.props.aircraft.vehicleType}
                         avatar={"images/drone-icon.png"}
                         actAsExpander={true}
                         showExpandableButton={false}

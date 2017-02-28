@@ -8,7 +8,6 @@ var NotificationSystem = require('react-notification-system');
 import { Map, TileLayer, LayerGroup, Marker, Popup, Polyline } from 'react-leaflet';
 import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
 import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
-// import { generateNewVehicle } from '../components/VehicleHUD'
 import { VehicleCommandsContainer } from './VehicleCommandsContainer';
 import { AppDrawer } from './AppDrawer';
 import AppBar from 'material-ui/AppBar';
@@ -19,6 +18,8 @@ import IconButton from 'material-ui/IconButton';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { Vehicle } from '../Vehicle';
 import { backgroundColors } from '../util/Colors';
+import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
+import { GlobalHomeDialog } from '../components/GlobalHomeDialog';
 
 import * as deepcopy from 'deepcopy';
 
@@ -44,7 +45,10 @@ type State = {
   selectedVehicleID?: string,
   openDrawer?: boolean,
   tcpSockets?: any[],
-  tcpServer?: any
+  tcpServer?: any,
+  allowVehicleSelect?: boolean,
+  showEditVehicleHomeDialog?: boolean,
+  showEditGlobalHomeDialog?: boolean
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -75,7 +79,10 @@ export default class AppContainer extends React.Component<Props, State> {
       vehicleWarnings: [],
       openDrawer: false,
       tcpSockets: [],
-      tcpServer: null
+      tcpServer: null,
+      allowVehicleSelect: true,
+      showEditVehicleHomeDialog: false,
+      showEditGlobalHomeDialog: false
     }
   }
 
@@ -101,15 +108,6 @@ export default class AppContainer extends React.Component<Props, State> {
           // console.log("Data from socket: " + msg_sent);
           let jsonData: TCPReturnType = JSON.parse(msg_sent);
           this.parseTCPClientData(jsonData);
-
-            // Loop through all of our sockets and send the data
-            // for (var i = 0; i < this.state.tcpSockets.length; i++) {
-                // Don't send the data back to the original sender
-                // if (this.state.tcpSockets[i] == socket) // don't send the message to yourself
-                //     continue;
-                // Write the msg sent by chat client
-                // this.state.tcpSockets[i].write("TCP Return...");
-            // }
         }.bind(this));
         // Use splice to get rid of the socket that is ending.
         // The 'end' event means tcp client has disconnected.
@@ -274,7 +272,14 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleDrawerAction = (action: string) => {
-    console.log("Action: " + action);
+    if(action === "Settings"){
+      this.setState({showEditGlobalHomeDialog: true, openDrawer: false});
+    }
+  }
+
+  onOpenVehicleEdit = (vehicleID?: string) => {
+    // If we are passing in a vehicle ID, don't allow the dropdown to be selectable on the edit window as we are editing a specific vehicle:
+    this.setState({allowVehicleSelect: vehicleID ? false : true, showEditVehicleHomeDialog: true});
   }
 
 
@@ -316,9 +321,8 @@ export default class AppContainer extends React.Component<Props, State> {
             <ConnectedVehiclesContainer
               connectedVehicles={this.state.connectedVehicles}
               onAircraftCommand={this.handleAircraftCommand}
+              handleOpenVehicleEdit={this.onOpenVehicleEdit}
             />
-
-
 
             <VehicleCommandsContainer
               connectedVehicles={this.state.connectedVehicles}
@@ -326,9 +330,22 @@ export default class AppContainer extends React.Component<Props, State> {
               onAircraftCommand={this.handleAircraftCommand}
             />
 
-
             <VehicleWarningsContainer
               vehicleWarnings={this.state.vehicleWarnings}
+            />
+
+            <VehicleHomeDialog
+              open={this.state.showEditVehicleHomeDialog}
+              handleClose={() => this.setState({showEditVehicleHomeDialog: false})}
+              vehicles={this.state.connectedVehicles}
+              selectedVehicleID={this.state.selectedVehicleID}
+              onAircraftCommand={this.handleAircraftCommand}
+            />
+
+            <GlobalHomeDialog
+              open={this.state.showEditGlobalHomeDialog}
+              handleClose={() => this.setState({showEditGlobalHomeDialog: false})}
+              onGlobalHomeCommand={this.handleAircraftCommand}
             />
 
 
@@ -341,7 +358,7 @@ export default class AppContainer extends React.Component<Props, State> {
                   {/* Aircraft Icons */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
-                      <Marker key={key} position={this.state.connectedVehicles[key].vehicleMarker.position} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
+                      <Marker key={key} position={this.state.connectedVehicles[key].vehicleMarker.latLon} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
                         <Popup open={true}>
                           <span>Selected</span>
                         </Popup>
@@ -352,7 +369,7 @@ export default class AppContainer extends React.Component<Props, State> {
                   {/* Home Icons */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
-                      <Marker key={key} position={this.state.connectedVehicles[key].homePosition.position} icon={this.state.connectedVehicles[key].homePosition.icon} title={key}>
+                      <Marker key={key} position={this.state.connectedVehicles[key].homePosition.latLon} icon={this.state.connectedVehicles[key].homePosition.icon} title={key}>
                         <Popup open={true}>
                           <span>Selected</span>
                         </Popup>

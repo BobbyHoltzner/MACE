@@ -10,9 +10,11 @@ import MenuItem from 'material-ui/MenuItem';
 // import FontIcon from 'material-ui/FontIcon';
 // import { Grid, Col, Row } from 'react-bootstrap';
 
+import { Vehicle } from '../Vehicle';
+
 
 type Props = {
-    connectedVehicles: VehicleMapType,
+    connectedVehicles: {[id: string]: Vehicle},
     onSelectedAircraftChange: (id: string) => void,
     onAircraftCommand: (id: string, tcpCommand: string, vehicleCommand: string) => void
 }

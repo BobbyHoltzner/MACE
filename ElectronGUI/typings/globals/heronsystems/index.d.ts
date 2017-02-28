@@ -1,3 +1,5 @@
+type VehicleTypeType = 'Quad' | 'Fixed';
+
 type PositionType = {
     lat: number,
     lon: number,
@@ -63,8 +65,9 @@ type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType |
 
 
 type MarkerType = {
-  position: L.LatLng,
+  latLon: L.LatLng,
   icon: L.Icon,
+  altitude: number,
   vehicleId?: number
 }
 

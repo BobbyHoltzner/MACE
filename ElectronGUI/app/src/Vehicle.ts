@@ -13,12 +13,14 @@ export class Vehicle{
     vehicleMarker: MarkerType;
     vehicleMission: MissionLayerType;
     homePosition: MarkerType;
+    vehicleType: VehicleTypeType;
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
         this.vehicleId = vehicleId;
         this.numSats = 0;
         this.positionFix = 0;
         this.vehicleMode = 'UNKNOWN';
+        this.vehicleType = 'Quad';
         if(position){
             this.position = position;
         }
@@ -36,7 +38,8 @@ export class Vehicle{
         let vehicleIconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
-            position: new L.LatLng(this.position.lat, this.position.lon),
+            latLon: new L.LatLng(this.position.lat, this.position.lon),
+            altitude: this.position.alt,
             icon: new L.DivIcon({
                 html: vehicleIconHTML,
                 iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
@@ -56,7 +59,8 @@ export class Vehicle{
         });
         this.homePosition = {
             vehicleId: this.vehicleId,
-            position: new L.LatLng(this.position.lat, this.position.lon),
+            latLon: new L.LatLng(this.position.lat, this.position.lon),
+            altitude: this.position.alt,
             icon: tmpIcon
         }
     }
@@ -102,7 +106,8 @@ export class Vehicle{
         let iconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/Home-Icon.png" alt="Home icon" style="width:41px; height:41px; ">';
         this.homePosition = {
             vehicleId: this.vehicleId,
-            position: new L.LatLng(home.lat, home.lon),
+            latLon: new L.LatLng(home.lat, home.lon),
+            altitude: 0,
             icon: new L.DivIcon({
                 html: iconHTML,
                 iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
@@ -120,7 +125,8 @@ export class Vehicle{
         let iconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
-            position: new L.LatLng(posUpdate.lat, posUpdate.lon),
+            latLon: new L.LatLng(posUpdate.lat, posUpdate.lon),
+            altitude: 0,
             icon: new L.DivIcon({
                 html: iconHTML,
                 iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
@@ -138,7 +144,8 @@ export class Vehicle{
         let iconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + attUpdate.yaw + 'deg); -moz-transform: rotate(' + attUpdate.yaw + 'deg); -o-transform: rotate(' + attUpdate.yaw + 'deg); -ms-transform: rotate(' + attUpdate.yaw + 'deg); transform: rotate(' + attUpdate.yaw + 'deg);">';
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
-            position: new L.LatLng(this.position.lat, this.position.lon),
+            latLon: new L.LatLng(this.position.lat, this.position.lon),
+            altitude: 0,
             icon: new L.DivIcon({
                 html: iconHTML,
                 iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
