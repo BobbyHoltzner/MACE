@@ -1,6 +1,6 @@
 #include "vehicle_operating_status.h"
 
-namespace DataVehicleArdupilot
+namespace DataArdupilot
 {
 
 const char VehicleOperatingStatus_name[] = "vehicle_operating_status";

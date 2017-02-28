@@ -29,7 +29,7 @@ public:
         m_CommandVehicleMode = mode;
     }
 
-    std::string getRequestMode(){
+    std::string getRequestMode() const{
         return m_CommandVehicleMode;
     }
 

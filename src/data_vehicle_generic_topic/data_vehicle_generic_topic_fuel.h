@@ -35,6 +35,31 @@ public:
         return batteryRemaing;
     }
 
+public:
+    void operator = (const DataVehicleGenericTopic_Fuel &rhs)
+    {
+        this->voltage = rhs.voltage;
+        this->current = rhs.current;
+        this->batteryRemaing = rhs.batteryRemaing;
+    }
+
+    bool operator == (const DataVehicleGenericTopic_Fuel &rhs) {
+        if(this->voltage != rhs.voltage){
+            return false;
+        }
+        if(this->current != rhs.current){
+            return false;
+        }
+        if(this->batteryRemaing != rhs.batteryRemaing){
+            return false;
+        }
+        return true;
+    }
+
+    bool operator != (const DataVehicleGenericTopic_Fuel &rhs) {
+        return !(*this == rhs);
+    }
+
 private:
     double voltage;
     double current;
