@@ -20,6 +20,19 @@ class DataContainer
 public:
     DataContainer();
 
+public:
+    /////////////////////////////////////////////////////////////////////////
+    /// MISSION ITEMS: The following hold mission items that either are
+    /// reflected when entering the guided mode enabling the vehicle
+    /// to be responsive or in autonomous mode.
+    /////////////////////////////////////////////////////////////////////////
+
+    MissionItem::MissionList m_CurrentMissionQueue;
+    MissionItem::MissionList m_ProposedMissionQueue;
+
+    MissionItem::MissionList m_CurrentGuidedQueue;
+    MissionItem::MissionList m_ProposedGuidedQueue;
+
 protected:
 
     bool heartbeatSeen = false;
@@ -36,25 +49,13 @@ protected:
     std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_GPS> m_CurrentArduVehicleGPS;
     std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Text> m_CurrentArduVehicleText;
 
+
     std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentArduGlobalPosition;
     std::shared_ptr<DataStateTopic::StateLocalPositionTopic> m_CurrentArduLocalPosition;
     std::shared_ptr<DataStateTopic::StateAttitudeTopic> m_CurrentArduVehicleAttitude;
 
-
-
-    /////////////////////////////////////////////////////////////////////////
-    /// MISSION ITEMS: The following hold mission items that either are
-    /// reflected when entering the guided mode enabling the vehicle
-    /// to be responsive or in autonomous mode.
-    /////////////////////////////////////////////////////////////////////////
-
-    std::map<int,MissionItem::MissionList> m_CurrentMissionQueue;
-    std::map<int,MissionItem::MissionList> m_ProposedMissionQueue;
-
-    std::map<int,MissionItem::MissionList> m_CurrentGuidedQueue;
-    std::map<int,MissionItem::MissionList> m_ProposedGuidedQueue;
 };
 
-};
+} //end of namespace DataArdupilot
 
 #endif // DATA_CONTAINER_ARDUPILOT_H

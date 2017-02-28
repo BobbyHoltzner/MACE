@@ -11,6 +11,7 @@ class MissionList
 {
 public:
     void initializeQueue(const int &size);
+    void clearQueue();
     void insertMissionItem(const std::shared_ptr<AbstractMissionItem> missionItem);
     void replaceMissionItemAtIndex(const std::shared_ptr<AbstractMissionItem> missionItem, const int &index);
 

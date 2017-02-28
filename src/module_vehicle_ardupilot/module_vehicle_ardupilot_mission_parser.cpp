@@ -7,6 +7,8 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
     int compID = message->compid;
     uint8_t chan = m_LinkMarshaler->GetProtocolChannel(linkName);
 
+    DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(sysID);
+
     mavlink_message_t msg;
 
     switch ((int)message->msgid) {
@@ -23,7 +25,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         {
             if(decodedMSG.seq == 0)
             {              
-
+                std::cout<<"I received a home position item"<<std::endl;
                 //This is the home position item associated with the vehicle
                 MissionItem::SpatialHome newHome;
                 newHome.position.latitude = decodedMSG.x;
@@ -42,17 +44,22 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
                 });
             }else{
                 int missionIndex = decodedMSG.seq - 1;
+                tmpData->m_CurrentMissionQueue.replaceMissionItemAtIndex(missionItem,missionIndex);
                 m_CurrentMissionQueue.at(sysID).replaceMissionItemAtIndex(missionItem,missionIndex);
             }
         }
         if(missionItemIndex == decodedMSG.seq){
             missionMSGCounter++;
+            std::cout<<"I have iterated the counter"<<std::endl;
+
             if(missionMSGCounter == 2)
             {
+                std::cout<<"I have received two of them"<<std::endl;
                 missionMSGCounter = 0;
                 missionItemIndex++;
                 if(missionItemIndex < missionItemsAvailable)
                 {
+                    std::cout<<"I am going to request a new mission item"<<missionItemIndex<<std::endl;
                     //This may not get handled correctly
                     mavlink_msg_mission_request_pack_chan(255,190,chan,&msg,sysID,compID,missionItemIndex);
                     m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
@@ -136,11 +143,14 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         //This message is emitted as response to MISSION_REQUEST_LIST by the MAV and to initiate a write transaction. The GCS can then request the individual mission item based on the knowledge of the total number of MISSIONs.
         mavlink_mission_count_t decodedMSG;
         mavlink_msg_mission_count_decode(message,&decodedMSG);
+        std::cout<<"The mission count is: "<<decodedMSG.count<<std::endl;
+
         if(missionMode == REQUESTING)
         {
             missionItemsAvailable = decodedMSG.count;
             missionItemIndex = 0;
             m_CurrentMissionQueue.at(sysID).initializeQueue(missionItemsAvailable - 1);
+            tmpData->m_CurrentMissionQueue.initializeQueue(missionItemsAvailable - 1);
 
             mavlink_message_t msg;
             mavlink_msg_mission_request_pack_chan(255,190,chan,&msg,sysID,compID,missionItemIndex);

@@ -23,7 +23,8 @@ HEADERS += data_global.h \
     coordinate_frame.h \
     vehicle_command_types.h \
     vehicle_types.h \
-    timer.h
+    timer.h \
+    operating_mode.h
 
 # Unix lib Install
 unix:!symbian {
