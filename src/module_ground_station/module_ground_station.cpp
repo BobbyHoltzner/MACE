@@ -51,7 +51,6 @@ ModuleGroundStation::ModuleGroundStation() :
     // Start timer:
     m_timer = std::make_shared<GUITimer>([=]()
     {
-        cout << "Hello!" << endl;
         m_timeoutOccured = true;
     });
 
@@ -164,6 +163,10 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     {
         getConnectedVehicles();
     }
+    else if(command == "GET_VEHICLE_HOME")
+    {
+        getVehicleHome(vehicleID);
+    }
     else
     {
         std::cout << "Command " << command.toStdString() << " not recognized." << std::endl;
@@ -211,6 +214,12 @@ void ModuleGroundStation::getVehicleMission(const int &vehicleID)
     });
 }
 
+void ModuleGroundStation::getVehicleHome(const int &vehicleID)
+{
+    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+        ptr->RequestVehicleHomePosition(this, vehicleID);
+    });
+}
 
 void ModuleGroundStation::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
 {
@@ -323,6 +332,13 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
                 // Write mission items to the GUI:
                 sendVehicleMission(senderID, component);
+            }           
+            else if(componentsUpdated.at(i) == MissionTopic::MissionHomeTopic::Name()) {
+                std::shared_ptr<MissionTopic::MissionHomeTopic> component = std::make_shared<MissionTopic::MissionHomeTopic>();
+                m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write mission items to the GUI:
+                sendVehicleHome(senderID, component);
             }
         }
     }
@@ -341,17 +357,36 @@ void ModuleGroundStation::sendVehicleMission(const int &vehicleID, const std::sh
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
-//    if(m_TcpSocket->state() == QAbstractSocket::ConnectedState)
-//    {
-//        m_TcpSocket->write(doc.toJson()); //write the data itself
-//        m_TcpSocket->flush();
-//        m_TcpSocket->waitForBytesWritten();
-//    }
-//    else
-//    {
-//        std::cout << "TCP socket not connected" << std::endl;
-//        m_TcpSocket->close();
-//    }
+}
+
+void ModuleGroundStation::sendVehicleHome(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionHomeTopic> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleHome";
+    json["vehicleID"] = vehicleID;
+
+    MissionItem::SpatialHome* spatialHome = new MissionItem::SpatialHome(component->getHome());
+    if(spatialHome->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+    {
+        DataState::StateGlobalPosition* item = dynamic_cast<DataState::StateGlobalPosition*>(spatialHome);
+        json["lat"] = item->latitude;
+        json["lon"] = item->longitude;
+        json["alt"] = item->altitude;
+    }
+    else {
+        // TODO: If we for some reason get a local home position (i.e. x/y/z), set to the global origin.
+        //          --May need to check to make sure the global origin is set first though
+        json["lat"] = 0;
+        json["lon"] = 0;
+        json["alt"] = 0;
+    }
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write Home position failed..." << std::endl;
+    }
 }
 
 void ModuleGroundStation::missionToJSON(const std::shared_ptr<MissionTopic::MissionListTopic> &component, QJsonArray &missionItems)

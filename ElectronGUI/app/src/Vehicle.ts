@@ -11,7 +11,8 @@ export class Vehicle{
     positionInterval: number;
     attitudeInterval: number;
     vehicleMarker: MarkerType;
-    vehicleMission: MissionLayerType
+    vehicleMission: MissionLayerType;
+    homePosition: MarkerType;
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
         this.vehicleId = vehicleId;
@@ -32,12 +33,12 @@ export class Vehicle{
         }
 
 
-        let iconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
+        let vehicleIconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
             position: new L.LatLng(this.position.lat, this.position.lon),
             icon: new L.DivIcon({
-                html: iconHTML,
+                html: vehicleIconHTML,
                 iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
                 popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
             })
@@ -45,6 +46,19 @@ export class Vehicle{
 
         // Set blank mission
         this.vehicleMission = {descriptions: [], latLons: [], itemTypes: [], icons: []};
+
+        // Set default homePosition
+        let tmpIcon = new L.Icon({
+            iconUrl: './images/Home-icon.png',
+            iconSize: [25, 41], // size of the icon
+            iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
+            popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
+        });
+        this.homePosition = {
+            vehicleId: this.vehicleId,
+            position: new L.LatLng(this.position.lat, this.position.lon),
+            icon: tmpIcon
+        }
     }
 
     setPosition(position: PositionType) {
@@ -82,6 +96,20 @@ export class Vehicle{
             });
             this.vehicleMission.icons.push(tmpIcon);
         }
+    }
+
+    setVehicleHome(home: (TCPReturnType & MissionItemType)) {
+        console.log("Set vehicle Home");
+        console.log(home);
+        this.homePosition.vehicleId = home.vehicleID;
+        this.homePosition.position = new L.LatLng(home.lat, home.lon);
+        let tmpIcon = new L.Icon({
+            iconUrl: './images/Home-icon.png',
+            iconSize: [25, 41], // size of the icon
+            iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
+            popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
+        });
+        this.homePosition.icon = tmpIcon;
     }
 
     updateMarkerPosition(newPos?: PositionType) {

@@ -84,9 +84,9 @@ export default class AppContainer extends React.Component<Props, State> {
     this.notificationSystem = this.refs.notificationSystem;
     this.setupTCPServer();
 
-    // setInterval(() => {
-    //   this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
-    // }, 3000);
+    setInterval(() => {
+      this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
+    }, 7000);
   }
 
   setupTCPServer = () => {
@@ -190,6 +190,12 @@ export default class AppContainer extends React.Component<Props, State> {
       let vehicleMission = jsonData as TCPMissionType;
       let stateCopy = deepcopy(this.state.connectedVehicles);
       stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
+      this.setState({connectedVehicles: stateCopy});
+    }
+    else if(jsonData.dataType === 'VehicleHome') {
+      let vehicleHome = jsonData as (TCPReturnType & MissionItemType);
+      let stateCopy = deepcopy(this.state.connectedVehicles);
+      stateCopy[vehicleHome.vehicleID].setVehicleHome(vehicleHome);
       this.setState({connectedVehicles: stateCopy});
     }
   }
@@ -343,6 +349,17 @@ export default class AppContainer extends React.Component<Props, State> {
                     );
                   })}
 
+                  {/* Home Icons */}
+                  {/*Object.keys(this.state.connectedVehicles).map((key: string) => {
+                    return (
+                      <Marker key={key} position={this.state.connectedVehicles[key].homePosition.position} icon={this.state.connectedVehicles[key].homePosition.icon} title={key}>
+                        <Popup open={true}>
+                          <span>Selected</span>
+                        </Popup>
+                      </Marker>
+                    );
+                  })*/}
+
                   {/* Mission Paths */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
@@ -350,7 +367,7 @@ export default class AppContainer extends React.Component<Props, State> {
                     );
                   })}
 
-                  {/* Mission Paths */}
+                  {/* Mission Markers */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     let markers: JSX.Element[] = [];
                     for(let i = 0; i < this.state.connectedVehicles[key].vehicleMission.latLons.length; i++){

@@ -63,8 +63,9 @@ export class VehicleHUD extends React.Component<Props, State> {
     handleRTL = () => {
         this.props.handleAircraftCommand(this.props.vehicleID, "SET_VEHICLE_MODE", "RTL");
     }
-    handleGetMission = () => {
-        this.props.handleAircraftCommand(this.props.vehicleID, "GET_VEHICLE_MISSION", "")
+    syncVehicle = () => {
+        this.props.handleAircraftCommand(this.props.vehicleID, "GET_VEHICLE_HOME", "");
+        this.props.handleAircraftCommand(this.props.vehicleID, "GET_VEHICLE_MISSION", "");
     }
 
     render() {
@@ -121,8 +122,8 @@ export class VehicleHUD extends React.Component<Props, State> {
                             onClick={this.handleRTL}
                             icon={<i className="material-icons">home</i>} />
                         <FlatButton
-                            label="Sync Mission"
-                            onClick={this.handleGetMission}
+                            label="Sync"
+                            onClick={this.syncVehicle}
                             icon={<i className="material-icons">swap_calls</i>} />
                     </CardActions>
 
