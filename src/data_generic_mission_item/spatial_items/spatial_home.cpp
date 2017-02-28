@@ -19,7 +19,8 @@ bool SpatialHome::hasSpatialMissionInfluence() const
 
 SpatialHome::SpatialHome()
 {
-
+    m_CoordinateFrame = Data::CoordinateFrame::NED;
+    m_PositionalFrame = Data::PositionalFrame::GLOBAL;
 }
 
 SpatialHome::SpatialHome(const SpatialHome &spatialHome)

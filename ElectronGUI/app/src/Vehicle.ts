@@ -99,17 +99,16 @@ export class Vehicle{
     }
 
     setVehicleHome(home: (TCPReturnType & MissionItemType)) {
-        console.log("Set vehicle Home");
-        console.log(home);
-        this.homePosition.vehicleId = home.vehicleID;
-        this.homePosition.position = new L.LatLng(home.lat, home.lon);
-        let tmpIcon = new L.Icon({
-            iconUrl: './images/Home-icon.png',
-            iconSize: [25, 41], // size of the icon
-            iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
-            popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-        });
-        this.homePosition.icon = tmpIcon;
+        let iconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/Home-Icon.png" alt="Home icon" style="width:41px; height:41px; ">';
+        this.homePosition = {
+            vehicleId: this.vehicleId,
+            position: new L.LatLng(home.lat, home.lon),
+            icon: new L.DivIcon({
+                html: iconHTML,
+                iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
+                popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
+            })
+        };
     }
 
     updateMarkerPosition(newPos?: PositionType) {

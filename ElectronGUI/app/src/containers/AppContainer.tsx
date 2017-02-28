@@ -350,7 +350,7 @@ export default class AppContainer extends React.Component<Props, State> {
                   })}
 
                   {/* Home Icons */}
-                  {/*Object.keys(this.state.connectedVehicles).map((key: string) => {
+                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
                       <Marker key={key} position={this.state.connectedVehicles[key].homePosition.position} icon={this.state.connectedVehicles[key].homePosition.icon} title={key}>
                         <Popup open={true}>
@@ -358,7 +358,7 @@ export default class AppContainer extends React.Component<Props, State> {
                         </Popup>
                       </Marker>
                     );
-                  })*/}
+                  })}
 
                   {/* Mission Paths */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {

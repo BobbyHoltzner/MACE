@@ -368,10 +368,9 @@ void ModuleGroundStation::sendVehicleHome(const int &vehicleID, const std::share
     MissionItem::SpatialHome* spatialHome = new MissionItem::SpatialHome(component->getHome());
     if(spatialHome->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
     {
-        DataState::StateGlobalPosition* item = dynamic_cast<DataState::StateGlobalPosition*>(spatialHome);
-        json["lat"] = item->latitude;
-        json["lon"] = item->longitude;
-        json["alt"] = item->altitude;
+        json["lat"] = spatialHome->position.latitude;
+        json["lon"] = spatialHome->position.longitude;
+        json["alt"] = spatialHome->position.altitude;
     }
     else {
         // TODO: If we for some reason get a local home position (i.e. x/y/z), set to the global origin.
