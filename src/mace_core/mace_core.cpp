@@ -131,13 +131,60 @@ void MaceCore::NewTopicDataValues(const std::string &topicName, const int sender
 void MaceCore::RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm)
 {
     int vehicleID = arm.getVehicleID();
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_ARM,arm);
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            MissionItem::ActionArm newArm = arm;
+            newArm.setVehicleID(it->first);
+            it->second->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_ARM,newArm);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_ARM,arm);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
+
 }
 void MaceCore::RequestVehicleMode(const void *sender, const MissionItem::ActionChangeMode &changeMode)
 {
     int vehicleID = changeMode.getVehicleID();
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_MODE,changeMode);
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            MissionItem::ActionChangeMode newMode = changeMode;
+            newMode.setVehicleID(it->first);
+            it->second->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_MODE,newMode);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_MODE,changeMode);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
 }
+
+void MaceCore::RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
+{
+    int vehicleID = vehicleTakeoff.getVehicleID();
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff = vehicleTakeoff;
+            newTakeoff.setVehicleID(it->first);
+            it->second->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_TAKEOFF,newTakeoff);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_TAKEOFF,vehicleTakeoff);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
+}
+
 
 
 void MaceCore::SetCurrentVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
