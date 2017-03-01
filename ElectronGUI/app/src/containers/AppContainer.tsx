@@ -285,6 +285,9 @@ export default class AppContainer extends React.Component<Props, State> {
     if(action === "Settings"){
       this.setState({showEditGlobalHomeDialog: true, openDrawer: false});
     }
+    else if(action === "TestButton") {
+      this.makeTCPRequest(0, "TEST_FUNCTION", "");
+    }
   }
 
   onOpenVehicleEdit = (vehicleID: string) => {

@@ -175,12 +175,21 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     {
         getVehicleHome(vehicleID);
     }
+    else if(command == "TEST_FUNCTION")
+    {
+        testFunction();
+    }
     else
     {
         std::cout << "Command " << command.toStdString() << " not recognized." << std::endl;
         data = "command_not_recognized";
         return;
     }
+}
+
+void ModuleGroundStation::testFunction()
+{
+    std::cout << "KEN THIS IS YOUR TEST FUNCTION" << std::endl;
 }
 
 void ModuleGroundStation::getConnectedVehicles()

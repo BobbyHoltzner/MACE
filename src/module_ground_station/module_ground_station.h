@@ -147,6 +147,10 @@ private:
 
     void getVehicleHome(const int &vehicleID);
 
+    // TESTING:
+    void testFunction();
+    // END TESTING
+
 
     // Helpers:
     void missionToJSON(const std::shared_ptr<MissionTopic::MissionListTopic> &component, QJsonArray &missionItems);
