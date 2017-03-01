@@ -13,7 +13,11 @@ import * as colors from 'material-ui/styles/colors';
 type Props = {
     open: boolean,
     handleClose: () => void,
-    onGlobalHomeCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void
+    onGlobalHomeCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void,
+    globalOrigin: PositionType,
+    handleSave: (vehicleHome: PositionType) => void,
+    contextAnchor: L.LeafletMouseEvent,
+    useContext: boolean
 }
 
 type State = {
@@ -22,19 +26,26 @@ type State = {
     globalAlt?: number
 }
 
-export class GlobalHomeDialog extends React.Component<Props, State> {
+export class GlobalOriginDialog extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
 
-        // TODO: Get default global home from XML maybe??
-        // let globalHome = getGlobalHome();
-
         this.state = {
-            globalLat: 0,
-            globalLon: 0,
+            globalLat: this.props.useContext ? this.props.contextAnchor.latlng.lat : 0,
+            globalLon: this.props.useContext ? this.props.contextAnchor.latlng.lng : 0,
             globalAlt: 0
         }
+    }
+
+    componentWillReceiveProps(nextProps: Props) {
+        if(nextProps.useContext) {
+            this.setState({
+                globalLat: this.props.contextAnchor.latlng.lat,
+                globalLon: this.props.contextAnchor.latlng.lng
+            })
+        }
+
     }
 
     handleTextChange = (event: any) => {
@@ -47,7 +58,7 @@ export class GlobalHomeDialog extends React.Component<Props, State> {
             lon: this.state.globalLon,
             alt: this.state.globalAlt
         }
-        this.props.onGlobalHomeCommand("0", "SET_GLOBAL_HOME", JSON.stringify(globalHome));
+        this.props.handleSave(globalHome);
         this.props.handleClose();
     }
 

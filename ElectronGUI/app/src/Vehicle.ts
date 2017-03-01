@@ -103,6 +103,7 @@ export class Vehicle{
     }
 
     setVehicleHome(home: (TCPReturnType & MissionItemType)) {
+        console.log("In set vehicle home: " + home.lat + " / " + home.lon);
         let iconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/Home-Icon.png" alt="Home icon" style="width:41px; height:41px; ">';
         this.homePosition = {
             vehicleId: this.vehicleId,

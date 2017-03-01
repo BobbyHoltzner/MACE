@@ -16,7 +16,10 @@ type Props = {
     selectedVehicleID: string,
     open: boolean,
     handleClose: () => void,
-    onAircraftCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void
+    handleSave: (vehicleID: string, vehicleHome: PositionType) => void,
+    contextAnchor: L.LeafletMouseEvent,
+    useContext: boolean,
+    allowVehicleSelect: boolean
 }
 
 type State = {
@@ -31,12 +34,33 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
 
+        let homeLat = this.props.vehicles[this.props.selectedVehicleID] ? this.props.vehicles[this.props.selectedVehicleID].homePosition.latLon.lat : 0;
+        let homeLon = this.props.vehicles[this.props.selectedVehicleID] ? this.props.vehicles[this.props.selectedVehicleID].homePosition.latLon.lng : 0;
+        if(this.props.useContext) {
+            homeLat = this.props.contextAnchor.latlng.lat;
+            homeLon = this.props.contextAnchor.latlng.lng;
+        }
+
         this.state = {
             selectedVehicleID: this.props.selectedVehicleID,
-            homeLat: this.props.vehicles[this.props.selectedVehicleID] ? this.props.vehicles[this.props.selectedVehicleID].homePosition.latLon.lat : 0,
-            homeLon: this.props.vehicles[this.props.selectedVehicleID] ? this.props.vehicles[this.props.selectedVehicleID].homePosition.latLon.lng : 0,
+            homeLat: homeLat,
+            homeLon: homeLon,
             homeAlt: 0
         }
+    }
+
+    componentWillReceiveProps(nextProps: Props) {
+        if(nextProps.selectedVehicleID !== this.props.selectedVehicleID) {
+            this.setState({selectedVehicleID: nextProps.selectedVehicleID});
+        }
+
+        if(nextProps.useContext) {
+            this.setState({
+                homeLat: this.props.contextAnchor.latlng.lat,
+                homeLon: this.props.contextAnchor.latlng.lng
+            })
+        }
+
     }
 
     handleTextChange = (event: any) => {
@@ -44,12 +68,13 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
     }
 
     handleSave = () => {
+        console.log("Selected vehicle ID: " + this.state.selectedVehicleID);
         let vehicleHome: PositionType = {
             lat: this.state.homeLat,
             lon: this.state.homeLon,
             alt: this.state.homeAlt
         }
-        this.props.onAircraftCommand(this.state.selectedVehicleID, "SET_VEHICLE_HOME", JSON.stringify(vehicleHome));
+        this.props.handleSave(this.state.selectedVehicleID, vehicleHome);
         this.props.handleClose();
     }
 

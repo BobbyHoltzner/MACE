@@ -29,7 +29,7 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
         super(props);
 
         this.state = {
-            selectedAircraftID: "1"
+            selectedAircraftID: "0"
         }
     }
 
@@ -72,16 +72,19 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
             <div>
                 {Object.keys(this.props.connectedVehicles).length >= 0 &&
                     <div style={aircraftCommsContainer}>
-                            <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <DropDownMenu style={{marginRight: 10, width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>
-                                    <MenuItem value={"0"} primaryText={"1"} label={"id 1"} />
-                                    <MenuItem value={"1"} primaryText={"2"} label={"id 2"} />
-                                    {vehicleIDs}
-                                </DropDownMenu>
-                            </MuiThemeProvider>
+                                {Object.keys(this.props.connectedVehicles).length > 1 &&
+
+                                    <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                        <DropDownMenu style={{marginRight: 10, width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>
+                                            <MenuItem value={"0"} primaryText={"All vehicles"} label={"All vehicles"} />
+                                            {vehicleIDs}
+                                        </DropDownMenu>
+                                    </MuiThemeProvider>
+                                }
+
 
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <RaisedButton icon={<i className="material-icons">flight_takeoff</i>} style={buttonStyle} label="Launch" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "TAKEOFF")}/>
+                                <RaisedButton icon={<i className="material-icons">flight_takeoff</i>} style={buttonStyle} label="Takeoff" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "TAKEOFF")}/>
 
                                 {/*
                                 <RaisedButton style={buttonStyle} onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "GUIDED")} >
@@ -105,7 +108,7 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
                                 <RaisedButton icon={<i className="material-icons">home</i>} style={buttonStyle} label="Home" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "RTL")}/>
                             </MuiThemeProvider>
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <RaisedButton icon={<i className="material-icons">send</i>} style={buttonStyle} label="Send WPs" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "GET_CONNECTED_VEHICLES", "")}/>
+                                <RaisedButton icon={<i className="material-icons">send</i>} style={buttonStyle} label="Start Mission" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "AUTO")}/>
                             </MuiThemeProvider>
                     </div>
                 }

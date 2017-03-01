@@ -137,6 +137,10 @@ private:
 
     void setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj);
 
+    void setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj);
+
+    void setGlobalOrigin(const QJsonObject &jsonObj);
+
     void getVehicleMission(const int &vehicleID);
 
     void getConnectedVehicles();

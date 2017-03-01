@@ -155,6 +155,14 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     {
         setVehicleMode(vehicleID, jsonObj);
     }
+    else if(command == "SET_VEHICLE_HOME")
+    {
+        setVehicleHome(vehicleID, jsonObj);
+    }
+    else if(command == "SET_GLOBAL_HOME")
+    {
+        setGlobalOrigin(jsonObj);
+    }
     else if(command == "GET_VEHICLE_MISSION")
     {
         getVehicleMission(vehicleID);
@@ -229,6 +237,38 @@ void ModuleGroundStation::setVehicleMode(const int &vehicleID, const QJsonObject
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->RequestVehicleMode(this, tmpMode);
+    });
+}
+
+void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj)
+{
+    MissionItem::SpatialHome tmpHome;
+    tmpHome.setVehicleID(vehicleID);
+    QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
+
+    tmpHome.position.latitude = position["lat"].toString().toDouble();
+    tmpHome.position.longitude = position["lon"].toString().toDouble();
+    tmpHome.position.altitude = position["alt"].toString().toDouble();
+    tmpHome.setPositionalFrame(Data::PositionalFrame::GLOBAL);
+//    tmpHome.setCoordinateFrame(NED??);
+
+    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
+        ptr->SetVehicleHomePosition(this, tmpHome);
+    });
+}
+
+void ModuleGroundStation::setGlobalOrigin(const QJsonObject &jsonObj)
+{
+    MissionItem::SpatialHome tmpGlobalHome;
+    QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
+    tmpGlobalHome.position.latitude = position["lat"].toString().toDouble();
+    tmpGlobalHome.position.longitude = position["lon"].toString().toDouble();
+    tmpGlobalHome.position.altitude = position["alt"].toString().toDouble();
+    tmpGlobalHome.setPositionalFrame(Data::PositionalFrame::GLOBAL);
+//    tmpHome.setCoordinateFrame(NED??);
+
+    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
+        ptr->UpdateGlobalOriginPosition(this, tmpGlobalHome);
     });
 }
 
