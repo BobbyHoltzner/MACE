@@ -26,7 +26,7 @@ export class AppDrawer extends React.Component<Props, State> {
 
 
     render() {
-        
+
         const drawerItemLabelStyle = { fontSize: 18, marginLeft: 20 };
 
         return(
@@ -35,7 +35,7 @@ export class AppDrawer extends React.Component<Props, State> {
                 containerStyle={{position: "absolute", top: 64}}
                 docked={true}
                 open={this.props.openDrawer}
-                onRequestChange={(open: boolean) => this.props.onToggleDrawer(open)}              
+                onRequestChange={(open: boolean) => this.props.onToggleDrawer(open)}
                 >
 
                     <div style={{ textAlign: "center" }}>
@@ -44,13 +44,15 @@ export class AppDrawer extends React.Component<Props, State> {
 
                     <Divider />
 
-                    <MenuItem onTouchTap={() => this.props.onDrawerAction("Regions")}>
+                    <MenuItem onTouchTap={() => this.props.onDrawerAction("TestButton")}>
                         <FlatButton
                         labelStyle={drawerItemLabelStyle}
-                        label="Regions"
+                        label="TESTING"
                         icon={<FontIcon className="material-icons">gesture</FontIcon>}
                         />
                     </MenuItem>
+
+                    {/*
                     <MenuItem onTouchTap={() => this.props.onDrawerAction("Logging")}>
                         <FlatButton
                         labelStyle={drawerItemLabelStyle}
@@ -58,6 +60,7 @@ export class AppDrawer extends React.Component<Props, State> {
                         icon={<FontIcon className="material-icons">event_note</FontIcon>}
                         />
                     </MenuItem>
+                    */}
 
                     <Divider />
 

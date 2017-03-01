@@ -1,3 +1,5 @@
+type VehicleTypeType = 'Quad' | 'Fixed';
+
 type PositionType = {
     lat: number,
     lon: number,
@@ -47,12 +49,25 @@ type TCPAttitudeType = TCPDescriptorType & {
   yaw: number
 }
 
-type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType;
+type MissionItemType = {
+  description: string,
+  lat: number,
+  lon: number,
+  alt: number,
+  type: string
+}
+
+type TCPMissionType = TCPDescriptorType & {
+  missionItems: MissionItemType[]
+}
+
+type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPMissionType;
 
 
 type MarkerType = {
-  position: L.LatLng,
+  latLon: L.LatLng,
   icon: L.Icon,
+  altitude: number,
   vehicleId?: number
 }
 
@@ -61,7 +76,9 @@ type LayerGroupType = {
   latLons: L.LatLng[]
 }
 
-type PathType = {
-  waypoints: L.LatLng[]
+type MissionLayerType = {
+  descriptions: string[],
+  latLons: L.LatLng[],
+  itemTypes: string[],
+  icons: L.Icon[]
 }
-

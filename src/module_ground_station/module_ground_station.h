@@ -26,6 +26,7 @@
 #include "data_vehicle_MAVLINK/components.h"
 #include "data_vehicle_ardupilot/components.h"
 
+#include "guitimer.h"
 
 
 using namespace std;
@@ -126,15 +127,31 @@ private:
 
     void sendVehicleMission(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionListTopic> &component);
 
+    void sendVehicleHome(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
+
     bool writeTCPData(QByteArray data);
 
 
     // Commands from GUI:
-    void parseTCPRequest(QJsonObject jsonObj);
+    void parseTCPRequest(const QJsonObject &jsonObj);
+
+    void setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj);
 
     void setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj);
 
+    void setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj);
+
+    void setGlobalOrigin(const QJsonObject &jsonObj);
+
     void getVehicleMission(const int &vehicleID);
+
+    void getConnectedVehicles();
+
+    void getVehicleHome(const int &vehicleID);
+
+    // TESTING:
+    void testFunction();
+    // END TESTING
 
 
     // Helpers:
@@ -149,6 +166,9 @@ private:
 
     std::shared_ptr<QTcpServer> m_TcpServer;
     QThread *m_ListenThread;
+    QTcpSocket *m_TcpSocket;
+    bool m_timeoutOccured;
+    std::shared_ptr<GUITimer> m_timer;
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;

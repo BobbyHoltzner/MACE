@@ -10,5 +10,11 @@ export const Colors =  {
   Error: '#FF1300',
   Warning: '#FFAE00',
   Text: '#111111',
-  Underline: '#d4d4d4'  
+  Underline: '#d4d4d4'
 };
+
+
+// TODO: Figure out a better way to do background colors
+export const backgroundColors = ['rgba(255,255,255, 1)', 'rgba(255,0,0,1)', 'rgba(0,0,255,1)', 'rgba(0,0,0,1)', 'rgba(0,255,0,1)', 'rgba(255,255,0,1)', 'rgba(255,153,0,1)'];
+
+export const opaqueBackgroundColors = ['rgba(255,255,255, 0.2)', 'rgba(255,0,0,0.2)', 'rgba(0,0,255,0.2)', 'rgba(0,0,0,0.2)', 'rgba(0,255,0,0.2)', 'rgba(255,255,0,0.2)', 'rgba(255,153,0,0.2)'];

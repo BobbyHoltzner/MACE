@@ -24,6 +24,8 @@ void MaceCore::AddDataFusion(const std::shared_ptr<MaceData> dataFusion)
 
 void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle)
 {
+    std::lock_guard<std::mutex> guard(m_VehicleMutex);
+
     if(m_VehicleIDToPtr.find(ID) != m_VehicleIDToPtr.cend())
         throw std::runtime_error("Vehicle ID already exists");
 
@@ -225,6 +227,8 @@ void MaceCore::UpdateGlobalOriginPosition(const void *sender, const MissionItem:
 /////////////////////////////////////////////////////////////////////////
 void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
 {
+    std::lock_guard<std::mutex> guard(m_VehicleMutex);
+
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
     m_DataFusion->AddAvailableVehicle(newVehicleObserved);

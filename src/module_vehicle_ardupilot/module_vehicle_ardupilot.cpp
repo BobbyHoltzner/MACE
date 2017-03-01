@@ -192,7 +192,7 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
                 m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
                 //notify listneres of topic
                 ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-                    ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+                    ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
                 });
             }
         } //if there is information available
