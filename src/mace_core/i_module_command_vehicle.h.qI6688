@@ -66,7 +66,7 @@ public:
             ChangeVehicleOperationalMode(vehicleMode);
         });
 
-        AddCommandLogic<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>>(VehicleCommands::REQUEST_VEHICLE_TAKEOFF, [this](const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff){
+        AddCommandLogic<MissionItem::SpatialTakeoff>(VehicleCommands::REQUEST_VEHICLE_TAKEOFF, [this](const MissionItem::SpatialTakeoff &vehicleTakeoff){
             RequestVehicleTakeoff(vehicleTakeoff);
         });
 

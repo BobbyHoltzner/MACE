@@ -83,10 +83,10 @@ public:
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
 
     //!
-    //! \brief IssueVehicleCommand
-    //! \param commandItem
+    //! \brief RequestVehicleTakeoff
+    //! \param vehicleTakeoff
     //!
-    virtual void IssueVehicleCommand(const MissionItem::AbstractMissionItem &commandItem);
+    virtual void RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
 
     /////////////////////////////////////////////////////////////////////////

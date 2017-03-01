@@ -100,6 +100,17 @@ mavlink_message_t MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::Abstr
 
     return msg;
 }
+mavlink_message_t generateTakeoffMessage(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan, const uint8_t &compID)
+{
+    //This is command number 22
+    mavlink_message_t msg;
+    int systemID = missionItem.getVehicleID();
+    float latitude = missionItem.position.latitude;
+    float longitude = missionItem.position.longitude;
+    float altitude = missionItem.position.altitude;
+    mavlink_msg_command_long_pack_chan(255,190,chan,&msg,systemID,compID,22,0,0.0,0.0,0.0,0.0,latitude,longitude,altitude);
+    return msg;
+}
 
 mavlink_message_t generateArdupilotCommandMessage(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
