@@ -79,6 +79,8 @@ public:
 
     virtual void RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm);
     virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode);
+    virtual void RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+
 
     virtual void SetCurrentVehicleMission(const void* sender, const MissionItem::MissionList &missionList);
     virtual void RequestCurrentVehicleMission(const void* sender, const int &vehicleID);

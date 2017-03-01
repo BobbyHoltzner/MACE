@@ -43,9 +43,12 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
     }
 }
 
-void ModuleVehicleArdupilot::IssueVehicleCommand(const MissionItem::AbstractMissionItem &commandItem)
+void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
 {
-
+    int vehicleID = vehicleTakeoff.getVehicleID();
+    DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
+    mavlink_message_t msg = DataArdupilot::generateTakeoffMessage(vehicleTakeoff,m_LinkChan,0);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 /////////////////////////////////////////////////////////////////////////////

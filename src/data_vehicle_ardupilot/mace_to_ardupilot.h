@@ -19,6 +19,7 @@ namespace DataArdupilot{
     mavlink_message_t generateGetHomePosition(const int &vehicleID, const int &chan);
     mavlink_message_t generateSetHomePosition(const MissionItem::SpatialHome &vehicleHome, const int &chan);
 
+    mavlink_message_t generateTakeoffMessage(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan, const uint8_t &compID);
     mavlink_message_t generateArdupilotCommandMessage(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
     mavlink_message_t MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
 
