@@ -163,6 +163,10 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     {
         setGlobalOrigin(jsonObj);
     }
+    else if(command == "SET_VEHICLE_ARM")
+    {
+        setVehicleArm(vehicleID, jsonObj);
+    }
     else if(command == "GET_VEHICLE_MISSION")
     {
         getVehicleMission(vehicleID);
@@ -238,6 +242,19 @@ void ModuleGroundStation::getVehicleHome(const int &vehicleID)
     });
 }
 
+void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj)
+{
+    MissionItem::ActionArm tmpArm;
+    tmpArm.setVehicleID(vehicleID); // the vehicle ID coordinates to the specific vehicle //vehicle 0 is reserved for all connected vehicles
+//    tmpMode.setRequestMode(jsonObj["vehicleCommand"].toString().toStdString()); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
+
+    QJsonObject arm = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
+    tmpArm.setVehicleArm(arm.value("arm").toBool());
+    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+        ptr->RequestVehicleArm(this, tmpArm);
+    });
+}
+
 void ModuleGroundStation::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
 {
     MissionItem::ActionChangeMode tmpMode;
@@ -255,9 +272,12 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
     tmpHome.setVehicleID(vehicleID);
     QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
 
-    tmpHome.position.latitude = position["lat"].toString().toDouble();
-    tmpHome.position.longitude = position["lon"].toString().toDouble();
-    tmpHome.position.altitude = position["alt"].toString().toDouble();
+    std::cout << "String Val: " << position.value("lat").toString().toStdString() << std::endl;
+    std::cout << "Double Val: " << position.value("lat").toDouble() << std::endl;
+
+    tmpHome.position.latitude = position.value("lat").toDouble();
+    tmpHome.position.longitude = position.value("lon").toDouble();
+    tmpHome.position.altitude = position.value("alt").toDouble();
     tmpHome.setPositionalFrame(Data::PositionalFrame::GLOBAL);
 //    tmpHome.setCoordinateFrame(NED??);
 
@@ -270,9 +290,9 @@ void ModuleGroundStation::setGlobalOrigin(const QJsonObject &jsonObj)
 {
     MissionItem::SpatialHome tmpGlobalHome;
     QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
-    tmpGlobalHome.position.latitude = position["lat"].toString().toDouble();
-    tmpGlobalHome.position.longitude = position["lon"].toString().toDouble();
-    tmpGlobalHome.position.altitude = position["alt"].toString().toDouble();
+    tmpGlobalHome.position.latitude = position.value("lat").toDouble();
+    tmpGlobalHome.position.longitude = position.value("lon").toDouble();
+    tmpGlobalHome.position.altitude = position.value("alt").toDouble();
     tmpGlobalHome.setPositionalFrame(Data::PositionalFrame::GLOBAL);
 //    tmpHome.setCoordinateFrame(NED??);
 

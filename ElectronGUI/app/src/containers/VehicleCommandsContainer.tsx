@@ -82,6 +82,9 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
                                     </MuiThemeProvider>
                                 }
 
+                            <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                <RaisedButton icon={<i className="material-icons">get_app</i>} style={buttonStyle} label="Arm" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_ARM", JSON.stringify({arm: true}))}/>
+                            </MuiThemeProvider>
 
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
                                 <RaisedButton icon={<i className="material-icons">flight_takeoff</i>} style={buttonStyle} label="Takeoff" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "TAKEOFF")}/>

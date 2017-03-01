@@ -135,6 +135,8 @@ private:
     // Commands from GUI:
     void parseTCPRequest(const QJsonObject &jsonObj);
 
+    void setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj);
+
     void setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj);
 
     void setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj);
