@@ -24,7 +24,8 @@ HEADERS += data_global.h \
     vehicle_command_types.h \
     vehicle_types.h \
     timer.h \
-    operating_mode.h
+    operating_mode.h \
+    loiter_direction.h
 
 # Unix lib Install
 unix:!symbian {

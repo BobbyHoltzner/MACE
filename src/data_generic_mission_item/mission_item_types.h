@@ -11,6 +11,9 @@ enum class MissionItemType{
     ARM,
     CHANGE_MODE,
     LAND,
+    LOITER_TIME,
+    LOITER_TURNS,
+    LOITER_UNLIMITED,
     RTL,
     TAKEOFF,
     WAYPOINT
@@ -25,6 +28,12 @@ inline std::string MissionTypeToString(const MissionItemType &cmdType) {
         return "CHANGE_MODE";
     case MissionItemType::LAND:
         return "LAND";
+    case MissionItemType::LOITER_TIME:
+        return "LOITER_TIME";
+    case MissionItemType::LOITER_TURNS:
+        return "LOITER_TURNS";
+    case MissionItemType::LOITER_UNLIMITED:
+        return "LOITER_UNLIMITED";
     case MissionItemType::RTL:
         return "RTL";
     case MissionItemType::TAKEOFF:
@@ -43,6 +52,12 @@ inline MissionItemType MissionTypeFromString(const std::string &str) {
         return MissionItemType::CHANGE_MODE;
     if(str == "LAND")
         return MissionItemType::LAND;
+    if(str == "LOITER_TIME")
+        return MissionItemType::LOITER_TIME;
+    if(str == "LOITER_TURNS")
+        return MissionItemType::LOITER_TURNS;
+    if(str == "LOITER_UNLIMITED")
+        return MissionItemType::LOITER_UNLIMITED;
     if(str == "RTL")
         return MissionItemType::RTL;
     if(str == "TAKEOFF")

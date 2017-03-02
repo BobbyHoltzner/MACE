@@ -117,6 +117,89 @@ mavlink_message_t generateArdupilotCommandMessage(std::shared_ptr<MissionItem::A
     mavlink_message_t msg;
 
     switch (missionItem->getMissionType()) {
+    case MissionItem::MissionItemType::WAYPOINT:
+    {
+        //This is command number 16
+        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        {
+            std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
+            float latitude = item->position.latitude;
+            float longitude = item->position.longitude;
+            float altitude = item->position.altitude;
+            mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,16,0,0.0,0.0,0.0,0.0,latitude,longitude,altitude);
+
+        }
+        break;
+    }
+    case MissionItem::MissionItemType::LOITER_UNLIMITED:
+    {
+        //This is command number 17
+        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        {
+            std::shared_ptr<MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>>(missionItem);
+            float latitude = item->position.latitude;
+            float longitude = item->position.longitude;
+            float altitude = item->position.altitude;
+            float radius = 0.0;
+            if(item->direction == Data::LoiterDirection::CW)
+            {
+                radius = item->radius;
+            }else{
+                radius = 0-item->radius;
+            }
+            mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,21,0,0.0,0.0,radius,0.0,latitude,longitude,altitude);
+        }else{
+
+        }
+        break;
+    }
+    case MissionItem::MissionItemType::LOITER_TURNS:
+    {
+        //This is command number 18
+        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        {
+            std::shared_ptr<MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition>>(missionItem);
+            float latitude = item->position.latitude;
+            float longitude = item->position.longitude;
+            float altitude = item->position.altitude;
+            float turns = item->turns;
+            float radius = 0.0;
+            if(item->direction == Data::LoiterDirection::CW)
+            {
+                radius = item->radius;
+            }else{
+                radius = 0-item->radius;
+            }
+            mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,21,0,turns,0.0,radius,0.0,latitude,longitude,altitude);
+        }else{
+
+        }
+        break;
+    }
+    case MissionItem::MissionItemType::LOITER_TIME:
+    {
+        //This is command number 19
+        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        {
+            std::shared_ptr<MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition>>(missionItem);
+            float latitude = item->position.latitude;
+            float longitude = item->position.longitude;
+            float altitude = item->position.altitude;
+            float time = item->duration;
+            float radius = 0.0;
+
+            if(item->direction == Data::LoiterDirection::CW)
+            {
+                radius = item->radius;
+            }else{
+                radius = 0-item->radius;
+            }
+            mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,21,0,time,0.0,radius,0.0,latitude,longitude,altitude);
+        }else{
+
+        }
+        break;
+    }
     case MissionItem::MissionItemType::RTL:
     {
         //This is command number 20
@@ -147,20 +230,6 @@ mavlink_message_t generateArdupilotCommandMessage(std::shared_ptr<MissionItem::A
             float longitude = item->position.longitude;
             float altitude = item->position.altitude;
             mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,22,0,0.0,0.0,0.0,0.0,latitude,longitude,altitude);
-        }
-        break;
-    }
-    case MissionItem::MissionItemType::WAYPOINT:
-    {
-        //This is command number 16
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
-        {
-            std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
-            float latitude = item->position.latitude;
-            float longitude = item->position.longitude;
-            float altitude = item->position.altitude;
-            mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,16,0,0.0,0.0,0.0,0.0,latitude,longitude,altitude);
-
         }
         break;
     }

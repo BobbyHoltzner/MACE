@@ -32,9 +32,10 @@ SOURCES += \
     spatial_items/spatial_takeoff.cpp \
     spatial_items/spatial_rtl.cpp \
     spatial_items/spatial_waypoint.cpp \
-    spatial_items/action_land.cpp \
-    spatial_items/action_takeoff.cpp \
-    spatial_items/spatial_home.cpp
+    spatial_items/spatial_home.cpp \
+    spatial_items/spatial_loiter_unlimited.cpp \
+    spatial_items/spatial_loiter_time.cpp \
+    spatial_items/spatial_loiter_turns.cpp
 
 HEADERS +=\
         data_generic_mission_item_global.h \
@@ -50,7 +51,10 @@ HEADERS +=\
     mission_item_types.h \
     mission_item_components.h \
     spatial_items/spatial_waypoint.h \
-    spatial_items/spatial_home.h
+    spatial_items/spatial_home.h \
+    spatial_items/spatial_loiter_unlimited.h \
+    spatial_items/spatial_loiter_time.h \
+    spatial_items/spatial_loiter_turns.h
 
 # Unix lib Install
 unix:!symbian {
@@ -85,11 +89,14 @@ INSTALLS       += headers_doComponents
 #Header file copy
 headers_spatialComponents.path    = $$(MACE_ROOT)/include/data_generic_mission_item/spatial_item
 headers_spatialComponents.files   += \
-    spatial_items/spatial_land.h \
-    spatial_items/spatial_takeoff.h \
-    spatial_items/spatial_rtl.h \
-    spatial_items/spatial_waypoint.h \
     spatial_items/spatial_home.h \
+    spatial_items/spatial_land.h \
+    spatial_items/spatial_loiter_unlimited.h \
+    spatial_items/spatial_loiter_time.h \
+    spatial_items/spatial_loiter_turns.h \
+    spatial_items/spatial_rtl.h \
+    spatial_items/spatial_takeoff.h \
+    spatial_items/spatial_waypoint.h \
     spatial_items/spatial_components.h
 INSTALLS       += headers_spatialComponents
 
