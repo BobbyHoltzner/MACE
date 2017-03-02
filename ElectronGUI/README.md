@@ -32,7 +32,7 @@ If you do not want to build from source, there are prebuilt binaries included in
 ## Usage
 This GUI is a work in progress, and as such there are certain "quirks" with its usage. The following process has been found to work consistently on a Windows 10 machine:
 
-1. Start the ArduPilot simulation(s) (see this page for reference: [TODO-SIMULATION README](https://www.google.com))
+1. Start the ArduPilot simulation(s) (see this page for reference: [MACE-ArduPilot Simulation setup](https://github.com/brettdarcey/MACE/wiki/ArduPilot-Simulation))
 2. Start MACE
 3. Start the MACE GUI
 
