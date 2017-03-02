@@ -43,3 +43,4 @@ node_modules
 /gui_dlls/*
 /node_packages/*
 ElectronGUI/.vscode/settings.json
+ElectronGUI/PrebuiltBinaries*
