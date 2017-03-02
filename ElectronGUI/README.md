@@ -21,7 +21,7 @@ npm start
 If any changes are made to the React project, you can simply run `gulp defaultBuild` from the `MACE/ElectronGUI` directory and then press `Ctrl + R` in the electron GUI to refresh the application. 
 
 ## Prebuilt Binaries
-If you do not want to build from source, there are prebuilt binaries included in the `MACE/ElectronGUI/PrebuiltBinaries` directory for several architectures. Simply find your architecture and run the executable in the corresponding directory to start the MACE GUI. The following architectures are supported:
+If you do not want to build from source, there are prebuilt binaries included in the `MACE/ElectronGUI/PrebuiltBinaries.zip` file for several architectures. Simply unzip the file and find your architecture and run the executable in the corresponding directory to start the MACE GUI. The following architectures are supported:
 
 - Win32-x64
 - Win32-ia32
