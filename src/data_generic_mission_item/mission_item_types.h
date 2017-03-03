@@ -13,7 +13,9 @@ enum class MissionItemType{
     CHANGE_SPEED,
     MOTOR_TEST,
     LAND,
-    LOITER,
+    LOITER_TIME,
+    LOITER_TURNS,
+    LOITER_UNLIMITED,
     RTL,
     TAKEOFF,
     WAYPOINT
@@ -32,8 +34,12 @@ inline std::string MissionTypeToString(const MissionItemType &cmdType) {
         return "MOTOR_TEST";
     case MissionItemType::LAND:
         return "LAND";
-    case MissionItemType::LOITER:
-        return "LOITER";
+    case MissionItemType::LOITER_TIME:
+        return "LOITER_TIME";
+    case MissionItemType::LOITER_TURNS:
+        return "LOITER_TURNS";
+    case MissionItemType::LOITER_UNLIMITED:
+        return "LOITER_UNLIMITED";
     case MissionItemType::RTL:
         return "RTL";
     case MissionItemType::TAKEOFF:
@@ -56,8 +62,12 @@ inline MissionItemType MissionTypeFromString(const std::string &str) {
         return MissionItemType::MOTOR_TEST;
     if(str == "LAND")
         return MissionItemType::LAND;
-    if(str == "LOITER")
-        return MissionItemType::LOITER;
+    if(str == "LOITER_TIME")
+        return MissionItemType::LOITER_TIME;
+    if(str == "LOITER_TURNS")
+        return MissionItemType::LOITER_TURNS;
+    if(str == "LOITER_UNLIMITED")
+        return MissionItemType::LOITER_UNLIMITED;
     if(str == "RTL")
         return MissionItemType::RTL;
     if(str == "TAKEOFF")
