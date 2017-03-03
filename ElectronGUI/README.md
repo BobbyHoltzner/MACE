@@ -21,7 +21,7 @@ npm start
 If any changes are made to the React project, you can simply run `gulp defaultBuild` from the `MACE/ElectronGUI` directory and then press `Ctrl + R` in the electron GUI to refresh the application. 
 
 ## Prebuilt Binaries
-If you do not want to build from source, there are prebuilt binaries included in the `MACE/ElectronGUI/PrebuiltBinaries` directory for several architectures. Simply find your architecture and run the executable in the corresponding directory to start the MACE GUI. The following architectures are supported:
+If you do not want to build from source, there are prebuilt binaries included in the latest release version in a zipped file (`PrebuiltBinaries.zip`). This zipped file contains binary files for several architectures. Simply unzip the file and find your architecture and run the executable in the corresponding directory to start the MACE GUI. The following architectures are supported:
 
 - Win32-x64
 - Win32-ia32
@@ -29,10 +29,12 @@ If you do not want to build from source, there are prebuilt binaries included in
 - Linux-ia32
 - Linux-armv7l
 
+Note that this is a very large file, as Electron packages everything with the executables, including node_packages.
+
 ## Usage
 This GUI is a work in progress, and as such there are certain "quirks" with its usage. The following process has been found to work consistently on a Windows 10 machine:
 
-1. Start the ArduPilot simulation(s) (see this page for reference: [TODO-SIMULATION README](https://www.google.com))
+1. Start the ArduPilot simulation(s) (see this page for reference: [MACE-ArduPilot Simulation setup](https://github.com/brettdarcey/MACE/wiki/ArduPilot-Simulation))
 2. Start MACE
 3. Start the MACE GUI
 
