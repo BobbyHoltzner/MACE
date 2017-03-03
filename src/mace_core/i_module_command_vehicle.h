@@ -165,7 +165,6 @@ public:
     virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm) = 0;
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
     virtual void RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
-    //virtual void IssueVehicleCommand(const MissionItem::AbstractMissionItem &commandItem) = 0;
 
 
     virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList) = 0;

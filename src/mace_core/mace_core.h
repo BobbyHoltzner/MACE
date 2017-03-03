@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <functional>
+#include <mutex>
 
 #include "mace_core_global.h"
 #include "mace_data.h"
@@ -183,6 +184,8 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 private:
+    mutable std::mutex m_VehicleMutex;
+
     std::unordered_map<std::string, TopicStructure> m_Topics;
     std::unordered_map<std::string, std::vector<ModuleBase*>> m_TopicNotifier;
 

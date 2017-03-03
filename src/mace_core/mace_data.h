@@ -141,7 +141,7 @@ private:
         {
             Eigen::Vector3f translation;
             newHome.position.translationTransformation(m_GlobalOrigin.position,translation);
-            m_VehicleToGlobalTranslation.at(vehicleHome.getVehicleID()) = translation;
+            m_VehicleToGlobalTranslation[vehicleHome.getVehicleID()] = translation;
         }
     }
 
@@ -150,11 +150,11 @@ private:
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_GlobalOrigin = globalOrigin;
         flagGlobalOrigin = true;
-        for (std::map<int,MissionItem::SpatialHome>::iterator it=m_VehicleHomeMap.begin(); it!=m_VehicleHomeMap.end(); ++it)
+        for (std::map<int,MissionItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
         {
             Eigen::Vector3f translation;
             it->second.position.translationTransformation(m_GlobalOrigin.position,translation);
-            m_VehicleToGlobalTranslation.at(it->first) = translation;
+            m_VehicleToGlobalTranslation[it->first] = translation;
         }
           //std::cout << it->first << " => " << it->second << '\n';
         //This is where we would need to update and compute transformations
@@ -235,6 +235,8 @@ public:
 
     void setTopicDatagram(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
 
+        std::lock_guard<std::mutex> guard(m_TopicMutex);
+
         if(m_LatestTopic.find(topicName) == m_LatestTopic.cend()) {
             m_LatestTopic.insert({topicName, {}});
         }
@@ -255,6 +257,7 @@ public:
 
 
     TopicDatagram GetCurrentTopicDatagram(const std::string &topicName, const int senderID) const {
+        std::lock_guard<std::mutex> guard(m_TopicMutex);
         return m_LatestTopic.at(topicName).at(senderID);
     }
 
@@ -684,6 +687,7 @@ private:
     mutable std::mutex m_Mutex_ResourceMap;
     mutable std::mutex m_Mutex_OccupancyMap;
     mutable std::mutex m_Mutex_ProbabilityMap;
+    mutable std::mutex m_TopicMutex;
 
 
 };

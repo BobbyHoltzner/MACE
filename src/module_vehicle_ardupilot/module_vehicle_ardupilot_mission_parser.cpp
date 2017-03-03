@@ -201,9 +201,9 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         mavlink_msg_home_position_decode(message,&decodedMSG);
 
         MissionItem::SpatialHome spatialHome;
-        spatialHome.position.latitude = decodedMSG.latitude;
-        spatialHome.position.longitude = decodedMSG.longitude;
-        spatialHome.position.altitude = decodedMSG.altitude;
+        spatialHome.position.latitude = decodedMSG.latitude / pow(10,7);
+        spatialHome.position.longitude = decodedMSG.longitude / pow(10,7);
+        spatialHome.position.altitude = decodedMSG.altitude / 1000;
         spatialHome.setVehicleID(sysID);
 
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
