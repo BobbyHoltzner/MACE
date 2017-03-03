@@ -25,12 +25,9 @@ HEADERS += data_global.h \
     vehicle_types.h \
     timer.h \
     operating_mode.h \
-<<<<<<< HEAD
     altitude_frame.h \
     speed_frame.h
-=======
     loiter_direction.h
->>>>>>> refs/remotes/origin/master
 
 # Unix lib Install
 unix:!symbian {
