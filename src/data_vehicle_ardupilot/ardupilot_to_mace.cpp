@@ -158,6 +158,18 @@ std::shared_ptr<MissionItem::AbstractMissionItem> MAVLINKMissionToMACEMission(co
         returnItem->position.longitude = missionItem.y;
         returnItem->position.altitude = missionItem.z;
         return returnItem;
+    }else if(missionItem.command == 178)
+    {
+        //This is a MAV_CMD_DO_CHANGE_SPEED
+        /*
+        Mission Param #1	Speed type (0=Airspeed, 1=Ground Speed)
+        Mission Param #2	Speed (m/s, -1 indicates no change)
+        Mission Param #3	Throttle ( Percent, -1 indicates no change)
+        Mission Param #4	absolute or relative [0,1]
+        Mission Param #5	Empty
+        Mission Param #6	Empty
+        Mission Param #7	Empty
+        */
     }else{
         return NULL;
     }
