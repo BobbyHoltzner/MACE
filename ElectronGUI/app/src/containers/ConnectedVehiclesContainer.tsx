@@ -5,16 +5,17 @@ import * as React from 'react';
 import FlatButton from 'material-ui/FlatButton'
 
 import { VehicleHUD } from '../components/VehicleHUD';
+import { Vehicle } from '../Vehicle';
 
 
 type Props = {
-    connectedVehicles: VehicleMapType,
-    onAircraftCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void
+    connectedVehicles: {[id: string]: Vehicle},
+    onAircraftCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void,
+    handleOpenVehicleEdit: (vehicleID: string) => void
 }
 
 type State = {
-    selectedVehicle?: string,
-    showConnectedVehicles?: boolean
+    selectedVehicle?: string
 }
 
 export class ConnectedVehiclesContainer extends React.Component<Props, State> {
@@ -23,15 +24,10 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
         super(props);
 
         this.state = {
-            selectedVehicle: "0",
-            showConnectedVehicles: true
+            selectedVehicle: "0"
         }
     }
 
-
-    toggleContainerCollapse = () => {
-        this.setState({showConnectedVehicles: !this.state.showConnectedVehicles});
-    }
     handleAircraftCommand = (vehicleID: string, tcpCommand: string, vehicleCommand: string) => {
         console.log("Command: " + vehicleCommand + " for vehicleID: " + vehicleID);
         this.props.onAircraftCommand(vehicleID, tcpCommand, vehicleCommand);
@@ -41,7 +37,8 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
 
         const height = window.screen.height;
         const connectedVehiclesContainer = { position: 'absolute', height: height, right: 0, zIndex: 999, width: 20 + "%", backgroundColor: 'rgba(255,255,255,1)', display: 'flex', alignItems: 'center', flexDirection: 'column', maxHeight: height, overflowY: "scroll" };
-        const openButtonContainer = { position: 'absolute', top: 15, right: 15, zIndex: 999, backgroundColor: "rgba(255,255,255,1)" };
+        // const connectedVehiclesContainer = { position: 'absolute', height: height, right: 0, zIndex: 999, width: 20 + "%", backgroundColor: 'rgba(153,153,153,.2)', display: 'flex', alignItems: 'center', flexDirection: 'column', maxHeight: height, overflowY: "scroll" };
+        // const openButtonContainer = { position: 'absolute', top: 15, right: 15, zIndex: 999, backgroundColor: "rgba(255,255,255,1)" };
 
         let vehicleHUDs: JSX.Element[] = [];
         for( let key in this.props.connectedVehicles ){
@@ -53,6 +50,7 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
                     aircraft={vehicle}
                     isSelected={this.state.selectedVehicle === key ? true : false}
                     handleAircraftCommand={this.handleAircraftCommand}
+                    handleOpenVehicleEdit={this.props.handleOpenVehicleEdit}
                 />
             );
         }
@@ -60,28 +58,17 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
                 <div>
-                    {Object.keys(this.props.connectedVehicles).length > 0 &&
-                        <div style={openButtonContainer}>
-                            <FlatButton
-                                label="Show"
-                                onClick={this.toggleContainerCollapse}
-                                icon={<i className="material-icons">keyboard_arrow_left</i>}
-                            />
-                        </div>
-                    }
-                    {(this.state.showConnectedVehicles && Object.keys(this.props.connectedVehicles).length > 0) ?
+                    {Object.keys(this.props.connectedVehicles).length > 0 ?
                         <div style={connectedVehiclesContainer}>
                             <div>
                                 <FlatButton
-                                    label="Hide"
+                                    label="Sync"
                                     labelPosition="after"
-                                    onClick={this.toggleContainerCollapse}
+                                    onClick={() => this.handleAircraftCommand("0", "GET_CONNECTED_VEHICLES", "")}
                                     icon={<i className="material-icons">keyboard_arrow_right</i>}
                                 />
                             </div>
-
                             {vehicleHUDs}
-
                         </div>
                      : null
                     }

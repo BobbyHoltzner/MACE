@@ -5,7 +5,6 @@
 #include <functional>
 
 #include "mavlink.h"
-
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
 
 #include "data_generic_state_item/state_item_components.h"
@@ -16,19 +15,18 @@
 
 #include "data_vehicle_generic_topic/data_vehicle_generic_topic_components.h"
 
+#include "data_container_ardupilot.h"
 #include "components/vehicle_flightMode.h"
 #include "components/vehicle_operating_status.h"
 
-namespace DataVehicleArdupilot
+namespace DataArdupilot
 {
 
-class MAVLINKParserArduPilot
+class DataVehicleArdupilot : public DataContainer
 {
 public:
 
-    MAVLINKParserArduPilot() :
-        m_CurrentArduVehicleState(NULL), m_CurrentArduVehicleStatus(NULL), m_CurrentArduGlobalPosition(NULL),
-        m_CurrentArduVehicleFuel(NULL), m_CurrentArduVehicleGPS(NULL), m_CurrentArduVehicleText(NULL)
+    DataVehicleArdupilot()
     {
 
     }
@@ -208,7 +206,13 @@ public:
             ptrLocalPosition->y = decodedMSG.y;
             ptrLocalPosition->z = decodedMSG.z;
 
-            rtnVector.push_back(ptrLocalPosition);
+            //check that something has actually changed
+            if(m_CurrentArduLocalPosition == NULL || *ptrLocalPosition != *m_CurrentArduLocalPosition)
+            {
+                rtnVector.push_back(ptrLocalPosition);
+                m_CurrentArduLocalPosition = ptrLocalPosition;
+            }
+
             break;
         }
         case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
@@ -239,6 +243,16 @@ public:
             //This is message definition 36
             break;
         }
+        case MAVLINK_MSG_ID_NAV_CONTROLLER_OUTPUT:
+        {
+            //This is message definition 62
+            break;
+        }
+        case MAVLINK_MSG_ID_RC_CHANNELS:
+        {
+            //This is message definition 65
+            break;
+        }
         case MAVLINK_MSG_ID_VFR_HUD:
         {
             //This is message definition 74
@@ -263,6 +277,11 @@ public:
             //This is message definition 125
             break;
         }
+        case MAVLINK_MSG_ID_TERRAIN_REPORT:
+        {
+            //This is message definition 136
+            break;
+        }
         case MAVLINK_MSG_ID_BATTERY_STATUS:
         {
             //This is message definition 147
@@ -271,57 +290,41 @@ public:
             mavlink_msg_battery_status_decode(message,&decodedMSG);
             break;
         }
-//        case MAVLINK_MSG_ID_SENSOR_OFFSETS:
-//        {
-//            //This is message definition 150
-//            break;
-//        }
-//        case MAVLINK_MSG_ID_MOUNT_STATUS:
-//        {
-//            //This is message definition 158
-//            //mavlink_mount_status_t decodedMSG;
-//            //mavlink_msg_mount_status_decode(message,&decodedMSG);
-//            break;
-//        }
-//        case MAVLINK_MSG_ID_AHRS:{
-//            //This is message definition 163
-//            //
-//            //mavlink_ahrs_t decodedMSG;
-//            //mavlink_msg_ahrs_decode(message,&decodedMSG);
-//            break;
-//        }
-//        case MAVLINK_MSG_ID_RADIO:{
-//            //This is message definition 166
-//            //
-//            //mavlink_radio_t decodedMSG;
-//            //mavlink_msg_radio_decode(message,&decodedMSG);
-//            break;
-//        }
-//        case MAVLINK_MSG_ID_AHRS2:{
-//            //This is message definition 165
-//            //
-//            //mavlink_ahrs2_t decodedMSG;
-//            //mavlink_msg_ahrs2_decode(message,&decodedMSG);
-//            break;
-//        }
-//        case MAVLINK_MSG_ID_HWSTATUS:{
-//            //This is message definition 178
-//            //
-//            //mavlink_hwstatus_t decodedMSG;
-//            //mavlink_msg_hwstatus_decode(message,&decodedMSG);
-//            break;
-//        }
-//        case MAVLINK_MSG_ID_AHRS3:{
-//            //This is message definition 182
-//            break;
-//        }
-//        case MAVLINK_MSG_ID_EKF_STATUS_REPORT:{
-//            //This is message definition 193
-//            //
-//            //mavlink_ekf_status_report_t decodedMSG;
-//            //mavlink_msg_ekf_status_report_decode(message,&decodedMSG);
-//            break;
-//        }
+        case MAVLINK_MSG_ID_MEMINFO:
+        {
+            //This is message definition 152
+            break;
+        }
+        case MAVLINK_MSG_ID_AHRS:
+        {
+            //This is message definition 163
+            break;
+        }
+        case MAVLINK_MSG_ID_SIMSTATE:
+        {
+            //This is message definition 164
+            break;
+        }
+        case MAVLINK_MSG_ID_HWSTATUS:
+        {
+            //This is message definition 165
+            break;
+        }
+        case MAVLINK_MSG_ID_AHRS2:
+        {
+            //This is message definition 178
+            break;
+        }
+        case MAVLINK_MSG_ID_AHRS3:
+        {
+            //This is message definition 182
+            break;
+        }
+        case MAVLINK_MSG_ID_EKF_STATUS_REPORT:
+        {
+            //This is message definition 193
+            break;
+        }
         case MAVLINK_MSG_ID_VIBRATION:
         {
             //This is message definition 241
@@ -377,7 +380,7 @@ public:
 
         default:
         {
-            std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
+            //std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
         }
 
         }//end of switch statement
@@ -395,26 +398,13 @@ public:
 
 public:
 
-    int getFlightModeFromString(const std::string &flightString){
+    int getFlightModeFromString(const std::string &flightString) const{
         return m_CurrentArduVehicleState->getFlightMode(flightString);
     }
 
     bool heartbeatUpdated(){
         return heartbeatSeen;
     }
-
-private:
-
-    bool heartbeatSeen = false;
-    std::shared_ptr<VehicleFlightMode> m_CurrentArduVehicleState;
-    std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
-    std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel> m_CurrentArduVehicleFuel;
-    std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_GPS> m_CurrentArduVehicleGPS;
-    std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Text> m_CurrentArduVehicleText;
-
-    std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentArduGlobalPosition;
-    std::shared_ptr<DataStateTopic::StateAttitudeTopic> m_CurrentArduVehicleAttitude;
-
 };
 
 }

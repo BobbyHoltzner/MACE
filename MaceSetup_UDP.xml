@@ -6,8 +6,18 @@
       <Parameter Name="Version">V1</Parameter>	  
     </Parameter>
 	<Parameter Name="UDPParameters">
-      <Parameter Name="ListenAddress">192.168.1.70</Parameter>
+      <Parameter Name="ListenAddress">192.168.1.33</Parameter>
       <Parameter Name="ListenPortNumber">14558</Parameter>
+    </Parameter>
+  </Module>
+    <Module Class="VehicleComms" Type="Ardupilot">
+    <Parameter Name="ProtocolParameters">
+      <Parameter Name="Name">Mavlink</Parameter>
+      <Parameter Name="Version">V1</Parameter>	  
+    </Parameter>
+	<Parameter Name="UDPParameters">
+      <Parameter Name="ListenAddress">192.168.1.33</Parameter>
+      <Parameter Name="ListenPortNumber">14559</Parameter>
     </Parameter>
   </Module>
   <Module Class="RTA" Type="NASAPhase2" />

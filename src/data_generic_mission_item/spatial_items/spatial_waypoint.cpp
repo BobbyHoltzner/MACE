@@ -6,12 +6,14 @@ template<>
 SpatialWaypoint<DataState::StateGlobalPosition>::SpatialWaypoint()
 {
     m_PositionalFrame = Data::PositionalFrame::GLOBAL;
+    m_CoordinateFrame = Data::CoordinateFrame::NED;
 }
 
 template<>
 SpatialWaypoint<DataState::StateLocalPosition>::SpatialWaypoint()
 {
     m_PositionalFrame = Data::PositionalFrame::LOCAL;
+    m_CoordinateFrame = Data::CoordinateFrame::NED;
 }
 
 template <class T>

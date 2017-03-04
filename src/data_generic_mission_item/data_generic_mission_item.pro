@@ -25,32 +25,42 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    mission_list.cpp \
     do_items/action_arm.cpp \
     do_items/action_change_mode.cpp \
-    mission_list.cpp \
+    do_items/action_change_speed.cpp \
+    do_items/action_motor_test.cpp \
+    spatial_items/spatial_home.cpp \
     spatial_items/spatial_land.cpp \
-    spatial_items/spatial_takeoff.cpp \
+    spatial_items/spatial_loiter_time.cpp \
+    spatial_items/spatial_loiter_turns.cpp \
+    spatial_items/spatial_loiter_unlimited.cpp \
     spatial_items/spatial_rtl.cpp \
-    spatial_items/spatial_waypoint.cpp \
-    spatial_items/action_land.cpp \
     spatial_items/action_takeoff.cpp \
-    spatial_items/spatial_home.cpp
+    spatial_items/spatial_waypoint.cpp
+
 
 HEADERS +=\
         data_generic_mission_item_global.h \
     do_items/action_arm.h \
     do_items/action_change_mode.h \
+    do_items/action_change_speed.h \
+    do_items/action_motor_test.h\
+    do_items/do_components.h \
     abstract_mission_item.h \
     mission_list.h \
-    spatial_items/spatial_land.h \
-    spatial_items/spatial_takeoff.h \
-    spatial_items/spatial_rtl.h \
-    spatial_items/spatial_components.h \
-    do_items/do_components.h \
     mission_item_types.h \
     mission_item_components.h \
-    spatial_items/spatial_waypoint.h \
-    spatial_items/spatial_home.h
+    spatial_items/spatial_components.h \
+    spatial_items/spatial_home.h \
+    spatial_items/spatial_land.h \
+    spatial_items/spatial_loiter_time.h \
+    spatial_items/spatial_loiter_turns.h \
+    spatial_items/spatial_loiter_unlimited.h \
+    spatial_items/spatial_rtl.h \
+    spatial_items/spatial_takeoff.h \
+    spatial_items/spatial_waypoint.h
+
 
 # Unix lib Install
 unix:!symbian {
@@ -79,18 +89,23 @@ headers_doComponents.path    = $$(MACE_ROOT)/include/data_generic_mission_item/d
 headers_doComponents.files   += \
     do_items/action_arm.h \
     do_items/action_change_mode.h \
+    do_items/action_change_speed.cpp \
+    do_items/action_motor_test.cpp
     do_items/do_components.h
 INSTALLS       += headers_doComponents
 
 #Header file copy
 headers_spatialComponents.path    = $$(MACE_ROOT)/include/data_generic_mission_item/spatial_item
 headers_spatialComponents.files   += \
-    spatial_items/spatial_land.h \
-    spatial_items/spatial_takeoff.h \
-    spatial_items/spatial_rtl.h \
-    spatial_items/spatial_waypoint.h \
+    spatial_items/spatial_components.h \
     spatial_items/spatial_home.h \
-    spatial_items/spatial_components.h
+    spatial_items/spatial_land.h \
+    spatial_items/spatial_loiter_time.h \
+    spatial_items/spatial_loiter_turns.h \
+    spatial_items/spatial_loiter_unlimited.h \
+    spatial_items/spatial_rtl.h \
+    spatial_items/spatial_takeoff.h \
+    spatial_items/spatial_waypoint.h
 INSTALLS       += headers_spatialComponents
 
 INCLUDEPATH += $$PWD/../

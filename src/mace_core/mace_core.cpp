@@ -24,6 +24,8 @@ void MaceCore::AddDataFusion(const std::shared_ptr<MaceData> dataFusion)
 
 void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle)
 {
+    std::lock_guard<std::mutex> guard(m_VehicleMutex);
+
     if(m_VehicleIDToPtr.find(ID) != m_VehicleIDToPtr.cend())
         throw std::runtime_error("Vehicle ID already exists");
 
@@ -129,43 +131,159 @@ void MaceCore::NewTopicDataValues(const std::string &topicName, const int sender
 void MaceCore::RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm)
 {
     int vehicleID = arm.getVehicleID();
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_ARM,arm);
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            MissionItem::ActionArm newArm = arm;
+            newArm.setVehicleID(it->first);
+            it->second->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_ARM,newArm);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_ARM,arm);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
+
 }
 void MaceCore::RequestVehicleMode(const void *sender, const MissionItem::ActionChangeMode &changeMode)
 {
     int vehicleID = changeMode.getVehicleID();
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_MODE,changeMode);
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            MissionItem::ActionChangeMode newMode = changeMode;
+            newMode.setVehicleID(it->first);
+            it->second->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_MODE,newMode);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_MODE,changeMode);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
 }
+
+void MaceCore::RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
+{
+    int vehicleID = vehicleTakeoff.getVehicleID();
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff = vehicleTakeoff;
+            newTakeoff.setVehicleID(it->first);
+            it->second->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_TAKEOFF,newTakeoff);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_TAKEOFF,vehicleTakeoff);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
+}
+
 
 
 void MaceCore::SetCurrentVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
 {
     int vehicleID = missionList.getVehicleID();
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,missionList);
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            it->second->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,missionList);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,missionList);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
 }
 void MaceCore::RequestCurrentVehicleMission(const void *sender, const int &vehicleID)
 {
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            it->second->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
 }
 void MaceCore::RequestVehicleClearAutoMission(const void* sender, const int &vehicleID)
 {
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,vehicleID);
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            it->second->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,vehicleID);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,vehicleID);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
 }
 
 
 void MaceCore::RequestVehicleHomePosition(const void* sender, const int &vehicleID)
 {
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            it->second->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
 }
 
 void MaceCore::SetVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
 {
-    m_VehicleIDToPort.at(vehicleHome.getVehicleID())->MarshalCommand(VehicleCommands::SET_VEHICLE_HOME,vehicleHome);
+    int vehicleID = vehicleHome.getVehicleID();
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            MissionItem::SpatialHome newHome = vehicleHome;
+            newHome.setVehicleID(it->first);
+            it->second->MarshalCommand(VehicleCommands::SET_VEHICLE_HOME,newHome);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::SET_VEHICLE_HOME,vehicleHome);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
 }
 
 void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID)
 {
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_GUIDED_QUEUE,vehicleID);
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            it->second->MarshalCommand(VehicleCommands::REQUEST_CLEAR_GUIDED_QUEUE,vehicleID);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_GUIDED_QUEUE,vehicleID);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
 }
 
 void MaceCore::UpdateGlobalOriginPosition(const void *sender, const MissionItem::SpatialHome &globalHome)
@@ -178,6 +296,8 @@ void MaceCore::UpdateGlobalOriginPosition(const void *sender, const MissionItem:
 /////////////////////////////////////////////////////////////////////////
 void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
 {
+    std::lock_guard<std::mutex> guard(m_VehicleMutex);
+
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
     m_DataFusion->AddAvailableVehicle(newVehicleObserved);

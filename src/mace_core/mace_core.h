@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <functional>
+#include <mutex>
 
 #include "mace_core_global.h"
 #include "mace_data.h"
@@ -79,6 +80,8 @@ public:
 
     virtual void RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm);
     virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode);
+    virtual void RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+
 
     virtual void SetCurrentVehicleMission(const void* sender, const MissionItem::MissionList &missionList);
     virtual void RequestCurrentVehicleMission(const void* sender, const int &vehicleID);
@@ -181,6 +184,8 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 private:
+    mutable std::mutex m_VehicleMutex;
+
     std::unordered_map<std::string, TopicStructure> m_Topics;
     std::unordered_map<std::string, std::vector<ModuleBase*>> m_TopicNotifier;
 

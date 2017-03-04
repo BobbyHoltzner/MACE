@@ -11,6 +11,7 @@ class IModuleEventsGeneral
 public:
     virtual void RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm) = 0;
     virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode) = 0;
+    virtual void RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
 
     virtual void SetCurrentVehicleMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
     virtual void RequestCurrentVehicleMission(const void* sender, const int &vehicleID) = 0;

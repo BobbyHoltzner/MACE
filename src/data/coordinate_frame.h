@@ -32,6 +32,6 @@ inline CoordinateFrame CoordinateFrameFromString(const std::string &str) {
     throw std::runtime_error("Unknown coordinate system seen");
 }
 
-}
+} //end of namespace Data
 
 #endif // COORDINATE_FRAME_H
