@@ -12,6 +12,8 @@
 
 #include "data_generic_mission_item/do_items/action_arm.h"
 #include "data_generic_mission_item/do_items/action_change_mode.h"
+#include "data_generic_mission_item/do_items/action_change_speed.h"
+#include "data_generic_mission_item/do_items/action_motor_test.h"
 
 #include "data_generic_mission_item/mission_list.h"
 

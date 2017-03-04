@@ -170,6 +170,16 @@ std::shared_ptr<MissionItem::AbstractMissionItem> MAVLINKMissionToMACEMission(co
         Mission Param #6	Empty
         Mission Param #7	Empty
         */
+        std::shared_ptr<MissionItem::ActionChangeSpeed> returnItem = std::make_shared<MissionItem::ActionChangeSpeed>();
+        returnItem->setVehicleID(vehicleID);
+        returnItem->setDesiredSpeed(missionItem.param2);
+        if(missionItem.param1 > 0.0)
+        {
+            returnItem->setSpeedFrame(Data::SpeedFrame::GROUNDSPEED);
+        }else{
+            returnItem->setSpeedFrame(Data::SpeedFrame::AIRSPEED);
+        }
+        return returnItem;
     }else{
         return NULL;
     }
