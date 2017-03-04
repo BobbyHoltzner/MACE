@@ -36,7 +36,6 @@ SOURCES += \
     spatial_items/spatial_loiter_turns.cpp \
     spatial_items/spatial_loiter_unlimited.cpp \
     spatial_items/spatial_rtl.cpp \
-    spatial_items/action_takeoff.cpp \
     spatial_items/spatial_waypoint.cpp
 
 

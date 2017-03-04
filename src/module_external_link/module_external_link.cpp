@@ -233,7 +233,7 @@ void ModuleExternalLink::NewlyAvailableVehicle(const int &vehicleID)
 //! \param linkName Name of link message received over
 //! \param msg Message received
 //!
-virtual void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
+void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
 //    //get maping of all vehicle data components
 //    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_MAVLINKParser.Parse(&message);

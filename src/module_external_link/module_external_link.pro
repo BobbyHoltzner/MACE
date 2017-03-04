@@ -4,6 +4,7 @@
 #
 #-------------------------------------------------
 QT += serialport
+QT += network
 QT       -= core gui
 
 TARGET = module_external_link
