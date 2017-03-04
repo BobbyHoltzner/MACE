@@ -4,6 +4,8 @@
 #define MAVLINK_NEED_BYTE_SWAP
 
 #include "module_mavlink_comms_global.h"
+#include "mace_core/i_module_topic_events.h"
+#include "mace_core/i_module_command_external_link.h"
 
 #include <iostream>
 #include <QMap>
@@ -35,7 +37,6 @@ class MODULE_MAVLINK_COMMSSHARED_EXPORT ModuleMAVLINKComms :
 {
 
 public:
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +45,6 @@ public:
     {
         m_LinkMarshaler->AddSubscriber(this);
     }
-
 
     //!
     //! \brief Describes the strucure of the parameters for this module
@@ -247,9 +247,10 @@ public:
 
     virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics()
     {
-        //return IModuleCommandVehicle::GetTopics();
         return {};
     }
+
+public:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///              COMM EVENTS
@@ -266,19 +267,6 @@ public:
 
     }
 
-
-    //!
-    //! \brief New heartbeat from MAVLINK received over a link
-    //! \param linkName Name of link
-    //! \param vehicleId
-    //! \param vehicleMavlinkVersion
-    //! \param vehicleFirmwareType
-    //! \param vehicleType
-    //!
-    virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
-    {
-        //incomming heartbeats
-    }
 protected:
     Comms::CommsMarshaler *m_LinkMarshaler;
     std::string m_LinkName;

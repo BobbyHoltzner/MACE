@@ -76,6 +76,10 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sensor
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sensors/debug/ -ldata_vehicle_sensors
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_sensors/ -ldata_vehicle_sensors
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_mavlink_comms/release/ -lmodule_mavlink_comms
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_mavlink_comms/debug/ -lmodule_mavlink_comms
+else:unix:!macx: LIBS += -L$$OUT_PWD/../module_mavlink_comms/ -lmodule_mavlink_comms
+
 unix{
     EigenInclude = $$system(pkg-config --cflags eigen3)
     EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
@@ -84,4 +88,3 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
-

@@ -1,9 +1,9 @@
 #ifndef MODULE_EXTERNAL_LINK_H
 #define MODULE_EXTERNAL_LINK_H
 
-#include "mavlink.h"
-
 #include "module_external_link_global.h"
+
+#include "module_mavlink_comms/module_mavlink_comms.h"
 
 #include "mace_core/i_module_topic_events.h"
 #include "mace_core/i_module_command_external_link.h"
@@ -18,80 +18,55 @@
 #include "data_generic_mission_item/mission_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
-//__________________________________________________________________
-#include <iostream>
-#include <QThread>
-#include <QSerialPort>
-
-#include "common/common.h"
-
-#include "comms/comms_marshaler.h"
-#include "comms/i_protocol_mavlink_events.h"
-#include "comms/serial_configuration.h"
-
-#include "comms/serial_link.h"
-#include "comms/udp_link.h"
-#include "comms/protocol_mavlink.h"
-
-#include "data_vehicle_MAVLINK/mavlink_parser.h"
-
-#include "mace_core/module_factory.h"
-
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
-        public MaceCore::IModuleCommandExternalLink,
-        public Comms::CommsEvents
+        public MaceCore::IModuleCommandExternalLink
 {
 
 public:
 
     ModuleExternalLink();
 
-    virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics()
-    {
-        return {};
-    }
-
+    //!
+    //! \brief This module as been attached as a module
+    //! \param ptr pointer to object that attached this instance to itself
+    //!
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
 
+    //!
+    //! \brief Describes the strucure of the parameters for this module
+    //! \return Strucure
+    //!
     virtual std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleConfigurationStructure() const;
 
-    virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
+    //!
+    //! \brief Provides object contains parameters values to configure module with
+    //! \param params Parameters to configure
+    //!
+    virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
+    //!
+    //! \brief New Mavlink message received over a link
+    //! \param linkName Name of link message received over
+    //! \param msg Message received
+    //!
+    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
+
+    //!
+    //! \brief NewTopic
+    //! \param topicName
+    //! \param senderID
+    //! \param componentsUpdated
+    //!
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///              COMM EVENTS
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message);
-
-    virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
-    {
-        //incomming heartbeats
-    }
 
 public:
     //! Virtual functions as defined by IModuleExternalLink
 
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
-
-//________________________________________
-protected:
-    Comms::CommsMarshaler *m_LinkMarshaler;
-    std::string m_LinkName;
-    uint8_t m_LinkChan;
-
 private:
-    std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
-    DataVehicleMAVLINK::MAVLINKParser m_MAVLINKParser;
-//________________________________________
-
-private:
-    bool executedOnce = false;
-    int count = 0;
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 
