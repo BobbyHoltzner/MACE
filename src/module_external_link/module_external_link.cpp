@@ -10,7 +10,6 @@ ModuleExternalLink::ModuleExternalLink() :
     m_LinkMarshaler(new Comms::CommsMarshaler), m_LinkName(""), m_LinkChan(0)
 {
     m_LinkMarshaler->AddSubscriber(this);
-
 }
 
 //!
@@ -19,10 +18,9 @@ ModuleExternalLink::ModuleExternalLink() :
 //!
 void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
-    ptr->Subscribe(this, m_VehicleDataTopic.Name());
-    ptr->Subscribe(this, m_SensorFootprintDataTopic.Name());
-    ptr->Subscribe(this, m_MissionDataTopic.Name());
-
+//    ptr->Subscribe(this, m_VehicleDataTopic.Name());
+//    ptr->Subscribe(this, m_SensorFootprintDataTopic.Name());
+//    ptr->Subscribe(this, m_MissionDataTopic.Name());
 }
 
 //!
@@ -43,6 +41,9 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleExternalLink::ModuleCo
     std::shared_ptr<MaceCore::ModuleParameterStructure> protocolSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
     protocolSettings->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true, "Mavlink", {"Mavlink"});
     protocolSettings->AddTerminalParameters("Version", MaceCore::ModuleParameterTerminalTypes::STRING, true, "V1", {"V1", "V2"});
+
+    structure.AddNonTerminal("SerialParameters", serialSettings, true);
+    structure.AddNonTerminal("ProtocolParameters", protocolSettings, true);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -161,61 +162,6 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
 
-    count++;
-
-    if(count > 50 && executedOnce == false)
-    {
-        executedOnce = true;
-//        MissionItem::ActionChangeMode newVehicleMode;
-//        newVehicleMode.setRequestMode("STABILIZE");
-//        newVehicleMode.setVehicleID(senderID);
-
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->RequestCurrentVehicleMission(this, senderID);
-        });
-    }
-    //example read of vehicle data
-    if(topicName == m_VehicleDataTopic.Name())
-    {
-        //get latest datagram from mace_data
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
-        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
-                std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
-                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-            }
-            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
-                std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
-                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-            }
-        }
-    }else if(topicName == m_SensorFootprintDataTopic.Name())
-    {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_SensorFootprintDataTopic.Name(), senderID);
-        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Local::Name()) {
-                std::shared_ptr<DataVehicleSensors::SensorVertices_Local> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices_Local>("TestM");
-                m_SensorFootprintDataTopic.GetComponent(newSensorV, read_topicDatagram);
-            }
-            if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
-                std::shared_ptr<DataVehicleSensors::SensorVertices_Global> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices_Global>("TestM");
-                m_SensorFootprintDataTopic.GetComponent(newSensorV, read_topicDatagram);
-            }
-        }
-    }
-    else if(topicName == m_MissionDataTopic.Name())
-    {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), senderID);
-        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == MissionTopic::MissionHomeTopic::Name()) {
-                std::shared_ptr<MissionTopic::MissionHomeTopic> newHome = std::make_shared<MissionTopic::MissionHomeTopic>();
-                m_MissionDataTopic.GetComponent(newHome, read_topicDatagram);
-            }
-            else if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()) {
-                //I should do something when I see a new mission from the vehicle
-            }
-        }
-    }
 }
 
 void ModuleExternalLink::NewlyAvailableVehicle(const int &vehicleID)
@@ -235,6 +181,7 @@ void ModuleExternalLink::NewlyAvailableVehicle(const int &vehicleID)
 //!
 void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
+    std::cout<<"A new mavlink message was recieved via external module."<<message.msgid<<std::endl;
 //    //get maping of all vehicle data components
 //    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_MAVLINKParser.Parse(&message);
 

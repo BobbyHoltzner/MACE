@@ -1,8 +1,10 @@
 #ifndef MODULE_COLLECTION_H
 #define MODULE_COLLECTION_H
 
+#include "module_mavlink_comms/module_mavlink_comms.h"
 
 #include "module_external_link/module_external_link.h"
+
 #include "module_ground_station/module_ground_station.h"
 
 #include "module_path_planning_NASAPhase2/module_path_planning_nasaphase2.h"
@@ -23,7 +25,7 @@ public:
     {
         MaceCore::ModuleFactory* factory = new MaceCore::ModuleFactory();
 
-        Register<ModuleExternalLink>(factory, "NASAPhase2");
+        Register<ModuleExternalLink>(factory, "Ardupilot");
         Register<ModuleGroundStation>(factory, "NASAPhase2");
         Register<ModulePathPlanningNASAPhase2>(factory, "NASAPhase2");
         Register<ModuleRTA>(factory, "NASAPhase2");

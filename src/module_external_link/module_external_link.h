@@ -1,6 +1,8 @@
 #ifndef MODULE_EXTERNAL_LINK_H
 #define MODULE_EXTERNAL_LINK_H
 
+#include "mavlink.h"
+
 #include "module_external_link_global.h"
 
 #include "mace_core/i_module_topic_events.h"
