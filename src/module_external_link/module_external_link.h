@@ -98,20 +98,4 @@ private:
 
 };
 
-
-
-
-template <typename ...VehicleTopicAdditionalComponents>
-class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK :
-        public ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES>,
-        public Comms::CommsEvents
-{
-protected:
-    typedef ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES> ModuleVehicleMavlinkBase;
-
-public:
-
-
-};
-
 #endif // MODULE_EXTERNAL_LINK_H
