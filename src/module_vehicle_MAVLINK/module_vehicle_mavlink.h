@@ -303,66 +303,6 @@ public:
 
     }
 
-    virtual void CreateVehicleObject(const int &vehicleID)
-    {
-        std::list<int>::iterator it;
-        for (it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
-        {
-            if(*it == vehicleID)
-            {
-                //This implies that the module is already aware an object needs to be created
-                break;
-            }
-        }
-        if(it == m_NeededVehicleObjects.end()){
-            m_NeededVehicleObjects.push_back(vehicleID);
-        }
-    }
-
-    virtual void RemoveVehicleObject(const int &vehicleID)
-    {
-        m_NeededVehicleObjects.remove(vehicleID);
-    }
-
-    virtual void UpdateVehicleObjectList(const std::list<int> &vehicleObjectList)
-    {
-        m_NeededVehicleObjects = vehicleObjectList;
-    }
-
-
-    //!
-    //! \brief New commands have been updated that the vehicle is to follow immediatly
-    //!
-    //! Commands are to be retreived through the MaceData available through getDataObject()
-    //!
-    //!
-    virtual void FollowNewCommands()
-    {
-
-    }
-
-
-    //!
-    //! \brief New commands have been issued to vehicle that are to be followed once current command is finished
-    //!
-    //! Commands are to be retreived through the MaceData available through getDataObject()
-    //!
-    virtual void FinishAndFollowNewCommands()
-    {
-
-    }
-
-
-    //!
-    //! \brief New commands have been appended to existing commands
-    //!
-    //! Commands are to be retreived through the MaceData available through getDataObject()
-    //!
-    virtual void CommandsAppended()
-    {
-
-    }
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///              COMM EVENTS
@@ -415,9 +355,6 @@ protected:
     uint8_t m_LinkChan;
 
 private:
-
-    mutable std::list<int> m_NeededVehicleObjects;
-
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
 
     DataVehicleMAVLINK::MAVLINKParser m_MAVLINKParser;
