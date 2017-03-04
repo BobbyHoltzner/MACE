@@ -18,7 +18,9 @@ SOURCES += \
     components/vehicle_flightMode.cpp \
     mace_to_ardupilot.cpp \
     ardupilot_to_mace.cpp \
-    data_container_ardupilot.cpp
+    data_container_ardupilot.cpp \
+    mace_to_ardupilot_commands.cpp \
+    mace_to_ardupilot_mission.cpp
 
 HEADERS +=\
         data_vehicle_ardupilot_global.h \
