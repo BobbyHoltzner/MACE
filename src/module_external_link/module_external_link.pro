@@ -3,7 +3,7 @@
 # Project created by QtCreator 2017-01-13T16:56:01
 #
 #-------------------------------------------------
-
+QT += serialport
 QT       -= core gui
 
 TARGET = module_external_link
