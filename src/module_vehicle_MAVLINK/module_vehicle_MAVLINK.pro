@@ -93,5 +93,7 @@ win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
 
+QMAKE_CXXFLAGS += -isystem "C:\Program Files (x86)\Eigen\include\eigen3"
+
 
 

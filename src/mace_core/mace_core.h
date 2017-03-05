@@ -1,5 +1,6 @@
 #ifndef MACE_CORE_H
 #define MACE_CORE_H
+#include <QtGlobal>
 
 #include <string>
 #include <map>
