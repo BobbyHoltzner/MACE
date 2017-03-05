@@ -3,7 +3,9 @@
 
 #include "module_external_link_global.h"
 
-#include "module_mavlink_comms/module_mavlink_comms.h"
+#include <mavlink.h>
+
+#include "commsMAVLINK/comms_mavlink.h"
 
 #include "mace_core/i_module_topic_events.h"
 #include "mace_core/i_module_command_external_link.h"
@@ -20,12 +22,28 @@
 
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
-        public MaceCore::IModuleCommandExternalLink
+        public MaceCore::IModuleCommandExternalLink,
+        public CommsMAVLINK
 {
 
 public:
 
     ModuleExternalLink();
+
+    //!
+    //! \brief New Mavlink message received over a link
+    //! \param linkName Name of link message received over
+    //! \param msg Message received
+    //!
+    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
+
+    //!
+    //! \brief NewTopic
+    //! \param topicName
+    //! \param senderID
+    //! \param componentsUpdated
+    //!
+    virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
     //!
     //! \brief This module as been attached as a module
@@ -45,20 +63,7 @@ public:
     //! \param params Parameters to configure
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
-    //!
-    //! \brief New Mavlink message received over a link
-    //! \param linkName Name of link message received over
-    //! \param msg Message received
-    //!
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
 
-    //!
-    //! \brief NewTopic
-    //! \param topicName
-    //! \param senderID
-    //! \param componentsUpdated
-    //!
-    virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
 
 public:

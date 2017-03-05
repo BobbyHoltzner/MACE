@@ -24,4 +24,5 @@ SUBDIRS += \
     TestCodeHolder \
     data_vehicle_generic_topic \
     TestSpatialMath \
-    module_mavlink_comms
+    module_mavlink_comms \
+    commsMAVLINK

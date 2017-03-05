@@ -290,41 +290,41 @@ public:
             mavlink_msg_battery_status_decode(message,&decodedMSG);
             break;
         }
-        case MAVLINK_MSG_ID_MEMINFO:
-        {
-            //This is message definition 152
-            break;
-        }
-        case MAVLINK_MSG_ID_AHRS:
-        {
-            //This is message definition 163
-            break;
-        }
-        case MAVLINK_MSG_ID_SIMSTATE:
-        {
-            //This is message definition 164
-            break;
-        }
-        case MAVLINK_MSG_ID_HWSTATUS:
-        {
-            //This is message definition 165
-            break;
-        }
-        case MAVLINK_MSG_ID_AHRS2:
-        {
-            //This is message definition 178
-            break;
-        }
-        case MAVLINK_MSG_ID_AHRS3:
-        {
-            //This is message definition 182
-            break;
-        }
-        case MAVLINK_MSG_ID_EKF_STATUS_REPORT:
-        {
-            //This is message definition 193
-            break;
-        }
+//        case MAVLINK_MSG_ID_MEMINFO:
+//        {
+//            //This is message definition 152
+//            break;
+//        }
+//        case MAVLINK_MSG_ID_AHRS:
+//        {
+//            //This is message definition 163
+//            break;
+//        }
+//        case MAVLINK_MSG_ID_SIMSTATE:
+//        {
+//            //This is message definition 164
+//            break;
+//        }
+//        case MAVLINK_MSG_ID_HWSTATUS:
+//        {
+//            //This is message definition 165
+//            break;
+//        }
+//        case MAVLINK_MSG_ID_AHRS2:
+//        {
+//            //This is message definition 178
+//            break;
+//        }
+//        case MAVLINK_MSG_ID_AHRS3:
+//        {
+//            //This is message definition 182
+//            break;
+//        }
+//        case MAVLINK_MSG_ID_EKF_STATUS_REPORT:
+//        {
+//            //This is message definition 193
+//            break;
+//        }
         case MAVLINK_MSG_ID_VIBRATION:
         {
             //This is message definition 241

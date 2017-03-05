@@ -31,7 +31,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleExternalLink::ModuleCo
 {
 
     MaceCore::ModuleParameterStructure structure;
-
+    ConfigureMAVLINKStructure(structure);
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
 
@@ -42,7 +42,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleExternalLink::ModuleCo
 //!
 void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-
+    ConfigureComms(params);
 }
 
 //!

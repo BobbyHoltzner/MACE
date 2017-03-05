@@ -264,7 +264,7 @@ public:
     //!
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
     {
-
+        std::cout<<"I received some mavlink data"<<std::endl;
     }
 
 protected:

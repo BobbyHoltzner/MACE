@@ -72,13 +72,21 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_missio
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/debug/ -ldata_generic_mission_item_topic
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/ -ldata_generic_mission_item_topic
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sensors/release/ -ldata_vehicle_sensors
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sensors/debug/ -ldata_vehicle_sensors
-else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_sensors/ -ldata_vehicle_sensors
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic_topic/release/ -ldata_vehicle_generic_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic_topic/debug/ -ldata_vehicle_generic_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_generic_topic/ -ldata_vehicle_generic_topic
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_mavlink_comms/release/ -lmodule_mavlink_comms
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_mavlink_comms/debug/ -lmodule_mavlink_comms
-else:unix:!macx: LIBS += -L$$OUT_PWD/../module_mavlink_comms/ -lmodule_mavlink_comms
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/release/ -ldata_vehicle_MAVLINK
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/debug/ -ldata_vehicle_MAVLINK
+else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/ -ldata_vehicle_MAVLINK
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/release/ -ldata_vehicle_ardupilot
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/debug/ -ldata_vehicle_ardupilot
+else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/ -ldata_vehicle_ardupilot
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../commsMAVLINK/release/ -lcommsMAVLINK
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../commsMAVLINK/debug/ -lcommsMAVLINK
+else:unix:!macx: LIBS += -L$$OUT_PWD/../commsMAVLINK/ -lcommsMAVLINK
 
 unix{
     EigenInclude = $$system(pkg-config --cflags eigen3)
@@ -88,3 +96,4 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
+
