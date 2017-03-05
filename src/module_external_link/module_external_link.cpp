@@ -52,7 +52,7 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 //!
 void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
-    std::cout<<"A new mavlink message was recieved via external module."<<message.msgid<<std::endl;
+    std::cout<<"A new mavlink message was recieved via external module and I like it."<<message.msgid<<std::endl;
 //    //get maping of all vehicle data components
 //    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_MAVLINKParser.Parse(&message);
 

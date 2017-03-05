@@ -662,7 +662,7 @@ private:
     MissionItem::SpatialHome m_GlobalOrigin;
 
 
-    uint64_t m_MSTOKEEP = DEFAULT_MS_RECORD_TO_KEEP;
+    uint64_t m_MSTOKEEP;
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;
 

@@ -234,6 +234,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
 
 void ModuleVehicleArdupilot::MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult)
 {
+    Q_UNUSED(publishResult);
     switch(missionResult) {
     case MAV_MISSION_ACCEPTED:
     {

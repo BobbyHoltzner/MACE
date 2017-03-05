@@ -27,12 +27,12 @@ public:
 
     MaceCore::TopicDatagram GenerateDatagram(const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &list) const
     {
-
     }
 
 
     void SetComponent(std::shared_ptr<ITopicComponentDataObject> ptr, MaceCore::TopicDatagram &datagram) const {
         //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
+
         throw std::runtime_error("Unknown component passed to topic");
     }
 

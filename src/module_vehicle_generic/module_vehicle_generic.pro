@@ -58,3 +58,11 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_gen
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_generic_topic/ -ldata_vehicle_generic_topic
 
 
+unix{
+    EigenInclude = $$system(pkg-config --cflags eigen3)
+    EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
+    INCLUDEPATH += $$EigenInclude
+}
+win32{
+    INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
+}
