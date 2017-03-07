@@ -75,6 +75,8 @@ void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavli
 
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
+    //In relevance to the external link module, the module when receiving a new topic should pack that up for transmission
+    //to other instances of MACE
 
 }
 
