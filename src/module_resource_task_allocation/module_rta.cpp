@@ -1,8 +1,7 @@
 #include "module_rta.h"
 
-
 ModuleRTA::ModuleRTA():
-    m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData"),
+    m_VehicleDataTopic("vehicleData"), m_SensorDataTopic("sensorData"),
     m_SensorFootprintDataTopic("sensorFootprint")
 {
 

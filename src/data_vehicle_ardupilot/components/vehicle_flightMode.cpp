@@ -14,7 +14,7 @@ int VehicleFlightMode::getFlightModeFromString(const std::string &modeString)
     int vehicleModeID = 0;
     for (it=availableFM.begin(); it != availableFM.end(); it++)
     {
-        if(it->second == flightMode)
+        if(it->second == modeString)
         {
             vehicleModeID = it->first;
             return vehicleModeID;
@@ -24,7 +24,8 @@ int VehicleFlightMode::getFlightModeFromString(const std::string &modeString)
 
 void VehicleFlightMode::getAvailableFlightModes(const Data::VehicleTypes &vehicleType, std::map<int, std::string> &availableFM)
 {
-
+    UNUSED(vehicleType);
+    UNUSED(availableFM);
 }
 
 void VehicleFlightMode::parseMAVLINK(const mavlink_heartbeat_t &msg)

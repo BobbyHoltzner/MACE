@@ -5,6 +5,7 @@
 
 #include <mavlink.h>
 
+#include "common/common.h"
 #include "commsMAVLINK/comms_mavlink.h"
 
 #include "mace_core/i_module_topic_events.h"

@@ -22,11 +22,11 @@ public:
 
     }
 
-
-    MaceCore::TopicDatagram GenerateDatagram(const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &list) const
-    {
-        UNUSED(list);
-    }
+//TODO: Kenny commented this out as it was unused
+//    MaceCore::TopicDatagram GenerateDatagram(const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &list) const
+//    {
+//        UNUSED(list);
+//    }
 
 
     void SetComponent(std::shared_ptr<ITopicComponentDataObject> ptr, MaceCore::TopicDatagram &datagram) const {

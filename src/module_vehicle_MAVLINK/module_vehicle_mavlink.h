@@ -1,8 +1,6 @@
 #ifndef MODULE_VEHICLE_MAVLINK_H
 #define MODULE_VEHICLE_MAVLINK_H
 
-#define MAVLINK_NEED_BYTE_SWAP
-
 #include "module_vehicle_mavlink_global.h"
 
 #include <iostream>

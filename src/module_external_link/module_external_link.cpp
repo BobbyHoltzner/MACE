@@ -51,6 +51,7 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 //!
 void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
+    UNUSED(linkName);
     //This function will be receiving messages external to the specific MACE instance that is deploying this
 
     switch ((int)message.msgid) {
@@ -65,11 +66,8 @@ void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavli
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
 
         std::shared_ptr<DataArdupilot::VehicleFlightMode> ptrParameters = std::make_shared<DataArdupilot::VehicleFlightMode>();
-        ptrParameters->setFlightMode("AUTOK");
-        ptrParameters->setVehicleArmed(false);
-        ptrParameters->setVehicleType(Data::VehicleTypes::COPTER);
-        //ptrParameters->parseMAVLINK(decodedMSG);
-        //ptrParameters->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
+        ptrParameters->parseMAVLINK(decodedMSG);
+        ptrParameters->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
 
         MaceCore::TopicDatagram topicDatagram;
         m_VehicleDataTopic.SetComponent(ptrParameters, topicDatagram);
@@ -132,7 +130,7 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
 
 void ModuleExternalLink::NewlyAvailableVehicle(const int &vehicleID)
 {
-
+    UNUSED(vehicleID);
 }
 
 

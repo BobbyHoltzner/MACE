@@ -4,6 +4,7 @@
 #include <map>
 #include <list>
 #include <string>
+#include "common/common.h"
 
 #include "mavlink.h"
 

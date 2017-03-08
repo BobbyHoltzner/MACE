@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "mavlink.h"
+#include "common/common.h"
 
 #include "data/coordinate_frame.h"
 #include "data/positional_coordinate_frame.h"

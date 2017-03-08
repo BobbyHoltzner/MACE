@@ -76,18 +76,23 @@ bool StateLocalPosition::essentiallyEquivalent_Distance(const StateLocalPosition
 
 double StateLocalPosition::bearingBetween(const StateLocalPosition &position)
 {
+    UNUSED(position);
     throw std::runtime_error("Not Implimented");
     return 0.0;
 }
 
-double StateLocalPosition::initialBearing(const StateLocalPosition &position){
+double StateLocalPosition::initialBearing(const StateLocalPosition &position)
+{
     throw std::runtime_error("Not Implimented");
+    UNUSED(position);
     return 0.0;
     //return (bearingBetween(position) + 360.0) % 360.0;
 }
 
-double StateLocalPosition::finalBearing(const StateLocalPosition &position){
+double StateLocalPosition::finalBearing(const StateLocalPosition &position)
+{
     throw std::runtime_error("Not Implimented");
+    UNUSED(position);
     return 0.0;
     //return (bearingBetween(position) + 180.0) % 360.0;
 }

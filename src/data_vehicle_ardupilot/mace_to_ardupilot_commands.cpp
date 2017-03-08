@@ -84,7 +84,6 @@ mavlink_message_t generateArdupilotCommandMessage(std::shared_ptr<MissionItem::A
             cmdLong.param5 = item->position.latitude;
             cmdLong.param6 = item->position.longitude;
             cmdLong.param7 = item->position.altitude;
-            float radius = 0.0;
 
             if(item->direction == Data::LoiterDirection::CW)
             {
