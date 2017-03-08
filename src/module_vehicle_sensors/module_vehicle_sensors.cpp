@@ -91,7 +91,7 @@ void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, 
 //        ModuleVehicleSensors::m_SensorFootprintDataTopic.SetComponent(newSensorV, topicDatagram);
 
 //        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-//            ptr->NewTopicDataValues(ModuleVehicleSensors::m_SensorFootprintDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+//            ptr->NewTopicDataValues(this, ModuleVehicleSensors::m_SensorFootprintDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
 //        });
 
 
@@ -103,7 +103,7 @@ void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, 
 //        ModuleVehicleSensors::m_CommandVehicleMissionList.SetComponent(newVehicleList, topicDatagram);
 
 //        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-//            ptr->NewTopicDataValues(ModuleVehicleSensors::m_CommandVehicleMissionList.Name(), 1, MaceCore::TIME(), topicDatagram);
+//            ptr->NewTopicDataValues(this, ModuleVehicleSensors::m_CommandVehicleMissionList.Name(), 1, MaceCore::TIME(), topicDatagram);
 //        });
 
 
@@ -119,7 +119,7 @@ void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, 
 
 //            //notify listneres of topic
 //            ModuleVehicleSensors::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-//                ptr->NewTopicDataValues(ModuleVehicleSensors::m_CommandVehicleTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+//                ptr->NewTopicDataValues(this, ModuleVehicleSensors::m_CommandVehicleTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
 //            });
 
     }

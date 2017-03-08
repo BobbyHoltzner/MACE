@@ -6,7 +6,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ModuleExternalLink::ModuleExternalLink() :
-    m_VehicleDataTopic("vehicleData"),m_SensorFootprintDataTopic("sensorFootprint"),m_MissionDataTopic("vehicleMission")
+    m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission")
 {
 
 }
@@ -19,7 +19,6 @@ void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 
 {
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
-    ptr->Subscribe(this, m_SensorFootprintDataTopic.Name());
     ptr->Subscribe(this, m_MissionDataTopic.Name());
 }
 
@@ -52,29 +51,35 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 //!
 void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
-    std::cout<<"A new mavlink message was recieved via external module and I like it."<<message.msgid<<std::endl;
-//    //get maping of all vehicle data components
-//    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_MAVLINKParser.Parse(&message);
+    //This function will be receiving messages external to the specific MACE instance that is deploying this
 
-//    //proceed to send components only if there is 1 or more
-//    if(components.size() > 0)
-//    {
-//        //construct datagram
-//        MaceCore::TopicDatagram topicDatagram;
-//        for(size_t i = 0 ; i < components.size() ; i++)
-//        {
-//            ModuleVehicleMavlinkBase::m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
-//        }
+    switch ((int)message.msgid) {
 
-//        //notify listneres of topic
-//        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-//            ptr->NewTopicDataValues(ModuleVehicleMavlinkBase::m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
-//        });
-//    }
+    case MAVLINK_MSG_ID_HEARTBEAT:
+    {
+        //might want to figure out a way to handle the case of sending an
+        //empty heartbeat back just to acknowledge the aircraft is still there
+        //then again the streaming other messages may handle this...so maybe
+        //timer should be since last time heard.
+        mavlink_heartbeat_t decodedMSG;
+        mavlink_msg_heartbeat_decode(&message,&decodedMSG);
+
+        std::shared_ptr<DataArdupilot::VehicleOperatingStatus> ptrStatus = std::make_shared<DataArdupilot::VehicleOperatingStatus>();
+        ptrStatus->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
+        MaceCore::TopicDatagram topicDatagram;
+        m_VehicleDataTopic.SetComponent(ptrStatus, topicDatagram);
+
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), message.sysid, MaceCore::TIME(), topicDatagram);
+        });
+        break;
+    }
+    }
 }
 
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
+    std::cout<<"I just saw a new topic with name of: "<<topicName<<std::endl;
     //In relevance to the external link module, the module when receiving a new topic should pack that up for transmission
     //to other instances of MACE
     //example read of vehicle data
@@ -85,32 +90,23 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
 
         //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-//            std::cout << "  " << componentsUpdated.at(i) << std::endl;
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-
-                // Write Attitude data to the GUI:
-                sendAttitudeData(senderID, component);
+                mavlink_altitude_t att;
+                mavlink_msg_attitude_encode()
             }
             else if(componentsUpdated.at(i) == DataArdupilot::VehicleFlightMode::Name()) {
                 std::shared_ptr<DataArdupilot::VehicleFlightMode> component = std::make_shared<DataArdupilot::VehicleFlightMode>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "    Vehicle Type: " << (int)component->getVehicleType() << std::endl;
-                std::cout << "    Vehicle Mode: " << (int)component->getFlightMode() << std::endl;
             }
             else if(componentsUpdated.at(i) == DataArdupilot::VehicleOperatingStatus::Name()) {
                 std::shared_ptr<DataArdupilot::VehicleOperatingStatus> component = std::make_shared<DataArdupilot::VehicleOperatingStatus>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "    Vehicle Armed: " << component->getVehicleArmed() << std::endl;
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
-
-                // Write Position data to the GUI:
-                sendPositionData(senderID, component);
             }
         }
     }
@@ -125,16 +121,10 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-
-                // Write mission items to the GUI:
-                sendVehicleMission(senderID, component);
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionHomeTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionHomeTopic> component = std::make_shared<MissionTopic::MissionHomeTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-
-                // Write mission items to the GUI:
-                sendVehicleHome(senderID, component);
             }
         }
     }

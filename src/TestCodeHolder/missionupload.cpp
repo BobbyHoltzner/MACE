@@ -41,7 +41,7 @@ MaceCore::TopicDatagram topicDatagram;
 m_MissionDataTopic.SetComponent(newMissionListTopic, topicDatagram);
 
 ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-    ptr->NewTopicDataValues(m_MissionDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+    ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
 });
 
 }

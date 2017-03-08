@@ -111,17 +111,17 @@ void MaceCore::Subscribe(ModuleBase* sender, const std::string &topicName, const
     m_TopicNotifier[topicName].push_back(sender);
 }
 
-void MaceCore::NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
+void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
 
     std::vector<std::string> components = value.ListNonTerminals();
 
     m_DataFusion->setTopicDatagram(topicName, senderID, time, value);
 
-
     //list through all interested parties and notify of new topic data
     if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
-    {
+    {        
         for(auto it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
+            if((*it) == moduleFrom) continue;
             (*it)->NewTopic(topicName, senderID, components);
         }
     }

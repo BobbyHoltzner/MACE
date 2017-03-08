@@ -72,7 +72,7 @@ public:
 
     virtual void Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &senderIDs = {}, const std::vector<std::string> &components = {});
 
-    virtual void NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value);
+    virtual void NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value);
 
 public:
     /////////////////////////////////////////////////////////////////////////

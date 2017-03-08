@@ -27,14 +27,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     data_vehicle_generic_topic_GPS.cpp \
     data_vehicle_generic_topic_text.cpp \
-    data_vehicle_generic_topic_fuel.cpp
+    data_vehicle_generic_topic_fuel.cpp \
+    data_vehicle_generic_topic_flightmode.cpp \
+    data_vehicle_generic_topic_sysstatus.cpp
 
 HEADERS +=\
         data_vehicle_generic_topic_global.h \
     data_vehicle_generic_topic_GPS.h \
     data_vehicle_generic_topic_text.h \
     data_vehicle_generic_topic_components.h \
-    data_vehicle_generic_topic_fuel.h
+    data_vehicle_generic_topic_fuel.h \
+    data_vehicle_generic_topic_flightmode.h \
+    data_vehicle_generic_topic_sysstatus.h
 
 # Unix lib Install
 unix:!symbian {

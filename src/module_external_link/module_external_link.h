@@ -16,6 +16,8 @@
 #include "data_vehicle_MAVLINK/components.h"
 #include "data_vehicle_ardupilot/components.h"
 
+#include "data_vehicle_ardupilot/components/vehicle_operating_status.h"
+
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
@@ -74,7 +76,6 @@ public:
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
 private:
-    Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 

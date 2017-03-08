@@ -369,18 +369,18 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             else if(componentsUpdated.at(i) == DataArdupilot::VehicleFlightMode::Name()) {
                 std::shared_ptr<DataArdupilot::VehicleFlightMode> component = std::make_shared<DataArdupilot::VehicleFlightMode>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "    Vehicle Type: " << (int)component->getVehicleType() << std::endl;
-                std::cout << "    Vehicle Mode: " << (int)component->getFlightMode() << std::endl;
+                //std::cout << "    Vehicle Type: " << (int)component->getVehicleType() << std::endl;
+                //std::cout << "    Vehicle Mode: " << (int)component->getFlightMode() << std::endl;
             }
             else if(componentsUpdated.at(i) == DataArdupilot::VehicleOperatingStatus::Name()) {
                 std::shared_ptr<DataArdupilot::VehicleOperatingStatus> component = std::make_shared<DataArdupilot::VehicleOperatingStatus>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "    Vehicle Armed: " << component->getVehicleArmed() << std::endl;
+                //std::cout << "    Vehicle Armed: " << component->getVehicleArmed() << std::endl;
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
+                //std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
 
                 // Write Position data to the GUI:
                 sendPositionData(senderID, component);
