@@ -1,14 +1,11 @@
-#ifndef DATA_VEHICLE_GENERIC_TOPIC_GPS_H
-#define DATA_VEHICLE_GENERIC_TOPIC_GPS_H
+#ifndef DATA_GENERIC_ITEM_GPS_H
+#define DATA_GENERIC_ITEM_GPS_H
 
-#include "data/i_topic_component_data_object.h"
+#include <stdint.h>
 
-namespace DataVehicleGenericTopic {
+namespace DataGenericItem {
 
-extern const char GenericVehicleTopicGPS_name[];
-extern const MaceCore::TopicComponentStructure GenericVehicleTopicGPS_structure;
-
-class DataVehicleGenericTopic_GPS : public Data::NamedTopicComponentDataObject<GenericVehicleTopicGPS_name, &GenericVehicleTopicGPS_structure>
+class DataGenericItem_GPS
 {
 public:
     enum GPSFIX{
@@ -23,8 +20,7 @@ public:
     };
 
 public:
-    virtual MaceCore::TopicDatagram GenerateDatagram() const;
-    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
+    DataGenericItem_GPS();
 
     void setGPSFix(const GPSFIX &fix){
         this->fixtype = fix;
@@ -55,7 +51,7 @@ public:
     }
 
 public:
-    void operator = (const DataVehicleGenericTopic_GPS &rhs)
+    void operator = (const DataGenericItem_GPS &rhs)
     {
         this->fixtype = rhs.fixtype;
         this->satellitesVisible = rhs.satellitesVisible;
@@ -63,7 +59,7 @@ public:
         this->VDOP = rhs.VDOP;
     }
 
-    bool operator == (const DataVehicleGenericTopic_GPS &rhs) {
+    bool operator == (const DataGenericItem_GPS &rhs) {
         if(this->fixtype != rhs.fixtype){
             return false;
         }
@@ -79,17 +75,17 @@ public:
         return true;
     }
 
-    bool operator != (const DataVehicleGenericTopic_GPS &rhs) {
+    bool operator != (const DataGenericItem_GPS &rhs) {
         return !(*this == rhs);
     }
 
-private:
+protected:
     GPSFIX fixtype;
     uint16_t satellitesVisible;
     uint16_t HDOP;
     uint16_t VDOP;
 };
 
-} //end of namespace DataVehicleGenericTopic
+} //end of namespace DataGenericItem
 
-#endif // DATA_VEHICLE_GENERIC_TOPIC_GPS_H
+#endif // DATA_GENERIC_ITEM_GPS_H

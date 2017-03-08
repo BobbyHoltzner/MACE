@@ -64,10 +64,15 @@ void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavli
         mavlink_heartbeat_t decodedMSG;
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
 
-        std::shared_ptr<DataArdupilot::VehicleOperatingStatus> ptrStatus = std::make_shared<DataArdupilot::VehicleOperatingStatus>();
-        ptrStatus->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
+        std::shared_ptr<DataArdupilot::VehicleFlightMode> ptrParameters = std::make_shared<DataArdupilot::VehicleFlightMode>();
+        ptrParameters->setFlightMode("AUTOK");
+        ptrParameters->setVehicleArmed(false);
+        ptrParameters->setVehicleType(Data::VehicleTypes::COPTER);
+        //ptrParameters->parseMAVLINK(decodedMSG);
+        //ptrParameters->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
+
         MaceCore::TopicDatagram topicDatagram;
-        m_VehicleDataTopic.SetComponent(ptrStatus, topicDatagram);
+        m_VehicleDataTopic.SetComponent(ptrParameters, topicDatagram);
 
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), message.sysid, MaceCore::TIME(), topicDatagram);
@@ -93,15 +98,9 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                mavlink_altitude_t att;
-                mavlink_msg_attitude_encode()
             }
             else if(componentsUpdated.at(i) == DataArdupilot::VehicleFlightMode::Name()) {
                 std::shared_ptr<DataArdupilot::VehicleFlightMode> component = std::make_shared<DataArdupilot::VehicleFlightMode>();
-                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-            }
-            else if(componentsUpdated.at(i) == DataArdupilot::VehicleOperatingStatus::Name()) {
-                std::shared_ptr<DataArdupilot::VehicleOperatingStatus> component = std::make_shared<DataArdupilot::VehicleOperatingStatus>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {

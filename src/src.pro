@@ -22,6 +22,7 @@ SUBDIRS += \
     data_generic_mission_item \
     data_generic_mission_item_topic \
     TestCodeHolder \
-    data_vehicle_generic_topic \
     TestSpatialMath \
-    commsMAVLINK
+    commsMAVLINK \
+    data_generic_item \
+    data_generic_item_topic

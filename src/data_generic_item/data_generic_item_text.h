@@ -1,14 +1,11 @@
-#ifndef DATA_VEHICLE_GENERIC_TOPIC_TEXT_H
-#define DATA_VEHICLE_GENERIC_TOPIC_TEXT_H
+#ifndef DATA_GENERIC_ITEM_TEXT_H
+#define DATA_GENERIC_ITEM_TEXT_H
 
-#include "data/i_topic_component_data_object.h"
+#include <string>
 
-namespace DataVehicleGenericTopic {
+namespace DataGenericItem {
 
-extern const char GenericVehicleTopicText_name[];
-extern const MaceCore::TopicComponentStructure GenericVehicleTopicText_structure;
-
-class DataVehicleGenericTopic_Text : public Data::NamedTopicComponentDataObject<GenericVehicleTopicText_name, &GenericVehicleTopicText_structure>
+class DataGenericItem_Text
 {
 public:
     enum STATUS_SEVERITY{
@@ -23,10 +20,10 @@ public:
     };
 
 public:
-    virtual MaceCore::TopicDatagram GenerateDatagram() const;
-    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
+    DataGenericItem_Text();
 
 public:
+
     void setText(const std::string &dataString){
         this->dataString = dataString;
     }
@@ -42,13 +39,13 @@ public:
     }
 
 public:
-    void operator = (const DataVehicleGenericTopic_Text &rhs)
+    void operator = (const DataGenericItem_Text &rhs)
     {
         this->severity = rhs.severity;
         this->dataString = rhs.dataString;
     }
 
-    bool operator == (const DataVehicleGenericTopic_Text &rhs) {
+    bool operator == (const DataGenericItem_Text &rhs) {
         if(this->severity != rhs.severity){
             return false;
         }
@@ -58,15 +55,15 @@ public:
         return true;
     }
 
-    bool operator != (const DataVehicleGenericTopic_Text &rhs) {
+    bool operator != (const DataGenericItem_Text &rhs) {
         return !(*this == rhs);
     }
 
-private:
+protected:
     STATUS_SEVERITY severity;
     std::string dataString;
 };
 
-} //end of namespace DataStateTopic
+} //end of namespace DataGenericItem
 
-#endif // DATA_VEHICLE_GENERIC_TOPIC_TEXT_H
+#endif // DATA_GENERIC_ITEM_TEXT_H

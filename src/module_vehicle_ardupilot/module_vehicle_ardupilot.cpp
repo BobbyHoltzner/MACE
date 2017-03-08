@@ -47,7 +47,7 @@ void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTak
 {
     int vehicleID = vehicleTakeoff.getVehicleID();
     DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
-    Q_UNUSED(tmpData);
+    UNUSED(tmpData);
     mavlink_message_t msg = DataArdupilot::generateTakeoffMessage(vehicleTakeoff,m_LinkChan,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
@@ -119,14 +119,14 @@ void ModuleVehicleArdupilot::SetCurrentGuidedQueue(const MissionItem::MissionLis
 {
     int vehicleID = missionList.getVehicleID();
     DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
-    Q_UNUSED(tmpData);
+    UNUSED(tmpData);
 }
 
 void ModuleVehicleArdupilot::RequestCurrentGuidedQueue(const int &vehicleID)
 {
     //This command is performed locally in the MACE instance.
     DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
-    Q_UNUSED(tmpData);
+    UNUSED(tmpData);
 
 //    delete tmpData;
 //    tmpData = NULL;

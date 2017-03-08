@@ -1,11 +1,11 @@
-#include "data_vehicle_generic_topic_GPS.h"
+#include "data_generic_item_topic_GPS.h"
 
-namespace DataVehicleGenericTopic {
+namespace DataGenericItemTopic {
 
-const char GenericVehicleTopicGPS_name[] = "gpsStatus";
-const MaceCore::TopicComponentStructure GenericVehicleTopicGPS_structure = []{
+const char DataGenericItemTopicGPS_name[] = "gpsStatus";
+const MaceCore::TopicComponentStructure DataGenericItemTopicGPS_structure = []{
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<DataVehicleGenericTopic_GPS::GPSFIX>("fix");
+    structure.AddTerminal<DataGenericItemTopic_GPS::GPSFIX>("fix");
     structure.AddTerminal<uint16_t>("satellitesVisible");
     structure.AddTerminal<uint16_t>("vdop");
     structure.AddTerminal<uint16_t>("hdop");
@@ -13,7 +13,7 @@ const MaceCore::TopicComponentStructure GenericVehicleTopicGPS_structure = []{
 }();
 
 
-MaceCore::TopicDatagram DataVehicleGenericTopic_GPS::GenerateDatagram() const {
+MaceCore::TopicDatagram DataGenericItemTopic_GPS::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<GPSFIX>("fix", fixtype);
     datagram.AddTerminal<uint16_t>("satellitesVisible", satellitesVisible);
@@ -22,11 +22,11 @@ MaceCore::TopicDatagram DataVehicleGenericTopic_GPS::GenerateDatagram() const {
     return datagram;
 }
 
-void DataVehicleGenericTopic_GPS::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
+void DataGenericItemTopic_GPS::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
     fixtype = datagram.GetTerminal<GPSFIX>("fix");
     satellitesVisible = datagram.GetTerminal<uint16_t>("satellitesVisible");
     VDOP = datagram.GetTerminal<uint16_t>("vdop");
     HDOP = datagram.GetTerminal<uint16_t>("hdop");
 }
 
-} //end of namespace DataVehicleGenericTopic
+} //end of namespace DataGenericItemTopic

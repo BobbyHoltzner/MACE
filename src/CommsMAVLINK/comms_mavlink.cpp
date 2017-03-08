@@ -12,8 +12,8 @@ CommsMAVLINK::~CommsMAVLINK()
 
 void CommsMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
-    Q_UNUSED(linkName);
-    Q_UNUSED(message);
+    UNUSED(linkName);
+    UNUSED(message);
     std::cout<<"I am in the comms_mavlink library MavlinkMessage callback."<<std::endl;
 }
 

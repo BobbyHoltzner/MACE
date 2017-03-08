@@ -36,6 +36,12 @@ headers.files   += $$HEADERS
 INSTALLS       += headers
 
 INCLUDEPATH += $$(MACE_ROOT)/include
+INCLUDEPATH += $$PWD/../
+DEPENDPATH += $$PWD/../
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
+else:unix:!macx: LIBS += -L$$OUT_PWD/../common/ -lcommon
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
@@ -50,5 +56,4 @@ win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
 
-INCLUDEPATH += $$PWD/../
-DEPENDPATH += $$PWD/../
+

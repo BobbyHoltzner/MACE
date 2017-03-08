@@ -45,6 +45,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurati
 //!
 void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
+    UNUSED(params);
 //    if(params->HasNonTerminal("CameraParameters"))
 //    {
 //        std::shared_ptr<MaceCore::ModuleParameterValue> protocolSettings = params->GetNonTerminalValue("CameraParameters");
@@ -118,5 +119,5 @@ void ModuleRTA::NewTopic(const std::string &topicName, int senderID, std::vector
 
 void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
 {
-
+    UNUSED(vehicleID);
 }

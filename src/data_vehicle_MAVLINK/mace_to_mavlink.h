@@ -6,8 +6,6 @@
 #include "data/coordinate_frame.h"
 #include "data/positional_coordinate_frame.h"
 
-#include "data_vehicle_generic_topic/data_vehicle_generic_topic_components.h"
-
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
@@ -15,8 +13,6 @@
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 namespace DataMAVLINK{
-
-mavlink_message_t fromVehicleFuelItem(std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel> fuelItem, const uint8_t &chan, const uint8_t &compID);
 
 mavlink_message_t fromAttitudeItem(std::shared_ptr<DataState::StateAttitude> attitudeItem, const uint8_t &chan, const uint8_t &compID);
 

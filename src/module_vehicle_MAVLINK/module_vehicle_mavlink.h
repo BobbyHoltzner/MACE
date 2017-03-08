@@ -295,12 +295,12 @@ public:
 
     virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
     {
-        Q_UNUSED(vehicleArm);
+        UNUSED(vehicleArm);
     }
 
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
     {
-        Q_UNUSED(vehicleMode);
+        UNUSED(vehicleMode);
     }
 
 
@@ -316,7 +316,7 @@ public:
     //!
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
     {
-        Q_UNUSED(linkName);
+        UNUSED(linkName);
 
         //get maping of all vehicle data components
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_MAVLINKParser.Parse(&message);
@@ -349,11 +349,11 @@ public:
     //!
     virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
     {
-        Q_UNUSED(linkName);
-        Q_UNUSED(vehicleId);
-        Q_UNUSED(vehicleMavlinkVersion);
-        Q_UNUSED(vehicleFirmwareType);
-        Q_UNUSED(vehicleType);
+        UNUSED(linkName);
+        UNUSED(vehicleId);
+        UNUSED(vehicleMavlinkVersion);
+        UNUSED(vehicleFirmwareType);
+        UNUSED(vehicleType);
         //incomming heartbeats
     }
 protected:

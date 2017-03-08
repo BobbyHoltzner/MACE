@@ -52,6 +52,9 @@ friend class MaceCore;
 
     static const uint64_t DEFAULT_MS_RECORD_TO_KEEP = 1000;
 
+private:
+    uint64_t m_MSTOKEEP;
+
 public:
 
     MaceData() :
@@ -660,9 +663,6 @@ private:
     std::map<int, Eigen::Vector3f> m_VehicleToGlobalTranslation;
     bool flagGlobalOrigin;
     MissionItem::SpatialHome m_GlobalOrigin;
-
-
-    uint64_t m_MSTOKEEP;
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;
 

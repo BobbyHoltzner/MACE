@@ -58,7 +58,6 @@ headers.path    = $$(MACE_ROOT)/include/data_generic_state_item_topic
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
-
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
@@ -72,3 +71,12 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_item/release/ -ldata_generic_state_item
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_item/debug/ -ldata_generic_state_item
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_state_item/ -ldata_generic_state_item
+
+unix{
+    EigenInclude = $$system(pkg-config --cflags eigen3)
+    EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
+    INCLUDEPATH += $$EigenInclude
+}
+win32{
+    INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
+}

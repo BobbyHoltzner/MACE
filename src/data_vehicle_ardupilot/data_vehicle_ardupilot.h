@@ -7,17 +7,17 @@
 #include "mavlink.h"
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
 
+#include "data_generic_item/data_generic_item_components.h"
+#include "data_generic_item_topic/data_generic_item_topic_components.h"
+
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
 #include "data_generic_mission_item/mission_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
-#include "data_vehicle_generic_topic/data_vehicle_generic_topic_components.h"
-
 #include "data_container_ardupilot.h"
 #include "components/vehicle_flightMode.h"
-#include "components/vehicle_operating_status.h"
 
 namespace DataArdupilot
 {
@@ -47,20 +47,12 @@ public:
 
             std::shared_ptr<VehicleFlightMode> ptrParameters = std::make_shared<VehicleFlightMode>();
             ptrParameters->parseMAVLINK(decodedMSG);
+            ptrParameters->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
             //check that something has actually changed
             if(m_CurrentArduVehicleState == NULL || *ptrParameters != *m_CurrentArduVehicleState)
             {
                 rtnVector.push_back(ptrParameters);
                 m_CurrentArduVehicleState = ptrParameters;
-            }
-
-            std::shared_ptr<VehicleOperatingStatus> ptrStatus = std::make_shared<VehicleOperatingStatus>();
-            ptrStatus->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
-            //check that something has actually changed
-            if(m_CurrentArduVehicleStatus == NULL || *ptrStatus != *m_CurrentArduVehicleStatus)
-            {
-                rtnVector.push_back(ptrStatus);
-                m_CurrentArduVehicleStatus = ptrStatus;
             }
             heartbeatSeen = true;
             break;
@@ -70,7 +62,7 @@ public:
             mavlink_sys_status_t decodedMSG;
             mavlink_msg_sys_status_decode(message,&decodedMSG);
 
-            std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel> ptrFuel = std::make_shared<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel>();
+            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>();
             ptrFuel->setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
             ptrFuel->setBatteryCurrent(decodedMSG.current_battery/10000.0);
             ptrFuel->setBatteryRemaining(decodedMSG.battery_remaining);
@@ -339,32 +331,33 @@ public:
             mavlink_statustext_t decodedMSG;
             mavlink_msg_statustext_decode(message,&decodedMSG);
             std::cout<<"The status text says: "<<decodedMSG.text<<std::endl;
-            std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Text> ptrStatusText = std::make_shared<DataVehicleGenericTopic::DataVehicleGenericTopic_Text>();
+            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
             ptrStatusText->setText(decodedMSG.text);
             switch (decodedMSG.severity) {
             case MAV_SEVERITY_EMERGENCY:
-                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_EMERGENCY);
+
+                ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_EMERGENCY);
                 break;
             case MAV_SEVERITY_ALERT:
-                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_ALERT);
+                ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_ALERT);
                 break;
             case MAV_SEVERITY_CRITICAL:
-                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_CRITICAL);
+                ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_CRITICAL);
                 break;
             case MAV_SEVERITY_ERROR:
-                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_ERROR);
+                ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_ERROR);
                 break;
             case MAV_SEVERITY_WARNING:
-                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_WARNING);
+                ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_WARNING);
                 break;
             case MAV_SEVERITY_NOTICE:
-                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_NOTICE);
+                ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_NOTICE);
                 break;
             case MAV_SEVERITY_INFO:
-                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_INFO);
+                ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_INFO);
                 break;
             case MAV_SEVERITY_DEBUG:
-                ptrStatusText->setSeverity(DataVehicleGenericTopic::DataVehicleGenericTopic_Text::STATUS_DEBUG);
+                ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_DEBUG);
                 break;
             default:
                 break;
@@ -399,7 +392,7 @@ public:
 public:
 
     int getFlightModeFromString(const std::string &flightString) const{
-        return m_CurrentArduVehicleState->getFlightMode(flightString);
+        return m_CurrentArduVehicleState->getFlightModeFromString(flightString);
     }
 
     bool heartbeatUpdated(){
