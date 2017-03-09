@@ -367,7 +367,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
                 std::cout << "    Vehicle Type: " << (int)component->getVehicleType() << std::endl;
-                std::cout << "    Vehicle Mode: " << component->getFlightMode() << std::endl;
+                std::cout << "    Vehicle Mode: " << component->getFlightModeString() << std::endl;
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();

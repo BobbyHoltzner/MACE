@@ -9,6 +9,7 @@ enum class VehicleTypes
     PLANE,
     UNKNOWN
 };
+
 }
 
 #endif // VEHICLE_TYPES_H

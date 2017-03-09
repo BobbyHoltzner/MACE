@@ -48,12 +48,14 @@ public:
             std::shared_ptr<VehicleFlightMode> ptrParameters = std::make_shared<VehicleFlightMode>();
             ptrParameters->parseMAVLINK(decodedMSG);
             ptrParameters->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
+            rtnVector.push_back(ptrParameters);
+            m_CurrentArduVehicleState = ptrParameters;
             //check that something has actually changed
-            if(m_CurrentArduVehicleState == NULL || *ptrParameters != *m_CurrentArduVehicleState)
-            {
-                rtnVector.push_back(ptrParameters);
-                m_CurrentArduVehicleState = ptrParameters;
-            }
+//            if(m_CurrentArduVehicleState == NULL || *ptrParameters != *m_CurrentArduVehicleState)
+//            {
+//                rtnVector.push_back(ptrParameters);
+//                m_CurrentArduVehicleState = ptrParameters;
+//            }
             heartbeatSeen = true;
             break;
         }

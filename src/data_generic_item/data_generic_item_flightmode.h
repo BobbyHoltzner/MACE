@@ -3,6 +3,7 @@
 
 #include <string>
 #include "data/vehicle_types.h"
+#include "data/autopilot_types.h"
 
 namespace DataGenericItem {
 
@@ -24,11 +25,19 @@ public:
     }
 
     void setFlightMode(const std::string &flightMode) {
-        this->flightMode = flightMode;
+        this->flightModeString = flightMode;
     }
 
-    std::string getFlightMode() const {
-        return (flightMode);
+    std::string getFlightModeString() const {
+        return (flightModeString);
+    }
+
+    void setFlightMode(const int &flightMode) {
+        this->flightModeInt = flightMode;
+    }
+
+    int getFlightModeInt() const {
+        return (flightModeInt);
     }
 
     void setVehicleArmed(const bool armed){
@@ -39,11 +48,23 @@ public:
         return(vehicleArmed);
     }
 
+    void setAutopilotType(const Data::AutopilotTypes &type)
+    {
+        this->autopilotType = type;
+    }
+
+    Data::AutopilotTypes getAutopilotType() const
+    {
+        return(autopilotType);
+    }
+
 public:
     void operator = (const DataGenericItem_FlightMode &rhs)
     {
         this->vehicleType = rhs.vehicleType;
-        this->flightMode = rhs.flightMode;
+        this->autopilotType = rhs.autopilotType;
+        this->flightModeString = rhs.flightModeString;
+        this->flightModeInt = rhs.flightModeInt;
         this->vehicleArmed = rhs.vehicleArmed;
     }
 
@@ -51,7 +72,13 @@ public:
         if(this->vehicleType != rhs.vehicleType){
             return false;
         }
-        if(this->flightMode != rhs.flightMode) {
+        if(this->autopilotType != rhs.autopilotType){
+            return false;
+        }
+        if(this->flightModeString != rhs.flightModeString) {
+            return false;
+        }
+        if(this->flightModeInt != rhs.flightModeInt) {
             return false;
         }
         if(this->vehicleArmed != rhs.vehicleArmed) {
@@ -66,7 +93,9 @@ public:
 
 protected:
     Data::VehicleTypes vehicleType;
-    std::string flightMode;
+    Data::AutopilotTypes autopilotType;
+    std::string flightModeString;
+    int flightModeInt;
     bool vehicleArmed;
 };
 

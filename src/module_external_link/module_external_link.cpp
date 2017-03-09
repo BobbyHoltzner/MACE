@@ -82,7 +82,6 @@ void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavli
 
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
-    std::cout<<"I just saw a new topic with name of: "<<topicName<<std::endl;
     //In relevance to the external link module, the module when receiving a new topic should pack that up for transmission
     //to other instances of MACE
     //example read of vehicle data
@@ -97,9 +96,12 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
             }
-            else if(componentsUpdated.at(i) == DataArdupilot::VehicleFlightMode::Name()) {
-                std::shared_ptr<DataArdupilot::VehicleFlightMode> component = std::make_shared<DataArdupilot::VehicleFlightMode>();
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_FlightMode::Name()) {
+                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                mavlink_message_t msg = DataMAVLINK::fromFlightModeItem(component,senderID,m_LinkChan,0);
+                m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();

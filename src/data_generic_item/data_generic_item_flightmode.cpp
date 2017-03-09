@@ -3,7 +3,7 @@
 namespace DataGenericItem {
 
 DataGenericItem_FlightMode::DataGenericItem_FlightMode():
-    vehicleType(Data::VehicleTypes::UNKNOWN), flightMode(""), vehicleArmed(false)
+    vehicleType(Data::VehicleTypes::UNKNOWN), flightModeString(""), vehicleArmed(false)
 {
 
 }
