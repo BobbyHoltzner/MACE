@@ -1,16 +1,17 @@
 #ifndef DATA_CONTAINER_ARDUPILOT_H
 #define DATA_CONTAINER_ARDUPILOT_H
 
+#include "data_generic_item/data_generic_item_components.h"
+#include "data_generic_item_topic/data_generic_item_topic_components.h"
+#include "data_generic_item_topic/data_generic_item_topic_fuel.h"
+
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
 #include "data_generic_mission_item/mission_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
-#include "data_vehicle_generic_topic/data_vehicle_generic_topic_components.h"
-
 #include "components/vehicle_flightMode.h"
-#include "components/vehicle_operating_status.h"
 
 namespace DataArdupilot
 {
@@ -44,10 +45,9 @@ protected:
     //////////////////////////////////////////////////////////////////////////////
 
     std::shared_ptr<VehicleFlightMode> m_CurrentArduVehicleState;
-    std::shared_ptr<VehicleOperatingStatus> m_CurrentArduVehicleStatus;
-    std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Fuel> m_CurrentArduVehicleFuel;
-    std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_GPS> m_CurrentArduVehicleGPS;
-    std::shared_ptr<DataVehicleGenericTopic::DataVehicleGenericTopic_Text> m_CurrentArduVehicleText;
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> m_CurrentArduVehicleFuel;
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> m_CurrentArduVehicleGPS;
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> m_CurrentArduVehicleText;
 
 
     std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentArduGlobalPosition;

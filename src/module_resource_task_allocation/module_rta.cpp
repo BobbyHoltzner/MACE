@@ -1,8 +1,7 @@
 #include "module_rta.h"
 
-
 ModuleRTA::ModuleRTA():
-    m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData"),
+    m_VehicleDataTopic("vehicleData"), m_SensorDataTopic("sensorData"),
     m_SensorFootprintDataTopic("sensorFootprint")
 {
 
@@ -45,6 +44,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurati
 //!
 void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
+    UNUSED(params);
 //    if(params->HasNonTerminal("CameraParameters"))
 //    {
 //        std::shared_ptr<MaceCore::ModuleParameterValue> protocolSettings = params->GetNonTerminalValue("CameraParameters");
@@ -112,11 +112,11 @@ void ModuleRTA::NewTopic(const std::string &topicName, int senderID, std::vector
     //        ModuleVehicleSensors::m_CommandVehicleMissionList.SetComponent(newVehicleList, topicDatagram);
 
     //        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-    //            ptr->NewTopicDataValues(ModuleVehicleSensors::m_CommandVehicleMissionList.Name(), 1, MaceCore::TIME(), topicDatagram);
+    //            ptr->NewTopicDataValues(this, ModuleVehicleSensors::m_CommandVehicleMissionList.Name(), 1, MaceCore::TIME(), topicDatagram);
     //        });
 }
 
 void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
 {
-
+    UNUSED(vehicleID);
 }

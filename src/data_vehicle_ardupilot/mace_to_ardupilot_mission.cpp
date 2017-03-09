@@ -4,6 +4,9 @@ namespace DataArdupilot {
 
 mavlink_message_t MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
+    UNUSED(chan);
+    UNUSED(itemIndex);
+
     mavlink_message_t msg;
     mavlink_mission_item_t item;
     item.autocontinue = 1;

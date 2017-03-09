@@ -38,9 +38,6 @@ private:
     QCoreApplication *pApp;
 };
 
-
-
-
 ModuleGroundStation::ModuleGroundStation() :
     m_SensorDataTopic("sensorData"),
     m_VehicleDataTopic("vehicleData"),
@@ -320,7 +317,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleGroundStation::ModuleC
 //!
 void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-
+    UNUSED(params);
 }
 
 void ModuleGroundStation::AttachedAsModule(MaceCore::IModuleTopicEvents *ptr)
@@ -366,21 +363,16 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 // Write Attitude data to the GUI:
                 sendAttitudeData(senderID, component);
             }
-            else if(componentsUpdated.at(i) == DataArdupilot::VehicleFlightMode::Name()) {
-                std::shared_ptr<DataArdupilot::VehicleFlightMode> component = std::make_shared<DataArdupilot::VehicleFlightMode>();
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_FlightMode::Name()) {
+                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
                 std::cout << "    Vehicle Type: " << (int)component->getVehicleType() << std::endl;
-                std::cout << "    Vehicle Mode: " << (int)component->getFlightMode() << std::endl;
-            }
-            else if(componentsUpdated.at(i) == DataArdupilot::VehicleOperatingStatus::Name()) {
-                std::shared_ptr<DataArdupilot::VehicleOperatingStatus> component = std::make_shared<DataArdupilot::VehicleOperatingStatus>();
-                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "    Vehicle Armed: " << component->getVehicleArmed() << std::endl;
+                std::cout << "    Vehicle Mode: " << component->getFlightModeString() << std::endl;
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
+                //std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
 
                 // Write Position data to the GUI:
                 sendPositionData(senderID, component);
@@ -426,6 +418,7 @@ void ModuleGroundStation::sendVehicleMission(const int &vehicleID, const std::sh
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
+    UNUSED(bytesWritten);
 }
 
 void ModuleGroundStation::sendVehicleHome(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionHomeTopic> &component)
@@ -473,11 +466,13 @@ void ModuleGroundStation::missionToJSON(const std::shared_ptr<MissionTopic::Miss
         case MissionItem::MissionItemType::ARM:
         {
             MissionItem::ActionArm* item = dynamic_cast<MissionItem::ActionArm*>(missionItem);
+            UNUSED(item);
             break;
         }
         case MissionItem::MissionItemType::CHANGE_MODE:
         {
             MissionItem::ActionChangeMode* item = dynamic_cast<MissionItem::ActionChangeMode*>(missionItem);
+            UNUSED(item);
             break;
         }
         case MissionItem::MissionItemType::LAND:
@@ -486,8 +481,10 @@ void ModuleGroundStation::missionToJSON(const std::shared_ptr<MissionTopic::Miss
             if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
             {
                 MissionItem::SpatialLand<DataState::StateGlobalPosition>* item = dynamic_cast<MissionItem::SpatialLand<DataState::StateGlobalPosition>*>(missionItem);
+                UNUSED(item);
             }else{
                 MissionItem::SpatialLand<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialLand<DataState::StateLocalPosition>*>(missionItem);
+                UNUSED(item);
             }
 
             break;
@@ -496,6 +493,7 @@ void ModuleGroundStation::missionToJSON(const std::shared_ptr<MissionTopic::Miss
         {
             //This is command number 20
             MissionItem::SpatialRTL* item = dynamic_cast<MissionItem::SpatialRTL*>(missionItem);
+            UNUSED(item);
             break;
         }
         case MissionItem::MissionItemType::TAKEOFF:
@@ -590,6 +588,7 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
 
 void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
 {
+    UNUSED(vehicleID);
     // TODO-PAT: Instead of grabbing all vehicles, only send the one thats added to the GUI
     //          -Eventually, handle the removal of a vehicle as well.
 

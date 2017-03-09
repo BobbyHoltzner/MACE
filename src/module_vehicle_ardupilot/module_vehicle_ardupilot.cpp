@@ -1,9 +1,9 @@
 #include "module_vehicle_ardupilot.h"
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
-    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(), m_VehicleMission("vehicleMission"),
-    missionMSGCounter(0),missionMode(NONE),missionItemIndex(0),missionItemsAvailable(0),
-    m_CurrentMissionItem(NULL)
+    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),
+    missionMode(NONE),missionMSGCounter(0),missionItemIndex(0),missionItemsAvailable(0),
+    m_VehicleMission("vehicleMission"),m_CurrentMissionItem(NULL)
 {
 
 }
@@ -47,6 +47,7 @@ void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTak
 {
     int vehicleID = vehicleTakeoff.getVehicleID();
     DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
+    UNUSED(tmpData);
     mavlink_message_t msg = DataArdupilot::generateTakeoffMessage(vehicleTakeoff,m_LinkChan,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
@@ -118,14 +119,15 @@ void ModuleVehicleArdupilot::SetCurrentGuidedQueue(const MissionItem::MissionLis
 {
     int vehicleID = missionList.getVehicleID();
     DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
-//    delete tmpData;
-//    tmpData = NULL;
+    UNUSED(tmpData);
 }
 
 void ModuleVehicleArdupilot::RequestCurrentGuidedQueue(const int &vehicleID)
 {
     //This command is performed locally in the MACE instance.
     DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
+    UNUSED(tmpData);
+
 //    delete tmpData;
 //    tmpData = NULL;
 }
@@ -192,14 +194,11 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
                 m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
                 //notify listneres of topic
                 ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-                    ptr->NewTopicDataValues(m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+                    ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
                 });
             }
         } //if there is information available
     }
-
-//    delete tmpData;
-//    tmpData = NULL;
 }
 
 void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)

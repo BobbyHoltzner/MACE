@@ -1,10 +1,17 @@
 #include <iostream>
 #include <math.h>
-#include "data_generic_state_item/state_item_components.h"
 #include <Eigen/Dense>
+
+#include "common/common.h"
+
+#include "data_generic_state_item/state_item_components.h"
+
 
 int main(int argc, char *argv[])
 {
+    UNUSED(argc);
+    UNUSED(argv);
+
     DataState::StateGlobalPosition globalOne(35.7479006,-78.8425295,100);
     DataState::StateGlobalPosition globalTwo(globalOne);
 

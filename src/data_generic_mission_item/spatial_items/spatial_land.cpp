@@ -25,7 +25,6 @@ SpatialLand<DataState::StateGlobalPosition>::SpatialLand()
 {
     m_PositionalFrame = Data::PositionalFrame::GLOBAL;
     m_CoordinateFrame = Data::CoordinateFrame::NED;
-    m_VehicleID = NULL;
 }
 
 template<>
@@ -33,7 +32,6 @@ SpatialLand<DataState::StateLocalPosition>::SpatialLand()
 {
     m_PositionalFrame = Data::PositionalFrame::LOCAL;
     m_CoordinateFrame = Data::CoordinateFrame::NED;
-    m_VehicleID = NULL;
 }
 
 template <class T>

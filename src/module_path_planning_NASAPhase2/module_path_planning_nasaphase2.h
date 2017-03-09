@@ -1,6 +1,7 @@
 #ifndef MODULE_PATH_PLANNING_NASAPHASE2_H
 #define MODULE_PATH_PLANNING_NASAPHASE2_H
 
+#include "common/common.h"
 #include "module_path_planning_nasaphase2_global.h"
 
 #include "mace_core/i_module_command_path_planning.h"
@@ -20,7 +21,7 @@ public:
     //!
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
     {
-
+        UNUSED(ptr);
     }
 
 

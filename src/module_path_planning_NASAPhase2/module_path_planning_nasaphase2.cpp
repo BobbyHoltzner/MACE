@@ -27,16 +27,18 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModulePathPlanningNASAPhase2
 //!
 void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-
+    UNUSED(params);
 }
 
 void ModulePathPlanningNASAPhase2::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
-
+    UNUSED(topicName);
+    UNUSED(senderID);
+    UNUSED(componentsUpdated);
 }
 
 void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 {
-
+    UNUSED(vehicleID);
 }
 

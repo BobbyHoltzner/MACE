@@ -69,6 +69,7 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
     groundStation->addListener(this);
     groundStation->addTopicListener(this);
     bool serverStarted = groundStation->StartTCPServer();
+    UNUSED(serverStarted);
     m_GroundStation = groundStation;
 }
 
@@ -102,23 +103,26 @@ void MaceCore::AddTopic(const std::string &topicName, const TopicStructure &topi
 
 void MaceCore::Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &senderIDs, const std::vector<std::string> &components)
 {
+    UNUSED(senderIDs);
+    UNUSED(components);
+
     if(m_TopicNotifier.find(topicName) == m_TopicNotifier.cend()) {
         m_TopicNotifier.insert({topicName, {}});
     }
     m_TopicNotifier[topicName].push_back(sender);
 }
 
-void MaceCore::NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
+void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
 
     std::vector<std::string> components = value.ListNonTerminals();
 
     m_DataFusion->setTopicDatagram(topicName, senderID, time, value);
 
-
     //list through all interested parties and notify of new topic data
     if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
-    {
+    {        
         for(auto it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
+            if((*it) == moduleFrom) continue;
             (*it)->NewTopic(topicName, senderID, components);
         }
     }
@@ -130,6 +134,7 @@ void MaceCore::NewTopicDataValues(const std::string &topicName, const int sender
 /////////////////////////////////////////////////////////////////////////
 void MaceCore::RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm)
 {
+    UNUSED(sender);
     int vehicleID = arm.getVehicleID();
     if(vehicleID == 0)
     {
@@ -149,6 +154,7 @@ void MaceCore::RequestVehicleArm(const void* sender, const MissionItem::ActionAr
 }
 void MaceCore::RequestVehicleMode(const void *sender, const MissionItem::ActionChangeMode &changeMode)
 {
+    UNUSED(sender);
     int vehicleID = changeMode.getVehicleID();
     if(vehicleID == 0)
     {
@@ -168,6 +174,7 @@ void MaceCore::RequestVehicleMode(const void *sender, const MissionItem::ActionC
 
 void MaceCore::RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
 {
+    UNUSED(sender);
     int vehicleID = vehicleTakeoff.getVehicleID();
     if(vehicleID == 0)
     {
@@ -189,6 +196,7 @@ void MaceCore::RequestVehicleTakeoff(const void* sender, const MissionItem::Spat
 
 void MaceCore::SetCurrentVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
 {
+    UNUSED(sender);
     int vehicleID = missionList.getVehicleID();
     if(vehicleID == 0)
     {
@@ -205,6 +213,7 @@ void MaceCore::SetCurrentVehicleMission(const void *sender, const MissionItem::M
 }
 void MaceCore::RequestCurrentVehicleMission(const void *sender, const int &vehicleID)
 {
+    UNUSED(sender);
     if(vehicleID == 0)
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
@@ -220,6 +229,7 @@ void MaceCore::RequestCurrentVehicleMission(const void *sender, const int &vehic
 }
 void MaceCore::RequestVehicleClearAutoMission(const void* sender, const int &vehicleID)
 {
+    UNUSED(sender);
     if(vehicleID == 0)
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
@@ -237,6 +247,7 @@ void MaceCore::RequestVehicleClearAutoMission(const void* sender, const int &veh
 
 void MaceCore::RequestVehicleHomePosition(const void* sender, const int &vehicleID)
 {
+    UNUSED(sender);
     if(vehicleID == 0)
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
@@ -253,6 +264,7 @@ void MaceCore::RequestVehicleHomePosition(const void* sender, const int &vehicle
 
 void MaceCore::SetVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
 {
+    UNUSED(sender);
     int vehicleID = vehicleHome.getVehicleID();
     if(vehicleID == 0)
     {
@@ -272,6 +284,7 @@ void MaceCore::SetVehicleHomePosition(const void *sender, const MissionItem::Spa
 
 void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID)
 {
+    UNUSED(sender);
     if(vehicleID == 0)
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
@@ -288,6 +301,7 @@ void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &v
 
 void MaceCore::UpdateGlobalOriginPosition(const void *sender, const MissionItem::SpatialHome &globalHome)
 {
+    UNUSED(sender);
     m_DataFusion->UpdateGlobalOrigin(globalHome);
 }
 
@@ -310,7 +324,7 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
 
 void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
 {
-    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
+    UNUSED(sender);
     m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
 }
 
@@ -401,7 +415,7 @@ void MaceCore::GroundStationEvent()
 
 void MaceCore::CommandNewVehicleMode(const std::string &vehicleMode)
 {
-
+    UNUSED(vehicleMode);
 }
 
 
@@ -415,6 +429,7 @@ void MaceCore::CommandNewVehicleMode(const std::string &vehicleMode)
 //!
 void MaceCore::PlanningHorizon(const std::string &horizon)
 {
+    UNUSED(horizon);
     throw std::runtime_error("Not Implemented");
 }
 

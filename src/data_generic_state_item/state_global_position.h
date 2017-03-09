@@ -1,6 +1,8 @@
 #ifndef STATE_GLOBAL_POSITION_H
 #define STATE_GLOBAL_POSITION_H
 
+#include "common/common.h"
+
 #include "data/positional_coordinate_frame.h"
 #include "data/coordinate_frame.h"
 

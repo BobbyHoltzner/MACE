@@ -1,18 +1,12 @@
-#ifndef DATA_VEHICLE_GENERIC_TOPIC_FUEL_H
-#define DATA_VEHICLE_GENERIC_TOPIC_FUEL_H
+#ifndef DATA_GENERIC_ITEM_FUEL_H
+#define DATA_GENERIC_ITEM_FUEL_H
 
-#include "data/i_topic_component_data_object.h"
+namespace DataGenericItem {
 
-namespace DataVehicleGenericTopic {
-
-extern const char GenericVehicleTopicFuel_name[];
-extern const MaceCore::TopicComponentStructure GenericVehicleTopicFuel_structure;
-
-class DataVehicleGenericTopic_Fuel : public Data::NamedTopicComponentDataObject<GenericVehicleTopicFuel_name, &GenericVehicleTopicFuel_structure>
+class DataGenericItem_Fuel
 {
 public:
-    virtual MaceCore::TopicDatagram GenerateDatagram() const;
-    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
+    DataGenericItem_Fuel();
 
     void setBatteryVoltage(const double &voltage){
         this->voltage = voltage;
@@ -36,14 +30,14 @@ public:
     }
 
 public:
-    void operator = (const DataVehicleGenericTopic_Fuel &rhs)
+    void operator = (const DataGenericItem_Fuel &rhs)
     {
         this->voltage = rhs.voltage;
         this->current = rhs.current;
         this->batteryRemaing = rhs.batteryRemaing;
     }
 
-    bool operator == (const DataVehicleGenericTopic_Fuel &rhs) {
+    bool operator == (const DataGenericItem_Fuel &rhs) {
         if(this->voltage != rhs.voltage){
             return false;
         }
@@ -56,16 +50,16 @@ public:
         return true;
     }
 
-    bool operator != (const DataVehicleGenericTopic_Fuel &rhs) {
+    bool operator != (const DataGenericItem_Fuel &rhs) {
         return !(*this == rhs);
     }
 
-private:
+protected:
     double voltage;
     double current;
     double batteryRemaing;
 };
 
-} //end of namespace DataVehicleGenericTopic
+} //end of namespace DataGenericItem
 
-#endif // DATA_VEHICLE_GENERIC_TOPIC_FUEL_H
+#endif // DATA_GENERIC_ITEM_FUEL_H

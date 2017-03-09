@@ -1,22 +1,19 @@
 #ifndef FLIGHTMODE_H
 #define FLIGHTMODE_H
 
-#include <string>
-#include <list>
 #include <map>
+#include <list>
+#include <string>
+#include "common/common.h"
 
 #include "mavlink.h"
-#include "data/i_topic_component_data_object.h"
 
-#include "data/vehicle_types.h"
+#include "data_generic_item_topic/data_generic_item_topic_flightmode.h"
 
 namespace DataArdupilot
 {
 
-extern const char VehicleOperatingParameters_name[];
-extern const MaceCore::TopicComponentStructure VehicleOperatingParameters_structure;
-
-class VehicleFlightMode : public Data::NamedTopicComponentDataObject<VehicleOperatingParameters_name, &VehicleOperatingParameters_structure>
+class VehicleFlightMode : public DataGenericItemTopic::DataGenericItemTopic_FlightMode
 {
     enum class Arducopter_FM {
         ACFM_STABILIZE =     0,  // manual airframe angle with manual throttle
@@ -67,52 +64,15 @@ class VehicleFlightMode : public Data::NamedTopicComponentDataObject<VehicleOper
     };
 
 public:
-
-    virtual MaceCore::TopicDatagram GenerateDatagram() const;
-
-    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
-
-
-public:
+    VehicleFlightMode();
 
     void parseMAVLINK(const mavlink_heartbeat_t &msg);
 
-    void setVehicleType(int vehicleType);
+    void setVehicleTypeFromMAVLINK(const int &vehicleType);
 
-    Data::VehicleTypes getVehicleType() const
-    {
-        return (m_VehicleType);
-    }
-
-    template <typename T>
-    void setFlightMode(const T &mode) {
-        m_FlightMode = (int)mode;
-    }
-
-    int getFlightMode() const {
-        return (m_FlightMode);
-    }
-
-    int getFlightMode(const std::string &flightMode);
+    int getFlightModeFromString(const std::string &modeString);
 
     void getAvailableFlightModes(const Data::VehicleTypes &vehicleType, std::map<int, std::string> &availableFM);
-
-
-public:
-
-    bool operator == (const VehicleFlightMode &rhs) {
-        if(this->m_FlightMode != rhs.m_FlightMode){
-            return false;
-        }
-        if(this->m_VehicleType != rhs.m_VehicleType) {
-            return false;
-        }
-        return true;
-    }
-
-    bool operator != (const VehicleFlightMode &rhs) {
-        return !(*this == rhs);
-    }
 
 private:
     std::map<int, std::string> arducopterFM = {{(int)Arducopter_FM::ACFM_STABILIZE,"STABILIZE"},
@@ -157,12 +117,9 @@ private:
                                                {(int)Arduplane_FM::APFM_QRTL,"QRTL"},
                                                {(int)Arduplane_FM::APFM_UNKNOWN,"UNKNOWN"}};
 private:
-
-    int m_FlightMode;
-    Data::VehicleTypes m_VehicleType;
-
+    std::map<int,std::string> availableFM;
 };
 
-}
+} //end of namespace DataArdupilot
 
 #endif // FLIGHTMODE_H

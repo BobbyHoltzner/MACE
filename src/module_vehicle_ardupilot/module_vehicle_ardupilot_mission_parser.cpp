@@ -40,7 +40,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
 
                 //notify listneres of topic
                 ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-                    ptr->NewTopicDataValues(m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+                    ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
                 });
             }else{
                 int missionIndex = decodedMSG.seq - 1;
@@ -79,7 +79,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
                     m_VehicleMission.SetComponent(missionTopic, topicDatagram);
                     //notify listneres of topic
                     ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-                        ptr->NewTopicDataValues(m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+                        ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
                     });
 
                 }
@@ -123,7 +123,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
             m_VehicleMission.SetComponent(missionTopic, topicDatagram);
             //notify listneres of topic
             ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-                ptr->NewTopicDataValues(m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+                ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
             });
         }
 
@@ -181,7 +181,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         m_VehicleMission.SetComponent(missionTopic, topicDatagram);
         //notify listneres of topic
         ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+            ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
         });
         break;
     }
@@ -218,7 +218,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         m_VehicleMission.SetComponent(missionTopic, topicDatagram);
         //notify listneres of topic
         ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+            ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
         });
 
         break;
@@ -234,6 +234,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
 
 void ModuleVehicleArdupilot::MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult)
 {
+    UNUSED(publishResult);
     switch(missionResult) {
     case MAV_MISSION_ACCEPTED:
     {

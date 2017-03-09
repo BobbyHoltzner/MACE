@@ -1,17 +1,16 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-02-10T09:53:21
+# Project created by QtCreator 2017-03-04T19:33:05
 #
 #-------------------------------------------------
-
+QT += serialport
+QT += network
 QT       -= core gui
 
-TARGET = data_vehicle_generic_topic
+TARGET = commsMAVLINK
 TEMPLATE = lib
 
-DEFINES += DATA_VEHICLE_GENERIC_TOPIC_LIBRARY
-
-QMAKE_CXXFLAGS += -std=c++11
+DEFINES += COMMSMAVLINK_LIBRARY
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -24,17 +23,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES += \
-    data_vehicle_generic_topic_GPS.cpp \
-    data_vehicle_generic_topic_text.cpp \
-    data_vehicle_generic_topic_fuel.cpp
+SOURCES += comms_mavlink.cpp
 
-HEADERS +=\
-        data_vehicle_generic_topic_global.h \
-    data_vehicle_generic_topic_GPS.h \
-    data_vehicle_generic_topic_text.h \
-    data_vehicle_generic_topic_components.h \
-    data_vehicle_generic_topic_fuel.h
+HEADERS += comms_mavlink.h\
+        commsmavlink_global.h
+
+INCLUDEPATH += $$PWD/../
+INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
 # Unix lib Install
 unix:!symbian {
@@ -44,24 +39,30 @@ unix:!symbian {
 
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib
-win32:CONFIG(release, debug|release):       lib.files   += release/data_vehicle_generic_topic.lib release/data_vehicle_generic_topic.dll
-else:win32:CONFIG(debug, debug|release):    lib.files   += debug/data_vehicle_generic_topic.lib debug/data_vehicle_generic_topic.dll
+win32:CONFIG(release, debug|release):       lib.files   += release/commsMAVLINK.lib release/commsMAVLINK.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/commsMAVLINK.lib debug/commsMAVLINK.dll
 INSTALLS += lib
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/data_vehicle_generic_topic
+headers.path    = $$(MACE_ROOT)/include/commsMAVLINK
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
-INCLUDEPATH += $$PWD/../
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
+else:unix:!macx: LIBS += -L$$OUT_PWD/../common/ -lcommon
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../comms/release/ -lcomms
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../comms/debug/ -lcomms
+else:unix: LIBS += -L$$OUT_PWD/../comms/ -lcomms
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
-else:unix:!macx: LIBS += -L$$OUT_PWD/../data/ -ldata
+else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
-else:unix:!macx: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
+else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
 
 
 unix{
@@ -72,3 +73,4 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
+

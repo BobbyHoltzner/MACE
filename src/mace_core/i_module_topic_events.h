@@ -30,7 +30,7 @@ public:
     //! \param time Time topic is valid for
     //! \param value Datagram for topic
     //!
-    virtual void NewTopicDataValues(const std::string &topicName, const int entityID, const TIME &time, const TopicDatagram &value) = 0;
+    virtual void NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const int entityID, const TIME &time, const TopicDatagram &value) = 0;
 
 };
 

@@ -1,8 +1,6 @@
 #ifndef MODULE_VEHICLE_MAVLINK_H
 #define MODULE_VEHICLE_MAVLINK_H
 
-#define MAVLINK_NEED_BYTE_SWAP
-
 #include "module_vehicle_mavlink_global.h"
 
 #include <iostream>
@@ -295,12 +293,12 @@ public:
 
     virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
     {
-
+        UNUSED(vehicleArm);
     }
 
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
     {
-
+        UNUSED(vehicleMode);
     }
 
 
@@ -316,6 +314,8 @@ public:
     //!
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
     {
+        UNUSED(linkName);
+
         //get maping of all vehicle data components
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_MAVLINKParser.Parse(&message);
 
@@ -331,7 +331,7 @@ public:
 
             //notify listneres of topic
             ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-                ptr->NewTopicDataValues(ModuleVehicleMavlinkBase::m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+                ptr->NewTopicDataValues(this, ModuleVehicleMavlinkBase::m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
             });
         }
     }
@@ -347,6 +347,11 @@ public:
     //!
     virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
     {
+        UNUSED(linkName);
+        UNUSED(vehicleId);
+        UNUSED(vehicleMavlinkVersion);
+        UNUSED(vehicleFirmwareType);
+        UNUSED(vehicleType);
         //incomming heartbeats
     }
 protected:

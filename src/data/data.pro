@@ -3,8 +3,7 @@
 # Project created by QtCreator 2016-12-08T21:09:09
 #
 #-------------------------------------------------
-
-QT       -= core gui
+QT -= core gui
 
 TARGET = data
 TEMPLATE = lib
@@ -26,7 +25,8 @@ HEADERS += data_global.h \
     timer.h \
     operating_mode.h \
     altitude_frame.h \
-    speed_frame.h
+    speed_frame.h \
+    autopilot_types.h
     loiter_direction.h
 
 # Unix lib Install
@@ -48,12 +48,6 @@ INSTALLS       += headers
 
 INCLUDEPATH += $$PWD/../
 
-
-unix{
-    EigenInclude = $$system(pkg-config --cflags eigen3)
-    EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
-    INCLUDEPATH += $$EigenInclude
-}
-win32{
-    INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
-}
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
+else:unix:!macx: LIBS += -L$$OUT_PWD/../common/ -lcommon

@@ -25,7 +25,6 @@ SpatialLoiter_Unlimited<DataState::StateGlobalPosition>::SpatialLoiter_Unlimited
 {
     m_PositionalFrame = Data::PositionalFrame::GLOBAL;
     m_CoordinateFrame = Data::CoordinateFrame::NED;
-    m_VehicleID = NULL;
 }
 
 template<>
@@ -33,7 +32,6 @@ SpatialLoiter_Unlimited<DataState::StateLocalPosition>::SpatialLoiter_Unlimited(
 {
     m_PositionalFrame = Data::PositionalFrame::LOCAL;
     m_CoordinateFrame = Data::CoordinateFrame::NED;
-    m_VehicleID = NULL;
 }
 
 } //end of namespace MissionItem

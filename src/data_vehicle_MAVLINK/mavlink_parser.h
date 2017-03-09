@@ -26,7 +26,7 @@ class MAVLINKParser
 public:
 
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> Parse(const mavlink_message_t* message) const{
-
+        UNUSED(message);
         return {};
     }
 

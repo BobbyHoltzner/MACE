@@ -1,9 +1,9 @@
-#include "data_vehicle_generic_topic_fuel.h"
+#include "data_generic_item_topic_fuel.h"
 
-namespace DataVehicleGenericTopic {
+namespace DataGenericItemTopic {
 
-const char GenericVehicleTopicFuel_name[] = "vehicleFuel";
-const MaceCore::TopicComponentStructure GenericVehicleTopicFuel_structure = []{
+const char DataGenericItemTopicFuel_name[] = "vehicleFuel";
+const MaceCore::TopicComponentStructure DataGenericItemTopicFuel_structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<double>("voltage");
     structure.AddTerminal<double>("current");
@@ -11,7 +11,7 @@ const MaceCore::TopicComponentStructure GenericVehicleTopicFuel_structure = []{
     return structure;
 }();
 
-MaceCore::TopicDatagram DataVehicleGenericTopic_Fuel::GenerateDatagram() const {
+MaceCore::TopicDatagram DataGenericItemTopic_Fuel::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<double>("voltage", voltage);
     datagram.AddTerminal<double>("current", current);
@@ -19,10 +19,10 @@ MaceCore::TopicDatagram DataVehicleGenericTopic_Fuel::GenerateDatagram() const {
     return datagram;
 }
 
-void DataVehicleGenericTopic_Fuel::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
+void DataGenericItemTopic_Fuel::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
     voltage = datagram.GetTerminal<double>("voltage");
     current = datagram.GetTerminal<double>("current");
     batteryRemaing = datagram.GetTerminal<double>("remaining");
 }
 
-} //end of namespace DataVehicleGenericTopic
+} //end of namespace DataGenericItemTopic

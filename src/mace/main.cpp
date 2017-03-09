@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
         }
         case MaceCore::ModuleBase::SENSORS:
         {
-            if(addedPathPlanning == true)
+            if(addedSensors == true)
             {
                 std::cerr << "Only one sensors module can be added" << std::endl;
                 return 1;

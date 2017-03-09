@@ -1,7 +1,7 @@
 #include "module_vehicle_sensors.h"
 
 ModuleVehicleSensors::ModuleVehicleSensors():
-    m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData"),
+    m_VehicleDataTopic("vehicleData"), m_SensorDataTopic("sensorData"),
     m_SensorFootprintDataTopic("sensorFootprint")
 {
 
@@ -77,56 +77,22 @@ void ModuleVehicleSensors::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 
 void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
+    UNUSED(senderID);
+    UNUSED(componentsUpdated);
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
-        MaceCore::TopicDatagram topicDatagram;
-
-
-//        std::shared_ptr<DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition,DataVehicleSensors::SensorVerticesLocal_Name,&DataVehicleSensors::SensorVerticesLocal_Structure>> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition,DataVehicleSensors::SensorVerticesLocal_Name,&DataVehicleSensors::SensorVerticesLocal_Structure>>("MapIR");
-//        std::shared_ptr<DataVehicleSensors::SensorVertices_Local> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices_Local>("MapIR");
-
-//        newSensorV->insertSensorVertice(newLocalPosition);
-
-//        ModuleVehicleSensors::m_SensorFootprintDataTopic.SetComponent(newSensorV, topicDatagram);
-
-//        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-//            ptr->NewTopicDataValues(ModuleVehicleSensors::m_SensorFootprintDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
-//        });
-
-
-// Example of a mission list being sent
-//        std::shared_ptr<DataVehicleCommands::VehicleMissionList> newVehicleList = std::make_shared<DataVehicleCommands::VehicleMissionList>();
-//        newVehicleList->appendCommand(newWP);
-
-//        MaceCore::TopicDatagram topicDatagram;
-//        ModuleVehicleSensors::m_CommandVehicleMissionList.SetComponent(newVehicleList, topicDatagram);
-
-//        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-//            ptr->NewTopicDataValues(ModuleVehicleSensors::m_CommandVehicleMissionList.Name(), 1, MaceCore::TIME(), topicDatagram);
-//        });
-
-
-//Example of a change mode
-//        std::shared_ptr<DataVehicleCommands::CommandVehicleMode> newVehicleMode = std::make_shared<DataVehicleCommands::CommandVehicleMode>();
-//        newVehicleMode->setRequestMode("AUTO");
-
-//        std::shared_ptr<DataVehicleCommands::ActionCommandTopic> cmdPtr = std::make_shared<DataVehicleCommands::ActionCommandTopic>();
-//        cmdPtr->setActionItem(newVehicleMode);
-//        //proceed to send components only if there is 1 or more
-//            //construct datagram
-//            ModuleVehicleSensors::m_CommandVehicleTopic.SetComponent(cmdPtr, topicDatagram);
-
-//            //notify listneres of topic
-//            ModuleVehicleSensors::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-//                ptr->NewTopicDataValues(ModuleVehicleSensors::m_CommandVehicleTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
-//            });
 
     }
 }
 
 void ModuleVehicleSensors::computeVehicleFootprint(const double &roll, const double &pitch, const double &yaw, const double &altitude)
 {
+    UNUSED(roll);
+    UNUSED(pitch);
+    UNUSED(yaw);
+    UNUSED(altitude);
+
     //first compute DCM from euler
     Eigen::Matrix3d dcm;
 
@@ -134,5 +100,5 @@ void ModuleVehicleSensors::computeVehicleFootprint(const double &roll, const dou
 
 void ModuleVehicleSensors::NewlyAvailableVehicle(const int &vehicleID)
 {
-
+    UNUSED(vehicleID);
 }
