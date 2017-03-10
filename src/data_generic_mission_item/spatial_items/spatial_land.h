@@ -22,7 +22,7 @@ public:
 public:
     SpatialLand();
 
-    bool getLandFlag();
+    bool getLandFlag() const;
     void setLandFlag(const bool &landFlag);
 
 public:

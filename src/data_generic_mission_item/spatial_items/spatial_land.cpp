@@ -35,7 +35,7 @@ SpatialLand<DataState::StateLocalPosition>::SpatialLand()
 }
 
 template <class T>
-bool SpatialLand<T>::getLandFlag()
+bool SpatialLand<T>::getLandFlag() const
 {
     return landFlag;
 }

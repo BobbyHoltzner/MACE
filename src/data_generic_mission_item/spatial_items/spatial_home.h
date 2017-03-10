@@ -16,7 +16,6 @@ public:
     SpatialHome();
     SpatialHome(const SpatialHome &spatialHome);
 
-
 public:
     virtual MissionItemType getMissionType()const;
 

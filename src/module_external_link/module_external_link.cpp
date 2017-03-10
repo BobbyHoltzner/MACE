@@ -16,7 +16,6 @@ ModuleExternalLink::ModuleExternalLink() :
 //! \param ptr pointer to object that attached this instance to itself
 //!
 void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
-
 {
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
     ptr->Subscribe(this, m_MissionDataTopic.Name());
@@ -51,30 +50,15 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 //!
 void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
+    std::cout<<"The new packet was seen here"<<std::endl;
     UNUSED(linkName);
     //This function will be receiving messages external to the specific MACE instance that is deploying this
-
     switch ((int)message.msgid) {
 
     case MAVLINK_MSG_ID_HEARTBEAT:
     {
-        //might want to figure out a way to handle the case of sending an
-        //empty heartbeat back just to acknowledge the aircraft is still there
-        //then again the streaming other messages may handle this...so maybe
-        //timer should be since last time heard.
         mavlink_heartbeat_t decodedMSG;
         mavlink_msg_heartbeat_decode(&message,&decodedMSG);
-
-        std::shared_ptr<DataArdupilot::VehicleFlightMode> ptrParameters = std::make_shared<DataArdupilot::VehicleFlightMode>();
-        ptrParameters->parseMAVLINK(decodedMSG);
-        ptrParameters->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
-
-        MaceCore::TopicDatagram topicDatagram;
-        m_VehicleDataTopic.SetComponent(ptrParameters, topicDatagram);
-
-        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), message.sysid, MaceCore::TIME(), topicDatagram);
-        });
         break;
     }
     }

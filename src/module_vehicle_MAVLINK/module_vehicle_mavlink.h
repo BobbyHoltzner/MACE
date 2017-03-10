@@ -24,8 +24,6 @@
 
 #include "mace_core/module_factory.h"
 
-#include "data_vehicle_MAVLINK/altitude_reference_frames.h"
-
 #include "data_vehicle_MAVLINK/components.h"
 
 /*
