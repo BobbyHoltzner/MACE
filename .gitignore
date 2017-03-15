@@ -6,6 +6,7 @@ mace/mace
 .qmake.stash
 example/example
 *.user*
+*.a
 
 /build-src-Desktop_Qt_5_7_1_MinGW_32bit-Debug/*
 
@@ -43,3 +44,4 @@ node_modules
 /gui_dlls/*
 /node_packages/*
 ElectronGUI/.vscode/settings.json
+ElectronGUI/PrebuiltBinaries*
