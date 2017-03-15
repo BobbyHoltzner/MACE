@@ -70,11 +70,6 @@ public:
             RequestVehicleTakeoff(vehicleTakeoff);
         });
 
-
-//        AddCommandLogic<MissionItem::AbstractMissionItem>(VehicleCommands::ISSUE_VEHICLE_COMMAND, [this](const MissionItem::AbstractMissionItem &commandItem){
-//            IssueVehicleCommand(commandItem);
-//        });
-
         /////////////////////////////////////////////////////////////////////////
         /// GENERAL MISSION EVENTS: This is implying for auto mode of the vehicle.
         /// This functionality may be pertinent for vehicles not containing a
@@ -126,32 +121,6 @@ public:
             SetVehicleHomePosition(vehicleHome);
         });
 
-
-
-        AddCommandLogic<int>(VehicleCommands::CREATE_VEHICLE_OBJECT, [this](const int &vehicleID){
-            CreateVehicleObject(vehicleID);
-        });
-
-        AddCommandLogic<int>(VehicleCommands::REMOVE_VEHICLE_OBJECT, [this](const int &vehicleID){
-            RemoveVehicleObject(vehicleID);
-        });
-
-        AddCommandLogic<std::list<int>>(VehicleCommands::UPDATE_VEHICLE_OBJECT_LIST, [this](const std::list<int> &vehicleObjectList){
-            UpdateVehicleObjectList(vehicleObjectList);
-        });
-
-        AddCommandLogic(VehicleCommands::FOLLOW_NEW_COMMANDS, [this](){
-            FollowNewCommands();
-        });
-
-        AddCommandLogic(VehicleCommands::FINISH_AND_FOLLOW_COMMANDS, [this](){
-            FinishAndFollowNewCommands();
-        });
-
-        AddCommandLogic(VehicleCommands::COMMANDS_APPENDED, [this](){
-            CommandsAppended();
-        });
-
     }
 
     virtual Classes ModuleClass() const
@@ -166,7 +135,6 @@ public:
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
     virtual void RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
 
-
     virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList) = 0;
     virtual void RequestCurrentMissionQueue(const int &vehicleID) = 0;
     virtual void RequestClearMissionQueue(const int &vehicleID) = 0;
@@ -175,41 +143,8 @@ public:
     virtual void RequestCurrentGuidedQueue(const int &vehicleID) = 0;
     virtual void RequestClearGuidedQueue(const int &vehicleID) = 0;
 
-
     virtual void RequestVehicleHomePosition(const int &vehicleID) = 0;
     virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome) = 0;
-
-
-
-
-    virtual void CreateVehicleObject(const int &vehicleID) = 0;
-
-    virtual void RemoveVehicleObject(const int &vehicleID) = 0;
-
-    virtual void UpdateVehicleObjectList(const std::list<int> &vehicleObjectList) = 0;
-
-    //!
-    //! \brief New commands have been updated that the vehicle is to follow immediatly
-    //!
-    //! Command Data can be retreived through the MaceData available through getDataObject()
-    //!
-    virtual void FollowNewCommands() = 0;
-
-
-    //!
-    //! \brief New commands have been issued to vehicle that are to be followed once current command is finished
-    //!
-    //! Command Data are to be retreived through the MaceData available through getDataObject()
-    //!
-    virtual void FinishAndFollowNewCommands() = 0;
-
-
-    //!
-    //! \brief New commands have been appended to existing commands
-    //!
-    //! Command Data are to be retreived through the MaceData available through getDataObject()
-    //!
-    virtual void CommandsAppended() = 0;
 
 };
 

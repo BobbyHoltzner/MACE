@@ -107,7 +107,6 @@ double StateGlobalPosition::bearingBetween(const StateGlobalPosition &position) 
     double finalLatitude = convertDegreesToRadians(position.latitude);
     double finalLongitude = convertDegreesToRadians(position.longitude);
 
-    double deltaLatitude = finalLatitude - originLatitude;
     double deltaLongitude = finalLongitude - originLongitude;
 
     float tmpY = sin(deltaLongitude) * cos(finalLatitude);
@@ -126,6 +125,7 @@ double StateGlobalPosition::bearingBetween(const StateGlobalPosition &position) 
  */
 double StateGlobalPosition::initialBearing(const StateGlobalPosition &position) const{
     throw std::runtime_error("Not Implimented");
+    UNUSED(position);
     return 0.0;
     //return (bearingBetween(position) + 360.0) % 360.0;
 }
@@ -137,6 +137,7 @@ double StateGlobalPosition::initialBearing(const StateGlobalPosition &position) 
  */
 double StateGlobalPosition::finalBearing(const StateGlobalPosition &position) const{
     throw std::runtime_error("Not Implimented");
+    UNUSED(position);
     return 0.0;
     //return (bearingBetween(position) + 180.0) % 360.0;
 }

@@ -5,9 +5,11 @@ namespace Data
 {
 enum class VehicleTypes
 {
+    COPTER,
     PLANE,
-    COPTER
+    UNKNOWN
 };
+
 }
 
 #endif // VEHICLE_TYPES_H

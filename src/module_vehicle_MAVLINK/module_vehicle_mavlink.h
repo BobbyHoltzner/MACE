@@ -1,8 +1,6 @@
 #ifndef MODULE_VEHICLE_MAVLINK_H
 #define MODULE_VEHICLE_MAVLINK_H
 
-#define MAVLINK_NEED_BYTE_SWAP
-
 #include "module_vehicle_mavlink_global.h"
 
 #include <iostream>
@@ -295,72 +293,12 @@ public:
 
     virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
     {
-
+        UNUSED(vehicleArm);
     }
 
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
     {
-
-    }
-
-    virtual void CreateVehicleObject(const int &vehicleID)
-    {
-        std::list<int>::iterator it;
-        for (it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
-        {
-            if(*it == vehicleID)
-            {
-                //This implies that the module is already aware an object needs to be created
-                break;
-            }
-        }
-        if(it == m_NeededVehicleObjects.end()){
-            m_NeededVehicleObjects.push_back(vehicleID);
-        }
-    }
-
-    virtual void RemoveVehicleObject(const int &vehicleID)
-    {
-        m_NeededVehicleObjects.remove(vehicleID);
-    }
-
-    virtual void UpdateVehicleObjectList(const std::list<int> &vehicleObjectList)
-    {
-        m_NeededVehicleObjects = vehicleObjectList;
-    }
-
-
-    //!
-    //! \brief New commands have been updated that the vehicle is to follow immediatly
-    //!
-    //! Commands are to be retreived through the MaceData available through getDataObject()
-    //!
-    //!
-    virtual void FollowNewCommands()
-    {
-
-    }
-
-
-    //!
-    //! \brief New commands have been issued to vehicle that are to be followed once current command is finished
-    //!
-    //! Commands are to be retreived through the MaceData available through getDataObject()
-    //!
-    virtual void FinishAndFollowNewCommands()
-    {
-
-    }
-
-
-    //!
-    //! \brief New commands have been appended to existing commands
-    //!
-    //! Commands are to be retreived through the MaceData available through getDataObject()
-    //!
-    virtual void CommandsAppended()
-    {
-
+        UNUSED(vehicleMode);
     }
 
 
@@ -376,6 +314,8 @@ public:
     //!
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
     {
+        UNUSED(linkName);
+
         //get maping of all vehicle data components
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_MAVLINKParser.Parse(&message);
 
@@ -391,7 +331,7 @@ public:
 
             //notify listneres of topic
             ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-                ptr->NewTopicDataValues(ModuleVehicleMavlinkBase::m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
+                ptr->NewTopicDataValues(this, ModuleVehicleMavlinkBase::m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
             });
         }
     }
@@ -407,6 +347,11 @@ public:
     //!
     virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
     {
+        UNUSED(linkName);
+        UNUSED(vehicleId);
+        UNUSED(vehicleMavlinkVersion);
+        UNUSED(vehicleFirmwareType);
+        UNUSED(vehicleType);
         //incomming heartbeats
     }
 protected:
@@ -415,9 +360,6 @@ protected:
     uint8_t m_LinkChan;
 
 private:
-
-    mutable std::list<int> m_NeededVehicleObjects;
-
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
 
     DataVehicleMAVLINK::MAVLINKParser m_MAVLINKParser;

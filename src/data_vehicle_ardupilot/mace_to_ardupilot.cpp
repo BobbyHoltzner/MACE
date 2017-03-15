@@ -11,17 +11,31 @@ mavlink_message_t generateChangeMode(const int systemID, const uint8_t &chan, co
 
 mavlink_message_t generateArmMessage(const MissionItem::ActionArm &actionArmItem, const uint8_t &chan)
 {
-    uint8_t vehicleID = actionArmItem.getVehicleID();
-    bool armFlag = actionArmItem.getRequestArm();
     mavlink_message_t msg;
-    mavlink_msg_command_long_pack_chan(255,190,chan,&msg,vehicleID,0,400,0,armFlag,0,0,0,0,0,0);
+    mavlink_command_long_t cmdLong;
+
+    cmdLong.command = MAV_CMD_COMPONENT_ARM_DISARM;
+    cmdLong.confirmation = 0;
+    cmdLong.param1 = actionArmItem.getRequestArm();
+    cmdLong.param2 = 0.0;
+    cmdLong.param3 = 0.0;
+    cmdLong.param4 = 0.0;
+    cmdLong.param5 = 0.0;
+    cmdLong.param6 = 0.0;
+    cmdLong.param7 = 0.0;
+    cmdLong.target_system = actionArmItem.getVehicleID();
+    cmdLong.target_component = 0;
+
+    mavlink_msg_command_long_encode_chan(255,190,chan,&msg,&cmdLong);
+    //mavlink_msg_command_long_pack_chan(255,190,chan,&msg,vehicleID,0,command,0,armFlag,0,0,0,0,0,0);
     return msg;
 }
 
 mavlink_message_t generateGetHomePosition(const int &vehicleID, const int &chan)
 {
+    uint16_t command = MAV_CMD_GET_HOME_POSITION;
     mavlink_message_t msg;
-    mavlink_msg_command_long_pack_chan(255,190,chan,&msg,vehicleID,0,410,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+    mavlink_msg_command_long_pack_chan(255,190,chan,&msg,vehicleID,0,command,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
     return msg;
 }
 
@@ -37,137 +51,16 @@ mavlink_message_t generateSetHomePosition(const MissionItem::SpatialHome &vehicl
     return msg;
 }
 
-mavlink_message_t MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
-{
-
-    mavlink_message_t msg;
-
-    switch (missionItem->getMissionType()) {
-    case MissionItem::MissionItemType::RTL:
-    {
-        //This is command number 20
-        uint8_t frame = MAV_FRAME_GLOBAL_RELATIVE_ALT;
-        std::shared_ptr<MissionItem::SpatialRTL> item = std::dynamic_pointer_cast<MissionItem::SpatialRTL>(missionItem);
-        mavlink_msg_mission_item_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,itemIndex,frame,20,0,1,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
-        break;
-    }
-    case MissionItem::MissionItemType::LAND:
-    {
-        //This is command number 21
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
-        {
-            uint8_t frame = MAV_FRAME_GLOBAL_RELATIVE_ALT;
-            std::shared_ptr<MissionItem::SpatialLand<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialLand<DataState::StateGlobalPosition>>(missionItem);
-            float latitude = item->position.latitude;
-            float longitude = item->position.longitude;
-            float altitude = item->position.altitude;
-            mavlink_msg_mission_item_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,itemIndex,frame,21,0,1,0.0,0.0,0.0,0.0,latitude,longitude,altitude);
-        }
-        break;
-    }
-    case MissionItem::MissionItemType::TAKEOFF:
-    {
-        //This is command number 22
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
-        {
-            uint8_t frame = MAV_FRAME_GLOBAL_RELATIVE_ALT;
-            std::shared_ptr<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>>(missionItem);
-            float latitude = item->position.latitude;
-            float longitude = item->position.longitude;
-            float altitude = item->position.altitude;
-            mavlink_msg_mission_item_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,itemIndex,frame,22,0,1,0.0,0.0,0.0,0.0,latitude,longitude,altitude);
-        }
-        break;
-    }
-    case MissionItem::MissionItemType::WAYPOINT:
-    {
-        //This is command number 16
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
-        {
-            uint8_t frame = MAV_FRAME_GLOBAL_RELATIVE_ALT;
-            std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
-            float latitude = item->position.latitude;
-            float longitude = item->position.longitude;
-            float altitude = item->position.altitude;
-            mavlink_msg_mission_item_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,itemIndex,frame,16,0,1,0.0,0.0,0.0,0.0,latitude,longitude,altitude);
-
-        }
-        break;
-    }
-    default:
-        break;
-    }
-
-    return msg;
-}
 mavlink_message_t generateTakeoffMessage(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan, const uint8_t &compID)
 {
     //This is command number 22
+    uint16_t command = MAV_CMD_NAV_TAKEOFF;
     mavlink_message_t msg;
     int systemID = missionItem.getVehicleID();
     float latitude = missionItem.position.latitude;
     float longitude = missionItem.position.longitude;
     float altitude = missionItem.position.altitude;
-    mavlink_msg_command_long_pack_chan(255,190,chan,&msg,systemID,compID,22,0,0.0,0.0,0.0,0.0,latitude,longitude,altitude);
-    return msg;
-}
-
-mavlink_message_t generateArdupilotCommandMessage(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
-{
-    mavlink_message_t msg;
-
-    switch (missionItem->getMissionType()) {
-    case MissionItem::MissionItemType::RTL:
-    {
-        //This is command number 20
-         std::shared_ptr<MissionItem::SpatialRTL> item = std::dynamic_pointer_cast<MissionItem::SpatialRTL>(missionItem);
-        mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,20,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
-        break;
-    }
-    case MissionItem::MissionItemType::LAND:
-    {
-        //This is command number 21
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
-        {
-            std::shared_ptr<MissionItem::SpatialLand<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialLand<DataState::StateGlobalPosition>>(missionItem);
-            float latitude = item->position.latitude;
-            float longitude = item->position.longitude;
-            float altitude = item->position.altitude;
-            mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,21,0,0.0,0.0,0.0,0.0,latitude,longitude,altitude);
-        }
-        break;
-    }
-    case MissionItem::MissionItemType::TAKEOFF:
-    {
-        //This is command number 22
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
-        {
-            std::shared_ptr<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>>(missionItem);
-            float latitude = item->position.latitude;
-            float longitude = item->position.longitude;
-            float altitude = item->position.altitude;
-            mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,22,0,0.0,0.0,0.0,0.0,latitude,longitude,altitude);
-        }
-        break;
-    }
-    case MissionItem::MissionItemType::WAYPOINT:
-    {
-        //This is command number 16
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
-        {
-            std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> item = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
-            float latitude = item->position.latitude;
-            float longitude = item->position.longitude;
-            float altitude = item->position.altitude;
-            mavlink_msg_command_long_pack_chan(255,190,chan,&msg,item->getVehicleID(),compID,16,0,0.0,0.0,0.0,0.0,latitude,longitude,altitude);
-
-        }
-        break;
-    }
-    default:
-        break;
-    }
-
+    mavlink_msg_command_long_pack_chan(255,190,chan,&msg,systemID,compID,command,0,0.0,0.0,0.0,0.0,latitude,longitude,altitude);
     return msg;
 }
 

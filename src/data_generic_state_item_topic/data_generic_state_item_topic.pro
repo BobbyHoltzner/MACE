@@ -58,7 +58,6 @@ headers.path    = $$(MACE_ROOT)/include/data_generic_state_item_topic
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
-
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata

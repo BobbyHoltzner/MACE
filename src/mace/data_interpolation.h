@@ -1,6 +1,7 @@
 #ifndef DATA_INTERPOLATION_H
 #define DATA_INTERPOLATION_H
 
+#include "common/common.h"
 #include "mace_core/mace_data.h"
 
 class DataInterpolation : public MaceCore::MaceData
