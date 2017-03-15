@@ -16,6 +16,7 @@ example/example
 *.dll
 *.lib
 *.exe
+*.a
 node_modules
 /bin/*
 *.gypi
