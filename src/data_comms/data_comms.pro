@@ -23,7 +23,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += data_external_comms.cpp \
-    data_container_mavlink.cpp \
     mavlink_parser.cpp \
     vehicle_object_mavlink.cpp \
     COMMS_to_MACE/mission_comms_to_mace.cpp \
@@ -34,7 +33,6 @@ SOURCES += data_external_comms.cpp \
 
 HEADERS += data_external_comms.h\
         data_comms_global.h \
-    data_container_mavlink.h \
     mavlink_parser.h \
     vehicle_object_mavlink.h \
     COMMS_to_MACE/mission_comms_to_mace.h \

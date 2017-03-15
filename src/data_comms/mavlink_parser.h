@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <functional>
+#include "mace_core/mace_core.h"
 
 #include "mavlink.h"
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
@@ -17,8 +18,6 @@
 #include "data_generic_mission_item/mission_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
-#include "data_container_mavlink.h"
-
 #include "data/i_topic_component_data_object.h"
 #include "data/topic_data_object_collection.h"
 
@@ -26,11 +25,11 @@ namespace DataMAVLINK
 {
 
 
-class MAVLINKParser : public DataContainer_MAVLINK
+class MAVLINKParser
 {
 public:
 
-    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForVehicleData(const mavlink_message_t* message);
+    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForData(const mavlink_message_t* message,  const std::shared_ptr<const MaceCore::MaceData>);
 
 
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> Parse(const mavlink_message_t* message) const{

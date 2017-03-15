@@ -8,7 +8,7 @@
 #    define DATA_COMMSSHARED_EXPORT __declspec(dllexport)
 #  endif
 #else
-#  define DATA_GENERIC_ITEMSHARED_EXPORT
+#  define DATA_COMMSSHARED_EXPORT
 #endif
 
-#endif // DATA_COMMS_GLOBAL_H
+#endif // DATA_COMMSSHARED_EXPORT_GLOBAL_H

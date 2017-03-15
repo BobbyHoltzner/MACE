@@ -2,8 +2,7 @@
 
 namespace DataMAVLINK
 {
-
-std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::ParseForVehicleData(const mavlink_message_t* message){
+std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::ParseForData(const mavlink_message_t* message, const std::shared_ptr<const MaceData>){
 
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
 
@@ -75,46 +74,7 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         }
         break;
     }
-    case MAVLINK_MSG_ID_SYSTEM_TIME:
-    {
-        //This is message definition 2
-        //The system time is the time of the master clock, typically the computer clock of the main onboard computer.
-        mavlink_system_time_t decodedMSG;
-        mavlink_msg_system_time_decode(message,&decodedMSG);
-        break;
-    }
-    case MAVLINK_MSG_ID_PARAM_REQUEST_READ:
-    {
-        //This is message definition 20
-        //Request to read the onboard parameter with the param_id string id. Onboard parameters are stored as key[const char*] -> value[float]. This allows to send a parameter to any other component (such as the GCS) without the need of previous knowledge of possible parameter names. Thus the same GCS can store different parameters for different autopilots. See also http://qgroundcontrol.org/parameter_interface for a full documentation of QGroundControl and IMU code.
-        mavlink_param_request_read_t decodedMSG;
-        mavlink_msg_param_request_read_decode(message,&decodedMSG);
-        break;
-    }
-    case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:
-    {
-        //This is message definition 21
-        //Request all parameters of this component. After this request, all parameters are emitted.
-        mavlink_param_request_list_t decodedMSG;
-        mavlink_msg_param_request_list_decode(message,&decodedMSG);
-        break;
-    }
-    case MAVLINK_MSG_ID_PARAM_VALUE:
-    {
-        //This is message definition 22
-        //Emit the value of a onboard parameter. The inclusion of param_count and param_index in the message allows the recipient to keep track of received parameters and allows him to re-request missing parameters after a loss or timeout.
-        mavlink_param_value_t decodedMSG;
-        mavlink_msg_param_value_decode(message,&decodedMSG);
-        break;
-    }
-    case MAVLINK_MSG_ID_PARAM_SET:
-    {
-        //This is message definition 23
-        //Set a parameter value TEMPORARILY to RAM. It will be reset to default on system reboot. Send the ACTION MAV_ACTION_STORAGE_WRITE to PERMANENTLY write the RAM contents to EEPROM. IMPORTANT: The receiving component should acknowledge the new parameter value by sending a param_value message to all communication partners. This will also ensure that multiple GCS all have an up-to-date list of all parameters. If the sending GCS did not receive a PARAM_VALUE message within its timeout time, it should re-send the PARAM_SET message.
-        mavlink_param_set_t decodedMSG;
-        mavlink_msg_param_set_decode(message,&decodedMSG);
-        break;
-    }
+
     case MAVLINK_MSG_ID_GPS_RAW_INT:
     {
         //This is message definition 24
@@ -127,16 +87,6 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
     {
         //This is message definition 25
         //The positioning status, as reported by GPS. This message is intended to display status information about each satellite visible to the receiver. See message GLOBAL_POSITION for the global position estimate. This message can contain information for up to 20 satellites.
-        break;
-    }
-    case MAVLINK_MSG_ID_RAW_IMU:
-    {
-        //This is message definition 27
-        break;
-    }
-    case MAVLINK_MSG_ID_SCALED_PRESSURE:
-    {
-        //This is message definition 29
         break;
     }
     case MAVLINK_MSG_ID_ATTITUDE:
@@ -192,25 +142,9 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         }
         break;
     }
-
-    case MAVLINK_MSG_ID_RC_CHANNELS_RAW:
-    {
-        //This is message definition 35
-        break;
-    }
-    case MAVLINK_MSG_ID_SERVO_OUTPUT_RAW:
-    {
-        //This is message definition 36
-        break;
-    }
     case MAVLINK_MSG_ID_NAV_CONTROLLER_OUTPUT:
     {
         //This is message definition 62
-        break;
-    }
-    case MAVLINK_MSG_ID_RC_CHANNELS:
-    {
-        //This is message definition 65
         break;
     }
     case MAVLINK_MSG_ID_VFR_HUD:
@@ -227,19 +161,9 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         mavlink_msg_radio_status_decode(message,&decodedMSG);
         break;
     }
-    case MAVLINK_MSG_ID_SCALED_IMU2:
-    {
-        //This is message definition 116
-        break;
-    }
     case MAVLINK_MSG_ID_POWER_STATUS:
     {
         //This is message definition 125
-        break;
-    }
-    case MAVLINK_MSG_ID_TERRAIN_REPORT:
-    {
-        //This is message definition 136
         break;
     }
     case MAVLINK_MSG_ID_BATTERY_STATUS:
@@ -248,14 +172,6 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         //Battery information
         mavlink_battery_status_t decodedMSG;
         mavlink_msg_battery_status_decode(message,&decodedMSG);
-        break;
-    }
-    case MAVLINK_MSG_ID_VIBRATION:
-    {
-        //This is message definition 241
-        //Vibration levels and accelerometer clipping
-        mavlink_vibration_t decodedMSG;
-        mavlink_msg_vibration_decode(message,&decodedMSG);
         break;
     }
     case MAVLINK_MSG_ID_STATUSTEXT:
