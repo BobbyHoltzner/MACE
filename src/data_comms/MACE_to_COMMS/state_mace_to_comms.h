@@ -24,6 +24,8 @@ class State_MACETOCOMMS
 {
 public:
     static mavlink_message_t Attitude_MACETOCOMMS(const DataState::StateAttitude &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+    static mavlink_message_t AttitudeTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+
     static mavlink_message_t GlobalPosition_MACETOCOMMS(const DataState::StateGlobalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
     static mavlink_message_t LocalPosition_MACETOCOMMS(const DataState::StateLocalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
 };

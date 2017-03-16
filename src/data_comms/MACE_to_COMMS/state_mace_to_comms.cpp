@@ -2,6 +2,13 @@
 
 namespace DataCOMMS {
 
+mavlink_message_t State_MACETOCOMMS::AttitudeTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+{
+    DataState::StateAttitude newAttitude = *stateItem.get();
+    mavlink_message_t msg = Attitude_MACETOCOMMS(newAttitude,systemID,compID,chan);
+    return(msg);
+}
+
 mavlink_message_t State_MACETOCOMMS::Attitude_MACETOCOMMS(const DataState::StateAttitude &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     mavlink_message_t msg;
