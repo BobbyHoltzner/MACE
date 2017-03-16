@@ -8,4 +8,10 @@ DataGenericItem_Text::DataGenericItem_Text() :
 
 }
 
+DataGenericItem_Text::DataGenericItem_Text(const DataGenericItem_Text &copyObj)
+{
+    this->severity = copyObj.getSeverity();
+    this->dataString = copyObj.getText();
+}
+
 } //end of namespace DataGenericItem

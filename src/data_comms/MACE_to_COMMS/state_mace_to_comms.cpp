@@ -2,7 +2,7 @@
 
 namespace DataCOMMS {
 
-mavlink_message_t State_COMMSTOMAVLINK::Attitude_COMMSTOMAVLINK(const DataState::StateAttitude &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+mavlink_message_t State_MACETOCOMMS::Attitude_MACETOCOMMS(const DataState::StateAttitude &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     mavlink_message_t msg;
     mavlink_attitude_t attitude;
@@ -16,7 +16,7 @@ mavlink_message_t State_COMMSTOMAVLINK::Attitude_COMMSTOMAVLINK(const DataState:
     return(msg);
 }
 
-mavlink_message_t State_COMMSTOMAVLINK::GlobalPosition_COMMSTOMAVLINK(const DataState::StateGlobalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+mavlink_message_t State_MACETOCOMMS::GlobalPosition_MACETOCOMMS(const DataState::StateGlobalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     mavlink_message_t msg;
     mavlink_global_position_int_t position;
@@ -27,7 +27,7 @@ mavlink_message_t State_COMMSTOMAVLINK::GlobalPosition_COMMSTOMAVLINK(const Data
     return(msg);
 }
 
-mavlink_message_t State_COMMSTOMAVLINK::LocalPosition_COMMSTOMAVLINK(const DataState::StateLocalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+mavlink_message_t State_MACETOCOMMS::LocalPosition_MACETOCOMMS(const DataState::StateLocalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     mavlink_message_t msg;
     mavlink_local_position_ned_t position;

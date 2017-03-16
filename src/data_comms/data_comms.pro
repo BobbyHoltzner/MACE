@@ -23,23 +23,23 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += data_external_comms.cpp \
-    mavlink_parser.cpp \
-    vehicle_object_mavlink.cpp \
     COMMS_to_MACE/mission_comms_to_mace.cpp \
     MACE_to_COMMS/command_mace_to_comms.cpp \
     MACE_to_COMMS/generic_mace_to_comms.cpp \
     MACE_to_COMMS/mission_mace_to_comms.cpp \
-    MACE_to_COMMS/state_mace_to_comms.cpp
+    MACE_to_COMMS/state_mace_to_comms.cpp \
+    COMMS_to_MACE/state_comms_to_mace.cpp \
+    COMMS_to_MACE/generic_comms_to_mace.cpp
 
 HEADERS += data_external_comms.h\
         data_comms_global.h \
-    mavlink_parser.h \
-    vehicle_object_mavlink.h \
     COMMS_to_MACE/mission_comms_to_mace.h \
     MACE_to_COMMS/command_mace_to_comms.h \
     MACE_to_COMMS/generic_mace_to_comms.h \
     MACE_to_COMMS/mission_mace_to_comms.h \
-    MACE_to_COMMS/state_mace_to_comms.h
+    MACE_to_COMMS/state_mace_to_comms.h \
+    COMMS_to_MACE/state_comms_to_mace.h \
+    COMMS_to_MACE/generic_comms_to_mace.h
 
 # Unix lib Install
 unix:!symbian {
@@ -53,8 +53,31 @@ win32:CONFIG(release, debug|release):       lib.files   += release/data_comms.li
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/data_comms.lib debug/data_comms.dll
 INSTALLS += lib
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/common/
+#Header file copy
+headers.path    = $$(MACE_ROOT)/include/data_comms
+headers.files   += \
+    data_external_comms.h\
+    data_comms_global.h
+INSTALLS       += headers
 
+#Header file copy
+headers_COMMS_TO_MACE.path    = $$(MACE_ROOT)/include/data_comms/COMMS_TO_MACE
+headers_COMMS_TO_MACE.files   += \
+    COMMS_to_MACE/mission_comms_to_mace.h \
+    COMMS_to_MACE/state_comms_to_mace.h \
+    COMMS_to_MACE/generic_comms_to_mace.h
+INSTALLS       += headers_COMMS_TO_MACE
+
+#Header file copy
+headers_MACE_TO_COMMS.path    = $$(MACE_ROOT)/include/data_comms/MACE_TO_COMMS
+headers_MACE_TO_COMMS.files   += \
+    MACE_to_COMMS/command_mace_to_comms.h \
+    MACE_to_COMMS/generic_mace_to_comms.h \
+    MACE_to_COMMS/mission_mace_to_comms.h \
+    MACE_to_COMMS/state_mace_to_comms.h
+INSTALLS       += headers_MACE_TO_COMMS
+
+INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/common/
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon

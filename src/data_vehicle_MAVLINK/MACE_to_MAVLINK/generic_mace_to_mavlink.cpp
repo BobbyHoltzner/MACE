@@ -33,9 +33,45 @@ mavlink_message_t Generic_MACETOMAVLINK::Fuel_MACETOMAVLINK(DataGenericItem::Dat
 
 mavlink_message_t Generic_MACETOMAVLINK::GPS_MACETOMAVLINK(DataGenericItem::DataGenericItem_GPS GPSItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
 {
+
     mavlink_message_t msg;
-    mavlink_heartbeat_t heartbeat;
-    //mavlink_msg_sys_status_encode_chan(systemID,compID,chan,&msg,&sysStatus);
+    mavlink_gps_raw_int_t gpsRaw;
+    gpsRaw.satellites_visible = GPSItem.getSatVisible();
+    gpsRaw.eph = GPSItem.getHDOP();
+    gpsRaw.epv = GPSItem.getVDOP();
+
+    switch(GPSItem.getGPSFix())
+    {
+    case DataGenericItem::DataGenericItem_GPS::GPSFIX_2DFIX:
+        gpsRaw.fix_type = 2;
+        break;
+    case DataGenericItem::DataGenericItem_GPS::GPSFIX_3DFIX:
+        gpsRaw.fix_type = 3;
+        break;
+    case DataGenericItem::DataGenericItem_GPS::GPSFIX_DGPS:
+        gpsRaw.fix_type = 4;
+        break;
+    case DataGenericItem::DataGenericItem_GPS::GPSFIX_NOFIX:
+        gpsRaw.fix_type = 1;
+        break;
+    case DataGenericItem::DataGenericItem_GPS::GPSFIX_NOGPS:
+        gpsRaw.fix_type = 0;
+        break;
+    case DataGenericItem::DataGenericItem_GPS::GPSFIX_RTKFIXED:
+        gpsRaw.fix_type = 6;
+        break;
+    case DataGenericItem::DataGenericItem_GPS::GPSFIX_RTKFLOAT:
+        gpsRaw.fix_type = 5;
+        break;
+    case DataGenericItem::DataGenericItem_GPS::GPSFIX_STATIC:
+        gpsRaw.fix_type = 7;
+        break;
+    default:
+        gpsRaw.fix_type = 0;
+        break;
+    }
+
+    mavlink_msg_gps_raw_int_encode_chan(systemID,compID,chan,&msg,&gpsRaw);
     return(msg);
 }
 
@@ -43,7 +79,7 @@ mavlink_message_t Generic_MACETOMAVLINK::Text_MACETOMAVLINK(DataGenericItem::Dat
 {
     mavlink_message_t msg;
     mavlink_statustext_t statusText;
-    statusText.text = textItem.getText();
+    strcpy(statusText.text,textItem.getText().c_str());
 
     switch(textItem.getSeverity()){
     case DataGenericItem::DataGenericItem_Text::STATUS_ALERT:
@@ -76,7 +112,7 @@ mavlink_message_t Generic_MACETOMAVLINK::Text_MACETOMAVLINK(DataGenericItem::Dat
         break;
     }
 
-    mavlink_msg_statustext_encode_chan(systemID,compID,chan,&msg,&sysStatus);
+    mavlink_msg_statustext_encode_chan(systemID,compID,chan,&msg,&statusText);
     return(msg);
 }
 

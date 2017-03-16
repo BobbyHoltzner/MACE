@@ -20,14 +20,12 @@
 
 namespace DataCOMMS{
 
-class State_COMMSTOMAVLINK
+class State_MACETOCOMMS
 {
 public:
-    virtual mavlink_message_t Attitude_COMMSTOMAVLINK(const DataState::StateAttitude &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
-
-    virtual mavlink_message_t GlobalPosition_COMMSTOMAVLINK(const DataState::StateGlobalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
-
-    virtual mavlink_message_t LocalPosition_COMMSTOMAVLINK(const DataState::StateLocalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+    static mavlink_message_t Attitude_MACETOCOMMS(const DataState::StateAttitude &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+    static mavlink_message_t GlobalPosition_MACETOCOMMS(const DataState::StateGlobalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+    static mavlink_message_t LocalPosition_MACETOCOMMS(const DataState::StateLocalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
 };
 
 } //end of namespace DataCOMMS

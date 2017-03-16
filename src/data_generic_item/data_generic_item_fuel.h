@@ -8,24 +8,27 @@ class DataGenericItem_Fuel
 public:
     DataGenericItem_Fuel();
 
+    DataGenericItem_Fuel(const DataGenericItem_Fuel &copyObj);
+
+
     void setBatteryVoltage(const double &voltage){
         this->voltage = voltage;
     }
-    double getBatteryVoltage(){
+    double getBatteryVoltage() const{
         return voltage;
     }
 
     void setBatteryCurrent(const double &current){
         this->current = current;
     }
-    double getBatteryCurrent(){
+    double getBatteryCurrent() const{
         return current;
     }
 
     void setBatteryRemaining(const double &batteryRemaing){
         this->batteryRemaing = batteryRemaing;
     }
-    double getBatteryRemaining(){
+    double getBatteryRemaining() const{
         return batteryRemaing;
     }
 

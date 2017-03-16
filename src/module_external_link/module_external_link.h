@@ -6,6 +6,10 @@
 #include <mavlink.h>
 
 #include "common/common.h"
+
+#include "data_comms/data_external_comms.h"
+#include "data_comms/MACE_to_COMMS/state_mace_to_comms.h"
+
 #include "commsMAVLINK/comms_mavlink.h"
 
 #include "mace_core/i_module_topic_events.h"
@@ -26,8 +30,6 @@
 #include "data_generic_mission_item/mission_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
-#include "data_vehicle_MAVLINK/mace_to_mavlink.h"
-
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public MaceCore::IModuleCommandExternalLink,
         public CommsMAVLINK
@@ -36,6 +38,9 @@ class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
 public:
 
     ModuleExternalLink();
+
+    void ParseForData(const mavlink_message_t* message);
+
 
     //!
     //! \brief New Mavlink message received over a link

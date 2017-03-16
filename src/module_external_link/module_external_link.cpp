@@ -50,18 +50,8 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 //!
 void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
-    std::cout<<"The new packet was seen here"<<std::endl;
     UNUSED(linkName);
-    //This function will be receiving messages external to the specific MACE instance that is deploying this
-    switch ((int)message.msgid) {
-
-    case MAVLINK_MSG_ID_HEARTBEAT:
-    {
-        mavlink_heartbeat_t decodedMSG;
-        mavlink_msg_heartbeat_decode(&message,&decodedMSG);
-        break;
-    }
-    }
+    this->ParseForData(&message);
 }
 
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
@@ -83,9 +73,8 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_FlightMode::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                mavlink_message_t msg = DataMAVLINK::fromFlightModeItem(component,senderID,m_LinkChan,0);
-                m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-
+                //mavlink_message_t msg = DataMAVLINK::fromFlightModeItem(component,senderID,m_LinkChan,0);
+                //m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();

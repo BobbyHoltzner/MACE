@@ -8,4 +8,13 @@ DataGenericItem_FlightMode::DataGenericItem_FlightMode():
 
 }
 
+DataGenericItem_FlightMode::DataGenericItem_FlightMode(const DataGenericItem_FlightMode &copyObj)
+{
+    this->vehicleType = copyObj.getVehicleType();
+    this->autopilotType = copyObj.getAutopilotType();
+    this->flightModeString = copyObj.getFlightModeString();
+    this->flightModeInt = copyObj.getFlightModeInt();
+    this->vehicleArmed = copyObj.getVehicleArmed();
+}
+
 } //end of namespace DataGenericItem

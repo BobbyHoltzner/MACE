@@ -19,15 +19,14 @@
 
 namespace DataCOMMS{
 
-class Generic_COMMSTOMAVLINK
+class Generic_MACETOCOMMS
 {
 public:
 
-    virtual mavlink_message_t FlightMode_COMMSTOMAVLINK(std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> flightModeItem, const int &systemID, const uint8_t &chan, const uint8_t &compID);
-    virtual mavlink_message_t Fuel_COMMSTOMAVLINK(DataGenericItem::DataGenericItem_Fuel fuelItem, const int &systemID, const uint8_t &chan, const uint8_t &compID);
-    virtual mavlink_message_t GPS_COMMSTOMAVLINK(DataGenericItem::DataGenericItem_GPS GPSItem, const int &systemID, const uint8_t &chan, const uint8_t &compID);
-    virtual mavlink_message_t Text_COMMSTOMAVLINK(DataGenericItem::DataGenericItem_Text textItem, const int &systemID, const uint8_t &chan, const uint8_t &compID);
-
+    static mavlink_message_t FlightMode_MACETOCOMMS(DataGenericItem::DataGenericItem_FlightMode flightModeItem, const int &systemID, const uint8_t &chan, const uint8_t &compID);
+    static mavlink_message_t Fuel_MACETOCOMMS(DataGenericItem::DataGenericItem_Fuel fuelItem, const int &systemID, const uint8_t &chan, const uint8_t &compID);
+    static mavlink_message_t GPS_MACETOCOMMS(DataGenericItem::DataGenericItem_GPS GPSItem, const int &systemID, const uint8_t &chan, const uint8_t &compID);
+    static mavlink_message_t Text_MACETOCOMMS(DataGenericItem::DataGenericItem_Text textItem, const int &systemID, const uint8_t &chan, const uint8_t &compID);
 
 };
 

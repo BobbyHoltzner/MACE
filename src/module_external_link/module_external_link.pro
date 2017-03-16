@@ -14,7 +14,8 @@ DEFINES += MODULE_EXTERNAL_LINK_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-SOURCES += module_external_link.cpp
+SOURCES += module_external_link.cpp \
+    parse_comms_message.cpp
 
 HEADERS += module_external_link.h\
         module_external_link_global.h
@@ -88,8 +89,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_missio
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/debug/ -ldata_generic_mission_item_topic
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/ -ldata_generic_mission_item_topic
 
-
-
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_comms/release/ -ldata_comms
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_comms/debug/ -ldata_comms
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_comms/ -ldata_comms
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/release/ -ldata_vehicle_MAVLINK
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/debug/ -ldata_vehicle_MAVLINK
@@ -107,4 +109,3 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
-

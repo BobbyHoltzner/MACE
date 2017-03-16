@@ -22,19 +22,22 @@ public:
 public:
     DataGenericItem_Text();
 
+    DataGenericItem_Text(const DataGenericItem_Text &copyObj);
+
+
 public:
 
     void setText(const std::string &dataString){
         this->dataString = dataString;
     }
-    std::string getText(){
+    std::string getText() const{
         return dataString;
     }
 
     void setSeverity(const STATUS_SEVERITY &severity){
         this->severity = severity;
     }
-    STATUS_SEVERITY getSeverity(){
+    STATUS_SEVERITY getSeverity() const{
         return severity;
     }
 

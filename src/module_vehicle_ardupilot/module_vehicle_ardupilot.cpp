@@ -187,7 +187,7 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
     if(wasMissionMSG == false){
         //generate topic datagram from given mavlink message
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = tmpData->ParseForVehicleData(&message);
-        //procede to send components only if there is 1 or more
+        //proceed to send components only if there is 1 or more
         if(components.size() > 0)
         {
             //construct datagram

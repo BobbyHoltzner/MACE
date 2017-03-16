@@ -1,34 +1,27 @@
-#include "mavlink_parser.h"
+#include "module_external_link.h"
 
-namespace DataMAVLINK
-{
-std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::ParseForData(const mavlink_message_t* message, const std::shared_ptr<const MaceData>){
+void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
 
-    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
+    MaceCore::TopicDatagram topicDatagram;
+    int systemID = message->sysid;
 
     switch ((int)message->msgid) {
-
+    ////////////////////////////////////////////////////////////////////////////
+    /// GENERAL STATE EVENTS: These are events that may have a direct
+    ////////////////////////////////////////////////////////////////////////////
     case MAVLINK_MSG_ID_HEARTBEAT:
     {
-        //might want to figure out a way to handle the case of sending an
-        //empty heartbeat back just to acknowledge the aircraft is still there
-        //then again the streaming other messages may handle this...so maybe
-        //timer should be since last time heard.
         mavlink_heartbeat_t decodedMSG;
         mavlink_msg_heartbeat_decode(message,&decodedMSG);
-
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrParameters = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
+
+        m_VehicleDataTopic.SetComponent(ptrParameters, topicDatagram);
+        //notify listneres of topic
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
         //ptrParameters->setVehicleType(decodedMSG.type);
         //ptrParameters->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
-        rtnVector.push_back(ptrParameters);
-        m_CurrentVehicleState = ptrParameters;
-        //check that something has actually changed
-//            if(m_CurrentArduVehicleState == NULL || *ptrParameters != *m_CurrentArduVehicleState)
-//            {
-//                rtnVector.push_back(ptrParameters);
-//                m_CurrentArduVehicleState = ptrParameters;
-//            }
-        heartbeatSeen = true;
         break;
     }
     case MAVLINK_MSG_ID_SYS_STATUS:
@@ -36,15 +29,14 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         mavlink_sys_status_t decodedMSG;
         mavlink_msg_sys_status_decode(message,&decodedMSG);
 
-        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>();
-        ptrFuel->setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
-        ptrFuel->setBatteryCurrent(decodedMSG.current_battery/10000.0);
-        ptrFuel->setBatteryRemaining(decodedMSG.battery_remaining);
-        if(m_CurrentVehicleFuel == NULL || *ptrFuel != *m_CurrentVehicleFuel)
-        {
-            rtnVector.push_back(ptrFuel);
-            m_CurrentVehicleFuel = ptrFuel;
-        }
+//        DataGenericItem::DataGenericItem_Fuel newFuel = DataCOMMS::Generic_COMMSTOMACE::Fuel_MACETOCOMMS(decodedMSG,systemID);
+//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>(newFuel);
+
+//        m_VehicleDataTopic.SetComponent(ptrFuel, topicDatagram);
+//        //notify listneres of topic
+//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+//        });
         break;
     }
     case MAVLINK_MSG_ID_COMMAND_ACK:
@@ -95,14 +87,13 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mavlink_attitude_t decodedMSG;
         mavlink_msg_attitude_decode(message,&decodedMSG);
-        std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>();
-        ptrAttitude->setAttitude(decodedMSG.roll,decodedMSG.pitch,decodedMSG.yaw);
-        ptrAttitude->setAttitudeRates(decodedMSG.rollspeed,decodedMSG.pitchspeed,decodedMSG.yawspeed);
-
-        if(m_CurrentVehicleAttitude == NULL || *ptrAttitude != *m_CurrentVehicleAttitude)
-        {
-            rtnVector.push_back(ptrAttitude);
-        }
+        DataState::StateAttitude newAttitude = DataCOMMS::State_COMMSTOMACE::Attitude_MACETOCOMMS(decodedMSG,systemID);
+        std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(newAttitude);
+        m_VehicleDataTopic.SetComponent(ptrAttitude, topicDatagram);
+        //notify listneres of topic
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
         break;
     }
     case MAVLINK_MSG_ID_LOCAL_POSITION_NED:
@@ -111,17 +102,14 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mavlink_local_position_ned_t decodedMSG;
         mavlink_msg_local_position_ned_decode(message,&decodedMSG);
-        std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
-        ptrLocalPosition->x = decodedMSG.x;
-        ptrLocalPosition->y = decodedMSG.y;
-        ptrLocalPosition->z = decodedMSG.z;
+//        DataState::StateLocalPosition newPosition = DataCOMMS::State_COMMSTOMACE::LocalPosition_MACETOCOMMS(decodedMSG,systemID);
+//        std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(newPosition);
 
-        //check that something has actually changed
-        if(m_CurrentLocalPosition == NULL || *ptrLocalPosition != *m_CurrentLocalPosition)
-        {
-            rtnVector.push_back(ptrLocalPosition);
-            m_CurrentLocalPosition = ptrLocalPosition;
-        }
+//        m_VehicleDataTopic.SetComponent(ptrLocalPosition, topicDatagram);
+//        //notify listneres of topic
+//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+//        });
 
         break;
     }
@@ -131,15 +119,15 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         //The filtered global position (e.g. fused GPS and accelerometers). The position is in GPS-frame (right-handed, Z-up). It is designed as scaled integer message since the resolution of float is not sufficient.
         mavlink_global_position_int_t decodedMSG;
         mavlink_msg_global_position_int_decode(message,&decodedMSG);
-        double power = pow(10,7);
-        std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
-        ptrPosition->setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
-        //check that something has actually changed
-        if(m_CurrentGlobalPosition == NULL || *ptrPosition != *m_CurrentGlobalPosition)
-        {
-            rtnVector.push_back(ptrPosition);
-            m_CurrentGlobalPosition = ptrPosition;
-        }
+//        DataState::StateGlobalPosition newPosition = DataCOMMS::State_COMMSTOMACE::GlobalPosition_MACETOCOMMS(decodedMSG,systemID);
+//        std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>(newPosition);
+
+//        m_VehicleDataTopic.SetComponent(ptrPosition, topicDatagram);
+//        //notify listneres of topic
+//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+//        });
+
         break;
     }
     case MAVLINK_MSG_ID_NAV_CONTROLLER_OUTPUT:
@@ -180,61 +168,24 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         mavlink_statustext_t decodedMSG;
         mavlink_msg_statustext_decode(message,&decodedMSG);
         std::cout<<"The status text says: "<<decodedMSG.text<<std::endl;
-        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
-        ptrStatusText->setText(decodedMSG.text);
-        switch (decodedMSG.severity) {
-        case MAV_SEVERITY_EMERGENCY:
+//        DataGenericItem::DataGenericItem_Text newText = DataCOMMS::Generic_COMMSTOMACE::Text_MACETOCOMMS(decodedMSG,systemID);
+//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
 
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_EMERGENCY);
-            break;
-        case MAV_SEVERITY_ALERT:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_ALERT);
-            break;
-        case MAV_SEVERITY_CRITICAL:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_CRITICAL);
-            break;
-        case MAV_SEVERITY_ERROR:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_ERROR);
-            break;
-        case MAV_SEVERITY_WARNING:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_WARNING);
-            break;
-        case MAV_SEVERITY_NOTICE:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_NOTICE);
-            break;
-        case MAV_SEVERITY_INFO:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_INFO);
-            break;
-        case MAV_SEVERITY_DEBUG:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_DEBUG);
-            break;
-        default:
-            break;
-        }
-        //check that something has actually changed
-        if(m_CurrentVehicleText == NULL || *ptrStatusText != *m_CurrentVehicleText)
-        {
-            rtnVector.push_back(ptrStatusText);
-            m_CurrentVehicleText = ptrStatusText;
-        }
+//        m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
+//        //notify listneres of topic
+//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+//        });
    break;
     }
-
+    ////////////////////////////////////////////////////////////////////////////
+    /// MISSION BASED EVENTS:
+    ////////////////////////////////////////////////////////////////////////////
     default:
     {
         //std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
     }
 
     }//end of switch statement
-
-
-
-    if(rtnVector.empty())
-    {
-        return {};
-    }
-    return {rtnVector};
-
-}
 
 }
