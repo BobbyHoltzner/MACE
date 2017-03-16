@@ -29,14 +29,13 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         mavlink_sys_status_t decodedMSG;
         mavlink_msg_sys_status_decode(message,&decodedMSG);
 
-//        DataGenericItem::DataGenericItem_Fuel newFuel = DataCOMMS::Generic_COMMSTOMACE::Fuel_MACETOCOMMS(decodedMSG,systemID);
-//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>(newFuel);
+        DataGenericItem::DataGenericItem_Fuel newFuel = DataCOMMS::Generic_COMMSTOMACE::Fuel_MACETOCOMMS(decodedMSG,systemID);
+        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>(newFuel);
 
-//        m_VehicleDataTopic.SetComponent(ptrFuel, topicDatagram);
-//        //notify listneres of topic
-//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-//        });
+        m_VehicleDataTopic.SetComponent(ptrFuel, topicDatagram);
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
         break;
     }
     case MAVLINK_MSG_ID_COMMAND_ACK:
@@ -87,6 +86,12 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mavlink_attitude_t decodedMSG;
         mavlink_msg_attitude_decode(message,&decodedMSG);
+        std::chrono::time_point<std::chrono::system_clock> p2;
+        p2 = std::chrono::system_clock::now();
+        std::cout << "Since Last Attitude Message: "
+                  << std::chrono::duration_cast<std::chrono::milliseconds>(
+                       p2.time_since_epoch()).count()
+                  << '\n';
         DataState::StateAttitude newAttitude = DataCOMMS::State_COMMSTOMACE::Attitude_MACETOCOMMS(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(newAttitude);
         m_VehicleDataTopic.SetComponent(ptrAttitude, topicDatagram);

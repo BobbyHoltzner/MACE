@@ -20,6 +20,7 @@
 
 #include "topic.h"
 
+#include "data_generic_item/data_generic_item_components.h"
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_mission_item/mission_item_components.h"
 
@@ -661,19 +662,16 @@ private:
     mutable std::mutex m_VehicleHomeMutex;
     std::map<int, MissionItem::SpatialHome> m_VehicleHomeMap;
     std::map<int, Eigen::Vector3f> m_VehicleToGlobalTranslation;
-    bool flagGlobalOrigin;
     MissionItem::SpatialHome m_GlobalOrigin;
+    bool flagGlobalOrigin;
+
+    mutable std::mutex m_VehicleMissionMutex;
+    std::map<int, MissionItem::MissionList> m_VehicleMissionMap;
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;
-
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_AttitudeDynamicsHistory;
-
     std::map<std::string, ObservationHistory<TIME, VehicleLife> > m_VehicleLifeHistory;
-
-
     std::map<std::string, std::vector<Eigen::Vector3d> > m_VehicleTargetPositionList;
-
-
     std::map<std::string, std::vector<FullVehicleDynamics> > m_VehicleCommandDynamicsList;
 
 

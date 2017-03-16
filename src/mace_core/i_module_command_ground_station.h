@@ -1,7 +1,7 @@
 #ifndef I_GROUND_STATION_H
 #define I_GROUND_STATION_H
 
-#include "abstract_module_base_vehicle_listener.h"
+#include "abstract_module_event_listeners.h"
 #include "metadata_ground_station.h"
 
 #include "i_module_topic_events.h"
@@ -12,7 +12,6 @@ namespace MaceCore
 
 enum class GroundStationCommands
 {
-    BASE_MODULE_VEHICLE_LISTENER_ENUMS,
     NEW_AVAILABLE_VEHICLE
 };
 

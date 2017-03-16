@@ -2,9 +2,9 @@
 
 namespace DataCOMMS {
 
-mavlink_message_t State_MACETOCOMMS::AttitudeTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+mavlink_message_t State_MACETOCOMMS::AttitudeTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
-    DataState::StateAttitude newAttitude = *stateItem.get();
+    DataState::StateAttitude newAttitude = *topicItem.get();
     mavlink_message_t msg = Attitude_MACETOCOMMS(newAttitude,systemID,compID,chan);
     return(msg);
 }
@@ -23,6 +23,13 @@ mavlink_message_t State_MACETOCOMMS::Attitude_MACETOCOMMS(const DataState::State
     return(msg);
 }
 
+mavlink_message_t State_MACETOCOMMS::GlobalPositionTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+{
+    DataState::StateGlobalPosition newGlobalPosition = *topicItem.get();
+    mavlink_message_t msg = GlobalPosition_MACETOCOMMS(newGlobalPosition,systemID,compID,chan);
+    return(msg);
+}
+
 mavlink_message_t State_MACETOCOMMS::GlobalPosition_MACETOCOMMS(const DataState::StateGlobalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     mavlink_message_t msg;
@@ -31,6 +38,13 @@ mavlink_message_t State_MACETOCOMMS::GlobalPosition_MACETOCOMMS(const DataState:
     position.lon = (int32_t)stateItem.longitude * pow(10,7);
     position.alt = (int32_t)stateItem.altitude * 1000.0;
     mavlink_msg_global_position_int_encode_chan(systemID,compID,chan,&msg,&position);
+    return(msg);
+}
+
+mavlink_message_t State_MACETOCOMMS::LocalPositionTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+{
+    DataState::StateLocalPosition newLocalPosition = *topicItem.get();
+    mavlink_message_t msg = LocalPosition_MACETOCOMMS(newLocalPosition,systemID,compID,chan);
     return(msg);
 }
 

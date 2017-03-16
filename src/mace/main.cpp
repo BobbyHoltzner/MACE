@@ -36,8 +36,12 @@ int main(int argc, char *argv[])
     }else{
         filename = "MaceSetup2.xml";
     }
-    if(argc >= 2)
-        filename = argv[1];
+
+    if(argc >= 2){
+        std::string rootPath(MACEPath);
+        filename = rootPath + kPathSeparator + argv[1];
+        //filename = argv[1];
+    }
 
     std::cout << "Reading MACE configuration file from: " << filename << std::endl;
 

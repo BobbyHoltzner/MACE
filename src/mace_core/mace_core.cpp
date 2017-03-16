@@ -329,58 +329,6 @@ void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::Spa
 }
 
 
-/*
-void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const VehicleMessage &vehicleMessage)
-{
-    IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
-    int sendersID = 0;
-    bool rtnValue = m_DataFusion->HandleVehicleMessage(vehicleMessage,sendersID);
-    if(rtnValue == false && this->VehicleCheck(sendersID) == false){
-        counter = counter + 1;
-        vehicleModule->MarshalCommand(VehicleCommands::CREATE_VEHICLE_OBJECT, sendersID);
-    }else{
-        std::string tmpString = "NA";
-        //m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, tmpString);
-        //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, tmpString);
-    }
-}
-*/
-
-//void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
-//{
-//    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-//    std::string ID = m_VehiclePTRToID.at(vehicle);
-
-//    m_DataFusion->AddPositionDynamics(ID, time, pos, vel);
-
-//    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, ID);
-//    //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, ID);
-//}
-
-
-//void MaceCore::NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate)
-//{
-//    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-//    std::string ID = m_VehiclePTRToID.at(vehicle);
-
-//    m_DataFusion->AddAttitudeDynamics(ID, time, attitude, attitudeRate);
-
-//    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
-//    //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
-//}
-
-
-//void MaceCore::NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &life)
-//{
-//    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-//    std::string ID = m_VehiclePTRToID.at(vehicle);
-
-//    m_DataFusion->AddVehicleLife(ID, time, life);
-
-//    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_VEHICLE_LIFE, ID);
-//    //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_VEHICLE_LIFE, ID);
-//}
-
 
 /////////////////////////////////////////////////////////////////////////
 /// RTA EVENTS

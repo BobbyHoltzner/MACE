@@ -140,7 +140,8 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
     case MAVLINK_MSG_ID_MISSION_COUNT:
     {
         //This is message definition 44
-        //This message is emitted as response to MISSION_REQUEST_LIST by the MAV and to initiate a write transaction. The GCS can then request the individual mission item based on the knowledge of the total number of MISSIONs.
+        //This message is emitted as response to MISSION_REQUEST_LIST by the MAV and to initiate a write transaction.
+        //The GCS can then request the individual mission item based on the knowledge of the total number of MISSIONs.
         mavlink_mission_count_t decodedMSG;
         mavlink_msg_mission_count_decode(message,&decodedMSG);
         std::cout<<"The mission count is: "<<decodedMSG.count<<std::endl;
@@ -169,7 +170,8 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
     case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
     {
         //This is message definition 46
-        //A certain mission item has been reached. The system will either hold this position (or circle on the orbit) or (if the autocontinue on the WP was set) continue to the next MISSION.
+        //A certain mission item has been reached. The system will either hold this position (or circle on the orbit) or
+        //(if the autocontinue on the WP was set) continue to the next MISSION.
         mavlink_mission_item_reached_t decodedMSG;
         mavlink_msg_mission_item_reached_decode(message,&decodedMSG);
 
@@ -196,7 +198,12 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
     case MAVLINK_MSG_ID_HOME_POSITION:
     {
         //This is message definition 242
-        //This message can be requested by sending the MAV_CMD_GET_HOME_POSITION command. The position the system will return to and land on. The position is set automatically by the system during the takeoff in case it was not explicitely set by the operator before or after. The position the system will return to and land on. The global and local positions encode the position in the respective coordinate frames, while the q parameter encodes the orientation of the surface. Under normal conditions it describes the heading and terrain slope, which can be used by the aircraft to adjust the approach. The approach 3D vector describes the point to which the system should fly in normal flight mode and then perform a landing sequence along the vector.
+        //This message can be requested by sending the MAV_CMD_GET_HOME_POSITION command. The position the system will return to and land on.
+        //The position is set automatically by the system during the takeoff in case it was not explicitely set by the operator before or after.
+        //The position the system will return to and land on. The global and local positions encode the position in the respective coordinate frames,
+        //while the q parameter encodes the orientation of the surface. Under normal conditions it describes the heading and terrain slope, which can
+        //be used by the aircraft to adjust the approach. The approach 3D vector describes the point to which the system should fly in normal flight
+        //mode and then perform a landing sequence along the vector.
         mavlink_home_position_t decodedMSG;
         mavlink_msg_home_position_decode(message,&decodedMSG);
 

@@ -7,6 +7,8 @@
 #include "abstract_module_event_listeners.h"
 #include "metadata_ground_station.h"
 
+#include "i_module_command_vehicle.h"
+
 #include "i_module_topic_events.h"
 #include "i_module_events_sensors.h"
 
