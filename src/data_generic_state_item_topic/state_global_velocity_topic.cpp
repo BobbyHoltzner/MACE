@@ -32,5 +32,17 @@ void StateGlobalVelocityTopic::CreateFromDatagram(const MaceCore::TopicDatagram 
     heading = datagram.GetTerminal<double>("heading");
 }
 
+StateGlobalVelocityTopic::StateGlobalVelocityTopic()
+    :DataState::StateGlobalVelocity()
+{
+
+}
+
+StateGlobalVelocityTopic::StateGlobalVelocityTopic(const DataState::StateGlobalVelocity &copyObj):
+    DataState::StateGlobalVelocity(copyObj)
+{
+
+}
+
 } //end of namespace DataStateTopic
 

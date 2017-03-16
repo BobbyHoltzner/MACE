@@ -34,4 +34,16 @@ void StateLocalPositionTopic::CreateFromDatagram(const MaceCore::TopicDatagram &
     z = datagram.GetTerminal<double>("z");
 }
 
+StateLocalPositionTopic::StateLocalPositionTopic()
+    :DataState::StateLocalPosition()
+{
+
+}
+
+StateLocalPositionTopic::StateLocalPositionTopic(const DataState::StateLocalPosition &copyObj):
+    DataState::StateLocalPosition(copyObj)
+{
+
+}
+
 } //end of namespace DataStateTopic

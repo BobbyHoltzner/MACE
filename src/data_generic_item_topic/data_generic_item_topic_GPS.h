@@ -16,6 +16,9 @@ public:
 
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
+    DataGenericItemTopic_GPS();
+    DataGenericItemTopic_GPS(const DataGenericItem::DataGenericItem_GPS &copyObj);
+
 };
 
 } //end of namespace DataGenericItemTopic

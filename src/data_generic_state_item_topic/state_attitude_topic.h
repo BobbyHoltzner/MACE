@@ -17,7 +17,7 @@ public:
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
     StateAttitudeTopic();
-    StateAttitudeTopic(const StateAttitude &copyObj);
+    StateAttitudeTopic(const DataState::StateAttitude &copyObj);
 };
 
 } //end of namespace DataStateTopic

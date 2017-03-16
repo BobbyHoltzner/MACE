@@ -36,13 +36,13 @@ void StateAttitudeTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datag
 }
 
 StateAttitudeTopic::StateAttitudeTopic()
-    :StateAttitude()
+    :DataState::StateAttitude()
 {
 
 }
 
-StateAttitudeTopic::StateAttitudeTopic(const StateAttitude &copyObj):
-    StateAttitude(copyObj)
+StateAttitudeTopic::StateAttitudeTopic(const DataState::StateAttitude &copyObj):
+    DataState::StateAttitude(copyObj)
 {
 
 }

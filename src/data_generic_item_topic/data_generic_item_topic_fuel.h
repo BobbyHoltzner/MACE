@@ -15,6 +15,9 @@ public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
 
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
+
+    DataGenericItemTopic_Fuel();
+    DataGenericItemTopic_Fuel(const DataGenericItem::DataGenericItem_Fuel &copyObj);
 };
 
 } //end of namespace DataGenericItemTopic

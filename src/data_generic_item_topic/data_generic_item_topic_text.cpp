@@ -22,4 +22,16 @@ void DataGenericItemTopic_Text::CreateFromDatagram(const MaceCore::TopicDatagram
     dataString = datagram.GetTerminal<std::string>("text");
 }
 
+DataGenericItemTopic_Text::DataGenericItemTopic_Text()
+    :DataGenericItem::DataGenericItem_Text()
+{
+
+}
+
+DataGenericItemTopic_Text::DataGenericItemTopic_Text(const DataGenericItem::DataGenericItem_Text &copyObj):
+    DataGenericItem::DataGenericItem_Text(copyObj)
+{
+
+}
+
 } //end of namespace DataGenericItemTopic

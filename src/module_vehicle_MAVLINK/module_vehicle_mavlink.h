@@ -62,7 +62,7 @@ public:
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ModuleVehicleMAVLINK() :
-        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataVehicleMAVLINK::GPSStatus>(),
+        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataMAVLINK::GPSStatus>(),
         m_LinkMarshaler(new Comms::CommsMarshaler), m_LinkName(""), m_LinkChan(0)
     {
         m_LinkMarshaler->AddSubscriber(this);
@@ -360,7 +360,7 @@ protected:
 private:
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
 
-    DataVehicleMAVLINK::MAVLINKParser m_MAVLINKParser;
+    DataMAVLINK::MAVLINKParser m_MAVLINKParser;
 
 };
 

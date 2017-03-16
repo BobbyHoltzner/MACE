@@ -12,11 +12,5 @@
 #include "MACE_to_COMMS/mission_mace_to_comms.h"
 #include "MACE_to_COMMS/state_mace_to_comms.h"
 
-class DATA_COMMSSHARED_EXPORT DataExternalComms
-{
-
-public:
-    DataExternalComms();
-};
 
 #endif // DATA_EXTERNAL_COMMS_H

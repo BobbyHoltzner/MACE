@@ -1,6 +1,6 @@
 #include "gps_status.h"
 
-namespace DataVehicleMAVLINK
+namespace DataMAVLINK
 {
 
 const char GPSStatus_name[] = "global_position";

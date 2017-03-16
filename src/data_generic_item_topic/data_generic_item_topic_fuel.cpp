@@ -25,4 +25,16 @@ void DataGenericItemTopic_Fuel::CreateFromDatagram(const MaceCore::TopicDatagram
     batteryRemaing = datagram.GetTerminal<double>("remaining");
 }
 
+DataGenericItemTopic_Fuel::DataGenericItemTopic_Fuel()
+    :DataGenericItem::DataGenericItem_Fuel()
+{
+
+}
+
+DataGenericItemTopic_Fuel::DataGenericItemTopic_Fuel(const DataGenericItem::DataGenericItem_Fuel &copyObj):
+    DataGenericItem::DataGenericItem_Fuel(copyObj)
+{
+
+}
+
 } //end of namespace DataGenericItemTopic
