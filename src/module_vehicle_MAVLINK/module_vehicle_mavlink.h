@@ -166,7 +166,7 @@ public:
             config.setParity(parity);
             config.setFlowControl(flowControl);
 
-            m_LinkName = "link1";
+            m_LinkName = "link_" + portName;
             m_LinkMarshaler->AddLink(m_LinkName, config);
 
 
