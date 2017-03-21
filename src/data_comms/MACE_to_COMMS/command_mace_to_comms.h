@@ -19,19 +19,21 @@
 
 namespace DataCOMMS{
 
-class Command_MACETOMAVLINK
+class Command_MACETOCOMMS
 {
 public:
-    Command_MACETOMAVLINK();
+    Command_MACETOCOMMS();
 
-    mavlink_message_t generateGetHomeMessage(const int &vehicleID, const int &chan);
-    mavlink_message_t generateArmMessage(const MissionItem::ActionArm &actionArmItem, const uint8_t &chan);
-    mavlink_message_t generateTakeoffMessage(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan);
+    static mavlink_message_t generateGetHomeMessage(const int &vehicleID, const int &chan);
+    static mavlink_message_t generateSetHomePosition(const MissionItem::SpatialHome &vehicleHome, const int &chan);
+
+    static mavlink_message_t generateArmMessage(const MissionItem::ActionArm &actionArmItem, const uint8_t &chan);
+    static mavlink_message_t generateTakeoffMessage(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan);
 
 
 private:
-    mavlink_command_long_t initializeCommandLong();
-    mavlink_message_t packLongMessage(const mavlink_command_long_t &cmdLong, const uint8_t &chan);
+    static mavlink_command_long_t initializeCommandLong();
+    static mavlink_message_t packLongMessage(const mavlink_command_long_t &cmdLong, const uint8_t &chan);
 
 
 };

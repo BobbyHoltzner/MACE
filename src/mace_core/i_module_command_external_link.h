@@ -5,6 +5,8 @@
 #include <map>
 
 #include "abstract_module_event_listeners.h"
+#include "abstract_module_base_vehicle_listener.h"
+
 #include "metadata_ground_station.h"
 
 #include "i_module_command_vehicle.h"
@@ -17,10 +19,10 @@ namespace MaceCore
 
 enum class ExternalLinkCommands
 {
-    NEW_AVAILABLE_VEHICLE
+    BASE_MODULE_VEHICLE_LISTENER_ENUMS
 };
 
-class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_EventListeners<Metadata_GroundStation, IModuleEventsSensors, ExternalLinkCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_VehicleListener<Metadata_GroundStation, IModuleEventsVehicle, ExternalLinkCommands>
 {
     friend class MaceCore;
 public:
@@ -28,11 +30,9 @@ public:
     static Classes moduleClass;
 
     IModuleCommandExternalLink():
-        AbstractModule_EventListeners()
+        AbstractModule_VehicleListener()
     {
-        AddCommandLogic<int>(ExternalLinkCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID){
-            NewlyAvailableVehicle(vehicleID);
-        });
+
     }
 
     virtual Classes ModuleClass() const
@@ -41,7 +41,6 @@ public:
     }
 
 public:
-    virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
 };
 

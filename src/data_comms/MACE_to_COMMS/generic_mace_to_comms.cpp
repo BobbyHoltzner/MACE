@@ -2,7 +2,13 @@
 
 namespace DataCOMMS {
 
-mavlink_message_t Generic_MACETOCOMMS::FlightMode_MACETOCOMMS(DataGenericItem::DataGenericItem_FlightMode flightModeItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
+mavlink_message_t Generic_MACETOCOMMS::FlightModeTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+{
+    DataGenericItem::DataGenericItem_FlightMode newFlightMode = *topicItem.get();
+    mavlink_message_t msg = FlightMode_MACETOCOMMS(newFlightMode,systemID,compID,chan);
+    return(msg);
+}
+mavlink_message_t Generic_MACETOCOMMS::FlightMode_MACETOCOMMS(DataGenericItem::DataGenericItem_FlightMode flightModeItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
      mavlink_message_t msg;
      mavlink_heartbeat_t heartbeat;
@@ -20,6 +26,12 @@ mavlink_message_t Generic_MACETOCOMMS::FlightMode_MACETOCOMMS(DataGenericItem::D
      return(msg);
 }
 
+mavlink_message_t Generic_MACETOCOMMS::FuelTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+{
+    DataGenericItem::DataGenericItem_Fuel newFuel = *topicItem.get();
+    mavlink_message_t msg = Fuel_MACETOCOMMS(newFuel,systemID,compID,chan);
+    return(msg);
+}
 mavlink_message_t Generic_MACETOCOMMS::Fuel_MACETOCOMMS(DataGenericItem::DataGenericItem_Fuel fuelItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
 {
     mavlink_message_t msg;
@@ -31,6 +43,12 @@ mavlink_message_t Generic_MACETOCOMMS::Fuel_MACETOCOMMS(DataGenericItem::DataGen
     return(msg);
 }
 
+mavlink_message_t Generic_MACETOCOMMS::GPSTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+{
+    DataGenericItem::DataGenericItem_GPS newGPS = *topicItem.get();
+    mavlink_message_t msg = GPS_MACETOCOMMS(newGPS,systemID,compID,chan);
+    return(msg);
+}
 mavlink_message_t Generic_MACETOCOMMS::GPS_MACETOCOMMS(DataGenericItem::DataGenericItem_GPS GPSItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
 {
     mavlink_message_t msg;
@@ -73,6 +91,12 @@ mavlink_message_t Generic_MACETOCOMMS::GPS_MACETOCOMMS(DataGenericItem::DataGene
     return(msg);
 }
 
+mavlink_message_t Generic_MACETOCOMMS::TextTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+{
+    DataGenericItem::DataGenericItem_Text newText = *topicItem.get();
+    mavlink_message_t msg = Text_MACETOCOMMS(newText,systemID,compID,chan);
+    return(msg);
+}
 mavlink_message_t Generic_MACETOCOMMS::Text_MACETOCOMMS(DataGenericItem::DataGenericItem_Text textItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
 {
     mavlink_message_t msg;

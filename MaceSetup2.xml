@@ -14,4 +14,6 @@
       <Parameter Name="FlowControl">1</Parameter>
     </Parameter>
   </Module>
+  <Module Class="GroundStation" Type="NASAPhase2" />
+
 </ModuleConfigurations>

@@ -1,9 +1,10 @@
 #include "module_external_link.h"
 
 void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
-
     MaceCore::TopicDatagram topicDatagram;
     int systemID = message->sysid;
+    int compID = message->compid;
+    int sequence = message->seq;
 
     switch ((int)message->msgid) {
     ////////////////////////////////////////////////////////////////////////////
@@ -13,13 +14,23 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
     {
         mavlink_heartbeat_t decodedMSG;
         mavlink_msg_heartbeat_decode(message,&decodedMSG);
-        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrParameters = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
+        if(systemIDMap.find(systemID) == systemIDMap.end())
+        {
+            //The system has yet to have communicated through this module
+            //We therefore have to notify the core that there is a new vehicle
+            std::cout<<"I have not located it in the map and therefore will add it to the map"<<std::endl;
 
-        m_VehicleDataTopic.SetComponent(ptrParameters, topicDatagram);
-        //notify listneres of topic
-        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-        });
+            systemIDMap.insert({systemID,0});
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+                ptr->NewConstructedVehicle(this, systemID);
+            });
+        }
+//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrParameters = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
+//        m_VehicleDataTopic.SetComponent(ptrParameters, topicDatagram);
+//        //notify listneres of topic
+//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+//        });
         //ptrParameters->setVehicleType(decodedMSG.type);
         //ptrParameters->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
         break;
@@ -31,7 +42,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
 
         DataGenericItem::DataGenericItem_Fuel newFuel = DataCOMMS::Generic_COMMSTOMACE::Fuel_MACETOCOMMS(decodedMSG,systemID);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>(newFuel);
-
+        associatedSystemID = systemID;
         m_VehicleDataTopic.SetComponent(ptrFuel, topicDatagram);
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
@@ -86,12 +97,6 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mavlink_attitude_t decodedMSG;
         mavlink_msg_attitude_decode(message,&decodedMSG);
-        std::chrono::time_point<std::chrono::system_clock> p2;
-        p2 = std::chrono::system_clock::now();
-        std::cout << "Since Last Attitude Message: "
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(
-                       p2.time_since_epoch()).count()
-                  << '\n';
         DataState::StateAttitude newAttitude = DataCOMMS::State_COMMSTOMACE::Attitude_MACETOCOMMS(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(newAttitude);
         m_VehicleDataTopic.SetComponent(ptrAttitude, topicDatagram);
@@ -146,6 +151,13 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //Metrics typically displayed on a HUD for fixed wing aircraft
         break;
     }
+    case MAVLINK_MSG_ID_COMMAND_LONG:
+    {
+        mavlink_command_long_t decodedMSG;
+        mavlink_msg_command_long_decode(message,&decodedMSG);
+        this->ParseCommsCommand(&decodedMSG);
+        break;
+    }
     case MAVLINK_MSG_ID_RADIO_STATUS:
     {
         //This is message definition 109
@@ -186,6 +198,72 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
     ////////////////////////////////////////////////////////////////////////////
     /// MISSION BASED EVENTS:
     ////////////////////////////////////////////////////////////////////////////
+    case MAVLINK_MSG_ID_MISSION_ITEM:
+    {
+        //This is message definition 39
+        //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
+        std::cout<<"I have seen a mission item"<<std::endl;
+        mavlink_mission_item_t decodedMSG;
+        mavlink_msg_mission_item_decode(message,&decodedMSG);
+        break;
+    }
+    case MAVLINK_MSG_ID_MISSION_REQUEST:
+    {
+        //This is message definition 40
+        //Request the information of the mission item with the sequence number seq.
+        //The response of the system to this message should be a MISSION_ITEM message.
+        mavlink_mission_request_t decodedMSG;
+        mavlink_msg_mission_request_decode(message,&decodedMSG);
+        std::cout<<"I am making a request"<<std::endl;
+        std::cout<<"The system target was:"<<decodedMSG.target_system<<std::endl;
+        std::cout<<"The system that sent it was:"<<systemID<<std::endl;
+        std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = m_VehicleCurrentMissionMap.at(1).getMissionItem(0);
+        mavlink_message_t msg;
+        mavlink_mission_item_t item;
+        mavlink_msg_mission_item_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&item);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
+        break;
+    }
+    case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:
+    {
+        std::cout<<"I saw a mission request list"<<std::endl;
+        std::cout<<"The system I saw the request from was: "<<systemID<<std::endl;
+        std::cout<<"My systemID is: "<<associatedSystemID<<std::endl;
+        //This is message definition 43
+        //External item has requested the overall list of mission items from the system/component.
+        mavlink_mission_request_list_t decodedMSG;
+        mavlink_msg_mission_request_list_decode(message,&decodedMSG);
+        //Now we have to respond with the mission count
+        int itemsAvailable = m_VehicleCurrentMissionMap.at(1).getQueueSize();
+        mavlink_mission_count_t missionCount;
+        missionCount.target_system = systemID;
+        missionCount.target_component = compID;
+        missionCount.count = itemsAvailable;
+
+        mavlink_message_t msg;
+        mavlink_msg_mission_count_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionCount);
+        std::cout<<"The counter for this message is: "<<(int)msg.seq<<std::endl;
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        break;
+    }
+
+    case MAVLINK_MSG_ID_MISSION_COUNT:
+    {
+        //This is message definition 44
+        //This message is emitted as response to MISSION_REQUEST_LIST by the MAV and to initiate a write transaction.
+        //The GCS can then request the individual mission item based on the knowledge of the total number of MISSION
+        mavlink_mission_count_t decodedMSG;
+        mavlink_msg_mission_count_decode(message,&decodedMSG);
+        std::cout<<"I saw a mission count message"<<decodedMSG.count<<std::endl;
+        std::cout<<"The counter is: "<<sequence<<std::endl;
+        std::cout<<"The message is from: "<<systemID<<std::endl;
+//        mavlink_message_t msg;
+//        mavlink_msg_mission_request_pack_chan(associatedSystemID,0,m_LinkChan,&msg,decodedMSG.target_system,0,0);
+//        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        break;
+    }
+
     default:
     {
         //std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;

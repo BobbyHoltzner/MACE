@@ -42,6 +42,7 @@ public:
 
     void ParseForData(const mavlink_message_t* message);
 
+    void ParseCommsCommand(const mavlink_command_long_t* message);
 
     //!
     //! \brief New Mavlink message received over a link
@@ -77,17 +78,121 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
-
+    ///////////////////////////////////////////////////////////////////////////////////////
+    /// The following are public virtual functions imposed from IModuleCommandExternalLink.
+    ///////////////////////////////////////////////////////////////////////////////////////
 
 public:
-    //! Virtual functions as defined by IModuleExternalLink
+    ////////////////////////////////////////////////////////////////////////////
+    /// GENERAL VEHICLE COMMAND EVENTS: These are events that may have a direct
+    /// command and action sequence that accompanies the vheicle. Expect an
+    /// acknowledgement or an event to take place when calling these items.
+    ////////////////////////////////////////////////////////////////////////////
 
-    virtual void NewlyAvailableVehicle(const int &vehicleID);
+    //!
+    //! \brief ChangeVehicleArm
+    //! \param vehicleArm
+    //!
+    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
+
+    //!
+    //! \brief ChangeVehicleOperationalMode
+    //! \param vehicleMode
+    //!
+    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
+
+    //!
+    //! \brief RequestVehicleTakeoff
+    //! \param vehicleTakeoff
+    //!
+    virtual void RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+
+
+    /////////////////////////////////////////////////////////////////////////
+    /// GENERAL MISSION EVENTS: This is implying for auto mode of the vehicle.
+    /// This functionality may be pertinent for vehicles not containing a
+    /// direct MACE hardware module.
+    /////////////////////////////////////////////////////////////////////////
+
+    //!
+    //! \brief SetCurrentMissionQueue
+    //! \param missionList
+    //!
+    virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList);
+
+    //!
+    //! \brief RequestCurrentMissionQueue
+    //! \param vehicleID
+    //!
+    virtual void RequestCurrentMissionQueue (const int &vehicleID);
+
+    //!
+    //! \brief RequestClearMissionQueue
+    //! \param vehicleID
+    //!
+    virtual void RequestClearMissionQueue (const int &vehicleID);
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// GENERAL GUIDED EVENTS: This is implying for guided mode of the vehicle.
+    /// This functionality is pertinent for vehicles that may contain a
+    /// MACE HW module, or, vehicles that have timely or ever updating changes.
+    ////////////////////////////////////////////////////////////////////////////
+
+    //!
+    //! \brief SetCurrentGuidedQueue
+    //! \param missionList
+    //!
+    virtual void SetCurrentGuidedQueue(const MissionItem::MissionList &missionList);
+
+    //!
+    //! \brief RequestCurrentGuidedQueue
+    //! \param vehicleID
+    //!
+    virtual void RequestCurrentGuidedQueue (const int &vehicleID);
+
+    //!
+    //! \brief RequestClearGuidedQueue
+    //! \param vehicleID
+    //!
+    virtual void RequestClearGuidedQueue (const int &vehicleID);
+
+
+    /////////////////////////////////////////////////////////////////////////////
+    /// GENERAL HOME EVENTS: These events are related to establishing or setting
+    /// a home position. It should be recognized that the first mission item in a
+    /// mission queue should prepend this position. Just the way ardupilot works.
+    /////////////////////////////////////////////////////////////////////////////
+
+    //!
+    //! \brief RequestVehicleHomePosition
+    //! \param vehicleID
+    //!
+    virtual void RequestVehicleHomePosition (const int &vehicleID);
+
+    //!
+    //! \brief SetVehicleHomePosition
+    //! \param vehicleHome
+    //!
+    virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
 private:
+    //!
+    //! \brief associatedSystemID This is the identifier that is transmitting the data as a representative of.
+    //! In the case of an airborne instance it will be assigned to the value of the heartbeat message recieved
+    //! over the internal mace network. Thus, outbound transmissions will be relevant to the request of the
+    //! system to which to it attached. It will be defaulted to match the GCS ID.
+    //!
+    int associatedSystemID;
+
+
+    std::map<int,int> systemIDMap;
+
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 
+    std::map<int, MissionItem::MissionList> m_VehicleCurrentMissionMap;
+    std::map<int, MissionItem::MissionList> m_VehicleProposedMissionMap;
 };
 
 #endif // MODULE_EXTERNAL_LINK_H

@@ -666,7 +666,9 @@ private:
     bool flagGlobalOrigin;
 
     mutable std::mutex m_VehicleMissionMutex;
-    std::map<int, MissionItem::MissionList> m_VehicleMissionMap;
+    std::map<int, MissionItem::MissionList> m_VehicleCurrentMissionMap;
+    std::map<int, MissionItem::MissionList> m_VehicleProposedMissionMap;
+
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_AttitudeDynamicsHistory;

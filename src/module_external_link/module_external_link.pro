@@ -15,7 +15,8 @@ DEFINES += MODULE_EXTERNAL_LINK_LIBRARY
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += module_external_link.cpp \
-    parse_comms_message.cpp
+    parse_comms_message.cpp \
+    parse_comms_command.cpp
 
 HEADERS += module_external_link.h\
         module_external_link_global.h

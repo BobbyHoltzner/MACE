@@ -1,12 +1,12 @@
 #include "command_mace_to_comms.h"
 namespace DataCOMMS{
 
-Command_MACETOMAVLINK::Command_MACETOMAVLINK()
+Command_MACETOCOMMS::Command_MACETOCOMMS()
 {
 
 }
 
-mavlink_command_long_t Command_MACETOMAVLINK::initializeCommandLong()
+mavlink_command_long_t Command_MACETOCOMMS::initializeCommandLong()
 {
     mavlink_command_long_t cmdLong;
     cmdLong.command = 0;
@@ -23,7 +23,7 @@ mavlink_command_long_t Command_MACETOMAVLINK::initializeCommandLong()
     return cmdLong;
 }
 
-mavlink_message_t Command_MACETOMAVLINK::packLongMessage(const mavlink_command_long_t &cmdLong, const uint8_t &chan)
+mavlink_message_t Command_MACETOCOMMS::packLongMessage(const mavlink_command_long_t &cmdLong, const uint8_t &chan)
 {
     mavlink_message_t msg;
     mavlink_command_long_t tmpItem = cmdLong;
@@ -31,7 +31,7 @@ mavlink_message_t Command_MACETOMAVLINK::packLongMessage(const mavlink_command_l
     return msg;
 }
 
-mavlink_message_t Command_MACETOMAVLINK::generateGetHomeMessage(const int &vehicleID, const int &chan)
+mavlink_message_t Command_MACETOCOMMS::generateGetHomeMessage(const int &vehicleID, const int &chan)
 {
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_GET_HOME_POSITION;
@@ -40,7 +40,18 @@ mavlink_message_t Command_MACETOMAVLINK::generateGetHomeMessage(const int &vehic
     return msg;
 }
 
-mavlink_message_t Command_MACETOMAVLINK::generateArmMessage(const MissionItem::ActionArm &actionArmItem, const uint8_t &chan)
+mavlink_message_t Command_MACETOCOMMS::generateSetHomePosition(const MissionItem::SpatialHome &vehicleHome, const int &chan)
+{
+    mavlink_message_t msg;
+    mavlink_set_home_position_t cmd;
+    cmd.latitude = vehicleHome.position.latitude * pow(10,7);
+    cmd.longitude = vehicleHome.position.longitude * pow(10,7);
+    cmd.altitude = vehicleHome.position.altitude * 1000;
+    mavlink_msg_set_home_position_encode_chan(255,190,chan,&msg,&cmd);
+    return msg;
+}
+
+mavlink_message_t Command_MACETOCOMMS::generateArmMessage(const MissionItem::ActionArm &actionArmItem, const uint8_t &chan)
 {
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_COMPONENT_ARM_DISARM;
@@ -50,7 +61,7 @@ mavlink_message_t Command_MACETOMAVLINK::generateArmMessage(const MissionItem::A
     return msg;
 }
 
-mavlink_message_t Command_MACETOMAVLINK::generateTakeoffMessage(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan)
+mavlink_message_t Command_MACETOCOMMS::generateTakeoffMessage(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan)
 {
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_NAV_TAKEOFF;

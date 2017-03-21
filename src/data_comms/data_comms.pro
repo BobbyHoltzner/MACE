@@ -29,7 +29,8 @@ SOURCES += data_external_comms.cpp \
     MACE_to_COMMS/mission_mace_to_comms.cpp \
     MACE_to_COMMS/state_mace_to_comms.cpp \
     COMMS_to_MACE/state_comms_to_mace.cpp \
-    COMMS_to_MACE/generic_comms_to_mace.cpp
+    COMMS_to_MACE/generic_comms_to_mace.cpp \
+    COMMS_to_MACE/command_comms_to_mace.cpp
 
 HEADERS += data_external_comms.h\
         data_comms_global.h \
@@ -39,7 +40,8 @@ HEADERS += data_external_comms.h\
     MACE_to_COMMS/mission_mace_to_comms.h \
     MACE_to_COMMS/state_mace_to_comms.h \
     COMMS_to_MACE/state_comms_to_mace.h \
-    COMMS_to_MACE/generic_comms_to_mace.h
+    COMMS_to_MACE/generic_comms_to_mace.h \
+    COMMS_to_MACE/command_comms_to_mace.h
 
 # Unix lib Install
 unix:!symbian {
@@ -65,7 +67,8 @@ headers_COMMS_TO_MACE.path    = $$(MACE_ROOT)/include/data_comms/COMMS_TO_MACE
 headers_COMMS_TO_MACE.files   += \
     COMMS_to_MACE/mission_comms_to_mace.h \
     COMMS_to_MACE/state_comms_to_mace.h \
-    COMMS_to_MACE/generic_comms_to_mace.h
+    COMMS_to_MACE/generic_comms_to_mace.h \
+    COMMS_to_MACE/command_comms_to_mace.h
 INSTALLS       += headers_COMMS_TO_MACE
 
 #Header file copy

@@ -190,7 +190,9 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
 
 void ModuleGroundStation::testFunction()
 {
-    std::cout << "KEN THIS IS YOUR TEST FUNCTION" << std::endl;
+    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+        ptr->RequestDummyFunction(this, 1);
+    });
 }
 
 void ModuleGroundStation::getConnectedVehicles()
@@ -359,7 +361,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-
                 // Write Attitude data to the GUI:
                 sendAttitudeData(senderID, component);
             }
@@ -375,7 +376,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 //std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
 
                 // Write Position data to the GUI:
-                sendPositionData(senderID, component);
+                //sendPositionData(senderID, component);
             }
         }
     }
@@ -621,7 +622,7 @@ void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
 
 bool ModuleGroundStation::writeTCPData(QByteArray data)
 {
-//    return true;
+    //return true;
 
     std::shared_ptr<QTcpSocket> tcpSocket = std::make_shared<QTcpSocket>();
     tcpSocket->connectToHost(QHostAddress::LocalHost, 1234);

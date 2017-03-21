@@ -131,6 +131,7 @@ public:
     /// GROUND STATION EVENTS
     /////////////////////////////////////////////////////////////////////////
 
+    virtual void RequestDummyFunction(const void* sender, const int &vehicleID);
 
     //!
     //! \brief Event fired when a new list of targets are produced for a specific vehicle

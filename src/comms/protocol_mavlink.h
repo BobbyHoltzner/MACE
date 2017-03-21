@@ -65,7 +65,7 @@ public:
     //! \param link Link to put message onto
     //! \param message Message to send
     //!
-    void SendMessage(const ILink *link, const mavlink_message_t &message);
+    void SendProtocolMessage(const ILink *link, const mavlink_message_t &message);
 
 
     //!

@@ -132,6 +132,23 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 /////////////////////////////////////////////////////////////////////////
 /// GENERAL MODULE EVENTS
 /////////////////////////////////////////////////////////////////////////
+
+void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
+{
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            it->second->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
+}
+
 void MaceCore::RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm)
 {
     UNUSED(sender);
@@ -316,10 +333,8 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
     m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
     m_DataFusion->AddAvailableVehicle(newVehicleObserved);
 
-//    m_GroundStation->NewlyAvailableVehicle(newVehicleObserved);
-    m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
-//    m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
-//    m_PathPlanning->MarshalCommand(PathPlanningCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
+    if(m_GroundStation)
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
 }
 
 void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
