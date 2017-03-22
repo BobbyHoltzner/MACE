@@ -204,7 +204,16 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(message,&decodedMSG);
         DataCOMMS::Mission_COMMSTOMACE missionConvert;
-        missionConvert.Covert_COMMSTOMACE(decodedMSG);
+        std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = missionConvert.Covert_COMMSTOMACE(decodedMSG);
+        m_VehicleCurrentMissionMap.at(decodedMSG.target_system).replaceMissionItemAtIndex(newMissionItem,decodedMSG.seq);
+        MissionItem::MissionList::MissionListStatus status = m_VehicleCurrentMissionMap.at(decodedMSG.target_system).getMissionListStatus();
+        if(status.state == MissionItem::MissionList::INCOMPLETE)
+        {
+            mavlink_message_t msg;
+            mavlink_msg_mission_request_pack_chan(associatedSystemID,0,m_LinkChan,&msg,systemID,0,status.remainingItems.at(0));
+            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        }
+
         break;
     }
     case MAVLINK_MSG_ID_MISSION_REQUEST:
@@ -256,6 +265,8 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //The GCS can then request the individual mission item based on the knowledge of the total number of MISSION
         mavlink_mission_count_t decodedMSG;
         mavlink_msg_mission_count_decode(message,&decodedMSG);
+        m_VehicleCurrentMissionMap.at(systemID).initializeQueue(decodedMSG.count);
+
         mavlink_message_t msg;
         mavlink_msg_mission_request_pack_chan(associatedSystemID,0,m_LinkChan,&msg,systemID,0,0);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);

@@ -9,6 +9,7 @@ namespace MissionItem {
 
 class MissionList
 {
+public:
     enum MissionListState{
         COMPLETE,
         INCOMPLETE
