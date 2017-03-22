@@ -23,6 +23,8 @@ namespace DataCOMMS{
 class Mission_MACETOCOMMS
 {
 public:
+    Mission_MACETOCOMMS(const int &systemID, const int &compID);
+
     mavlink_message_t ChangeSpeed_MACETOCOMMS(const MissionItem::ActionChangeSpeed &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
 
     mavlink_message_t Home_MACETOCOMMS(const MissionItem::SpatialHome &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
@@ -47,10 +49,14 @@ public:
     mavlink_message_t Waypoint_MACETOCOMMS(const MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
     mavlink_message_t Waypoint_MACETOCOMMS(const MissionItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
 
-    mavlink_message_t MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
+    bool MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex, mavlink_message_t &msg);
 private:
     void initializeMAVLINKMissionItem(mavlink_mission_item_t &mavMission);
     mavlink_message_t packMissionItem(const mavlink_mission_item_t &mavMission, const uint8_t &chan);
+
+private:
+    int mSystemID;
+    int mCompID;
 };
 
 } //end of namespace DataCOMMS

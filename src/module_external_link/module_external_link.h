@@ -1,6 +1,8 @@
 #ifndef MODULE_EXTERNAL_LINK_H
 #define MODULE_EXTERNAL_LINK_H
 
+#include <iostream>
+
 #include "module_external_link_global.h"
 #include <chrono>
 
@@ -10,6 +12,7 @@
 
 #include "data_comms/data_external_comms.h"
 #include "data_comms/MACE_to_COMMS/state_mace_to_comms.h"
+#include "data_comms/MACE_to_COMMS/mission_mace_to_comms.h"
 
 #include "commsMAVLINK/comms_mavlink.h"
 

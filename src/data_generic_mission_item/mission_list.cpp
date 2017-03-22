@@ -14,6 +14,12 @@ void MissionList::clearQueue()
     missionQueue.clear();
 }
 
+void MissionList::replaceMissionQueue(const std::vector<std::shared_ptr<AbstractMissionItem>> &newQueue)
+{
+    missionQueue.clear();
+    missionQueue = newQueue;
+}
+
 MissionList::MissionListStatus MissionList::getMissionListStatus()
 {
     std::vector<int> nullItems;

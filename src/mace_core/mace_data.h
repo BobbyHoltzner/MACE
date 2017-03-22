@@ -24,6 +24,8 @@
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_mission_item/mission_item_components.h"
 
+#include "data/mission_map.h"
+
 namespace MaceCore
 {
 
@@ -665,11 +667,6 @@ private:
     MissionItem::SpatialHome m_GlobalOrigin;
     bool flagGlobalOrigin;
 
-    mutable std::mutex m_VehicleMissionMutex;
-    std::map<int, MissionItem::MissionList> m_VehicleCurrentMissionMap;
-    std::map<int, MissionItem::MissionList> m_VehicleProposedMissionMap;
-
-
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_AttitudeDynamicsHistory;
     std::map<std::string, ObservationHistory<TIME, VehicleLife> > m_VehicleLifeHistory;
@@ -690,6 +687,16 @@ private:
     mutable std::mutex m_TopicMutex;
 
 
+    /////////////////////////////////////////////////////////
+    /// VEHICLE MISSION METHODS
+    /////////////////////////////////////////////////////////
+private:
+    mutable std::mutex m_VehicleMissionMutex;
+    std::map<int, MissionItem::MissionList> m_VehicleCurrentMissionMap;
+    std::map<int, MissionItem::MissionList> m_VehicleProposedMissionMap;
+public:
+    void updateMissionList(const MissionItem::MissionList missionList, const Data::MissionMap &relevantQueue);
+    MissionItem::MissionList getMissionList(const int &systemID, const Data::MissionMap &relevantQueue);
 };
 
 } //END MaceCore Namespace

@@ -35,17 +35,15 @@ bool SpatialWaypoint<T>::hasSpatialMissionInfluence() const
 }
 
 template <>
-std::ostream& SpatialWaypoint<DataState::StateGlobalPosition>::operator<<(std::ostream &out)
+void SpatialWaypoint<DataState::StateGlobalPosition>::print()
 {
-    out<<"Spatial Global Waypoint(SystemID: "<<m_VehicleID<<", Latitude: "<<position.latitude<<", Longitude: "<<position.longitude<<", Altitude: "<<position.altitude<<")";
-    return out;
+    std::cout<<"Spatial Global Waypoint(SystemID: "<<m_VehicleID<<", Latitude: "<<position.latitude<<", Longitude: "<<position.longitude<<", Altitude: "<<position.altitude<<")"<<std::endl;
 }
 
 template <>
-std::ostream& SpatialWaypoint<DataState::StateLocalPosition>::operator<<(std::ostream &out)
+void SpatialWaypoint<DataState::StateLocalPosition>::print()
 {
-    out<<"Spatial Local Waypoint(SystemID: "<<m_VehicleID<<", Latitude: "<<position.x<<", Longitude: "<<position.y<<", Altitude: "<<position.z<<")";
-    return out;
+    std::cout<<"Spatial Local Waypoint(SystemID: "<<m_VehicleID<<", Latitude: "<<position.x<<", Longitude: "<<position.y<<", Altitude: "<<position.z<<")"<<std::endl;
 }
 
 } //end of namepsace MissionItem

@@ -4,7 +4,6 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
     MaceCore::TopicDatagram topicDatagram;
     int systemID = message->sysid;
     int compID = message->compid;
-    int sequence = message->seq;
 
     switch ((int)message->msgid) {
     ////////////////////////////////////////////////////////////////////////////
@@ -202,9 +201,10 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
     {
         //This is message definition 39
         //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
-        std::cout<<"I have seen a mission item"<<std::endl;
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(message,&decodedMSG);
+        DataCOMMS::Mission_COMMSTOMACE missionConvert;
+        missionConvert.Covert_COMMSTOMACE(decodedMSG);
         break;
     }
     case MAVLINK_MSG_ID_MISSION_REQUEST:
@@ -214,26 +214,28 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //The response of the system to this message should be a MISSION_ITEM message.
         mavlink_mission_request_t decodedMSG;
         mavlink_msg_mission_request_decode(message,&decodedMSG);
-        std::cout<<"I am making a request"<<std::endl;
-        std::cout<<"The system target was:"<<decodedMSG.target_system<<std::endl;
-        std::cout<<"The system that sent it was:"<<systemID<<std::endl;
-        std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = m_VehicleCurrentMissionMap.at(1).getMissionItem(0);
+        std::cout<<"They are trying to request a mission item from "<<(int)decodedMSG.target_system<<" at "<<(int)decodedMSG.seq<<std::endl;
+        DataCOMMS::Mission_MACETOCOMMS missionConvert(decodedMSG.target_system,decodedMSG.target_component);
+        std::shared_ptr<MissionItem::AbstractMissionItem> missionItem;
+        try{
+            missionItem = m_VehicleCurrentMissionMap.at(decodedMSG.target_system).getMissionItem(decodedMSG.seq);
+        }catch(const std::out_of_range &oor){
+            std::cout<<"They are requesting a mission item out of index"<<std::endl;
+        }
         mavlink_message_t msg;
-        mavlink_mission_item_t item;
-        mavlink_msg_mission_item_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&item);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-
+        bool msgValid = missionConvert.MACEMissionToMAVLINKMission(missionItem,m_LinkChan,0,decodedMSG.seq,msg);
+        if(msgValid){
+            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        }
         break;
     }
     case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:
     {
-        std::cout<<"I saw a mission request list"<<std::endl;
-        std::cout<<"The system I saw the request from was: "<<systemID<<std::endl;
-        std::cout<<"My systemID is: "<<associatedSystemID<<std::endl;
         //This is message definition 43
         //External item has requested the overall list of mission items from the system/component.
         mavlink_mission_request_list_t decodedMSG;
         mavlink_msg_mission_request_list_decode(message,&decodedMSG);
+
         //Now we have to respond with the mission count
         int itemsAvailable = m_VehicleCurrentMissionMap.at(1).getQueueSize();
         mavlink_mission_count_t missionCount;
@@ -243,7 +245,6 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
 
         mavlink_message_t msg;
         mavlink_msg_mission_count_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionCount);
-        std::cout<<"The counter for this message is: "<<(int)msg.seq<<std::endl;
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         break;
     }
@@ -255,12 +256,9 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //The GCS can then request the individual mission item based on the knowledge of the total number of MISSION
         mavlink_mission_count_t decodedMSG;
         mavlink_msg_mission_count_decode(message,&decodedMSG);
-        std::cout<<"I saw a mission count message"<<decodedMSG.count<<std::endl;
-        std::cout<<"The counter is: "<<sequence<<std::endl;
-        std::cout<<"The message is from: "<<systemID<<std::endl;
-//        mavlink_message_t msg;
-//        mavlink_msg_mission_request_pack_chan(associatedSystemID,0,m_LinkChan,&msg,decodedMSG.target_system,0,0);
-//        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        mavlink_message_t msg;
+        mavlink_msg_mission_request_pack_chan(associatedSystemID,0,m_LinkChan,&msg,systemID,0,0);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         break;
     }
 

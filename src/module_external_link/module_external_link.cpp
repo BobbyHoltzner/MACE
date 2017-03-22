@@ -109,7 +109,6 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
                 mavlink_message_t msg = DataCOMMS::Generic_MACETOCOMMS::FlightModeTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
                 associatedSystemID = senderID;
-                //std::cout<<"The counter for this message is: "<<(int)msg.seq<<std::endl;
                 m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
             }
         }
@@ -121,7 +120,6 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
 
         //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-//            std::cout << "  " << componentsUpdated.at(i) << std::endl;
             if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
@@ -199,7 +197,6 @@ void ModuleExternalLink::RequestCurrentMissionQueue(const int &vehicleID)
     list.target_component = 0;
     mavlink_msg_mission_request_list_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&list);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-    std::cout<<"I am making a request for the current mission queue"<<(int)msg.seq<<std::endl;
 }
 
 void ModuleExternalLink::RequestClearMissionQueue(const int &vehicleID)

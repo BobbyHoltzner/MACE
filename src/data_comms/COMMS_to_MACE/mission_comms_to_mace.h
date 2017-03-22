@@ -1,6 +1,7 @@
 #ifndef MISSION_COMMS_TO_MACE_H
 #define MISSION_COMMS_TO_MACE_H
 
+#include <iostream>
 #include <memory>
 
 #include "mavlink.h"
@@ -26,6 +27,8 @@ class Mission_COMMSTOMACE
 {
 public:
     Mission_COMMSTOMACE();
+    std::shared_ptr<MissionItem::AbstractMissionItem> Covert_COMMSTOMACE(const mavlink_mission_item_t &mavlinkItem);
+
 
     void ChangeSpeed_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::ActionChangeSpeed &missionItem);
 

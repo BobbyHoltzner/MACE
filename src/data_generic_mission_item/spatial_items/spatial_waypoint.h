@@ -46,7 +46,9 @@ public:
         return !(*this == rhs);
     }
 
-    std::ostream& operator<<(std::ostream &out);
+    void print();
+
+    //std::ostream& operator<<(std::ostream &out);
 
 public:
     T position;
