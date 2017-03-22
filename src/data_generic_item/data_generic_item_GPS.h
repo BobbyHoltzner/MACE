@@ -2,6 +2,7 @@
 #define DATA_GENERIC_ITEM_GPS_H
 
 #include <stdint.h>
+#include <iostream>
 
 namespace DataGenericItem {
 
@@ -80,6 +81,12 @@ public:
 
     bool operator != (const DataGenericItem_GPS &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"GPS Status( FixType: "<<fixtype<<", Satellites Visible: "<<(int)satellitesVisible<<", HDOP: "<<(int)HDOP<<", VDOP: "<<(int)VDOP<<")";
+        return out;
     }
 
 protected:

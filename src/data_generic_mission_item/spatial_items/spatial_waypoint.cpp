@@ -34,6 +34,20 @@ bool SpatialWaypoint<T>::hasSpatialMissionInfluence() const
     return true;
 }
 
+template <>
+std::ostream& SpatialWaypoint<DataState::StateGlobalPosition>::operator<<(std::ostream &out)
+{
+    out<<"Spatial Global Waypoint(SystemID: "<<m_VehicleID<<", Latitude: "<<position.latitude<<", Longitude: "<<position.longitude<<", Altitude: "<<position.altitude<<")";
+    return out;
+}
+
+template <>
+std::ostream& SpatialWaypoint<DataState::StateLocalPosition>::operator<<(std::ostream &out)
+{
+    out<<"Spatial Local Waypoint(SystemID: "<<m_VehicleID<<", Latitude: "<<position.x<<", Longitude: "<<position.y<<", Altitude: "<<position.z<<")";
+    return out;
+}
+
 } //end of namepsace MissionItem
 
 //template class MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>;

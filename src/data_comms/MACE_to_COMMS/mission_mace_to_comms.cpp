@@ -27,6 +27,24 @@ mavlink_message_t Mission_MACETOCOMMS::packMissionItem(const mavlink_mission_ite
     return msg;
 }
 
+mavlink_message_t Mission_MACETOCOMMS::ChangeSpeed_MACETOCOMMS(const MissionItem::ActionChangeSpeed &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+{
+    mavlink_mission_item_t item;
+    this->initializeMAVLINKMissionItem(item);
+    item.command = MAV_CMD_DO_CHANGE_SPEED;
+    item.seq = itemIndex;
+    item.target_system = missionItem.getVehicleID();
+    item.target_component = compID;
+    item.param1 = 0.0; //assume the default required is AIRSPEED
+    item.param2 = missionItem.getDesiredSpeed();
+    if(missionItem.getSpeedFrame() == Data::SpeedFrame::GROUNDSPEED)
+    {
+        item.param1 = 1.0;
+    }
+    mavlink_message_t msg = this->packMissionItem(item,chan);
+    return msg;
+}
+
 mavlink_message_t Mission_MACETOCOMMS::Land_MACETOCOMMS(const MissionItem::SpatialLand<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;

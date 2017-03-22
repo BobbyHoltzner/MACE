@@ -23,6 +23,8 @@ namespace DataCOMMS{
 class Mission_MACETOCOMMS
 {
 public:
+    mavlink_message_t ChangeSpeed_MACETOCOMMS(const MissionItem::ActionChangeSpeed &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
+
     mavlink_message_t Home_MACETOCOMMS(const MissionItem::SpatialHome &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
 
     mavlink_message_t Land_MACETOCOMMS(const MissionItem::SpatialLand<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);

@@ -79,6 +79,12 @@ public:
         return !(*this == rhs);
     }
 
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Global Position( Latitude: "<<latitude<<", Longitude: "<<longitude<<", Altitude: "<<altitude<<")";
+        return out;
+    }
+
 public:
     float latitude;
     float longitude;

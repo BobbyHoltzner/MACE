@@ -1,6 +1,8 @@
 #ifndef DATA_GENERIC_ITEM_FUEL_H
 #define DATA_GENERIC_ITEM_FUEL_H
 
+#include <iostream>
+
 namespace DataGenericItem {
 
 class DataGenericItem_Fuel
@@ -55,6 +57,12 @@ public:
 
     bool operator != (const DataGenericItem_Fuel &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Vehicle Battery( Voltage: "<<voltage<<", Current: "<<current<<", Remaining %: "<<batteryRemaing<<")";
+        return out;
     }
 
 protected:
