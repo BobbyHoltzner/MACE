@@ -321,7 +321,6 @@ void MaceCore::UpdateGlobalOriginPosition(const void *sender, const MissionItem:
     UNUSED(sender);
     m_DataFusion->UpdateGlobalOrigin(globalHome);
 }
-
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
@@ -341,6 +340,15 @@ void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::Spa
 {
     UNUSED(sender);
     m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
+}
+
+void MaceCore::UpdateVehicleMission(const void *sender, const MissionItem::MissionList::MissionListState status, const MissionItem::MissionList &missionList, const Data::MissionMap &relevantMissionProfile)
+{
+    m_DataFusion->updateMissionList(missionList,relevantMissionProfile);
+    if(status == MissionItem::MissionList::COMPLETE)
+    {
+        //we should tell people it is done
+    }
 }
 
 

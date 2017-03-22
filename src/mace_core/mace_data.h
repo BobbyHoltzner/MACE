@@ -696,7 +696,7 @@ private:
     std::map<int, MissionItem::MissionList> m_VehicleProposedMissionMap;
 public:
     void updateMissionList(const MissionItem::MissionList missionList, const Data::MissionMap &relevantQueue);
-    MissionItem::MissionList getMissionList(const int &systemID, const Data::MissionMap &relevantQueue);
+    MissionItem::MissionList getMissionList(const int &systemID, const Data::MissionMap &relevantQueue) const;
 };
 
 } //END MaceCore Namespace

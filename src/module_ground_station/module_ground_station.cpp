@@ -586,6 +586,11 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
         m_timeoutOccured = false;
     }
 }
+void ModuleGroundStation::NewlyAvailableCurrentMission(const int &vehicleID)
+{
+    std::cout<<"I have been told there is a new mission available"<<std::endl;
+}
+
 
 void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
 {

@@ -31,7 +31,7 @@ void MaceData::updateMissionList(const MissionItem::MissionList missionList, con
     }
 }
 
-MissionItem::MissionList MaceData::getMissionList(const int &systemID, const Data::MissionMap &relevantQueue)
+MissionItem::MissionList MaceData::getMissionList(const int &systemID, const Data::MissionMap &relevantQueue) const
 {
     std::lock_guard<std::mutex> guard(m_VehicleMissionMutex);
 
