@@ -2,7 +2,6 @@
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),
-    missionMode(NONE),missionMSGCounter(0),missionItemIndex(0),missionItemsAvailable(0),
     m_VehicleMission("vehicleMission"),m_CurrentMissionItem(NULL)
 {
 
@@ -98,7 +97,6 @@ void ModuleVehicleArdupilot::SetCurrentMissionQueue(const MissionItem::MissionLi
 void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
 {
     mavlink_message_t msg;
-    missionMode = REQUESTING;
     mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }

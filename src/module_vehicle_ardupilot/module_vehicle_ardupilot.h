@@ -169,11 +169,6 @@ private:
     std::map<int,MissionItem::MissionList> m_ProposedGuidedQueue;
 
 private:
-    ArdupilotMissionMode missionMode;
-    int missionMSGCounter;
-    int missionItemIndex;
-    int missionItemsAvailable;
-
     Timer t;
 
 private:
