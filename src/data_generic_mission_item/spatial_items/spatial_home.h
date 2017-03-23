@@ -1,6 +1,7 @@
 #ifndef SPATIAL_HOME_H
 #define SPATIAL_HOME_H
 
+#include <iostream>
 
 #include "data_generic_mission_item/abstract_mission_item.h"
 #include "data_generic_mission_item/mission_item_types.h"
@@ -15,7 +16,6 @@ class SpatialHome : public AbstractMissionItem
 public:
     SpatialHome();
     SpatialHome(const SpatialHome &spatialHome);
-
 
 public:
     virtual MissionItemType getMissionType()const;
@@ -45,6 +45,12 @@ public:
 
     bool operator != (const SpatialHome &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Spatial Home(SystemID: "<<m_VehicleID<<", Latitude: "<<position.latitude<<", Longitude: "<<position.longitude<<", Altitude: "<<position.altitude<<")";
+        return out;
     }
 
 public:

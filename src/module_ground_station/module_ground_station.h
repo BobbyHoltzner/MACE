@@ -74,53 +74,12 @@ public:
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
 
-    //!
-    //! \brief Called when a new Vehicle has been introduced into MACE
-    //!
-    //! \param ID ID of the Vehicle
-    //!
-    virtual void NewVehicle(const std::string &ID) {UNUSED(ID);}
-
-
-    //!
-    //! \brief Called when a vehicle has been removed from MACE
-    //!
-    //! \param ID ID of vehicle
-    //!
-    virtual void RemoveVehicle(const std::string &ID) {UNUSED(ID);}
-
-
-    //!
-    //! \brief Signal indicating a vehicle's position dynamics has been updated
-    //!
-    //! The vehicle's position can be retreived from MaceData object in getDataObject()
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void UpdatedPositionDynamics(const std::string &vehicleID) {UNUSED(vehicleID);}
-
-
-    //!
-    //! \brief Signal indicating a a vehicle's attitude dynamics have been updated
-    //!
-    //! The vehicle's attitude can be retreived from MaceData object in getDataObject()
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void UpdateAttitudeDynamics(const std::string &vehicleID) {UNUSED(vehicleID);}
-
-
-    //!
-    //! \brief Singal to indicate a vehicle's life has been updated
-    //!
-    //! The vehicle's life can be retreived from MaceData object in getDataObject()
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void UpdatedVehicleLife(const std::string &vehicleID) {UNUSED(vehicleID);}
-
-
-    //! Virtual functions as defined by IModuleCommandSensors
+    //! Virtual functions as defined by IModuleCommandGroundStation
 public:
 
     virtual void NewlyAvailableVehicle(const int &vehicleID);
+
+    virtual void NewlyAvailableCurrentMission(const int &vehicleID);
 
 
 private:

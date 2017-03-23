@@ -74,11 +74,11 @@ public:
         {
             func();
         }
-
-        postToThread([func](){
-            func();
-        }, m_port);
-
+        else {
+            postToThread([func](){
+                func();
+            }, m_port);
+        }
     }
 
 private:

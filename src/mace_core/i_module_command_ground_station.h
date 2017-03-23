@@ -1,7 +1,7 @@
 #ifndef I_GROUND_STATION_H
 #define I_GROUND_STATION_H
 
-#include "abstract_module_base_vehicle_listener.h"
+#include "abstract_module_event_listeners.h"
 #include "metadata_ground_station.h"
 
 #include "i_module_topic_events.h"
@@ -12,8 +12,8 @@ namespace MaceCore
 
 enum class GroundStationCommands
 {
-    BASE_MODULE_VEHICLE_LISTENER_ENUMS,
-    NEW_AVAILABLE_VEHICLE
+    NEW_AVAILABLE_VEHICLE,
+    NEW_AVAILABLE_CURRENT_MISSION
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandGroundStation : public AbstractModule_EventListeners<Metadata_GroundStation, IModuleEventsGroundStation, GroundStationCommands>
@@ -29,6 +29,10 @@ public:
         AddCommandLogic<int>(GroundStationCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID){
             NewlyAvailableVehicle(vehicleID);
         });
+
+        AddCommandLogic<int>(GroundStationCommands::NEW_AVAILABLE_CURRENT_MISSION, [this](const int &vehicleID){
+            NewlyAvailableCurrentMission(vehicleID);
+        });
     }
 
     virtual Classes ModuleClass() const
@@ -38,6 +42,9 @@ public:
 
 public:
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
+
+    virtual void NewlyAvailableCurrentMission(const int &vehicleID) = 0;
+
 
     virtual bool StartTCPServer() = 0;
 

@@ -1,6 +1,8 @@
 #ifndef ACTION_MOTOR_TEST_H
 #define ACTION_MOTOR_TEST_H
 
+#include <iostream>
+
 #include "data_generic_mission_item/abstract_mission_item.h"
 #include "data_generic_mission_item/mission_item_types.h"
 
@@ -98,6 +100,12 @@ public:
 
     bool operator != (const ActionMotorTest &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Action Motor Test(SystemID: "<<m_VehicleID<<", Motor Number: "<<motorNumber<<", Power: "<<power<<", Duration: "<<duration<<")";
+        return out;
     }
 
 private:

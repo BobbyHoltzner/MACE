@@ -10,13 +10,28 @@ namespace MissionItem {
 class MissionList
 {
 public:
+    enum MissionListState{
+        COMPLETE,
+        INCOMPLETE
+    };
+
+    struct MissionListStatus{
+        MissionListState state;
+        std::vector<int> remainingItems;
+    };
+
+public:
     void initializeQueue(const int &size);
     void clearQueue();
+    void replaceMissionQueue(const std::vector<std::shared_ptr<AbstractMissionItem>> &newQueue);
     void insertMissionItem(const std::shared_ptr<AbstractMissionItem> missionItem);
     void replaceMissionItemAtIndex(const std::shared_ptr<AbstractMissionItem> missionItem, const int &index);
+
     std::shared_ptr<AbstractMissionItem> getMissionItem(const int &index);
 
     int getQueueSize();
+
+    MissionListStatus getMissionListStatus();
 
 public:
     void setVehicleID(const int &vehicleID){

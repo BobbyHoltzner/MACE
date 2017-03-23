@@ -20,6 +20,20 @@ bool SpatialLand<T>::hasSpatialMissionInfluence() const
     return true;
 }
 
+template <>
+std::ostream& SpatialLand<DataState::StateGlobalPosition>::operator<<(std::ostream &out)
+{
+    out<<"Spatial Global Land(SystemID: "<<m_VehicleID<<", Flag: "<<landFlag<<"Latitude: "<<position.latitude<<", Longitude: "<<position.longitude<<", Altitude: "<<position.altitude<<")";
+    return out;
+}
+
+template <>
+std::ostream& SpatialLand<DataState::StateLocalPosition>::operator<<(std::ostream &out)
+{
+    out<<"Spatial Local Land(SystemID: "<<m_VehicleID<<", Flag: "<<landFlag<<"Latitude: "<<position.x<<", Longitude: "<<position.y<<", Altitude: "<<position.z<<")";
+    return out;
+}
+
 template<>
 SpatialLand<DataState::StateGlobalPosition>::SpatialLand()
 {
@@ -35,7 +49,7 @@ SpatialLand<DataState::StateLocalPosition>::SpatialLand()
 }
 
 template <class T>
-bool SpatialLand<T>::getLandFlag()
+bool SpatialLand<T>::getLandFlag() const
 {
     return landFlag;
 }

@@ -1,6 +1,7 @@
 #ifndef ACTION_CHANGE_MODE_H
 #define ACTION_CHANGE_MODE_H
 
+#include <iostream>
 #include <string>
 
 #include "data_generic_mission_item/abstract_mission_item.h"
@@ -54,6 +55,12 @@ public:
 
     bool operator != (const ActionChangeMode &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Action Change Mode(SystemID: "<<m_VehicleID<<", Mode: "<<m_CommandVehicleMode<<")";
+        return out;
     }
 
 private:

@@ -32,6 +32,7 @@ public:
     }
 
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForVehicleData(const mavlink_message_t* message){
+
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
 
         switch ((int)message->msgid) {

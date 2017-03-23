@@ -8,4 +8,12 @@ DataGenericItem_GPS::DataGenericItem_GPS() :
 
 }
 
+DataGenericItem_GPS::DataGenericItem_GPS(const DataGenericItem_GPS &copyObj)
+{
+    this->fixtype = copyObj.getGPSFix();
+    this->satellitesVisible = copyObj.getSatVisible();
+    this->HDOP = copyObj.getHDOP();
+    this->VDOP = copyObj.getVDOP();
+}
+
 } //end of namespace DataGenericItem

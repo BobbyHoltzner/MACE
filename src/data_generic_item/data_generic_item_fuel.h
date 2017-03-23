@@ -1,6 +1,8 @@
 #ifndef DATA_GENERIC_ITEM_FUEL_H
 #define DATA_GENERIC_ITEM_FUEL_H
 
+#include <iostream>
+
 namespace DataGenericItem {
 
 class DataGenericItem_Fuel
@@ -8,24 +10,27 @@ class DataGenericItem_Fuel
 public:
     DataGenericItem_Fuel();
 
+    DataGenericItem_Fuel(const DataGenericItem_Fuel &copyObj);
+
+
     void setBatteryVoltage(const double &voltage){
         this->voltage = voltage;
     }
-    double getBatteryVoltage(){
+    double getBatteryVoltage() const{
         return voltage;
     }
 
     void setBatteryCurrent(const double &current){
         this->current = current;
     }
-    double getBatteryCurrent(){
+    double getBatteryCurrent() const{
         return current;
     }
 
     void setBatteryRemaining(const double &batteryRemaing){
         this->batteryRemaing = batteryRemaing;
     }
-    double getBatteryRemaining(){
+    double getBatteryRemaining() const{
         return batteryRemaing;
     }
 
@@ -52,6 +57,12 @@ public:
 
     bool operator != (const DataGenericItem_Fuel &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Vehicle Battery( Voltage: "<<voltage<<", Current: "<<current<<", Remaining %: "<<batteryRemaing<<")";
+        return out;
     }
 
 protected:

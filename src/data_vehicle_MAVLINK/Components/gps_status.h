@@ -3,7 +3,7 @@
 
 #include "data/i_topic_component_data_object.h"
 
-namespace DataVehicleMAVLINK
+namespace DataMAVLINK
 {
 
 extern const char GPSStatus_name[];

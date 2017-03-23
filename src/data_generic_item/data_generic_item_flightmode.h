@@ -13,6 +13,7 @@ class DataGenericItem_FlightMode
 public:
     DataGenericItem_FlightMode();
 
+    DataGenericItem_FlightMode(const DataGenericItem_FlightMode &copyObj);
 public:
 
     void setVehicleType(const Data::VehicleTypes &vehicleType){
@@ -44,7 +45,7 @@ public:
         vehicleArmed = armed;
     }
 
-    bool getVehicleArmed(){
+    bool getVehicleArmed() const{
         return(vehicleArmed);
     }
 

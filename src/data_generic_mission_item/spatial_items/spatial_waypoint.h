@@ -1,6 +1,8 @@
 #ifndef SPATIAL_WAYPOINT_H
 #define SPATIAL_WAYPOINT_H
 
+#include <iostream>
+
 #include "data_generic_mission_item/abstract_mission_item.h"
 #include "data_generic_mission_item/mission_item_types.h"
 
@@ -43,6 +45,10 @@ public:
     bool operator != (const SpatialWaypoint &rhs) {
         return !(*this == rhs);
     }
+
+    void print();
+
+    //std::ostream& operator<<(std::ostream &out);
 
 public:
     T position;

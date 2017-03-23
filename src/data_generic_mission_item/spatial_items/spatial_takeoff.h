@@ -1,6 +1,8 @@
 #ifndef SPATIAL_TAKEOFF_H
 #define SPATIAL_TAKEOFF_H
 
+#include <iostream>
+
 #include "data_generic_mission_item/abstract_mission_item.h"
 #include "data_generic_mission_item/mission_item_types.h"
 
@@ -40,6 +42,8 @@ public:
     bool operator != (const SpatialTakeoff &rhs) {
         return !(*this == rhs);
     }
+
+    std::ostream& operator<<(std::ostream &out);
 
 public:
     T position;

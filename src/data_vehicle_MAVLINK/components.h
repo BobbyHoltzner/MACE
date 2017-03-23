@@ -1,7 +1,7 @@
 #ifndef DATA_VEHICLE_MAVLINK_COMPONENTS_H
 #define DATA_VEHICLE_MAVLINK_COMPONENTS_H
 
-#define DATA_VEHICLE_MAVLINK_TYPES DataVehicleMAVLINK::GPSStatus
+#define DATA_VEHICLE_MAVLINK_TYPES DataMAVLINK::GPSStatus
 
 #include "Components/gps_status.h"
 

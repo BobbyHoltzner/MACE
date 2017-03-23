@@ -26,7 +26,9 @@ HEADERS += data_global.h \
     operating_mode.h \
     altitude_frame.h \
     speed_frame.h \
-    autopilot_types.h
+    autopilot_types.h \
+    controller_state.h \
+    mission_map.h
     loiter_direction.h
 
 # Unix lib Install

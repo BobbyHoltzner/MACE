@@ -1,6 +1,8 @@
 #ifndef SPATIAL_RTL_H
 #define SPATIAL_RTL_H
 
+#include <iostream>
+
 #include "data_generic_mission_item/abstract_mission_item.h"
 #include "data_generic_mission_item/mission_item_types.h"
 
@@ -32,6 +34,12 @@ public:
 
     bool operator != (const SpatialRTL &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Spatial RTL(SystemID: "<<m_VehicleID<<")";
+        return out;
     }
 };
 

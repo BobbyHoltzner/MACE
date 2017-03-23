@@ -108,7 +108,7 @@ public:
 
     virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
     virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
-
+    virtual void UpdateVehicleMission(const void *sender, const MissionItem::MissionList::MissionListState status, const MissionItem::MissionList &missionList, const Data::MissionMap &relevantMissionProfile);
 
 public:
 
@@ -131,6 +131,7 @@ public:
     /// GROUND STATION EVENTS
     /////////////////////////////////////////////////////////////////////////
 
+    virtual void RequestDummyFunction(const void* sender, const int &vehicleID);
 
     //!
     //! \brief Event fired when a new list of targets are produced for a specific vehicle
