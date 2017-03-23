@@ -224,6 +224,18 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
             ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
                 ptr->UpdateVehicleMission(this, MissionItem::MissionList::COMPLETE, missionList,Data::MissionMap::CURRENT);
             });
+            //KEN FIX: Check that target system matches sysID
+            //We should update all listeners
+            std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>();
+            missionTopic->setVehicleID(decodedMSG.target_system);
+            missionTopic->setMissionList(missionList);
+
+            MaceCore::TopicDatagram topicDatagram;
+            m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
+            //notify listneres of topic
+            ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+                ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), decodedMSG.target_system, MaceCore::TIME(), topicDatagram);
+            });
         }
         break;
     }
@@ -237,7 +249,8 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         DataCOMMS::Mission_MACETOCOMMS missionConvert(decodedMSG.target_system,decodedMSG.target_component);
         std::shared_ptr<MissionItem::AbstractMissionItem> missionItem;
         try{
-            missionItem = m_VehicleCurrentMissionMap.at(decodedMSG.target_system).getMissionItem(decodedMSG.seq);
+            MissionItem::MissionList missionList = this->getDataObject()->getMissionList(decodedMSG.target_system,Data::MissionMap::CURRENT);
+            missionItem = missionList.getMissionItem(decodedMSG.seq);
         }catch(const std::out_of_range &oor){
             std::cout<<"They are requesting a mission item out of index"<<std::endl;
         }
@@ -256,15 +269,21 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         mavlink_msg_mission_request_list_decode(message,&decodedMSG);
 
         //Now we have to respond with the mission count
-        int itemsAvailable = m_VehicleCurrentMissionMap.at(1).getQueueSize();
-        mavlink_mission_count_t missionCount;
-        missionCount.target_system = systemID;
-        missionCount.target_component = compID;
-        missionCount.count = itemsAvailable;
+        MissionItem::MissionList missionList = this->getDataObject()->getMissionList(decodedMSG.target_system,Data::MissionMap::CURRENT);
+        MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
 
-        mavlink_message_t msg;
-        mavlink_msg_mission_count_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionCount);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        if(status.state == MissionItem::MissionList::COMPLETE)
+        {
+            int itemsAvailable = missionList.getQueueSize();
+            mavlink_mission_count_t missionCount;
+            missionCount.target_system = systemID;
+            missionCount.target_component = compID;
+            missionCount.count = itemsAvailable;
+
+            mavlink_message_t msg;
+            mavlink_msg_mission_count_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionCount);
+            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        }
         break;
     }
 
