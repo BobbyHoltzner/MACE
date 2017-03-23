@@ -24,8 +24,6 @@
 
 #include "mace_core/module_factory.h"
 
-#include "data_vehicle_MAVLINK/altitude_reference_frames.h"
-
 #include "data_vehicle_MAVLINK/components.h"
 
 /*
@@ -64,7 +62,7 @@ public:
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ModuleVehicleMAVLINK() :
-        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataVehicleMAVLINK::GPSStatus>(),
+        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataMAVLINK::GPSStatus>(),
         m_LinkMarshaler(new Comms::CommsMarshaler), m_LinkName(""), m_LinkChan(0)
     {
         m_LinkMarshaler->AddSubscriber(this);
@@ -168,7 +166,7 @@ public:
             config.setParity(parity);
             config.setFlowControl(flowControl);
 
-            m_LinkName = "link1";
+            m_LinkName = "link_" + portName;
             m_LinkMarshaler->AddLink(m_LinkName, config);
 
 
@@ -362,7 +360,7 @@ protected:
 private:
     std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
 
-    DataVehicleMAVLINK::MAVLINKParser m_MAVLINKParser;
+    DataMAVLINK::MAVLINKParser m_MAVLINKParser;
 
 };
 

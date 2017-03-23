@@ -132,6 +132,23 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 /////////////////////////////////////////////////////////////////////////
 /// GENERAL MODULE EVENTS
 /////////////////////////////////////////////////////////////////////////
+
+void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
+{
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            it->second->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
+}
+
 void MaceCore::RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm)
 {
     UNUSED(sender);
@@ -304,7 +321,6 @@ void MaceCore::UpdateGlobalOriginPosition(const void *sender, const MissionItem:
     UNUSED(sender);
     m_DataFusion->UpdateGlobalOrigin(globalHome);
 }
-
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
@@ -316,10 +332,8 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
     m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
     m_DataFusion->AddAvailableVehicle(newVehicleObserved);
 
-//    m_GroundStation->NewlyAvailableVehicle(newVehicleObserved);
-    m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
-//    m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
-//    m_PathPlanning->MarshalCommand(PathPlanningCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
+    if(m_GroundStation)
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
 }
 
 void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
@@ -328,58 +342,15 @@ void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::Spa
     m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
 }
 
-
-/*
-void MaceCore::NewVehicleMessage(const void *sender, const TIME &time, const VehicleMessage &vehicleMessage)
+void MaceCore::UpdateVehicleMission(const void *sender, const MissionItem::MissionList::MissionListState status, const MissionItem::MissionList &missionList, const Data::MissionMap &relevantMissionProfile)
 {
-    IModuleCommandVehicle* vehicleModule = (IModuleCommandVehicle*)sender;
-    int sendersID = 0;
-    bool rtnValue = m_DataFusion->HandleVehicleMessage(vehicleMessage,sendersID);
-    if(rtnValue == false && this->VehicleCheck(sendersID) == false){
-        counter = counter + 1;
-        vehicleModule->MarshalCommand(VehicleCommands::CREATE_VEHICLE_OBJECT, sendersID);
-    }else{
-        std::string tmpString = "NA";
-        //m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, tmpString);
-        //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, tmpString);
+    m_DataFusion->updateMissionList(missionList,relevantMissionProfile);
+    if(status == MissionItem::MissionList::COMPLETE)
+    {
+        //we should tell people it is done
     }
 }
-*/
 
-//void MaceCore::NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &vel)
-//{
-//    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-//    std::string ID = m_VehiclePTRToID.at(vehicle);
-
-//    m_DataFusion->AddPositionDynamics(ID, time, pos, vel);
-
-//    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_POSITION_DYNAMICS, ID);
-//    //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_POSITION_DYNAMICS, ID);
-//}
-
-
-//void MaceCore::NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate)
-//{
-//    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-//    std::string ID = m_VehiclePTRToID.at(vehicle);
-
-//    m_DataFusion->AddAttitudeDynamics(ID, time, attitude, attitudeRate);
-
-//    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
-//    //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_ATTITUDE_DYNAMICS, ID);
-//}
-
-
-//void MaceCore::NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &life)
-//{
-//    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-//    std::string ID = m_VehiclePTRToID.at(vehicle);
-
-//    m_DataFusion->AddVehicleLife(ID, time, life);
-
-//    m_PathPlanning->MarshalCommand(PathPlanningCommands::UPDATED_VEHICLE_LIFE, ID);
-//    //m_GroundStation->MarshalCommand(GroundStationCommands::UPDATED_VEHICLE_LIFE, ID);
-//}
 
 
 /////////////////////////////////////////////////////////////////////////

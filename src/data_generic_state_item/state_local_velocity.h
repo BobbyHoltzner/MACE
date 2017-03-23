@@ -1,6 +1,8 @@
 #ifndef STATE_LOCAL_VELOCITY_H
 #define STATE_LOCAL_VELOCITY_H
 
+#include <iostream>
+
 namespace DataState {
 
 class StateLocalVelocity
@@ -31,6 +33,12 @@ public:
 
     bool operator != (const StateLocalVelocity &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Local Velocity( X: "<<x<<", Y: "<<y<<", Z: "<<z<<")";
+        return out;
     }
 
 public:

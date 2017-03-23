@@ -1,6 +1,8 @@
 #ifndef SPATIAL_LOITER_UNLIMITED_H
 #define SPATIAL_LOITER_UNLIMITED_H
 
+#include <iostream>
+
 #include "data/loiter_direction.h"
 
 #include "data_generic_mission_item/abstract_mission_item.h"
@@ -55,6 +57,8 @@ public:
     bool operator != (const SpatialLoiter_Unlimited &rhs) {
         return !(*this == rhs);
     }
+
+    std::ostream& operator<<(std::ostream &out);
 
 public:
     T position;

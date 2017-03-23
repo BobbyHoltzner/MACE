@@ -1,6 +1,8 @@
 #ifndef ACTION_CHANGE_SPEED_H
 #define ACTION_CHANGE_SPEED_H
 
+#include <iostream>
+
 #include "data/speed_frame.h"
 
 #include "data_generic_mission_item/abstract_mission_item.h"
@@ -66,6 +68,12 @@ public:
 
     bool operator != (const ActionChangeSpeed &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Action Change Speed(SystemID: "<<m_VehicleID<<", Frame: "<<Data::SpeedFrameToString(speedFrame)<<", Speed: "<<desiredSpeed<<")";
+        return out;
     }
 
 private:

@@ -25,4 +25,5 @@ SUBDIRS += \
     TestSpatialMath \
     commsMAVLINK \
     data_generic_item \
-    data_generic_item_topic
+    data_generic_item_topic \
+    data_comms

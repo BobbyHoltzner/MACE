@@ -2,7 +2,6 @@
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),
-    missionMode(NONE),missionMSGCounter(0),missionItemIndex(0),missionItemsAvailable(0),
     m_VehicleMission("vehicleMission"),m_CurrentMissionItem(NULL)
 {
 
@@ -25,7 +24,8 @@ void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 
 void ModuleVehicleArdupilot::ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
 {
-    mavlink_message_t msg = DataArdupilot::generateArmMessage(vehicleArm,m_LinkChan);
+    DataMAVLINK::Command_MACETOMAVLINK commandObject;
+    mavlink_message_t msg = commandObject.generateArmMessage(vehicleArm,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
@@ -48,7 +48,8 @@ void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTak
     int vehicleID = vehicleTakeoff.getVehicleID();
     DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
     UNUSED(tmpData);
-    mavlink_message_t msg = DataArdupilot::generateTakeoffMessage(vehicleTakeoff,m_LinkChan,0);
+    DataMAVLINK::Command_MACETOMAVLINK commandObject;
+    mavlink_message_t msg = commandObject.generateTakeoffMessage(vehicleTakeoff,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
@@ -60,7 +61,8 @@ void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTak
 
 void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
 {
-    mavlink_message_t msg = DataArdupilot::generateGetHomePosition(vehicleID,m_LinkChan);
+    DataMAVLINK::Command_MACETOMAVLINK commandObject;
+    mavlink_message_t msg = commandObject.generateGetHomeMessage(vehicleID,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
@@ -95,7 +97,6 @@ void ModuleVehicleArdupilot::SetCurrentMissionQueue(const MissionItem::MissionLi
 void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
 {
     mavlink_message_t msg;
-    missionMode = REQUESTING;
     mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
@@ -184,7 +185,7 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
     if(wasMissionMSG == false){
         //generate topic datagram from given mavlink message
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = tmpData->ParseForVehicleData(&message);
-        //procede to send components only if there is 1 or more
+        //proceed to send components only if there is 1 or more
         if(components.size() > 0)
         {
             //construct datagram

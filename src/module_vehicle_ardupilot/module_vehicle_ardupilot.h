@@ -21,6 +21,9 @@
 #include "data_generic_mission_item/mission_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
+//__________________
+#include "data_vehicle_mavlink/MACE_to_MAVLINK/command_mace_to_mavlink.h"
+
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
 {
 enum ArdupilotMissionMode{
@@ -166,11 +169,6 @@ private:
     std::map<int,MissionItem::MissionList> m_ProposedGuidedQueue;
 
 private:
-    ArdupilotMissionMode missionMode;
-    int missionMSGCounter;
-    int missionItemIndex;
-    int missionItemsAvailable;
-
     Timer t;
 
 private:

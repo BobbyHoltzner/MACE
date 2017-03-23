@@ -8,4 +8,11 @@ DataGenericItem_Fuel::DataGenericItem_Fuel() :
 
 }
 
+DataGenericItem_Fuel::DataGenericItem_Fuel(const DataGenericItem_Fuel &copyObj)
+{
+    this->voltage = copyObj.getBatteryVoltage();
+    this->current = copyObj.getBatteryCurrent();
+    this->batteryRemaing = copyObj.getBatteryRemaining();
+}
+
 } //end of namespace DataGenericItem

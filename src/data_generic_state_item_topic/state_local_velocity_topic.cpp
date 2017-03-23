@@ -25,4 +25,16 @@ void StateLocalVelocityTopic::CreateFromDatagram(const MaceCore::TopicDatagram &
     z = datagram.GetTerminal<double>("z");
 }
 
+StateLocalVelocityTopic::StateLocalVelocityTopic()
+    :DataState::StateLocalVelocity()
+{
+
+}
+
+StateLocalVelocityTopic::StateLocalVelocityTopic(const DataState::StateLocalVelocity &copyObj):
+    DataState::StateLocalVelocity(copyObj)
+{
+
+}
+
 } //end of namespace DataStateTopic

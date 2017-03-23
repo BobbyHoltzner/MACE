@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 
-#include "abstract_module_base_vehicle_listener.h"
+#include "abstract_module_event_listeners.h"
 #include "metadata_path_planning.h"
 
 #include "i_module_topic_events.h"

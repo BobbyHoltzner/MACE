@@ -33,4 +33,16 @@ void DataGenericItemTopic_FlightMode::CreateFromDatagram(const MaceCore::TopicDa
     vehicleArmed = datagram.GetTerminal<bool>("vehicleArmed");
 }
 
+DataGenericItemTopic_FlightMode::DataGenericItemTopic_FlightMode()
+    :DataGenericItem::DataGenericItem_FlightMode()
+{
+
+}
+
+DataGenericItemTopic_FlightMode::DataGenericItemTopic_FlightMode(const DataGenericItem::DataGenericItem_FlightMode &copyObj):
+    DataGenericItem::DataGenericItem_FlightMode(copyObj)
+{
+
+}
+
 } //end of namespace DataGenericItemTopic

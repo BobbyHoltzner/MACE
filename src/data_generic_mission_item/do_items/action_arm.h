@@ -1,6 +1,8 @@
 #ifndef ACTION_ARM_H
 #define ACTION_ARM_H
 
+#include <iostream>
+
 #include "data_generic_mission_item/abstract_mission_item.h"
 #include "data_generic_mission_item/mission_item_types.h"
 
@@ -51,6 +53,12 @@ public:
 
     bool operator != (const ActionArm &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Action Arm(SystemID: "<<m_VehicleID<<", Arm: "<<m_ActionArm<<")";
+        return out;
     }
 
 private:

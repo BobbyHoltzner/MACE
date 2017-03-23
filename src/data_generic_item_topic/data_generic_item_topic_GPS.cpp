@@ -29,4 +29,16 @@ void DataGenericItemTopic_GPS::CreateFromDatagram(const MaceCore::TopicDatagram 
     HDOP = datagram.GetTerminal<uint16_t>("hdop");
 }
 
+DataGenericItemTopic_GPS::DataGenericItemTopic_GPS()
+    :DataGenericItem::DataGenericItem_GPS()
+{
+
+}
+
+DataGenericItemTopic_GPS::DataGenericItemTopic_GPS(const DataGenericItem::DataGenericItem_GPS &copyObj):
+    DataGenericItem::DataGenericItem_GPS(copyObj)
+{
+
+}
+
 } //end of namespace DataGenericItemTopic

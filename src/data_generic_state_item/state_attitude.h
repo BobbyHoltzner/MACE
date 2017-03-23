@@ -1,6 +1,8 @@
 #ifndef STATE_ATTITUDE_H
 #define STATE_ATTITUDE_H
 
+#include <iostream>
+
 namespace DataState {
 
 class StateAttitude
@@ -50,6 +52,12 @@ public:
 
     bool operator != (const StateAttitude &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Attitude( Roll: "<<roll<<", Pitch: "<<pitch<<", Yaw: "<<yaw<<", PitchRate: "<<pitchRate<<", RollRate: "<<rollRate<<", YawRate: "<<yawRate<<")";
+        return out;
     }
 
 public:
