@@ -1,7 +1,7 @@
 #include "module_vehicle_ardupilot.h"
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
-    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),
+    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),firstHeartbeat(true),
     m_VehicleMission("vehicleMission"),m_CurrentMissionItem(NULL)
 {
 
@@ -167,14 +167,6 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         tmpData->m_CurrentMissionQueue.setVehicleID(systemID);
         tmpData->m_ProposedMissionQueue.setVehicleID(systemID);
 
-
-        MissionItem::MissionList newMissionList;
-        m_CurrentMissionQueue.insert({systemID,newMissionList});
-        m_ProposedMissionQueue.insert({systemID,newMissionList});
-
-        m_CurrentGuidedQueue.insert({systemID,newMissionList});
-        m_ProposedGuidedQueue.insert({systemID,newMissionList});
-
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
             ptr->NewConstructedVehicle(this, systemID);
         });
@@ -183,6 +175,15 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
     bool wasMissionMSG = ParseMAVLINKMissionMessage(linkName, &message);
 
     if(wasMissionMSG == false){
+        if((message.msgid == MAVLINK_MSG_ID_HEARTBEAT) && (firstHeartbeat))
+        {
+            firstHeartbeat = false;
+
+            mavlink_message_t msg;
+            mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0);
+            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        }
+
         //generate topic datagram from given mavlink message
         std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = tmpData->ParseForVehicleData(&message);
         //proceed to send components only if there is 1 or more

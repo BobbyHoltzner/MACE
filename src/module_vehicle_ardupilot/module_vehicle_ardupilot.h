@@ -160,15 +160,9 @@ public:
     //!
     virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
-
 private:
-    std::map<int,MissionItem::MissionList> m_CurrentMissionQueue;
-    std::map<int,MissionItem::MissionList> m_ProposedMissionQueue;
+    bool firstHeartbeat;
 
-    std::map<int,MissionItem::MissionList> m_CurrentGuidedQueue;
-    std::map<int,MissionItem::MissionList> m_ProposedGuidedQueue;
-
-private:
     Timer t;
 
 private:
