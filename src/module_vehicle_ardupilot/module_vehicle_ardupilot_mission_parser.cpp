@@ -77,9 +77,11 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         //Request the information of the mission item with the sequence number seq. The response of the system to this message should be a MISSION_ITEM message. http://qgroundcontrol.org/mavlink/waypoint_protocol
         mavlink_mission_request_t decodedMSG;
         mavlink_msg_mission_request_decode(message,&decodedMSG);
-        std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = m_ProposedMissionQueue.at(sysID).getMissionItem(decodedMSG.seq);
-        mavlink_message_t msg = DataArdupilot::MACEMissionToMAVLINKMission(missionItem,chan,compID,decodedMSG.seq);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
+        //This should make the request to the core
+        //KEN FIX THIS SHOULD GRAD DATA FROM THE LOCAL ARDUPILOT DATA OR THE CORE
+//        std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = m_ProposedMissionQueue.at(sysID).getMissionItem(decodedMSG.seq);
+//        mavlink_message_t msg = DataArdupilot::MACEMissionToMAVLINKMission(missionItem,chan,compID,decodedMSG.seq);
+//        m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
         break;
     }
     case MAVLINK_MSG_ID_MISSION_SET_CURRENT:
