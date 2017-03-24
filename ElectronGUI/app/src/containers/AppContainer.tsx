@@ -207,7 +207,12 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(jsonData.dataType === 'VehicleHome') {
       let vehicleHome = jsonData as (TCPReturnType & MissionItemType);
       let stateCopy = deepcopy(this.state.connectedVehicles);
-      stateCopy[vehicleHome.vehicleID].setVehicleHome(vehicleHome);
+      let tmpHome = {
+        lat: vehicleHome.lat,
+        lon: vehicleHome.lon,
+        alt: vehicleHome.alt
+      }
+      stateCopy[vehicleHome.vehicleID].updateHomePosition(tmpHome);
       this.setState({connectedVehicles: stateCopy});
     }
     else if(jsonData.dataType === 'VehicleFuel') {
@@ -316,7 +321,7 @@ export default class AppContainer extends React.Component<Props, State> {
       alt: vehicleHome.alt,
     }
     if(this.state.connectedVehicles[vehicleID]) {
-      this.state.connectedVehicles[vehicleID].setVehicleHome(tmpHome);
+      this.state.connectedVehicles[vehicleID].updateHomePosition(tmpHome);
     }
     else {
       console.log("No vehicle with ID: " + vehicleID);
@@ -352,6 +357,7 @@ export default class AppContainer extends React.Component<Props, State> {
         stateCopy[key].isSelected = false;
       }
       stateCopy[key].updateMarkerPosition();
+      stateCopy[key].updateHomePosition();
     });
 
     this.setState({connectedVehicles: stateCopy, selectedVehicleID: selectedID});

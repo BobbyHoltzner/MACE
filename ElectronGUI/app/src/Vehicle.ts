@@ -108,14 +108,17 @@ export class Vehicle{
         }
     }
 
-    setVehicleHome(home: (TCPReturnType & MissionItemType)) {
-        console.log("In set vehicle home: " + home.lat + " / " + home.lon);
+    updateHomePosition(newHome?: {lat: number, lon: number, alt: number}) {
+        let homeUpdate = {lat: this.homePosition.latLon.lat, lon: this.homePosition.latLon.lng, alt: this.homePosition.altitude};
+        if(newHome){
+            homeUpdate = newHome;
+        }
         let iconBackgroundColor = this.isSelected ? backgroundColors[this.vehicleId] : opaqueBackgroundColors[this.vehicleId]
         let iconHTML = '<div style="background-color: ' + iconBackgroundColor+ '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/Home-Icon.png" alt="Home icon" style="width:41px; height:41px; ">';
 
         this.homePosition = {
             vehicleId: this.vehicleId,
-            latLon: new L.LatLng(home.lat, home.lon),
+            latLon: new L.LatLng(homeUpdate.lat, homeUpdate.lon),
             altitude: 0,
             icon: new L.DivIcon({
                 html: iconHTML,
