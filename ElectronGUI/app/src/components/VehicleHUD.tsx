@@ -5,12 +5,12 @@ import * as React from 'react';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
 import { Vehicle } from '../Vehicle';
+import { backgroundColors } from '../util/Colors';
 
 
 type Props = {
     vehicleID: string,
     aircraft: Vehicle,
-    isSelected: boolean,
     handleAircraftCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void
     handleOpenVehicleEdit: (vehicleID: string) => void
 }
@@ -36,10 +36,12 @@ export class VehicleHUD extends React.Component<Props, State> {
     }
 
     render() {
+        const boxShadow = this.props.aircraft.isSelected ? backgroundColors[parseInt(this.props.vehicleID)] + " 0px 1px 20px, rgba(0, 0, 0, .5) 0px 1px 4px" : "rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px"
+        const hudStyle = {position: "relative", width: 90 + "%", marginBottom: 15, boxShadow: boxShadow};
 
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <Card expanded={true} onExpandChange={() => this.props.handleOpenVehicleEdit(this.props.vehicleID)} style={{position: "relative", width: 90 + "%", marginBottom: 15}}>
+                <Card expanded={true} onExpandChange={() => this.props.handleOpenVehicleEdit(this.props.vehicleID)} style={hudStyle}>
                     <CardHeader
                         titleStyle={{fontSize: 24}}
                         title={"ID: " + this.props.vehicleID}
@@ -52,14 +54,19 @@ export class VehicleHUD extends React.Component<Props, State> {
                     <div className="row">
                         <div className="col-xs-6">
                             <div className="box">
+                                {/*
                                 <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
                                     {"Lat: " + this.props.aircraft.position.lat.toFixed(2)}
                                 </CardText>
                                 <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
                                     {"Lon: " + this.props.aircraft.position.lon.toFixed(2)}
                                 </CardText>
+                                */}
                                 <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
                                     {"Alt: " + this.props.aircraft.position.alt.toFixed(2)}
+                                </CardText>
+                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
+                                    {"Batt: " + this.props.aircraft.fuel.batteryRemaining.toFixed(0) + "%"}
                                 </CardText>
                             </div>
                         </div>

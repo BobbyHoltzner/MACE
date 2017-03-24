@@ -15,6 +15,7 @@ import { Vehicle } from '../Vehicle';
 
 type Props = {
     connectedVehicles: {[id: string]: Vehicle},
+    selectedAircraftID: string,
     onSelectedAircraftChange: (id: string) => void,
     onAircraftCommand: (id: string, tcpCommand: string, vehicleCommand: string) => void
 }
@@ -29,7 +30,13 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
         super(props);
 
         this.state = {
-            selectedAircraftID: "0"
+            selectedAircraftID: this.props.selectedAircraftID
+        }
+    }
+
+    componentWillReceiveProps(nextProps: Props) {
+        if(this.props.selectedAircraftID !== nextProps.selectedAircraftID) {
+            this.state.selectedAircraftID = nextProps.selectedAircraftID;
         }
     }
 
@@ -58,7 +65,6 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
         };
         const buttonStyle = { margin: 5 };
 
-
         let vehicleIDs: JSX.Element[] = [];
         for( let key in this.props.connectedVehicles ){
             // let vehicle = this.props.connectedVehicles[key];
@@ -72,15 +78,14 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
             <div>
                 {Object.keys(this.props.connectedVehicles).length >= 0 &&
                     <div style={aircraftCommsContainer}>
-                                {Object.keys(this.props.connectedVehicles).length > 1 &&
-
-                                    <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                        <DropDownMenu style={{marginRight: 10, width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>
-                                            <MenuItem value={"0"} primaryText={"All vehicles"} label={"All vehicles"} />
-                                            {vehicleIDs}
-                                        </DropDownMenu>
-                                    </MuiThemeProvider>
-                                }
+                            {Object.keys(this.props.connectedVehicles).length > 1 &&
+                                <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                    <DropDownMenu style={{marginRight: 10, width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>
+                                        <MenuItem value={"0"} primaryText={"All vehicles"} label={"All vehicles"} />
+                                        {vehicleIDs}
+                                    </DropDownMenu>
+                                </MuiThemeProvider>
+                            }
 
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
                                 <RaisedButton icon={<i className="material-icons">get_app</i>} style={buttonStyle} label="Arm" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_ARM", JSON.stringify({arm: true}))}/>

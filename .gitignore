@@ -46,3 +46,4 @@ node_modules
 /node_packages/*
 ElectronGUI/.vscode/settings.json
 ElectronGUI/PrebuiltBinaries*
+PrebuiltBinaries/*

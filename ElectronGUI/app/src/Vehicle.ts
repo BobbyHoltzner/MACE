@@ -3,8 +3,10 @@ import { backgroundColors, opaqueBackgroundColors } from './util/Colors';
 export class Vehicle{
 
     vehicleId: number;
+    isSelected: boolean;
     position: PositionType;
     attitude: AttitudeType;
+    fuel: FuelType;
     numSats: number;
     positionFix: number;
     vehicleMode: VehicleModeType;
@@ -17,15 +19,18 @@ export class Vehicle{
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
         this.vehicleId = vehicleId;
+        this.isSelected = false;
         this.numSats = 0;
         this.positionFix = 0;
         this.vehicleMode = 'UNKNOWN';
         this.vehicleType = 'Quad';
+        this.fuel = {batteryCurrent: 0, batteryRemaining: 0, batteryVoltage: 0};
         if(position){
             this.position = position;
         }
         else {
-            this.position = {lat: 0, lon: 0, alt: 0};
+            // this.position = {lat: 0, lon: 0, alt: 0};
+            this.position = {lat: -35.363272, lon: 149.165249, alt: 0};
         }
         if(attitude){
             this.attitude = attitude;
@@ -34,8 +39,8 @@ export class Vehicle{
             this.attitude = {roll: 0, pitch: 0, yaw: 0};
         }
 
-
         let vehicleIconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
+
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
             latLon: new L.LatLng(this.position.lat, this.position.lon),
@@ -51,7 +56,7 @@ export class Vehicle{
         this.vehicleMission = {descriptions: [], latLons: [], itemTypes: [], icons: []};
 
         // Set default homePosition
-        let tmpIcon = new L.Icon({
+        let homeIcon = new L.Icon({
             iconUrl: './images/Home-icon.png',
             iconSize: [25, 41], // size of the icon
             iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
@@ -59,9 +64,10 @@ export class Vehicle{
         });
         this.homePosition = {
             vehicleId: this.vehicleId,
-            latLon: new L.LatLng(this.position.lat, this.position.lon),
+            // latLon: new L.LatLng(this.position.lat, this.position.lon),
+            latLon: new L.LatLng(0, 0),
             altitude: this.position.alt,
-            icon: tmpIcon
+            icon: homeIcon
         }
     }
 
@@ -104,7 +110,9 @@ export class Vehicle{
 
     setVehicleHome(home: (TCPReturnType & MissionItemType)) {
         console.log("In set vehicle home: " + home.lat + " / " + home.lon);
-        let iconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/Home-Icon.png" alt="Home icon" style="width:41px; height:41px; ">';
+        let iconBackgroundColor = this.isSelected ? backgroundColors[this.vehicleId] : opaqueBackgroundColors[this.vehicleId]
+        let iconHTML = '<div style="background-color: ' + iconBackgroundColor+ '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/Home-Icon.png" alt="Home icon" style="width:41px; height:41px; ">';
+
         this.homePosition = {
             vehicleId: this.vehicleId,
             latLon: new L.LatLng(home.lat, home.lon),
@@ -123,7 +131,9 @@ export class Vehicle{
             posUpdate = newPos;
         }
 
-        let iconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
+        let iconBackgroundColor = this.isSelected ? backgroundColors[this.vehicleId] : opaqueBackgroundColors[this.vehicleId];
+        let iconHTML = '<div style="background-color: ' + iconBackgroundColor + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
+
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
             latLon: new L.LatLng(posUpdate.lat, posUpdate.lon),
@@ -142,7 +152,9 @@ export class Vehicle{
             attUpdate = newAtt;
         }
 
-        let iconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + attUpdate.yaw + 'deg); -moz-transform: rotate(' + attUpdate.yaw + 'deg); -o-transform: rotate(' + attUpdate.yaw + 'deg); -ms-transform: rotate(' + attUpdate.yaw + 'deg); transform: rotate(' + attUpdate.yaw + 'deg);">';
+        let iconBackgroundColor = this.isSelected ? backgroundColors[this.vehicleId] : opaqueBackgroundColors[this.vehicleId];
+        let iconHTML = '<div style="background-color: ' + iconBackgroundColor + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + attUpdate.yaw + 'deg); -moz-transform: rotate(' + attUpdate.yaw + 'deg); -o-transform: rotate(' + attUpdate.yaw + 'deg); -ms-transform: rotate(' + attUpdate.yaw + 'deg); transform: rotate(' + attUpdate.yaw + 'deg);">';
+
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
             latLon: new L.LatLng(this.position.lat, this.position.lon),
@@ -154,5 +166,4 @@ export class Vehicle{
             })
         };
     }
-
 }

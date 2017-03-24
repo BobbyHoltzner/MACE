@@ -24,8 +24,6 @@ import { ContextMenu } from '../components/ContextMenu';
 
 import * as deepcopy from 'deepcopy';
 
-
-
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 var net = require('net');
@@ -103,7 +101,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
     setInterval(() => {
       this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
-    }, 7000);
+    }, 2000);
   }
 
   setupTCPServer = () => {
@@ -132,7 +130,13 @@ export default class AppContainer extends React.Component<Props, State> {
 
 
     // TODO: Allow for user configuration of the port and probably address too
-    this.state.tcpServer.listen(1234);
+    try{
+      this.state.tcpServer.listen(1234);
+    }
+    catch(e) {
+      console.log('Error: ' + e);
+    }
+
     console.log('System listening at http://localhost:1234');
   }
 
@@ -143,7 +147,7 @@ export default class AppContainer extends React.Component<Props, State> {
     if(jsonData.dataType === "ConnectedVehicles"){
       let jsonVehicles = jsonData as ConnectedVehiclesType;
 
-      console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
+      // console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
 
       // Check if vehicle is already in the map. If so, do nothing. If not, add it:
       for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
@@ -206,6 +210,15 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[vehicleHome.vehicleID].setVehicleHome(vehicleHome);
       this.setState({connectedVehicles: stateCopy});
     }
+    else if(jsonData.dataType === 'VehicleFuel') {
+      let vehicleFuel = jsonData as TCPFuelType;
+
+      stateCopy[vehicleFuel.vehicleID].fuel.batteryRemaining = vehicleFuel.batteryRemaining;
+      stateCopy[vehicleFuel.vehicleID].fuel.batteryCurrent = vehicleFuel.batteryCurrent;
+      stateCopy[vehicleFuel.vehicleID].fuel.batteryVoltage = vehicleFuel.batteryVoltage;
+
+      this.setState({connectedVehicles: stateCopy});
+    }
   }
 
 
@@ -229,7 +242,7 @@ export default class AppContainer extends React.Component<Props, State> {
     // Add a 'data' event handler for the client socket
     // data is what the server sent to this socket
     socket.on('data', function(data: any) {
-        console.log('DATA: ' + data);
+        // console.log('DATA: ' + data);
         // let jsonData = JSON.parse(data);
         // this.parseTCPServerData(jsonData);
 
@@ -274,8 +287,6 @@ export default class AppContainer extends React.Component<Props, State> {
     this.notificationSystem.addNotification(notification);
   }
 
-  handleSelectedAircraftChange = (id: string) => {}
-
   handleAircraftCommand = (id: string, tcpCommand: string, vehicleCommand: string) => {
     console.log(tcpCommand);
     this.makeTCPRequest(parseInt(id), tcpCommand, vehicleCommand)
@@ -292,8 +303,8 @@ export default class AppContainer extends React.Component<Props, State> {
 
   onOpenVehicleEdit = (vehicleID: string) => {
     // If we are passing in a vehicle ID, don't allow the dropdown to be selectable on the edit window as we are editing a specific vehicle:
-    console.log("On open vehicle edit: " + vehicleID);
-    this.setState({selectedVehicleID: vehicleID}, () => this.setState({allowVehicleSelect: vehicleID ? false : true, showEditVehicleHomeDialog: true}));
+    this.handleSelectedAircraftUpdate(vehicleID);
+    this.setState({allowVehicleSelect: vehicleID ? false : true, showEditVehicleHomeDialog: true});
   }
 
   handleSaveVehicleHome = (vehicleID: string, vehicleHome: PositionType) => {
@@ -329,6 +340,32 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({showContextMenu: false, showEditGlobalHomeDialog: true, allowVehicleSelect: false, showEditVehicleHomeDialog: false, useContext: true})
   }
 
+  handleSelectedAircraftUpdate = (id: string) => {
+    let stateCopy = deepcopy(this.state.connectedVehicles);
+    let selectedID = "0";
+    Object.keys(this.state.connectedVehicles).map((key: string) => {
+      if(key === id){
+        stateCopy[id].isSelected = !stateCopy[id].isSelected;
+        selectedID = stateCopy[id].isSelected ? id : "0";
+      }
+      else {
+        stateCopy[key].isSelected = false;
+      }
+      stateCopy[key].updateMarkerPosition();
+    });
+
+    this.setState({connectedVehicles: stateCopy, selectedVehicleID: selectedID});
+  }
+
+  handleMapClick = (e: L.LeafletMouseEvent) => {
+    this.setState({showContextMenu: false});
+  }
+
+  handleMarkerClick = (e: L.LeafletMouseEvent, vehicleId: string, type: string) => {
+    this.handleSelectedAircraftUpdate(vehicleId);
+    this.setState({showContextMenu: false});
+  }
+
   render() {
 
     const width = window.screen.width;
@@ -351,6 +388,7 @@ export default class AppContainer extends React.Component<Props, State> {
         <MuiThemeProvider muiTheme={lightMuiTheme}>
           <div style={parentStyle}>
 
+
             <AppBar
                 title="MACE"
                 style={{backgroundColor: colors.orange700}}
@@ -368,12 +406,14 @@ export default class AppContainer extends React.Component<Props, State> {
               connectedVehicles={this.state.connectedVehicles}
               onAircraftCommand={this.handleAircraftCommand}
               handleOpenVehicleEdit={this.onOpenVehicleEdit}
+              selectedVehicleID={this.state.selectedVehicleID}
             />
 
             <VehicleCommandsContainer
               connectedVehicles={this.state.connectedVehicles}
-              onSelectedAircraftChange={this.handleSelectedAircraftChange}
+              onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
               onAircraftCommand={this.handleAircraftCommand}
+              selectedAircraftID={this.state.selectedVehicleID}
             />
 
             <VehicleWarningsContainer
@@ -410,9 +450,7 @@ export default class AppContainer extends React.Component<Props, State> {
               />
             }
 
-
-
-            <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} onClick={() => this.setState({showContextMenu: false})} onContextmenu={this.triggerContextMenu} onDrag={() => this.setState({showContextMenu: false})} >
+            <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} onContextmenu={this.triggerContextMenu} onDrag={() => this.setState({showContextMenu: false})} >
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.state.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
 
@@ -421,10 +459,11 @@ export default class AppContainer extends React.Component<Props, State> {
                   {/* Aircraft Icons */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
-                      <Marker key={key} position={this.state.connectedVehicles[key].vehicleMarker.latLon} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
+                      <Marker onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.state.connectedVehicles[key].vehicleMarker.latLon} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
+                      {/*
                         <Popup open={true}>
-                          <span>Selected</span>
                         </Popup>
+                      */}
                       </Marker>
                     );
                   })}
@@ -432,10 +471,12 @@ export default class AppContainer extends React.Component<Props, State> {
                   {/* Home Icons */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
-                      <Marker key={key} position={this.state.connectedVehicles[key].homePosition.latLon} icon={this.state.connectedVehicles[key].homePosition.icon} title={key}>
+                      <Marker onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "home")} key={key} position={this.state.connectedVehicles[key].homePosition.latLon} icon={this.state.connectedVehicles[key].homePosition.icon} title={key}>
+                      {/*
                         <Popup open={true}>
                           <span>Selected</span>
                         </Popup>
+                      */}
                       </Marker>
                     );
                   })}

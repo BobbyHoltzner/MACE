@@ -191,7 +191,7 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
 void ModuleGroundStation::testFunction()
 {
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestDummyFunction(this, 1);
+        ptr->RequestDummyFunction(this, 2);
     });
 }
 
@@ -357,7 +357,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
         //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-//            std::cout << "  " << componentsUpdated.at(i) << std::endl;
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
@@ -376,7 +375,20 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 //std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
 
                 // Write Position data to the GUI:
-                //sendPositionData(senderID, component);
+//                sendPositionData(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Fuel::Name()) {
+                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write fueld data to the GUI:
+                sendVehicleFuel(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
+                // TODO
+            }
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Text::Name()) {
+                // TODO
             }
         }
     }
@@ -387,10 +399,11 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
         //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-//            std::cout << "  " << componentsUpdated.at(i) << std::endl;
             if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+
+                std::cout << "vehicle mission" << std::endl;
 
                 // Write mission items to the GUI:
                 sendVehicleMission(senderID, component);
@@ -419,7 +432,10 @@ void ModuleGroundStation::sendVehicleMission(const int &vehicleID, const std::sh
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
-    UNUSED(bytesWritten);
+
+    if(!bytesWritten){
+        std::cout << "Write Vehicle Mission Data failed..." << std::endl;
+    }
 }
 
 void ModuleGroundStation::sendVehicleHome(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionHomeTopic> &component)
@@ -586,6 +602,30 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
         m_timeoutOccured = false;
     }
 }
+
+void ModuleGroundStation::sendVehicleFuel(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleFuel";
+    json["vehicleID"] = vehicleID;
+    json["batteryRemaining"] = component->getBatteryRemaining();
+    json["batteryCurrent"] = component->getBatteryCurrent();
+    json["batteryVoltage"] = component->getBatteryVoltage();
+
+    QJsonDocument doc(json);
+    if(m_timeoutOccured)
+    {
+        bool bytesWritten = writeTCPData(doc.toJson());
+
+        if(!bytesWritten){
+            std::cout << "Write Fuel Data failed..." << std::endl;
+        }
+
+        // Reset timeout:
+        m_timeoutOccured = false;
+    }
+}
+
 void ModuleGroundStation::NewlyAvailableCurrentMission(const int &vehicleID)
 {
     std::cout<<"I have been told there is a new mission available"<<std::endl;

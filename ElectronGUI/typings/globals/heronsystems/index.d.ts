@@ -12,6 +12,12 @@ type AttitudeType = {
     yaw: number
 };
 
+type FuelType = {
+    batteryRemaining: number,
+    batteryCurrent: number,
+    batteryVoltage: number
+}
+
 type VehicleModeType = 'LOITER' | 'RTL' | 'LAND' | 'AUTO' | 'GUIDED' | 'UNKNOWN';
 
 type VehicleStateType = {
@@ -35,33 +41,25 @@ type ConnectedVehiclesType = TCPDescriptorType & {
   connectedVehicles: number[]
 }
 
-type TCPPositionType = TCPDescriptorType & {
-  lat: number,
-  lon: number,
-  alt: number,
+type TCPPositionType = TCPDescriptorType & PositionType & {
   positionFix: number,
   numSats: number
-}
+};
 
-type TCPAttitudeType = TCPDescriptorType & {
-  roll: number,
-  pitch: number,
-  yaw: number
-}
+type TCPAttitudeType = TCPDescriptorType & AttitudeType;
 
-type MissionItemType = {
+type TCPFuelType = TCPDescriptorType & FuelType;
+
+type MissionItemType = PositionType & {
   description: string,
-  lat: number,
-  lon: number,
-  alt: number,
   type: string
-}
+};
 
 type TCPMissionType = TCPDescriptorType & {
   missionItems: MissionItemType[]
-}
+};
 
-type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPMissionType;
+type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPFuelType | TCPMissionType;
 
 
 type MarkerType = {
@@ -69,16 +67,16 @@ type MarkerType = {
   icon: L.Icon,
   altitude: number,
   vehicleId?: number
-}
+};
 
 type LayerGroupType = {
   type: string,
   latLons: L.LatLng[]
-}
+};
 
 type MissionLayerType = {
   descriptions: string[],
   latLons: L.LatLng[],
   itemTypes: string[],
   icons: L.Icon[]
-}
+};
