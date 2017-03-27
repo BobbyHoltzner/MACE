@@ -6,7 +6,7 @@
 
 namespace MaceCore
 {
-class IModuleEventsExternalLink : public IModuleEventsVehicle
+class IModuleEventsExternalLink : public IModuleEventsGeneral
 {
 public:
 
