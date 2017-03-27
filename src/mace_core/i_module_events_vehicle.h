@@ -1,5 +1,5 @@
-#ifndef I_VEHICLE_EVENTS_H
-#define I_VEHICLE_EVENTS_H
+#ifndef I_MODULE_VEHICLE_EVENTS_H
+#define I_MODULE_VEHICLE_EVENTS_H
 #include "data/mission_map.h"
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_mission_item/mission_item_components.h"
@@ -18,4 +18,4 @@ public:
 
 } //End MaceCore Namespace
 
-#endif // I_VEHICLE_EVENTS_H
+#endif // I_MODULE_VEHICLE_EVENTS_H

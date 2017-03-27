@@ -2,12 +2,11 @@
 #define I_MODULE_EVENTS_EXTERNAL_LINK_H
 
 #include "i_module_events_general.h"
-
+#include "i_module_events_vehicle.h"
 
 namespace MaceCore
 {
-
-class IModuleEventsExternalLink : public IModuleEventsGeneral
+class IModuleEventsExternalLink : public IModuleEventsVehicle
 {
 public:
 
