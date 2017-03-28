@@ -339,6 +339,9 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
 void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
 {
     UNUSED(sender);
+    //TODO FIX KEN: We should incorporate a method that shall exist to understand who wants to receive
+    //specific methods and information. Otherwise we may be blasting to an unknown world.
+    //This is also bad as we are assuming that the only item calling this would be a vehicle instance
     m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
 }
 

@@ -104,6 +104,11 @@ public:
     virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm) = 0;
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
     virtual void RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
+//    virtual void RequestVehicleLand(const MissionItem::SpatialLand<DataState::StateGlobalPosition> &vehicleLand) = 0;
+//    virtual void RequestVehicleRTL(const MissionItem::SpatialRTL &vehicleRTL) = 0;
+
+    virtual void RequestVehicleHomePosition(const int &vehicleID) = 0;
+    virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome) = 0;
 
     virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList) = 0;
     virtual void RequestCurrentMissionQueue(const int &vehicleID) = 0;
@@ -113,8 +118,7 @@ public:
     virtual void RequestCurrentGuidedQueue(const int &vehicleID) = 0;
     virtual void RequestClearGuidedQueue(const int &vehicleID) = 0;
 
-    virtual void RequestVehicleHomePosition(const int &vehicleID) = 0;
-    virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome) = 0;
+
 
 
 };

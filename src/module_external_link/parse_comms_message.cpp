@@ -17,10 +17,8 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         {
             //The system has yet to have communicated through this module
             //We therefore have to notify the core that there is a new vehicle
-            std::cout<<"I have not located it in the map and therefore will add it to the map"<<std::endl;
-
             systemIDMap.insert({systemID,0});
-            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                 ptr->NewConstructedVehicle(this, systemID);
             });
         }
@@ -82,6 +80,13 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //The global position, as returned by the Global Positioning System (GPS). This is NOT the global position estimate of the system, but rather a RAW sensor value. See message GLOBAL_POSITION for the global position estimate. Coordinate frame is right-handed, Z-axis up (GPS frame).
         mavlink_gps_raw_int_t decodedMSG;
         mavlink_msg_gps_raw_int_decode(message,&decodedMSG);
+        DataGenericItem::DataGenericItem_GPS newItem = DataCOMMS::Generic_COMMSTOMACE::GPS_MACETOCOMMS(decodedMSG,systemID);
+        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPS = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(newItem);
+        m_VehicleDataTopic.SetComponent(ptrGPS, topicDatagram);
+        //notify listneres of topic
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
         break;
     }
     case MAVLINK_MSG_ID_GPS_STATUS:
@@ -194,6 +199,50 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         });
    break;
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// HOME BASED EVENTS:
+    ////////////////////////////////////////////////////////////////////////////
+    case MAVLINK_MSG_ID_SET_HOME_POSITION:
+    {
+        mavlink_set_home_position_t decodedMSG;
+        mavlink_msg_set_home_position_decode(message,&decodedMSG);
+        DataCOMMS::Mission_COMMSTOMACE missionConvert;
+        MissionItem::SpatialHome systemHome;
+        missionConvert.Home_COMMSTOMACE(decodedMSG.target_system,decodedMSG,systemHome);
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->SetVehicleHomePosition(this, systemHome);
+        });
+        break;
+    }
+    case MAVLINK_MSG_ID_HOME_POSITION:
+    {
+        mavlink_home_position_t decodedMSG;
+        mavlink_msg_home_position_decode(message,&decodedMSG);
+
+        MissionItem::SpatialHome spatialHome;
+        spatialHome.position.latitude = decodedMSG.latitude / pow(10,7);
+        spatialHome.position.longitude = decodedMSG.longitude / pow(10,7);
+        spatialHome.position.altitude = decodedMSG.altitude / 1000;
+        spatialHome.setVehicleID(systemID);
+
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->NewVehicleHomePosition(this,spatialHome);
+        });
+
+        std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+        missionTopic->setVehicleID(systemID);
+        missionTopic->setHome(spatialHome);
+
+        MaceCore::TopicDatagram topicDatagram;
+        m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
+        //notify listneres of topic
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
+
+        break;
+    }
     ////////////////////////////////////////////////////////////////////////////
     /// MISSION BASED EVENTS:
     ////////////////////////////////////////////////////////////////////////////
@@ -216,12 +265,12 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
             mavlink_msg_mission_request_pack_chan(associatedSystemID,0,m_LinkChan,&msg,systemID,0,status.remainingItems.at(0));
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
-            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                 ptr->UpdateVehicleMission(this, MissionItem::MissionList::INCOMPLETE, missionList,Data::MissionMap::CURRENT);
             });
         }else{
             //We should update the core
-            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                 ptr->UpdateVehicleMission(this, MissionItem::MissionList::COMPLETE, missionList,Data::MissionMap::CURRENT);
             });
             //KEN FIX: Check that target system matches sysID
@@ -300,11 +349,9 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         newMissionList.initializeQueue(decodedMSG.count);
         Data::MissionMap relevantMissionQueue = Data::MissionMap::CURRENT;
 
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->UpdateVehicleMission(this, MissionItem::MissionList::INCOMPLETE, newMissionList,relevantMissionQueue);
         });
-
-        m_VehicleCurrentMissionMap.at(systemID).initializeQueue(decodedMSG.count);
 
         mavlink_message_t msg;
         mavlink_msg_mission_request_pack_chan(associatedSystemID,0,m_LinkChan,&msg,systemID,0,0);

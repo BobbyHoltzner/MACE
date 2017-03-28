@@ -33,8 +33,6 @@ ModuleExternalLink::ModuleExternalLink() :
     newMissionList.insertMissionItem(newWP1);
     newMissionList.insertMissionItem(newWP2);
     //newMissionList.insertMissionItem(newWP3);
-
-    m_VehicleCurrentMissionMap.insert({1,newMissionList});
 }
 
 //!
@@ -125,8 +123,14 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionHomeTopic::Name()) {
+                //We have received an updated HomePositionTopic
+                std::cout<<"I have recieved a home position topic"<<std::endl;
                 std::shared_ptr<MissionTopic::MissionHomeTopic> component = std::make_shared<MissionTopic::MissionHomeTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+                MissionItem::SpatialHome newHome = component->getHome();
+                DataCOMMS::Mission_MACETOCOMMS commsTranslator(newHome.getVehicleID(),0);
+                mavlink_message_t msg = commsTranslator.Home_MACETOCOMMS(newHome,m_LinkChan,0);
+                m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
             }
         }
     }
@@ -135,7 +139,7 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
 
 ///////////////////////////////////////////////////////////////////////////////////////
 /// The following are public virtual functions imposed from IModuleCommandExternalLink.
-///////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////
 /// GENERAL VEHICLE COMMAND EVENTS: These are events that may have a direct

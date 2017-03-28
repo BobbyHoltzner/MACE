@@ -190,8 +190,16 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
 
 void ModuleGroundStation::testFunction()
 {
+    MissionItem::SpatialHome newHome;
+//    newHome.position.latitude = 37.890903;
+//    newHome.position.longitude = -76.814125;
+    newHome.position.latitude = 37.891415;
+    newHome.position.longitude = -76.815701;
+    newHome.position.altitude = 100;
+    newHome.setVehicleID(1);
+
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestDummyFunction(this, 1);
+        ptr->SetVehicleHomePosition(this, newHome);
     });
 }
 

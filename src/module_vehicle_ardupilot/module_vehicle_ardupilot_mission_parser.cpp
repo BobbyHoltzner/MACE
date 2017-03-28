@@ -180,6 +180,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         //Ack message during MISSION handling. The type field states if this message is a positive ack (type=0) or if an error happened (type=non-zero).
         mavlink_mission_ack_t decodedMSG;
         mavlink_msg_mission_ack_decode(message,&decodedMSG);
+        std::cout<<"The mission command was acknowledged"<<std::endl;
         break;
     }
     case MAVLINK_MSG_ID_HOME_POSITION:

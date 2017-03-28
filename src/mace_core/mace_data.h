@@ -116,10 +116,11 @@ public:
         vehicleIDs = m_AvailableVehicles;
     }
 
-    void GetVehicleHomePostion(const int &vehicleID, MissionItem::SpatialHome &vehicleHome) const
+    MissionItem::SpatialHome GetVehicleHomePostion(const int &vehicleID) const
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        vehicleHome = m_VehicleHomeMap.at(vehicleID);
+        MissionItem::SpatialHome vehicleHome = m_VehicleHomeMap.at(vehicleID);
+        return vehicleHome;
     }
 
 private:

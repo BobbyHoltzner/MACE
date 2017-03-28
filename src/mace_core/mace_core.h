@@ -18,6 +18,7 @@
 #include "i_module_command_sensors.h"
 #include "i_module_command_vehicle.h"
 
+#include "i_module_events_external_link.h"
 #include "i_module_events_ground_station.h"
 #include "i_module_events_path_planning.h"
 #include "i_module_events_rta.h"
@@ -32,7 +33,7 @@
 namespace MaceCore
 {
 
-class MACE_CORESHARED_EXPORT MaceCore : public IModuleTopicEvents, public IModuleEventsVehicle, public IModuleEventsSensors, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsGroundStation
+class MACE_CORESHARED_EXPORT MaceCore : public IModuleTopicEvents, public IModuleEventsVehicle, public IModuleEventsSensors, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsGroundStation, public IModuleEventsExternalLink
 {
 
 
@@ -196,6 +197,7 @@ private:
     std::map<std::string, IModuleCommandVehicle*> m_VehicleIDToPtr;
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
 
+    std::map<int, std::shared_ptr<IModuleEventsExternalLink>> m_ExternalLink;
 
     std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;

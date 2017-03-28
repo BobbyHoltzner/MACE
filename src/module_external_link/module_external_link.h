@@ -193,9 +193,6 @@ private:
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
-
-    std::map<int, MissionItem::MissionList> m_VehicleCurrentMissionMap;
-    std::map<int, MissionItem::MissionList> m_VehicleProposedMissionMap;
 };
 
 #endif // MODULE_EXTERNAL_LINK_H
