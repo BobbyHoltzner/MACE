@@ -7,6 +7,8 @@
 
 #include "data/timer.h"
 
+#include "takeoff_thread.h"
+
 #include "module_vehicle_ardupilot_global.h"
 #include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
 
@@ -102,19 +104,19 @@ public:
     //! \brief SetCurrentMissionQueue
     //! \param missionList
     //!
-    virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList);
+    virtual void SetMissionQueue(const MissionItem::MissionList &missionList);
 
     //!
     //! \brief RequestCurrentMissionQueue
     //! \param vehicleID
     //!
-    virtual void RequestCurrentMissionQueue (const int &vehicleID);
+    virtual void GetMissionQueue (const int &vehicleID);
 
     //!
     //! \brief RequestClearMissionQueue
     //! \param vehicleID
     //!
-    virtual void RequestClearMissionQueue (const int &vehicleID);
+    virtual void ClearMissionQueue (const int &vehicleID);
 
 
     ////////////////////////////////////////////////////////////////////////////
