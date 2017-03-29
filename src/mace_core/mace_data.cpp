@@ -2,55 +2,86 @@
 
 namespace MaceCore{
 
-void MaceData::updateMissionList(const MissionItem::MissionList missionList, const Data::MissionMap &relevantQueue)
+void MaceData::updateCurrentMissionList(const MissionItem::MissionList missionList)
 {
-    std::lock_guard<std::mutex> guard(m_VehicleMissionMutex);
-
+    std::lock_guard<std::mutex> guard(m_VehicleCurrentMissionMUTEX);
+    MissionItem::MissionList::MissionType relevantQueue = missionList.getMissionType();
     int systemID = missionList.getVehicleID();
 
     switch(relevantQueue){
-    case Data::MissionMap::PROPOSED:
+    case MissionItem::MissionList::AUTO_ACTUAL:
     {
         try{
-            m_VehicleProposedMissionMap[systemID] = missionList;
+            m_VehicleCurrentMission[systemID][MissionItem::MissionList::AUTO_ACTUAL] = missionList;
         }catch(const std::out_of_range &oor){
-            std::cout<<"MACEDATA has requested an OOR on proposed mission map"<<std::endl;
+            std::cout<<"MACEDATA has requested an OOR on current auto mission map"<<std::endl;
         }
         break;
     }
-    case Data::MissionMap::CURRENT:
+    case MissionItem::MissionList::GUIDED_ACTUAL:
     default:
     {
         try{
-            m_VehicleCurrentMissionMap[systemID] = missionList;
+            m_VehicleCurrentMission[systemID][MissionItem::MissionList::GUIDED_ACTUAL] = missionList;
         }catch(const std::out_of_range &oor){
-            std::cout<<"MACEDATA has requested an OOR on proposed mission map"<<std::endl;
+            std::cout<<"MACEDATA has requested an OOR on current guided mission map"<<std::endl;
         }
         break;
     }
     }
 }
 
-MissionItem::MissionList MaceData::getMissionList(const int &systemID, const Data::MissionMap &relevantQueue) const
+void MaceData::updateProposedMissionList(const MissionItem::MissionList missionList)
 {
-    std::lock_guard<std::mutex> guard(m_VehicleMissionMutex);
+    std::lock_guard<std::mutex> guard(m_VehicleProposedMissionMUTEX);
+    MissionItem::MissionList::MissionType relevantQueue = missionList.getMissionType();
+    int systemID = missionList.getVehicleID();
 
-    MissionItem::MissionList newList;
     switch(relevantQueue){
-    case Data::MissionMap::PROPOSED:
+    case MissionItem::MissionList::AUTO_PROPOSED:
     {
         try{
-            newList = m_VehicleProposedMissionMap.at(systemID);
+            m_VehicleProposedMission[systemID][MissionItem::MissionList::AUTO_PROPOSED] = missionList;
+        }catch(const std::out_of_range &oor){
+            std::cout<<"MACEDATA has requested an OOR on current auto mission map"<<std::endl;
+        }
+        break;
+    }
+    case MissionItem::MissionList::GUIDED_PROPOSED:
+    default:
+    {
+        try{
+            m_VehicleProposedMission[systemID][MissionItem::MissionList::GUIDED_PROPOSED] = missionList;
+        }catch(const std::out_of_range &oor){
+            std::cout<<"MACEDATA has requested an OOR on current guided mission map"<<std::endl;
+        }
+        break;
+    }
+    }
+}
+
+MissionItem::MissionList MaceData::getMissionList(const int &systemID, const MissionItem::MissionList::MissionType missionType) const
+{
+    MissionItem::MissionList newList;
+    switch(missionType){
+    case MissionItem::MissionList::AUTO_ACTUAL:
+    case MissionItem::MissionList::GUIDED_ACTUAL:
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleCurrentMissionMUTEX);
+        try{
+            newList = m_VehicleCurrentMission.at(systemID).at(missionType);
         }catch(const std::out_of_range &oor){
             std::cout<<"MACEDATA has requested an OOR on proposed mission map"<<std::endl;
         }
         break;
     }
-    case Data::MissionMap::CURRENT:
+    case MissionItem::MissionList::AUTO_PROPOSED:
+    case MissionItem::MissionList::GUIDED_PROPOSED:
     default:
     {
+        std::lock_guard<std::mutex> guard(m_VehicleProposedMissionMUTEX);
         try{
-            newList = m_VehicleCurrentMissionMap.at(systemID);
+            newList = m_VehicleProposedMission.at(systemID).at(missionType);
         }catch(const std::out_of_range &oor){
             std::cout<<"MACEDATA has requested an OOR on proposed mission map"<<std::endl;
         }

@@ -190,16 +190,16 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
 
 void ModuleGroundStation::testFunction()
 {
-    MissionItem::SpatialHome newHome;
+    MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
 //    newHome.position.latitude = 37.890903;
 //    newHome.position.longitude = -76.814125;
-    newHome.position.latitude = 37.891415;
-    newHome.position.longitude = -76.815701;
-    newHome.position.altitude = 100;
-    newHome.setVehicleID(1);
+    newTakeoff.position.latitude = 37.891415;
+    newTakeoff.position.longitude = -76.815701;
+    newTakeoff.position.altitude = 100;
+    newTakeoff.setVehicleID(1);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->SetVehicleHomePosition(this, newHome);
+        ptr->RequestVehicleTakeoff(this, newTakeoff);
     });
 }
 

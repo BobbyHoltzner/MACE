@@ -345,12 +345,16 @@ void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::Spa
     m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
 }
 
-void MaceCore::UpdateVehicleMission(const void *sender, const MissionItem::MissionList::MissionListState status, const MissionItem::MissionList &missionList, const Data::MissionMap &relevantMissionProfile)
+void MaceCore::UpdateVehicleMission(const void *sender, const MissionItem::MissionList::MissionListStatus status, const MissionItem::MissionList &missionList)
 {
-    m_DataFusion->updateMissionList(missionList,relevantMissionProfile);
-    if(status == MissionItem::MissionList::COMPLETE)
+    if(status.state == MissionItem::MissionList::COMPLETE)
     {
-        //we should tell people it is done
+        m_DataFusion->updateCurrentMissionList(missionList);
+        //we should possibly tell people it is done rather than requiring the module
+    }
+    else if(status.state == MissionItem::MissionList::INCOMPLETE)
+    {
+        m_DataFusion->updateProposedMissionList(missionList);
     }
 }
 

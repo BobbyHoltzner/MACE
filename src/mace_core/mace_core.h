@@ -109,7 +109,7 @@ public:
 
     virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
     virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
-    virtual void UpdateVehicleMission(const void *sender, const MissionItem::MissionList::MissionListState status, const MissionItem::MissionList &missionList, const Data::MissionMap &relevantMissionProfile);
+    virtual void UpdateVehicleMission(const void *sender, const MissionItem::MissionList::MissionListStatus status, const MissionItem::MissionList &missionList);
 
 public:
 

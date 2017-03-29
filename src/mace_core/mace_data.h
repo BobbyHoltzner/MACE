@@ -692,12 +692,14 @@ private:
     /// VEHICLE MISSION METHODS
     /////////////////////////////////////////////////////////
 private:
-    mutable std::mutex m_VehicleMissionMutex;
-    std::map<int, MissionItem::MissionList> m_VehicleCurrentMissionMap;
-    std::map<int, MissionItem::MissionList> m_VehicleProposedMissionMap;
+    mutable std::mutex m_VehicleCurrentMissionMUTEX;
+    std::map<int, std::map<MissionItem::MissionList::MissionType, MissionItem::MissionList>> m_VehicleCurrentMission;
+    mutable std::mutex m_VehicleProposedMissionMUTEX;
+    std::map<int, std::map<MissionItem::MissionList::MissionType, MissionItem::MissionList>> m_VehicleProposedMission;
 public:
-    void updateMissionList(const MissionItem::MissionList missionList, const Data::MissionMap &relevantQueue);
-    MissionItem::MissionList getMissionList(const int &systemID, const Data::MissionMap &relevantQueue) const;
+    void updateCurrentMissionList(const MissionItem::MissionList missionList);
+    void updateProposedMissionList(const MissionItem::MissionList missionList);
+    MissionItem::MissionList getMissionList(const int &systemID, const MissionItem::MissionList::MissionType missionType) const;
 };
 
 } //END MaceCore Namespace

@@ -53,15 +53,15 @@ public:
         /////////////////////////////////////////////////////////////////////////
 
         this->template AddCommandLogic<MissionItem::MissionList>(CT::SET_CURRENT_MISSION_QUEUE, [this](const MissionItem::MissionList &missionList){
-            SetCurrentMissionQueue(missionList);
+            SetMissionQueue(missionList);
         });
 
         this->template AddCommandLogic<int>(CT::REQUEST_CURRENT_MISSION_QUEUE, [this](const int &vehicleID){
-            RequestCurrentMissionQueue(vehicleID);
+            GetMissionQueue(vehicleID);
         });
 
         this->template AddCommandLogic<int>(CT::REQUEST_CLEAR_MISSION_QUEUE, [this](const int &vehicleID){
-            RequestClearMissionQueue(vehicleID);
+            ClearMissionQueue(vehicleID);
         });
 
         /////////////////////////////////////////////////////////////////////////
@@ -110,9 +110,9 @@ public:
     virtual void RequestVehicleHomePosition(const int &vehicleID) = 0;
     virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome) = 0;
 
-    virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList) = 0;
-    virtual void RequestCurrentMissionQueue(const int &vehicleID) = 0;
-    virtual void RequestClearMissionQueue(const int &vehicleID) = 0;
+    virtual void SetMissionQueue(const MissionItem::MissionList &missionList) = 0;
+    virtual void GetMissionQueue(const int &vehicleID) = 0;
+    virtual void ClearMissionQueue(const int &vehicleID) = 0;
 
     virtual void SetCurrentGuidedQueue(const MissionItem::MissionList &missionList) = 0;
     virtual void RequestCurrentGuidedQueue(const int &vehicleID) = 0;

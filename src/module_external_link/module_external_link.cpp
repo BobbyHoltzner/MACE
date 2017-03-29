@@ -32,6 +32,7 @@ ModuleExternalLink::ModuleExternalLink() :
     newMissionList.insertMissionItem(newWP);
     newMissionList.insertMissionItem(newWP1);
     newMissionList.insertMissionItem(newWP2);
+    storedMissionList = newMissionList;
     //newMissionList.insertMissionItem(newWP3);
 }
 
@@ -188,12 +189,25 @@ void ModuleExternalLink::SetVehicleHomePosition(const MissionItem::SpatialHome &
 /// direct MACE hardware module.
 /////////////////////////////////////////////////////////////////////////
 
-void ModuleExternalLink::SetCurrentMissionQueue(const MissionItem::MissionList &missionList)
+void ModuleExternalLink::SetMissionQueue(const MissionItem::MissionList &missionList)
 {
-    UNUSED(missionList);
+    MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
+
+    if(status.state == MissionItem::MissionList::COMPLETE)
+    {
+        int itemsAvailable = missionList.getQueueSize();
+        mavlink_mission_count_t missionCount;
+        missionCount.target_system = missionList.getVehicleID();
+        missionCount.target_component = missionList.getMissionType();
+        missionCount.count = itemsAvailable;
+
+        mavlink_message_t msg;
+        mavlink_msg_mission_count_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionCount);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    }
 }
 
-void ModuleExternalLink::RequestCurrentMissionQueue(const int &vehicleID)
+void ModuleExternalLink::GetMissionQueue(const int &vehicleID)
 {
     mavlink_message_t msg;
     mavlink_mission_request_list_t list;
@@ -203,7 +217,7 @@ void ModuleExternalLink::RequestCurrentMissionQueue(const int &vehicleID)
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::RequestClearMissionQueue(const int &vehicleID)
+void ModuleExternalLink::ClearMissionQueue(const int &vehicleID)
 {
     UNUSED(vehicleID);
 }

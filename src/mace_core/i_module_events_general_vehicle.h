@@ -37,7 +37,7 @@ public:
     //! \param missionList
     //! \param relevantMissionProfile
     //!
-    virtual void UpdateVehicleMission(const void* sender, const MissionItem::MissionList::MissionListState status, const MissionItem::MissionList &missionList, const Data::MissionMap &relevantMissionProfile) = 0;
+    virtual void UpdateVehicleMission(const void* sender, const MissionItem::MissionList::MissionListStatus status, const MissionItem::MissionList &missionList) = 0;
 };
 
 } //End MaceCore Namespace

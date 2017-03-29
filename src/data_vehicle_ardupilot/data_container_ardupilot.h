@@ -34,7 +34,7 @@ public:
     MissionItem::MissionList m_CurrentGuidedQueue;
     MissionItem::MissionList m_ProposedGuidedQueue;
 
-protected:
+public:
 
     bool heartbeatSeen = false;
 

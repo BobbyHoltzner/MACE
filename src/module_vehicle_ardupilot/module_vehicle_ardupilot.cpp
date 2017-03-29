@@ -45,9 +45,6 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
 
 void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
 {
-    int vehicleID = vehicleTakeoff.getVehicleID();
-    DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
-    UNUSED(tmpData);
     DataMAVLINK::Command_MACETOMAVLINK commandObject;
     mavlink_message_t msg = commandObject.generateTakeoffMessage(vehicleTakeoff,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -78,7 +75,7 @@ void ModuleVehicleArdupilot::SetVehicleHomePosition(const MissionItem::SpatialHo
 /// direct MACE hardware module.
 /////////////////////////////////////////////////////////////////////////
 
-void ModuleVehicleArdupilot::SetCurrentMissionQueue(const MissionItem::MissionList &missionList)
+void ModuleVehicleArdupilot::SetMissionQueue(const MissionItem::MissionList &missionList)
 {
     int vehicleID = missionList.getVehicleID();
     DataArdupilot::DataVehicleArdupilot* tmpData = m_ArduPilotData.at(vehicleID);
@@ -94,14 +91,14 @@ void ModuleVehicleArdupilot::SetCurrentMissionQueue(const MissionItem::MissionLi
 //    tmpData = NULL;
 }
 
-void ModuleVehicleArdupilot::RequestCurrentMissionQueue(const int &vehicleID)
+void ModuleVehicleArdupilot::GetMissionQueue(const int &vehicleID)
 {
     mavlink_message_t msg;
     mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleVehicleArdupilot::RequestClearMissionQueue(const int &vehicleID)
+void ModuleVehicleArdupilot::ClearMissionQueue(const int &vehicleID)
 {
     //This is message number 45....
     //TODO: Do we get an acknowledgement from this?

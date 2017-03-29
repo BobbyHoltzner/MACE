@@ -121,19 +121,19 @@ public:
     //! \brief SetCurrentMissionQueue
     //! \param missionList
     //!
-    virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList);
+    virtual void SetMissionQueue(const MissionItem::MissionList &missionList);
 
     //!
     //! \brief RequestCurrentMissionQueue
     //! \param vehicleID
     //!
-    virtual void RequestCurrentMissionQueue (const int &vehicleID);
+    virtual void GetMissionQueue (const int &vehicleID);
 
     //!
     //! \brief RequestClearMissionQueue
     //! \param vehicleID
     //!
-    virtual void RequestClearMissionQueue (const int &vehicleID);
+    virtual void ClearMissionQueue (const int &vehicleID);
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -187,9 +187,9 @@ private:
     //! system to which to it attached. It will be defaulted to match the GCS ID.
     //!
     int associatedSystemID;
-
-
     std::map<int,int> systemIDMap;
+
+    MissionItem::MissionList storedMissionList;
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
