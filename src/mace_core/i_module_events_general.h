@@ -1,6 +1,7 @@
 #ifndef I_MODULE_EVENTS_GENERAL_H
 #define I_MODULE_EVENTS_GENERAL_H
 
+#include "data/system_description.h"
 #include "data/mission_map.h"
 #include "data_generic_mission_item/mission_item_components.h"
 
@@ -14,9 +15,9 @@ public:
     virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode) = 0;
     virtual void RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
 
-    virtual void SetCurrentVehicleMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
-    virtual void RequestCurrentVehicleMission(const void* sender, const int &vehicleID) = 0;
-    virtual void RequestVehicleClearAutoMission(const void* sender, const int &vehicleID) = 0;
+    virtual void RequestSetVehicleMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void RequestVehicleMission(const void* sender, const Data::SystemDescription &systemID) = 0;
+    virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID) = 0;
 
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID) = 0;
 

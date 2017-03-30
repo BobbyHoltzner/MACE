@@ -211,7 +211,7 @@ void MaceCore::RequestVehicleTakeoff(const void* sender, const MissionItem::Spat
 
 
 
-void MaceCore::SetCurrentVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
+void MaceCore::RequestSetVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
 {
     UNUSED(sender);
     int vehicleID = missionList.getVehicleID();
@@ -228,33 +228,33 @@ void MaceCore::SetCurrentVehicleMission(const void *sender, const MissionItem::M
         }
     }
 }
-void MaceCore::RequestCurrentVehicleMission(const void *sender, const int &vehicleID)
+void MaceCore::RequestVehicleMission(const void *sender, const Data::SystemDescription &systemID)
 {
     UNUSED(sender);
-    if(vehicleID == 0)
+    if(systemID.getSystemID() == 0)
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            it->second->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
+            it->second->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,systemID);
         }
     }else{
         try{
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
+            m_VehicleIDToPort.at(systemID.getSystemID())->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,systemID);
         }catch(const std::out_of_range &oor){
 
         }
     }
 }
-void MaceCore::RequestVehicleClearAutoMission(const void* sender, const int &vehicleID)
+void MaceCore::RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID)
 {
     UNUSED(sender);
-    if(vehicleID == 0)
+    if(systemID.getSystemID() == 0)
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            it->second->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,vehicleID);
+            it->second->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,systemID);
         }
     }else{
         try{
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,vehicleID);
+            m_VehicleIDToPort.at(systemID.getSystemID())->MarshalCommand(VehicleCommands::REQUEST_CLEAR_MISSION_QUEUE,systemID);
         }catch(const std::out_of_range &oor){
 
         }
@@ -349,12 +349,12 @@ void MaceCore::UpdateVehicleMission(const void *sender, const MissionItem::Missi
 {
     if(status.state == MissionItem::MissionList::COMPLETE)
     {
-        m_DataFusion->updateCurrentMissionList(missionList);
+        m_DataFusion->updateCOMPLETEMissionList(missionList);
         //we should possibly tell people it is done rather than requiring the module
     }
     else if(status.state == MissionItem::MissionList::INCOMPLETE)
     {
-        m_DataFusion->updateProposedMissionList(missionList);
+        m_DataFusion->updateINCOMPLETEMissionList(missionList);
     }
 }
 

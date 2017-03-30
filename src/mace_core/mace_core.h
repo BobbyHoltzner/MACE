@@ -85,9 +85,9 @@ public:
     virtual void RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
 
-    virtual void SetCurrentVehicleMission(const void* sender, const MissionItem::MissionList &missionList);
-    virtual void RequestCurrentVehicleMission(const void* sender, const int &vehicleID);
-    virtual void RequestVehicleClearAutoMission(const void* sender, const int &vehicleID);
+    virtual void RequestSetVehicleMission(const void* sender, const MissionItem::MissionList &missionList);
+    virtual void RequestVehicleMission(const void* sender, const Data::SystemDescription &systemID);
+    virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID);
 
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
 

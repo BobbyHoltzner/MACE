@@ -5,38 +5,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ModuleExternalLink::ModuleExternalLink() :
-    m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"), associatedSystemID(255)
+    m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"), associatedSystemID(255),firstHearbeat(true)
 {
-//    MissionItem::MissionList missionList;
-//    missionList.setVehicleID(1);
-//    missionList.initializeQueue(4);
 
-//    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-//    newWP->position.setPosition(35.7470021,-78.8395026,0.0);
-//    newWP->setVehicleID(1);
-
-//    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP1 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-//    newWP1->position.setPosition(35.7463033,-78.8386631,0.0);
-//    newWP1->setVehicleID(1);
-
-//    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP2 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-//    newWP2->position.setPosition(35.7459724,-78.8390923,0.0);
-//    newWP2->setVehicleID(1);
-
-//    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP3 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-//    newWP3->position.setPosition(35.7466538,-78.8399184,0.0);
-//    newWP3->setVehicleID(1);
-
-//    missionList.insertMissionItem(newWP);
-//    missionList.insertMissionItem(newWP1);
-//    missionList.insertMissionItem(newWP2);
-//    missionList.insertMissionItem(newWP3);
-
-//    MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
-
-//    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-//        ptr->UpdateVehicleMission(this, status, missionList);
-//    });
 }
 
 //!
@@ -99,6 +70,41 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
                 mavlink_message_t msg = DataCOMMS::State_MACETOCOMMS::AttitudeTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
                 m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+                if(firstHearbeat)
+                {
+                    firstHearbeat = false;
+                    MissionItem::MissionList missionList;
+                    missionList.setMissionType(Data::MissionType::GUIDED_CURRENT);
+                    missionList.setVehicleID(1);
+                    missionList.initializeQueue(4);
+
+                    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+                    newWP->position.setPosition(35.7470021,-78.8395026,10.0);
+                    newWP->setVehicleID(1);
+
+                    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP1 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+                    newWP1->position.setPosition(35.7463033,-78.8386631,20.0);
+                    newWP1->setVehicleID(1);
+
+                    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP2 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+                    newWP2->position.setPosition(35.7459724,-78.8390923,30.0);
+                    newWP2->setVehicleID(1);
+
+                    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP3 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+                    newWP3->position.setPosition(35.7466538,-78.8399184,40.0);
+                    newWP3->setVehicleID(1);
+
+                    missionList.replaceMissionItemAtIndex(newWP,0);
+                    missionList.replaceMissionItemAtIndex(newWP1,1);
+                    missionList.replaceMissionItemAtIndex(newWP2,2);
+                    missionList.replaceMissionItemAtIndex(newWP3,3);
+
+                    MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
+
+                    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+                        ptr->UpdateVehicleMission(this, status, missionList);
+                    });
+                }
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
@@ -201,7 +207,7 @@ void ModuleExternalLink::SetMissionQueue(const MissionItem::MissionList &mission
         int itemsAvailable = missionList.getQueueSize();
         mavlink_mission_count_t missionCount;
         missionCount.target_system = missionList.getVehicleID();
-        missionCount.target_component = missionList.getMissionType();
+        missionCount.target_component = static_cast<int>(missionList.getMissionType());
         missionCount.count = itemsAvailable;
 
         mavlink_message_t msg;
@@ -210,19 +216,19 @@ void ModuleExternalLink::SetMissionQueue(const MissionItem::MissionList &mission
     }
 }
 
-void ModuleExternalLink::GetMissionQueue(const int &vehicleID)
+void ModuleExternalLink::GetMissionQueue(const Data::SystemDescription &targetSystem)
 {
     mavlink_message_t msg;
     mavlink_mission_request_list_t list;
-    list.target_system = vehicleID;
-    list.target_component = 0;
+    list.target_system = targetSystem.getSystemID();
+    list.target_component = targetSystem.getSystemComp();
     mavlink_msg_mission_request_list_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&list);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::ClearMissionQueue(const int &vehicleID)
+void ModuleExternalLink::ClearMissionQueue(const Data::SystemDescription &targetSystem)
 {
-    UNUSED(vehicleID);
+    UNUSED(targetSystem);
 }
 
 ////////////////////////////////////////////////////////////////////////////

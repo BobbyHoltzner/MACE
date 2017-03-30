@@ -13,8 +13,9 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         //This is message definition 39
         //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
         mavlink_mission_item_t decodedMSG;
-        mavlink_msg_mission_item_decode(message,&decodedMSG);        
-        MissionItem::MissionList missionList = this->getDataObject()->getMissionList(sysID,MissionItem::MissionList::AUTO_PROPOSED);
+        mavlink_msg_mission_item_decode(message,&decodedMSG);
+
+        MissionItem::MissionList missionList;
 
         if(decodedMSG.seq == 0)
         {
@@ -36,6 +37,9 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
                 ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
             });
         }else{
+            bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::INCOMPLETE, Data::MissionType::AUTO_CURRENT);
+            if(!validity)
+                return true;
             int currentIndex = decodedMSG.seq - 1; //we decrement 1 only here because ardupilot references home as 0 and we 0 index in our mission queue
             std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = DataArdupilot::MAVLINKMissionToMACEMission(sysID, decodedMSG);
             missionList.replaceMissionItemAtIndex(newMissionItem,currentIndex);
@@ -132,7 +136,9 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         mavlink_msg_mission_count_decode(message,&decodedMSG);
 
         MissionItem::MissionList newMissionList;
+        newMissionList.setMissionType(Data::MissionType::AUTO_CURRENT);
         newMissionList.setVehicleID(sysID);
+
         int queuesize = decodedMSG.count - 1; //we have to decrement 1 here because in actuality ardupilot references home as 0
         newMissionList.initializeQueue(queuesize);
         MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();

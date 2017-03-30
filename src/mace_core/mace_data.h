@@ -24,6 +24,7 @@
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_mission_item/mission_item_components.h"
 
+#include "data/system_description.h"
 #include "data/mission_map.h"
 
 namespace MaceCore
@@ -692,14 +693,16 @@ private:
     /// VEHICLE MISSION METHODS
     /////////////////////////////////////////////////////////
 private:
-    mutable std::mutex m_VehicleCurrentMissionMUTEX;
-    std::map<int, std::map<MissionItem::MissionList::MissionType, MissionItem::MissionList>> m_VehicleCurrentMission;
-    mutable std::mutex m_VehicleProposedMissionMUTEX;
-    std::map<int, std::map<MissionItem::MissionList::MissionType, MissionItem::MissionList>> m_VehicleProposedMission;
+    mutable std::mutex COMPLETEMissionMUTEX;
+    std::map<int, std::map<Data::MissionType,MissionItem::MissionList>> m_COMPLETEMission;
+
+    mutable std::mutex INCOMPLETEMissionMUTEX;
+    std::map<int, std::map<Data::MissionType,MissionItem::MissionList>> m_INCOMPLETEMission;
+
 public:
-    void updateCurrentMissionList(const MissionItem::MissionList missionList);
-    void updateProposedMissionList(const MissionItem::MissionList missionList);
-    MissionItem::MissionList getMissionList(const int &systemID, const MissionItem::MissionList::MissionType missionType) const;
+    void updateCOMPLETEMissionList(const MissionItem::MissionList missionList);
+    void updateINCOMPLETEMissionList(const MissionItem::MissionList missionList);
+    bool getMissionList(MissionItem::MissionList &newList, const int &systemID, const MissionItem::MissionList::MissionListState &missionState, const Data::MissionType &missionType) const;
 };
 
 } //END MaceCore Namespace

@@ -91,19 +91,19 @@ void ModuleVehicleArdupilot::SetMissionQueue(const MissionItem::MissionList &mis
 //    tmpData = NULL;
 }
 
-void ModuleVehicleArdupilot::GetMissionQueue(const int &vehicleID)
+void ModuleVehicleArdupilot::GetMissionQueue(const Data::SystemDescription &targetSystem)
 {
     mavlink_message_t msg;
-    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0);
+    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem.getSystemID(),0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleVehicleArdupilot::ClearMissionQueue(const int &vehicleID)
+void ModuleVehicleArdupilot::ClearMissionQueue(const Data::SystemDescription &targetSystem)
 {
     //This is message number 45....
     //TODO: Do we get an acknowledgement from this?
     mavlink_message_t msg;
-    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0);
+    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,targetSystem.getSystemID(),0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
@@ -180,7 +180,6 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         if((message.msgid == MAVLINK_MSG_ID_HEARTBEAT) && (firstHeartbeat))
         {
             firstHeartbeat = false;
-
             mavlink_message_t msg;
             mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0);
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);

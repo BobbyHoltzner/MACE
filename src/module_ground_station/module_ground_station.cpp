@@ -197,8 +197,11 @@ void ModuleGroundStation::testFunction()
 //    newTakeoff.position.longitude = -76.815701;
 //    newTakeoff.position.altitude = 100;
 //    newTakeoff.setVehicleID(1);
+
+    int missionType = static_cast<int>(Data::MissionType::GUIDED_CURRENT);
+    Data::SystemDescription newSystem(1,missionType);
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestCurrentVehicleMission(this, 1);
+        ptr->RequestVehicleMission(this, newSystem);
     });
 
 }
@@ -237,8 +240,10 @@ void ModuleGroundStation::getConnectedVehicles()
 
 void ModuleGroundStation::getVehicleMission(const int &vehicleID)
 {
+    Data::SystemDescription newSystem(vehicleID);
+
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestCurrentVehicleMission(this, vehicleID);
+        ptr->RequestVehicleMission(this, newSystem);
     });
 }
 

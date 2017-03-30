@@ -127,13 +127,13 @@ public:
     //! \brief RequestCurrentMissionQueue
     //! \param vehicleID
     //!
-    virtual void GetMissionQueue (const int &vehicleID);
+    virtual void GetMissionQueue (const Data::SystemDescription &targetSystem);
 
     //!
     //! \brief RequestClearMissionQueue
     //! \param vehicleID
     //!
-    virtual void ClearMissionQueue (const int &vehicleID);
+    virtual void ClearMissionQueue (const Data::SystemDescription &targetSystem);
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -180,6 +180,7 @@ public:
     virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
 private:
+    bool firstHearbeat;
     //!
     //! \brief associatedSystemID This is the identifier that is transmitting the data as a representative of.
     //! In the case of an airborne instance it will be assigned to the value of the heartbeat message recieved

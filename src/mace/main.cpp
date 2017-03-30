@@ -97,7 +97,6 @@ int main(int argc, char *argv[])
         case MaceCore::ModuleBase::EXTERNAL_LINK:
         {
             core.AddExternalLink(std::dynamic_pointer_cast<MaceCore::IModuleCommandExternalLink>(module));
-            std::cout<<"External Link Pointer: "<<data.get()<<std::endl;
             break;
         }
         case  MaceCore::ModuleBase::GROUND_STATION:
@@ -147,7 +146,6 @@ int main(int argc, char *argv[])
         case MaceCore::ModuleBase::VEHICLE_COMMS:
         {
             core.AddVehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));
-            std::cout<<"Vehicle Comms Pointer: "<<data.get()<<std::endl;
             numVehicles++;
             break;
         }

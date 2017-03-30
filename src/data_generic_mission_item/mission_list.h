@@ -5,19 +5,13 @@
 #include <memory>
 #include <vector>
 #include "abstract_mission_item.h"
+#include "data/mission_map.h"
 
 namespace MissionItem {
 
 class MissionList
 {
 public:
-    enum MissionType : uint8_t{
-        AUTO_ACTUAL,
-        AUTO_PROPOSED,
-        GUIDED_ACTUAL,
-        GUIDED_PROPOSED
-    };
-
     enum MissionListState{
         COMPLETE,
         INCOMPLETE
@@ -52,11 +46,11 @@ public:
         return m_VehicleID;
     }
 
-    void setMissionType(const MissionType &missionType){
+    void setMissionType(const Data::MissionType &missionType){
         this->missionType = missionType;
     }
 
-    MissionType getMissionType() const{
+    Data::MissionType getMissionType() const{
         return missionType;
     }
 
@@ -93,7 +87,7 @@ private:
     //! \brief missionType This denotes the queue in which the information should be stored.
     //! This parameter will be packaged in the COMPID protocol for now.
     //!
-    MissionType missionType;
+    Data::MissionType missionType;
 };
 
 } //end of namespace MissionItem
