@@ -93,3 +93,14 @@ type MissionLayerType = {
   itemTypes: string[],
   icons: L.Icon[]
 };
+
+type MessagePreferencesType = {
+  emergency: boolean,
+  alert: boolean,
+  critical: boolean,
+  error: boolean,
+  warning: boolean,
+  notice: boolean,
+  info: boolean,
+  debug: boolean
+}

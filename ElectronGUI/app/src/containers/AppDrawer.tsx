@@ -12,7 +12,8 @@ import Divider from 'material-ui/Divider';
 type Props = {
     openDrawer: boolean,
     onToggleDrawer: (open: boolean) => void,
-    onDrawerAction: (action: string) => void
+    onDrawerAction: (action: string) => void,
+    showMessagesMenu: boolean
 }
 
 type State = {

@@ -20,6 +20,7 @@ import { Vehicle } from '../Vehicle';
 import { backgroundColors, opaqueBackgroundColors } from '../util/Colors';
 import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
 import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
+import { MessagesDialog } from '../components/MessagesDialog';
 import { ContextMenu } from '../components/ContextMenu';
 
 import * as deepcopy from 'deepcopy';
@@ -51,7 +52,9 @@ type State = {
   globalOrigin?: PositionType,
   showContextMenu?: boolean,
   contextAnchor?: L.LeafletMouseEvent,
-  useContext?: boolean
+  useContext?: boolean,
+  showMessagesMenu?: boolean,
+  messagePreferences?: MessagePreferencesType
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -90,7 +93,18 @@ export default class AppContainer extends React.Component<Props, State> {
       selectedVehicleID: "0",
       showContextMenu: false,
       contextAnchor: null,
-      useContext: false
+      useContext: false,
+      showMessagesMenu: false,
+      messagePreferences: {
+        emergency: true,
+        alert: true,
+        critical: true,
+        error: true,
+        warning: true,
+        notice: true,
+        info: true,
+        debug: true
+      }
     }
   }
 
@@ -235,43 +249,53 @@ export default class AppContainer extends React.Component<Props, State> {
     }
     else if(jsonData.dataType === 'VehicleText') {
       let vehicleText = jsonData as TCPTextType;
-
+      let showMessage = false;
       let title = '';
       let level = 'info';
       if(vehicleText.severity === "STATUS_EMERGENCY") {
         title = 'EMERGENCY -- Vehicle ' + vehicleText.vehicleID;
         level = 'error';
+        showMessage = this.state.messagePreferences.emergency;
       }
       if(vehicleText.severity === "STATUS_ALERT") {
         title = 'Alert -- Vehicle ' + vehicleText.vehicleID;
         level = 'warning';
+        showMessage = this.state.messagePreferences.alert;
       }
       if(vehicleText.severity === "STATUS_CRITICAL") {
         title = 'CRITICAL -- Vehicle ' + vehicleText.vehicleID;
         level = 'error';
+        showMessage = this.state.messagePreferences.critical;
       }
       if(vehicleText.severity === "STATUS_ERROR") {
         title = 'ERROR -- Vehicle ' + vehicleText.vehicleID;
         level = 'error';
+        showMessage = this.state.messagePreferences.error;
       }
       if(vehicleText.severity === "STATUS_WARNING") {
         title = 'Warning -- Vehicle ' + vehicleText.vehicleID;
         level = 'warning';
+        showMessage = this.state.messagePreferences.warning;
       }
       if(vehicleText.severity === "STATUS_NOTICE") {
         title = 'Notice -- Vehicle ' + vehicleText.vehicleID;
         level = 'success';
+        showMessage = this.state.messagePreferences.notice;
       }
       if(vehicleText.severity === "STATUS_INFO") {
         title = 'Info -- Vehicle ' + vehicleText.vehicleID;
         level = 'info';
+        showMessage = this.state.messagePreferences.info;
       }
       if(vehicleText.severity === "STATUS_DEBUG") {
         title = 'Debug -- Vehicle ' + vehicleText.vehicleID;
         level = 'info';
+        showMessage = this.state.messagePreferences.debug;
       }
 
-      this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
+      if(showMessage) {
+        this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
+      }
     }
   }
 
@@ -338,7 +362,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
   handleDrawerAction = (action: string) => {
     if(action === "Settings"){
-      this.setState({showEditGlobalHomeDialog: true, openDrawer: false});
+      this.setState({showMessagesMenu: true, openDrawer: false});
     }
     else if(action === "TestButton") {
       this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION", "");
@@ -411,6 +435,10 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({showContextMenu: false});
   }
 
+  handleSaveMessagingPreferences = (preferences: MessagePreferencesType) => {
+    this.setState({messagePreferences: preferences});
+  }
+
   render() {
 
     const width = window.screen.width;
@@ -445,6 +473,7 @@ export default class AppContainer extends React.Component<Props, State> {
               openDrawer={this.state.openDrawer}
               onToggleDrawer={(open: boolean) => this.setState({openDrawer: open})}
               onDrawerAction={(action: string) => this.handleDrawerAction(action)}
+              showMessagesMenu={this.state.showMessagesMenu}
              />
 
             <ConnectedVehiclesContainer
@@ -484,6 +513,13 @@ export default class AppContainer extends React.Component<Props, State> {
               handleSave={this.handleSaveGlobalOrigin}
               contextAnchor={this.state.contextAnchor}
               useContext={this.state.useContext}
+            />
+
+            <MessagesDialog
+              open={this.state.showMessagesMenu}
+              handleClose={() => this.setState({showMessagesMenu: false})}
+              handleSave={this.handleSaveMessagingPreferences}
+              preferences={this.state.messagePreferences}
             />
 
             {this.state.showContextMenu &&
