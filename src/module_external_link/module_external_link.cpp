@@ -7,33 +7,36 @@
 ModuleExternalLink::ModuleExternalLink() :
     m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"), associatedSystemID(255)
 {
-    MissionItem::MissionList missionList;
-    missionList.setVehicleID(1);
-    missionList.initializeQueue(4);
+//    MissionItem::MissionList missionList;
+//    missionList.setVehicleID(1);
+//    missionList.initializeQueue(4);
 
-    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-    newWP->position.setPosition(35.7470021,-78.8395026,0.0);
-    newWP->setVehicleID(1);
+//    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+//    newWP->position.setPosition(35.7470021,-78.8395026,0.0);
+//    newWP->setVehicleID(1);
 
-    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP1 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-    newWP1->position.setPosition(35.7463033,-78.8386631,0.0);
-    newWP1->setVehicleID(1);
+//    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP1 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+//    newWP1->position.setPosition(35.7463033,-78.8386631,0.0);
+//    newWP1->setVehicleID(1);
 
-    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP2 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-    newWP2->position.setPosition(35.7459724,-78.8390923,0.0);
-    newWP2->setVehicleID(1);
+//    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP2 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+//    newWP2->position.setPosition(35.7459724,-78.8390923,0.0);
+//    newWP2->setVehicleID(1);
 
-    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP3 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-    newWP3->position.setPosition(35.7466538,-78.8399184,0.0);
-    newWP3->setVehicleID(1);
+//    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP3 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+//    newWP3->position.setPosition(35.7466538,-78.8399184,0.0);
+//    newWP3->setVehicleID(1);
 
+//    missionList.insertMissionItem(newWP);
+//    missionList.insertMissionItem(newWP1);
+//    missionList.insertMissionItem(newWP2);
+//    missionList.insertMissionItem(newWP3);
 
-    MissionItem::MissionList newMissionList;
-    newMissionList.insertMissionItem(newWP);
-    newMissionList.insertMissionItem(newWP1);
-    newMissionList.insertMissionItem(newWP2);
-    storedMissionList = newMissionList;
-    //newMissionList.insertMissionItem(newWP3);
+//    MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
+
+//    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//        ptr->UpdateVehicleMission(this, status, missionList);
+//    });
 }
 
 //!

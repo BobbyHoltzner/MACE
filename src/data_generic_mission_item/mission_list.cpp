@@ -3,7 +3,7 @@
 namespace MissionItem {
 
 MissionList::MissionList() :
-    missionType(MissionType::AUTO)
+    missionType(MissionType::AUTO_PROPOSED)
 {
 
 }

@@ -193,14 +193,14 @@ void ModuleGroundStation::testFunction()
     MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
 //    newHome.position.latitude = 37.890903;
 //    newHome.position.longitude = -76.814125;
-    newTakeoff.position.latitude = 37.891415;
-    newTakeoff.position.longitude = -76.815701;
-    newTakeoff.position.altitude = 100;
-    newTakeoff.setVehicleID(1);
-
+//    newTakeoff.position.latitude = 37.891415;
+//    newTakeoff.position.longitude = -76.815701;
+//    newTakeoff.position.altitude = 100;
+//    newTakeoff.setVehicleID(1);
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestVehicleTakeoff(this, newTakeoff);
+        ptr->RequestCurrentVehicleMission(this, 1);
     });
+
 }
 
 void ModuleGroundStation::getConnectedVehicles()
