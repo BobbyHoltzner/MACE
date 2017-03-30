@@ -7,8 +7,6 @@
 
 #include "data/timer.h"
 
-#include "takeoff_thread.h"
-
 #include "module_vehicle_ardupilot_global.h"
 #include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
 

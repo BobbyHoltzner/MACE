@@ -146,6 +146,11 @@ void ModuleVehicleArdupilot::RequestClearGuidedQueue(const int &vehicleID)
 //!
 void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
+//    if(!this->IsStarted())
+//    {
+//        return;
+//    }
+
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>::MavlinkMessage(linkName, message);
 
     DataArdupilot::DataVehicleArdupilot* tmpData;
