@@ -191,6 +191,18 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
 
 void ModuleGroundStation::testFunction()
 {
+    //    mavlink_statustext_t decodedMSG;
+    //    mavlink_msg_statustext_decode(message,&decodedMSG);
+    //    std::cout<<"The status text says: "<<decodedMSG.text<<std::endl;
+//        DataGenericItem::DataGenericItem_Text newText = DataCOMMS::Generic_COMMSTOMACE::Text_MACETOCOMMS("TEST",systemID);
+//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
+
+//        m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
+//        //notify listneres of topic
+//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+//        });
+
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->RequestDummyFunction(this, 2);
     });
@@ -370,9 +382,13 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
                 // TODO
             }
-            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Text::Name()) {
-                // TODO
-            }            
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Text::Name()) {                
+                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write fueld data to the GUI:
+                sendVehicleText(senderID, component);
+            }
         }
     }
     else if(topicName == m_MissionDataTopic.Name())
@@ -733,6 +749,22 @@ void ModuleGroundStation::sendVehicleMode(const int &vehicleID, const std::share
 
         // Reset timeout:
         m_modeTimeoutOccured = false;
+    }
+}
+
+void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleText";
+    json["vehicleID"] = vehicleID;
+    json["severity"] =  QString::fromStdString(DataGenericItemTopic::DataGenericItemTopic_Text::StatusSeverityToString(component->getSeverity()));
+    json["text"] = QString::fromStdString(component->getText());
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write Vehicle Text Data failed..." << std::endl;
     }
 }
 

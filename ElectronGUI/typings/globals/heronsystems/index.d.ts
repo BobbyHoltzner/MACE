@@ -23,6 +23,11 @@ type ModeType = {
   isArmed: boolean
 }
 
+type TextType = {
+  severity: string,
+  text: string
+}
+
 type VehicleModeType = 'LOITER' | 'RTL' | 'LAND' | 'AUTO' | 'GUIDED' | 'UNKNOWN';
 
 // type VehicleStateType = {
@@ -56,6 +61,8 @@ type TCPFuelType = TCPDescriptorType & FuelType;
 
 type TCPModeType = TCPDescriptorType & ModeType;
 
+type TCPTextType = TCPDescriptorType & TextType;
+
 type MissionItemType = PositionType & {
   description: string,
   type: string
@@ -65,7 +72,7 @@ type TCPMissionType = TCPDescriptorType & {
   missionItems: MissionItemType[]
 };
 
-type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPFuelType | TCPMissionType | TCPModeType;
+type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPFuelType | TCPMissionType | TCPModeType | TCPTextType;
 
 
 type MarkerType = {

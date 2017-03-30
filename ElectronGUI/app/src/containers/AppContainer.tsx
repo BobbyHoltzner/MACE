@@ -233,6 +233,46 @@ export default class AppContainer extends React.Component<Props, State> {
 
       this.setState({connectedVehicles: stateCopy});
     }
+    else if(jsonData.dataType === 'VehicleText') {
+      let vehicleText = jsonData as TCPTextType;
+
+      let title = '';
+      let level = 'info';
+      if(vehicleText.severity === "STATUS_EMERGENCY") {
+        title = 'EMERGENCY -- Vehicle ' + vehicleText.vehicleID;
+        level = 'error';
+      }
+      if(vehicleText.severity === "STATUS_ALERT") {
+        title = 'Alert -- Vehicle ' + vehicleText.vehicleID;
+        level = 'warning';
+      }
+      if(vehicleText.severity === "STATUS_CRITICAL") {
+        title = 'CRITICAL -- Vehicle ' + vehicleText.vehicleID;
+        level = 'error';
+      }
+      if(vehicleText.severity === "STATUS_ERROR") {
+        title = 'ERROR -- Vehicle ' + vehicleText.vehicleID;
+        level = 'error';
+      }
+      if(vehicleText.severity === "STATUS_WARNING") {
+        title = 'Warning -- Vehicle ' + vehicleText.vehicleID;
+        level = 'warning';
+      }
+      if(vehicleText.severity === "STATUS_NOTICE") {
+        title = 'Notice -- Vehicle ' + vehicleText.vehicleID;
+        level = 'success';
+      }
+      if(vehicleText.severity === "STATUS_INFO") {
+        title = 'Info -- Vehicle ' + vehicleText.vehicleID;
+        level = 'info';
+      }
+      if(vehicleText.severity === "STATUS_DEBUG") {
+        title = 'Debug -- Vehicle ' + vehicleText.vehicleID;
+        level = 'info';
+      }
+
+      this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
+    }
   }
 
 
@@ -277,16 +317,6 @@ export default class AppContainer extends React.Component<Props, State> {
     }.bind(this));
   }
 
-  // parseTCPServerData = (jsonData: TCPReturnType) => {
-  //   if(jsonData.dataType === 'VehicleMission') {
-  //     let vehicleMission = jsonData as TCPMissionType;
-  //     let stateCopy = deepcopy(this.state.connectedVehicles);
-  //     stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
-  //     this.setState({connectedVehicles: stateCopy});
-  //   }
-  // }
-
-
   showNotification = (title: string, message: string, level: string, position: string, label: string) => {
     let notification = {
       title: title,
@@ -303,7 +333,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
   handleAircraftCommand = (id: string, tcpCommand: string, vehicleCommand: string) => {
     console.log(tcpCommand);
-    this.makeTCPRequest(parseInt(id), tcpCommand, vehicleCommand)
+    this.makeTCPRequest(parseInt(id), tcpCommand, vehicleCommand);
   }
 
   handleDrawerAction = (action: string) => {
@@ -311,7 +341,7 @@ export default class AppContainer extends React.Component<Props, State> {
       this.setState({showEditGlobalHomeDialog: true, openDrawer: false});
     }
     else if(action === "TestButton") {
-      this.makeTCPRequest(0, "TEST_FUNCTION", "");
+      this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION", "");
     }
   }
 
