@@ -1,4 +1,4 @@
-type VehicleTypeType = 'Quad' | 'Fixed';
+type VehicleTypeType = 'Copter' | 'Plane';
 
 type PositionType = {
     lat: number,
@@ -18,18 +18,22 @@ type FuelType = {
     batteryVoltage: number
 }
 
+type ModeType = {
+  vehicleMode: string,
+  isArmed: boolean
+}
+
 type VehicleModeType = 'LOITER' | 'RTL' | 'LAND' | 'AUTO' | 'GUIDED' | 'UNKNOWN';
 
-type VehicleStateType = {
-    position: PositionType,
-    attitude: AttitudeType,
-    numSats: number,
-    positionFix: number,
-    vehicleMode: VehicleModeType
-};
+// type VehicleStateType = {
+//     position: PositionType,
+//     attitude: AttitudeType,
+//     numSats: number,
+//     positionFix: number,
+//     vehicleMode: VehicleModeType
+// };
 
-type VehicleMapType = {[id: string]: VehicleStateType};
-
+// type VehicleMapType = {[id: string]: VehicleStateType};
 
 
 type TCPDescriptorType = {
@@ -50,6 +54,8 @@ type TCPAttitudeType = TCPDescriptorType & AttitudeType;
 
 type TCPFuelType = TCPDescriptorType & FuelType;
 
+type TCPModeType = TCPDescriptorType & ModeType;
+
 type MissionItemType = PositionType & {
   description: string,
   type: string
@@ -59,7 +65,7 @@ type TCPMissionType = TCPDescriptorType & {
   missionItems: MissionItemType[]
 };
 
-type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPFuelType | TCPMissionType;
+type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPFuelType | TCPMissionType | TCPModeType;
 
 
 type MarkerType = {

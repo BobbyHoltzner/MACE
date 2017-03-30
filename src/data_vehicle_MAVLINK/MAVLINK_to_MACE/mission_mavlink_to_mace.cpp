@@ -23,7 +23,7 @@ void Mission_MAVLINKTOMACE::ChangeSpeed_MACETOMAVLINK(const int &vehicleID, cons
 
 void Mission_MAVLINKTOMACE::LoiterTime_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem)
 {
-    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TIME) && (mavlinkItem.frame == MAV_FRAME_GLOBAL)){
+    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TIME) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.latitude = mavlinkItem.x;
         missionItem.position.longitude = mavlinkItem.y;
@@ -48,7 +48,7 @@ void Mission_MAVLINKTOMACE::LoiterTime_MACETOMAVLINK(const int &vehicleID, const
 
 void Mission_MAVLINKTOMACE::LoiterTurns_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem)
 {
-    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TURNS) && (mavlinkItem.frame == MAV_FRAME_GLOBAL)){
+    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TURNS) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.latitude = mavlinkItem.x;
         missionItem.position.longitude = mavlinkItem.y;
@@ -73,7 +73,7 @@ void Mission_MAVLINKTOMACE::LoiterTurns_MACETOMAVLINK(const int &vehicleID, cons
 
 void Mission_MAVLINKTOMACE::LoiterUnlimited_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem)
 {
-    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_UNLIM) && (mavlinkItem.frame == MAV_FRAME_GLOBAL)){
+    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_UNLIM) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.latitude = mavlinkItem.x;
         missionItem.position.longitude = mavlinkItem.y;
@@ -103,7 +103,7 @@ void Mission_MAVLINKTOMACE::RTL_MACETOMAVLINK(const int &vehicleID, const mavlin
 
 void Mission_MAVLINKTOMACE::Takeoff_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem)
 {
-    if((mavlinkItem.command == MAV_CMD_NAV_TAKEOFF) && (mavlinkItem.frame == MAV_FRAME_GLOBAL)){
+    if((mavlinkItem.command == MAV_CMD_NAV_TAKEOFF) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.latitude = mavlinkItem.x;
         missionItem.position.longitude = mavlinkItem.y;
@@ -122,7 +122,7 @@ void Mission_MAVLINKTOMACE::Takeoff_MACETOMAVLINK(const int &vehicleID, const ma
 
 void Mission_MAVLINKTOMACE::Waypoint_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem)
 {
-    if((mavlinkItem.command == MAV_CMD_NAV_WAYPOINT) && (mavlinkItem.frame == MAV_FRAME_GLOBAL)){
+    if((mavlinkItem.command == MAV_CMD_NAV_WAYPOINT) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.latitude = mavlinkItem.x;
         missionItem.position.longitude = mavlinkItem.y;

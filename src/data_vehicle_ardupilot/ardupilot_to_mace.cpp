@@ -37,8 +37,8 @@ std::shared_ptr<MissionItem::AbstractMissionItem> MAVLINKMissionToMACEMission(co
         std::shared_ptr<MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>> returnItem = std::make_shared<MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>>();
         returnItem->setVehicleID(vehicleID);
         returnItem->position.latitude = missionItem.x;
-        returnItem->position.longitude = missionItem.x;
-        returnItem->position.altitude = missionItem.x;
+        returnItem->position.longitude = missionItem.y;
+        returnItem->position.altitude = missionItem.z;
         returnItem->radius = fabs(missionItem.param3);
         if(missionItem.param3 > 0.0)
         {

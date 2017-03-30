@@ -17,7 +17,7 @@ import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { Vehicle } from '../Vehicle';
-import { backgroundColors } from '../util/Colors';
+import { backgroundColors, opaqueBackgroundColors } from '../util/Colors';
 import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
 import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
 import { ContextMenu } from '../components/ContextMenu';
@@ -221,6 +221,15 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[vehicleFuel.vehicleID].fuel.batteryRemaining = vehicleFuel.batteryRemaining;
       stateCopy[vehicleFuel.vehicleID].fuel.batteryCurrent = vehicleFuel.batteryCurrent;
       stateCopy[vehicleFuel.vehicleID].fuel.batteryVoltage = vehicleFuel.batteryVoltage;
+
+      this.setState({connectedVehicles: stateCopy});
+    }
+    else if(jsonData.dataType === 'VehicleMode') {
+      let vehicleMode = jsonData as TCPModeType;
+
+      stateCopy[vehicleMode.vehicleID].isArmed = vehicleMode.isArmed;
+      stateCopy[vehicleMode.vehicleID].vehicleMode = vehicleMode.vehicleMode;
+      // TODO: vehicle type (i.e. quad, fixed, etc.)
 
       this.setState({connectedVehicles: stateCopy});
     }
@@ -490,7 +499,7 @@ export default class AppContainer extends React.Component<Props, State> {
                   {/* Mission Paths */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
-                      <Polyline key={key} positions={this.state.connectedVehicles[key].vehicleMission.latLons} color={backgroundColors[parseInt(key)]} />
+                      <Polyline key={key} positions={this.state.connectedVehicles[key].vehicleMission.latLons} color={this.state.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} />
                     );
                   })}
 

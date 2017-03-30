@@ -38,6 +38,7 @@ export class VehicleHUD extends React.Component<Props, State> {
     render() {
         const boxShadow = this.props.aircraft.isSelected ? backgroundColors[parseInt(this.props.vehicleID)] + " 0px 1px 20px, rgba(0, 0, 0, .5) 0px 1px 4px" : "rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px"
         const hudStyle = {position: "relative", width: 90 + "%", marginBottom: 15, boxShadow: boxShadow};
+        const hudAvatar = this.props.aircraft.vehicleType === "Copter" ? "images/drone-icon.png" : "images/fixed-wing.png";
 
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
@@ -45,8 +46,8 @@ export class VehicleHUD extends React.Component<Props, State> {
                     <CardHeader
                         titleStyle={{fontSize: 24}}
                         title={"ID: " + this.props.vehicleID}
-                        subtitle={this.props.aircraft.vehicleType}
-                        avatar={"images/drone-icon.png"}
+                        subtitle={this.props.aircraft.vehicleMode}
+                        avatar={hudAvatar}
                         actAsExpander={true}
                         showExpandableButton={false}
                     />
