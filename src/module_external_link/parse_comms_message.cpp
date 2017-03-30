@@ -357,7 +357,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         MissionItem::MissionList newMissionList;
 
         newMissionList.setMissionType(static_cast<Data::MissionType>(missionType));
-        newMissionList.setVehicleID(systemID);
+        newMissionList.setVehicleID(decodedMSG.target_system);
         newMissionList.initializeQueue(decodedMSG.count);
         MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();
 
@@ -366,7 +366,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         });
 
         mavlink_message_t msg;
-        mavlink_msg_mission_request_pack_chan(associatedSystemID,compID,m_LinkChan,&msg,systemID,missionType,0);
+        mavlink_msg_mission_request_pack_chan(associatedSystemID,compID,m_LinkChan,&msg,decodedMSG.target_system,missionType,0);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         break;
     }
