@@ -2,6 +2,12 @@
 
 namespace DataMAVLINK {
 
+State_MACETOMAVLINK::State_MACETOMAVLINK(const int &systemID, const int &compID):
+    mSystemID(systemID),mCompID(compID)
+{
+
+}
+
 mavlink_message_t State_MACETOMAVLINK::Attitude_MACETOMAVLINK(const DataState::StateAttitude &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     mavlink_message_t msg;

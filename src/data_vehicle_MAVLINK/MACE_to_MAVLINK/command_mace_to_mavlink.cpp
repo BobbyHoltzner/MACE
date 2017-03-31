@@ -1,7 +1,8 @@
 #include "command_mace_to_mavlink.h"
 namespace DataMAVLINK{
 
-Command_MACETOMAVLINK::Command_MACETOMAVLINK()
+Command_MACETOMAVLINK::Command_MACETOMAVLINK(const int &systemID, const int &compID):
+    mSystemID(systemID),mCompID(compID)
 {
 
 }
@@ -27,7 +28,7 @@ mavlink_message_t Command_MACETOMAVLINK::packLongMessage(const mavlink_command_l
 {
     mavlink_message_t msg;
     mavlink_command_long_t tmpItem = cmdLong;
-    mavlink_msg_command_long_encode_chan(255,190,chan,&msg,&tmpItem);
+    mavlink_msg_command_long_encode_chan(mSystemID,mCompID,chan,&msg,&tmpItem);
     return msg;
 }
 
@@ -37,6 +38,17 @@ mavlink_message_t Command_MACETOMAVLINK::generateGetHomeMessage(const int &vehic
     cmd.command = MAV_CMD_GET_HOME_POSITION;
     cmd.target_system = vehicleID;
     mavlink_message_t msg = packLongMessage(cmd,chan);
+    return msg;
+}
+
+mavlink_message_t Command_MACETOMAVLINK::generateSetHomePosition(const MissionItem::SpatialHome &vehicleHome, const int &chan)
+{
+    mavlink_message_t msg;
+    mavlink_set_home_position_t cmd;
+    cmd.latitude = vehicleHome.position.latitude * pow(10,7);
+    cmd.longitude = vehicleHome.position.longitude * pow(10,7);
+    cmd.altitude = vehicleHome.position.altitude * 1000;
+    mavlink_msg_set_home_position_encode_chan(255,190,chan,&msg,&cmd);
     return msg;
 }
 
@@ -55,7 +67,6 @@ mavlink_message_t Command_MACETOMAVLINK::generateTakeoffMessage(const MissionIte
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_NAV_TAKEOFF;
     cmd.target_system = missionItem.getVehicleID();
-    cmd.param3 = 0.0;
     cmd.param5 = missionItem.position.latitude;
     cmd.param6 = missionItem.position.longitude;
     cmd.param7 = missionItem.position.altitude;
