@@ -20,7 +20,6 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
 
         if(decodedMSG.seq == 0)
         {
-            std::cout<<"I received a home position item"<<std::endl;
             //This is the home position item associated with the vehicle
             MissionItem::SpatialHome newHome;
             newHome.position.latitude = decodedMSG.x;
@@ -54,7 +53,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         {
             mavlink_message_t msg;
             int indexRequest = status.remainingItems.at(0)+1;
-            mavlink_msg_mission_request_pack_chan(255,0,m_LinkChan,&msg,sysID,0,indexRequest); //we have to index this +1 because ardupilot indexes 0 as home
+            mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,indexRequest); //we have to index this +1 because ardupilot indexes 0 as home
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
@@ -85,11 +84,16 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         //Request the information of the mission item with the sequence number seq. The response of the system to this message should be a MISSION_ITEM message. http://qgroundcontrol.org/mavlink/waypoint_protocol
         mavlink_mission_request_t decodedMSG;
         mavlink_msg_mission_request_decode(message,&decodedMSG);
-        //This should make the request to the core
-        //KEN FIX THIS SHOULD GRAD DATA FROM THE LOCAL ARDUPILOT DATA OR THE CORE
-//        std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = m_ProposedMissionQueue.at(sysID).getMissionItem(decodedMSG.seq);
-//        mavlink_message_t msg = DataArdupilot::MACEMissionToMAVLINKMission(missionItem,chan,compID,decodedMSG.seq);
-//        m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
+        std::cout<<"The requested message seq"<<decodedMSG.seq<<std::endl;
+        MissionItem::MissionList missionList;
+        bool validity = this->getDataObject()->getMissionList(missionList, sysID, MissionItem::MissionList::COMPLETE, Data::MissionType::AUTO_PROPOSED);
+        if(validity)
+        {
+            std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = missionList.getMissionItem(decodedMSG.seq);
+            mavlink_message_t msg = DataArdupilot::MACEMissionToMAVLINKMission(missionItem,chan,compID,decodedMSG.seq);
+            m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
+        }
+
         break;
     }
     case MAVLINK_MSG_ID_MISSION_SET_CURRENT:
@@ -129,6 +133,22 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         //Request the overall list of mission items from the system/component.
         mavlink_mission_request_list_t decodedMSG;
         mavlink_msg_mission_request_list_decode(message,&decodedMSG);
+
+        //Now we have to respond with the mission count
+        MissionItem::MissionList missionList;
+        bool validity = this->getDataObject()->getMissionList(missionList, sysID, MissionItem::MissionList::COMPLETE, Data::MissionType::AUTO_PROPOSED);
+        if(!validity)
+            return true;
+
+        mavlink_mission_count_t missionCount;
+        missionCount.target_system = sysID;
+        missionCount.target_component = decodedMSG.target_component;
+        missionCount.count = missionList.getQueueSize();
+
+        mavlink_message_t msg;
+        mavlink_msg_mission_count_encode_chan(255,190,m_LinkChan,&msg,&missionCount);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
         break;
     }
     case MAVLINK_MSG_ID_MISSION_COUNT:
@@ -138,7 +158,6 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         //The GCS can then request the individual mission item based on the knowledge of the total number of MISSION
         mavlink_mission_count_t decodedMSG;
         mavlink_msg_mission_count_decode(message,&decodedMSG);
-
         MissionItem::MissionList newMissionList;
         newMissionList.setMissionType(Data::MissionType::AUTO_CURRENT);
         newMissionList.setVehicleID(sysID);
@@ -152,7 +171,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         });
 
         mavlink_message_t msg;
-        mavlink_msg_mission_request_pack_chan(255,0,m_LinkChan,&msg,sysID,0,0);
+        mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,0);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         break;
     }

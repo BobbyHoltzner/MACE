@@ -18,9 +18,9 @@ class State_COMMSTOMACE
 public:
     State_COMMSTOMACE();
     static void testAnotherFunction();
-    static DataState::StateAttitude Attitude_MACETOCOMMS(const mavlink_attitude_t &stateItem, const int &systemID);
-    static DataState::StateGlobalPosition GlobalPosition_MACETOCOMMS(const mavlink_global_position_int_t &stateItem, const int &systemID);
-    static DataState::StateLocalPosition LocalPosition_MACETOCOMMS(const mavlink_local_position_ned_t &stateItem, const int &systemID);
+    static DataState::StateAttitude Attitude_COMMSTOMACE(const mavlink_attitude_t &stateItem, const int &systemID);
+    static DataState::StateGlobalPosition GlobalPosition_COMMSTOMACE(const mavlink_global_position_int_t &stateItem, const int &systemID);
+    static DataState::StateLocalPosition LocalPosition_COMMSTOMACE(const mavlink_local_position_ned_t &stateItem, const int &systemID);
 };
 
 } //end of namespace DataCOMMS

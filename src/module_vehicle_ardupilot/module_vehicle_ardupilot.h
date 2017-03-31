@@ -15,6 +15,11 @@
 #include "data_vehicle_ardupilot/mace_to_ardupilot.h"
 #include "data_vehicle_ardupilot/components.h"
 
+#include "data_vehicle_mavlink/MACE_to_MAVLINK/command_mace_to_mavlink.h"
+#include "data_vehicle_mavlink/MACE_to_MAVLINK/generic_mace_to_mavlink.h"
+#include "data_vehicle_mavlink/MACE_to_MAVLINK/mission_mace_to_mavlink.h"
+#include "data_vehicle_mavlink/MACE_to_MAVLINK/state_mace_to_mavlink.h"
+
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 

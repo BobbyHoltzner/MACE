@@ -7,7 +7,7 @@ State_COMMSTOMACE::State_COMMSTOMACE()
 
 }
 
-DataState::StateAttitude State_COMMSTOMACE::Attitude_MACETOCOMMS(const mavlink_attitude_t &stateItem, const int &systemID)
+DataState::StateAttitude State_COMMSTOMACE::Attitude_COMMSTOMACE(const mavlink_attitude_t &stateItem, const int &systemID)
 {
     UNUSED(systemID);
     DataState::StateAttitude stateAttitude;
@@ -16,7 +16,7 @@ DataState::StateAttitude State_COMMSTOMACE::Attitude_MACETOCOMMS(const mavlink_a
     return stateAttitude;
 }
 
-DataState::StateGlobalPosition State_COMMSTOMACE::GlobalPosition_MACETOCOMMS(const mavlink_global_position_int_t &stateItem, const int &systemID)
+DataState::StateGlobalPosition State_COMMSTOMACE::GlobalPosition_COMMSTOMACE(const mavlink_global_position_int_t &stateItem, const int &systemID)
 {
     UNUSED(systemID);
     DataState::StateGlobalPosition stateGlobalPosition;
@@ -26,7 +26,7 @@ DataState::StateGlobalPosition State_COMMSTOMACE::GlobalPosition_MACETOCOMMS(con
     return stateGlobalPosition;
 }
 
-DataState::StateLocalPosition State_COMMSTOMACE::LocalPosition_MACETOCOMMS(const mavlink_local_position_ned_t &stateItem, const int &systemID)
+DataState::StateLocalPosition State_COMMSTOMACE::LocalPosition_COMMSTOMACE(const mavlink_local_position_ned_t &stateItem, const int &systemID)
 {
     UNUSED(systemID);
     DataState::StateLocalPosition stateLocalPosition;

@@ -24,7 +24,7 @@ void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 
 void ModuleVehicleArdupilot::ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
 {
-    DataMAVLINK::Command_MACETOMAVLINK commandObject;
+    DataMAVLINK::Command_MACETOMAVLINK commandObject(255,0);
     mavlink_message_t msg = commandObject.generateArmMessage(vehicleArm,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
@@ -45,7 +45,7 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
 
 void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
 {
-    DataMAVLINK::Command_MACETOMAVLINK commandObject;
+    DataMAVLINK::Command_MACETOMAVLINK commandObject(255,0);
     mavlink_message_t msg = commandObject.generateTakeoffMessage(vehicleTakeoff,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
@@ -58,7 +58,7 @@ void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTak
 
 void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
 {
-    DataMAVLINK::Command_MACETOMAVLINK commandObject;
+    DataMAVLINK::Command_MACETOMAVLINK commandObject(255,0);
     mavlink_message_t msg = commandObject.generateGetHomeMessage(vehicleID,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }

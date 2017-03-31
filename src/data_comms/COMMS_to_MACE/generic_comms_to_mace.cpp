@@ -7,7 +7,7 @@ Generic_COMMSTOMACE::Generic_COMMSTOMACE()
 
 }
 
-DataGenericItem::DataGenericItem_FlightMode Generic_COMMSTOMACE::FlightMode_MACETOCOMMS(const mavlink_heartbeat_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_FlightMode Generic_COMMSTOMACE::FlightMode_COMMSTOMACE(const mavlink_heartbeat_t &genericItem, const int &systemID)
 {
     UNUSED(systemID);
     UNUSED(genericItem);
@@ -15,7 +15,7 @@ DataGenericItem::DataGenericItem_FlightMode Generic_COMMSTOMACE::FlightMode_MACE
     return flightItem;
 }
 
-DataGenericItem::DataGenericItem_Fuel Generic_COMMSTOMACE::Fuel_MACETOCOMMS(const mavlink_sys_status_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_Fuel Generic_COMMSTOMACE::Fuel_COMMSTOMACE(const mavlink_sys_status_t &genericItem, const int &systemID)
 {
     UNUSED(systemID);
     DataGenericItem::DataGenericItem_Fuel fuelItem;
@@ -25,7 +25,7 @@ DataGenericItem::DataGenericItem_Fuel Generic_COMMSTOMACE::Fuel_MACETOCOMMS(cons
     return fuelItem;
 }
 
-DataGenericItem::DataGenericItem_GPS Generic_COMMSTOMACE::GPS_MACETOCOMMS(const mavlink_gps_raw_int_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_GPS Generic_COMMSTOMACE::GPS_COMMSTOMACE(const mavlink_gps_raw_int_t &genericItem, const int &systemID)
 {
     UNUSED(systemID);
     DataGenericItem::DataGenericItem_GPS gpsItem;
@@ -67,7 +67,7 @@ DataGenericItem::DataGenericItem_GPS Generic_COMMSTOMACE::GPS_MACETOCOMMS(const 
 
 }
 
-DataGenericItem::DataGenericItem_Text Generic_COMMSTOMACE::Text_MACETOCOMMS(const mavlink_statustext_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_Text Generic_COMMSTOMACE::Text_COMMSTOMACE(const mavlink_statustext_t &genericItem, const int &systemID)
 {
     UNUSED(systemID);
     DataGenericItem::DataGenericItem_Text statusText;
