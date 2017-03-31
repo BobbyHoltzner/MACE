@@ -1,23 +1,22 @@
-#include "generic_comms_to_mace.h"
+#include "generic_mavlink_to_mace.h"
 
-namespace DataCOMMS{
+namespace DataMAVLINK{
 
-Generic_COMMSTOMACE::Generic_COMMSTOMACE()
+Generic_MAVLINKTOMACE::Generic_MAVLINKTOMACE(const int &systemID):
+    mSystemID(systemID)
 {
 
 }
 
-DataGenericItem::DataGenericItem_FlightMode Generic_COMMSTOMACE::FlightMode_COMMSTOMACE(const mavlink_heartbeat_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_FlightMode Generic_MAVLINKTOMACE::FlightMode_MAVLINKTOMACE(const mavlink_heartbeat_t &genericItem)
 {
-    UNUSED(systemID);
     UNUSED(genericItem);
     DataGenericItem::DataGenericItem_FlightMode flightItem;
     return flightItem;
 }
 
-DataGenericItem::DataGenericItem_Fuel Generic_COMMSTOMACE::Fuel_COMMSTOMACE(const mavlink_sys_status_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_Fuel Generic_MAVLINKTOMACE::Fuel_MAVLINKTOMACE(const mavlink_sys_status_t &genericItem)
 {
-    UNUSED(systemID);
     DataGenericItem::DataGenericItem_Fuel fuelItem;
     fuelItem.setBatteryVoltage(genericItem.voltage_battery/1000.0);
     fuelItem.setBatteryCurrent(genericItem.current_battery/10000.0);
@@ -25,9 +24,8 @@ DataGenericItem::DataGenericItem_Fuel Generic_COMMSTOMACE::Fuel_COMMSTOMACE(cons
     return fuelItem;
 }
 
-DataGenericItem::DataGenericItem_GPS Generic_COMMSTOMACE::GPS_COMMSTOMACE(const mavlink_gps_raw_int_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_GPS Generic_MAVLINKTOMACE::GPS_MAVLINKTOMACE(const mavlink_gps_raw_int_t &genericItem)
 {
-    UNUSED(systemID);
     DataGenericItem::DataGenericItem_GPS gpsItem;
     gpsItem.setHDOP(genericItem.eph);
     gpsItem.setVDOP(genericItem.epv);
@@ -67,9 +65,8 @@ DataGenericItem::DataGenericItem_GPS Generic_COMMSTOMACE::GPS_COMMSTOMACE(const 
 
 }
 
-DataGenericItem::DataGenericItem_Text Generic_COMMSTOMACE::Text_COMMSTOMACE(const mavlink_statustext_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_Text Generic_MAVLINKTOMACE::Text_MAVLINKTOMACE(const mavlink_statustext_t &genericItem)
 {
-    UNUSED(systemID);
     DataGenericItem::DataGenericItem_Text statusText;
     statusText.setText(genericItem.text);
 
@@ -105,4 +102,4 @@ DataGenericItem::DataGenericItem_Text Generic_COMMSTOMACE::Text_COMMSTOMACE(cons
     return statusText;
 }
 
-} //end of namespace DataCOMMS
+} //end of namespace DataMAVLINK

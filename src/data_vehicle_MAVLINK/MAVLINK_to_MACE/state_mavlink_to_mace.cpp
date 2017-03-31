@@ -1,24 +1,23 @@
-#include "state_comms_to_mace.h"
+#include "state_mavlink_to_mace.h"
 
-namespace DataCOMMS{
+namespace DataMAVLINK{
 
-State_COMMSTOMACE::State_COMMSTOMACE()
+State_MAVLINKTOMACE::State_MAVLINKTOMACE(const int &systemID) :
+    mSystemID(systemID)
 {
 
 }
 
-DataState::StateAttitude State_COMMSTOMACE::Attitude_COMMSTOMACE(const mavlink_attitude_t &stateItem, const int &systemID)
+DataState::StateAttitude State_MAVLINKTOMACE::Attitude_MAVLINKTOMACE(const mavlink_attitude_t &stateItem)
 {
-    UNUSED(systemID);
     DataState::StateAttitude stateAttitude;
     stateAttitude.setAttitude(stateItem.roll,stateItem.pitch,stateItem.yaw);
     stateAttitude.setAttitudeRates(stateItem.rollspeed,stateItem.pitchspeed,stateItem.yawspeed);
     return stateAttitude;
 }
 
-DataState::StateGlobalPosition State_COMMSTOMACE::GlobalPosition_COMMSTOMACE(const mavlink_global_position_int_t &stateItem, const int &systemID)
+DataState::StateGlobalPosition State_MAVLINKTOMACE::GlobalPosition_MAVLINKTOMACE(const mavlink_global_position_int_t &stateItem)
 {
-    UNUSED(systemID);
     DataState::StateGlobalPosition stateGlobalPosition;
     stateGlobalPosition.latitude = stateItem.lat/pow(10,7);
     stateGlobalPosition.longitude = stateItem.lon/pow(10,7);
@@ -26,9 +25,8 @@ DataState::StateGlobalPosition State_COMMSTOMACE::GlobalPosition_COMMSTOMACE(con
     return stateGlobalPosition;
 }
 
-DataState::StateLocalPosition State_COMMSTOMACE::LocalPosition_COMMSTOMACE(const mavlink_local_position_ned_t &stateItem, const int &systemID)
+DataState::StateLocalPosition State_MAVLINKTOMACE::LocalPosition_MAVLINKTOMACE(const mavlink_local_position_ned_t &stateItem)
 {
-    UNUSED(systemID);
     DataState::StateLocalPosition stateLocalPosition;
     stateLocalPosition.x = stateItem.x;
     stateLocalPosition.y = stateItem.y;
@@ -36,4 +34,5 @@ DataState::StateLocalPosition State_COMMSTOMACE::LocalPosition_COMMSTOMACE(const
     return stateLocalPosition;
 }
 
-} //end of namespace DataCOMMS
+
+} //end of namespace DataMAVLINK

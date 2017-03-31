@@ -17,7 +17,7 @@ mavlink_message_t MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::Abstr
     item.param2 = 0.0;
     item.param3 = 0.0;
     item.param4 = 0.0;
-    item.seq = 0;
+    item.seq = itemIndex;
     item.target_system = missionItem->getVehicleID();
     item.target_component = compID;
     item.x = 0.0;
@@ -139,6 +139,7 @@ mavlink_message_t MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::Abstr
     default:
         break;
     }
+
     mavlink_msg_mission_item_encode(255,190,&msg,&item);
     return msg;
 }

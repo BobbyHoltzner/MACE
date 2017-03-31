@@ -25,26 +25,32 @@ namespace DataMAVLINK{
 class Mission_MAVLINKTOMACE
 {
 public:
-    Mission_MAVLINKTOMACE();
+    Mission_MAVLINKTOMACE(const int &systemID);
 
-    void ChangeSpeed_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::ActionChangeSpeed &missionItem);
+    std::shared_ptr<MissionItem::AbstractMissionItem> Covert_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem);
+    void Home_MAVLINKTOMACE(const mavlink_set_home_position_t &mavlinkItem, MissionItem::SpatialHome &missionItem);
 
-    void LoiterTime_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem);
-    void LoiterTime_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem);
+    void ChangeSpeed_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::ActionChangeSpeed &missionItem);
 
-    void LoiterTurns_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem);
-    void LoiterTurns_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem);
+    void LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem);
+    void LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem);
 
-    void LoiterUnlimited_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem);
-    void LoiterUnlimited_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem);
+    void LoiterTurns_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem);
+    void LoiterTurns_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem);
 
-    void RTL_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialRTL &missionItem);
+    void LoiterUnlimited_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem);
+    void LoiterUnlimited_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem);
 
-    void Takeoff_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem);
-    void Takeoff_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem);
+    void RTL_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialRTL &missionItem);
 
-    void Waypoint_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem);
-    void Waypoint_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem);
+    void Takeoff_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem);
+    void Takeoff_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem);
+
+    void Waypoint_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem);
+    void Waypoint_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem);
+
+private:
+    int mSystemID;
 };
 
 } //end of namespace DataMAVLINK

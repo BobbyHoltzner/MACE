@@ -23,11 +23,23 @@ class Generic_MACETOMAVLINK
 {
 public:
 
-    virtual mavlink_message_t FlightMode_MACETOMAVLINK(std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> flightModeItem, const int &systemID, const uint8_t &chan, const uint8_t &compID);
-    virtual mavlink_message_t Fuel_MACETOMAVLINK(DataGenericItem::DataGenericItem_Fuel fuelItem, const int &systemID, const uint8_t &chan, const uint8_t &compID);
-    virtual mavlink_message_t GPS_MACETOMAVLINK(DataGenericItem::DataGenericItem_GPS GPSItem, const int &systemID, const uint8_t &chan, const uint8_t &compID);
-    virtual mavlink_message_t Text_MACETOMAVLINK(DataGenericItem::DataGenericItem_Text textItem, const int &systemID, const uint8_t &chan, const uint8_t &compID);
+    Generic_MACETOMAVLINK(const int &systemID, const int &compID);
 
+    virtual mavlink_message_t FlightModeTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &topicItem, const uint8_t &chan);
+    virtual mavlink_message_t FlightMode_MACETOMAVLINK(DataGenericItem::DataGenericItem_FlightMode &flightModeItem, const uint8_t &chan);
+
+    virtual mavlink_message_t FuelTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &topicItem, const uint8_t &chan);
+    virtual mavlink_message_t Fuel_MACETOMAVLINK(DataGenericItem::DataGenericItem_Fuel fuelItem, const uint8_t &chan);
+
+    virtual mavlink_message_t GPSTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> &topicItem, const uint8_t &chan);
+    virtual mavlink_message_t GPS_MACETOMAVLINK(DataGenericItem::DataGenericItem_GPS GPSItem, const uint8_t &chan);
+
+    virtual mavlink_message_t TextTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &topicItem, const uint8_t &chan);
+    virtual mavlink_message_t Text_MACETOMAVLINK(DataGenericItem::DataGenericItem_Text textItem, const uint8_t &chan);
+
+private:
+    int mSystemID;
+    int mCompID;
 
 };
 
