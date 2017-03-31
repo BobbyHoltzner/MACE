@@ -190,9 +190,48 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
 
 void ModuleGroundStation::testFunction()
 {
+    MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
+//    newHome.position.latitude = 37.890903;
+//    newHome.position.longitude = -76.814125;
+//    newTakeoff.position.latitude = 37.891415;
+//    newTakeoff.position.longitude = -76.815701;
+//    newTakeoff.position.altitude = 100;
+//    newTakeoff.setVehicleID(1);
+
+//    int missionType = static_cast<int>(Data::MissionType::GUIDED_CURRENT);
+//    Data::SystemDescription newSystem(1,missionType);
+
+    MissionItem::MissionList missionList;
+    missionList.setMissionType(Data::MissionType::GUIDED_CURRENT);
+    missionList.setVehicleID(1);
+    missionList.initializeQueue(4);
+
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    newWP->position.setPosition(35.7470021,-78.8395026,10.0);
+    newWP->setVehicleID(1);
+
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP1 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    newWP1->position.setPosition(35.7463033,-78.8386631,20.0);
+    newWP1->setVehicleID(1);
+
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP2 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    newWP2->position.setPosition(35.7459724,-78.8390923,30.0);
+    newWP2->setVehicleID(1);
+
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP3 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    newWP3->position.setPosition(35.7466538,-78.8399184,40.0);
+    newWP3->setVehicleID(1);
+
+    missionList.replaceMissionItemAtIndex(newWP,0);
+    missionList.replaceMissionItemAtIndex(newWP1,1);
+    missionList.replaceMissionItemAtIndex(newWP2,2);
+    missionList.replaceMissionItemAtIndex(newWP3,3);
+
+    Data::SystemDescription newDescription(1);
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestDummyFunction(this, 1);
+        ptr->RequestVehicleMission(this, newDescription);
     });
+
 }
 
 void ModuleGroundStation::getConnectedVehicles()
@@ -229,8 +268,10 @@ void ModuleGroundStation::getConnectedVehicles()
 
 void ModuleGroundStation::getVehicleMission(const int &vehicleID)
 {
+    Data::SystemDescription newSystem(vehicleID);
+
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestCurrentVehicleMission(this, vehicleID);
+        ptr->RequestVehicleMission(this, newSystem);
     });
 }
 

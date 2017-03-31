@@ -13,7 +13,8 @@ DEFINES += DATA_LIBRARY
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
-    timer.cpp
+    timer.cpp \
+    system_description.cpp
 
 HEADERS += data_global.h \
     i_topic_component_data_object.h \
@@ -28,7 +29,8 @@ HEADERS += data_global.h \
     speed_frame.h \
     autopilot_types.h \
     controller_state.h \
-    mission_map.h
+    mission_map.h \
+    system_description.h
     loiter_direction.h
 
 # Unix lib Install

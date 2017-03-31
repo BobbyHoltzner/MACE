@@ -23,7 +23,7 @@ void Mission_MAVLINKTOMACE::ChangeSpeed_MACETOMAVLINK(const int &vehicleID, cons
 
 void Mission_MAVLINKTOMACE::LoiterTime_MACETOMAVLINK(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem)
 {
-    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TIME) && (mavlinkItem.frame == MAV_FRAME_GLOBAL)){
+    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TIME) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.latitude = mavlinkItem.x;
         missionItem.position.longitude = mavlinkItem.y;

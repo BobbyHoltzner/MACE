@@ -55,6 +55,7 @@ mavlink_message_t Command_MACETOMAVLINK::generateTakeoffMessage(const MissionIte
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_NAV_TAKEOFF;
     cmd.target_system = missionItem.getVehicleID();
+    cmd.param3 = 0.0;
     cmd.param5 = missionItem.position.latitude;
     cmd.param6 = missionItem.position.longitude;
     cmd.param7 = missionItem.position.altitude;

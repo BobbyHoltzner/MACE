@@ -53,15 +53,15 @@ public:
         /////////////////////////////////////////////////////////////////////////
 
         this->template AddCommandLogic<MissionItem::MissionList>(CT::SET_CURRENT_MISSION_QUEUE, [this](const MissionItem::MissionList &missionList){
-            SetCurrentMissionQueue(missionList);
+            SetMissionQueue(missionList);
         });
 
-        this->template AddCommandLogic<int>(CT::REQUEST_CURRENT_MISSION_QUEUE, [this](const int &vehicleID){
-            RequestCurrentMissionQueue(vehicleID);
+        this->template AddCommandLogic<Data::SystemDescription>(CT::REQUEST_CURRENT_MISSION_QUEUE, [this](const Data::SystemDescription &targetSystem){
+            GetMissionQueue(targetSystem);
         });
 
-        this->template AddCommandLogic<int>(CT::REQUEST_CLEAR_MISSION_QUEUE, [this](const int &vehicleID){
-            RequestClearMissionQueue(vehicleID);
+        this->template AddCommandLogic<Data::SystemDescription>(CT::REQUEST_CLEAR_MISSION_QUEUE, [this](const Data::SystemDescription &targetSystem){
+            ClearMissionQueue(targetSystem);
         });
 
         /////////////////////////////////////////////////////////////////////////
@@ -104,17 +104,21 @@ public:
     virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm) = 0;
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
     virtual void RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
+//    virtual void RequestVehicleLand(const MissionItem::SpatialLand<DataState::StateGlobalPosition> &vehicleLand) = 0;
+//    virtual void RequestVehicleRTL(const MissionItem::SpatialRTL &vehicleRTL) = 0;
 
-    virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList) = 0;
-    virtual void RequestCurrentMissionQueue(const int &vehicleID) = 0;
-    virtual void RequestClearMissionQueue(const int &vehicleID) = 0;
+    virtual void RequestVehicleHomePosition(const int &vehicleID) = 0;
+    virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome) = 0;
+
+    virtual void SetMissionQueue(const MissionItem::MissionList &missionList) = 0;
+    virtual void GetMissionQueue(const Data::SystemDescription &targetSystem) = 0;
+    virtual void ClearMissionQueue(const Data::SystemDescription &targetSystem) = 0;
 
     virtual void SetCurrentGuidedQueue(const MissionItem::MissionList &missionList) = 0;
     virtual void RequestCurrentGuidedQueue(const int &vehicleID) = 0;
     virtual void RequestClearGuidedQueue(const int &vehicleID) = 0;
 
-    virtual void RequestVehicleHomePosition(const int &vehicleID) = 0;
-    virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome) = 0;
+
 
 
 };

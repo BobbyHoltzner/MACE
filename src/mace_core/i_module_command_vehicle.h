@@ -1,5 +1,5 @@
-#ifndef I_VEHICLE_COMMS_H
-#define I_VEHICLE_COMMS_H
+#ifndef I_MODULE_COMMAND_VEHICLE_H
+#define I_MODULE_COMMAND_VEHICLE_H
 
 #include "abstract_module_base_vehicle_listener.h"
 #include "metadata_vehicle.h"
@@ -46,4 +46,4 @@ public:
 
 } //END MaceCore Namespace
 
-#endif // I_VEHICLE_COMMS_H
+#endif // I_MODULE_COMMAND_VEHICLE_H

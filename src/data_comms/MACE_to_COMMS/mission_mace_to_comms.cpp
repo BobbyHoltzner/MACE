@@ -7,6 +7,17 @@ Mission_MACETOCOMMS::Mission_MACETOCOMMS(const int &systemID, const int &compID)
 
 }
 
+mavlink_message_t Mission_MACETOCOMMS::Home_MACETOCOMMS(const MissionItem::SpatialHome &missionItem, const uint8_t &chan, const uint8_t &compID)
+{
+    mavlink_message_t msg;
+    mavlink_home_position_t homePosition;
+    homePosition.latitude = missionItem.position.latitude * pow(10,7);
+    homePosition.longitude = missionItem.position.longitude * pow(10,7);
+    homePosition.altitude = missionItem.position.altitude * pow(10,3);
+    mavlink_msg_home_position_encode_chan(missionItem.getVehicleID(),0,chan,&msg,&homePosition);
+    return msg;
+}
+
 void Mission_MACETOCOMMS::initializeMAVLINKMissionItem(mavlink_mission_item_t &mavMission)
 {
     mavMission.autocontinue = 1;

@@ -24,6 +24,7 @@
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_mission_item/mission_item_components.h"
 
+#include "data/system_description.h"
 #include "data/mission_map.h"
 
 namespace MaceCore
@@ -116,10 +117,11 @@ public:
         vehicleIDs = m_AvailableVehicles;
     }
 
-    void GetVehicleHomePostion(const int &vehicleID, MissionItem::SpatialHome &vehicleHome) const
+    MissionItem::SpatialHome GetVehicleHomePostion(const int &vehicleID) const
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        vehicleHome = m_VehicleHomeMap.at(vehicleID);
+        MissionItem::SpatialHome vehicleHome = m_VehicleHomeMap.at(vehicleID);
+        return vehicleHome;
     }
 
 private:
@@ -691,12 +693,16 @@ private:
     /// VEHICLE MISSION METHODS
     /////////////////////////////////////////////////////////
 private:
-    mutable std::mutex m_VehicleMissionMutex;
-    std::map<int, MissionItem::MissionList> m_VehicleCurrentMissionMap;
-    std::map<int, MissionItem::MissionList> m_VehicleProposedMissionMap;
+    mutable std::mutex COMPLETEMissionMUTEX;
+    std::map<int, std::map<Data::MissionType,MissionItem::MissionList>> m_COMPLETEMission;
+
+    mutable std::mutex INCOMPLETEMissionMUTEX;
+    std::map<int, std::map<Data::MissionType,MissionItem::MissionList>> m_INCOMPLETEMission;
+
 public:
-    void updateMissionList(const MissionItem::MissionList missionList, const Data::MissionMap &relevantQueue);
-    MissionItem::MissionList getMissionList(const int &systemID, const Data::MissionMap &relevantQueue) const;
+    void updateCOMPLETEMissionList(const MissionItem::MissionList missionList);
+    void updateINCOMPLETEMissionList(const MissionItem::MissionList missionList);
+    bool getMissionList(MissionItem::MissionList &newList, const int &systemID, const MissionItem::MissionList::MissionListState &missionState, const Data::MissionType &missionType) const;
 };
 
 } //END MaceCore Namespace

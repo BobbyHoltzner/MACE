@@ -68,10 +68,11 @@ public:
         {
             func();
         }
-
-        postToThread([func](){
-            func();
-        }, m_socket);
+        else {
+            postToThread([func](){
+                func();
+            }, m_socket);
+        }
     }
 
 private:

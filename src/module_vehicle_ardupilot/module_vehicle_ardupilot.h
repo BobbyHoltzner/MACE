@@ -102,19 +102,19 @@ public:
     //! \brief SetCurrentMissionQueue
     //! \param missionList
     //!
-    virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList);
+    virtual void SetMissionQueue(const MissionItem::MissionList &missionList);
 
     //!
     //! \brief RequestCurrentMissionQueue
     //! \param vehicleID
     //!
-    virtual void RequestCurrentMissionQueue (const int &vehicleID);
+    virtual void GetMissionQueue (const Data::SystemDescription &targetSystem);
 
     //!
     //! \brief RequestClearMissionQueue
     //! \param vehicleID
     //!
-    virtual void RequestClearMissionQueue (const int &vehicleID);
+    virtual void ClearMissionQueue (const Data::SystemDescription &targetSystem);
 
 
     ////////////////////////////////////////////////////////////////////////////
