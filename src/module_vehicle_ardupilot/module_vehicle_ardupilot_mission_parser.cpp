@@ -16,6 +16,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         mavlink_msg_mission_item_decode(message,&decodedMSG);
 
         MissionItem::MissionList missionList;
+        bool validity = this->getDataObject()->getMissionList(missionList, sysID, MissionItem::MissionList::INCOMPLETE, Data::MissionType::AUTO_CURRENT);
 
         if(decodedMSG.seq == 0)
         {
@@ -37,14 +38,17 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
                 ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
             });
         }else{
-            bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::INCOMPLETE, Data::MissionType::AUTO_CURRENT);
-            if(!validity)
-                return true;
             int currentIndex = decodedMSG.seq - 1; //we decrement 1 only here because ardupilot references home as 0 and we 0 index in our mission queue
             std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = DataArdupilot::MAVLINKMissionToMACEMission(sysID, decodedMSG);
             missionList.replaceMissionItemAtIndex(newMissionItem,currentIndex);
         }
 
+        //If there was no mission list we do not want to do anything further
+        if(!validity)
+            return true;
+
+        //If there was a mission list in the core, this means that we have previously
+        //received a count and therefore should expect a full new mission
         MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
         if(status.state == MissionItem::MissionList::INCOMPLETE)
         {

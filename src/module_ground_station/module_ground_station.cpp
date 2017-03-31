@@ -227,8 +227,9 @@ void ModuleGroundStation::testFunction()
     missionList.replaceMissionItemAtIndex(newWP2,2);
     missionList.replaceMissionItemAtIndex(newWP3,3);
 
+    Data::SystemDescription newDescription(1);
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestSetVehicleMission(this, missionList);
+        ptr->RequestVehicleMission(this, newDescription);
     });
 
 }
