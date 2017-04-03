@@ -1,6 +1,6 @@
 #include "vehicle_flightMode.h"
 
-namespace DataArdupilot
+namespace DataARDUPILOT
 {
 
 VehicleFlightMode::VehicleFlightMode()

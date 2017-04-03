@@ -24,7 +24,7 @@ public:
     virtual DataGenericItem::DataGenericItem_GPS GPS_MAVLINKTOMACE(const mavlink_gps_raw_int_t &genericItem);
     virtual DataGenericItem::DataGenericItem_Text Text_MAVLINKTOMACE(const mavlink_statustext_t &genericItem);
 
-private:
+protected:
     int mSystemID;
 };
 

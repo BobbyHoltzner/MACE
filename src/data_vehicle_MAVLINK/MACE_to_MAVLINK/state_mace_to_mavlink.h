@@ -32,7 +32,7 @@ public:
 
     virtual mavlink_message_t LocalPosition_MACETOMAVLINK(const DataState::StateLocalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
 
-private:
+protected:
     int mSystemID;
     int mCompID;
 };

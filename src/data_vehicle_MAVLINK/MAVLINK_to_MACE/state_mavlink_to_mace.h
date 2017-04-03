@@ -22,7 +22,7 @@ public:
     virtual DataState::StateGlobalPosition GlobalPosition_MAVLINKTOMACE(const mavlink_global_position_int_t &stateItem);
     virtual DataState::StateLocalPosition LocalPosition_MAVLINKTOMACE(const mavlink_local_position_ned_t &stateItem);
 
-private:
+protected:
     int mSystemID;
 };
 

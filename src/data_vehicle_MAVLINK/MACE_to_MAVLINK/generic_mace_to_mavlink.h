@@ -37,7 +37,7 @@ public:
     virtual mavlink_message_t TextTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &topicItem, const uint8_t &chan);
     virtual mavlink_message_t Text_MACETOMAVLINK(DataGenericItem::DataGenericItem_Text textItem, const uint8_t &chan);
 
-private:
+protected:
     int mSystemID;
     int mCompID;
 
