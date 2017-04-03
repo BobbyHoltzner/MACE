@@ -315,7 +315,7 @@ public:
         UNUSED(linkName);
 
         //get maping of all vehicle data components
-        std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_MAVLINKParser.Parse(&message);
+        std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_MAVLINKParser.ParseForVehicleData(&message);
 
         //proceed to send components only if there is 1 or more
         if(components.size() > 0)

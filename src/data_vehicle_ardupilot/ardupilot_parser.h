@@ -5,16 +5,16 @@
 
 #include "data_container_ardupilot.h"
 
-namespace DataArdupilot{
+namespace DataARDUPILOT{
 
 class ARDUPILOTParser : public DataMAVLINK::MAVLINKParser
 {
 public:
-    ARDUPILOTParser(const DataContainer_ARDUPILOT &dataContainer);
+    ARDUPILOTParser(DataContainer_ARDUPILOT* dataContainer);
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForVehicleData(const mavlink_message_t* message);
 
 private:
-    DataContainer_ARDUPILOT data;
+    DataContainer_ARDUPILOT* data;
 };
 
 } //end of namespace DataArdupilot

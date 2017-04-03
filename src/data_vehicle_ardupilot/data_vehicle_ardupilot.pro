@@ -25,7 +25,9 @@ SOURCES += \
     ARDUPILOT_to_MACE/state_ardupilot_to_mace.cpp \
     data_container_ardupilot.cpp \
     ardupilot_parser.cpp \
-    vehicle_object_ardupilot.cpp
+    vehicle_object_ardupilot.cpp \
+    MACE_to_ARDUPILOT/container_mace_to_ardupilot.cpp \
+    ARDUPILOT_to_MACE/container_ardupilot_to_mace.cpp
 
 HEADERS +=\
         data_vehicle_ardupilot_global.h \
@@ -41,7 +43,9 @@ HEADERS +=\
     ARDUPILOT_to_MACE/command_ardupilot_to_mace.h \
     data_container_ardupilot.h \
     ardupilot_parser.h \
-    vehicle_object_ardupilot.h
+    vehicle_object_ardupilot.h \
+    MACE_to_ARDUPILOT/container_mace_to_ardupilot.h \
+    ARDUPILOT_to_MACE/container_ardupilot_to_mace.h
 
 # Unix lib Install
 unix:!symbian {

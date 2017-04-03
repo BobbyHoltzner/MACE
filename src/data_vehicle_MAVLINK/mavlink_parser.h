@@ -29,11 +29,11 @@ namespace DataMAVLINK
 class MAVLINKParser
 {
 public:
-    MAVLINKParser(const DataContainer_MAVLINK &dataContainer);
+    MAVLINKParser(DataContainer_MAVLINK *dataContainer);
     virtual std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForVehicleData(const mavlink_message_t* message);
 
 protected:
-    DataContainer_MAVLINK data;
+    DataContainer_MAVLINK* data;
 };
 
 }
