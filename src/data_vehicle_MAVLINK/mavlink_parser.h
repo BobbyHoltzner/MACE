@@ -25,7 +25,6 @@
 namespace DataMAVLINK
 {
 
-
 class MAVLINKParser
 {
 public:

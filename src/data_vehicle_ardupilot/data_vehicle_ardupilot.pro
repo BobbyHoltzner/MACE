@@ -34,6 +34,7 @@ HEADERS +=\
     components.h \
     components/vehicle_flightMode.h \
     MACE_to_ARDUPILOT/command_mace_to_ardupilot.h \
+    MACE_to_ARDUPILOT/container_mace_to_ardupilot.h \
     MACE_to_ARDUPILOT/generic_mace_to_ardupilot.h \
     MACE_to_ARDUPILOT/mission_mace_to_ardupilot.h \
     MACE_to_ARDUPILOT/state_mace_to_ardupilot.h \
@@ -41,11 +42,10 @@ HEADERS +=\
     ARDUPILOT_to_MACE/mission_ardupilot_to_mace.h \
     ARDUPILOT_to_MACE/generic_ardupilot_to_mace.h \
     ARDUPILOT_to_MACE/command_ardupilot_to_mace.h \
+    ARDUPILOT_to_MACE/container_ardupilot_to_mace.h \
     data_container_ardupilot.h \
     ardupilot_parser.h \
-    vehicle_object_ardupilot.h \
-    MACE_to_ARDUPILOT/container_mace_to_ardupilot.h \
-    ARDUPILOT_to_MACE/container_ardupilot_to_mace.h
+    vehicle_object_ardupilot.h
 
 # Unix lib Install
 unix:!symbian {
@@ -62,12 +62,12 @@ INSTALLS += lib
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/data_vehicle_ardupilot
 headers.files   += \
-        ardupilot_to_mace.h \
-        components.h \
-        data_container_ardupilot.h \
-        data_vehicle_ardupilot.h \
         data_vehicle_ardupilot_global.h \
-        mace_to_ardupilot.h \
+    components.h \
+    components/vehicle_flightMode.h \
+    data_container_ardupilot.h \
+    ardupilot_parser.h \
+    vehicle_object_ardupilot.h \
 
 INSTALLS       += headers
 
@@ -81,18 +81,20 @@ INSTALLS       += headers_Components
 #Header file copy
 headers_MACE_to_ARDUPILOT.path    = $$(MACE_ROOT)/include/data_vehicle_ardupilot/MACE_to_ARDUPILOT
 headers_MACE_to_ARDUPILOT.files   += \
-    MACE_to_ARDUPILOT/mission_mace_to_mavlink.h \
-    MACE_to_ARDUPILOT/state_mace_to_mavlink.h \
+    MACE_to_ARDUPILOT/command_mace_to_mavlink.h \
+    MACE_to_ARDUPILOT/container_mace_to_ardupilot.h \
     MACE_to_ARDUPILOT/generic_mace_to_mavlink.h \
-    MACE_to_ARDUPILOT/command_mace_to_mavlink.h
+    MACE_to_ARDUPILOT/mission_mace_to_mavlink.h \
+    MACE_to_ARDUPILOT/state_mace_to_mavlink.h
 INSTALLS       += headers_MACE_to_ARDUPILOT
 
 #Header file copy
 headers_ARDUPILOT_to_MACE.path    = $$(MACE_ROOT)/include/data_vehicle_ardupilot/ARDUPILOT_to_MACE
 headers_ARDUPILOT_to_MACE.files   += \
-    ARDUPILOT_to_MACE/mission_mavlink_to_mace.h \
     ARDUPILOT_to_MACE/command_mavlink_to_mace.h \
+    ARDUPILOT_to_MACE/container_ardupilot_to_mace.h \
     ARDUPILOT_to_MACE/generic_mavlink_to_mace.h \
+    ARDUPILOT_to_MACE/mission_mavlink_to_mace.h \
     ARDUPILOT_to_MACE/state_mavlink_to_mace.h
 INSTALLS       += headers_ARDUPILOT_to_MACE
 

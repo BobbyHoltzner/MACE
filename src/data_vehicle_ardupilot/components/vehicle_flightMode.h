@@ -10,7 +10,7 @@
 
 #include "data_generic_item_topic/data_generic_item_topic_flightmode.h"
 
-namespace DataArdupilot
+namespace DataARDUPILOT
 {
 
 class VehicleFlightMode : public DataGenericItemTopic::DataGenericItemTopic_FlightMode

@@ -164,7 +164,6 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
     }
     case MAVLINK_MSG_ID_ATTITUDE:
     {
-        std::cout<<"I saw an attitude message"<<std::endl;
         //This is message definition 30
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mavlink_attitude_t decodedMSG;

@@ -1,6 +1,6 @@
 #include "module_vehicle_ardupilot.h"
 
-bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkName, const mavlink_message_t* message)
+bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleObject_ARDUPILOT* vehicleData, const std::string &linkName, const mavlink_message_t* message)
 {
     bool parsedMissionMSG = true;
     int sysID = message->sysid;
@@ -39,7 +39,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         }else{
             int currentIndex = decodedMSG.seq - 1; //we decrement 1 only here because ardupilot references home as 0 and we 0 index in our mission queue
             //04/03/2017 Ken Fix This
-            std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = DataArdupilot::MAVLINKMissionToMACEMission(sysID, decodedMSG);
+            std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = vehicleData->Covert_MAVLINKTOMACE(decodedMSG);
             missionList.replaceMissionItemAtIndex(newMissionItem,currentIndex);
         }
 
@@ -91,8 +91,9 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(const std::string &linkN
         if(validity)
         {
             std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = missionList.getMissionItem(decodedMSG.seq);
-            //04/03/2017 FIX
-            mavlink_message_t msg = DataArdupilot::MACEMissionToMAVLINKMission(missionItem,chan,compID,decodedMSG.seq);
+            //04/03/2017 KEN FIX
+            mavlink_message_t msg;
+            vehicleData->MACEMissionToMAVLINKMission(missionItem,chan,compID,decodedMSG.seq,msg);
             m_LinkMarshaler->SendMessage<mavlink_message_t>(linkName, msg);
         }
 

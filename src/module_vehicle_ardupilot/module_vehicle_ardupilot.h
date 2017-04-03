@@ -10,10 +10,8 @@
 #include "module_vehicle_ardupilot_global.h"
 #include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
 
-#include "data_vehicle_ardupilot/data_vehicle_ardupilot.h"
-#include "data_vehicle_ardupilot/ardupilot_to_mace.h"
-#include "data_vehicle_ardupilot/mace_to_ardupilot.h"
 #include "data_vehicle_ardupilot/components.h"
+#include "data_vehicle_ardupilot/vehicle_object_ardupilot.h"
 
 #include "data_vehicle_mavlink/MACE_to_MAVLINK/command_mace_to_mavlink.h"
 #include "data_vehicle_mavlink/MACE_to_MAVLINK/generic_mace_to_mavlink.h"
@@ -40,7 +38,7 @@ enum ArdupilotMissionMode{
 public:
     ModuleVehicleArdupilot();
 
-    bool ParseMAVLINKMissionMessage(const std::string &linkName, const mavlink_message_t *message);
+    bool ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleObject_ARDUPILOT* vehicleData, const std::string &linkName, const mavlink_message_t *message);
 
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
@@ -173,7 +171,7 @@ private:
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
 
-    std::map<int,DataArdupilot::DataVehicleArdupilot*> m_ArduPilotData;
+    std::map<int,DataARDUPILOT::VehicleObject_ARDUPILOT*> m_ArduPilotData;
 
 
     std::shared_ptr<MissionTopic::MissionItemCurrentTopic> m_CurrentMissionItem;

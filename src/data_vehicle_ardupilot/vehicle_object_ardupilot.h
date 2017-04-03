@@ -15,8 +15,8 @@ public:
 
 public:
     ARDUPILOTParser *parser;
-private:
     DataContainer_ARDUPILOT *data;
+private:
     int m_VehicleID;
     int m_SystemID;
     int m_SystemComp;
