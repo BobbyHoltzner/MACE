@@ -49,7 +49,7 @@ public:
     void Waypoint_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem);
     void Waypoint_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem);
 
-private:
+protected:
     int mSystemID;
 };
 

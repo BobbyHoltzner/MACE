@@ -52,11 +52,11 @@ public:
 
     virtual bool MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex, mavlink_message_t &msg);
 
-private:
+protected:
     void initializeMAVLINKMissionItem(mavlink_mission_item_t &mavMission);
     mavlink_message_t packMissionItem(const mavlink_mission_item_t &mavMission, const uint8_t &chan);
 
-private:
+protected:
     int mSystemID;
     int mCompID;
 

@@ -1,5 +1,5 @@
 #include "command_mace_to_mavlink.h"
-namespace DataMAVLINK{
+namespace DataARDUPILOT{
 
 Command_MACETOMAVLINK::Command_MACETOMAVLINK(const int &systemID, const int &compID):
     mSystemID(systemID),mCompID(compID)

@@ -38,6 +38,7 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
     if(tmpData->heartbeatUpdated())
     {
         int newFlightMode = tmpData->getFlightModeFromString(modeString);
+        //04/03/2017 Ken FIX This
         mavlink_message_t msg = DataArdupilot::generateChangeMode(vehicleID,m_LinkChan,newFlightMode);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
     }
@@ -65,6 +66,7 @@ void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
 
 void ModuleVehicleArdupilot::SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome)
 {
+    //04/03/2017 Ken fix this
     mavlink_message_t msg = DataArdupilot::generateSetHomePosition(vehicleHome,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
@@ -86,9 +88,6 @@ void ModuleVehicleArdupilot::SetMissionQueue(const MissionItem::MissionList &mis
     int queueSize = tmpData->m_ProposedMissionQueue.getQueueSize();
     mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,queueSize);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-
-//    delete tmpData;
-//    tmpData = NULL;
 }
 
 void ModuleVehicleArdupilot::GetMissionQueue(const Data::SystemDescription &targetSystem)

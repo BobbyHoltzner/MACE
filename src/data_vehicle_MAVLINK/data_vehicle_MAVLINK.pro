@@ -40,7 +40,8 @@ HEADERS +=\
     MAVLINK_to_MACE/mission_mavlink_to_mace.h \
     MAVLINK_to_MACE/command_mavlink_to_mace.h \
     MAVLINK_to_MACE/generic_mavlink_to_mace.h \
-    MAVLINK_to_MACE/state_mavlink_to_mace.h
+    MAVLINK_to_MACE/state_mavlink_to_mace.h \
+    data_vehicle_mavlink_global.h
 
 # Unix lib Install
 unix:!symbian {

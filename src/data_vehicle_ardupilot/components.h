@@ -3,10 +3,11 @@
 
 #define DATA_VEHICLE_ARDUPILOT_TYPES DataArdupilot::VehicleFlightMode
 
-#include "components/vehicle_flightMode.h"
+#include "data_vehicle_MAVLINK/components.h"
 
 namespace DataArdupilot
 {
+
 }
 
 #endif // DATA_VEHICLE_ARDUPILOT_COMPONENTS_H

@@ -24,17 +24,18 @@ class Command_MACETOMAVLINK
 public:
     Command_MACETOMAVLINK(const int &systemID, const int &compID);
 
-    mavlink_message_t generateGetHomeMessage(const int &vehicleID, const int &chan);
+    mavlink_message_t generateChangeMode(const int systemID, const uint8_t &chan, const int &newMode);
     mavlink_message_t generateSetHomePosition(const MissionItem::SpatialHome &vehicleHome, const int &chan);
 
+    mavlink_message_t generateGetHomeMessage(const int &vehicleID, const int &chan);
     mavlink_message_t generateArmMessage(const MissionItem::ActionArm &actionArmItem, const uint8_t &chan);
     mavlink_message_t generateTakeoffMessage(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan);
 
-private:
+protected:
     mavlink_command_long_t initializeCommandLong();
     mavlink_message_t packLongMessage(const mavlink_command_long_t &cmdLong, const uint8_t &chan);
 
-private:
+protected:
     int mSystemID;
     int mCompID;
 };
