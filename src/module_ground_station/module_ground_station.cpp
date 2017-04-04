@@ -44,16 +44,21 @@ ModuleGroundStation::ModuleGroundStation() :
     m_MissionDataTopic("vehicleMission"),
     m_ListenThread(NULL)
 {
-    m_timeoutOccured = false;
+    m_positionTimeoutOccured = false;
+    m_attitudeTimeoutOccured = false;
+    m_modeTimeoutOccured = false;
+    m_fuelTimeoutOccured = false;
     // Start timer:
     m_timer = std::make_shared<GUITimer>([=]()
     {
-        m_timeoutOccured = true;
+        m_positionTimeoutOccured = true;
+        m_attitudeTimeoutOccured = true;
         m_modeTimeoutOccured = true;
+        m_fuelTimeoutOccured = false;
     });
 
     m_timer->setSingleShot(false);
-    m_timer->setInterval(GUITimer::Interval(3000));
+    m_timer->setInterval(GUITimer::Interval(1000));
     m_timer->start(true);
 }
 
@@ -370,7 +375,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write Position data to the GUI:
-//                sendPositionData(senderID, component);
+                sendPositionData(senderID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Fuel::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>();
@@ -671,7 +676,7 @@ void ModuleGroundStation::sendPositionData(const int &vehicleID, const std::shar
     json["numSats"] = 0; // TODO-PAT: Move to vehicle stats?
 
     QJsonDocument doc(json);
-    if(m_timeoutOccured)
+    if(m_positionTimeoutOccured)
     {
         bool bytesWritten = writeTCPData(doc.toJson());
 
@@ -680,7 +685,7 @@ void ModuleGroundStation::sendPositionData(const int &vehicleID, const std::shar
         }
 
         // Reset timeout:
-        m_timeoutOccured = false;
+        m_positionTimeoutOccured = false;
     }
 }
 
@@ -694,7 +699,7 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
     json["yaw"] = component->yaw;
 
     QJsonDocument doc(json);
-    if(m_timeoutOccured)
+    if(m_attitudeTimeoutOccured)
     {
         bool bytesWritten = writeTCPData(doc.toJson());
 
@@ -703,7 +708,7 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
         }
 
         // Reset timeout:
-        m_timeoutOccured = false;
+        m_attitudeTimeoutOccured = false;
     }
 }
 
@@ -717,7 +722,7 @@ void ModuleGroundStation::sendVehicleFuel(const int &vehicleID, const std::share
     json["batteryVoltage"] = component->getBatteryVoltage();
 
     QJsonDocument doc(json);
-    if(m_timeoutOccured)
+    if(m_fuelTimeoutOccured)
     {
         bool bytesWritten = writeTCPData(doc.toJson());
 
@@ -726,7 +731,7 @@ void ModuleGroundStation::sendVehicleFuel(const int &vehicleID, const std::share
         }
 
         // Reset timeout:
-        m_timeoutOccured = false;
+        m_fuelTimeoutOccured = false;
     }
 }
 

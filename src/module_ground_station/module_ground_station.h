@@ -138,8 +138,10 @@ private:
     std::shared_ptr<QTcpServer> m_TcpServer;
     QThread *m_ListenThread;
     QTcpSocket *m_TcpSocket;
-    bool m_timeoutOccured;
+    bool m_positionTimeoutOccured;
+    bool m_attitudeTimeoutOccured;
     bool m_modeTimeoutOccured;
+    bool m_fuelTimeoutOccured;
     std::shared_ptr<GUITimer> m_timer;
 };
 
