@@ -87,13 +87,11 @@ public:
     }
 
 
-    virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
+    virtual void VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG)
     {
         UNUSED(linkName);
-        UNUSED(vehicleId);
-        UNUSED(vehicleMavlinkVersion);
-        UNUSED(vehicleFirmwareType);
-        UNUSED(vehicleType);
+        UNUSED(systemID);
+        UNUSED(heartbeatMSG);
     }
 
 

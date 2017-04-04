@@ -13,48 +13,6 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
 
     switch ((int)message->msgid) {
-
-    case MAVLINK_MSG_ID_HEARTBEAT:
-    {
-        //might want to figure out a way to handle the case of sending an
-        //empty heartbeat back just to acknowledge the aircraft is still there
-        //then again the streaming other messages may handle this...so maybe
-        //timer should be since last time heard.
-        mavlink_heartbeat_t decodedMSG;
-        mavlink_msg_heartbeat_decode(message,&decodedMSG);
-
-        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrParameters = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
-
-        //Check the autopilot type per the MAVLINK protocol
-        if(decodedMSG.autopilot == MAV_AUTOPILOT_ARDUPILOTMEGA)
-        {
-            ptrParameters->setAutopilotType(Data::AutopilotTypes::ARDUPILOT);
-        }else{
-            ptrParameters->setAutopilotType(Data::AutopilotTypes::UNKNOWN);
-        }
-
-        //Check the vehicle type per the MAVLINK protocol
-        switch(decodedMSG.type)
-        {
-        case MAV_TYPE_FIXED_WING:
-            ptrParameters->setVehicleType(Data::VehicleTypes::PLANE);
-            break;
-        case MAV_TYPE_TRICOPTER:
-        case MAV_TYPE_QUADROTOR:
-        case MAV_TYPE_HEXAROTOR:
-        case MAV_TYPE_OCTOROTOR:
-            ptrParameters->setVehicleType(Data::VehicleTypes::COPTER);
-            break;
-        default:
-            ptrParameters->setVehicleType(Data::VehicleTypes::COPTER);
-            break;
-        }
-        //ptrParameters->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
-        rtnVector.push_back(ptrParameters);
-        data->m_CurrentVehicleState = ptrParameters;
-        data->heartbeatSeen = true;
-        break;
-    }
     case MAVLINK_MSG_ID_SYS_STATUS:
     {
         mavlink_sys_status_t decodedMSG;

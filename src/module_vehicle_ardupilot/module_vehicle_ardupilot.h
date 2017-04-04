@@ -44,6 +44,8 @@ public:
 
 
 public:
+
+    virtual void VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG);
     //!
     //! \brief New Mavlink message received over a link
     //! \param linkName Name of link message received over
@@ -164,7 +166,9 @@ public:
     virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
 private:
-    bool firstHeartbeat;
+    DataARDUPILOT::VehicleObject_ARDUPILOT* getArducopterData(const int &systemID);
+
+private:
 
     Timer t;
 
