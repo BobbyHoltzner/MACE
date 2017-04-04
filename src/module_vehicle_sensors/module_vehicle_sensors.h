@@ -1,6 +1,8 @@
 #ifndef MODULE_VEHICLE_SENSORS_H
 #define MODULE_VEHICLE_SENSORS_H
 
+#include <iostream>
+
 #include "module_vehicle_sensors_global.h"
 
 #include "Eigen/Dense"
@@ -55,6 +57,8 @@ public:
 
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
+private:
+    DataVehicleSensors::SensorCamera* cameraSensor;
 private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
