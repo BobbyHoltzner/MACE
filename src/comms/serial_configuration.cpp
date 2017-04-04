@@ -7,6 +7,7 @@ static QStringList kSupportedBaudRates;
 
 SerialConfiguration::SerialConfiguration(const std::string& name)
 {
+    UNUSED(name);
     _baud       = 57600;
     _flowControl= QSerialPort::NoFlowControl;
     _parity     = QSerialPort::NoParity;

@@ -15,7 +15,7 @@ namespace Comms
 {
 
 //!
-//! \brief Interface that it to be implimented by users of MavlinkComms to listen for any events it fired
+//! \brief Interface that it to be implemented by users of MavlinkComms to listen for any events it fired
 //!
 class IProtocolMavlinkEvents : public IProtocolEvents
 {

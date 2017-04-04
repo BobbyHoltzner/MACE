@@ -1,718 +1,267 @@
 import * as React from 'react';
 
-var PythonShell = require('python-shell');
-var UtmConverter = require('utm-converter');
-import MercatorConversion from '../helpers/MercatorConversion';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+const lightMuiTheme = getMuiTheme();
+
 var NotificationSystem = require('react-notification-system');
-import { Map, Marker, Popup, TileLayer, FeatureGroup, Polyline, LayerGroup  } from 'react-leaflet';
-import { EditControl } from "react-leaflet-draw";
-import {ControlContainer} from './ControlContainer';
-import {MapControlButtons, LayerGroupType, PathType} from './MapControlButtons';
-import {AircraftConnectionButtons} from './AircraftConnectionButtons';
-import * as $ from 'jquery';
-var fs = require('fs')
+import { Map, TileLayer, LayerGroup, Marker, Popup, Polyline } from 'react-leaflet';
+import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
+import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
+import { VehicleCommandsContainer } from './VehicleCommandsContainer';
+import { AppDrawer } from './AppDrawer';
+import AppBar from 'material-ui/AppBar';
+import * as colors from 'material-ui/styles/colors';
+import IconMenu from 'material-ui/IconMenu';
+import MenuItem from 'material-ui/MenuItem';
+import IconButton from 'material-ui/IconButton';
+import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+import { Vehicle } from '../Vehicle';
+import { backgroundColors } from '../util/Colors';
+import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
+import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
+import { ContextMenu } from '../components/ContextMenu';
+
+import * as deepcopy from 'deepcopy';
+
+
+
 var injectTapEventPlugin = require("react-tap-event-plugin");
+injectTapEventPlugin();
 var net = require('net');
 
-injectTapEventPlugin();
-// var $ = require('jquery');
-// var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
-
-type MarkerType = {
-  position: L.LatLng,
-  icon: L.Icon,
-  comm_port?: string
-}
-
-
-type UTMPropertiesType = {
-  utmZone: number,
-  isSouthern: boolean
-}
-
-type AircraftType = {
-  comm_port: string,
-  isConnected: boolean
-}
 
 type Props = {
 }
 
 type State = {
-  markers?: MarkerType[],
-  boundaryVerts?: LayerGroupType,
-  pointsOfInterest?: LayerGroupType[],
-  aircraftPaths?: PathType[],
-  boundaryPaths?: PathType[],
-  utmProperties?: UTMPropertiesType,
-  boundaryLayers?: any[],
-  hotSpotLayers?: any[],
-  screenWidth?: number,
-  screenHeight?: number,
-  pSliderVal?: number,
-  gridSliderVal?: number,
-  disableRegenerate?: boolean,
-  pathDirection?: string,
-  aircraftPorts?: AircraftType[],
-  openPorts?: string[],
-  showAircraftCommands?: boolean,
-  selectedAircraftPort?: number,
-  aircraftMarkers?: MarkerType[],
-  sendToAllAircraft?: boolean,
-  useTestPoints?: boolean,
-  disableWriteToFile?: boolean,
-  getAircraftLocationsStarted?: boolean,
   tcpClient?: any,
   tcpHost?: string,
-  tcpPort?: number
+  tcpPort?: number,
+  maxZoom?: number,
+  initialZoom?: number,
+  mapCenter?: number[],
+  connectedVehicles?: {[id: string]: Vehicle}
+  vehicleWarnings?: VehicleWarning[]
+  selectedVehicleID?: string,
+  openDrawer?: boolean,
+  tcpSockets?: any[],
+  tcpServer?: any,
+  allowVehicleSelect?: boolean,
+  showEditVehicleHomeDialog?: boolean,
+  showEditGlobalHomeDialog?: boolean,
+  globalOrigin?: PositionType,
+  showContextMenu?: boolean,
+  contextAnchor?: L.LeafletMouseEvent,
+  useContext?: boolean
 }
 
 export default class AppContainer extends React.Component<Props, State> {
-  utmConverter: UtmConverter;
-  mercatorConverter: MercatorConversion;
   leafletMap: L.Map;
   notificationSystem: NotificationSystem;
-  backgroundColors: string[];
-  constructor() {
-    super();
+  m_AttitudeInterval: number[];
+  m_AttitudeTimeout: number;
+  m_PositionInterval: number[];
+  m_PositionTimeout: number;
+  constructor(props: Props) {
+    super(props);
 
-    this.backgroundColors = ['rgba(0,0,255,0.4)', 'rgba(255,0,0,0.4)', 'rgba(0,0,0,0.4)', 'rgba(0,255,0,0.4)', 'rgba(255,255,0,0.4)', 'rgba(255,153,0,0.4)'];
-
-    this.utmConverter = new UtmConverter();
-
-    this.mercatorConverter = new MercatorConversion();
+    this.m_AttitudeInterval = [];
+    this.m_PositionInterval = [];
+    this.m_AttitudeTimeout = 1111;
+    this.m_PositionTimeout = 1234;
 
     this.state = {
-      markers: [],
-      aircraftMarkers: [],
-      boundaryVerts: null,
-      aircraftPaths: [],
-      boundaryPaths: [],
-      utmProperties: {
-        utmZone: 55, // Default to bobs farm values
-        isSouthern: true // Default to bobs farm values
-      },
-      pointsOfInterest: [],
-      boundaryLayers: [],
-      hotSpotLayers: [],
-      screenWidth: 500,
-      screenHeight: 500,
-      pSliderVal: 0.05,
-      gridSliderVal: 1.5,
-      disableRegenerate: true,
-      pathDirection: 'EastWest',
-      aircraftPorts: [],
-      openPorts: [],
-      showAircraftCommands: false,
-      selectedAircraftPort: 0,
-      sendToAllAircraft: false,
-      useTestPoints: false,
-      disableWriteToFile: false,
-      getAircraftLocationsStarted: false,
       tcpClient: new net.Socket(),
       tcpHost: '127.0.0.1',
-      tcpPort: 1234
+      tcpPort: 5678,
+      maxZoom: 20,
+      initialZoom: 18,
+      // mapCenter: [37.889231, -76.810302], // Bob's Farm
+      mapCenter: [-35.363272, 149.165249], // SITL Default
+      // mapCenter: [45.283410, -111.400850], // Big Sky
+      connectedVehicles: {},
+      vehicleWarnings: [],
+      openDrawer: false,
+      tcpSockets: [],
+      tcpServer: null,
+      allowVehicleSelect: true,
+      showEditVehicleHomeDialog: false,
+      showEditGlobalHomeDialog: false,
+      globalOrigin: {lat: 0, lon: 0, alt: 0},
+      selectedVehicleID: "0",
+      showContextMenu: false,
+      contextAnchor: null,
+      useContext: false
     }
   }
 
   componentDidMount(){
     this.leafletMap = this.refs.map;
     this.notificationSystem = this.refs.notificationSystem;
+    this.setupTCPServer();
 
-    window.addEventListener("resize", (e: any) => {
-      let width = e.width;
-      let height = e.height;
-      this.setState({
-        screenWidth: width,
-        screenHeight: height
-      });
-    });
-
-    this.setupTCPClient();
-    this.makeTCPRequest("GET_ATTITUDE", 1);
-    // this.startPythonServerAjax();
+    setInterval(() => {
+      this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
+    }, 7000);
   }
 
-  makeTCPRequest = (command: string, vehicleID: number) => {
-    this.state.tcpClient.connect(this.state.tcpPort, this.state.tcpHost, function() {
-      console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
-      let attitudeRequest = {
-        command: command,
-        vehicleID: vehicleID
-      };
-      this.state.tcpClient.write(JSON.stringify(attitudeRequest));
-    }.bind(this));
-  }
-  
-  setupTCPClient = () => {
-      // Add a 'data' event handler for the client socket
-      // data is what the server sent to this socket
-      this.state.tcpClient.on('data', function(data: any) {        
-          console.log('DATA: ' + data);
-          let jsonData = JSON.parse(data);
-          console.log(jsonData["roll"]);
-          // Close the client socket completely
-          this.state.tcpClient.destroy();        
-      }.bind(this));
+  setupTCPServer = () => {
+    // Create a TCP socket listener
+    this.state.tcpServer = net.Server(function (socket: any) {
 
-      // Add a 'close' event handler for the client socket
-      this.state.tcpClient.on('close', function() {
-          console.log('Connection closed');
-      }.bind(this));
+        // Add the new client socket connection to the array of sockets
+        this.state.tcpSockets.push(socket);
 
-      // Add an 'error' event handler
-      this.state.tcpClient.on('error', function(err: any) {
-          console.log('Error: ' + err);
-      }.bind(this));
-  }
+        // 'data' is an event that means that a message was just sent by the client application
+        socket.on('data', function (msg_sent: any) {
+          // console.log("Data from socket: " + msg_sent);
+          let jsonData: TCPReturnType = JSON.parse(msg_sent);
+          this.parseTCPClientData(jsonData);
+        }.bind(this));
+        // Use splice to get rid of the socket that is ending.
+        // The 'end' event means tcp client has disconnected.
+        socket.on('end', function () {
+            // let sockets = deepcopy(this.state.tcpSockets);
+            let i = this.state.tcpSockets.indexOf(socket);
+            this.state.tcpSockets.splice(i, 1);
+        }.bind(this));
 
-  _onEditPath = (e: L.LeafletEvent) => {
-    // console.log('Path edited !');
-    // console.log(e);
-  }
 
-  _onCreate = (e: any) => {
-    let layerType = e.layerType;
-    let latLons: L.LatLng[] = [];
-    let type: string;
-    if(layerType === 'rectangle' || layerType === 'polygon'){
-      for(let i = 0; i < e.layer._latlngs.length; i++){
-        latLons.push(e.layer._latlngs[i]);
-      }
-      type = 'boundary';
-
-      let tmpLayerGroup = {
-        type: type,
-        latLons: latLons
-      }
-      let tmpLayers = this.state.boundaryLayers;
-      tmpLayers.push(e.layer);
-      this.setState({
-        boundaryVerts: tmpLayerGroup,
-        boundaryLayers: tmpLayers
-      });
-
-      console.log("BOUNDARY POINTS:");
-      console.log(tmpLayerGroup.latLons);
-    }
-    else if (layerType === 'marker'){
-      latLons.push(e.layer._latlng);
-      type = 'poi';
-
-      let tmpPOIs: LayerGroupType[] = this.state.pointsOfInterest;
-      let tmpLayerGroup = {
-        type: type,
-        latLons: latLons
-      }
-      tmpPOIs.push(tmpLayerGroup);
-
-      let tmpLayers = this.state.hotSpotLayers;
-      tmpLayers.push(e.layer);
-      this.setState({
-        pointsOfInterest: tmpPOIs,
-        hotSpotLayers: tmpLayers
-      });
-
-      console.log("HOT SPOTS:");
-      console.log(tmpLayerGroup.latLons);
-    }
-  }
-
-  _onDeleted = (e: L.LeafletEvent) => {
-    // console.log('Path deleted !');
-  }
-
-  _mounted = (drawControl: L.LeafletEvent) => {
-    // console.log('Component mounted !');
-  }
-
-  startPythonServerAjax = () => {
-    console.log("Python server start sent");
-
-    let options = {
-      mode: "text",
-      pythonOptions: ["-u"],
-      scriptPath: "./python/"
-    };
-
-    PythonShell.run('server.py', options, function(err: any, results: any) {
-      if(err){
-        throw err;
-      }
     }.bind(this));
 
-    this.ajaxAction('detectSerialPorts', {}, this.setCommPorts);
-  }
 
-  setCommPorts = (commList: string[]) => {
-    console.log('COMM PORTS:' + commList);
-
-    let tmpPorts = this.state.openPorts;
-    for(let i = 0; i < commList.length; i++){
-        tmpPorts.push(commList[i]);
-    }
-
-    this.setState({openPorts: tmpPorts})
+    // TODO: Allow for user configuration of the port and probably address too
+    this.state.tcpServer.listen(1234);
+    console.log('System listening at http://localhost:1234');
   }
 
 
-  connectToAircraftAjax = () => {
-    console.log("Connect to aircraft pressed");
-    console.log(this.state.openPorts[this.state.selectedAircraftPort]);
+  parseTCPClientData = (jsonData: TCPReturnType) => {
+    let stateCopy = deepcopy(this.state.connectedVehicles);
 
-    let connectData = {
-      comm_port: this.state.openPorts[this.state.selectedAircraftPort],
-      // any other data to send?
-    }
+    if(jsonData.dataType === "ConnectedVehicles"){
+      let jsonVehicles = jsonData as ConnectedVehiclesType;
 
-    this.ajaxAction('connect', connectData, this.connectToAircraftCallback);
-  }
+      console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
 
-  connectToAircraftCallback = (result: any) => {
-    // console.log("Connect to aircraft callback: " + JSON.parse(result));
-
-    let tmpAircraftPorts: AircraftType[] = this.state.aircraftPorts;
-    tmpAircraftPorts.push({
-      comm_port: this.state.openPorts[this.state.selectedAircraftPort],
-      isConnected: result
-    })
-    this.setState({showAircraftCommands: true, aircraftPorts: tmpAircraftPorts});
-
-    this.getAircraftHomeLocations();
-  }
-
-
-  getAircraftLocations = () => {
-    // console.log("Get aircraft locations");
-      for(let i = 0; i < this.state.aircraftPorts.length; i++){
-        let homeData = {
-          comm_port: this.state.aircraftPorts[i].comm_port
+      // Check if vehicle is already in the map. If so, do nothing. If not, add it:
+      for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
+        if (stateCopy[jsonVehicles.connectedVehicles[i].toString()] !== undefined){
+          return;
         }
-
-        // console.log('TEST COMM PORTS SEND: ' + this.state.aircraftPorts[i].comm_port);
-        if(this.state.aircraftPorts[i].isConnected){
-          console.log("In get location if statement");
-          console.log("COMM PORT: " + this.state.aircraftPorts[i]);
-          this.ajaxAction('getLocation', homeData, this.handleUpdateVehicleLocations);
+        else {
+          stateCopy[jsonVehicles.connectedVehicles[i].toString()] = new Vehicle(jsonVehicles.connectedVehicles[i]);
         }
       }
-  }
 
-  getAircraftHomeLocations = () => {
-    for(let i = 0; i < this.state.aircraftPorts.length; i++){
-      let homeData = {
-        comm_port: this.state.aircraftPorts[i].comm_port
-      }
-      if(this.state.aircraftPorts[i].isConnected){
-        this.ajaxAction('getHomeLocation', homeData, this.handleUpdateHomeLocations);
-      }
-    }
-  }
-
-  handleUpdateVehicleLocations = (results: any) => {
-    // console.log("UPDATE VEHICLE LOCATIONS: " +  + results.latitude + " / " + results.longitude + " / " + results.altitude + " / " + results.heading + " / " + results.comm_port);
-
-    for(let key in this.leafletMap.leafletElement._layers){
-      if(this.leafletMap.leafletElement._layers[key]._latlng){
-        let tmpIcon: string = this.leafletMap.leafletElement._layers[key].options.icon.options.iconUrl;
-        let tmpIconTitle: string = this.leafletMap.leafletElement._layers[key].options.title;
-        for(let i = 0; i < this.state.aircraftPorts.length; i++){
-          if(this.state.aircraftPorts[i].comm_port === results.comm_port){
-            // let tmpMarker = this.leafletMap.leafletElement._layers[key];
-            // this.leafletMap.leafletElement.removeLayer(this.leafletMap.leafletElement._layers[key]);
-
-            let tmpAircraftMarkers = this.state.aircraftMarkers;
-            // let iconHTML = '<img src="./images/drone-icon.png" alt="Drone icon" style="background-color: transparent; width:41px; height:41px; -webkit-transform: rotate(' + results.heading + 'deg); -moz-transform: rotate(' + results.heading + 'deg); -o-transform: rotate(' + results.heading + 'deg); -ms-transform: rotate(' + results.heading + 'deg); transform: rotate(' + results.heading + 'deg);">';
-            let iconHTML = '<div style="background-color: ' + this.backgroundColors[i] + '; color: white; width: 41px; text-align: center;">' + this.state.aircraftPorts[i].comm_port + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + results.heading + 'deg); -moz-transform: rotate(' + results.heading + 'deg); -o-transform: rotate(' + results.heading + 'deg); -ms-transform: rotate(' + results.heading + 'deg); transform: rotate(' + results.heading + 'deg);">';
-            let updatedMarker: MarkerType = {
-              comm_port: this.state.aircraftPorts[i].comm_port,
-              position: new L.LatLng(results.latitude, results.longitude),
-              icon: new L.DivIcon({
-                html: iconHTML,
-                iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
-              })
-              // icon: new L.Icon({
-              //     iconUrl: './images/drone-icon.png',
-              //     iconSize: [41, 41], // size of the icon
-              //     iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
-              //     popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
-              //   })
-            }
-            tmpAircraftMarkers[i] = updatedMarker;
-            console.log("IN UPDATE VEHICLE LOCATIONS: " + tmpAircraftMarkers[i].comm_port)
-            this.setState({aircraftMarkers: tmpAircraftMarkers});
-          }
-        }
-      }
-    }
-  }
-
-  handleUpdateHomeLocations = (results: any) => {
-    // console.log("HOME LOCATIONS: " + results.latitude + " / " + results.longitude + " / " + results.altitude);
-
-    let iconHTML = '<img src="./images/drone-icon.png" alt="Drone icon" style="width:41px;height:41px;">'
-    let tmpMarker: MarkerType = {
-      position: new L.LatLng(results.latitude, results.longitude),
-      icon: new L.DivIcon({
-        html: iconHTML,
-        iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
-        popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
-      }),
-      // icon: new L.Icon({
-      //     iconUrl: './images/drone-icon.png',
-      //     iconSize: [41, 41], // size of the icon
-      //     iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
-      //     popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
-      //   }),
-      comm_port: this.state.openPorts[this.state.selectedAircraftPort]
-    };
-
-    let tmpAircraftMarkers = this.state.aircraftMarkers;
-    tmpAircraftMarkers.push(tmpMarker);
-    this.setState({aircraftMarkers: tmpAircraftMarkers});
-
-    // // Get locations of all connected aircraft:
-    if(this.state.getAircraftLocationsStarted){
-      setInterval(function() {
-          this.getAircraftLocations();
-      }.bind(this), 1000);
-
-      this.setState({getAircraftLocationsStarted: true});
-    }
-
-  }
-
-  disconnectFromAircraftAjax = () => {
-    console.log("disconnect from to aircraft pressed");
-
-    let connectData = {
-      comm_port: this.state.openPorts[this.state.selectedAircraftPort],
-      // any other data to send?
-    }
-
-    this.ajaxAction('disconnect', connectData, this.connectToAircraftCallback);
-  }
-
-  generateWaypointsAjax = () => {
-    console.log("Generate waypoints pressed");
-    let boundaryVerts: any = [];
-    let hotSpots: any = [];
-
-    // Change to false to have the test points used:
-    // Default parameters:
-    let pSliderVal = 0.01;
-    let gridSliderVal = 0.5;
-    let pathDirection = "NorthSouth";
-    if(this.state.useTestPoints === true){
-      // Boundary Verticies:
-      boundaryVerts.push([37.88866901916639, -76.81350946426392]);
-      boundaryVerts.push([37.88981208998668, -76.81350946426392]);
-      boundaryVerts.push([37.88981208998668, -76.8103176355362]);
-      boundaryVerts.push([37.88866901916639, -76.8103176355362]);
-
-      // Hot spots:
-      hotSpots.push([37.88938873249277, -76.81289792060852]);
-      hotSpots.push([37.88901194227583, -76.81118667125702]);
-
-      this.plotPoints(hotSpots);
-    }
-    else {
-      if(this.state.boundaryVerts === null){
-        // console.log('NO BOUNDARY');
-        this.showNotification('Error!', 'You have to define a boundary before generating waypoints.', 'error', 'tr', 'Got it')
-        return
-      }
-      if(this.state.pointsOfInterest.length <= 0){
-        this.showNotification('Error!', 'You have to define at least one one point of interest before generating waypoints.', 'error', 'tr', 'Got it')
-        return
-      }
-
-      for(let i = 0; i < this.state.boundaryVerts.latLons.length; i++){
-        boundaryVerts.push([this.state.boundaryVerts.latLons[i].lat, this.state.boundaryVerts.latLons[i].lng]);
-      }
-      for(let i = 0; i < this.state.pointsOfInterest.length; i++){
-        hotSpots.push([this.state.pointsOfInterest[i].latLons[0].lat, this.state.pointsOfInterest[i].latLons[0].lng]);
-      }
-
-      pSliderVal = this.state.pSliderVal;
-      gridSliderVal = this.state.gridSliderVal;
-      pathDirection = this.state.pathDirection;
-    }
-
-
-    let waypointData = {
-      boundaryVerts: boundaryVerts,
-      hotSpots: hotSpots,
-      pSliderVal: pSliderVal,
-      gridSliderVal: gridSliderVal,
-      pathDirection: pathDirection
-    }
-
-    this.ajaxAction('generateWaypoints', waypointData, this.generateWaypointsCallback);
-  }
-
-  generateWaypointsCallback = (results: any) => {
-    console.log("Update waypoitns on map");
-
-    // let parsedBoundaryResults = JSON.parse(results.planningRegions);
-    this.updatePythonBoundaries(results.planningRegions);
-
-    // let parsedPathResults = JSON.parse(results.vehiclePaths);
-    this.updateAircraftPaths(results.vehiclePaths);
-
-    this.setState({disableRegenerate: true, disableWriteToFile: false});
-  }
-
-  sendWPsToACAjax = () => {
-    if(this.state.sendToAllAircraft){
-      for(let i = 0; i < this.state.openPorts.length; i++){
-        let aircraftWithComm = this.state.aircraftPorts.findIndex((item: AircraftType) => {
-          return item.comm_port === this.state.openPorts[i];
-        });
-
-        if(aircraftWithComm < 0){
+      // Check if we need to remove a vehicle from the state. If we find it, continue. Else, delete it:
+      let idArrays: string[] = Object.keys(stateCopy);
+      for(let i = 0; i < idArrays.length; i++){
+        if(jsonVehicles.connectedVehicles.indexOf(parseInt(idArrays[i])) >= 0) {
           continue;
         }
         else {
-
-          console.log("IN SEND WPS TO AC AJAX");
-          console.log("Mission length: " + this.state.aircraftPaths[aircraftWithComm].waypoints.length)
-
-          let waypointData = {
-            comm_port: this.state.openPorts[i],
-            waypoints: this.state.aircraftPaths[aircraftWithComm].waypoints.map((item) => {
-              return [item.lat, item.lng];
-            })
-          }
-
-          if(this.state.aircraftPorts[aircraftWithComm].isConnected){
-            this.ajaxAction('sendWaypoints', waypointData, this.sendWPsToACCallback);
-          }
+          delete stateCopy[idArrays[i]];
         }
       }
-    }
-    else {
-      let aircraftWithComm = this.state.aircraftPorts.findIndex((item: AircraftType) => {
-        return item.comm_port === this.state.openPorts[this.state.selectedAircraftPort];
-      });
 
-
-      console.log("IN SEND WPS TO AC AJAX");
-      console.log("Mission length: " + this.state.aircraftPaths[aircraftWithComm].waypoints.length)
-
-      let waypointData = {
-        comm_port: this.state.openPorts[this.state.selectedAircraftPort],
-        // waypoints: this.state.aircraftPaths[1].waypoints.map((item) => {
-        //   return [item.lat, item.lng];
-        // })
-        waypoints: this.state.aircraftPaths[aircraftWithComm].waypoints.map((item) => {
-          return [item.lat, item.lng];
-        })
-      }
-
-      // PAT -- IF THIS DOESNT WORK, JUST COMMENT OUT IF STATEMENT AND LEAVE AJAX
-      console.log("BEFORE SEND WP IF STATEMENT.....")
-      if(this.state.aircraftPorts[aircraftWithComm].isConnected){
-        console.log("IN SEND WP IF STATEMENT for COMM: " + this.state.aircraftPorts[aircraftWithComm].comm_port);
-        this.ajaxAction('sendWaypoints', waypointData, this.sendWPsToACCallback);
-      }
+      this.setState({connectedVehicles: stateCopy});
     }
 
-  }
+    else if(jsonData.dataType === "VehiclePosition"){
+      let vehiclePosition = jsonData as TCPPositionType;
 
-  sendWPsToACCallback = (results: any) => {
-    let msg = 'Waypoints received';
-    console.log(msg);
-    this.showNotification('Success!', msg, 'success', 'bc', 'Got it');
-  }
+      stateCopy[vehiclePosition.vehicleID].position.lat = vehiclePosition.lat;
+      stateCopy[vehiclePosition.vehicleID].position.lon = vehiclePosition.lon;
+      stateCopy[vehiclePosition.vehicleID].position.alt = vehiclePosition.alt;
+      stateCopy[vehiclePosition.vehicleID].numSats = vehiclePosition.numSats;
+      stateCopy[vehiclePosition.vehicleID].positionFix = vehiclePosition.positionFix;
 
+      stateCopy[vehiclePosition.vehicleID].updateMarkerPosition(vehiclePosition);
 
-  // TODO: What to do with these?
-  takeoffCallback = () => {
-  }
-  landCallback = () => {
-  }
-  rtlCallback = () => {
-  }
-  guidedCallback = () => {
-  }
-  loiterCallback = () => {
-  }
-  missionCallback = () => {
-  }
-
-  sendAircraftCommand = (command: string) => {
-    // connect, takeoff, land, guided, rtl, disconnect, sendWaypoints, genWaypoints
-    console.log("IN AIRCRAFT COMMAND: " + command);
-    console.log("IN AIRCRAFT COMMAND: " + this.state.sendToAllAircraft);
-    let commPorts: string[] = [];
-    if(this.state.sendToAllAircraft){
-      for(let i = 0; i < this.state.aircraftPorts.length; i++){
-        if(this.state.aircraftPorts[i].isConnected){
-          commPorts.push(this.state.aircraftPorts[i].comm_port);
-        }
-      }
-    }
-    else {
-      commPorts.push(this.state.openPorts[this.state.selectedAircraftPort]);
+      this.setState({connectedVehicles: stateCopy});
     }
 
-    for(let j = 0; j < commPorts.length; j++){
-      if(command === 'launch') {
-        this.ajaxAction('launch', {comm_port: commPorts[j]}, this.takeoffCallback);
-      }
-      if(command === 'land') {
-        this.ajaxAction('land', {comm_port: commPorts[j]}, this.landCallback);
-      }
-      if(command === 'rtl') {
-        this.ajaxAction('rtl', {comm_port: commPorts[j]}, this.rtlCallback);
-      }
-      if(command === 'guided') {
-        this.ajaxAction('guided', {comm_port: commPorts[j]}, this.guidedCallback);
-      }
+    else if(jsonData.dataType === "VehicleAttitude"){
+      let vehicleAttitude = jsonData as TCPAttitudeType;
 
-      if(command === 'loiter') {
-        this.ajaxAction('loiter', {comm_port: commPorts[j]}, this.loiterCallback);
-      }
-      if(command === 'mission') {
-        this.ajaxAction('mission', {comm_port: commPorts[j]}, this.missionCallback);
-      }
+      stateCopy[vehicleAttitude.vehicleID].attitude.roll = vehicleAttitude.roll;
+      stateCopy[vehicleAttitude.vehicleID].attitude.pitch = vehicleAttitude.pitch;
+      stateCopy[vehicleAttitude.vehicleID].attitude.yaw = vehicleAttitude.yaw;
+
+      stateCopy[vehicleAttitude.vehicleID].updateMarkerAttitude(vehicleAttitude);
+
+      this.setState({connectedVehicles: stateCopy});
     }
-
-  }
-
-  ajaxAction = (postAction: string, data: any, successFn: any) => {
-    let postUrl: string = "http://localhost:10081/" + postAction;
-    // console.log("AJAX ACTION")
-    // console.log(postAction);
-    // console.log(data);
-    $.ajax({
-        type: "POST",
-        url: postUrl,
-        data: JSON.stringify(data),
-        cache: false,
-        success: function (result: any) {
-            successFn(result);
-        },
-        error: function (jqXHR: any, exception: any) {
-            let msg: string;
-            if (jqXHR.status === 0) {
-              msg = 'Not connected.\n Verify Network.';
-            } else if (jqXHR.status == 404) {
-              msg = 'Requested page not found [404]';
-            } else if (jqXHR.status == 500) {
-              msg = 'Internal Server Error [500]';
-            } else if (exception === 'parsererror') {
-              msg = 'Requested JSON parse failed';
-            } else if (exception === 'timeout') {
-              msg = 'Time out error';
-            } else if (exception === 'abort') {
-              msg = 'Ajax request aborted';
-            } else {
-              msg = 'Uncaught Error.\n' + jqXHR.responseText;
-            }
-
-            console.log('Error!: ' + msg);
-            // this.showNotification('Error!', msg, 'error', 'tr', 'Got it');
-        }.bind(this)
-    });
-  }
-
-
-  updatePythonBoundaries = (results: any) => {
-    let tmpBoundaryPaths: PathType[] = [];
-    for(let i = 0; i < results.length; i++) {
-      let waypoints = results[i];
-      let wpLatLng: L.LatLng[] = [];
-      for(let j = 0; j < waypoints.length; j++) {
-        let tmpLatLng = new L.LatLng(waypoints[j][0], waypoints[j][1]);
-        wpLatLng.push(tmpLatLng);
-      }
-      wpLatLng.push(wpLatLng[0]);
-
-      tmpBoundaryPaths.push({waypoints: wpLatLng});
+    else if(jsonData.dataType === 'VehicleMission') {
+      let vehicleMission = jsonData as TCPMissionType;
+      let stateCopy = deepcopy(this.state.connectedVehicles);
+      stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
+      this.setState({connectedVehicles: stateCopy});
     }
-    this.setState({boundaryPaths: tmpBoundaryPaths});
-  }
-
-  updateAircraftPaths = (results: any) => {
-    let tmpPythonPaths: PathType[] = [];
-    for(let i = 0; i < results.length; i++) {
-      let waypoints = results[i];
-      let wpLatLng: L.LatLng[] = [];
-      for(let j = 0; j < waypoints.length; j++) {
-        let tmpLatLng = new L.LatLng(waypoints[j][0], waypoints[j][1]);
-        wpLatLng.push(tmpLatLng);
-      }
-
-      tmpPythonPaths.push({waypoints: wpLatLng});
-      // // Uncomment to plot actual waypoints
-      // this.plotPoints(wpLatLng);
+    else if(jsonData.dataType === 'VehicleHome') {
+      let vehicleHome = jsonData as (TCPReturnType & MissionItemType);
+      let stateCopy = deepcopy(this.state.connectedVehicles);
+      stateCopy[vehicleHome.vehicleID].setVehicleHome(vehicleHome);
+      this.setState({connectedVehicles: stateCopy});
     }
-
-    this.setState({aircraftPaths: tmpPythonPaths});
   }
 
-  plotPoints = (results: any[]) => {
-    let tmpMarkers = this.state.markers;
-    for(let i = 0; i < results.length; i++){
-        let tmpMarker: MarkerType = {
-          position: results[i],
-          icon: new L.Icon({
-              iconUrl: './images/marker-icon.png',
-              iconSize: [25, 41], // size of the icon
-              iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
-              popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-            })
-        };
 
-        tmpMarkers.push(tmpMarker);
-    }
-
-    this.setState({markers: tmpMarkers});
+  makeTCPRequest = (vehicleID: number, tcpCommand: string, vehicleCommand: string) => {
+    let socket = new net.Socket();
+    this.setupTCPClient(socket);
+    // this.state.tcpClient.connect(this.state.tcpPort, this.state.tcpHost, function() {
+    socket.connect(this.state.tcpPort, this.state.tcpHost, function() {
+      // console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
+      let tcpRequest = {
+        tcpCommand: tcpCommand,
+        vehicleID: vehicleID,
+        vehicleCommand: vehicleCommand
+      };
+      socket.write(JSON.stringify(tcpRequest));
+    }.bind(this));
   }
 
-  clearWaypoints = () => {
-    this.setState({
-      aircraftPaths: [],
-      boundaryPaths: [],
-      markers: []
-    })
+
+  setupTCPClient = (socket: any) => {
+    // Add a 'data' event handler for the client socket
+    // data is what the server sent to this socket
+    socket.on('data', function(data: any) {
+        console.log('DATA: ' + data);
+        // let jsonData = JSON.parse(data);
+        // this.parseTCPServerData(jsonData);
+
+        // Close the client socket completely
+        socket.destroy();
+    }.bind(this));
+
+    // Add a 'close' event handler for the client socket
+    socket.on('close', function() {
+        // console.log('Connection closed');
+        socket.destroy();
+    }.bind(this));
+
+    // Add an 'error' event handler
+    socket.on('error', function(err: any) {
+        console.log('Error: ' + err);
+        socket.destroy();
+    }.bind(this));
   }
 
-  clearPointsofInterest = () => {
-    for(let key in this.leafletMap.leafletElement._layers){
-      if(this.leafletMap.leafletElement._layers[key]._latlng){
-        this.leafletMap.leafletElement.removeLayer(this.leafletMap.leafletElement._layers[key]);
-      }
-    }
+  // parseTCPServerData = (jsonData: TCPReturnType) => {
+  //   if(jsonData.dataType === 'VehicleMission') {
+  //     let vehicleMission = jsonData as TCPMissionType;
+  //     let stateCopy = deepcopy(this.state.connectedVehicles);
+  //     stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
+  //     this.setState({connectedVehicles: stateCopy});
+  //   }
+  // }
 
-    this.clearWaypoints();
-
-    this.setState({
-      pointsOfInterest: [],
-      hotSpotLayers: []
-    })
-  }
-
-  clearBoundary = () => {
-    for(let key in this.leafletMap.leafletElement._layers){
-      if(this.leafletMap.leafletElement._layers[key]._latlngs){
-        this.leafletMap.leafletElement.removeLayer(this.leafletMap.leafletElement._layers[key]);
-      }
-    }
-
-    this.clearPointsofInterest();
-
-    this.setState({
-      boundaryVerts: null,
-      boundaryLayers: []
-    })
-  }
 
   showNotification = (title: string, message: string, level: string, position: string, label: string) => {
-    let notification =     {
+    let notification = {
       title: title,
       message: message,
       level: level,
@@ -725,189 +274,198 @@ export default class AppContainer extends React.Component<Props, State> {
     this.notificationSystem.addNotification(notification);
   }
 
-  handleSliderChange = (e: any, value: number, slider: string) => {
-    if(slider === 'pVal'){
-      this.setState({pSliderVal: value});
-    }
-    else if (slider === 'grid'){
-      this.setState({gridSliderVal: value});
-    }
+  handleSelectedAircraftChange = (id: string) => {}
 
-    if(this.state.pointsOfInterest.length > 0 && this.state.boundaryVerts !== null){
-      this.setState({disableRegenerate: false});
+  handleAircraftCommand = (id: string, tcpCommand: string, vehicleCommand: string) => {
+    console.log(tcpCommand);
+    this.makeTCPRequest(parseInt(id), tcpCommand, vehicleCommand)
+  }
+
+  handleDrawerAction = (action: string) => {
+    if(action === "Settings"){
+      this.setState({showEditGlobalHomeDialog: true, openDrawer: false});
+    }
+    else if(action === "TestButton") {
+      this.makeTCPRequest(0, "TEST_FUNCTION", "");
     }
   }
 
-  updatePathDirection = (direction: string) => {
-    this.setState({pathDirection: direction});
+  onOpenVehicleEdit = (vehicleID: string) => {
+    // If we are passing in a vehicle ID, don't allow the dropdown to be selectable on the edit window as we are editing a specific vehicle:
+    console.log("On open vehicle edit: " + vehicleID);
+    this.setState({selectedVehicleID: vehicleID}, () => this.setState({allowVehicleSelect: vehicleID ? false : true, showEditVehicleHomeDialog: true}));
+  }
 
-    if(this.state.pointsOfInterest.length > 0 && this.state.boundaryVerts !== null){
-      this.setState({disableRegenerate: false});
+  handleSaveVehicleHome = (vehicleID: string, vehicleHome: PositionType) => {
+    console.log("Vehicle ID: " + vehicleID);
+    this.handleAircraftCommand(vehicleID, "SET_VEHICLE_HOME", JSON.stringify(vehicleHome));
+    let tmpHome: any = {
+      lat: vehicleHome.lat,
+      lon: vehicleHome.lon,
+      alt: vehicleHome.alt,
+    }
+    if(this.state.connectedVehicles[vehicleID]) {
+      this.state.connectedVehicles[vehicleID].setVehicleHome(tmpHome);
+    }
+    else {
+      console.log("No vehicle with ID: " + vehicleID);
     }
   }
 
-  writeToFile = () => {
+  handleSaveGlobalOrigin = (globalOrigin: PositionType) => {
+    this.handleAircraftCommand("0", "SET_GLOBAL_HOME", JSON.stringify(globalOrigin));
+    this.setState({globalOrigin: globalOrigin});
+  }
 
-    for(let i = 0; i < this.state.aircraftPaths.length; i++) {
-      fs.writeFile('waypoints_' + i + '.txt', '', function(){
-        console.log('Overwriting contents of waypoints_' + i + '.txt');
-      });
+  triggerContextMenu = (event: L.LeafletMouseEvent) => {
+    this.setState({contextAnchor: event, showContextMenu: !this.state.showContextMenu});
+  }
 
-      for(let j = 0; j < this.state.aircraftPaths[i].waypoints.length; j++) {
-        let filename = 'waypoints_' + i + '.txt';
-        let index = j+1;
-        let appendData = index + '   0   3   16  0.000000    0.000000    0.000000    0.000000    ' + this.state.aircraftPaths[i].waypoints[j].lat + '    ' + this.state.aircraftPaths[i].waypoints[j].lng + '    100.000000  1\n';
+  contextSetHome = () => {
+    this.setState({showContextMenu: false, showEditVehicleHomeDialog: true, allowVehicleSelect: true, showEditGlobalHomeDialog: false, useContext: true})
+  }
 
-        fs.appendFileSync(filename, appendData);
-      }
-      console.log('Data written to waypoints_' + i + '.txt');
-    }
-
-    fs.writeFile('wpParameters.txt', '', function(){
-      console.log('Overwriting contents of wpParameters.txt');
-    });
-    let paramterData = 'pVal: ' + this.state.pSliderVal + '\ngridSpacing: ' + this.state.gridSliderVal;
-    let boundaryVerticies = 'Boundary Verticies:\n';
-    for(let i = 0; i < this.state.boundaryVerts.latLons.length; i++){
-      boundaryVerticies = boundaryVerticies + this.state.boundaryVerts.latLons[i].lat + '    ' + this.state.boundaryVerts.latLons[i].lng + '\n'
-    }
-    let hotSpots = 'Hot Spots:\n';
-    for(let i = 0; i < this.state.pointsOfInterest.length; i++){
-      hotSpots = hotSpots + this.state.pointsOfInterest[i].latLons[0].lat + '    ' + this.state.pointsOfInterest[i].latLons[0].lng + '\n'
-    }
-    fs.appendFileSync('wpParameters.txt', boundaryVerticies);
-    fs.appendFileSync('wpParameters.txt', hotSpots);
-    fs.appendFileSync('wpParameters.txt', paramterData);
-
+  contextSetGlobal = () => {
+    this.setState({showContextMenu: false, showEditGlobalHomeDialog: true, allowVehicleSelect: false, showEditVehicleHomeDialog: false, useContext: true})
   }
 
   render() {
 
-    const position = [37.889231, -76.810302];
-    var width = window.screen.width;
-    var height = window.screen.height;
-    const wpColors = ['blue', 'red', 'black', 'green', 'yellow', 'orange'];
-    const boundaryColors = ['blue', 'red', 'black', 'green', 'yellow', 'orange'];
+    const width = window.screen.width;
+    const height = window.screen.height;
     const parentStyle = {height: height + 'px', width: width + 'px'};
     const mapStyle = { top: 0, left: 0, height: height + 'px', width: width + 'px' };
-    const initialZoom = 18;
-    const maxZoom = 20;
 
+    const MoreVertMenu = () => (
+      <IconMenu
+        iconButtonElement={<IconButton><MoreVertIcon color="white" /></IconButton>}
+        anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+        targetOrigin={{horizontal: 'right', vertical: 'top'}}
+      >
+        <MenuItem onClick={() => console.log("RTA")} primaryText="RTA Parameters" />
+        <MenuItem onClick={() => console.log("Path Planning")} primaryText="Path Planning Parameters" />
+      </IconMenu>
+    );
 
     return (
-        <div style={parentStyle}>
+        <MuiThemeProvider muiTheme={lightMuiTheme}>
+          <div style={parentStyle}>
 
-          <MapControlButtons
-              boundaryVerts={this.state.boundaryVerts}
-              pointsOfInterest={this.state.pointsOfInterest}
-              aircraftPaths={this.state.aircraftPaths}
-              clearBoundary={this.clearBoundary}
-              clearWaypoints={this.clearWaypoints}
-              clearPointsofInterest={this.clearPointsofInterest}
-              generateWaypointsAjax={this.generateWaypointsAjax}
-           />
+            <AppBar
+                title="MACE"
+                style={{backgroundColor: colors.orange700}}
+                onLeftIconButtonTouchTap={() => this.setState({openDrawer: !this.state.openDrawer})}
+                iconElementRight={<MoreVertMenu />}
+            />
 
-          <AircraftConnectionButtons
-            openPorts={this.state.openPorts}
-            connectToAircraftAjax={this.connectToAircraftAjax}
-            sendWPsToACAjax={this.sendWPsToACAjax}
-            handleSelectedAircraftPortChange={(port: number) => this.setState({selectedAircraftPort: port})}
-           />        
+            <AppDrawer
+              openDrawer={this.state.openDrawer}
+              onToggleDrawer={(open: boolean) => this.setState({openDrawer: open})}
+              onDrawerAction={(action: string) => this.handleDrawerAction(action)}
+             />
 
-          <ControlContainer
-            backgroundColor={'white'}
-            selectedAircraftPort={this.state.selectedAircraftPort}
-            sendAircraftCommand={(command: string) => this.sendAircraftCommand(command)}
-            updatePathDirection={(path: string) => this.updatePathDirection(path)}
-            handleSliderChange={(e: any, value: number, slider: string) => this.handleSliderChange(e, value, slider)} 
-            generateWaypointsAjax={this.generateWaypointsAjax}
-            writeToFile={this.writeToFile}
-           />
+            <ConnectedVehiclesContainer
+              connectedVehicles={this.state.connectedVehicles}
+              onAircraftCommand={this.handleAircraftCommand}
+              handleOpenVehicleEdit={this.onOpenVehicleEdit}
+            />
 
-          <Map ref="map" center={position} zoom={initialZoom} style={mapStyle} >
-              {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
-              <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
+            <VehicleCommandsContainer
+              connectedVehicles={this.state.connectedVehicles}
+              onSelectedAircraftChange={this.handleSelectedAircraftChange}
+              onAircraftCommand={this.handleAircraftCommand}
+            />
 
-              <FeatureGroup>
-                <EditControl
-                  position='topleft'
-                  onEdited={this._onEditPath}
-                  onCreated={this._onCreate}
-                  onDeleted={this._onDeleted}
-                  draw={{
-                      polyline: false,
-                      polygon: {
-                          allowIntersection: true, // Restricts shapes to simple polygons
-                          drawError: {
-                              color: '#e1e100', // Color the shape will turn when intersects
-                              message: '<strong>NOTE:<strong> You must select points in a CCW fashion' // Message that will show when intersect
-                          },
-                          shapeOptions: {
-                              color: '#bada55'
-                          }
-                      },
-                      circle: false, // Turns off this drawing tool
-                      rectangle: {
-                          shapeOptions: {
-                              clickable: true
-                          }
-                      },
-                      marker: {
-                          icon: new L.Icon({
-                              iconUrl: './images/marker-icon.png',
-                              iconSize: [25, 41], // size of the icon
-                              iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
-                              popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-                            }),
-                          }
-                    }}
-                />
-            </FeatureGroup>
+            <VehicleWarningsContainer
+              vehicleWarnings={this.state.vehicleWarnings}
+            />
 
-            <LayerGroup>
-              {this.state.markers.map((item: MarkerType, i: number) => {
-                return (
-                  <Marker key={i} position={item.position} icon={item.icon} title={"TEST"}>
-                    <Popup>
-                      <span>A pretty CSS3 popup.<br/>Easily customizable.</span>
-                    </Popup>
-                  </Marker>
-                );
-              })}
+            <VehicleHomeDialog
+              open={this.state.showEditVehicleHomeDialog}
+              handleClose={() => this.setState({showEditVehicleHomeDialog: false})}
+              vehicles={this.state.connectedVehicles}
+              selectedVehicleID={this.state.selectedVehicleID}
+              handleSave={this.handleSaveVehicleHome}
+              contextAnchor={this.state.contextAnchor}
+              useContext={this.state.useContext}
+              allowVehicleSelect={this.state.allowVehicleSelect}
+            />
 
-              {this.state.aircraftMarkers.map((item: MarkerType, i: number) => {
-                return (
-                  <Marker key={i} position={item.position} icon={item.icon} title={item.comm_port}>
-                  {/*
-                    <Popup open={true}>
-                      <span>{item.comm_port}</span>
-                    </Popup>
-                    */}
-                  </Marker>
-                );
-              })}
+            <GlobalOriginDialog
+              open={this.state.showEditGlobalHomeDialog}
+              handleClose={() => this.setState({showEditGlobalHomeDialog: false})}
+              onGlobalHomeCommand={this.handleAircraftCommand}
+              globalOrigin={this.state.globalOrigin}
+              handleSave={this.handleSaveGlobalOrigin}
+              contextAnchor={this.state.contextAnchor}
+              useContext={this.state.useContext}
+            />
 
-              {this.state.aircraftPaths.map((item: PathType, i: number) => {
-                return (
-                  <Polyline key={i} positions={item.waypoints} color={wpColors[i]} />
-                );
-              })}
-
-              {this.state.boundaryPaths.map((item: PathType, i: number) => {
-                return (
-                  <Polyline key={i} positions={item.waypoints} color={boundaryColors[i]} />
-                );
-              })}
-            </LayerGroup>
+            {this.state.showContextMenu &&
+              <ContextMenu
+                menuAnchor={this.state.contextAnchor}
+                handleClose={() => this.setState({showContextMenu: false})}
+                handleSetHome={this.contextSetHome}
+                handleSetGlobal={this.contextSetGlobal}
+              />
+            }
 
 
-          </Map>
 
-          <div>
-            <NotificationSystem ref="notificationSystem" />
+            <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} onClick={() => this.setState({showContextMenu: false})} onContextmenu={this.triggerContextMenu} onDrag={() => this.setState({showContextMenu: false})} >
+                {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
+                <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.state.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
+
+                <LayerGroup>
+
+                  {/* Aircraft Icons */}
+                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
+                    return (
+                      <Marker key={key} position={this.state.connectedVehicles[key].vehicleMarker.latLon} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
+                        <Popup open={true}>
+                          <span>Selected</span>
+                        </Popup>
+                      </Marker>
+                    );
+                  })}
+
+                  {/* Home Icons */}
+                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
+                    return (
+                      <Marker key={key} position={this.state.connectedVehicles[key].homePosition.latLon} icon={this.state.connectedVehicles[key].homePosition.icon} title={key}>
+                        <Popup open={true}>
+                          <span>Selected</span>
+                        </Popup>
+                      </Marker>
+                    );
+                  })}
+
+                  {/* Mission Paths */}
+                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
+                    return (
+                      <Polyline key={key} positions={this.state.connectedVehicles[key].vehicleMission.latLons} color={backgroundColors[parseInt(key)]} />
+                    );
+                  })}
+
+                  {/* Mission Markers */}
+                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
+                    let markers: JSX.Element[] = [];
+                    for(let i = 0; i < this.state.connectedVehicles[key].vehicleMission.latLons.length; i++){
+                      markers.push(<Marker key={i} position={this.state.connectedVehicles[key].vehicleMission.latLons[i]} icon={this.state.connectedVehicles[key].vehicleMission.icons[i]} title={key} />);
+                    }
+                    return (
+                      markers
+                    );
+                  })}
+                </LayerGroup>
+            </Map>
+
+            <div>
+              <NotificationSystem ref="notificationSystem" />
+            </div>
+
           </div>
-
-        </div>
+        </MuiThemeProvider>
     );
   }
 }

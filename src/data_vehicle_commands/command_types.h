@@ -10,6 +10,7 @@ namespace DataVehicleCommands
 
 enum class CommandTypes{
     ACTION,
+    GUIDED,
     MISSION
 };
 
@@ -17,6 +18,8 @@ inline std::string CommandTypeToString(const CommandTypes &cmdType) {
     switch (cmdType) {
     case CommandTypes::ACTION:
         return "ACTION";
+    case CommandTypes::GUIDED:
+        return "GUIDED";
     case CommandTypes::MISSION:
         return "MISSION";
     default:
@@ -27,6 +30,8 @@ inline std::string CommandTypeToString(const CommandTypes &cmdType) {
 inline CommandTypes CommandTypeFromString(const std::string &str) {
     if(str == "ACTION")
         return CommandTypes::ACTION;
+    if(str == "GUIDED")
+        return CommandTypes::GUIDED;
     if(str == "MISSION")
         return CommandTypes::MISSION;
 

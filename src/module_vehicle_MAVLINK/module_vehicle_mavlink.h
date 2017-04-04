@@ -1,11 +1,12 @@
 #ifndef MODULE_VEHICLE_MAVLINK_H
 #define MODULE_VEHICLE_MAVLINK_H
 
-#define MAVLINK_NEED_BYTE_SWAP
-
 #include "module_vehicle_mavlink_global.h"
 
+#include <iostream>
 #include <QMap>
+#include <QThread>
+#include <QSerialPort>
 
 #include "common/common.h"
 
@@ -15,33 +16,19 @@
 #include "comms/i_protocol_mavlink_events.h"
 #include "comms/serial_configuration.h"
 
-#include "Vehicles/Ardupilot/data_ardupilot.h"
-
-#include "data_vehicle_MAVLINK/mavlink_parser.h"
-
-
-#include "data_vehicle_generic/local_position.h"
-#include "data_vehicle_generic/local_velocity.h"
-
-
-#include <iostream>
-
-#include "module_vehicle_mavlink.h"
-
-#include "mace_core/module_factory.h"
-
-#include <QSerialPort>
-
 #include "comms/serial_link.h"
 #include "comms/udp_link.h"
 #include "comms/protocol_mavlink.h"
 
-#include "data_vehicle_MAVLINK/altitude_reference_frames.h"
+#include "data_vehicle_MAVLINK/mavlink_parser.h"
 
-#include "data_vehicle_generic/local_position.h"
+#include "mace_core/module_factory.h"
 
 #include "data_vehicle_MAVLINK/components.h"
 
+#include "data_vehicle_MAVLINK/vehicle_object_mavlink.h"
+
+#include "commsMAVLINK/comms_mavlink.h"
 /*
  *
  * USAGE:
@@ -58,7 +45,7 @@
  * The start method is the entry point for the thread that the module is to run on.
  * The start() method should contain an event loop of some sort that responds to commands made.
  *
- * Each module will impliment commands as defined by it's interface.
+ * Each module will implement commands as defined by it's interface.
  * These commands will NOT be invoked on the thread the module is operating on.
  * If the command is to kick off some action on the module's thread, it will have to marshaled onto the event loop in some way.
  *
@@ -67,57 +54,20 @@
 template <typename ...VehicleTopicAdditionalComponents>
 class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK :
         public ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES>,
-        public Comms::CommsEvents
+        public CommsMAVLINK
 {
 protected:
     typedef ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES> ModuleVehicleMavlinkBase;
 
 public:
 
-    void vehicleObjectCheck(const int &sendersID, const int &autopilotType, const int &vehicleType) const
-    {
-        for (auto it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
-        {
-            if(*it == sendersID)
-            {
-                //m_NeededVehicleObjects.erase(it);
-                m_NeededVehicleObjects.remove(sendersID);
-
-                switch (autopilotType) {
-                case MAV_AUTOPILOT_ARDUPILOTMEGA:
-                {
-                    std::string linkString = "link1";
-                    std::cout << "creating Mav_AutoPilot: VehicleID: " << sendersID << std::endl;
-                    /*
-                    Ardupilot::DataArdupilot tmpObject(sendersID,VP_MAVLINK,vehicleType);
-                    tmpObject.updateVehicleCommsObject(m_LinkMarshaler,linkString);
-                    std::shared_ptr<Ardupilot::DataArdupilot> tmpArdupilot = std::make_shared<Ardupilot::DataArdupilot>(tmpObject);
-
-                    NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                           ptr->NewConstructedVehicle(this,tmpArdupilot);
-                        });
-                    */
-                    break;
-                }
-                default:
-                    std::cout << "The type of autopilot seen with ID: " << sendersID << " is not currently supported." << std::endl;
-                    break;
-                }
-
-                break;
-            }
-        }
-    }
-
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ModuleVehicleMAVLINK() :
-        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataVehicleMAVLINK::GPSStatus>(),
-        m_LinkMarshaler(new Comms::CommsMarshaler)
+        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataMAVLINK::GPSStatus>()
     {
-        m_LinkMarshaler->AddSubscriber(this);
+
     }
 
 
@@ -127,21 +77,9 @@ public:
     //!
     virtual std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleConfigurationStructure() const
     {
+
         MaceCore::ModuleParameterStructure structure;
-        std::shared_ptr<MaceCore::ModuleParameterStructure> serialSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
-        serialSettings->AddTerminalParameters("PortName", MaceCore::ModuleParameterTerminalTypes::STRING, true);
-        serialSettings->AddTerminalParameters("BaudRate", MaceCore::ModuleParameterTerminalTypes::INT, true);
-        serialSettings->AddTerminalParameters("DataBits", MaceCore::ModuleParameterTerminalTypes::INT, true);
-        serialSettings->AddTerminalParameters("StopBits", MaceCore::ModuleParameterTerminalTypes::INT, true);
-        serialSettings->AddTerminalParameters("Parity", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
-        serialSettings->AddTerminalParameters("FlowControl", MaceCore::ModuleParameterTerminalTypes::INT, true);
-        structure.AddNonTerminal("SerialParameters", serialSettings, true);
-
-        std::shared_ptr<MaceCore::ModuleParameterStructure> protocolSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
-        protocolSettings->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true, "Mavlink", {"Mavlink"});
-        protocolSettings->AddTerminalParameters("Version", MaceCore::ModuleParameterTerminalTypes::STRING, true, "V1", {"V1", "V2"});
-        structure.AddNonTerminal("ProtocolParameters", protocolSettings, true);
-
+        ConfigureMAVLINKStructure(structure);
         return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
     }
 
@@ -152,275 +90,23 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
     {
-        std::shared_ptr<Comms::ProtocolConfiguration> protocolConfig;
-        if(params->HasNonTerminal("ProtocolParameters"))
-        {
-            std::shared_ptr<MaceCore::ModuleParameterValue> protocolSettings = params->GetNonTerminalValue("ProtocolParameters");
-            std::string protocolName = protocolSettings->GetTerminalValue<std::string>("Name");
-            std::string versionName = protocolSettings->GetTerminalValue<std::string>("Version");
-
-
-            if(protocolName == "Mavlink")
-            {
-                std::shared_ptr<Comms::MavlinkConfiguration> mavlinkConfig = std::make_shared<Comms::MavlinkConfiguration>();
-
-                if(versionName == "V1")
-                {
-                    mavlinkConfig->SetVersion(Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways1);
-                }
-                else if(versionName == "V2")
-                {
-                    mavlinkConfig->SetVersion(Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways2);
-                }
-                else
-                {
-                    throw std::runtime_error("Unknown mavlink version seen");
-                }
-
-                m_LinkMarshaler->AddProtocol(*mavlinkConfig);
-
-                m_AvailableProtocols.insert({Comms::Protocols::MAVLINK, std::static_pointer_cast<Comms::ProtocolConfiguration>(mavlinkConfig)});
-                protocolConfig = mavlinkConfig;
-            }
-            else
-            {
-                throw std::runtime_error("Unknown Protocol encountered");
-            }
-
-        }
-        if(params->HasNonTerminal("SerialParameters"))
-        {
-            std::shared_ptr<MaceCore::ModuleParameterValue> serialSettings = params->GetNonTerminalValue("SerialParameters");
-
-
-            std::string portName = serialSettings->GetTerminalValue<std::string>("PortName");
-            int baudRate = serialSettings->GetTerminalValue<int>("BaudRate");
-            int dataBits = serialSettings->GetTerminalValue<int>("DataBits");
-            int stopBits = serialSettings->GetTerminalValue<int>("StopBits");
-
-            bool parity = serialSettings->GetTerminalValue<bool>("Parity");
-            int flowControl = serialSettings->GetTerminalValue<int>("FlowControl");
-
-
-            Comms::Protocols protocolToUse = Comms::Protocols::MAVLINK;
-
-            Comms::SerialConfiguration config("config");
-            config.setPortName(portName);
-            config.setBaud(baudRate);
-            config.setDataBits(dataBits);
-            config.setStopBits(stopBits);
-            config.setParity(parity);
-            config.setFlowControl(flowControl);
-
-            m_LinkMarshaler->AddLink("link1", config);
-
-
-            //now configure to use link with desired protocol
-            if(protocolToUse == Comms::Protocols::MAVLINK)
-            {
-                m_LinkMarshaler->SetProtocolForLink("link1", Comms::Protocols::MAVLINK);
-
-                std::shared_ptr<Comms::MavlinkConfiguration> mavlinkConfig = std::static_pointer_cast<Comms::MavlinkConfiguration>(m_AvailableProtocols.at(Comms::Protocols::MAVLINK));
-
-                //set version on mavlink channel
-                // I would prefer to put this in Comms library, but because the mavlinkstatus is static variable, things get messed up when linking
-                uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
-                mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(chan);
-                std::cout << mavlinkStatus << std::endl;
-                switch (mavlinkConfig->GetVersion()) {
-                case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersion2IfVehicle2:
-                    if (mavlinkStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) {
-                        mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
-                        break;
-                    }
-                    // Fallthrough to set version 2
-                case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways2:
-                    mavlinkStatus->flags &= ~MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
-                    break;
-                default:
-                case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways1:
-                    mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
-                    break;
-                }
-            }
-
-
-            //connect link
-            bool success = m_LinkMarshaler->ConnectToLink("link1");
-            if(success == false) {
-                throw std::runtime_error("Connection to link failed");
-            }
-
-
-            uint8_t chan = m_LinkMarshaler->GetProtocolChannel("link1");
-            mavlink_message_t msg;
-
-            mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,1,0,0,0xFFFF);
-            m_LinkMarshaler->SendMessage<mavlink_message_t>("link1", msg);
-
-            std::cout<<"The message was sent."<<std::endl;
-
-            //test statements that will issue a log_request_list to device
-
-    //        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,9,4,1);
-    //        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-    //        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,10,4,1);
-    //        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-    //        mavlink_msg_set_mode_pack(255, 0, &msg, 0, 0, 0);
-    //        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-            //param 1 is the message id
-            //interval between two messages in microseconds
-
-            //mavlink_msg_command_long_pack_chan(255,190,chan,&msg,0,0,511,0,30,500000,0,0,0,0,0);
-            //m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-
-    //        mavlink_msg_request_data_stream_pack_chan(255,190,chan,&msg,0,0,12,4,1);
-    //        m_LinkMarshler->SendMessage<mavlink_message_t>("link1", msg);
-
-
-
-
-        }
-        else if(params->HasNonTerminal("UDPParameters"))
-        {
-            std::shared_ptr<MaceCore::ModuleParameterValue> udpSettings = params->GetNonTerminalValue("UDPParameters");
-
-
-            std::string address = udpSettings->GetTerminalValue<std::string>("Address");
-            int portNumber = udpSettings->GetTerminalValue<int>("PortNumber");
-
-            Comms::Protocols protocolToUse = Comms::Protocols::MAVLINK;
-
-            Comms::UdpConfiguration config(address, portNumber);
-
-            config.setAddress(address);
-            config.setPortNumber(portNumber);
-
-            m_LinkMarshaler->AddUDPLink("udplink1", config);
-
-
-            //now configure to use link with desired protocol
-            if(protocolToUse == Comms::Protocols::MAVLINK)
-            {
-                m_LinkMarshaler->SetProtocolForLink("udplink1", Comms::Protocols::MAVLINK);
-
-                std::shared_ptr<Comms::MavlinkConfiguration> mavlinkConfig = std::static_pointer_cast<Comms::MavlinkConfiguration>(m_AvailableProtocols.at(Comms::Protocols::MAVLINK));
-
-                //set version on mavlink channel
-                // I would prefer to put this in Comms library, but because the mavlinkstatus is static variable, things get messed up when linking
-                uint8_t chan = m_LinkMarshaler->GetProtocolChannel("udplink1");
-                mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(chan);
-                std::cout << mavlinkStatus << std::endl;
-                switch (mavlinkConfig->GetVersion()) {
-                case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersion2IfVehicle2:
-                    if (mavlinkStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) {
-                        mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
-                        break;
-                    }
-                    // Fallthrough to set version 2
-                case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways2:
-                    mavlinkStatus->flags &= ~MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
-                    break;
-                default:
-                case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways1:
-                    mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
-                    break;
-                }
-            }
-
-
-            //connect link
-            m_LinkMarshaler->ConnectToLink("udplink1");
-
-
-            //test statements that will issue a log_request_list to device
-            //uint8_t chan = m_LinkMarshler->GetProtocolChannel("udplink1");
-            //mavlink_message_t msg;
-            //mavlink_msg_log_request_list_pack_chan(255,190, chan,&msg,0,0,0,0xFFFF);
-            //m_LinkMarshler->SendMessage<mavlink_message_t>("udplink1", msg);
-
-        }
-        else
-        {
-            throw std::runtime_error("No Link has been configured for the vehicle MAVLINK module");
-        }
-
+        ConfigureComms(params);
     }
 
-    virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics()
-    {
-        //return IModuleCommandVehicle::GetTopics();
-        return {};
-    }
-
-public:
+   public:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///              MACE COMMANDS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    virtual void CreateVehicleObject(const int &vehicleID)
+    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
     {
-        std::list<int>::iterator it;
-        for (it=m_NeededVehicleObjects.begin(); it != m_NeededVehicleObjects.end(); ++it)
-        {
-            if(*it == vehicleID)
-            {
-                //This implies that the module is already aware an object needs to be created
-                break;
-            }
-        }
-        if(it == m_NeededVehicleObjects.end()){
-            m_NeededVehicleObjects.push_back(vehicleID);
-        }
+        UNUSED(vehicleArm);
     }
 
-    virtual void RemoveVehicleObject(const int &vehicleID)
+    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
     {
-        m_NeededVehicleObjects.remove(vehicleID);
-    }
-
-    virtual void UpdateVehicleObjectList(const std::list<int> &vehicleObjectList)
-    {
-        m_NeededVehicleObjects = vehicleObjectList;
-    }
-
-
-    //!
-    //! \brief New commands have been updated that the vehicle is to follow immediatly
-    //!
-    //! Commands are to be retreived through the MaceData available through getDataObject()
-    //!
-    //!
-    virtual void FollowNewCommands()
-    {
-
-    }
-
-
-    //!
-    //! \brief New commands have been issued to vehicle that are to be followed once current command is finished
-    //!
-    //! Commands are to be retreived through the MaceData available through getDataObject()
-    //!
-    virtual void FinishAndFollowNewCommands()
-    {
-
-    }
-
-
-    //!
-    //! \brief New commands have been appended to existing commands
-    //!
-    //! Commands are to be retreived through the MaceData available through getDataObject()
-    //!
-    virtual void CommandsAppended()
-    {
-
+        UNUSED(vehicleMode);
     }
 
 
@@ -436,24 +122,8 @@ public:
     //!
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
     {
-        //get maping of all vehicle data components
-        std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> components = m_MAVLINKParser.Parse(&message);
-
-        //proceed to send components only if there is 1 or more
-        if(components.size() > 0)
-        {
-            //construct datagram
-            MaceCore::TopicDatagram topicDatagram;
-            for(size_t i = 0 ; i < components.size() ; i++)
-            {
-                ModuleVehicleMavlinkBase::m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
-            }
-
-            //notify listneres of topic
-            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-                ptr->NewTopicDataValues(ModuleVehicleMavlinkBase::m_VehicleDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
-            });
-        }
+        UNUSED(linkName);
+        UNUSED(message);
     }
 
 
@@ -467,17 +137,17 @@ public:
     //!
     virtual void VehicleHeartbeatInfo(const std::string &linkName, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
     {
+        UNUSED(linkName);
+        UNUSED(vehicleId);
+        UNUSED(vehicleMavlinkVersion);
+        UNUSED(vehicleFirmwareType);
+        UNUSED(vehicleType);
         //incomming heartbeats
     }
-protected:
-    Comms::CommsMarshaler *m_LinkMarshaler;
+
 
 private:
-    mutable std::list<int> m_NeededVehicleObjects;
-
-    std::unordered_map<Comms::Protocols, std::shared_ptr<Comms::ProtocolConfiguration>, EnumClassHash> m_AvailableProtocols;
-
-    DataVehicleMAVLINK::MAVLINKParser m_MAVLINKParser;
+    std::map<int,DataMAVLINK::VehicleObject_MAVLINK*> m_MAVLINKData;
 
 };
 

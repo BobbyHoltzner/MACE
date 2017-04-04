@@ -1,20 +1,17 @@
-#ifndef I_VEHICLE_EVENTS_H
-#define I_VEHICLE_EVENTS_H
+#ifndef I_MODULE_VEHICLE_EVENTS_H
+#define I_MODULE_VEHICLE_EVENTS_H
 
-#include <functional>
-#include "vehicle_data.h"
-#include "topic.h"
+#include "i_module_events_general_vehicle.h"
 
 namespace MaceCore
 {
 
-class IModuleEventsVehicle
+class IModuleEventsVehicle : public IModuleEventsGeneralVehicle
 {
 public:
-
-
+    //A vehicle module can indicate something has happened
 };
 
 } //End MaceCore Namespace
 
-#endif // I_VEHICLE_EVENTS_H
+#endif // I_MODULE_VEHICLE_EVENTS_H

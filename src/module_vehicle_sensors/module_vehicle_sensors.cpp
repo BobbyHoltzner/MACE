@@ -1,8 +1,7 @@
 #include "module_vehicle_sensors.h"
 
 ModuleVehicleSensors::ModuleVehicleSensors():
-    m_SensorDataTopic("sensorData"), m_VehicleDataTopic("vehicleData"),
-    m_CommandVehicleTopic("commandData"), m_CommandVehicleMissionList("vehicleMissionList"),
+    m_VehicleDataTopic("vehicleData"), m_SensorDataTopic("sensorData"),
     m_SensorFootprintDataTopic("sensorFootprint")
 {
 
@@ -24,17 +23,17 @@ void ModuleVehicleSensors::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleSensors::ModuleConfigurationStructure() const
 {
     MaceCore::ModuleParameterStructure structure;
-    std::shared_ptr<MaceCore::ModuleParameterStructure> cameraSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
-    cameraSettings->AddTerminalParameters("CameraName", MaceCore::ModuleParameterTerminalTypes::STRING, true);
-    cameraSettings->AddTerminalParameters("FocalLength", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    cameraSettings->AddTerminalParameters("SensorWidth", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    cameraSettings->AddTerminalParameters("SensorHeight", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    cameraSettings->AddTerminalParameters("ImageWidth", MaceCore::ModuleParameterTerminalTypes::INT, false);
-    cameraSettings->AddTerminalParameters("ImageHeight", MaceCore::ModuleParameterTerminalTypes::INT, false);
-    cameraSettings->AddTerminalParameters("FOVWidth", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
-    cameraSettings->AddTerminalParameters("FOVHeight", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
-    cameraSettings->AddTerminalParameters("Frequency", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
-    structure.AddNonTerminal("CameraParameters", cameraSettings, false);
+//    std::shared_ptr<MaceCore::ModuleParameterStructure> cameraSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
+//    cameraSettings->AddTerminalParameters("CameraName", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+//    cameraSettings->AddTerminalParameters("FocalLength", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+//    cameraSettings->AddTerminalParameters("SensorWidth", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+//    cameraSettings->AddTerminalParameters("SensorHeight", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+//    cameraSettings->AddTerminalParameters("ImageWidth", MaceCore::ModuleParameterTerminalTypes::INT, false);
+//    cameraSettings->AddTerminalParameters("ImageHeight", MaceCore::ModuleParameterTerminalTypes::INT, false);
+//    cameraSettings->AddTerminalParameters("FOVWidth", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+//    cameraSettings->AddTerminalParameters("FOVHeight", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+//    cameraSettings->AddTerminalParameters("Frequency", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+//    structure.AddNonTerminal("CameraParameters", cameraSettings, false);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -70,66 +69,36 @@ void ModuleVehicleSensors::ConfigureModule(const std::shared_ptr<MaceCore::Modul
     }
 }
 
+//Sample waypoint mission list
+//newWP->setLocation(35.7470021,-78.8395026,0.0);
+//newWP->setLocation(35.7463033,-78.8386631,0.0);
+//newWP->setLocation(35.7459724,-78.8390923,0.0);
+//newWP->setLocation(35.7466538,-78.8399184,0.0);
+
 void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
+    UNUSED(senderID);
+    UNUSED(componentsUpdated);
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
-        DataVehicleCommands::CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>* newWP = new DataVehicleCommands::CommandMissionWaypoint<DataVehicleGeneric::GlobalPosition>();
-        newWP->setLocation(35.7470021,-78.8395026,0.0);
-        //newWP->setLocation(35.7463033,-78.8386631,0.0);
-        //newWP->setLocation(35.7459724,-78.8390923,0.0);
-        //newWP->setLocation(35.7466538,-78.8399184,0.0);
-        DataVehicleGeneric::GlobalPosition* newGlobalPosition = new DataVehicleGeneric::GlobalPosition(35.7470021,-78.8395026,0.0);
-        DataVehicleGeneric::LocalPosition* newLocalPosition = new DataVehicleGeneric::LocalPosition(1.0,-2.0,3.0);
 
-        //std::shared_ptr<DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition,DataVehicleSensors::SensorVerticesLocal_Name,&DataVehicleSensors::SensorVerticesLocal_Structure>> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices<DataVehicleGeneric::LocalPosition,DataVehicleSensors::SensorVerticesLocal_Name,&DataVehicleSensors::SensorVerticesLocal_Structure>>("MapIR");
-        std::shared_ptr<DataVehicleSensors::SensorVertices_Local> newSensorV = std::make_shared<DataVehicleSensors::SensorVertices_Local>("MapIR");
-
-        newSensorV->insertSensorVertice(newLocalPosition);
-
-        MaceCore::TopicDatagram topicDatagram;
-        ModuleVehicleSensors::m_SensorFootprintDataTopic.SetComponent(newSensorV, topicDatagram);
-
-        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(ModuleVehicleSensors::m_SensorFootprintDataTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
-        });
-
-
-// Example of a mission list being sent
-//        std::shared_ptr<DataVehicleCommands::VehicleMissionList> newVehicleList = std::make_shared<DataVehicleCommands::VehicleMissionList>();
-//        newVehicleList->appendCommand(newWP);
-
-//        MaceCore::TopicDatagram topicDatagram;
-//        ModuleVehicleSensors::m_CommandVehicleMissionList.SetComponent(newVehicleList, topicDatagram);
-
-//        ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-//            ptr->NewTopicDataValues(ModuleVehicleSensors::m_CommandVehicleMissionList.Name(), 1, MaceCore::TIME(), topicDatagram);
-//        });
-
-
-//Example of a change mode
-//        std::shared_ptr<DataVehicleCommands::CommandVehicleMode> newVehicleMode = std::make_shared<DataVehicleCommands::CommandVehicleMode>();
-//        newVehicleMode->setRequestMode("AUTO");
-
-//        std::shared_ptr<DataVehicleCommands::ActionCommandTopic> cmdPtr = std::make_shared<DataVehicleCommands::ActionCommandTopic>();
-//        cmdPtr->setActionItem(newVehicleMode);
-//        //proceed to send components only if there is 1 or more
-//            //construct datagram
-//            ModuleVehicleSensors::m_CommandVehicleTopic.SetComponent(cmdPtr, topicDatagram);
-
-//            //notify listneres of topic
-//            ModuleVehicleSensors::NotifyListeners([&](MaceCore::IModuleTopicEvents* ptr){
-//                ptr->NewTopicDataValues(ModuleVehicleSensors::m_CommandVehicleTopic.Name(), 1, MaceCore::TIME(), topicDatagram);
-//            });
-
-        //std::cout << "VehicleData topic received for vehicle: " << senderID << std::endl;
     }
 }
 
 void ModuleVehicleSensors::computeVehicleFootprint(const double &roll, const double &pitch, const double &yaw, const double &altitude)
 {
+    UNUSED(roll);
+    UNUSED(pitch);
+    UNUSED(yaw);
+    UNUSED(altitude);
+
     //first compute DCM from euler
     Eigen::Matrix3d dcm;
 
+}
+
+void ModuleVehicleSensors::NewlyAvailableVehicle(const int &vehicleID)
+{
+    UNUSED(vehicleID);
 }

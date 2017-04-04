@@ -3,8 +3,7 @@
 # Project created by QtCreator 2016-12-08T21:09:09
 #
 #-------------------------------------------------
-
-QT       -= core gui
+QT -= core gui
 
 TARGET = data
 TEMPLATE = lib
@@ -13,12 +12,26 @@ DEFINES += DATA_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-SOURCES +=
+SOURCES += \
+    timer.cpp \
+    system_description.cpp
 
 HEADERS += data_global.h \
     i_topic_component_data_object.h \
     topic_data_object_collection.h \
-    positional_coordinate_frame.h
+    positional_coordinate_frame.h \
+    coordinate_frame.h \
+    vehicle_command_types.h \
+    vehicle_types.h \
+    timer.h \
+    operating_mode.h \
+    altitude_frame.h \
+    speed_frame.h \
+    autopilot_types.h \
+    controller_state.h \
+    mission_map.h \
+    system_description.h
+    loiter_direction.h
 
 # Unix lib Install
 unix:!symbian {
@@ -39,12 +52,6 @@ INSTALLS       += headers
 
 INCLUDEPATH += $$PWD/../
 
-
-unix{
-    EigenInclude = $$system(pkg-config --cflags eigen3)
-    EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
-    INCLUDEPATH += $$EigenInclude
-}
-win32{
-    INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
-}
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
+else:unix:!macx: LIBS += -L$$OUT_PWD/../common/ -lcommon

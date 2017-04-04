@@ -1,10 +1,12 @@
 #ifndef MACE_CORE_H
 #define MACE_CORE_H
+#include <QtGlobal>
 
 #include <string>
 #include <map>
 #include <memory>
 #include <functional>
+#include <mutex>
 
 #include "mace_core_global.h"
 #include "mace_data.h"
@@ -16,6 +18,7 @@
 #include "i_module_command_sensors.h"
 #include "i_module_command_vehicle.h"
 
+#include "i_module_events_external_link.h"
 #include "i_module_events_ground_station.h"
 #include "i_module_events_path_planning.h"
 #include "i_module_events_rta.h"
@@ -30,7 +33,7 @@
 namespace MaceCore
 {
 
-class MACE_CORESHARED_EXPORT MaceCore : public IModuleTopicEvents, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsGroundStation
+class MACE_CORESHARED_EXPORT MaceCore : public IModuleTopicEvents, public IModuleEventsVehicle, public IModuleEventsSensors, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsGroundStation, public IModuleEventsExternalLink
 {
 
 
@@ -49,8 +52,6 @@ public:
     void AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle);
 
     void RemoveVehicle(const std::string &ID);
-
-    bool VehicleCheck(const int &vehicleID);
 
 
 public: //The following functions add specific modules to connect to mace core
@@ -72,23 +73,43 @@ public:
 
     virtual void Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &senderIDs = {}, const std::vector<std::string> &components = {});
 
-    virtual void NewTopicDataValues(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value);
+    virtual void NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value);
 
 public:
+    /////////////////////////////////////////////////////////////////////////
+    /// GENERAL MODULE EVENTS
+    /////////////////////////////////////////////////////////////////////////
+
+    virtual void RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm);
+    virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode);
+    virtual void RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+
+
+    virtual void RequestSetVehicleMission(const void* sender, const MissionItem::MissionList &missionList);
+    virtual void RequestVehicleMission(const void* sender, const Data::SystemDescription &systemID);
+    virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID);
+
+    virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
+
+    virtual void RequestVehicleHomePosition(const void* sender, const int &vehicleID);
+    virtual void SetVehicleHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome);
+
+    virtual void UpdateGlobalOriginPosition(const void* sender, const MissionItem::SpatialHome &globalHome);
+
+public:
+
+    /////////////////////////////////////////////////////////////////////////
+    /// SENSOR EVENTS
+    /////////////////////////////////////////////////////////////////////////
+
 
     /////////////////////////////////////////////////////////////////////////
     /// VEHICLE EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    //virtual void NewConstructedVehicle(const void* sender, const std::shared_ptr<VehicleObject> &vehicleObject);
-
-    //virtual void NewVehicleMessage(const void* sender, const TIME &time, const VehicleMessage &vehicleMessage);
-
-    virtual void NewPositionDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &position, const Eigen::Vector3d &attitude);
-
-    virtual void NewDynamicsDynamics(const void* sender, const TIME &time, const Eigen::Vector3d &attitude, const Eigen::Vector3d &attitudeRate);
-
-    virtual void NewVehicleLife(const void* sender, const TIME &time, const VehicleLife &life);
+    virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
+    virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
+    virtual void UpdateVehicleMission(const void *sender, const MissionItem::MissionList::MissionListStatus status, const MissionItem::MissionList &missionList);
 
 public:
 
@@ -111,6 +132,7 @@ public:
     /// GROUND STATION EVENTS
     /////////////////////////////////////////////////////////////////////////
 
+    virtual void RequestDummyFunction(const void* sender, const int &vehicleID);
 
     //!
     //! \brief Event fired when a new list of targets are produced for a specific vehicle
@@ -165,32 +187,22 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 private:
-    int counter_new_vehicle;
-    int counter;
-    bool insertFlag;
+    mutable std::mutex m_VehicleMutex;
 
     std::unordered_map<std::string, TopicStructure> m_Topics;
-
     std::unordered_map<std::string, std::vector<ModuleBase*>> m_TopicNotifier;
 
-    std::list<int> m_VehicleObjectRequired;
-
-    //std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
     std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;
-    std::map<IModuleCommandVehicle*, int> m_PortToVehicleID;
 
     std::map<std::string, IModuleCommandVehicle*> m_VehicleIDToPtr;
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
 
+    std::map<int, std::shared_ptr<IModuleEventsExternalLink>> m_ExternalLink;
 
     std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;
     std::shared_ptr<IModuleCommandSensors> m_Sensors;
     std::shared_ptr<IModuleCommandRTA> m_RTA;
-
-
-
-
 
     std::shared_ptr<MaceData> m_DataFusion;
 };

@@ -1,17 +1,15 @@
 #ifndef I_GROUND_STATION_EVENTS_H
 #define I_GROUND_STATION_EVENTS_H
 
-#include <string>
-#include <vector>
-
-#include <Eigen/Dense>
+#include "i_module_events_general.h"
 
 namespace MaceCore
 {
 
-class IModuleEventsGroundStation
+class IModuleEventsGroundStation : public IModuleEventsGeneral
 {
 public:
+    virtual void RequestDummyFunction(const void* sender, const int &vehicleID) = 0;
 
 };
 

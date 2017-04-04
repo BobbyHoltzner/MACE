@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <functional>
 #include <mutex>
+#include <list>
 
 #include <Eigen/Dense>
 
@@ -18,6 +19,13 @@
 #include "matrix_operations.h"
 
 #include "topic.h"
+
+#include "data_generic_item/data_generic_item_components.h"
+#include "data_generic_state_item/state_item_components.h"
+#include "data_generic_mission_item/mission_item_components.h"
+
+#include "data/system_description.h"
+#include "data/mission_map.h"
 
 namespace MaceCore
 {
@@ -38,7 +46,7 @@ class MaceCore;
 //! Only MaceCore object will be able of manipulating data inside this object, while any module can read data out of it.
 //! If a module must write to this object it must issue an event to MaceCore first.
 //!
-//! Use of the MaceData object requires implimentaiton of various Fuse_* methods.
+//! Use of the MaceData object requires implementaiton of various Fuse_* methods.
 //! These methods describe how to combine multiple observations and used to expose a continuous-time data-space with descrite-time observations.
 //! The exact method in how this interpolation is done (pick closests, linear, more advanced methods) is left to the user of MaceData.
 //!
@@ -48,16 +56,19 @@ friend class MaceCore;
 
     static const uint64_t DEFAULT_MS_RECORD_TO_KEEP = 1000;
 
+private:
+    uint64_t m_MSTOKEEP;
+
 public:
 
     MaceData() :
-        m_MSTOKEEP(DEFAULT_MS_RECORD_TO_KEEP)
+        m_MSTOKEEP(DEFAULT_MS_RECORD_TO_KEEP),flagGlobalOrigin(false)
     {
 
     }
 
     MaceData(uint64_t historyToKeepInms) :
-        m_MSTOKEEP(historyToKeepInms)
+        m_MSTOKEEP(historyToKeepInms),flagGlobalOrigin(false)
     {
 
     }
@@ -70,7 +81,7 @@ public:
     //!
     //! \brief Abstract method to interpolate vehicle dynamics
     //!
-    //! This method is to be implimented by the instantiator of MaceData
+    //! This method is to be implemented by the instantiator of MaceData
     //! \param time Time to interpolate to
     //! \param v0 Value0
     //! \param t0 Time0
@@ -84,7 +95,7 @@ public:
     //!
     //! \brief Abstract method to interpolate vehicle life
     //!
-    //! This method is to be implimented by the instantiator of MaceData
+    //! This method is to be implemented by the instantiator of MaceData
     //! \param time Time to interpolate to
     //! \param v0 Value0
     //! \param t0 Time0
@@ -99,17 +110,65 @@ public:
     /// VEHICLE DATA
     /////////////////////////////////////////////////////////
 
+public:
+    void GetAvailableVehicles(std::vector<int> &vehicleIDs) const
+    {
+        std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
+        vehicleIDs = m_AvailableVehicles;
+    }
+
+    MissionItem::SpatialHome GetVehicleHomePostion(const int &vehicleID) const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+        MissionItem::SpatialHome vehicleHome = m_VehicleHomeMap.at(vehicleID);
+        return vehicleHome;
+    }
+
 private:
 
-    void AddVehicle(const std::string &rn)
+    void AddAvailableVehicle(const int &vehicleID)
     {
-        if(m_PositionDynamicsHistory.find(rn) != m_PositionDynamicsHistory.cend())
-            throw std::runtime_error("resource name already exists");
-
-        m_PositionDynamicsHistory.insert({rn, ObservationHistory<TIME, VectorDynamics>(m_MSTOKEEP)});
-        m_AttitudeDynamicsHistory.insert({rn, ObservationHistory<TIME, VectorDynamics>(m_MSTOKEEP)});
-        m_VehicleLifeHistory.insert({rn, ObservationHistory<TIME, VehicleLife>(m_MSTOKEEP)});
+        std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
+        m_AvailableVehicles.push_back(vehicleID);
+        std::sort( m_AvailableVehicles.begin(), m_AvailableVehicles.end());
+        m_AvailableVehicles.erase( unique( m_AvailableVehicles.begin(), m_AvailableVehicles.end() ), m_AvailableVehicles.end() );
     }
+
+    void UpdateVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome)
+    {
+        //Setup a copy constructor
+        MissionItem::SpatialHome newHome;
+        newHome.setVehicleID(vehicleHome.getVehicleID());
+        newHome.position.latitude = vehicleHome.position.latitude;
+        newHome.position.longitude = vehicleHome.position.longitude;
+        newHome.position.altitude = vehicleHome.position.altitude;
+
+        std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+        m_VehicleHomeMap[vehicleHome.getVehicleID()] = newHome;
+        if(flagGlobalOrigin == true)
+        {
+            Eigen::Vector3f translation;
+            newHome.position.translationTransformation(m_GlobalOrigin.position,translation);
+            m_VehicleToGlobalTranslation[vehicleHome.getVehicleID()] = translation;
+        }
+    }
+
+    void UpdateGlobalOrigin(const MissionItem::SpatialHome &globalOrigin)
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+        m_GlobalOrigin = globalOrigin;
+        flagGlobalOrigin = true;
+        for (std::map<int,MissionItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
+        {
+            Eigen::Vector3f translation;
+            it->second.position.translationTransformation(m_GlobalOrigin.position,translation);
+            m_VehicleToGlobalTranslation[it->first] = translation;
+        }
+          //std::cout << it->first << " => " << it->second << '\n';
+        //This is where we would need to update and compute transformations
+    }
+
+
 
     void RemoveVehicle(const std::string &rn)
     {
@@ -120,7 +179,6 @@ private:
         m_AttitudeDynamicsHistory.erase(rn);
         m_VehicleLifeHistory.erase(rn);
     }
-
 
     void AddPositionDynamics(const std::string rn, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &velocity)
     {
@@ -185,6 +243,8 @@ public:
 
     void setTopicDatagram(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
 
+        std::lock_guard<std::mutex> guard(m_TopicMutex);
+
         if(m_LatestTopic.find(topicName) == m_LatestTopic.cend()) {
             m_LatestTopic.insert({topicName, {}});
         }
@@ -205,6 +265,7 @@ public:
 
 
     TopicDatagram GetCurrentTopicDatagram(const std::string &topicName, const int senderID) const {
+        std::lock_guard<std::mutex> guard(m_TopicMutex);
         return m_LatestTopic.at(topicName).at(senderID);
     }
 
@@ -599,18 +660,19 @@ private:
     std::unordered_map<std::string, std::unordered_map<int, TopicDatagram>> m_LatestTopic;
     std::unordered_map<std::string, std::unordered_map<int, std::unordered_map<std::string, TIME>>> m_LatestTopicComponentUpdateTime;
 
-    uint64_t m_MSTOKEEP;
+    mutable std::mutex m_AvailableVehicleMutex;
+    std::vector<int> m_AvailableVehicles;
+
+    mutable std::mutex m_VehicleHomeMutex;
+    std::map<int, MissionItem::SpatialHome> m_VehicleHomeMap;
+    std::map<int, Eigen::Vector3f> m_VehicleToGlobalTranslation;
+    MissionItem::SpatialHome m_GlobalOrigin;
+    bool flagGlobalOrigin;
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;
-
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_AttitudeDynamicsHistory;
-
     std::map<std::string, ObservationHistory<TIME, VehicleLife> > m_VehicleLifeHistory;
-
-
     std::map<std::string, std::vector<Eigen::Vector3d> > m_VehicleTargetPositionList;
-
-
     std::map<std::string, std::vector<FullVehicleDynamics> > m_VehicleCommandDynamicsList;
 
 
@@ -624,8 +686,23 @@ private:
     mutable std::mutex m_Mutex_ResourceMap;
     mutable std::mutex m_Mutex_OccupancyMap;
     mutable std::mutex m_Mutex_ProbabilityMap;
+    mutable std::mutex m_TopicMutex;
 
 
+    /////////////////////////////////////////////////////////
+    /// VEHICLE MISSION METHODS
+    /////////////////////////////////////////////////////////
+private:
+    mutable std::mutex COMPLETEMissionMUTEX;
+    std::map<int, std::map<Data::MissionType,MissionItem::MissionList>> m_COMPLETEMission;
+
+    mutable std::mutex INCOMPLETEMissionMUTEX;
+    std::map<int, std::map<Data::MissionType,MissionItem::MissionList>> m_INCOMPLETEMission;
+
+public:
+    void updateCOMPLETEMissionList(const MissionItem::MissionList missionList);
+    void updateINCOMPLETEMissionList(const MissionItem::MissionList missionList);
+    bool getMissionList(MissionItem::MissionList &newList, const int &systemID, const MissionItem::MissionList::MissionListState &missionState, const Data::MissionType &missionType) const;
 };
 
 } //END MaceCore Namespace

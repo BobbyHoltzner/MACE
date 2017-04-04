@@ -89,7 +89,7 @@ void MavlinkProtocol::SetChannel(ILink *link, uint8_t channel)
 //! \param link Link to put message onto
 //! \param message Message to send
 //!
-void MavlinkProtocol::SendMessage(const ILink *link, const mavlink_message_t &message)
+void MavlinkProtocol::SendProtocolMessage(const ILink *link, const mavlink_message_t &message)
 {
     // Create buffer
     static uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
@@ -180,7 +180,7 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
                 {
                     mavlink_message_t msg;
                     mavlink_msg_ping_pack(getSystemId(), getComponentId(), &msg, ping.time_usec, ping.seq, message.sysid, message.compid);
-                    SendMessage(link, msg);
+                    SendProtocolMessage(link, msg);
                 }
             }
 

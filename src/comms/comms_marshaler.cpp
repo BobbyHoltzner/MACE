@@ -188,7 +188,7 @@ void CommsMarshaler::SendMessage(const std::string &linkName, const T& message)
         case Protocols::MAVLINK:
         {
             std::shared_ptr<MavlinkProtocol> protocol = std::static_pointer_cast<MavlinkProtocol>(protocol_obj);
-            protocol->SendMessage(link.get(), message);
+            protocol->SendProtocolMessage(link.get(), message);
             break;
         }
         default:

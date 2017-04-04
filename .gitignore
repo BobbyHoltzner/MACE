@@ -7,6 +7,8 @@ mace/mace
 example/example
 *.user*
 
+/build-src-Desktop_Qt_5_7_1_MinGW_32bit-Debug/*
+/build**
 
 
 *.Debug
@@ -14,6 +16,7 @@ example/example
 *.dll
 *.lib
 *.exe
+*.a
 node_modules
 /bin/*
 *.gypi
@@ -41,5 +44,5 @@ node_modules
 
 /gui_dlls/*
 /node_packages/*
-
-build*/
+ElectronGUI/.vscode/settings.json
+ElectronGUI/PrebuiltBinaries*

@@ -34,10 +34,14 @@ int main(int argc, char *argv[])
         std::cout << "The current MACE_ROOT path is: " << rootPath << std::endl;
         filename = rootPath + kPathSeparator + "MaceSetup.xml";
     }else{
-        filename = "MaceSetup_UDP.xml";
+        filename = "MaceSetup2.xml";
     }
-    if(argc >= 2)
-        filename = argv[1];
+
+    if(argc >= 2){
+        std::string rootPath(MACEPath);
+        filename = rootPath + kPathSeparator + argv[1];
+        //filename = argv[1];
+    }
 
     std::cout << "Reading MACE configuration file from: " << filename << std::endl;
 
@@ -108,7 +112,7 @@ int main(int argc, char *argv[])
         }
         case MaceCore::ModuleBase::SENSORS:
         {
-            if(addedPathPlanning == true)
+            if(addedSensors == true)
             {
                 std::cerr << "Only one sensors module can be added" << std::endl;
                 return 1;

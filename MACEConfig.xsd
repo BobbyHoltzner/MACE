@@ -33,7 +33,7 @@
       <xs:enumeration value="VehicleComms" />
       <xs:enumeration value="RTA" />
       <xs:enumeration value="PathPlanning" />
-	  <xs:enumberation value="GroundStation" />
+	  <xs:enumeration value="GroundStation" />
     </xs:restriction>
   </xs:simpleType>
 

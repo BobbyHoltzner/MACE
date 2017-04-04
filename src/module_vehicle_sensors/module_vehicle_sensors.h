@@ -13,10 +13,12 @@
 #include "data_vehicle_sensors/components.h"
 #include "mace_core/i_module_command_sensors.h"
 
-#include "data_vehicle_commands/action_components.h"
-#include "data_vehicle_commands/mission_components.h"
+#include "data_generic_state_item/state_item_components.h"
+#include "data_generic_state_item_topic/state_topic_components.h"
 
-#include "data_vehicle_generic/components.h"
+#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_mission_item_topic/mission_item_topic_components.h"
+
 
 class MODULE_VEHICLE_SENSORSSHARED_EXPORT ModuleVehicleSensors : public MaceCore::IModuleCommandSensors
 {
@@ -47,17 +49,16 @@ public:
 
     void computeVehicleFootprint(const double &roll, const double &pitch, const double &yaw, const double &altitude);
 
+
+    //! Virtual functions as defined by IModuleCommandSensors
+public:
+
+    virtual void NewlyAvailableVehicle(const int &vehicleID);
+
 private:
-
-    Data::TopicDataObjectCollection<DATA_VEHICLE_ACTION_COMMAND_TYPES> m_CommandVehicleTopic;
-    Data::TopicDataObjectCollection<DATA_VEHICLE_MISSION_LIST> m_CommandVehicleMissionList;
-    Data::TopicDataObjectCollection<DATA_VEHICLE_GENERIC_TYPES> m_VehicleDataTopic;
-
+    Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;
-
-
-
 
 };
 

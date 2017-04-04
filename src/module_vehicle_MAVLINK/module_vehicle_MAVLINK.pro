@@ -15,33 +15,10 @@ DEFINES += MODULE_VEHICLE_MAVLINK_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-SOURCES += module_vehicle_mavlink.cpp \
-    Vehicles/Ardupilot/ardupilot_attitude.cpp \
-    Vehicles/Ardupilot/ardupilot_flightmode.cpp \
-    Vehicles/Ardupilot/ardupilot_global_position.cpp \
-    Vehicles/Ardupilot/ardupilot_gps_status.cpp \
-    Vehicles/Ardupilot/ardupilot_local_position.cpp \
-    Vehicles/Ardupilot/ardupilot_mission.cpp \
-    Vehicles/Ardupilot/ardupilot_position.cpp \
-    Vehicles/Ardupilot/ardupilot_status.cpp \
-    Vehicles/Ardupilot/data_ardupilot.cpp \
-    Vehicles/Ardupilot/ardupilot_home_position.cpp \
-    Vehicles/Ardupilot/ardupilot_power.cpp
+SOURCES += module_vehicle_mavlink.cpp
 
 HEADERS += module_vehicle_mavlink.h\
-        module_vehicle_mavlink_global.h \
-    Vehicles/Ardupilot/ardupilot_attitude.h \
-    Vehicles/Ardupilot/ardupilot_flightmode.h \
-    Vehicles/Ardupilot/ardupilot_global_position.h \
-    Vehicles/Ardupilot/ardupilot_gps_status.h \
-    Vehicles/Ardupilot/ardupilot_local_position.h \
-    Vehicles/Ardupilot/ardupilot_mission.h \
-    Vehicles/Ardupilot/ardupilot_position.h \
-    Vehicles/Ardupilot/ardupilot_status.h \
-    Vehicles/Ardupilot/data_ardupilot.h \
-    Vehicles/Ardupilot/data_ardupilot_global.h \
-    Vehicles/Ardupilot/ardupilot_home_position.h \
-    Vehicles/Ardupilot/ardupilot_power.h
+        module_vehicle_mavlink_global.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
@@ -61,22 +38,8 @@ INSTALLS += lib
 headers.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK
 headers.files   += \
         module_vehicle_mavlink.h \
-        module_vehicle_mavlink_global.h \
-        generic_message_definition_mavlink.h
+        module_vehicle_mavlink_global.h
 INSTALLS       += headers
-
-headers_Vehicle_Ardupilot.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK/Vehicles/Ardupilot
-headers_Vehicle_Ardupilot.files   += Vehicles/Ardupilot/ardupilot_attitude.h \
-    Vehicles/Ardupilot/ardupilot_flightmode.h \
-    Vehicles/Ardupilot/ardupilot_global_position.h \
-    Vehicles/Ardupilot/ardupilot_gps_status.h \
-    Vehicles/Ardupilot/ardupilot_local_position.h \
-    Vehicles/Ardupilot/ardupilot_mission.h \
-    Vehicles/Ardupilot/ardupilot_position.h \
-    Vehicles/Ardupilot/ardupilot_status.h \
-    Vehicles/Ardupilot/data_ardupilot.h \
-    Vehicles/Ardupilot/data_ardupilot_global.h
-INSTALLS       += headers_Vehicle_Ardupilot
 
 INCLUDEPATH += $$PWD/../
 
@@ -92,9 +55,35 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldat
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
 else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic/release/ -ldata_vehicle_generic
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_generic/debug/ -ldata_vehicle_generic
-else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_generic/ -ldata_vehicle_generic
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../commsMAVLINK/release/ -lcommsMAVLINK
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../commsMAVLINK/debug/ -lcommsMAVLINK
+else:unix:!macx: LIBS += -L$$OUT_PWD/../commsMAVLINK/ -lcommsMAVLINK
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_item/release/ -ldata_generic_item
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_item/debug/ -ldata_generic_item
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_item/ -ldata_generic_item
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_item_topic/release/ -ldata_generic_item_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_item_topic/debug/ -ldata_generic_item_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_item_topic/ -ldata_generic_item_topic
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_item/release/ -ldata_generic_state_item
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_item/debug/ -ldata_generic_state_item
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_state_item/ -ldata_generic_state_item
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_item_topic/release/ -ldata_generic_state_item_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_item_topic/debug/ -ldata_generic_state_item_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_state_item_topic/ -ldata_generic_state_item_topic
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_mission_item/release/ -ldata_generic_mission_item
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_mission_item/debug/ -ldata_generic_mission_item
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_mission_item/ -ldata_generic_mission_item
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/release/ -ldata_generic_mission_item_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/debug/ -ldata_generic_mission_item_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/ -ldata_generic_mission_item_topic
+
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/release/ -ldata_vehicle_MAVLINK
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/debug/ -ldata_vehicle_MAVLINK
@@ -104,9 +93,6 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_gene
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_generic/debug/ -lmodule_vehicle_generic
 else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_generic/ -lmodule_vehicle_generic
 
-
-
-
 unix{
     EigenInclude = $$system(pkg-config --cflags eigen3)
     EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
@@ -115,6 +101,4 @@ unix{
 win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
-
-
 

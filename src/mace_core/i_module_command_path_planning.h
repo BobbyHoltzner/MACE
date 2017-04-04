@@ -4,40 +4,32 @@
 #include <string>
 #include <map>
 
-#include "abstract_module_base_vehicle_listener.h"
+#include "abstract_module_event_listeners.h"
 #include "metadata_path_planning.h"
+
+#include "i_module_topic_events.h"
 #include "i_module_events_path_planning.h"
-
-
-
-#include "metadata_vehicle.h"
 
 namespace MaceCore
 {
 
-
 enum class PathPlanningCommands
 {
-    BASE_MODULE_VEHICLE_LISTENER_ENUMS,
-    NEW_VEHICLE_TARGET,
-    RECOMPUTE_PATHS
+    NEW_AVAILABLE_VEHICLE
 };
 
-class MACE_CORESHARED_EXPORT IModuleCommandPathPlanning  : public AbstractModule_VehicleListener<MetadataPathPlanning, IModuleEventsPathPlanning, PathPlanningCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandPathPlanning  : public AbstractModule_EventListeners<MetadataPathPlanning, IModuleEventsPathPlanning, PathPlanningCommands>
 {
+    friend class MaceCore;
 public:
 
     static Classes moduleClass;
 
     IModuleCommandPathPlanning():
-        AbstractModule_VehicleListener()
+        AbstractModule_EventListeners()
     {
-        AddCommandLogic<std::string>(PathPlanningCommands::NEW_VEHICLE_TARGET, [this](const std::string &vehicleID){
-            NewVehicleTarget(vehicleID);
-        });
-
-        AddCommandLogic(PathPlanningCommands::RECOMPUTE_PATHS, [this](){
-            RecomputePaths();
+        AddCommandLogic<int>(PathPlanningCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID){
+            NewlyAvailableVehicle(vehicleID);
         });
     }
 
@@ -46,18 +38,20 @@ public:
         return moduleClass;
     }
 
+public:
+    virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
-    //!
-    //! \brief New targets have been assigned to the given vehicle
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void NewVehicleTarget(const std::string &vehicleID) = 0;
+//    //!
+//    //! \brief New targets have been assigned to the given vehicle
+//    //! \param vehicleID ID of vehicle
+//    //!
+//    virtual void NewVehicleTarget(const std::string &vehicleID) = 0;
 
 
-    //!
-    //! \brief For one reason or another a recomputation of all vehicles' paths is requested
-    //!
-    virtual void RecomputePaths() = 0;
+//    //!
+//    //! \brief For one reason or another a recomputation of all vehicles' paths is requested
+//    //!
+//    virtual void RecomputePaths() = 0;
 
 };
 

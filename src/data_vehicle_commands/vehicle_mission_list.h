@@ -4,7 +4,7 @@
 #include <list>
 
 #include "data/i_topic_component_data_object.h"
-#include "data_vehicle_commands/abstract_mission_command.h"
+#include "data_vehicle_commands/abstract_mission_item.h"
 
 namespace DataVehicleCommands
 {
@@ -22,7 +22,7 @@ public:
     VehicleMissionList();
 
     //void setMissionList(const std::shared_ptr<std::list<AbstractMissionCommand>> &missionList);
-    std::list<AbstractMissionCommand*> getMissionList();
+    std::list<AbstractMissionItem*> getMissionList();
 
     void setMissionName(const std::string &name)
     {
@@ -33,18 +33,21 @@ public:
         return missionName;
     }
 
-    void appendCommand(AbstractMissionCommand *missionCommand);
+    void appendCommand(AbstractMissionItem *missionCommand);
 
     void removeCommand(const int &index);
 
     void clearCommands();
 
+    void setMissionType(const CommandTypes &missionType);
+    CommandTypes getMissionType();
 
 private:
+    CommandTypes missionType;
     std::string missionName;
     double missionLength;
     double missionDuration;
-    std::list<AbstractMissionCommand*> missionList;
+    std::list<AbstractMissionItem*> missionList;
     //std::shared_ptr<std::list<AbstractMissionCommand>> missionList;
 
 };

@@ -5,7 +5,9 @@
 
 #include "metadata_vehicle.h"
 
-#define BASE_MODULE_VEHICLE_LISTENER_ENUMS NEW_VEHICLE, REMOVE_VEHICLE, UPDATED_POSITION_DYNAMICS, UPDATED_ATTITUDE_DYNAMICS, UPDATED_VEHICLE_LIFE
+#define BASE_MODULE_VEHICLE_LISTENER_ENUMS CHANGE_VEHICLE_ARM,CHANGE_VEHICLE_MODE,REQUEST_VEHICLE_TAKEOFF,SET_CURRENT_MISSION_QUEUE,REQUEST_CURRENT_MISSION_QUEUE,REQUEST_CLEAR_MISSION_QUEUE,SET_CURRENT_GUIDED_QUEUE,REQUEST_CURRENT_GUIDED_QUEUE,REQUEST_CLEAR_GUIDED_QUEUE,REQUEST_VEHICLE_HOME,SET_VEHICLE_HOME,FOLLOW_NEW_COMMANDS,FINISH_AND_FOLLOW_COMMANDS,COMMANDS_APPENDED
+
+//#define BASE_MODULE_VEHICLE_LISTENER_ENUMS NEW_VEHICLE, REMOVE_VEHICLE, UPDATED_POSITION_DYNAMICS, UPDATED_ATTITUDE_DYNAMICS, UPDATED_VEHICLE_LIFE
 
 namespace MaceCore
 {
@@ -21,82 +23,106 @@ class AbstractModule_VehicleListener : public AbstractModule_EventListeners<T, I
 friend class MaceCore;
 public:
 
-
     AbstractModule_VehicleListener() :
         AbstractModule_EventListeners<T,I, CT>()
     {
-        this->template AddCommandLogic<std::string>(CT::NEW_VEHICLE, [this](const std::string &ID){
-            NewVehicle(ID);
+        //These are from MACE Core to modules
+
+        /////////////////////////////////////////////////////////////////////////
+        /// GENERAL VEHICLE COMMAND EVENTS: These are events that may have a direct
+        /// command and action sequence that accompanies the vheicle. Expect an acknowledgement
+        /// or an event to take place when calling these items.
+        /////////////////////////////////////////////////////////////////////////
+
+        this->template AddCommandLogic<MissionItem::ActionArm>(CT::CHANGE_VEHICLE_ARM, [this](const MissionItem::ActionArm &vehicleArm){
+            ChangeVehicleArm(vehicleArm);
         });
 
-        this->template AddCommandLogic<std::string>(CT::REMOVE_VEHICLE, [this](const std::string &ID){
-            RemoveVehicle(ID);
+        this->template AddCommandLogic<MissionItem::ActionChangeMode>(CT::CHANGE_VEHICLE_MODE, [this](const MissionItem::ActionChangeMode &vehicleMode){
+            ChangeVehicleOperationalMode(vehicleMode);
         });
 
-        this->template AddCommandLogic<std::string>(CT::UPDATED_POSITION_DYNAMICS, [this](const std::string &ID){
-            UpdatedPositionDynamics(ID);
+        this->template AddCommandLogic<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>>(CT::REQUEST_VEHICLE_TAKEOFF, [this](const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff){
+            RequestVehicleTakeoff(vehicleTakeoff);
         });
 
-        this->template AddCommandLogic<std::string>(CT::UPDATED_ATTITUDE_DYNAMICS, [this](const std::string &ID){
-            UpdateAttitudeDynamics(ID);
+        /////////////////////////////////////////////////////////////////////////
+        /// GENERAL MISSION EVENTS: This is implying for auto mode of the vehicle.
+        /// This functionality may be pertinent for vehicles not containing a
+        /// direct MACE hardware module.
+        /////////////////////////////////////////////////////////////////////////
+
+        this->template AddCommandLogic<MissionItem::MissionList>(CT::SET_CURRENT_MISSION_QUEUE, [this](const MissionItem::MissionList &missionList){
+            SetMissionQueue(missionList);
         });
 
-        this->template AddCommandLogic<std::string>(CT::UPDATED_VEHICLE_LIFE, [this](const std::string &ID){
-            UpdatedVehicleLife(ID);
+        this->template AddCommandLogic<Data::SystemDescription>(CT::REQUEST_CURRENT_MISSION_QUEUE, [this](const Data::SystemDescription &targetSystem){
+            GetMissionQueue(targetSystem);
+        });
+
+        this->template AddCommandLogic<Data::SystemDescription>(CT::REQUEST_CLEAR_MISSION_QUEUE, [this](const Data::SystemDescription &targetSystem){
+            ClearMissionQueue(targetSystem);
+        });
+
+        /////////////////////////////////////////////////////////////////////////
+        /// GENERAL GUIDED EVENTS: This is implying for guided mode of the vehicle.
+        /// This functionality is pertinent for vehicles that may contain a
+        /// MACE HW module, or, vehicles that have timely or ever updating changes.
+        /////////////////////////////////////////////////////////////////////////
+
+        this->template AddCommandLogic<MissionItem::MissionList>(CT::SET_CURRENT_GUIDED_QUEUE, [this](const MissionItem::MissionList &missionList){
+            SetCurrentGuidedQueue(missionList);
+        });
+
+        this->template AddCommandLogic<int>(CT::REQUEST_CURRENT_GUIDED_QUEUE, [this](const int &vehicleID){
+            RequestCurrentGuidedQueue(vehicleID);
+        });
+
+        this->template AddCommandLogic<int>(CT::REQUEST_CLEAR_GUIDED_QUEUE, [this](const int &vehicleID){
+            RequestClearGuidedQueue(vehicleID);
+        });
+
+
+        /////////////////////////////////////////////////////////////////////////
+        /// GENERAL HOME EVENTS: These events are related to establishing or setting
+        /// a home position. It should be recognized that the first mission item in a
+        /// mission queue should prepend this position. Just the way ardupilot works.
+        /////////////////////////////////////////////////////////////////////////
+
+        this->template AddCommandLogic<int>(CT::REQUEST_VEHICLE_HOME, [this](const int &vehicleID){
+            RequestVehicleHomePosition(vehicleID);
+        });
+
+        this->template AddCommandLogic<MissionItem::SpatialHome>(CT::SET_VEHICLE_HOME, [this](const MissionItem::SpatialHome &vehicleHome){
+            SetVehicleHomePosition(vehicleHome);
         });
 
     }
 
 public:
 
+    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm) = 0;
+    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
+    virtual void RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
+//    virtual void RequestVehicleLand(const MissionItem::SpatialLand<DataState::StateGlobalPosition> &vehicleLand) = 0;
+//    virtual void RequestVehicleRTL(const MissionItem::SpatialRTL &vehicleRTL) = 0;
 
-    //!
-    //! \brief Called when a new Vehicle has been introduced into MACE
-    //!
-    //! \param ID ID of the Vehicle
-    //!
-    virtual void NewVehicle(const std::string &ID) = 0;
+    virtual void RequestVehicleHomePosition(const int &vehicleID) = 0;
+    virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome) = 0;
 
+    virtual void SetMissionQueue(const MissionItem::MissionList &missionList) = 0;
+    virtual void GetMissionQueue(const Data::SystemDescription &targetSystem) = 0;
+    virtual void ClearMissionQueue(const Data::SystemDescription &targetSystem) = 0;
 
-    //!
-    //! \brief Called when a vehicle has been removed from MACE
-    //!
-    //! \param ID ID of vehicle
-    //!
-    virtual void RemoveVehicle(const std::string &ID) = 0;
-
-
-    //!
-    //! \brief Signal indicating a vehicle's position dynamics has been updated
-    //!
-    //! The vehicle's position can be retreived from MaceData object in getDataObject()
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void UpdatedPositionDynamics(const std::string &vehicleID) = 0;
-
-
-    //!
-    //! \brief Signal indicating a a vehicle's attitude dynamics have been updated
-    //!
-    //! The vehicle's attitude can be retreived from MaceData object in getDataObject()
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void UpdateAttitudeDynamics(const std::string &vehicleID) = 0;
-
-
-    //!
-    //! \brief Singal to indicate a vehicle's life has been updated
-    //!
-    //! The vehicle's life can be retreived from MaceData object in getDataObject()
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void UpdatedVehicleLife(const std::string &vehicleID) = 0;
+    virtual void SetCurrentGuidedQueue(const MissionItem::MissionList &missionList) = 0;
+    virtual void RequestCurrentGuidedQueue(const int &vehicleID) = 0;
+    virtual void RequestClearGuidedQueue(const int &vehicleID) = 0;
 
 
 
 
 };
 
-};
+} //end of namespace MaceCore
 
 #endif // ABSTRACT_MODULE_BASE_VEHICLE_LISTENER_H

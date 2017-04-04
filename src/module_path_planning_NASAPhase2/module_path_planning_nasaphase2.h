@@ -1,6 +1,7 @@
 #ifndef MODULE_PATH_PLANNING_NASAPHASE2_H
 #define MODULE_PATH_PLANNING_NASAPHASE2_H
 
+#include "common/common.h"
 #include "module_path_planning_nasaphase2_global.h"
 
 #include "mace_core/i_module_command_path_planning.h"
@@ -18,9 +19,9 @@ public:
     //! \brief This module as been attached as a module
     //! \param ptr pointer to object that attached this instance to itself
     //!
-    virtual void AttachedAsModule(MaceCore::IModuleEventsPathPlanning* ptr)
+    virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
     {
-
+        UNUSED(ptr);
     }
 
 
@@ -39,31 +40,10 @@ public:
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
+    //! Virtual functions as defined by IModuleCommandPathPlanning
 public:
 
-
-    virtual void NewVehicle(const std::string &ID);
-
-    virtual void RemoveVehicle(const std::string &ID);
-
-    virtual void UpdatedPositionDynamics(const std::string &vehicleID);
-
-    virtual void UpdateAttitudeDynamics(const std::string &vehicleID);
-
-    virtual void UpdatedVehicleLife(const std::string &vehicleID);
-
-
-    //!
-    //! \brief New targets have been assigned to the given vehicle
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void NewVehicleTarget(const std::string &vehicleID);
-
-
-    //!
-    //! \brief For one reason or another a recomputation of all vehicles' paths is requested
-    //!
-    virtual void RecomputePaths();
+    virtual void NewlyAvailableVehicle(const int &vehicleID);
 };
 
 #endif // MODULE_PATH_PLANNING_NASAPHASE2_H

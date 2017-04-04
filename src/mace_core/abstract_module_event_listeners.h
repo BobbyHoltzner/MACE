@@ -20,7 +20,8 @@ public:
 
     AbstractModule_EventListeners() :
         m_LoopSleepTime(std::chrono::milliseconds(10)),
-        m_DefaultMarshalCommandOnEventLoop(true)
+        m_DefaultMarshalCommandOnEventLoop(true),
+        m_Started(false)
     {
 
     }
@@ -29,6 +30,7 @@ public:
 
     virtual void start()
     {
+        m_Started = true;
         while(true)
         {
             m_CommandDispatcher.ExecuteQueuedCommands();
@@ -47,6 +49,11 @@ public:
         return m_MetaData;
     }
 
+    bool IsStarted() const  {
+        return m_Started;
+    }
+
+
 
     //!
     //! \brief Add a listener to the module
@@ -56,7 +63,20 @@ public:
     void addListener(I *listener)
     {
         m_Listeners.push_back(listener);
+    }
+
+    void addTopicListener(IModuleTopicEvents *listener)
+    {
+        m_TopicListeners.push_back(listener);
         AttachedAsModule(listener);
+    }
+
+    void NotifyListenersOfTopic(const std::function<void(IModuleTopicEvents*)> &func) const
+    {
+        for(auto it = m_TopicListeners.cbegin() ; it != m_TopicListeners.cend() ; ++it)
+        {
+            func(*it);
+        }
     }
 
 
@@ -80,7 +100,7 @@ public:
     //! \brief This module as been attached as a module
     //! \param ptr pointer to object that attached this instance to itself
     //!
-    virtual void AttachedAsModule(I* ptr) = 0;
+    virtual void AttachedAsModule(IModuleTopicEvents* ptr) = 0;
 
 
     //////////////////////////////////////////////////////////////////////
@@ -154,7 +174,7 @@ public:
     //! Code placed into module's command methods will be executed on module's thread.
     //!
     //! If set to false, the executation of a command will occur on the thread that decided the command must be called at the moment which it was decided.
-    //! It will then be up to the implimentor to marshal that command onto module's thread by overriding start() method.
+    //! It will then be up to the implementor to marshal that command onto module's thread by overriding start() method.
     //! \param value True if are to marshal onto event loop
     //!
     void InvokeCommandOnModuleEventLoop(const bool &value)
@@ -170,7 +190,7 @@ public:
     //! Code placed into module's command methods will be executed on module's thread.
     //!
     //! If set to false, the executation of a command will occur on the thread that decided the command must be called at the moment which it was decided.
-    //! It will then be up to the implimentor to marshal that command onto module's thread by overriding start() method.
+    //! It will then be up to the implementor to marshal that command onto module's thread by overriding start() method.
     //!
     //! If some commands are to be invoked on module's event loop and other not, the start() method will need to be overidden and a custom event loop written
     //! In that event loop, any commands who are to use built-in marshalling can be executed with "ExecuteQueuedCommands();" command.
@@ -241,6 +261,7 @@ private:
     T m_MetaData;
 
     std::vector<I*> m_Listeners;
+    std::vector<IModuleTopicEvents*> m_TopicListeners;
 
     std::chrono::milliseconds m_LoopSleepTime;
 
@@ -253,6 +274,7 @@ private:
 
     CommandMarshler<CT> m_CommandDispatcher;
 
+    bool m_Started;
 
 };
 

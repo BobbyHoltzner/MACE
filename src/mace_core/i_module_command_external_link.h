@@ -4,29 +4,35 @@
 #include <string>
 #include <map>
 
+#include "abstract_module_base.h"
 #include "abstract_module_event_listeners.h"
+#include "abstract_module_base_vehicle_listener.h"
+
 #include "metadata_ground_station.h"
 
 #include "i_module_topic_events.h"
+#include "i_module_events_vehicle.h"
+#include "i_module_events_external_link.h"
 
-#include "vehicle_data.h"
+#include "command_marshler.h"
 
 namespace MaceCore
 {
 
 enum class ExternalLinkCommands
 {
+    BASE_MODULE_VEHICLE_LISTENER_ENUMS
 };
 
-
-class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_EventListeners<Metadata_GroundStation, IModuleTopicEvents, ExternalLinkCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_VehicleListener<Metadata_GroundStation, IModuleEventsExternalLink, ExternalLinkCommands>
 {
+    friend class MaceCore;
 public:
 
     static Classes moduleClass;
 
     IModuleCommandExternalLink():
-        AbstractModule_EventListeners()
+        AbstractModule_VehicleListener()
     {
 
     }
@@ -37,8 +43,6 @@ public:
     }
 
 public:
-
-
 
 };
 

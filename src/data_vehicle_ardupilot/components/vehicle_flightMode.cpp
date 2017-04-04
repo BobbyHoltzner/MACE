@@ -1,73 +1,47 @@
 #include "vehicle_flightMode.h"
 
-namespace DataVehicleArdupilot
+namespace DataARDUPILOT
 {
 
-const char VehicleOperatingParameters_name[] = "vehicle_operating_parameters";
-const MaceCore::TopicComponentStructure VehicleOperatingParameters_structure = []{
-    MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<int>("vehicleType");
-    structure.AddTerminal<int>("flightMode");
-
-    return structure;
-}();
-
-
-MaceCore::TopicDatagram VehicleFlightMode::GenerateDatagram() const {
-    MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<int>("vehicleType", (int)m_VehicleType);
-    datagram.AddTerminal<int>("flightMode", m_FlightMode);
-
-    return datagram;
+VehicleFlightMode::VehicleFlightMode()
+{
+    availableFM = arducopterFM;
 }
 
-
-void VehicleFlightMode::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    m_VehicleType = (VehicleTypes)datagram.GetTerminal<int>("vehicleType");
-    m_FlightMode = datagram.GetTerminal<uint32_t>("flightMode");
-}
-
-int VehicleFlightMode::getFlightMode(const std::string &flightMode){
-
-    std::map<int,std::string> availableFM;
-
-    if(m_VehicleType == VehicleTypes::PLANE){
-        availableFM = arduplaneFM;
-    }else{
-        availableFM = arducopterFM;
-    }
-
+int VehicleFlightMode::getFlightModeFromString(const std::string &modeString)
+{
     std::map<int,std::string>::iterator it;
     int vehicleModeID = 0;
-
     for (it=availableFM.begin(); it != availableFM.end(); it++)
     {
-        if(it->second == flightMode)
+        if(it->second == modeString)
         {
             vehicleModeID = it->first;
             return vehicleModeID;
         }
     }
-    //Probably dont want to error here but what would be the safest method
-    throw std::runtime_error("The flight mode provided does not exist");
 }
 
-void VehicleFlightMode::getAvailableFlightModes(const VehicleTypes &vehicleType, std::map<int, std::string> &availableFM)
+void VehicleFlightMode::getAvailableFlightModes(const Data::VehicleTypes &vehicleType, std::map<int, std::string> &availableFM)
 {
-
+    UNUSED(vehicleType);
+    UNUSED(availableFM);
 }
 
 void VehicleFlightMode::parseMAVLINK(const mavlink_heartbeat_t &msg)
 {
-    this->setVehicleType(msg.type);
-    this->setFlightMode(msg.custom_mode);
+    this->setVehicleTypeFromMAVLINK(msg.type);
+    std::string newFlightMode = availableFM.at(msg.custom_mode);
+    this->setFlightMode(newFlightMode);
 }
 
-void VehicleFlightMode::setVehicleType(int vehicleType){
+void VehicleFlightMode::setVehicleTypeFromMAVLINK(const int &vehicleType)
+{
         switch (vehicleType) {
         case MAV_TYPE_FIXED_WING:
         {
-            m_VehicleType = VehicleTypes::PLANE;
+            this->vehicleType = Data::VehicleTypes::PLANE;
+            this->availableFM = arduplaneFM;
             break;
         }
         case MAV_TYPE_TRICOPTER:
@@ -75,10 +49,13 @@ void VehicleFlightMode::setVehicleType(int vehicleType){
         case MAV_TYPE_HEXAROTOR:
         case MAV_TYPE_OCTOROTOR:
         {
-            m_VehicleType = VehicleTypes::COPTER;
+            this->vehicleType = Data::VehicleTypes::COPTER;
+            this->availableFM = arducopterFM;
             break;
         }
         default:
+            this->vehicleType = Data::VehicleTypes::UNKNOWN;
+            this->availableFM = arducopterFM;
             break;
         }
 }
