@@ -10,6 +10,29 @@ enum class VehicleTypes
     UNKNOWN
 };
 
+inline std::string VehicleTypesToString(const VehicleTypes &vehicleType) {
+    switch (vehicleType) {
+    case VehicleTypes::COPTER:
+        return "COPTER";
+    case VehicleTypes::PLANE:
+        return "PLANE";
+    case VehicleTypes::UNKNOWN:
+        return "UNKNOWN";
+    default:
+        throw std::runtime_error("Unknown operating mode seen");
+    }
+}
+
+inline VehicleTypes VehicleTypesFromString(const std::string &str) {
+    if(str == "COPTER")
+        return VehicleTypes::COPTER;
+    if(str == "PLANE")
+        return VehicleTypes::PLANE;
+    if(str == "UNKNOWN")
+        return VehicleTypes::UNKNOWN;
+    throw std::runtime_error("Unknown operating mode seen");
+}
+
 }
 
 #endif // VEHICLE_TYPES_H

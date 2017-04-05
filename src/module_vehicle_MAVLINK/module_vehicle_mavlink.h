@@ -113,7 +113,12 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///              COMM EVENTS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    virtual void VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG)
+    {
+        UNUSED(linkName);
+        UNUSED(systemID);
+        UNUSED(heartbeatMSG);
+    }
 
     //!
     //! \brief New Mavlink message received over a link

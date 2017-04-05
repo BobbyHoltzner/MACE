@@ -211,15 +211,15 @@ void ModuleGroundStation::testFunction()
     newWP->setVehicleID(1);
 
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP1 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-    newWP1->position.setPosition(35.7463033,-78.8386631,60.0);
+    newWP1->position.setPosition(35.7463033,-78.8386631,65.0);
     newWP1->setVehicleID(1);
 
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP2 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-    newWP2->position.setPosition(35.7459724,-78.8390923,70.0);
+    newWP2->position.setPosition(35.7459724,-78.8390923,75.0);
     newWP2->setVehicleID(1);
 
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP3 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-    newWP3->position.setPosition(35.7466538,-78.8399184,80.0);
+    newWP3->position.setPosition(35.7466538,-78.8399184,85.0);
     newWP3->setVehicleID(1);
 
     missionList.replaceMissionItemAtIndex(newWP,0);
