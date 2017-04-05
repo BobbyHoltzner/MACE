@@ -26,6 +26,13 @@ public:
         return(cameraName);
     }
 
+    void setStabilization(const bool &stabilized){
+        this->stabilized = stabilized;
+    }
+    bool getStabilization(){
+        return(stabilized);
+    }
+
     void setFOV_Horizontal(const double &horizontalFOV){
         this->HFOVA = horizontalFOV;
     }
@@ -96,6 +103,9 @@ public:
         if(this->cameraName != rhs.cameraName){
             return false;
         }
+        if(this->stabilized != rhs.stabilized){
+            return false;
+        }
         if(this->HFOVA != rhs.HFOVA){
             return false;
         }
@@ -128,6 +138,7 @@ public:
 
 protected:
     std::string cameraName;
+    bool stabilized;
     double HFOVA; //value in radians
     double VFOVA; //value in radians
     double focalLength; //value in mm

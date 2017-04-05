@@ -49,6 +49,7 @@ void ModuleVehicleSensors::ConfigureModule(const std::shared_ptr<MaceCore::Modul
     {
         std::shared_ptr<MaceCore::ModuleParameterValue> protocolSettings = params->GetNonTerminalValue("CameraParameters");
         cameraSensor->setCameraName(protocolSettings->GetTerminalValue<std::string>("CameraName"));
+        cameraSensor->setStabilization(true);
         cameraSensor->setFocalLength(protocolSettings->GetTerminalValue<double>("FocalLength"));
         cameraSensor->setSensorWidth(protocolSettings->GetTerminalValue<double>("SensorWidth"));
         cameraSensor->setSensorHeight(protocolSettings->GetTerminalValue<double>("SensorHeight"));
