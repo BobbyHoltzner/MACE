@@ -297,6 +297,11 @@ export default class AppContainer extends React.Component<Props, State> {
         this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
       }
     }
+    else if(jsonData.dataType === 'GlobalOrigin') {
+      let jsonOrigin = jsonData as TCPPositionType;
+      let origin = {lat: jsonOrigin.lat, lon: jsonOrigin.lon, alt: jsonOrigin.alt};
+      this.setState({globalOrigin: origin})
+    }
   }
 
 
@@ -392,7 +397,7 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleSaveGlobalOrigin = (globalOrigin: PositionType) => {
-    this.handleAircraftCommand("0", "SET_GLOBAL_HOME", JSON.stringify(globalOrigin));
+    this.handleAircraftCommand("0", "SET_GLOBAL_ORIGIN", JSON.stringify(globalOrigin));
     this.setState({globalOrigin: globalOrigin});
   }
 
@@ -456,6 +461,16 @@ export default class AppContainer extends React.Component<Props, State> {
         <MenuItem onClick={() => console.log("Path Planning")} primaryText="Path Planning Parameters" />
       </IconMenu>
     );
+
+    const globalOriginMarker = {
+      position: new L.LatLng(this.state.globalOrigin.lat, this.state.globalOrigin.lon),
+      icon: new L.Icon({
+          iconUrl: './images/userlocation_icon.png',
+          iconSize: [41, 41], // size of the icon
+          iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
+          popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
+      })
+    };
 
     return (
         <MuiThemeProvider muiTheme={lightMuiTheme}>
@@ -561,6 +576,15 @@ export default class AppContainer extends React.Component<Props, State> {
                       </Marker>
                     );
                   })}
+
+                  {/* Global Origin */}
+                  <Marker position={globalOriginMarker.position} icon={globalOriginMarker.icon}>
+                  {/*
+                    <Popup open={true}>
+                      <span>Selected</span>
+                    </Popup>
+                  */}
+                  </Marker>
 
                   {/* Mission Paths */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {

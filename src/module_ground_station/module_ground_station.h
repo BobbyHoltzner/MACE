@@ -95,6 +95,7 @@ private:
     void sendVehicleMission(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionListTopic> &component);
 
     void sendVehicleHome(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
+    void sendGlobalOrigin(const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
 
     bool writeTCPData(QByteArray data);
 

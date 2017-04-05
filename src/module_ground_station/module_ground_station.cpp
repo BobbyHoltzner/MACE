@@ -162,7 +162,7 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     {
         setVehicleHome(vehicleID, jsonObj);
     }
-    else if(command == "SET_GLOBAL_HOME")
+    else if(command == "SET_GLOBAL_ORIGIN")
     {
         setGlobalOrigin(jsonObj);
     }
@@ -305,16 +305,16 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
 
 void ModuleGroundStation::setGlobalOrigin(const QJsonObject &jsonObj)
 {
-    MissionItem::SpatialHome tmpGlobalHome;
+    MissionItem::SpatialHome tmpGlobalOrigin;
     QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
-    tmpGlobalHome.position.latitude = position.value("lat").toDouble();
-    tmpGlobalHome.position.longitude = position.value("lon").toDouble();
-    tmpGlobalHome.position.altitude = position.value("alt").toDouble();
-    tmpGlobalHome.setPositionalFrame(Data::PositionalFrame::GLOBAL);
-//    tmpHome.setCoordinateFrame(NED??);
+    tmpGlobalOrigin.position.latitude = position.value("lat").toDouble();
+    tmpGlobalOrigin.position.longitude = position.value("lon").toDouble();
+    tmpGlobalOrigin.position.altitude = position.value("alt").toDouble();
+    tmpGlobalOrigin.setPositionalFrame(Data::PositionalFrame::GLOBAL);
+    tmpGlobalOrigin.setCoordinateFrame(Data::CoordinateFrame::NED);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->UpdateGlobalOriginPosition(this, tmpGlobalHome);
+        ptr->UpdateGlobalOriginPosition(this, tmpGlobalOrigin);
     });
 }
 
@@ -469,6 +469,37 @@ void ModuleGroundStation::sendVehicleHome(const int &vehicleID, const std::share
     if(!bytesWritten){
         std::cout << "Write Home position failed..." << std::endl;
     }
+}
+
+void ModuleGroundStation::sendGlobalOrigin(const std::shared_ptr<MissionTopic::MissionHomeTopic> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "GlobalOrigin";
+    json["vehicleID"] = 0;
+
+    // TODO-PAT: Update this when we get global origin topic or method
+
+//    MissionItem::SpatialHome* spatialHome = new MissionItem::SpatialHome(component->getHome());
+//    if(spatialHome->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+//    {
+//        json["lat"] = spatialHome->position.latitude;
+//        json["lon"] = spatialHome->position.longitude;
+//        json["alt"] = spatialHome->position.altitude;
+//    }
+//    else {
+//        // TODO: If we for some reason get a local home position (i.e. x/y/z), set to the global origin.
+//        //          --May need to check to make sure the global origin is set first though
+//        json["lat"] = 0;
+//        json["lon"] = 0;
+//        json["alt"] = 0;
+//    }
+
+//    QJsonDocument doc(json);
+//    bool bytesWritten = writeTCPData(doc.toJson());
+
+//    if(!bytesWritten){
+//        std::cout << "Write Global origin failed..." << std::endl;
+//    }
 }
 
 void ModuleGroundStation::missionToJSON(const std::shared_ptr<MissionTopic::MissionListTopic> &component, QJsonArray &missionItems)
