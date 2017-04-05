@@ -447,6 +447,16 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 // Write mission items to the GUI:
                 sendVehicleHome(senderID, component);
             }
+            else if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
+                std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
+                m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+                std::cout<<"I have reached a mission item"<<component->getMissionItemIndex()<<std::endl;
+            }
+            else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
+                std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
+                m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+                std::cout<<"I have a new current mission item"<<component->getMissionItemIndex()<<std::endl;
+            }
         }
     }
     else if(topicName == m_SensorFootprintDataTopic.Name())
@@ -458,7 +468,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 std::shared_ptr<DataVehicleSensors::SensorVertices_Global> component = std::make_shared<DataVehicleSensors::SensorVertices_Global>();
                 m_SensorFootprintDataTopic.GetComponent(component, read_topicDatagram);
                 std::vector<DataState::StateGlobalPosition> sensorFootprint = component->getSensorVertices();
-                std::cout<<"Yep"<<std::endl;
             }
         }
     }

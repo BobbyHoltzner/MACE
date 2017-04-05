@@ -54,6 +54,9 @@ public:
     std::shared_ptr<DataStateTopic::StateLocalPositionTopic> m_CurrentLocalPosition;
     std::shared_ptr<DataStateTopic::StateAttitudeTopic> m_CurrentVehicleAttitude;
 
+    std::shared_ptr<MissionTopic::MissionItemReachedTopic> m_MissionItemReached;
+    std::shared_ptr<MissionTopic::MissionItemCurrentTopic> m_MissionItemCurrent;
+
 };
 
 } //end of namespace DataArdupilot
