@@ -15,27 +15,10 @@
 
 namespace DataVehicleSensors
 {
-extern const char SensorVerticesLocal_Name[];
-extern const MaceCore::TopicComponentStructure SensorVerticesLocal_Structure;
-
 extern const char SensorVerticesGlobal_Name[];
 extern const MaceCore::TopicComponentStructure SensorVerticesGlobal_Structure;
 
-template <class T>
-class SensorVerticesBase
-{
-public:
-    std::list<T*> getSensorVertices();
-    void setSensorVertices(const std::list<T*> verticeList);
-    void insertSensorVertice(T *verticePosition);
-
-protected:
-    std::string sensorName;
-    Data::PositionalFrame positionFrame;
-    std::list<T*> verticeLocations;
-};
-
-class SensorVertices_Global : public SensorVerticesBase<DataState::StateGlobalPosition>, public Data::NamedTopicComponentDataObject<SensorVerticesGlobal_Name, &SensorVerticesGlobal_Structure>
+class SensorVertices_Global : public Data::NamedTopicComponentDataObject<SensorVerticesGlobal_Name, &SensorVerticesGlobal_Structure>
 {
 public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
@@ -44,9 +27,21 @@ public:
     SensorVertices_Global();
     SensorVertices_Global(const std::string &sensorName);
 
+public:
+    std::vector<DataState::StateGlobalPosition> getSensorVertices() const;
+    void setSensorVertices(const std::vector<DataState::StateGlobalPosition> &verticeVector);
+
+private:
+    std::string sensorName;
+    Data::PositionalFrame positionFrame;
+    std::vector<DataState::StateGlobalPosition> verticeLocations;
 };
 
-class SensorVertices_Local : public SensorVerticesBase<DataState::StateLocalPosition>, public Data::NamedTopicComponentDataObject<SensorVerticesLocal_Name, &SensorVerticesLocal_Structure>
+
+extern const char SensorVerticesLocal_Name[];
+extern const MaceCore::TopicComponentStructure SensorVerticesLocal_Structure;
+
+class SensorVertices_Local : public Data::NamedTopicComponentDataObject<SensorVerticesLocal_Name, &SensorVerticesLocal_Structure>
 {
 public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
@@ -54,6 +49,15 @@ public:
 public:
     SensorVertices_Local();
     SensorVertices_Local(const std::string &sensorName);
+
+public:
+    std::vector<DataState::StateLocalPosition> getSensorVertices() const;
+    void setSensorVertices(const std::vector<DataState::StateLocalPosition> &verticeVector);
+
+private:
+    std::string sensorName;
+    Data::PositionalFrame positionFrame;
+    std::vector<DataState::StateLocalPosition> verticeLocations;
 };
 
 }

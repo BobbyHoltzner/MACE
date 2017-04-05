@@ -53,14 +53,15 @@ void ModuleVehicleSensors::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         cameraSensor->setFocalLength(protocolSettings->GetTerminalValue<double>("FocalLength"));
         cameraSensor->setSensorWidth(protocolSettings->GetTerminalValue<double>("SensorWidth"));
         cameraSensor->setSensorHeight(protocolSettings->GetTerminalValue<double>("SensorHeight"));
-
-        if(protocolSettings->HasTerminal("FOVWidth") && protocolSettings->HasTerminal("FOVHeight"))
-        {
-            cameraSensor->setFOV_Horizontal(protocolSettings->GetTerminalValue<double>("FOVWidth"));
-            cameraSensor->setFOV_Vertical(protocolSettings->GetTerminalValue<double>("FOVHeight"));
-        }else{
-            //update based on the sensor data
-        }
+        cameraSensor->updateCameraProperties();
+//        if(protocolSettings->HasTerminal("FOVWidth") && protocolSettings->HasTerminal("FOVHeight"))
+//        {
+//            cameraSensor->setFOV_Horizontal(protocolSettings->GetTerminalValue<double>("FOVWidth"));
+//            cameraSensor->setFOV_Vertical(protocolSettings->GetTerminalValue<double>("FOVHeight"));
+//        }else{
+//            //update based on the sensor data
+//            cameraSensor->updateCameraProperties();
+//        }
 //
         if(protocolSettings->HasTerminal("ImageWidth"))
             cameraSensor->setImageWidth(protocolSettings->GetTerminalValue<int>("ImageWidth"));
@@ -86,25 +87,79 @@ void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, 
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout<<"The sensors module has a position"<<std::endl;
             }
-            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
-                std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
+            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionExTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                DataState::StateGlobalPositionEx newPosition = *component.get();
+                DataState::StateAttitude newAttitude;
+                computeVehicleFootprint(*cameraSensor,newPosition,newAttitude);
             }
         }
     }
 }
 
-void ModuleVehicleSensors::computeVehicleFootprint(const double &roll, const double &pitch, const double &yaw, const double &altitude)
+void ModuleVehicleSensors::computeVehicleFootprint(const DataVehicleSensors::SensorCamera &camera, const DataState::StateGlobalPositionEx &globalPosition, const DataState::StateAttitude &attitude)
 {
-    UNUSED(roll);
-    UNUSED(pitch);
-    UNUSED(yaw);
-    UNUSED(altitude);
+    DataState::StateGlobalPositionEx vehicleOrigin = globalPosition;
 
-    //first compute DCM from euler
-    Eigen::Matrix3d dcm;
+    //This function also assumes that altitude is AGL and the surface below is relatively flat thus not requiring intersection calculations
+    //These calculations could be made however would require a model of the topography
+    //Vertice computation should always be done in a clockwise pattern starting with the upper right relative to vehicle heading
+    //The first check will be to see if the camera is stabilized
+    //If this is true, this allows us to easily compute a basic quadrilateral footprint
+
+    /*
+    4 ------- 1
+     \       /
+         X
+     /       \
+    3         2
+    */
+
+    MissionItem::SpatialHome globalHome = this->getDataObject()->GetGlobalOrigin();
+
+    std::vector<DataState::StateGlobalPosition> verticeVectorGlobal(4);
+    std::vector<DataState::StateLocalPosition> verticeVectorLocal(4);
+    if(camera.getStabilization())
+    {
+        double fovH = tan(camera.getFOV_Horizontal()/2) * 30;
+        double fovV = tan(camera.getFOV_Vertical()/2) * 30;
+        double verticeDistance = sqrt(fovH*fovH + fovV*fovV);
+        double bearing = atan2(fovH,fovV);
+
+        double currentHeading = globalPosition.heading;
+
+        DataState::StateGlobalPosition position1 = vehicleOrigin.NewPositionFromHeadingBearing(verticeDistance,bearing+currentHeading,false);
+        Eigen::Vector3f transVec1;
+        globalHome.position.translationTransformation(position1,transVec1);
+        verticeVectorGlobal[0] = position1;
+        DataState::StateLocalPosition position1L(transVec1(0),transVec1(1),transVec1(2));
+        verticeVectorLocal[0] = position1L;
+
+        DataState::StateGlobalPosition position2 = vehicleOrigin.NewPositionFromHeadingBearing(verticeDistance,currentHeading - bearing - 3.14159,false);
+        Eigen::Vector3f transVec2;
+        globalHome.position.translationTransformation(position2,transVec2);
+        verticeVectorGlobal[1] = position2;
+        DataState::StateLocalPosition position2L(transVec2(0),transVec2(1),transVec2(2));
+        verticeVectorLocal[1] = position2L;
+
+        DataState::StateGlobalPosition position3 = vehicleOrigin.NewPositionFromHeadingBearing(verticeDistance,bearing + currentHeading - 3.14159,false);
+        Eigen::Vector3f transVec3;
+        globalHome.position.translationTransformation(position3,transVec3);
+        verticeVectorGlobal[2] = position3;
+        DataState::StateLocalPosition position3L(transVec3(0),transVec3(1),transVec3(2));
+        verticeVectorLocal[2] = position3L;
+
+        DataState::StateGlobalPosition position4 = vehicleOrigin.NewPositionFromHeadingBearing(verticeDistance,currentHeading - bearing,false);
+        Eigen::Vector3f transVec4;
+        globalHome.position.translationTransformation(position4,transVec4);
+        verticeVectorGlobal[3] = position4;
+        DataState::StateLocalPosition position4L(transVec4(0),transVec4(1),transVec4(2));
+        verticeVectorLocal[3] = position4L;
+
+
+    }
 
 }
 

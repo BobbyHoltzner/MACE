@@ -22,28 +22,28 @@ public:
     void setCameraName(const std::string &cameraName){
         this->cameraName = cameraName;
     }
-    std::string getCameraName(){
+    std::string getCameraName() const{
         return(cameraName);
     }
 
     void setStabilization(const bool &stabilized){
         this->stabilized = stabilized;
     }
-    bool getStabilization(){
+    bool getStabilization() const{
         return(stabilized);
     }
 
     void setFOV_Horizontal(const double &horizontalFOV){
         this->HFOVA = horizontalFOV;
     }
-    double getFOV_Horizontal(){
+    double getFOV_Horizontal() const{
         return(HFOVA);
     }
 
     void setFOV_Vertical(const double &verticalFOV){
         this->VFOVA = verticalFOV;
     }
-    double getFOV_Vertical(){
+    double getFOV_Vertical() const{
         return(VFOVA);
     }
 
@@ -52,7 +52,7 @@ public:
         this->focalLength = focalLength;
         this->updateCameraProperties();
     }
-    double getFocalLength(){
+    double getFocalLength() const{
         return(focalLength);
     }
 
@@ -60,7 +60,7 @@ public:
     void setImageWidth(const int &imageWidth){
         this->imageWidth = imageWidth;
     }
-    int getImageWidth(){
+    int getImageWidth() const{
         return(imageWidth);
     }
 
@@ -68,7 +68,7 @@ public:
     void setImageHeight(const int &imageHeight){
         this->imageHeight = imageHeight;
     }
-    int getImageHeight(){
+    int getImageHeight() const{
         return(imageHeight);
     }
 
@@ -77,7 +77,7 @@ public:
         this->sensorWidth = sensorWidth;
         this->updateCameraProperties();
     }
-    double getSensorWidth(){
+    double getSensorWidth() const{
         return(sensorWidth);
     }
 
@@ -86,7 +86,7 @@ public:
         this->sensorHeight = sensorHeight;
         this->updateCameraProperties();
     }
-    double getSensorHeight(){
+    double getSensorHeight() const{
         return(sensorHeight);
     }
 
@@ -94,7 +94,7 @@ public:
     void setImageRate(const double &rate){
         this->imageRate = rate;
     }
-    double getImageRate(){
+    double getImageRate() const{
        return(imageRate);
     }
 

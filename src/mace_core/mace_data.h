@@ -124,6 +124,13 @@ public:
         return vehicleHome;
     }
 
+    MissionItem::SpatialHome GetGlobalOrigin() const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+        MissionItem::SpatialHome globalHome = m_GlobalOrigin;
+        return globalHome;
+    }
+
 private:
 
     void AddAvailableVehicle(const int &vehicleID)
@@ -138,10 +145,7 @@ private:
     {
         //Setup a copy constructor
         MissionItem::SpatialHome newHome;
-        newHome.setVehicleID(vehicleHome.getVehicleID());
-        newHome.position.latitude = vehicleHome.position.latitude;
-        newHome.position.longitude = vehicleHome.position.longitude;
-        newHome.position.altitude = vehicleHome.position.altitude;
+        newHome = vehicleHome;
 
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_VehicleHomeMap[vehicleHome.getVehicleID()] = newHome;

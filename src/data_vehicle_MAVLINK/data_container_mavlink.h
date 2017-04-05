@@ -49,6 +49,8 @@ public:
 
 
     std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentGlobalPosition;
+    std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> m_CurrentGlobalPositionEx;
+
     std::shared_ptr<DataStateTopic::StateLocalPositionTopic> m_CurrentLocalPosition;
     std::shared_ptr<DataStateTopic::StateAttitudeTopic> m_CurrentVehicleAttitude;
 

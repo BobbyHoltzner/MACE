@@ -2,6 +2,7 @@
 #define MODULE_VEHICLE_SENSORS_H
 
 #include <iostream>
+#include <math.h>
 
 #include "module_vehicle_sensors_global.h"
 
@@ -49,8 +50,7 @@ public:
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
-    void computeVehicleFootprint(const double &roll, const double &pitch, const double &yaw, const double &altitude);
-
+    void computeVehicleFootprint(const DataVehicleSensors::SensorCamera &camera, const DataState::StateGlobalPositionEx &globalPosition, const DataState::StateAttitude &attitude);
 
     //! Virtual functions as defined by IModuleCommandSensors
 public:

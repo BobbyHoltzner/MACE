@@ -20,6 +20,7 @@ public:
 
     void setHome(const MissionItem::SpatialHome &homeItem){
         this->vehicleHome = homeItem;
+        this->vehicleID = homeItem.getVehicleID();
     }
 
     MissionItem::SpatialHome getHome(){

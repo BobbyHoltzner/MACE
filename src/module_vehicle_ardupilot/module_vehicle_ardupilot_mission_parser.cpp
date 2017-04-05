@@ -25,8 +25,8 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleOb
             newHome.position.latitude = decodedMSG.x;
             newHome.position.longitude = decodedMSG.y;
             newHome.position.altitude = decodedMSG.z;
+            newHome.setVehicleID(sysID);
             std::shared_ptr<MissionTopic::MissionHomeTopic> homeTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
-            homeTopic->setVehicleID(sysID);
             homeTopic->setHome(newHome);
 
             MaceCore::TopicDatagram topicDatagram;
@@ -35,6 +35,11 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleOb
             //notify listneres of topic
             ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
                 ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+            });
+
+            //notify the core of the change
+            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+                ptr->NewVehicleHomePosition(this, newHome);
             });
         }else{
             int currentIndex = decodedMSG.seq - 1; //we decrement 1 only here because ardupilot references home as 0 and we 0 index in our mission queue
