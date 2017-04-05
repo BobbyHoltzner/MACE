@@ -10,10 +10,13 @@
 #include "module_vehicle_ardupilot_global.h"
 #include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
 
-#include "data_vehicle_ardupilot/data_vehicle_ardupilot.h"
-#include "data_vehicle_ardupilot/ardupilot_to_mace.h"
-#include "data_vehicle_ardupilot/mace_to_ardupilot.h"
 #include "data_vehicle_ardupilot/components.h"
+#include "data_vehicle_ardupilot/vehicle_object_ardupilot.h"
+
+#include "data_vehicle_mavlink/MACE_to_MAVLINK/command_mace_to_mavlink.h"
+#include "data_vehicle_mavlink/MACE_to_MAVLINK/generic_mace_to_mavlink.h"
+#include "data_vehicle_mavlink/MACE_to_MAVLINK/mission_mace_to_mavlink.h"
+#include "data_vehicle_mavlink/MACE_to_MAVLINK/state_mace_to_mavlink.h"
 
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
@@ -35,12 +38,14 @@ enum ArdupilotMissionMode{
 public:
     ModuleVehicleArdupilot();
 
-    bool ParseMAVLINKMissionMessage(const std::string &linkName, const mavlink_message_t *message);
+    bool ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleObject_ARDUPILOT* vehicleData, const std::string &linkName, const mavlink_message_t *message);
 
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
 
 public:
+
+    virtual void VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG);
     //!
     //! \brief New Mavlink message received over a link
     //! \param linkName Name of link message received over
@@ -102,19 +107,19 @@ public:
     //! \brief SetCurrentMissionQueue
     //! \param missionList
     //!
-    virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList);
+    virtual void SetMissionQueue(const MissionItem::MissionList &missionList);
 
     //!
     //! \brief RequestCurrentMissionQueue
     //! \param vehicleID
     //!
-    virtual void RequestCurrentMissionQueue (const int &vehicleID);
+    virtual void GetMissionQueue (const Data::SystemDescription &targetSystem);
 
     //!
     //! \brief RequestClearMissionQueue
     //! \param vehicleID
     //!
-    virtual void RequestClearMissionQueue (const int &vehicleID);
+    virtual void ClearMissionQueue (const Data::SystemDescription &targetSystem);
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -161,17 +166,16 @@ public:
     virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
 private:
-    bool firstHeartbeat;
+    DataARDUPILOT::VehicleObject_ARDUPILOT* getArducopterData(const int &systemID);
+
+private:
 
     Timer t;
 
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
 
-    std::map<int,DataArdupilot::DataVehicleArdupilot*> m_ArduPilotData;
-
-
-    std::shared_ptr<MissionTopic::MissionItemCurrentTopic> m_CurrentMissionItem;
+    std::map<int,DataARDUPILOT::VehicleObject_ARDUPILOT*> m_ArduPilotData;
 
 };
 

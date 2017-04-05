@@ -23,7 +23,12 @@ namespace DataMAVLINK{
 class Mission_MACETOMAVLINK
 {
 public:
-    virtual mavlink_message_t Home_MACETOMAVLINK(const MissionItem::SpatialHome &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
+
+    Mission_MACETOMAVLINK(const int &systemID, const int &compID);
+
+    virtual mavlink_message_t Home_MACETOMAVLINK(const MissionItem::SpatialHome &missionItem, const uint8_t &chan, const uint8_t &compID);
+
+    virtual mavlink_message_t ChangeSpeed_MACETOMAVLINK(const MissionItem::ActionChangeSpeed &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
 
     virtual mavlink_message_t Land_MACETOMAVLINK(const MissionItem::SpatialLand<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
     virtual mavlink_message_t Land_MACETOMAVLINK(const MissionItem::SpatialLand<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
@@ -45,10 +50,16 @@ public:
     virtual mavlink_message_t Waypoint_MACETOMAVLINK(const MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
     virtual mavlink_message_t Waypoint_MACETOMAVLINK(const MissionItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
 
-    virtual mavlink_message_t MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
-private:
+    virtual bool MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex, mavlink_message_t &msg);
+
+protected:
     void initializeMAVLINKMissionItem(mavlink_mission_item_t &mavMission);
     mavlink_message_t packMissionItem(const mavlink_mission_item_t &mavMission, const uint8_t &chan);
+
+protected:
+    int mSystemID;
+    int mCompID;
+
 };
 
 } //end of namespace DataMAVLINK

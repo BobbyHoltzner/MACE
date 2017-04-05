@@ -121,19 +121,19 @@ public:
     //! \brief SetCurrentMissionQueue
     //! \param missionList
     //!
-    virtual void SetCurrentMissionQueue(const MissionItem::MissionList &missionList);
+    virtual void SetMissionQueue(const MissionItem::MissionList &missionList);
 
     //!
     //! \brief RequestCurrentMissionQueue
     //! \param vehicleID
     //!
-    virtual void RequestCurrentMissionQueue (const int &vehicleID);
+    virtual void GetMissionQueue (const Data::SystemDescription &targetSystem);
 
     //!
     //! \brief RequestClearMissionQueue
     //! \param vehicleID
     //!
-    virtual void RequestClearMissionQueue (const int &vehicleID);
+    virtual void ClearMissionQueue (const Data::SystemDescription &targetSystem);
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -180,6 +180,7 @@ public:
     virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
 private:
+    bool firstHearbeat;
     //!
     //! \brief associatedSystemID This is the identifier that is transmitting the data as a representative of.
     //! In the case of an airborne instance it will be assigned to the value of the heartbeat message recieved
@@ -187,15 +188,12 @@ private:
     //! system to which to it attached. It will be defaulted to match the GCS ID.
     //!
     int associatedSystemID;
-
-
     std::map<int,int> systemIDMap;
+
+    MissionItem::MissionList storedMissionList;
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
-
-    std::map<int, MissionItem::MissionList> m_VehicleCurrentMissionMap;
-    std::map<int, MissionItem::MissionList> m_VehicleProposedMissionMap;
 };
 
 #endif // MODULE_EXTERNAL_LINK_H

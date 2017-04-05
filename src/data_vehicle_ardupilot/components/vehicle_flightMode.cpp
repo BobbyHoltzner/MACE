@@ -1,6 +1,6 @@
 #include "vehicle_flightMode.h"
 
-namespace DataArdupilot
+namespace DataARDUPILOT
 {
 
 VehicleFlightMode::VehicleFlightMode()
@@ -33,6 +33,8 @@ void VehicleFlightMode::parseMAVLINK(const mavlink_heartbeat_t &msg)
     this->setVehicleTypeFromMAVLINK(msg.type);
     std::string newFlightMode = availableFM.at(msg.custom_mode);
     this->setFlightMode(newFlightMode);
+    this->setAutopilotType(Data::AutopilotTypes::ARDUPILOT);
+    this->setVehicleArmed(msg.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
 }
 
 void VehicleFlightMode::setVehicleTypeFromMAVLINK(const int &vehicleType)

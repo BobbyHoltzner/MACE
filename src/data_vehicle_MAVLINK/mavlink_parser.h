@@ -25,19 +25,14 @@
 namespace DataMAVLINK
 {
 
-
-class MAVLINKParser : public DataContainer_MAVLINK
+class MAVLINKParser
 {
 public:
+    MAVLINKParser(DataContainer_MAVLINK *dataContainer);
+    virtual std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForVehicleData(const mavlink_message_t* message);
 
-    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForVehicleData(const mavlink_message_t* message);
-
-
-    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> Parse(const mavlink_message_t* message) const{
-        UNUSED(message);
-        return {};
-    }
-
+protected:
+    DataContainer_MAVLINK* data;
 };
 
 }

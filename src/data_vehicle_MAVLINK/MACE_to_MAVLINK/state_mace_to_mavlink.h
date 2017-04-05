@@ -23,11 +23,18 @@ namespace DataMAVLINK{
 class State_MACETOMAVLINK
 {
 public:
+
+    State_MACETOMAVLINK(const int &systemID, const int &compID);
+
     virtual mavlink_message_t Attitude_MACETOMAVLINK(const DataState::StateAttitude &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
 
     virtual mavlink_message_t GlobalPosition_MACETOMAVLINK(const DataState::StateGlobalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
 
     virtual mavlink_message_t LocalPosition_MACETOMAVLINK(const DataState::StateLocalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+
+protected:
+    int mSystemID;
+    int mCompID;
 };
 
 } //end of namespace DataMAVLINK

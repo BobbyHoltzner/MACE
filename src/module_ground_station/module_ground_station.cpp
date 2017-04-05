@@ -40,6 +40,7 @@ private:
 
 ModuleGroundStation::ModuleGroundStation() :
     m_SensorDataTopic("sensorData"),
+    m_SensorFootprintDataTopic("sensorFootprint"),
     m_VehicleDataTopic("vehicleData"),
     m_MissionDataTopic("vehicleMission"),
     m_ListenThread(NULL)
@@ -196,21 +197,49 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
 
 void ModuleGroundStation::testFunction()
 {
-    //    mavlink_statustext_t decodedMSG;
-    //    mavlink_msg_statustext_decode(message,&decodedMSG);
-    //    std::cout<<"The status text says: "<<decodedMSG.text<<std::endl;
-//        DataGenericItem::DataGenericItem_Text newText = DataCOMMS::Generic_COMMSTOMACE::Text_MACETOCOMMS("TEST",systemID);
-//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
+    MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
+//    newHome.position.latitude = 37.890903;
+//    newHome.position.longitude = -76.814125;
+//    newTakeoff.position.latitude = 37.891415;
+//    newTakeoff.position.longitude = -76.815701;
+//    newTakeoff.position.altitude = 100;
+//    newTakeoff.setVehicleID(1);
 
-//        m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
-//        //notify listneres of topic
-//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-//        });
+//    int missionType = static_cast<int>(Data::MissionType::GUIDED_CURRENT);
+//    Data::SystemDescription newSystem(1,missionType);
+
+    MissionItem::MissionList missionList;
+    missionList.setMissionType(Data::MissionType::AUTO_PROPOSED);
+    missionList.setVehicleID(1);
+    missionList.initializeQueue(4);
+
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    newWP->position.setPosition(35.7470021,-78.8395026,20.0);
+    newWP->setVehicleID(1);
+
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP1 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    newWP1->position.setPosition(35.7463033,-78.8386631,65.0);
+    newWP1->setVehicleID(1);
+
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP2 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    newWP2->position.setPosition(35.7459724,-78.8390923,75.0);
+    newWP2->setVehicleID(1);
+
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP3 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    newWP3->position.setPosition(35.7466538,-78.8399184,85.0);
+    newWP3->setVehicleID(1);
+
+    missionList.replaceMissionItemAtIndex(newWP,0);
+    missionList.replaceMissionItemAtIndex(newWP1,1);
+    missionList.replaceMissionItemAtIndex(newWP2,2);
+    missionList.replaceMissionItemAtIndex(newWP3,3);
+
+    Data::SystemDescription newDescription(1);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestDummyFunction(this, 2);
+        ptr->RequestSetVehicleMission(this, missionList);
     });
+
 }
 
 void ModuleGroundStation::getConnectedVehicles()
@@ -247,8 +276,10 @@ void ModuleGroundStation::getConnectedVehicles()
 
 void ModuleGroundStation::getVehicleMission(const int &vehicleID)
 {
+    Data::SystemDescription newSystem(vehicleID);
+
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestCurrentVehicleMission(this, vehicleID);
+        ptr->RequestVehicleMission(this, newSystem);
     });
 }
 
@@ -345,6 +376,8 @@ void ModuleGroundStation::AttachedAsModule(MaceCore::IModuleTopicEvents *ptr)
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
     ptr->Subscribe(this, m_SensorDataTopic.Name());
     ptr->Subscribe(this, m_MissionDataTopic.Name());
+    ptr->Subscribe(this, m_SensorFootprintDataTopic.Name());
+
 }
 
 void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
@@ -387,7 +420,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
                 // TODO
             }
-            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Text::Name()) {                
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Text::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
@@ -411,13 +444,35 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
                 // Write mission items to the GUI:
                 sendVehicleMission(senderID, component);
-            }           
+            }
             else if(componentsUpdated.at(i) == MissionTopic::MissionHomeTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionHomeTopic> component = std::make_shared<MissionTopic::MissionHomeTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write mission items to the GUI:
                 sendVehicleHome(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
+                std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
+                m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+                std::cout<<"I have reached a mission item"<<component->getMissionItemIndex()<<std::endl;
+            }
+            else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
+                std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
+                m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+                std::cout<<"I have a new current mission item"<<component->getMissionItemIndex()<<std::endl;
+            }
+        }
+    }
+    else if(topicName == m_SensorFootprintDataTopic.Name())
+    {
+        //get latest datagram from mace_data
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_SensorFootprintDataTopic.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+            if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
+                std::shared_ptr<DataVehicleSensors::SensorVertices_Global> component = std::make_shared<DataVehicleSensors::SensorVertices_Global>();
+                m_SensorFootprintDataTopic.GetComponent(component, read_topicDatagram);
+                std::vector<DataState::StateGlobalPosition> sensorFootprint = component->getSensorVertices();
             }
         }
     }
@@ -547,7 +602,7 @@ void ModuleGroundStation::missionToJSON(const std::shared_ptr<MissionTopic::Miss
         case MissionItem::MissionItemType::RTL:
         {
             //This is command number 20
-            MissionItem::SpatialRTL* item = dynamic_cast<MissionItem::SpatialRTL*>(missionItem);            
+            MissionItem::SpatialRTL* item = dynamic_cast<MissionItem::SpatialRTL*>(missionItem);
             obj["positionalFrame"] = "global";
             UNUSED(item);
             break;

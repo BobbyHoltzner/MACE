@@ -2,62 +2,52 @@
 
 namespace MaceCore{
 
-void MaceData::updateMissionList(const MissionItem::MissionList missionList, const Data::MissionMap &relevantQueue)
+
+void MaceData::updateCOMPLETEMissionList(const MissionItem::MissionList missionList)
 {
-    std::lock_guard<std::mutex> guard(m_VehicleMissionMutex);
-
+    std::lock_guard<std::mutex> guard(COMPLETEMissionMUTEX);
     int systemID = missionList.getVehicleID();
-
-    switch(relevantQueue){
-    case Data::MissionMap::PROPOSED:
-    {
-        try{
-            m_VehicleProposedMissionMap[systemID] = missionList;
-        }catch(const std::out_of_range &oor){
-            std::cout<<"MACEDATA has requested an OOR on proposed mission map"<<std::endl;
-        }
-        break;
-    }
-    case Data::MissionMap::CURRENT:
-    default:
-    {
-        try{
-            m_VehicleCurrentMissionMap[systemID] = missionList;
-        }catch(const std::out_of_range &oor){
-            std::cout<<"MACEDATA has requested an OOR on proposed mission map"<<std::endl;
-        }
-        break;
-    }
-    }
+    Data::MissionType missionType = missionList.getMissionType();
+    m_COMPLETEMission[systemID][missionType] = missionList;
 }
 
-MissionItem::MissionList MaceData::getMissionList(const int &systemID, const Data::MissionMap &relevantQueue) const
+void MaceData::updateINCOMPLETEMissionList(const MissionItem::MissionList missionList)
 {
-    std::lock_guard<std::mutex> guard(m_VehicleMissionMutex);
+    std::lock_guard<std::mutex> guard(INCOMPLETEMissionMUTEX);
+    int systemID = missionList.getVehicleID();
+    Data::MissionType missionType = missionList.getMissionType();
+    m_INCOMPLETEMission[systemID][missionType] = missionList;
+}
 
-    MissionItem::MissionList newList;
-    switch(relevantQueue){
-    case Data::MissionMap::PROPOSED:
+bool MaceData::getMissionList(MissionItem::MissionList &newList, const int &systemID, const MissionItem::MissionList::MissionListState &missionState, const Data::MissionType &missionType) const
+{
+    switch(missionState)
     {
+    case MissionItem::MissionList::COMPLETE:
+    {
+        std::lock_guard<std::mutex> guard(COMPLETEMissionMUTEX);
         try{
-            newList = m_VehicleProposedMissionMap.at(systemID);
+            newList = m_COMPLETEMission.at(systemID).at(missionType);
         }catch(const std::out_of_range &oor){
-            std::cout<<"MACEDATA has requested an OOR on proposed mission map"<<std::endl;
+            std::cout<<"MACEDATA has requested an OOR on complete mission map"<<std::endl;
+            return false;
         }
         break;
     }
-    case Data::MissionMap::CURRENT:
-    default:
+    case MissionItem::MissionList::INCOMPLETE:
     {
+        std::lock_guard<std::mutex> guard(INCOMPLETEMissionMUTEX);
         try{
-            newList = m_VehicleCurrentMissionMap.at(systemID);
+            newList = m_INCOMPLETEMission.at(systemID).at(missionType);
         }catch(const std::out_of_range &oor){
-            std::cout<<"MACEDATA has requested an OOR on proposed mission map"<<std::endl;
+            std::cout<<"MACEDATA has requested an OOR on incomplete mission map"<<std::endl;
+            return false;
         }
         break;
     }
     }
-    return newList;
+
+    return true;
 }
 
 }

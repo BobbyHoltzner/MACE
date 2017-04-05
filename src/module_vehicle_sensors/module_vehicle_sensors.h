@@ -1,6 +1,9 @@
 #ifndef MODULE_VEHICLE_SENSORS_H
 #define MODULE_VEHICLE_SENSORS_H
 
+#include <iostream>
+#include <math.h>
+
 #include "module_vehicle_sensors_global.h"
 
 #include "Eigen/Dense"
@@ -47,14 +50,15 @@ public:
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
-    void computeVehicleFootprint(const double &roll, const double &pitch, const double &yaw, const double &altitude);
-
+    void computeVehicleFootprint(const int &systemID, const DataVehicleSensors::SensorCamera &camera, const DataState::StateGlobalPositionEx &globalPosition, const DataState::StateAttitude &attitude);
 
     //! Virtual functions as defined by IModuleCommandSensors
 public:
 
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
+private:
+    DataVehicleSensors::SensorCamera* cameraSensor;
 private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;

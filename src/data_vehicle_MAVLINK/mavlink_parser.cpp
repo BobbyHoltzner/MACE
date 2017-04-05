@@ -3,35 +3,16 @@
 namespace DataMAVLINK
 {
 
+MAVLINKParser::MAVLINKParser(DataContainer_MAVLINK* dataContainer)
+{
+    data = dataContainer;
+}
+
 std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::ParseForVehicleData(const mavlink_message_t* message){
 
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
 
     switch ((int)message->msgid) {
-
-    case MAVLINK_MSG_ID_HEARTBEAT:
-    {
-        //might want to figure out a way to handle the case of sending an
-        //empty heartbeat back just to acknowledge the aircraft is still there
-        //then again the streaming other messages may handle this...so maybe
-        //timer should be since last time heard.
-        mavlink_heartbeat_t decodedMSG;
-        mavlink_msg_heartbeat_decode(message,&decodedMSG);
-
-        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrParameters = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
-        //ptrParameters->setVehicleType(decodedMSG.type);
-        //ptrParameters->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
-        rtnVector.push_back(ptrParameters);
-        m_CurrentVehicleState = ptrParameters;
-        //check that something has actually changed
-//            if(m_CurrentArduVehicleState == NULL || *ptrParameters != *m_CurrentArduVehicleState)
-//            {
-//                rtnVector.push_back(ptrParameters);
-//                m_CurrentArduVehicleState = ptrParameters;
-//            }
-        heartbeatSeen = true;
-        break;
-    }
     case MAVLINK_MSG_ID_SYS_STATUS:
     {
         mavlink_sys_status_t decodedMSG;
@@ -41,10 +22,10 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         ptrFuel->setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
         ptrFuel->setBatteryCurrent(decodedMSG.current_battery/10000.0);
         ptrFuel->setBatteryRemaining(decodedMSG.battery_remaining);
-        if(m_CurrentVehicleFuel == NULL || *ptrFuel != *m_CurrentVehicleFuel)
+        if(data->m_CurrentVehicleFuel == NULL || *ptrFuel != *data->m_CurrentVehicleFuel)
         {
             rtnVector.push_back(ptrFuel);
-            m_CurrentVehicleFuel = ptrFuel;
+            data->m_CurrentVehicleFuel = ptrFuel;
         }
         break;
     }
@@ -141,7 +122,6 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
     }
     case MAVLINK_MSG_ID_ATTITUDE:
     {
-        std::cout<<"I saw an attitude message"<<std::endl;
         //This is message definition 30
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mavlink_attitude_t decodedMSG;
@@ -150,9 +130,10 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         ptrAttitude->setAttitude(decodedMSG.roll,decodedMSG.pitch,decodedMSG.yaw);
         ptrAttitude->setAttitudeRates(decodedMSG.rollspeed,decodedMSG.pitchspeed,decodedMSG.yawspeed);
 
-        if(m_CurrentVehicleAttitude == NULL || *ptrAttitude != *m_CurrentVehicleAttitude)
+        if(data->m_CurrentVehicleAttitude == NULL || *ptrAttitude != *data->m_CurrentVehicleAttitude)
         {
             rtnVector.push_back(ptrAttitude);
+            data->m_CurrentVehicleAttitude = ptrAttitude;
         }
         break;
     }
@@ -168,10 +149,10 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         ptrLocalPosition->z = decodedMSG.z;
 
         //check that something has actually changed
-        if(m_CurrentLocalPosition == NULL || *ptrLocalPosition != *m_CurrentLocalPosition)
+        if(data->m_CurrentLocalPosition == NULL || *ptrLocalPosition != *data->m_CurrentLocalPosition)
         {
             rtnVector.push_back(ptrLocalPosition);
-            m_CurrentLocalPosition = ptrLocalPosition;
+            data->m_CurrentLocalPosition = ptrLocalPosition;
         }
 
         break;
@@ -186,11 +167,22 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
         ptrPosition->setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
         //check that something has actually changed
-        if(m_CurrentGlobalPosition == NULL || *ptrPosition != *m_CurrentGlobalPosition)
+        if(data->m_CurrentGlobalPosition == NULL || *ptrPosition != *data->m_CurrentGlobalPosition)
         {
             rtnVector.push_back(ptrPosition);
-            m_CurrentGlobalPosition = ptrPosition;
+            data->m_CurrentGlobalPosition = ptrPosition;
         }
+
+        std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> ptrPositionEx = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>();
+        ptrPositionEx->setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
+        ptrPositionEx->heading = (decodedMSG.hdg/100.0)*(3.14/180.0);
+        //check that something has actually changed
+        if(data->m_CurrentGlobalPositionEx == NULL || *ptrPositionEx != *data->m_CurrentGlobalPositionEx)
+        {
+            rtnVector.push_back(ptrPositionEx);
+            data->m_CurrentGlobalPositionEx = ptrPositionEx;
+        }
+
         break;
     }
 
@@ -297,10 +289,10 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
             break;
         }
         //check that something has actually changed
-        if(m_CurrentVehicleText == NULL || *ptrStatusText != *m_CurrentVehicleText)
+        if(data->m_CurrentVehicleText == NULL || *ptrStatusText != *data->m_CurrentVehicleText)
         {
             rtnVector.push_back(ptrStatusText);
-            m_CurrentVehicleText = ptrStatusText;
+            data->m_CurrentVehicleText = ptrStatusText;
         }
    break;
     }

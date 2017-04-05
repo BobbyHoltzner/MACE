@@ -16,25 +16,37 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += \
     mavlink_parser.cpp \
     Components/gps_status.cpp \
+    data_container_mavlink.cpp \
+    vehicle_object_mavlink.cpp \
     MACE_to_MAVLINK/mission_mace_to_mavlink.cpp \
     MACE_to_MAVLINK/state_mace_to_mavlink.cpp \
     MACE_to_MAVLINK/generic_mace_to_mavlink.cpp \
     MACE_to_MAVLINK/command_mace_to_mavlink.cpp \
-    data_container_mavlink.cpp \
     MAVLINK_to_MACE/mission_mavlink_to_mace.cpp \
-    vehicle_object_mavlink.cpp
+    MAVLINK_to_MACE/command_mavlink_to_mace.cpp \
+    MAVLINK_to_MACE/generic_mavlink_to_mace.cpp \
+    MAVLINK_to_MACE/state_mavlink_to_mace.cpp \
+    MAVLINK_to_MACE/container_mavlink_to_mace.cpp \
+    MACE_to_MAVLINK/container_mace_to_mavlink.cpp
 
 HEADERS +=\
     mavlink_parser.h \
     Components/gps_status.h \
     components.h \
+    vehicle_object_mavlink.h \
+    data_container_mavlink.h \
+    data_vehicle_mavlink_global.h \
     MACE_to_MAVLINK/mission_mace_to_mavlink.h \
     MACE_to_MAVLINK/state_mace_to_mavlink.h \
     MACE_to_MAVLINK/generic_mace_to_mavlink.h \
     MACE_to_MAVLINK/command_mace_to_mavlink.h \
-    data_container_mavlink.h \
+    MACE_to_MAVLINK/container_mace_to_mavlink.h \
     MAVLINK_to_MACE/mission_mavlink_to_mace.h \
-    vehicle_object_mavlink.h
+    MAVLINK_to_MACE/command_mavlink_to_mace.h \
+    MAVLINK_to_MACE/generic_mavlink_to_mace.h \
+    MAVLINK_to_MACE/state_mavlink_to_mace.h \
+    MAVLINK_to_MACE/container_mavlink_to_mace.h
+
 
 # Unix lib Install
 unix:!symbian {
@@ -53,8 +65,9 @@ headers.path    = $$(MACE_ROOT)/include/data_vehicle_MAVLINK
 headers.files   += \
     mavlink_parser.h \
     components.h \
+    vehicle_object_mavlink.h \
     data_container_mavlink.h \
-    vehicle_object_mavlink.h
+    data_vehicle_mavlink_global.h
 INSTALLS       += headers
 
 #Header file copy
@@ -66,16 +79,21 @@ INSTALLS       += headers_Components
 #Header file copy
 headers_MACE_to_MAVLINK.path    = $$(MACE_ROOT)/include/data_vehicle_MAVLINK/MACE_to_MAVLINK
 headers_MACE_to_MAVLINK.files   += \
-    MACE_to_MAVLINK/mission_mace_to_mavlink.h \
-    MACE_to_MAVLINK/state_mace_to_mavlink.h \
+    MACE_to_MAVLINK/command_mace_to_mavlink.h \
+    MACE_to_MAVLINK/container_mace_to_mavlink.h \
     MACE_to_MAVLINK/generic_mace_to_mavlink.h \
-    MACE_to_MAVLINK/command_mace_to_mavlink.h
+    MACE_to_MAVLINK/mission_mace_to_mavlink.h \
+    MACE_to_MAVLINK/state_mace_to_mavlink.h
 INSTALLS       += headers_MACE_to_MAVLINK
 
 #Header file copy
 headers_MAVLINK_to_MACE.path    = $$(MACE_ROOT)/include/data_vehicle_MAVLINK/MAVLINK_to_MACE
 headers_MAVLINK_to_MACE.files   += \
-    MAVLINK_to_MACE/mission_mavlink_to_mace.h
+    MAVLINK_to_MACE/command_mavlink_to_mace.h \
+    MAVLINK_to_MACE/container_mavlink_to_mace.h \
+    MAVLINK_to_MACE/generic_mavlink_to_mace.h \
+    MAVLINK_to_MACE/mission_mavlink_to_mace.h \
+    MAVLINK_to_MACE/state_mavlink_to_mace.h
 INSTALLS       += headers_MAVLINK_to_MACE
 
 

@@ -29,6 +29,7 @@ public:
     Mission_COMMSTOMACE();
     std::shared_ptr<MissionItem::AbstractMissionItem> Covert_COMMSTOMACE(const mavlink_mission_item_t &mavlinkItem);
 
+    void Home_COMMSTOMACE(const int &vehicleID, const mavlink_set_home_position_t &mavlinkItem, MissionItem::SpatialHome &missionItem);
 
     void ChangeSpeed_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::ActionChangeSpeed &missionItem);
 

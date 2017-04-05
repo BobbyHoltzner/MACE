@@ -1,6 +1,7 @@
 #ifndef SENSOR_CAMERA_H
 #define SENSOR_CAMERA_H
 
+#include <string>
 #include "data/i_topic_component_data_object.h"
 #include "math.h"
 
@@ -18,81 +19,134 @@ public:
     void updateCameraProperties();
 public:
 
-    double getFOV_Horizontal(){
-        return(m_HFOVA);
+    void setCameraName(const std::string &cameraName){
+        this->cameraName = cameraName;
     }
-    double getFOV_Vertical(){
-        return(m_HFOVA);
+    std::string getCameraName() const{
+        return(cameraName);
+    }
+
+    void setStabilization(const bool &stabilized){
+        this->stabilized = stabilized;
+    }
+    bool getStabilization() const{
+        return(stabilized);
+    }
+
+    void setFOV_Horizontal(const double &horizontalFOV){
+        this->HFOVA = horizontalFOV;
+    }
+    double getFOV_Horizontal() const{
+        return(HFOVA);
+    }
+
+    void setFOV_Vertical(const double &verticalFOV){
+        this->VFOVA = verticalFOV;
+    }
+    double getFOV_Vertical() const{
+        return(VFOVA);
     }
 
 
     void setFocalLength(const double &focalLength){
-        m_FocalLength = focalLength;
+        this->focalLength = focalLength;
         this->updateCameraProperties();
     }
-    double getFocalLength(){
-        return(m_FocalLength);
+    double getFocalLength() const{
+        return(focalLength);
     }
 
 
-    void setImageWidth(const double &imageWidth){
-        m_Image_Width = imageWidth;
+    void setImageWidth(const int &imageWidth){
+        this->imageWidth = imageWidth;
     }
-    double getImageWidth(){
-        return(m_Image_Width);
+    int getImageWidth() const{
+        return(imageWidth);
     }
 
 
-    void setImageHeight(const double &imageHeight){
-        m_Image_Height = imageHeight;
+    void setImageHeight(const int &imageHeight){
+        this->imageHeight = imageHeight;
     }
-    double getImageHeight(){
-        return(m_Image_Height);
+    int getImageHeight() const{
+        return(imageHeight);
     }
 
 
     void setSensorWidth(const double &sensorWidth){
-        m_Sensor_Width = sensorWidth;
+        this->sensorWidth = sensorWidth;
         this->updateCameraProperties();
     }
-    double getSensorWidth(){
-        return(m_Sensor_Width);
+    double getSensorWidth() const{
+        return(sensorWidth);
     }
 
 
     void setSensorHeight(const double &sensorHeight){
-        m_Sensor_Height = sensorHeight;
+        this->sensorHeight = sensorHeight;
         this->updateCameraProperties();
     }
-    double getSensorHeight(){
-        return(m_Sensor_Height);
+    double getSensorHeight() const{
+        return(sensorHeight);
     }
 
 
     void setImageRate(const double &rate){
-        m_Image_Rate = rate;
+        this->imageRate = rate;
     }
-    double getImageRate(){
-       return(m_Image_Rate);
+    double getImageRate() const{
+       return(imageRate);
     }
 
 public:
-//    bool operator == (const SensorCamera &rhs) {
-//    }
+    bool operator == (const SensorCamera &rhs) {
+        if(this->cameraName != rhs.cameraName){
+            return false;
+        }
+        if(this->stabilized != rhs.stabilized){
+            return false;
+        }
+        if(this->HFOVA != rhs.HFOVA){
+            return false;
+        }
+        if(this->VFOVA != rhs.VFOVA){
+            return false;
+        }
+        if(this->focalLength != rhs.focalLength){
+            return false;
+        }
+        if(this->imageWidth != rhs.imageWidth){
+            return false;
+        }
+        if(this->imageHeight != rhs.imageHeight){
+            return false;
+        }
+        if(this->sensorWidth != rhs.sensorWidth){
+            return false;
+        }
+        if(this->sensorHeight != rhs.sensorHeight){
+            return false;
+        }
+        if(this->imageRate != rhs.imageRate){
+            return false;
+        }
+    }
 
-//    bool operator != (const SensorCamera &rhs) {
-//        return !(*this == rhs);
-//    }
+    bool operator != (const SensorCamera &rhs) {
+        return !(*this == rhs);
+    }
 
 protected:
-    double m_HFOVA; //value in radians
-    double m_VFOVA; //value in radians
-    double m_FocalLength; //value in mm
-    double m_Image_Width; //value in pixels
-    double m_Image_Height; //value in pixels
-    double m_Sensor_Width; //value in mm
-    double m_Sensor_Height; //value in mm
-    double m_Image_Rate; //value in hz
+    std::string cameraName;
+    bool stabilized;
+    double HFOVA; //value in radians
+    double VFOVA; //value in radians
+    double focalLength; //value in mm
+    int imageWidth; //value in pixels
+    int imageHeight; //value in pixels
+    double sensorWidth; //value in mm
+    double sensorHeight; //value in mm
+    double imageRate; //value in hz
 
     bool providedFOV;
 };

@@ -32,7 +32,7 @@ public:
     MissionItem::MissionList m_CurrentGuidedQueue;
     MissionItem::MissionList m_ProposedGuidedQueue;
 
-protected:
+public:
 
     bool heartbeatSeen = false;
 
@@ -49,8 +49,13 @@ protected:
 
 
     std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> m_CurrentGlobalPosition;
+    std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> m_CurrentGlobalPositionEx;
+
     std::shared_ptr<DataStateTopic::StateLocalPositionTopic> m_CurrentLocalPosition;
     std::shared_ptr<DataStateTopic::StateAttitudeTopic> m_CurrentVehicleAttitude;
+
+    std::shared_ptr<MissionTopic::MissionItemReachedTopic> m_MissionItemReached;
+    std::shared_ptr<MissionTopic::MissionItemCurrentTopic> m_MissionItemCurrent;
 
 };
 

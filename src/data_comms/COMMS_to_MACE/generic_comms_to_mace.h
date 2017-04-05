@@ -19,10 +19,10 @@ class Generic_COMMSTOMACE
 public:
     Generic_COMMSTOMACE();
 
-    static DataGenericItem::DataGenericItem_FlightMode FlightMode_MACETOCOMMS(const mavlink_heartbeat_t &genericItem, const int &systemID);
-    static DataGenericItem::DataGenericItem_Fuel Fuel_MACETOCOMMS(const mavlink_sys_status_t &genericItem, const int &systemID);
-    static DataGenericItem::DataGenericItem_GPS GPS_MACETOCOMMS(const mavlink_gps_raw_int_t &genericItem, const int &systemID);
-    static DataGenericItem::DataGenericItem_Text Text_MACETOCOMMS(const mavlink_statustext_t &genericItem, const int &systemID);
+    static DataGenericItem::DataGenericItem_FlightMode FlightMode_COMMSTOMACE(const mavlink_heartbeat_t &genericItem, const int &systemID);
+    static DataGenericItem::DataGenericItem_Fuel Fuel_COMMSTOMACE(const mavlink_sys_status_t &genericItem, const int &systemID);
+    static DataGenericItem::DataGenericItem_GPS GPS_COMMSTOMACE(const mavlink_gps_raw_int_t &genericItem, const int &systemID);
+    static DataGenericItem::DataGenericItem_Text Text_COMMSTOMACE(const mavlink_statustext_t &genericItem, const int &systemID);
 };
 
 } //end of namespace DataCOMMS

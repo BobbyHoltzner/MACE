@@ -9,6 +9,7 @@ example/example
 *.a
 
 /build-src-Desktop_Qt_5_7_1_MinGW_32bit-Debug/*
+/build**
 
 
 *.Debug

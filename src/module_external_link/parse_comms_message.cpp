@@ -17,10 +17,8 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         {
             //The system has yet to have communicated through this module
             //We therefore have to notify the core that there is a new vehicle
-            std::cout<<"I have not located it in the map and therefore will add it to the map"<<std::endl;
-
             systemIDMap.insert({systemID,0});
-            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                 ptr->NewConstructedVehicle(this, systemID);
             });
         }
@@ -39,7 +37,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         mavlink_sys_status_t decodedMSG;
         mavlink_msg_sys_status_decode(message,&decodedMSG);
 
-        DataGenericItem::DataGenericItem_Fuel newFuel = DataCOMMS::Generic_COMMSTOMACE::Fuel_MACETOCOMMS(decodedMSG,systemID);
+        DataGenericItem::DataGenericItem_Fuel newFuel = DataCOMMS::Generic_COMMSTOMACE::Fuel_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>(newFuel);
         associatedSystemID = systemID;
         m_VehicleDataTopic.SetComponent(ptrFuel, topicDatagram);
@@ -82,6 +80,13 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //The global position, as returned by the Global Positioning System (GPS). This is NOT the global position estimate of the system, but rather a RAW sensor value. See message GLOBAL_POSITION for the global position estimate. Coordinate frame is right-handed, Z-axis up (GPS frame).
         mavlink_gps_raw_int_t decodedMSG;
         mavlink_msg_gps_raw_int_decode(message,&decodedMSG);
+        DataGenericItem::DataGenericItem_GPS newItem = DataCOMMS::Generic_COMMSTOMACE::GPS_COMMSTOMACE(decodedMSG,systemID);
+        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPS = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(newItem);
+        m_VehicleDataTopic.SetComponent(ptrGPS, topicDatagram);
+        //notify listneres of topic
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
         break;
     }
     case MAVLINK_MSG_ID_GPS_STATUS:
@@ -96,7 +101,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mavlink_attitude_t decodedMSG;
         mavlink_msg_attitude_decode(message,&decodedMSG);
-        DataState::StateAttitude newAttitude = DataCOMMS::State_COMMSTOMACE::Attitude_MACETOCOMMS(decodedMSG,systemID);
+        DataState::StateAttitude newAttitude = DataCOMMS::State_COMMSTOMACE::Attitude_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(newAttitude);
         m_VehicleDataTopic.SetComponent(ptrAttitude, topicDatagram);
         //notify listneres of topic
@@ -111,7 +116,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mavlink_local_position_ned_t decodedMSG;
         mavlink_msg_local_position_ned_decode(message,&decodedMSG);
-        DataState::StateLocalPosition newPosition = DataCOMMS::State_COMMSTOMACE::LocalPosition_MACETOCOMMS(decodedMSG,systemID);
+        DataState::StateLocalPosition newPosition = DataCOMMS::State_COMMSTOMACE::LocalPosition_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(newPosition);
 
         m_VehicleDataTopic.SetComponent(ptrLocalPosition, topicDatagram);
@@ -128,7 +133,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //The filtered global position (e.g. fused GPS and accelerometers). The position is in GPS-frame (right-handed, Z-up). It is designed as scaled integer message since the resolution of float is not sufficient.
         mavlink_global_position_int_t decodedMSG;
         mavlink_msg_global_position_int_decode(message,&decodedMSG);
-        DataState::StateGlobalPosition newPosition = DataCOMMS::State_COMMSTOMACE::GlobalPosition_MACETOCOMMS(decodedMSG,systemID);
+        DataState::StateGlobalPosition newPosition = DataCOMMS::State_COMMSTOMACE::GlobalPosition_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>(newPosition);
 
         m_VehicleDataTopic.SetComponent(ptrPosition, topicDatagram);
@@ -184,7 +189,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         mavlink_statustext_t decodedMSG;
         mavlink_msg_statustext_decode(message,&decodedMSG);
         std::cout<<"The status text says: "<<decodedMSG.text<<std::endl;
-        DataGenericItem::DataGenericItem_Text newText = DataCOMMS::Generic_COMMSTOMACE::Text_MACETOCOMMS(decodedMSG,systemID);
+        DataGenericItem::DataGenericItem_Text newText = DataCOMMS::Generic_COMMSTOMACE::Text_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
 
         m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
@@ -193,6 +198,50 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
    break;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// HOME BASED EVENTS:
+    ////////////////////////////////////////////////////////////////////////////
+    case MAVLINK_MSG_ID_SET_HOME_POSITION:
+    {
+        mavlink_set_home_position_t decodedMSG;
+        mavlink_msg_set_home_position_decode(message,&decodedMSG);
+        DataCOMMS::Mission_COMMSTOMACE missionConvert;
+        MissionItem::SpatialHome systemHome;
+        missionConvert.Home_COMMSTOMACE(decodedMSG.target_system,decodedMSG,systemHome);
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->SetVehicleHomePosition(this, systemHome);
+        });
+        break;
+    }
+    case MAVLINK_MSG_ID_HOME_POSITION:
+    {
+        mavlink_home_position_t decodedMSG;
+        mavlink_msg_home_position_decode(message,&decodedMSG);
+
+        MissionItem::SpatialHome spatialHome;
+        spatialHome.position.latitude = decodedMSG.latitude / pow(10,7);
+        spatialHome.position.longitude = decodedMSG.longitude / pow(10,7);
+        spatialHome.position.altitude = decodedMSG.altitude / 1000;
+        spatialHome.setVehicleID(systemID);
+
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->NewVehicleHomePosition(this,spatialHome);
+        });
+
+        std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+        missionTopic->setVehicleID(systemID);
+        missionTopic->setHome(spatialHome);
+
+        MaceCore::TopicDatagram topicDatagram;
+        m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
+        //notify listneres of topic
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
+
+        break;
     }
     ////////////////////////////////////////////////////////////////////////////
     /// MISSION BASED EVENTS:
@@ -204,25 +253,32 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(message,&decodedMSG);
+        int missionType = decodedMSG.target_component;
         DataCOMMS::Mission_COMMSTOMACE missionConvert;
         std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = missionConvert.Covert_COMMSTOMACE(decodedMSG);
-        MissionItem::MissionList missionList = this->getDataObject()->getMissionList(decodedMSG.target_system,Data::MissionMap::CURRENT);
+
+        MissionItem::MissionList missionList;
+        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::INCOMPLETE, static_cast<Data::MissionType>(missionType));
+        if(!validity)
+            return;
+
         missionList.replaceMissionItemAtIndex(newMissionItem,decodedMSG.seq);
         MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
 
         if(status.state == MissionItem::MissionList::INCOMPLETE)
         {
             mavlink_message_t msg;
-            mavlink_msg_mission_request_pack_chan(associatedSystemID,0,m_LinkChan,&msg,systemID,0,status.remainingItems.at(0));
+            mavlink_msg_mission_request_pack_chan(associatedSystemID,compID,m_LinkChan,&msg,systemID,missionType,status.remainingItems.at(0));
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
-            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                ptr->UpdateVehicleMission(this, MissionItem::MissionList::INCOMPLETE, missionList,Data::MissionMap::CURRENT);
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+                ptr->UpdateVehicleMission(this, status, missionList);
             });
         }else{
+            std::cout<<"The mission requested is complete"<<std::endl;
             //We should update the core
-            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                ptr->UpdateVehicleMission(this, MissionItem::MissionList::COMPLETE, missionList,Data::MissionMap::CURRENT);
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+                ptr->UpdateVehicleMission(this, status, missionList);
             });
             //KEN FIX: Check that target system matches sysID
             //We should update all listeners
@@ -246,16 +302,18 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //The response of the system to this message should be a MISSION_ITEM message.
         mavlink_mission_request_t decodedMSG;
         mavlink_msg_mission_request_decode(message,&decodedMSG);
-        DataCOMMS::Mission_MACETOCOMMS missionConvert(decodedMSG.target_system,decodedMSG.target_component);
+        int missionType = decodedMSG.target_component;
+        DataCOMMS::Mission_MACETOCOMMS missionConvert(decodedMSG.target_system,missionType);
         std::shared_ptr<MissionItem::AbstractMissionItem> missionItem;
-        try{
-            MissionItem::MissionList missionList = this->getDataObject()->getMissionList(decodedMSG.target_system,Data::MissionMap::CURRENT);
-            missionItem = missionList.getMissionItem(decodedMSG.seq);
-        }catch(const std::out_of_range &oor){
-            std::cout<<"They are requesting a mission item out of index"<<std::endl;
-        }
+
+        MissionItem::MissionList missionList;
+        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::COMPLETE, static_cast<Data::MissionType>(missionType));
+        if((!validity) || (decodedMSG.seq > missionList.getQueueSize() - 1))
+            return;
+        missionItem = missionList.getMissionItem(decodedMSG.seq);
+
         mavlink_message_t msg;
-        bool msgValid = missionConvert.MACEMissionToMAVLINKMission(missionItem,m_LinkChan,0,decodedMSG.seq,msg);
+        bool msgValid = missionConvert.MACEMissionToMAVLINKMission(missionItem,m_LinkChan,missionType,decodedMSG.seq,msg);
         if(msgValid){
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         }
@@ -267,23 +325,23 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //External item has requested the overall list of mission items from the system/component.
         mavlink_mission_request_list_t decodedMSG;
         mavlink_msg_mission_request_list_decode(message,&decodedMSG);
+        int missionItem = decodedMSG.target_component;
 
         //Now we have to respond with the mission count
-        MissionItem::MissionList missionList = this->getDataObject()->getMissionList(decodedMSG.target_system,Data::MissionMap::CURRENT);
-        MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
+        MissionItem::MissionList missionList;
+        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::COMPLETE, static_cast<Data::MissionType>(missionItem));
+        if(!validity)
+            return;
 
-        if(status.state == MissionItem::MissionList::COMPLETE)
-        {
-            int itemsAvailable = missionList.getQueueSize();
-            mavlink_mission_count_t missionCount;
-            missionCount.target_system = systemID;
-            missionCount.target_component = compID;
-            missionCount.count = itemsAvailable;
+        mavlink_mission_count_t missionCount;
+        missionCount.target_system = systemID;
+        missionCount.target_component = decodedMSG.target_component;
+        missionCount.count = missionList.getQueueSize();
 
-            mavlink_message_t msg;
-            mavlink_msg_mission_count_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionCount);
-            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-        }
+        mavlink_message_t msg;
+        mavlink_msg_mission_count_encode_chan(associatedSystemID,compID,m_LinkChan,&msg,&missionCount);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
         break;
     }
 
@@ -292,22 +350,23 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         //This is message definition 44
         //This message is emitted as response to MISSION_REQUEST_LIST by the MAV and to initiate a write transaction.
         //The GCS can then request the individual mission item based on the knowledge of the total number of MISSION
+        //This isnt necessarily the best way as the packet gets reset
         mavlink_mission_count_t decodedMSG;
         mavlink_msg_mission_count_decode(message,&decodedMSG);
-
+        int missionType = decodedMSG.target_component;
         MissionItem::MissionList newMissionList;
-        newMissionList.setVehicleID(systemID);
-        newMissionList.initializeQueue(decodedMSG.count);
-        Data::MissionMap relevantMissionQueue = Data::MissionMap::CURRENT;
 
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-            ptr->UpdateVehicleMission(this, MissionItem::MissionList::INCOMPLETE, newMissionList,relevantMissionQueue);
+        newMissionList.setMissionType(static_cast<Data::MissionType>(missionType));
+        newMissionList.setVehicleID(decodedMSG.target_system);
+        newMissionList.initializeQueue(decodedMSG.count);
+        MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();
+
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->UpdateVehicleMission(this, status, newMissionList);
         });
 
-        m_VehicleCurrentMissionMap.at(systemID).initializeQueue(decodedMSG.count);
-
         mavlink_message_t msg;
-        mavlink_msg_mission_request_pack_chan(associatedSystemID,0,m_LinkChan,&msg,systemID,0,0);
+        mavlink_msg_mission_request_pack_chan(associatedSystemID,compID,m_LinkChan,&msg,decodedMSG.target_system,missionType,0);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         break;
     }

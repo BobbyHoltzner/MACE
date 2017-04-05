@@ -107,6 +107,15 @@ std::shared_ptr<MissionItem::AbstractMissionItem> Mission_COMMSTOMACE::Covert_CO
     return newMissionItem;
 }
 
+
+void Mission_COMMSTOMACE::Home_COMMSTOMACE(const int &vehicleID, const mavlink_set_home_position_t &mavlinkItem, MissionItem::SpatialHome &missionItem)
+{
+    missionItem.setVehicleID(vehicleID);
+    missionItem.position.latitude = mavlinkItem.latitude / pow(10,7);
+    missionItem.position.longitude = mavlinkItem.longitude / pow(10,7);
+    missionItem.position.altitude = mavlinkItem.altitude / pow(10,3);
+}
+
 void Mission_COMMSTOMACE::ChangeSpeed_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::ActionChangeSpeed &missionItem)
 {
     if(mavlinkItem.command == MAV_CMD_DO_CHANGE_SPEED){
