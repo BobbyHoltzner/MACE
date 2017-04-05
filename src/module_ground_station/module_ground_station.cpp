@@ -472,7 +472,9 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
                 std::shared_ptr<DataVehicleSensors::SensorVertices_Global> component = std::make_shared<DataVehicleSensors::SensorVertices_Global>();
                 m_SensorFootprintDataTopic.GetComponent(component, read_topicDatagram);
-                std::vector<DataState::StateGlobalPosition> sensorFootprint = component->getSensorVertices();
+
+                // Write sensor footprint verticies to the GUI:
+                sendSensorFootprint(senderID, component);
             }
         }
     }
@@ -494,6 +496,33 @@ void ModuleGroundStation::sendVehicleMission(const int &vehicleID, const std::sh
 
     if(!bytesWritten){
         std::cout << "Write Vehicle Mission Data failed..." << std::endl;
+    }
+}
+
+void ModuleGroundStation::sendSensorFootprint(const int &vehicleID, const std::shared_ptr<DataVehicleSensors::SensorVertices_Global> &component) {
+    QJsonObject json;
+    json["dataType"] = "SensorFootprint";
+    json["vehicleID"] = vehicleID;
+
+    std::vector<DataState::StateGlobalPosition> sensorFootprint = component->getSensorVertices();
+
+    QJsonArray verticies;
+    for(auto&& vertex : sensorFootprint) {
+        QJsonObject obj;
+        obj["lat"] = vertex.latitude;
+        obj["lon"] = vertex.longitude;
+        obj["alt"] = vertex.altitude;
+
+        verticies.push_back(obj);
+    }
+
+    json["sensorFootprint"] = verticies;
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write vehicle sensor footprint failed..." << std::endl;
     }
 }
 
@@ -555,6 +584,121 @@ void ModuleGroundStation::sendGlobalOrigin(const std::shared_ptr<MissionTopic::M
 //    if(!bytesWritten){
 //        std::cout << "Write Global origin failed..." << std::endl;
 //    }
+}
+
+
+void ModuleGroundStation::sendPositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehiclePosition";
+    json["vehicleID"] = vehicleID;
+    json["lat"] = component->latitude;
+    json["lon"] = component->longitude;
+    json["alt"] = component->altitude;
+    json["satFix"] = 0; // TODO-PAT: Move to vehicle stats?
+    json["numSats"] = 0; // TODO-PAT: Move to vehicle stats?
+
+    QJsonDocument doc(json);
+    if(m_positionTimeoutOccured)
+    {
+        bool bytesWritten = writeTCPData(doc.toJson());
+
+        if(!bytesWritten){
+            std::cout << "Write Position Data failed..." << std::endl;
+        }
+
+        // Reset timeout:
+        m_positionTimeoutOccured = false;
+    }
+}
+
+void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleAttitude";
+    json["vehicleID"] = vehicleID;
+    json["roll"] = component->roll;
+    json["pitch"] = component->pitch;
+    json["yaw"] = component->yaw;
+
+    QJsonDocument doc(json);
+    if(m_attitudeTimeoutOccured)
+    {
+        bool bytesWritten = writeTCPData(doc.toJson());
+
+        if(!bytesWritten){
+            std::cout << "Write Attitude Data failed..." << std::endl;
+        }
+
+        // Reset timeout:
+        m_attitudeTimeoutOccured = false;
+    }
+}
+
+void ModuleGroundStation::sendVehicleFuel(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleFuel";
+    json["vehicleID"] = vehicleID;
+    json["batteryRemaining"] = component->getBatteryRemaining();
+    json["batteryCurrent"] = component->getBatteryCurrent();
+    json["batteryVoltage"] = component->getBatteryVoltage();
+
+    QJsonDocument doc(json);
+    if(m_fuelTimeoutOccured)
+    {
+        bool bytesWritten = writeTCPData(doc.toJson());
+
+        if(!bytesWritten){
+            std::cout << "Write Fuel Data failed..." << std::endl;
+        }
+
+        // Reset timeout:
+        m_fuelTimeoutOccured = false;
+    }
+}
+
+void ModuleGroundStation::sendVehicleMode(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleMode";
+    json["vehicleID"] = vehicleID;
+    json["vehicleMode"] = QString::fromStdString(component->getFlightModeString());
+    json["isArmed"] = component->getVehicleArmed();
+
+    QJsonDocument doc(json);
+    if(m_modeTimeoutOccured)
+    {
+        bool bytesWritten = writeTCPData(doc.toJson());
+
+        if(!bytesWritten){
+            std::cout << "Write Vehicle Mode Data failed..." << std::endl;
+        }
+
+        // Reset timeout:
+        m_modeTimeoutOccured = false;
+    }
+}
+
+void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleText";
+    json["vehicleID"] = vehicleID;
+    json["severity"] =  QString::fromStdString(DataGenericItemTopic::DataGenericItemTopic_Text::StatusSeverityToString(component->getSeverity()));
+    json["text"] = QString::fromStdString(component->getText());
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write Vehicle Text Data failed..." << std::endl;
+    }
+}
+
+void ModuleGroundStation::NewlyAvailableCurrentMission(const int &vehicleID)
+{
+    std::cout<<"I have been told there is a new mission available"<<std::endl;
 }
 
 void ModuleGroundStation::missionToJSON(const std::shared_ptr<MissionTopic::MissionListTopic> &component, QJsonArray &missionItems)
@@ -750,119 +894,6 @@ void ModuleGroundStation::missionToJSON(const std::shared_ptr<MissionTopic::Miss
     }
 }
 
-void ModuleGroundStation::sendPositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &component)
-{
-    QJsonObject json;
-    json["dataType"] = "VehiclePosition";
-    json["vehicleID"] = vehicleID;
-    json["lat"] = component->latitude;
-    json["lon"] = component->longitude;
-    json["alt"] = component->altitude;
-    json["satFix"] = 0; // TODO-PAT: Move to vehicle stats?
-    json["numSats"] = 0; // TODO-PAT: Move to vehicle stats?
-
-    QJsonDocument doc(json);
-    if(m_positionTimeoutOccured)
-    {
-        bool bytesWritten = writeTCPData(doc.toJson());
-
-        if(!bytesWritten){
-            std::cout << "Write Position Data failed..." << std::endl;
-        }
-
-        // Reset timeout:
-        m_positionTimeoutOccured = false;
-    }
-}
-
-void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component)
-{
-    QJsonObject json;
-    json["dataType"] = "VehicleAttitude";
-    json["vehicleID"] = vehicleID;
-    json["roll"] = component->roll;
-    json["pitch"] = component->pitch;
-    json["yaw"] = component->yaw;
-
-    QJsonDocument doc(json);
-    if(m_attitudeTimeoutOccured)
-    {
-        bool bytesWritten = writeTCPData(doc.toJson());
-
-        if(!bytesWritten){
-            std::cout << "Write Attitude Data failed..." << std::endl;
-        }
-
-        // Reset timeout:
-        m_attitudeTimeoutOccured = false;
-    }
-}
-
-void ModuleGroundStation::sendVehicleFuel(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &component)
-{
-    QJsonObject json;
-    json["dataType"] = "VehicleFuel";
-    json["vehicleID"] = vehicleID;
-    json["batteryRemaining"] = component->getBatteryRemaining();
-    json["batteryCurrent"] = component->getBatteryCurrent();
-    json["batteryVoltage"] = component->getBatteryVoltage();
-
-    QJsonDocument doc(json);
-    if(m_fuelTimeoutOccured)
-    {
-        bool bytesWritten = writeTCPData(doc.toJson());
-
-        if(!bytesWritten){
-            std::cout << "Write Fuel Data failed..." << std::endl;
-        }
-
-        // Reset timeout:
-        m_fuelTimeoutOccured = false;
-    }
-}
-
-void ModuleGroundStation::sendVehicleMode(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &component)
-{
-    QJsonObject json;
-    json["dataType"] = "VehicleMode";
-    json["vehicleID"] = vehicleID;
-    json["vehicleMode"] = QString::fromStdString(component->getFlightModeString());
-    json["isArmed"] = component->getVehicleArmed();
-
-    QJsonDocument doc(json);
-    if(m_modeTimeoutOccured)
-    {
-        bool bytesWritten = writeTCPData(doc.toJson());
-
-        if(!bytesWritten){
-            std::cout << "Write Vehicle Mode Data failed..." << std::endl;
-        }
-
-        // Reset timeout:
-        m_modeTimeoutOccured = false;
-    }
-}
-
-void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &component)
-{
-    QJsonObject json;
-    json["dataType"] = "VehicleText";
-    json["vehicleID"] = vehicleID;
-    json["severity"] =  QString::fromStdString(DataGenericItemTopic::DataGenericItemTopic_Text::StatusSeverityToString(component->getSeverity()));
-    json["text"] = QString::fromStdString(component->getText());
-
-    QJsonDocument doc(json);
-    bool bytesWritten = writeTCPData(doc.toJson());
-
-    if(!bytesWritten){
-        std::cout << "Write Vehicle Text Data failed..." << std::endl;
-    }
-}
-
-void ModuleGroundStation::NewlyAvailableCurrentMission(const int &vehicleID)
-{
-    std::cout<<"I have been told there is a new mission available"<<std::endl;
-}
 
 
 void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)

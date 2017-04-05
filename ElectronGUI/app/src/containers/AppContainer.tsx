@@ -5,7 +5,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme();
 
 var NotificationSystem = require('react-notification-system');
-import { Map, TileLayer, LayerGroup, Marker, Popup, Polyline } from 'react-leaflet';
+import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon } from 'react-leaflet';
 import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
 import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
 import { VehicleCommandsContainer } from './VehicleCommandsContainer';
@@ -301,6 +301,13 @@ export default class AppContainer extends React.Component<Props, State> {
       let jsonOrigin = jsonData as TCPPositionType;
       let origin = {lat: jsonOrigin.lat, lon: jsonOrigin.lon, alt: jsonOrigin.alt};
       this.setState({globalOrigin: origin})
+    }
+    else if(jsonData.dataType === 'SensorFootprint') {
+      let jsonFootprint = jsonData as TCPSensorFootprintType;
+
+      console.log(jsonFootprint.sensorFootprint);
+      stateCopy[jsonFootprint.vehicleID].sensorFootprint = jsonFootprint.sensorFootprint;
+      this.setState({connectedVehicles: stateCopy});
     }
   }
 
@@ -603,6 +610,15 @@ export default class AppContainer extends React.Component<Props, State> {
                       markers
                     );
                   })}
+
+                  {/* Sensor Footprint */}
+                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
+                    return (
+                      <Polygon key={key} positions={this.state.connectedVehicles[key].sensorFootprint} color={this.state.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} fillColor={colors.amber500} />
+                    );
+                  })}
+
+
                 </LayerGroup>
             </Map>
 

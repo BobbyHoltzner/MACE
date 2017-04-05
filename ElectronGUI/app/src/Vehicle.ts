@@ -17,6 +17,7 @@ export class Vehicle{
     homePosition: MarkerType;
     vehicleType: VehicleTypeType;
     isArmed: boolean;
+    sensorFootprint: L.LatLng[]
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
         this.vehicleId = vehicleId;
@@ -27,6 +28,7 @@ export class Vehicle{
         this.vehicleMode = 'UNKNOWN';
         this.vehicleType = 'Copter';
         this.fuel = {batteryCurrent: 0, batteryRemaining: 0, batteryVoltage: 0};
+        this.sensorFootprint = [];
         if(position){
             this.position = position;
         }
@@ -259,5 +261,13 @@ export class Vehicle{
                 popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
             })
         };
+    }
+
+    updateSensorFootprint(newFootprint: PositionType[]) {
+        this.sensorFootprint = [];
+        for(let i = 0; i < newFootprint.length; i++) {
+            let vertex = new L.LatLng(newFootprint[i].lat, newFootprint[i].lon);
+            this.sensorFootprint.push(vertex);
+        }
     }
 }

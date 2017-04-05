@@ -72,7 +72,11 @@ type TCPMissionType = TCPDescriptorType & {
   missionItems: MissionItemType[]
 };
 
-type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPFuelType | TCPMissionType | TCPModeType | TCPTextType;
+type TCPSensorFootprintType = TCPDescriptorType & {
+  sensorFootprint: PositionType[]
+}
+
+type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPFuelType | TCPMissionType | TCPModeType | TCPTextType | TCPSensorFootprintType;
 
 
 type MarkerType = {
