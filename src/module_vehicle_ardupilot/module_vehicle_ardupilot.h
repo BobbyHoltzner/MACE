@@ -177,9 +177,6 @@ private:
 
     std::map<int,DataARDUPILOT::VehicleObject_ARDUPILOT*> m_ArduPilotData;
 
-
-    std::shared_ptr<MissionTopic::MissionItemCurrentTopic> m_CurrentMissionItem;
-
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H
