@@ -241,6 +241,24 @@ public:
     }
 
 
+    template<typename T>
+    T GetNonTerminalValue(const std::string &name) const
+    {
+        //check that given parameter exists
+        if(m_NonTerminalValues.find(name) == m_NonTerminalValues.cend())
+            throw std::runtime_error("Not a terminal parameter value");
+
+        const std::shared_ptr<void> basePtr = m_NonTerminalValues.at(name);
+
+        const SingleParameterValue<T>* ptr = (const SingleParameterValue<T>*)basePtr.get();
+
+        //check that types are correct
+        if(ptr->GetType() != typeid(T))
+            throw std::runtime_error("Type Missmatch");
+
+        return ptr->GetValue();
+    }
+
     //!
     //! \brief Get the value of a non-terminal parameter
     //! \param name Name of non-terminal parameter
@@ -277,7 +295,7 @@ public:
     //!
     //! \brief Add a terminal to known parameters
     //!
-    //! A non terminal paramter is an actuall piece of data to store as a setting to a module
+    //! A non terminal paramter is an actual piece of data to store as a setting to a module
     //! \param name Name of parameter
     //! \param type Data type expecting
     //! \param required True if value is required

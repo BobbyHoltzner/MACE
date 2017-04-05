@@ -172,6 +172,17 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
             rtnVector.push_back(ptrPosition);
             data->m_CurrentGlobalPosition = ptrPosition;
         }
+
+        std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> ptrPositionEx = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>();
+        ptrPositionEx->setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
+        ptrPositionEx->heading = (decodedMSG.hdg/100.0)*(3.14/180.0);
+        //check that something has actually changed
+        if(data->m_CurrentGlobalPositionEx == NULL || *ptrPositionEx != *data->m_CurrentGlobalPositionEx)
+        {
+            rtnVector.push_back(ptrPositionEx);
+            data->m_CurrentGlobalPositionEx = ptrPositionEx;
+        }
+
         break;
     }
 

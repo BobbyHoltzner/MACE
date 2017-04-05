@@ -21,33 +21,33 @@ const MaceCore::TopicComponentStructure Camera_structure = []{
 MaceCore::TopicDatagram SensorCamera::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
 
-    datagram.AddTerminal<double>("FOV horizontal angle",m_HFOVA);
-    datagram.AddTerminal<double>("FOV vertical angle",m_VFOVA);
-    datagram.AddTerminal<double>("focal length",m_FocalLength);
-    datagram.AddTerminal<double>("image width",m_Image_Width);
-    datagram.AddTerminal<double>("image height",m_Image_Height);
-    datagram.AddTerminal<double>("sensor width",m_Sensor_Width);
-    datagram.AddTerminal<double>("sensor height",m_Sensor_Height);
-    datagram.AddTerminal<double>("image rate",m_Image_Rate);
+    datagram.AddTerminal<double>("FOV horizontal angle",HFOVA);
+    datagram.AddTerminal<double>("FOV vertical angle",VFOVA);
+    datagram.AddTerminal<double>("focal length",focalLength);
+    datagram.AddTerminal<double>("image width",imageWidth);
+    datagram.AddTerminal<double>("image height",imageHeight);
+    datagram.AddTerminal<double>("sensor width",sensorWidth);
+    datagram.AddTerminal<double>("sensor height",sensorHeight);
+    datagram.AddTerminal<double>("image rate",imageRate);
 
     return datagram;
 }
 
 void SensorCamera::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    m_HFOVA = datagram.GetTerminal<double>("FOV horizontal angle");
-    m_VFOVA = datagram.GetTerminal<double>("FOV vertical angle");
-    m_FocalLength = datagram.GetTerminal<double>("focal length");
-    m_Image_Width = datagram.GetTerminal<double>("image width");
-    m_Image_Height = datagram.GetTerminal<double>("image height");
-    m_Sensor_Width = datagram.GetTerminal<double>("sensor width");
-    m_Sensor_Height = datagram.GetTerminal<double>("sensor height");
-    m_Image_Rate = datagram.GetTerminal<double>("image rate");
+    HFOVA = datagram.GetTerminal<double>("FOV horizontal angle");
+    VFOVA = datagram.GetTerminal<double>("FOV vertical angle");
+    focalLength = datagram.GetTerminal<double>("focal length");
+    imageWidth = datagram.GetTerminal<double>("image width");
+    imageHeight = datagram.GetTerminal<double>("image height");
+    sensorWidth = datagram.GetTerminal<double>("sensor width");
+    sensorHeight = datagram.GetTerminal<double>("sensor height");
+    imageRate = datagram.GetTerminal<double>("image rate");
 }
 
 void SensorCamera::updateCameraProperties()
 {
-    m_HFOVA = atan(m_Sensor_Width/(2*m_FocalLength)) * 2;
-    m_VFOVA = atan(m_Sensor_Height/(2*m_FocalLength)) * 2;
+    HFOVA = atan(sensorWidth/(2*focalLength)) * 2;
+    VFOVA = atan(sensorHeight/(2*focalLength)) * 2;
 }
 
 

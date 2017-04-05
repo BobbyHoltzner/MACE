@@ -30,7 +30,9 @@ SOURCES += \
     state_local_position.cpp \
     state_global_velocity.cpp \
     state_local_velocity.cpp \
-    state_generic_position.cpp
+    state_generic_position.cpp \
+    state_global_position_ex.cpp \
+    state_local_position_ex.cpp
 
 HEADERS +=\
         data_generic_state_item_global.h \
@@ -40,7 +42,9 @@ HEADERS +=\
     state_global_velocity.h \
     state_local_velocity.h \
     state_item_components.h \
-    state_generic_position.h
+    state_generic_position.h \
+    state_global_position_ex.h \
+    state_local_position_ex.h
 
 # Unix lib Install
 unix:!symbian {

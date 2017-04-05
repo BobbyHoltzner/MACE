@@ -1,6 +1,9 @@
 #ifndef VEHICLE_TYPES_H
 #define VEHICLE_TYPES_H
 
+#include <string>
+#include <stdexcept>
+
 namespace Data
 {
 enum class VehicleTypes

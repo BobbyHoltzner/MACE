@@ -343,6 +343,9 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
 
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
+    MissionItem::SpatialHome newOrigin;
+    newOrigin.position = DataState::StateGlobalPosition(37.890810,-76.814833,0.0);
+    m_DataFusion->UpdateGlobalOrigin(newOrigin);
 }
 
 void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
