@@ -93,13 +93,13 @@ void ModuleVehicleSensors::NewTopic(const std::string &topicName, int senderID, 
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
                 DataState::StateGlobalPositionEx newPosition = *component.get();
                 DataState::StateAttitude newAttitude;
-                computeVehicleFootprint(*cameraSensor,newPosition,newAttitude);
+                computeVehicleFootprint(senderID,*cameraSensor,newPosition,newAttitude);
             }
         }
     }
 }
 
-void ModuleVehicleSensors::computeVehicleFootprint(const DataVehicleSensors::SensorCamera &camera, const DataState::StateGlobalPositionEx &globalPosition, const DataState::StateAttitude &attitude)
+void ModuleVehicleSensors::computeVehicleFootprint(const int &systemID, const DataVehicleSensors::SensorCamera &camera, const DataState::StateGlobalPositionEx &globalPosition, const DataState::StateAttitude &attitude)
 {
     DataState::StateGlobalPositionEx vehicleOrigin = globalPosition;
 
@@ -158,9 +158,25 @@ void ModuleVehicleSensors::computeVehicleFootprint(const DataVehicleSensors::Sen
         DataState::StateLocalPosition position4L(transVec4(0),transVec4(1),transVec4(2));
         verticeVectorLocal[3] = position4L;
 
+        std::shared_ptr<DataVehicleSensors::SensorVertices_Global> globalVert = std::make_shared<DataVehicleSensors::SensorVertices_Global>(camera.getCameraName());
+        globalVert->setSensorVertices(verticeVectorGlobal);
 
+        std::shared_ptr<DataVehicleSensors::SensorVertices_Local> localVert = std::make_shared<DataVehicleSensors::SensorVertices_Local>(camera.getCameraName());
+        localVert->setSensorVertices(verticeVectorLocal);
+
+        //Let us publish all of the information
+        MaceCore::TopicDatagram topicDatagram;
+
+        m_SensorFootprintDataTopic.SetComponent(globalVert, topicDatagram);
+        ModuleVehicleSensors::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_SensorFootprintDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
+
+        m_SensorFootprintDataTopic.SetComponent(localVert, topicDatagram);
+        ModuleVehicleSensors::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_SensorFootprintDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
     }
-
 }
 
 void ModuleVehicleSensors::NewlyAvailableVehicle(const int &vehicleID)

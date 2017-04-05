@@ -23,10 +23,19 @@ public:
         if(!StateGlobalPosition::operator ==(rhs)){
             return false;
         }
-        if(this->heading != rhs.heading){
+        //Ken Fix This Better
+        if(headingMinChange(rhs.heading,0.5)){
             return false;
         }
         return true;
+    }
+
+    bool headingMinChange(const double &compareHeading, const double &minChange)
+    {
+        double change = fabs(compareHeading - this->heading);
+        if(change > minChange)
+            return true;
+        return false;
     }
 
     bool operator != (const StateGlobalPositionEx &rhs) {

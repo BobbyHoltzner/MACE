@@ -40,6 +40,7 @@ private:
 
 ModuleGroundStation::ModuleGroundStation() :
     m_SensorDataTopic("sensorData"),
+    m_SensorFootprintDataTopic("sensorFootprint"),
     m_VehicleDataTopic("vehicleData"),
     m_MissionDataTopic("vehicleMission"),
     m_ListenThread(NULL)
@@ -369,6 +370,8 @@ void ModuleGroundStation::AttachedAsModule(MaceCore::IModuleTopicEvents *ptr)
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
     ptr->Subscribe(this, m_SensorDataTopic.Name());
     ptr->Subscribe(this, m_MissionDataTopic.Name());
+    ptr->Subscribe(this, m_SensorFootprintDataTopic.Name());
+
 }
 
 
@@ -443,6 +446,19 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
                 // Write mission items to the GUI:
                 sendVehicleHome(senderID, component);
+            }
+        }
+    }
+    else if(topicName == m_SensorFootprintDataTopic.Name())
+    {
+        //get latest datagram from mace_data
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_SensorFootprintDataTopic.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+            if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
+                std::shared_ptr<DataVehicleSensors::SensorVertices_Global> component = std::make_shared<DataVehicleSensors::SensorVertices_Global>();
+                m_SensorFootprintDataTopic.GetComponent(component, read_topicDatagram);
+                std::vector<DataState::StateGlobalPosition> sensorFootprint = component->getSensorVertices();
+                std::cout<<"Yep"<<std::endl;
             }
         }
     }

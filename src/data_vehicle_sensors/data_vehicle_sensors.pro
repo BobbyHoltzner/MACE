@@ -27,12 +27,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     components/sensor_camera.cpp \
-    components/sensor_vertices.cpp
+    components/sensor_vertices_global.cpp \
+    components/sensor_vertices_local.cpp
 
 HEADERS += data_vehicle_sensors_global.h \
     components.h \
     components/sensor_camera.h \
-    components/sensor_vertices.h
+    components/sensor_vertices_global.h \
+    components/sensor_vertices_local.h
 
 # Unix lib Install
 unix:!symbian {
@@ -57,7 +59,8 @@ INSTALLS       += headers
 headers_Components.path    = $$(MACE_ROOT)/include/data_vehicle_sensors/Components
 headers_Components.files   += \
         components/sensor_camera.h \
-        components/sensor_vertices.h
+    components/sensor_vertices_global.h \
+    components/sensor_vertices_local.h
 
 INSTALLS       += headers_Components
 

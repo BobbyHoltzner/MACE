@@ -91,13 +91,14 @@ void ModuleRTA::NewTopic(const std::string &topicName, int senderID, std::vector
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_SensorFootprintDataTopic.Name(), senderID);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Local::Name()) {
-                std::shared_ptr<DataVehicleSensors::SensorVertices_Local> sensorVerticesGlobal = std::make_shared<DataVehicleSensors::SensorVertices_Local>("TestM");
+            if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
+                std::shared_ptr<DataVehicleSensors::SensorVertices_Global> sensorVerticesGlobal = std::make_shared<DataVehicleSensors::SensorVertices_Global>();
                 m_SensorFootprintDataTopic.GetComponent(sensorVerticesGlobal, read_topicDatagram);
-            }else if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
-                std::shared_ptr<DataVehicleSensors::SensorVertices_Local> sensorVerticesLocal = std::make_shared<DataVehicleSensors::SensorVertices_Local>("TestM");
-                m_SensorFootprintDataTopic.GetComponent(sensorVerticesLocal, read_topicDatagram);
             }
+//            }else if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
+//                std::shared_ptr<DataVehicleSensors::SensorVertices_Local> sensorVerticesLocal = std::make_shared<DataVehicleSensors::SensorVertices_Local>("TestM");
+//                m_SensorFootprintDataTopic.GetComponent(sensorVerticesLocal, read_topicDatagram);
+//            }
         }
     }
 

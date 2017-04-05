@@ -25,4 +25,6 @@
   </Module>
   <Module Class="RTA" Type="NASAPhase2" />
   <Module Class="PathPlanning" Type="NASAPhase2"/>
+  <Module Class="GroundStation" Type="NASAPhase2"/>
+
 </ModuleConfigurations>
