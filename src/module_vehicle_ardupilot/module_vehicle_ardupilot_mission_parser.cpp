@@ -118,19 +118,26 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleOb
         //Message that announces the sequence number of the current active mission item. The MAV will fly towards this mission item.
         mavlink_mission_current_t decodedMSG;
         mavlink_msg_mission_current_decode(message,&decodedMSG);
+        int missionIndex = decodedMSG.seq - 1;
 
-        std::shared_ptr<MissionTopic::MissionItemCurrentTopic> missionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
-        missionTopic->setVehicleID(sysID);
-        missionTopic->setMissionItemIndex(decodedMSG.seq);
-
-        if(m_CurrentMissionItem == NULL || *missionTopic != *m_CurrentMissionItem)
+        if(missionIndex >= 0)
         {
-            MaceCore::TopicDatagram topicDatagram;
-            m_VehicleMission.SetComponent(missionTopic, topicDatagram);
-            //notify listneres of topic
-            ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-                ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
-            });
+            std::shared_ptr<MissionTopic::MissionItemCurrentTopic> missionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
+            missionTopic->setVehicleID(sysID);
+            missionTopic->setMissionItemIndex(missionIndex);
+
+            if(vehicleData->data->m_MissionItemCurrent == NULL || *missionTopic != *vehicleData->data->m_MissionItemCurrent)
+            {
+                vehicleData->data->m_MissionItemCurrent = missionTopic;
+                MaceCore::TopicDatagram topicDatagram;
+                m_VehicleMission.SetComponent(missionTopic, topicDatagram);
+                //notify listneres of topic
+                ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+                    ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+                });
+            }
+        }else{
+            //KEN TODO: Indicate that we are heading home
         }
 
         break;
@@ -198,17 +205,27 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleOb
         //(if the autocontinue on the WP was set) continue to the next MISSION.
         mavlink_mission_item_reached_t decodedMSG;
         mavlink_msg_mission_item_reached_decode(message,&decodedMSG);
+        int missionIndex = decodedMSG.seq - 1;
 
+        if(missionIndex >= 0)
+        {
         std::shared_ptr<MissionTopic::MissionItemReachedTopic> missionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>();
         missionTopic->setVehicleID(sysID);
-        missionTopic->setMissionItemIndex(decodedMSG.seq);
+        missionTopic->setMissionItemIndex(missionIndex); //This transforms it to MACE 0 reference
 
-        MaceCore::TopicDatagram topicDatagram;
-        m_VehicleMission.SetComponent(missionTopic, topicDatagram);
-        //notify listneres of topic
-        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
-        });
+        if(vehicleData->data->m_MissionItemReached == NULL || *missionTopic != *vehicleData->data->m_MissionItemReached)
+        {
+            vehicleData->data->m_MissionItemReached = missionTopic;
+            MaceCore::TopicDatagram topicDatagram;
+            m_VehicleMission.SetComponent(missionTopic, topicDatagram);
+            //notify listneres of topic
+            ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+                ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+            });
+        }
+        }else{
+            //KEN TODO: Indicate that we have reached home
+        }
         break;
     }
     case MAVLINK_MSG_ID_MISSION_ACK:
