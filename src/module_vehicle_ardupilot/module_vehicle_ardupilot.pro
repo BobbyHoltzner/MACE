@@ -17,11 +17,13 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += module_vehicle_ardupilot.cpp \
     module_vehicle_ardupilot_mission_parser.cpp \
-    takeoff_thread.cpp
+    takeoff_thread.cpp \
+    ardupilot_guided_controller.cpp
 
 HEADERS += module_vehicle_ardupilot.h\
         module_vehicle_ardupilot_global.h \
-    takeoff_thread.h
+    takeoff_thread.h \
+    ardupilot_guided_controller.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
@@ -41,9 +43,7 @@ INSTALLS += lib
 
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot
-headers.files   += \
-        module_vehicle_ardupilot_global.h \
-        module_vehicle_ardupilot.h
+headers.files   += $$HEADERS
 INSTALLS       += headers
 
 

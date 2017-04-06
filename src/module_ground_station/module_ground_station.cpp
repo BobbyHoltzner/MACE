@@ -458,7 +458,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 std::shared_ptr<DataVehicleSensors::SensorVertices_Global> component = std::make_shared<DataVehicleSensors::SensorVertices_Global>();
                 m_SensorFootprintDataTopic.GetComponent(component, read_topicDatagram);
                 std::vector<DataState::StateGlobalPosition> sensorFootprint = component->getSensorVertices();
-                std::cout<<"Yep"<<std::endl;
             }
         }
     }

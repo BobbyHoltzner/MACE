@@ -7,6 +7,8 @@
 
 #include "data/timer.h"
 
+#include "ardupilot_guided_controller.h"
+
 #include "module_vehicle_ardupilot_global.h"
 #include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
 
@@ -176,7 +178,7 @@ private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
 
     std::map<int,DataARDUPILOT::VehicleObject_ARDUPILOT*> m_ArduPilotData;
-
+    std::map<int, Ardupilot_GuidedController> m_ArdupilotController;
 
     std::shared_ptr<MissionTopic::MissionItemCurrentTopic> m_CurrentMissionItem;
 
