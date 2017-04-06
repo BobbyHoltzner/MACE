@@ -20,12 +20,25 @@ bool SpatialLoiter_Time<T>::hasSpatialMissionInfluence() const
     return true;
 }
 
+template <>
+std::ostream& SpatialLoiter_Time<DataState::StateGlobalPosition>::operator<<(std::ostream &out)
+{
+    out<<"Spatial Global Loiter Time(SystemID: "<<m_VehicleID<<", Radius: "<<radius<<", Time: "<<duration<<", Latitude: "<<position.latitude<<", Longitude: "<<position.longitude<<", Altitude: "<<position.altitude<<")";
+    return out;
+}
+
+template <>
+std::ostream& SpatialLoiter_Time<DataState::StateLocalPosition>::operator<<(std::ostream &out)
+{
+    out<<"Spatial Local Loiter Time(SystemID: "<<m_VehicleID<<", Radius: "<<radius<<", Time: "<<duration<<", Latitude: "<<position.x<<", Longitude: "<<position.y<<", Altitude: "<<position.z<<")";
+    return out;
+}
+
 template<>
 SpatialLoiter_Time<DataState::StateGlobalPosition>::SpatialLoiter_Time()
 {
     m_PositionalFrame = Data::PositionalFrame::GLOBAL;
     m_CoordinateFrame = Data::CoordinateFrame::NED;
-    m_VehicleID = NULL;
 }
 
 template<>
@@ -33,7 +46,6 @@ SpatialLoiter_Time<DataState::StateLocalPosition>::SpatialLoiter_Time()
 {
     m_PositionalFrame = Data::PositionalFrame::LOCAL;
     m_CoordinateFrame = Data::CoordinateFrame::NED;
-    m_VehicleID = NULL;
 }
 
 } //end of namespace MissionItem

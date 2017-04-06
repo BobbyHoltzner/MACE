@@ -18,6 +18,8 @@ public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
+    StateLocalVelocityTopic();
+    StateLocalVelocityTopic(const DataState::StateLocalVelocity &copyObj);
 };
 
 } //end of namespace DataStateTopic

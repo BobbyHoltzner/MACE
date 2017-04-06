@@ -89,7 +89,7 @@ void MavlinkProtocol::SetChannel(ILink *link, uint8_t channel)
 //! \param link Link to put message onto
 //! \param message Message to send
 //!
-void MavlinkProtocol::SendMessage(const ILink *link, const mavlink_message_t &message)
+void MavlinkProtocol::SendProtocolMessage(const ILink *link, const mavlink_message_t &message)
 {
     // Create buffer
     static uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
@@ -180,7 +180,7 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
                 {
                     mavlink_message_t msg;
                     mavlink_msg_ping_pack(getSystemId(), getComponentId(), &msg, ping.time_usec, ping.seq, message.sysid, message.compid);
-                    SendMessage(link, msg);
+                    SendProtocolMessage(link, msg);
                 }
             }
 
@@ -213,59 +213,11 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
                 Emit([&](const IProtocolMavlinkEvents* ptr){ptr->RadioStatusChanged(link, rstatus.rxerrors, rstatus.fixed, rssi, remrssi, rstatus.txbuf, rstatus.noise, rstatus.remnoise);});
             }
 
-            /*
-#ifndef __mobile__
-            // Log data
-
-            if (!_logSuspendError && !_logSuspendReplay && _tempLogFile.isOpen()) {
-                uint8_t buf[MAVLINK_MAX_PACKET_LEN+sizeof(quint64)];
-
-                // Write the uint64 time in microseconds in big endian format before the message.
-                // This timestamp is saved in UTC time. We are only saving in ms precision because
-                // getting more than this isn't possible with Qt without a ton of extra code.
-                uint64_t time = (uint64_t)QDateTime::currentMSecsSinceEpoch() * 1000;
-                qToBigEndian(time, buf);
-
-                // Then write the message to the buffer
-                int len = mavlink_msg_to_send_buffer(buf + sizeof(quint64), &message);
-
-                // Determine how many bytes were written by adding the timestamp size to the message size
-                len += sizeof(quint64);
-
-                // Now write this timestamp/message pair to the log.
-                QByteArray b((const char*)buf, len);
-                if(_tempLogFile.write(b) != len)
-                {
-                    // If there's an error logging data, raise an alert and stop logging.
-                    emit protocolStatusMessage(tr("MAVLink Protocol"), tr("MAVLink Logging failed. Could not write to file %1, logging disabled.").arg(_tempLogFile.fileName()));
-                    _stopLogging();
-                    _logSuspendError = true;
-                }
-
-                // Check for the vehicle arming going by. This is used to trigger log save.
-                if (!_logPromptForSave && message.msgid == MAVLINK_MSG_ID_HEARTBEAT)
-                {
-                    mavlink_heartbeat_t state;
-                    mavlink_msg_heartbeat_decode(&message, &state);
-                    if (state.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY)
-                    {
-                        _logPromptForSave = true;
-                    }
-                }
-            }
-#endif
-            */
-
             if (message.msgid == MAVLINK_MSG_ID_HEARTBEAT)
             {
-#ifndef __mobile__
-                // Start loggin on first heartbeat
-               // _startLogging();
-#endif
-
                 mavlink_heartbeat_t heartbeat;
                 mavlink_msg_heartbeat_decode(&message, &heartbeat);
-                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->VehicleHeartbeatInfo(link, message.sysid, heartbeat.mavlink_version, heartbeat.autopilot, heartbeat.type);});
+                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->VehicleHeartbeatInfo(link, message.sysid, heartbeat);});
             }
 
             // Increase receive counter

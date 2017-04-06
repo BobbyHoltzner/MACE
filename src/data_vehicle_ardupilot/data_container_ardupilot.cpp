@@ -1,14 +1,8 @@
 #include "data_container_ardupilot.h"
-namespace DataArdupilot
-{
+#include <iostream>
 
-DataContainer::DataContainer() :
-    m_CurrentArduVehicleState(NULL), m_CurrentArduVehicleStatus(NULL), m_CurrentArduGlobalPosition(NULL),
-    m_CurrentArduVehicleFuel(NULL), m_CurrentArduVehicleGPS(NULL), m_CurrentArduVehicleText(NULL),
-    m_CurrentArduLocalPosition(NULL)
+DataContainer_ARDUPILOT::DataContainer_ARDUPILOT() :
+    DataMAVLINK::DataContainer_MAVLINK()
 {
-
+    m_ArducopterFlightMode = std::make_shared<DataARDUPILOT::VehicleFlightMode>();
 }
-
-
-} // end of namespace DataArdupilot

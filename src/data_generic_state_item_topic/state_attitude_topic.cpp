@@ -35,4 +35,16 @@ void StateAttitudeTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datag
     yawRate = datagram.GetTerminal<double>("yawRate");
 }
 
+StateAttitudeTopic::StateAttitudeTopic()
+    :DataState::StateAttitude()
+{
+
+}
+
+StateAttitudeTopic::StateAttitudeTopic(const DataState::StateAttitude &copyObj):
+    DataState::StateAttitude(copyObj)
+{
+
+}
+
 } //end of namespace DataStateTopic

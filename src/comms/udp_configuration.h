@@ -22,9 +22,9 @@ public:
     // Destructor
     ~UdpConfiguration();
 
-    const int listenPortNumber() const { return _listenPortNumber; }
+    int listenPortNumber() const { return _listenPortNumber; }
     const std::string listenAddress() const { return _listenAddress; }
-    const int senderPortNumber() const { return _senderPortNumber; }
+    int senderPortNumber() const { return _senderPortNumber; }
     const std::string senderAddress() const { return _senderAddress; }
 
     void setListenPortNumber(int portNumber);

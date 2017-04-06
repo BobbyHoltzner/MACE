@@ -3,9 +3,9 @@
 
 #include <QSerialPort>
 #include <QStringList>
-
 #include <string>
 
+#include "common/common.h"
 #include "link_configuration.h"
 
 #include "comms_global.h"

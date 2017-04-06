@@ -1,6 +1,9 @@
 #ifndef STATE_LOCAL_POSITION_H
 #define STATE_LOCAL_POSITION_H
 
+#include <iostream>
+#include "common/common.h"
+
 #include "data/positional_coordinate_frame.h"
 #include "data/coordinate_frame.h"
 
@@ -63,6 +66,12 @@ public:
 
     bool operator != (const StateLocalPosition &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Local Position( X: "<<x<<", Y: "<<y<<", Z: "<<z<<")";
+        return out;
     }
 
 public:

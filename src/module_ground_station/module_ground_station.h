@@ -11,10 +11,16 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QThread>
+
+#include "common/common.h"
+
 #include "mace_core/i_module_topic_events.h"
 #include "mace_core/i_module_command_ground_station.h"
 #include "data/i_topic_component_data_object.h"
 #include "data/topic_data_object_collection.h"
+
+#include "data_generic_item/data_generic_item_components.h"
+#include "data_generic_item_topic/data_generic_item_topic_components.h"
 
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
@@ -23,8 +29,8 @@
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 #include "data_vehicle_sensors/components.h"
+
 #include "data_vehicle_MAVLINK/components.h"
-#include "data_vehicle_ardupilot/components.h"
 
 #include "guitimer.h"
 
@@ -69,53 +75,12 @@ public:
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
 
-    //!
-    //! \brief Called when a new Vehicle has been introduced into MACE
-    //!
-    //! \param ID ID of the Vehicle
-    //!
-    virtual void NewVehicle(const std::string &ID) {}
-
-
-    //!
-    //! \brief Called when a vehicle has been removed from MACE
-    //!
-    //! \param ID ID of vehicle
-    //!
-    virtual void RemoveVehicle(const std::string &ID) {}
-
-
-    //!
-    //! \brief Signal indicating a vehicle's position dynamics has been updated
-    //!
-    //! The vehicle's position can be retreived from MaceData object in getDataObject()
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void UpdatedPositionDynamics(const std::string &vehicleID) {}
-
-
-    //!
-    //! \brief Signal indicating a a vehicle's attitude dynamics have been updated
-    //!
-    //! The vehicle's attitude can be retreived from MaceData object in getDataObject()
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void UpdateAttitudeDynamics(const std::string &vehicleID) {}
-
-
-    //!
-    //! \brief Singal to indicate a vehicle's life has been updated
-    //!
-    //! The vehicle's life can be retreived from MaceData object in getDataObject()
-    //! \param vehicleID ID of vehicle
-    //!
-    virtual void UpdatedVehicleLife(const std::string &vehicleID) {}
-
-
-    //! Virtual functions as defined by IModuleCommandSensors
+    //! Virtual functions as defined by IModuleCommandGroundStation
 public:
 
     virtual void NewlyAvailableVehicle(const int &vehicleID);
+
+    virtual void NewlyAvailableCurrentMission(const int &vehicleID);
 
 
 private:
@@ -163,16 +128,17 @@ public slots:
 
 
 private:
+    Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;
+    Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_VEHICLE_MAVLINK_TYPES, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
+    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 
+private:
     std::shared_ptr<QTcpServer> m_TcpServer;
     QThread *m_ListenThread;
     QTcpSocket *m_TcpSocket;
     bool m_timeoutOccured;
     std::shared_ptr<GUITimer> m_timer;
-
-    Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
-    Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
-    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 };
 
 #endif // MODULE_GROUND_STATION_H

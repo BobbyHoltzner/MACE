@@ -1,6 +1,8 @@
 #ifndef SPATIAL_LAND_H
 #define SPATIAL_LAND_H
 
+#include <iostream>
+
 #include "data_generic_mission_item/abstract_mission_item.h"
 #include "data_generic_mission_item/mission_item_types.h"
 
@@ -22,7 +24,7 @@ public:
 public:
     SpatialLand();
 
-    bool getLandFlag();
+    bool getLandFlag() const;
     void setLandFlag(const bool &landFlag);
 
 public:
@@ -46,6 +48,8 @@ public:
     bool operator != (const SpatialLand &rhs) {
         return !(*this == rhs);
     }
+
+    std::ostream& operator<<(std::ostream &out);
 
 public:
     T position;

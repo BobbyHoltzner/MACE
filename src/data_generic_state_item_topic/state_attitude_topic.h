@@ -12,9 +12,12 @@ extern const MaceCore::TopicComponentStructure AttitudeTopic_structure;
 class StateAttitudeTopic : public DataState::StateAttitude, public Data::NamedTopicComponentDataObject<AttitudeTopic_name, &AttitudeTopic_structure>
 {
 public:
+
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
+    StateAttitudeTopic();
+    StateAttitudeTopic(const DataState::StateAttitude &copyObj);
 };
 
 } //end of namespace DataStateTopic

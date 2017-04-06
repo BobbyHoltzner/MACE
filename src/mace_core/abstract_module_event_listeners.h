@@ -20,7 +20,8 @@ public:
 
     AbstractModule_EventListeners() :
         m_LoopSleepTime(std::chrono::milliseconds(10)),
-        m_DefaultMarshalCommandOnEventLoop(true)
+        m_DefaultMarshalCommandOnEventLoop(true),
+        m_Started(false)
     {
 
     }
@@ -29,6 +30,7 @@ public:
 
     virtual void start()
     {
+        m_Started = true;
         while(true)
         {
             m_CommandDispatcher.ExecuteQueuedCommands();
@@ -47,6 +49,9 @@ public:
         return m_MetaData;
     }
 
+    bool IsStarted() const  {
+        return m_Started;
+    }
 
 
 
@@ -269,6 +274,7 @@ private:
 
     CommandMarshler<CT> m_CommandDispatcher;
 
+    bool m_Started;
 
 };
 

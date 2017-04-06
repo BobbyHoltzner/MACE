@@ -1,6 +1,8 @@
 #ifndef STATE_GLOBAL_VELOCITY_H
 #define STATE_GLOBAL_VELOCITY_H
 
+#include <iostream>
+
 namespace DataState {
 
 class StateGlobalVelocity
@@ -30,6 +32,12 @@ public:
 
     bool operator != (const StateGlobalVelocity &rhs) {
         return !(*this == rhs);
+    }
+
+    std::ostream& operator<<(std::ostream &out)
+    {
+        out<<"Global Velocity( X: "<<x<<", Y: "<<y<<", Z: "<<z<<", Heading: "<<heading<<")";
+        return out;
     }
 
 public:

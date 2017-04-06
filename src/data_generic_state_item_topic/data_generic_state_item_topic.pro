@@ -29,7 +29,9 @@ SOURCES += \
     state_global_position_topic.cpp \
     state_local_position_topic.cpp \
     state_global_velocity_topic.cpp \
-    state_local_velocity_topic.cpp
+    state_local_velocity_topic.cpp \
+    state_global_position_ex_topic.cpp \
+    state_local_position_ex_topic.cpp
 
 HEADERS +=\
         data_generic_state_item_topic_global.h \
@@ -38,7 +40,9 @@ HEADERS +=\
     state_local_position_topic.h \
     state_global_velocity_topic.h \
     state_local_velocity_topic.h \
-    state_topic_components.h
+    state_topic_components.h \
+    state_global_position_ex_topic.h \
+    state_local_position_ex_topic.h
 
 # Unix lib Install
 unix:!symbian {
@@ -57,7 +61,6 @@ INSTALLS += lib
 headers.path    = $$(MACE_ROOT)/include/data_generic_state_item_topic
 headers.files   += $$HEADERS
 INSTALLS       += headers
-
 
 INCLUDEPATH += $$PWD/../
 

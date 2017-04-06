@@ -20,8 +20,12 @@
 
 #include "topic.h"
 
+#include "data_generic_item/data_generic_item_components.h"
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_mission_item/mission_item_components.h"
+
+#include "data/system_description.h"
+#include "data/mission_map.h"
 
 namespace MaceCore
 {
@@ -51,6 +55,9 @@ class MACE_CORESHARED_EXPORT MaceData
 friend class MaceCore;
 
     static const uint64_t DEFAULT_MS_RECORD_TO_KEEP = 1000;
+
+private:
+    uint64_t m_MSTOKEEP;
 
 public:
 
@@ -110,10 +117,18 @@ public:
         vehicleIDs = m_AvailableVehicles;
     }
 
-    void GetVehicleHomePostion(const int &vehicleID, MissionItem::SpatialHome &vehicleHome) const
+    MissionItem::SpatialHome GetVehicleHomePostion(const int &vehicleID) const
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        vehicleHome = m_VehicleHomeMap.at(vehicleID);
+        MissionItem::SpatialHome vehicleHome = m_VehicleHomeMap.at(vehicleID);
+        return vehicleHome;
+    }
+
+    MissionItem::SpatialHome GetGlobalOrigin() const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+        MissionItem::SpatialHome globalHome = m_GlobalOrigin;
+        return globalHome;
     }
 
 private:
@@ -130,10 +145,7 @@ private:
     {
         //Setup a copy constructor
         MissionItem::SpatialHome newHome;
-        newHome.setVehicleID(vehicleHome.getVehicleID());
-        newHome.position.latitude = vehicleHome.position.latitude;
-        newHome.position.longitude = vehicleHome.position.longitude;
-        newHome.position.altitude = vehicleHome.position.altitude;
+        newHome = vehicleHome;
 
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_VehicleHomeMap[vehicleHome.getVehicleID()] = newHome;
@@ -658,22 +670,13 @@ private:
     mutable std::mutex m_VehicleHomeMutex;
     std::map<int, MissionItem::SpatialHome> m_VehicleHomeMap;
     std::map<int, Eigen::Vector3f> m_VehicleToGlobalTranslation;
-    bool flagGlobalOrigin;
     MissionItem::SpatialHome m_GlobalOrigin;
-
-
-    uint64_t m_MSTOKEEP;
+    bool flagGlobalOrigin;
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;
-
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_AttitudeDynamicsHistory;
-
     std::map<std::string, ObservationHistory<TIME, VehicleLife> > m_VehicleLifeHistory;
-
-
     std::map<std::string, std::vector<Eigen::Vector3d> > m_VehicleTargetPositionList;
-
-
     std::map<std::string, std::vector<FullVehicleDynamics> > m_VehicleCommandDynamicsList;
 
 
@@ -690,6 +693,20 @@ private:
     mutable std::mutex m_TopicMutex;
 
 
+    /////////////////////////////////////////////////////////
+    /// VEHICLE MISSION METHODS
+    /////////////////////////////////////////////////////////
+private:
+    mutable std::mutex COMPLETEMissionMUTEX;
+    std::map<int, std::map<Data::MissionType,MissionItem::MissionList>> m_COMPLETEMission;
+
+    mutable std::mutex INCOMPLETEMissionMUTEX;
+    std::map<int, std::map<Data::MissionType,MissionItem::MissionList>> m_INCOMPLETEMission;
+
+public:
+    void updateCOMPLETEMissionList(const MissionItem::MissionList missionList);
+    void updateINCOMPLETEMissionList(const MissionItem::MissionList missionList);
+    bool getMissionList(MissionItem::MissionList &newList, const int &systemID, const MissionItem::MissionList::MissionListState &missionState, const Data::MissionType &missionType) const;
 };
 
 } //END MaceCore Namespace

@@ -1,12 +1,10 @@
 #ifndef TOPIC_COMPONENT_COLLECTION_H
 #define TOPIC_COMPONENT_COLLECTION_H
-
 #include <functional>
 #include <unordered_map>
 #include <memory>
 #include <stdexcept>
-
-
+#include "common/common.h"
 #include "i_topic_component_data_object.h"
 
 namespace Data {
@@ -24,21 +22,25 @@ public:
 
     }
 
-
-    MaceCore::TopicDatagram GenerateDatagram(const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &list) const
-    {
-
-    }
+//TODO: Kenny commented this out as it was unused
+//    MaceCore::TopicDatagram GenerateDatagram(const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &list) const
+//    {
+//        UNUSED(list);
+//    }
 
 
     void SetComponent(std::shared_ptr<ITopicComponentDataObject> ptr, MaceCore::TopicDatagram &datagram) const {
         //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
+        UNUSED(ptr);
+        UNUSED(datagram);
         throw std::runtime_error("Unknown component passed to topic");
     }
 
 
     bool GetComponent(std::shared_ptr<ITopicComponentDataObject> ptr, const MaceCore::TopicDatagram &datagram) const {
         //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
+        UNUSED(ptr);
+        UNUSED(datagram);
         throw std::runtime_error("Unknown component passed to topic");
     }
 

@@ -188,7 +188,7 @@ void CommsMarshaler::SendMessage(const std::string &linkName, const T& message)
         case Protocols::MAVLINK:
         {
             std::shared_ptr<MavlinkProtocol> protocol = std::static_pointer_cast<MavlinkProtocol>(protocol_obj);
-            protocol->SendMessage(link.get(), message);
+            protocol->SendProtocolMessage(link.get(), message);
             break;
         }
         default:
@@ -321,12 +321,12 @@ void CommsMarshaler::MessageReceived(const ILink* link_ptr, const mavlink_messag
 //! \param vehicleFirmwareType
 //! \param vehicleType
 //!
-void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, int vehicleId, int vehicleMavlinkVersion, int vehicleFirmwareType, int vehicleType) const
+void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int systemID, const mavlink_heartbeat_t &heartbeatMSG) const
 {
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](const CommsEvents *ptr){ptr->VehicleHeartbeatInfo(m_CreatedLinksPtrToName.at(link_ptr), vehicleId, vehicleMavlinkVersion, vehicleFirmwareType, vehicleType);});
+    Emit([&](CommsEvents *ptr){ptr->VehicleHeartbeatInfo(m_CreatedLinksPtrToName.at(link_ptr), systemID, heartbeatMSG);});
 }
 
 

@@ -31,4 +31,15 @@ void StateGlobalPositionTopic::CreateFromDatagram(const MaceCore::TopicDatagram 
     altitude = datagram.GetTerminal<double>("altitude");
 }
 
+StateGlobalPositionTopic::StateGlobalPositionTopic()
+    :DataState::StateGlobalPosition()
+{
+
+}
+
+StateGlobalPositionTopic::StateGlobalPositionTopic(const DataState::StateGlobalPosition &copyObj):
+    DataState::StateGlobalPosition(copyObj)
+{
+
+}
 } //end of namespace DataStateTopic

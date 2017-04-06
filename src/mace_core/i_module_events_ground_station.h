@@ -9,6 +9,7 @@ namespace MaceCore
 class IModuleEventsGroundStation : public IModuleEventsGeneral
 {
 public:
+    virtual void RequestDummyFunction(const void* sender, const int &vehicleID) = 0;
 
 };
 
