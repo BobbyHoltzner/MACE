@@ -172,12 +172,11 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
-        Ardupilot_GuidedController newController;
-        m_ArdupilotController[systemID] = newController;
+        std::shared_ptr<Ardupilot_GuidedController> newController = std::make_shared<Ardupilot_GuidedController>();
 
-        std::thread thread([&newController]()
+        std::thread *thread = new std::thread([newController]()
         {
-            newController.runGuidanceRoutine();
+            newController->runGuidanceRoutine();
         });
     }
 

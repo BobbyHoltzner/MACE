@@ -10,7 +10,6 @@ void Ardupilot_GuidedController::runGuidanceRoutine()
 {
       while(execute)
       {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
         std::cout<<"I am executing again"<<std::endl;
       }
       //when this function exits, the thread will close.
