@@ -25,9 +25,31 @@ DataARDUPILOT::VehicleObject_ARDUPILOT* ModuleVehicleArdupilot::getArducopterDat
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
             ptr->NewConstructedVehicle(this, systemID);
         });
+
+        std::shared_ptr<Ardupilot_GuidedController> newController = std::make_shared<Ardupilot_GuidedController>(m_LinkMarshaler);
+        m_ArdupilotController[systemID] = newController;
+
+        std::thread *thread = new std::thread([newController]()
+        {
+            newController->start();
+        });
     }
 
     return tmpData;
+}
+
+std::shared_ptr<Ardupilot_GuidedController> ModuleVehicleArdupilot::getArducopterController(const int &systemID)
+{
+    std::shared_ptr<Ardupilot_GuidedController> tmpController = NULL;
+
+    try{
+        tmpController = m_ArdupilotController.at(systemID);
+    }catch(const std::out_of_range &oor)
+    {
+
+    }
+
+    return tmpController;
 }
 
 //!
@@ -172,12 +194,6 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
-        std::shared_ptr<Ardupilot_GuidedController> newController = std::make_shared<Ardupilot_GuidedController>();
-
-        std::thread *thread = new std::thread([newController]()
-        {
-            newController->runGuidanceRoutine();
-        });
     }
 
     tmpData->data->m_ArducopterFlightMode->parseMAVLINK(heartbeatMSG);
@@ -213,6 +229,20 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
             for(size_t i = 0 ; i < components.size() ; i++)
             {
                 m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
+
+                if(components.at(i)->name == DataStateTopic::StateAttitudeTopic::Name()) {
+                    std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
+                    m_VehicleDataTopic.GetComponent(component, topicDatagram);
+                    std::shared_ptr<Ardupilot_GuidedController> controller = getArducopterController(systemID);
+                    controller->updateAttitudeTopic(*component.get());
+                }
+                else if(components.at(i)->name == DataStateTopic::StateGlobalPositionTopic::Name()) {
+                    std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
+                    m_VehicleDataTopic.GetComponent(component, topicDatagram);
+                    std::shared_ptr<Ardupilot_GuidedController> controller = getArducopterController(systemID);
+                    controller->updateGlobalPositionTopic(*component.get());
+                }
+
                 //notify listneres of topic
                 ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
                     ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
@@ -246,6 +276,4 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
         }
     }
 }
-
-
 
