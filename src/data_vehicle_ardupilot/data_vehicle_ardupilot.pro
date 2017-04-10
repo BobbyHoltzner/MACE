@@ -3,7 +3,8 @@
 # Project created by QtCreator 2017-01-12T13:32:38
 #
 #-------------------------------------------------
-
+QT += serialport
+QT += network
 QT       -= core gui
 
 TARGET = data_vehicle_ardupilot
@@ -68,6 +69,7 @@ headers.files   += \
     data_container_ardupilot.h \
     ardupilot_parser.h \
     vehicle_object_ardupilot.h \
+    ardupilot_guided_controller.h
 
 INSTALLS       += headers
 
@@ -114,6 +116,10 @@ else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
 else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../comms/release/ -lcomms
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../comms/debug/ -lcomms
+else:unix:!macx: LIBS += -L$$OUT_PWD/../comms/ -lcomms
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_item/release/ -ldata_generic_item
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_item/debug/ -ldata_generic_item

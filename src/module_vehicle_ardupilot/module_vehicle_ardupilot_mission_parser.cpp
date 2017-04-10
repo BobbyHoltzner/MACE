@@ -70,6 +70,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleOb
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
                 ptr->UpdateVehicleMission(this, status, missionList);
             });
+            m_ArdupilotController.at(sysID)->updatedMission(missionList);
             //We should update all listeners
             std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>();
             missionTopic->setVehicleID(sysID);
@@ -120,6 +121,10 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleOb
         mavlink_msg_mission_current_decode(message,&decodedMSG);
         int missionIndex = decodedMSG.seq - 1;
 
+        if(missionIndex == 1)
+        {
+            m_ArdupilotController.at(sysID)->initializeMissionSequence();
+        }
         if(missionIndex >= 0)
         {
             std::shared_ptr<MissionTopic::MissionItemCurrentTopic> missionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>();

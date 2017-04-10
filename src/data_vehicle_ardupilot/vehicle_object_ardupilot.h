@@ -1,6 +1,8 @@
 #ifndef VEHICLE_OBJECT_ARDUPILOT_H
 #define VEHICLE_OBJECT_ARDUPILOT_H
 
+#include "comms/comms_marshaler.h"
+
 #include "ARDUPILOT_to_MACE/container_ardupilot_to_mace.h"
 #include "MACE_to_ARDUPILOT/container_mace_to_ardupilot.h"
 #include "data_container_ardupilot.h"
@@ -16,6 +18,7 @@ public:
 public:
     ARDUPILOTParser *parser;
     DataContainer_ARDUPILOT *data;
+
 private:
     int m_VehicleID;
     int m_SystemID;

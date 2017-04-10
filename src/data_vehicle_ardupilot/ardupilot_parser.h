@@ -2,7 +2,6 @@
 #define ARDUPILOT_PARSER_H
 
 #include "data_vehicle_mavlink/mavlink_parser.h"
-
 #include "data_container_ardupilot.h"
 
 namespace DataARDUPILOT{

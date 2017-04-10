@@ -170,6 +170,7 @@ public:
 private:
     DataARDUPILOT::VehicleObject_ARDUPILOT* getArducopterData(const int &systemID);
 
+    std::shared_ptr<Ardupilot_GuidedController> getArducopterController(const int &systemID);
 private:
 
     Timer t;
@@ -178,7 +179,7 @@ private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
 
     std::map<int,DataARDUPILOT::VehicleObject_ARDUPILOT*> m_ArduPilotData;
-    std::map<int, Ardupilot_GuidedController> m_ArdupilotController;
+    std::map<int, std::shared_ptr<Ardupilot_GuidedController>> m_ArdupilotController;
 
 };
 
