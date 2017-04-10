@@ -60,8 +60,8 @@ public:
 
     void initializeMissionSequence();
 
-    void updateAttitudeTopic(const DataStateTopic::StateAttitudeTopic &attitudeTopic);
-    void updateGlobalPositionTopic(const DataStateTopic::StateGlobalPositionTopic &globalPositionTopic);
+    void updateAttitudeTopic(const DataState::StateAttitude &attitude);
+    void updateGlobalPositionTopic(const DataState::StateGlobalPosition &globalPosition);
 
     void updatedMission(const MissionItem::MissionList &updatedMission);
 

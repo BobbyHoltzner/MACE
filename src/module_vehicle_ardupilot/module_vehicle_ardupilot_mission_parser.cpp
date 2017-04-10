@@ -121,7 +121,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleOb
         mavlink_msg_mission_current_decode(message,&decodedMSG);
         int missionIndex = decodedMSG.seq - 1;
 
-        if(missionIndex == 1)
+        if(missionIndex == 0)
         {
             m_ArdupilotController.at(sysID)->initializeMissionSequence();
         }

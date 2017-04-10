@@ -10,14 +10,16 @@ Ardupilot_GuidedController::Ardupilot_GuidedController(Comms::CommsMarshaler *co
     std::cout << "Constructor on guidance controller" << std::endl;
 }
 
-void Ardupilot_GuidedController::updateAttitudeTopic(const DataStateTopic::StateAttitudeTopic &attitudeTopic)
+void Ardupilot_GuidedController::updateAttitudeTopic(const DataState::StateAttitude &attitude)
 {
     attitudeUpdated = true;
+    currentAttitude = attitude;
 }
 
-void Ardupilot_GuidedController::updateGlobalPositionTopic(const DataStateTopic::StateGlobalPositionTopic &globalPositionTopic)
+void Ardupilot_GuidedController::updateGlobalPositionTopic(const DataState::StateGlobalPosition &globalPosition)
 {
     positionUpdated = true;
+    currentPosition = globalPosition;
 }
 
 void Ardupilot_GuidedController::updatedMission(const MissionItem::MissionList &updatedMission)
@@ -41,6 +43,8 @@ double Ardupilot_GuidedController::distanceToTarget(){
         {
             std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(currentMissionItem);
             distance = castItem->position.distanceBetween3D(currentPosition);
+            std::cout<<"Current Position:"<<currentPosition.latitude<<" "<<currentPosition.longitude<<" "<<currentPosition.altitude<<std::endl;
+            std::cout<<"Target Position:"<<castItem->position.latitude<<" "<<castItem->position.longitude<<" "<<castItem->position.altitude<<std::endl;
         }
     break;
     }
@@ -58,7 +62,7 @@ void Ardupilot_GuidedController::generateControl(const Data::MissionState &curre
     switch(currentState){
     case Data::MissionState::ROUTING:
     {
-        std::cout<<"I am still routing to the waypoint"<<std::endl;
+        //std::cout<<"I am still routing to the waypoint"<<std::endl;
         break;
     }
     case Data::MissionState::HUNTING:
@@ -88,10 +92,11 @@ void Ardupilot_GuidedController::run()
             if(executionState){
                 //let us see how close we are to our target
                 double distance = distanceToTarget();
+
+                std::cout<<"The distance to the target is: "<<distance<<std::endl;
                 Data::MissionState currentState = vehicleMissionState.updateMissionState(distance);
                 generateControl(currentState);
             }
-            std::cout<<"The position has been updated in the thread"<<std::endl;
             positionUpdated = false;
 
         }
@@ -100,6 +105,6 @@ void Ardupilot_GuidedController::run()
             attitudeUpdated = false;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 }
