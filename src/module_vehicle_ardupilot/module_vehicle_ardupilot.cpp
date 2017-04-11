@@ -7,14 +7,14 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 
 }
 
-DataARDUPILOT::VehicleObject_ARDUPILOT* ModuleVehicleArdupilot::getArducopterData(const int &systemID)
+std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> ModuleVehicleArdupilot::getArducopterData(const int &systemID)
 {
-    DataARDUPILOT::VehicleObject_ARDUPILOT* tmpData;
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData;
     try{
         tmpData = m_ArduPilotData.at(systemID);
     }catch(const std::out_of_range &oor)
     {
-        tmpData = new DataARDUPILOT::VehicleObject_ARDUPILOT(systemID,255,0);
+        tmpData = std::make_shared<DataARDUPILOT::VehicleObject_ARDUPILOT>(systemID,255,0);
         m_ArduPilotData.insert({systemID,tmpData});
         //Initialize the appropriate mission/guided queues in the data sets
         tmpData->data->m_CurrentGuidedQueue.setVehicleID(systemID);
@@ -26,7 +26,7 @@ DataARDUPILOT::VehicleObject_ARDUPILOT* ModuleVehicleArdupilot::getArducopterDat
             ptr->NewConstructedVehicle(this, systemID);
         });
 
-        std::shared_ptr<Ardupilot_GuidedController> newController = std::make_shared<Ardupilot_GuidedController>(m_LinkMarshaler);
+        std::shared_ptr<Ardupilot_GuidedController> newController = std::make_shared<Ardupilot_GuidedController>(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan);
         m_ArdupilotController[systemID] = newController;
 
         std::thread *thread = new std::thread([newController]()
@@ -70,7 +70,7 @@ void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 void ModuleVehicleArdupilot::ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
 {
     int vehicleID = vehicleArm.getVehicleID();
-    DataARDUPILOT::VehicleObject_ARDUPILOT* tmpData = getArducopterData(vehicleID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     mavlink_message_t msg = tmpData->generateArmMessage(vehicleArm,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
@@ -80,7 +80,7 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
     int vehicleID = vehicleMode.getVehicleID();
     std::string modeString = vehicleMode.getRequestMode();
 
-    DataARDUPILOT::VehicleObject_ARDUPILOT* tmpData = getArducopterData(vehicleID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     if(tmpData->data->heartbeatSeen)
     {
         int newFlightMode = tmpData->data->m_ArducopterFlightMode->getFlightModeFromString(modeString);
@@ -92,7 +92,7 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
 void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
 {
     int vehicleID = vehicleTakeoff.getVehicleID();
-    DataARDUPILOT::VehicleObject_ARDUPILOT* tmpData = getArducopterData(vehicleID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     mavlink_message_t msg = tmpData->generateTakeoffMessage(vehicleTakeoff,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
@@ -105,7 +105,7 @@ void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTak
 
 void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
 {
-    DataARDUPILOT::VehicleObject_ARDUPILOT* tmpData = getArducopterData(vehicleID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     mavlink_message_t msg = tmpData->generateGetHomeMessage(vehicleID,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
@@ -113,9 +113,37 @@ void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
 void ModuleVehicleArdupilot::SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome)
 {
     int vehicleID = vehicleHome.getVehicleID();
-    DataARDUPILOT::VehicleObject_ARDUPILOT* tmpData = getArducopterData(vehicleID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     mavlink_message_t msg = tmpData->generateSetHomePosition(vehicleHome,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+}
+
+void ModuleVehicleArdupilot::homePositionUpdated(const MissionItem::SpatialHome &newVehicleHome)
+{
+    int systemID = newVehicleHome.getVehicleID();
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(systemID);
+
+    std::shared_ptr<MissionTopic::MissionHomeTopic> homeTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+    homeTopic->setHome(newVehicleHome);
+
+    if(tmpData->data->m_MissionHome == NULL || *homeTopic != *tmpData->data->m_MissionHome)
+    {
+        m_ArdupilotController.at(systemID)->updatedHomePostion(newVehicleHome);
+        tmpData->data->m_MissionHome = homeTopic;
+    }
+
+    MaceCore::TopicDatagram topicDatagram;
+    m_VehicleMission.SetComponent(homeTopic, topicDatagram);
+
+    //notify listneres of topic
+    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(this, m_VehicleMission.Name(), systemID, MaceCore::TIME(), topicDatagram);
+    });
+
+    //notify the core of the change
+    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+        ptr->NewVehicleHomePosition(this, newVehicleHome);
+    });
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -127,7 +155,7 @@ void ModuleVehicleArdupilot::SetVehicleHomePosition(const MissionItem::SpatialHo
 void ModuleVehicleArdupilot::SetMissionQueue(const MissionItem::MissionList &missionList)
 {
     int vehicleID = missionList.getVehicleID();
-    DataARDUPILOT::VehicleObject_ARDUPILOT* tmpData = getArducopterData(vehicleID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     tmpData->data->m_ProposedMissionQueue = missionList;
 
     //m_ProposedMissionQueue[vehicleID] = missionList;
@@ -162,20 +190,20 @@ void ModuleVehicleArdupilot::ClearMissionQueue(const Data::SystemDescription &ta
 void ModuleVehicleArdupilot::SetCurrentGuidedQueue(const MissionItem::MissionList &missionList)
 {
     int vehicleID = missionList.getVehicleID();
-    DataARDUPILOT::VehicleObject_ARDUPILOT* tmpData = getArducopterData(vehicleID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     UNUSED(tmpData);
 }
 
 void ModuleVehicleArdupilot::RequestCurrentGuidedQueue(const int &vehicleID)
 {
     //This command is performed locally in the MACE instance.
-    DataARDUPILOT::VehicleObject_ARDUPILOT* tmpData = getArducopterData(vehicleID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     UNUSED(tmpData);
 }
 
 void ModuleVehicleArdupilot::RequestClearGuidedQueue(const int &vehicleID)
 {
-    DataARDUPILOT::VehicleObject_ARDUPILOT* tmpData = getArducopterData(vehicleID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     tmpData->data->m_CurrentGuidedQueue.clearQueue();
     UNUSED(tmpData);
 }
@@ -184,7 +212,7 @@ void ModuleVehicleArdupilot::RequestClearGuidedQueue(const int &vehicleID)
 void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
     UNUSED(linkName);
-    DataARDUPILOT::VehicleObject_ARDUPILOT* tmpData = getArducopterData(systemID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(systemID);
     //The purpose of this module seeing if it is the first heartbeat is to establish initial comms and parameter grabs
     //from the vehicle.
     if(!tmpData->data->heartbeatSeen)
@@ -214,7 +242,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
 void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
     int systemID = message.sysid;
-    DataARDUPILOT::VehicleObject_ARDUPILOT* tmpData = getArducopterData(systemID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(systemID);
 
     bool wasMissionMSG = ParseMAVLINKMissionMessage(tmpData, linkName, &message);
 

@@ -1,8 +1,10 @@
 #include "ardupilot_guided_controller.h"
 
 
-Ardupilot_GuidedController::Ardupilot_GuidedController(Comms::CommsMarshaler *commsMarshaler) :
-    m_LinkMarshaler(commsMarshaler),mToExit(false),vehicleMode(""),executionState(false),
+Ardupilot_GuidedController::Ardupilot_GuidedController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan) :
+    vehicleDataObject(vehicleData),
+    m_LinkMarshaler(commsMarshaler),m_LinkName(linkName),m_LinkChan(linkChan),
+    mToExit(false),vehicleMode(""),executionState(false),
     currentPosition(DataState::StateGlobalPosition()),currentAttitude(DataState::StateAttitude())
 {
     vehicleMissionState = ArdupilotMissionState(3,10,10);
@@ -27,9 +29,32 @@ void Ardupilot_GuidedController::updatedMission(const MissionItem::MissionList &
     m_CurrentMission = updatedMission;
 }
 
+void Ardupilot_GuidedController::updatedHomePostion(const MissionItem::SpatialHome &homePosition)
+{
+     m_VehicleHome = homePosition;
+}
+
 void Ardupilot_GuidedController::initializeMissionSequence()
 {
     executionState = true;
+//    mavlink_message_t msg;
+//    mavlink_mission_item_t mavMission;
+//    mavMission.autocontinue = 1;
+//    mavMission.command = 0;
+//    mavMission.current = 2;
+//    mavMission.frame = MAV_FRAME_GLOBAL_RELATIVE_ALT;
+//    mavMission.param1 = 0.0;
+//    mavMission.param2 = 0.0;
+//    mavMission.param3 = 0.0;
+//    mavMission.param4 = 0.0;
+//    mavMission.seq = 0;
+//    mavMission.target_system = 0;
+//    mavMission.target_component = 0;
+//    mavMission.x = 37.892074;
+//    mavMission.y = -76.814722;
+//    mavMission.z = 100.0;
+//    mavlink_msg_mission_item_encode_chan(mSystemID,mCompID,chan,&msg,&tmpItem);
+
 }
 
 double Ardupilot_GuidedController::distanceToTarget(){
@@ -42,9 +67,9 @@ double Ardupilot_GuidedController::distanceToTarget(){
         if(currentMissionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
         {
             std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(currentMissionItem);
-            distance = castItem->position.distanceBetween3D(currentPosition);
-            std::cout<<"Current Position:"<<currentPosition.latitude<<" "<<currentPosition.longitude<<" "<<currentPosition.altitude<<std::endl;
-            std::cout<<"Target Position:"<<castItem->position.latitude<<" "<<castItem->position.longitude<<" "<<castItem->position.altitude<<std::endl;
+            DataState::StateGlobalPosition actualPosition(currentPosition);
+            actualPosition.altitude = currentPosition.altitude - m_VehicleHome.position.altitude;
+            distance = castItem->position.distanceBetween3D(actualPosition);
         }
     break;
     }
@@ -72,7 +97,14 @@ void Ardupilot_GuidedController::generateControl(const Data::MissionState &curre
     }
     case Data::MissionState::ACHIEVED:
     {
-        m_CurrentMission.setActiveIndex(m_CurrentMission.getActiveIndex() + 1);
+        if(m_CurrentMission.getActiveIndex() == m_CurrentMission.getQueueSize() - 1)
+        {
+            //we have reached the end of the current mission
+            //KEN TODO: We need to figure out what appropriate action to take here
+        }
+        else{
+            m_CurrentMission.setActiveIndex(m_CurrentMission.getActiveIndex() + 1);
+        }
         std::cout<<"I have acheived the waypoint"<<std::endl;
         break;
     }

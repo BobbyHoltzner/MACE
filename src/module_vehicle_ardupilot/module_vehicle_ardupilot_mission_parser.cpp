@@ -1,6 +1,6 @@
 #include "module_vehicle_ardupilot.h"
 
-bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleObject_ARDUPILOT* vehicleData, const std::string &linkName, const mavlink_message_t* message)
+bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, const std::string &linkName, const mavlink_message_t* message)
 {
     bool parsedMissionMSG = true;
     int sysID = message->sysid;
@@ -26,21 +26,29 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleOb
             newHome.position.longitude = decodedMSG.y;
             newHome.position.altitude = decodedMSG.z;
             newHome.setVehicleID(sysID);
-            std::shared_ptr<MissionTopic::MissionHomeTopic> homeTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
-            homeTopic->setHome(newHome);
 
-            MaceCore::TopicDatagram topicDatagram;
-            m_VehicleMission.SetComponent(homeTopic, topicDatagram);
+            homePositionUpdated(newHome);
+//            std::shared_ptr<MissionTopic::MissionHomeTopic> homeTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+//            homeTopic->setHome(newHome);
 
-            //notify listneres of topic
-            ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-                ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
-            });
+//            if(vehicleData->data->m_MissionHome == NULL || *homeTopic != *vehicleData->data->m_MissionHome)
+//            {
+//                m_ArdupilotController.at(sysID)->updatedHomePostion(newHome);
+//                vehicleData->data->m_MissionHome = homeTopic;
+//            }
 
-            //notify the core of the change
-            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                ptr->NewVehicleHomePosition(this, newHome);
-            });
+//            MaceCore::TopicDatagram topicDatagram;
+//            m_VehicleMission.SetComponent(homeTopic, topicDatagram);
+
+//            //notify listneres of topic
+//            ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//                ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+//            });
+
+//            //notify the core of the change
+//            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+//                ptr->NewVehicleHomePosition(this, newHome);
+//            });
         }else{
             int currentIndex = decodedMSG.seq - 1; //we decrement 1 only here because ardupilot references home as 0 and we 0 index in our mission queue
             //04/03/2017 Ken Fix This
@@ -260,20 +268,22 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleOb
         spatialHome.position.altitude = decodedMSG.altitude / 1000;
         spatialHome.setVehicleID(sysID);
 
-        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-            ptr->NewVehicleHomePosition(this,spatialHome);
-        });
+        homePositionUpdated(spatialHome);
 
-        std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
-        missionTopic->setVehicleID(sysID);
-        missionTopic->setHome(spatialHome);
+//        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+//            ptr->NewVehicleHomePosition(this,spatialHome);
+//        });
 
-        MaceCore::TopicDatagram topicDatagram;
-        m_VehicleMission.SetComponent(missionTopic, topicDatagram);
-        //notify listneres of topic
-        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
-        });
+//        std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+//        missionTopic->setVehicleID(sysID);
+//        missionTopic->setHome(spatialHome);
+
+//        MaceCore::TopicDatagram topicDatagram;
+//        m_VehicleMission.SetComponent(missionTopic, topicDatagram);
+//        //notify listneres of topic
+//        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
+//        });
 
         break;
     }

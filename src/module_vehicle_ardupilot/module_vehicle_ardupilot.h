@@ -40,7 +40,7 @@ enum ArdupilotMissionMode{
 public:
     ModuleVehicleArdupilot();
 
-    bool ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleObject_ARDUPILOT* vehicleData, const std::string &linkName, const mavlink_message_t *message);
+    bool ParseMAVLINKMissionMessage(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, const std::string &linkName, const mavlink_message_t *message);
 
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
@@ -167,8 +167,15 @@ public:
     //!
     virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
+    //!
+    //! \brief homePositionUpdated
+    //! \param newVehicleHome
+    //!
+    void homePositionUpdated(const MissionItem::SpatialHome &newVehicleHome);
+
+
 private:
-    DataARDUPILOT::VehicleObject_ARDUPILOT* getArducopterData(const int &systemID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> getArducopterData(const int &systemID);
 
     std::shared_ptr<Ardupilot_GuidedController> getArducopterController(const int &systemID);
 private:
@@ -178,7 +185,7 @@ private:
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
 
-    std::map<int,DataARDUPILOT::VehicleObject_ARDUPILOT*> m_ArduPilotData;
+    std::map<int, std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT>> m_ArduPilotData;
     std::map<int, std::shared_ptr<Ardupilot_GuidedController>> m_ArdupilotController;
 
 };

@@ -14,9 +14,15 @@
 #include "data_generic_mission_item/mission_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
+#include "data_vehicle_ardupilot/components.h"
+#include "data_vehicle_ardupilot/vehicle_object_ardupilot.h"
+
 #include "comms/comms_marshaler.h"
 
 #include "ardupilot_mission_state.h"
+
+#include <mavlink.h>
+
 
 class Thread {
 public:
@@ -51,7 +57,7 @@ class Ardupilot_GuidedController : public Thread
 {
 public:
 
-    Ardupilot_GuidedController(Comms::CommsMarshaler *commsMarshaler);
+    Ardupilot_GuidedController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan);
 
     ~Ardupilot_GuidedController() {
         std::cout << "Destructor on guidance controller" << std::endl;
@@ -60,15 +66,26 @@ public:
 
     void initializeMissionSequence();
 
+    void updatedHomePostion(const MissionItem::SpatialHome &homePosition);
+    void updatedMission(const MissionItem::MissionList &updatedMission);
+
     void updateAttitudeTopic(const DataState::StateAttitude &attitude);
     void updateGlobalPositionTopic(const DataState::StateGlobalPosition &globalPosition);
 
-    void updatedMission(const MissionItem::MissionList &updatedMission);
 
     double distanceToTarget();
     void generateControl(const Data::MissionState &currentState);
 
     virtual void run();
+
+    //The following are communications objects
+private:
+    Comms::CommsMarshaler *m_LinkMarshaler;
+    std::string m_LinkName;
+    uint8_t m_LinkChan;
+
+private:
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleDataObject;
 
 private:
     //FLAGS for the thread:
@@ -86,8 +103,7 @@ private:
     DataState::StateGlobalPosition currentPosition;
     DataState::StateAttitude currentAttitude;
 
-private:
-    Comms::CommsMarshaler *m_LinkMarshaler;
+    MissionItem::SpatialHome m_VehicleHome;
 
 };
 
