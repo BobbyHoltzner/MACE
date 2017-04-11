@@ -57,6 +57,10 @@ class Ardupilot_GuidedController : public Thread
 {
 public:
 
+    MissionItem::MissionList getDummyMissionList() const{
+        return m_CurrentMission;
+    }
+
     Ardupilot_GuidedController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan);
 
     ~Ardupilot_GuidedController() {

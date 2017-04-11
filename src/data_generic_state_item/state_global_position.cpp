@@ -3,7 +3,8 @@
 
 namespace DataState{
 
-StateGlobalPosition::StateGlobalPosition()
+StateGlobalPosition::StateGlobalPosition():
+    latitude(0.0),longitude(0.0),altitude(0.0)
 {
     m_PositionFrame = Data::PositionalFrame::GLOBAL;
     m_CoordinateFrame = Data::CoordinateFrame::NED;

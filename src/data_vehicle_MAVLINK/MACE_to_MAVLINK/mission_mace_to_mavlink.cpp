@@ -407,7 +407,8 @@ mavlink_message_t Mission_MACETOMAVLINK::Takeoff_MACETOMAVLINK(const MissionItem
     return msg;
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::Waypoint_MACETOMAVLINK(const MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+
+mavlink_mission_item_t Mission_MACETOMAVLINK::Waypoint_MACETOMAVLINK(const MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
@@ -418,6 +419,12 @@ mavlink_message_t Mission_MACETOMAVLINK::Waypoint_MACETOMAVLINK(const MissionIte
     item.x = missionItem.position.latitude;
     item.y = missionItem.position.longitude;
     item.z = missionItem.position.altitude;
+    return item;
+}
+
+mavlink_message_t Mission_MACETOMAVLINK::Waypoint_MACETOMAVLINK(const MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+{
+    mavlink_mission_item_t item = Waypoint_MACETOMAVLINK(missionItem,compID,itemIndex);
     mavlink_message_t msg = this->packMissionItem(item,chan);
     return msg;
 }

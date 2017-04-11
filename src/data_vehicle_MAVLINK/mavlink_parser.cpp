@@ -18,14 +18,16 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         mavlink_sys_status_t decodedMSG;
         mavlink_msg_sys_status_decode(message,&decodedMSG);
 
-        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>();
-        ptrFuel->setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
-        ptrFuel->setBatteryCurrent(decodedMSG.current_battery/10000.0);
-        ptrFuel->setBatteryRemaining(decodedMSG.battery_remaining);
-        if(data->m_CurrentVehicleFuel == NULL || *ptrFuel != *data->m_CurrentVehicleFuel)
+//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>();
+        DataGenericItem::DataGenericItem_Fuel fuel;
+        fuel.setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
+        fuel.setBatteryCurrent(decodedMSG.current_battery/10000.0);
+        fuel.setBatteryRemaining(decodedMSG.battery_remaining);
+        if(fuel != data->getFuel())
         {
+            data->setFuel(fuel);
+            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>(fuel);
             rtnVector.push_back(ptrFuel);
-            data->m_CurrentVehicleFuel = ptrFuel;
         }
         break;
     }
@@ -126,14 +128,15 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mavlink_attitude_t decodedMSG;
         mavlink_msg_attitude_decode(message,&decodedMSG);
-        std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>();
-        ptrAttitude->setAttitude(decodedMSG.roll,decodedMSG.pitch,decodedMSG.yaw);
-        ptrAttitude->setAttitudeRates(decodedMSG.rollspeed,decodedMSG.pitchspeed,decodedMSG.yawspeed);
+        DataState::StateAttitude attitude;
+        attitude.setAttitude(decodedMSG.roll,decodedMSG.pitch,decodedMSG.yaw);
+        attitude.setAttitudeRates(decodedMSG.rollspeed,decodedMSG.pitchspeed,decodedMSG.yawspeed);
 
-        if(data->m_CurrentVehicleAttitude == NULL || *ptrAttitude != *data->m_CurrentVehicleAttitude)
+        if(attitude != data->getAttitude())
         {
+            data->setAttitude(attitude);
+            std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(attitude);
             rtnVector.push_back(ptrAttitude);
-            data->m_CurrentVehicleAttitude = ptrAttitude;
         }
         break;
     }
@@ -143,16 +146,19 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mavlink_local_position_ned_t decodedMSG;
         mavlink_msg_local_position_ned_decode(message,&decodedMSG);
-        std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
-        ptrLocalPosition->x = decodedMSG.x;
-        ptrLocalPosition->y = decodedMSG.y;
-        ptrLocalPosition->z = decodedMSG.z;
+
+        DataState::StateLocalPosition localPosition;
+        localPosition.x = decodedMSG.x;
+        localPosition.y = decodedMSG.y;
+        localPosition.z = decodedMSG.z;
 
         //check that something has actually changed
-        if(data->m_CurrentLocalPosition == NULL || *ptrLocalPosition != *data->m_CurrentLocalPosition)
+
+        if(localPosition != data->getLocalPosition())
         {
+            data->setLocalPosition(localPosition);
+            std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(localPosition);
             rtnVector.push_back(ptrLocalPosition);
-            data->m_CurrentLocalPosition = ptrLocalPosition;
         }
 
         break;
@@ -164,25 +170,28 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         mavlink_global_position_int_t decodedMSG;
         mavlink_msg_global_position_int_decode(message,&decodedMSG);
         double power = pow(10,7);
-        std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
-        ptrPosition->setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
+
+        DataState::StateGlobalPosition position;
+        position.setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
         //check that something has actually changed
-        if(data->m_CurrentGlobalPosition == NULL || *ptrPosition != *data->m_CurrentGlobalPosition)
+        if(position != data->getGlobalPos())
         {
+            data->setGlobalPos(position);
+            std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>(position);
             rtnVector.push_back(ptrPosition);
-            data->m_CurrentGlobalPosition = ptrPosition;
         }
 
-        std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> ptrPositionEx = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>();
-        ptrPositionEx->setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
-        ptrPositionEx->heading = (decodedMSG.hdg/100.0)*(3.14/180.0);
+        DataState::StateGlobalPositionEx positionEx;
+        positionEx.setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
+        positionEx.heading = (decodedMSG.hdg/100.0)*(3.14/180.0);
+
         //check that something has actually changed
-        if(data->m_CurrentGlobalPositionEx == NULL || *ptrPositionEx != *data->m_CurrentGlobalPositionEx)
+        if(positionEx != data->getGlobalPosEx())
         {
+            data->setGlobalPosEx(positionEx);
+            std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> ptrPositionEx = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>(positionEx);
             rtnVector.push_back(ptrPositionEx);
-            data->m_CurrentGlobalPositionEx = ptrPositionEx;
         }
-
         break;
     }
 
@@ -257,42 +266,43 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         mavlink_statustext_t decodedMSG;
         mavlink_msg_statustext_decode(message,&decodedMSG);
         std::cout<<"The status text says: "<<decodedMSG.text<<std::endl;
-        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
-        ptrStatusText->setText(decodedMSG.text);
+
+        DataGenericItem::DataGenericItem_Text statusText;
+        statusText.setText(decodedMSG.text);
         switch (decodedMSG.severity) {
         case MAV_SEVERITY_EMERGENCY:
-
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_EMERGENCY);
+            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_EMERGENCY);
             break;
         case MAV_SEVERITY_ALERT:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_ALERT);
+            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_ALERT);
             break;
         case MAV_SEVERITY_CRITICAL:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_CRITICAL);
+            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_CRITICAL);
             break;
         case MAV_SEVERITY_ERROR:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_ERROR);
+            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_ERROR);
             break;
         case MAV_SEVERITY_WARNING:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_WARNING);
+            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_WARNING);
             break;
         case MAV_SEVERITY_NOTICE:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_NOTICE);
+            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_NOTICE);
             break;
         case MAV_SEVERITY_INFO:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_INFO);
+            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_INFO);
             break;
         case MAV_SEVERITY_DEBUG:
-            ptrStatusText->setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_DEBUG);
+            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_DEBUG);
             break;
         default:
             break;
         }
         //check that something has actually changed
-        if(data->m_CurrentVehicleText == NULL || *ptrStatusText != *data->m_CurrentVehicleText)
+        if(statusText != data->getText())
         {
+            data->setText(statusText);
+            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(statusText);
             rtnVector.push_back(ptrStatusText);
-            data->m_CurrentVehicleText = ptrStatusText;
         }
    break;
     }

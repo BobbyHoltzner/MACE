@@ -142,7 +142,7 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
         }
     }else{
         try{
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,vehicleID);
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_DUMMY_FUNCTION,vehicleID);
         }catch(const std::out_of_range &oor){
 
         }

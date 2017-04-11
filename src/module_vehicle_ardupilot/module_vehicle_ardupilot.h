@@ -174,6 +174,11 @@ public:
     void homePositionUpdated(const MissionItem::SpatialHome &newVehicleHome);
 
 
+    virtual void RequestDummyFunction(const int &vehicleID)
+    {
+        m_ArdupilotController.at(vehicleID)->initializeMissionSequence();
+    }
+
 private:
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> getArducopterData(const int &systemID);
 

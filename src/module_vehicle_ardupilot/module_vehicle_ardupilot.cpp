@@ -16,11 +16,6 @@ std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> ModuleVehicleArdupilot::
     {
         tmpData = std::make_shared<DataARDUPILOT::VehicleObject_ARDUPILOT>(systemID,255,0);
         m_ArduPilotData.insert({systemID,tmpData});
-        //Initialize the appropriate mission/guided queues in the data sets
-        tmpData->data->m_CurrentGuidedQueue.setVehicleID(systemID);
-        tmpData->data->m_ProposedGuidedQueue.setVehicleID(systemID);
-        tmpData->data->m_CurrentMissionQueue.setVehicleID(systemID);
-        tmpData->data->m_ProposedMissionQueue.setVehicleID(systemID);
 
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
             ptr->NewConstructedVehicle(this, systemID);
@@ -81,9 +76,9 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
     std::string modeString = vehicleMode.getRequestMode();
 
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
-    if(tmpData->data->heartbeatSeen)
+    if(tmpData->data->getHearbeatSeen())
     {
-        int newFlightMode = tmpData->data->m_ArducopterFlightMode->getFlightModeFromString(modeString);
+        int newFlightMode = tmpData->data->getArdupilotFlightMode().getFlightModeFromString(modeString);
         mavlink_message_t msg = tmpData->generateChangeMode(vehicleID,m_LinkChan,newFlightMode);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
     }
@@ -156,11 +151,10 @@ void ModuleVehicleArdupilot::SetMissionQueue(const MissionItem::MissionList &mis
 {
     int vehicleID = missionList.getVehicleID();
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
-    tmpData->data->m_ProposedMissionQueue = missionList;
-
+    tmpData->data->setMission(Data::MissionType::AUTO_PROPOSED, missionList);
     //m_ProposedMissionQueue[vehicleID] = missionList;
     mavlink_message_t msg;
-    int queueSize = tmpData->data->m_ProposedMissionQueue.getQueueSize();
+    int queueSize = missionList.getQueueSize();
     mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,queueSize);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
@@ -204,7 +198,9 @@ void ModuleVehicleArdupilot::RequestCurrentGuidedQueue(const int &vehicleID)
 void ModuleVehicleArdupilot::RequestClearGuidedQueue(const int &vehicleID)
 {
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
-    tmpData->data->m_CurrentGuidedQueue.clearQueue();
+    MissionItem::MissionList newList = tmpData->data->getMission(Data::MissionType::GUIDED_CURRENT);
+    newList.clearQueue();
+    tmpData->data->setMission(Data::MissionType::GUIDED_CURRENT,newList);
     UNUSED(tmpData);
 }
 
@@ -215,19 +211,22 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(systemID);
     //The purpose of this module seeing if it is the first heartbeat is to establish initial comms and parameter grabs
     //from the vehicle.
-    if(!tmpData->data->heartbeatSeen)
+    if(!tmpData->data->getHearbeatSeen())
     {
-        tmpData->data->heartbeatSeen = true;
+        tmpData->data->setHeartbeatSeen(true);
         mavlink_message_t msg;
         mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
     }
+    DataARDUPILOT::VehicleFlightMode updateMode = tmpData->data->getArdupilotFlightMode();
+    updateMode.parseMAVLINK(heartbeatMSG);
+    tmpData->data->setArdupilotFlightMode(updateMode);
 
-    tmpData->data->m_ArducopterFlightMode->parseMAVLINK(heartbeatMSG);
+    std::shared_ptr<DataARDUPILOT::VehicleFlightMode> ptrMode = std::make_shared<DataARDUPILOT::VehicleFlightMode>(updateMode);
 
     MaceCore::TopicDatagram topicDatagram;
-    m_VehicleDataTopic.SetComponent(tmpData->data->m_ArducopterFlightMode, topicDatagram);
+    m_VehicleDataTopic.SetComponent(ptrMode, topicDatagram);
     //notify listneres of topic
     ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
         ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);

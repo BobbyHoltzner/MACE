@@ -150,6 +150,11 @@ public:
         //incomming heartbeats
     }
 
+    virtual void RequestDummyFunction(const int &vehicleID)
+    {
+        UNUSED(vehicleID);
+    }
+
 
 private:
     std::map<int,DataMAVLINK::VehicleObject_MAVLINK*> m_MAVLINKData;

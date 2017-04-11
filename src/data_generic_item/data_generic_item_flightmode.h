@@ -2,6 +2,7 @@
 #define DATA_GENERIC_ITEM_FLIGHTMODE_H
 
 #include <string>
+#include <stdint.h>
 #include "data/vehicle_types.h"
 #include "data/autopilot_types.h"
 

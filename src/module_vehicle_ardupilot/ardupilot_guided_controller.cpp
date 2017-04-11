@@ -26,6 +26,8 @@ void Ardupilot_GuidedController::updateGlobalPositionTopic(const DataState::Stat
 
 void Ardupilot_GuidedController::updatedMission(const MissionItem::MissionList &updatedMission)
 {
+    //KEN TODO: Do these types of items need to be thread protected since
+    //they can be accessed and changed in the controllers indpendent thread
     m_CurrentMission = updatedMission;
 }
 
@@ -37,24 +39,10 @@ void Ardupilot_GuidedController::updatedHomePostion(const MissionItem::SpatialHo
 void Ardupilot_GuidedController::initializeMissionSequence()
 {
     executionState = true;
-//    mavlink_message_t msg;
-//    mavlink_mission_item_t mavMission;
-//    mavMission.autocontinue = 1;
-//    mavMission.command = 0;
-//    mavMission.current = 2;
-//    mavMission.frame = MAV_FRAME_GLOBAL_RELATIVE_ALT;
-//    mavMission.param1 = 0.0;
-//    mavMission.param2 = 0.0;
-//    mavMission.param3 = 0.0;
-//    mavMission.param4 = 0.0;
-//    mavMission.seq = 0;
-//    mavMission.target_system = 0;
-//    mavMission.target_component = 0;
-//    mavMission.x = 37.892074;
-//    mavMission.y = -76.814722;
-//    mavMission.z = 100.0;
-//    mavlink_msg_mission_item_encode_chan(mSystemID,mCompID,chan,&msg,&tmpItem);
-
+    std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = m_CurrentMission.getActiveMissionItem();
+    mavlink_message_t msg;
+    vehicleDataObject->generateBasicGuidedMessage(missionItem,m_LinkChan,msg);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 double Ardupilot_GuidedController::distanceToTarget(){
@@ -104,6 +92,10 @@ void Ardupilot_GuidedController::generateControl(const Data::MissionState &curre
         }
         else{
             m_CurrentMission.setActiveIndex(m_CurrentMission.getActiveIndex() + 1);
+            std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = m_CurrentMission.getActiveMissionItem();
+            mavlink_message_t msg;
+            vehicleDataObject->generateBasicGuidedMessage(missionItem,m_LinkChan,msg);
+            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         }
         std::cout<<"I have acheived the waypoint"<<std::endl;
         break;
