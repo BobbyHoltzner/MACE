@@ -16,6 +16,8 @@ public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const = 0;
 
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram) = 0;
+
+    const char* name;
 };
 
 
@@ -23,6 +25,11 @@ template<const char* CompName, const MaceCore::TopicComponentStructure *Structur
 class NamedTopicComponentDataObject : public ITopicComponentDataObject{
 
 public:
+    NamedTopicComponentDataObject()
+    {
+        name = CompName;
+    }
+
     static std::string Name() {
         return std::string(CompName);
     }

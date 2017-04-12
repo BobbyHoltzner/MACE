@@ -3,7 +3,8 @@
 
 using namespace DataState;
 
-StateLocalPosition::StateLocalPosition()
+StateLocalPosition::StateLocalPosition():
+    x(0.0),y(0.0),z(0.0)
 {
     m_PositionFrame = Data::PositionalFrame::LOCAL;
     m_CoordinateFrame = Data::CoordinateFrame::NED;

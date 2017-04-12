@@ -54,6 +54,12 @@ public:
         return missionType;
     }
 
+    int getActiveIndex() const;
+
+    std::shared_ptr<AbstractMissionItem> getActiveMissionItem();
+
+    void setActiveIndex(const int &activeIndex);
+
 public:
     void operator = (const MissionList &rhs)
     {
@@ -82,12 +88,21 @@ public:
     std::vector<std::shared_ptr<AbstractMissionItem>> missionQueue;
 
 private:
+    //!
+    //! \brief m_VehicleID
+    //!
     int m_VehicleID;
+
     //!
     //! \brief missionType This denotes the queue in which the information should be stored.
     //! This parameter will be packaged in the COMPID protocol for now.
     //!
     Data::MissionType missionType;
+
+    //!
+    //! \brief activeMissionItem
+    //!
+    int activeMissionItem;
 };
 
 } //end of namespace MissionItem

@@ -2,7 +2,8 @@
 
 using namespace DataState;
 
-StateAttitude::StateAttitude()
+StateAttitude::StateAttitude():
+    roll(0.0),pitch(0.0),yaw(0.0),rollRate(0.0),pitchRate(0.0),yawRate(0.0)
 {
 
 }

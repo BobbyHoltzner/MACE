@@ -218,6 +218,11 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
                 mavlink_heartbeat_t heartbeat;
                 mavlink_msg_heartbeat_decode(&message, &heartbeat);
                 Emit([&](const IProtocolMavlinkEvents* ptr){ptr->VehicleHeartbeatInfo(link, message.sysid, heartbeat);});
+            }else if(message.msgid == MAVLINK_MSG_ID_COMMAND_ACK)
+            {
+                mavlink_command_ack_t commandACK;
+                mavlink_msg_command_ack_decode(&message, &commandACK);
+                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->VehicleCommandACK(link, message.sysid, commandACK);});
             }
 
             // Increase receive counter

@@ -9,6 +9,20 @@ enum class PositionalFrame{
     GLOBAL
 };
 
+struct globalPos
+{
+    float latitude;
+    float longitude;
+    float altitude;
+};
+
+struct localPos
+{
+    double x;
+    double y;
+    double z;
+};
+
 }
 
 

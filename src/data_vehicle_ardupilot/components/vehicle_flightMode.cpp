@@ -28,10 +28,18 @@ void VehicleFlightMode::getAvailableFlightModes(const Data::VehicleTypes &vehicl
     UNUSED(availableFM);
 }
 
+bool VehicleFlightMode::vehicleArmable()
+{
+    if((flightModeString == "STABILIZE") || (flightModeString == "LOITER"))
+        return true;
+    return false;
+}
+
 void VehicleFlightMode::parseMAVLINK(const mavlink_heartbeat_t &msg)
 {
     this->setVehicleTypeFromMAVLINK(msg.type);
     std::string newFlightMode = availableFM.at(msg.custom_mode);
+    this->setFlightMode(msg.custom_mode);
     this->setFlightMode(newFlightMode);
     this->setAutopilotType(Data::AutopilotTypes::ARDUPILOT);
     this->setVehicleArmed(msg.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);

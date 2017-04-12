@@ -1,6 +1,7 @@
 #ifndef FLIGHTMODE_H
 #define FLIGHTMODE_H
 
+#include <iostream>
 #include <map>
 #include <list>
 #include <string>
@@ -73,6 +74,8 @@ public:
     int getFlightModeFromString(const std::string &modeString);
 
     void getAvailableFlightModes(const Data::VehicleTypes &vehicleType, std::map<int, std::string> &availableFM);
+
+    bool vehicleArmable();
 
 private:
     std::map<int, std::string> arducopterFM = {{(int)Arducopter_FM::ACFM_STABILIZE,"STABILIZE"},
