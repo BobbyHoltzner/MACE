@@ -120,6 +120,13 @@ public:
         UNUSED(heartbeatMSG);
     }
 
+    virtual void VehicleCommandACK(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK)
+    {
+        UNUSED(linkName);
+        UNUSED(systemID);
+        UNUSED(cmdACK);
+    }
+
     //!
     //! \brief New Mavlink message received over a link
     //! \param linkName Name of link message received over

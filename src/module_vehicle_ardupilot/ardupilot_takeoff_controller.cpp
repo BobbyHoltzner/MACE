@@ -39,9 +39,31 @@ void Ardupilot_TakeoffController::initializeTakeoffSequence(const MissionItem::S
     }
 }
 
+void Ardupilot_TakeoffController::updateCommandACK(const mavlink_command_ack_t &cmdACK)
+{
+    if((cmdACK.command == 22) && (cmdACK.result == MAV_RESULT_ACCEPTED))
+    {
+        currentStateLogic = ALTITUDE_TRANSITION;
+        //The takeoff sequence is being performed
+    }
+}
+
 double Ardupilot_TakeoffController::distanceToTarget(){
-    double distance  = fabs(currentPosition.deltaAltitude(missionItem_Takeoff.position));
-    return distance;
+    switch(currentStateLogic)
+    {
+    case(ALTITUDE_TRANSITION):
+    {
+        double distance  = fabs(currentPosition.deltaAltitude(missionItem_Takeoff.position));
+        return distance;
+        break;
+    }
+    case(HORIZONTAL_TRANSITION):
+    {
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 void Ardupilot_TakeoffController::generateControl(const Data::MissionState &currentState)
@@ -167,7 +189,6 @@ void Ardupilot_TakeoffController::controlSequence()
     {
         //let us see how close we are to our target
         double distance = distanceToTarget();
-
         std::cout<<"The distance to the target is: "<<distance<<std::endl;
         Data::MissionState currentState = vehicleMissionState.updateMissionState(distance);
         generateControl(currentState);

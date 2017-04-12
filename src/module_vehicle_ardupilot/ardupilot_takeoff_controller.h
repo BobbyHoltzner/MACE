@@ -40,6 +40,7 @@ public:
     double distanceToTarget();
     void controlSequence();
     void generateControl(const Data::MissionState &currentState);
+    void updateCommandACK(const mavlink_command_ack_t &cmdACK);
 
     void run();
 

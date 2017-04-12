@@ -225,6 +225,12 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     });
 }
 
+void ModuleVehicleArdupilot::VehicleCommandACK(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK)
+{
+    if(checkControllerState())
+        m_AircraftController->updateCommandACK(cmdACK);
+}
+
 //!
 //! \brief New Mavlink message received over a link
 //! \param linkName Name of link message received over

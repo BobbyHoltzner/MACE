@@ -46,6 +46,7 @@ public:
     virtual void updatedHomePostion(const MissionItem::SpatialHome &homePosition, const bool &updateFlag  = true);
     virtual void updateAttitudeTopic(const DataState::StateAttitude &attitude, const bool &updateFlag  = true);
     virtual void updateGlobalPositionTopic(const DataState::StateGlobalPosition &globalPosition, const bool &updateFlag  = true);
+    virtual void updateCommandACK(const mavlink_command_ack_t &cmdACK) = 0;
 
 protected:
     controllerTypes controllerType;
