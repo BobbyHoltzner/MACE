@@ -37,37 +37,4 @@ inline GuidedState GuidedStateFromString(const std::string &str) {
     throw std::runtime_error("Unknown guided state seen");
 }
 
-
-enum class PlanningHorizon{
-    IMMEDIATE,
-    LOCAL,
-    GLOBAL
-};
-
-inline std::string PlanningHorizonToString(const PlanningHorizon &state) {
-    switch (state) {
-    case PlanningHorizon::IMMEDIATE:
-        return "IMMEDIATE";
-    case PlanningHorizon::LOCAL:
-        return "LOCAL";
-    case PlanningHorizon::GLOBAL:
-        return "GLOBAL";
-    default:
-        throw std::runtime_error("Unknown planning horizon seen");
-    }
-}
-
-inline PlanningHorizon PlanningHorizonFromString(const std::string &str) {
-    if(str == "IMMEDIATE")
-        return PlanningHorizon::IMMEDIATE;
-    if(str == "LOCAL")
-        return PlanningHorizon::LOCAL;
-    if(str == "GLOBAL")
-        return PlanningHorizon::GLOBAL;
-
-    throw std::runtime_error("Unknown planning horizon seen");
-}
-
-} //end of namespace Data
-
 #endif // CONTROLLER_STATE_H

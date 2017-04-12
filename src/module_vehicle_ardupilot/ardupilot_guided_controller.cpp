@@ -2,26 +2,11 @@
 
 
 Ardupilot_GuidedController::Ardupilot_GuidedController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan) :
-    vehicleDataObject(vehicleData),
-    m_LinkMarshaler(commsMarshaler),m_LinkName(linkName),m_LinkChan(linkChan),
-    mToExit(false),vehicleMode(""),executionState(false),
-    currentPosition(DataState::StateGlobalPosition()),currentAttitude(DataState::StateAttitude())
+    Ardupilot_GeneralController(vehicleData, commsMarshaler, linkName, linkChan), executionState(false)
 {
+    controllerType = CONTROLLER_GUIDED;
     vehicleMissionState = ArdupilotMissionState(3,10,10);
-
     std::cout << "Constructor on guidance controller" << std::endl;
-}
-
-void Ardupilot_GuidedController::updateAttitudeTopic(const DataState::StateAttitude &attitude)
-{
-    attitudeUpdated = true;
-    currentAttitude = attitude;
-}
-
-void Ardupilot_GuidedController::updateGlobalPositionTopic(const DataState::StateGlobalPosition &globalPosition)
-{
-    positionUpdated = true;
-    currentPosition = globalPosition;
 }
 
 void Ardupilot_GuidedController::updatedMission(const MissionItem::MissionList &updatedMission)
@@ -29,11 +14,6 @@ void Ardupilot_GuidedController::updatedMission(const MissionItem::MissionList &
     //KEN TODO: Do these types of items need to be thread protected since
     //they can be accessed and changed in the controllers indpendent thread
     m_CurrentMission = updatedMission;
-}
-
-void Ardupilot_GuidedController::updatedHomePostion(const MissionItem::SpatialHome &homePosition)
-{
-     m_VehicleHome = homePosition;
 }
 
 void Ardupilot_GuidedController::initializeMissionSequence()

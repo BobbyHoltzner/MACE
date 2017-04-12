@@ -28,6 +28,13 @@ void VehicleFlightMode::getAvailableFlightModes(const Data::VehicleTypes &vehicl
     UNUSED(availableFM);
 }
 
+bool VehicleFlightMode::vehicleArmable()
+{
+    if((flightModeString == "STABILIZE") || (flightModeString == "LOITER"))
+        return true;
+    return false;
+}
+
 void VehicleFlightMode::parseMAVLINK(const mavlink_heartbeat_t &msg)
 {
     this->setVehicleTypeFromMAVLINK(msg.type);

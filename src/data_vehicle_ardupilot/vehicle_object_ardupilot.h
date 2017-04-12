@@ -17,6 +17,21 @@ public:
 
     bool generateBasicGuidedMessage(const std::shared_ptr<MissionItem::AbstractMissionItem> &missionItem, const uint8_t &chan, mavlink_message_t &msg);
 
+    int getVehicleID() const
+    {
+        return m_VehicleID;
+    }
+
+    int getSystemID() const
+    {
+        return m_SystemID;
+    }
+
+    int getSystemComp() const
+    {
+        return m_SystemComp;
+    }
+
 public:
     ARDUPILOTParser *parser;
     DataContainer_ARDUPILOT *data;

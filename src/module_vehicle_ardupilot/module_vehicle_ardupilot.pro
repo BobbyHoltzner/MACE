@@ -17,15 +17,18 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += module_vehicle_ardupilot.cpp \
     module_vehicle_ardupilot_mission_parser.cpp \
-    takeoff_thread.cpp \
     ardupilot_guided_controller.cpp \
-    ardupilot_mission_state.cpp
+    ardupilot_mission_state.cpp \
+    ardupilot_takeoff_controller.cpp \
+    ardupilot_general_controller.cpp
 
 HEADERS += module_vehicle_ardupilot.h\
         module_vehicle_ardupilot_global.h \
-    takeoff_thread.h \
     ardupilot_guided_controller.h \
-    ardupilot_mission_state.h
+    ardupilot_mission_state.h \
+    ardupilot_takeoff_controller.h \
+    ardupilot_threadmanager.h \
+    ardupilot_general_controller.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 

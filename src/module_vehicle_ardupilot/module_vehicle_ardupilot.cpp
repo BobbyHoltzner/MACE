@@ -2,7 +2,7 @@
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),
-    m_VehicleMission("vehicleMission")
+    m_VehicleMission("vehicleMission"), m_AircraftController(NULL)
 {
 
 }
@@ -21,30 +21,16 @@ std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> ModuleVehicleArdupilot::
             ptr->NewConstructedVehicle(this, systemID);
         });
 
-        std::shared_ptr<Ardupilot_GuidedController> newController = std::make_shared<Ardupilot_GuidedController>(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan);
-        m_ArdupilotController[systemID] = newController;
+//        std::shared_ptr<Ardupilot_GuidedController> newController = std::make_shared<Ardupilot_GuidedController>(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan);
+//        m_ArdupilotController[systemID] = newController;
 
-        std::thread *thread = new std::thread([newController]()
-        {
-            newController->start();
-        });
+//        std::thread *thread = new std::thread([newController]()
+//        {
+//            newController->start();
+//        });
     }
 
     return tmpData;
-}
-
-std::shared_ptr<Ardupilot_GuidedController> ModuleVehicleArdupilot::getArducopterController(const int &systemID)
-{
-    std::shared_ptr<Ardupilot_GuidedController> tmpController = NULL;
-
-    try{
-        tmpController = m_ArdupilotController.at(systemID);
-    }catch(const std::out_of_range &oor)
-    {
-
-    }
-
-    return tmpController;
 }
 
 //!
@@ -123,7 +109,8 @@ void ModuleVehicleArdupilot::homePositionUpdated(const MissionItem::SpatialHome 
 
     if(tmpData->data->m_MissionHome == NULL || *homeTopic != *tmpData->data->m_MissionHome)
     {
-        m_ArdupilotController.at(systemID)->updatedHomePostion(newVehicleHome);
+        if(checkControllerState())
+            m_AircraftController->updatedHomePostion(newVehicleHome);
         tmpData->data->m_MissionHome = homeTopic;
     }
 
@@ -219,11 +206,16 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
     }
-    DataARDUPILOT::VehicleFlightMode updateMode = tmpData->data->getArdupilotFlightMode();
-    updateMode.parseMAVLINK(heartbeatMSG);
-    tmpData->data->setArdupilotFlightMode(updateMode);
+    DataARDUPILOT::VehicleFlightMode newDataMode;
+    newDataMode.parseMAVLINK(heartbeatMSG);
+    if(newDataMode != tmpData->data->getArdupilotFlightMode())
+    {
+        tmpData->data->setArdupilotFlightMode(newDataMode);
+        if(checkControllerState())
+            m_AircraftController->updateFlightMode(newDataMode);
+    }
 
-    std::shared_ptr<DataARDUPILOT::VehicleFlightMode> ptrMode = std::make_shared<DataARDUPILOT::VehicleFlightMode>(updateMode);
+    std::shared_ptr<DataARDUPILOT::VehicleFlightMode> ptrMode = std::make_shared<DataARDUPILOT::VehicleFlightMode>(newDataMode);
 
     MaceCore::TopicDatagram topicDatagram;
     m_VehicleDataTopic.SetComponent(ptrMode, topicDatagram);
@@ -260,14 +252,14 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
                 if(components.at(i)->name == DataStateTopic::StateAttitudeTopic::Name()) {
                     std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                     m_VehicleDataTopic.GetComponent(component, topicDatagram);
-                    std::shared_ptr<Ardupilot_GuidedController> controller = getArducopterController(systemID);
-                    controller->updateAttitudeTopic(*component.get());
+                    if(checkControllerState())
+                        m_AircraftController->updateAttitudeTopic(*component.get());
                 }
                 else if(components.at(i)->name == DataStateTopic::StateGlobalPositionTopic::Name()) {
                     std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                     m_VehicleDataTopic.GetComponent(component, topicDatagram);
-                    std::shared_ptr<Ardupilot_GuidedController> controller = getArducopterController(systemID);
-                    controller->updateGlobalPositionTopic(*component.get());
+                    if(checkControllerState())
+                        m_AircraftController->updateGlobalPositionTopic(*component.get());
                 }
 
                 //notify listneres of topic

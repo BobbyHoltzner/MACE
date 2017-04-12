@@ -31,7 +31,8 @@ HEADERS += data_global.h \
     controller_state.h \
     mission_map.h \
     system_description.h \
-    mission_state.h
+    mission_state.h \
+    command_acknowledgement.h
     loiter_direction.h
 
 # Unix lib Install
