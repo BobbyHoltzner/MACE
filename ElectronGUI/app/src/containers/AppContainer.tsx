@@ -376,8 +376,11 @@ export default class AppContainer extends React.Component<Props, State> {
     if(action === "Settings"){
       this.setState({showMessagesMenu: true, openDrawer: false});
     }
-    else if(action === "TestButton") {
-      this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION", "");
+    else if(action === "TestButton1") {
+      this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION1", "");
+    }
+    else if(action === "TestButton2") {
+      this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION2", "");
     }
   }
 

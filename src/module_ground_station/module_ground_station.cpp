@@ -183,9 +183,13 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     {
         getVehicleHome(vehicleID);
     }
-    else if(command == "TEST_FUNCTION")
+    else if(command == "TEST_FUNCTION1")
     {
-        testFunction();
+        testFunction1();
+    }
+    else if(command == "TEST_FUNCTION2")
+    {
+        testFunction2();
     }
     else
     {
@@ -195,7 +199,7 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     }
 }
 
-void ModuleGroundStation::testFunction()
+void ModuleGroundStation::testFunction1()
 {
     MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
 //    newHome.position.latitude = 37.890903;
@@ -240,6 +244,11 @@ void ModuleGroundStation::testFunction()
         ptr->RequestSetVehicleMission(this, missionList);
     });
 
+}
+
+void ModuleGroundStation::testFunction2()
+{
+    std::cout << "SECOND TEST FUNCTION" << std::endl;
 }
 
 void ModuleGroundStation::getConnectedVehicles()

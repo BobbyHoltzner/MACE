@@ -118,7 +118,8 @@ private:
     void getVehicleHome(const int &vehicleID);
 
     // TESTING:
-    void testFunction();
+    void testFunction1();
+    void testFunction2();
     // END TESTING
 
 
