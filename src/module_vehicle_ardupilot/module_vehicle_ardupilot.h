@@ -7,6 +7,9 @@
 
 #include "data/timer.h"
 
+#include "ardupilot_guided_controller.h"
+#include "ardupilot_takeoff_controller.h"
+
 #include "module_vehicle_ardupilot_global.h"
 #include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
 
@@ -38,7 +41,7 @@ enum ArdupilotMissionMode{
 public:
     ModuleVehicleArdupilot();
 
-    bool ParseMAVLINKMissionMessage(DataARDUPILOT::VehicleObject_ARDUPILOT* vehicleData, const std::string &linkName, const mavlink_message_t *message);
+    bool ParseMAVLINKMissionMessage(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, const std::string &linkName, const mavlink_message_t *message);
 
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
@@ -46,6 +49,8 @@ public:
 public:
 
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG);
+
+    virtual void VehicleCommandACK(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK);
     //!
     //! \brief New Mavlink message received over a link
     //! \param linkName Name of link message received over
@@ -165,9 +170,52 @@ public:
     //!
     virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
-private:
-    DataARDUPILOT::VehicleObject_ARDUPILOT* getArducopterData(const int &systemID);
+    //!
+    //! \brief homePositionUpdated
+    //! \param newVehicleHome
+    //!
+    void homePositionUpdated(const MissionItem::SpatialHome &newVehicleHome);
 
+
+    bool checkControllerState()
+    {
+        if(m_AircraftController)
+        {
+          //The current controller is not null
+            if(m_AircraftController->isThreadActive())
+            {
+                //The controller is valid and is actively doing something
+                return true;
+            }
+            else{
+                //The controller is valid however it is done for some reason
+                //The thread is no longer active
+                //KEN TODO: We should figure out if this is the proper way to clean this up
+                delete m_AircraftController;
+                return false;
+            }
+        }
+        return false;
+    }
+
+    virtual void RequestDummyFunction(const int &vehicleID)
+    {
+        std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
+        Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan);
+        MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> takeoff;
+        takeoff.setVehicleID(1);
+        takeoff.position.setPosition(37,-76,100);
+        newController->initializeTakeoffSequence(takeoff);
+
+        m_AircraftController = newController;
+        std::thread *thread = new std::thread([newController]()
+        {
+            newController->start();
+        });
+    }
+
+private:
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> getArducopterData(const int &systemID);
 private:
 
     Timer t;
@@ -175,8 +223,9 @@ private:
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
 
-    std::map<int,DataARDUPILOT::VehicleObject_ARDUPILOT*> m_ArduPilotData;
+    std::map<int, std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT>> m_ArduPilotData;
 
+    Ardupilot_GeneralController* m_AircraftController;
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H

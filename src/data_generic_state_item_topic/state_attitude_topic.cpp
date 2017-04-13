@@ -2,7 +2,7 @@
 
 namespace DataStateTopic {
 
-const char AttitudeTopic_name[] = "attitude_n";
+const char AttitudeTopic_name[] = "attitude";
 const MaceCore::TopicComponentStructure AttitudeTopic_structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<double>("roll");

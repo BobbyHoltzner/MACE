@@ -12,7 +12,8 @@ namespace MaceCore
 
 enum class VehicleCommands
 {
-    BASE_MODULE_VEHICLE_LISTENER_ENUMS
+    BASE_MODULE_VEHICLE_LISTENER_ENUMS,
+    REQUEST_DUMMY_FUNCTION
 };
 
 
@@ -29,6 +30,9 @@ public:
         AbstractModule_VehicleListener()
     {
         //These are from MACE Core to modules
+        this->template AddCommandLogic<int>(VehicleCommands::REQUEST_DUMMY_FUNCTION, [this](const int &vehicleID){
+            RequestDummyFunction(vehicleID);
+        });
 
     }
 
@@ -39,6 +43,7 @@ public:
 
 
 public:
+    virtual void RequestDummyFunction(const int &vehicleID) = 0;
 
 
 };

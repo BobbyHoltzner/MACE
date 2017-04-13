@@ -321,7 +321,7 @@ void CommsMarshaler::MessageReceived(const ILink* link_ptr, const mavlink_messag
 //! \param vehicleFirmwareType
 //! \param vehicleType
 //!
-void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int systemID, const mavlink_heartbeat_t &heartbeatMSG) const
+void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG) const
 {
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
@@ -329,6 +329,14 @@ void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int syste
     Emit([&](CommsEvents *ptr){ptr->VehicleHeartbeatInfo(m_CreatedLinksPtrToName.at(link_ptr), systemID, heartbeatMSG);});
 }
 
+//!
+void CommsMarshaler::VehicleCommandACK(const ILink* link_ptr, const int &systemID, const mavlink_command_ack_t &cmdACK) const
+{
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](CommsEvents *ptr){ptr->VehicleCommandACK(m_CreatedLinksPtrToName.at(link_ptr), systemID, cmdACK);});
+}
 
 //!
 //! \brief A new radio status packet received

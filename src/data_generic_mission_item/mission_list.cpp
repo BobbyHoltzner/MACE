@@ -3,7 +3,7 @@
 namespace MissionItem {
 
 MissionList::MissionList() :
-    missionType(Data::MissionType::AUTO_CURRENT)
+    missionType(Data::MissionType::AUTO_CURRENT), activeMissionItem(0)
 {
 
 }
@@ -66,6 +66,21 @@ std::shared_ptr<AbstractMissionItem> MissionList::getMissionItem(const int &inde
 int MissionList::getQueueSize() const
 {
     return missionQueue.size();
+}
+
+int MissionList::getActiveIndex() const
+{
+    return activeMissionItem;
+}
+
+std::shared_ptr<AbstractMissionItem> MissionList::getActiveMissionItem()
+{
+    return (getMissionItem(getActiveIndex()));
+}
+
+void MissionList::setActiveIndex(const int &activeIndex)
+{
+    activeMissionItem = activeIndex;
 }
 
 

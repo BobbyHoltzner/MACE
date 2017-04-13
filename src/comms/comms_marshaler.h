@@ -171,7 +171,15 @@ private:
     //! \param vehicleFirmwareType
     //! \param vehicleType
     //!
-    virtual void VehicleHeartbeatInfo(const ILink* link_ptr, const int vehicleId, const mavlink_heartbeat_t &heartbeatMSG) const;
+    virtual void VehicleHeartbeatInfo(const ILink* link_ptr, const int &vehicleId, const mavlink_heartbeat_t &heartbeatMSG) const;
+
+    //!
+    //! \brief VehicleCommandACK
+    //! \param link_ptr
+    //! \param vehicleId
+    //! \param cmdACKMSG
+    //!
+    virtual void VehicleCommandACK(const ILink* link_ptr, const int &vehicleId, const mavlink_command_ack_t &cmdACK) const;
 
 
     //!

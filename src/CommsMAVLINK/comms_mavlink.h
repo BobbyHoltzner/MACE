@@ -35,7 +35,9 @@ public:
 
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message);
 
-    virtual void VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG);
+    virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
+
+    virtual void VehicleCommandACK(const std::string &linkName, const int &systemID, const mavlink_command_ack_t &cmdACK);
 
     virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics()
     {
