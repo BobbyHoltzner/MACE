@@ -20,6 +20,29 @@ public:
         STATUS_DEBUG
     };
 
+    static inline std::string StatusSeverityToString(const STATUS_SEVERITY &state) {
+        switch (state) {
+        case STATUS_SEVERITY::STATUS_EMERGENCY:
+            return "STATUS_EMERGENCY";
+        case STATUS_SEVERITY::STATUS_ALERT:
+            return "STATUS_ALERT";
+        case STATUS_SEVERITY::STATUS_CRITICAL:
+            return "STATUS_CRITICAL";
+        case STATUS_SEVERITY::STATUS_ERROR:
+            return "STATUS_ERROR";
+        case STATUS_SEVERITY::STATUS_WARNING:
+            return "STATUS_WARNING";
+        case STATUS_SEVERITY::STATUS_NOTICE:
+            return "STATUS_NOTICE";
+        case STATUS_SEVERITY::STATUS_INFO:
+            return "STATUS_INFO";
+        case STATUS_SEVERITY::STATUS_DEBUG:
+            return "STATUS_DEBUG";
+        default:
+            throw std::runtime_error("Unknown status severity seen");
+        }
+    }
+
 public:
     DataGenericItem_Text();
 

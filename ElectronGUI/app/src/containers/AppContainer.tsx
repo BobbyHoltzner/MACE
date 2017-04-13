@@ -5,7 +5,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme();
 
 var NotificationSystem = require('react-notification-system');
-import { Map, TileLayer, LayerGroup, Marker, Popup, Polyline } from 'react-leaflet';
+import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon } from 'react-leaflet';
 import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
 import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
 import { VehicleCommandsContainer } from './VehicleCommandsContainer';
@@ -17,14 +17,13 @@ import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { Vehicle } from '../Vehicle';
-import { backgroundColors } from '../util/Colors';
+import { backgroundColors, opaqueBackgroundColors } from '../util/Colors';
 import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
 import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
+import { MessagesDialog } from '../components/MessagesDialog';
 import { ContextMenu } from '../components/ContextMenu';
 
 import * as deepcopy from 'deepcopy';
-
-
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
@@ -53,7 +52,9 @@ type State = {
   globalOrigin?: PositionType,
   showContextMenu?: boolean,
   contextAnchor?: L.LeafletMouseEvent,
-  useContext?: boolean
+  useContext?: boolean,
+  showMessagesMenu?: boolean,
+  messagePreferences?: MessagePreferencesType
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -92,7 +93,18 @@ export default class AppContainer extends React.Component<Props, State> {
       selectedVehicleID: "0",
       showContextMenu: false,
       contextAnchor: null,
-      useContext: false
+      useContext: false,
+      showMessagesMenu: false,
+      messagePreferences: {
+        emergency: true,
+        alert: true,
+        critical: true,
+        error: true,
+        warning: true,
+        notice: true,
+        info: true,
+        debug: true
+      }
     }
   }
 
@@ -103,7 +115,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
     setInterval(() => {
       this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
-    }, 7000);
+    }, 2000);
   }
 
   setupTCPServer = () => {
@@ -132,7 +144,13 @@ export default class AppContainer extends React.Component<Props, State> {
 
 
     // TODO: Allow for user configuration of the port and probably address too
-    this.state.tcpServer.listen(1234);
+    try{
+      this.state.tcpServer.listen(1234);
+    }
+    catch(e) {
+      console.log('Error: ' + e);
+    }
+
     console.log('System listening at http://localhost:1234');
   }
 
@@ -143,7 +161,7 @@ export default class AppContainer extends React.Component<Props, State> {
     if(jsonData.dataType === "ConnectedVehicles"){
       let jsonVehicles = jsonData as ConnectedVehiclesType;
 
-      console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
+      // console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
 
       // Check if vehicle is already in the map. If so, do nothing. If not, add it:
       for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
@@ -203,7 +221,92 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(jsonData.dataType === 'VehicleHome') {
       let vehicleHome = jsonData as (TCPReturnType & MissionItemType);
       let stateCopy = deepcopy(this.state.connectedVehicles);
-      stateCopy[vehicleHome.vehicleID].setVehicleHome(vehicleHome);
+      let tmpHome = {
+        lat: vehicleHome.lat,
+        lon: vehicleHome.lon,
+        alt: vehicleHome.alt
+      }
+      stateCopy[vehicleHome.vehicleID].updateHomePosition(tmpHome);
+      this.setState({connectedVehicles: stateCopy});
+    }
+    else if(jsonData.dataType === 'VehicleFuel') {
+      let vehicleFuel = jsonData as TCPFuelType;
+
+      stateCopy[vehicleFuel.vehicleID].fuel.batteryRemaining = vehicleFuel.batteryRemaining;
+      stateCopy[vehicleFuel.vehicleID].fuel.batteryCurrent = vehicleFuel.batteryCurrent;
+      stateCopy[vehicleFuel.vehicleID].fuel.batteryVoltage = vehicleFuel.batteryVoltage;
+
+      this.setState({connectedVehicles: stateCopy});
+    }
+    else if(jsonData.dataType === 'VehicleMode') {
+      let vehicleMode = jsonData as TCPModeType;
+
+      stateCopy[vehicleMode.vehicleID].isArmed = vehicleMode.isArmed;
+      stateCopy[vehicleMode.vehicleID].vehicleMode = vehicleMode.vehicleMode;
+      // TODO: vehicle type (i.e. quad, fixed, etc.)
+
+      this.setState({connectedVehicles: stateCopy});
+    }
+    else if(jsonData.dataType === 'VehicleText') {
+      let vehicleText = jsonData as TCPTextType;
+      let showMessage = false;
+      let title = '';
+      let level = 'info';
+      if(vehicleText.severity === "STATUS_EMERGENCY") {
+        title = 'EMERGENCY -- Vehicle ' + vehicleText.vehicleID;
+        level = 'error';
+        showMessage = this.state.messagePreferences.emergency;
+      }
+      if(vehicleText.severity === "STATUS_ALERT") {
+        title = 'Alert -- Vehicle ' + vehicleText.vehicleID;
+        level = 'warning';
+        showMessage = this.state.messagePreferences.alert;
+      }
+      if(vehicleText.severity === "STATUS_CRITICAL") {
+        title = 'CRITICAL -- Vehicle ' + vehicleText.vehicleID;
+        level = 'error';
+        showMessage = this.state.messagePreferences.critical;
+      }
+      if(vehicleText.severity === "STATUS_ERROR") {
+        title = 'ERROR -- Vehicle ' + vehicleText.vehicleID;
+        level = 'error';
+        showMessage = this.state.messagePreferences.error;
+      }
+      if(vehicleText.severity === "STATUS_WARNING") {
+        title = 'Warning -- Vehicle ' + vehicleText.vehicleID;
+        level = 'warning';
+        showMessage = this.state.messagePreferences.warning;
+      }
+      if(vehicleText.severity === "STATUS_NOTICE") {
+        title = 'Notice -- Vehicle ' + vehicleText.vehicleID;
+        level = 'success';
+        showMessage = this.state.messagePreferences.notice;
+      }
+      if(vehicleText.severity === "STATUS_INFO") {
+        title = 'Info -- Vehicle ' + vehicleText.vehicleID;
+        level = 'info';
+        showMessage = this.state.messagePreferences.info;
+      }
+      if(vehicleText.severity === "STATUS_DEBUG") {
+        title = 'Debug -- Vehicle ' + vehicleText.vehicleID;
+        level = 'info';
+        showMessage = this.state.messagePreferences.debug;
+      }
+
+      if(showMessage) {
+        this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
+      }
+    }
+    else if(jsonData.dataType === 'GlobalOrigin') {
+      let jsonOrigin = jsonData as TCPPositionType;
+      let origin = {lat: jsonOrigin.lat, lon: jsonOrigin.lon, alt: jsonOrigin.alt};
+      this.setState({globalOrigin: origin})
+    }
+    else if(jsonData.dataType === 'SensorFootprint') {
+      let jsonFootprint = jsonData as TCPSensorFootprintType;
+
+      console.log(jsonFootprint.sensorFootprint);
+      stateCopy[jsonFootprint.vehicleID].sensorFootprint = jsonFootprint.sensorFootprint;
       this.setState({connectedVehicles: stateCopy});
     }
   }
@@ -229,7 +332,7 @@ export default class AppContainer extends React.Component<Props, State> {
     // Add a 'data' event handler for the client socket
     // data is what the server sent to this socket
     socket.on('data', function(data: any) {
-        console.log('DATA: ' + data);
+        // console.log('DATA: ' + data);
         // let jsonData = JSON.parse(data);
         // this.parseTCPServerData(jsonData);
 
@@ -250,16 +353,6 @@ export default class AppContainer extends React.Component<Props, State> {
     }.bind(this));
   }
 
-  // parseTCPServerData = (jsonData: TCPReturnType) => {
-  //   if(jsonData.dataType === 'VehicleMission') {
-  //     let vehicleMission = jsonData as TCPMissionType;
-  //     let stateCopy = deepcopy(this.state.connectedVehicles);
-  //     stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
-  //     this.setState({connectedVehicles: stateCopy});
-  //   }
-  // }
-
-
   showNotification = (title: string, message: string, level: string, position: string, label: string) => {
     let notification = {
       title: title,
@@ -274,26 +367,27 @@ export default class AppContainer extends React.Component<Props, State> {
     this.notificationSystem.addNotification(notification);
   }
 
-  handleSelectedAircraftChange = (id: string) => {}
-
   handleAircraftCommand = (id: string, tcpCommand: string, vehicleCommand: string) => {
     console.log(tcpCommand);
-    this.makeTCPRequest(parseInt(id), tcpCommand, vehicleCommand)
+    this.makeTCPRequest(parseInt(id), tcpCommand, vehicleCommand);
   }
 
   handleDrawerAction = (action: string) => {
     if(action === "Settings"){
-      this.setState({showEditGlobalHomeDialog: true, openDrawer: false});
+      this.setState({showMessagesMenu: true, openDrawer: false});
     }
-    else if(action === "TestButton") {
-      this.makeTCPRequest(0, "TEST_FUNCTION", "");
+    else if(action === "TestButton1") {
+      this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION1", "");
+    }
+    else if(action === "TestButton2") {
+      this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION2", "");
     }
   }
 
   onOpenVehicleEdit = (vehicleID: string) => {
     // If we are passing in a vehicle ID, don't allow the dropdown to be selectable on the edit window as we are editing a specific vehicle:
-    console.log("On open vehicle edit: " + vehicleID);
-    this.setState({selectedVehicleID: vehicleID}, () => this.setState({allowVehicleSelect: vehicleID ? false : true, showEditVehicleHomeDialog: true}));
+    this.handleSelectedAircraftUpdate(vehicleID);
+    this.setState({allowVehicleSelect: vehicleID ? false : true, showEditVehicleHomeDialog: true});
   }
 
   handleSaveVehicleHome = (vehicleID: string, vehicleHome: PositionType) => {
@@ -305,7 +399,7 @@ export default class AppContainer extends React.Component<Props, State> {
       alt: vehicleHome.alt,
     }
     if(this.state.connectedVehicles[vehicleID]) {
-      this.state.connectedVehicles[vehicleID].setVehicleHome(tmpHome);
+      this.state.connectedVehicles[vehicleID].updateHomePosition(tmpHome);
     }
     else {
       console.log("No vehicle with ID: " + vehicleID);
@@ -313,7 +407,7 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleSaveGlobalOrigin = (globalOrigin: PositionType) => {
-    this.handleAircraftCommand("0", "SET_GLOBAL_HOME", JSON.stringify(globalOrigin));
+    this.handleAircraftCommand("0", "SET_GLOBAL_ORIGIN", JSON.stringify(globalOrigin));
     this.setState({globalOrigin: globalOrigin});
   }
 
@@ -327,6 +421,37 @@ export default class AppContainer extends React.Component<Props, State> {
 
   contextSetGlobal = () => {
     this.setState({showContextMenu: false, showEditGlobalHomeDialog: true, allowVehicleSelect: false, showEditVehicleHomeDialog: false, useContext: true})
+  }
+
+  handleSelectedAircraftUpdate = (id: string) => {
+    let stateCopy = deepcopy(this.state.connectedVehicles);
+    let selectedID = "0";
+    Object.keys(this.state.connectedVehicles).map((key: string) => {
+      if(key === id){
+        stateCopy[id].isSelected = !stateCopy[id].isSelected;
+        selectedID = stateCopy[id].isSelected ? id : "0";
+      }
+      else {
+        stateCopy[key].isSelected = false;
+      }
+      stateCopy[key].updateMarkerPosition();
+      stateCopy[key].updateHomePosition();
+    });
+
+    this.setState({connectedVehicles: stateCopy, selectedVehicleID: selectedID});
+  }
+
+  handleMapClick = (e: L.LeafletMouseEvent) => {
+    this.setState({showContextMenu: false});
+  }
+
+  handleMarkerClick = (e: L.LeafletMouseEvent, vehicleId: string, type: string) => {
+    this.handleSelectedAircraftUpdate(vehicleId);
+    this.setState({showContextMenu: false});
+  }
+
+  handleSaveMessagingPreferences = (preferences: MessagePreferencesType) => {
+    this.setState({messagePreferences: preferences});
   }
 
   render() {
@@ -347,9 +472,20 @@ export default class AppContainer extends React.Component<Props, State> {
       </IconMenu>
     );
 
+    const globalOriginMarker = {
+      position: new L.LatLng(this.state.globalOrigin.lat, this.state.globalOrigin.lon),
+      icon: new L.Icon({
+          iconUrl: './images/userlocation_icon.png',
+          iconSize: [41, 41], // size of the icon
+          iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
+          popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
+      })
+    };
+
     return (
         <MuiThemeProvider muiTheme={lightMuiTheme}>
           <div style={parentStyle}>
+
 
             <AppBar
                 title="MACE"
@@ -362,18 +498,21 @@ export default class AppContainer extends React.Component<Props, State> {
               openDrawer={this.state.openDrawer}
               onToggleDrawer={(open: boolean) => this.setState({openDrawer: open})}
               onDrawerAction={(action: string) => this.handleDrawerAction(action)}
+              showMessagesMenu={this.state.showMessagesMenu}
              />
 
             <ConnectedVehiclesContainer
               connectedVehicles={this.state.connectedVehicles}
               onAircraftCommand={this.handleAircraftCommand}
               handleOpenVehicleEdit={this.onOpenVehicleEdit}
+              selectedVehicleID={this.state.selectedVehicleID}
             />
 
             <VehicleCommandsContainer
               connectedVehicles={this.state.connectedVehicles}
-              onSelectedAircraftChange={this.handleSelectedAircraftChange}
+              onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
               onAircraftCommand={this.handleAircraftCommand}
+              selectedAircraftID={this.state.selectedVehicleID}
             />
 
             <VehicleWarningsContainer
@@ -401,6 +540,13 @@ export default class AppContainer extends React.Component<Props, State> {
               useContext={this.state.useContext}
             />
 
+            <MessagesDialog
+              open={this.state.showMessagesMenu}
+              handleClose={() => this.setState({showMessagesMenu: false})}
+              handleSave={this.handleSaveMessagingPreferences}
+              preferences={this.state.messagePreferences}
+            />
+
             {this.state.showContextMenu &&
               <ContextMenu
                 menuAnchor={this.state.contextAnchor}
@@ -410,9 +556,7 @@ export default class AppContainer extends React.Component<Props, State> {
               />
             }
 
-
-
-            <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} onClick={() => this.setState({showContextMenu: false})} onContextmenu={this.triggerContextMenu} onDrag={() => this.setState({showContextMenu: false})} >
+            <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} onContextmenu={this.triggerContextMenu} onDrag={() => this.setState({showContextMenu: false})} >
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.state.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
 
@@ -421,10 +565,11 @@ export default class AppContainer extends React.Component<Props, State> {
                   {/* Aircraft Icons */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
-                      <Marker key={key} position={this.state.connectedVehicles[key].vehicleMarker.latLon} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
+                      <Marker onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.state.connectedVehicles[key].vehicleMarker.latLon} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
+                      {/*
                         <Popup open={true}>
-                          <span>Selected</span>
                         </Popup>
+                      */}
                       </Marker>
                     );
                   })}
@@ -432,18 +577,29 @@ export default class AppContainer extends React.Component<Props, State> {
                   {/* Home Icons */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
-                      <Marker key={key} position={this.state.connectedVehicles[key].homePosition.latLon} icon={this.state.connectedVehicles[key].homePosition.icon} title={key}>
+                      <Marker onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "home")} key={key} position={this.state.connectedVehicles[key].homePosition.latLon} icon={this.state.connectedVehicles[key].homePosition.icon} title={key}>
+                      {/*
                         <Popup open={true}>
                           <span>Selected</span>
                         </Popup>
+                      */}
                       </Marker>
                     );
                   })}
 
+                  {/* Global Origin */}
+                  <Marker position={globalOriginMarker.position} icon={globalOriginMarker.icon}>
+                  {/*
+                    <Popup open={true}>
+                      <span>Selected</span>
+                    </Popup>
+                  */}
+                  </Marker>
+
                   {/* Mission Paths */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
-                      <Polyline key={key} positions={this.state.connectedVehicles[key].vehicleMission.latLons} color={backgroundColors[parseInt(key)]} />
+                      <Polyline key={key} positions={this.state.connectedVehicles[key].vehicleMission.latLons} color={this.state.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} />
                     );
                   })}
 
@@ -457,6 +613,15 @@ export default class AppContainer extends React.Component<Props, State> {
                       markers
                     );
                   })}
+
+                  {/* Sensor Footprint */}
+                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
+                    return (
+                      <Polygon key={key} positions={this.state.connectedVehicles[key].sensorFootprint} color={this.state.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} fillColor={colors.amber500} />
+                    );
+                  })}
+
+
                 </LayerGroup>
             </Map>
 

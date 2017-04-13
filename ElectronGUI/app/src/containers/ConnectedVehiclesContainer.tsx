@@ -12,10 +12,10 @@ type Props = {
     connectedVehicles: {[id: string]: Vehicle},
     onAircraftCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void,
     handleOpenVehicleEdit: (vehicleID: string) => void
+    selectedVehicleID: string
 }
 
 type State = {
-    selectedVehicle?: string
 }
 
 export class ConnectedVehiclesContainer extends React.Component<Props, State> {
@@ -24,7 +24,6 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
         super(props);
 
         this.state = {
-            selectedVehicle: "0"
         }
     }
 
@@ -48,7 +47,6 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
                 <VehicleHUD key={key}
                     vehicleID={key}
                     aircraft={vehicle}
-                    isSelected={this.state.selectedVehicle === key ? true : false}
                     handleAircraftCommand={this.handleAircraftCommand}
                     handleOpenVehicleEdit={this.props.handleOpenVehicleEdit}
                 />

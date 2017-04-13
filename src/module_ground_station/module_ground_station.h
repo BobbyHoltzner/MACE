@@ -89,10 +89,13 @@ private:
     void sendPositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &component);
 
     void sendAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
-
+    void sendVehicleFuel(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &component);
+    void sendVehicleMode(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &component);
+    void sendVehicleText(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &component);
     void sendVehicleMission(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionListTopic> &component);
-
     void sendVehicleHome(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
+    void sendGlobalOrigin(const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
+    void sendSensorFootprint(const int &vehicleID, const std::shared_ptr<DataVehicleSensors::SensorVertices_Global> &component);
 
     bool writeTCPData(QByteArray data);
 
@@ -115,7 +118,8 @@ private:
     void getVehicleHome(const int &vehicleID);
 
     // TESTING:
-    void testFunction();
+    void testFunction1();
+    void testFunction2();
     // END TESTING
 
 
@@ -137,7 +141,10 @@ private:
     std::shared_ptr<QTcpServer> m_TcpServer;
     QThread *m_ListenThread;
     QTcpSocket *m_TcpSocket;
-    bool m_timeoutOccured;
+    bool m_positionTimeoutOccured;
+    bool m_attitudeTimeoutOccured;
+    bool m_modeTimeoutOccured;
+    bool m_fuelTimeoutOccured;
     std::shared_ptr<GUITimer> m_timer;
 };
 
