@@ -185,11 +185,11 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     }
     else if(command == "TEST_FUNCTION1")
     {
-        testFunction1();
+        testFunction1(vehicleID);
     }
     else if(command == "TEST_FUNCTION2")
     {
-        testFunction2();
+        testFunction2(vehicleID);
     }
     else
     {
@@ -199,7 +199,7 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     }
 }
 
-void ModuleGroundStation::testFunction1()
+void ModuleGroundStation::testFunction1(const int &vehicleID)
 {
     MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
 //    newHome.position.latitude = 37.890903;
@@ -241,12 +241,12 @@ void ModuleGroundStation::testFunction1()
 //    Data::SystemDescription newDescription(1);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestDummyFunction(this, 1);
+        ptr->RequestDummyFunction(this, vehicleID);
     });
 
 }
 
-void ModuleGroundStation::testFunction2()
+void ModuleGroundStation::testFunction2(const int &vehicleID)
 {
     std::cout << "SECOND TEST FUNCTION" << std::endl;
 }
