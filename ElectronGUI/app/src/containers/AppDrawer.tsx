@@ -12,7 +12,8 @@ import Divider from 'material-ui/Divider';
 type Props = {
     openDrawer: boolean,
     onToggleDrawer: (open: boolean) => void,
-    onDrawerAction: (action: string) => void
+    onDrawerAction: (action: string) => void,
+    showMessagesMenu: boolean
 }
 
 type State = {
@@ -44,10 +45,18 @@ export class AppDrawer extends React.Component<Props, State> {
 
                     <Divider />
 
-                    <MenuItem onTouchTap={() => this.props.onDrawerAction("TestButton")}>
+                    <MenuItem onTouchTap={() => this.props.onDrawerAction("TestButton1")}>
                         <FlatButton
                         labelStyle={drawerItemLabelStyle}
-                        label="TESTING"
+                        label="TESTING 1"
+                        icon={<FontIcon className="material-icons">gesture</FontIcon>}
+                        />
+                    </MenuItem>
+
+                    <MenuItem onTouchTap={() => this.props.onDrawerAction("TestButton2")}>
+                        <FlatButton
+                        labelStyle={drawerItemLabelStyle}
+                        label="TESTING 2"
                         icon={<FontIcon className="material-icons">gesture</FontIcon>}
                         />
                     </MenuItem>

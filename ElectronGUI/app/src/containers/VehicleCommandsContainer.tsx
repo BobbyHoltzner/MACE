@@ -15,12 +15,14 @@ import { Vehicle } from '../Vehicle';
 
 type Props = {
     connectedVehicles: {[id: string]: Vehicle},
+    selectedAircraftID: string,
     onSelectedAircraftChange: (id: string) => void,
     onAircraftCommand: (id: string, tcpCommand: string, vehicleCommand: string) => void
 }
 
 type State = {
-    selectedAircraftID?: string
+    selectedAircraftID?: string,
+    vehicleArmed?: boolean
 }
 
 export class VehicleCommandsContainer extends React.Component<Props, State> {
@@ -29,7 +31,14 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
         super(props);
 
         this.state = {
-            selectedAircraftID: "0"
+            selectedAircraftID: this.props.selectedAircraftID,
+            vehicleArmed: false
+        }
+    }
+
+    componentWillReceiveProps(nextProps: Props) {
+        if(this.props.selectedAircraftID !== nextProps.selectedAircraftID) {
+            this.state.selectedAircraftID = nextProps.selectedAircraftID;
         }
     }
 
@@ -58,7 +67,6 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
         };
         const buttonStyle = { margin: 5 };
 
-
         let vehicleIDs: JSX.Element[] = [];
         for( let key in this.props.connectedVehicles ){
             // let vehicle = this.props.connectedVehicles[key];
@@ -72,37 +80,30 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
             <div>
                 {Object.keys(this.props.connectedVehicles).length >= 0 &&
                     <div style={aircraftCommsContainer}>
-                                {Object.keys(this.props.connectedVehicles).length > 1 &&
+                            {Object.keys(this.props.connectedVehicles).length > 1 &&
+                                <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                    <DropDownMenu style={{marginRight: 10, width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>
+                                        <MenuItem value={"0"} primaryText={"All vehicles"} label={"All vehicles"} />
+                                        {vehicleIDs}
+                                    </DropDownMenu>
+                                </MuiThemeProvider>
+                            }
 
-                                    <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                        <DropDownMenu style={{marginRight: 10, width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>
-                                            <MenuItem value={"0"} primaryText={"All vehicles"} label={"All vehicles"} />
-                                            {vehicleIDs}
-                                        </DropDownMenu>
-                                    </MuiThemeProvider>
-                                }
-
-                            <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <RaisedButton icon={<i className="material-icons">get_app</i>} style={buttonStyle} label="Arm" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_ARM", JSON.stringify({arm: true}))}/>
-                            </MuiThemeProvider>
+                            {this.props.connectedVehicles[this.props.selectedAircraftID] &&
+                                <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                    {this.props.connectedVehicles[this.props.selectedAircraftID].isArmed ?
+                                        <RaisedButton icon={<i className="material-icons">clear</i>} style={buttonStyle} label="Disarm" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_ARM", JSON.stringify({arm: false}))}/>
+                                        :
+                                        <RaisedButton icon={<i className="material-icons">check</i>} style={buttonStyle} label="Arm" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_ARM", JSON.stringify({arm: true}))}/>
+                                    }
+                                </MuiThemeProvider>
+                            }
 
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
                                 <RaisedButton icon={<i className="material-icons">flight_takeoff</i>} style={buttonStyle} label="Takeoff" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "TAKEOFF")}/>
-
-                                {/*
-                                <RaisedButton style={buttonStyle} onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "GUIDED")} >
-                                    <Grid>
-                                        <Row>
-                                            <Col xs={12}>
-                                                <FontIcon className="material-icons">home</FontIcon>
-                                            </Col>
-                                            <Col xs={12}>
-                                                <div>Launch</div>
-                                            </Col>
-                                        </Row>
-                                    </Grid>
-                                </RaisedButton>
-                                */}
+                            </MuiThemeProvider>
+                            <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                <RaisedButton icon={<i className="material-icons">pause</i>} style={buttonStyle} label="Loiter" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "LOITER")}/>
                             </MuiThemeProvider>
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
                                 <RaisedButton icon={<i className="material-icons">get_app</i>} style={buttonStyle} label="Land" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "LAND")}/>

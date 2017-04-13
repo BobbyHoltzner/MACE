@@ -45,15 +45,21 @@ ModuleGroundStation::ModuleGroundStation() :
     m_MissionDataTopic("vehicleMission"),
     m_ListenThread(NULL)
 {
-    m_timeoutOccured = false;
+    m_positionTimeoutOccured = false;
+    m_attitudeTimeoutOccured = false;
+    m_modeTimeoutOccured = false;
+    m_fuelTimeoutOccured = false;
     // Start timer:
     m_timer = std::make_shared<GUITimer>([=]()
     {
-        m_timeoutOccured = true;
+        m_positionTimeoutOccured = true;
+        m_attitudeTimeoutOccured = true;
+        m_modeTimeoutOccured = true;
+        m_fuelTimeoutOccured = false;
     });
 
     m_timer->setSingleShot(false);
-    m_timer->setInterval(GUITimer::Interval(3000));
+    m_timer->setInterval(GUITimer::Interval(1000));
     m_timer->start(true);
 }
 
@@ -157,7 +163,7 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     {
         setVehicleHome(vehicleID, jsonObj);
     }
-    else if(command == "SET_GLOBAL_HOME")
+    else if(command == "SET_GLOBAL_ORIGIN")
     {
         setGlobalOrigin(jsonObj);
     }
@@ -177,9 +183,13 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     {
         getVehicleHome(vehicleID);
     }
-    else if(command == "TEST_FUNCTION")
+    else if(command == "TEST_FUNCTION1")
     {
-        testFunction();
+        testFunction1();
+    }
+    else if(command == "TEST_FUNCTION2")
+    {
+        testFunction2();
     }
     else
     {
@@ -189,7 +199,7 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     }
 }
 
-void ModuleGroundStation::testFunction()
+void ModuleGroundStation::testFunction1()
 {
     MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
 //    newHome.position.latitude = 37.890903;
@@ -234,6 +244,11 @@ void ModuleGroundStation::testFunction()
         ptr->RequestDummyFunction(this, 1);
     });
 
+}
+
+void ModuleGroundStation::testFunction2()
+{
+    std::cout << "SECOND TEST FUNCTION" << std::endl;
 }
 
 void ModuleGroundStation::getConnectedVehicles()
@@ -330,16 +345,16 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
 
 void ModuleGroundStation::setGlobalOrigin(const QJsonObject &jsonObj)
 {
-    MissionItem::SpatialHome tmpGlobalHome;
+    MissionItem::SpatialHome tmpGlobalOrigin;
     QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
-    tmpGlobalHome.position.latitude = position.value("lat").toDouble();
-    tmpGlobalHome.position.longitude = position.value("lon").toDouble();
-    tmpGlobalHome.position.altitude = position.value("alt").toDouble();
-    tmpGlobalHome.setPositionalFrame(Data::PositionalFrame::GLOBAL);
-//    tmpHome.setCoordinateFrame(NED??);
+    tmpGlobalOrigin.position.latitude = position.value("lat").toDouble();
+    tmpGlobalOrigin.position.longitude = position.value("lon").toDouble();
+    tmpGlobalOrigin.position.altitude = position.value("alt").toDouble();
+    tmpGlobalOrigin.setPositionalFrame(Data::PositionalFrame::GLOBAL);
+    tmpGlobalOrigin.setCoordinateFrame(Data::CoordinateFrame::NED);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->UpdateGlobalOriginPosition(this, tmpGlobalHome);
+        ptr->UpdateGlobalOriginPosition(this, tmpGlobalOrigin);
     });
 }
 
@@ -374,24 +389,6 @@ void ModuleGroundStation::AttachedAsModule(MaceCore::IModuleTopicEvents *ptr)
 
 }
 
-
-//Examples For Items
-/*
-MissionItem::ActionChangeMode tmpMode;
-tmpMode.setVehicleID(1); // the vehicle ID coordinates to the specific vehicle //vehicle 0 is reserved for all connected vehicles
-tmpMode.setRequestMode("AUTO"); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
-
-ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-    ptr->RequestVehicleMode(this,tmpMode);
-});
-
-MissionItem::ActionArm tmpArm;
-tmpArm.setVehicleArm(true);
-tmpArm.setVehicleID(1);
-ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-    ptr->RequestVehicleArm(this,tmpMode);
-});
-*/
 void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
     //example read of vehicle data
@@ -402,7 +399,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
         //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-//            std::cout << "  " << componentsUpdated.at(i) << std::endl;
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
@@ -412,16 +408,33 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_FlightMode::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-//                std::cout << "    Vehicle Type: " << (int)component->getVehicleType() << std::endl;
-//                std::cout << "    Vehicle Mode: " << component->getFlightModeString() << std::endl;
+
+                // Write mode change to the GUI"
+                sendVehicleMode(senderID, component);
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                //std::cout << "    lat: " << component->latitude << " long: " << component->longitude << std::endl;
 
                 // Write Position data to the GUI:
-                //sendPositionData(senderID, component);
+                sendPositionData(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Fuel::Name()) {
+                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write fueld data to the GUI:
+                sendVehicleFuel(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
+                // TODO
+            }
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Text::Name()) {
+                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write fueld data to the GUI:
+                sendVehicleText(senderID, component);
             }
         }
     }
@@ -432,14 +445,15 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
         //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-//            std::cout << "  " << componentsUpdated.at(i) << std::endl;
             if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
+                std::cout << "vehicle mission" << std::endl;
+
                 // Write mission items to the GUI:
                 sendVehicleMission(senderID, component);
-            }           
+            }
             else if(componentsUpdated.at(i) == MissionTopic::MissionHomeTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionHomeTopic> component = std::make_shared<MissionTopic::MissionHomeTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
@@ -467,7 +481,9 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
                 std::shared_ptr<DataVehicleSensors::SensorVertices_Global> component = std::make_shared<DataVehicleSensors::SensorVertices_Global>();
                 m_SensorFootprintDataTopic.GetComponent(component, read_topicDatagram);
-                std::vector<DataState::StateGlobalPosition> sensorFootprint = component->getSensorVertices();
+
+                // Write sensor footprint verticies to the GUI:
+                sendSensorFootprint(senderID, component);
             }
         }
     }
@@ -486,7 +502,37 @@ void ModuleGroundStation::sendVehicleMission(const int &vehicleID, const std::sh
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
-    UNUSED(bytesWritten);
+
+    if(!bytesWritten){
+        std::cout << "Write Vehicle Mission Data failed..." << std::endl;
+    }
+}
+
+void ModuleGroundStation::sendSensorFootprint(const int &vehicleID, const std::shared_ptr<DataVehicleSensors::SensorVertices_Global> &component) {
+    QJsonObject json;
+    json["dataType"] = "SensorFootprint";
+    json["vehicleID"] = vehicleID;
+
+    std::vector<DataState::StateGlobalPosition> sensorFootprint = component->getSensorVertices();
+
+    QJsonArray verticies;
+    for(auto&& vertex : sensorFootprint) {
+        QJsonObject obj;
+        obj["lat"] = vertex.latitude;
+        obj["lon"] = vertex.longitude;
+        obj["alt"] = vertex.altitude;
+
+        verticies.push_back(obj);
+    }
+
+    json["sensorFootprint"] = verticies;
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write vehicle sensor footprint failed..." << std::endl;
+    }
 }
 
 void ModuleGroundStation::sendVehicleHome(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionHomeTopic> &component)
@@ -518,93 +564,37 @@ void ModuleGroundStation::sendVehicleHome(const int &vehicleID, const std::share
     }
 }
 
-void ModuleGroundStation::missionToJSON(const std::shared_ptr<MissionTopic::MissionListTopic> &component, QJsonArray &missionItems)
+void ModuleGroundStation::sendGlobalOrigin(const std::shared_ptr<MissionTopic::MissionHomeTopic> &component)
 {
-    for(int i = 0; i < component->getMissionList().getQueueSize(); i++)
-    {
-        //TODO-PAT: Look into unique_ptr or auto_ptr?? Not sure I like this...
-        MissionItem::AbstractMissionItem* missionItem = component->getMissionList().getMissionItem(i).get();
+    QJsonObject json;
+    json["dataType"] = "GlobalOrigin";
+    json["vehicleID"] = 0;
 
+    // TODO-PAT: Update this when we get global origin topic or method
 
-        QJsonObject obj;
-        obj["description"] = QString::fromStdString(missionItem->getDescription());
-//        obj["type"] = missionItem->getMissionType();
+//    MissionItem::SpatialHome* spatialHome = new MissionItem::SpatialHome(component->getHome());
+//    if(spatialHome->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+//    {
+//        json["lat"] = spatialHome->position.latitude;
+//        json["lon"] = spatialHome->position.longitude;
+//        json["alt"] = spatialHome->position.altitude;
+//    }
+//    else {
+//        // TODO: If we for some reason get a local home position (i.e. x/y/z), set to the global origin.
+//        //          --May need to check to make sure the global origin is set first though
+//        json["lat"] = 0;
+//        json["lon"] = 0;
+//        json["alt"] = 0;
+//    }
 
-        switch (component->getMissionList().getMissionItem(i)->getMissionType()) {
-        case MissionItem::MissionItemType::ARM:
-        {
-            MissionItem::ActionArm* item = dynamic_cast<MissionItem::ActionArm*>(missionItem);
-            UNUSED(item);
-            break;
-        }
-        case MissionItem::MissionItemType::CHANGE_MODE:
-        {
-            MissionItem::ActionChangeMode* item = dynamic_cast<MissionItem::ActionChangeMode*>(missionItem);
-            UNUSED(item);
-            break;
-        }
-        case MissionItem::MissionItemType::LAND:
-        {
-            //This is command number 21
-            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
-            {
-                MissionItem::SpatialLand<DataState::StateGlobalPosition>* item = dynamic_cast<MissionItem::SpatialLand<DataState::StateGlobalPosition>*>(missionItem);
-                UNUSED(item);
-            }else{
-                MissionItem::SpatialLand<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialLand<DataState::StateLocalPosition>*>(missionItem);
-                UNUSED(item);
-            }
+//    QJsonDocument doc(json);
+//    bool bytesWritten = writeTCPData(doc.toJson());
 
-            break;
-        }
-        case MissionItem::MissionItemType::RTL:
-        {
-            //This is command number 20
-            MissionItem::SpatialRTL* item = dynamic_cast<MissionItem::SpatialRTL*>(missionItem);
-            UNUSED(item);
-            break;
-        }
-        case MissionItem::MissionItemType::TAKEOFF:
-        {
-            //This is command number 22
-            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
-            {
-                MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>* item = dynamic_cast<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>*>(missionItem);
-                obj["lat"] = item->position.latitude;
-                obj["lon"] = item->position.longitude;
-                obj["alt"] = item->position.altitude;
-            }else{
-                MissionItem::SpatialLand<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialLand<DataState::StateLocalPosition>*>(missionItem);
-                obj["x"] = item->position.x;
-                obj["y"] = item->position.y;
-                obj["z"] = item->position.z;
-            }
-            break;
-        }
-        case MissionItem::MissionItemType::WAYPOINT:
-        {
-            //This is command number 16
-            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
-            {
-                MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>* item = dynamic_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>*>(missionItem);
-                obj["lat"] = item->position.latitude;
-                obj["lon"] = item->position.longitude;
-                obj["alt"] = item->position.altitude;
-            }else{
-                MissionItem::SpatialLand<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialLand<DataState::StateLocalPosition>*>(missionItem);
-                obj["x"] = item->position.x;
-                obj["y"] = item->position.y;
-                obj["z"] = item->position.z;
-            }
-            break;
-        }
-        default:
-            break;
-        }
-
-        missionItems.push_back(obj);
-    }
+//    if(!bytesWritten){
+//        std::cout << "Write Global origin failed..." << std::endl;
+//    }
 }
+
 
 void ModuleGroundStation::sendPositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &component)
 {
@@ -618,7 +608,7 @@ void ModuleGroundStation::sendPositionData(const int &vehicleID, const std::shar
     json["numSats"] = 0; // TODO-PAT: Move to vehicle stats?
 
     QJsonDocument doc(json);
-    if(m_timeoutOccured)
+    if(m_positionTimeoutOccured)
     {
         bool bytesWritten = writeTCPData(doc.toJson());
 
@@ -627,7 +617,7 @@ void ModuleGroundStation::sendPositionData(const int &vehicleID, const std::shar
         }
 
         // Reset timeout:
-        m_timeoutOccured = false;
+        m_positionTimeoutOccured = false;
     }
 }
 
@@ -641,7 +631,7 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
     json["yaw"] = component->yaw;
 
     QJsonDocument doc(json);
-    if(m_timeoutOccured)
+    if(m_attitudeTimeoutOccured)
     {
         bool bytesWritten = writeTCPData(doc.toJson());
 
@@ -650,13 +640,269 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
         }
 
         // Reset timeout:
-        m_timeoutOccured = false;
+        m_attitudeTimeoutOccured = false;
     }
 }
+
+void ModuleGroundStation::sendVehicleFuel(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleFuel";
+    json["vehicleID"] = vehicleID;
+    json["batteryRemaining"] = component->getBatteryRemaining();
+    json["batteryCurrent"] = component->getBatteryCurrent();
+    json["batteryVoltage"] = component->getBatteryVoltage();
+
+    QJsonDocument doc(json);
+    if(m_fuelTimeoutOccured)
+    {
+        bool bytesWritten = writeTCPData(doc.toJson());
+
+        if(!bytesWritten){
+            std::cout << "Write Fuel Data failed..." << std::endl;
+        }
+
+        // Reset timeout:
+        m_fuelTimeoutOccured = false;
+    }
+}
+
+void ModuleGroundStation::sendVehicleMode(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleMode";
+    json["vehicleID"] = vehicleID;
+    json["vehicleMode"] = QString::fromStdString(component->getFlightModeString());
+    json["isArmed"] = component->getVehicleArmed();
+
+    QJsonDocument doc(json);
+    if(m_modeTimeoutOccured)
+    {
+        bool bytesWritten = writeTCPData(doc.toJson());
+
+        if(!bytesWritten){
+            std::cout << "Write Vehicle Mode Data failed..." << std::endl;
+        }
+
+        // Reset timeout:
+        m_modeTimeoutOccured = false;
+    }
+}
+
+void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleText";
+    json["vehicleID"] = vehicleID;
+    json["severity"] =  QString::fromStdString(DataGenericItemTopic::DataGenericItemTopic_Text::StatusSeverityToString(component->getSeverity()));
+    json["text"] = QString::fromStdString(component->getText());
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write Vehicle Text Data failed..." << std::endl;
+    }
+}
+
 void ModuleGroundStation::NewlyAvailableCurrentMission(const int &vehicleID)
 {
     std::cout<<"I have been told there is a new mission available"<<std::endl;
 }
+
+void ModuleGroundStation::missionToJSON(const std::shared_ptr<MissionTopic::MissionListTopic> &component, QJsonArray &missionItems)
+{
+    for(int i = 0; i < component->getMissionList().getQueueSize(); i++)
+    {
+        //TODO-PAT: Look into unique_ptr or auto_ptr?? Not sure I like this...
+        MissionItem::AbstractMissionItem* missionItem = component->getMissionList().getMissionItem(i).get();
+
+        QJsonObject obj;
+        obj["description"] = QString::fromStdString(missionItem->getDescription());
+        obj["type"] = QString::fromStdString(MissionItem::MissionTypeToString(missionItem->getMissionType()));
+
+        switch (component->getMissionList().getMissionItem(i)->getMissionType()) {
+        case MissionItem::MissionItemType::ARM:
+        {
+            MissionItem::ActionArm* item = dynamic_cast<MissionItem::ActionArm*>(missionItem);
+            obj["positionalFrame"] = "global";
+            UNUSED(item);
+            break;
+        }
+        case MissionItem::MissionItemType::CHANGE_MODE:
+        {
+            MissionItem::ActionChangeMode* item = dynamic_cast<MissionItem::ActionChangeMode*>(missionItem);
+            obj["positionalFrame"] = "global";
+            UNUSED(item);
+            break;
+        }
+        case MissionItem::MissionItemType::LAND:
+        {
+            //This is command number 21
+            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+            {
+                MissionItem::SpatialLand<DataState::StateGlobalPosition>* item = dynamic_cast<MissionItem::SpatialLand<DataState::StateGlobalPosition>*>(missionItem);
+                obj["positionalFrame"] = "global";
+                UNUSED(item);
+            }else{
+                MissionItem::SpatialLand<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialLand<DataState::StateLocalPosition>*>(missionItem);
+                obj["positionalFrame"] = "local";
+                UNUSED(item);
+            }
+
+            break;
+        }
+        case MissionItem::MissionItemType::RTL:
+        {
+            //This is command number 20
+            MissionItem::SpatialRTL* item = dynamic_cast<MissionItem::SpatialRTL*>(missionItem);
+            obj["positionalFrame"] = "global";
+            UNUSED(item);
+            break;
+        }
+        case MissionItem::MissionItemType::TAKEOFF:
+        {
+            //This is command number 22
+//            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+//            {
+                MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>* item = dynamic_cast<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>*>(missionItem);
+                obj["positionalFrame"] = "global";
+                obj["lat"] = item->position.latitude;
+                obj["lon"] = item->position.longitude;
+                obj["alt"] = item->position.altitude;
+//            }else{
+//                MissionItem::SpatialTakeoff<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialTakeoff<DataState::StateLocalPosition>*>(missionItem);
+//                obj["positionalFrame"] = "local";
+//                obj["x"] = item->position.x;
+//                obj["y"] = item->position.y;
+//                obj["z"] = item->position.z;
+//            }
+            break;
+        }
+        case MissionItem::MissionItemType::WAYPOINT:
+        {
+            //This is command number 16
+            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+            {
+                MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>* item = dynamic_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>*>(missionItem);
+                obj["positionalFrame"] = "global";
+                obj["lat"] = item->position.latitude;
+                obj["lon"] = item->position.longitude;
+                obj["alt"] = item->position.altitude;
+            }else{
+                MissionItem::SpatialWaypoint<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialWaypoint<DataState::StateLocalPosition>*>(missionItem);
+                obj["positionalFrame"] = "local";
+                obj["x"] = item->position.x;
+                obj["y"] = item->position.y;
+                obj["z"] = item->position.z;
+            }
+            break;
+        }
+        case MissionItem::MissionItemType::LOITER_TIME:
+        {
+            //This is command number 19
+            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+            {
+                MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition>* item = dynamic_cast<MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition>*>(missionItem);
+                obj["positionalFrame"] = "global";
+                obj["lat"] = item->position.latitude;
+                obj["lon"] = item->position.longitude;
+                obj["alt"] = item->position.altitude;
+                obj["duration"] = item->duration;
+                if(item->direction == Data::LoiterDirection::CW)
+                {
+                    obj["radius"] = item->radius;
+                }else{
+                    obj["radius"] = 0-item->radius;
+                }
+            }else{
+                MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition>*>(missionItem);
+                obj["positionalFrame"] = "local";
+                obj["x"] = item->position.x;
+                obj["y"] = item->position.y;
+                obj["z"] = item->position.z;
+                obj["duration"] = item->duration;
+                if(item->direction == Data::LoiterDirection::CW)
+                {
+                    obj["radius"] = item->radius;
+                }else{
+                    obj["radius"] = 0-item->radius;
+                }
+            }
+            break;
+        }
+        case MissionItem::MissionItemType::LOITER_TURNS:
+        {
+            //This is command number 18
+            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+            {
+                MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition>* item = dynamic_cast<MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition>*>(missionItem);
+                obj["positionalFrame"] = "global";
+                obj["lat"] = item->position.latitude;
+                obj["lon"] = item->position.longitude;
+                obj["alt"] = item->position.altitude;
+                obj["turns"] = item->turns;
+                if(item->direction == Data::LoiterDirection::CW)
+                {
+                    obj["radius"] = item->radius;
+                }else{
+                    obj["radius"] = 0-item->radius;
+                }
+            }else{
+                MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition>*>(missionItem);
+                obj["positionalFrame"] = "local";
+                obj["x"] = item->position.x;
+                obj["y"] = item->position.y;
+                obj["z"] = item->position.z;
+                obj["turns"] = item->turns;
+                if(item->direction == Data::LoiterDirection::CW)
+                {
+                    obj["radius"] = item->radius;
+                }else{
+                    obj["radius"] = 0-item->radius;
+                }
+            }
+            break;
+        }
+        case MissionItem::MissionItemType::LOITER_UNLIMITED:
+        {
+            //This is command number 17
+            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+            {
+                MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>* item = dynamic_cast<MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>*>(missionItem);
+                obj["positionalFrame"] = "global";
+                obj["lat"] = item->position.latitude;
+                obj["lon"] = item->position.longitude;
+                obj["alt"] = item->position.altitude;
+                if(item->direction == Data::LoiterDirection::CW)
+                {
+                    obj["radius"] = item->radius;
+                }else{
+                    obj["radius"] = 0-item->radius;
+                }
+            }else{
+                MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition>*>(missionItem);
+                obj["positionalFrame"] = "local";
+                obj["x"] = item->position.x;
+                obj["y"] = item->position.y;
+                obj["z"] = item->position.z;
+                if(item->direction == Data::LoiterDirection::CW)
+                {
+                    obj["radius"] = item->radius;
+                }else{
+                    obj["radius"] = 0-item->radius;
+                }
+            }
+            break;
+        }
+        default:
+            break;
+        }
+
+        missionItems.push_back(obj);
+    }
+}
+
 
 
 void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
