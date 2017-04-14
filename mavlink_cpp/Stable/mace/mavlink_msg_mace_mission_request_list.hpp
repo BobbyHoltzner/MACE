@@ -1,0 +1,68 @@
+// MESSAGE MACE_MISSION_REQUEST_LIST support class
+
+#pragma once
+
+namespace mavlink {
+namespace MACE {
+namespace msg {
+
+/**
+ * @brief MACE_MISSION_REQUEST_LIST message
+ *
+ * Request the overall list of mission items from the system/component.
+ */
+struct MACE_MISSION_REQUEST_LIST : mavlink::Message {
+    static constexpr msgid_t MSG_ID = 306;
+    static constexpr size_t LENGTH = 3;
+    static constexpr size_t MIN_LENGTH = 3;
+    static constexpr uint8_t CRC_EXTRA = 193;
+    static constexpr auto NAME = "MACE_MISSION_REQUEST_LIST";
+
+
+    uint8_t target_system; /*< System ID */
+    uint8_t target_component; /*< Component ID */
+    uint8_t mission_type; /*< Mission type, see MACE_MISSION_PROFILE */
+
+
+    inline std::string get_name(void) const override
+    {
+            return NAME;
+    }
+
+    inline Info get_message_info(void) const override
+    {
+            return { MSG_ID, LENGTH, MIN_LENGTH, CRC_EXTRA };
+    }
+
+    inline std::string to_yaml(void) const override
+    {
+        std::stringstream ss;
+
+        ss << NAME << ":" << std::endl;
+        ss << "  target_system: " << +target_system << std::endl;
+        ss << "  target_component: " << +target_component << std::endl;
+        ss << "  mission_type: " << +mission_type << std::endl;
+
+        return ss.str();
+    }
+
+    inline void serialize(mavlink::MsgMap &map) const override
+    {
+        map.reset(MSG_ID, LENGTH);
+
+        map << target_system;                 // offset: 0
+        map << target_component;              // offset: 1
+        map << mission_type;                  // offset: 2
+    }
+
+    inline void deserialize(mavlink::MsgMap &map) override
+    {
+        map >> target_system;                 // offset: 0
+        map >> target_component;              // offset: 1
+        map >> mission_type;                  // offset: 2
+    }
+};
+
+} // namespace msg
+} // namespace MACE
+} // namespace mavlink
