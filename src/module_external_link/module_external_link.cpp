@@ -180,16 +180,6 @@ void ModuleExternalLink::SetMissionQueue(const MissionItem::MissionList &mission
         mavlink_msg_mace_mission_count_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionCount);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
-//        int itemsAvailable = missionList.getQueueSize();
-//        mavlink_mission_count_t missionCount;
-//        missionCount.target_system = missionList.getVehicleID();
-//        missionCount.target_component = 0;
-//        missionCount.count = itemsAvailable;
-
-//        mavlink_message_t msg;
-//        mavlink_msg_mission_count_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionCount);
-//        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-
     }
 }
 

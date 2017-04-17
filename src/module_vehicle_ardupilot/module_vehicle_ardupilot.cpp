@@ -136,14 +136,36 @@ void ModuleVehicleArdupilot::homePositionUpdated(const MissionItem::SpatialHome 
 
 void ModuleVehicleArdupilot::SetMissionQueue(const MissionItem::MissionList &missionList)
 {
-    int vehicleID = missionList.getVehicleID();
-    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
-    tmpData->data->setMission(Data::MissionType::AUTO_PROPOSED, missionList);
-    //m_ProposedMissionQueue[vehicleID] = missionList;
-    mavlink_message_t msg;
-    int queueSize = missionList.getQueueSize();
-    mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,queueSize,MAV_MISSION_TYPE_MISSION);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    switch(missionList.getMissionType())
+    {
+    case(Data::MissionType::AUTO_CURRENT):
+    case (Data::MissionType::AUTO_PROPOSED):
+    {
+        //In these two cases the mission should be pushed directly to the aircraft
+        int vehicleID = missionList.getVehicleID();
+        std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
+        tmpData->data->setMission(Data::MissionType::AUTO_PROPOSED, missionList);
+        mavlink_message_t msg;
+        int queueSize = missionList.getQueueSize();
+        mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,queueSize,MAV_MISSION_TYPE_MISSION);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        break;
+    }
+    case(Data::MissionType::GUIDED_CURRENT):
+    case (Data::MissionType::GUIDED_PROPOSED):
+    {
+        //In these two cases the mission should be carefully considered if we are a module
+        //aboard MACE hardware companion package or communicating via ground link
+        if(airborneInstance)
+        {
+            //This implies we are aboard the aircraft directly communicating with the autopilot
+            //Thus higher rate capabilities and request for state are available
+        }else{
+
+        }
+        break;
+    }
+    }
 }
 
 void ModuleVehicleArdupilot::GetMissionQueue(const Data::SystemDescription &targetSystem)
@@ -227,6 +249,8 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
 
 void ModuleVehicleArdupilot::VehicleCommandACK(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK)
 {
+    UNUSED(linkName);
+    UNUSED(systemID);
     if(checkControllerState())
         m_AircraftController->updateCommandACK(cmdACK);
 }

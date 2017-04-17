@@ -111,6 +111,12 @@ public:
     virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
     virtual void UpdateVehicleMission(const void *sender, const MissionItem::MissionList::MissionListStatus status, const MissionItem::MissionList &missionList);
 
+    /////////////////////////////////////////////////////////////////////////
+    /// EXTERNAL LINK EVENTS
+    /////////////////////////////////////////////////////////////////////////
+    virtual void TransferMissionToVehicle(const void* sender, const MissionItem::MissionList &missionList);
+
+
 public:
 
     /////////////////////////////////////////////////////////////////////////

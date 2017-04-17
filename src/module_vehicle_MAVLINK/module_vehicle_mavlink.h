@@ -80,6 +80,11 @@ public:
 
         MaceCore::ModuleParameterStructure structure;
         ConfigureMAVLINKStructure(structure);
+
+        std::shared_ptr<MaceCore::ModuleParameterStructure> moduleSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
+        moduleSettings->AddTerminalParameters("AirborneInstance", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
+        structure.AddNonTerminal("ModuleParameters", moduleSettings, true);
+
         return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
     }
 
@@ -91,6 +96,11 @@ public:
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
     {
         ConfigureComms(params);
+        if(params->HasNonTerminal("ModuleParameters"))
+        {
+            std::shared_ptr<MaceCore::ModuleParameterValue> moduleSettings = params->GetNonTerminalValue("ModuleParameters");
+            airborneInstance = moduleSettings->GetTerminalValue<bool>("AirborneInstance");
+        }
     }
 
    public:
@@ -162,6 +172,8 @@ public:
         UNUSED(vehicleID);
     }
 
+protected:
+    bool airborneInstance;
 
 private:
     std::map<int,DataMAVLINK::VehicleObject_MAVLINK*> m_MAVLINKData;

@@ -213,7 +213,6 @@ void MaceCore::RequestVehicleTakeoff(const void* sender, const MissionItem::Spat
 
 void MaceCore::RequestSetVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
 {
-    UNUSED(sender);
     MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
 
     if(status.state == MissionItem::MissionList::INCOMPLETE)
@@ -226,12 +225,18 @@ void MaceCore::RequestSetVehicleMission(const void *sender, const MissionItem::M
             MissionItem::MissionList newList = missionList;
             newList.setVehicleID(it->first);
             m_DataFusion->updateCOMPLETEMissionList(newList);
-            it->second->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,newList);
+            if(it->second != sender){
+                it->second->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,newList);
+            }
         }
     }else{
         try{
             m_DataFusion->updateCOMPLETEMissionList(missionList);
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,missionList);
+            IModuleCommandVehicle* module = m_VehicleIDToPort.at(vehicleID);
+            if(module != sender){
+                module->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,missionList);
+            }
+
         }catch(const std::out_of_range &oor){
 
         }
@@ -370,6 +375,14 @@ void MaceCore::UpdateVehicleMission(const void *sender, const MissionItem::Missi
     }
 }
 
+/////////////////////////////////////////////////////////////////////////
+/// EXTERNAL LINK EVENTS
+/////////////////////////////////////////////////////////////////////////
+
+void MaceCore::TransferMissionToVehicle(const void *sender, const MissionItem::MissionList &missionList)
+{
+    RequestSetVehicleMission(sender,missionList);
+}
 
 
 /////////////////////////////////////////////////////////////////////////

@@ -5,10 +5,29 @@ namespace MaceCore{
 
 void MaceData::updateCOMPLETEMissionList(const MissionItem::MissionList missionList)
 {
-    std::lock_guard<std::mutex> guard(COMPLETEMissionMUTEX);
+    std::lock_guard<std::mutex> guardComplete(COMPLETEMissionMUTEX);
     int systemID = missionList.getVehicleID();
     Data::MissionType missionType = missionList.getMissionType();
     m_COMPLETEMission[systemID][missionType] = missionList;
+
+    //Now that the list is complete, remove the outdated/associated
+    //one from the incomplete queue
+    std::lock_guard<std::mutex> guardIncomplete(INCOMPLETEMissionMUTEX);
+    std::map<int, std::map<Data::MissionType,MissionItem::MissionList>>::iterator it;
+    it = m_INCOMPLETEMission.find(systemID);
+    if(it != m_INCOMPLETEMission.end())
+    {
+        std::map<Data::MissionType,MissionItem::MissionList>::iterator innerIt;
+        innerIt = m_INCOMPLETEMission.at(systemID).find(missionType);
+        if(innerIt != m_INCOMPLETEMission.at(systemID).end())
+        {
+            m_INCOMPLETEMission.at(systemID).erase(innerIt);
+            if(m_INCOMPLETEMission.at(systemID).size() == 0)
+            {
+                m_INCOMPLETEMission.erase(systemID);
+            }
+        }
+    }
 }
 
 void MaceData::updateINCOMPLETEMissionList(const MissionItem::MissionList missionList)

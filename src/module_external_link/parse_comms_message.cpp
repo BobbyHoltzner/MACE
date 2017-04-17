@@ -281,10 +281,18 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
             });
         }else{
             std::cout<<"The mission requested is complete"<<std::endl;
+
             //We should update the core
             ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                 ptr->UpdateVehicleMission(this, status, missionList);
             });
+
+            //We now tell the core to pass that mission to the correct vehicle
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+                ptr->TransferMissionToVehicle(this, missionList);
+            });
+
+
             //KEN FIX: Check that target system matches sysID
             //We should update all listeners
             std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>();

@@ -66,6 +66,7 @@ public:
         this->m_VehicleID = rhs.m_VehicleID;
         this->missionQueue = rhs.missionQueue;
         this->missionType = rhs.missionType;
+        this->activeMissionItem = rhs.activeMissionItem;
     }
 
     bool operator == (const MissionList &rhs) {
