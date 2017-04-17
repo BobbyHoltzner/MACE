@@ -1,7 +1,7 @@
 #ifndef I_MODULE_EVENTS_GENERAL_VEHICLE_H
 #define I_MODULE_EVENTS_GENERAL_VEHICLE_H
 
-#include "data/mission_map.h"
+#include "data/mission_type.h"
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_mission_item/mission_item_components.h"
 

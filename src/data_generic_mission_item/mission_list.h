@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 #include "abstract_mission_item.h"
-#include "data/mission_map.h"
+#include "data/mission_type.h"
 
 namespace MissionItem {
 

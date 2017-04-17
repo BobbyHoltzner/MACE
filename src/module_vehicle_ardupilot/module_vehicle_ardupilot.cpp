@@ -142,14 +142,14 @@ void ModuleVehicleArdupilot::SetMissionQueue(const MissionItem::MissionList &mis
     //m_ProposedMissionQueue[vehicleID] = missionList;
     mavlink_message_t msg;
     int queueSize = missionList.getQueueSize();
-    mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,queueSize);
+    mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,queueSize,MAV_MISSION_TYPE_MISSION);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::GetMissionQueue(const Data::SystemDescription &targetSystem)
 {
     mavlink_message_t msg;
-    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem.getSystemID(),0);
+    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem.getSystemID(),0,MAV_MISSION_TYPE_MISSION);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
@@ -158,7 +158,7 @@ void ModuleVehicleArdupilot::ClearMissionQueue(const Data::SystemDescription &ta
     //This is message number 45....
     //TODO: Do we get an acknowledgement from this?
     mavlink_message_t msg;
-    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,targetSystem.getSystemID(),0);
+    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,targetSystem.getSystemID(),0,MAV_MISSION_TYPE_MISSION);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
@@ -202,7 +202,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     {
         tmpData->data->setHeartbeatSeen(true);
         mavlink_message_t msg;
-        mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0);
+        mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0,MAV_MISSION_TYPE_MISSION);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
     }

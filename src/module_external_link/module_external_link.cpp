@@ -170,14 +170,26 @@ void ModuleExternalLink::SetMissionQueue(const MissionItem::MissionList &mission
     if(status.state == MissionItem::MissionList::COMPLETE)
     {
         int itemsAvailable = missionList.getQueueSize();
-        mavlink_mission_count_t missionCount;
+        mavlink_mace_mission_count_t missionCount;
         missionCount.target_system = missionList.getVehicleID();
-        missionCount.target_component = static_cast<int>(missionList.getMissionType());
+        missionCount.target_component = 0;
+        missionCount.mission_type = static_cast<MACE_MISSION_TYPE>(missionList.getMissionType());
         missionCount.count = itemsAvailable;
 
         mavlink_message_t msg;
-        mavlink_msg_mission_count_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionCount);
+        mavlink_msg_mace_mission_count_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionCount);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
+//        int itemsAvailable = missionList.getQueueSize();
+//        mavlink_mission_count_t missionCount;
+//        missionCount.target_system = missionList.getVehicleID();
+//        missionCount.target_component = 0;
+//        missionCount.count = itemsAvailable;
+
+//        mavlink_message_t msg;
+//        mavlink_msg_mission_count_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionCount);
+//        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
     }
 }
 

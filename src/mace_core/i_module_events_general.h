@@ -2,7 +2,6 @@
 #define I_MODULE_EVENTS_GENERAL_H
 
 #include "data/system_description.h"
-#include "data/mission_map.h"
 #include "data_generic_mission_item/mission_item_components.h"
 
 namespace MaceCore

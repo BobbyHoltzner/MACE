@@ -30,9 +30,8 @@ HEADERS += module_vehicle_ardupilot.h\
     ardupilot_threadmanager.h \
     ardupilot_general_controller.h
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
-
-
+INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/ardupilotmega/
+INCLUDEPATH += $$PWD/../
 
 # Unix lib Install
 unix:!symbian {
@@ -50,10 +49,6 @@ INSTALLS += lib
 headers.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot
 headers.files   += $$HEADERS
 INSTALLS       += headers
-
-
-
-INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata

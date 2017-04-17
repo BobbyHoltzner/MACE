@@ -29,10 +29,10 @@ HEADERS += data_global.h \
     speed_frame.h \
     autopilot_types.h \
     controller_state.h \
-    mission_map.h \
     system_description.h \
     mission_state.h \
-    command_acknowledgement.h
+    command_acknowledgement.h \
+    mission_type.h
     loiter_direction.h
 
 # Unix lib Install

@@ -67,7 +67,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         {
             mavlink_message_t msg;
             int indexRequest = status.remainingItems.at(0)+1;
-            mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,indexRequest); //we have to index this +1 because ardupilot indexes 0 as home
+            mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,indexRequest,MAV_MISSION_TYPE_MISSION); //we have to index this +1 because ardupilot indexes 0 as home
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
@@ -199,7 +199,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         });
 
         mavlink_message_t msg;
-        mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,0);
+        mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,0,MAV_MISSION_TYPE_MISSION);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         break;
     }

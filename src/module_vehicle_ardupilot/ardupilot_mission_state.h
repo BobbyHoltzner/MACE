@@ -38,9 +38,9 @@ public:
 
     Data::MissionState updateMissionState(const double &distance);
 
-    double getCurrentMissionTime();
-    double getCurrentTargetTime();
-    double getHuntingTime();
+    float getCurrentMissionTime();
+    float getCurrentTargetTime();
+    float getHuntingTime();
 
 private:
     void initializeMissionState();

@@ -25,7 +25,7 @@
 #include "data_generic_mission_item/mission_item_components.h"
 
 #include "data/system_description.h"
-#include "data/mission_map.h"
+#include "data/mission_type.h"
 
 namespace MaceCore
 {
