@@ -36,7 +36,6 @@ HEADERS +=\
         data_generic_mission_item_topic_global.h \
     mission_item_topic.h \
     mission_item_topic_components.h \
-    command_mission_type.h \
     mission_list_topic.h \
     mission_item_request_topic.h \
     mission_home_topic.h \

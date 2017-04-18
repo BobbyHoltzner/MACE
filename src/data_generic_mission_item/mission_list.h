@@ -4,8 +4,9 @@
 #include <stdint.h>
 #include <memory>
 #include <vector>
+
 #include "abstract_mission_item.h"
-#include "data/mission_type.h"
+#include "data/mission_key.h"
 
 namespace MissionItem {
 
@@ -23,9 +24,12 @@ public:
     };
 
 public:
-
     MissionList();
+    MissionList(const int &vehicleID, const int &creatorID, const Data::MissionType &missionType, const Data::MissionTypeState &state);
+    MissionList(const int &vehicleID, const int &creatorID, const Data::MissionType &missionType, const Data::MissionTypeState &state, const int &size);
+    MissionList(const MissionList &rhs);
 
+public:
     void initializeQueue(const int &size);
     void clearQueue();
     void replaceMissionQueue(const std::vector<std::shared_ptr<AbstractMissionItem>> &newQueue);
@@ -38,20 +42,49 @@ public:
     MissionListStatus getMissionListStatus() const;
 
 public:
+
+    Data::MissionKey getMissionKey() const{
+        return this->missionKey;
+    }
+
     void setVehicleID(const int &vehicleID){
-        m_VehicleID = vehicleID;
+        this->missionKey.m_targetID = vehicleID;
     }
 
     int getVehicleID() const{
-        return m_VehicleID;
+        return this->missionKey.m_targetID;
+    }
+
+    void setCreatorID(const int &creatorID){
+        this->missionKey.m_creatorID = creatorID;
+    }
+
+    int getCreatorID() const {
+        return this->missionKey.m_creatorID;
+    }
+
+    void setMissionID(const uint64_t &missionID){
+        this->missionKey.m_missionID = missionID;
+    }
+
+    uint64_t getMissionID() const{
+        return this->missionKey.m_missionID;
     }
 
     void setMissionType(const Data::MissionType &missionType){
-        this->missionType = missionType;
+        this->missionKey.m_missionType = missionType;
     }
 
     Data::MissionType getMissionType() const{
-        return missionType;
+        return this->missionKey.m_missionType;
+    }
+
+    void setMissionTypeState(const Data::MissionTypeState &missionTypeState){
+        this->missionTypeState = missionTypeState;
+    }
+
+    Data::MissionTypeState getMissionTypeState() const{
+        return missionTypeState;
     }
 
     int getActiveIndex() const;
@@ -63,20 +96,23 @@ public:
 public:
     void operator = (const MissionList &rhs)
     {
-        this->m_VehicleID = rhs.m_VehicleID;
+        this->missionKey = rhs.missionKey;
         this->missionQueue = rhs.missionQueue;
-        this->missionType = rhs.missionType;
+        this->missionTypeState = rhs.missionTypeState;
         this->activeMissionItem = rhs.activeMissionItem;
     }
 
     bool operator == (const MissionList &rhs) {
-        if(this->m_VehicleID != rhs.m_VehicleID){
+        if(this->missionKey != rhs.missionKey){
             return false;
         }
         if(this->missionQueue != rhs.missionQueue){
             return false;
         }
-        if(this->missionType != rhs.missionType){
+        if(this->missionTypeState != rhs.missionTypeState){
+            return false;
+        }
+        if(this->activeMissionItem != rhs.activeMissionItem){
             return false;
         }
         return true;
@@ -85,25 +121,20 @@ public:
     bool operator != (const MissionList &rhs) {
         return !(*this == rhs);
     }
-public:
-    std::vector<std::shared_ptr<AbstractMissionItem>> missionQueue;
 
 private:
-    //!
-    //! \brief m_VehicleID
-    //!
-    int m_VehicleID;
 
-    //!
-    //! \brief missionType This denotes the queue in which the information should be stored.
-    //! This parameter will be packaged in the COMPID protocol for now.
-    //!
-    Data::MissionType missionType;
+    Data::MissionKey missionKey;
+
+    Data::MissionTypeState missionTypeState;
 
     //!
     //! \brief activeMissionItem
     //!
     int activeMissionItem;
+
+public:
+    std::vector<std::shared_ptr<AbstractMissionItem>> missionQueue;
 };
 
 } //end of namespace MissionItem

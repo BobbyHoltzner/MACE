@@ -2,8 +2,6 @@
 #define MISSION_LIST_TOPIC_H
 
 #include "data/i_topic_component_data_object.h"
-
-#include "command_mission_type.h"
 #include "data_generic_mission_item/mission_list.h"
 
 namespace MissionTopic{
@@ -18,27 +16,34 @@ public:
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 public:
     MissionListTopic();
-    MissionListTopic(const MissionType &missionType);
+    MissionListTopic(const MissionItem::MissionList missionList);
 
+public:
     void setMissionList(const MissionItem::MissionList missionList);
-
     MissionItem::MissionList getMissionList();
-
-    void setVehicleID(const int &vehicleID){
-        this->vehicleID = vehicleID;
-    }
 
     int getVehicleID() const{
         return vehicleID;
     }
 
-    MissionType getMissionType() const{
-        return missionType;
+    int getCreatorID() const{
+        return missionList.getCreatorID();
+    }
+
+    uint64_t getMissionID() const{
+        return missionList.getMissionID();
+    }
+
+    Data::MissionType getMissionType() const{
+        return missionList.getMissionType();
+    }
+
+    Data::MissionTypeState getMissionTypeState() const{
+        return missionList.getMissionTypeState();
     }
 
 private:
     int vehicleID;
-    MissionType missionType;
     MissionItem::MissionList missionList;
 };
 

@@ -210,31 +210,35 @@ void MaceCore::RequestVehicleTakeoff(const void* sender, const MissionItem::Spat
 }
 
 
-
+//!
+//! \brief RequestSetVehicleMission method calls the appropriate handling operations to migrate the proposed
+//! mission list to the appropriate vehicle module for handling.
+//! \param sender
+//! \param missionList
+//!
 void MaceCore::RequestSetVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
 {
     MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
 
-    if(status.state == MissionItem::MissionList::INCOMPLETE)
+    if(status.state == MissionItem::MissionList::INCOMPLETE) //this checks to make sure the list is fully populated
         return;
 
     int vehicleID = missionList.getVehicleID();
-    if(vehicleID == 0)
+    if(vehicleID == 0) //transmit this mission to all vehicles
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            MissionItem::MissionList newList = missionList;
-            newList.setVehicleID(it->first);
-            m_DataFusion->updateCOMPLETEMissionList(newList);
+            int nextSystemID = it->first;
+            MissionItem::MissionList correctedMissionList = m_DataFusion->appenedAvailableMissionMap(nextSystemID,missionList);
             if(it->second != sender){
-                it->second->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,newList);
+                it->second->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,correctedMissionList);
             }
         }
-    }else{
+    }else{ //transmit the mission to a specific vehicle
         try{
-            m_DataFusion->updateCOMPLETEMissionList(missionList);
+            MissionItem::MissionList correctedMissionList = m_DataFusion->appenedAvailableMissionMap(missionList);
             IModuleCommandVehicle* module = m_VehicleIDToPort.at(vehicleID);
             if(module != sender){
-                module->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,missionList);
+                module->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,correctedMissionList);
             }
 
         }catch(const std::out_of_range &oor){
@@ -362,17 +366,12 @@ void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::Spa
     m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
 }
 
-void MaceCore::UpdateVehicleMission(const void *sender, const MissionItem::MissionList::MissionListStatus status, const MissionItem::MissionList &missionList)
+    /////////////////////////////////////////////////////////////////////////
+    /// VEHICLE MISSION EVENTS
+    /////////////////////////////////////////////////////////////////////////
+void MaceCore::UpdateCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey)
 {
-    if(status.state == MissionItem::MissionList::COMPLETE)
-    {
-        m_DataFusion->updateCOMPLETEMissionList(missionList);
-        //we should possibly tell people it is done rather than requiring the module
-    }
-    else if(status.state == MissionItem::MissionList::INCOMPLETE)
-    {
-        m_DataFusion->updateINCOMPLETEMissionList(missionList);
-    }
+    m_DataFusion->updateCurrentVehicleMission(missionKey);
 }
 
 /////////////////////////////////////////////////////////////////////////

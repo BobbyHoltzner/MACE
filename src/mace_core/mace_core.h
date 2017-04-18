@@ -85,10 +85,16 @@ public:
     virtual void RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
 
+    //!
+    //! \brief RequestSetVehicleMission method calls the appropriate handling operations to migrate the proposed
+    //! mission list to the appropriate vehicle module for handling.
+    //! \param sender
+    //! \param missionList
+    //!
     virtual void RequestSetVehicleMission(const void* sender, const MissionItem::MissionList &missionList);
     virtual void RequestVehicleMission(const void* sender, const Data::SystemDescription &systemID);
-    virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID);
 
+    virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID);
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
 
     virtual void RequestVehicleHomePosition(const void* sender, const int &vehicleID);
@@ -109,7 +115,7 @@ public:
 
     virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
     virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
-    virtual void UpdateVehicleMission(const void *sender, const MissionItem::MissionList::MissionListStatus status, const MissionItem::MissionList &missionList);
+    virtual void UpdateCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey);
 
     /////////////////////////////////////////////////////////////////////////
     /// EXTERNAL LINK EVENTS

@@ -9,6 +9,9 @@
       <Parameter Name="ListenAddress">192.168.1.216</Parameter>
       <Parameter Name="ListenPortNumber">14550</Parameter>
     </Parameter>
+	<Parameter Name="ModuleParameters">
+      <Parameter Name="AirborneInstance">true</Parameter>
+    </Parameter>
   </Module>
     <Module Class="ExternalLink" Type="Ardupilot">
     <Parameter Name="ProtocolParameters">

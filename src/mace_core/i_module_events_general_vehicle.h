@@ -1,7 +1,10 @@
 #ifndef I_MODULE_EVENTS_GENERAL_VEHICLE_H
 #define I_MODULE_EVENTS_GENERAL_VEHICLE_H
 
-#include "data/mission_type.h"
+#include "topic.h"
+
+
+#include "data/mission_key.h"
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_mission_item/mission_item_components.h"
 
@@ -31,13 +34,13 @@ public:
     virtual void NewVehicleHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome) = 0;
 
     //!
-    //! \brief UpdateVehicleMission
+    //! \brief UpdateCurrentVehicleMission
     //! \param sender
-    //! \param status
-    //! \param missionList
-    //! \param relevantMissionProfile
+    //! \param systemID
+    //! \param missionID
     //!
-    virtual void UpdateVehicleMission(const void* sender, const MissionItem::MissionList::MissionListStatus status, const MissionItem::MissionList &missionList) = 0;
+    virtual void UpdateCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey) = 0;
+
 };
 
 } //End MaceCore Namespace

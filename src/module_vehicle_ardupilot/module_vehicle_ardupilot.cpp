@@ -138,26 +138,24 @@ void ModuleVehicleArdupilot::SetMissionQueue(const MissionItem::MissionList &mis
 {
     switch(missionList.getMissionType())
     {
-    case(Data::MissionType::AUTO_CURRENT):
-    case (Data::MissionType::AUTO_PROPOSED):
+    case(Data::MissionType::AUTO): //This case should push the mission directly to the aircraft
     {
-        //In these two cases the mission should be pushed directly to the aircraft
         int vehicleID = missionList.getVehicleID();
         std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
-        tmpData->data->setMission(Data::MissionType::AUTO_PROPOSED, missionList);
+        tmpData->data->setProposedMission(missionList);
         mavlink_message_t msg;
         int queueSize = missionList.getQueueSize();
         mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,queueSize,MAV_MISSION_TYPE_MISSION);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         break;
     }
-    case(Data::MissionType::GUIDED_CURRENT):
-    case (Data::MissionType::GUIDED_PROPOSED):
+    case(Data::MissionType::GUIDED):
     {
         //In these two cases the mission should be carefully considered if we are a module
         //aboard MACE hardware companion package or communicating via ground link
         if(airborneInstance)
         {
+            //If we are an airborne instance we can acknowledge this right away
             //This implies we are aboard the aircraft directly communicating with the autopilot
             //Thus higher rate capabilities and request for state are available
         }else{
@@ -165,6 +163,8 @@ void ModuleVehicleArdupilot::SetMissionQueue(const MissionItem::MissionList &mis
         }
         break;
     }
+    default:
+        break;
     }
 }
 
@@ -207,9 +207,9 @@ void ModuleVehicleArdupilot::RequestCurrentGuidedQueue(const int &vehicleID)
 void ModuleVehicleArdupilot::RequestClearGuidedQueue(const int &vehicleID)
 {
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
-    MissionItem::MissionList newList = tmpData->data->getMission(Data::MissionType::GUIDED_CURRENT);
-    newList.clearQueue();
-    tmpData->data->setMission(Data::MissionType::GUIDED_CURRENT,newList);
+//    MissionItem::MissionList newList = tmpData->data->getMission(Data::MissionType::GUIDED_CURRENT);
+//    newList.clearQueue();
+//    tmpData->data->setMission(Data::MissionType::GUIDED_CURRENT,newList);
     UNUSED(tmpData);
 }
 
@@ -314,13 +314,6 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
             else if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()){
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_VehicleMission.GetComponent(component, read_topicDatagram);
-                if(component->getMissionType() == MissionTopic::MissionType::MISSION){
-
-                }else if(component->getMissionType() == MissionTopic::MissionType::GUIDED){
-
-                }else if(component->getMissionType() == MissionTopic::MissionType::ACTION){
-
-                }
             }
         }
     }

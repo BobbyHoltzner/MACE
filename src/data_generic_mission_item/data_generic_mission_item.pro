@@ -37,7 +37,8 @@ SOURCES += \
     spatial_items/spatial_loiter_unlimited.cpp \
     spatial_items/spatial_rtl.cpp \
     spatial_items/spatial_takeoff.cpp \
-    spatial_items/spatial_waypoint.cpp
+    spatial_items/spatial_waypoint.cpp \
+    mission_ack.cpp
 
 
 HEADERS +=\
@@ -59,7 +60,8 @@ HEADERS +=\
     spatial_items/spatial_loiter_unlimited.h \
     spatial_items/spatial_rtl.h \
     spatial_items/spatial_takeoff.h \
-    spatial_items/spatial_waypoint.h
+    spatial_items/spatial_waypoint.h \
+    mission_ack.h
 
 
 # Unix lib Install
@@ -81,6 +83,7 @@ headers.files   += \
     abstract_mission_item.h \
     mission_list.h \
     mission_item_types.h \
+    mission_ack.h \
     mission_item_components.h
 INSTALLS       += headers
 

@@ -14,7 +14,14 @@ public:
     virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode) = 0;
     virtual void RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
 
+    //!
+    //! \brief RequestSetVehicleMission method calls the appropriate handling operations to migrate the proposed
+    //! mission list to the appropriate vehicle module for handling.
+    //! \param sender
+    //! \param missionList
+    //!
     virtual void RequestSetVehicleMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
+
     virtual void RequestVehicleMission(const void* sender, const Data::SystemDescription &systemID) = 0;
     virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID) = 0;
 

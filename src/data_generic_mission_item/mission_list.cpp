@@ -3,10 +3,31 @@
 namespace MissionItem {
 
 MissionList::MissionList() :
-    missionType(Data::MissionType::AUTO_CURRENT), activeMissionItem(0)
+    missionKey(0,0,0,Data::MissionType::AUTO), missionTypeState(Data::MissionTypeState::CURRENT),activeMissionItem(0)
 {
 
 }
+
+MissionList::MissionList(const int &vehicleID, const int &creatorID, const Data::MissionType &missionType, const Data::MissionTypeState &state) :
+    missionKey(vehicleID,creatorID,0,missionType), missionTypeState(state),activeMissionItem(0)
+{
+
+}
+
+MissionList::MissionList(const int &vehicleID, const int &creatorID, const Data::MissionType &missionType, const Data::MissionTypeState &state, const int &size) :
+    missionKey(vehicleID,creatorID,0,missionType), missionTypeState(state),activeMissionItem(0)
+{
+    initializeQueue(size);
+}
+
+MissionList::MissionList(const MissionList &rhs)
+{
+    this->missionKey = rhs.missionKey;
+    this->missionQueue = rhs.missionQueue;
+    this->missionTypeState = rhs.missionTypeState;
+    this->activeMissionItem = rhs.activeMissionItem;
+}
+
 void MissionList::initializeQueue(const int &size)
 {
     missionQueue.clear();

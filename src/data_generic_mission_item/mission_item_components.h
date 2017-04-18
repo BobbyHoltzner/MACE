@@ -16,5 +16,6 @@
 #include "data_generic_mission_item/do_items/action_motor_test.h"
 
 #include "data_generic_mission_item/mission_list.h"
+#include "data_generic_mission_item/mission_ack.h"
 
 #endif // MISSION_ITEM_COMPONENTS_H

@@ -211,7 +211,7 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
 
 
     MissionItem::MissionList missionList;
-    missionList.setMissionType(Data::MissionType::AUTO_PROPOSED);
+    missionList.setMissionType(Data::MissionType::AUTO);
     missionList.setVehicleID(1);
     missionList.initializeQueue(4);
 

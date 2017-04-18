@@ -25,6 +25,7 @@
 #include "data_generic_mission_item/mission_item_components.h"
 
 #include "data/system_description.h"
+#include "data/mission_key.h"
 #include "data/mission_type.h"
 
 namespace MaceCore
@@ -697,16 +698,41 @@ private:
     /// VEHICLE MISSION METHODS
     /////////////////////////////////////////////////////////
 private:
-    mutable std::mutex COMPLETEMissionMUTEX;
-    std::map<int, std::map<Data::MissionType,MissionItem::MissionList>> m_COMPLETEMission;
+    mutable std::mutex MUTEXAvailableMissions;
+    //!
+    //! \brief mapAvailableMissions
+    //!
+    std::map<int, std::map<Data::MissionKey, MissionItem::MissionList>> mapAvailableMissions;
+
 
     mutable std::mutex INCOMPLETEMissionMUTEX;
     std::map<int, std::map<Data::MissionType,MissionItem::MissionList>> m_INCOMPLETEMission;
 
+
+    mutable std::mutex MUTEXCurrentMissions;
+    //!
+    //! \brief m_CURRENTMission reflects the current mission known to this MACE instance
+    //! of what is assoicated with the systemID.
+    //!
+    std::map<Data::MissionKey,MissionItem::MissionList> mapCurrentMissions;
+
+
+    mutable std::mutex MUTEXMissionID;
+    std::map<int,int> mapMissionID;
+
+private:
+    int getAvailableMissionID(const int &systemID);
+
 public:
-    void updateCOMPLETEMissionList(const MissionItem::MissionList missionList);
+    void updateMissionID(const int &systemID, const int &prevID, const int &newID);
+    bool updateCurrentVehicleMission(const Data::MissionKey &missionKey);
+
+    MissionItem::MissionList appenedAvailableMissionMap(const MissionItem::MissionList &missionList);
+    MissionItem::MissionList appenedAvailableMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList);
+
     void updateINCOMPLETEMissionList(const MissionItem::MissionList missionList);
     bool getMissionList(MissionItem::MissionList &newList, const int &systemID, const MissionItem::MissionList::MissionListState &missionState, const Data::MissionType &missionType) const;
+
 };
 
 } //END MaceCore Namespace

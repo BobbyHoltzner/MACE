@@ -275,28 +275,37 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
             mavlink_msg_mace_mission_request_pack_chan(associatedSystemID,compID,m_LinkChan,&msg,systemID,compID,status.remainingItems.at(0),missionType);
             //mavlink_msg_mission_request_pack_chan(associatedSystemID,compID,m_LinkChan,&msg,systemID,missionType,status.remainingItems.at(0));
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-
-            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-                ptr->UpdateVehicleMission(this, status, missionList);
-            });
+//KEN FIX
+//            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//                ptr->UpdateVehicleMission(this, status, missionList);
+//            });
         }else{
             std::cout<<"The mission requested is complete"<<std::endl;
 
+            //First let us send the acknowledgement to the ground
+            mavlink_message_t msg;
+            mavlink_mace_mission_ack_t ack;
+            ack.target_system = systemID;
+            ack.target_component = compID;
+            ack.mission_type = decodedMSG.mission_type;
+            ack.type = MAV_MISSION_ACCEPTED;
+            mavlink_msg_mace_mission_ack_encode_chan(associatedSystemID,compID,m_LinkChan,&msg,&ack);
+            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
             //We should update the core
-            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-                ptr->UpdateVehicleMission(this, status, missionList);
-            });
+//KEN FIX
+//            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//                ptr->UpdateVehicleMission(this, status, missionList);
+//            });
 
             //We now tell the core to pass that mission to the correct vehicle
             ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                 ptr->TransferMissionToVehicle(this, missionList);
             });
 
-
             //KEN FIX: Check that target system matches sysID
             //We should update all listeners
             std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>();
-            missionTopic->setVehicleID(decodedMSG.target_system);
             missionTopic->setMissionList(missionList);
 
             MaceCore::TopicDatagram topicDatagram;
@@ -380,14 +389,18 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         newMissionList.setVehicleID(decodedMSG.target_system);
         newMissionList.initializeQueue(decodedMSG.count);
         MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();
-
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->UpdateVehicleMission(this, status, newMissionList);
-        });
+//KEN FIX
+//        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//            ptr->UpdateVehicleMission(this, status, newMissionList);
+//        });
 
         mavlink_message_t msg;
         mavlink_msg_mace_mission_request_pack_chan(associatedSystemID,compID,m_LinkChan,&msg,decodedMSG.target_system,compID,0,missionType);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        break;
+    }
+    case MAVLINK_MSG_ID_MACE_MISSION_ACK:
+    {
         break;
     }
 

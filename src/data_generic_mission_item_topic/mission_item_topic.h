@@ -2,8 +2,7 @@
 #define MISSION_ITEM_TOPIC_H
 
 #include "data/i_topic_component_data_object.h"
-
-#include "command_mission_type.h"
+#include "data/mission_type.h"
 #include "data_generic_mission_item/abstract_mission_item.h"
 
 namespace MissionTopic{
@@ -19,7 +18,7 @@ public:
 
 public:
     MissionItemTopic();
-    MissionItemTopic(const MissionType &missionType);
+    MissionItemTopic(const Data::MissionType &missionType);
 
     void setMissionItem(const std::shared_ptr<MissionItem::AbstractMissionItem> missionItem);
 
@@ -35,7 +34,7 @@ public:
 
 private:
     int vehicleID;
-    MissionType missionType;
+    Data::MissionType missionType;
     std::shared_ptr<MissionItem::AbstractMissionItem> missionItem;
 };
 

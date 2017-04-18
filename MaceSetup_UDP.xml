@@ -10,7 +10,7 @@
       <Parameter Name="ListenPortNumber">14550</Parameter>
     </Parameter>
 	<Parameter Name="ModuleParameters">
-      <Parameter Name="AirborneInstance">true</Parameter>
+      <Parameter Name="AirborneInstance">false</Parameter>
     </Parameter>
   </Module>
   <Module Class="RTA" Type="NASAPhase2" />
