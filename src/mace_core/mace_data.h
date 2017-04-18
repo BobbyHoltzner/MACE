@@ -730,6 +730,9 @@ public:
     MissionItem::MissionList appenedAvailableMissionMap(const MissionItem::MissionList &missionList);
     MissionItem::MissionList appenedAvailableMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList);
 
+    bool getCurrentMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &cpyMission);
+//    std::vector<MissionItem::MissionList> getCurrentMissions()
+
     void updateINCOMPLETEMissionList(const MissionItem::MissionList missionList);
     bool getMissionList(MissionItem::MissionList &newList, const int &systemID, const MissionItem::MissionList::MissionListState &missionState, const Data::MissionType &missionType) const;
 

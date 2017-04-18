@@ -705,7 +705,7 @@ void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::share
     }
 }
 
-void ModuleGroundStation::NewlyAvailableCurrentMission(const int &vehicleID)
+void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &missionKey)
 {
     std::cout<<"I have been told there is a new mission available"<<std::endl;
 }

@@ -372,6 +372,9 @@ void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::Spa
 void MaceCore::UpdateCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey)
 {
     m_DataFusion->updateCurrentVehicleMission(missionKey);
+
+    if(m_GroundStation)
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_CURRENT_MISSION,missionKey);
 }
 
 /////////////////////////////////////////////////////////////////////////

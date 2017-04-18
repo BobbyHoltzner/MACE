@@ -255,16 +255,13 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         mavlink_msg_mace_mission_item_decode(message,&decodedMSG);
         MACE_MISSION_TYPE missionType = static_cast<MACE_MISSION_TYPE>(decodedMSG.mission_type);
 
-//        mavlink_mission_item_t decodedMSG;
-//        mavlink_msg_mission_item_decode(message,&decodedMSG);
-
         DataCOMMS::Mission_COMMSTOMACE missionConvert;
         std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = missionConvert.Covert_COMMSTOMACE(decodedMSG);
 
         MissionItem::MissionList missionList;
-        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::INCOMPLETE, static_cast<Data::MissionType>(decodedMSG.mission_type));
-        if(!validity)
-            return;
+//        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::INCOMPLETE, static_cast<Data::MissionType>(decodedMSG.mission_type));
+//        if(!validity)
+//            return;
 
         missionList.replaceMissionItemAtIndex(newMissionItem,decodedMSG.seq);
         MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
@@ -332,9 +329,9 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         std::shared_ptr<MissionItem::AbstractMissionItem> missionItem;
 
         MissionItem::MissionList missionList;
-        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::COMPLETE, static_cast<Data::MissionType>(decodedMSG.mission_type));
-        if((!validity) || (decodedMSG.seq > missionList.getQueueSize() - 1))
-            return;
+//        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::COMPLETE, static_cast<Data::MissionType>(decodedMSG.mission_type));
+//        if((!validity) || (decodedMSG.seq > missionList.getQueueSize() - 1))
+//            return;
         missionItem = missionList.getMissionItem(decodedMSG.seq);
 
         mavlink_message_t msg;
@@ -356,9 +353,9 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
 
         //Now we have to respond with the mission count
         MissionItem::MissionList missionList;
-        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::COMPLETE, static_cast<Data::MissionType>(decodedMSG.mission_type));
-        if(!validity)
-            return;
+//        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::COMPLETE, static_cast<Data::MissionType>(decodedMSG.mission_type));
+//        if(!validity)
+//            return;
 
         mavlink_mace_mission_count_t missionCount;
         missionCount.target_system = systemID;

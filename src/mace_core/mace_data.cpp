@@ -2,6 +2,19 @@
 
 namespace MaceCore{
 
+bool MaceData::getCurrentMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &cpyMission)
+{
+    bool returnVal = true;
+    try{
+        cpyMission = mapCurrentMissions.at(missionKey);
+        return true;
+    }catch(const std::out_of_range &oor){
+        std::cout<<"getCurrentMissionList tried to access an item OOR"<<std::endl;
+        returnVal = false;
+    }
+    return returnVal;
+}
+
 int MaceData::getAvailableMissionID(const int &systemID)
 {
     int prevID = 0;
@@ -23,7 +36,6 @@ void MaceData::updateMissionID(const int &systemID, const int &prevID, const int
     int delta = newID - prevID;
     try{
         std::map<Data::MissionKey,MissionItem::MissionList> correctedMissionMap;
-
         std::map<Data::MissionKey,MissionItem::MissionList> availableMissions = mapAvailableMissions[systemID];
 
         for (std::map<Data::MissionKey,MissionItem::MissionList>::iterator it=availableMissions.begin(); it!=availableMissions.end(); ++it){

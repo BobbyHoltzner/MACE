@@ -80,7 +80,7 @@ public:
 
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
-    virtual void NewlyAvailableCurrentMission(const int &vehicleID);
+    virtual void NewlyAvailableCurrentMission(const Data::MissionKey &missionKey);
 
 
 private:
