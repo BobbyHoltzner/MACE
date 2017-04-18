@@ -443,7 +443,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
         //get latest datagram from mace_data
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), senderID);
 
-        //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
@@ -464,12 +463,15 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout<<"I have reached a mission item"<<component->getMissionItemIndex()<<std::endl;
+                std::cout << "I have reached a mission item" << component->getMissionItemIndex() << std::endl;
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout<<"I have a new current mission item"<<component->getMissionItemIndex()<<std::endl;
+                std::cout << "I have a new current mission item" << component->getMissionItemIndex() << std::endl;
+
+                // Write current mission item to the GUI:
+                sendCurrentMissionItem(senderID, component);
             }
         }
     }
@@ -532,6 +534,20 @@ void ModuleGroundStation::sendSensorFootprint(const int &vehicleID, const std::s
 
     if(!bytesWritten){
         std::cout << "Write vehicle sensor footprint failed..." << std::endl;
+    }
+}
+
+void ModuleGroundStation::sendCurrentMissionItem(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionItemCurrentTopic> &component) {
+    QJsonObject json;
+    json["dataType"] = "CurrentMissionItem";
+    json["vehicleID"] = vehicleID;
+    json["missionItemIndex"] = component->getMissionItemIndex();
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write current mission item failed..." << std::endl;
     }
 }
 

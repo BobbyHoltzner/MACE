@@ -76,7 +76,11 @@ type TCPSensorFootprintType = TCPDescriptorType & {
   sensorFootprint: PositionType[]
 }
 
-type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPFuelType | TCPMissionType | TCPModeType | TCPTextType | TCPSensorFootprintType;
+type TCPCurrentMissionItemType = TCPDescriptorType & {
+  missionItemIndex: number
+}
+
+type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPFuelType | TCPMissionType | TCPModeType | TCPTextType | TCPSensorFootprintType | TCPCurrentMissionItemType;
 
 
 type MarkerType = {

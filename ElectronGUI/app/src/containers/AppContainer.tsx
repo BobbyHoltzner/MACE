@@ -304,9 +304,14 @@ export default class AppContainer extends React.Component<Props, State> {
     }
     else if(jsonData.dataType === 'SensorFootprint') {
       let jsonFootprint = jsonData as TCPSensorFootprintType;
-
-      console.log(jsonFootprint.sensorFootprint);
       stateCopy[jsonFootprint.vehicleID].sensorFootprint = jsonFootprint.sensorFootprint;
+      this.setState({connectedVehicles: stateCopy});
+    }
+    else if(jsonData.dataType === 'CurrentMissionItem') {
+      let jsonMissionItem = jsonData as TCPCurrentMissionItemType;
+
+      console.log("Current mission item: " + jsonMissionItem.missionItemIndex);
+      stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.missionItemIndex);
       this.setState({connectedVehicles: stateCopy});
     }
   }

@@ -17,7 +17,8 @@ export class Vehicle{
     homePosition: MarkerType;
     vehicleType: VehicleTypeType;
     isArmed: boolean;
-    sensorFootprint: L.LatLng[]
+    sensorFootprint: L.LatLng[];
+    currentMissionItem: number
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
         this.vehicleId = vehicleId;
@@ -29,6 +30,7 @@ export class Vehicle{
         this.vehicleType = 'Copter';
         this.fuel = {batteryCurrent: 0, batteryRemaining: 0, batteryVoltage: 0};
         this.sensorFootprint = [];
+        this.currentMissionItem = 0;
         if(position){
             this.position = position;
         }
@@ -52,7 +54,8 @@ export class Vehicle{
             icon: new L.DivIcon({
                 html: vehicleIconHTML,
                 iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
+                popupAnchor: [0, -18], // point from which the popup should open relative to the iconAnchor
+                className: '' // setting this overrides default css and gets rid of white box
             })
         };
 
@@ -103,7 +106,7 @@ export class Vehicle{
             let tmpLatLng = new L.LatLng(mission.missionItems[i].lat ? mission.missionItems[i].lat : prevLatLng.lat, mission.missionItems[i].lon ? mission.missionItems[i].lon : prevLatLng.lng);
             this.vehicleMission.latLons.push(tmpLatLng);
 
-            let tmpIcon = this.getMarkerIcon(mission.missionItems[i].type);
+            let tmpIcon = this.getMarkerIcon(mission.missionItems[i].type, false);
             this.vehicleMission.icons.push(tmpIcon);
 
             // Set prevLatLng to this lat lng
@@ -111,58 +114,52 @@ export class Vehicle{
         }
     }
 
-    getMarkerIcon(type: string) {
-        let icon = new L.Icon({
-            iconUrl: './images/marker-icon.png',
-            iconSize: [25, 41], // size of the icon
-            iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
-            popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-        });
 
-        console.log("Type: " + type);
+    getMarkerIcon(type: string, isActive: boolean) {
+        let iconBackgroundColor = opaqueBackgroundColors[this.vehicleId];
+        let iconUrl = './images/marker-icon.png';
+        let width = 25;
+        let height = 41;
+        let iconAnchor: [number, number] = [12, 41];
+        let popupAnchor: [number, number] = [0, -38];
 
         if(type === "WAYPOINT") {
-            icon = new L.Icon({
-                iconUrl: './images/marker-icon.png',
-                iconSize: [25, 41], // size of the icon
-                iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-            });
+            iconUrl = './images/marker-icon.png';
+            width = 25;
+            height = 41;
+            iconAnchor = [12, 41];
+            popupAnchor = [0, -38];
         }
         else if(type === "LOITER_UNLIMITED") {
             // TODO: Figure out a way to display radius
-            icon = new L.Icon({
-                iconUrl: './images/Circle-icon.png',
-                iconSize: [41, 41], // size of the icon
-                iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-            });
+            iconUrl = './images/Circle-icon.png';
+            width = 41;
+            height = 41;
+            iconAnchor = [20, 20];
+            popupAnchor = [0, -38];
         }
         else if(type === "LOITER_TURNS") {
-            // TODO: Figure out a way to display the number of turns and radius
-            icon = new L.Icon({
-                iconUrl: './images/Circle-icon.png',
-                iconSize: [41, 41], // size of the icon
-                iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-            });
+            // TODO: Figure out a way to display radius
+            iconUrl = './images/Circle-icon.png';
+            width = 41;
+            height = 41;
+            iconAnchor = [20, 20];
+            popupAnchor = [0, -38];
         }
         else if(type === "LOITER_TIME") {
-            // TODO: Figure out a way to display the duration of time and radius
-            icon = new L.Icon({
-                iconUrl: './images/Circle-icon.png',
-                iconSize: [41, 41], // size of the icon
-                iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-            });
+            // TODO: Figure out a way to display radius
+            iconUrl = './images/Circle-icon.png';
+            width = 41;
+            height = 41;
+            iconAnchor = [20, 20];
+            popupAnchor = [0, -38];
         }
         else if(type === "ARM") {
-            icon = new L.Icon({
-                iconUrl: './images/marker-icon-orange.png',
-                iconSize: [25, 41], // size of the icon
-                iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-            });
+            iconUrl = './images/marker-icon-orange.png';
+            width = 25;
+            height = 41;
+            iconAnchor = [12, 41];
+            popupAnchor = [0, -38];
         }
         else if(type === "CHANGE_MODE") {
             // TODO
@@ -174,31 +171,49 @@ export class Vehicle{
             // TODO
         }
         else if(type === "TAKEOFF") {
-            icon = new L.Icon({
-                iconUrl: './images/ic_wp_takeof_selected.png',
-                iconSize: [41, 41], // size of the icon
-                iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-            });
+            iconUrl = './images/ic_wp_takeof_selected.png';
+            width = 41;
+            height = 41;
+            iconAnchor = [20, 20];
+            popupAnchor = [0, -38];
         }
         else if(type === "LAND") {
-            icon = new L.Icon({
-                iconUrl: './images/ic_wp_land_selected.png',
-                iconSize: [41, 41], // size of the icon
-                iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-            });
+            iconUrl = './images/ic_wp_land_selected.png';
+            width = 41;
+            height = 41;
+            iconAnchor = [20, 20];
+            popupAnchor = [0, -38];
         }
         else if(type === "RTL") {
-            icon = new L.Icon({
-                iconUrl: './images/Home-Icon-Selected.png',
-                iconSize: [31, 31], // size of the icon
-                iconAnchor: [15, 15], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-            });
+            iconUrl = './images/Home-Icon-Selected.png';
+            width = 31;
+            height = 31;
+            iconAnchor = [15, 15];
+            popupAnchor = [0, -38];
         }
 
-        return icon;
+        if(isActive) {
+            let iconHTML = '<span style="background-color: ' + iconBackgroundColor + '; color: white; text-align: center;">active</span><img src="' + iconUrl + '"alt="Marker icon" style="width: ' + width + 'px; height: ' + height + 'px;">';
+            let icon = new L.DivIcon({
+                html: iconHTML,
+                iconAnchor: [iconAnchor[0], iconAnchor[1]+18], // point of the icon which will correspond to marker's location
+                popupAnchor: popupAnchor, // point from which the popup should open relative to the iconAnchor
+                className: '' // setting this overrides default css and gets rid of white box
+            });
+
+            // Return icon:
+            return icon;
+        }
+        else {
+            let icon = new L.Icon({
+                iconUrl: iconUrl,
+                iconSize: [width, height], // size of the icon
+                iconAnchor: iconAnchor, // point of the icon which will correspond to marker's location
+                popupAnchor: popupAnchor // point from which the popup should open relative to the iconAnchor
+            });
+            // Return icon:
+            return icon;
+        }
     }
 
     updateHomePosition(newHome?: {lat: number, lon: number, alt: number}) {
@@ -216,7 +231,8 @@ export class Vehicle{
             icon: new L.DivIcon({
                 html: iconHTML,
                 iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
+                popupAnchor: [0, -18], // point from which the popup should open relative to the iconAnchor
+                className: '' // setting this overrides default css and gets rid of white box
             })
         };
     }
@@ -237,7 +253,8 @@ export class Vehicle{
             icon: new L.DivIcon({
                 html: iconHTML,
                 iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
+                popupAnchor: [0, -18], // point from which the popup should open relative to the iconAnchor
+                className: '' // setting this overrides default css and gets rid of white box
             })
         };
     }
@@ -258,7 +275,8 @@ export class Vehicle{
             icon: new L.DivIcon({
                 html: iconHTML,
                 iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -18] // point from which the popup should open relative to the iconAnchor
+                popupAnchor: [0, -18], // point from which the popup should open relative to the iconAnchor
+                className: '' // setting this overrides default css and gets rid of white box
             })
         };
     }
@@ -269,5 +287,17 @@ export class Vehicle{
             let vertex = new L.LatLng(newFootprint[i].lat, newFootprint[i].lon);
             this.sensorFootprint.push(vertex);
         }
+    }
+
+    updateCurrentMissionItem(currentMissionItem: number) {
+        let previousItem = this.currentMissionItem;
+        // Set previous mission item icon back to original:
+        let prevIcon = this.getMarkerIcon(this.vehicleMission.itemTypes[previousItem], false);
+        this.vehicleMission.icons[previousItem] = prevIcon;
+
+        // Set new mission item icon and current mission item:
+        let currentIcon = this.getMarkerIcon(this.vehicleMission.itemTypes[currentMissionItem], true);
+        this.vehicleMission.icons[currentMissionItem] = currentIcon;
+        this.currentMissionItem = currentMissionItem;
     }
 }
