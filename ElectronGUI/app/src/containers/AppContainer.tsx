@@ -250,42 +250,42 @@ export default class AppContainer extends React.Component<Props, State> {
       let showMessage = false;
       let title = '';
       let level = 'info';
-      if(vehicleText.severity === "STATUS_EMERGENCY") {
+      if(vehicleText.severity === "EMERGENCY") {
         title = 'EMERGENCY -- Vehicle ' + vehicleText.vehicleID;
         level = 'error';
         showMessage = this.state.messagePreferences.emergency;
       }
-      if(vehicleText.severity === "STATUS_ALERT") {
+      if(vehicleText.severity === "ALERT") {
         title = 'Alert -- Vehicle ' + vehicleText.vehicleID;
         level = 'warning';
         showMessage = this.state.messagePreferences.alert;
       }
-      if(vehicleText.severity === "STATUS_CRITICAL") {
+      if(vehicleText.severity === "CRITICAL") {
         title = 'CRITICAL -- Vehicle ' + vehicleText.vehicleID;
         level = 'error';
         showMessage = this.state.messagePreferences.critical;
       }
-      if(vehicleText.severity === "STATUS_ERROR") {
+      if(vehicleText.severity === "ERROR") {
         title = 'ERROR -- Vehicle ' + vehicleText.vehicleID;
         level = 'error';
         showMessage = this.state.messagePreferences.error;
       }
-      if(vehicleText.severity === "STATUS_WARNING") {
+      if(vehicleText.severity === "WARNING") {
         title = 'Warning -- Vehicle ' + vehicleText.vehicleID;
         level = 'warning';
         showMessage = this.state.messagePreferences.warning;
       }
-      if(vehicleText.severity === "STATUS_NOTICE") {
+      if(vehicleText.severity === "NOTICE") {
         title = 'Notice -- Vehicle ' + vehicleText.vehicleID;
         level = 'success';
         showMessage = this.state.messagePreferences.notice;
       }
-      if(vehicleText.severity === "STATUS_INFO") {
+      if(vehicleText.severity === "INFO") {
         title = 'Info -- Vehicle ' + vehicleText.vehicleID;
         level = 'info';
         showMessage = this.state.messagePreferences.info;
       }
-      if(vehicleText.severity === "STATUS_DEBUG") {
+      if(vehicleText.severity === "DEBUG") {
         title = 'Debug -- Vehicle ' + vehicleText.vehicleID;
         level = 'info';
         showMessage = this.state.messagePreferences.debug;
@@ -293,6 +293,8 @@ export default class AppContainer extends React.Component<Props, State> {
 
       if(showMessage) {
         this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
+        stateCopy[vehicleText.vehicleID].messages.push({severity: vehicleText.severity, text: vehicleText.text});
+        this.setState({connectedVehicles: stateCopy});
       }
     }
     else if(jsonData.dataType === 'GlobalOrigin') {

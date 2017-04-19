@@ -18,7 +18,8 @@ export class Vehicle{
     vehicleType: VehicleTypeType;
     isArmed: boolean;
     sensorFootprint: L.LatLng[];
-    currentMissionItem: number
+    currentMissionItem: number;
+    messages: TextType[];
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
         this.vehicleId = vehicleId;
@@ -31,6 +32,7 @@ export class Vehicle{
         this.fuel = {batteryCurrent: 0, batteryRemaining: 0, batteryVoltage: 0};
         this.sensorFootprint = [];
         this.currentMissionItem = 0;
+        this.messages = [];
         if(position){
             this.position = position;
         }

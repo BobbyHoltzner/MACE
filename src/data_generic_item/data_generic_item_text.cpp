@@ -3,7 +3,7 @@
 namespace DataGenericItem {
 
 DataGenericItem_Text::DataGenericItem_Text() :
-    severity(STATUS_INFO), dataString("")
+    severity(INFO), dataString("")
 {
 
 }

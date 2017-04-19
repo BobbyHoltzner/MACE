@@ -10,34 +10,34 @@ class DataGenericItem_Text
 {
 public:
     enum STATUS_SEVERITY{
-        STATUS_EMERGENCY,
-        STATUS_ALERT,
-        STATUS_CRITICAL,
-        STATUS_ERROR,
-        STATUS_WARNING,
-        STATUS_NOTICE,
-        STATUS_INFO,
-        STATUS_DEBUG
+        EMERGENCY,
+        ALERT,
+        CRITICAL,
+        ERROR,
+        WARNING,
+        NOTICE,
+        INFO,
+        DEBUG
     };
 
     static inline std::string StatusSeverityToString(const STATUS_SEVERITY &state) {
         switch (state) {
-        case STATUS_SEVERITY::STATUS_EMERGENCY:
-            return "STATUS_EMERGENCY";
-        case STATUS_SEVERITY::STATUS_ALERT:
-            return "STATUS_ALERT";
-        case STATUS_SEVERITY::STATUS_CRITICAL:
-            return "STATUS_CRITICAL";
-        case STATUS_SEVERITY::STATUS_ERROR:
-            return "STATUS_ERROR";
-        case STATUS_SEVERITY::STATUS_WARNING:
-            return "STATUS_WARNING";
-        case STATUS_SEVERITY::STATUS_NOTICE:
-            return "STATUS_NOTICE";
-        case STATUS_SEVERITY::STATUS_INFO:
-            return "STATUS_INFO";
-        case STATUS_SEVERITY::STATUS_DEBUG:
-            return "STATUS_DEBUG";
+        case STATUS_SEVERITY::EMERGENCY:
+            return "EMERGENCY";
+        case STATUS_SEVERITY::ALERT:
+            return "ALERT";
+        case STATUS_SEVERITY::CRITICAL:
+            return "CRITICAL";
+        case STATUS_SEVERITY::ERROR:
+            return "ERROR";
+        case STATUS_SEVERITY::WARNING:
+            return "WARNING";
+        case STATUS_SEVERITY::NOTICE:
+            return "NOTICE";
+        case STATUS_SEVERITY::INFO:
+            return "INFO";
+        case STATUS_SEVERITY::DEBUG:
+            return "DEBUG";
         default:
             throw std::runtime_error("Unknown status severity seen");
         }
