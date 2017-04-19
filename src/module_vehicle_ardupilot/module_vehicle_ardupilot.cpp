@@ -134,6 +134,17 @@ void ModuleVehicleArdupilot::homePositionUpdated(const MissionItem::SpatialHome 
 /// direct MACE hardware module.
 /////////////////////////////////////////////////////////////////////////
 
+void ModuleVehicleArdupilot::UpdateMissionKey(const Data::MissionKeyChange &key)
+{
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(key.oldKey.m_targetID);
+    MissionItem::MissionList missionList = tmpData->data->getCurrentMission(key.oldKey.m_missionType);
+    if(missionList.getMissionKey() == key.oldKey)
+    {
+        missionList.setMissionKey(key.newKey);
+        tmpData->data->setCurrentMission(missionList);
+    }
+}
+
 void ModuleVehicleArdupilot::SetMissionQueue(const MissionItem::MissionList &missionList)
 {
     switch(missionList.getMissionType())
@@ -168,19 +179,19 @@ void ModuleVehicleArdupilot::SetMissionQueue(const MissionItem::MissionList &mis
     }
 }
 
-void ModuleVehicleArdupilot::GetMissionQueue(const Data::SystemDescription &targetSystem)
+void ModuleVehicleArdupilot::GetMissionQueue(const int &targetSystem)
 {
     mavlink_message_t msg;
-    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem.getSystemID(),0,MAV_MISSION_TYPE_MISSION);
+    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleVehicleArdupilot::ClearMissionQueue(const Data::SystemDescription &targetSystem)
+void ModuleVehicleArdupilot::ClearMissionQueue(const int &targetSystem)
 {
     //This is message number 45....
     //TODO: Do we get an acknowledgement from this?
     mavlink_message_t msg;
-    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,targetSystem.getSystemID(),0,MAV_MISSION_TYPE_MISSION);
+    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 

@@ -694,44 +694,70 @@ private:
     mutable std::mutex m_TopicMutex;
 
 
-    /////////////////////////////////////////////////////////
-    /// VEHICLE MISSION METHODS
-    /////////////////////////////////////////////////////////
-private:
-    mutable std::mutex MUTEXAvailableMissions;
-    //!
-    //! \brief mapAvailableMissions
-    //!
-    std::map<int, std::map<Data::MissionKey, MissionItem::MissionList>> mapAvailableMissions;
-
 
     mutable std::mutex INCOMPLETEMissionMUTEX;
     std::map<int, std::map<Data::MissionType,MissionItem::MissionList>> m_INCOMPLETEMission;
 
 
+
+    mutable std::mutex MUTEXMissionID;
+    std::map<int,int> mapMissionID; //this map may expand to reference the creator as an iteration as well
+
+private:
+    int getAvailableMissionID(const Data::MissionKey &key);
+
+public:
+
+    /////////////////////////////////////////////////////////
+    /// PATH PLANNING DATA
+    /////////////////////////////////////////////////////////
+    void updateMissionID(const int &systemID, const int &prevID, const int &newID);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// VEHICLE MISSION METHODS: The following methods are in support of accessing the mission items stored within MaceData.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Proposed Missions: These types of missions are proposed to an aircraft and have been proposed by
+    /// someone in the mace architecture. The mission key associated with the mission object would
+    /// help track who generated the mission and who the mission is for. However, this does not imply that
+    /// these are the actual missions aboard the vehicle or associated with the MACE instance.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+private:
+    mutable std::mutex MUTEXProposedMissions;
+    //!
+    //! \brief mapAvailableMissions
+    //!
+    std::map<int, std::map<Data::MissionKey, MissionItem::MissionList>> mapProposedMissions;
+
+public:
+    MissionItem::MissionList appenedAssociatedMissionMap(const MissionItem::MissionList &missionList);
+    MissionItem::MissionList appenedAssociatedMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList);
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Current Missions: There are two types of missions associated in these variables. First, onboard missions
+    /// represent items that have been confirmed at the last instance this mace communicated with the vehicle to
+    /// be onboard the mace instance associated with the appropriate aircraft. This implies that any mode changes
+    /// could potentially activate one of these missions. The current mission is the single container holder for
+    /// what is actively being puruited by the vehicle.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+private:
     mutable std::mutex MUTEXCurrentMissions;
     //!
     //! \brief m_CURRENTMission reflects the current mission known to this MACE instance
     //! of what is assoicated with the systemID.
     //!
-    std::map<Data::MissionKey,MissionItem::MissionList> mapCurrentMissions;
-
-
-    mutable std::mutex MUTEXMissionID;
-    std::map<int,int> mapMissionID;
-
-private:
-    int getAvailableMissionID(const int &systemID);
+    std::map<int,std::map<Data::MissionType,MissionItem::MissionList>> mapOnboardMissions;
+    std::map<int,MissionItem::MissionList> mapCurrentMission;
 
 public:
-    void updateMissionID(const int &systemID, const int &prevID, const int &newID);
-    bool updateCurrentVehicleMission(const Data::MissionKey &missionKey);
+    bool getCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission);
+    bool getCurrentMission(const Data::MissionKey &missionKey, MissionItem::MissionList &cpyMission);
+    bool getOnboardMissions(const int &systemID, std::map<Data::MissionType, MissionItem::MissionList> &cpyMission);
 
-    MissionItem::MissionList appenedAvailableMissionMap(const MissionItem::MissionList &missionList);
-    MissionItem::MissionList appenedAvailableMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList);
+    bool updateOnboardMissions(const Data::MissionKey &missionKey);
+    bool updateCurrentMission(const Data::MissionKey &missionKey);
 
-    bool getCurrentMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &cpyMission);
-//    std::vector<MissionItem::MissionList> getCurrentMissions()
 
     void updateINCOMPLETEMissionList(const MissionItem::MissionList missionList);
     bool getMissionList(MissionItem::MissionList &newList, const int &systemID, const MissionItem::MissionList::MissionListState &missionState, const Data::MissionType &missionType) const;

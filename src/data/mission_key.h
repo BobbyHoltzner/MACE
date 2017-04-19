@@ -11,7 +11,7 @@ class MissionKey
 public:
     MissionKey();
     MissionKey(const int &targetID, const int &creatorID, const int &missionID, const Data::MissionType &missionType);
-
+    MissionKey(const MissionKey &obj);
 public:
     int m_targetID;
     int m_creatorID;
@@ -35,6 +35,7 @@ public:
     bool operator!= (const MissionKey &rhs) const;
 
 };
+
 
 } //end of namespace Data
 #endif // MISSION_KEY_H

@@ -22,7 +22,7 @@ public:
     //! \param sender
     //! \param newVehicleObserved
     //!
-    virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved) = 0;
+    virtual void NewConstructedVehicle(const void *sender, const int &newVehicleObserved) = 0;
 
     //!
     //! \brief NewVehicleHomePosition This function is emitted to alert the core that a module connected to a vehicle
@@ -31,7 +31,21 @@ public:
     //! \param sender
     //! \param vehicleHome
     //!
-    virtual void NewVehicleHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome) = 0;
+    virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome) = 0;
+
+    //!
+    //! \brief NewOnboardVehicleMission
+    //! \param sender
+    //! \param missionList
+    //!
+    virtual void NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList) = 0;
+
+    //!
+    //! \brief ConfirmedOnboardVehicleMission
+    //! \param sender
+    //! \param missionKey
+    //!
+    virtual void ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey) = 0;
 
     //!
     //! \brief UpdateCurrentVehicleMission
@@ -39,7 +53,7 @@ public:
     //! \param systemID
     //! \param missionID
     //!
-    virtual void UpdateCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey) = 0;
+    virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey) = 0;
 
 };
 

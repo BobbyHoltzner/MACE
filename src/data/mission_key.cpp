@@ -14,6 +14,14 @@ MissionKey::MissionKey(const int &targetID, const int &creatorID, const int &mis
 
 }
 
+MissionKey::MissionKey(const MissionKey &obj)
+{
+    this->m_targetID = obj.m_targetID;
+    this->m_creatorID =obj.m_creatorID;
+    this->m_missionID = obj.m_missionID;
+    this->m_missionType = obj.m_missionType;
+}
+
 void MissionKey::operator =(const MissionKey &rhs)
 {
     this->m_targetID = rhs.m_targetID;

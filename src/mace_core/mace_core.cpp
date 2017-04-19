@@ -228,14 +228,14 @@ void MaceCore::RequestSetVehicleMission(const void *sender, const MissionItem::M
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
             int nextSystemID = it->first;
-            MissionItem::MissionList correctedMissionList = m_DataFusion->appenedAvailableMissionMap(nextSystemID,missionList);
+            MissionItem::MissionList correctedMissionList = m_DataFusion->appenedAssociatedMissionMap(nextSystemID,missionList);
             if(it->second != sender){
                 it->second->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,correctedMissionList);
             }
         }
     }else{ //transmit the mission to a specific vehicle
         try{
-            MissionItem::MissionList correctedMissionList = m_DataFusion->appenedAvailableMissionMap(missionList);
+            MissionItem::MissionList correctedMissionList = m_DataFusion->appenedAssociatedMissionMap(missionList);
             IModuleCommandVehicle* module = m_VehicleIDToPort.at(vehicleID);
             if(module != sender){
                 module->MarshalCommand(VehicleCommands::SET_CURRENT_MISSION_QUEUE,correctedMissionList);
@@ -246,17 +246,17 @@ void MaceCore::RequestSetVehicleMission(const void *sender, const MissionItem::M
         }
     }
 }
-void MaceCore::RequestVehicleMission(const void *sender, const Data::SystemDescription &systemID)
+void MaceCore::RequestVehicleMission(const void *sender, const int &systemID)
 {
     UNUSED(sender);
-    if(systemID.getSystemID() == 0)
+    if(systemID == 0)
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
             it->second->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,systemID);
         }
     }else{
         try{
-            m_VehicleIDToPort.at(systemID.getSystemID())->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,systemID);
+            m_VehicleIDToPort.at(systemID)->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION_QUEUE,systemID);
         }catch(const std::out_of_range &oor){
 
         }
@@ -366,12 +366,28 @@ void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::Spa
     m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
 }
 
-    /////////////////////////////////////////////////////////////////////////
-    /// VEHICLE MISSION EVENTS
-    /////////////////////////////////////////////////////////////////////////
-void MaceCore::UpdateCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey)
+void MaceCore::NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
 {
-    m_DataFusion->updateCurrentVehicleMission(missionKey);
+    MissionItem::MissionList correctedMissionList = m_DataFusion->appenedAssociatedMissionMap(missionList);
+    m_DataFusion->updateOnboardMissions(correctedMissionList.getMissionKey());
+    if(correctedMissionList.getMissionKey() != missionList.getMissionKey())
+    {
+        //this means that this instance of mace had already planned more items for that vehicle or had knowledge of more
+        //missions available for that vehicle
+        Data::MissionKeyChange keyChange(missionList.getMissionKey(),correctedMissionList.getMissionKey());
+        IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
+        vehicle->MarshalCommand(VehicleCommands::UPDATE_MISSION_KEY,keyChange);
+    }
+}
+
+void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey)
+{
+    m_DataFusion->updateOnboardMissions(missionKey);
+}
+
+void MaceCore::NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey)
+{
+    m_DataFusion->updateCurrentMission(missionKey);
 
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_CURRENT_MISSION,missionKey);

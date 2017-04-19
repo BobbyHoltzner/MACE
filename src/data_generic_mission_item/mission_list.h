@@ -47,6 +47,10 @@ public:
         return this->missionKey;
     }
 
+    void setMissionKey(const Data::MissionKey &key){
+        this->missionKey = key;
+    }
+
     void setVehicleID(const int &vehicleID){
         this->missionKey.m_targetID = vehicleID;
     }
@@ -102,7 +106,7 @@ public:
         this->activeMissionItem = rhs.activeMissionItem;
     }
 
-    bool operator == (const MissionList &rhs) {
+    bool operator == (const MissionList &rhs) const{
         if(this->missionKey != rhs.missionKey){
             return false;
         }
@@ -118,7 +122,7 @@ public:
         return true;
     }
 
-    bool operator != (const MissionList &rhs) {
+    bool operator != (const MissionList &rhs) const{
         return !(*this == rhs);
     }
 

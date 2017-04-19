@@ -16,7 +16,8 @@ SOURCES += \
     timer.cpp \
     system_description.cpp \
     environment_time.cpp \
-    mission_key.cpp
+    mission_key.cpp \
+    mission_key_change.cpp
 
 HEADERS += data_global.h \
     i_topic_component_data_object.h \
@@ -37,7 +38,8 @@ HEADERS += data_global.h \
     mission_type.h \
     environment_time.h \
     date.h \
-    mission_key.h
+    mission_key.h \
+    mission_key_change.h
     loiter_direction.h
 
 # Unix lib Install

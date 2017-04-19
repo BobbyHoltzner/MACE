@@ -22,7 +22,7 @@ public:
     //!
     virtual void RequestSetVehicleMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
-    virtual void RequestVehicleMission(const void* sender, const Data::SystemDescription &systemID) = 0;
+    virtual void RequestVehicleMission(const void* sender, const int &systemID) = 0;
     virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID) = 0;
 
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID) = 0;

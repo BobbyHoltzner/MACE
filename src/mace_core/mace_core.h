@@ -92,7 +92,7 @@ public:
     //! \param missionList
     //!
     virtual void RequestSetVehicleMission(const void* sender, const MissionItem::MissionList &missionList);
-    virtual void RequestVehicleMission(const void* sender, const Data::SystemDescription &systemID);
+    virtual void RequestVehicleMission(const void* sender, const int &systemID);
 
     virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID);
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
@@ -109,13 +109,14 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 
-    /////////////////////////////////////////////////////////////////////////
-    /// VEHICLE EVENTS
-    /////////////////////////////////////////////////////////////////////////
-
+    ////////////////////////////////////////////////////////////////////////////////////////
+    /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle
+    ////////////////////////////////////////////////////////////////////////////////////////
     virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
     virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
-    virtual void UpdateCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey);
+    virtual void NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey);
+    virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey);
 
     /////////////////////////////////////////////////////////////////////////
     /// EXTERNAL LINK EVENTS

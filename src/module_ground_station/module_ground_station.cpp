@@ -212,7 +212,7 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
 
     MissionItem::MissionList missionList;
     missionList.setMissionType(Data::MissionType::AUTO);
-    missionList.setVehicleID(1);
+    missionList.setVehicleID(vehicleID);
     missionList.initializeQueue(4);
 
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
@@ -248,7 +248,9 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
 
 void ModuleGroundStation::testFunction2(const int &vehicleID)
 {
-    std::cout << "SECOND TEST FUNCTION" << std::endl;
+    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+        ptr->RequestVehicleMission(this, vehicleID);
+    });
 }
 
 void ModuleGroundStation::getConnectedVehicles()
@@ -285,10 +287,8 @@ void ModuleGroundStation::getConnectedVehicles()
 
 void ModuleGroundStation::getVehicleMission(const int &vehicleID)
 {
-    Data::SystemDescription newSystem(vehicleID);
-
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestVehicleMission(this, newSystem);
+        ptr->RequestVehicleMission(this, vehicleID);
     });
 }
 
