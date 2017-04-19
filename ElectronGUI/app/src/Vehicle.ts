@@ -100,6 +100,8 @@ export class Vehicle{
 
     setVehicleMission(mission: TCPMissionType) {
         let prevLatLng = this.homePosition.latLon;
+        // Clear old mission:
+        this.vehicleMission = {descriptions: [], latLons: [], itemTypes: [], icons: []};
         for(let i = 0; i < mission.missionItems.length; i++) {
             this.vehicleMission.descriptions.push(mission.missionItems[i].description);
             this.vehicleMission.itemTypes.push(mission.missionItems[i].type);
