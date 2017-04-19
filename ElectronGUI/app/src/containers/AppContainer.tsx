@@ -186,7 +186,6 @@ export default class AppContainer extends React.Component<Props, State> {
 
       this.setState({connectedVehicles: stateCopy});
     }
-
     else if(jsonData.dataType === "VehiclePosition"){
       let vehiclePosition = jsonData as TCPPositionType;
 
@@ -200,7 +199,6 @@ export default class AppContainer extends React.Component<Props, State> {
 
       this.setState({connectedVehicles: stateCopy});
     }
-
     else if(jsonData.dataType === "VehicleAttitude"){
       let vehicleAttitude = jsonData as TCPAttitudeType;
 
@@ -421,11 +419,38 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   contextSetHome = () => {
-    this.setState({showContextMenu: false, showEditVehicleHomeDialog: true, allowVehicleSelect: true, showEditGlobalHomeDialog: false, useContext: true})
+    this.setState({
+      showContextMenu: false,
+      showEditVehicleHomeDialog: true,
+      allowVehicleSelect: true,
+      showEditGlobalHomeDialog: false,
+      useContext: true
+    });
   }
 
   contextSetGlobal = () => {
-    this.setState({showContextMenu: false, showEditGlobalHomeDialog: true, allowVehicleSelect: false, showEditVehicleHomeDialog: false, useContext: true})
+    this.setState({
+      showContextMenu: false,
+      showEditGlobalHomeDialog: true,
+      allowVehicleSelect: false,
+      showEditVehicleHomeDialog: false,
+      useContext: true
+    });
+  }
+
+  contextGoHere = () => {
+    this.setState({
+      showContextMenu: false,
+      showEditGlobalHomeDialog: false,
+      allowVehicleSelect: false,
+      showEditVehicleHomeDialog: false,
+      useContext: true
+    });
+    let goHere = {
+      lat: this.state.contextAnchor.latlng.lat,
+      lon: this.state.contextAnchor.latlng.lng
+    };
+    this.handleAircraftCommand(this.state.selectedVehicleID, "SET_GO_HERE", JSON.stringify(goHere));
   }
 
   handleSelectedAircraftUpdate = (id: string) => {
@@ -558,6 +583,7 @@ export default class AppContainer extends React.Component<Props, State> {
                 handleClose={() => this.setState({showContextMenu: false})}
                 handleSetHome={this.contextSetHome}
                 handleSetGlobal={this.contextSetGlobal}
+                handleGoHere={this.contextGoHere}
               />
             }
 

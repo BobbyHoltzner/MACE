@@ -112,6 +112,8 @@ private:
 
     void setGlobalOrigin(const QJsonObject &jsonObj);
 
+    void setGoHere(const int &vehicleID, const QJsonObject &jsonObj);
+
     void getVehicleMission(const int &vehicleID);
 
     void getConnectedVehicles();

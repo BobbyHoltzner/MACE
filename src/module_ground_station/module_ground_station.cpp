@@ -1,5 +1,6 @@
 #include "module_ground_station.h"
-
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <iostream>
 #include <functional>
 
@@ -55,7 +56,7 @@ ModuleGroundStation::ModuleGroundStation() :
         m_positionTimeoutOccured = true;
         m_attitudeTimeoutOccured = true;
         m_modeTimeoutOccured = true;
-        m_fuelTimeoutOccured = false;
+        m_fuelTimeoutOccured = true;
     });
 
     m_timer->setSingleShot(false);
@@ -170,6 +171,10 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     else if(command == "SET_VEHICLE_ARM")
     {
         setVehicleArm(vehicleID, jsonObj);
+    }
+    else if(command == "SET_GO_HERE")
+    {
+        setGoHere(vehicleID, jsonObj);
     }
     else if(command == "GET_VEHICLE_MISSION")
     {
@@ -356,6 +361,12 @@ void ModuleGroundStation::setGlobalOrigin(const QJsonObject &jsonObj)
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
         ptr->UpdateGlobalOriginPosition(this, tmpGlobalOrigin);
     });
+}
+
+void ModuleGroundStation::setGoHere(const int &vehicleID, const QJsonObject &jsonObj)
+{
+    // TODO:
+    std::cout << "Go here command issued" << std::endl;
 }
 
 
@@ -642,9 +653,9 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
     QJsonObject json;
     json["dataType"] = "VehicleAttitude";
     json["vehicleID"] = vehicleID;
-    json["roll"] = component->roll;
-    json["pitch"] = component->pitch;
-    json["yaw"] = component->yaw;
+    json["roll"] = component->roll * (180/M_PI);
+    json["pitch"] = component->pitch * (180/M_PI);
+    json["yaw"] = component->yaw * (180/M_PI);
 
     QJsonDocument doc(json);
     if(m_attitudeTimeoutOccured)
