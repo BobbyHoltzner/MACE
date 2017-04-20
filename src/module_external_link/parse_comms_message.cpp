@@ -247,20 +247,21 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
     /// MISSION BASED EVENTS:
     ////////////////////////////////////////////////////////////////////////////
 
-    case MAVLINK_MSG_ID_MISSION_ITEM:
+    case MAVLINK_MSG_ID_MACE_MISSION_ITEM:
     {
         //This is message definition 39
         //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
-        mavlink_mission_item_t decodedMSG;
-        mavlink_msg_mission_item_decode(message,&decodedMSG);
-        int missionType = decodedMSG.target_component;
+        mavlink_mace_mission_item_t decodedMSG;
+        mavlink_msg_mace_mission_item_decode(message,&decodedMSG);
+        MACE_MISSION_TYPE missionType = static_cast<MACE_MISSION_TYPE>(decodedMSG.mission_type);
+
         DataCOMMS::Mission_COMMSTOMACE missionConvert;
         std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = missionConvert.Covert_COMMSTOMACE(decodedMSG);
 
         MissionItem::MissionList missionList;
-        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::INCOMPLETE, static_cast<Data::MissionType>(missionType));
-        if(!validity)
-            return;
+//        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::INCOMPLETE, static_cast<Data::MissionType>(decodedMSG.mission_type));
+//        if(!validity)
+//            return;
 
         missionList.replaceMissionItemAtIndex(newMissionItem,decodedMSG.seq);
         MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
@@ -268,22 +269,40 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         if(status.state == MissionItem::MissionList::INCOMPLETE)
         {
             mavlink_message_t msg;
-            mavlink_msg_mission_request_pack_chan(associatedSystemID,compID,m_LinkChan,&msg,systemID,missionType,status.remainingItems.at(0));
+            mavlink_msg_mace_mission_request_pack_chan(associatedSystemID,compID,m_LinkChan,&msg,systemID,compID,status.remainingItems.at(0),missionType);
+            //mavlink_msg_mission_request_pack_chan(associatedSystemID,compID,m_LinkChan,&msg,systemID,missionType,status.remainingItems.at(0));
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-
-            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-                ptr->UpdateVehicleMission(this, status, missionList);
-            });
+//KEN FIX
+//            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//                ptr->UpdateVehicleMission(this, status, missionList);
+//            });
         }else{
             std::cout<<"The mission requested is complete"<<std::endl;
+
+            //First let us send the acknowledgement to the ground
+            mavlink_message_t msg;
+            mavlink_mace_mission_ack_t ack;
+            ack.target_system = systemID;
+            ack.target_component = compID;
+            ack.mission_type = decodedMSG.mission_type;
+            ack.type = MAV_MISSION_ACCEPTED;
+            mavlink_msg_mace_mission_ack_encode_chan(associatedSystemID,compID,m_LinkChan,&msg,&ack);
+            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
             //We should update the core
+//KEN FIX
+//            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//                ptr->UpdateVehicleMission(this, status, missionList);
+//            });
+
+            //We now tell the core to pass that mission to the correct vehicle
             ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-                ptr->UpdateVehicleMission(this, status, missionList);
+                ptr->TransferMissionToVehicle(this, missionList);
             });
+
             //KEN FIX: Check that target system matches sysID
             //We should update all listeners
             std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>();
-            missionTopic->setVehicleID(decodedMSG.target_system);
             missionTopic->setMissionList(missionList);
 
             MaceCore::TopicDatagram topicDatagram;
@@ -295,79 +314,90 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         }
         break;
     }
-    case MAVLINK_MSG_ID_MISSION_REQUEST:
+    case MAVLINK_MSG_ID_MACE_MISSION_REQUEST:
     {
         //This is message definition 40
         //Request the information of the mission item with the sequence number seq.
         //The response of the system to this message should be a MISSION_ITEM message.
-        mavlink_mission_request_t decodedMSG;
-        mavlink_msg_mission_request_decode(message,&decodedMSG);
-        int missionType = decodedMSG.target_component;
+        mavlink_mace_mission_request_t decodedMSG;
+        mavlink_msg_mace_mission_request_decode(message,&decodedMSG);
+        MACE_MISSION_TYPE missionType = static_cast<MACE_MISSION_TYPE>(decodedMSG.mission_type);
+
+//        mavlink_mission_request_t decodedMSG;
+//        mavlink_msg_mission_request_decode(message,&decodedMSG);
         DataCOMMS::Mission_MACETOCOMMS missionConvert(decodedMSG.target_system,missionType);
         std::shared_ptr<MissionItem::AbstractMissionItem> missionItem;
 
         MissionItem::MissionList missionList;
-        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::COMPLETE, static_cast<Data::MissionType>(missionType));
-        if((!validity) || (decodedMSG.seq > missionList.getQueueSize() - 1))
-            return;
+//        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::COMPLETE, static_cast<Data::MissionType>(decodedMSG.mission_type));
+//        if((!validity) || (decodedMSG.seq > missionList.getQueueSize() - 1))
+//            return;
         missionItem = missionList.getMissionItem(decodedMSG.seq);
 
         mavlink_message_t msg;
-        bool msgValid = missionConvert.MACEMissionToMAVLINKMission(missionItem,m_LinkChan,missionType,decodedMSG.seq,msg);
+        bool msgValid = missionConvert.MACEMissionToMAVLINKMission(missionItem, missionType, m_LinkChan,missionType,decodedMSG.seq,msg);
         if(msgValid){
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         }
         break;
     }
-    case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:
+    case MAVLINK_MSG_ID_MACE_MISSION_REQUEST_LIST:
     {
         //This is message definition 43
         //External item has requested the overall list of mission items from the system/component.
-        mavlink_mission_request_list_t decodedMSG;
-        mavlink_msg_mission_request_list_decode(message,&decodedMSG);
-        int missionItem = decodedMSG.target_component;
+        mavlink_mace_mission_request_list_t decodedMSG;
+        mavlink_msg_mace_mission_request_list_decode(message,&decodedMSG);
+//        mavlink_mission_request_list_t decodedMSG;
+//        mavlink_msg_mission_request_list_decode(message,&decodedMSG);
+        MACE_MISSION_TYPE missionType = static_cast<MACE_MISSION_TYPE>(decodedMSG.mission_type);
 
         //Now we have to respond with the mission count
         MissionItem::MissionList missionList;
-        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::COMPLETE, static_cast<Data::MissionType>(missionItem));
-        if(!validity)
-            return;
+//        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::COMPLETE, static_cast<Data::MissionType>(decodedMSG.mission_type));
+//        if(!validity)
+//            return;
 
-        mavlink_mission_count_t missionCount;
+        mavlink_mace_mission_count_t missionCount;
         missionCount.target_system = systemID;
         missionCount.target_component = decodedMSG.target_component;
+        missionCount.mission_type = missionType;
         missionCount.count = missionList.getQueueSize();
 
         mavlink_message_t msg;
-        mavlink_msg_mission_count_encode_chan(associatedSystemID,compID,m_LinkChan,&msg,&missionCount);
+        mavlink_msg_mace_mission_count_encode_chan(associatedSystemID,compID,m_LinkChan,&msg,&missionCount);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-
         break;
     }
 
-    case MAVLINK_MSG_ID_MISSION_COUNT:
+    case MAVLINK_MSG_ID_MACE_MISSION_COUNT:
     {
         //This is message definition 44
         //This message is emitted as response to MISSION_REQUEST_LIST by the MAV and to initiate a write transaction.
         //The GCS can then request the individual mission item based on the knowledge of the total number of MISSION
         //This isnt necessarily the best way as the packet gets reset
-        mavlink_mission_count_t decodedMSG;
-        mavlink_msg_mission_count_decode(message,&decodedMSG);
-        int missionType = decodedMSG.target_component;
-        MissionItem::MissionList newMissionList;
+        mavlink_mace_mission_count_t decodedMSG;
+        mavlink_msg_mace_mission_count_decode(message,&decodedMSG);
+//        mavlink_mission_count_t decodedMSG;
+//        mavlink_msg_mission_count_decode(message,&decodedMSG);
+        MACE_MISSION_TYPE missionType = static_cast<MACE_MISSION_TYPE>(decodedMSG.mission_type);
 
-        newMissionList.setMissionType(static_cast<Data::MissionType>(missionType));
+        MissionItem::MissionList newMissionList;
+        newMissionList.setMissionType(static_cast<Data::MissionType>(decodedMSG.mission_type));
         newMissionList.setVehicleID(decodedMSG.target_system);
         newMissionList.initializeQueue(decodedMSG.count);
         MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();
-
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->UpdateVehicleMission(this, status, newMissionList);
-        });
+//KEN FIX
+//        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//            ptr->UpdateVehicleMission(this, status, newMissionList);
+//        });
 
         mavlink_message_t msg;
-        mavlink_msg_mission_request_pack_chan(associatedSystemID,compID,m_LinkChan,&msg,decodedMSG.target_system,missionType,0);
+        mavlink_msg_mace_mission_request_pack_chan(associatedSystemID,compID,m_LinkChan,&msg,decodedMSG.target_system,compID,0,missionType);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        break;
+    }
+    case MAVLINK_MSG_ID_MACE_MISSION_ACK:
+    {
         break;
     }
 

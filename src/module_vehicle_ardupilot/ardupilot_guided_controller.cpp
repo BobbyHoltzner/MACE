@@ -18,7 +18,7 @@ void Ardupilot_GuidedController::updatedMission(const MissionItem::MissionList &
 
 void Ardupilot_GuidedController::updateCommandACK(const mavlink_command_ack_t &cmdACK)
 {
-
+    UNUSED(cmdACK);
 }
 
 void Ardupilot_GuidedController::initializeMissionSequence()

@@ -80,7 +80,7 @@ public:
 
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
-    virtual void NewlyAvailableCurrentMission(const int &vehicleID);
+    virtual void NewlyAvailableCurrentMission(const Data::MissionKey &missionKey);
 
 
 private:
@@ -121,8 +121,8 @@ private:
     void getVehicleHome(const int &vehicleID);
 
     // TESTING:
-    void testFunction1();
-    void testFunction2();
+    void testFunction1(const int &vehicleID);
+    void testFunction2(const int &vehicleID);
     // END TESTING
 
 

@@ -85,10 +85,16 @@ public:
     virtual void RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
 
+    //!
+    //! \brief RequestSetVehicleMission method calls the appropriate handling operations to migrate the proposed
+    //! mission list to the appropriate vehicle module for handling.
+    //! \param sender
+    //! \param missionList
+    //!
     virtual void RequestSetVehicleMission(const void* sender, const MissionItem::MissionList &missionList);
-    virtual void RequestVehicleMission(const void* sender, const Data::SystemDescription &systemID);
-    virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID);
+    virtual void RequestVehicleMission(const void* sender, const int &systemID);
 
+    virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID);
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
 
     virtual void RequestVehicleHomePosition(const void* sender, const int &vehicleID);
@@ -103,13 +109,20 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 
-    /////////////////////////////////////////////////////////////////////////
-    /// VEHICLE EVENTS
-    /////////////////////////////////////////////////////////////////////////
-
+    ////////////////////////////////////////////////////////////////////////////////////////
+    /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle
+    ////////////////////////////////////////////////////////////////////////////////////////
     virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
     virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
-    virtual void UpdateVehicleMission(const void *sender, const MissionItem::MissionList::MissionListStatus status, const MissionItem::MissionList &missionList);
+    virtual void NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey);
+    virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey);
+
+    /////////////////////////////////////////////////////////////////////////
+    /// EXTERNAL LINK EVENTS
+    /////////////////////////////////////////////////////////////////////////
+    virtual void TransferMissionToVehicle(const void* sender, const MissionItem::MissionList &missionList);
+
 
 public:
 

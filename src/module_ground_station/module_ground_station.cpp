@@ -190,11 +190,11 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     }
     else if(command == "TEST_FUNCTION1")
     {
-        testFunction1();
+        testFunction1(vehicleID);
     }
     else if(command == "TEST_FUNCTION2")
     {
-        testFunction2();
+        testFunction2(vehicleID);
     }
     else
     {
@@ -204,56 +204,55 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     }
 }
 
-void ModuleGroundStation::testFunction1()
+void ModuleGroundStation::testFunction1(const int &vehicleID)
 {
-    MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
-//    newHome.position.latitude = 37.890903;
-//    newHome.position.longitude = -76.814125;
-//    newTakeoff.position.latitude = 37.891415;
-//    newTakeoff.position.longitude = -76.815701;
-//    newTakeoff.position.altitude = 100;
-//    newTakeoff.setVehicleID(1);
+    MissionItem::MissionList missionList;
+    missionList.setMissionType(Data::MissionType::AUTO);
+    missionList.setVehicleID(vehicleID);
+    missionList.initializeQueue(4);
 
-//    int missionType = static_cast<int>(Data::MissionType::GUIDED_CURRENT);
-//    Data::SystemDescription newSystem(1,missionType);
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    newWP->position.setPosition(37.8910356,-76.8153602,20.0);
+    newWP->setVehicleID(1);
 
-//    MissionItem::MissionList missionList;
-//    missionList.setMissionType(Data::MissionType::AUTO_PROPOSED);
-//    missionList.setVehicleID(1);
-//    missionList.initializeQueue(4);
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP1 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    newWP1->position.setPosition(37.8907477,-76.8152985,65.0);
+    newWP1->setVehicleID(1);
 
-//    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-//    newWP->position.setPosition(35.7470021,-78.8395026,20.0);
-//    newWP->setVehicleID(1);
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP2 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    newWP2->position.setPosition(37.8904852,-76.8152341,75.0);
+    newWP2->setVehicleID(1);
 
-//    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP1 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-//    newWP1->position.setPosition(35.7463033,-78.8386631,65.0);
-//    newWP1->setVehicleID(1);
+    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP3 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+    newWP3->position.setPosition(37.8905170,-76.8144804,85.0);
+    newWP3->setVehicleID(1);
 
-//    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP2 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-//    newWP2->position.setPosition(35.7459724,-78.8390923,75.0);
-//    newWP2->setVehicleID(1);
-
-//    std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP3 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
-//    newWP3->position.setPosition(35.7466538,-78.8399184,85.0);
-//    newWP3->setVehicleID(1);
-
-//    missionList.replaceMissionItemAtIndex(newWP,0);
-//    missionList.replaceMissionItemAtIndex(newWP1,1);
-//    missionList.replaceMissionItemAtIndex(newWP2,2);
-//    missionList.replaceMissionItemAtIndex(newWP3,3);
-
-//    Data::SystemDescription newDescription(1);
+    missionList.replaceMissionItemAtIndex(newWP,0);
+    missionList.replaceMissionItemAtIndex(newWP1,1);
+    missionList.replaceMissionItemAtIndex(newWP2,2);
+    missionList.replaceMissionItemAtIndex(newWP3,3);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestDummyFunction(this, 1);
+        ptr->RequestSetVehicleMission(this, missionList);
     });
+
+//    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+//        ptr->RequestDummyFunction(this, vehicleID);
+//    });
 
 }
 
-void ModuleGroundStation::testFunction2()
+void ModuleGroundStation::testFunction2(const int &vehicleID)
 {
-    std::cout << "SECOND TEST FUNCTION" << std::endl;
+    MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
+    newTakeoff.position.latitude = 37.891415;
+    newTakeoff.position.longitude = -76.815701;
+    newTakeoff.position.altitude = 100;
+    newTakeoff.setVehicleID(1);
+
+    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+        ptr->RequestVehicleTakeoff(this, newTakeoff);
+    });
 }
 
 void ModuleGroundStation::getConnectedVehicles()
@@ -290,10 +289,8 @@ void ModuleGroundStation::getConnectedVehicles()
 
 void ModuleGroundStation::getVehicleMission(const int &vehicleID)
 {
-    Data::SystemDescription newSystem(vehicleID);
-
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestVehicleMission(this, newSystem);
+        ptr->RequestVehicleMission(this, vehicleID);
     });
 }
 
@@ -732,7 +729,7 @@ void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::share
     }
 }
 
-void ModuleGroundStation::NewlyAvailableCurrentMission(const int &vehicleID)
+void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &missionKey)
 {
     std::cout<<"I have been told there is a new mission available"<<std::endl;
 }

@@ -117,10 +117,8 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_ard
 else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/ -ldata_vehicle_ardupilot
 
 
+INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/mace/
 INCLUDEPATH += $$PWD/../
-
-INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
-
 
 unix{
     EigenInclude = $$system(pkg-config --cflags eigen3)

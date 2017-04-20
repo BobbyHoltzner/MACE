@@ -56,11 +56,11 @@ public:
             SetMissionQueue(missionList);
         });
 
-        this->template AddCommandLogic<Data::SystemDescription>(CT::REQUEST_CURRENT_MISSION_QUEUE, [this](const Data::SystemDescription &targetSystem){
+        this->template AddCommandLogic<int>(CT::REQUEST_CURRENT_MISSION_QUEUE, [this](const int &targetSystem){
             GetMissionQueue(targetSystem);
         });
 
-        this->template AddCommandLogic<Data::SystemDescription>(CT::REQUEST_CLEAR_MISSION_QUEUE, [this](const Data::SystemDescription &targetSystem){
+        this->template AddCommandLogic<int>(CT::REQUEST_CLEAR_MISSION_QUEUE, [this](const int &targetSystem){
             ClearMissionQueue(targetSystem);
         });
 
@@ -106,13 +106,12 @@ public:
     virtual void RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
 //    virtual void RequestVehicleLand(const MissionItem::SpatialLand<DataState::StateGlobalPosition> &vehicleLand) = 0;
 //    virtual void RequestVehicleRTL(const MissionItem::SpatialRTL &vehicleRTL) = 0;
-
     virtual void RequestVehicleHomePosition(const int &vehicleID) = 0;
     virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome) = 0;
 
     virtual void SetMissionQueue(const MissionItem::MissionList &missionList) = 0;
-    virtual void GetMissionQueue(const Data::SystemDescription &targetSystem) = 0;
-    virtual void ClearMissionQueue(const Data::SystemDescription &targetSystem) = 0;
+    virtual void GetMissionQueue(const int &targetSystem) = 0;
+    virtual void ClearMissionQueue(const int &targetSystem) = 0;
 
     virtual void SetCurrentGuidedQueue(const MissionItem::MissionList &missionList) = 0;
     virtual void RequestCurrentGuidedQueue(const int &vehicleID) = 0;

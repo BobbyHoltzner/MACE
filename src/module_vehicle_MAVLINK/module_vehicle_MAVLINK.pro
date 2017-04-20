@@ -41,6 +41,7 @@ headers.files   += \
         module_vehicle_mavlink_global.h
 INSTALLS       += headers
 
+INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/common/
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core

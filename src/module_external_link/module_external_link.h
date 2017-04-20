@@ -6,7 +6,7 @@
 #include "module_external_link_global.h"
 #include <chrono>
 
-#include <mavlink.h>
+#include "mavlink.h"
 
 #include "common/common.h"
 

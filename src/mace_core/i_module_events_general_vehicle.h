@@ -1,7 +1,10 @@
 #ifndef I_MODULE_EVENTS_GENERAL_VEHICLE_H
 #define I_MODULE_EVENTS_GENERAL_VEHICLE_H
 
-#include "data/mission_map.h"
+#include "topic.h"
+
+
+#include "data/mission_key.h"
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_mission_item/mission_item_components.h"
 
@@ -19,7 +22,7 @@ public:
     //! \param sender
     //! \param newVehicleObserved
     //!
-    virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved) = 0;
+    virtual void NewConstructedVehicle(const void *sender, const int &newVehicleObserved) = 0;
 
     //!
     //! \brief NewVehicleHomePosition This function is emitted to alert the core that a module connected to a vehicle
@@ -28,16 +31,30 @@ public:
     //! \param sender
     //! \param vehicleHome
     //!
-    virtual void NewVehicleHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome) = 0;
+    virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome) = 0;
 
     //!
-    //! \brief UpdateVehicleMission
+    //! \brief NewOnboardVehicleMission
     //! \param sender
-    //! \param status
     //! \param missionList
-    //! \param relevantMissionProfile
     //!
-    virtual void UpdateVehicleMission(const void* sender, const MissionItem::MissionList::MissionListStatus status, const MissionItem::MissionList &missionList) = 0;
+    virtual void NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList) = 0;
+
+    //!
+    //! \brief ConfirmedOnboardVehicleMission
+    //! \param sender
+    //! \param missionKey
+    //!
+    virtual void ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey) = 0;
+
+    //!
+    //! \brief UpdateCurrentVehicleMission
+    //! \param sender
+    //! \param systemID
+    //! \param missionID
+    //!
+    virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey) = 0;
+
 };
 
 } //End MaceCore Namespace

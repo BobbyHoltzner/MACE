@@ -4,6 +4,7 @@
 #include "abstract_module_event_listeners.h"
 #include "metadata_ground_station.h"
 
+#include "data/mission_key.h"
 #include "i_module_topic_events.h"
 #include "i_module_events_ground_station.h"
 
@@ -30,8 +31,8 @@ public:
             NewlyAvailableVehicle(vehicleID);
         });
 
-        AddCommandLogic<int>(GroundStationCommands::NEW_AVAILABLE_CURRENT_MISSION, [this](const int &vehicleID){
-            NewlyAvailableCurrentMission(vehicleID);
+        AddCommandLogic<Data::MissionKey>(GroundStationCommands::NEW_AVAILABLE_CURRENT_MISSION, [this](const Data::MissionKey &missionKey){
+            NewlyAvailableCurrentMission(missionKey);
         });
     }
 
@@ -43,7 +44,7 @@ public:
 public:
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
-    virtual void NewlyAvailableCurrentMission(const int &vehicleID) = 0;
+    virtual void NewlyAvailableCurrentMission(const Data::MissionKey &missionKey) = 0;
 
 
     virtual bool StartTCPServer() = 0;

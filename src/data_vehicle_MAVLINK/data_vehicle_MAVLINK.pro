@@ -97,8 +97,7 @@ headers_MAVLINK_to_MACE.files   += \
 INSTALLS       += headers_MAVLINK_to_MACE
 
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/common/
-
+INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/common/
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon

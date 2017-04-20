@@ -67,25 +67,28 @@ void ArdupilotMissionState::initializeTargetStart()
 }
 
 
-double ArdupilotMissionState::getCurrentMissionTime()
+float ArdupilotMissionState::getCurrentMissionTime()
 {
     std::chrono::time_point<std::chrono::system_clock> now;
     now = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = now - missionStart;
+    std::chrono::duration<float> elapsed_seconds = now - missionStart;
+    return elapsed_seconds.count();
 }
 
-double ArdupilotMissionState::getCurrentTargetTime()
+float ArdupilotMissionState::getCurrentTargetTime()
 {
     std::chrono::time_point<std::chrono::system_clock> now;
     now = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = now - targetStart;
+    std::chrono::duration<float> elapsed_seconds = now - targetStart;
+    return elapsed_seconds.count();
 }
 
-double ArdupilotMissionState::getHuntingTime()
+float ArdupilotMissionState::getHuntingTime()
 {
     std::chrono::time_point<std::chrono::system_clock> now;
     now = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = now - huntingStart;
+    std::chrono::duration<float> elapsed_seconds = now - huntingStart;
+    return elapsed_seconds.count();
 }
 
 
