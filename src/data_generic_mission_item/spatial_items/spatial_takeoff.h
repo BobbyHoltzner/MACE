@@ -15,11 +15,22 @@ template <class T>
 class SpatialTakeoff : public AbstractMissionItem
 {
 public:
+    SpatialTakeoff();
+
     virtual MissionItemType getMissionType()const;
 
     virtual std::string getDescription()const;
 
     virtual bool hasSpatialMissionInfluence()const;
+
+public:
+    bool getPositionFlag() const {
+        return positionFlag;
+    }
+
+    void setPositionFlag(const bool &flag){
+        this->positionFlag = flag;
+    }
 
 public:
     void operator = (const SpatialTakeoff &rhs)
@@ -44,6 +55,14 @@ public:
     }
 
     std::ostream& operator<<(std::ostream &out);
+
+
+    //KEN FIX FLAG: This should really be based on how we
+    //handle the position element in the future. Basically
+    //if the position is assigned, then switch the flag
+    //one way or another
+private:
+    bool positionFlag; //True says takeoff handle default position
 
 public:
     T position;

@@ -39,7 +39,8 @@ HEADERS += data_global.h \
     environment_time.h \
     date.h \
     mission_key.h \
-    mission_key_change.h
+    mission_key_change.h \
+    abstract_position_item.h
     loiter_direction.h
 
 # Unix lib Install
