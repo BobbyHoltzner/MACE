@@ -3,7 +3,7 @@
 namespace MissionItem {
 template <class T>
 SpatialTakeoff<T>::SpatialTakeoff() :
-    positionFlag(true)
+    positionFlag(false)
 {
 
 }

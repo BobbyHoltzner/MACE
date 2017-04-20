@@ -37,6 +37,7 @@ public:
     {
         AbstractMissionItem::operator =(rhs);
         this->position = rhs.position;
+        this->positionFlag = rhs.positionFlag;
     }
 
     bool operator == (const SpatialTakeoff &rhs) {
@@ -45,6 +46,9 @@ public:
             return false;
         }
         if(this->position != rhs.position){
+            return false;
+        }
+        if(this->positionFlag != rhs.positionFlag){
             return false;
         }
         return true;
@@ -62,7 +66,7 @@ public:
     //if the position is assigned, then switch the flag
     //one way or another
 private:
-    bool positionFlag; //True says takeoff handle default position
+    bool positionFlag; //True says takeoff handle position
 
 public:
     T position;
