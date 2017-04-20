@@ -127,13 +127,13 @@ public:
     //! \brief RequestCurrentMissionQueue
     //! \param vehicleID
     //!
-    virtual void GetMissionQueue (const Data::SystemDescription &targetSystem);
+    virtual void GetMissionQueue (const int &targetSystem);
 
     //!
     //! \brief RequestClearMissionQueue
     //! \param vehicleID
     //!
-    virtual void ClearMissionQueue (const Data::SystemDescription &targetSystem);
+    virtual void ClearMissionQueue (const int &targetSystem);
 
 
     ////////////////////////////////////////////////////////////////////////////
