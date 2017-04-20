@@ -213,19 +213,19 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
 
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
     newWP->position.setPosition(37.8910356,-76.8153602,20.0);
-    newWP->setVehicleID(1);
+    newWP->setVehicleID(vehicleID);
 
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP1 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
     newWP1->position.setPosition(37.8907477,-76.8152985,65.0);
-    newWP1->setVehicleID(1);
+    newWP1->setVehicleID(vehicleID);
 
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP2 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
     newWP2->position.setPosition(37.8904852,-76.8152341,75.0);
-    newWP2->setVehicleID(1);
+    newWP2->setVehicleID(vehicleID);
 
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP3 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
     newWP3->position.setPosition(37.8905170,-76.8144804,85.0);
-    newWP3->setVehicleID(1);
+    newWP3->setVehicleID(vehicleID);
 
     missionList.replaceMissionItemAtIndex(newWP,0);
     missionList.replaceMissionItemAtIndex(newWP1,1);
@@ -248,7 +248,7 @@ void ModuleGroundStation::testFunction2(const int &vehicleID)
     newTakeoff.position.latitude = 37.891415;
     newTakeoff.position.longitude = -76.815701;
     newTakeoff.position.altitude = 100;
-    newTakeoff.setVehicleID(1);
+    newTakeoff.setVehicleID(vehicleID);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->RequestVehicleTakeoff(this, newTakeoff);
