@@ -28,8 +28,8 @@ SOURCES += comms_mavlink.cpp
 HEADERS += comms_mavlink.h\
         commsmavlink_global.h
 
+INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/mace/
 INCLUDEPATH += $$PWD/../
-INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
 
 # Unix lib Install
 unix:!symbian {

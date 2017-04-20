@@ -6,7 +6,6 @@ const char MissionListTopic_name[] = "MissionList";
 const MaceCore::TopicComponentStructure MissionListTopic_structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<int>("vehicleID");
-    structure.AddTerminal<MissionType>("missionType");
     structure.AddTerminal<MissionItem::MissionList>("missionList");
     return structure;
 }();
@@ -14,14 +13,12 @@ const MaceCore::TopicComponentStructure MissionListTopic_structure = []{
 MaceCore::TopicDatagram MissionListTopic::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<int>("vehicleID",vehicleID);
-    datagram.AddTerminal<MissionType>("missionType",missionType);
     datagram.AddTerminal<MissionItem::MissionList>("missionList", missionList);
     return datagram;
 }
 
 void MissionListTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
     vehicleID = datagram.GetTerminal<int>("vehicleID");
-    missionType = datagram.GetTerminal<MissionType>("missionType");
     missionList = datagram.GetTerminal<MissionItem::MissionList>("missionList");
 }
 
@@ -30,14 +27,16 @@ MissionListTopic::MissionListTopic()
 
 }
 
-MissionListTopic::MissionListTopic(const MissionType &missionType)
+
+MissionListTopic::MissionListTopic(const MissionItem::MissionList missionList)
 {
-    this->missionType = missionType;
+    setMissionList(missionList);
 }
 
 
 void MissionListTopic::setMissionList(const MissionItem::MissionList missionList)
 {
+    this->vehicleID = missionList.getVehicleID();
     this->missionList = missionList;
 }
 

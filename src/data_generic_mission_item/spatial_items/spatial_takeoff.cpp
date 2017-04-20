@@ -2,6 +2,13 @@
 
 namespace MissionItem {
 template <class T>
+SpatialTakeoff<T>::SpatialTakeoff() :
+    positionFlag(false)
+{
+
+}
+
+template <class T>
 MissionItemType SpatialTakeoff<T>::getMissionType() const
 {
     return MissionItemType::TAKEOFF;

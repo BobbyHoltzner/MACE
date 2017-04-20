@@ -6,6 +6,7 @@
 
 #include "i_module_topic_events.h"
 #include "i_module_events_vehicle.h"
+#include "data/mission_key_change.h"
 
 namespace MaceCore
 {
@@ -13,7 +14,8 @@ namespace MaceCore
 enum class VehicleCommands
 {
     BASE_MODULE_VEHICLE_LISTENER_ENUMS,
-    REQUEST_DUMMY_FUNCTION
+    REQUEST_DUMMY_FUNCTION,
+    UPDATE_MISSION_KEY
 };
 
 
@@ -34,6 +36,10 @@ public:
             RequestDummyFunction(vehicleID);
         });
 
+        this->template AddCommandLogic<Data::MissionKeyChange>(VehicleCommands::UPDATE_MISSION_KEY, [this](const Data::MissionKeyChange &key){
+            UpdateMissionKey(key);
+        });
+
     }
 
     virtual Classes ModuleClass() const
@@ -44,6 +50,7 @@ public:
 
 public:
     virtual void RequestDummyFunction(const int &vehicleID) = 0;
+    virtual void UpdateMissionKey(const Data::MissionKeyChange &key) = 0;
 
 
 };

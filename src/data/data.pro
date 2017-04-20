@@ -14,7 +14,10 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
     timer.cpp \
-    system_description.cpp
+    system_description.cpp \
+    environment_time.cpp \
+    mission_key.cpp \
+    mission_key_change.cpp
 
 HEADERS += data_global.h \
     i_topic_component_data_object.h \
@@ -29,10 +32,15 @@ HEADERS += data_global.h \
     speed_frame.h \
     autopilot_types.h \
     controller_state.h \
-    mission_map.h \
     system_description.h \
     mission_state.h \
-    command_acknowledgement.h
+    command_acknowledgement.h \
+    mission_type.h \
+    environment_time.h \
+    date.h \
+    mission_key.h \
+    mission_key_change.h \
+    abstract_position_item.h
     loiter_direction.h
 
 # Unix lib Install

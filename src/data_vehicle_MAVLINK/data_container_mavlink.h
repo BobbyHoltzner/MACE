@@ -34,29 +34,65 @@ protected:
     MissionItem::MissionList m_ProposedGuidedQueue;
 
     public:
-    void setMission(const Data::MissionType &type, const MissionItem::MissionList &missionList)
+
+    Data::MissionKey proposedMissionConfirmed(){
+        m_CurrentMissionQueue = m_ProposedMissionQueue;
+        m_ProposedMissionQueue.clearQueue();
+        return m_CurrentMissionQueue.getMissionKey();
+    }
+
+    void setCurrentMission(const MissionItem::MissionList &missionList)
     {
         std::lock_guard<std::mutex> guard(missionMutex);
-
-        switch(type){
-        case Data::MissionType::AUTO_CURRENT:
+        switch(missionList.getMissionType())
+        {
+        case Data::MissionType::AUTO:
         {
             m_CurrentMissionQueue = missionList;
             break;
         }
-        case Data::MissionType::AUTO_PROPOSED:
-        {
-            m_ProposedMissionQueue = missionList;
-            break;
-        }
-        case Data::MissionType::GUIDED_CURRENT:
+        case Data::MissionType::GUIDED:
         {
             m_CurrentGuidedQueue = missionList;
             break;
         }
-        case Data::MissionType::GUIDED_PROPOSED:
+        default:
+            break;
+        }
+    }
+
+    void setProposedMission(const MissionItem::MissionList &missionList)
+    {
+        std::lock_guard<std::mutex> guard(missionMutex);
+        switch(missionList.getMissionType())
+        {
+        case Data::MissionType::AUTO:
+        {
+            m_ProposedMissionQueue = missionList;
+            break;
+        }
+        case Data::MissionType::GUIDED:
         {
             m_ProposedGuidedQueue = missionList;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
+    MissionItem::MissionList getCurrentMission(const Data::MissionType &type){
+        std::lock_guard<std::mutex> guard(missionMutex);
+        MissionItem::MissionList rtnList;
+        switch(type){
+        case Data::MissionType::AUTO:
+        {
+            rtnList = m_CurrentMissionQueue;
+            break;
+        }
+        case Data::MissionType::GUIDED:
+        {
+            rtnList = m_CurrentGuidedQueue;
             break;
         }
         default:
@@ -64,31 +100,19 @@ protected:
             break;
         }
         }
+        return rtnList;
     }
 
-    MissionItem::MissionList getMission(const Data::MissionType &type)
-    {
+    MissionItem::MissionList getProposedMission(const Data::MissionType &type){
         std::lock_guard<std::mutex> guard(missionMutex);
-
         MissionItem::MissionList rtnList;
-
         switch(type){
-        case Data::MissionType::AUTO_CURRENT:
-        {
-            rtnList = m_CurrentMissionQueue;
-            break;
-        }
-        case Data::MissionType::AUTO_PROPOSED:
+        case Data::MissionType::AUTO:
         {
             rtnList = m_ProposedMissionQueue;
             break;
         }
-        case Data::MissionType::GUIDED_CURRENT:
-        {
-            rtnList = m_CurrentGuidedQueue;
-            break;
-        }
-        case Data::MissionType::GUIDED_PROPOSED:
+        case Data::MissionType::GUIDED:
         {
             rtnList = m_ProposedGuidedQueue;
             break;

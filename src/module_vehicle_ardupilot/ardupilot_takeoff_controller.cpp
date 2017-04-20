@@ -151,7 +151,7 @@ void Ardupilot_TakeoffController::run()
         {
             if(modeUpdated)
             {
-                if(!currentVehicleMode.getVehicleArmed())
+                if((!currentVehicleMode.getVehicleArmed()) || (currentVehicleMode.getFlightModeString() != "GUIDED"))
                 {
                     //for some reason we have taken a step backwards
                     //the vehicle is no longer armed and therefore
@@ -166,7 +166,7 @@ void Ardupilot_TakeoffController::run()
         {
             if(modeUpdated)
             {
-                if(!currentVehicleMode.getVehicleArmed())
+                if((!currentVehicleMode.getVehicleArmed()) || (currentVehicleMode.getFlightModeString() != "GUIDED"))
                 {
                     //for some reason we have taken a step backwards
                     //the vehicle is no longer armed and therefore

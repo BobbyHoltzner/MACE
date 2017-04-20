@@ -34,6 +34,7 @@ void Mission_MACETOMAVLINK::initializeMAVLINKMissionItem(mavlink_mission_item_t 
     mavMission.x = 0.0;
     mavMission.y = 0.0;
     mavMission.z = 0.0;
+    mavMission.mission_type = MAV_MISSION_TYPE_MISSION;
 }
 
 mavlink_message_t Mission_MACETOMAVLINK::packMissionItem(const mavlink_mission_item_t &mavMission, const uint8_t &chan)

@@ -41,7 +41,8 @@ HEADERS +=\
     udp_configuration.h \
     udp_link.h
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/ardupilotmega
+INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/mace/
+INCLUDEPATH += $$PWD/../
 
 # Unix lib Install
 unix:!symbian {
@@ -59,8 +60,6 @@ INSTALLS += lib
 headers.path    = $$(MACE_ROOT)/include/comms
 headers.files   += $$HEADERS
 INSTALLS       += headers
-
-INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon

@@ -7,7 +7,7 @@ Mission_COMMSTOMACE::Mission_COMMSTOMACE()
 
 }
 
-std::shared_ptr<MissionItem::AbstractMissionItem> Mission_COMMSTOMACE::Covert_COMMSTOMACE(const mavlink_mission_item_t &mavlinkItem)
+std::shared_ptr<MissionItem::AbstractMissionItem> Mission_COMMSTOMACE::Covert_COMMSTOMACE(const mavlink_mace_mission_item_t &mavlinkItem)
 {
     int systemID = mavlinkItem.target_system;
     std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem;
@@ -116,7 +116,7 @@ void Mission_COMMSTOMACE::Home_COMMSTOMACE(const int &vehicleID, const mavlink_s
     missionItem.position.altitude = mavlinkItem.altitude / pow(10,3);
 }
 
-void Mission_COMMSTOMACE::ChangeSpeed_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::ActionChangeSpeed &missionItem)
+void Mission_COMMSTOMACE::ChangeSpeed_COMMSTOMACE(const int &vehicleID, const mavlink_mace_mission_item_t &mavlinkItem, MissionItem::ActionChangeSpeed &missionItem)
 {
     if(mavlinkItem.command == MAV_CMD_DO_CHANGE_SPEED){
         missionItem.setVehicleID(vehicleID);
@@ -130,7 +130,7 @@ void Mission_COMMSTOMACE::ChangeSpeed_COMMSTOMACE(const int &vehicleID, const ma
     }
 }
 
-void Mission_COMMSTOMACE::LoiterTime_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem)
+void Mission_COMMSTOMACE::LoiterTime_COMMSTOMACE(const int &vehicleID, const mavlink_mace_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem)
 {
     if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TIME) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.setVehicleID(vehicleID);
@@ -142,7 +142,7 @@ void Mission_COMMSTOMACE::LoiterTime_COMMSTOMACE(const int &vehicleID, const mav
         missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
     }
 }
-void Mission_COMMSTOMACE::LoiterTime_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem)
+void Mission_COMMSTOMACE::LoiterTime_COMMSTOMACE(const int &vehicleID, const mavlink_mace_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem)
 {
     if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TIME) && (mavlinkItem.frame == MAV_FRAME_LOCAL_NED)){
         missionItem.setVehicleID(vehicleID);
@@ -155,7 +155,7 @@ void Mission_COMMSTOMACE::LoiterTime_COMMSTOMACE(const int &vehicleID, const mav
     }
 }
 
-void Mission_COMMSTOMACE::LoiterTurns_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem)
+void Mission_COMMSTOMACE::LoiterTurns_COMMSTOMACE(const int &vehicleID, const mavlink_mace_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem)
 {
     if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TURNS) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.setVehicleID(vehicleID);
@@ -167,7 +167,7 @@ void Mission_COMMSTOMACE::LoiterTurns_COMMSTOMACE(const int &vehicleID, const ma
         missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
     }
 }
-void Mission_COMMSTOMACE::LoiterTurns_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem)
+void Mission_COMMSTOMACE::LoiterTurns_COMMSTOMACE(const int &vehicleID, const mavlink_mace_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem)
 {
     if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TURNS) && (mavlinkItem.frame == MAV_FRAME_LOCAL_NED)){
         missionItem.setVehicleID(vehicleID);
@@ -180,7 +180,7 @@ void Mission_COMMSTOMACE::LoiterTurns_COMMSTOMACE(const int &vehicleID, const ma
     }
 }
 
-void Mission_COMMSTOMACE::LoiterUnlimited_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem)
+void Mission_COMMSTOMACE::LoiterUnlimited_COMMSTOMACE(const int &vehicleID, const mavlink_mace_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem)
 {
     if((mavlinkItem.command == MAV_CMD_NAV_LOITER_UNLIM) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.setVehicleID(vehicleID);
@@ -191,7 +191,7 @@ void Mission_COMMSTOMACE::LoiterUnlimited_COMMSTOMACE(const int &vehicleID, cons
         missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
     }
 }
-void Mission_COMMSTOMACE::LoiterUnlimited_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem)
+void Mission_COMMSTOMACE::LoiterUnlimited_COMMSTOMACE(const int &vehicleID, const mavlink_mace_mission_item_t &mavlinkItem, MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem)
 {
     if((mavlinkItem.command == MAV_CMD_NAV_LOITER_UNLIM) && (mavlinkItem.frame == MAV_FRAME_LOCAL_NED)){
         missionItem.setVehicleID(vehicleID);
@@ -203,14 +203,14 @@ void Mission_COMMSTOMACE::LoiterUnlimited_COMMSTOMACE(const int &vehicleID, cons
     }
 }
 
-void Mission_COMMSTOMACE::RTL_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialRTL &missionItem)
+void Mission_COMMSTOMACE::RTL_COMMSTOMACE(const int &vehicleID, const mavlink_mace_mission_item_t &mavlinkItem, MissionItem::SpatialRTL &missionItem)
 {
     if(mavlinkItem.command == MAV_CMD_NAV_RETURN_TO_LAUNCH){
         missionItem.setVehicleID(vehicleID);
     }
 }
 
-void Mission_COMMSTOMACE::Takeoff_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem)
+void Mission_COMMSTOMACE::Takeoff_COMMSTOMACE(const int &vehicleID, const mavlink_mace_mission_item_t &mavlinkItem, MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem)
 {
     if((mavlinkItem.command == MAV_CMD_NAV_TAKEOFF) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.setVehicleID(vehicleID);
@@ -219,7 +219,7 @@ void Mission_COMMSTOMACE::Takeoff_COMMSTOMACE(const int &vehicleID, const mavlin
         missionItem.position.altitude = mavlinkItem.z;
     }
 }
-void Mission_COMMSTOMACE::Takeoff_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem)
+void Mission_COMMSTOMACE::Takeoff_COMMSTOMACE(const int &vehicleID, const mavlink_mace_mission_item_t &mavlinkItem, MissionItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem)
 {
     if((mavlinkItem.command == MAV_CMD_NAV_TAKEOFF) && (mavlinkItem.frame == MAV_FRAME_LOCAL_NED)){
         missionItem.setVehicleID(vehicleID);
@@ -229,7 +229,7 @@ void Mission_COMMSTOMACE::Takeoff_COMMSTOMACE(const int &vehicleID, const mavlin
     }
 }
 
-void Mission_COMMSTOMACE::Waypoint_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem)
+void Mission_COMMSTOMACE::Waypoint_COMMSTOMACE(const int &vehicleID, const mavlink_mace_mission_item_t &mavlinkItem, MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem)
 {
     if((mavlinkItem.command == MAV_CMD_NAV_WAYPOINT) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.setVehicleID(vehicleID);
@@ -238,7 +238,7 @@ void Mission_COMMSTOMACE::Waypoint_COMMSTOMACE(const int &vehicleID, const mavli
         missionItem.position.altitude = mavlinkItem.z;
     }
 }
-void Mission_COMMSTOMACE::Waypoint_COMMSTOMACE(const int &vehicleID, const mavlink_mission_item_t &mavlinkItem, MissionItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem)
+void Mission_COMMSTOMACE::Waypoint_COMMSTOMACE(const int &vehicleID, const mavlink_mace_mission_item_t &mavlinkItem, MissionItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem)
 {
     if((mavlinkItem.command == MAV_CMD_NAV_WAYPOINT) && (mavlinkItem.frame == MAV_FRAME_LOCAL_NED)){
         missionItem.setVehicleID(vehicleID);
