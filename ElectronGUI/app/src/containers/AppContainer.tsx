@@ -186,7 +186,6 @@ export default class AppContainer extends React.Component<Props, State> {
 
       this.setState({connectedVehicles: stateCopy});
     }
-
     else if(jsonData.dataType === "VehiclePosition"){
       let vehiclePosition = jsonData as TCPPositionType;
 
@@ -200,7 +199,6 @@ export default class AppContainer extends React.Component<Props, State> {
 
       this.setState({connectedVehicles: stateCopy});
     }
-
     else if(jsonData.dataType === "VehicleAttitude"){
       let vehicleAttitude = jsonData as TCPAttitudeType;
 
@@ -252,42 +250,42 @@ export default class AppContainer extends React.Component<Props, State> {
       let showMessage = false;
       let title = '';
       let level = 'info';
-      if(vehicleText.severity === "STATUS_EMERGENCY") {
+      if(vehicleText.severity === "EMERGENCY") {
         title = 'EMERGENCY -- Vehicle ' + vehicleText.vehicleID;
         level = 'error';
         showMessage = this.state.messagePreferences.emergency;
       }
-      if(vehicleText.severity === "STATUS_ALERT") {
+      if(vehicleText.severity === "ALERT") {
         title = 'Alert -- Vehicle ' + vehicleText.vehicleID;
         level = 'warning';
         showMessage = this.state.messagePreferences.alert;
       }
-      if(vehicleText.severity === "STATUS_CRITICAL") {
+      if(vehicleText.severity === "CRITICAL") {
         title = 'CRITICAL -- Vehicle ' + vehicleText.vehicleID;
         level = 'error';
         showMessage = this.state.messagePreferences.critical;
       }
-      if(vehicleText.severity === "STATUS_ERROR") {
+      if(vehicleText.severity === "ERROR") {
         title = 'ERROR -- Vehicle ' + vehicleText.vehicleID;
         level = 'error';
         showMessage = this.state.messagePreferences.error;
       }
-      if(vehicleText.severity === "STATUS_WARNING") {
+      if(vehicleText.severity === "WARNING") {
         title = 'Warning -- Vehicle ' + vehicleText.vehicleID;
         level = 'warning';
         showMessage = this.state.messagePreferences.warning;
       }
-      if(vehicleText.severity === "STATUS_NOTICE") {
+      if(vehicleText.severity === "NOTICE") {
         title = 'Notice -- Vehicle ' + vehicleText.vehicleID;
         level = 'success';
         showMessage = this.state.messagePreferences.notice;
       }
-      if(vehicleText.severity === "STATUS_INFO") {
+      if(vehicleText.severity === "INFO") {
         title = 'Info -- Vehicle ' + vehicleText.vehicleID;
         level = 'info';
         showMessage = this.state.messagePreferences.info;
       }
-      if(vehicleText.severity === "STATUS_DEBUG") {
+      if(vehicleText.severity === "DEBUG") {
         title = 'Debug -- Vehicle ' + vehicleText.vehicleID;
         level = 'info';
         showMessage = this.state.messagePreferences.debug;
@@ -295,6 +293,8 @@ export default class AppContainer extends React.Component<Props, State> {
 
       if(showMessage) {
         this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
+        stateCopy[vehicleText.vehicleID].messages.unshift({severity: vehicleText.severity, text: vehicleText.text});
+        this.setState({connectedVehicles: stateCopy});
       }
     }
     else if(jsonData.dataType === 'GlobalOrigin') {
@@ -304,9 +304,14 @@ export default class AppContainer extends React.Component<Props, State> {
     }
     else if(jsonData.dataType === 'SensorFootprint') {
       let jsonFootprint = jsonData as TCPSensorFootprintType;
-
-      console.log(jsonFootprint.sensorFootprint);
       stateCopy[jsonFootprint.vehicleID].sensorFootprint = jsonFootprint.sensorFootprint;
+      this.setState({connectedVehicles: stateCopy});
+    }
+    else if(jsonData.dataType === 'CurrentMissionItem') {
+      let jsonMissionItem = jsonData as TCPCurrentMissionItemType;
+
+      console.log("Current mission item: " + jsonMissionItem.missionItemIndex);
+      stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.missionItemIndex);
       this.setState({connectedVehicles: stateCopy});
     }
   }
@@ -416,11 +421,38 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   contextSetHome = () => {
-    this.setState({showContextMenu: false, showEditVehicleHomeDialog: true, allowVehicleSelect: true, showEditGlobalHomeDialog: false, useContext: true})
+    this.setState({
+      showContextMenu: false,
+      showEditVehicleHomeDialog: true,
+      allowVehicleSelect: true,
+      showEditGlobalHomeDialog: false,
+      useContext: true
+    });
   }
 
   contextSetGlobal = () => {
-    this.setState({showContextMenu: false, showEditGlobalHomeDialog: true, allowVehicleSelect: false, showEditVehicleHomeDialog: false, useContext: true})
+    this.setState({
+      showContextMenu: false,
+      showEditGlobalHomeDialog: true,
+      allowVehicleSelect: false,
+      showEditVehicleHomeDialog: false,
+      useContext: true
+    });
+  }
+
+  contextGoHere = () => {
+    this.setState({
+      showContextMenu: false,
+      showEditGlobalHomeDialog: false,
+      allowVehicleSelect: false,
+      showEditVehicleHomeDialog: false,
+      useContext: true
+    });
+    let goHere = {
+      lat: this.state.contextAnchor.latlng.lat,
+      lon: this.state.contextAnchor.latlng.lng
+    };
+    this.handleAircraftCommand(this.state.selectedVehicleID, "SET_GO_HERE", JSON.stringify(goHere));
   }
 
   handleSelectedAircraftUpdate = (id: string) => {
@@ -553,6 +585,7 @@ export default class AppContainer extends React.Component<Props, State> {
                 handleClose={() => this.setState({showContextMenu: false})}
                 handleSetHome={this.contextSetHome}
                 handleSetGlobal={this.contextSetGlobal}
+                handleGoHere={this.contextGoHere}
               />
             }
 

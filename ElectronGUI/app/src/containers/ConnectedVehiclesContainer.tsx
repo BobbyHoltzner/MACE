@@ -5,6 +5,7 @@ import * as React from 'react';
 import FlatButton from 'material-ui/FlatButton'
 
 import { VehicleHUD } from '../components/VehicleHUD';
+import { VehicleMessages } from '../components/VehicleMessages';
 import { Vehicle } from '../Vehicle';
 
 
@@ -16,6 +17,7 @@ type Props = {
 }
 
 type State = {
+    showHUDs?: boolean
 }
 
 export class ConnectedVehiclesContainer extends React.Component<Props, State> {
@@ -24,6 +26,7 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
         super(props);
 
         this.state = {
+            showHUDs: true
         }
     }
 
@@ -40,6 +43,7 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
         // const openButtonContainer = { position: 'absolute', top: 15, right: 15, zIndex: 999, backgroundColor: "rgba(255,255,255,1)" };
 
         let vehicleHUDs: JSX.Element[] = [];
+        let vehicleMessages: JSX.Element[] = [];
         for( let key in this.props.connectedVehicles ){
             let vehicle = this.props.connectedVehicles[key];
 
@@ -51,6 +55,13 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
                     handleOpenVehicleEdit={this.props.handleOpenVehicleEdit}
                 />
             );
+
+            vehicleMessages.push(
+                <VehicleMessages key={key}
+                    vehicleID={key}
+                    aircraft={vehicle}
+                />
+            )
         }
 
         return(
@@ -60,13 +71,13 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
                         <div style={connectedVehiclesContainer}>
                             <div>
                                 <FlatButton
-                                    label="Sync"
+                                    label={this.state.showHUDs ? "Vehicle Messages" : "Vehicle HUDs"}
                                     labelPosition="after"
-                                    onClick={() => this.handleAircraftCommand("0", "GET_CONNECTED_VEHICLES", "")}
-                                    icon={<i className="material-icons">keyboard_arrow_right</i>}
+                                    onClick={() => this.setState({showHUDs: !this.state.showHUDs})}
+                                    icon={this.state.showHUDs ? <i className="material-icons">keyboard_arrow_right</i> : <i className="material-icons">keyboard_arrow_left</i>}
                                 />
                             </div>
-                            {vehicleHUDs}
+                            {this.state.showHUDs ? vehicleHUDs : vehicleMessages}
                         </div>
                      : null
                     }

@@ -1,5 +1,6 @@
 #include "module_ground_station.h"
-
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <iostream>
 #include <functional>
 
@@ -55,7 +56,7 @@ ModuleGroundStation::ModuleGroundStation() :
         m_positionTimeoutOccured = true;
         m_attitudeTimeoutOccured = true;
         m_modeTimeoutOccured = true;
-        m_fuelTimeoutOccured = false;
+        m_fuelTimeoutOccured = true;
     });
 
     m_timer->setSingleShot(false);
@@ -171,6 +172,10 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     {
         setVehicleArm(vehicleID, jsonObj);
     }
+    else if(command == "SET_GO_HERE")
+    {
+        setGoHere(vehicleID, jsonObj);
+    }
     else if(command == "GET_VEHICLE_MISSION")
     {
         getVehicleMission(vehicleID);
@@ -208,19 +213,19 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
 
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
     newWP->position.setPosition(37.8910356,-76.8153602,20.0);
-    newWP->setVehicleID(1);
+    newWP->setVehicleID(vehicleID);
 
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP1 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
     newWP1->position.setPosition(37.8907477,-76.8152985,65.0);
-    newWP1->setVehicleID(1);
+    newWP1->setVehicleID(vehicleID);
 
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP2 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
     newWP2->position.setPosition(37.8904852,-76.8152341,75.0);
-    newWP2->setVehicleID(1);
+    newWP2->setVehicleID(vehicleID);
 
     std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP3 = std::make_shared<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
     newWP3->position.setPosition(37.8905170,-76.8144804,85.0);
-    newWP3->setVehicleID(1);
+    newWP3->setVehicleID(vehicleID);
 
     missionList.replaceMissionItemAtIndex(newWP,0);
     missionList.replaceMissionItemAtIndex(newWP1,1);
@@ -243,7 +248,7 @@ void ModuleGroundStation::testFunction2(const int &vehicleID)
     newTakeoff.position.latitude = 37.891415;
     newTakeoff.position.longitude = -76.815701;
     newTakeoff.position.altitude = 100;
-    newTakeoff.setVehicleID(1);
+    newTakeoff.setVehicleID(vehicleID);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->RequestVehicleTakeoff(this, newTakeoff);
@@ -355,6 +360,12 @@ void ModuleGroundStation::setGlobalOrigin(const QJsonObject &jsonObj)
     });
 }
 
+void ModuleGroundStation::setGoHere(const int &vehicleID, const QJsonObject &jsonObj)
+{
+    // TODO:
+    std::cout << "Go here command issued" << std::endl;
+}
+
 
 
 //!
@@ -440,7 +451,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
         //get latest datagram from mace_data
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), senderID);
 
-        //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
@@ -461,12 +471,15 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout<<"I have reached a mission item"<<component->getMissionItemIndex()<<std::endl;
+                std::cout << "I have reached a mission item" << component->getMissionItemIndex() << std::endl;
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout<<"I have a new current mission item"<<component->getMissionItemIndex()<<std::endl;
+                std::cout << "I have a new current mission item" << component->getMissionItemIndex() << std::endl;
+
+                // Write current mission item to the GUI:
+                sendCurrentMissionItem(senderID, component);
             }
         }
     }
@@ -529,6 +542,20 @@ void ModuleGroundStation::sendSensorFootprint(const int &vehicleID, const std::s
 
     if(!bytesWritten){
         std::cout << "Write vehicle sensor footprint failed..." << std::endl;
+    }
+}
+
+void ModuleGroundStation::sendCurrentMissionItem(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionItemCurrentTopic> &component) {
+    QJsonObject json;
+    json["dataType"] = "CurrentMissionItem";
+    json["vehicleID"] = vehicleID;
+    json["missionItemIndex"] = component->getMissionItemIndex();
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write current mission item failed..." << std::endl;
     }
 }
 
@@ -623,9 +650,9 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
     QJsonObject json;
     json["dataType"] = "VehicleAttitude";
     json["vehicleID"] = vehicleID;
-    json["roll"] = component->roll;
-    json["pitch"] = component->pitch;
-    json["yaw"] = component->yaw;
+    json["roll"] = component->roll * (180/M_PI);
+    json["pitch"] = component->pitch * (180/M_PI);
+    json["yaw"] = component->yaw * (180/M_PI);
 
     QJsonDocument doc(json);
     if(m_attitudeTimeoutOccured)
