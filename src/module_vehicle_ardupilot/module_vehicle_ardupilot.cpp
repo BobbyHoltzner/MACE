@@ -78,10 +78,13 @@ void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTak
 //    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan);
-    MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> takeoff;
-    takeoff.setVehicleID(vehicleID);
-    takeoff.position.setPosition(37,-76,100);
-    newController->initializeTakeoffSequence(takeoff);
+    if(vehicleTakeoff.getPositionFlag())
+        newController->initializeTakeoffSequence(vehicleTakeoff);
+    else{
+        MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> defaultTakeoff = vehicleTakeoff;
+        defaultTakeoff.position.altitude = 20;
+        newController->initializeTakeoffSequence(defaultTakeoff);
+    }
 
     m_AircraftController = newController;
     std::thread *thread = new std::thread([newController]()

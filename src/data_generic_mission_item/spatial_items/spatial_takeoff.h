@@ -66,7 +66,7 @@ public:
     //if the position is assigned, then switch the flag
     //one way or another
 private:
-    bool positionFlag; //True says takeoff handle position
+    bool positionFlag; //True says takeoff position was set
 
 public:
     T position;
