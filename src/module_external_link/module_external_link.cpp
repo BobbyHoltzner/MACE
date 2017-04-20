@@ -183,17 +183,17 @@ void ModuleExternalLink::SetMissionQueue(const MissionItem::MissionList &mission
     }
 }
 
-void ModuleExternalLink::GetMissionQueue(const Data::SystemDescription &targetSystem)
+void ModuleExternalLink::GetMissionQueue(const int &targetSystem)
 {
     mavlink_message_t msg;
     mavlink_mission_request_list_t list;
-    list.target_system = targetSystem.getSystemID();
-    list.target_component = targetSystem.getSystemComp();
+    list.target_system = targetSystem;
+    list.target_component = 0;
     mavlink_msg_mission_request_list_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&list);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::ClearMissionQueue(const Data::SystemDescription &targetSystem)
+void ModuleExternalLink::ClearMissionQueue(const int &targetSystem)
 {
     UNUSED(targetSystem);
 }
