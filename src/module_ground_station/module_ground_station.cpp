@@ -196,6 +196,10 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     {
         testFunction2(vehicleID);
     }
+    else if(command == "VEHICLE_TAKEOFF")
+    {
+        takeoff(vehicleID, jsonObj);
+    }
     else
     {
         std::cout << "Command " << command.toStdString() << " not recognized." << std::endl;
@@ -366,6 +370,20 @@ void ModuleGroundStation::setGoHere(const int &vehicleID, const QJsonObject &jso
     std::cout << "Go here command issued" << std::endl;
 }
 
+
+void ModuleGroundStation::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
+{
+    MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
+    QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
+    newTakeoff.position.latitude = position.value("lat").toDouble();
+    newTakeoff.position.longitude = position.value("lon").toDouble();
+    newTakeoff.position.altitude = position.value("alt").toDouble();
+    newTakeoff.setVehicleID(vehicleID);
+
+    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+        ptr->RequestVehicleTakeoff(this, newTakeoff);
+    });
+}
 
 
 //!

@@ -17,7 +17,8 @@ type Props = {
     connectedVehicles: {[id: string]: Vehicle},
     selectedAircraftID: string,
     onSelectedAircraftChange: (id: string) => void,
-    onAircraftCommand: (id: string, tcpCommand: string, vehicleCommand: string) => void
+    onAircraftCommand: (id: string, tcpCommand: string, vehicleCommand: string) => void,
+    handleTakeoff: () => void
 }
 
 type State = {
@@ -100,7 +101,7 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
                             }
 
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <RaisedButton icon={<i className="material-icons">flight_takeoff</i>} style={buttonStyle} label="Takeoff" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "TAKEOFF")}/>
+                                <RaisedButton icon={<i className="material-icons">flight_takeoff</i>} style={buttonStyle} label="Takeoff" onClick={this.props.handleTakeoff}/>
                             </MuiThemeProvider>
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
                                 <RaisedButton icon={<i className="material-icons">pause</i>} style={buttonStyle} label="Loiter" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "LOITER")}/>

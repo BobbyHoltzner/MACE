@@ -21,6 +21,7 @@ import { backgroundColors, opaqueBackgroundColors } from '../util/Colors';
 import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
 import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
 import { MessagesDialog } from '../components/MessagesDialog';
+import { TakeoffDialog } from '../components/TakeoffDialog';
 import { ContextMenu } from '../components/ContextMenu';
 
 import * as deepcopy from 'deepcopy';
@@ -54,7 +55,10 @@ type State = {
   contextAnchor?: L.LeafletMouseEvent,
   useContext?: boolean,
   showMessagesMenu?: boolean,
-  messagePreferences?: MessagePreferencesType
+  messagePreferences?: MessagePreferencesType,
+  takeoffAlt?: number,
+  showTakeoffDialog?: boolean,
+  showSaveTakeoff?: boolean
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -104,7 +108,10 @@ export default class AppContainer extends React.Component<Props, State> {
         notice: true,
         info: true,
         debug: true
-      }
+      },
+      takeoffAlt: 10,
+      showTakeoffDialog: false,
+      showSaveTakeoff: false
     }
   }
 
@@ -309,8 +316,6 @@ export default class AppContainer extends React.Component<Props, State> {
     }
     else if(jsonData.dataType === 'CurrentMissionItem') {
       let jsonMissionItem = jsonData as TCPCurrentMissionItemType;
-
-      console.log("Current mission item: " + jsonMissionItem.missionItemIndex);
       stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.missionItemIndex);
       this.setState({connectedVehicles: stateCopy});
     }
@@ -378,8 +383,11 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleDrawerAction = (action: string) => {
-    if(action === "Settings"){
-      this.setState({showMessagesMenu: true, openDrawer: false});
+    if(action === "Messages"){
+      this.setState({showMessagesMenu: true, showTakeoffDialog: false, showSaveTakeoff: false, openDrawer: false});
+    }
+    else if(action === "Takeoff"){
+      this.setState({showMessagesMenu: false, showTakeoffDialog: true, showSaveTakeoff: true, openDrawer: false});
     }
     else if(action === "TestButton1") {
       this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION1", "");
@@ -486,6 +494,27 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({messagePreferences: preferences});
   }
 
+  handleTakeoff = (vehicleID: string, takeoffAlt: number) => {
+    if(vehicleID !== "0") {
+      let takeoffPosition = {
+        lat: this.state.connectedVehicles[vehicleID].position.lat,
+        lon: this.state.connectedVehicles[vehicleID].position.lon,
+        alt: takeoffAlt
+      }
+      this.makeTCPRequest(parseInt(vehicleID), "VEHICLE_TAKEOFF", JSON.stringify(takeoffPosition));
+    }
+    else {
+      Object.keys(this.state.connectedVehicles).map((key: string) => {
+        let takeoffPosition = {
+          lat: this.state.connectedVehicles[key].position.lat,
+          lon: this.state.connectedVehicles[key].position.lon,
+          alt: takeoffAlt
+        }
+        this.makeTCPRequest(parseInt(key), "VEHICLE_TAKEOFF", JSON.stringify(takeoffPosition));
+      })
+    }
+  }
+
   render() {
 
     const width = window.screen.width;
@@ -518,7 +547,6 @@ export default class AppContainer extends React.Component<Props, State> {
         <MuiThemeProvider muiTheme={lightMuiTheme}>
           <div style={parentStyle}>
 
-
             <AppBar
                 title="MACE"
                 style={{backgroundColor: colors.orange700}}
@@ -545,6 +573,7 @@ export default class AppContainer extends React.Component<Props, State> {
               onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
               onAircraftCommand={this.handleAircraftCommand}
               selectedAircraftID={this.state.selectedVehicleID}
+              handleTakeoff={() => this.setState({showTakeoffDialog: true, showSaveTakeoff: false})}
             />
 
             <VehicleWarningsContainer
@@ -577,6 +606,18 @@ export default class AppContainer extends React.Component<Props, State> {
               handleClose={() => this.setState({showMessagesMenu: false})}
               handleSave={this.handleSaveMessagingPreferences}
               preferences={this.state.messagePreferences}
+            />
+
+            <TakeoffDialog
+              open={this.state.showTakeoffDialog}
+              handleClose={() => this.setState({showTakeoffDialog: false})}
+              vehicles={this.state.connectedVehicles}
+              selectedVehicleID={this.state.selectedVehicleID}
+              handleTakeoff={this.handleTakeoff}
+              takeoffAlt={this.state.takeoffAlt}
+              onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
+              showSaveTakeoff={this.state.showSaveTakeoff}
+              handleSaveTakeoff={(alt: number) => this.setState({takeoffAlt: alt})}
             />
 
             {this.state.showContextMenu &&
