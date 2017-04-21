@@ -17,12 +17,17 @@ type Props = {
 }
 
 type State = {
+    openSettingsSubmenu?: boolean
 }
 
 export class AppDrawer extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
+
+        this.state = {
+            openSettingsSubmenu: false
+        }
     }
 
 
@@ -47,17 +52,23 @@ export class AppDrawer extends React.Component<Props, State> {
 
                     <MenuItem onTouchTap={() => this.props.onDrawerAction("TestButton1")}>
                         <FlatButton
-                        labelStyle={drawerItemLabelStyle}
-                        label="TESTING 1"
-                        icon={<FontIcon className="material-icons">gesture</FontIcon>}
+                            labelStyle={drawerItemLabelStyle}
+                            label="TESTING 1"
+                            icon={<FontIcon className="material-icons">gesture</FontIcon>}
+                            disableTouchRipple={false}
+                            disableFocusRipple={false}
+                            hoverColor={'rgba(0,0,0, 0.0)'}
                         />
                     </MenuItem>
 
                     <MenuItem onTouchTap={() => this.props.onDrawerAction("TestButton2")}>
                         <FlatButton
-                        labelStyle={drawerItemLabelStyle}
-                        label="TESTING 2"
-                        icon={<FontIcon className="material-icons">gesture</FontIcon>}
+                            labelStyle={drawerItemLabelStyle}
+                            label="TESTING 2"
+                            icon={<FontIcon className="material-icons">gesture</FontIcon>}
+                            disableTouchRipple={false}
+                            disableFocusRipple={false}
+                            hoverColor={'rgba(0,0,0, 0.0)'}
                         />
                     </MenuItem>
 
@@ -73,12 +84,40 @@ export class AppDrawer extends React.Component<Props, State> {
 
                     <Divider />
 
-                    <MenuItem onTouchTap={() => this.props.onDrawerAction("Settings")}>
+                    <MenuItem onTouchTap={() => this.setState({openSettingsSubmenu: !this.state.openSettingsSubmenu})}>
                         <FlatButton
-                        labelStyle={drawerItemLabelStyle}
-                        label="Settings"
-                        icon={<FontIcon className="material-icons">settings</FontIcon>}
+                            labelStyle={drawerItemLabelStyle}
+                            label="Settings"
+                            labelPosition="before"
+                            icon={this.state.openSettingsSubmenu ? <FontIcon className="material-icons">expand_less</FontIcon> : <FontIcon className="material-icons">expand_more</FontIcon>}
+                            disableTouchRipple={false}
+                            disableFocusRipple={false}
+                            hoverColor={'rgba(0,0,0, 0.0)'}
                         />
+                        {this.state.openSettingsSubmenu &&
+                            <div>
+                                <MenuItem onTouchTap={() => this.props.onDrawerAction("Messages")}>
+                                    <FlatButton
+                                        labelStyle={drawerItemLabelStyle}
+                                        label="Messages"
+                                        icon={<FontIcon className="material-icons">event_note</FontIcon>}
+                                        disableTouchRipple={false}
+                                        disableFocusRipple={false}
+                                        hoverColor={'rgba(0,0,0, 0.0)'}
+                                    />
+                                </MenuItem>
+                                <MenuItem onTouchTap={() => this.props.onDrawerAction("Takeoff")}>
+                                    <FlatButton
+                                        labelStyle={drawerItemLabelStyle}
+                                        label="Takeoff"
+                                        icon={<FontIcon className="material-icons">flight_takeoff</FontIcon>}
+                                        disableTouchRipple={false}
+                                        disableFocusRipple={false}
+                                        hoverColor={'rgba(0,0,0, 0.0)'}
+                                    />
+                                </MenuItem>
+                            </div>
+                        }
                     </MenuItem>
                 </Drawer>
             </MuiThemeProvider>

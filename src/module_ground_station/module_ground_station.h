@@ -114,6 +114,8 @@ private:
 
     void setGoHere(const int &vehicleID, const QJsonObject &jsonObj);
 
+    void takeoff(const int &vehicleID, const QJsonObject &jsonObj);
+
     void getVehicleMission(const int &vehicleID);
 
     void getConnectedVehicles();
