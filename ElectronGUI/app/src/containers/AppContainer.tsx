@@ -495,24 +495,12 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleTakeoff = (vehicleID: string, takeoffAlt: number) => {
-    if(vehicleID !== "0") {
-      let takeoffPosition = {
-        lat: this.state.connectedVehicles[vehicleID].position.lat,
-        lon: this.state.connectedVehicles[vehicleID].position.lon,
-        alt: takeoffAlt
-      }
-      this.makeTCPRequest(parseInt(vehicleID), "VEHICLE_TAKEOFF", JSON.stringify(takeoffPosition));
+    let takeoffPosition = {
+      lat: 0,
+      lon: 0,
+      alt: takeoffAlt
     }
-    else {
-      Object.keys(this.state.connectedVehicles).map((key: string) => {
-        let takeoffPosition = {
-          lat: this.state.connectedVehicles[key].position.lat,
-          lon: this.state.connectedVehicles[key].position.lon,
-          alt: takeoffAlt
-        }
-        this.makeTCPRequest(parseInt(key), "VEHICLE_TAKEOFF", JSON.stringify(takeoffPosition));
-      })
-    }
+    this.makeTCPRequest(parseInt(vehicleID), "VEHICLE_TAKEOFF", JSON.stringify(takeoffPosition));
   }
 
   render() {
