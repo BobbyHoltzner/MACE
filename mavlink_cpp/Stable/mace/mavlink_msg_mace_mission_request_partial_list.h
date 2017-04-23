@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE MACE_MISSION_REQUEST_PARTIAL_LIST PACKING
 
-#define MAVLINK_MSG_ID_MACE_MISSION_REQUEST_PARTIAL_LIST 300
+#define MAVLINK_MSG_ID_MACE_MISSION_REQUEST_PARTIAL_LIST 186
 
 MAVPACKED(
 typedef struct __mavlink_mace_mission_request_partial_list_t {
@@ -9,22 +9,22 @@ typedef struct __mavlink_mace_mission_request_partial_list_t {
  int16_t end_index; /*< End index, -1 by default (-1: send list to end). Else a valid index of the list*/
  uint8_t target_system; /*< System ID*/
  uint8_t target_component; /*< Component ID*/
- uint8_t mission_type; /*< Mission type, see MACE_MISSION_PROFILE*/
+ uint8_t mission_type; /*< Mission type, see MACE_MISSION_TYPE*/
 }) mavlink_mace_mission_request_partial_list_t;
 
 #define MAVLINK_MSG_ID_MACE_MISSION_REQUEST_PARTIAL_LIST_LEN 7
 #define MAVLINK_MSG_ID_MACE_MISSION_REQUEST_PARTIAL_LIST_MIN_LEN 7
-#define MAVLINK_MSG_ID_300_LEN 7
-#define MAVLINK_MSG_ID_300_MIN_LEN 7
+#define MAVLINK_MSG_ID_186_LEN 7
+#define MAVLINK_MSG_ID_186_MIN_LEN 7
 
 #define MAVLINK_MSG_ID_MACE_MISSION_REQUEST_PARTIAL_LIST_CRC 115
-#define MAVLINK_MSG_ID_300_CRC 115
+#define MAVLINK_MSG_ID_186_CRC 115
 
 
 
 #if MAVLINK_COMMAND_24BIT
 #define MAVLINK_MESSAGE_INFO_MACE_MISSION_REQUEST_PARTIAL_LIST { \
-    300, \
+    186, \
     "MACE_MISSION_REQUEST_PARTIAL_LIST", \
     5, \
     {  { "start_index", NULL, MAVLINK_TYPE_INT16_T, 0, 0, offsetof(mavlink_mace_mission_request_partial_list_t, start_index) }, \
@@ -57,7 +57,7 @@ typedef struct __mavlink_mace_mission_request_partial_list_t {
  * @param target_component Component ID
  * @param start_index Start index, 0 by default
  * @param end_index End index, -1 by default (-1: send list to end). Else a valid index of the list
- * @param mission_type Mission type, see MACE_MISSION_PROFILE
+ * @param mission_type Mission type, see MACE_MISSION_TYPE
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_mace_mission_request_partial_list_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
@@ -97,7 +97,7 @@ static inline uint16_t mavlink_msg_mace_mission_request_partial_list_pack(uint8_
  * @param target_component Component ID
  * @param start_index Start index, 0 by default
  * @param end_index End index, -1 by default (-1: send list to end). Else a valid index of the list
- * @param mission_type Mission type, see MACE_MISSION_PROFILE
+ * @param mission_type Mission type, see MACE_MISSION_TYPE
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_mace_mission_request_partial_list_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
@@ -163,7 +163,7 @@ static inline uint16_t mavlink_msg_mace_mission_request_partial_list_encode_chan
  * @param target_component Component ID
  * @param start_index Start index, 0 by default
  * @param end_index End index, -1 by default (-1: send list to end). Else a valid index of the list
- * @param mission_type Mission type, see MACE_MISSION_PROFILE
+ * @param mission_type Mission type, see MACE_MISSION_TYPE
  */
 #ifdef MAVLINK_USE_CONVENIENCE_FUNCTIONS
 
@@ -284,7 +284,7 @@ static inline int16_t mavlink_msg_mace_mission_request_partial_list_get_end_inde
 /**
  * @brief Get field mission_type from mace_mission_request_partial_list message
  *
- * @return Mission type, see MACE_MISSION_PROFILE
+ * @return Mission type, see MACE_MISSION_TYPE
  */
 static inline uint8_t mavlink_msg_mace_mission_request_partial_list_get_mission_type(const mavlink_message_t* msg)
 {
