@@ -78,6 +78,9 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
+
+
+
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from IModuleCommandExternalLink.
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -115,30 +118,24 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
     //!
-    //! \brief SetCurrentMissionQueue This function allows for a MACE instance to set
+    //! \brief UploadMission This function allows for a MACE instance to set
     //! a mission queue of a remote MACE instance. This is the only time this should be
     //! called. Missions at this point should merely be in a state of proposed as
     //! the it will be up to the remote instance to confirm receipt and action. No changes
     //! should be made with this associated list state until such event takes place.
     //! \param missionList The mission desired to be transmitted to the remote instance.
     //!
-    virtual void SetMissionQueue(const MissionItem::MissionList &missionList);
+    virtual void UploadMission(const MissionItem::MissionList &missionList);
 
-    //!
-    //! \brief RequestCurrentMissionQueue
-    //! \param vehicleID
-    //!
-    virtual void GetMissionQueue (const int &targetSystem);
+    virtual void GetCurrentMission(const int &targetSystem);
 
-    //!
-    //! \brief RequestClearMissionQueue
-    //! \param vehicleID
-    //!
-    virtual void ClearMissionQueue (const int &targetSystem);
+    virtual void SetCurrentMission(const Data::MissionKey &key);
+    virtual void GetMission(const Data::MissionKey &key);
+    virtual void ClearCurrentMission(const int &targetSystem);
 
 
     ////////////////////////////////////////////////////////////////////////////
-    /// GENERAL GUIDED EVENTS: This is implying for guided mode of the vehicle.
+    /// GENERAL AUTO COMMANDS: This is implying for auto mode of the vehicle.
     /// This functionality is pertinent for vehicles that may contain a
     /// MACE HW module, or, vehicles that have timely or ever updating changes.
     ////////////////////////////////////////////////////////////////////////////
@@ -147,19 +144,32 @@ public:
     //! \brief SetCurrentGuidedQueue
     //! \param missionList
     //!
-    virtual void SetCurrentGuidedQueue(const MissionItem::MissionList &missionList);
+    virtual void GetOnboardAuto(const int &targetSystem);
 
     //!
     //! \brief RequestCurrentGuidedQueue
     //! \param vehicleID
     //!
-    virtual void RequestCurrentGuidedQueue (const int &vehicleID);
+    virtual void ClearOnboardAuto (const int &targetSystem);
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// GENERAL GUIDED COMMANDS: This is implying for guided mode of the vehicle.
+    /// This functionality is pertinent for vehicles that may contain a
+    /// MACE HW module, or, vehicles that have timely or ever updating changes.
+    ////////////////////////////////////////////////////////////////////////////
 
     //!
-    //! \brief RequestClearGuidedQueue
+    //! \brief SetCurrentGuidedQueue
+    //! \param missionList
+    //!
+    virtual void GetOnboardGuided(const int &targetSystem);
+
+    //!
+    //! \brief RequestCurrentGuidedQueue
     //! \param vehicleID
     //!
-    virtual void RequestClearGuidedQueue (const int &vehicleID);
+    virtual void ClearOnboardGuided (const int &targetSystem);
 
 
     /////////////////////////////////////////////////////////////////////////////

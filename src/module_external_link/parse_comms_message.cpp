@@ -325,6 +325,20 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         mavlink_mace_mission_count_t decodedMSG;
         mavlink_msg_mace_mission_count_decode(message,&decodedMSG);
 
+        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
+        Data::MissionTypeState missionState = static_cast<Data::MissionTypeState>(decodedMSG.mission_state);
+
+        MissionItem::MissionList newMissionList(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState,decodedMSG.count);
+        MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();
+
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->External_ReceivingMissionQueue(this, newMissionList);
+        });
+
+        mavlink_message_t msg;
+        mavlink_msg_mace_mission_request_item_pack_chan(decodedMSG.target_system,compID,m_LinkChan,&msg,systemID,decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,decodedMSG.mission_type,0);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
         break;
     }
     case MAVLINK_MSG_ID_MACE_MISSION_REQUEST_PARTIAL_LIST:

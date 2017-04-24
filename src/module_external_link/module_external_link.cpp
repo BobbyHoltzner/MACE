@@ -163,7 +163,7 @@ void ModuleExternalLink::Event_SetHomePosition(const MissionItem::SpatialHome &v
 /// direct MACE hardware module.
 /////////////////////////////////////////////////////////////////////////
 
-void ModuleExternalLink::SetMissionQueue(const MissionItem::MissionList &missionList)
+void ModuleExternalLink::UploadMission(const MissionItem::MissionList &missionList)
 {
     MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
 
@@ -185,40 +185,58 @@ void ModuleExternalLink::SetMissionQueue(const MissionItem::MissionList &mission
     }
 }
 
-void ModuleExternalLink::GetMissionQueue(const int &targetSystem)
+void ModuleExternalLink::GetMission(const Data::MissionKey &key)
 {
-    mavlink_message_t msg;
-    mavlink_mission_request_list_t list;
-    list.target_system = targetSystem;
-    list.target_component = 0;
-    mavlink_msg_mission_request_list_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&list);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    UNUSED(key);
 }
 
-void ModuleExternalLink::ClearMissionQueue(const int &targetSystem)
+void ModuleExternalLink::SetCurrentMission(const Data::MissionKey &key)
+{
+    UNUSED(key);
+}
+
+void ModuleExternalLink::GetCurrentMission(const int &targetSystem)
 {
     UNUSED(targetSystem);
 }
 
-////////////////////////////////////////////////////////////////////////////
-/// GENERAL GUIDED EVENTS: This is implying for guided mode of the vehicle.
-/// This functionality is pertinent for vehicles that may contain a
-/// MACE HW module, or, vehicles that have timely or ever updating changes.
-////////////////////////////////////////////////////////////////////////////
-
-void ModuleExternalLink::SetCurrentGuidedQueue(const MissionItem::MissionList &missionList)
+void ModuleExternalLink::ClearCurrentMission(const int &targetSystem)
 {
-    UNUSED(missionList);
+    UNUSED(targetSystem);
 }
 
-void ModuleExternalLink::RequestCurrentGuidedQueue(const int &vehicleID)
+void ModuleExternalLink::GetOnboardAuto(const int &targetSystem)
 {
-    UNUSED(vehicleID);
+    mavlink_message_t msg;
+    mavlink_mace_mission_request_list_t request;
+    request.target_system = targetSystem;
+    request.mission_type = MACE_MISSION_TYPE_AUTO;
+    request.mission_state = MACE_MISSION_ONBOARD;
+    mavlink_msg_mace_mission_request_list_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&request);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::RequestClearGuidedQueue(const int &vehicleID)
+void ModuleExternalLink::ClearOnboardAuto(const int &targetSystem)
 {
-    UNUSED(vehicleID);
+    UNUSED(targetSystem);
 }
+
+void ModuleExternalLink::GetOnboardGuided(const int &targetSystem)
+{
+    mavlink_message_t msg;
+    mavlink_mace_mission_request_list_t request;
+    request.target_system = targetSystem;
+    request.mission_type = MACE_MISSION_TYPE_GUIDED;
+    request.mission_state = MACE_MISSION_ONBOARD;
+    mavlink_msg_mace_mission_request_list_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&request);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+}
+
+void ModuleExternalLink::ClearOnboardGuided(const int &targetSystem)
+{
+    UNUSED(targetSystem);
+}
+
+
 
 

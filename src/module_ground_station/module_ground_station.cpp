@@ -258,7 +258,9 @@ void ModuleGroundStation::testFunction2(const int &vehicleID)
 //        ptr->Event_RequestVehicleTakeoff(this, newTakeoff);
 //    });
 
-
+    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+        ptr->Event_GetOnboardMission(this, vehicleID, Data::MissionType::AUTO);
+    });
 }
 
 void ModuleGroundStation::getConnectedVehicles()
@@ -296,7 +298,7 @@ void ModuleGroundStation::getConnectedVehicles()
 void ModuleGroundStation::getVehicleMission(const int &vehicleID)
 {
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->Event_GetMission(this, vehicleID);
+        ptr->Event_GetCurrentMission(this, vehicleID);
     });
 }
 

@@ -143,7 +143,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
 
         int queueSize = decodedMSG.count - 1; //we have to decrement 1 here because in actuality ardupilot references home as 0
 
-        MissionItem::MissionList newMissionList(sysID,sysID,Data::MissionType::AUTO,Data::MissionTypeState::CURRENT,queueSize);
+        MissionItem::MissionList newMissionList(sysID,sysID,Data::MissionType::AUTO,Data::MissionTypeState::ONBOARD,queueSize);
 
         vehicleData->data->setCurrentMission(newMissionList);
 
