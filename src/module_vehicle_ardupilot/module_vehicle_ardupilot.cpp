@@ -152,7 +152,7 @@ void ModuleVehicleArdupilot::homePositionUpdated(const MissionItem::SpatialHome 
 
 void ModuleVehicleArdupilot::UpdateMissionKey(const Data::MissionKeyChange &key)
 {
-    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(key.oldKey.m_targetID);
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(key.oldKey.m_systemID);
     MissionItem::MissionList missionList = tmpData->data->getCurrentMission(key.oldKey.m_missionType);
     if(missionList.getMissionKey() == key.oldKey)
     {

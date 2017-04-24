@@ -9,7 +9,7 @@ Mission_COMMSTOMACE::Mission_COMMSTOMACE()
 
 std::shared_ptr<MissionItem::AbstractMissionItem> Mission_COMMSTOMACE::Covert_COMMSTOMACE(const mavlink_mace_mission_item_t &mavlinkItem)
 {
-    int systemID = mavlinkItem.target_system;
+    int systemID = mavlinkItem.mission_system;
     std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem;
 
     switch(mavlinkItem.command)

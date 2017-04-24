@@ -122,8 +122,8 @@ public:
     /// EXTERNAL LINK EVENTS
     /////////////////////////////////////////////////////////////////////////
     virtual void TransferMissionToVehicle(const void* sender, const MissionItem::MissionList &missionList);
-
-
+    virtual void External_ReceivingMissionQueue(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void External_FinishedReceivingMissionQueue(const void *sender, const MissionItem::MissionList &missionList);
 public:
 
     /////////////////////////////////////////////////////////////////////////

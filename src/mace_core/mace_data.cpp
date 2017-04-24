@@ -13,7 +13,7 @@ namespace MaceCore{
 bool MaceData::getCurrentMission(const Data::MissionKey &missionKey, MissionItem::MissionList &cpyMission)
 {
     bool returnVal = true;
-    int systemID = missionKey.m_targetID;
+    int systemID = missionKey.m_systemID;
 
     std::lock_guard<std::mutex> guard(MUTEXCurrentMissions);
     try{
@@ -57,13 +57,13 @@ bool MaceData::getOnboardMissions(const int &systemID, std::map<Data::MissionTyp
 
 bool MaceData::updateOnboardMissions(const Data::MissionKey &missionKey)
 {
-    int systemID = missionKey.m_targetID;
+    int systemID = missionKey.m_systemID;
     Data::MissionType missionType = missionKey.m_missionType;
-    std::lock_guard<std::mutex> guardAvailable(MUTEXProposedMissions);
+    std::lock_guard<std::mutex> guardAvailable(MUTEXGenericMissions);
 
-    if(mapProposedMissions.count(systemID) > 0) //means the system ID was in there
+    if(mapGenericMissions.count(systemID) > 0) //means the system ID was in there
     {
-        std::map<Data::MissionKey, MissionItem::MissionList> vehicleList = mapProposedMissions.at(systemID);
+        std::map<Data::MissionKey, MissionItem::MissionList> vehicleList = mapGenericMissions.at(systemID);
         std::map<Data::MissionKey, MissionItem::MissionList>::iterator itSub;
         itSub = vehicleList.find(missionKey);
         if(itSub != vehicleList.end()) //means the missionKey was in there
@@ -80,12 +80,12 @@ bool MaceData::updateOnboardMissions(const Data::MissionKey &missionKey)
 
 bool MaceData::updateCurrentMission(const Data::MissionKey &missionKey)
 {
-    int systemID = missionKey.m_targetID;
-    std::lock_guard<std::mutex> guardAvailable(MUTEXProposedMissions);
+    int systemID = missionKey.m_systemID;
+    std::lock_guard<std::mutex> guardAvailable(MUTEXGenericMissions);
     std::map<int,std::map<Data::MissionKey, MissionItem::MissionList>>::iterator it;
-    it = mapProposedMissions.find(systemID);
+    it = mapGenericMissions.find(systemID);
 
-    if(it != mapProposedMissions.end()) //means the system ID was in there
+    if(it != mapGenericMissions.end()) //means the system ID was in there
     {
         std::map<Data::MissionKey, MissionItem::MissionList> vehicleList = it->second;
         std::map<Data::MissionKey, MissionItem::MissionList>::iterator itSub;
@@ -114,8 +114,8 @@ MissionItem::MissionList MaceData::appenedAssociatedMissionMap(const int &newSys
     int updatedMissionID = getAvailableMissionID(missionList.getMissionKey());
     correctedMissionList.setMissionID(updatedMissionID);
 
-    std::lock_guard<std::mutex> guard(MUTEXProposedMissions);
-    mapProposedMissions[newSystemID][correctedMissionList.getMissionKey()] = correctedMissionList;
+    std::lock_guard<std::mutex> guard(MUTEXGenericMissions);
+    mapGenericMissions[newSystemID][correctedMissionList.getMissionKey()] = correctedMissionList;
     return correctedMissionList;
 }
 
@@ -126,8 +126,8 @@ MissionItem::MissionList MaceData::appenedAssociatedMissionMap(const MissionItem
     int updatedMissionID = getAvailableMissionID(missionList.getMissionKey());
     correctedMissionList.setMissionID(updatedMissionID);
 
-    std::lock_guard<std::mutex> guard(MUTEXProposedMissions);
-    mapProposedMissions[correctedMissionList.getVehicleID()][correctedMissionList.getMissionKey()] = correctedMissionList;
+    std::lock_guard<std::mutex> guard(MUTEXGenericMissions);
+    mapGenericMissions[correctedMissionList.getVehicleID()][correctedMissionList.getMissionKey()] = correctedMissionList;
     return correctedMissionList;
 }
 
@@ -141,20 +141,63 @@ int MaceData::getAvailableMissionID(const Data::MissionKey &key)
 {
     int prevID = 0;
     std::lock_guard<std::mutex> guard(MUTEXMissionID);
-    std::map<int,int>::iterator it;
-    it = mapMissionID.find(key.m_targetID);
+    std::map<int,std::map<int,int>>::iterator it;
+    it = mapMissionID.find(key.m_systemID);
 
-    if(it != mapMissionID.end()) //this implies that there is something that already exists
+    if(it != mapMissionID.end()) //this implies that there is a vehicle in the queue
     {
+        std::map<int,int> internalMap = mapMissionID.at(key.m_systemID);
+        std::map<int,int>::iterator itInternal;
+        itInternal = internalMap.find(key.m_creatorID);
+
+        if(itInternal != internalMap.end()) //this implies that there is a creator in the queue
+        {
+            prevID = itInternal->second;
+            if(prevID>=key.m_missionID)
+                prevID++;
+            else
+                prevID = key.m_missionID;
+        }
         //if something already exists we need to compare the value
-        prevID = it->second;
-        if(prevID>=key.m_missionID)
-            prevID++;
-        else
-            prevID = key.m_missionID;
+
     }
-    mapMissionID[key.m_targetID] = prevID;
+    mapMissionID[key.m_systemID][key.m_creatorID] = prevID;
     return prevID;
+}
+
+void MaceData::updateReceivingMission(const MissionItem::MissionList &missionList)
+{
+    std::lock_guard<std::mutex> guard(MUTEXGenericMissions);
+    Data::MissionKey key = missionList.getMissionKey();
+    mapGenericMissions[key.m_systemID][key] = missionList;
+}
+
+void MaceData::finishedReceivingMission(const MissionItem::MissionList &missionList)
+{
+
+}
+
+bool MaceData::getMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const
+{
+    //this will search through the proposed mission queue for the mission key
+    //and reutrn the list associated with this
+    std::lock_guard<std::mutex> guard(MUTEXGenericMissions);
+    if(mapGenericMissions.count(missionKey.m_systemID))
+    {
+        //this implies there is atleast a mission associated with the requested vehicleID
+        std::map<Data::MissionKey,MissionItem::MissionList>::iterator it;
+        std::map<Data::MissionKey,MissionItem::MissionList> subList = mapGenericMissions.at(missionKey.m_systemID);
+
+        //it = mapGenericMissions.at(missionKey.m_systemID).find(missionKey); I dont understand why I cannot do this
+        it = subList.find(missionKey);
+        if(it != mapGenericMissions.at(missionKey.m_systemID).end())
+        {
+            //this implies that the iterator now points to the missionList
+            missionList = it->second;
+            return true;
+        }
+    }
+    return false;
 }
 
 void MaceData::updateINCOMPLETEMissionList(const MissionItem::MissionList missionList)
@@ -167,11 +210,11 @@ void MaceData::updateINCOMPLETEMissionList(const MissionItem::MissionList missio
 
 void MaceData::updateMissionID(const int &systemID, const int &prevID, const int &newID)
 {
-    std::lock_guard<std::mutex> guard(MUTEXProposedMissions);
+    std::lock_guard<std::mutex> guard(MUTEXGenericMissions);
     int delta = newID - prevID;
     try{
         std::map<Data::MissionKey,MissionItem::MissionList> correctedMissionMap;
-        std::map<Data::MissionKey,MissionItem::MissionList> availableMissions = mapProposedMissions[systemID];
+        std::map<Data::MissionKey,MissionItem::MissionList> availableMissions = mapGenericMissions[systemID];
 
         for (std::map<Data::MissionKey,MissionItem::MissionList>::iterator it=availableMissions.begin(); it!=availableMissions.end(); ++it){
 
@@ -186,34 +229,34 @@ void MaceData::updateMissionID(const int &systemID, const int &prevID, const int
             }
             correctedMissionMap[mission.getMissionKey()] = mission;
         }
-        mapProposedMissions[systemID] = correctedMissionMap;
+        mapGenericMissions[systemID] = correctedMissionMap;
     }catch(const std::out_of_range &oor){
         std::cout<<"MACEDATA has requested an OOR in updateMissionID of mace_data.cpp"<<std::endl;
     }
 }
 
-bool MaceData::getMissionList(MissionItem::MissionList &newList, const int &systemID, const MissionItem::MissionList::MissionListState &missionState, const Data::MissionType &missionType) const
-{
-    switch(missionState)
-    {
-    case MissionItem::MissionList::COMPLETE:
-    {
-        break;
-    }
-    case MissionItem::MissionList::INCOMPLETE:
-    {
-        std::lock_guard<std::mutex> guard(INCOMPLETEMissionMUTEX);
-        try{
-            newList = m_INCOMPLETEMission.at(systemID).at(missionType);
-        }catch(const std::out_of_range &oor){
-            std::cout<<"MACEDATA has requested an OOR on incomplete mission map"<<std::endl;
-            return false;
-        }
-        break;
-    }
-    }
+//bool MaceData::getMissionList(MissionItem::MissionList &newList, const int &systemID, const MissionItem::MissionList::MissionListState &missionState, const Data::MissionType &missionType) const
+//{
+//    switch(missionState)
+//    {
+//    case MissionItem::MissionList::COMPLETE:
+//    {
+//        break;
+//    }
+//    case MissionItem::MissionList::INCOMPLETE:
+//    {
+//        std::lock_guard<std::mutex> guard(INCOMPLETEMissionMUTEX);
+//        try{
+//            newList = m_INCOMPLETEMission.at(systemID).at(missionType);
+//        }catch(const std::out_of_range &oor){
+//            std::cout<<"MACEDATA has requested an OOR on incomplete mission map"<<std::endl;
+//            return false;
+//        }
+//        break;
+//    }
+//    }
 
-    return true;
-}
+//    return true;
+//}
 
 }

@@ -20,6 +20,12 @@ MissionList::MissionList(const int &vehicleID, const int &creatorID, const Data:
     initializeQueue(size);
 }
 
+MissionList::MissionList(const int &vehicleID, const int &creatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTypeState &state, const int &size) :
+    missionKey(vehicleID,creatorID,missionID,missionType), missionTypeState(state),activeMissionItem(0)
+{
+    initializeQueue(size);
+}
+
 MissionList::MissionList(const MissionList &rhs)
 {
     this->missionKey = rhs.missionKey;

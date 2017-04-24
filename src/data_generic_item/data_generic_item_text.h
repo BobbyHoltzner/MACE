@@ -10,33 +10,33 @@ class DataGenericItem_Text
 {
 public:
     enum STATUS_SEVERITY{
-        EMERGENCY,
-        ALERT,
-        CRITICAL,
-        ERROR,
-        WARNING,
-        NOTICE,
-        INFO,
-        DEBUG
+        STATUS_EMERGENCY,
+        STATUS_ALERT,
+        STATUS_CRITICAL,
+        STATUS_ERROR,
+        STATUS_WARNING,
+        STATUS_NOTICE,
+        STATUS_INFO,
+        STATUS_DEBUG
     };
 
     static inline std::string StatusSeverityToString(const STATUS_SEVERITY &state) {
         switch (state) {
-        case STATUS_SEVERITY::EMERGENCY:
+        case STATUS_SEVERITY::STATUS_EMERGENCY:
             return "EMERGENCY";
-        case STATUS_SEVERITY::ALERT:
+        case STATUS_SEVERITY::STATUS_ALERT:
             return "ALERT";
-        case STATUS_SEVERITY::CRITICAL:
+        case STATUS_SEVERITY::STATUS_CRITICAL:
             return "CRITICAL";
-        case STATUS_SEVERITY::ERROR:
+        case STATUS_SEVERITY::STATUS_ERROR:
             return "ERROR";
-        case STATUS_SEVERITY::WARNING:
+        case STATUS_SEVERITY::STATUS_WARNING:
             return "WARNING";
-        case STATUS_SEVERITY::NOTICE:
+        case STATUS_SEVERITY::STATUS_NOTICE:
             return "NOTICE";
-        case STATUS_SEVERITY::INFO:
+        case STATUS_SEVERITY::STATUS_INFO:
             return "INFO";
-        case STATUS_SEVERITY::DEBUG:
+        case STATUS_SEVERITY::STATUS_DEBUG:
             return "DEBUG";
         default:
             throw std::runtime_error("Unknown status severity seen");

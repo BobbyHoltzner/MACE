@@ -99,12 +99,12 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionHomeTopic::Name()) {
                 //We have received an updated HomePositionTopic
-                std::cout<<"I have recieved a home position topic"<<std::endl;
                 std::shared_ptr<MissionTopic::MissionHomeTopic> component = std::make_shared<MissionTopic::MissionHomeTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
                 MissionItem::SpatialHome newHome = component->getHome();
-                DataCOMMS::Mission_MACETOCOMMS commsTranslator(newHome.getVehicleID(),0);
-                mavlink_message_t msg = commsTranslator.Home_MACETOCOMMS(newHome,m_LinkChan,0);
+
+                DataCOMMS::Mission_MACETOCOMMS commsTranslator(newHome.getVehicleID(),m_LinkChan);
+                mavlink_message_t msg = commsTranslator.Home_MACETOCOMMS(newHome);
                 m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
             }
         }
@@ -169,15 +169,17 @@ void ModuleExternalLink::SetMissionQueue(const MissionItem::MissionList &mission
 
     if(status.state == MissionItem::MissionList::COMPLETE)
     {
-        int itemsAvailable = missionList.getQueueSize();
-        mavlink_mace_mission_count_t missionCount;
-        missionCount.target_system = missionList.getVehicleID();
-        missionCount.target_component = 0;
-        missionCount.mission_type = static_cast<MACE_MISSION_TYPE>(missionList.getMissionType());
-        missionCount.count = itemsAvailable;
+        mavlink_mace_new_proposed_mission_t missionProposed;
+        missionProposed.count = missionList.getQueueSize();
+        Data::MissionKey key = missionList.getMissionKey();
+        missionProposed.mission_creator = key.m_creatorID;
+        missionProposed.mission_id = key.m_missionID;
+        missionProposed.mission_state = static_cast<MACE_MISSION_STATE>(missionList.getMissionTypeState());
+        missionProposed.mission_type = static_cast<MACE_MISSION_TYPE>(key.m_missionType);
+        missionProposed.target_system = key.m_systemID;
 
         mavlink_message_t msg;
-        mavlink_msg_mace_mission_count_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionCount);
+        mavlink_msg_mace_new_proposed_mission_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionProposed);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
     }

@@ -22,8 +22,6 @@
 #include "data/topic_data_object_collection.h"
 
 #include "data_vehicle_sensors/components.h"
-#include "data_vehicle_MAVLINK/components.h"
-#include "data_vehicle_ardupilot/components.h"
 
 #include "data_generic_item/data_generic_item_components.h"
 #include "data_generic_item_topic/data_generic_item_topic_components.h"
@@ -53,7 +51,6 @@ public:
     //! \param msg Message received
     //!
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
-
     //!
     //! \brief NewTopic
     //! \param topicName
@@ -118,8 +115,12 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
     //!
-    //! \brief SetCurrentMissionQueue
-    //! \param missionList
+    //! \brief SetCurrentMissionQueue This function allows for a MACE instance to set
+    //! a mission queue of a remote MACE instance. This is the only time this should be
+    //! called. Missions at this point should merely be in a state of proposed as
+    //! the it will be up to the remote instance to confirm receipt and action. No changes
+    //! should be made with this associated list state until such event takes place.
+    //! \param missionList The mission desired to be transmitted to the remote instance.
     //!
     virtual void SetMissionQueue(const MissionItem::MissionList &missionList);
 
@@ -190,9 +191,7 @@ private:
     int associatedSystemID;
     std::map<int,int> systemIDMap;
 
-    MissionItem::MissionList storedMissionList;
-
-    Data::TopicDataObjectCollection<DATA_VEHICLE_ARDUPILOT_TYPES, DATA_VEHICLE_MAVLINK_TYPES, DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
+    Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 };
 

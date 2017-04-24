@@ -701,7 +701,13 @@ private:
 
 
     mutable std::mutex MUTEXMissionID;
-    std::map<int,int> mapMissionID; //this map may expand to reference the creator as an iteration as well
+    //!
+    //! \brief mapMissionID
+    //! The map structure is broken down as systemID(the system for which the mission was created for or the mission
+    //! is referencing and would be applied to), creatorID(the system for which created the actual mission), and lastly
+    //! the missionID as the unique identifier associated with the actual mission.
+    //!
+    std::map<int,std::map<int,int>> mapMissionID;
 
 private:
     int getAvailableMissionID(const Data::MissionKey &key);
@@ -716,19 +722,6 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// VEHICLE MISSION METHODS: The following methods are in support of accessing the mission items stored within MaceData.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Proposed Missions: These types of missions are proposed to an aircraft and have been proposed by
-    /// someone in the mace architecture. The mission key associated with the mission object would
-    /// help track who generated the mission and who the mission is for. However, this does not imply that
-    /// these are the actual missions aboard the vehicle or associated with the MACE instance.
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-private:
-    mutable std::mutex MUTEXProposedMissions;
-    //!
-    //! \brief mapAvailableMissions
-    //!
-    std::map<int, std::map<Data::MissionKey, MissionItem::MissionList>> mapProposedMissions;
 
 public:
     MissionItem::MissionList appenedAssociatedMissionMap(const MissionItem::MissionList &missionList);
@@ -759,8 +752,27 @@ public:
     bool updateCurrentMission(const Data::MissionKey &missionKey);
 
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// External Link Mission Handling: These methods help the external link module handle mission receiving from
+    /// other MACE instances. This is different than the methods above because these act as a container for the
+    /// mission while the mission basically is incomplete. Once the mission is determined to be complete, the type
+    /// is examined and the appropriate queues are updated.
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+private:
+    mutable std::mutex MUTEXGenericMissions;
+    //!
+    //! \brief mapAvailableMissions
+    //!
+    std::map<int, std::map<Data::MissionKey, MissionItem::MissionList>> mapGenericMissions;
+
+public:
+    void updateReceivingMission(const MissionItem::MissionList &missionList);
+    void finishedReceivingMission(const MissionItem::MissionList &missionList);
+    bool getMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const;
+
+//    MissionItem::MissionList updateRecievingMissionItem(const MissionItem)
     void updateINCOMPLETEMissionList(const MissionItem::MissionList missionList);
-    bool getMissionList(MissionItem::MissionList &newList, const int &systemID, const MissionItem::MissionList::MissionListState &missionState, const Data::MissionType &missionType) const;
+    //bool getMissionList(MissionItem::MissionList &newList, const int &systemID, const MissionItem::MissionList::MissionListState &missionState, const Data::MissionType &missionType) const;
 
 };
 

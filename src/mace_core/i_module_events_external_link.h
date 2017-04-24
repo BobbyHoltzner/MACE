@@ -18,6 +18,19 @@ public:
     //!
     virtual void TransferMissionToVehicle(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
+    //!
+    //! \brief External_AppendMissionQueue
+    //! \param sender
+    //! \param missionList
+    //!
+    virtual void External_ReceivingMissionQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
+
+    //!
+    //! \brief External_UpdateMissionQueue
+    //! \param sender
+    //! \param missionList
+    //!
+    virtual void External_FinishedReceivingMissionQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
 };
 

@@ -8,7 +8,7 @@ void ModuleExternalLink::ParseCommsCommand(const mavlink_command_long_t *message
     {
         MissionItem::SpatialHome missionHome = this->getDataObject()->GetVehicleHomePostion(message->target_system);
         DataCOMMS::Mission_MACETOCOMMS missionConvert(message->target_system,message->target_component);
-        mavlink_message_t msg = missionConvert.Home_MACETOCOMMS(missionHome,m_LinkChan,0);
+        mavlink_message_t msg = missionConvert.Home_MACETOCOMMS(missionHome);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         break;
     }

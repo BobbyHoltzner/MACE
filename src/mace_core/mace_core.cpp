@@ -402,6 +402,28 @@ void MaceCore::TransferMissionToVehicle(const void *sender, const MissionItem::M
     RequestSetVehicleMission(sender,missionList);
 }
 
+//!
+//! \brief External_AppendMissionQueue
+//! \param sender
+//! \param missionList
+//!
+void MaceCore::External_ReceivingMissionQueue(const void* sender, const MissionItem::MissionList &missionList){
+
+    //This implies we are in the middle of receiving a mission and dont know yet the context
+    m_DataFusion->updateReceivingMission(missionList);
+}
+
+//!
+//! \brief External_UpdateMissionQueue
+//! \param sender
+//! \param missionList
+//!
+void MaceCore::External_FinishedReceivingMissionQueue(const void* sender, const MissionItem::MissionList &missionList){
+
+    //This implies that we are finished receiving the mission and all of the elements are present for us to decide
+    //what we need to do with this
+    m_DataFusion->finishedReceivingMission(missionList);
+}
 
 /////////////////////////////////////////////////////////////////////////
 /// RTA EVENTS
