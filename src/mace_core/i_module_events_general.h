@@ -10,27 +10,43 @@ namespace MaceCore
 class IModuleEventsGeneral
 {
 public:
-    virtual void RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm) = 0;
-    virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode) = 0;
-    virtual void RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
-
     //!
-    //! \brief RequestSetVehicleMission method calls the appropriate handling operations to migrate the proposed
-    //! mission list to the appropriate vehicle module for handling.
+    //! \brief Event_ArmVehicle
     //! \param sender
-    //! \param missionList
+    //! \param arm
     //!
-    virtual void RequestSetVehicleMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void Event_ArmVehicle(const void* sender, const MissionItem::ActionArm &arm) = 0;
 
-    virtual void RequestVehicleMission(const void* sender, const int &systemID) = 0;
+    //!
+    //! \brief Event_ChangeVehicleMode
+    //! \param sender
+    //! \param changeMode
+    //!
+    virtual void Event_ChangeVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode) = 0;
+
+    //!
+    //! \brief Event_RequestVehicleTakeoff
+    //! \param sender
+    //! \param vehicleTakeoff
+    //!
+    virtual void Event_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
+
+
+    virtual void Event_UploadMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
+
+    //virtual void Event_GetMission(const void* sender, const int &systemID) = 0;
+
+    virtual void Event_GetMission(const void* sender, const Data::MissionKey &key) = 0;
+    virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const Data::MissionType &type) = 0;
+    virtual void Event_GetCurrentMission(const void* sender, const int &systemID) = 0;
+
     virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID) = 0;
-
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID) = 0;
 
-    virtual void RequestVehicleHomePosition(const void* sender, const int &vehicleID) = 0;
-    virtual void SetVehicleHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome) = 0;
+    virtual void Event_GetHomePosition(const void* sender, const int &vehicleID) = 0;
+    virtual void Event_SetHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome) = 0;
 
-    virtual void UpdateGlobalOriginPosition(const void* sender, const MissionItem::SpatialHome &globalHome) = 0;
+    virtual void Event_SetGlobalOrigin(const void* sender, const MissionItem::SpatialHome &globalHome) = 0;
 };
 
 } //End MaceCore Namespace

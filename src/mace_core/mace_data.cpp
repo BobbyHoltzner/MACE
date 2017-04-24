@@ -177,6 +177,45 @@ void MaceData::finishedReceivingMission(const MissionItem::MissionList &missionL
 
 }
 
+bool MaceData::getMissionList(const int &systemID, const Data::MissionType &type, const Data::MissionTypeState &state, MissionItem::MissionList &missionList) const
+{
+    bool rtnValue = false;
+    switch(state)
+    {
+    case Data::MissionTypeState::CURRENT:
+    {
+        throw std::runtime_error("MaceData is not currently supporting get mission lists from the current queue");
+        break;
+    }
+    case Data::MissionTypeState::ONBOARD:
+    {
+        std::lock_guard<std::mutex> guard(MUTEXCurrentMissions);
+        if(mapOnboardMissions.count(systemID))
+        {
+            //this implies there is atleast a mission associated with the requested vehicleID
+            std::map<Data::MissionType,MissionItem::MissionList>::iterator it;
+            std::map<Data::MissionType,MissionItem::MissionList> subList = mapOnboardMissions.at(systemID);
+
+            //it = mapGenericMissions.at(missionKey.m_systemID).find(missionKey); I dont understand why I cannot do this
+            it = subList.find(type);
+            if(it != mapOnboardMissions.at(systemID).end())
+            {
+                //this implies that the iterator now points to the missionList
+                missionList = it->second;
+                rtnValue = true;
+            }
+        }
+        break;
+    }
+    default:
+    {
+        throw std::runtime_error("MaceData has been asked to get a mission based on an unrecognized state");
+        break;
+    }
+    }
+    return rtnValue;
+
+}
 bool MaceData::getMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const
 {
     //this will search through the proposed mission queue for the mission key

@@ -237,7 +237,7 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
     missionList.replaceMissionItemAtIndex(newWP3,3);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestSetVehicleMission(this, missionList);
+        ptr->Event_UploadMission(this, missionList);
     });
 
 //    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
@@ -248,15 +248,17 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
 
 void ModuleGroundStation::testFunction2(const int &vehicleID)
 {
-    MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
-    newTakeoff.position.latitude = 37.891415;
-    newTakeoff.position.longitude = -76.815701;
-    newTakeoff.position.altitude = 100;
-    newTakeoff.setVehicleID(vehicleID);
+//    MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
+//    newTakeoff.position.latitude = 37.891415;
+//    newTakeoff.position.longitude = -76.815701;
+//    newTakeoff.position.altitude = 100;
+//    newTakeoff.setVehicleID(vehicleID);
 
-    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestVehicleTakeoff(this, newTakeoff);
-    });
+//    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+//        ptr->Event_RequestVehicleTakeoff(this, newTakeoff);
+//    });
+
+
 }
 
 void ModuleGroundStation::getConnectedVehicles()
@@ -294,14 +296,14 @@ void ModuleGroundStation::getConnectedVehicles()
 void ModuleGroundStation::getVehicleMission(const int &vehicleID)
 {
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestVehicleMission(this, vehicleID);
+        ptr->Event_GetMission(this, vehicleID);
     });
 }
 
 void ModuleGroundStation::getVehicleHome(const int &vehicleID)
 {
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestVehicleHomePosition(this, vehicleID);
+        ptr->Event_GetHomePosition(this, vehicleID);
     });
 }
 
@@ -314,7 +316,7 @@ void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject 
     QJsonObject arm = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
     tmpArm.setVehicleArm(arm.value("arm").toBool());
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestVehicleArm(this, tmpArm);
+        ptr->Event_ArmVehicle(this, tmpArm);
     });
 }
 
@@ -325,7 +327,7 @@ void ModuleGroundStation::setVehicleMode(const int &vehicleID, const QJsonObject
     tmpMode.setRequestMode(jsonObj["vehicleCommand"].toString().toStdString()); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestVehicleMode(this, tmpMode);
+        ptr->Event_ChangeVehicleMode(this, tmpMode);
     });
 }
 
@@ -345,7 +347,7 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
 //    tmpHome.setCoordinateFrame(NED??);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->SetVehicleHomePosition(this, tmpHome);
+        ptr->Event_SetHomePosition(this, tmpHome);
     });
 }
 
@@ -360,7 +362,7 @@ void ModuleGroundStation::setGlobalOrigin(const QJsonObject &jsonObj)
     tmpGlobalOrigin.setCoordinateFrame(Data::CoordinateFrame::NED);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->UpdateGlobalOriginPosition(this, tmpGlobalOrigin);
+        ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
     });
 }
 
@@ -381,7 +383,7 @@ void ModuleGroundStation::takeoff(const int &vehicleID, const QJsonObject &jsonO
     newTakeoff.setVehicleID(vehicleID);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestVehicleTakeoff(this, newTakeoff);
+        ptr->Event_RequestVehicleTakeoff(this, newTakeoff);
     });
 }
 

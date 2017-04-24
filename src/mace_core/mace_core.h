@@ -80,27 +80,30 @@ public:
     /// GENERAL MODULE EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    virtual void RequestVehicleArm(const void* sender, const MissionItem::ActionArm &arm);
-    virtual void RequestVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode);
-    virtual void RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+    virtual void Event_ArmVehicle(const void* sender, const MissionItem::ActionArm &arm);
+    virtual void Event_ChangeVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode);
+    virtual void Event_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
 
     //!
-    //! \brief RequestSetVehicleMission method calls the appropriate handling operations to migrate the proposed
+    //! \brief Event_UploadMission method calls the appropriate handling operations to migrate the proposed
     //! mission list to the appropriate vehicle module for handling.
     //! \param sender
     //! \param missionList
     //!
-    virtual void RequestSetVehicleMission(const void* sender, const MissionItem::MissionList &missionList);
-    virtual void RequestVehicleMission(const void* sender, const int &systemID);
+    virtual void Event_UploadMission(const void* sender, const MissionItem::MissionList &missionList);
+
+    virtual void Event_GetMission(const void* sender, const Data::MissionKey &key);
+    virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const Data::MissionType &type);
+    virtual void Event_GetCurrentMission(const void* sender, const int &systemID);
 
     virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID);
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
 
-    virtual void RequestVehicleHomePosition(const void* sender, const int &vehicleID);
-    virtual void SetVehicleHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome);
+    virtual void Event_GetHomePosition(const void* sender, const int &vehicleID);
+    virtual void Event_SetHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome);
 
-    virtual void UpdateGlobalOriginPosition(const void* sender, const MissionItem::SpatialHome &globalHome);
+    virtual void Event_SetGlobalOrigin(const void* sender, const MissionItem::SpatialHome &globalHome);
 
 public:
 

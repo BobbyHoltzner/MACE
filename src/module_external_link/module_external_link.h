@@ -102,10 +102,10 @@ public:
     virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
 
     //!
-    //! \brief RequestVehicleTakeoff
+    //! \brief Event_RequestVehicleTakeoff
     //! \param vehicleTakeoff
     //!
-    virtual void RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+    virtual void Event_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
 
     /////////////////////////////////////////////////////////////////////////
@@ -169,16 +169,16 @@ public:
     /////////////////////////////////////////////////////////////////////////////
 
     //!
-    //! \brief RequestVehicleHomePosition
+    //! \brief Event_GetHomePosition
     //! \param vehicleID
     //!
-    virtual void RequestVehicleHomePosition (const int &vehicleID);
+    virtual void Event_GetHomePosition (const int &vehicleID);
 
     //!
-    //! \brief SetVehicleHomePosition
+    //! \brief Event_SetHomePosition
     //! \param vehicleHome
     //!
-    virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
+    virtual void Event_SetHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
 private:
     bool firstHearbeat;

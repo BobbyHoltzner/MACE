@@ -70,7 +70,7 @@ void ModuleVehicleArdupilot::ChangeVehicleOperationalMode(const MissionItem::Act
     }
 }
 
-void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
+void ModuleVehicleArdupilot::Event_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
 {
     int vehicleID = vehicleTakeoff.getVehicleID();
 //    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
@@ -100,14 +100,14 @@ void ModuleVehicleArdupilot::RequestVehicleTakeoff(const MissionItem::SpatialTak
 /// mission queue should prepend this position. Just the way ardupilot works.
 /////////////////////////////////////////////////////////////////////////////
 
-void ModuleVehicleArdupilot::RequestVehicleHomePosition(const int &vehicleID)
+void ModuleVehicleArdupilot::Event_GetHomePosition(const int &vehicleID)
 {
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     mavlink_message_t msg = tmpData->generateGetHomeMessage(vehicleID,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleVehicleArdupilot::SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome)
+void ModuleVehicleArdupilot::Event_SetHomePosition(const MissionItem::SpatialHome &vehicleHome)
 {
     int vehicleID = vehicleHome.getVehicleID();
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);

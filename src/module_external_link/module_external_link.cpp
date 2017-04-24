@@ -133,7 +133,7 @@ void ModuleExternalLink::ChangeVehicleOperationalMode(const MissionItem::ActionC
     UNUSED(vehicleMode);
 }
 
-void ModuleExternalLink::RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
+void ModuleExternalLink::Event_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
 {
     mavlink_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateTakeoffMessage(vehicleTakeoff,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -145,13 +145,13 @@ void ModuleExternalLink::RequestVehicleTakeoff(const MissionItem::SpatialTakeoff
 /// mission queue should prepend this position. Just the way ardupilot works.
 /////////////////////////////////////////////////////////////////////////////
 
-void ModuleExternalLink::RequestVehicleHomePosition(const int &vehicleID)
+void ModuleExternalLink::Event_GetHomePosition(const int &vehicleID)
 {
     mavlink_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateGetHomeMessage(vehicleID,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome)
+void ModuleExternalLink::Event_SetHomePosition(const MissionItem::SpatialHome &vehicleHome)
 {
     mavlink_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateSetHomePosition(vehicleHome,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);

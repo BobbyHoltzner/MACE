@@ -768,7 +768,9 @@ private:
 public:
     void updateReceivingMission(const MissionItem::MissionList &missionList);
     void finishedReceivingMission(const MissionItem::MissionList &missionList);
+
     bool getMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const;
+    bool getMissionList(const int &systemID, const Data::MissionType &type, const Data::MissionTypeState &state, MissionItem::MissionList &missionList) const;
 
 //    MissionItem::MissionList updateRecievingMissionItem(const MissionItem)
     void updateINCOMPLETEMissionList(const MissionItem::MissionList missionList);

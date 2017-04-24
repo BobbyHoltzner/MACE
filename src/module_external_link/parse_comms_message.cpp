@@ -211,7 +211,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         MissionItem::SpatialHome systemHome;
         missionConvert.Home_COMMSTOMACE(decodedMSG.target_system,decodedMSG,systemHome);
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->SetVehicleHomePosition(this, systemHome);
+            ptr->Event_SetHomePosition(this, systemHome);
         });
         break;
     }
@@ -251,7 +251,6 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
     {
         mavlink_mace_new_current_mission_t decodedMSG;
         mavlink_msg_mace_new_current_mission_decode(message,&decodedMSG);
-
         break;
     }
     case MAVLINK_MSG_ID_MACE_NEW_ONBOARD_MISSION:
@@ -296,25 +295,28 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
     {
         mavlink_mace_mission_request_list_t decodedMSG;
         mavlink_msg_mace_mission_request_list_decode(message,&decodedMSG);
-//        mavlink_mission_request_list_t decodedMSG;
-//        mavlink_msg_mission_request_list_decode(message,&decodedMSG);
-//        MACE_MISSION_TYPE missionType = static_cast<MACE_MISSION_TYPE>(decodedMSG.mission_type);
 
-        //Now we have to respond with the mission count
-//        MissionItem::MissionList missionList;
-//        bool validity = this->getDataObject()->getMissionList(missionList, decodedMSG.target_system, MissionItem::MissionList::COMPLETE, static_cast<Data::MissionType>(decodedMSG.mission_type));
-//        if(!validity)
-//            return;
+        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
+        Data::MissionTypeState missionState = static_cast<Data::MissionTypeState>(decodedMSG.mission_state);
+        MissionItem::MissionList missionList;
+        bool validity = this->getDataObject()->getMissionList(decodedMSG.target_system,missionType,missionState,missionList);
 
-//        mavlink_mace_mission_count_t missionCount;
-//        missionCount.target_system = systemID;
-//        missionCount.target_component = decodedMSG.target_component;
-//        missionCount.mission_type = missionType;
-//        missionCount.count = missionList.getQueueSize();
+        if(!validity) //KEN TODO: Return a message saying that the request is invalid because the item does not exsist...probably enum failure value / validity
+            return;
 
-//        mavlink_message_t msg;
-//        mavlink_msg_mace_mission_count_encode_chan(associatedSystemID,compID,m_LinkChan,&msg,&missionCount);
-//        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        mavlink_mace_mission_count_t missionCount;
+        missionCount.count = missionList.getQueueSize();
+        Data::MissionKey key = missionList.getMissionKey();
+        missionCount.mission_creator = key.m_creatorID;
+        missionCount.mission_id = key.m_missionID;
+        missionCount.mission_state = decodedMSG.mission_state;
+        missionCount.mission_system = key.m_systemID;
+        missionCount.mission_type = decodedMSG.mission_type;
+        missionCount.target_system = systemID;
+
+        mavlink_message_t msg;
+        mavlink_msg_mace_mission_count_encode_chan(associatedSystemID,compID,m_LinkChan,&msg,&missionCount);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         break;
     }
     case MAVLINK_MSG_ID_MACE_MISSION_COUNT:
