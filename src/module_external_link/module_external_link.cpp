@@ -122,18 +122,18 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
 /// acknowledgement or an event to take place when calling these items.
 ////////////////////////////////////////////////////////////////////////////
 
-void ModuleExternalLink::ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
+void ModuleExternalLink::Command_ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
 {
     mavlink_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateArmMessage(vehicleArm,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
+void ModuleExternalLink::Command_ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
 {
     UNUSED(vehicleMode);
 }
 
-void ModuleExternalLink::Event_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
+void ModuleExternalLink::Command_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
 {
     mavlink_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateTakeoffMessage(vehicleTakeoff,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -145,13 +145,13 @@ void ModuleExternalLink::Event_RequestVehicleTakeoff(const MissionItem::SpatialT
 /// mission queue should prepend this position. Just the way ardupilot works.
 /////////////////////////////////////////////////////////////////////////////
 
-void ModuleExternalLink::Event_GetHomePosition(const int &vehicleID)
+void ModuleExternalLink::Command_GetHomePosition(const int &vehicleID)
 {
     mavlink_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateGetHomeMessage(vehicleID,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::Event_SetHomePosition(const MissionItem::SpatialHome &vehicleHome)
+void ModuleExternalLink::Command_SetHomePosition(const MissionItem::SpatialHome &vehicleHome)
 {
     mavlink_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateSetHomePosition(vehicleHome,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -163,7 +163,7 @@ void ModuleExternalLink::Event_SetHomePosition(const MissionItem::SpatialHome &v
 /// direct MACE hardware module.
 /////////////////////////////////////////////////////////////////////////
 
-void ModuleExternalLink::UploadMission(const MissionItem::MissionList &missionList)
+void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &missionList)
 {
     MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
 
@@ -185,27 +185,27 @@ void ModuleExternalLink::UploadMission(const MissionItem::MissionList &missionLi
     }
 }
 
-void ModuleExternalLink::GetMission(const Data::MissionKey &key)
+void ModuleExternalLink::Command_GetMission(const Data::MissionKey &key)
 {
     UNUSED(key);
 }
 
-void ModuleExternalLink::SetCurrentMission(const Data::MissionKey &key)
+void ModuleExternalLink::Command_SetCurrentMission(const Data::MissionKey &key)
 {
     UNUSED(key);
 }
 
-void ModuleExternalLink::GetCurrentMission(const int &targetSystem)
+void ModuleExternalLink::Command_GetCurrentMission(const int &targetSystem)
 {
     UNUSED(targetSystem);
 }
 
-void ModuleExternalLink::ClearCurrentMission(const int &targetSystem)
+void ModuleExternalLink::Command_ClearCurrentMission(const int &targetSystem)
 {
     UNUSED(targetSystem);
 }
 
-void ModuleExternalLink::GetOnboardAuto(const int &targetSystem)
+void ModuleExternalLink::Command_GetOnboardAuto(const int &targetSystem)
 {
     mavlink_message_t msg;
     mavlink_mace_mission_request_list_t request;
@@ -216,12 +216,12 @@ void ModuleExternalLink::GetOnboardAuto(const int &targetSystem)
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::ClearOnboardAuto(const int &targetSystem)
+void ModuleExternalLink::Command_ClearOnboardAuto(const int &targetSystem)
 {
     UNUSED(targetSystem);
 }
 
-void ModuleExternalLink::GetOnboardGuided(const int &targetSystem)
+void ModuleExternalLink::Command_GetOnboardGuided(const int &targetSystem)
 {
     mavlink_message_t msg;
     mavlink_mace_mission_request_list_t request;
@@ -232,7 +232,7 @@ void ModuleExternalLink::GetOnboardGuided(const int &targetSystem)
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::ClearOnboardGuided(const int &targetSystem)
+void ModuleExternalLink::Command_ClearOnboardGuided(const int &targetSystem)
 {
     UNUSED(targetSystem);
 }

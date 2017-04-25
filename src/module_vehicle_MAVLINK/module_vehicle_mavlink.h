@@ -109,12 +109,12 @@ public:
     ///              MACE COMMANDS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
+    virtual void Command_ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
     {
         UNUSED(vehicleArm);
     }
 
-    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
+    virtual void Command_ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
     {
         UNUSED(vehicleMode);
     }

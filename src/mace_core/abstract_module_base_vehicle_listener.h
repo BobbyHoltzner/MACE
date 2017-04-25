@@ -39,15 +39,15 @@ public:
         /////////////////////////////////////////////////////////////////////////
 
         this->template AddCommandLogic<MissionItem::ActionArm>(CT::CHANGE_VEHICLE_ARM, [this](const MissionItem::ActionArm &vehicleArm){
-            ChangeVehicleArm(vehicleArm);
+            Command_ChangeVehicleArm(vehicleArm);
         });
 
         this->template AddCommandLogic<MissionItem::ActionChangeMode>(CT::CHANGE_VEHICLE_MODE, [this](const MissionItem::ActionChangeMode &vehicleMode){
-            ChangeVehicleOperationalMode(vehicleMode);
+            Command_ChangeVehicleOperationalMode(vehicleMode);
         });
 
         this->template AddCommandLogic<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>>(CT::REQUEST_VEHICLE_TAKEOFF, [this](const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff){
-            Event_RequestVehicleTakeoff(vehicleTakeoff);
+            Command_RequestVehicleTakeoff(vehicleTakeoff);
         });
 
 
@@ -57,37 +57,37 @@ public:
         /////////////////////////////////////////////////////////////////////////////////////////////
 
         this->template AddCommandLogic<MissionItem::MissionList>(CT::UPLOAD_MISSION, [this](const MissionItem::MissionList &missionList){
-            UploadMission(missionList);
+            Command_UploadMission(missionList);
         });
 
         this->template AddCommandLogic<Data::MissionKey>(CT::SET_CURRENT_MISSION, [this](const Data::MissionKey &key){
-            SetCurrentMission(key);
+            Command_SetCurrentMission(key);
         });
 
         this->template AddCommandLogic<int>(CT::REQUEST_CURRENT_MISSION, [this](const int &targetSystem){
-            GetCurrentMission(targetSystem);
+            Command_GetCurrentMission(targetSystem);
         });
 
         this->template AddCommandLogic<Data::MissionKey>(CT::REQUEST_MISSION, [this](const Data::MissionKey &key){
-            GetMission(key);
+            Command_GetMission(key);
         });
 
         this->template AddCommandLogic<int>(CT::CLEAR_CURRENT_MISSION, [this](const int &targetSystem){
-            ClearCurrentMission(targetSystem);
+            Command_ClearCurrentMission(targetSystem);
         });
 
         ////////////////////////////////////////////////////////////////////////////
-        /// GENERAL AUTO EVENTS: This is implying for guided mode of the vehicle.
+        /// GENERAL AUTO EVENTS: This is implying for auto mode of the vehicle.
         /// This functionality is pertinent for vehicles that may contain a
         /// MACE HW module, or, vehicles that have timely or ever updating changes.
         ////////////////////////////////////////////////////////////////////////////
 
         this->template AddCommandLogic<int>(CT::REQUEST_ONBOARD_AUTO_MISSION, [this](const int &targetSystem){
-            GetOnboardAuto(targetSystem);
+            Command_GetOnboardAuto(targetSystem);
         });
 
         this->template AddCommandLogic<int>(CT::CLEAR_ONBOARD_AUTO_MISSION, [this](const int &targetSystem){
-            ClearOnboardAuto(targetSystem);
+            Command_ClearOnboardAuto(targetSystem);
         });
 
         /////////////////////////////////////////////////////////////////////////
@@ -97,11 +97,11 @@ public:
         /////////////////////////////////////////////////////////////////////////
 
         this->template AddCommandLogic<int>(CT::REQUEST_ONBOARD_GUIDED_MISSION, [this](const int &targetSystem){
-            GetOnboardGuided(targetSystem);
+            Command_GetOnboardGuided(targetSystem);
         });
 
         this->template AddCommandLogic<int>(CT::CLEAR_ONBOARD_GUIDED_MISSION, [this](const int &targetSystem){
-            ClearOnboardGuided(targetSystem);
+            Command_ClearOnboardGuided(targetSystem);
         });
 
         /////////////////////////////////////////////////////////////////////////
@@ -111,35 +111,35 @@ public:
         /////////////////////////////////////////////////////////////////////////
 
         this->template AddCommandLogic<int>(CT::REQUEST_VEHICLE_HOME, [this](const int &vehicleID){
-            Event_GetHomePosition(vehicleID);
+            Command_GetHomePosition(vehicleID);
         });
 
         this->template AddCommandLogic<MissionItem::SpatialHome>(CT::SET_VEHICLE_HOME, [this](const MissionItem::SpatialHome &vehicleHome){
-            Event_SetHomePosition(vehicleHome);
+            Command_SetHomePosition(vehicleHome);
         });
 
     }
 
 public:
 
-    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm) = 0;
-    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
-    virtual void Event_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
+    virtual void Command_ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm) = 0;
+    virtual void Command_ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
+    virtual void Command_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
 
-    virtual void UploadMission(const MissionItem::MissionList &missionList) = 0;
-    virtual void SetCurrentMission(const Data::MissionKey &key) = 0;
-    virtual void GetCurrentMission(const int &targetSystem) = 0;
-    virtual void GetMission(const Data::MissionKey &key) = 0;
-    virtual void ClearCurrentMission(const int &targetSystem) = 0;
+    virtual void Command_UploadMission(const MissionItem::MissionList &missionList) = 0;
+    virtual void Command_SetCurrentMission(const Data::MissionKey &key) = 0;
+    virtual void Command_GetCurrentMission(const int &targetSystem) = 0;
+    virtual void Command_GetMission(const Data::MissionKey &key) = 0;
+    virtual void Command_ClearCurrentMission(const int &targetSystem) = 0;
 
-    virtual void GetOnboardAuto(const int &targetSystem) = 0;
-    virtual void ClearOnboardAuto(const int &targetSystem) = 0;
+    virtual void Command_GetOnboardAuto(const int &targetSystem) = 0;
+    virtual void Command_ClearOnboardAuto(const int &targetSystem) = 0;
 
-    virtual void GetOnboardGuided(const int &targetSystem) = 0;
-    virtual void ClearOnboardGuided(const int &targetSystem) = 0;
+    virtual void Command_GetOnboardGuided(const int &targetSystem) = 0;
+    virtual void Command_ClearOnboardGuided(const int &targetSystem) = 0;
 
-    virtual void Event_GetHomePosition(const int &vehicleID) = 0;
-    virtual void Event_SetHomePosition(const MissionItem::SpatialHome &vehicleHome) = 0;
+    virtual void Command_GetHomePosition(const int &vehicleID) = 0;
+    virtual void Command_SetHomePosition(const MissionItem::SpatialHome &vehicleHome) = 0;
 
 
 };

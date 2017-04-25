@@ -15,7 +15,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(message,&decodedMSG);
 
-        MissionItem::MissionList missionList = vehicleData->data->getCurrentMission(Data::MissionType::AUTO);
+        MissionItem::MissionList missionList = vehicleData->data->Command_GetCurrentMission(Data::MissionType::AUTO);
 
         if(decodedMSG.seq == 0)
         {
@@ -32,7 +32,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
             //04/03/2017 Ken Fix This
             std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = vehicleData->Covert_MAVLINKTOMACE(decodedMSG);
             missionList.replaceMissionItemAtIndex(newMissionItem,currentIndex);
-            vehicleData->data->setCurrentMission(missionList);
+            vehicleData->data->Command_SetCurrentMission(missionList);
         }
 
         MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
@@ -145,7 +145,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
 
         MissionItem::MissionList newMissionList(sysID,sysID,Data::MissionType::AUTO,Data::MissionTypeState::ONBOARD,queueSize);
 
-        vehicleData->data->setCurrentMission(newMissionList);
+        vehicleData->data->Command_SetCurrentMission(newMissionList);
 
         mavlink_message_t msg;
         mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,0,MAV_MISSION_TYPE_MISSION);

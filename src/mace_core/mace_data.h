@@ -724,8 +724,8 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 public:
-    MissionItem::MissionList appenedAssociatedMissionMap(const MissionItem::MissionList &missionList);
-    MissionItem::MissionList appenedAssociatedMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList);
+    Data::MissionKey appendAssociatedMissionMap(const MissionItem::MissionList &missionList);
+    Data::MissionKey appendAssociatedMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Current Missions: There are two types of missions associated in these variables. First, onboard missions
@@ -744,8 +744,8 @@ private:
     std::map<int,MissionItem::MissionList> mapCurrentMission;
 
 public:
-    bool getCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission);
-    bool getCurrentMission(const Data::MissionKey &missionKey, MissionItem::MissionList &cpyMission);
+    bool Command_GetCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission);
+    bool Command_GetCurrentMission(const Data::MissionKey &missionKey, MissionItem::MissionList &cpyMission);
     bool getOnboardMissions(const int &systemID, std::map<Data::MissionType, MissionItem::MissionList> &cpyMission);
 
     bool updateOnboardMissions(const Data::MissionKey &missionKey);

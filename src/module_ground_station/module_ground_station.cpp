@@ -255,7 +255,7 @@ void ModuleGroundStation::testFunction2(const int &vehicleID)
 //    newTakeoff.setVehicleID(vehicleID);
 
 //    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-//        ptr->Event_RequestVehicleTakeoff(this, newTakeoff);
+//        ptr->Command_RequestVehicleTakeoff(this, newTakeoff);
 //    });
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
@@ -305,7 +305,7 @@ void ModuleGroundStation::getVehicleMission(const int &vehicleID)
 void ModuleGroundStation::getVehicleHome(const int &vehicleID)
 {
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->Event_GetHomePosition(this, vehicleID);
+        ptr->Command_GetHomePosition(this, vehicleID);
     });
 }
 
@@ -349,7 +349,7 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
 //    tmpHome.setCoordinateFrame(NED??);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->Event_SetHomePosition(this, tmpHome);
+        ptr->Command_SetHomePosition(this, tmpHome);
     });
 }
 
@@ -385,7 +385,7 @@ void ModuleGroundStation::takeoff(const int &vehicleID, const QJsonObject &jsonO
     newTakeoff.setVehicleID(vehicleID);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->Event_RequestVehicleTakeoff(this, newTakeoff);
+        ptr->Command_RequestVehicleTakeoff(this, newTakeoff);
     });
 }
 

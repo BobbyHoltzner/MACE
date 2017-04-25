@@ -211,7 +211,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         MissionItem::SpatialHome systemHome;
         missionConvert.Home_COMMSTOMACE(decodedMSG.target_system,decodedMSG,systemHome);
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->Event_SetHomePosition(this, systemHome);
+            ptr->Command_SetHomePosition(this, systemHome);
         });
         break;
     }

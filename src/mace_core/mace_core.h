@@ -82,7 +82,7 @@ public:
 
     virtual void Event_ArmVehicle(const void* sender, const MissionItem::ActionArm &arm);
     virtual void Event_ChangeVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode);
-    virtual void Event_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+    virtual void Command_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
 
     //!
@@ -100,8 +100,8 @@ public:
     virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID);
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
 
-    virtual void Event_GetHomePosition(const void* sender, const int &vehicleID);
-    virtual void Event_SetHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome);
+    virtual void Command_GetHomePosition(const void* sender, const int &vehicleID);
+    virtual void Command_SetHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome);
 
     virtual void Event_SetGlobalOrigin(const void* sender, const MissionItem::SpatialHome &globalHome);
 

@@ -10,7 +10,7 @@ namespace MaceCore{
 /// what is actively being puruited by the vehicle.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool MaceData::getCurrentMission(const Data::MissionKey &missionKey, MissionItem::MissionList &cpyMission)
+bool MaceData::Command_GetCurrentMission(const Data::MissionKey &missionKey, MissionItem::MissionList &cpyMission)
 {
     bool returnVal = true;
     int systemID = missionKey.m_systemID;
@@ -23,20 +23,20 @@ bool MaceData::getCurrentMission(const Data::MissionKey &missionKey, MissionItem
         else
             returnVal = false;
     }catch(const std::out_of_range &oor){
-        std::cout<<"getCurrentMission (int,MissionItem::MissionList) tried to access an item OOR"<<std::endl;
+        std::cout<<"Command_GetCurrentMission (int,MissionItem::MissionList) tried to access an item OOR"<<std::endl;
         returnVal = false;
     }
     return returnVal;
 }
 
-bool MaceData::getCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission)
+bool MaceData::Command_GetCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission)
 {
     bool returnVal = true;
     std::lock_guard<std::mutex> guard(MUTEXCurrentMissions);
     try{
         cpyMission = mapCurrentMission.at(systemID);
     }catch(const std::out_of_range &oor){
-        std::cout<<"getCurrentMission (int,MissionItem::MissionList) tried to access an item OOR"<<std::endl;
+        std::cout<<"Command_GetCurrentMission (int,MissionItem::MissionList) tried to access an item OOR"<<std::endl;
         returnVal = false;
     }
     return returnVal;
@@ -107,7 +107,7 @@ bool MaceData::updateCurrentMission(const Data::MissionKey &missionKey)
 /// these are the actual missions aboard the vehicle or associated with the MACE instance.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-MissionItem::MissionList MaceData::appenedAssociatedMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList)
+Data::MissionKey MaceData::appendAssociatedMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList)
 {
     MissionItem::MissionList correctedMissionList = missionList;
     correctedMissionList.setVehicleID(newSystemID);
@@ -116,10 +116,10 @@ MissionItem::MissionList MaceData::appenedAssociatedMissionMap(const int &newSys
 
     std::lock_guard<std::mutex> guard(MUTEXGenericMissions);
     mapGenericMissions[newSystemID][correctedMissionList.getMissionKey()] = correctedMissionList;
-    return correctedMissionList;
+    return correctedMissionList.getMissionKey();
 }
 
-MissionItem::MissionList MaceData::appenedAssociatedMissionMap(const MissionItem::MissionList &missionList)
+Data::MissionKey MaceData::appendAssociatedMissionMap(const MissionItem::MissionList &missionList)
 {
     MissionItem::MissionList correctedMissionList = missionList;
     int systemID = missionList.getVehicleID();
@@ -128,7 +128,7 @@ MissionItem::MissionList MaceData::appenedAssociatedMissionMap(const MissionItem
 
     std::lock_guard<std::mutex> guard(MUTEXGenericMissions);
     mapGenericMissions[correctedMissionList.getVehicleID()][correctedMissionList.getMissionKey()] = correctedMissionList;
-    return correctedMissionList;
+    return correctedMissionList.getMissionKey();
 }
 
 

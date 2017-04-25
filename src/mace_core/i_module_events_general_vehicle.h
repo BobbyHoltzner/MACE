@@ -26,7 +26,7 @@ public:
 
     //!
     //! \brief NewVehicleHomePosition This function is emitted to alert the core that a module connected to a vehicle
-    //! has received and set a new home position for the system. This should typically be in response to a Event_SetHomePosition
+    //! has received and set a new home position for the system. This should typically be in response to a Command_SetHomePosition
     //! request.
     //! \param sender
     //! \param vehicleHome

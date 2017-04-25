@@ -178,7 +178,7 @@ void MaceCore::Event_ChangeVehicleMode(const void *sender, const MissionItem::Ac
     }
 }
 
-void MaceCore::Event_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
+void MaceCore::Command_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
 {
     UNUSED(sender);
     int vehicleID = vehicleTakeoff.getVehicleID();
@@ -217,17 +217,21 @@ void MaceCore::Event_UploadMission(const void *sender, const MissionItem::Missio
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
             int nextSystemID = it->first;
-            MissionItem::MissionList correctedMissionList = m_DataFusion->appenedAssociatedMissionMap(nextSystemID,missionList);
+            Data::MissionKey key = m_DataFusion->appendAssociatedMissionMap(nextSystemID,missionList);
+            MissionItem::MissionList correctedMission = missionList;
+            correctedMission.setMissionKey(key);
             if(it->second != sender){
-                it->second->MarshalCommand(VehicleCommands::UPLOAD_MISSION,correctedMissionList);
+                it->second->MarshalCommand(VehicleCommands::UPLOAD_MISSION,correctedMission);
             }
         }
     }else{ //transmit the mission to a specific vehicle
         try{
-            MissionItem::MissionList correctedMissionList = m_DataFusion->appenedAssociatedMissionMap(missionList);
+            Data::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
+            MissionItem::MissionList correctedMission = missionList;
+            correctedMission.setMissionKey(key);
             IModuleCommandVehicle* module = m_VehicleIDToPort.at(vehicleID);
             if(module != sender){
-                module->MarshalCommand(VehicleCommands::UPLOAD_MISSION,correctedMissionList);
+                module->MarshalCommand(VehicleCommands::UPLOAD_MISSION,correctedMission);
             }
 
         }catch(const std::out_of_range &oor){
@@ -313,7 +317,7 @@ void MaceCore::RequestClearVehicleMission(const void* sender, const Data::System
 }
 
 
-void MaceCore::Event_GetHomePosition(const void* sender, const int &vehicleID)
+void MaceCore::Command_GetHomePosition(const void* sender, const int &vehicleID)
 {
     UNUSED(sender);
     if(vehicleID == 0)
@@ -330,7 +334,7 @@ void MaceCore::Event_GetHomePosition(const void* sender, const int &vehicleID)
     }
 }
 
-void MaceCore::Event_SetHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
+void MaceCore::Command_SetHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
 {
     UNUSED(sender);
     int vehicleID = vehicleHome.getVehicleID();
@@ -401,15 +405,15 @@ void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::Spa
 
 void MaceCore::NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
 {
-    MissionItem::MissionList correctedMissionList = m_DataFusion->appenedAssociatedMissionMap(missionList);
-    m_DataFusion->updateOnboardMissions(correctedMissionList.getMissionKey());
-    if(correctedMissionList.getMissionKey() != missionList.getMissionKey())
+    Data::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
+    m_DataFusion->updateOnboardMissions(key);
+    if(key != missionList.getMissionKey())
     {
         //this means that this instance of mace had already planned more items for that vehicle or had knowledge of more
         //missions available for that vehicle
-        Data::MissionKeyChange keyChange(missionList.getMissionKey(),correctedMissionList.getMissionKey());
-        IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-        vehicle->MarshalCommand(VehicleCommands::UPDATE_MISSION_KEY,keyChange);
+//        Data::MissionKeyChange keyChange(missionList.getMissionKey(),correctedMissionList.getMissionKey());
+//        IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
+//        vehicle->MarshalCommand(VehicleCommands::UPDATE_MISSION_KEY,keyChange);
     }
 }
 

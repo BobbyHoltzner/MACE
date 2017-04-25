@@ -25,11 +25,11 @@ public:
     virtual void Event_ChangeVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode) = 0;
 
     //!
-    //! \brief Event_RequestVehicleTakeoff
+    //! \brief Command_RequestVehicleTakeoff
     //! \param sender
     //! \param vehicleTakeoff
     //!
-    virtual void Event_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
+    virtual void Command_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
 
 
     virtual void Event_UploadMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
@@ -43,8 +43,8 @@ public:
     virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID) = 0;
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID) = 0;
 
-    virtual void Event_GetHomePosition(const void* sender, const int &vehicleID) = 0;
-    virtual void Event_SetHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome) = 0;
+    virtual void Command_GetHomePosition(const void* sender, const int &vehicleID) = 0;
+    virtual void Command_SetHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome) = 0;
 
     virtual void Event_SetGlobalOrigin(const void* sender, const MissionItem::SpatialHome &globalHome) = 0;
 };

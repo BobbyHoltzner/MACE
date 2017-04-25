@@ -41,7 +41,7 @@ protected:
         return m_CurrentMissionQueue.getMissionKey();
     }
 
-    void setCurrentMission(const MissionItem::MissionList &missionList)
+    void Command_SetCurrentMission(const MissionItem::MissionList &missionList)
     {
         std::lock_guard<std::mutex> guard(missionMutex);
         switch(missionList.getMissionType())
@@ -81,7 +81,7 @@ protected:
         }
     }
 
-    MissionItem::MissionList getCurrentMission(const Data::MissionType &type){
+    MissionItem::MissionList Command_GetCurrentMission(const Data::MissionType &type){
         std::lock_guard<std::mutex> guard(missionMutex);
         MissionItem::MissionList rtnList;
         switch(type){

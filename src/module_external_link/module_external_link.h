@@ -93,22 +93,22 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
     //!
-    //! \brief ChangeVehicleArm
+    //! \brief Command_ChangeVehicleArm
     //! \param vehicleArm
     //!
-    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
+    virtual void Command_ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
 
     //!
-    //! \brief ChangeVehicleOperationalMode
+    //! \brief Command_ChangeVehicleOperationalMode
     //! \param vehicleMode
     //!
-    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
+    virtual void Command_ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
 
     //!
-    //! \brief Event_RequestVehicleTakeoff
+    //! \brief Command_RequestVehicleTakeoff
     //! \param vehicleTakeoff
     //!
-    virtual void Event_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+    virtual void Command_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
 
     /////////////////////////////////////////////////////////////////////////
@@ -118,20 +118,20 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
     //!
-    //! \brief UploadMission This function allows for a MACE instance to set
+    //! \brief Command_UploadMission This function allows for a MACE instance to set
     //! a mission queue of a remote MACE instance. This is the only time this should be
     //! called. Missions at this point should merely be in a state of proposed as
     //! the it will be up to the remote instance to confirm receipt and action. No changes
     //! should be made with this associated list state until such event takes place.
     //! \param missionList The mission desired to be transmitted to the remote instance.
     //!
-    virtual void UploadMission(const MissionItem::MissionList &missionList);
+    virtual void Command_UploadMission(const MissionItem::MissionList &missionList);
 
-    virtual void GetCurrentMission(const int &targetSystem);
+    virtual void Command_GetCurrentMission(const int &targetSystem);
 
-    virtual void SetCurrentMission(const Data::MissionKey &key);
-    virtual void GetMission(const Data::MissionKey &key);
-    virtual void ClearCurrentMission(const int &targetSystem);
+    virtual void Command_SetCurrentMission(const Data::MissionKey &key);
+    virtual void Command_GetMission(const Data::MissionKey &key);
+    virtual void Command_ClearCurrentMission(const int &targetSystem);
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -144,13 +144,13 @@ public:
     //! \brief SetCurrentGuidedQueue
     //! \param missionList
     //!
-    virtual void GetOnboardAuto(const int &targetSystem);
+    virtual void Command_GetOnboardAuto(const int &targetSystem);
 
     //!
     //! \brief RequestCurrentGuidedQueue
     //! \param vehicleID
     //!
-    virtual void ClearOnboardAuto (const int &targetSystem);
+    virtual void Command_ClearOnboardAuto (const int &targetSystem);
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -163,13 +163,13 @@ public:
     //! \brief SetCurrentGuidedQueue
     //! \param missionList
     //!
-    virtual void GetOnboardGuided(const int &targetSystem);
+    virtual void Command_GetOnboardGuided(const int &targetSystem);
 
     //!
     //! \brief RequestCurrentGuidedQueue
     //! \param vehicleID
     //!
-    virtual void ClearOnboardGuided (const int &targetSystem);
+    virtual void Command_ClearOnboardGuided (const int &targetSystem);
 
 
     /////////////////////////////////////////////////////////////////////////////
@@ -179,16 +179,16 @@ public:
     /////////////////////////////////////////////////////////////////////////////
 
     //!
-    //! \brief Event_GetHomePosition
+    //! \brief Command_GetHomePosition
     //! \param vehicleID
     //!
-    virtual void Event_GetHomePosition (const int &vehicleID);
+    virtual void Command_GetHomePosition (const int &vehicleID);
 
     //!
-    //! \brief Event_SetHomePosition
+    //! \brief Command_SetHomePosition
     //! \param vehicleHome
     //!
-    virtual void Event_SetHomePosition(const MissionItem::SpatialHome &vehicleHome);
+    virtual void Command_SetHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
 private:
     bool firstHearbeat;
