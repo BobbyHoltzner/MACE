@@ -23,6 +23,9 @@
 #include "ardupilot_threadmanager.h"
 #include "ardupilot_mission_state.h"
 
+#include <functional>
+#include <list>
+
 class Ardupilot_GeneralController : public Thread
 {
 public:
@@ -82,6 +85,19 @@ protected:
     DataState::StateGlobalPosition currentPosition;
     DataState::StateAttitude currentAttitude;
     */
+
+protected:
+
+
+    std::list<std::function<void()>> m_LambdasToRun;
+
+    void RunPendingTasks() {
+        while(m_LambdasToRun.size() > 0) {
+            auto lambda = m_LambdasToRun.pop_front();
+            labda();
+        }
+    }
+
 
 };
 

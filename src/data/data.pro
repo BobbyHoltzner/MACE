@@ -40,7 +40,8 @@ HEADERS += data_global.h \
     date.h \
     mission_key.h \
     mission_key_change.h \
-    abstract_position_item.h
+    abstract_position_item.h \
+    data_get_set_notifier.h
     loiter_direction.h
 
 # Unix lib Install

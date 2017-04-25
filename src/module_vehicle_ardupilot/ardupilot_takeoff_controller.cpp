@@ -7,6 +7,43 @@ Ardupilot_TakeoffController::Ardupilot_TakeoffController(std::shared_ptr<DataARD
     controllerType = CONTROLLER_TAKEOFF;
     vehicleMissionState = ArdupilotMissionState(2,10,10);
     std::cout << "Constructor on takeoff controller" << std::endl;
+
+    this->vehicleDataObject->data->ArducopterFlightMode.AddNotifier(this, [this]{
+        //modeUpdated = true;
+
+        m_LambdasToRun.push_back([this]{
+            switch(currentStateLogic)
+            {
+            case DISARMED:
+            {
+                if(currentVehicleMode.getVehicleArmed())
+                {
+                    if(currentVehicleMode.getFlightModeString() == "GUIDED")
+                    {
+                        currentStateLogic = ARMED_RIGHT_MODE;
+                        mavlink_message_t msg = vehicleDataObject->generateTakeoffMessage(missionItem_Takeoff,m_LinkChan);
+                        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+                    }else{
+                        currentStateLogic = ARMED_WRONG_MODE;
+                        int requiredMode = currentVehicleMode.getFlightModeFromString("GUIDED");
+                        int vehicleID = vehicleDataObject->getVehicleID();
+                        mavlink_message_t msg = vehicleDataObject->generateChangeMode(vehicleID,m_LinkChan,requiredMode);
+                        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+                    }
+
+                }
+            }
+            default:
+                throw std::runtime_error("Not Implemented")
+
+            }
+        });
+    });
+
+}
+
+void Ardupilot_TakeoffController::~Ardupilot_TakeoffController() {
+    this->vehicleDataObject->data->ArducopterFlightMode.RemoveNotifier(this);
 }
 
 void Ardupilot_TakeoffController::initializeTakeoffSequence(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &takeoff)
@@ -95,6 +132,8 @@ void Ardupilot_TakeoffController::run()
 {
     while(true)
     {
+        this->RunPendingTasks();
+
         if(mToExit == true) {
             break;
         }

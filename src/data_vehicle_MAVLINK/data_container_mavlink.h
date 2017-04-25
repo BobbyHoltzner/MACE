@@ -138,10 +138,12 @@ protected:
 protected:
     mutable std::mutex genericTopicMutex;
     bool heartbeatSeen = false;
-        DataGenericItem::DataGenericItem_FlightMode m_CurrentVehicleState;
-        DataGenericItem::DataGenericItem_Fuel m_CurrentVehicleFuel;
-        DataGenericItem::DataGenericItem_GPS m_CurrentVehicleGPS;
-        DataGenericItem::DataGenericItem_Text m_CurrentVehicleText;
+
+public:
+        Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_FlightMode> CurrentVehicleState;
+        Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_Fuel> CurrentVehicleFuel;
+        Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_GPS> CurrentVehicleGPS;
+        Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_Text> CurrentVehicleText;
 
     //    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> m_CurrentVehicleState;
     //    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> m_CurrentVehicleFuel;
@@ -161,6 +163,7 @@ public:
         return heartbeatSeen;
     }
 
+    /*
     void setFlightMode(const DataGenericItem::DataGenericItem_FlightMode &info)
     {
         std::lock_guard<std::mutex> guard(genericTopicMutex);
@@ -204,6 +207,7 @@ public:
         std::lock_guard<std::mutex> guard(genericTopicMutex);
         return m_CurrentVehicleText;
     }
+    */
 
 
     ///////////////////////////////////////////////////////////////////////////////

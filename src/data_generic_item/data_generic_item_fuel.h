@@ -2,6 +2,7 @@
 #define DATA_GENERIC_ITEM_FUEL_H
 
 #include <iostream>
+#include "data/data_get_set_notifier.h"
 
 namespace DataGenericItem {
 
@@ -11,7 +12,6 @@ public:
     DataGenericItem_Fuel();
 
     DataGenericItem_Fuel(const DataGenericItem_Fuel &copyObj);
-
 
     void setBatteryVoltage(const double &voltage){
         this->voltage = voltage;
@@ -65,7 +65,7 @@ public:
         return out;
     }
 
-protected:
+public:
     double voltage;
     double current;
     double batteryRemaing;
