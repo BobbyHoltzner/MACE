@@ -45,6 +45,12 @@ public:
 
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
+private:
+
+    void SpinUpController(Ardupilot_GeneralController *newController);
+
+    void SpinDownController();
+
 
 public:
 

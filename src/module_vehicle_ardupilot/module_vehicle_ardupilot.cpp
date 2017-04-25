@@ -70,6 +70,16 @@ void ModuleVehicleArdupilot::Command_ChangeVehicleOperationalMode(const MissionI
     }
 }
 
+void ModuleVehicleArdupilot::SpinUpController(Ardupilot_GeneralController *newController) {
+
+    m_AircraftController = newController;
+    m_AircraftController->start();
+}
+
+void ModuleVehicleArdupilot::SpinDownController() {
+    m_AircraftController->terminateObject();
+}
+
 void ModuleVehicleArdupilot::Command_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
 {
     int vehicleID = vehicleTakeoff.getVehicleID();
@@ -86,12 +96,7 @@ void ModuleVehicleArdupilot::Command_RequestVehicleTakeoff(const MissionItem::Sp
         newController->initializeTakeoffSequence(defaultTakeoff);
     }
 
-    m_AircraftController = newController;
-    std::thread *thread = new std::thread([newController]()
-    {
-        newController->start();
-    });
-
+    this->SpinUpController(newController);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -125,8 +130,6 @@ void ModuleVehicleArdupilot::homePositionUpdated(const MissionItem::SpatialHome 
 
     if(tmpData->data->m_MissionHome == NULL || *homeTopic != *tmpData->data->m_MissionHome)
     {
-        if(checkControllerState())
-            m_AircraftController->updatedHomePostion(newVehicleHome);
         tmpData->data->m_MissionHome = homeTopic;
     }
 
@@ -269,11 +272,10 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     }
     DataARDUPILOT::VehicleFlightMode newDataMode;
     newDataMode.parseMAVLINK(heartbeatMSG);
+
     if(newDataMode != tmpData->data->getArdupilotFlightMode())
     {
         tmpData->data->setArdupilotFlightMode(newDataMode);
-        if(checkControllerState())
-            m_AircraftController->updateFlightMode(newDataMode);
     }
 
     std::shared_ptr<DataARDUPILOT::VehicleFlightMode> ptrMode = std::make_shared<DataARDUPILOT::VehicleFlightMode>(newDataMode);
@@ -318,6 +320,9 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
             {
                 m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
 
+                /*
+                 * No longer needed. Controller automatically updated when approiate m_ArduPilotData object updated
+                 *
                 if(components.at(i)->name == DataStateTopic::StateAttitudeTopic::Name()) {
                     std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                     m_VehicleDataTopic.GetComponent(component, topicDatagram);
@@ -330,6 +335,7 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
                     if(checkControllerState())
                         m_AircraftController->updateGlobalPositionTopic(*component.get());
                 }
+                */
 
                 //notify listneres of topic
                 ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
