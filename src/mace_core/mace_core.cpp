@@ -178,7 +178,7 @@ void MaceCore::Event_ChangeVehicleMode(const void *sender, const MissionItem::Ac
     }
 }
 
-void MaceCore::Command_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
+void MaceCore::Event_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
 {
     UNUSED(sender);
     int vehicleID = vehicleTakeoff.getVehicleID();
@@ -317,7 +317,7 @@ void MaceCore::RequestClearVehicleMission(const void* sender, const Data::System
 }
 
 
-void MaceCore::Command_GetHomePosition(const void* sender, const int &vehicleID)
+void MaceCore::Event_GetHomePosition(const void* sender, const int &vehicleID)
 {
     UNUSED(sender);
     if(vehicleID == 0)
@@ -334,7 +334,7 @@ void MaceCore::Command_GetHomePosition(const void* sender, const int &vehicleID)
     }
 }
 
-void MaceCore::Command_SetHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
+void MaceCore::Event_SetHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
 {
     UNUSED(sender);
     int vehicleID = vehicleHome.getVehicleID();

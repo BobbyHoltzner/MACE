@@ -32,7 +32,7 @@ void ModuleExternalLink::ParseCommsCommand(const mavlink_command_long_t *message
         tmpTakeoff.position.altitude = message->param7;
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->Command_RequestVehicleTakeoff(this, tmpTakeoff);
+            ptr->Event_RequestVehicleTakeoff(this, tmpTakeoff);
         });
         break;
     }
