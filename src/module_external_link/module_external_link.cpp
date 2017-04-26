@@ -84,6 +84,12 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                 associatedSystemID = senderID;
                 m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
             }
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Fuel::Name()) {
+                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                mavlink_message_t msg = DataCOMMS::Generic_MACETOCOMMS::FuelTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
+                m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+            }
         }
     }
     else if(topicName == m_MissionDataTopic.Name())
