@@ -15,29 +15,8 @@ public:
     ///////////////////////////////////////////////////////////////////////////////
     /// ARDUPILOT STATE ITEMS
     //////////////////////////////////////////////////////////////////////////////
-protected:
-    //mutable std::mutex ardupilot_stateTopicMutex;
-
 public:
-    Data::DataGetSetNotifier<DataARDUPILOT::VehicleFlightMode> ArducopterFlightMode;
-
-public:
-
-    /*
-    void setArdupilotFlightMode(const DataARDUPILOT::VehicleFlightMode &info)
-    {
-        std::lock_guard<std::mutex> guard(ardupilot_stateTopicMutex);
-        m_ArducopterFlightMode = info;
-    }
-
-    DataARDUPILOT::VehicleFlightMode getArdupilotFlightMode() const{
-        std::lock_guard<std::mutex> guard(ardupilot_stateTopicMutex);
-        return  m_ArducopterFlightMode.get();
-    }
-    */
-
-public:
-
+    Data::DataGetSetNotifier<DataARDUPILOT::VehicleFlightMode> ArdupilotFlightMode;
 
 };
 

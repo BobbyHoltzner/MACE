@@ -2,23 +2,20 @@
 #define DATA_NOTIFIER_H
 
 #include <functional>
-#include <vector>
 #include <algorithm>
 #include <mutex>
 #include <unordered_map>
-
 namespace Data
 {
-
 
 template <typename T>
 class DataGetSetNotifier
 {
+public:
+    void AddNotifier(void* obj, const std::function<void()> func) {
+        m_NotifierListMutex.lock();
+        //std::lock lock(m_NotifierListMutex);
 
-    void AddNotifier(const void* obj, const std::function<void()> func) {
-        std::lock lock(m_NotifierListMutex);
-
-        m_Func.push_back(ptr);
         if(m_Funcs.find(obj) == m_Funcs.cend()) {
             m_Funcs.insert({obj, func});
         }
@@ -26,37 +23,41 @@ class DataGetSetNotifier
             m_Funcs[obj] = func;
         }
 
+        m_NotifierListMutex.unlock();
     }
 
-    void RemoveNotifier(const void* obj) {
-        std::lock lock(m_NotifierListMutex);
+    void RemoveNotifier(void* obj) {
+        //std::lock lock(m_NotifierListMutex);
+        std::lock_guard<std::mutex> guard(m_NotifierListMutex);
 
         if(m_Funcs.find(obj) != m_Funcs.cend()) {
             m_Funcs.erase(obj);
         }
     }
 
-    set(const T &data) {
+    bool set(const T &data) {
         if(m_Data == data) {
-            return;
+            return false;
         }
 
         m_AccessMutex.lock();
         m_Data = data;
         m_AccessMutex.unlock();
 
-        std::lock lock(m_NotifierListMutex);
-        for(auto it = m_Func.cbegin() ; it != m_Func.cend() ; ++it) {
-            *it();
+        std::lock_guard<std::mutex> guard(m_NotifierListMutex);
+        for(auto it = m_Funcs.cbegin() ; it != m_Funcs.cend() ; ++it) {
+            *it;
         }
+        return true;
     }
 
     T get() const {
-        std::lock lock(m_AccessMutex);
+        std::lock_guard<std::mutex> guard(m_AccessMutex);
+        //std::lock lock(m_AccessMutex);
         return m_Data;
     }
 
-    operator = (const T &rhs) {
+    void operator = (const T &rhs) {
         this->set(rhs);
     }
 

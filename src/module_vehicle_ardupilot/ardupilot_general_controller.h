@@ -93,8 +93,9 @@ protected:
 
     void RunPendingTasks() {
         while(m_LambdasToRun.size() > 0) {
-            auto lambda = m_LambdasToRun.pop_front();
-            labda();
+            auto lambda = m_LambdasToRun.front();
+            m_LambdasToRun.pop_front();
+            lambda();
         }
     }
 

@@ -64,7 +64,7 @@ void ModuleVehicleArdupilot::Command_ChangeVehicleOperationalMode(const MissionI
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     if(tmpData->data->getHearbeatSeen())
     {
-        int newFlightMode = tmpData->data->getArdupilotFlightMode().getFlightModeFromString(modeString);
+        int newFlightMode = tmpData->data->ArdupilotFlightMode.get().getFlightModeFromString(modeString);
         mavlink_message_t msg = tmpData->generateChangeMode(vehicleID,m_LinkChan,newFlightMode);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
     }
@@ -273,10 +273,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     DataARDUPILOT::VehicleFlightMode newDataMode;
     newDataMode.parseMAVLINK(heartbeatMSG);
 
-    if(newDataMode != tmpData->data->getArdupilotFlightMode())
-    {
-        tmpData->data->setArdupilotFlightMode(newDataMode);
-    }
+    tmpData->data->ArdupilotFlightMode.set(newDataMode);
 
     std::shared_ptr<DataARDUPILOT::VehicleFlightMode> ptrMode = std::make_shared<DataARDUPILOT::VehicleFlightMode>(newDataMode);
 

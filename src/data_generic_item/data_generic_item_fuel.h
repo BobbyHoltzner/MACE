@@ -2,7 +2,6 @@
 #define DATA_GENERIC_ITEM_FUEL_H
 
 #include <iostream>
-#include "data/data_get_set_notifier.h"
 
 namespace DataGenericItem {
 
@@ -65,7 +64,7 @@ public:
         return out;
     }
 
-public:
+protected:
     double voltage;
     double current;
     double batteryRemaing;

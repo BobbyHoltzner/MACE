@@ -68,16 +68,18 @@ public:
 
     void addTopicListener(IModuleTopicEvents *listener)
     {
-        std::lock_guard lock(m_TopicListenerMutex);
+        std::lock_guard<std::mutex> lock(m_TopicListenerMutex);
         m_TopicListeners.push_back(listener);
         AttachedAsModule(listener);
     }
 
     void RemoveTopicListener(IModuleTopicEvents *listener) {
-        std::lock_guard lock(m_TopicListenerMutex);
+
+        std::lock_guard<std::mutex> lock(m_TopicListenerMutex);
+
         m_TopicListeners.erase(std::remove_if(m_TopicListeners.begin(),
                                               m_TopicListeners.end(),
-                                              [](IModuleTopicEvents * x){x == listener}),
+                                              [listener](IModuleTopicEvents * x){ return x == listener;}),
                                m_TopicListeners.end());
     }
 

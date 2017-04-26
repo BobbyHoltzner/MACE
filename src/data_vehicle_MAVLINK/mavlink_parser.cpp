@@ -8,7 +8,7 @@ MAVLINKParser::MAVLINKParser(DataContainer_MAVLINK* dataContainer)
     data = dataContainer;
 }
 
-std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::ParseForVehicleData(const mavlink_message_t* message){
+std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser:: ParseForVehicleData(const mavlink_message_t* message){
 
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
 
@@ -23,9 +23,8 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         fuel.setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
         fuel.setBatteryCurrent(decodedMSG.current_battery/10000.0);
         fuel.setBatteryRemaining(decodedMSG.battery_remaining);
-        if(fuel != data->getFuel())
+        if(data->vehicleFuel.set(fuel))
         {
-            data->setFuel(fuel);
             std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>(fuel);
             rtnVector.push_back(ptrFuel);
         }
@@ -132,9 +131,8 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         attitude.setAttitude(decodedMSG.roll,decodedMSG.pitch,decodedMSG.yaw);
         attitude.setAttitudeRates(decodedMSG.rollspeed,decodedMSG.pitchspeed,decodedMSG.yawspeed);
 
-        if(attitude != data->getAttitude())
+        if(data->vehicleAttitude.set(attitude))
         {
-            data->setAttitude(attitude);
             std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(attitude);
             rtnVector.push_back(ptrAttitude);
         }
@@ -154,9 +152,8 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
 
         //check that something has actually changed
 
-        if(localPosition != data->getLocalPosition())
+        if(data->vehicleLocalPosition.set(localPosition))
         {
-            data->setLocalPosition(localPosition);
             std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(localPosition);
             rtnVector.push_back(ptrLocalPosition);
         }
@@ -174,9 +171,8 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         DataState::StateGlobalPosition position;
         position.setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
         //check that something has actually changed
-        if(position != data->getGlobalPos())
+        if(data->vehicleGlobalPosition.set(position))
         {
-            data->setGlobalPos(position);
             std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>(position);
             rtnVector.push_back(ptrPosition);
         }
@@ -186,9 +182,8 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         positionEx.heading = (decodedMSG.hdg/100.0)*(3.14/180.0);
 
         //check that something has actually changed
-        if(positionEx != data->getGlobalPosEx())
+        if(data->vehicleGlobalPositionEx.set(positionEx))
         {
-            data->setGlobalPosEx(positionEx);
             std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> ptrPositionEx = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>(positionEx);
             rtnVector.push_back(ptrPositionEx);
         }
@@ -298,9 +293,8 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
             break;
         }
         //check that something has actually changed
-        if(statusText != data->getText())
+        if(data->vehicleTextAlert.set(statusText))
         {
-            data->setText(statusText);
             std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(statusText);
             rtnVector.push_back(ptrStatusText);
         }
