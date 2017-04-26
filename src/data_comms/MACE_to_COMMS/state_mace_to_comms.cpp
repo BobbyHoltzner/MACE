@@ -15,7 +15,7 @@ mavlink_message_t State_MACETOCOMMS::Attitude_MACETOCOMMS(const DataState::State
     mavlink_attitude_t attitude;
     attitude.roll = stateItem.roll;
     attitude.pitch = stateItem.pitch;
-    attitude.pitch = stateItem.yaw;
+    attitude.yaw = stateItem.yaw;
     attitude.rollspeed = stateItem.rollRate;
     attitude.pitchspeed = stateItem.pitchRate;
     attitude.yawspeed = stateItem.yawRate;
