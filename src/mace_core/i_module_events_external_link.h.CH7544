@@ -18,9 +18,6 @@ public:
     //!
     virtual void TransferMissionToVehicle(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
-
-    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTypeState &state) = 0;
-
     //!
     //! \brief External_AppendMissionQueue
     //! \param sender
@@ -29,25 +26,11 @@ public:
     virtual void ExternalEvent_ReceivingMissionQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
     //!
-    //! \brief ExternalEvent_FinisedRXProposedQueue
+    //! \brief External_UpdateMissionQueue
     //! \param sender
     //! \param missionList
     //!
-    virtual void ExternalEvent_FinisedRXProposedQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
-
-    //!
-    //! \brief ExternalEvent_FinisedRXOnboardQueue
-    //! \param sender
-    //! \param missionList
-    //!
-    virtual void ExternalEvent_FinisedRXOnboardQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
-
-    //!
-    //! \brief ExternalEvent_FinisedRXCurrentQueue
-    //! \param sender
-    //! \param missionList
-    //!
-    virtual void ExternalEvent_FinisedRXCurrentQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void ExternalEvent_FinishedReceivingMissionQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
 };
 

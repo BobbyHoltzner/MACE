@@ -416,7 +416,7 @@ void MaceCore::ExternalEvent_ReceivingMissionQueue(const void* sender, const Mis
 
 void MaceCore::ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTypeState &state)
 {
-
+    
 }
 
 void MaceCore::ExternalEvent_FinisedRXProposedQueue(const void* sender, const MissionItem::MissionList &missionList)

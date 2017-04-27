@@ -287,7 +287,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
     {
         mavlink_mace_ack_mission_t decodedMSG;
         mavlink_msg_mace_ack_mission_decode(message,&decodedMSG);
-
+        
         break;
     }
     case MAVLINK_MSG_ID_MACE_MISSION_REQUEST_LIST:

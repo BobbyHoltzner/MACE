@@ -84,15 +84,6 @@ public:
     virtual void Event_ChangeVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode);
     virtual void Event_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
-
-    //!
-    //! \brief Event_UploadMission method calls the appropriate handling operations to migrate the proposed
-    //! mission list to the appropriate vehicle module for handling.
-    //! \param sender
-    //! \param missionList
-    //!
-    virtual void Event_UploadMission(const void* sender, const MissionItem::MissionList &missionList);
-
     virtual void Event_GetMission(const void* sender, const Data::MissionKey &key);
     virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const Data::MissionType &type);
     virtual void Event_GetCurrentMission(const void* sender, const int &systemID);
@@ -112,12 +103,18 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 
+    /////////////////////////////////////////////////////////////////////////////////////////
+    /// SPECIFIC VEHICLE EVENTS: These events are associated from IModuleEventsVehicleVehicle
+    /////////////////////////////////////////////////////////////////////////////////////////
+
+    virtual void EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList);
+
+
     ////////////////////////////////////////////////////////////////////////////////////////
     /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle
     ////////////////////////////////////////////////////////////////////////////////////////
     virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
     virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
-    virtual void NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey);
     virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey);
 
@@ -125,8 +122,12 @@ public:
     /// EXTERNAL LINK EVENTS
     /////////////////////////////////////////////////////////////////////////
     virtual void TransferMissionToVehicle(const void* sender, const MissionItem::MissionList &missionList);
-    virtual void External_ReceivingMissionQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void External_FinishedReceivingMissionQueue(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void ExternalEvent_ReceivingMissionQueue(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTypeState &state);
+    virtual void ExternalEvent_FinisedRXProposedQueue(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void ExternalEvent_FinisedRXOnboardQueue(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void ExternalEvent_FinisedRXCurrentQueue(const void *sender, const MissionItem::MissionList &missionList);
+
 public:
 
     /////////////////////////////////////////////////////////////////////////
@@ -149,6 +150,14 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
     virtual void RequestDummyFunction(const void* sender, const int &vehicleID);
+
+    //!
+    //! \brief Event_UploadMission method calls the appropriate handling operations to migrate the proposed
+    //! mission list to the appropriate vehicle module for handling.
+    //! \param sender
+    //! \param missionList
+    //!
+    virtual void GSEvent_UploadMission(const void* sender, const MissionItem::MissionList &missionList);
 
     //!
     //! \brief Event fired when a new list of targets are produced for a specific vehicle

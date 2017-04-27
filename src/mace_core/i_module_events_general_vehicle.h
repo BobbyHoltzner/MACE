@@ -34,13 +34,6 @@ public:
     virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome) = 0;
 
     //!
-    //! \brief NewOnboardVehicleMission
-    //! \param sender
-    //! \param missionList
-    //!
-    virtual void NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList) = 0;
-
-    //!
     //! \brief ConfirmedOnboardVehicleMission
     //! \param sender
     //! \param missionKey

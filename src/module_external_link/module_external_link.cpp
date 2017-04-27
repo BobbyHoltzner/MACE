@@ -26,7 +26,6 @@ void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 //!
 std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleExternalLink::ModuleConfigurationStructure() const
 {
-
     MaceCore::ModuleParameterStructure structure;
     ConfigureMAVLINKStructure(structure);
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
@@ -187,7 +186,6 @@ void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &m
         mavlink_message_t msg;
         mavlink_msg_mace_new_proposed_mission_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionProposed);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-
     }
 }
 

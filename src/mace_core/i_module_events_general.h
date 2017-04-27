@@ -31,9 +31,6 @@ public:
     //!
     virtual void Event_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
 
-
-    virtual void Event_UploadMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
-
     //virtual void Event_GetMission(const void* sender, const int &systemID) = 0;
 
     virtual void Event_GetMission(const void* sender, const Data::MissionKey &key) = 0;
