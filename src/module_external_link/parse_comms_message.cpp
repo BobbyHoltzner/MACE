@@ -384,12 +384,12 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
                 ackMission.mission_system = itemKey.m_systemID;
                 ackMission.mission_creator = itemKey.m_creatorID;
                 ackMission.mission_id = itemKey.m_missionID;
-                ackMission.mission_type = itemKey.m_missionType;
+                ackMission.mission_type = (uint8_t)itemKey.m_missionType;
                 //KEN TODO: Maybe we have another state reflect that it has been received differnt than onboard (implying received by the aircraft instance)
-                ackMission.mission_state = missionList.getMissionTypeState();
-                mavlink_msg_mace_ack_mission_encode_chan(itemKey.m_systemID,0,m_linkChan,&msg,&ackMission);
+                ackMission.mission_state = (uint8_t)missionList.getMissionTypeState();
+                mavlink_msg_mace_ack_mission_encode_chan(itemKey.m_systemID,0,m_LinkChan,&msg,&ackMission);
 
-                if(missionList.getMissionListStatus() == Data::MissionTypeState::PROPOSED)
+                if(missionList.getMissionTypeState() == Data::MissionTypeState::PROPOSED)
                 {
                     //This case implies that we were receiving the item from a ground module or
                     //someone without directly relating to the vehicle and therefore we should ack
@@ -397,12 +397,12 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
                     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                         ptr->ExternalEvent_FinisedRXProposedQueue(this, missionList);
                     });
-                }else if(missionList.getMissionListStatus() == Data::MissionTypeState::ONBOARD)
+                }else if(missionList.getMissionTypeState() == Data::MissionTypeState::ONBOARD)
                 {
                     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                         ptr->ExternalEvent_FinisedRXOnboardQueue(this, missionList);
                     });
-                }else if(missionList.getMissionListStatus() == Data::MissionTypeState::CURRENT)
+                }else if(missionList.getMissionTypeState() == Data::MissionTypeState::CURRENT)
                 {
                     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                         ptr->ExternalEvent_FinisedRXCurrentQueue(this, missionList);

@@ -2,6 +2,7 @@
 #define MODULE_EXTERNAL_LINK_H
 
 #include <iostream>
+#include <stdint.h>
 
 #include "module_external_link_global.h"
 #include <chrono>

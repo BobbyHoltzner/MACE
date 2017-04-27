@@ -343,7 +343,6 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const MissionItem::Spat
 void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
 {
     Data::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
-    m_DataFusion->updateOnboardMissions(key);
     if(key != missionList.getMissionKey())
     {
         //this means that this instance of mace had already planned more items for that vehicle or had knowledge of more
@@ -383,7 +382,7 @@ void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::Spa
 
 void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey)
 {
-    m_DataFusion->updateOnboardMissions(missionKey);
+    //m_DataFusion->updateOnboardMissions(missionKey);
 }
 
 void MaceCore::NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey)
@@ -400,7 +399,7 @@ void MaceCore::NewCurrentVehicleMission(const void *sender, const Data::MissionK
 
 void MaceCore::TransferMissionToVehicle(const void *sender, const MissionItem::MissionList &missionList)
 {
-    Event_UploadMission(sender,missionList);
+
 }
 
 //!
@@ -424,7 +423,7 @@ void MaceCore::ExternalEvent_FinisedRXProposedQueue(const void* sender, const Mi
     //This implies that we are finished receiving the mission and all of the elements are present for us to decide
     //what we need to do with this
     //This removes it from the map as a partial list that was being received
-    m_DataFusion->removeFromRXMissionList(missionList.getMissionKey);
+    m_DataFusion->removeFromRXMissionList(missionList.getMissionKey());
     //This will put it into the standard map in which the data is apart of working classes
     m_DataFusion->receivedNewProposedMission(missionList);
     //Notify the relevant listeners that we have received a proposed mission queue
@@ -435,7 +434,7 @@ void MaceCore::ExternalEvent_FinisedRXOnboardQueue(const void* sender, const Mis
     //This implies that we are finished receiving the mission and all of the elements are present for us to decide
     //what we need to do with this
     //This removes it from the map as a partial list that was being received
-    m_DataFusion->removeFromRXMissionList(missionList.getMissionKey);
+    m_DataFusion->removeFromRXMissionList(missionList.getMissionKey());
     //This will put it into the standard map in which the data is apart of working classes
     m_DataFusion->receivedNewOnboardMission(missionList);
     //Notify the relevant listeners that we have received a proposed mission queue
@@ -446,7 +445,7 @@ void MaceCore::ExternalEvent_FinisedRXCurrentQueue(const void* sender, const Mis
     //This implies that we are finished receiving the mission and all of the elements are present for us to decide
     //what we need to do with this
     //This removes it from the map as a partial list that was being received
-    m_DataFusion->removeFromRXMissionList(missionList.getMissionKey);
+    m_DataFusion->removeFromRXMissionList(missionList.getMissionKey());
     //This will put it into the standard map in which the data is apart of working classes
     m_DataFusion->receivedNewCurrentMission(missionList);
     //Notify the relevant listeners that we have received a proposed mission queue
