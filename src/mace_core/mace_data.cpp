@@ -77,12 +77,12 @@ bool MaceData::getRXMissionList(const Data::MissionKey &missionKey, MissionItem:
 {
     //this will search through the proposed mission queue for the mission key
     //and reutrn the list associated with this
-    std::map<Data::MissionKey,MissionItem::MissionList> it;
+    std::map<Data::MissionKey,MissionItem::MissionList>::iterator it;
     std::lock_guard<std::mutex> guard(MUTEXRXMissions);
     it = mapRXMissions.find(missionKey);
     if(it != mapRXMissions.end())
     {
-        missionList = it->send;
+        missionList = it->second;
         return true;
     }
     return false;
@@ -101,53 +101,54 @@ the current mission object and keys.
 
 bool MaceData::getMissionList(const int &systemID, const Data::MissionType &type, const Data::MissionTypeState &state, MissionItem::MissionList &missionList) const
 {
-    bool rtnValue = false;
-    switch(state)
-    {
-    case Data::MissionTypeState::CURRENT:
-    {
-        throw std::runtime_error("MaceData is not currently supporting get mission lists from the current queue");
-        break;
-    }
-    case Data::MissionTypeState::ONBOARD:
-    {
-        std::lock_guard<std::mutex> guard(MUTEXCurrentMissions);
-        if(mapOnboardMissions.count(systemID))
-        {
-            //this implies there is atleast a mission associated with the requested vehicleID
-            std::map<Data::MissionType,MissionItem::MissionList>::iterator it;
-            std::map<Data::MissionType,MissionItem::MissionList> subList = mapOnboardMissions.at(systemID);
+    return false;
+//    bool rtnValue = false;
+//    switch(state)
+//    {
+//    case Data::MissionTypeState::CURRENT:
+//    {
+//        throw std::runtime_error("MaceData is not currently supporting get mission lists from the current queue");
+//        break;
+//    }
+//    case Data::MissionTypeState::ONBOARD:
+//    {
+//        std::lock_guard<std::mutex> guard(MUTEXMissions);
+//        if(mapOnboardMissions.count(systemID))
+//        {
+//            //this implies there is atleast a mission associated with the requested vehicleID
+//            std::map<Data::MissionType,MissionItem::MissionList>::iterator it;
+//            std::map<Data::MissionType,MissionItem::MissionList> subList = mapOnboardMissions.at(systemID);
 
-            //it = mapGenericMissions.at(missionKey.m_systemID).find(missionKey); I dont understand why I cannot do this
-            it = subList.find(type);
-            if(it != mapOnboardMissions.at(systemID).end())
-            {
-                //this implies that the iterator now points to the missionList
-                missionList = it->second;
-                rtnValue = true;
-            }
-        }
-        break;
-    }
-    default:
-    {
-        throw std::runtime_error("MaceData has been asked to get a mission based on an unrecognized state");
-        break;
-    }
-    }
-    return rtnValue;
+//            //it = mapGenericMissions.at(missionKey.m_systemID).find(missionKey); I dont understand why I cannot do this
+//            it = subList.find(type);
+//            if(it != mapOnboardMissions.at(systemID).end())
+//            {
+//                //this implies that the iterator now points to the missionList
+//                missionList = it->second;
+//                rtnValue = true;
+//            }
+//        }
+//        break;
+//    }
+//    default:
+//    {
+//        throw std::runtime_error("MaceData has been asked to get a mission based on an unrecognized state");
+//        break;
+//    }
+//    }
+//    return rtnValue;
 }
 
 bool MaceData::getMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const
 {
     //this will search through the proposed mission queue for the mission key
     //and return the list associated with this
-    std::map<Data::MissionKey,MissionItem::MissionList> it;
+    std::map<Data::MissionKey,MissionItem::MissionList>::iterator it;
     std::lock_guard<std::mutex> guard(MUTEXMissions);
     it = mapMissions.find(missionKey);
     if(it != mapMissions.end())
     {
-        missionList = it->send;
+        missionList = it->second;
         return true;
     }
     return false;
@@ -158,7 +159,7 @@ bool MaceData::getCurrentMissionKey(const int &systemID, Data::MissionKey &key)
     bool returnVal = true;
     std::lock_guard<std::mutex> guard(MUTEXMissions);
     try{
-        key = mapMissions.at(systemID);
+        key = mapCurrentMission.at(systemID);
     }catch(const std::out_of_range &oor){
         std::cout<<"getCurrentMissionKey tried to access an item OOR"<<std::endl;
         returnVal = false;
@@ -171,7 +172,7 @@ bool MaceData::getCurrentMission(const int &systemID, MissionItem::MissionList &
     bool returnVal = true;
     std::lock_guard<std::mutex> guard(MUTEXMissions);
     try{
-        key = mapCurrentMission.at(systemID);
+        Data::MissionKey key = mapCurrentMission.at(systemID);
         cpyMission = mapMissions.at(key);
     }catch(const std::out_of_range &oor){
         std::cout<<"getCurrentMission tried to access an item OOR"<<std::endl;
@@ -187,18 +188,20 @@ the current mission object and keys.
 
 std::vector<Data::MissionKey> MaceData::getOnboardMissionKeys(const int &systemID)
 {
-    std::vector<Data::MissionKey> keys;
+    std::vector<Data::MissionKey> keyVector;
     //loop through the onboard missions
 
-    if(mapOnboardMissions.count(systemID) > 0)
-    {
-        std::map<Data::MissionType,Data::MissionKey>::iterator it;
-        std::map<Data::MissionType,Data::MissionKey> subList = mapOnboardMissions.at(systemID);
+    std::lock_guard<std::mutex> guard(MUTEXMissions);
+    std::map<Data::MissionKey,MissionItem::MissionList>::iterator it;
 
-        for (it=subList.begin(); it!=subList.end(); ++it)
-            keys.push_back(it->first);
+    for (it=mapMissions.begin(); it!=mapMissions.end(); ++it)
+    {
+        MissionItem::MissionList list;
+        Data::MissionKey key = it->first;
+        if((key.m_systemID == systemID) && (it->second.getMissionTypeState() == Data::MissionTypeState::ONBOARD))
+            keyVector.push_back(key);
     }
-    return keys;
+    return keyVector;
 }
 
 void MaceData::removeFromMissionMap(const Data::MissionKey &missionKey)
@@ -222,21 +225,21 @@ void MaceData::receivedNewCurrentMission(const MissionItem::MissionList &mission
     bool returnVal = this->updateCurrentMission(missionList.getMissionKey());
     UNUSED(returnVal);
 
-    std::lock_guard<std::mutex> guard(mutexMissions);
+    std::lock_guard<std::mutex> guard(MUTEXMissions);
     Data::MissionKey key = missionList.getMissionKey();
     mapMissions[key] = missionList;
 }
 
 void MaceData::receivedNewOnboardMission(const MissionItem::MissionList &missionList)
 {
-    std::lock_guard<std::mutex> guard(mutexMissions);
+    std::lock_guard<std::mutex> guard(MUTEXMissions);
     Data::MissionKey key = missionList.getMissionKey();
     mapMissions[key] = missionList;
 }
 
 void MaceData::receivedNewProposedMission(const MissionItem::MissionList &missionList)
 {
-    std::lock_guard<std::mutex> guard(mutexMissions);
+    std::lock_guard<std::mutex> guard(MUTEXMissions);
     Data::MissionKey key = missionList.getMissionKey();
     mapMissions[key] = missionList;
 }
