@@ -63,7 +63,7 @@ headers.files   += \
 INSTALLS       += headers
 
 #Header file copy
-headers_COMMS_TO_MACE.path    = $$(MACE_ROOT)/include/data_comms/COMMS_TO_MACE
+headers_COMMS_TO_MACE.path    = $$(MACE_ROOT)/include/data_comms/COMMS_to_MACE
 headers_COMMS_TO_MACE.files   += \
     COMMS_to_MACE/mission_comms_to_mace.h \
     COMMS_to_MACE/state_comms_to_mace.h \
@@ -72,7 +72,7 @@ headers_COMMS_TO_MACE.files   += \
 INSTALLS       += headers_COMMS_TO_MACE
 
 #Header file copy
-headers_MACE_TO_COMMS.path    = $$(MACE_ROOT)/include/data_comms/MACE_TO_COMMS
+headers_MACE_TO_COMMS.path    = $$(MACE_ROOT)/include/data_comms/MACE_to_COMMS
 headers_MACE_TO_COMMS.files   += \
     MACE_to_COMMS/command_mace_to_comms.h \
     MACE_to_COMMS/generic_mace_to_comms.h \

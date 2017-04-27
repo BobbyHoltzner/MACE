@@ -56,7 +56,7 @@ headers.files   += \
 INSTALLS       += headers
 
 #Header file copy
-headers_Components.path    = $$(MACE_ROOT)/include/data_vehicle_sensors/Components
+headers_Components.path    = $$(MACE_ROOT)/include/data_vehicle_sensors/components
 headers_Components.files   += \
         components/sensor_camera.h \
     components/sensor_vertices_global.h \
