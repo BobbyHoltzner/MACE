@@ -237,12 +237,8 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
     missionList.replaceMissionItemAtIndex(newWP3,3);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->Event_UploadMission(this, missionList);
+        ptr->GSEvent_UploadMission(this, missionList);
     });
-
-//    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-//        ptr->RequestDummyFunction(this, vehicleID);
-//    });
 
 }
 

@@ -77,9 +77,10 @@ bool MaceData::getRXMissionList(const Data::MissionKey &missionKey, MissionItem:
 {
     //this will search through the proposed mission queue for the mission key
     //and reutrn the list associated with this
-    std::map<Data::MissionKey,MissionItem::MissionList>::iterator it;
+    std::map<Data::MissionKey,MissionItem::MissionList>::const_iterator it;
     std::lock_guard<std::mutex> guard(MUTEXRXMissions);
     it = mapRXMissions.find(missionKey);
+
     if(it != mapRXMissions.end())
     {
         missionList = it->second;
@@ -143,7 +144,7 @@ bool MaceData::getMissionList(const Data::MissionKey &missionKey, MissionItem::M
 {
     //this will search through the proposed mission queue for the mission key
     //and return the list associated with this
-    std::map<Data::MissionKey,MissionItem::MissionList>::iterator it;
+    std::map<Data::MissionKey,MissionItem::MissionList>::const_iterator it;
     std::lock_guard<std::mutex> guard(MUTEXMissions);
     it = mapMissions.find(missionKey);
     if(it != mapMissions.end())
