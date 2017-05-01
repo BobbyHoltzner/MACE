@@ -175,6 +175,7 @@ void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionLis
         tmpData->data->setProposedMission(missionList);
         mavlink_message_t msg;
         int queueSize = missionList.getQueueSize();
+
         mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,queueSize,MAV_MISSION_TYPE_MISSION);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         break;

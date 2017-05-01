@@ -7,7 +7,7 @@
 #include "module_external_link_global.h"
 #include <chrono>
 
-#include "mavlink.h"
+#include "mavlink_MACE.h"
 
 #include "common/common.h"
 
@@ -15,7 +15,7 @@
 #include "data_comms/MACE_to_COMMS/state_mace_to_comms.h"
 #include "data_comms/MACE_to_COMMS/mission_mace_to_comms.h"
 
-#include "commsMAVLINK/comms_mavlink.h"
+#include "commsMACEHelper/comms_mace_helper.h"
 
 #include "mace_core/i_module_topic_events.h"
 #include "mace_core/i_module_command_external_link.h"
@@ -35,7 +35,7 @@
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public MaceCore::IModuleCommandExternalLink,
-        public CommsMAVLINK
+        public CommsMACEHelper
 {
 
 public:
@@ -51,7 +51,7 @@ public:
     //! \param linkName Name of link message received over
     //! \param msg Message received
     //!
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
+    virtual void MACEMessage(const std::string &linkName, const mavlink_message_t &msg);
     //!
     //! \brief NewTopic
     //! \param topicName

@@ -46,7 +46,7 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 //! \param linkName Name of link message received over
 //! \param msg Message received
 //!
-void ModuleExternalLink::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
+void ModuleExternalLink::MACEMessage(const std::string &linkName, const mavlink_message_t &message)
 {
     UNUSED(linkName);
     this->ParseForData(&message);

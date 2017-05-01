@@ -246,7 +246,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
     ////////////////////////////////////////////////////////////////////////////
     /// MISSION BASED EVENTS:
     ////////////////////////////////////////////////////////////////////////////
-
+/*
     case MAVLINK_MSG_ID_MACE_NEW_CURRENT_MISSION:
     {
         mavlink_mace_new_current_mission_t decodedMSG;
@@ -468,7 +468,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
 
         break;
     }
-
+*/
     default:
     {
         std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;

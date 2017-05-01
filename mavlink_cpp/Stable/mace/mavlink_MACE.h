@@ -28,7 +28,7 @@
 #define MAVLINK_COMMAND_24BIT 1
 #endif
 
-#include "version.h"
+#include "version_MACE.h"
 #include "MACE.h"
 
 #endif // MAVLINK_H

@@ -94,11 +94,11 @@ int main(int argc, char *argv[])
         //add to core (and check if too many have been added)
         MaceCore::ModuleBase::Classes moduleClass = module->ModuleClass();
         switch (moduleClass) {
-        case MaceCore::ModuleBase::EXTERNAL_LINK:
-        {
-            core.AddExternalLink(std::dynamic_pointer_cast<MaceCore::IModuleCommandExternalLink>(module));
-            break;
-        }
+//        case MaceCore::ModuleBase::EXTERNAL_LINK:
+//        {
+//            core.AddExternalLink(std::dynamic_pointer_cast<MaceCore::IModuleCommandExternalLink>(module));
+//            break;
+//        }
         case  MaceCore::ModuleBase::GROUND_STATION:
         {
             if(addedGroundStation == true)

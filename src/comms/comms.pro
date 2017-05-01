@@ -41,7 +41,7 @@ HEADERS +=\
     udp_configuration.h \
     udp_link.h
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/mace/
+INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/ardupilotmega/
 INCLUDEPATH += $$PWD/../
 
 # Unix lib Install

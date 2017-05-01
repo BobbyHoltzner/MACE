@@ -197,7 +197,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         mavlink_mission_ack_t decodedMSG;
         mavlink_msg_mission_ack_decode(message,&decodedMSG);
         //The only way this item is called is if there is a new auto mission aboard the aircraft
-        if((decodedMSG.mission_type == MAV_MISSION_TYPE_MISSION) && (decodedMSG.type == MAV_MISSION_ACCEPTED))
+        if((decodedMSG.type == MAV_MISSION_ACCEPTED))
         {
             Data::MissionKey missionKey = vehicleData->data->proposedMissionConfirmed();
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
