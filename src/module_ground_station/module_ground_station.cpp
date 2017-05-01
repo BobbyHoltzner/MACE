@@ -670,7 +670,7 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
     json["vehicleID"] = vehicleID;
     json["roll"] = component->roll * (180/M_PI);
     json["pitch"] = component->pitch * (180/M_PI);
-    json["yaw"] = component->yaw * (180/M_PI);
+    json["yaw"] = (component->yaw * (180/M_PI) < 0) ? (component->yaw * (180/M_PI) + 360) : (component->yaw * (180/M_PI));
 
     QJsonDocument doc(json);
     if(m_attitudeTimeoutOccured)

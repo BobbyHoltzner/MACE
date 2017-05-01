@@ -30,7 +30,8 @@ SOURCES += testcodeholder.cpp \
 HEADERS += testcodeholder.h\
         testcodeholder_global.h
 
-unix {
-    target.path = /usr/lib
+# Unix lib Install
+unix:!symbian {
+    target.path = $$(MACE_ROOT)/lib
     INSTALLS += target
 }

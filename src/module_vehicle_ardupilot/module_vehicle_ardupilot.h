@@ -16,10 +16,10 @@
 #include "data_vehicle_ardupilot/components.h"
 #include "data_vehicle_ardupilot/vehicle_object_ardupilot.h"
 
-#include "data_vehicle_mavlink/MACE_to_MAVLINK/command_mace_to_mavlink.h"
-#include "data_vehicle_mavlink/MACE_to_MAVLINK/generic_mace_to_mavlink.h"
-#include "data_vehicle_mavlink/MACE_to_MAVLINK/mission_mace_to_mavlink.h"
-#include "data_vehicle_mavlink/MACE_to_MAVLINK/state_mace_to_mavlink.h"
+#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/command_mace_to_mavlink.h"
+#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/generic_mace_to_mavlink.h"
+#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/mission_mace_to_mavlink.h"
+#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/state_mace_to_mavlink.h"
 
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
@@ -28,7 +28,7 @@
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 //__________________
-#include "data_vehicle_mavlink/MACE_to_MAVLINK/command_mace_to_mavlink.h"
+#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/command_mace_to_mavlink.h"
 
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
 {
