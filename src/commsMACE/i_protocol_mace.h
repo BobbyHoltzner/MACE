@@ -1,5 +1,5 @@
-#ifndef I_PROTOCOL_H
-#define I_PROTOCOL_H
+#ifndef I_PROTOCOL_MACE_H
+#define I_PROTOCOL_MACE_H
 
 #include <memory>
 #include <vector>

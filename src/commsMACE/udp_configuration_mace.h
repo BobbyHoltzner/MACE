@@ -1,5 +1,5 @@
-#ifndef UDPCONFIGURATION_H
-#define UDPCONFIGURATION_H
+#ifndef UDPCONFIGURATION_MACE_H
+#define UDPCONFIGURATION_MACE_H
 
 #include <QUdpSocket>
 #include <string>

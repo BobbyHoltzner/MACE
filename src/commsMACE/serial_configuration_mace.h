@@ -1,5 +1,5 @@
-#ifndef SERIALCONFIGURATION_H
-#define SERIALCONFIGURATION_H
+#ifndef SERIALCONFIGURATION_MACE_H
+#define SERIALCONFIGURATION_MACE_H
 
 #include <QSerialPort>
 #include <QStringList>

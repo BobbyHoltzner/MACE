@@ -1,5 +1,5 @@
-#ifndef I_PROTOCOL_EVENTS_H
-#define I_PROTOCOL_EVENTS_H
+#ifndef I_PROTOCOL_EVENTS_MACE_H
+#define I_PROTOCOL_EVENTS_MACE_H
 
 
 #include <string>

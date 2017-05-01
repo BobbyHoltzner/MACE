@@ -1,5 +1,5 @@
-#ifndef ILINK_H
-#define ILINK_H
+#ifndef ILINK_MACE_H
+#define ILINK_MACE_H
 
 #include <cstdlib>
 #include <memory>

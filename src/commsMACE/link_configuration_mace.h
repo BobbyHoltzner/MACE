@@ -1,5 +1,5 @@
-#ifndef I_LINK_CONFIGURATION_H
-#define I_LINK_CONFIGURATION_H
+#ifndef I_LINK_CONFIGURATION_MACE_H
+#define I_LINK_CONFIGURATION_MACE_H
 
 #include <string>
 

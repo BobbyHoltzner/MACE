@@ -11,14 +11,14 @@ CommsMACEHelper::~CommsMACEHelper()
 
 }
 
-void CommsMACEHelper::VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
+void CommsMACEHelper::VehicleHeartbeatMACEInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
     UNUSED(linkName);
     UNUSED(systemID);
     UNUSED(heartbeatMSG);
 }
 
-void CommsMACEHelper::VehicleCommandACK(const std::string &linkName, const int &systemID, const mavlink_command_ack_t &cmdACK)
+void CommsMACEHelper::VehicleCommandMACEACK(const std::string &linkName, const int &systemID, const mavlink_command_ack_t &cmdACK)
 {
     UNUSED(linkName);
     UNUSED(systemID);
@@ -36,7 +36,7 @@ void CommsMACEHelper::MACEMessage(const std::string &linkName, const mavlink_mes
 //! \brief Describes the strucure of the parameters for this module
 //! \return Strucure
 //!
-void CommsMACEHelper::ConfigureMAVLINKStructure(MaceCore::ModuleParameterStructure &structure) const
+void CommsMACEHelper::ConfigureMACEStructure(MaceCore::ModuleParameterStructure &structure) const
 {
     std::shared_ptr<MaceCore::ModuleParameterStructure> serialSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
     serialSettings->AddTerminalParameters("PortName", MaceCore::ModuleParameterTerminalTypes::STRING, true);
@@ -64,7 +64,7 @@ void CommsMACEHelper::ConfigureMAVLINKStructure(MaceCore::ModuleParameterStructu
 //! \brief Provides object contains parameters values to configure module with
 //! \param params Parameters to configure
 //!
-void CommsMACEHelper::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
+void CommsMACEHelper::ConfigureMACEComms(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
     std::shared_ptr<CommsMACE::ProtocolConfiguration> protocolConfig;
     if(params->HasNonTerminal("ProtocolParameters"))

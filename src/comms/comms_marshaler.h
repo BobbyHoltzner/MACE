@@ -1,5 +1,5 @@
-#ifndef LINKMARSHALER_H
-#define LINKMARSHALER_H
+#ifndef COMMS_MARSHALER_H
+#define COMMS_MARSHALER_H
 
 #include "common/common.h"
 

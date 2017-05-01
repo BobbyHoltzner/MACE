@@ -1,5 +1,5 @@
-#ifndef I_MAVLINK_COMMS_EVENTS_H
-#define I_MAVLINK_COMMS_EVENTS_H
+#ifndef I_MAVLINK_COMMS_EVENTS_MACE_H
+#define I_MAVLINK_COMMS_EVENTS_MACE_H
 
 #include <string>
 #include <memory>

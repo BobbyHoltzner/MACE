@@ -1,5 +1,5 @@
-#ifndef COMMS_EVENTS_H
-#define COMMS_EVENTS_H
+#ifndef COMMS_EVENTS_MACE_H
+#define COMMS_EVENTS_MACE_H
 
 #include "mavlink_MACE.h"
 #include <string>
@@ -87,14 +87,14 @@ public:
     }
 
 
-    virtual void VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG)
+    virtual void VehicleHeartbeatMACEInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG)
     {
         UNUSED(linkName);
         UNUSED(systemID);
         UNUSED(heartbeatMSG);
     }
 
-    virtual void VehicleCommandACK(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK)
+    virtual void VehicleCommandMACEACK(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK)
     {
         UNUSED(linkName);
         UNUSED(systemID);

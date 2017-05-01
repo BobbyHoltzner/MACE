@@ -326,7 +326,7 @@ void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int &syst
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](CommsEvents *ptr){ptr->VehicleHeartbeatInfo(m_CreatedLinksPtrToName.at(link_ptr), systemID, heartbeatMSG);});
+    Emit([&](CommsEvents *ptr){ptr->VehicleHeartbeatMACEInfo(m_CreatedLinksPtrToName.at(link_ptr), systemID, heartbeatMSG);});
 }
 
 //!
@@ -335,7 +335,7 @@ void CommsMarshaler::VehicleCommandACK(const ILink* link_ptr, const int &systemI
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](CommsEvents *ptr){ptr->VehicleCommandACK(m_CreatedLinksPtrToName.at(link_ptr), systemID, cmdACK);});
+    Emit([&](CommsEvents *ptr){ptr->VehicleCommandMACEACK(m_CreatedLinksPtrToName.at(link_ptr), systemID, cmdACK);});
 }
 
 //!

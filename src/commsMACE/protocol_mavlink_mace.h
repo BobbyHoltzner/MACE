@@ -1,5 +1,5 @@
-#ifndef MAVLINK_COMMS_H
-#define MAVLINK_COMMS_H
+#ifndef MAVLINK_COMMS_MACE_H
+#define MAVLINK_COMMS_MACE_H
 
 #include "commsmace_global.h"
 

@@ -1,5 +1,5 @@
-#ifndef MAVLINKCONFIGURATION_H
-#define MAVLINKCONFIGURATION_H
+#ifndef MAVLINKCONFIGURATION_MACE_H
+#define MAVLINKCONFIGURATION_MACE_H
 
 #include "protocol_configuration_mace.h"
 

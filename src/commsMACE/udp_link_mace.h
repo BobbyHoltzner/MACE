@@ -1,5 +1,5 @@
-#ifndef UDPLINK_H
-#define UDPLINK_H
+#ifndef UDPLINK_MACE_H
+#define UDPLINK_MACE_H
 
 #include "commsmace_global.h"
 

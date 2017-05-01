@@ -43,6 +43,17 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../commsMAVLINK/deb
 else:unix: LIBS += -L$$OUT_PWD/../commsMAVLINK/ -lcommsMAVLINK
 
 
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../commsMACE/release/ -lcommsMACE
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../commsMACE/debug/ -lcommsMACE
+else:unix: LIBS += -L$$OUT_PWD/../commsMACE/ -lcommsMACE
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../commsMACEHelper/release/ -lcommsMACEHelper
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../commsMACEHelper/debug/ -lcommsMACEHelper
+else:unix:!macx: LIBS += -L$$OUT_PWD/../commsMACEHelper/ -lcommsMACEHelper
+
+
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_comms/release/ -ldata_comms
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_comms/debug/ -ldata_comms
 else:unix: LIBS += -L$$OUT_PWD/../data_comms/ -ldata_comms
@@ -91,6 +102,11 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_ground_stati
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_ground_station/debug/ -lmodule_ground_station
 else:unix:!macx: LIBS += -L$$OUT_PWD/../module_ground_station/ -lmodule_ground_station
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_external_link/release/ -lmodule_external_link
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_external_link/debug/ -lmodule_external_link
+else:unix:!macx: LIBS += -L$$OUT_PWD/../module_external_link/ -lmodule_external_link
+
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sensors/release/ -ldata_vehicle_sensors
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sensors/debug/ -ldata_vehicle_sensors
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_sensors/ -ldata_vehicle_sensors
@@ -120,6 +136,7 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_ardupi
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/debug/ -ldata_vehicle_ardupilot
 else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/ -ldata_vehicle_ardupilot
 
+INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/mace/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/ardupilotmega/
 INCLUDEPATH += $$PWD/../
 

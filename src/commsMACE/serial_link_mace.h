@@ -1,5 +1,5 @@
-#ifndef SERIALLINK_H
-#define SERIALLINK_H
+#ifndef SERIALLINK_MACE_H
+#define SERIALLINK_MACE_H
 
 #include "commsmace_global.h"
 

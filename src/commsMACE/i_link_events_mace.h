@@ -1,5 +1,5 @@
-#ifndef I_LINK_EVENTS_H
-#define I_LINK_EVENTS_H
+#ifndef I_LINK_EVENTS_MACE_H
+#define I_LINK_EVENTS_MACE_H
 
 #include "commsmace_global.h"
 
