@@ -183,9 +183,28 @@ void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &m
         missionProposed.mission_type = static_cast<MACE_MISSION_TYPE>(key.m_missionType);
         missionProposed.target_system = key.m_systemID;
 
-        mavlink_message_t msg;
-        mavlink_msg_mace_new_proposed_mission_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionProposed);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        switch(missionList.getMissionTypeState())
+        {
+        case Data::MissionTypeState::CURRENT:
+        {
+            break;
+        }
+        case Data::MissionTypeState::ONBOARD:
+        {
+            break;
+        }
+        case Data::MissionTypeState::PROPOSED:
+        {
+            mavlink_message_t msg;
+            mavlink_msg_mace_new_proposed_mission_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionProposed);
+            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+        }
     }
 }
 

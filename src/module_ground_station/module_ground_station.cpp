@@ -211,6 +211,7 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
 void ModuleGroundStation::testFunction1(const int &vehicleID)
 {
     MissionItem::MissionList missionList;
+    missionList.setMissionTypeState(Data::MissionTypeState::PROPOSED);
     missionList.setMissionType(Data::MissionType::AUTO);
     missionList.setVehicleID(vehicleID);
     missionList.initializeQueue(4);

@@ -121,12 +121,11 @@ public:
     /////////////////////////////////////////////////////////////////////////
     /// EXTERNAL LINK EVENTS
     /////////////////////////////////////////////////////////////////////////
-    virtual void TransferMissionToVehicle(const void* sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_ReceivingMissionQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTypeState &state);
     virtual void ExternalEvent_FinisedRXProposedQueue(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_FinisedRXOnboardQueue(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_FinisedRXCurrentQueue(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTypeState &state);
 
 public:
 

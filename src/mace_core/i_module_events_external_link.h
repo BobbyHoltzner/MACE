@@ -11,14 +11,6 @@ class IModuleEventsExternalLink : public IModuleEventsGeneral, public IModuleEve
 {
 public:
 
-    //!
-    //! \brief UpdateMissionToVehicle
-    //! \param sender
-    //! \param missionList
-    //!
-    virtual void TransferMissionToVehicle(const void* sender, const MissionItem::MissionList &missionList) = 0;
-
-
     virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTypeState &state) = 0;
 
     //!

@@ -391,11 +391,6 @@ void MaceCore::NewCurrentVehicleMission(const void *sender, const Data::MissionK
 /// EXTERNAL LINK EVENTS
 /////////////////////////////////////////////////////////////////////////
 
-void MaceCore::TransferMissionToVehicle(const void *sender, const MissionItem::MissionList &missionList)
-{
-
-}
-
 //!
 //! \brief External_AppendMissionQueue
 //! \param sender
@@ -421,6 +416,8 @@ void MaceCore::ExternalEvent_FinisedRXProposedQueue(const void* sender, const Mi
     //This will put it into the standard map in which the data is apart of working classes
     m_DataFusion->receivedNewProposedMission(missionList);
     //Notify the relevant listeners that we have received a proposed mission queue
+    int vehicleID = missionList.getVehicleID();
+    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::UPLOAD_MISSION,missionList);
 }
 
 void MaceCore::ExternalEvent_FinisedRXOnboardQueue(const void* sender, const MissionItem::MissionList &missionList)
