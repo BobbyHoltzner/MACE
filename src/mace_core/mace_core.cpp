@@ -342,15 +342,9 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const MissionItem::Spat
 
 void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
 {
-    Data::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
-    if(key != missionList.getMissionKey())
-    {
-        //this means that this instance of mace had already planned more items for that vehicle or had knowledge of more
-        //missions available for that vehicle
-//        Data::MissionKeyChange keyChange(missionList.getMissionKey(),correctedMissionList.getMissionKey());
-//        IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-//        vehicle->MarshalCommand(VehicleCommands::UPDATE_MISSION_KEY,keyChange);
-    }
+   //Update the core about the information
+    m_DataFusion->receivedNewOnboardMission(missionList);
+   //Now update all potential listeners based on the type
 }
 
 /////////////////////////////////////////////////////////////////////////

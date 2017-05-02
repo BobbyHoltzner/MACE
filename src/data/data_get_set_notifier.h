@@ -44,9 +44,7 @@ public:
             return false;
         }
 
-//        m_AccessMutex.lock();
-//        m_Data = data;
-//        m_AccessMutex.unlock();
+        m_Data = data;
 
         std::lock_guard<std::mutex> guardNotifier(m_NotifierListMutex);
         for(auto it = m_Funcs.cbegin() ; it != m_Funcs.cend() ; ++it) {

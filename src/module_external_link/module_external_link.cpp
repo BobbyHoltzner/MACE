@@ -27,7 +27,7 @@ void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleExternalLink::ModuleConfigurationStructure() const
 {
     MaceCore::ModuleParameterStructure structure;
-    ConfigureMAVLINKStructure(structure);
+    ConfigureMACEStructure(structure);
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
 
@@ -38,7 +38,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleExternalLink::ModuleCo
 //!
 void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-    ConfigureComms(params);
+    ConfigureMACEComms(params);
 }
 
 //!

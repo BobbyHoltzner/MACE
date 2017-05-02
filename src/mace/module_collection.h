@@ -21,7 +21,7 @@ public:
     static MaceCore::ModuleFactory* GenerateFactory()
     {
         MaceCore::ModuleFactory* factory = new MaceCore::ModuleFactory();
-        //Register<ModuleExternalLink>(factory, "Ardupilot");
+        Register<ModuleExternalLink>(factory, "Ardupilot");
         Register<ModuleGroundStation>(factory, "NASAPhase2");
         Register<ModulePathPlanningNASAPhase2>(factory, "NASAPhase2");
         Register<ModuleRTA>(factory, "NASAPhase2");
