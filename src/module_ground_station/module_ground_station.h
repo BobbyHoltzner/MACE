@@ -4,6 +4,7 @@
 #include "module_ground_station_global.h"
 
 #include <string>
+#include <memory>
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
@@ -86,7 +87,7 @@ private:
     void sendVehicleFuel(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &component);
     void sendVehicleMode(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &component);
     void sendVehicleText(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &component);
-    void sendVehicleMission(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionListTopic> &component);
+    void sendVehicleMission(const int &vehicleID, const MissionItem::MissionList &missionList);
     void sendVehicleHome(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
     void sendGlobalOrigin(const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
     void sendSensorFootprint(const int &vehicleID, const std::shared_ptr<DataVehicleSensors::SensorVertices_Global> &component);
@@ -114,7 +115,7 @@ private:
     // END TESTING
 
     // Helpers:
-    void missionToJSON(const std::shared_ptr<MissionTopic::MissionListTopic> &component, QJsonArray &missionItems);
+    void missionListToJSON(const MissionItem::MissionList &list, QJsonArray &missionItems);
 
 public slots:
     void on_newConnection();

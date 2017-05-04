@@ -85,7 +85,7 @@ void MissionList::replaceMissionItemAtIndex(const std::shared_ptr<AbstractMissio
     missionQueue[index] = missionItem;
 }
 
-std::shared_ptr<AbstractMissionItem> MissionList::getMissionItem(const int &index)
+std::shared_ptr<AbstractMissionItem> MissionList::getMissionItem(const int &index) const
 {
     return missionQueue[index];
 }

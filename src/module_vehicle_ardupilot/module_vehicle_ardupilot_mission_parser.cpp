@@ -15,6 +15,8 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(message,&decodedMSG);
 
+        //If there was a mission list in the core, this means that we have previously
+        //received a count and therefore should expect a full new mission
         MissionItem::MissionList missionList = vehicleData->data->Command_GetCurrentMission(Data::MissionType::AUTO);
 
         if(decodedMSG.seq == 0)
@@ -44,11 +46,9 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         }else{
             //We should update the core
-
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
                 ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
             });
-            //m_ArdupilotController.at(sysID)->updatedMission(missionList);
             //We should update all listeners
             std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>(missionList);
 
@@ -59,9 +59,6 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
                 ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
             });
         }
-
-        //If there was a mission list in the core, this means that we have previously
-        //received a count and therefore should expect a full new mission
 
         break;
     }

@@ -108,7 +108,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////
 
     virtual void EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList);
-
+    virtual void EventVehicle_ACKRecievingMission(const void *sender, const Data::MissionKey &key);
 
     ////////////////////////////////////////////////////////////////////////////////////////
     /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle

@@ -37,7 +37,7 @@ public:
     void insertMissionItem(const std::shared_ptr<AbstractMissionItem> missionItem);
     void replaceMissionItemAtIndex(const std::shared_ptr<AbstractMissionItem> missionItem, const int &index);
 
-    std::shared_ptr<AbstractMissionItem> getMissionItem(const int &index);
+    std::shared_ptr<AbstractMissionItem> getMissionItem(const int &index) const;
 
     int getQueueSize() const;
     MissionListStatus getMissionListStatus() const;

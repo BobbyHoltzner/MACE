@@ -386,8 +386,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
                 ackMission.mission_id = itemKey.m_missionID;
                 ackMission.mission_type = (uint8_t)itemKey.m_missionType;
                 //KEN TODO: Maybe we have another state reflect that it has been received differnt than onboard (implying received by the aircraft instance)
-                ackMission.mission_state = (uint8_t)missionList.getMissionTypeState();
-                mavlink_msg_mace_ack_mission_encode_chan(itemKey.m_systemID,0,m_LinkChan,&msg,&ackMission);
+                ackMission.mission_state = (uint8_t)Data::MissionTypeState::TRANSMITTED;
 
                 if(missionList.getMissionTypeState() == Data::MissionTypeState::PROPOSED)
                 {
@@ -408,6 +407,9 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
                         ptr->ExternalEvent_FinisedRXCurrentQueue(this, missionList);
                     });
                 }
+
+                mavlink_msg_mace_ack_mission_encode_chan(itemKey.m_systemID,0,m_LinkChan,&msg,&ackMission);
+                m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
             }
         }
         break;

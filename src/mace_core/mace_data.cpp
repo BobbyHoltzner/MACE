@@ -182,6 +182,20 @@ bool MaceData::getCurrentMission(const int &systemID, MissionItem::MissionList &
     return returnVal;
 }
 
+bool MaceData::getCurrentMissionValidity(const int &systemID)
+{
+    bool returnVal = true;
+    std::lock_guard<std::mutex> guard(MUTEXMissions);
+    try{
+        Data::MissionKey key = mapCurrentMission.at(systemID);
+    }catch(const std::out_of_range &oor){
+        std::cout<<"getCurrentMission tried to access an item OOR"<<std::endl;
+        returnVal = false;
+    }
+    return returnVal;
+}
+
+
 /*
 The following methods aid getting the mission list from the mace data class. The following methods aid getting
 the current mission object and keys.

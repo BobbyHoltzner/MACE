@@ -51,8 +51,6 @@ public:
 public:
     virtual void RequestDummyFunction(const int &vehicleID) = 0;
     virtual void UpdateMissionKey(const Data::MissionKeyChange &key) = 0;
-
-
 };
 
 

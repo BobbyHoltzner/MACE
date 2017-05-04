@@ -342,9 +342,27 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const MissionItem::Spat
 
 void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList)
 {
+    UNUSED(sender);
    //Update the core about the information
     m_DataFusion->receivedNewOnboardMission(missionList);
-   //Now update all potential listeners based on the type
+   //Now update all potential listeners based on the type 
+    if(m_GroundStation)
+    {
+        if(m_DataFusion->getCurrentMissionValidity(missionList.getVehicleID()) == false)
+        {
+            m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,missionList.getMissionKey());
+        }
+    }else if(m_ExternalLink.size() > 0)
+    {
+        //we need to transfer this to the ground station
+        std::cout<<"we should be transferring this mission to the ground station if available."<<std::endl;
+    }
+}
+
+void MaceCore::EventVehicle_ACKRecievingMission(const void *sender, const Data::MissionKey &key)
+{
+    UNUSED(sender);
+    UNUSED(key);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -384,7 +402,7 @@ void MaceCore::NewCurrentVehicleMission(const void *sender, const Data::MissionK
     m_DataFusion->updateCurrentMission(missionKey);
 
     if(m_GroundStation)
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_CURRENT_MISSION,missionKey);
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,missionKey);
 }
 
 /////////////////////////////////////////////////////////////////////////

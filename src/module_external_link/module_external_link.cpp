@@ -174,27 +174,19 @@ void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &m
 
     if(status.state == MissionItem::MissionList::COMPLETE)
     {
-        mavlink_mace_new_proposed_mission_t missionProposed;
-        missionProposed.count = missionList.getQueueSize();
-        Data::MissionKey key = missionList.getMissionKey();
-        missionProposed.mission_creator = key.m_creatorID;
-        missionProposed.mission_id = key.m_missionID;
-        missionProposed.mission_state = static_cast<MACE_MISSION_STATE>(missionList.getMissionTypeState());
-        missionProposed.mission_type = static_cast<MACE_MISSION_TYPE>(key.m_missionType);
-        missionProposed.target_system = key.m_systemID;
-
         switch(missionList.getMissionTypeState())
         {
-        case Data::MissionTypeState::CURRENT:
-        {
-            break;
-        }
-        case Data::MissionTypeState::ONBOARD:
-        {
-            break;
-        }
         case Data::MissionTypeState::PROPOSED:
         {
+            mavlink_mace_new_proposed_mission_t missionProposed;
+            missionProposed.count = missionList.getQueueSize();
+            Data::MissionKey key = missionList.getMissionKey();
+            missionProposed.mission_creator = key.m_creatorID;
+            missionProposed.mission_id = key.m_missionID;
+            missionProposed.mission_state = static_cast<MACE_MISSION_STATE>(missionList.getMissionTypeState());
+            missionProposed.mission_type = static_cast<MACE_MISSION_TYPE>(key.m_missionType);
+            missionProposed.target_system = key.m_systemID;
+
             mavlink_message_t msg;
             mavlink_msg_mace_new_proposed_mission_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionProposed);
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -202,6 +194,8 @@ void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &m
         }
         default:
         {
+            //KEN FIX
+            std::cout<<"The Command_UploadMission function was called on a mission outside of a proposed state. This should not happen."<<std::endl;
             break;
         }
         }
@@ -216,11 +210,20 @@ void ModuleExternalLink::Command_GetMission(const Data::MissionKey &key)
 void ModuleExternalLink::Command_SetCurrentMission(const Data::MissionKey &key)
 {
     UNUSED(key);
+    mavlink_message_t msg;
+    mavlink_mace_mission_set_current_t request;
+    request.mission_creator = key.m_creatorID;
+    request.mission_id = key.m_missionID;
+    request.mission_type = (uint8_t)key.m_missionType;
+    request.target_system = key.m_systemID;
+    mavlink_msg_mace_mission_set_current_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&request);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleExternalLink::Command_GetCurrentMission(const int &targetSystem)
 {
     UNUSED(targetSystem);
+
 }
 
 void ModuleExternalLink::Command_ClearCurrentMission(const int &targetSystem)
