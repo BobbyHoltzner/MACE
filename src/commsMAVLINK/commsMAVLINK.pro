@@ -7,6 +7,8 @@ QT += serialport
 QT += network
 QT       -= core gui
 
+QMAKE_CXXFLAGS += -std=c++11
+
 TARGET = commsMAVLINK
 TEMPLATE = lib
 
