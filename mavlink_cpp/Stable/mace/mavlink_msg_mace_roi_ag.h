@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE MACE_ROI_AG PACKING
 
-#define MAVLINK_MSG_ID_MACE_ROI_AG 194
+#define MAVLINK_MSG_ID_MACE_ROI_AG 195
 
 MAVPACKED(
 typedef struct __mavlink_mace_roi_ag_t {
@@ -18,17 +18,17 @@ typedef struct __mavlink_mace_roi_ag_t {
 
 #define MAVLINK_MSG_ID_MACE_ROI_AG_LEN 21
 #define MAVLINK_MSG_ID_MACE_ROI_AG_MIN_LEN 21
-#define MAVLINK_MSG_ID_194_LEN 21
-#define MAVLINK_MSG_ID_194_MIN_LEN 21
+#define MAVLINK_MSG_ID_195_LEN 21
+#define MAVLINK_MSG_ID_195_MIN_LEN 21
 
 #define MAVLINK_MSG_ID_MACE_ROI_AG_CRC 197
-#define MAVLINK_MSG_ID_194_CRC 197
+#define MAVLINK_MSG_ID_195_CRC 197
 
 
 
 #if MAVLINK_COMMAND_24BIT
 #define MAVLINK_MESSAGE_INFO_MACE_ROI_AG { \
-    194, \
+    195, \
     "MACE_ROI_AG", \
     9, \
     {  { "stress_value", NULL, MAVLINK_TYPE_FLOAT, 0, 0, offsetof(mavlink_mace_roi_ag_t, stress_value) }, \

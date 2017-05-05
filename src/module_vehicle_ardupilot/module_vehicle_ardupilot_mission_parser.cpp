@@ -193,12 +193,13 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         //Ack message during MISSION handling. The type field states if this message is a positive ack (type=0) or if an error happened (type=non-zero).
         mavlink_mission_ack_t decodedMSG;
         mavlink_msg_mission_ack_decode(message,&decodedMSG);
+
         //The only way this item is called is if there is a new auto mission aboard the aircraft
-        if((decodedMSG.type == MAV_MISSION_ACCEPTED))
+        if((decodedMSG.type == MAV_MISSION_ACCEPTED) && (decodedMSG.mission_type == MAV_MISSION_TYPE_MISSION))
         {
             Data::MissionKey missionKey = vehicleData->data->proposedMissionConfirmed();
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                ptr->ConfirmedOnboardVehicleMission(this, missionKey);
+                ptr->EventVehicle_ACKProposedMission(this, missionKey);
             });
         }
         break;

@@ -192,6 +192,7 @@ public:
     virtual void Command_SetHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
 private:
+    bool airborneInstance;
     bool firstHearbeat;
     //!
     //! \brief associatedSystemID This is the identifier that is transmitting the data as a representative of.

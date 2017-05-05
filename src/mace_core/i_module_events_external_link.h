@@ -25,21 +25,21 @@ public:
     //! \param sender
     //! \param missionList
     //!
-    virtual void ExternalEvent_FinisedRXProposedQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void ExternalEvent_FinishedRXProposedQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
     //!
     //! \brief ExternalEvent_FinisedRXOnboardQueue
     //! \param sender
     //! \param missionList
     //!
-    virtual void ExternalEvent_FinisedRXOnboardQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void ExternalEvent_FinishedRXOnboardQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
     //!
     //! \brief ExternalEvent_FinisedRXCurrentQueue
     //! \param sender
     //! \param missionList
     //!
-    virtual void ExternalEvent_FinisedRXCurrentQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void ExternalEvent_FinishedRXCurrentQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
 };
 

@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ModuleExternalLink::ModuleExternalLink() :
-    m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"), associatedSystemID(255),firstHearbeat(true)
+    m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"), associatedSystemID(255),firstHearbeat(true), airborneInstance(true)
 {
 
 }
@@ -29,6 +29,13 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleExternalLink::ModuleCo
     MaceCore::ModuleParameterStructure structure;
     ConfigureMACEStructure(structure);
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
+
+    std::shared_ptr<MaceCore::ModuleParameterStructure> moduleSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
+    moduleSettings->AddTerminalParameters("AirborneInstance", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
+    structure.AddNonTerminal("ModuleParameters", moduleSettings, true);
+
+    return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
+
 }
 
 
@@ -39,6 +46,13 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleExternalLink::ModuleCo
 void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
     ConfigureMACEComms(params);
+
+    if(params->HasNonTerminal("ModuleParameters"))
+    {
+        std::shared_ptr<MaceCore::ModuleParameterValue> moduleSettings = params->GetNonTerminalValue("ModuleParameters");
+        airborneInstance = moduleSettings->GetTerminalValue<bool>("AirborneInstance");
+    }
+
 }
 
 //!
@@ -233,13 +247,8 @@ void ModuleExternalLink::Command_ClearCurrentMission(const int &targetSystem)
 
 void ModuleExternalLink::Command_GetOnboardAuto(const int &targetSystem)
 {
-    mavlink_message_t msg;
-    mavlink_mace_mission_request_list_t request;
-    request.target_system = targetSystem;
-    request.mission_type = MACE_MISSION_TYPE_AUTO;
-    request.mission_state = MACE_MISSION_ONBOARD;
-    mavlink_msg_mace_mission_request_list_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&request);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    UNUSED(targetSystem);
+
 }
 
 void ModuleExternalLink::Command_ClearOnboardAuto(const int &targetSystem)
@@ -249,13 +258,7 @@ void ModuleExternalLink::Command_ClearOnboardAuto(const int &targetSystem)
 
 void ModuleExternalLink::Command_GetOnboardGuided(const int &targetSystem)
 {
-    mavlink_message_t msg;
-    mavlink_mace_mission_request_list_t request;
-    request.target_system = targetSystem;
-    request.mission_type = MACE_MISSION_TYPE_GUIDED;
-    request.mission_state = MACE_MISSION_ONBOARD;
-    mavlink_msg_mace_mission_request_list_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&request);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    UNUSED(targetSystem);
 }
 
 void ModuleExternalLink::Command_ClearOnboardGuided(const int &targetSystem)

@@ -752,6 +752,8 @@ public:
     bool getCurrentMissionKey(const int &systemID, Data::MissionKey &key);
     bool getCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission);
     bool getCurrentMissionValidity(const int &systemID);
+    bool getMissionKeyValidity(const Data::MissionKey &key);
+
 
     /*
     The following methods aid getting the mission list from the mace data class. The following methods aid getting

@@ -108,7 +108,12 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////
 
     virtual void EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void EventVehicle_ACKRecievingMission(const void *sender, const Data::MissionKey &key);
+
+    virtual void EventVehicle_ACKProposedMission(const void *sender, const Data::MissionKey &key);
+
+    virtual void EventVehicle_REJECTProposedMission(const void *sender, const Data::MissionKey &key);
+
+//    virtual void EventVehicle_ACKProposedMissionWChanges(const void *sender, const Data::MissionKey &originalKey, const Data::MissionACK &ackCode, const Data::MissionKey &newKey);
 
     ////////////////////////////////////////////////////////////////////////////////////////
     /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle
@@ -122,9 +127,9 @@ public:
     /// EXTERNAL LINK EVENTS
     /////////////////////////////////////////////////////////////////////////
     virtual void ExternalEvent_ReceivingMissionQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_FinisedRXProposedQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_FinisedRXOnboardQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_FinisedRXCurrentQueue(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void ExternalEvent_FinishedRXProposedQueue(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void ExternalEvent_FinishedRXOnboardQueue(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void ExternalEvent_FinishedRXCurrentQueue(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTypeState &state);
 
 public:

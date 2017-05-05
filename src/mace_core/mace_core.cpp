@@ -359,11 +359,32 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
     }
 }
 
-void MaceCore::EventVehicle_ACKRecievingMission(const void *sender, const Data::MissionKey &key)
+void MaceCore::EventVehicle_ACKProposedMission(const void *sender, const Data::MissionKey &key)
 {
     UNUSED(sender);
-    UNUSED(key);
+
+    if(m_GroundStation)
+    {
+        if(m_DataFusion->getMissionKeyValidity(key))
+        {
+            m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
+        }
+    }else if(m_ExternalLink.size() > 0)
+    {
+        //we need to transfer this to the ground station
+        std::cout<<"we should be transferring this mission to the ground station if available."<<std::endl;
+    }
 }
+
+void MaceCore::EventVehicle_REJECTProposedMission(const void *sender, const Data::MissionKey &key)
+{
+
+}
+
+//void MaceCore::EventVehicle_ACKProposedMissionWChanges(const void *sender, const Data::MissionKey &originalKey, const Data::MissionACK &ackCode, const Data::MissionKey &newKey)
+//{
+
+//}
 
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
@@ -425,7 +446,7 @@ void MaceCore::ExternalEvent_MissionACK(const void* sender, const Data::MissionK
 
 }
 
-void MaceCore::ExternalEvent_FinisedRXProposedQueue(const void* sender, const MissionItem::MissionList &missionList)
+void MaceCore::ExternalEvent_FinishedRXProposedQueue(const void* sender, const MissionItem::MissionList &missionList)
 {
     //This implies that we are finished receiving the mission and all of the elements are present for us to decide
     //what we need to do with this
@@ -438,7 +459,7 @@ void MaceCore::ExternalEvent_FinisedRXProposedQueue(const void* sender, const Mi
     m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::UPLOAD_MISSION,missionList);
 }
 
-void MaceCore::ExternalEvent_FinisedRXOnboardQueue(const void* sender, const MissionItem::MissionList &missionList)
+void MaceCore::ExternalEvent_FinishedRXOnboardQueue(const void* sender, const MissionItem::MissionList &missionList)
 {
     //This implies that we are finished receiving the mission and all of the elements are present for us to decide
     //what we need to do with this
@@ -449,7 +470,7 @@ void MaceCore::ExternalEvent_FinisedRXOnboardQueue(const void* sender, const Mis
     //Notify the relevant listeners that we have received a proposed mission queue
 }
 
-void MaceCore::ExternalEvent_FinisedRXCurrentQueue(const void* sender, const MissionItem::MissionList &missionList)
+void MaceCore::ExternalEvent_FinishedRXCurrentQueue(const void* sender, const MissionItem::MissionList &missionList)
 {
     //This implies that we are finished receiving the mission and all of the elements are present for us to decide
     //what we need to do with this

@@ -1,6 +1,8 @@
 #ifndef I_MODULE_VEHICLE_EVENTS_H
 #define I_MODULE_VEHICLE_EVENTS_H
 
+#include "data/mission_ack.h"
+
 #include "i_module_events_general_vehicle.h"
 
 namespace MaceCore
@@ -19,15 +21,16 @@ public:
     //!
     virtual void EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList) = 0;
 
-
     //!
-    //! \brief EventVehicle_ACKRecievingMission This virtual function event is used for the aircraft modules to acknowledge the
-    //! receipt of an external mission sent to them.
+    //! \brief EventVehicle_ACKProposedMission
     //! \param sender
     //! \param key
     //!
-    virtual void EventVehicle_ACKRecievingMission(const void *sender, const Data::MissionKey &key) = 0;
+    virtual void EventVehicle_ACKProposedMission(const void *sender, const Data::MissionKey &key) = 0;
 
+    virtual void EventVehicle_REJECTProposedMission(const void *sender, const Data::MissionKey &key) = 0;
+
+    //virtual void EventVehicle_ACKProposedMissionWChanges(const void *sender, const Data::MissionKey &originalKey, const Data::MissionACK &ackCode, const Data::MissionKey &newKey) = 0;
 };
 
 } //End MaceCore Namespace
