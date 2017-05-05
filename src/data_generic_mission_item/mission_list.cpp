@@ -1,5 +1,7 @@
 #include "mission_list.h"
 
+#include <exception>
+
 namespace MissionItem {
 
 MissionList::MissionList() :
@@ -30,6 +32,10 @@ MissionList::MissionList(const MissionList &rhs)
 
 void MissionList::initializeQueue(const int &size)
 {
+    if(size <= 0){
+        // TODO-Ken/Pat: Throw a message with exception
+        throw std::exception();
+    }
     missionQueue.clear();
     std::vector<std::shared_ptr<AbstractMissionItem>> tmpVector(size,NULL);
     missionQueue = tmpVector;
