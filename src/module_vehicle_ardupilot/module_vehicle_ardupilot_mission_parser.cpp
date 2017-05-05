@@ -143,13 +143,19 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
 
         int queueSize = decodedMSG.count - 1; //we have to decrement 1 here because in actuality ardupilot references home as 0
 
-        MissionItem::MissionList newMissionList(sysID,sysID,Data::MissionType::AUTO,Data::MissionTypeState::CURRENT,queueSize);
+        try {
+            MissionItem::MissionList newMissionList(sysID,sysID,Data::MissionType::AUTO,Data::MissionTypeState::CURRENT,queueSize);
 
-        vehicleData->data->setCurrentMission(newMissionList);
+            vehicleData->data->setCurrentMission(newMissionList);
 
-        mavlink_message_t msg;
-        mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,0,MAV_MISSION_TYPE_MISSION);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+            mavlink_message_t msg;
+            mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,0,MAV_MISSION_TYPE_MISSION);
+            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        }
+        catch (std::exception e) {
+            std::cout << "Cannot initialize mission of size 0." << std::endl;
+        }
+
         break;
     }
     case MAVLINK_MSG_ID_MISSION_CLEAR_ALL:
