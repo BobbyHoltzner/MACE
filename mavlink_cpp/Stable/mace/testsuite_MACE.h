@@ -327,7 +327,7 @@ static void mavlink_test_mace_mission_count(uint8_t system_id, uint8_t component
         uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
         uint16_t i;
     mavlink_mace_mission_count_t packet_in = {
-        17235,139,206,17,84,151
+        17235,139,206,17,84,151,218
     };
     mavlink_mace_mission_count_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
@@ -337,6 +337,7 @@ static void mavlink_test_mace_mission_count(uint8_t system_id, uint8_t component
         packet1.mission_creator = packet_in.mission_creator;
         packet1.mission_id = packet_in.mission_id;
         packet1.mission_type = packet_in.mission_type;
+        packet1.mission_state = packet_in.mission_state;
         
         
 #ifdef MAVLINK_STATUS_FLAG_OUT_MAVLINK1
@@ -351,12 +352,12 @@ static void mavlink_test_mace_mission_count(uint8_t system_id, uint8_t component
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_mace_mission_count_pack(system_id, component_id, &msg , packet1.target_system , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.count );
+    mavlink_msg_mace_mission_count_pack(system_id, component_id, &msg , packet1.target_system , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.mission_state , packet1.count );
     mavlink_msg_mace_mission_count_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_mace_mission_count_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.target_system , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.count );
+    mavlink_msg_mace_mission_count_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.target_system , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.mission_state , packet1.count );
     mavlink_msg_mace_mission_count_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
@@ -369,7 +370,7 @@ static void mavlink_test_mace_mission_count(uint8_t system_id, uint8_t component
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_mace_mission_count_send(MAVLINK_COMM_1 , packet1.target_system , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.count );
+    mavlink_msg_mace_mission_count_send(MAVLINK_COMM_1 , packet1.target_system , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.mission_state , packet1.count );
     mavlink_msg_mace_mission_count_decode(last_msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
