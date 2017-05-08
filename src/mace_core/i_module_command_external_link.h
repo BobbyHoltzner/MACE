@@ -21,7 +21,8 @@ namespace MaceCore
 
 enum class ExternalLinkCommands
 {
-    BASE_MODULE_VEHICLE_LISTENER_ENUMS
+    BASE_MODULE_VEHICLE_LISTENER_ENUMS,
+    NEWLY_AVAILABLE_ONBOARD_MISSION
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_VehicleListener<Metadata_GroundStation, IModuleEventsExternalLink, ExternalLinkCommands>
@@ -34,7 +35,9 @@ public:
     IModuleCommandExternalLink():
         AbstractModule_VehicleListener()
     {
-
+        AddCommandLogic<int>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const Data::MissionKey &key){
+            NewlyAvailableOnboardMission(key);
+        });
     }
 
     virtual Classes ModuleClass() const
@@ -43,6 +46,9 @@ public:
     }
 
 public:
+
+    virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key) = 0;
+
 
 };
 

@@ -83,7 +83,8 @@ public:
 
 
     ///////////////////////////////////////////////////////////////////////////////////////
-    /// The following are public virtual functions imposed from IModuleCommandExternalLink.
+    /// The following are public virtual functions imposed from IModuleCommandExternalLink
+    /// via the base listener class.
     ///////////////////////////////////////////////////////////////////////////////////////
 
 public:
@@ -190,6 +191,12 @@ public:
     //! \param vehicleHome
     //!
     virtual void Command_SetHomePosition(const MissionItem::SpatialHome &vehicleHome);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    /// The following are public virtual functions imposed from IModuleCommandExternalLink.
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key);
 
 private:
     bool airborneInstance;

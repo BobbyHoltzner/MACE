@@ -223,7 +223,6 @@ void ModuleExternalLink::Command_GetMission(const Data::MissionKey &key)
 
 void ModuleExternalLink::Command_SetCurrentMission(const Data::MissionKey &key)
 {
-    UNUSED(key);
     mavlink_message_t msg;
     mavlink_mace_mission_set_current_t request;
     request.mission_creator = key.m_creatorID;
@@ -266,6 +265,18 @@ void ModuleExternalLink::Command_ClearOnboardGuided(const int &targetSystem)
     UNUSED(targetSystem);
 }
 
+void ModuleExternalLink::NewlyAvailableOnboardMission(const Data::MissionKey &key)
+{
+    mavlink_message_t msg;
+    mavlink_mace_new_onboard_mission_t mission;
+    mission.mission_creator = key.m_creatorID;
+    mission.mission_id = key.m_missionID;
+    mission.mission_type = key.m_missionType;
+    mission.mission_system = key.m_systemID;
+    mission.mission_state = Data::MissionTypeState::ONBOARD;
 
+    mavlink_msg_mace_new_onboard_mission_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&mission);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+}
 
 

@@ -356,6 +356,7 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
     {
         //we need to transfer this to the ground station
         std::cout<<"we should be transferring this mission to the ground station if available."<<std::endl;
+        m_ExternalLink->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,missionList.getMissionKey());
     }
 }
 
@@ -373,6 +374,7 @@ void MaceCore::EventVehicle_ACKProposedMission(const void *sender, const Data::M
     {
         //we need to transfer this to the ground station
         std::cout<<"we should be transferring this mission to the ground station if available."<<std::endl;
+        m_ExternalLink->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,missionList.getMissionKey());
     }
 }
 
