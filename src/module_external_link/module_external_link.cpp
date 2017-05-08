@@ -68,6 +68,7 @@ void ModuleExternalLink::MACEMessage(const std::string &linkName, const mavlink_
 
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
+    /*
     //In relevance to the external link module, the module when receiving a new topic should pack that up for transmission
     //to other instances of MACE
     //example read of vehicle data
@@ -128,6 +129,8 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             }
         }
     }
+
+    */
 
 }
 
@@ -267,7 +270,6 @@ void ModuleExternalLink::Command_ClearOnboardGuided(const int &targetSystem)
 
 void ModuleExternalLink::NewlyAvailableOnboardMission(const Data::MissionKey &key)
 {
-    mavlink_message_t msg;
     mavlink_mace_new_onboard_mission_t mission;
     mission.mission_creator = key.m_creatorID;
     mission.mission_id = key.m_missionID;
@@ -275,6 +277,7 @@ void ModuleExternalLink::NewlyAvailableOnboardMission(const Data::MissionKey &ke
     mission.mission_system = key.m_systemID;
     mission.mission_state = (uint8_t)Data::MissionTypeState::ONBOARD;
 
+    mavlink_message_t msg;
     mavlink_msg_mace_new_onboard_mission_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&mission);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }

@@ -749,10 +749,10 @@ public:
     */
     bool getMissionList(const int &systemID, const Data::MissionType &type, const Data::MissionTypeState &state, MissionItem::MissionList &missionList) const;
     bool getMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const;
-    bool getCurrentMissionKey(const int &systemID, Data::MissionKey &key);
-    bool getCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission);
-    bool getCurrentMissionValidity(const int &systemID);
-    bool getMissionKeyValidity(const Data::MissionKey &key);
+    bool getCurrentMissionKey(const int &systemID, Data::MissionKey &key) const;
+    bool getCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission) const;
+    bool getCurrentMissionValidity(const int &systemID) const;
+    bool getMissionKeyValidity(const Data::MissionKey &key) const;
 
 
     /*

@@ -251,6 +251,30 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
     {
         mavlink_mace_new_onboard_mission_t decodedMSG;
         mavlink_msg_mace_new_onboard_mission_decode(message,&decodedMSG);
+
+        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
+        Data::MissionTypeState missionState = static_cast<Data::MissionTypeState>(decodedMSG.mission_state);
+
+        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
+
+        bool valid = this->getDataObject()->getMissionKeyValidity(key);
+        if(valid)
+        {
+            //this means we have it already and perhaps the state has changed and we should update it
+        }
+        else{
+            //this mace instance has no idea what that mission profile looks like so lets request more information
+            mavlink_mace_mission_request_list_t request;
+            request.mission_creator = key.m_creatorID;
+            request.mission_id = key.m_missionID;
+            request.mission_type = (uint8_t)key.m_missionType;
+            request.mission_system = key.m_systemID;
+
+            mavlink_message_t msg;
+            mavlink_msg_mace_mission_request_list_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&request);
+            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        }
+
         break;
     }
     case MAVLINK_MSG_ID_MACE_NEW_PROPOSED_MISSION:

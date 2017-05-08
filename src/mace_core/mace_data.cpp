@@ -155,7 +155,7 @@ bool MaceData::getMissionList(const Data::MissionKey &missionKey, MissionItem::M
     return false;
 }
 
-bool MaceData::getCurrentMissionKey(const int &systemID, Data::MissionKey &key)
+bool MaceData::getCurrentMissionKey(const int &systemID, Data::MissionKey &key) const
 {
     bool returnVal = true;
     std::lock_guard<std::mutex> guard(MUTEXMissions);
@@ -168,7 +168,7 @@ bool MaceData::getCurrentMissionKey(const int &systemID, Data::MissionKey &key)
     return returnVal;
 }
 
-bool MaceData::getCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission)
+bool MaceData::getCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission) const
 {
     bool returnVal = true;
     std::lock_guard<std::mutex> guard(MUTEXMissions);
@@ -182,7 +182,7 @@ bool MaceData::getCurrentMission(const int &systemID, MissionItem::MissionList &
     return returnVal;
 }
 
-bool MaceData::getCurrentMissionValidity(const int &systemID)
+bool MaceData::getCurrentMissionValidity(const int &systemID) const
 {
     bool returnVal = true;
     std::lock_guard<std::mutex> guard(MUTEXMissions);
@@ -195,7 +195,7 @@ bool MaceData::getCurrentMissionValidity(const int &systemID)
     return returnVal;
 }
 
-bool MaceData::getMissionKeyValidity(const Data::MissionKey &key)
+bool MaceData::getMissionKeyValidity(const Data::MissionKey &key) const
 {
     std::lock_guard<std::mutex> guard(MUTEXMissions);
     if(mapMissions.count(key) > 0)
