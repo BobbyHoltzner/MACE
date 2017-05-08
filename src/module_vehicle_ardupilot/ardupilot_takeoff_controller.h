@@ -30,9 +30,7 @@ public:
 
     Ardupilot_TakeoffController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan);
 
-    ~Ardupilot_TakeoffController() {
-        std::cout << "Destructor on takeoff controller" << std::endl;
-    }
+    ~Ardupilot_TakeoffController();
 
     void initializeTakeoffSequence(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &takeoff);
     void updatedFlightMode(const DataARDUPILOT::VehicleFlightMode &flightMode);

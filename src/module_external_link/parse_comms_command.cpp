@@ -8,7 +8,7 @@ void ModuleExternalLink::ParseCommsCommand(const mavlink_command_long_t *message
     {
         MissionItem::SpatialHome missionHome = this->getDataObject()->GetVehicleHomePostion(message->target_system);
         DataCOMMS::Mission_MACETOCOMMS missionConvert(message->target_system,message->target_component);
-        mavlink_message_t msg = missionConvert.Home_MACETOCOMMS(missionHome,m_LinkChan,0);
+        mavlink_message_t msg = missionConvert.Home_MACETOCOMMS(missionHome);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         break;
     }
@@ -19,7 +19,7 @@ void ModuleExternalLink::ParseCommsCommand(const mavlink_command_long_t *message
         tmpArm.setVehicleArm(fabs(message->param1) <= 0.001 ? false : true);
         //notify core
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->RequestVehicleArm(this, tmpArm);
+            ptr->Event_ArmVehicle(this, tmpArm);
         });
         break;
     }
@@ -32,7 +32,7 @@ void ModuleExternalLink::ParseCommsCommand(const mavlink_command_long_t *message
         tmpTakeoff.position.altitude = message->param7;
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->RequestVehicleTakeoff(this, tmpTakeoff);
+            ptr->Event_RequestVehicleTakeoff(this, tmpTakeoff);
         });
         break;
     }

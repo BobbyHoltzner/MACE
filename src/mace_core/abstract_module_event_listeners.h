@@ -6,6 +6,7 @@
 #include "command_marshler.h"
 
 #include "i_module_topic_events.h"
+#include <algorithm>
 
 namespace MaceCore
 {
@@ -67,8 +68,19 @@ public:
 
     void addTopicListener(IModuleTopicEvents *listener)
     {
+        std::lock_guard<std::mutex> lock(m_TopicListenerMutex);
         m_TopicListeners.push_back(listener);
         AttachedAsModule(listener);
+    }
+
+    void RemoveTopicListener(IModuleTopicEvents *listener) {
+
+        std::lock_guard<std::mutex> lock(m_TopicListenerMutex);
+
+        m_TopicListeners.erase(std::remove_if(m_TopicListeners.begin(),
+                                              m_TopicListeners.end(),
+                                              [listener](IModuleTopicEvents * x){ return x == listener;}),
+                               m_TopicListeners.end());
     }
 
     void NotifyListenersOfTopic(const std::function<void(IModuleTopicEvents*)> &func) const
@@ -261,6 +273,7 @@ private:
     T m_MetaData;
 
     std::vector<I*> m_Listeners;
+    std::mutex m_TopicListenerMutex;
     std::vector<IModuleTopicEvents*> m_TopicListeners;
 
     std::chrono::milliseconds m_LoopSleepTime;

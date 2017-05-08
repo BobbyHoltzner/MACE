@@ -3330,12 +3330,13 @@ static void mavlink_test_command_ack(uint8_t system_id, uint8_t component_id, ma
         uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
         uint16_t i;
     mavlink_command_ack_t packet_in = {
-        17235,139
+        17235,139,206
     };
     mavlink_command_ack_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
         packet1.command = packet_in.command;
         packet1.result = packet_in.result;
+        packet1.progress = packet_in.progress;
         
         
 #ifdef MAVLINK_STATUS_FLAG_OUT_MAVLINK1
@@ -3350,12 +3351,12 @@ static void mavlink_test_command_ack(uint8_t system_id, uint8_t component_id, ma
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_command_ack_pack(system_id, component_id, &msg , packet1.command , packet1.result );
+    mavlink_msg_command_ack_pack(system_id, component_id, &msg , packet1.command , packet1.result , packet1.progress );
     mavlink_msg_command_ack_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_command_ack_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.command , packet1.result );
+    mavlink_msg_command_ack_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.command , packet1.result , packet1.progress );
     mavlink_msg_command_ack_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
@@ -3368,7 +3369,7 @@ static void mavlink_test_command_ack(uint8_t system_id, uint8_t component_id, ma
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_command_ack_send(MAVLINK_COMM_1 , packet1.command , packet1.result );
+    mavlink_msg_command_ack_send(MAVLINK_COMM_1 , packet1.command , packet1.result , packet1.progress );
     mavlink_msg_command_ack_decode(last_msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
@@ -8441,18 +8442,20 @@ static void mavlink_test_camera_information(uint8_t system_id, uint8_t component
         uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
         uint16_t i;
     mavlink_camera_information_t packet_in = {
-        963497464,45.0,73.0,101.0,18067,18171,65,{ 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163 },{ 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 0, 1, 2, 3 },68
+        963497464,963497672,73.0,101.0,129.0,18275,18379,77,144,{ 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242 },{ 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82 },147
     };
     mavlink_camera_information_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
         packet1.time_boot_ms = packet_in.time_boot_ms;
+        packet1.firmware_version = packet_in.firmware_version;
         packet1.focal_length = packet_in.focal_length;
         packet1.sensor_size_h = packet_in.sensor_size_h;
         packet1.sensor_size_v = packet_in.sensor_size_v;
         packet1.resolution_h = packet_in.resolution_h;
         packet1.resolution_v = packet_in.resolution_v;
         packet1.camera_id = packet_in.camera_id;
-        packet1.lense_id = packet_in.lense_id;
+        packet1.camera_count = packet_in.camera_count;
+        packet1.lens_id = packet_in.lens_id;
         
         mav_array_memcpy(packet1.vendor_name, packet_in.vendor_name, sizeof(uint8_t)*32);
         mav_array_memcpy(packet1.model_name, packet_in.model_name, sizeof(uint8_t)*32);
@@ -8469,12 +8472,12 @@ static void mavlink_test_camera_information(uint8_t system_id, uint8_t component
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_camera_information_pack(system_id, component_id, &msg , packet1.time_boot_ms , packet1.camera_id , packet1.vendor_name , packet1.model_name , packet1.focal_length , packet1.sensor_size_h , packet1.sensor_size_v , packet1.resolution_h , packet1.resolution_v , packet1.lense_id );
+    mavlink_msg_camera_information_pack(system_id, component_id, &msg , packet1.time_boot_ms , packet1.camera_id , packet1.camera_count , packet1.vendor_name , packet1.model_name , packet1.firmware_version , packet1.focal_length , packet1.sensor_size_h , packet1.sensor_size_v , packet1.resolution_h , packet1.resolution_v , packet1.lens_id );
     mavlink_msg_camera_information_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_camera_information_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.time_boot_ms , packet1.camera_id , packet1.vendor_name , packet1.model_name , packet1.focal_length , packet1.sensor_size_h , packet1.sensor_size_v , packet1.resolution_h , packet1.resolution_v , packet1.lense_id );
+    mavlink_msg_camera_information_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.time_boot_ms , packet1.camera_id , packet1.camera_count , packet1.vendor_name , packet1.model_name , packet1.firmware_version , packet1.focal_length , packet1.sensor_size_h , packet1.sensor_size_v , packet1.resolution_h , packet1.resolution_v , packet1.lens_id );
     mavlink_msg_camera_information_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
@@ -8487,7 +8490,7 @@ static void mavlink_test_camera_information(uint8_t system_id, uint8_t component
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_camera_information_send(MAVLINK_COMM_1 , packet1.time_boot_ms , packet1.camera_id , packet1.vendor_name , packet1.model_name , packet1.focal_length , packet1.sensor_size_h , packet1.sensor_size_v , packet1.resolution_h , packet1.resolution_v , packet1.lense_id );
+    mavlink_msg_camera_information_send(MAVLINK_COMM_1 , packet1.time_boot_ms , packet1.camera_id , packet1.camera_count , packet1.vendor_name , packet1.model_name , packet1.firmware_version , packet1.focal_length , packet1.sensor_size_h , packet1.sensor_size_v , packet1.resolution_h , packet1.resolution_v , packet1.lens_id );
     mavlink_msg_camera_information_decode(last_msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
@@ -8504,7 +8507,7 @@ static void mavlink_test_camera_settings(uint8_t system_id, uint8_t component_id
         uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
         uint16_t i;
     mavlink_camera_settings_t packet_in = {
-        963497464,45.0,73.0,101.0,129.0,65,132,199,10,77,144,211,22
+        963497464,45.0,73.0,101.0,129.0,157.0,77,144,211,22,89,156,223,34
     };
     mavlink_camera_settings_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
@@ -8512,15 +8515,16 @@ static void mavlink_test_camera_settings(uint8_t system_id, uint8_t component_id
         packet1.aperture = packet_in.aperture;
         packet1.shutter_speed = packet_in.shutter_speed;
         packet1.iso_sensitivity = packet_in.iso_sensitivity;
+        packet1.ev = packet_in.ev;
         packet1.white_balance = packet_in.white_balance;
         packet1.camera_id = packet_in.camera_id;
-        packet1.aperture_locked = packet_in.aperture_locked;
-        packet1.shutter_speed_locked = packet_in.shutter_speed_locked;
-        packet1.iso_sensitivity_locked = packet_in.iso_sensitivity_locked;
-        packet1.white_balance_locked = packet_in.white_balance_locked;
+        packet1.exposure_mode = packet_in.exposure_mode;
         packet1.mode_id = packet_in.mode_id;
+        packet1.audio_recording = packet_in.audio_recording;
         packet1.color_mode_id = packet_in.color_mode_id;
         packet1.image_format_id = packet_in.image_format_id;
+        packet1.image_quality_id = packet_in.image_quality_id;
+        packet1.metering_mode_id = packet_in.metering_mode_id;
         
         
 #ifdef MAVLINK_STATUS_FLAG_OUT_MAVLINK1
@@ -8535,12 +8539,12 @@ static void mavlink_test_camera_settings(uint8_t system_id, uint8_t component_id
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_camera_settings_pack(system_id, component_id, &msg , packet1.time_boot_ms , packet1.camera_id , packet1.aperture , packet1.aperture_locked , packet1.shutter_speed , packet1.shutter_speed_locked , packet1.iso_sensitivity , packet1.iso_sensitivity_locked , packet1.white_balance , packet1.white_balance_locked , packet1.mode_id , packet1.color_mode_id , packet1.image_format_id );
+    mavlink_msg_camera_settings_pack(system_id, component_id, &msg , packet1.time_boot_ms , packet1.camera_id , packet1.exposure_mode , packet1.aperture , packet1.shutter_speed , packet1.iso_sensitivity , packet1.ev , packet1.white_balance , packet1.mode_id , packet1.audio_recording , packet1.color_mode_id , packet1.image_format_id , packet1.image_quality_id , packet1.metering_mode_id );
     mavlink_msg_camera_settings_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_camera_settings_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.time_boot_ms , packet1.camera_id , packet1.aperture , packet1.aperture_locked , packet1.shutter_speed , packet1.shutter_speed_locked , packet1.iso_sensitivity , packet1.iso_sensitivity_locked , packet1.white_balance , packet1.white_balance_locked , packet1.mode_id , packet1.color_mode_id , packet1.image_format_id );
+    mavlink_msg_camera_settings_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.time_boot_ms , packet1.camera_id , packet1.exposure_mode , packet1.aperture , packet1.shutter_speed , packet1.iso_sensitivity , packet1.ev , packet1.white_balance , packet1.mode_id , packet1.audio_recording , packet1.color_mode_id , packet1.image_format_id , packet1.image_quality_id , packet1.metering_mode_id );
     mavlink_msg_camera_settings_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
@@ -8553,7 +8557,7 @@ static void mavlink_test_camera_settings(uint8_t system_id, uint8_t component_id
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_camera_settings_send(MAVLINK_COMM_1 , packet1.time_boot_ms , packet1.camera_id , packet1.aperture , packet1.aperture_locked , packet1.shutter_speed , packet1.shutter_speed_locked , packet1.iso_sensitivity , packet1.iso_sensitivity_locked , packet1.white_balance , packet1.white_balance_locked , packet1.mode_id , packet1.color_mode_id , packet1.image_format_id );
+    mavlink_msg_camera_settings_send(MAVLINK_COMM_1 , packet1.time_boot_ms , packet1.camera_id , packet1.exposure_mode , packet1.aperture , packet1.shutter_speed , packet1.iso_sensitivity , packet1.ev , packet1.white_balance , packet1.mode_id , packet1.audio_recording , packet1.color_mode_id , packet1.image_format_id , packet1.image_quality_id , packet1.metering_mode_id );
     mavlink_msg_camera_settings_decode(last_msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
@@ -8570,7 +8574,7 @@ static void mavlink_test_storage_information(uint8_t system_id, uint8_t componen
         uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
         uint16_t i;
     mavlink_storage_information_t packet_in = {
-        963497464,45.0,73.0,101.0,129.0,157.0,77,144
+        963497464,45.0,73.0,101.0,129.0,157.0,77,144,211
     };
     mavlink_storage_information_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
@@ -8581,6 +8585,7 @@ static void mavlink_test_storage_information(uint8_t system_id, uint8_t componen
         packet1.read_speed = packet_in.read_speed;
         packet1.write_speed = packet_in.write_speed;
         packet1.storage_id = packet_in.storage_id;
+        packet1.storage_count = packet_in.storage_count;
         packet1.status = packet_in.status;
         
         
@@ -8596,12 +8601,12 @@ static void mavlink_test_storage_information(uint8_t system_id, uint8_t componen
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_storage_information_pack(system_id, component_id, &msg , packet1.time_boot_ms , packet1.storage_id , packet1.status , packet1.total_capacity , packet1.used_capacity , packet1.available_capacity , packet1.read_speed , packet1.write_speed );
+    mavlink_msg_storage_information_pack(system_id, component_id, &msg , packet1.time_boot_ms , packet1.storage_id , packet1.storage_count , packet1.status , packet1.total_capacity , packet1.used_capacity , packet1.available_capacity , packet1.read_speed , packet1.write_speed );
     mavlink_msg_storage_information_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_storage_information_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.time_boot_ms , packet1.storage_id , packet1.status , packet1.total_capacity , packet1.used_capacity , packet1.available_capacity , packet1.read_speed , packet1.write_speed );
+    mavlink_msg_storage_information_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.time_boot_ms , packet1.storage_id , packet1.storage_count , packet1.status , packet1.total_capacity , packet1.used_capacity , packet1.available_capacity , packet1.read_speed , packet1.write_speed );
     mavlink_msg_storage_information_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
@@ -8614,7 +8619,7 @@ static void mavlink_test_storage_information(uint8_t system_id, uint8_t componen
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_storage_information_send(MAVLINK_COMM_1 , packet1.time_boot_ms , packet1.storage_id , packet1.status , packet1.total_capacity , packet1.used_capacity , packet1.available_capacity , packet1.read_speed , packet1.write_speed );
+    mavlink_msg_storage_information_send(MAVLINK_COMM_1 , packet1.time_boot_ms , packet1.storage_id , packet1.storage_count , packet1.status , packet1.total_capacity , packet1.used_capacity , packet1.available_capacity , packet1.read_speed , packet1.write_speed );
     mavlink_msg_storage_information_decode(last_msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }

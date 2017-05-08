@@ -97,12 +97,16 @@ headers_MAVLINK_to_MACE.files   += \
 INSTALLS       += headers_MAVLINK_to_MACE
 
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/common/
+INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/ardupilotmega/
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
 else:unix:!macx: LIBS += -L$$OUT_PWD/../common/ -lcommon
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../comms/release/ -lcomms
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../comms/debug/ -lcomms
+else:unix:!macx: LIBS += -L$$OUT_PWD/../comms/ -lcomms
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata

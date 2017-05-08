@@ -1,36 +1,45 @@
 #pragma once
 // MESSAGE MACE_MISSION_CURRENT PACKING
 
-#define MAVLINK_MSG_ID_MACE_MISSION_CURRENT 305
+#define MAVLINK_MSG_ID_MACE_MISSION_CURRENT 191
 
 MAVPACKED(
 typedef struct __mavlink_mace_mission_current_t {
  uint16_t seq; /*< Sequence*/
+ uint8_t mission_creator; /*< Creator ID*/
+ uint8_t mission_id; /*< Mission ID*/
+ uint8_t mission_type; /*< Mission type, see MACE_MISSION_TYPE*/
 }) mavlink_mace_mission_current_t;
 
-#define MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN 2
-#define MAVLINK_MSG_ID_MACE_MISSION_CURRENT_MIN_LEN 2
-#define MAVLINK_MSG_ID_305_LEN 2
-#define MAVLINK_MSG_ID_305_MIN_LEN 2
+#define MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN 5
+#define MAVLINK_MSG_ID_MACE_MISSION_CURRENT_MIN_LEN 5
+#define MAVLINK_MSG_ID_191_LEN 5
+#define MAVLINK_MSG_ID_191_MIN_LEN 5
 
-#define MAVLINK_MSG_ID_MACE_MISSION_CURRENT_CRC 88
-#define MAVLINK_MSG_ID_305_CRC 88
+#define MAVLINK_MSG_ID_MACE_MISSION_CURRENT_CRC 105
+#define MAVLINK_MSG_ID_191_CRC 105
 
 
 
 #if MAVLINK_COMMAND_24BIT
 #define MAVLINK_MESSAGE_INFO_MACE_MISSION_CURRENT { \
-    305, \
+    191, \
     "MACE_MISSION_CURRENT", \
-    1, \
+    4, \
     {  { "seq", NULL, MAVLINK_TYPE_UINT16_T, 0, 0, offsetof(mavlink_mace_mission_current_t, seq) }, \
+         { "mission_creator", NULL, MAVLINK_TYPE_UINT8_T, 0, 2, offsetof(mavlink_mace_mission_current_t, mission_creator) }, \
+         { "mission_id", NULL, MAVLINK_TYPE_UINT8_T, 0, 3, offsetof(mavlink_mace_mission_current_t, mission_id) }, \
+         { "mission_type", NULL, MAVLINK_TYPE_UINT8_T, 0, 4, offsetof(mavlink_mace_mission_current_t, mission_type) }, \
          } \
 }
 #else
 #define MAVLINK_MESSAGE_INFO_MACE_MISSION_CURRENT { \
     "MACE_MISSION_CURRENT", \
-    1, \
+    4, \
     {  { "seq", NULL, MAVLINK_TYPE_UINT16_T, 0, 0, offsetof(mavlink_mace_mission_current_t, seq) }, \
+         { "mission_creator", NULL, MAVLINK_TYPE_UINT8_T, 0, 2, offsetof(mavlink_mace_mission_current_t, mission_creator) }, \
+         { "mission_id", NULL, MAVLINK_TYPE_UINT8_T, 0, 3, offsetof(mavlink_mace_mission_current_t, mission_id) }, \
+         { "mission_type", NULL, MAVLINK_TYPE_UINT8_T, 0, 4, offsetof(mavlink_mace_mission_current_t, mission_type) }, \
          } \
 }
 #endif
@@ -41,20 +50,29 @@ typedef struct __mavlink_mace_mission_current_t {
  * @param component_id ID of this component (e.g. 200 for IMU)
  * @param msg The MAVLink message to compress the data into
  *
+ * @param mission_creator Creator ID
+ * @param mission_id Mission ID
+ * @param mission_type Mission type, see MACE_MISSION_TYPE
  * @param seq Sequence
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_mace_mission_current_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
-                               uint16_t seq)
+                               uint8_t mission_creator, uint8_t mission_id, uint8_t mission_type, uint16_t seq)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
     char buf[MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN];
     _mav_put_uint16_t(buf, 0, seq);
+    _mav_put_uint8_t(buf, 2, mission_creator);
+    _mav_put_uint8_t(buf, 3, mission_id);
+    _mav_put_uint8_t(buf, 4, mission_type);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN);
 #else
     mavlink_mace_mission_current_t packet;
     packet.seq = seq;
+    packet.mission_creator = mission_creator;
+    packet.mission_id = mission_id;
+    packet.mission_type = mission_type;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN);
 #endif
@@ -69,21 +87,30 @@ static inline uint16_t mavlink_msg_mace_mission_current_pack(uint8_t system_id, 
  * @param component_id ID of this component (e.g. 200 for IMU)
  * @param chan The MAVLink channel this message will be sent over
  * @param msg The MAVLink message to compress the data into
+ * @param mission_creator Creator ID
+ * @param mission_id Mission ID
+ * @param mission_type Mission type, see MACE_MISSION_TYPE
  * @param seq Sequence
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_mace_mission_current_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
                                mavlink_message_t* msg,
-                                   uint16_t seq)
+                                   uint8_t mission_creator,uint8_t mission_id,uint8_t mission_type,uint16_t seq)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
     char buf[MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN];
     _mav_put_uint16_t(buf, 0, seq);
+    _mav_put_uint8_t(buf, 2, mission_creator);
+    _mav_put_uint8_t(buf, 3, mission_id);
+    _mav_put_uint8_t(buf, 4, mission_type);
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN);
 #else
     mavlink_mace_mission_current_t packet;
     packet.seq = seq;
+    packet.mission_creator = mission_creator;
+    packet.mission_id = mission_id;
+    packet.mission_type = mission_type;
 
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN);
 #endif
@@ -102,7 +129,7 @@ static inline uint16_t mavlink_msg_mace_mission_current_pack_chan(uint8_t system
  */
 static inline uint16_t mavlink_msg_mace_mission_current_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_mace_mission_current_t* mace_mission_current)
 {
-    return mavlink_msg_mace_mission_current_pack(system_id, component_id, msg, mace_mission_current->seq);
+    return mavlink_msg_mace_mission_current_pack(system_id, component_id, msg, mace_mission_current->mission_creator, mace_mission_current->mission_id, mace_mission_current->mission_type, mace_mission_current->seq);
 }
 
 /**
@@ -116,27 +143,36 @@ static inline uint16_t mavlink_msg_mace_mission_current_encode(uint8_t system_id
  */
 static inline uint16_t mavlink_msg_mace_mission_current_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mavlink_message_t* msg, const mavlink_mace_mission_current_t* mace_mission_current)
 {
-    return mavlink_msg_mace_mission_current_pack_chan(system_id, component_id, chan, msg, mace_mission_current->seq);
+    return mavlink_msg_mace_mission_current_pack_chan(system_id, component_id, chan, msg, mace_mission_current->mission_creator, mace_mission_current->mission_id, mace_mission_current->mission_type, mace_mission_current->seq);
 }
 
 /**
  * @brief Send a mace_mission_current message
  * @param chan MAVLink channel to send the message
  *
+ * @param mission_creator Creator ID
+ * @param mission_id Mission ID
+ * @param mission_type Mission type, see MACE_MISSION_TYPE
  * @param seq Sequence
  */
 #ifdef MAVLINK_USE_CONVENIENCE_FUNCTIONS
 
-static inline void mavlink_msg_mace_mission_current_send(mavlink_channel_t chan, uint16_t seq)
+static inline void mavlink_msg_mace_mission_current_send(mavlink_channel_t chan, uint8_t mission_creator, uint8_t mission_id, uint8_t mission_type, uint16_t seq)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
     char buf[MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN];
     _mav_put_uint16_t(buf, 0, seq);
+    _mav_put_uint8_t(buf, 2, mission_creator);
+    _mav_put_uint8_t(buf, 3, mission_id);
+    _mav_put_uint8_t(buf, 4, mission_type);
 
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_MACE_MISSION_CURRENT, buf, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_MIN_LEN, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_CRC);
 #else
     mavlink_mace_mission_current_t packet;
     packet.seq = seq;
+    packet.mission_creator = mission_creator;
+    packet.mission_id = mission_id;
+    packet.mission_type = mission_type;
 
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_MACE_MISSION_CURRENT, (const char *)&packet, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_MIN_LEN, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_CRC);
 #endif
@@ -150,7 +186,7 @@ static inline void mavlink_msg_mace_mission_current_send(mavlink_channel_t chan,
 static inline void mavlink_msg_mace_mission_current_send_struct(mavlink_channel_t chan, const mavlink_mace_mission_current_t* mace_mission_current)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-    mavlink_msg_mace_mission_current_send(chan, mace_mission_current->seq);
+    mavlink_msg_mace_mission_current_send(chan, mace_mission_current->mission_creator, mace_mission_current->mission_id, mace_mission_current->mission_type, mace_mission_current->seq);
 #else
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_MACE_MISSION_CURRENT, (const char *)mace_mission_current, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_MIN_LEN, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_CRC);
 #endif
@@ -164,16 +200,22 @@ static inline void mavlink_msg_mace_mission_current_send_struct(mavlink_channel_
   is usually the receive buffer for the channel, and allows a reply to an
   incoming message with minimum stack space usage.
  */
-static inline void mavlink_msg_mace_mission_current_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  uint16_t seq)
+static inline void mavlink_msg_mace_mission_current_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  uint8_t mission_creator, uint8_t mission_id, uint8_t mission_type, uint16_t seq)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
     char *buf = (char *)msgbuf;
     _mav_put_uint16_t(buf, 0, seq);
+    _mav_put_uint8_t(buf, 2, mission_creator);
+    _mav_put_uint8_t(buf, 3, mission_id);
+    _mav_put_uint8_t(buf, 4, mission_type);
 
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_MACE_MISSION_CURRENT, buf, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_MIN_LEN, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_CRC);
 #else
     mavlink_mace_mission_current_t *packet = (mavlink_mace_mission_current_t *)msgbuf;
     packet->seq = seq;
+    packet->mission_creator = mission_creator;
+    packet->mission_id = mission_id;
+    packet->mission_type = mission_type;
 
     _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_MACE_MISSION_CURRENT, (const char *)packet, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_MIN_LEN, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_CRC);
 #endif
@@ -184,6 +226,36 @@ static inline void mavlink_msg_mace_mission_current_send_buf(mavlink_message_t *
 
 // MESSAGE MACE_MISSION_CURRENT UNPACKING
 
+
+/**
+ * @brief Get field mission_creator from mace_mission_current message
+ *
+ * @return Creator ID
+ */
+static inline uint8_t mavlink_msg_mace_mission_current_get_mission_creator(const mavlink_message_t* msg)
+{
+    return _MAV_RETURN_uint8_t(msg,  2);
+}
+
+/**
+ * @brief Get field mission_id from mace_mission_current message
+ *
+ * @return Mission ID
+ */
+static inline uint8_t mavlink_msg_mace_mission_current_get_mission_id(const mavlink_message_t* msg)
+{
+    return _MAV_RETURN_uint8_t(msg,  3);
+}
+
+/**
+ * @brief Get field mission_type from mace_mission_current message
+ *
+ * @return Mission type, see MACE_MISSION_TYPE
+ */
+static inline uint8_t mavlink_msg_mace_mission_current_get_mission_type(const mavlink_message_t* msg)
+{
+    return _MAV_RETURN_uint8_t(msg,  4);
+}
 
 /**
  * @brief Get field seq from mace_mission_current message
@@ -205,6 +277,9 @@ static inline void mavlink_msg_mace_mission_current_decode(const mavlink_message
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
     mace_mission_current->seq = mavlink_msg_mace_mission_current_get_seq(msg);
+    mace_mission_current->mission_creator = mavlink_msg_mace_mission_current_get_mission_creator(msg);
+    mace_mission_current->mission_id = mavlink_msg_mace_mission_current_get_mission_id(msg);
+    mace_mission_current->mission_type = mavlink_msg_mace_mission_current_get_mission_type(msg);
 #else
         uint8_t len = msg->len < MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN? msg->len : MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN;
         memset(mace_mission_current, 0, MAVLINK_MSG_ID_MACE_MISSION_CURRENT_LEN);

@@ -15,7 +15,9 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(message,&decodedMSG);
 
-        MissionItem::MissionList missionList = vehicleData->data->getCurrentMission(Data::MissionType::AUTO);
+        //If there was a mission list in the core, this means that we have previously
+        //received a count and therefore should expect a full new mission
+        MissionItem::MissionList missionList = vehicleData->data->Command_GetCurrentMission(Data::MissionType::AUTO);
 
         if(decodedMSG.seq == 0)
         {
@@ -32,7 +34,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
             //04/03/2017 Ken Fix This
             std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = vehicleData->Covert_MAVLINKTOMACE(decodedMSG);
             missionList.replaceMissionItemAtIndex(newMissionItem,currentIndex);
-            vehicleData->data->setCurrentMission(missionList);
+            vehicleData->data->Command_SetCurrentMission(missionList);
         }
 
         MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
@@ -44,11 +46,9 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         }else{
             //We should update the core
-
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                ptr->NewOnboardVehicleMission(this, missionList);
+                ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
             });
-            //m_ArdupilotController.at(sysID)->updatedMission(missionList);
             //We should update all listeners
             std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>(missionList);
 
@@ -59,9 +59,6 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
                 ptr->NewTopicDataValues(this, m_VehicleMission.Name(), sysID, MaceCore::TIME(), topicDatagram);
             });
         }
-
-        //If there was a mission list in the core, this means that we have previously
-        //received a count and therefore should expect a full new mission
 
         break;
     }
@@ -142,7 +139,6 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         mavlink_msg_mission_count_decode(message,&decodedMSG);
 
         int queueSize = decodedMSG.count - 1; //we have to decrement 1 here because in actuality ardupilot references home as 0
-
         try {
             MissionItem::MissionList newMissionList(sysID,sysID,Data::MissionType::AUTO,Data::MissionTypeState::CURRENT,queueSize);
 
@@ -155,7 +151,6 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         catch (std::exception e) {
             std::cout << "Cannot initialize mission of size 0." << std::endl;
         }
-
         break;
     }
     case MAVLINK_MSG_ID_MISSION_CLEAR_ALL:
@@ -202,12 +197,13 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         //Ack message during MISSION handling. The type field states if this message is a positive ack (type=0) or if an error happened (type=non-zero).
         mavlink_mission_ack_t decodedMSG;
         mavlink_msg_mission_ack_decode(message,&decodedMSG);
+
         //The only way this item is called is if there is a new auto mission aboard the aircraft
-        if((decodedMSG.mission_type == MAV_MISSION_TYPE_MISSION) && (decodedMSG.type == MAV_MISSION_ACCEPTED))
+        if((decodedMSG.type == MAV_MISSION_ACCEPTED) && (decodedMSG.mission_type == MAV_MISSION_TYPE_MISSION))
         {
             Data::MissionKey missionKey = vehicleData->data->proposedMissionConfirmed();
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                ptr->ConfirmedOnboardVehicleMission(this, missionKey);
+                ptr->EventVehicle_ACKProposedMission(this, missionKey);
             });
         }
         break;

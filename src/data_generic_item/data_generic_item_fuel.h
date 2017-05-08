@@ -12,7 +12,6 @@ public:
 
     DataGenericItem_Fuel(const DataGenericItem_Fuel &copyObj);
 
-
     void setBatteryVoltage(const double &voltage){
         this->voltage = voltage;
     }

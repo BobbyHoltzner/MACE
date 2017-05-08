@@ -22,6 +22,12 @@ MissionList::MissionList(const int &vehicleID, const int &creatorID, const Data:
     initializeQueue(size);
 }
 
+MissionList::MissionList(const int &vehicleID, const int &creatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTypeState &state, const int &size) :
+    missionKey(vehicleID,creatorID,missionID,missionType), missionTypeState(state),activeMissionItem(0)
+{
+    initializeQueue(size);
+}
+
 MissionList::MissionList(const MissionList &rhs)
 {
     this->missionKey = rhs.missionKey;
@@ -85,7 +91,7 @@ void MissionList::replaceMissionItemAtIndex(const std::shared_ptr<AbstractMissio
     missionQueue[index] = missionItem;
 }
 
-std::shared_ptr<AbstractMissionItem> MissionList::getMissionItem(const int &index)
+std::shared_ptr<AbstractMissionItem> MissionList::getMissionItem(const int &index) const
 {
     return missionQueue[index];
 }

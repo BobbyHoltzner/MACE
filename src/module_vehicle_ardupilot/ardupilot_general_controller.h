@@ -23,6 +23,9 @@
 #include "ardupilot_threadmanager.h"
 #include "ardupilot_mission_state.h"
 
+#include <functional>
+#include <list>
+
 class Ardupilot_GeneralController : public Thread
 {
 public:
@@ -31,6 +34,10 @@ public:
         CONTROLLER_GUIDED,
         CONTROLLER_TAKEOFF
     };
+
+private:
+
+
 
 public:
     Ardupilot_GeneralController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan);
@@ -42,11 +49,14 @@ public:
 
     void terminateObject();
 
+    /*
     virtual void updateFlightMode(const DataARDUPILOT::VehicleFlightMode &flightMode, const bool &updateFlag  = true);
     virtual void updatedHomePostion(const MissionItem::SpatialHome &homePosition, const bool &updateFlag  = true);
     virtual void updateAttitudeTopic(const DataState::StateAttitude &attitude, const bool &updateFlag  = true);
     virtual void updateGlobalPositionTopic(const DataState::StateGlobalPosition &globalPosition, const bool &updateFlag  = true);
+    */
     virtual void updateCommandACK(const mavlink_command_ack_t &cmdACK) = 0;
+
 
 protected:
     controllerTypes controllerType;
@@ -69,10 +79,27 @@ protected:
     //Methods for determining state of the vehicle
     ArdupilotMissionState vehicleMissionState;
 
+    /*
     DataARDUPILOT::VehicleFlightMode currentVehicleMode;
     MissionItem::SpatialHome currentHome;
     DataState::StateGlobalPosition currentPosition;
     DataState::StateAttitude currentAttitude;
+    */
+
+protected:
+
+
+    std::list<std::function<void()>> m_LambdasToRun;
+
+    void RunPendingTasks() {
+        while(m_LambdasToRun.size() > 0) {
+            auto lambda = m_LambdasToRun.front();
+            m_LambdasToRun.pop_front();
+            lambda();
+        }
+    }
+
+
 };
 
 #endif // ARDUPILOT_GENERAL_CONTROLLER_H

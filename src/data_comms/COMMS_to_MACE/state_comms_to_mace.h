@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-#include "mavlink.h"
+#include "mavlink_MACE.h"
 
 #include "data/coordinate_frame.h"
 #include "data/positional_coordinate_frame.h"

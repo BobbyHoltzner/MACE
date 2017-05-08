@@ -14,7 +14,7 @@ namespace MaceCore
 enum class GroundStationCommands
 {
     NEW_AVAILABLE_VEHICLE,
-    NEW_AVAILABLE_CURRENT_MISSION
+    NEWLY_AVAILABLE_CURRENT_MISSION
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandGroundStation : public AbstractModule_EventListeners<Metadata_GroundStation, IModuleEventsGroundStation, GroundStationCommands>
@@ -31,7 +31,7 @@ public:
             NewlyAvailableVehicle(vehicleID);
         });
 
-        AddCommandLogic<Data::MissionKey>(GroundStationCommands::NEW_AVAILABLE_CURRENT_MISSION, [this](const Data::MissionKey &missionKey){
+        AddCommandLogic<Data::MissionKey>(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION, [this](const Data::MissionKey &missionKey){
             NewlyAvailableCurrentMission(missionKey);
         });
     }
