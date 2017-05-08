@@ -316,8 +316,7 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
         mavlink_msg_mace_mission_count_decode(message,&decodedMSG);
 
         Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        //KEN FIX COME BACK
-        //Data::MissionTypeState missionState = static_cast<Data::MissionTypeState>(decodedMSG.mission_state);
+        Data::MissionTypeState missionState = static_cast<Data::MissionTypeState>(decodedMSG.mission_state);
 
         MissionItem::MissionList newMissionList(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState,decodedMSG.count);
         MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();

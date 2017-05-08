@@ -62,6 +62,8 @@ void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink>
 {
     externalLink->addListener(this);
     externalLink->addTopicListener(this);
+    //KEN Fix this...make dynamic based on learned information
+    m_ExternalLink[254] = externalLink;
 }
 
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
@@ -356,7 +358,8 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
     {
         //we need to transfer this to the ground station
         std::cout<<"we should be transferring this mission to the ground station if available."<<std::endl;
-        m_ExternalLink->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,missionList.getMissionKey());
+        //KEN FIX THIS
+        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,missionList.getMissionKey());
     }
 }
 
@@ -374,7 +377,8 @@ void MaceCore::EventVehicle_ACKProposedMission(const void *sender, const Data::M
     {
         //we need to transfer this to the ground station
         std::cout<<"we should be transferring this mission to the ground station if available."<<std::endl;
-        m_ExternalLink->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,missionList.getMissionKey());
+        //KEN FIX THIS
+        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,key);
     }
 }
 
@@ -401,9 +405,6 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
 
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
-    MissionItem::SpatialHome newOrigin;
-    newOrigin.position = DataState::StateGlobalPosition(37.890810,-76.814833,0.0);
-    m_DataFusion->UpdateGlobalOrigin(newOrigin);
 }
 
 void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)

@@ -271,9 +271,9 @@ void ModuleExternalLink::NewlyAvailableOnboardMission(const Data::MissionKey &ke
     mavlink_mace_new_onboard_mission_t mission;
     mission.mission_creator = key.m_creatorID;
     mission.mission_id = key.m_missionID;
-    mission.mission_type = key.m_missionType;
+    mission.mission_type = (uint8_t)key.m_missionType;
     mission.mission_system = key.m_systemID;
-    mission.mission_state = Data::MissionTypeState::ONBOARD;
+    mission.mission_state = (uint8_t)Data::MissionTypeState::ONBOARD;
 
     mavlink_msg_mace_new_onboard_mission_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&mission);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);

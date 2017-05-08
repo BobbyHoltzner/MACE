@@ -35,7 +35,7 @@ public:
     IModuleCommandExternalLink():
         AbstractModule_VehicleListener()
     {
-        AddCommandLogic<int>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const Data::MissionKey &key){
+        AddCommandLogic<Data::MissionKey>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const Data::MissionKey &key){
             NewlyAvailableOnboardMission(key);
         });
     }
