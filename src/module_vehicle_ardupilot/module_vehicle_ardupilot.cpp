@@ -160,7 +160,7 @@ void ModuleVehicleArdupilot::UpdateMissionKey(const Data::MissionKeyChange &key)
     if(missionList.getMissionKey() == key.oldKey)
     {
         missionList.setMissionKey(key.newKey);
-        tmpData->data->Command_SetCurrentMission(missionList);
+        tmpData->data->setCurrentMission(missionList);
     }
 }
 

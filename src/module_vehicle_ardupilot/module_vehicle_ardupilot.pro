@@ -27,7 +27,6 @@ HEADERS += module_vehicle_ardupilot.h\
     ardupilot_guided_controller.h \
     ardupilot_mission_state.h \
     ardupilot_takeoff_controller.h \
-    ardupilot_threadmanager.h \
     ardupilot_general_controller.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/ardupilotmega/

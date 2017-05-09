@@ -1,6 +1,5 @@
-#ifndef ARDUPILOT_THREADMANAGER_H
-#define ARDUPILOT_THREADMANAGER_H
-
+#ifndef THREADMANAGER_H
+#define THREADMANAGER_H
 #include <thread>
 
 class Thread {
@@ -39,4 +38,4 @@ protected:
     std::thread *mThread;
 };
 
-#endif // ARDUPILOT_THREADMANAGER_H
+#endif // THREADMANAGER_H
