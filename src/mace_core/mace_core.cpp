@@ -483,6 +483,10 @@ void MaceCore::ExternalEvent_FinishedRXCurrentQueue(const void* sender, const Mi
     //This will put it into the standard map in which the data is apart of working classes
     m_DataFusion->receivedNewCurrentMission(missionList);
     //Notify the relevant listeners that we have received a proposed mission queue
+    if(m_GroundStation)
+    {
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,missionList.getMissionKey());
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////
