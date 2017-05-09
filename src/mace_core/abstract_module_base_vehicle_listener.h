@@ -6,7 +6,7 @@
 
 #include "data/mission_key.h"
 
-#define BASE_MODULE_VEHICLE_LISTENER_ENUMS CHANGE_VEHICLE_ARM,CHANGE_VEHICLE_MODE,REQUEST_VEHICLE_TAKEOFF, \
+#define BASE_MODULE_VEHICLE_LISTENER_ENUMS CHANGE_VEHICLE_ARM,CHANGE_VEHICLE_MODE,REQUEST_VEHICLE_TAKEOFF,EMIT_HEARTBEAT, \
     UPLOAD_MISSION, SET_CURRENT_MISSION, REQUEST_CURRENT_MISSION, REQUEST_MISSION, CLEAR_CURRENT_MISSION,\
     REQUEST_ONBOARD_AUTO_MISSION, CLEAR_ONBOARD_AUTO_MISSION, \
     REQUEST_ONBOARD_GUIDED_MISSION, CLEAR_ONBOARD_GUIDED_MISSION, \
@@ -48,6 +48,10 @@ public:
 
         this->template AddCommandLogic<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>>(CT::REQUEST_VEHICLE_TAKEOFF, [this](const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff){
             Command_RequestVehicleTakeoff(vehicleTakeoff);
+        });
+
+        this->template AddCommandLogic<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>>(CT::EMIT_HEARTBEAT, [this](const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &heartbeat){
+            Command_EmitHeartbeat(heartbeat);
         });
 
 
@@ -125,6 +129,7 @@ public:
     virtual void Command_ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm) = 0;
     virtual void Command_ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
     virtual void Command_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
+    virtual void Command_EmitHeartbeat(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &heartbeat) = 0;
 
     virtual void Command_UploadMission(const MissionItem::MissionList &missionList) = 0;
     virtual void Command_SetCurrentMission(const Data::MissionKey &key) = 0;

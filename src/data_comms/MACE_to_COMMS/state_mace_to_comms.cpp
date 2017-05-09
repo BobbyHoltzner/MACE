@@ -34,9 +34,9 @@ mavlink_message_t State_MACETOCOMMS::GlobalPosition_MACETOCOMMS(const DataState:
 {
     mavlink_message_t msg;
     mavlink_global_position_int_t position;
-    position.lat = (int32_t)stateItem.latitude * pow(10,7);
-    position.lon = (int32_t)stateItem.longitude * pow(10,7);
-    position.alt = (int32_t)stateItem.altitude * 1000.0;
+    position.lat = (int32_t)(stateItem.latitude * pow(10,7));
+    position.lon = (int32_t)(stateItem.longitude * pow(10,7));
+    position.alt = (int32_t)(stateItem.altitude * 1000.0);
     mavlink_msg_global_position_int_encode_chan(systemID,compID,chan,&msg,&position);
     return(msg);
 }

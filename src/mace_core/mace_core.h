@@ -25,10 +25,11 @@
 #include "i_module_events_sensors.h"
 #include "i_module_events_vehicle.h"
 
-
 #include "i_module_topic_events.h"
 
 #include "topic.h"
+
+#include "core_heartbeat.h"
 
 namespace MaceCore
 {

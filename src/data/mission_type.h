@@ -14,7 +14,7 @@ enum class MissionTypeState : uint8_t
     ONBOARD,
     OUTDATED,
     PROPOSED,
-    TRANSMITTED
+    RECEIVED
 };
 
 inline std::string MissionTypeStateToString(const MissionTypeState &cmdType) {
@@ -27,8 +27,8 @@ inline std::string MissionTypeStateToString(const MissionTypeState &cmdType) {
         return "OUTDATED";
     case MissionTypeState::PROPOSED:
         return "PROPOSED";
-    case MissionTypeState::TRANSMITTED:
-        return "TRANSMITTED";
+    case MissionTypeState::RECEIVED:
+        return "RECEIVED";
     default:
         throw std::runtime_error("Unknown MissionTypeState seen");
     }
@@ -43,8 +43,8 @@ inline MissionTypeState MissionTypeStateFromString(const std::string &str) {
         return MissionTypeState::OUTDATED;
     if(str == "PROPOSED")
         return MissionTypeState::PROPOSED;
-    if(str == "TRANSMITTED")
-        return MissionTypeState::TRANSMITTED;
+    if(str == "RECEIVED")
+        return MissionTypeState::RECEIVED;
     throw std::runtime_error("Unknown string MissionTypeState seen");
 }
 

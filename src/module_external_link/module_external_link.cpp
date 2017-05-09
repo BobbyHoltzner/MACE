@@ -68,7 +68,7 @@ void ModuleExternalLink::MACEMessage(const std::string &linkName, const mavlink_
 
 void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
-    /*
+
     //In relevance to the external link module, the module when receiving a new topic should pack that up for transmission
     //to other instances of MACE
     //example read of vehicle data
@@ -129,9 +129,6 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             }
         }
     }
-
-    */
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -159,6 +156,11 @@ void ModuleExternalLink::Command_RequestVehicleTakeoff(const MissionItem::Spatia
 {
     mavlink_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateTakeoffMessage(vehicleTakeoff,m_LinkChan);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+}
+
+void ModuleExternalLink::Command_EmitHeartbeat(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &heartbeat)
+{
+
 }
 
 /////////////////////////////////////////////////////////////////////////////

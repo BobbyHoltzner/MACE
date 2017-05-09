@@ -112,6 +112,11 @@ public:
     //!
     virtual void Command_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
+    //!
+    //! \brief Command_EmitHeartbeat
+    //! \param heartbeat
+    //!
+    virtual void Command_EmitHeartbeat(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &heartbeat);
 
     /////////////////////////////////////////////////////////////////////////
     /// GENERAL MISSION EVENTS: This is implying for auto mode of the vehicle.
