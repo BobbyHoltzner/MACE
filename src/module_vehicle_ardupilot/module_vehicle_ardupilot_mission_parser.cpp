@@ -34,7 +34,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
             //04/03/2017 Ken Fix This
             std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = vehicleData->Covert_MAVLINKTOMACE(decodedMSG);
             missionList.replaceMissionItemAtIndex(newMissionItem,currentIndex);
-            vehicleData->data->Command_SetCurrentMission(missionList);
+            vehicleData->data->setCurrentMission(missionList);
         }
 
         MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
@@ -141,9 +141,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         int queueSize = decodedMSG.count - 1; //we have to decrement 1 here because in actuality ardupilot references home as 0
         try {
             MissionItem::MissionList newMissionList(sysID,sysID,Data::MissionType::AUTO,Data::MissionTypeState::CURRENT,queueSize);
-
             vehicleData->data->setCurrentMission(newMissionList);
-
             mavlink_message_t msg;
             mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,0,MAV_MISSION_TYPE_MISSION);
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);

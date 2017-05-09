@@ -42,7 +42,8 @@ HEADERS += data_global.h \
     mission_key_change.h \
     abstract_position_item.h \
     data_get_set_notifier.h \
-    mission_ack.h
+    mission_ack.h \
+    threadmanager.h
     loiter_direction.h
 
 # Unix lib Install

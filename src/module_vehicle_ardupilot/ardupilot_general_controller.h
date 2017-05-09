@@ -20,7 +20,7 @@
 
 #include "comms/comms_marshaler.h"
 
-#include "ardupilot_threadmanager.h"
+#include "Data/threadmanager.h"
 #include "ardupilot_mission_state.h"
 
 #include <functional>

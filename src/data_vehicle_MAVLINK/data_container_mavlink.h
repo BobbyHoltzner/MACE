@@ -43,7 +43,7 @@ public:
         return propList.getMissionKey();
     }
 
-    void Command_SetCurrentMission(const MissionItem::MissionList &missionList)
+    void setCurrentMission(const MissionItem::MissionList &missionList)
     {
         switch(missionList.getMissionType())
         {

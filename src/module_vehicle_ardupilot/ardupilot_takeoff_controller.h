@@ -22,7 +22,6 @@
 
 #include "ardupilot_general_controller.h"
 #include "ardupilot_mission_state.h"
-#include "ardupilot_threadmanager.h"
 
 class Ardupilot_TakeoffController : public Ardupilot_GeneralController
 {
