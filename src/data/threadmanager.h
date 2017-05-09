@@ -7,11 +7,10 @@ public:
     Thread() :
         mThread(NULL)
     {
-        std::cout << "Constructor on Generic Thread" << std::endl;
+
     }
 
     virtual ~Thread() {
-        std::cout << "Destructor on Generic Thread" << std::endl;
         if(mThread)
         {
             mThread->join();

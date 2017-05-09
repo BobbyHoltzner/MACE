@@ -16,7 +16,8 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += mace_core.cpp \
     mace_data.cpp \
-    module_command_initialization.cpp
+    module_command_initialization.cpp \
+    core_heartbeat.cpp
 
 HEADERS += mace_core.h\
         mace_core_global.h \
@@ -51,7 +52,8 @@ HEADERS += mace_core.h\
     metadata_sensors.h \
     i_module_events_external_link.h \
     i_module_events_general.h \
-    i_module_events_general_vehicle.h
+    i_module_events_general_vehicle.h \
+    core_heartbeat.h
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib

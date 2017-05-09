@@ -305,6 +305,25 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
     {
         mavlink_mace_ack_rxmission_t decodedMSG;
         mavlink_msg_mace_ack_rxmission_decode(message,&decodedMSG);
+        Data::MissionTypeState missionState = static_cast<Data::MissionTypeState>(decodedMSG.mission_state);
+        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
+        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
+
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->ExternalEvent_MissionACK(this, key, missionState);
+        });
+
+        DataGenericItem::DataGenericItem_Text text;
+        text.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_NOTICE);
+        std::string str = "Mission Received:" + std::to_string(key.m_systemID) + " Mission ID:" + std::to_string(key.m_missionID) + " Created By:" + std::to_string(key.m_creatorID);
+        text.setText(str);
+        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> statusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(text);
+        m_VehicleDataTopic.SetComponent(statusText, topicDatagram);
+        //notify listneres of topic
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), key.m_systemID, MaceCore::TIME(), topicDatagram);
+        });
+
         break;
     }
     case MAVLINK_MSG_ID_MACE_MISSION_REQUEST_LIST:
@@ -400,6 +419,20 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
                     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                         ptr->ExternalEvent_FinishedRXProposedQueue(this, missionList);
                     });
+
+                    //We should only send an acknowledgement if we are receiving a proposed mission
+                    mavlink_message_t msg;
+                    mavlink_mace_ack_rxmission_t ackMission;
+                    ackMission.target_system = systemID;
+                    ackMission.mission_system = itemKey.m_systemID;
+                    ackMission.mission_creator = itemKey.m_creatorID;
+                    ackMission.mission_id = itemKey.m_missionID;
+                    ackMission.mission_type = (uint8_t)itemKey.m_missionType;
+                    //KEN TODO: Maybe we have another state reflect that it has been received differnt than onboard (implying received by the aircraft instance)
+                    ackMission.mission_state = (uint8_t)Data::MissionTypeState::RECEIVED;
+                    mavlink_msg_mace_ack_rxmission_encode_chan(itemKey.m_systemID,0,m_LinkChan,&msg,&ackMission);
+                    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
                 }else if(missionList.getMissionTypeState() == Data::MissionTypeState::ONBOARD)
                 {
                     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
@@ -411,18 +444,6 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
                         ptr->ExternalEvent_FinishedRXCurrentQueue(this, missionList);
                     });
                 }
-
-                mavlink_message_t msg;
-                mavlink_mace_ack_rxmission_t ackMission;
-                ackMission.target_system = systemID;
-                ackMission.mission_system = itemKey.m_systemID;
-                ackMission.mission_creator = itemKey.m_creatorID;
-                ackMission.mission_id = itemKey.m_missionID;
-                ackMission.mission_type = (uint8_t)itemKey.m_missionType;
-                //KEN TODO: Maybe we have another state reflect that it has been received differnt than onboard (implying received by the aircraft instance)
-                ackMission.mission_state = (uint8_t)Data::MissionTypeState::TRANSMITTED;
-                mavlink_msg_mace_ack_rxmission_encode_chan(itemKey.m_systemID,0,m_LinkChan,&msg,&ackMission);
-                m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
             }
         }
         break;
