@@ -32,25 +32,11 @@ If you do not want to build from source, there are prebuilt binaries included in
 Note that this is a very large file, as Electron packages everything with the executables, including node_packages.
 
 ## Usage
-This GUI is a work in progress, and as such there are certain "quirks" with its usage. The following process has been found to work consistently on a Windows 10 machine:
-
-1. Start the ArduPilot simulation(s) (see this page for reference: [MACE-ArduPilot Simulation setup](https://github.com/brettdarcey/MACE/wiki/ArduPilot-Simulation))
-2. Start MACE
-3. Start the MACE GUI
-
-The GUI has inconsistent failures when it is started before MACE has knowledge of any vehicles, so it is best to start MACE and the simulation(s) (or actual vehicles) before the GUI is started. 
-
-NOTE: To help with connection issues with MACE, there is a 7-second timer at GUI launch that waits 7 seconds before asking MACE what vehicles it has connected. 
-
 ### Selecting a vehicle
-Many actions in the GUI require a vehicle ID to be set. To do so, with a vehilce connected, click on the Vehicle HUD on the right-hand side of the screen. This will open a "Set Home Location" dialog where you can set that particular vehicle's home location. If you do not wish to do so, simply close the dialog (by clicking off of it or hitting cancel) and nothing will be sent to the vehicle. At this point however, that vehicle is now your "Selected vehicle," so you can Arm it and command it to change modes. 
+Many actions in the GUI require a vehicle ID to be set. You can select a vehicle by doing any of the following: 
+- Click on the vehicle icon
+- Click on the home icon
+- Click on the Vehicle HUD on the right-hand side of the screen. 
+  - This will open a "Set Home Location" dialog where you can set that particular vehicle's home location. If you do not wish to set the home location, simply close the dialog (by clicking off of it or hitting cancel) and nothing will be sent to the vehicle.
+- With multiple vehicles connected, a dropdown appears next to the vehicle commands. Use that to select the vehicle ID
 
-Again, this GUI is a work in progress, and one of the main features to be added is an intuitive way to select a specific vehicle or all vehicles. 
-
-
-## TODO:
-- Allow for easier selecting of vehicles
-- Display the selected vehicle
-- Allow for a user-defined "Sync" with MACE to get all currently connected vehicles
-- Takeoff altitude dialog? 
-  * This will have to be an "Arm and Takeoff" dialog because the motors will disarm before the user has a chance to type in the value and initiate a takeoff
