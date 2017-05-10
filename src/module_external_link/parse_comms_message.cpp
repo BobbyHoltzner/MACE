@@ -9,29 +9,6 @@ void ModuleExternalLink::ParseForData(const mavlink_message_t* message){
     ////////////////////////////////////////////////////////////////////////////
     /// GENERAL STATE EVENTS: These are events that may have a direct
     ////////////////////////////////////////////////////////////////////////////
-    case MAVLINK_MSG_ID_HEARTBEAT:
-    {
-        mavlink_heartbeat_t decodedMSG;
-        mavlink_msg_heartbeat_decode(message,&decodedMSG);
-        if(systemIDMap.find(systemID) == systemIDMap.end())
-        {
-            //The system has yet to have communicated through this module
-            //We therefore have to notify the core that there is a new vehicle
-            systemIDMap.insert({systemID,0});
-            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-                ptr->NewConstructedVehicle(this, systemID);
-            });
-        }
-//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrParameters = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
-//        m_VehicleDataTopic.SetComponent(ptrParameters, topicDatagram);
-//        //notify listneres of topic
-//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-//        });
-        //ptrParameters->setVehicleType(decodedMSG.type);
-        //ptrParameters->setVehicleArmed(decodedMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
-        break;
-    }
     case MAVLINK_MSG_ID_SYS_STATUS:
     {
         mavlink_sys_status_t decodedMSG;

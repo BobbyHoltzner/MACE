@@ -33,8 +33,6 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
     m_VehicleIDToPtr.insert({ID, vehicle.get()});
     m_VehiclePTRToID.insert({vehicle.get(), ID});
 
-    //m_DataFusion->AddVehicle(ID);
-
     vehicle->addListener(this);
     vehicle->addTopicListener(this);
 

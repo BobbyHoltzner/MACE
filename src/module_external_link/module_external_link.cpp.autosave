@@ -89,6 +89,7 @@ void ModuleExternalLink::VehicleHeartbeatMACEInfo(const std::string &linkName, c
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrParameters = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
     ptrParameters->setVehicleType(type);
     ptrParameters->setVehicleArmed(heartbeatMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
+    ptrParameters->setFlightMode();
     m_VehicleDataTopic.SetComponent(ptrParameters, topicDatagram);
     ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
         ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);

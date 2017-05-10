@@ -52,6 +52,23 @@ public:
     //! \param msg Message received
     //!
     virtual void MACEMessage(const std::string &linkName, const mavlink_message_t &msg);
+
+    //!
+    //! \brief VehicleHeartbeatMACEInfo
+    //! \param linkName
+    //! \param systemID
+    //! \param heartbeatMSG
+    //!
+    virtual void VehicleHeartbeatMACEInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
+
+    //!
+    //! \brief VehicleCommandMACEACK
+    //! \param linkName
+    //! \param systemID
+    //! \param cmdACK
+    //!
+    virtual void VehicleCommandMACEACK(const std::string &linkName, const int &systemID, const mavlink_command_ack_t &cmdACK);
+
     //!
     //! \brief NewTopic
     //! \param topicName

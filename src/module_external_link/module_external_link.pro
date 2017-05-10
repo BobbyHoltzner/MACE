@@ -16,10 +16,12 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += module_external_link.cpp \
     parse_comms_message.cpp \
-    parse_comms_command.cpp
+    parse_comms_command.cpp \
+    external_heartbeat.cpp
 
 HEADERS += module_external_link.h\
-        module_external_link_global.h
+        module_external_link_global.h \
+    external_heartbeat.h
 
 # Unix lib Install
 unix:!symbian {

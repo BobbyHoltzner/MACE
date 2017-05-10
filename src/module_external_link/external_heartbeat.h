@@ -1,23 +1,20 @@
-#ifndef CORE_HEARTBEAT_H
-#define CORE_HEARTBEAT_H
+#ifndef EXTERNAL_HEARTBEAT_H
+#define EXTERNAL_HEARTBEAT_H
 
+#include "module_external_link_global.h"
 #include "data/threadmanager.h"
 #include <chrono>
-#include "mace_core_global.h"
 #include <list>
 #include <iostream>
 
 using get_time = std::chrono::steady_clock;
 
-namespace MaceCore
-{
-
-class MACE_CORESHARED_EXPORT CoreHeartbeat : public Thread
+class MODULE_EXTERNAL_LINKSHARED_EXPORT ExternalHeartbeat : public Thread
 {
 public:
-    CoreHeartbeat(const int &heartbeatInterval);
+    ExternalHeartbeat(const int &heartbeatInterval);
 
-    ~CoreHeartbeat() {
+    ~ExternalHeartbeat() {
         mToExit = true;
     }
 
@@ -45,7 +42,4 @@ protected:
 
 };
 
-} //end of namespace MaceCore
-
-
-#endif // CORE_HEARTBEAT_H
+#endif // EXTERNAL_HEARTBEAT_H

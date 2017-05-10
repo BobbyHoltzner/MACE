@@ -1,20 +1,18 @@
-#include "core_heartbeat.h"
+#include "external_heartbeat.h"
 
-namespace MaceCore{
-
-CoreHeartbeat::CoreHeartbeat(const int &heartbeatInterval):
+ExternalHeartbeat::ExternalHeartbeat(const int &heartbeatInterval):
     mToExit(false)
 {
     startTime = get_time::now();
     interval = heartbeatInterval;
 }
 
-void CoreHeartbeat::terminateObject()
+void ExternalHeartbeat::ExternalHeartbeat()
 {
     mToExit = true;
 }
 
-void CoreHeartbeat::run()
+void ExternalHeartbeat::run()
 {
     while(true)
     {
@@ -25,6 +23,3 @@ void CoreHeartbeat::run()
         std::this_thread::sleep_for(std::chrono::milliseconds(interval));
     }
 }
-
-
-} //end of namespace MaceCore
