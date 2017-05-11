@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "mavlink_MACE.h"
+#include "mace.h"
 #include "common/common.h"
 
 #include "data/coordinate_frame.h"
@@ -23,14 +23,21 @@ namespace DataCOMMS{
 class State_MACETOCOMMS
 {
 public:
-    static mavlink_message_t Attitude_MACETOCOMMS(const DataState::StateAttitude &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
-    static mavlink_message_t AttitudeTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
 
-    static mavlink_message_t GlobalPosition_MACETOCOMMS(const DataState::StateGlobalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
-    static mavlink_message_t GlobalPositionTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+    static mace_message_t AttitudeStateFull_MACETOCOMMS(const DataState::StateAttitude &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+    static mace_message_t AttitudeStateFullTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
 
-    static mavlink_message_t LocalPosition_MACETOCOMMS(const DataState::StateLocalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
-    static mavlink_message_t LocalPositionTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+    static mace_message_t AttitudeState_MACETOCOMMS(const DataState::StateAttitude &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+    static mace_message_t AttitudeStateTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+
+    static mace_message_t AttitudeRates_MACETOCOMMS(const DataState::StateAttitude &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+    static mace_message_t AttitudeRatesTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+
+    static mace_message_t GlobalPosition_MACETOCOMMS(const DataState::StateGlobalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+    static mace_message_t GlobalPositionTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+
+    static mace_message_t LocalPosition_MACETOCOMMS(const DataState::StateLocalPosition &stateItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
+    static mace_message_t LocalPositionTopicPTR_MACETOCOMMS(const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan);
 
 };
 

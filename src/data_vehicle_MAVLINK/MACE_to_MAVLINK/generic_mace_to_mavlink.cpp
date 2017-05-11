@@ -24,14 +24,14 @@ mavlink_message_t Generic_MACETOMAVLINK::FlightMode_MACETOMAVLINK(DataGenericIte
      return(msg);
 }
 
-mavlink_message_t Generic_MACETOMAVLINK::FuelTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &topicItem, const uint8_t &chan)
+mavlink_message_t Generic_MACETOMAVLINK::BatteryTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> &topicItem, const uint8_t &chan)
 {
-    DataGenericItem::DataGenericItem_Fuel newFuel = *topicItem.get();
-    mavlink_message_t msg = Fuel_MACETOMAVLINK(newFuel,chan);
+    DataGenericItem::DataGenericItem_Battery newBattery = *topicItem.get();
+    mavlink_message_t msg = Battery_MACETOMAVLINK(newBattery,chan);
     return(msg);
 }
 
-mavlink_message_t Generic_MACETOMAVLINK::Fuel_MACETOMAVLINK(DataGenericItem::DataGenericItem_Fuel fuelItem, const uint8_t &chan)
+mavlink_message_t Generic_MACETOMAVLINK::Battery_MACETOMAVLINK(DataGenericItem::DataGenericItem_Battery fuelItem, const uint8_t &chan)
 {
     mavlink_message_t msg;
     mavlink_sys_status_t sysStatus;

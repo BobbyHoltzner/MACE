@@ -52,7 +52,7 @@ HEADERS +=\
     udp_configuration_mace.h \
     udp_link_mace.h
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/mace/
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 
 # Unix lib Install

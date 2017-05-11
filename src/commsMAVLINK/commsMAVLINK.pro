@@ -28,7 +28,7 @@ SOURCES += comms_mavlink.cpp
 HEADERS += comms_mavlink.h\
         commsmavlink_global.h
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/ardupilotmega/
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 INCLUDEPATH += $$PWD/../
 
 # Unix lib Install

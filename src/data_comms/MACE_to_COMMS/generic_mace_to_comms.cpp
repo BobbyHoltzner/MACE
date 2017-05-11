@@ -2,19 +2,18 @@
 
 namespace DataCOMMS {
 
-mavlink_message_t Generic_MACETOCOMMS::FlightModeTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+mace_message_t Generic_MACETOCOMMS::FlightModeTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     DataGenericItem::DataGenericItem_FlightMode newFlightMode = *topicItem.get();
-    mavlink_message_t msg = FlightMode_MACETOCOMMS(newFlightMode,systemID,compID,chan);
+    mace_message_t msg = FlightMode_MACETOCOMMS(newFlightMode,systemID,compID,chan);
     return(msg);
 }
-mavlink_message_t Generic_MACETOCOMMS::FlightMode_MACETOCOMMS(DataGenericItem::DataGenericItem_FlightMode flightModeItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+mace_message_t Generic_MACETOCOMMS::FlightMode_MACETOCOMMS(DataGenericItem::DataGenericItem_FlightMode flightModeItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
-     mavlink_message_t msg;
-     mavlink_heartbeat_t heartbeat;
+     mace_message_t msg;
+     mace_heartbeat_t heartbeat;
      if(flightModeItem.getAutopilotType() == Data::AutopilotTypes::ARDUPILOT)
          heartbeat.autopilot = MAV_AUTOPILOT_ARDUPILOTMEGA;
-     heartbeat.custom_mode = flightModeItem.getFlightModeInt();
      if(flightModeItem.getVehicleType() == Data::VehicleTypes::PLANE)
      {
          heartbeat.type = MAV_TYPE_FIXED_WING;
@@ -22,37 +21,37 @@ mavlink_message_t Generic_MACETOCOMMS::FlightMode_MACETOCOMMS(DataGenericItem::D
      {
          heartbeat.type = MAV_TYPE_QUADROTOR;
      }
-     mavlink_msg_heartbeat_encode_chan(systemID,compID,chan,&msg,&heartbeat);
+     mace_msg_heartbeat_encode_chan(systemID,compID,chan,&msg,&heartbeat);
      return(msg);
 }
 
-mavlink_message_t Generic_MACETOCOMMS::FuelTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+mace_message_t Generic_MACETOCOMMS::BatteryTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
-    DataGenericItem::DataGenericItem_Fuel newFuel = *topicItem.get();
-    mavlink_message_t msg = Fuel_MACETOCOMMS(newFuel,systemID,compID,chan);
+    DataGenericItem::DataGenericItem_Battery newBattery = *topicItem.get();
+    mace_message_t msg = Battery_MACETOCOMMS(newBattery,systemID,compID,chan);
     return(msg);
 }
-mavlink_message_t Generic_MACETOCOMMS::Fuel_MACETOCOMMS(DataGenericItem::DataGenericItem_Fuel fuelItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
+mace_message_t Generic_MACETOCOMMS::Battery_MACETOCOMMS(DataGenericItem::DataGenericItem_Battery fuelItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
 {
-    mavlink_message_t msg;
-    mavlink_sys_status_t sysStatus;
-    sysStatus.current_battery = (int16_t)(fuelItem.getBatteryCurrent() * 10000.0);
-    sysStatus.voltage_battery = (uint16_t)(fuelItem.getBatteryVoltage()*1000.0);
-    sysStatus.battery_remaining = (int8_t)fuelItem.getBatteryRemaining();
-    mavlink_msg_sys_status_encode_chan(systemID,compID,chan,&msg,&sysStatus);
+    mace_message_t msg;
+    mace_battery_status_t batteryStatus;
+    batteryStatus.current_battery = (int16_t)(fuelItem.getBatteryCurrent() * 10000.0);
+    batteryStatus.voltage_battery = (uint16_t)(fuelItem.getBatteryVoltage()*1000.0);
+    batteryStatus.battery_remaining = (int8_t)fuelItem.getBatteryRemaining();
+    mace_msg_battery_status_encode_chan(systemID,compID,chan,&msg,&batteryStatus);
     return(msg);
 }
 
-mavlink_message_t Generic_MACETOCOMMS::GPSTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+mace_message_t Generic_MACETOCOMMS::GPSTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     DataGenericItem::DataGenericItem_GPS newGPS = *topicItem.get();
-    mavlink_message_t msg = GPS_MACETOCOMMS(newGPS,systemID,compID,chan);
+    mace_message_t msg = GPS_MACETOCOMMS(newGPS,systemID,compID,chan);
     return(msg);
 }
-mavlink_message_t Generic_MACETOCOMMS::GPS_MACETOCOMMS(DataGenericItem::DataGenericItem_GPS GPSItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
+mace_message_t Generic_MACETOCOMMS::GPS_MACETOCOMMS(DataGenericItem::DataGenericItem_GPS GPSItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
 {
-    mavlink_message_t msg;
-    mavlink_gps_raw_int_t gpsRaw;
+    mace_message_t msg;
+    mace_gps_raw_int_t gpsRaw;
     gpsRaw.satellites_visible = GPSItem.getSatVisible();
     gpsRaw.eph = GPSItem.getHDOP();
     gpsRaw.epv = GPSItem.getVDOP();
@@ -87,20 +86,20 @@ mavlink_message_t Generic_MACETOCOMMS::GPS_MACETOCOMMS(DataGenericItem::DataGene
         break;
     }
 
-    mavlink_msg_gps_raw_int_encode_chan(systemID,compID,chan,&msg,&gpsRaw);
+    mace_msg_gps_raw_int_encode_chan(systemID,compID,chan,&msg,&gpsRaw);
     return(msg);
 }
 
-mavlink_message_t Generic_MACETOCOMMS::TextTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+mace_message_t Generic_MACETOCOMMS::TextTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     DataGenericItem::DataGenericItem_Text newText = *topicItem.get();
-    mavlink_message_t msg = Text_MACETOCOMMS(newText,systemID,compID,chan);
+    mace_message_t msg = Text_MACETOCOMMS(newText,systemID,compID,chan);
     return(msg);
 }
-mavlink_message_t Generic_MACETOCOMMS::Text_MACETOCOMMS(DataGenericItem::DataGenericItem_Text textItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
+mace_message_t Generic_MACETOCOMMS::Text_MACETOCOMMS(DataGenericItem::DataGenericItem_Text textItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
 {
-    mavlink_message_t msg;
-    mavlink_statustext_t statusText;
+    mace_message_t msg;
+    mace_statustext_t statusText;
     strcpy(statusText.text,textItem.getText().c_str());
     switch(textItem.getSeverity()){
     case DataGenericItem::DataGenericItem_Text::STATUS_ALERT:
@@ -133,7 +132,7 @@ mavlink_message_t Generic_MACETOCOMMS::Text_MACETOCOMMS(DataGenericItem::DataGen
         break;
     }
 
-    mavlink_msg_statustext_encode_chan(systemID,compID,chan,&msg,&statusText);
+    mace_msg_statustext_encode_chan(systemID,compID,chan,&msg,&statusText);
     return(msg);
 }
 

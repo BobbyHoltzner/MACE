@@ -13,18 +13,18 @@ Mission_MACETOCOMMS::Mission_MACETOCOMMS(const int &systemFrom, const uint8_t &c
 
 }
 
-mavlink_message_t Mission_MACETOCOMMS::Home_MACETOCOMMS(const MissionItem::SpatialHome &missionItem)
+mace_message_t Mission_MACETOCOMMS::Home_MACETOCOMMS(const MissionItem::SpatialHome &missionItem)
 {
-    mavlink_message_t msg;
-    mavlink_home_position_t homePosition;
+    mace_message_t msg;
+    mace_home_position_t homePosition;
     homePosition.latitude = missionItem.position.latitude * pow(10,7);
     homePosition.longitude = missionItem.position.longitude * pow(10,7);
     homePosition.altitude = missionItem.position.altitude * pow(10,3);
-    mavlink_msg_home_position_encode_chan(fromID,0,commsChan,&msg,&homePosition);
+    mace_msg_home_position_encode_chan(fromID,0,commsChan,&msg,&homePosition);
     return msg;
 }
 
-void Mission_MACETOCOMMS::initializeMACECOMMSMissionItem(mavlink_mace_mission_item_t &mavMission)
+void Mission_MACETOCOMMS::initializeMACECOMMSMissionItem(mace_mission_item_t &mavMission)
 {
     mavMission.seq = 0;
     mavMission.command = 0;
@@ -43,20 +43,20 @@ void Mission_MACETOCOMMS::initializeMACECOMMSMissionItem(mavlink_mace_mission_it
     mavMission.mission_system = key.m_systemID;
     mavMission.mission_creator = key.m_creatorID;
     mavMission.mission_id = key.m_missionID;
-    mavMission.mission_type = static_cast<MACE_MISSION_TYPE>(key.m_missionType);
+    mavMission.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);
     //this item helps identify where the mission item needs to go if it is outbound
     mavMission.target_system = toID;
 }
 
-mavlink_message_t Mission_MACETOCOMMS::packMissionItem(const mavlink_mace_mission_item_t &mavMission)
+mace_message_t Mission_MACETOCOMMS::packMissionItem(const mace_mission_item_t &mavMission)
 {
-    mavlink_message_t msg;
-    mavlink_mace_mission_item_t tmpItem = mavMission;
-    mavlink_msg_mace_mission_item_encode_chan(fromID,0,commsChan,&msg,&tmpItem);
+    mace_message_t msg;
+    mace_mission_item_t tmpItem = mavMission;
+    mace_msg_mission_item_encode_chan(fromID,0,commsChan,&msg,&tmpItem);
     return msg;
 }
 
-bool Mission_MACETOCOMMS::MACEMissionToCOMMSMission(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint16_t &itemIndex, mavlink_message_t &msg)
+bool Mission_MACETOCOMMS::MACEMissionToCOMMSMission(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint16_t &itemIndex, mace_message_t &msg)
 {
     switch(missionItem->getMissionType())
     {
@@ -189,9 +189,9 @@ bool Mission_MACETOCOMMS::MACEMissionToCOMMSMission(std::shared_ptr<MissionItem:
     } //end of switch statement
 }
 
-mavlink_message_t Mission_MACETOCOMMS::ChangeSpeed_MACETOCOMMS(const MissionItem::ActionChangeSpeed &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::ChangeSpeed_MACETOCOMMS(const MissionItem::ActionChangeSpeed &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_DO_CHANGE_SPEED;
     item.seq = itemIndex;
@@ -201,13 +201,13 @@ mavlink_message_t Mission_MACETOCOMMS::ChangeSpeed_MACETOCOMMS(const MissionItem
     {
         item.param1 = 1.0;
     }
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
 
-mavlink_message_t Mission_MACETOCOMMS::Land_MACETOCOMMS(const MissionItem::SpatialLand<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::Land_MACETOCOMMS(const MissionItem::SpatialLand<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_NAV_LAND;
     item.seq = itemIndex;
@@ -217,12 +217,12 @@ mavlink_message_t Mission_MACETOCOMMS::Land_MACETOCOMMS(const MissionItem::Spati
         item.y = missionItem.position.longitude;
         item.z = missionItem.position.altitude;
     }
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
-mavlink_message_t Mission_MACETOCOMMS::Land_MACETOCOMMS(const MissionItem::SpatialLand<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::Land_MACETOCOMMS(const MissionItem::SpatialLand<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_NAV_LAND_LOCAL;
     item.seq = itemIndex;
@@ -232,13 +232,13 @@ mavlink_message_t Mission_MACETOCOMMS::Land_MACETOCOMMS(const MissionItem::Spati
         item.y = missionItem.position.y;
         item.z = missionItem.position.z;
     }
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
 
-mavlink_message_t Mission_MACETOCOMMS::LoiterTime_MACETOCOMMS(const MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::LoiterTime_MACETOCOMMS(const MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_NAV_LOITER_TIME;
     item.seq = itemIndex;
@@ -253,13 +253,13 @@ mavlink_message_t Mission_MACETOCOMMS::LoiterTime_MACETOCOMMS(const MissionItem:
     }else{
         item.param3 = 0-missionItem.radius;
     }
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
 
-mavlink_message_t Mission_MACETOCOMMS::LoiterTime_MACETOCOMMS(const MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::LoiterTime_MACETOCOMMS(const MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_NAV_LOITER_TIME;
     item.seq = itemIndex;
@@ -274,13 +274,13 @@ mavlink_message_t Mission_MACETOCOMMS::LoiterTime_MACETOCOMMS(const MissionItem:
     }else{
         item.param3 = 0-missionItem.radius;
     }
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
 
-mavlink_message_t Mission_MACETOCOMMS::LoiterTurns_MACETOCOMMS(const MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::LoiterTurns_MACETOCOMMS(const MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_NAV_LOITER_TURNS;
     item.seq = itemIndex;
@@ -295,13 +295,13 @@ mavlink_message_t Mission_MACETOCOMMS::LoiterTurns_MACETOCOMMS(const MissionItem
     }else{
         item.param3 = 0-missionItem.radius;
     }
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
 
-mavlink_message_t Mission_MACETOCOMMS::LoiterTurns_MACETOCOMMS(const MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::LoiterTurns_MACETOCOMMS(const MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_NAV_LOITER_TURNS;
     item.seq = itemIndex;
@@ -316,12 +316,12 @@ mavlink_message_t Mission_MACETOCOMMS::LoiterTurns_MACETOCOMMS(const MissionItem
     }else{
         item.param3 = 0-missionItem.radius;
     }
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
-mavlink_message_t Mission_MACETOCOMMS::LoiterUnlimited_MACETOCOMMS(const MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::LoiterUnlimited_MACETOCOMMS(const MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_NAV_LOITER_UNLIM;
     item.seq = itemIndex;
@@ -335,13 +335,13 @@ mavlink_message_t Mission_MACETOCOMMS::LoiterUnlimited_MACETOCOMMS(const Mission
     }else{
         item.param3 = 0-missionItem.radius;
     }
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
 
-mavlink_message_t Mission_MACETOCOMMS::LoiterUnlimited_MACETOCOMMS(const MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::LoiterUnlimited_MACETOCOMMS(const MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_NAV_LOITER_UNLIM;
     item.seq = itemIndex;
@@ -355,61 +355,61 @@ mavlink_message_t Mission_MACETOCOMMS::LoiterUnlimited_MACETOCOMMS(const Mission
     }else{
         item.param3 = 0-missionItem.radius;
     }
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
 
-mavlink_message_t Mission_MACETOCOMMS::RTL_MACETOCOMMS(const MissionItem::SpatialRTL &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::RTL_MACETOCOMMS(const MissionItem::SpatialRTL &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_NAV_RETURN_TO_LAUNCH;
     item.seq = itemIndex;
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
 
-mavlink_message_t Mission_MACETOCOMMS::Takeoff_MACETOCOMMS(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::Takeoff_MACETOCOMMS(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_NAV_TAKEOFF;
     item.seq = itemIndex;
     item.x = missionItem.position.latitude;
     item.y = missionItem.position.longitude;
     item.z = missionItem.position.altitude;
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
-mavlink_message_t Mission_MACETOCOMMS::Takeoff_MACETOCOMMS(const MissionItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::Takeoff_MACETOCOMMS(const MissionItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_NAV_TAKEOFF_LOCAL;
     item.seq = itemIndex;
     item.x = missionItem.position.x;
     item.y = missionItem.position.y;
     item.z = missionItem.position.z;
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
 
-mavlink_message_t Mission_MACETOCOMMS::Waypoint_MACETOCOMMS(const MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::Waypoint_MACETOCOMMS(const MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.command = MAV_CMD_NAV_WAYPOINT;
     item.seq = itemIndex;
     item.x = missionItem.position.latitude;
     item.y = missionItem.position.longitude;
     item.z = missionItem.position.altitude;
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
 
-mavlink_message_t Mission_MACETOCOMMS::Waypoint_MACETOCOMMS(const MissionItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex)
+mace_message_t Mission_MACETOCOMMS::Waypoint_MACETOCOMMS(const MissionItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex)
 {
-    mavlink_mace_mission_item_t item;
+    mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.frame = MAV_FRAME_LOCAL_ENU;
     item.command = MAV_CMD_NAV_WAYPOINT;
@@ -417,7 +417,7 @@ mavlink_message_t Mission_MACETOCOMMS::Waypoint_MACETOCOMMS(const MissionItem::S
     item.x = missionItem.position.x;
     item.y = missionItem.position.y;
     item.z = missionItem.position.z;
-    mavlink_message_t msg = this->packMissionItem(item);
+    mace_message_t msg = this->packMissionItem(item);
     return msg;
 }
 

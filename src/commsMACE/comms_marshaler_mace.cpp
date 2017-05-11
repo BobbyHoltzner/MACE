@@ -99,7 +99,7 @@ void CommsMarshaler::SetProtocolForLink(const std::string &linkName, Protocols p
         bool channelSet = false;
         for (int i=0; i<32; i++) {
             if (!(m_MavlinkChannelsUsedBitMask & 1 << i)) {
-                mavlink_reset_channel_status(i);
+                mace_reset_channel_status(i);
                 protocolObj->SetChannel(link_ptr, i);
                 m_MavlinkChannelsUsedBitMask |= 1 << i;
                 channelSet = true;
@@ -304,7 +304,7 @@ void CommsMarshaler::ReceiveLossTotalChanged(const ILink* link_ptr, int uasId, i
 //! \param linkName Link identifier which generated call
 //! \param message Message that has been received
 //!
-void CommsMarshaler::MessageReceived(const ILink* link_ptr, const mavlink_message_t &message) const
+void CommsMarshaler::MessageReceived(const ILink* link_ptr, const mace_message_t &message) const
 {
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
@@ -321,7 +321,7 @@ void CommsMarshaler::MessageReceived(const ILink* link_ptr, const mavlink_messag
 //! \param vehicleFirmwareType
 //! \param vehicleType
 //!
-void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG) const
+void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int &systemID, const mace_heartbeat_t &heartbeatMSG) const
 {
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
@@ -330,7 +330,7 @@ void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int &syst
 }
 
 //!
-void CommsMarshaler::VehicleCommandACK(const ILink* link_ptr, const int &systemID, const mavlink_command_ack_t &cmdACK) const
+void CommsMarshaler::VehicleCommandACK(const ILink* link_ptr, const int &systemID, const mace_command_ack_t &cmdACK) const
 {
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
@@ -360,6 +360,6 @@ void CommsMarshaler::RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors
 
 
 
-template void CommsMarshaler::SendMessage<mavlink_message_t>(const std::string &, const mavlink_message_t&);
+template void CommsMarshaler::SendMessage<mace_message_t>(const std::string &, const mace_message_t&);
 
 }//END Comms

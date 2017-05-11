@@ -80,7 +80,7 @@ headers_MACE_TO_COMMS.files   += \
     MACE_to_COMMS/state_mace_to_comms.h
 INSTALLS       += headers_MACE_TO_COMMS
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/mace/
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon

@@ -15,13 +15,13 @@ DataGenericItem::DataGenericItem_FlightMode Generic_MAVLINKTOMACE::FlightMode_MA
     return flightItem;
 }
 
-DataGenericItem::DataGenericItem_Fuel Generic_MAVLINKTOMACE::Fuel_MAVLINKTOMACE(const mavlink_sys_status_t &genericItem)
+DataGenericItem::DataGenericItem_Battery Generic_MAVLINKTOMACE::Battery_MAVLINKTOMACE(const mavlink_sys_status_t &genericItem)
 {
-    DataGenericItem::DataGenericItem_Fuel fuelItem;
-    fuelItem.setBatteryVoltage(genericItem.voltage_battery/1000.0);
-    fuelItem.setBatteryCurrent(genericItem.current_battery/10000.0);
-    fuelItem.setBatteryRemaining(genericItem.battery_remaining);
-    return fuelItem;
+    DataGenericItem::DataGenericItem_Battery batteryItem;
+    batteryItem.setBatteryVoltage(genericItem.voltage_battery/1000.0);
+    batteryItem.setBatteryCurrent(genericItem.current_battery/10000.0);
+    batteryItem.setBatteryRemaining(genericItem.battery_remaining);
+    return batteryItem;
 }
 
 DataGenericItem::DataGenericItem_GPS Generic_MAVLINKTOMACE::GPS_MAVLINKTOMACE(const mavlink_gps_raw_int_t &genericItem)

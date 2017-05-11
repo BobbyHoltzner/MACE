@@ -31,7 +31,7 @@ SOURCES += comms_mace_helper.cpp
 HEADERS += comms_mace_helper.h\
         commsmacehelper_global.h
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/mace/
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 
 # Unix lib Install

@@ -20,7 +20,7 @@ SOURCES += module_vehicle_mavlink.cpp
 HEADERS += module_vehicle_mavlink.h\
         module_vehicle_mavlink_global.h
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/ardupilotmega
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega
 
 # Unix lib Install
 unix:!symbian {

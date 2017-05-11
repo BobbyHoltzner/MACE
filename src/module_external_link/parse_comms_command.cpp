@@ -1,6 +1,6 @@
 #include "module_external_link.h"
 
-void ModuleExternalLink::ParseCommsCommand(const mavlink_command_long_t *message)
+void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
 {
     switch(message->command)
     {
@@ -8,8 +8,8 @@ void ModuleExternalLink::ParseCommsCommand(const mavlink_command_long_t *message
     {
         MissionItem::SpatialHome missionHome = this->getDataObject()->GetVehicleHomePostion(message->target_system);
         DataCOMMS::Mission_MACETOCOMMS missionConvert(message->target_system,message->target_component);
-        mavlink_message_t msg = missionConvert.Home_MACETOCOMMS(missionHome);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        mace_message_t msg = missionConvert.Home_MACETOCOMMS(missionHome);
+        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
         break;
     }
     case(MAV_CMD_COMPONENT_ARM_DISARM):

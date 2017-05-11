@@ -139,7 +139,7 @@ protected:
 
 public:
         Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_FlightMode> vehicleState;
-        Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_Fuel> vehicleFuel;
+        Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_Battery> vehicleFuel;
         Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_GPS> vehicleGPSStatus;
         Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_Text> vehicleTextAlert;
 

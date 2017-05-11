@@ -1,7 +1,7 @@
 #ifndef COMMS_EVENTS_MACE_H
 #define COMMS_EVENTS_MACE_H
 
-#include "mavlink_MACE.h"
+#include "mace.h"
 #include <string>
 
 namespace CommsMACE
@@ -80,21 +80,21 @@ public:
     //! \param linkName Name of link message received over
     //! \param msg Message received
     //!
-    virtual void MACEMessage(const std::string &linkName, const mavlink_message_t &msg)
+    virtual void MACEMessage(const std::string &linkName, const mace_message_t &msg)
     {
         UNUSED(linkName);
         UNUSED(msg);
     }
 
 
-    virtual void VehicleHeartbeatMACEInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG)
+    virtual void VehicleHeartbeatMACEInfo(const std::string &linkName, const int systemID, const mace_heartbeat_t &heartbeatMSG)
     {
         UNUSED(linkName);
         UNUSED(systemID);
         UNUSED(heartbeatMSG);
     }
 
-    virtual void VehicleCommandMACEACK(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK)
+    virtual void VehicleCommandMACEACK(const std::string &linkName, const int systemID, const mace_command_ack_t &cmdACK)
     {
         UNUSED(linkName);
         UNUSED(systemID);

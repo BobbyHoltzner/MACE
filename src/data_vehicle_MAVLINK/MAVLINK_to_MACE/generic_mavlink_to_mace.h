@@ -20,7 +20,7 @@ public:
     Generic_MAVLINKTOMACE(const int &systemID);
 
     virtual DataGenericItem::DataGenericItem_FlightMode FlightMode_MAVLINKTOMACE(const mavlink_heartbeat_t &genericItem);
-    virtual DataGenericItem::DataGenericItem_Fuel Fuel_MAVLINKTOMACE(const mavlink_sys_status_t &genericItem);
+    virtual DataGenericItem::DataGenericItem_Battery Battery_MAVLINKTOMACE(const mavlink_sys_status_t &genericItem);
     virtual DataGenericItem::DataGenericItem_GPS GPS_MAVLINKTOMACE(const mavlink_gps_raw_int_t &genericItem);
     virtual DataGenericItem::DataGenericItem_Text Text_MAVLINKTOMACE(const mavlink_statustext_t &genericItem);
 

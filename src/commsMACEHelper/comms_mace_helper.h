@@ -33,11 +33,11 @@ public:
 
     virtual void ConfigureMACEComms(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
-    virtual void MACEMessage(const std::string &linkName, const mavlink_message_t &message);
+    virtual void MACEMessage(const std::string &linkName, const mace_message_t &message);
 
-    virtual void VehicleHeartbeatMACEInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
+    virtual void VehicleHeartbeatMACEInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG);
 
-    virtual void VehicleCommandMACEACK(const std::string &linkName, const int &systemID, const mavlink_command_ack_t &cmdACK);
+    virtual void VehicleCommandMACEACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK);
 
     virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics()
     {

@@ -26,17 +26,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     data_generic_item_flightmode.cpp \
-    data_generic_item_fuel.cpp \
     data_generic_item_GPS.cpp \
-    data_generic_item_text.cpp
+    data_generic_item_text.cpp \
+    data_generic_item_battery.cpp
 
 HEADERS +=\
         data_generic_item_global.h \
     data_generic_item_components.h \
     data_generic_item_flightmode.h \
-    data_generic_item_fuel.h \
     data_generic_item_GPS.h \
-    data_generic_item_text.h
+    data_generic_item_text.h \
+    data_generic_item_battery.h
 
 # Unix lib Install
 unix:!symbian {

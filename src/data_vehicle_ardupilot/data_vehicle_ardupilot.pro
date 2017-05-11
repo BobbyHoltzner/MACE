@@ -102,7 +102,7 @@ INSTALLS       += headers_ARDUPILOT_to_MACE
 
 
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/ardupilotmega/
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon

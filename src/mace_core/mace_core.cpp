@@ -8,8 +8,7 @@ namespace MaceCore
 
 MaceCore::MaceCore()
 {
-    CoreHeartbeat* temp = new CoreHeartbeat(1000);
-    temp->start();
+
 }
 
 

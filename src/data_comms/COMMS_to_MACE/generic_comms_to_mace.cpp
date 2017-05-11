@@ -7,7 +7,7 @@ Generic_COMMSTOMACE::Generic_COMMSTOMACE()
 
 }
 
-DataGenericItem::DataGenericItem_FlightMode Generic_COMMSTOMACE::FlightMode_COMMSTOMACE(const mavlink_heartbeat_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_FlightMode Generic_COMMSTOMACE::FlightMode_COMMSTOMACE(const mace_heartbeat_t &genericItem, const int &systemID)
 {
     UNUSED(systemID);
     UNUSED(genericItem);
@@ -15,17 +15,17 @@ DataGenericItem::DataGenericItem_FlightMode Generic_COMMSTOMACE::FlightMode_COMM
     return flightItem;
 }
 
-DataGenericItem::DataGenericItem_Fuel Generic_COMMSTOMACE::Fuel_COMMSTOMACE(const mavlink_sys_status_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_Battery Generic_COMMSTOMACE::Battery_COMMSTOMACE(const mace_battery_status_t &genericItem, const int &systemID)
 {
     UNUSED(systemID);
-    DataGenericItem::DataGenericItem_Fuel fuelItem;
+    DataGenericItem::DataGenericItem_Battery fuelItem;
     fuelItem.setBatteryVoltage(genericItem.voltage_battery/1000.0);
     fuelItem.setBatteryCurrent(genericItem.current_battery/10000.0);
     fuelItem.setBatteryRemaining(genericItem.battery_remaining);
     return fuelItem;
 }
 
-DataGenericItem::DataGenericItem_GPS Generic_COMMSTOMACE::GPS_COMMSTOMACE(const mavlink_gps_raw_int_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_GPS Generic_COMMSTOMACE::GPS_COMMSTOMACE(const mace_gps_raw_int_t &genericItem, const int &systemID)
 {
     UNUSED(systemID);
     DataGenericItem::DataGenericItem_GPS gpsItem;
@@ -67,7 +67,7 @@ DataGenericItem::DataGenericItem_GPS Generic_COMMSTOMACE::GPS_COMMSTOMACE(const 
 
 }
 
-DataGenericItem::DataGenericItem_Text Generic_COMMSTOMACE::Text_COMMSTOMACE(const mavlink_statustext_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_Text Generic_COMMSTOMACE::Text_COMMSTOMACE(const mace_statustext_t &genericItem, const int &systemID)
 {
     UNUSED(systemID);
     DataGenericItem::DataGenericItem_Text statusText;

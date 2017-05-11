@@ -4,7 +4,7 @@
 #include <math.h>
 #include "common/common.h"
 
-#include "mavlink_MACE.h"
+#include "mace.h"
 
 #include "data/coordinate_frame.h"
 #include "data/positional_coordinate_frame.h"

@@ -7,11 +7,6 @@ ExternalHeartbeat::ExternalHeartbeat(const int &heartbeatInterval):
     interval = heartbeatInterval;
 }
 
-void ExternalHeartbeat::ExternalHeartbeat()
-{
-    mToExit = true;
-}
-
 void ExternalHeartbeat::run()
 {
     while(true)

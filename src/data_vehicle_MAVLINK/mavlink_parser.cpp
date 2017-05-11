@@ -19,14 +19,14 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser:: Pa
         mavlink_msg_sys_status_decode(message,&decodedMSG);
 
 //        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>();
-        DataGenericItem::DataGenericItem_Fuel fuel;
-        fuel.setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
-        fuel.setBatteryCurrent(decodedMSG.current_battery/10000.0);
-        fuel.setBatteryRemaining(decodedMSG.battery_remaining);
-        if(data->vehicleFuel.set(fuel))
+        DataGenericItem::DataGenericItem_Battery battery;
+        battery.setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
+        battery.setBatteryCurrent(decodedMSG.current_battery/10000.0);
+        battery.setBatteryRemaining(decodedMSG.battery_remaining);
+        if(data->vehicleFuel.set(battery))
         {
-            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>(fuel);
-            rtnVector.push_back(ptrFuel);
+            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> ptrBattery = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>(battery);
+            rtnVector.push_back(ptrBattery);
         }
         break;
     }

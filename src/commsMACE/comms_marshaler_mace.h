@@ -160,7 +160,7 @@ private:
     //! \param linkName Link identifier which generated call
     //! \param message Message that has been received
     //!
-    virtual void MessageReceived(const ILink* link_ptr, const mavlink_message_t &message) const;
+    virtual void MessageReceived(const ILink* link_ptr, const mace_message_t &message) const;
 
 
     //!
@@ -171,7 +171,7 @@ private:
     //! \param vehicleFirmwareType
     //! \param vehicleType
     //!
-    virtual void VehicleHeartbeatInfo(const ILink* link_ptr, const int &vehicleId, const mavlink_heartbeat_t &heartbeatMSG) const;
+    virtual void VehicleHeartbeatInfo(const ILink* link_ptr, const int &vehicleId, const mace_heartbeat_t &heartbeatMSG) const;
 
     //!
     //! \brief VehicleCommandACK
@@ -179,7 +179,7 @@ private:
     //! \param vehicleId
     //! \param cmdACKMSG
     //!
-    virtual void VehicleCommandACK(const ILink* link_ptr, const int &vehicleId, const mavlink_command_ack_t &cmdACK) const;
+    virtual void VehicleCommandACK(const ILink* link_ptr, const int &vehicleId, const mace_command_ack_t &cmdACK) const;
 
 
     //!

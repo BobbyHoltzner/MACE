@@ -28,8 +28,8 @@ public:
     virtual mavlink_message_t FlightModeTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &topicItem, const uint8_t &chan);
     virtual mavlink_message_t FlightMode_MACETOMAVLINK(DataGenericItem::DataGenericItem_FlightMode &flightModeItem, const uint8_t &chan);
 
-    virtual mavlink_message_t FuelTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &topicItem, const uint8_t &chan);
-    virtual mavlink_message_t Fuel_MACETOMAVLINK(DataGenericItem::DataGenericItem_Fuel fuelItem, const uint8_t &chan);
+    virtual mavlink_message_t BatteryTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> &topicItem, const uint8_t &chan);
+    virtual mavlink_message_t Battery_MACETOMAVLINK(DataGenericItem::DataGenericItem_Battery fuelItem, const uint8_t &chan);
 
     virtual mavlink_message_t GPSTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> &topicItem, const uint8_t &chan);
     virtual mavlink_message_t GPS_MACETOMAVLINK(DataGenericItem::DataGenericItem_GPS GPSItem, const uint8_t &chan);

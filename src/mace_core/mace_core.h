@@ -29,8 +29,6 @@
 
 #include "topic.h"
 
-#include "core_heartbeat.h"
-
 namespace MaceCore
 {
 

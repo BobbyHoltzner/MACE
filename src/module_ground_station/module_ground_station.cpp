@@ -446,8 +446,8 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 // Write Position data to the GUI:
                 sendPositionData(senderID, component);
             }
-            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Fuel::Name()) {
-                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>();
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Battery::Name()) {
+                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write fueld data to the GUI:
@@ -687,7 +687,7 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
     }
 }
 
-void ModuleGroundStation::sendVehicleFuel(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &component)
+void ModuleGroundStation::sendVehicleFuel(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> &component)
 {
     QJsonObject json;
     json["dataType"] = "VehicleFuel";
