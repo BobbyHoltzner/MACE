@@ -2,6 +2,40 @@
 
 namespace DataCOMMS {
 
+
+mace_message_t Generic_MACETOCOMMS::HeartbeatTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+{
+    DataGenericItem::DataGenericItem_Heartbeat heartbeatItem = *topicItem.get();
+    mace_message_t msg = Heartbeat_MACETOCOMMS(heartbeatItem,systemID,compID,chan);
+    return(msg);
+}
+mace_message_t Generic_MACETOCOMMS::Heartbeat_MACETOCOMMS(DataGenericItem::DataGenericItem_Heartbeat heartbeatItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+{
+     mace_message_t msg;
+     mace_heartbeat_t heartbeat;
+     heartbeat.autopilot = heartbeatItem.getAutopilot();
+     heartbeat.mace_companion = heartbeatItem.getCompaion() ? 1 : 0;
+     heartbeat.protocol = heartbeatItem.getProtocol();
+     heartbeat.type = heartbeatItem.getType();
+     mace_msg_heartbeat_encode_chan(systemID,compID,chan,&msg,&heartbeat);
+     return(msg);
+}
+
+mace_message_t Generic_MACETOCOMMS::SystemArmTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+{
+    DataGenericItem::DataGenericItem_SystemArm newSystemArm = *topicItem.get();
+    mace_message_t msg = SystemArm_MACETOCOMMS(newSystemArm,systemID,compID,chan);
+    return(msg);
+}
+mace_message_t Generic_MACETOCOMMS::SystemArm_MACETOCOMMS(DataGenericItem::DataGenericItem_SystemArm systemArmItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
+{
+     mace_message_t msg;
+     mace_vehicle_armed_t armed;
+     armed.vehicle_armed = systemArmItem.getSystemArm() ? 1 : 0;
+     mace_msg_vehicle_armed_encode_chan(systemID,compID,chan,&msg,&armed);
+     return(msg);
+}
+
 mace_message_t Generic_MACETOCOMMS::FlightModeTopicPTR_MACETOCOMMS(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &topicItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     DataGenericItem::DataGenericItem_FlightMode newFlightMode = *topicItem.get();

@@ -9,6 +9,28 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     ////////////////////////////////////////////////////////////////////////////
     /// GENERAL STATE EVENTS: These are events that may have a direct
     ////////////////////////////////////////////////////////////////////////////
+
+    case MACE_MSG_ID_VEHICLE_ARMED:
+    {
+        mace_vehicle_armed_t decodedMSG;
+        mace_msg_vehicle_armed_decode(message,&decodedMSG);
+        std::cout<<"The vehicle has changed arming"<<std::endl;
+        break;
+    }
+    case MACE_MSG_ID_VEHICLE_MODE:
+    {
+        mace_vehicle_mode_t decodedMSG;
+        mace_msg_vehicle_mode_decode(message,&decodedMSG);
+        std::cout<<"The vehicle has changed mode"<<std::endl;
+        break;
+    }
+    case MACE_MSG_ID_BATTERY_STATUS:
+    {
+        mace_battery_status_t decodedMSG;
+        mace_msg_battery_status_decode(message,&decodedMSG);
+        std::cout<<"The battery has changed."<<std::endl;
+        break;
+    }
     case MACE_MSG_ID_COMMAND_ACK:
     {
         mace_command_ack_t decodedMSG;
@@ -146,14 +168,6 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     case MACE_MSG_ID_POWER_STATUS:
     {
         //This is message definition 125
-        break;
-    }
-    case MACE_MSG_ID_BATTERY_STATUS:
-    {
-        //This is message definition 147
-        //Battery information
-        mace_battery_status_t decodedMSG;
-        mace_msg_battery_status_decode(message,&decodedMSG);
         break;
     }
     case MACE_MSG_ID_STATUSTEXT:
@@ -479,7 +493,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     }
     default:
     {
-        std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
+        //std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
     }
 
     }//end of switch statement

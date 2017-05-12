@@ -87,14 +87,14 @@ public:
     }
 
 
-    virtual void VehicleHeartbeatMACEInfo(const std::string &linkName, const int systemID, const mace_heartbeat_t &heartbeatMSG)
+    virtual void MACEHeartbeatInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG)
     {
         UNUSED(linkName);
         UNUSED(systemID);
         UNUSED(heartbeatMSG);
     }
 
-    virtual void VehicleCommandMACEACK(const std::string &linkName, const int systemID, const mace_command_ack_t &cmdACK)
+    virtual void MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK)
     {
         UNUSED(linkName);
         UNUSED(systemID);

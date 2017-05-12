@@ -54,12 +54,12 @@ public:
     virtual void MACEMessage(const std::string &linkName, const mace_message_t &msg);
 
     //!
-    //! \brief VehicleHeartbeatMACEInfo
+    //! \brief VehicleHeartbeatInfo
     //! \param linkName
     //! \param systemID
     //! \param heartbeatMSG
     //!
-    virtual void VehicleHeartbeatMACEInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG);
+    virtual void MACEHeartbeatInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG);
 
     //!
     //! \brief VehicleCommandMACEACK
@@ -67,7 +67,7 @@ public:
     //! \param systemID
     //! \param cmdACK
     //!
-    virtual void VehicleCommandMACEACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK);
+    virtual void MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK);
 
     //!
     //! \brief NewTopic

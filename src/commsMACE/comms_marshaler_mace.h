@@ -37,7 +37,7 @@ enum class Protocols
 //! There should only exists one protocol object for each type.
 //! But there may exists multiple links of the same type and may be using the same protocol.
 //!
-//! When multiple links are using the same protol, they utilize protocol channels to differiciante themselves.
+//! When multiple links are using the same protocol, they utilize protocol channels to differentiate themselves.
 //!
 class COMMSMACESHARED_EXPORT CommsMarshaler : public Publisher<CommsEvents>, private ILinkEvents, private IProtocolMavlinkEvents
 {
@@ -171,7 +171,7 @@ private:
     //! \param vehicleFirmwareType
     //! \param vehicleType
     //!
-    virtual void VehicleHeartbeatInfo(const ILink* link_ptr, const int &vehicleId, const mace_heartbeat_t &heartbeatMSG) const;
+    virtual void HeartbeatInfo(const ILink* link_ptr, const int &vehicleId, const mace_heartbeat_t &heartbeatMSG) const;
 
     //!
     //! \brief VehicleCommandACK
@@ -179,7 +179,7 @@ private:
     //! \param vehicleId
     //! \param cmdACKMSG
     //!
-    virtual void VehicleCommandACK(const ILink* link_ptr, const int &vehicleId, const mace_command_ack_t &cmdACK) const;
+    virtual void CommandACK(const ILink* link_ptr, const int &vehicleId, const mace_command_ack_t &cmdACK) const;
 
 
     //!
