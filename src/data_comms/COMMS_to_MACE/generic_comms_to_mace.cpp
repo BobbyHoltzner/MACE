@@ -7,12 +7,20 @@ Generic_COMMSTOMACE::Generic_COMMSTOMACE()
 
 }
 
-DataGenericItem::DataGenericItem_FlightMode Generic_COMMSTOMACE::FlightMode_COMMSTOMACE(const mace_heartbeat_t &genericItem, const int &systemID)
+DataGenericItem::DataGenericItem_SystemArm Generic_COMMSTOMACE::SystemArm_COMMSTOMACE(const mace_vehicle_armed_t &genericItem, const int &systemID)
 {
     UNUSED(systemID);
-    UNUSED(genericItem);
-    DataGenericItem::DataGenericItem_FlightMode flightItem;
-    return flightItem;
+    DataGenericItem::DataGenericItem_SystemArm armItem;
+    armItem.setSystemArm(genericItem.vehicle_armed);
+    return armItem;
+}
+
+DataGenericItem::DataGenericItem_FlightMode Generic_COMMSTOMACE::SystemMode_COMMSTOMACE(const mace_vehicle_mode_t &genericItem, const int &systemID)
+{
+    UNUSED(systemID);
+    DataGenericItem::DataGenericItem_FlightMode modeItem;
+    modeItem.setFlightMode(genericItem.vehicle_mode);
+    return modeItem;
 }
 
 DataGenericItem::DataGenericItem_Battery Generic_COMMSTOMACE::Battery_COMMSTOMACE(const mace_battery_status_t &genericItem, const int &systemID)

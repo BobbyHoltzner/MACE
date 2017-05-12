@@ -85,15 +85,10 @@ void ModuleExternalLink::MACEHeartbeatInfo(const std::string &linkName, const in
             ptr->NewConstructedVehicle(this, systemID);
         });
     }
-//    Data::VehicleTypes type = static_cast<Data::VehicleTypes>(heartbeatMSG.type);
-//    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrParameters = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
-//    ptrParameters->setVehicleType(type);
-//    ptrParameters->setVehicleArmed(heartbeatMSG.base_mode & MACE_MODE_FLAG_DECODE_POSITION_SAFETY);
-//    ptrParameters->setFlightMode();
-//    m_VehicleDataTopic.SetComponent(ptrParameters, topicDatagram);
-//    ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-//        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-//    });
+
+    DataGenericItem::DataGenericItem_Heartbeat heartbeat(heartbeatMSG);
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
+    PublishVehicleData(systemID,ptrHeartbeat);
 }
 
 //!
@@ -167,6 +162,17 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             }
         }
     }
+}
+
+void ModuleExternalLink::PublishVehicleData(const int &systemID, const std::shared_ptr<Data::ITopicComponentDataObject> &component)
+{
+    //construct datagram
+    MaceCore::TopicDatagram topicDatagram;
+    m_VehicleDataTopic.SetComponent(component, topicDatagram);
+    //notify listneres of topic
+    ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+    });
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

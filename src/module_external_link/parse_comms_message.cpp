@@ -14,21 +14,27 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_vehicle_armed_t decodedMSG;
         mace_msg_vehicle_armed_decode(message,&decodedMSG);
-        std::cout<<"The vehicle has changed arming"<<std::endl;
+        DataGenericItem::DataGenericItem_SystemArm newItem = DataCOMMS::Generic_COMMSTOMACE::SystemArm_COMMSTOMACE(decodedMSG,systemID);
+        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> ptrArm = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>(newItem);
+        PublishVehicleData(systemID,ptrArm);
         break;
     }
     case MACE_MSG_ID_VEHICLE_MODE:
     {
         mace_vehicle_mode_t decodedMSG;
         mace_msg_vehicle_mode_decode(message,&decodedMSG);
-        std::cout<<"The vehicle has changed mode"<<std::endl;
+        DataGenericItem::DataGenericItem_FlightMode newItem = DataCOMMS::Generic_COMMSTOMACE::SystemMode_COMMSTOMACE(decodedMSG,systemID);
+        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrMode = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>(newItem);
+        PublishVehicleData(systemID,ptrMode);
         break;
     }
     case MACE_MSG_ID_BATTERY_STATUS:
     {
         mace_battery_status_t decodedMSG;
         mace_msg_battery_status_decode(message,&decodedMSG);
-        std::cout<<"The battery has changed."<<std::endl;
+        DataGenericItem::DataGenericItem_Battery newItem = DataCOMMS::Generic_COMMSTOMACE::Battery_COMMSTOMACE(decodedMSG,systemID);
+        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> ptrBattery = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>(newItem);
+        PublishVehicleData(systemID,ptrBattery);
         break;
     }
     case MACE_MSG_ID_COMMAND_ACK:
@@ -67,6 +73,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_msg_gps_raw_int_decode(message,&decodedMSG);
         DataGenericItem::DataGenericItem_GPS newItem = DataCOMMS::Generic_COMMSTOMACE::GPS_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPS = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(newItem);
+
         m_VehicleDataTopic.SetComponent(ptrGPS, topicDatagram);
         //notify listneres of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){

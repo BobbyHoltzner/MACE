@@ -46,6 +46,9 @@ public:
 
     void ParseCommsCommand(const mace_command_long_t* message);
 
+    void PublishVehicleData(const int &systemID, const std::shared_ptr<Data::ITopicComponentDataObject> &component);
+
+
     //!
     //! \brief New Mavlink message received over a link
     //! \param linkName Name of link message received over
