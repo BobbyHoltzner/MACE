@@ -35,6 +35,7 @@ headers.path    = $$(MACE_ROOT)/include/module_path_planning_NASAPhase2
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$(MACE_ROOT)/include
 INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../

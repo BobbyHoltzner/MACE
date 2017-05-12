@@ -73,6 +73,21 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         });
         break;
     }
+    case MACE_MSG_ID_ATTITUDE_STATE_FULL:
+    {
+        //This is message definition 30
+        //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
+        mace_attitude_t decodedMSG;
+        mace_msg_attitude_decode(message,&decodedMSG);
+        DataState::StateAttitude newAttitude = DataCOMMS::State_COMMSTOMACE::Attitude_COMMSTOMACE(decodedMSG,systemID);
+        std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(newAttitude);
+        m_VehicleDataTopic.SetComponent(ptrAttitude, topicDatagram);
+        //notify listneres of topic
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
+        break;
+    }
     case MACE_MSG_ID_LOCAL_POSITION_NED:
     {
         //This is message definition 32

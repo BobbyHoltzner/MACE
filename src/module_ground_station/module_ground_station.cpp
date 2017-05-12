@@ -716,7 +716,8 @@ void ModuleGroundStation::sendVehicleMode(const int &vehicleID, const std::share
     json["dataType"] = "VehicleMode";
     json["vehicleID"] = vehicleID;
     json["vehicleMode"] = QString::fromStdString(component->getFlightModeString());
-    json["isArmed"] = component->getVehicleArmed();
+    //Ken FIX: This is under a different topic now
+    json["isArmed"] = false;
 
     QJsonDocument doc(json);
     if(m_modeTimeoutOccured)

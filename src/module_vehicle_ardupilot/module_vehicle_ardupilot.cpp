@@ -264,6 +264,8 @@ void ModuleVehicleArdupilot::Command_ClearOnboardGuided(const int &targetSystem)
 
 void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
+    //MaceCore::TopicDatagram topicDatagram;
+
     UNUSED(linkName);
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(systemID);
     //The purpose of this module seeing if it is the first heartbeat is to establish initial comms and parameter grabs
@@ -276,19 +278,66 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
     }
+
+    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
+
+    DataGenericItem::DataGenericItem_Heartbeat heartbeat;
+    heartbeat.setAutopilot(MAV_AUTOPILOT_ARDUPILOTMEGA);
+    heartbeat.setCompaion(true);
+    heartbeat.setProtocol(MAV_PROTCOL_MAVLINK);
+    switch(heartbeatMSG.type)
+    {
+    case MAV_TYPE_TRICOPTER:
+    case MAV_TYPE_QUADROTOR:
+    case MAV_TYPE_HEXAROTOR:
+    case MAV_TYPE_OCTOROTOR:
+        heartbeat.setType(MAV_TYPE_QUADROTOR);
+        break;
+    case MAV_TYPE_FIXED_WING:
+        heartbeat.setType(MAV_TYPE_FIXED_WING);
+        break;
+    default:
+        heartbeat.setType(MAV_TYPE_GENERIC);
+    }
+
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
+    rtnVector.push_back(ptrHeartbeat);
+//    m_VehicleDataTopic.SetComponent(ptrHeartbeat, topicDatagram);
+//    //notify listneres of topic
+//    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+//    });
+
+    DataGenericItem::DataGenericItem_SystemArm arm;
+    arm.setSystemArm(heartbeatMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
+    if(tmpData->data->vehicleArm.set(arm))
+    {
+        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> ptrArm = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>(arm);
+        rtnVector.push_back(ptrArm);
+//        m_VehicleDataTopic.SetComponent(ptrArm, topicDatagram);
+//        //notify listneres of topic
+//        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+//        });
+    }
+
     DataARDUPILOT::VehicleFlightMode newDataMode;
     newDataMode.parseMAVLINK(heartbeatMSG);
+    newDataMode.getFlightModeString();
+    DataGenericItem::DataGenericItem_FlightMode mode;
+    mode.setFlightMode(newDataMode.getFlightModeString());
+    if(tmpData->data->vehicleMode.set(mode))
+    {
+        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrMode = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>(mode);
+        rtnVector.push_back(ptrMode);
+//        m_VehicleDataTopic.SetComponent(ptrMode, topicDatagram);
+//        //notify listneres of topic
+//        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+//        });
+    }
 
-    tmpData->data->ArdupilotFlightMode.set(newDataMode);
-
-    std::shared_ptr<DataARDUPILOT::VehicleFlightMode> ptrMode = std::make_shared<DataARDUPILOT::VehicleFlightMode>(newDataMode);
-
-    MaceCore::TopicDatagram topicDatagram;
-    m_VehicleDataTopic.SetComponent(ptrMode, topicDatagram);
-    //notify listneres of topic
-    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-    });
+    this->PublishVehicleData(systemID, rtnVector);
 }
 
 void ModuleVehicleArdupilot::VehicleCommandACK(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK)
@@ -347,6 +396,23 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
             }
         } //if there is information available
     }
+}
+
+void ModuleVehicleArdupilot::PublishVehicleData(const int &systemID, const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &components)
+{
+    if(components.size() > 0)
+    {
+        //construct datagram
+        MaceCore::TopicDatagram topicDatagram;
+        for(size_t i = 0 ; i < components.size() ; i++)
+        {
+            m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
+            //notify listneres of topic
+            ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+                ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+            });
+        }
+    } //if there is information available
 }
 
 void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)

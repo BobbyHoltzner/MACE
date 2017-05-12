@@ -11,17 +11,9 @@ mace_message_t Generic_MACETOCOMMS::FlightModeTopicPTR_MACETOCOMMS(const std::sh
 mace_message_t Generic_MACETOCOMMS::FlightMode_MACETOCOMMS(DataGenericItem::DataGenericItem_FlightMode flightModeItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
      mace_message_t msg;
-     mace_heartbeat_t heartbeat;
-     if(flightModeItem.getAutopilotType() == Data::AutopilotTypes::ARDUPILOT)
-         heartbeat.autopilot = MAV_AUTOPILOT_ARDUPILOTMEGA;
-     if(flightModeItem.getVehicleType() == Data::VehicleTypes::PLANE)
-     {
-         heartbeat.type = MAV_TYPE_FIXED_WING;
-     }else
-     {
-         heartbeat.type = MAV_TYPE_QUADROTOR;
-     }
-     mace_msg_heartbeat_encode_chan(systemID,compID,chan,&msg,&heartbeat);
+     mace_vehicle_mode_t mode;
+     flightModeItem.getFlightModeString().copy(mode.vehicle_mode,10,0);
+     mace_msg_vehicle_mode_encode_chan(systemID,compID,chan,&msg,&mode);
      return(msg);
 }
 

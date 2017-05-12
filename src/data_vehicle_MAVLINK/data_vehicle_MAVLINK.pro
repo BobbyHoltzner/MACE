@@ -96,7 +96,7 @@ headers_MAVLINK_to_MACE.files   += \
     MAVLINK_to_MACE/state_mavlink_to_mace.h
 INSTALLS       += headers_MAVLINK_to_MACE
 
-
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 INCLUDEPATH += $$PWD/../
 

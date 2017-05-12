@@ -1,7 +1,10 @@
 #ifndef STATE_TOPIC_COMPONENTS_H
 #define STATE_TOPIC_COMPONENTS_H
 
-#define DATA_STATE_GENERIC_TOPICS DataStateTopic::StateAttitudeTopic,DataStateTopic::StateGlobalPositionTopic,DataStateTopic::StateGlobalPositionExTopic,DataStateTopic::StateGlobalVelocityTopic,DataStateTopic::StateLocalPositionTopic,DataStateTopic::StateLocalPositionExTopic,DataStateTopic::StateLocalVelocityTopic
+#define DATA_STATE_GENERIC_TOPICS DataStateTopic::StateAttitudeTopic,\
+    DataStateTopic::StateGlobalPositionTopic,DataStateTopic::StateGlobalPositionExTopic,\
+    DataStateTopic::StateGlobalVelocityTopic,DataStateTopic::StateLocalPositionTopic,\
+    DataStateTopic::StateLocalPositionExTopic,DataStateTopic::StateLocalVelocityTopic
 
 #include "state_attitude_topic.h"
 

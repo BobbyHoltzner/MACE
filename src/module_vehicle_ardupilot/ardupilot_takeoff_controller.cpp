@@ -49,20 +49,20 @@ Ardupilot_TakeoffController::~Ardupilot_TakeoffController() {
 void Ardupilot_TakeoffController::initializeTakeoffSequence(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &takeoff)
 {
     missionItem_Takeoff = takeoff;
-    DataARDUPILOT::VehicleFlightMode currentVehicleMode = vehicleDataObject->data->ArdupilotFlightMode.get();
-    bool vehicleArmed = currentVehicleMode.getVehicleArmed();
+    std::string mode = vehicleDataObject->data->vehicleMode.get().getFlightModeString();
+    bool armed = vehicleDataObject->data->vehicleArm.get().getSystemArm();
 
-    if((vehicleArmed) && (currentVehicleMode.getFlightModeString() == "GUIDED"))
+    if((armed) && (mode == "GUIDED"))
     {
         currentStateLogic = ARMED_RIGHT_MODE;
         mavlink_message_t msg = vehicleDataObject->generateTakeoffMessage(takeoff,m_LinkChan);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         //the vehicle is already armed and we can send the initial takeoff command
 
-    }else if(vehicleArmed){
+    }else if(armed){
         //the vehicle is armed and we should switch to guided
         currentStateLogic = ARMED_WRONG_MODE;
-        int requiredMode = currentVehicleMode.getFlightModeFromString("GUIDED");
+        int requiredMode = vehicleDataObject->data->ArdupilotFlightMode.get().getFlightModeFromString("GUIDED");
         int vehicleID = vehicleDataObject->getSystemID();
         mavlink_message_t msg = vehicleDataObject->generateChangeMode(vehicleID,m_LinkChan,requiredMode);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -139,7 +139,8 @@ void Ardupilot_TakeoffController::run()
             break;
         }
 
-        DataARDUPILOT::VehicleFlightMode currentVehicleMode = vehicleDataObject->data->ArdupilotFlightMode.get();
+        std::string mode = vehicleDataObject->data->vehicleMode.get().getFlightModeString();
+        bool armed = vehicleDataObject->data->vehicleArm.get().getSystemArm();
 
         switch(currentStateLogic)
         {
@@ -147,16 +148,16 @@ void Ardupilot_TakeoffController::run()
         {
             if(modeUpdated)
             {
-                if(currentVehicleMode.getVehicleArmed())
+                if(armed)
                 {
-                    if(currentVehicleMode.getFlightModeString() == "GUIDED")
+                    if(mode == "GUIDED")
                     {
                         currentStateLogic = ARMED_RIGHT_MODE;
                         mavlink_message_t msg = vehicleDataObject->generateTakeoffMessage(missionItem_Takeoff,m_LinkChan);
                         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
                     }else{
                         currentStateLogic = ARMED_WRONG_MODE;
-                        int requiredMode = currentVehicleMode.getFlightModeFromString("GUIDED");
+                        int requiredMode = vehicleDataObject->data->ArdupilotFlightMode.get().getFlightModeFromString("GUIDED");
                         int vehicleID = vehicleDataObject->getVehicleID();
                         mavlink_message_t msg = vehicleDataObject->generateChangeMode(vehicleID,m_LinkChan,requiredMode);
                         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -171,14 +172,14 @@ void Ardupilot_TakeoffController::run()
         {
             if(modeUpdated)
             {
-                if(currentVehicleMode.getVehicleArmed() == false)
+                if(armed == false)
                 {
                     //for some reason we have taken a step backwards
                     //the vehicle is no longer armed and therefore
                     //we dont want to proceed
                     mToExit = true;
                 }
-                if(currentVehicleMode.getFlightModeString() == "GUIDED")
+                if(mode == "GUIDED")
                 {
                     //we have made a good progression if we are in this phase
                     currentStateLogic = ARMED_RIGHT_MODE;
@@ -193,7 +194,7 @@ void Ardupilot_TakeoffController::run()
         {
             if(modeUpdated)
             {
-                if((!currentVehicleMode.getVehicleArmed()) || (currentVehicleMode.getFlightModeString() != "GUIDED"))
+                if((!armed) || (mode != "GUIDED"))
                 {
                     //for some reason we have taken a step backwards
                     //the vehicle is no longer armed and therefore
@@ -208,7 +209,7 @@ void Ardupilot_TakeoffController::run()
         {
             if(modeUpdated)
             {
-                if((!currentVehicleMode.getVehicleArmed()) || (currentVehicleMode.getFlightModeString() != "GUIDED"))
+                if((!armed) || (mode != "GUIDED"))
                 {
                     //for some reason we have taken a step backwards
                     //the vehicle is no longer armed and therefore

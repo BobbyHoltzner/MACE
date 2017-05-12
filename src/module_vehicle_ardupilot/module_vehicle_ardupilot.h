@@ -79,6 +79,12 @@ public:
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
 
 
+    //!
+    //! \brief PublishVechicleData
+    //! \param components
+    //!
+    void PublishVehicleData(const int &systemID, const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &components);
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from IModuleCommandVehicle via AbstractModuleBaseVehicleListener.
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -28,7 +28,9 @@ SOURCES += \
     data_generic_item_topic_flightmode.cpp \
     data_generic_item_topic_GPS.cpp \
     data_generic_item_topic_text.cpp \
-    data_generic_item_topic_battery.cpp
+    data_generic_item_topic_battery.cpp \
+    data_generic_item_topic_heartbeat.cpp \
+    data_generic_item_topic_system_arm.cpp
 
 HEADERS +=\
         data_generic_item_topic_global.h \
@@ -36,7 +38,9 @@ HEADERS +=\
     data_generic_item_topic_flightmode.h \
     data_generic_item_topic_GPS.h \
     data_generic_item_topic_text.h \
-    data_generic_item_topic_battery.h
+    data_generic_item_topic_battery.h \
+    data_generic_item_topic_heartbeat.h \
+    data_generic_item_topic_system_arm.h
 
 # Unix lib Install
 unix:!symbian {
@@ -55,6 +59,7 @@ headers.path    = $$(MACE_ROOT)/include/data_generic_item_topic
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata

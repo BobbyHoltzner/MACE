@@ -138,6 +138,9 @@ protected:
     bool heartbeatSeen = false;
 
 public:
+        Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_Heartbeat> vehicleHeartbeat;
+        Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_FlightMode> vehicleMode;
+        Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_SystemArm> vehicleArm;
         Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_FlightMode> vehicleState;
         Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_Battery> vehicleFuel;
         Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_GPS> vehicleGPSStatus;

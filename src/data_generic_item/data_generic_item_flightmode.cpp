@@ -3,18 +3,20 @@
 namespace DataGenericItem {
 
 DataGenericItem_FlightMode::DataGenericItem_FlightMode():
-    vehicleType(Data::VehicleTypes::UNKNOWN), autopilotType(Data::AutopilotTypes::UNKNOWN), flightModeString(""), flightModeInt(0), vehicleArmed(false)
+    flightModeString("")
 {
 
 }
 
+DataGenericItem_FlightMode::DataGenericItem_FlightMode(const mace_vehicle_mode_t &mode)
+{
+    this->flightModeString = std::string(mode.vehicle_mode);
+}
+
+
 DataGenericItem_FlightMode::DataGenericItem_FlightMode(const DataGenericItem_FlightMode &copyObj)
 {
-    this->vehicleType = copyObj.getVehicleType();
-    this->autopilotType = copyObj.getAutopilotType();
     this->flightModeString = copyObj.getFlightModeString();
-    this->flightModeInt = copyObj.getFlightModeInt();
-    this->vehicleArmed = copyObj.getVehicleArmed();
 }
 
 } //end of namespace DataGenericItem

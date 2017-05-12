@@ -101,7 +101,7 @@ headers_ARDUPILOT_to_MACE.files   += \
 INSTALLS       += headers_ARDUPILOT_to_MACE
 
 
-
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 INCLUDEPATH += $$PWD/../
 
