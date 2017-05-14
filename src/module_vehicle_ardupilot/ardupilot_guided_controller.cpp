@@ -56,10 +56,10 @@ double Ardupilot_GuidedController::distanceToTarget(){
     return distance;
 }
 
-void Ardupilot_GuidedController::generateControl(const Data::MissionState &currentState)
+void Ardupilot_GuidedController::generateControl(const ControllerState &currentState)
 {
     switch(currentState){
-    case Data::MissionState::ROUTING:
+    case Data::ControllerState::TRACKING:
     {
         //std::cout<<"I am still routing to the waypoint"<<std::endl;
         break;

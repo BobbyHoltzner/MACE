@@ -104,20 +104,20 @@ double Ardupilot_TakeoffController::distanceToTarget(){
     }
 }
 
-void Ardupilot_TakeoffController::generateControl(const Data::MissionState &currentState)
+void Ardupilot_TakeoffController::generateControl(const Data::ControllerState &currentState)
 {
     switch(currentState){
-    case Data::MissionState::ROUTING:
+    case Data::ControllerState::TRACKING:
     {
         //std::cout<<"I am still routing to the waypoint"<<std::endl;
         break;
     }
-    case Data::MissionState::HUNTING:
+    case Data::ControllerState::HUNTING:
     {
         std::cout<<"I am hunting for the waypoint"<<std::endl;
         break;
     }
-    case Data::MissionState::ACHIEVED:
+    case Data::ControllerState::ACHIEVED:
     {
         //we have reached the end of the current mission
         //KEN TODO: We need to figure out what appropriate action to take here

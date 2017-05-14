@@ -6,14 +6,14 @@ ArdupilotMissionState::ArdupilotMissionState()
     distanceThresholdHunting = 1.0;
     maxDuration_Hunting = 10.0;
     maxDuration_Routing = std::numeric_limits<double>::max();
-    state = Data::MissionState::ROUTING;
+    state = Data::ControllerState::TRACKING;
     initializeMissionState();
 }
 
 ArdupilotMissionState::ArdupilotMissionState(const double &achievedDistance, const double &huntingDistance, const double &maxHuntingDuration) :
     distanceThresholdAchieved(achievedDistance), distanceThresholdHunting(huntingDistance), maxDuration_Hunting(maxHuntingDuration)
 {
-    state = Data::MissionState::ROUTING;
+    state = Data::ControllerState::TRACKING:
     maxDuration_Routing = std::numeric_limits<double>::max();
     initializeMissionState();
 }
@@ -30,7 +30,7 @@ Data::MissionState ArdupilotMissionState::updateMissionState(const double &dista
     if(distance > distanceThresholdHunting)
     {
         //Really nothing to do in this case as the item is far away.
-        state = Data::MissionState::ROUTING;
+        state = Data::ControllerState::TRACKING;
     }
     else if((distance <= distanceThresholdHunting) && (distance > distanceThresholdAchieved))
     {

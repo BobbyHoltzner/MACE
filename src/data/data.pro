@@ -22,7 +22,6 @@ SOURCES += \
 HEADERS += data_global.h \
     i_topic_component_data_object.h \
     topic_data_object_collection.h \
-    positional_coordinate_frame.h \
     coordinate_frame.h \
     vehicle_command_types.h \
     vehicle_types.h \
@@ -32,7 +31,6 @@ HEADERS += data_global.h \
     autopilot_types.h \
     controller_state.h \
     system_description.h \
-    mission_state.h \
     mission_type.h \
     environment_time.h \
     date.h \

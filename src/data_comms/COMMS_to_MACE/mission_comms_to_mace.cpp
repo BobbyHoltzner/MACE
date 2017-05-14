@@ -21,9 +21,10 @@ std::shared_ptr<MissionItem::AbstractMissionItem> Mission_COMMSTOMACE::Covert_CO
         newMissionItem = std::make_shared<MissionItem::ActionChangeSpeed>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_LOITER_TIME:
+    case MissionItemType::MI_NAV_LOITER_TIME:
     {
-        if(maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        if(maceItem.frame == CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT
+)
         {
             MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition> missionItem;
             LoiterTime_COMMSTOMACE(systemID,maceItem,missionItem);
@@ -35,9 +36,10 @@ std::shared_ptr<MissionItem::AbstractMissionItem> Mission_COMMSTOMACE::Covert_CO
         }
         break;
     }
-    case MAV_CMD_NAV_LOITER_TURNS:
+    case MissionItemType::MI_NAV_LOITER_TURNS:
     {
-        if(maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        if(maceItem.frame == CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT
+)
         {
             MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> missionItem;
             LoiterTurns_COMMSTOMACE(systemID,maceItem,missionItem);
@@ -49,9 +51,10 @@ std::shared_ptr<MissionItem::AbstractMissionItem> Mission_COMMSTOMACE::Covert_CO
         }
         break;
     }
-    case MAV_CMD_NAV_LOITER_UNLIM:
+    case MissionItemType::MI_NAV_LOITER_UNLIM:
     {
-        if(maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        if(maceItem.frame == CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT
+)
         {
             MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> missionItem;
             LoiterUnlimited_COMMSTOMACE(systemID,maceItem,missionItem);
@@ -63,16 +66,17 @@ std::shared_ptr<MissionItem::AbstractMissionItem> Mission_COMMSTOMACE::Covert_CO
         }
         break;
     }
-    case MAV_CMD_NAV_RETURN_TO_LAUNCH:
+    case MissionItemType::MI_NAV_RETURN_TO_LAUNCH:
     {
         MissionItem::SpatialRTL missionItem;
         RTL_COMMSTOMACE(systemID,maceItem,missionItem);
         newMissionItem = std::make_shared<MissionItem::SpatialRTL>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_TAKEOFF:
+    case MissionItemType::MI_NAV_TAKEOFF:
     {
-        if(maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        if(maceItem.frame == CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT
+)
         {
             MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem;
             Takeoff_COMMSTOMACE(systemID,maceItem,missionItem);
@@ -84,9 +88,10 @@ std::shared_ptr<MissionItem::AbstractMissionItem> Mission_COMMSTOMACE::Covert_CO
         }
         break;
     }
-    case MAV_CMD_NAV_WAYPOINT:
+    case MissionItemType::MI_NAV_WAYPOINT:
     {
-        if(maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        if(maceItem.frame == CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT
+)
         {
             MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> missionItem;
             Waypoint_COMMSTOMACE(systemID,maceItem,missionItem);
@@ -118,7 +123,7 @@ void Mission_COMMSTOMACE::Home_COMMSTOMACE(const int &vehicleID, const mace_set_
 
 void Mission_COMMSTOMACE::ChangeSpeed_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, MissionItem::ActionChangeSpeed &missionItem)
 {
-    if(maceItem.command == MAV_CMD_DO_CHANGE_SPEED){
+    if(maceItem.command == MissionItemType::MI_ACT_CHANGESPEED){
         missionItem.setVehicleID(vehicleID);
         missionItem.setDesiredSpeed(maceItem.param2);
         if(maceItem.param1 > 0.0)
@@ -132,7 +137,8 @@ void Mission_COMMSTOMACE::ChangeSpeed_COMMSTOMACE(const int &vehicleID, const ma
 
 void Mission_COMMSTOMACE::LoiterTime_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem)
 {
-    if((maceItem.command == MAV_CMD_NAV_LOITER_TIME) && (maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
+    if((maceItem.command == MissionItemType::MI_NAV_LOITER_TIME) && (maceItem.frame == CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT
+)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.latitude = maceItem.x;
         missionItem.position.longitude = maceItem.y;
@@ -144,7 +150,7 @@ void Mission_COMMSTOMACE::LoiterTime_COMMSTOMACE(const int &vehicleID, const mac
 }
 void Mission_COMMSTOMACE::LoiterTime_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem)
 {
-    if((maceItem.command == MAV_CMD_NAV_LOITER_TIME) && (maceItem.frame == MAV_FRAME_LOCAL_NED)){
+    if((maceItem.command == MissionItemType::MI_NAV_LOITER_TIME) && (maceItem.frame == CoordinateFrameType::CF_LOCAL_ENU)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.x = maceItem.x;
         missionItem.position.y = maceItem.y;
@@ -157,7 +163,8 @@ void Mission_COMMSTOMACE::LoiterTime_COMMSTOMACE(const int &vehicleID, const mac
 
 void Mission_COMMSTOMACE::LoiterTurns_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem)
 {
-    if((maceItem.command == MAV_CMD_NAV_LOITER_TURNS) && (maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
+    if((maceItem.command == MissionItemType::MI_NAV_LOITER_TURNS) && (maceItem.frame == CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT
+)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.latitude = maceItem.x;
         missionItem.position.longitude = maceItem.y;
@@ -169,7 +176,7 @@ void Mission_COMMSTOMACE::LoiterTurns_COMMSTOMACE(const int &vehicleID, const ma
 }
 void Mission_COMMSTOMACE::LoiterTurns_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem)
 {
-    if((maceItem.command == MAV_CMD_NAV_LOITER_TURNS) && (maceItem.frame == MAV_FRAME_LOCAL_NED)){
+    if((maceItem.command == MissionItemType::MI_NAV_LOITER_TURNS) && (maceItem.frame == CoordinateFrameType::CF_LOCAL_ENU)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.x = maceItem.x;
         missionItem.position.y = maceItem.y;
@@ -182,7 +189,8 @@ void Mission_COMMSTOMACE::LoiterTurns_COMMSTOMACE(const int &vehicleID, const ma
 
 void Mission_COMMSTOMACE::LoiterUnlimited_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem)
 {
-    if((maceItem.command == MAV_CMD_NAV_LOITER_UNLIM) && (maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
+    if((maceItem.command == MissionItemType::MI_NAV_LOITER_UNLIM) && (maceItem.frame == CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT
+)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.latitude = maceItem.x;
         missionItem.position.longitude = maceItem.y;
@@ -193,7 +201,7 @@ void Mission_COMMSTOMACE::LoiterUnlimited_COMMSTOMACE(const int &vehicleID, cons
 }
 void Mission_COMMSTOMACE::LoiterUnlimited_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem)
 {
-    if((maceItem.command == MAV_CMD_NAV_LOITER_UNLIM) && (maceItem.frame == MAV_FRAME_LOCAL_NED)){
+    if((maceItem.command == MissionItemType::MI_NAV_LOITER_UNLIM) && (maceItem.frame == CoordinateFrameType::CF_LOCAL_ENU)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.x = maceItem.x;
         missionItem.position.y = maceItem.y;
@@ -205,14 +213,15 @@ void Mission_COMMSTOMACE::LoiterUnlimited_COMMSTOMACE(const int &vehicleID, cons
 
 void Mission_COMMSTOMACE::RTL_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, MissionItem::SpatialRTL &missionItem)
 {
-    if(maceItem.command == MAV_CMD_NAV_RETURN_TO_LAUNCH){
+    if(maceItem.command == MissionItemType::MI_NAV_RETURN_TO_LAUNCH){
         missionItem.setVehicleID(vehicleID);
     }
 }
 
 void Mission_COMMSTOMACE::Takeoff_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem)
 {
-    if((maceItem.command == MAV_CMD_NAV_TAKEOFF) && (maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
+    if((maceItem.command == MissionItemType::MI_NAV_TAKEOFF) && (maceItem.frame == CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT
+)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.latitude = maceItem.x;
         missionItem.position.longitude = maceItem.y;
@@ -221,7 +230,7 @@ void Mission_COMMSTOMACE::Takeoff_COMMSTOMACE(const int &vehicleID, const mace_m
 }
 void Mission_COMMSTOMACE::Takeoff_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, MissionItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem)
 {
-    if((maceItem.command == MAV_CMD_NAV_TAKEOFF) && (maceItem.frame == MAV_FRAME_LOCAL_NED)){
+    if((maceItem.command == MissionItemType::MI_NAV_TAKEOFF) && (maceItem.frame == CoordinateFrameType::CF_LOCAL_ENU)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.x = maceItem.x;
         missionItem.position.y = maceItem.y;
@@ -231,7 +240,8 @@ void Mission_COMMSTOMACE::Takeoff_COMMSTOMACE(const int &vehicleID, const mace_m
 
 void Mission_COMMSTOMACE::Waypoint_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem)
 {
-    if((maceItem.command == MAV_CMD_NAV_WAYPOINT) && (maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
+    if((maceItem.command == MissionItemType::MI_NAV_WAYPOINT) && (maceItem.frame == CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT
+)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.latitude = maceItem.x;
         missionItem.position.longitude = maceItem.y;
@@ -240,7 +250,7 @@ void Mission_COMMSTOMACE::Waypoint_COMMSTOMACE(const int &vehicleID, const mace_
 }
 void Mission_COMMSTOMACE::Waypoint_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, MissionItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem)
 {
-    if((maceItem.command == MAV_CMD_NAV_WAYPOINT) && (maceItem.frame == MAV_FRAME_LOCAL_NED)){
+    if((maceItem.command == MissionItemType::MI_NAV_WAYPOINT) && (maceItem.frame == CoordinateFrameType::CF_LOCAL_ENU)){
         missionItem.setVehicleID(vehicleID);
         missionItem.position.x = maceItem.x;
         missionItem.position.y = maceItem.y;
