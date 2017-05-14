@@ -4,7 +4,7 @@ namespace MissionItem {
 
 MissionItemType ActionChangeMode::getMissionType() const
 {
-    return MissionItemType::CHANGE_MODE;
+    return MissionItemType::MI_ACT_CHANGEMODE;
 }
 
 std::string ActionChangeMode::getDescription() const

@@ -4,34 +4,28 @@
 #include "data/positional_coordinate_frame.h"
 #include "data/coordinate_frame.h"
 
+using namespace Data;
+
 namespace DataState {
 class StateGenericPosition
 {
 public:
 
-    void setCoordinateFrame(const Data::CoordinateFrame &coordinateFrame){
+    void setCoordinateFrame(const CoordinateFrameType &coordinateFrame){
         this->m_CoordinateFrame = coordinateFrame;
     }
 
-    Data::PositionalFrame getPositionFrame() const {
-        return m_PositionFrame;
-    }
-
-    Data::CoordinateFrame getCoordinateFrame() const {
+    CoordinateFrameType getCoordinateFrame() const {
         return m_CoordinateFrame;
     }
 
 public:
     void operator = (const StateGenericPosition &rhs)
     {
-        this->m_PositionFrame = rhs.m_PositionFrame;
         this->m_CoordinateFrame = rhs.m_CoordinateFrame;
     }
 
     bool operator == (const StateGenericPosition &rhs) {
-        if(this->m_PositionFrame != rhs.m_PositionFrame){
-            return false;
-        }
         if(this->m_CoordinateFrame != rhs.m_CoordinateFrame){
             return false;
         }
@@ -42,8 +36,7 @@ public:
         return !(*this == rhs);
     }
 protected:
-    Data::PositionalFrame m_PositionFrame;
-    Data::CoordinateFrame m_CoordinateFrame;
+    CoordinateFrameType m_CoordinateFrame;
 };
 
 }

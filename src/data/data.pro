@@ -28,13 +28,11 @@ HEADERS += data_global.h \
     vehicle_types.h \
     timer.h \
     operating_mode.h \
-    altitude_frame.h \
     speed_frame.h \
     autopilot_types.h \
     controller_state.h \
     system_description.h \
     mission_state.h \
-    command_acknowledgement.h \
     mission_type.h \
     environment_time.h \
     date.h \
@@ -43,7 +41,11 @@ HEADERS += data_global.h \
     abstract_position_item.h \
     data_get_set_notifier.h \
     mission_ack.h \
-    threadmanager.h
+    threadmanager.h \
+    command_ack.h \
+    mission_item_type.h \
+    system_type.h \
+    comms_protocol.h
     loiter_direction.h
 
 # Unix lib Install

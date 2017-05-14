@@ -8,9 +8,9 @@ DataGenericItem_FlightMode::DataGenericItem_FlightMode():
 
 }
 
-DataGenericItem_FlightMode::DataGenericItem_FlightMode(const mace_vehicle_mode_t &mode)
+DataGenericItem_FlightMode::DataGenericItem_FlightMode(const std::string &mode)
 {
-    this->flightModeString = std::string(mode.vehicle_mode);
+    this->flightModeString = mode;
 }
 
 

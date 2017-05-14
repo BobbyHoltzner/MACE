@@ -9,6 +9,8 @@
 
 #include "state_generic_position.h"
 
+using namespace Data;
+
 namespace DataState {
 
 class StateLocalPosition : public StateGenericPosition
@@ -18,11 +20,11 @@ public:
 
     StateLocalPosition(const StateLocalPosition &localPosition);
 
-    StateLocalPosition(const Data::CoordinateFrame &frame);
+    StateLocalPosition(const CoordinateFrameType &frame);
 
     StateLocalPosition(const double &x, const double &y, const double &z);
 
-    StateLocalPosition(const Data::CoordinateFrame &frame, const double &x, const double &y, const double &z);
+    StateLocalPosition(const CoordinateFrameType &frame, const double &x, const double &y, const double &z);
 
 public:
 
@@ -75,8 +77,7 @@ public:
     }
 
 public:
-    Data::PositionalFrame m_PositionFrame;
-    Data::CoordinateFrame m_CoordinateFrame;
+    CoordinateFrameType m_CoordinateFrame;
 
     double x;
     double y;

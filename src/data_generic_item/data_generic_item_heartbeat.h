@@ -3,7 +3,12 @@
 
 #include <iostream>
 #include <stdint.h>
-#include "mace.h"
+
+#include "data/autopilot_types.h"
+#include "data/comms_protocol.h"
+#include "data/system_type.h"
+
+using namespace Data;
 
 namespace DataGenericItem {
 
@@ -12,21 +17,19 @@ class DataGenericItem_Heartbeat
 public:
     DataGenericItem_Heartbeat();
 
-    DataGenericItem_Heartbeat(const mace_heartbeat_t &heartbeat);
-
     DataGenericItem_Heartbeat(const DataGenericItem_Heartbeat &copyObj);
 
 
 public:
-    void setProtocol(const MAV_PROTOCOL &protocol)
+    void setProtocol(const CommsProtocol &protocol)
     {
         this->protocol = protocol;
     }
-    void setType(const MAV_TYPE &type)
+    void setType(const SystemType &type)
     {
         this->type = type;
     }
-    void setAutopilot(const MAV_AUTOPILOT &autopilot)
+    void setAutopilot(const AutopilotType &autopilot)
     {
         this->autopilot = autopilot;
     }
@@ -36,15 +39,15 @@ public:
     }
 
 public:
-    MAV_PROTOCOL getProtocol() const
+    CommsProtocol getProtocol() const
     {
         return this->protocol;
     }
-    MAV_TYPE getType() const
+    SystemType getType() const
     {
         return this->type;
     }
-    MAV_AUTOPILOT getAutopilot() const
+    AutopilotType getAutopilot() const
     {
         return this->autopilot;
     }
@@ -84,9 +87,9 @@ public:
 
 
 protected:
-    MAV_PROTOCOL protocol;
-    MAV_TYPE type;
-    MAV_AUTOPILOT autopilot;
+    AutopilotType autopilot;
+    CommsProtocol protocol;
+    SystemType type;
     bool maceCompanion;
 };
 

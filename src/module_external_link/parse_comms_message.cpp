@@ -221,7 +221,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         spatialHome.setVehicleID(systemID);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->NewVehicleHomePosition(this,spatialHome);
+            ptr->GVEvents_NewHomePosition(this,spatialHome);
         });
 
         std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();

@@ -143,7 +143,7 @@ void ModuleVehicleArdupilot::homePositionUpdated(const MissionItem::SpatialHome 
 
     //notify the core of the change
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-        ptr->NewVehicleHomePosition(this, newVehicleHome);
+        ptr->GVEvents_NewHomePosition(this, newVehicleHome);
     });
 }
 

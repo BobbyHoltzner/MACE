@@ -25,11 +25,10 @@ public:
     Command_MACETOCOMMS();
 
     static mace_message_t generateGetHomeMessage(const int &vehicleID, const int &chan);
-    static mace_message_t generateSetHomePosition(const MissionItem::SpatialHome &vehicleHome, const int &chan);
 
+    static mace_message_t generateSetHomePosition(const MissionItem::SpatialHome &vehicleHome, const int &chan);
     static mace_message_t generateArmMessage(const MissionItem::ActionArm &actionArmItem, const uint8_t &chan);
     static mace_message_t generateTakeoffMessage(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan);
-
 
 private:
     static mace_command_long_t initializeCommandLong();

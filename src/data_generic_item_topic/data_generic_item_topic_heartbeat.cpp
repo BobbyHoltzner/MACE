@@ -5,26 +5,26 @@ namespace DataGenericItemTopic {
 const char DataGenericItemTopicHeartbeat_name[] = "heartbeat";
 const MaceCore::TopicComponentStructure DataGenericItemTopicHeartbeat_structure = []{
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<MAV_PROTOCOL>("protocol");
-    structure.AddTerminal<MAV_TYPE>("type");
-    structure.AddTerminal<MAV_AUTOPILOT>("autopilot");
+    structure.AddTerminal<CommsProtocol>("protocol");
+    structure.AddTerminal<SystemType>("type");
+    structure.AddTerminal<AutopilotType>("autopilot");
     structure.AddTerminal<bool>("maceCompanion");
     return structure;
 }();
 
 MaceCore::TopicDatagram DataGenericItemTopic_Heartbeat::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<MAV_PROTOCOL>("protocol", protocol);
-    datagram.AddTerminal<MAV_TYPE>("type", type);
-    datagram.AddTerminal<MAV_AUTOPILOT>("autopilot", autopilot);
+    datagram.AddTerminal<CommsProtocol>("protocol", protocol);
+    datagram.AddTerminal<SystemType>("type", type);
+    datagram.AddTerminal<AutopilotType>("autopilot", autopilot);
     datagram.AddTerminal<bool>("maceCompanion", maceCompanion);
     return datagram;
 }
 
 void DataGenericItemTopic_Heartbeat::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    protocol = datagram.GetTerminal<MAV_PROTOCOL>("protocol");
-    type = datagram.GetTerminal<MAV_TYPE>("type");
-    autopilot = datagram.GetTerminal<MAV_AUTOPILOT>("autopilot");
+    protocol = datagram.GetTerminal<CommsProtocol>("protocol");
+    type = datagram.GetTerminal<SystemType>("type");
+    autopilot = datagram.GetTerminal<AutopilotType>("autopilot");
     maceCompanion = datagram.GetTerminal<bool>("maceCompanion");
 }
 

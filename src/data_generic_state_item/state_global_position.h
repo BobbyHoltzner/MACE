@@ -10,6 +10,8 @@
 
 #include <Eigen/Dense>
 
+using namespace Data;
+
 namespace DataState {
 
 class StateGlobalPosition : public StateGenericPosition
@@ -20,11 +22,11 @@ public:
 
     StateGlobalPosition(const StateGlobalPosition &globalPosition);
 
-    StateGlobalPosition(const Data::CoordinateFrame &frame);
+    StateGlobalPosition(const CoordinateFrameType &frame);
 
     StateGlobalPosition(const float &latitude, const float &longitude, const float &altitude);
 
-    StateGlobalPosition(const Data::CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude);
+    StateGlobalPosition(const CoordinateFrameType &frame, const double &latitude, const double &longitude, const double &altitude);
 
     void setPosition(const float &latitude, const float &longitude, const float &altitude);
 

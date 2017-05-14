@@ -6,8 +6,7 @@ namespace DataState{
 StateGlobalPosition::StateGlobalPosition():
     latitude(0.0),longitude(0.0),altitude(0.0)
 {
-    m_PositionFrame = Data::PositionalFrame::GLOBAL;
-    m_CoordinateFrame = Data::CoordinateFrame::NED;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
 
 StateGlobalPosition::StateGlobalPosition(const StateGlobalPosition &globalPosition)
@@ -15,26 +14,23 @@ StateGlobalPosition::StateGlobalPosition(const StateGlobalPosition &globalPositi
     this->operator =(globalPosition);
 }
 
-StateGlobalPosition::StateGlobalPosition(const Data::CoordinateFrame &frame)
+StateGlobalPosition::StateGlobalPosition(const CoordinateFrameType &frame)
 {
-    m_PositionFrame = Data::PositionalFrame::GLOBAL;
     m_CoordinateFrame = frame;
 }
 
 StateGlobalPosition::StateGlobalPosition(const float &latitude, const float &longitude, const float &altitude)
 {
-    m_PositionFrame = Data::PositionalFrame::GLOBAL;
-    m_CoordinateFrame = Data::CoordinateFrame::NED;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 
     this->latitude = latitude;
     this->longitude = longitude;
     this->altitude = altitude;
 }
 
-StateGlobalPosition::StateGlobalPosition(const Data::CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude)
+StateGlobalPosition::StateGlobalPosition(const CoordinateFrameType &frame, const double &latitude, const double &longitude, const double &altitude)
 {
-    m_PositionFrame = Data::PositionalFrame::GLOBAL;
-    m_CoordinateFrame = frame;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 
     this->latitude = latitude;
     this->longitude = longitude;

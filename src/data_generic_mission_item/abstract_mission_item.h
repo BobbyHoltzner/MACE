@@ -3,11 +3,11 @@
 
 #include <string>
 
+#include "data/mission_item_type.h"
 #include "data/positional_coordinate_frame.h"
 #include "data/coordinate_frame.h"
 
-#include "mission_item_types.h"
-
+using namespace Data;
 
 namespace MissionItem {
 
@@ -15,27 +15,19 @@ class AbstractMissionItem
 {
 public:
 
-    virtual MissionItemType getMissionType() const = 0;
+    virtual Data::MissionItemType getMissionType() const = 0;
 
     virtual bool hasSpatialMissionInfluence() const = 0;
 
     virtual std::string getDescription() const = 0;
 
 public:
-    Data::CoordinateFrame getCoordinateFrame() const{
+    CoordinateFrameType getCoordinateFrame() const{
         return m_CoordinateFrame;
     }
 
-    void setCoordinateFrame(const Data::CoordinateFrame &coordinateFrame){
+    void setCoordinateFrame(const CoordinateFrameType &coordinateFrame){
         m_CoordinateFrame = coordinateFrame;
-    }
-
-    virtual Data::PositionalFrame getPositionalFrame() const{
-        return m_PositionalFrame;
-    }
-
-    void setPositionalFrame(const Data::PositionalFrame &positionalFrame){
-        m_PositionalFrame = positionalFrame;
     }
 
     void setVehicleID(const int &vehicleID){
@@ -50,7 +42,6 @@ public:
     {
         this->m_VehicleID = rhs.m_VehicleID;
         this->m_CoordinateFrame = rhs.m_CoordinateFrame;
-        this->m_PositionalFrame = rhs.m_PositionalFrame;
     }
 
     bool operator == (const AbstractMissionItem &rhs) {
@@ -58,9 +49,6 @@ public:
             return false;
         }
         if(this->m_CoordinateFrame != rhs.m_CoordinateFrame){
-            return false;
-        }
-        if(this->m_PositionalFrame != rhs.m_PositionalFrame){
             return false;
         }
         return true;
@@ -72,8 +60,7 @@ public:
 
 protected:
     int m_VehicleID;
-    Data::CoordinateFrame m_CoordinateFrame;
-    Data::PositionalFrame m_PositionalFrame;
+    CoordinateFrameType m_CoordinateFrame;
 
 };
 

@@ -3,9 +3,9 @@
 namespace MissionItem {
 
 template <class T>
-MissionItemType SpatialLoiter_Turns<T>::getMissionType() const
+Data::MissionItemType SpatialLoiter_Turns<T>::getMissionType() const
 {
-    return MissionItemType::LOITER_TURNS;
+    return Data::MissionItemType::MI_NAV_LOITER_TURNS;
 }
 
 template <class T>
@@ -37,15 +37,13 @@ std::ostream& SpatialLoiter_Turns<DataState::StateLocalPosition>::operator<<(std
 template<>
 SpatialLoiter_Turns<DataState::StateGlobalPosition>::SpatialLoiter_Turns()
 {
-    m_PositionalFrame = Data::PositionalFrame::GLOBAL;
-    m_CoordinateFrame = Data::CoordinateFrame::NED;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
 
 template<>
 SpatialLoiter_Turns<DataState::StateLocalPosition>::SpatialLoiter_Turns()
 {
-    m_PositionalFrame = Data::PositionalFrame::LOCAL;
-    m_CoordinateFrame = Data::CoordinateFrame::NED;
+    m_CoordinateFrame = CoordinateFrameType::CF_LOCAL_ENU;
 }
 
 } //end of namespace MissionItem

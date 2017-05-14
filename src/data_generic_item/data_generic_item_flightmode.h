@@ -5,7 +5,6 @@
 #include <stdint.h>
 #include "data/vehicle_types.h"
 #include "data/autopilot_types.h"
-#include "mace.h"
 
 
 namespace DataGenericItem {
@@ -16,7 +15,7 @@ class DataGenericItem_FlightMode
 public:
     DataGenericItem_FlightMode();
 
-    DataGenericItem_FlightMode(const mace_vehicle_mode_t &mode);
+    DataGenericItem_FlightMode(const std::string &mode);
 
     DataGenericItem_FlightMode(const DataGenericItem_FlightMode &copyObj);
 public:
