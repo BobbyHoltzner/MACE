@@ -44,17 +44,17 @@ void StateGlobalPosition::setPosition(const float &latitude, const float &longit
     this->altitude = altitude;
 }
 
-//void StateGlobalPosition::translationTransformation(const StateGlobalPosition &position, Eigen::Vector3f &transVec)
-//{
-//    double bearing = this->bearingBetween(position);
-//    double distance = this->distanceBetween2D(position);
-//    float distanceZ = -this->deltaAltitude(position);
-//    float distanceX = distance * sin(bearing);
-//    float distanceY = distance * cos(bearing);
-//    transVec(0) = distanceX;
-//    transVec(1) = distanceY;
-//    transVec(2) = distanceZ;
-//}
+void StateGlobalPosition::translationTransformation(const StateGlobalPosition &position, Eigen::Vector3f &transVec)
+{
+    double bearing = this->bearingBetween(position);
+    double distance = this->distanceBetween2D(position);
+    float distanceZ = -this->deltaAltitude(position);
+    float distanceX = distance * sin(bearing);
+    float distanceY = distance * cos(bearing);
+    transVec(0) = distanceX;
+    transVec(1) = distanceY;
+    transVec(2) = distanceZ;
+}
 
 /**
  * @brief StateGlobalPosition::NewPositionFromHeadingBearing
