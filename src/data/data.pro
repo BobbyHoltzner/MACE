@@ -43,7 +43,9 @@ HEADERS += data_global.h \
     command_ack.h \
     mission_item_type.h \
     system_type.h \
-    comms_protocol.h
+    comms_protocol.h \
+    gps_fix_type.h \
+    status_severity_type.h
     loiter_direction.h
 
 # Unix lib Install
@@ -63,7 +65,6 @@ headers.path    = $$(MACE_ROOT)/include/data
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon

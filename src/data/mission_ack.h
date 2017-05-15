@@ -64,7 +64,4 @@ inline MissionACKType CommandACKFromString(const std::string &str) {
 
 } //end of namespace Data
 
-#endif // COMMAND_ACK_H
-
-
 #endif // MISSION_ACK_H

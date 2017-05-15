@@ -13,10 +13,10 @@ mace_message_t Generic_MACETOCOMMS::Heartbeat_MACETOCOMMS(DataGenericItem::DataG
 {
      mace_message_t msg;
      mace_heartbeat_t heartbeat;
-     heartbeat.autopilot = heartbeatItem.getAutopilot();
+     heartbeat.autopilot = (uint8_t)heartbeatItem.getAutopilot();
      heartbeat.mace_companion = heartbeatItem.getCompaion() ? 1 : 0;
-     heartbeat.protocol = heartbeatItem.getProtocol();
-     heartbeat.type = heartbeatItem.getType();
+     heartbeat.protocol = (uint8_t)heartbeatItem.getProtocol();
+     heartbeat.type = (uint8_t)heartbeatItem.getType();
      mace_msg_heartbeat_encode_chan(systemID,compID,chan,&msg,&heartbeat);
      return(msg);
 }
@@ -78,40 +78,10 @@ mace_message_t Generic_MACETOCOMMS::GPS_MACETOCOMMS(DataGenericItem::DataGeneric
 {
     mace_message_t msg;
     mace_gps_raw_int_t gpsRaw;
+    gpsRaw.fix_type = (uint8_t)GPSItem.getGPSFix();
     gpsRaw.satellites_visible = GPSItem.getSatVisible();
     gpsRaw.eph = GPSItem.getHDOP();
     gpsRaw.epv = GPSItem.getVDOP();
-    switch(GPSItem.getGPSFix())
-    {
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_2DFIX:
-        gpsRaw.fix_type = 2;
-        break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_3DFIX:
-        gpsRaw.fix_type = 3;
-        break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_DGPS:
-        gpsRaw.fix_type = 4;
-        break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_NOFIX:
-        gpsRaw.fix_type = 1;
-        break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_NOGPS:
-        gpsRaw.fix_type = 0;
-        break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_RTKFIXED:
-        gpsRaw.fix_type = 6;
-        break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_RTKFLOAT:
-        gpsRaw.fix_type = 5;
-        break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_STATIC:
-        gpsRaw.fix_type = 7;
-        break;
-    default:
-        gpsRaw.fix_type = 0;
-        break;
-    }
-
     mace_msg_gps_raw_int_encode_chan(systemID,compID,chan,&msg,&gpsRaw);
     return(msg);
 }

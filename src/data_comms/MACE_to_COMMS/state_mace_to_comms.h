@@ -7,7 +7,6 @@
 #include "common/common.h"
 
 #include "data/coordinate_frame.h"
-#include "data/positional_coordinate_frame.h"
 
 #include "data_generic_item/data_generic_item_components.h"
 #include "data_generic_item_topic/data_generic_item_topic_components.h"

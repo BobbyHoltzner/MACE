@@ -8,13 +8,6 @@ Generic_MAVLINKTOMACE::Generic_MAVLINKTOMACE(const int &systemID):
 
 }
 
-DataGenericItem::DataGenericItem_FlightMode Generic_MAVLINKTOMACE::FlightMode_MAVLINKTOMACE(const mavlink_heartbeat_t &genericItem)
-{
-    UNUSED(genericItem);
-    DataGenericItem::DataGenericItem_FlightMode flightItem;
-    return flightItem;
-}
-
 DataGenericItem::DataGenericItem_Battery Generic_MAVLINKTOMACE::Battery_MAVLINKTOMACE(const mavlink_sys_status_t &genericItem)
 {
     DataGenericItem::DataGenericItem_Battery batteryItem;
@@ -22,6 +15,13 @@ DataGenericItem::DataGenericItem_Battery Generic_MAVLINKTOMACE::Battery_MAVLINKT
     batteryItem.setBatteryCurrent(genericItem.current_battery/10000.0);
     batteryItem.setBatteryRemaining(genericItem.battery_remaining);
     return batteryItem;
+}
+
+DataGenericItem::DataGenericItem_FlightMode Generic_MAVLINKTOMACE::FlightMode_MAVLINKTOMACE(const mavlink_heartbeat_t &genericItem)
+{
+    UNUSED(genericItem);
+    DataGenericItem::DataGenericItem_FlightMode flightItem;
+    return flightItem;
 }
 
 DataGenericItem::DataGenericItem_GPS Generic_MAVLINKTOMACE::GPS_MAVLINKTOMACE(const mavlink_gps_raw_int_t &genericItem)
@@ -32,37 +32,50 @@ DataGenericItem::DataGenericItem_GPS Generic_MAVLINKTOMACE::GPS_MAVLINKTOMACE(co
     gpsItem.setSatVisible(genericItem.satellites_visible);
     switch(genericItem.fix_type)
     {
-    case 0:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_NOGPS);
+    case GPS_FIX_TYPE_2D_FIX:
+        gpsItem.setGPSFix(GPSFixType::GPS_FIX_2D_FIX);
         break;
-    case 1:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_NOFIX);
+    case GPS_FIX_TYPE_3D_FIX:
+        gpsItem.setGPSFix(GPSFixType::GPS_FIX_3D_FIX);
         break;
-    case 2:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_2DFIX);
+    case GPS_FIX_TYPE_DGPS:
+        gpsItem.setGPSFix(GPSFixType::GPS_FIX_DGPS);
         break;
-    case 3:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_3DFIX);
+    case GPS_FIX_TYPE_NO_FIX:
+        gpsItem.setGPSFix(GPSFixType::GPS_FIX_NO_FIX);
         break;
-    case 4:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_DGPS);
+    case GPS_FIX_TYPE_NO_GPS:
+        gpsItem.setGPSFix(GPSFixType::GPS_FIX_NONE);
         break;
-    case 5:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_RTKFLOAT);
+    case GPS_FIX_TYPE_RTK_FIXED:
+        gpsItem.setGPSFix(GPSFixType::GPS_FIX_RTK_FIXED);
         break;
-    case 6:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_RTKFIXED);
+    case GPS_FIX_TYPE_RTK_FLOAT:
+        gpsItem.setGPSFix(GPSFixType::GPS_FIX_RTK_FLOAT);
         break;
-    case 7:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_STATIC);
+    case GPS_FIX_TYPE_STATIC:
+        gpsItem.setGPSFix(GPSFixType::GPS_FIX_STATIC);
         break;
     default:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_NOGPS);
+        gpsItem.setGPSFix(GPSFixType::GPS_FIX_NO_FIX);
         break;
     }
 
     return gpsItem;
 
+}
+
+DataGenericItem::DataGenericItem_Heartbeat Generic_MAVLINKTOMACE::Heartbeat_MAVLINKTOMACE(const mavlink_heartbeat_t &genericItem)
+{
+    //KEN FIX
+    DataGenericItem::DataGenericItem_Heartbeat heartbeatItem;
+    return heartbeatItem;
+}
+
+DataGenericItem::DataGenericItem_SystemArm Generic_MAVLINKTOMACE::SystemArm_MAVLINKTOMACE(const mavlink_heartbeat_t &genericItem)
+{
+    DataGenericItem::DataGenericItem_SystemArm systemArmItem;
+    return systemArmItem;
 }
 
 DataGenericItem::DataGenericItem_Text Generic_MAVLINKTOMACE::Text_MAVLINKTOMACE(const mavlink_statustext_t &genericItem)

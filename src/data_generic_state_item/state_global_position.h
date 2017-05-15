@@ -3,7 +3,6 @@
 
 #include "common/common.h"
 
-#include "data/positional_coordinate_frame.h"
 #include "data/coordinate_frame.h"
 
 #include "state_generic_position.h"

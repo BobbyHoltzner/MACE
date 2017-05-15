@@ -5,7 +5,6 @@ namespace DataStateTopic{
 const char LocalPositionTopic_name[] = "localPosition";
 const MaceCore::TopicComponentStructure LocalPositionTopic_structure = [](){
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<Data::PositionalFrame>("PositionFrame");
     structure.AddTerminal<Data::CoordinateFrameType>("CoordinateFrame");
     structure.AddTerminal<double>("x");
     structure.AddTerminal<double>("y");

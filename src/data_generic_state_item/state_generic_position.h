@@ -1,7 +1,6 @@
 #ifndef STATE_GENERIC_POSITION_H
 #define STATE_GENERIC_POSITION_H
 
-#include "data/positional_coordinate_frame.h"
 #include "data/coordinate_frame.h"
 
 using namespace Data;

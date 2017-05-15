@@ -40,36 +40,8 @@ DataGenericItem::DataGenericItem_GPS Generic_COMMSTOMACE::GPS_COMMSTOMACE(const 
     gpsItem.setHDOP(genericItem.eph);
     gpsItem.setVDOP(genericItem.epv);
     gpsItem.setSatVisible(genericItem.satellites_visible);
-    switch(genericItem.fix_type)
-    {
-    case 0:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_NOGPS);
-        break;
-    case 1:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_NOFIX);
-        break;
-    case 2:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_2DFIX);
-        break;
-    case 3:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_3DFIX);
-        break;
-    case 4:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_DGPS);
-        break;
-    case 5:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_RTKFLOAT);
-        break;
-    case 6:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_RTKFIXED);
-        break;
-    case 7:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_STATIC);
-        break;
-    default:
-        gpsItem.setGPSFix(gpsItem.GPSFIX_NOGPS);
-        break;
-    }
+
+    gpsItem.setGPSFix(static_cast<Data::GPSFixType>(genericItem.fix_type));
 
     return gpsItem;
 

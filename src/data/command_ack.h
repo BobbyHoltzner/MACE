@@ -4,12 +4,6 @@
 namespace Data
 {
 
-MAV_RESULT_ACCEPTED=0, /* Command ACCEPTED and EXECUTED | */
-MAV_RESULT_TEMPORARILY_REJECTED=1, /* Command TEMPORARY REJECTED/DENIED | */
-MAV_RESULT_DENIED=2, /* Command PERMANENTLY DENIED | */
-MAV_RESULT_UNSUPPORTED=3, /* Command UNKNOWN/UNSUPPORTED | */
-MAV_RESULT_FAILED=4, /* Command executed, but failed | */
-
 enum class ENUM_CommandAck{
     CA_RECEIVED=0, /* Command / mission item is ok. | */
     CA_ACCEPTED=1, /* Command / mission item is ok. | */

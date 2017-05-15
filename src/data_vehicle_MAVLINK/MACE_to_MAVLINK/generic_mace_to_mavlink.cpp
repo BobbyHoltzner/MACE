@@ -60,32 +60,32 @@ mavlink_message_t Generic_MACETOMAVLINK::GPS_MACETOMAVLINK(DataGenericItem::Data
 
     switch(GPSItem.getGPSFix())
     {
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_2DFIX:
-        gpsRaw.fix_type = 2;
+    case Data::GPSFixType::GPS_FIX_2D_FIX:
+        gpsRaw.fix_type = GPS_FIX_TYPE_2D_FIX;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_3DFIX:
-        gpsRaw.fix_type = 3;
+    case Data::GPSFixType::GPS_FIX_3D_FIX:
+        gpsRaw.fix_type = GPS_FIX_TYPE_3D_FIX;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_DGPS:
-        gpsRaw.fix_type = 4;
+    case Data::GPSFixType::GPS_FIX_DGPS:
+        gpsRaw.fix_type = GPS_FIX_TYPE_DGPS;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_NOFIX:
-        gpsRaw.fix_type = 1;
+    case Data::GPSFixType::GPS_FIX_NONE:
+        gpsRaw.fix_type = GPS_FIX_TYPE_NO_GPS;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_NOGPS:
-        gpsRaw.fix_type = 0;
+    case Data::GPSFixType::GPS_FIX_NO_FIX:
+        gpsRaw.fix_type = GPS_FIX_TYPE_NO_FIX;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_RTKFIXED:
-        gpsRaw.fix_type = 6;
+    case Data::GPSFixType::GPS_FIX_RTK_FIXED:
+        gpsRaw.fix_type = GPS_FIX_TYPE_RTK_FIXED;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_RTKFLOAT:
-        gpsRaw.fix_type = 5;
+    case Data::GPSFixType::GPS_FIX_RTK_FLOAT:
+        gpsRaw.fix_type = GPS_FIX_TYPE_RTK_FLOAT;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_STATIC:
-        gpsRaw.fix_type = 7;
+    case Data::GPSFixType::GPS_FIX_STATIC:
+        gpsRaw.fix_type = GPS_FIX_TYPE_STATIC;
         break;
     default:
-        gpsRaw.fix_type = 0;
+        gpsRaw.fix_type = GPS_FIX_TYPE_NO_FIX;
         break;
     }
 

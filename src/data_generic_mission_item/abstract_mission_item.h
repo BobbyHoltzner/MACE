@@ -4,7 +4,6 @@
 #include <string>
 
 #include "data/mission_item_type.h"
-#include "data/positional_coordinate_frame.h"
 #include "data/coordinate_frame.h"
 
 using namespace Data;

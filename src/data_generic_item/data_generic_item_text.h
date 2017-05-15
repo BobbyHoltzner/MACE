@@ -3,46 +3,14 @@
 
 #include <iostream>
 #include <string>
+#include "data/status_severity_type.h"
+
+using namespace Data;
 
 namespace DataGenericItem {
 
 class DataGenericItem_Text
 {
-public:
-    enum STATUS_SEVERITY{
-        STATUS_EMERGENCY,
-        STATUS_ALERT,
-        STATUS_CRITICAL,
-        STATUS_ERROR,
-        STATUS_WARNING,
-        STATUS_NOTICE,
-        STATUS_INFO,
-        STATUS_DEBUG
-    };
-
-    static inline std::string StatusSeverityToString(const STATUS_SEVERITY &state) {
-        switch (state) {
-        case STATUS_SEVERITY::STATUS_EMERGENCY:
-            return "EMERGENCY";
-        case STATUS_SEVERITY::STATUS_ALERT:
-            return "ALERT";
-        case STATUS_SEVERITY::STATUS_CRITICAL:
-            return "CRITICAL";
-        case STATUS_SEVERITY::STATUS_ERROR:
-            return "ERROR";
-        case STATUS_SEVERITY::STATUS_WARNING:
-            return "WARNING";
-        case STATUS_SEVERITY::STATUS_NOTICE:
-            return "NOTICE";
-        case STATUS_SEVERITY::STATUS_INFO:
-            return "INFO";
-        case STATUS_SEVERITY::STATUS_DEBUG:
-            return "DEBUG";
-        default:
-            throw std::runtime_error("Unknown status severity seen");
-        }
-    }
-
 public:
     DataGenericItem_Text();
 
@@ -58,10 +26,11 @@ public:
         return dataString;
     }
 
-    void setSeverity(const STATUS_SEVERITY &severity){
+    void setSeverity(const StatusSeverityType &severity){
         this->severity = severity;
     }
-    STATUS_SEVERITY getSeverity() const{
+
+    StatusSeverityType getSeverity() const{
         return severity;
     }
 
@@ -86,14 +55,14 @@ public:
         return !(*this == rhs);
     }
 
-    std::ostream& operator<<(std::ostream &out)
-    {
-        out<<"Status Text( Severity: "<<severity<<", Text: "<<dataString<<")";
-        return out;
-    }
+//    std::ostream& operator<<(std::ostream &out)
+//    {
+//        out<<"Status Text( Severity: "<<StatusSeverityTypeToString(severity)<<", Text: "<<dataString<<")";
+//        return out;
+//    }
 
 protected:
-    STATUS_SEVERITY severity;
+    StatusSeverityType severity;
     std::string dataString;
 };
 

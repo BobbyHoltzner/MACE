@@ -29,7 +29,7 @@ void Mission_MACETOCOMMS::initializeMACECOMMSMissionItem(mace_mission_item_t &ma
     mavMission.seq = 0;
     mavMission.command = 0;
     mavMission.current = 0;
-    mavMission.frame = CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
+    mavMission.frame = (uint8_t)CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
     mavMission.autocontinue = 1;
     mavMission.param1 = 0.0;
     mavMission.param2 = 0.0;
@@ -193,7 +193,7 @@ mace_message_t Mission_MACETOCOMMS::ChangeSpeed_MACETOCOMMS(const MissionItem::A
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.command = MissionItemType::MI_ACT_CHANGESPEED;
+    item.command = (uint16_t)MissionItemType::MI_ACT_CHANGESPEED;
     item.seq = itemIndex;
     item.param1 = 0.0; //assume the default required is AIRSPEED
     item.param2 = missionItem.getDesiredSpeed();
@@ -209,7 +209,7 @@ mace_message_t Mission_MACETOCOMMS::Land_MACETOCOMMS(const MissionItem::SpatialL
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.command = MissionItemType::MI_NAV_LAND;
+    item.command = (uint16_t)MissionItemType::MI_NAV_LAND;
     item.seq = itemIndex;
     if(!missionItem.getLandFlag())
     {
@@ -224,8 +224,8 @@ mace_message_t Mission_MACETOCOMMS::Land_MACETOCOMMS(const MissionItem::SpatialL
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.frame = CoordinateFrameType::CF_LOCAL_ENU;
-    item.command = MissionItemType::MI_NAV_LAND;
+    item.frame = (uint8_t)CoordinateFrameType::CF_LOCAL_ENU;
+    item.command = (uint16_t)MissionItemType::MI_NAV_LAND;
     item.seq = itemIndex;
     if(!missionItem.getLandFlag())
     {
@@ -241,7 +241,7 @@ mace_message_t Mission_MACETOCOMMS::LoiterTime_MACETOCOMMS(const MissionItem::Sp
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.command = MissionItemType::MI_NAV_LOITER_TIME;
+    item.command = (uint16_t)MissionItemType::MI_NAV_LOITER_TIME;
     item.seq = itemIndex;
     item.param1 = missionItem.duration;
     item.x = missionItem.position.latitude;
@@ -262,8 +262,8 @@ mace_message_t Mission_MACETOCOMMS::LoiterTime_MACETOCOMMS(const MissionItem::Sp
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.frame = CoordinateFrameType::CF_LOCAL_ENU;
-    item.command = MissionItemType::MI_NAV_LOITER_TIME;
+    item.frame = (uint8_t)CoordinateFrameType::CF_LOCAL_ENU;
+    item.command = (uint16_t)MissionItemType::MI_NAV_LOITER_TIME;
     item.seq = itemIndex;
     item.param1 = missionItem.duration;
     item.x = missionItem.position.x;
@@ -284,7 +284,7 @@ mace_message_t Mission_MACETOCOMMS::LoiterTurns_MACETOCOMMS(const MissionItem::S
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.command = MissionItemType::MI_NAV_LOITER_TURNS;
+    item.command = (uint16_t)MissionItemType::MI_NAV_LOITER_TURNS;
     item.seq = itemIndex;
     item.param1 = missionItem.turns;
     item.x = missionItem.position.latitude;
@@ -305,8 +305,8 @@ mace_message_t Mission_MACETOCOMMS::LoiterTurns_MACETOCOMMS(const MissionItem::S
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.frame = CoordinateFrameType::CF_LOCAL_ENU;
-    item.command = MissionItemType::MI_NAV_LOITER_TURNS;
+    item.frame = (uint8_t)CoordinateFrameType::CF_LOCAL_ENU;
+    item.command = (uint16_t)MissionItemType::MI_NAV_LOITER_TURNS;
     item.seq = itemIndex;
     item.param1 = missionItem.turns;
     item.x = missionItem.position.x;
@@ -326,7 +326,7 @@ mace_message_t Mission_MACETOCOMMS::LoiterUnlimited_MACETOCOMMS(const MissionIte
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.command = MissionItemType::MI_NAV_LOITER_UNLIM;
+    item.command = (uint16_t)MissionItemType::MI_NAV_LOITER_UNLIM;
     item.seq = itemIndex;
     item.x = missionItem.position.latitude;
     item.y = missionItem.position.longitude;
@@ -346,8 +346,8 @@ mace_message_t Mission_MACETOCOMMS::LoiterUnlimited_MACETOCOMMS(const MissionIte
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.frame = CoordinateFrameType::CF_LOCAL_ENU;
-    item.command = MissionItemType::MI_NAV_LOITER_UNLIM;
+    item.frame = (uint8_t)CoordinateFrameType::CF_LOCAL_ENU;
+    item.command = (uint16_t)MissionItemType::MI_NAV_LOITER_UNLIM;
     item.seq = itemIndex;
     item.x = missionItem.position.x;
     item.y = missionItem.position.y;
@@ -367,7 +367,7 @@ mace_message_t Mission_MACETOCOMMS::RTL_MACETOCOMMS(const MissionItem::SpatialRT
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.command = MissionItemType::MI_NAV_RETURN_TO_LAUNCH;
+    item.command = (uint16_t)MissionItemType::MI_NAV_RETURN_TO_LAUNCH;
     item.seq = itemIndex;
     mace_message_t msg = this->packMissionItem(item);
     return msg;
@@ -377,7 +377,7 @@ mace_message_t Mission_MACETOCOMMS::Takeoff_MACETOCOMMS(const MissionItem::Spati
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.command = MissionItemType::MI_NAV_TAKEOFF;
+    item.command = (uint16_t)MissionItemType::MI_NAV_TAKEOFF;
     item.seq = itemIndex;
     item.x = missionItem.position.latitude;
     item.y = missionItem.position.longitude;
@@ -389,8 +389,8 @@ mace_message_t Mission_MACETOCOMMS::Takeoff_MACETOCOMMS(const MissionItem::Spati
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.command = MissionItemType::MI_NAV_TAKEOFF;
-    item.frame = CoordinateFrameType::CF_LOCAL_ENU;
+    item.command = (uint16_t)MissionItemType::MI_NAV_TAKEOFF;
+    item.frame = (uint8_t)CoordinateFrameType::CF_LOCAL_ENU;
     item.seq = itemIndex;
     item.x = missionItem.position.x;
     item.y = missionItem.position.y;
@@ -403,7 +403,7 @@ mace_message_t Mission_MACETOCOMMS::Waypoint_MACETOCOMMS(const MissionItem::Spat
 {
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
-    item.command = MissionItemType::MI_NAV_WAYPOINT;
+    item.command = (uint16_t)MissionItemType::MI_NAV_WAYPOINT;
     item.seq = itemIndex;
     item.x = missionItem.position.latitude;
     item.y = missionItem.position.longitude;
@@ -417,7 +417,7 @@ mace_message_t Mission_MACETOCOMMS::Waypoint_MACETOCOMMS(const MissionItem::Spat
     mace_mission_item_t item;
     this->initializeMACECOMMSMissionItem(item);
     item.frame = MAV_FRAME_LOCAL_ENU;
-    item.command = MissionItemType::MI_NAV_WAYPOINT;
+    item.command = (uint16_t)MissionItemType::MI_NAV_WAYPOINT;
     item.seq = itemIndex;
     item.x = missionItem.position.x;
     item.y = missionItem.position.y;
