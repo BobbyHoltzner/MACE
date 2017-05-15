@@ -84,11 +84,36 @@ void ModuleExternalLink::MACEHeartbeatInfo(const std::string &linkName, const in
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->NewConstructedVehicle(this, systemID);
         });
+
+        mace_message_t msg;
+        mace_vehicle_sync_t sync;
+        sync.target_system = systemID;
+        mace_msg_vehicle_sync_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&sync);
+        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
     }
 
-//    DataGenericItem::DataGenericItem_Heartbeat heartbeat(heartbeatMSG);
-//    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
-//    PublishVehicleData(systemID,ptrHeartbeat);
+    DataGenericItem::DataGenericItem_Heartbeat heartbeat;
+    heartbeat.setAutopilot(static_cast<Data::AutopilotType>(heartbeatMSG.autopilot));
+    heartbeat.setCompaion((heartbeatMSG.mace_companion>0)? true : false);
+    heartbeat.setProtocol(static_cast<Data::CommsProtocol>(heartbeatMSG.protocol));
+    heartbeat.setType(static_cast<Data::SystemType>(heartbeatMSG.type));
+
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
+    PublishVehicleData(systemID,ptrHeartbeat);
+}
+
+void ModuleExternalLink::MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG)
+{
+    std::cout<<"I saw a sync request"<<std::endl;
+    //Ken Fix this in the event the sync request a vehicle of unknown home, or it is not valid yet
+    MissionItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(syncMSG.target_system);
+    NewlyAvailableHomePosition(home);
+
+
+    Data::MissionKey key;
+    bool valid = this->getDataObject()->getCurrentMissionKey(syncMSG.target_system,key);
+    if(valid)
+        NewlyAvailableOnboardMission(key);
 }
 
 //!
@@ -329,4 +354,15 @@ void ModuleExternalLink::NewlyAvailableOnboardMission(const Data::MissionKey &ke
     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 
+void ModuleExternalLink::NewlyAvailableHomePosition(const MissionItem::SpatialHome &home)
+{
+    mace_home_position_t homePos;
+    float power = pow(10,7);
+    homePos.latitude = home.position.latitude * power;
+    homePos.longitude = home.position.longitude * power;
+    homePos.altitude = home.position.altitude * power;
+    mace_message_t msg;
+    mace_msg_home_position_encode_chan(home.getVehicleID(),0,m_LinkChan,&msg,&homePos);
+    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+}
 

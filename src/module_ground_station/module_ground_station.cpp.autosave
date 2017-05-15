@@ -419,7 +419,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
     {
         //get latest datagram from mace_data
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
-
+        
         //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {

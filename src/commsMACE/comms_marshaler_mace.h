@@ -164,6 +164,14 @@ private:
 
 
     //!
+    //! \brief SyncRequest
+    //! \param link_ptr
+    //! \param vehicleId
+    //! \param syncMSG
+    //!
+    virtual void SyncRequest(const ILink* link_ptr, const int &systemID, const mace_vehicle_sync_t &syncMSG) const;
+
+    //!
     //! \brief Heartbeat of vehicle received
     //! \param link
     //! \param vehicleId
@@ -171,7 +179,7 @@ private:
     //! \param vehicleFirmwareType
     //! \param vehicleType
     //!
-    virtual void HeartbeatInfo(const ILink* link_ptr, const int &vehicleId, const mace_heartbeat_t &heartbeatMSG) const;
+    virtual void HeartbeatInfo(const ILink* link_ptr, const int &systemID, const mace_heartbeat_t &heartbeatMSG) const;
 
     //!
     //! \brief VehicleCommandACK
@@ -179,7 +187,7 @@ private:
     //! \param vehicleId
     //! \param cmdACKMSG
     //!
-    virtual void CommandACK(const ILink* link_ptr, const int &vehicleId, const mace_command_ack_t &cmdACK) const;
+    virtual void CommandACK(const ILink* link_ptr, const int &systemID, const mace_command_ack_t &cmdACK) const;
 
 
     //!
