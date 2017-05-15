@@ -107,28 +107,28 @@ mavlink_message_t Generic_MACETOMAVLINK::Text_MACETOMAVLINK(DataGenericItem::Dat
     strcpy(statusText.text,textItem.getText().c_str());
 
     switch(textItem.getSeverity()){
-    case DataGenericItem::DataGenericItem_Text::STATUS_ALERT:
+    case Data::StatusSeverityType::STATUS_ALERT:
         statusText.severity = MAV_SEVERITY_ALERT;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_CRITICAL:
+    case Data::StatusSeverityType::STATUS_CRITICAL:
         statusText.severity = MAV_SEVERITY_CRITICAL;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_DEBUG:
+    case Data::StatusSeverityType::STATUS_DEBUG:
         statusText.severity = MAV_SEVERITY_DEBUG;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_EMERGENCY:
+    case Data::StatusSeverityType::STATUS_EMERGENCY:
         statusText.severity = MAV_SEVERITY_EMERGENCY;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_ERROR:
+    case Data::StatusSeverityType::STATUS_ERROR:
         statusText.severity = MAV_SEVERITY_ERROR;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_INFO:
+    case Data::StatusSeverityType::STATUS_INFO:
         statusText.severity = MAV_SEVERITY_INFO;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_NOTICE:
+    case Data::StatusSeverityType::STATUS_NOTICE:
         statusText.severity = MAV_SEVERITY_NOTICE;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_WARNING:
+    case Data::StatusSeverityType::STATUS_WARNING:
         statusText.severity = MAV_SEVERITY_WARNING;
         break;
     default:
