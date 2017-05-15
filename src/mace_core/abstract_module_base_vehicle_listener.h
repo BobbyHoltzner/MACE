@@ -50,10 +50,6 @@ public:
             Command_RequestVehicleTakeoff(vehicleTakeoff);
         });
 
-        this->template AddCommandLogic<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>>(CT::EMIT_HEARTBEAT, [this](const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &heartbeat){
-            Command_EmitHeartbeat(heartbeat);
-        });
-
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         /// GENERAL MISSION EVENTS: This functionality may be pertinent for vehicles not containing a
@@ -129,7 +125,6 @@ public:
     virtual void Command_ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm) = 0;
     virtual void Command_ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
     virtual void Command_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
-    virtual void Command_EmitHeartbeat(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &heartbeat) = 0;
 
     virtual void Command_UploadMission(const MissionItem::MissionList &missionList) = 0;
     virtual void Command_SetCurrentMission(const Data::MissionKey &key) = 0;

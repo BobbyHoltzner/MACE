@@ -6,7 +6,6 @@
 #include "math.h"
 
 #include "data/i_topic_component_data_object.h"
-#include "data/positional_coordinate_frame.h"
 #include "data_generic_state_item/state_local_position.h"
 
 namespace DataVehicleSensors
@@ -30,7 +29,7 @@ public:
 
 private:
     std::string sensorName;
-    Data::PositionalFrame positionFrame;
+    Data::CoordinateFrameType coordinateFrame;
     std::vector<DataState::StateLocalPosition> verticeLocations;
 };
 

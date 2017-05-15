@@ -29,8 +29,6 @@
 
 #include "topic.h"
 
-#include "core_heartbeat.h"
-
 namespace MaceCore
 {
 
@@ -120,7 +118,7 @@ public:
     /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle
     ////////////////////////////////////////////////////////////////////////////////////////
     virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
-    virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
+    virtual void GVEvents_NewHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
     virtual void ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey);
     virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey);
 

@@ -4,10 +4,11 @@
 #include <iostream>
 #include "common/common.h"
 
-#include "data/positional_coordinate_frame.h"
 #include "data/coordinate_frame.h"
 
 #include "state_generic_position.h"
+
+
 
 namespace DataState {
 
@@ -18,11 +19,11 @@ public:
 
     StateLocalPosition(const StateLocalPosition &localPosition);
 
-    StateLocalPosition(const Data::CoordinateFrame &frame);
+    StateLocalPosition(const Data::CoordinateFrameType &frame);
 
     StateLocalPosition(const double &x, const double &y, const double &z);
 
-    StateLocalPosition(const Data::CoordinateFrame &frame, const double &x, const double &y, const double &z);
+    StateLocalPosition(const Data::CoordinateFrameType &frame, const double &x, const double &y, const double &z);
 
 public:
 
@@ -68,15 +69,8 @@ public:
         return !(*this == rhs);
     }
 
-    std::ostream& operator<<(std::ostream &out)
-    {
-        out<<"Local Position( X: "<<x<<", Y: "<<y<<", Z: "<<z<<")";
-        return out;
-    }
-
 public:
-    Data::PositionalFrame m_PositionFrame;
-    Data::CoordinateFrame m_CoordinateFrame;
+    Data::CoordinateFrameType m_CoordinateFrame;
 
     double x;
     double y;

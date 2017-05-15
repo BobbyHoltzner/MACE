@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-#include "mavlink_MACE.h"
+#include "mace.h"
 
 #include "i_link_mace.h"
 
@@ -26,7 +26,7 @@ public:
     //! \param linkName Link identifier which generated command
     //! \param message Message that has been received
     //!
-    virtual void MessageReceived(const ILink* link_ptr, const mavlink_message_t &message) const = 0;
+    virtual void MessageReceived(const ILink* link_ptr, const mace_message_t &message) const = 0;
 
 
     //!
@@ -37,7 +37,7 @@ public:
     //! \param vehicleFirmwareType
     //! \param vehicleType
     //!
-    virtual void VehicleHeartbeatInfo(const ILink* link_ptr, const int &vehicleId, const mavlink_heartbeat_t &heartbeatMSG) const = 0;
+    virtual void HeartbeatInfo(const ILink* link_ptr, const int &vehicleId, const mace_heartbeat_t &heartbeatMSG) const = 0;
 
 
     //!
@@ -46,7 +46,7 @@ public:
     //! \param vehicleId
     //! \param cmdACKMSG
     //!
-    virtual void VehicleCommandACK(const ILink* link_ptr, const int &vehicleId, const mavlink_command_ack_t &cmdACKMSG) const = 0;
+    virtual void CommandACK(const ILink* link_ptr, const int &vehicleId, const mace_command_ack_t &cmdACKMSG) const = 0;
 
 
     //!

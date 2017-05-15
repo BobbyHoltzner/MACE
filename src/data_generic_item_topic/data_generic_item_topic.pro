@@ -26,17 +26,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     data_generic_item_topic_flightmode.cpp \
-    data_generic_item_topic_fuel.cpp \
     data_generic_item_topic_GPS.cpp \
-    data_generic_item_topic_text.cpp
+    data_generic_item_topic_text.cpp \
+    data_generic_item_topic_battery.cpp \
+    data_generic_item_topic_heartbeat.cpp \
+    data_generic_item_topic_system_arm.cpp
 
 HEADERS +=\
         data_generic_item_topic_global.h \
     data_generic_item_topic_components.h \
     data_generic_item_topic_flightmode.h \
-    data_generic_item_topic_fuel.h \
     data_generic_item_topic_GPS.h \
-    data_generic_item_topic_text.h
+    data_generic_item_topic_text.h \
+    data_generic_item_topic_battery.h \
+    data_generic_item_topic_heartbeat.h \
+    data_generic_item_topic_system_arm.h
 
 # Unix lib Install
 unix:!symbian {
@@ -65,3 +69,11 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_item/r
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_item/debug/ -ldata_generic_item
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_item/ -ldata_generic_item
 
+unix{
+    EigenInclude = $$system(pkg-config --cflags eigen3)
+    EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
+    INCLUDEPATH += $$EigenInclude
+}
+win32{
+    INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
+}

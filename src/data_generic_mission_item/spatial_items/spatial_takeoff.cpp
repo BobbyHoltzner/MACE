@@ -9,9 +9,9 @@ SpatialTakeoff<T>::SpatialTakeoff() :
 }
 
 template <class T>
-MissionItemType SpatialTakeoff<T>::getMissionType() const
+Data::MissionItemType SpatialTakeoff<T>::getMissionType() const
 {
-    return MissionItemType::TAKEOFF;
+    return Data::MissionItemType::MI_NAV_TAKEOFF;
 }
 
 template <class T>

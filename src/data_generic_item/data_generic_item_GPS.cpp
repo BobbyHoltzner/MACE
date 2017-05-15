@@ -3,7 +3,7 @@
 namespace DataGenericItem {
 
 DataGenericItem_GPS::DataGenericItem_GPS() :
-    fixtype(GPSFIX_NOFIX), satellitesVisible(0), HDOP(UINT16_MAX), VDOP(UINT16_MAX)
+    fixtype(Data::GPSFixType::GPS_FIX_NO_FIX), satellitesVisible(0), HDOP(UINT16_MAX), VDOP(UINT16_MAX)
 {
 
 }

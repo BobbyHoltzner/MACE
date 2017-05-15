@@ -5,7 +5,7 @@
 #include <string>
 #include <memory>
 
-#include "mavlink_MACE.h"
+#include "mace.h"
 
 #include "i_link_mace.h"
 

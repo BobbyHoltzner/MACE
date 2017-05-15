@@ -8,8 +8,7 @@ namespace MaceCore
 
 MaceCore::MaceCore()
 {
-    CoreHeartbeat* temp = new CoreHeartbeat(1000);
-    temp->start();
+
 }
 
 
@@ -32,8 +31,6 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
 
     m_VehicleIDToPtr.insert({ID, vehicle.get()});
     m_VehiclePTRToID.insert({vehicle.get(), ID});
-
-    //m_DataFusion->AddVehicle(ID);
 
     vehicle->addListener(this);
     vehicle->addTopicListener(this);
@@ -408,7 +405,7 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
         m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
 }
 
-void MaceCore::NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
+void MaceCore::GVEvents_NewHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome)
 {
     UNUSED(sender);
     //TODO FIX KEN: We should incorporate a method that shall exist to understand who wants to receive

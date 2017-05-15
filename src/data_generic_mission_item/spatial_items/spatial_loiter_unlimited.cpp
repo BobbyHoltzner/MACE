@@ -3,9 +3,9 @@
 namespace MissionItem {
 
 template <class T>
-MissionItemType SpatialLoiter_Unlimited<T>::getMissionType() const
+Data::MissionItemType SpatialLoiter_Unlimited<T>::getMissionType() const
 {
-    return MissionItemType::LOITER_UNLIMITED;
+    return Data::MissionItemType::MI_NAV_LOITER_UNLIM;
 }
 
 template <class T>
@@ -37,15 +37,13 @@ std::ostream& SpatialLoiter_Unlimited<DataState::StateLocalPosition>::operator<<
 template<>
 SpatialLoiter_Unlimited<DataState::StateGlobalPosition>::SpatialLoiter_Unlimited()
 {
-    m_PositionalFrame = Data::PositionalFrame::GLOBAL;
-    m_CoordinateFrame = Data::CoordinateFrame::NED;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
 
 template<>
 SpatialLoiter_Unlimited<DataState::StateLocalPosition>::SpatialLoiter_Unlimited()
 {
-    m_PositionalFrame = Data::PositionalFrame::LOCAL;
-    m_CoordinateFrame = Data::CoordinateFrame::NED;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
 
 } //end of namespace MissionItem

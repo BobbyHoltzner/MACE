@@ -35,12 +35,6 @@ public:
         return !(*this == rhs);
     }
 
-    std::ostream& operator<<(std::ostream &out)
-    {
-        out<<"Local Velocity( X: "<<x<<", Y: "<<y<<", Z: "<<z<<")";
-        return out;
-    }
-
 public:
     double x;
     double y;

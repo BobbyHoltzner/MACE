@@ -49,7 +49,7 @@ headers.files   += \
         module_vehicle_sensors_global.h
 INSTALLS       += headers
 
-
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/common
 
 

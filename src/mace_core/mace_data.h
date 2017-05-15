@@ -10,8 +10,6 @@
 #include <mutex>
 #include <list>
 
-#include <Eigen/Dense>
-
 #include "vehicle_data.h"
 
 #include "observation_history.h"
@@ -185,28 +183,6 @@ private:
         m_VehicleLifeHistory.erase(rn);
     }
 
-    void AddPositionDynamics(const std::string rn, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &velocity)
-    {
-        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
-
-        VectorDynamics obj;
-        obj.dx0 = pos;
-        obj.dx1 = velocity;
-
-        m_PositionDynamicsHistory.at(rn).InsertObservation(time, obj);
-    }
-
-    void AddAttitudeDynamics(const std::string rn, const TIME &time, const Eigen::Vector3d &att, const Eigen::Vector3d &att_rates)
-    {
-        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
-
-        VectorDynamics obj;
-        obj.dx0 = att;
-        obj.dx1 = att_rates;
-
-        m_AttitudeDynamicsHistory.at(rn).InsertObservation(time, obj);
-    }
-
     void AddVehicleLife(const std::string &rn, const TIME &time, const VehicleLife &life)
     {
         std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
@@ -280,6 +256,8 @@ public:
 
     bool GetPositionDynamics(const std::string rn, const TIME &time, Eigen::Vector3d &pos, Eigen::Vector3d &velocity) const
     {
+        UNUSED(pos);
+        UNUSED(velocity);
         std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
 
         VectorDynamics vec;
@@ -287,14 +265,13 @@ public:
 
         if(success == false)
             return false;
-
-        pos = vec.dx0;
-        velocity = vec.dx1;
         return true;
     }
 
     bool GetAttitudeDynamics(const std::string rn, const TIME &time, Eigen::Vector3d &att, Eigen::Vector3d &att_rates) const
     {
+        UNUSED(att);
+        UNUSED(att_rates);
         std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
 
         VectorDynamics vec;
@@ -302,9 +279,6 @@ public:
 
         if(success == false)
             return false;
-
-        att = vec.dx0;
-        att_rates = vec.dx1;
         return true;
     }
 

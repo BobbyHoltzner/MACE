@@ -24,14 +24,14 @@ mavlink_message_t Generic_MACETOMAVLINK::FlightMode_MACETOMAVLINK(DataGenericIte
      return(msg);
 }
 
-mavlink_message_t Generic_MACETOMAVLINK::FuelTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &topicItem, const uint8_t &chan)
+mavlink_message_t Generic_MACETOMAVLINK::BatteryTopicPTR_MACETOMAVLINK(const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> &topicItem, const uint8_t &chan)
 {
-    DataGenericItem::DataGenericItem_Fuel newFuel = *topicItem.get();
-    mavlink_message_t msg = Fuel_MACETOMAVLINK(newFuel,chan);
+    DataGenericItem::DataGenericItem_Battery newBattery = *topicItem.get();
+    mavlink_message_t msg = Battery_MACETOMAVLINK(newBattery,chan);
     return(msg);
 }
 
-mavlink_message_t Generic_MACETOMAVLINK::Fuel_MACETOMAVLINK(DataGenericItem::DataGenericItem_Fuel fuelItem, const uint8_t &chan)
+mavlink_message_t Generic_MACETOMAVLINK::Battery_MACETOMAVLINK(DataGenericItem::DataGenericItem_Battery fuelItem, const uint8_t &chan)
 {
     mavlink_message_t msg;
     mavlink_sys_status_t sysStatus;
@@ -60,32 +60,32 @@ mavlink_message_t Generic_MACETOMAVLINK::GPS_MACETOMAVLINK(DataGenericItem::Data
 
     switch(GPSItem.getGPSFix())
     {
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_2DFIX:
-        gpsRaw.fix_type = 2;
+    case Data::GPSFixType::GPS_FIX_2D_FIX:
+        gpsRaw.fix_type = GPS_FIX_TYPE_2D_FIX;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_3DFIX:
-        gpsRaw.fix_type = 3;
+    case Data::GPSFixType::GPS_FIX_3D_FIX:
+        gpsRaw.fix_type = GPS_FIX_TYPE_3D_FIX;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_DGPS:
-        gpsRaw.fix_type = 4;
+    case Data::GPSFixType::GPS_FIX_DGPS:
+        gpsRaw.fix_type = GPS_FIX_TYPE_DGPS;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_NOFIX:
-        gpsRaw.fix_type = 1;
+    case Data::GPSFixType::GPS_FIX_NONE:
+        gpsRaw.fix_type = GPS_FIX_TYPE_NO_GPS;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_NOGPS:
-        gpsRaw.fix_type = 0;
+    case Data::GPSFixType::GPS_FIX_NO_FIX:
+        gpsRaw.fix_type = GPS_FIX_TYPE_NO_FIX;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_RTKFIXED:
-        gpsRaw.fix_type = 6;
+    case Data::GPSFixType::GPS_FIX_RTK_FIXED:
+        gpsRaw.fix_type = GPS_FIX_TYPE_RTK_FIXED;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_RTKFLOAT:
-        gpsRaw.fix_type = 5;
+    case Data::GPSFixType::GPS_FIX_RTK_FLOAT:
+        gpsRaw.fix_type = GPS_FIX_TYPE_RTK_FLOAT;
         break;
-    case DataGenericItem::DataGenericItem_GPS::GPSFIX_STATIC:
-        gpsRaw.fix_type = 7;
+    case Data::GPSFixType::GPS_FIX_STATIC:
+        gpsRaw.fix_type = GPS_FIX_TYPE_STATIC;
         break;
     default:
-        gpsRaw.fix_type = 0;
+        gpsRaw.fix_type = GPS_FIX_TYPE_NO_FIX;
         break;
     }
 
@@ -107,28 +107,28 @@ mavlink_message_t Generic_MACETOMAVLINK::Text_MACETOMAVLINK(DataGenericItem::Dat
     strcpy(statusText.text,textItem.getText().c_str());
 
     switch(textItem.getSeverity()){
-    case DataGenericItem::DataGenericItem_Text::STATUS_ALERT:
+    case Data::StatusSeverityType::STATUS_ALERT:
         statusText.severity = MAV_SEVERITY_ALERT;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_CRITICAL:
+    case Data::StatusSeverityType::STATUS_CRITICAL:
         statusText.severity = MAV_SEVERITY_CRITICAL;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_DEBUG:
+    case Data::StatusSeverityType::STATUS_DEBUG:
         statusText.severity = MAV_SEVERITY_DEBUG;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_EMERGENCY:
+    case Data::StatusSeverityType::STATUS_EMERGENCY:
         statusText.severity = MAV_SEVERITY_EMERGENCY;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_ERROR:
+    case Data::StatusSeverityType::STATUS_ERROR:
         statusText.severity = MAV_SEVERITY_ERROR;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_INFO:
+    case Data::StatusSeverityType::STATUS_INFO:
         statusText.severity = MAV_SEVERITY_INFO;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_NOTICE:
+    case Data::StatusSeverityType::STATUS_NOTICE:
         statusText.severity = MAV_SEVERITY_NOTICE;
         break;
-    case DataGenericItem::DataGenericItem_Text::STATUS_WARNING:
+    case Data::StatusSeverityType::STATUS_WARNING:
         statusText.severity = MAV_SEVERITY_WARNING;
         break;
     default:

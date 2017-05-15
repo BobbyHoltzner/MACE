@@ -5,20 +5,20 @@ namespace DataGenericItemTopic {
 const char DataGenericItemTopicText_name[] = "statusText";
 const MaceCore::TopicComponentStructure DataGenericItemTopicText_structure = []{
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<DataGenericItemTopic_Text::STATUS_SEVERITY>("fix");
+    structure.AddTerminal<Data::StatusSeverityType>("severity");
     structure.AddTerminal<std::string>("text");
     return structure;
 }();
 
 MaceCore::TopicDatagram DataGenericItemTopic_Text::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<STATUS_SEVERITY>("severity", severity);
+    datagram.AddTerminal<Data::StatusSeverityType>("severity", severity);
     datagram.AddTerminal<std::string>("text", dataString);
     return datagram;
 }
 
 void DataGenericItemTopic_Text::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    severity = datagram.GetTerminal<STATUS_SEVERITY>("severity");
+    severity = datagram.GetTerminal<Data::StatusSeverityType>("severity");
     dataString = datagram.GetTerminal<std::string>("text");
 }
 

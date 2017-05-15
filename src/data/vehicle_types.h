@@ -6,6 +6,7 @@
 
 namespace Data
 {
+
 enum class VehicleTypes
 {
     COPTER,

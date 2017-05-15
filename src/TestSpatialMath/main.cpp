@@ -1,6 +1,5 @@
 #include <iostream>
 #include <math.h>
-#include <Eigen/Dense>
 #include <vector>
 #include "common/common.h"
 

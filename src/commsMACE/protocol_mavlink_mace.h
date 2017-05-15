@@ -9,7 +9,7 @@
 #include <math.h>
 #include <unordered_map>
 
-#include "mavlink_MACE.h"
+#include "mace.h"
 #include "i_link_mace.h"
 #include "i_protocol_mavlink_events_mace.h"
 
@@ -65,7 +65,7 @@ public:
     //! \param link Link to put message onto
     //! \param message Message to send
     //!
-    void SendProtocolMessage(const ILink *link, const mavlink_message_t &message);
+    void SendProtocolMessage(const ILink *link, const mace_message_t &message);
 
 
     //!
@@ -92,11 +92,11 @@ private:
     int m_systemId;
 
     int lastIndex[256][256];    ///< Store the last received sequence ID for each system/componenet pair
-    int totalReceiveCounter[MAVLINK_COMM_NUM_BUFFERS];    ///< The total number of successfully received messages
-    int totalLossCounter[MAVLINK_COMM_NUM_BUFFERS];       ///< Total messages lost during transmission.
-    int totalErrorCounter[MAVLINK_COMM_NUM_BUFFERS];      ///< Total count of all parsing errors. Generally <= totalLossCounter.
-    int currReceiveCounter[MAVLINK_COMM_NUM_BUFFERS];     ///< Received messages during this sample time window. Used for calculating loss %.
-    int currLossCounter[MAVLINK_COMM_NUM_BUFFERS];        ///< Lost messages during this sample time window. Used for calculating loss %.
+    int totalReceiveCounter[MACE_COMM_NUM_BUFFERS];    ///< The total number of successfully received messages
+    int totalLossCounter[MACE_COMM_NUM_BUFFERS];       ///< Total messages lost during transmission.
+    int totalErrorCounter[MACE_COMM_NUM_BUFFERS];      ///< Total count of all parsing errors. Generally <= totalLossCounter.
+    int currReceiveCounter[MACE_COMM_NUM_BUFFERS];     ///< Received messages during this sample time window. Used for calculating loss %.
+    int currLossCounter[MACE_COMM_NUM_BUFFERS];        ///< Lost messages during this sample time window. Used for calculating loss %.
 
 
     std::vector<const IProtocolMavlinkEvents*> m_Listners;

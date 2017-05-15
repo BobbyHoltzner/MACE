@@ -5,21 +5,19 @@ namespace MissionItem {
 template<>
 SpatialWaypoint<DataState::StateGlobalPosition>::SpatialWaypoint()
 {
-    m_PositionalFrame = Data::PositionalFrame::GLOBAL;
-    m_CoordinateFrame = Data::CoordinateFrame::NED;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
 
 template<>
 SpatialWaypoint<DataState::StateLocalPosition>::SpatialWaypoint()
 {
-    m_PositionalFrame = Data::PositionalFrame::LOCAL;
-    m_CoordinateFrame = Data::CoordinateFrame::NED;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
 
 template <class T>
-MissionItemType SpatialWaypoint<T>::getMissionType() const
+Data::MissionItemType SpatialWaypoint<T>::getMissionType() const
 {
-    return MissionItemType::WAYPOINT;
+    return Data::MissionItemType::MI_NAV_WAYPOINT;
 }
 
 template <class T>
@@ -48,5 +46,5 @@ void SpatialWaypoint<DataState::StateLocalPosition>::print()
 
 } //end of namepsace MissionItem
 
-//template class MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>;
-//template class MissionItem::SpatialWaypoint<DataState::StateLocalPosition>;
+template class MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>;
+template class MissionItem::SpatialWaypoint<DataState::StateLocalPosition>;

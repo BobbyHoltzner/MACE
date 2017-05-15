@@ -2,9 +2,9 @@
 
 namespace MissionItem {
 
-MissionItemType SpatialHome::getMissionType() const
+Data::MissionItemType SpatialHome::getMissionType() const
 {
-    return MissionItemType::RTL;
+    return Data::MissionItemType::MI_NAV_HOME;
 }
 
 std::string SpatialHome::getDescription() const
@@ -19,8 +19,7 @@ bool SpatialHome::hasSpatialMissionInfluence() const
 
 SpatialHome::SpatialHome()
 {
-    m_CoordinateFrame = Data::CoordinateFrame::NED;
-    m_PositionalFrame = Data::PositionalFrame::GLOBAL;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
 
 SpatialHome::SpatialHome(const SpatialHome &spatialHome)

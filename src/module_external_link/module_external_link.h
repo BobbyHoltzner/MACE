@@ -7,7 +7,7 @@
 #include "module_external_link_global.h"
 #include <chrono>
 
-#include "mavlink_MACE.h"
+#include "mace.h"
 
 #include "common/common.h"
 
@@ -42,16 +42,36 @@ public:
 
     ModuleExternalLink();
 
-    void ParseForData(const mavlink_message_t* message);
+    void ParseForData(const mace_message_t* message);
 
-    void ParseCommsCommand(const mavlink_command_long_t* message);
+    void ParseCommsCommand(const mace_command_long_t* message);
+
+    void PublishVehicleData(const int &systemID, const std::shared_ptr<Data::ITopicComponentDataObject> &component);
+
 
     //!
     //! \brief New Mavlink message received over a link
     //! \param linkName Name of link message received over
     //! \param msg Message received
     //!
-    virtual void MACEMessage(const std::string &linkName, const mavlink_message_t &msg);
+    virtual void MACEMessage(const std::string &linkName, const mace_message_t &msg);
+
+    //!
+    //! \brief VehicleHeartbeatInfo
+    //! \param linkName
+    //! \param systemID
+    //! \param heartbeatMSG
+    //!
+    virtual void MACEHeartbeatInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG);
+
+    //!
+    //! \brief VehicleCommandMACEACK
+    //! \param linkName
+    //! \param systemID
+    //! \param cmdACK
+    //!
+    virtual void MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK);
+
     //!
     //! \brief NewTopic
     //! \param topicName

@@ -11,21 +11,22 @@ CommsMACEHelper::~CommsMACEHelper()
 
 }
 
-void CommsMACEHelper::VehicleHeartbeatMACEInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
+void CommsMACEHelper::MACEHeartbeatInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG)
 {
     UNUSED(linkName);
     UNUSED(systemID);
     UNUSED(heartbeatMSG);
+    std::cout<<"I am in the comms mace helper heartbeat info routine"<<std::endl;
 }
 
-void CommsMACEHelper::VehicleCommandMACEACK(const std::string &linkName, const int &systemID, const mavlink_command_ack_t &cmdACK)
+void CommsMACEHelper::MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK)
 {
     UNUSED(linkName);
     UNUSED(systemID);
     UNUSED(cmdACK);
 }
 
-void CommsMACEHelper::MACEMessage(const std::string &linkName, const mavlink_message_t &message)
+void CommsMACEHelper::MACEMessage(const std::string &linkName, const mace_message_t &message)
 {
     UNUSED(linkName);
     UNUSED(message);
@@ -140,21 +141,21 @@ void CommsMACEHelper::ConfigureMACEComms(const std::shared_ptr<MaceCore::ModuleP
             //set version on mavlink channel
             // I would prefer to put this in CommsMACE library, but because the mavlinkstatus is static variable, things get messed up when linking
             m_LinkChan = m_LinkMarshaler->GetProtocolChannel(m_LinkName);
-            mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(m_LinkChan);
-            std::cout << mavlinkStatus << std::endl;
+            mace_status_t* maceStatus = mace_get_channel_status(m_LinkChan);
+            std::cout << maceStatus << std::endl;
             switch (mavlinkConfig->GetVersion()) {
             case CommsMACE::MavlinkConfiguration::MavlinkVersion::MavlinkVersion2IfVehicle2:
-                if (mavlinkStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) {
-                    mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                if (maceStatus->flags & MACE_STATUS_FLAG_IN_MACE1) {
+                    maceStatus->flags |= MACE_STATUS_FLAG_OUT_MACE1;
                     break;
                 }
                 // Fallthrough to set version 2
             case CommsMACE::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways2:
-                mavlinkStatus->flags &= ~MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                maceStatus->flags &= ~MACE_STATUS_FLAG_OUT_MACE1;
                 break;
             default:
             case CommsMACE::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways1:
-                mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                maceStatus->flags |= MACE_STATUS_FLAG_OUT_MACE1;
                 break;
             }
         }
@@ -195,21 +196,21 @@ void CommsMACEHelper::ConfigureMACEComms(const std::shared_ptr<MaceCore::ModuleP
             //set version on mavlink channel
             // I would prefer to put this in CommsMACE library, but because the mavlinkstatus is static variable, things get messed up when linking
             m_LinkChan = m_LinkMarshaler->GetProtocolChannel(m_LinkName);
-            mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(m_LinkChan);
-            std::cout << mavlinkStatus << std::endl;
+            mace_status_t* maceStatus = mace_get_channel_status(m_LinkChan);
+            std::cout << maceStatus << std::endl;
             switch (mavlinkConfig->GetVersion()) {
             case CommsMACE::MavlinkConfiguration::MavlinkVersion::MavlinkVersion2IfVehicle2:
-                if (mavlinkStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) {
-                    mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                if (maceStatus->flags & MACE_STATUS_FLAG_IN_MACE1) {
+                    maceStatus->flags |= MACE_STATUS_FLAG_OUT_MACE1;
                     break;
                 }
                 // Fallthrough to set version 2
             case CommsMACE::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways2:
-                mavlinkStatus->flags &= ~MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                maceStatus->flags &= ~MACE_STATUS_FLAG_OUT_MACE1;
                 break;
             default:
             case CommsMACE::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways1:
-                mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                maceStatus->flags |= MACE_STATUS_FLAG_OUT_MACE1;
                 break;
             }
         }
