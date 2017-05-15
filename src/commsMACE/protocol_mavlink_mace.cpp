@@ -169,6 +169,10 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
         }
         if (decodeState == 1)
         {
+            if(message.msgid == MACE_MSG_ID_VEHICLE_MODE)
+            {
+                std::cout<<"This was a changed mode message"<<std::endl;
+            }
             bool flaggedMSG = false;
 
             decodedFirstPacket = true;

@@ -744,6 +744,7 @@ void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::share
 
 void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &missionKey)
 {
+    std::cout<<"New mission available for ground station"<<std::endl;
     MissionItem::MissionList newList;
     bool valid = this->getDataObject()->getMissionList(missionKey,newList);
     if(valid)

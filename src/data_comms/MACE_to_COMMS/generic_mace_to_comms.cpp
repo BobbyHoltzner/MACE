@@ -46,7 +46,7 @@ mace_message_t Generic_MACETOCOMMS::FlightMode_MACETOCOMMS(DataGenericItem::Data
 {
      mace_message_t msg;
      mace_vehicle_mode_t mode;
-     flightModeItem.getFlightModeString().copy(mode.vehicle_mode,10,0);
+     strcpy(mode.vehicle_mode,flightModeItem.getFlightModeString().c_str());
      mace_msg_vehicle_mode_encode_chan(systemID,compID,chan,&msg,&mode);
      return(msg);
 }
