@@ -3,18 +3,18 @@
 
 #include "data/coordinate_frame.h"
 
-using namespace Data;
+
 
 namespace DataState {
 class StateGenericPosition
 {
 public:
 
-    void setCoordinateFrame(const CoordinateFrameType &coordinateFrame){
+    void setCoordinateFrame(const Data::CoordinateFrameType &coordinateFrame){
         this->m_CoordinateFrame = coordinateFrame;
     }
 
-    CoordinateFrameType getCoordinateFrame() const {
+    Data::CoordinateFrameType getCoordinateFrame() const {
         return m_CoordinateFrame;
     }
 
@@ -35,7 +35,7 @@ public:
         return !(*this == rhs);
     }
 protected:
-    CoordinateFrameType m_CoordinateFrame;
+    Data::CoordinateFrameType m_CoordinateFrame;
 };
 
 }

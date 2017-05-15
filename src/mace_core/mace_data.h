@@ -10,8 +10,6 @@
 #include <mutex>
 #include <list>
 
-#include <Eigen/Dense>
-
 #include "vehicle_data.h"
 
 #include "observation_history.h"
@@ -150,12 +148,12 @@ private:
 
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_VehicleHomeMap[vehicleHome.getVehicleID()] = newHome;
-        if(flagGlobalOrigin == true)
-        {
-            Eigen::Vector3f translation;
-            newHome.position.translationTransformation(m_GlobalOrigin.position,translation);
-            m_VehicleToGlobalTranslation[vehicleHome.getVehicleID()] = translation;
-        }
+//        if(flagGlobalOrigin == true)
+//        {
+//            Eigen::Vector3f translation;
+//            newHome.position.translationTransformation(m_GlobalOrigin.position,translation);
+//            m_VehicleToGlobalTranslation[vehicleHome.getVehicleID()] = translation;
+//        }
     }
 
     void UpdateGlobalOrigin(const MissionItem::SpatialHome &globalOrigin)
@@ -163,12 +161,12 @@ private:
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_GlobalOrigin = globalOrigin;
         flagGlobalOrigin = true;
-        for (std::map<int,MissionItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
-        {
-            Eigen::Vector3f translation;
-            it->second.position.translationTransformation(m_GlobalOrigin.position,translation);
-            m_VehicleToGlobalTranslation[it->first] = translation;
-        }
+//        for (std::map<int,MissionItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
+//        {
+//            Eigen::Vector3f translation;
+//            it->second.position.translationTransformation(m_GlobalOrigin.position,translation);
+//            m_VehicleToGlobalTranslation[it->first] = translation;
+//        }
           //std::cout << it->first << " => " << it->second << '\n';
         //This is where we would need to update and compute transformations
     }
@@ -183,28 +181,6 @@ private:
         m_PositionDynamicsHistory.erase(rn);
         m_AttitudeDynamicsHistory.erase(rn);
         m_VehicleLifeHistory.erase(rn);
-    }
-
-    void AddPositionDynamics(const std::string rn, const TIME &time, const Eigen::Vector3d &pos, const Eigen::Vector3d &velocity)
-    {
-        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
-
-        VectorDynamics obj;
-        obj.dx0 = pos;
-        obj.dx1 = velocity;
-
-        m_PositionDynamicsHistory.at(rn).InsertObservation(time, obj);
-    }
-
-    void AddAttitudeDynamics(const std::string rn, const TIME &time, const Eigen::Vector3d &att, const Eigen::Vector3d &att_rates)
-    {
-        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
-
-        VectorDynamics obj;
-        obj.dx0 = att;
-        obj.dx1 = att_rates;
-
-        m_AttitudeDynamicsHistory.at(rn).InsertObservation(time, obj);
     }
 
     void AddVehicleLife(const std::string &rn, const TIME &time, const VehicleLife &life)
@@ -280,6 +256,8 @@ public:
 
     bool GetPositionDynamics(const std::string rn, const TIME &time, Eigen::Vector3d &pos, Eigen::Vector3d &velocity) const
     {
+        UNUSED(pos);
+        UNUSED(velocity);
         std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
 
         VectorDynamics vec;
@@ -287,14 +265,13 @@ public:
 
         if(success == false)
             return false;
-
-        pos = vec.dx0;
-        velocity = vec.dx1;
         return true;
     }
 
     bool GetAttitudeDynamics(const std::string rn, const TIME &time, Eigen::Vector3d &att, Eigen::Vector3d &att_rates) const
     {
+        UNUSED(att);
+        UNUSED(att_rates);
         std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
 
         VectorDynamics vec;
@@ -302,9 +279,6 @@ public:
 
         if(success == false)
             return false;
-
-        att = vec.dx0;
-        att_rates = vec.dx1;
         return true;
     }
 

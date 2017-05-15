@@ -17,8 +17,6 @@
 #include "data_generic_mission_item/mission_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
-using namespace Data;
-
 namespace DataCOMMS{
 
 class Mission_MACETOCOMMS

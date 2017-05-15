@@ -2,9 +2,9 @@
 
 namespace MissionItem {
 
-MissionItemType SpatialHome::getMissionType() const
+Data::MissionItemType SpatialHome::getMissionType() const
 {
-    return MissionItemType::MI_NAV_HOME;
+    return Data::MissionItemType::MI_NAV_HOME;
 }
 
 std::string SpatialHome::getDescription() const

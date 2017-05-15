@@ -2,9 +2,9 @@
 
 namespace MissionItem {
 
-MissionItemType ActionMotorTest::getMissionType() const
+Data::MissionItemType ActionMotorTest::getMissionType() const
 {
-    return MissionItemType::MI_ACT_MOTORTEST;
+    return Data::MissionItemType::MI_ACT_MOTORTEST;
 }
 
 std::string ActionMotorTest::getDescription() const

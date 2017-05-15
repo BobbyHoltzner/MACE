@@ -4,7 +4,6 @@
 #include "data_generic_item/data_generic_item_GPS.h"
 #include "data/i_topic_component_data_object.h"
 
-using namespace Data;
 namespace DataGenericItemTopic {
 
 extern const char DataGenericItemTopicGPS_name[];

@@ -37,4 +37,6 @@ inline ControllerState GuidedStateFromString(const std::string &str) {
     throw std::runtime_error("Unknown guided state seen");
 }
 
+}
+
 #endif // CONTROLLER_STATE_H

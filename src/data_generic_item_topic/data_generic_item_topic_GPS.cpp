@@ -5,7 +5,7 @@ namespace DataGenericItemTopic {
 const char DataGenericItemTopicGPS_name[] = "gpsStatus";
 const MaceCore::TopicComponentStructure DataGenericItemTopicGPS_structure = []{
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<GPSFixType>("fix");
+    structure.AddTerminal<Data::GPSFixType>("fix");
     structure.AddTerminal<uint16_t>("satellitesVisible");
     structure.AddTerminal<uint16_t>("vdop");
     structure.AddTerminal<uint16_t>("hdop");
@@ -15,7 +15,7 @@ const MaceCore::TopicComponentStructure DataGenericItemTopicGPS_structure = []{
 
 MaceCore::TopicDatagram DataGenericItemTopic_GPS::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<GPSFixType>("fix", fixtype);
+    datagram.AddTerminal<Data::GPSFixType>("fix", fixtype);
     datagram.AddTerminal<uint16_t>("satellitesVisible", satellitesVisible);
     datagram.AddTerminal<uint16_t>("vdop", VDOP);
     datagram.AddTerminal<uint16_t>("hdop", HDOP);
@@ -23,7 +23,7 @@ MaceCore::TopicDatagram DataGenericItemTopic_GPS::GenerateDatagram() const {
 }
 
 void DataGenericItemTopic_GPS::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    fixtype = datagram.GetTerminal<GPSFixType>("fix");
+    fixtype = datagram.GetTerminal<Data::GPSFixType>("fix");
     satellitesVisible = datagram.GetTerminal<uint16_t>("satellitesVisible");
     VDOP = datagram.GetTerminal<uint16_t>("vdop");
     HDOP = datagram.GetTerminal<uint16_t>("hdop");

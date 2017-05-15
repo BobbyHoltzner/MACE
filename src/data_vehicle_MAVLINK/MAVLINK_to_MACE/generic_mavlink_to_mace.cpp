@@ -33,31 +33,31 @@ DataGenericItem::DataGenericItem_GPS Generic_MAVLINKTOMACE::GPS_MAVLINKTOMACE(co
     switch(genericItem.fix_type)
     {
     case GPS_FIX_TYPE_2D_FIX:
-        gpsItem.setGPSFix(GPSFixType::GPS_FIX_2D_FIX);
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_2D_FIX);
         break;
     case GPS_FIX_TYPE_3D_FIX:
-        gpsItem.setGPSFix(GPSFixType::GPS_FIX_3D_FIX);
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_3D_FIX);
         break;
     case GPS_FIX_TYPE_DGPS:
-        gpsItem.setGPSFix(GPSFixType::GPS_FIX_DGPS);
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_DGPS);
         break;
     case GPS_FIX_TYPE_NO_FIX:
-        gpsItem.setGPSFix(GPSFixType::GPS_FIX_NO_FIX);
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NO_FIX);
         break;
     case GPS_FIX_TYPE_NO_GPS:
-        gpsItem.setGPSFix(GPSFixType::GPS_FIX_NONE);
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NONE);
         break;
     case GPS_FIX_TYPE_RTK_FIXED:
-        gpsItem.setGPSFix(GPSFixType::GPS_FIX_RTK_FIXED);
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_RTK_FIXED);
         break;
     case GPS_FIX_TYPE_RTK_FLOAT:
-        gpsItem.setGPSFix(GPSFixType::GPS_FIX_RTK_FLOAT);
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_RTK_FLOAT);
         break;
     case GPS_FIX_TYPE_STATIC:
-        gpsItem.setGPSFix(GPSFixType::GPS_FIX_STATIC);
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_STATIC);
         break;
     default:
-        gpsItem.setGPSFix(GPSFixType::GPS_FIX_NO_FIX);
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NO_FIX);
         break;
     }
 

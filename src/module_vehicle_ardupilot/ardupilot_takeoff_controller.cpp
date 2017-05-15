@@ -233,7 +233,7 @@ void Ardupilot_TakeoffController::controlSequence()
         //let us see how close we are to our target
         double distance = distanceToTarget();
         std::cout<<"The distance to the target is: "<<distance<<std::endl;
-        Data::MissionState currentState = vehicleMissionState.updateMissionState(distance);
+        Data::ControllerState currentState = vehicleMissionState.updateMissionState(distance);
         generateControl(currentState);
         positionUpdated = false;
 

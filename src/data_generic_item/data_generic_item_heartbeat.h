@@ -2,13 +2,12 @@
 #define DATA_GENERIC_ITEM_HEARTBEAT_H
 
 #include <iostream>
+#include <string>
 #include <stdint.h>
 
 #include "data/autopilot_types.h"
 #include "data/comms_protocol.h"
 #include "data/system_type.h"
-
-using namespace Data;
 
 namespace DataGenericItem {
 
@@ -21,15 +20,15 @@ public:
 
 
 public:
-    void setProtocol(const CommsProtocol &protocol)
+    void setProtocol(const Data::CommsProtocol &protocol)
     {
         this->protocol = protocol;
     }
-    void setType(const SystemType &type)
+    void setType(const Data::SystemType &type)
     {
         this->type = type;
     }
-    void setAutopilot(const AutopilotType &autopilot)
+    void setAutopilot(const Data::AutopilotType &autopilot)
     {
         this->autopilot = autopilot;
     }
@@ -39,15 +38,15 @@ public:
     }
 
 public:
-    CommsProtocol getProtocol() const
+    Data::CommsProtocol getProtocol() const
     {
         return this->protocol;
     }
-    SystemType getType() const
+    Data::SystemType getType() const
     {
         return this->type;
     }
-    AutopilotType getAutopilot() const
+    Data::AutopilotType getAutopilot() const
     {
         return this->autopilot;
     }
@@ -87,9 +86,9 @@ public:
 
 
 protected:
-    AutopilotType autopilot;
-    CommsProtocol protocol;
-    SystemType type;
+    Data::AutopilotType autopilot;
+    Data::CommsProtocol protocol;
+    Data::SystemType type;
     bool maceCompanion;
 };
 

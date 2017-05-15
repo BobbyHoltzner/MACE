@@ -5,14 +5,14 @@
 
 #include "data/mission_item_type.h"
 #include "data_generic_mission_item/abstract_mission_item.h"
-using namespace Data;
+
 
 namespace MissionItem {
 
 class ActionArm : public AbstractMissionItem
 {
 public:
-    virtual MissionItemType getMissionType() const;
+    virtual Data::MissionItemType getMissionType() const;
 
     virtual std::string getDescription() const;
 

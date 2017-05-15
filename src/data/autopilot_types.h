@@ -1,8 +1,12 @@
 #ifndef AUTOPILOT_TYPES_H
 #define AUTOPILOT_TYPES_H
 
+#include <string>
+#include <stdexcept>
+
 namespace Data
 {
+
 enum class AutopilotType
 {
     AUTOPILOT_TYPE_GENERIC=0, /* Generic autopilot, full support for everything | */

@@ -8,7 +8,7 @@
 #include "data_generic_state_item/state_global_position.h"
 #include "data_generic_state_item/state_local_position.h"
 
-using namespace Data;
+
 
 namespace MissionItem {
 
@@ -19,7 +19,7 @@ public:
     SpatialHome(const SpatialHome &spatialHome);
 
 public:
-    virtual MissionItemType getMissionType()const;
+    virtual Data::MissionItemType getMissionType()const;
 
     virtual std::string getDescription()const;
 

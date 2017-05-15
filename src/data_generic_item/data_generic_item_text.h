@@ -5,8 +5,6 @@
 #include <string>
 #include "data/status_severity_type.h"
 
-using namespace Data;
-
 namespace DataGenericItem {
 
 class DataGenericItem_Text
@@ -26,11 +24,11 @@ public:
         return dataString;
     }
 
-    void setSeverity(const StatusSeverityType &severity){
+    void setSeverity(const Data::StatusSeverityType &severity){
         this->severity = severity;
     }
 
-    StatusSeverityType getSeverity() const{
+    Data::StatusSeverityType getSeverity() const{
         return severity;
     }
 
@@ -62,7 +60,7 @@ public:
 //    }
 
 protected:
-    StatusSeverityType severity;
+    Data::StatusSeverityType severity;
     std::string dataString;
 };
 

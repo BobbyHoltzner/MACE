@@ -1,6 +1,8 @@
 #ifndef SYSTEM_TYPE_H
 #define SYSTEM_TYPE_H
 
+#include <string>
+#include <stdexcept>
 
 namespace Data
 {

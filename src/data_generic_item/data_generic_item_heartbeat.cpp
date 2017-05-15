@@ -3,7 +3,7 @@
 namespace DataGenericItem {
 
 DataGenericItem_Heartbeat::DataGenericItem_Heartbeat() :
-    protocol(Data::CommsProtocol::COMMS_MACE),type(Data::SystemType::SYSTEM_TYPE_GENERIC),autopilot(Data::AutopilotType::AUTOPILOT_TYPE_GENERIC),maceCompanion(true)
+    autopilot(Data::AutopilotType::AUTOPILOT_TYPE_GENERIC),protocol(Data::CommsProtocol::COMMS_MACE),type(Data::SystemType::SYSTEM_TYPE_GENERIC),maceCompanion(true)
 {
 
 }

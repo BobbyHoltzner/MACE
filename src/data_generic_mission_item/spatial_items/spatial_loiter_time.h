@@ -10,7 +10,7 @@
 #include "data_generic_state_item/state_global_position.h"
 #include "data_generic_state_item/state_local_position.h"
 
-using namespace Data;
+
 
 namespace MissionItem {
 

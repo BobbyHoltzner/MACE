@@ -6,8 +6,6 @@
 #include "data/mission_item_type.h"
 #include "data/coordinate_frame.h"
 
-using namespace Data;
-
 namespace MissionItem {
 
 class AbstractMissionItem
@@ -21,11 +19,11 @@ public:
     virtual std::string getDescription() const = 0;
 
 public:
-    CoordinateFrameType getCoordinateFrame() const{
+    Data::CoordinateFrameType getCoordinateFrame() const{
         return m_CoordinateFrame;
     }
 
-    void setCoordinateFrame(const CoordinateFrameType &coordinateFrame){
+    void setCoordinateFrame(const Data::CoordinateFrameType &coordinateFrame){
         m_CoordinateFrame = coordinateFrame;
     }
 
@@ -59,7 +57,7 @@ public:
 
 protected:
     int m_VehicleID;
-    CoordinateFrameType m_CoordinateFrame;
+    Data::CoordinateFrameType m_CoordinateFrame;
 
 };
 

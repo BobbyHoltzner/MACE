@@ -43,7 +43,7 @@ SpatialLoiter_Time<DataState::StateGlobalPosition>::SpatialLoiter_Time()
 template<>
 SpatialLoiter_Time<DataState::StateLocalPosition>::SpatialLoiter_Time()
 {
-    m_CoordinateFrame = CoordinateFrameType::CF_LOCAL_ENU;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
 
 } //end of namespace MissionItem

@@ -43,7 +43,7 @@ SpatialLoiter_Turns<DataState::StateGlobalPosition>::SpatialLoiter_Turns()
 template<>
 SpatialLoiter_Turns<DataState::StateLocalPosition>::SpatialLoiter_Turns()
 {
-    m_CoordinateFrame = CoordinateFrameType::CF_LOCAL_ENU;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
 
 } //end of namespace MissionItem

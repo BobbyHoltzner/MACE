@@ -1,6 +1,9 @@
 #ifndef COMMAND_ACK_H
 #define COMMAND_ACK_H
 
+#include <string>
+#include <stdexcept>
+
 namespace Data
 {
 

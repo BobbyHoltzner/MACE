@@ -282,22 +282,22 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
 
     DataGenericItem::DataGenericItem_Heartbeat heartbeat;
-    heartbeat.setAutopilot(MAV_AUTOPILOT_ARDUPILOTMEGA);
+    heartbeat.setAutopilot(Data::AutopilotType::AUTOPILOT_TYPE_ARDUPILOTMEGA);
     heartbeat.setCompaion(true);
-    heartbeat.setProtocol(MAV_PROTCOL_MAVLINK);
+    heartbeat.setProtocol(Data::CommsProtocol::COMMS_MAVLINK);
     switch(heartbeatMSG.type)
     {
     case MAV_TYPE_TRICOPTER:
     case MAV_TYPE_QUADROTOR:
     case MAV_TYPE_HEXAROTOR:
     case MAV_TYPE_OCTOROTOR:
-        heartbeat.setType(MAV_TYPE_QUADROTOR);
+        heartbeat.setType(Data::SystemType::SYSTEM_TYPE_QUADROTOR);
         break;
     case MAV_TYPE_FIXED_WING:
-        heartbeat.setType(MAV_TYPE_FIXED_WING);
+        heartbeat.setType(Data::SystemType::SYSTEM_TYPE_GENERIC);
         break;
     default:
-        heartbeat.setType(MAV_TYPE_GENERIC);
+        heartbeat.setType(Data::SystemType::SYSTEM_TYPE_GENERIC);
     }
 
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);

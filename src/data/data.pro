@@ -36,7 +36,6 @@ HEADERS += data_global.h \
     date.h \
     mission_key.h \
     mission_key_change.h \
-    abstract_position_item.h \
     data_get_set_notifier.h \
     mission_ack.h \
     threadmanager.h \

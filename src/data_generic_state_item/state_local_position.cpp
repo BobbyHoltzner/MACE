@@ -6,7 +6,7 @@ using namespace DataState;
 StateLocalPosition::StateLocalPosition():
     x(0.0),y(0.0),z(0.0)
 {
-    m_CoordinateFrame = CoordinateFrameType::CF_LOCAL_ENU;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
 
 StateLocalPosition::StateLocalPosition(const StateLocalPosition &localPosition)
@@ -16,21 +16,21 @@ StateLocalPosition::StateLocalPosition(const StateLocalPosition &localPosition)
     this->z = localPosition.z;
 }
 
-StateLocalPosition::StateLocalPosition(const CoordinateFrameType &frame)
+StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame)
 {
     m_CoordinateFrame = frame;
 }
 
 StateLocalPosition::StateLocalPosition(const double &x, const double &y, const double &z)
 {
-    m_CoordinateFrame = CoordinateFrameType::CF_LOCAL_ENU;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 
     this->x = x;
     this->y = y;
     this->z = z;
 }
 
-StateLocalPosition::StateLocalPosition(const CoordinateFrameType &frame, const double &x, const double &y, const double &z)
+StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame, const double &x, const double &y, const double &z)
 {
     m_CoordinateFrame = frame;
 

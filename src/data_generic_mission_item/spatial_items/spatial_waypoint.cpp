@@ -11,7 +11,7 @@ SpatialWaypoint<DataState::StateGlobalPosition>::SpatialWaypoint()
 template<>
 SpatialWaypoint<DataState::StateLocalPosition>::SpatialWaypoint()
 {
-    m_CoordinateFrame = CoordinateFrameType::CF_LOCAL_ENU;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
 
 template <class T>

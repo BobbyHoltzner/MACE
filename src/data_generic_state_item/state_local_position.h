@@ -8,7 +8,7 @@
 
 #include "state_generic_position.h"
 
-using namespace Data;
+
 
 namespace DataState {
 
@@ -19,11 +19,11 @@ public:
 
     StateLocalPosition(const StateLocalPosition &localPosition);
 
-    StateLocalPosition(const CoordinateFrameType &frame);
+    StateLocalPosition(const Data::CoordinateFrameType &frame);
 
     StateLocalPosition(const double &x, const double &y, const double &z);
 
-    StateLocalPosition(const CoordinateFrameType &frame, const double &x, const double &y, const double &z);
+    StateLocalPosition(const Data::CoordinateFrameType &frame, const double &x, const double &y, const double &z);
 
 public:
 
@@ -69,14 +69,8 @@ public:
         return !(*this == rhs);
     }
 
-    std::ostream& operator<<(std::ostream &out)
-    {
-        out<<"Local Position( X: "<<x<<", Y: "<<y<<", Z: "<<z<<")";
-        return out;
-    }
-
 public:
-    CoordinateFrameType m_CoordinateFrame;
+    Data::CoordinateFrameType m_CoordinateFrame;
 
     double x;
     double y;

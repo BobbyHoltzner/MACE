@@ -18,14 +18,14 @@ ArdupilotMissionState::ArdupilotMissionState(const double &achievedDistance, con
     initializeMissionState();
 }
 
-Data::MissionState ArdupilotMissionState::newMissionItem(const double &distance)
+Data::ControllerState ArdupilotMissionState::newMissionItem(const double &distance)
 {
     initializeTargetStart();
-    Data::MissionState rtnState = updateMissionState(distance);
+    Data::ControllerState rtnState = updateMissionState(distance);
     return rtnState;
 }
 
-Data::MissionState ArdupilotMissionState::updateMissionState(const double &distance)
+Data::ControllerState ArdupilotMissionState::updateMissionState(const double &distance)
 {
     if(distance > distanceThresholdHunting)
     {

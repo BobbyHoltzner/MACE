@@ -1,6 +1,9 @@
 #ifndef GPS_FIX_TYPE_H
 #define GPS_FIX_TYPE_H
 
+#include <string>
+#include <stdexcept>
+
 namespace Data
 {
 enum class GPSFixType

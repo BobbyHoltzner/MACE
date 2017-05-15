@@ -43,7 +43,7 @@ SpatialLand<DataState::StateGlobalPosition>::SpatialLand()
 template<>
 SpatialLand<DataState::StateLocalPosition>::SpatialLand()
 {
-    m_CoordinateFrame = CoordinateFrameType::CF_LOCAL_ENU;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
 
 template <class T>

@@ -56,7 +56,7 @@ double Ardupilot_GuidedController::distanceToTarget(){
     return distance;
 }
 
-void Ardupilot_GuidedController::generateControl(const ControllerState &currentState)
+void Ardupilot_GuidedController::generateControl(const Data::ControllerState &currentState)
 {
     switch(currentState){
     case Data::ControllerState::TRACKING:

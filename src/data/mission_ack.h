@@ -1,5 +1,9 @@
 #ifndef MISSION_ACK_H
 #define MISSION_ACK_H
+
+#include <string>
+#include <stdexcept>
+
 namespace Data
 {
 

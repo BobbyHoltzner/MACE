@@ -1,6 +1,9 @@
 #ifndef COMMS_PROTOCOL_H
 #define COMMS_PROTOCOL_H
 
+#include <string>
+#include <stdexcept>
+
 namespace Data
 {
 enum class CommsProtocol

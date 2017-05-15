@@ -6,8 +6,6 @@
 
 #include "data/gps_fix_type.h"
 
-using namespace Data;
-
 namespace DataGenericItem {
 
 class DataGenericItem_GPS
@@ -18,10 +16,10 @@ public:
     DataGenericItem_GPS(const DataGenericItem_GPS &copyObj);
 
 
-    void setGPSFix(const GPSFixType &fix){
+    void setGPSFix(const Data::GPSFixType &fix){
         this->fixtype = fix;
     }
-    GPSFixType getGPSFix() const{
+    Data::GPSFixType getGPSFix() const{
         return fixtype;
     }
 
@@ -77,12 +75,12 @@ public:
 
     std::ostream& operator<<(std::ostream &out)
     {
-        out<<"GPS Status( FixType: "<<GPSFixTypeToString(fixtype)<<", Satellites Visible: "<<(int)satellitesVisible<<", HDOP: "<<(int)HDOP<<", VDOP: "<<(int)VDOP<<")";
+        out<<"GPS Status( FixType: "<<Data::GPSFixTypeToString(fixtype)<<", Satellites Visible: "<<(int)satellitesVisible<<", HDOP: "<<(int)HDOP<<", VDOP: "<<(int)VDOP<<")";
         return out;
     }
 
 protected:
-    GPSFixType fixtype;
+    Data::GPSFixType fixtype;
     uint16_t satellitesVisible;
     uint16_t HDOP;
     uint16_t VDOP;

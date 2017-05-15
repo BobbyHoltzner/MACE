@@ -2,9 +2,9 @@
 
 namespace MissionItem {
 
-MissionItemType ActionArm::getMissionType() const
+Data::MissionItemType ActionArm::getMissionType() const
 {
-    return MissionItemType::MI_ACT_ARM;
+    return Data::MissionItemType::MI_ACT_ARM;
 }
 
 std::string ActionArm::getDescription() const

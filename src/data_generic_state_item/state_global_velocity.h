@@ -34,12 +34,6 @@ public:
         return !(*this == rhs);
     }
 
-    std::ostream& operator<<(std::ostream &out)
-    {
-        out<<"Global Velocity( X: "<<x<<", Y: "<<y<<", Z: "<<z<<", Heading: "<<heading<<")";
-        return out;
-    }
-
 public:
     float x;
     float y;
