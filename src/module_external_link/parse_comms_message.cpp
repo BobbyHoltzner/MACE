@@ -308,7 +308,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         });
 
         DataGenericItem::DataGenericItem_Text text;
-        text.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_NOTICE);
+        text.setSeverity(Data::StatusSeverityType::STATUS_NOTICE);
         std::string str = "Mission Received:" + std::to_string(key.m_systemID) + " Mission ID:" + std::to_string(key.m_missionID) + " Created By:" + std::to_string(key.m_creatorID);
         text.setText(str);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> statusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(text);

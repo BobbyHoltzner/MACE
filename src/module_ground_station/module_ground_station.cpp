@@ -342,8 +342,6 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
     tmpHome.position.latitude = position.value("lat").toDouble();
     tmpHome.position.longitude = position.value("lon").toDouble();
     tmpHome.position.altitude = position.value("alt").toDouble();
-    tmpHome.setPositionalFrame(Data::PositionalFrame::GLOBAL);
-    //    tmpHome.setCoordinateFrame(NED??);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
         ptr->Event_SetHomePosition(this, tmpHome);
@@ -357,8 +355,6 @@ void ModuleGroundStation::setGlobalOrigin(const QJsonObject &jsonObj)
     tmpGlobalOrigin.position.latitude = position.value("lat").toDouble();
     tmpGlobalOrigin.position.longitude = position.value("lon").toDouble();
     tmpGlobalOrigin.position.altitude = position.value("alt").toDouble();
-    tmpGlobalOrigin.setPositionalFrame(Data::PositionalFrame::GLOBAL);
-    tmpGlobalOrigin.setCoordinateFrame(Data::CoordinateFrame::NED);
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
         ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
@@ -585,7 +581,7 @@ void ModuleGroundStation::sendVehicleHome(const int &vehicleID, const std::share
     json["vehicleID"] = vehicleID;
 
     MissionItem::SpatialHome* spatialHome = new MissionItem::SpatialHome(component->getHome());
-    if(spatialHome->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+    if(spatialHome->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
     {
         json["lat"] = spatialHome->position.latitude;
         json["lon"] = spatialHome->position.longitude;
@@ -738,7 +734,7 @@ void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::share
     QJsonObject json;
     json["dataType"] = "VehicleText";
     json["vehicleID"] = vehicleID;
-    json["severity"] =  QString::fromStdString(DataGenericItemTopic::DataGenericItemTopic_Text::StatusSeverityToString(component->getSeverity()));
+    json["severity"] =  QString::fromStdString(Data::StatusSeverityTypeToString(component->getSeverity()));
     json["text"] = QString::fromStdString(component->getText());
 
     QJsonDocument doc(json);
@@ -767,27 +763,26 @@ void ModuleGroundStation::missionListToJSON(const MissionItem::MissionList &list
 
         QJsonObject obj;
         obj["description"] = QString::fromStdString(missionItem->getDescription());
-        obj["type"] = QString::fromStdString(MissionItem::MissionTypeToString(missionItem->getMissionType()));
+        obj["type"] = QString::fromStdString(Data::MissionItemToString(missionItem->getMissionType()));
 
         switch (missionItem->getMissionType()) {
-        case MissionItem::MissionItemType::ARM:
+        case Data::MissionItemType::MI_ACT_ARM:
         {
             std::shared_ptr<MissionItem::ActionArm> castItem = std::dynamic_pointer_cast<MissionItem::ActionArm>(missionItem);
             obj["positionalFrame"] = "global";
             UNUSED(castItem);
             break;
         }
-        case MissionItem::MissionItemType::CHANGE_MODE:
+        case Data::MissionItemType::MI_ACT_CHANGEMODE:
         {
             std::shared_ptr<MissionItem::ActionChangeMode> castItem = std::dynamic_pointer_cast<MissionItem::ActionChangeMode>(missionItem);
             obj["positionalFrame"] = "global";
             UNUSED(castItem);
             break;
         }
-        case MissionItem::MissionItemType::LAND:
+        case Data::MissionItemType::MI_NAV_LAND:
         {
-            //This is command number 21
-            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+            if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
             {
                 std::shared_ptr<MissionItem::SpatialLand<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialLand<DataState::StateGlobalPosition>>(missionItem);
                 obj["positionalFrame"] = "global";
@@ -800,37 +795,25 @@ void ModuleGroundStation::missionListToJSON(const MissionItem::MissionList &list
 
             break;
         }
-        case MissionItem::MissionItemType::RTL:
+        case Data::MissionItemType::MI_NAV_RETURN_TO_LAUNCH:
         {
-            //This is command number 20
             std::shared_ptr<MissionItem::SpatialRTL> castItem = std::dynamic_pointer_cast<MissionItem::SpatialRTL>(missionItem);
             obj["positionalFrame"] = "global";
             UNUSED(castItem);
             break;
         }
-        case MissionItem::MissionItemType::TAKEOFF:
+        case Data::MissionItemType::MI_NAV_TAKEOFF:
         {
-            //This is command number 22
-            //            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
-            //            {
             std::shared_ptr<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>>(missionItem);
             obj["positionalFrame"] = "global";
             obj["lat"] = castItem->position.latitude;
             obj["lon"] = castItem->position.longitude;
             obj["alt"] = castItem->position.altitude;
-            //            }else{
-            //                MissionItem::SpatialTakeoff<DataState::StateLocalPosition>* item = dynamic_cast<MissionItem::SpatialTakeoff<DataState::StateLocalPosition>*>(missionItem);
-            //                obj["positionalFrame"] = "local";
-            //                obj["x"] = item->position.x;
-            //                obj["y"] = item->position.y;
-            //                obj["z"] = item->position.z;
-            //            }
             break;
         }
-        case MissionItem::MissionItemType::WAYPOINT:
+        case Data::MissionItemType::MI_NAV_WAYPOINT:
         {
-            //This is command number 16
-            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+            if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
             {
                 std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
                 obj["positionalFrame"] = "global";
@@ -846,10 +829,10 @@ void ModuleGroundStation::missionListToJSON(const MissionItem::MissionList &list
             }
             break;
         }
-        case MissionItem::MissionItemType::LOITER_TIME:
+        case Data::MissionItemType::MI_NAV_LOITER_TIME:
         {
             //This is command number 19
-            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+            if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
             {
                 std::shared_ptr<MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition>>(missionItem);
                 obj["positionalFrame"] = "global";
@@ -879,10 +862,10 @@ void ModuleGroundStation::missionListToJSON(const MissionItem::MissionList &list
             }
             break;
         }
-        case MissionItem::MissionItemType::LOITER_TURNS:
+        case Data::MissionItemType::MI_NAV_LOITER_TURNS:
         {
             //This is command number 18
-            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+            if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
             {
                 std::shared_ptr<MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition>>(missionItem);
                 obj["positionalFrame"] = "global";
@@ -912,10 +895,10 @@ void ModuleGroundStation::missionListToJSON(const MissionItem::MissionList &list
             }
             break;
         }
-        case MissionItem::MissionItemType::LOITER_UNLIMITED:
+        case Data::MissionItemType::MI_NAV_LOITER_UNLIM:
         {
             //This is command number 17
-            if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+            if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
             {
                 std::shared_ptr<MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>>(missionItem);
                 obj["positionalFrame"] = "global";

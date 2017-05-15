@@ -55,28 +55,28 @@ DataGenericItem::DataGenericItem_Text Generic_COMMSTOMACE::Text_COMMSTOMACE(cons
 
     switch (genericItem.severity) {
     case MAV_SEVERITY_EMERGENCY:
-        statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_EMERGENCY);
+        statusText.setSeverity(Data::StatusSeverityType::STATUS_EMERGENCY);
         break;
     case MAV_SEVERITY_ALERT:
-        statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_ALERT);
+        statusText.setSeverity(Data::StatusSeverityType::STATUS_ALERT);
         break;
     case MAV_SEVERITY_CRITICAL:
-        statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_CRITICAL);
+        statusText.setSeverity(Data::StatusSeverityType::STATUS_CRITICAL);
         break;
     case MAV_SEVERITY_ERROR:
-        statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_ERROR);
+        statusText.setSeverity(Data::StatusSeverityType::STATUS_ERROR);
         break;
     case MAV_SEVERITY_WARNING:
-        statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_WARNING);
+        statusText.setSeverity(Data::StatusSeverityType::STATUS_WARNING);
         break;
     case MAV_SEVERITY_NOTICE:
-        statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_NOTICE);
+        statusText.setSeverity(Data::StatusSeverityType::STATUS_NOTICE);
         break;
     case MAV_SEVERITY_INFO:
-        statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_INFO);
+        statusText.setSeverity(Data::StatusSeverityType::STATUS_INFO);
         break;
     case MAV_SEVERITY_DEBUG:
-        statusText.setSeverity(DataGenericItem::DataGenericItem_Text::STATUS_DEBUG);
+        statusText.setSeverity(Data::StatusSeverityType::STATUS_DEBUG);
         break;
     default:
         break;

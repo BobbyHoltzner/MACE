@@ -13,7 +13,7 @@ ArdupilotMissionState::ArdupilotMissionState()
 ArdupilotMissionState::ArdupilotMissionState(const double &achievedDistance, const double &huntingDistance, const double &maxHuntingDuration) :
     distanceThresholdAchieved(achievedDistance), distanceThresholdHunting(huntingDistance), maxDuration_Hunting(maxHuntingDuration)
 {
-    state = Data::ControllerState::TRACKING:
+    state = Data::ControllerState::TRACKING;
     maxDuration_Routing = std::numeric_limits<double>::max();
     initializeMissionState();
 }
@@ -38,12 +38,12 @@ Data::MissionState ArdupilotMissionState::updateMissionState(const double &dista
         //At this stage we are hunting for the target. If we remain in this state for a
         //period of time we can abort the item and move on by considering the item achieved.
         huntingStart = std::chrono::system_clock::now();
-        state = Data::MissionState::HUNTING;
+        state = Data::ControllerState::HUNTING;
     }
     else if(distance <= distanceThresholdAchieved)
     {
         //This case we have achieved the waypoint
-        state = Data::MissionState::ACHIEVED;
+        state = Data::ControllerState::ACHIEVED;
     }
 
     return state;

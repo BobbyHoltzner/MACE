@@ -86,9 +86,9 @@ void ModuleExternalLink::MACEHeartbeatInfo(const std::string &linkName, const in
         });
     }
 
-    DataGenericItem::DataGenericItem_Heartbeat heartbeat(heartbeatMSG);
-    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
-    PublishVehicleData(systemID,ptrHeartbeat);
+//    DataGenericItem::DataGenericItem_Heartbeat heartbeat(heartbeatMSG);
+//    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
+//    PublishVehicleData(systemID,ptrHeartbeat);
 }
 
 //!
