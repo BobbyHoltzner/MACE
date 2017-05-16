@@ -3,20 +3,20 @@
 namespace Data {
 
 MissionKey::MissionKey():
-    m_targetID(0),m_creatorID(0),m_missionID(0),m_missionType(Data::MissionType::AUTO)
+    m_systemID(0),m_creatorID(0),m_missionID(0),m_missionType(Data::MissionType::AUTO)
 {
 
 }
 
-MissionKey::MissionKey(const int &targetID, const int &creatorID, const int &missionID, const Data::MissionType &missionType):
-    m_targetID(targetID),m_creatorID(creatorID),m_missionID(missionID),m_missionType(missionType)
+MissionKey::MissionKey(const int &systemID, const int &creatorID, const int &missionID, const Data::MissionType &missionType):
+    m_systemID(systemID),m_creatorID(creatorID),m_missionID(missionID),m_missionType(missionType)
 {
 
 }
 
 MissionKey::MissionKey(const MissionKey &obj)
 {
-    this->m_targetID = obj.m_targetID;
+    this->m_systemID = obj.m_systemID;
     this->m_creatorID =obj.m_creatorID;
     this->m_missionID = obj.m_missionID;
     this->m_missionType = obj.m_missionType;
@@ -24,7 +24,7 @@ MissionKey::MissionKey(const MissionKey &obj)
 
 void MissionKey::operator =(const MissionKey &rhs)
 {
-    this->m_targetID = rhs.m_targetID;
+    this->m_systemID = rhs.m_systemID;
     this->m_creatorID =rhs.m_creatorID;
     this->m_missionID = rhs.m_missionID;
     this->m_missionType = rhs.m_missionType;
@@ -35,9 +35,9 @@ bool MissionKey::operator <(const MissionKey &rhs) const
     if(*this == rhs)
         return false;
 
-    if(this->m_targetID > rhs.m_targetID)
+    if(this->m_systemID > rhs.m_systemID)
         return false;
-    else if(this->m_targetID < rhs.m_targetID)
+    else if(this->m_systemID < rhs.m_systemID)
         return true;
     else{ //this implies that targetID was equal
         if(this->m_missionID > rhs.m_missionID)
@@ -65,7 +65,7 @@ bool MissionKey::operator <(const MissionKey &rhs) const
 
 bool MissionKey::operator ==(const MissionKey &rhs) const
 {
-    if(this->m_targetID != rhs.m_targetID)
+    if(this->m_systemID != rhs.m_systemID)
         return false;
     if(this->m_creatorID != rhs.m_creatorID)
         return false;

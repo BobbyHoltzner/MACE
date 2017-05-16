@@ -16,10 +16,10 @@
 #include "data_vehicle_ardupilot/components.h"
 #include "data_vehicle_ardupilot/vehicle_object_ardupilot.h"
 
-#include "data_vehicle_mavlink/MACE_to_MAVLINK/command_mace_to_mavlink.h"
-#include "data_vehicle_mavlink/MACE_to_MAVLINK/generic_mace_to_mavlink.h"
-#include "data_vehicle_mavlink/MACE_to_MAVLINK/mission_mace_to_mavlink.h"
-#include "data_vehicle_mavlink/MACE_to_MAVLINK/state_mace_to_mavlink.h"
+#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/command_mace_to_mavlink.h"
+#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/generic_mace_to_mavlink.h"
+#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/mission_mace_to_mavlink.h"
+#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/state_mace_to_mavlink.h"
 
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
@@ -28,7 +28,7 @@
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 //__________________
-#include "data_vehicle_mavlink/MACE_to_MAVLINK/command_mace_to_mavlink.h"
+#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/command_mace_to_mavlink.h"
 
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
 {
@@ -44,6 +44,12 @@ public:
     bool ParseMAVLINKMissionMessage(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, const std::string &linkName, const mavlink_message_t *message);
 
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
+
+private:
+
+    void SpinUpController(Ardupilot_GeneralController *newController);
+
+    void SpinDownController();
 
 
 public:
@@ -72,9 +78,16 @@ public:
     //!
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
 
-    ////////////////////////////////////////////////////////////////////////////////
-    /// The following are public virtual functions imposed from IModuleCommandVehicle.
-    ////////////////////////////////////////////////////////////////////////////////
+
+    //!
+    //! \brief PublishVechicleData
+    //! \param components
+    //!
+    void PublishVehicleData(const int &systemID, const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &components);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// The following are public virtual functions imposed from IModuleCommandVehicle via AbstractModuleBaseVehicleListener.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
 
     ////////////////////////////////////////////////////////////////////////////
@@ -84,78 +97,68 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
     //!
-    //! \brief ChangeVehicleArm
+    //! \brief Command_ChangeVehicleArm
     //! \param vehicleArm
     //!
-    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
+    virtual void Command_ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
 
     //!
-    //! \brief ChangeVehicleOperationalMode
+    //! \brief Command_ChangeVehicleOperationalMode
     //! \param vehicleMode
     //!
-    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
+    virtual void Command_ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
 
     //!
-    //! \brief RequestVehicleTakeoff
+    //! \brief Command_RequestVehicleTakeoff
     //! \param vehicleTakeoff
     //!
-    virtual void RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+    virtual void Command_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
 
+    virtual void Command_UploadMission(const MissionItem::MissionList &missionList);
+
+    virtual void Command_SetCurrentMission(const Data::MissionKey &key);
+
+    virtual void Command_GetCurrentMission(const int &targetSystem);
+
+    virtual void Command_GetMission(const Data::MissionKey &key);
+
+    virtual void Command_ClearCurrentMission(const int &targetSystem);
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// GENERAL AUTO EVENTS: This is implying for auto mode of the vehicle.
+    /// This functionality is pertinent for vehicles that may contain a
+    /// MACE HW module, or, vehicles that have timely or ever updating changes.
+    ////////////////////////////////////////////////////////////////////////////
+
+    virtual void Command_GetOnboardAuto(const int &targetSystem);
+
+    virtual void Command_ClearOnboardAuto(const int &targetSystem);
+
+    /////////////////////////////////////////////////////////////////////////
+    /// GENERAL GUIDED EVENTS: This is implying for guided mode of the vehicle.
+    /// This functionality is pertinent for vehicles that may contain a
+    /// MACE HW module, or, vehicles that have timely or ever updating changes.
+    /////////////////////////////////////////////////////////////////////////
+
+    virtual void Command_GetOnboardGuided(const int &targetSystem);
+
+    virtual void Command_ClearOnboardGuided(const int &targetSystem);
+
+
+    //THE OLD ONES AND THEN WE COMPARE
     /////////////////////////////////////////////////////////////////////////
     /// GENERAL MISSION EVENTS: This is implying for auto mode of the vehicle.
     /// This functionality may be pertinent for vehicles not containing a
     /// direct MACE hardware module.
     /////////////////////////////////////////////////////////////////////////
 
+
     //!
     //! \brief UpdateMissionKey
     //! \param key
     //!
     virtual void UpdateMissionKey(const Data::MissionKeyChange &key);
-
-    //!
-    //! \brief SetCurrentMissionQueue
-    //! \param missionList
-    //!
-    virtual void SetMissionQueue(const MissionItem::MissionList &missionList);
-
-    //!
-    //! \brief RequestCurrentMissionQueue
-    //! \param vehicleID
-    //!
-    virtual void GetMissionQueue (const int &targetSystem);
-
-    //!
-    //! \brief RequestClearMissionQueue
-    //! \param vehicleID
-    //!
-    virtual void ClearMissionQueue (const int &targetSystem);
-
-
-    ////////////////////////////////////////////////////////////////////////////
-    /// GENERAL GUIDED EVENTS: This is implying for guided mode of the vehicle.
-    /// This functionality is pertinent for vehicles that may contain a
-    /// MACE HW module, or, vehicles that have timely or ever updating changes.
-    ////////////////////////////////////////////////////////////////////////////
-
-    //!
-    //! \brief SetCurrentGuidedQueue
-    //! \param missionList
-    //!
-    virtual void SetCurrentGuidedQueue(const MissionItem::MissionList &missionList);
-
-    //!
-    //! \brief RequestCurrentGuidedQueue
-    //! \param vehicleID
-    //!
-    virtual void RequestCurrentGuidedQueue (const int &vehicleID);
-
-    //!
-    //! \brief RequestClearGuidedQueue
-    //! \param vehicleID
-    //!
-    virtual void RequestClearGuidedQueue (const int &vehicleID);
 
 
     /////////////////////////////////////////////////////////////////////////////
@@ -165,16 +168,16 @@ public:
     /////////////////////////////////////////////////////////////////////////////
 
     //!
-    //! \brief RequestVehicleHomePosition
+    //! \brief Command_GetHomePosition
     //! \param vehicleID
     //!
-    virtual void RequestVehicleHomePosition (const int &vehicleID);
+    virtual void Command_GetHomePosition (const int &vehicleID);
 
     //!
-    //! \brief SetVehicleHomePosition
+    //! \brief Command_SetHomePosition
     //! \param vehicleHome
     //!
-    virtual void SetVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome);
+    virtual void Command_SetHomePosition(const MissionItem::SpatialHome &vehicleHome);
 
     //!
     //! \brief homePositionUpdated

@@ -1,6 +1,7 @@
 #ifndef DATA_GENERIC_ITEM_TOPIC_TEXT_H
 #define DATA_GENERIC_ITEM_TOPIC_TEXT_H
 
+#include "data/status_severity_type.h"
 #include "data_generic_item/data_generic_item_text.h"
 #include "data/i_topic_component_data_object.h"
 

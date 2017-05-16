@@ -2,9 +2,9 @@
 
 namespace MissionItem {
 
-MissionItemType ActionChangeSpeed::getMissionType() const
+Data::MissionItemType ActionChangeSpeed::getMissionType() const
 {
-    return MissionItemType::CHANGE_SPEED;
+    return Data::MissionItemType::MI_ACT_CHANGESPEED;
 }
 
 std::string ActionChangeSpeed::getDescription() const

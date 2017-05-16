@@ -1,10 +1,10 @@
 #ifndef CONTAINER_MAVLINK_TO_MACE_H
 #define CONTAINER_MAVLINK_TO_MACE_H
 
-#include "data_vehicle_mavlink/MAVLINK_to_MACE/command_mavlink_to_mace.h"
-#include "data_vehicle_mavlink/MAVLINK_to_MACE/generic_mavlink_to_mace.h"
-#include "data_vehicle_mavlink/MAVLINK_to_MACE/mission_mavlink_to_mace.h"
-#include "data_vehicle_mavlink/MAVLINK_to_MACE/state_mavlink_to_mace.h"
+#include "command_mavlink_to_mace.h"
+#include "generic_mavlink_to_mace.h"
+#include "mission_mavlink_to_mace.h"
+#include "state_mavlink_to_mace.h"
 
 namespace DataMAVLINK {
 

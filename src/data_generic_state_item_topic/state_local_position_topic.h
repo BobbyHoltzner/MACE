@@ -3,7 +3,6 @@
 
 #include "data/i_topic_component_data_object.h"
 
-#include "data/positional_coordinate_frame.h"
 #include "data/coordinate_frame.h"
 #include "data_generic_state_item/state_local_position.h"
 

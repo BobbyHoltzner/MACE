@@ -4,15 +4,16 @@
 #include <iostream>
 #include <string>
 
+#include "data/mission_item_type.h"
 #include "data_generic_mission_item/abstract_mission_item.h"
-#include "data_generic_mission_item/mission_item_types.h"
+
 
 namespace MissionItem {
 
 class ActionChangeMode : public AbstractMissionItem
 {
 public:
-    virtual MissionItemType getMissionType() const;
+    virtual Data::MissionItemType getMissionType() const;
 
     virtual std::string getDescription() const;
 

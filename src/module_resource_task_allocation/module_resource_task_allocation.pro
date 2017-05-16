@@ -47,7 +47,7 @@ headers.files   += \
         module_rta.h
 INSTALLS       += headers
 
-
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/common
 INCLUDEPATH += $$PWD/../
 

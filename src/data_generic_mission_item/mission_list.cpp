@@ -1,5 +1,7 @@
 #include "mission_list.h"
 
+#include <exception>
+
 namespace MissionItem {
 
 MissionList::MissionList() :
@@ -20,6 +22,12 @@ MissionList::MissionList(const int &vehicleID, const int &creatorID, const Data:
     initializeQueue(size);
 }
 
+MissionList::MissionList(const int &vehicleID, const int &creatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTypeState &state, const int &size) :
+    missionKey(vehicleID,creatorID,missionID,missionType), missionTypeState(state),activeMissionItem(0)
+{
+    initializeQueue(size);
+}
+
 MissionList::MissionList(const MissionList &rhs)
 {
     this->missionKey = rhs.missionKey;
@@ -30,6 +38,10 @@ MissionList::MissionList(const MissionList &rhs)
 
 void MissionList::initializeQueue(const int &size)
 {
+    if(size <= 0){
+        // TODO-Ken/Pat: Throw a message with exception
+        throw std::exception();
+    }
     missionQueue.clear();
     std::vector<std::shared_ptr<AbstractMissionItem>> tmpVector(size,NULL);
     missionQueue = tmpVector;
@@ -79,7 +91,7 @@ void MissionList::replaceMissionItemAtIndex(const std::shared_ptr<AbstractMissio
     missionQueue[index] = missionItem;
 }
 
-std::shared_ptr<AbstractMissionItem> MissionList::getMissionItem(const int &index)
+std::shared_ptr<AbstractMissionItem> MissionList::getMissionItem(const int &index) const
 {
     return missionQueue[index];
 }

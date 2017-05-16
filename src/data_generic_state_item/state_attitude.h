@@ -54,9 +54,9 @@ public:
         return !(*this == rhs);
     }
 
-    std::ostream& operator<<(std::ostream &out)
+    friend std::ostream &operator<<(std::ostream &out, const StateAttitude &obj)
     {
-        out<<"Attitude( Roll: "<<roll<<", Pitch: "<<pitch<<", Yaw: "<<yaw<<", PitchRate: "<<pitchRate<<", RollRate: "<<rollRate<<", YawRate: "<<yawRate<<")";
+        out<<"Attitude( Roll: "<<obj.roll<<", Pitch: "<<obj.pitch<<", Yaw: "<<obj.yaw<<", PitchRate: "<<obj.pitchRate<<", RollRate: "<<obj.rollRate<<", YawRate: "<<obj.yawRate<<")";
         return out;
     }
 

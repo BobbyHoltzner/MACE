@@ -11,6 +11,8 @@ class IModuleEventsGroundStation : public IModuleEventsGeneral
 public:
     virtual void RequestDummyFunction(const void* sender, const int &vehicleID) = 0;
 
+    virtual void GSEvent_UploadMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
+
 };
 
 } //End MaceCore Namespace

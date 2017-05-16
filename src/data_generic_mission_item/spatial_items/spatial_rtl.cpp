@@ -2,9 +2,9 @@
 
 namespace MissionItem {
 
-MissionItemType SpatialRTL::getMissionType() const
+Data::MissionItemType SpatialRTL::getMissionType() const
 {
-    return MissionItemType::RTL;
+    return Data::MissionItemType::MI_NAV_RETURN_TO_LAUNCH;
 }
 
 std::string SpatialRTL::getDescription() const

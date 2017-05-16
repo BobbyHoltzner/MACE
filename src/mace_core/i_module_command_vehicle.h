@@ -7,6 +7,7 @@
 #include "i_module_topic_events.h"
 #include "i_module_events_vehicle.h"
 #include "data/mission_key_change.h"
+#include "data/mission_ack.h"
 
 namespace MaceCore
 {
@@ -51,8 +52,6 @@ public:
 public:
     virtual void RequestDummyFunction(const int &vehicleID) = 0;
     virtual void UpdateMissionKey(const Data::MissionKeyChange &key) = 0;
-
-
 };
 
 

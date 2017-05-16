@@ -4,7 +4,7 @@
 #include <limits>
 #include <chrono>
 
-#include "data/mission_state.h"
+#include "data/controller_state.h"
 
 class ArdupilotMissionState
 {
@@ -34,9 +34,9 @@ public:
         distanceThresholdAchieved = value;
     }
 
-    Data::MissionState newMissionItem(const double &distance);
+    Data::ControllerState newMissionItem(const double &distance);
 
-    Data::MissionState updateMissionState(const double &distance);
+    Data::ControllerState updateMissionState(const double &distance);
 
     float getCurrentMissionTime();
     float getCurrentTargetTime();
@@ -52,7 +52,7 @@ private:
     std::chrono::time_point<std::chrono::system_clock> huntingStart;
 
 private:
-    Data::MissionState state;
+    Data::ControllerState state;
 
     double distanceThresholdAchieved;
     double distanceThresholdHunting;

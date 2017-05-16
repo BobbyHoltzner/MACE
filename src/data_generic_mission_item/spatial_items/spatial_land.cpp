@@ -3,9 +3,9 @@
 namespace MissionItem {
 
 template <class T>
-MissionItemType SpatialLand<T>::getMissionType() const
+Data::MissionItemType SpatialLand<T>::getMissionType() const
 {
-    return MissionItemType::LAND;
+    return Data::MissionItemType::MI_NAV_LAND;
 }
 
 template <class T>
@@ -37,15 +37,13 @@ std::ostream& SpatialLand<DataState::StateLocalPosition>::operator<<(std::ostrea
 template<>
 SpatialLand<DataState::StateGlobalPosition>::SpatialLand()
 {
-    m_PositionalFrame = Data::PositionalFrame::GLOBAL;
-    m_CoordinateFrame = Data::CoordinateFrame::NED;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
 
 template<>
 SpatialLand<DataState::StateLocalPosition>::SpatialLand()
 {
-    m_PositionalFrame = Data::PositionalFrame::LOCAL;
-    m_CoordinateFrame = Data::CoordinateFrame::NED;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
 
 template <class T>

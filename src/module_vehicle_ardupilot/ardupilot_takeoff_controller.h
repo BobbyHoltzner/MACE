@@ -7,7 +7,7 @@
 #include <iostream>
 #include <mavlink.h>
 
-#include "data/mission_state.h"
+#include "data/controller_state.h"
 
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
@@ -22,7 +22,6 @@
 
 #include "ardupilot_general_controller.h"
 #include "ardupilot_mission_state.h"
-#include "ardupilot_threadmanager.h"
 
 class Ardupilot_TakeoffController : public Ardupilot_GeneralController
 {
@@ -30,16 +29,14 @@ public:
 
     Ardupilot_TakeoffController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan);
 
-    ~Ardupilot_TakeoffController() {
-        std::cout << "Destructor on takeoff controller" << std::endl;
-    }
+    ~Ardupilot_TakeoffController();
 
     void initializeTakeoffSequence(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &takeoff);
     void updatedFlightMode(const DataARDUPILOT::VehicleFlightMode &flightMode);
 
     double distanceToTarget();
     void controlSequence();
-    void generateControl(const Data::MissionState &currentState);
+    void generateControl(const Data::ControllerState &currentState);
     void updateCommandACK(const mavlink_command_ack_t &cmdACK);
 
     void run();

@@ -5,8 +5,7 @@ namespace DataStateTopic{
 const char LocalPositionTopicEx_name[] = "localPositionEx";
 const MaceCore::TopicComponentStructure LocalPositionTopicEx_structure = [](){
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<Data::PositionalFrame>("PositionFrame");
-    structure.AddTerminal<Data::CoordinateFrame>("CoordinateFrame");
+    structure.AddTerminal<Data::CoordinateFrameType>("CoordinateFrame");
     structure.AddTerminal<double>("x");
     structure.AddTerminal<double>("y");
     structure.AddTerminal<double>("z");
@@ -18,8 +17,7 @@ const MaceCore::TopicComponentStructure LocalPositionTopicEx_structure = [](){
 
 MaceCore::TopicDatagram StateLocalPositionExTopic::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<Data::PositionalFrame>("PositionFrame", m_PositionFrame);
-    datagram.AddTerminal<Data::CoordinateFrame>("CoordinateFrame", m_CoordinateFrame);
+    datagram.AddTerminal<Data::CoordinateFrameType>("CoordinateFrame", m_CoordinateFrame);
     datagram.AddTerminal<double>("x", x);
     datagram.AddTerminal<double>("y", y);
     datagram.AddTerminal<double>("z", z);
@@ -30,8 +28,7 @@ MaceCore::TopicDatagram StateLocalPositionExTopic::GenerateDatagram() const {
 
 
 void StateLocalPositionExTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
-    m_PositionFrame = datagram.GetTerminal<Data::PositionalFrame>("PositionFrame");
-    m_CoordinateFrame = datagram.GetTerminal<Data::CoordinateFrame>("CoordinateFrame");
+    m_CoordinateFrame = datagram.GetTerminal<Data::CoordinateFrameType>("CoordinateFrame");
     x = datagram.GetTerminal<double>("x");
     y = datagram.GetTerminal<double>("y");
     z = datagram.GetTerminal<double>("z");

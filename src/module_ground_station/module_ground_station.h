@@ -4,6 +4,7 @@
 #include "module_ground_station_global.h"
 
 #include <string>
+#include <memory>
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
@@ -16,20 +17,16 @@
 
 #include "mace_core/i_module_topic_events.h"
 #include "mace_core/i_module_command_ground_station.h"
+
 #include "data/i_topic_component_data_object.h"
 #include "data/topic_data_object_collection.h"
-
 #include "data_generic_item/data_generic_item_components.h"
 #include "data_generic_item_topic/data_generic_item_topic_components.h"
-
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
-
 #include "data_generic_mission_item/mission_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
-
 #include "data_vehicle_sensors/components.h"
-
 #include "data_vehicle_MAVLINK/components.h"
 
 #include "guitimer.h"
@@ -85,14 +82,12 @@ public:
 
 private:
 
-
     void sendPositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &component);
-
     void sendAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
-    void sendVehicleFuel(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> &component);
+    void sendVehicleFuel(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> &component);
     void sendVehicleMode(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &component);
     void sendVehicleText(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &component);
-    void sendVehicleMission(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionListTopic> &component);
+    void sendVehicleMission(const int &vehicleID, const MissionItem::MissionList &missionList);
     void sendVehicleHome(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
     void sendGlobalOrigin(const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
     void sendSensorFootprint(const int &vehicleID, const std::shared_ptr<DataVehicleSensors::SensorVertices_Global> &component);
@@ -106,21 +101,13 @@ private:
     void parseTCPRequest(const QJsonObject &jsonObj);
 
     void setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj);
-
     void setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj);
-
     void setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj);
-
     void setGlobalOrigin(const QJsonObject &jsonObj);
-
     void setGoHere(const int &vehicleID, const QJsonObject &jsonObj);
-
     void takeoff(const int &vehicleID, const QJsonObject &jsonObj);
-
     void getVehicleMission(const int &vehicleID);
-
     void getConnectedVehicles();
-
     void getVehicleHome(const int &vehicleID);
 
     // TESTING:
@@ -128,14 +115,11 @@ private:
     void testFunction2(const int &vehicleID);
     // END TESTING
 
-
     // Helpers:
-    void missionToJSON(const std::shared_ptr<MissionTopic::MissionListTopic> &component, QJsonArray &missionItems);
-
+    void missionListToJSON(const MissionItem::MissionList &list, QJsonArray &missionItems);
 
 public slots:
     void on_newConnection();
-
 
 private:
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
@@ -155,7 +139,5 @@ private:
 };
 
 #endif // MODULE_GROUND_STATION_H
-
-
 
 

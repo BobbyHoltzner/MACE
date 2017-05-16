@@ -7,34 +7,36 @@
 namespace Data
 {
 
-enum class GuidedState{
+enum class ControllerState{
     TRACKING,
     HUNTING,
     ACHIEVED
 };
 
-inline std::string GuidedStateToString(const GuidedState &state) {
+inline std::string GuidedStateToString(const ControllerState &state) {
     switch (state) {
-    case GuidedState::TRACKING:
+    case ControllerState::TRACKING:
         return "TRACKING";
-    case GuidedState::HUNTING:
+    case ControllerState::HUNTING:
         return "HUNTING";
-    case CoordinateFrame::ACHIEVED:
+    case ControllerState::ACHIEVED:
         return "ACHIEVED";
     default:
         throw std::runtime_error("Unknown guided state seen");
     }
 }
 
-inline GuidedState GuidedStateFromString(const std::string &str) {
+inline ControllerState GuidedStateFromString(const std::string &str) {
     if(str == "TRACKING")
-        return GuidedState::TRACKING;
+        return ControllerState::TRACKING;
     if(str == "HUNTING")
-        return GuidedState::HUNTING;
+        return ControllerState::HUNTING;
     if(str == "ACHIEVED")
-        return GuidedState::ACHIEVED;
+        return ControllerState::ACHIEVED;
 
     throw std::runtime_error("Unknown guided state seen");
+}
+
 }
 
 #endif // CONTROLLER_STATE_H

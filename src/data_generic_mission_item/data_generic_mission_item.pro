@@ -50,7 +50,6 @@ HEADERS +=\
     do_items/do_components.h \
     abstract_mission_item.h \
     mission_list.h \
-    mission_item_types.h \
     mission_item_components.h \
     spatial_items/spatial_components.h \
     spatial_items/spatial_home.h \

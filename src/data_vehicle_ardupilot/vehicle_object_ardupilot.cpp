@@ -14,9 +14,9 @@ bool VehicleObject_ARDUPILOT::generateBasicGuidedMessage(const std::shared_ptr<M
 {
     switch(missionItem->getMissionType())
     {
-    case(MissionItem::MissionItemType::WAYPOINT):
+    case(Data::MissionItemType::MI_NAV_WAYPOINT):
     {
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
         {
             std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
             MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> baseItem = *castItem.get();

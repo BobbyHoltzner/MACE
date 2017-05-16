@@ -3,8 +3,6 @@
 
 #include "optional_parameter.h"
 
-#include <Eigen/Dense>
-
 namespace MaceCore
 {
 
@@ -22,8 +20,7 @@ public:
 class VectorDynamics
 {
 public:
-    Eigen::Vector3d dx0;
-    Eigen::Vector3d dx1;
+
 };
 
 

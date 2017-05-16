@@ -25,20 +25,13 @@ public:
     virtual void NewConstructedVehicle(const void *sender, const int &newVehicleObserved) = 0;
 
     //!
-    //! \brief NewVehicleHomePosition This function is emitted to alert the core that a module connected to a vehicle
-    //! has received and set a new home position for the system. This should typically be in response to a SetVehicleHomePosition
+    //! \brief GVEvents_NewHomePosition This function is emitted to alert the core that a module connected to a vehicle
+    //! has received and set a new home position for the system. This should typically be in response to a Command_SetHomePosition
     //! request.
     //! \param sender
     //! \param vehicleHome
     //!
-    virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome) = 0;
-
-    //!
-    //! \brief NewOnboardVehicleMission
-    //! \param sender
-    //! \param missionList
-    //!
-    virtual void NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void GVEvents_NewHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome) = 0;
 
     //!
     //! \brief ConfirmedOnboardVehicleMission

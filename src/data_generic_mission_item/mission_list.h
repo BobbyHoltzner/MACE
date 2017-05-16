@@ -27,6 +27,7 @@ public:
     MissionList();
     MissionList(const int &vehicleID, const int &creatorID, const Data::MissionType &missionType, const Data::MissionTypeState &state);
     MissionList(const int &vehicleID, const int &creatorID, const Data::MissionType &missionType, const Data::MissionTypeState &state, const int &size);
+    MissionList(const int &vehicleID, const int &creatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTypeState &state, const int &size);
     MissionList(const MissionList &rhs);
 
 public:
@@ -36,7 +37,7 @@ public:
     void insertMissionItem(const std::shared_ptr<AbstractMissionItem> missionItem);
     void replaceMissionItemAtIndex(const std::shared_ptr<AbstractMissionItem> missionItem, const int &index);
 
-    std::shared_ptr<AbstractMissionItem> getMissionItem(const int &index);
+    std::shared_ptr<AbstractMissionItem> getMissionItem(const int &index) const;
 
     int getQueueSize() const;
     MissionListStatus getMissionListStatus() const;
@@ -52,11 +53,11 @@ public:
     }
 
     void setVehicleID(const int &vehicleID){
-        this->missionKey.m_targetID = vehicleID;
+        this->missionKey.m_systemID = vehicleID;
     }
 
     int getVehicleID() const{
-        return this->missionKey.m_targetID;
+        return this->missionKey.m_systemID;
     }
 
     void setCreatorID(const int &creatorID){

@@ -95,5 +95,6 @@ win32{
     INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
 }
 
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 

@@ -6,8 +6,6 @@
 
 #include "module_vehicle_sensors_global.h"
 
-#include "Eigen/Dense"
-
 #include "mace_core/i_module_topic_events.h"
 
 #include "data/i_topic_component_data_object.h"

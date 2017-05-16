@@ -35,11 +35,12 @@ double Ardupilot_GuidedController::distanceToTarget(){
     double distance = 0.0;
     switch(currentMissionItem->getMissionType())
     {
-    case(MissionItem::MissionItemType::WAYPOINT):
+    case(Data::MissionItemType::MI_NAV_WAYPOINT):
     {
-        if(currentMissionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        if(currentMissionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
         {
             std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(currentMissionItem);
+            DataState::StateGlobalPosition currentPosition = vehicleDataObject->data->vehicleGlobalPosition.get();
             DataState::StateGlobalPosition actualPosition(currentPosition);
             actualPosition.altitude = currentPosition.altitude - m_VehicleHome.position.altitude;
             distance = castItem->position.distanceBetween3D(actualPosition);
@@ -55,20 +56,20 @@ double Ardupilot_GuidedController::distanceToTarget(){
     return distance;
 }
 
-void Ardupilot_GuidedController::generateControl(const Data::MissionState &currentState)
+void Ardupilot_GuidedController::generateControl(const Data::ControllerState &currentState)
 {
     switch(currentState){
-    case Data::MissionState::ROUTING:
+    case Data::ControllerState::TRACKING:
     {
         //std::cout<<"I am still routing to the waypoint"<<std::endl;
         break;
     }
-    case Data::MissionState::HUNTING:
+    case Data::ControllerState::HUNTING:
     {
         std::cout<<"I am hunting for the waypoint"<<std::endl;
         break;
     }
-    case Data::MissionState::ACHIEVED:
+    case Data::ControllerState::ACHIEVED:
     {
         if(m_CurrentMission.getActiveIndex() == m_CurrentMission.getQueueSize() - 1)
         {
@@ -103,7 +104,7 @@ void Ardupilot_GuidedController::run()
                 double distance = distanceToTarget();
 
                 std::cout<<"The distance to the target is: "<<distance<<std::endl;
-                Data::MissionState currentState = vehicleMissionState.updateMissionState(distance);
+                Data::ControllerState currentState = vehicleMissionState.updateMissionState(distance);
                 generateControl(currentState);
             }
             positionUpdated = false;
