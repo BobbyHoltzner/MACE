@@ -6,7 +6,6 @@
 #include <functional>
 
 #include "mavlink.h"
-#include "data_vehicle_MAVLINK/mavlink_parser.h"
 
 #include "data_generic_item/data_generic_item_components.h"
 #include "data_generic_item_topic/data_generic_item_topic_components.h"
@@ -21,6 +20,9 @@
 
 #include "data/i_topic_component_data_object.h"
 #include "data/topic_data_object_collection.h"
+
+#include "MAVLINK_to_MACE/generic_mavlink_to_mace.h"
+#include "MAVLINK_to_MACE/state_mavlink_to_mace.h"
 
 namespace DataMAVLINK
 {
