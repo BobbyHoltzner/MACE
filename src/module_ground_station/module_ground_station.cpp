@@ -752,8 +752,7 @@ void ModuleGroundStation::sendVehicleGPS(const int &vehicleID, const std::shared
     json["dataType"] = "VehicleGPS";
     json["vehicleID"] = vehicleID;
     json["visibleSats"] = component->getSatVisible();
-    DataGenericItem::DataGenericItem_GPS tmpGPS;
-    json["gpsFix"] = QString::fromStdString(tmpGPS.GPSFixToString(component->getGPSFix()));
+    json["gpsFix"] = QString::fromStdString(Data::GPSFixTypeToString(component->getGPSFix()));
     json["hdop"] = component->getHDOP();
     json["vdop"] = component->getVDOP();
     QJsonDocument doc(json);
