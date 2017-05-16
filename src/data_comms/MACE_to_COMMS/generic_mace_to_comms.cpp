@@ -46,7 +46,7 @@ mace_message_t Generic_MACETOCOMMS::FlightMode_MACETOCOMMS(DataGenericItem::Data
 {
      mace_message_t msg;
      mace_vehicle_mode_t mode;
-     flightModeItem.getFlightModeString().copy(mode.vehicle_mode,10,0);
+     strcpy(mode.vehicle_mode,flightModeItem.getFlightModeString().c_str());
      mace_msg_vehicle_mode_encode_chan(systemID,compID,chan,&msg,&mode);
      return(msg);
 }
@@ -57,7 +57,7 @@ mace_message_t Generic_MACETOCOMMS::BatteryTopicPTR_MACETOCOMMS(const std::share
     mace_message_t msg = Battery_MACETOCOMMS(newBattery,systemID,compID,chan);
     return(msg);
 }
-mace_message_t Generic_MACETOCOMMS::Battery_MACETOCOMMS(DataGenericItem::DataGenericItem_Battery fuelItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
+mace_message_t Generic_MACETOCOMMS::Battery_MACETOCOMMS(DataGenericItem::DataGenericItem_Battery fuelItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     mace_message_t msg;
     mace_battery_status_t batteryStatus;
@@ -74,7 +74,7 @@ mace_message_t Generic_MACETOCOMMS::GPSTopicPTR_MACETOCOMMS(const std::shared_pt
     mace_message_t msg = GPS_MACETOCOMMS(newGPS,systemID,compID,chan);
     return(msg);
 }
-mace_message_t Generic_MACETOCOMMS::GPS_MACETOCOMMS(DataGenericItem::DataGenericItem_GPS GPSItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
+mace_message_t Generic_MACETOCOMMS::GPS_MACETOCOMMS(DataGenericItem::DataGenericItem_GPS GPSItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     mace_message_t msg;
     mace_gps_raw_int_t gpsRaw;
@@ -92,7 +92,7 @@ mace_message_t Generic_MACETOCOMMS::TextTopicPTR_MACETOCOMMS(const std::shared_p
     mace_message_t msg = Text_MACETOCOMMS(newText,systemID,compID,chan);
     return(msg);
 }
-mace_message_t Generic_MACETOCOMMS::Text_MACETOCOMMS(DataGenericItem::DataGenericItem_Text textItem, const int &systemID, const uint8_t &chan, const uint8_t &compID)
+mace_message_t Generic_MACETOCOMMS::Text_MACETOCOMMS(DataGenericItem::DataGenericItem_Text textItem, const int &systemID, const uint8_t &compID, const uint8_t &chan)
 {
     mace_message_t msg;
     mace_statustext_t statusText;

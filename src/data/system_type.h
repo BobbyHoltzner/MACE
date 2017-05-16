@@ -19,6 +19,7 @@ enum class SystemType
     SYSTEM_TYPE_HEXAROTOR=8, /* Hexarotor | */
     SYSTEM_TYPE_OCTOROTOR=9, /* Octorotor | */
     SYSTEM_TYPE_ONBOARD_CONTROLLER=10, /* Onboard companion controller | */
+    SYSTEM_TYPE_FIXED_WING=11 /* Onboard companion controller | */
 };
 
 
@@ -46,7 +47,8 @@ inline std::string SystemTypeToString(const SystemType &systemType) {
         return "OCTOROTOR";
     case SystemType::SYSTEM_TYPE_ONBOARD_CONTROLLER:
         return "ONBOARD_CONTROLLER";
-
+    case SystemType::SYSTEM_TYPE_FIXED_WING:
+        return "FIXED_WING";
     default:
         throw std::runtime_error("Unknown autopilot type seen");
     }
@@ -75,6 +77,8 @@ inline SystemType SystemTypeFromString(const std::string &str) {
         return SystemType::SYSTEM_TYPE_OCTOROTOR;
     if(str == "ONBOARD_CONTROLLER")
         return SystemType::SYSTEM_TYPE_ONBOARD_CONTROLLER;
+    if(str == "FIXED_WING")
+        return SystemType::SYSTEM_TYPE_FIXED_WING;
     throw std::runtime_error("Unknown autopilot type seen");
 }
 

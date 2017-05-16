@@ -22,7 +22,8 @@ namespace MaceCore
 enum class ExternalLinkCommands
 {
     BASE_MODULE_VEHICLE_LISTENER_ENUMS,
-    NEWLY_AVAILABLE_ONBOARD_MISSION
+    NEWLY_AVAILABLE_ONBOARD_MISSION,
+    NEWLY_AVAILABLE_HOME_POSITION
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_VehicleListener<Metadata_GroundStation, IModuleEventsExternalLink, ExternalLinkCommands>
@@ -38,6 +39,10 @@ public:
         AddCommandLogic<Data::MissionKey>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const Data::MissionKey &key){
             NewlyAvailableOnboardMission(key);
         });
+
+        AddCommandLogic<MissionItem::SpatialHome>(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const MissionItem::SpatialHome &home){
+            NewlyAvailableHomePosition(home);
+        });
     }
 
     virtual Classes ModuleClass() const
@@ -49,6 +54,7 @@ public:
 
     virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key) = 0;
 
+    virtual void NewlyAvailableHomePosition(const MissionItem::SpatialHome &home) = 0;
 
 };
 
