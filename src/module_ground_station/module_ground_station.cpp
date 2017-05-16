@@ -421,7 +421,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
     if(topicName == m_VehicleDataTopic.Name())
     {
         //get latest datagram from mace_data
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);       
 
         //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
@@ -453,7 +453,11 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 sendVehicleFuel(senderID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
-                // TODO
+                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write GPS fix to the GUI:
+                sendVehicleGPS(senderID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Text::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
@@ -646,8 +650,6 @@ void ModuleGroundStation::sendPositionData(const int &vehicleID, const std::shar
     json["lat"] = component->latitude;
     json["lon"] = component->longitude;
     json["alt"] = component->altitude;
-    json["satFix"] = 0; // TODO-PAT: Move to vehicle stats?
-    json["numSats"] = 0; // TODO-PAT: Move to vehicle stats?
 
     QJsonDocument doc(json);
     if(m_positionTimeoutOccured)
@@ -737,8 +739,7 @@ void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::share
     json["dataType"] = "VehicleText";
     json["vehicleID"] = vehicleID;
     json["severity"] =  QString::fromStdString(DataGenericItemTopic::DataGenericItemTopic_Text::StatusSeverityToString(component->getSeverity()));
-    json["text"] = QString::fromStdString(component->getText());
-
+    json["text"] = QString::fromStdString(component->getText());    
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
 
@@ -746,6 +747,25 @@ void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::share
         std::cout << "Write Vehicle Text Data failed..." << std::endl;
     }
 }
+
+void ModuleGroundStation::sendVehicleGPS(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleGPS";
+    json["vehicleID"] = vehicleID;
+    json["visibleSats"] = component->getSatVisible();
+    DataGenericItem::DataGenericItem_GPS tmpGPS;
+    json["gpsFix"] = QString::fromStdString(tmpGPS.GPSFixToString(component->getGPSFix()));
+    json["hdop"] = component->getHDOP();
+    json["vdop"] = component->getVDOP();
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write Vehicle GPS Data failed..." << std::endl;
+    }
+}
+
 
 void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &missionKey)
 {

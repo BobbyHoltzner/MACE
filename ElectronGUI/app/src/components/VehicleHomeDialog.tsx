@@ -7,6 +7,8 @@ import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import { Vehicle } from '../Vehicle';
 import { Grid, Col } from 'react-bootstrap';
+import DropDownMenu from 'material-ui/DropDownMenu';
+import MenuItem from 'material-ui/MenuItem';
 
 import * as colors from 'material-ui/styles/colors';
 
@@ -19,7 +21,8 @@ type Props = {
     handleSave: (vehicleID: string, vehicleHome: PositionType) => void,
     contextAnchor: L.LeafletMouseEvent,
     useContext: boolean,
-    allowVehicleSelect: boolean
+    allowVehicleSelect: boolean,
+    onSelectedAircraftChange: (id: string) => void,
 }
 
 type State = {
@@ -78,6 +81,11 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
         this.props.handleClose();
     }
 
+    handleDropdownChange = (event: any, index: number, value: string) => {
+        this.setState({selectedVehicleID: value});
+        this.props.onSelectedAircraftChange(value);
+    }
+
     render() {
         const actions = [
             <FlatButton
@@ -91,11 +99,29 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
             />,
         ];
 
+        let vehicleIDs: JSX.Element[] = [];
+        for( let key in this.props.vehicles ){
+            // let vehicle = this.props.connectedVehicles[key];
+            vehicleIDs.push(
+                <MenuItem key={key} value={key} primaryText={key} label={key} />
+            );
+        }
+
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <Dialog titleStyle={{backgroundColor: colors.orange700, color: colors.white}} title="Set vehicle home position" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose}>
+                <Dialog titleStyle={{backgroundColor: colors.orange700, color: colors.white}} title="Set vehicle home position" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose} contentStyle={{width: '20%'}}>
                     <Grid fluid>
-                        <Col xs={12} md={6}>
+                        {this.props.selectedVehicleID === "0" &&
+                            <Col xs={12} md={12}>
+                                    <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                        <DropDownMenu style={{marginRight: 10, width: '100%', backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedVehicleID} onChange={this.handleDropdownChange}>
+                                            <MenuItem value={"0"} primaryText={"All vehicles"} label={"All vehicles"} />
+                                            {vehicleIDs}
+                                        </DropDownMenu>
+                                    </MuiThemeProvider>
+                            </Col>
+                        }
+                        <Col xs={12} md={12}>
                             <TextField
                                 id={"homeLat"}
                                 floatingLabelText="Latitude (decimal)"
@@ -106,7 +132,7 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
                                 value={this.state.homeLat}
                             />
                         </Col>
-                        <Col xs={12} md={6}>
+                        <Col xs={12} md={12}>
                             <TextField
                                 id={"homeLon"}
                                 floatingLabelText="Longitude (decimal)"

@@ -20,6 +20,8 @@ export class Vehicle{
     sensorFootprint: L.LatLng[];
     currentMissionItem: number;
     messages: TextType[];
+    airspeed: number;
+    gps: GPSType;
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
         this.vehicleId = vehicleId;
@@ -33,12 +35,19 @@ export class Vehicle{
         this.sensorFootprint = [];
         this.currentMissionItem = 0;
         this.messages = [];
+        this.airspeed = 0;
+        this.gps = {
+            visibleSats: 0,
+            gpsFix: "No GPS",
+            hdop: 20, // > 20 is poor level of confidence
+            vdop: 20 // > 20 is poor level of confidence
+        }
         if(position){
             this.position = position;
         }
         else {
-            // this.position = {lat: 0, lon: 0, alt: 0};
-            this.position = {lat: -35.363272, lon: 149.165249, alt: 0};
+            this.position = {lat: 0, lon: 0, alt: 0};
+            // this.position = {lat: -35.363272, lon: 149.165249, alt: 0};
         }
         if(attitude){
             this.attitude = attitude;

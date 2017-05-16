@@ -12,7 +12,7 @@ import { Vehicle } from '../Vehicle';
 type Props = {
     connectedVehicles: {[id: string]: Vehicle},
     onAircraftCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void,
-    handleOpenVehicleEdit: (vehicleID: string) => void
+    handleChangeSelectedVehicle: (vehicleID: string) => void
     selectedVehicleID: string
 }
 
@@ -52,7 +52,7 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
                     vehicleID={key}
                     aircraft={vehicle}
                     handleAircraftCommand={this.handleAircraftCommand}
-                    handleOpenVehicleEdit={this.props.handleOpenVehicleEdit}
+                    handleChangeSelectedVehicle={this.props.handleChangeSelectedVehicle}
                 />
             );
 

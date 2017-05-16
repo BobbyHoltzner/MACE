@@ -20,6 +20,29 @@ public:
         GPSFIX_STATIC
     };
 
+    std::string GPSFixToString(const GPSFIX &gpsFix) {
+        switch (gpsFix) {
+        case GPSFIX::GPSFIX_NOGPS:
+            return "No GPS";
+        case GPSFIX::GPSFIX_NOFIX:
+            return "No Fix";
+        case GPSFIX::GPSFIX_2DFIX:
+            return "2D Fix";
+        case GPSFIX::GPSFIX_3DFIX:
+            return "3D Fix";
+        case GPSFIX::GPSFIX_DGPS:
+            return "DGPS";
+        case GPSFIX::GPSFIX_RTKFLOAT:
+            return "RTK Float";
+        case GPSFIX::GPSFIX_RTKFIXED:
+            return "RTK Fixed";
+        case GPSFIX::GPSFIX_STATIC:
+            return "Static";
+        default:
+            throw std::runtime_error("Unknown gps fix seen");
+        }
+    }
+
 public:
     DataGenericItem_GPS();
 
