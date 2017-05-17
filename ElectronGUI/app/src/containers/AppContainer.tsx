@@ -204,6 +204,14 @@ export default class AppContainer extends React.Component<Props, State> {
 
       stateCopy[vehiclePosition.vehicleID].updateMarkerPosition(vehiclePosition);
 
+      if(stateCopy[vehiclePosition.vehicleID].isNew &&
+        (stateCopy[vehiclePosition.vehicleID].gps.gpsFix !== "NO GPS" || stateCopy[vehiclePosition.vehicleID].gps.gpsFix !== "GPS NO FIX") &&
+        Object.keys(this.state.connectedVehicles).length === 1)
+      {
+        stateCopy[vehiclePosition.vehicleID].isNew = false;
+        this.setState({mapCenter: [stateCopy[vehiclePosition.vehicleID].position.lat, stateCopy[vehiclePosition.vehicleID].position.lon], mapZoom: 19});
+      }
+
       this.setState({connectedVehicles: stateCopy});
     }
     else if(jsonData.dataType === "VehicleAttitude"){
@@ -232,7 +240,7 @@ export default class AppContainer extends React.Component<Props, State> {
         alt: vehicleHome.alt
       }
       stateCopy[vehicleHome.vehicleID].updateHomePosition(tmpHome);
-      this.setState({connectedVehicles: stateCopy, mapCenter: [vehicleHome.lat-0.0005, vehicleHome.lon+0.0006], mapZoom: 18});
+      this.setState({connectedVehicles: stateCopy});
     }
     else if(jsonData.dataType === 'VehicleFuel') {
       let vehicleFuel = jsonData as TCPFuelType;
@@ -472,6 +480,10 @@ export default class AppContainer extends React.Component<Props, State> {
       if(key === id){
         stateCopy[id].isSelected = !stateCopy[id].isSelected;
         selectedID = stateCopy[id].isSelected ? id : "0";
+
+        if(stateCopy[id].isSelected === true && (stateCopy[id].position.lat !== 0 && stateCopy[id].position.lat !== 0)){
+          this.setState({mapCenter: [stateCopy[id].position.lat, stateCopy[id].position.lon], mapZoom: 19});
+        }
       }
       else {
         stateCopy[key].isSelected = false;
@@ -621,7 +633,7 @@ export default class AppContainer extends React.Component<Props, State> {
               />
             }
 
-            <Map ref="map" useFlyTo={true} animate={true} center={this.state.mapCenter} zoom={this.state.mapZoom} style={mapStyle} zoomControl={false} onContextmenu={this.triggerContextMenu} onDrag={() => this.setState({showContextMenu: false})} >
+            <Map ref="map" onDragend={(e: L.LeafletMouseEvent) => this.setState({mapCenter: [e.target.getCenter().lat, e.target.getCenter().lng], mapZoom: e.target.getZoom()})} useFlyTo={true} animate={true} center={this.state.mapCenter} zoom={this.state.mapZoom} style={mapStyle} zoomControl={false} onContextmenu={this.triggerContextMenu} onDrag={() => this.setState({showContextMenu: false})} >
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.state.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
 

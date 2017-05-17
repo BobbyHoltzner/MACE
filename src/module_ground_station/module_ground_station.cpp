@@ -60,7 +60,7 @@ ModuleGroundStation::ModuleGroundStation() :
     });
 
     m_timer->setSingleShot(false);
-    m_timer->setInterval(GUITimer::Interval(1000));
+    m_timer->setInterval(GUITimer::Interval(500));
     m_timer->start(true);
 }
 

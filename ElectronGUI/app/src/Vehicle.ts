@@ -2,6 +2,7 @@ import { backgroundColors, opaqueBackgroundColors } from './util/Colors';
 
 export class Vehicle{
 
+    isNew: boolean;
     vehicleId: number;
     isSelected: boolean;
     position: PositionType;
@@ -24,6 +25,7 @@ export class Vehicle{
     gps: GPSType;
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
+        this.isNew = true;
         this.vehicleId = vehicleId;
         this.isSelected = false;
         this.isArmed = false;
