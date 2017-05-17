@@ -86,6 +86,12 @@ public:
         UNUSED(msg);
     }
 
+    virtual void MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG)
+    {
+        UNUSED(linkName);
+        UNUSED(systemID);
+        UNUSED(syncMSG);
+    }
 
     virtual void MACEHeartbeatInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG)
     {

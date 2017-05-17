@@ -19,6 +19,13 @@ void CommsMACEHelper::MACEHeartbeatInfo(const std::string &linkName, const int &
     std::cout<<"I am in the comms mace helper heartbeat info routine"<<std::endl;
 }
 
+void CommsMACEHelper::MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG)
+{
+    UNUSED(linkName);
+    UNUSED(systemID);
+    UNUSED(syncMSG);
+}
+
 void CommsMACEHelper::MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK)
 {
     UNUSED(linkName);

@@ -312,7 +312,6 @@ void CommsMarshaler::MessageReceived(const ILink* link_ptr, const mace_message_t
     Emit([&](CommsEvents *ptr){ptr->MACEMessage(m_CreatedLinksPtrToName.at(link_ptr), message);});
 }
 
-
 //!
 //! \brief Heartbeat of vehicle received
 //! \param link
@@ -327,6 +326,14 @@ void CommsMarshaler::HeartbeatInfo(const ILink* link_ptr, const int &systemID, c
         throw std::runtime_error("Provided link does not exists");
 
     Emit([&](CommsEvents *ptr){ptr->MACEHeartbeatInfo(m_CreatedLinksPtrToName.at(link_ptr), systemID, heartbeatMSG);});
+}
+
+void CommsMarshaler::SyncRequest(const ILink* link_ptr, const int &systemID, const mace_vehicle_sync_t &syncMSG) const
+{
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](CommsEvents *ptr){ptr->MACESyncMessage(m_CreatedLinksPtrToName.at(link_ptr), systemID, syncMSG);});
 }
 
 //!

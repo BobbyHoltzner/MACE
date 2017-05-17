@@ -255,6 +255,9 @@ void MaceData::receivedNewOnboardMission(const MissionItem::MissionList &mission
     std::lock_guard<std::mutex> guard(MUTEXMissions);
     Data::MissionKey key = missionList.getMissionKey();
     mapMissions[key] = missionList;
+
+    if(mapCurrentMission.count(key.m_systemID) == 0)
+        mapCurrentMission[key.m_systemID] = key;
 }
 
 void MaceData::receivedNewProposedMission(const MissionItem::MissionList &missionList)

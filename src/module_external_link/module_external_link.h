@@ -65,6 +65,14 @@ public:
     virtual void MACEHeartbeatInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG);
 
     //!
+    //! \brief MACESyncMessage
+    //! \param linkName
+    //! \param systemID
+    //! \param syncMSG
+    //!
+    virtual void MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG);
+
+    //!
     //! \brief VehicleCommandMACEACK
     //! \param linkName
     //! \param systemID
@@ -222,6 +230,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
 
     virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key);
+    virtual void NewlyAvailableHomePosition(const MissionItem::SpatialHome &home);
 
 private:
     bool airborneInstance;

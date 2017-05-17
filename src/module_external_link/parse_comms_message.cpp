@@ -26,6 +26,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         DataGenericItem::DataGenericItem_FlightMode newItem = DataCOMMS::Generic_COMMSTOMACE::SystemMode_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrMode = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>(newItem);
         PublishVehicleData(systemID,ptrMode);
+        std::cout<<"The flight mode has changed 2"<<std::endl;
         break;
     }
     case MACE_MSG_ID_BATTERY_STATUS:

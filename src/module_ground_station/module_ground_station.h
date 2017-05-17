@@ -79,7 +79,7 @@ public:
 
     virtual void NewlyAvailableCurrentMission(const Data::MissionKey &missionKey);
 
-
+    virtual void NewlyAvailableHomePosition(const MissionItem::SpatialHome &home);
 private:
 
     void sendPositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &component);
@@ -88,7 +88,7 @@ private:
     void sendVehicleMode(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &component);
     void sendVehicleText(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &component);
     void sendVehicleMission(const int &vehicleID, const MissionItem::MissionList &missionList);
-    void sendVehicleHome(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
+    void sendVehicleHome(const int &vehicleID, const MissionItem::SpatialHome &home);
     void sendGlobalOrigin(const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
     void sendSensorFootprint(const int &vehicleID, const std::shared_ptr<DataVehicleSensors::SensorVertices_Global> &component);
     void sendCurrentMissionItem(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionItemCurrentTopic> &component);

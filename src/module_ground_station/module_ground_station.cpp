@@ -483,9 +483,8 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             else if(componentsUpdated.at(i) == MissionTopic::MissionHomeTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionHomeTopic> component = std::make_shared<MissionTopic::MissionHomeTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-
                 // Write mission items to the GUI:
-                sendVehicleHome(senderID, component);
+                sendVehicleHome(senderID, component->getHome());
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
@@ -578,18 +577,16 @@ void ModuleGroundStation::sendCurrentMissionItem(const int &vehicleID, const std
     }
 }
 
-void ModuleGroundStation::sendVehicleHome(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionHomeTopic> &component)
+void ModuleGroundStation::sendVehicleHome(const int &vehicleID, const MissionItem::SpatialHome &home)
 {
     QJsonObject json;
     json["dataType"] = "VehicleHome";
     json["vehicleID"] = vehicleID;
-
-    MissionItem::SpatialHome* spatialHome = new MissionItem::SpatialHome(component->getHome());
-    if(spatialHome->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
+    if(home.getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
     {
-        json["lat"] = spatialHome->position.latitude;
-        json["lon"] = spatialHome->position.longitude;
-        json["alt"] = spatialHome->position.altitude;
+        json["lat"] = home.position.latitude;
+        json["lon"] = home.position.longitude;
+        json["alt"] = home.position.altitude;
     }
     else {
         // TODO: If we for some reason get a local home position (i.e. x/y/z), set to the global origin.
@@ -766,11 +763,16 @@ void ModuleGroundStation::sendVehicleGPS(const int &vehicleID, const std::shared
 
 void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &missionKey)
 {
-    std::cout<<"I have been told there is a new mission available"<<std::endl;
+    std::cout<<"New mission available for ground station"<<std::endl;
     MissionItem::MissionList newList;
     bool valid = this->getDataObject()->getMissionList(missionKey,newList);
     if(valid)
         sendVehicleMission(missionKey.m_systemID,newList);
+}
+
+void ModuleGroundStation::NewlyAvailableHomePosition(const MissionItem::SpatialHome &home)
+{
+    sendVehicleHome(home.getVehicleID(), home);
 }
 
 void ModuleGroundStation::missionListToJSON(const MissionItem::MissionList &list, QJsonArray &missionItems)

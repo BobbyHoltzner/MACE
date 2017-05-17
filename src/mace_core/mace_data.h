@@ -253,7 +253,6 @@ public:
 
 public:
 
-
     bool GetPositionDynamics(const std::string rn, const TIME &time, Eigen::Vector3d &pos, Eigen::Vector3d &velocity) const
     {
         UNUSED(pos);

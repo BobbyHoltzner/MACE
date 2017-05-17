@@ -18,7 +18,6 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser:: Pa
         mavlink_sys_status_t decodedMSG;
         mavlink_msg_sys_status_decode(message,&decodedMSG);
 
-//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>();
         DataGenericItem::DataGenericItem_Battery battery;
         battery.setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
         battery.setBatteryCurrent(decodedMSG.current_battery/10000.0);
@@ -103,6 +102,16 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser:: Pa
         //The global position, as returned by the Global Positioning System (GPS). This is NOT the global position estimate of the system, but rather a RAW sensor value. See message GLOBAL_POSITION for the global position estimate. Coordinate frame is right-handed, Z-axis up (GPS frame).
         mavlink_gps_raw_int_t decodedMSG;
         mavlink_msg_gps_raw_int_decode(message,&decodedMSG);
+        Generic_MAVLINKTOMACE parseHelper(message->sysid);
+
+        DataGenericItem::DataGenericItem_GPS gpsStatus = parseHelper.GPS_MAVLINKTOMACE(decodedMSG);
+
+        if(data->vehicleGPSStatus.set(gpsStatus))
+        {
+            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPSStatus = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(gpsStatus);
+            rtnVector.push_back(ptrGPSStatus);
+        }
+
         break;
     }
     case MAVLINK_MSG_ID_GPS_STATUS:

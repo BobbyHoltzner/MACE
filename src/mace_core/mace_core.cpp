@@ -412,6 +412,10 @@ void MaceCore::GVEvents_NewHomePosition(const void *sender, const MissionItem::S
     //specific methods and information. Otherwise we may be blasting to an unknown world.
     //This is also bad as we are assuming that the only item calling this would be a vehicle instance
     m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
+    if(m_GroundStation)
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome);
+    else if(m_ExternalLink.size() > 0)
+        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome);
 }
 
 void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey)
