@@ -12,7 +12,8 @@
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
-#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_command_item/command_item_components.h"
+#include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 #include "data_vehicle_ardupilot/components.h"
@@ -31,7 +32,7 @@ public:
 
     ~Ardupilot_TakeoffController();
 
-    void initializeTakeoffSequence(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &takeoff);
+    void initializeTakeoffSequence(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &takeoff);
     void updatedFlightMode(const DataARDUPILOT::VehicleFlightMode &flightMode);
 
     double distanceToTarget();
@@ -53,7 +54,7 @@ private:
     stateLogic currentStateLogic;
 
 private:
-    MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem_Takeoff;
+    CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem_Takeoff;
 };
 
 #endif // ARDUPILOT_TAKEOFF_CONTROLLER_H

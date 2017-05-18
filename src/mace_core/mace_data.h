@@ -20,7 +20,7 @@
 
 #include "data_generic_item/data_generic_item_components.h"
 #include "data_generic_state_item/state_item_components.h"
-#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_command_item/command_item_components.h"
 
 #include "data/system_description.h"
 #include "data/mission_key.h"
@@ -116,17 +116,17 @@ public:
         vehicleIDs = m_AvailableVehicles;
     }
 
-    MissionItem::SpatialHome GetVehicleHomePostion(const int &vehicleID) const
+    CommandItem::SpatialHome GetVehicleHomePostion(const int &vehicleID) const
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        MissionItem::SpatialHome vehicleHome = m_VehicleHomeMap.at(vehicleID);
+        CommandItem::SpatialHome vehicleHome = m_VehicleHomeMap.at(vehicleID);
         return vehicleHome;
     }
 
-    MissionItem::SpatialHome GetGlobalOrigin() const
+    CommandItem::SpatialHome GetGlobalOrigin() const
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        MissionItem::SpatialHome globalHome = m_GlobalOrigin;
+        CommandItem::SpatialHome globalHome = m_GlobalOrigin;
         return globalHome;
     }
 
@@ -140,28 +140,28 @@ private:
         m_AvailableVehicles.erase( unique( m_AvailableVehicles.begin(), m_AvailableVehicles.end() ), m_AvailableVehicles.end() );
     }
 
-    void UpdateVehicleHomePosition(const MissionItem::SpatialHome &vehicleHome)
+    void UpdateVehicleHomePosition(const CommandItem::SpatialHome &vehicleHome)
     {
         //Setup a copy constructor
-        MissionItem::SpatialHome newHome;
+        CommandItem::SpatialHome newHome;
         newHome = vehicleHome;
 
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        m_VehicleHomeMap[vehicleHome.getVehicleID()] = newHome;
+        m_VehicleHomeMap[vehicleHome.getGeneratingSystem()] = newHome;
         if(flagGlobalOrigin == true)
         {
             Eigen::Vector3f translation;
             newHome.position.translationTransformation(m_GlobalOrigin.position,translation);
-            m_VehicleToGlobalTranslation[vehicleHome.getVehicleID()] = translation;
+            m_VehicleToGlobalTranslation[vehicleHome.getGeneratingSystem()] = translation;
         }
     }
 
-    void UpdateGlobalOrigin(const MissionItem::SpatialHome &globalOrigin)
+    void UpdateGlobalOrigin(const CommandItem::SpatialHome &globalOrigin)
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_GlobalOrigin = globalOrigin;
         flagGlobalOrigin = true;
-        for (std::map<int,MissionItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
+        for (std::map<int,CommandItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
         {
             Eigen::Vector3f translation;
             it->second.position.translationTransformation(m_GlobalOrigin.position,translation);
@@ -642,9 +642,9 @@ private:
     std::vector<int> m_AvailableVehicles;
 
     mutable std::mutex m_VehicleHomeMutex;
-    std::map<int, MissionItem::SpatialHome> m_VehicleHomeMap;
+    std::map<int, CommandItem::SpatialHome> m_VehicleHomeMap;
     std::map<int, Eigen::Vector3f> m_VehicleToGlobalTranslation;
-    MissionItem::SpatialHome m_GlobalOrigin;
+    CommandItem::SpatialHome m_GlobalOrigin;
     bool flagGlobalOrigin;
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;

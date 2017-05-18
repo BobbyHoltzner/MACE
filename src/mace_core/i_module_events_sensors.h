@@ -1,7 +1,6 @@
 #ifndef I_MODULE_EVENTS_SENSORS_H
 #define I_MODULE_EVENTS_SENSORS_H
 
-#include "data_generic_mission_item/mission_item_components.h"
 #include "i_module_events_general.h"
 
 namespace MaceCore

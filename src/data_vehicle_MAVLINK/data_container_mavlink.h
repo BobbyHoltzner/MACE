@@ -11,7 +11,8 @@
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
-#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_command_item/command_item_components.h"
+#include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 namespace DataMAVLINK
@@ -45,7 +46,7 @@ public:
 
     void setCurrentMission(const MissionItem::MissionList &missionList)
     {
-        switch(missionList.getMissionType())
+        switch(missionList.getCommandType())
         {
         case Data::MissionType::AUTO:
         {
@@ -64,7 +65,7 @@ public:
 
     void setProposedMission(const MissionItem::MissionList &missionList)
     {
-        switch(missionList.getMissionType())
+        switch(missionList.getCommandType())
         {
         case Data::MissionType::AUTO:
         {
@@ -172,7 +173,7 @@ public:
     /// DATA MISSION TOPIC ITEMS
     //////////////////////////////////////////////////////////////////////////////
 public:
-    std::shared_ptr<MissionTopic::MissionHomeTopic> m_MissionHome;
+    Data::DataGetSetNotifier<CommandItem::SpatialHome> vehicleHome;
     std::shared_ptr<MissionTopic::MissionItemReachedTopic> m_MissionItemReached;
     std::shared_ptr<MissionTopic::MissionItemCurrentTopic> m_MissionItemCurrent;
 };

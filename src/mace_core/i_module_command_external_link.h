@@ -40,7 +40,7 @@ public:
             NewlyAvailableOnboardMission(key);
         });
 
-        AddCommandLogic<MissionItem::SpatialHome>(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const MissionItem::SpatialHome &home){
+        AddCommandLogic<CommandItem::SpatialHome>(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const CommandItem::SpatialHome &home){
             NewlyAvailableHomePosition(home);
         });
     }
@@ -54,7 +54,7 @@ public:
 
     virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key) = 0;
 
-    virtual void NewlyAvailableHomePosition(const MissionItem::SpatialHome &home) = 0;
+    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home) = 0;
 
 };
 

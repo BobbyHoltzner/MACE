@@ -7,7 +7,7 @@ Command_MACETOMAVLINK::Command_MACETOMAVLINK(const int &systemID, const int &com
 
 }
 
-mavlink_message_t Command_MACETOMAVLINK::generateSetHomePosition(const MissionItem::SpatialHome &vehicleHome, const int &chan)
+mavlink_message_t Command_MACETOMAVLINK::generateSetHomePosition(const CommandItem::SpatialHome &vehicleHome, const int &chan)
 {
     mavlink_message_t msg;
     mavlink_set_home_position_t cmd;
@@ -59,22 +59,43 @@ mavlink_message_t Command_MACETOMAVLINK::generateGetHomeMessage(const int &vehic
     return msg;
 }
 
-mavlink_message_t Command_MACETOMAVLINK::generateArmMessage(const MissionItem::ActionArm &actionArmItem, const uint8_t &chan)
+mavlink_message_t Command_MACETOMAVLINK::generateArmMessage(const CommandItem::ActionArm &actionArmItem, const uint8_t &chan)
 {
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_COMPONENT_ARM_DISARM;
-    cmd.target_system = actionArmItem.getVehicleID();
+    cmd.target_system = actionArmItem.getTargetSystem();
     cmd.param1 = actionArmItem.getRequestArm();
     mavlink_message_t msg = packLongMessage(cmd,chan);
     return msg;
 }
 
-mavlink_message_t Command_MACETOMAVLINK::generateTakeoffMessage(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan)
+mavlink_message_t Command_MACETOMAVLINK::generateTakeoffMessage(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan)
 {
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_NAV_TAKEOFF;
-    cmd.target_system = missionItem.getVehicleID();
+    cmd.target_system = missionItem.getTargetSystem();
     cmd.param7 = missionItem.position.altitude;
+    mavlink_message_t msg = packLongMessage(cmd,chan);
+    return msg;
+}
+
+mavlink_message_t Command_MACETOMAVLINK::generateLandMessage(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &commandItem, const uint8_t &chan)
+{
+    mavlink_command_long_t cmd = initializeCommandLong();
+    cmd.command = MAV_CMD_NAV_LAND;
+    cmd.target_system = commandItem.getTargetSystem();
+    cmd.param5 = commandItem.position.latitude;
+    cmd.param6 = commandItem.position.longitude;
+    cmd.param7 = commandItem.position.altitude;
+    mavlink_message_t msg = packLongMessage(cmd,chan);
+    return msg;
+}
+
+mavlink_message_t Command_MACETOMAVLINK::generateRTLMessage(const CommandItem::SpatialRTL &commandItem, const uint8_t &chan)
+{
+    mavlink_command_long_t cmd = initializeCommandLong();
+    cmd.command = MAV_CMD_NAV_RETURN_TO_LAUNCH;
+    cmd.target_system = commandItem.getTargetSystem();
     mavlink_message_t msg = packLongMessage(cmd,chan);
     return msg;
 }

@@ -13,7 +13,8 @@
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
-#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_command_item/command_item_components.h"
+#include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 namespace DataCOMMS{
@@ -25,9 +26,9 @@ public:
 
     static mace_message_t generateGetHomeMessage(const int &vehicleID, const int &chan);
 
-    static mace_message_t generateSetHomePosition(const MissionItem::SpatialHome &vehicleHome, const int &chan);
-    static mace_message_t generateArmMessage(const MissionItem::ActionArm &actionArmItem, const uint8_t &chan);
-    static mace_message_t generateTakeoffMessage(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan);
+    static mace_message_t generateSetHomePosition(const CommandItem::SpatialHome &vehicleHome, const int &chan);
+    static mace_message_t generateArmMessage(const CommandItem::ActionArm &actionArmItem, const uint8_t &chan);
+    static mace_message_t generateTakeoffMessage(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan);
 
 private:
     static mace_command_long_t initializeCommandLong();

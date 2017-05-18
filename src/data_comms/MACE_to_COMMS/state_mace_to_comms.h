@@ -14,9 +14,6 @@
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
-#include "data_generic_mission_item/mission_item_components.h"
-#include "data_generic_mission_item_topic/mission_item_topic_components.h"
-
 namespace DataCOMMS{
 
 class State_MACETOCOMMS

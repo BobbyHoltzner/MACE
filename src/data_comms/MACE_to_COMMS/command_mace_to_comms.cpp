@@ -40,7 +40,7 @@ mace_message_t Command_MACETOCOMMS::generateGetHomeMessage(const int &vehicleID,
     return msg;
 }
 
-mace_message_t Command_MACETOCOMMS::generateSetHomePosition(const MissionItem::SpatialHome &vehicleHome, const int &chan)
+mace_message_t Command_MACETOCOMMS::generateSetHomePosition(const CommandItem::SpatialHome &vehicleHome, const int &chan)
 {
     mace_message_t msg;
     mace_set_home_position_t cmd;
@@ -51,21 +51,21 @@ mace_message_t Command_MACETOCOMMS::generateSetHomePosition(const MissionItem::S
     return msg;
 }
 
-mace_message_t Command_MACETOCOMMS::generateArmMessage(const MissionItem::ActionArm &actionArmItem, const uint8_t &chan)
+mace_message_t Command_MACETOCOMMS::generateArmMessage(const CommandItem::ActionArm &actionArmItem, const uint8_t &chan)
 {
     mace_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_COMPONENT_ARM_DISARM;
-    cmd.target_system = actionArmItem.getVehicleID();
+    cmd.target_system = actionArmItem.getTargetSystem();
     cmd.param1 = actionArmItem.getRequestArm();
     mace_message_t msg = packLongMessage(cmd,chan);
     return msg;
 }
 
-mace_message_t Command_MACETOCOMMS::generateTakeoffMessage(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan)
+mace_message_t Command_MACETOCOMMS::generateTakeoffMessage(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan)
 {
     mace_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_NAV_TAKEOFF;
-    cmd.target_system = missionItem.getVehicleID();
+    cmd.target_system = missionItem.getTargetSystem();
     cmd.param5 = missionItem.position.latitude;
     cmd.param6 = missionItem.position.longitude;
     cmd.param7 = missionItem.position.altitude;

@@ -30,7 +30,8 @@
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
-#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_command_item/command_item_components.h"
+#include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
@@ -126,25 +127,25 @@ public:
     //! \brief Command_ChangeVehicleArm
     //! \param vehicleArm
     //!
-    virtual void Command_ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
+    virtual void Command_SystemArm(const CommandItem::ActionArm &vehicleArm);
 
     //!
     //! \brief Command_ChangeVehicleOperationalMode
     //! \param vehicleMode
     //!
-    virtual void Command_ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
+    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode);
 
     //!
     //! \brief Command_RequestVehicleTakeoff
     //! \param vehicleTakeoff
     //!
-    virtual void Command_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
     //!
     //! \brief Command_EmitHeartbeat
     //! \param heartbeat
     //!
-    virtual void Command_EmitHeartbeat(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &heartbeat);
+    virtual void Command_EmitHeartbeat(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &heartbeat);
 
     /////////////////////////////////////////////////////////////////////////
     /// GENERAL MISSION EVENTS: This is implying for auto mode of the vehicle.
@@ -223,14 +224,14 @@ public:
     //! \brief Command_SetHomePosition
     //! \param vehicleHome
     //!
-    virtual void Command_SetHomePosition(const MissionItem::SpatialHome &vehicleHome);
+    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from IModuleCommandExternalLink.
     ///////////////////////////////////////////////////////////////////////////////////////
 
     virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key);
-    virtual void NewlyAvailableHomePosition(const MissionItem::SpatialHome &home);
+    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
 
 private:
     bool airborneInstance;

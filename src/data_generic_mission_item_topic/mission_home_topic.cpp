@@ -2,30 +2,24 @@
 
 namespace MissionTopic{
 
-const char MissionHomeTopic_name[] = "VehicleHome";
+const char MissionHomeTopic_name[] = "Current Vehicle Home";
 const MaceCore::TopicComponentStructure MissionHomeTopic_structure = []{
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<int>("vehicleID");
-    structure.AddTerminal<MissionItem::SpatialHome>("homeItem");
+    structure.AddTerminal<std::shared_ptr<CommandItem::AbstractCommandItem>>("homeItem");
     return structure;
 }();
 
 MaceCore::TopicDatagram MissionHomeTopic::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<int>("vehicleID",vehicleID);
-    datagram.AddTerminal<MissionItem::SpatialHome>("homeItem", vehicleHome);
+    datagram.AddTerminal<std::shared_ptr<CommandItem::AbstractCommandItem>>("homeItem",item);
     return datagram;
 }
 
 void MissionHomeTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagram)
 {
-    vehicleID = datagram.GetTerminal<int>("vehicleID");
-    vehicleHome = datagram.GetTerminal<MissionItem::SpatialHome>("homeItem");
+    item = datagram.GetTerminal<std::shared_ptr<CommandItem::AbstractCommandItem>>("homeItem");
 }
 
-MissionHomeTopic::MissionHomeTopic()
-{
 
-}
 
 } //end of namespace MissionTopic

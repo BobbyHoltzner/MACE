@@ -4,25 +4,19 @@ namespace MissionTopic{
 const char MissionItemTopic_name[] = "missionItem";
 const MaceCore::TopicComponentStructure MissionItemTopic_structure = []{
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<int>("vehicleID");
-    structure.AddTerminal<Data::MissionType>("missionType");
-    structure.AddTerminal<std::shared_ptr<MissionItem::AbstractMissionItem>>("missionItem");
+    structure.AddTerminal<std::shared_ptr<CommandItem::AbstractCommandItem>>("missionItem");
     return structure;
 }();
 
 MaceCore::TopicDatagram MissionItemTopic::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<int>("vehicleID",vehicleID);
-    datagram.AddTerminal<Data::MissionType>("missionType",missionType);
-    datagram.AddTerminal<std::shared_ptr<MissionItem::AbstractMissionItem>>("missionItem", missionItem);
+    datagram.AddTerminal<std::shared_ptr<CommandItem::AbstractCommandItem>>("missionItem", missionItem);
     return datagram;
 }
 
 void MissionItemTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagram)
 {
-    vehicleID = datagram.GetTerminal<int>("vehicleID");
-    missionType = datagram.GetTerminal<Data::MissionType>("missionType");
-    missionItem = datagram.GetTerminal<std::shared_ptr<MissionItem::AbstractMissionItem>>("missionItem");
+    missionItem = datagram.GetTerminal<std::shared_ptr<CommandItem::AbstractCommandItem>>("missionItem");
 }
 
 
@@ -31,18 +25,12 @@ MissionItemTopic::MissionItemTopic()
 
 }
 
-MissionItemTopic::MissionItemTopic(const Data::MissionType &missionType)
+void MissionItemTopic::setMissionItem(const std::shared_ptr<CommandItem::AbstractCommandItem> missionItem)
 {
-    this->missionType = missionType;
-}
-
-void MissionItemTopic::setMissionItem(const std::shared_ptr<MissionItem::AbstractMissionItem> missionItem)
-{
-    this->vehicleID = missionItem->getVehicleID();
     this->missionItem = missionItem;
 }
 
-std::shared_ptr<MissionItem::AbstractMissionItem> MissionItemTopic::getMissionItem()
+std::shared_ptr<CommandItem::AbstractCommandItem> MissionItemTopic::getMissionItem()
 {
     return missionItem;
 }

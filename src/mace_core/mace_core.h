@@ -79,9 +79,13 @@ public:
     /// GENERAL MODULE EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    virtual void Event_ArmVehicle(const void* sender, const MissionItem::ActionArm &arm);
-    virtual void Event_ChangeVehicleMode(const void* sender, const MissionItem::ActionChangeMode &changeMode);
-    virtual void Event_RequestVehicleTakeoff(const void* sender, const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+
+    virtual void Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command);
+    virtual void Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command);
+    virtual void Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command);
+    virtual void Event_IssueCommandRTL(const void* sender, const CommandItem::SpatialRTL &command);
+    virtual void Event_ChangeSystemMode(const void* sender, const CommandItem::ActionChangeMode &command);
+    virtual void Event_IssueGeneralCommand(const void* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command);
 
     virtual void Event_GetMission(const void* sender, const Data::MissionKey &key);
     virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const Data::MissionType &type);
@@ -91,9 +95,9 @@ public:
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
 
     virtual void Event_GetHomePosition(const void* sender, const int &vehicleID);
-    virtual void Event_SetHomePosition(const void* sender, const MissionItem::SpatialHome &vehicleHome);
+    virtual void Event_SetHomePosition(const void* sender, const CommandItem::SpatialHome &vehicleHome);
 
-    virtual void Event_SetGlobalOrigin(const void* sender, const MissionItem::SpatialHome &globalHome);
+    virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome);
 
 public:
 
@@ -118,7 +122,7 @@ public:
     /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle
     ////////////////////////////////////////////////////////////////////////////////////////
     virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
-    virtual void GVEvents_NewHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome);
+    virtual void GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome);
     virtual void ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey);
     virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey);
 
