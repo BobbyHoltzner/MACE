@@ -12,7 +12,8 @@
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
-#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_command_item/command_item_components.h"
+#include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 #include "data_vehicle_ardupilot/components.h"
@@ -51,7 +52,7 @@ private:
     bool missionUpdated;
 
     MissionItem::MissionList m_CurrentMission;
-    MissionItem::SpatialHome m_VehicleHome;
+    CommandItem::SpatialHome m_VehicleHome;
 
 };
 

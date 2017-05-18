@@ -19,7 +19,6 @@ SUBDIRS += \
     module_resource_task_allocation \
     data_generic_state_item \
     data_generic_state_item_topic \
-    data_generic_mission_item \
     data_generic_mission_item_topic \
     TestCodeHolder \
     TestSpatialMath \
@@ -28,4 +27,6 @@ SUBDIRS += \
     data_generic_item_topic \
     data_comms \
     commsMACEHelper \
-    commsMACE
+    commsMACE \
+    data_generic_command_item \
+    data_generic_command_item_topic

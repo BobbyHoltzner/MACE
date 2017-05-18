@@ -203,7 +203,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_set_home_position_t decodedMSG;
         mace_msg_set_home_position_decode(message,&decodedMSG);
         DataCOMMS::Mission_COMMSTOMACE missionConvert;
-        MissionItem::SpatialHome systemHome;
+        CommandItem::SpatialHome systemHome;
         missionConvert.Home_COMMSTOMACE(decodedMSG.target_system,decodedMSG,systemHome);
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->Event_SetHomePosition(this, systemHome);
@@ -215,19 +215,19 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_home_position_t decodedMSG;
         mace_msg_home_position_decode(message,&decodedMSG);
 
-        MissionItem::SpatialHome spatialHome;
+        CommandItem::SpatialHome spatialHome;
         spatialHome.position.latitude = decodedMSG.latitude / pow(10,7);
         spatialHome.position.longitude = decodedMSG.longitude / pow(10,7);
         spatialHome.position.altitude = decodedMSG.altitude / 1000;
-        spatialHome.setVehicleID(systemID);
+        spatialHome.setGeneratingSystem(systemID);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->GVEvents_NewHomePosition(this,spatialHome);
         });
 
+        std::shared_ptr<CommandItem::SpatialHome> homePtr = std::make_shared<CommandItem::SpatialHome>(spatialHome);
         std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
-        missionTopic->setVehicleID(systemID);
-        missionTopic->setHome(spatialHome);
+        missionTopic->setHome(homePtr);
 
         MaceCore::TopicDatagram topicDatagram;
         m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
@@ -385,7 +385,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_msg_mission_item_decode(message,&decodedMSG);
 
         DataCOMMS::Mission_COMMSTOMACE missionConvert;
-        std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = missionConvert.Covert_COMMSTOMACE(decodedMSG);
+        std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = missionConvert.Covert_COMMSTOMACE(decodedMSG);
 
         //Get the MissionItem::MissionList from the data core
         Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
@@ -406,7 +406,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
                 m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
                 //should we tell anyone that we have received another mission item however the mission is incomplete
             }else{
-                if(missionList.getMissionTypeState() == Data::MissionTypeState::PROPOSED)
+                if(missionList.getCommandTypeState() == Data::MissionTypeState::PROPOSED)
                 {
                     //This case implies that we were receiving the item from a ground module or
                     //someone without directly relating to the vehicle and therefore we should ack
@@ -428,12 +428,12 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
                     mace_msg_ack_rxmission_encode_chan(itemKey.m_systemID,0,m_LinkChan,&msg,&ackMission);
                     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 
-                }else if(missionList.getMissionTypeState() == Data::MissionTypeState::ONBOARD)
+                }else if(missionList.getCommandTypeState() == Data::MissionTypeState::ONBOARD)
                 {
                     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                         ptr->ExternalEvent_FinishedRXOnboardQueue(this, missionList);
                     });
-                }else if(missionList.getMissionTypeState() == Data::MissionTypeState::CURRENT)
+                }else if(missionList.getCommandTypeState() == Data::MissionTypeState::CURRENT)
                 {
                     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                         ptr->ExternalEvent_FinishedRXCurrentQueue(this, missionList);
@@ -461,7 +461,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
             return;
 
         DataCOMMS::Mission_MACETOCOMMS missionConvert(decodedMSG.target_system, systemID, itemKey, m_LinkChan);
-        std::shared_ptr<MissionItem::AbstractMissionItem> missionItem;
+        std::shared_ptr<CommandItem::AbstractCommandItem> missionItem;
         missionItem = missionList.getMissionItem(decodedMSG.seq);
 
         mace_message_t msg;

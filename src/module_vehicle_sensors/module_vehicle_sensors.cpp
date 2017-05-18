@@ -117,7 +117,7 @@ void ModuleVehicleSensors::computeVehicleFootprint(const int &systemID, const Da
     3         2
     */
 
-    MissionItem::SpatialHome globalHome = this->getDataObject()->GetGlobalOrigin();
+    CommandItem::SpatialHome globalHome = this->getDataObject()->GetGlobalOrigin();
 
     std::vector<DataState::StateGlobalPosition> verticeVectorGlobal(4);
     std::vector<DataState::StateLocalPosition> verticeVectorLocal(4);
