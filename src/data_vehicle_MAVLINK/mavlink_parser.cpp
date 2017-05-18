@@ -29,33 +29,6 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser:: Pa
         }
         break;
     }
-    case MAVLINK_MSG_ID_COMMAND_ACK:
-    {
-        mavlink_command_ack_t decodedMSG;
-        mavlink_msg_command_ack_decode(message,&decodedMSG);
-        std::cout<<"The command acknowledgement came from: "<<decodedMSG.command<<std::endl;
-        switch(decodedMSG.result)
-        {
-            case MAV_RESULT_ACCEPTED:
-                std::cout<<"MAV result accepted"<<std::endl;
-                break;
-            case MAV_RESULT_TEMPORARILY_REJECTED:
-                std::cout<<"MAV result rejected"<<std::endl;
-                break;
-            case MAV_RESULT_DENIED:
-                std::cout<<"MAV result denied"<<std::endl;
-                break;
-            case MAV_RESULT_UNSUPPORTED:
-                std::cout<<"MAV result unsupported"<<std::endl;
-                break;
-            case MAV_RESULT_FAILED:
-                std::cout<<"MAV result failed"<<std::endl;
-                break;
-            default:
-                std::cout<<"Uknown ack!"<<std::endl;
-        }
-        break;
-    }
     case MAVLINK_MSG_ID_SYSTEM_TIME:
     {
         //This is message definition 2

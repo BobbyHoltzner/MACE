@@ -3,7 +3,7 @@
 
 #include "data/i_topic_component_data_object.h"
 #include "data/mission_type.h"
-#include "data_generic_mission_item/abstract_mission_item.h"
+#include "data_generic_command_item/abstract_command_item.h"
 
 namespace MissionTopic{
 
@@ -18,24 +18,13 @@ public:
 
 public:
     MissionItemTopic();
-    MissionItemTopic(const Data::MissionType &missionType);
 
-    void setMissionItem(const std::shared_ptr<MissionItem::AbstractMissionItem> missionItem);
+    void setMissionItem(const std::shared_ptr<CommandItem::AbstractCommandItem> missionItem);
 
-    std::shared_ptr<MissionItem::AbstractMissionItem> getMissionItem();
-
-    void setVehicleID(const int &vehicleID){
-        this->vehicleID = vehicleID;
-    }
-
-    int getVehicleID() const{
-        return vehicleID;
-    }
+    std::shared_ptr<CommandItem::AbstractCommandItem> getMissionItem();
 
 private:
-    int vehicleID;
-    Data::MissionType missionType;
-    std::shared_ptr<MissionItem::AbstractMissionItem> missionItem;
+    std::shared_ptr<CommandItem::AbstractCommandItem> missionItem;
 };
 
 } //end of namespace MissionTopic

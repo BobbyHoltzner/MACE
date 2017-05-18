@@ -24,7 +24,8 @@
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
-#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_command_item/command_item_components.h"
+#include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 //__________________
@@ -56,7 +57,7 @@ public:
 
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG);
 
-    virtual void VehicleCommandACK(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK);
+    virtual void MAVLINKCommandAck(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK);
     //!
     //! \brief New Mavlink message received over a link
     //! \param linkName Name of link message received over
@@ -97,23 +98,44 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
     //!
-    //! \brief Command_ChangeVehicleArm
+    //! \brief Command_SystemArm
     //! \param vehicleArm
     //!
-    virtual void Command_ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm);
+    virtual void Command_SystemArm(const CommandItem::ActionArm &command);
 
     //!
-    //! \brief Command_ChangeVehicleOperationalMode
-    //! \param vehicleMode
-    //!
-    virtual void Command_ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode);
-
-    //!
-    //! \brief Command_RequestVehicleTakeoff
+    //! \brief Command_VehicleTakeoff
     //! \param vehicleTakeoff
     //!
-    virtual void Command_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command);
 
+    //!
+    //! \brief Command_Land
+    //! \param command
+    //!
+    virtual void Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command);
+
+    //!
+    //! \brief Command_ReturnToLaunch
+    //! \param command
+    //!
+    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command);
+
+    //!
+    //! \brief Command_ChangeSystemMode
+    //! \param vehicleMode
+    //!
+    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command);
+
+    //!
+    //! \brief Command_IssueGeneralCommand
+    //! \param command
+    //!
+    virtual void Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command);
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// GENERAL MISSION EVENTS:
+    ////////////////////////////////////////////////////////////////////////////
 
     virtual void Command_UploadMission(const MissionItem::MissionList &missionList);
 
@@ -177,13 +199,13 @@ public:
     //! \brief Command_SetHomePosition
     //! \param vehicleHome
     //!
-    virtual void Command_SetHomePosition(const MissionItem::SpatialHome &vehicleHome);
+    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome);
 
     //!
     //! \brief homePositionUpdated
     //! \param newVehicleHome
     //!
-    void homePositionUpdated(const MissionItem::SpatialHome &newVehicleHome);
+    void homePositionUpdated(const CommandItem::SpatialHome &newVehicleHome);
 
 
     bool checkControllerState()
@@ -211,8 +233,8 @@ public:
     {
         std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
         Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan);
-        MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> takeoff;
-        takeoff.setVehicleID(1);
+        CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> takeoff;
+        takeoff.setTargetSystem(1);
         takeoff.position.setPosition(37,-76,100);
         newController->initializeTakeoffSequence(takeoff);
 

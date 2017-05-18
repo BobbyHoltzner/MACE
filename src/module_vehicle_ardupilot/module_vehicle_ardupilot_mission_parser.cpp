@@ -22,17 +22,17 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         if(decodedMSG.seq == 0)
         {
             //This is the home position item associated with the vehicle
-            MissionItem::SpatialHome newHome;
+            CommandItem::SpatialHome newHome;
             newHome.position.latitude = decodedMSG.x;
             newHome.position.longitude = decodedMSG.y;
             newHome.position.altitude = decodedMSG.z;
-            newHome.setVehicleID(sysID);
+            newHome.setGeneratingSystem(sysID);
 
             homePositionUpdated(newHome);
         }else{
             int currentIndex = decodedMSG.seq - 1; //we decrement 1 only here because ardupilot references home as 0 and we 0 index in our mission queue
             //04/03/2017 Ken Fix This
-            std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = vehicleData->Covert_MAVLINKTOMACE(decodedMSG);
+            std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = vehicleData->Covert_MAVLINKTOMACE(decodedMSG);
             missionList.replaceMissionItemAtIndex(newMissionItem,currentIndex);
             vehicleData->data->setCurrentMission(missionList);
         }
@@ -69,7 +69,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         mavlink_mission_request_t decodedMSG;
         mavlink_msg_mission_request_decode(message,&decodedMSG);
         MissionItem::MissionList missionList = vehicleData->data->getProposedMission(Data::MissionType::AUTO);
-        std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = missionList.getMissionItem(decodedMSG.seq);
+        std::shared_ptr<CommandItem::AbstractCommandItem> missionItem = missionList.getMissionItem(decodedMSG.seq);
         //04/03/2017 KEN FIX
         mavlink_message_t msg;
         vehicleData->MACEMissionToMAVLINKMission(missionItem,chan,compID,decodedMSG.seq,msg);
@@ -218,11 +218,11 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         mavlink_home_position_t decodedMSG;
         mavlink_msg_home_position_decode(message,&decodedMSG);
 
-        MissionItem::SpatialHome spatialHome;
+        CommandItem::SpatialHome spatialHome;
         spatialHome.position.latitude = decodedMSG.latitude / pow(10,7);
         spatialHome.position.longitude = decodedMSG.longitude / pow(10,7);
         spatialHome.position.altitude = decodedMSG.altitude / 1000;
-        spatialHome.setVehicleID(sysID);
+        spatialHome.setGeneratingSystem(sysID);
 
         homePositionUpdated(spatialHome);
 

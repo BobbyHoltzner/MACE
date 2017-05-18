@@ -218,7 +218,7 @@ std::vector<Data::MissionKey> MaceData::getOnboardMissionKeys(const int &systemI
     {
         MissionItem::MissionList list;
         Data::MissionKey key = it->first;
-        if((key.m_systemID == systemID) && (it->second.getMissionTypeState() == Data::MissionTypeState::ONBOARD))
+        if((key.m_systemID == systemID) && (it->second.getCommandTypeState() == Data::MissionTypeState::ONBOARD))
             keyVector.push_back(key);
     }
     return keyVector;
@@ -301,7 +301,7 @@ bool MaceData::updateCurrentMission(const Data::MissionKey &missionKey)
     {
         Data::MissionKey oldKey = mapCurrentMission.at(systemID);
         try{
-            if(mapMissions.at(oldKey).getMissionType() == Data::MissionType::GUIDED)
+            if(mapMissions.at(oldKey).getCommandType() == Data::MissionType::GUIDED)
                 mapMissions.erase(oldKey);
         }catch(const std::out_of_range &oor){
         }

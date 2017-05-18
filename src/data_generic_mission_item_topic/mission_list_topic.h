@@ -2,7 +2,7 @@
 #define MISSION_LIST_TOPIC_H
 
 #include "data/i_topic_component_data_object.h"
-#include "data_generic_mission_item/mission_list.h"
+#include "data_generic_command_item/mission_items/mission_list.h"
 
 namespace MissionTopic{
 
@@ -34,12 +34,12 @@ public:
         return missionList.getMissionID();
     }
 
-    Data::MissionType getMissionType() const{
-        return missionList.getMissionType();
+    Data::MissionType getCommandType() const{
+        return missionList.getCommandType();
     }
 
-    Data::MissionTypeState getMissionTypeState() const{
-        return missionList.getMissionTypeState();
+    Data::MissionTypeState getCommandTypeState() const{
+        return missionList.getCommandTypeState();
     }
 
 private:

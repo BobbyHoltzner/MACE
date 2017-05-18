@@ -10,16 +10,16 @@ VehicleObject_ARDUPILOT::VehicleObject_ARDUPILOT(const int &vehicleID, const int
     parser = new ARDUPILOTParser(data);
 }
 
-bool VehicleObject_ARDUPILOT::generateBasicGuidedMessage(const std::shared_ptr<MissionItem::AbstractMissionItem> &missionItem, const uint8_t &chan, mavlink_message_t &msg)
+bool VehicleObject_ARDUPILOT::generateBasicGuidedMessage(const std::shared_ptr<CommandItem::AbstractCommandItem> &missionItem, const uint8_t &chan, mavlink_message_t &msg)
 {
-    switch(missionItem->getMissionType())
+    switch(missionItem->getCommandType())
     {
-    case(Data::MissionItemType::MI_NAV_WAYPOINT):
+    case(Data::CommandItemType::CI_NAV_WAYPOINT):
     {
         if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
         {
-            std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
-            MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> baseItem = *castItem.get();
+            std::shared_ptr<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
+            CommandItem::SpatialWaypoint<DataState::StateGlobalPosition> baseItem = *castItem.get();
             mavlink_mission_item_t newItem = Waypoint_MACETOMAVLINK(baseItem,0,0);
             newItem.current = 2;
             msg = packMissionItem(newItem,chan);

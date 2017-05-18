@@ -169,13 +169,61 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
         }
         if (decodeState == 1)
         {
-            if(message.msgid == MACE_MSG_ID_VEHICLE_MODE)
-            {
-                std::cout<<"This was a changed mode message"<<std::endl;
-            }
-            bool flaggedMSG = false;
-
             decodedFirstPacket = true;
+
+            if(message.msgid == MACE_MSG_ID_PING)
+            {
+                // process ping requests (tgt_system and tgt_comp must be zero)
+                mace_ping_t ping;
+                mace_msg_ping_decode(&message, &ping);
+                if(!ping.target_system && !ping.target_component)
+                {
+                    mace_message_t msg;
+                    mace_msg_ping_pack(getSystemId(), getComponentId(), &msg, ping.time_usec, ping.seq, message.sysid, message.compid);
+                    SendProtocolMessage(link, msg);
+                }
+            }
+
+            if(message.msgid == MACE_MSG_ID_RADIO_STATUS)
+            {
+                // process telemetry status message
+                mace_radio_status_t rstatus;
+                mace_msg_radio_status_decode(&message, &rstatus);
+                int rssi = rstatus.rssi,
+                    remrssi = rstatus.remrssi;
+                // 3DR Si1k radio needs rssi fields to be converted to dBm
+                if (message.sysid == '3' && message.compid == 'D') {
+                    /* Per the Si1K datasheet figure 23.25 and SI AN474 code
+                     * samples the relationship between the RSSI register
+                     * and received power is as follows:
+                     *
+                     *                       10
+                     * inputPower = rssi * ------ 127
+                     *                       19
+                     *
+                     * Additionally limit to the only realistic range [-120,0] dBm
+                     */
+                    rssi    = std::min(std::max(round(static_cast<float>(rssi)    / 1.9 - 127.0), - 120.0), 0.0);
+                    remrssi = std::min(std::max(round(static_cast<float>(remrssi) / 1.9 - 127.0), - 120.0), 0.0);
+                } else {
+                    rssi = (int8_t) rstatus.rssi;
+                    remrssi = (int8_t) rstatus.remrssi;
+                }
+
+                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->RadioStatusChanged(link, rstatus.rxerrors, rstatus.fixed, rssi, remrssi, rstatus.txbuf, rstatus.noise, rstatus.remnoise);});
+            }
+
+            if (message.msgid == MACE_MSG_ID_HEARTBEAT)
+            {
+                mace_heartbeat_t heartbeat;
+                mace_msg_heartbeat_decode(&message, &heartbeat);
+                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->HeartbeatInfo(link, message.sysid, heartbeat);});
+            }else if(message.msgid == MACE_MSG_ID_COMMAND_ACK)
+            {
+                mace_command_ack_t commandACK;
+                mace_msg_command_ack_decode(&message, &commandACK);
+                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->CommandACK(link, message.sysid, commandACK);});
+            }
 
             // Increase receive counter
             totalReceiveCounter[mavlinkChannel]++;
@@ -219,81 +267,6 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
                 Emit([&](const IProtocolMavlinkEvents* ptr){ptr->ReceiveLossPercentChanged(link, message.sysid, receiveLossPercent);});
                 Emit([&](const IProtocolMavlinkEvents* ptr){ptr->ReceiveLossPercentChanged(link, message.sysid, totalLossCounter[mavlinkChannel]);});
             }
-            switch(message.msgid)
-            {
-            case MACE_MSG_ID_PING:
-            {
-                flaggedMSG = true;
-                // process ping requests (tgt_system and tgt_comp must be zero)
-                mace_ping_t ping;
-                mace_msg_ping_decode(&message, &ping);
-                if(!ping.target_system && !ping.target_component)
-                {
-                    mace_message_t msg;
-                    mace_msg_ping_pack(getSystemId(), getComponentId(), &msg, ping.time_usec, ping.seq, message.sysid, message.compid);
-                    SendProtocolMessage(link, msg);
-                }
-                break;
-            }
-            case MACE_MSG_ID_RADIO_STATUS:
-            {
-                flaggedMSG = true;
-                // process telemetry status message
-                mace_radio_status_t rstatus;
-                mace_msg_radio_status_decode(&message, &rstatus);
-                int rssi = rstatus.rssi,
-                        remrssi = rstatus.remrssi;
-                // 3DR Si1k radio needs rssi fields to be converted to dBm
-                if (message.sysid == '3' && message.compid == 'D') {
-                    /* Per the Si1K datasheet figure 23.25 and SI AN474 code
-                         * samples the relationship between the RSSI register
-                         * and received power is as follows:
-                         *
-                         *                       10
-                         * inputPower = rssi * ------ 127
-                         *                       19
-                         *
-                         * Additionally limit to the only realistic range [-120,0] dBm
-                         */
-                    rssi    = std::min(std::max(round(static_cast<float>(rssi)    / 1.9 - 127.0), - 120.0), 0.0);
-                    remrssi = std::min(std::max(round(static_cast<float>(remrssi) / 1.9 - 127.0), - 120.0), 0.0);
-                } else {
-                    rssi = (int8_t) rstatus.rssi;
-                    remrssi = (int8_t) rstatus.remrssi;
-                }
-
-                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->RadioStatusChanged(link, rstatus.rxerrors, rstatus.fixed, rssi, remrssi, rstatus.txbuf, rstatus.noise, rstatus.remnoise);});
-                break;
-            }
-            case MACE_MSG_ID_HEARTBEAT:
-            {
-                flaggedMSG = true;
-                mace_heartbeat_t heartbeat;
-                mace_msg_heartbeat_decode(&message, &heartbeat);
-                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->HeartbeatInfo(link, message.sysid, heartbeat);});
-                break;
-            }
-            case MACE_MSG_ID_VEHICLE_SYNC:
-            {
-                flaggedMSG = true;
-                mace_vehicle_sync_t sync;
-                mace_msg_vehicle_sync_decode(&message,&sync);
-                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->SyncRequest(link, message.sysid, sync);});
-                break;
-            }
-            case MACE_MSG_ID_COMMAND_ACK:
-            {
-                flaggedMSG = true;
-                mace_command_ack_t commandACK;
-                mace_msg_command_ack_decode(&message, &commandACK);
-                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->CommandACK(link, message.sysid, commandACK);});
-                break;
-            }
-
-            }
-
-            if(flaggedMSG)
-                return;
 
             // The packet is emitted as a whole, as it is only 255 - 261 bytes short
             // kind of inefficient, but no issue for a groundstation pc.

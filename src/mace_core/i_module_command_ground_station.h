@@ -36,7 +36,7 @@ public:
             NewlyAvailableCurrentMission(missionKey);
         });
 
-        AddCommandLogic<MissionItem::SpatialHome>(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const MissionItem::SpatialHome &home){
+        AddCommandLogic<CommandItem::SpatialHome>(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const CommandItem::SpatialHome &home){
             NewlyAvailableHomePosition(home);
         });
     }
@@ -51,7 +51,7 @@ public:
 
     virtual void NewlyAvailableCurrentMission(const Data::MissionKey &missionKey) = 0;
 
-    virtual void NewlyAvailableHomePosition(const MissionItem::SpatialHome &home) = 0;
+    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home) = 0;
 
 
     virtual bool StartTCPServer() = 0;

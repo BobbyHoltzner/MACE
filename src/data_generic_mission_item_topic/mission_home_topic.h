@@ -2,7 +2,7 @@
 #define MISSION_HOME_TOPIC_H
 
 #include "data/i_topic_component_data_object.h"
-#include "data_generic_mission_item/spatial_items/spatial_home.h"
+#include "data_generic_command_item/spatial_items/spatial_home.h"
 
 namespace MissionTopic{
 
@@ -16,41 +16,28 @@ public:
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
 public:
-    MissionHomeTopic();
+    MissionHomeTopic()
+    {
 
-    void setHome(const MissionItem::SpatialHome &homeItem){
-        this->vehicleHome = homeItem;
-        this->vehicleID = homeItem.getVehicleID();
     }
 
-    MissionItem::SpatialHome getHome(){
-        return vehicleHome;
-    }
-
-    void setVehicleID(const int &vehicleID){
-        this->vehicleID = vehicleID;
-    }
-
-    int getVehicleID() const{
-        return vehicleID;
+    MissionHomeTopic(const std::shared_ptr<CommandItem::AbstractCommandItem> &obj)
+    {
+        this->setHome(obj);
     }
 
 
-public:
-    bool operator == (const MissionHomeTopic &rhs) {
-        if(this->vehicleHome != rhs.vehicleHome){
-            return false;
-        }
-        return true;
+    void setHome(const std::shared_ptr<CommandItem::AbstractCommandItem> &homeItem){
+        item = homeItem;
     }
 
-    bool operator != (const MissionHomeTopic &rhs) {
-        return !(*this == rhs);
+    std::shared_ptr<CommandItem::AbstractCommandItem> getHome(){
+        return item;
     }
+
 
 private:
-    int vehicleID;
-    MissionItem::SpatialHome vehicleHome;
+    std::shared_ptr<CommandItem::AbstractCommandItem> item;
 };
 
 } //end of namespace MissionTopic

@@ -39,12 +39,12 @@ HEADERS += data_global.h \
     data_get_set_notifier.h \
     mission_ack.h \
     threadmanager.h \
-    command_ack.h \
-    mission_item_type.h \
     system_type.h \
     comms_protocol.h \
     gps_fix_type.h \
-    status_severity_type.h
+    status_severity_type.h \
+    command_item_type.h \
+    command_ack_type.h
     loiter_direction.h
 
 # Unix lib Install

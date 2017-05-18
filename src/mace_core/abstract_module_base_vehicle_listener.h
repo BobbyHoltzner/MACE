@@ -6,8 +6,9 @@
 
 #include "data/mission_key.h"
 
-#define BASE_MODULE_VEHICLE_LISTENER_ENUMS CHANGE_VEHICLE_ARM,CHANGE_VEHICLE_MODE,REQUEST_VEHICLE_TAKEOFF,EMIT_HEARTBEAT, \
-    UPLOAD_MISSION, SET_CURRENT_MISSION, REQUEST_CURRENT_MISSION, REQUEST_MISSION, CLEAR_CURRENT_MISSION,\
+#define BASE_MODULE_VEHICLE_LISTENER_ENUMS EMIT_HEARTBEAT, ISSUE_GENERAL_COMMAND, \
+    CHANGE_VEHICLE_ARM, REQUEST_VEHICLE_TAKEOFF, REQUEST_VEHICLE_LAND, REQUEST_VEHICLE_RTL, CHANGE_VEHICLE_MODE, \
+    UPLOAD_MISSION, SET_CURRENT_MISSION, REQUEST_CURRENT_MISSION, REQUEST_MISSION, CLEAR_CURRENT_MISSION, \
     REQUEST_ONBOARD_AUTO_MISSION, CLEAR_ONBOARD_AUTO_MISSION, \
     REQUEST_ONBOARD_GUIDED_MISSION, CLEAR_ONBOARD_GUIDED_MISSION, \
     REQUEST_VEHICLE_HOME, SET_VEHICLE_HOME, \
@@ -38,17 +39,31 @@ public:
         /// or an event to take place when calling these items.
         /////////////////////////////////////////////////////////////////////////
 
-        this->template AddCommandLogic<MissionItem::ActionArm>(CT::CHANGE_VEHICLE_ARM, [this](const MissionItem::ActionArm &vehicleArm){
-            Command_ChangeVehicleArm(vehicleArm);
+        this->template AddCommandLogic<CommandItem::ActionArm>(CT::CHANGE_VEHICLE_ARM, [this](const CommandItem::ActionArm &command){
+            Command_SystemArm(command);
         });
 
-        this->template AddCommandLogic<MissionItem::ActionChangeMode>(CT::CHANGE_VEHICLE_MODE, [this](const MissionItem::ActionChangeMode &vehicleMode){
-            Command_ChangeVehicleOperationalMode(vehicleMode);
+        this->template AddCommandLogic<CommandItem::SpatialTakeoff<DataState::StateGlobalPosition>>(CT::REQUEST_VEHICLE_TAKEOFF, [this](const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command){
+            Command_VehicleTakeoff(command);
         });
 
-        this->template AddCommandLogic<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>>(CT::REQUEST_VEHICLE_TAKEOFF, [this](const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff){
-            Command_RequestVehicleTakeoff(vehicleTakeoff);
+        this->template AddCommandLogic<CommandItem::SpatialLand<DataState::StateGlobalPosition>>(CT::REQUEST_VEHICLE_LAND, [this](const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command){
+            Command_Land(command);
         });
+
+        this->template AddCommandLogic<CommandItem::SpatialRTL>(CT::REQUEST_VEHICLE_RTL, [this](const CommandItem::SpatialRTL &command){
+            Command_ReturnToLaunch(command);
+        });
+
+        this->template AddCommandLogic<std::shared_ptr<CommandItem::AbstractCommandItem>>(CT::ISSUE_GENERAL_COMMAND, [this](const std::shared_ptr<CommandItem::AbstractCommandItem> &command){
+            Command_IssueGeneralCommand(command);
+        });
+
+        this->template AddCommandLogic<CommandItem::ActionChangeMode>(CT::CHANGE_VEHICLE_MODE, [this](const CommandItem::ActionChangeMode &command){
+            Command_ChangeSystemMode(command);
+        });
+
+
 
 
         //////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,7 +129,7 @@ public:
             Command_GetHomePosition(vehicleID);
         });
 
-        this->template AddCommandLogic<MissionItem::SpatialHome>(CT::SET_VEHICLE_HOME, [this](const MissionItem::SpatialHome &vehicleHome){
+        this->template AddCommandLogic<CommandItem::SpatialHome>(CT::SET_VEHICLE_HOME, [this](const CommandItem::SpatialHome &vehicleHome){
             Command_SetHomePosition(vehicleHome);
         });
 
@@ -122,9 +137,13 @@ public:
 
 public:
 
-    virtual void Command_ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm) = 0;
-    virtual void Command_ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode) = 0;
-    virtual void Command_RequestVehicleTakeoff(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff) = 0;
+    virtual void Command_SystemArm(const CommandItem::ActionArm &command) = 0;
+    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command) = 0;
+    virtual void Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command) = 0;
+    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command) = 0;
+    virtual void Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;
+
+    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode) = 0;
 
     virtual void Command_UploadMission(const MissionItem::MissionList &missionList) = 0;
     virtual void Command_SetCurrentMission(const Data::MissionKey &key) = 0;
@@ -139,7 +158,7 @@ public:
     virtual void Command_ClearOnboardGuided(const int &targetSystem) = 0;
 
     virtual void Command_GetHomePosition(const int &vehicleID) = 0;
-    virtual void Command_SetHomePosition(const MissionItem::SpatialHome &vehicleHome) = 0;
+    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome) = 0;
 
 
 };
