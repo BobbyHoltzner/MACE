@@ -142,6 +142,24 @@ public:
     virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
 
     //!
+    //! \brief Command_Land
+    //! \param command
+    //!
+    virtual void Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command);
+
+    //!
+    //! \brief Command_ReturnToLaunch
+    //! \param command
+    //!
+    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command);
+
+    //!
+    //! \brief Command_IssueGeneralCommand
+    //! \param command
+    //!
+    virtual void Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command);
+
+    //!
     //! \brief Command_EmitHeartbeat
     //! \param heartbeat
     //!
