@@ -252,7 +252,7 @@ export class Vehicle{
         };
     }
 
-    updateMarkerPosition(newPos?: PositionType) {
+    updateVehicleMarkerPosition(newPos?: PositionType) {
         let posUpdate = this.position;
         if(newPos){
             posUpdate = newPos;
@@ -305,6 +305,10 @@ export class Vehicle{
     }
 
     updateCurrentMissionItem(currentMissionItem: number) {
+
+        console.log("UpdateCurrentMissionItem: " + currentMissionItem);
+        console.log("Mission size: " + this.vehicleMission.latLons.length);
+
         let previousItem = this.currentMissionItem;
         // Set previous mission item icon back to original:
         let prevIcon = this.getMarkerIcon(this.vehicleMission.itemTypes[previousItem], false);

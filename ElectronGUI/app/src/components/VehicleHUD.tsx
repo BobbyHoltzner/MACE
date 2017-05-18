@@ -6,6 +6,9 @@ import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
 import { Vehicle } from '../Vehicle';
 import { backgroundColors, textSeverityToColor } from '../util/Colors';
+import IconMenu from 'material-ui/IconMenu';
+import MenuItem from 'material-ui/MenuItem';
+import IconButton from 'material-ui/IconButton';
 
 
 type Props = {
@@ -16,12 +19,23 @@ type Props = {
 }
 
 type State = {
+    selectedBattery?: string,
+    batteryText?: string
 }
 
 export class VehicleHUD extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
+
+        this.state = {
+            selectedBattery: "Voltage",
+            batteryText: ""
+        }
+    }
+
+    componentWillReceiveProps(nextProps: Props) {
+        this.handleBatteryChange(this.state.selectedBattery);
     }
 
     handleLoiter = () => {
@@ -34,6 +48,24 @@ export class VehicleHUD extends React.Component<Props, State> {
         this.props.handleAircraftCommand(this.props.vehicleID, "GET_VEHICLE_HOME", "");
         this.props.handleAircraftCommand(this.props.vehicleID, "GET_VEHICLE_MISSION", "");
     }
+
+    handleBatteryChange = (value: string) => {
+        let battText = "";
+        if(value === "Voltage"){
+            battText = this.props.aircraft.fuel.batteryVoltage + " V";
+        }
+        else if(value === "Percent"){
+            battText = this.props.aircraft.fuel.batteryRemaining + "%";
+        }
+        else if(value === "Current"){
+            battText = this.props.aircraft.fuel.batteryCurrent + " A";
+        }
+
+        this.setState({
+            selectedBattery: value,
+            batteryText: battText
+        });
+    };
 
     render() {
         const boxShadow = this.props.aircraft.isSelected ? backgroundColors[parseInt(this.props.vehicleID)] + " 0px 1px 20px, rgba(0, 0, 0, .5) 0px 1px 4px" : "rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px"
@@ -97,9 +129,16 @@ export class VehicleHUD extends React.Component<Props, State> {
                                 <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
                                     {"Airspeed: " + this.props.aircraft.airspeed.toFixed(2)}
                                 </CardText>
-                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
-                                    {"Batt: " + this.props.aircraft.fuel.batteryRemaining.toFixed(0) + "%"}
-                                </CardText>
+                                <div className="col-xs-5" style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingLeft: 0, paddingRight: 0}}>
+                                    <IconMenu style={{padding: 0}} iconButtonElement={<IconButton style={{padding: 0}}><i className="material-icons">battery_charging_full</i><i className="material-icons">arrow_drop_down</i></IconButton>} onChange={(e:any, value:string) => this.handleBatteryChange(value)} value={this.state.selectedBattery}>
+                                        <MenuItem value="Voltage" primaryText="Voltage" label="Voltage (V)"/>
+                                        <MenuItem value="Percent" primaryText="Percent" label="Percent (%)"/>
+                                        <MenuItem value="Current" primaryText="Current" label="Current (A)"/>
+                                    </IconMenu>
+                                </div>
+                                <div className="col-xs-7" style={{fontSize: 18+'px', display: 'flex', justifyContent: 'flex-start', alignItems: 'center', paddingLeft: 0, paddingRight: 0, paddingTop: 11+'px'}}>
+                                    {this.state.batteryText}
+                                </div>
                             </div>
                         </div>
                         <div className="col-xs-6">
