@@ -19,7 +19,7 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         tmpArm.setVehicleArm(fabs(message->param1) <= 0.001 ? false : true);
         //notify core
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->Event_ArmVehicle(this, tmpArm);
+            ptr->Event_IssueCommandSystemArm(this, tmpArm);
         });
         break;
     }
@@ -32,7 +32,7 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         tmpTakeoff.position.altitude = message->param7;
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->Event_RequestVehicleTakeoff(this, tmpTakeoff);
+            ptr->Event_IssueCommandTakeoff(this, tmpTakeoff);
         });
         break;
     }
