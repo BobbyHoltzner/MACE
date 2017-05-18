@@ -246,6 +246,21 @@ void ModuleExternalLink::Command_VehicleTakeoff(const CommandItem::SpatialTakeof
     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 
+void ModuleExternalLink::Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command)
+{
+    UNUSED(command);
+}
+
+void ModuleExternalLink::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command)
+{
+    UNUSED(command);
+}
+
+void ModuleExternalLink::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
+{
+    UNUSED(command);
+}
+
 void ModuleExternalLink::Command_EmitHeartbeat(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &heartbeat)
 {
 
