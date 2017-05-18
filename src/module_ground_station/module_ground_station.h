@@ -97,6 +97,7 @@ private:
     void sendGlobalOrigin(const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
     void sendSensorFootprint(const int &vehicleID, const std::shared_ptr<DataVehicleSensors::SensorVertices_Global> &component);
     void sendCurrentMissionItem(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionItemCurrentTopic> &component);
+    void sendVehicleGPS(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> &component);
 
     bool writeTCPData(QByteArray data);
 

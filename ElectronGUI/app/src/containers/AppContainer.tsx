@@ -39,7 +39,7 @@ type State = {
   tcpHost?: string,
   tcpPort?: number,
   maxZoom?: number,
-  initialZoom?: number,
+  mapZoom?: number,
   mapCenter?: number[],
   connectedVehicles?: {[id: string]: Vehicle}
   vehicleWarnings?: VehicleWarning[]
@@ -80,10 +80,10 @@ export default class AppContainer extends React.Component<Props, State> {
       tcpClient: new net.Socket(),
       tcpHost: '127.0.0.1',
       tcpPort: 5678,
-      maxZoom: 20,
-      initialZoom: 18,
-      // mapCenter: [37.889231, -76.810302], // Bob's Farm
-      mapCenter: [-35.363272, 149.165249], // SITL Default
+      maxZoom: 21,
+      mapZoom: 20,
+      mapCenter: [37.889231, -76.810302], // Bob's Farm
+      // mapCenter: [-35.363272, 149.165249], // SITL Default
       // mapCenter: [45.283410, -111.400850], // Big Sky
       connectedVehicles: {},
       vehicleWarnings: [],
@@ -202,7 +202,15 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[vehiclePosition.vehicleID].numSats = vehiclePosition.numSats;
       stateCopy[vehiclePosition.vehicleID].positionFix = vehiclePosition.positionFix;
 
-      stateCopy[vehiclePosition.vehicleID].updateMarkerPosition(vehiclePosition);
+      stateCopy[vehiclePosition.vehicleID].updateVehicleMarkerPosition(vehiclePosition);
+
+      if(stateCopy[vehiclePosition.vehicleID].isNew &&
+        (stateCopy[vehiclePosition.vehicleID].gps.gpsFix !== "NO GPS" || stateCopy[vehiclePosition.vehicleID].gps.gpsFix !== "GPS NO FIX") &&
+        Object.keys(this.state.connectedVehicles).length === 1)
+      {
+        stateCopy[vehiclePosition.vehicleID].isNew = false;
+        this.setState({mapCenter: [stateCopy[vehiclePosition.vehicleID].position.lat, stateCopy[vehiclePosition.vehicleID].position.lon], mapZoom: 19});
+      }
 
       this.setState({connectedVehicles: stateCopy});
     }
@@ -319,6 +327,14 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.missionItemIndex);
       this.setState({connectedVehicles: stateCopy});
     }
+    else if(jsonData.dataType === 'VehicleGPS') {
+      let jsonGPS = jsonData as TCPGPSType;
+      stateCopy[jsonGPS.vehicleID].gps.visibleSats = jsonGPS.visibleSats;
+      stateCopy[jsonGPS.vehicleID].gps.gpsFix = jsonGPS.gpsFix;
+      stateCopy[jsonGPS.vehicleID].gps.hdop = jsonGPS.hdop;
+      stateCopy[jsonGPS.vehicleID].gps.vdop = jsonGPS.vdop;
+      this.setState({connectedVehicles: stateCopy});
+    }
   }
 
 
@@ -359,6 +375,10 @@ export default class AppContainer extends React.Component<Props, State> {
     // Add an 'error' event handler
     socket.on('error', function(err: any) {
         console.log('Error: ' + err);
+        let str = err+"";
+        if(str.indexOf("ECONNREFUSED") > 0){
+          this.handleClearGUI();
+        }
         socket.destroy();
     }.bind(this));
   }
@@ -375,6 +395,10 @@ export default class AppContainer extends React.Component<Props, State> {
     }
 
     this.notificationSystem.addNotification(notification);
+  }
+
+  handleClearGUI = () => {
+    this.setState({connectedVehicles: {}, selectedVehicleID: "0"});
   }
 
   handleAircraftCommand = (id: string, tcpCommand: string, vehicleCommand: string) => {
@@ -395,12 +419,6 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(action === "TestButton2") {
       this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION2", "");
     }
-  }
-
-  onOpenVehicleEdit = (vehicleID: string) => {
-    // If we are passing in a vehicle ID, don't allow the dropdown to be selectable on the edit window as we are editing a specific vehicle:
-    this.handleSelectedAircraftUpdate(vehicleID);
-    this.setState({allowVehicleSelect: vehicleID ? false : true, showEditVehicleHomeDialog: true});
   }
 
   handleSaveVehicleHome = (vehicleID: string, vehicleHome: PositionType) => {
@@ -470,12 +488,16 @@ export default class AppContainer extends React.Component<Props, State> {
       if(key === id){
         stateCopy[id].isSelected = !stateCopy[id].isSelected;
         selectedID = stateCopy[id].isSelected ? id : "0";
+
+        if(stateCopy[id].isSelected === true && (stateCopy[id].position.lat !== 0 && stateCopy[id].position.lat !== 0)){
+          this.setState({mapCenter: [stateCopy[id].position.lat, stateCopy[id].position.lon], mapZoom: 19});
+        }
       }
       else {
         stateCopy[key].isSelected = false;
       }
-      stateCopy[key].updateMarkerPosition();
       stateCopy[key].updateHomePosition();
+      stateCopy[key].updateVehicleMarkerPosition();
     });
 
     this.setState({connectedVehicles: stateCopy, selectedVehicleID: selectedID});
@@ -552,7 +574,7 @@ export default class AppContainer extends React.Component<Props, State> {
             <ConnectedVehiclesContainer
               connectedVehicles={this.state.connectedVehicles}
               onAircraftCommand={this.handleAircraftCommand}
-              handleOpenVehicleEdit={this.onOpenVehicleEdit}
+              handleChangeSelectedVehicle={this.handleSelectedAircraftUpdate}
               selectedVehicleID={this.state.selectedVehicleID}
             />
 
@@ -577,6 +599,7 @@ export default class AppContainer extends React.Component<Props, State> {
               contextAnchor={this.state.contextAnchor}
               useContext={this.state.useContext}
               allowVehicleSelect={this.state.allowVehicleSelect}
+              onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
             />
 
             <GlobalOriginDialog
@@ -618,7 +641,7 @@ export default class AppContainer extends React.Component<Props, State> {
               />
             }
 
-            <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} onContextmenu={this.triggerContextMenu} onDrag={() => this.setState({showContextMenu: false})} >
+            <Map ref="map" onDragend={(e: L.LeafletMouseEvent) => this.setState({mapCenter: [e.target.getCenter().lat, e.target.getCenter().lng], mapZoom: e.target.getZoom()})} useFlyTo={true} animate={true} center={this.state.mapCenter} zoom={this.state.mapZoom} style={mapStyle} zoomControl={false} maxZoom={this.state.maxZoom} onContextmenu={this.triggerContextMenu} onDrag={() => this.setState({showContextMenu: false})} >
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.state.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
 
@@ -627,7 +650,7 @@ export default class AppContainer extends React.Component<Props, State> {
                   {/* Aircraft Icons */}
                   {Object.keys(this.state.connectedVehicles).map((key: string) => {
                     return (
-                      <Marker onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.state.connectedVehicles[key].vehicleMarker.latLon} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
+                      <Marker zIndexOffset={1000} onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.state.connectedVehicles[key].vehicleMarker.latLon} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
                       {/*
                         <Popup open={true}>
                         </Popup>

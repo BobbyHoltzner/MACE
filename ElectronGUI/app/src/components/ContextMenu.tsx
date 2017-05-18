@@ -4,7 +4,6 @@ const lightMuiTheme = getMuiTheme();
 import * as React from 'react';
 import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
-import Divider from 'material-ui/Divider';
 
 // import * as colors from 'material-ui/styles/colors';
 

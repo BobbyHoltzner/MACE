@@ -2,6 +2,7 @@ import { backgroundColors, opaqueBackgroundColors } from './util/Colors';
 
 export class Vehicle{
 
+    isNew: boolean;
     vehicleId: number;
     isSelected: boolean;
     position: PositionType;
@@ -20,8 +21,11 @@ export class Vehicle{
     sensorFootprint: L.LatLng[];
     currentMissionItem: number;
     messages: TextType[];
+    airspeed: number;
+    gps: GPSType;
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
+        this.isNew = true;
         this.vehicleId = vehicleId;
         this.isSelected = false;
         this.isArmed = false;
@@ -33,12 +37,19 @@ export class Vehicle{
         this.sensorFootprint = [];
         this.currentMissionItem = 0;
         this.messages = [];
+        this.airspeed = 0;
+        this.gps = {
+            visibleSats: 0,
+            gpsFix: "No GPS",
+            hdop: 20, // > 20 is poor level of confidence
+            vdop: 20 // > 20 is poor level of confidence
+        }
         if(position){
             this.position = position;
         }
         else {
-            // this.position = {lat: 0, lon: 0, alt: 0};
-            this.position = {lat: -35.363272, lon: 149.165249, alt: 0};
+            this.position = {lat: 0, lon: 0, alt: 0};
+            // this.position = {lat: -35.363272, lon: 149.165249, alt: 0};
         }
         if(attitude){
             this.attitude = attitude;
@@ -241,7 +252,7 @@ export class Vehicle{
         };
     }
 
-    updateMarkerPosition(newPos?: PositionType) {
+    updateVehicleMarkerPosition(newPos?: PositionType) {
         let posUpdate = this.position;
         if(newPos){
             posUpdate = newPos;
@@ -294,6 +305,10 @@ export class Vehicle{
     }
 
     updateCurrentMissionItem(currentMissionItem: number) {
+
+        console.log("UpdateCurrentMissionItem: " + currentMissionItem);
+        console.log("Mission size: " + this.vehicleMission.latLons.length);
+
         let previousItem = this.currentMissionItem;
         // Set previous mission item icon back to original:
         let prevIcon = this.getMarkerIcon(this.vehicleMission.itemTypes[previousItem], false);

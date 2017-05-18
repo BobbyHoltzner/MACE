@@ -7,6 +7,7 @@ import FlatButton from 'material-ui/FlatButton';
 import Checkbox from 'material-ui/Checkbox';
 import { Grid, Col } from 'react-bootstrap';
 import * as deepcopy from 'deepcopy';
+import { textSeverityToColor } from '../util/Colors';
 
 import * as colors from 'material-ui/styles/colors';
 
@@ -71,6 +72,7 @@ export class MessagesDialog extends React.Component<Props, State> {
                             <Col xs={12} md={12}>
                                 <Checkbox
                                     label="Emergency"
+                                    labelStyle={{color: textSeverityToColor('EMERGENCY')}}
                                     style={checkboxStyle}
                                     onCheck={(event: any, checked: boolean) => this.handleCheck(checked, "emergency")}
                                     checked={this.state.preferences.emergency}
@@ -79,6 +81,7 @@ export class MessagesDialog extends React.Component<Props, State> {
                             <Col xs={12} md={12}>
                                 <Checkbox
                                     label="Critical"
+                                    labelStyle={{color: textSeverityToColor('CRITICAL')}}
                                     style={checkboxStyle}
                                     onCheck={(event: any, checked: boolean) => this.handleCheck(checked, "critical")}
                                     checked={this.state.preferences.critical}
@@ -87,6 +90,7 @@ export class MessagesDialog extends React.Component<Props, State> {
                             <Col xs={12} md={12}>
                                 <Checkbox
                                     label="Alert"
+                                    labelStyle={{color: textSeverityToColor('ALERT')}}
                                     style={checkboxStyle}
                                     onCheck={(event: any, checked: boolean) => this.handleCheck(checked, "alert")}
                                     checked={this.state.preferences.alert}
@@ -95,6 +99,7 @@ export class MessagesDialog extends React.Component<Props, State> {
                             <Col xs={12} md={12}>
                                 <Checkbox
                                     label="Error"
+                                    labelStyle={{color: textSeverityToColor('ERROR')}}
                                     style={checkboxStyle}
                                     onCheck={(event: any, checked: boolean) => this.handleCheck(checked, "error")}
                                     checked={this.state.preferences.error}
@@ -105,6 +110,7 @@ export class MessagesDialog extends React.Component<Props, State> {
                             <Col xs={12} md={12}>
                                 <Checkbox
                                     label="Warning"
+                                    labelStyle={{color: textSeverityToColor('WARNING')}}
                                     style={checkboxStyle}
                                     onCheck={(event: any, checked: boolean) => this.handleCheck(checked, "warning")}
                                     checked={this.state.preferences.warning}
@@ -113,6 +119,7 @@ export class MessagesDialog extends React.Component<Props, State> {
                             <Col xs={12} md={12}>
                                 <Checkbox
                                     label="Notice"
+                                    labelStyle={{color: textSeverityToColor('NOTICE')}}
                                     style={checkboxStyle}
                                     onCheck={(event: any, checked: boolean) => this.handleCheck(checked, "notice")}
                                     checked={this.state.preferences.notice}
@@ -121,6 +128,7 @@ export class MessagesDialog extends React.Component<Props, State> {
                             <Col xs={12} md={12}>
                                 <Checkbox
                                     label="Info"
+                                    labelStyle={{color: textSeverityToColor('INFO')}}
                                     style={checkboxStyle}
                                     onCheck={(event: any, checked: boolean) => this.handleCheck(checked, "info")}
                                     checked={this.state.preferences.info}
@@ -129,6 +137,7 @@ export class MessagesDialog extends React.Component<Props, State> {
                             <Col xs={12} md={12}>
                                 <Checkbox
                                     label="Debug"
+                                    labelStyle={{color: textSeverityToColor('DEBUG')}}
                                     style={checkboxStyle}
                                     onCheck={(event: any, checked: boolean) => this.handleCheck(checked, "debug")}
                                     checked={this.state.preferences.debug}
