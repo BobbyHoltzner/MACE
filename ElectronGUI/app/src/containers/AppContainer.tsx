@@ -82,8 +82,8 @@ export default class AppContainer extends React.Component<Props, State> {
       tcpPort: 5678,
       maxZoom: 21,
       mapZoom: 20,
-      // mapCenter: [37.889231, -76.810302], // Bob's Farm
-      mapCenter: [-35.363272, 149.165249], // SITL Default
+      mapCenter: [37.889231, -76.810302], // Bob's Farm
+      // mapCenter: [-35.363272, 149.165249], // SITL Default
       // mapCenter: [45.283410, -111.400850], // Big Sky
       connectedVehicles: {},
       vehicleWarnings: [],
