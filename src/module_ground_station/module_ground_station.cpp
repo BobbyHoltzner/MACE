@@ -425,7 +425,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 // Write Attitude data to the GUI:
                 sendAttitudeData(senderID, component);
             }
-            DataGenericItem::DataGenericItem_Heartbeat
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_FlightMode::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
@@ -460,12 +459,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
                 // Write fueld data to the GUI:
                 sendVehicleText(senderID, component);
-            }
-            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemArm::Name()){
-                // TODO:
-            }
-            else if(componentsUpdated.at(i) == DataGenericItem::DataGenericItem_Heartbeat::Name()){
-                // TODO: 1) Vehicle type
             }
         }
     }
