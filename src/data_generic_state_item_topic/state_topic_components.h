@@ -1,11 +1,12 @@
 #ifndef STATE_TOPIC_COMPONENTS_H
 #define STATE_TOPIC_COMPONENTS_H
 
-#define DATA_STATE_GENERIC_TOPICS DataStateTopic::StateAttitudeTopic,\
+#define DATA_STATE_GENERIC_TOPICS DataStateTopic::StateAirspeedTopic, DataStateTopic::StateAttitudeTopic,\
     DataStateTopic::StateGlobalPositionTopic,DataStateTopic::StateGlobalPositionExTopic,\
     DataStateTopic::StateGlobalVelocityTopic,DataStateTopic::StateLocalPositionTopic,\
     DataStateTopic::StateLocalPositionExTopic,DataStateTopic::StateLocalVelocityTopic
 
+#include "state_airspeed_topic.h"
 #include "state_attitude_topic.h"
 
 #include "state_global_position_topic.h"

@@ -292,8 +292,36 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     //from the vehicle.
     if(!tmpData->data->getHearbeatSeen())
     {
-        tmpData->data->setHeartbeatSeen(true);
         mavlink_message_t msg;
+
+        //this is the first time we have seen this heartbeat
+        //Let us first turn on the data streams
+        mavlink_request_data_stream_t request;
+        request.target_system = 0;
+        request.target_component = 0;
+        request.start_stop = 1;
+
+        request.req_stream_id = 2;
+        request.req_message_rate = 1;
+        mavlink_msg_request_data_stream_encode_chan(255,190,m_LinkChan,&msg,&request);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
+        request.req_stream_id = 6;
+        request.req_message_rate = 3;
+        mavlink_msg_request_data_stream_encode_chan(255,190,m_LinkChan,&msg,&request);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
+        request.req_stream_id = 10;
+        request.req_message_rate = 5;
+        mavlink_msg_request_data_stream_encode_chan(255,190,m_LinkChan,&msg,&request);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
+        request.req_stream_id = 11;
+        request.req_message_rate = 2;
+        mavlink_msg_request_data_stream_encode_chan(255,190,m_LinkChan,&msg,&request);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
+        tmpData->data->setHeartbeatSeen(true);
         mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0,MAV_MISSION_TYPE_MISSION);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 

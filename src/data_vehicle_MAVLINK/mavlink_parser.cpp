@@ -139,7 +139,6 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser:: Pa
             std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(localPosition);
             rtnVector.push_back(ptrLocalPosition);
         }
-
         break;
     }
     case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
@@ -196,6 +195,18 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser:: Pa
     {
         //This is message definition 74
         //Metrics typically displayed on a HUD for fixed wing aircraft
+        mavlink_vfr_hud_t decodedMSG;
+        mavlink_msg_vfr_hud_decode(message,&decodedMSG);
+
+        DataState::StateAirspeed airspeed;
+        airspeed.setAirspeed(decodedMSG.airspeed);
+        //check that something has actually changed
+
+        if(data->vehicleAirspeed.set(airspeed))
+        {
+            std::shared_ptr<DataStateTopic::StateAirspeedTopic> ptrAirspeedTopic = std::make_shared<DataStateTopic::StateAirspeedTopic>(airspeed);
+            rtnVector.push_back(ptrAirspeedTopic);
+        }
         break;
     }
     case MAVLINK_MSG_ID_RADIO_STATUS:
