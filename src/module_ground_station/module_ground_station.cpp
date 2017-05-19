@@ -422,6 +422,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
                 // Write Attitude data to the GUI:
                 sendAttitudeData(senderID, component);
             }
@@ -438,6 +439,13 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
                 // Write Position data to the GUI:
                 sendPositionData(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == DataStateTopic::StateAirspeedTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateAirspeedTopic> component = std::make_shared<DataStateTopic::StateAirspeedTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write Airspeed data to the GUI:
+                sendVehicleAirspeed(senderID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Battery::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>();
@@ -457,9 +465,28 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
-                // Write fueld data to the GUI:
+                // Write fuel data to the GUI:
                 sendVehicleText(senderID, component);
             }
+<<<<<<< HEAD
+=======
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemArm::Name()){
+                // TODO:
+                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write vehicle arm to the GUI:
+                sendVehicleArm(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Heartbeat::Name()){
+                // TODO: 1) Vehicle type
+                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write heartbeat data to the GUI:
+                sendVehicleHeartbeat(senderID, component);
+            }
+>>>>>>> 1e0bab63bc45c871034a45883e40e53786036fda
         }
     }
     else if(topicName == m_MissionDataTopic.Name())
@@ -487,9 +514,9 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "I have reached a mission item" << component->getMissionItemIndex() << std::endl;
 
-                //
+                // Send mission item reached to the GUI:
+                sendMissionItemReached(senderID, component);
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
@@ -516,6 +543,55 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
         }
     }
 }
+
+void ModuleGroundStation::sendVehicleArm(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleArm";
+    json["vehicleID"] = vehicleID;
+    json["armed"] = component->getSystemArm();
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write vehicle arm failed..." << std::endl;
+    }
+}
+
+void ModuleGroundStation::sendMissionItemReached(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionItemReachedTopic> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "MissionItemReached";
+    json["vehicleID"] = vehicleID;
+    json["itemIndex"] = component->getMissionItemIndex();
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write mission item reached failed..." << std::endl;
+    }
+}
+
+void ModuleGroundStation::sendVehicleHeartbeat(const int &vehicleID, const std::shared_ptr<DataGenericItem::DataGenericItem_Heartbeat> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleHeartbeat";
+    json["vehicleID"] = vehicleID;
+    json["autopilot"] = QString::fromStdString(Data::AutopilotTypeToString(component->getAutopilot()));
+    json["aircraftType"] = QString::fromStdString(Data::SystemTypeToString(component->getType()));
+    json["companion"] = component->getCompanion();
+    json["protocol"] = QString::fromStdString(Data::CommsProtocolToString(component->getProtocol()));
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write vehicle heartbeat failed..." << std::endl;
+    }
+}
+
 
 void ModuleGroundStation::sendVehicleMission(const int &vehicleID, const MissionItem::MissionList &missionList)
 {
@@ -682,6 +758,21 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
     }
 }
 
+void ModuleGroundStation::sendVehicleAirspeed(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAirspeedTopic> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleAirspeed";
+    json["vehicleID"] = vehicleID;
+    json["airspeed"] = component->airspeed;
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write vehicle airspeed Data failed..." << std::endl;
+    }
+}
+
 void ModuleGroundStation::sendVehicleFuel(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> &component)
 {
     QJsonObject json;
@@ -711,8 +802,6 @@ void ModuleGroundStation::sendVehicleMode(const int &vehicleID, const std::share
     json["dataType"] = "VehicleMode";
     json["vehicleID"] = vehicleID;
     json["vehicleMode"] = QString::fromStdString(component->getFlightModeString());
-    //Ken FIX: This is under a different topic now
-    json["isArmed"] = false;
 
     QJsonDocument doc(json);
     if(m_modeTimeoutOccured)
