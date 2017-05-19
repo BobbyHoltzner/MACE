@@ -168,6 +168,8 @@ public:
     Data::DataGetSetNotifier<DataState::StateGlobalPositionEx> vehicleGlobalPositionEx;
     Data::DataGetSetNotifier<DataState::StateLocalPosition> vehicleLocalPosition;
     Data::DataGetSetNotifier<DataState::StateAttitude> vehicleAttitude;
+    Data::DataGetSetNotifier<DataState::StateAirspeed> vehicleAirspeed;
+
 
     ///////////////////////////////////////////////////////////////////////////////
     /// DATA MISSION TOPIC ITEMS
