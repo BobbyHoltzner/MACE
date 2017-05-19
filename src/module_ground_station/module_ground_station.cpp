@@ -60,7 +60,7 @@ ModuleGroundStation::ModuleGroundStation() :
     });
 
     m_timer->setSingleShot(false);
-    m_timer->setInterval(GUITimer::Interval(1000));
+    m_timer->setInterval(GUITimer::Interval(500));
     m_timer->start(true);
 }
 
@@ -448,7 +448,11 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 sendVehicleFuel(senderID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
-                // TODO
+                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write GPS fix to the GUI:
+                sendVehicleGPS(senderID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Text::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
@@ -456,6 +460,12 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
                 // Write fueld data to the GUI:
                 sendVehicleText(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemArm::Name()){
+                // TODO:
+            }
+            else if(componentsUpdated.at(i) == DataGenericItem::DataGenericItem_Heartbeat::Name()){
+                // TODO: 1) Vehicle type
             }
         }
     }
@@ -485,6 +495,8 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
                 std::cout << "I have reached a mission item" << component->getMissionItemIndex() << std::endl;
+
+                //
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
@@ -639,8 +651,6 @@ void ModuleGroundStation::sendPositionData(const int &vehicleID, const std::shar
     json["lat"] = component->latitude;
     json["lon"] = component->longitude;
     json["alt"] = component->altitude;
-    json["satFix"] = 0; // TODO-PAT: Move to vehicle stats?
-    json["numSats"] = 0; // TODO-PAT: Move to vehicle stats?
 
     QJsonDocument doc(json);
     if(m_positionTimeoutOccured)
@@ -732,7 +742,6 @@ void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::share
     json["vehicleID"] = vehicleID;
     json["severity"] =  QString::fromStdString(Data::StatusSeverityTypeToString(component->getSeverity()));
     json["text"] = QString::fromStdString(component->getText());
-
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
 
@@ -740,6 +749,24 @@ void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::share
         std::cout << "Write Vehicle Text Data failed..." << std::endl;
     }
 }
+
+void ModuleGroundStation::sendVehicleGPS(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleGPS";
+    json["vehicleID"] = vehicleID;
+    json["visibleSats"] = component->getSatVisible();
+    json["gpsFix"] = QString::fromStdString(Data::GPSFixTypeToString(component->getGPSFix()));
+    json["hdop"] = component->getHDOP();
+    json["vdop"] = component->getVDOP();
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write Vehicle GPS Data failed..." << std::endl;
+    }
+}
+
 
 void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &missionKey)
 {

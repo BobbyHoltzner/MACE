@@ -55,7 +55,7 @@ export class VehicleMessages extends React.Component<Props, State> {
 
                     <div className="row">
                         <div className="col-xs-12">
-                            <div className="box">
+                            <div className="box" style={{overflowY: 'scroll', maxHeight: '150px'}}>
                                 {messages}
                             </div>
                         </div>

@@ -103,7 +103,6 @@ void MavlinkProtocol::SendProtocolMessage(const ILink *link, const mace_message_
     }
 }
 
-
 //!
 //! \brief Read data incoming from some link
 //!
@@ -275,5 +274,6 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
         }
     }
 }
+
 
 } //END MAVLINKComms

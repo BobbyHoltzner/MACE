@@ -28,6 +28,13 @@ type TextType = {
   text: string
 }
 
+type GPSType = {
+  visibleSats: number,
+  gpsFix: string,
+  hdop: number,
+  vdop: number
+}
+
 type VehicleModeType = 'LOITER' | 'RTL' | 'LAND' | 'AUTO' | 'GUIDED' | 'UNKNOWN';
 
 // type VehicleStateType = {
@@ -63,6 +70,8 @@ type TCPModeType = TCPDescriptorType & ModeType;
 
 type TCPTextType = TCPDescriptorType & TextType;
 
+type TCPGPSType = TCPDescriptorType & GPSType;
+
 type MissionItemType = PositionType & {
   description: string,
   type: string
@@ -80,7 +89,10 @@ type TCPCurrentMissionItemType = TCPDescriptorType & {
   missionItemIndex: number
 }
 
-type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPFuelType | TCPMissionType | TCPModeType | TCPTextType | TCPSensorFootprintType | TCPCurrentMissionItemType;
+type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType |
+                     TCPFuelType | TCPMissionType | TCPModeType | TCPTextType |
+                     TCPSensorFootprintType | TCPCurrentMissionItemType |
+                     TCPGPSType;
 
 
 type MarkerType = {
