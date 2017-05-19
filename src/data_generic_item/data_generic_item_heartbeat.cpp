@@ -21,7 +21,7 @@ DataGenericItem_Heartbeat::DataGenericItem_Heartbeat(const DataGenericItem_Heart
     this->protocol = copyObj.getProtocol();
     this->type = copyObj.getType();
     this->autopilot = copyObj.getAutopilot();
-    this->maceCompanion = copyObj.getCompaion();
+    this->maceCompanion = copyObj.getCompanion();
 }
 
 } //end of namespace DataGenericItem

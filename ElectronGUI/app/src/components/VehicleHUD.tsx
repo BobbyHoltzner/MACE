@@ -9,6 +9,7 @@ import { backgroundColors, textSeverityToColor } from '../util/Colors';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
+import { aircraftImgSrcFromType } from '../util/VehicleHelper';
 
 
 type Props = {
@@ -70,7 +71,7 @@ export class VehicleHUD extends React.Component<Props, State> {
     render() {
         const boxShadow = this.props.aircraft.isSelected ? backgroundColors[parseInt(this.props.vehicleID)] + " 0px 1px 20px, rgba(0, 0, 0, .5) 0px 1px 4px" : "rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px"
         const hudStyle = {position: "relative", width: 90 + "%", marginBottom: 15, boxShadow: boxShadow};
-        const hudAvatar = this.props.aircraft.vehicleType === "Copter" ? "images/drone-icon.png" : "images/fixed-wing.png";
+        const hudAvatar = aircraftImgSrcFromType(this.props.aircraft.general.aircraftType);
 
         const hudTitle = <div className="row">
                             <div className="col-xs-6">
