@@ -253,11 +253,7 @@ export default class AppContainer extends React.Component<Props, State> {
     }
     else if(jsonData.dataType === 'VehicleMode') {
       let vehicleMode = jsonData as TCPModeType;
-
-      stateCopy[vehicleMode.vehicleID].isArmed = vehicleMode.isArmed;
       stateCopy[vehicleMode.vehicleID].vehicleMode = vehicleMode.vehicleMode;
-      // TODO: vehicle type (i.e. quad, fixed, etc.)
-
       this.setState({connectedVehicles: stateCopy});
     }
     else if(jsonData.dataType === 'VehicleText') {
@@ -322,17 +318,36 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[jsonFootprint.vehicleID].sensorFootprint = jsonFootprint.sensorFootprint;
       this.setState({connectedVehicles: stateCopy});
     }
-    else if(jsonData.dataType === 'CurrentMissionItem') {
-      let jsonMissionItem = jsonData as TCPCurrentMissionItemType;
-      stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.missionItemIndex);
-      this.setState({connectedVehicles: stateCopy});
-    }
     else if(jsonData.dataType === 'VehicleGPS') {
       let jsonGPS = jsonData as TCPGPSType;
       stateCopy[jsonGPS.vehicleID].gps.visibleSats = jsonGPS.visibleSats;
       stateCopy[jsonGPS.vehicleID].gps.gpsFix = jsonGPS.gpsFix;
       stateCopy[jsonGPS.vehicleID].gps.hdop = jsonGPS.hdop;
       stateCopy[jsonGPS.vehicleID].gps.vdop = jsonGPS.vdop;
+      this.setState({connectedVehicles: stateCopy});
+    }
+    else if(jsonData.dataType === 'CurrentMissionItem') {
+      let jsonMissionItem = jsonData as TCPCurrentMissionItemType;
+      stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.missionItemIndex, false);
+      this.setState({connectedVehicles: stateCopy});
+    }
+    else if(jsonData.dataType === 'MissionItemReached') {
+      let jsonMissionItem = jsonData as TCPMissionItemReachedType;
+      if(jsonMissionItem.itemIndex === stateCopy[jsonMissionItem.vehicleID].vehicleMission.icons.length - 1) {
+        stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.itemIndex, true)
+      }
+    }
+    else if(jsonData.dataType === 'VehicleHeartbeat') {
+      let jsonHeartbeat = jsonData as TCPHeartbeatType;
+      stateCopy[jsonHeartbeat.vehicleID].general.autopilot = jsonHeartbeat.autopilot;
+      stateCopy[jsonHeartbeat.vehicleID].general.commsProtocol = jsonHeartbeat.commsProtocol;
+      stateCopy[jsonHeartbeat.vehicleID].general.aircraftType = jsonHeartbeat.aircraftType;
+      stateCopy[jsonHeartbeat.vehicleID].general.companion = jsonHeartbeat.companion;
+      this.setState({connectedVehicles: stateCopy});
+    }
+    else if(jsonData.dataType === 'VehicleArm') {
+      let jsonArm = jsonData as TCPVehicleArmType;
+      stateCopy[jsonArm.vehicleID].isArmed = jsonArm.armed;
       this.setState({connectedVehicles: stateCopy});
     }
   }

@@ -50,7 +50,7 @@ public:
     {
         return this->autopilot;
     }
-    bool getCompaion() const
+    bool getCompanion() const
     {
         return this->maceCompanion;
     }
