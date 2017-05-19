@@ -225,6 +225,12 @@ export default class AppContainer extends React.Component<Props, State> {
 
       this.setState({connectedVehicles: stateCopy});
     }
+    else if(jsonData.dataType === "VehicleAirspeed"){
+      let vehicleAirspeed = jsonData as TCPAirspeedType;
+
+      stateCopy[vehicleAirspeed.vehicleID].airspeed = vehicleAirspeed.airspeed;
+      this.setState({connectedVehicles: stateCopy});
+    }
     else if(jsonData.dataType === 'VehicleMission') {
       let vehicleMission = jsonData as TCPMissionType;
       let stateCopy = deepcopy(this.state.connectedVehicles);

@@ -92,13 +92,17 @@ type TCPMissionItemReachedType = TCPDescriptorType & {
   itemIndex: number
 }
 
+type TCPAirspeedType = TCPDescriptorType & {
+  airspeed: number
+}
+
 type TCPHeartbeatType = TCPDescriptorType & HeartbeatType;
 
 type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType |
                      TCPFuelType | TCPMissionType | TCPModeType | TCPTextType |
                      TCPSensorFootprintType | TCPCurrentMissionItemType |
                      TCPGPSType | TCPHeartbeatType | TCPMissionItemReachedType |
-                     TCPVehicleArmType;
+                     TCPVehicleArmType | TCPAirspeedType;
 
 
 type MarkerType = {

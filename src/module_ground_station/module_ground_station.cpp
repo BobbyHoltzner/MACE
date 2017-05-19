@@ -422,10 +422,10 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
                 // Write Attitude data to the GUI:
                 sendAttitudeData(senderID, component);
             }
-            DataGenericItem::DataGenericItem_Heartbeat
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_FlightMode::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
@@ -439,6 +439,13 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 
                 // Write Position data to the GUI:
                 sendPositionData(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == DataStateTopic::StateAirspeedTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateAirspeedTopic> component = std::make_shared<DataStateTopic::StateAirspeedTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write Airspeed data to the GUI:
+                sendVehicleAirspeed(senderID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Battery::Name()) {
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>();
@@ -745,6 +752,21 @@ void ModuleGroundStation::sendAttitudeData(const int &vehicleID, const std::shar
 
         // Reset timeout:
         m_attitudeTimeoutOccured = false;
+    }
+}
+
+void ModuleGroundStation::sendVehicleAirspeed(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAirspeedTopic> &component)
+{
+    QJsonObject json;
+    json["dataType"] = "VehicleAirspeed";
+    json["vehicleID"] = vehicleID;
+    json["airspeed"] = component->airspeed;
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write vehicle airspeed Data failed..." << std::endl;
     }
 }
 
