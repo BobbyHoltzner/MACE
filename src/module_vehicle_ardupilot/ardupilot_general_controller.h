@@ -38,10 +38,6 @@ public:
         CONTROLLER_TAKEOFF
     };
 
-private:
-
-
-
 public:
     Ardupilot_GeneralController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan, callbackFunction callback);
 

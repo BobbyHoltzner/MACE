@@ -211,7 +211,8 @@ public:
 
 
     // Controller Callbacks:
-    void takeoffCallback(std::string value);
+    void takeoffCallback(const std::string value);
+    void guidedCallback(const std::string value);
 
 
     bool checkControllerState()

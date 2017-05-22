@@ -77,8 +77,12 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
 }
 
 
-void ModuleVehicleArdupilot::takeoffCallback(std::string value) {
-    std::cout << "      **TEST FUNCTION VALUE: " << value << std::endl;
+void ModuleVehicleArdupilot::takeoffCallback(const std::string value) {
+    std::cout << "      **TEST FUNCTION VALUE TAKEOFF: " << value << std::endl;
+}
+
+void ModuleVehicleArdupilot::guidedCallback(const std::string value) {
+    std::cout << "      **TEST FUNCTION VALUE GUIDED: " << value << std::endl;
 }
 
 
