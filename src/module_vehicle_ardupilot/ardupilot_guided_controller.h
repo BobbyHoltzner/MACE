@@ -32,7 +32,7 @@ public:
         return m_CurrentMission;
     }
 
-    Ardupilot_GuidedController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan);
+    Ardupilot_GuidedController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan, callbackFunction callback);
 
     ~Ardupilot_GuidedController() {
         std::cout << "Destructor on guidance controller" << std::endl;

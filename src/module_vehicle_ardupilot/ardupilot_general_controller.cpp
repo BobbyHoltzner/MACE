@@ -1,8 +1,10 @@
 #include "ardupilot_general_controller.h"
 
-Ardupilot_GeneralController::Ardupilot_GeneralController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan):
+Ardupilot_GeneralController::Ardupilot_GeneralController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan, callbackFunction callback):
     vehicleDataObject(vehicleData),
-    m_LinkMarshaler(commsMarshaler),m_LinkName(linkName),m_LinkChan(linkChan), mToExit(false)
+    m_LinkMarshaler(commsMarshaler),m_LinkName(linkName),m_LinkChan(linkChan), mToExit(false),
+    m_dataAvailable("NO_DATA"),
+    m_callback(callback)
 {
     std::cout << "Constructor on general controller" << std::endl;
 }
