@@ -1,4 +1,5 @@
 #include "module_vehicle_ardupilot.h"
+#include <functional>
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),
@@ -63,7 +64,7 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
 //    mavlink_message_t msg = tmpData->generateTakeoffMessage(vehicleTakeoff,m_LinkChan);
 //    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
-    Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan);
+    Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan, std::bind(&ModuleVehicleArdupilot::takeoffCallback, this, _1));
     if(command.getPositionFlag())
         newController->initializeTakeoffSequence(command);
     else{
@@ -74,6 +75,12 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
 
     this->SpinUpController(newController);
 }
+
+
+void ModuleVehicleArdupilot::takeoffCallback(std::string value) {
+    std::cout << "      **TEST FUNCTION VALUE: " << value << std::endl;
+}
+
 
 void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command)
 {

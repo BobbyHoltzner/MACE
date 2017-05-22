@@ -24,11 +24,15 @@
 #include "ardupilot_general_controller.h"
 #include "ardupilot_mission_state.h"
 
+#include <functional>
+
+using callbackFunction = std::function<void(std::string)>;
+
 class Ardupilot_TakeoffController : public Ardupilot_GeneralController
 {
 public:
 
-    Ardupilot_TakeoffController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan);
+    Ardupilot_TakeoffController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan, callbackFunction callback);
 
     ~Ardupilot_TakeoffController();
 
@@ -55,6 +59,10 @@ private:
 
 private:
     CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem_Takeoff;
+
+    // Callback:
+    std::string m_availableData;
+    callbackFunction m_testCallback;
 };
 
 #endif // ARDUPILOT_TAKEOFF_CONTROLLER_H

@@ -1,8 +1,10 @@
 #include "ardupilot_takeoff_controller.h"
 
-Ardupilot_TakeoffController::Ardupilot_TakeoffController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan) :
+Ardupilot_TakeoffController::Ardupilot_TakeoffController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan, callbackFunction callback) :
     Ardupilot_GeneralController(vehicleData, commsMarshaler, linkName, linkChan),
-    currentStateLogic(DISARMED)
+    currentStateLogic(DISARMED),
+    m_availableData("NO_DATA"),
+    m_testCallback(callback)
 {
     controllerType = CONTROLLER_TAKEOFF;
     vehicleMissionState = ArdupilotMissionState(2,10,10);
@@ -40,6 +42,7 @@ Ardupilot_TakeoffController::Ardupilot_TakeoffController(std::shared_ptr<DataARD
 //        });
 //    });
 
+    m_testCallback(m_availableData);
 }
 
 Ardupilot_TakeoffController::~Ardupilot_TakeoffController() {

@@ -31,6 +31,8 @@
 //__________________
 #include "data_vehicle_MAVLINK/MACE_to_MAVLINK/command_mace_to_mavlink.h"
 
+using namespace std::placeholders;
+
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
 {
 enum ArdupilotMissionMode{
@@ -208,6 +210,10 @@ public:
     void homePositionUpdated(const CommandItem::SpatialHome &newVehicleHome);
 
 
+    // Controller Callbacks:
+    void takeoffCallback(std::string value);
+
+
     bool checkControllerState()
     {
         if(m_AircraftController)
@@ -232,7 +238,7 @@ public:
     virtual void RequestDummyFunction(const int &vehicleID)
     {
         std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
-        Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan);
+        Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan, std::bind(&ModuleVehicleArdupilot::takeoffCallback, this, _1));
         CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> takeoff;
         takeoff.setTargetSystem(1);
         takeoff.position.setPosition(37,-76,100);
