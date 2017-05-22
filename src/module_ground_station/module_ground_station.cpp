@@ -468,8 +468,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 // Write fuel data to the GUI:
                 sendVehicleText(senderID, component);
             }
-<<<<<<< HEAD
-=======
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemArm::Name()){
                 // TODO:
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>();
@@ -486,7 +484,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 // Write heartbeat data to the GUI:
                 sendVehicleHeartbeat(senderID, component);
             }
->>>>>>> 1e0bab63bc45c871034a45883e40e53786036fda
         }
     }
     else if(topicName == m_MissionDataTopic.Name())
