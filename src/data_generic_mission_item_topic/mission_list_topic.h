@@ -35,11 +35,11 @@ public:
     }
 
     Data::MissionType getCommandType() const{
-        return missionList.getCommandType();
+        return missionList.getMissionType();
     }
 
-    Data::MissionTypeState getCommandTypeState() const{
-        return missionList.getCommandTypeState();
+    Data::MissionTXState getCommandTypeState() const{
+        return missionList.getMissionTXState();
     }
 
 private:

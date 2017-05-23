@@ -124,6 +124,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////
     virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
     virtual void GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome);
+    virtual void GVEvents_MissionExeStateUpdated(const void *sender, const Data::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState);
     virtual void ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey);
     virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey);
 
@@ -134,7 +135,7 @@ public:
     virtual void ExternalEvent_FinishedRXProposedQueue(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_FinishedRXOnboardQueue(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_FinishedRXCurrentQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTypeState &state);
+    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTXState &state);
 
 public:
 

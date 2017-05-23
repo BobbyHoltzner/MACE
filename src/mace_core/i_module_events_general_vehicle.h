@@ -3,6 +3,7 @@
 
 #include "topic.h"
 
+#include "data/mission_execution_state.h"
 #include "data/mission_key.h"
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_command_item/command_item_components.h"
@@ -31,6 +32,14 @@ public:
     //! \param vehicleHome
     //!
     virtual void GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome) = 0;
+
+    //!
+    //! \brief GVEvents_MissionExecutionStateUpdated
+    //! \param sender
+    //! \param missionKey
+    //! \param missionExeState
+    //!
+    virtual void GVEvents_MissionExeStateUpdated(const void *sender, const Data::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState) = 0;
 
     //!
     //! \brief ConfirmedOnboardVehicleMission

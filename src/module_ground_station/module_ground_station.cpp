@@ -208,7 +208,7 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
 void ModuleGroundStation::testFunction1(const int &vehicleID)
 {
     MissionItem::MissionList missionList;
-    missionList.setMissionTypeState(Data::MissionTypeState::PROPOSED);
+    missionList.setMissionTXState(Data::MissionTXState::PROPOSED);
     missionList.setMissionType(Data::MissionType::AUTO);
     missionList.setVehicleID(vehicleID);
     missionList.initializeQueue(4);
@@ -854,6 +854,11 @@ void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &m
     bool valid = this->getDataObject()->getMissionList(missionKey,newList);
     if(valid)
         sendVehicleMission(missionKey.m_systemID,newList);
+}
+
+void ModuleGroundStation::NewlyAvailableMissionExeState(const Data::MissionKey &key)
+{
+    UNUSED(key);
 }
 
 void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home)

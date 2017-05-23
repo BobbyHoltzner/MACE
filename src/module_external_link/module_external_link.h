@@ -257,6 +257,7 @@ public:
 
     virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key);
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
+    virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey);
 
 private:
     bool airborneInstance;

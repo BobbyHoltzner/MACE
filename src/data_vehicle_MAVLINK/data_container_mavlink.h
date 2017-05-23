@@ -46,7 +46,7 @@ public:
 
     void setCurrentMission(const MissionItem::MissionList &missionList)
     {
-        switch(missionList.getCommandType())
+        switch(missionList.getMissionType())
         {
         case Data::MissionType::AUTO:
         {
@@ -65,7 +65,7 @@ public:
 
     void setProposedMission(const MissionItem::MissionList &missionList)
     {
-        switch(missionList.getCommandType())
+        switch(missionList.getMissionType())
         {
         case Data::MissionType::AUTO:
         {

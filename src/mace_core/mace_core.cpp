@@ -486,6 +486,19 @@ void MaceCore::GVEvents_NewHomePosition(const void *sender, const CommandItem::S
         m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome);
 }
 
+void MaceCore::GVEvents_MissionExeStateUpdated(const void *sender, const Data::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState)
+{
+    UNUSED(sender);
+    //TODO FIX KEN: We should incorporate a method that shall exist to understand who wants to receive
+    //specific methods and information. Otherwise we may be blasting to an unknown world.
+    //This is also bad as we are assuming that the only item calling this would be a vehicle instance
+    m_DataFusion->updateMissionExeState(missionKey,missionExeState);
+    if(m_GroundStation)
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_MISSION_EXE_STATE,missionKey);
+    else if(m_ExternalLink.size() > 0)
+        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEW_MISSION_EXE_STATE,missionKey);
+}
+
 void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey)
 {
     UNUSED(sender);
@@ -518,7 +531,7 @@ void MaceCore::ExternalEvent_ReceivingMissionQueue(const void* sender, const Mis
     m_DataFusion->updateRXMission(missionList);
 }
 
-void MaceCore::ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTypeState &state)
+void MaceCore::ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTXState &state)
 {
     UNUSED(sender);
     UNUSED(key);

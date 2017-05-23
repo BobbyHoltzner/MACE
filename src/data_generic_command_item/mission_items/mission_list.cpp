@@ -5,25 +5,25 @@
 namespace MissionItem {
 
 MissionList::MissionList() :
-    missionKey(0,0,0,Data::MissionType::AUTO), missionTypeState(Data::MissionTypeState::CURRENT),activeMissionItem(0)
+    missionKey(0,0,0,Data::MissionType::AUTO),missionTypeState(Data::MissionTXState::CURRENT),missionExeState(Data::MissionExecutionState::MESTATE_UNEXECUTED),activeMissionItem(0)
 {
 
 }
 
-MissionList::MissionList(const int &targetID, const int &generatorID, const Data::MissionType &missionType, const Data::MissionTypeState &state) :
-    missionKey(targetID,generatorID,0,missionType), missionTypeState(state),activeMissionItem(0)
+MissionList::MissionList(const int &targetID, const int &generatorID, const Data::MissionType &missionType, const Data::MissionTXState &state) :
+    missionKey(targetID,generatorID,0,missionType),missionTypeState(state),missionExeState(Data::MissionExecutionState::MESTATE_UNEXECUTED),activeMissionItem(0)
 {
 
 }
 
-MissionList::MissionList(const int &targetID, const int &generatorID, const Data::MissionType &missionType, const Data::MissionTypeState &state, const int &size) :
-    missionKey(targetID,generatorID,0,missionType), missionTypeState(state),activeMissionItem(0)
+MissionList::MissionList(const int &targetID, const int &generatorID, const Data::MissionType &missionType, const Data::MissionTXState &state, const int &size) :
+    missionKey(targetID,generatorID,0,missionType),missionTypeState(state),missionExeState(Data::MissionExecutionState::MESTATE_UNEXECUTED),activeMissionItem(0)
 {
     initializeQueue(size);
 }
 
-MissionList::MissionList(const int &targetID, const int &generatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTypeState &state, const int &size) :
-    missionKey(targetID,generatorID,missionID,missionType), missionTypeState(state),activeMissionItem(0)
+MissionList::MissionList(const int &targetID, const int &generatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTXState &state, const int &size) :
+    missionKey(targetID,generatorID,missionID,missionType), missionTypeState(state),missionExeState(Data::MissionExecutionState::MESTATE_UNEXECUTED),activeMissionItem(0)
 {
     initializeQueue(size);
 }
@@ -33,6 +33,7 @@ MissionList::MissionList(const MissionList &rhs)
     this->missionKey = rhs.missionKey;
     this->missionQueue = rhs.missionQueue;
     this->missionTypeState = rhs.missionTypeState;
+    this->missionExeState = rhs.missionExeState;
     this->activeMissionItem = rhs.activeMissionItem;
 }
 

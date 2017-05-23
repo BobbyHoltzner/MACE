@@ -81,10 +81,10 @@ public:
 public:
 
     virtual void NewlyAvailableVehicle(const int &vehicleID);
-
     virtual void NewlyAvailableCurrentMission(const Data::MissionKey &missionKey);
-
+    virtual void NewlyAvailableMissionExeState(const Data::MissionKey &key);
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
+
 private:
 
     void sendPositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &component);

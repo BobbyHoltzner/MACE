@@ -25,6 +25,7 @@
 #include "data/system_description.h"
 #include "data/mission_key.h"
 #include "data/mission_type.h"
+#include "data/mission_execution_state.h"
 
 namespace MaceCore
 {
@@ -720,7 +721,7 @@ public:
     The following methods aid getting the mission list from the mace data class. The following methods aid getting
     the current mission object and keys.
     */
-    bool getMissionList(const int &systemID, const Data::MissionType &type, const Data::MissionTypeState &state, MissionItem::MissionList &missionList) const;
+    bool getMissionList(const int &systemID, const Data::MissionType &type, const Data::MissionTXState &state, MissionItem::MissionList &missionList) const;
     bool getMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const;
     bool getCurrentMissionKey(const int &systemID, Data::MissionKey &key) const;
     bool getCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission) const;
@@ -734,7 +735,7 @@ public:
     */
     std::vector<Data::MissionKey> getOnboardMissionKeys(const int &systemID);
     void removeFromMissionMap(const Data::MissionKey &missionKey);
-    void receivedMissionACKKey(const Data::MissionKey &key, const Data::MissionTypeState &state);
+    void receivedMissionACKKey(const Data::MissionKey &key, const Data::MissionTXState &state);
     void receivedNewCurrentMission(const MissionItem::MissionList &missionList);
     void receivedNewOnboardMission(const MissionItem::MissionList &missionList);
     void receivedNewProposedMission(const MissionItem::MissionList &missionList);
@@ -742,6 +743,7 @@ public:
     /*
     The following methods update the mission type state of the appropriate mission items.
     */
+    void updateMissionExeState(const Data::MissionKey &key, const Data::MissionExecutionState &state);
     bool updateOnboardMission(const Data::MissionKey &missionKey);
     bool updateCurrentMission(const Data::MissionKey &missionKey);
 

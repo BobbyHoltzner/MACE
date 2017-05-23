@@ -15,6 +15,7 @@ enum class GroundStationCommands
 {
     NEW_AVAILABLE_VEHICLE,
     NEWLY_AVAILABLE_CURRENT_MISSION,
+    NEW_MISSION_EXE_STATE,
     NEWLY_AVAILABLE_HOME_POSITION
 };
 
@@ -36,6 +37,10 @@ public:
             NewlyAvailableCurrentMission(missionKey);
         });
 
+        AddCommandLogic<Data::MissionKey>(GroundStationCommands::NEW_MISSION_EXE_STATE, [this](const Data::MissionKey &missionKey){
+            NewlyAvailableMissionExeState(missionKey);
+        });
+
         AddCommandLogic<CommandItem::SpatialHome>(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const CommandItem::SpatialHome &home){
             NewlyAvailableHomePosition(home);
         });
@@ -51,8 +56,9 @@ public:
 
     virtual void NewlyAvailableCurrentMission(const Data::MissionKey &missionKey) = 0;
 
-    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home) = 0;
+    virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey) = 0;
 
+    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home) = 0;
 
     virtual bool StartTCPServer() = 0;
 

@@ -45,7 +45,8 @@ HEADERS += data_global.h \
     status_severity_type.h \
     command_item_type.h \
     command_ack_type.h \
-    mission_command.h
+    mission_command.h \
+    mission_execution_state.h
     loiter_direction.h
 
 # Unix lib Install

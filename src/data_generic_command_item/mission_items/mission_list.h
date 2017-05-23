@@ -7,6 +7,7 @@
 
 #include "data_generic_command_item/abstract_command_item.h"
 #include "data/mission_key.h"
+#include "data/mission_execution_state.h"
 
 namespace MissionItem {
 
@@ -25,9 +26,9 @@ public:
 
 public:
     MissionList();
-    MissionList(const int &targetID, const int &generatorID, const Data::MissionType &missionType, const Data::MissionTypeState &state);
-    MissionList(const int &targetID, const int &generatorID, const Data::MissionType &missionType, const Data::MissionTypeState &state, const int &size);
-    MissionList(const int &targetID, const int &generatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTypeState &state, const int &size);
+    MissionList(const int &targetID, const int &generatorID, const Data::MissionType &missionType, const Data::MissionTXState &state);
+    MissionList(const int &targetID, const int &generatorID, const Data::MissionType &missionType, const Data::MissionTXState &state, const int &size);
+    MissionList(const int &targetID, const int &generatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTXState &state, const int &size);
     MissionList(const MissionList &rhs);
 
 public:
@@ -80,16 +81,25 @@ public:
         this->missionKey.m_missionType = missionType;
     }
 
-    Data::MissionType getCommandType() const{
+    Data::MissionType getMissionType() const{
         return this->missionKey.m_missionType;
     }
 
-    void setMissionTypeState(const Data::MissionTypeState &missionTypeState){
+    void setMissionTXState(const Data::MissionTXState &missionTypeState){
         this->missionTypeState = missionTypeState;
     }
 
-    Data::MissionTypeState getCommandTypeState() const{
+    Data::MissionTXState getMissionTXState() const{
         return missionTypeState;
+    }
+
+
+    void setMissionExeState(const Data::MissionExecutionState &state){
+        this->missionExeState = state;
+    }
+
+    Data::MissionExecutionState getMissionExeState() const{
+        return missionExeState;
     }
 
     int getActiveIndex() const;
@@ -104,6 +114,7 @@ public:
         this->missionKey = rhs.missionKey;
         this->missionQueue = rhs.missionQueue;
         this->missionTypeState = rhs.missionTypeState;
+        this->missionExeState = rhs.missionExeState;
         this->activeMissionItem = rhs.activeMissionItem;
     }
 
@@ -115,6 +126,9 @@ public:
             return false;
         }
         if(this->missionTypeState != rhs.missionTypeState){
+            return false;
+        }
+        if(this->missionExeState != rhs.missionExeState){
             return false;
         }
         if(this->activeMissionItem != rhs.activeMissionItem){
@@ -131,7 +145,9 @@ private:
 
     Data::MissionKey missionKey;
 
-    Data::MissionTypeState missionTypeState;
+    Data::MissionTXState missionTypeState;
+
+    Data::MissionExecutionState missionExeState;
 
     //!
     //! \brief activeMissionItem

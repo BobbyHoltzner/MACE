@@ -8,7 +8,7 @@
 namespace Data
 {
 
-enum class MissionTypeState : uint8_t
+enum class MissionTXState : uint8_t
 {
     CURRENT,
     ONBOARD,
@@ -17,35 +17,35 @@ enum class MissionTypeState : uint8_t
     RECEIVED
 };
 
-inline std::string MissionTypeStateToString(const MissionTypeState &cmdType) {
+inline std::string MissionTXStateToString(const MissionTXState &cmdType) {
     switch (cmdType) {
-    case MissionTypeState::CURRENT:
+    case MissionTXState::CURRENT:
         return "CURRENT";
-    case MissionTypeState::ONBOARD:
+    case MissionTXState::ONBOARD:
         return "ONBOARD";
-    case MissionTypeState::OUTDATED:
+    case MissionTXState::OUTDATED:
         return "OUTDATED";
-    case MissionTypeState::PROPOSED:
+    case MissionTXState::PROPOSED:
         return "PROPOSED";
-    case MissionTypeState::RECEIVED:
+    case MissionTXState::RECEIVED:
         return "RECEIVED";
     default:
-        throw std::runtime_error("Unknown MissionTypeState seen");
+        throw std::runtime_error("Unknown MissionTXState seen");
     }
 }
 
-inline MissionTypeState MissionTypeStateFromString(const std::string &str) {
+inline MissionTXState MissionTXStateFromString(const std::string &str) {
     if(str == "CURRENT")
-        return MissionTypeState::CURRENT;
+        return MissionTXState::CURRENT;
     if(str == "ONBOARD")
-        return MissionTypeState::ONBOARD;
+        return MissionTXState::ONBOARD;
     if(str == "OUTDATED")
-        return MissionTypeState::OUTDATED;
+        return MissionTXState::OUTDATED;
     if(str == "PROPOSED")
-        return MissionTypeState::PROPOSED;
+        return MissionTXState::PROPOSED;
     if(str == "RECEIVED")
-        return MissionTypeState::RECEIVED;
-    throw std::runtime_error("Unknown string MissionTypeState seen");
+        return MissionTXState::RECEIVED;
+    throw std::runtime_error("Unknown string MissionTXState seen");
 }
 
 enum class MissionType : uint8_t
