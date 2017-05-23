@@ -494,9 +494,9 @@ void MaceCore::GVEvents_MissionExeStateUpdated(const void *sender, const Data::M
     //This is also bad as we are assuming that the only item calling this would be a vehicle instance
     m_DataFusion->updateMissionExeState(missionKey,missionExeState);
     if(m_GroundStation)
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_MISSION_EXE_STATE,vehicleHome);
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_MISSION_EXE_STATE,missionKey);
     else if(m_ExternalLink.size() > 0)
-        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEW_MISSION_EXE_STATE,vehicleHome);
+        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEW_MISSION_EXE_STATE,missionKey);
 }
 
 void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey)
