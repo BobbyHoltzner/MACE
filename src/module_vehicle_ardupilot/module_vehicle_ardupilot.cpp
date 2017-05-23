@@ -68,7 +68,6 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
         newController->initializeTakeoffSequence(command);
     else{
         CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> defaultTakeoff = command;
-        defaultTakeoff.position.altitude = 20;
         newController->initializeTakeoffSequence(defaultTakeoff);
     }
 

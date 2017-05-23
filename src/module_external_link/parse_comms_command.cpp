@@ -27,12 +27,35 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
     {
         CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> tmpTakeoff;
         tmpTakeoff.setTargetSystem(message->target_system);
+        tmpTakeoff.setPositionFlag((message->param1 > 0.0) ? true : false);
         tmpTakeoff.position.latitude = message->param5;
         tmpTakeoff.position.longitude = message->param6;
         tmpTakeoff.position.altitude = message->param7;
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
             ptr->Event_IssueCommandTakeoff(this, tmpTakeoff);
+        });
+        break;
+    }
+    case(MAV_CMD_NAV_LAND):
+    {
+        CommandItem::SpatialLand<DataState::StateGlobalPosition> tmpLand;
+        tmpLand.setTargetSystem(message->target_system);
+        tmpLand.setLandFlag((message->param1 > 0.0) ? true : false);
+        tmpLand.position.latitude = message->param5;
+        tmpLand.position.longitude = message->param6;
+        tmpLand.position.altitude = message->param7;
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+            ptr->Event_IssueCommandLand(this, tmpLand);
+        });
+        break;
+    }
+    case(MAV_CMD_NAV_RETURN_TO_LAUNCH):
+    {
+        CommandItem::SpatialRTL tmpRTL;
+        tmpRTL.setTargetSystem(message->target_system);
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+            ptr->Event_IssueCommandRTL(this, tmpRTL);
         });
         break;
     }

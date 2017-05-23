@@ -76,7 +76,6 @@ void ModuleExternalLink::MACEHeartbeatInfo(const std::string &linkName, const in
 {
     UNUSED(linkName);
 
-    std::cout<<"I saw a heartbeat"<<std::endl;
     if(systemIDMap.find(systemID) == systemIDMap.end())
     {
         //The system has yet to have communicated through this module
@@ -250,12 +249,14 @@ void ModuleExternalLink::Command_VehicleTakeoff(const CommandItem::SpatialTakeof
 
 void ModuleExternalLink::Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command)
 {
-    UNUSED(command);
+    mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateLandMessage(command,m_LinkChan);
+    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 
 void ModuleExternalLink::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command)
 {
-    UNUSED(command);
+    mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateRTLMessage(command,m_LinkChan);
+    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 
 void ModuleExternalLink::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
