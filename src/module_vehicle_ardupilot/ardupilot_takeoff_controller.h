@@ -24,11 +24,12 @@
 #include "ardupilot_general_controller.h"
 #include "ardupilot_mission_state.h"
 
+
 class Ardupilot_TakeoffController : public Ardupilot_GeneralController
 {
 public:
 
-    Ardupilot_TakeoffController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan);
+    Ardupilot_TakeoffController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan, callbackFunction callback);
 
     ~Ardupilot_TakeoffController();
 

@@ -1,8 +1,8 @@
 #include "ardupilot_guided_controller.h"
 
 
-Ardupilot_GuidedController::Ardupilot_GuidedController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan) :
-    Ardupilot_GeneralController(vehicleData, commsMarshaler, linkName, linkChan), executionState(false)
+Ardupilot_GuidedController::Ardupilot_GuidedController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan, callbackFunction callback) :
+    Ardupilot_GeneralController(vehicleData, commsMarshaler, linkName, linkChan, callback)
 {
     controllerType = CONTROLLER_GUIDED;
     vehicleMissionState = ArdupilotMissionState(3,10,10);

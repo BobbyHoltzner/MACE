@@ -27,6 +27,8 @@
 #include <functional>
 #include <list>
 
+using callbackFunction = std::function<void(std::string)>;
+
 class Ardupilot_GeneralController : public Thread
 {
 public:
@@ -36,12 +38,8 @@ public:
         CONTROLLER_TAKEOFF
     };
 
-private:
-
-
-
 public:
-    Ardupilot_GeneralController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan);
+    Ardupilot_GeneralController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan, callbackFunction callback);
 
     ~Ardupilot_GeneralController() {
         std::cout << "Destructor on general controller" << std::endl;
@@ -84,6 +82,10 @@ protected:
     DataState::StateAttitude currentAttitude;
     */
 
+    // Callback:
+    std::string m_dataAvailable;
+    callbackFunction m_callback;
+
 protected:
 
 
@@ -96,7 +98,6 @@ protected:
             lambda();
         }
     }
-
 
 };
 
