@@ -101,6 +101,25 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
+void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command)
+{
+    int vehicleID = command.getTargetSystem();
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
+
+    if(command.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_PAUSE)
+    {
+        int newFlightMode = tmpData->data->ArdupilotFlightMode.get().getFlightModeFromString("LOITER");
+        mavlink_message_t msg = tmpData->generateChangeMode(vehicleID,m_LinkChan,newFlightMode);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
+    }else if(command.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_START)
+    {
+        int newFlightMode = tmpData->data->ArdupilotFlightMode.get().getFlightModeFromString("AUTO");
+        mavlink_message_t msg = tmpData->generateChangeMode(vehicleID,m_LinkChan,newFlightMode);
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    }
+}
+
 void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command)
 {
     int vehicleID = command.getTargetSystem();

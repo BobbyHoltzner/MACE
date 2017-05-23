@@ -6,6 +6,7 @@
 #include <mavlink.h>
 
 #include "data/timer.h"
+#include "data/mission_command.h"
 
 #include "ardupilot_guided_controller.h"
 #include "ardupilot_takeoff_controller.h"
@@ -122,6 +123,12 @@ public:
     //! \param command
     //!
     virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command);
+
+    //!
+    //! \brief Command_MissionState
+    //! \param command
+    //!
+    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command) = 0;
 
     //!
     //! \brief Command_ChangeSystemMode

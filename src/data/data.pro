@@ -44,7 +44,8 @@ HEADERS += data_global.h \
     gps_fix_type.h \
     status_severity_type.h \
     command_item_type.h \
-    command_ack_type.h
+    command_ack_type.h \
+    mission_command.h
     loiter_direction.h
 
 # Unix lib Install

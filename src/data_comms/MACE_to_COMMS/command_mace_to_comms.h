@@ -31,6 +31,7 @@ public:
     static mace_message_t generateTakeoffMessage(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan);
     static mace_message_t generateLandMessage(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command, const uint8_t &chan);
     static mace_message_t generateRTLMessage(const CommandItem::SpatialRTL &command, const uint8_t &chan);
+    static mace_message_t generateMissionCommandMessage(const CommandItem::ActionMissionCommand &command, const uint8_t &chan);
 
 private:
     static mace_command_long_t initializeCommandLong();

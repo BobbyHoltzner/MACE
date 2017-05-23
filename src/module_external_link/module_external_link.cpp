@@ -159,6 +159,13 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
                     //                std::this_thread::sleep_for(std::chrono::milliseconds(200));
                 }
+                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
+                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>();
+                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                    mace_message_t msg = helper.Generic_MACETOCOMMS::GPSTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
+                    associatedSystemID = senderID;
+                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+                }
                 else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_FlightMode::Name()) {
                     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
                     m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
@@ -257,6 +264,13 @@ void ModuleExternalLink::Command_ReturnToLaunch(const CommandItem::SpatialRTL &c
 {
     mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateRTLMessage(command,m_LinkChan);
     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+}
+
+void ModuleExternalLink::Command_MissionState(const CommandItem::ActionMissionCommand &command)
+{
+    //KEN FIX THIS
+    //mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateMissionCommandMessage(command,m_LinkChan);
+    //m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 
 void ModuleExternalLink::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)

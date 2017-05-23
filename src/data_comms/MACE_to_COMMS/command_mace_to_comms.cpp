@@ -96,4 +96,11 @@ mace_message_t Command_MACETOCOMMS::generateRTLMessage(const CommandItem::Spatia
     return msg;
 }
 
+mace_message_t Command_MACETOCOMMS::generateMissionCommandMessage(const CommandItem::ActionMissionCommand &command, const uint8_t &chan)
+{
+    mace_command_long_t cmd = initializeCommandLong();
+    mace_message_t msg = packLongMessage(cmd,chan);
+    return msg;
+}
+
 } //end of namespace DataCOMMS

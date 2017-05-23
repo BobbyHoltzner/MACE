@@ -84,5 +84,5 @@ private:
 
 };
 
-} //end of namespace MissionItem
+} //end of namespace CommandItem
 #endif // ACTION_CHANGE_SPEED_H

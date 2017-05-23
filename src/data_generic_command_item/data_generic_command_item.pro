@@ -30,6 +30,7 @@ SOURCES += \
     do_items/action_change_mode.cpp \
     do_items/action_change_speed.cpp \
     do_items/action_motor_test.cpp \
+    do_items/action_mission_command.cpp \
     spatial_items/spatial_home.cpp \
     spatial_items/spatial_land.cpp \
     spatial_items/spatial_loiter_time.cpp \
@@ -41,13 +42,13 @@ SOURCES += \
     mission_items/mission_ack.cpp \
     mission_items/mission_list.cpp \
     command_item_ack.cpp
-
 HEADERS +=\
     do_items/action_arm.h \
     do_items/action_change_mode.h \
     do_items/action_change_speed.h \
     do_items/action_motor_test.h\
     do_items/do_components.h \
+    do_items/action_mission_command.h \
     mission_items/mission_ack.h \
     mission_items/mission_list.h \
     spatial_items/spatial_components.h \
@@ -63,7 +64,6 @@ HEADERS +=\
     command_item_components.h \
     abstract_command_item.h \
     command_item_ack.h
-
 
 # Unix lib Install
 unix:!symbian {
@@ -92,7 +92,8 @@ headers_doComponents.files   += \
     do_items/action_arm.h \
     do_items/action_change_mode.h \
     do_items/action_change_speed.h \
-    do_items/action_motor_test.h
+    do_items/action_motor_test.h \
+    do_items/action_mission_command.h \
     do_items/do_components.h
 INSTALLS       += headers_doComponents
 
