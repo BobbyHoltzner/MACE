@@ -23,7 +23,8 @@ type Props = {
 
 type State = {
     selectedAircraftID?: string,
-    vehicleArmed?: boolean
+    vehicleArmed?: boolean,
+    missionStarted?: boolean
 }
 
 export class VehicleCommandsContainer extends React.Component<Props, State> {
@@ -33,7 +34,8 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
 
         this.state = {
             selectedAircraftID: this.props.selectedAircraftID,
-            vehicleArmed: false
+            vehicleArmed: false,
+            missionStarted: false
         }
     }
 
@@ -46,6 +48,11 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
     handleDropdownChange = (event: any, index: number, value: string) => {
         this.setState({selectedAircraftID: value});
         this.props.onSelectedAircraftChange(value);
+    }
+
+    handleStartMission = () => {
+        this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "ISSUE_COMMAND", this.state.missionStarted ? "AUTO_PAUSE" : "AUTO_START");
+        this.setState({missionStarted: !this.state.missionStarted});
     }
 
 
@@ -104,16 +111,16 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
                                 <RaisedButton icon={<i className="material-icons">flight_takeoff</i>} style={buttonStyle} label="Takeoff" onClick={this.props.handleTakeoff}/>
                             </MuiThemeProvider>
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <RaisedButton icon={<i className="material-icons">pause</i>} style={buttonStyle} label="Loiter" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "LOITER")}/>
+                                <RaisedButton icon={<i className="material-icons">pause</i>} style={buttonStyle} label="Pause" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "ISSUE_COMMAND", "AUTO_PAUSE")}/>
                             </MuiThemeProvider>
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <RaisedButton icon={<i className="material-icons">get_app</i>} style={buttonStyle} label="Land" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "LAND")}/>
+                                <RaisedButton icon={<i className="material-icons">get_app</i>} style={buttonStyle} label="Land" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "ISSUE_COMMAND", "LAND")}/>
                             </MuiThemeProvider>
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <RaisedButton icon={<i className="material-icons">home</i>} style={buttonStyle} label="Home" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "RTL")}/>
+                                <RaisedButton icon={<i className="material-icons">home</i>} style={buttonStyle} label="Home" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "ISSUE_COMMAND", "RTL")}/>
                             </MuiThemeProvider>
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                <RaisedButton icon={<i className="material-icons">send</i>} style={buttonStyle} label="Start Mission" onClick={() => this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "SET_VEHICLE_MODE", "AUTO")}/>
+                                <RaisedButton icon={<i className="material-icons">{this.state.missionStarted ? "pause" : "send"}</i>} style={buttonStyle} label={this.state.missionStarted ? "Pause Mission" : "Start Mission"} onClick={this.handleStartMission}/>
                             </MuiThemeProvider>
                     </div>
                 }

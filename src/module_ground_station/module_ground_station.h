@@ -109,8 +109,9 @@ private:
     // Commands from GUI:
     void parseTCPRequest(const QJsonObject &jsonObj);
 
+    void issueCommand(const int &vehicleID, const QJsonObject &jsonObj);
+//    void setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj);
     void setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj);
-    void setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj);
     void setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj);
     void setGlobalOrigin(const QJsonObject &jsonObj);
     void setGoHere(const int &vehicleID, const QJsonObject &jsonObj);

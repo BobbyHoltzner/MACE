@@ -128,7 +128,7 @@ public:
     //! \brief Command_MissionState
     //! \param command
     //!
-    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command) = 0;
+    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command);
 
     //!
     //! \brief Command_ChangeSystemMode
