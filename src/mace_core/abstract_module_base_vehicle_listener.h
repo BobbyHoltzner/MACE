@@ -8,6 +8,7 @@
 
 #define BASE_MODULE_VEHICLE_LISTENER_ENUMS EMIT_HEARTBEAT, ISSUE_GENERAL_COMMAND, \
     CHANGE_VEHICLE_ARM, REQUEST_VEHICLE_TAKEOFF, REQUEST_VEHICLE_LAND, REQUEST_VEHICLE_RTL, CHANGE_VEHICLE_MODE, \
+    SET_MISSION_STATE, \
     UPLOAD_MISSION, SET_CURRENT_MISSION, REQUEST_CURRENT_MISSION, REQUEST_MISSION, CLEAR_CURRENT_MISSION, \
     REQUEST_ONBOARD_AUTO_MISSION, CLEAR_ONBOARD_AUTO_MISSION, \
     REQUEST_ONBOARD_GUIDED_MISSION, CLEAR_ONBOARD_GUIDED_MISSION, \
@@ -55,9 +56,14 @@ public:
             Command_ReturnToLaunch(command);
         });
 
+        this->template AddCommandLogic<CommandItem::ActionMissionCommand>(CT::SET_MISSION_STATE, [this](const CommandItem::ActionMissionCommand &command){
+            Command_MissionState(command);
+        });
+
         this->template AddCommandLogic<std::shared_ptr<CommandItem::AbstractCommandItem>>(CT::ISSUE_GENERAL_COMMAND, [this](const std::shared_ptr<CommandItem::AbstractCommandItem> &command){
             Command_IssueGeneralCommand(command);
         });
+
 
         this->template AddCommandLogic<CommandItem::ActionChangeMode>(CT::CHANGE_VEHICLE_MODE, [this](const CommandItem::ActionChangeMode &command){
             Command_ChangeSystemMode(command);
@@ -141,6 +147,7 @@ public:
     virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command) = 0;
     virtual void Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command) = 0;
     virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command) = 0;
+    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command) = 0;
     virtual void Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;
 
     virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode) = 0;

@@ -218,6 +218,27 @@ void MaceCore::Event_IssueCommandRTL(const void* sender, const CommandItem::Spat
         }
     }
 }
+
+void MaceCore::Event_IssueMissionCommand(const void* sender, const CommandItem::ActionMissionCommand &command)
+{
+    UNUSED(sender);
+    int vehicleID = command.getTargetSystem();
+    if(vehicleID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            CommandItem::ActionMissionCommand newMissionCommand(command);
+            newMissionCommand.setTargetSystem(it->first);
+            it->second->MarshalCommand(VehicleCommands::SET_MISSION_STATE,newMissionCommand);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::SET_MISSION_STATE,command);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
+}
+
 void MaceCore::Event_ChangeSystemMode(const void *sender, const CommandItem::ActionChangeMode &command)
 {
     UNUSED(sender);

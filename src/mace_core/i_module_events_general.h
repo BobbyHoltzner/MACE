@@ -19,6 +19,8 @@ public:
 
     virtual void Event_IssueCommandRTL(const void* sender, const CommandItem::SpatialRTL &command) = 0;
 
+    virtual void Event_IssueMissionCommand(const void* sender, const CommandItem::ActionMissionCommand &command) = 0;
+
     virtual void Event_ChangeSystemMode(const void* sender, const CommandItem::ActionChangeMode &command) = 0;
 
     virtual void Event_IssueGeneralCommand(const void* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;

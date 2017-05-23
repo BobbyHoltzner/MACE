@@ -153,6 +153,13 @@ public:
     //!
     virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command);
 
+
+    //!
+    //! \brief Command_MissionState
+    //! \param command
+    //!
+    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command);
+
     //!
     //! \brief Command_IssueGeneralCommand
     //! \param command

@@ -19,8 +19,9 @@ enum class CommandItemType{
     CI_ACT_CHANGESPEED = 9,
     CI_ACT_CHANGEMODE = 10,
     CI_ACT_MOTORTEST = 11,
-    CI_UNKNOWN = 12,
-    COMMANDITEMTYPEEND = 13
+    CI_ACT_MISSIONCOMMAND = 12,
+    CI_UNKNOWN = 14,
+    COMMANDITEMTYPEEND = 15
 };
 
 inline std::string CommandItemTypeToString(const CommandItemType &commandItemType) {
@@ -45,6 +46,10 @@ inline std::string CommandItemTypeToString(const CommandItemType &commandItemTyp
         return "CI_ACT_CHANGESPEED";
     case CommandItemType::CI_ACT_CHANGEMODE:
         return "CI_ACT_CHANGEMODE";
+    case CommandItemType::CI_ACT_MOTORTEST:
+        return "CI_ACT_MOTORTEST";
+    case CommandItemType::CI_ACT_MISSIONCOMMAND:
+        return "CI_ACT_MISSIONCOMMAND";
     case CommandItemType::CI_UNKNOWN:
         return "CI_UNKNOWN";
     default:
@@ -73,6 +78,10 @@ inline CommandItemType CommandItemTypeFromString(const std::string &str) {
         return CommandItemType::CI_ACT_CHANGESPEED;
     if(str == "CI_ACT_CHANGEMODE")
         return CommandItemType::CI_ACT_CHANGEMODE;
+    if(str == "CI_ACT_MOTORTEST")
+        return CommandItemType::CI_ACT_MOTORTEST;
+    if(str == "CI_ACT_MISSIONCOMMAND")
+        return CommandItemType::CI_ACT_MISSIONCOMMAND;
     if(str == "CI_UNKNOWN")
         return CommandItemType::CI_UNKNOWN;
     throw std::runtime_error("Unknown mission item string seen");
