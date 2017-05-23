@@ -11,7 +11,7 @@ class IModuleEventsExternalLink : public IModuleEventsGeneral, public IModuleEve
 {
 public:
 
-    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTypeState &state) = 0;
+    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTXState &state) = 0;
 
     //!
     //! \brief External_AppendMissionQueue

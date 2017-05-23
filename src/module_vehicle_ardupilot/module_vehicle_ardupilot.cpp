@@ -112,11 +112,21 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
         mavlink_message_t msg = tmpData->generateChangeMode(vehicleID,m_LinkChan,newFlightMode);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
+        Data::MissionKey key = tmpData->data->currentAutoMission.get().getMissionKey();
+        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->GVEvents_MissionExeStateUpdated(this, key, Data::MissionExecutionState::MESTATE_PAUSED);
+        });
+
     }else if(command.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_START)
     {
         int newFlightMode = tmpData->data->ArdupilotFlightMode.get().getFlightModeFromString("AUTO");
         mavlink_message_t msg = tmpData->generateChangeMode(vehicleID,m_LinkChan,newFlightMode);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+
+        Data::MissionKey key = tmpData->data->currentAutoMission.get().getMissionKey();
+        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->GVEvents_MissionExeStateUpdated(this, key, Data::MissionExecutionState::MESTATE_EXECUTING);
+        });
     }
 }
 
@@ -215,7 +225,7 @@ void ModuleVehicleArdupilot::UpdateMissionKey(const Data::MissionKeyChange &key)
 
 void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionList &missionList)
 {
-    switch(missionList.getCommandType())
+    switch(missionList.getMissionType())
     {
     case(Data::MissionType::AUTO): //This case should push the mission directly to the aircraft
     {

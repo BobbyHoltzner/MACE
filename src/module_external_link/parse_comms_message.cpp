@@ -248,7 +248,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_msg_new_onboard_mission_decode(message,&decodedMSG);
 
         Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        Data::MissionTypeState missionState = static_cast<Data::MissionTypeState>(decodedMSG.mission_state);
+        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
 
         Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
 
@@ -280,7 +280,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
         //at this point associatedSystemID should be the same as decodedMSG.target_system
         Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        Data::MissionTypeState missionState = static_cast<Data::MissionTypeState>(decodedMSG.mission_state);
+        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
 
         MissionItem::MissionList newMissionList(decodedMSG.target_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState,decodedMSG.count);
         MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();
@@ -300,7 +300,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_ack_rxmission_t decodedMSG;
         mace_msg_ack_rxmission_decode(message,&decodedMSG);
-        Data::MissionTypeState missionState = static_cast<Data::MissionTypeState>(decodedMSG.mission_state);
+        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
         Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
         Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
 
@@ -354,7 +354,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_msg_mission_count_decode(message,&decodedMSG);
 
         Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        Data::MissionTypeState missionState = static_cast<Data::MissionTypeState>(decodedMSG.mission_state);
+        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
 
         MissionItem::MissionList newMissionList(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState,decodedMSG.count);
         MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();
@@ -406,7 +406,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
                 m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
                 //should we tell anyone that we have received another mission item however the mission is incomplete
             }else{
-                if(missionList.getCommandTypeState() == Data::MissionTypeState::PROPOSED)
+                if(missionList.getMissionTXState() == Data::MissionTXState::PROPOSED)
                 {
                     //This case implies that we were receiving the item from a ground module or
                     //someone without directly relating to the vehicle and therefore we should ack
@@ -424,16 +424,16 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
                     ackMission.mission_id = itemKey.m_missionID;
                     ackMission.mission_type = (uint8_t)itemKey.m_missionType;
                     //KEN TODO: Maybe we have another state reflect that it has been received differnt than onboard (implying received by the aircraft instance)
-                    ackMission.mission_state = (uint8_t)Data::MissionTypeState::RECEIVED;
+                    ackMission.mission_state = (uint8_t)Data::MissionTXState::RECEIVED;
                     mace_msg_ack_rxmission_encode_chan(itemKey.m_systemID,0,m_LinkChan,&msg,&ackMission);
                     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 
-                }else if(missionList.getCommandTypeState() == Data::MissionTypeState::ONBOARD)
+                }else if(missionList.getMissionTXState() == Data::MissionTXState::ONBOARD)
                 {
                     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                         ptr->ExternalEvent_FinishedRXOnboardQueue(this, missionList);
                     });
-                }else if(missionList.getCommandTypeState() == Data::MissionTypeState::CURRENT)
+                }else if(missionList.getMissionTXState() == Data::MissionTXState::CURRENT)
                 {
                     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
                         ptr->ExternalEvent_FinishedRXCurrentQueue(this, missionList);

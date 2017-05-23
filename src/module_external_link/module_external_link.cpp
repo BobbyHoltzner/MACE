@@ -313,16 +313,16 @@ void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &m
 
     if(status.state == MissionItem::MissionList::COMPLETE)
     {
-        switch(missionList.getCommandTypeState())
+        switch(missionList.getMissionTXState())
         {
-        case Data::MissionTypeState::PROPOSED:
+        case Data::MissionTXState::PROPOSED:
         {
             mace_new_proposed_mission_t missionProposed;
             missionProposed.count = missionList.getQueueSize();
             Data::MissionKey key = missionList.getMissionKey();
             missionProposed.mission_creator = key.m_creatorID;
             missionProposed.mission_id = key.m_missionID;
-            missionProposed.mission_state = static_cast<MAV_MISSION_STATE>(missionList.getCommandTypeState());
+            missionProposed.mission_state = static_cast<MAV_MISSION_STATE>(missionList.getMissionTXState());
             missionProposed.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);
             missionProposed.target_system = key.m_systemID;
 
@@ -398,7 +398,7 @@ void ModuleExternalLink::NewlyAvailableOnboardMission(const Data::MissionKey &ke
     mission.mission_id = key.m_missionID;
     mission.mission_type = (uint8_t)key.m_missionType;
     mission.mission_system = key.m_systemID;
-    mission.mission_state = (uint8_t)Data::MissionTypeState::ONBOARD;
+    mission.mission_state = (uint8_t)Data::MissionTXState::ONBOARD;
 
     mace_message_t msg;
     mace_msg_new_onboard_mission_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&mission);
@@ -415,5 +415,10 @@ void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHo
     mace_message_t msg;
     mace_msg_home_position_encode_chan(home.getGeneratingSystem(),0,m_LinkChan,&msg,&homePos);
     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+}
+
+void ModuleExternalLink::NewlyAvailableMissionExeState(const Data::MissionKey &key)
+{
+    UNUSED(key);
 }
 
