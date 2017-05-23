@@ -61,14 +61,37 @@ mace_message_t Command_MACETOCOMMS::generateArmMessage(const CommandItem::Action
     return msg;
 }
 
-mace_message_t Command_MACETOCOMMS::generateTakeoffMessage(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem, const uint8_t &chan)
+mace_message_t Command_MACETOCOMMS::generateTakeoffMessage(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan)
 {
     mace_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_NAV_TAKEOFF;
     cmd.target_system = missionItem.getTargetSystem();
+    cmd.param1 = (missionItem.getPositionFlag())? 1.0 : 0.0;
     cmd.param5 = missionItem.position.latitude;
     cmd.param6 = missionItem.position.longitude;
     cmd.param7 = missionItem.position.altitude;
+    mace_message_t msg = packLongMessage(cmd,chan);
+    return msg;
+}
+
+mace_message_t Command_MACETOCOMMS::generateLandMessage(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command, const uint8_t &chan)
+{
+    mace_command_long_t cmd = initializeCommandLong();
+    cmd.command = MAV_CMD_NAV_LAND;
+    cmd.target_system = command.getTargetSystem();
+    cmd.param1 = (command.getLandFlag())? 1.0 : 0.0;
+    cmd.param5 = command.position.latitude;
+    cmd.param6 = command.position.longitude;
+    cmd.param7 = command.position.altitude;
+    mace_message_t msg = packLongMessage(cmd,chan);
+    return msg;
+}
+
+mace_message_t Command_MACETOCOMMS::generateRTLMessage(const CommandItem::SpatialRTL &command, const uint8_t &chan)
+{
+    mace_command_long_t cmd = initializeCommandLong();
+    cmd.command = MAV_CMD_NAV_RETURN_TO_LAUNCH;
+    cmd.target_system = command.getTargetSystem();
     mace_message_t msg = packLongMessage(cmd,chan);
     return msg;
 }

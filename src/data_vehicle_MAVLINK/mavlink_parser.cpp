@@ -150,7 +150,7 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser:: Pa
         double power = pow(10,7);
 
         DataState::StateGlobalPosition position;
-        position.setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
+        position.setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.relative_alt/1000);
         //check that something has actually changed
         if(data->vehicleGlobalPosition.set(position))
         {
