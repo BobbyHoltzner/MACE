@@ -218,7 +218,7 @@ std::vector<Data::MissionKey> MaceData::getOnboardMissionKeys(const int &systemI
     {
         MissionItem::MissionList list;
         Data::MissionKey key = it->first;
-        if((key.m_systemID == systemID) && (it->second.getCommandTypeState() == Data::MissionTXState::ONBOARD))
+        if((key.m_systemID == systemID) && (it->second.getMissionTXState() == Data::MissionTXState::ONBOARD))
             keyVector.push_back(key);
     }
     return keyVector;
@@ -271,7 +271,7 @@ void MaceData::receivedNewProposedMission(const MissionItem::MissionList &missio
 The following methods update the mission type state of the appropriate mission items.
 */
 
-void MaceData::updateMissionExeState(const Data::MissionKey &key, const Data::MissionExecutionState &state)
+void MaceData::updateMissionExeState(const Data::MissionKey &missionKey, const Data::MissionExecutionState &state)
 {
     std::lock_guard<std::mutex> guard(MUTEXMissions);
     std::map<Data::MissionKey, MissionItem::MissionList>::iterator it;
@@ -280,7 +280,7 @@ void MaceData::updateMissionExeState(const Data::MissionKey &key, const Data::Mi
     {
         //this implies we have knowledge about this vehicle
         MissionItem::MissionList mission = it->second;
-        mission.update
+        mission.setMissionExeState(state);
     }
 }
 
