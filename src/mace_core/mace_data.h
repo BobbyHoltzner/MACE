@@ -743,7 +743,7 @@ public:
     /*
     The following methods update the mission type state of the appropriate mission items.
     */
-    void updateMissionExeState(const Data::MissionKey &key, const Data::MissionExecutionState &state);
+    void updateMissionExeState(const Data::MissionKey &missionKey, const Data::MissionExecutionState &state);
     bool updateOnboardMission(const Data::MissionKey &missionKey);
     bool updateCurrentMission(const Data::MissionKey &missionKey);
 

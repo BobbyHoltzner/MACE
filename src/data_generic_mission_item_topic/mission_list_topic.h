@@ -38,7 +38,7 @@ public:
         return missionList.getMissionType();
     }
 
-    Data::MissionTXState getCommandTypeState() const{
+    Data::MissionTXState getMissionTXState() const{
         return missionList.getMissionTXState();
     }
 
