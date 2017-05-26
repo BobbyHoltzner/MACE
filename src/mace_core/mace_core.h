@@ -84,7 +84,7 @@ public:
     virtual void Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command);
     virtual void Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command);
     virtual void Event_IssueCommandRTL(const void* sender, const CommandItem::SpatialRTL &command);
-    virtual void Event_IssueMissionCommand(const void* sender, const CommandItem::ActionMissionCommand &command) = 0;
+    virtual void Event_IssueMissionCommand(const void* sender, const CommandItem::ActionMissionCommand &command);
     virtual void Event_ChangeSystemMode(const void* sender, const CommandItem::ActionChangeMode &command);
     virtual void Event_IssueGeneralCommand(const void* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command);
 

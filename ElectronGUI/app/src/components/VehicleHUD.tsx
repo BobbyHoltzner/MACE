@@ -40,10 +40,10 @@ export class VehicleHUD extends React.Component<Props, State> {
     }
 
     handleLoiter = () => {
-        this.props.handleAircraftCommand(this.props.vehicleID, "SET_VEHICLE_MODE", "LOITER");
+        this.props.handleAircraftCommand(this.props.vehicleID, "ISSUE_COMMAND", "LOITER");
     }
     handleRTL = () => {
-        this.props.handleAircraftCommand(this.props.vehicleID, "SET_VEHICLE_MODE", "RTL");
+        this.props.handleAircraftCommand(this.props.vehicleID, "ISSUE_COMMAND", "RTL");
     }
     syncVehicle = () => {
         this.props.handleAircraftCommand(this.props.vehicleID, "GET_VEHICLE_HOME", "");

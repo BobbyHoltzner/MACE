@@ -153,9 +153,13 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     QString command = jsonObj["tcpCommand"].toString();
     int vehicleID = jsonObj["vehicleID"].toInt();
     QByteArray data;
-    if(command == "SET_VEHICLE_MODE")
+//    if(command == "SET_VEHICLE_MODE")
+//    {
+//        setVehicleMode(vehicleID, jsonObj);
+//    }
+    if(command == "ISSUE_COMMAND")
     {
-        setVehicleMode(vehicleID, jsonObj);
+        issueCommand(vehicleID, jsonObj);
     }
     else if(command == "SET_VEHICLE_HOME")
     {
@@ -316,15 +320,68 @@ void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject 
     });
 }
 
-void ModuleGroundStation::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
-{
-    CommandItem::ActionChangeMode tmpMode;
-    tmpMode.setTargetSystem(vehicleID); // the vehicle ID coordinates to the specific vehicle //vehicle 0 is reserved for all connected vehicles
-    tmpMode.setRequestMode(jsonObj["vehicleCommand"].toString().toStdString()); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
+//void ModuleGroundStation::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
+//{
+//    CommandItem::ActionChangeMode tmpMode;
+//    tmpMode.setTargetSystem(vehicleID); // the vehicle ID coordinates to the specific vehicle //vehicle 0 is reserved for all connected vehicles
+//    tmpMode.setRequestMode(jsonObj["vehicleCommand"].toString().toStdString()); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
 
-    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->Event_ChangeSystemMode(this, tmpMode);
-    });
+//    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+//        ptr->Event_ChangeSystemMode(this, tmpMode);
+//    });
+//}
+
+void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
+{
+    if(jsonObj["vehicleCommand"] == "RTL") {
+        CommandItem::SpatialRTL rtlCommand;
+        rtlCommand.setTargetSystem(vehicleID);
+        // TODO: Set generating system and coordinate frame
+
+        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+            ptr->Event_IssueCommandRTL(this, rtlCommand);
+        });
+    }
+    else if(jsonObj["vehicleCommand"] == "LAND") {
+        CommandItem::SpatialLand<DataState::StateGlobalPosition> landCommand;
+        landCommand.setLandFlag(true);
+        landCommand.setTargetSystem(vehicleID);
+        // TODO: Set generating system and coordinate frame
+
+        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+            ptr->Event_IssueCommandLand(this, landCommand);
+        });
+    }
+    else if(jsonObj["vehicleCommand"] == "AUTO_START") {
+        CommandItem::ActionMissionCommand missionCommand;
+        missionCommand.setMissionStart();
+        missionCommand.setGeneratingSystem(vehicleID);
+        // TODO: Set generating system and coordinate frame
+
+        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+            ptr->Event_IssueMissionCommand(this, missionCommand);
+        });
+    }
+    else if(jsonObj["vehicleCommand"] == "AUTO_PAUSE") {
+        CommandItem::ActionMissionCommand missionCommand;
+        missionCommand.setMissionPause();
+        missionCommand.setGeneratingSystem(vehicleID);
+        // TODO: Set generating system and coordinate frame
+
+        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+            ptr->Event_IssueMissionCommand(this, missionCommand);
+        });
+    }
+    else if(jsonObj["vehicleCommand"] == "AUTO_RESUME") {
+        CommandItem::ActionMissionCommand missionCommand;
+        missionCommand.setMissionResume();
+        missionCommand.setGeneratingSystem(vehicleID);
+        // TODO: Set generating system and coordinate frame
+
+        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+            ptr->Event_IssueMissionCommand(this, missionCommand);
+        });
+    }
 }
 
 void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj)
