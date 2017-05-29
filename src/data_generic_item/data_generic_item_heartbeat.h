@@ -8,6 +8,7 @@
 #include "data/autopilot_types.h"
 #include "data/comms_protocol.h"
 #include "data/system_type.h"
+#include "data/mission_execution_state.h"
 
 namespace DataGenericItem {
 
@@ -32,7 +33,12 @@ public:
     {
         this->autopilot = autopilot;
     }
-    void setCompaion(const bool &companion)
+    void setExecutionState(const Data::MissionExecutionState &state)
+    {
+        this->missionState = state;
+    }
+
+    void setCompanion(const bool &companion)
     {
         this->maceCompanion = companion;
     }
@@ -50,6 +56,10 @@ public:
     {
         return this->autopilot;
     }
+    Data::MissionExecutionState getMissionState() const
+    {
+        return this->missionState;
+    }
     bool getCompanion() const
     {
         return this->maceCompanion;
@@ -61,6 +71,7 @@ public:
         this->protocol = rhs.protocol;
         this->type = rhs.type;
         this->autopilot = rhs.autopilot;
+        this->missionState = rhs.missionState;
         this->maceCompanion = rhs.maceCompanion;
     }
 
@@ -72,6 +83,9 @@ public:
             return false;
         }
         if(this->autopilot != rhs.autopilot){
+            return false;
+        }
+        if(this->missionState != rhs.missionState){
             return false;
         }
         if(this->maceCompanion != rhs.maceCompanion){
@@ -89,6 +103,7 @@ protected:
     Data::AutopilotType autopilot;
     Data::CommsProtocol protocol;
     Data::SystemType type;
+    Data::MissionExecutionState missionState;
     bool maceCompanion;
 };
 

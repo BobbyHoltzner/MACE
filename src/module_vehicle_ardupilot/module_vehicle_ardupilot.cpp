@@ -370,7 +370,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
 
     DataGenericItem::DataGenericItem_Heartbeat heartbeat;
     heartbeat.setAutopilot(Data::AutopilotType::AUTOPILOT_TYPE_ARDUPILOTMEGA);
-    heartbeat.setCompaion(true);
+    heartbeat.setCompanion(true);
     heartbeat.setProtocol(Data::CommsProtocol::COMMS_MAVLINK);
     switch(heartbeatMSG.type)
     {

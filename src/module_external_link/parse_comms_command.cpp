@@ -17,6 +17,15 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         CommandItem::ActionArm tmpArm;
         tmpArm.setTargetSystem(message->target_system);
         tmpArm.setVehicleArm(fabs(message->param1) <= 0.001 ? false : true);
+
+        //acknowledge receiving the command
+        mace_command_ack_t commandACK;
+        commandACK.command = MAV_CMD_COMPONENT_ARM_DISARM;
+        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+        mace_message_t msg;
+        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
+        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+
         //notify core
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
             ptr->Event_IssueCommandSystemArm(this, tmpArm);
@@ -32,6 +41,14 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         tmpTakeoff.position.longitude = message->param6;
         tmpTakeoff.position.altitude = message->param7;
 
+        //acknowledge receiving the command
+        mace_command_ack_t commandACK;
+        commandACK.command = MAV_CMD_NAV_TAKEOFF;
+        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+        mace_message_t msg;
+        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
+        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
             ptr->Event_IssueCommandTakeoff(this, tmpTakeoff);
         });
@@ -45,6 +62,15 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         tmpLand.position.latitude = message->param5;
         tmpLand.position.longitude = message->param6;
         tmpLand.position.altitude = message->param7;
+
+        //acknowledge receiving the command
+        mace_command_ack_t commandACK;
+        commandACK.command = MAV_CMD_NAV_LAND;
+        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+        mace_message_t msg;
+        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
+        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
             ptr->Event_IssueCommandLand(this, tmpLand);
         });
@@ -54,6 +80,15 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
     {
         CommandItem::SpatialRTL tmpRTL;
         tmpRTL.setTargetSystem(message->target_system);
+
+        //acknowledge receiving the command
+        mace_command_ack_t commandACK;
+        commandACK.command = MAV_CMD_NAV_RETURN_TO_LAUNCH;
+        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+        mace_message_t msg;
+        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
+        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
             ptr->Event_IssueCommandRTL(this, tmpRTL);
         });

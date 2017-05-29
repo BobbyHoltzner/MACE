@@ -37,13 +37,14 @@ static void mace_test_heartbeat(uint8_t system_id, uint8_t component_id, mace_me
         uint8_t buffer[MACE_MAX_PACKET_LEN];
         uint16_t i;
     mace_heartbeat_t packet_in = {
-        5,72,139,206,3
+        5,72,139,206,17,3
     };
     mace_heartbeat_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
         packet1.protocol = packet_in.protocol;
         packet1.type = packet_in.type;
         packet1.autopilot = packet_in.autopilot;
+        packet1.mission_state = packet_in.mission_state;
         packet1.mace_companion = packet_in.mace_companion;
         packet1.mavlink_version = packet_in.mavlink_version;
         
@@ -60,12 +61,12 @@ static void mace_test_heartbeat(uint8_t system_id, uint8_t component_id, mace_me
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_heartbeat_pack(system_id, component_id, &msg , packet1.protocol , packet1.type , packet1.autopilot , packet1.mace_companion );
+    mace_msg_heartbeat_pack(system_id, component_id, &msg , packet1.protocol , packet1.type , packet1.autopilot , packet1.mission_state , packet1.mace_companion );
     mace_msg_heartbeat_decode(&msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_heartbeat_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.protocol , packet1.type , packet1.autopilot , packet1.mace_companion );
+    mace_msg_heartbeat_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.protocol , packet1.type , packet1.autopilot , packet1.mission_state , packet1.mace_companion );
     mace_msg_heartbeat_decode(&msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
@@ -78,7 +79,7 @@ static void mace_test_heartbeat(uint8_t system_id, uint8_t component_id, mace_me
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_heartbeat_send(MACE_COMM_1 , packet1.protocol , packet1.type , packet1.autopilot , packet1.mace_companion );
+    mace_msg_heartbeat_send(MACE_COMM_1 , packet1.protocol , packet1.type , packet1.autopilot , packet1.mission_state , packet1.mace_companion );
     mace_msg_heartbeat_decode(last_msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
@@ -1823,6 +1824,64 @@ static void mace_test_command_long(uint8_t system_id, uint8_t component_id, mace
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
+static void mace_test_command_short(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)
+{
+#ifdef MACE_STATUS_FLAG_OUT_MACE1
+    mace_status_t *status = mace_get_channel_status(MACE_COMM_0);
+        if ((status->flags & MACE_STATUS_FLAG_OUT_MACE1) && MACE_MSG_ID_COMMAND_SHORT >= 256) {
+            return;
+        }
+#endif
+    mace_message_t msg;
+        uint8_t buffer[MACE_MAX_PACKET_LEN];
+        uint16_t i;
+    mace_command_short_t packet_in = {
+        17235,139,206,17,84
+    };
+    mace_command_short_t packet1, packet2;
+        memset(&packet1, 0, sizeof(packet1));
+        packet1.command = packet_in.command;
+        packet1.target_system = packet_in.target_system;
+        packet1.target_component = packet_in.target_component;
+        packet1.confirmation = packet_in.confirmation;
+        packet1.param = packet_in.param;
+        
+        
+#ifdef MACE_STATUS_FLAG_OUT_MACE1
+        if (status->flags & MACE_STATUS_FLAG_OUT_MACE1) {
+           // cope with extensions
+           memset(MACE_MSG_ID_COMMAND_SHORT_MIN_LEN + (char *)&packet1, 0, sizeof(packet1)-MACE_MSG_ID_COMMAND_SHORT_MIN_LEN);
+        }
+#endif
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_command_short_encode(system_id, component_id, &msg, &packet1);
+    mace_msg_command_short_decode(&msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_command_short_pack(system_id, component_id, &msg , packet1.target_system , packet1.target_component , packet1.command , packet1.confirmation , packet1.param );
+    mace_msg_command_short_decode(&msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_command_short_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.target_system , packet1.target_component , packet1.command , packet1.confirmation , packet1.param );
+    mace_msg_command_short_decode(&msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+        mace_msg_to_send_buffer(buffer, &msg);
+        for (i=0; i<mace_msg_get_send_buffer_length(&msg); i++) {
+            comm_send_ch(MACE_COMM_0, buffer[i]);
+        }
+    mace_msg_command_short_decode(last_msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+        
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_command_short_send(MACE_COMM_1 , packet1.target_system , packet1.target_component , packet1.command , packet1.confirmation , packet1.param );
+    mace_msg_command_short_decode(last_msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+}
+
 static void mace_test_command_ack(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)
 {
 #ifdef MACE_STATUS_FLAG_OUT_MACE1
@@ -2936,6 +2995,7 @@ static void mace_test_common(uint8_t system_id, uint8_t component_id, mace_messa
     mace_test_vfr_hud(system_id, component_id, last_msg);
     mace_test_command_int(system_id, component_id, last_msg);
     mace_test_command_long(system_id, component_id, last_msg);
+    mace_test_command_short(system_id, component_id, last_msg);
     mace_test_command_ack(system_id, component_id, last_msg);
     mace_test_radio_status(system_id, component_id, last_msg);
     mace_test_timesync(system_id, component_id, last_msg);

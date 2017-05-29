@@ -8,17 +8,18 @@ typedef struct __mace_heartbeat_t {
  uint8_t protocol; /*< Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM)*/
  uint8_t type; /*< Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM)*/
  uint8_t autopilot; /*< Autopilot type / class. defined in MAV_AUTOPILOT ENUM*/
+ uint8_t mission_state; /*< Defines the current state of the vehicle mission. Useful for determining the next state of the vehicle per mission state.*/
  uint8_t mace_companion; /*< Boolean describing whether(T=1) or not(F=0) the vehicle is MACE companion equipped.*/
  uint8_t mavlink_version; /*< MAVLink version, not writable by user, gets added by protocol because of magic data type: uint8_t_mavlink_version*/
 }) mace_heartbeat_t;
 
-#define MACE_MSG_ID_HEARTBEAT_LEN 5
-#define MACE_MSG_ID_HEARTBEAT_MIN_LEN 5
-#define MACE_MSG_ID_0_LEN 5
-#define MACE_MSG_ID_0_MIN_LEN 5
+#define MACE_MSG_ID_HEARTBEAT_LEN 6
+#define MACE_MSG_ID_HEARTBEAT_MIN_LEN 6
+#define MACE_MSG_ID_0_LEN 6
+#define MACE_MSG_ID_0_MIN_LEN 6
 
-#define MACE_MSG_ID_HEARTBEAT_CRC 195
-#define MACE_MSG_ID_0_CRC 195
+#define MACE_MSG_ID_HEARTBEAT_CRC 213
+#define MACE_MSG_ID_0_CRC 213
 
 
 
@@ -26,23 +27,25 @@ typedef struct __mace_heartbeat_t {
 #define MACE_MESSAGE_INFO_HEARTBEAT { \
     0, \
     "HEARTBEAT", \
-    5, \
+    6, \
     {  { "protocol", NULL, MACE_TYPE_UINT8_T, 0, 0, offsetof(mace_heartbeat_t, protocol) }, \
          { "type", NULL, MACE_TYPE_UINT8_T, 0, 1, offsetof(mace_heartbeat_t, type) }, \
          { "autopilot", NULL, MACE_TYPE_UINT8_T, 0, 2, offsetof(mace_heartbeat_t, autopilot) }, \
-         { "mace_companion", NULL, MACE_TYPE_UINT8_T, 0, 3, offsetof(mace_heartbeat_t, mace_companion) }, \
-         { "mavlink_version", NULL, MACE_TYPE_UINT8_T, 0, 4, offsetof(mace_heartbeat_t, mavlink_version) }, \
+         { "mission_state", NULL, MACE_TYPE_UINT8_T, 0, 3, offsetof(mace_heartbeat_t, mission_state) }, \
+         { "mace_companion", NULL, MACE_TYPE_UINT8_T, 0, 4, offsetof(mace_heartbeat_t, mace_companion) }, \
+         { "mavlink_version", NULL, MACE_TYPE_UINT8_T, 0, 5, offsetof(mace_heartbeat_t, mavlink_version) }, \
          } \
 }
 #else
 #define MACE_MESSAGE_INFO_HEARTBEAT { \
     "HEARTBEAT", \
-    5, \
+    6, \
     {  { "protocol", NULL, MACE_TYPE_UINT8_T, 0, 0, offsetof(mace_heartbeat_t, protocol) }, \
          { "type", NULL, MACE_TYPE_UINT8_T, 0, 1, offsetof(mace_heartbeat_t, type) }, \
          { "autopilot", NULL, MACE_TYPE_UINT8_T, 0, 2, offsetof(mace_heartbeat_t, autopilot) }, \
-         { "mace_companion", NULL, MACE_TYPE_UINT8_T, 0, 3, offsetof(mace_heartbeat_t, mace_companion) }, \
-         { "mavlink_version", NULL, MACE_TYPE_UINT8_T, 0, 4, offsetof(mace_heartbeat_t, mavlink_version) }, \
+         { "mission_state", NULL, MACE_TYPE_UINT8_T, 0, 3, offsetof(mace_heartbeat_t, mission_state) }, \
+         { "mace_companion", NULL, MACE_TYPE_UINT8_T, 0, 4, offsetof(mace_heartbeat_t, mace_companion) }, \
+         { "mavlink_version", NULL, MACE_TYPE_UINT8_T, 0, 5, offsetof(mace_heartbeat_t, mavlink_version) }, \
          } \
 }
 #endif
@@ -56,19 +59,21 @@ typedef struct __mace_heartbeat_t {
  * @param protocol Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM)
  * @param type Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM)
  * @param autopilot Autopilot type / class. defined in MAV_AUTOPILOT ENUM
+ * @param mission_state Defines the current state of the vehicle mission. Useful for determining the next state of the vehicle per mission state.
  * @param mace_companion Boolean describing whether(T=1) or not(F=0) the vehicle is MACE companion equipped.
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mace_msg_heartbeat_pack(uint8_t system_id, uint8_t component_id, mace_message_t* msg,
-                               uint8_t protocol, uint8_t type, uint8_t autopilot, uint8_t mace_companion)
+                               uint8_t protocol, uint8_t type, uint8_t autopilot, uint8_t mission_state, uint8_t mace_companion)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_HEARTBEAT_LEN];
     _mace_put_uint8_t(buf, 0, protocol);
     _mace_put_uint8_t(buf, 1, type);
     _mace_put_uint8_t(buf, 2, autopilot);
-    _mace_put_uint8_t(buf, 3, mace_companion);
-    _mace_put_uint8_t(buf, 4, 3);
+    _mace_put_uint8_t(buf, 3, mission_state);
+    _mace_put_uint8_t(buf, 4, mace_companion);
+    _mace_put_uint8_t(buf, 5, 3);
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), buf, MACE_MSG_ID_HEARTBEAT_LEN);
 #else
@@ -76,6 +81,7 @@ static inline uint16_t mace_msg_heartbeat_pack(uint8_t system_id, uint8_t compon
     packet.protocol = protocol;
     packet.type = type;
     packet.autopilot = autopilot;
+    packet.mission_state = mission_state;
     packet.mace_companion = mace_companion;
     packet.mavlink_version = 3;
 
@@ -95,20 +101,22 @@ static inline uint16_t mace_msg_heartbeat_pack(uint8_t system_id, uint8_t compon
  * @param protocol Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM)
  * @param type Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM)
  * @param autopilot Autopilot type / class. defined in MAV_AUTOPILOT ENUM
+ * @param mission_state Defines the current state of the vehicle mission. Useful for determining the next state of the vehicle per mission state.
  * @param mace_companion Boolean describing whether(T=1) or not(F=0) the vehicle is MACE companion equipped.
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mace_msg_heartbeat_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
                                mace_message_t* msg,
-                                   uint8_t protocol,uint8_t type,uint8_t autopilot,uint8_t mace_companion)
+                                   uint8_t protocol,uint8_t type,uint8_t autopilot,uint8_t mission_state,uint8_t mace_companion)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_HEARTBEAT_LEN];
     _mace_put_uint8_t(buf, 0, protocol);
     _mace_put_uint8_t(buf, 1, type);
     _mace_put_uint8_t(buf, 2, autopilot);
-    _mace_put_uint8_t(buf, 3, mace_companion);
-    _mace_put_uint8_t(buf, 4, 3);
+    _mace_put_uint8_t(buf, 3, mission_state);
+    _mace_put_uint8_t(buf, 4, mace_companion);
+    _mace_put_uint8_t(buf, 5, 3);
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), buf, MACE_MSG_ID_HEARTBEAT_LEN);
 #else
@@ -116,6 +124,7 @@ static inline uint16_t mace_msg_heartbeat_pack_chan(uint8_t system_id, uint8_t c
     packet.protocol = protocol;
     packet.type = type;
     packet.autopilot = autopilot;
+    packet.mission_state = mission_state;
     packet.mace_companion = mace_companion;
     packet.mavlink_version = 3;
 
@@ -136,7 +145,7 @@ static inline uint16_t mace_msg_heartbeat_pack_chan(uint8_t system_id, uint8_t c
  */
 static inline uint16_t mace_msg_heartbeat_encode(uint8_t system_id, uint8_t component_id, mace_message_t* msg, const mace_heartbeat_t* heartbeat)
 {
-    return mace_msg_heartbeat_pack(system_id, component_id, msg, heartbeat->protocol, heartbeat->type, heartbeat->autopilot, heartbeat->mace_companion);
+    return mace_msg_heartbeat_pack(system_id, component_id, msg, heartbeat->protocol, heartbeat->type, heartbeat->autopilot, heartbeat->mission_state, heartbeat->mace_companion);
 }
 
 /**
@@ -150,7 +159,7 @@ static inline uint16_t mace_msg_heartbeat_encode(uint8_t system_id, uint8_t comp
  */
 static inline uint16_t mace_msg_heartbeat_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mace_message_t* msg, const mace_heartbeat_t* heartbeat)
 {
-    return mace_msg_heartbeat_pack_chan(system_id, component_id, chan, msg, heartbeat->protocol, heartbeat->type, heartbeat->autopilot, heartbeat->mace_companion);
+    return mace_msg_heartbeat_pack_chan(system_id, component_id, chan, msg, heartbeat->protocol, heartbeat->type, heartbeat->autopilot, heartbeat->mission_state, heartbeat->mace_companion);
 }
 
 /**
@@ -160,19 +169,21 @@ static inline uint16_t mace_msg_heartbeat_encode_chan(uint8_t system_id, uint8_t
  * @param protocol Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM)
  * @param type Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM)
  * @param autopilot Autopilot type / class. defined in MAV_AUTOPILOT ENUM
+ * @param mission_state Defines the current state of the vehicle mission. Useful for determining the next state of the vehicle per mission state.
  * @param mace_companion Boolean describing whether(T=1) or not(F=0) the vehicle is MACE companion equipped.
  */
 #ifdef MACE_USE_CONVENIENCE_FUNCTIONS
 
-static inline void mace_msg_heartbeat_send(mace_channel_t chan, uint8_t protocol, uint8_t type, uint8_t autopilot, uint8_t mace_companion)
+static inline void mace_msg_heartbeat_send(mace_channel_t chan, uint8_t protocol, uint8_t type, uint8_t autopilot, uint8_t mission_state, uint8_t mace_companion)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_HEARTBEAT_LEN];
     _mace_put_uint8_t(buf, 0, protocol);
     _mace_put_uint8_t(buf, 1, type);
     _mace_put_uint8_t(buf, 2, autopilot);
-    _mace_put_uint8_t(buf, 3, mace_companion);
-    _mace_put_uint8_t(buf, 4, 3);
+    _mace_put_uint8_t(buf, 3, mission_state);
+    _mace_put_uint8_t(buf, 4, mace_companion);
+    _mace_put_uint8_t(buf, 5, 3);
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_HEARTBEAT, buf, MACE_MSG_ID_HEARTBEAT_MIN_LEN, MACE_MSG_ID_HEARTBEAT_LEN, MACE_MSG_ID_HEARTBEAT_CRC);
 #else
@@ -180,6 +191,7 @@ static inline void mace_msg_heartbeat_send(mace_channel_t chan, uint8_t protocol
     packet.protocol = protocol;
     packet.type = type;
     packet.autopilot = autopilot;
+    packet.mission_state = mission_state;
     packet.mace_companion = mace_companion;
     packet.mavlink_version = 3;
 
@@ -195,7 +207,7 @@ static inline void mace_msg_heartbeat_send(mace_channel_t chan, uint8_t protocol
 static inline void mace_msg_heartbeat_send_struct(mace_channel_t chan, const mace_heartbeat_t* heartbeat)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
-    mace_msg_heartbeat_send(chan, heartbeat->protocol, heartbeat->type, heartbeat->autopilot, heartbeat->mace_companion);
+    mace_msg_heartbeat_send(chan, heartbeat->protocol, heartbeat->type, heartbeat->autopilot, heartbeat->mission_state, heartbeat->mace_companion);
 #else
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_HEARTBEAT, (const char *)heartbeat, MACE_MSG_ID_HEARTBEAT_MIN_LEN, MACE_MSG_ID_HEARTBEAT_LEN, MACE_MSG_ID_HEARTBEAT_CRC);
 #endif
@@ -209,15 +221,16 @@ static inline void mace_msg_heartbeat_send_struct(mace_channel_t chan, const mac
   is usually the receive buffer for the channel, and allows a reply to an
   incoming message with minimum stack space usage.
  */
-static inline void mace_msg_heartbeat_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t protocol, uint8_t type, uint8_t autopilot, uint8_t mace_companion)
+static inline void mace_msg_heartbeat_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t protocol, uint8_t type, uint8_t autopilot, uint8_t mission_state, uint8_t mace_companion)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char *buf = (char *)msgbuf;
     _mace_put_uint8_t(buf, 0, protocol);
     _mace_put_uint8_t(buf, 1, type);
     _mace_put_uint8_t(buf, 2, autopilot);
-    _mace_put_uint8_t(buf, 3, mace_companion);
-    _mace_put_uint8_t(buf, 4, 3);
+    _mace_put_uint8_t(buf, 3, mission_state);
+    _mace_put_uint8_t(buf, 4, mace_companion);
+    _mace_put_uint8_t(buf, 5, 3);
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_HEARTBEAT, buf, MACE_MSG_ID_HEARTBEAT_MIN_LEN, MACE_MSG_ID_HEARTBEAT_LEN, MACE_MSG_ID_HEARTBEAT_CRC);
 #else
@@ -225,6 +238,7 @@ static inline void mace_msg_heartbeat_send_buf(mace_message_t *msgbuf, mace_chan
     packet->protocol = protocol;
     packet->type = type;
     packet->autopilot = autopilot;
+    packet->mission_state = mission_state;
     packet->mace_companion = mace_companion;
     packet->mavlink_version = 3;
 
@@ -269,13 +283,23 @@ static inline uint8_t mace_msg_heartbeat_get_autopilot(const mace_message_t* msg
 }
 
 /**
+ * @brief Get field mission_state from heartbeat message
+ *
+ * @return Defines the current state of the vehicle mission. Useful for determining the next state of the vehicle per mission state.
+ */
+static inline uint8_t mace_msg_heartbeat_get_mission_state(const mace_message_t* msg)
+{
+    return _MACE_RETURN_uint8_t(msg,  3);
+}
+
+/**
  * @brief Get field mace_companion from heartbeat message
  *
  * @return Boolean describing whether(T=1) or not(F=0) the vehicle is MACE companion equipped.
  */
 static inline uint8_t mace_msg_heartbeat_get_mace_companion(const mace_message_t* msg)
 {
-    return _MACE_RETURN_uint8_t(msg,  3);
+    return _MACE_RETURN_uint8_t(msg,  4);
 }
 
 /**
@@ -285,7 +309,7 @@ static inline uint8_t mace_msg_heartbeat_get_mace_companion(const mace_message_t
  */
 static inline uint8_t mace_msg_heartbeat_get_mavlink_version(const mace_message_t* msg)
 {
-    return _MACE_RETURN_uint8_t(msg,  4);
+    return _MACE_RETURN_uint8_t(msg,  5);
 }
 
 /**
@@ -300,6 +324,7 @@ static inline void mace_msg_heartbeat_decode(const mace_message_t* msg, mace_hea
     heartbeat->protocol = mace_msg_heartbeat_get_protocol(msg);
     heartbeat->type = mace_msg_heartbeat_get_type(msg);
     heartbeat->autopilot = mace_msg_heartbeat_get_autopilot(msg);
+    heartbeat->mission_state = mace_msg_heartbeat_get_mission_state(msg);
     heartbeat->mace_companion = mace_msg_heartbeat_get_mace_companion(msg);
     heartbeat->mavlink_version = mace_msg_heartbeat_get_mavlink_version(msg);
 #else
