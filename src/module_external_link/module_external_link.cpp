@@ -96,6 +96,7 @@ void ModuleExternalLink::MACEHeartbeatInfo(const std::string &linkName, const in
     heartbeat.setAutopilot(static_cast<Data::AutopilotType>(heartbeatMSG.autopilot));
     heartbeat.setCompanion((heartbeatMSG.mace_companion>0)? true : false);
     heartbeat.setProtocol(static_cast<Data::CommsProtocol>(heartbeatMSG.protocol));
+    heartbeat.setExecutionState(static_cast<Data::MissionExecutionState>(heartbeatMSG.mission_state));
     heartbeat.setType(static_cast<Data::SystemType>(heartbeatMSG.type));
     //heartbeat.setExecutionState(static_cast<Data::MissionExecutionState>(heartbeatMSG.missionState));
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
