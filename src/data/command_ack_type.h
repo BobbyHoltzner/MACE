@@ -19,34 +19,34 @@ enum class CommandACKType{
 inline std::string CommandACKToString(const CommandACKType &frame) {
     switch (frame) {
     case CommandACKType::CA_RECEIVED:
-        return "CA_RECEIVED";
+        return "RECEIVED";
     case CommandACKType::CA_ACCEPTED:
-        return "CA_ACCEPTED";
+        return "ACCEPTED";
     case CommandACKType::CA_REJECTED:
-        return "CA_REJECTED";
+        return "REJECTED";
     case CommandACKType::CA_NOT_SUPPORTED:
-        return "CA_NOT_SUPPORTED";
+        return "NOT SUPPORTED";
     case CommandACKType::CA_FAILED:
-        return "CA_FAILED";
+        return "FAILED";
     case CommandACKType::CA_UNKNOWN:
-        return "CA_UNKNOWN";
+        return "UNKNOWN";
     default:
         throw std::runtime_error("Unknown command acknowledgement seen");
     }
 }
 
 inline CommandACKType CommandACKFromString(const std::string &str) {
-    if(str == "CA_RECEIVED")
+    if(str == "RECEIVED")
         return CommandACKType::CA_RECEIVED;
-    if(str == "CA_ACCEPTED")
+    if(str == "ACCEPTED")
         return CommandACKType::CA_ACCEPTED;
-    if(str == "CA_REJECTED")
+    if(str == "REJECTED")
         return CommandACKType::CA_REJECTED;
-    if(str == "CA_NOT_SUPPORTED")
+    if(str == "NOT_SUPPORTED")
         return CommandACKType::CA_NOT_SUPPORTED;
-    if(str == "CA_FAILED")
+    if(str == "FAILED")
         return CommandACKType::CA_FAILED;
-    if(str == "CA_UNKNOWN")
+    if(str == "UNKNOWN")
         return CommandACKType::CA_UNKNOWN;
     throw std::runtime_error("Unknown command acknowledgment seen");
 }
