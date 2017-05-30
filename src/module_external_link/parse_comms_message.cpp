@@ -183,7 +183,6 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         //This is message definition 253
         mace_statustext_t decodedMSG;
         mace_msg_statustext_decode(message,&decodedMSG);
-        std::cout<<"The status text says: "<<decodedMSG.text<<std::endl;
         DataGenericItem::DataGenericItem_Text newText = DataCOMMS::Generic_COMMSTOMACE::Text_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
 
@@ -496,6 +495,19 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_mission_item_reached_t decodedMSG;
         mace_msg_mission_item_reached_decode(message,&decodedMSG);
+
+        break;
+    }
+    case MACE_MSG_ID_MISSION_EXE_STATE:
+    {
+        mace_mission_exe_state_t decodedMSG;
+        mace_msg_mission_exe_state_decode(message,&decodedMSG);
+        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,static_cast<Data::MissionType>(decodedMSG.mission_type));
+        Data::MissionExecutionState state = static_cast<Data::MissionExecutionState>(decodedMSG.mission_state);
+
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->GVEvents_MissionExeStateUpdated(this, key, state);
+        });
 
         break;
     }

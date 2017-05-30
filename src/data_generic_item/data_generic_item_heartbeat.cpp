@@ -3,7 +3,8 @@
 namespace DataGenericItem {
 
 DataGenericItem_Heartbeat::DataGenericItem_Heartbeat() :
-    autopilot(Data::AutopilotType::AUTOPILOT_TYPE_GENERIC),protocol(Data::CommsProtocol::COMMS_MACE),type(Data::SystemType::SYSTEM_TYPE_GENERIC),maceCompanion(true)
+    autopilot(Data::AutopilotType::AUTOPILOT_TYPE_GENERIC),protocol(Data::CommsProtocol::COMMS_MACE),type(Data::SystemType::SYSTEM_TYPE_GENERIC),
+    missionState(Data::MissionExecutionState::MESTATE_UNEXECUTED),maceCompanion(true)
 {
 
 }
@@ -21,6 +22,7 @@ DataGenericItem_Heartbeat::DataGenericItem_Heartbeat(const DataGenericItem_Heart
     this->protocol = copyObj.getProtocol();
     this->type = copyObj.getType();
     this->autopilot = copyObj.getAutopilot();
+    this->missionState = copyObj.getMissionState();
     this->maceCompanion = copyObj.getCompanion();
 }
 

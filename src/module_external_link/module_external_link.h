@@ -1,6 +1,7 @@
 #ifndef MODULE_EXTERNAL_LINK_H
 #define MODULE_EXTERNAL_LINK_H
 
+#include <sstream>
 #include <iostream>
 #include <stdint.h>
 
@@ -42,6 +43,11 @@ class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
 public:
 
     ModuleExternalLink();
+
+    bool isExternalLinkAirborne() const
+    {
+        return airborneInstance;
+    }
 
     void ParseForData(const mace_message_t* message);
 
@@ -261,7 +267,6 @@ public:
 
 private:
     bool airborneInstance;
-    bool firstHearbeat;
     //!
     //! \brief associatedSystemID This is the identifier that is transmitting the data as a representative of.
     //! In the case of an airborne instance it will be assigned to the value of the heartbeat message recieved

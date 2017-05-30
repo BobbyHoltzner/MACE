@@ -915,7 +915,8 @@ void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &m
 
 void ModuleGroundStation::NewlyAvailableMissionExeState(const Data::MissionKey &key)
 {
-    UNUSED(key);
+    MissionItem::MissionList list;
+    bool validity = this->getDataObject()->getMissionList(key,list);
 }
 
 void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home)

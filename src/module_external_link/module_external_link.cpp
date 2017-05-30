@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ModuleExternalLink::ModuleExternalLink() :
-    m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"), associatedSystemID(255),firstHearbeat(true), airborneInstance(true)
+    m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"), associatedSystemID(254), airborneInstance(true)
 {
 
 }
@@ -94,24 +94,25 @@ void ModuleExternalLink::MACEHeartbeatInfo(const std::string &linkName, const in
 
     DataGenericItem::DataGenericItem_Heartbeat heartbeat;
     heartbeat.setAutopilot(static_cast<Data::AutopilotType>(heartbeatMSG.autopilot));
-    heartbeat.setCompaion((heartbeatMSG.mace_companion>0)? true : false);
+    heartbeat.setCompanion((heartbeatMSG.mace_companion>0)? true : false);
     heartbeat.setProtocol(static_cast<Data::CommsProtocol>(heartbeatMSG.protocol));
+    heartbeat.setExecutionState(static_cast<Data::MissionExecutionState>(heartbeatMSG.mission_state));
     heartbeat.setType(static_cast<Data::SystemType>(heartbeatMSG.type));
-
+    //heartbeat.setExecutionState(static_cast<Data::MissionExecutionState>(heartbeatMSG.missionState));
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
     PublishVehicleData(systemID,ptrHeartbeat);
 }
 
 void ModuleExternalLink::MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG)
 {
-//    std::cout<<"I saw a sync request"<<std::endl;
+    std::cout<<"I saw a sync request"<<std::endl;
 //    //Ken Fix this in the event the sync request a vehicle of unknown home, or it is not valid yet
 //    MissionItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(syncMSG.target_system);
 //    NewlyAvailableHomePosition(home);
 
-//    MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), syncMSG.target_system);
-//    std::vector<std::string> nonTerminals = read_topicDatagram.ListNonTerminals();
-//    NewTopic(m_VehicleDataTopic.Name(),syncMSG.target_system,nonTerminals);
+    MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), syncMSG.target_system);
+    std::vector<std::string> nonTerminals = read_topicDatagram.ListNonTerminals();
+    NewTopic(m_VehicleDataTopic.Name(),syncMSG.target_system,nonTerminals);
 
 //    Data::MissionKey key;
 //    bool valid = this->getDataObject()->getCurrentMissionKey(syncMSG.target_system,key);
@@ -127,6 +128,27 @@ void ModuleExternalLink::MACESyncMessage(const std::string &linkName, const int 
 //!
 void ModuleExternalLink::MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK)
 {
+    Data::CommandItemType cmdType = static_cast<Data::CommandItemType>(cmdACK.command);
+    Data::CommandACKType ackType = static_cast<Data::CommandACKType>(cmdACK.result);
+
+    std::string cmdString = Data::CommandItemTypeToString(cmdType);
+    std::string ackString = Data::CommandACKToString(ackType);
+
+    std::stringstream ss;
+    ss << "System " << systemID << " " << ackString << " command " << cmdString;
+    std::string newString = ss.str();
+
+    MaceCore::TopicDatagram topicDatagram;
+    DataGenericItem::DataGenericItem_Text newText;
+    newText.setSeverity(Data::StatusSeverityType::STATUS_INFO);
+    newText.setText(newString);
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
+
+    m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
+    //notify listneres of topic
+    ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+    });
 
 }
 
@@ -157,7 +179,6 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                     mace_message_t msg = helper.HeartbeatTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
                     associatedSystemID = senderID;
                     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-                    //                std::this_thread::sleep_for(std::chrono::milliseconds(200));
                 }
                 else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
                     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>();
@@ -417,8 +438,24 @@ void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHo
     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 
+//Ken FIX THIS: I dont know if I should pass the pertinent systemID with the key
 void ModuleExternalLink::NewlyAvailableMissionExeState(const Data::MissionKey &key)
 {
-    UNUSED(key);
+    MissionItem::MissionList list;
+    bool validity = this->getDataObject()->getMissionList(key,list);
+    if(validity)
+    {
+        mace_mission_exe_state_t state;
+        Data::MissionExecutionState missionState = list.getMissionExeState();
+        state.mission_creator = key.m_creatorID;
+        state.mission_id = key.m_missionID;
+        state.mission_state = (uint8_t)missionState;
+        state.mission_system = key.m_systemID;
+        state.mission_type = (uint8_t)key.m_missionType;
+
+        mace_message_t msg;
+        mace_msg_mission_exe_state_encode_chan(key.m_systemID,0,m_LinkChan,&msg,&state);
+        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+    }
 }
 

@@ -16,6 +16,7 @@ mace_message_t Generic_MACETOCOMMS::Heartbeat_MACETOCOMMS(DataGenericItem::DataG
      heartbeat.autopilot = (uint8_t)heartbeatItem.getAutopilot();
      heartbeat.mace_companion = heartbeatItem.getCompanion() ? 1 : 0;
      heartbeat.protocol = (uint8_t)heartbeatItem.getProtocol();
+     //heartbeat.missionState = (uint8_t)heartbeatItem.getMissionState();
      heartbeat.type = (uint8_t)heartbeatItem.getType();
      mace_msg_heartbeat_encode_chan(systemID,compID,chan,&msg,&heartbeat);
      return(msg);
