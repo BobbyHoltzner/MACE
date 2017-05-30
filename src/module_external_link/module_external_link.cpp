@@ -128,6 +128,27 @@ void ModuleExternalLink::MACESyncMessage(const std::string &linkName, const int 
 //!
 void ModuleExternalLink::MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK)
 {
+    Data::CommandItemType cmdType = static_cast<Data::CommandItemType>(cmdACK.command);
+    Data::CommandACKType ackType = static_cast<Data::CommandACKType>(cmdACK.result);
+
+    std::string cmdString = Data::CommandItemTypeToString(cmdType);
+    std::string ackString = Data::CommandACKToString(ackType);
+
+    std::stringstream ss;
+    ss << "System " << systemID << " " << ackString << " command " << cmdString;
+    std::string newString = ss.str();
+
+    MaceCore::TopicDatagram topicDatagram;
+    DataGenericItem::DataGenericItem_Text newText;
+    newText.setSeverity(Data::StatusSeverityType::STATUS_INFO);
+    newText.setText(newString);
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
+
+    m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
+    //notify listneres of topic
+    ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+    });
 
 }
 

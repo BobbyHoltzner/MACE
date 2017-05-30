@@ -1,6 +1,7 @@
 #ifndef MODULE_EXTERNAL_LINK_H
 #define MODULE_EXTERNAL_LINK_H
 
+#include <sstream>
 #include <iostream>
 #include <stdint.h>
 

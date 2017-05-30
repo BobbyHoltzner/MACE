@@ -917,16 +917,6 @@ void ModuleGroundStation::NewlyAvailableMissionExeState(const Data::MissionKey &
 {
     MissionItem::MissionList list;
     bool validity = this->getDataObject()->getMissionList(key,list);
-    if(validity)
-    {
-        mace_mission_exe_state_t state;
-        Data::MissionExecutionState missionState = list.getMissionExeState();
-        state.mission_creator = key.m_creatorID;
-        state.mission_id = key.m_missionID;
-        state.mission_state = (uint8_t)missionState;
-        state.mission_system = key.m_systemID;
-        state.mission_type = (uint8_t)key.m_missionType;
-    }
 }
 
 void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home)
