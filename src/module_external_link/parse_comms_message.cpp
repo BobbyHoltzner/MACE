@@ -499,6 +499,19 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
         break;
     }
+    case MACE_MSG_ID_MISSION_EXE_STATE:
+    {
+        mace_mission_exe_state_t decodedMSG;
+        mace_msg_mission_exe_state_decode(message,&decodedMSG);
+        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,static_cast<Data::MissionType>(decodedMSG.mission_type));
+        Data::MissionExecutionState state = static_cast<Data::MissionExecutionState>(decodedMSG.mission_state);
+
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->GVEvents_MissionExeStateUpdated(this, key, state);
+        });
+
+        break;
+    }
     default:
     {
         //std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;

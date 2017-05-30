@@ -416,6 +416,7 @@ void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHo
     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 
+//Ken FIX THIS: I dont know if I should pass the pertinent systemID with the key
 void ModuleExternalLink::NewlyAvailableMissionExeState(const Data::MissionKey &key)
 {
     MissionItem::MissionList list;
@@ -424,16 +425,15 @@ void ModuleExternalLink::NewlyAvailableMissionExeState(const Data::MissionKey &k
     {
         mace_mission_exe_state_t state;
         Data::MissionExecutionState missionState = list.getMissionExeState();
+        state.mission_creator = key.m_creatorID;
+        state.mission_id = key.m_missionID;
+        state.mission_state = (uint8_t)missionState;
+        state.mission_system = key.m_systemID;
+        state.mission_type = (uint8_t)key.m_missionType;
 
-        mace_home_position_t homePos;
-        float power = pow(10,7);
-        homePos.latitude = home.position.latitude * power;
-        homePos.longitude = home.position.longitude * power;
-        homePos.altitude = home.position.altitude * power;
         mace_message_t msg;
-        mace_msg_home_position_encode_chan(home.getGeneratingSystem(),0,m_LinkChan,&msg,&homePos);
+        mace_msg_mission_exe_state_encode_chan(key.m_systemID,0,m_LinkChan,&msg,&state);
         m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
     }
-    UNUSED(key);
 }
 
