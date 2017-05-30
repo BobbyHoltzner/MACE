@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE COMMAND_ACK PACKING
 
-#define MACE_MSG_ID_COMMAND_ACK 31
+#define MACE_MSG_ID_COMMAND_ACK 32
 
 MACEPACKED(
 typedef struct __mace_command_ack_t {
@@ -11,17 +11,17 @@ typedef struct __mace_command_ack_t {
 
 #define MACE_MSG_ID_COMMAND_ACK_LEN 3
 #define MACE_MSG_ID_COMMAND_ACK_MIN_LEN 3
-#define MACE_MSG_ID_31_LEN 3
-#define MACE_MSG_ID_31_MIN_LEN 3
+#define MACE_MSG_ID_32_LEN 3
+#define MACE_MSG_ID_32_MIN_LEN 3
 
 #define MACE_MSG_ID_COMMAND_ACK_CRC 143
-#define MACE_MSG_ID_31_CRC 143
+#define MACE_MSG_ID_32_CRC 143
 
 
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_COMMAND_ACK { \
-    31, \
+    32, \
     "COMMAND_ACK", \
     2, \
     {  { "command", NULL, MACE_TYPE_UINT16_T, 0, 0, offsetof(mace_command_ack_t, command) }, \

@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ModuleExternalLink::ModuleExternalLink() :
-    m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"), associatedSystemID(255),firstHearbeat(true), airborneInstance(true)
+    m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"), associatedSystemID(254), airborneInstance(true)
 {
 
 }
@@ -94,10 +94,10 @@ void ModuleExternalLink::MACEHeartbeatInfo(const std::string &linkName, const in
 
     DataGenericItem::DataGenericItem_Heartbeat heartbeat;
     heartbeat.setAutopilot(static_cast<Data::AutopilotType>(heartbeatMSG.autopilot));
-    heartbeat.setCompaion((heartbeatMSG.mace_companion>0)? true : false);
+    heartbeat.setCompanion((heartbeatMSG.mace_companion>0)? true : false);
     heartbeat.setProtocol(static_cast<Data::CommsProtocol>(heartbeatMSG.protocol));
     heartbeat.setType(static_cast<Data::SystemType>(heartbeatMSG.type));
-
+    //heartbeat.setExecutionState(static_cast<Data::MissionExecutionState>(heartbeatMSG.missionState));
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
     PublishVehicleData(systemID,ptrHeartbeat);
 }
@@ -113,10 +113,10 @@ void ModuleExternalLink::MACESyncMessage(const std::string &linkName, const int 
 //    std::vector<std::string> nonTerminals = read_topicDatagram.ListNonTerminals();
 //    NewTopic(m_VehicleDataTopic.Name(),syncMSG.target_system,nonTerminals);
 
-//    Data::MissionKey key;
-//    bool valid = this->getDataObject()->getCurrentMissionKey(syncMSG.target_system,key);
-//    if(valid)
-//        NewlyAvailableOnboardMission(key);
+    Data::MissionKey key;
+    bool valid = this->getDataObject()->getCurrentMissionKey(syncMSG.target_system,key);
+    if(valid)
+        NewlyAvailableOnboardMission(key);
 }
 
 //!
@@ -157,7 +157,6 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                     mace_message_t msg = helper.HeartbeatTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
                     associatedSystemID = senderID;
                     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-                    //                std::this_thread::sleep_for(std::chrono::milliseconds(200));
                 }
                 else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
                     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>();
@@ -419,6 +418,22 @@ void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHo
 
 void ModuleExternalLink::NewlyAvailableMissionExeState(const Data::MissionKey &key)
 {
+    MissionItem::MissionList list;
+    bool validity = this->getDataObject()->getMissionList(key,list);
+    if(validity)
+    {
+        mace_mission_exe_state_t state;
+        Data::MissionExecutionState missionState = list.getMissionExeState();
+
+        mace_home_position_t homePos;
+        float power = pow(10,7);
+        homePos.latitude = home.position.latitude * power;
+        homePos.longitude = home.position.longitude * power;
+        homePos.altitude = home.position.altitude * power;
+        mace_message_t msg;
+        mace_msg_home_position_encode_chan(home.getGeneratingSystem(),0,m_LinkChan,&msg,&homePos);
+        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+    }
     UNUSED(key);
 }
 
