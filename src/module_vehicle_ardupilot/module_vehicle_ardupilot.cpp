@@ -323,8 +323,7 @@ void ModuleVehicleArdupilot::Command_ClearOnboardGuided(const int &targetSystem)
 
 void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
-    //MaceCore::TopicDatagram topicDatagram;
-
+    //KEN clean this up
     UNUSED(linkName);
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(systemID);
     //The purpose of this module seeing if it is the first heartbeat is to establish initial comms and parameter grabs
@@ -372,6 +371,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     heartbeat.setAutopilot(Data::AutopilotType::AUTOPILOT_TYPE_ARDUPILOTMEGA);
     heartbeat.setCompanion(true);
     heartbeat.setProtocol(Data::CommsProtocol::COMMS_MAVLINK);
+
     switch(heartbeatMSG.type)
     {
     case MAV_TYPE_TRICOPTER:
@@ -387,6 +387,20 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         heartbeat.setType(Data::SystemType::SYSTEM_TYPE_GENERIC);
     }
 
+//    int missionItemIndex = tmpData->data->m_MissionItemCurrent->getMissionItemIndex();
+
+//    if(missionItemIndex > 0 && flight mode is auto)
+//    {
+//        //we are currently in a state of execution
+//    }
+//    else if(missionItemIndex > 0 && flight mode is not auto)
+//    {
+//        //we are currently in a state of pause
+//    }
+//    else if(missionItemIndex == 0)
+//    {
+//        //we have never executed the mission
+//    }
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
     rtnVector.push_back(ptrHeartbeat);
 
@@ -401,6 +415,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     DataARDUPILOT::VehicleFlightMode newDataMode;
     newDataMode.parseMAVLINK(heartbeatMSG);
     newDataMode.getFlightModeString();
+
     DataGenericItem::DataGenericItem_FlightMode mode;
     mode.setFlightMode(newDataMode.getFlightModeString());
     if(tmpData->data->vehicleMode.set(mode))
