@@ -79,7 +79,16 @@ export class Vehicle{
         };
 
         // Set blank mission
-        this.vehicleMission = {descriptions: [], latLons: [], itemTypes: [], icons: []};
+        this.vehicleMission = {
+            descriptions: [],
+            latLons: [],
+            itemTypes: [],
+            icons: [],
+            missionID: 0,
+            creatorID: 0,
+            missionState: "UNEXECUTED",
+            missionType: "AUTO"
+        };
 
         // Set default homePosition
         let homeIcon = new L.Icon({
@@ -132,6 +141,20 @@ export class Vehicle{
 
             // Set prevLatLng to this lat lng
             prevLatLng = tmpLatLng;
+        }
+
+        // If set, set the meta data:
+        if(mission.creatorID) {
+            this.vehicleMission.creatorID = mission.creatorID;
+        }
+        if(mission.missionID) {
+            this.vehicleMission.missionID = mission.missionID;
+        }
+        if(mission.missionState) {
+            this.vehicleMission.missionState = mission.missionState;
+        }
+        if(mission.missionType) {
+            this.vehicleMission.missionType = mission.missionType;
         }
     }
 

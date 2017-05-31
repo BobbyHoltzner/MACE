@@ -58,6 +58,41 @@ enum class MissionType : uint8_t
     ALL
 };
 
+inline MissionType MissionTypeFromString(const std::string &str) {
+    if(str == "AUTO")
+        return MissionType::AUTO;
+    if(str == "GUIDED")
+        return MissionType::GUIDED;
+    if(str == "ROI")
+        return MissionType::ROI;
+    if(str == "FENCE")
+        return MissionType::FENCE;
+    if(str == "RALLY")
+        return MissionType::RALLY;
+    if(str == "ALL")
+        return MissionType::ALL;
+    throw std::runtime_error("Unknown string MissionType seen");
+}
+
+inline std::string MissionTypeToString(const MissionType &type) {
+    switch (type) {
+    case MissionType::AUTO:
+        return "AUTO";
+    case MissionType::GUIDED:
+        return "GUIDED";
+    case MissionType::ROI:
+        return "ROI";
+    case MissionType::FENCE:
+        return "FENCE";
+    case MissionType::RALLY:
+        return "RALLY";
+    case MissionType::ALL:
+        return "ALL";
+    default:
+        throw std::runtime_error("Unknown MissionType seen");
+    }
+}
+
 }
 
 #endif // MISSION_TYPE_H

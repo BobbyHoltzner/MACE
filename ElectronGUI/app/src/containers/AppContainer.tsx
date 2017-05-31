@@ -5,7 +5,6 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme();
 
 var NotificationSystem = require('react-notification-system');
-import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon } from 'react-leaflet';
 import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
 import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
 import { VehicleCommandsContainer } from './VehicleCommandsContainer';
@@ -17,18 +16,18 @@ import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { Vehicle } from '../Vehicle';
-import { backgroundColors, opaqueBackgroundColors } from '../util/Colors';
 import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
 import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
 import { MessagesDialog } from '../components/MessagesDialog';
 import { TakeoffDialog } from '../components/TakeoffDialog';
-import { ContextMenu } from '../components/ContextMenu';
+import MACEMap from '../components/MACEMap';
 
 import * as deepcopy from 'deepcopy';
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 var net = require('net');
+
 
 
 type Props = {
@@ -38,9 +37,6 @@ type State = {
   tcpClient?: any,
   tcpHost?: string,
   tcpPort?: number,
-  maxZoom?: number,
-  mapZoom?: number,
-  mapCenter?: number[],
   connectedVehicles?: {[id: string]: Vehicle}
   vehicleWarnings?: VehicleWarning[]
   selectedVehicleID?: string,
@@ -50,19 +46,20 @@ type State = {
   allowVehicleSelect?: boolean,
   showEditVehicleHomeDialog?: boolean,
   showEditGlobalHomeDialog?: boolean,
-  globalOrigin?: PositionType,
-  showContextMenu?: boolean,
-  contextAnchor?: L.LeafletMouseEvent,
-  useContext?: boolean,
   showMessagesMenu?: boolean,
   messagePreferences?: MessagePreferencesType,
   takeoffAlt?: number,
   showTakeoffDialog?: boolean,
-  showSaveTakeoff?: boolean
+  showSaveTakeoff?: boolean,
+  maxZoom?: number,
+  mapZoom?: number,
+  mapCenter?: number[]
+  globalOrigin?: PositionType
+  useContext?: boolean,
+  contextAnchor?: L.LeafletMouseEvent
 }
 
 export default class AppContainer extends React.Component<Props, State> {
-  leafletMap: L.Map;
   notificationSystem: NotificationSystem;
   m_AttitudeInterval: number[];
   m_AttitudeTimeout: number;
@@ -95,9 +92,6 @@ export default class AppContainer extends React.Component<Props, State> {
       showEditGlobalHomeDialog: false,
       globalOrigin: {lat: 0, lon: 0, alt: 0},
       selectedVehicleID: "0",
-      showContextMenu: false,
-      contextAnchor: null,
-      useContext: false,
       showMessagesMenu: false,
       messagePreferences: {
         emergency: true,
@@ -116,13 +110,25 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   componentDidMount(){
-    this.leafletMap = this.refs.map;
+    // // Performance testing:
+    // setTimeout(() => {
+    //   Perf.start();
+    //   setTimeout(() => {
+    //     Perf.stop();
+    //     const measurements = Perf.getLastMeasurements();
+    //     Perf.printWasted(measurements);
+    //   }, 30000);
+    // }, 5000);
+    // // End performance testing
+
     this.notificationSystem = this.refs.notificationSystem;
     this.setupTCPServer();
 
+    this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
+
     setInterval(() => {
       this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
-    }, 2000);
+    }, 10000);
   }
 
   setupTCPServer = () => {
@@ -164,6 +170,8 @@ export default class AppContainer extends React.Component<Props, State> {
 
   parseTCPClientData = (jsonData: TCPReturnType) => {
     let stateCopy = deepcopy(this.state.connectedVehicles);
+
+    console.log("Test parse: " + jsonData.dataType);
 
     if(jsonData.dataType === "ConnectedVehicles"){
       let jsonVehicles = jsonData as ConnectedVehiclesType;
@@ -463,13 +471,8 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({globalOrigin: globalOrigin});
   }
 
-  triggerContextMenu = (event: L.LeafletMouseEvent) => {
-    this.setState({contextAnchor: event, showContextMenu: !this.state.showContextMenu});
-  }
-
   contextSetHome = () => {
     this.setState({
-      showContextMenu: false,
       showEditVehicleHomeDialog: true,
       allowVehicleSelect: true,
       showEditGlobalHomeDialog: false,
@@ -479,7 +482,6 @@ export default class AppContainer extends React.Component<Props, State> {
 
   contextSetGlobal = () => {
     this.setState({
-      showContextMenu: false,
       showEditGlobalHomeDialog: true,
       allowVehicleSelect: false,
       showEditVehicleHomeDialog: false,
@@ -489,7 +491,6 @@ export default class AppContainer extends React.Component<Props, State> {
 
   contextGoHere = () => {
     this.setState({
-      showContextMenu: false,
       showEditGlobalHomeDialog: false,
       allowVehicleSelect: false,
       showEditVehicleHomeDialog: false,
@@ -524,15 +525,6 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({connectedVehicles: stateCopy, selectedVehicleID: selectedID});
   }
 
-  handleMapClick = (e: L.LeafletMouseEvent) => {
-    this.setState({showContextMenu: false});
-  }
-
-  handleMarkerClick = (e: L.LeafletMouseEvent, vehicleId: string, type: string) => {
-    this.handleSelectedAircraftUpdate(vehicleId);
-    this.setState({showContextMenu: false});
-  }
-
   handleSaveMessagingPreferences = (preferences: MessagePreferencesType) => {
     this.setState({messagePreferences: preferences});
   }
@@ -546,12 +538,15 @@ export default class AppContainer extends React.Component<Props, State> {
     this.makeTCPRequest(parseInt(vehicleID), "VEHICLE_TAKEOFF", JSON.stringify(takeoffPosition));
   }
 
+  updateMapCenter = (e: L.LeafletMouseEvent) => {
+    this.setState({mapCenter: [e.target.getCenter().lat, e.target.getCenter().lng], mapZoom: e.target.getZoom()});
+  }
+
   render() {
 
     const width = window.screen.width;
     const height = window.screen.height;
     const parentStyle = {height: height + 'px', width: width + 'px'};
-    const mapStyle = { top: 0, left: 0, height: height + 'px', width: width + 'px' };
 
     const MoreVertMenu = () => (
       <IconMenu
@@ -563,16 +558,6 @@ export default class AppContainer extends React.Component<Props, State> {
         <MenuItem onClick={() => console.log("Path Planning")} primaryText="Path Planning Parameters" />
       </IconMenu>
     );
-
-    const globalOriginMarker = {
-      position: new L.LatLng(this.state.globalOrigin.lat, this.state.globalOrigin.lon),
-      icon: new L.Icon({
-          iconUrl: './images/userlocation_icon.png',
-          iconSize: [41, 41], // size of the icon
-          iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
-          popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-      })
-    };
 
     return (
         <MuiThemeProvider muiTheme={lightMuiTheme}>
@@ -652,84 +637,22 @@ export default class AppContainer extends React.Component<Props, State> {
               handleSaveTakeoff={(alt: number) => this.setState({takeoffAlt: alt})}
             />
 
-            {this.state.showContextMenu &&
-              <ContextMenu
-                menuAnchor={this.state.contextAnchor}
-                handleClose={() => this.setState({showContextMenu: false})}
-                handleSetHome={this.contextSetHome}
-                handleSetGlobal={this.contextSetGlobal}
-                handleGoHere={this.contextGoHere}
-              />
-            }
+            <MACEMap
+              handleSelectedAircraftUpdate={this.handleSelectedAircraftUpdate}
+              setContextAnchor={(anchor: L.LeafletMouseEvent) => this.setState({contextAnchor: anchor})}
+              connectedVehicles={this.state.connectedVehicles}
+              selectedVehicleID={this.state.selectedVehicleID}
+              mapCenter={this.state.mapCenter}
+              maxZoom={this.state.maxZoom}
+              mapZoom={this.state.mapZoom}
+              globalOrigin={this.state.globalOrigin}
+              updateMapCenter={this.updateMapCenter}
+              contextAnchor={this.state.contextAnchor}
+              contextSetGlobal={this.contextSetGlobal}
+              contextSetHome={this.contextSetHome}
+              contextGoHere={this.contextGoHere}
+             />
 
-            <Map ref="map" onDragend={(e: L.LeafletMouseEvent) => this.setState({mapCenter: [e.target.getCenter().lat, e.target.getCenter().lng], mapZoom: e.target.getZoom()})} useFlyTo={true} animate={true} center={this.state.mapCenter} zoom={this.state.mapZoom} style={mapStyle} zoomControl={false} maxZoom={this.state.maxZoom} onContextmenu={this.triggerContextMenu} onDrag={() => this.setState({showContextMenu: false})} >
-                {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
-                <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.state.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
-
-                <LayerGroup>
-
-                  {/* Aircraft Icons */}
-                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
-                    return (
-                      <Marker zIndexOffset={1000} onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.state.connectedVehicles[key].vehicleMarker.latLon} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
-                      {/*
-                        <Popup open={true}>
-                        </Popup>
-                      */}
-                      </Marker>
-                    );
-                  })}
-
-                  {/* Home Icons */}
-                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
-                    return (
-                      <Marker onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "home")} key={key} position={this.state.connectedVehicles[key].homePosition.latLon} icon={this.state.connectedVehicles[key].homePosition.icon} title={key}>
-                      {/*
-                        <Popup open={true}>
-                          <span>Selected</span>
-                        </Popup>
-                      */}
-                      </Marker>
-                    );
-                  })}
-
-                  {/* Global Origin */}
-                  <Marker position={globalOriginMarker.position} icon={globalOriginMarker.icon}>
-                  {/*
-                    <Popup open={true}>
-                      <span>Selected</span>
-                    </Popup>
-                  */}
-                  </Marker>
-
-                  {/* Mission Paths */}
-                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
-                    return (
-                      <Polyline key={key} positions={this.state.connectedVehicles[key].vehicleMission.latLons} color={this.state.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} />
-                    );
-                  })}
-
-                  {/* Mission Markers */}
-                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
-                    let markers: JSX.Element[] = [];
-                    for(let i = 0; i < this.state.connectedVehicles[key].vehicleMission.latLons.length; i++){
-                      markers.push(<Marker key={i} position={this.state.connectedVehicles[key].vehicleMission.latLons[i]} icon={this.state.connectedVehicles[key].vehicleMission.icons[i]} title={key} />);
-                    }
-                    return (
-                      markers
-                    );
-                  })}
-
-                  {/* Sensor Footprint */}
-                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
-                    return (
-                      <Polygon key={key} positions={this.state.connectedVehicles[key].sensorFootprint} color={this.state.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} fillColor={colors.amber500} />
-                    );
-                  })}
-
-
-                </LayerGroup>
-            </Map>
 
             <div>
               <NotificationSystem ref="notificationSystem" />

@@ -102,6 +102,7 @@ private:
     void sendMissionItemReached(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionItemReachedTopic> &component);
     void sendVehicleArm(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> &component);
     void sendVehicleAirspeed(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAirspeedTopic> &component);
+    void sendMissionState(const Data::MissionKey &key, const MissionItem::MissionList &list);
 
     bool writeTCPData(QByteArray data);
 

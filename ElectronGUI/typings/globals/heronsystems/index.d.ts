@@ -73,7 +73,11 @@ type MissionItemType = PositionType & {
 };
 
 type TCPMissionType = TCPDescriptorType & {
-  missionItems: MissionItemType[]
+  missionItems: MissionItemType[],
+  missionType?: string,
+  creatorID?: number,
+  missionID?: number,
+  missionState?: string
 };
 
 type TCPSensorFootprintType = TCPDescriptorType & {
@@ -121,7 +125,11 @@ type MissionLayerType = {
   descriptions: string[],
   latLons: L.LatLng[],
   itemTypes: string[],
-  icons: L.Icon[]
+  icons: L.Icon[],
+  missionType?: string,
+  creatorID?: number,
+  missionID?: number,
+  missionState?: string
 };
 
 type MessagePreferencesType = {

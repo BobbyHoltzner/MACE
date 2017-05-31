@@ -53,14 +53,22 @@ ModuleGroundStation::ModuleGroundStation() :
     // Start timer:
     m_timer = std::make_shared<GUITimer>([=]()
     {
-        m_positionTimeoutOccured = true;
-        m_attitudeTimeoutOccured = true;
-        m_modeTimeoutOccured = true;
-        m_fuelTimeoutOccured = true;
+        if(!m_positionTimeoutOccured) {
+            m_positionTimeoutOccured = true;
+        }
+        if(!m_attitudeTimeoutOccured) {
+            m_attitudeTimeoutOccured = true;
+        }
+        if(!m_modeTimeoutOccured) {
+            m_modeTimeoutOccured = true;
+        }
+        if(!m_fuelTimeoutOccured) {
+            m_fuelTimeoutOccured = true;
+        }
     });
 
     m_timer->setSingleShot(false);
-    m_timer->setInterval(GUITimer::Interval(500));
+    m_timer->setInterval(GUITimer::Interval(300));
     m_timer->start(true);
 }
 
@@ -534,7 +542,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 sendVehicleArm(senderID, component);
             }
             else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Heartbeat::Name()){
-                // TODO: 1) Vehicle type
                 std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
@@ -652,8 +659,12 @@ void ModuleGroundStation::sendVehicleMission(const int &vehicleID, const Mission
     QJsonObject json;
     json["dataType"] = "VehicleMission";
     json["vehicleID"] = vehicleID;
-    //    json["missionType"] = component->getCommandType();
+    json["creatorID"] = missionList.getCreatorID();
+    json["missionID"] = (int)missionList.getMissionID();
 
+    Data::MissionExecutionState missionState = missionList.getMissionExeState();
+    json["missionState"] = QString::fromStdString(Data::MissionExecutionStateToString(missionState));
+    json["missionType"] = QString::fromStdString(Data::MissionTypeToString(missionList.getMissionType()));
     QJsonArray missionItems;
     missionListToJSON(missionList,missionItems);
     json["missionItems"] = missionItems;
@@ -665,6 +676,7 @@ void ModuleGroundStation::sendVehicleMission(const int &vehicleID, const Mission
         std::cout << "Write Vehicle Mission Data failed..." << std::endl;
     }
 }
+
 
 void ModuleGroundStation::sendSensorFootprint(const int &vehicleID, const std::shared_ptr<DataVehicleSensors::SensorVertices_Global> &component) {
     QJsonObject json;
@@ -910,13 +922,20 @@ void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &m
     MissionItem::MissionList newList;
     bool valid = this->getDataObject()->getMissionList(missionKey,newList);
     if(valid)
+    {
         sendVehicleMission(missionKey.m_systemID,newList);
+    }
 }
 
 void ModuleGroundStation::NewlyAvailableMissionExeState(const Data::MissionKey &key)
 {
     MissionItem::MissionList list;
     bool validity = this->getDataObject()->getMissionList(key,list);
+
+    if(validity)
+    {
+        sendVehicleMission(key.m_systemID, list);
+    }
 }
 
 void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home)
