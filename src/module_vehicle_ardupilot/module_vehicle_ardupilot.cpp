@@ -271,7 +271,8 @@ void ModuleVehicleArdupilot::Command_SetCurrentMission(const Data::MissionKey &k
 
 void ModuleVehicleArdupilot::Command_GetCurrentMission(const int &targetSystem)
 {
-    UNUSED(targetSystem);
+    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
+    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::Command_GetMission(const Data::MissionKey &key)
@@ -331,7 +332,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     if(!tmpData->data->getHearbeatSeen())
     {
         mavlink_message_t msg;
-
+        std::cout<<"A new heartbeat was seen from "<<systemID<<std::endl;
         //this is the first time we have seen this heartbeat
         //Let us first turn on the data streams
         mavlink_request_data_stream_t request;
@@ -381,7 +382,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         heartbeat.setType(Data::SystemType::SYSTEM_TYPE_QUADROTOR);
         break;
     case MAV_TYPE_FIXED_WING:
-        heartbeat.setType(Data::SystemType::SYSTEM_TYPE_GENERIC);
+        heartbeat.setType(Data::SystemType::SYSTEM_TYPE_FIXED_WING);
         break;
     default:
         heartbeat.setType(Data::SystemType::SYSTEM_TYPE_GENERIC);
