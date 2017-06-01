@@ -2,6 +2,7 @@
 
 bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, const std::string &linkName, const mavlink_message_t* message)
 {
+
     bool parsedMissionMSG = true;
     int sysID = message->sysid;
     int compID = message->compid;

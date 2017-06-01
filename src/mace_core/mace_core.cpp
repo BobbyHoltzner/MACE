@@ -415,7 +415,7 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
    //Now update all potential listeners based on the type 
     if(m_GroundStation)
     {
-        if(m_DataFusion->getCurrentMissionValidity(missionList.getVehicleID()) == false)
+        if(m_DataFusion->getCurrentMissionValidity(missionList.getVehicleID()))
         {
             m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,missionList.getMissionKey());
         }
