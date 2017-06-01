@@ -35,7 +35,7 @@ export function aircraftImgSrcFromType(acType: string) {
         filename = "";
     }
     else if(acType === "FIXED_WING") {
-        filename = "./images/plane-icon.png";
+        filename = "./images/fixed-wing.png";
     }
 
     return filename;
