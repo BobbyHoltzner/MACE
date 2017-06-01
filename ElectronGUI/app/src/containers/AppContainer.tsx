@@ -58,7 +58,8 @@ type State = {
   mapCenter?: number[]
   globalOrigin?: PositionType
   useContext?: boolean,
-  contextAnchor?: L.LeafletMouseEvent
+  contextAnchor?: L.LeafletMouseEvent,
+  MACEConnected?: boolean
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -112,7 +113,8 @@ export default class AppContainer extends React.Component<Props, State> {
       },
       takeoffAlt: 10,
       showTakeoffDialog: false,
-      showSaveTakeoff: false
+      showSaveTakeoff: false,
+      MACEConnected: false
     }
   }
 
@@ -170,6 +172,7 @@ export default class AppContainer extends React.Component<Props, State> {
     // TODO: Allow for user configuration of the port and probably address too
     try{
       this.state.tcpServer.listen(1234);
+      this.setState({MACEConnected: true});
     }
     catch(e) {
       console.log('Error: ' + e);
@@ -186,8 +189,6 @@ export default class AppContainer extends React.Component<Props, State> {
 
   parseTCPClientData = (jsonData: TCPReturnType) => {
     let stateCopy = deepcopy(this.state.connectedVehicles);
-
-    // console.log("Test parse: " + jsonData.dataType);
 
     if(jsonData.dataType === "ConnectedVehicles"){
       let jsonVehicles = jsonData as ConnectedVehiclesType;
@@ -409,6 +410,10 @@ export default class AppContainer extends React.Component<Props, State> {
 
         // Close the client socket completely
         socket.destroy();
+
+        if(this.state.MACEConnected === false) {
+          this.setState({MACEConnected: true});
+        }
     }.bind(this));
 
     // Add a 'close' event handler for the client socket
@@ -444,7 +449,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
   handleClearGUI = () => {
     this.vehicleDB = {};
-    this.setState({connectedVehicles: {}, selectedVehicleID: "0"});
+    this.setState({connectedVehicles: {}, selectedVehicleID: "0", MACEConnected: false});
   }
 
   handleAircraftCommand = (id: string, tcpCommand: string, vehicleCommand: string) => {
@@ -678,6 +683,7 @@ export default class AppContainer extends React.Component<Props, State> {
               contextSetGlobal={this.contextSetGlobal}
               contextSetHome={this.contextSetHome}
               contextGoHere={this.contextGoHere}
+              MACEConnected={this.state.MACEConnected}
              />
 
 

@@ -60,12 +60,12 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
             this.state.selectedAircraftID = nextProps.selectedAircraftID;
         }
 
-        if(Object.keys(this.props.connectedVehicles).length > 0 && this.props.selectedAircraftID !== "0") {
-            if(this.props.connectedVehicles[this.props.selectedAircraftID].vehicleMission.missionState === nextProps.connectedVehicles[this.props.selectedAircraftID].vehicleMission.missionState) {
-                this.state.missionButtonText = this.getMissionButtonText();
-                this.state.missionButtonIcon = this.getExecutionStateIconString();
-            }
-        }
+        // if(Object.keys(nextProps.connectedVehicles).length > 0 && this.props.selectedAircraftID !== "0") {
+        //     if(this.props.connectedVehicles[this.props.selectedAircraftID].vehicleMission.missionState === nextProps.connectedVehicles[this.props.selectedAircraftID].vehicleMission.missionState) {
+        //         this.state.missionButtonText = this.getMissionButtonText();
+        //         this.state.missionButtonIcon = this.getExecutionStateIconString();
+        //     }
+        // }
     }
 
     handleDropdownChange = (event: any, index: number, value: string) => {

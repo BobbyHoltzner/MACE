@@ -5,7 +5,7 @@ export function aircraftImgSrcFromType(acType: string) {
         filename = "";
     }
     else if(acType === "HELICOPTER") {
-        filename = "./images/plane-icon.png";
+        filename = "./images/heli-icon.png";
     }
     else if(acType === "GCS") {
         filename = "";
@@ -35,7 +35,7 @@ export function aircraftImgSrcFromType(acType: string) {
         filename = "";
     }
     else if(acType === "FIXED_WING") {
-        filename = "./images/fixed-wing.png";
+        filename = "./images/fplane-icon.png";
     }
 
     return filename;

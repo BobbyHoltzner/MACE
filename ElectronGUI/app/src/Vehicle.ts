@@ -291,6 +291,8 @@ export class Vehicle{
             posUpdate = newPos;
         }
 
+        console.log("Aircraft Type: " + this.general.aircraftType);
+
         let iconBackgroundColor = this.isSelected ? backgroundColors[this.vehicleId] : opaqueBackgroundColors[this.vehicleId];
         let aircraftIconSrc = aircraftImgSrcFromType(this.general.aircraftType);
         let iconHTML = '<div style="background-color: ' + iconBackgroundColor + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="' + aircraftIconSrc + '" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';

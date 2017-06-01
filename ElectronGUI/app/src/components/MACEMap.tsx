@@ -12,8 +12,6 @@ import { ContextMenu } from '../components/ContextMenu';
 
 import * as deepcopy from 'deepcopy';
 
-
-
 type Props = {
     handleSelectedAircraftUpdate: (id: string) => void,
     connectedVehicles: {[id: string]: Vehicle},
@@ -27,7 +25,8 @@ type Props = {
     contextSetGlobal: () => void,
     contextGoHere: () => void,
     setContextAnchor: (e: L.LeafletMouseEvent) => void
-    contextAnchor: L.LeafletMouseEvent
+    contextAnchor: L.LeafletMouseEvent,
+    MACEConnected: boolean
 }
 
 type State = {
@@ -53,17 +52,6 @@ export default class MACEMap extends React.Component<Props, State> {
   // }
 
   componentDidMount(){
-    // // Performance testing:
-    // setTimeout(() => {
-    //   Perf.start();
-    //   setTimeout(() => {
-    //     Perf.stop();
-    //     const measurements = Perf.getLastMeasurements();
-    //     Perf.printWasted(measurements);
-    //   }, 30000);
-    // }, 5000);
-    // // End performance testing
-
     this.leafletMap = this.refs.map;
   }
 
@@ -113,68 +101,71 @@ export default class MACEMap extends React.Component<Props, State> {
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.props.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
 
-                <LayerGroup>
+                {this.props.MACEConnected &&
+                  <LayerGroup>
 
-                  {/* Aircraft Icons */}
-                  {Object.keys(this.props.connectedVehicles).map((key: string) => {
-                    return (
-                      <Marker zIndexOffset={1000} onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.props.connectedVehicles[key].vehicleMarker.latLon} icon={this.props.connectedVehicles[key].vehicleMarker.icon} title={key}>
-                      {/*
-                        <Popup open={true}>
-                        </Popup>
-                      */}
-                      </Marker>
-                    );
-                  })}
+                    {/* Aircraft Icons */}
+                    {Object.keys(this.props.connectedVehicles).map((key: string) => {
+                      return (
+                        <Marker zIndexOffset={1000} onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.props.connectedVehicles[key].vehicleMarker.latLon} icon={this.props.connectedVehicles[key].vehicleMarker.icon} title={key}>
+                        {/*
+                          <Popup open={true}>
+                          </Popup>
+                        */}
+                        </Marker>
+                      );
+                    })}
 
-                  {/* Home Icons */}
-                  {Object.keys(this.props.connectedVehicles).map((key: string) => {
-                    return (
-                      <Marker onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "home")} key={key} position={this.props.connectedVehicles[key].homePosition.latLon} icon={this.props.connectedVehicles[key].homePosition.icon} title={key}>
-                      {/*
-                        <Popup open={true}>
-                          <span>Selected</span>
-                        </Popup>
-                      */}
-                      </Marker>
-                    );
-                  })}
+                    {/* Home Icons */}
+                    {Object.keys(this.props.connectedVehicles).map((key: string) => {
+                      return (
+                        <Marker onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "home")} key={key} position={this.props.connectedVehicles[key].homePosition.latLon} icon={this.props.connectedVehicles[key].homePosition.icon} title={key}>
+                        {/*
+                          <Popup open={true}>
+                            <span>Selected</span>
+                          </Popup>
+                        */}
+                        </Marker>
+                      );
+                    })}
 
-                  {/* Global Origin */}
-                  <Marker position={globalOriginMarker.position} icon={globalOriginMarker.icon}>
-                  {/*
-                    <Popup open={true}>
-                      <span>Selected</span>
-                    </Popup>
-                  */}
-                  </Marker>
+                    {/* Global Origin */}
+                    <Marker position={globalOriginMarker.position} icon={globalOriginMarker.icon}>
+                    {/*
+                      <Popup open={true}>
+                        <span>Selected</span>
+                      </Popup>
+                    */}
+                    </Marker>
 
-                  {/* Mission Paths */}
-                  {Object.keys(this.props.connectedVehicles).map((key: string) => {
-                    return (
-                      <Polyline key={key} positions={this.props.connectedVehicles[key].vehicleMission.latLons} color={this.props.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} />
-                    );
-                  })}
+                    {/* Mission Paths */}
+                    {Object.keys(this.props.connectedVehicles).map((key: string) => {
+                      return (
+                        <Polyline key={key} positions={this.props.connectedVehicles[key].vehicleMission.latLons} color={this.props.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} />
+                      );
+                    })}
 
-                  {/* Mission Markers */}
-                  {Object.keys(this.props.connectedVehicles).map((key: string) => {
-                    let markers: JSX.Element[] = [];
-                    for(let i = 0; i < this.props.connectedVehicles[key].vehicleMission.latLons.length; i++){
-                      markers.push(<Marker key={i} position={this.props.connectedVehicles[key].vehicleMission.latLons[i]} icon={this.props.connectedVehicles[key].vehicleMission.icons[i]} title={key} />);
-                    }
-                    return (
-                      markers
-                    );
-                  })}
+                    {/* Mission Markers */}
+                    {Object.keys(this.props.connectedVehicles).map((key: string) => {
+                      let markers: JSX.Element[] = [];
+                      for(let i = 0; i < this.props.connectedVehicles[key].vehicleMission.latLons.length; i++){
+                        markers.push(<Marker key={i} position={this.props.connectedVehicles[key].vehicleMission.latLons[i]} icon={this.props.connectedVehicles[key].vehicleMission.icons[i]} title={key} />);
+                      }
+                      return (
+                        markers
+                      );
+                    })}
 
-                  {/* Sensor Footprint */}
-                  {Object.keys(this.props.connectedVehicles).map((key: string) => {
-                    return (
-                      <Polygon key={key} positions={this.props.connectedVehicles[key].sensorFootprint} color={this.props.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} fillColor={colors.amber500} />
-                    );
-                  })}
+                    {/* Sensor Footprint */}
+                    {Object.keys(this.props.connectedVehicles).map((key: string) => {
+                      return (
+                        <Polygon key={key} positions={this.props.connectedVehicles[key].sensorFootprint} color={this.props.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} fillColor={colors.amber500} />
+                      );
+                    })}
 
-                </LayerGroup>
+                  </LayerGroup>
+                }
+
             </Map>
           </div>
         </MuiThemeProvider>
