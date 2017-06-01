@@ -22,25 +22,32 @@ SOURCES += \
 HEADERS += data_global.h \
     i_topic_component_data_object.h \
     topic_data_object_collection.h \
-    positional_coordinate_frame.h \
     coordinate_frame.h \
     vehicle_command_types.h \
     vehicle_types.h \
     timer.h \
     operating_mode.h \
-    altitude_frame.h \
     speed_frame.h \
     autopilot_types.h \
     controller_state.h \
     system_description.h \
-    mission_state.h \
-    command_acknowledgement.h \
     mission_type.h \
     environment_time.h \
     date.h \
     mission_key.h \
     mission_key_change.h \
-    abstract_position_item.h
+    data_get_set_notifier.h \
+    mission_ack.h \
+    threadmanager.h \
+    system_type.h \
+    comms_protocol.h \
+    gps_fix_type.h \
+    status_severity_type.h \
+    command_item_type.h \
+    command_ack_type.h \
+    mission_command.h \
+    mission_execution_state.h \
+    command_validity_type.h
     loiter_direction.h
 
 # Unix lib Install

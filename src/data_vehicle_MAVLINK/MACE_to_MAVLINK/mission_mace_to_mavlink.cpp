@@ -7,14 +7,14 @@ Mission_MACETOMAVLINK::Mission_MACETOMAVLINK(const int &systemID, const int &com
 
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::Home_MACETOMAVLINK(const MissionItem::SpatialHome &missionItem, const uint8_t &chan, const uint8_t &compID)
+mavlink_message_t Mission_MACETOMAVLINK::Home_MACETOMAVLINK(const CommandItem::SpatialHome &missionItem, const uint8_t &chan, const uint8_t &compID)
 {
     mavlink_message_t msg;
     mavlink_home_position_t homePosition;
     homePosition.latitude = missionItem.position.latitude * pow(10,7);
     homePosition.longitude = missionItem.position.longitude * pow(10,7);
     homePosition.altitude = missionItem.position.altitude * pow(10,3);
-    mavlink_msg_home_position_encode_chan(missionItem.getVehicleID(),0,chan,&msg,&homePosition);
+    mavlink_msg_home_position_encode_chan(missionItem.getGeneratingSystem(),0,chan,&msg,&homePosition);
     return msg;
 }
 
@@ -46,29 +46,29 @@ mavlink_message_t Mission_MACETOMAVLINK::packMissionItem(const mavlink_mission_i
 }
 
 
-bool Mission_MACETOMAVLINK::MACEMissionToMAVLINKMission(std::shared_ptr<MissionItem::AbstractMissionItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex, mavlink_message_t &msg)
+bool Mission_MACETOMAVLINK::MACEMissionToMAVLINKMission(std::shared_ptr<CommandItem::AbstractCommandItem> missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex, mavlink_message_t &msg)
 {
-    switch(missionItem->getMissionType())
+    switch(missionItem->getCommandType())
     {
-    case(MissionItem::MissionItemType::CHANGE_SPEED):
+    case(Data::CommandItemType::CI_ACT_CHANGESPEED):
     {
-        std::shared_ptr<MissionItem::ActionChangeSpeed> castItem = std::dynamic_pointer_cast<MissionItem::ActionChangeSpeed>(missionItem);
-        MissionItem::ActionChangeSpeed baseItem = *castItem.get();
+        std::shared_ptr<CommandItem::ActionChangeSpeed> castItem = std::dynamic_pointer_cast<CommandItem::ActionChangeSpeed>(missionItem);
+        CommandItem::ActionChangeSpeed baseItem = *castItem.get();
         msg = ChangeSpeed_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
         return true;
     break;
     }
-    case(MissionItem::MissionItemType::LAND):
+    case(Data::CommandItemType::CI_NAV_LAND):
     {
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
         {
-            std::shared_ptr<MissionItem::SpatialLand<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialLand<DataState::StateGlobalPosition>>(missionItem);
-            MissionItem::SpatialLand<DataState::StateGlobalPosition> baseItem = *castItem.get();
+            std::shared_ptr<CommandItem::SpatialLand<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLand<DataState::StateGlobalPosition>>(missionItem);
+            CommandItem::SpatialLand<DataState::StateGlobalPosition> baseItem = *castItem.get();
             msg = Land_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
             return true;
-        }else if(missionItem->getPositionalFrame() == Data::PositionalFrame::LOCAL){
-            std::shared_ptr<MissionItem::SpatialLand<DataState::StateLocalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialLand<DataState::StateLocalPosition>>(missionItem);
-            MissionItem::SpatialLand<DataState::StateLocalPosition> baseItem = *castItem.get();
+        }else if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_LOCAL_ENU){
+            std::shared_ptr<CommandItem::SpatialLand<DataState::StateLocalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLand<DataState::StateLocalPosition>>(missionItem);
+            CommandItem::SpatialLand<DataState::StateLocalPosition> baseItem = *castItem.get();
             msg = Land_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
             return true;
         }else{
@@ -76,17 +76,17 @@ bool Mission_MACETOMAVLINK::MACEMissionToMAVLINKMission(std::shared_ptr<MissionI
         }
         break;
     }
-    case(MissionItem::MissionItemType::LOITER_TIME):
+    case(Data::CommandItemType::CI_NAV_LOITER_TIME):
     {
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
         {
-            std::shared_ptr<MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition>>(missionItem);
-            MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition> baseItem = *castItem.get();
+            std::shared_ptr<CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition>>(missionItem);
+            CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition> baseItem = *castItem.get();
             msg = LoiterTime_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
             return true;
-        }else if(missionItem->getPositionalFrame() == Data::PositionalFrame::LOCAL){
-            std::shared_ptr<MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition>>(missionItem);
-            MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition> baseItem = *castItem.get();
+        }else if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_LOCAL_ENU){
+            std::shared_ptr<CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition>>(missionItem);
+            CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition> baseItem = *castItem.get();
             msg = LoiterTime_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
             return true;
         }else{
@@ -94,17 +94,17 @@ bool Mission_MACETOMAVLINK::MACEMissionToMAVLINKMission(std::shared_ptr<MissionI
         }
         break;
     }
-    case(MissionItem::MissionItemType::LOITER_TURNS):
+    case(Data::CommandItemType::CI_NAV_LOITER_TURNS):
     {
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
         {
-            std::shared_ptr<MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition>>(missionItem);
-            MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> baseItem = *castItem.get();
+            std::shared_ptr<CommandItem::SpatialLoiter_Turns<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLoiter_Turns<DataState::StateGlobalPosition>>(missionItem);
+            CommandItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> baseItem = *castItem.get();
             msg = LoiterTurns_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
             return true;
-        }else if(missionItem->getPositionalFrame() == Data::PositionalFrame::LOCAL){
-            std::shared_ptr<MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition>>(missionItem);
-            MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition> baseItem = *castItem.get();
+        }else if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_LOCAL_ENU){
+            std::shared_ptr<CommandItem::SpatialLoiter_Turns<DataState::StateLocalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLoiter_Turns<DataState::StateLocalPosition>>(missionItem);
+            CommandItem::SpatialLoiter_Turns<DataState::StateLocalPosition> baseItem = *castItem.get();
             msg = LoiterTurns_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
             return true;
         }else{
@@ -112,17 +112,17 @@ bool Mission_MACETOMAVLINK::MACEMissionToMAVLINKMission(std::shared_ptr<MissionI
         }
     break;
     }
-    case(MissionItem::MissionItemType::LOITER_UNLIMITED):
+    case(Data::CommandItemType::CI_NAV_LOITER_UNLIM):
     {
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
         {
-            std::shared_ptr<MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>>(missionItem);
-            MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> baseItem = *castItem.get();
+            std::shared_ptr<CommandItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>>(missionItem);
+            CommandItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> baseItem = *castItem.get();
             msg = LoiterUnlimited_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
             return true;
-        }else if(missionItem->getPositionalFrame() == Data::PositionalFrame::LOCAL){
-            std::shared_ptr<MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition>>(missionItem);
-            MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> baseItem = *castItem.get();
+        }else if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_LOCAL_ENU){
+            std::shared_ptr<CommandItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition>>(missionItem);
+            CommandItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> baseItem = *castItem.get();
             msg = LoiterUnlimited_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
             return true;
         }else{
@@ -130,25 +130,25 @@ bool Mission_MACETOMAVLINK::MACEMissionToMAVLINKMission(std::shared_ptr<MissionI
         }
     break;
     }
-    case(MissionItem::MissionItemType::RTL):
+    case(Data::CommandItemType::CI_NAV_RETURN_TO_LAUNCH):
     {
-        std::shared_ptr<MissionItem::SpatialRTL> castItem = std::dynamic_pointer_cast<MissionItem::SpatialRTL>(missionItem);
-        MissionItem::SpatialRTL baseItem = *castItem.get();
+        std::shared_ptr<CommandItem::SpatialRTL> castItem = std::dynamic_pointer_cast<CommandItem::SpatialRTL>(missionItem);
+        CommandItem::SpatialRTL baseItem = *castItem.get();
         msg = RTL_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
         return true;
     break;
     }
-    case(MissionItem::MissionItemType::TAKEOFF):
+    case(Data::CommandItemType::CI_NAV_TAKEOFF):
     {
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
         {
-            std::shared_ptr<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialTakeoff<DataState::StateGlobalPosition>>(missionItem);
-            MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> baseItem = *castItem.get();
+            std::shared_ptr<CommandItem::SpatialTakeoff<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialTakeoff<DataState::StateGlobalPosition>>(missionItem);
+            CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> baseItem = *castItem.get();
             msg = Takeoff_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
             return true;
-        }else if(missionItem->getPositionalFrame() == Data::PositionalFrame::LOCAL){
-            std::shared_ptr<MissionItem::SpatialTakeoff<DataState::StateLocalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialTakeoff<DataState::StateLocalPosition>>(missionItem);
-            MissionItem::SpatialTakeoff<DataState::StateLocalPosition> baseItem = *castItem.get();
+        }else if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_LOCAL_ENU){
+            std::shared_ptr<CommandItem::SpatialTakeoff<DataState::StateLocalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialTakeoff<DataState::StateLocalPosition>>(missionItem);
+            CommandItem::SpatialTakeoff<DataState::StateLocalPosition> baseItem = *castItem.get();
             msg = Takeoff_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
             return true;
         }else{
@@ -156,17 +156,17 @@ bool Mission_MACETOMAVLINK::MACEMissionToMAVLINKMission(std::shared_ptr<MissionI
         }
     break;
     }
-    case(MissionItem::MissionItemType::WAYPOINT):
+    case(Data::CommandItemType::CI_NAV_WAYPOINT):
     {
-        if(missionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
         {
-            std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
-            MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> baseItem = *castItem.get();
+            std::shared_ptr<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
+            CommandItem::SpatialWaypoint<DataState::StateGlobalPosition> baseItem = *castItem.get();
             msg = Waypoint_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
             return true;
-        }else if(missionItem->getPositionalFrame() == Data::PositionalFrame::LOCAL){
-            std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateLocalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateLocalPosition>>(missionItem);
-            MissionItem::SpatialWaypoint<DataState::StateLocalPosition> baseItem = *castItem.get();
+        }else if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_LOCAL_ENU){
+            std::shared_ptr<CommandItem::SpatialWaypoint<DataState::StateLocalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint<DataState::StateLocalPosition>>(missionItem);
+            CommandItem::SpatialWaypoint<DataState::StateLocalPosition> baseItem = *castItem.get();
             msg = Waypoint_MACETOMAVLINK(baseItem,chan,compID,itemIndex);
             return true;
         }else{
@@ -179,13 +179,13 @@ bool Mission_MACETOMAVLINK::MACEMissionToMAVLINKMission(std::shared_ptr<MissionI
     } //end of switch statement
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::ChangeSpeed_MACETOMAVLINK(const MissionItem::ActionChangeSpeed &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::ChangeSpeed_MACETOMAVLINK(const CommandItem::ActionChangeSpeed &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_DO_CHANGE_SPEED;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     item.param1 = 0.0; //assume the default required is AIRSPEED
     item.param2 = missionItem.getDesiredSpeed();
@@ -197,13 +197,13 @@ mavlink_message_t Mission_MACETOMAVLINK::ChangeSpeed_MACETOMAVLINK(const Mission
     return msg;
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::Land_MACETOMAVLINK(const MissionItem::SpatialLand<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::Land_MACETOMAVLINK(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_NAV_LAND;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     if(!missionItem.getLandFlag())
     {
@@ -214,13 +214,13 @@ mavlink_message_t Mission_MACETOMAVLINK::Land_MACETOMAVLINK(const MissionItem::S
     mavlink_message_t msg = this->packMissionItem(item,chan);
     return msg;
 }
-mavlink_message_t Mission_MACETOMAVLINK::Land_MACETOMAVLINK(const MissionItem::SpatialLand<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::Land_MACETOMAVLINK(const CommandItem::SpatialLand<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_NAV_LAND_LOCAL;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     if(!missionItem.getLandFlag())
     {
@@ -232,13 +232,13 @@ mavlink_message_t Mission_MACETOMAVLINK::Land_MACETOMAVLINK(const MissionItem::S
     return msg;
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::LoiterTime_MACETOMAVLINK(const MissionItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::LoiterTime_MACETOMAVLINK(const CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_NAV_LOITER_TIME;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     item.param1 = missionItem.duration;
     item.x = missionItem.position.latitude;
@@ -255,13 +255,13 @@ mavlink_message_t Mission_MACETOMAVLINK::LoiterTime_MACETOMAVLINK(const MissionI
     return msg;
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::LoiterTime_MACETOMAVLINK(const MissionItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::LoiterTime_MACETOMAVLINK(const CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_NAV_LOITER_TIME;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     item.param1 = missionItem.duration;
     item.x = missionItem.position.x;
@@ -278,13 +278,13 @@ mavlink_message_t Mission_MACETOMAVLINK::LoiterTime_MACETOMAVLINK(const MissionI
     return msg;
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::LoiterTurns_MACETOMAVLINK(const MissionItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::LoiterTurns_MACETOMAVLINK(const CommandItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_NAV_LOITER_TURNS;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     item.param1 = missionItem.turns;
     item.x = missionItem.position.latitude;
@@ -301,13 +301,13 @@ mavlink_message_t Mission_MACETOMAVLINK::LoiterTurns_MACETOMAVLINK(const Mission
     return msg;
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::LoiterTurns_MACETOMAVLINK(const MissionItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::LoiterTurns_MACETOMAVLINK(const CommandItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_NAV_LOITER_TURNS;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     item.param1 = missionItem.turns;
     item.x = missionItem.position.x;
@@ -323,13 +323,13 @@ mavlink_message_t Mission_MACETOMAVLINK::LoiterTurns_MACETOMAVLINK(const Mission
     mavlink_message_t msg = this->packMissionItem(item,chan);
     return msg;
 }
-mavlink_message_t Mission_MACETOMAVLINK::LoiterUnlimited_MACETOMAVLINK(const MissionItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::LoiterUnlimited_MACETOMAVLINK(const CommandItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_NAV_LOITER_UNLIM;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     item.x = missionItem.position.latitude;
     item.y = missionItem.position.longitude;
@@ -345,13 +345,13 @@ mavlink_message_t Mission_MACETOMAVLINK::LoiterUnlimited_MACETOMAVLINK(const Mis
     return msg;
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::LoiterUnlimited_MACETOMAVLINK(const MissionItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::LoiterUnlimited_MACETOMAVLINK(const CommandItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_NAV_LOITER_UNLIM;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     item.x = missionItem.position.x;
     item.y = missionItem.position.y;
@@ -367,25 +367,25 @@ mavlink_message_t Mission_MACETOMAVLINK::LoiterUnlimited_MACETOMAVLINK(const Mis
     return msg;
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::RTL_MACETOMAVLINK(const MissionItem::SpatialRTL &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::RTL_MACETOMAVLINK(const CommandItem::SpatialRTL &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_NAV_RETURN_TO_LAUNCH;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     mavlink_message_t msg = this->packMissionItem(item,chan);
     return msg;
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::Takeoff_MACETOMAVLINK(const MissionItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::Takeoff_MACETOMAVLINK(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_NAV_TAKEOFF;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     item.x = missionItem.position.latitude;
     item.y = missionItem.position.longitude;
@@ -393,13 +393,13 @@ mavlink_message_t Mission_MACETOMAVLINK::Takeoff_MACETOMAVLINK(const MissionItem
     mavlink_message_t msg = this->packMissionItem(item,chan);
     return msg;
 }
-mavlink_message_t Mission_MACETOMAVLINK::Takeoff_MACETOMAVLINK(const MissionItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::Takeoff_MACETOMAVLINK(const CommandItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_NAV_TAKEOFF_LOCAL;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     item.x = missionItem.position.x;
     item.y = missionItem.position.y;
@@ -409,13 +409,13 @@ mavlink_message_t Mission_MACETOMAVLINK::Takeoff_MACETOMAVLINK(const MissionItem
 }
 
 
-mavlink_mission_item_t Mission_MACETOMAVLINK::Waypoint_MACETOMAVLINK(const MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_mission_item_t Mission_MACETOMAVLINK::Waypoint_MACETOMAVLINK(const CommandItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.command = MAV_CMD_NAV_WAYPOINT;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     item.x = missionItem.position.latitude;
     item.y = missionItem.position.longitude;
@@ -423,21 +423,21 @@ mavlink_mission_item_t Mission_MACETOMAVLINK::Waypoint_MACETOMAVLINK(const Missi
     return item;
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::Waypoint_MACETOMAVLINK(const MissionItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::Waypoint_MACETOMAVLINK(const CommandItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item = Waypoint_MACETOMAVLINK(missionItem,compID,itemIndex);
     mavlink_message_t msg = this->packMissionItem(item,chan);
     return msg;
 }
 
-mavlink_message_t Mission_MACETOMAVLINK::Waypoint_MACETOMAVLINK(const MissionItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
+mavlink_message_t Mission_MACETOMAVLINK::Waypoint_MACETOMAVLINK(const CommandItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex)
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
     item.frame = MAV_FRAME_LOCAL_ENU;
     item.command = MAV_CMD_NAV_WAYPOINT;
     item.seq = itemIndex;
-    item.target_system = missionItem.getVehicleID();
+    item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
     item.x = missionItem.position.x;
     item.y = missionItem.position.y;

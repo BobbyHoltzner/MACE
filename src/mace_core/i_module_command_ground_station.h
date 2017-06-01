@@ -14,7 +14,9 @@ namespace MaceCore
 enum class GroundStationCommands
 {
     NEW_AVAILABLE_VEHICLE,
-    NEW_AVAILABLE_CURRENT_MISSION
+    NEWLY_AVAILABLE_CURRENT_MISSION,
+    NEW_MISSION_EXE_STATE,
+    NEWLY_AVAILABLE_HOME_POSITION
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandGroundStation : public AbstractModule_EventListeners<Metadata_GroundStation, IModuleEventsGroundStation, GroundStationCommands>
@@ -31,8 +33,16 @@ public:
             NewlyAvailableVehicle(vehicleID);
         });
 
-        AddCommandLogic<Data::MissionKey>(GroundStationCommands::NEW_AVAILABLE_CURRENT_MISSION, [this](const Data::MissionKey &missionKey){
+        AddCommandLogic<Data::MissionKey>(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION, [this](const Data::MissionKey &missionKey){
             NewlyAvailableCurrentMission(missionKey);
+        });
+
+        AddCommandLogic<Data::MissionKey>(GroundStationCommands::NEW_MISSION_EXE_STATE, [this](const Data::MissionKey &missionKey){
+            NewlyAvailableMissionExeState(missionKey);
+        });
+
+        AddCommandLogic<CommandItem::SpatialHome>(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const CommandItem::SpatialHome &home){
+            NewlyAvailableHomePosition(home);
         });
     }
 
@@ -46,6 +56,9 @@ public:
 
     virtual void NewlyAvailableCurrentMission(const Data::MissionKey &missionKey) = 0;
 
+    virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey) = 0;
+
+    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home) = 0;
 
     virtual bool StartTCPServer() = 0;
 

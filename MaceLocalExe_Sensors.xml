@@ -6,7 +6,7 @@
       <Parameter Name="Version">V1</Parameter>
     </Parameter>
 	<Parameter Name="UDPParameters">
-      <Parameter Name="ListenAddress">192.168.1.39</Parameter>
+      <Parameter Name="ListenAddress">192.168.1.16</Parameter>
       <Parameter Name="ListenPortNumber">14558</Parameter>
     </Parameter>
     <Parameter Name="ModuleParameters">

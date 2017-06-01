@@ -11,13 +11,35 @@ class IModuleEventsExternalLink : public IModuleEventsGeneral, public IModuleEve
 {
 public:
 
+    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTXState &state) = 0;
+
     //!
-    //! \brief UpdateMissionToVehicle
+    //! \brief External_AppendMissionQueue
     //! \param sender
     //! \param missionList
     //!
-    virtual void TransferMissionToVehicle(const void* sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void ExternalEvent_ReceivingMissionQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
+    //!
+    //! \brief ExternalEvent_FinisedRXProposedQueue
+    //! \param sender
+    //! \param missionList
+    //!
+    virtual void ExternalEvent_FinishedRXProposedQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
+
+    //!
+    //! \brief ExternalEvent_FinisedRXOnboardQueue
+    //! \param sender
+    //! \param missionList
+    //!
+    virtual void ExternalEvent_FinishedRXOnboardQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
+
+    //!
+    //! \brief ExternalEvent_FinisedRXCurrentQueue
+    //! \param sender
+    //! \param missionList
+    //!
+    virtual void ExternalEvent_FinishedRXCurrentQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
 };
 

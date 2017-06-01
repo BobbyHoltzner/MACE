@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <iostream>
 
+#include "data/gps_fix_type.h"
+
 namespace DataGenericItem {
 
 class DataGenericItem_GPS
@@ -20,16 +22,39 @@ public:
         GPSFIX_STATIC
     };
 
+    std::string GPSFixToString(const GPSFIX &gpsFix) {
+        switch (gpsFix) {
+        case GPSFIX::GPSFIX_NOGPS:
+            return "No GPS";
+        case GPSFIX::GPSFIX_NOFIX:
+            return "No Fix";
+        case GPSFIX::GPSFIX_2DFIX:
+            return "2D Fix";
+        case GPSFIX::GPSFIX_3DFIX:
+            return "3D Fix";
+        case GPSFIX::GPSFIX_DGPS:
+            return "DGPS";
+        case GPSFIX::GPSFIX_RTKFLOAT:
+            return "RTK Float";
+        case GPSFIX::GPSFIX_RTKFIXED:
+            return "RTK Fixed";
+        case GPSFIX::GPSFIX_STATIC:
+            return "Static";
+        default:
+            throw std::runtime_error("Unknown gps fix seen");
+        }
+    }
+
 public:
     DataGenericItem_GPS();
 
     DataGenericItem_GPS(const DataGenericItem_GPS &copyObj);
 
 
-    void setGPSFix(const GPSFIX &fix){
+    void setGPSFix(const Data::GPSFixType &fix){
         this->fixtype = fix;
     }
-    GPSFIX getGPSFix() const{
+    Data::GPSFixType getGPSFix() const{
         return fixtype;
     }
 
@@ -85,12 +110,12 @@ public:
 
     std::ostream& operator<<(std::ostream &out)
     {
-        out<<"GPS Status( FixType: "<<fixtype<<", Satellites Visible: "<<(int)satellitesVisible<<", HDOP: "<<(int)HDOP<<", VDOP: "<<(int)VDOP<<")";
+        out<<"GPS Status( FixType: "<<Data::GPSFixTypeToString(fixtype)<<", Satellites Visible: "<<(int)satellitesVisible<<", HDOP: "<<(int)HDOP<<", VDOP: "<<(int)VDOP<<")";
         return out;
     }
 
 protected:
-    GPSFIX fixtype;
+    Data::GPSFixType fixtype;
     uint16_t satellitesVisible;
     uint16_t HDOP;
     uint16_t VDOP;

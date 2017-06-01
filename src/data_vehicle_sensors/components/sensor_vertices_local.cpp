@@ -7,7 +7,7 @@ const char SensorVerticesLocal_Name[] = "SensorVerticesLocal";
 const MaceCore::TopicComponentStructure SensorVerticesLocal_Structure = []{
     MaceCore::TopicComponentStructure structure;
     structure.AddTerminal<std::string>("SensorName");
-    structure.AddTerminal<Data::PositionalFrame>("PositionFrame");
+    structure.AddTerminal<Data::CoordinateFrameType>("CoordinateFrame");
     structure.AddTerminal<std::vector<DataState::StateLocalPosition>>("SensorVertices");
     return structure;
 }();
@@ -15,27 +15,27 @@ const MaceCore::TopicComponentStructure SensorVerticesLocal_Structure = []{
 MaceCore::TopicDatagram SensorVertices_Local::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<std::string>("SensorName",sensorName);
-    datagram.AddTerminal<Data::PositionalFrame>("PositionFrame",positionFrame);
+    datagram.AddTerminal<Data::CoordinateFrameType>("CoordinateFrame",coordinateFrame);
     datagram.AddTerminal<std::vector<DataState::StateLocalPosition>>("SensorVertices",verticeLocations);
     return datagram;
 }
 
 void SensorVertices_Local::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
     sensorName = datagram.GetTerminal<std::string>("SensorName");
-    positionFrame = datagram.GetTerminal<Data::PositionalFrame>("PositionFrame");
+    coordinateFrame = datagram.GetTerminal<Data::CoordinateFrameType>("CoordinateFrame");
     verticeLocations = datagram.GetTerminal<std::vector<DataState::StateLocalPosition>>("SensorVertices");
 }
 
 
 SensorVertices_Local::SensorVertices_Local()
 {
-    this->positionFrame = Data::PositionalFrame::LOCAL;
+    this->coordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
     this->sensorName = "";
 }
 
 SensorVertices_Local::SensorVertices_Local(const std::string &sensorName)
 {
-    this->positionFrame = Data::PositionalFrame::LOCAL;
+    this->coordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
     this->sensorName = sensorName;
 }
 

@@ -1,5 +1,3 @@
-type VehicleTypeType = 'Copter' | 'Plane';
-
 type PositionType = {
     lat: number,
     lon: number,
@@ -18,28 +16,30 @@ type FuelType = {
     batteryVoltage: number
 }
 
-type ModeType = {
-  vehicleMode: string,
-  isArmed: boolean
-}
-
 type TextType = {
   severity: string,
   text: string
 }
 
+type GPSType = {
+  visibleSats: number,
+  gpsFix: string,
+  hdop: number,
+  vdop: number
+}
+
 type VehicleModeType = 'LOITER' | 'RTL' | 'LAND' | 'AUTO' | 'GUIDED' | 'UNKNOWN';
 
-// type VehicleStateType = {
-//     position: PositionType,
-//     attitude: AttitudeType,
-//     numSats: number,
-//     positionFix: number,
-//     vehicleMode: VehicleModeType
-// };
+type VehicleTypeType = 'GENERIC' | 'HELICOPTER' | 'GCS' | 'REPEATER' | 'GROUND_ROVER' |
+                       'SURFACE_BOAT' | 'TRICOPTER' | 'QUADROTOR' | 'HEXAROTOR' |
+                       'OCTOROTOR' | 'ONBOARD_CONTROLLER' | 'FIXED_WING';
 
-// type VehicleMapType = {[id: string]: VehicleStateType};
-
+type HeartbeatType = {
+  autopilot: string,
+  aircraftType: VehicleTypeType,
+  companion: boolean,
+  commsProtocol: string
+}
 
 type TCPDescriptorType = {
   dataType: string,
@@ -59,9 +59,13 @@ type TCPAttitudeType = TCPDescriptorType & AttitudeType;
 
 type TCPFuelType = TCPDescriptorType & FuelType;
 
-type TCPModeType = TCPDescriptorType & ModeType;
+type TCPModeType = TCPDescriptorType & {
+  vehicleMode: string
+};
 
 type TCPTextType = TCPDescriptorType & TextType;
+
+type TCPGPSType = TCPDescriptorType & GPSType;
 
 type MissionItemType = PositionType & {
   description: string,
@@ -69,7 +73,11 @@ type MissionItemType = PositionType & {
 };
 
 type TCPMissionType = TCPDescriptorType & {
-  missionItems: MissionItemType[]
+  missionItems: MissionItemType[],
+  missionType?: string,
+  creatorID?: number,
+  missionID?: number,
+  missionState?: string
 };
 
 type TCPSensorFootprintType = TCPDescriptorType & {
@@ -80,7 +88,25 @@ type TCPCurrentMissionItemType = TCPDescriptorType & {
   missionItemIndex: number
 }
 
-type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType | TCPFuelType | TCPMissionType | TCPModeType | TCPTextType | TCPSensorFootprintType | TCPCurrentMissionItemType;
+type TCPVehicleArmType = TCPDescriptorType & {
+  armed: boolean
+}
+
+type TCPMissionItemReachedType = TCPDescriptorType & {
+  itemIndex: number
+}
+
+type TCPAirspeedType = TCPDescriptorType & {
+  airspeed: number
+}
+
+type TCPHeartbeatType = TCPDescriptorType & HeartbeatType;
+
+type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType |
+                     TCPFuelType | TCPMissionType | TCPModeType | TCPTextType |
+                     TCPSensorFootprintType | TCPCurrentMissionItemType |
+                     TCPGPSType | TCPHeartbeatType | TCPMissionItemReachedType |
+                     TCPVehicleArmType | TCPAirspeedType;
 
 
 type MarkerType = {
@@ -99,7 +125,11 @@ type MissionLayerType = {
   descriptions: string[],
   latLons: L.LatLng[],
   itemTypes: string[],
-  icons: L.Icon[]
+  icons: L.Icon[],
+  missionType?: string,
+  creatorID?: number,
+  missionID?: number,
+  missionState?: string
 };
 
 type MessagePreferencesType = {

@@ -1,9 +1,12 @@
 #ifndef STATE_GLOBAL_POSITION_H
 #define STATE_GLOBAL_POSITION_H
 
+#include <iostream>
+
+#include <math.h>
+
 #include "common/common.h"
 
-#include "data/positional_coordinate_frame.h"
 #include "data/coordinate_frame.h"
 
 #include "state_generic_position.h"
@@ -20,11 +23,11 @@ public:
 
     StateGlobalPosition(const StateGlobalPosition &globalPosition);
 
-    StateGlobalPosition(const Data::CoordinateFrame &frame);
+    StateGlobalPosition(const Data::CoordinateFrameType &frame);
 
     StateGlobalPosition(const float &latitude, const float &longitude, const float &altitude);
 
-    StateGlobalPosition(const Data::CoordinateFrame &frame, const double &latitude, const double &longitude, const double &altitude);
+    StateGlobalPosition(const Data::CoordinateFrameType &frame, const double &latitude, const double &longitude, const double &altitude);
 
     void setPosition(const float &latitude, const float &longitude, const float &altitude);
 
@@ -77,12 +80,6 @@ public:
 
     bool operator != (const StateGlobalPosition &rhs) {
         return !(*this == rhs);
-    }
-
-    std::ostream& operator<<(std::ostream &out)
-    {
-        out<<"Global Position( Latitude: "<<latitude<<", Longitude: "<<longitude<<", Altitude: "<<altitude<<")";
-        return out;
     }
 
 public:

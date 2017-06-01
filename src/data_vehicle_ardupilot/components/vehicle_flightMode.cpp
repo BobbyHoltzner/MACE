@@ -39,10 +39,7 @@ void VehicleFlightMode::parseMAVLINK(const mavlink_heartbeat_t &msg)
 {
     this->setVehicleTypeFromMAVLINK(msg.type);
     std::string newFlightMode = availableFM.at(msg.custom_mode);
-    this->setFlightMode(msg.custom_mode);
     this->setFlightMode(newFlightMode);
-    this->setAutopilotType(Data::AutopilotTypes::ARDUPILOT);
-    this->setVehicleArmed(msg.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
 }
 
 void VehicleFlightMode::setVehicleTypeFromMAVLINK(const int &vehicleType)
@@ -50,7 +47,6 @@ void VehicleFlightMode::setVehicleTypeFromMAVLINK(const int &vehicleType)
         switch (vehicleType) {
         case MAV_TYPE_FIXED_WING:
         {
-            this->vehicleType = Data::VehicleTypes::PLANE;
             this->availableFM = arduplaneFM;
             break;
         }
@@ -59,12 +55,10 @@ void VehicleFlightMode::setVehicleTypeFromMAVLINK(const int &vehicleType)
         case MAV_TYPE_HEXAROTOR:
         case MAV_TYPE_OCTOROTOR:
         {
-            this->vehicleType = Data::VehicleTypes::COPTER;
             this->availableFM = arducopterFM;
             break;
         }
         default:
-            this->vehicleType = Data::VehicleTypes::UNKNOWN;
             this->availableFM = arducopterFM;
             break;
         }

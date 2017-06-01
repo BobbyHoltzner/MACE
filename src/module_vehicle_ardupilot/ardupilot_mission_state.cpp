@@ -6,31 +6,31 @@ ArdupilotMissionState::ArdupilotMissionState()
     distanceThresholdHunting = 1.0;
     maxDuration_Hunting = 10.0;
     maxDuration_Routing = std::numeric_limits<double>::max();
-    state = Data::MissionState::ROUTING;
+    state = Data::ControllerState::TRACKING;
     initializeMissionState();
 }
 
 ArdupilotMissionState::ArdupilotMissionState(const double &achievedDistance, const double &huntingDistance, const double &maxHuntingDuration) :
     distanceThresholdAchieved(achievedDistance), distanceThresholdHunting(huntingDistance), maxDuration_Hunting(maxHuntingDuration)
 {
-    state = Data::MissionState::ROUTING;
+    state = Data::ControllerState::TRACKING;
     maxDuration_Routing = std::numeric_limits<double>::max();
     initializeMissionState();
 }
 
-Data::MissionState ArdupilotMissionState::newMissionItem(const double &distance)
+Data::ControllerState ArdupilotMissionState::newMissionItem(const double &distance)
 {
     initializeTargetStart();
-    Data::MissionState rtnState = updateMissionState(distance);
+    Data::ControllerState rtnState = updateMissionState(distance);
     return rtnState;
 }
 
-Data::MissionState ArdupilotMissionState::updateMissionState(const double &distance)
+Data::ControllerState ArdupilotMissionState::updateMissionState(const double &distance)
 {
     if(distance > distanceThresholdHunting)
     {
         //Really nothing to do in this case as the item is far away.
-        state = Data::MissionState::ROUTING;
+        state = Data::ControllerState::TRACKING;
     }
     else if((distance <= distanceThresholdHunting) && (distance > distanceThresholdAchieved))
     {
@@ -38,12 +38,12 @@ Data::MissionState ArdupilotMissionState::updateMissionState(const double &dista
         //At this stage we are hunting for the target. If we remain in this state for a
         //period of time we can abort the item and move on by considering the item achieved.
         huntingStart = std::chrono::system_clock::now();
-        state = Data::MissionState::HUNTING;
+        state = Data::ControllerState::HUNTING;
     }
     else if(distance <= distanceThresholdAchieved)
     {
         //This case we have achieved the waypoint
-        state = Data::MissionState::ACHIEVED;
+        state = Data::ControllerState::ACHIEVED;
     }
 
     return state;

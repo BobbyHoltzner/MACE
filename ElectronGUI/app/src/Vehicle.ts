@@ -1,7 +1,10 @@
 import { backgroundColors, opaqueBackgroundColors } from './util/Colors';
+import { aircraftImgSrcFromType } from './util/VehicleHelper';
 
 export class Vehicle{
 
+    isNew: boolean;
+    general: HeartbeatType;
     vehicleId: number;
     isSelected: boolean;
     position: PositionType;
@@ -15,30 +18,44 @@ export class Vehicle{
     vehicleMarker: MarkerType;
     vehicleMission: MissionLayerType;
     homePosition: MarkerType;
-    vehicleType: VehicleTypeType;
     isArmed: boolean;
     sensorFootprint: L.LatLng[];
     currentMissionItem: number;
     messages: TextType[];
+    airspeed: number;
+    gps: GPSType;
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
+        this.isNew = true;
         this.vehicleId = vehicleId;
         this.isSelected = false;
         this.isArmed = false;
         this.numSats = 0;
         this.positionFix = 0;
         this.vehicleMode = 'UNKNOWN';
-        this.vehicleType = 'Copter';
         this.fuel = {batteryCurrent: 0, batteryRemaining: 0, batteryVoltage: 0};
         this.sensorFootprint = [];
         this.currentMissionItem = 0;
         this.messages = [];
+        this.airspeed = 0;
+        this.general = {
+            commsProtocol: "COMMS_UNKNOWN",
+            autopilot: "AUTOPILOT_TYPE_GENERIC",
+            aircraftType: "GENERIC",
+            companion: false
+        }
+        this.gps = {
+            visibleSats: 0,
+            gpsFix: "No GPS",
+            hdop: 20, // > 20 is poor level of confidence
+            vdop: 20 // > 20 is poor level of confidence
+        }
         if(position){
             this.position = position;
         }
         else {
-            // this.position = {lat: 0, lon: 0, alt: 0};
-            this.position = {lat: -35.363272, lon: 149.165249, alt: 0};
+            this.position = {lat: 0, lon: 0, alt: 0};
+            // this.position = {lat: -35.363272, lon: 149.165249, alt: 0};
         }
         if(attitude){
             this.attitude = attitude;
@@ -62,7 +79,16 @@ export class Vehicle{
         };
 
         // Set blank mission
-        this.vehicleMission = {descriptions: [], latLons: [], itemTypes: [], icons: []};
+        this.vehicleMission = {
+            descriptions: [],
+            latLons: [],
+            itemTypes: [],
+            icons: [],
+            missionID: 0,
+            creatorID: 0,
+            missionState: "UNEXECUTED",
+            missionType: "AUTO"
+        };
 
         // Set default homePosition
         let homeIcon = new L.Icon({
@@ -115,6 +141,20 @@ export class Vehicle{
 
             // Set prevLatLng to this lat lng
             prevLatLng = tmpLatLng;
+        }
+
+        // If set, set the meta data:
+        if(mission.creatorID) {
+            this.vehicleMission.creatorID = mission.creatorID;
+        }
+        if(mission.missionID) {
+            this.vehicleMission.missionID = mission.missionID;
+        }
+        if(mission.missionState) {
+            this.vehicleMission.missionState = mission.missionState;
+        }
+        if(mission.missionType) {
+            this.vehicleMission.missionType = mission.missionType;
         }
     }
 
@@ -197,10 +237,14 @@ export class Vehicle{
         }
 
         if(isActive) {
-            let iconHTML = '<span style="background-color: ' + iconBackgroundColor + '; color: white; text-align: center;">active</span><img src="' + iconUrl + '"alt="Marker icon" style="width: ' + width + 'px; height: ' + height + 'px;">';
+            let iconHTML     = '<div style="width: ' + width +'; height: '+ (height+18) +'">';
+            iconHTML        +=      '<img src="' + iconUrl + '"alt="Marker icon" style="width: ' + width + 'px; height: ' + height + 'px;">';
+            iconHTML        +=      '<span style="background-color: ' + iconBackgroundColor + '; color: white; text-align: center; padding: 2px; position: relative; top: ' + (-height-18) + 'px; left: -5px">active</span>';
+            iconHTML        += '</div>';
+
             let icon = new L.DivIcon({
                 html: iconHTML,
-                iconAnchor: [iconAnchor[0], iconAnchor[1]+18], // point of the icon which will correspond to marker's location
+                iconAnchor: iconAnchor, // point of the icon which will correspond to marker's location
                 popupAnchor: popupAnchor, // point from which the popup should open relative to the iconAnchor
                 className: '' // setting this overrides default css and gets rid of white box
             });
@@ -241,14 +285,17 @@ export class Vehicle{
         };
     }
 
-    updateMarkerPosition(newPos?: PositionType) {
+    updateVehicleMarkerPosition(newPos?: PositionType) {
         let posUpdate = this.position;
         if(newPos){
             posUpdate = newPos;
         }
 
+        console.log("Aircraft Type: " + this.general.aircraftType);
+
         let iconBackgroundColor = this.isSelected ? backgroundColors[this.vehicleId] : opaqueBackgroundColors[this.vehicleId];
-        let iconHTML = '<div style="background-color: ' + iconBackgroundColor + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
+        let aircraftIconSrc = aircraftImgSrcFromType(this.general.aircraftType);
+        let iconHTML = '<div style="background-color: ' + iconBackgroundColor + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="' + aircraftIconSrc + '" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
 
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
@@ -270,7 +317,8 @@ export class Vehicle{
         }
 
         let iconBackgroundColor = this.isSelected ? backgroundColors[this.vehicleId] : opaqueBackgroundColors[this.vehicleId];
-        let iconHTML = '<div style="background-color: ' + iconBackgroundColor + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + attUpdate.yaw + 'deg); -moz-transform: rotate(' + attUpdate.yaw + 'deg); -o-transform: rotate(' + attUpdate.yaw + 'deg); -ms-transform: rotate(' + attUpdate.yaw + 'deg); transform: rotate(' + attUpdate.yaw + 'deg);">';
+        let aircraftIconSrc = aircraftImgSrcFromType(this.general.aircraftType);
+        let iconHTML = '<div style="background-color: ' + iconBackgroundColor + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="' + aircraftIconSrc + '" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + attUpdate.yaw + 'deg); -moz-transform: rotate(' + attUpdate.yaw + 'deg); -o-transform: rotate(' + attUpdate.yaw + 'deg); -ms-transform: rotate(' + attUpdate.yaw + 'deg); transform: rotate(' + attUpdate.yaw + 'deg);">';
 
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
@@ -293,14 +341,20 @@ export class Vehicle{
         }
     }
 
-    updateCurrentMissionItem(currentMissionItem: number) {
+    updateCurrentMissionItem(currentMissionItem: number, clearActive: boolean) {
         let previousItem = this.currentMissionItem;
         // Set previous mission item icon back to original:
         let prevIcon = this.getMarkerIcon(this.vehicleMission.itemTypes[previousItem], false);
         this.vehicleMission.icons[previousItem] = prevIcon;
 
-        // Set new mission item icon and current mission item:
-        let currentIcon = this.getMarkerIcon(this.vehicleMission.itemTypes[currentMissionItem], true);
+        // Set new mission item icon and current mission item. If clearActive flag is set, don't show active on top of the icon:
+        let currentIcon = new L.DivIcon({});
+        if(clearActive) {
+            currentIcon = this.getMarkerIcon(this.vehicleMission.itemTypes[currentMissionItem], false);
+        }
+        else {
+            currentIcon = this.getMarkerIcon(this.vehicleMission.itemTypes[currentMissionItem], true);
+        }
         this.vehicleMission.icons[currentMissionItem] = currentIcon;
         this.currentMissionItem = currentMissionItem;
     }

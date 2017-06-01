@@ -1,8 +1,8 @@
 #include "ardupilot_guided_controller.h"
 
 
-Ardupilot_GuidedController::Ardupilot_GuidedController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan) :
-    Ardupilot_GeneralController(vehicleData, commsMarshaler, linkName, linkChan), executionState(false)
+Ardupilot_GuidedController::Ardupilot_GuidedController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan, callbackFunction callback) :
+    Ardupilot_GeneralController(vehicleData, commsMarshaler, linkName, linkChan, callback)
 {
     controllerType = CONTROLLER_GUIDED;
     vehicleMissionState = ArdupilotMissionState(3,10,10);
@@ -24,22 +24,23 @@ void Ardupilot_GuidedController::updateCommandACK(const mavlink_command_ack_t &c
 void Ardupilot_GuidedController::initializeMissionSequence()
 {
     executionState = true;
-    std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = m_CurrentMission.getActiveMissionItem();
+    std::shared_ptr<CommandItem::AbstractCommandItem> missionItem = m_CurrentMission.getActiveMissionItem();
     mavlink_message_t msg;
     vehicleDataObject->generateBasicGuidedMessage(missionItem,m_LinkChan,msg);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 double Ardupilot_GuidedController::distanceToTarget(){
-    std::shared_ptr<MissionItem::AbstractMissionItem> currentMissionItem = m_CurrentMission.getActiveMissionItem();
+    std::shared_ptr<CommandItem::AbstractCommandItem> currentMissionItem = m_CurrentMission.getActiveMissionItem();
     double distance = 0.0;
-    switch(currentMissionItem->getMissionType())
+    switch(currentMissionItem->getCommandType())
     {
-    case(MissionItem::MissionItemType::WAYPOINT):
+    case(Data::CommandItemType::CI_NAV_WAYPOINT):
     {
-        if(currentMissionItem->getPositionalFrame() == Data::PositionalFrame::GLOBAL)
+        if(currentMissionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
         {
-            std::shared_ptr<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<MissionItem::SpatialWaypoint<DataState::StateGlobalPosition>>(currentMissionItem);
+            std::shared_ptr<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>>(currentMissionItem);
+            DataState::StateGlobalPosition currentPosition = vehicleDataObject->data->vehicleGlobalPosition.get();
             DataState::StateGlobalPosition actualPosition(currentPosition);
             actualPosition.altitude = currentPosition.altitude - m_VehicleHome.position.altitude;
             distance = castItem->position.distanceBetween3D(actualPosition);
@@ -55,20 +56,20 @@ double Ardupilot_GuidedController::distanceToTarget(){
     return distance;
 }
 
-void Ardupilot_GuidedController::generateControl(const Data::MissionState &currentState)
+void Ardupilot_GuidedController::generateControl(const Data::ControllerState &currentState)
 {
     switch(currentState){
-    case Data::MissionState::ROUTING:
+    case Data::ControllerState::TRACKING:
     {
         //std::cout<<"I am still routing to the waypoint"<<std::endl;
         break;
     }
-    case Data::MissionState::HUNTING:
+    case Data::ControllerState::HUNTING:
     {
         std::cout<<"I am hunting for the waypoint"<<std::endl;
         break;
     }
-    case Data::MissionState::ACHIEVED:
+    case Data::ControllerState::ACHIEVED:
     {
         if(m_CurrentMission.getActiveIndex() == m_CurrentMission.getQueueSize() - 1)
         {
@@ -77,7 +78,7 @@ void Ardupilot_GuidedController::generateControl(const Data::MissionState &curre
         }
         else{
             m_CurrentMission.setActiveIndex(m_CurrentMission.getActiveIndex() + 1);
-            std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = m_CurrentMission.getActiveMissionItem();
+            std::shared_ptr<CommandItem::AbstractCommandItem> missionItem = m_CurrentMission.getActiveMissionItem();
             mavlink_message_t msg;
             vehicleDataObject->generateBasicGuidedMessage(missionItem,m_LinkChan,msg);
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -96,23 +97,15 @@ void Ardupilot_GuidedController::run()
         if(mToExit == true) {
             break;
         }
-        if(positionUpdated)
-        {
+
             if(executionState){
                 //let us see how close we are to our target
                 double distance = distanceToTarget();
 
                 std::cout<<"The distance to the target is: "<<distance<<std::endl;
-                Data::MissionState currentState = vehicleMissionState.updateMissionState(distance);
+                Data::ControllerState currentState = vehicleMissionState.updateMissionState(distance);
                 generateControl(currentState);
             }
-            positionUpdated = false;
-
-        }
-        if(attitudeUpdated)
-        {
-            attitudeUpdated = false;
-        }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }

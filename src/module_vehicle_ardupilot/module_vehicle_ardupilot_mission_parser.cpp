@@ -15,22 +15,24 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(message,&decodedMSG);
 
-        MissionItem::MissionList missionList = vehicleData->data->getCurrentMission(Data::MissionType::AUTO);
+        //If there was a mission list in the core, this means that we have previously
+        //received a count and therefore should expect a full new mission
+        MissionItem::MissionList missionList = vehicleData->data->Command_GetCurrentMission(Data::MissionType::AUTO);
 
         if(decodedMSG.seq == 0)
         {
             //This is the home position item associated with the vehicle
-            MissionItem::SpatialHome newHome;
+            CommandItem::SpatialHome newHome;
             newHome.position.latitude = decodedMSG.x;
             newHome.position.longitude = decodedMSG.y;
             newHome.position.altitude = decodedMSG.z;
-            newHome.setVehicleID(sysID);
+            newHome.setGeneratingSystem(sysID);
 
             homePositionUpdated(newHome);
         }else{
             int currentIndex = decodedMSG.seq - 1; //we decrement 1 only here because ardupilot references home as 0 and we 0 index in our mission queue
             //04/03/2017 Ken Fix This
-            std::shared_ptr<MissionItem::AbstractMissionItem> newMissionItem = vehicleData->Covert_MAVLINKTOMACE(decodedMSG);
+            std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = vehicleData->Covert_MAVLINKTOMACE(decodedMSG);
             missionList.replaceMissionItemAtIndex(newMissionItem,currentIndex);
             vehicleData->data->setCurrentMission(missionList);
         }
@@ -44,11 +46,9 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         }else{
             //We should update the core
-
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                ptr->NewOnboardVehicleMission(this, missionList);
+                ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
             });
-            //m_ArdupilotController.at(sysID)->updatedMission(missionList);
             //We should update all listeners
             std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>(missionList);
 
@@ -60,9 +60,6 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
             });
         }
 
-        //If there was a mission list in the core, this means that we have previously
-        //received a count and therefore should expect a full new mission
-
         break;
     }
     case MAVLINK_MSG_ID_MISSION_REQUEST:
@@ -72,7 +69,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         mavlink_mission_request_t decodedMSG;
         mavlink_msg_mission_request_decode(message,&decodedMSG);
         MissionItem::MissionList missionList = vehicleData->data->getProposedMission(Data::MissionType::AUTO);
-        std::shared_ptr<MissionItem::AbstractMissionItem> missionItem = missionList.getMissionItem(decodedMSG.seq);
+        std::shared_ptr<CommandItem::AbstractCommandItem> missionItem = missionList.getMissionItem(decodedMSG.seq);
         //04/03/2017 KEN FIX
         mavlink_message_t msg;
         vehicleData->MACEMissionToMAVLINKMission(missionItem,chan,compID,decodedMSG.seq,msg);
@@ -142,12 +139,9 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         mavlink_msg_mission_count_decode(message,&decodedMSG);
 
         int queueSize = decodedMSG.count - 1; //we have to decrement 1 here because in actuality ardupilot references home as 0
-
         try {
-            MissionItem::MissionList newMissionList(sysID,sysID,Data::MissionType::AUTO,Data::MissionTypeState::CURRENT,queueSize);
-
+            MissionItem::MissionList newMissionList(sysID,sysID,Data::MissionType::AUTO,Data::MissionTXState::CURRENT,queueSize);
             vehicleData->data->setCurrentMission(newMissionList);
-
             mavlink_message_t msg;
             mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,0,MAV_MISSION_TYPE_MISSION);
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -155,7 +149,6 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         catch (std::exception e) {
             std::cout << "Cannot initialize mission of size 0." << std::endl;
         }
-
         break;
     }
     case MAVLINK_MSG_ID_MISSION_CLEAR_ALL:
@@ -202,12 +195,13 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         //Ack message during MISSION handling. The type field states if this message is a positive ack (type=0) or if an error happened (type=non-zero).
         mavlink_mission_ack_t decodedMSG;
         mavlink_msg_mission_ack_decode(message,&decodedMSG);
+
         //The only way this item is called is if there is a new auto mission aboard the aircraft
-        if((decodedMSG.mission_type == MAV_MISSION_TYPE_MISSION) && (decodedMSG.type == MAV_MISSION_ACCEPTED))
+        if((decodedMSG.type == MAV_MISSION_ACCEPTED) && (decodedMSG.mission_type == MAV_MISSION_TYPE_MISSION))
         {
             Data::MissionKey missionKey = vehicleData->data->proposedMissionConfirmed();
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                ptr->ConfirmedOnboardVehicleMission(this, missionKey);
+                ptr->EventVehicle_ACKProposedMission(this, missionKey);
             });
         }
         break;
@@ -224,11 +218,11 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         mavlink_home_position_t decodedMSG;
         mavlink_msg_home_position_decode(message,&decodedMSG);
 
-        MissionItem::SpatialHome spatialHome;
+        CommandItem::SpatialHome spatialHome;
         spatialHome.position.latitude = decodedMSG.latitude / pow(10,7);
         spatialHome.position.longitude = decodedMSG.longitude / pow(10,7);
         spatialHome.position.altitude = decodedMSG.altitude / 1000;
-        spatialHome.setVehicleID(sysID);
+        spatialHome.setGeneratingSystem(sysID);
 
         homePositionUpdated(spatialHome);
 

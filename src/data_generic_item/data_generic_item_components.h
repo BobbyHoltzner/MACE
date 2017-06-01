@@ -2,7 +2,7 @@
 #define DATA_GENERIC_ITEM_COMPONENTS_H
 
 #include "data_generic_item_flightmode.h"
-#include "data_generic_item_fuel.h"
+#include "data_generic_item_battery.h"
 #include "data_generic_item_GPS.h"
 #include "data_generic_item_text.h"
 

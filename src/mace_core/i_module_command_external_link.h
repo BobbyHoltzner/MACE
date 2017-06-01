@@ -21,7 +21,10 @@ namespace MaceCore
 
 enum class ExternalLinkCommands
 {
-    BASE_MODULE_VEHICLE_LISTENER_ENUMS
+    BASE_MODULE_VEHICLE_LISTENER_ENUMS,
+    NEWLY_AVAILABLE_ONBOARD_MISSION,
+    NEW_MISSION_EXE_STATE,
+    NEWLY_AVAILABLE_HOME_POSITION
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_VehicleListener<Metadata_GroundStation, IModuleEventsExternalLink, ExternalLinkCommands>
@@ -34,7 +37,17 @@ public:
     IModuleCommandExternalLink():
         AbstractModule_VehicleListener()
     {
+        AddCommandLogic<Data::MissionKey>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const Data::MissionKey &key){
+            NewlyAvailableOnboardMission(key);
+        });
 
+        AddCommandLogic<Data::MissionKey>(ExternalLinkCommands::NEW_MISSION_EXE_STATE, [this](const Data::MissionKey &key){
+            NewlyAvailableMissionExeState(key);
+        });
+
+        AddCommandLogic<CommandItem::SpatialHome>(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const CommandItem::SpatialHome &home){
+            NewlyAvailableHomePosition(home);
+        });
     }
 
     virtual Classes ModuleClass() const
@@ -43,6 +56,12 @@ public:
     }
 
 public:
+
+    virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key) = 0;
+
+    virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey) = 0;
+
+    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home) = 0;
 
 };
 

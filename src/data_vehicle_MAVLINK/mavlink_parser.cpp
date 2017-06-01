@@ -8,7 +8,7 @@ MAVLINKParser::MAVLINKParser(DataContainer_MAVLINK* dataContainer)
     data = dataContainer;
 }
 
-std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::ParseForVehicleData(const mavlink_message_t* message){
+std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser:: ParseForVehicleData(const mavlink_message_t* message){
 
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
 
@@ -18,43 +18,14 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         mavlink_sys_status_t decodedMSG;
         mavlink_msg_sys_status_decode(message,&decodedMSG);
 
-//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>();
-        DataGenericItem::DataGenericItem_Fuel fuel;
-        fuel.setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
-        fuel.setBatteryCurrent(decodedMSG.current_battery/10000.0);
-        fuel.setBatteryRemaining(decodedMSG.battery_remaining);
-        if(fuel != data->getFuel())
+        DataGenericItem::DataGenericItem_Battery battery;
+        battery.setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
+        battery.setBatteryCurrent(decodedMSG.current_battery/10000.0);
+        battery.setBatteryRemaining(decodedMSG.battery_remaining);
+        if(data->vehicleFuel.set(battery))
         {
-            data->setFuel(fuel);
-            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Fuel> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Fuel>(fuel);
-            rtnVector.push_back(ptrFuel);
-        }
-        break;
-    }
-    case MAVLINK_MSG_ID_COMMAND_ACK:
-    {
-        mavlink_command_ack_t decodedMSG;
-        mavlink_msg_command_ack_decode(message,&decodedMSG);
-        std::cout<<"The command acknowledgement came from: "<<decodedMSG.command<<std::endl;
-        switch(decodedMSG.result)
-        {
-            case MAV_RESULT_ACCEPTED:
-                std::cout<<"MAV result accepted"<<std::endl;
-                break;
-            case MAV_RESULT_TEMPORARILY_REJECTED:
-                std::cout<<"MAV result rejected"<<std::endl;
-                break;
-            case MAV_RESULT_DENIED:
-                std::cout<<"MAV result denied"<<std::endl;
-                break;
-            case MAV_RESULT_UNSUPPORTED:
-                std::cout<<"MAV result unsupported"<<std::endl;
-                break;
-            case MAV_RESULT_FAILED:
-                std::cout<<"MAV result failed"<<std::endl;
-                break;
-            default:
-                std::cout<<"Uknown ack!"<<std::endl;
+            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> ptrBattery = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>(battery);
+            rtnVector.push_back(ptrBattery);
         }
         break;
     }
@@ -104,6 +75,16 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         //The global position, as returned by the Global Positioning System (GPS). This is NOT the global position estimate of the system, but rather a RAW sensor value. See message GLOBAL_POSITION for the global position estimate. Coordinate frame is right-handed, Z-axis up (GPS frame).
         mavlink_gps_raw_int_t decodedMSG;
         mavlink_msg_gps_raw_int_decode(message,&decodedMSG);
+        Generic_MAVLINKTOMACE parseHelper(message->sysid);
+
+        DataGenericItem::DataGenericItem_GPS gpsStatus = parseHelper.GPS_MAVLINKTOMACE(decodedMSG);
+
+        if(data->vehicleGPSStatus.set(gpsStatus))
+        {
+            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPSStatus = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(gpsStatus);
+            rtnVector.push_back(ptrGPSStatus);
+        }
+
         break;
     }
     case MAVLINK_MSG_ID_GPS_STATUS:
@@ -132,9 +113,8 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         attitude.setAttitude(decodedMSG.roll,decodedMSG.pitch,decodedMSG.yaw);
         attitude.setAttitudeRates(decodedMSG.rollspeed,decodedMSG.pitchspeed,decodedMSG.yawspeed);
 
-        if(attitude != data->getAttitude())
+        if(data->vehicleAttitude.set(attitude))
         {
-            data->setAttitude(attitude);
             std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(attitude);
             rtnVector.push_back(ptrAttitude);
         }
@@ -154,13 +134,11 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
 
         //check that something has actually changed
 
-        if(localPosition != data->getLocalPosition())
+        if(data->vehicleLocalPosition.set(localPosition))
         {
-            data->setLocalPosition(localPosition);
             std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(localPosition);
             rtnVector.push_back(ptrLocalPosition);
         }
-
         break;
     }
     case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
@@ -172,11 +150,10 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         double power = pow(10,7);
 
         DataState::StateGlobalPosition position;
-        position.setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.alt/1000);
+        position.setPosition(decodedMSG.lat/power,decodedMSG.lon/power,decodedMSG.relative_alt/1000);
         //check that something has actually changed
-        if(position != data->getGlobalPos())
+        if(data->vehicleGlobalPosition.set(position))
         {
-            data->setGlobalPos(position);
             std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>(position);
             rtnVector.push_back(ptrPosition);
         }
@@ -186,9 +163,8 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         positionEx.heading = (decodedMSG.hdg/100.0)*(3.14/180.0);
 
         //check that something has actually changed
-        if(positionEx != data->getGlobalPosEx())
+        if(data->vehicleGlobalPositionEx.set(positionEx))
         {
-            data->setGlobalPosEx(positionEx);
             std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> ptrPositionEx = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>(positionEx);
             rtnVector.push_back(ptrPositionEx);
         }
@@ -219,6 +195,18 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
     {
         //This is message definition 74
         //Metrics typically displayed on a HUD for fixed wing aircraft
+        mavlink_vfr_hud_t decodedMSG;
+        mavlink_msg_vfr_hud_decode(message,&decodedMSG);
+
+        DataState::StateAirspeed airspeed;
+        airspeed.setAirspeed(decodedMSG.airspeed);
+        //check that something has actually changed
+
+        if(data->vehicleAirspeed.set(airspeed))
+        {
+            std::shared_ptr<DataStateTopic::StateAirspeedTopic> ptrAirspeedTopic = std::make_shared<DataStateTopic::StateAirspeedTopic>(airspeed);
+            rtnVector.push_back(ptrAirspeedTopic);
+        }
         break;
     }
     case MAVLINK_MSG_ID_RADIO_STATUS:
@@ -271,36 +259,35 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         statusText.setText(decodedMSG.text);
         switch (decodedMSG.severity) {
         case MAV_SEVERITY_EMERGENCY:
-            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::EMERGENCY);
+            statusText.setSeverity(Data::StatusSeverityType::STATUS_EMERGENCY);
             break;
         case MAV_SEVERITY_ALERT:
-            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::ALERT);
+            statusText.setSeverity(Data::StatusSeverityType::STATUS_ALERT);
             break;
         case MAV_SEVERITY_CRITICAL:
-            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::CRITICAL);
+            statusText.setSeverity(Data::StatusSeverityType::STATUS_CRITICAL);
             break;
         case MAV_SEVERITY_ERROR:
-            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::ERROR);
+            statusText.setSeverity(Data::StatusSeverityType::STATUS_ERROR);
             break;
         case MAV_SEVERITY_WARNING:
-            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::WARNING);
+            statusText.setSeverity(Data::StatusSeverityType::STATUS_WARNING);
             break;
         case MAV_SEVERITY_NOTICE:
-            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::NOTICE);
+            statusText.setSeverity(Data::StatusSeverityType::STATUS_NOTICE);
             break;
         case MAV_SEVERITY_INFO:
-            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::INFO);
+            statusText.setSeverity(Data::StatusSeverityType::STATUS_INFO);
             break;
         case MAV_SEVERITY_DEBUG:
-            statusText.setSeverity(DataGenericItem::DataGenericItem_Text::DEBUG);
+            statusText.setSeverity(Data::StatusSeverityType::STATUS_DEBUG);
             break;
         default:
             break;
         }
         //check that something has actually changed
-        if(statusText != data->getText())
+        if(data->vehicleTextAlert.set(statusText))
         {
-            data->setText(statusText);
             std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(statusText);
             rtnVector.push_back(ptrStatusText);
         }

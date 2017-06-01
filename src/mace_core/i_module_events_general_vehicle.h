@@ -3,10 +3,10 @@
 
 #include "topic.h"
 
-
+#include "data/mission_execution_state.h"
 #include "data/mission_key.h"
 #include "data_generic_state_item/state_item_components.h"
-#include "data_generic_mission_item/mission_item_components.h"
+#include "data_generic_command_item/command_item_components.h"
 
 //A vehicle module can indicate something has happened
 
@@ -25,20 +25,21 @@ public:
     virtual void NewConstructedVehicle(const void *sender, const int &newVehicleObserved) = 0;
 
     //!
-    //! \brief NewVehicleHomePosition This function is emitted to alert the core that a module connected to a vehicle
-    //! has received and set a new home position for the system. This should typically be in response to a SetVehicleHomePosition
+    //! \brief GVEvents_NewHomePosition This function is emitted to alert the core that a module connected to a vehicle
+    //! has received and set a new home position for the system. This should typically be in response to a Command_SetHomePosition
     //! request.
     //! \param sender
     //! \param vehicleHome
     //!
-    virtual void NewVehicleHomePosition(const void *sender, const MissionItem::SpatialHome &vehicleHome) = 0;
+    virtual void GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome) = 0;
 
     //!
-    //! \brief NewOnboardVehicleMission
+    //! \brief GVEvents_MissionExecutionStateUpdated
     //! \param sender
-    //! \param missionList
+    //! \param missionKey
+    //! \param missionExeState
     //!
-    virtual void NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void GVEvents_MissionExeStateUpdated(const void *sender, const Data::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState) = 0;
 
     //!
     //! \brief ConfirmedOnboardVehicleMission

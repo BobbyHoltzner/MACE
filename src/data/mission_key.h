@@ -10,10 +10,10 @@ class MissionKey
 {
 public:
     MissionKey();
-    MissionKey(const int &targetID, const int &creatorID, const int &missionID, const Data::MissionType &missionType);
+    MissionKey(const int &systemID, const int &creatorID, const int &missionID, const Data::MissionType &missionType);
     MissionKey(const MissionKey &obj);
 public:
-    int m_targetID;
+    int m_systemID;
     int m_creatorID;
 
     //!

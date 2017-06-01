@@ -109,12 +109,12 @@ public:
     ///              MACE COMMANDS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    virtual void ChangeVehicleArm(const MissionItem::ActionArm &vehicleArm)
+    virtual void Command_SystemArm(const CommandItem::ActionArm &vehicleArm)
     {
         UNUSED(vehicleArm);
     }
 
-    virtual void ChangeVehicleOperationalMode(const MissionItem::ActionChangeMode &vehicleMode)
+    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode)
     {
         UNUSED(vehicleMode);
     }
@@ -130,7 +130,7 @@ public:
         UNUSED(heartbeatMSG);
     }
 
-    virtual void VehicleCommandACK(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK)
+    virtual void MAVLINKCommandAck(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK)
     {
         UNUSED(linkName);
         UNUSED(systemID);

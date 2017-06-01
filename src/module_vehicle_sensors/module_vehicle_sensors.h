@@ -6,8 +6,6 @@
 
 #include "module_vehicle_sensors_global.h"
 
-#include "Eigen/Dense"
-
 #include "mace_core/i_module_topic_events.h"
 
 #include "data/i_topic_component_data_object.h"
@@ -19,9 +17,7 @@
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
-#include "data_generic_mission_item/mission_item_components.h"
-#include "data_generic_mission_item_topic/mission_item_topic_components.h"
-
+#include "data_generic_command_item/command_item_components.h"
 
 class MODULE_VEHICLE_SENSORSSHARED_EXPORT ModuleVehicleSensors : public MaceCore::IModuleCommandSensors
 {

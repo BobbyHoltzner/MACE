@@ -5,7 +5,6 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme();
 
 var NotificationSystem = require('react-notification-system');
-import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon } from 'react-leaflet';
 import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
 import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
 import { VehicleCommandsContainer } from './VehicleCommandsContainer';
@@ -17,12 +16,11 @@ import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { Vehicle } from '../Vehicle';
-import { backgroundColors, opaqueBackgroundColors } from '../util/Colors';
 import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
 import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
 import { MessagesDialog } from '../components/MessagesDialog';
 import { TakeoffDialog } from '../components/TakeoffDialog';
-import { ContextMenu } from '../components/ContextMenu';
+import MACEMap from '../components/MACEMap';
 
 import * as deepcopy from 'deepcopy';
 
@@ -30,6 +28,9 @@ var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 var net = require('net');
 
+// // Performance testing:
+// var Perf = require('react-addons-perf');
+// // End performance testing
 
 type Props = {
 }
@@ -38,9 +39,6 @@ type State = {
   tcpClient?: any,
   tcpHost?: string,
   tcpPort?: number,
-  maxZoom?: number,
-  initialZoom?: number,
-  mapCenter?: number[],
   connectedVehicles?: {[id: string]: Vehicle}
   vehicleWarnings?: VehicleWarning[]
   selectedVehicleID?: string,
@@ -50,26 +48,33 @@ type State = {
   allowVehicleSelect?: boolean,
   showEditVehicleHomeDialog?: boolean,
   showEditGlobalHomeDialog?: boolean,
-  globalOrigin?: PositionType,
-  showContextMenu?: boolean,
-  contextAnchor?: L.LeafletMouseEvent,
-  useContext?: boolean,
   showMessagesMenu?: boolean,
   messagePreferences?: MessagePreferencesType,
   takeoffAlt?: number,
   showTakeoffDialog?: boolean,
-  showSaveTakeoff?: boolean
+  showSaveTakeoff?: boolean,
+  maxZoom?: number,
+  mapZoom?: number,
+  mapCenter?: number[]
+  globalOrigin?: PositionType
+  useContext?: boolean,
+  contextAnchor?: L.LeafletMouseEvent,
+  MACEConnected?: boolean
 }
 
 export default class AppContainer extends React.Component<Props, State> {
-  leafletMap: L.Map;
   notificationSystem: NotificationSystem;
   m_AttitudeInterval: number[];
   m_AttitudeTimeout: number;
   m_PositionInterval: number[];
   m_PositionTimeout: number;
+
+  vehicleDB: {[id: string]: Vehicle};
+
   constructor(props: Props) {
     super(props);
+
+    this.vehicleDB = {};
 
     this.m_AttitudeInterval = [];
     this.m_PositionInterval = [];
@@ -80,10 +85,10 @@ export default class AppContainer extends React.Component<Props, State> {
       tcpClient: new net.Socket(),
       tcpHost: '127.0.0.1',
       tcpPort: 5678,
-      maxZoom: 20,
-      initialZoom: 18,
-      // mapCenter: [37.889231, -76.810302], // Bob's Farm
-      mapCenter: [-35.363272, 149.165249], // SITL Default
+      maxZoom: 21,
+      mapZoom: 20,
+      mapCenter: [37.889231, -76.810302], // Bob's Farm
+      // mapCenter: [-35.363272, 149.165249], // SITL Default
       // mapCenter: [45.283410, -111.400850], // Big Sky
       connectedVehicles: {},
       vehicleWarnings: [],
@@ -95,9 +100,6 @@ export default class AppContainer extends React.Component<Props, State> {
       showEditGlobalHomeDialog: false,
       globalOrigin: {lat: 0, lon: 0, alt: 0},
       selectedVehicleID: "0",
-      showContextMenu: false,
-      contextAnchor: null,
-      useContext: false,
       showMessagesMenu: false,
       messagePreferences: {
         emergency: true,
@@ -111,18 +113,33 @@ export default class AppContainer extends React.Component<Props, State> {
       },
       takeoffAlt: 10,
       showTakeoffDialog: false,
-      showSaveTakeoff: false
+      showSaveTakeoff: false,
+      MACEConnected: false
     }
   }
 
   componentDidMount(){
-    this.leafletMap = this.refs.map;
+    // // Performance testing:
+    // setTimeout(() => {
+    //   console.log("Start performance testing...");
+    //   Perf.start();
+    //   setTimeout(() => {
+    //     Perf.stop();
+    //     const measurements = Perf.getLastMeasurements();
+    //     Perf.printWasted(measurements);
+    //   }, 30000);
+    // }, 5000);
+    // // End performance testing
+
     this.notificationSystem = this.refs.notificationSystem;
     this.setupTCPServer();
 
+    this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
+
     setInterval(() => {
       this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
-    }, 2000);
+    }, 3000);
+
   }
 
   setupTCPServer = () => {
@@ -136,7 +153,9 @@ export default class AppContainer extends React.Component<Props, State> {
         socket.on('data', function (msg_sent: any) {
           // console.log("Data from socket: " + msg_sent);
           let jsonData: TCPReturnType = JSON.parse(msg_sent);
+
           this.parseTCPClientData(jsonData);
+
         }.bind(this));
         // Use splice to get rid of the socket that is ending.
         // The 'end' event means tcp client has disconnected.
@@ -153,12 +172,18 @@ export default class AppContainer extends React.Component<Props, State> {
     // TODO: Allow for user configuration of the port and probably address too
     try{
       this.state.tcpServer.listen(1234);
+      this.setState({MACEConnected: true});
     }
     catch(e) {
       console.log('Error: ' + e);
     }
 
     console.log('System listening at http://localhost:1234');
+
+    // Set interval to set state to DB:
+    setInterval(() => {
+      this.setState({connectedVehicles: this.vehicleDB});
+    }, 1500);
   }
 
 
@@ -191,7 +216,7 @@ export default class AppContainer extends React.Component<Props, State> {
         }
       }
 
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === "VehiclePosition"){
       let vehiclePosition = jsonData as TCPPositionType;
@@ -202,9 +227,17 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[vehiclePosition.vehicleID].numSats = vehiclePosition.numSats;
       stateCopy[vehiclePosition.vehicleID].positionFix = vehiclePosition.positionFix;
 
-      stateCopy[vehiclePosition.vehicleID].updateMarkerPosition(vehiclePosition);
+      stateCopy[vehiclePosition.vehicleID].updateVehicleMarkerPosition(vehiclePosition);
 
-      this.setState({connectedVehicles: stateCopy});
+      if(stateCopy[vehiclePosition.vehicleID].isNew &&
+        (stateCopy[vehiclePosition.vehicleID].gps.gpsFix !== "NO GPS" || stateCopy[vehiclePosition.vehicleID].gps.gpsFix !== "GPS NO FIX") &&
+        Object.keys(this.state.connectedVehicles).length === 1)
+      {
+        stateCopy[vehiclePosition.vehicleID].isNew = false;
+        this.setState({mapCenter: [stateCopy[vehiclePosition.vehicleID].position.lat, stateCopy[vehiclePosition.vehicleID].position.lon], mapZoom: 19});
+      }
+
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === "VehicleAttitude"){
       let vehicleAttitude = jsonData as TCPAttitudeType;
@@ -215,13 +248,19 @@ export default class AppContainer extends React.Component<Props, State> {
 
       stateCopy[vehicleAttitude.vehicleID].updateMarkerAttitude(vehicleAttitude);
 
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
+    }
+    else if(jsonData.dataType === "VehicleAirspeed"){
+      let vehicleAirspeed = jsonData as TCPAirspeedType;
+
+      stateCopy[vehicleAirspeed.vehicleID].airspeed = vehicleAirspeed.airspeed;
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleMission') {
       let vehicleMission = jsonData as TCPMissionType;
       let stateCopy = deepcopy(this.state.connectedVehicles);
       stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleHome') {
       let vehicleHome = jsonData as (TCPReturnType & MissionItemType);
@@ -232,7 +271,7 @@ export default class AppContainer extends React.Component<Props, State> {
         alt: vehicleHome.alt
       }
       stateCopy[vehicleHome.vehicleID].updateHomePosition(tmpHome);
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleFuel') {
       let vehicleFuel = jsonData as TCPFuelType;
@@ -241,16 +280,12 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[vehicleFuel.vehicleID].fuel.batteryCurrent = vehicleFuel.batteryCurrent;
       stateCopy[vehicleFuel.vehicleID].fuel.batteryVoltage = vehicleFuel.batteryVoltage;
 
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleMode') {
       let vehicleMode = jsonData as TCPModeType;
-
-      stateCopy[vehicleMode.vehicleID].isArmed = vehicleMode.isArmed;
       stateCopy[vehicleMode.vehicleID].vehicleMode = vehicleMode.vehicleMode;
-      // TODO: vehicle type (i.e. quad, fixed, etc.)
-
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleText') {
       let vehicleText = jsonData as TCPTextType;
@@ -301,23 +336,50 @@ export default class AppContainer extends React.Component<Props, State> {
       if(showMessage) {
         this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
         stateCopy[vehicleText.vehicleID].messages.unshift({severity: vehicleText.severity, text: vehicleText.text});
-        this.setState({connectedVehicles: stateCopy});
+        this.vehicleDB = stateCopy;
       }
     }
     else if(jsonData.dataType === 'GlobalOrigin') {
       let jsonOrigin = jsonData as TCPPositionType;
       let origin = {lat: jsonOrigin.lat, lon: jsonOrigin.lon, alt: jsonOrigin.alt};
-      this.setState({globalOrigin: origin})
+      this.setState({globalOrigin: origin});
     }
     else if(jsonData.dataType === 'SensorFootprint') {
       let jsonFootprint = jsonData as TCPSensorFootprintType;
       stateCopy[jsonFootprint.vehicleID].sensorFootprint = jsonFootprint.sensorFootprint;
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
+    }
+    else if(jsonData.dataType === 'VehicleGPS') {
+      let jsonGPS = jsonData as TCPGPSType;
+      stateCopy[jsonGPS.vehicleID].gps.visibleSats = jsonGPS.visibleSats;
+      stateCopy[jsonGPS.vehicleID].gps.gpsFix = jsonGPS.gpsFix;
+      stateCopy[jsonGPS.vehicleID].gps.hdop = jsonGPS.hdop;
+      stateCopy[jsonGPS.vehicleID].gps.vdop = jsonGPS.vdop;
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'CurrentMissionItem') {
       let jsonMissionItem = jsonData as TCPCurrentMissionItemType;
-      stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.missionItemIndex);
-      this.setState({connectedVehicles: stateCopy});
+      stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.missionItemIndex, false);
+      this.vehicleDB = stateCopy;
+    }
+    else if(jsonData.dataType === 'MissionItemReached') {
+      let jsonMissionItem = jsonData as TCPMissionItemReachedType;
+      if(jsonMissionItem.itemIndex === stateCopy[jsonMissionItem.vehicleID].vehicleMission.icons.length - 1) {
+        stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.itemIndex, true)
+      }
+    }
+    else if(jsonData.dataType === 'VehicleHeartbeat') {
+      let jsonHeartbeat = jsonData as TCPHeartbeatType;
+      stateCopy[jsonHeartbeat.vehicleID].general.autopilot = jsonHeartbeat.autopilot;
+      stateCopy[jsonHeartbeat.vehicleID].general.commsProtocol = jsonHeartbeat.commsProtocol;
+      stateCopy[jsonHeartbeat.vehicleID].general.aircraftType = jsonHeartbeat.aircraftType;
+      stateCopy[jsonHeartbeat.vehicleID].general.companion = jsonHeartbeat.companion;
+      this.vehicleDB = stateCopy;
+    }
+    else if(jsonData.dataType === 'VehicleArm') {
+      let jsonArm = jsonData as TCPVehicleArmType;
+      stateCopy[jsonArm.vehicleID].isArmed = jsonArm.armed;
+      this.vehicleDB = stateCopy;
     }
   }
 
@@ -348,6 +410,10 @@ export default class AppContainer extends React.Component<Props, State> {
 
         // Close the client socket completely
         socket.destroy();
+
+        if(this.state.MACEConnected === false) {
+          this.setState({MACEConnected: true});
+        }
     }.bind(this));
 
     // Add a 'close' event handler for the client socket
@@ -359,6 +425,10 @@ export default class AppContainer extends React.Component<Props, State> {
     // Add an 'error' event handler
     socket.on('error', function(err: any) {
         console.log('Error: ' + err);
+        let str = err+"";
+        if(str.indexOf("ECONNREFUSED") > 0){
+          this.handleClearGUI();
+        }
         socket.destroy();
     }.bind(this));
   }
@@ -375,6 +445,11 @@ export default class AppContainer extends React.Component<Props, State> {
     }
 
     this.notificationSystem.addNotification(notification);
+  }
+
+  handleClearGUI = () => {
+    this.vehicleDB = {};
+    this.setState({connectedVehicles: {}, selectedVehicleID: "0", MACEConnected: false});
   }
 
   handleAircraftCommand = (id: string, tcpCommand: string, vehicleCommand: string) => {
@@ -395,12 +470,6 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(action === "TestButton2") {
       this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION2", "");
     }
-  }
-
-  onOpenVehicleEdit = (vehicleID: string) => {
-    // If we are passing in a vehicle ID, don't allow the dropdown to be selectable on the edit window as we are editing a specific vehicle:
-    this.handleSelectedAircraftUpdate(vehicleID);
-    this.setState({allowVehicleSelect: vehicleID ? false : true, showEditVehicleHomeDialog: true});
   }
 
   handleSaveVehicleHome = (vehicleID: string, vehicleHome: PositionType) => {
@@ -424,13 +493,8 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({globalOrigin: globalOrigin});
   }
 
-  triggerContextMenu = (event: L.LeafletMouseEvent) => {
-    this.setState({contextAnchor: event, showContextMenu: !this.state.showContextMenu});
-  }
-
   contextSetHome = () => {
     this.setState({
-      showContextMenu: false,
       showEditVehicleHomeDialog: true,
       allowVehicleSelect: true,
       showEditGlobalHomeDialog: false,
@@ -440,7 +504,6 @@ export default class AppContainer extends React.Component<Props, State> {
 
   contextSetGlobal = () => {
     this.setState({
-      showContextMenu: false,
       showEditGlobalHomeDialog: true,
       allowVehicleSelect: false,
       showEditVehicleHomeDialog: false,
@@ -450,7 +513,6 @@ export default class AppContainer extends React.Component<Props, State> {
 
   contextGoHere = () => {
     this.setState({
-      showContextMenu: false,
       showEditGlobalHomeDialog: false,
       allowVehicleSelect: false,
       showEditVehicleHomeDialog: false,
@@ -470,24 +532,20 @@ export default class AppContainer extends React.Component<Props, State> {
       if(key === id){
         stateCopy[id].isSelected = !stateCopy[id].isSelected;
         selectedID = stateCopy[id].isSelected ? id : "0";
+
+        if(stateCopy[id].isSelected === true && (stateCopy[id].position.lat !== 0 && stateCopy[id].position.lat !== 0)){
+          this.setState({mapCenter: [stateCopy[id].position.lat, stateCopy[id].position.lon]});
+        }
       }
       else {
         stateCopy[key].isSelected = false;
       }
-      stateCopy[key].updateMarkerPosition();
       stateCopy[key].updateHomePosition();
+      stateCopy[key].updateVehicleMarkerPosition();
     });
 
+    this.vehicleDB = stateCopy;
     this.setState({connectedVehicles: stateCopy, selectedVehicleID: selectedID});
-  }
-
-  handleMapClick = (e: L.LeafletMouseEvent) => {
-    this.setState({showContextMenu: false});
-  }
-
-  handleMarkerClick = (e: L.LeafletMouseEvent, vehicleId: string, type: string) => {
-    this.handleSelectedAircraftUpdate(vehicleId);
-    this.setState({showContextMenu: false});
   }
 
   handleSaveMessagingPreferences = (preferences: MessagePreferencesType) => {
@@ -503,12 +561,15 @@ export default class AppContainer extends React.Component<Props, State> {
     this.makeTCPRequest(parseInt(vehicleID), "VEHICLE_TAKEOFF", JSON.stringify(takeoffPosition));
   }
 
+  updateMapCenter = (e: L.LeafletMouseEvent) => {
+    this.setState({mapCenter: [e.target.getCenter().lat, e.target.getCenter().lng], mapZoom: e.target.getZoom()});
+  }
+
   render() {
 
     const width = window.screen.width;
     const height = window.screen.height;
     const parentStyle = {height: height + 'px', width: width + 'px'};
-    const mapStyle = { top: 0, left: 0, height: height + 'px', width: width + 'px' };
 
     const MoreVertMenu = () => (
       <IconMenu
@@ -520,16 +581,6 @@ export default class AppContainer extends React.Component<Props, State> {
         <MenuItem onClick={() => console.log("Path Planning")} primaryText="Path Planning Parameters" />
       </IconMenu>
     );
-
-    const globalOriginMarker = {
-      position: new L.LatLng(this.state.globalOrigin.lat, this.state.globalOrigin.lon),
-      icon: new L.Icon({
-          iconUrl: './images/userlocation_icon.png',
-          iconSize: [41, 41], // size of the icon
-          iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
-          popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
-      })
-    };
 
     return (
         <MuiThemeProvider muiTheme={lightMuiTheme}>
@@ -552,7 +603,7 @@ export default class AppContainer extends React.Component<Props, State> {
             <ConnectedVehiclesContainer
               connectedVehicles={this.state.connectedVehicles}
               onAircraftCommand={this.handleAircraftCommand}
-              handleOpenVehicleEdit={this.onOpenVehicleEdit}
+              handleChangeSelectedVehicle={this.handleSelectedAircraftUpdate}
               selectedVehicleID={this.state.selectedVehicleID}
             />
 
@@ -568,124 +619,73 @@ export default class AppContainer extends React.Component<Props, State> {
               vehicleWarnings={this.state.vehicleWarnings}
             />
 
-            <VehicleHomeDialog
-              open={this.state.showEditVehicleHomeDialog}
-              handleClose={() => this.setState({showEditVehicleHomeDialog: false})}
-              vehicles={this.state.connectedVehicles}
-              selectedVehicleID={this.state.selectedVehicleID}
-              handleSave={this.handleSaveVehicleHome}
-              contextAnchor={this.state.contextAnchor}
-              useContext={this.state.useContext}
-              allowVehicleSelect={this.state.allowVehicleSelect}
-            />
-
-            <GlobalOriginDialog
-              open={this.state.showEditGlobalHomeDialog}
-              handleClose={() => this.setState({showEditGlobalHomeDialog: false})}
-              onGlobalHomeCommand={this.handleAircraftCommand}
-              globalOrigin={this.state.globalOrigin}
-              handleSave={this.handleSaveGlobalOrigin}
-              contextAnchor={this.state.contextAnchor}
-              useContext={this.state.useContext}
-            />
-
-            <MessagesDialog
-              open={this.state.showMessagesMenu}
-              handleClose={() => this.setState({showMessagesMenu: false})}
-              handleSave={this.handleSaveMessagingPreferences}
-              preferences={this.state.messagePreferences}
-            />
-
-            <TakeoffDialog
-              open={this.state.showTakeoffDialog}
-              handleClose={() => this.setState({showTakeoffDialog: false})}
-              vehicles={this.state.connectedVehicles}
-              selectedVehicleID={this.state.selectedVehicleID}
-              handleTakeoff={this.handleTakeoff}
-              takeoffAlt={this.state.takeoffAlt}
-              onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
-              showSaveTakeoff={this.state.showSaveTakeoff}
-              handleSaveTakeoff={(alt: number) => this.setState({takeoffAlt: alt})}
-            />
-
-            {this.state.showContextMenu &&
-              <ContextMenu
-                menuAnchor={this.state.contextAnchor}
-                handleClose={() => this.setState({showContextMenu: false})}
-                handleSetHome={this.contextSetHome}
-                handleSetGlobal={this.contextSetGlobal}
-                handleGoHere={this.contextGoHere}
+            {this.state.showEditVehicleHomeDialog &&
+              <VehicleHomeDialog
+                open={this.state.showEditVehicleHomeDialog}
+                handleClose={() => this.setState({showEditVehicleHomeDialog: false})}
+                vehicles={this.state.connectedVehicles}
+                selectedVehicleID={this.state.selectedVehicleID}
+                handleSave={this.handleSaveVehicleHome}
+                contextAnchor={this.state.contextAnchor}
+                useContext={this.state.useContext}
+                allowVehicleSelect={this.state.allowVehicleSelect}
+                onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
               />
             }
 
-            <Map ref="map" center={this.state.mapCenter} zoom={this.state.initialZoom} style={mapStyle} zoomControl={false} onContextmenu={this.triggerContextMenu} onDrag={() => this.setState({showContextMenu: false})} >
-                {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
-                <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.state.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
+            {this.state.showEditGlobalHomeDialog &&
+              <GlobalOriginDialog
+                open={this.state.showEditGlobalHomeDialog}
+                handleClose={() => this.setState({showEditGlobalHomeDialog: false})}
+                onGlobalHomeCommand={this.handleAircraftCommand}
+                globalOrigin={this.state.globalOrigin}
+                handleSave={this.handleSaveGlobalOrigin}
+                contextAnchor={this.state.contextAnchor}
+                useContext={this.state.useContext}
+              />
+            }
 
-                <LayerGroup>
+            {this.state.showMessagesMenu &&
+              <MessagesDialog
+                open={this.state.showMessagesMenu}
+                handleClose={() => this.setState({showMessagesMenu: false})}
+                handleSave={this.handleSaveMessagingPreferences}
+                preferences={this.state.messagePreferences}
+              />
+            }
 
-                  {/* Aircraft Icons */}
-                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
-                    return (
-                      <Marker onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.state.connectedVehicles[key].vehicleMarker.latLon} icon={this.state.connectedVehicles[key].vehicleMarker.icon} title={key}>
-                      {/*
-                        <Popup open={true}>
-                        </Popup>
-                      */}
-                      </Marker>
-                    );
-                  })}
-
-                  {/* Home Icons */}
-                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
-                    return (
-                      <Marker onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "home")} key={key} position={this.state.connectedVehicles[key].homePosition.latLon} icon={this.state.connectedVehicles[key].homePosition.icon} title={key}>
-                      {/*
-                        <Popup open={true}>
-                          <span>Selected</span>
-                        </Popup>
-                      */}
-                      </Marker>
-                    );
-                  })}
-
-                  {/* Global Origin */}
-                  <Marker position={globalOriginMarker.position} icon={globalOriginMarker.icon}>
-                  {/*
-                    <Popup open={true}>
-                      <span>Selected</span>
-                    </Popup>
-                  */}
-                  </Marker>
-
-                  {/* Mission Paths */}
-                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
-                    return (
-                      <Polyline key={key} positions={this.state.connectedVehicles[key].vehicleMission.latLons} color={this.state.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} />
-                    );
-                  })}
-
-                  {/* Mission Markers */}
-                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
-                    let markers: JSX.Element[] = [];
-                    for(let i = 0; i < this.state.connectedVehicles[key].vehicleMission.latLons.length; i++){
-                      markers.push(<Marker key={i} position={this.state.connectedVehicles[key].vehicleMission.latLons[i]} icon={this.state.connectedVehicles[key].vehicleMission.icons[i]} title={key} />);
-                    }
-                    return (
-                      markers
-                    );
-                  })}
-
-                  {/* Sensor Footprint */}
-                  {Object.keys(this.state.connectedVehicles).map((key: string) => {
-                    return (
-                      <Polygon key={key} positions={this.state.connectedVehicles[key].sensorFootprint} color={this.state.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} fillColor={colors.amber500} />
-                    );
-                  })}
+            {this.state.showTakeoffDialog &&
+              <TakeoffDialog
+                open={this.state.showTakeoffDialog}
+                handleClose={() => this.setState({showTakeoffDialog: false})}
+                vehicles={this.state.connectedVehicles}
+                selectedVehicleID={this.state.selectedVehicleID}
+                handleTakeoff={this.handleTakeoff}
+                takeoffAlt={this.state.takeoffAlt}
+                onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
+                showSaveTakeoff={this.state.showSaveTakeoff}
+                handleSaveTakeoff={(alt: number) => this.setState({takeoffAlt: alt})}
+              />
+            }
 
 
-                </LayerGroup>
-            </Map>
+            <MACEMap
+              handleSelectedAircraftUpdate={this.handleSelectedAircraftUpdate}
+              setContextAnchor={(anchor: L.LeafletMouseEvent) => this.setState({contextAnchor: anchor})}
+              connectedVehicles={this.state.connectedVehicles}
+              selectedVehicleID={this.state.selectedVehicleID}
+              mapCenter={this.state.mapCenter}
+              maxZoom={this.state.maxZoom}
+              mapZoom={this.state.mapZoom}
+              globalOrigin={this.state.globalOrigin}
+              updateMapCenter={this.updateMapCenter}
+              contextAnchor={this.state.contextAnchor}
+              contextSetGlobal={this.contextSetGlobal}
+              contextSetHome={this.contextSetHome}
+              contextGoHere={this.contextGoHere}
+              MACEConnected={this.state.MACEConnected}
+             />
+
 
             <div>
               <NotificationSystem ref="notificationSystem" />
