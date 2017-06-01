@@ -237,10 +237,14 @@ export class Vehicle{
         }
 
         if(isActive) {
-            let iconHTML = '<span style="background-color: ' + iconBackgroundColor + '; color: white; text-align: center;">active</span><img src="' + iconUrl + '"alt="Marker icon" style="width: ' + width + 'px; height: ' + height + 'px;">';
+            let iconHTML     = '<div style="width: ' + width +'; height: '+ (height+18) +'">';
+            iconHTML        +=      '<img src="' + iconUrl + '"alt="Marker icon" style="width: ' + width + 'px; height: ' + height + 'px;">';
+            iconHTML        +=      '<span style="background-color: ' + iconBackgroundColor + '; color: white; text-align: center; padding: 2px; position: relative; top: ' + (-height-18) + 'px; left: -5px">active</span>';
+            iconHTML        += '</div>';
+
             let icon = new L.DivIcon({
                 html: iconHTML,
-                iconAnchor: [iconAnchor[0], iconAnchor[1]+18], // point of the icon which will correspond to marker's location
+                iconAnchor: iconAnchor, // point of the icon which will correspond to marker's location
                 popupAnchor: popupAnchor, // point from which the popup should open relative to the iconAnchor
                 className: '' // setting this overrides default css and gets rid of white box
             });

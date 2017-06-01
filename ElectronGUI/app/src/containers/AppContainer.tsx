@@ -529,7 +529,7 @@ export default class AppContainer extends React.Component<Props, State> {
         selectedID = stateCopy[id].isSelected ? id : "0";
 
         if(stateCopy[id].isSelected === true && (stateCopy[id].position.lat !== 0 && stateCopy[id].position.lat !== 0)){
-          this.setState({mapCenter: [stateCopy[id].position.lat, stateCopy[id].position.lon], mapZoom: 19});
+          this.setState({mapCenter: [stateCopy[id].position.lat, stateCopy[id].position.lon]});
         }
       }
       else {
