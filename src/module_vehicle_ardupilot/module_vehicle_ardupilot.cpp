@@ -271,6 +271,7 @@ void ModuleVehicleArdupilot::Command_SetCurrentMission(const Data::MissionKey &k
 
 void ModuleVehicleArdupilot::Command_GetCurrentMission(const int &targetSystem)
 {
+    mavlink_message_t msg;
     mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }

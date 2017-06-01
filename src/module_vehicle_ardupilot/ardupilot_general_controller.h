@@ -21,7 +21,7 @@
 
 #include "comms/comms_marshaler.h"
 
-#include "Data/threadmanager.h"
+#include "data/threadmanager.h"
 #include "ardupilot_mission_state.h"
 
 #include <functional>
