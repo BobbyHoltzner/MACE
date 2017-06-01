@@ -136,7 +136,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
     setInterval(() => {
       this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
-    }, 10000);
+    }, 3000);
 
   }
 
@@ -179,9 +179,8 @@ export default class AppContainer extends React.Component<Props, State> {
 
     // Set interval to set state to DB:
     setInterval(() => {
-      console.log("Test state");
       this.setState({connectedVehicles: this.vehicleDB});
-    }, 2000);
+    }, 1500);
   }
 
 

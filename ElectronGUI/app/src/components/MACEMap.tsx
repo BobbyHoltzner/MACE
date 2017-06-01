@@ -44,13 +44,13 @@ export default class MACEMap extends React.Component<Props, State> {
     }
   }
 
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
-    if(nextState.showContextMenu === this.state.showContextMenu) {
-      return false;
-    }
+  // shouldComponentUpdate(nextProps: Props, nextState: State) {
+  //   if(nextState.showContextMenu === this.state.showContextMenu) {
+  //     return false;
+  //   }
 
-    return true;
-  }
+  //   return true;
+  // }
 
   componentDidMount(){
     // // Performance testing:
@@ -109,7 +109,7 @@ export default class MACEMap extends React.Component<Props, State> {
               />
             }
 
-            <Map ref="map" onDragend={this.props.updateMapCenter} useFlyTo={true} animate={true} center={this.props.mapCenter} zoom={this.props.mapZoom} style={mapStyle} zoomControl={false} maxZoom={this.props.maxZoom} onContextmenu={this.triggerContextMenu} onDrag={() => this.setState({showContextMenu: false})} >
+            <Map ref="map" onDragend={this.props.updateMapCenter} useFlyTo={true} animate={true} center={this.props.mapCenter} zoom={this.props.mapZoom} style={mapStyle} zoomControl={false} maxZoom={this.props.maxZoom} onContextmenu={this.triggerContextMenu} >
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.props.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
 
