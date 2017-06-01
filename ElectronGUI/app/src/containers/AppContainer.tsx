@@ -28,7 +28,9 @@ var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 var net = require('net');
 
-
+// // Performance testing:
+// var Perf = require('react-addons-perf');
+// // End performance testing
 
 type Props = {
 }
@@ -65,8 +67,13 @@ export default class AppContainer extends React.Component<Props, State> {
   m_AttitudeTimeout: number;
   m_PositionInterval: number[];
   m_PositionTimeout: number;
+
+  vehicleDB: {[id: string]: Vehicle};
+
   constructor(props: Props) {
     super(props);
+
+    this.vehicleDB = {};
 
     this.m_AttitudeInterval = [];
     this.m_PositionInterval = [];
@@ -112,6 +119,7 @@ export default class AppContainer extends React.Component<Props, State> {
   componentDidMount(){
     // // Performance testing:
     // setTimeout(() => {
+    //   console.log("Start performance testing...");
     //   Perf.start();
     //   setTimeout(() => {
     //     Perf.stop();
@@ -129,6 +137,7 @@ export default class AppContainer extends React.Component<Props, State> {
     setInterval(() => {
       this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
     }, 10000);
+
   }
 
   setupTCPServer = () => {
@@ -142,7 +151,9 @@ export default class AppContainer extends React.Component<Props, State> {
         socket.on('data', function (msg_sent: any) {
           // console.log("Data from socket: " + msg_sent);
           let jsonData: TCPReturnType = JSON.parse(msg_sent);
+
           this.parseTCPClientData(jsonData);
+
         }.bind(this));
         // Use splice to get rid of the socket that is ending.
         // The 'end' event means tcp client has disconnected.
@@ -165,13 +176,19 @@ export default class AppContainer extends React.Component<Props, State> {
     }
 
     console.log('System listening at http://localhost:1234');
+
+    // Set interval to set state to DB:
+    setInterval(() => {
+      console.log("Test state");
+      this.setState({connectedVehicles: this.vehicleDB});
+    }, 2000);
   }
 
 
   parseTCPClientData = (jsonData: TCPReturnType) => {
     let stateCopy = deepcopy(this.state.connectedVehicles);
 
-    console.log("Test parse: " + jsonData.dataType);
+    // console.log("Test parse: " + jsonData.dataType);
 
     if(jsonData.dataType === "ConnectedVehicles"){
       let jsonVehicles = jsonData as ConnectedVehiclesType;
@@ -199,7 +216,7 @@ export default class AppContainer extends React.Component<Props, State> {
         }
       }
 
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === "VehiclePosition"){
       let vehiclePosition = jsonData as TCPPositionType;
@@ -220,7 +237,7 @@ export default class AppContainer extends React.Component<Props, State> {
         this.setState({mapCenter: [stateCopy[vehiclePosition.vehicleID].position.lat, stateCopy[vehiclePosition.vehicleID].position.lon], mapZoom: 19});
       }
 
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === "VehicleAttitude"){
       let vehicleAttitude = jsonData as TCPAttitudeType;
@@ -231,19 +248,19 @@ export default class AppContainer extends React.Component<Props, State> {
 
       stateCopy[vehicleAttitude.vehicleID].updateMarkerAttitude(vehicleAttitude);
 
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === "VehicleAirspeed"){
       let vehicleAirspeed = jsonData as TCPAirspeedType;
 
       stateCopy[vehicleAirspeed.vehicleID].airspeed = vehicleAirspeed.airspeed;
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleMission') {
       let vehicleMission = jsonData as TCPMissionType;
       let stateCopy = deepcopy(this.state.connectedVehicles);
       stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleHome') {
       let vehicleHome = jsonData as (TCPReturnType & MissionItemType);
@@ -254,7 +271,7 @@ export default class AppContainer extends React.Component<Props, State> {
         alt: vehicleHome.alt
       }
       stateCopy[vehicleHome.vehicleID].updateHomePosition(tmpHome);
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleFuel') {
       let vehicleFuel = jsonData as TCPFuelType;
@@ -263,12 +280,12 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[vehicleFuel.vehicleID].fuel.batteryCurrent = vehicleFuel.batteryCurrent;
       stateCopy[vehicleFuel.vehicleID].fuel.batteryVoltage = vehicleFuel.batteryVoltage;
 
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleMode') {
       let vehicleMode = jsonData as TCPModeType;
       stateCopy[vehicleMode.vehicleID].vehicleMode = vehicleMode.vehicleMode;
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleText') {
       let vehicleText = jsonData as TCPTextType;
@@ -319,18 +336,18 @@ export default class AppContainer extends React.Component<Props, State> {
       if(showMessage) {
         this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
         stateCopy[vehicleText.vehicleID].messages.unshift({severity: vehicleText.severity, text: vehicleText.text});
-        this.setState({connectedVehicles: stateCopy});
+        this.vehicleDB = stateCopy;
       }
     }
     else if(jsonData.dataType === 'GlobalOrigin') {
       let jsonOrigin = jsonData as TCPPositionType;
       let origin = {lat: jsonOrigin.lat, lon: jsonOrigin.lon, alt: jsonOrigin.alt};
-      this.setState({globalOrigin: origin})
+      this.setState({globalOrigin: origin});
     }
     else if(jsonData.dataType === 'SensorFootprint') {
       let jsonFootprint = jsonData as TCPSensorFootprintType;
       stateCopy[jsonFootprint.vehicleID].sensorFootprint = jsonFootprint.sensorFootprint;
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleGPS') {
       let jsonGPS = jsonData as TCPGPSType;
@@ -338,12 +355,12 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[jsonGPS.vehicleID].gps.gpsFix = jsonGPS.gpsFix;
       stateCopy[jsonGPS.vehicleID].gps.hdop = jsonGPS.hdop;
       stateCopy[jsonGPS.vehicleID].gps.vdop = jsonGPS.vdop;
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'CurrentMissionItem') {
       let jsonMissionItem = jsonData as TCPCurrentMissionItemType;
       stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.missionItemIndex, false);
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'MissionItemReached') {
       let jsonMissionItem = jsonData as TCPMissionItemReachedType;
@@ -357,12 +374,12 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[jsonHeartbeat.vehicleID].general.commsProtocol = jsonHeartbeat.commsProtocol;
       stateCopy[jsonHeartbeat.vehicleID].general.aircraftType = jsonHeartbeat.aircraftType;
       stateCopy[jsonHeartbeat.vehicleID].general.companion = jsonHeartbeat.companion;
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleArm') {
       let jsonArm = jsonData as TCPVehicleArmType;
       stateCopy[jsonArm.vehicleID].isArmed = jsonArm.armed;
-      this.setState({connectedVehicles: stateCopy});
+      this.vehicleDB = stateCopy;
     }
   }
 
@@ -427,6 +444,7 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleClearGUI = () => {
+    this.vehicleDB = {};
     this.setState({connectedVehicles: {}, selectedVehicleID: "0"});
   }
 
@@ -522,6 +540,7 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[key].updateVehicleMarkerPosition();
     });
 
+    this.vehicleDB = stateCopy;
     this.setState({connectedVehicles: stateCopy, selectedVehicleID: selectedID});
   }
 
@@ -596,46 +615,55 @@ export default class AppContainer extends React.Component<Props, State> {
               vehicleWarnings={this.state.vehicleWarnings}
             />
 
-            <VehicleHomeDialog
-              open={this.state.showEditVehicleHomeDialog}
-              handleClose={() => this.setState({showEditVehicleHomeDialog: false})}
-              vehicles={this.state.connectedVehicles}
-              selectedVehicleID={this.state.selectedVehicleID}
-              handleSave={this.handleSaveVehicleHome}
-              contextAnchor={this.state.contextAnchor}
-              useContext={this.state.useContext}
-              allowVehicleSelect={this.state.allowVehicleSelect}
-              onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
-            />
+            {this.state.showEditVehicleHomeDialog &&
+              <VehicleHomeDialog
+                open={this.state.showEditVehicleHomeDialog}
+                handleClose={() => this.setState({showEditVehicleHomeDialog: false})}
+                vehicles={this.state.connectedVehicles}
+                selectedVehicleID={this.state.selectedVehicleID}
+                handleSave={this.handleSaveVehicleHome}
+                contextAnchor={this.state.contextAnchor}
+                useContext={this.state.useContext}
+                allowVehicleSelect={this.state.allowVehicleSelect}
+                onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
+              />
+            }
 
-            <GlobalOriginDialog
-              open={this.state.showEditGlobalHomeDialog}
-              handleClose={() => this.setState({showEditGlobalHomeDialog: false})}
-              onGlobalHomeCommand={this.handleAircraftCommand}
-              globalOrigin={this.state.globalOrigin}
-              handleSave={this.handleSaveGlobalOrigin}
-              contextAnchor={this.state.contextAnchor}
-              useContext={this.state.useContext}
-            />
+            {this.state.showEditGlobalHomeDialog &&
+              <GlobalOriginDialog
+                open={this.state.showEditGlobalHomeDialog}
+                handleClose={() => this.setState({showEditGlobalHomeDialog: false})}
+                onGlobalHomeCommand={this.handleAircraftCommand}
+                globalOrigin={this.state.globalOrigin}
+                handleSave={this.handleSaveGlobalOrigin}
+                contextAnchor={this.state.contextAnchor}
+                useContext={this.state.useContext}
+              />
+            }
 
-            <MessagesDialog
-              open={this.state.showMessagesMenu}
-              handleClose={() => this.setState({showMessagesMenu: false})}
-              handleSave={this.handleSaveMessagingPreferences}
-              preferences={this.state.messagePreferences}
-            />
+            {this.state.showMessagesMenu &&
+              <MessagesDialog
+                open={this.state.showMessagesMenu}
+                handleClose={() => this.setState({showMessagesMenu: false})}
+                handleSave={this.handleSaveMessagingPreferences}
+                preferences={this.state.messagePreferences}
+              />
+            }
 
-            <TakeoffDialog
-              open={this.state.showTakeoffDialog}
-              handleClose={() => this.setState({showTakeoffDialog: false})}
-              vehicles={this.state.connectedVehicles}
-              selectedVehicleID={this.state.selectedVehicleID}
-              handleTakeoff={this.handleTakeoff}
-              takeoffAlt={this.state.takeoffAlt}
-              onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
-              showSaveTakeoff={this.state.showSaveTakeoff}
-              handleSaveTakeoff={(alt: number) => this.setState({takeoffAlt: alt})}
-            />
+            {this.state.showTakeoffDialog &&
+              <TakeoffDialog
+                open={this.state.showTakeoffDialog}
+                handleClose={() => this.setState({showTakeoffDialog: false})}
+                vehicles={this.state.connectedVehicles}
+                selectedVehicleID={this.state.selectedVehicleID}
+                handleTakeoff={this.handleTakeoff}
+                takeoffAlt={this.state.takeoffAlt}
+                onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
+                showSaveTakeoff={this.state.showSaveTakeoff}
+                handleSaveTakeoff={(alt: number) => this.setState({takeoffAlt: alt})}
+              />
+            }
+
 
             <MACEMap
               handleSelectedAircraftUpdate={this.handleSelectedAircraftUpdate}
