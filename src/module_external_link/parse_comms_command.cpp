@@ -1,5 +1,32 @@
 #include "module_external_link.h"
 
+void ModuleExternalLink::ParseCommsCommand(const mace_command_short_t *message)
+{
+    switch(static_cast<Data::CommandItemType>(message->command))
+    {
+    case(Data::CommandItemType::CI_ACT_MISSIONCOMMAND):
+    {
+        //acknowledge receiving the command
+        mace_command_ack_t commandACK;
+        commandACK.command = (uint8_t)Data::CommandItemType::CI_ACT_MISSIONCOMMAND;
+        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+        mace_message_t msg;
+        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
+        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+
+        CommandItem::ActionMissionCommand missionCommand;
+        missionCommand.setTargetSystem(message->target_system);
+        missionCommand.setMissionCommandType(static_cast<Data::MissionCommandAction>(message->param));
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+            ptr->Event_IssueMissionCommand(this, missionCommand);
+        });
+        break;
+    }
+    default:
+        break;
+    }
+}
+
 void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
 {
     switch(message->command)

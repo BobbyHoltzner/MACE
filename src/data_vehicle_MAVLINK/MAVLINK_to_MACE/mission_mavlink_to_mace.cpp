@@ -29,6 +29,16 @@ std::shared_ptr<CommandItem::AbstractCommandItem> Mission_MAVLINKTOMACE::Covert_
         newMissionItem = std::make_shared<CommandItem::ActionChangeSpeed>(missionItem);
         break;
     }
+    case MAV_CMD_NAV_LAND:
+    {
+        if(mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        {
+            CommandItem::SpatialLand<DataState::StateGlobalPosition> missionItem;
+            Land_MAVLINKTOMACE(mavlinkItem,missionItem);
+            newMissionItem = std::make_shared<CommandItem::SpatialLand<DataState::StateGlobalPosition>>(missionItem);
+        }
+        break;
+    }
     case MAV_CMD_NAV_LOITER_TIME:
     {
         if(mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
@@ -129,6 +139,16 @@ void Mission_MAVLINKTOMACE::ChangeSpeed_MAVLINKTOMACE(const mavlink_mission_item
         }else{
             missionItem.setSpeedFrame(Data::SpeedFrame::AIRSPEED);
         }
+    }
+}
+
+void Mission_MAVLINKTOMACE::Land_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLand<DataState::StateGlobalPosition> &missionItem)
+{
+    if((mavlinkItem.command == MAV_CMD_NAV_LAND) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
+        missionItem.position.latitude = mavlinkItem.x;
+        missionItem.position.longitude = mavlinkItem.y;
+        missionItem.position.altitude = mavlinkItem.z;
+        missionItem.setLandFlag(true);
     }
 }
 

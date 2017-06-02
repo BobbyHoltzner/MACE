@@ -14,7 +14,8 @@ StateGlobalPosition::StateGlobalPosition(const StateGlobalPosition &globalPositi
     this->operator =(globalPosition);
 }
 
-StateGlobalPosition::StateGlobalPosition(const Data::CoordinateFrameType &frame)
+StateGlobalPosition::StateGlobalPosition(const Data::CoordinateFrameType &frame):
+    latitude(0.0),longitude(0.0),altitude(0.0)
 {
     m_CoordinateFrame = frame;
 }

@@ -35,7 +35,10 @@ public:
 
 private:
     static mace_command_long_t initializeCommandLong();
+    static mace_command_short_t initializeCommandShort();
+
     static mace_message_t packLongMessage(const mace_command_long_t &cmdLong, const uint8_t &chan);
+    static mace_message_t packShortMessage(const mace_command_short_t &cmdShort, const uint8_t &chan);
 
 
 };

@@ -290,8 +290,8 @@ void ModuleExternalLink::Command_ReturnToLaunch(const CommandItem::SpatialRTL &c
 void ModuleExternalLink::Command_MissionState(const CommandItem::ActionMissionCommand &command)
 {
     //KEN FIX THIS
-    //mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateMissionCommandMessage(command,m_LinkChan);
-    //m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+    mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateMissionCommandMessage(command,m_LinkChan);
+    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 
 void ModuleExternalLink::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
