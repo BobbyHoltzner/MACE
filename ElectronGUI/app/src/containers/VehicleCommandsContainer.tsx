@@ -150,9 +150,9 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
             <div>
                 {Object.keys(this.props.connectedVehicles).length >= 0 &&
                     <div style={aircraftCommsContainer}>
-                            {Object.keys(this.props.connectedVehicles).length > 1 &&
+                            {Object.keys(this.props.connectedVehicles).length > 0 &&
                                 <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                    <DropDownMenu style={{marginRight: 10, width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>
+                                    <DropDownMenu animated={false} anchorOrigin={{ vertical: 'bottom', horizontal: 'left',}} style={{marginRight: 10, width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>
                                         <MenuItem value={"0"} primaryText={"All vehicles"} label={"All vehicles"} />
                                         {vehicleIDs}
                                     </DropDownMenu>
