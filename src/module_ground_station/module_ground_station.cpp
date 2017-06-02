@@ -341,7 +341,10 @@ void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject 
 
 void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
 {
-    if(jsonObj["vehicleCommand"] == "RTL") {
+    if(jsonObj["vehicleCommand"] == "FORCE_DATA_SYNC") {
+        std::cout << "Force data sync..." << std::endl;
+    }
+    else if(jsonObj["vehicleCommand"] == "RTL") {
         CommandItem::SpatialRTL rtlCommand;
         rtlCommand.setTargetSystem(vehicleID);
         // TODO: Set generating system and coordinate frame

@@ -46,8 +46,10 @@ export class VehicleHUD extends React.Component<Props, State> {
         this.props.handleAircraftCommand(this.props.vehicleID, "ISSUE_COMMAND", "RTL");
     }
     syncVehicle = () => {
-        this.props.handleAircraftCommand(this.props.vehicleID, "GET_VEHICLE_HOME", "");
-        this.props.handleAircraftCommand(this.props.vehicleID, "GET_VEHICLE_MISSION", "");
+        this.props.handleAircraftCommand(this.props.vehicleID, "ISSUE_COMMAND", "FORCE_DATA_SYNC");
+
+        // this.props.handleAircraftCommand(this.props.vehicleID, "GET_VEHICLE_HOME", "");
+        // this.props.handleAircraftCommand(this.props.vehicleID, "GET_VEHICLE_MISSION", "");
     }
 
     handleBatteryChange = (value: string) => {

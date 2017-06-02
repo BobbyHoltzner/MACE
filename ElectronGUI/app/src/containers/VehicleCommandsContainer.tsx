@@ -169,6 +169,7 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
                                 </MuiThemeProvider>
                             }
 
+
                             <MuiThemeProvider muiTheme={lightMuiTheme}>
                                 <RaisedButton icon={<i className="material-icons">flight_takeoff</i>} style={buttonStyle} label="Takeoff" onClick={this.props.handleTakeoff}/>
                             </MuiThemeProvider>
