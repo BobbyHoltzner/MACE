@@ -141,7 +141,6 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
 
 void MaceCore::Event_ForceVehicleDataSync(const void *sender, const int &targetSystemID)
 {
-    std::cout<<"I saw a force request at the core"<<std::endl;
     UNUSED(sender);
     if(targetSystemID == 0)
     {
@@ -459,7 +458,6 @@ void MaceCore::EventVehicle_ACKProposedMission(const void *sender, const Data::M
     }else if(m_ExternalLink.size() > 0)
     {
         //we need to transfer this to the ground station
-        std::cout<<"we should be transferring this mission to the ground station if available."<<std::endl;
         //KEN FIX THIS
         m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,key);
     }

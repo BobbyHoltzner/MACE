@@ -222,6 +222,11 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
                 mace_command_ack_t commandACK;
                 mace_msg_command_ack_decode(&message, &commandACK);
                 Emit([&](const IProtocolMavlinkEvents* ptr){ptr->CommandACK(link, message.sysid, commandACK);});
+            }else if(message.msgid == MACE_MSG_ID_VEHICLE_SYNC)
+            {
+                mace_vehicle_sync_t syncRequest;
+                mace_msg_vehicle_sync_decode(&message, &syncRequest);
+                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->SyncRequest(link, message.sysid, syncRequest);});
             }
 
             // Increase receive counter
