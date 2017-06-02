@@ -254,9 +254,7 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
 
 void ModuleGroundStation::testFunction2(const int &vehicleID)
 {
-        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_ForceVehicleDataSync(this, vehicleID);
-        });
+    UNUSED(vehicleID);
 }
 
 void ModuleGroundStation::getConnectedVehicles()

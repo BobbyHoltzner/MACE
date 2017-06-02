@@ -54,6 +54,9 @@ void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem)
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(targetSystem);
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> objectData = tmpData->GetAllTopicData();
     PublishVehicleData(targetSystem,objectData);
+
+    Command_GetHomePosition(targetSystem);
+    Command_GetCurrentMission(targetSystem);
 }
 
 void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command)

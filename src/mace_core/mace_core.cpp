@@ -141,11 +141,12 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
 
 void MaceCore::Event_ForceVehicleDataSync(const void *sender, const int &targetSystemID)
 {
+    std::cout<<"I saw a force request at the core"<<std::endl;
     UNUSED(sender);
     if(targetSystemID == 0)
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            it->second->MarshalCommand(VehicleCommands::REQUEST_DATA_SYNC,targetSystemID);
+            it->second->MarshalCommand(VehicleCommands::REQUEST_DATA_SYNC,it->first);
         }
     }else{
         try{
