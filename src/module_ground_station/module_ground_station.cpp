@@ -330,7 +330,6 @@ void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject 
 void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
 {
     if(jsonObj["vehicleCommand"] == "FORCE_DATA_SYNC") {
-        std::cout<<"I saw a force request at the GCS"<<std::endl;
         ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
             ptr->Event_ForceVehicleDataSync(this, vehicleID);
         });
