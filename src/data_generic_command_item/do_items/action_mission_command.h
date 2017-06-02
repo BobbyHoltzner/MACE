@@ -26,6 +26,12 @@ public:
     ActionMissionCommand(const int &systemOrigin, const int &systemTarget);
 
 public:
+
+    void setMissionCommandType(const Data::MissionCommandAction &action)
+    {
+        this->missionCommand = action;
+    }
+
     void setMissionStart()
     {
         this->missionCommand = Data::MissionCommandAction::MISSIONCA_START;

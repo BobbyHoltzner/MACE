@@ -32,6 +32,8 @@ public:
 
     void ChangeSpeed_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::ActionChangeSpeed &missionItem);
 
+    void Land_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLand<DataState::StateGlobalPosition> &missionItem);
+
     void LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem);
     void LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem);
 

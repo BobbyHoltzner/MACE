@@ -165,6 +165,13 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         this->ParseCommsCommand(&decodedMSG);
         break;
     }
+    case MACE_MSG_ID_COMMAND_SHORT:
+    {
+        mace_command_short_t decodedMSG;
+        mace_msg_command_short_decode(message,&decodedMSG);
+        this->ParseCommsCommand(&decodedMSG);
+        break;
+    }
     case MACE_MSG_ID_RADIO_STATUS:
     {
         //This is message definition 109

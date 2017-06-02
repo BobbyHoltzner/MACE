@@ -23,11 +23,30 @@ mace_command_long_t Command_MACETOCOMMS::initializeCommandLong()
     return cmdLong;
 }
 
+mace_command_short_t Command_MACETOCOMMS::initializeCommandShort()
+{
+    mace_command_short_t cmdShort;
+    cmdShort.command = 0;
+    cmdShort.confirmation = 0;
+    cmdShort.param= 0;
+    cmdShort.target_system = 0;
+    cmdShort.target_component = 0;
+    return cmdShort;
+}
+
 mace_message_t Command_MACETOCOMMS::packLongMessage(const mace_command_long_t &cmdLong, const uint8_t &chan)
 {
     mace_message_t msg;
     mace_command_long_t tmpItem = cmdLong;
     mace_msg_command_long_encode_chan(255,190,chan,&msg,&tmpItem);
+    return msg;
+}
+
+mace_message_t Command_MACETOCOMMS::packShortMessage(const mace_command_short_t &cmdLong, const uint8_t &chan)
+{
+    mace_message_t msg;
+    mace_command_short_t tmpItem = cmdLong;
+    mace_msg_command_short_encode_chan(255,190,chan,&msg,&tmpItem);
     return msg;
 }
 
@@ -98,8 +117,11 @@ mace_message_t Command_MACETOCOMMS::generateRTLMessage(const CommandItem::Spatia
 
 mace_message_t Command_MACETOCOMMS::generateMissionCommandMessage(const CommandItem::ActionMissionCommand &command, const uint8_t &chan)
 {
-    mace_command_long_t cmd = initializeCommandLong();
-    mace_message_t msg = packLongMessage(cmd,chan);
+    mace_command_short_t cmd = initializeCommandShort();
+    cmd.command = (uint16_t)command.getCommandType();
+    cmd.param = (uint8_t)command.getMissionCommandAction();
+    cmd.target_system = command.getTargetSystem();
+    mace_message_t msg = packShortMessage(cmd,chan);
     return msg;
 }
 
