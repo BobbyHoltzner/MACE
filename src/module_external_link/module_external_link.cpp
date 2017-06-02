@@ -100,19 +100,10 @@ void ModuleExternalLink::MACEHeartbeatInfo(const std::string &linkName, const in
 
 void ModuleExternalLink::MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG)
 {
-    std::cout<<"I saw a sync request"<<std::endl;
-//    //Ken Fix this in the event the sync request a vehicle of unknown home, or it is not valid yet
-//    MissionItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(syncMSG.target_system);
-//    NewlyAvailableHomePosition(home);
-
-//    MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), syncMSG.target_system);
-//    std::vector<std::string> nonTerminals = read_topicDatagram.ListNonTerminals();
-//    NewTopic(m_VehicleDataTopic.Name(),syncMSG.target_system,nonTerminals);
-
-//    Data::MissionKey key;
-//    bool valid = this->getDataObject()->getCurrentMissionKey(syncMSG.target_system,key);
-//    if(valid)
-//        NewlyAvailableOnboardMission(key);
+    std::cout<<"External link saw a full data request from remote"<<std::endl;
+    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+        ptr->Event_ForceVehicleDataSync(this, syncMSG.target_system);
+    });
 }
 
 //!
@@ -255,6 +246,7 @@ void ModuleExternalLink::PublishVehicleData(const int &systemID, const std::shar
 
 void ModuleExternalLink::Request_FullDataSync(const int &targetSystem)
 {
+    std::cout<<"External link saw a full data request from local"<<std::endl;
     mace_message_t msg;
     mace_vehicle_sync_t sync;
     sync.target_system = targetSystem;
