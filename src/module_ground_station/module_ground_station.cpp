@@ -254,9 +254,7 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
 
 void ModuleGroundStation::testFunction2(const int &vehicleID)
 {
-        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_ForceVehicleDataSync(this, vehicleID);
-        });
+    UNUSED(vehicleID);
 }
 
 void ModuleGroundStation::getConnectedVehicles()
@@ -332,7 +330,10 @@ void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject 
 void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
 {
     if(jsonObj["vehicleCommand"] == "FORCE_DATA_SYNC") {
-        std::cout << "Force data sync..." << std::endl;
+        std::cout<<"I saw a force request at the GCS"<<std::endl;
+        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+            ptr->Event_ForceVehicleDataSync(this, vehicleID);
+        });
     }
     else if(jsonObj["vehicleCommand"] == "RTL") {
         CommandItem::SpatialRTL rtlCommand;
