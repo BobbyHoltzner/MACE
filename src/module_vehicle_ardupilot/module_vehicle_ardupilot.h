@@ -101,6 +101,12 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
     //!
+    //! \brief Request_FullDataSync
+    //! \param targetSystem
+    //!
+    virtual void Request_FullDataSync(const int &targetSystem);
+
+    //!
     //! \brief Command_SystemArm
     //! \param vehicleArm
     //!

@@ -15,6 +15,7 @@ public:
     VehicleObject_MAVLINK(const int &vehicleID, const int &systemID, const int &systemComp);
 
     bool generateBasicGuidedMessage(const std::shared_ptr<CommandItem::AbstractCommandItem> &missionItem, const uint8_t &chan, mavlink_message_t &msg);
+    virtual std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> GetAllTopicData();
 
 public:
     MAVLINKParser *parser;

@@ -16,6 +16,7 @@ public:
     VehicleObject_ARDUPILOT(const int &vehicleID, const int &systemID, const int &systemComp);
 
     bool generateBasicGuidedMessage(const std::shared_ptr<CommandItem::AbstractCommandItem> &missionItem, const uint8_t &chan, mavlink_message_t &msg);
+    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> GetAllTopicData();
 
     int getVehicleID() const
     {

@@ -254,19 +254,9 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
 
 void ModuleGroundStation::testFunction2(const int &vehicleID)
 {
-    //    CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff;
-    //    newTakeoff.position.latitude = 37.891415;
-    //    newTakeoff.position.longitude = -76.815701;
-    //    newTakeoff.position.altitude = 100;
-    //    newTakeoff.setVehicleID(vehicleID);
-
-    //    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-    //        ptr->Event_RequestVehicleTakeoff(this, newTakeoff);
-    //    });
-
-    //    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-    //        ptr->Event_GetOnboardMission(this, vehicleID, Data::MissionType::AUTO);
-    //    });
+        ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+            ptr->Event_ForceVehicleDataSync(this, vehicleID);
+        });
 }
 
 void ModuleGroundStation::getConnectedVehicles()

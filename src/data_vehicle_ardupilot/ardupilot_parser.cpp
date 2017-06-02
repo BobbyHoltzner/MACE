@@ -15,5 +15,4 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ARDUPILOTParser::P
     return rtnVector;
 }
 
-
 } //end of namespace DataArdupilot

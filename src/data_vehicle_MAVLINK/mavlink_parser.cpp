@@ -8,7 +8,7 @@ MAVLINKParser::MAVLINKParser(DataContainer_MAVLINK* dataContainer)
     data = dataContainer;
 }
 
-std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser:: ParseForVehicleData(const mavlink_message_t* message){
+std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::ParseForVehicleData(const mavlink_message_t* message){
 
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
 

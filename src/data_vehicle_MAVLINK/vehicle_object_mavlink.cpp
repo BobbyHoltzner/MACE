@@ -10,6 +10,34 @@ VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &sy
     parser = new MAVLINKParser(data);
 }
 
+std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> VehicleObject_MAVLINK::GetAllTopicData()
+{
+    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(data->vehicleHeartbeat.get());
+    rtnVector.push_back(ptrHeartbeat);
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrMode = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>(data->vehicleMode.get());
+    rtnVector.push_back(ptrMode);
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> ptrArm = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>(data->vehicleArm.get());
+    rtnVector.push_back(ptrArm);
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> ptrFuel = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>(data->vehicleFuel.get());
+    rtnVector.push_back(ptrFuel);
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPSStatus = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(data->vehicleGPSStatus.get());
+    rtnVector.push_back(ptrGPSStatus);
+
+    std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrGlobalPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>(data->vehicleGlobalPosition.get());
+    rtnVector.push_back(ptrGlobalPosition);
+    std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> ptrGlobalPositionEx = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>(data->vehicleGlobalPositionEx.get());
+    rtnVector.push_back(ptrGlobalPositionEx);
+    std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(data->vehicleLocalPosition.get());
+    rtnVector.push_back(ptrLocalPosition);
+    std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(data->vehicleAttitude.get());
+    rtnVector.push_back(ptrAttitude);
+    std::shared_ptr<DataStateTopic::StateAirspeedTopic> ptrAirspeed = std::make_shared<DataStateTopic::StateAirspeedTopic>(data->vehicleAirspeed.get());
+    rtnVector.push_back(ptrAirspeed);
+
+    return rtnVector;
+}
+
 bool VehicleObject_MAVLINK::generateBasicGuidedMessage(const std::shared_ptr<CommandItem::AbstractCommandItem> &missionItem, const uint8_t &chan, mavlink_message_t &msg)
 {
     switch(missionItem->getCommandType())

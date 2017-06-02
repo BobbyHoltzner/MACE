@@ -8,7 +8,7 @@
 
 #define BASE_MODULE_VEHICLE_LISTENER_ENUMS EMIT_HEARTBEAT, ISSUE_GENERAL_COMMAND, \
     CHANGE_VEHICLE_ARM, REQUEST_VEHICLE_TAKEOFF, REQUEST_VEHICLE_LAND, REQUEST_VEHICLE_RTL, CHANGE_VEHICLE_MODE, \
-    SET_MISSION_STATE, \
+    SET_MISSION_STATE, REQUEST_DATA_SYNC, \
     UPLOAD_MISSION, SET_CURRENT_MISSION, REQUEST_CURRENT_MISSION, REQUEST_MISSION, CLEAR_CURRENT_MISSION, \
     REQUEST_ONBOARD_AUTO_MISSION, CLEAR_ONBOARD_AUTO_MISSION, \
     REQUEST_ONBOARD_GUIDED_MISSION, CLEAR_ONBOARD_GUIDED_MISSION, \
@@ -39,6 +39,10 @@ public:
         /// command and action sequence that accompanies the vheicle. Expect an acknowledgement
         /// or an event to take place when calling these items.
         /////////////////////////////////////////////////////////////////////////
+
+        this->template AddCommandLogic<int>(CT::REQUEST_DATA_SYNC, [this](const int &targetSystem){
+            Request_FullDataSync(targetSystem);
+        });
 
         this->template AddCommandLogic<CommandItem::ActionArm>(CT::CHANGE_VEHICLE_ARM, [this](const CommandItem::ActionArm &command){
             Command_SystemArm(command);
@@ -142,6 +146,8 @@ public:
     }
 
 public:
+
+    virtual void Request_FullDataSync(const int &targetSystem) = 0;
 
     virtual void Command_SystemArm(const CommandItem::ActionArm &command) = 0;
     virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command) = 0;
