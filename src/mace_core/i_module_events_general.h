@@ -11,6 +11,8 @@ class IModuleEventsGeneral
 {
 public:
 
+    virtual void Event_ForceVehicleDataSync(const void* sender, const int &targetSystemID) = 0;
+
     virtual void Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command) = 0;
 
     virtual void Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command) = 0;
@@ -24,7 +26,6 @@ public:
     virtual void Event_ChangeSystemMode(const void* sender, const CommandItem::ActionChangeMode &command) = 0;
 
     virtual void Event_IssueGeneralCommand(const void* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;
-
 
     virtual void Event_GetMission(const void* sender, const Data::MissionKey &key) = 0;
     virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const Data::MissionType &type) = 0;

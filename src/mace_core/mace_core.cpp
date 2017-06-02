@@ -139,6 +139,23 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
     UNUSED(vehicleID);
 }
 
+void MaceCore::Event_ForceVehicleDataSync(const void *sender, const int &targetSystemID)
+{
+    UNUSED(sender);
+    if(targetSystemID == 0)
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            it->second->MarshalCommand(VehicleCommands::REQUEST_DATA_SYNC,targetSystemID);
+        }
+    }else{
+        try{
+            m_VehicleIDToPort.at(targetSystemID)->MarshalCommand(VehicleCommands::REQUEST_DATA_SYNC,targetSystemID);
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
+}
+
 void MaceCore::Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command)
 {
     UNUSED(sender);

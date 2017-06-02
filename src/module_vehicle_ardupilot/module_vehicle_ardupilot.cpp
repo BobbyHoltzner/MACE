@@ -49,6 +49,13 @@ void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 /// acknowledgement or an event to take place when calling these items.
 ////////////////////////////////////////////////////////////////////////////
 
+void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem)
+{
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(targetSystem);
+    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> objectData = tmpData->GetAllTopicData();
+    PublishVehicleData(targetSystem,objectData);
+}
+
 void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command)
 {
     int vehicleID = command.getTargetSystem();
@@ -60,9 +67,6 @@ void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &com
 void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command)
 {
     int vehicleID = command.getTargetSystem();
-//    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
-//    mavlink_message_t msg = tmpData->generateTakeoffMessage(vehicleTakeoff,m_LinkChan);
-//    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan, std::bind(&ModuleVehicleArdupilot::takeoffCallback, this, _1));
     if(command.getPositionFlag())
