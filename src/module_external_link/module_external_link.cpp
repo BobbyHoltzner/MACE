@@ -84,12 +84,7 @@ void ModuleExternalLink::MACEHeartbeatInfo(const std::string &linkName, const in
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->NewConstructedVehicle(this, systemID);
         });
-
-        mace_message_t msg;
-        mace_vehicle_sync_t sync;
-        sync.target_system = systemID;
-        mace_msg_vehicle_sync_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&sync);
-        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+        Request_FullDataSync(systemID);
     }
 
     DataGenericItem::DataGenericItem_Heartbeat heartbeat;
@@ -110,9 +105,9 @@ void ModuleExternalLink::MACESyncMessage(const std::string &linkName, const int 
 //    MissionItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(syncMSG.target_system);
 //    NewlyAvailableHomePosition(home);
 
-    MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), syncMSG.target_system);
-    std::vector<std::string> nonTerminals = read_topicDatagram.ListNonTerminals();
-    NewTopic(m_VehicleDataTopic.Name(),syncMSG.target_system,nonTerminals);
+//    MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), syncMSG.target_system);
+//    std::vector<std::string> nonTerminals = read_topicDatagram.ListNonTerminals();
+//    NewTopic(m_VehicleDataTopic.Name(),syncMSG.target_system,nonTerminals);
 
 //    Data::MissionKey key;
 //    bool valid = this->getDataObject()->getCurrentMissionKey(syncMSG.target_system,key);
@@ -257,6 +252,15 @@ void ModuleExternalLink::PublishVehicleData(const int &systemID, const std::shar
 /// command and action sequence that accompanies the vheicle. Expect an
 /// acknowledgement or an event to take place when calling these items.
 ////////////////////////////////////////////////////////////////////////////
+
+void ModuleExternalLink::Request_FullDataSync(const int &targetSystem)
+{
+    mace_message_t msg;
+    mace_vehicle_sync_t sync;
+    sync.target_system = targetSystem;
+    mace_msg_vehicle_sync_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&sync);
+    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+}
 
 void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &vehicleArm)
 {
