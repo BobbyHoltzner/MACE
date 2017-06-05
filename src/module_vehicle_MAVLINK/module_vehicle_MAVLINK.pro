@@ -100,12 +100,6 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_gene
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_generic/debug/ -lmodule_vehicle_generic
 else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_generic/ -lmodule_vehicle_generic
 
-unix{
-    EigenInclude = $$system(pkg-config --cflags eigen3)
-    EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
-    INCLUDEPATH += $$EigenInclude
-}
-win32{
-    INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
-}
+INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+
 

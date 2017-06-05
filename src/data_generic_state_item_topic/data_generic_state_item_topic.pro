@@ -74,11 +74,5 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_item/debug/ -ldata_generic_state_item
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_state_item/ -ldata_generic_state_item
 
-unix{
-    EigenInclude = $$system(pkg-config --cflags eigen3)
-    EigenInclude = $$replace(EigenInclude, "-I", "")/eigen3
-    INCLUDEPATH += $$EigenInclude
-}
-win32{
-    INCLUDEPATH += "C:\Program Files (x86)\Eigen\include\eigen3"
-}
+INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+
