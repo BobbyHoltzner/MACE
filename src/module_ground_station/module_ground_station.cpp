@@ -391,9 +391,6 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
     tmpHome.setTargetSystem(vehicleID);
     QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
 
-    std::cout << "String Val: " << position.value("lat").toString().toStdString() << std::endl;
-    std::cout << "Double Val: " << position.value("lat").toDouble() << std::endl;
-
     tmpHome.position.latitude = position.value("lat").toDouble();
     tmpHome.position.longitude = position.value("lon").toDouble();
     tmpHome.position.altitude = position.value("alt").toDouble();
