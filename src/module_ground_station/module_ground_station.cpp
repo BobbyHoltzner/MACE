@@ -356,7 +356,7 @@ void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &
     else if(jsonObj["vehicleCommand"] == "AUTO_START") {
         CommandItem::ActionMissionCommand missionCommand;
         missionCommand.setMissionStart();
-        missionCommand.setGeneratingSystem(vehicleID);
+        missionCommand.setTargetSystem(vehicleID);
         // TODO: Set generating system and coordinate frame
 
         ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
@@ -366,7 +366,7 @@ void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &
     else if(jsonObj["vehicleCommand"] == "AUTO_PAUSE") {
         CommandItem::ActionMissionCommand missionCommand;
         missionCommand.setMissionPause();
-        missionCommand.setGeneratingSystem(vehicleID);
+        missionCommand.setTargetSystem(vehicleID);
         // TODO: Set generating system and coordinate frame
 
         ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
@@ -376,7 +376,7 @@ void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &
     else if(jsonObj["vehicleCommand"] == "AUTO_RESUME") {
         CommandItem::ActionMissionCommand missionCommand;
         missionCommand.setMissionResume();
-        missionCommand.setGeneratingSystem(vehicleID);
+        missionCommand.setTargetSystem(vehicleID);
         // TODO: Set generating system and coordinate frame
 
         ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
@@ -636,7 +636,7 @@ void ModuleGroundStation::sendVehicleHeartbeat(const int &vehicleID, const std::
     json["autopilot"] = QString::fromStdString(Data::AutopilotTypeToString(component->getAutopilot()));
     json["aircraftType"] = QString::fromStdString(Data::SystemTypeToString(component->getType()));
     json["companion"] = component->getCompanion();
-    json["protocol"] = QString::fromStdString(Data::CommsProtocolToString(component->getProtocol()));
+    json["protocol"] = QString::fromStdString(Data::CommsProtocolToString(component->getProtocol()));    
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
