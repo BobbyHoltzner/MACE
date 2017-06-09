@@ -1,4 +1,3 @@
-import { backgroundColors, opaqueBackgroundColors } from './util/Colors';
 import { aircraftImgSrcFromType } from './util/VehicleHelper';
 
 export class Vehicle{
@@ -24,6 +23,8 @@ export class Vehicle{
     messages: TextType[];
     airspeed: number;
     gps: GPSType;
+    highlightColor: string;
+    opaqueHighlightColor: string;
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
         this.isNew = true;
@@ -64,7 +65,7 @@ export class Vehicle{
             this.attitude = {roll: 0, pitch: 0, yaw: 0};
         }
 
-        let vehicleIconHTML = '<div style="background-color: ' + opaqueBackgroundColors[this.vehicleId] + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
+        let vehicleIconHTML = '<div style="background-color: ' + this.opaqueHighlightColor + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/drone-icon.png" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
 
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
@@ -160,7 +161,7 @@ export class Vehicle{
 
 
     getMarkerIcon(type: string, isActive: boolean) {
-        let iconBackgroundColor = opaqueBackgroundColors[this.vehicleId];
+        let iconBackgroundColor = this.opaqueHighlightColor;
         let iconUrl = './images/marker-icon.png';
         let width = 25;
         let height = 41;
@@ -269,7 +270,7 @@ export class Vehicle{
         if(newHome){
             homeUpdate = newHome;
         }
-        let iconBackgroundColor = this.isSelected ? backgroundColors[this.vehicleId] : opaqueBackgroundColors[this.vehicleId]
+        let iconBackgroundColor = this.isSelected ? this.highlightColor : this.opaqueHighlightColor
         let iconHTML = '<div style="background-color: ' + iconBackgroundColor+ '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="./images/Home-Icon.png" alt="Home icon" style="width:41px; height:41px; ">';
 
         this.homePosition = {
@@ -291,7 +292,7 @@ export class Vehicle{
             posUpdate = newPos;
         }
 
-        let iconBackgroundColor = this.isSelected ? backgroundColors[this.vehicleId] : opaqueBackgroundColors[this.vehicleId];
+        let iconBackgroundColor = this.isSelected ? this.highlightColor : this.opaqueHighlightColor;
         let aircraftIconSrc = aircraftImgSrcFromType(this.general.aircraftType);
         let iconHTML = '<div style="background-color: ' + iconBackgroundColor + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="' + aircraftIconSrc + '" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + this.attitude.yaw + 'deg); -moz-transform: rotate(' + this.attitude.yaw + 'deg); -o-transform: rotate(' + this.attitude.yaw + 'deg); -ms-transform: rotate(' + this.attitude.yaw + 'deg); transform: rotate(' + this.attitude.yaw + 'deg);">';
 
@@ -314,7 +315,7 @@ export class Vehicle{
             attUpdate = newAtt;
         }
 
-        let iconBackgroundColor = this.isSelected ? backgroundColors[this.vehicleId] : opaqueBackgroundColors[this.vehicleId];
+        let iconBackgroundColor = this.isSelected ? this.highlightColor : this.opaqueHighlightColor;
         let aircraftIconSrc = aircraftImgSrcFromType(this.general.aircraftType);
         let iconHTML = '<div style="background-color: ' + iconBackgroundColor + '; color: white; width: 41px; text-align: center;">' + this.vehicleId + '</div><img src="' + aircraftIconSrc + '" alt="Drone icon" style="width:41px; height:41px; -webkit-transform: rotate(' + attUpdate.yaw + 'deg); -moz-transform: rotate(' + attUpdate.yaw + 'deg); -o-transform: rotate(' + attUpdate.yaw + 'deg); -ms-transform: rotate(' + attUpdate.yaw + 'deg); transform: rotate(' + attUpdate.yaw + 'deg);">';
 

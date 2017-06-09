@@ -7,6 +7,7 @@ import FlatButton from 'material-ui/FlatButton'
 import { VehicleHUD } from '../components/VehicleHUD';
 import { VehicleMessages } from '../components/VehicleMessages';
 import { Vehicle } from '../Vehicle';
+import { backgroundColors } from '../util/Colors';
 
 
 type Props = {
@@ -36,7 +37,6 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
     }
 
     render() {
-
         const height = window.screen.height;
         const connectedVehiclesContainer = { position: 'absolute', height: height, right: 0, zIndex: 999, width: 20 + "%", backgroundColor: 'rgba(255,255,255,1)', display: 'flex', alignItems: 'center', flexDirection: 'column', maxHeight: height, overflowY: "scroll" };
         // const connectedVehiclesContainer = { position: 'absolute', height: height, right: 0, zIndex: 999, width: 20 + "%", backgroundColor: 'rgba(153,153,153,.2)', display: 'flex', alignItems: 'center', flexDirection: 'column', maxHeight: height, overflowY: "scroll" };
@@ -53,6 +53,7 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
                     aircraft={vehicle}
                     handleAircraftCommand={this.handleAircraftCommand}
                     handleChangeSelectedVehicle={this.props.handleChangeSelectedVehicle}
+                    highlightColor={this.props.connectedVehicles[key].highlightColor}
                 />
             );
 

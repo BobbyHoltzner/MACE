@@ -21,6 +21,7 @@ import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
 import { MessagesDialog } from '../components/MessagesDialog';
 import { TakeoffDialog } from '../components/TakeoffDialog';
 import MACEMap from '../components/MACEMap';
+import { backgroundColors, opaqueBackgroundColors } from '../util/Colors';
 
 import * as deepcopy from 'deepcopy';
 
@@ -111,7 +112,7 @@ export default class AppContainer extends React.Component<Props, State> {
         info: true,
         debug: true
       },
-      takeoffAlt: 10,
+      takeoffAlt: 5,
       showTakeoffDialog: false,
       showSaveTakeoff: false,
       MACEConnected: false
@@ -193,15 +194,17 @@ export default class AppContainer extends React.Component<Props, State> {
     if(jsonData.dataType === "ConnectedVehicles"){
       let jsonVehicles = jsonData as ConnectedVehiclesType;
 
-      // console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
-
       // Check if vehicle is already in the map. If so, do nothing. If not, add it:
       for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
         if (stateCopy[jsonVehicles.connectedVehicles[i].toString()] !== undefined){
           return;
         }
         else {
-          stateCopy[jsonVehicles.connectedVehicles[i].toString()] = new Vehicle(jsonVehicles.connectedVehicles[i]);
+          console.log("Index: " + i);
+          let newVehicle = new Vehicle(jsonVehicles.connectedVehicles[i]);
+          newVehicle.highlightColor = backgroundColors[i];
+          newVehicle.opaqueHighlightColor = opaqueBackgroundColors[i];
+          stateCopy[jsonVehicles.connectedVehicles[i].toString()] = newVehicle;
         }
       }
 

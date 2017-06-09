@@ -7,10 +7,7 @@ const lightMuiTheme = getMuiTheme();
 import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon } from 'react-leaflet';
 import * as colors from 'material-ui/styles/colors';
 import { Vehicle } from '../Vehicle';
-import { backgroundColors, opaqueBackgroundColors } from '../util/Colors';
 import { ContextMenu } from '../components/ContextMenu';
-
-import * as deepcopy from 'deepcopy';
 
 type Props = {
     handleSelectedAircraftUpdate: (id: string) => void,
@@ -141,7 +138,7 @@ export default class MACEMap extends React.Component<Props, State> {
                     {/* Mission Paths */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
                       return (
-                        <Polyline key={key} positions={this.props.connectedVehicles[key].vehicleMission.latLons} color={this.props.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} />
+                        <Polyline key={key} positions={this.props.connectedVehicles[key].vehicleMission.latLons} color={this.props.selectedVehicleID === key ? this.props.connectedVehicles[key].highlightColor : this.props.connectedVehicles[key].opaqueHighlightColor} />
                       );
                     })}
 
@@ -159,7 +156,7 @@ export default class MACEMap extends React.Component<Props, State> {
                     {/* Sensor Footprint */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
                       return (
-                        <Polygon key={key} positions={this.props.connectedVehicles[key].sensorFootprint} color={this.props.selectedVehicleID === key ? backgroundColors[parseInt(key)] : opaqueBackgroundColors[parseInt(key)]} fillColor={colors.amber500} />
+                        <Polygon key={key} positions={this.props.connectedVehicles[key].sensorFootprint} color={this.props.selectedVehicleID === key ? this.props.connectedVehicles[key].highlightColor : this.props.connectedVehicles[key].opaqueHighlightColor} fillColor={colors.amber500} />
                       );
                     })}
 

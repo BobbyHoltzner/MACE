@@ -17,9 +17,9 @@ export const Colors =  {
 
 
 // TODO: Figure out a better way to do background colors
-export const backgroundColors = ['rgba(255,255,255, 1)', 'rgba(255,0,0,1)', 'rgba(0,0,255,1)', 'rgba(0,0,0,1)', 'rgba(0,255,0,1)', 'rgba(255,255,0,1)', 'rgba(255,153,0,1)'];
+export const backgroundColors = ['rgba(255,0,0,1)', 'rgba(0,0,255,1)', 'rgba(0,0,0,1)', 'rgba(0,255,0,1)', 'rgba(255,255,0,1)', 'rgba(255,153,0,1)'];
 
-export const opaqueBackgroundColors = ['rgba(255,255,255, 0.2)', 'rgba(255,0,0,0.2)', 'rgba(0,0,255,0.2)', 'rgba(0,0,0,0.2)', 'rgba(0,255,0,0.2)', 'rgba(255,255,0,0.2)', 'rgba(255,153,0,0.2)'];
+export const opaqueBackgroundColors = ['rgba(255,0,0,0.2)', 'rgba(0,0,255,0.2)', 'rgba(0,0,0,0.2)', 'rgba(0,255,0,0.2)', 'rgba(255,255,0,0.2)', 'rgba(255,153,0,0.2)'];
 
 export function textSeverityToColor(severity: string) {
   let color = colors.black;

@@ -7,7 +7,8 @@ import FlatButton from 'material-ui/FlatButton';
 import { Vehicle } from '../Vehicle';
 import { backgroundColors, textSeverityToColor } from '../util/Colors';
 import { aircraftImgSrcFromType } from '../util/VehicleHelper';
-
+import Avatar from 'material-ui/Avatar';
+import { Colors } from '../util/Colors';
 
 type Props = {
     vehicleID: string,
@@ -30,7 +31,13 @@ export class VehicleMessages extends React.Component<Props, State> {
     render() {
         const boxShadow = this.props.aircraft.isSelected ? backgroundColors[parseInt(this.props.vehicleID)] + " 0px 1px 20px, rgba(0, 0, 0, .5) 0px 1px 4px" : "rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px"
         const hudStyle = {position: "relative", width: 90 + "%", marginBottom: 15, boxShadow: boxShadow};
-        const hudAvatar = aircraftImgSrcFromType(this.props.aircraft.general.aircraftType);
+        // const hudAvatar = aircraftImgSrcFromType(this.props.aircraft.general.aircraftType);
+        const hudAvatar: JSX.Element =
+            <Avatar
+                backgroundColor={this.props.aircraft.isArmed ? Colors.Success : Colors.Primary}
+                src={aircraftImgSrcFromType(this.props.aircraft.general.aircraftType)}
+                style={{borderRadius: 30+'%'}}
+            />;
 
         let messages: JSX.Element[] = [];
         for( let key in this.props.aircraft.messages ){
