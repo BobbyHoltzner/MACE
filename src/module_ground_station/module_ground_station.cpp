@@ -311,6 +311,9 @@ void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject 
 
     QJsonObject arm = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
     tmpArm.setVehicleArm(arm.value("arm").toBool());
+
+    std::cout << "Vehicle Arm: " << tmpArm.getRequestArm() << std::endl;
+
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->Event_IssueCommandSystemArm(this, tmpArm);
     });

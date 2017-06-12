@@ -43,6 +43,9 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         {
             mavlink_message_t msg;
             int indexRequest = status.remainingItems.at(0)+1;
+
+            std::cout << "Requesting: " << indexRequest << std::endl;
+
             mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,indexRequest,MAV_MISSION_TYPE_MISSION); //we have to index this +1 because ardupilot indexes 0 as home
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         }else{
@@ -222,7 +225,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         CommandItem::SpatialHome spatialHome;
         spatialHome.position.latitude = decodedMSG.latitude / pow(10,7);
         spatialHome.position.longitude = decodedMSG.longitude / pow(10,7);
-        spatialHome.position.altitude = decodedMSG.altitude / 1000;
+        spatialHome.position.altitude = decodedMSG.altitude / 1000.0;
         spatialHome.setGeneratingSystem(sysID);
 
         homePositionUpdated(spatialHome);

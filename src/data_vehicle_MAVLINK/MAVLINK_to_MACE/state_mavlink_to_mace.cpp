@@ -21,7 +21,7 @@ DataState::StateGlobalPosition State_MAVLINKTOMACE::GlobalPosition_MAVLINKTOMACE
     DataState::StateGlobalPosition stateGlobalPosition;
     stateGlobalPosition.latitude = stateItem.lat/pow(10,7);
     stateGlobalPosition.longitude = stateItem.lon/pow(10,7);
-    stateGlobalPosition.altitude = stateItem.alt/1000;
+    stateGlobalPosition.altitude = stateItem.alt/1000.00;
     return stateGlobalPosition;
 }
 

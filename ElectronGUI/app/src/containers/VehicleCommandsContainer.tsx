@@ -52,6 +52,10 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
             }
         }
 
+        if(Object.keys(this.props.connectedVehicles).length !== Object.keys(nextProps.connectedVehicles).length) {
+            return true;
+        }
+
         return false;
     }
 

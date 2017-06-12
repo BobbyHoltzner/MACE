@@ -223,7 +223,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         CommandItem::SpatialHome spatialHome;
         spatialHome.position.latitude = decodedMSG.latitude / pow(10,7);
         spatialHome.position.longitude = decodedMSG.longitude / pow(10,7);
-        spatialHome.position.altitude = decodedMSG.altitude / 1000;
+        spatialHome.position.altitude = decodedMSG.altitude / 1000.0;
         spatialHome.setGeneratingSystem(systemID);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
