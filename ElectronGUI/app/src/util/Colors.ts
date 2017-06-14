@@ -17,9 +17,20 @@ export const Colors =  {
 
 
 // TODO: Figure out a better way to do background colors
-export const backgroundColors = ['rgba(255,0,0,1)', 'rgba(0,0,255,1)', 'rgba(0,0,0,1)', 'rgba(0,255,0,1)', 'rgba(255,255,0,1)', 'rgba(255,153,0,1)'];
+// export const backgroundColors = ['rgba(255,0,0,1)', 'rgba(0,0,255,1)', 'rgba(0,0,0,1)', 'rgba(0,255,0,1)', 'rgba(255,255,0,1)', 'rgba(255,153,0,1)'];
 
-export const opaqueBackgroundColors = ['rgba(255,0,0,0.2)', 'rgba(0,0,255,0.2)', 'rgba(0,0,0,0.2)', 'rgba(0,255,0,0.2)', 'rgba(255,255,0,0.2)', 'rgba(255,153,0,0.2)'];
+// export const opaqueBackgroundColors = ['rgba(255,0,0,0.2)', 'rgba(0,0,255,0.2)', 'rgba(0,0,0,0.2)', 'rgba(0,255,0,0.2)', 'rgba(255,255,0,0.2)', 'rgba(255,153,0,0.2)'];
+
+export function getRandomRGB() {
+  let rgb = {
+    r: Math.floor(Math.random() * 256),
+    g: Math.floor(Math.random() * 256),
+    b: Math.floor(Math.random() * 256)
+  };
+
+  return rgb;
+}
+
 
 export function textSeverityToColor(severity: string) {
   let color = colors.black;

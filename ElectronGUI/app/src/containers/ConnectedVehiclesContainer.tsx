@@ -7,7 +7,6 @@ import FlatButton from 'material-ui/FlatButton'
 import { VehicleHUD } from '../components/VehicleHUD';
 import { VehicleMessages } from '../components/VehicleMessages';
 import { Vehicle } from '../Vehicle';
-import { backgroundColors } from '../util/Colors';
 
 
 type Props = {
