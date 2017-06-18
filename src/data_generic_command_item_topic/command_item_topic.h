@@ -46,11 +46,6 @@ public:
         return commandItem->getCommandType();
     }
 
-    Data::CoordinateFrameType getCoordinateFrame() const
-    {
-        return commandItem->getCoordinateFrame();
-    }
-
 private:
     std::shared_ptr<CommandItem::AbstractCommandItem> commandItem;
 };

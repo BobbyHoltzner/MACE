@@ -32,14 +32,6 @@ public:
     virtual std::string getDescription() const = 0;
 
 public:
-    Data::CoordinateFrameType getCoordinateFrame() const{
-        return m_CoordinateFrame;
-    }
-
-    void setCoordinateFrame(const Data::CoordinateFrameType &coordinateFrame){
-        m_CoordinateFrame = coordinateFrame;
-    }
-
     void setTargetSystem(const int &systemID){
         targetSystem = systemID;
     }
@@ -61,7 +53,6 @@ public:
     {
         this->targetSystem = rhs.targetSystem;
         this->originatingSystem = rhs.originatingSystem;
-        this->m_CoordinateFrame = rhs.m_CoordinateFrame;
     }
 
     bool operator == (const AbstractCommandItem &rhs) {
@@ -69,9 +60,6 @@ public:
             return false;
         }
         if(this->originatingSystem != rhs.originatingSystem){
-            return false;
-        }
-        if(this->m_CoordinateFrame != rhs.m_CoordinateFrame){
             return false;
         }
         return true;
@@ -84,8 +72,6 @@ public:
 protected:
     int originatingSystem;
     int targetSystem;
-    Data::CoordinateFrameType m_CoordinateFrame;
-
 };
 
 }

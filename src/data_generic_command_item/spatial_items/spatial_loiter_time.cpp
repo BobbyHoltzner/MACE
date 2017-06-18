@@ -21,47 +21,26 @@ bool SpatialLoiter_Time<T>::hasSpatialInfluence() const
 }
 
 
-//____________________________________________________________________________
-template<>
-SpatialLoiter_Time<DataState::StateGlobalPosition>::SpatialLoiter_Time()
+template <class T>
+SpatialLoiter_Time<T>::SpatialLoiter_Time():
+    AbstractCommandItem(0,0),DataState::StateGenericPosition<T>()
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
+
 }
 
-template<>
-SpatialLoiter_Time<DataState::StateLocalPosition>::SpatialLoiter_Time()
-{
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
-}
-//____________________________________________________________________________
-
-//____________________________________________________________________________
 template <class T>
 SpatialLoiter_Time<T>::SpatialLoiter_Time(const SpatialLoiter_Time<T> &obj):
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
 {
     this->operator =(obj);
 }
-//____________________________________________________________________________
 
-//____________________________________________________________________________
-template<>
-SpatialLoiter_Time<DataState::StateGlobalPosition>::SpatialLoiter_Time(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
+template<class T>
+SpatialLoiter_Time<T>::SpatialLoiter_Time(const int &systemOrigin, const int &systemTarget):
+    AbstractCommandItem(systemOrigin,systemTarget), DataState::StateGenericPosition<T>()
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
-}
 
-template<>
-SpatialLoiter_Time<DataState::StateLocalPosition>::SpatialLoiter_Time(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
-{
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
-//____________________________________________________________________________
 
 
 } //end of namespace CommandItem
-
-template class CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition>;
-template class CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition>;

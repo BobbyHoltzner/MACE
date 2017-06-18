@@ -4,9 +4,9 @@
 namespace DataState{
 
 StateGlobalPosition::StateGlobalPosition():
-    latitude(0.0),longitude(0.0),altitude(0.0)
+    StateGenericPosition(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
+
 }
 
 StateGlobalPosition::StateGlobalPosition(const StateGlobalPosition &globalPosition)
@@ -15,34 +15,55 @@ StateGlobalPosition::StateGlobalPosition(const StateGlobalPosition &globalPositi
 }
 
 StateGlobalPosition::StateGlobalPosition(const Data::CoordinateFrameType &frame):
-    latitude(0.0),longitude(0.0),altitude(0.0)
+    StateGenericPosition(frame)
 {
-    m_CoordinateFrame = frame;
+
 }
 
-StateGlobalPosition::StateGlobalPosition(const float &latitude, const float &longitude, const float &altitude)
+StateGlobalPosition::StateGlobalPosition(const float &latitude, const float &longitude, const float &altitude):
+    StateGenericPosition(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT,latitude,longitude,altitude)
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 
-    this->latitude = latitude;
-    this->longitude = longitude;
-    this->altitude = altitude;
 }
 
-StateGlobalPosition::StateGlobalPosition(const Data::CoordinateFrameType &frame, const double &latitude, const double &longitude, const double &altitude)
+StateGlobalPosition::StateGlobalPosition(const Data::CoordinateFrameType &frame, const double &latitude, const double &longitude, const double &altitude):
+    StateGenericPosition(frame,latitude,longitude,altitude)
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 
-    this->latitude = latitude;
-    this->longitude = longitude;
-    this->altitude = altitude;
 }
 
-void StateGlobalPosition::setPosition(const float &latitude, const float &longitude, const float &altitude)
+void StateGlobalPosition::setPosition(const double &latitude, const double &longitude, const double &altitude)
 {
-    this->latitude = latitude;
-    this->longitude = longitude;
-    this->altitude = altitude;
+    this->setX(latitude);
+    this->setY(longitude);
+    this->setZ(altitude);
+}
+
+double StateGlobalPosition::getLatitude() const
+{
+    return this->getX();
+}
+double StateGlobalPosition::getLongitude() const
+{
+    return this->getY();
+}
+double StateGlobalPosition::getAltitude() const
+{
+    return this->getZ();
+}
+
+void StateGlobalPosition::setLatitude(const double &value)
+{
+    this->setX(value);
+}
+void StateGlobalPosition::setLongitude(const double &value)
+{
+    this->setY(value);
+}
+
+void StateGlobalPosition::setAltitude(const double &value)
+{
+    this->setZ(value);
 }
 
 void StateGlobalPosition::translationTransformation(const StateGlobalPosition &position, Eigen::Vector3f &transVec)
@@ -65,11 +86,11 @@ void StateGlobalPosition::translationTransformation(const StateGlobalPosition &p
  * @param newPosition
  */
 
-StateGlobalPosition StateGlobalPosition::NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag)
+StateGlobalPosition StateGlobalPosition::NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag) const
 {
     double earthRadius = 6371000; //approximate value in meters
-    double latitudeRad = convertDegreesToRadians(latitude);
-    double longitudeRad = convertDegreesToRadians(longitude);
+    double latitudeRad = convertDegreesToRadians(x);
+    double longitudeRad = convertDegreesToRadians(y);
     double bearingRad = 0.0;
 
     if(degreesFlag == true){
@@ -84,9 +105,9 @@ StateGlobalPosition StateGlobalPosition::NewPositionFromHeadingBearing(const dou
                                          cos(distanceRatio) - sin(latitudeRad) * sin(newLat));
 
     StateGlobalPosition newPos;
-    newPos.latitude = convertRadiansToDegrees(newLat);
-    newPos.longitude = convertRadiansToDegrees(newLon);
-    newPos.altitude = altitude;
+    newPos.x = convertRadiansToDegrees(newLat);
+    newPos.y = convertRadiansToDegrees(newLon);
+    newPos.z = z;
 
     return newPos;
 }
@@ -100,10 +121,10 @@ StateGlobalPosition StateGlobalPosition::NewPositionFromHeadingBearing(const dou
 double StateGlobalPosition::bearingBetween(const StateGlobalPosition &position) const
 {
 
-    double originLatitude = convertDegreesToRadians(this->latitude);
-    double originLongitude = convertDegreesToRadians(this->longitude);
-    double finalLatitude = convertDegreesToRadians(position.latitude);
-    double finalLongitude = convertDegreesToRadians(position.longitude);
+    double originLatitude = convertDegreesToRadians(this->x);
+    double originLongitude = convertDegreesToRadians(this->y);
+    double finalLatitude = convertDegreesToRadians(position.x);
+    double finalLongitude = convertDegreesToRadians(position.y);
 
     double deltaLongitude = finalLongitude - originLongitude;
 
@@ -141,7 +162,7 @@ double StateGlobalPosition::finalBearing(const StateGlobalPosition &position) co
 }
 double StateGlobalPosition::deltaAltitude(const StateGlobalPosition &position) const
 {
-    return (this->altitude - position.altitude);
+    return (this->z - position.z);
 }
 
 /**
@@ -153,10 +174,10 @@ double StateGlobalPosition::distanceBetween2D(const StateGlobalPosition &positio
 {
     double earthRadius = 6371000; //approximate value in meters
 
-    double originLatitude = convertDegreesToRadians(this->latitude);
-    double originLongitude = convertDegreesToRadians(this->longitude);
-    double finalLatitude = convertDegreesToRadians(position.latitude);
-    double finalLongitude = convertDegreesToRadians(position.longitude);
+    double originLatitude = convertDegreesToRadians(this->x);
+    double originLongitude = convertDegreesToRadians(this->y);
+    double finalLatitude = convertDegreesToRadians(position.x);
+    double finalLongitude = convertDegreesToRadians(position.y);
 
     double deltaLatitude = finalLatitude - originLatitude;
     double deltaLongitude = finalLongitude - originLongitude;
@@ -180,7 +201,7 @@ double StateGlobalPosition::distanceBetween2D(const StateGlobalPosition &positio
 double StateGlobalPosition::distanceBetween3D(const StateGlobalPosition &position) const
 {
     double distance2D = this->distanceBetween2D(position);
-    double deltaAltitude = fabs(this->altitude - position.altitude);
+    double deltaAltitude = fabs(this->z - position.z);
     return(sqrt(deltaAltitude * deltaAltitude + distance2D * distance2D));
 }
 

@@ -1,12 +1,6 @@
 #include "spatial_takeoff.h"
 
 namespace CommandItem {
-template <class T>
-SpatialTakeoff<T>::SpatialTakeoff() :
-    positionFlag(false)
-{
-
-}
 
 template <class T>
 Data::CommandItemType SpatialTakeoff<T>::getCommandType() const
@@ -27,48 +21,25 @@ bool SpatialTakeoff<T>::hasSpatialInfluence() const
 }
 
 //____________________________________________________________________________
-template<>
-SpatialTakeoff<DataState::StateGlobalPosition>::SpatialTakeoff():
-    positionFlag(false)
+template<class T>
+SpatialTakeoff<T>::SpatialTakeoff():
+    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
+
 }
 
-template<>
-SpatialTakeoff<DataState::StateLocalPosition>::SpatialTakeoff():
-    positionFlag(false)
-{
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
-}
-//____________________________________________________________________________
-
-//____________________________________________________________________________
 template<class T>
 SpatialTakeoff<T>::SpatialTakeoff(const SpatialTakeoff<T> &obj):
-    AbstractCommandItem(0,0),positionFlag(false)
+    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
 {
     this->operator =(obj);
 }
-//____________________________________________________________________________
 
-//____________________________________________________________________________
-template<>
-SpatialTakeoff<DataState::StateGlobalPosition>::SpatialTakeoff(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget),positionFlag(false)
+template<class T>
+SpatialTakeoff<T>::SpatialTakeoff(const int &systemOrigin, const int &systemTarget):
+    AbstractCommandItem(systemOrigin,systemTarget), DataState::StateGenericPosition<T>()
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
-}
-
-template<>
-SpatialTakeoff<DataState::StateLocalPosition>::SpatialTakeoff(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget),positionFlag(false)
-{
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
-}
-//____________________________________________________________________________
-
 
 }
 
-template class CommandItem::SpatialTakeoff<DataState::StateGlobalPosition>;
-template class CommandItem::SpatialTakeoff<DataState::StateLocalPosition>;
+}

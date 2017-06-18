@@ -15,7 +15,7 @@
 
 namespace DataState {
 
-class StateGlobalPosition : public StateGenericPosition
+class StateGlobalPosition : public StateGenericPosition<StateGlobalPosition>
 {
 public:
 
@@ -29,50 +29,45 @@ public:
 
     StateGlobalPosition(const Data::CoordinateFrameType &frame, const double &latitude, const double &longitude, const double &altitude);
 
-    void setPosition(const float &latitude, const float &longitude, const float &altitude);
+
+public:
+    void setPosition(const double &latitude, const double &longitude, const double &altitude);
+    void setLatitude(const double &value);
+    void setLongitude(const double &value);
+    void setAltitude(const double &value);
+
+    double getLatitude() const;
+    double getLongitude() const;
+    double getAltitude() const;
 
 public:
     static double convertDegreesToRadians(const double &degrees);
 
     static double convertRadiansToDegrees(const double &radians);
 
+
 public:
-    StateGlobalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag);
+    virtual double deltaAltitude(const StateGlobalPosition &position) const;
+    virtual double distanceBetween2D(const StateGlobalPosition &position) const;
+    virtual double distanceBetween3D(const StateGlobalPosition &position) const;
 
-    void translationTransformation(const StateGlobalPosition &position, Eigen::Vector3f &transVec);
+public:
+    virtual double finalBearing(const StateGlobalPosition &postion) const;
+    virtual double initialBearing(const StateGlobalPosition &postion) const;
+    virtual double bearingBetween(const StateGlobalPosition &position) const;
 
-    double deltaAltitude(const StateGlobalPosition &position) const;
-    double distanceBetween2D(const StateGlobalPosition &position) const;
-    double distanceBetween3D(const StateGlobalPosition &position) const;
-
-    double bearingBetween(const StateGlobalPosition &position) const;
-
-    double finalBearing(const StateGlobalPosition &postion) const;
-
-    double initialBearing(const StateGlobalPosition &postion) const;
-
+    virtual StateGlobalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag) const;
+    virtual void translationTransformation(const StateGlobalPosition &position, Eigen::Vector3f &transVec);
 
 public:
     void operator = (const StateGlobalPosition &rhs)
     {
         StateGenericPosition::operator =(rhs);
-        this->latitude = rhs.latitude;
-        this->longitude = rhs.longitude;
-        this->altitude = rhs.altitude;
     }
 
     bool operator == (const StateGlobalPosition &rhs) {
 
         if(!StateGenericPosition::operator ==(rhs)){
-            return false;
-        }
-        if(this->latitude != rhs.latitude){
-            return false;
-        }
-        if(this->longitude != rhs.longitude){
-            return false;
-        }
-        if(this->altitude != rhs.altitude){
             return false;
         }
         return true;
@@ -81,11 +76,6 @@ public:
     bool operator != (const StateGlobalPosition &rhs) {
         return !(*this == rhs);
     }
-
-public:
-    float latitude;
-    float longitude;
-    float altitude;
 };
 
 } //end of namespace DataState

@@ -19,47 +19,25 @@ bool SpatialWaypoint<T>::hasSpatialInfluence() const
     return true;
 }
 
-//____________________________________________________________________________
-template<>
-SpatialWaypoint<DataState::StateGlobalPosition>::SpatialWaypoint()
+template<class T>
+SpatialWaypoint<T>::SpatialWaypoint():
+    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
+
 }
 
-template<>
-SpatialWaypoint<DataState::StateLocalPosition>::SpatialWaypoint()
-{
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
-}
-//____________________________________________________________________________
-
-//____________________________________________________________________________
 template<class T>
 SpatialWaypoint<T>::SpatialWaypoint(const SpatialWaypoint<T> &obj):
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
 {
     this->operator =(obj);
 }
-//____________________________________________________________________________
 
-//____________________________________________________________________________
-template<>
-SpatialWaypoint<DataState::StateGlobalPosition>::SpatialWaypoint(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
+template<class T>
+SpatialWaypoint<T>::SpatialWaypoint(const int &systemOrigin, const int &systemTarget):
+    AbstractCommandItem(systemOrigin,systemTarget), DataState::StateGenericPosition<T>()
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
-}
 
-template<>
-SpatialWaypoint<DataState::StateLocalPosition>::SpatialWaypoint(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
-{
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
-//____________________________________________________________________________
-
 
 } //end of namepsace CommandItem
-
-template class CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>;
-template class CommandItem::SpatialWaypoint<DataState::StateLocalPosition>;

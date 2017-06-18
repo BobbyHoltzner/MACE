@@ -12,7 +12,7 @@
 
 namespace DataState {
 
-class StateLocalPosition : public StateGenericPosition
+class StateLocalPosition : public StateGenericPosition<StateLocalPosition>
 {
 public:
     StateLocalPosition();
@@ -26,40 +26,39 @@ public:
     StateLocalPosition(const Data::CoordinateFrameType &frame, const double &x, const double &y, const double &z);
 
 public:
+    void setPosition(const double &posX, const double &posY, const double &posZ);
+    void setPositionX(const double &value);
+    void setPositionY(const double &value);
+    void setPositionZ(const double &value);
 
-    double distanceBetween(const StateLocalPosition &position);
+    double getPositionX() const;
+    double getPositionY() const;
+    double getPositionZ() const;
 
-    double bearingBetween(const StateLocalPosition &position);
+public:
+    virtual double deltaAltitude(const StateLocalPosition &position) const;
+    virtual double distanceBetween2D(const StateLocalPosition &position) const;
+    virtual double distanceBetween3D(const StateLocalPosition &position) const;
 
-    double finalBearing(const StateLocalPosition &postion);
+public:
+    virtual double finalBearing(const StateLocalPosition &position) const;
+    virtual double initialBearing(const StateLocalPosition &position) const;
+    virtual double bearingBetween(const StateLocalPosition &position) const;
+    virtual StateLocalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag) const;
+    virtual void translationTransformation(const StateLocalPosition &position, Eigen::Vector3f &transVec);
 
-    double initialBearing(const StateLocalPosition &postion);
-
+public:
     bool essentiallyEquivalent_Percentage(const StateLocalPosition &rhs, const double &percentage);
-
     bool essentiallyEquivalent_Distance(const StateLocalPosition &rhs, const double &distance);
-
 
 public:
     void operator = (const StateLocalPosition &rhs)
     {
         StateGenericPosition::operator =(rhs);
-        this->x = rhs.x;
-        this->y = rhs.y;
-        this->z = rhs.z;
     }
 
     bool operator == (const StateLocalPosition &rhs) {
         if(!StateGenericPosition::operator ==(rhs)){
-            return false;
-        }
-        if(this->x != rhs.x){
-            return false;
-        }
-        if(this->y != rhs.y){
-            return false;
-        }
-        if(this->z != rhs.z){
             return false;
         }
         return true;
@@ -68,13 +67,6 @@ public:
     bool operator != (const StateLocalPosition &rhs) {
         return !(*this == rhs);
     }
-
-public:
-    Data::CoordinateFrameType m_CoordinateFrame;
-
-    double x;
-    double y;
-    double z;
 };
 
 } //end of namespace DataState

@@ -5,13 +5,13 @@
 
 #include "data/command_item_type.h"
 #include "data_generic_command_item/abstract_command_item.h"
+#include "data_generic_state_item/state_generic_position.h"
 
-#include "data_generic_state_item/state_global_position.h"
-#include "data_generic_state_item/state_local_position.h"
 
 namespace CommandItem {
 
-class SpatialHome : public AbstractCommandItem
+template<class T>
+class SpatialHome : public AbstractCommandItem, public DataState::StateGenericPosition<T>
 {
 public:
     SpatialHome();
@@ -30,7 +30,7 @@ public:
     void operator = (const SpatialHome &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        this->position = rhs.position;
+        DataState::StateGenericPosition<T>::operator =(rhs);
     }
 
     bool operator == (const SpatialHome &rhs) {
@@ -38,7 +38,8 @@ public:
         {
             return false;
         }
-        if(this->position != rhs.position){
+        if(!DataState::StateGenericPosition<T>::operator ==(rhs))
+        {
             return false;
         }
         return true;
@@ -47,10 +48,6 @@ public:
     bool operator != (const SpatialHome &rhs) {
         return !(*this == rhs);
     }
-
-
-public:
-    DataState::StateGlobalPosition position;
 };
 
 } //end of namespace MissionItem

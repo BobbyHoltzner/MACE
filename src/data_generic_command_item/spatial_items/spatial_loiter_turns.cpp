@@ -20,47 +20,27 @@ bool SpatialLoiter_Turns<T>::hasSpatialInfluence() const
     return true;
 }
 
-//____________________________________________________________________________
-template<>
-SpatialLoiter_Turns<DataState::StateGlobalPosition>::SpatialLoiter_Turns()
+template<class T>
+SpatialLoiter_Turns<T>::SpatialLoiter_Turns():
+    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
+
 }
 
-template<>
-SpatialLoiter_Turns<DataState::StateLocalPosition>::SpatialLoiter_Turns()
-{
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
-}
-//____________________________________________________________________________
-
-//____________________________________________________________________________
 
 template <class T>
 SpatialLoiter_Turns<T>::SpatialLoiter_Turns(const SpatialLoiter_Turns<T> &obj):
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
 {
     this->operator =(obj);
 }
-//____________________________________________________________________________
 
-//____________________________________________________________________________
-template<>
-SpatialLoiter_Turns<DataState::StateGlobalPosition>::SpatialLoiter_Turns(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
+template<class T>
+SpatialLoiter_Turns<T>::SpatialLoiter_Turns(const int &systemOrigin, const int &systemTarget):
+    AbstractCommandItem(systemOrigin,systemTarget), DataState::StateGenericPosition<T>()
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
-}
 
-template<>
-SpatialLoiter_Turns<DataState::StateLocalPosition>::SpatialLoiter_Turns(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
-{
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
-//____________________________________________________________________________
 
 } //end of namespace CommandItem
 
-template class CommandItem::SpatialLoiter_Turns<DataState::StateGlobalPosition>;
-template class CommandItem::SpatialLoiter_Turns<DataState::StateLocalPosition>;

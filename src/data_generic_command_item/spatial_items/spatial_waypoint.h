@@ -10,10 +10,12 @@
 #include "data_generic_state_item/state_global_position.h"
 #include "data_generic_state_item/state_local_position.h"
 
+#include "data_generic_state_item/state_generic_position.h"
+
 namespace CommandItem {
 
 template <class T>
-class SpatialWaypoint : public AbstractCommandItem
+class SpatialWaypoint : public AbstractCommandItem, public DataState::StateGenericPosition<T>
 {
 public:
     virtual Data::CommandItemType getCommandType()const;
@@ -31,7 +33,7 @@ public:
     void operator = (const SpatialWaypoint &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        this->position = rhs.position;
+        DataState::StateGenericPosition<T>::operator =(rhs);
     }
 
     bool operator == (const SpatialWaypoint &rhs) {
@@ -39,7 +41,8 @@ public:
         {
             return false;
         }
-        if(this->position != rhs.position){
+        if(!DataState::StateGenericPosition<T>::operator ==(rhs))
+        {
             return false;
         }
         return true;
@@ -49,8 +52,6 @@ public:
         return !(*this == rhs);
     }
 
-public:
-    T position;
 };
 
 } //end of namespace MissionItem

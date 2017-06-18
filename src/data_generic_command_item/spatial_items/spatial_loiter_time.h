@@ -7,14 +7,12 @@
 #include "data/loiter_direction.h"
 
 #include "data_generic_command_item/abstract_command_item.h"
-
-#include "data_generic_state_item/state_global_position.h"
-#include "data_generic_state_item/state_local_position.h"
+#include "data_generic_state_item/state_generic_position.h"
 
 namespace CommandItem {
 
 template <class T>
-class SpatialLoiter_Time : public AbstractCommandItem
+class SpatialLoiter_Time : public AbstractCommandItem, public DataState::StateGenericPosition<T>
 {
 public:
     virtual Data::CommandItemType getCommandType()const;
@@ -32,7 +30,7 @@ public:
     void operator = (const SpatialLoiter_Time &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        this->position = rhs.position;
+        DataState::StateGenericPosition<T>::operator =(rhs);
         this->direction = rhs.direction;
         this->radius = rhs.radius;
         this->duration = rhs.duration;
@@ -43,7 +41,8 @@ public:
         {
             return false;
         }
-        if(this->position != rhs.position){
+        if(!DataState::StateGenericPosition<T>::operator ==(rhs))
+        {
             return false;
         }
         if(this->direction != rhs.direction)
@@ -66,7 +65,6 @@ public:
     }
 
 public:
-    T position;
     Data::LoiterDirection direction;
     double radius;
     double duration;

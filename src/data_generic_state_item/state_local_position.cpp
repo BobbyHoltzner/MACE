@@ -4,39 +4,67 @@
 using namespace DataState;
 
 StateLocalPosition::StateLocalPosition():
-    x(0.0),y(0.0),z(0.0)
+    StateGenericPosition(Data::CoordinateFrameType::CF_LOCAL_ENU)
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
+
 }
 
 StateLocalPosition::StateLocalPosition(const StateLocalPosition &localPosition)
 {
-    this->x = localPosition.x;
-    this->y = localPosition.y;
-    this->z = localPosition.z;
+    this->operator =(localPosition);
 }
 
-StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame)
+StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame):
+    StateGenericPosition(frame)
 {
-    m_CoordinateFrame = frame;
+
 }
 
-StateLocalPosition::StateLocalPosition(const double &x, const double &y, const double &z)
+StateLocalPosition::StateLocalPosition(const double &posX, const double &posY, const double &posZ):
+    StateGenericPosition(Data::CoordinateFrameType::CF_LOCAL_ENU,posX,posY,posZ)
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 
-    this->x = x;
-    this->y = y;
-    this->z = z;
 }
 
-StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame, const double &x, const double &y, const double &z)
+StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame, const double &posX, const double &posY, const double &posZ):
+    StateGenericPosition(frame,posX,posY,posZ)
 {
-    m_CoordinateFrame = frame;
 
-    this->x = x;
-    this->y = y;
-    this->z = z;
+}
+
+void StateLocalPosition::setPosition(const double &posX, const double &posY, const double &posZ)
+{
+    this->setX(posX);
+    this->setY(posY);
+    this->setZ(posZ);
+}
+
+void StateLocalPosition::setPositionX(const double &value)
+{
+    this->setX(value);
+}
+
+void StateLocalPosition::setPositionY(const double &value)
+{
+    this->setY(value);
+}
+
+void StateLocalPosition::setPositionZ(const double &value)
+{
+    this->setZ(value);
+}
+
+double StateLocalPosition::getPositionX() const
+{
+    return getX();
+}
+double StateLocalPosition::getPositionY() const
+{
+    return this->getY();
+}
+double StateLocalPosition::getPositionZ() const
+{
+    return this->getZ();
 }
 
 bool StateLocalPosition::essentiallyEquivalent_Percentage(const StateLocalPosition &rhs, const double &percentage)
@@ -71,35 +99,61 @@ bool StateLocalPosition::essentiallyEquivalent_Distance(const StateLocalPosition
     return true;
 }
 
-double StateLocalPosition::bearingBetween(const StateLocalPosition &position)
-{
-    UNUSED(position);
-    throw std::runtime_error("Not Implimented");
-    return 0.0;
-}
+    double StateLocalPosition::deltaAltitude(const StateLocalPosition &position) const
+    {
+        double deltaZ = position.z - this->z;
+        return deltaZ;
+    }
+    double StateLocalPosition::distanceBetween2D(const StateLocalPosition &position) const
+    {
+        double deltaX = position.x - this->x;
+        double deltaY = position.y - this->y;
 
-double StateLocalPosition::initialBearing(const StateLocalPosition &position)
-{
-    throw std::runtime_error("Not Implimented");
-    UNUSED(position);
-    return 0.0;
-    //return (bearingBetween(position) + 360.0) % 360.0;
-}
+        return sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
+    double StateLocalPosition::distanceBetween3D(const StateLocalPosition &position) const
+    {
+        double deltaX = position.x - this->x;
+        double deltaY = position.y - this->y;
+        double deltaZ = position.z - this->z;
 
-double StateLocalPosition::finalBearing(const StateLocalPosition &position)
-{
-    throw std::runtime_error("Not Implimented");
-    UNUSED(position);
-    return 0.0;
-    //return (bearingBetween(position) + 180.0) % 360.0;
-}
+        return sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+    }
 
-double StateLocalPosition::distanceBetween(const StateLocalPosition &position)
-{
-    double deltaX = position.x - this->x;
-    double deltaY = position.y - this->y;
-    double deltaZ = position.z - this->z;
+    double StateLocalPosition::finalBearing(const StateLocalPosition &position) const
+    {
+        throw std::runtime_error("Not Implimented");
+        UNUSED(position);
+        return 0.0;
+    }
+    double StateLocalPosition::initialBearing(const StateLocalPosition &position) const
+    {
+        throw std::runtime_error("Not Implimented");
+        UNUSED(position);
+        return 0.0;
+    }
+    double StateLocalPosition::bearingBetween(const StateLocalPosition &position) const
+    {
+        UNUSED(position);
+        throw std::runtime_error("Not Implimented");
+        return 0.0;
+    }
+    StateLocalPosition StateLocalPosition::NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag) const
+    {
+        UNUSED(distance);
+        UNUSED(bearing);
+        UNUSED(degreesFlag);
+        throw std::runtime_error("Not Implimented");
 
-    return sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-}
+        StateLocalPosition newTemp;
+        return newTemp;
+
+    }
+    void StateLocalPosition::translationTransformation(const StateLocalPosition &position, Eigen::Vector3f &transVec)
+    {
+        UNUSED(position);
+        UNUSED(transVec);
+        throw std::runtime_error("Not Implimented");
+    }
+
 
