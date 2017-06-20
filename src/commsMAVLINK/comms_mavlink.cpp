@@ -142,8 +142,6 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
             mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(m_LinkChan);
         }
 
-
-        //connect link
         bool success = m_LinkMarshaler->ConnectToLink(m_LinkName);
         if(success == false) {
             throw std::runtime_error("Connection to link failed");
