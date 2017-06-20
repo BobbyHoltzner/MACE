@@ -34,7 +34,6 @@ void Mission_MACETOMAVLINK::initializeMAVLINKMissionItem(mavlink_mission_item_t 
     mavMission.x = 0.0;
     mavMission.y = 0.0;
     mavMission.z = 0.0;
-    mavMission.mission_type = MAV_MISSION_TYPE_MISSION;
 }
 
 mavlink_message_t Mission_MACETOMAVLINK::packMissionItem(const mavlink_mission_item_t &mavMission, const uint8_t &chan)
@@ -218,7 +217,7 @@ mavlink_message_t Mission_MACETOMAVLINK::Land_MACETOMAVLINK(const CommandItem::S
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
-    item.command = MAV_CMD_NAV_LAND_LOCAL;
+    item.command = MAV_CMD_NAV_LAND;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;
@@ -397,7 +396,7 @@ mavlink_message_t Mission_MACETOMAVLINK::Takeoff_MACETOMAVLINK(const CommandItem
 {
     mavlink_mission_item_t item;
     this->initializeMAVLINKMissionItem(item);
-    item.command = MAV_CMD_NAV_TAKEOFF_LOCAL;
+    item.command = MAV_CMD_NAV_TAKEOFF;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     item.target_component = compID;

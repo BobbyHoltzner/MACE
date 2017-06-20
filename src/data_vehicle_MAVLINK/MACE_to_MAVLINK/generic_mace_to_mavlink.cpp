@@ -57,37 +57,7 @@ mavlink_message_t Generic_MACETOMAVLINK::GPS_MACETOMAVLINK(DataGenericItem::Data
     gpsRaw.satellites_visible = GPSItem.getSatVisible();
     gpsRaw.eph = GPSItem.getHDOP();
     gpsRaw.epv = GPSItem.getVDOP();
-
-    switch(GPSItem.getGPSFix())
-    {
-    case Data::GPSFixType::GPS_FIX_2D_FIX:
-        gpsRaw.fix_type = GPS_FIX_TYPE_2D_FIX;
-        break;
-    case Data::GPSFixType::GPS_FIX_3D_FIX:
-        gpsRaw.fix_type = GPS_FIX_TYPE_3D_FIX;
-        break;
-    case Data::GPSFixType::GPS_FIX_DGPS:
-        gpsRaw.fix_type = GPS_FIX_TYPE_DGPS;
-        break;
-    case Data::GPSFixType::GPS_FIX_NONE:
-        gpsRaw.fix_type = GPS_FIX_TYPE_NO_GPS;
-        break;
-    case Data::GPSFixType::GPS_FIX_NO_FIX:
-        gpsRaw.fix_type = GPS_FIX_TYPE_NO_FIX;
-        break;
-    case Data::GPSFixType::GPS_FIX_RTK_FIXED:
-        gpsRaw.fix_type = GPS_FIX_TYPE_RTK_FIXED;
-        break;
-    case Data::GPSFixType::GPS_FIX_RTK_FLOAT:
-        gpsRaw.fix_type = GPS_FIX_TYPE_RTK_FLOAT;
-        break;
-    case Data::GPSFixType::GPS_FIX_STATIC:
-        gpsRaw.fix_type = GPS_FIX_TYPE_STATIC;
-        break;
-    default:
-        gpsRaw.fix_type = GPS_FIX_TYPE_NO_FIX;
-        break;
-    }
+    gpsRaw.fix_type = 0;
 
     mavlink_msg_gps_raw_int_encode_chan(mSystemID,mCompID,chan,&msg,&gpsRaw);
     return(msg);

@@ -242,7 +242,7 @@ void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionLis
         mavlink_message_t msg;
         int queueSize = missionList.getQueueSize();
 
-        mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,queueSize,MAV_MISSION_TYPE_MISSION);
+        mavlink_msg_mission_count_pack_chan(255,190,m_LinkChan,&msg,vehicleID,0,queueSize);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         break;
     }
@@ -279,7 +279,7 @@ void ModuleVehicleArdupilot::Command_SetCurrentMission(const Data::MissionKey &k
 void ModuleVehicleArdupilot::Command_GetCurrentMission(const int &targetSystem)
 {
     mavlink_message_t msg;
-    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
+    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
@@ -302,14 +302,14 @@ void ModuleVehicleArdupilot::Command_ClearCurrentMission(const int &targetSystem
 void ModuleVehicleArdupilot::Command_GetOnboardAuto(const int &targetSystem)
 {
     mavlink_message_t msg;
-    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
+    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::Command_ClearOnboardAuto(const int &targetSystem)
 {
     mavlink_message_t msg;
-    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
+    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
@@ -369,7 +369,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
         tmpData->data->setHeartbeatSeen(true);
-        mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0,MAV_MISSION_TYPE_MISSION);
+        mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
     }

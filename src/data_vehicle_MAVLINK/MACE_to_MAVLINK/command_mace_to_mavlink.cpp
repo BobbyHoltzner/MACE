@@ -52,11 +52,11 @@ mavlink_message_t Command_MACETOMAVLINK::packLongMessage(const mavlink_command_l
 
 mavlink_message_t Command_MACETOMAVLINK::generateGetHomeMessage(const int &vehicleID, const int &chan)
 {
-    mavlink_command_long_t cmd = initializeCommandLong();
-    cmd.command = MAV_CMD_GET_HOME_POSITION;
-    cmd.target_system = vehicleID;
-    mavlink_message_t msg = packLongMessage(cmd,chan);
-    return msg;
+//    mavlink_command_long_t cmd = initializeCommandLong();
+//    cmd.command = MAV;
+//    cmd.target_system = vehicleID;
+//    mavlink_message_t msg = packLongMessage(cmd,chan);
+//    return msg;
 }
 
 mavlink_message_t Command_MACETOMAVLINK::generateArmMessage(const CommandItem::ActionArm &actionArmItem, const uint8_t &chan)

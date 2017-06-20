@@ -1,51 +1,35 @@
-#pragma once
 // MESSAGE DEBUG_VECT PACKING
 
 #define MAVLINK_MSG_ID_DEBUG_VECT 250
 
-MAVPACKED(
-typedef struct __mavlink_debug_vect_t {
+typedef struct __mavlink_debug_vect_t
+{
  uint64_t time_usec; /*< Timestamp*/
  float x; /*< x*/
  float y; /*< y*/
  float z; /*< z*/
  char name[10]; /*< Name*/
-}) mavlink_debug_vect_t;
+} mavlink_debug_vect_t;
 
 #define MAVLINK_MSG_ID_DEBUG_VECT_LEN 30
-#define MAVLINK_MSG_ID_DEBUG_VECT_MIN_LEN 30
 #define MAVLINK_MSG_ID_250_LEN 30
-#define MAVLINK_MSG_ID_250_MIN_LEN 30
 
 #define MAVLINK_MSG_ID_DEBUG_VECT_CRC 49
 #define MAVLINK_MSG_ID_250_CRC 49
 
 #define MAVLINK_MSG_DEBUG_VECT_FIELD_NAME_LEN 10
 
-#if MAVLINK_COMMAND_24BIT
 #define MAVLINK_MESSAGE_INFO_DEBUG_VECT { \
-    250, \
-    "DEBUG_VECT", \
-    5, \
-    {  { "time_usec", NULL, MAVLINK_TYPE_UINT64_T, 0, 0, offsetof(mavlink_debug_vect_t, time_usec) }, \
+	"DEBUG_VECT", \
+	5, \
+	{  { "time_usec", NULL, MAVLINK_TYPE_UINT64_T, 0, 0, offsetof(mavlink_debug_vect_t, time_usec) }, \
          { "x", NULL, MAVLINK_TYPE_FLOAT, 0, 8, offsetof(mavlink_debug_vect_t, x) }, \
          { "y", NULL, MAVLINK_TYPE_FLOAT, 0, 12, offsetof(mavlink_debug_vect_t, y) }, \
          { "z", NULL, MAVLINK_TYPE_FLOAT, 0, 16, offsetof(mavlink_debug_vect_t, z) }, \
          { "name", NULL, MAVLINK_TYPE_CHAR, 10, 20, offsetof(mavlink_debug_vect_t, name) }, \
          } \
 }
-#else
-#define MAVLINK_MESSAGE_INFO_DEBUG_VECT { \
-    "DEBUG_VECT", \
-    5, \
-    {  { "time_usec", NULL, MAVLINK_TYPE_UINT64_T, 0, 0, offsetof(mavlink_debug_vect_t, time_usec) }, \
-         { "x", NULL, MAVLINK_TYPE_FLOAT, 0, 8, offsetof(mavlink_debug_vect_t, x) }, \
-         { "y", NULL, MAVLINK_TYPE_FLOAT, 0, 12, offsetof(mavlink_debug_vect_t, y) }, \
-         { "z", NULL, MAVLINK_TYPE_FLOAT, 0, 16, offsetof(mavlink_debug_vect_t, z) }, \
-         { "name", NULL, MAVLINK_TYPE_CHAR, 10, 20, offsetof(mavlink_debug_vect_t, name) }, \
-         } \
-}
-#endif
+
 
 /**
  * @brief Pack a debug_vect message
@@ -61,28 +45,32 @@ typedef struct __mavlink_debug_vect_t {
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_debug_vect_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
-                               const char *name, uint64_t time_usec, float x, float y, float z)
+						       const char *name, uint64_t time_usec, float x, float y, float z)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-    char buf[MAVLINK_MSG_ID_DEBUG_VECT_LEN];
-    _mav_put_uint64_t(buf, 0, time_usec);
-    _mav_put_float(buf, 8, x);
-    _mav_put_float(buf, 12, y);
-    _mav_put_float(buf, 16, z);
-    _mav_put_char_array(buf, 20, name, 10);
+	char buf[MAVLINK_MSG_ID_DEBUG_VECT_LEN];
+	_mav_put_uint64_t(buf, 0, time_usec);
+	_mav_put_float(buf, 8, x);
+	_mav_put_float(buf, 12, y);
+	_mav_put_float(buf, 16, z);
+	_mav_put_char_array(buf, 20, name, 10);
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_DEBUG_VECT_LEN);
 #else
-    mavlink_debug_vect_t packet;
-    packet.time_usec = time_usec;
-    packet.x = x;
-    packet.y = y;
-    packet.z = z;
-    mav_array_memcpy(packet.name, name, sizeof(char)*10);
+	mavlink_debug_vect_t packet;
+	packet.time_usec = time_usec;
+	packet.x = x;
+	packet.y = y;
+	packet.z = z;
+	mav_array_memcpy(packet.name, name, sizeof(char)*10);
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_DEBUG_VECT_LEN);
 #endif
 
-    msg->msgid = MAVLINK_MSG_ID_DEBUG_VECT;
-    return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_DEBUG_VECT_MIN_LEN, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
+	msg->msgid = MAVLINK_MSG_ID_DEBUG_VECT;
+#if MAVLINK_CRC_EXTRA
+    return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
+#else
+    return mavlink_finalize_message(msg, system_id, component_id, MAVLINK_MSG_ID_DEBUG_VECT_LEN);
+#endif
 }
 
 /**
@@ -99,29 +87,33 @@ static inline uint16_t mavlink_msg_debug_vect_pack(uint8_t system_id, uint8_t co
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mavlink_msg_debug_vect_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
-                               mavlink_message_t* msg,
-                                   const char *name,uint64_t time_usec,float x,float y,float z)
+							   mavlink_message_t* msg,
+						           const char *name,uint64_t time_usec,float x,float y,float z)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-    char buf[MAVLINK_MSG_ID_DEBUG_VECT_LEN];
-    _mav_put_uint64_t(buf, 0, time_usec);
-    _mav_put_float(buf, 8, x);
-    _mav_put_float(buf, 12, y);
-    _mav_put_float(buf, 16, z);
-    _mav_put_char_array(buf, 20, name, 10);
+	char buf[MAVLINK_MSG_ID_DEBUG_VECT_LEN];
+	_mav_put_uint64_t(buf, 0, time_usec);
+	_mav_put_float(buf, 8, x);
+	_mav_put_float(buf, 12, y);
+	_mav_put_float(buf, 16, z);
+	_mav_put_char_array(buf, 20, name, 10);
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), buf, MAVLINK_MSG_ID_DEBUG_VECT_LEN);
 #else
-    mavlink_debug_vect_t packet;
-    packet.time_usec = time_usec;
-    packet.x = x;
-    packet.y = y;
-    packet.z = z;
-    mav_array_memcpy(packet.name, name, sizeof(char)*10);
+	mavlink_debug_vect_t packet;
+	packet.time_usec = time_usec;
+	packet.x = x;
+	packet.y = y;
+	packet.z = z;
+	mav_array_memcpy(packet.name, name, sizeof(char)*10);
         memcpy(_MAV_PAYLOAD_NON_CONST(msg), &packet, MAVLINK_MSG_ID_DEBUG_VECT_LEN);
 #endif
 
-    msg->msgid = MAVLINK_MSG_ID_DEBUG_VECT;
-    return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_DEBUG_VECT_MIN_LEN, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
+	msg->msgid = MAVLINK_MSG_ID_DEBUG_VECT;
+#if MAVLINK_CRC_EXTRA
+    return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
+#else
+    return mavlink_finalize_message_chan(msg, system_id, component_id, chan, MAVLINK_MSG_ID_DEBUG_VECT_LEN);
+#endif
 }
 
 /**
@@ -134,7 +126,7 @@ static inline uint16_t mavlink_msg_debug_vect_pack_chan(uint8_t system_id, uint8
  */
 static inline uint16_t mavlink_msg_debug_vect_encode(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg, const mavlink_debug_vect_t* debug_vect)
 {
-    return mavlink_msg_debug_vect_pack(system_id, component_id, msg, debug_vect->name, debug_vect->time_usec, debug_vect->x, debug_vect->y, debug_vect->z);
+	return mavlink_msg_debug_vect_pack(system_id, component_id, msg, debug_vect->name, debug_vect->time_usec, debug_vect->x, debug_vect->y, debug_vect->z);
 }
 
 /**
@@ -148,7 +140,7 @@ static inline uint16_t mavlink_msg_debug_vect_encode(uint8_t system_id, uint8_t 
  */
 static inline uint16_t mavlink_msg_debug_vect_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mavlink_message_t* msg, const mavlink_debug_vect_t* debug_vect)
 {
-    return mavlink_msg_debug_vect_pack_chan(system_id, component_id, chan, msg, debug_vect->name, debug_vect->time_usec, debug_vect->x, debug_vect->y, debug_vect->z);
+	return mavlink_msg_debug_vect_pack_chan(system_id, component_id, chan, msg, debug_vect->name, debug_vect->time_usec, debug_vect->x, debug_vect->y, debug_vect->z);
 }
 
 /**
@@ -166,35 +158,29 @@ static inline uint16_t mavlink_msg_debug_vect_encode_chan(uint8_t system_id, uin
 static inline void mavlink_msg_debug_vect_send(mavlink_channel_t chan, const char *name, uint64_t time_usec, float x, float y, float z)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-    char buf[MAVLINK_MSG_ID_DEBUG_VECT_LEN];
-    _mav_put_uint64_t(buf, 0, time_usec);
-    _mav_put_float(buf, 8, x);
-    _mav_put_float(buf, 12, y);
-    _mav_put_float(buf, 16, z);
-    _mav_put_char_array(buf, 20, name, 10);
-    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, buf, MAVLINK_MSG_ID_DEBUG_VECT_MIN_LEN, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
+	char buf[MAVLINK_MSG_ID_DEBUG_VECT_LEN];
+	_mav_put_uint64_t(buf, 0, time_usec);
+	_mav_put_float(buf, 8, x);
+	_mav_put_float(buf, 12, y);
+	_mav_put_float(buf, 16, z);
+	_mav_put_char_array(buf, 20, name, 10);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, buf, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
 #else
-    mavlink_debug_vect_t packet;
-    packet.time_usec = time_usec;
-    packet.x = x;
-    packet.y = y;
-    packet.z = z;
-    mav_array_memcpy(packet.name, name, sizeof(char)*10);
-    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, (const char *)&packet, MAVLINK_MSG_ID_DEBUG_VECT_MIN_LEN, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, buf, MAVLINK_MSG_ID_DEBUG_VECT_LEN);
 #endif
-}
-
-/**
- * @brief Send a debug_vect message
- * @param chan MAVLink channel to send the message
- * @param struct The MAVLink struct to serialize
- */
-static inline void mavlink_msg_debug_vect_send_struct(mavlink_channel_t chan, const mavlink_debug_vect_t* debug_vect)
-{
-#if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-    mavlink_msg_debug_vect_send(chan, debug_vect->name, debug_vect->time_usec, debug_vect->x, debug_vect->y, debug_vect->z);
 #else
-    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, (const char *)debug_vect, MAVLINK_MSG_ID_DEBUG_VECT_MIN_LEN, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
+	mavlink_debug_vect_t packet;
+	packet.time_usec = time_usec;
+	packet.x = x;
+	packet.y = y;
+	packet.z = z;
+	mav_array_memcpy(packet.name, name, sizeof(char)*10);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, (const char *)&packet, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, (const char *)&packet, MAVLINK_MSG_ID_DEBUG_VECT_LEN);
+#endif
 #endif
 }
 
@@ -209,21 +195,29 @@ static inline void mavlink_msg_debug_vect_send_struct(mavlink_channel_t chan, co
 static inline void mavlink_msg_debug_vect_send_buf(mavlink_message_t *msgbuf, mavlink_channel_t chan,  const char *name, uint64_t time_usec, float x, float y, float z)
 {
 #if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-    char *buf = (char *)msgbuf;
-    _mav_put_uint64_t(buf, 0, time_usec);
-    _mav_put_float(buf, 8, x);
-    _mav_put_float(buf, 12, y);
-    _mav_put_float(buf, 16, z);
-    _mav_put_char_array(buf, 20, name, 10);
-    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, buf, MAVLINK_MSG_ID_DEBUG_VECT_MIN_LEN, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
+	char *buf = (char *)msgbuf;
+	_mav_put_uint64_t(buf, 0, time_usec);
+	_mav_put_float(buf, 8, x);
+	_mav_put_float(buf, 12, y);
+	_mav_put_float(buf, 16, z);
+	_mav_put_char_array(buf, 20, name, 10);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, buf, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
 #else
-    mavlink_debug_vect_t *packet = (mavlink_debug_vect_t *)msgbuf;
-    packet->time_usec = time_usec;
-    packet->x = x;
-    packet->y = y;
-    packet->z = z;
-    mav_array_memcpy(packet->name, name, sizeof(char)*10);
-    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, (const char *)packet, MAVLINK_MSG_ID_DEBUG_VECT_MIN_LEN, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, buf, MAVLINK_MSG_ID_DEBUG_VECT_LEN);
+#endif
+#else
+	mavlink_debug_vect_t *packet = (mavlink_debug_vect_t *)msgbuf;
+	packet->time_usec = time_usec;
+	packet->x = x;
+	packet->y = y;
+	packet->z = z;
+	mav_array_memcpy(packet->name, name, sizeof(char)*10);
+#if MAVLINK_CRC_EXTRA
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, (const char *)packet, MAVLINK_MSG_ID_DEBUG_VECT_LEN, MAVLINK_MSG_ID_DEBUG_VECT_CRC);
+#else
+    _mav_finalize_message_chan_send(chan, MAVLINK_MSG_ID_DEBUG_VECT, (const char *)packet, MAVLINK_MSG_ID_DEBUG_VECT_LEN);
+#endif
 #endif
 }
 #endif
@@ -240,7 +234,7 @@ static inline void mavlink_msg_debug_vect_send_buf(mavlink_message_t *msgbuf, ma
  */
 static inline uint16_t mavlink_msg_debug_vect_get_name(const mavlink_message_t* msg, char *name)
 {
-    return _MAV_RETURN_char_array(msg, name, 10,  20);
+	return _MAV_RETURN_char_array(msg, name, 10,  20);
 }
 
 /**
@@ -250,7 +244,7 @@ static inline uint16_t mavlink_msg_debug_vect_get_name(const mavlink_message_t* 
  */
 static inline uint64_t mavlink_msg_debug_vect_get_time_usec(const mavlink_message_t* msg)
 {
-    return _MAV_RETURN_uint64_t(msg,  0);
+	return _MAV_RETURN_uint64_t(msg,  0);
 }
 
 /**
@@ -260,7 +254,7 @@ static inline uint64_t mavlink_msg_debug_vect_get_time_usec(const mavlink_messag
  */
 static inline float mavlink_msg_debug_vect_get_x(const mavlink_message_t* msg)
 {
-    return _MAV_RETURN_float(msg,  8);
+	return _MAV_RETURN_float(msg,  8);
 }
 
 /**
@@ -270,7 +264,7 @@ static inline float mavlink_msg_debug_vect_get_x(const mavlink_message_t* msg)
  */
 static inline float mavlink_msg_debug_vect_get_y(const mavlink_message_t* msg)
 {
-    return _MAV_RETURN_float(msg,  12);
+	return _MAV_RETURN_float(msg,  12);
 }
 
 /**
@@ -280,7 +274,7 @@ static inline float mavlink_msg_debug_vect_get_y(const mavlink_message_t* msg)
  */
 static inline float mavlink_msg_debug_vect_get_z(const mavlink_message_t* msg)
 {
-    return _MAV_RETURN_float(msg,  16);
+	return _MAV_RETURN_float(msg,  16);
 }
 
 /**
@@ -291,15 +285,13 @@ static inline float mavlink_msg_debug_vect_get_z(const mavlink_message_t* msg)
  */
 static inline void mavlink_msg_debug_vect_decode(const mavlink_message_t* msg, mavlink_debug_vect_t* debug_vect)
 {
-#if MAVLINK_NEED_BYTE_SWAP || !MAVLINK_ALIGNED_FIELDS
-    debug_vect->time_usec = mavlink_msg_debug_vect_get_time_usec(msg);
-    debug_vect->x = mavlink_msg_debug_vect_get_x(msg);
-    debug_vect->y = mavlink_msg_debug_vect_get_y(msg);
-    debug_vect->z = mavlink_msg_debug_vect_get_z(msg);
-    mavlink_msg_debug_vect_get_name(msg, debug_vect->name);
+#if MAVLINK_NEED_BYTE_SWAP
+	debug_vect->time_usec = mavlink_msg_debug_vect_get_time_usec(msg);
+	debug_vect->x = mavlink_msg_debug_vect_get_x(msg);
+	debug_vect->y = mavlink_msg_debug_vect_get_y(msg);
+	debug_vect->z = mavlink_msg_debug_vect_get_z(msg);
+	mavlink_msg_debug_vect_get_name(msg, debug_vect->name);
 #else
-        uint8_t len = msg->len < MAVLINK_MSG_ID_DEBUG_VECT_LEN? msg->len : MAVLINK_MSG_ID_DEBUG_VECT_LEN;
-        memset(debug_vect, 0, MAVLINK_MSG_ID_DEBUG_VECT_LEN);
-    memcpy(debug_vect, _MAV_PAYLOAD(msg), len);
+	memcpy(debug_vect, _MAV_PAYLOAD(msg), MAVLINK_MSG_ID_DEBUG_VECT_LEN);
 #endif
 }

@@ -46,7 +46,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
 
             std::cout << "Requesting: " << indexRequest << std::endl;
 
-            mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,indexRequest,MAV_MISSION_TYPE_MISSION); //we have to index this +1 because ardupilot indexes 0 as home
+            mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,indexRequest); //we have to index this +1 because ardupilot indexes 0 as home
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         }else{
             //We should update the core
@@ -147,7 +147,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
             MissionItem::MissionList newMissionList(sysID,sysID,Data::MissionType::AUTO,Data::MissionTXState::CURRENT,queueSize);
             vehicleData->data->setCurrentMission(newMissionList);
             mavlink_message_t msg;
-            mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,0,MAV_MISSION_TYPE_MISSION);
+            mavlink_msg_mission_request_pack_chan(255,190,m_LinkChan,&msg,sysID,0,0);
             m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
         }
         catch (std::exception e) {
@@ -201,7 +201,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         mavlink_msg_mission_ack_decode(message,&decodedMSG);
 
         //The only way this item is called is if there is a new auto mission aboard the aircraft
-        if((decodedMSG.type == MAV_MISSION_ACCEPTED) && (decodedMSG.mission_type == MAV_MISSION_TYPE_MISSION))
+        if((decodedMSG.type == MAV_MISSION_ACCEPTED))
         {
             Data::MissionKey missionKey = vehicleData->data->proposedMissionConfirmed();
             ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
