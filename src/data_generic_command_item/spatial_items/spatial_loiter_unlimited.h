@@ -11,8 +11,7 @@
 
 namespace CommandItem {
 
-template <class T>
-class SpatialLoiter_Unlimited : public AbstractCommandItem, public DataState::StateGenericPosition<T>
+class SpatialLoiter_Unlimited : public AbstractCommandItem
 {
 public:
     virtual Data::CommandItemType getCommandType()const;
@@ -30,7 +29,7 @@ public:
     void operator = (const SpatialLoiter_Unlimited &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        DataState::StateGenericPosition<T>::operator =(rhs);
+        this.position = rhs.position;
         this->direction = rhs.direction;
         this->radius = rhs.radius;
     }
@@ -40,7 +39,7 @@ public:
         {
             return false;
         }
-        if(!DataState::StateGenericPosition<T>::operator ==(rhs))
+        if(this->position != rhs.position)
         {
             return false;
         }
@@ -60,6 +59,7 @@ public:
     }
 
 public:
+    DataState::StateGenericPosition position;
     Data::LoiterDirection direction;
     double radius;
 };

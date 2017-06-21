@@ -14,8 +14,7 @@
 
 namespace CommandItem {
 
-template <class T>
-class SpatialWaypoint : public AbstractCommandItem, public DataState::StateGenericPosition<T>
+class SpatialWaypoint : public AbstractCommandItem
 {
 public:
     virtual Data::CommandItemType getCommandType()const;
@@ -33,7 +32,7 @@ public:
     void operator = (const SpatialWaypoint &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        DataState::StateGenericPosition<T>::operator =(rhs);
+        this->position = rhs.position;
     }
 
     bool operator == (const SpatialWaypoint &rhs) {
@@ -41,7 +40,7 @@ public:
         {
             return false;
         }
-        if(!DataState::StateGenericPosition<T>::operator ==(rhs))
+        if(this.position != rhs.position)
         {
             return false;
         }
@@ -52,6 +51,8 @@ public:
         return !(*this == rhs);
     }
 
+public:
+    DataState::StateGenericPosition position;
 };
 
 } //end of namespace MissionItem

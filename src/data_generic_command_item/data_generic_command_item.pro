@@ -118,6 +118,7 @@ headers_spatialComponents.files   += \
     spatial_items/spatial_waypoint.h
 INSTALLS       += headers_spatialComponents
 
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata

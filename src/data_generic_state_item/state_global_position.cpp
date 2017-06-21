@@ -66,6 +66,17 @@ void StateGlobalPosition::setAltitude(const double &value)
     this->setZ(value);
 }
 
+mace_global_position_int_t StateGlobalPosition::getMACECommsObject()
+{
+    mace_global_position_int_t rtnObj;
+
+    rtnObj.lat = (int32_t)(this->getLatitude() * pow(10,7));
+    rtnObj.lon = (int32_t)(this->getLongitude() * pow(10,7));
+    rtnObj.alt = (int32_t)(this->getAltitude() * 1000.0);
+
+    return rtnObj;
+}
+
 void StateGlobalPosition::translationTransformation(const StateGlobalPosition &position, Eigen::Vector3f &transVec)
 {
     double bearing = this->bearingBetween(position);

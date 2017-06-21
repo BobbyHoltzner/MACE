@@ -10,8 +10,7 @@
 
 namespace CommandItem {
 
-template<class T>
-class SpatialHome : public AbstractCommandItem, public DataState::StateGenericPosition<T>
+class SpatialHome : public AbstractCommandItem
 {
 public:
     SpatialHome();
@@ -30,7 +29,7 @@ public:
     void operator = (const SpatialHome &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        DataState::StateGenericPosition<T>::operator =(rhs);
+        this->position = rhs.position;
     }
 
     bool operator == (const SpatialHome &rhs) {
@@ -48,6 +47,11 @@ public:
     bool operator != (const SpatialHome &rhs) {
         return !(*this == rhs);
     }
+
+    setPosition(const DataState::StateGenericPosition &pos);
+
+public:
+    DataState::StateGenericPosition position;
 };
 
 } //end of namespace MissionItem

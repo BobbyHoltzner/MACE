@@ -10,8 +10,7 @@
 
 namespace CommandItem {
 
-template <class T>
-class SpatialTakeoff : public AbstractCommandItem, public DataState::StateGenericPosition<T>
+class SpatialTakeoff : public AbstractCommandItem
 {
 
 public:
@@ -30,7 +29,7 @@ public:
     void operator = (const SpatialTakeoff &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        DataState::StateGenericPosition<T>::operator =(rhs);
+        this.position = rhs.position;
     }
 
     bool operator == (const SpatialTakeoff &rhs) {
@@ -38,7 +37,7 @@ public:
         {
             return false;
         }
-        if(!DataState::StateGenericPosition<T>::operator ==(rhs))
+        if(this->position != rhs.position)
         {
             return false;
         }
@@ -49,6 +48,8 @@ public:
         return !(*this == rhs);
     }
 
+public:
+    DataState::StateGenericPosition position;
 };
 
 } //end of namespace MissionItem

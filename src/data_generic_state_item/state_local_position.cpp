@@ -67,6 +67,17 @@ double StateLocalPosition::getPositionZ() const
     return this->getZ();
 }
 
+mace_local_position_ned_t StateLocalPosition::getMACECommsObject()
+{
+    mace_local_position_ned_t rtnObj;
+
+    rtnObj.x = (int32_t)(this->getPositionX());
+    rtnObj.y = (int32_t)(this->getPositionY());
+    rtnObj.z = (int32_t)(this->getPositionZ());
+
+    return rtnObj;
+}
+
 bool StateLocalPosition::essentiallyEquivalent_Percentage(const StateLocalPosition &rhs, const double &percentage)
 {
    double changeX = (fabs(this->x - rhs.x)/fabs(this->x)) * 100.0;

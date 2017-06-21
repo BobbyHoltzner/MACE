@@ -3,6 +3,9 @@
 
 #include <string>
 #include <stdint.h>
+
+#include "mace.h"
+
 #include "data/vehicle_types.h"
 #include "data/autopilot_types.h"
 
@@ -27,6 +30,9 @@ public:
     std::string getFlightModeString() const {
         return (flightModeString);
     }
+
+    mace_vehicle_mode_t getMACECommsObject() const;
+
 public:
     void operator = (const DataGenericItem_FlightMode &rhs)
     {

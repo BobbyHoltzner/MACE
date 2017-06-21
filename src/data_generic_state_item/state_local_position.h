@@ -2,13 +2,12 @@
 #define STATE_LOCAL_POSITION_H
 
 #include <iostream>
+
+#include "mace.h"
 #include "common/common.h"
 
 #include "data/coordinate_frame.h"
-
 #include "state_generic_position.h"
-
-
 
 namespace DataState {
 
@@ -34,6 +33,8 @@ public:
     double getPositionX() const;
     double getPositionY() const;
     double getPositionZ() const;
+
+    mace_local_position_ned_t getMACECommsObject();
 
 public:
     virtual double deltaAltitude(const StateLocalPosition &position) const;

@@ -10,8 +10,7 @@
 
 namespace CommandItem {
 
-template <class T>
-class SpatialLand : public AbstractCommandItem, public DataState::StateGenericPosition<T>
+class SpatialLand : public AbstractCommandItem
 {
 public:
     virtual Data::CommandItemType getCommandType()const;
@@ -32,7 +31,7 @@ public:
     void operator = (const SpatialLand &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        DataState::StateGenericPosition<T>::operator =(rhs);
+        this->position = rhs.position;
     }
 
     bool operator == (const SpatialLand &rhs) {
@@ -52,10 +51,7 @@ public:
     }
 
 public:
-    T position;
-
-private:
-    bool landFlag;
+    DataState::StateGenericPosition position;
 
 };
 
