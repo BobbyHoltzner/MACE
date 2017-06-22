@@ -15,7 +15,6 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
     mavlink_parser.cpp \
-    Components/gps_status.cpp \
     data_container_mavlink.cpp \
     vehicle_object_mavlink.cpp \
     MACE_to_MAVLINK/mission_mace_to_mavlink.cpp \
@@ -31,8 +30,6 @@ SOURCES += \
 
 HEADERS +=\
     mavlink_parser.h \
-    Components/gps_status.h \
-    components.h \
     vehicle_object_mavlink.h \
     data_container_mavlink.h \
     data_vehicle_mavlink_global.h \
@@ -69,12 +66,6 @@ headers.files   += \
     data_container_mavlink.h \
     data_vehicle_mavlink_global.h
 INSTALLS       += headers
-
-#Header file copy
-headers_Components.path    = $$(MACE_ROOT)/include/data_vehicle_MAVLINK/Components
-headers_Components.files   += \
-        Components/gps_status.h
-INSTALLS       += headers_Components
 
 #Header file copy
 headers_MACE_to_MAVLINK.path    = $$(MACE_ROOT)/include/data_vehicle_MAVLINK/MACE_to_MAVLINK
