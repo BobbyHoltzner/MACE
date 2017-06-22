@@ -34,7 +34,7 @@ export class VehicleHUD extends React.Component<Props, State> {
 
         this.state = {
             selectedBattery: "Voltage",
-            batteryText: ""
+            batteryText: this.props.aircraft.fuel.batteryVoltage + " V"
         }
     }
 
