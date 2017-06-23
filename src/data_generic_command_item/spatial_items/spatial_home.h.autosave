@@ -10,6 +10,9 @@
 
 namespace CommandItem {
 
+//!
+//! \brief The SpatialHome class
+//!
 class SpatialHome : public AbstractCommandItem
 {
 public:
@@ -61,12 +64,21 @@ public:
 
 
 public:
+    //!
+    //! \brief operator =
+    //! \param rhs
+    //!
     void operator = (const SpatialHome &rhs)
     {
         AbstractCommandItem::operator =(rhs);
         this->position = rhs.position;
     }
 
+    //!
+    //! \brief operator ==
+    //! \param rhs
+    //! \return 
+    //!
     bool operator == (const SpatialHome &rhs) {
         if(!AbstractCommandItem::operator ==(rhs))
         {
@@ -79,12 +91,20 @@ public:
         return true;
     }
 
+    //!
+    //! \brief operator !=
+    //! \param rhs
+    //! \return 
+    //!
     bool operator != (const SpatialHome &rhs) {
         return !(*this == rhs);
     }
 
 
 public:
+    //!
+    //! \brief position
+    //!
     DataState::Base3DPosition position;
 };
 
