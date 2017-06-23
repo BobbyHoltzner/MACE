@@ -18,7 +18,8 @@ type FuelType = {
 
 type TextType = {
   severity: string,
-  text: string
+  text: string,
+  timestamp: Date
 }
 
 type GPSType = {

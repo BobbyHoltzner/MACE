@@ -340,7 +340,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
       if(showMessage) {
         this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
-        stateCopy[vehicleText.vehicleID].messages.unshift({severity: vehicleText.severity, text: vehicleText.text});
+        stateCopy[vehicleText.vehicleID].messages.unshift({severity: vehicleText.severity, text: vehicleText.text, timestamp: new Date()});
         this.vehicleDB = stateCopy;
       }
     }

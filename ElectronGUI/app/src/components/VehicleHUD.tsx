@@ -24,7 +24,8 @@ type Props = {
 
 type State = {
     selectedBattery?: string,
-    batteryText?: string
+    batteryText?: string,
+    showHUDMessage?: boolean
 }
 
 export class VehicleHUD extends React.Component<Props, State> {
@@ -34,12 +35,25 @@ export class VehicleHUD extends React.Component<Props, State> {
 
         this.state = {
             selectedBattery: "Voltage",
-            batteryText: this.props.aircraft.fuel.batteryVoltage + " V"
+            batteryText: this.props.aircraft.fuel.batteryVoltage + " V",
+            showHUDMessage: false
         }
     }
 
     componentWillReceiveProps(nextProps: Props) {
         this.handleBatteryChange(this.state.selectedBattery);
+
+
+        if(nextProps.aircraft.messages.length > 0) {
+            let diff = Math.abs(new Date() - nextProps.aircraft.messages[0].timestamp); // OK TS ERROR
+            if(diff > 10000) {
+                this.setState({showHUDMessage: false});
+            }
+            else {
+                this.setState({showHUDMessage: true});
+            }
+        }
+
     }
 
     handleLoiter = () => {
@@ -167,7 +181,7 @@ export class VehicleHUD extends React.Component<Props, State> {
                             </div>
                         </div>
 
-                        {this.props.aircraft.messages.length > 0 &&
+                        {(this.props.aircraft.messages.length > 0 && this.state.showHUDMessage) &&
                             <div className="col-xs-12">
                                 <br></br>
                                 <div style={{width: '100%', height: '9px', borderBottom: '1px solid #8c8b8b', textAlign: 'center'}}>
