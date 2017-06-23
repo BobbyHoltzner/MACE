@@ -24,10 +24,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES += module_rta.cpp
+SOURCES += module_rta.cpp \
+    environment_custom.cpp
 
 HEADERS += module_rta.h\
-        module_resource_task_allocation_global.h
+        module_resource_task_allocation_global.h \
+    environment_custom.h
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib
@@ -100,3 +102,5 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_sensors/ -ldata_vehicle_sen
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
 
+# Octomap
+INCLUDEPATH += $$(OCTOMAP_ROOT)/include

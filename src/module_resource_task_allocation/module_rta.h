@@ -11,6 +11,10 @@
 #include "data_generic_state_item_topic/state_topic_components.h"
 #include "data_vehicle_sensors/components.h"
 
+#include <memory>
+//#include "environment.h"
+#include "environment_custom.h"
+
 class MODULE_RESOURCE_TASK_ALLOCATIONSHARED_EXPORT ModuleRTA : public MaceCore::IModuleCommandRTA
 {
 
@@ -49,6 +53,9 @@ private:
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;
+
+    // Environment
+    std::shared_ptr<Environment_Map> environment;
 
 };
 

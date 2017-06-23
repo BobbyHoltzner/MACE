@@ -4,7 +4,32 @@ ModuleRTA::ModuleRTA():
     m_VehicleDataTopic("vehicleData"), m_SensorDataTopic("sensorData"),
     m_SensorFootprintDataTopic("sensorFootprint")
 {
+    // ****** TESTING ******
+    // Temporary boundary verts for testing:
+    std::vector<Point> boundaryVerts;
+    boundaryVerts.push_back(Point(-5,-5));
+    boundaryVerts.push_back(Point(-5,5));
+    boundaryVerts.push_back(Point(5,5));
+    boundaryVerts.push_back(Point(5,-5));
 
+    environment = std::make_shared<Environment_Map>(boundaryVerts, 0.1);
+
+    Point testPoint(-1.75,1.56);
+    Node tmpNodeBefore;
+    bool foundNode = environment->getNodeValue(testPoint, tmpNodeBefore);
+    bool setNode = environment->setNodeValue(testPoint, 45);
+    Node tmpNodeAfter;
+    foundNode = environment->getNodeValue(testPoint, tmpNodeAfter);
+
+    std::cout << "  *********   Val before: " << tmpNodeBefore.value << "  /  Val after: " << tmpNodeAfter.value << "   *********" << std::endl;
+
+    std::vector<Point> sensorFootprint;
+    sensorFootprint.push_back(Point(0,0));
+    sensorFootprint.push_back(Point(0,10));
+    sensorFootprint.push_back(Point(5,10));
+    sensorFootprint.push_back(Point(5,0));
+    environment->getNodesInPolygon(sensorFootprint);
+    // **** END TESTING ****
 }
 
 //!
@@ -23,17 +48,7 @@ void ModuleRTA::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 //!
 std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurationStructure() const
 {
-    //An example of parameters that can be configured at runtime through the xml schema.
-    //This is good for variables that may get changed or would be changing through testing.
-    //All you do is set them up in this function. See ConfigureModule for where you would
-    //receive them.
     MaceCore::ModuleParameterStructure structure;
-//    std::shared_ptr<MaceCore::ModuleParameterStructure> cameraSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
-//    cameraSettings->AddTerminalParameters("CameraName", MaceCore::ModuleParameterTerminalTypes::STRING, true);
-//    cameraSettings->AddTerminalParameters("FocalLength", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-//    cameraSettings->AddTerminalParameters("SensorWidth", MaceCore::ModuleParameterTerminalTypes::INT, true);
-//    cameraSettings->AddTerminalParameters("SensorHeight", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
-//    structure.AddNonTerminal("CameraParameters", cameraSettings, false);
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
 
@@ -45,29 +60,6 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurati
 void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
     UNUSED(params);
-//    if(params->HasNonTerminal("CameraParameters"))
-//    {
-//        std::shared_ptr<MaceCore::ModuleParameterValue> protocolSettings = params->GetNonTerminalValue("CameraParameters");
-////        protocolSettings->GetTerminalValue<std::string>("CameraName");
-////        protocolSettings->GetTerminalValue<std::string>("FocalLength");
-////        protocolSettings->GetTerminalValue<std::string>("SensorWidth");
-////        protocolSettings->GetTerminalValue<std::string>("SensorHeight");
-//        if(protocolSettings->HasNonTerminal("FOVWidth") && protocolSettings->HasNonTerminal("FOVHeight"))
-//        {
-//            //        protocolSettings->GetNonTerminalValue("FOVWidth");
-//            //        protocolSettings->GetNonTerminalValue("FOVHeight");
-//        }else{
-//            //update based on the sensor data
-//        }
-
-////        protocolSettings->GetNonTerminalValue("ImageWidth");
-////        protocolSettings->GetNonTerminalValue("ImageHeight");
-////        protocolSettings->GetNonTerminalValue("Frequency");
-//    }else
-//    {
-//        throw std::runtime_error("Unknown sensor parameters encountered");
-//    }
-
 }
 
 
