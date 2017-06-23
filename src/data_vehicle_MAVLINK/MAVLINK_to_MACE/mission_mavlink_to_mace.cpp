@@ -152,15 +152,33 @@ void Mission_MAVLINKTOMACE::Land_MAVLINKTOMACE(const mavlink_mission_item_t &mav
     }
 }
 
-void Mission_MAVLINKTOMACE::LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem)
+CommandItem::SpatialLoiter_Time Mission_MAVLINKTOMACE::LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem)
 {
-    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TIME) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
+    CommandItem::SpatialLoiter_Time rtnItem;
+    if(mavlinkItem.command == MAV_CMD_NAV_LOITER_TIME)
+    {
+        rtnItem.duration = mavlinkItem.param1;
+        rtnItem.radius = fabs(mavlinkItem.param3);
+        rtnItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
+        if (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        {
+            DataState::StateGlobalPosition pos(mavlinkItem.x, mavlinkItem.y, mavlinkItem.z);
+        }
+        else if(mavlinkItem.frame == MAV_FRAME_LOCAL_ENU)
+        {
+            DataState::StateLocalPosition pos(mavlinkItem.x, mavlinkItem.y, mavlinkItem.z);
+            rtnItem.position = pos;
+        }
+        else{
+
+        }
+
+    }
+     (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.position.latitude = mavlinkItem.x;
         missionItem.position.longitude = mavlinkItem.y;
         missionItem.position.altitude = mavlinkItem.z;
-        missionItem.duration = mavlinkItem.param1;
-        missionItem.radius = fabs(mavlinkItem.param3);
-        missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
+
     }
 }
 void Mission_MAVLINKTOMACE::LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem)

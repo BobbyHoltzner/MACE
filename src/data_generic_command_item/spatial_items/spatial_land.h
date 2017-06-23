@@ -39,7 +39,7 @@ public:
         {
             return false;
         }
-        if(!DataState::StateGenericPosition<T>::operator ==(rhs))
+        if(this->position != rhs.position)
         {
             return false;
         }

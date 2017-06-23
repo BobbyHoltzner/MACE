@@ -18,8 +18,6 @@ SOURCES += \
     data_container_mavlink.cpp \
     vehicle_object_mavlink.cpp \
     MACE_to_MAVLINK/mission_mace_to_mavlink.cpp \
-    MACE_to_MAVLINK/state_mace_to_mavlink.cpp \
-    MACE_to_MAVLINK/generic_mace_to_mavlink.cpp \
     MACE_to_MAVLINK/command_mace_to_mavlink.cpp \
     MAVLINK_to_MACE/mission_mavlink_to_mace.cpp \
     MAVLINK_to_MACE/command_mavlink_to_mace.cpp \
@@ -34,8 +32,6 @@ HEADERS +=\
     data_container_mavlink.h \
     data_vehicle_mavlink_global.h \
     MACE_to_MAVLINK/mission_mace_to_mavlink.h \
-    MACE_to_MAVLINK/state_mace_to_mavlink.h \
-    MACE_to_MAVLINK/generic_mace_to_mavlink.h \
     MACE_to_MAVLINK/command_mace_to_mavlink.h \
     MACE_to_MAVLINK/container_mace_to_mavlink.h \
     MAVLINK_to_MACE/mission_mavlink_to_mace.h \

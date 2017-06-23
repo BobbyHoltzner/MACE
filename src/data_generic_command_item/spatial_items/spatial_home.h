@@ -37,7 +37,7 @@ public:
         {
             return false;
         }
-        if(!DataState::StateGenericPosition<T>::operator ==(rhs))
+        if(this->position != rhs.position)
         {
             return false;
         }
@@ -48,10 +48,9 @@ public:
         return !(*this == rhs);
     }
 
-    setPosition(const DataState::StateGenericPosition &pos);
 
 public:
-    DataState::StateGenericPosition position;
+    DataState::StateGenericPosition* position;
 };
 
 } //end of namespace MissionItem
