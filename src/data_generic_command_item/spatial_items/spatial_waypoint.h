@@ -7,10 +7,7 @@
 
 #include "data_generic_command_item/abstract_command_item.h"
 
-#include "data_generic_state_item/state_global_position.h"
-#include "data_generic_state_item/state_local_position.h"
-
-#include "data_generic_state_item/state_generic_position.h"
+#include "data_generic_state_item/base_3d_position.h"
 
 namespace CommandItem {
 
@@ -40,7 +37,7 @@ public:
         {
             return false;
         }
-        if(this.position != rhs.position)
+        if(this->position != rhs.position)
         {
             return false;
         }
@@ -52,7 +49,8 @@ public:
     }
 
 public:
-    DataState::StateGenericPosition position;
+    DataState::Base3DPosition position;
+
 };
 
 } //end of namespace MissionItem

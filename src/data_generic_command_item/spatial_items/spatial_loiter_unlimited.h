@@ -7,7 +7,7 @@
 #include "data/loiter_direction.h"
 
 #include "data_generic_command_item/abstract_command_item.h"
-#include "data_generic_state_item/state_generic_position.h"
+#include "data_generic_state_item/base_3d_position.h"
 
 namespace CommandItem {
 
@@ -29,7 +29,7 @@ public:
     void operator = (const SpatialLoiter_Unlimited &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        this.position = rhs.position;
+        this->position = rhs.position;
         this->direction = rhs.direction;
         this->radius = rhs.radius;
     }
@@ -59,7 +59,7 @@ public:
     }
 
 public:
-    DataState::StateGenericPosition position;
+    DataState::Base3DPosition position;
     Data::LoiterDirection direction;
     double radius;
 };

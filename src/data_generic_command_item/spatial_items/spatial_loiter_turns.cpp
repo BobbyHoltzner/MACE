@@ -2,42 +2,36 @@
 
 namespace CommandItem {
 
-template <class T>
-Data::CommandItemType SpatialLoiter_Turns<T>::getCommandType() const
+Data::CommandItemType SpatialLoiter_Turns::getCommandType() const
 {
     return Data::CommandItemType::CI_NAV_LOITER_TURNS;
 }
 
-template <class T>
-std::string SpatialLoiter_Turns<T>::getDescription() const
+std::string SpatialLoiter_Turns::getDescription() const
 {
     return "This causes the vehicle to loiter around this MISSION for X turns";
 }
 
-template <class T>
-bool SpatialLoiter_Turns<T>::hasSpatialInfluence() const
+bool SpatialLoiter_Turns::hasSpatialInfluence() const
 {
     return true;
 }
 
-template<class T>
-SpatialLoiter_Turns<T>::SpatialLoiter_Turns():
-    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
+SpatialLoiter_Turns::SpatialLoiter_Turns():
+    AbstractCommandItem(0,0)
 {
 
 }
 
 
-template <class T>
-SpatialLoiter_Turns<T>::SpatialLoiter_Turns(const SpatialLoiter_Turns<T> &obj):
-    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
+SpatialLoiter_Turns::SpatialLoiter_Turns(const SpatialLoiter_Turns &obj):
+    AbstractCommandItem(0,0)
 {
     this->operator =(obj);
 }
 
-template<class T>
-SpatialLoiter_Turns<T>::SpatialLoiter_Turns(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget), DataState::StateGenericPosition<T>()
+SpatialLoiter_Turns::SpatialLoiter_Turns(const int &systemOrigin, const int &systemTarget):
+    AbstractCommandItem(systemOrigin,systemTarget)
 {
 
 }

@@ -18,19 +18,19 @@ bool SpatialHome::hasSpatialInfluence() const
 }
 
 SpatialHome::SpatialHome():
-    AbstractCommandItem(0,0),DataState::StateGenericPosition()
+    AbstractCommandItem(0,0)
 {
 
 }
 
 SpatialHome::SpatialHome(const SpatialHome &obj):
-    AbstractCommandItem(0,0),DataState::StateGenericPosition()
+    AbstractCommandItem(0,0)
 {
     this->operator =(obj);
 }
 
 SpatialHome::SpatialHome(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget),DataState::StateGenericPosition()
+    AbstractCommandItem(systemOrigin,systemTarget)
 {
 
 }

@@ -2,41 +2,35 @@
 
 namespace CommandItem {
 
-template <class T>
-Data::CommandItemType SpatialLoiter_Unlimited<T>::getCommandType() const
+Data::CommandItemType SpatialLoiter_Unlimited::getCommandType() const
 {
     return Data::CommandItemType::CI_NAV_LOITER_UNLIM;
 }
 
-template <class T>
-std::string SpatialLoiter_Unlimited<T>::getDescription() const
+std::string SpatialLoiter_Unlimited::getDescription() const
 {
     return "This causes the vehicle to loiter around this MISSION an unlimited amount of time";
 }
 
-template <class T>
-bool SpatialLoiter_Unlimited<T>::hasSpatialInfluence() const
+bool SpatialLoiter_Unlimited::hasSpatialInfluence() const
 {
     return true;
 }
 
-template<class T>
-SpatialLoiter_Unlimited<T>::SpatialLoiter_Unlimited():
-    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
+SpatialLoiter_Unlimited::SpatialLoiter_Unlimited():
+    AbstractCommandItem(0,0)
 {
 
 }
 
-template<class T>
-SpatialLoiter_Unlimited<T>::SpatialLoiter_Unlimited(const SpatialLoiter_Unlimited<T> &obj):
-    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
+SpatialLoiter_Unlimited::SpatialLoiter_Unlimited(const SpatialLoiter_Unlimited &obj):
+    AbstractCommandItem(0,0)
 {
     this->operator =(obj);
 }
 
-template<class T>
-SpatialLoiter_Unlimited<T>::SpatialLoiter_Unlimited(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget), DataState::StateGenericPosition<T>()
+SpatialLoiter_Unlimited::SpatialLoiter_Unlimited(const int &systemOrigin, const int &systemTarget):
+    AbstractCommandItem(systemOrigin,systemTarget)
 {
 
 }

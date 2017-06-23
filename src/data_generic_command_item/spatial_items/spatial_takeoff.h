@@ -6,7 +6,7 @@
 #include "data/command_item_type.h"
 
 #include "data_generic_command_item/abstract_command_item.h"
-#include "data_generic_state_item/state_generic_position.h"
+#include "data_generic_state_item/base_3d_position.h"
 
 namespace CommandItem {
 
@@ -29,7 +29,7 @@ public:
     void operator = (const SpatialTakeoff &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        this.position = rhs.position;
+        this->position = rhs.position;
     }
 
     bool operator == (const SpatialTakeoff &rhs) {
@@ -49,7 +49,7 @@ public:
     }
 
 public:
-    DataState::StateGenericPosition position;
+    DataState::Base3DPosition position;
 };
 
 } //end of namespace MissionItem

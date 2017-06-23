@@ -33,7 +33,11 @@ SOURCES += \
     state_generic_position.cpp \
     state_global_position_ex.cpp \
     state_local_position_ex.cpp \
-    state_airspeed.cpp
+    state_airspeed.cpp \
+    base_3d_position.cpp \
+    abstract_3d_position.cpp \
+    base_2d_position.cpp \
+    abstract_2d_position.cpp
 
 HEADERS +=\
         data_generic_state_item_global.h \
@@ -46,7 +50,11 @@ HEADERS +=\
     state_generic_position.h \
     state_global_position_ex.h \
     state_local_position_ex.h \
-    state_airspeed.h
+    state_airspeed.h \
+    base_3d_position.h \
+    abstract_3d_position.h \
+    base_2d_position.h \
+    abstract_2d_position.h
 
 # Unix lib Install
 unix:!symbian {

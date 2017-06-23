@@ -2,42 +2,35 @@
 
 namespace CommandItem {
 
-template <class T>
-Data::CommandItemType SpatialTakeoff<T>::getCommandType() const
+Data::CommandItemType SpatialTakeoff::getCommandType() const
 {
     return Data::CommandItemType::CI_NAV_TAKEOFF;
 }
 
-template <class T>
-std::string SpatialTakeoff<T>::getDescription() const
+std::string SpatialTakeoff::getDescription() const
 {
     return "This causes the vehicle to perform a takeoff action";
 }
 
-template <class T>
-bool SpatialTakeoff<T>::hasSpatialInfluence() const
+bool SpatialTakeoff::hasSpatialInfluence() const
 {
     return true;
 }
 
-//____________________________________________________________________________
-template<class T>
-SpatialTakeoff<T>::SpatialTakeoff():
-    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
+SpatialTakeoff::SpatialTakeoff():
+    AbstractCommandItem(0,0)
 {
 
 }
 
-template<class T>
-SpatialTakeoff<T>::SpatialTakeoff(const SpatialTakeoff<T> &obj):
-    AbstractCommandItem(0,0), DataState::StateGenericPosition<T>()
+SpatialTakeoff::SpatialTakeoff(const SpatialTakeoff &obj):
+    AbstractCommandItem(0,0)
 {
     this->operator =(obj);
 }
 
-template<class T>
-SpatialTakeoff<T>::SpatialTakeoff(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget), DataState::StateGenericPosition<T>()
+SpatialTakeoff::SpatialTakeoff(const int &systemOrigin, const int &systemTarget):
+    AbstractCommandItem(systemOrigin,systemTarget)
 {
 
 }
