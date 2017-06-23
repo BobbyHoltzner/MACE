@@ -224,7 +224,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         spatialHome.position.latitude = decodedMSG.latitude / pow(10,7);
         spatialHome.position.longitude = decodedMSG.longitude / pow(10,7);
         spatialHome.position.altitude = decodedMSG.altitude / 1000;
-        spatialHome.setGeneratingSystem(systemID);
+        spatialHome.setOriginatingSystem(systemID);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->GVEvents_NewHomePosition(this,spatialHome);

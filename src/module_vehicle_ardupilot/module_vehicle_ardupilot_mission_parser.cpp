@@ -27,7 +27,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
             newHome.position.latitude = decodedMSG.x;
             newHome.position.longitude = decodedMSG.y;
             newHome.position.altitude = decodedMSG.z;
-            newHome.setGeneratingSystem(sysID);
+            newHome.setOriginatingSystem(sysID);
 
             homePositionUpdated(newHome);
         }else{
@@ -223,7 +223,7 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
         spatialHome.position.latitude = decodedMSG.latitude / pow(10,7);
         spatialHome.position.longitude = decodedMSG.longitude / pow(10,7);
         spatialHome.position.altitude = decodedMSG.altitude / 1000;
-        spatialHome.setGeneratingSystem(sysID);
+        spatialHome.setOriginatingSystem(sysID);
 
         homePositionUpdated(spatialHome);
 

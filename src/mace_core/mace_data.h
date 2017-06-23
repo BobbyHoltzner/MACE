@@ -148,12 +148,12 @@ private:
         newHome = vehicleHome;
 
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        m_VehicleHomeMap[vehicleHome.getGeneratingSystem()] = newHome;
+        m_VehicleHomeMap[vehicleHome.getOriginatingSystem()] = newHome;
         if(flagGlobalOrigin == true)
         {
             Eigen::Vector3f translation;
             newHome.position.translationTransformation(m_GlobalOrigin.position,translation);
-            m_VehicleToGlobalTranslation[vehicleHome.getGeneratingSystem()] = translation;
+            m_VehicleToGlobalTranslation[vehicleHome.getOriginatingSystem()] = translation;
         }
     }
 

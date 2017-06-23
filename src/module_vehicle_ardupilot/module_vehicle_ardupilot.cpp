@@ -189,7 +189,7 @@ void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialH
 
 void ModuleVehicleArdupilot::homePositionUpdated(const CommandItem::SpatialHome &newVehicleHome)
 {
-    int systemID = newVehicleHome.getGeneratingSystem();
+    int systemID = newVehicleHome.getOriginatingSystem();
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(systemID);
 
 

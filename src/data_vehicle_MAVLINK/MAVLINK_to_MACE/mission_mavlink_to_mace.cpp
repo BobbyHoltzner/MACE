@@ -10,7 +10,7 @@ Mission_MAVLINKTOMACE::Mission_MAVLINKTOMACE(const int &systemID):
 
 void Mission_MAVLINKTOMACE::Home_MAVLINKTOMACE(const mavlink_set_home_position_t &mavlinkItem, CommandItem::SpatialHome &missionItem)
 {
-    missionItem.setGeneratingSystem(mSystemID);
+    missionItem.setOriginatingSystem(mSystemID);
     missionItem.position.latitude = mavlinkItem.latitude / pow(10,7);
     missionItem.position.longitude = mavlinkItem.longitude / pow(10,7);
     missionItem.position.altitude = mavlinkItem.altitude / pow(10,3);
@@ -124,7 +124,7 @@ std::shared_ptr<CommandItem::AbstractCommandItem> Mission_MAVLINKTOMACE::Covert_
 
     if(newMissionItem)
     {
-        newMissionItem->setGeneratingSystem(mSystemID);
+        newMissionItem->setOriginatingSystem(mSystemID);
     }
     return newMissionItem;
 }

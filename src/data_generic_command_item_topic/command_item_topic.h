@@ -33,7 +33,7 @@ public:
 
     int getOriginatingSystem() const
     {
-        return commandItem->getGeneratingSystem();
+        return commandItem->getOriginatingSystem();
     }
 
     int getTargetSystem() const

@@ -930,7 +930,7 @@ void ModuleGroundStation::NewlyAvailableMissionExeState(const Data::MissionKey &
 
 void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home)
 {
-    sendVehicleHome(home.getGeneratingSystem(), home);
+    sendVehicleHome(home.getOriginatingSystem(), home);
 }
 
 void ModuleGroundStation::missionListToJSON(const MissionItem::MissionList &list, QJsonArray &missionItems)

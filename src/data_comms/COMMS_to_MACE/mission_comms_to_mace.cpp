@@ -111,7 +111,7 @@ std::shared_ptr<CommandItem::AbstractCommandItem> Mission_COMMSTOMACE::Covert_CO
 
 void Mission_COMMSTOMACE::Home_COMMSTOMACE(const int &vehicleID, const mace_set_home_position_t &maceItem, CommandItem::SpatialHome &missionItem)
 {
-    missionItem.setGeneratingSystem(vehicleID);
+    missionItem.setOriginatingSystem(vehicleID);
     missionItem.position.latitude = maceItem.latitude / pow(10,7);
     missionItem.position.longitude = maceItem.longitude / pow(10,7);
     missionItem.position.altitude = maceItem.altitude / pow(10,3);
@@ -121,7 +121,7 @@ void Mission_COMMSTOMACE::ChangeSpeed_COMMSTOMACE(const int &vehicleID, const ma
 {
     Data::CommandItemType missionType = static_cast<Data::CommandItemType>(maceItem.command);
     if(missionType == Data::CommandItemType::CI_ACT_CHANGESPEED){
-        missionItem.setGeneratingSystem(maceItem.mission_creator);
+        missionItem.setOriginatingSystem(maceItem.mission_creator);
         missionItem.setTargetSystem(maceItem.mission_system);
         missionItem.setDesiredSpeed(maceItem.param2);
         if(maceItem.param1 > 0.0)
@@ -139,7 +139,7 @@ void Mission_COMMSTOMACE::LoiterTime_COMMSTOMACE(const int &vehicleID, const mac
     Data::CoordinateFrameType coordinateFrame = static_cast<Data::CoordinateFrameType>(maceItem.frame);
 
     if((missionType == Data::CommandItemType::CI_NAV_LOITER_TIME) && (coordinateFrame == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)){
-        missionItem.setGeneratingSystem(maceItem.mission_creator);
+        missionItem.setOriginatingSystem(maceItem.mission_creator);
         missionItem.setTargetSystem(maceItem.mission_system);
         missionItem.position.latitude = maceItem.x;
         missionItem.position.longitude = maceItem.y;
@@ -155,7 +155,7 @@ void Mission_COMMSTOMACE::LoiterTime_COMMSTOMACE(const int &vehicleID, const mac
     Data::CoordinateFrameType coordinateFrame = static_cast<Data::CoordinateFrameType>(maceItem.frame);
 
     if((missionType == Data::CommandItemType::CI_NAV_LOITER_TIME) && (coordinateFrame == Data::CoordinateFrameType::CF_LOCAL_ENU)){
-        missionItem.setGeneratingSystem(maceItem.mission_creator);
+        missionItem.setOriginatingSystem(maceItem.mission_creator);
         missionItem.setTargetSystem(maceItem.mission_system);
         missionItem.position.x = maceItem.x;
         missionItem.position.y = maceItem.y;
@@ -172,7 +172,7 @@ void Mission_COMMSTOMACE::LoiterTurns_COMMSTOMACE(const int &vehicleID, const ma
     Data::CoordinateFrameType coordinateFrame = static_cast<Data::CoordinateFrameType>(maceItem.frame);
 
     if((missionType == Data::CommandItemType::CI_NAV_LOITER_TURNS) && (coordinateFrame == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)){
-        missionItem.setGeneratingSystem(maceItem.mission_creator);
+        missionItem.setOriginatingSystem(maceItem.mission_creator);
         missionItem.setTargetSystem(maceItem.mission_system);
         missionItem.position.latitude = maceItem.x;
         missionItem.position.longitude = maceItem.y;
@@ -188,7 +188,7 @@ void Mission_COMMSTOMACE::LoiterTurns_COMMSTOMACE(const int &vehicleID, const ma
     Data::CoordinateFrameType coordinateFrame = static_cast<Data::CoordinateFrameType>(maceItem.frame);
 
     if((missionType == Data::CommandItemType::CI_NAV_LOITER_TURNS) && (coordinateFrame == Data::CoordinateFrameType::CF_LOCAL_ENU)){
-        missionItem.setGeneratingSystem(maceItem.mission_creator);
+        missionItem.setOriginatingSystem(maceItem.mission_creator);
         missionItem.setTargetSystem(maceItem.mission_system);
         missionItem.position.x = maceItem.x;
         missionItem.position.y = maceItem.y;
@@ -205,7 +205,7 @@ void Mission_COMMSTOMACE::LoiterUnlimited_COMMSTOMACE(const int &vehicleID, cons
     Data::CoordinateFrameType coordinateFrame = static_cast<Data::CoordinateFrameType>(maceItem.frame);
 
     if((missionType == Data::CommandItemType::CI_NAV_LOITER_UNLIM) && (coordinateFrame == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)){
-        missionItem.setGeneratingSystem(maceItem.mission_creator);
+        missionItem.setOriginatingSystem(maceItem.mission_creator);
         missionItem.setTargetSystem(maceItem.mission_system);
         missionItem.position.latitude = maceItem.x;
         missionItem.position.longitude = maceItem.y;
@@ -220,7 +220,7 @@ void Mission_COMMSTOMACE::LoiterUnlimited_COMMSTOMACE(const int &vehicleID, cons
     Data::CoordinateFrameType coordinateFrame = static_cast<Data::CoordinateFrameType>(maceItem.frame);
 
     if((missionType == Data::CommandItemType::CI_NAV_LOITER_UNLIM) && (coordinateFrame == Data::CoordinateFrameType::CF_LOCAL_ENU)){
-        missionItem.setGeneratingSystem(maceItem.mission_creator);
+        missionItem.setOriginatingSystem(maceItem.mission_creator);
         missionItem.setTargetSystem(maceItem.mission_system);
         missionItem.position.x = maceItem.x;
         missionItem.position.y = maceItem.y;
@@ -235,7 +235,7 @@ void Mission_COMMSTOMACE::RTL_COMMSTOMACE(const int &vehicleID, const mace_missi
     Data::CommandItemType missionType = static_cast<Data::CommandItemType>(maceItem.command);
 
     if(missionType == Data::CommandItemType::CI_NAV_RETURN_TO_LAUNCH){
-        missionItem.setGeneratingSystem(maceItem.mission_creator);
+        missionItem.setOriginatingSystem(maceItem.mission_creator);
         missionItem.setTargetSystem(maceItem.mission_system);
     }
 }
@@ -246,7 +246,7 @@ void Mission_COMMSTOMACE::Takeoff_COMMSTOMACE(const int &vehicleID, const mace_m
     Data::CoordinateFrameType coordinateFrame = static_cast<Data::CoordinateFrameType>(maceItem.frame);
 
     if((missionType == Data::CommandItemType::CI_NAV_TAKEOFF) && (coordinateFrame == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)){
-        missionItem.setGeneratingSystem(maceItem.mission_creator);
+        missionItem.setOriginatingSystem(maceItem.mission_creator);
         missionItem.setTargetSystem(maceItem.mission_system);
         missionItem.position.latitude = maceItem.x;
         missionItem.position.longitude = maceItem.y;
@@ -259,7 +259,7 @@ void Mission_COMMSTOMACE::Takeoff_COMMSTOMACE(const int &vehicleID, const mace_m
     Data::CoordinateFrameType coordinateFrame = static_cast<Data::CoordinateFrameType>(maceItem.frame);
 
     if((missionType == Data::CommandItemType::CI_NAV_TAKEOFF) && (coordinateFrame == Data::CoordinateFrameType::CF_LOCAL_ENU)){
-        missionItem.setGeneratingSystem(maceItem.mission_creator);
+        missionItem.setOriginatingSystem(maceItem.mission_creator);
         missionItem.setTargetSystem(maceItem.mission_system);
         missionItem.position.x = maceItem.x;
         missionItem.position.y = maceItem.y;
@@ -273,7 +273,7 @@ void Mission_COMMSTOMACE::Waypoint_COMMSTOMACE(const int &vehicleID, const mace_
     Data::CoordinateFrameType coordinateFrame = static_cast<Data::CoordinateFrameType>(maceItem.frame);
 
     if((missionType == Data::CommandItemType::CI_NAV_WAYPOINT) && (coordinateFrame == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)){
-        missionItem.setGeneratingSystem(maceItem.mission_creator);
+        missionItem.setOriginatingSystem(maceItem.mission_creator);
         missionItem.setTargetSystem(maceItem.mission_system);
         missionItem.position.latitude = maceItem.x;
         missionItem.position.longitude = maceItem.y;
@@ -286,7 +286,7 @@ void Mission_COMMSTOMACE::Waypoint_COMMSTOMACE(const int &vehicleID, const mace_
     Data::CoordinateFrameType coordinateFrame = static_cast<Data::CoordinateFrameType>(maceItem.frame);
 
     if((missionType == Data::CommandItemType::CI_NAV_WAYPOINT) && (coordinateFrame == Data::CoordinateFrameType::CF_LOCAL_ENU)){
-        missionItem.setGeneratingSystem(maceItem.mission_creator);
+        missionItem.setOriginatingSystem(maceItem.mission_creator);
         missionItem.setTargetSystem(maceItem.mission_system);
         missionItem.position.x = maceItem.x;
         missionItem.position.y = maceItem.y;

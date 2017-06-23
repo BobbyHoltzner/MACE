@@ -430,7 +430,7 @@ void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHo
     homePos.longitude = home.position.longitude * power;
     homePos.altitude = home.position.altitude * power;
     mace_message_t msg;
-    mace_msg_home_position_encode_chan(home.getGeneratingSystem(),0,m_LinkChan,&msg,&homePos);
+    mace_msg_home_position_encode_chan(home.getOriginatingSystem(),0,m_LinkChan,&msg,&homePos);
     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 
