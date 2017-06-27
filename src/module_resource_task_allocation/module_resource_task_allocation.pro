@@ -94,13 +94,28 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_missio
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/debug/ -ldata_generic_mission_item_topic
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/ -ldata_generic_mission_item_topic
 
-
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sensors/release/ -ldata_vehicle_sensors
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sensors/debug/ -ldata_vehicle_sensors
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_sensors/ -ldata_vehicle_sensors
+
+#win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../Voronoi/release/ -lvoronoi_generator
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../Voronoi/debug/ -lvoronoi_generator
+#else:unix:!macx: LIBS += -L$$OUT_PWD/../Voronoi/ -lvoronoi_generator
+
+#INCLUDEPATH += $$PWD/../Voronoi
+#DEPENDPATH += $$PWD/../Voronoi
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../voropp/release/ -lvoropp
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../voropp/debug/ -lvoropp
+else:unix:!macx: LIBS += -L$$OUT_PWD/../voropp/ -lvoropp
+
+INCLUDEPATH += $$PWD/../voropp
+DEPENDPATH += $$PWD/../voropp
 
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
 
 # Octomap
 INCLUDEPATH += $$(OCTOMAP_ROOT)/include
+
+

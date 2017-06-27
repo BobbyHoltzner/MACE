@@ -15,6 +15,7 @@
 //#include "environment.h"
 #include "environment_custom.h"
 
+
 class MODULE_RESOURCE_TASK_ALLOCATIONSHARED_EXPORT ModuleRTA : public MaceCore::IModuleCommandRTA
 {
 

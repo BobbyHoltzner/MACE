@@ -1,5 +1,10 @@
 #include <environment_custom.h>
 
+using namespace voro;
+
+// This function returns a random double between 0 and 1
+double rnd() {return double(rand())/RAND_MAX;}
+
 /**
  * @brief Environment_Map constructor
  * @param verts Vector of vertices that make up the environment boundary
@@ -10,7 +15,152 @@ Environment_Map::Environment_Map(const std::vector<Point> verts, double gridSpac
 
     calculateBoundingRect(verts);
     initializeEnvironment(gridSpacing);
+
+    // Testing:
+    std::vector<Point> sitePositions;
+    sitePositions.push_back(Point(-2.5,-2.5,0));
+    sitePositions.push_back(Point(-2.5,2.5,0));
+    sitePositions.push_back(Point(2.5,2.5,0));
+    sitePositions.push_back(Point(2.5,-2.5,0));
+    computeVoronoi(boundingRect, sitePositions);
+    // End testing
 }
+
+/**
+ * @brief computeVoronoi Given the bounding box and current vehicle positions, compute a voronoi diagram
+ * @param bbox Bounding box
+ * @param sitePositions Positions of vehicles (in x,y,z coordinates)
+ */
+void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::vector<Point> sitePositions) {
+    // Set up constants for the container geometry
+    const double x_min = bbox.min.x, x_max = bbox.max.x;
+    const double y_min = bbox.min.y, y_max = bbox.max.y;
+    const double z_min = -0.5, z_max = 0.5;
+
+    double x,y,z;
+    voronoicell_neighbor c;
+
+    // Set up the number of blocks that the container is divided into
+    const int n_x=1, n_y=1, n_z=1;
+
+    // Create a container with the geometry given above, and make it
+    // non-periodic in each of the three coordinates. Allocate space for
+    // eight particles within each computational block
+    container con(x_min,x_max,y_min,y_max,z_min,z_max,n_x,n_y,n_z,
+                 false,false,false,8);
+
+    // Import into container
+    //con.import("pack_six_cube");
+    // Add vehicles/particles into the container
+    int i = 0;
+    for(auto site : sitePositions) {
+        con.put(i, site.x, site.y, 0);
+        // increment counter:
+        i++;
+    }
+
+    // Loop over all vehicles in the container and compute each Voronoi
+    // cell
+    c_loop_all cl(con);
+    int dimension = 0;
+    if(cl.start()) do if(con.compute_cell(c,cl)) {
+        dimension+=1;
+    } while (cl.inc());
+
+    // Initialze containers:
+    std::vector<std::vector<int> > face_connections(dimension);
+    std::vector<std::vector<double> > vertex_positions(dimension);
+
+    int counter = 0;
+    if(cl.start()) do if(con.compute_cell(c,cl)) {
+        // Grab cell position:
+        cl.pos(x,y,z);
+
+        // Initialize vectors for vertex index and points:
+        std::vector<int> f_vert;
+        std::vector<double> v;
+
+        // Grab vertex indeces and points
+        c.face_vertices(f_vert);
+        c.vertices(x,y,z,v);
+
+        // Add to vector containers:
+        face_connections[counter] = f_vert;
+        vertex_positions[counter] = v;
+
+        // Initialize Cell variables:
+        int count = 1;
+        double xVal = NAN;
+        double yVal = NAN;
+        std::vector<Point> coords;
+        // Loop over vertex positions and determine which is the x coordinate, and which is y coordinate:
+        for(auto vertexCoord : vertex_positions[counter]) {
+            if(count == 1 ) {
+                // X coord:
+                xVal = vertexCoord;
+                count++;
+            }
+            else if(count == 2) {
+                // Y coord:
+                yVal = vertexCoord;
+                count++;
+            }
+            else {
+                // Z coord: add our point, reset counter
+                // Add point to our vector:
+                if(vertexCoord < 0) {
+                    coords.push_back(Point(xVal, yVal, 0));
+                }
+                count = 1;
+            }
+        }
+
+        // Create cell and add to map:
+        Cell cell;
+        cell.site.x = x;
+        cell.site.y = y;
+        cell.site.z = z;
+        cell.vertices = coords;
+        // Sort the cell vertices:
+        sortCellVerticesCCW(cell);
+        // Insert into our map:
+        cells.insert(std::make_pair(counter, cell));
+
+        // Increment counter:
+        counter += 1;
+      } while (cl.inc()); // Increment to the next cell:
+
+
+//      // Print cell sites and vertices:
+//      for(auto cell : cells) {
+//        std::cout << "\n\nCell " << cell.first << " site: (" << cell.second.site.x << ", " << cell.second.site.y << ", " << cell.second.site.z << ")" << std::endl;
+//        int vertCount = 1;
+//        for(auto cellVert : cell.second.vertices) {
+//            double xTmp = cellVert.x;
+//            double yTmp = cellVert.y;
+//            double zTmp = cellVert.z;
+//            std::cout << "Cell vertex " << vertCount << ": (" << xTmp << ", " << yTmp << ", " << zTmp << ")" << std::endl;
+//            vertCount++;
+//        }
+//      }
+
+
+    // Output the particle positions in gnuplot format
+    con.draw_particles("polygons_p.gnu");
+
+    // Output the Voronoi cells in gnuplot format
+    con.draw_cells_gnuplot("polygons_v.gnu");
+}
+
+/**
+ * @brief sortCellVertices Sort the vertices of a cell in CCW fashion
+ * @param cell Cell to update vertex ordering
+ */
+void Environment_Map::sortCellVerticesCCW(Cell &cell) {
+    // TODO:
+    std::cout << "================= TODO: SORT VERTICES =================" << std::endl;
+}
+
 
 /**
  * @brief initializeEnvironment Initialize each node in the grid with a 0 value
@@ -29,7 +179,7 @@ std::map<double, std::map<double, Node> > Environment_Map::initializeEnvironment
     for(auto xVal : xVals) {
         std::map<double, Node> y_node_map_tmp;
         for(auto yVal : yVals) {
-            Point tmpPoint(xVal, yVal);
+            Point tmpPoint(xVal, yVal, 0);
             Node tmpNode(tmpPoint, 0.0);
             y_node_map_tmp.insert(std::make_pair(yVal, tmpNode));
 
@@ -101,7 +251,7 @@ std::map<double, std::map<double, Node> > Environment_Map::getNodesInPolygon(std
         for(auto nodeY : nodeX.second) {
             double yVal = nodeY.first;
 
-            Point tmpPoint = Point(xVal, yVal);
+            Point tmpPoint = Point(xVal, yVal,0);
             bool inPoly = pointInPoly(boundary, tmpPoint);
 
             if(inPoly){
@@ -154,21 +304,21 @@ bool Environment_Map::findClosestPoint(Point testPoint, Point &closestPoint) {
                     yPoint = yPrev;
                 }
 
-                closestPoint = Point(xPoint->first, yPoint->first);
+                closestPoint = Point(xPoint->first, yPoint->first, 0);
             }
 
             return true;
         }
         else {
             std::cout << "No point close to (" << testPoint.x << ", " << testPoint.y << std::endl;
-            closestPoint = Point(NAN, NAN); // TODO: Figure out better way to denote "not found"
+            closestPoint = Point(NAN, NAN, NAN); // TODO: Figure out better way to denote "not found"
 
             return false;
         }
     }
     else {
         std::cout << "(" << testPoint.x << ", " << testPoint.y << ") is outside the environment we are observing." << std::endl;
-        closestPoint = Point(NAN, NAN);
+        closestPoint = Point(NAN, NAN, NAN);
 
         return false;
     }
@@ -207,9 +357,9 @@ bool Environment_Map::findClosestNode(Point testPoint, Node &closestNode) {
  * @param verts Vertices to calculate the bounding rectangle for
  */
 void Environment_Map::calculateBoundingRect(const std::vector<Point> verts) {
-    BoundingRect rect;
-    rect.min = Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
-    rect.max = Point(-1, -1);
+    BoundingBox rect;
+    rect.min = Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    rect.max = Point(-1, -1, -1);
 
     double maxXVal = rect.max.x;
     double minXVal = rect.min.x;
@@ -226,8 +376,8 @@ void Environment_Map::calculateBoundingRect(const std::vector<Point> verts) {
     }
 
     // Set our new bounding rectangle:
-    boundingRect.min = Point(minXVal, minYVal);
-    boundingRect.max = Point(maxXVal, maxYVal);
+    boundingRect.min = Point(minXVal, minYVal, 0);
+    boundingRect.max = Point(maxXVal, maxYVal, 0);
 }
 
 /**

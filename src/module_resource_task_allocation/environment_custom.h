@@ -8,7 +8,11 @@
 #include <memory>
 #include <iostream>
 
-const int conversionConstant = 10000;
+#include "voro_index.hh"
+#include "container.hh"
+#include <v_compute.hh>
+#include <c_loops.hh>
+#include <tuple>
 
 /**
  * @brief The Point class is a simple container for holding x,y pairs
@@ -17,9 +21,18 @@ class Point {
 public:
     double x;
     double y;
+    double z;
 
-    Point() : x(0.0), y(0.0) {}
-    Point(double x, double y) : x(x), y(y) {}
+    Point() : x(0.0), y(0.0), z(0.0) {}
+    Point(double x, double y, double z) : x(x), y(y), z(z) {}
+};
+
+/**
+ * @brief The Cell struct is a simple container for holding cell sites and their corresponding cell vertices
+ */
+struct Cell {
+    Point site;
+    std::vector<Point> vertices;
 };
 
 /**
@@ -37,7 +50,7 @@ public:
 /**
  * @brief The BoundingRect struct holds minimum and maximum x/y values for a bounding rectangle (for Voronoi)
  */
-struct BoundingRect {
+struct BoundingBox {
     Point min;
     Point max;
 };
@@ -61,6 +74,13 @@ public:
      * @return initial environment map
      */
     std::map<double, std::map<double, Node> > initializeEnvironment(const double gridSpacing);
+
+    /**
+     * @brief computeVoronoi Given the bounding box and current vehicle positions, compute a voronoi diagram
+     * @param bbox Bounding box
+     * @param sitePositions Positions of vehicles (in x,y,z coordinates)
+     */
+    void computeVoronoi(const BoundingBox bbox, const std::vector<Point> sitePositions);
 
     /**
      * @brief setBoundaryVerts Set the new boundary vertices
@@ -143,6 +163,12 @@ private:
     bool pointInPoly(std::vector<Point> vertices, Point testPoint);
 
 
+    /**
+     * @brief sortCellVertices Sort the vertices of a cell in CCW fashion
+     * @param cell Cell to update vertex ordering
+     */
+    void sortCellVerticesCCW(Cell &cell);
+
 
 private:
     /**
@@ -158,7 +184,12 @@ private:
     /**
      * @brief boundingRect Bounding rectangle of the environment
      */
-    BoundingRect boundingRect;
+    BoundingBox boundingRect;
+
+    /**
+     * @brief cells Container for cells corresponding to each vehicle
+     */
+    std::map<int, Cell> cells;
 };
 
 #endif // ENVIRONMENT_CUSTOM_H
