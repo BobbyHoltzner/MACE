@@ -19,21 +19,19 @@ Environment_Map::Environment_Map(const std::vector<Point> verts, double gridSpac
     initializeEnvironment(gridSpacing);
 
     // Testing:
-    std::vector<Point> sitePositions;
-    sitePositions.push_back(Point(-2.5,-2.5,0));
-    sitePositions.push_back(Point(-2.5,2.5,0));
-    sitePositions.push_back(Point(2.5,2.5,0));
-    sitePositions.push_back(Point(2.5,-2.5,0));
-    computeVoronoi(boundingRect, sitePositions);
+    std::map<int, Point> vehicleCells;
+    vehicleCells.insert(std::make_pair(5, Point(-2.5,-2.5,0)));
+    vehicleCells.insert(std::make_pair(2, Point(2.5,2.5,0)));
+    computeVoronoi(boundingRect, vehicleCells);
     // End testing
 }
 
 /**
  * @brief computeVoronoi Given the bounding box and current vehicle positions, compute a voronoi diagram
  * @param bbox Bounding box
- * @param sitePositions Positions of vehicles (in x,y,z coordinates)
+ * @param vehicles Positions of vehicles (in x,y,z coordinates)
  */
-void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::vector<Point> sitePositions) {
+void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles) {
     // Set up constants for the container geometry
     const double x_min = bbox.min.x, x_max = bbox.max.x;
     const double y_min = bbox.min.y, y_max = bbox.max.y;
@@ -54,11 +52,8 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::vector<P
     // Import into container
     //con.import("pack_six_cube");
     // Add vehicles/particles into the container
-    int i = 0;
-    for(auto site : sitePositions) {
-        con.put(i, site.x, site.y, 0);
-        // increment counter:
-        i++;
+    for(auto vehicle : vehicles) {
+        con.put(vehicle.first, vehicle.second.x, vehicle.second.y, 0);
     }
 
     // Loop over all vehicles in the container and compute each Voronoi
@@ -117,6 +112,9 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::vector<P
             }
         }
 
+        // Increment counter:
+        counter += 1;
+
         // Create cell and add to map:
         Cell cell;
         cell.site.x = x;
@@ -127,26 +125,28 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::vector<P
         sortCellVerticesCCW(cell);
         // Get contained nodes:
         cell.containedNodes = getNodesInPolygon(cell.vertices);
+        // Get vehicle ID:
+        int vehicleID = getVehicleID(cell, vehicles);
         // Insert into our map:
-        cells.insert(std::make_pair(counter, cell));
-
-        // Increment counter:
-        counter += 1;
+        //  - If our vehicle ID is < 0 (i.e. -1), we didn't find a vehicle in our cell. Something went wrong
+        if(vehicleID > 0){
+            cells.insert(std::make_pair(vehicleID, cell));
+        }
       } while (cl.inc()); // Increment to the next cell:
 
 
-//      // Print cell sites and vertices:
-//      for(auto cell : cells) {
-//        std::cout << "\n\nCell " << cell.first << " site: (" << cell.second.site.x << ", " << cell.second.site.y << ", " << cell.second.site.z << ")" << std::endl;
-//        int vertCount = 1;
-//        for(auto cellVert : cell.second.vertices) {
-//            double xTmp = cellVert.x;
-//            double yTmp = cellVert.y;
-//            double zTmp = cellVert.z;
-//            std::cout << "Cell vertex " << vertCount << ": (" << xTmp << ", " << yTmp << ", " << zTmp << ")" << std::endl;
-//            vertCount++;
-//        }
-//      }
+      // Print cell sites and vertices:
+      for(auto cell : cells) {
+        std::cout << "\n\Vehicle ID " << cell.first << " site: (" << cell.second.site.x << ", " << cell.second.site.y << ", " << cell.second.site.z << ")" << std::endl;
+        int vertCount = 1;
+        for(auto cellVert : cell.second.vertices) {
+            double xTmp = cellVert.x;
+            double yTmp = cellVert.y;
+            double zTmp = cellVert.z;
+            std::cout << "Cell vertex " << vertCount << ": (" << xTmp << ", " << yTmp << ", " << zTmp << ")" << std::endl;
+            vertCount++;
+        }
+      }
 
 
     // Output the particle positions in gnuplot format
@@ -154,6 +154,42 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::vector<P
 
     // Output the Voronoi cells in gnuplot format
     con.draw_cells_gnuplot("polygons_v.gnu");
+}
+
+/**
+ * @brief getVehicleID Check a cell for the vehicle contained within the cell to grab its ID
+ * @param cell Cell who's boundary we will check
+ * @param vehicleList List of vehicles and their positions to check
+ * @return
+ */
+int Environment_Map::getVehicleID(const Cell cell, const std::map<int, Point> vehicleList) {
+    int vehicleID = -1;
+    // For every vehicle in the vehicle list, test if the vehicle position is within the cell boundary
+    //  -If we have multiple vehicles within the cell boundary, check which one is closest to the cell's site position
+    //      - Whichever is closer, grab that ID
+    //  -If we only have one vehicle, then treat that vehicle as the vehicle as the cell's vehicle and grab its ID
+    //  -IF we don't get any vehicle within the boundary, then its probably time for a replan. return a -1
+
+    double prevDist = std::numeric_limits<double>::max();
+    for(auto vehicle : vehicleList) {
+        bool inCell = pointInPoly(cell.vertices, vehicle.second);
+        if(inCell) {
+            if(vehicleID < 0) {
+                // Means we don't have a vehicle yet. Set our vehicle ID to this vehicle ID
+                vehicleID = vehicle.first;
+                prevDist = distanceBetweenPoints(cell.site, vehicle.second);
+            }
+            else {
+                // Means we already have a vehicle ID. Check which position is closer--that is what we will treat as our cell's vehicle
+                double dist = distanceBetweenPoints(cell.site, vehicle.second);
+                if(dist < prevDist) {
+                    vehicleID = vehicle.first;
+                }
+            }
+        }
+    }
+
+    return vehicleID;
 }
 
 /**

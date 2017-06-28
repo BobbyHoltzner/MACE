@@ -1,9 +1,5 @@
 #include "module_rta.h"
 
-//#include <Voronoi/voronoi.h>
-//#include <Voronoi/include/Point2.h>
-//#include <vector>
-
 ModuleRTA::ModuleRTA():
     m_VehicleDataTopic("vehicleData"), m_SensorDataTopic("sensorData"),
     m_SensorFootprintDataTopic("sensorFootprint")
@@ -34,11 +30,7 @@ ModuleRTA::ModuleRTA():
 //    sensorFootprint.push_back(Point(5,0,0));
 //    environment->getNodesInPolygon(sensorFootprint);
     // **** END TESTING ****
-
 }
-
-
-
 
 //!
 //! \brief This module as been attached as a module
@@ -120,4 +112,12 @@ void ModuleRTA::NewTopic(const std::string &topicName, int senderID, std::vector
 void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
 {
     UNUSED(vehicleID);
+    std::cout << "New vehicle" << std::endl;
+
+    // TODO:
+    /*
+     * 1) Get vehicle position
+     * 2) If we get a position, add a vehicle to our environment and compute the voronoi partition
+     * 3) IF we do not get a position, add a vehicle to our environment. Skip voronoi computation
+     */
 }

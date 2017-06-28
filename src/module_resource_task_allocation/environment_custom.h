@@ -81,7 +81,7 @@ public:
      * @param bbox Bounding box
      * @param sitePositions Positions of vehicles (in x,y,z coordinates)
      */
-    void computeVoronoi(const BoundingBox bbox, const std::vector<Point> sitePositions);
+    void computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles);
 
     /**
      * @brief setBoundaryVerts Set the new boundary vertices
@@ -113,6 +113,14 @@ public:
     std::map<double, std::map<double, Node> > getNodesInPolygon(std::vector<Point> boundary);
 
 private:
+
+    /**
+     * @brief getVehicleID Check a cell for the vehicle contained within the cell to grab its ID
+     * @param cell Cell who's boundary we will check
+     * @param vehicleList List of vehicles and their positions to check
+     * @return
+     */
+    int getVehicleID(const Cell cell, const std::map<int, Point> vehicleList);
 
     /**
      * @brief findClosestPoint Find the closest (x,y) grid point corresponding to the (x,y) pair given

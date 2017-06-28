@@ -57,7 +57,6 @@ private:
 
     // Environment
     std::shared_ptr<Environment_Map> environment;
-
 };
 
 #endif // MODULE_RTA_H

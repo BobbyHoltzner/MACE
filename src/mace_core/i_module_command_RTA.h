@@ -14,10 +14,9 @@ enum class RTACommands
     NEW_AVAILABLE_VEHICLE
 };
 
-class MaceCore;
-
 class MACE_CORESHARED_EXPORT IModuleCommandRTA : public AbstractModule_EventListeners<Metadata_RTA, IModuleEventsRTA, RTACommands>
 {
+    friend class MaceCore;
 public:
 
     static Classes moduleClass;
