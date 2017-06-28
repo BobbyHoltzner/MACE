@@ -130,7 +130,7 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
         // Insert into our map:
         //  - If our vehicle ID is < 0 (i.e. -1), we didn't find a vehicle in our cell. Something went wrong
         if(vehicleID > 0){
-            cells.insert(std::make_pair(vehicleID, cell));
+            cells[vehicleID] = cell;
         }
       } while (cl.inc()); // Increment to the next cell:
 
