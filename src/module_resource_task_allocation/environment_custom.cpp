@@ -1,5 +1,7 @@
 #include <environment_custom.h>
 
+#include <algorithm>
+
 using namespace voro;
 
 // This function returns a random double between 0 and 1
@@ -157,8 +159,46 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::vector<P
  * @param cell Cell to update vertex ordering
  */
 void Environment_Map::sortCellVerticesCCW(Cell &cell) {
-    // TODO:
-    std::cout << "================= TODO: SORT VERTICES =================" << std::endl;
+//    int count = 1;
+//    for(auto vert : cell.vertices){
+//        std::cout << "Vertex " << count << ": (" << vert.x << ", " << vert.y << ", " << vert.z << ")" << std::endl;
+//        count++;
+//    }
+
+    // 1) Create empty cell vertices vector
+    // 2) Calculate polar angles and put into vector
+    // 3) Find smallest angle
+    // 4) Use index to add to cell vertices vector
+    // 5) Remove smallest angle, find new smallest angle
+    // 6) Use index to add to cell vertices vector
+
+    //  1) Calculate angle between site and all vertices
+    std::vector<double> angles;
+    std::vector<Point> sortedVerts;
+    for(auto cellVert : cell.vertices) {
+        double angle = atan2(cellVert.y - cell.site.y, cellVert.x - cell.site.x) * (180/M_PI);
+        angles.push_back(angle);
+    }
+
+    while(sortedVerts.size() < cell.vertices.size()) {
+        std::vector<double>::iterator result = std::min_element(std::begin(angles), std::end(angles));
+        int index = std::distance(std::begin(angles), result);
+        // Add vertex at this index to our new vector:
+        sortedVerts.push_back(cell.vertices.at(index));
+
+        // Set angle to MAX double value:
+        angles.at(index) = std::numeric_limits<double>::max();
+    }
+
+    // Set our vertices to sorted vertices:
+    cell.vertices = sortedVerts;
+
+
+//    count = 1;
+//    for(auto vert : cell.vertices){
+//        std::cout << "Vertex " << count << ": (" << vert.x << ", " << vert.y << ", " << vert.z << ")" << std::endl;
+//        count++;
+//    }
 }
 
 
