@@ -28,14 +28,6 @@ public:
 };
 
 /**
- * @brief The Cell struct is a simple container for holding cell sites and their corresponding cell vertices
- */
-struct Cell {
-    Point site;
-    std::vector<Point> vertices;
-};
-
-/**
  * @brief The Node class is a container for nodes at each x,y location in our environment
  */
 class Node {
@@ -45,6 +37,15 @@ public:
 
     Point location;
     double value;
+};
+
+/**
+ * @brief The Cell struct is a simple container for holding cell sites and their corresponding cell vertices
+ */
+struct Cell {
+    Point site;
+    std::vector<Point> vertices;
+    std::map<double, std::map<double, Node> > containedNodes;
 };
 
 /**

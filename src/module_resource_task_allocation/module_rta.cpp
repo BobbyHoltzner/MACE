@@ -16,7 +16,7 @@ ModuleRTA::ModuleRTA():
     boundaryVerts.push_back(Point(5,5,0));
     boundaryVerts.push_back(Point(5,-5,0));
 
-    environment = std::make_shared<Environment_Map>(boundaryVerts, 0.1);
+    environment = std::make_shared<Environment_Map>(boundaryVerts, 1);
 
     Point testPoint(-1.75,1.56,0);
     Node tmpNodeBefore;
@@ -27,54 +27,14 @@ ModuleRTA::ModuleRTA():
 
     std::cout << "  *********   Val before: " << tmpNodeBefore.value << "  /  Val after: " << tmpNodeAfter.value << "   *********" << std::endl;
 
-    std::vector<Point> sensorFootprint;
-    sensorFootprint.push_back(Point(0,0,0));
-    sensorFootprint.push_back(Point(0,10,0));
-    sensorFootprint.push_back(Point(5,10,0));
-    sensorFootprint.push_back(Point(5,0,0));
-    environment->getNodesInPolygon(sensorFootprint);
+//    std::vector<Point> sensorFootprint;
+//    sensorFootprint.push_back(Point(0,0,0));
+//    sensorFootprint.push_back(Point(0,10,0));
+//    sensorFootprint.push_back(Point(5,10,0));
+//    sensorFootprint.push_back(Point(5,0,0));
+//    environment->getNodesInPolygon(sensorFootprint);
     // **** END TESTING ****
 
-
-
-    // ****** MORE TESTING ****** //
-//    VoronoiGenerator* generator = new VoronoiGenerator();
-
-//    // Test sites:
-//    std::vector<Point2> sites;
-//    sites.push_back(Point2(25,25));
-//    sites.push_back(Point2(50,50));
-//    sites.push_back(Point2(75,75));
-
-//    // Bounding box:
-//    BoundingBox bbox(1,100,1,100);
-
-//    // Compute diagram:
-//    Diagram* diagram = generator->compute(sites, bbox);
-
-//    std::cout << "Number of cells: " << diagram->cells.size() << std::endl;
-//    std::cout << "Number of edges: " << diagram->edges.size() << std::endl;
-//    std::cout << "Number of vertices: " << diagram->vertices.size() << std::endl;
-//    std::cout << "Point (1,2) in cell 1: " << diagram->cells.at(0)->pointIntersection(1,2) << std::endl;
-
-//    // Loop over all cells and print the corresponding site location and number of half edges.
-//    for(auto cell : diagram->cells) {
-//        std::cout << "Cell Site:  (" << cell->site.p.x << ", " << cell->site.p.y << ")" << std::endl;
-
-//        std::cout << "Cell half edges: " << cell->halfEdges.size() << std::endl;
-//        // Loop over all half edges and print starting and end points:
-//        for(auto edge : cell->halfEdges) {
-//            std::cout << "Start Point:  (" << edge->startPoint()->x << ", " << edge->startPoint()->y << ")" << std::endl;
-//            std::cout << "End Point:  (" << edge->endPoint()->x << ", " << edge->endPoint()->y << ")" << std::endl;
-//        }
-//    }
-
-//    for(auto vertex : diagram->vertices) {
-//        std::cout << "Vertex:  (" << vertex->x << ", " << vertex->y << ")" << std::endl;
-//    }
-
-//    diagram->printDiagram();
-    // **** END MORE TESTING **** //
 }
 
 

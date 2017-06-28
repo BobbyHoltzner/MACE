@@ -125,6 +125,8 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::vector<P
         cell.vertices = coords;
         // Sort the cell vertices:
         sortCellVerticesCCW(cell);
+        // Get contained nodes:
+        cell.containedNodes = getNodesInPolygon(cell.vertices);
         // Insert into our map:
         cells.insert(std::make_pair(counter, cell));
 
@@ -159,12 +161,6 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::vector<P
  * @param cell Cell to update vertex ordering
  */
 void Environment_Map::sortCellVerticesCCW(Cell &cell) {
-//    int count = 1;
-//    for(auto vert : cell.vertices){
-//        std::cout << "Vertex " << count << ": (" << vert.x << ", " << vert.y << ", " << vert.z << ")" << std::endl;
-//        count++;
-//    }
-
     // 1) Create empty cell vertices vector
     // 2) Calculate polar angles and put into vector
     // 3) Find smallest angle
@@ -192,14 +188,8 @@ void Environment_Map::sortCellVerticesCCW(Cell &cell) {
 
     // Set our vertices to sorted vertices:
     cell.vertices = sortedVerts;
-
-
-//    count = 1;
-//    for(auto vert : cell.vertices){
-//        std::cout << "Vertex " << count << ": (" << vert.x << ", " << vert.y << ", " << vert.z << ")" << std::endl;
-//        count++;
-//    }
 }
+
 
 
 /**
@@ -306,7 +296,7 @@ std::map<double, std::map<double, Node> > Environment_Map::getNodesInPolygon(std
     }
 
 
-    std::cout << "Number of nodes in footprint: " << containedNodes.size() << " / Total nodes: " << nodes.size() << std::endl;
+    std::cout << "Number of nodes in footprint: " << containedNodes.size() * containedNodes.begin()->second.size() << " / Total nodes: " << nodes.size() * nodes.begin()->second.size() << std::endl;
 
     return containedNodes;
 }
