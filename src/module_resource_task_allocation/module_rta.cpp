@@ -111,13 +111,17 @@ void ModuleRTA::NewTopic(const std::string &topicName, int senderID, std::vector
 
 void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
 {
-    UNUSED(vehicleID);
-    std::cout << "New vehicle" << std::endl;
-
     // TODO:
     /*
      * 1) Get vehicle position
      * 2) If we get a position, add a vehicle to our environment and compute the voronoi partition
      * 3) IF we do not get a position, add a vehicle to our environment. Skip voronoi computation
      */
+    MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), vehicleID);
+    std::shared_ptr<DataStateTopic::StateLocalPositionTopic> localPositionData = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
+    m_VehicleDataTopic.GetComponent(localPositionData, read_topicDatagram);
+
+    // Set vehicle and compute Voronoi:
+    Point localPosition(localPositionData->x, localPositionData->y, localPositionData->z);
+    environment->updateVehiclePosition(vehicleID, localPosition, true); // True for recomputing voronoi, false for adding to the vehicle map
 }

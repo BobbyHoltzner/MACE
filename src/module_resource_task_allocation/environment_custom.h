@@ -112,6 +112,13 @@ public:
      */
     std::map<double, std::map<double, Node> > getNodesInPolygon(std::vector<Point> boundary);
 
+    /**
+     * @brief addVehicle Update/insert a vehicle in our map and re-compute the voronoi partition
+     * @param vehicleID ID of the vehicle to add
+     * @param position Last known position of the vehicle
+     */
+    void updateVehiclePosition(const int vehicleID, const Point position, bool recomputeVoronoi);
+
 private:
 
     /**
@@ -199,6 +206,11 @@ private:
      * @brief cells Container for cells corresponding to each vehicle
      */
     std::map<int, Cell> cells;
+
+    /**
+     * @brief vehicles Container for last known position of each vehicle (id, position)
+     */
+    std::map<int, Point> vehicles;
 };
 
 #endif // ENVIRONMENT_CUSTOM_H

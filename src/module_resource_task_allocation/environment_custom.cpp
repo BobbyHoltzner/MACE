@@ -19,10 +19,10 @@ Environment_Map::Environment_Map(const std::vector<Point> verts, double gridSpac
     initializeEnvironment(gridSpacing);
 
     // Testing:
-    std::map<int, Point> vehicleCells;
-    vehicleCells.insert(std::make_pair(5, Point(-2.5,-2.5,0)));
-    vehicleCells.insert(std::make_pair(2, Point(2.5,2.5,0)));
-    computeVoronoi(boundingRect, vehicleCells);
+//    std::map<int, Point> vehicleCells;
+//    vehicleCells.insert(std::make_pair(5, Point(-2.5,-2.5,0)));
+//    vehicleCells.insert(std::make_pair(2, Point(2.5,2.5,0)));
+//    computeVoronoi(boundingRect, vehicleCells);
     // End testing
 }
 
@@ -51,9 +51,14 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
 
     // Import into container
     //con.import("pack_six_cube");
-    // Add vehicles/particles into the container
+    // Add vehicles/particles into the container only if they are in the bounding box
     for(auto vehicle : vehicles) {
-        con.put(vehicle.first, vehicle.second.x, vehicle.second.y, 0);
+        if(pointInPoly(boundaryVerts, vehicle.second)) {
+            con.put(vehicle.first, vehicle.second.x, vehicle.second.y, 0);
+        }
+        else {
+            std::cout << "Vehicle at position (" << vehicle.second.x << ", " << vehicle.second.y << ") not within environment. Skipping." << std::endl;
+        }
     }
 
     // Loop over all vehicles in the container and compute each Voronoi
@@ -492,5 +497,20 @@ bool Environment_Map::pointInPoly(std::vector<Point> vertices, Point testPoint)
     }
     else {
       return true;
+    }
+}
+
+/**
+ * @brief addVehicle Update/insert a vehicle in our map and re-compute the voronoi partition
+ * @param vehicleID ID of the vehicle to add
+ * @param position Last known position of the vehicle
+ */
+void Environment_Map::updateVehiclePosition(const int vehicleID, const Point position, bool recomputeVoronoi) {
+    // Add/overwrite our vehicle position to the map
+    vehicles[vehicleID] = position;
+
+    // If recompute flag is set, recompute the voronoi partition:
+    if(recomputeVoronoi) {
+        computeVoronoi(boundingRect, vehicles);
     }
 }
