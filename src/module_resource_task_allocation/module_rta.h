@@ -50,6 +50,13 @@ public:
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
 private:
+    /**
+     * @brief updateMACEMissions Sends new missions to MACE for each vehicle in the provided list
+     * @param updateCells Map of cells that contain node lists to send to MACE
+     */
+    void updateMACEMissions(std::map<int, Cell> updateCells);
+
+private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
 
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;

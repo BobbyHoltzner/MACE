@@ -51,7 +51,7 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
 
     // Import into container
     //con.import("pack_six_cube");
-    // Add vehicles/particles into the container only if they are in the bounding box
+    // Add vehicles/particles into the container only if they are in the environment
     for(auto vehicle : vehicles) {
         if(pointInPoly(boundaryVerts, vehicle.second)) {
             con.put(vehicle.first, vehicle.second.x, vehicle.second.y, 0);
@@ -153,12 +153,11 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
         }
       }
 
+      // Output the particle positions in gnuplot format
+      con.draw_particles("polygons_p.gnu");
 
-    // Output the particle positions in gnuplot format
-    con.draw_particles("polygons_p.gnu");
-
-    // Output the Voronoi cells in gnuplot format
-    con.draw_cells_gnuplot("polygons_v.gnu");
+      // Output the Voronoi cells in gnuplot format
+      con.draw_cells_gnuplot("polygons_v.gnu");
 }
 
 /**
@@ -504,13 +503,18 @@ bool Environment_Map::pointInPoly(std::vector<Point> vertices, Point testPoint)
  * @brief addVehicle Update/insert a vehicle in our map and re-compute the voronoi partition
  * @param vehicleID ID of the vehicle to add
  * @param position Last known position of the vehicle
+ * @return True if we should send to MACE core, false if not
  */
-void Environment_Map::updateVehiclePosition(const int vehicleID, const Point position, bool recomputeVoronoi) {
+bool Environment_Map::updateVehiclePosition(const int vehicleID, const Point position, bool recomputeVoronoi) {
     // Add/overwrite our vehicle position to the map
     vehicles[vehicleID] = position;
 
     // If recompute flag is set, recompute the voronoi partition:
     if(recomputeVoronoi) {
         computeVoronoi(boundingRect, vehicles);
+        return true; // Send to MACE Core
     }
+
+    return false; // Don't send to MACE core
 }
+

@@ -117,8 +117,13 @@ public:
      * @param vehicleID ID of the vehicle to add
      * @param position Last known position of the vehicle
      */
-    void updateVehiclePosition(const int vehicleID, const Point position, bool recomputeVoronoi);
+    bool updateVehiclePosition(const int vehicleID, const Point position, bool recomputeVoronoi);
 
+    /**
+     * @brief getCells Return the cells that make up our Voronoi partition
+     * @return Cells making up the voronoi partition
+     */
+    std::map<int, Cell> getCells() {return cells;}
 private:
 
     /**

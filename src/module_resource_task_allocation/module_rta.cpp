@@ -123,5 +123,46 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
 
     // Set vehicle and compute Voronoi:
     Point localPosition(localPositionData->x, localPositionData->y, localPositionData->z);
-    environment->updateVehiclePosition(vehicleID, localPosition, true); // True for recomputing voronoi, false for adding to the vehicle map
+    bool updateMaceCore = environment->updateVehiclePosition(vehicleID, localPosition, true); // True for recomputing voronoi, false for adding to the vehicle map
+    if(updateMaceCore){
+        updateMACEMissions(environment->getCells());
+    }
+}
+
+/**
+ * @brief updateMACEMissions Sends new missions to MACE for each vehicle in the provided list
+ * @param updateCells Map of cells that contain node lists to send to MACE
+ */
+void ModuleRTA::updateMACEMissions(std::map<int, Cell> updateCells) {
+
+    // **TODO: Convert from local to global? Or is this handled in MACE core?
+
+    // For every cell, send to MACE its node list:
+    for(auto cell : updateCells) {
+        int vehicleID = cell.first;
+
+        MissionItem::MissionList missionList;
+        missionList.setMissionTXState(Data::MissionTXState::PROPOSED);
+        missionList.setMissionType(Data::MissionType::AUTO);
+        missionList.setVehicleID(vehicleID);
+
+        for(auto xVal : cell.second.containedNodes) {
+            // Initialize mission queue size:
+//            missionList.initializeQueue(cell.second.containedNodes.size() * cell.second.containedNodes.begin()->second.size());
+            for(auto node : xVal.second) {
+//                std::cout << "Node position: (" << node.second.location.x << ", " << node.second.location.y << ")" << std::endl;
+                std::shared_ptr<CommandItem::SpatialWaypoint<DataState::StateLocalPosition>> newWP = std::make_shared<CommandItem::SpatialWaypoint<DataState::StateLocalPosition>>();
+                newWP->position.x =  node.second.location.x;
+                newWP->position.y =  node.second.location.y;
+                newWP->position.z =  node.second.location.z;
+                newWP->setTargetSystem(vehicleID);
+
+                missionList.insertMissionItem(newWP);
+            }
+        }
+
+        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr){
+            ptr->GSEvent_UploadMission(this, missionList);
+        });
+    }
 }
