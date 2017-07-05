@@ -4,7 +4,7 @@
 using namespace DataState;
 
 StateLocalPosition::StateLocalPosition():
-    StateGenericPosition(Data::CoordinateFrameType::CF_LOCAL_ENU)
+    Base3DPosition(Data::CoordinateFrameType::CF_LOCAL_ENU)
 {
 
 }
@@ -15,19 +15,19 @@ StateLocalPosition::StateLocalPosition(const StateLocalPosition &localPosition)
 }
 
 StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame):
-    StateGenericPosition(frame)
+    Base3DPosition(frame)
 {
 
 }
 
 StateLocalPosition::StateLocalPosition(const double &posX, const double &posY, const double &posZ):
-    StateGenericPosition(Data::CoordinateFrameType::CF_LOCAL_ENU,posX,posY,posZ)
+    Base3DPosition(Data::CoordinateFrameType::CF_LOCAL_ENU,posX,posY,posZ)
 {
 
 }
 
 StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame, const double &posX, const double &posY, const double &posZ):
-    StateGenericPosition(frame,posX,posY,posZ)
+    Base3DPosition(frame,posX,posY,posZ)
 {
 
 }
@@ -110,61 +110,122 @@ bool StateLocalPosition::essentiallyEquivalent_Distance(const StateLocalPosition
     return true;
 }
 
-    double StateLocalPosition::deltaAltitude(const StateLocalPosition &position) const
-    {
-        double deltaZ = position.z - this->z;
-        return deltaZ;
-    }
-    double StateLocalPosition::distanceBetween2D(const StateLocalPosition &position) const
-    {
-        double deltaX = position.x - this->x;
-        double deltaY = position.y - this->y;
+//!
+//! \brief StateLocalPosition::distanceBetween2D
+//! \param position
+//! \return
+//!
+double StateLocalPosition::distanceBetween2D(const StateLocalPosition &position) const
+{
+    double deltaX = position.x - this->x;
+    double deltaY = position.y - this->y;
 
-        return sqrt(deltaX * deltaX + deltaY * deltaY);
-    }
-    double StateLocalPosition::distanceBetween3D(const StateLocalPosition &position) const
-    {
-        double deltaX = position.x - this->x;
-        double deltaY = position.y - this->y;
-        double deltaZ = position.z - this->z;
+    return sqrt(deltaX * deltaX + deltaY * deltaY);
+}
 
-        return sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-    }
+//!
+//! \brief StateLocalPosition::finalBearing
+//! \param position
+//! \return
+//!
+double StateLocalPosition::finalBearing(const StateLocalPosition &position) const
+{
+    UNUSED(position);
+    throw std::runtime_error("Not Implimented");
+    return 0.0;
+}
 
-    double StateLocalPosition::finalBearing(const StateLocalPosition &position) const
-    {
-        throw std::runtime_error("Not Implimented");
-        UNUSED(position);
-        return 0.0;
-    }
-    double StateLocalPosition::initialBearing(const StateLocalPosition &position) const
-    {
-        throw std::runtime_error("Not Implimented");
-        UNUSED(position);
-        return 0.0;
-    }
-    double StateLocalPosition::bearingBetween(const StateLocalPosition &position) const
-    {
-        UNUSED(position);
-        throw std::runtime_error("Not Implimented");
-        return 0.0;
-    }
-    StateLocalPosition StateLocalPosition::NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag) const
-    {
-        UNUSED(distance);
-        UNUSED(bearing);
-        UNUSED(degreesFlag);
-        throw std::runtime_error("Not Implimented");
+//!
+//! \brief StateLocalPosition::initialBearing
+//! \param position
+//! \return
+//!
+double StateLocalPosition::initialBearing(const StateLocalPosition &position) const
+{
+    UNUSED(position);
+    throw std::runtime_error("Not Implimented");
+    return 0.0;
+}
 
-        StateLocalPosition newTemp;
-        return newTemp;
 
-    }
-    void StateLocalPosition::translationTransformation(const StateLocalPosition &position, Eigen::Vector3f &transVec)
-    {
-        UNUSED(position);
-        UNUSED(transVec);
-        throw std::runtime_error("Not Implimented");
-    }
+//!
+//! \brief StateLocalPosition::bearingBetween
+//! \param position
+//! \return
+//!
+double StateLocalPosition::bearingBetween(const StateLocalPosition &position) const
+{
+    UNUSED(position);
+    throw std::runtime_error("Not Implimented");
+    return 0.0;
+}
+
+//!
+//! \brief StateLocalPosition::NewPositionFromHeadingBearing
+//! \param distance
+//! \param bearing
+//! \param degreesFlag
+//! \return
+//!
+StateLocalPosition StateLocalPosition::NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag) const
+{
+    UNUSED(distance);
+    UNUSED(bearing);
+    UNUSED(degreesFlag);
+    throw std::runtime_error("Not Implimented");
+
+    StateLocalPosition newTemp;
+    return newTemp;
+}
+
+//!
+//! \brief StateLocalPosition::translationTransformation2D
+//! \param position
+//! \param transVec
+//!
+void StateLocalPosition::translationTransformation2D(const StateLocalPosition &position, Eigen::Vector2f &transVec) const
+{
+    double bearing = this->bearingBetween(position);
+    double distance = this->distanceBetween2D(position);
+    float distanceX = distance * sin(bearing);
+    float distanceY = distance * cos(bearing);
+    transVec(0) = distanceX;
+    transVec(1) = distanceY;
+}
+
+//!
+//! \brief StateLocalPosition::deltaAltitude
+//! \param position
+//! \return
+//!
+double StateLocalPosition::deltaAltitude(const StateLocalPosition &position) const
+{
+    double deltaZ = position.z - this->z;
+    return deltaZ;
+}
+
+
+//!
+//! \brief StateLocalPosition::distanceBetween3D
+//! \param position
+//! \return
+//!
+double StateLocalPosition::distanceBetween3D(const StateLocalPosition &position) const
+{
+    double distance2D = this->distanceBetween2D(position);
+    double deltaAltitude = fabs(this->z - position.z);
+    return(sqrt(deltaAltitude * deltaAltitude + distance2D * distance2D));
+}
+
+//!
+//! \brief StateLocalPosition::translationTransformation3D
+//! \param position
+//! \param transVec
+//!
+void StateLocalPosition::translationTransformation3D(const StateLocalPosition &position, Eigen::Vector3f &transVec) const
+{
+    UNUSED(position);
+    UNUSED(transVec);
+}
 
 

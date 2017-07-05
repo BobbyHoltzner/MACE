@@ -9,14 +9,15 @@
 #include "mace.h"
 #include "common/common.h"
 #include "data/coordinate_frame.h"
-#include "state_generic_position.h"
+#include "abstract_3d_position.h"
+#include "base_3d_position.h"
 
 
 namespace DataState {
 //!
 //! \brief The StateGlobalPosition class
 //!
-class StateGlobalPosition : public StateGenericPosition<StateGlobalPosition>
+class StateGlobalPosition : public Abstract3DPosition<StateGlobalPosition>, public Base3DPosition
 {
 public:
 
@@ -100,22 +101,15 @@ public:
     //!
     double getAltitude() const;
 
-    mace_global_position_int_t getMACECommsObject();
+    mace_global_position_int_t getMACECommsObject() const;
 
 public:
     static double convertDegreesToRadians(const double &degrees);
 
     static double convertRadiansToDegrees(const double &radians);
 
-
+//virtual functions derived from AbstractPosition
 public:
-    //!
-    //! \brief deltaAltitude
-    //! \param position
-    //! \return
-    //!
-    virtual double deltaAltitude(const StateGlobalPosition &position) const;
-
     //!
     //! \brief distanceBetween2D
     //! \param position
@@ -123,14 +117,6 @@ public:
     //!
     virtual double distanceBetween2D(const StateGlobalPosition &position) const;
 
-    //!
-    //! \brief distanceBetween3D
-    //! \param position
-    //! \return
-    //!
-    virtual double distanceBetween3D(const StateGlobalPosition &position) const;
-
-public:
     //!
     //! \brief finalBearing
     //! \param postion
@@ -162,11 +148,34 @@ public:
     virtual StateGlobalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag) const;
 
     //!
-    //! \brief translationTransformation
+    //! \brief translationTransformation2D
     //! \param position
     //! \param transVec
     //!
-    virtual void translationTransformation(const StateGlobalPosition &position, Eigen::Vector3f &transVec);
+    virtual void translationTransformation2D(const StateGlobalPosition &position, Eigen::Vector2f &transVec) const;
+
+//virtual functions derived from Abstract3DPosition
+public:
+    //!
+    //! \brief deltaAltitude
+    //! \param position
+    //! \return
+    //!
+    virtual double deltaAltitude(const StateGlobalPosition &position) const;
+
+    //!
+    //! \brief distanceBetween3D
+    //! \param position
+    //! \return
+    //!
+    virtual double distanceBetween3D(const StateGlobalPosition &position) const;
+
+    //!
+    //! \brief translationTransformation3D
+    //! \param position
+    //! \param transVec
+    //!
+    virtual void translationTransformation3D(const StateGlobalPosition &position, Eigen::Vector3f &transVec) const;
 
 public:
 
@@ -176,7 +185,7 @@ public:
     //!
     void operator = (const StateGlobalPosition &rhs)
     {
-        StateGenericPosition::operator =(rhs);
+        Base3DPosition::operator =(rhs);
     }
 
     //!
@@ -186,7 +195,7 @@ public:
     //!
     bool operator == (const StateGlobalPosition &rhs) {
 
-        if(!StateGenericPosition::operator ==(rhs)){
+        if(!Base3DPosition::operator ==(rhs)){
             return false;
         }
         return true;

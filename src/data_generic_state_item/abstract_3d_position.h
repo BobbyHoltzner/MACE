@@ -3,14 +3,13 @@
 
 #include <Eigen/Dense>
 
-#include "abstract_2d_position.h"
-#include "base_3d_position.h"
+#include "abstract_position.h"
 
 namespace DataState
 {
 
 template <class T>
-class Abstract3DPosition : public Abstract2DPosition<T>, public Base3DPosition
+class Abstract3DPosition : public AbstractPosition<T>
 {
 public:
     //!

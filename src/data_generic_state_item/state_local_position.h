@@ -7,11 +7,12 @@
 #include "common/common.h"
 
 #include "data/coordinate_frame.h"
-#include "state_generic_position.h"
+#include "abstract_3d_position.h"
+#include "base_3d_position.h"
 
 namespace DataState {
 
-class StateLocalPosition : public StateGenericPosition<StateLocalPosition>
+class StateLocalPosition : public Abstract3DPosition<StateLocalPosition>, public Base3DPosition
 {
 public:
     StateLocalPosition();
@@ -36,17 +37,74 @@ public:
 
     mace_local_position_ned_t getMACECommsObject();
 
-public:
-    virtual double deltaAltitude(const StateLocalPosition &position) const;
-    virtual double distanceBetween2D(const StateLocalPosition &position) const;
-    virtual double distanceBetween3D(const StateLocalPosition &position) const;
+    //virtual functions derived from AbstractPosition
+    public:
+        //!
+        //! \brief distanceBetween2D
+        //! \param position
+        //! \return
+        //!
+        virtual double distanceBetween2D(const StateLocalPosition &position) const;
 
-public:
-    virtual double finalBearing(const StateLocalPosition &position) const;
-    virtual double initialBearing(const StateLocalPosition &position) const;
-    virtual double bearingBetween(const StateLocalPosition &position) const;
-    virtual StateLocalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag) const;
-    virtual void translationTransformation(const StateLocalPosition &position, Eigen::Vector3f &transVec);
+        //!
+        //! \brief finalBearing
+        //! \param postion
+        //! \return
+        //!
+        virtual double finalBearing(const StateLocalPosition &postion) const;
+
+        //!
+        //! \brief initialBearing
+        //! \param postion
+        //! \return
+        //!
+        virtual double initialBearing(const StateLocalPosition &postion) const;
+
+        //!
+        //! \brief bearingBetween
+        //! \param position
+        //! \return
+        //!
+        virtual double bearingBetween(const StateLocalPosition &position) const;
+
+        //!
+        //! \brief NewPositionFromHeadingBearing
+        //! \param distance
+        //! \param bearing
+        //! \param degreesFlag
+        //! \return
+        //!
+        virtual StateLocalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag) const;
+
+        //!
+        //! \brief translationTransformation2D
+        //! \param position
+        //! \param transVec
+        //!
+        virtual void translationTransformation2D(const StateLocalPosition &position, Eigen::Vector2f &transVec) const;
+
+    //virtual functions derived from Abstract3DPosition
+    public:
+        //!
+        //! \brief deltaAltitude
+        //! \param position
+        //! \return
+        //!
+        virtual double deltaAltitude(const StateLocalPosition &position) const;
+
+        //!
+        //! \brief distanceBetween3D
+        //! \param position
+        //! \return
+        //!
+        virtual double distanceBetween3D(const StateLocalPosition &position) const;
+
+        //!
+        //! \brief translationTransformation3D
+        //! \param position
+        //! \param transVec
+        //!
+        virtual void translationTransformation3D(const StateLocalPosition &position, Eigen::Vector3f &transVec) const;
 
 public:
     bool essentiallyEquivalent_Percentage(const StateLocalPosition &rhs, const double &percentage);
@@ -55,11 +113,11 @@ public:
 public:
     void operator = (const StateLocalPosition &rhs)
     {
-        StateGenericPosition::operator =(rhs);
+        Base3DPosition::operator =(rhs);
     }
 
     bool operator == (const StateLocalPosition &rhs) {
-        if(!StateGenericPosition::operator ==(rhs)){
+        if(!Base3DPosition::operator ==(rhs)){
             return false;
         }
         return true;
