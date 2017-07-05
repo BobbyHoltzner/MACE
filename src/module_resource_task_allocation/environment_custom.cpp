@@ -31,7 +31,7 @@ Environment_Map::Environment_Map(const std::vector<Point> verts, double gridSpac
  * @param bbox Bounding box
  * @param vehicles Positions of vehicles (in x,y,z coordinates)
  */
-void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles) {
+void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles, GridDirection direction) {
     // Set up constants for the container geometry
     const double x_min = bbox.min.x, x_max = bbox.max.x;
     const double y_min = bbox.min.y, y_max = bbox.max.y;
@@ -130,6 +130,11 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
         sortCellVerticesCCW(cell);
         // Get contained nodes:
         cell.containedNodes = getNodesInPolygon(cell.vertices);
+
+        std::cout << "Contained nodes size: " << cell.containedNodes.size() << std::endl;
+
+        // Sort the nodes:
+        sortNodesInGrid(cell, direction);
         // Get vehicle ID:
         int vehicleID = getVehicleID(cell, vehicles);
         // Insert into our map:
@@ -140,18 +145,18 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
       } while (cl.inc()); // Increment to the next cell:
 
 
-      // Print cell sites and vertices:
-      for(auto cell : cells) {
-        std::cout << "\n\Vehicle ID " << cell.first << " site: (" << cell.second.site.x << ", " << cell.second.site.y << ", " << cell.second.site.z << ")" << std::endl;
-        int vertCount = 1;
-        for(auto cellVert : cell.second.vertices) {
-            double xTmp = cellVert.x;
-            double yTmp = cellVert.y;
-            double zTmp = cellVert.z;
-            std::cout << "Cell vertex " << vertCount << ": (" << xTmp << ", " << yTmp << ", " << zTmp << ")" << std::endl;
-            vertCount++;
-        }
-      }
+//      // Print cell sites and vertices:
+//      for(auto cell : cells) {
+//        std::cout << "\n\Vehicle ID " << cell.first << " site: (" << cell.second.site.x << ", " << cell.second.site.y << ", " << cell.second.site.z << ")" << std::endl;
+//        int vertCount = 1;
+//        for(auto cellVert : cell.second.vertices) {
+//            double xTmp = cellVert.x;
+//            double yTmp = cellVert.y;
+//            double zTmp = cellVert.z;
+//            std::cout << "Cell vertex " << vertCount << ": (" << xTmp << ", " << yTmp << ", " << zTmp << ")" << std::endl;
+//            vertCount++;
+//        }
+//      }
 
       // Output the particle positions in gnuplot format
       con.draw_particles("polygons_p.gnu");
@@ -336,7 +341,7 @@ std::map<double, std::map<double, Node> > Environment_Map::getNodesInPolygon(std
     }
 
 
-    std::cout << "Number of nodes in footprint: " << containedNodes.size() * containedNodes.begin()->second.size() << " / Total nodes: " << nodes.size() * nodes.begin()->second.size() << std::endl;
+//    std::cout << "Number of nodes in footprint: " << containedNodes.size() * containedNodes.begin()->second.size() << " / Total nodes: " << nodes.size() * nodes.begin()->second.size() << std::endl;
 
     return containedNodes;
 }
@@ -476,8 +481,28 @@ std::vector<double> Environment_Map::createRange(double min, double max, int N) 
  */
 bool Environment_Map::pointInPoly(std::vector<Point> vertices, Point testPoint)
 {
-    int nvert = boundaryVerts.size();
+    // First check if the point lies on any of the line segments created by the boundary. If so, return true:
+    int vertCount = 0;
+    for(auto vert : vertices) {
+        Point vert1, vert2;
+        if(vertCount == 0){
+            vert1 = vert;
+            vert2 = vertices[vertices.size()-1];
+        }
+        else {
+            vert1 = vertices[vertCount-1];
+            vert2 = vert;
+        }
+        double epsilon = 0.00001;
+        if(distanceToSegment(vert1, vert2, testPoint) < epsilon)
+            return true;
 
+        // Increment counter
+        vertCount++;
+    }
+
+    // If not on any of the line segments, check if inside the polygon:
+    int nvert = boundaryVerts.size();
     int i, j, c = 0;
     for (i = 0, j = nvert-1; i < nvert; j = i++) {
         if (
@@ -500,6 +525,49 @@ bool Environment_Map::pointInPoly(std::vector<Point> vertices, Point testPoint)
 }
 
 /**
+ * @brief distanceToSegment Determine shortest distance to a line segment
+ * @param p1 First vertex of the line segment
+ * @param p2 Second vertex of the line segment
+ * @param testPoint Point to check
+ * @return Distance to the line segment
+ */
+double Environment_Map::distanceToSegment(Point p1, Point p2, Point testPoint) {
+    double diffX = p2.x - p1.x;
+    float diffY = p2.y - p1.y;
+    if ((diffX == 0) && (diffY == 0))
+    {
+        diffX = testPoint.x - p1.x;
+        diffY = testPoint.y - p1.y;
+        return sqrt(diffX * diffX + diffY * diffY);
+    }
+
+    float t = ((testPoint.x - p1.x) * diffX + (testPoint.y - p1.y) * diffY) / (diffX * diffX + diffY * diffY);
+
+    if (t < 0)
+    {
+        //point is nearest to the first point i.e p1.x and p1.y
+        diffX = testPoint.x - p1.x;
+        diffY = testPoint.y - p1.y;
+    }
+    else if (t > 1)
+    {
+        //point is nearest to the end point i.e p2.x and p2.y
+        diffX = testPoint.x - p2.x;
+        diffY = testPoint.y - p2.y;
+    }
+    else
+    {
+        //if perpendicular line intersect the line segment.
+        diffX = testPoint.x - (p1.x + t * diffX);
+        diffY = testPoint.y - (p1.y + t * diffY);
+    }
+
+    //returning shortest distance
+    return sqrt(diffX * diffX + diffY * diffY);
+}
+
+
+/**
  * @brief addVehicle Update/insert a vehicle in our map and re-compute the voronoi partition
  * @param vehicleID ID of the vehicle to add
  * @param position Last known position of the vehicle
@@ -511,10 +579,65 @@ bool Environment_Map::updateVehiclePosition(const int vehicleID, const Point pos
 
     // If recompute flag is set, recompute the voronoi partition:
     if(recomputeVoronoi) {
-        computeVoronoi(boundingRect, vehicles);
+        computeVoronoi(boundingRect, vehicles, GridDirection::NORTH_SOUTH);
         return true; // Send to MACE Core
     }
 
     return false; // Don't send to MACE core
 }
 
+/**
+ * @brief sortNodesInGridSort the nodes in the cell in a grid fashion
+ * @param cell Cell to sort the nodes
+ * @param direction Direction to sort nodes (north/south, east/west, or by closest node)
+ */
+std::vector<Point> Environment_Map::sortNodesInGrid(Cell &cell, GridDirection direction) {
+    // TODO:
+    // -For north/south, start a counter for x-vals (proxy for "column"). If even, loop normally over y's and add each to new list. If odd, loop over y's in reverse and add each to new list
+    // -For east/west, maybe use a private variable that is sorted by y as the first value and do the same as the x sorting?
+    // -For closest point, populate a list of all nodes and start at the first. as we loop over, find the closest point, add to a container, and then pop that off the list we're looping over. (use while loop over the size of this list)
+
+//    std::map<double, std::map<double, Node> > sortedNodes;
+    std::vector<Point> sortedPoints;
+
+    switch (direction) {
+    case GridDirection::EAST_WEST:
+    {
+        int column = 0;
+        for(auto xIt : cell.containedNodes) {
+            double xVal = xIt.first;
+            // If column is odd, iterate in reverse:
+            if(column % 2 == 0) {
+                for(auto yIt : xIt.second) {
+                    sortedPoints.push_back(Point(xVal, yIt.first,0));
+                }
+            }
+            else {
+                for(auto yItRev = xIt.second.rbegin(); yItRev != xIt.second.rend(); ++yItRev) {
+                    sortedPoints.push_back(Point(xVal, yItRev->first,0));
+                }
+            }
+
+            // Iterate column counter:
+            column++;
+        }
+    }
+        break;
+    case GridDirection::NORTH_SOUTH:
+    {
+    }
+        break;
+    case GridDirection::CLOSEST_POINT:
+    {
+
+    }
+        break;
+    default:
+    {
+        std::cout << "Invalid grid direction" << std::endl;
+    }
+        break;
+    }
+
+    return sortedPoints;
+}

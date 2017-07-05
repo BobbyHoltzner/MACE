@@ -49,6 +49,8 @@ public:
 
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
+    virtual void TestFunction(const int &vehicleID);
+
 private:
     /**
      * @brief updateMACEMissions Sends new missions to MACE for each vehicle in the provided list

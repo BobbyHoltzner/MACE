@@ -7,12 +7,12 @@ ModuleRTA::ModuleRTA():
     // ****** TESTING ******
     // Temporary boundary verts for testing:
     std::vector<Point> boundaryVerts;
-    boundaryVerts.push_back(Point(-5,-5,0));
-    boundaryVerts.push_back(Point(-5,5,0));
-    boundaryVerts.push_back(Point(5,5,0));
-    boundaryVerts.push_back(Point(5,-5,0));
+    boundaryVerts.push_back(Point(-1000,-1000,0));
+    boundaryVerts.push_back(Point(-1000,1000,0));
+    boundaryVerts.push_back(Point(1000,1000,0));
+    boundaryVerts.push_back(Point(1000,-1000,0));
 
-    environment = std::make_shared<Environment_Map>(boundaryVerts, 1);
+    environment = std::make_shared<Environment_Map>(boundaryVerts, 500);
 
     Point testPoint(-1.75,1.56,0);
     Node tmpNodeBefore;
@@ -125,7 +125,7 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
     Point localPosition(localPositionData->x, localPositionData->y, localPositionData->z);
     bool updateMaceCore = environment->updateVehiclePosition(vehicleID, localPosition, true); // True for recomputing voronoi, false for adding to the vehicle map
     if(updateMaceCore){
-        updateMACEMissions(environment->getCells());
+//        updateMACEMissions(environment->getCells());
     }
 }
 
@@ -137,6 +137,7 @@ void ModuleRTA::updateMACEMissions(std::map<int, Cell> updateCells) {
 
     // **TODO: Convert from local to global? Or is this handled in MACE core?
 
+    CommandItem::SpatialHome origin = this->getDataObject()->GetGlobalOrigin();
     // For every cell, send to MACE its node list:
     for(auto cell : updateCells) {
         int vehicleID = cell.first;
@@ -146,23 +147,33 @@ void ModuleRTA::updateMACEMissions(std::map<int, Cell> updateCells) {
         missionList.setMissionType(Data::MissionType::AUTO);
         missionList.setVehicleID(vehicleID);
 
-        for(auto xVal : cell.second.containedNodes) {
-            // Initialize mission queue size:
-//            missionList.initializeQueue(cell.second.containedNodes.size() * cell.second.containedNodes.begin()->second.size());
-            for(auto node : xVal.second) {
-//                std::cout << "Node position: (" << node.second.location.x << ", " << node.second.location.y << ")" << std::endl;
-                std::shared_ptr<CommandItem::SpatialWaypoint<DataState::StateLocalPosition>> newWP = std::make_shared<CommandItem::SpatialWaypoint<DataState::StateLocalPosition>>();
-                newWP->position.x =  node.second.location.x;
-                newWP->position.y =  node.second.location.y;
-                newWP->position.z =  node.second.location.z;
-                newWP->setTargetSystem(vehicleID);
+        // Grab the sorted points from the cell:
+        std::vector<Point> sortedPoints = environment->sortNodesInGrid(cell.second, GridDirection::EAST_WEST);
+        // Loop over sorted points and insert into a mission:
+        for(auto point : sortedPoints) {
+            std::shared_ptr<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>>();
+            newWP->setTargetSystem(vehicleID);
 
-                missionList.insertMissionItem(newWP);
-            }
+            double x = point.x;
+            double y = point.y;
+
+            double angle = atan2(y,x);
+            double bearing = fmod((angle * 180.0/M_PI) + 360.0,360.0);
+            DataState::StateGlobalPosition newPosition = origin.position.NewPositionFromHeadingBearing(sqrt(x*x+y*y),bearing,true);
+            newWP->position = newPosition;
+            newPosition.altitude = point.z;
+
+            missionList.insertMissionItem(newWP);
         }
 
         ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr){
             ptr->GSEvent_UploadMission(this, missionList);
         });
     }
+}
+
+
+
+void ModuleRTA::TestFunction(const int &vehicleID){
+    updateMACEMissions(environment->getCells());
 }

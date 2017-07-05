@@ -136,7 +136,9 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
 {
     UNUSED(sender);
-    UNUSED(vehicleID);
+//    UNUSED(vehicleID);
+
+    m_RTA->MarshalCommand(RTACommands::TEST_FUNCTION, vehicleID);
 }
 
 void MaceCore::Event_ForceVehicleDataSync(const void *sender, const int &targetSystemID)

@@ -15,6 +15,15 @@
 #include <tuple>
 
 /**
+ * @brief The GridDirection enum to denote how we sort cell nodes
+ */
+enum GridDirection {
+    NORTH_SOUTH,
+    EAST_WEST,
+    CLOSEST_POINT
+};
+
+/**
  * @brief The Point class is a simple container for holding x,y pairs
  */
 class Point {
@@ -81,7 +90,7 @@ public:
      * @param bbox Bounding box
      * @param sitePositions Positions of vehicles (in x,y,z coordinates)
      */
-    void computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles);
+    void computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles, GridDirection direction);
 
     /**
      * @brief setBoundaryVerts Set the new boundary vertices
@@ -124,6 +133,14 @@ public:
      * @return Cells making up the voronoi partition
      */
     std::map<int, Cell> getCells() {return cells;}
+
+    /**
+     * @brief sortNodesInGridSort the nodes in the cell in a grid fashion
+     * @param cell Cell to sort the nodes
+     * @param direction Direction to sort nodes (north/south, east/west, or by closest node)
+     */
+    std::vector<Point> sortNodesInGrid(Cell &cell, GridDirection direction);
+
 private:
 
     /**
@@ -183,6 +200,15 @@ private:
      */
     bool pointInPoly(std::vector<Point> vertices, Point testPoint);
 
+    /**
+     * @brief distanceToSegment Determine shortest distance to a line segment
+     * @param p1 First vertex of the line segment
+     * @param p2 Second vertex of the line segment
+     * @param testPoint Point to check
+     * @return Distance to the line segment
+     */
+    double distanceToSegment(Point p1, Point p2, Point testPoint);
+
 
     /**
      * @brief sortCellVertices Sort the vertices of a cell in CCW fashion
@@ -193,7 +219,7 @@ private:
 
 private:
     /**
-     * @brief nodes Environment map
+     * @brief nodes Environment map (sorted Xval, Yval)
      */
     std::map<double, std::map<double, Node> > nodes;
 
