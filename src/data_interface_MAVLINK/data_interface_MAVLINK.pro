@@ -3,8 +3,8 @@
 # Project created by QtCreator 2017-07-06T10:01:40
 #
 #-------------------------------------------------
-
-
+QT += serialport
+QT += network
 QT       -= core gui
 
 TARGET = data_interface_MAVLINK
@@ -28,13 +28,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     vehicle_object_mavlink.cpp \
     callback_interface_data_mavlink.cpp \
-    command_interface_mavlink.cpp
+    command_interface_mavlink.cpp \
+    state_data_mavlink.cpp \
+    mission_data_mavlink.cpp
 
 HEADERS +=\
         data_interface_mavlink_global.h \
     vehicle_object_mavlink.h \
     callback_interface_data_mavlink.h \
-    command_interface_mavlink.h
+    command_interface_mavlink.h \
+    state_data_mavlink.h \
+    mission_data_mavlink.h
 
 
 # Unix lib Install

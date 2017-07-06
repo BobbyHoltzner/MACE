@@ -5,7 +5,7 @@
 
 #include "data_generic_command_item/command_item_components.h"
 
-typedef void(*CallbackFunctionPtr_CmdLng)(void*, mavlink_command_long_t);
+typedef void(*CallbackFunctionPtr_CmdLng)(void*, mavlink_command_long_t&);
 
 namespace DataInterface_MAVLINK{
 
