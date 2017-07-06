@@ -55,6 +55,7 @@ struct Cell {
     Point site;
     std::vector<Point> vertices;
     std::map<double, std::map<double, Node> > containedNodes;
+    std::map<double, std::map<double, Node> > containedNodes_YX;
 };
 
 /**
@@ -115,11 +116,10 @@ public:
     bool getNodeValue(const Point location, Node &node);
 
     /**
-     * @brief getNodesInPolygon Get the nodes contained in the polygon provided
-     * @param boundary Vector of points that make up the footprint we want to check
-     * @return Map of nodes within the footprint
+     * @brief setNodesInCell Get the nodes contained in the polygon provided in a cell
+     * @param Cell Cell with boundary of points that make up the footprint we want to check
      */
-    std::map<double, std::map<double, Node> > getNodesInPolygon(std::vector<Point> boundary);
+    void setNodesInCell(Cell &cell);
 
     /**
      * @brief addVehicle Update/insert a vehicle in our map and re-compute the voronoi partition
@@ -216,12 +216,18 @@ private:
      */
     void sortCellVerticesCCW(Cell &cell);
 
+    /**
+     * @brief setContainedNodesYX For sorting a grid in the North/South direction, we need the nodes in Y,X order instead of X,Y order
+     * @param cell Cell to set our YX pairs for
+     */
+    void setContainedNodesYX(Cell &cell);
+
 
 private:
     /**
      * @brief nodes Environment map (sorted Xval, Yval)
      */
-    std::map<double, std::map<double, Node> > nodes;
+    std::map<double, std::map<double, Node> > nodes;       
 
     /**
      * @brief boundaryVerts Vertices that make up the environment boundary

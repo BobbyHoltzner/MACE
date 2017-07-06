@@ -148,7 +148,7 @@ void ModuleRTA::updateMACEMissions(std::map<int, Cell> updateCells) {
         missionList.setVehicleID(vehicleID);
 
         // Grab the sorted points from the cell:
-        std::vector<Point> sortedPoints = environment->sortNodesInGrid(cell.second, GridDirection::EAST_WEST);
+        std::vector<Point> sortedPoints = environment->sortNodesInGrid(cell.second, GridDirection::NORTH_SOUTH);
         // Loop over sorted points and insert into a mission:
         for(auto point : sortedPoints) {
             std::shared_ptr<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>> newWP = std::make_shared<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>>();

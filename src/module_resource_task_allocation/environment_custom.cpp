@@ -129,9 +129,10 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
         // Sort the cell vertices:
         sortCellVerticesCCW(cell);
         // Get contained nodes:
-        cell.containedNodes = getNodesInPolygon(cell.vertices);
+        setNodesInCell(cell);
 
-        std::cout << "Contained nodes size: " << cell.containedNodes.size() << std::endl;
+        // TODO: There's got to be a better way to sort the North/South direction then creating a whole separate map of y-vals:
+        setContainedNodesYX(cell);
 
         // Sort the nodes:
         sortNodesInGrid(cell, direction);
@@ -257,8 +258,6 @@ std::map<double, std::map<double, Node> > Environment_Map::initializeEnvironment
             Point tmpPoint(xVal, yVal, 0);
             Node tmpNode(tmpPoint, 0.0);
             y_node_map_tmp.insert(std::make_pair(yVal, tmpNode));
-
-//                std::cout << "X Val: " << xVal << " / Y Val: " << yVal << std::endl;
         }
 
         tmpNodes.insert(std::make_pair(xVal, y_node_map_tmp));
@@ -312,12 +311,11 @@ bool Environment_Map::getNodeValue(const Point location, Node &node) {
 }
 
 /**
- * @brief getNodesInPolygon Get the nodes contained in the polygon provided
- * @param boundary Vector of points that make up the footprint we want to check
- * @return Map of nodes within the footprint
+ * @brief setNodesInCell Get the nodes contained in the polygon provided in a cell
+ * @param Cell Cell with boundary of points that make up the footprint we want to check
  */
-std::map<double, std::map<double, Node> > Environment_Map::getNodesInPolygon(std::vector<Point> boundary) {
-    std::map<double, std::map<double, Node> > containedNodes;
+void Environment_Map::setNodesInCell(Cell &cell) {
+    std::map<double, std::map<double, Node> > tmpContainedNodes;
     int count = 0;
     for(auto nodeX : nodes) {
         double xVal = nodeX.first;
@@ -327,7 +325,7 @@ std::map<double, std::map<double, Node> > Environment_Map::getNodesInPolygon(std
             double yVal = nodeY.first;
 
             Point tmpPoint = Point(xVal, yVal,0);
-            bool inPoly = pointInPoly(boundary, tmpPoint);
+            bool inPoly = pointInPoly(cell.vertices, tmpPoint);
 
             if(inPoly){
                 count ++;
@@ -336,14 +334,15 @@ std::map<double, std::map<double, Node> > Environment_Map::getNodesInPolygon(std
         }
 
         if(y_node_map_tmp.size() > 0) {
-            containedNodes.insert(std::make_pair(xVal, y_node_map_tmp));
+            tmpContainedNodes.insert(std::make_pair(xVal, y_node_map_tmp));
         }
     }
 
 
 //    std::cout << "Number of nodes in footprint: " << containedNodes.size() * containedNodes.begin()->second.size() << " / Total nodes: " << nodes.size() * nodes.begin()->second.size() << std::endl;
 
-    return containedNodes;
+    // Set containedNodes
+    cell.containedNodes = tmpContainedNodes;
 }
 
 /**
@@ -597,7 +596,6 @@ std::vector<Point> Environment_Map::sortNodesInGrid(Cell &cell, GridDirection di
     // -For east/west, maybe use a private variable that is sorted by y as the first value and do the same as the x sorting?
     // -For closest point, populate a list of all nodes and start at the first. as we loop over, find the closest point, add to a container, and then pop that off the list we're looping over. (use while loop over the size of this list)
 
-//    std::map<double, std::map<double, Node> > sortedNodes;
     std::vector<Point> sortedPoints;
 
     switch (direction) {
@@ -609,12 +607,12 @@ std::vector<Point> Environment_Map::sortNodesInGrid(Cell &cell, GridDirection di
             // If column is odd, iterate in reverse:
             if(column % 2 == 0) {
                 for(auto yIt : xIt.second) {
-                    sortedPoints.push_back(Point(xVal, yIt.first,0));
+                    sortedPoints.push_back(Point(xVal, yIt.first, 0));
                 }
             }
             else {
                 for(auto yItRev = xIt.second.rbegin(); yItRev != xIt.second.rend(); ++yItRev) {
-                    sortedPoints.push_back(Point(xVal, yItRev->first,0));
+                    sortedPoints.push_back(Point(xVal, yItRev->first, 0));
                 }
             }
 
@@ -625,6 +623,24 @@ std::vector<Point> Environment_Map::sortNodesInGrid(Cell &cell, GridDirection di
         break;
     case GridDirection::NORTH_SOUTH:
     {
+        int row = 0;
+        for(auto yIt : cell.containedNodes_YX) {
+            double yVal = yIt.first;
+            // If column is odd, iterate in reverse:
+            if(row % 2 == 0) {
+                for(auto xIt : yIt.second) {
+                    sortedPoints.push_back(Point(xIt.first, yVal, 0));
+                }
+            }
+            else {
+                for(auto xItRev = yIt.second.rbegin(); xItRev != yIt.second.rend(); ++xItRev) {
+                    sortedPoints.push_back(Point(xItRev->first, yVal, 0));
+                }
+            }
+
+            // Iterate column counter:
+            row++;
+        }
     }
         break;
     case GridDirection::CLOSEST_POINT:
@@ -641,3 +657,60 @@ std::vector<Point> Environment_Map::sortNodesInGrid(Cell &cell, GridDirection di
 
     return sortedPoints;
 }
+
+
+void Environment_Map::setContainedNodesYX(Cell &cell) {
+    double epsilon = 0.000001;
+    // TODO: Set YX pairs of contained nodes:
+    std::map<double, std::map<double, Node> > tmpContainedNodes_YX;
+    for(auto xIt : cell.containedNodes) {
+        double xVal = xIt.first;
+        // If column is odd, iterate in reverse:
+        std::map<double, Node> tmp_x_nodes;
+        for(auto yIt : xIt.second) {
+
+            // Find if there is a yVal in our tmpContainedNodes_YX map that corresponds to this yvalue.
+            //      -If so, find if there is already an x value in that map.
+            //      -If not (there shouldn't be), add it to the map
+            Node node = yIt.second;
+            double yVal = yIt.first;
+
+            auto mapIt = tmpContainedNodes_YX.lower_bound(yVal);
+            if(mapIt == tmpContainedNodes_YX.end()) {
+                // Nothing found. Need to insert a new entry
+                std::map<double, Node> tmp_x_node;
+                tmp_x_node.insert(std::make_pair(xVal, node));
+                tmpContainedNodes_YX.insert(std::make_pair(yVal, tmp_x_node));
+            }
+            else if(mapIt == tmpContainedNodes_YX.begin()) {
+                // Found beginning of map. Check if closer than epsilon away.
+                //      -If so, use it.
+                //      -If not, insert a new entry
+                if(fabs(mapIt->first - yVal) < epsilon) {
+                    mapIt->second.insert(std::make_pair(xVal, node));
+                }
+                else {
+                    std::map<double, Node> tmp_x_node;
+                    tmp_x_node.insert(std::make_pair(xVal, node));
+                    tmpContainedNodes_YX.insert(std::make_pair(yVal, tmp_x_node));
+                }
+            }
+            else {
+                // Check previous iterator.
+                //      -If closer to the yval we are checking, then use the previous iterator
+                std::map<double, std::map<double, Node> >::iterator prevIt = mapIt;
+                --prevIt;
+                if(fabs(prevIt->first - yVal) < fabs(mapIt->first - yVal)) {
+                    prevIt->second.insert(std::make_pair(xVal, node));
+                }
+                else {
+                    mapIt->second.insert(std::make_pair(xVal, node));
+                }
+            }
+        }
+    }
+
+    // Set contained nodes YX:
+    cell.containedNodes_YX = tmpContainedNodes_YX;
+}
+
