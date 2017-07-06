@@ -5,7 +5,7 @@ import * as React from 'react';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
 import { Vehicle } from '../Vehicle';
-import { backgroundColors, textSeverityToColor } from '../util/Colors';
+import { textSeverityToColor } from '../util/Colors';
 import { aircraftImgSrcFromType } from '../util/VehicleHelper';
 import Avatar from 'material-ui/Avatar';
 import { Colors } from '../util/Colors';
@@ -29,7 +29,7 @@ export class VehicleMessages extends React.Component<Props, State> {
     }
 
     render() {
-        const boxShadow = this.props.aircraft.isSelected ? backgroundColors[parseInt(this.props.vehicleID)] + " 0px 1px 20px, rgba(0, 0, 0, .5) 0px 1px 4px" : "rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px"
+        const boxShadow = this.props.aircraft.isSelected ? this.props.aircraft.highlightColor + " 0px 1px 20px, rgba(0, 0, 0, .5) 0px 1px 4px" : "rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px"
         const hudStyle = {position: "relative", width: 90 + "%", marginBottom: 15, boxShadow: boxShadow};
         // const hudAvatar = aircraftImgSrcFromType(this.props.aircraft.general.aircraftType);
         const hudAvatar: JSX.Element =

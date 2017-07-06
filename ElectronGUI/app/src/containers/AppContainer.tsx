@@ -21,7 +21,7 @@ import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
 import { MessagesDialog } from '../components/MessagesDialog';
 import { TakeoffDialog } from '../components/TakeoffDialog';
 import MACEMap from '../components/MACEMap';
-import { backgroundColors, opaqueBackgroundColors } from '../util/Colors';
+import { getRandomRGB } from '../util/Colors';
 
 import * as deepcopy from 'deepcopy';
 
@@ -202,8 +202,10 @@ export default class AppContainer extends React.Component<Props, State> {
         else {
           console.log("Index: " + i);
           let newVehicle = new Vehicle(jsonVehicles.connectedVehicles[i]);
-          newVehicle.highlightColor = backgroundColors[i];
-          newVehicle.opaqueHighlightColor = opaqueBackgroundColors[i];
+          let rgb = getRandomRGB();
+
+          newVehicle.highlightColor = 'rgba('+ rgb.r +','+ rgb.g +','+ rgb.b +',1)';
+          newVehicle.opaqueHighlightColor = 'rgba('+ rgb.r +','+ rgb.g +','+ rgb.b +',.2)';
           stateCopy[jsonVehicles.connectedVehicles[i].toString()] = newVehicle;
         }
       }
@@ -338,7 +340,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
       if(showMessage) {
         this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
-        stateCopy[vehicleText.vehicleID].messages.unshift({severity: vehicleText.severity, text: vehicleText.text});
+        stateCopy[vehicleText.vehicleID].messages.unshift({severity: vehicleText.severity, text: vehicleText.text, timestamp: new Date()});
         this.vehicleDB = stateCopy;
       }
     }
