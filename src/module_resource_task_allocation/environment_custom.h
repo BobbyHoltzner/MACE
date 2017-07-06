@@ -56,6 +56,7 @@ struct Cell {
     std::vector<Point> vertices;
     std::map<double, std::map<double, Node> > containedNodes;
     std::map<double, std::map<double, Node> > containedNodes_YX;
+    std::vector<Point> unsortedContainedPoints;
 };
 
 /**

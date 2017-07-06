@@ -315,6 +315,9 @@ bool Environment_Map::getNodeValue(const Point location, Node &node) {
  * @param Cell Cell with boundary of points that make up the footprint we want to check
  */
 void Environment_Map::setNodesInCell(Cell &cell) {
+    // Clear unsorted points:
+    cell.unsortedContainedPoints.clear();
+
     std::map<double, std::map<double, Node> > tmpContainedNodes;
     int count = 0;
     for(auto nodeX : nodes) {
@@ -330,6 +333,9 @@ void Environment_Map::setNodesInCell(Cell &cell) {
             if(inPoly){
                 count ++;
                 y_node_map_tmp.insert(std::make_pair(yVal, nodeY.second));
+
+                // Insert into unsorted points vector:
+                cell.unsortedContainedPoints.push_back(Point(xVal, yVal, 0.0));
             }
         }
 
@@ -645,7 +651,40 @@ std::vector<Point> Environment_Map::sortNodesInGrid(Cell &cell, GridDirection di
         break;
     case GridDirection::CLOSEST_POINT:
     {
+        std::vector<int> usedIndeces;
+        for(int i = 0; i < cell.unsortedContainedPoints.size(); i++) {
+            Point tmpClosestPoint(std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), 0);
+            double prevDist = std::numeric_limits<double>::max();
 
+            int usedIndex = 0;
+            if(i == 0) {
+                sortedPoints.push_back(cell.unsortedContainedPoints[i]);
+                usedIndeces.push_back(usedIndex);
+                continue;
+            }
+            for(int j = 1; j < cell.unsortedContainedPoints.size(); j++) {
+                // Check that we aren't comparing the same indeces or that we've already used the index.
+                //      -If we have, continue
+                //      -If not, check distance for closest point:
+                if((i-1) == j || std::find(usedIndeces.begin(), usedIndeces.end(), j) != usedIndeces.end()){
+                    continue;
+                }
+                else {
+                    double dist = distanceBetweenPoints(sortedPoints[i-1], cell.unsortedContainedPoints[j]);
+                    if(dist < prevDist) {
+                        prevDist = dist;
+                        tmpClosestPoint = Point(cell.unsortedContainedPoints[j]);
+                        usedIndex = j;
+                    }
+                }
+            }
+
+            // Insert closest point:
+            sortedPoints.push_back(tmpClosestPoint);
+
+            // Insert index into vector:
+            usedIndeces.push_back(usedIndex);
+        }
     }
         break;
     default:
@@ -658,7 +697,10 @@ std::vector<Point> Environment_Map::sortNodesInGrid(Cell &cell, GridDirection di
     return sortedPoints;
 }
 
-
+/**
+ * @brief setContainedNodesYX For sorting a grid in the North/South direction, we need the nodes in Y,X order instead of X,Y order
+ * @param cell Cell to set our YX pairs for
+ */
 void Environment_Map::setContainedNodesYX(Cell &cell) {
     double epsilon = 0.000001;
     // TODO: Set YX pairs of contained nodes:
