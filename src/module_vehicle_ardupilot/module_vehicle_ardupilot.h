@@ -18,9 +18,7 @@
 #include "data_vehicle_ardupilot/vehicle_object_ardupilot.h"
 
 #include "data_vehicle_MAVLINK/MACE_to_MAVLINK/command_mace_to_mavlink.h"
-#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/generic_mace_to_mavlink.h"
 #include "data_vehicle_MAVLINK/MACE_to_MAVLINK/mission_mace_to_mavlink.h"
-#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/state_mace_to_mavlink.h"
 
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
@@ -116,13 +114,13 @@ public:
     //! \brief Command_VehicleTakeoff
     //! \param vehicleTakeoff
     //!
-    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command);
+    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command);
 
     //!
     //! \brief Command_Land
     //! \param command
     //!
-    virtual void Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command);
+    virtual void Command_Land(const CommandItem::SpatialLand &command);
 
     //!
     //! \brief Command_ReturnToLaunch
@@ -253,9 +251,9 @@ public:
     {
         std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
         Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan, std::bind(&ModuleVehicleArdupilot::takeoffCallback, this, _1));
-        CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> takeoff;
+        CommandItem::SpatialTakeoff takeoff;
         takeoff.setTargetSystem(1);
-        takeoff.position.setPosition(37,-76,100);
+        takeoff.position.setPosition3D(37,-76,100);
         newController->initializeTakeoffSequence(takeoff);
 
         m_AircraftController = newController;

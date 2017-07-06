@@ -44,7 +44,11 @@ public:
 
     virtual mavlink_message_t Takeoff_MACETOMAVLINK(const CommandItem::SpatialTakeoff &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
 
+    virtual mavlink_message_t Waypoint_MACETOMAVLINK(const CommandItem::SpatialWaypoint &missionItem, const uint8_t &chan, const uint8_t &compID, const uint16_t &itemIndex);
+
     virtual mavlink_mission_item_t Waypoint_MACETOMAVLINK(const CommandItem::SpatialWaypoint &missionItem, const uint8_t &compID, const uint16_t &itemIndex);
+
+    void updateMissionPosition(const DataState::Base3DPosition &pos, mavlink_mission_item_t &item);
 
 protected:
     void initializeMAVLINKMissionItem(mavlink_mission_item_t &mavMission);

@@ -34,8 +34,14 @@ StateGlobalPositionTopic::StateGlobalPositionTopic()
 
 }
 
-StateGlobalPositionTopic::StateGlobalPositionTopic(const DataState::StateGlobalPosition &copyObj):
+StateGlobalPositionTopic::StateGlobalPositionTopic(const StateGlobalPositionTopic &copyObj):
     DataState::StateGlobalPosition(copyObj)
+{
+
+}
+
+StateGlobalPositionTopic::StateGlobalPositionTopic(const DataState::StateGlobalPosition &posObj):
+    DataState::StateGlobalPosition(posObj)
 {
 
 }

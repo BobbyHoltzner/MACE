@@ -3,7 +3,9 @@
 
 #include "state_airspeed.h"
 #include "state_attitude.h"
-#include "state_generic_position.h"
+
+#include "base_2d_position.h"
+#include "base_3d_position.h"
 
 #include "state_global_position.h"
 #include "state_global_position_ex.h"

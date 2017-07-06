@@ -10,7 +10,7 @@ class Base2DPosition
 
 public:
     //!
-    //! \brief StateGenericPosition
+    //! \brief Base2DPosition
     //!
     Base2DPosition()
     {
@@ -22,7 +22,20 @@ public:
     }
 
     //!
-    //! \brief StateGenericPosition
+    //! \brief Base2DPosition
+    //! \param copy
+    //!
+    Base2DPosition(const Base2DPosition &copy)
+    {
+        this->m_CoordinateFrame = copy.m_CoordinateFrame;
+        this->x = copy.x;
+        this->y = copy.y;
+        this->posXFlag = copy.posXFlag;
+        this->posYFlag = copy.posYFlag;
+    }
+
+    //!
+    //! \brief Base2DPosition
     //! \param coordinateFrame
     //!
     Base2DPosition(const Data::CoordinateFrameType &coordinateFrame)
@@ -35,14 +48,14 @@ public:
     }
 
     //!
-    //! \brief StateGenericPosition
+    //! \brief Base2DPosition
     //! \param posX
     //! \param posY
     //! \param posZ
     //!
     Base2DPosition(const double &posX, const double &posY)
     {
-        setPositionGeneric(posX,posY);
+        setPosition2D(posX,posY);
     }
 
     //!
@@ -55,23 +68,16 @@ public:
     Base2DPosition(const Data::CoordinateFrameType &coordinateFrame, const double &posX, const double &posY)
     {
         this->m_CoordinateFrame = coordinateFrame;
-        this->setPositionGeneric(posX,posY);
+        this->setPosition2D(posX,posY);
     }
 
-private:
-    //!
-    //! \brief setPositionGeneric
-    //! \param posX
-    //! \param posY
-    //! \param posZ
-    //!
-    void setPositionGeneric(const double &posX, const double &posY)
+public:
+    void setPosition2D(const double &posX, const double &posY)
     {
         this->setX(posX);
         this->setY(posY);
     }
 
-public:
     //!
     //! \brief setX
     //! \param posX
@@ -124,6 +130,17 @@ public:
     //!
     Data::CoordinateFrameType getCoordinateFrame() const {
         return m_CoordinateFrame;
+    }
+
+    //!
+    //! \brief isCoordinateFrame
+    //! \param comp
+    //! \return
+    //!
+    bool isCoordinateFrame(const Data::CoordinateFrameType &comp) const {
+        if(m_CoordinateFrame == comp)
+            return true;
+        return false;
     }
 
 public:

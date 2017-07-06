@@ -33,7 +33,7 @@ public:
 
     ~Ardupilot_TakeoffController();
 
-    void initializeTakeoffSequence(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &takeoff);
+    void initializeTakeoffSequence(const CommandItem::SpatialTakeoff &takeoff);
     void updatedFlightMode(const DataARDUPILOT::VehicleFlightMode &flightMode);
 
     double distanceToTarget();
@@ -55,7 +55,7 @@ private:
     stateLogic currentStateLogic;
 
 private:
-    CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem_Takeoff;
+    CommandItem::SpatialTakeoff missionItem_Takeoff;
 };
 
 #endif // ARDUPILOT_TAKEOFF_CONTROLLER_H

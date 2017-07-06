@@ -9,9 +9,10 @@ StateGlobalPosition::StateGlobalPosition():
 
 }
 
-StateGlobalPosition::StateGlobalPosition(const StateGlobalPosition &globalPosition)
+StateGlobalPosition::StateGlobalPosition(const StateGlobalPosition &globalPosition):
+    Base3DPosition(globalPosition)
 {
-    this->operator =(globalPosition);
+
 }
 
 StateGlobalPosition::StateGlobalPosition(const Data::CoordinateFrameType &frame):

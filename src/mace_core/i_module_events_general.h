@@ -15,9 +15,9 @@ public:
 
     virtual void Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command) = 0;
 
-    virtual void Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command) = 0;
+    virtual void Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff &command) = 0;
 
-    virtual void Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command) = 0;
+    virtual void Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand &command) = 0;
 
     virtual void Event_IssueCommandRTL(const void* sender, const CommandItem::SpatialRTL &command) = 0;
 

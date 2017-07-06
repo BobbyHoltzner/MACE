@@ -1,47 +1,40 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-01-10T14:37:24
+# Project created by QtCreator 2017-07-06T10:01:40
 #
 #-------------------------------------------------
 
+
 QT       -= core gui
 
-TARGET = data_vehicle_MAVLINK
+TARGET = data_interface_MAVLINK
 TEMPLATE = lib
 
-DEFINES += DATA_VEHICLE_MAVLINK_LIBRARY
+DEFINES += DATA_INTERFACE_MAVLINK_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
+# The following define makes your compiler emit warnings if you use
+# any feature of Qt which as been marked as deprecated (the exact warnings
+# depend on your compiler). Please consult the documentation of the
+# deprecated API in order to know how to port your code away from it.
+DEFINES += QT_DEPRECATED_WARNINGS
+
+# You can also make your code fail to compile if you use deprecated APIs.
+# In order to do so, uncomment the following line.
+# You can also select to disable deprecated APIs only up to a certain version of Qt.
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+
 SOURCES += \
-    mavlink_parser.cpp \
-    data_container_mavlink.cpp \
     vehicle_object_mavlink.cpp \
-    MACE_to_MAVLINK/mission_mace_to_mavlink.cpp \
-    MACE_to_MAVLINK/command_mace_to_mavlink.cpp \
-    MAVLINK_to_MACE/mission_mavlink_to_mace.cpp \
-    MAVLINK_to_MACE/command_mavlink_to_mace.cpp \
-    MAVLINK_to_MACE/generic_mavlink_to_mace.cpp \
-    MAVLINK_to_MACE/state_mavlink_to_mace.cpp \
-    MAVLINK_to_MACE/container_mavlink_to_mace.cpp \
-    MACE_to_MAVLINK/container_mace_to_mavlink.cpp \
-    empty_mavlink.cpp
+    callback_interface_data_mavlink.cpp \
+    command_interface_mavlink.cpp
 
 HEADERS +=\
-    mavlink_parser.h \
+        data_interface_mavlink_global.h \
     vehicle_object_mavlink.h \
-    data_container_mavlink.h \
-    data_vehicle_mavlink_global.h \
-    MACE_to_MAVLINK/mission_mace_to_mavlink.h \
-    MACE_to_MAVLINK/command_mace_to_mavlink.h \
-    MACE_to_MAVLINK/container_mace_to_mavlink.h \
-    MAVLINK_to_MACE/mission_mavlink_to_mace.h \
-    MAVLINK_to_MACE/command_mavlink_to_mace.h \
-    MAVLINK_to_MACE/generic_mavlink_to_mace.h \
-    MAVLINK_to_MACE/state_mavlink_to_mace.h \
-    MAVLINK_to_MACE/container_mavlink_to_mace.h \
-    components.h \
-    empty_mavlink.h
+    callback_interface_data_mavlink.h \
+    command_interface_mavlink.h
 
 
 # Unix lib Install
@@ -52,38 +45,9 @@ unix:!symbian {
 
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib
-win32:CONFIG(release, debug|release):       lib.files   += release/data_vehicle_MAVLINK.lib release/data_vehicle_MAVLINK.dll
-else:win32:CONFIG(debug, debug|release):    lib.files   += debug/data_vehicle_MAVLINK.lib debug/data_vehicle_MAVLINK.dll
+win32:CONFIG(release, debug|release):       lib.files   += release/data_interface_MAVLINK.lib release/data_interface_MAVLINK.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/data_interface_MAVLINK.lib debug/data_interface_MAVLINK.dll
 INSTALLS += lib
-
-#Header file copy
-headers.path    = $$(MACE_ROOT)/include/data_vehicle_MAVLINK
-headers.files   += \
-    mavlink_parser.h \
-    components.h \
-    empty_mavlink.h \
-    vehicle_object_mavlink.h \
-    data_container_mavlink.h \
-    data_vehicle_mavlink_global.h
-INSTALLS       += headers
-
-#Header file copy
-headers_MACE_to_MAVLINK.path    = $$(MACE_ROOT)/include/data_vehicle_MAVLINK/MACE_to_MAVLINK
-headers_MACE_to_MAVLINK.files   += \
-    MACE_to_MAVLINK/command_mace_to_mavlink.h \
-    MACE_to_MAVLINK/container_mace_to_mavlink.h \
-    MACE_to_MAVLINK/mission_mace_to_mavlink.h
-INSTALLS       += headers_MACE_to_MAVLINK
-
-#Header file copy
-headers_MAVLINK_to_MACE.path    = $$(MACE_ROOT)/include/data_vehicle_MAVLINK/MAVLINK_to_MACE
-headers_MAVLINK_to_MACE.files   += \
-    MAVLINK_to_MACE/command_mavlink_to_mace.h \
-    MAVLINK_to_MACE/container_mavlink_to_mace.h \
-    MAVLINK_to_MACE/generic_mavlink_to_mace.h \
-    MAVLINK_to_MACE/mission_mavlink_to_mace.h \
-    MAVLINK_to_MACE/state_mavlink_to_mace.h
-INSTALLS       += headers_MAVLINK_to_MACE
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/

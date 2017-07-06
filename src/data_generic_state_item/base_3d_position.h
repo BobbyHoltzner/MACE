@@ -19,6 +19,13 @@ public:
         this->posZFlag =false;
     }
 
+    Base3DPosition(const Base3DPosition &copy):
+        Base2DPosition(copy)
+    {
+        this->z = copy.z;
+        this->posZFlag = copy.posZFlag;
+    }
+
     //!
     //! \brief Base3DPosition
     //! \param coordinateFrame
@@ -39,7 +46,7 @@ public:
     Base3DPosition(const double &posX, const double &posY, const double &posZ):
         Base2DPosition(posX, posY)
     {
-        this->setPositionGeneric(posX,posY,posZ);
+        this->setPosition3D(posX,posY,posZ);
     }
 
     //!
@@ -52,24 +59,23 @@ public:
     Base3DPosition(const Data::CoordinateFrameType &coordinateFrame, const double &posX, const double &posY, const double &posZ):
         Base2DPosition(coordinateFrame,posX,posY)
     {
-        this->setPositionGeneric(posX,posY,posZ);
+        this->setPosition3D(posX,posY,posZ);
     }
 
-private:
+public:
+
     //!
-    //! \brief setPositionGeneric
+    //! \brief setPosition3D
     //! \param posX
     //! \param posY
     //! \param posZ
     //!
-    void setPositionGeneric(const double &posX, const double &posY, const double &posZ)
+    void setPosition3D(const double &posX, const double &posY, const double &posZ)
     {
         this->setX(posX);
         this->setY(posY);
         this->setZ(posZ);
     }
-
-public:
 
     //!
     //! \brief setZ

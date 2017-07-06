@@ -25,6 +25,7 @@
 #include "mace_core/module_factory.h"
 
 #include "data_vehicle_MAVLINK/components.h"
+
 #include "data_vehicle_MAVLINK/vehicle_object_mavlink.h"
 
 #include "commsMAVLINK/comms_mavlink.h"
@@ -64,7 +65,7 @@ public:
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ModuleVehicleMAVLINK() :
-        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataMAVLINK::EmptyMAVLINK>()
+        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataMAVLINK::GPSStatus>()
     {
 
     }

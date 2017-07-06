@@ -18,7 +18,8 @@ public:
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
     StateGlobalPositionTopic();
-    StateGlobalPositionTopic(const DataState::StateGlobalPosition &copyObj);
+    StateGlobalPositionTopic(const DataStateTopic::StateGlobalPositionTopic &copyObj);
+    StateGlobalPositionTopic(const DataState::StateGlobalPosition &posObj);
 
 };
 

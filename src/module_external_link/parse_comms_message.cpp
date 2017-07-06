@@ -208,11 +208,12 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_set_home_position_t decodedMSG;
         mace_msg_set_home_position_decode(message,&decodedMSG);
         DataCOMMS::Mission_COMMSTOMACE missionConvert;
-        CommandItem::SpatialHome systemHome;
-        missionConvert.Home_COMMSTOMACE(decodedMSG.target_system,decodedMSG,systemHome);
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->Event_SetHomePosition(this, systemHome);
-        });
+        //KEN FIX THIS
+//        CommandItem::SpatialHome systemHome;
+//        missionConvert.Home_COMMSTOMACE(decodedMSG.target_system,decodedMSG,systemHome);
+//        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//            ptr->Event_SetHomePosition(this, systemHome);
+//        });
         break;
     }
     case MACE_MSG_ID_HOME_POSITION:
@@ -221,9 +222,9 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_msg_home_position_decode(message,&decodedMSG);
 
         CommandItem::SpatialHome spatialHome;
-        spatialHome.position.latitude = decodedMSG.latitude / pow(10,7);
-        spatialHome.position.longitude = decodedMSG.longitude / pow(10,7);
-        spatialHome.position.altitude = decodedMSG.altitude / 1000;
+        spatialHome.position.setX(decodedMSG.latitude / pow(10,7));
+        spatialHome.position.setY(decodedMSG.longitude / pow(10,7));
+        spatialHome.position.setZ(decodedMSG.altitude / 1000);
         spatialHome.setOriginatingSystem(systemID);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){

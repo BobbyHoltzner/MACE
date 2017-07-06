@@ -9,9 +9,10 @@ StateLocalPosition::StateLocalPosition():
 
 }
 
-StateLocalPosition::StateLocalPosition(const StateLocalPosition &localPosition)
+StateLocalPosition::StateLocalPosition(const StateLocalPosition &localPosition):
+    Base3DPosition(localPosition)
 {
-    this->operator =(localPosition);
+
 }
 
 StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame):
