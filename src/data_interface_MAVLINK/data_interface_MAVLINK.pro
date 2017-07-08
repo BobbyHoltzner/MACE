@@ -31,7 +31,8 @@ SOURCES += \
     command_interface_mavlink.cpp \
     state_data_mavlink.cpp \
     mission_data_mavlink.cpp \
-    parse_mavlink.cpp
+    parse_mavlink.cpp \
+    mission_controller_mavlink.cpp
 
 HEADERS +=\
         data_interface_mavlink_global.h \
@@ -39,7 +40,8 @@ HEADERS +=\
     callback_interface_data_mavlink.h \
     command_interface_mavlink.h \
     state_data_mavlink.h \
-    mission_data_mavlink.h
+    mission_data_mavlink.h \
+    mission_controller_mavlink.h
 
 
 # Unix lib Install

@@ -4,6 +4,8 @@
 #
 #-------------------------------------------------
 
+QT += serialport
+QT += network
 QT       -= core gui
 
 TARGET = data_generic_state_item

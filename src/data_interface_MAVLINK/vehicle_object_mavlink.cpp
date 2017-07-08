@@ -8,6 +8,9 @@ VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &tr
     command = new CommandInterface_MAVLINK(systemID, 0);
     command->connectCallback_CommandLong(VehicleObject_MAVLINK::staticCallbackCMDLongFunction, this);
 
+    missionController = new MissionController_MAVLINK();
+    missionController->connectCallback_TransmitMSG(VehicleObject_MAVLINK::staticCallbackTransmitMissionMSG, this);
+
     mission = new MissionData_MAVLINK();
     state = new StateData_MAVLINK();
     state->connectCallback_State(VehicleObject_MAVLINK::staticCallbackState, this);
