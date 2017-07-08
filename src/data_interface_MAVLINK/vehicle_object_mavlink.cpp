@@ -10,6 +10,7 @@ VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &tr
 
     mission = new MissionData_MAVLINK();
     state = new StateData_MAVLINK();
+    state->connectCallback_State(VehicleObject_MAVLINK::staticCallbackState, this);
 }
 
 void VehicleObject_MAVLINK::updateCommsInfo(Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan)
@@ -29,6 +30,11 @@ void VehicleObject_MAVLINK::transmitCommandLong(const mavlink_command_long_t &cm
     mavlink_message_t msg;
     mavlink_msg_command_long_encode_chan(commandID,0,m_LinkChan,&msg,&cmd);
     transmitMessage(msg);
+}
+
+void VehicleObject_MAVLINK::receiveCommand(const DataState::StateGlobalPosition &pos)
+{
+    std::cout<<"I have received a position"<<std::endl;
 }
 
 } //end of namespace DataInterface_MAVLINK

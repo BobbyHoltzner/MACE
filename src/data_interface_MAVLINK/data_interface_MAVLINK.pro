@@ -30,7 +30,8 @@ SOURCES += \
     callback_interface_data_mavlink.cpp \
     command_interface_mavlink.cpp \
     state_data_mavlink.cpp \
-    mission_data_mavlink.cpp
+    mission_data_mavlink.cpp \
+    parse_mavlink.cpp
 
 HEADERS +=\
         data_interface_mavlink_global.h \

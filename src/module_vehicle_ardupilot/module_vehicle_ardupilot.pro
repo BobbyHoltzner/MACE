@@ -116,3 +116,10 @@ else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_MACELINK/ -lmodule_vehicle_MAVL
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
 
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/release/ -ldata_interface_MAVLINK
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/debug/ -ldata_interface_MAVLINK
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/ -ldata_interface_MAVLINK
+
+INCLUDEPATH += $$PWD/../data_interface_MAVLINK
+DEPENDPATH += $$PWD/../data_interface_MAVLINK

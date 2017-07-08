@@ -24,15 +24,24 @@ public:
 
     void transmitMessage(const mavlink_message_t &msg);
 
+    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForVehicleData(const mavlink_message_t* message);
+
     void parseMessage(const mavlink_message_t &msg);
 
     void transmitCommandLong(const mavlink_command_long_t &cmd);
+
+    void receiveCommand(const DataState::StateGlobalPosition &pos);
 
 //The following establish the necessary callback routines
 public:
     static void staticCallbackCMDLongFunction(void *p, mavlink_command_long_t &cmd)
     {
         ((VehicleObject_MAVLINK *)p)->transmitCommandLong(cmd);
+    }
+
+    static void staticCallbackState(void *p, DataState::StateGlobalPosition &pos)
+    {
+        ((VehicleObject_MAVLINK *)p)->receiveCommand(pos);
     }
 
     //The following are organizational methods to compartmentalize funcitonality

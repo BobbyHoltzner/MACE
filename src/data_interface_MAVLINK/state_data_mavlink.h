@@ -6,12 +6,19 @@
 #include "data_generic_item_topic/data_generic_item_topic_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
+typedef void(*CallbackFunctionPtr_State)(void*, DataState::StateGlobalPosition&);
+
 namespace DataInterface_MAVLINK {
 
 class StateData_MAVLINK
 {
 public:
     StateData_MAVLINK();
+
+    void connectCallback_State(CallbackFunctionPtr_State cb, void *p);
+
+    void performCallback();
+
 
 public:
     Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_Heartbeat> vehicleHeartbeat;
@@ -27,6 +34,10 @@ public:
     Data::DataGetSetNotifier<DataState::StateLocalPosition> vehicleLocalPosition;
     Data::DataGetSetNotifier<DataState::StateAttitude> vehicleAttitude;
     Data::DataGetSetNotifier<DataState::StateAirspeed> vehicleAirspeed;
+
+private:
+    CallbackFunctionPtr_State m_CBCmdLng;
+    void *m_p;
 
 };
 

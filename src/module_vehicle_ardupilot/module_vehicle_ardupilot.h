@@ -30,6 +30,8 @@
 //__________________
 #include "data_vehicle_MAVLINK/MACE_to_MAVLINK/command_mace_to_mavlink.h"
 
+#include "data_interface_MAVLINK/vehicle_object_mavlink.h"
+
 using namespace std::placeholders;
 
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
