@@ -88,6 +88,7 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> VehicleObject_MAVL
     case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
     {
         state->performCallback();
+        missionController->forceCallback();
 
         //This is message definition 33
         //The filtered global position (e.g. fused GPS and accelerometers). The position is in GPS-frame (right-handed, Z-up). It is designed as scaled integer message since the resolution of float is not sufficient.

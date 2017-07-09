@@ -21,6 +21,8 @@ class VehicleObject_MAVLINK
 public:
     VehicleObject_MAVLINK(const int &vehicleID, const int &transmittingID);
 
+    ~VehicleObject_MAVLINK();
+
     void updateCommsInfo(Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan);
 
     void transmitMessage(const mavlink_message_t &msg);

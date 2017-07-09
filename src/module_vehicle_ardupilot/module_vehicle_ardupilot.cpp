@@ -334,6 +334,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
 {
     DataInterface_MAVLINK::VehicleObject_MAVLINK newVehicle(systemID,255);
     newVehicle.state->performCallback();
+    newVehicle.missionController->forceCallback();
 
     //KEN clean this up
     UNUSED(linkName);

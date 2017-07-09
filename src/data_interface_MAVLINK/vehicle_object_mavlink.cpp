@@ -3,7 +3,9 @@
 namespace DataInterface_MAVLINK {
 
 VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &transmittingID):
-    systemID(vehicleID), commandID(transmittingID)
+    systemID(vehicleID), commandID(transmittingID),
+    m_LinkMarshaler(NULL), m_LinkName(""), m_LinkChan(0),
+    command(NULL), missionController(NULL), mission(NULL), state(NULL)
 {
     command = new CommandInterface_MAVLINK(systemID, 0);
     command->connectCallback_CommandLong(VehicleObject_MAVLINK::staticCallbackCMDLongFunction, this);
@@ -16,6 +18,21 @@ VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &tr
     state->connectCallback_State(VehicleObject_MAVLINK::staticCallbackState, this);
 }
 
+VehicleObject_MAVLINK::~VehicleObject_MAVLINK()
+{
+    delete command;
+    command = NULL;
+
+    delete mission;
+    mission = NULL;
+
+    delete state;
+    state = NULL;
+
+    delete m_LinkMarshaler;
+    m_LinkMarshaler = NULL;
+}
+
 void VehicleObject_MAVLINK::updateCommsInfo(Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan)
 {
     m_LinkMarshaler = commsMarshaler;
@@ -25,7 +42,11 @@ void VehicleObject_MAVLINK::updateCommsInfo(Comms::CommsMarshaler *commsMarshale
 
 void VehicleObject_MAVLINK::transmitMessage(const mavlink_message_t &msg)
 {
-    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    std::cout<<"I saw a transmit message callback"<<std::endl;
+    if(m_LinkMarshaler)
+    {
+        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    }
 }
 
 void VehicleObject_MAVLINK::transmitCommandLong(const mavlink_command_long_t &cmd)

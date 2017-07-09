@@ -13,4 +13,13 @@ void MissionController_MAVLINK::run()
 
 }
 
+void MissionController_MAVLINK::forceCallback()
+{
+    if(this->m_p)
+    {
+        mavlink_message_t msg;
+        m_CBMisMsg(m_p,msg);
+    }
+}
+
 } //end of namespace DataInterface_MAVLINK

@@ -25,6 +25,8 @@ public:
 
     void run();
 
+    void forceCallback();
+
     void recievedMissionItem(const mavlink_mission_item_t &missionItem);
 
     void receivedMissionCount(const mavlink_mission_count_t &missionCount);
