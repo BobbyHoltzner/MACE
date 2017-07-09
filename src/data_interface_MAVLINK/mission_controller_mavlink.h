@@ -1,6 +1,8 @@
 #ifndef MISSION_CONTROLLER_MAVLINK_H
 #define MISSION_CONTROLLER_MAVLINK_H
 
+#include <iostream>
+
 #include "mavlink.h"
 
 #include "data/threadmanager.h"
@@ -20,6 +22,8 @@ public:
         std::cout << "Destructor on the mavlink mission controller" << std::endl;
         mToExit = true;
     }
+
+    void run();
 
     void recievedMissionItem(const mavlink_mission_item_t &missionItem);
 

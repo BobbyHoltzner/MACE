@@ -45,12 +45,12 @@ public:
         ((VehicleObject_MAVLINK *)p)->receiveCommand(pos);
     }
 
-    static void staticCallbackTransmitMissionMSG(void *p, const mavlink_message_t &msg)
+    static void staticCallbackTransmitMissionMSG(void *p, mavlink_message_t &msg)
     {
         ((VehicleObject_MAVLINK *)p)->transmitMessage(msg);
     }
 
-    static void staticCallbackTransmitMSG(void *p, const mavlink_message_t &msg)
+    static void staticCallbackTransmitMSG(void *p, mavlink_message_t &msg)
     {
         ((VehicleObject_MAVLINK *)p)->transmitMessage(msg);
     }

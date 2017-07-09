@@ -8,4 +8,9 @@ MissionController_MAVLINK::MissionController_MAVLINK():
 
 }
 
+void MissionController_MAVLINK::run()
+{
+
+}
+
 } //end of namespace DataInterface_MAVLINK

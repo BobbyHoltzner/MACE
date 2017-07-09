@@ -205,7 +205,7 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> VehicleObject_MAVL
         /// MISSION ITEMS: The following case statements are executed
         /// for mission based message events.
         /////////////////////////////////////////////////////////////////////////
-
+/*
     case MAVLINK_MSG_ID_MISSION_ITEM:
     {
         //This is message definition 39
@@ -435,7 +435,7 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> VehicleObject_MAVL
         parsedMissionMSG = false;
     }
     }
-
+*/
     default:
     {
         //std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
