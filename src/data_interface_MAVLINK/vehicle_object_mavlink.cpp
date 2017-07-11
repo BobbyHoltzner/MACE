@@ -11,7 +11,8 @@ VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &tr
     command->connectCallback_CommandLong(VehicleObject_MAVLINK::staticCallbackCMDLongFunction, this);
 
     missionController = new MissionController_MAVLINK();
-    missionController->connectCallback_TransmitMSG(VehicleObject_MAVLINK::staticCallbackTransmitMissionMSG, this);
+    missionController->connectCallback(this);
+    missionController->start();
 
     mission = new MissionData_MAVLINK();
     state = new StateData_MAVLINK();
@@ -42,7 +43,6 @@ void VehicleObject_MAVLINK::updateCommsInfo(Comms::CommsMarshaler *commsMarshale
 
 void VehicleObject_MAVLINK::transmitMessage(const mavlink_message_t &msg)
 {
-    std::cout<<"I saw a transmit message callback"<<std::endl;
     if(m_LinkMarshaler)
     {
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -59,6 +59,27 @@ void VehicleObject_MAVLINK::transmitCommandLong(const mavlink_command_long_t &cm
 void VehicleObject_MAVLINK::receiveCommand(const DataState::StateGlobalPosition &pos)
 {
     std::cout<<"I have received a position"<<std::endl;
+}
+
+void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionCount(const mavlink_mission_count_t &count)
+{
+    mavlink_message_t msg;
+    mavlink_msg_mission_count_encode_chan(255,190,m_LinkChan,&msg,&count);
+    transmitMessage(msg);
+}
+
+void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionItem(const mavlink_mission_item_t &item)
+{
+    mavlink_message_t msg;
+    mavlink_msg_mission_item_encode_chan(255,190,m_LinkChan,&msg,&item);
+    transmitMessage(msg);
+}
+
+void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionReq(const mavlink_mission_request_t &request)
+{
+    mavlink_message_t msg;
+    mavlink_msg_mission_request_encode_chan(255,190,m_LinkChan,&msg,&request);
+    transmitMessage(msg);
 }
 
 } //end of namespace DataInterface_MAVLINK

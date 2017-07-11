@@ -3,7 +3,7 @@
 # Project created by QtCreator 2016-12-08T21:09:09
 #
 #-------------------------------------------------
-QT -= core gui
+QT -= gui
 
 TARGET = data
 TEMPLATE = lib
@@ -13,9 +13,7 @@ DEFINES += DATA_LIBRARY
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
-    timer.cpp \
     system_description.cpp \
-    environment_time.cpp \
     mission_key.cpp \
     mission_key_change.cpp
 
@@ -32,8 +30,6 @@ HEADERS += data_global.h \
     controller_state.h \
     system_description.h \
     mission_type.h \
-    environment_time.h \
-    date.h \
     mission_key.h \
     mission_key_change.h \
     data_get_set_notifier.h \

@@ -5,7 +5,7 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),
     m_VehicleMission("vehicleMission"), m_AircraftController(NULL)
 {
-
+    vehicleData = new DataInterface_MAVLINK::VehicleObject_MAVLINK(2,255);
 }
 
 std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> ModuleVehicleArdupilot::getArducopterData(const int &systemID)

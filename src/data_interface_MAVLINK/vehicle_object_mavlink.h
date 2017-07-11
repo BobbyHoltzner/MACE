@@ -16,7 +16,7 @@
 
 namespace DataInterface_MAVLINK{
 
-class VehicleObject_MAVLINK
+class VehicleObject_MAVLINK : public MissionController_Interface
 {
 public:
     VehicleObject_MAVLINK(const int &vehicleID, const int &transmittingID);
@@ -36,6 +36,12 @@ public:
     void receiveCommand(const DataState::StateGlobalPosition &pos);
 
 //The following establish the necessary callback routines
+
+    //The following are as required from the mission controller interface
+public:
+    void cbiMissionController_TransmitMissionCount(const mavlink_mission_count_t &count);
+    void cbiMissionController_TransmitMissionItem(const mavlink_mission_item_t &item);
+    void cbiMissionController_TransmitMissionReq(const mavlink_mission_request_t &request);
 public:
     static void staticCallbackCMDLongFunction(void *p, mavlink_command_long_t &cmd)
     {

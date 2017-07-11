@@ -4,8 +4,6 @@
 #include <map>
 
 #include <mavlink.h>
-
-#include "data/timer.h"
 #include "data/mission_command.h"
 
 #include "ardupilot_guided_controller.h"
@@ -268,8 +266,7 @@ public:
 private:
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> getArducopterData(const int &systemID);
 private:
-
-    Timer t;
+    DataInterface_MAVLINK::VehicleObject_MAVLINK *vehicleData;
 
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
