@@ -332,10 +332,6 @@ void ModuleVehicleArdupilot::Command_ClearOnboardGuided(const int &targetSystem)
 
 void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
-    DataInterface_MAVLINK::VehicleObject_MAVLINK newVehicle(systemID,255);
-    newVehicle.state->performCallback();
-    newVehicle.missionController->forceCallback();
-
     //KEN clean this up
     UNUSED(linkName);
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(systemID);

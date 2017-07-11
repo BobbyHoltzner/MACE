@@ -68,6 +68,19 @@ double StateLocalPosition::getPositionZ() const
     return this->getZ();
 }
 
+double StateLocalPosition::bearingDegreesFromOrigin() const
+{
+    double angle = atan2(y,x);
+    double bearing = fmod((angle * 180.0/M_PI) + 360.0,360.0);
+    return bearing;
+}
+
+double StateLocalPosition::distanceFromOrigin() const
+{
+    double distance = sqrt(x*x + y*y);
+    return distance;
+}
+
 mace_local_position_ned_t StateLocalPosition::getMACECommsObject()
 {
     mace_local_position_ned_t rtnObj;

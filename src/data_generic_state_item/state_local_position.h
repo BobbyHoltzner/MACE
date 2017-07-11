@@ -35,6 +35,9 @@ public:
     double getPositionY() const;
     double getPositionZ() const;
 
+    double bearingDegreesFromOrigin() const;
+    double distanceFromOrigin() const;
+
     mace_local_position_ned_t getMACECommsObject();
 
     //virtual functions derived from AbstractPosition

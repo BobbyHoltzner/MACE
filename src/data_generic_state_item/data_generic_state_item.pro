@@ -39,7 +39,8 @@ SOURCES += \
     abstract_3d_position.cpp \
     base_2d_position.cpp \
     abstract_position.cpp \
-    abstract_2d_position.cpp
+    abstract_2d_position.cpp \
+    positional_aid.cpp
 
 HEADERS +=\
         data_generic_state_item_global.h \
@@ -56,7 +57,8 @@ HEADERS +=\
     abstract_3d_position.h \
     base_2d_position.h \
     abstract_position.h \
-    abstract_2d_position.h
+    abstract_2d_position.h \
+    positional_aid.h
 
 # Unix lib Install
 unix:!symbian {
