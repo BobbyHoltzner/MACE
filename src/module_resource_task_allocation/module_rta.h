@@ -58,6 +58,22 @@ private:
      */
     void updateMACEMissions(std::map<int, Cell> updateCells);
 
+    /**
+     * @brief parseBoundaryVertices Given a string of delimited (lat, lon) pairs, parse into a vector of points
+     * @param unparsedVertices String to parse with delimiters
+     * @param vertices Container for boundary vertices
+     * @return true denotes >= 3 vertices to make a polygon, false denotes invalid polygon
+     */
+    bool parseBoundaryVertices(std::string unparsedVertices, std::vector<Point> &vertices);
+
+    /**
+     * @brief convertGlobalBoundaryToLocal Convert a list of vertices from global to local coordinate frames
+     * @param globalVerts List of global vertices to convert
+     * @param globalLat Global latitude
+     * @param globalLon Global longitude
+     */
+    void convertGlobalBoundaryToLocal(std::vector<Point> &globalVerts, const double globalLat, const double globalLon);
+
 private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
 

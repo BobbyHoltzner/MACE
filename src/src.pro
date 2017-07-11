@@ -31,4 +31,5 @@ SUBDIRS += \
     data_generic_command_item \
     data_generic_command_item_topic \
 #    Voronoi
-    voropp
+    voropp \
+    data_interface_MAVLINK

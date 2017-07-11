@@ -29,26 +29,25 @@ public:
     Mission_COMMSTOMACE();
     std::shared_ptr<CommandItem::AbstractCommandItem> Covert_COMMSTOMACE(const mace_mission_item_t &maceItem);
 
-    void Home_COMMSTOMACE(const int &vehicleID, const mace_set_home_position_t &maceItem, CommandItem::SpatialHome &missionItem);
+    void Home_COMMSTOMACE(const mace_set_home_position_t &maceItem, CommandItem::SpatialHome &missionItem);
 
-    void ChangeSpeed_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, CommandItem::ActionChangeSpeed &missionItem);
+    void ChangeSpeed_COMMSTOMACE(const mace_mission_item_t &maceItem, CommandItem::ActionChangeSpeed &missionItem);
 
-    void LoiterTime_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem);
-    void LoiterTime_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem);
+    void LoiterTime_COMMSTOMACE(const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Time &missionItem);
 
-    void LoiterTurns_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem);
-    void LoiterTurns_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem);
+    void LoiterTurns_COMMSTOMACE(const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Turns &missionItem);
 
-    void LoiterUnlimited_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem);
-    void LoiterUnlimited_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem);
+    void LoiterUnlimited_COMMSTOMACE(const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Unlimited &missionItem);
 
-    void RTL_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, CommandItem::SpatialRTL &missionItem);
+    void RTL_COMMSTOMACE(const mace_mission_item_t &maceItem, CommandItem::SpatialRTL &missionItem);
 
-    void Takeoff_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem);
-    void Takeoff_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, CommandItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem);
+    void Takeoff_COMMSTOMACE(const mace_mission_item_t &maceItem, CommandItem::SpatialTakeoff &missionItem);
 
-    void Waypoint_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, CommandItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem);
-    void Waypoint_COMMSTOMACE(const int &vehicleID, const mace_mission_item_t &maceItem, CommandItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem);
+    void Waypoint_COMMSTOMACE(const mace_mission_item_t &maceItem, CommandItem::SpatialWaypoint &missionItem);
+
+private:
+    void updatePosition(const mace_mission_item_t &maceItem, DataState::Base3DPosition &pos);
+
 };
 
 } //end of namespace DataCOMMS

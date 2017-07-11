@@ -19,4 +19,14 @@ DataGenericItem_FlightMode::DataGenericItem_FlightMode(const DataGenericItem_Fli
     this->flightModeString = copyObj.getFlightModeString();
 }
 
+
+mace_vehicle_mode_t DataGenericItem_FlightMode::getMACECommsObject() const
+{
+    mace_vehicle_mode_t rtnObj;
+
+    strcpy(rtnObj.vehicle_mode,this->flightModeString.c_str());
+
+    return rtnObj;
+}
+
 } //end of namespace DataGenericItem

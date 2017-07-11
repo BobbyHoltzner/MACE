@@ -148,13 +148,14 @@ private:
         newHome = vehicleHome;
 
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        m_VehicleHomeMap[vehicleHome.getGeneratingSystem()] = newHome;
-        if(flagGlobalOrigin == true)
-        {
-            Eigen::Vector3f translation;
-            newHome.position.translationTransformation(m_GlobalOrigin.position,translation);
-            m_VehicleToGlobalTranslation[vehicleHome.getGeneratingSystem()] = translation;
-        }
+        m_VehicleHomeMap[vehicleHome.getOriginatingSystem()] = newHome;
+        //KEN FIX THIS
+//        if(flagGlobalOrigin == true)
+//        {
+//            Eigen::Vector3f translation;
+//            newHome.position.translationTransformation(m_GlobalOrigin.position,translation);
+//            m_VehicleToGlobalTranslation[vehicleHome.getOriginatingSystem()] = translation;
+//        }
     }
 
     void UpdateGlobalOrigin(const CommandItem::SpatialHome &globalOrigin)
@@ -162,14 +163,13 @@ private:
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_GlobalOrigin = globalOrigin;
         flagGlobalOrigin = true;
-        for (std::map<int,CommandItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
-        {
-            Eigen::Vector3f translation;
-            it->second.position.translationTransformation(m_GlobalOrigin.position,translation);
-            m_VehicleToGlobalTranslation[it->first] = translation;
-        }
-          //std::cout << it->first << " => " << it->second << '\n';
-        //This is where we would need to update and compute transformations
+        //KEN FIX THIS
+//        for (std::map<int,CommandItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
+//        {
+//            Eigen::Vector3f translation;
+//            it->second.position.translationTransformation(m_GlobalOrigin.position,translation);
+//            m_VehicleToGlobalTranslation[it->first] = translation;
+//        }
     }
 
 

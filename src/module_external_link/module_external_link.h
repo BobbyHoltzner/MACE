@@ -152,13 +152,13 @@ public:
     //! \brief Command_RequestVehicleTakeoff
     //! \param vehicleTakeoff
     //!
-    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff);
+    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &vehicleTakeoff);
 
     //!
     //! \brief Command_Land
     //! \param command
     //!
-    virtual void Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command);
+    virtual void Command_Land(const CommandItem::SpatialLand &command);
 
     //!
     //! \brief Command_ReturnToLaunch
@@ -183,7 +183,7 @@ public:
     //! \brief Command_EmitHeartbeat
     //! \param heartbeat
     //!
-    virtual void Command_EmitHeartbeat(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &heartbeat);
+    virtual void Command_EmitHeartbeat(const CommandItem::SpatialTakeoff &heartbeat);
 
     /////////////////////////////////////////////////////////////////////////
     /// GENERAL MISSION EVENTS: This is implying for auto mode of the vehicle.

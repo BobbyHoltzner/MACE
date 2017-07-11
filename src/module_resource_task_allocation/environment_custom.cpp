@@ -170,7 +170,7 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
  * @brief getVehicleID Check a cell for the vehicle contained within the cell to grab its ID
  * @param cell Cell who's boundary we will check
  * @param vehicleList List of vehicles and their positions to check
- * @return
+ * @return Vehicle ID
  */
 int Environment_Map::getVehicleID(const Cell cell, const std::map<int, Point> vehicleList) {
     int vehicleID = -1;

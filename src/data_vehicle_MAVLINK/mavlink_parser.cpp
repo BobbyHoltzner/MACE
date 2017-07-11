@@ -128,9 +128,9 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> MAVLINKParser::Par
         mavlink_msg_local_position_ned_decode(message,&decodedMSG);
 
         DataState::StateLocalPosition localPosition;
-        localPosition.x = decodedMSG.x;
-        localPosition.y = decodedMSG.y;
-        localPosition.z = decodedMSG.z;
+        localPosition.setPositionX(decodedMSG.x);
+        localPosition.setPositionY(decodedMSG.y);
+        localPosition.setPositionZ(decodedMSG.z);
 
         //check that something has actually changed
 

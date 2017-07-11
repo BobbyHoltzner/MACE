@@ -11,9 +11,9 @@ mavlink_message_t Command_MACETOMAVLINK::generateSetHomePosition(const CommandIt
 {
     mavlink_message_t msg;
     mavlink_set_home_position_t cmd;
-    cmd.latitude = vehicleHome.position.latitude * pow(10,7);
-    cmd.longitude = vehicleHome.position.longitude * pow(10,7);
-    cmd.altitude = vehicleHome.position.altitude * 1000.00;
+    cmd.latitude = vehicleHome.position.getX() * pow(10,7);
+    cmd.longitude = vehicleHome.position.getY() * pow(10,7);
+    cmd.altitude = vehicleHome.position.getZ() * 1000;
     mavlink_msg_set_home_position_encode_chan(mSystemID,mCompID,chan,&msg,&cmd);
     return msg;
 }
@@ -69,24 +69,24 @@ mavlink_message_t Command_MACETOMAVLINK::generateArmMessage(const CommandItem::A
     return msg;
 }
 
-mavlink_message_t Command_MACETOMAVLINK::generateTakeoffMessage(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan)
+mavlink_message_t Command_MACETOMAVLINK::generateTakeoffMessage(const CommandItem::SpatialTakeoff &missionItem, const uint8_t &chan)
 {
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_NAV_TAKEOFF;
     cmd.target_system = missionItem.getTargetSystem();
-    cmd.param7 = missionItem.position.altitude;
+    cmd.param7 = missionItem.position.getZ();
     mavlink_message_t msg = packLongMessage(cmd,chan);
     return msg;
 }
 
-mavlink_message_t Command_MACETOMAVLINK::generateLandMessage(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &commandItem, const uint8_t &chan)
+mavlink_message_t Command_MACETOMAVLINK::generateLandMessage(const CommandItem::SpatialLand &commandItem, const uint8_t &chan)
 {
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_NAV_LAND;
     cmd.target_system = commandItem.getTargetSystem();
-    cmd.param5 = commandItem.position.latitude;
-    cmd.param6 = commandItem.position.longitude;
-    cmd.param7 = commandItem.position.altitude;
+    cmd.param5 = commandItem.position.getX();
+    cmd.param6 = commandItem.position.getY();
+    cmd.param7 = commandItem.position.getZ();
     mavlink_message_t msg = packLongMessage(cmd,chan);
     return msg;
 }
