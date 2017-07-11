@@ -176,14 +176,14 @@ void MaceCore::Event_IssueCommandSystemArm(const void* sender, const CommandItem
     }
 }
 
-void MaceCore::Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command)
+void MaceCore::Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
     if(vehicleID == 0)
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> newTakeoff(command);
+            CommandItem::SpatialTakeoff newTakeoff(command);
             newTakeoff.setTargetSystem(it->first);
             it->second->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_TAKEOFF,newTakeoff);
         }
@@ -196,14 +196,14 @@ void MaceCore::Event_IssueCommandTakeoff(const void* sender, const CommandItem::
     }
 }
 
-void MaceCore::Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command)
+void MaceCore::Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
     if(vehicleID == 0)
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            CommandItem::SpatialLand<DataState::StateGlobalPosition> newArm(command);
+            CommandItem::SpatialLand newArm(command);
             newArm.setTargetSystem(it->first);
             it->second->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_LAND,newArm);
         }

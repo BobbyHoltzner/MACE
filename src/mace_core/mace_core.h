@@ -81,8 +81,8 @@ public:
 
     virtual void Event_ForceVehicleDataSync(const void* sender, const int &targetSystemID);
     virtual void Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command);
-    virtual void Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command);
-    virtual void Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command);
+    virtual void Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff &command);
+    virtual void Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand &command);
     virtual void Event_IssueCommandRTL(const void* sender, const CommandItem::SpatialRTL &command);
     virtual void Event_IssueMissionCommand(const void* sender, const CommandItem::ActionMissionCommand &command);
     virtual void Event_ChangeSystemMode(const void* sender, const CommandItem::ActionChangeMode &command);

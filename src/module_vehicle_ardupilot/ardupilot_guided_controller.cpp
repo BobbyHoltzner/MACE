@@ -37,14 +37,12 @@ double Ardupilot_GuidedController::distanceToTarget(){
     {
     case(Data::CommandItemType::CI_NAV_WAYPOINT):
     {
-        if(currentMissionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
-        {
-            std::shared_ptr<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>>(currentMissionItem);
-            DataState::StateGlobalPosition currentPosition = vehicleDataObject->data->vehicleGlobalPosition.get();
-            DataState::StateGlobalPosition actualPosition(currentPosition);
-            actualPosition.altitude = currentPosition.altitude - m_VehicleHome.position.altitude;
-            distance = castItem->position.distanceBetween3D(actualPosition);
-        }
+        std::shared_ptr<CommandItem::SpatialWaypoint> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint>(currentMissionItem);
+        DataState::StateGlobalPosition currentPosition = vehicleDataObject->data->vehicleGlobalPosition.get();
+
+        DataState::StateGlobalPosition targetPosition(castItem->position.getX(),castItem->position.getY(),castItem->position.getZ());
+        currentPosition.setAltitude(currentPosition.getAltitude() - m_VehicleHome.position.getZ());
+        distance = currentPosition.distanceBetween3D(targetPosition);
     break;
     }
     default:
