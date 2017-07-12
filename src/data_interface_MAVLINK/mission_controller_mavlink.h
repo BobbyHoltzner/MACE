@@ -9,7 +9,10 @@
 #include "data/threadmanager.h"
 #include "data/timer.h"
 
-#include <callback_interface_data_mavlink.h>
+#include "data_generic_mission_item_topic/mission_item_topic_components.h"
+#include "MAVLINK_to_MACE/helper_mission_mavlink_to_mace.h"
+
+#include "callback_interface_data_mavlink.h"
 
 typedef void(*CallbackFunctionPtr_MisCount)(void*, mavlink_message_t &);
 
@@ -19,7 +22,12 @@ class MissionController_Interface
 public:
     virtual void cbiMissionController_TransmitMissionCount(const mavlink_mission_count_t &count) = 0;
     virtual void cbiMissionController_TransmitMissionItem(const mavlink_mission_item_t &item) = 0;
-    virtual void cbiMissionController_TransmitMissionReq(const mavlink_mission_request_t &request) = 0;
+
+    virtual void cbiMissionController_TransmitMissionReqList(const mavlink_mission_request_list_t &request) = 0;
+    virtual void cbiMissionController_TransmitMissionReq(const mavlink_mission_request_t &requestItem) = 0;
+
+    virtual void cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home) = 0;
+    virtual void cbiMissionController_ReceivedMission(const MissionItem::MissionList &mission) = 0;
 };
 
 namespace DataInterface_MAVLINK {
@@ -45,11 +53,9 @@ public:
 
     void run();
 
-    void forceCallback();
-
     void requestMission();
 
-    void transmitMission();
+    void transmitMission(const MissionItem::MissionList &missionQueue);
 
     void recievedMissionItem(const mavlink_mission_item_t &missionItem);
 
@@ -70,14 +76,16 @@ private:
     int responseTimeout;
 private:
     MissionController_Interface *m_CB;
+    DataMAVLINK::Helper_MissionMAVLINKtoMACE helperMAVtoMACE;
 
     commsState currentCommsState;
-    //commsObject *prevTransmit;
+    MissionItem::MissionList missionList;
+
+    commsObjectBase *prevTransmit;
 };
 
 
-template <class T>
-class commsObject
+class commsObjectBase
 {
     enum commsItem{
         ITEMMISSION,
@@ -85,18 +93,33 @@ class commsObject
         ITEMLIST
     };
 
-    commsObject(const commsItem &itemType, const T &itemObj)
+    void setType(const commsItem &objType)
     {
-        this->type = itemType;
-        this->obj = itemObj;
+        this->type = objType;
     }
 
-    ~commsObject()
+    commsItem getType() const
     {
-
+        return this->type;
     }
 
     commsItem type;
+};
+
+template <class T>
+class commsObject : public commsObjectBase
+{
+
+    void setData(const T &data)
+    {
+        this->obj = data;
+    }
+
+    void getData() const
+    {
+        return this->obj;
+    }
+
     T obj;
 };
 

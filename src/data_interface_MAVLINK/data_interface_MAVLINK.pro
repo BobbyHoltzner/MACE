@@ -33,8 +33,6 @@ SOURCES += \
     mission_data_mavlink.cpp \
     parse_mavlink.cpp \
     mission_controller_mavlink.cpp \
-    MACE_to_MAVLINK/mission_mace_to_mavlink.cpp \
-    MAVLINK_to_MACE/mission_mavlink_to_mace.cpp \
     MACE_to_MAVLINK/helper_mission_mace_to_mavlink.cpp \
     MAVLINK_to_MACE/helper_mission_mavlink_to_mace.cpp
 
