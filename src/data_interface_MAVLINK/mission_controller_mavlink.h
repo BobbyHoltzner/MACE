@@ -10,6 +10,7 @@
 #include "data/timer.h"
 
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
+#include "MACE_to_MAVLINK/helper_mission_mace_to_mavlink.h"
 #include "MAVLINK_to_MACE/helper_mission_mavlink_to_mace.h"
 
 #include "callback_interface_data_mavlink.h"
@@ -58,6 +59,8 @@ public:
 
     void transmitMission(const MissionItem::MissionList &missionQueue);
 
+    void transmitMissionItem(const mavlink_mission_request_t &missionRequest);
+
     void recievedMissionItem(const mavlink_mission_item_t &missionItem);
 
     void receivedMissionCount(const mavlink_mission_count_t &missionCount);
@@ -71,6 +74,14 @@ public:
 
 private:
     void clearPreviousTransmit();
+
+    void lambdaTXMissionItem(const mavlink_mission_request_t &missionRequest);
+
+    void lambdaRXMissionItem(const mavlink_mission_item_t &missionItem);
+
+    void lambdaRXMissionCount(const mavlink_mission_count_t &missionCount);
+
+    void lambdaRXMissionACK(const mavlink_mission_ack_t &missionAck);
 
 private:
     int systemID;
@@ -89,6 +100,18 @@ private:
     MissionItem::MissionList missionList;
 
     PreviousTransmissionBase *prevTransmit;
+
+protected:
+    std::list<std::function<void()>> m_LambdasToRun;
+
+    void RunPendingTasks() {
+        while(m_LambdasToRun.size() > 0) {
+            auto lambda = m_LambdasToRun.front();
+            m_LambdasToRun.pop_front();
+            lambda();
+        }
+    }
+
 };
 
 

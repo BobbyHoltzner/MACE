@@ -5,9 +5,10 @@ class PreviousTransmissionBase
 {
 public:
     enum commsItem{
-        ITEMMISSION,
-        ITEMCOUNT,
-        ITEMLIST
+        ITEM_RXLIST,
+        ITEM_RXITEM,
+        ITEM_TXCOUNT,
+        ITEM_TXITEM
     };
 
     PreviousTransmissionBase(const commsItem &objType):

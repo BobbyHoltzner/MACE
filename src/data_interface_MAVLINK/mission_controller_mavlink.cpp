@@ -16,36 +16,17 @@ void MissionController_MAVLINK::clearPreviousTransmit()
     prevTransmit = NULL;
 }
 
-void MissionController_MAVLINK::transmitMission(const MissionItem::MissionList &missionQueue)
-{
-    this->missionList = missionQueue;
-
-    currentCommsState = TRANSMITTING;
-    mavlink_message_t msg;
-    mavlink_mission_count_t count;
-    count.count = this->missionList.getQueueSize();
-    count.mission_type = MAV_MISSION_TYPE_MISSION;
-    count.target_component = 0;
-    count.target_system = systemID;
-
-    clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mavlink_mission_count_t>(PreviousTransmissionBase::ITEMCOUNT, count);
-
-    if(m_CB)
-        m_CB->cbiMissionController_TransmitMissionCount(count);
-}
-
 void MissionController_MAVLINK::requestMission()
 {
     currentCommsState = RECEIVING;
 
     mavlink_mission_request_list_t request;
-    request.mission_type = MAV_MISSION_TYPE_FENCE;
+    request.mission_type = MAV_MISSION_TYPE_MISSION;
+    request.target_system = systemID;
     request.target_component = 0;
-    request.target_system = 0;
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mavlink_mission_request_list_t>(PreviousTransmissionBase::ITEMLIST, request);
+    prevTransmit = new PreviousTransmission<mavlink_mission_request_list_t>(PreviousTransmissionBase::ITEM_RXLIST, request);
 
     if(m_CB)
         m_CB->cbiMissionController_TransmitMissionReqList(request);
@@ -54,15 +35,73 @@ void MissionController_MAVLINK::requestMission()
     mTimer.start();
 }
 
+void MissionController_MAVLINK::transmitMission(const MissionItem::MissionList &missionQueue)
+{
+    if(missionQueue.getVehicleID() == this->systemID)
+    {
+        this->missionList = missionQueue;
+    }
+
+    currentCommsState = TRANSMITTING;
+    mavlink_mission_count_t count;
+    count.count = this->missionList.getQueueSize();
+    count.mission_type = MAV_MISSION_TYPE_MISSION;
+    count.target_component = 0;
+    count.target_system = systemID;
+
+    clearPreviousTransmit();
+    prevTransmit = new PreviousTransmission<mavlink_mission_count_t>(PreviousTransmissionBase::ITEM_TXCOUNT, count);
+
+    if(m_CB)
+        m_CB->cbiMissionController_TransmitMissionCount(count);
+
+    currentRetry = 0;
+    this->start();
+    mTimer.start();
+}
+
+void MissionController_MAVLINK::transmitMissionItem(const mavlink_mission_request_t &missionRequest)
+{
+    m_LambdasToRun.push_back([this, &missionRequest]{
+        mTimer.stop();
+        int index = missionRequest.seq;
+
+        currentCommsState = TRANSMITTING;
+        mavlink_mission_item_t missionItem;
+
+
+        std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = this->missionList.getMissionItem(index - 1);
+        DataMAVLINK::Helper_MissionMACEtoMAVLINK::MACEMissionToMAVLINKMission(ptrItem,index,missionItem);
+
+        clearPreviousTransmit();
+        prevTransmit = new PreviousTransmission<mavlink_mission_item_t>(PreviousTransmissionBase::ITEM_TXITEM, missionItem);
+
+        if(m_CB)
+            m_CB->cbiMissionController_TransmitMissionItem(missionItem);
+        currentRetry = 0;
+        mTimer.start();
+    });
+}
+
+
 void MissionController_MAVLINK::run()
 {
     while(true)
     {
-        double timeElapsed = mTimer.elapsedMilliseconds();
         if(mToExit == true) {
+            clearPreviousTransmit();
             mTimer.stop();
             break;
         }
+
+        this->RunPendingTasks();
+
+        //The current state we can find out how much time has passed.
+        //If one of the lambda expressions has fired the clock shoud
+        //be reset right at the end, thus making this value small and
+        //improbable the next function will fire
+        double timeElapsed = mTimer.elapsedMilliseconds();
+
         if(timeElapsed > responseTimeout)
         {
             currentRetry++;
@@ -76,18 +115,39 @@ void MissionController_MAVLINK::run()
                 mToExit = true;
              break;
             }
-            case TRANSMITTING:
-            {
-                break;
-            }
             case RECEIVING:
             {
-                if(prevTransmit->getType() == PreviousTransmissionBase::ITEMMISSION)
+                if(prevTransmit->getType() == PreviousTransmissionBase::ITEM_RXLIST)
                 {
                     PreviousTransmission<mavlink_mission_request_list_t> *tmp = static_cast<PreviousTransmission<mavlink_mission_request_list_t>*>(prevTransmit);
                     mavlink_mission_request_list_t msgTransmit = tmp->getData();
                     if(m_CB)
                         m_CB->cbiMissionController_TransmitMissionReqList(msgTransmit);
+                }
+                else if(prevTransmit->getType() == PreviousTransmissionBase::ITEM_RXITEM)
+                {
+                    PreviousTransmission<mavlink_mission_request_t> *tmp = static_cast<PreviousTransmission<mavlink_mission_request_t>*>(prevTransmit);
+                    mavlink_mission_request_t msgTransmit = tmp->getData();
+                    if(m_CB)
+                        m_CB->cbiMissionController_TransmitMissionReq(msgTransmit);
+                }
+                break;
+            }
+            case TRANSMITTING:
+            {
+                if(prevTransmit->getType() == PreviousTransmissionBase::ITEM_TXCOUNT)
+                {
+                    PreviousTransmission<mavlink_mission_count_t> *tmp = static_cast<PreviousTransmission<mavlink_mission_count_t>*>(prevTransmit);
+                    mavlink_mission_count_t msgTransmit = tmp->getData();
+                    if(m_CB)
+                        m_CB->cbiMissionController_TransmitMissionCount(msgTransmit);
+                }
+                else if(prevTransmit->getType() == PreviousTransmissionBase::ITEM_TXITEM)
+                {
+                    PreviousTransmission<mavlink_mission_item_t> *tmp = static_cast<PreviousTransmission<mavlink_mission_item_t>*>(prevTransmit);
+                    mavlink_mission_item_t msgTransmit = tmp->getData();
+                    if(m_CB)
+                        m_CB->cbiMissionController_TransmitMissionItem(msgTransmit);
                 }
                 break;
             }
@@ -101,18 +161,26 @@ void MissionController_MAVLINK::run()
 
 void MissionController_MAVLINK::receivedMissionCount(const mavlink_mission_count_t &missionCount)
 {
-    mTimer.stop();
-    currentRetry = 0;
-    this->missionList.initializeQueue(missionCount.count);
+    m_LambdasToRun.push_back([this, &missionCount]{
+        mTimer.stop();
+        this->missionList.initializeQueue(missionCount.count);
 
-    mavlink_mission_request_t request;
-    request.mission_type = MAV_MISSION_TYPE_MISSION;
-    request.seq = 0;
-    request.target_system = 0;
-    request.target_component = 0;
-    mTimer.start();
-    m_CB->cbiMissionController_TransmitMissionReq(request);
+        mavlink_mission_request_t request;
+        request.mission_type = MAV_MISSION_TYPE_MISSION;
+        request.seq = 0;
+        request.target_system = systemID;
+        request.target_component = 0;
+
+        clearPreviousTransmit();
+        prevTransmit = new PreviousTransmission<mavlink_mission_request_t>(PreviousTransmissionBase::ITEM_RXITEM, request);
+
+        if(m_CB)
+            m_CB->cbiMissionController_TransmitMissionReq(request);
+        currentRetry = 0;
+        mTimer.start();
+    });
 }
+
 
 void MissionController_MAVLINK::receivedMissionACK(const mavlink_mission_ack_t &missionAck)
 {
@@ -122,8 +190,11 @@ void MissionController_MAVLINK::receivedMissionACK(const mavlink_mission_ack_t &
 
 void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t &missionItem)
 {
+    m_LambdasToRun.push_back([this, &missionItem]{
     mTimer.stop();
     currentRetry = 0;
+    clearPreviousTransmit();
+
     int index = missionItem.seq;
 
     if(index == 0) //This implies we recieved the home position according to the mission
@@ -150,14 +221,20 @@ void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t
         mavlink_mission_request_t request;
         request.mission_type = MAV_MISSION_TYPE_MISSION;
         request.seq = indexRequest;
-        request.target_system = 0;
+        request.target_system = systemID;
         request.target_component = 0;
 
+        prevTransmit = new PreviousTransmission<mavlink_mission_request_t>(PreviousTransmissionBase::ITEM_RXITEM, request);
+
+        if(m_CB)
+            m_CB->cbiMissionController_TransmitMissionReq(request);
+        currentRetry = 0;
         mTimer.start();
-        m_CB->cbiMissionController_TransmitMissionReq(request);
+
     }else{
         m_CB->cbiMissionController_ReceivedMission(this->missionList);
     }
+    });
 }
 
 } //end of namespace DataInterface_MAVLINK

@@ -61,6 +61,7 @@ void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem)
 
 void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command)
 {
+    vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
     vehicleData->missionController->requestMission();
 
 //    int vehicleID = command.getTargetSystem();
@@ -371,8 +372,8 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
         tmpData->data->setHeartbeatSeen(true);
-        mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0,MAV_MISSION_TYPE_MISSION);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+//        mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0,MAV_MISSION_TYPE_MISSION);
+//        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 
     }
 
@@ -475,10 +476,12 @@ void ModuleVehicleArdupilot::MAVLINKCommandAck(const std::string &linkName, cons
 //!
 void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
+    vehicleData->parseMessage(&message);
+
     int systemID = message.sysid;
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(systemID);
-
-    bool wasMissionMSG = ParseMAVLINKMissionMessage(tmpData, linkName, &message);
+    bool wasMissionMSG = false;
+    //bool wasMissionMSG = ParseMAVLINKMissionMessage(tmpData, linkName, &message);
 
     if(wasMissionMSG == false){
         //generate topic datagram from given mavlink message

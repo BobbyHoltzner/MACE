@@ -29,7 +29,7 @@ public:
 
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> ParseForVehicleData(const mavlink_message_t* message);
 
-    void parseMessage(const mavlink_message_t &msg);
+    void parseMessage(const mavlink_message_t *msg);
 
     void transmitCommandLong(const mavlink_command_long_t &cmd);
 
@@ -38,7 +38,7 @@ public:
 //The following establish the necessary callback routines
 
     //The following are as required from the mission controller interface
-public:
+private:
     void cbiMissionController_TransmitMissionCount(const mavlink_mission_count_t &count);
     void cbiMissionController_TransmitMissionItem(const mavlink_mission_item_t &item);
 
@@ -56,7 +56,7 @@ public:
 
     static void staticCallbackState(void *p, DataState::StateGlobalPosition &pos)
     {
-        ((VehicleObject_MAVLINK *)p)->receiveCommand(pos);
+        //((VehicleObject_MAVLINK *)p)->receiveCommand(pos);
     }
 
     static void staticCallbackTransmitMissionMSG(void *p, mavlink_message_t &msg)

@@ -12,7 +12,6 @@ VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &tr
 
     missionController = new MissionController_MAVLINK(2,0);
     missionController->connectCallback(this);
-    missionController->start();
 
     mission = new MissionData_MAVLINK();
     state = new StateData_MAVLINK();
@@ -64,26 +63,28 @@ void VehicleObject_MAVLINK::receiveCommand(const DataState::StateGlobalPosition 
 void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionCount(const mavlink_mission_count_t &count)
 {
     mavlink_message_t msg;
-    mavlink_msg_mission_count_encode_chan(255,190,m_LinkChan,&msg,&count);
+    mavlink_msg_mission_count_encode_chan(commandID,190,m_LinkChan,&msg,&count);
     transmitMessage(msg);
 }
 
 void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionItem(const mavlink_mission_item_t &item)
 {
     mavlink_message_t msg;
-    mavlink_msg_mission_item_encode_chan(255,190,m_LinkChan,&msg,&item);
+    mavlink_msg_mission_item_encode_chan(commandID,190,m_LinkChan,&msg,&item);
     transmitMessage(msg);
 }
 
 void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionReqList(const mavlink_mission_request_list_t &request)
 {
-
+    mavlink_message_t msg;
+    mavlink_msg_mission_request_list_encode_chan(commandID,190,m_LinkChan,&msg,&request);
+    transmitMessage(msg);
 }
 
 void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionReq(const mavlink_mission_request_t &request)
 {
     mavlink_message_t msg;
-    mavlink_msg_mission_request_encode_chan(255,190,m_LinkChan,&msg,&request);
+    mavlink_msg_mission_request_encode_chan(commandID,190,m_LinkChan,&msg,&request);
     transmitMessage(msg);
 }
 
