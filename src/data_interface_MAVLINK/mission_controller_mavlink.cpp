@@ -3,7 +3,7 @@
 namespace DataInterface_MAVLINK {
 
 MissionController_MAVLINK::MissionController_MAVLINK():
-    mToExit(false), currentCommsState(NEUTRAL)
+    mToExit(false), currentCommsState(NEUTRAL), currentRetry(0), maxRetries(5), responseTimeout(1000)
 {
     mTimer.start();
 }
@@ -26,6 +26,8 @@ void MissionController_MAVLINK::transmitMission()
 void MissionController_MAVLINK::requestMission()
 {
     currentCommsState = RECEIVING;
+    mTimer.start();
+    currentRetry = 0;
 }
 
 void MissionController_MAVLINK::run()
@@ -36,7 +38,10 @@ void MissionController_MAVLINK::run()
         if(mToExit == true) {
             break;
         }
-
+        if(timeElapsed > responseTimeout)
+        {
+            currentRetry++;
+        }
         switch(currentCommsState)
         {
         case NEUTRAL:
@@ -60,17 +65,20 @@ void MissionController_MAVLINK::run()
 
 void MissionController_MAVLINK::receivedMissionCount(const mavlink_mission_count_t &missionCount)
 {
-
+    mTimer.stop();
+    currentRetry = 0;
 }
 
 void MissionController_MAVLINK::receivedMissionACK(const mavlink_mission_ack_t &missionAck)
 {
-
+    mTimer.stop();
+    currentRetry = 0;
 }
 
 void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t &missionItem)
 {
-
+    mTimer.stop();
+    currentRetry = 0;
 }
 
 void MissionController_MAVLINK::forceCallback()

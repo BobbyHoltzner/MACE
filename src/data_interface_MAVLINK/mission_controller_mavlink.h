@@ -65,7 +65,9 @@ public:
 private:
     Timer mTimer;
     bool mToExit;
-
+    int currentRetry;
+    int maxRetries;
+    int responseTimeout;
 private:
     MissionController_Interface *m_CB;
 
