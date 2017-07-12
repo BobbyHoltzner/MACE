@@ -46,7 +46,8 @@ HEADERS +=\
     mission_controller_mavlink.h \
     MACE_to_MAVLINK/helper_mission_mace_to_mavlink.h \
     MAVLINK_to_MACE/helper_mission_mavlink_to_mace.h \
-    generic/helper_previous_transmission.h
+    generic/helper_previous_transmission.h \
+    generic/comms_item.h
 
 
 # Unix lib Install

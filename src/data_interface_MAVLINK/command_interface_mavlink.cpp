@@ -14,6 +14,11 @@ void CommandInterface_MAVLINK::connectCallback_CommandLong(CallbackFunctionPtr_C
     m_p = p;
 }
 
+CommandInterface_MAVLINK::~CommandInterface_MAVLINK()
+{
+    m_p = NULL;
+}
+
 mavlink_command_long_t CommandInterface_MAVLINK::initializeCommandLong()
 {
     mavlink_command_long_t cmdLong;

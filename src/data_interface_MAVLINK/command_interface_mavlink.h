@@ -14,6 +14,8 @@ class CommandInterface_MAVLINK
 public:
     CommandInterface_MAVLINK(const int &targetSystem, const int &targetComp);
 
+    virtual ~CommandInterface_MAVLINK();
+
     virtual mavlink_message_t setNewMode(const int &newMode, const int &originatingSystemID, const int &chan);
     virtual mavlink_message_t setHomePosition(const CommandItem::SpatialHome &commandItem, const int &originatingSystemID, const int &chan);
     virtual void setSystemArm(const CommandItem::ActionArm &commandItem, const int &compID = 0);

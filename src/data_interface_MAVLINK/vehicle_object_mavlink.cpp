@@ -29,7 +29,7 @@ VehicleObject_MAVLINK::~VehicleObject_MAVLINK()
     delete state;
     state = NULL;
 
-    delete m_LinkMarshaler;
+    //do not delete this object as we did not create it
     m_LinkMarshaler = NULL;
 }
 

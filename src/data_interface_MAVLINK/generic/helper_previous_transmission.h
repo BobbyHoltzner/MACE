@@ -1,17 +1,13 @@
 #ifndef HELPER_PREVIOUS_TRANSMISSION_H
 #define HELPER_PREVIOUS_TRANSMISSION_H
 
+#include "comms_item.h"
+
 class PreviousTransmissionBase
 {
 public:
-    enum commsItem{
-        ITEM_RXLIST,
-        ITEM_RXITEM,
-        ITEM_TXCOUNT,
-        ITEM_TXITEM
-    };
 
-    PreviousTransmissionBase(const commsItem &objType):
+    PreviousTransmissionBase(const commsItemEnum &objType):
         type(objType)
     {
 
@@ -22,24 +18,24 @@ public:
         this->type = rhs.type;
     }
 
-    void setType(const commsItem &objType)
+    void setType(const commsItemEnum &objType)
     {
         this->type = objType;
     }
 
-    commsItem getType() const
+    commsItemEnum getType() const
     {
         return this->type;
     }
 private:
-    commsItem type;
+    commsItemEnum type;
 };
 
 template <class T>
 class PreviousTransmission : public PreviousTransmissionBase
 {
 public:
-    PreviousTransmission(const commsItem &objType, const T &data):
+    PreviousTransmission(const commsItemEnum &objType, const T &data):
         PreviousTransmissionBase(objType), obj(data)
     {
 
