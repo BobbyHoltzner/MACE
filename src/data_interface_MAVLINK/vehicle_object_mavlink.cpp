@@ -10,7 +10,7 @@ VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &tr
     command = new CommandInterface_MAVLINK(systemID, 0);
     command->connectCallback_CommandLong(VehicleObject_MAVLINK::staticCallbackCMDLongFunction, this);
 
-    missionController = new MissionController_MAVLINK();
+    missionController = new MissionController_MAVLINK(2,0);
     missionController->connectCallback(this);
     missionController->start();
 
@@ -75,6 +75,11 @@ void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionItem(const mavli
     transmitMessage(msg);
 }
 
+void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionReqList(const mavlink_mission_request_list_t &request)
+{
+
+}
+
 void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionReq(const mavlink_mission_request_t &request)
 {
     mavlink_message_t msg;
@@ -82,5 +87,14 @@ void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionReq(const mavlin
     transmitMessage(msg);
 }
 
+void VehicleObject_MAVLINK::cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home)
+{
+
+}
+
+void VehicleObject_MAVLINK::cbiMissionController_ReceivedMission(const MissionItem::MissionList &mission)
+{
+
+}
 } //end of namespace DataInterface_MAVLINK
 

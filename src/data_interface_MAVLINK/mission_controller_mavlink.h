@@ -13,6 +13,7 @@
 #include "MAVLINK_to_MACE/helper_mission_mavlink_to_mace.h"
 
 #include "callback_interface_data_mavlink.h"
+#include "generic/helper_previous_transmission.h"
 
 typedef void(*CallbackFunctionPtr_MisCount)(void*, mavlink_message_t &);
 
@@ -44,7 +45,7 @@ private:
 
 
 public:
-    MissionController_MAVLINK();
+    MissionController_MAVLINK(const int &targetID, const int &originatingID);
 
     ~MissionController_MAVLINK() {
         std::cout << "Destructor on the mavlink mission controller" << std::endl;
@@ -69,6 +70,12 @@ public:
     }
 
 private:
+    void clearPreviousTransmit();
+
+private:
+    int systemID;
+    int transmittingID;
+
     Timer mTimer;
     bool mToExit;
     int currentRetry;
@@ -81,46 +88,7 @@ private:
     commsState currentCommsState;
     MissionItem::MissionList missionList;
 
-    commsObjectBase *prevTransmit;
-};
-
-
-class commsObjectBase
-{
-    enum commsItem{
-        ITEMMISSION,
-        ITEMCOUNT,
-        ITEMLIST
-    };
-
-    void setType(const commsItem &objType)
-    {
-        this->type = objType;
-    }
-
-    commsItem getType() const
-    {
-        return this->type;
-    }
-
-    commsItem type;
-};
-
-template <class T>
-class commsObject : public commsObjectBase
-{
-
-    void setData(const T &data)
-    {
-        this->obj = data;
-    }
-
-    void getData() const
-    {
-        return this->obj;
-    }
-
-    T obj;
+    PreviousTransmissionBase *prevTransmit;
 };
 
 

@@ -45,7 +45,8 @@ HEADERS +=\
     mission_data_mavlink.h \
     mission_controller_mavlink.h \
     MACE_to_MAVLINK/helper_mission_mace_to_mavlink.h \
-    MAVLINK_to_MACE/helper_mission_mavlink_to_mace.h
+    MAVLINK_to_MACE/helper_mission_mavlink_to_mace.h \
+    generic/helper_previous_transmission.h
 
 
 # Unix lib Install
@@ -72,6 +73,12 @@ headers.files   += \
     mission_data_mavlink.h \
     mission_controller_mavlink.h
 INSTALLS       += headers
+
+#Header file copy
+headers_generic.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK/generic
+headers_generic.files   += \
+    generic/helper_previous_transmission.h
+INSTALLS       += headers_generic
 
 #Header file copy
 headers_MACE_to_MAVLINK.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK/MACE_to_MAVLINK

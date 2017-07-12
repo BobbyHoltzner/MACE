@@ -2,10 +2,18 @@
 
 namespace DataInterface_MAVLINK {
 
-MissionController_MAVLINK::MissionController_MAVLINK():
-    mToExit(false), currentCommsState(NEUTRAL), currentRetry(0), maxRetries(5), responseTimeout(1000)
+MissionController_MAVLINK::MissionController_MAVLINK(const int &targetID, const int &originatingID):
+    mToExit(false), currentCommsState(NEUTRAL), currentRetry(0), maxRetries(5), responseTimeout(1000), prevTransmit(NULL)
 {
+    systemID = targetID;
+    transmittingID = originatingID;
+}
 
+
+void MissionController_MAVLINK::clearPreviousTransmit()
+{
+    delete prevTransmit;
+    prevTransmit = NULL;
 }
 
 void MissionController_MAVLINK::transmitMission(const MissionItem::MissionList &missionQueue)
@@ -18,8 +26,10 @@ void MissionController_MAVLINK::transmitMission(const MissionItem::MissionList &
     count.count = this->missionList.getQueueSize();
     count.mission_type = MAV_MISSION_TYPE_MISSION;
     count.target_component = 0;
-    count.target_system = 0;
-    //prevTransmit = new commsObject<mavlink_mission_count_t>(commsObject::ITEMCOUNT, count);
+    count.target_system = systemID;
+
+    clearPreviousTransmit();
+    prevTransmit = new PreviousTransmission<mavlink_mission_count_t>(PreviousTransmissionBase::ITEMCOUNT, count);
 
     if(m_CB)
         m_CB->cbiMissionController_TransmitMissionCount(count);
@@ -28,15 +38,20 @@ void MissionController_MAVLINK::transmitMission(const MissionItem::MissionList &
 void MissionController_MAVLINK::requestMission()
 {
     currentCommsState = RECEIVING;
-    mTimer.start();
-    currentRetry = 0;
 
     mavlink_mission_request_list_t request;
     request.mission_type = MAV_MISSION_TYPE_FENCE;
     request.target_component = 0;
     request.target_system = 0;
 
-    m_CB->cbiMissionController_TransmitMissionReq();
+    clearPreviousTransmit();
+    prevTransmit = new PreviousTransmission<mavlink_mission_request_list_t>(PreviousTransmissionBase::ITEMLIST, request);
+
+    if(m_CB)
+        m_CB->cbiMissionController_TransmitMissionReqList(request);
+    currentRetry = 0;
+    this->start();
+    mTimer.start();
 }
 
 void MissionController_MAVLINK::run()
@@ -45,6 +60,7 @@ void MissionController_MAVLINK::run()
     {
         double timeElapsed = mTimer.elapsedMilliseconds();
         if(mToExit == true) {
+            mTimer.stop();
             break;
         }
         if(timeElapsed > responseTimeout)
@@ -66,6 +82,13 @@ void MissionController_MAVLINK::run()
             }
             case RECEIVING:
             {
+                if(prevTransmit->getType() == PreviousTransmissionBase::ITEMMISSION)
+                {
+                    PreviousTransmission<mavlink_mission_request_list_t> *tmp = static_cast<PreviousTransmission<mavlink_mission_request_list_t>*>(prevTransmit);
+                    mavlink_mission_request_list_t msgTransmit = tmp->getData();
+                    if(m_CB)
+                        m_CB->cbiMissionController_TransmitMissionReqList(msgTransmit);
+                }
                 break;
             }
             }
@@ -107,10 +130,10 @@ void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t
     {
         //This is the home position item associated with the vehicle
         CommandItem::SpatialHome newHome;
-        newHome.position.setX(decodedMSG.x);
-        newHome.position.setY(decodedMSG.y);
-        newHome.position.setZ(decodedMSG.z);
-        newHome.setOriginatingSystem(sysID);
+        newHome.position.setX(missionItem.x);
+        newHome.position.setY(missionItem.y);
+        newHome.position.setZ(missionItem.z);
+        newHome.setOriginatingSystem(transmittingID);
         m_CB->cbiMissionController_ReceviedHome(newHome);
     }else{
         int adjustedIndex = index - 1; //we decrement 1 only here because ardupilot references home as 0 and we 0 index in our mission queue

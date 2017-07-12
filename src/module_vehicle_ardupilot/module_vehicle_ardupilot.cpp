@@ -61,10 +61,12 @@ void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem)
 
 void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command)
 {
-    int vehicleID = command.getTargetSystem();
-    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
-    mavlink_message_t msg = tmpData->generateArmMessage(command,m_LinkChan);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    vehicleData->missionController->requestMission();
+
+//    int vehicleID = command.getTargetSystem();
+//    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
+//    mavlink_message_t msg = tmpData->generateArmMessage(command,m_LinkChan);
+//    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command)
