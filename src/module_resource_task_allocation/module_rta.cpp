@@ -7,6 +7,12 @@ ModuleRTA::ModuleRTA():
 
 }
 
+void ModuleRTA::start()
+{
+    ModuleBase::start();
+    //Pat can do what he wants
+}
+
 //!
 //! \brief This module as been attached as a module
 //! \param ptr pointer to object that attached this instance to itself
@@ -16,6 +22,7 @@ void ModuleRTA::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
     ptr->Subscribe(this, m_SensorFootprintDataTopic.Name());
 }
+
 
 //!
 //! \brief Describes the strucure of the parameters for this module

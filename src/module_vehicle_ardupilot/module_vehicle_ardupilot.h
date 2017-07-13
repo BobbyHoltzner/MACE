@@ -27,23 +27,18 @@
 
 //__________________
 #include "data_vehicle_MAVLINK/MACE_to_MAVLINK/command_mace_to_mavlink.h"
+#include "data_interface_MAVLINK/callback_interface_data_mavlink.h"
 
 #include "data_interface_MAVLINK/vehicle_object_mavlink.h"
 
 using namespace std::placeholders;
 
-class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
+class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
 {
-enum ArdupilotMissionMode{
-    NONE,
-    REQUESTING,
-    TRANSMITTING
-};
-
 public:
     ModuleVehicleArdupilot();
 
-    bool ParseMAVLINKMissionMessage(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, const std::string &linkName, const mavlink_message_t *message);
+    virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
@@ -55,6 +50,12 @@ private:
 
 
 public:
+
+    //callback interface support for the DataInterface_MAVLINK object
+    void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
+    void cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
+    void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home);
+    void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList);
 
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG);
 
@@ -214,12 +215,6 @@ public:
     //!
     virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome);
 
-    //!
-    //! \brief homePositionUpdated
-    //! \param newVehicleHome
-    //!
-    void homePositionUpdated(const CommandItem::SpatialHome &newVehicleHome);
-
 
     // Controller Callbacks:
     void takeoffCallback(const std::string value);
@@ -249,29 +244,25 @@ public:
 
     virtual void RequestDummyFunction(const int &vehicleID)
     {
-        std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
-        Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan, std::bind(&ModuleVehicleArdupilot::takeoffCallback, this, _1));
-        CommandItem::SpatialTakeoff takeoff;
-        takeoff.setTargetSystem(1);
-        takeoff.position.setPosition3D(37,-76,100);
-        newController->initializeTakeoffSequence(takeoff);
+//        std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
+//        Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan, std::bind(&ModuleVehicleArdupilot::takeoffCallback, this, _1));
+//        CommandItem::SpatialTakeoff takeoff;
+//        takeoff.setTargetSystem(1);
+//        takeoff.position.setPosition3D(37,-76,100);
+//        newController->initializeTakeoffSequence(takeoff);
 
-        m_AircraftController = newController;
-        std::thread *thread = new std::thread([newController]()
-        {
-            newController->start();
-        });
+//        m_AircraftController = newController;
+//        std::thread *thread = new std::thread([newController]()
+//        {
+//            newController->start();
+//        });
     }
-
-private:
-    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> getArducopterData(const int &systemID);
+int count;
 private:
     DataInterface_MAVLINK::VehicleObject_MAVLINK *vehicleData;
 
 private:
-    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
-
-    std::map<int, std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT>> m_ArduPilotData;
+    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;
 
     Ardupilot_GeneralController* m_AircraftController;
 };

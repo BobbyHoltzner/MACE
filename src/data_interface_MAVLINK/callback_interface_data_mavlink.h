@@ -3,6 +3,10 @@
 
 #include <memory>
 
+#include "data_generic_command_item/command_item_components.h"
+#include "data_generic_mission_item_topic/mission_item_topic_components.h"
+#include "data_generic_state_item/state_item_components.h"
+
 #include "data/i_topic_component_data_object.h"
 #include "data/topic_data_object_collection.h"
 
@@ -14,12 +18,12 @@ class CallbackInterface_DataMAVLINK
 public:
     CallbackInterface_DataMAVLINK();
 
-    virtual cbi_VehicleStateData(std::shared_ptr<Data::ITopicComponentDataObject> data) = 0;
-    virtual cbi_VehicleMissionData(std::shared_ptr<Data::ITopicComponentDataObject> data) = 0;
-
-
 public:
+    virtual void cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data) = 0;
+    virtual void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data) = 0;
 
+    virtual void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home) = 0;
+    virtual void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList) = 0;
 };
 
 } //end of namespace DataInterface_MAVLINK

@@ -574,7 +574,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "I have a new current mission item" << component->getMissionItemIndex() << std::endl;
 
                 // Write current mission item to the GUI:
                 sendCurrentMissionItem(senderID, component);

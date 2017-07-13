@@ -38,6 +38,33 @@ void VehicleObject_MAVLINK::updateCommsInfo(Comms::CommsMarshaler *commsMarshale
     m_LinkMarshaler = commsMarshaler;
     m_LinkName = linkName;
     m_LinkChan = linkChan;
+
+    mavlink_message_t msg;
+    mavlink_request_data_stream_t request;
+
+    request.target_system = 0;
+    request.target_component = 0;
+    request.start_stop = 1;
+
+    request.req_stream_id = 2;
+    request.req_message_rate = 1;
+    mavlink_msg_request_data_stream_encode_chan(commandID,190,m_LinkChan,&msg,&request);
+    transmitMessage(msg);
+
+    request.req_stream_id = 6;
+    request.req_message_rate = 3;
+    mavlink_msg_request_data_stream_encode_chan(commandID,190,m_LinkChan,&msg,&request);
+    transmitMessage(msg);
+
+    request.req_stream_id = 10;
+    request.req_message_rate = 5;
+    mavlink_msg_request_data_stream_encode_chan(commandID,190,m_LinkChan,&msg,&request);
+    transmitMessage(msg);
+
+    request.req_stream_id = 11;
+    request.req_message_rate = 2;
+    mavlink_msg_request_data_stream_encode_chan(commandID,190,m_LinkChan,&msg,&request);
+    transmitMessage(msg);
 }
 
 void VehicleObject_MAVLINK::transmitMessage(const mavlink_message_t &msg)
@@ -86,11 +113,15 @@ void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionReq(const mavlin
 void VehicleObject_MAVLINK::cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home)
 {
     mission->home.set(home);
+    if(m_CB)
+        m_CB->cbi_VehicleHome(this->systemID,home);
 }
 
 void VehicleObject_MAVLINK::cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList)
 {
     mission->setCurrentMission(missionList);
+    if(m_CB)
+        m_CB->cbi_VehicleMission(this->systemID,missionList);
 }
 
 void VehicleObject_MAVLINK::cbiMissionController_MissionACK(const mavlink_mission_ack_t &missionACK)

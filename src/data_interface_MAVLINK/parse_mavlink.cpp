@@ -25,7 +25,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         {
             std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> ptrBattery = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>(battery);
             if(this->m_CB != NULL)
-                this->m_CB->cbi_VehicleStateData(ptrBattery);
+                this->m_CB->cbi_VehicleStateData(systemID,ptrBattery);
         }
         break;
     }
@@ -35,15 +35,47 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         //The global position, as returned by the Global Positioning System (GPS). This is NOT the global position estimate of the system, but rather a RAW sensor value. See message GLOBAL_POSITION for the global position estimate. Coordinate frame is right-handed, Z-axis up (GPS frame).
         mavlink_gps_raw_int_t decodedMSG;
         mavlink_msg_gps_raw_int_decode(msg,&decodedMSG);
-        //Generic_MAVLINKTOMACE parseHelper(message->sysid);
 
-        //        DataGenericItem::DataGenericItem_GPS gpsStatus = parseHelper.GPS_MAVLINKTOMACE(decodedMSG);
+        DataGenericItem::DataGenericItem_GPS gpsItem;
+        gpsItem.setHDOP(decodedMSG.eph);
+        gpsItem.setVDOP(decodedMSG.epv);
+        gpsItem.setSatVisible(decodedMSG.satellites_visible);
+        switch(decodedMSG.fix_type)
+        {
+        case GPS_FIX_TYPE_2D_FIX:
+            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_2D_FIX);
+            break;
+        case GPS_FIX_TYPE_3D_FIX:
+            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_3D_FIX);
+            break;
+        case GPS_FIX_TYPE_DGPS:
+            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_DGPS);
+            break;
+        case GPS_FIX_TYPE_NO_FIX:
+            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NO_FIX);
+            break;
+        case GPS_FIX_TYPE_NO_GPS:
+            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NONE);
+            break;
+        case GPS_FIX_TYPE_RTK_FIXED:
+            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_RTK_FIXED);
+            break;
+        case GPS_FIX_TYPE_RTK_FLOAT:
+            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_RTK_FLOAT);
+            break;
+        case GPS_FIX_TYPE_STATIC:
+            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_STATIC);
+            break;
+        default:
+            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NO_FIX);
+            break;
+        }
 
-        //        if(state->vehicleGPSStatus.set(gpsStatus))
-        //        {
-        //            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPSStatus = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(gpsStatus);
-        //            rtnVector.push_back(ptrGPSStatus);
-        //        }
+        if(state->vehicleGPSStatus.set(gpsItem))
+        {
+            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPSStatus = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(gpsItem);
+            rtnVector.push_back(ptrGPSStatus);
+        }
 
         break;
     }
@@ -61,7 +93,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         {
             std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(attitude);
             if(this->m_CB != NULL)
-                this->m_CB->cbi_VehicleStateData(ptrAttitude);
+                this->m_CB->cbi_VehicleStateData(systemID,ptrAttitude);
         }
         break;
     }
@@ -81,7 +113,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         {
             std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(localPosition);
             if(this->m_CB != NULL)
-                this->m_CB->cbi_VehicleStateData(ptrLocalPosition);
+                this->m_CB->cbi_VehicleStateData(systemID,ptrLocalPosition);
         }
         break;
     }
@@ -102,7 +134,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         {
             std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>(position);
             if(this->m_CB != NULL)
-                this->m_CB->cbi_VehicleStateData(ptrPosition);
+                this->m_CB->cbi_VehicleStateData(systemID,ptrPosition);
         }
 
         DataState::StateGlobalPositionEx positionEx;
@@ -114,7 +146,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         {
             std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> ptrPositionEx = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>(positionEx);
             if(this->m_CB != NULL)
-                this->m_CB->cbi_VehicleStateData(ptrPositionEx);
+                this->m_CB->cbi_VehicleStateData(systemID,ptrPositionEx);
         }
         break;
     }
@@ -133,7 +165,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         {
             std::shared_ptr<DataStateTopic::StateAirspeedTopic> ptrAirspeedTopic = std::make_shared<DataStateTopic::StateAirspeedTopic>(airspeed);
             if(this->m_CB != NULL)
-                this->m_CB->cbi_VehicleStateData(ptrAirspeedTopic);
+                this->m_CB->cbi_VehicleStateData(systemID,ptrAirspeedTopic);
         }
         break;
     }
@@ -199,7 +231,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
 
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(statusText);
         if(this->m_CB != NULL)
-            this->m_CB->cbi_VehicleStateData(ptrStatusText);
+            this->m_CB->cbi_VehicleStateData(systemID,ptrStatusText);
         break;
     }
 
@@ -214,6 +246,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(msg,&decodedMSG);
+        std::cout<<"The sequence index in here is: "<<decodedMSG.seq<<std::endl;
         this->missionController->recievedMissionItem(decodedMSG);
         break;
     }
@@ -241,7 +274,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         {
             std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>(missionTopic);
             if(this->m_CB != NULL)
-                m_CB->cbi_VehicleMissionData(ptrMissionTopic);
+                m_CB->cbi_VehicleMissionData(systemID,ptrMissionTopic);
         }
         break;
     }
@@ -274,7 +307,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
             {
                 std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>(missionTopic);
                 if(this->m_CB != NULL)
-                    m_CB->cbi_VehicleMissionData(ptrMissionTopic);
+                    m_CB->cbi_VehicleMissionData(systemID,ptrMissionTopic);
             }
         }
         else{

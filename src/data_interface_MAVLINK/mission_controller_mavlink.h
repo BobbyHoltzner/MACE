@@ -101,6 +101,11 @@ private:
 protected:
     std::list<std::function<void()>> m_LambdasToRun;
 
+    void clearPendingTasks()
+    {
+        m_LambdasToRun.clear();
+    }
+
     void RunPendingTasks() {
         while(m_LambdasToRun.size() > 0) {
             auto lambda = m_LambdasToRun.front();
