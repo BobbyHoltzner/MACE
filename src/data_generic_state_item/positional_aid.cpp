@@ -42,7 +42,7 @@ void PositionalAid::LocalPositionToGlobal(const StateGlobalPosition &origin, con
 {
     double bearing = position.bearingDegreesFromOrigin() * (M_PI/180.0);
     double distance = position.distanceFromOrigin();
-    global.NewPositionFromHeadingBearing(distance,bearing,false);
+    global = origin.NewPositionFromHeadingBearing(distance,bearing,false);
 }
 
 } //end of namespace DataState

@@ -30,4 +30,6 @@ SUBDIRS += \
     commsMACE \
     data_generic_command_item \
     data_generic_command_item_topic \
+#    Voronoi
+    voropp \
     data_interface_MAVLINK

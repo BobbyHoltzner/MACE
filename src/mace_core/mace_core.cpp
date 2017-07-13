@@ -136,7 +136,11 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
 {
     UNUSED(sender);
-    UNUSED(vehicleID);
+//    UNUSED(vehicleID);
+
+    if(m_RTA) {
+        m_RTA->MarshalCommand(RTACommands::TEST_FUNCTION, vehicleID);
+    }
 }
 
 void MaceCore::Event_ForceVehicleDataSync(const void *sender, const int &targetSystemID)
@@ -486,7 +490,10 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
     m_DataFusion->AddAvailableVehicle(newVehicleObserved);
 
     if(m_GroundStation)
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+
+    if(m_RTA)
+        m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
 }
 
 void MaceCore::GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome)
