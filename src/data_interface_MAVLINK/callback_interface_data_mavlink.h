@@ -10,6 +10,8 @@ class CallbackInterface_DataMAVLINK
 public:
     CallbackInterface_DataMAVLINK();
 
+    virtual cbi_VehicleStateData(std::shared_ptr<Data::ITopicComponentDataObject> data) = 0;
+    virtual cbi_VehicleMissionData(std::shared_ptr<Data::ITopicComponentDataObject> data) = 0;
 public:
 
 };

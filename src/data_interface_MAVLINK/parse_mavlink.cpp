@@ -223,23 +223,12 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         this->missionController->transmitMissionItem(decodedMSG);
         break;
     }
-    case MAVLINK_MSG_ID_MISSION_SET_CURRENT:
-    {
-        //This is message definition 41
-        //Set the mission item with sequence number seq as current item. This means that the MAV will continue to this mission item on the shortest path (not following the mission items in-between).
-        //mavlink_mission_set_current_t decodedMSG;
-        //mavlink_msg_mission_set_current_decode(message,&decodedMSG);
-        //The execution of this case should never get called based on how this library is established
-        //Since this module directly communicates with a vehicle instance, this would never be called
-        break;
-    }
     case MAVLINK_MSG_ID_MISSION_CURRENT:
     {
         //This is message definition 42
         //Message that announces the sequence number of the current active mission item. The MAV will fly towards this mission item.
         mavlink_mission_current_t decodedMSG;
         mavlink_msg_mission_current_decode(msg,&decodedMSG);
-
         break;
     }
     case MAVLINK_MSG_ID_MISSION_COUNT:
@@ -295,6 +284,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         spatialHome.position.setY(decodedMSG.longitude / pow(10,7));
         spatialHome.position.setZ(decodedMSG.altitude / 1000);
         spatialHome.setOriginatingSystem(systemID);
+        mission->home.set(spatialHome);
         break;
     }
 
