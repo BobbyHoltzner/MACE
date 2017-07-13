@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include <data_generic_state_item/positional_aid.h>
+
 using namespace voro;
 
 // This function returns a random double between 0 and 1
@@ -12,18 +14,13 @@ double rnd() {return double(rand())/RAND_MAX;}
  * @param verts Vector of vertices that make up the environment boundary
  * @param gridSpacing Spacing between grid points
  */
-Environment_Map::Environment_Map(const std::vector<Point> verts, double gridSpacing) :
+Environment_Map::Environment_Map(const std::vector<Point> verts, double gridSpacing, const DataState::StateGlobalPosition globalOrigin) :
     boundaryVerts(verts) {
+
+    m_globalOrigin = std::make_shared<DataState::StateGlobalPosition>(globalOrigin);
 
     calculateBoundingRect(verts);
     initializeEnvironment(gridSpacing);
-
-    // Testing:
-//    std::map<int, Point> vehicleCells;
-//    vehicleCells.insert(std::make_pair(5, Point(-2.5,-2.5,0)));
-//    vehicleCells.insert(std::make_pair(2, Point(2.5,2.5,0)));
-//    computeVoronoi(boundingRect, vehicleCells);
-    // End testing
 }
 
 /**
@@ -31,7 +28,9 @@ Environment_Map::Environment_Map(const std::vector<Point> verts, double gridSpac
  * @param bbox Bounding box
  * @param vehicles Positions of vehicles (in x,y,z coordinates)
  */
-void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles, GridDirection direction) {
+bool Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles, GridDirection direction) {
+    bool success = false;
+
     // Set up constants for the container geometry
     const double x_min = bbox.min.x, x_max = bbox.max.x;
     const double y_min = bbox.min.y, y_max = bbox.max.y;
@@ -53,11 +52,13 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
     //con.import("pack_six_cube");
     // Add vehicles/particles into the container only if they are in the environment
     for(auto vehicle : vehicles) {
-        if(pointInPoly(boundaryVerts, vehicle.second)) {
-            con.put(vehicle.first, vehicle.second.x, vehicle.second.y, 0);
-        }
-        else {
-            std::cout << "Vehicle at position (" << vehicle.second.x << ", " << vehicle.second.y << ") not within environment. Skipping." << std::endl;
+        if(vehicle.first > 0){
+            if(pointInPoly(boundaryVerts, vehicle.second)) {
+                con.put(vehicle.first, vehicle.second.x, vehicle.second.y, 0);
+            }
+            else {
+                std::cout << "Vehicle at position (" << vehicle.second.x << ", " << vehicle.second.y << ") not within environment. Skipping." << std::endl;
+            }
         }
     }
 
@@ -143,6 +144,9 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
         if(vehicleID > 0){
             cells[vehicleID] = cell;
         }
+        else {
+            std::cout << "Vehicle ID not found in cell." << std::endl;
+        }
       } while (cl.inc()); // Increment to the next cell:
 
 
@@ -164,6 +168,11 @@ void Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
 
       // Output the Voronoi cells in gnuplot format
       con.draw_cells_gnuplot("polygons_v.gnu");
+
+      if(cells.size() > 0) {
+          success = true;
+      }
+      return success;
 }
 
 /**
@@ -578,17 +587,24 @@ double Environment_Map::distanceToSegment(Point p1, Point p2, Point testPoint) {
  * @param position Last known position of the vehicle
  * @return True if we should send to MACE core, false if not
  */
-bool Environment_Map::updateVehiclePosition(const int vehicleID, const Point position, bool recomputeVoronoi) {
+bool Environment_Map::updateVehiclePosition(const int &vehicleID, const Point &position, bool recomputeVoronoi) {
+
     // Add/overwrite our vehicle position to the map
-    vehicles[vehicleID] = position;
+    bool success = false;
+    if(vehicleID != 0) {
+        m_vehicles[vehicleID] = position;
+    }
+    else {
+        std::cout << "Invalid vehicle ID '0'. Cannot update vehicle position for RTA." << std::endl;
+        return success;
+    }
 
     // If recompute flag is set, recompute the voronoi partition:
     if(recomputeVoronoi) {
-        computeVoronoi(boundingRect, vehicles, GridDirection::NORTH_SOUTH);
-        return true; // Send to MACE Core
+        success = computeVoronoi(boundingRect, m_vehicles, GridDirection::NORTH_SOUTH);
     }
 
-    return false; // Don't send to MACE core
+    return success; // If false, don't send to MACE core
 }
 
 /**
@@ -754,5 +770,85 @@ void Environment_Map::setContainedNodesYX(Cell &cell) {
 
     // Set contained nodes YX:
     cell.containedNodes_YX = tmpContainedNodes_YX;
+}
+
+/**
+ * @brief updateEnvironmentOrigin Given a new global origin, update x,y,z positions of each node and update the global origin
+ * @param globalOrigin New global origin
+ */
+void Environment_Map::updateEnvironmentOrigin(const DataState::StateGlobalPosition &globalOrigin) {
+    // Before we set the new origin, check if there are currently nodes in the environment. If so, update each by adding the difference in x and y to each value:
+    //      - Do the same with each cell, boundary vertices, vehicle positions, and bounding box
+
+    // Get x,y,z differences from previous origin:
+    DataState::StateLocalPosition localPos;
+    DataState::StateGlobalPosition globalPos;
+    globalPos.setLatitude(m_globalOrigin->getX());
+    globalPos.setLongitude(m_globalOrigin->getY());
+    globalPos.setAltitude(m_globalOrigin->getZ());
+    DataState::PositionalAid::GlobalPositionToLocal(globalPos, globalOrigin, localPos);
+    double xDiff = localPos.getX();
+    double yDiff = localPos.getY();
+    double zDiff = localPos.getZ();
+
+    // Update nodes and other associated data:
+    if(this->nodes.size() > 0){
+        // Update boundary vertices and re-compute the bounding box:
+        for(auto vertex : boundaryVerts) {
+            vertex.x += xDiff;
+            vertex.y += yDiff;
+            vertex.z += zDiff;
+        }
+
+        // Update the vehicle positions:
+        for(auto vehicle : m_vehicles) {
+            vehicle.second.x += xDiff;
+            vehicle.second.y += yDiff;
+            vehicle.second.z += zDiff;
+        }
+
+        // Update each node in the environment:
+        std::map<double, std::map<double, Node> > tmpNodes;
+        for(auto xIt : nodes) {
+            double xVal, yVal;
+            xVal = xIt.first + xDiff;
+            std::map<double, Node> tmpYMap;
+            for(auto yIt : xIt.second) {
+                yVal = yIt.first + yDiff;
+                Node tmpNode = yIt.second;
+                tmpNode.location.x += xDiff;
+                tmpNode.location.y += yDiff;
+                tmpNode.location.z += zDiff;
+
+                tmpYMap.insert(std::make_pair(yVal, tmpNode));
+            }
+            tmpNodes.insert(std::make_pair(xVal, tmpYMap));
+        }
+        // Set new node positions:
+        nodes = tmpNodes;
+
+        // Update each cell site and boundary points and call setNodesInCell (i think):
+        for(auto cell : cells) {
+            // Update cell site:
+            cell.second.site.x += xDiff;
+            cell.second.site.y += yDiff;
+            cell.second.site.z += zDiff;
+
+            // Update cell boundary:
+            for(auto vertex : cell.second.vertices) {
+                vertex.x += xDiff;
+                vertex.y += yDiff;
+                vertex.z += zDiff;
+            }
+
+            // Call the nodes in each cell:
+            sortCellVerticesCCW(cell.second);
+            setNodesInCell(cell.second);
+            setContainedNodesYX(cell.second);
+        }
+    }
+
+    // Set new origin:
+    m_globalOrigin = std::make_shared<DataState::StateGlobalPosition>(globalOrigin);
 }
 

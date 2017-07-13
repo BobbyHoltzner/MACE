@@ -138,7 +138,9 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
     UNUSED(sender);
 //    UNUSED(vehicleID);
 
-    m_RTA->MarshalCommand(RTACommands::TEST_FUNCTION, vehicleID);
+    if(m_RTA) {
+        m_RTA->MarshalCommand(RTACommands::TEST_FUNCTION, vehicleID);
+    }
 }
 
 void MaceCore::Event_ForceVehicleDataSync(const void *sender, const int &targetSystemID)

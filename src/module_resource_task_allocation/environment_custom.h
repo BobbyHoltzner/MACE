@@ -14,6 +14,8 @@
 #include <c_loops.hh>
 #include <tuple>
 
+#include "data_generic_state_item_topic/state_topic_components.h"
+
 /**
  * @brief The GridDirection enum to denote how we sort cell nodes
  */
@@ -28,12 +30,39 @@ enum GridDirection {
  */
 class Point {
 public:
+
     double x;
     double y;
     double z;
 
     Point() : x(0.0), y(0.0), z(0.0) {}
     Point(double x, double y, double z) : x(x), y(y), z(z) {}
+    Point(const Point &obj) {
+        this->x = obj.x;
+        this->y = obj.y;
+        this->z = obj.z;
+    }
+
+    void operator =(const Point &rhs) {
+        this->x = rhs.x;
+        this->y = rhs.y;
+        this->z = rhs.z;
+    }
+
+    bool operator ==(const Point &rhs) {
+        if(this->x != rhs.x)
+            return false;
+        if(this->y != rhs.y)
+            return false;
+        if(this->z != rhs.z)
+            return false;
+
+        return true;
+    }
+
+    bool operator !=(const Point &rhs) {
+        return !((*this) == rhs);
+    }
 };
 
 /**
@@ -78,7 +107,7 @@ public:
      * @param verts Vector of vertices that make up the environment boundary
      * @param gridSpacing Spacing between grid points
      */
-    Environment_Map(const std::vector<Point> verts, double gridSpacing);
+    Environment_Map(const std::vector<Point> verts, double gridSpacing, const DataState::StateGlobalPosition globalOrigin);
 
     /**
      * @brief initializeEnvironment Initialize each node in the grid with a 0 value
@@ -91,8 +120,9 @@ public:
      * @brief computeVoronoi Given the bounding box and current vehicle positions, compute a voronoi diagram
      * @param bbox Bounding box
      * @param sitePositions Positions of vehicles (in x,y,z coordinates)
+     * @return Success or Failure
      */
-    void computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles, GridDirection direction);
+    bool computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles, GridDirection direction);
 
     /**
      * @brief setBoundaryVerts Set the new boundary vertices
@@ -127,13 +157,13 @@ public:
      * @param vehicleID ID of the vehicle to add
      * @param position Last known position of the vehicle
      */
-    bool updateVehiclePosition(const int vehicleID, const Point position, bool recomputeVoronoi);
+    bool updateVehiclePosition(const int &vehicleID, const Point &position, bool recomputeVoronoi);
 
     /**
      * @brief getCells Return the cells that make up our Voronoi partition
      * @return Cells making up the voronoi partition
      */
-    std::map<int, Cell> getCells() {return cells;}
+    std::map<int, Cell> getCells() { return cells; }
 
     /**
      * @brief sortNodesInGridSort the nodes in the cell in a grid fashion
@@ -141,6 +171,30 @@ public:
      * @param direction Direction to sort nodes (north/south, east/west, or by closest node)
      */
     std::vector<Point> sortNodesInGrid(Cell &cell, GridDirection direction);
+
+    /**
+     * @brief getBoundaryVerts Return the vector of points that make up the boundary
+     * @return Vector of points making up a boundary
+     */
+    std::vector<Point> getBoundaryVerts() { return boundaryVerts ;}
+
+    /**
+     * @brief getBoundingBox Return the min/max of the rectangle encompassing the environment
+     * @return Bounding box min/max
+     */
+    BoundingBox getBoundingBox() { return boundingRect; }
+
+    /**
+     * @brief updateEnvironmentOrigin Given a new global origin, update x,y,z positions of each node and update the global origin
+     * @param globalOrigin New global origin
+     */
+    void updateEnvironmentOrigin(const DataState::StateGlobalPosition &globalOrigin);
+
+    /**
+     * @brief getGlobalOrigin Get the current global origin
+     * @return Current global origin
+     */
+    std::shared_ptr<DataState::StateGlobalPosition> getGlobalOrigin() { return m_globalOrigin; }
 
 private:
 
@@ -248,7 +302,12 @@ private:
     /**
      * @brief vehicles Container for last known position of each vehicle (id, position)
      */
-    std::map<int, Point> vehicles;
+    std::map<int, Point> m_vehicles;
+
+    /**
+     * @brief m_globalOrigin Container for the current global origin
+     */
+    std::shared_ptr<DataState::StateGlobalPosition> m_globalOrigin;
 };
 
 #endif // ENVIRONMENT_CUSTOM_H

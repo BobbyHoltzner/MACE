@@ -10,6 +10,7 @@
 
 #include "data_generic_state_item_topic/state_topic_components.h"
 #include "data_vehicle_sensors/components.h"
+#include "data_generic_state_item/positional_aid.h"
 
 #include <memory>
 //#include "environment.h"
@@ -61,18 +62,11 @@ private:
     /**
      * @brief parseBoundaryVertices Given a string of delimited (lat, lon) pairs, parse into a vector of points
      * @param unparsedVertices String to parse with delimiters
+     * @param globalOrigin Global position to convert relative to
      * @param vertices Container for boundary vertices
      * @return true denotes >= 3 vertices to make a polygon, false denotes invalid polygon
      */
-    bool parseBoundaryVertices(std::string unparsedVertices, std::vector<Point> &vertices);
-
-    /**
-     * @brief convertGlobalBoundaryToLocal Convert a list of vertices from global to local coordinate frames
-     * @param globalVerts List of global vertices to convert
-     * @param globalLat Global latitude
-     * @param globalLon Global longitude
-     */
-    void convertGlobalBoundaryToLocal(std::vector<Point> &globalVerts, const double globalLat, const double globalLon);
+    bool parseBoundaryVertices(std::string unparsedVertices, const DataState::StateGlobalPosition globalOrigin, std::vector<Point> &vertices);
 
 private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;

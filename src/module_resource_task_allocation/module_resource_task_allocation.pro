@@ -25,11 +25,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += module_rta.cpp \
-    environment_custom.cpp
+            environment_custom.cpp
 
 HEADERS += module_rta.h\
         module_resource_task_allocation_global.h \
-    environment_custom.h
+        environment_custom.h
+
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib
@@ -45,8 +46,9 @@ INSTALLS += lib
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/module_resource_task_allocation
 headers.files   += \
-        module_resource_task_allocation_global.h\
-        module_rta.h
+            module_resource_task_allocation_global.h \
+            module_rta.h \
+            environment_custom.h
 INSTALLS       += headers
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
