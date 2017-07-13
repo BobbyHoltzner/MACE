@@ -2,14 +2,17 @@
 #define CALLBACK_INTERFACE_DATA_MAVLINK_H
 
 
+namespace DataInterface_MAVLINK{
+
+
 class CallbackInterface_DataMAVLINK
 {
 public:
     CallbackInterface_DataMAVLINK();
 
 public:
-    void testFunction();
 
 };
 
+} //end of namespace DataInterface_MAVLINK
 #endif // CALLBACK_INTERFACE_DATA_MAVLINK_H

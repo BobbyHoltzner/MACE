@@ -78,7 +78,8 @@ INSTALLS       += headers
 #Header file copy
 headers_generic.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK/generic
 headers_generic.files   += \
-    generic/helper_previous_transmission.h
+    generic/helper_previous_transmission.h \
+    generic/comms_item.h
 INSTALLS       += headers_generic
 
 #Header file copy

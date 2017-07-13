@@ -18,7 +18,6 @@
 
 typedef void(*CallbackFunctionPtr_MisCount)(void*, mavlink_message_t &);
 
-
 class MissionController_Interface
 {
 public:
@@ -29,7 +28,9 @@ public:
     virtual void cbiMissionController_TransmitMissionReq(const mavlink_mission_request_t &requestItem) = 0;
 
     virtual void cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home) = 0;
-    virtual void cbiMissionController_ReceivedMission(const MissionItem::MissionList &mission) = 0;
+    virtual void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList) = 0;
+
+    virtual void cbiMissionController_MissionACK(const mavlink_mission_ack_t &missionACK) = 0;
 };
 
 namespace DataInterface_MAVLINK {
@@ -65,7 +66,7 @@ public:
 
     void receivedMissionCount(const mavlink_mission_count_t &missionCount);
 
-    void receivedMissionACK(const mavlink_mission_ack_t &missionAck);
+    void receivedMissionACK(const mavlink_mission_ack_t &missionACK);
 
     void connectCallback(MissionController_Interface *cb)
     {
@@ -74,14 +75,6 @@ public:
 
 private:
     void clearPreviousTransmit();
-
-    void lambdaTXMissionItem(const mavlink_mission_request_t &missionRequest);
-
-    void lambdaRXMissionItem(const mavlink_mission_item_t &missionItem);
-
-    void lambdaRXMissionCount(const mavlink_mission_count_t &missionCount);
-
-    void lambdaRXMissionACK(const mavlink_mission_ack_t &missionAck);
 
 private:
     int systemID;
@@ -92,6 +85,7 @@ private:
     int currentRetry;
     int maxRetries;
     int responseTimeout;
+
 private:
     MissionController_Interface *m_CB;
     DataMAVLINK::Helper_MissionMAVLINKtoMACE helperMAVtoMACE;

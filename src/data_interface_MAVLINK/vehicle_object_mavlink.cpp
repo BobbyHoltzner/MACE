@@ -90,10 +90,15 @@ void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionReq(const mavlin
 
 void VehicleObject_MAVLINK::cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home)
 {
-
+    mission->home.set(home);
 }
 
-void VehicleObject_MAVLINK::cbiMissionController_ReceivedMission(const MissionItem::MissionList &mission)
+void VehicleObject_MAVLINK::cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList)
+{
+    mission->setCurrentMission(missionList);
+}
+
+void VehicleObject_MAVLINK::cbiMissionController_MissionACK(const mavlink_mission_ack_t &missionACK)
 {
 
 }

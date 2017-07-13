@@ -46,8 +46,9 @@ private:
     void cbiMissionController_TransmitMissionReq(const mavlink_mission_request_t &requestItem);
 
     void cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home);
-    void cbiMissionController_ReceivedMission(const MissionItem::MissionList &mission);
+    void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList);
 
+    void cbiMissionController_MissionACK(const mavlink_mission_ack_t &missionACK);
 public:
     static void staticCallbackCMDLongFunction(void *p, mavlink_command_long_t &cmd)
     {

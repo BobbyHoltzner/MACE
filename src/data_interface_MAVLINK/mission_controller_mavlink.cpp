@@ -3,10 +3,11 @@
 namespace DataInterface_MAVLINK {
 
 MissionController_MAVLINK::MissionController_MAVLINK(const int &targetID, const int &originatingID):
-    mToExit(false), currentCommsState(NEUTRAL), currentRetry(0), maxRetries(5), responseTimeout(1000), prevTransmit(NULL)
+    mToExit(false), currentCommsState(NEUTRAL), currentRetry(0), maxRetries(5),
+    helperMAVtoMACE(targetID), responseTimeout(1000), prevTransmit(NULL),
+    systemID(targetID), transmittingID(originatingID)
 {
-    systemID = targetID;
-    transmittingID = originatingID;
+
 }
 
 
@@ -112,6 +113,7 @@ void MissionController_MAVLINK::run()
             case NEUTRAL:
             {
                 //This case we should terminate this because there is nothing we should be doing apparently
+                clearPreviousTransmit();
                 mTimer.stop();
                 mToExit = true;
              break;
@@ -171,31 +173,37 @@ void MissionController_MAVLINK::run()
 
 void MissionController_MAVLINK::receivedMissionCount(const mavlink_mission_count_t &missionCount)
 {
-//    m_LambdasToRun.push_back([this, &missionCount]{
-//        mTimer.stop();
-//        this->missionList.initializeQueue(missionCount.count);
+    m_LambdasToRun.push_back([this, &missionCount]{
+        mTimer.stop();
+        this->missionList.initializeQueue(missionCount.count);
 
-//        mavlink_mission_request_t request;
-//        request.mission_type = MAV_MISSION_TYPE_MISSION;
-//        request.seq = 0;
-//        request.target_system = systemID;
-//        request.target_component = 0;
+        mavlink_mission_request_t request;
+        request.mission_type = MAV_MISSION_TYPE_MISSION;
+        request.seq = 0;
+        request.target_system = systemID;
+        request.target_component = 0;
 
-//        clearPreviousTransmit();
-//        prevTransmit = new PreviousTransmission<mavlink_mission_request_t>(PreviousTransmissionBase::ITEM_RXITEM, request);
+        clearPreviousTransmit();
+        prevTransmit = new PreviousTransmission<mavlink_mission_request_t>(commsItemEnum::ITEM_RXITEM, request);
 
-//        if(m_CB)
-//            m_CB->cbiMissionController_TransmitMissionReq(request);
-//        currentRetry = 0;
-//        mTimer.start();
-//    });
+        if(m_CB)
+            m_CB->cbiMissionController_TransmitMissionReq(request);
+        currentRetry = 0;
+        mTimer.start();
+    });
 }
 
 
-void MissionController_MAVLINK::receivedMissionACK(const mavlink_mission_ack_t &missionAck)
-{
-    mTimer.stop();
-    currentRetry = 0;
+void MissionController_MAVLINK::receivedMissionACK(const mavlink_mission_ack_t &missionACK)
+{    
+    m_LambdasToRun.push_back([this, &missionACK]{
+        mTimer.stop();
+        currentRetry = 0;
+        currentCommsState = NEUTRAL;
+        if(m_CB)
+            m_CB->cbiMissionController_MissionACK(missionACK);
+    });
+
 }
 
 void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t &missionItem)
@@ -203,8 +211,6 @@ void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t
     m_LambdasToRun.push_back([this, &missionItem]{
     mTimer.stop();
     currentRetry = 0;
-    clearPreviousTransmit();
-
     int index = missionItem.seq;
 
     if(index == 0) //This implies we recieved the home position according to the mission
@@ -214,11 +220,12 @@ void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t
         newHome.position.setX(missionItem.x);
         newHome.position.setY(missionItem.y);
         newHome.position.setZ(missionItem.z);
-        newHome.setOriginatingSystem(transmittingID);
+        newHome.setOriginatingSystem(systemID);
+        newHome.setTargetSystem(systemID);
         m_CB->cbiMissionController_ReceviedHome(newHome);
     }else{
         int adjustedIndex = index - 1; //we decrement 1 only here because ardupilot references home as 0 and we 0 index in our mission queue
-        std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = helperMAVtoMACE.Convert_MAVLINKTOMACE(0,missionItem);
+        std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = helperMAVtoMACE.Convert_MAVLINKTOMACE(missionItem);
         this->missionList.replaceMissionItemAtIndex(newMissionItem,adjustedIndex);
     }
 
@@ -234,6 +241,7 @@ void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t
         request.target_system = systemID;
         request.target_component = 0;
 
+        clearPreviousTransmit();
         prevTransmit = new PreviousTransmission<mavlink_mission_request_t>(commsItemEnum::ITEM_RXITEM, request);
 
         if(m_CB)
@@ -242,6 +250,7 @@ void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t
         mTimer.start();
 
     }else{
+        currentCommsState = NEUTRAL;
         m_CB->cbiMissionController_ReceivedMission(this->missionList);
     }
     });

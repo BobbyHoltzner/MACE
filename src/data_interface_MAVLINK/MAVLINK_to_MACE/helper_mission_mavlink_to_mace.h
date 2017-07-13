@@ -19,11 +19,11 @@ namespace DataMAVLINK {
 class Helper_MissionMAVLINKtoMACE
 {
 public:
-    Helper_MissionMAVLINKtoMACE();
+    Helper_MissionMAVLINKtoMACE(const int &originatingID);
 
     ~Helper_MissionMAVLINKtoMACE();
 
-    std::shared_ptr<CommandItem::AbstractCommandItem> Convert_MAVLINKTOMACE(const int &targetSystem, const mavlink_mission_item_t &mavlinkItem);
+    std::shared_ptr<CommandItem::AbstractCommandItem> Convert_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem);
 
     void convertHome(const mavlink_set_home_position_t &mavlinkItem, CommandItem::SpatialHome &missionItem);
 
@@ -45,6 +45,8 @@ public:
 
     void updatePosition(const mavlink_mission_item_t &mavlinkItem, DataState::Base3DPosition &pos);
 
+private:
+    int systemID;
 };
 
 } //end of namespace DataMAVLINK
