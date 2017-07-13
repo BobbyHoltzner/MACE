@@ -24,7 +24,8 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleFuel.set(battery))
         {
             std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> ptrBattery = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>(battery);
-            rtnVector.push_back(ptrBattery);
+            if(this->m_CB != NULL)
+                this->m_CB->cbi_VehicleStateData(ptrBattery);
         }
         break;
     }
@@ -59,7 +60,8 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleAttitude.set(attitude))
         {
             std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(attitude);
-            rtnVector.push_back(ptrAttitude);
+            if(this->m_CB != NULL)
+                this->m_CB->cbi_VehicleStateData(ptrAttitude);
         }
         break;
     }
@@ -75,12 +77,11 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         localPosition.setPositionY(decodedMSG.y);
         localPosition.setPositionZ(decodedMSG.z);
 
-        //check that something has actually changed
-
         if(state->vehicleLocalPosition.set(localPosition))
         {
             std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(localPosition);
-            rtnVector.push_back(ptrLocalPosition);
+            if(this->m_CB != NULL)
+                this->m_CB->cbi_VehicleStateData(ptrLocalPosition);
         }
         break;
     }
@@ -100,7 +101,8 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleGlobalPosition.set(position))
         {
             std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>(position);
-            rtnVector.push_back(ptrPosition);
+            if(this->m_CB != NULL)
+                this->m_CB->cbi_VehicleStateData(ptrPosition);
         }
 
         DataState::StateGlobalPositionEx positionEx;
@@ -111,7 +113,8 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleGlobalPositionEx.set(positionEx))
         {
             std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> ptrPositionEx = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>(positionEx);
-            rtnVector.push_back(ptrPositionEx);
+            if(this->m_CB != NULL)
+                this->m_CB->cbi_VehicleStateData(ptrPositionEx);
         }
         break;
     }
@@ -129,7 +132,8 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleAirspeed.set(airspeed))
         {
             std::shared_ptr<DataStateTopic::StateAirspeedTopic> ptrAirspeedTopic = std::make_shared<DataStateTopic::StateAirspeedTopic>(airspeed);
-            rtnVector.push_back(ptrAirspeedTopic);
+            if(this->m_CB != NULL)
+                this->m_CB->cbi_VehicleStateData(ptrAirspeedTopic);
         }
         break;
     }
@@ -159,7 +163,6 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         //This is message definition 253
         mavlink_statustext_t decodedMSG;
         mavlink_msg_statustext_decode(msg,&decodedMSG);
-        std::cout<<"The status text says: "<<decodedMSG.text<<std::endl;
 
         DataGenericItem::DataGenericItem_Text statusText;
         statusText.setText(decodedMSG.text);
@@ -191,12 +194,12 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         default:
             break;
         }
-        //check that something has actually changed
-        if(state->vehicleTextAlert.set(statusText))
-        {
-            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(statusText);
-            rtnVector.push_back(ptrStatusText);
-        }
+
+        state->vehicleTextAlert.set(statusText);
+
+        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(statusText);
+        if(this->m_CB != NULL)
+            this->m_CB->cbi_VehicleStateData(ptrStatusText);
         break;
     }
 
@@ -229,6 +232,17 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         //Message that announces the sequence number of the current active mission item. The MAV will fly towards this mission item.
         mavlink_mission_current_t decodedMSG;
         mavlink_msg_mission_current_decode(msg,&decodedMSG);
+
+        MissionTopic::MissionItemCurrentTopic missionTopic;
+        missionTopic.setVehicleID(this->systemID);
+        missionTopic.setMissionItemIndex(decodedMSG.seq);
+
+        if(mission->missionItemCurrent.set(missionTopic))
+        {
+            std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>(missionTopic);
+            if(this->m_CB != NULL)
+                m_CB->cbi_VehicleMissionData(ptrMissionTopic);
+        }
         break;
     }
     case MAVLINK_MSG_ID_MISSION_COUNT:
@@ -241,14 +255,6 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         this->missionController->receivedMissionCount(decodedMSG);
         break;
     }
-    case MAVLINK_MSG_ID_MISSION_CLEAR_ALL:
-    {
-        //This is message definition 45
-        //Delete all mission items at once.
-        mavlink_mission_clear_all_t decodedMSG;
-        mavlink_msg_mission_clear_all_decode(msg,&decodedMSG);
-        break;
-    }
     case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
     {
         //This is message definition 46
@@ -256,6 +262,24 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         //(if the autocontinue on the WP was set) continue to the next MISSION.
         mavlink_mission_item_reached_t decodedMSG;
         mavlink_msg_mission_item_reached_decode(msg,&decodedMSG);
+        int missionIndex = decodedMSG.seq - 1; //transforms the reference away from mavlink to MACE
+
+        if(missionIndex >= 0)
+        {
+            MissionTopic::MissionItemReachedTopic missionTopic;
+            missionTopic.setVehicleID(this->systemID);
+            missionTopic.setMissionItemIndex(missionIndex);
+
+            if(mission->missionItemReached.set(missionTopic))
+            {
+                std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>(missionTopic);
+                if(this->m_CB != NULL)
+                    m_CB->cbi_VehicleMissionData(ptrMissionTopic);
+            }
+        }
+        else{
+            //we have reached the home position, should we do anything here?
+        }
 
         break;
     }
@@ -265,6 +289,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         //Ack message during MISSION handling. The type field states if this message is a positive ack (type=0) or if an error happened (type=non-zero).
         mavlink_mission_ack_t decodedMSG;
         mavlink_msg_mission_ack_decode(msg,&decodedMSG);
+        this->missionController->receivedMissionACK(decodedMSG);
         break;
     }
     case MAVLINK_MSG_ID_HOME_POSITION:

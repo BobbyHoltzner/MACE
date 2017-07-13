@@ -88,12 +88,15 @@ private:
 
 private:
     MissionController_Interface *m_CB;
+    PreviousTransmissionBase *prevTransmit;
+
     DataMAVLINK::Helper_MissionMAVLINKtoMACE helperMAVtoMACE;
+    DataMAVLINK::Helper_MissionMACEtoMAVLINK helperMACEtoMAV;
 
     commsState currentCommsState;
-    MissionItem::MissionList missionList;
 
-    PreviousTransmissionBase *prevTransmit;
+    MissionItem::MissionList missionList;
+    CommandItem::SpatialHome missionHome;
 
 protected:
     std::list<std::function<void()>> m_LambdasToRun;

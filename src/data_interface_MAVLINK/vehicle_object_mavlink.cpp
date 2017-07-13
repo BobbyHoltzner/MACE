@@ -3,9 +3,9 @@
 namespace DataInterface_MAVLINK {
 
 VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &transmittingID):
+    m_CB(NULL), missionController(NULL), command(NULL), mission(NULL), state(NULL),
     systemID(vehicleID), commandID(transmittingID),
-    m_LinkMarshaler(NULL), m_LinkName(""), m_LinkChan(0),
-    command(NULL), missionController(NULL), mission(NULL), state(NULL)
+    m_LinkMarshaler(NULL), m_LinkName(""), m_LinkChan(0)
 {
     command = new CommandInterface_MAVLINK(systemID, 0);
     command->connectCallback_CommandLong(VehicleObject_MAVLINK::staticCallbackCMDLongFunction, this);
@@ -53,11 +53,6 @@ void VehicleObject_MAVLINK::transmitCommandLong(const mavlink_command_long_t &cm
     mavlink_message_t msg;
     mavlink_msg_command_long_encode_chan(commandID,0,m_LinkChan,&msg,&cmd);
     transmitMessage(msg);
-}
-
-void VehicleObject_MAVLINK::receiveCommand(const DataState::StateGlobalPosition &pos)
-{
-    std::cout<<"I have received a position"<<std::endl;
 }
 
 void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionCount(const mavlink_mission_count_t &count)

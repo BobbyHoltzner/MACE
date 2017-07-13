@@ -10,6 +10,8 @@
 
 #include "command_interface_mavlink.h"
 
+#include "callback_interface_data_mavlink.h"
+
 #include "mission_controller_mavlink.h"
 #include "mission_data_mavlink.h"
 #include "state_data_mavlink.h"
@@ -33,7 +35,10 @@ public:
 
     void transmitCommandLong(const mavlink_command_long_t &cmd);
 
-    void receiveCommand(const DataState::StateGlobalPosition &pos);
+    void connectCallback(CallbackInterface_DataMAVLINK *cb)
+    {
+        m_CB = cb;
+    }
 
 //The following establish the necessary callback routines
 
@@ -57,7 +62,8 @@ public:
 
     static void staticCallbackState(void *p, DataState::StateGlobalPosition &pos)
     {
-        //((VehicleObject_MAVLINK *)p)->receiveCommand(pos);
+        UNUSED(p);
+        UNUSED(pos);
     }
 
     static void staticCallbackTransmitMissionMSG(void *p, mavlink_message_t &msg)
@@ -69,6 +75,8 @@ public:
     {
         ((VehicleObject_MAVLINK *)p)->transmitMessage(msg);
     }
+private:
+    CallbackInterface_DataMAVLINK *m_CB;
 
     //The following are basic controllers for the MAVLINK vehicle object
 public:

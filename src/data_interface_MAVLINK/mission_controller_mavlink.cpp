@@ -3,9 +3,11 @@
 namespace DataInterface_MAVLINK {
 
 MissionController_MAVLINK::MissionController_MAVLINK(const int &targetID, const int &originatingID):
-    mToExit(false), currentCommsState(NEUTRAL), currentRetry(0), maxRetries(5),
-    helperMAVtoMACE(targetID), responseTimeout(1000), prevTransmit(NULL),
-    systemID(targetID), transmittingID(originatingID)
+    systemID(targetID), transmittingID(originatingID),
+    mToExit(false), currentRetry(0), maxRetries(5), responseTimeout(1000),\
+    currentCommsState(NEUTRAL),
+    m_CB(NULL), prevTransmit(NULL),
+    helperMAVtoMACE(targetID),helperMACEtoMAV(originatingID,0)
 {
 
 }
@@ -45,7 +47,7 @@ void MissionController_MAVLINK::transmitMission(const MissionItem::MissionList &
 
     currentCommsState = TRANSMITTING;
     mavlink_mission_count_t count;
-    count.count = this->missionList.getQueueSize();
+    count.count = this->missionList.getQueueSize() + 1;
     count.mission_type = MAV_MISSION_TYPE_MISSION;
     count.target_component = 0;
     count.target_system = systemID;
@@ -70,9 +72,14 @@ void MissionController_MAVLINK::transmitMissionItem(const mavlink_mission_reques
         currentCommsState = TRANSMITTING;
         mavlink_mission_item_t missionItem;
 
-
-        std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = this->missionList.getMissionItem(index - 1);
-        DataMAVLINK::Helper_MissionMACEtoMAVLINK::MACEMissionToMAVLINKMission(ptrItem,index,missionItem);
+        if(index == 0) //the vehicle requested the home position
+        {
+            missionItem = helperMACEtoMAV.convertHome(this->missionHome);
+        }
+        else{
+            std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = this->missionList.getMissionItem(index - 1);
+            helperMACEtoMAV.MACEMissionToMAVLINKMission(ptrItem,index,missionItem);
+        }
 
         clearPreviousTransmit();
         prevTransmit = new PreviousTransmission<mavlink_mission_item_t>(commsItemEnum::ITEM_TXITEM, missionItem);
@@ -175,7 +182,7 @@ void MissionController_MAVLINK::receivedMissionCount(const mavlink_mission_count
 {
     m_LambdasToRun.push_back([this, &missionCount]{
         mTimer.stop();
-        this->missionList.initializeQueue(missionCount.count);
+        this->missionList.initializeQueue(missionCount.count - 1);
 
         mavlink_mission_request_t request;
         request.mission_type = MAV_MISSION_TYPE_MISSION;
