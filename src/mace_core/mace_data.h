@@ -9,6 +9,7 @@
 #include <functional>
 #include <mutex>
 #include <list>
+#include <vector>
 
 #include "vehicle_data.h"
 
@@ -62,13 +63,13 @@ private:
 public:
 
     MaceData() :
-        m_MSTOKEEP(DEFAULT_MS_RECORD_TO_KEEP),flagGlobalOrigin(false)
+        m_MSTOKEEP(DEFAULT_MS_RECORD_TO_KEEP),flagGlobalOrigin(false), flagBoundaryVerts(false)
     {
 
     }
 
     MaceData(uint64_t historyToKeepInms) :
-        m_MSTOKEEP(historyToKeepInms),flagGlobalOrigin(false)
+        m_MSTOKEEP(historyToKeepInms),flagGlobalOrigin(false), flagBoundaryVerts(false)
     {
 
     }
@@ -131,6 +132,13 @@ public:
         return globalHome;
     }
 
+    std::vector<DataState::StateGlobalPosition> GetEnvironmentBoundary() const
+    {
+        std::lock_guard<std::mutex> guard(m_EnvironmentBoundaryMutex);
+        std::vector<DataState::StateGlobalPosition> boundaryVerts = m_BoundaryVerts;
+        return boundaryVerts;
+    }
+
 private:
 
     void AddAvailableVehicle(const int &vehicleID)
@@ -170,6 +178,12 @@ private:
 //            it->second.position.translationTransformation(m_GlobalOrigin.position,translation);
 //            m_VehicleToGlobalTranslation[it->first] = translation;
 //        }
+    }
+
+    void UpdateEnvironmentVertices(const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
+        std::lock_guard<std::mutex> guard(m_EnvironmentBoundaryMutex);
+        m_BoundaryVerts = boundaryVerts;
+        flagBoundaryVerts = true;
     }
 
 
@@ -647,6 +661,9 @@ private:
     std::map<int, Eigen::Vector3f> m_VehicleToGlobalTranslation;
     CommandItem::SpatialHome m_GlobalOrigin;
     bool flagGlobalOrigin;
+    mutable std::mutex m_EnvironmentBoundaryMutex;
+    std::vector<DataState::StateGlobalPosition> m_BoundaryVerts;
+    bool flagBoundaryVerts;
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_AttitudeDynamicsHistory;

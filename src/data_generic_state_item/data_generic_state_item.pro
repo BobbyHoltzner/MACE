@@ -40,7 +40,8 @@ SOURCES += \
     base_2d_position.cpp \
     abstract_position.cpp \
     abstract_2d_position.cpp \
-    positional_aid.cpp
+    positional_aid.cpp \
+    state_item_boundary.cpp
 
 HEADERS +=\
         data_generic_state_item_global.h \
@@ -58,7 +59,8 @@ HEADERS +=\
     base_2d_position.h \
     abstract_position.h \
     abstract_2d_position.h \
-    positional_aid.h
+    positional_aid.h \
+    state_item_boundary.h
 
 # Unix lib Install
 unix:!symbian {

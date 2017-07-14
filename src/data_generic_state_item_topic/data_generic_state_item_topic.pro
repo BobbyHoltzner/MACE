@@ -32,7 +32,8 @@ SOURCES += \
     state_local_velocity_topic.cpp \
     state_global_position_ex_topic.cpp \
     state_local_position_ex_topic.cpp \
-    state_airspeed_topic.cpp
+    state_airspeed_topic.cpp \
+    state_item_topic_boundary.cpp
 
 HEADERS +=\
         data_generic_state_item_topic_global.h \
@@ -44,7 +45,8 @@ HEADERS +=\
     state_topic_components.h \
     state_global_position_ex_topic.h \
     state_local_position_ex_topic.h \
-    state_airspeed_topic.h
+    state_airspeed_topic.h \
+    state_item_topic_boundary.h
 
 # Unix lib Install
 unix:!symbian {

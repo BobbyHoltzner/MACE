@@ -2,7 +2,7 @@
 
 ModuleRTA::ModuleRTA():
     m_VehicleDataTopic("vehicleData"), m_SensorDataTopic("sensorData"),
-    m_SensorFootprintDataTopic("sensorFootprint")
+    m_SensorFootprintDataTopic("sensorFootprint"), originSent(false), environmentBoundarySent(false)
 {
 //    // ****** TESTING ******
 //    // Temporary boundary verts for testing:
@@ -69,8 +69,6 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurati
 //!
 void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-    UNUSED(params);
-
     double globalLat = 0 , globalLon = 0, gridSpacing = 1;
     DataState::StateGlobalPosition globalOrigin;
     std::string vertsStr;
@@ -88,10 +86,6 @@ void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
         globalOrigin.setLatitude(globalLat);
         globalOrigin.setLongitude(globalLon);
         globalOrigin.setAltitude(0);
-
-        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-            ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
-        });
     }
     if(params->HasNonTerminal("EnvironmentParameters")) {
         std::shared_ptr<MaceCore::ModuleParameterValue> environmentParams = params->GetNonTerminalValue("EnvironmentParameters");
@@ -206,6 +200,38 @@ bool ModuleRTA::parseBoundaryVertices(std::string unparsedVertices, const DataSt
 
 void ModuleRTA::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
+    if(!originSent) {
+        CommandItem::SpatialHome tmpGlobalOrigin;
+        tmpGlobalOrigin.position.setX(environment->getGlobalOrigin()->getLatitude());
+        tmpGlobalOrigin.position.setY(environment->getGlobalOrigin()->getLongitude());
+        tmpGlobalOrigin.position.setZ(0);
+        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+            ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
+        });
+
+        originSent = true;
+    }
+    if(!environmentBoundarySent) {
+        std::vector<Point> boundary = environment->getBoundaryVerts();
+        std::vector<DataState::StateGlobalPosition> globalBoundary;
+        for(auto pt : boundary) {
+            DataState::StateGlobalPosition globalPos;
+            DataState::StateGlobalPosition origin;
+            origin.setX(environment->getGlobalOrigin()->getX());
+            origin.setY(environment->getGlobalOrigin()->getY());
+            origin.setZ(environment->getGlobalOrigin()->getZ());
+            DataState::PositionalAid::LocalPositionToGlobal(origin, DataState::StateLocalPosition(pt.x, pt.y, pt.z), globalPos);
+            globalBoundary.push_back(globalPos);
+        }
+
+        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+            ptr->Event_SetEnvironmentVertices(this, globalBoundary);
+        });
+
+        environmentBoundarySent = true;
+    }
+
+
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
