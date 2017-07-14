@@ -215,7 +215,7 @@ export class VehicleHUD extends React.Component<Props, State> {
                         <FlatButton
                             label="Sync"
                             onClick={this.syncVehicle}
-                            icon={<i className="material-icons">swap_calls</i>} />
+                            icon={<i className="material-icons">cached</i>} />
                     </CardActions>
 
                 </Card>

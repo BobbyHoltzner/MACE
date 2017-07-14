@@ -11,10 +11,10 @@ import { VehicleCommandsContainer } from './VehicleCommandsContainer';
 import { AppDrawer } from './AppDrawer';
 import AppBar from 'material-ui/AppBar';
 import * as colors from 'material-ui/styles/colors';
-import IconMenu from 'material-ui/IconMenu';
-import MenuItem from 'material-ui/MenuItem';
+// import IconMenu from 'material-ui/IconMenu';
+// import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
-import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+// import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { Vehicle } from '../Vehicle';
 import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
 import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
@@ -22,6 +22,8 @@ import { MessagesDialog } from '../components/MessagesDialog';
 import { TakeoffDialog } from '../components/TakeoffDialog';
 import MACEMap from '../components/MACEMap';
 import { getRandomRGB } from '../util/Colors';
+import FontIcon from 'material-ui/FontIcon';
+import FlatButton from 'material-ui/FlatButton';
 
 import * as deepcopy from 'deepcopy';
 
@@ -60,7 +62,8 @@ type State = {
   globalOrigin?: PositionType
   useContext?: boolean,
   contextAnchor?: L.LeafletMouseEvent,
-  MACEConnected?: boolean
+  MACEConnected?: boolean,
+  environmentBoundary?: PositionType[]
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -115,7 +118,8 @@ export default class AppContainer extends React.Component<Props, State> {
       takeoffAlt: 5,
       showTakeoffDialog: false,
       showSaveTakeoff: false,
-      MACEConnected: false
+      MACEConnected: false,
+      environmentBoundary: []
     }
   }
 
@@ -140,7 +144,6 @@ export default class AppContainer extends React.Component<Props, State> {
     setInterval(() => {
       this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
     }, 3000);
-
   }
 
   setupTCPServer = () => {
@@ -264,7 +267,11 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(jsonData.dataType === 'VehicleMission') {
       let vehicleMission = jsonData as TCPMissionType;
       let stateCopy = deepcopy(this.state.connectedVehicles);
+<<<<<<< HEAD
 	  console.log(Object.keys(stateCopy).length);
+=======
+      console.log(Object.keys(stateCopy).length);
+>>>>>>> master
       stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
       this.vehicleDB = stateCopy;
     }
@@ -354,6 +361,10 @@ export default class AppContainer extends React.Component<Props, State> {
       let jsonFootprint = jsonData as TCPSensorFootprintType;
       stateCopy[jsonFootprint.vehicleID].sensorFootprint = jsonFootprint.sensorFootprint;
       this.vehicleDB = stateCopy;
+    }
+    else if(jsonData.dataType === 'EnvironmentBoundary') {
+      let jsonBoundary = jsonData as TCPEnvironmentBoundaryType;
+      this.setState({environmentBoundary: jsonBoundary.environmentBoundary});
     }
     else if(jsonData.dataType === 'VehicleGPS') {
       let jsonGPS = jsonData as TCPGPSType;
@@ -571,21 +582,43 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({mapCenter: [e.target.getCenter().lat, e.target.getCenter().lng], mapZoom: e.target.getZoom()});
   }
 
+  handleSyncAll = () => {
+    this.makeTCPRequest(0, "GET_ENVIRONMENT_BOUNDARY", "");
+
+    this.makeTCPRequest(0, "ISSUE_COMMAND", "FORCE_DATA_SYNC");
+  }
+
   render() {
 
     const width = window.screen.width;
     const height = window.screen.height;
     const parentStyle = {height: height + 'px', width: width + 'px'};
 
-    const MoreVertMenu = () => (
-      <IconMenu
-        iconButtonElement={<IconButton><MoreVertIcon color="white" /></IconButton>}
-        anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-        targetOrigin={{horizontal: 'right', vertical: 'top'}}
-      >
-        <MenuItem onClick={() => console.log("RTA")} primaryText="RTA Parameters" />
-        <MenuItem onClick={() => console.log("Path Planning")} primaryText="Path Planning Parameters" />
-      </IconMenu>
+    const ToolbarRight = () => (
+      // <IconMenu
+      //   iconButtonElement={<IconButton><MoreVertIcon color="white" /></IconButton>}
+      //   anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+      //   targetOrigin={{horizontal: 'right', vertical: 'top'}}
+      // >
+      //   <MenuItem onClick={() => console.log("RTA")} primaryText="RTA Parameters" />
+      //   <MenuItem onClick={() => console.log("Path Planning")} primaryText="Path Planning Parameters" />
+      // </IconMenu>
+      // <IconButton
+      //   iconClassName={"material-icons"}
+      //   onClick={this.handleSyncAll}
+      //   iconStyle={{color: "white"}}
+      // >
+      //   refresh
+      // </IconButton>
+
+      <FlatButton
+        label={"Sync all"}
+        labelPosition={"before"}
+        onClick={this.handleSyncAll}
+        icon={<i className="material-icons">cached</i>}
+        style={{color: "white"}}
+        />
+
     );
 
     return (
@@ -596,7 +629,7 @@ export default class AppContainer extends React.Component<Props, State> {
                 title="MACE"
                 style={{backgroundColor: colors.orange700}}
                 onLeftIconButtonTouchTap={() => this.setState({openDrawer: !this.state.openDrawer})}
-                iconElementRight={<MoreVertMenu />}
+                iconElementRight={<ToolbarRight />}
             />
 
             <AppDrawer
@@ -690,6 +723,7 @@ export default class AppContainer extends React.Component<Props, State> {
               contextSetHome={this.contextSetHome}
               contextGoHere={this.contextGoHere}
               MACEConnected={this.state.MACEConnected}
+              environmentBoundary={this.state.environmentBoundary}
              />
 
 

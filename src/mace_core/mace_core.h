@@ -100,6 +100,8 @@ public:
 
     virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome);
 
+    virtual void Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts);
+
 public:
 
     /////////////////////////////////////////////////////////////////////////

@@ -136,7 +136,11 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
 {
     UNUSED(sender);
-    UNUSED(vehicleID);
+//    UNUSED(vehicleID);
+
+    if(m_RTA) {
+        m_RTA->MarshalCommand(RTACommands::TEST_FUNCTION, vehicleID);
+    }
 }
 
 void MaceCore::Event_ForceVehicleDataSync(const void *sender, const int &targetSystemID)
@@ -419,6 +423,11 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const CommandItem::Spat
     m_DataFusion->UpdateGlobalOrigin(globalHome);
 }
 
+void MaceCore::Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
+    UNUSED(sender);
+    m_DataFusion->UpdateEnvironmentVertices(boundaryVerts);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// SPECIFIC VEHICLE EVENTS: These events are associated from IModuleEventsVehicleVehicle
@@ -486,7 +495,10 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
     m_DataFusion->AddAvailableVehicle(newVehicleObserved);
 
     if(m_GroundStation)
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE,newVehicleObserved);
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+
+    if(m_RTA)
+        m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
 }
 
 void MaceCore::GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome)

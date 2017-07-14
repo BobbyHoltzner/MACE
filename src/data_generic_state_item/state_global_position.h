@@ -1,7 +1,6 @@
 #ifndef STATE_GLOBAL_POSITION_H
 #define STATE_GLOBAL_POSITION_H
 
-#include <QJsonObject>
 #include <iostream>
 #include <math.h>
 
