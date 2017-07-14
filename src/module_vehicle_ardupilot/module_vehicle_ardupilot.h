@@ -216,11 +216,6 @@ public:
     virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome);
 
 
-    // Controller Callbacks:
-    void takeoffCallback(const std::string value);
-    void guidedCallback(const std::string value);
-
-
     bool checkControllerState()
     {
         if(m_AircraftController)

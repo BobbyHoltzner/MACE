@@ -111,16 +111,6 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
 
 }
 
-
-void ModuleVehicleArdupilot::takeoffCallback(const std::string value) {
-    std::cout << "      **TEST FUNCTION VALUE TAKEOFF: " << value << std::endl;
-}
-
-void ModuleVehicleArdupilot::guidedCallback(const std::string value) {
-    std::cout << "      **TEST FUNCTION VALUE GUIDED: " << value << std::endl;
-}
-
-
 void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &command)
 {
     if(vehicleData)
@@ -135,42 +125,37 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
 
 void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command)
 {
-//    int vehicleID = command.getTargetSystem();
-//    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
+    int systemID = command.getTargetSystem();
+    if((vehicleData) && (vehicleData->getSystemID() == systemID))
+    {
+        if(command.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_PAUSE)
+        {
+            DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
+            int mode = tmp.getFlightModeFromString("LOITER");
+            vehicleData->command->setNewMode(mode,systemID,m_LinkChan);
+//            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+//                ptr->GVEvents_MissionExeStateUpdated(this, key, Data::MissionExecutionState::MESTATE_PAUSED);
+//            });
 
-//    if(command.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_PAUSE)
-//    {
-//        int newFlightMode = tmpData->data->ArdupilotFlightMode.get().getFlightModeFromString("LOITER");
-//        mavlink_message_t msg = tmpData->generateChangeMode(vehicleID,m_LinkChan,newFlightMode);
-//        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        }else if(command.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_START)
+        {
+            DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
+            int mode = tmp.getFlightModeFromString("AUTO");
+            vehicleData->command->setNewMode(mode,systemID,m_LinkChan);
 
-//        Data::MissionKey key = tmpData->data->currentAutoMission.get().getMissionKey();
-//        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-//            ptr->GVEvents_MissionExeStateUpdated(this, key, Data::MissionExecutionState::MESTATE_PAUSED);
-//        });
-
-//    }else if(command.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_START)
-//    {
-//        int newFlightMode = tmpData->data->ArdupilotFlightMode.get().getFlightModeFromString("AUTO");
-//        mavlink_message_t msg = tmpData->generateChangeMode(vehicleID,m_LinkChan,newFlightMode);
-//        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-
-//        Data::MissionKey key = tmpData->data->currentAutoMission.get().getMissionKey();
-//        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-//            ptr->GVEvents_MissionExeStateUpdated(this, key, Data::MissionExecutionState::MESTATE_EXECUTING);
-//        });
-//    }
+//            Data::MissionKey key = tmpData->data->currentAutoMission.get().getMissionKey();
+//            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+//                ptr->GVEvents_MissionExeStateUpdated(this, key, Data::MissionExecutionState::MESTATE_EXECUTING);
+//            });
+        }
+    }
 }
 
 void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command)
 {
-//    std::string modeString = command.getRequestMode();
-//    if(vehicleData)
-//    {
-//        DataARDUPILOT::ARDUPILOTComponent_FlightMode flightMode = vehicleData->state->vehicleFlightMode.get();
-//        int modeID = flightMode.getFlightModeFromString(modeString);
-//        vehicleData->command->setNewMode(modeID,255,m_LinkChan);
-//    }
+    DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
+    int mode = tmp.getFlightModeFromString(command.getRequestMode());
+    vehicleData->command->setNewMode(mode,255,m_LinkChan);
 }
 
 void ModuleVehicleArdupilot::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
@@ -196,7 +181,8 @@ void ModuleVehicleArdupilot::SpinDownController() {
 
 void ModuleVehicleArdupilot::Command_GetHomePosition(const int &vehicleID)
 {
-
+    if((vehicleData) && (vehicleData->getSystemID() == vehicleID))
+        vehicleData->command->getSystemHome();
 }
 
 void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome)

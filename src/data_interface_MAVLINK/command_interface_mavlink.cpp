@@ -19,6 +19,15 @@ CommandInterface_MAVLINK::~CommandInterface_MAVLINK()
     m_p = NULL;
 }
 
+void CommandInterface_MAVLINK::getSystemHome(const int &compID)
+{
+    mavlink_command_long_t cmd = initializeCommandLong();
+    cmd.command = MAV_CMD_GET_HOME_POSITION;
+    cmd.target_system = targetSystemID;
+    cmd.target_component = targetCompID;
+    m_CBCmdLng(m_p,cmd);
+}
+
 mavlink_command_long_t CommandInterface_MAVLINK::initializeCommandLong()
 {
     mavlink_command_long_t cmdLong;
