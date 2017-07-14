@@ -23,7 +23,8 @@ type Props = {
     contextGoHere: () => void,
     setContextAnchor: (e: L.LeafletMouseEvent) => void
     contextAnchor: L.LeafletMouseEvent,
-    MACEConnected: boolean
+    MACEConnected: boolean,
+    environmentBoundary: PositionType[]
 }
 
 type State = {
@@ -159,6 +160,11 @@ export default class MACEMap extends React.Component<Props, State> {
                         <Polygon key={key} positions={this.props.connectedVehicles[key].sensorFootprint} color={this.props.selectedVehicleID === key ? this.props.connectedVehicles[key].highlightColor : this.props.connectedVehicles[key].opaqueHighlightColor} fillColor={colors.amber500} />
                       );
                     })}
+
+                    {/* EnvironmentBoundary */}
+
+                    <Polygon positions={this.props.environmentBoundary} color={colors.white} fillColor={colors.green300} />
+
 
                   </LayerGroup>
                 }

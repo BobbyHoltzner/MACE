@@ -76,6 +76,10 @@ private:
 
     // Environment
     std::shared_ptr<Environment_Map> environment;
+
+    // Flags:
+    bool originSent;
+    bool environmentBoundarySent;
 };
 
 #endif // MODULE_RTA_H

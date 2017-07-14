@@ -3,6 +3,7 @@
 
 #include "data/system_description.h"
 #include "data_generic_command_item/command_item_components.h"
+#include "data_generic_state_item/state_global_position.h"
 
 namespace MaceCore
 {
@@ -38,6 +39,8 @@ public:
     virtual void Event_SetHomePosition(const void* sender, const CommandItem::SpatialHome &vehicleHome) = 0;
 
     virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome) = 0;
+
+    virtual void Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) = 0;
 };
 
 } //End MaceCore Namespace

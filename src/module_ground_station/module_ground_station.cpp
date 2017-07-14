@@ -209,6 +209,10 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
     {
         takeoff(vehicleID, jsonObj);
     }
+    else if(command == "GET_ENVIRONMENT_BOUNDARY")
+    {
+        getEnvironmentBoundary();
+    }
     else
     {
         std::cout << "Command " << command.toStdString() << " not recognized." << std::endl;
@@ -542,6 +546,13 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 // Write heartbeat data to the GUI:
                 sendVehicleHeartbeat(senderID, component);
             }
+            else if(componentsUpdated.at(i) == DataStateTopic::StateItemTopic_Boundary::Name()){
+                std::shared_ptr<DataStateTopic::StateItemTopic_Boundary> component = std::make_shared<DataStateTopic::StateItemTopic_Boundary>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write environment boundaries to the GUI:
+                sendEnvironmentVertices(component);
+            }
         }
     }
     else if(topicName == m_MissionDataTopic.Name())
@@ -696,6 +707,63 @@ void ModuleGroundStation::sendSensorFootprint(const int &vehicleID, const std::s
 
     if(!bytesWritten){
         std::cout << "Write vehicle sensor footprint failed..." << std::endl;
+    }
+}
+
+
+void ModuleGroundStation::sendEnvironmentVertices(const std::shared_ptr<DataStateTopic::StateItemTopic_Boundary> &component) {
+
+    QJsonObject json;
+    json["dataType"] = "EnvironmentBoundary";
+    json["vehicleID"] = 0;
+
+    std::vector<DataState::StateGlobalPosition> environmentVertices = component->getEnvironmentVertices();
+
+    QJsonArray verticies;
+    for(auto&& vertex : environmentVertices) {
+        QJsonObject obj;
+        obj["lat"] = vertex.getLatitude();
+        obj["lon"] = vertex.getLongitude();
+        obj["alt"] = vertex.getAltitude();
+
+        verticies.push_back(obj);
+    }
+
+    json["environmentBoundary"] = verticies;
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write environment boundary failed..." << std::endl;
+    }
+}
+
+void ModuleGroundStation::getEnvironmentBoundary() {
+    std::shared_ptr<const MaceCore::MaceData> data = this->getDataObject();
+    std::vector<DataState::StateGlobalPosition> environmentVertices = data->GetEnvironmentBoundary();
+
+    QJsonObject json;
+    json["dataType"] = "EnvironmentBoundary";
+    json["vehicleID"] = 0;
+
+    QJsonArray verticies;
+    for(auto&& vertex : environmentVertices) {
+        QJsonObject obj;
+        obj["lat"] = vertex.getLatitude();
+        obj["lon"] = vertex.getLongitude();
+        obj["alt"] = vertex.getAltitude();
+
+        verticies.push_back(obj);
+    }
+
+    json["environmentBoundary"] = verticies;
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write environment boundary failed..." << std::endl;
     }
 }
 
