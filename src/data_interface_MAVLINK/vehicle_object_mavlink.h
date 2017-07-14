@@ -16,11 +16,16 @@
 #include "mission_data_mavlink.h"
 #include "state_data_mavlink.h"
 
+//#include "spdlog/spdlog.h"
+
 namespace DataInterface_MAVLINK{
 
 class VehicleObject_MAVLINK : public MissionController_Interface
 {
 public:
+
+    void async_example();
+
     VehicleObject_MAVLINK(const int &vehicleID, const int &transmittingID);
 
     ~VehicleObject_MAVLINK();

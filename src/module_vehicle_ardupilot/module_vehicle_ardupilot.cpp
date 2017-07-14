@@ -251,9 +251,9 @@ void ModuleVehicleArdupilot::Command_SetCurrentMission(const Data::MissionKey &k
 
 void ModuleVehicleArdupilot::Command_GetCurrentMission(const int &targetSystem)
 {
-    mavlink_message_t msg;
-    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+//    mavlink_message_t msg;
+//    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
+//    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::Command_GetMission(const Data::MissionKey &key)
@@ -274,16 +274,16 @@ void ModuleVehicleArdupilot::Command_ClearCurrentMission(const int &targetSystem
 
 void ModuleVehicleArdupilot::Command_GetOnboardAuto(const int &targetSystem)
 {
-    mavlink_message_t msg;
-    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+//    mavlink_message_t msg;
+//    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
+//    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::Command_ClearOnboardAuto(const int &targetSystem)
 {
-    mavlink_message_t msg;
-    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+//    mavlink_message_t msg;
+//    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
+//    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -309,6 +309,8 @@ void ModuleVehicleArdupilot::Command_ClearOnboardGuided(const int &targetSystem)
 //!
 void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
+    if(message.msgid == MAVLINK_MSG_ID_MISSION_COUNT)
+        std::cout<<"I saw a new count"<<std::endl;
     if(vehicleData)
         vehicleData->parseMessage(&message);
 }
@@ -324,7 +326,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
         vehicleData->connectCallback(this);
 
-        vehicleData->missionController->requestMission();
+        //vehicleData->missionController->requestMission();
 
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
             ptr->NewConstructedVehicle(this, systemID);

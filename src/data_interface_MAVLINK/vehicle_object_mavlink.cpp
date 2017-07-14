@@ -2,11 +2,36 @@
 
 namespace DataInterface_MAVLINK {
 
+
+void VehicleObject_MAVLINK::async_example()
+{
+//    std::string logname = "";
+//    char* MACEPath = getenv("MACE_ROOT");
+
+//    const char kPathSeparator =
+//    #ifdef _WIN32
+//                                '\\';
+//    #else
+//                                '/';
+//    #endif
+
+//    std::string rootPath(MACEPath);
+//    std::cout << "The current MACE_ROOT path is: " << rootPath << std::endl;
+//    logname = rootPath + kPathSeparator + "logs/testFileInterface.txt";
+
+//    size_t q_size = 8192; //queue size must be power of 2
+//    spdlog::set_async_mode(q_size,spdlog::async_overflow_policy::block_retry,nullptr,std::chrono::seconds(2));
+
+//    spdlog::basic_logger_mt("async_file_logger", logname);
+}
+
 VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &transmittingID):
     m_CB(NULL), missionController(NULL), command(NULL), mission(NULL), state(NULL),
     systemID(vehicleID), commandID(transmittingID),
     m_LinkMarshaler(NULL), m_LinkName(""), m_LinkChan(0)
 {
+    async_example();
+
     command = new CommandInterface_MAVLINK(systemID, 0);
     command->connectCallback_CommandLong(VehicleObject_MAVLINK::staticCallbackCMDLongFunction, this);
 
@@ -16,6 +41,7 @@ VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &tr
     mission = new MissionData_MAVLINK();
     state = new StateData_MAVLINK();
     state->connectCallback_State(VehicleObject_MAVLINK::staticCallbackState, this);
+
 }
 
 VehicleObject_MAVLINK::~VehicleObject_MAVLINK()
@@ -69,6 +95,9 @@ void VehicleObject_MAVLINK::updateCommsInfo(Comms::CommsMarshaler *commsMarshale
 
 void VehicleObject_MAVLINK::transmitMessage(const mavlink_message_t &msg)
 {
+    if(msg.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_LIST){
+        std::cout<<"I am sending a transmit message request"<<std::endl;
+    }
     if(m_LinkMarshaler)
     {
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -98,6 +127,7 @@ void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionItem(const mavli
 
 void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionReqList(const mavlink_mission_request_list_t &request)
 {
+    std::cout<<"I am requesting the mission from the vehicle"<<std::endl;
     mavlink_message_t msg;
     mavlink_msg_mission_request_list_encode_chan(commandID,190,m_LinkChan,&msg,&request);
     transmitMessage(msg);

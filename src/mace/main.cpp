@@ -18,8 +18,10 @@ const char kPathSeparator =
 
 int main(int argc, char *argv[])
 {
+
     //generate the factory that can make module instances
     MaceCore::ModuleFactory* factory = ModuleCollection::GenerateFactory();
+
 
     //Initialize core and configure data object
     MaceCore::MaceCore core;
@@ -27,9 +29,11 @@ int main(int argc, char *argv[])
     core.AddDataFusion(data);
 
     std::string filename = "";
+
     char* MACEPath = getenv("MACE_ROOT");
 
     if(MACEPath){
+
         std::string rootPath(MACEPath);
         std::cout << "The current MACE_ROOT path is: " << rootPath << std::endl;
         filename = rootPath + kPathSeparator + "MaceSetup.xml";
@@ -166,7 +170,6 @@ int main(int argc, char *argv[])
     {
         thread->join();
     }
-
 
     return 0;
 }

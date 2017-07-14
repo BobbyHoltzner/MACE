@@ -16,6 +16,8 @@
 #include "callback_interface_data_mavlink.h"
 #include "generic/helper_previous_transmission.h"
 
+//#include "spdlog/spdlog.h"
+
 typedef void(*CallbackFunctionPtr_MisCount)(void*, mavlink_message_t &);
 
 class MissionController_Interface
@@ -87,6 +89,8 @@ private:
     int responseTimeout;
 
 private:
+    //std::shared_ptr<spdlog::logger> mLog;
+
     MissionController_Interface *m_CB;
     PreviousTransmissionBase *prevTransmit;
 

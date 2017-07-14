@@ -91,6 +91,10 @@ void MavlinkProtocol::SetChannel(ILink *link, uint8_t channel)
 //!
 void MavlinkProtocol::SendProtocolMessage(const ILink *link, const mavlink_message_t &message)
 {
+    if(message.msgid == MAVLINK_MSG_ID_MISSION_REQUEST_LIST)
+    {
+        std::cout<<"I am about to send out a mission request list"<<std::endl;
+    }
     // Create buffer
     static uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
     // Write message into buffer, prepending start sign
@@ -223,6 +227,9 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
                 mavlink_command_ack_t commandACK;
                 mavlink_msg_command_ack_decode(&message, &commandACK);
                 Emit([&](const IProtocolMavlinkEvents* ptr){ptr->VehicleCommandACK(link, message.sysid, commandACK);});
+            }else if(message.msgid == MAVLINK_MSG_ID_MISSION_COUNT)
+            {
+                std::cout<<"Yep I saw two of them in here"<<std::endl;
             }
 
             // Increase receive counter

@@ -16,13 +16,17 @@ public:
 
     virtual ~CommandInterface_MAVLINK();
 
+    virtual void getSystemHome(const int &compID = 0);
+    
     virtual mavlink_message_t setNewMode(const int &newMode, const int &originatingSystemID, const int &chan);
     virtual mavlink_message_t setHomePosition(const CommandItem::SpatialHome &commandItem, const int &originatingSystemID, const int &chan);
+    
     virtual void setSystemArm(const CommandItem::ActionArm &commandItem, const int &compID = 0);
     virtual void setSystemTakeoff(const CommandItem::SpatialTakeoff &commandItem, const int &compID = 0);
     virtual void setSystemLand(const CommandItem::SpatialLand &commandItem, const int &compID = 0);
     virtual void setSystemRTL(const CommandItem::SpatialRTL &commandItem, const int &compID = 0);
 
+    
     virtual mavlink_command_long_t initializeCommandLong();
     virtual mavlink_message_t packLongMessage(const mavlink_command_long_t &cmdLong, const int &originatingSystemID, const int &originatingCompID, const int &chan);
 

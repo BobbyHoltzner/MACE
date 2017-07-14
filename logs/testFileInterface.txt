@@ -1,0 +1,445 @@
+[2017-07-14 12:36:57.473] [async_file_logger] [info] Mission Controller has seen a request mission.
+[2017-07-14 12:36:57.495] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 12:36:57.495] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 12:36:57.495] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 12:36:57.495] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 12:36:57.555] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 12:36:57.556] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 12:36:57.556] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 12:36:57.557] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 12:36:57.557] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 12:36:57.558] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 12:36:57.558] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 12:36:57.559] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:36:57.579] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:36:57.599] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.599] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.599] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.599] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.599] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.599] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.599] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.599] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller received mission item 3
+[2017-07-14 12:36:57.619] [async_file_logger] [info] Mission Controller has received the entire mission of 3
+[2017-07-14 12:39:26.105] [async_file_logger] [info] Mission Controller has seen a request mission.
+[2017-07-14 12:39:30.303] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 12:39:30.303] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 12:39:31.968] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 12:39:31.968] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 12:39:32.049] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 12:39:32.060] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 12:39:32.060] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 12:39:32.061] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 12:39:32.061] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 12:39:32.072] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 12:39:32.072] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 12:39:32.082] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:39:32.102] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.202] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.203] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.203] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.203] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.203] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.203] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.203] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.203] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.203] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.203] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.203] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.203] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:39:32.203] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:39:32.223] [async_file_logger] [info] Mission Controller received mission item 3
+[2017-07-14 12:39:32.223] [async_file_logger] [info] Mission Controller has received the entire mission of 3
+[2017-07-14 12:53:45.111] [async_file_logger] [info] Mission Controller has seen a request mission.
+[2017-07-14 12:53:45.152] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 12:53:45.152] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 12:53:45.152] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 12:53:45.152] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 12:53:45.192] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 12:53:45.203] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 12:53:45.204] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 12:53:45.215] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 12:53:45.215] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 12:53:45.226] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 12:53:45.226] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 12:53:45.237] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 12:53:45.317] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.377] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller received mission item 3
+[2017-07-14 12:53:45.397] [async_file_logger] [info] Mission Controller has received the entire mission of 3
+[2017-07-14 13:00:14.447] [async_file_logger] [info] Mission Controller has seen a request mission.
+[2017-07-14 13:00:14.468] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 13:00:14.468] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 13:00:14.468] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 13:00:14.468] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 13:00:14.548] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:00:14.559] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:00:14.559] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:00:14.570] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:00:14.570] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:00:14.571] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:00:14.571] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:00:14.572] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:00:14.572] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:00:14.572] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:00:14.572] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:00:14.572] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.692] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller received mission item 3
+[2017-07-14 13:00:14.792] [async_file_logger] [info] Mission Controller has received the entire mission of 3
+[2017-07-14 13:02:06.535] [async_file_logger] [info] Mission Controller has seen a request mission.
+[2017-07-14 13:02:06.556] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 13:02:06.556] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 13:02:06.556] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 13:02:06.556] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 13:02:06.616] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:02:06.627] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:02:06.627] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:02:06.634] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:02:06.634] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:02:06.636] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:02:06.636] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:02:06.647] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.747] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.767] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.767] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.767] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.767] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.767] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.767] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.767] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:02:06.767] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:02:06.767] [async_file_logger] [info] Mission Controller received mission item 3
+[2017-07-14 13:02:06.767] [async_file_logger] [info] Mission Controller has received the entire mission of 3
+[2017-07-14 13:02:06.779] [async_file_logger] [info] Mission Controller received mission item 3
+[2017-07-14 13:02:06.779] [async_file_logger] [info] Mission Controller has received the entire mission of 3
+[2017-07-14 13:06:07.006] [async_file_logger] [info] Mission Controller has seen a request mission.
+[2017-07-14 13:06:07.066] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 13:06:07.066] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 13:06:07.066] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 13:06:07.066] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 13:06:07.126] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:06:07.128] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:06:07.128] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:06:07.139] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:06:07.139] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:06:07.150] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:06:07.150] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:06:07.161] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:06:07.181] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:06:07.221] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:06:07.301] [async_file_logger] [info] Mission Controller received mission item 3
+[2017-07-14 13:06:07.301] [async_file_logger] [info] Mission Controller has received the entire mission of 3
+[2017-07-14 13:09:06.079] [async_file_logger] [info] Mission Controller has seen a request mission.
+[2017-07-14 13:09:06.200] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 13:09:06.200] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 13:09:06.200] [async_file_logger] [info] Mission Controller received a mission count of 4
+[2017-07-14 13:09:06.200] [async_file_logger] [info] Mission Controller is requesting mission item 0
+[2017-07-14 13:09:06.300] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:09:06.310] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:09:06.310] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:09:06.311] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:09:06.311] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:09:06.313] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:09:06.313] [async_file_logger] [info] Mission Controller received mission item 0
+[2017-07-14 13:09:06.324] [async_file_logger] [info] Mission Controller is requesting mission item 1
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller received mission item 1
+[2017-07-14 13:09:06.424] [async_file_logger] [info] Mission Controller is requesting mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller received mission item 2
+[2017-07-14 13:09:06.484] [async_file_logger] [info] Mission Controller is requesting mission item 3
+[2017-07-14 13:09:06.504] [async_file_logger] [info] Mission Controller received mission item 3
+[2017-07-14 13:09:06.504] [async_file_logger] [info] Mission Controller has received the entire mission of 3
+[2017-07-14 13:09:06.515] [async_file_logger] [info] Mission Controller received mission item 3
+[2017-07-14 13:09:06.515] [async_file_logger] [info] Mission Controller has received the entire mission of 3

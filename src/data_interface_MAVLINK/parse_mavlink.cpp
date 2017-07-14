@@ -246,7 +246,6 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(msg,&decodedMSG);
-        std::cout<<"The sequence index in here is: "<<decodedMSG.seq<<std::endl;
         this->missionController->recievedMissionItem(decodedMSG);
         break;
     }
@@ -286,6 +285,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         mavlink_mission_count_t decodedMSG;
         mavlink_msg_mission_count_decode(msg,&decodedMSG);
         this->missionController->receivedMissionCount(decodedMSG);
+        std::cout<<"I got a mission count"<<std::endl;
         break;
     }
     case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
