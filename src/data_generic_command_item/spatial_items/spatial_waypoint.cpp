@@ -35,4 +35,10 @@ SpatialWaypoint::SpatialWaypoint(const int &systemOrigin, const int &systemTarge
 
 }
 
+std::ostream& operator<<(std::ostream& os, const SpatialHome& t)
+{
+    os << 'Spatial Waypoint: ' << t.position.getX() << ', '<< t.position.getY() << ', '<< t.position.getZ() << '.';
+    return os;
+}
+
 } //end of namepsace CommandItem

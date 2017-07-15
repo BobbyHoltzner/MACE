@@ -101,6 +101,8 @@ public:
     }
 
 
+    friend std::ostream& operator<<(std::ostream& os, const SpatialHome& t);
+
 public:
     //!
     //! \brief position

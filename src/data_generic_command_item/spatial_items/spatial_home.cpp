@@ -35,4 +35,10 @@ SpatialHome::SpatialHome(const int &systemOrigin, const int &systemTarget):
 
 }
 
+std::ostream& operator<<(std::ostream& os, const SpatialHome& t)
+{
+    os << 'Spatial Home: ' << t.position.getX() << ', '<< t.position.getY() << ', '<< t.position.getZ() << '.';
+    return os;
+}
+
 } //end of namespace CommandItem

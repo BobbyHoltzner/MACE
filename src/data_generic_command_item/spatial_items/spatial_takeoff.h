@@ -66,6 +66,8 @@ public:
         return !(*this == rhs);
     }
 
+    friend std::ostream& operator<<(std::ostream& os, const SpatialTakeoff& t);
+
 public:
     DataState::Base3DPosition position;
 };

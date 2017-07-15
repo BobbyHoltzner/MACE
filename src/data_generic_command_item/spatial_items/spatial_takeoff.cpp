@@ -35,4 +35,10 @@ SpatialTakeoff::SpatialTakeoff(const int &systemOrigin, const int &systemTarget)
 
 }
 
+std::ostream& operator<<(std::ostream& os, const SpatialTakeoff& t)
+{
+    os << 'Spatial Home: ' << t.position.getX() << ', '<< t.position.getY() << ', '<< t.position.getZ() << '.';
+    return os;
+}
+
 }

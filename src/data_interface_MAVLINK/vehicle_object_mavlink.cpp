@@ -17,12 +17,16 @@ void VehicleObject_MAVLINK::async_example()
 
     std::string rootPath(MACEPath);
     std::cout << "The current MACE_ROOT path is: " << rootPath << std::endl;
-    logname = rootPath + kPathSeparator + "logs/testFileInterface.txt";
+    logname = rootPath + kPathSeparator + "logs/VehicleData_" + std::to_string(this->systemID) + ".txt";
+
+    std::string loggerName = "Log_Vehicle" + std::to_string(this->systemID);
+    char logNameArray[loggerName.size()+1];//as 1 char space for null is also required
+    strcpy(logNameArray, loggerName.c_str());
 
     //initiate the logs
     size_t q_size = 8192; //queue size must be power of 2
     spdlog::set_async_mode(q_size,spdlog::async_overflow_policy::block_retry,nullptr,std::chrono::seconds(2));
-    spdlog::basic_logger_mt("async_file_logger", logname);
+    spdlog::basic_logger_mt(logNameArray, logname);
 }
 
 VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &transmittingID):

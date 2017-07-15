@@ -67,6 +67,8 @@ public:
         return !(*this == rhs);
     }
 
+    friend std::ostream& operator<<(std::ostream& os, const SpatialWaypoint& t);
+
 public:
     DataState::Base3DPosition position;
 

@@ -46,6 +46,8 @@ void MissionController_MAVLINK::requestMission()
 
 void MissionController_MAVLINK::transmitMission(const MissionItem::MissionList &missionQueue)
 {
+    mLog->info("Mission Controller has been instructed to transmit a mission.");
+
     if(missionQueue.getVehicleID() == this->systemID)
     {
         this->missionList = missionQueue;
@@ -75,6 +77,8 @@ void MissionController_MAVLINK::transmitMissionItem(const mavlink_mission_reques
     m_LambdasToRun.push_back([this, missionRequest]{
         mTimer.stop();
         int index = missionRequest.seq;
+
+        mLog->info("Mission Controller has seen a request for mission item number " + std::to_string(index) + ".");
 
         currentCommsState = TRANSMITTING;
         mavlink_mission_item_t missionItem;
@@ -137,7 +141,7 @@ void MissionController_MAVLINK::run()
             {
                 if(type == commsItemEnum::ITEM_RXLIST)
                 {
-                    std::cout<<"Mission Controller attempt "<<currentRetry<<" for "<<getCommsItemEnumString(type)<<std::endl;
+                    mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
                     PreviousTransmission<mavlink_mission_request_list_t> *tmp = static_cast<PreviousTransmission<mavlink_mission_request_list_t>*>(prevTransmit);
                     mavlink_mission_request_list_t msgTransmit = tmp->getData();
                     mTimer.start();
@@ -146,7 +150,7 @@ void MissionController_MAVLINK::run()
                 }
                 else if(type == commsItemEnum::ITEM_RXITEM)
                 {
-                    std::cout<<"Mission Controller attempt "<<currentRetry<<" for "<<getCommsItemEnumString(type)<<std::endl;
+                    mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
                     PreviousTransmission<mavlink_mission_request_t> *tmp = static_cast<PreviousTransmission<mavlink_mission_request_t>*>(prevTransmit);
                     mavlink_mission_request_t msgTransmit = tmp->getData();
                     mTimer.start();
@@ -160,7 +164,7 @@ void MissionController_MAVLINK::run()
 
                 if(type == commsItemEnum::ITEM_TXCOUNT)
                 {
-                    std::cout<<"Mission Controller attempt "<<currentRetry<<" for "<<getCommsItemEnumString(type)<<std::endl;
+                    mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
                     PreviousTransmission<mavlink_mission_count_t> *tmp = static_cast<PreviousTransmission<mavlink_mission_count_t>*>(prevTransmit);
                     mavlink_mission_count_t msgTransmit = tmp->getData();
                     mTimer.start();
@@ -169,7 +173,7 @@ void MissionController_MAVLINK::run()
                 }
                 else if(type == commsItemEnum::ITEM_TXITEM)
                 {
-                    std::cout<<"Mission Controller attempt "<<currentRetry<<" for "<<getCommsItemEnumString(type)<<std::endl;
+                    mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
                     PreviousTransmission<mavlink_mission_item_t> *tmp = static_cast<PreviousTransmission<mavlink_mission_item_t>*>(prevTransmit);
                     mavlink_mission_item_t msgTransmit = tmp->getData();
                     mTimer.start();

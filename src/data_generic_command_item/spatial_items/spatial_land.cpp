@@ -35,5 +35,10 @@ SpatialLand::SpatialLand(const int &systemOrigin,  const int &systemTarget):
 
 }
 
+std::ostream& operator<<(std::ostream& os, const SpatialLand& t)
+{
+    os << 'Spatial Land: ' << t.position.getX() << ', '<< t.position.getY() << ', '<< t.position.getZ() << '.';
+    return os;
+}
 
 } //end of namespace CommandItem
