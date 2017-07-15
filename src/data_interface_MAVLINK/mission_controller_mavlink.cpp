@@ -4,13 +4,12 @@ namespace DataInterface_MAVLINK {
 
 MissionController_MAVLINK::MissionController_MAVLINK(const int &targetID, const int &originatingID):
     systemID(targetID), transmittingID(originatingID),
-    mToExit(false), currentRetry(0), maxRetries(5), responseTimeout(1000),\
+    mToExit(false), currentRetry(0), maxRetries(5), responseTimeout(5000),\
     currentCommsState(NEUTRAL),
     m_CB(NULL), prevTransmit(NULL),
     helperMAVtoMACE(targetID),helperMACEtoMAV(originatingID,0)
 {
-
-    //mLog = spdlog::get("async_file_logger");
+    mLog = spdlog::get("async_file_logger");
 }
 
 
@@ -25,7 +24,7 @@ void MissionController_MAVLINK::clearPreviousTransmit()
 
 void MissionController_MAVLINK::requestMission()
 {
-    //mLog->info("Mission Controller has seen a request mission.");
+    mLog->info("Mission Controller has seen a request mission.");
     this->missionList.clearQueue();
     currentCommsState = RECEIVING;
 
@@ -107,7 +106,6 @@ void MissionController_MAVLINK::run()
         if(mToExit == true) {
             clearPendingTasks();
             clearPreviousTransmit();
-            std::cout<<"MTOEXIT was the last to stop the timer"<<std::endl;
             mTimer.stop();
             break;
         }
@@ -191,7 +189,7 @@ void MissionController_MAVLINK::run()
 void MissionController_MAVLINK::receivedMissionCount(const mavlink_mission_count_t &missionCount)
 {
     m_LambdasToRun.push_back([this, missionCount]{
-        //mLog->info("Mission Controller received a mission count of " + std::to_string(missionCount.count));
+        mLog->info("Mission Controller received a mission count of " + std::to_string(missionCount.count));
         mTimer.stop();
         this->missionList.initializeQueue(missionCount.count - 1);
 
@@ -201,7 +199,7 @@ void MissionController_MAVLINK::receivedMissionCount(const mavlink_mission_count
         request.target_system = systemID;
         request.target_component = 0;
 
-        //mLog->info("Mission Controller is requesting mission item " + std::to_string(0));
+        mLog->info("Mission Controller is requesting mission item " + std::to_string(0));
 
         clearPreviousTransmit();
         prevTransmit = new PreviousTransmission<mavlink_mission_request_t>(commsItemEnum::ITEM_RXITEM, request);
@@ -231,7 +229,7 @@ void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t
     mTimer.stop();
     currentRetry = 0;
     int index = missionItem.seq;
-    //mLog->info("Mission Controller received mission item " + std::to_string(index));
+    mLog->info("Mission Controller received mission item " + std::to_string(index));
 
     if(index > (this->missionList.getQueueSize() + 1))
     {
@@ -259,7 +257,7 @@ void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t
     if(status.state == MissionItem::MissionList::INCOMPLETE)
     {
         int indexRequest = status.remainingItems.at(0)+1;
-        //mLog->info("Mission Controller is requesting mission item " + std::to_string(indexRequest));
+        mLog->info("Mission Controller is requesting mission item " + std::to_string(indexRequest));
         mavlink_mission_request_t request;
         request.mission_type = MAV_MISSION_TYPE_MISSION;
         request.seq = indexRequest;
@@ -274,7 +272,7 @@ void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t
         if(m_CB)
             m_CB->cbiMissionController_TransmitMissionReq(request);
     }else{
-        //mLog->info("Mission Controller has received the entire mission of " + std::to_string(this->missionList.getQueueSize()));
+        mLog->info("Mission Controller has received the entire mission of " + std::to_string(this->missionList.getQueueSize()));
         clearPendingTasks();
         mToExit = true;
         currentCommsState = NEUTRAL;

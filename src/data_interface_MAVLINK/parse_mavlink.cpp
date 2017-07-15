@@ -285,7 +285,6 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         mavlink_mission_count_t decodedMSG;
         mavlink_msg_mission_count_decode(msg,&decodedMSG);
         this->missionController->receivedMissionCount(decodedMSG);
-        std::cout<<"I got a mission count"<<std::endl;
         break;
     }
     case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:

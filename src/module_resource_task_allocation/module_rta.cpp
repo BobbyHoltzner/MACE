@@ -32,12 +32,6 @@ ModuleRTA::ModuleRTA():
     // **** END TESTING ****
 }
 
-void ModuleRTA::start()
-{
-    ModuleBase::start();
-    //Pat can do what he wants
-}
-
 //!
 //! \brief This module as been attached as a module
 //! \param ptr pointer to object that attached this instance to itself

@@ -104,7 +104,7 @@ headers_MAVLINK_to_MACE.files   += \
     MAVLINK_to_MACE/helper_mission_mavlink_to_mace.h
 INSTALLS       += headers_MAVLINK_to_MACE
 
-#INCLUDEPATH += $$PWD/../../speedLog/
+INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 INCLUDEPATH += $$PWD/../

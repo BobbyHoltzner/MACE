@@ -46,6 +46,9 @@ ModuleGroundStation::ModuleGroundStation() :
     m_MissionDataTopic("vehicleMission"),
     m_ListenThread(NULL)
 {
+
+    initiateLogs();
+
     m_positionTimeoutOccured = false;
     m_attitudeTimeoutOccured = false;
     m_modeTimeoutOccured = false;
@@ -83,6 +86,27 @@ ModuleGroundStation::~ModuleGroundStation()
     {
         m_timer->stop();
     }
+}
+
+void ModuleGroundStation::initiateLogs()
+{
+    std::string logname = "";
+    char* MACEPath = getenv("MACE_ROOT");
+
+    const char kPathSeparator =
+    #ifdef _WIN32
+                                '\\';
+    #else
+                                '/';
+    #endif
+
+    std::string rootPath(MACEPath);
+    logname = rootPath + kPathSeparator + "logs/MACE_Module_GCS.txt";
+    //initiate the logs
+    size_t q_size = 8192; //queue size must be power of 2
+    spdlog::set_async_mode(q_size,spdlog::async_overflow_policy::block_retry,nullptr,std::chrono::seconds(2));
+
+    mLogs = spdlog::basic_logger_mt("MACE_Module_GCS", logname);
 }
 
 bool ModuleGroundStation::StartTCPServer()
@@ -339,6 +363,7 @@ void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject 
 void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
 {
     if(jsonObj["vehicleCommand"] == "FORCE_DATA_SYNC") {
+        mLogs->info("Module Ground Station issuing force data sync command to system " + std::to_string(vehicleID) + ".");
         ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
             ptr->Event_ForceVehicleDataSync(this, vehicleID);
         });
@@ -564,8 +589,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
             if(componentsUpdated.at(i) == MissionTopic::MissionListTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-
-                std::cout << "vehicle mission" << std::endl;
 
                 // Write mission items to the GUI:
                 sendVehicleMission(senderID, component->getMissionList());
@@ -970,7 +993,6 @@ void ModuleGroundStation::sendVehicleGPS(const int &vehicleID, const std::shared
 
 void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &missionKey)
 {
-    std::cout<<"New mission available for ground station"<<std::endl;
     MissionItem::MissionList newList;
     bool valid = this->getDataObject()->getMissionList(missionKey,newList);
     if(valid)

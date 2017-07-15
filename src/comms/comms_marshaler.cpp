@@ -170,7 +170,7 @@ uint8_t CommsMarshaler::GetProtocolChannel(const std::string &linkName) const
 //! \param message Message to send
 //!
 template <typename T>
-void CommsMarshaler::SendMessage(const std::string &linkName, const T& message)
+void CommsMarshaler::SendMAVMessage(const std::string &linkName, const T& message)
 {
     if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
@@ -360,6 +360,6 @@ void CommsMarshaler::RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors
 
 
 
-template void CommsMarshaler::SendMessage<mavlink_message_t>(const std::string &, const mavlink_message_t&);
+template void CommsMarshaler::SendMAVMessage<mavlink_message_t>(const std::string &, const mavlink_message_t&);
 
 }//END Comms

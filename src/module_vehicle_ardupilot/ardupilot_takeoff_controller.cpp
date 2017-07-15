@@ -57,7 +57,7 @@ void Ardupilot_TakeoffController::initializeTakeoffSequence(const CommandItem::S
     {
         currentStateLogic = ARMED_RIGHT_MODE;
         mavlink_message_t msg = vehicleDataObject->generateTakeoffMessage(takeoff,m_LinkChan);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        m_LinkMarshaler->SendMAVMessage<mavlink_message_t>(m_LinkName, msg);
         //the vehicle is already armed and we can send the initial takeoff command
 
     }else if(armed){
@@ -65,7 +65,7 @@ void Ardupilot_TakeoffController::initializeTakeoffSequence(const CommandItem::S
         currentStateLogic = ARMED_WRONG_MODE;
         int requiredMode = vehicleDataObject->data->ArdupilotFlightMode.get().getFlightModeFromString("GUIDED");
         mavlink_message_t msg = vehicleDataObject->generateChangeMode(vehicleID,m_LinkChan,requiredMode);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        m_LinkMarshaler->SendMAVMessage<mavlink_message_t>(m_LinkName, msg);
     }else
     {
         //we are in a mode that we can request the aircraft to arm
@@ -74,7 +74,7 @@ void Ardupilot_TakeoffController::initializeTakeoffSequence(const CommandItem::S
         itemArm.setTargetSystem(vehicleID);
         itemArm.setVehicleArm(true);
         mavlink_message_t msg = vehicleDataObject->generateArmMessage(itemArm,m_LinkChan);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        m_LinkMarshaler->SendMAVMessage<mavlink_message_t>(m_LinkName, msg);
     }
 }
 
@@ -157,13 +157,13 @@ void Ardupilot_TakeoffController::run()
                 {
                     currentStateLogic = ARMED_RIGHT_MODE;
                     mavlink_message_t msg = vehicleDataObject->generateTakeoffMessage(missionItem_Takeoff,m_LinkChan);
-                    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+                    m_LinkMarshaler->SendMAVMessage<mavlink_message_t>(m_LinkName, msg);
                 }else{
                     currentStateLogic = ARMED_WRONG_MODE;
                     int requiredMode = vehicleDataObject->data->ArdupilotFlightMode.get().getFlightModeFromString("GUIDED");
                     int vehicleID = vehicleDataObject->getVehicleID();
                     mavlink_message_t msg = vehicleDataObject->generateChangeMode(vehicleID,m_LinkChan,requiredMode);
-                    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+                    m_LinkMarshaler->SendMAVMessage<mavlink_message_t>(m_LinkName, msg);
                 }
 
             }
@@ -183,7 +183,7 @@ void Ardupilot_TakeoffController::run()
                 //we have made a good progression if we are in this phase
                 currentStateLogic = ARMED_RIGHT_MODE;
                 mavlink_message_t msg = vehicleDataObject->generateTakeoffMessage(missionItem_Takeoff,m_LinkChan);
-                m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+                m_LinkMarshaler->SendMAVMessage<mavlink_message_t>(m_LinkName, msg);
             }
             break;
         }

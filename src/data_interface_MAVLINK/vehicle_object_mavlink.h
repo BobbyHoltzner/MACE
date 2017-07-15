@@ -16,7 +16,7 @@
 #include "mission_data_mavlink.h"
 #include "state_data_mavlink.h"
 
-//#include "spdlog/spdlog.h"
+#include "spdlog/spdlog.h"
 
 namespace DataInterface_MAVLINK{
 

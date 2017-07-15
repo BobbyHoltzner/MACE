@@ -318,7 +318,6 @@ class voronoicell : public voronoicell_base {
 		 * \return False if the plane cut deleted the cell entirely,
 		 *         true otherwise. */
 		inline bool nplane(double x,double y,double z,double rsq,int p_id) {
-            UNUSED(p_id);
 			return nplane(*this,x,y,z,rsq,0);
 		}
 		/** Cuts a Voronoi cell using by the plane corresponding to the

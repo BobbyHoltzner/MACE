@@ -27,7 +27,7 @@ void Ardupilot_GuidedController::initializeMissionSequence()
     std::shared_ptr<CommandItem::AbstractCommandItem> missionItem = m_CurrentMission.getActiveMissionItem();
     mavlink_message_t msg;
     vehicleDataObject->generateBasicGuidedMessage(missionItem,m_LinkChan,msg);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+    m_LinkMarshaler->SendMAVMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 double Ardupilot_GuidedController::distanceToTarget(){
@@ -79,7 +79,7 @@ void Ardupilot_GuidedController::generateControl(const Data::ControllerState &cu
             std::shared_ptr<CommandItem::AbstractCommandItem> missionItem = m_CurrentMission.getActiveMissionItem();
             mavlink_message_t msg;
             vehicleDataObject->generateBasicGuidedMessage(missionItem,m_LinkChan,msg);
-            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+            m_LinkMarshaler->SendMAVMessage<mavlink_message_t>(m_LinkName, msg);
         }
         std::cout<<"I have acheived the waypoint"<<std::endl;
         break;

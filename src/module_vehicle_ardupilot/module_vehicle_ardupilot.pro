@@ -29,6 +29,7 @@ HEADERS += module_vehicle_ardupilot.h\
     ardupilot_takeoff_controller.h \
     ardupilot_general_controller.h
 
+INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 INCLUDEPATH += $$PWD/../

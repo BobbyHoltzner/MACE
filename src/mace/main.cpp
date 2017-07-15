@@ -18,7 +18,6 @@ const char kPathSeparator =
 
 int main(int argc, char *argv[])
 {
-
     //generate the factory that can make module instances
     MaceCore::ModuleFactory* factory = ModuleCollection::GenerateFactory();
 

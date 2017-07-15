@@ -80,9 +80,8 @@ void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 
 void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem)
 {
-    std::cout<<"We are requesting a sync"<<count++<<std::endl;
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> objectData = vehicleData->state->GetTopicData();
-    this->PublishVehicleData(2,objectData);
+    this->PublishVehicleData(targetSystem,objectData);
     vehicleData->missionController->requestMission();
 }
 
@@ -309,8 +308,6 @@ void ModuleVehicleArdupilot::Command_ClearOnboardGuided(const int &targetSystem)
 //!
 void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
-    if(message.msgid == MAVLINK_MSG_ID_MISSION_COUNT)
-        std::cout<<"I saw a new count"<<std::endl;
     if(vehicleData)
         vehicleData->parseMessage(&message);
 }
