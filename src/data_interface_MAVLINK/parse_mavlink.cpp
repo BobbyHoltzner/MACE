@@ -244,26 +244,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
     {
         mavlink_command_ack_t decodedMSG;
         mavlink_msg_command_ack_decode(msg,&decodedMSG);
-        switch(decodedMSG.result)
-        {
-        case MAV_RESULT_ACCEPTED:
-            std::cout<<"MAV result accepted"<<std::endl;
-            break;
-        case MAV_RESULT_TEMPORARILY_REJECTED:
-            std::cout<<"MAV result rejected"<<std::endl;
-            break;
-        case MAV_RESULT_DENIED:
-            std::cout<<"MAV result denied"<<std::endl;
-            break;
-        case MAV_RESULT_UNSUPPORTED:
-            std::cout<<"MAV result unsupported"<<std::endl;
-            break;
-        case MAV_RESULT_FAILED:
-            std::cout<<"MAV result failed"<<std::endl;
-            break;
-        default:
-            std::cout<<"Uknown ack!"<<std::endl;
-        }
+        this->m_CommandController->receivedCommandACK(decodedMSG);
         break;
     }
 
@@ -279,7 +260,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
         mavlink_mission_item_t decodedMSG;
         mavlink_msg_mission_item_decode(msg,&decodedMSG);
-        this->missionController->recievedMissionItem(decodedMSG);
+        this->m_MissionController->recievedMissionItem(decodedMSG);
         break;
     }
     case MAVLINK_MSG_ID_MISSION_REQUEST:
@@ -288,7 +269,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         //Request the information of the mission item with the sequence number seq. The response of the system to this message should be a MISSION_ITEM message. http://qgroundcontrol.org/mavlink/waypoint_protocol
         mavlink_mission_request_t decodedMSG;
         mavlink_msg_mission_request_decode(msg,&decodedMSG);
-        this->missionController->transmitMissionItem(decodedMSG);
+        this->m_MissionController->transmitMissionItem(decodedMSG);
         break;
     }
     case MAVLINK_MSG_ID_MISSION_CURRENT:
@@ -317,7 +298,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         //The GCS can then request the individual mission item based on the knowledge of the total number of MISSION
         mavlink_mission_count_t decodedMSG;
         mavlink_msg_mission_count_decode(msg,&decodedMSG);
-        this->missionController->receivedMissionCount(decodedMSG);
+        this->m_MissionController->receivedMissionCount(decodedMSG);
         break;
     }
     case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
@@ -354,7 +335,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         //Ack message during MISSION handling. The type field states if this message is a positive ack (type=0) or if an error happened (type=non-zero).
         mavlink_mission_ack_t decodedMSG;
         mavlink_msg_mission_ack_decode(msg,&decodedMSG);
-        this->missionController->receivedMissionACK(decodedMSG);
+        this->m_MissionController->receivedMissionACK(decodedMSG);
         break;
     }
     case MAVLINK_MSG_ID_HOME_POSITION:

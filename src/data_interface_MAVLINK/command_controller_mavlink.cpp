@@ -26,6 +26,27 @@ void CommandController_MAVLINK::receivedCommandACK(const mavlink_command_ack_t &
     m_LambdasToRun.push_back([this, cmdACK]{
         mTimer.stop();
 
+        switch(cmdACK.result)
+        {
+        case MAV_RESULT_ACCEPTED:
+            std::cout<<"MAV result accepted"<<std::endl;
+            break;
+        case MAV_RESULT_TEMPORARILY_REJECTED:
+            std::cout<<"MAV result rejected"<<std::endl;
+            break;
+        case MAV_RESULT_DENIED:
+            std::cout<<"MAV result denied"<<std::endl;
+            break;
+        case MAV_RESULT_UNSUPPORTED:
+            std::cout<<"MAV result unsupported"<<std::endl;
+            break;
+        case MAV_RESULT_FAILED:
+            std::cout<<"MAV result failed"<<std::endl;
+            break;
+        default:
+            std::cout<<"Uknown ack!"<<std::endl;
+        }
+
         commandItemEnum type = prevTransmit->getType();
         switch(type)
         {
@@ -98,6 +119,11 @@ void CommandController_MAVLINK::getSystemHome(const int &compID)
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
 
+    currentRetry = 0;
+    mToExit = false;
+    this->start();
+    mTimer.start();
+
     m_CB->cbiCommandController_transmitCommand(cmd);
 }
 
@@ -110,6 +136,11 @@ void CommandController_MAVLINK::setNewMode(const int &newMode)
 
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_set_mode_t>(commandItemEnum::COMMAND_MODE, mode);
+
+    currentRetry = 0;
+    mToExit = false;
+    this->start();
+    mTimer.start();
 
     m_CB->cbiCommandController_transmitNewMode(mode);
 }
@@ -129,6 +160,11 @@ void CommandController_MAVLINK::setHomePosition(const CommandItem::SpatialHome &
         clearPreviousTransmit();
         prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
 
+        currentRetry = 0;
+        mToExit = false;
+        this->start();
+        mTimer.start();
+
         m_CB->cbiCommandController_transmitCommand(cmd);
     }
 }
@@ -143,6 +179,11 @@ void CommandController_MAVLINK::setSystemArm(const CommandItem::ActionArm &comma
 
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+
+    currentRetry = 0;
+    mToExit = false;
+    this->start();
+    mTimer.start();
 
     m_CB->cbiCommandController_transmitCommand(cmd);
 }
@@ -162,6 +203,11 @@ void CommandController_MAVLINK::setSystemTakeoff(const CommandItem::SpatialTakeo
 
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+
+    currentRetry = 0;
+    mToExit = false;
+    this->start();
+    mTimer.start();
 
     m_CB->cbiCommandController_transmitCommand(cmd);
 }
@@ -183,6 +229,11 @@ void CommandController_MAVLINK::setSystemLand(const CommandItem::SpatialLand &co
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
 
+    currentRetry = 0;
+    mToExit = false;
+    this->start();
+    mTimer.start();
+
     m_CB->cbiCommandController_transmitCommand(cmd);
 }
 
@@ -195,6 +246,11 @@ void CommandController_MAVLINK::setSystemRTL(const CommandItem::SpatialRTL &comm
 
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+
+    currentRetry = 0;
+    mToExit = false;
+    this->start();
+    mTimer.start();
 
     m_CB->cbiCommandController_transmitCommand(cmd);
 }

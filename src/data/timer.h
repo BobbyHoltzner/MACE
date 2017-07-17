@@ -1,3 +1,6 @@
+#ifndef TIMER_H
+#define TIMER_H
+
 #include <iostream>
 #include <chrono>
 #include <ctime>
@@ -45,3 +48,5 @@ private:
     std::chrono::time_point<std::chrono::system_clock> m_EndTime;
     bool m_bRunning = false;
 };
+
+#endif // TIMER_H

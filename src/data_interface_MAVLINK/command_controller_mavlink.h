@@ -19,12 +19,12 @@
 class CommandController_Interface
 {
 public:
-    virtual void cbiCommandController_transmitCommand(const mavlink_command_int_t &cmd);
-    virtual void cbiCommandController_transmitCommand(const mavlink_command_long_t &cmd);
+    virtual void cbiCommandController_transmitCommand(const mavlink_command_int_t &cmd) = 0;
+    virtual void cbiCommandController_transmitCommand(const mavlink_command_long_t &cmd) = 0;
 
-    virtual void cbiCommandController_transmitNewMode(const mavlink_set_mode_t &mode);
+    virtual void cbiCommandController_transmitNewMode(const mavlink_set_mode_t &mode) = 0;
 
-    virtual void cbiCommandController_CommandACK() = 0;
+    virtual void cbiCommandController_CommandACK(const mavlink_command_ack_t &ack) = 0;
 };
 
 namespace DataInterface_MAVLINK {

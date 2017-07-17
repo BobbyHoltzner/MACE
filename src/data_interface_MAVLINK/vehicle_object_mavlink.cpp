@@ -30,7 +30,8 @@ void VehicleObject_MAVLINK::async_example()
 }
 
 VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &transmittingID):
-    m_CB(NULL), missionController(NULL), command(NULL), mission(NULL), state(NULL),
+    m_CB(NULL), m_CommandController(NULL), m_MissionController(NULL),
+    command(NULL), mission(NULL), state(NULL),
     systemID(vehicleID), commandID(transmittingID),
     m_LinkMarshaler(NULL), m_LinkName(""), m_LinkChan(0)
 {
@@ -39,8 +40,11 @@ VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &tr
     command = new CommandInterface_MAVLINK(systemID, 0);
     command->connectCallback_CommandLong(VehicleObject_MAVLINK::staticCallbackCMDLongFunction, this);
 
-    missionController = new MissionController_MAVLINK(2,0);
-    missionController->connectCallback(this);
+    m_CommandController = new CommandController_MAVLINK(systemID,0);
+    m_CommandController->connectCallback(this);
+
+    m_MissionController = new MissionController_MAVLINK(systemID,0);
+    m_MissionController->connectCallback(this);
 
     mission = new MissionData_MAVLINK();
     state = new StateData_MAVLINK();
@@ -105,12 +109,41 @@ void VehicleObject_MAVLINK::transmitMessage(const mavlink_message_t &msg)
     }
 }
 
-void VehicleObject_MAVLINK::transmitCommandLong(const mavlink_command_long_t &cmd)
+////////////////////////////////////////////////////////////////////////////
+/// Callback Interface Command Controller: These functions are required per
+/// the interface of the command controller.
+////////////////////////////////////////////////////////////////////////////
+
+void VehicleObject_MAVLINK::cbiCommandController_transmitCommand(const mavlink_command_int_t &cmd)
+{
+    mavlink_message_t msg;
+    mavlink_msg_command_int_encode_chan(commandID,0,m_LinkChan,&msg,&cmd);
+    transmitMessage(msg);
+}
+
+void VehicleObject_MAVLINK::cbiCommandController_transmitCommand(const mavlink_command_long_t &cmd)
 {
     mavlink_message_t msg;
     mavlink_msg_command_long_encode_chan(commandID,0,m_LinkChan,&msg,&cmd);
     transmitMessage(msg);
 }
+
+void VehicleObject_MAVLINK::cbiCommandController_transmitNewMode(const mavlink_set_mode_t &mode)
+{
+    mavlink_message_t msg;
+    mavlink_msg_set_mode_encode_chan(commandID,0,m_LinkChan,&msg,&mode);
+    transmitMessage(msg);
+}
+
+void VehicleObject_MAVLINK::cbiCommandController_CommandACK(const mavlink_command_ack_t &ack)
+{
+    std::cout<<"The command has been acknowledged."<<std::endl;
+}
+
+////////////////////////////////////////////////////////////////////////////
+/// Callback Interface Mission Controller: These functions are required per
+/// the interface of the mission controller.
+////////////////////////////////////////////////////////////////////////////
 
 void VehicleObject_MAVLINK::cbiMissionController_TransmitMissionCount(const mavlink_mission_count_t &count)
 {

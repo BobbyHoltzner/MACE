@@ -12,7 +12,9 @@
 
 #include "callback_interface_data_mavlink.h"
 
+#include "command_controller_mavlink.h"
 #include "mission_controller_mavlink.h"
+
 #include "mission_data_mavlink.h"
 #include "state_data_mavlink.h"
 
@@ -20,7 +22,7 @@
 
 namespace DataInterface_MAVLINK{
 
-class VehicleObject_MAVLINK : public MissionController_Interface
+class VehicleObject_MAVLINK : public MissionController_Interface, public CommandController_Interface
 {
 public:
 
@@ -43,14 +45,21 @@ public:
 
     void parseMessage(const mavlink_message_t *msg);
 
-    void transmitCommandLong(const mavlink_command_long_t &cmd);
-
     void connectCallback(CallbackInterface_DataMAVLINK *cb)
     {
         m_CB = cb;
     }
 
 //The following establish the necessary callback routines
+
+    //The following are as required from the command controller interface
+    void cbiCommandController_transmitCommand(const mavlink_command_int_t &cmd);
+
+    void cbiCommandController_transmitCommand(const mavlink_command_long_t &cmd);
+
+    void cbiCommandController_transmitNewMode(const mavlink_set_mode_t &mode);
+
+    void cbiCommandController_CommandACK(const mavlink_command_ack_t &ack);
 
     //The following are as required from the mission controller interface
 private:
@@ -64,10 +73,13 @@ private:
     void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList);
 
     void cbiMissionController_MissionACK(const mavlink_mission_ack_t &missionACK);
+
+
+
 public:
     static void staticCallbackCMDLongFunction(void *p, mavlink_command_long_t &cmd)
     {
-        ((VehicleObject_MAVLINK *)p)->transmitCommandLong(cmd);
+        //((VehicleObject_MAVLINK *)p)->transmitCommandLong(cmd);
     }
 
     static void staticCallbackState(void *p, DataState::StateGlobalPosition &pos)
@@ -90,7 +102,8 @@ private:
 
     //The following are basic controllers for the MAVLINK vehicle object
 public:
-    MissionController_MAVLINK *missionController;
+    CommandController_MAVLINK *m_CommandController;
+    MissionController_MAVLINK *m_MissionController;
 
     //The following are organizational methods to compartmentalize funcitonality
 public:

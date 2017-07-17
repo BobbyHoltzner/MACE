@@ -82,7 +82,7 @@ void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem)
 {
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> objectData = vehicleData->state->GetTopicData();
     this->PublishVehicleData(targetSystem,objectData);
-    vehicleData->missionController->requestMission();
+    vehicleData->m_MissionController->requestMission();
 }
 
 void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command)
@@ -186,8 +186,8 @@ void ModuleVehicleArdupilot::Command_GetHomePosition(const int &vehicleID)
 
 void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome)
 {
-    if(vehicleData)
-        vehicleData->command->setHomePosition(vehicleHome,255,m_LinkChan);
+    if((vehicleData) && (vehicleData->getSystemID() == vehicleHome.getTargetSystem()))
+        vehicleData->m_CommandController->setHomePosition(vehicleHome);
 }
 
 
@@ -215,7 +215,7 @@ void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionLis
     case(Data::MissionType::AUTO): //This case should push the mission directly to the aircraft
     {
         if(vehicleData)
-            vehicleData->missionController->transmitMission(missionList);
+            vehicleData->m_MissionController->transmitMission(missionList);
         break;
     }
     case(Data::MissionType::GUIDED):
@@ -313,7 +313,7 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 }
 
 
-void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG)
+void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
     UNUSED(linkName);
     if(vehicleData == NULL)
@@ -368,36 +368,6 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     }
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
     this->cbi_VehicleStateData(systemID,ptrHeartbeat);
-
-}
-
-void ModuleVehicleArdupilot::MAVLINKCommandAck(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK)
-{
-    UNUSED(linkName);
-    UNUSED(systemID);
-    if(checkControllerState())
-        m_AircraftController->updateCommandACK(cmdACK);
-
-    switch(cmdACK.result)
-    {
-    case MAV_RESULT_ACCEPTED:
-        std::cout<<"MAV result accepted"<<std::endl;
-        break;
-    case MAV_RESULT_TEMPORARILY_REJECTED:
-        std::cout<<"MAV result rejected"<<std::endl;
-        break;
-    case MAV_RESULT_DENIED:
-        std::cout<<"MAV result denied"<<std::endl;
-        break;
-    case MAV_RESULT_UNSUPPORTED:
-        std::cout<<"MAV result unsupported"<<std::endl;
-        break;
-    case MAV_RESULT_FAILED:
-        std::cout<<"MAV result failed"<<std::endl;
-        break;
-    default:
-        std::cout<<"Uknown ack!"<<std::endl;
-    }
 
 }
 
