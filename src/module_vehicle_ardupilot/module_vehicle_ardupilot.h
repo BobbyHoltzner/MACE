@@ -18,10 +18,11 @@
 #include "data_vehicle_MAVLINK/MACE_to_MAVLINK/command_mace_to_mavlink.h"
 #include "data_vehicle_MAVLINK/MACE_to_MAVLINK/mission_mace_to_mavlink.h"
 
+#include "data_generic_item/data_generic_item_components.h"
 #include "data_generic_state_item/state_item_components.h"
-#include "data_generic_state_item_topic/state_topic_components.h"
-
 #include "data_generic_command_item/command_item_components.h"
+
+#include "data_generic_state_item_topic/state_topic_components.h"
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 

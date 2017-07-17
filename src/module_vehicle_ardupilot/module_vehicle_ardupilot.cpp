@@ -129,13 +129,22 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
     {
         if(command.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_PAUSE)
         {
-            DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
-            int mode = tmp.getFlightModeFromString("LOITER");
-            vehicleData->m_CommandController->setNewMode(mode);
+            DataGenericItem::DataGenericItem_Heartbeat heartbeat = vehicleData->state->vehicleHeartbeat.get();
+            if(Data::isSystemTypeRotary(heartbeat.getType()))
+            {
+                DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
+                int mode = tmp.getFlightModeFromString("BRAKE");
+                vehicleData->m_CommandController->setNewMode(mode);
+            }
+            else{
+                DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
+                int mode = tmp.getFlightModeFromString("LOITER");
+                vehicleData->m_CommandController->setNewMode(mode);
+            }
+
 //            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
 //                ptr->GVEvents_MissionExeStateUpdated(this, key, Data::MissionExecutionState::MESTATE_PAUSED);
 //            });
-
         }else if(command.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_START)
         {
             DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
@@ -366,6 +375,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     default:
         heartbeat.setType(Data::SystemType::SYSTEM_TYPE_GENERIC);
     }
+    vehicleData->state->vehicleHeartbeat.set(heartbeat);
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
     this->cbi_VehicleStateData(systemID,ptrHeartbeat);
 
