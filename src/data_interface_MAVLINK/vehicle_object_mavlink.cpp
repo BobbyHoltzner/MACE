@@ -26,7 +26,8 @@ void VehicleObject_MAVLINK::async_example()
     //initiate the logs
     size_t q_size = 8192; //queue size must be power of 2
     spdlog::set_async_mode(q_size,spdlog::async_overflow_policy::block_retry,nullptr,std::chrono::seconds(2));
-    spdlog::basic_logger_mt(logNameArray, logname);
+    std::shared_ptr<spdlog::logger> mLog = spdlog::basic_logger_mt(logNameArray, logname);
+    mLog->set_level(spdlog::level::debug);
 }
 
 VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &transmittingID):

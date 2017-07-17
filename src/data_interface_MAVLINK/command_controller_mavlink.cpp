@@ -9,7 +9,7 @@ CommandController_MAVLINK::CommandController_MAVLINK(const int &targetID, const 
     currentCommsState(NEUTRAL),
     m_CB(NULL), prevTransmit(NULL)
 {
-    //mLog = spdlog::get("Log_Vehicle" + std::to_string(this->systemID));
+    mLog = spdlog::get("Log_Vehicle" + std::to_string(this->systemID));
 }
 
 void CommandController_MAVLINK::clearPreviousTransmit()
@@ -26,26 +26,7 @@ void CommandController_MAVLINK::receivedCommandACK(const mavlink_command_ack_t &
     m_LambdasToRun.push_back([this, cmdACK]{
         mTimer.stop();
 
-        switch(cmdACK.result)
-        {
-        case MAV_RESULT_ACCEPTED:
-            std::cout<<"MAV result accepted"<<std::endl;
-            break;
-        case MAV_RESULT_TEMPORARILY_REJECTED:
-            std::cout<<"MAV result rejected"<<std::endl;
-            break;
-        case MAV_RESULT_DENIED:
-            std::cout<<"MAV result denied"<<std::endl;
-            break;
-        case MAV_RESULT_UNSUPPORTED:
-            std::cout<<"MAV result unsupported"<<std::endl;
-            break;
-        case MAV_RESULT_FAILED:
-            std::cout<<"MAV result failed"<<std::endl;
-            break;
-        default:
-            std::cout<<"Uknown ack!"<<std::endl;
-        }
+        logCommandACK(cmdACK);
 
         commandItemEnum type = prevTransmit->getType();
         switch(type)
@@ -111,14 +92,16 @@ mavlink_command_long_t CommandController_MAVLINK::initializeCommandLong()
 
 void CommandController_MAVLINK::getSystemHome(const int &compID)
 {
+    mLog->info("Command Controller is requesting home position.");
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_GET_HOME_POSITION;
     cmd.target_system = systemID;
     cmd.target_component = compID;
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
+    currentCommsState = TRANSMITTING;
     currentRetry = 0;
     mToExit = false;
     this->start();
@@ -129,6 +112,9 @@ void CommandController_MAVLINK::getSystemHome(const int &compID)
 
 void CommandController_MAVLINK::setNewMode(const int &newMode)
 {
+    mLog->debug("Command Controller is requesting the system to a new mode.");
+    mLog->info("The new mode is: " + std::to_string(newMode));
+
     mavlink_set_mode_t mode;
     mode.target_system = systemID;
     mode.base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
@@ -137,6 +123,7 @@ void CommandController_MAVLINK::setNewMode(const int &newMode)
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_set_mode_t>(commandItemEnum::COMMAND_MODE, mode);
 
+    currentCommsState = TRANSMITTING;
     currentRetry = 0;
     mToExit = false;
     this->start();
@@ -147,6 +134,13 @@ void CommandController_MAVLINK::setNewMode(const int &newMode)
 
 void CommandController_MAVLINK::setHomePosition(const CommandItem::SpatialHome &commandItem, const int &compID)
 {
+
+    std::stringstream buffer;
+    buffer << commandItem;
+
+    mLog->debug("Command Controller is setting the system's home position.");
+    mLog->info(buffer.str());
+
     mavlink_command_long_t cmd = initializeCommandLong();
     if(commandItem.position.isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
     {
@@ -158,8 +152,9 @@ void CommandController_MAVLINK::setHomePosition(const CommandItem::SpatialHome &
         cmd.param7 = commandItem.position.getZ();
 
         clearPreviousTransmit();
-        prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+        prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
+        currentCommsState = TRANSMITTING;
         currentRetry = 0;
         mToExit = false;
         this->start();
@@ -171,6 +166,13 @@ void CommandController_MAVLINK::setHomePosition(const CommandItem::SpatialHome &
 
 void CommandController_MAVLINK::setSystemArm(const CommandItem::ActionArm &commandItem, const int &compID)
 {
+
+    std::stringstream buffer;
+    buffer << commandItem;
+
+    mLog->debug("Command Controller is requesting the system to arm.");
+    mLog->info(buffer.str());
+
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_COMPONENT_ARM_DISARM;
     cmd.target_system = commandItem.getTargetSystem();
@@ -178,8 +180,9 @@ void CommandController_MAVLINK::setSystemArm(const CommandItem::ActionArm &comma
     cmd.param1 = commandItem.getRequestArm();
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
+    currentCommsState = TRANSMITTING;
     currentRetry = 0;
     mToExit = false;
     this->start();
@@ -202,8 +205,9 @@ void CommandController_MAVLINK::setSystemTakeoff(const CommandItem::SpatialTakeo
     }
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
+    currentCommsState = TRANSMITTING;
     currentRetry = 0;
     mToExit = false;
     this->start();
@@ -214,6 +218,12 @@ void CommandController_MAVLINK::setSystemTakeoff(const CommandItem::SpatialTakeo
 
 void CommandController_MAVLINK::setSystemLand(const CommandItem::SpatialLand &commandItem, const int &compID)
 {
+    std::stringstream buffer;
+    buffer << commandItem;
+
+    mLog->debug("Command Controller is requesting the system to land.");
+    mLog->info(buffer.str());
+
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_NAV_LAND;
     cmd.target_system = commandItem.getTargetSystem();
@@ -227,8 +237,9 @@ void CommandController_MAVLINK::setSystemLand(const CommandItem::SpatialLand &co
     }
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
+    currentCommsState = TRANSMITTING;
     currentRetry = 0;
     mToExit = false;
     this->start();
@@ -239,14 +250,17 @@ void CommandController_MAVLINK::setSystemLand(const CommandItem::SpatialLand &co
 
 void CommandController_MAVLINK::setSystemRTL(const CommandItem::SpatialRTL &commandItem, const int &compID)
 {
+    mLog->debug("Command Controller is requesting the system to RTL.");
+
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_NAV_RETURN_TO_LAUNCH;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
+    currentCommsState = TRANSMITTING;
     currentRetry = 0;
     mToExit = false;
     this->start();
@@ -294,6 +308,7 @@ void CommandController_MAVLINK::run()
 
                 if(type == commandItemEnum::COMMAND_INT)
                 {
+                    mLog->error("Command Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommandItemEnumString(type) + ".");
                     PreviousCommand<mavlink_command_int_t> *tmp = static_cast<PreviousCommand<mavlink_command_int_t>*>(prevTransmit);
                     mavlink_command_int_t msgTransmit = tmp->getData();
                     mTimer.start();
@@ -302,6 +317,7 @@ void CommandController_MAVLINK::run()
                 }
                 else if(type == commandItemEnum::COMMAND_LONG)
                 {
+                    mLog->error("Command Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommandItemEnumString(type) + ".");
                     PreviousCommand<mavlink_command_long_t> *tmp = static_cast<PreviousCommand<mavlink_command_long_t>*>(prevTransmit);
                     mavlink_command_long_t msgTransmit = tmp->getData();
                     mTimer.start();
@@ -310,6 +326,7 @@ void CommandController_MAVLINK::run()
                 }
                 else if(type == commandItemEnum::COMMAND_MODE)
                 {
+                    mLog->error("Command Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommandItemEnumString(type) + ".");
                     PreviousCommand<mavlink_set_mode_t> *tmp = static_cast<PreviousCommand<mavlink_set_mode_t>*>(prevTransmit);
                     mavlink_set_mode_t msgTransmit = tmp->getData();
                     mTimer.start();
@@ -324,6 +341,39 @@ void CommandController_MAVLINK::run()
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+}
+
+void CommandController_MAVLINK::logCommandACK(const mavlink_command_ack_t &cmdACK)
+{
+    std::string result = "";
+    std::string base = "Command " + std::to_string(cmdACK.command) + "was ";
+
+    switch(cmdACK.result)
+    {
+    case MAV_RESULT_ACCEPTED:
+        result = "accepted.";
+        break;
+    case MAV_RESULT_DENIED:
+        result = "denied.";
+        break;
+    case MAV_RESULT_FAILED:
+        result = "failed.";
+        break;
+    case MAV_RESULT_IN_PROGRESS:
+        result = "in progress.";
+        break;
+    case MAV_RESULT_TEMPORARILY_REJECTED:
+        result = "temporarily rejected.";
+        break;
+    case MAV_RESULT_UNSUPPORTED:
+        result = "unsupported.";
+        break;
+    default:
+        result = "unknown.";
+    }
+
+    base = base + result;
+    mLog->info(base);
 }
 
 

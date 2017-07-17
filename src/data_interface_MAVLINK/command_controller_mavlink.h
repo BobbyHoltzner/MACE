@@ -15,6 +15,7 @@
 #include "generic/helper_previous_command_mavlink.h"
 
 #include "spdlog/spdlog.h"
+#include "spdlog/fmt/ostr.h"
 
 class CommandController_Interface
 {
@@ -65,6 +66,7 @@ public:
     }
 
 private:
+    void logCommandACK(const mavlink_command_ack_t &cmdACK);
     void clearPreviousTransmit();
     mavlink_command_long_t initializeCommandLong();
 

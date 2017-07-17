@@ -87,7 +87,7 @@ void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem)
 
 void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command)
 {
-    vehicleData->command->setSystemArm(command);
+    vehicleData->m_CommandController->setSystemArm(command);
 }
 
 void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command)
@@ -113,13 +113,13 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
 void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &command)
 {
     if(vehicleData)
-        vehicleData->command->setSystemLand(command);
+        vehicleData->m_CommandController->setSystemLand(command);
 }
 
 void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command)
 {
     if(vehicleData)
-        vehicleData->command->setSystemRTL(command);
+        vehicleData->m_CommandController->setSystemRTL(command);
 }
 
 void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command)
@@ -131,7 +131,7 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
         {
             DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
             int mode = tmp.getFlightModeFromString("LOITER");
-            vehicleData->command->setNewMode(mode,systemID,m_LinkChan);
+            vehicleData->m_CommandController->setNewMode(mode);
 //            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
 //                ptr->GVEvents_MissionExeStateUpdated(this, key, Data::MissionExecutionState::MESTATE_PAUSED);
 //            });
@@ -140,7 +140,7 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
         {
             DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
             int mode = tmp.getFlightModeFromString("AUTO");
-            vehicleData->command->setNewMode(mode,systemID,m_LinkChan);
+            vehicleData->m_CommandController->setNewMode(mode);
 
 //            Data::MissionKey key = tmpData->data->currentAutoMission.get().getMissionKey();
 //            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){

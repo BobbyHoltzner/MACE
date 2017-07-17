@@ -24,7 +24,7 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> StateData_MAVLINK:
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(vehicleHeartbeat.get());
     rtnVector.push_back(ptrHeartbeat);
-    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrMode = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>(vehicleMode.get());
+    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrMode = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>(vehicleFlightMode.get());
     rtnVector.push_back(ptrMode);
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> ptrArm = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>(vehicleArm.get());
     rtnVector.push_back(ptrArm);

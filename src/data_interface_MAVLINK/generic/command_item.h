@@ -15,12 +15,13 @@ inline std::string getCommandItemEnumString(const commandItemEnum &value)
 
     switch (value) {
     case COMMAND_INT:
-        rtnValue = "Command type integer";
+        rtnValue = "type integer";
         break;
     case COMMAND_LONG:
-        rtnValue = "Command type long";
+        rtnValue = "type long";
+        break;
     case COMMAND_MODE:
-        rtnValue = "Command system mode";
+        rtnValue = "system mode";
         break;
     default:
         break;

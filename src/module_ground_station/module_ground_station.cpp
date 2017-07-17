@@ -107,6 +107,7 @@ void ModuleGroundStation::initiateLogs()
     spdlog::set_async_mode(q_size,spdlog::async_overflow_policy::block_retry,nullptr,std::chrono::seconds(2));
 
     mLogs = spdlog::basic_logger_mt("MACE_Module_GCS", logname);
+    mLogs->set_level(spdlog::level::debug);
 }
 
 bool ModuleGroundStation::StartTCPServer()
@@ -342,7 +343,10 @@ void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject 
     QJsonObject arm = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
     tmpArm.setVehicleArm(arm.value("arm").toBool());
 
-    std::cout << "Vehicle Arm: " << tmpArm.getRequestArm() << std::endl;
+    std::stringstream buffer;
+    buffer << tmpArm;
+    mLogs->debug("Module Ground Station issuing a arm command to system " + std::to_string(vehicleID) + ".");
+    mLogs->info(buffer.str());
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->Event_IssueCommandSystemArm(this, tmpArm);
@@ -363,13 +367,13 @@ void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject 
 void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
 {
     if(jsonObj["vehicleCommand"] == "FORCE_DATA_SYNC") {
-        mLogs->info("Module Ground Station issuing command force data sync to system " + std::to_string(vehicleID) + ".");
+        mLogs->debug("Module Ground Station issuing command force data sync to system " + std::to_string(vehicleID) + ".");
         ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
             ptr->Event_ForceVehicleDataSync(this, vehicleID);
         });
     }
     else if(jsonObj["vehicleCommand"] == "RTL") {
-        mLogs->info("Module Ground Station issuing command RTL to system " + std::to_string(vehicleID) + ".");
+        mLogs->debug("Module Ground Station issuing command RTL to system " + std::to_string(vehicleID) + ".");
         CommandItem::SpatialRTL rtlCommand;
         rtlCommand.setTargetSystem(vehicleID);
         // TODO: Set generating system and coordinate frame
@@ -379,7 +383,7 @@ void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &
         });
     }
     else if(jsonObj["vehicleCommand"] == "LAND") {
-        mLogs->info("Module Ground Station issuing land command to system " + std::to_string(vehicleID) + ".");
+        mLogs->debug("Module Ground Station issuing land command to system " + std::to_string(vehicleID) + ".");
         CommandItem::SpatialLand landCommand;
         landCommand.setTargetSystem(vehicleID);
         // TODO: Set generating system and coordinate frame
@@ -389,7 +393,7 @@ void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &
         });
     }
     else if(jsonObj["vehicleCommand"] == "AUTO_START") {
-        mLogs->info("Module Ground Station issuing mission start command to system " + std::to_string(vehicleID) + ".");
+        mLogs->debug("Module Ground Station issuing mission start command to system " + std::to_string(vehicleID) + ".");
         CommandItem::ActionMissionCommand missionCommand;
         missionCommand.setMissionStart();
         missionCommand.setTargetSystem(vehicleID);
@@ -400,7 +404,7 @@ void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &
         });
     }
     else if(jsonObj["vehicleCommand"] == "AUTO_PAUSE") {
-        mLogs->info("Module Ground Station issuing mission pause command to system " + std::to_string(vehicleID) + ".");
+        mLogs->debug("Module Ground Station issuing mission pause command to system " + std::to_string(vehicleID) + ".");
         CommandItem::ActionMissionCommand missionCommand;
         missionCommand.setMissionPause();
         missionCommand.setTargetSystem(vehicleID);
@@ -411,7 +415,7 @@ void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &
         });
     }
     else if(jsonObj["vehicleCommand"] == "AUTO_RESUME") {
-        mLogs->info("Module Ground Station issuing mission resume command to system " + std::to_string(vehicleID) + ".");
+        mLogs->debug("Module Ground Station issuing mission resume command to system " + std::to_string(vehicleID) + ".");
         CommandItem::ActionMissionCommand missionCommand;
         missionCommand.setMissionResume();
         missionCommand.setTargetSystem(vehicleID);
@@ -435,9 +439,9 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
 
     std::stringstream buffer;
     buffer << tmpHome;
-
-    mLogs->info("Module Ground Station issuing a new vehicle home to system " + std::to_string(vehicleID) + ".");
+    mLogs->debug("Module Ground Station issuing a new vehicle home to system " + std::to_string(vehicleID) + ".");
     mLogs->info(buffer.str());
+
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
         ptr->Event_SetHomePosition(this, tmpHome);
     });
@@ -471,6 +475,11 @@ void ModuleGroundStation::takeoff(const int &vehicleID, const QJsonObject &jsonO
     newTakeoff.position.setY(position.value("lon").toDouble());
     newTakeoff.position.setZ(position.value("alt").toDouble());
     newTakeoff.setTargetSystem(vehicleID);
+
+    std::stringstream buffer;
+    buffer << newTakeoff;
+    mLogs->debug("Module Ground Station issuing a takeoff command to system " + std::to_string(vehicleID) + ".");
+    mLogs->info(buffer.str());
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->Event_IssueCommandTakeoff(this, newTakeoff);
