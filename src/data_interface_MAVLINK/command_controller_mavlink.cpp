@@ -346,7 +346,7 @@ void CommandController_MAVLINK::run()
 void CommandController_MAVLINK::logCommandACK(const mavlink_command_ack_t &cmdACK)
 {
     std::string result = "";
-    std::string base = "Command " + std::to_string(cmdACK.command) + "was ";
+    std::string base = "Command " + std::to_string(cmdACK.command) + " was ";
 
     switch(cmdACK.result)
     {
