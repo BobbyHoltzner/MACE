@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include "mavlink.h"
+
 #include "data_generic_command_item/command_item_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 #include "data_generic_state_item/state_item_components.h"
@@ -24,6 +26,9 @@ public:
 
     virtual void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home) = 0;
     virtual void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList) = 0;
+
+    virtual void cbi_VehicleCommandACK(const int &systemID, const mavlink_command_ack_t &cmdACK) = 0;
+
 };
 
 } //end of namespace DataInterface_MAVLINK

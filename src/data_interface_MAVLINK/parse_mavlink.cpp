@@ -245,6 +245,8 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         mavlink_command_ack_t decodedMSG;
         mavlink_msg_command_ack_decode(msg,&decodedMSG);
         this->m_CommandController->receivedCommandACK(decodedMSG);
+        if(this->m_CB != NULL)
+            this->m_CB->cbi_VehicleCommandACK(systemID,decodedMSG);
         break;
     }
 

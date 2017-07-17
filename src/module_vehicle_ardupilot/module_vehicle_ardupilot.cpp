@@ -2,7 +2,7 @@
 #include <functional>
 
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
-    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(), count(0),
+    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),
     m_VehicleMissionTopic("vehicleMission"), m_AircraftController(NULL), vehicleData(NULL)
 {
 
@@ -18,7 +18,13 @@ void ModuleVehicleArdupilot::ConfigureModule(const std::shared_ptr<MaceCore::Mod
 /// of the virtual interface via the vehicleData object
 ////////////////////////////////////////////////////////////////////////////
 
-//callback interface support for the DataInterface_MAVLINK object
+void ModuleVehicleArdupilot::cbi_VehicleCommandACK(const int &systemID, const mavlink_command_ack_t &cmdACK)
+{
+    UNUSED(systemID);
+    if(checkControllerState())
+        m_AircraftController->updateCommandACK(cmdACK);
+}
+
 void ModuleVehicleArdupilot::cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)
 {
     MaceCore::TopicDatagram topicDatagram;
@@ -96,15 +102,15 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
     {
         if(command.getTargetSystem() == vehicleData->getSystemID())
         {
-//            Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan, std::bind(&ModuleVehicleArdupilot::takeoffCallback, this, _1));
-//            if(command.position.has3DPositionSet())
-//                newController->initializeTakeoffSequence(command);
-//            else{
-//                CommandItem::SpatialTakeoff defaultTakeoff = command;
-//                newController->initializeTakeoffSequence(defaultTakeoff);
-//            }
+            Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(vehicleData);
+            if(command.position.has3DPositionSet())
+                newController->initializeTakeoffSequence(command);
+            else{
+                CommandItem::SpatialTakeoff defaultTakeoff = command;
+                newController->initializeTakeoffSequence(defaultTakeoff);
+            }
 
-//            this->SpinUpController(newController);
+            this->SpinUpController(newController);
         }
     }
 
@@ -328,7 +334,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     if(vehicleData == NULL)
     {
         //this is the first time we have seen this heartbeat or the data was destroyed for some reason
-        vehicleData = new DataInterface_MAVLINK::VehicleObject_MAVLINK(systemID,255);
+        vehicleData = std::make_shared<DataInterface_MAVLINK::VehicleObject_MAVLINK>(systemID,255);
         vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
         vehicleData->connectCallback(this);
 

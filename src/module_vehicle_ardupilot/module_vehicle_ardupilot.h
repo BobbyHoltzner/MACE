@@ -53,6 +53,7 @@ private:
 public:
 
     //callback interface support for the DataInterface_MAVLINK object
+    void cbi_VehicleCommandACK(const int &systemID, const mavlink_command_ack_t &cmdACK);
     void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
     void cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
     void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home);
@@ -252,9 +253,8 @@ public:
 //            newController->start();
 //        });
     }
-int count;
 private:
-    DataInterface_MAVLINK::VehicleObject_MAVLINK *vehicleData;
+    std::shared_ptr<DataInterface_MAVLINK::VehicleObject_MAVLINK> vehicleData;
 
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;

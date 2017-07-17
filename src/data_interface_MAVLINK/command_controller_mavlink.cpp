@@ -193,6 +193,12 @@ void CommandController_MAVLINK::setSystemArm(const CommandItem::ActionArm &comma
 
 void CommandController_MAVLINK::setSystemTakeoff(const CommandItem::SpatialTakeoff &commandItem, const int &compID)
 {
+    std::stringstream buffer;
+    buffer << commandItem;
+
+    mLog->debug("Command Controller is requesting the system to takeoff.");
+    mLog->info(buffer.str());
+
     mavlink_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_NAV_TAKEOFF;
     cmd.target_system = commandItem.getTargetSystem();
