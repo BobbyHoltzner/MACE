@@ -35,9 +35,13 @@ SpatialWaypoint::SpatialWaypoint(const int &systemOrigin, const int &systemTarge
 
 }
 
-std::ostream& operator<<(std::ostream& os, const SpatialHome& t)
+std::ostream& operator<<(std::ostream& os, const SpatialWaypoint& t)
 {
-    os << 'Spatial Waypoint: ' << t.position.getX() << ', '<< t.position.getY() << ', '<< t.position.getZ() << '.';
+    std::stringstream stream;
+    stream.precision(6);
+    stream << std::fixed << "Spatial Waypoint: " << t.position.getX() << ", "<< t.position.getY() << ", "<< t.position.getZ() << ".";
+    os << stream.str();
+
     return os;
 }
 

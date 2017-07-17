@@ -2,6 +2,8 @@
 #define SPATIAL_LOITER_TURNS_H
 
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 #include "data/loiter_direction.h"
 #include "data/command_item_type.h"

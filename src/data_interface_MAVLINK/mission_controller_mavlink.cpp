@@ -9,7 +9,7 @@ MissionController_MAVLINK::MissionController_MAVLINK(const int &targetID, const 
     m_CB(NULL), prevTransmit(NULL),
     helperMAVtoMACE(targetID),helperMACEtoMAV(originatingID,0)
 {
-    mLog = spdlog::get("async_file_logger");
+    mLog = spdlog::get("Log_Vehicle" + std::to_string(this->systemID));
 }
 
 

@@ -240,6 +240,39 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         /// for mission based message events.
         /////////////////////////////////////////////////////////////////////////
 
+    case MAVLINK_MSG_ID_COMMAND_ACK:
+    {
+        mavlink_command_ack_t decodedMSG;
+        mavlink_msg_command_ack_decode(msg,&decodedMSG);
+        switch(decodedMSG.result)
+        {
+        case MAV_RESULT_ACCEPTED:
+            std::cout<<"MAV result accepted"<<std::endl;
+            break;
+        case MAV_RESULT_TEMPORARILY_REJECTED:
+            std::cout<<"MAV result rejected"<<std::endl;
+            break;
+        case MAV_RESULT_DENIED:
+            std::cout<<"MAV result denied"<<std::endl;
+            break;
+        case MAV_RESULT_UNSUPPORTED:
+            std::cout<<"MAV result unsupported"<<std::endl;
+            break;
+        case MAV_RESULT_FAILED:
+            std::cout<<"MAV result failed"<<std::endl;
+            break;
+        default:
+            std::cout<<"Uknown ack!"<<std::endl;
+        }
+        break;
+    }
+
+
+        /////////////////////////////////////////////////////////////////////////
+        /// MISSION ITEMS: The following case statements are executed
+        /// for mission based message events.
+        /////////////////////////////////////////////////////////////////////////
+
     case MAVLINK_MSG_ID_MISSION_ITEM:
     {
         //This is message definition 39
@@ -342,6 +375,8 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         spatialHome.position.setZ(decodedMSG.altitude / 1000);
         spatialHome.setOriginatingSystem(systemID);
         mission->home.set(spatialHome);
+        if(this->m_CB)
+            this->cbiMissionController_ReceviedHome(spatialHome);
         break;
     }
 

@@ -330,15 +330,6 @@ void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int &syst
 }
 
 //!
-void CommsMarshaler::VehicleCommandACK(const ILink* link_ptr, const int &systemID, const mavlink_command_ack_t &cmdACK) const
-{
-    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
-        throw std::runtime_error("Provided link does not exists");
-
-    Emit([&](CommsEvents *ptr){ptr->MAVLINKCommandAck(m_CreatedLinksPtrToName.at(link_ptr), systemID, cmdACK);});
-}
-
-//!
 //! \brief A new radio status packet received
 //! \param link
 //! \param rxerrors
