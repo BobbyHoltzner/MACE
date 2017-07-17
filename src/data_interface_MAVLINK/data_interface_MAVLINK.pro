@@ -52,7 +52,8 @@ HEADERS +=\
     generic/comms_item.h \
     components/ardupilot_component_flight_mode.h \
     command_controller_mavlink.h \
-    generic/command_item.h
+    generic/command_item.h \
+    generic/helper_previous_command_mavlink.h
 
 
 # Unix lib Install

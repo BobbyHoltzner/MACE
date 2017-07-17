@@ -3,11 +3,14 @@
 
 #include "comms_item.h"
 
+namespace DataInterface_MAVLINK {
+
+template <class Base>
 class PreviousTransmissionBase
 {
 public:
 
-    PreviousTransmissionBase(const commsItemEnum &objType):
+    PreviousTransmissionBase(const Base &objType):
         type(objType)
     {
 
@@ -18,21 +21,21 @@ public:
         this->type = rhs.type;
     }
 
-    void setType(const commsItemEnum &objType)
+    void setType(const Base &objType)
     {
         this->type = objType;
     }
 
-    commsItemEnum getType() const
+    Base getType() const
     {
         return this->type;
     }
 private:
-    commsItemEnum type;
+    Base type;
 };
 
 template <class T>
-class PreviousTransmission : public PreviousTransmissionBase
+class PreviousTransmission : public PreviousTransmissionBase<commsItemEnum>
 {
 public:
     PreviousTransmission(const commsItemEnum &objType, const T &data):
@@ -59,5 +62,7 @@ public:
 private:
     T obj;
 };
+
+} //end of namespace DataInterface_MAVLINK
 
 #endif // HELPER_PREVIOUS_TRANSMISSION_H

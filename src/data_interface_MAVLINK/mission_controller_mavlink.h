@@ -92,7 +92,7 @@ private:
     std::shared_ptr<spdlog::logger> mLog;
 
     MissionController_Interface *m_CB;
-    PreviousTransmissionBase *prevTransmit;
+    PreviousTransmissionBase<commsItemEnum> *prevTransmit;
 
     DataMAVLINK::Helper_MissionMAVLINKtoMACE helperMAVtoMACE;
     DataMAVLINK::Helper_MissionMACEtoMAVLINK helperMACEtoMAV;

@@ -26,12 +26,12 @@ void CommandController_MAVLINK::receivedCommandACK(const mavlink_command_ack_t &
     m_LambdasToRun.push_back([this, cmdACK]{
         mTimer.stop();
 
-        commsItemEnum type = prevTransmit->getType();
+        commandItemEnum type = prevTransmit->getType();
         switch(type)
         {
         case(commandItemEnum::COMMAND_INT):
         {
-            PreviousTransmission<mavlink_command_int_t> *tmp = static_cast<PreviousTransmission<mavlink_command_int_t>*>(prevTransmit);
+            PreviousCommand<mavlink_command_int_t> *tmp = static_cast<PreviousCommand<mavlink_command_int_t>*>(prevTransmit);
             mavlink_command_int_t prevCMD = tmp->getData();
             if(prevCMD.command == cmdACK.command)
             {
@@ -43,7 +43,7 @@ void CommandController_MAVLINK::receivedCommandACK(const mavlink_command_ack_t &
         }
         case(commandItemEnum::COMMAND_LONG):
         {
-            PreviousTransmission<mavlink_command_long_t> *tmp = static_cast<PreviousTransmission<mavlink_command_long_t>*>(prevTransmit);
+            PreviousCommand<mavlink_command_long_t> *tmp = static_cast<PreviousCommand<mavlink_command_long_t>*>(prevTransmit);
             mavlink_command_long_t prevCMD = tmp->getData();
             if(prevCMD.command == cmdACK.command)
             {
@@ -55,7 +55,7 @@ void CommandController_MAVLINK::receivedCommandACK(const mavlink_command_ack_t &
         }
         case(commandItemEnum::COMMAND_MODE):
         {
-            if(cmdACK.command = MAVLINK_MSG_ID_SET_MODE)
+            if(cmdACK.command == MAVLINK_MSG_ID_SET_MODE)
             {
                 clearPendingTasks();
                 mToExit = true;
@@ -96,7 +96,7 @@ void CommandController_MAVLINK::getSystemHome(const int &compID)
     cmd.target_component = compID;
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
 
     m_CB->cbiCommandController_transmitCommand(cmd);
 }
@@ -109,7 +109,7 @@ void CommandController_MAVLINK::setNewMode(const int &newMode)
     mode.custom_mode = newMode;
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mavlink_set_mode_t>(commandItemEnum::COMMAND_MODE, mode);
+    prevTransmit = new PreviousCommand<mavlink_set_mode_t>(commandItemEnum::COMMAND_MODE, mode);
 
     m_CB->cbiCommandController_transmitNewMode(mode);
 }
@@ -127,7 +127,7 @@ void CommandController_MAVLINK::setHomePosition(const CommandItem::SpatialHome &
         cmd.param7 = commandItem.position.getZ();
 
         clearPreviousTransmit();
-        prevTransmit = new PreviousTransmission<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+        prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
 
         m_CB->cbiCommandController_transmitCommand(cmd);
     }
@@ -142,7 +142,7 @@ void CommandController_MAVLINK::setSystemArm(const CommandItem::ActionArm &comma
     cmd.param1 = commandItem.getRequestArm();
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
 
     m_CB->cbiCommandController_transmitCommand(cmd);
 }
@@ -161,7 +161,7 @@ void CommandController_MAVLINK::setSystemTakeoff(const CommandItem::SpatialTakeo
     }
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
 
     m_CB->cbiCommandController_transmitCommand(cmd);
 }
@@ -181,7 +181,7 @@ void CommandController_MAVLINK::setSystemLand(const CommandItem::SpatialLand &co
     }
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
 
     m_CB->cbiCommandController_transmitCommand(cmd);
 }
@@ -194,7 +194,7 @@ void CommandController_MAVLINK::setSystemRTL(const CommandItem::SpatialRTL &comm
     cmd.target_component = compID;
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
+    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_INT, cmd);
 
     m_CB->cbiCommandController_transmitCommand(cmd);
 }
@@ -220,7 +220,7 @@ void CommandController_MAVLINK::run()
 
         if(timeElapsed > responseTimeout)
         {
-            commsItemEnum type = prevTransmit->getType();
+            commandItemEnum type = prevTransmit->getType();
             currentRetry++;
 
             switch(currentCommsState)
@@ -238,7 +238,7 @@ void CommandController_MAVLINK::run()
 
                 if(type == commandItemEnum::COMMAND_INT)
                 {
-                    PreviousTransmission<mavlink_command_int_t> *tmp = static_cast<PreviousTransmission<mavlink_command_int_t>*>(prevTransmit);
+                    PreviousCommand<mavlink_command_int_t> *tmp = static_cast<PreviousCommand<mavlink_command_int_t>*>(prevTransmit);
                     mavlink_command_int_t msgTransmit = tmp->getData();
                     mTimer.start();
                     if(m_CB)
@@ -246,7 +246,7 @@ void CommandController_MAVLINK::run()
                 }
                 else if(type == commandItemEnum::COMMAND_LONG)
                 {
-                    PreviousTransmission<mavlink_command_long_t> *tmp = static_cast<PreviousTransmission<mavlink_command_long_t>*>(prevTransmit);
+                    PreviousCommand<mavlink_command_long_t> *tmp = static_cast<PreviousCommand<mavlink_command_long_t>*>(prevTransmit);
                     mavlink_command_long_t msgTransmit = tmp->getData();
                     mTimer.start();
                     if(m_CB)
@@ -254,7 +254,7 @@ void CommandController_MAVLINK::run()
                 }
                 else if(type == commandItemEnum::COMMAND_MODE)
                 {
-                    PreviousTransmission<mavlink_set_mode_t> *tmp = static_cast<PreviousTransmission<mavlink_set_mode_t>*>(prevTransmit);
+                    PreviousCommand<mavlink_set_mode_t> *tmp = static_cast<PreviousCommand<mavlink_set_mode_t>*>(prevTransmit);
                     mavlink_set_mode_t msgTransmit = tmp->getData();
                     mTimer.start();
                     if(m_CB)

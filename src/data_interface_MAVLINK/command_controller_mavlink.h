@@ -12,14 +12,16 @@
 #include "data_generic_command_item/command_item_components.h"
 
 #include "generic/command_item.h"
-#include "generic/helper_previous_transmission.h"
+#include "generic/helper_previous_command_mavlink.h"
 
 #include "spdlog/spdlog.h"
 
 class CommandController_Interface
 {
 public:
+    virtual void cbiCommandController_transmitCommand(const mavlink_command_int_t &cmd);
     virtual void cbiCommandController_transmitCommand(const mavlink_command_long_t &cmd);
+
     virtual void cbiCommandController_transmitNewMode(const mavlink_set_mode_t &mode);
 
     virtual void cbiCommandController_CommandACK() = 0;
@@ -80,7 +82,7 @@ private:
     std::shared_ptr<spdlog::logger> mLog;
 
     CommandController_Interface *m_CB;
-    PreviousTransmissionBase *prevTransmit;
+    PreviousTransmissionBase<commandItemEnum> *prevTransmit;
 
     commsState currentCommsState;
 
