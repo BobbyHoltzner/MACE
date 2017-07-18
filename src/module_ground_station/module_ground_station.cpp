@@ -431,9 +431,14 @@ void ModuleGroundStation::setGoHere(const int &vehicleID, const QJsonObject &jso
 void ModuleGroundStation::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
 {
     CommandItem::SpatialTakeoff newTakeoff;
-    QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
-    newTakeoff.position.setX(position.value("lat").toDouble());
-    newTakeoff.position.setY(position.value("lon").toDouble());
+    QJsonObject vehicleCommand = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
+    QJsonObject position = vehicleCommand["takeoffPosition"].toObject();
+    bool latLonFlag = vehicleCommand["latLonFlag"].toBool();
+
+    if(latLonFlag) {
+        newTakeoff.position.setX(position.value("lat").toDouble());
+        newTakeoff.position.setY(position.value("lon").toDouble());
+    }
     newTakeoff.position.setZ(position.value("alt").toDouble());
     newTakeoff.setTargetSystem(vehicleID);
 

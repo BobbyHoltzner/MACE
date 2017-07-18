@@ -18,16 +18,20 @@ type Props = {
     selectedVehicleID: string,
     open: boolean,
     handleClose: () => void,
-    handleTakeoff: (vehicleID: string, takeoffAlt: string) => void,
+    handleTakeoff: (vehicleID: string, takeoffAlt: string, takeoffLat?: string, takeoffLon?: string) => void,
     takeoffAlt: string,
     onSelectedAircraftChange: (id: string) => void,
     showSaveTakeoff: boolean,
-    handleSaveTakeoff: (alt: string) => void
+    handleSaveTakeoff: (alt: string) => void,
+    contextAnchor: L.LeafletMouseEvent,
+    useContext: boolean,
 }
 
 type State = {
     selectedVehicleID?: string,
-    takeoffAlt?: string
+    takeoffAlt?: string,
+    takeoffLat?: string,
+    takeoffLon?: string
 }
 
 export class TakeoffDialog extends React.Component<Props, State> {
@@ -37,7 +41,9 @@ export class TakeoffDialog extends React.Component<Props, State> {
 
         this.state = {
             selectedVehicleID: this.props.selectedVehicleID,
-            takeoffAlt: this.props.takeoffAlt
+            takeoffAlt: this.props.takeoffAlt,
+            takeoffLat: this.props.useContext ? this.props.contextAnchor.latlng.lat.toString() : "0",
+            takeoffLon: this.props.useContext ? this.props.contextAnchor.latlng.lng.toString() : "0"
         }
     }
 
@@ -52,7 +58,12 @@ export class TakeoffDialog extends React.Component<Props, State> {
     }
 
     handleTakeoff = () => {
-        this.props.handleTakeoff(this.state.selectedVehicleID, this.state.takeoffAlt);
+        if(this.props.useContext) {
+            this.props.handleTakeoff(this.state.selectedVehicleID, this.state.takeoffAlt, this.state.takeoffLat, this.state.takeoffLon);
+        }
+        else {
+            this.props.handleTakeoff(this.state.selectedVehicleID, this.state.takeoffAlt);
+        }
         this.props.handleClose();
     }
 
@@ -131,6 +142,32 @@ export class TakeoffDialog extends React.Component<Props, State> {
                                                 {vehicleIDs}
                                             </DropDownMenu>
                                         </MuiThemeProvider>
+                                </Col>
+                            }
+                            {this.props.useContext &&
+                                <Col xs={12} md={12}>
+                                    <Col xs={12} md={12}>
+                                        <TextField
+                                            id={"takeoffLat"}
+                                            floatingLabelText="Takeoff latitude"
+                                            floatingLabelFocusStyle={{color: colors.orange700}}
+                                            underlineFocusStyle={{borderColor: colors.orange700}}
+                                            onChange={this.handleTextChange}
+                                            type={"number"}
+                                            value={this.state.takeoffLat}
+                                        />
+                                    </Col>
+                                    <Col xs={12} md={12}>
+                                        <TextField
+                                            id={"takeoffLon"}
+                                            floatingLabelText="Takeoff longitude"
+                                            floatingLabelFocusStyle={{color: colors.orange700}}
+                                            underlineFocusStyle={{borderColor: colors.orange700}}
+                                            onChange={this.handleTextChange}
+                                            type={"number"}
+                                            value={this.state.takeoffLon}
+                                        />
+                                    </Col>
                                 </Col>
                             }
                             <Col xs={12} md={12}>
