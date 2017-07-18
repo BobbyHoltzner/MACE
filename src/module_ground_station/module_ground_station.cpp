@@ -471,9 +471,9 @@ void ModuleGroundStation::takeoff(const int &vehicleID, const QJsonObject &jsonO
 {
     CommandItem::SpatialTakeoff newTakeoff;
     QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
-    newTakeoff.position.setX(position.value("lat").toDouble());
-    newTakeoff.position.setY(position.value("lon").toDouble());
-    newTakeoff.position.setZ(position.value("alt").toDouble());
+    newTakeoff.position.setX(37.890054);
+    newTakeoff.position.setY(-76.813819);
+    newTakeoff.position.setZ(25);
     newTakeoff.setTargetSystem(vehicleID);
 
     std::stringstream buffer;

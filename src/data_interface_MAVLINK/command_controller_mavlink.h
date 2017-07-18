@@ -6,6 +6,7 @@
 
 #include "mavlink.h"
 
+#include "data/controller_comms_state.h"
 #include "data/threadmanager.h"
 #include "data/timer.h"
 
@@ -32,13 +33,6 @@ namespace DataInterface_MAVLINK {
 
 class CommandController_MAVLINK : public Thread
 {
-
-private:
-    enum commsState{
-        NEUTRAL,
-        TRANSMITTING
-    };
-
 public:
     CommandController_MAVLINK(const int &targetID, const int &originatingID);
 
@@ -59,6 +53,10 @@ public:
     void setSystemLand(const CommandItem::SpatialLand &commandItem, const int &compID = 0);
     void setSystemRTL(const CommandItem::SpatialRTL &commandItem, const int &compID = 0);
 
+    Data::ControllerCommsState getCommsState() const
+    {
+        return this->currentCommsState;
+    }
 
     void connectCallback(CommandController_Interface *cb)
     {
@@ -86,7 +84,7 @@ private:
     CommandController_Interface *m_CB;
     PreviousTransmissionBase<commandItemEnum> *prevTransmit;
 
-    commsState currentCommsState;
+    Data::ControllerCommsState currentCommsState;
 
 protected:
     std::list<std::function<void()>> m_LambdasToRun;

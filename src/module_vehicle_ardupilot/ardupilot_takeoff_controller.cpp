@@ -83,23 +83,27 @@ void Ardupilot_TakeoffController::updateCommandACK(const mavlink_command_ack_t &
 }
 
 double Ardupilot_TakeoffController::distanceToTarget(){
+    double distance = 0.0;
     switch(currentStateLogic)
     {
     case(ALTITUDE_TRANSITION):
     {
         DataState::StateGlobalPosition currentPosition = vehicleDataObject->state->vehicleGlobalPosition.get();
         DataState::StateGlobalPosition targetPosition(missionItem_Takeoff.position.getX(),missionItem_Takeoff.position.getY(),missionItem_Takeoff.position.getZ());
-        double distance  = fabs(currentPosition.deltaAltitude(targetPosition));
-        return distance;
+        distance  = fabs(currentPosition.deltaAltitude(targetPosition));
         break;
     }
     case(HORIZONTAL_TRANSITION):
     {
+        DataState::StateGlobalPosition targetPosition(missionItem_Takeoff.position.getX(),missionItem_Takeoff.position.getY(),missionItem_Takeoff.position.getZ());
+        distance = vehicleDataObject->state->vehicleGlobalPosition.get().distanceBetween3D(targetPosition);
         break;
     }
     default:
         break;
     }
+
+    return distance;
 }
 
 void Ardupilot_TakeoffController::generateControl(const Data::ControllerState &currentState)
@@ -117,13 +121,20 @@ void Ardupilot_TakeoffController::generateControl(const Data::ControllerState &c
     }
     case Data::ControllerState::ACHIEVED:
     {
-        //we have reached the end of the current mission
-        //KEN TODO: We need to figure out what appropriate action to take here
-        std::cout<<"I have acheived the takeoff state"<<std::endl;
-        mToExit = true;
-        break;
+        if((currentStateLogic == ALTITUDE_TRANSITION) && (missionItem_Takeoff.position.has3DPositionSet()))
+        {
+            currentStateLogic = HORIZONTAL_TRANSITION;
+            CommandItem::SpatialWaypoint target;
+            target.setTargetSystem(missionItem_Takeoff.getTargetSystem());
+            target.setOriginatingSystem(missionItem_Takeoff.getOriginatingSystem());
+            target.position = missionItem_Takeoff.position;
+            vehicleDataObject->m_GuidedController->updateWaypointTarget(target);
+        }
+        else
+            mToExit = true;
+
     }
-    }
+    } //end of switch statement
 }
 
 
@@ -202,7 +213,7 @@ void Ardupilot_TakeoffController::run()
         }
 
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 

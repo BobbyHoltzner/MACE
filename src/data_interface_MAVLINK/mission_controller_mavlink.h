@@ -6,6 +6,7 @@
 
 #include "mavlink.h"
 
+#include "data/controller_comms_state.h"
 #include "data/threadmanager.h"
 #include "data/timer.h"
 
@@ -39,15 +40,6 @@ namespace DataInterface_MAVLINK {
 
 class MissionController_MAVLINK : public Thread
 {
-
-private:
-    enum commsState{
-        NEUTRAL,
-        TRANSMITTING,
-        RECEIVING
-    };
-
-
 public:
     MissionController_MAVLINK(const int &targetID, const int &originatingID);
 
@@ -75,6 +67,10 @@ public:
         m_CB = cb;
     }
 
+    Data::ControllerCommsState getCommsState() const
+    {
+        return this->currentCommsState;
+    }
 private:
     void clearPreviousTransmit();
 
@@ -97,7 +93,7 @@ private:
     DataMAVLINK::Helper_MissionMAVLINKtoMACE helperMAVtoMACE;
     DataMAVLINK::Helper_MissionMACEtoMAVLINK helperMACEtoMAV;
 
-    commsState currentCommsState;
+    Data::ControllerCommsState currentCommsState;
 
     MissionItem::MissionList missionList;
     CommandItem::SpatialHome missionHome;

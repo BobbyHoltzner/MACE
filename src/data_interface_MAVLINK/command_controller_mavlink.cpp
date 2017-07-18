@@ -6,7 +6,7 @@ namespace DataInterface_MAVLINK {
 CommandController_MAVLINK::CommandController_MAVLINK(const int &targetID, const int &originatingID):
     systemID(targetID), transmittingID(originatingID),
     mToExit(false), currentRetry(0), maxRetries(3), responseTimeout(5000),\
-    currentCommsState(NEUTRAL),
+    currentCommsState(Data::ControllerCommsState::NEUTRAL),
     m_CB(NULL), prevTransmit(NULL)
 {
     mLog = spdlog::get("Log_Vehicle" + std::to_string(this->systemID));
@@ -39,7 +39,7 @@ void CommandController_MAVLINK::receivedCommandACK(const mavlink_command_ack_t &
             {
                 clearPendingTasks();
                 mToExit = true;
-                currentCommsState = NEUTRAL;
+                currentCommsState = Data::ControllerCommsState::NEUTRAL;
             }
             break;
         }
@@ -51,7 +51,7 @@ void CommandController_MAVLINK::receivedCommandACK(const mavlink_command_ack_t &
             {
                 clearPendingTasks();
                 mToExit = true;
-                currentCommsState = NEUTRAL;
+                currentCommsState = Data::ControllerCommsState::NEUTRAL;
             }
             break;
         }
@@ -61,7 +61,7 @@ void CommandController_MAVLINK::receivedCommandACK(const mavlink_command_ack_t &
             {
                 clearPendingTasks();
                 mToExit = true;
-                currentCommsState = NEUTRAL;
+                currentCommsState = Data::ControllerCommsState::NEUTRAL;
             }
             break;
         }
@@ -101,7 +101,7 @@ void CommandController_MAVLINK::getSystemHome(const int &compID)
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
-    currentCommsState = TRANSMITTING;
+    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     currentRetry = 0;
     mToExit = false;
     this->start();
@@ -123,7 +123,7 @@ void CommandController_MAVLINK::setNewMode(const int &newMode)
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_set_mode_t>(commandItemEnum::COMMAND_MODE, mode);
 
-    currentCommsState = TRANSMITTING;
+    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     currentRetry = 0;
     mToExit = false;
     this->start();
@@ -154,7 +154,7 @@ void CommandController_MAVLINK::setHomePosition(const CommandItem::SpatialHome &
         clearPreviousTransmit();
         prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
-        currentCommsState = TRANSMITTING;
+        currentCommsState = Data::ControllerCommsState::TRANSMITTING;
         currentRetry = 0;
         mToExit = false;
         this->start();
@@ -182,7 +182,7 @@ void CommandController_MAVLINK::setSystemArm(const CommandItem::ActionArm &comma
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
-    currentCommsState = TRANSMITTING;
+    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     currentRetry = 0;
     mToExit = false;
     this->start();
@@ -213,7 +213,7 @@ void CommandController_MAVLINK::setSystemTakeoff(const CommandItem::SpatialTakeo
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
-    currentCommsState = TRANSMITTING;
+    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     currentRetry = 0;
     mToExit = false;
     this->start();
@@ -245,7 +245,7 @@ void CommandController_MAVLINK::setSystemLand(const CommandItem::SpatialLand &co
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
-    currentCommsState = TRANSMITTING;
+    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     currentRetry = 0;
     mToExit = false;
     this->start();
@@ -266,7 +266,7 @@ void CommandController_MAVLINK::setSystemRTL(const CommandItem::SpatialRTL &comm
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
-    currentCommsState = TRANSMITTING;
+    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     currentRetry = 0;
     mToExit = false;
     this->start();
@@ -301,7 +301,7 @@ void CommandController_MAVLINK::run()
 
             switch(currentCommsState)
             {
-            case NEUTRAL:
+            case Data::ControllerCommsState::NEUTRAL:
             {
                 //This case we should terminate this because there is nothing we should be doing apparently
                 clearPreviousTransmit();
@@ -309,7 +309,7 @@ void CommandController_MAVLINK::run()
                 mToExit = true;
              break;
             }
-            case TRANSMITTING:
+            case Data::ControllerCommsState::TRANSMITTING:
             {
 
                 if(type == commandItemEnum::COMMAND_INT)

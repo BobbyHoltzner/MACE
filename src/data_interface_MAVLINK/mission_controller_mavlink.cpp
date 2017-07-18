@@ -5,7 +5,7 @@ namespace DataInterface_MAVLINK {
 MissionController_MAVLINK::MissionController_MAVLINK(const int &targetID, const int &originatingID):
     systemID(targetID), transmittingID(originatingID),
     mToExit(false), currentRetry(0), maxRetries(5), responseTimeout(5000),\
-    currentCommsState(NEUTRAL),
+    currentCommsState(Data::ControllerCommsState::NEUTRAL),
     m_CB(NULL), prevTransmit(NULL),
     helperMAVtoMACE(targetID),helperMACEtoMAV(originatingID,0)
 {
@@ -26,13 +26,14 @@ void MissionController_MAVLINK::requestMission()
 {
     mLog->info("Mission Controller has seen a request mission.");
     this->missionList.clearQueue();
-    currentCommsState = RECEIVING;
+    currentCommsState = Data::ControllerCommsState::RECEIVING;
 
     mavlink_mission_request_list_t request;
     request.mission_type = MAV_MISSION_TYPE_MISSION;
     request.target_system = systemID;
     request.target_component = 0;
 
+    clearPendingTasks();
     clearPreviousTransmit();
     prevTransmit = new PreviousTransmission<mavlink_mission_request_list_t>(commsItemEnum::ITEM_RXLIST, request);
 
@@ -53,13 +54,14 @@ void MissionController_MAVLINK::transmitMission(const MissionItem::MissionList &
         this->missionList = missionQueue;
     }
 
-    currentCommsState = TRANSMITTING;
+    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     mavlink_mission_count_t count;
     count.count = this->missionList.getQueueSize() + 1;
     count.mission_type = MAV_MISSION_TYPE_MISSION;
     count.target_component = 0;
     count.target_system = systemID;
 
+    clearPendingTasks();
     clearPreviousTransmit();
     prevTransmit = new PreviousTransmission<mavlink_mission_count_t>(commsItemEnum::ITEM_TXCOUNT, count);
 
@@ -80,7 +82,7 @@ void MissionController_MAVLINK::transmitMissionItem(const mavlink_mission_reques
 
         mLog->info("Mission Controller has seen a request for mission item number " + std::to_string(index) + ".");
 
-        currentCommsState = TRANSMITTING;
+        currentCommsState = Data::ControllerCommsState::TRANSMITTING;
         mavlink_mission_item_t missionItem;
 
         if(index == 0) //the vehicle requested the home position
@@ -129,7 +131,7 @@ void MissionController_MAVLINK::run()
 
             switch(currentCommsState)
             {
-            case NEUTRAL:
+            case Data::ControllerCommsState::NEUTRAL:
             {
                 //This case we should terminate this because there is nothing we should be doing apparently
                 clearPreviousTransmit();
@@ -137,7 +139,7 @@ void MissionController_MAVLINK::run()
                 mToExit = true;
              break;
             }
-            case RECEIVING:
+            case Data::ControllerCommsState::RECEIVING:
             {
                 if(type == commsItemEnum::ITEM_RXLIST)
                 {
@@ -159,7 +161,7 @@ void MissionController_MAVLINK::run()
                 }
                 break;
             }
-            case TRANSMITTING:
+            case Data::ControllerCommsState::TRANSMITTING:
             {
 
                 if(type == commsItemEnum::ITEM_TXCOUNT)
@@ -220,7 +222,7 @@ void MissionController_MAVLINK::receivedMissionACK(const mavlink_mission_ack_t &
     m_LambdasToRun.push_back([this, missionACK]{
         mTimer.stop();
         currentRetry = 0;
-        currentCommsState = NEUTRAL;
+        currentCommsState = Data::ControllerCommsState::NEUTRAL;
         if(m_CB)
             m_CB->cbiMissionController_MissionACK(missionACK);
     });
@@ -279,7 +281,7 @@ void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t
         mLog->info("Mission Controller has received the entire mission of " + std::to_string(this->missionList.getQueueSize()));
         clearPendingTasks();
         mToExit = true;
-        currentCommsState = NEUTRAL;
+        currentCommsState = Data::ControllerCommsState::NEUTRAL;
         m_CB->cbiMissionController_ReceivedMission(this->missionList);
     }
     });

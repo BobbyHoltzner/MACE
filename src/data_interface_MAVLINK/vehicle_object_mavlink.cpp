@@ -44,13 +44,15 @@ VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &tr
     m_CommandController = new CommandController_MAVLINK(systemID,0);
     m_CommandController->connectCallback(this);
 
+    m_GuidedController = new GuidedController_MAVLINK(systemID,0);
+    m_GuidedController->connectCallback(this);
+
     m_MissionController = new MissionController_MAVLINK(systemID,0);
     m_MissionController->connectCallback(this);
 
     mission = new MissionData_MAVLINK();
     state = new StateData_MAVLINK();
     state->connectCallback_State(VehicleObject_MAVLINK::staticCallbackState, this);
-
 }
 
 VehicleObject_MAVLINK::~VehicleObject_MAVLINK()
@@ -63,6 +65,15 @@ VehicleObject_MAVLINK::~VehicleObject_MAVLINK()
 
     delete state;
     state = NULL;
+
+    delete m_CommandController;
+    m_CommandController = NULL;
+
+    delete m_GuidedController;
+    m_GuidedController = NULL;
+
+    delete m_MissionController;
+    m_MissionController = NULL;
 
     //do not delete this object as we did not create it
     m_LinkMarshaler = NULL;
@@ -111,6 +122,12 @@ void VehicleObject_MAVLINK::transmitMessage(const mavlink_message_t &msg)
 }
 
 ////////////////////////////////////////////////////////////////////////////
+/// Callback Interface Guided Controller: These functions are required per
+/// the interface of the guided controller.
+////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////
 /// Callback Interface Command Controller: These functions are required per
 /// the interface of the command controller.
 ////////////////////////////////////////////////////////////////////////////
@@ -139,6 +156,19 @@ void VehicleObject_MAVLINK::cbiCommandController_transmitNewMode(const mavlink_s
 void VehicleObject_MAVLINK::cbiCommandController_CommandACK(const mavlink_command_ack_t &ack)
 {
     std::cout<<"The command has been acknowledged."<<std::endl;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+/// Callback Interface Guided Controller: These functions are required per
+/// the interface of the guided controller.
+////////////////////////////////////////////////////////////////////////////
+
+void VehicleObject_MAVLINK::cbiGuidedController_TransmitMissionItem(const mavlink_mission_item_t &item)
+{
+    mavlink_message_t msg;
+    mavlink_msg_mission_item_encode_chan(commandID,0,m_LinkChan,&msg,&item);
+    transmitMessage(msg);
 }
 
 ////////////////////////////////////////////////////////////////////////////

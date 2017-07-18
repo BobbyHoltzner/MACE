@@ -25,6 +25,11 @@ void ModuleVehicleArdupilot::cbi_VehicleCommandACK(const int &systemID, const ma
         m_AircraftController->updateCommandACK(cmdACK);
 }
 
+void ModuleVehicleArdupilot::cbi_VehicleMissionACK(const int &systemID, const mavlink_mission_ack_t &misACK)
+{
+
+}
+
 void ModuleVehicleArdupilot::cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)
 {
     MaceCore::TopicDatagram topicDatagram;

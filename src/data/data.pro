@@ -43,7 +43,8 @@ HEADERS += data_global.h \
     command_ack_type.h \
     mission_command.h \
     mission_execution_state.h \
-    command_validity_type.h
+    command_validity_type.h \
+    controller_comms_state.h
     loiter_direction.h
 
 # Unix lib Install

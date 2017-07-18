@@ -13,6 +13,7 @@
 #include "callback_interface_data_mavlink.h"
 
 #include "command_controller_mavlink.h"
+#include "guided_controller_mavlink.h"
 #include "mission_controller_mavlink.h"
 
 #include "mission_data_mavlink.h"
@@ -22,7 +23,7 @@
 
 namespace DataInterface_MAVLINK{
 
-class VehicleObject_MAVLINK : public MissionController_Interface, public CommandController_Interface
+class VehicleObject_MAVLINK : public CommandController_Interface, public GuidedController_Interface, public MissionController_Interface
 {
 public:
 
@@ -53,6 +54,7 @@ public:
 //The following establish the necessary callback routines
 
     //The following are as required from the command controller interface
+private:
     void cbiCommandController_transmitCommand(const mavlink_command_int_t &cmd);
 
     void cbiCommandController_transmitCommand(const mavlink_command_long_t &cmd);
@@ -60,6 +62,10 @@ public:
     void cbiCommandController_transmitNewMode(const mavlink_set_mode_t &mode);
 
     void cbiCommandController_CommandACK(const mavlink_command_ack_t &ack);
+
+    //The following are as required from the guided controller interface
+private:
+    void cbiGuidedController_TransmitMissionItem(const mavlink_mission_item_t &item);
 
     //The following are as required from the mission controller interface
 private:
@@ -103,6 +109,7 @@ private:
     //The following are basic controllers for the MAVLINK vehicle object
 public:
     CommandController_MAVLINK *m_CommandController;
+    GuidedController_MAVLINK *m_GuidedController;
     MissionController_MAVLINK *m_MissionController;
 
     //The following are organizational methods to compartmentalize funcitonality
