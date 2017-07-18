@@ -267,11 +267,7 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(jsonData.dataType === 'VehicleMission') {
       let vehicleMission = jsonData as TCPMissionType;
       let stateCopy = deepcopy(this.state.connectedVehicles);
-<<<<<<< HEAD
-	  console.log(Object.keys(stateCopy).length);
-=======
       console.log(Object.keys(stateCopy).length);
->>>>>>> master
       stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
       this.vehicleDB = stateCopy;
     }
