@@ -1192,7 +1192,7 @@ bool ModuleGroundStation::writeTCPData(QByteArray data)
 {
     //return true;
 
-    std::shared_ptr<QTcpSocket> tcpSocket = std::make_shared<QTcpSocket>();
+    std::shared_ptr<QTcpSocket> tcpSocket = std:F:make_shared<QTcpSocket>();
     tcpSocket->connectToHost(QHostAddress::LocalHost, 1234);
     tcpSocket->waitForConnected();
     if(tcpSocket->state() == QAbstractSocket::ConnectedState)
