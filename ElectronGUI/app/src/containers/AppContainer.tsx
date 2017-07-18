@@ -486,19 +486,18 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleSaveVehicleHome = (vehicleID: string, vehicleHome: PositionType) => {
-    console.log("Vehicle ID: " + vehicleID);
     this.handleAircraftCommand(vehicleID, "SET_VEHICLE_HOME", JSON.stringify(vehicleHome));
-    let tmpHome: any = {
-      lat: vehicleHome.lat,
-      lon: vehicleHome.lon,
-      alt: vehicleHome.alt,
-    }
-    if(this.state.connectedVehicles[vehicleID]) {
-      this.state.connectedVehicles[vehicleID].updateHomePosition(tmpHome);
-    }
-    else {
-      console.log("No vehicle with ID: " + vehicleID);
-    }
+    // let tmpHome: any = {
+    //   lat: vehicleHome.lat,
+    //   lon: vehicleHome.lon,
+    //   alt: vehicleHome.alt,
+    // }
+    // if(this.state.connectedVehicles[vehicleID]) {
+    //   this.state.connectedVehicles[vehicleID].updateHomePosition(tmpHome);
+    // }
+    // else {
+    //   console.log("No vehicle with ID: " + vehicleID);
+    // }
   }
 
   handleSaveGlobalOrigin = (globalOrigin: PositionType) => {
@@ -577,7 +576,6 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleTakeoff = (vehicleID: string, takeoffAlt: string, takeoffLat?: string, takeoffLon?: string) => {
-    console.log("Takeoff lat/lon: " + takeoffLat + " / " + takeoffLon);
     let takeoffPosition = {
       lat: takeoffLat ? parseFloat(takeoffLat) : 0,
       lon: takeoffLon ? parseFloat(takeoffLon) : 0,
