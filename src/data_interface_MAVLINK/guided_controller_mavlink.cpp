@@ -23,8 +23,12 @@ void GuidedController_MAVLINK::clearPreviousTransmit()
 
 void GuidedController_MAVLINK::updateWaypointTarget(const CommandItem::SpatialWaypoint &target)
 {
-    std::cout<<"GUIDED controller received a target"<<std::endl;
-    std::cout<<target<<std::endl;
+    std::stringstream buffer;
+    buffer << target;
+
+    mLog->debug("Guided Controller receieved a new waypoint target.");
+    mLog->info(buffer.str());
+
     mavlink_mission_item_t request = helperMACEtoMAV.convertWaypoint(target,0);
     //this indicates this is a guided target
     request.current = 2;
