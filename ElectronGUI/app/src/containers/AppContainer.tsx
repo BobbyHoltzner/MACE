@@ -53,7 +53,7 @@ type State = {
   showEditGlobalHomeDialog?: boolean,
   showMessagesMenu?: boolean,
   messagePreferences?: MessagePreferencesType,
-  takeoffAlt?: number,
+  takeoffAlt?: string,
   showTakeoffDialog?: boolean,
   showSaveTakeoff?: boolean,
   maxZoom?: number,
@@ -115,7 +115,7 @@ export default class AppContainer extends React.Component<Props, State> {
         info: true,
         debug: true
       },
-      takeoffAlt: 5,
+      takeoffAlt: "5",
       showTakeoffDialog: false,
       showSaveTakeoff: false,
       MACEConnected: false,
@@ -565,11 +565,11 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({messagePreferences: preferences});
   }
 
-  handleTakeoff = (vehicleID: string, takeoffAlt: number) => {
+  handleTakeoff = (vehicleID: string, takeoffAlt: string) => {
     let takeoffPosition = {
       lat: 0,
       lon: 0,
-      alt: takeoffAlt
+      alt: parseFloat(takeoffAlt)
     }
     this.makeTCPRequest(parseInt(vehicleID), "VEHICLE_TAKEOFF", JSON.stringify(takeoffPosition));
   }
@@ -591,21 +591,6 @@ export default class AppContainer extends React.Component<Props, State> {
     const parentStyle = {height: height + 'px', width: width + 'px'};
 
     const ToolbarRight = () => (
-      // <IconMenu
-      //   iconButtonElement={<IconButton><MoreVertIcon color="white" /></IconButton>}
-      //   anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-      //   targetOrigin={{horizontal: 'right', vertical: 'top'}}
-      // >
-      //   <MenuItem onClick={() => console.log("RTA")} primaryText="RTA Parameters" />
-      //   <MenuItem onClick={() => console.log("Path Planning")} primaryText="Path Planning Parameters" />
-      // </IconMenu>
-      // <IconButton
-      //   iconClassName={"material-icons"}
-      //   onClick={this.handleSyncAll}
-      //   iconStyle={{color: "white"}}
-      // >
-      //   refresh
-      // </IconButton>
 
       <FlatButton
         label={"Sync all"}
@@ -699,7 +684,7 @@ export default class AppContainer extends React.Component<Props, State> {
                 takeoffAlt={this.state.takeoffAlt}
                 onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
                 showSaveTakeoff={this.state.showSaveTakeoff}
-                handleSaveTakeoff={(alt: number) => this.setState({takeoffAlt: alt})}
+                handleSaveTakeoff={(alt: string) => this.setState({takeoffAlt: alt})}
               />
             }
 

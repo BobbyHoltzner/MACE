@@ -18,16 +18,16 @@ type Props = {
     selectedVehicleID: string,
     open: boolean,
     handleClose: () => void,
-    handleTakeoff: (vehicleID: string, takeoffAlt: number) => void,
-    takeoffAlt: number,
+    handleTakeoff: (vehicleID: string, takeoffAlt: string) => void,
+    takeoffAlt: string,
     onSelectedAircraftChange: (id: string) => void,
     showSaveTakeoff: boolean,
-    handleSaveTakeoff: (alt: number) => void
+    handleSaveTakeoff: (alt: string) => void
 }
 
 type State = {
     selectedVehicleID?: string,
-    takeoffAlt?: number
+    takeoffAlt?: string
 }
 
 export class TakeoffDialog extends React.Component<Props, State> {
