@@ -10,6 +10,8 @@ MissionController_MAVLINK::MissionController_MAVLINK(const int &targetID, const 
     helperMAVtoMACE(targetID),helperMACEtoMAV(originatingID,0)
 {
     mLog = spdlog::get("Log_Vehicle" + std::to_string(this->systemID));
+    missionList.setCreatorID(systemID);
+    missionList.setVehicleID(systemID);
 }
 
 
@@ -25,6 +27,8 @@ void MissionController_MAVLINK::clearPreviousTransmit()
 void MissionController_MAVLINK::requestMission()
 {
     mLog->info("Mission Controller has seen a request mission.");
+    missionList.setCreatorID(systemID);
+    missionList.setVehicleID(systemID);
     this->missionList.clearQueue();
     currentCommsState = Data::ControllerCommsState::RECEIVING;
 

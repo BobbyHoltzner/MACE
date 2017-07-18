@@ -438,6 +438,7 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
     UNUSED(sender);
    //Update the core about the information
     Data::MissionKey key = missionList.getMissionKey();
+    std::cout<<"The key I saw in the core is "<<key<<std::endl;
     m_DataFusion->receivedNewOnboardMission(missionList);
 
    //Now update all potential listeners based on the type 
