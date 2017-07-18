@@ -21,6 +21,7 @@ type Props = {
     contextSetHome: () => void,
     contextSetGlobal: () => void,
     contextGoHere: () => void,
+    contextSetTakeoff: () => void,
     setContextAnchor: (e: L.LeafletMouseEvent) => void
     contextAnchor: L.LeafletMouseEvent,
     MACEConnected: boolean,
@@ -92,6 +93,7 @@ export default class MACEMap extends React.Component<Props, State> {
                 handleSetHome={() => {this.setState({showContextMenu: false}); this.props.contextSetHome()}}
                 handleSetGlobal={() => {this.setState({showContextMenu: false}); this.props.contextSetGlobal()}}
                 handleGoHere={() => {this.setState({showContextMenu: false}); this.props.contextGoHere()}}
+                handleSetTakeoff={() => {this.setState({showContextMenu: false}); this.props.contextSetTakeoff()}}
               />
             }
 

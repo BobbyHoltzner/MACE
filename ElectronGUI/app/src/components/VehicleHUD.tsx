@@ -209,7 +209,7 @@ export class VehicleHUD extends React.Component<Props, State> {
                             onClick={this.handleLoiter}
                             icon={<i className="material-icons">pause</i>} />
                         <FlatButton
-                            label="RTL"
+                            label="Home"
                             onClick={this.handleRTL}
                             icon={<i className="material-icons">home</i>} />
                         <FlatButton
