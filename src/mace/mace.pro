@@ -154,7 +154,7 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/ -ldata_interface
 INCLUDEPATH += $$PWD/../data_interface_MAVLINK
 DEPENDPATH += $$PWD/../data_interface_MAVLINK
 
-
+INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 INCLUDEPATH += $$PWD/../

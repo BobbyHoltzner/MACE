@@ -21,9 +21,9 @@ public:
     Data::DataGetSetNotifier<MissionItem::MissionList> proposedGuidedMission;
 
 public:
-    Data::DataGetSetNotifier<CommandItem::SpatialHome> vehicleHome;
-    std::shared_ptr<MissionTopic::MissionItemReachedTopic> m_MissionItemReached;
-    std::shared_ptr<MissionTopic::MissionItemCurrentTopic> m_MissionItemCurrent;
+    Data::DataGetSetNotifier<CommandItem::SpatialHome> home;
+    Data::DataGetSetNotifier<MissionTopic::MissionItemReachedTopic> missionItemReached;
+    Data::DataGetSetNotifier<MissionTopic::MissionItemCurrentTopic> missionItemCurrent;
 
 public:
 

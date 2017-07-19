@@ -29,7 +29,7 @@ DataState::StateGlobalPosition State_COMMSTOMACE::GlobalPosition_COMMSTOMACE(con
     DataState::StateGlobalPosition stateGlobalPosition;
     stateGlobalPosition.setLatitude(stateItem.lat/pow(10,7));
     stateGlobalPosition.setLongitude(stateItem.lon/pow(10,7));
-    stateGlobalPosition.setAltitude(stateItem.alt/1000);
+    stateGlobalPosition.setAltitude(stateItem.alt/1000.0);
     return stateGlobalPosition;
 }
 

@@ -3,6 +3,8 @@
 
 #include "data/data_get_set_notifier.h"
 
+#include "components/ardupilot_component_flight_mode.h"
+
 #include "data_generic_item_topic/data_generic_item_topic_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 
@@ -17,8 +19,12 @@ public:
 
     void connectCallback_State(CallbackFunctionPtr_State cb, void *p);
 
+    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> GetTopicData();
+
     void performCallback();
 
+public:
+    Data::DataGetSetNotifier<DataARDUPILOT::ARDUPILOTComponent_FlightMode> vehicleFlightMode;
 
 public:
     Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_Heartbeat> vehicleHeartbeat;

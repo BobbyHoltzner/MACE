@@ -29,6 +29,7 @@ HEADERS += module_vehicle_ardupilot.h\
     ardupilot_takeoff_controller.h \
     ardupilot_general_controller.h
 
+INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 INCLUDEPATH += $$PWD/../
@@ -114,8 +115,6 @@ else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_MACELINK/ -lmodule_vehicle_MAVL
 
 
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
-
-
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/release/ -ldata_interface_MAVLINK
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/debug/ -ldata_interface_MAVLINK

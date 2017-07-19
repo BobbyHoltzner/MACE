@@ -2,6 +2,8 @@
 #define SPATIAL_TAKEOFF_H
 
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 #include "data/command_item_type.h"
 
@@ -65,6 +67,8 @@ public:
     bool operator != (const SpatialTakeoff &rhs) {
         return !(*this == rhs);
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const SpatialTakeoff& t);
 
 public:
     DataState::Base3DPosition position;

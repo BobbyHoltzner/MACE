@@ -42,6 +42,7 @@ void ModuleRTA::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
     ptr->Subscribe(this, m_SensorFootprintDataTopic.Name());
 }
 
+
 //!
 //! \brief Describes the strucure of the parameters for this module
 //! \return Strucure
