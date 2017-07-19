@@ -48,3 +48,4 @@ node_modules
 ElectronGUI/.vscode/settings.json
 ElectronGUI/PrebuiltBinaries*
 PrebuiltBinaries/*
+*.gnu

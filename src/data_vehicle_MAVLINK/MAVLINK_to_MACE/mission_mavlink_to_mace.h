@@ -32,24 +32,22 @@ public:
 
     void ChangeSpeed_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::ActionChangeSpeed &missionItem);
 
-    void Land_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLand<DataState::StateGlobalPosition> &missionItem);
+    void Land_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLand &missionItem);
 
-    void LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem);
-    void LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem);
+    CommandItem::SpatialLoiter_Time LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem);
+    void LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time &missionItem);
 
-    void LoiterTurns_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem);
-    void LoiterTurns_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem);
+    void LoiterTurns_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Turns &missionItem);
 
-    void LoiterUnlimited_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem);
-    void LoiterUnlimited_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem);
+    void LoiterUnlimited_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Unlimited &missionItem);
 
     void RTL_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialRTL &missionItem);
 
-    void Takeoff_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem);
-    void Takeoff_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem);
+    void Takeoff_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialTakeoff &missionItem);
 
-    void Waypoint_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem);
-    void Waypoint_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem);
+    void Waypoint_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialWaypoint &missionItem);
+
+    void updatePosition(const mavlink_mission_item_t &mavlinkItem, DataState::Base3DPosition &pos);
 
 protected:
     int mSystemID;

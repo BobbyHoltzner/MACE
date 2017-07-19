@@ -5,6 +5,8 @@
 #include <string>
 #include <stdint.h>
 
+#include "mace.h"
+
 #include "data/autopilot_types.h"
 #include "data/comms_protocol.h"
 #include "data/system_type.h"
@@ -64,6 +66,8 @@ public:
     {
         return this->maceCompanion;
     }
+
+    mace_heartbeat_t getMACECommsObject() const;
 
 public:
     void operator = (const DataGenericItem_Heartbeat &rhs)

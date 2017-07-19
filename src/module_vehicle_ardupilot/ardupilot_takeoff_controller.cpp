@@ -7,7 +7,6 @@ Ardupilot_TakeoffController::Ardupilot_TakeoffController(std::shared_ptr<DataARD
     controllerType = CONTROLLER_TAKEOFF;
     vehicleMissionState = ArdupilotMissionState(2,10,10);
     std::cout << "Constructor on takeoff controller" << std::endl;
-
 //    this->vehicleDataObject->data->ArducopterFlightMode.AddNotifier(this, [this]{
 //        //modeUpdated = true;
 
@@ -47,7 +46,7 @@ Ardupilot_TakeoffController::~Ardupilot_TakeoffController() {
     this->vehicleDataObject->data->ArdupilotFlightMode.RemoveNotifier(this);
 }
 
-void Ardupilot_TakeoffController::initializeTakeoffSequence(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &takeoff)
+void Ardupilot_TakeoffController::initializeTakeoffSequence(const CommandItem::SpatialTakeoff &takeoff)
 {
     missionItem_Takeoff = takeoff;
     std::string mode = vehicleDataObject->data->vehicleMode.get().getFlightModeString();
@@ -94,7 +93,10 @@ double Ardupilot_TakeoffController::distanceToTarget(){
     case(ALTITUDE_TRANSITION):
     {
         DataState::StateGlobalPosition currentPosition = vehicleDataObject->data->vehicleGlobalPosition.get();
-        double distance  = fabs(currentPosition.deltaAltitude(missionItem_Takeoff.position));
+        DataState::StateGlobalPosition targetPosition(missionItem_Takeoff.position.getX(),missionItem_Takeoff.position.getY(),missionItem_Takeoff.position.getZ());
+        //KEN FIX THIS AND ASSURE THIS WORKS
+        //DataState::StateGlobalPosition targetPosition = static_cast<DataState::StateGlobalPosition>(missionItem_Takeoff.position);
+        double distance  = fabs(currentPosition.deltaAltitude(targetPosition));
         return distance;
         break;
     }

@@ -4,6 +4,8 @@
 #
 #-------------------------------------------------
 
+QT += serialport
+QT += network
 QT       -= core gui
 
 TARGET = data_generic_state_item
@@ -30,10 +32,16 @@ SOURCES += \
     state_local_position.cpp \
     state_global_velocity.cpp \
     state_local_velocity.cpp \
-    state_generic_position.cpp \
     state_global_position_ex.cpp \
     state_local_position_ex.cpp \
-    state_airspeed.cpp
+    state_airspeed.cpp \
+    base_3d_position.cpp \
+    abstract_3d_position.cpp \
+    base_2d_position.cpp \
+    abstract_position.cpp \
+    abstract_2d_position.cpp \
+    positional_aid.cpp \
+    state_item_boundary.cpp
 
 HEADERS +=\
         data_generic_state_item_global.h \
@@ -43,10 +51,16 @@ HEADERS +=\
     state_global_velocity.h \
     state_local_velocity.h \
     state_item_components.h \
-    state_generic_position.h \
     state_global_position_ex.h \
     state_local_position_ex.h \
-    state_airspeed.h
+    state_airspeed.h \
+    base_3d_position.h \
+    abstract_3d_position.h \
+    base_2d_position.h \
+    abstract_position.h \
+    abstract_2d_position.h \
+    positional_aid.h \
+    state_item_boundary.h
 
 # Unix lib Install
 unix:!symbian {
@@ -66,6 +80,7 @@ headers.path    = $$(MACE_ROOT)/include/data_generic_state_item
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon

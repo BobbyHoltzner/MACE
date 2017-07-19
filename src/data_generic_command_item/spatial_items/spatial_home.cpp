@@ -20,10 +20,7 @@ bool SpatialHome::hasSpatialInfluence() const
 SpatialHome::SpatialHome():
     AbstractCommandItem(0,0)
 {
-    position.latitude = 0.0;
-    position.longitude = 0.0;
-    position.altitude = 0.0;
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
+
 }
 
 SpatialHome::SpatialHome(const SpatialHome &obj):
@@ -35,10 +32,7 @@ SpatialHome::SpatialHome(const SpatialHome &obj):
 SpatialHome::SpatialHome(const int &systemOrigin, const int &systemTarget):
     AbstractCommandItem(systemOrigin,systemTarget)
 {
-    position.latitude = 0.0;
-    position.longitude = 0.0;
-    position.altitude = 0.0;
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
+
 }
 
 } //end of namespace CommandItem

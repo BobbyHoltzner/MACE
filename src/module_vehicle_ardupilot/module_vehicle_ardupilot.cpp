@@ -67,15 +67,15 @@ void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &com
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command)
+void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command)
 {
     int vehicleID = command.getTargetSystem();
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
     Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan, std::bind(&ModuleVehicleArdupilot::takeoffCallback, this, _1));
-    if(command.getPositionFlag())
+    if(command.position.has3DPositionSet())
         newController->initializeTakeoffSequence(command);
     else{
-        CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> defaultTakeoff = command;
+        CommandItem::SpatialTakeoff defaultTakeoff = command;
         newController->initializeTakeoffSequence(defaultTakeoff);
     }
 
@@ -92,7 +92,7 @@ void ModuleVehicleArdupilot::guidedCallback(const std::string value) {
 }
 
 
-void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command)
+void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &command)
 {
     int vehicleID = command.getTargetSystem();
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
@@ -189,7 +189,7 @@ void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialH
 
 void ModuleVehicleArdupilot::homePositionUpdated(const CommandItem::SpatialHome &newVehicleHome)
 {
-    int systemID = newVehicleHome.getGeneratingSystem();
+    int systemID = newVehicleHome.getOriginatingSystem();
     std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(systemID);
 
 

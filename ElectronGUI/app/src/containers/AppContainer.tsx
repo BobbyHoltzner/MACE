@@ -11,10 +11,10 @@ import { VehicleCommandsContainer } from './VehicleCommandsContainer';
 import { AppDrawer } from './AppDrawer';
 import AppBar from 'material-ui/AppBar';
 import * as colors from 'material-ui/styles/colors';
-import IconMenu from 'material-ui/IconMenu';
-import MenuItem from 'material-ui/MenuItem';
-import IconButton from 'material-ui/IconButton';
-import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+// import IconMenu from 'material-ui/IconMenu';
+// import MenuItem from 'material-ui/MenuItem';
+// import IconButton from 'material-ui/IconButton';
+// import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { Vehicle } from '../Vehicle';
 import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
 import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
@@ -22,6 +22,8 @@ import { MessagesDialog } from '../components/MessagesDialog';
 import { TakeoffDialog } from '../components/TakeoffDialog';
 import MACEMap from '../components/MACEMap';
 import { getRandomRGB } from '../util/Colors';
+// import FontIcon from 'material-ui/FontIcon';
+import FlatButton from 'material-ui/FlatButton';
 
 import * as deepcopy from 'deepcopy';
 
@@ -51,7 +53,7 @@ type State = {
   showEditGlobalHomeDialog?: boolean,
   showMessagesMenu?: boolean,
   messagePreferences?: MessagePreferencesType,
-  takeoffAlt?: number,
+  takeoffAlt?: string,
   showTakeoffDialog?: boolean,
   showSaveTakeoff?: boolean,
   maxZoom?: number,
@@ -60,7 +62,8 @@ type State = {
   globalOrigin?: PositionType
   useContext?: boolean,
   contextAnchor?: L.LeafletMouseEvent,
-  MACEConnected?: boolean
+  MACEConnected?: boolean,
+  environmentBoundary?: PositionType[]
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -112,10 +115,11 @@ export default class AppContainer extends React.Component<Props, State> {
         info: true,
         debug: true
       },
-      takeoffAlt: 5,
+      takeoffAlt: "5",
       showTakeoffDialog: false,
       showSaveTakeoff: false,
-      MACEConnected: false
+      MACEConnected: false,
+      environmentBoundary: []
     }
   }
 
@@ -140,7 +144,6 @@ export default class AppContainer extends React.Component<Props, State> {
     setInterval(() => {
       this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
     }, 3000);
-
   }
 
   setupTCPServer = () => {
@@ -264,6 +267,7 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(jsonData.dataType === 'VehicleMission') {
       let vehicleMission = jsonData as TCPMissionType;
       let stateCopy = deepcopy(this.state.connectedVehicles);
+      console.log(Object.keys(stateCopy).length);
       stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
       this.vehicleDB = stateCopy;
     }
@@ -340,7 +344,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
       if(showMessage) {
         this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
-        stateCopy[vehicleText.vehicleID].messages.unshift({severity: vehicleText.severity, text: vehicleText.text});
+        stateCopy[vehicleText.vehicleID].messages.unshift({severity: vehicleText.severity, text: vehicleText.text, timestamp: new Date()});
         this.vehicleDB = stateCopy;
       }
     }
@@ -353,6 +357,10 @@ export default class AppContainer extends React.Component<Props, State> {
       let jsonFootprint = jsonData as TCPSensorFootprintType;
       stateCopy[jsonFootprint.vehicleID].sensorFootprint = jsonFootprint.sensorFootprint;
       this.vehicleDB = stateCopy;
+    }
+    else if(jsonData.dataType === 'EnvironmentBoundary') {
+      let jsonBoundary = jsonData as TCPEnvironmentBoundaryType;
+      this.setState({environmentBoundary: jsonBoundary.environmentBoundary});
     }
     else if(jsonData.dataType === 'VehicleGPS') {
       let jsonGPS = jsonData as TCPGPSType;
@@ -478,19 +486,18 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleSaveVehicleHome = (vehicleID: string, vehicleHome: PositionType) => {
-    console.log("Vehicle ID: " + vehicleID);
     this.handleAircraftCommand(vehicleID, "SET_VEHICLE_HOME", JSON.stringify(vehicleHome));
-    let tmpHome: any = {
-      lat: vehicleHome.lat,
-      lon: vehicleHome.lon,
-      alt: vehicleHome.alt,
-    }
-    if(this.state.connectedVehicles[vehicleID]) {
-      this.state.connectedVehicles[vehicleID].updateHomePosition(tmpHome);
-    }
-    else {
-      console.log("No vehicle with ID: " + vehicleID);
-    }
+    // let tmpHome: any = {
+    //   lat: vehicleHome.lat,
+    //   lon: vehicleHome.lon,
+    //   alt: vehicleHome.alt,
+    // }
+    // if(this.state.connectedVehicles[vehicleID]) {
+    //   this.state.connectedVehicles[vehicleID].updateHomePosition(tmpHome);
+    // }
+    // else {
+    //   console.log("No vehicle with ID: " + vehicleID);
+    // }
   }
 
   handleSaveGlobalOrigin = (globalOrigin: PositionType) => {
@@ -503,6 +510,7 @@ export default class AppContainer extends React.Component<Props, State> {
       showEditVehicleHomeDialog: true,
       allowVehicleSelect: true,
       showEditGlobalHomeDialog: false,
+      showTakeoffDialog: false,
       useContext: true
     });
   }
@@ -514,6 +522,16 @@ export default class AppContainer extends React.Component<Props, State> {
       showEditVehicleHomeDialog: false,
       useContext: true
     });
+  }
+
+  contextSetTakeoff = () => {
+    this.setState({
+      showEditVehicleHomeDialog: false,
+      allowVehicleSelect: false,
+      showEditGlobalHomeDialog: false,
+      showTakeoffDialog: true,
+      useContext: true
+    })
   }
 
   contextGoHere = () => {
@@ -557,17 +575,27 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({messagePreferences: preferences});
   }
 
-  handleTakeoff = (vehicleID: string, takeoffAlt: number) => {
+  handleTakeoff = (vehicleID: string, takeoffAlt: string, takeoffLat?: string, takeoffLon?: string) => {
     let takeoffPosition = {
-      lat: 0,
-      lon: 0,
-      alt: takeoffAlt
+      lat: takeoffLat ? parseFloat(takeoffLat) : 0,
+      lon: takeoffLon ? parseFloat(takeoffLon) : 0,
+      alt: parseFloat(takeoffAlt)
     }
-    this.makeTCPRequest(parseInt(vehicleID), "VEHICLE_TAKEOFF", JSON.stringify(takeoffPosition));
+    let latLonFlag = false;
+    if(takeoffLat && takeoffLon) {
+      latLonFlag = true;
+    }
+    this.makeTCPRequest(parseInt(vehicleID), "VEHICLE_TAKEOFF", JSON.stringify({takeoffPosition: takeoffPosition, latLonFlag: latLonFlag}));
   }
 
   updateMapCenter = (e: L.LeafletMouseEvent) => {
     this.setState({mapCenter: [e.target.getCenter().lat, e.target.getCenter().lng], mapZoom: e.target.getZoom()});
+  }
+
+  handleSyncAll = () => {
+    this.makeTCPRequest(0, "GET_ENVIRONMENT_BOUNDARY", "");
+
+    this.makeTCPRequest(0, "ISSUE_COMMAND", "FORCE_DATA_SYNC");
   }
 
   render() {
@@ -576,15 +604,16 @@ export default class AppContainer extends React.Component<Props, State> {
     const height = window.screen.height;
     const parentStyle = {height: height + 'px', width: width + 'px'};
 
-    const MoreVertMenu = () => (
-      <IconMenu
-        iconButtonElement={<IconButton><MoreVertIcon color="white" /></IconButton>}
-        anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-        targetOrigin={{horizontal: 'right', vertical: 'top'}}
-      >
-        <MenuItem onClick={() => console.log("RTA")} primaryText="RTA Parameters" />
-        <MenuItem onClick={() => console.log("Path Planning")} primaryText="Path Planning Parameters" />
-      </IconMenu>
+    const ToolbarRight = () => (
+
+      <FlatButton
+        label={"Sync all"}
+        labelPosition={"before"}
+        onClick={this.handleSyncAll}
+        icon={<i className="material-icons">cached</i>}
+        style={{color: "white"}}
+        />
+
     );
 
     return (
@@ -595,7 +624,7 @@ export default class AppContainer extends React.Component<Props, State> {
                 title="MACE"
                 style={{backgroundColor: colors.orange700}}
                 onLeftIconButtonTouchTap={() => this.setState({openDrawer: !this.state.openDrawer})}
-                iconElementRight={<MoreVertMenu />}
+                iconElementRight={<ToolbarRight />}
             />
 
             <AppDrawer
@@ -617,7 +646,7 @@ export default class AppContainer extends React.Component<Props, State> {
               onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
               onAircraftCommand={this.handleAircraftCommand}
               selectedAircraftID={this.state.selectedVehicleID}
-              handleTakeoff={() => this.setState({showTakeoffDialog: true, showSaveTakeoff: false})}
+              handleTakeoff={() => this.setState({showTakeoffDialog: true, showSaveTakeoff: false, useContext: false})}
             />
 
             <VehicleWarningsContainer
@@ -627,7 +656,7 @@ export default class AppContainer extends React.Component<Props, State> {
             {this.state.showEditVehicleHomeDialog &&
               <VehicleHomeDialog
                 open={this.state.showEditVehicleHomeDialog}
-                handleClose={() => this.setState({showEditVehicleHomeDialog: false})}
+                handleClose={() => this.setState({showEditVehicleHomeDialog: false, useContext: false})}
                 vehicles={this.state.connectedVehicles}
                 selectedVehicleID={this.state.selectedVehicleID}
                 handleSave={this.handleSaveVehicleHome}
@@ -641,7 +670,7 @@ export default class AppContainer extends React.Component<Props, State> {
             {this.state.showEditGlobalHomeDialog &&
               <GlobalOriginDialog
                 open={this.state.showEditGlobalHomeDialog}
-                handleClose={() => this.setState({showEditGlobalHomeDialog: false})}
+                handleClose={() => this.setState({showEditGlobalHomeDialog: false, useContext: false})}
                 onGlobalHomeCommand={this.handleAircraftCommand}
                 globalOrigin={this.state.globalOrigin}
                 handleSave={this.handleSaveGlobalOrigin}
@@ -662,14 +691,16 @@ export default class AppContainer extends React.Component<Props, State> {
             {this.state.showTakeoffDialog &&
               <TakeoffDialog
                 open={this.state.showTakeoffDialog}
-                handleClose={() => this.setState({showTakeoffDialog: false})}
+                handleClose={() => this.setState({showTakeoffDialog: false, useContext: false})}
                 vehicles={this.state.connectedVehicles}
                 selectedVehicleID={this.state.selectedVehicleID}
                 handleTakeoff={this.handleTakeoff}
                 takeoffAlt={this.state.takeoffAlt}
                 onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
                 showSaveTakeoff={this.state.showSaveTakeoff}
-                handleSaveTakeoff={(alt: number) => this.setState({takeoffAlt: alt})}
+                handleSaveTakeoff={(alt: string) => this.setState({takeoffAlt: alt})}
+                contextAnchor={this.state.contextAnchor}
+                useContext={this.state.useContext}
               />
             }
 
@@ -687,8 +718,10 @@ export default class AppContainer extends React.Component<Props, State> {
               contextAnchor={this.state.contextAnchor}
               contextSetGlobal={this.contextSetGlobal}
               contextSetHome={this.contextSetHome}
+              contextSetTakeoff={this.contextSetTakeoff}
               contextGoHere={this.contextGoHere}
               MACEConnected={this.state.MACEConnected}
+              environmentBoundary={this.state.environmentBoundary}
              />
 
 

@@ -29,8 +29,8 @@ public:
 
     mavlink_message_t generateGetHomeMessage(const int &vehicleID, const int &chan);
     mavlink_message_t generateArmMessage(const CommandItem::ActionArm &actionArmItem, const uint8_t &chan);
-    mavlink_message_t generateTakeoffMessage(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan);
-    mavlink_message_t generateLandMessage(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &commandItem, const uint8_t &chan);
+    mavlink_message_t generateTakeoffMessage(const CommandItem::SpatialTakeoff &missionItem, const uint8_t &chan);
+    mavlink_message_t generateLandMessage(const CommandItem::SpatialLand &commandItem, const uint8_t &chan);
     mavlink_message_t generateRTLMessage(const CommandItem::SpatialRTL &commandItem, const uint8_t &chan);
 
 protected:

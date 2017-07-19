@@ -87,8 +87,6 @@ protected:
     callbackFunction m_callback;
 
 protected:
-
-
     std::list<std::function<void()>> m_LambdasToRun;
 
     void RunPendingTasks() {
