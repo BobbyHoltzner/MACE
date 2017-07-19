@@ -208,12 +208,13 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_set_home_position_t decodedMSG;
         mace_msg_set_home_position_decode(message,&decodedMSG);
         DataCOMMS::Mission_COMMSTOMACE missionConvert;
-        //KEN FIX THIS
-//        CommandItem::SpatialHome systemHome;
-//        missionConvert.Home_COMMSTOMACE(decodedMSG.target_system,decodedMSG,systemHome);
-//        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-//            ptr->Event_SetHomePosition(this, systemHome);
-//        });
+
+        CommandItem::SpatialHome systemHome;
+        missionConvert.Home_COMMSTOMACE(decodedMSG,systemHome);
+        systemHome.setTargetSystem(decodedMSG.target_system);
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->Event_SetHomePosition(this, systemHome);
+        });
         break;
     }
     case MACE_MSG_ID_HOME_POSITION:
