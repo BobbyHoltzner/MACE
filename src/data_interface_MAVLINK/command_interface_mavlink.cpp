@@ -14,6 +14,20 @@ void CommandInterface_MAVLINK::connectCallback_CommandLong(CallbackFunctionPtr_C
     m_p = p;
 }
 
+CommandInterface_MAVLINK::~CommandInterface_MAVLINK()
+{
+    m_p = NULL;
+}
+
+void CommandInterface_MAVLINK::getSystemHome(const int &compID)
+{
+    mavlink_command_long_t cmd = initializeCommandLong();
+    cmd.command = MAV_CMD_GET_HOME_POSITION;
+    cmd.target_system = targetSystemID;
+    cmd.target_component = targetCompID;
+    m_CBCmdLng(m_p,cmd);
+}
+
 mavlink_command_long_t CommandInterface_MAVLINK::initializeCommandLong()
 {
     mavlink_command_long_t cmdLong;
@@ -48,16 +62,19 @@ mavlink_message_t CommandInterface_MAVLINK::setNewMode(const int &newMode, const
     return msg;
 }
 
-mavlink_message_t CommandInterface_MAVLINK::setHomePosition(const CommandItem::SpatialHome &commandItem, const int &originatingSystemID, const int &chan)
+mavlink_message_t CommandInterface_MAVLINK::setHomePosition(const CommandItem::SpatialHome &commandItem, const int &compID)
 {
     mavlink_message_t msg;
-    mavlink_set_home_position_t cmd;
+    mavlink_command_long_t cmd = initializeCommandLong();
     if(commandItem.position.isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
     {
-        cmd.latitude = commandItem.position.getX() * pow(10,7);
-        cmd.longitude = commandItem.position.getY() * pow(10,7);
-        cmd.altitude = commandItem.position.getZ() * 1000;
-        mavlink_msg_set_home_position_encode_chan(originatingSystemID,0,chan,&msg,&cmd);
+        cmd.command = MAV_CMD_DO_SET_HOME;
+        cmd.target_system = commandItem.getTargetSystem();
+        cmd.target_component = compID;
+        cmd.param5 = commandItem.position.getX();
+        cmd.param6 = commandItem.position.getY();
+        cmd.param7 = commandItem.position.getZ();
+        m_CBCmdLng(m_p,cmd);
     }
 
     return msg;

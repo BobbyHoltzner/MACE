@@ -2,6 +2,8 @@
 #define SPATIAL_WAYPOINT_H
 
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 #include "data/command_item_type.h"
 
@@ -66,6 +68,8 @@ public:
     bool operator != (const SpatialWaypoint &rhs) {
         return !(*this == rhs);
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const SpatialWaypoint& t);
 
 public:
     DataState::Base3DPosition position;

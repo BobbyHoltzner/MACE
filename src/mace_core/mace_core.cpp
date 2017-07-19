@@ -437,7 +437,9 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
 {
     UNUSED(sender);
    //Update the core about the information
+    Data::MissionKey key = missionList.getMissionKey();
     m_DataFusion->receivedNewOnboardMission(missionList);
+
    //Now update all potential listeners based on the type 
     if(m_GroundStation)
     {
@@ -448,7 +450,6 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
     }else if(m_ExternalLink.size() > 0)
     {
         //we need to transfer this to the ground station
-        std::cout<<"we should be transferring this mission to the ground station if available."<<std::endl;
         //KEN FIX THIS
         m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,missionList.getMissionKey());
     }

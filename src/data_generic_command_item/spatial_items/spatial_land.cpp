@@ -35,5 +35,14 @@ SpatialLand::SpatialLand(const int &systemOrigin,  const int &systemTarget):
 
 }
 
+std::ostream& operator<<(std::ostream& os, const SpatialLand& t)
+{
+    std::stringstream stream;
+    stream.precision(6);
+    stream << std::fixed << "Spatial Land: " << t.position.getX() << ", "<< t.position.getY() << ", "<< t.position.getZ() << ".";
+    os << stream.str();
+
+    return os;
+}
 
 } //end of namespace CommandItem

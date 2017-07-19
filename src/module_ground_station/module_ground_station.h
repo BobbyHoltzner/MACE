@@ -3,6 +3,8 @@
 
 #include "module_ground_station_global.h"
 
+#include "spdlog/spdlog.h"
+
 #include <string>
 #include <memory>
 
@@ -45,6 +47,9 @@ public:
     ModuleGroundStation();
 
     ~ModuleGroundStation();
+
+
+    void initiateLogs();
 
     //!
     //! \brief Starts the TCP server for the GCS to send requests to
@@ -138,6 +143,9 @@ private:
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;
     Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
+
+private:
+    std::shared_ptr<spdlog::logger> mLogs;
 
 private:
     std::shared_ptr<QTcpServer> m_TcpServer;

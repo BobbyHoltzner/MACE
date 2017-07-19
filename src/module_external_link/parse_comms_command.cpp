@@ -63,8 +63,11 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
     {
         CommandItem::SpatialTakeoff tmpTakeoff;
         tmpTakeoff.setTargetSystem(message->target_system);
-        tmpTakeoff.position.setX(message->param5);
-        tmpTakeoff.position.setY(message->param6);
+        if(message->param1 > 0.0)
+        {
+            tmpTakeoff.position.setX(message->param5);
+            tmpTakeoff.position.setY(message->param6);
+        }
         tmpTakeoff.position.setZ(message->param7);
 
         //acknowledge receiving the command

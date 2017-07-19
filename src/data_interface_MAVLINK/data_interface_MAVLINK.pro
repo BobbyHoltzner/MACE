@@ -32,7 +32,12 @@ SOURCES += \
     state_data_mavlink.cpp \
     mission_data_mavlink.cpp \
     parse_mavlink.cpp \
-    mission_controller_mavlink.cpp
+    mission_controller_mavlink.cpp \
+    MACE_to_MAVLINK/helper_mission_mace_to_mavlink.cpp \
+    MAVLINK_to_MACE/helper_mission_mavlink_to_mace.cpp \
+    components/ardupilot_component_flight_mode.cpp \
+    command_controller_mavlink.cpp \
+    guided_controller_mavlink.cpp
 
 HEADERS +=\
         data_interface_mavlink_global.h \
@@ -41,7 +46,17 @@ HEADERS +=\
     command_interface_mavlink.h \
     state_data_mavlink.h \
     mission_data_mavlink.h \
-    mission_controller_mavlink.h
+    mission_controller_mavlink.h \
+    MACE_to_MAVLINK/helper_mission_mace_to_mavlink.h \
+    MAVLINK_to_MACE/helper_mission_mavlink_to_mace.h \
+    generic/helper_previous_transmission.h \
+    generic/comms_item.h \
+    components/ardupilot_component_flight_mode.h \
+    command_controller_mavlink.h \
+    generic/command_item.h \
+    generic/helper_previous_command_mavlink.h \
+    guided_controller_mavlink.h \
+    generic/helper_previous_guided_mavlink.h
 
 
 # Unix lib Install
@@ -56,6 +71,52 @@ win32:CONFIG(release, debug|release):       lib.files   += release/data_interfac
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/data_interface_MAVLINK.lib debug/data_interface_MAVLINK.dll
 INSTALLS += lib
 
+
+#Header file copy
+headers.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK
+headers.files   += \
+    callback_interface_data_mavlink.h \
+    command_controller_mavlink.h \
+    command_interface_mavlink.h \
+    data_interface_mavlink_global.h \
+    guided_controller_mavlink.h \
+    mission_controller_mavlink.h \
+    mission_data_mavlink.h \
+    state_data_mavlink.h \
+    vehicle_object_mavlink.h
+INSTALLS       += headers
+
+#Header file copy
+headers_generic.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK/generic
+headers_generic.files   += \
+    generic/command_item.h \
+    generic/comms_item.h \
+    generic/helper_previous_command_mavlink.h \
+    generic/helper_previous_guided_mavlink.h \
+    generic/helper_previous_transmission.h
+INSTALLS       += headers_generic
+
+#Header file copy
+headers_components.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK/components
+headers_components.files   += \
+    components/ardupilot_component_flight_mode.h
+INSTALLS       += headers_components
+
+#Header file copy
+headers_MACE_to_MAVLINK.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK/MACE_to_MAVLINK
+headers_MACE_to_MAVLINK.files   += \
+    MACE_to_MAVLINK/mission_mace_to_mavlink.h \
+    MACE_to_MAVLINK/helper_mission_mace_to_mavlink.h
+INSTALLS       += headers_MACE_to_MAVLINK
+
+#Header file copy
+headers_MAVLINK_to_MACE.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK/MAVLINK_to_MACE
+headers_MAVLINK_to_MACE.files   += \
+    MAVLINK_to_MACE/mission_mavlink_to_mace.h \
+    MAVLINK_to_MACE/helper_mission_mavlink_to_mace.h
+INSTALLS       += headers_MAVLINK_to_MACE
+
+INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 INCLUDEPATH += $$PWD/../
