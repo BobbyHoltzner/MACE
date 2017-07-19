@@ -46,6 +46,7 @@ ModuleGroundStation::ModuleGroundStation() :
     m_MissionDataTopic("vehicleMission"),
     m_ListenThread(NULL)
 {
+    latitude = 37.8910356;
 
     initiateLogs();
 
@@ -104,7 +105,7 @@ void ModuleGroundStation::initiateLogs()
     logname = rootPath + kPathSeparator + "logs/MACE_Module_GCS.txt";
     //initiate the logs
     size_t q_size = 8192; //queue size must be power of 2
-    spdlog::set_async_mode(q_size,spdlog::async_overflow_policy::block_retry,nullptr,std::chrono::seconds(2));
+    spdlog::set_async_mode(q_size,spdlog::async_overflow_policy::discard_log_msg,nullptr,std::chrono::seconds(2));
 
     mLogs = spdlog::basic_logger_mt("MACE_Module_GCS", logname);
     mLogs->set_level(spdlog::level::debug);
@@ -253,9 +254,9 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
     missionList.setMissionType(Data::MissionType::AUTO);
     missionList.setVehicleID(vehicleID);
     missionList.initializeQueue(4);
-
+    latitude = latitude + 0.001;
     std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
-    newWP->position.setPosition3D(37.8910356,-76.8153602,20.0);
+    newWP->position.setPosition3D(latitude,-76.8153602,20.0);
     newWP->setTargetSystem(vehicleID);
 
     std::shared_ptr<CommandItem::SpatialWaypoint> newWP1 = std::make_shared<CommandItem::SpatialWaypoint>();
@@ -436,13 +437,10 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
     tmpHome.position.setX(position.value("lat").toDouble());
     tmpHome.position.setY(position.value("lon").toDouble());
     tmpHome.position.setZ(position.value("alt").toDouble());
-
-    std::cout<<"A home position was received"<<std::endl;
     std::stringstream buffer;
     buffer << tmpHome;
     mLogs->debug("Module Ground Station issuing a new vehicle home to system " + std::to_string(vehicleID) + ".");
     mLogs->info(buffer.str());
-    std::cout<<"About to transmit the home location from the ground station"<<std::endl;
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
         ptr->Event_SetHomePosition(this, tmpHome);
     });
@@ -626,6 +624,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 sendVehicleHome(senderID, *castHome.get());
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
+                std::cout<<"I have seen a misson item reached topic"<<std::endl;
                 std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
@@ -633,6 +632,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 sendMissionItemReached(senderID, component);
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
+                std::cout<<"I have seen a misson item current topic"<<std::endl;
                 std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
@@ -1018,6 +1018,7 @@ void ModuleGroundStation::sendVehicleGPS(const int &vehicleID, const std::shared
 
 void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &missionKey)
 {
+    std::cout<<"New available mission for ground station."<<std::endl;
     MissionItem::MissionList newList;
     bool valid = this->getDataObject()->getMissionList(missionKey,newList);
     if(valid)
