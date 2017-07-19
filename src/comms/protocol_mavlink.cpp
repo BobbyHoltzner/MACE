@@ -129,7 +129,6 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
     {
         unsigned int decodeState = mavlink_parse_char(mavlinkChannel, c, &message, &status);
 
-
         if (c == 0x55) mavlink09Count++;
         if ((mavlink09Count > 100) && !decodedFirstPacket && !warnedUser)
         {
@@ -216,13 +215,11 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
 
             if (message.msgid == MAVLINK_MSG_ID_HEARTBEAT)
             {
-                if((message.sysid == 255) || (message.sysid == 254))
-                    return;
-
                 mavlink_heartbeat_t heartbeat;
                 mavlink_msg_heartbeat_decode(&message, &heartbeat);
                 Emit([&](const IProtocolMavlinkEvents* ptr){ptr->VehicleHeartbeatInfo(link, message.sysid, heartbeat);});
             }
+
             // Increase receive counter
             totalReceiveCounter[mavlinkChannel]++;
             currReceiveCounter[mavlinkChannel]++;

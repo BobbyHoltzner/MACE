@@ -173,7 +173,6 @@ private:
     //!
     virtual void VehicleHeartbeatInfo(const ILink* link_ptr, const int &vehicleId, const mavlink_heartbeat_t &heartbeatMSG) const;
 
-
     //!
     //! \brief A new radio status packet received
     //! \param link

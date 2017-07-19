@@ -329,6 +329,7 @@ void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int &syst
     Emit([&](CommsEvents *ptr){ptr->VehicleHeartbeatInfo(m_CreatedLinksPtrToName.at(link_ptr), systemID, heartbeatMSG);});
 }
 
+
 //!
 //! \brief A new radio status packet received
 //! \param link
