@@ -15,6 +15,10 @@ public:
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
 public:
+    MissionItemCurrentTopic();
+    MissionItemCurrentTopic(const MissionItemCurrentTopic &copyObj);
+
+public:
     void setVehicleID(const int &vehicleID){
         this->vehicleID = vehicleID;
     }

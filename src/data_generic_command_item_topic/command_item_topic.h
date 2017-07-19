@@ -33,7 +33,7 @@ public:
 
     int getOriginatingSystem() const
     {
-        return commandItem->getGeneratingSystem();
+        return commandItem->getOriginatingSystem();
     }
 
     int getTargetSystem() const
@@ -44,11 +44,6 @@ public:
     Data::CommandItemType getCommandType() const
     {
         return commandItem->getCommandType();
-    }
-
-    Data::CoordinateFrameType getCoordinateFrame() const
-    {
-        return commandItem->getCoordinateFrame();
     }
 
 private:

@@ -11,13 +11,13 @@ namespace MaceCore
 
 enum class RTACommands
 {
-    NEW_AVAILABLE_VEHICLE
+    NEW_AVAILABLE_VEHICLE,
+    TEST_FUNCTION
 };
-
-class MaceCore;
 
 class MACE_CORESHARED_EXPORT IModuleCommandRTA : public AbstractModule_EventListeners<Metadata_RTA, IModuleEventsRTA, RTACommands>
 {
+    friend class MaceCore;
 public:
 
     static Classes moduleClass;
@@ -27,6 +27,9 @@ public:
     {
         AddCommandLogic<int>(RTACommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID){
             NewlyAvailableVehicle(vehicleID);
+        });
+        AddCommandLogic<int>(RTACommands::TEST_FUNCTION, [this](const int &vehicleID){
+            TestFunction(vehicleID);
         });
     }
 
@@ -38,6 +41,7 @@ public:
 public:
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
+    virtual void TestFunction(const int &vehicleID) = 0;
 
 };
 

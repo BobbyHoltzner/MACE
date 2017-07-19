@@ -10,6 +10,7 @@ namespace MaceCore
 class IModuleEventsRTA  : public IModuleEventsGeneral
 {
 public:
+    virtual void GSEvent_UploadMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
 };
 

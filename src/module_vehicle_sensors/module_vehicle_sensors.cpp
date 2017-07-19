@@ -118,6 +118,7 @@ void ModuleVehicleSensors::computeVehicleFootprint(const int &systemID, const Da
     */
 
     CommandItem::SpatialHome globalHome = this->getDataObject()->GetGlobalOrigin();
+    DataState::StateGlobalPosition globalPos(globalHome.position.getX(),globalHome.position.getY(),globalHome.position.getZ());
 
     std::vector<DataState::StateGlobalPosition> verticeVectorGlobal(4);
     std::vector<DataState::StateLocalPosition> verticeVectorLocal(4);
@@ -132,28 +133,28 @@ void ModuleVehicleSensors::computeVehicleFootprint(const int &systemID, const Da
 
         DataState::StateGlobalPosition position1 = vehicleOrigin.NewPositionFromHeadingBearing(verticeDistance,bearing+currentHeading,false);
         Eigen::Vector3f transVec1;
-        globalHome.position.translationTransformation(position1,transVec1);
+        globalPos.translationTransformation3D(position1,transVec1);
         verticeVectorGlobal[0] = position1;
         DataState::StateLocalPosition position1L(transVec1(0),transVec1(1),transVec1(2));
         verticeVectorLocal[0] = position1L;
 
         DataState::StateGlobalPosition position2 = vehicleOrigin.NewPositionFromHeadingBearing(verticeDistance,currentHeading - bearing - 3.14159,false);
         Eigen::Vector3f transVec2;
-        globalHome.position.translationTransformation(position2,transVec2);
+        globalPos.translationTransformation3D(position2,transVec2);
         verticeVectorGlobal[1] = position2;
         DataState::StateLocalPosition position2L(transVec2(0),transVec2(1),transVec2(2));
         verticeVectorLocal[1] = position2L;
 
         DataState::StateGlobalPosition position3 = vehicleOrigin.NewPositionFromHeadingBearing(verticeDistance,bearing + currentHeading - 3.14159,false);
         Eigen::Vector3f transVec3;
-        globalHome.position.translationTransformation(position3,transVec3);
+        globalPos.translationTransformation3D(position3,transVec3);
         verticeVectorGlobal[2] = position3;
         DataState::StateLocalPosition position3L(transVec3(0),transVec3(1),transVec3(2));
         verticeVectorLocal[2] = position3L;
 
         DataState::StateGlobalPosition position4 = vehicleOrigin.NewPositionFromHeadingBearing(verticeDistance,currentHeading - bearing,false);
         Eigen::Vector3f transVec4;
-        globalHome.position.translationTransformation(position4,transVec4);
+        globalPos.translationTransformation3D(position4,transVec4);
         verticeVectorGlobal[3] = position4;
         DataState::StateLocalPosition position4L(transVec4(0),transVec4(1),transVec4(2));
         verticeVectorLocal[3] = position4L;

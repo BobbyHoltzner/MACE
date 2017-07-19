@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <iostream>
 
+#include "mace.h"
+
 #include "data/gps_fix_type.h"
 
 namespace DataGenericItem {
@@ -78,6 +80,8 @@ public:
     uint16_t getVDOP() const{
         return VDOP;
     }
+
+    mace_gps_raw_int_t getMACECommsObject() const;
 
 public:
     void operator = (const DataGenericItem_GPS &rhs)

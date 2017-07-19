@@ -256,6 +256,7 @@ void MaceData::receivedNewOnboardMission(const MissionItem::MissionList &mission
     Data::MissionKey key = missionList.getMissionKey();
     mapMissions[key] = missionList;
 
+    //KEN THIS IS A HACK
     if(mapCurrentMission.count(key.m_systemID) == 0)
         mapCurrentMission[key.m_systemID] = key;
 }

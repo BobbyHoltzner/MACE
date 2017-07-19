@@ -208,8 +208,10 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_set_home_position_t decodedMSG;
         mace_msg_set_home_position_decode(message,&decodedMSG);
         DataCOMMS::Mission_COMMSTOMACE missionConvert;
+
         CommandItem::SpatialHome systemHome;
-        missionConvert.Home_COMMSTOMACE(decodedMSG.target_system,decodedMSG,systemHome);
+        missionConvert.Home_COMMSTOMACE(decodedMSG,systemHome);
+        systemHome.setTargetSystem(decodedMSG.target_system);
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->Event_SetHomePosition(this, systemHome);
         });
@@ -221,10 +223,10 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_msg_home_position_decode(message,&decodedMSG);
 
         CommandItem::SpatialHome spatialHome;
-        spatialHome.position.latitude = decodedMSG.latitude / pow(10,7);
-        spatialHome.position.longitude = decodedMSG.longitude / pow(10,7);
-        spatialHome.position.altitude = decodedMSG.altitude / 1000.0;
-        spatialHome.setGeneratingSystem(systemID);
+        spatialHome.position.setX(decodedMSG.latitude / pow(10,7));
+        spatialHome.position.setY(decodedMSG.longitude / pow(10,7));
+        spatialHome.position.setZ(decodedMSG.altitude / 1000);
+        spatialHome.setOriginatingSystem(systemID);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->GVEvents_NewHomePosition(this,spatialHome);
@@ -336,8 +338,10 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
         bool validity = this->getDataObject()->getMissionList(key,missionList);
 
-        if(!validity) //KEN TODO: Return a message saying that the request is invalid because the item does not exsist...probably enum failure value / validity
+        if(!validity){ //KEN TODO: Return a message saying that the request is invalid because the item does not exsist...probably enum failure value / validity
+            std::cout<<"The requested key was not valid"<<std::endl;
             return;
+        }
 
         mace_mission_count_t missionCount;
         missionCount.count = missionList.getQueueSize();
@@ -488,6 +492,16 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_mission_current_t decodedMSG;
         mace_msg_mission_current_decode(message,&decodedMSG);
 
+        std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionCurrent = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
+        ptrMissionCurrent->setVehicleID(systemID);
+        ptrMissionCurrent->setMissionItemIndex(decodedMSG.seq);
+
+        MaceCore::TopicDatagram topicDatagram;
+        m_MissionDataTopic.SetComponent(ptrMissionCurrent, topicDatagram);
+        //notify listneres of topic
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
         break;
     }
     case MACE_MSG_ID_MISSION_CLEAR:
@@ -502,6 +516,16 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_mission_item_reached_t decodedMSG;
         mace_msg_mission_item_reached_decode(message,&decodedMSG);
 
+        std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionReached = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
+        ptrMissionReached->setVehicleID(systemID);
+        ptrMissionReached->setMissionItemIndex(decodedMSG.seq);
+
+        MaceCore::TopicDatagram topicDatagram;
+        m_MissionDataTopic.SetComponent(ptrMissionReached, topicDatagram);
+        //notify listneres of topic
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
         break;
     }
     case MACE_MSG_ID_MISSION_EXE_STATE:

@@ -30,27 +30,26 @@ public:
 
     mace_message_t ChangeSpeed_MACETOCOMMS(const CommandItem::ActionChangeSpeed &missionItem, const uint16_t &itemIndex);
 
-    mace_message_t Land_MACETOCOMMS(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex);
-    mace_message_t Land_MACETOCOMMS(const CommandItem::SpatialLand<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex);
+    mace_message_t Land_MACETOCOMMS(const CommandItem::SpatialLand &missionItem, const uint16_t &itemIndex);
 
-    mace_message_t LoiterTime_MACETOCOMMS(const CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex);
-    mace_message_t LoiterTime_MACETOCOMMS(const CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex);
+    mace_message_t LoiterTime_MACETOCOMMS(const CommandItem::SpatialLoiter_Time &missionItem, const uint16_t &itemIndex);
 
-    mace_message_t LoiterTurns_MACETOCOMMS(const CommandItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex);
-    mace_message_t LoiterTurns_MACETOCOMMS(const CommandItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex);
+    mace_message_t LoiterTurns_MACETOCOMMS(const CommandItem::SpatialLoiter_Turns &missionItem, const uint16_t &itemIndex);
 
-    mace_message_t LoiterUnlimited_MACETOCOMMS(const CommandItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex);
-    mace_message_t LoiterUnlimited_MACETOCOMMS(const CommandItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex);
+    mace_message_t LoiterUnlimited_MACETOCOMMS(const CommandItem::SpatialLoiter_Unlimited &missionItem, const uint16_t &itemIndex);
 
     mace_message_t RTL_MACETOCOMMS(const CommandItem::SpatialRTL &missionItem, const uint16_t &itemIndex);
 
-    mace_message_t Takeoff_MACETOCOMMS(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex);
-    mace_message_t Takeoff_MACETOCOMMS(const CommandItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex);
+    mace_message_t Takeoff_MACETOCOMMS(const CommandItem::SpatialTakeoff &missionItem, const uint16_t &itemIndex);
 
-    mace_message_t Waypoint_MACETOCOMMS(const CommandItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem, const uint16_t &itemIndex);
-    mace_message_t Waypoint_MACETOCOMMS(const CommandItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem, const uint16_t &itemIndex);
+    mace_message_t Waypoint_MACETOCOMMS(const CommandItem::SpatialWaypoint &missionItem, const uint16_t &itemIndex);
 
     bool MACEMissionToCOMMSMission(std::shared_ptr<CommandItem::AbstractCommandItem> missionItem, const uint16_t &itemIndex, mace_message_t &msg);
+
+
+private:
+    void updatePosition(const DataState::Base3DPosition &pos, mace_mission_item_t &maceItem);
+
 private:
     void initializeMACECOMMSMissionItem(mace_mission_item_t &mavMission);
     mace_message_t packMissionItem(const mace_mission_item_t &mavMission);

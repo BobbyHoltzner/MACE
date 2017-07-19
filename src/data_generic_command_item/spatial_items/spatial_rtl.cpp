@@ -34,5 +34,4 @@ SpatialRTL::SpatialRTL(const int &systemOrigin, const int &systemTarget):
 
 }
 
-
 }
