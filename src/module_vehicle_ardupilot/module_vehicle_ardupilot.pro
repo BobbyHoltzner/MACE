@@ -30,10 +30,15 @@ HEADERS += module_vehicle_ardupilot.h\
     ardupilot_general_controller.h
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 >>>>>>> e56529404e8ab85322bad32187364af469b4c5f3
+=======
+INCLUDEPATH += $$PWD/../../speedLog/
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
+>>>>>>> 41aeb15f32634388d9932d47b4beb813720599a3
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 INCLUDEPATH += $$PWD/../
 
@@ -114,18 +119,23 @@ else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_generic/ -lmodule_vehicle_gener
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/release/ -lmodule_vehicle_MAVLINK
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/debug/ -lmodule_vehicle_MAVLINK
-else:unix:!macx: LIBS += -L$$OUT_PWD/../module_vehicle_MAVLINK/ -lmodule_vehicle_MAVLINK
+else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_MACELINK/ -lmodule_vehicle_MAVLINK
 
-INCLUDEPATH += $$PWD/../module_vehicle_MAVLINK
-DEPENDPATH += $$PWD/../module_vehicle_MAVLINK
+
+INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/release/ -ldata_interface_MAVLINK
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/debug/ -ldata_interface_MAVLINK
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/ -ldata_interface_MAVLINK
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 =======
 INCLUDEPATH += $$PWD/../data_interface_MAVLINK
 DEPENDPATH += $$PWD/../data_interface_MAVLINK
 >>>>>>> e56529404e8ab85322bad32187364af469b4c5f3
+=======
+INCLUDEPATH += $$PWD/../data_interface_MAVLINK
+DEPENDPATH += $$PWD/../data_interface_MAVLINK
+>>>>>>> 41aeb15f32634388d9932d47b4beb813720599a3

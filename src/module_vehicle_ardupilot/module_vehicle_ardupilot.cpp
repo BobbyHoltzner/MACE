@@ -235,6 +235,7 @@ void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionLis
     case(Data::MissionType::AUTO): //This case should push the mission directly to the aircraft
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         int vehicleID = missionList.getVehicleID();
         std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
         tmpData->data->setProposedMission(missionList);
@@ -247,6 +248,10 @@ void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionLis
         if(vehicleData)
             vehicleData->m_MissionController->transmitMission(missionList);
 >>>>>>> e56529404e8ab85322bad32187364af469b4c5f3
+=======
+        if(vehicleData)
+            vehicleData->m_MissionController->transmitMission(missionList);
+>>>>>>> 41aeb15f32634388d9932d47b4beb813720599a3
         break;
     }
     case(Data::MissionType::GUIDED):
@@ -282,6 +287,7 @@ void ModuleVehicleArdupilot::Command_SetCurrentMission(const Data::MissionKey &k
 void ModuleVehicleArdupilot::Command_GetCurrentMission(const int &targetSystem)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     mavlink_message_t msg;
     mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -290,6 +296,11 @@ void ModuleVehicleArdupilot::Command_GetCurrentMission(const int &targetSystem)
 //    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
 //    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 >>>>>>> e56529404e8ab85322bad32187364af469b4c5f3
+=======
+//    mavlink_message_t msg;
+//    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
+//    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+>>>>>>> 41aeb15f32634388d9932d47b4beb813720599a3
 }
 
 void ModuleVehicleArdupilot::Command_GetMission(const Data::MissionKey &key)
@@ -311,6 +322,7 @@ void ModuleVehicleArdupilot::Command_ClearCurrentMission(const int &targetSystem
 void ModuleVehicleArdupilot::Command_GetOnboardAuto(const int &targetSystem)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     mavlink_message_t msg;
     mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0);
     m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
@@ -319,10 +331,16 @@ void ModuleVehicleArdupilot::Command_GetOnboardAuto(const int &targetSystem)
 //    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
 //    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 >>>>>>> e56529404e8ab85322bad32187364af469b4c5f3
+=======
+//    mavlink_message_t msg;
+//    mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
+//    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+>>>>>>> 41aeb15f32634388d9932d47b4beb813720599a3
 }
 
 void ModuleVehicleArdupilot::Command_ClearOnboardAuto(const int &targetSystem)
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
     mavlink_message_t msg;
     mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0);
@@ -332,6 +350,11 @@ void ModuleVehicleArdupilot::Command_ClearOnboardAuto(const int &targetSystem)
 //    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
 //    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 >>>>>>> e56529404e8ab85322bad32187364af469b4c5f3
+=======
+//    mavlink_message_t msg;
+//    mavlink_msg_mission_clear_all_pack_chan(255,190,m_LinkChan,&msg,targetSystem,0,MAV_MISSION_TYPE_MISSION);
+//    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+>>>>>>> 41aeb15f32634388d9932d47b4beb813720599a3
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -368,6 +391,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     if(vehicleData == NULL)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         mavlink_message_t msg;
         std::cout<<"A new heartbeat was seen from "<<systemID<<std::endl;
         //this is the first time we have seen this heartbeat
@@ -401,6 +425,8 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         mavlink_msg_mission_request_list_pack_chan(255,190,m_LinkChan,&msg,systemID,0);
         m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 =======
+=======
+>>>>>>> 41aeb15f32634388d9932d47b4beb813720599a3
         //this is the first time we have seen this heartbeat or the data was destroyed for some reason
         vehicleData = std::make_shared<DataInterface_MAVLINK::VehicleObject_MAVLINK>(systemID,255);
         vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
@@ -411,7 +437,10 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
 
         vehicleData->m_MissionController->requestMission();
     }
+<<<<<<< HEAD
 >>>>>>> e56529404e8ab85322bad32187364af469b4c5f3
+=======
+>>>>>>> 41aeb15f32634388d9932d47b4beb813720599a3
 
 
     DataARDUPILOT::ARDUPILOTComponent_FlightMode flightMode = vehicleData->state->vehicleFlightMode.get();
@@ -489,4 +518,3 @@ void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID
         }
     }
 }
-

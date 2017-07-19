@@ -1,6 +1,7 @@
 #include "module_vehicle_ardupilot.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, const std::string &linkName, const mavlink_message_t* message)
 {
 
@@ -243,6 +244,8 @@ bool ModuleVehicleArdupilot::ParseMAVLINKMissionMessage(std::shared_ptr<DataARDU
 
 =======
 >>>>>>> e56529404e8ab85322bad32187364af469b4c5f3
+=======
+>>>>>>> 41aeb15f32634388d9932d47b4beb813720599a3
 void ModuleVehicleArdupilot::MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult)
 {
     UNUSED(publishResult);
