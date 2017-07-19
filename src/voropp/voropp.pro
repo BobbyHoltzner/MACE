@@ -56,11 +56,6 @@ HEADERS += voropp.h\
         worklist.hh \
         voro_index.hh
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}
-
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib
@@ -75,21 +70,5 @@ INSTALLS += lib
 
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/voropp
-headers.files   += \
-        voropp.h\
-        voropp_global.h \
-        c_loops.hh \
-        cell.hh \
-        common.hh \
-        config.hh \
-        container.hh \
-        container_prd.hh \
-        pre_container.hh \
-        rad_option.hh \
-        unitcell.hh \
-        v_base.hh \
-        v_compute.hh \
-        voro_index.hh \
-        wall.hh \
-        worklist.hh
+headers.files   += $$HEADERS
 INSTALLS       += headers

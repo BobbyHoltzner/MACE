@@ -92,22 +92,23 @@ mavlink_command_long_t CommandController_MAVLINK::initializeCommandLong()
 
 void CommandController_MAVLINK::getSystemHome(const int &compID)
 {
-    mLog->info("Command Controller is requesting home position.");
-    mavlink_command_long_t cmd = initializeCommandLong();
-    cmd.command = MAV_CMD_GET_HOME_POSITION;
-    cmd.target_system = systemID;
-    cmd.target_component = compID;
+    //This does not function per solo terms
+//    mLog->info("Command Controller is requesting home position.");
+//    mavlink_command_long_t cmd = initializeCommandLong();
+//    cmd.command = MAV_CMD_GET_HOME_POSITION;
+//    cmd.target_system = systemID;
+//    cmd.target_component = compID;
 
-    clearPreviousTransmit();
-    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
+//    clearPreviousTransmit();
+//    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
-    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
-    currentRetry = 0;
-    mToExit = false;
-    this->start();
-    mTimer.start();
+//    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
+//    currentRetry = 0;
+//    mToExit = false;
+//    this->start();
+//    mTimer.start();
 
-    m_CB->cbiCommandController_transmitCommand(cmd);
+//    m_CB->cbiCommandController_transmitCommand(cmd);
 }
 
 void CommandController_MAVLINK::setNewMode(const int &newMode)
@@ -364,9 +365,6 @@ void CommandController_MAVLINK::logCommandACK(const mavlink_command_ack_t &cmdAC
         break;
     case MAV_RESULT_FAILED:
         result = "failed.";
-        break;
-    case MAV_RESULT_IN_PROGRESS:
-        result = "in progress.";
         break;
     case MAV_RESULT_TEMPORARILY_REJECTED:
         result = "temporarily rejected.";

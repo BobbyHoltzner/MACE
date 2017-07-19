@@ -29,7 +29,7 @@ void Helper_MissionMACEtoMAVLINK::initializeMAVLINKMissionItem(mavlink_mission_i
     mavMission.x = 0.0;
     mavMission.y = 0.0;
     mavMission.z = 0.0;
-    mavMission.mission_type = MAV_MISSION_TYPE_MISSION;
+    //mavMission.mission_type = MAV_MISSION_TYPE_MISSION;
 }
 
 mavlink_message_t Helper_MissionMACEtoMAVLINK::packMissionItem(const mavlink_mission_item_t &mavMission, const uint8_t &chan)

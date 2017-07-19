@@ -21,11 +21,13 @@ CommandInterface_MAVLINK::~CommandInterface_MAVLINK()
 
 void CommandInterface_MAVLINK::getSystemHome(const int &compID)
 {
-    mavlink_command_long_t cmd = initializeCommandLong();
-    cmd.command = MAV_CMD_GET_HOME_POSITION;
-    cmd.target_system = targetSystemID;
-    cmd.target_component = targetCompID;
-    m_CBCmdLng(m_p,cmd);
+    //This is not right per solo branch
+//    mavlink_command_long_t cmd = initializeCommandLong();
+//    MAV_CMD_
+//    cmd.command = MAV_CMD_GET_HOME_POSITION;
+//    cmd.target_system = targetSystemID;
+//    cmd.target_component = targetCompID;
+//    m_CBCmdLng(m_p,cmd);
 }
 
 mavlink_command_long_t CommandInterface_MAVLINK::initializeCommandLong()

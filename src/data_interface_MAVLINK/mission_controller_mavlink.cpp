@@ -33,7 +33,7 @@ void MissionController_MAVLINK::requestMission()
     currentCommsState = Data::ControllerCommsState::RECEIVING;
 
     mavlink_mission_request_list_t request;
-    request.mission_type = MAV_MISSION_TYPE_MISSION;
+    //request.mission_type = MAV_MISSION_TYPE_MISSION;
     request.target_system = systemID;
     request.target_component = 0;
 
@@ -61,7 +61,7 @@ void MissionController_MAVLINK::transmitMission(const MissionItem::MissionList &
     currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     mavlink_mission_count_t count;
     count.count = this->missionList.getQueueSize() + 1;
-    count.mission_type = MAV_MISSION_TYPE_MISSION;
+    //count.mission_type = MAV_MISSION_TYPE_MISSION;
     count.target_component = 0;
     count.target_system = systemID;
 
@@ -204,7 +204,7 @@ void MissionController_MAVLINK::receivedMissionCount(const mavlink_mission_count
         this->missionList.initializeQueue(missionCount.count - 1);
 
         mavlink_mission_request_t request;
-        request.mission_type = MAV_MISSION_TYPE_MISSION;
+        //request.mission_type = MAV_MISSION_TYPE_MISSION;
         request.seq = 0;
         request.target_system = systemID;
         request.target_component = 0;
@@ -269,7 +269,7 @@ void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t
         int indexRequest = status.remainingItems.at(0)+1;
         mLog->info("Mission Controller is requesting mission item " + std::to_string(indexRequest));
         mavlink_mission_request_t request;
-        request.mission_type = MAV_MISSION_TYPE_MISSION;
+        //request.mission_type = MAV_MISSION_TYPE_MISSION;
         request.seq = indexRequest;
         request.target_system = systemID;
         request.target_component = 0;

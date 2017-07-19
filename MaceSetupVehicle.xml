@@ -6,18 +6,8 @@
       <Parameter Name="Version">V1</Parameter>	  
     </Parameter>
     <Parameter Name="SerialParameters">
-<<<<<<< HEAD
-<<<<<<< HEAD
       <Parameter Name="PortName">/dev/ttySAC0</Parameter>
       <Parameter Name="BaudRate">57600</Parameter>
-=======
-      <Parameter Name="PortName">/dev/ttyAMA0</Parameter>
-      <Parameter Name="BaudRate">115200</Parameter>
->>>>>>> e56529404e8ab85322bad32187364af469b4c5f3
-=======
-      <Parameter Name="PortName">/dev/ttySAC0</Parameter>
-      <Parameter Name="BaudRate">57600</Parameter>
->>>>>>> 41aeb15f32634388d9932d47b4beb813720599a3
       <Parameter Name="DataBits">8</Parameter>
       <Parameter Name="StopBits">1</Parameter>
       <Parameter Name="Parity">false</Parameter>
@@ -33,15 +23,7 @@
       <Parameter Name="Version">V2</Parameter>
     </Parameter>
     <Parameter Name="SerialParameters">
-<<<<<<< HEAD
-<<<<<<< HEAD
       <Parameter Name="PortName">/dev/ttyUSB0</Parameter>
-=======
-      <Parameter Name="PortName">/dev/ttyAMA1</Parameter>
->>>>>>> e56529404e8ab85322bad32187364af469b4c5f3
-=======
-      <Parameter Name="PortName">/dev/ttyUSB0</Parameter>
->>>>>>> 41aeb15f32634388d9932d47b4beb813720599a3
       <Parameter Name="BaudRate">57600</Parameter>
       <Parameter Name="DataBits">8</Parameter>
       <Parameter Name="StopBits">1</Parameter>
