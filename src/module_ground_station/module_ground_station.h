@@ -148,6 +148,7 @@ private:
     std::shared_ptr<spdlog::logger> mLogs;
 
 private:
+    double latitude;
     std::shared_ptr<QTcpServer> m_TcpServer;
     QThread *m_ListenThread;
     QTcpSocket *m_TcpSocket;
