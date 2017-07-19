@@ -437,11 +437,12 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
     tmpHome.position.setY(position.value("lon").toDouble());
     tmpHome.position.setZ(position.value("alt").toDouble());
 
+    std::cout<<"A home position was received"<<std::endl;
     std::stringstream buffer;
     buffer << tmpHome;
     mLogs->debug("Module Ground Station issuing a new vehicle home to system " + std::to_string(vehicleID) + ".");
     mLogs->info(buffer.str());
-
+    std::cout<<"About to transmit the home location from the ground station"<<std::endl;
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
         ptr->Event_SetHomePosition(this, tmpHome);
     });
@@ -1192,7 +1193,7 @@ bool ModuleGroundStation::writeTCPData(QByteArray data)
 {
     //return true;
 
-    std::shared_ptr<QTcpSocket> tcpSocket = std:F:make_shared<QTcpSocket>();
+    std::shared_ptr<QTcpSocket> tcpSocket = std::make_shared<QTcpSocket>();
     tcpSocket->connectToHost(QHostAddress::LocalHost, 1234);
     tcpSocket->waitForConnected();
     if(tcpSocket->state() == QAbstractSocket::ConnectedState)

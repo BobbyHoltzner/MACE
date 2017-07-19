@@ -66,6 +66,7 @@ mace_message_t Command_MACETOCOMMS::generateSetHomePosition(const CommandItem::S
     cmd.latitude = vehicleHome.position.getX() * pow(10,7);
     cmd.longitude = vehicleHome.position.getY() * pow(10,7);
     cmd.altitude = vehicleHome.position.getZ() * 1000;
+    cmd.target_system = vehicleHome.getTargetSystem();
     mace_msg_set_home_position_encode_chan(255,190,chan,&msg,&cmd);
     return msg;
 }
