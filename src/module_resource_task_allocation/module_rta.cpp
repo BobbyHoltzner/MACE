@@ -287,7 +287,7 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
         Point localPosition(localPositionData.getX(), localPositionData.getY(), localPositionData.getZ());
         bool updateMaceCore = environment->updateVehiclePosition(vehicleID, localPosition, true); // True for recomputing voronoi, false for adding to the vehicle map
         if(updateMaceCore){
-            updateMACEMissions(environment->getCells());
+//            updateMACEMissions(environment->getCells());
         }
     }
     else {
@@ -314,7 +314,7 @@ void ModuleRTA::updateMACEMissions(std::map<int, Cell> updateCells) {
     }
 
     // For every cell, send to MACE its node list:
-    if(environment->getGlobalOrigin()->has2DPositionSet()) {
+    if(tmpGlobalOrigin.has2DPositionSet()) {
         if(updateCells.size() > 0) {
             for(auto cell : updateCells) {
                 int vehicleID = cell.first;
@@ -325,7 +325,7 @@ void ModuleRTA::updateMACEMissions(std::map<int, Cell> updateCells) {
                 missionList.setVehicleID(vehicleID);
 
                 // Grab the sorted points from the cell:
-                std::vector<Point> sortedPoints = environment->sortNodesInGrid(cell.second, GridDirection::CLOSEST_POINT);
+                std::vector<Point> sortedPoints = environment->sortNodesInGrid(cell.second, GridDirection::NORTH_SOUTH);
                 // Loop over sorted points and insert into a mission:
                 for(auto point : sortedPoints) {
                     std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
