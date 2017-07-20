@@ -128,15 +128,15 @@ bool Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
         cell.site.z = z;
         cell.vertices = coords;
         // Sort the cell vertices:
-        sortCellVerticesCCW(cell);
+        sortCellVerticesCCW(cell); // TODO: Optimize
         // Get contained nodes:
-        setNodesInCell(cell);
+        setNodesInCell(cell); // TODO: Optimize
 
         // TODO: There's got to be a better way to sort the North/South direction then creating a whole separate map of y-vals:
-        setContainedNodesYX(cell);
+        setContainedNodesYX(cell); // TODO: Optimize
 
         // Sort the nodes:
-        sortNodesInGrid(cell, direction);
+        sortNodesInGrid(cell, direction); // TODO: Optimize
         // Get vehicle ID:
         int vehicleID = getVehicleID(cell, vehicles);
         // Insert into our map:
@@ -337,14 +337,17 @@ void Environment_Map::setNodesInCell(Cell &cell) {
             double yVal = nodeY.first;
 
             Point tmpPoint = Point(xVal, yVal,0);
-            bool inPoly = pointInPoly(cell.vertices, tmpPoint);
+            bool inCell = pointInPoly(cell.vertices, tmpPoint);
 
-            if(inPoly){
-                count ++;
-                y_node_map_tmp.insert(std::make_pair(yVal, nodeY.second));
+            if(inCell){
+                bool inEnvironment = pointInPoly(boundaryVerts, tmpPoint);
+                if(inEnvironment) {
+                    count ++;
+                    y_node_map_tmp.insert(std::make_pair(yVal, nodeY.second));
 
-                // Insert into unsorted points vector:
-                cell.unsortedContainedPoints.push_back(Point(xVal, yVal, 0.0));
+                    // Insert into unsorted points vector:
+                    cell.unsortedContainedPoints.push_back(Point(xVal, yVal, 0.0));
+                }
             }
         }
 

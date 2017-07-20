@@ -49,3 +49,5 @@ ElectronGUI/.vscode/settings.json
 ElectronGUI/PrebuiltBinaries*
 PrebuiltBinaries/*
 *.gnu
+
+/logs/*
