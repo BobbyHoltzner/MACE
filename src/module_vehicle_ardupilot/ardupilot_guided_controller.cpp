@@ -1,8 +1,8 @@
 #include "ardupilot_guided_controller.h"
 
 
-Ardupilot_GuidedController::Ardupilot_GuidedController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan, callbackFunction callback) :
-    Ardupilot_GeneralController(vehicleData, commsMarshaler, linkName, linkChan, callback)
+Ardupilot_GuidedController::Ardupilot_GuidedController(std::shared_ptr<DataInterface_MAVLINK::VehicleObject_MAVLINK> vehicleData) :
+    Ardupilot_GeneralController(vehicleData)
 {
     controllerType = CONTROLLER_GUIDED;
     vehicleMissionState = ArdupilotMissionState(3,10,10);
@@ -23,11 +23,11 @@ void Ardupilot_GuidedController::updateCommandACK(const mavlink_command_ack_t &c
 
 void Ardupilot_GuidedController::initializeMissionSequence()
 {
-    executionState = true;
-    std::shared_ptr<CommandItem::AbstractCommandItem> missionItem = m_CurrentMission.getActiveMissionItem();
-    mavlink_message_t msg;
-    vehicleDataObject->generateBasicGuidedMessage(missionItem,m_LinkChan,msg);
-    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+//    executionState = true;
+//    std::shared_ptr<CommandItem::AbstractCommandItem> missionItem = m_CurrentMission.getActiveMissionItem();
+//    mavlink_message_t msg;
+//    vehicleDataObject->generateBasicGuidedMessage(missionItem,m_LinkChan,msg);
+//    m_LinkMarshaler->SendMAVMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
 double Ardupilot_GuidedController::distanceToTarget(){
@@ -37,14 +37,12 @@ double Ardupilot_GuidedController::distanceToTarget(){
     {
     case(Data::CommandItemType::CI_NAV_WAYPOINT):
     {
-        if(currentMissionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
-        {
-            std::shared_ptr<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>>(currentMissionItem);
-            DataState::StateGlobalPosition currentPosition = vehicleDataObject->data->vehicleGlobalPosition.get();
-            DataState::StateGlobalPosition actualPosition(currentPosition);
-            actualPosition.altitude = currentPosition.altitude - m_VehicleHome.position.altitude;
-            distance = castItem->position.distanceBetween3D(actualPosition);
-        }
+//        std::shared_ptr<CommandItem::SpatialWaypoint> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint>(currentMissionItem);
+//        DataState::StateGlobalPosition currentPosition = vehicleDataObject->data->vehicleGlobalPosition.get();
+
+//        DataState::StateGlobalPosition targetPosition(castItem->position.getX(),castItem->position.getY(),castItem->position.getZ());
+//        currentPosition.setAltitude(currentPosition.getAltitude() - m_VehicleHome.position.getZ());
+//        distance = currentPosition.distanceBetween3D(targetPosition);
     break;
     }
     default:
@@ -77,11 +75,11 @@ void Ardupilot_GuidedController::generateControl(const Data::ControllerState &cu
             //KEN TODO: We need to figure out what appropriate action to take here
         }
         else{
-            m_CurrentMission.setActiveIndex(m_CurrentMission.getActiveIndex() + 1);
-            std::shared_ptr<CommandItem::AbstractCommandItem> missionItem = m_CurrentMission.getActiveMissionItem();
-            mavlink_message_t msg;
-            vehicleDataObject->generateBasicGuidedMessage(missionItem,m_LinkChan,msg);
-            m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+//            m_CurrentMission.setActiveIndex(m_CurrentMission.getActiveIndex() + 1);
+//            std::shared_ptr<CommandItem::AbstractCommandItem> missionItem = m_CurrentMission.getActiveMissionItem();
+//            mavlink_message_t msg;
+//            vehicleDataObject->generateBasicGuidedMessage(missionItem,m_LinkChan,msg);
+//            m_LinkMarshaler->SendMAVMessage<mavlink_message_t>(m_LinkName, msg);
         }
         std::cout<<"I have acheived the waypoint"<<std::endl;
         break;

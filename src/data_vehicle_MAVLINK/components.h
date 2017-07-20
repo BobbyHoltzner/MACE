@@ -1,13 +1,9 @@
 #ifndef DATA_VEHICLE_MAVLINK_COMPONENTS_H
 #define DATA_VEHICLE_MAVLINK_COMPONENTS_H
 
-#define DATA_VEHICLE_MAVLINK_TYPES DataMAVLINK::GPSStatus
+#define DATA_VEHICLE_MAVLINK_TYPES DataMAVLINK::EmptyMAVLINK
 
-#include "Components/gps_status.h"
+#include "empty_mavlink.h"
 
-namespace DataVehicleMAVLINK
-{
-
-}
 
 #endif // DATA_VEHICLE_MAVLINK_COMPONENTS_H

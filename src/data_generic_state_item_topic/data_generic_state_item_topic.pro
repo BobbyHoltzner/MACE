@@ -32,7 +32,8 @@ SOURCES += \
     state_local_velocity_topic.cpp \
     state_global_position_ex_topic.cpp \
     state_local_position_ex_topic.cpp \
-    state_airspeed_topic.cpp
+    state_airspeed_topic.cpp \
+    state_item_topic_boundary.cpp
 
 HEADERS +=\
         data_generic_state_item_topic_global.h \
@@ -44,7 +45,8 @@ HEADERS +=\
     state_topic_components.h \
     state_global_position_ex_topic.h \
     state_local_position_ex_topic.h \
-    state_airspeed_topic.h
+    state_airspeed_topic.h \
+    state_item_topic_boundary.h
 
 # Unix lib Install
 unix:!symbian {
@@ -64,7 +66,12 @@ headers.path    = $$(MACE_ROOT)/include/data_generic_state_item_topic
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
+else:unix:!macx: LIBS += -L$$OUT_PWD/../common/ -lcommon
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata

@@ -41,15 +41,6 @@ public:
 
 
     //!
-    //! \brief VehicleCommandACk
-    //! \param link_ptr
-    //! \param vehicleId
-    //! \param cmdACKMSG
-    //!
-    virtual void VehicleCommandACK(const ILink* link_ptr, const int &vehicleId, const mavlink_command_ack_t &cmdACKMSG) const = 0;
-
-
-    //!
     //! \brief A new radio status packet received
     //! \param link
     //! \param rxerrors

@@ -2,8 +2,7 @@
 
 namespace DataARDUPILOT {
 
-Generic_MACETOARDUPILOT::Generic_MACETOARDUPILOT(const int &systemID, const int &compID):
-    DataMAVLINK::Generic_MACETOMAVLINK(systemID,compID)
+Generic_MACETOARDUPILOT::Generic_MACETOARDUPILOT(const int &systemID, const int &compID)
 {
 
 }

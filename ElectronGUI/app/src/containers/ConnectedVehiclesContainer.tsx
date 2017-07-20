@@ -37,15 +37,13 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
 
     render() {
         const height = window.screen.height;
-        const connectedVehiclesContainer = { position: 'absolute', height: height, right: 0, zIndex: 999, width: 20 + "%", backgroundColor: 'rgba(255,255,255,1)', display: 'flex', alignItems: 'center', flexDirection: 'column', maxHeight: height, overflowY: "scroll" };
-        // const connectedVehiclesContainer = { position: 'absolute', height: height, right: 0, zIndex: 999, width: 20 + "%", backgroundColor: 'rgba(153,153,153,.2)', display: 'flex', alignItems: 'center', flexDirection: 'column', maxHeight: height, overflowY: "scroll" };
+        const connectedVehiclesContainer = { position: 'absolute', right: 0, zIndex: 999, width: 20 + "%", backgroundColor: 'rgba(255,255,255,1)', display: 'flex', alignItems: 'center', flexDirection: 'column', maxHeight: height-165, height: height, overflowY: "scroll", overflowX: "hidden" };
         // const openButtonContainer = { position: 'absolute', top: 15, right: 15, zIndex: 999, backgroundColor: "rgba(255,255,255,1)" };
 
         let vehicleHUDs: JSX.Element[] = [];
         let vehicleMessages: JSX.Element[] = [];
         for( let key in this.props.connectedVehicles ){
             let vehicle = this.props.connectedVehicles[key];
-
             vehicleHUDs.push(
                 <VehicleHUD key={key}
                     vehicleID={key}
@@ -63,6 +61,7 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
                 />
             )
         }
+
 
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>

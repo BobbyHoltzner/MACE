@@ -2,6 +2,7 @@
 #define STATE_ATTITUDE_H
 
 #include <iostream>
+#include "mace.h"
 
 namespace DataState {
 
@@ -14,6 +15,11 @@ public:
 public:
     void setAttitude(const double &roll, const double &pitch, const double &yaw);
     void setAttitudeRates(const double &rollRate, const double &pitchRate, const double &yawRate);
+
+public:
+    mace_attitude_state_full_t getMACEAttitudeStateFull() const;
+    mace_attitude_t getMACEEuler() const;
+    mace_attitude_rates_t getMACEEulerRates() const;
 
 public:
     void operator = (const StateAttitude &rhs)

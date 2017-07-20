@@ -63,9 +63,10 @@ mace_message_t Command_MACETOCOMMS::generateSetHomePosition(const CommandItem::S
 {
     mace_message_t msg;
     mace_set_home_position_t cmd;
-    cmd.latitude = vehicleHome.position.latitude * pow(10,7);
-    cmd.longitude = vehicleHome.position.longitude * pow(10,7);
-    cmd.altitude = vehicleHome.position.altitude * 1000.00;
+    cmd.latitude = vehicleHome.position.getX() * pow(10,7);
+    cmd.longitude = vehicleHome.position.getY() * pow(10,7);
+    cmd.altitude = vehicleHome.position.getZ() * 1000;
+    cmd.target_system = vehicleHome.getTargetSystem();
     mace_msg_set_home_position_encode_chan(255,190,chan,&msg,&cmd);
     return msg;
 }
@@ -80,28 +81,28 @@ mace_message_t Command_MACETOCOMMS::generateArmMessage(const CommandItem::Action
     return msg;
 }
 
-mace_message_t Command_MACETOCOMMS::generateTakeoffMessage(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem, const uint8_t &chan)
+mace_message_t Command_MACETOCOMMS::generateTakeoffMessage(const CommandItem::SpatialTakeoff &missionItem, const uint8_t &chan)
 {
     mace_command_long_t cmd = initializeCommandLong();
     cmd.command = (uint8_t)Data::CommandItemType::CI_NAV_TAKEOFF;
     cmd.target_system = missionItem.getTargetSystem();
-    cmd.param1 = (missionItem.getPositionFlag())? 1.0 : 0.0;
-    cmd.param5 = missionItem.position.latitude;
-    cmd.param6 = missionItem.position.longitude;
-    cmd.param7 = missionItem.position.altitude;
+    cmd.param1 = (missionItem.position.has2DPositionSet())? 1.0 : 0.0;
+    cmd.param5 = missionItem.position.getX();
+    cmd.param6 = missionItem.position.getY();
+    cmd.param7 = missionItem.position.getZ();
     mace_message_t msg = packLongMessage(cmd,chan);
     return msg;
 }
 
-mace_message_t Command_MACETOCOMMS::generateLandMessage(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command, const uint8_t &chan)
+mace_message_t Command_MACETOCOMMS::generateLandMessage(const CommandItem::SpatialLand &command, const uint8_t &chan)
 {
     mace_command_long_t cmd = initializeCommandLong();
     cmd.command = (uint8_t)Data::CommandItemType::CI_NAV_LAND;
     cmd.target_system = command.getTargetSystem();
-    cmd.param1 = (command.getLandFlag())? 1.0 : 0.0;
-    cmd.param5 = command.position.latitude;
-    cmd.param6 = command.position.longitude;
-    cmd.param7 = command.position.altitude;
+    cmd.param1 = (command.position.has2DPositionSet())? 1.0 : 0.0;
+    cmd.param5 = command.position.getX();
+    cmd.param6 = command.position.getY();
+    cmd.param7 = command.position.getZ();
     mace_message_t msg = packLongMessage(cmd,chan);
     return msg;
 }

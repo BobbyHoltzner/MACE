@@ -26,4 +26,17 @@ DataGenericItem_Heartbeat::DataGenericItem_Heartbeat(const DataGenericItem_Heart
     this->maceCompanion = copyObj.getCompanion();
 }
 
+
+mace_heartbeat_t DataGenericItem_Heartbeat::getMACECommsObject() const
+{
+    mace_heartbeat_t rtnObj;
+
+    rtnObj.autopilot = (uint8_t)this->autopilot;
+    rtnObj.mace_companion = this->maceCompanion;
+    rtnObj.protocol = (uint8_t)this->protocol;
+    rtnObj.type = (uint8_t)this->type;
+
+    return rtnObj;
+}
+
 } //end of namespace DataGenericItem

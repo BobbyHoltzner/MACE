@@ -4,39 +4,92 @@
 using namespace DataState;
 
 StateLocalPosition::StateLocalPosition():
-    x(0.0),y(0.0),z(0.0)
+    Base3DPosition(Data::CoordinateFrameType::CF_LOCAL_ENU)
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
+
 }
 
-StateLocalPosition::StateLocalPosition(const StateLocalPosition &localPosition)
+StateLocalPosition::StateLocalPosition(const StateLocalPosition &localPosition):
+    Base3DPosition(localPosition)
 {
-    this->x = localPosition.x;
-    this->y = localPosition.y;
-    this->z = localPosition.z;
+
 }
 
-StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame)
+StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame):
+    Base3DPosition(frame)
 {
-    m_CoordinateFrame = frame;
+
 }
 
-StateLocalPosition::StateLocalPosition(const double &x, const double &y, const double &z)
+StateLocalPosition::StateLocalPosition(const double &posX, const double &posY, const double &posZ):
+    Base3DPosition(Data::CoordinateFrameType::CF_LOCAL_ENU,posX,posY,posZ)
 {
-    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 
-    this->x = x;
-    this->y = y;
-    this->z = z;
 }
 
-StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame, const double &x, const double &y, const double &z)
+StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame, const double &posX, const double &posY, const double &posZ):
+    Base3DPosition(frame,posX,posY,posZ)
 {
-    m_CoordinateFrame = frame;
 
-    this->x = x;
-    this->y = y;
-    this->z = z;
+}
+
+void StateLocalPosition::setPosition(const double &posX, const double &posY, const double &posZ)
+{
+    this->setX(posX);
+    this->setY(posY);
+    this->setZ(posZ);
+}
+
+void StateLocalPosition::setPositionX(const double &value)
+{
+    this->setX(value);
+}
+
+void StateLocalPosition::setPositionY(const double &value)
+{
+    this->setY(value);
+}
+
+void StateLocalPosition::setPositionZ(const double &value)
+{
+    this->setZ(value);
+}
+
+double StateLocalPosition::getPositionX() const
+{
+    return getX();
+}
+double StateLocalPosition::getPositionY() const
+{
+    return this->getY();
+}
+double StateLocalPosition::getPositionZ() const
+{
+    return this->getZ();
+}
+
+double StateLocalPosition::bearingDegreesFromOrigin() const
+{
+    double angle = atan2(y,x);
+    double bearing = fmod((angle * 180.0/M_PI) + 360.0,360.0);
+    return bearing;
+}
+
+double StateLocalPosition::distanceFromOrigin() const
+{
+    double distance = sqrt(x*x + y*y);
+    return distance;
+}
+
+mace_local_position_ned_t StateLocalPosition::getMACECommsObject()
+{
+    mace_local_position_ned_t rtnObj;
+
+    rtnObj.x = (int32_t)(this->getPositionX());
+    rtnObj.y = (int32_t)(this->getPositionY());
+    rtnObj.z = (int32_t)(this->getPositionZ());
+
+    return rtnObj;
 }
 
 bool StateLocalPosition::essentiallyEquivalent_Percentage(const StateLocalPosition &rhs, const double &percentage)
@@ -71,35 +124,122 @@ bool StateLocalPosition::essentiallyEquivalent_Distance(const StateLocalPosition
     return true;
 }
 
-double StateLocalPosition::bearingBetween(const StateLocalPosition &position)
-{
-    UNUSED(position);
-    throw std::runtime_error("Not Implimented");
-    return 0.0;
-}
-
-double StateLocalPosition::initialBearing(const StateLocalPosition &position)
-{
-    throw std::runtime_error("Not Implimented");
-    UNUSED(position);
-    return 0.0;
-    //return (bearingBetween(position) + 360.0) % 360.0;
-}
-
-double StateLocalPosition::finalBearing(const StateLocalPosition &position)
-{
-    throw std::runtime_error("Not Implimented");
-    UNUSED(position);
-    return 0.0;
-    //return (bearingBetween(position) + 180.0) % 360.0;
-}
-
-double StateLocalPosition::distanceBetween(const StateLocalPosition &position)
+//!
+//! \brief StateLocalPosition::distanceBetween2D
+//! \param position
+//! \return
+//!
+double StateLocalPosition::distanceBetween2D(const StateLocalPosition &position) const
 {
     double deltaX = position.x - this->x;
     double deltaY = position.y - this->y;
-    double deltaZ = position.z - this->z;
 
-    return sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+    return sqrt(deltaX * deltaX + deltaY * deltaY);
 }
+
+//!
+//! \brief StateLocalPosition::finalBearing
+//! \param position
+//! \return
+//!
+double StateLocalPosition::finalBearing(const StateLocalPosition &position) const
+{
+    UNUSED(position);
+    throw std::runtime_error("Not Implimented");
+    return 0.0;
+}
+
+//!
+//! \brief StateLocalPosition::initialBearing
+//! \param position
+//! \return
+//!
+double StateLocalPosition::initialBearing(const StateLocalPosition &position) const
+{
+    UNUSED(position);
+    throw std::runtime_error("Not Implimented");
+    return 0.0;
+}
+
+
+//!
+//! \brief StateLocalPosition::bearingBetween
+//! \param position
+//! \return
+//!
+double StateLocalPosition::bearingBetween(const StateLocalPosition &position) const
+{
+    UNUSED(position);
+    throw std::runtime_error("Not Implimented");
+    return 0.0;
+}
+
+//!
+//! \brief StateLocalPosition::NewPositionFromHeadingBearing
+//! \param distance
+//! \param bearing
+//! \param degreesFlag
+//! \return
+//!
+StateLocalPosition StateLocalPosition::NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag) const
+{
+    UNUSED(distance);
+    UNUSED(bearing);
+    UNUSED(degreesFlag);
+    throw std::runtime_error("Not Implimented");
+
+    StateLocalPosition newTemp;
+    return newTemp;
+}
+
+//!
+//! \brief StateLocalPosition::translationTransformation2D
+//! \param position
+//! \param transVec
+//!
+void StateLocalPosition::translationTransformation2D(const StateLocalPosition &position, Eigen::Vector2f &transVec) const
+{
+    double bearing = this->bearingBetween(position);
+    double distance = this->distanceBetween2D(position);
+    float distanceX = distance * sin(bearing);
+    float distanceY = distance * cos(bearing);
+    transVec(0) = distanceX;
+    transVec(1) = distanceY;
+}
+
+//!
+//! \brief StateLocalPosition::deltaAltitude
+//! \param position
+//! \return
+//!
+double StateLocalPosition::deltaAltitude(const StateLocalPosition &position) const
+{
+    double deltaZ = position.z - this->z;
+    return deltaZ;
+}
+
+
+//!
+//! \brief StateLocalPosition::distanceBetween3D
+//! \param position
+//! \return
+//!
+double StateLocalPosition::distanceBetween3D(const StateLocalPosition &position) const
+{
+    double distance2D = this->distanceBetween2D(position);
+    double deltaAltitude = fabs(this->z - position.z);
+    return(sqrt(deltaAltitude * deltaAltitude + distance2D * distance2D));
+}
+
+//!
+//! \brief StateLocalPosition::translationTransformation3D
+//! \param position
+//! \param transVec
+//!
+void StateLocalPosition::translationTransformation3D(const StateLocalPosition &position, Eigen::Vector3f &transVec) const
+{
+    UNUSED(position);
+    UNUSED(transVec);
+}
+
 
