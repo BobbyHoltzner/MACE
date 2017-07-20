@@ -37,7 +37,7 @@ public:
     //! \param vehicleFirmwareType
     //! \param vehicleType
     //!
-    virtual void VehicleHeartbeatInfo(const ILink* link_ptr, const int &vehicleId, const mavlink_heartbeat_t &heartbeatMSG) const = 0;
+    virtual void VehicleHeartbeatInfo(const ILink* link_ptr, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG) const = 0;
 
 
     //!

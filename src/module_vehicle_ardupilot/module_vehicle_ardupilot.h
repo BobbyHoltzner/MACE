@@ -60,7 +60,7 @@ public:
     void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home);
     void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList);
 
-    virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
+    virtual void MavlinkHeartbeat(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
 
     //!
     //! \brief New Mavlink message received over a link

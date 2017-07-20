@@ -10,10 +10,9 @@ CommsMAVLINK::~CommsMAVLINK()
 
 }
 
-void CommsMAVLINK::VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
+void CommsMAVLINK::MavlinkHeartbeat(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
     UNUSED(linkName);
-    UNUSED(systemID);
     UNUSED(heartbeatMSG);
 }
 

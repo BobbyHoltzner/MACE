@@ -332,8 +332,7 @@ void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         vehicleData->parseMessage(&message);
 }
 
-
-void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
+void ModuleVehicleArdupilot::MavlinkHeartbeat(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
     UNUSED(linkName);
     if(vehicleData == NULL)

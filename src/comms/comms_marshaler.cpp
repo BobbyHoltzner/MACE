@@ -326,7 +326,7 @@ void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int &syst
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](CommsEvents *ptr){ptr->VehicleHeartbeatInfo(m_CreatedLinksPtrToName.at(link_ptr), systemID, heartbeatMSG);});
+    Emit([&](CommsEvents *ptr){ptr->MavlinkHeartbeat(m_CreatedLinksPtrToName.at(link_ptr), systemID, heartbeatMSG);});
 }
 
 
