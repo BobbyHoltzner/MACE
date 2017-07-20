@@ -71,9 +71,9 @@ mace_message_t State_MACETOCOMMS::GlobalPosition_MACETOCOMMS(const DataState::St
 {
     mace_message_t msg;
     mace_global_position_int_t position;
-    position.lat = (int32_t)(stateItem.latitude * pow(10,7));
-    position.lon = (int32_t)(stateItem.longitude * pow(10,7));
-    position.alt = (int32_t)(stateItem.altitude * 1000.0);
+    position.lat = (int32_t)(stateItem.getX() * pow(10,7));
+    position.lon = (int32_t)(stateItem.getY() * pow(10,7));
+    position.alt = (int32_t)(stateItem.getZ() * 1000.0);
     mace_msg_global_position_int_encode_chan(systemID,compID,chan,&msg,&position);
     return(msg);
 }
@@ -89,9 +89,9 @@ mace_message_t State_MACETOCOMMS::LocalPosition_MACETOCOMMS(const DataState::Sta
 {
     mace_message_t msg;
     mace_local_position_ned_t position;
-    position.x = stateItem.x;
-    position.y = stateItem.y;
-    position.z = stateItem.z;
+    position.x = stateItem.getX();
+    position.y = stateItem.getY();
+    position.z = stateItem.getZ();
     mace_msg_local_position_ned_encode_chan(systemID,compID,chan,&msg,&position);
     return(msg);
 }

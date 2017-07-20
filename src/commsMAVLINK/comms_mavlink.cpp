@@ -17,13 +17,6 @@ void CommsMAVLINK::VehicleHeartbeatInfo(const std::string &linkName, const int &
     UNUSED(heartbeatMSG);
 }
 
-void CommsMAVLINK::VehicleCommandACK(const std::string &linkName, const int &systemID, const mavlink_command_ack_t &cmdACK)
-{
-    UNUSED(linkName);
-    UNUSED(systemID);
-    UNUSED(cmdACK);
-}
-
 void CommsMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
     UNUSED(linkName);
@@ -140,8 +133,26 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
             // I would prefer to put this in Comms library, but because the mavlinkstatus is static variable, things get messed up when linking
             m_LinkChan = m_LinkMarshaler->GetProtocolChannel(m_LinkName);
             mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(m_LinkChan);
+            std::cout << mavlinkStatus << std::endl;
+            switch (mavlinkConfig->GetVersion()) {
+            case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersion2IfVehicle2:
+                if (mavlinkStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) {
+                    mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                    break;
+                }
+                // Fallthrough to set version 2
+            case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways2:
+                mavlinkStatus->flags &= ~MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                break;
+            default:
+            case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways1:
+                mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                break;
+            }
         }
 
+
+        //connect link
         bool success = m_LinkMarshaler->ConnectToLink(m_LinkName);
         if(success == false) {
             throw std::runtime_error("Connection to link failed");
@@ -177,6 +188,22 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
             // I would prefer to put this in Comms library, but because the mavlinkstatus is static variable, things get messed up when linking
             m_LinkChan = m_LinkMarshaler->GetProtocolChannel(m_LinkName);
             mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(m_LinkChan);
+            std::cout << mavlinkStatus << std::endl;
+            switch (mavlinkConfig->GetVersion()) {
+            case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersion2IfVehicle2:
+                if (mavlinkStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) {
+                    mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                    break;
+                }
+                // Fallthrough to set version 2
+            case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways2:
+                mavlinkStatus->flags &= ~MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                break;
+            default:
+            case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways1:
+                mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                break;
+            }
         }
 
         //  TODO-PAT: Everything above this to the previous "TODO-PAT" should be moved onto a thread

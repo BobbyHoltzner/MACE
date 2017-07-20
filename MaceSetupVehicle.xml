@@ -3,11 +3,11 @@
   <Module Class="VehicleComms" Type="Ardupilot">
     <Parameter Name="ProtocolParameters">
       <Parameter Name="Name">Mavlink</Parameter>
-      <Parameter Name="Version">V1</Parameter>	  
+      <Parameter Name="Version">V2</Parameter>	  
     </Parameter>
     <Parameter Name="SerialParameters">
-      <Parameter Name="PortName">/dev/ttySAC0</Parameter>
-      <Parameter Name="BaudRate">57600</Parameter>
+      <Parameter Name="PortName">/dev/ttyAMA0</Parameter>
+      <Parameter Name="BaudRate">115200</Parameter>
       <Parameter Name="DataBits">8</Parameter>
       <Parameter Name="StopBits">1</Parameter>
       <Parameter Name="Parity">false</Parameter>
@@ -23,15 +23,12 @@
       <Parameter Name="Version">V2</Parameter>
     </Parameter>
     <Parameter Name="SerialParameters">
-      <Parameter Name="PortName">/dev/ttyUSB0</Parameter>
+      <Parameter Name="PortName">/dev/ttyAMA1</Parameter>
       <Parameter Name="BaudRate">57600</Parameter>
       <Parameter Name="DataBits">8</Parameter>
       <Parameter Name="StopBits">1</Parameter>
       <Parameter Name="Parity">false</Parameter>
       <Parameter Name="FlowControl">1</Parameter>
-    </Parameter>
-	<Parameter Name="ModuleParameters">
-      <Parameter Name="AirborneInstance">true</Parameter>
     </Parameter>
   </Module>
 </ModuleConfigurations>

@@ -11,6 +11,7 @@ Data::CommandACKType Command_MAVLINKTOMACE::getMACEACKCode(const MAV_RESULT &mav
 {
     Data::CommandACKType rtn;
     switch (mavACK) {
+    case MAV_RESULT_IN_PROGRESS:
     case MAV_RESULT_ACCEPTED:
     {
         rtn = Data::CommandACKType::CA_ACCEPTED;

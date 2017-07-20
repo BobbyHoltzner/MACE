@@ -32,20 +32,29 @@ DataGenericItem::DataGenericItem_GPS Generic_MAVLINKTOMACE::GPS_MAVLINKTOMACE(co
     gpsItem.setSatVisible(genericItem.satellites_visible);
     switch(genericItem.fix_type)
     {
-    case 0:
-        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NO_FIX);
-        break;
-    case 2:
+    case GPS_FIX_TYPE_2D_FIX:
         gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_2D_FIX);
         break;
-    case 3:
+    case GPS_FIX_TYPE_3D_FIX:
         gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_3D_FIX);
         break;
-    case 4:
+    case GPS_FIX_TYPE_DGPS:
         gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_DGPS);
         break;
-    case 5:
+    case GPS_FIX_TYPE_NO_FIX:
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NO_FIX);
+        break;
+    case GPS_FIX_TYPE_NO_GPS:
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NONE);
+        break;
+    case GPS_FIX_TYPE_RTK_FIXED:
         gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_RTK_FIXED);
+        break;
+    case GPS_FIX_TYPE_RTK_FLOAT:
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_RTK_FLOAT);
+        break;
+    case GPS_FIX_TYPE_STATIC:
+        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_STATIC);
         break;
     default:
         gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NO_FIX);
