@@ -2,7 +2,8 @@
 
 namespace DataARDUPILOT {
 
-State_MACETOARDUPILOT::State_MACETOARDUPILOT(const int &systemID, const int &compID)
+State_MACETOARDUPILOT::State_MACETOARDUPILOT(const int &systemID, const int &compID):
+    DataMAVLINK::State_MACETOMAVLINK(systemID,compID)
 {
 
 }

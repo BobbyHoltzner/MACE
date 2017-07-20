@@ -10,10 +10,10 @@ Mission_MAVLINKTOMACE::Mission_MAVLINKTOMACE(const int &systemID):
 
 void Mission_MAVLINKTOMACE::Home_MAVLINKTOMACE(const mavlink_set_home_position_t &mavlinkItem, CommandItem::SpatialHome &missionItem)
 {
-    missionItem.setOriginatingSystem(mSystemID);
-    missionItem.position.setX(mavlinkItem.latitude / pow(10,7));
-    missionItem.position.setY(mavlinkItem.longitude / pow(10,7));
-    missionItem.position.setZ(mavlinkItem.altitude / pow(10,3));
+    missionItem.setGeneratingSystem(mSystemID);
+    missionItem.position.latitude = mavlinkItem.latitude / pow(10,7);
+    missionItem.position.longitude = mavlinkItem.longitude / pow(10,7);
+    missionItem.position.altitude = mavlinkItem.altitude / pow(10,3);
 }
 
 std::shared_ptr<CommandItem::AbstractCommandItem> Mission_MAVLINKTOMACE::Covert_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem)
@@ -31,30 +31,54 @@ std::shared_ptr<CommandItem::AbstractCommandItem> Mission_MAVLINKTOMACE::Covert_
     }
     case MAV_CMD_NAV_LAND:
     {
-        CommandItem::SpatialLand missionItem;
-        Land_MAVLINKTOMACE(mavlinkItem,missionItem);
-        newMissionItem = std::make_shared<CommandItem::SpatialLand>(missionItem);
+        if(mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        {
+            CommandItem::SpatialLand<DataState::StateGlobalPosition> missionItem;
+            Land_MAVLINKTOMACE(mavlinkItem,missionItem);
+            newMissionItem = std::make_shared<CommandItem::SpatialLand<DataState::StateGlobalPosition>>(missionItem);
+        }
         break;
     }
     case MAV_CMD_NAV_LOITER_TIME:
     {
-        CommandItem::SpatialLoiter_Time missionItem;
-        LoiterTime_MAVLINKTOMACE(mavlinkItem,missionItem);
-        newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Time>(missionItem);
+        if(mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        {
+            CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition> missionItem;
+            LoiterTime_MAVLINKTOMACE(mavlinkItem,missionItem);
+            newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition>>(missionItem);
+        }else{
+            CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition> missionItem;
+            LoiterTime_MAVLINKTOMACE(mavlinkItem,missionItem);
+            newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition>>(missionItem);
+        }
         break;
     }
     case MAV_CMD_NAV_LOITER_TURNS:
     {
-        CommandItem::SpatialLoiter_Turns missionItem;
-        LoiterTurns_MAVLINKTOMACE(mavlinkItem,missionItem);
-        newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Turns>(missionItem);
+        if(mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        {
+            CommandItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> missionItem;
+            LoiterTurns_MAVLINKTOMACE(mavlinkItem,missionItem);
+            newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Turns<DataState::StateGlobalPosition>>(missionItem);
+        }else{
+            CommandItem::SpatialLoiter_Turns<DataState::StateLocalPosition> missionItem;
+            LoiterTurns_MAVLINKTOMACE(mavlinkItem,missionItem);
+            newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Turns<DataState::StateLocalPosition>>(missionItem);
+        }
         break;
     }
     case MAV_CMD_NAV_LOITER_UNLIM:
     {
-        CommandItem::SpatialLoiter_Unlimited missionItem;
-        LoiterUnlimited_MAVLINKTOMACE(mavlinkItem,missionItem);
-        newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Unlimited>(missionItem);
+        if(mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        {
+            CommandItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> missionItem;
+            LoiterUnlimited_MAVLINKTOMACE(mavlinkItem,missionItem);
+            newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition>>(missionItem);
+        }else{
+            CommandItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> missionItem;
+            LoiterUnlimited_MAVLINKTOMACE(mavlinkItem,missionItem);
+            newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition>>(missionItem);
+        }
         break;
     }
     case MAV_CMD_NAV_RETURN_TO_LAUNCH:
@@ -66,16 +90,30 @@ std::shared_ptr<CommandItem::AbstractCommandItem> Mission_MAVLINKTOMACE::Covert_
     }
     case MAV_CMD_NAV_TAKEOFF:
     {
-        CommandItem::SpatialTakeoff missionItem;
-        Takeoff_MAVLINKTOMACE(mavlinkItem,missionItem);
-        newMissionItem = std::make_shared<CommandItem::SpatialTakeoff>(missionItem);
+        if(mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        {
+            CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> missionItem;
+            Takeoff_MAVLINKTOMACE(mavlinkItem,missionItem);
+            newMissionItem = std::make_shared<CommandItem::SpatialTakeoff<DataState::StateGlobalPosition>>(missionItem);
+        }else{
+            CommandItem::SpatialTakeoff<DataState::StateLocalPosition> missionItem;
+            Takeoff_MAVLINKTOMACE(mavlinkItem,missionItem);
+            newMissionItem = std::make_shared<CommandItem::SpatialTakeoff<DataState::StateLocalPosition>>(missionItem);
+        }
         break;
     }
     case MAV_CMD_NAV_WAYPOINT:
     {
-        CommandItem::SpatialWaypoint missionItem;
-        Waypoint_MAVLINKTOMACE(mavlinkItem,missionItem);
-        newMissionItem = std::make_shared<CommandItem::SpatialWaypoint>(missionItem);
+        if(mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)
+        {
+            CommandItem::SpatialWaypoint<DataState::StateGlobalPosition> missionItem;
+            Waypoint_MAVLINKTOMACE(mavlinkItem,missionItem);
+            newMissionItem = std::make_shared<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
+        }else{
+            CommandItem::SpatialWaypoint<DataState::StateLocalPosition> missionItem;
+            Waypoint_MAVLINKTOMACE(mavlinkItem,missionItem);
+            newMissionItem = std::make_shared<CommandItem::SpatialWaypoint<DataState::StateLocalPosition>>(missionItem);
+        }
         break;
     }
     default:
@@ -86,7 +124,7 @@ std::shared_ptr<CommandItem::AbstractCommandItem> Mission_MAVLINKTOMACE::Covert_
 
     if(newMissionItem)
     {
-        newMissionItem->setOriginatingSystem(mSystemID);
+        newMissionItem->setGeneratingSystem(mSystemID);
     }
     return newMissionItem;
 }
@@ -104,45 +142,78 @@ void Mission_MAVLINKTOMACE::ChangeSpeed_MAVLINKTOMACE(const mavlink_mission_item
     }
 }
 
-void Mission_MAVLINKTOMACE::Land_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLand &missionItem)
+void Mission_MAVLINKTOMACE::Land_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLand<DataState::StateGlobalPosition> &missionItem)
 {
-    updatePosition(mavlinkItem,missionItem.position);
-}
-
-CommandItem::SpatialLoiter_Time Mission_MAVLINKTOMACE::LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem)
-{
-    CommandItem::SpatialLoiter_Time rtnItem;
-    if(mavlinkItem.command == MAV_CMD_NAV_LOITER_TIME)
-    {
-        rtnItem.duration = mavlinkItem.param1;
-        rtnItem.radius = fabs(mavlinkItem.param3);
-        rtnItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
+    if((mavlinkItem.command == MAV_CMD_NAV_LAND) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
+        missionItem.position.latitude = mavlinkItem.x;
+        missionItem.position.longitude = mavlinkItem.y;
+        missionItem.position.altitude = mavlinkItem.z;
+        missionItem.setLandFlag(true);
     }
-    updatePosition(mavlinkItem,rtnItem.position);
 }
 
-void Mission_MAVLINKTOMACE::LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time &missionItem)
+void Mission_MAVLINKTOMACE::LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition> &missionItem)
 {
-    updatePosition(mavlinkItem,missionItem.position);
-    missionItem.duration = mavlinkItem.param1;
-    missionItem.radius = fabs(mavlinkItem.param3);
-    missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
+    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TIME) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
+        missionItem.position.latitude = mavlinkItem.x;
+        missionItem.position.longitude = mavlinkItem.y;
+        missionItem.position.altitude = mavlinkItem.z;
+        missionItem.duration = mavlinkItem.param1;
+        missionItem.radius = fabs(mavlinkItem.param3);
+        missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
+    }
 }
-
-void Mission_MAVLINKTOMACE::LoiterTurns_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Turns &missionItem)
+void Mission_MAVLINKTOMACE::LoiterTime_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition> &missionItem)
 {
-    updatePosition(mavlinkItem,missionItem.position);
-    missionItem.turns = mavlinkItem.param1;
-    missionItem.radius = fabs(mavlinkItem.param3);
-    missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
+    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TIME) && (mavlinkItem.frame == MAV_FRAME_LOCAL_NED)){
+        missionItem.position.x = mavlinkItem.x;
+        missionItem.position.y = mavlinkItem.y;
+        missionItem.position.z = mavlinkItem.z;
+        missionItem.duration = mavlinkItem.param1;
+        missionItem.radius = fabs(mavlinkItem.param3);
+        missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
+    }
 }
 
-void Mission_MAVLINKTOMACE::LoiterUnlimited_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Unlimited &missionItem)
+void Mission_MAVLINKTOMACE::LoiterTurns_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Turns<DataState::StateGlobalPosition> &missionItem)
+{
+    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TURNS) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
+        missionItem.position.latitude = mavlinkItem.x;
+        missionItem.position.longitude = mavlinkItem.y;
+        missionItem.position.altitude = mavlinkItem.z;
+        missionItem.turns = mavlinkItem.param1;
+        missionItem.radius = fabs(mavlinkItem.param3);
+        missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
+    }
+}
+void Mission_MAVLINKTOMACE::LoiterTurns_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Turns<DataState::StateLocalPosition> &missionItem)
+{
+    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_TURNS) && (mavlinkItem.frame == MAV_FRAME_LOCAL_NED)){
+        missionItem.position.x = mavlinkItem.x;
+        missionItem.position.y = mavlinkItem.y;
+        missionItem.position.z = mavlinkItem.z;
+        missionItem.turns = mavlinkItem.param1;
+        missionItem.radius = fabs(mavlinkItem.param3);
+        missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
+    }
+}
+
+void Mission_MAVLINKTOMACE::LoiterUnlimited_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Unlimited<DataState::StateGlobalPosition> &missionItem)
 {
     if((mavlinkItem.command == MAV_CMD_NAV_LOITER_UNLIM) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
-        missionItem.position.setX(mavlinkItem.x);
-        missionItem.position.setY(mavlinkItem.y);
-        missionItem.position.setZ(mavlinkItem.z);
+        missionItem.position.latitude = mavlinkItem.x;
+        missionItem.position.longitude = mavlinkItem.y;
+        missionItem.position.altitude = mavlinkItem.z;
+        missionItem.radius = fabs(mavlinkItem.param3);
+        missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
+    }
+}
+void Mission_MAVLINKTOMACE::LoiterUnlimited_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Unlimited<DataState::StateLocalPosition> &missionItem)
+{
+    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_UNLIM) && (mavlinkItem.frame == MAV_FRAME_LOCAL_NED)){
+        missionItem.position.x = mavlinkItem.x;
+        missionItem.position.y = mavlinkItem.y;
+        missionItem.position.z = mavlinkItem.z;
         missionItem.radius = fabs(mavlinkItem.param3);
         missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
     }
@@ -156,21 +227,38 @@ void Mission_MAVLINKTOMACE::RTL_MAVLINKTOMACE(const mavlink_mission_item_t &mavl
     }
 }
 
-void Mission_MAVLINKTOMACE::Takeoff_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialTakeoff &missionItem)
+void Mission_MAVLINKTOMACE::Takeoff_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &missionItem)
 {
-    updatePosition(mavlinkItem,missionItem.position);
+    if((mavlinkItem.command == MAV_CMD_NAV_TAKEOFF) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
+        missionItem.position.latitude = mavlinkItem.x;
+        missionItem.position.longitude = mavlinkItem.y;
+        missionItem.position.altitude = mavlinkItem.z;
+    }
+}
+void Mission_MAVLINKTOMACE::Takeoff_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialTakeoff<DataState::StateLocalPosition> &missionItem)
+{
+    if((mavlinkItem.command == MAV_CMD_NAV_TAKEOFF) && (mavlinkItem.frame == MAV_FRAME_LOCAL_NED)){
+        missionItem.position.x = mavlinkItem.x;
+        missionItem.position.y = mavlinkItem.y;
+        missionItem.position.z = mavlinkItem.z;
+    }
 }
 
-void Mission_MAVLINKTOMACE::Waypoint_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialWaypoint &missionItem)
+void Mission_MAVLINKTOMACE::Waypoint_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialWaypoint<DataState::StateGlobalPosition> &missionItem)
 {
-    updatePosition(mavlinkItem,missionItem.position);
+    if((mavlinkItem.command == MAV_CMD_NAV_WAYPOINT) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
+        missionItem.position.latitude = mavlinkItem.x;
+        missionItem.position.longitude = mavlinkItem.y;
+        missionItem.position.altitude = mavlinkItem.z;
+    }
 }
-
-void Mission_MAVLINKTOMACE::updatePosition(const mavlink_mission_item_t &mavlinkItem, DataState::Base3DPosition &pos)
+void Mission_MAVLINKTOMACE::Waypoint_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialWaypoint<DataState::StateLocalPosition> &missionItem)
 {
-    Data::CoordinateFrameType frame = static_cast<Data::CoordinateFrameType>(mavlinkItem.frame);
-    pos.setCoordinateFrame(frame);
-    pos.setPosition3D(mavlinkItem.x,mavlinkItem.y,mavlinkItem.z);
+    if((mavlinkItem.command == MAV_CMD_NAV_WAYPOINT) && (mavlinkItem.frame == MAV_FRAME_LOCAL_NED)){
+        missionItem.position.x = mavlinkItem.x;
+        missionItem.position.y = mavlinkItem.y;
+        missionItem.position.z = mavlinkItem.z;
+    }
 }
 
 } //end of namespace DataMAVLINK

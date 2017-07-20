@@ -1,48 +1,65 @@
 #include "spatial_waypoint.h"
 
 namespace CommandItem {
-
-Data::CommandItemType SpatialWaypoint::getCommandType() const
+template <class T>
+Data::CommandItemType SpatialWaypoint<T>::getCommandType() const
 {
     return Data::CommandItemType::CI_NAV_WAYPOINT;
 }
 
-std::string SpatialWaypoint::getDescription() const
+template <class T>
+std::string SpatialWaypoint<T>::getDescription() const
 {
     return "This is a waypoint mission item for a vehicle";
 }
 
-bool SpatialWaypoint::hasSpatialInfluence() const
+template <class T>
+bool SpatialWaypoint<T>::hasSpatialInfluence() const
 {
     return true;
 }
 
-SpatialWaypoint::SpatialWaypoint():
-    AbstractCommandItem(0,0)
+//____________________________________________________________________________
+template<>
+SpatialWaypoint<DataState::StateGlobalPosition>::SpatialWaypoint()
 {
-
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
 
-SpatialWaypoint::SpatialWaypoint(const SpatialWaypoint &obj):
+template<>
+SpatialWaypoint<DataState::StateLocalPosition>::SpatialWaypoint()
+{
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
+}
+//____________________________________________________________________________
+
+//____________________________________________________________________________
+template<class T>
+SpatialWaypoint<T>::SpatialWaypoint(const SpatialWaypoint<T> &obj):
     AbstractCommandItem(0,0)
 {
     this->operator =(obj);
 }
+//____________________________________________________________________________
 
-SpatialWaypoint::SpatialWaypoint(const int &systemOrigin, const int &systemTarget):
+//____________________________________________________________________________
+template<>
+SpatialWaypoint<DataState::StateGlobalPosition>::SpatialWaypoint(const int &systemOrigin, const int &systemTarget):
     AbstractCommandItem(systemOrigin,systemTarget)
 {
-
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
 
-std::ostream& operator<<(std::ostream& os, const SpatialWaypoint& t)
+template<>
+SpatialWaypoint<DataState::StateLocalPosition>::SpatialWaypoint(const int &systemOrigin, const int &systemTarget):
+    AbstractCommandItem(systemOrigin,systemTarget)
 {
-    std::stringstream stream;
-    stream.precision(6);
-    stream << std::fixed << "Spatial Waypoint: " << t.position.getX() << ", "<< t.position.getY() << ", "<< t.position.getZ() << ".";
-    os << stream.str();
-
-    return os;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
+//____________________________________________________________________________
+
 
 } //end of namepsace CommandItem
+
+template class CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>;
+template class CommandItem::SpatialWaypoint<DataState::StateLocalPosition>;

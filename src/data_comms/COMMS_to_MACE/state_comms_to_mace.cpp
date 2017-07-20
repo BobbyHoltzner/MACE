@@ -27,9 +27,9 @@ DataState::StateGlobalPosition State_COMMSTOMACE::GlobalPosition_COMMSTOMACE(con
 {
     UNUSED(systemID);
     DataState::StateGlobalPosition stateGlobalPosition;
-    stateGlobalPosition.setLatitude(stateItem.lat/pow(10,7));
-    stateGlobalPosition.setLongitude(stateItem.lon/pow(10,7));
-    stateGlobalPosition.setAltitude(stateItem.alt/1000.0);
+    stateGlobalPosition.latitude = stateItem.lat/pow(10,7);
+    stateGlobalPosition.longitude = stateItem.lon/pow(10,7);
+    stateGlobalPosition.altitude = stateItem.alt/1000.00;
     return stateGlobalPosition;
 }
 
@@ -37,9 +37,9 @@ DataState::StateLocalPosition State_COMMSTOMACE::LocalPosition_COMMSTOMACE(const
 {
     UNUSED(systemID);
     DataState::StateLocalPosition stateLocalPosition;
-    stateLocalPosition.setX(stateItem.x);
-    stateLocalPosition.setY(stateItem.y);
-    stateLocalPosition.setZ(stateItem.z);
+    stateLocalPosition.x = stateItem.x;
+    stateLocalPosition.y = stateItem.y;
+    stateLocalPosition.z = stateItem.z;
     return stateLocalPosition;
 }
 

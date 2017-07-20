@@ -2,39 +2,66 @@
 
 namespace CommandItem {
 
-Data::CommandItemType SpatialLoiter_Time::getCommandType() const
+template <class T>
+Data::CommandItemType SpatialLoiter_Time<T>::getCommandType() const
 {
     return Data::CommandItemType::CI_NAV_LOITER_TIME;
 }
 
-std::string SpatialLoiter_Time::getDescription() const
+template <class T>
+std::string SpatialLoiter_Time<T>::getDescription() const
 {
     return "This causes the vehicle to loiter around this MISSION for X seconds";
 }
 
-bool SpatialLoiter_Time::hasSpatialInfluence() const
+template <class T>
+bool SpatialLoiter_Time<T>::hasSpatialInfluence() const
 {
     return true;
 }
 
 
-SpatialLoiter_Time::SpatialLoiter_Time():
-    AbstractCommandItem(0,0)
+//____________________________________________________________________________
+template<>
+SpatialLoiter_Time<DataState::StateGlobalPosition>::SpatialLoiter_Time()
 {
-
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
 
-SpatialLoiter_Time::SpatialLoiter_Time(const SpatialLoiter_Time &obj):
+template<>
+SpatialLoiter_Time<DataState::StateLocalPosition>::SpatialLoiter_Time()
+{
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
+}
+//____________________________________________________________________________
+
+//____________________________________________________________________________
+template <class T>
+SpatialLoiter_Time<T>::SpatialLoiter_Time(const SpatialLoiter_Time<T> &obj):
     AbstractCommandItem(0,0)
 {
     this->operator =(obj);
 }
+//____________________________________________________________________________
 
-SpatialLoiter_Time::SpatialLoiter_Time(const int &systemOrigin, const int &systemTarget):
+//____________________________________________________________________________
+template<>
+SpatialLoiter_Time<DataState::StateGlobalPosition>::SpatialLoiter_Time(const int &systemOrigin, const int &systemTarget):
     AbstractCommandItem(systemOrigin,systemTarget)
 {
-
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
+
+template<>
+SpatialLoiter_Time<DataState::StateLocalPosition>::SpatialLoiter_Time(const int &systemOrigin, const int &systemTarget):
+    AbstractCommandItem(systemOrigin,systemTarget)
+{
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
+}
+//____________________________________________________________________________
 
 
 } //end of namespace CommandItem
+
+template class CommandItem::SpatialLoiter_Time<DataState::StateGlobalPosition>;
+template class CommandItem::SpatialLoiter_Time<DataState::StateLocalPosition>;

@@ -4,6 +4,8 @@
 #include <map>
 
 #include <mavlink.h>
+
+#include "data/timer.h"
 #include "data/mission_command.h"
 
 #include "ardupilot_guided_controller.h"
@@ -16,30 +18,34 @@
 #include "data_vehicle_ardupilot/vehicle_object_ardupilot.h"
 
 #include "data_vehicle_MAVLINK/MACE_to_MAVLINK/command_mace_to_mavlink.h"
+#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/generic_mace_to_mavlink.h"
 #include "data_vehicle_MAVLINK/MACE_to_MAVLINK/mission_mace_to_mavlink.h"
+#include "data_vehicle_MAVLINK/MACE_to_MAVLINK/state_mace_to_mavlink.h"
 
-#include "data_generic_item/data_generic_item_components.h"
 #include "data_generic_state_item/state_item_components.h"
-#include "data_generic_command_item/command_item_components.h"
-
 #include "data_generic_state_item_topic/state_topic_components.h"
+
+#include "data_generic_command_item/command_item_components.h"
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 //__________________
 #include "data_vehicle_MAVLINK/MACE_to_MAVLINK/command_mace_to_mavlink.h"
-#include "data_interface_MAVLINK/callback_interface_data_mavlink.h"
-
-#include "data_interface_MAVLINK/vehicle_object_mavlink.h"
 
 using namespace std::placeholders;
 
-class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
+class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>
 {
+enum ArdupilotMissionMode{
+    NONE,
+    REQUESTING,
+    TRANSMITTING
+};
+
 public:
     ModuleVehicleArdupilot();
 
-    virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
+    bool ParseMAVLINKMissionMessage(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, const std::string &linkName, const mavlink_message_t *message);
 
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
@@ -52,16 +58,9 @@ private:
 
 public:
 
-    //callback interface support for the DataInterface_MAVLINK object
-    void cbi_VehicleCommandACK(const int &systemID, const mavlink_command_ack_t &cmdACK);
-    void cbi_VehicleMissionACK(const int &systemID, const mavlink_mission_ack_t &misACK);
-    void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
-    void cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
-    void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home);
-    void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList);
+    virtual void VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG);
 
-    virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
-
+    virtual void MAVLINKCommandAck(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK);
     //!
     //! \brief New Mavlink message received over a link
     //! \param linkName Name of link message received over
@@ -117,13 +116,13 @@ public:
     //! \brief Command_VehicleTakeoff
     //! \param vehicleTakeoff
     //!
-    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command);
+    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command);
 
     //!
     //! \brief Command_Land
     //! \param command
     //!
-    virtual void Command_Land(const CommandItem::SpatialLand &command);
+    virtual void Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command);
 
     //!
     //! \brief Command_ReturnToLaunch
@@ -217,6 +216,17 @@ public:
     //!
     virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome);
 
+    //!
+    //! \brief homePositionUpdated
+    //! \param newVehicleHome
+    //!
+    void homePositionUpdated(const CommandItem::SpatialHome &newVehicleHome);
+
+
+    // Controller Callbacks:
+    void takeoffCallback(const std::string value);
+    void guidedCallback(const std::string value);
+
 
     bool checkControllerState()
     {
@@ -241,24 +251,30 @@ public:
 
     virtual void RequestDummyFunction(const int &vehicleID)
     {
-//        std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
-//        Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan, std::bind(&ModuleVehicleArdupilot::takeoffCallback, this, _1));
-//        CommandItem::SpatialTakeoff takeoff;
-//        takeoff.setTargetSystem(1);
-//        takeoff.position.setPosition3D(37,-76,100);
-//        newController->initializeTakeoffSequence(takeoff);
+        std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);
+        Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(tmpData, m_LinkMarshaler, m_LinkName, m_LinkChan, std::bind(&ModuleVehicleArdupilot::takeoffCallback, this, _1));
+        CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> takeoff;
+        takeoff.setTargetSystem(1);
+        takeoff.position.setPosition(37,-76,100);
+        newController->initializeTakeoffSequence(takeoff);
 
-//        m_AircraftController = newController;
-//        std::thread *thread = new std::thread([newController]()
-//        {
-//            newController->start();
-//        });
+        m_AircraftController = newController;
+        std::thread *thread = new std::thread([newController]()
+        {
+            newController->start();
+        });
     }
-private:
-    std::shared_ptr<DataInterface_MAVLINK::VehicleObject_MAVLINK> vehicleData;
 
 private:
-    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;
+    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> getArducopterData(const int &systemID);
+private:
+
+    Timer t;
+
+private:
+    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMission;
+
+    std::map<int, std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT>> m_ArduPilotData;
 
     Ardupilot_GeneralController* m_AircraftController;
 };

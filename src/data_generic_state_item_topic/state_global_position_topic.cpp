@@ -15,17 +15,17 @@ const MaceCore::TopicComponentStructure GlobalPositionTopic_structure = []{
 MaceCore::TopicDatagram StateGlobalPositionTopic::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
     datagram.AddTerminal<Data::CoordinateFrameType>("CoordinateFrame", m_CoordinateFrame);
-    datagram.AddTerminal<double>("latitude", x);
-    datagram.AddTerminal<double>("longitude", y);
-    datagram.AddTerminal<double>("altitude", z);
+    datagram.AddTerminal<double>("latitude", latitude);
+    datagram.AddTerminal<double>("longitude", longitude);
+    datagram.AddTerminal<double>("altitude", altitude);
     return datagram;
 }
 
 void StateGlobalPositionTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
     m_CoordinateFrame = datagram.GetTerminal<Data::CoordinateFrameType>("CoordinateFrame");
-    x = datagram.GetTerminal<double>("latitude");
-    y = datagram.GetTerminal<double>("longitude");
-    z = datagram.GetTerminal<double>("altitude");
+    latitude = datagram.GetTerminal<double>("latitude");
+    longitude = datagram.GetTerminal<double>("longitude");
+    altitude = datagram.GetTerminal<double>("altitude");
 }
 
 StateGlobalPositionTopic::StateGlobalPositionTopic()
@@ -34,14 +34,8 @@ StateGlobalPositionTopic::StateGlobalPositionTopic()
 
 }
 
-StateGlobalPositionTopic::StateGlobalPositionTopic(const StateGlobalPositionTopic &copyObj):
+StateGlobalPositionTopic::StateGlobalPositionTopic(const DataState::StateGlobalPosition &copyObj):
     DataState::StateGlobalPosition(copyObj)
-{
-
-}
-
-StateGlobalPositionTopic::StateGlobalPositionTopic(const DataState::StateGlobalPosition &posObj):
-    DataState::StateGlobalPosition(posObj)
 {
 
 }

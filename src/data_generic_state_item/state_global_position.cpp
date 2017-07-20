@@ -4,93 +4,159 @@
 namespace DataState{
 
 StateGlobalPosition::StateGlobalPosition():
-    Base3DPosition(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
+    latitude(0.0),longitude(0.0),altitude(0.0)
 {
-
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
 
-StateGlobalPosition::StateGlobalPosition(const StateGlobalPosition &globalPosition):
-    Base3DPosition(globalPosition)
+StateGlobalPosition::StateGlobalPosition(const StateGlobalPosition &globalPosition)
 {
-
+    this->operator =(globalPosition);
 }
 
 StateGlobalPosition::StateGlobalPosition(const Data::CoordinateFrameType &frame):
-    Base3DPosition(frame)
+    latitude(0.0),longitude(0.0),altitude(0.0)
 {
-
+    m_CoordinateFrame = frame;
 }
 
-StateGlobalPosition::StateGlobalPosition(const float &latitude, const float &longitude, const float &altitude):
-    Base3DPosition(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT,latitude,longitude,altitude)
+StateGlobalPosition::StateGlobalPosition(const float &latitude, const float &longitude, const float &altitude)
 {
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 
+    this->latitude = latitude;
+    this->longitude = longitude;
+    this->altitude = altitude;
 }
 
-StateGlobalPosition::StateGlobalPosition(const Data::CoordinateFrameType &frame, const double &latitude, const double &longitude, const double &altitude):
-    Base3DPosition(frame,latitude,longitude,altitude)
+StateGlobalPosition::StateGlobalPosition(const Data::CoordinateFrameType &frame, const double &latitude, const double &longitude, const double &altitude)
 {
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 
+    this->latitude = latitude;
+    this->longitude = longitude;
+    this->altitude = altitude;
 }
 
-void StateGlobalPosition::setPosition(const double &latitude, const double &longitude, const double &altitude)
+void StateGlobalPosition::setPosition(const float &latitude, const float &longitude, const float &altitude)
 {
-    this->setX(latitude);
-    this->setY(longitude);
-    this->setZ(altitude);
+    this->latitude = latitude;
+    this->longitude = longitude;
+    this->altitude = altitude;
 }
 
-double StateGlobalPosition::getLatitude() const
+void StateGlobalPosition::translationTransformation(const StateGlobalPosition &position, Eigen::Vector3f &transVec)
 {
-    return this->getX();
-}
-double StateGlobalPosition::getLongitude() const
-{
-    return this->getY();
-}
-double StateGlobalPosition::getAltitude() const
-{
-    return this->getZ();
-}
-
-void StateGlobalPosition::setLatitude(const double &value)
-{
-    this->setX(value);
-}
-void StateGlobalPosition::setLongitude(const double &value)
-{
-    this->setY(value);
+    double bearing = this->bearingBetween(position);
+    double distance = this->distanceBetween2D(position);
+    float distanceZ = -this->deltaAltitude(position);
+    float distanceX = distance * sin(bearing);
+    float distanceY = distance * cos(bearing);
+    transVec(0) = distanceX;
+    transVec(1) = distanceY;
+    transVec(2) = distanceZ;
 }
 
-void StateGlobalPosition::setAltitude(const double &value)
+/**
+ * @brief StateGlobalPosition::NewPositionFromHeadingBearing
+ * @param distance
+ * @param bearing
+ * @param degreesFlag
+ * @param newPosition
+ */
+
+StateGlobalPosition StateGlobalPosition::NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag)
 {
-    this->setZ(value);
+    double earthRadius = 6371000; //approximate value in meters
+    double latitudeRad = convertDegreesToRadians(latitude);
+    double longitudeRad = convertDegreesToRadians(longitude);
+    double bearingRad = 0.0;
+
+    if(degreesFlag == true){
+        bearingRad = convertDegreesToRadians(bearing);
+    }else{
+        bearingRad = bearing;
+    }
+    double distanceRatio = distance / earthRadius;
+
+    double newLat = asin(sin(latitudeRad) * cos(distanceRatio) + cos(latitudeRad) * sin(distanceRatio) * cos(bearingRad));
+    double newLon = longitudeRad + atan2(sin(bearingRad) * sin(distanceRatio) * cos(latitudeRad),
+                                         cos(distanceRatio) - sin(latitudeRad) * sin(newLat));
+
+    StateGlobalPosition newPos;
+    newPos.latitude = convertRadiansToDegrees(newLat);
+    newPos.longitude = convertRadiansToDegrees(newLon);
+    newPos.altitude = altitude;
+
+    return newPos;
 }
 
-mace_global_position_int_t StateGlobalPosition::getMACECommsObject() const
+
+/**
+ * @brief StateGlobalPosition::bearingBetween
+ * @param position
+ * @return
+ */
+double StateGlobalPosition::bearingBetween(const StateGlobalPosition &position) const
 {
-    mace_global_position_int_t rtnObj;
 
-    rtnObj.lat = (int32_t)(this->getLatitude() * pow(10,7));
-    rtnObj.lon = (int32_t)(this->getLongitude() * pow(10,7));
-    rtnObj.alt = (int32_t)(this->getAltitude() * 1000.0);
+    double originLatitude = convertDegreesToRadians(this->latitude);
+    double originLongitude = convertDegreesToRadians(this->longitude);
+    double finalLatitude = convertDegreesToRadians(position.latitude);
+    double finalLongitude = convertDegreesToRadians(position.longitude);
 
-    return rtnObj;
+    double deltaLongitude = finalLongitude - originLongitude;
+
+    float tmpY = sin(deltaLongitude) * cos(finalLatitude);
+    float tmpX = cos(originLatitude) * sin(finalLatitude) -
+            sin(originLatitude) * cos(finalLatitude) *
+            cos(deltaLongitude);
+    float bearing = atan2(tmpY,tmpX);
+    return bearing;
+    //return convertRadiansToDegrees(bearing);
 }
 
-//!
-//! \brief StateGlobalPosition::distanceBetween2D
-//! \param position
-//! \return
-//!
+/**
+ * @brief StateGlobalPosition::initialBearing
+ * @param position
+ * @return
+ */
+double StateGlobalPosition::initialBearing(const StateGlobalPosition &position) const{
+    throw std::runtime_error("Not Implimented");
+    UNUSED(position);
+    return 0.0;
+    //return (bearingBetween(position) + 360.0) % 360.0;
+}
+
+/**
+ * @brief StateGlobalPosition::finalBearing
+ * @param position
+ * @return
+ */
+double StateGlobalPosition::finalBearing(const StateGlobalPosition &position) const{
+    throw std::runtime_error("Not Implimented");
+    UNUSED(position);
+    return 0.0;
+    //return (bearingBetween(position) + 180.0) % 360.0;
+}
+double StateGlobalPosition::deltaAltitude(const StateGlobalPosition &position) const
+{
+    return (this->altitude - position.altitude);
+}
+
+/**
+ * @brief StateGlobalPosition::distanceBetween2D
+ * @param position
+ * @return
+ */
 double StateGlobalPosition::distanceBetween2D(const StateGlobalPosition &position) const
 {
     double earthRadius = 6371000; //approximate value in meters
 
-    double originLatitude = convertDegreesToRadians(this->x);
-    double originLongitude = convertDegreesToRadians(this->y);
-    double finalLatitude = convertDegreesToRadians(position.x);
-    double finalLongitude = convertDegreesToRadians(position.y);
+    double originLatitude = convertDegreesToRadians(this->latitude);
+    double originLongitude = convertDegreesToRadians(this->longitude);
+    double finalLatitude = convertDegreesToRadians(position.latitude);
+    double finalLongitude = convertDegreesToRadians(position.longitude);
 
     double deltaLatitude = finalLatitude - originLatitude;
     double deltaLongitude = finalLongitude - originLongitude;
@@ -106,145 +172,17 @@ double StateGlobalPosition::distanceBetween2D(const StateGlobalPosition &positio
     return distance;
 }
 
-//!
-//! \brief StateGlobalPosition::finalBearing
-//! \param position
-//! \return
-//!
-double StateGlobalPosition::finalBearing(const StateGlobalPosition &position) const
-{
-    throw std::runtime_error("Not Implimented");
-    UNUSED(position);
-    return 0.0;
-    //return (bearingBetween(position) + 180.0) % 360.0;
-}
-
-//!
-//! \brief StateGlobalPosition::initialBearing
-//! \param position
-//! \return
-//!
-double StateGlobalPosition::initialBearing(const StateGlobalPosition &position) const
-{
-    throw std::runtime_error("Not Implimented");
-    UNUSED(position);
-    return 0.0;
-    //return (bearingBetween(position) + 360.0) % 360.0;
-}
-
-
-//!
-//! \brief StateGlobalPosition::bearingBetween
-//! \param position
-//! \return
-//!
-double StateGlobalPosition::bearingBetween(const StateGlobalPosition &position) const
-{
-
-    double originLatitude = convertDegreesToRadians(this->x);
-    double originLongitude = convertDegreesToRadians(this->y);
-    double finalLatitude = convertDegreesToRadians(position.x);
-    double finalLongitude = convertDegreesToRadians(position.y);
-
-    double deltaLongitude = finalLongitude - originLongitude;
-
-    float tmpY = sin(deltaLongitude) * cos(finalLatitude);
-    float tmpX = cos(originLatitude) * sin(finalLatitude) -
-            sin(originLatitude) * cos(finalLatitude) *
-            cos(deltaLongitude);
-    float bearing = atan2(tmpY,tmpX);
-    return bearing;
-    //return convertRadiansToDegrees(bearing);
-}
-
-//!
-//! \brief StateGlobalPosition::NewPositionFromHeadingBearing
-//! \param distance
-//! \param bearing
-//! \param degreesFlag
-//! \return
-//!
-StateGlobalPosition StateGlobalPosition::NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag) const
-{
-    double earthRadius = 6371000; //approximate value in meters
-    double latitudeRad = convertDegreesToRadians(x);
-    double longitudeRad = convertDegreesToRadians(y);
-    double bearingRad = 0.0;
-
-    if(degreesFlag == true){
-        bearingRad = convertDegreesToRadians(bearing);
-    }else{
-        bearingRad = bearing;
-    }
-    double distanceRatio = distance / earthRadius;
-
-    double newLat = asin(sin(latitudeRad) * cos(distanceRatio) + cos(latitudeRad) * sin(distanceRatio) * cos(bearingRad));
-    double newLon = longitudeRad + atan2(sin(bearingRad) * sin(distanceRatio) * cos(latitudeRad),
-                                         cos(distanceRatio) - sin(latitudeRad) * sin(newLat));
-
-    StateGlobalPosition newPos;
-    newPos.x = convertRadiansToDegrees(newLat);
-    newPos.y = convertRadiansToDegrees(newLon);
-    newPos.z = z;
-
-    return newPos;
-}
-
-//!
-//! \brief StateGlobalPosition::translationTransformation2D
-//! \param position
-//! \param transVec
-//!
-void StateGlobalPosition::translationTransformation2D(const StateGlobalPosition &position, Eigen::Vector2f &transVec) const
-{
-    double bearing = this->bearingBetween(position);
-    double distance = this->distanceBetween2D(position);
-    float distanceX = distance * sin(bearing);
-    float distanceY = distance * cos(bearing);
-    transVec(0) = distanceX;
-    transVec(1) = distanceY;
-}
-
-//!
-//! \brief StateGlobalPosition::deltaAltitude
-//! \param position
-//! \return
-//!
-double StateGlobalPosition::deltaAltitude(const StateGlobalPosition &position) const
-{
-    return (this->z - position.z);
-}
-
-
-//!
-//! \brief StateGlobalPosition::distanceBetween3D
-//! \param position
-//! \return
-//!
+/**
+ * @brief StateGlobalPosition::distanceBetween3D
+ * @param position
+ * @return
+ */
 double StateGlobalPosition::distanceBetween3D(const StateGlobalPosition &position) const
 {
     double distance2D = this->distanceBetween2D(position);
-    double deltaAltitude = fabs(this->z - position.z);
+    double deltaAltitude = fabs(this->altitude - position.altitude);
     return(sqrt(deltaAltitude * deltaAltitude + distance2D * distance2D));
 }
-
-//!
-//! \brief StateGlobalPosition::translationTransformation3D
-//! \param position
-//! \param transVec
-//!
-void StateGlobalPosition::translationTransformation3D(const StateGlobalPosition &position, Eigen::Vector3f &transVec) const
-{
-    double bearing = this->bearingBetween(position);
-    double distance = this->distanceBetween2D(position);
-    float distanceZ = -this->deltaAltitude(position);
-    float distanceX = distance * sin(bearing);
-    float distanceY = distance * cos(bearing);
-    transVec(0) = distanceX;
-    transVec(1) = distanceY;
-    transVec(2) = distanceZ;
-}
-
 
 /**
  * @brief Position::convertDegreesToRadians

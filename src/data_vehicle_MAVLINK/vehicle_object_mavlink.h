@@ -1,5 +1,5 @@
-#ifndef VEHICLE_OBJECT_MAVLINKS_H
-#define VEHICLE_OBJECT_MAVLINKS_H
+#ifndef VEHICLE_OBJECT_MAVLINK_H
+#define VEHICLE_OBJECT_MAVLINK_H
 
 #include "data_vehicle_MAVLINK/mavlink_parser.h"
 #include "data_vehicle_MAVLINK/data_container_mavlink.h"
@@ -29,4 +29,4 @@ private:
 
 } //end of namespace DataMAVLINK
 
-#endif // VEHICLE_OBJECT_MAVLINKS_H
+#endif // VEHICLE_OBJECT_MAVLINK_H

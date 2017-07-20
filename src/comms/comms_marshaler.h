@@ -108,7 +108,7 @@ public:
     //! \param message Message to send
     //!
     template <typename T>
-    void SendMAVMessage(const std::string &linkName, const T& message);
+    void SendMessage(const std::string &linkName, const T& message);
 
 
 
@@ -172,6 +172,14 @@ private:
     //! \param vehicleType
     //!
     virtual void VehicleHeartbeatInfo(const ILink* link_ptr, const int &vehicleId, const mavlink_heartbeat_t &heartbeatMSG) const;
+
+    //!
+    //! \brief VehicleCommandACK
+    //! \param link_ptr
+    //! \param vehicleId
+    //! \param cmdACKMSG
+    //!
+    virtual void VehicleCommandACK(const ILink* link_ptr, const int &vehicleId, const mavlink_command_ack_t &cmdACK) const;
 
 
     //!

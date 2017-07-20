@@ -1,48 +1,74 @@
 #include "spatial_takeoff.h"
 
 namespace CommandItem {
+template <class T>
+SpatialTakeoff<T>::SpatialTakeoff() :
+    positionFlag(false)
+{
 
-Data::CommandItemType SpatialTakeoff::getCommandType() const
+}
+
+template <class T>
+Data::CommandItemType SpatialTakeoff<T>::getCommandType() const
 {
     return Data::CommandItemType::CI_NAV_TAKEOFF;
 }
 
-std::string SpatialTakeoff::getDescription() const
+template <class T>
+std::string SpatialTakeoff<T>::getDescription() const
 {
     return "This causes the vehicle to perform a takeoff action";
 }
 
-bool SpatialTakeoff::hasSpatialInfluence() const
+template <class T>
+bool SpatialTakeoff<T>::hasSpatialInfluence() const
 {
     return true;
 }
 
-SpatialTakeoff::SpatialTakeoff():
-    AbstractCommandItem(0,0)
+//____________________________________________________________________________
+template<>
+SpatialTakeoff<DataState::StateGlobalPosition>::SpatialTakeoff():
+    positionFlag(false)
 {
-
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
 
-SpatialTakeoff::SpatialTakeoff(const SpatialTakeoff &obj):
-    AbstractCommandItem(0,0)
+template<>
+SpatialTakeoff<DataState::StateLocalPosition>::SpatialTakeoff():
+    positionFlag(false)
+{
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
+}
+//____________________________________________________________________________
+
+//____________________________________________________________________________
+template<class T>
+SpatialTakeoff<T>::SpatialTakeoff(const SpatialTakeoff<T> &obj):
+    AbstractCommandItem(0,0),positionFlag(false)
 {
     this->operator =(obj);
 }
+//____________________________________________________________________________
 
-SpatialTakeoff::SpatialTakeoff(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
+//____________________________________________________________________________
+template<>
+SpatialTakeoff<DataState::StateGlobalPosition>::SpatialTakeoff(const int &systemOrigin, const int &systemTarget):
+    AbstractCommandItem(systemOrigin,systemTarget),positionFlag(false)
 {
-
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT;
 }
 
-std::ostream& operator<<(std::ostream& os, const SpatialTakeoff& t)
+template<>
+SpatialTakeoff<DataState::StateLocalPosition>::SpatialTakeoff(const int &systemOrigin, const int &systemTarget):
+    AbstractCommandItem(systemOrigin,systemTarget),positionFlag(false)
 {
-    std::stringstream stream;
-    stream.precision(6);
-    stream << std::fixed << "Spatial Takeoff: " << t.position.getX() << ", "<< t.position.getY() << ", "<< t.position.getZ() << ".";
-    os << stream.str();
-
-    return os;
+    m_CoordinateFrame = Data::CoordinateFrameType::CF_LOCAL_ENU;
 }
+//____________________________________________________________________________
+
 
 }
+
+template class CommandItem::SpatialTakeoff<DataState::StateGlobalPosition>;
+template class CommandItem::SpatialTakeoff<DataState::StateLocalPosition>;

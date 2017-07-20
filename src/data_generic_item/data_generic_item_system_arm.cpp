@@ -14,19 +14,10 @@ DataGenericItem_SystemArm::DataGenericItem_SystemArm(const bool &arm) :
 
 }
 
+
 DataGenericItem_SystemArm::DataGenericItem_SystemArm(const DataGenericItem_SystemArm &copyObj)
 {
     this->armed = copyObj.getSystemArm();
-}
-
-
-mace_vehicle_armed_t DataGenericItem_SystemArm::getMACECommsObject() const
-{
-    mace_vehicle_armed_t rtnObj;
-
-    rtnObj.vehicle_armed = this->armed ? 1 : 0;
-
-    return rtnObj;
 }
 
 } //end of namespace DataGenericItem

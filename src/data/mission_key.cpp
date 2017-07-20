@@ -81,13 +81,4 @@ bool MissionKey::operator !=(const MissionKey &rhs) const
     return !((*this) == rhs);
 }
 
-std::ostream& operator<<(std::ostream& os, const MissionKey& t)
-{
-    std::stringstream stream;
-    stream << std::fixed << "Mission Key: System ID " << std::to_string(t.m_systemID) << ", Creator ID"<< std::to_string(t.m_creatorID) << ".";
-    os << stream.str();
-
-    return os;
-}
-
 } //end of namespace Data

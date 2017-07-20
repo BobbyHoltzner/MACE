@@ -2,10 +2,6 @@
 #define MISSION_KEY_H
 
 #include <stdint.h>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-
 #include "mission_type.h"
 
 namespace Data {
@@ -37,8 +33,6 @@ public:
     bool operator== (const MissionKey &rhs) const;
 
     bool operator!= (const MissionKey &rhs) const;
-
-    friend std::ostream& operator<<(std::ostream& os, const MissionKey& t);
 
 };
 

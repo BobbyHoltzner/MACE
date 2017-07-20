@@ -25,6 +25,7 @@
 #include "mace_core/module_factory.h"
 
 #include "data_vehicle_MAVLINK/components.h"
+
 #include "data_vehicle_MAVLINK/vehicle_object_mavlink.h"
 
 #include "commsMAVLINK/comms_mavlink.h"
@@ -64,8 +65,7 @@ public:
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ModuleVehicleMAVLINK() :
-        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataMAVLINK::EmptyMAVLINK>(),
-        airborneInstance(false)
+        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataMAVLINK::GPSStatus>()
     {
 
     }
@@ -123,7 +123,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///              COMM EVENTS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
+    virtual void VehicleHeartbeatInfo(const std::string &linkName, const int systemID, const mavlink_heartbeat_t &heartbeatMSG)
     {
         UNUSED(linkName);
         UNUSED(systemID);

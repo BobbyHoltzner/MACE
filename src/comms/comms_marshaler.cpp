@@ -170,7 +170,7 @@ uint8_t CommsMarshaler::GetProtocolChannel(const std::string &linkName) const
 //! \param message Message to send
 //!
 template <typename T>
-void CommsMarshaler::SendMAVMessage(const std::string &linkName, const T& message)
+void CommsMarshaler::SendMessage(const std::string &linkName, const T& message)
 {
     if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
@@ -330,6 +330,15 @@ void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int &syst
 }
 
 //!
+void CommsMarshaler::VehicleCommandACK(const ILink* link_ptr, const int &systemID, const mavlink_command_ack_t &cmdACK) const
+{
+    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
+        throw std::runtime_error("Provided link does not exists");
+
+    Emit([&](CommsEvents *ptr){ptr->MAVLINKCommandAck(m_CreatedLinksPtrToName.at(link_ptr), systemID, cmdACK);});
+}
+
+//!
 //! \brief A new radio status packet received
 //! \param link
 //! \param rxerrors
@@ -351,6 +360,6 @@ void CommsMarshaler::RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors
 
 
 
-template void CommsMarshaler::SendMAVMessage<mavlink_message_t>(const std::string &, const mavlink_message_t&);
+template void CommsMarshaler::SendMessage<mavlink_message_t>(const std::string &, const mavlink_message_t&);
 
 }//END Comms

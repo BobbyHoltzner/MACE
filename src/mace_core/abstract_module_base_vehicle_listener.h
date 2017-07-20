@@ -48,11 +48,11 @@ public:
             Command_SystemArm(command);
         });
 
-        this->template AddCommandLogic<CommandItem::SpatialTakeoff>(CT::REQUEST_VEHICLE_TAKEOFF, [this](const CommandItem::SpatialTakeoff &command){
+        this->template AddCommandLogic<CommandItem::SpatialTakeoff<DataState::StateGlobalPosition>>(CT::REQUEST_VEHICLE_TAKEOFF, [this](const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command){
             Command_VehicleTakeoff(command);
         });
 
-        this->template AddCommandLogic<CommandItem::SpatialLand>(CT::REQUEST_VEHICLE_LAND, [this](const CommandItem::SpatialLand &command){
+        this->template AddCommandLogic<CommandItem::SpatialLand<DataState::StateGlobalPosition>>(CT::REQUEST_VEHICLE_LAND, [this](const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command){
             Command_Land(command);
         });
 
@@ -150,8 +150,8 @@ public:
     virtual void Request_FullDataSync(const int &targetSystem) = 0;
 
     virtual void Command_SystemArm(const CommandItem::ActionArm &command) = 0;
-    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command) = 0;
-    virtual void Command_Land(const CommandItem::SpatialLand &command) = 0;
+    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &command) = 0;
+    virtual void Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command) = 0;
     virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command) = 0;
     virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command) = 0;
     virtual void Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;

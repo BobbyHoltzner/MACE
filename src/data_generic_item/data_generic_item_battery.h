@@ -3,8 +3,6 @@
 
 #include <iostream>
 
-#include "mace.h"
-
 namespace DataGenericItem {
 
 class DataGenericItem_Battery
@@ -13,8 +11,6 @@ public:
     DataGenericItem_Battery();
 
     DataGenericItem_Battery(const DataGenericItem_Battery &copyObj);
-
-    DataGenericItem_Battery(const mace_battery_status_t &copyObj);
 
     void setBatteryVoltage(const double &voltage){
         this->voltage = voltage;
@@ -36,8 +32,6 @@ public:
     double getBatteryRemaining() const{
         return batteryRemaing;
     }
-
-    mace_battery_status_t getMACECommsObject() const;
 
 public:
     void operator = (const DataGenericItem_Battery &rhs)

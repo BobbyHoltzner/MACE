@@ -171,13 +171,3 @@ Apply changes.
 
 Now open MACE/src/src.pro ensuring that it is using the kit you just created and build MACE project as you wish.
 Under "Project" option on left you may want to check "Shadow build" this helps keep your source directory clean of build artifacts.
-
-
-## Running on ODROID:
-_NOTE_: If you cannot run via command line on an ODROID, try running the following command:
-
-`export LD_LIBRARY_PATH=<path_to_MACE>/lib`
-
-where `<path_to_MACE>` is replaced with the local path to your MACE root directory. This tells the console when running an application to also look in that path for any applicable libraries. 
-
-

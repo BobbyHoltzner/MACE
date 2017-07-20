@@ -3,9 +3,6 @@
 
 #include <iostream>
 #include <string>
-
-#include "mace.h"
-
 #include "data/status_severity_type.h"
 
 namespace DataGenericItem {
@@ -35,8 +32,6 @@ public:
         return severity;
     }
 
-    mace_statustext_t getMACECommsObject() const;
-
 public:
     void operator = (const DataGenericItem_Text &rhs)
     {
@@ -57,6 +52,12 @@ public:
     bool operator != (const DataGenericItem_Text &rhs) {
         return !(*this == rhs);
     }
+
+//    std::ostream& operator<<(std::ostream &out)
+//    {
+//        out<<"Status Text( Severity: "<<StatusSeverityTypeToString(severity)<<", Text: "<<dataString<<")";
+//        return out;
+//    }
 
 protected:
     Data::StatusSeverityType severity;

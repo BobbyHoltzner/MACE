@@ -61,14 +61,12 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
     }
     case((uint8_t)Data::CommandItemType::CI_NAV_TAKEOFF):
     {
-        CommandItem::SpatialTakeoff tmpTakeoff;
+        CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> tmpTakeoff;
         tmpTakeoff.setTargetSystem(message->target_system);
-        if(message->param1 > 0.0)
-        {
-            tmpTakeoff.position.setX(message->param5);
-            tmpTakeoff.position.setY(message->param6);
-        }
-        tmpTakeoff.position.setZ(message->param7);
+        tmpTakeoff.setPositionFlag((message->param1 > 0.0) ? true : false);
+        tmpTakeoff.position.latitude = message->param5;
+        tmpTakeoff.position.longitude = message->param6;
+        tmpTakeoff.position.altitude = message->param7;
 
         //acknowledge receiving the command
         mace_command_ack_t commandACK;
@@ -85,11 +83,12 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
     }
     case((uint8_t)Data::CommandItemType::CI_NAV_LAND):
     {
-        CommandItem::SpatialLand tmpLand;
+        CommandItem::SpatialLand<DataState::StateGlobalPosition> tmpLand;
         tmpLand.setTargetSystem(message->target_system);
-        tmpLand.position.setX(message->param5);
-        tmpLand.position.setY(message->param6);
-        tmpLand.position.setZ(message->param7);
+        tmpLand.setLandFlag((message->param1 > 0.0) ? true : false);
+        tmpLand.position.latitude = message->param5;
+        tmpLand.position.longitude = message->param6;
+        tmpLand.position.altitude = message->param7;
 
         //acknowledge receiving the command
         mace_command_ack_t commandACK;

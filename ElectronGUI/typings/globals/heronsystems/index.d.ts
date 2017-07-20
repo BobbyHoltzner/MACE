@@ -18,8 +18,7 @@ type FuelType = {
 
 type TextType = {
   severity: string,
-  text: string,
-  timestamp: Date
+  text: string
 }
 
 type GPSType = {
@@ -85,10 +84,6 @@ type TCPSensorFootprintType = TCPDescriptorType & {
   sensorFootprint: PositionType[]
 }
 
-type TCPEnvironmentBoundaryType = TCPDescriptorType & {
-  environmentBoundary: PositionType[]
-}
-
 type TCPCurrentMissionItemType = TCPDescriptorType & {
   missionItemIndex: number
 }
@@ -111,7 +106,7 @@ type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType |
                      TCPFuelType | TCPMissionType | TCPModeType | TCPTextType |
                      TCPSensorFootprintType | TCPCurrentMissionItemType |
                      TCPGPSType | TCPHeartbeatType | TCPMissionItemReachedType |
-                     TCPVehicleArmType | TCPAirspeedType | TCPEnvironmentBoundaryType;
+                     TCPVehicleArmType | TCPAirspeedType;
 
 
 type MarkerType = {

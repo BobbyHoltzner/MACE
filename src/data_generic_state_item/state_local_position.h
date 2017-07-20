@@ -2,17 +2,17 @@
 #define STATE_LOCAL_POSITION_H
 
 #include <iostream>
-
-#include "mace.h"
 #include "common/common.h"
 
 #include "data/coordinate_frame.h"
-#include "abstract_3d_position.h"
-#include "base_3d_position.h"
+
+#include "state_generic_position.h"
+
+
 
 namespace DataState {
 
-class StateLocalPosition : public Abstract3DPosition<StateLocalPosition>, public Base3DPosition
+class StateLocalPosition : public StateGenericPosition
 {
 public:
     StateLocalPosition();
@@ -26,101 +26,40 @@ public:
     StateLocalPosition(const Data::CoordinateFrameType &frame, const double &x, const double &y, const double &z);
 
 public:
-    void setPosition(const double &posX, const double &posY, const double &posZ);
-    void setPositionX(const double &value);
-    void setPositionY(const double &value);
-    void setPositionZ(const double &value);
 
-    double getPositionX() const;
-    double getPositionY() const;
-    double getPositionZ() const;
+    double distanceBetween(const StateLocalPosition &position);
 
-    double bearingDegreesFromOrigin() const;
-    double distanceFromOrigin() const;
+    double bearingBetween(const StateLocalPosition &position);
 
-    mace_local_position_ned_t getMACECommsObject();
+    double finalBearing(const StateLocalPosition &postion);
 
-    //virtual functions derived from AbstractPosition
-    public:
-        //!
-        //! \brief distanceBetween2D
-        //! \param position
-        //! \return
-        //!
-        virtual double distanceBetween2D(const StateLocalPosition &position) const;
+    double initialBearing(const StateLocalPosition &postion);
 
-        //!
-        //! \brief finalBearing
-        //! \param postion
-        //! \return
-        //!
-        virtual double finalBearing(const StateLocalPosition &postion) const;
-
-        //!
-        //! \brief initialBearing
-        //! \param postion
-        //! \return
-        //!
-        virtual double initialBearing(const StateLocalPosition &postion) const;
-
-        //!
-        //! \brief bearingBetween
-        //! \param position
-        //! \return
-        //!
-        virtual double bearingBetween(const StateLocalPosition &position) const;
-
-        //!
-        //! \brief NewPositionFromHeadingBearing
-        //! \param distance
-        //! \param bearing
-        //! \param degreesFlag
-        //! \return
-        //!
-        virtual StateLocalPosition NewPositionFromHeadingBearing(const double &distance, const double &bearing, const bool &degreesFlag) const;
-
-        //!
-        //! \brief translationTransformation2D
-        //! \param position
-        //! \param transVec
-        //!
-        virtual void translationTransformation2D(const StateLocalPosition &position, Eigen::Vector2f &transVec) const;
-
-    //virtual functions derived from Abstract3DPosition
-    public:
-        //!
-        //! \brief deltaAltitude
-        //! \param position
-        //! \return
-        //!
-        virtual double deltaAltitude(const StateLocalPosition &position) const;
-
-        //!
-        //! \brief distanceBetween3D
-        //! \param position
-        //! \return
-        //!
-        virtual double distanceBetween3D(const StateLocalPosition &position) const;
-
-        //!
-        //! \brief translationTransformation3D
-        //! \param position
-        //! \param transVec
-        //!
-        virtual void translationTransformation3D(const StateLocalPosition &position, Eigen::Vector3f &transVec) const;
-
-public:
     bool essentiallyEquivalent_Percentage(const StateLocalPosition &rhs, const double &percentage);
+
     bool essentiallyEquivalent_Distance(const StateLocalPosition &rhs, const double &distance);
+
 
 public:
     void operator = (const StateLocalPosition &rhs)
     {
-        Base3DPosition::operator =(rhs);
+        StateGenericPosition::operator =(rhs);
+        this->x = rhs.x;
+        this->y = rhs.y;
+        this->z = rhs.z;
     }
 
     bool operator == (const StateLocalPosition &rhs) {
-        if(!Base3DPosition::operator ==(rhs)){
+        if(!StateGenericPosition::operator ==(rhs)){
+            return false;
+        }
+        if(this->x != rhs.x){
+            return false;
+        }
+        if(this->y != rhs.y){
+            return false;
+        }
+        if(this->z != rhs.z){
             return false;
         }
         return true;
@@ -129,6 +68,13 @@ public:
     bool operator != (const StateLocalPosition &rhs) {
         return !(*this == rhs);
     }
+
+public:
+    Data::CoordinateFrameType m_CoordinateFrame;
+
+    double x;
+    double y;
+    double z;
 };
 
 } //end of namespace DataState

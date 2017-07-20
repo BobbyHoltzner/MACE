@@ -3,8 +3,6 @@
 
 #include "module_ground_station_global.h"
 
-#include "spdlog/spdlog.h"
-
 #include <string>
 #include <memory>
 
@@ -34,6 +32,7 @@
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 #include "data_vehicle_sensors/components.h"
+#include "data_vehicle_MAVLINK/components.h"
 
 #include "guitimer.h"
 
@@ -47,9 +46,6 @@ public:
     ModuleGroundStation();
 
     ~ModuleGroundStation();
-
-
-    void initiateLogs();
 
     //!
     //! \brief Starts the TCP server for the GCS to send requests to
@@ -100,7 +96,6 @@ private:
     void sendVehicleHome(const int &vehicleID, const CommandItem::SpatialHome &home);
     void sendGlobalOrigin(const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
     void sendSensorFootprint(const int &vehicleID, const std::shared_ptr<DataVehicleSensors::SensorVertices_Global> &component);
-    void sendEnvironmentVertices(const std::shared_ptr<DataStateTopic::StateItemTopic_Boundary> &component);
     void sendCurrentMissionItem(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionItemCurrentTopic> &component);
     void sendVehicleGPS(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> &component);
     void sendVehicleHeartbeat(const int &vehicleID, const std::shared_ptr<DataGenericItem::DataGenericItem_Heartbeat> &component);
@@ -125,7 +120,6 @@ private:
     void getVehicleMission(const int &vehicleID);
     void getConnectedVehicles();
     void getVehicleHome(const int &vehicleID);
-    void getEnvironmentBoundary();
 
     // TESTING:
     void testFunction1(const int &vehicleID);
@@ -141,14 +135,10 @@ public slots:
 private:
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;
-    Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
+    Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_VEHICLE_MAVLINK_TYPES, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 
 private:
-    std::shared_ptr<spdlog::logger> mLogs;
-
-private:
-    double latitude;
     std::shared_ptr<QTcpServer> m_TcpServer;
     QThread *m_ListenThread;
     QTcpSocket *m_TcpSocket;

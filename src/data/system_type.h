@@ -22,23 +22,6 @@ enum class SystemType
     SYSTEM_TYPE_FIXED_WING=11 /* Onboard companion controller | */
 };
 
-inline bool isSystemTypeRotary(const SystemType &type)
-{
-    bool rtn = false;
-    switch (type) {
-    case SystemType::SYSTEM_TYPE_HELICOPTER:
-    case SystemType::SYSTEM_TYPE_TRICOPTER:
-    case SystemType::SYSTEM_TYPE_QUADROTOR:
-    case SystemType::SYSTEM_TYPE_HEXAROTOR:
-    case SystemType::SYSTEM_TYPE_OCTOROTOR:
-        rtn = true;
-        break;
-    default:
-        rtn = false;
-        break;
-    }
-    return rtn;
-}
 
 inline std::string SystemTypeToString(const SystemType &systemType) {
     switch (systemType) {

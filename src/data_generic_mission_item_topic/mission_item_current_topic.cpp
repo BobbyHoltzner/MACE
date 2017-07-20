@@ -23,16 +23,4 @@ void MissionItemCurrentTopic::CreateFromDatagram(const MaceCore::TopicDatagram &
     missionItemIndex = datagram.GetTerminal<int>("missionItemIndex");
 }
 
-MissionItemCurrentTopic::MissionItemCurrentTopic():
-    vehicleID(0), missionItemIndex(0)
-{
-
-}
-
-MissionItemCurrentTopic::MissionItemCurrentTopic(const MissionItemCurrentTopic &copyObj)
-{
-    this->vehicleID = copyObj.vehicleID;
-    this->missionItemIndex = copyObj.missionItemIndex;
-}
-
 } //end of namespace MissionTopic

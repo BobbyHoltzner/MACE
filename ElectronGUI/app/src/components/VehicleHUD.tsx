@@ -24,8 +24,7 @@ type Props = {
 
 type State = {
     selectedBattery?: string,
-    batteryText?: string,
-    showHUDMessage?: boolean
+    batteryText?: string
 }
 
 export class VehicleHUD extends React.Component<Props, State> {
@@ -35,25 +34,12 @@ export class VehicleHUD extends React.Component<Props, State> {
 
         this.state = {
             selectedBattery: "Voltage",
-            batteryText: this.props.aircraft.fuel.batteryVoltage + " V",
-            showHUDMessage: false
+            batteryText: ""
         }
     }
 
     componentWillReceiveProps(nextProps: Props) {
         this.handleBatteryChange(this.state.selectedBattery);
-
-
-        if(nextProps.aircraft.messages.length > 0) {
-            let diff = Math.abs(new Date() - nextProps.aircraft.messages[0].timestamp); // OK TS ERROR
-            if(diff > 10000) {
-                this.setState({showHUDMessage: false});
-            }
-            else {
-                this.setState({showHUDMessage: true});
-            }
-        }
-
     }
 
     handleLoiter = () => {
@@ -181,7 +167,7 @@ export class VehicleHUD extends React.Component<Props, State> {
                             </div>
                         </div>
 
-                        {(this.props.aircraft.messages.length > 0 && this.state.showHUDMessage) &&
+                        {this.props.aircraft.messages.length > 0 &&
                             <div className="col-xs-12">
                                 <br></br>
                                 <div style={{width: '100%', height: '9px', borderBottom: '1px solid #8c8b8b', textAlign: 'center'}}>
@@ -209,13 +195,13 @@ export class VehicleHUD extends React.Component<Props, State> {
                             onClick={this.handleLoiter}
                             icon={<i className="material-icons">pause</i>} />
                         <FlatButton
-                            label="Home"
+                            label="RTL"
                             onClick={this.handleRTL}
                             icon={<i className="material-icons">home</i>} />
                         <FlatButton
                             label="Sync"
                             onClick={this.syncVehicle}
-                            icon={<i className="material-icons">cached</i>} />
+                            icon={<i className="material-icons">swap_calls</i>} />
                     </CardActions>
 
                 </Card>

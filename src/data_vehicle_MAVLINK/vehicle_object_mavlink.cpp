@@ -40,26 +40,26 @@ std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> VehicleObject_MAVL
 
 bool VehicleObject_MAVLINK::generateBasicGuidedMessage(const std::shared_ptr<CommandItem::AbstractCommandItem> &missionItem, const uint8_t &chan, mavlink_message_t &msg)
 {
-//    switch(missionItem->getCommandType())
-//    {
-//    case(Data::CommandItemType::CI_NAV_WAYPOINT):
-//    {
-//        if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
-//        {
-//            std::shared_ptr<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
-//            CommandItem::SpatialWaypoint<DataState::StateGlobalPosition> baseItem = *castItem.get();
-//            mavlink_mission_item_t newItem = Waypoint_MACETOMAVLINK(baseItem,0,0);
-//            newItem.current = 2;
-//            msg = packMissionItem(newItem,chan);
-//            return true;
-//        }else{
-//            return false;
-//        }
-//        break;
-//    }
-//    default:
-//        return false;
-//    } //end of switch statement
+    switch(missionItem->getCommandType())
+    {
+    case(Data::CommandItemType::CI_NAV_WAYPOINT):
+    {
+        if(missionItem->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
+        {
+            std::shared_ptr<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint<DataState::StateGlobalPosition>>(missionItem);
+            CommandItem::SpatialWaypoint<DataState::StateGlobalPosition> baseItem = *castItem.get();
+            mavlink_mission_item_t newItem = Waypoint_MACETOMAVLINK(baseItem,0,0);
+            newItem.current = 2;
+            msg = packMissionItem(newItem,chan);
+            return true;
+        }else{
+            return false;
+        }
+        break;
+    }
+    default:
+        return false;
+    } //end of switch statement
 }
 
 } //end of namespace DataMAVLINK

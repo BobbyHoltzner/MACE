@@ -17,6 +17,13 @@ void CommsMAVLINK::VehicleHeartbeatInfo(const std::string &linkName, const int &
     UNUSED(heartbeatMSG);
 }
 
+void CommsMAVLINK::VehicleCommandACK(const std::string &linkName, const int &systemID, const mavlink_command_ack_t &cmdACK)
+{
+    UNUSED(linkName);
+    UNUSED(systemID);
+    UNUSED(cmdACK);
+}
+
 void CommsMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
     UNUSED(linkName);

@@ -180,6 +180,13 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                     associatedSystemID = senderID;
                     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
                 }
+//                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemArm::Name()) {
+//                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>();
+//                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+//                    mace_message_t msg = helper.Generic_MACETOCOMMS::SystemArmTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
+//                    associatedSystemID = senderID;
+//                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+//                }
                 else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemArm::Name()) {
                     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>();
                     m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
@@ -258,13 +265,13 @@ void ModuleExternalLink::Command_ChangeSystemMode(const CommandItem::ActionChang
     UNUSED(vehicleMode);
 }
 
-void ModuleExternalLink::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &vehicleTakeoff)
+void ModuleExternalLink::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &vehicleTakeoff)
 {
     mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateTakeoffMessage(vehicleTakeoff,m_LinkChan);
     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::Command_Land(const CommandItem::SpatialLand &command)
+void ModuleExternalLink::Command_Land(const CommandItem::SpatialLand<DataState::StateGlobalPosition> &command)
 {
     mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateLandMessage(command,m_LinkChan);
     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
@@ -288,7 +295,7 @@ void ModuleExternalLink::Command_IssueGeneralCommand(const std::shared_ptr<Comma
     UNUSED(command);
 }
 
-void ModuleExternalLink::Command_EmitHeartbeat(const CommandItem::SpatialTakeoff &heartbeat)
+void ModuleExternalLink::Command_EmitHeartbeat(const CommandItem::SpatialTakeoff<DataState::StateGlobalPosition> &heartbeat)
 {
 
 }
@@ -419,11 +426,11 @@ void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHo
 {
     mace_home_position_t homePos;
     float power = pow(10,7);
-    homePos.latitude = home.position.getX() * power;
-    homePos.longitude = home.position.getY() * power;
-    homePos.altitude = home.position.getZ() * power;
+    homePos.latitude = home.position.latitude * power;
+    homePos.longitude = home.position.longitude * power;
+    homePos.altitude = home.position.altitude * power;
     mace_message_t msg;
-    mace_msg_home_position_encode_chan(home.getOriginatingSystem(),0,m_LinkChan,&msg,&homePos);
+    mace_msg_home_position_encode_chan(home.getGeneratingSystem(),0,m_LinkChan,&msg,&homePos);
     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 

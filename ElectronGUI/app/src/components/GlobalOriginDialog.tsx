@@ -77,9 +77,9 @@ export class GlobalOriginDialog extends React.Component<Props, State> {
 
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <Dialog titleStyle={{backgroundColor: colors.orange700, color: colors.white}} title="Set global home position" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose} contentStyle={{width: '20%'}}>
+                <Dialog titleStyle={{backgroundColor: colors.orange700, color: colors.white}} title="Set global home position" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose}>
                     <Grid fluid>
-                        <Col xs={12} md={12}>
+                        <Col xs={12} md={6}>
                             <TextField
                                 id={"globalLat"}
                                 floatingLabelText="Latitude (decimal)"
@@ -87,10 +87,9 @@ export class GlobalOriginDialog extends React.Component<Props, State> {
                                 underlineFocusStyle={{borderColor: colors.orange700}}
                                 onChange={this.handleTextChange}
                                 value={this.state.globalLat}
-                                type={"number"}
                             />
                         </Col>
-                        <Col xs={12} md={12}>
+                        <Col xs={12} md={6}>
                             <TextField
                                 id={"globalLon"}
                                 floatingLabelText="Longitude (decimal)"
@@ -98,7 +97,6 @@ export class GlobalOriginDialog extends React.Component<Props, State> {
                                 underlineFocusStyle={{borderColor: colors.orange700}}
                                 onChange={this.handleTextChange}
                                 value={this.state.globalLon}
-                                type={"number"}
                             />
                         </Col>
                         {/* NOT SETTING ALTITUDE AT THIS TIME--DEFAULTED TO 0
