@@ -281,16 +281,24 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         mavlink_mission_current_t decodedMSG;
         mavlink_msg_mission_current_decode(msg,&decodedMSG);
 
-        MissionTopic::MissionItemCurrentTopic missionTopic;
-        missionTopic.setVehicleID(this->systemID);
-        missionTopic.setMissionItemIndex(decodedMSG.seq);
-
-        if(mission->missionItemCurrent.set(missionTopic))
+        if(decodedMSG.seq == 0)
         {
-            std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>(missionTopic);
-            if(this->m_CB != NULL)
-                m_CB->cbi_VehicleMissionData(systemID,ptrMissionTopic);
+            //the current target is home and we should handle this differently
         }
+        else{
+            int currentTarget = decodedMSG.seq - 1;
+            MissionTopic::MissionItemCurrentTopic missionTopic;
+            missionTopic.setVehicleID(this->systemID);
+            missionTopic.setMissionItemIndex(currentTarget);
+
+            if(mission->missionItemCurrent.set(missionTopic))
+            {
+                std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>(missionTopic);
+                if(this->m_CB != NULL)
+                    m_CB->cbi_VehicleMissionData(systemID,ptrMissionTopic);
+            }
+        }
+
         break;
     }
     case MAVLINK_MSG_ID_MISSION_COUNT:
