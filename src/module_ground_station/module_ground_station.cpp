@@ -639,6 +639,13 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 // Write current mission item to the GUI:
                 sendCurrentMissionItem(senderID, component);
             }
+            else if(componentsUpdated.at(i) == MissionTopic::VehicleTargetTopic::Name()) {
+                std::shared_ptr<MissionTopic::VehicleTargetTopic> component = std::make_shared<MissionTopic::VehicleTargetTopic>();
+                m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write vehicle target to the GUI:
+                sendVehicleTarget(senderID, component);
+            }
         }
     }
     else if(topicName == m_SensorFootprintDataTopic.Name())
@@ -825,6 +832,23 @@ void ModuleGroundStation::sendCurrentMissionItem(const int &vehicleID, const std
 
     if(!bytesWritten){
         std::cout << "Write current mission item failed..." << std::endl;
+    }
+}
+
+void ModuleGroundStation::sendVehicleTarget(const int &vehicleID, const std::shared_ptr<MissionTopic::VehicleTargetTopic> &component) {
+    QJsonObject json;
+    json["dataType"] = "CurrentVehicleTarget";
+    json["vehicleID"] = vehicleID;
+    json["distanceToTarget"] = component->targetDistance;
+    json["lat"] = component->targetPosition.getX();
+    json["lon"] = component->targetPosition.getY();
+    json["alt"] = component->targetPosition.getZ();
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write current vehicle target failed..." << std::endl;
     }
 }
 
@@ -1186,7 +1210,7 @@ void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
     bool bytesWritten = writeTCPData(doc.toJson());
 
     if(!bytesWritten){
-        std::cout << "Write New Vehicle Data failed..." << std::endl;
+        std::cout << "Write ConnectedVehicles failed..." << std::endl;
     }
 }
 

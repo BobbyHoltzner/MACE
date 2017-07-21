@@ -20,7 +20,8 @@ class VehicleTargetTopic: public Data::NamedTopicComponentDataObject<VehicleTarg
 public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
-public:
+public:    
+    VehicleTargetTopic();
     VehicleTargetTopic(const int &vehicleID, const DataState::Base3DPosition &targetPosition, const double &targetDistance);
     VehicleTargetTopic(const VehicleTargetTopic &target);
 

@@ -25,6 +25,8 @@ export class Vehicle{
     gps: GPSType;
     highlightColor: string;
     opaqueHighlightColor: string;
+    currentTarget: {distanceToTarget: number, targetPosition: PositionType, icon: L.DivIcon, active: boolean};
+
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
         this.isNew = true;
@@ -104,6 +106,19 @@ export class Vehicle{
             latLon: new L.LatLng(0, 0),
             altitude: this.position.alt,
             icon: homeIcon
+        }
+
+        let currentTargetHTML = '<img src="./images/guided-icon.png" alt="Guided icon" style="width:41px; height:41px;">';
+        this.currentTarget = {
+            distanceToTarget: null,
+            targetPosition: {lat: null, lon: null, alt: null},
+            icon: new L.DivIcon({
+                html: currentTargetHTML,
+                iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
+                popupAnchor: [0, -18], // point from which the popup should open relative to the iconAnchor
+                className: '' // setting this overrides default css and gets rid of white box
+            }),
+            active: false
         }
     }
 

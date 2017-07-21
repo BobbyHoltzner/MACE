@@ -93,6 +93,10 @@ type TCPCurrentMissionItemType = TCPDescriptorType & {
   missionItemIndex: number
 }
 
+type TCPVehicleTargetType = TCPDescriptorType & PositionType & {
+  distanceToTarget: number
+}
+
 type TCPVehicleArmType = TCPDescriptorType & {
   armed: boolean
 }
@@ -111,7 +115,8 @@ type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType |
                      TCPFuelType | TCPMissionType | TCPModeType | TCPTextType |
                      TCPSensorFootprintType | TCPCurrentMissionItemType |
                      TCPGPSType | TCPHeartbeatType | TCPMissionItemReachedType |
-                     TCPVehicleArmType | TCPAirspeedType | TCPEnvironmentBoundaryType;
+                     TCPVehicleArmType | TCPAirspeedType | TCPEnvironmentBoundaryType |
+                     TCPVehicleTargetType;
 
 
 type MarkerType = {
