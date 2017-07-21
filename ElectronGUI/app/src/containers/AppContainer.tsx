@@ -232,6 +232,9 @@ export default class AppContainer extends React.Component<Props, State> {
   parseTCPClientData = (jsonData: TCPReturnType) => {
     let stateCopy = deepcopy(this.state.connectedVehicles);
 
+    // Log message:
+    this.logger.info("[MACE Data: " + JSON.stringify(jsonData) + "]");
+
     if(jsonData.dataType === "ConnectedVehicles"){
       let jsonVehicles = jsonData as ConnectedVehiclesType;
 
@@ -430,6 +433,15 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(jsonData.dataType === 'VehicleArm') {
       let jsonArm = jsonData as TCPVehicleArmType;
       stateCopy[jsonArm.vehicleID].isArmed = jsonArm.armed;
+      this.vehicleDB = stateCopy;
+    }
+    else if(jsonData.dataType === 'CurrentVehicleTarget') {
+      let jsonVehicleTarget = jsonData as TCPVehicleTargetType;
+      stateCopy[jsonVehicleTarget.vehicleID].currentTarget.active = true;
+      stateCopy[jsonVehicleTarget.vehicleID].currentTarget.distanceToTarget = jsonVehicleTarget.distanceToTarget;
+      stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.lat = jsonVehicleTarget.lat;
+      stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.lon = jsonVehicleTarget.lon;
+      stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.alt = jsonVehicleTarget.alt;
       this.vehicleDB = stateCopy;
     }
   }
