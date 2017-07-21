@@ -140,6 +140,7 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
                 CommandItem::SpatialTakeoff defaultTakeoff = command;
                 newController->initializeTakeoffSequence(defaultTakeoff);
             }
+            newController->connectTargetCallback(ModuleVehicleArdupilot::staticCallbackFunction_VehicleTarget, this);
 
             this->SpinUpController(newController);
         }

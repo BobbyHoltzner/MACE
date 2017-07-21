@@ -28,6 +28,8 @@
 
 #include <list>
 
+typedef void(*CallbackFunctionPtr_VehicleTarget)(void*, MissionTopic::VehicleTargetTopic&);
+
 class Ardupilot_GeneralController : public Thread
 {
 public:
@@ -49,6 +51,15 @@ public:
 
     virtual void updateCommandACK(const mavlink_command_ack_t &cmdACK) = 0;
 
+    void connectTargetCallback(CallbackFunctionPtr_VehicleTarget cb, void *p)
+    {
+        m_CBTarget = cb;
+        m_FunctionTarget = p;
+    }
+
+protected:
+    CallbackFunctionPtr_VehicleTarget m_CBTarget;
+    void *m_FunctionTarget;
 
 protected:
     controllerTypes controllerType;

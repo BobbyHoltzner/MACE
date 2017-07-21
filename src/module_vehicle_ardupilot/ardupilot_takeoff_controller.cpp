@@ -89,14 +89,18 @@ double Ardupilot_TakeoffController::distanceToTarget(){
     case(ALTITUDE_TRANSITION):
     {
         DataState::StateGlobalPosition currentPosition = vehicleDataObject->state->vehicleGlobalPosition.get();
-        DataState::StateGlobalPosition targetPosition(missionItem_Takeoff.position.getX(),missionItem_Takeoff.position.getY(),missionItem_Takeoff.position.getZ());
+        DataState::StateGlobalPosition targetPosition(currentPosition.getX(),currentPosition.getY(),missionItem_Takeoff.position.getZ());
         distance  = fabs(currentPosition.deltaAltitude(targetPosition));
+        MissionTopic::VehicleTargetTopic vehicleTarget(vehicleDataObject->getSystemID(), targetPosition, distance);
+        m_CBTarget(m_FunctionTarget,vehicleTarget);
         break;
     }
     case(HORIZONTAL_TRANSITION):
     {
         DataState::StateGlobalPosition targetPosition(missionItem_Takeoff.position.getX(),missionItem_Takeoff.position.getY(),missionItem_Takeoff.position.getZ());
         distance = vehicleDataObject->state->vehicleGlobalPosition.get().distanceBetween3D(targetPosition);
+        MissionTopic::VehicleTargetTopic vehicleTarget(vehicleDataObject->getSystemID(), targetPosition, distance);
+        m_CBTarget(m_FunctionTarget,vehicleTarget);
         break;
     }
     default:
@@ -221,7 +225,6 @@ void Ardupilot_TakeoffController::controlSequence()
 {
     //let us see how close we are to our target
     double distance = distanceToTarget();
-    std::cout<<"The distance to the target is: "<<distance<<std::endl;
     Data::ControllerState currentState = vehicleMissionState.updateMissionState(distance);
     generateControl(currentState);
 }
