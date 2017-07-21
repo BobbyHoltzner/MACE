@@ -3,6 +3,8 @@
 
 #include <map>
 
+#include "spdlog/spdlog.h"
+
 #include <mavlink.h>
 #include "data/mission_command.h"
 
@@ -40,6 +42,8 @@ public:
     ModuleVehicleArdupilot();
 
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
+
+    void createLog(const int &systemID);
 
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
@@ -254,6 +258,10 @@ public:
 //            newController->start();
 //        });
     }
+
+private:
+    std::shared_ptr<spdlog::logger> mLogs;
+
 private:
     std::shared_ptr<DataInterface_MAVLINK::VehicleObject_MAVLINK> vehicleData;
 
