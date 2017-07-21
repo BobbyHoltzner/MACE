@@ -127,38 +127,38 @@ export default class AppContainer extends React.Component<Props, State> {
       environmentBoundary: []
     }
 
-    // Set up logger:
-    this.logger = new winston.Logger({
-        transports: [
-            new winston.transports.File({
-                timestamp: function() {
-                  let date = new Date();
-                  let year = date.getFullYear();
-                  let month = ('0'+(date.getMonth()+1)).slice(-2);
-                  let day = date.getDate();
-                  let hour = date.getHours();
-                  let minutes = date.getMinutes();
-                  let seconds = date.getSeconds();
-                  let msecs = date.getMilliseconds();
-                  return '[' + year + '-' + month + '-' + day + ' ' + hour + ':' + minutes + ':' + seconds + '.' + msecs + ']';
-                },
-                level: 'info',
-                filename: '../logs/GUI_logs.log',
-                handleExceptions: true,
-                json: false,
-                maxsize: 5242880, //5MB
-                maxFiles: 5,
-                colorize: false,
-                formatter: function customFileFormatter (options: any) {
-                    // Return string will be passed to logger.
-                    return options.timestamp() +' ['+ options.level.toUpperCase() +'] '+ (undefined !== options.message ? options.message : '') +
-                    (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '' );
-                }
-            })
-        ],
-        exitOnError: false
-    });
-    this.logger.info('************************ Starting log ************************')
+    // // Set up logger:
+    // this.logger = new winston.Logger({
+    //     transports: [
+    //         new winston.transports.File({
+    //             timestamp: function() {
+    //               let date = new Date();
+    //               let year = date.getFullYear();
+    //               let month = ('0'+(date.getMonth()+1)).slice(-2);
+    //               let day = date.getDate();
+    //               let hour = date.getHours();
+    //               let minutes = date.getMinutes();
+    //               let seconds = date.getSeconds();
+    //               let msecs = date.getMilliseconds();
+    //               return '[' + year + '-' + month + '-' + day + ' ' + hour + ':' + minutes + ':' + seconds + '.' + msecs + ']';
+    //             },
+    //             level: 'info',
+    //             filename: '../logs/GUI_logs.log',
+    //             handleExceptions: true,
+    //             json: false,
+    //             maxsize: 5242880, //5MB
+    //             maxFiles: 5,
+    //             colorize: false,
+    //             formatter: function customFileFormatter (options: any) {
+    //                 // Return string will be passed to logger.
+    //                 return options.timestamp() +' ['+ options.level.toUpperCase() +'] '+ (undefined !== options.message ? options.message : '') +
+    //                 (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '' );
+    //             }
+    //         })
+    //     ],
+    //     exitOnError: false
+    // });
+    // this.logger.info('************************ Starting log ************************');
   }
 
   componentDidMount(){
@@ -233,7 +233,7 @@ export default class AppContainer extends React.Component<Props, State> {
     let stateCopy = deepcopy(this.state.connectedVehicles);
 
     // Log message:
-    this.logger.info("[MACE Data: " + JSON.stringify(jsonData) + "]");
+    // this.logger.info("[MACE Data: " + JSON.stringify(jsonData) + "]");
 
     if(jsonData.dataType === "ConnectedVehicles"){
       let jsonVehicles = jsonData as ConnectedVehiclesType;
@@ -450,7 +450,7 @@ export default class AppContainer extends React.Component<Props, State> {
   makeTCPRequest = (vehicleID: number, tcpCommand: string, vehicleCommand: string) => {
 
     // Log message:
-    this.logger.info("{TCP Command: " + tcpCommand + "}  {Vehicle Command: " + vehicleCommand + "}");
+    // this.logger.info("{TCP Command: " + tcpCommand + "}  {Vehicle Command: " + vehicleCommand + "}");
 
     let socket = new net.Socket();
     this.setupTCPClient(socket);
