@@ -27,7 +27,6 @@ void ModuleVehicleArdupilot::createLog(const int &systemID)
 
     std::string rootPath(MACEPath);
     logname = rootPath + kPathSeparator + "logs/VehicleModule_" + std::to_string(systemID) + ".txt";
-
     std::string loggerName = "VehicleModule_" + std::to_string(systemID);
     char logNameArray[loggerName.size()+1];//as 1 char space for null is also required
     strcpy(logNameArray, loggerName.c_str());
@@ -76,6 +75,12 @@ void ModuleVehicleArdupilot::cbi_VehicleStateData(const int &systemID, std::shar
 
 void ModuleVehicleArdupilot::cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home)
 {
+    std::stringstream buffer;
+    buffer << home;
+
+    mLogs->debug("Receieved a new vehicle home position.");
+    mLogs->info(buffer.str());
+
     //notify the core of the change
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
         ptr->GVEvents_NewHomePosition(this, home);
@@ -90,6 +95,8 @@ void ModuleVehicleArdupilot::cbi_VehicleHome(const int &systemID, const CommandI
 
 void ModuleVehicleArdupilot::cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList)
 {
+    mLogs->debug("Receieved a new vehicle mission.");
+
     //We should update the core
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
         ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
@@ -124,11 +131,23 @@ void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem)
 
 void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command)
 {
+    std::stringstream buffer;
+    buffer << command;
+
+    mLogs->debug("Receieved a command system arm.");
+    mLogs->info(buffer.str());
+
     vehicleData->m_CommandController->setSystemArm(command);
 }
 
 void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command)
 {
+    std::stringstream buffer;
+    buffer << command;
+
+    mLogs->debug("Receieved a command takeoff.");
+    mLogs->info(buffer.str());
+
     if(vehicleData)
     {
         if(command.getTargetSystem() == vehicleData->getSystemID())
@@ -150,18 +169,28 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
 
 void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &command)
 {
+    std::stringstream buffer;
+    buffer << command;
+
+    mLogs->debug("Receieved a command to land.");
+    mLogs->info(buffer.str());
+
     if(vehicleData)
         vehicleData->m_CommandController->setSystemLand(command);
 }
 
 void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command)
 {
+    mLogs->debug("Receieved a command RTL.");
+
     if(vehicleData)
         vehicleData->m_CommandController->setSystemRTL(command);
 }
 
 void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command)
 {
+    mLogs->debug("Receieved a command to change mission state.");
+
     int systemID = command.getTargetSystem();
     if((vehicleData) && (vehicleData->getSystemID() == systemID))
     {
@@ -199,6 +228,12 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
 
 void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command)
 {
+    std::stringstream buffer;
+    buffer << command;
+
+    mLogs->debug("Receieved a command to change the mode.");
+    mLogs->info(buffer.str());
+
     DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
     int mode = tmp.getFlightModeFromString(command.getRequestMode());
     vehicleData->command->setNewMode(mode,255,m_LinkChan);
@@ -233,6 +268,12 @@ void ModuleVehicleArdupilot::Command_GetHomePosition(const int &vehicleID)
 
 void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome)
 {
+    std::stringstream buffer;
+    buffer << vehicleHome;
+
+    mLogs->debug("Receieved a command to home position.");
+    mLogs->info(buffer.str());
+
     if((vehicleData) && (vehicleData->getSystemID() == vehicleHome.getTargetSystem()))
         vehicleData->m_CommandController->setHomePosition(vehicleHome);
 }

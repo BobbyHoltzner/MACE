@@ -291,6 +291,8 @@ void ModuleGroundStation::testFunction2(const int &vehicleID)
 
 void ModuleGroundStation::getConnectedVehicles()
 {
+    mLogs->debug("Module Ground Station saw a request for getting connected vehicles.");
+
     // TODO-PAT: Instead of grabbing all vehicles, only send the one thats added to the GUI
     //          -Eventually, handle the removal of a vehicle as well.
 
@@ -339,7 +341,6 @@ void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject 
 {
     CommandItem::ActionArm tmpArm;
     tmpArm.setTargetSystem(vehicleID); // the vehicle ID coordinates to the specific vehicle //vehicle 0 is reserved for all connected vehicles
-    //    tmpMode.setRequestMode(jsonObj["vehicleCommand"].toString().toStdString()); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
 
     QJsonObject arm = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
     tmpArm.setVehicleArm(arm.value("arm").toBool());
@@ -437,10 +438,12 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
     tmpHome.position.setX(position.value("lat").toDouble());
     tmpHome.position.setY(position.value("lon").toDouble());
     tmpHome.position.setZ(position.value("alt").toDouble());
+
     std::stringstream buffer;
     buffer << tmpHome;
     mLogs->debug("Module Ground Station issuing a new vehicle home to system " + std::to_string(vehicleID) + ".");
     mLogs->info(buffer.str());
+
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
         ptr->Event_SetHomePosition(this, tmpHome);
     });
