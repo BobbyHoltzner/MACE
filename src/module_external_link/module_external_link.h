@@ -35,14 +35,29 @@
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
+#include "controllers/command_controller_externalLink.h"
+#include "controllers/mission_controller_externalLink.h"
+
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public MaceCore::IModuleCommandExternalLink,
-        public CommsMACEHelper
+        public CommsMACEHelper,
+        public ExternalLink::CommandController_Interface
 {
 
 public:
 
     ModuleExternalLink();
+
+    void transmitMessage(const mace_message &msg);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    /// The following are public virtual functions imposed from the Command Controller
+    /// Interface via callback functionality.
+    ///////////////////////////////////////////////////////////////////////////////////////
+    void cbiCommandController_transmitCommand(const mace_command_short_t &cmd);
+    void cbiCommandController_transmitCommand(const mace_command_long_t &cmd);
+    void cbiCommandController_CommandACK(const mace_command_ack_t &ack);
+
 
     bool isExternalLinkAirborne() const
     {
@@ -116,8 +131,6 @@ public:
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
 
-
-
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from IModuleCommandExternalLink
     /// via the base listener class.
@@ -140,7 +153,7 @@ public:
     //! \brief Command_ChangeVehicleArm
     //! \param vehicleArm
     //!
-    virtual void Command_SystemArm(const CommandItem::ActionArm &vehicleArm);
+    virtual void Command_SystemArm(const CommandItem::ActionArm &systemArm);
 
     //!
     //! \brief Command_ChangeVehicleOperationalMode
@@ -158,13 +171,13 @@ public:
     //! \brief Command_Land
     //! \param command
     //!
-    virtual void Command_Land(const CommandItem::SpatialLand &command);
+    virtual void Command_Land(const CommandItem::SpatialLand &vehicleLand);
 
     //!
     //! \brief Command_ReturnToLaunch
     //! \param command
     //!
-    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command);
+    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &vehicleRTL);
 
 
     //!
@@ -262,7 +275,7 @@ public:
     //! \brief Command_SetHomePosition
     //! \param vehicleHome
     //!
-    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome);
+    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &systemHome);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from IModuleCommandExternalLink.
@@ -271,6 +284,10 @@ public:
     virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key);
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
     virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey);
+
+private:
+    std::shared_ptr<ExternalLink::CommandController_ExternalLink> m_CommandController;
+    std::shared_ptr<ExternalLink::MissionController_ExternalLink> m_MissionController;
 
 private:
     bool airborneInstance;

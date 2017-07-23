@@ -5,10 +5,41 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ModuleExternalLink::ModuleExternalLink() :
-    m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"), associatedSystemID(254), airborneInstance(true)
+    m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"),
+    associatedSystemID(254), airborneInstance(true),
+    m_CommandController(NULL),m_MissionController(NULL)
 {
 
 }
+
+void ModuleExternalLink::transmitMessage(const mace_message &msg)
+{
+    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+/// The following are public virtual functions imposed from the Command Controller
+/// Interface via callback functionality.
+///////////////////////////////////////////////////////////////////////////////////////
+void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command_short_t &cmd)
+{
+    mace_message_t msg;
+    mace_msg_command_short_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,cmd);
+    transmitMessage(msg);
+}
+
+void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command_long_t &cmd)
+{
+    mace_message_t msg;
+    mace_msg_command_long_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,cmd);
+    transmitMessage(msg);
+}
+
+void ModuleExternalLink::cbiCommandController_CommandACK(const mace_command_ack_t &ack)
+{
+
+}
+
 
 //!
 //! \brief This module as been attached as a module
@@ -138,84 +169,6 @@ void ModuleExternalLink::MACECommandACK(const std::string &linkName, const int &
 
 }
 
-//!
-//! \brief ModuleExternalLink::NewTopic
-//! \param topicName
-//! \param senderID
-//! \param componentsUpdated
-//!
-void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
-{
-
-    DataCOMMS::Generic_MACETOCOMMS helper;
-    if(airborneInstance)
-    {
-        //In relevance to the external link module, the module when receiving a new topic should pack that up for transmission
-        //to other instances of MACE
-        //example read of vehicle data
-        if(topicName == m_VehicleDataTopic.Name())
-        {
-            //get latest datagram from mace_data
-            MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
-            //example of how to get data and parse through the components that were updated
-            for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-                if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Heartbeat::Name()) {
-                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>();
-                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = helper.HeartbeatTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
-                    associatedSystemID = senderID;
-                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-                }
-                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
-                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>();
-                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = helper.Generic_MACETOCOMMS::GPSTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
-                    associatedSystemID = senderID;
-                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-                }
-                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_FlightMode::Name()) {
-                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
-                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = helper.Generic_MACETOCOMMS::FlightModeTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
-                    associatedSystemID = senderID;
-                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-                }
-                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemArm::Name()) {
-                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>();
-                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = helper.SystemArmTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
-                    associatedSystemID = senderID;
-                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-                }
-                else if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
-                    std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
-                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = DataCOMMS::State_MACETOCOMMS::AttitudeStateFullTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
-                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-                }
-                else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
-                    std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
-                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = DataCOMMS::State_MACETOCOMMS::GlobalPositionTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
-                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-                }
-                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Battery::Name()) {
-                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>();
-                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = helper.Generic_MACETOCOMMS::BatteryTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
-                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-                }
-                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Text::Name()) {
-                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
-                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = helper.Generic_MACETOCOMMS::TextTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
-                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-                }
-            }
-        }
-    }
-}
-
 void ModuleExternalLink::PublishVehicleData(const int &systemID, const std::shared_ptr<Data::ITopicComponentDataObject> &component)
 {
     //construct datagram
@@ -247,10 +200,9 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem)
     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &vehicleArm)
+void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &systemArm)
 {
-    mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateArmMessage(vehicleArm,m_LinkChan);
-    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+    m_CommandController->setSystemArm(systemArm);
 }
 
 void ModuleExternalLink::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode)
@@ -260,20 +212,17 @@ void ModuleExternalLink::Command_ChangeSystemMode(const CommandItem::ActionChang
 
 void ModuleExternalLink::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &vehicleTakeoff)
 {
-    mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateTakeoffMessage(vehicleTakeoff,m_LinkChan);
-    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+    m_CommandController->setSystemTakeoff(vehicleTakeoff);
 }
 
-void ModuleExternalLink::Command_Land(const CommandItem::SpatialLand &command)
+void ModuleExternalLink::Command_Land(const CommandItem::SpatialLand &vehicleLand)
 {
-    mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateLandMessage(command,m_LinkChan);
-    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+    m_CommandController->setSystemLand(vehicleLand);
 }
 
-void ModuleExternalLink::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command)
+void ModuleExternalLink::Command_ReturnToLaunch(const CommandItem::SpatialRTL &vehicleRTL)
 {
-    mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateRTLMessage(command,m_LinkChan);
-    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+    m_CommandController->setSystemRTL(vehicleRTL);
 }
 
 void ModuleExternalLink::Command_MissionState(const CommandItem::ActionMissionCommand &command)
@@ -301,14 +250,14 @@ void ModuleExternalLink::Command_EmitHeartbeat(const CommandItem::SpatialTakeoff
 
 void ModuleExternalLink::Command_GetHomePosition(const int &vehicleID)
 {
+    m_MissionController->
     mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateGetHomeMessage(vehicleID,m_LinkChan);
     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome)
+void ModuleExternalLink::Command_SetHomePosition(const CommandItem::SpatialHome &systemHome)
 {
-    mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateSetHomePosition(vehicleHome,m_LinkChan);
-    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+    m_CommandController->setHomePosition(systemHome);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -445,6 +394,85 @@ void ModuleExternalLink::NewlyAvailableMissionExeState(const Data::MissionKey &k
         mace_message_t msg;
         mace_msg_mission_exe_state_encode_chan(key.m_systemID,0,m_LinkChan,&msg,&state);
         m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+    }
+}
+
+
+//!
+//! \brief ModuleExternalLink::NewTopic
+//! \param topicName
+//! \param senderID
+//! \param componentsUpdated
+//!
+void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
+{
+
+    DataCOMMS::Generic_MACETOCOMMS helper;
+    if(airborneInstance)
+    {
+        //In relevance to the external link module, the module when receiving a new topic should pack that up for transmission
+        //to other instances of MACE
+        //example read of vehicle data
+        if(topicName == m_VehicleDataTopic.Name())
+        {
+            //get latest datagram from mace_data
+            MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+            //example of how to get data and parse through the components that were updated
+            for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+                if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Heartbeat::Name()) {
+                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>();
+                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                    mace_message_t msg = helper.HeartbeatTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
+                    associatedSystemID = senderID;
+                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+                }
+                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
+                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>();
+                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                    mace_message_t msg = helper.Generic_MACETOCOMMS::GPSTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
+                    associatedSystemID = senderID;
+                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+                }
+                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_FlightMode::Name()) {
+                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
+                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                    mace_message_t msg = helper.Generic_MACETOCOMMS::FlightModeTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
+                    associatedSystemID = senderID;
+                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+                }
+                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemArm::Name()) {
+                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>();
+                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                    mace_message_t msg = helper.SystemArmTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
+                    associatedSystemID = senderID;
+                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+                }
+                else if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
+                    std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
+                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                    mace_message_t msg = DataCOMMS::State_MACETOCOMMS::AttitudeStateFullTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
+                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+                }
+                else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
+                    std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
+                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                    mace_message_t msg = DataCOMMS::State_MACETOCOMMS::GlobalPositionTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
+                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+                }
+                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Battery::Name()) {
+                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>();
+                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                    mace_message_t msg = helper.Generic_MACETOCOMMS::BatteryTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
+                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+                }
+                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Text::Name()) {
+                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
+                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                    mace_message_t msg = helper.Generic_MACETOCOMMS::TextTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
+                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+                }
+            }
+        }
     }
 }
 

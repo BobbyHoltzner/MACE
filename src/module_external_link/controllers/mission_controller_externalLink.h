@@ -32,6 +32,8 @@ public:
     virtual void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request) = 0;
     virtual void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem) = 0;
 
+    virtual void cbiMissionController_TransmitHomeReq(const mace_home_request_t &request) = 0;
+
     virtual void cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home) = 0;
     virtual void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList) = 0;
 
@@ -50,7 +52,9 @@ public:
 
     void run();
 
-    void requestMission();
+    void requestMission(const Data::MissionKey &key);
+
+    void requestHome();
 
     void transmitMission(const MissionItem::MissionList &missionQueue);
 
