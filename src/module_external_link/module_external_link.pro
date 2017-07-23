@@ -17,11 +17,15 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += module_external_link.cpp \
     parse_comms_message.cpp \
     parse_comms_command.cpp \
-    external_heartbeat.cpp
+    external_heartbeat.cpp \
+    controllers/command_controller_externalLink.cpp \
+    controllers/mission_controller_externalLink.cpp
 
 HEADERS += module_external_link.h\
         module_external_link_global.h \
-    external_heartbeat.h
+    external_heartbeat.h \
+    controllers/command_controller_externalLink.h \
+    controllers/mission_controller_externalLink.h
 
 # Unix lib Install
 unix:!symbian {
@@ -41,6 +45,22 @@ headers.files   += \
         module_external_link.h\
         module_external_link_global.h
 INSTALLS       += headers
+
+
+#Header file copy
+headers_base.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK
+headers_base.files   += \
+        module_external_link_global.h \
+        module_external_link.h\
+        external_heartbeat.h
+INSTALLS       += headers_base
+
+#Header file copy
+headers_controllers.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK/controllers
+headers_controllers.files   += \
+    controllers/command_controller_external_link.h \
+    controllers/mission_controller_external_link.h
+INSTALLS       += headers_controllers
 
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
