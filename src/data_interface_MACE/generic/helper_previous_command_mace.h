@@ -6,9 +6,8 @@
 namespace DataInterface_MACE {
 
 enum commandItemEnum{
-    COMMAND_INT,
-    COMMAND_LONG,
-    COMMAND_MODE
+    COMMAND_SHORT,
+    COMMAND_LONG
 };
 
 template <class T>

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <QDate>
+#include "spdlog/spdlog.h"
 
 #include "mace.h"
 
@@ -11,30 +12,24 @@
 #include "data/timer.h"
 
 #include "data_generic_command_item/command_item_components.h"
+#include "data_interface_MACE/generic/helper_previous_command_mace.h"
 
-#include "generic/command_item.h"
-#include "generic/helper_previous_command_mavlink.h"
-
-#include "spdlog/spdlog.h"
-#include "spdlog/fmt/ostr.h"
+using namespace DataInterface_MACE;
 
 namespace ExternalLink {
 
 class CommandController_Interface
 {
 public:
-    virtual void cbiCommandController_transmitCommand(const mavlink_command_int_t &cmd) = 0;
-    virtual void cbiCommandController_transmitCommand(const mavlink_command_long_t &cmd) = 0;
-
-    virtual void cbiCommandController_transmitNewMode(const mavlink_set_mode_t &mode) = 0;
-
-    virtual void cbiCommandController_CommandACK(const mavlink_command_ack_t &ack) = 0;
+    virtual void cbiCommandController_transmitCommand(const mace_command_short_t &cmd) = 0;
+    virtual void cbiCommandController_transmitCommand(const mace_command_long_t &cmd) = 0;
+    virtual void cbiCommandController_CommandACK(const mace_command_ack_t &ack) = 0;
 };
 
 class CommandController_ExternalLink : public Thread
 {
 public:
-    CommandController_MAVLINK(const int &targetID, const int &originatingID);
+    CommandController_ExternalLink(const int &targetID, const int &originatingID);
 
     ~CommandController_ExternalLink() {
         std::cout << "Destructor on the mavlink command controller" << std::endl;
@@ -46,13 +41,13 @@ public:
     void receivedCommandACK(const mavlink_command_ack_t &cmdACK);
 
     void getSystemHome(const int &compID = 0);
-
-    void setNewMode(const int &newMode);
     void setHomePosition(const CommandItem::SpatialHome &commandItem, const int &compID = 0);
+
     void setSystemArm(const CommandItem::ActionArm &commandItem, const int &compID = 0);
     void setSystemTakeoff(const CommandItem::SpatialTakeoff &commandItem, const int &compID = 0);
     void setSystemLand(const CommandItem::SpatialLand &commandItem, const int &compID = 0);
     void setSystemRTL(const CommandItem::SpatialRTL &commandItem, const int &compID = 0);
+    void setSystemMissionCommand(const CommandItem::ActionMissionCommand &commandItem, const int &compID = 0);
 
     Data::ControllerCommsState getCommsState() const
     {
