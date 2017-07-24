@@ -152,7 +152,7 @@ private:
     double latitude;
     std::shared_ptr<QTcpServer> m_TcpServer;
     QThread *m_ListenThread;
-    QTcpSocket *m_TcpSocket;
+//    QTcpSocket *m_TcpSocket;
     bool m_positionTimeoutOccured;
     bool m_attitudeTimeoutOccured;
     bool m_modeTimeoutOccured;
