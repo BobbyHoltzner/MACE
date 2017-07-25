@@ -19,7 +19,7 @@
 
 #include "spdlog/spdlog.h"
 
-typedef void(*CallbackFunctionPtr_MisCount)(void*, mavlink_message_t &);
+//typedef void(*CallbackFunctionPtr_MisCount)(void*, mavlink_message_t &);
 
 class MissionController_Interface
 {

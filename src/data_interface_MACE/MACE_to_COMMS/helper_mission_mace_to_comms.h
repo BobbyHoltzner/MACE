@@ -1,5 +1,5 @@
-#ifndef HELPER_MISSION_MACE_TO_MAVLINK_H
-#define HELPER_MISSION_MACE_TO_MAVLINK_H
+#ifndef HELPER_MISSION_MACE_TO_COMMS_H
+#define HELPER_MISSION_MACE_TO_COMMS_H
 
 #include <memory>
 
@@ -59,4 +59,4 @@ private:
 };
 
 } //end of namespace DataInterface_MACE
-#endif // HELPER_MISSION_MACE_TO_MAVLINK_H
+#endif // HELPER_MISSION_MACE_TO_COMMS_H

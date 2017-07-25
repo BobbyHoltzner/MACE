@@ -17,7 +17,7 @@
 #include "data_interface_MACE/COMMS_to_MACE/helper_mission_comms_to_mace.h"
 #include "data_interface_MACE/MACE_to_COMMS/helper_mission_mace_to_comms.h"
 
-typedef void(*CallbackFunctionPtr_MisCount)(void*, mace_message_t &);
+//typedef void(*CallbackFunctionPtr_MisCount)(void*, mace_message_t &);
 
 using namespace DataInterface_MACE;
 

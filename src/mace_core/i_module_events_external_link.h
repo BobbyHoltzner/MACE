@@ -10,7 +10,6 @@ namespace MaceCore
 class IModuleEventsExternalLink : public IModuleEventsGeneral, public IModuleEventsGeneralVehicle
 {
 public:
-
     virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTXState &state) = 0;
 
     //!

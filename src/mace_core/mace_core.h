@@ -233,7 +233,8 @@ private:
     std::map<std::string, IModuleCommandVehicle*> m_VehicleIDToPtr;
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
 
-    std::map<int, std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
+    std::list<std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
+    //std::map<int, std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
 
     std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;

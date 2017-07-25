@@ -161,13 +161,16 @@ void ModuleExternalLink::MACEHeartbeatInfo(const std::string &linkName, const in
 
     if(systemIDMap.find(systemID) == systemIDMap.end())
     {
+        m_MissionController = new ExternalLink::MissionController_ExternalLink(systemID,254);
+        m_CommandController = new ExternalLink::CommandController_ExternalLink(systemID,254);
+
         //The system has yet to have communicated through this module
         //We therefore have to notify the core that there is a new vehicle
         systemIDMap.insert({systemID,0});
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->NewConstructedVehicle(this, systemID);
         });
-        Request_FullDataSync(systemID);
+        //Request_FullDataSync(systemID);
     }
 
     DataGenericItem::DataGenericItem_Heartbeat heartbeat;
@@ -424,6 +427,14 @@ void ModuleExternalLink::NewlyAvailableMissionExeState(const Data::MissionKey &k
     }
 }
 
+void ModuleExternalLink::NewlyAvailableVehicle(const int &systemID)
+{
+    if(airborneInstance)
+    {
+        m_MissionController = new ExternalLink::MissionController_ExternalLink(254,systemID);
+        m_CommandController = new ExternalLink::CommandController_ExternalLink(254,systemID);
+    }
+}
 
 //!
 //! \brief ModuleExternalLink::NewTopic

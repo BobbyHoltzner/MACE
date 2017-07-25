@@ -60,8 +60,7 @@ void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink>
 {
     externalLink->addListener(this);
     externalLink->addTopicListener(this);
-    //KEN Fix this...make dynamic based on learned information
-    m_ExternalLink[254] = externalLink;
+    m_ExternalLink.push_back(externalLink);
 }
 
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
@@ -449,9 +448,10 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
         }
     }else if(m_ExternalLink.size() > 0)
     {
-        //we need to transfer this to the ground station
-        //KEN FIX THIS
-        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,missionList.getMissionKey());
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,missionList.getMissionKey());
+        }
     }
 }
 
@@ -467,9 +467,10 @@ void MaceCore::EventVehicle_ACKProposedMission(const void *sender, const Data::M
         }
     }else if(m_ExternalLink.size() > 0)
     {
-        //we need to transfer this to the ground station
-        //KEN FIX THIS
-        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,key);
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,key);
+        }
     }
 }
 
@@ -500,6 +501,18 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
 
     if(m_RTA)
         m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+
+    if(m_ExternalLink.size() > 0)
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            if(vehicle == (*it))
+            {
+                std::cout<<"The pointers are the same"<<std::endl;
+            }
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
+        }
+    }
 }
 
 void MaceCore::GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome)
@@ -512,7 +525,12 @@ void MaceCore::GVEvents_NewHomePosition(const void *sender, const CommandItem::S
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome);
     else if(m_ExternalLink.size() > 0)
-        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome);
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome);
+        }
+    }
 }
 
 void MaceCore::GVEvents_MissionExeStateUpdated(const void *sender, const Data::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState)
@@ -525,7 +543,12 @@ void MaceCore::GVEvents_MissionExeStateUpdated(const void *sender, const Data::M
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEW_MISSION_EXE_STATE,missionKey);
     else if(m_ExternalLink.size() > 0)
-        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEW_MISSION_EXE_STATE,missionKey);
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommand(ExternalLinkCommands::NEW_MISSION_EXE_STATE,missionKey);
+        }
+    }
 }
 
 void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey)

@@ -24,7 +24,8 @@ enum class ExternalLinkCommands
     BASE_MODULE_VEHICLE_LISTENER_ENUMS,
     NEWLY_AVAILABLE_ONBOARD_MISSION,
     NEW_MISSION_EXE_STATE,
-    NEWLY_AVAILABLE_HOME_POSITION
+    NEWLY_AVAILABLE_HOME_POSITION,
+    NEWLY_AVAILABLE_VEHICLE
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_VehicleListener<Metadata_GroundStation, IModuleEventsExternalLink, ExternalLinkCommands>
@@ -48,6 +49,12 @@ public:
         AddCommandLogic<CommandItem::SpatialHome>(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const CommandItem::SpatialHome &home){
             NewlyAvailableHomePosition(home);
         });
+        AddCommandLogic<int>(ExternalLinkCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &systemID){
+            NewlyAvailableVehicle(systemID);
+        });
+
+
+
     }
 
     virtual Classes ModuleClass() const
@@ -62,6 +69,8 @@ public:
     virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey) = 0;
 
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home) = 0;
+
+    virtual void NewlyAvailableVehicle(const int &systemID) = 0;
 
 };
 

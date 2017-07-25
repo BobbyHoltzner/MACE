@@ -299,10 +299,11 @@ public:
     virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key);
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
     virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey);
+    virtual void NewlyAvailableVehicle(const int &systemID);
 
 private:
-    std::shared_ptr<ExternalLink::CommandController_ExternalLink> m_CommandController;
-    std::shared_ptr<ExternalLink::MissionController_ExternalLink> m_MissionController;
+    ExternalLink::CommandController_ExternalLink *m_CommandController;
+    ExternalLink::MissionController_ExternalLink *m_MissionController;
 
 private:
     bool airborneInstance;

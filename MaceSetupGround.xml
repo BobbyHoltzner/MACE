@@ -6,12 +6,15 @@
       <Parameter Name="Version">V2</Parameter>
     </Parameter>
     <Parameter Name="SerialParameters">
-      <Parameter Name="PortName">COM14</Parameter>
+      <Parameter Name="PortName">COM18</Parameter>
       <Parameter Name="BaudRate">57600</Parameter>
       <Parameter Name="DataBits">8</Parameter>
       <Parameter Name="StopBits">1</Parameter>
       <Parameter Name="Parity">false</Parameter>
       <Parameter Name="FlowControl">1</Parameter>
+    </Parameter>
+		<Parameter Name="ModuleParameters">
+      <Parameter Name="AirborneInstance">false</Parameter>
     </Parameter>
   </Module>
   <Module Class="GroundStation" Type="NASAPhase2"/>
