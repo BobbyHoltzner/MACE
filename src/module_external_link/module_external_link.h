@@ -41,14 +41,15 @@
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public MaceCore::IModuleCommandExternalLink,
         public CommsMACEHelper,
-        public ExternalLink::CommandController_Interface
+        public ExternalLink::CommandController_Interface,
+        public ExternalLink::MissionController_Interface
 {
 
 public:
 
     ModuleExternalLink();
 
-    void transmitMessage(const mace_message &msg);
+    void transmitMessage(const mace_message_t &msg);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from the Command Controller
@@ -57,6 +58,20 @@ public:
     void cbiCommandController_transmitCommand(const mace_command_short_t &cmd);
     void cbiCommandController_transmitCommand(const mace_command_long_t &cmd);
     void cbiCommandController_CommandACK(const mace_command_ack_t &ack);
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    /// The following are public virtual functions imposed from the Mission Controller
+    /// Interface via callback functionality.
+    ///////////////////////////////////////////////////////////////////////////////////////
+    void cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count);
+    void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item);
+    void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request);
+    void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem);
+    void cbiMissionController_TransmitHomeReq(const mace_mission_request_home_t &request);
+    void cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home);
+    void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList);
+    void cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK);
 
 
     bool isExternalLinkAirborne() const

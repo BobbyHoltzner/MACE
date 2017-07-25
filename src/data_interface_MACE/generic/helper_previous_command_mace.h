@@ -1,6 +1,8 @@
 #ifndef HELPER_PREVIOUS_COMMAND_MACE_H
 #define HELPER_PREVIOUS_COMMAND_MACE_H
 
+#include <string>
+
 #include "helper_previous_transmission_base_mace.h"
 
 namespace DataInterface_MACE {
@@ -9,6 +11,24 @@ enum commandItemEnum{
     COMMAND_SHORT,
     COMMAND_LONG
 };
+
+inline std::string getCommandItemEnumString(const commandItemEnum &type)
+{
+    std::string rtnValue;
+
+    switch (type) {
+    case COMMAND_SHORT:
+        rtnValue = "command short";
+        break;
+    case COMMAND_LONG:
+        rtnValue = "command long";
+        break;
+    default:
+        break;
+    }
+
+    return rtnValue;
+}
 
 template <class T>
 class PreviousCommand : public PreviousTransmissionBase<commandItemEnum>

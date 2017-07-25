@@ -1,5 +1,5 @@
-#ifndef MISSION_CONTROLLER_MAVLINK_H
-#define MISSION_CONTROLLER_MAVLINK_H
+#ifndef MISSION_CONTROLLER_EXTERNALLINK_H
+#define MISSION_CONTROLLER_EXTERNALLINK_H
 
 #include <iostream>
 #include <QDate>
@@ -12,12 +12,12 @@
 #include "data/timer.h"
 
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
-#include "MACE_to_MAVLINK/helper_mission_mace_to_mavlink.h"
-#include "MAVLINK_to_MACE/helper_mission_mavlink_to_mace.h"
 
 #include "data_interface_MACE/generic/helper_previous_transmission_mace.h"
+#include "data_interface_MACE/COMMS_to_MACE/helper_mission_comms_to_mace.h"
+#include "data_interface_MACE/MACE_to_COMMS/helper_mission_mace_to_comms.h"
 
-typedef void(*CallbackFunctionPtr_MisCount)(void*, mavlink_message_t &);
+typedef void(*CallbackFunctionPtr_MisCount)(void*, mace_message_t &);
 
 using namespace DataInterface_MACE;
 
@@ -32,12 +32,11 @@ public:
     virtual void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request) = 0;
     virtual void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem) = 0;
 
-    virtual void cbiMissionController_TransmitHomeReq(const mace_home_request_t &request) = 0;
+    virtual void cbiMissionController_TransmitHomeReq(const mace_mission_request_home_t &request) = 0;
 
     virtual void cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home) = 0;
     virtual void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList) = 0;
-
-    virtual void cbiMissionController_MissionACK(const mavlink_mission_ack_t &missionACK) = 0;
+    virtual void cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK) = 0;
 };
 
 class MissionController_ExternalLink : public Thread
@@ -52,19 +51,18 @@ public:
 
     void run();
 
-    void requestMission(const Data::MissionKey &key);
-
-    void requestHome();
-
+    //These 3 functions are related to transmitting a mission
     void transmitMission(const MissionItem::MissionList &missionQueue);
-
     void transmitMissionItem(const mace_mission_request_item_t &missionRequest);
+    void receivedMissionACK(const mace_mission_ack_t &missionACK);
 
+    void receivedMissionCount(const mace_mission_count_t &mission);
     void recievedMissionItem(const mace_mission_item_t &missionItem);
 
-    void receivedMissionCount(const mace_mission_count_t &missionCount);
+    //void requestMission(const Data::MissionKey &key);
+    //void requestHome(const int &systemID);
+    //void receivedMissionHome(const mace_home_position_t &systemHome);
 
-    void receivedMissionACK(const mavlink_mission_ack_t &missionACK);
 
     void connectCallback(MissionController_Interface *cb)
     {
@@ -94,6 +92,10 @@ private:
     MissionController_Interface *m_CB;
     PreviousTransmissionBase<commsItemEnum> *prevTransmit;
 
+    Helper_MissionCOMMStoMACE helperCOMMStoMACE;
+    Helper_MissionMACEtoCOMMS helperMACEtoCOMMS;
+
+
     Data::ControllerCommsState currentCommsState;
 
     MissionItem::MissionList missionList;
@@ -120,4 +122,4 @@ protected:
 
 } //end of namespace DataInterface_MAVLINK
 
-#endif // MISSION_CONTROLLER_MAVLINK_H
+#endif // MISSION_CONTROLLER_EXTERNALLINK_H

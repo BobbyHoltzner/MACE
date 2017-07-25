@@ -38,11 +38,9 @@ public:
 
     void run();
 
-    void receivedCommandACK(const mavlink_command_ack_t &cmdACK);
+    void receivedCommandACK(const mace_command_ack_t &cmdACK);
 
-    void getSystemHome(const int &compID = 0);
     void setHomePosition(const CommandItem::SpatialHome &commandItem, const int &compID = 0);
-
     void setSystemArm(const CommandItem::ActionArm &commandItem, const int &compID = 0);
     void setSystemTakeoff(const CommandItem::SpatialTakeoff &commandItem, const int &compID = 0);
     void setSystemLand(const CommandItem::SpatialLand &commandItem, const int &compID = 0);

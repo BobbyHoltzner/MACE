@@ -108,7 +108,7 @@ public:
     //! \param message Message to send
     //!
     template <typename T>
-    void SendMessage(const std::string &linkName, const T& message);
+    void SendMACEMessage(const std::string &linkName, const T& message);
 
 
 

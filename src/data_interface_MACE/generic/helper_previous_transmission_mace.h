@@ -13,6 +13,33 @@ enum commsItemEnum{
     ITEM_TXITEM
 };
 
+inline std::string getCommsItemEnumString(const commsItemEnum &type)
+{
+    std::string rtnValue;
+
+    switch (type) {
+    case ITEM_RXLIST:
+        rtnValue = "requesting mission list";
+        break;
+    case ITEM_RXITEM:
+        rtnValue = "requesting mission item";
+        break;
+    case ITEM_RXHOME:
+        rtnValue = "requesting system home";
+        break;
+    case ITEM_TXCOUNT:
+        rtnValue = "transmitting mission count";
+        break;
+    case ITEM_TXITEM:
+        rtnValue = "transmitting mission item";
+        break;
+    default:
+        break;
+    }
+
+    return rtnValue;
+}
+
 template <class T>
 class PreviousTransmission : public PreviousTransmissionBase<commsItemEnum>
 {

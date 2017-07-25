@@ -21,7 +21,7 @@ void CommandController_ExternalLink::clearPreviousTransmit()
     }
 }
 
-void CommandController_ExternalLink::receivedCommandACK(const mavlink_command_ack_t &cmdACK)
+void CommandController_ExternalLink::receivedCommandACK(const mace_command_ack_t &cmdACK)
 {
     m_LambdasToRun.push_back([this, cmdACK]{
         mTimer.stop();
@@ -88,27 +88,7 @@ mace_command_short_t CommandController_ExternalLink::initializeCommandShort()
     cmdShort.param = 0.0;
     cmdShort.target_system = systemID;
     cmdShort.target_component = 0;
-    return cmdLong;
-}
-
-void CommandController_ExternalLink::getSystemHome(const int &compID)
-{
-    mLog->info("Command Controller is requesting home position.");
-    mavlink_command_long_t cmd = initializeCommandLong();
-    cmd.command = MAV_CMD_GET_HOME_POSITION;
-    cmd.target_system = systemID;
-    cmd.target_component = compID;
-
-    clearPreviousTransmit();
-    prevTransmit = new PreviousCommand<mace_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
-
-    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
-    currentRetry = 0;
-    mToExit = false;
-    this->start();
-    mTimer.start();
-
-    m_CB->cbiCommandController_transmitCommand(cmd);
+    return cmdShort;
 }
 
 void CommandController_ExternalLink::setHomePosition(const CommandItem::SpatialHome &commandItem, const int &compID)
@@ -192,7 +172,7 @@ void CommandController_ExternalLink::setSystemTakeoff(const CommandItem::Spatial
     cmd.param7 = commandItem.position.getZ();
 
     clearPreviousTransmit();
-    prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
+    prevTransmit = new PreviousCommand<mace_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
 
     currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     currentRetry = 0;
@@ -211,7 +191,7 @@ void CommandController_ExternalLink::setSystemLand(const CommandItem::SpatialLan
     mLog->debug("Command Controller is requesting the system to land.");
     mLog->info(buffer.str());
 
-    mavlink_command_long_t cmd = initializeCommandLong();
+    mace_command_long_t cmd = initializeCommandLong();
     cmd.command = MAV_CMD_NAV_LAND;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
@@ -254,6 +234,11 @@ void CommandController_ExternalLink::setSystemRTL(const CommandItem::SpatialRTL 
     mTimer.start();
 
     m_CB->cbiCommandController_transmitCommand(cmd);
+}
+
+void CommandController_ExternalLink::setSystemMissionCommand(const CommandItem::ActionMissionCommand &commandItem, const int &compID)
+{
+    mLog->debug("Command Controller is requesting to set the system mission command.");
 }
 
 void CommandController_ExternalLink::run()

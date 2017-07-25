@@ -154,10 +154,19 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/ -ldata_interface
 INCLUDEPATH += $$PWD/../data_interface_MAVLINK
 DEPENDPATH += $$PWD/../data_interface_MAVLINK
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MACE/release/ -ldata_interface_MACE
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MACE/debug/ -ldata_interface_MACE
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_interface_MACE/ -ldata_interface_MACE
+
+INCLUDEPATH += $$PWD/../data_interface_MACE
+DEPENDPATH += $$PWD/../data_interface_MACE
+
+INCLUDEPATH += $$PWD/../
+INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
-INCLUDEPATH += $$PWD/../
 
-INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+
+
 

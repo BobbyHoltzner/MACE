@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE HOME_POSITION PACKING
 
-#define MACE_MSG_ID_HOME_POSITION 242
+#define MACE_MSG_ID_HOME_POSITION 116
 
 MACEPACKED(
 typedef struct __mace_home_position_t {
@@ -19,17 +19,17 @@ typedef struct __mace_home_position_t {
 
 #define MACE_MSG_ID_HOME_POSITION_LEN 52
 #define MACE_MSG_ID_HOME_POSITION_MIN_LEN 52
-#define MACE_MSG_ID_242_LEN 52
-#define MACE_MSG_ID_242_MIN_LEN 52
+#define MACE_MSG_ID_116_LEN 52
+#define MACE_MSG_ID_116_MIN_LEN 52
 
 #define MACE_MSG_ID_HOME_POSITION_CRC 104
-#define MACE_MSG_ID_242_CRC 104
+#define MACE_MSG_ID_116_CRC 104
 
 #define MACE_MSG_HOME_POSITION_FIELD_Q_LEN 4
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_HOME_POSITION { \
-    242, \
+    116, \
     "HOME_POSITION", \
     10, \
     {  { "latitude", NULL, MACE_TYPE_INT32_T, 0, 0, offsetof(mace_home_position_t, latitude) }, \

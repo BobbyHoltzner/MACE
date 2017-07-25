@@ -51,6 +51,15 @@ void MissionController_MAVLINK::requestMission()
 
 void MissionController_MAVLINK::transmitMission(const MissionItem::MissionList &missionQueue)
 {
+//    mace_new_proposed_mission_t missionProposed;
+//    missionProposed.count = missionList.getQueueSize();
+//    Data::MissionKey key = missionList.getMissionKey();
+//    missionProposed.mission_creator = key.m_creatorID;
+//    missionProposed.mission_id = key.m_missionID;
+//    missionProposed.mission_state = static_cast<MAV_MISSION_STATE>(missionList.getMissionTXState());
+//    missionProposed.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);
+//    missionProposed.target_system = key.m_systemID;
+
     mLog->info("Mission Controller has been instructed to transmit a mission.");
 
     if(missionQueue.getVehicleID() == this->systemID)

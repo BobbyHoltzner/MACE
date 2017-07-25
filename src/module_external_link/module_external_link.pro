@@ -14,6 +14,8 @@ DEFINES += MODULE_EXTERNAL_LINK_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
+DEFINES += QT_DEPRECATED_WARNINGS
+
 SOURCES += module_external_link.cpp \
     parse_comms_message.cpp \
     parse_comms_command.cpp \
@@ -40,15 +42,7 @@ else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_external
 INSTALLS += lib
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_external_link
-headers.files   += \
-        module_external_link.h\
-        module_external_link_global.h
-INSTALLS       += headers
-
-
-#Header file copy
-headers_base.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK
+headers_base.path    = $$(MACE_ROOT)/include/module_external_link
 headers_base.files   += \
         module_external_link_global.h \
         module_external_link.h\
@@ -56,12 +50,11 @@ headers_base.files   += \
 INSTALLS       += headers_base
 
 #Header file copy
-headers_controllers.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK/controllers
+headers_controllers.path    = $$(MACE_ROOT)/include/module_external_link/controllers
 headers_controllers.files   += \
-    controllers/command_controller_external_link.h \
-    controllers/mission_controller_external_link.h
+    controllers/command_controller_externalLink.h \
+    controllers/mission_controller_externalLink.h
 INSTALLS       += headers_controllers
-
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../../speedLog/

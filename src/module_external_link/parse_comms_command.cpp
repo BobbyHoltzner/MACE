@@ -12,7 +12,7 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_short_t *message)
         commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
         mace_message_t msg;
         mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
-        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 
         CommandItem::ActionMissionCommand missionCommand;
         missionCommand.setTargetSystem(message->target_system);
@@ -36,7 +36,7 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         CommandItem::SpatialHome missionHome = this->getDataObject()->GetVehicleHomePostion(message->target_system);
         DataCOMMS::Mission_MACETOCOMMS missionConvert(message->target_system,message->target_component);
         mace_message_t msg = missionConvert.Home_MACETOCOMMS(missionHome);
-        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
         break;
     }
     case((uint8_t)Data::CommandItemType::CI_ACT_ARM):
@@ -51,7 +51,7 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
         mace_message_t msg;
         mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
-        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 
         //notify core
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
@@ -76,7 +76,7 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
         mace_message_t msg;
         mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
-        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
             ptr->Event_IssueCommandTakeoff(this, tmpTakeoff);
@@ -97,7 +97,7 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
         mace_message_t msg;
         mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
-        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
             ptr->Event_IssueCommandLand(this, tmpLand);
@@ -115,7 +115,7 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
         mace_message_t msg;
         mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
-        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
             ptr->Event_IssueCommandRTL(this, tmpRTL);

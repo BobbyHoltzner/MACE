@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 #ifndef MACE_MESSAGE_CRCS
-#define MACE_MESSAGE_CRCS {{100, 132, 5, 0, 0, 0}, {101, 18, 7, 1, 2, 0}, {102, 244, 6, 1, 0, 0}, {103, 249, 4, 0, 0, 0}, {104, 165, 8, 1, 2, 0}, {105, 19, 7, 1, 2, 0}, {106, 111, 40, 1, 32, 0}, {107, 4, 7, 3, 4, 5}, {108, 168, 7, 3, 4, 5}, {109, 224, 4, 0, 0, 0}, {110, 156, 5, 0, 0, 0}, {111, 233, 6, 0, 0, 0}, {112, 103, 6, 0, 0, 0}, {113, 34, 4, 1, 0, 0}, {114, 55, 5, 0, 0, 0}}
+#define MACE_MESSAGE_CRCS {{100, 132, 5, 0, 0, 0}, {101, 18, 7, 1, 2, 0}, {102, 110, 6, 1, 0, 0}, {103, 249, 4, 0, 0, 0}, {104, 165, 8, 1, 2, 0}, {105, 19, 7, 1, 2, 0}, {106, 111, 40, 1, 32, 0}, {107, 4, 7, 3, 4, 5}, {108, 168, 7, 3, 4, 5}, {109, 224, 4, 0, 0, 0}, {110, 156, 5, 0, 0, 0}, {111, 233, 6, 0, 0, 0}, {112, 103, 6, 0, 0, 0}, {113, 34, 4, 1, 0, 0}, {114, 55, 5, 0, 0, 0}, {115, 36, 1, 1, 0, 0}, {116, 104, 52, 0, 0, 0}, {117, 85, 53, 1, 52, 0}, {118, 109, 17, 0, 0, 0}}
 #endif
 
 #include "../mace_protocol.h"
@@ -116,7 +116,7 @@ typedef enum MAV_MISSION_STATE
 // MESSAGE DEFINITIONS
 #include "./mace_msg_new_onboard_mission.h"
 #include "./mace_msg_new_proposed_mission.h"
-#include "./mace_msg_ack_rxmission.h"
+#include "./mace_msg_mission_ack.h"
 #include "./mace_msg_mission_request_list.h"
 #include "./mace_msg_mission_count.h"
 #include "./mace_msg_mission_request_item.h"
@@ -129,6 +129,10 @@ typedef enum MAV_MISSION_STATE
 #include "./mace_msg_mission_item_reached.h"
 #include "./mace_msg_mission_clear.h"
 #include "./mace_msg_mission_exe_state.h"
+#include "./mace_msg_mission_request_home.h"
+#include "./mace_msg_home_position.h"
+#include "./mace_msg_set_home_position.h"
+#include "./mace_msg_guided_target_stats.h"
 
 // base include
 #include "../common/common.h"
@@ -137,7 +141,7 @@ typedef enum MAV_MISSION_STATE
 #define MACE_THIS_XML_IDX 2
 
 #if MACE_THIS_XML_IDX == MACE_PRIMARY_XML_IDX
-# define MACE_MESSAGE_INFO {MACE_MESSAGE_INFO_NEW_ONBOARD_MISSION, MACE_MESSAGE_INFO_NEW_PROPOSED_MISSION, MACE_MESSAGE_INFO_ACK_RXMISSION, MACE_MESSAGE_INFO_MISSION_REQUEST_LIST, MACE_MESSAGE_INFO_MISSION_COUNT, MACE_MESSAGE_INFO_MISSION_REQUEST_ITEM, MACE_MESSAGE_INFO_MISSION_ITEM, MACE_MESSAGE_INFO_MISSION_REQUEST_PARTIAL_LIST, MACE_MESSAGE_INFO_MISSION_WRITE_PARTIAL_LIST, MACE_MESSAGE_INFO_STARTING_CURRENT_MISSION, MACE_MESSAGE_INFO_MISSION_SET_CURRENT, MACE_MESSAGE_INFO_MISSION_CURRENT, MACE_MESSAGE_INFO_MISSION_ITEM_REACHED, MACE_MESSAGE_INFO_MISSION_CLEAR, MACE_MESSAGE_INFO_MISSION_EXE_STATE}
+# define MACE_MESSAGE_INFO {MACE_MESSAGE_INFO_NEW_ONBOARD_MISSION, MACE_MESSAGE_INFO_NEW_PROPOSED_MISSION, MACE_MESSAGE_INFO_MISSION_ACK, MACE_MESSAGE_INFO_MISSION_REQUEST_LIST, MACE_MESSAGE_INFO_MISSION_COUNT, MACE_MESSAGE_INFO_MISSION_REQUEST_ITEM, MACE_MESSAGE_INFO_MISSION_ITEM, MACE_MESSAGE_INFO_MISSION_REQUEST_PARTIAL_LIST, MACE_MESSAGE_INFO_MISSION_WRITE_PARTIAL_LIST, MACE_MESSAGE_INFO_STARTING_CURRENT_MISSION, MACE_MESSAGE_INFO_MISSION_SET_CURRENT, MACE_MESSAGE_INFO_MISSION_CURRENT, MACE_MESSAGE_INFO_MISSION_ITEM_REACHED, MACE_MESSAGE_INFO_MISSION_CLEAR, MACE_MESSAGE_INFO_MISSION_EXE_STATE, MACE_MESSAGE_INFO_MISSION_REQUEST_HOME, MACE_MESSAGE_INFO_HOME_POSITION, MACE_MESSAGE_INFO_SET_HOME_POSITION, MACE_MESSAGE_INFO_GUIDED_TARGET_STATS}
 # if MACE_COMMAND_24BIT
 #  include "../mace_get_info.h"
 # endif
