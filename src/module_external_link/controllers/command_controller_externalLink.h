@@ -29,12 +29,19 @@ public:
 class CommandController_ExternalLink : public Thread
 {
 public:
-    CommandController_ExternalLink(const int &targetID, const int &originatingID);
+    CommandController_ExternalLink(CommandController_Interface *cb);
 
     ~CommandController_ExternalLink() {
         std::cout << "Destructor on the mavlink command controller" << std::endl;
         mToExit = true;
     }
+
+    void connectCallback(CommandController_Interface *cb)
+    {
+        m_CB = cb;
+    }
+
+    void updateIDS(const int &targetID, const int &originatingID);
 
     void run();
 
@@ -50,11 +57,6 @@ public:
     Data::ControllerCommsState getCommsState() const
     {
         return this->currentCommsState;
-    }
-
-    void connectCallback(CommandController_Interface *cb)
-    {
-        m_CB = cb;
     }
 
 private:

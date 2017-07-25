@@ -2,8 +2,7 @@
 
 namespace DataInterface_MACE{
 
-Helper_MissionMACEtoCOMMS::Helper_MissionMACEtoCOMMS(const int &originatingSystem, const int &originatingComp):
-    systemID(originatingSystem),compID(originatingComp)
+Helper_MissionMACEtoCOMMS::Helper_MissionMACEtoCOMMS()
 {
 
 }
@@ -11,6 +10,12 @@ Helper_MissionMACEtoCOMMS::Helper_MissionMACEtoCOMMS(const int &originatingSyste
 Helper_MissionMACEtoCOMMS::~Helper_MissionMACEtoCOMMS()
 {
 
+}
+
+void Helper_MissionMACEtoCOMMS::updateIDS(const int &originatingSystem, const int &originatingComp)
+{
+    this->systemID = originatingSystem;
+    this->compID = originatingComp;
 }
 
 void Helper_MissionMACEtoCOMMS::initializeMACEMissionItem(mace_mission_item_t &mavMission)

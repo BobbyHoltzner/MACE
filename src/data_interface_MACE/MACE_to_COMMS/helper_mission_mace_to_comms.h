@@ -19,9 +19,11 @@ namespace DataInterface_MACE {
 class Helper_MissionMACEtoCOMMS
 {
 public:
-    Helper_MissionMACEtoCOMMS(const int &originatingSystem, const int &originatingComp);
+    Helper_MissionMACEtoCOMMS();
 
     ~Helper_MissionMACEtoCOMMS();
+
+    void updateIDS(const int &originatingSystem, const int &originatingComp);
 
     bool MACEMissionToCOMMSMission(std::shared_ptr<CommandItem::AbstractCommandItem> missionItem, const uint16_t &itemIndex, const uint8_t &chan, mace_message_t &msg);
 

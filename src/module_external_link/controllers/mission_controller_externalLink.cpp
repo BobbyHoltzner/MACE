@@ -2,16 +2,15 @@
 
 namespace ExternalLink {
 
-MissionController_ExternalLink::MissionController_ExternalLink(const int &targetID, const int &originatingID):
-    systemID(targetID), transmittingID(originatingID),
+MissionController_ExternalLink::MissionController_ExternalLink(MissionController_Interface *cb):
+    systemID(0), transmittingID(0),
     mToExit(false), currentRetry(0), maxRetries(5), responseTimeout(5000),\
     currentCommsState(Data::ControllerCommsState::NEUTRAL),
-    m_CB(NULL), prevTransmit(NULL),
-    helperCOMMStoMACE(targetID),helperMACEtoCOMMS(originatingID,0)
+    m_CB(NULL), prevTransmit(NULL)
 {
     //mLog = spdlog::get("Log_Vehicle" + std::to_string(this->systemID));
+    connectCallback(cb);
 }
-
 
 void MissionController_ExternalLink::clearPreviousTransmit()
 {
@@ -20,6 +19,16 @@ void MissionController_ExternalLink::clearPreviousTransmit()
         delete prevTransmit;
         prevTransmit = NULL;
     }
+}
+
+void MissionController_ExternalLink::updateIDS(const int &targetID, const int &originatingID)
+{
+    this->systemID = targetID;
+    this->transmittingID = originatingID;
+
+    helperCOMMStoMACE.updateIDS(originatingID);
+    helperMACEtoCOMMS.updateIDS(originatingID,0);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -48,7 +57,7 @@ void MissionController_ExternalLink::transmitMission(const MissionItem::MissionL
 
     count.count = this->missionList.getQueueSize();
     count.target_system = systemID;
-    count.mission_system = key.m_missionID;
+    count.mission_system = key.m_systemID;
     count.mission_creator = key.m_creatorID;
     count.mission_id = key.m_missionID;
     count.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);

@@ -113,6 +113,8 @@ public:
     /// SPECIFIC VEHICLE EVENTS: These events are associated from IModuleEventsVehicleVehicle
     /////////////////////////////////////////////////////////////////////////////////////////
 
+    virtual void EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved);
+
     virtual void EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList);
 
     virtual void EventVehicle_ACKProposedMission(const void *sender, const Data::MissionKey &key);
@@ -133,6 +135,7 @@ public:
     /////////////////////////////////////////////////////////////////////////
     /// EXTERNAL LINK EVENTS
     /////////////////////////////////////////////////////////////////////////
+    virtual void ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved);
     virtual void ExternalEvent_ReceivingMissionQueue(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_FinishedRXProposedQueue(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_FinishedRXOnboardQueue(const void *sender, const MissionItem::MissionList &missionList);

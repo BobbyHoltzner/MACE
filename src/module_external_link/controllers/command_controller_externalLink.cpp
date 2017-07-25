@@ -3,13 +3,21 @@
 namespace ExternalLink {
 
 
-CommandController_ExternalLink::CommandController_ExternalLink(const int &targetID, const int &originatingID):
-    systemID(targetID), transmittingID(originatingID),
+CommandController_ExternalLink::CommandController_ExternalLink(CommandController_Interface *cb):
+    systemID(0), transmittingID(0),
     mToExit(false), currentRetry(0), maxRetries(3), responseTimeout(5000),\
     currentCommsState(Data::ControllerCommsState::NEUTRAL),
     m_CB(NULL), prevTransmit(NULL)
 {
     //mLog = spdlog::get("Log_Vehicle" + std::to_string(this->systemID));
+    connectCallback(cb);
+}
+
+
+void CommandController_ExternalLink::updateIDS(const int &targetID, const int &originatingID)
+{
+    this->systemID = targetID;
+    this->transmittingID = originatingID;
 }
 
 void CommandController_ExternalLink::clearPreviousTransmit()

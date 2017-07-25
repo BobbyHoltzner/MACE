@@ -10,6 +10,20 @@ namespace MaceCore
 class IModuleEventsExternalLink : public IModuleEventsGeneral, public IModuleEventsGeneralVehicle
 {
 public:
+
+    //!
+    //! \brief ExternalEvent_NewConstructedVehicle
+    //! \param sender
+    //! \param newVehicleObserved
+    //!
+    virtual void ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved) = 0;
+
+    //!
+    //! \brief ExternalEvent_MissionACK
+    //! \param sender
+    //! \param key
+    //! \param state
+    //!
     virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTXState &state) = 0;
 
     //!

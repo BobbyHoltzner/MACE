@@ -485,10 +485,8 @@ void MaceCore::EventVehicle_REJECTProposedMission(const void *sender, const Data
 
 //}
 
-/////////////////////////////////////////////////////////////////////////
-/// VEHICLE EVENTS
-/////////////////////////////////////////////////////////////////////////
-void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
+
+void MaceCore::ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
 {
     std::lock_guard<std::mutex> guard(m_VehicleMutex);
 
@@ -501,18 +499,36 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
 
     if(m_RTA)
         m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+}
 
-    if(m_ExternalLink.size() > 0)
+void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
+{
+    std::lock_guard<std::mutex> guard(m_VehicleMutex);
+
+    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
+    m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
+    m_DataFusion->AddAvailableVehicle(newVehicleObserved);
+
+    if(m_RTA)
+        m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+
+    if(m_GroundStation)
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+    else if(m_ExternalLink.size() > 0)
     {
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
         {
-            if(vehicle == (*it))
-            {
-                std::cout<<"The pointers are the same"<<std::endl;
-            }
             (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
         }
     }
+}
+
+/////////////////////////////////////////////////////////////////////////
+/// VEHICLE EVENTS
+/////////////////////////////////////////////////////////////////////////
+void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
+{
+    std::cout<<"This function is now deprecated"<<std::endl;
 }
 
 void MaceCore::GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome)

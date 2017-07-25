@@ -2,8 +2,8 @@
 
 namespace DataInterface_MACE {
 
-Helper_MissionCOMMStoMACE::Helper_MissionCOMMStoMACE(const int &originatingID):
-    systemID(originatingID)
+Helper_MissionCOMMStoMACE::Helper_MissionCOMMStoMACE()
+
 {
 
 }
@@ -11,6 +11,11 @@ Helper_MissionCOMMStoMACE::Helper_MissionCOMMStoMACE(const int &originatingID):
 Helper_MissionCOMMStoMACE::~Helper_MissionCOMMStoMACE()
 {
 
+}
+
+void Helper_MissionCOMMStoMACE::updateIDS(const int &originatingID)
+{
+    this->systemID = originatingID;
 }
 
 std::shared_ptr<CommandItem::AbstractCommandItem> Helper_MissionCOMMStoMACE::Convert_COMMSTOMACE(const mace_mission_item_t &maceItem)

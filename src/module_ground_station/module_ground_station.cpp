@@ -252,6 +252,7 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
     MissionItem::MissionList missionList;
     missionList.setMissionTXState(Data::MissionTXState::PROPOSED);
     missionList.setMissionType(Data::MissionType::AUTO);
+    missionList.setCreatorID(254);
     missionList.setVehicleID(vehicleID);
     missionList.initializeQueue(4);
     latitude = latitude + 0.001;

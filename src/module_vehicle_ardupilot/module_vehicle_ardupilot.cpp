@@ -412,7 +412,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
         vehicleData->connectCallback(this);
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-            ptr->NewConstructedVehicle(this, systemID);
+            ptr->EventVehicle_NewConstructedVehicle(this, systemID);
         });
 
         vehicleData->m_MissionController->requestMission();

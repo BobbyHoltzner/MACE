@@ -42,12 +42,19 @@ public:
 class MissionController_ExternalLink : public Thread
 {
 public:
-    MissionController_ExternalLink(const int &targetID, const int &originatingID);
+    MissionController_ExternalLink(MissionController_Interface *cb);
 
     ~MissionController_ExternalLink() {
         std::cout << "Destructor on the mavlink mission controller" << std::endl;
         mToExit = true;
     }
+
+    void connectCallback(MissionController_Interface *cb)
+    {
+        m_CB = cb;
+    }
+
+    void updateIDS(const int &targetID, const int &originatingID);
 
     void run();
 
@@ -63,11 +70,6 @@ public:
     //void requestHome(const int &systemID);
     //void receivedMissionHome(const mace_home_position_t &systemHome);
 
-
-    void connectCallback(MissionController_Interface *cb)
-    {
-        m_CB = cb;
-    }
 
     Data::ControllerCommsState getCommsState() const
     {

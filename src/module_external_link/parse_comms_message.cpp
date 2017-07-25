@@ -362,19 +362,20 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_mission_count_t decodedMSG;
         mace_msg_mission_count_decode(message,&decodedMSG);
 
-        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
+        m_MissionController->receivedMissionCount(decodedMSG);
+//        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
+//        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
 
-        MissionItem::MissionList newMissionList(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState,decodedMSG.count);
-        MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();
+//        MissionItem::MissionList newMissionList(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState,decodedMSG.count);
+//        MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();
 
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->ExternalEvent_ReceivingMissionQueue(this, newMissionList);
-        });
+//        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//            ptr->ExternalEvent_ReceivingMissionQueue(this, newMissionList);
+//        });
 
-        mace_message_t msg;
-        mace_msg_mission_request_item_pack_chan(decodedMSG.target_system,compID,m_LinkChan,&msg,systemID,decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,decodedMSG.mission_type,0);
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+//        mace_message_t msg;
+//        mace_msg_mission_request_item_pack_chan(decodedMSG.target_system,compID,m_LinkChan,&msg,systemID,decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,decodedMSG.mission_type,0);
+//        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 
         break;
     }

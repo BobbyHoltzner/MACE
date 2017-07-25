@@ -14,6 +14,13 @@ public:
     //A vehicle module can indicate something has happened
 
     //!
+    //! \brief ExternalEvent_NewConstructedVehicle
+    //! \param sender
+    //! \param newVehicleObserved
+    //!
+    virtual void EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved) = 0;
+
+    //!
     //! \brief EventVehcile_NewOnboardVehicleMission This virtual function event is used to indicate that a vehicle has a new
     //! onboard available mission. The type will be described in the key of the MissionItem but should be of type AUTO.
     //! \param sender
