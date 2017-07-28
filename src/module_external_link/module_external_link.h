@@ -100,23 +100,23 @@ public:
     //! \param systemID
     //! \param heartbeatMSG
     //!
-    virtual void MACEHeartbeatInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG);
+    void HeartbeatInfo(const int &systemID, const mace_heartbeat_t &heartbeatMSG);
 
-    //!
-    //! \brief MACESyncMessage
-    //! \param linkName
-    //! \param systemID
-    //! \param syncMSG
-    //!
-    virtual void MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG);
+//    //!
+//    //! \brief MACESyncMessage
+//    //! \param linkName
+//    //! \param systemID
+//    //! \param syncMSG
+//    //!
+//    virtual void MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG);
 
-    //!
-    //! \brief VehicleCommandMACEACK
-    //! \param linkName
-    //! \param systemID
-    //! \param cmdACK
-    //!
-    virtual void MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK);
+//    //!
+//    //! \brief VehicleCommandMACEACK
+//    //! \param linkName
+//    //! \param systemID
+//    //! \param cmdACK
+//    //!
+//    virtual void MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK);
 
     //!
     //! \brief NewTopic

@@ -212,22 +212,22 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
                 Emit([&](const IProtocolMavlinkEvents* ptr){ptr->RadioStatusChanged(link, rstatus.rxerrors, rstatus.fixed, rssi, remrssi, rstatus.txbuf, rstatus.noise, rstatus.remnoise);});
             }
 
-            if (message.msgid == MACE_MSG_ID_HEARTBEAT)
-            {
-                mace_heartbeat_t heartbeat;
-                mace_msg_heartbeat_decode(&message, &heartbeat);
-                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->HeartbeatInfo(link, message.sysid, heartbeat);});
-            }else if(message.msgid == MACE_MSG_ID_COMMAND_ACK)
-            {
-                mace_command_ack_t commandACK;
-                mace_msg_command_ack_decode(&message, &commandACK);
-                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->CommandACK(link, message.sysid, commandACK);});
-            }else if(message.msgid == MACE_MSG_ID_VEHICLE_SYNC)
-            {
-                mace_vehicle_sync_t syncRequest;
-                mace_msg_vehicle_sync_decode(&message, &syncRequest);
-                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->SyncRequest(link, message.sysid, syncRequest);});
-            }
+//            if (message.msgid == MACE_MSG_ID_HEARTBEAT)
+//            {
+//                mace_heartbeat_t heartbeat;
+//                mace_msg_heartbeat_decode(&message, &heartbeat);
+//                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->HeartbeatInfo(link, message.sysid, heartbeat);});
+//            }else if(message.msgid == MACE_MSG_ID_COMMAND_ACK)
+//            {
+//                mace_command_ack_t commandACK;
+//                mace_msg_command_ack_decode(&message, &commandACK);
+//                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->CommandACK(link, message.sysid, commandACK);});
+//            }else if(message.msgid == MACE_MSG_ID_VEHICLE_SYNC)
+//            {
+//                mace_vehicle_sync_t syncRequest;
+//                mace_msg_vehicle_sync_decode(&message, &syncRequest);
+//                Emit([&](const IProtocolMavlinkEvents* ptr){ptr->SyncRequest(link, message.sysid, syncRequest);});
+//            }
 
             // Increase receive counter
             totalReceiveCounter[mavlinkChannel]++;

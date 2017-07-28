@@ -150,13 +150,9 @@ void ModuleExternalLink::MACEMessage(const std::string &linkName, const mace_mes
     this->ParseForData(&message);
 }
 
-//!
-//! \brief ModuleExternalLink::VehicleHeartbeatInfo
-//! \param linkName
-//! \param systemID
-//! \param heartbeatMSG
-//!
-void ModuleExternalLink::MACEHeartbeatInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG)
+
+
+void ModuleExternalLink::HeartbeatInfo(const int &systemID, const mace_heartbeat_t &heartbeatMSG)
 {
     UNUSED(linkName);
 
@@ -201,6 +197,7 @@ void ModuleExternalLink::MACESyncMessage(const std::string &linkName, const int 
 //!
 void ModuleExternalLink::MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK)
 {
+    m_CommandController->receivedCommandACK();
     Data::CommandItemType cmdType = static_cast<Data::CommandItemType>(cmdACK.command);
     Data::CommandACKType ackType = static_cast<Data::CommandACKType>(cmdACK.result);
 
