@@ -79,7 +79,7 @@ void MissionController_ExternalLink::transmitMission(const MissionItem::MissionL
 void MissionController_ExternalLink::transmitMissionItem(const mace_mission_request_item_t &missionRequest)
 {
     m_LambdasToRun.push_back([this, missionRequest]{
-        Data::MissionKey key(missionRequest.target_system,missionRequest.mission_creator,missionRequest.mission_id,static_cast<Data::MissionType>(missionRequest.mission_type));
+        Data::MissionKey key(missionRequest.mission_system,missionRequest.mission_creator,missionRequest.mission_id,static_cast<Data::MissionType>(missionRequest.mission_type));
 
         if(key != this->missionList.getMissionKey()) //this indicates for some reason the other system requested a different mission?
             return;
@@ -131,29 +131,34 @@ void MissionController_ExternalLink::receivedMissionCount(const mace_mission_cou
 
     //this is like the equivalent of receiving a mission count
     Data::MissionKey key(mission.target_system,mission.mission_creator,mission.mission_id,static_cast<Data::MissionType>(mission.mission_type));
-    this->missionList.setMissionKey(key);
-    this->missionList.initializeQueue(mission.count);
 
-    mace_mission_request_item_t request;
-    request.mission_creator = mission.mission_creator;
-    request.mission_id = mission.mission_id;
-    request.mission_system = mission.mission_system;
-    request.mission_type = mission.mission_type;
-    request.target_system = systemID;
-    request.seq = 0;
+    if(key != this->missionList.getMissionKey())
+    {
+        this->missionList.setMissionKey(key);
+        this->missionList.initializeQueue(mission.count);
 
-    //mLog->info("Mission Controller is requesting mission item " + std::to_string(0));
+        mace_mission_request_item_t request;
+        request.mission_creator = mission.mission_creator;
+        request.mission_id = mission.mission_id;
+        request.mission_system = mission.mission_system;
+        request.mission_type = mission.mission_type;
+        request.target_system = systemID;
+        request.seq = 0;
 
-    clearPendingTasks();
-    clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mace_mission_request_item_t>(commsItemEnum::ITEM_RXITEM, request);
+        //mLog->info("Mission Controller is requesting mission item " + std::to_string(0));
 
-    if(m_CB)
-        m_CB->cbiMissionController_TransmitMissionReq(request);
-    currentRetry = 0;
-    mToExit = false;
-    this->start();
-    mTimer.start();
+        clearPendingTasks();
+        clearPreviousTransmit();
+        prevTransmit = new PreviousTransmission<mace_mission_request_item_t>(commsItemEnum::ITEM_RXITEM, request);
+
+        if(m_CB)
+            m_CB->cbiMissionController_TransmitMissionReq(request);
+        currentRetry = 0;
+        mToExit = false;
+        this->start();
+        mTimer.start();
+    }
+
 }
 
 void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item_t &missionItem)

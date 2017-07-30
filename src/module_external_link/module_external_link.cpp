@@ -154,8 +154,6 @@ void ModuleExternalLink::MACEMessage(const std::string &linkName, const mace_mes
 
 void ModuleExternalLink::HeartbeatInfo(const int &systemID, const mace_heartbeat_t &heartbeatMSG)
 {
-    UNUSED(linkName);
-
     if(systemIDMap.find(systemID) == systemIDMap.end())
     {
         m_MissionController->updateIDS(systemID,254);
@@ -181,13 +179,14 @@ void ModuleExternalLink::HeartbeatInfo(const int &systemID, const mace_heartbeat
     PublishVehicleData(systemID,ptrHeartbeat);
 }
 
-void ModuleExternalLink::MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG)
-{
-    std::cout<<"External link saw a full data request from remote"<<std::endl;
-    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-        ptr->Event_ForceVehicleDataSync(this, syncMSG.target_system);
-    });
-}
+//Ken Fix This
+//void ModuleExternalLink::MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG)
+//{
+//    std::cout<<"External link saw a full data request from remote"<<std::endl;
+//    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//        ptr->Event_ForceVehicleDataSync(this, syncMSG.target_system);
+//    });
+//}
 
 //!
 //! \brief ModuleExternalLink::VehicleCommandMACEACK
@@ -195,32 +194,33 @@ void ModuleExternalLink::MACESyncMessage(const std::string &linkName, const int 
 //! \param systemID
 //! \param cmdACK
 //!
-void ModuleExternalLink::MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK)
-{
-    m_CommandController->receivedCommandACK();
-    Data::CommandItemType cmdType = static_cast<Data::CommandItemType>(cmdACK.command);
-    Data::CommandACKType ackType = static_cast<Data::CommandACKType>(cmdACK.result);
+//Ken Fix This
+//void ModuleExternalLink::MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK)
+//{
+//    m_CommandController->receivedCommandACK();
+//    Data::CommandItemType cmdType = static_cast<Data::CommandItemType>(cmdACK.command);
+//    Data::CommandACKType ackType = static_cast<Data::CommandACKType>(cmdACK.result);
 
-    std::string cmdString = Data::CommandItemTypeToString(cmdType);
-    std::string ackString = Data::CommandACKToString(ackType);
+//    std::string cmdString = Data::CommandItemTypeToString(cmdType);
+//    std::string ackString = Data::CommandACKToString(ackType);
 
-    std::stringstream ss;
-    ss << "System " << systemID << " " << ackString << " command " << cmdString;
-    std::string newString = ss.str();
+//    std::stringstream ss;
+//    ss << "System " << systemID << " " << ackString << " command " << cmdString;
+//    std::string newString = ss.str();
 
-    MaceCore::TopicDatagram topicDatagram;
-    DataGenericItem::DataGenericItem_Text newText;
-    newText.setSeverity(Data::StatusSeverityType::STATUS_INFO);
-    newText.setText(newString);
-    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
+//    MaceCore::TopicDatagram topicDatagram;
+//    DataGenericItem::DataGenericItem_Text newText;
+//    newText.setSeverity(Data::StatusSeverityType::STATUS_INFO);
+//    newText.setText(newString);
+//    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
 
-    m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
-    //notify listneres of topic
-    ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-    });
+//    m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
+//    //notify listneres of topic
+//    ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+//    });
 
-}
+//}
 
 void ModuleExternalLink::PublishVehicleData(const int &systemID, const std::shared_ptr<Data::ITopicComponentDataObject> &component)
 {

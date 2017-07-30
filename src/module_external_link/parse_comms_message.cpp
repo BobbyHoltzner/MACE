@@ -17,6 +17,29 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_command_ack_t decodedMSG;
         mace_msg_command_ack_decode(message,&decodedMSG);
+
+        std::cout<<"The command acknowledgement came from: "<<decodedMSG.command<<std::endl;
+        switch(decodedMSG.result)
+        {
+            case MAV_RESULT_ACCEPTED:
+                std::cout<<"MAV result accepted"<<std::endl;
+                break;
+            case MAV_RESULT_TEMPORARILY_REJECTED:
+                std::cout<<"MAV result rejected"<<std::endl;
+                break;
+            case MAV_RESULT_DENIED:
+                std::cout<<"MAV result denied"<<std::endl;
+                break;
+            case MAV_RESULT_UNSUPPORTED:
+                std::cout<<"MAV result unsupported"<<std::endl;
+                break;
+            case MAV_RESULT_FAILED:
+                std::cout<<"MAV result failed"<<std::endl;
+                break;
+            default:
+                std::cout<<"Uknown ack!"<<std::endl;
+        }
+
         m_CommandController->receivedCommandACK(decodedMSG);
         break;
     }
@@ -53,34 +76,6 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         PublishVehicleData(systemID,ptrBattery);
         break;
     }
-    case MACE_MSG_ID_COMMAND_ACK:
-    {
-        mace_command_ack_t decodedMSG;
-        mace_msg_command_ack_decode(message,&decodedMSG);
-        std::cout<<"The command acknowledgement came from: "<<decodedMSG.command<<std::endl;
-        switch(decodedMSG.result)
-        {
-            case MAV_RESULT_ACCEPTED:
-                std::cout<<"MAV result accepted"<<std::endl;
-                break;
-            case MAV_RESULT_TEMPORARILY_REJECTED:
-                std::cout<<"MAV result rejected"<<std::endl;
-                break;
-            case MAV_RESULT_DENIED:
-                std::cout<<"MAV result denied"<<std::endl;
-                break;
-            case MAV_RESULT_UNSUPPORTED:
-                std::cout<<"MAV result unsupported"<<std::endl;
-                break;
-            case MAV_RESULT_FAILED:
-                std::cout<<"MAV result failed"<<std::endl;
-                break;
-            default:
-                std::cout<<"Uknown ack!"<<std::endl;
-        }
-        break;
-    }
-
     case MACE_MSG_ID_GPS_RAW_INT:
     {
         //This is message definition 24
