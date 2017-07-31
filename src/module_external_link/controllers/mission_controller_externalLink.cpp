@@ -95,6 +95,7 @@ void MissionController_ExternalLink::transmitMissionItem(const mace_mission_requ
         std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = this->missionList.getMissionItem(index);
         mace_mission_item_t missionItem;
         helperMACEtoCOMMS.MACEMissionToCOMMSMission(ptrItem,index,missionItem);
+        helperMACEtoCOMMS.updateMissionKey(key,missionItem);
 
         currentCommsState = Data::ControllerCommsState::TRANSMITTING;
         clearPendingTasks();
