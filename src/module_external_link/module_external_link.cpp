@@ -45,6 +45,13 @@ void ModuleExternalLink::cbiCommandController_CommandACK(const mace_command_ack_
 /// The following are public virtual functions imposed from the Mission Controller
 /// Interface via callback functionality.
 ///////////////////////////////////////////////////////////////////////////////////////
+void ModuleExternalLink::cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK)
+{
+    mace_message_t msg;
+    mace_msg_mission_ack_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&missionACK);
+    transmitMessage(msg);
+}
+
 void ModuleExternalLink::cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count)
 {
     mace_message_t msg;

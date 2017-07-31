@@ -318,24 +318,20 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_mission_ack_t decodedMSG;
         mace_msg_mission_ack_decode(message,&decodedMSG);
-        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
-        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
 
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->ExternalEvent_MissionACK(this, key, missionState);
-        });
+        std::cout<<"External link has received the mission ack"<<std::endl;
+        m_MissionController->receivedMissionACK(decodedMSG);
 
-        DataGenericItem::DataGenericItem_Text text;
-        text.setSeverity(Data::StatusSeverityType::STATUS_NOTICE);
-        std::string str = "Mission Received:" + std::to_string(key.m_systemID) + " Mission ID:" + std::to_string(key.m_missionID) + " Created By:" + std::to_string(key.m_creatorID);
-        text.setText(str);
-        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> statusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(text);
-        m_VehicleDataTopic.SetComponent(statusText, topicDatagram);
-        //notify listneres of topic
-        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), key.m_systemID, MaceCore::TIME(), topicDatagram);
-        });
+//        DataGenericItem::DataGenericItem_Text text;
+//        text.setSeverity(Data::StatusSeverityType::STATUS_NOTICE);
+//        std::string str = "Mission Received:" + std::to_string(key.m_systemID) + " Mission ID:" + std::to_string(key.m_missionID) + " Created By:" + std::to_string(key.m_creatorID);
+//        text.setText(str);
+//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> statusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(text);
+//        m_VehicleDataTopic.SetComponent(statusText, topicDatagram);
+//        //notify listneres of topic
+//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), key.m_systemID, MaceCore::TIME(), topicDatagram);
+//        });
 
         break;
     }

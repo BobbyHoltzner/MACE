@@ -64,6 +64,7 @@ public:
     /// The following are public virtual functions imposed from the Mission Controller
     /// Interface via callback functionality.
     ///////////////////////////////////////////////////////////////////////////////////////
+    void cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK);
     void cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count);
     void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item);
     void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request);

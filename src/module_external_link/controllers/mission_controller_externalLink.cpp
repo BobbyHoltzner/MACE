@@ -38,6 +38,7 @@ void MissionController_ExternalLink::updateIDS(const int &targetID, const int &o
 
 void MissionController_ExternalLink::transmitMission(const MissionItem::MissionList &missionQueue)
 {
+    std::cout<<"Mission Controller has been told to transmit mission"<<std::endl;
     //mLog->info("Mission Controller has been instructed to transmit a mission.");
 
     if(missionQueue.getVehicleID() == this->systemID)
@@ -88,6 +89,8 @@ void MissionController_ExternalLink::transmitMissionItem(const mace_mission_requ
         if(index > this->missionList.getQueueSize()) //this indicates that RX system requested something OOR
             return;
 
+        std::cout<<"Mission Controller has been told to transmit mission item with index "<<index<<std::endl;
+
         mTimer.stop();
         //mLog->info("Mission Controller has seen a request for mission item number " + std::to_string(index) + ".");
 
@@ -112,6 +115,7 @@ void MissionController_ExternalLink::transmitMissionItem(const mace_mission_requ
 void MissionController_ExternalLink::receivedMissionACK(const mace_mission_ack_t &missionACK)
 {
     m_LambdasToRun.push_back([this, missionACK]{
+        std::cout<<"Mission Controller received a mission ack"<<std::endl;
         mTimer.stop();
         currentRetry = 0;
         currentCommsState = Data::ControllerCommsState::NEUTRAL;
@@ -128,6 +132,9 @@ void MissionController_ExternalLink::receivedMissionACK(const mace_mission_ack_t
 
 void MissionController_ExternalLink::receivedMissionCount(const mace_mission_count_t &mission)
 {
+
+    std::cout<<"Mission Controller has received a mission count"<<std::endl;
+
     //mLog->info("Mission Controller has seen a newly available mission.");
 
     //this is like the equivalent of receiving a mission count
@@ -180,6 +187,8 @@ void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item
             return;
         }
 
+        std::cout<<"Mission Controller has received a mission item "<<index<<std::endl;
+
         mTimer.stop();
         currentRetry = 0;
 
@@ -212,6 +221,16 @@ void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item
                 m_CB->cbiMissionController_TransmitMissionReq(request);
         }else{
             //mLog->info("Mission Controller has received the entire mission of " + std::to_string(this->missionList.getQueueSize()));
+            mace_mission_ack_t ackMission;
+            ackMission.target_system = systemID;
+            ackMission.mission_system = key.m_systemID;
+            ackMission.mission_creator = key.m_creatorID;
+            ackMission.mission_id = key.m_missionID;
+            ackMission.mission_type = (uint8_t)key.m_missionType;
+            ackMission.mission_state = (uint8_t)Data::MissionTXState::RECEIVED;
+
+            m_CB->cbiMissionController_TransmitMissionACK(ackMission);
+
             clearPendingTasks();
             mToExit = true;
             currentCommsState = Data::ControllerCommsState::NEUTRAL;
@@ -259,6 +278,7 @@ void MissionController_ExternalLink::run()
                 if(type == commsItemEnum::ITEM_RXLIST)
                 {
                     //mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
+                    std::cout<<"Making another request for mission list"<<std::endl;
                     PreviousTransmission<mace_mission_request_list_t> *tmp = static_cast<PreviousTransmission<mace_mission_request_list_t>*>(prevTransmit);
                     mace_mission_request_list_t msgTransmit = tmp->getData();
                     mTimer.start();
@@ -268,6 +288,7 @@ void MissionController_ExternalLink::run()
                 else if(type == commsItemEnum::ITEM_RXITEM)
                 {
                     //mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
+                    std::cout<<"Making another request for mission item"<<std::endl;
                     PreviousTransmission<mace_mission_request_item_t> *tmp = static_cast<PreviousTransmission<mace_mission_request_item_t>*>(prevTransmit);
                     mace_mission_request_item_t msgTransmit = tmp->getData();
                     mTimer.start();
@@ -291,6 +312,7 @@ void MissionController_ExternalLink::run()
                 if(type == commsItemEnum::ITEM_TXCOUNT)
                 {
                     //mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
+                    std::cout<<"Making another transmission for mission count"<<std::endl;
                     PreviousTransmission<mace_mission_count_t> *tmp = static_cast<PreviousTransmission<mace_mission_count_t>*>(prevTransmit);
                     mace_mission_count_t msgTransmit = tmp->getData();
                     mTimer.start();
@@ -300,6 +322,7 @@ void MissionController_ExternalLink::run()
                 else if(type == commsItemEnum::ITEM_TXITEM)
                 {
                     //mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
+                    std::cout<<"Making another transmission for mission item"<<std::endl;
                     PreviousTransmission<mace_mission_item_t> *tmp = static_cast<PreviousTransmission<mace_mission_item_t>*>(prevTransmit);
                     mace_mission_item_t msgTransmit = tmp->getData();
                     mTimer.start();

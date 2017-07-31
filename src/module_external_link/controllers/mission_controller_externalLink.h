@@ -31,6 +31,7 @@ public:
 
     virtual void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request) = 0;
     virtual void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem) = 0;
+    virtual void cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK) = 0;
 
     virtual void cbiMissionController_TransmitHomeReq(const mace_mission_request_home_t &request) = 0;
 
