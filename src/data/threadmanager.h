@@ -20,7 +20,7 @@ public:
 
     virtual void run() = 0;
 
-    void start() {
+    void start() {            
         mThread = new std::thread([this]()
         {
             this->run();

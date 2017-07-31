@@ -295,15 +295,16 @@ void MissionController_ExternalLink::run()
                     if(m_CB)
                         m_CB->cbiMissionController_TransmitMissionReq(msgTransmit);
                 }
-//                else if(type == commsItemEnum::ITEM_RXHOME)
-//                {
-//                    mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
-//                    PreviousTransmission<mavlink_mission_request_t> *tmp = static_cast<PreviousTransmission<mavlink_mission_request_t>*>(prevTransmit);
-//                    mavlink_mission_request_t msgTransmit = tmp->getData();
-//                    mTimer.start();
-//                    if(m_CB)
-//                        m_CB->cbiMissionController_TransmitMissionReq(msgTransmit);
-//                }
+                else if(type == commsItemEnum::ITEM_RXHOME)
+                {
+                    //mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
+                    std::cout<<"Making another request for home item"<<std::endl;
+                    PreviousTransmission<mace_mission_request_home_t> *tmp = static_cast<PreviousTransmission<mace_mission_request_home_t>*>(prevTransmit);
+                    mace_mission_request_home_t msgTransmit = tmp->getData();
+                    mTimer.start();
+                    if(m_CB)
+                        m_CB->cbiMissionController_TransmitHomeReq(msgTransmit);
+                }
                 break;
             }
             case Data::ControllerCommsState::TRANSMITTING:
@@ -339,10 +340,10 @@ void MissionController_ExternalLink::run()
     }
 }
 
-/*
+
 void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
 {
-    mLog->info("Mission Controller has seen a request mission.");
+    //mLog->info("Mission Controller has seen a request mission.");
     missionList.setCreatorID(systemID);
     missionList.setVehicleID(systemID);
     this->missionList.clearQueue();
@@ -366,32 +367,10 @@ void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
     mTimer.start();
 }
 
-void MissionController_ExternalLink::receivedSystemHome(const mace_home_position_t &home)
-{
-    m_LambdasToRun.push_back([this, home]{
-        mTimer.stop();
-        currentRetry = 0;
-        mLog->info("Mission Controller received system home item item.");
-
-        //This is the home position item associated with the vehicle
-        CommandItem::SpatialHome newHome;
-        newHome.position.setX(missionItem.x);
-        newHome.position.setY(missionItem.y);
-        newHome.position.setZ(missionItem.z);
-        newHome.setOriginatingSystem(systemID);
-        newHome.setTargetSystem(systemID);
-
-        clearPendingTasks();
-        mToExit = true;
-        currentCommsState = Data::ControllerCommsState::NEUTRAL;
-
-        m_CB->cbiMissionController_ReceviedHome(newHome);
-    });
-}
-
 void MissionController_ExternalLink::requestHome(const int &systemID)
 {
-    mLog->info("Mission Controller has seen a request home.");
+    //mLog->info("Mission Controller has seen a request home.");
+    std::cout<<"Mission controller is making a request for the home position"<<std::endl;
     currentCommsState = Data::ControllerCommsState::RECEIVING;
 
     mace_mission_request_home_t request;
@@ -409,5 +388,29 @@ void MissionController_ExternalLink::requestHome(const int &systemID)
     this->start();
     mTimer.start();
 }
-*/
+
+void MissionController_ExternalLink::receivedMissionHome(const mace_home_position_t &home)
+{
+    m_LambdasToRun.push_back([this, home]{
+        mTimer.stop();
+        currentRetry = 0;
+        std::cout<<"Mission controller received the home position"<<std::endl;
+        //mLog->info("Mission Controller received system home item item.");
+
+        //This is the home position item associated with the vehicle
+        CommandItem::SpatialHome newHome;
+        newHome.position.setX(home.latitude / pow(10,7));
+        newHome.position.setY(home.longitude / pow(10,7));
+        newHome.position.setZ(home.altitude / pow(10,7));
+        newHome.setOriginatingSystem(systemID);
+        newHome.setTargetSystem(systemID);
+
+        clearPendingTasks();
+        mToExit = true;
+        currentCommsState = Data::ControllerCommsState::NEUTRAL;
+
+        m_CB->cbiMissionController_ReceviedHome(newHome);
+    });
+}
+
 } //end of namespace DataInterface_MAVLINK

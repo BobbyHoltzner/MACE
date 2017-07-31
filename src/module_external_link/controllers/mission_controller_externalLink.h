@@ -67,9 +67,9 @@ public:
     void receivedMissionCount(const mace_mission_count_t &mission);
     void recievedMissionItem(const mace_mission_item_t &missionItem);
 
-    //void requestMission(const Data::MissionKey &key);
-    //void requestHome(const int &systemID);
-    //void receivedMissionHome(const mace_home_position_t &systemHome);
+    void requestMission(const Data::MissionKey &key);
+    void requestHome(const int &systemID);
+    void receivedMissionHome(const mace_home_position_t &systemHome);
 
 
     Data::ControllerCommsState getCommsState() const

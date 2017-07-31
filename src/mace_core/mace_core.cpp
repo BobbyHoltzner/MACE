@@ -137,8 +137,11 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
     UNUSED(sender);
 //    UNUSED(vehicleID);
 
-    if(m_RTA) {
-        m_RTA->MarshalCommand(RTACommands::TEST_FUNCTION, vehicleID);
+    try{
+        std::cout<<"Saw a request dummy function"<<std::endl;
+        m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
+    }catch(const std::out_of_range &oor){
+
     }
 }
 
@@ -716,8 +719,11 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
             correctedMission.setMissionKey(key);
             IModuleCommandVehicle* module = m_VehicleIDToPort.at(vehicleID);
             if(module != sender){
-                module->MarshalCommand(VehicleCommands::UPLOAD_MISSION,correctedMission);
+                module->MarshalCommand(VehicleCommands::REQUEST_MISSION,key);
             }
+//            if(module != sender){
+//                module->MarshalCommand(VehicleCommands::UPLOAD_MISSION,correctedMission);
+//            }
 
         }catch(const std::out_of_range &oor){
 

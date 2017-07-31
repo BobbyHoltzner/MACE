@@ -82,12 +82,27 @@ void ModuleExternalLink::cbiMissionController_TransmitMissionReq(const mace_miss
 
 void ModuleExternalLink::cbiMissionController_TransmitHomeReq(const mace_mission_request_home_t &request)
 {
-
+    mace_message_t msg;
+    mace_msg_mission_request_home_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&request);
+    transmitMessage(msg);
 }
 
 void ModuleExternalLink::cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home)
 {
-    std::cout<<"The external link module now has received the home."<<std::endl;
+    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+        ptr->GVEvents_NewHomePosition(this,home);
+    });
+
+    std::shared_ptr<CommandItem::SpatialHome> homePtr = std::make_shared<CommandItem::SpatialHome>(home);
+    std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+    missionTopic->setHome(homePtr);
+
+    MaceCore::TopicDatagram topicDatagram;
+    m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
+    //notify listneres of topic
+    ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), home.getOriginatingSystem(), MaceCore::TIME(), topicDatagram);
+    });
 }
 
 void ModuleExternalLink::cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList)
@@ -310,8 +325,8 @@ void ModuleExternalLink::Command_EmitHeartbeat(const CommandItem::SpatialTakeoff
 
 void ModuleExternalLink::Command_GetHomePosition(const int &vehicleID)
 {
-//    mace_message_t msg = DataCOMMS::Command_MACETOCOMMS::generateGetHomeMessage(vehicleID,m_LinkChan);
-//    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+    std::cout<<"External link module saw a get home position request"<<std::endl;
+    m_MissionController->requestHome(vehicleID);
 }
 
 void ModuleExternalLink::Command_SetHomePosition(const CommandItem::SpatialHome &systemHome)
@@ -338,6 +353,7 @@ void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &m
 void ModuleExternalLink::Command_GetMission(const Data::MissionKey &key)
 {
     UNUSED(key);
+    m_MissionController->requestMission(key);
 }
 
 void ModuleExternalLink::Command_SetCurrentMission(const Data::MissionKey &key)

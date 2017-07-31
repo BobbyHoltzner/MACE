@@ -214,8 +214,25 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     ////////////////////////////////////////////////////////////////////////////
     /// HOME BASED EVENTS:
     ////////////////////////////////////////////////////////////////////////////
+    case MACE_MSG_ID_MISSION_REQUEST_HOME:
+    {
+        std::cout<<"Saw a mission request home"<<std::endl;
+
+        mace_mission_request_home_t decodedMSG;
+        mace_msg_mission_request_home_decode(message,&decodedMSG);
+        CommandItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(decodedMSG.target_system);
+
+        mace_message_t msg;
+        mace_home_position_t homeMACE;
+        homeMACE.latitude = home.position.getX() * pow(10,7);
+        homeMACE.longitude = home.position.getY() * pow(10,7);
+        homeMACE.altitude = home.position.getZ() * pow(10,7);
+        mace_msg_home_position_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&homeMACE);
+        transmitMessage(msg);
+    }
     case MACE_MSG_ID_SET_HOME_POSITION:
     {
+        //we need to respond to this with an acknowledgement receiving it
         mace_set_home_position_t decodedMSG;
         mace_msg_set_home_position_decode(message,&decodedMSG);
         DataCOMMS::Mission_COMMSTOMACE missionConvert;
@@ -232,27 +249,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_home_position_t decodedMSG;
         mace_msg_home_position_decode(message,&decodedMSG);
-
-        CommandItem::SpatialHome spatialHome;
-        spatialHome.position.setX(decodedMSG.latitude / pow(10,7));
-        spatialHome.position.setY(decodedMSG.longitude / pow(10,7));
-        spatialHome.position.setZ(decodedMSG.altitude / 1000);
-        spatialHome.setOriginatingSystem(systemID);
-
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->GVEvents_NewHomePosition(this,spatialHome);
-        });
-
-        std::shared_ptr<CommandItem::SpatialHome> homePtr = std::make_shared<CommandItem::SpatialHome>(spatialHome);
-        std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
-        missionTopic->setHome(homePtr);
-
-        MaceCore::TopicDatagram topicDatagram;
-        m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
-        //notify listneres of topic
-        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-        });
+        m_MissionController->receivedMissionHome(decodedMSG);
 
         break;
     }
@@ -337,30 +334,34 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     }
     case MACE_MSG_ID_MISSION_REQUEST_LIST:
     {
+        std::cout<<"I saw a mission request list"<<std::endl;
+
         mace_mission_request_list_t decodedMSG;
         mace_msg_mission_request_list_decode(message,&decodedMSG);
 
         Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        MissionItem::MissionList missionList;
         Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
-        bool validity = this->getDataObject()->getMissionList(key,missionList);
+        std::cout<<key<<std::endl;
+        MissionItem::MissionList missionList;
 
-        if(!validity){ //KEN TODO: Return a message saying that the request is invalid because the item does not exsist...probably enum failure value / validity
-            std::cout<<"The requested key was not valid"<<std::endl;
-            return;
-        }
+//        bool validity = this->getDataObject()->getMissionList(key,missionList);
 
-        mace_mission_count_t missionCount;
-        missionCount.count = missionList.getQueueSize();
-        missionCount.mission_creator = key.m_creatorID;
-        missionCount.mission_id = key.m_missionID;
-        missionCount.mission_system = key.m_systemID;
-        missionCount.mission_type = decodedMSG.mission_type;
-        missionCount.target_system = systemID;
+//        if(!validity){ //KEN TODO: Return a message saying that the request is invalid because the item does not exsist...probably enum failure value / validity
+//            std::cout<<"The requested key was not valid"<<std::endl;
+//            return;
+//        }
 
-        mace_message_t msg;
-        mace_msg_mission_count_encode_chan(associatedSystemID,compID,m_LinkChan,&msg,&missionCount);
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+//        mace_mission_count_t missionCount;
+//        missionCount.count = missionList.getQueueSize();
+//        missionCount.mission_creator = key.m_creatorID;
+//        missionCount.mission_id = key.m_missionID;
+//        missionCount.mission_system = key.m_systemID;
+//        missionCount.mission_type = decodedMSG.mission_type;
+//        missionCount.target_system = systemID;
+
+//        mace_message_t msg;
+//        mace_msg_mission_count_encode_chan(associatedSystemID,compID,m_LinkChan,&msg,&missionCount);
+//        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
         break;
     }
     case MACE_MSG_ID_MISSION_COUNT:
