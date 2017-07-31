@@ -80,17 +80,17 @@ void ModuleExternalLink::cbiMissionController_TransmitHomeReq(const mace_mission
 
 void ModuleExternalLink::cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home)
 {
-
+    std::cout<<"The external link module now has received the home."<<std::endl;
 }
 
 void ModuleExternalLink::cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList)
 {
-
+    std::cout<<"The external link module now has received the entire mission."<<std::endl;
 }
 
 void ModuleExternalLink::cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK)
 {
-
+    std::cout<<"The external link module now has received the mission ack."<<std::endl;
 }
 
 
