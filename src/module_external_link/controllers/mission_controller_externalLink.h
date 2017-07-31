@@ -42,6 +42,14 @@ public:
 
 class MissionController_ExternalLink : public Thread
 {
+private:
+    enum requestState{
+        MISSION,
+        HOME,
+        ALL,
+        NONE
+    };
+
 public:
     MissionController_ExternalLink(MissionController_Interface *cb);
 
@@ -82,6 +90,7 @@ private:
 private:
     int systemID;
     int transmittingID;
+    requestState state;
 
     Timer mTimer;
     bool mToExit;

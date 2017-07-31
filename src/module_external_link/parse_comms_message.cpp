@@ -47,6 +47,10 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_vehicle_sync_t decodedMSG;
         mace_msg_vehicle_sync_decode(message,&decodedMSG);
+        std::cout<<"The external link saw a mace message of type vehicle sync"<<std::endl;
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->Event_ForceVehicleDataSync(this, decodedMSG.target_system);
+        });
         break;
     }
     case MACE_MSG_ID_VEHICLE_ARMED:

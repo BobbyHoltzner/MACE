@@ -6,7 +6,7 @@ MissionController_ExternalLink::MissionController_ExternalLink(MissionController
     systemID(0), transmittingID(0),
     mToExit(false), currentRetry(0), maxRetries(5), responseTimeout(5000),\
     currentCommsState(Data::ControllerCommsState::NEUTRAL),
-    m_CB(NULL), prevTransmit(NULL)
+    m_CB(NULL), prevTransmit(NULL), state(NONE)
 {
     //mLog = spdlog::get("Log_Vehicle" + std::to_string(this->systemID));
     connectCallback(cb);
@@ -343,6 +343,7 @@ void MissionController_ExternalLink::run()
 
 void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
 {
+    this->state = MISSION;
     //mLog->info("Mission Controller has seen a request mission.");
     missionList.setCreatorID(systemID);
     missionList.setVehicleID(systemID);
@@ -363,12 +364,14 @@ void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
         m_CB->cbiMissionController_TransmitMissionReqList(request);
     currentRetry = 0;
     mToExit = false;
-    this->start();
+    if(!isThreadActive())
+        this->start();
     mTimer.start();
 }
 
 void MissionController_ExternalLink::requestHome(const int &systemID)
 {
+    this->state = HOME;
     //mLog->info("Mission Controller has seen a request home.");
     std::cout<<"Mission controller is making a request for the home position"<<std::endl;
     currentCommsState = Data::ControllerCommsState::RECEIVING;
@@ -385,7 +388,8 @@ void MissionController_ExternalLink::requestHome(const int &systemID)
 
     currentRetry = 0;
     mToExit = false;
-    this->start();
+    if(!isThreadActive())
+        this->start();
     mTimer.start();
 }
 
