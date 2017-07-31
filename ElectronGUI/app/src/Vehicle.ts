@@ -3,7 +3,7 @@ import { aircraftImgSrcFromType } from './util/VehicleHelper';
 export class Vehicle{
 
     isNew: boolean;
-    general: HeartbeatType;
+    general: HeartbeatType & {lastHeard: Date};
     vehicleId: number;
     isSelected: boolean;
     position: PositionType;
@@ -45,7 +45,8 @@ export class Vehicle{
             commsProtocol: "COMMS_UNKNOWN",
             autopilot: "AUTOPILOT_TYPE_GENERIC",
             aircraftType: "GENERIC",
-            companion: false
+            companion: false,
+            lastHeard: new Date()
         }
         this.gps = {
             visibleSats: 0,
@@ -114,8 +115,8 @@ export class Vehicle{
             targetPosition: {lat: null, lon: null, alt: null},
             icon: new L.DivIcon({
                 html: currentTargetHTML,
-                iconAnchor: [20, 38], // point of the icon which will correspond to marker's location
-                popupAnchor: [0, -18], // point from which the popup should open relative to the iconAnchor
+                iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
+                popupAnchor: [-19, 38], // point from which the popup should open relative to the iconAnchor
                 className: '' // setting this overrides default css and gets rid of white box
             }),
             active: false

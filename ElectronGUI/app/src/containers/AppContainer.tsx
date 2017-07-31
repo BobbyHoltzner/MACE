@@ -42,7 +42,6 @@ type Props = {
 }
 
 type State = {
-  tcpClient?: any,
   tcpHost?: string,
   tcpPort?: number,
   connectedVehicles?: {[id: string]: Vehicle}
@@ -91,7 +90,6 @@ export default class AppContainer extends React.Component<Props, State> {
     this.m_PositionTimeout = 1234;
 
     this.state = {
-      tcpClient: new net.Socket(),
       tcpHost: '127.0.0.1',
       tcpPort: 5678,
       maxZoom: 21,
@@ -238,6 +236,8 @@ export default class AppContainer extends React.Component<Props, State> {
     if(jsonData.dataType === "ConnectedVehicles"){
       let jsonVehicles = jsonData as ConnectedVehiclesType;
 
+      console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
+
       // Check if vehicle is already in the map. If so, do nothing. If not, add it:
       for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
         if (stateCopy[jsonVehicles.connectedVehicles[i].toString()] !== undefined){
@@ -261,6 +261,7 @@ export default class AppContainer extends React.Component<Props, State> {
           continue;
         }
         else {
+          console.log("Delete vehicle: " + idArrays[i]);
           delete stateCopy[idArrays[i]];
         }
       }
@@ -428,6 +429,7 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[jsonHeartbeat.vehicleID].general.commsProtocol = jsonHeartbeat.commsProtocol;
       stateCopy[jsonHeartbeat.vehicleID].general.aircraftType = jsonHeartbeat.aircraftType;
       stateCopy[jsonHeartbeat.vehicleID].general.companion = jsonHeartbeat.companion;
+      stateCopy[jsonHeartbeat.vehicleID].general.lastHeard = new Date();
       this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleArm') {
@@ -454,7 +456,6 @@ export default class AppContainer extends React.Component<Props, State> {
 
     let socket = new net.Socket();
     this.setupTCPClient(socket);
-    // this.state.tcpClient.connect(this.state.tcpPort, this.state.tcpHost, function() {
     socket.connect(this.state.tcpPort, this.state.tcpHost, function() {
       // console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
       let tcpRequest = {
@@ -463,6 +464,7 @@ export default class AppContainer extends React.Component<Props, State> {
         vehicleCommand: vehicleCommand
       };
       socket.write(JSON.stringify(tcpRequest));
+      socket.end();
     }.bind(this));
   }
 
@@ -476,7 +478,7 @@ export default class AppContainer extends React.Component<Props, State> {
         // this.parseTCPServerData(jsonData);
 
         // Close the client socket completely
-        socket.destroy();
+        // socket.destroy();
 
         if(this.state.MACEConnected === false) {
           this.setState({MACEConnected: true});
@@ -718,6 +720,7 @@ export default class AppContainer extends React.Component<Props, State> {
                 useContext={this.state.useContext}
                 allowVehicleSelect={this.state.allowVehicleSelect}
                 onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
+                showNotification={this.showNotification}
               />
             }
 
@@ -755,6 +758,7 @@ export default class AppContainer extends React.Component<Props, State> {
                 handleSaveTakeoff={(alt: string) => this.setState({takeoffAlt: alt})}
                 contextAnchor={this.state.contextAnchor}
                 useContext={this.state.useContext}
+                showNotification={this.showNotification}
               />
             }
 

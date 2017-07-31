@@ -5,7 +5,7 @@ import * as React from 'react';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
-import DropDownMenu from 'material-ui/DropDownMenu';
+import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import { Vehicle } from '../Vehicle';
 import { Grid, Col } from 'react-bootstrap';
@@ -25,6 +25,7 @@ type Props = {
     handleSaveTakeoff: (alt: string) => void,
     contextAnchor: L.LeafletMouseEvent,
     useContext: boolean,
+    showNotification: (title: string, message: string, level: string, position: string, label: string) => void
 }
 
 type State = {
@@ -59,7 +60,15 @@ export class TakeoffDialog extends React.Component<Props, State> {
 
     handleTakeoff = () => {
         if(this.props.useContext) {
-            this.props.handleTakeoff(this.state.selectedVehicleID, this.state.takeoffAlt, this.state.takeoffLat, this.state.takeoffLon);
+            if(this.state.selectedVehicleID !== "0") {
+                this.props.handleTakeoff(this.state.selectedVehicleID, this.state.takeoffAlt, this.state.takeoffLat, this.state.takeoffLon);
+            }
+            else {
+                let title = 'Takeoff';
+                let level = 'info';
+                this.props.showNotification(title, 'Select a vehicle to send takeoff coordinates to.', level, 'tc', 'Got it');
+                return;
+            }
         }
         else {
             this.props.handleTakeoff(this.state.selectedVehicleID, this.state.takeoffAlt);
@@ -134,16 +143,14 @@ export class TakeoffDialog extends React.Component<Props, State> {
                         </Grid>
                         :
                         <Grid fluid>
-                            {this.props.selectedVehicleID === "0" &&
-                                <Col xs={12} md={12}>
-                                        <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                            <DropDownMenu style={{marginRight: 10, width: '100%', backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedVehicleID} onChange={this.handleDropdownChange}>
-                                                <MenuItem value={"0"} primaryText={"All vehicles"} label={"All vehicles"} />
-                                                {vehicleIDs}
-                                            </DropDownMenu>
-                                        </MuiThemeProvider>
-                                </Col>
-                            }
+                            <Col xs={12} md={12}>
+                                    <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                        <SelectField floatingLabelText="Select a vehicle" style={{marginRight: 10, width: '100%', backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedVehicleID} onChange={this.handleDropdownChange}>
+                                            <MenuItem value={"0"} primaryText={this.props.useContext ? "Select a vehicle..." : "All vehicles"} label={this.props.useContext ? "Select a vehicle..." : "All vehicles"} />
+                                            {vehicleIDs}
+                                        </SelectField>
+                                    </MuiThemeProvider>
+                            </Col>
                             {this.props.useContext &&
                                 <Col xs={12} md={12}>
                                     <Col xs={12} md={12}>
