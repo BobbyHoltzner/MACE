@@ -269,26 +269,11 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
         Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
 
-        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
+        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState);
 
-        bool valid = this->getDataObject()->getMissionKeyValidity(key);
-//        if(valid)
-//        {
-//            //this means we have it already and perhaps the state has changed and we should update it
-//        }
-//        else{
-            //this mace instance has no idea what that mission profile looks like so lets request more information
-            mace_mission_request_list_t request;
-            request.mission_creator = key.m_creatorID;
-            request.mission_id = key.m_missionID;
-            request.mission_type = (uint8_t)key.m_missionType;
-            request.mission_system = key.m_systemID;
+        m_MissionController->requestMission(key);
 
-            mace_message_t msg;
-            mace_msg_mission_request_list_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&request);
-            m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
-        //}
-
+        //bool valid = this->getDataObject()->getMissionKeyValidity(key);
         break;
     }
     case MACE_MSG_ID_NEW_PROPOSED_MISSION:

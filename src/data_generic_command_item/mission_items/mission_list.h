@@ -86,11 +86,11 @@ public:
     }
 
     void setMissionTXState(const Data::MissionTXState &missionTypeState){
-        this->missionTypeState = missionTypeState;
+        this->missionKey.m_missionState = missionTypeState;
     }
 
     Data::MissionTXState getMissionTXState() const{
-        return missionTypeState;
+        return this->missionKey.m_missionState;
     }
 
 
@@ -113,7 +113,6 @@ public:
     {
         this->missionKey = rhs.missionKey;
         this->missionQueue = rhs.missionQueue;
-        this->missionTypeState = rhs.missionTypeState;
         this->missionExeState = rhs.missionExeState;
         this->activeMissionItem = rhs.activeMissionItem;
     }
@@ -123,9 +122,6 @@ public:
             return false;
         }
         if(this->missionQueue != rhs.missionQueue){
-            return false;
-        }
-        if(this->missionTypeState != rhs.missionTypeState){
             return false;
         }
         if(this->missionExeState != rhs.missionExeState){
@@ -144,8 +140,6 @@ public:
 private:
 
     Data::MissionKey missionKey;
-
-    Data::MissionTXState missionTypeState;
 
     Data::MissionExecutionState missionExeState;
 

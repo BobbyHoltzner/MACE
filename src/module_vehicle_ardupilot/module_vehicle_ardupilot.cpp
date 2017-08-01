@@ -97,12 +97,15 @@ void ModuleVehicleArdupilot::cbi_VehicleMission(const int &systemID, const Missi
 {
     mLogs->debug("Receieved a new vehicle mission.");
 
-    //We should update the core
+    //This function shall update the local MACE CORE instance of the mission
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
         ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
     });
     //We should update all listeners
     std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>(missionList);
+
+    //This function shall update the local vehicle object with the current vehicle mission
+    vehicleData->mission->setCurrentMission(missionList);
 
     this->cbi_VehicleMissionData(systemID,missionTopic);
 }

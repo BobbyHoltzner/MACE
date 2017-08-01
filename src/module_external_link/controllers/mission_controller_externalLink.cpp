@@ -345,8 +345,8 @@ void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
 {
     this->state = MISSION;
     //mLog->info("Mission Controller has seen a request mission.");
-    missionList.setCreatorID(systemID);
-    missionList.setVehicleID(systemID);
+
+    missionList.setMissionKey(key);
     this->missionList.clearQueue();
     currentCommsState = Data::ControllerCommsState::RECEIVING;
 

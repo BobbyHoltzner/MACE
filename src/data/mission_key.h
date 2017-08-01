@@ -15,6 +15,7 @@ class MissionKey
 public:
     MissionKey();
     MissionKey(const int &systemID, const int &creatorID, const int &missionID, const Data::MissionType &missionType);
+    MissionKey(const int &systemID, const int &creatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTXState &missionState);
     MissionKey(const MissionKey &obj);
 public:
     int m_systemID;
@@ -29,6 +30,8 @@ public:
     uint64_t m_missionID;
 
     Data::MissionType m_missionType;
+
+    Data::MissionTXState m_missionState;
 
     void operator =(const MissionKey &rhs);
 
