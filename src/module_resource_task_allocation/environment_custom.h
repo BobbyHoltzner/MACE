@@ -125,6 +125,14 @@ public:
     bool computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles, GridDirection direction);
 
     /**
+     * @brief Environment_Map::computeBalancedVoronoi Use the number of vehicles and their positions to create a balanced Voronoi partition
+     * @param vehicles Map of vehicles and their positions
+     * @param direction Grid direction for the resulting waypoint pattern
+     * @return
+     */
+    bool computeBalancedVoronoi(const std::map<int, Point> vehicles, GridDirection direction);
+
+    /**
      * @brief setBoundaryVerts Set the new boundary vertices
      * @param verts Vector of Points defining the environment boundary
      */
@@ -195,6 +203,12 @@ public:
      * @return Current global origin
      */
     std::shared_ptr<DataState::StateGlobalPosition> getGlobalOrigin() { return m_globalOrigin; }
+
+    /**
+     * @brief getNumberOfNodes Get number of nodes in the environment for dividing between vehicles in the balanced case
+     * @return Number of nodes in the environment
+     */
+    int getNumberOfNodes();
 
 private:
 

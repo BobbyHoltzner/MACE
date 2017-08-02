@@ -3,6 +3,9 @@
 #include <algorithm>
 
 #include <data_generic_state_item/positional_aid.h>
+#include <polySplit/polysplit.h>
+
+#include <Eigen/Dense>
 
 using namespace voro;
 
@@ -24,11 +27,61 @@ Environment_Map::Environment_Map(const std::vector<Point> verts, double gridSpac
 }
 
 /**
- * @brief computeVoronoi Given the bounding box and current vehicle positions, compute a voronoi diagram
- * @param bbox Bounding box
- * @param vehicles Positions of vehicles (in x,y,z coordinates)
+ * @brief Environment_Map::computeBalancedVoronoi Use the number of vehicles and their positions to create a balanced Voronoi partition
+ * @param vehicles Map of vehicles and their positions
+ * @param direction Grid direction for the resulting waypoint pattern
+ * @return
  */
-bool Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles, GridDirection direction) {
+bool Environment_Map::computeBalancedVoronoi(const std::map<int, Point> vehicles, GridDirection direction) {
+    /* TODO:
+     * 1) Use the number of vehicles to create evenly spaced points in environment
+     * 2) Assign centroids to vehicles based on how close the vehicle position is to the site
+     * 2) Use computeVoronoi method with those spaced points
+     */
+    // Step 1):
+    int numVehicles = vehicles.size();
+    std::vector<Point> vehicleVector;
+    for(auto vehicle : vehicles) {
+        vehicleVector.push_back(vehicle.second);
+    }
+    PolySplit polygon;
+    polygon.initPolygon(vehicleVector);
+
+    // Step 2):
+    std::vector<Point> centroids = polygon.getCentroids();
+    if(centroids.size() != numVehicles) {
+        std::cout << "Balanced Voronoi: Number of vehicles does not match number of available polygons." << std::endl;
+        return false;
+    }
+    else {
+        std::map<int, Point> vehiclesCentroids;
+        for(auto vehicle : vehicles) {
+            Point tmpPoint;
+            double dist = std::numeric_limits<double>::max();
+            for(auto centroid : centroids) {
+                double tmpDist = distanceBetweenPoints(centroid, vehicle.second);
+                if(tmpDist < dist) {
+                    tmpPoint = centroid;
+                }
+            }
+            vehiclesCentroids.insert(std::make_pair(vehicle.first, tmpPoint));
+        }
+
+        // Step 3):
+        bool success = computeVoronoi(getBoundingBox(), vehiclesCentroids, direction);
+
+        std::cout << "Number of nodes in environment: " << getNumberOfNodes() << std::endl;
+        // Return success or failure:
+        return success;
+    }
+}
+
+/**
+ * @brief computeVoronoi Given the bounding box and current site positions, compute a voronoi diagram
+ * @param bbox Bounding box
+ * @param sites Positions of sites (in x,y,z coordinates)
+ */
+bool Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int, Point> sites, GridDirection direction) {
     bool success = false;
 
     // Set up constants for the container geometry
@@ -48,21 +101,42 @@ bool Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
     container con(x_min,x_max,y_min,y_max,z_min,z_max,n_x,n_y,n_z,
                  false,false,false,8);
 
+
+//    // Add plane walls to the container to make a 3D shape of the boundary
+//    wall_plane p1(0,0,0.5,1);  con.add_wall(p1); // Top wall
+//    wall_plane p2(0,0,-0.5,1); con.add_wall(p2); // Bottom wall
+//    // For every edge of the boundary, create a plane and add it to our container:
+//    std::vector<Point> tmpPts = boundaryVerts;
+//    tmpPts.push_back(boundaryVerts[0]);
+//    for(int i = 0; i < tmpPts.size(); i++) {
+//        if(i == tmpPts.size()-1) {
+//            continue;
+//        }
+//        Point pt1 = tmpPts[i];
+//        Point pt2 = tmpPts[i+1];
+//        Eigen::Vector3d vec1(pt2.x - pt1.x, pt2.y - pt1.y, z_min);
+//        Eigen::Vector3d vec2(pt2.x - pt1.x, pt2.y - pt1.y, z_max);
+//        Eigen::Vector3d normal = vec1.cross(vec2);
+//        wall_plane plane(normal[0],normal[1],normal[2],1);
+//        con.add_wall(plane);
+//    }
+
     // Import into container
     //con.import("pack_six_cube");
-    // Add vehicles/particles into the container only if they are in the environment
-    for(auto vehicle : vehicles) {
-        if(vehicle.first > 0){
-            if(pointInPoly(boundaryVerts, vehicle.second)) {
-                con.put(vehicle.first, vehicle.second.x, vehicle.second.y, 0);
+    // Add sites/particles into the container only if they are in the environment
+    for(auto particle : sites) {
+        if(particle.first > 0){
+            if(pointInPoly(boundaryVerts, particle.second)) {
+//            if(con.point_inside(particle.second.x, particle.second.y, particle.second.z)) {
+                con.put(particle.first, particle.second.x, particle.second.y, particle.second.z);
             }
             else {
-                std::cout << "Vehicle at position (" << vehicle.second.x << ", " << vehicle.second.y << ") not within environment. Skipping." << std::endl;
+                std::cout << "Point at position (" << particle.second.x << ", " << particle.second.y << ", " << particle.second.z << ") not within environment. Skipping." << std::endl;
             }
         }
     }
 
-    // Loop over all vehicles in the container and compute each Voronoi
+    // Loop over all sites in the container and compute each Voronoi
     // cell
     c_loop_all cl(con);
     int dimension = 0;
@@ -128,25 +202,30 @@ bool Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
         cell.site.z = z;
         cell.vertices = coords;
         // Sort the cell vertices:
-        sortCellVerticesCCW(cell);
+        sortCellVerticesCCW(cell); // TODO: Optimize
         // Get contained nodes:
-        setNodesInCell(cell);
+        setNodesInCell(cell); // TODO: Optimize
 
         // TODO: There's got to be a better way to sort the North/South direction then creating a whole separate map of y-vals:
-        setContainedNodesYX(cell);
+        setContainedNodesYX(cell); // TODO: Optimize
 
         // Sort the nodes:
-        sortNodesInGrid(cell, direction);
+        sortNodesInGrid(cell, direction); // TODO: Optimize
+
+        // TODO-PAT: Instead of doing by vehicle, just insert into a cells array in order
+        //              --Assign cells to vehicle ID by closest site?
+        cells.insert(std::make_pair(counter, cell));
+
         // Get vehicle ID:
-        int vehicleID = getVehicleID(cell, vehicles);
-        // Insert into our map:
-        //  - If our vehicle ID is < 0 (i.e. -1), we didn't find a vehicle in our cell. Something went wrong
-        if(vehicleID > 0){
-            cells[vehicleID] = cell;
-        }
-        else {
-            std::cout << "Vehicle ID not found in cell." << std::endl;
-        }
+//        int vehicleID = getVehicleID(cell, sites);
+//        // Insert into our map:
+//        //  - If our vehicle ID is < 0 (i.e. -1), we didn't find a vehicle in our cell. Something went wrong
+//        if(vehicleID > 0){
+//            cells[vehicleID] = cell;
+//        }
+//        else {
+//            std::cout << "Vehicle ID not found in cell." << std::endl;
+//        }
       } while (cl.inc()); // Increment to the next cell:
 
 
@@ -266,7 +345,9 @@ std::map<double, std::map<double, Node> > Environment_Map::initializeEnvironment
         for(auto yVal : yVals) {
             Point tmpPoint(xVal, yVal, 0);
             Node tmpNode(tmpPoint, 0.0);
-            y_node_map_tmp.insert(std::make_pair(yVal, tmpNode));
+            if(pointInPoly(boundaryVerts, tmpPoint)) {
+                y_node_map_tmp.insert(std::make_pair(yVal, tmpNode));
+            }
         }
 
         tmpNodes.insert(std::make_pair(xVal, y_node_map_tmp));
@@ -337,14 +418,17 @@ void Environment_Map::setNodesInCell(Cell &cell) {
             double yVal = nodeY.first;
 
             Point tmpPoint = Point(xVal, yVal,0);
-            bool inPoly = pointInPoly(cell.vertices, tmpPoint);
+            bool inCell = pointInPoly(cell.vertices, tmpPoint);
 
-            if(inPoly){
-                count ++;
-                y_node_map_tmp.insert(std::make_pair(yVal, nodeY.second));
+            if(inCell){
+                bool inEnvironment = pointInPoly(boundaryVerts, tmpPoint);
+                if(inEnvironment) {
+                    count ++;
+                    y_node_map_tmp.insert(std::make_pair(yVal, nodeY.second));
 
-                // Insert into unsorted points vector:
-                cell.unsortedContainedPoints.push_back(Point(xVal, yVal, 0.0));
+                    // Insert into unsorted points vector:
+                    cell.unsortedContainedPoints.push_back(Point(xVal, yVal, 0.0));
+                }
             }
         }
 
@@ -601,7 +685,8 @@ bool Environment_Map::updateVehiclePosition(const int &vehicleID, const Point &p
 
     // If recompute flag is set, recompute the voronoi partition:
     if(recomputeVoronoi) {
-        success = computeVoronoi(boundingRect, m_vehicles, GridDirection::NORTH_SOUTH);
+//        success = computeVoronoi(boundingRect, m_vehicles, GridDirection::NORTH_SOUTH);
+        success = computeBalancedVoronoi(m_vehicles, GridDirection::NORTH_SOUTH);
     }
 
     return success; // If false, don't send to MACE core
@@ -850,5 +935,19 @@ void Environment_Map::updateEnvironmentOrigin(const DataState::StateGlobalPositi
 
     // Set new origin:
     m_globalOrigin = std::make_shared<DataState::StateGlobalPosition>(globalOrigin);
+}
+
+/**
+ * @brief getNumberOfNodes Get number of nodes in the environment for dividing between vehicles in the balanced case
+ * @return Number of nodes in the environment
+ */
+int Environment_Map::getNumberOfNodes() {
+    int outerSize = nodes.size();
+    int innerSize = 0;
+    for(auto xVal : nodes) {
+        innerSize += xVal.second.size();
+    }
+
+    return outerSize*innerSize;
 }
 
