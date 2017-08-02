@@ -3,6 +3,8 @@
 
 #include "module_ground_station_global.h"
 
+#include "spdlog/spdlog.h"
+
 #include <string>
 #include <memory>
 
@@ -45,6 +47,9 @@ public:
     ModuleGroundStation();
 
     ~ModuleGroundStation();
+
+
+    void initiateLogs();
 
     //!
     //! \brief Starts the TCP server for the GCS to send requests to
@@ -103,6 +108,7 @@ private:
     void sendVehicleArm(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> &component);
     void sendVehicleAirspeed(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAirspeedTopic> &component);
     void sendMissionState(const Data::MissionKey &key, const MissionItem::MissionList &list);
+    void sendVehicleTarget(const int &vehicleID, const std::shared_ptr<MissionTopic::VehicleTargetTopic> &component);
 
     bool writeTCPData(QByteArray data);
 
@@ -140,9 +146,13 @@ private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 
 private:
+    std::shared_ptr<spdlog::logger> mLogs;
+
+private:
+    double latitude;
     std::shared_ptr<QTcpServer> m_TcpServer;
     QThread *m_ListenThread;
-    QTcpSocket *m_TcpSocket;
+//    QTcpSocket *m_TcpSocket;
     bool m_positionTimeoutOccured;
     bool m_attitudeTimeoutOccured;
     bool m_modeTimeoutOccured;

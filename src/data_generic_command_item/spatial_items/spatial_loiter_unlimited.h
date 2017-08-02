@@ -2,6 +2,8 @@
 #define SPATIAL_LOITER_UNLIMITED_H
 
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 #include "data/command_item_type.h"
 #include "data/loiter_direction.h"

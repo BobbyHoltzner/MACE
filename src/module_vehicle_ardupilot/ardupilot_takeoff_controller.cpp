@@ -1,7 +1,7 @@
 #include "ardupilot_takeoff_controller.h"
 
-Ardupilot_TakeoffController::Ardupilot_TakeoffController(std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> vehicleData, Comms::CommsMarshaler *commsMarshaler, const std::string &linkName, const uint8_t &linkChan, callbackFunction callback) :
-    Ardupilot_GeneralController(vehicleData, commsMarshaler, linkName, linkChan, callback),
+Ardupilot_TakeoffController::Ardupilot_TakeoffController(std::shared_ptr<DataInterface_MAVLINK::VehicleObject_MAVLINK> vehicleData) :
+    Ardupilot_GeneralController(vehicleData),
     currentStateLogic(DISARMED)
 {
     controllerType = CONTROLLER_TAKEOFF;
@@ -38,34 +38,30 @@ Ardupilot_TakeoffController::Ardupilot_TakeoffController(std::shared_ptr<DataARD
 //            }
 //        });
 //    });
-
-    m_callback(m_dataAvailable);
 }
 
 Ardupilot_TakeoffController::~Ardupilot_TakeoffController() {
-    this->vehicleDataObject->data->ArdupilotFlightMode.RemoveNotifier(this);
+
 }
 
 void Ardupilot_TakeoffController::initializeTakeoffSequence(const CommandItem::SpatialTakeoff &takeoff)
 {
     missionItem_Takeoff = takeoff;
-    std::string mode = vehicleDataObject->data->vehicleMode.get().getFlightModeString();
-    bool armed = vehicleDataObject->data->vehicleArm.get().getSystemArm();
-    int vehicleID = vehicleDataObject->getVehicleID();
+    std::string mode = vehicleDataObject->state->vehicleFlightMode.get().getFlightModeString();
+    bool armed = vehicleDataObject->state->vehicleArm.get().getSystemArm();
+    int vehicleID = vehicleDataObject->getSystemID();
 
     if((armed) && (mode == "GUIDED"))
     {
         currentStateLogic = ARMED_RIGHT_MODE;
-        mavlink_message_t msg = vehicleDataObject->generateTakeoffMessage(takeoff,m_LinkChan);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        vehicleDataObject->m_CommandController->setSystemTakeoff(takeoff);
         //the vehicle is already armed and we can send the initial takeoff command
 
     }else if(armed){
         //the vehicle is armed and we should switch to guided
         currentStateLogic = ARMED_WRONG_MODE;
-        int requiredMode = vehicleDataObject->data->ArdupilotFlightMode.get().getFlightModeFromString("GUIDED");
-        mavlink_message_t msg = vehicleDataObject->generateChangeMode(vehicleID,m_LinkChan,requiredMode);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        int requiredMode = vehicleDataObject->state->vehicleFlightMode.get().getFlightModeFromString("GUIDED");
+        vehicleDataObject->m_CommandController->setNewMode(requiredMode);
     }else
     {
         //we are in a mode that we can request the aircraft to arm
@@ -73,8 +69,7 @@ void Ardupilot_TakeoffController::initializeTakeoffSequence(const CommandItem::S
         CommandItem::ActionArm itemArm;
         itemArm.setTargetSystem(vehicleID);
         itemArm.setVehicleArm(true);
-        mavlink_message_t msg = vehicleDataObject->generateArmMessage(itemArm,m_LinkChan);
-        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+        vehicleDataObject->m_CommandController->setSystemArm(itemArm);
     }
 }
 
@@ -88,25 +83,31 @@ void Ardupilot_TakeoffController::updateCommandACK(const mavlink_command_ack_t &
 }
 
 double Ardupilot_TakeoffController::distanceToTarget(){
+    double distance = 0.0;
     switch(currentStateLogic)
     {
     case(ALTITUDE_TRANSITION):
     {
-        DataState::StateGlobalPosition currentPosition = vehicleDataObject->data->vehicleGlobalPosition.get();
-        DataState::StateGlobalPosition targetPosition(missionItem_Takeoff.position.getX(),missionItem_Takeoff.position.getY(),missionItem_Takeoff.position.getZ());
-        //KEN FIX THIS AND ASSURE THIS WORKS
-        //DataState::StateGlobalPosition targetPosition = static_cast<DataState::StateGlobalPosition>(missionItem_Takeoff.position);
-        double distance  = fabs(currentPosition.deltaAltitude(targetPosition));
-        return distance;
+        DataState::StateGlobalPosition currentPosition = vehicleDataObject->state->vehicleGlobalPosition.get();
+        DataState::StateGlobalPosition targetPosition(currentPosition.getX(),currentPosition.getY(),missionItem_Takeoff.position.getZ());
+        distance  = fabs(currentPosition.deltaAltitude(targetPosition));
+        MissionTopic::VehicleTargetTopic vehicleTarget(vehicleDataObject->getSystemID(), targetPosition, distance);
+        m_CBTarget(m_FunctionTarget,vehicleTarget);
         break;
     }
     case(HORIZONTAL_TRANSITION):
     {
+        DataState::StateGlobalPosition targetPosition(missionItem_Takeoff.position.getX(),missionItem_Takeoff.position.getY(),missionItem_Takeoff.position.getZ());
+        distance = vehicleDataObject->state->vehicleGlobalPosition.get().distanceBetween3D(targetPosition);
+        MissionTopic::VehicleTargetTopic vehicleTarget(vehicleDataObject->getSystemID(), targetPosition, distance);
+        m_CBTarget(m_FunctionTarget,vehicleTarget);
         break;
     }
     default:
         break;
     }
+
+    return distance;
 }
 
 void Ardupilot_TakeoffController::generateControl(const Data::ControllerState &currentState)
@@ -124,13 +125,20 @@ void Ardupilot_TakeoffController::generateControl(const Data::ControllerState &c
     }
     case Data::ControllerState::ACHIEVED:
     {
-        //we have reached the end of the current mission
-        //KEN TODO: We need to figure out what appropriate action to take here
-        std::cout<<"I have acheived the takeoff state"<<std::endl;
-        mToExit = true;
-        break;
+        if((currentStateLogic == ALTITUDE_TRANSITION) && (missionItem_Takeoff.position.has3DPositionSet()))
+        {
+            currentStateLogic = HORIZONTAL_TRANSITION;
+            CommandItem::SpatialWaypoint target;
+            target.setTargetSystem(missionItem_Takeoff.getTargetSystem());
+            target.setOriginatingSystem(missionItem_Takeoff.getOriginatingSystem());
+            target.position = missionItem_Takeoff.position;
+            vehicleDataObject->m_GuidedController->updateWaypointTarget(target);
+        }
+        else
+            mToExit = true;
+
     }
-    }
+    } //end of switch statement
 }
 
 
@@ -144,8 +152,8 @@ void Ardupilot_TakeoffController::run()
             break;
         }
 
-        std::string mode = vehicleDataObject->data->vehicleMode.get().getFlightModeString();
-        bool armed = vehicleDataObject->data->vehicleArm.get().getSystemArm();
+        std::string mode = vehicleDataObject->state->vehicleFlightMode.get().getFlightModeString();
+        bool armed = vehicleDataObject->state->vehicleArm.get().getSystemArm();
 
         switch(currentStateLogic)
         {
@@ -156,14 +164,11 @@ void Ardupilot_TakeoffController::run()
                 if(mode == "GUIDED")
                 {
                     currentStateLogic = ARMED_RIGHT_MODE;
-                    mavlink_message_t msg = vehicleDataObject->generateTakeoffMessage(missionItem_Takeoff,m_LinkChan);
-                    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+                    vehicleDataObject->m_CommandController->setSystemTakeoff(missionItem_Takeoff);
                 }else{
                     currentStateLogic = ARMED_WRONG_MODE;
-                    int requiredMode = vehicleDataObject->data->ArdupilotFlightMode.get().getFlightModeFromString("GUIDED");
-                    int vehicleID = vehicleDataObject->getVehicleID();
-                    mavlink_message_t msg = vehicleDataObject->generateChangeMode(vehicleID,m_LinkChan,requiredMode);
-                    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+                    int requiredMode = vehicleDataObject->state->vehicleFlightMode.get().getFlightModeFromString("GUIDED");
+                    vehicleDataObject->m_CommandController->setNewMode(requiredMode);
                 }
 
             }
@@ -182,8 +187,7 @@ void Ardupilot_TakeoffController::run()
             {
                 //we have made a good progression if we are in this phase
                 currentStateLogic = ARMED_RIGHT_MODE;
-                mavlink_message_t msg = vehicleDataObject->generateTakeoffMessage(missionItem_Takeoff,m_LinkChan);
-                m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
+                vehicleDataObject->m_CommandController->setSystemTakeoff(missionItem_Takeoff);
             }
             break;
         }
@@ -213,7 +217,7 @@ void Ardupilot_TakeoffController::run()
         }
 
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
@@ -221,7 +225,6 @@ void Ardupilot_TakeoffController::controlSequence()
 {
     //let us see how close we are to our target
     double distance = distanceToTarget();
-    std::cout<<"The distance to the target is: "<<distance<<std::endl;
     Data::ControllerState currentState = vehicleMissionState.updateMissionState(distance);
     generateControl(currentState);
 }

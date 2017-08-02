@@ -41,6 +41,7 @@ void MissionList::initializeQueue(const int &size)
 {
     if(size <= 0){
         // TODO-Ken/Pat: Throw a message with exception
+        std::cout << "Cannot initialize queue of 0" << std::endl;
         throw std::exception();
     }
     missionQueue.clear();

@@ -13,7 +13,7 @@ import AppBar from 'material-ui/AppBar';
 import * as colors from 'material-ui/styles/colors';
 // import IconMenu from 'material-ui/IconMenu';
 // import MenuItem from 'material-ui/MenuItem';
-import IconButton from 'material-ui/IconButton';
+// import IconButton from 'material-ui/IconButton';
 // import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { Vehicle } from '../Vehicle';
 import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
@@ -22,10 +22,13 @@ import { MessagesDialog } from '../components/MessagesDialog';
 import { TakeoffDialog } from '../components/TakeoffDialog';
 import MACEMap from '../components/MACEMap';
 import { getRandomRGB } from '../util/Colors';
-import FontIcon from 'material-ui/FontIcon';
+// import FontIcon from 'material-ui/FontIcon';
 import FlatButton from 'material-ui/FlatButton';
 
 import * as deepcopy from 'deepcopy';
+var winston = require('winston');
+winston.emitErrs = true;
+
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
@@ -39,7 +42,6 @@ type Props = {
 }
 
 type State = {
-  tcpClient?: any,
   tcpHost?: string,
   tcpPort?: number,
   connectedVehicles?: {[id: string]: Vehicle}
@@ -53,7 +55,7 @@ type State = {
   showEditGlobalHomeDialog?: boolean,
   showMessagesMenu?: boolean,
   messagePreferences?: MessagePreferencesType,
-  takeoffAlt?: number,
+  takeoffAlt?: string,
   showTakeoffDialog?: boolean,
   showSaveTakeoff?: boolean,
   maxZoom?: number,
@@ -75,6 +77,8 @@ export default class AppContainer extends React.Component<Props, State> {
 
   vehicleDB: {[id: string]: Vehicle};
 
+  logger: any;
+
   constructor(props: Props) {
     super(props);
 
@@ -86,7 +90,6 @@ export default class AppContainer extends React.Component<Props, State> {
     this.m_PositionTimeout = 1234;
 
     this.state = {
-      tcpClient: new net.Socket(),
       tcpHost: '127.0.0.1',
       tcpPort: 5678,
       maxZoom: 21,
@@ -115,12 +118,45 @@ export default class AppContainer extends React.Component<Props, State> {
         info: true,
         debug: true
       },
-      takeoffAlt: 5,
+      takeoffAlt: "5",
       showTakeoffDialog: false,
       showSaveTakeoff: false,
       MACEConnected: false,
       environmentBoundary: []
     }
+
+    // // Set up logger:
+    // this.logger = new winston.Logger({
+    //     transports: [
+    //         new winston.transports.File({
+    //             timestamp: function() {
+    //               let date = new Date();
+    //               let year = date.getFullYear();
+    //               let month = ('0'+(date.getMonth()+1)).slice(-2);
+    //               let day = date.getDate();
+    //               let hour = date.getHours();
+    //               let minutes = date.getMinutes();
+    //               let seconds = date.getSeconds();
+    //               let msecs = date.getMilliseconds();
+    //               return '[' + year + '-' + month + '-' + day + ' ' + hour + ':' + minutes + ':' + seconds + '.' + msecs + ']';
+    //             },
+    //             level: 'info',
+    //             filename: '../logs/GUI_logs.log',
+    //             handleExceptions: true,
+    //             json: false,
+    //             maxsize: 5242880, //5MB
+    //             maxFiles: 5,
+    //             colorize: false,
+    //             formatter: function customFileFormatter (options: any) {
+    //                 // Return string will be passed to logger.
+    //                 return options.timestamp() +' ['+ options.level.toUpperCase() +'] '+ (undefined !== options.message ? options.message : '') +
+    //                 (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '' );
+    //             }
+    //         })
+    //     ],
+    //     exitOnError: false
+    // });
+    // this.logger.info('************************ Starting log ************************');
   }
 
   componentDidMount(){
@@ -194,8 +230,13 @@ export default class AppContainer extends React.Component<Props, State> {
   parseTCPClientData = (jsonData: TCPReturnType) => {
     let stateCopy = deepcopy(this.state.connectedVehicles);
 
+    // Log message:
+    // this.logger.info("[MACE Data: " + JSON.stringify(jsonData) + "]");
+
     if(jsonData.dataType === "ConnectedVehicles"){
       let jsonVehicles = jsonData as ConnectedVehiclesType;
+
+      console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
 
       // Check if vehicle is already in the map. If so, do nothing. If not, add it:
       for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
@@ -220,6 +261,7 @@ export default class AppContainer extends React.Component<Props, State> {
           continue;
         }
         else {
+          console.log("Delete vehicle: " + idArrays[i]);
           delete stateCopy[idArrays[i]];
         }
       }
@@ -387,6 +429,7 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[jsonHeartbeat.vehicleID].general.commsProtocol = jsonHeartbeat.commsProtocol;
       stateCopy[jsonHeartbeat.vehicleID].general.aircraftType = jsonHeartbeat.aircraftType;
       stateCopy[jsonHeartbeat.vehicleID].general.companion = jsonHeartbeat.companion;
+      stateCopy[jsonHeartbeat.vehicleID].general.lastHeard = new Date();
       this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleArm') {
@@ -394,13 +437,25 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[jsonArm.vehicleID].isArmed = jsonArm.armed;
       this.vehicleDB = stateCopy;
     }
+    else if(jsonData.dataType === 'CurrentVehicleTarget') {
+      let jsonVehicleTarget = jsonData as TCPVehicleTargetType;
+      stateCopy[jsonVehicleTarget.vehicleID].currentTarget.active = true;
+      stateCopy[jsonVehicleTarget.vehicleID].currentTarget.distanceToTarget = jsonVehicleTarget.distanceToTarget;
+      stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.lat = jsonVehicleTarget.lat;
+      stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.lon = jsonVehicleTarget.lon;
+      stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.alt = jsonVehicleTarget.alt;
+      this.vehicleDB = stateCopy;
+    }
   }
 
 
   makeTCPRequest = (vehicleID: number, tcpCommand: string, vehicleCommand: string) => {
+
+    // Log message:
+    // this.logger.info("{TCP Command: " + tcpCommand + "}  {Vehicle Command: " + vehicleCommand + "}");
+
     let socket = new net.Socket();
     this.setupTCPClient(socket);
-    // this.state.tcpClient.connect(this.state.tcpPort, this.state.tcpHost, function() {
     socket.connect(this.state.tcpPort, this.state.tcpHost, function() {
       // console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
       let tcpRequest = {
@@ -409,6 +464,7 @@ export default class AppContainer extends React.Component<Props, State> {
         vehicleCommand: vehicleCommand
       };
       socket.write(JSON.stringify(tcpRequest));
+      socket.end();
     }.bind(this));
   }
 
@@ -422,7 +478,7 @@ export default class AppContainer extends React.Component<Props, State> {
         // this.parseTCPServerData(jsonData);
 
         // Close the client socket completely
-        socket.destroy();
+        // socket.destroy();
 
         if(this.state.MACEConnected === false) {
           this.setState({MACEConnected: true});
@@ -486,19 +542,18 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleSaveVehicleHome = (vehicleID: string, vehicleHome: PositionType) => {
-    console.log("Vehicle ID: " + vehicleID);
     this.handleAircraftCommand(vehicleID, "SET_VEHICLE_HOME", JSON.stringify(vehicleHome));
-    let tmpHome: any = {
-      lat: vehicleHome.lat,
-      lon: vehicleHome.lon,
-      alt: vehicleHome.alt,
-    }
-    if(this.state.connectedVehicles[vehicleID]) {
-      this.state.connectedVehicles[vehicleID].updateHomePosition(tmpHome);
-    }
-    else {
-      console.log("No vehicle with ID: " + vehicleID);
-    }
+    // let tmpHome: any = {
+    //   lat: vehicleHome.lat,
+    //   lon: vehicleHome.lon,
+    //   alt: vehicleHome.alt,
+    // }
+    // if(this.state.connectedVehicles[vehicleID]) {
+    //   this.state.connectedVehicles[vehicleID].updateHomePosition(tmpHome);
+    // }
+    // else {
+    //   console.log("No vehicle with ID: " + vehicleID);
+    // }
   }
 
   handleSaveGlobalOrigin = (globalOrigin: PositionType) => {
@@ -511,6 +566,7 @@ export default class AppContainer extends React.Component<Props, State> {
       showEditVehicleHomeDialog: true,
       allowVehicleSelect: true,
       showEditGlobalHomeDialog: false,
+      showTakeoffDialog: false,
       useContext: true
     });
   }
@@ -522,6 +578,16 @@ export default class AppContainer extends React.Component<Props, State> {
       showEditVehicleHomeDialog: false,
       useContext: true
     });
+  }
+
+  contextSetTakeoff = () => {
+    this.setState({
+      showEditVehicleHomeDialog: false,
+      allowVehicleSelect: false,
+      showEditGlobalHomeDialog: false,
+      showTakeoffDialog: true,
+      useContext: true
+    })
   }
 
   contextGoHere = () => {
@@ -565,13 +631,17 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({messagePreferences: preferences});
   }
 
-  handleTakeoff = (vehicleID: string, takeoffAlt: number) => {
+  handleTakeoff = (vehicleID: string, takeoffAlt: string, takeoffLat?: string, takeoffLon?: string) => {
     let takeoffPosition = {
-      lat: 0,
-      lon: 0,
-      alt: takeoffAlt
+      lat: takeoffLat ? parseFloat(takeoffLat) : 0,
+      lon: takeoffLon ? parseFloat(takeoffLon) : 0,
+      alt: parseFloat(takeoffAlt)
     }
-    this.makeTCPRequest(parseInt(vehicleID), "VEHICLE_TAKEOFF", JSON.stringify(takeoffPosition));
+    let latLonFlag = false;
+    if(takeoffLat && takeoffLon) {
+      latLonFlag = true;
+    }
+    this.makeTCPRequest(parseInt(vehicleID), "VEHICLE_TAKEOFF", JSON.stringify({takeoffPosition: takeoffPosition, latLonFlag: latLonFlag}));
   }
 
   updateMapCenter = (e: L.LeafletMouseEvent) => {
@@ -591,21 +661,6 @@ export default class AppContainer extends React.Component<Props, State> {
     const parentStyle = {height: height + 'px', width: width + 'px'};
 
     const ToolbarRight = () => (
-      // <IconMenu
-      //   iconButtonElement={<IconButton><MoreVertIcon color="white" /></IconButton>}
-      //   anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-      //   targetOrigin={{horizontal: 'right', vertical: 'top'}}
-      // >
-      //   <MenuItem onClick={() => console.log("RTA")} primaryText="RTA Parameters" />
-      //   <MenuItem onClick={() => console.log("Path Planning")} primaryText="Path Planning Parameters" />
-      // </IconMenu>
-      // <IconButton
-      //   iconClassName={"material-icons"}
-      //   onClick={this.handleSyncAll}
-      //   iconStyle={{color: "white"}}
-      // >
-      //   refresh
-      // </IconButton>
 
       <FlatButton
         label={"Sync all"}
@@ -647,7 +702,7 @@ export default class AppContainer extends React.Component<Props, State> {
               onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
               onAircraftCommand={this.handleAircraftCommand}
               selectedAircraftID={this.state.selectedVehicleID}
-              handleTakeoff={() => this.setState({showTakeoffDialog: true, showSaveTakeoff: false})}
+              handleTakeoff={() => this.setState({showTakeoffDialog: true, showSaveTakeoff: false, useContext: false})}
             />
 
             <VehicleWarningsContainer
@@ -657,7 +712,7 @@ export default class AppContainer extends React.Component<Props, State> {
             {this.state.showEditVehicleHomeDialog &&
               <VehicleHomeDialog
                 open={this.state.showEditVehicleHomeDialog}
-                handleClose={() => this.setState({showEditVehicleHomeDialog: false})}
+                handleClose={() => this.setState({showEditVehicleHomeDialog: false, useContext: false})}
                 vehicles={this.state.connectedVehicles}
                 selectedVehicleID={this.state.selectedVehicleID}
                 handleSave={this.handleSaveVehicleHome}
@@ -665,13 +720,14 @@ export default class AppContainer extends React.Component<Props, State> {
                 useContext={this.state.useContext}
                 allowVehicleSelect={this.state.allowVehicleSelect}
                 onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
+                showNotification={this.showNotification}
               />
             }
 
             {this.state.showEditGlobalHomeDialog &&
               <GlobalOriginDialog
                 open={this.state.showEditGlobalHomeDialog}
-                handleClose={() => this.setState({showEditGlobalHomeDialog: false})}
+                handleClose={() => this.setState({showEditGlobalHomeDialog: false, useContext: false})}
                 onGlobalHomeCommand={this.handleAircraftCommand}
                 globalOrigin={this.state.globalOrigin}
                 handleSave={this.handleSaveGlobalOrigin}
@@ -692,14 +748,17 @@ export default class AppContainer extends React.Component<Props, State> {
             {this.state.showTakeoffDialog &&
               <TakeoffDialog
                 open={this.state.showTakeoffDialog}
-                handleClose={() => this.setState({showTakeoffDialog: false})}
+                handleClose={() => this.setState({showTakeoffDialog: false, useContext: false})}
                 vehicles={this.state.connectedVehicles}
                 selectedVehicleID={this.state.selectedVehicleID}
                 handleTakeoff={this.handleTakeoff}
                 takeoffAlt={this.state.takeoffAlt}
                 onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
                 showSaveTakeoff={this.state.showSaveTakeoff}
-                handleSaveTakeoff={(alt: number) => this.setState({takeoffAlt: alt})}
+                handleSaveTakeoff={(alt: string) => this.setState({takeoffAlt: alt})}
+                contextAnchor={this.state.contextAnchor}
+                useContext={this.state.useContext}
+                showNotification={this.showNotification}
               />
             }
 
@@ -717,6 +776,7 @@ export default class AppContainer extends React.Component<Props, State> {
               contextAnchor={this.state.contextAnchor}
               contextSetGlobal={this.contextSetGlobal}
               contextSetHome={this.contextSetHome}
+              contextSetTakeoff={this.contextSetTakeoff}
               contextGoHere={this.contextGoHere}
               MACEConnected={this.state.MACEConnected}
               environmentBoundary={this.state.environmentBoundary}

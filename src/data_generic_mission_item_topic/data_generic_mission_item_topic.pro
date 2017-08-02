@@ -30,7 +30,8 @@ SOURCES += \
     mission_item_request_topic.cpp \
     mission_home_topic.cpp \
     mission_item_reached_topic.cpp \
-    mission_item_current_topic.cpp
+    mission_item_current_topic.cpp \
+    vehicle_target_topic.cpp
 
 HEADERS +=\
         data_generic_mission_item_topic_global.h \
@@ -40,7 +41,8 @@ HEADERS +=\
     mission_item_request_topic.h \
     mission_home_topic.h \
     mission_item_reached_topic.h \
-    mission_item_current_topic.h
+    mission_item_current_topic.h \
+    vehicle_target_topic.h
 
 # Unix lib Install
 unix:!symbian {

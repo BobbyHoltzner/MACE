@@ -7,7 +7,7 @@ import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import { Vehicle } from '../Vehicle';
 import { Grid, Col } from 'react-bootstrap';
-import DropDownMenu from 'material-ui/DropDownMenu';
+import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 
 import * as colors from 'material-ui/styles/colors';
@@ -23,6 +23,7 @@ type Props = {
     useContext: boolean,
     allowVehicleSelect: boolean,
     onSelectedAircraftChange: (id: string) => void,
+    showNotification: (title: string, message: string, level: string, position: string, label: string) => void
 }
 
 type State = {
@@ -77,8 +78,15 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
             lon: this.state.homeLon,
             alt: this.state.homeAlt
         }
-        this.props.handleSave(this.state.selectedVehicleID, vehicleHome);
-        this.props.handleClose();
+        if(this.state.selectedVehicleID !== '0') {
+            this.props.handleSave(this.state.selectedVehicleID, vehicleHome);
+            this.props.handleClose();
+        }
+        else {
+            let title = 'Set Home';
+            let level = 'info';
+            this.props.showNotification(title, 'Select a vehicle to set home coordinates for.', level, 'tc', 'Got it');
+        }
     }
 
     handleDropdownChange = (event: any, index: number, value: string) => {
@@ -111,16 +119,14 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
             <MuiThemeProvider muiTheme={lightMuiTheme}>
                 <Dialog titleStyle={{backgroundColor: colors.orange700, color: colors.white}} title="Set vehicle home position" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose} contentStyle={{width: '20%'}}>
                     <Grid fluid>
-                        {this.props.selectedVehicleID === "0" &&
-                            <Col xs={12} md={12}>
-                                    <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                        <DropDownMenu style={{marginRight: 10, width: '100%', backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedVehicleID} onChange={this.handleDropdownChange}>
-                                            <MenuItem value={"0"} primaryText={"All vehicles"} label={"All vehicles"} />
-                                            {vehicleIDs}
-                                        </DropDownMenu>
-                                    </MuiThemeProvider>
-                            </Col>
-                        }
+                        <Col xs={12} md={12}>
+                                <MuiThemeProvider muiTheme={lightMuiTheme}>
+                                    <SelectField floatingLabelText="Select a vehicle" style={{marginRight: 10, width: '100%', backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedVehicleID} onChange={this.handleDropdownChange}>
+                                        <MenuItem value={"0"} primaryText={"Select a vehicle..."} label={"Select a vehicle..."} />
+                                        {vehicleIDs}
+                                    </SelectField>
+                                </MuiThemeProvider>
+                        </Col>
                         <Col xs={12} md={12}>
                             <TextField
                                 id={"homeLat"}

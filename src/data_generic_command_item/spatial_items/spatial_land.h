@@ -2,6 +2,8 @@
 #define SPATIAL_LAND_H
 
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 #include "data/command_item_type.h"
 
@@ -67,6 +69,8 @@ public:
     bool operator != (const SpatialLand &rhs) {
         return !(*this == rhs);
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const SpatialLand& t);
 
 public:
     DataState::Base3DPosition position;

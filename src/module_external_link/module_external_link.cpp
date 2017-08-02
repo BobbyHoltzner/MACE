@@ -180,13 +180,6 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                     associatedSystemID = senderID;
                     m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
                 }
-//                else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemArm::Name()) {
-//                    std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>();
-//                    m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-//                    mace_message_t msg = helper.Generic_MACETOCOMMS::SystemArmTopicPTR_MACETOCOMMS(component,senderID,0,m_LinkChan);
-//                    associatedSystemID = senderID;
-//                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-//                }
                 else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemArm::Name()) {
                     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>();
                     m_VehicleDataTopic.GetComponent(component, read_topicDatagram);

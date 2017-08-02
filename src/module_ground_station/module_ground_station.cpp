@@ -46,6 +46,10 @@ ModuleGroundStation::ModuleGroundStation() :
     m_MissionDataTopic("vehicleMission"),
     m_ListenThread(NULL)
 {
+    latitude = 37.8910356;
+
+    initiateLogs();
+
     m_positionTimeoutOccured = false;
     m_attitudeTimeoutOccured = false;
     m_modeTimeoutOccured = false;
@@ -65,6 +69,12 @@ ModuleGroundStation::ModuleGroundStation() :
         if(!m_fuelTimeoutOccured) {
             m_fuelTimeoutOccured = true;
         }
+
+        if(m_TcpServer) {
+            if(!m_TcpServer->isListening()) {
+                std::cout << "Server status: Disconnected" << std::endl;
+            }
+        }
     });
 
     m_timer->setSingleShot(false);
@@ -83,6 +93,32 @@ ModuleGroundStation::~ModuleGroundStation()
     {
         m_timer->stop();
     }
+
+    if(m_TcpServer) {
+        m_TcpServer->close();
+    }
+}
+
+void ModuleGroundStation::initiateLogs()
+{
+    std::string logname = "";
+    char* MACEPath = getenv("MACE_ROOT");
+
+    const char kPathSeparator =
+    #ifdef _WIN32
+                                '\\';
+    #else
+                                '/';
+    #endif
+
+    std::string rootPath(MACEPath);
+    logname = rootPath + kPathSeparator + "logs/MACE_Module_GCS.txt";
+    //initiate the logs
+    size_t q_size = 8192; //queue size must be power of 2
+    spdlog::set_async_mode(q_size,spdlog::async_overflow_policy::discard_log_msg,nullptr,std::chrono::seconds(2));
+
+    mLogs = spdlog::basic_logger_mt("MACE_Module_GCS", logname);
+    mLogs->set_level(spdlog::level::debug);
 }
 
 bool ModuleGroundStation::StartTCPServer()
@@ -228,9 +264,9 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
     missionList.setMissionType(Data::MissionType::AUTO);
     missionList.setVehicleID(vehicleID);
     missionList.initializeQueue(4);
-
+    latitude = latitude + 0.001;
     std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
-    newWP->position.setPosition3D(37.8910356,-76.8153602,20.0);
+    newWP->position.setPosition3D(latitude,-76.8153602,20.0);
     newWP->setTargetSystem(vehicleID);
 
     std::shared_ptr<CommandItem::SpatialWaypoint> newWP1 = std::make_shared<CommandItem::SpatialWaypoint>();
@@ -265,6 +301,8 @@ void ModuleGroundStation::testFunction2(const int &vehicleID)
 
 void ModuleGroundStation::getConnectedVehicles()
 {
+    mLogs->debug("Module Ground Station saw a request for getting connected vehicles.");
+
     // TODO-PAT: Instead of grabbing all vehicles, only send the one thats added to the GUI
     //          -Eventually, handle the removal of a vehicle as well.
 
@@ -313,12 +351,14 @@ void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject 
 {
     CommandItem::ActionArm tmpArm;
     tmpArm.setTargetSystem(vehicleID); // the vehicle ID coordinates to the specific vehicle //vehicle 0 is reserved for all connected vehicles
-    //    tmpMode.setRequestMode(jsonObj["vehicleCommand"].toString().toStdString()); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
 
     QJsonObject arm = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
     tmpArm.setVehicleArm(arm.value("arm").toBool());
 
-    std::cout << "Vehicle Arm: " << tmpArm.getRequestArm() << std::endl;
+    std::stringstream buffer;
+    buffer << tmpArm;
+    mLogs->debug("Module Ground Station issuing a arm command to system " + std::to_string(vehicleID) + ".");
+    mLogs->info(buffer.str());
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->Event_IssueCommandSystemArm(this, tmpArm);
@@ -339,11 +379,13 @@ void ModuleGroundStation::setVehicleArm(const int &vehicleID, const QJsonObject 
 void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
 {
     if(jsonObj["vehicleCommand"] == "FORCE_DATA_SYNC") {
+        mLogs->debug("Module Ground Station issuing command force data sync to system " + std::to_string(vehicleID) + ".");
         ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
             ptr->Event_ForceVehicleDataSync(this, vehicleID);
         });
     }
     else if(jsonObj["vehicleCommand"] == "RTL") {
+        mLogs->debug("Module Ground Station issuing command RTL to system " + std::to_string(vehicleID) + ".");
         CommandItem::SpatialRTL rtlCommand;
         rtlCommand.setTargetSystem(vehicleID);
         // TODO: Set generating system and coordinate frame
@@ -353,6 +395,7 @@ void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &
         });
     }
     else if(jsonObj["vehicleCommand"] == "LAND") {
+        mLogs->debug("Module Ground Station issuing land command to system " + std::to_string(vehicleID) + ".");
         CommandItem::SpatialLand landCommand;
         landCommand.setTargetSystem(vehicleID);
         // TODO: Set generating system and coordinate frame
@@ -362,6 +405,7 @@ void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &
         });
     }
     else if(jsonObj["vehicleCommand"] == "AUTO_START") {
+        mLogs->debug("Module Ground Station issuing mission start command to system " + std::to_string(vehicleID) + ".");
         CommandItem::ActionMissionCommand missionCommand;
         missionCommand.setMissionStart();
         missionCommand.setTargetSystem(vehicleID);
@@ -372,6 +416,7 @@ void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &
         });
     }
     else if(jsonObj["vehicleCommand"] == "AUTO_PAUSE") {
+        mLogs->debug("Module Ground Station issuing mission pause command to system " + std::to_string(vehicleID) + ".");
         CommandItem::ActionMissionCommand missionCommand;
         missionCommand.setMissionPause();
         missionCommand.setTargetSystem(vehicleID);
@@ -382,6 +427,7 @@ void ModuleGroundStation::issueCommand(const int &vehicleID, const QJsonObject &
         });
     }
     else if(jsonObj["vehicleCommand"] == "AUTO_RESUME") {
+        mLogs->debug("Module Ground Station issuing mission resume command to system " + std::to_string(vehicleID) + ".");
         CommandItem::ActionMissionCommand missionCommand;
         missionCommand.setMissionResume();
         missionCommand.setTargetSystem(vehicleID);
@@ -402,6 +448,11 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
     tmpHome.position.setX(position.value("lat").toDouble());
     tmpHome.position.setY(position.value("lon").toDouble());
     tmpHome.position.setZ(position.value("alt").toDouble());
+
+    std::stringstream buffer;
+    buffer << tmpHome;
+    mLogs->debug("Module Ground Station issuing a new vehicle home to system " + std::to_string(vehicleID) + ".");
+    mLogs->info(buffer.str());
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
         ptr->Event_SetHomePosition(this, tmpHome);
@@ -431,11 +482,21 @@ void ModuleGroundStation::setGoHere(const int &vehicleID, const QJsonObject &jso
 void ModuleGroundStation::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
 {
     CommandItem::SpatialTakeoff newTakeoff;
-    QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
-    newTakeoff.position.setX(position.value("lat").toDouble());
-    newTakeoff.position.setY(position.value("lon").toDouble());
+    QJsonObject vehicleCommand = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
+    QJsonObject position = vehicleCommand["takeoffPosition"].toObject();
+    bool latLonFlag = vehicleCommand["latLonFlag"].toBool();
+
+    if(latLonFlag) {
+        newTakeoff.position.setX(position.value("lat").toDouble());
+        newTakeoff.position.setY(position.value("lon").toDouble());
+    }
     newTakeoff.position.setZ(position.value("alt").toDouble());
     newTakeoff.setTargetSystem(vehicleID);
+
+    std::stringstream buffer;
+    buffer << newTakeoff;
+    mLogs->debug("Module Ground Station issuing a takeoff command to system " + std::to_string(vehicleID) + ".");
+    mLogs->info(buffer.str());
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->Event_IssueCommandTakeoff(this, newTakeoff);
@@ -565,8 +626,6 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 std::shared_ptr<MissionTopic::MissionListTopic> component = std::make_shared<MissionTopic::MissionListTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
-                std::cout << "vehicle mission" << std::endl;
-
                 // Write mission items to the GUI:
                 sendVehicleMission(senderID, component->getMissionList());
             }
@@ -578,6 +637,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 sendVehicleHome(senderID, *castHome.get());
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
+                std::cout<<"I have seen a misson item reached topic"<<std::endl;
                 std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
@@ -585,12 +645,19 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
                 sendMissionItemReached(senderID, component);
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
+                std::cout<<"I have seen a misson item current topic"<<std::endl;
                 std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-                std::cout << "I have a new current mission item" << component->getMissionItemIndex() << std::endl;
 
                 // Write current mission item to the GUI:
                 sendCurrentMissionItem(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == MissionTopic::VehicleTargetTopic::Name()) {
+                std::shared_ptr<MissionTopic::VehicleTargetTopic> component = std::make_shared<MissionTopic::VehicleTargetTopic>();
+                m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write vehicle target to the GUI:
+                sendVehicleTarget(senderID, component);
             }
         }
     }
@@ -778,6 +845,23 @@ void ModuleGroundStation::sendCurrentMissionItem(const int &vehicleID, const std
 
     if(!bytesWritten){
         std::cout << "Write current mission item failed..." << std::endl;
+    }
+}
+
+void ModuleGroundStation::sendVehicleTarget(const int &vehicleID, const std::shared_ptr<MissionTopic::VehicleTargetTopic> &component) {
+    QJsonObject json;
+    json["dataType"] = "CurrentVehicleTarget";
+    json["vehicleID"] = vehicleID;
+    json["distanceToTarget"] = component->targetDistance;
+    json["lat"] = component->targetPosition.getX();
+    json["lon"] = component->targetPosition.getY();
+    json["alt"] = component->targetPosition.getZ();
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write current vehicle target failed..." << std::endl;
     }
 }
 
@@ -971,7 +1055,7 @@ void ModuleGroundStation::sendVehicleGPS(const int &vehicleID, const std::shared
 
 void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &missionKey)
 {
-    std::cout<<"New mission available for ground station"<<std::endl;
+    std::cout<<"New available mission for ground station."<<std::endl;
     MissionItem::MissionList newList;
     bool valid = this->getDataObject()->getMissionList(missionKey,newList);
     if(valid)
@@ -1139,7 +1223,7 @@ void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
     bool bytesWritten = writeTCPData(doc.toJson());
 
     if(!bytesWritten){
-        std::cout << "Write New Vehicle Data failed..." << std::endl;
+        std::cout << "Write ConnectedVehicles failed..." << std::endl;
     }
 }
 

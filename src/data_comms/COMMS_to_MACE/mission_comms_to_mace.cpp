@@ -75,9 +75,9 @@ std::shared_ptr<CommandItem::AbstractCommandItem> Mission_COMMSTOMACE::Covert_CO
 void Mission_COMMSTOMACE::Home_COMMSTOMACE(const mace_set_home_position_t &maceItem, CommandItem::SpatialHome &missionItem)
 {
     missionItem.position.setCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT);
-    missionItem.position.setX(maceItem.x);
-    missionItem.position.setY(maceItem.y);
-    missionItem.position.setZ(maceItem.z);
+    missionItem.position.setX(maceItem.latitude / pow(10,7));
+    missionItem.position.setY(maceItem.longitude / pow(10,7));
+    missionItem.position.setZ(maceItem.altitude / pow(10,3));
 }
 
 void Mission_COMMSTOMACE::ChangeSpeed_COMMSTOMACE(const mace_mission_item_t &maceItem, CommandItem::ActionChangeSpeed &missionItem)

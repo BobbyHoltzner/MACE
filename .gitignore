@@ -42,11 +42,12 @@ node_modules
 /src/module_vehicle_MAVLINK/debug/*
 /src/module_vehicle_MAVLINK/release/*
 /include/*
-
+/logs/*
 /gui_dlls/*
 /node_packages/*
 ElectronGUI/.vscode/settings.json
 ElectronGUI/PrebuiltBinaries*
 PrebuiltBinaries/*
 *.gnu
-logs/*
+
+/logs/*

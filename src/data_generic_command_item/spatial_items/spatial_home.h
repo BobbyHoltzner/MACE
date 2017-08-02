@@ -2,6 +2,8 @@
 #define SPATIAL_HOME_H
 
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 #include "data/command_item_type.h"
 #include "data_generic_command_item/abstract_command_item.h"
@@ -100,6 +102,7 @@ public:
         return !(*this == rhs);
     }
 
+    friend std::ostream& operator<<(std::ostream& os, const SpatialHome& t);
 
 public:
     //!

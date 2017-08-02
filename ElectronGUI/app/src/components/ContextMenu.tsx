@@ -13,7 +13,8 @@ type Props = {
     handleClose: () => void,
     handleSetHome: () => void,
     handleSetGlobal: () => void,
-    handleGoHere: () => void
+    handleGoHere: () => void,
+    handleSetTakeoff: () => void
 }
 
 type State = {
@@ -47,6 +48,11 @@ export class ContextMenu extends React.Component<Props, State> {
         this.props.handleClose();
     }
 
+    handleSetTakeoff = () => {
+        this.props.handleSetTakeoff();
+        this.props.handleClose();
+    }
+
     render() {
 
         const menuStyle = {
@@ -62,6 +68,7 @@ export class ContextMenu extends React.Component<Props, State> {
                 <Menu style={menuStyle}>
                     <MenuItem primaryText="Set home location" onClick={this.handleSetHome} />
                     <MenuItem primaryText="Set global origin" onClick={this.handleSetGlobal} />
+                    <MenuItem primaryText="Set takeoff position" onClick={this.handleSetTakeoff} />
                     {/*
                     <Divider />
                     <MenuItem primaryText='"Go-to" here' onClick={this.handleGoHere} />
