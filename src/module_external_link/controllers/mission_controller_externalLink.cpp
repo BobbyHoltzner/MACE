@@ -3,7 +3,7 @@
 namespace ExternalLink {
 
 MissionController_ExternalLink::MissionController_ExternalLink(MissionController_Interface *cb):
-    systemID(0), transmittingID(0),
+    targetID(0), transmittingID(0),
     mToExit(false), currentRetry(0), maxRetries(5), responseTimeout(5000),\
     currentCommsState(Data::ControllerCommsState::NEUTRAL),
     m_CB(NULL), prevTransmit(NULL), state(NONE)
@@ -21,13 +21,13 @@ void MissionController_ExternalLink::clearPreviousTransmit()
     }
 }
 
-void MissionController_ExternalLink::updateIDS(const int &targetID, const int &originatingID)
+void MissionController_ExternalLink::updateIDS(const int &targetSystem, const int &originSystem)
 {
-    this->systemID = targetID;
-    this->transmittingID = originatingID;
+    this->targetID = targetSystem; //this is to whom this mission would be going to
+    this->transmittingID = originSystem; //this is to whom this mission is from
 
-    helperCOMMStoMACE.updateIDS(originatingID);
-    helperMACEtoCOMMS.updateIDS(originatingID,0);
+    helperCOMMStoMACE.updateIDS(originSystem);
+    helperMACEtoCOMMS.updateIDS(originSystem,0);
 
 }
 
@@ -36,20 +36,18 @@ void MissionController_ExternalLink::updateIDS(const int &targetID, const int &o
 /// to a remote instance of MACE.
 ///////////////////////////////////////////////////////////////////////////////
 
-void MissionController_ExternalLink::transmitMission(const MissionItem::MissionList &missionQueue)
+void MissionController_ExternalLink::transmitMission(const int &targetSystem, const MissionItem::MissionList &missionQueue)
 {
     std::cout<<"Mission Controller has been told to transmit mission"<<std::endl;
     //mLog->info("Mission Controller has been instructed to transmit a mission.");
 
-    if(missionQueue.getVehicleID() == this->systemID)
+    if(targetSystem == this->transmittingID)
     {
-        this->missionList = missionQueue;
-    }
-    else
-    {
-        std::cout<<"We cannot transmit the mission using this external link module."<<std::endl;
+        std::cout<<"This doesn't make sense since this is ourselves."<<std::endl;
         return;
     }
+
+    this->missionList = missionQueue;
 
     Data::MissionKey key = missionQueue.getMissionKey();
 
@@ -57,7 +55,7 @@ void MissionController_ExternalLink::transmitMission(const MissionItem::MissionL
     mace_mission_count_t count;
 
     count.count = this->missionList.getQueueSize();
-    count.target_system = systemID;
+    count.target_system = targetID;
     count.mission_system = key.m_systemID;
     count.mission_creator = key.m_creatorID;
     count.mission_id = key.m_missionID;
@@ -137,36 +135,33 @@ void MissionController_ExternalLink::receivedMissionCount(const mace_mission_cou
 
     //mLog->info("Mission Controller has seen a newly available mission.");
 
-    //this is like the equivalent of receiving a mission count
-    Data::MissionKey key(mission.target_system,mission.mission_creator,mission.mission_id,static_cast<Data::MissionType>(mission.mission_type));
+    Data::MissionKey key(mission.mission_system,mission.mission_creator,mission.mission_id,static_cast<Data::MissionType>(mission.mission_type),static_cast<Data::MissionTXState>(mission.mission_state));
 
-    if(key != this->missionList.getMissionKey())
-    {
-        this->missionList.setMissionKey(key);
-        this->missionList.initializeQueue(mission.count);
+    this->missionList.setMissionKey(key);
+    this->missionList.initializeQueue(mission.count);
 
-        mace_mission_request_item_t request;
-        request.mission_creator = mission.mission_creator;
-        request.mission_id = mission.mission_id;
-        request.mission_system = mission.mission_system;
-        request.mission_type = mission.mission_type;
-        request.target_system = systemID;
-        request.seq = 0;
+    mace_mission_request_item_t request;
+    request.mission_creator = mission.mission_creator;
+    request.mission_id = mission.mission_id;
+    request.mission_system = mission.mission_system;
+    request.mission_type = mission.mission_type;
+    request.mission_state = mission.mission_state;
+    request.target_system = targetID;
+    request.seq = 0;
 
-        //mLog->info("Mission Controller is requesting mission item " + std::to_string(0));
+    //mLog->info("Mission Controller is requesting mission item " + std::to_string(0));
 
-        clearPendingTasks();
-        clearPreviousTransmit();
-        prevTransmit = new PreviousTransmission<mace_mission_request_item_t>(commsItemEnum::ITEM_RXITEM, request);
+    clearPendingTasks();
+    clearPreviousTransmit();
+    prevTransmit = new PreviousTransmission<mace_mission_request_item_t>(commsItemEnum::ITEM_RXITEM, request);
 
-        if(m_CB)
-            m_CB->cbiMissionController_TransmitMissionReq(request);
-        currentRetry = 0;
-        mToExit = false;
+    if(m_CB)
+        m_CB->cbiMissionController_TransmitMissionReq(request);
+    currentRetry = 0;
+    mToExit = false;
+    if(!isThreadActive())
         this->start();
-        mTimer.start();
-    }
-
+    mTimer.start();
 }
 
 void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item_t &missionItem)
@@ -205,7 +200,7 @@ void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item
             //mLog->info("Mission Controller is requesting mission item " + std::to_string(indexRequest));
 
             mace_mission_request_item_t request;
-            request.target_system = systemID;
+            request.target_system = targetID;
             request.mission_creator = key.m_creatorID;
             request.mission_id = key.m_missionID;
             request.mission_system = key.m_systemID;
@@ -222,7 +217,7 @@ void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item
         }else{
             //mLog->info("Mission Controller has received the entire mission of " + std::to_string(this->missionList.getQueueSize()));
             mace_mission_ack_t ackMission;
-            ackMission.target_system = systemID;
+            ackMission.target_system = targetID;
             ackMission.mission_system = key.m_systemID;
             ackMission.mission_creator = key.m_creatorID;
             ackMission.mission_id = key.m_missionID;
@@ -355,6 +350,7 @@ void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
     request.mission_id = key.m_missionID;
     request.mission_system = key.m_systemID;
     request.mission_type = (uint8_t)key.m_missionType;
+    request.mission_state = (uint8_t)key.m_missionState;
 
     clearPendingTasks();
     clearPreviousTransmit();
@@ -406,8 +402,8 @@ void MissionController_ExternalLink::receivedMissionHome(const mace_home_positio
         newHome.position.setX(home.latitude / pow(10,7));
         newHome.position.setY(home.longitude / pow(10,7));
         newHome.position.setZ(home.altitude / pow(10,7));
-        newHome.setOriginatingSystem(systemID);
-        newHome.setTargetSystem(systemID);
+        newHome.setOriginatingSystem(targetID);
+        newHome.setTargetSystem(targetID);
 
         clearPendingTasks();
         mToExit = true;

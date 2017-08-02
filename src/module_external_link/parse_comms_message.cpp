@@ -295,7 +295,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         });
 
         mace_message_t msg;
-        mace_msg_mission_request_item_pack_chan(decodedMSG.target_system,compID,m_LinkChan,&msg,systemID,decodedMSG.target_system,decodedMSG.mission_creator,decodedMSG.mission_id,decodedMSG.mission_type,0);
+        mace_msg_mission_request_item_pack_chan(decodedMSG.target_system,compID,m_LinkChan,&msg,systemID,decodedMSG.target_system,decodedMSG.mission_creator,decodedMSG.mission_id,decodedMSG.mission_type,decodedMSG.mission_state,0);
         m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 
         break;
@@ -329,28 +329,18 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_msg_mission_request_list_decode(message,&decodedMSG);
 
         Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
+        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
+        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState);
         std::cout<<key<<std::endl;
         MissionItem::MissionList missionList;
 
-//        bool validity = this->getDataObject()->getMissionList(key,missionList);
+        bool validity = this->getDataObject()->getMissionList(key,missionList);
 
-//        if(!validity){ //KEN TODO: Return a message saying that the request is invalid because the item does not exsist...probably enum failure value / validity
-//            std::cout<<"The requested key was not valid"<<std::endl;
-//            return;
-//        }
-
-//        mace_mission_count_t missionCount;
-//        missionCount.count = missionList.getQueueSize();
-//        missionCount.mission_creator = key.m_creatorID;
-//        missionCount.mission_id = key.m_missionID;
-//        missionCount.mission_system = key.m_systemID;
-//        missionCount.mission_type = decodedMSG.mission_type;
-//        missionCount.target_system = systemID;
-
-//        mace_message_t msg;
-//        mace_msg_mission_count_encode_chan(associatedSystemID,compID,m_LinkChan,&msg,&missionCount);
-//        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+        if(!validity){ //KEN TODO: Return a message saying that the request is invalid because the item does not exsist...probably enum failure value / validity
+            std::cout<<"The requested key was not valid"<<std::endl;
+            return;
+        }
+        m_MissionController->transmitMission(systemID,missionList);
         break;
     }
     case MACE_MSG_ID_MISSION_COUNT:

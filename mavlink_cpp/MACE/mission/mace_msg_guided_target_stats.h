@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE GUIDED_TARGET_STATS PACKING
 
-#define MACE_MSG_ID_GUIDED_TARGET_STATS 118
+#define MACE_MSG_ID_GUIDED_TARGET_STATS 119
 
 MACEPACKED(
 typedef struct __mace_guided_target_stats_t {
@@ -14,17 +14,17 @@ typedef struct __mace_guided_target_stats_t {
 
 #define MACE_MSG_ID_GUIDED_TARGET_STATS_LEN 17
 #define MACE_MSG_ID_GUIDED_TARGET_STATS_MIN_LEN 17
-#define MACE_MSG_ID_118_LEN 17
-#define MACE_MSG_ID_118_MIN_LEN 17
+#define MACE_MSG_ID_119_LEN 17
+#define MACE_MSG_ID_119_MIN_LEN 17
 
 #define MACE_MSG_ID_GUIDED_TARGET_STATS_CRC 109
-#define MACE_MSG_ID_118_CRC 109
+#define MACE_MSG_ID_119_CRC 109
 
 
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_GUIDED_TARGET_STATS { \
-    118, \
+    119, \
     "GUIDED_TARGET_STATS", \
     5, \
     {  { "x", NULL, MACE_TYPE_FLOAT, 0, 0, offsetof(mace_guided_target_stats_t, x) }, \

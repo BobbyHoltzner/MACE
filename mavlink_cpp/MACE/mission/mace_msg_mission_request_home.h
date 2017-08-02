@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE MISSION_REQUEST_HOME PACKING
 
-#define MACE_MSG_ID_MISSION_REQUEST_HOME 115
+#define MACE_MSG_ID_MISSION_REQUEST_HOME 116
 
 MACEPACKED(
 typedef struct __mace_mission_request_home_t {
@@ -10,17 +10,17 @@ typedef struct __mace_mission_request_home_t {
 
 #define MACE_MSG_ID_MISSION_REQUEST_HOME_LEN 1
 #define MACE_MSG_ID_MISSION_REQUEST_HOME_MIN_LEN 1
-#define MACE_MSG_ID_115_LEN 1
-#define MACE_MSG_ID_115_MIN_LEN 1
+#define MACE_MSG_ID_116_LEN 1
+#define MACE_MSG_ID_116_MIN_LEN 1
 
 #define MACE_MSG_ID_MISSION_REQUEST_HOME_CRC 36
-#define MACE_MSG_ID_115_CRC 36
+#define MACE_MSG_ID_116_CRC 36
 
 
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_MISSION_REQUEST_HOME { \
-    115, \
+    116, \
     "MISSION_REQUEST_HOME", \
     1, \
     {  { "target_system", NULL, MACE_TYPE_UINT8_T, 0, 0, offsetof(mace_mission_request_home_t, target_system) }, \

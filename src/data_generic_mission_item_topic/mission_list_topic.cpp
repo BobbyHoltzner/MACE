@@ -34,10 +34,10 @@ MissionListTopic::MissionListTopic(const MissionItem::MissionList missionList)
 }
 
 
-void MissionListTopic::setMissionList(const MissionItem::MissionList missionList)
+void MissionListTopic::setMissionList(const MissionItem::MissionList missionListA)
 {
-    this->vehicleID = missionList.getVehicleID();
-    this->missionList = missionList;
+    this->vehicleID = missionListA.getVehicleID();
+    this->missionList = missionListA;
 }
 
 MissionItem::MissionList MissionListTopic::getMissionList()

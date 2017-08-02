@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE MISSION_ITEM PACKING
 
-#define MACE_MSG_ID_MISSION_ITEM 106
+#define MACE_MSG_ID_MISSION_ITEM 107
 
 MACEPACKED(
 typedef struct __mace_mission_item_t {
@@ -26,17 +26,17 @@ typedef struct __mace_mission_item_t {
 
 #define MACE_MSG_ID_MISSION_ITEM_LEN 40
 #define MACE_MSG_ID_MISSION_ITEM_MIN_LEN 40
-#define MACE_MSG_ID_106_LEN 40
-#define MACE_MSG_ID_106_MIN_LEN 40
+#define MACE_MSG_ID_107_LEN 40
+#define MACE_MSG_ID_107_MIN_LEN 40
 
 #define MACE_MSG_ID_MISSION_ITEM_CRC 111
-#define MACE_MSG_ID_106_CRC 111
+#define MACE_MSG_ID_107_CRC 111
 
 
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_MISSION_ITEM { \
-    106, \
+    107, \
     "MISSION_ITEM", \
     17, \
     {  { "param1", NULL, MACE_TYPE_FLOAT, 0, 0, offsetof(mace_mission_item_t, param1) }, \

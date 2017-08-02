@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE MISSION_ITEM_REACHED PACKING
 
-#define MACE_MSG_ID_MISSION_ITEM_REACHED 112
+#define MACE_MSG_ID_MISSION_ITEM_REACHED 113
 
 MACEPACKED(
 typedef struct __mace_mission_item_reached_t {
@@ -14,17 +14,17 @@ typedef struct __mace_mission_item_reached_t {
 
 #define MACE_MSG_ID_MISSION_ITEM_REACHED_LEN 6
 #define MACE_MSG_ID_MISSION_ITEM_REACHED_MIN_LEN 6
-#define MACE_MSG_ID_112_LEN 6
-#define MACE_MSG_ID_112_MIN_LEN 6
+#define MACE_MSG_ID_113_LEN 6
+#define MACE_MSG_ID_113_MIN_LEN 6
 
 #define MACE_MSG_ID_MISSION_ITEM_REACHED_CRC 103
-#define MACE_MSG_ID_112_CRC 103
+#define MACE_MSG_ID_113_CRC 103
 
 
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_MISSION_ITEM_REACHED { \
-    112, \
+    113, \
     "MISSION_ITEM_REACHED", \
     5, \
     {  { "seq", NULL, MACE_TYPE_UINT16_T, 0, 0, offsetof(mace_mission_item_reached_t, seq) }, \

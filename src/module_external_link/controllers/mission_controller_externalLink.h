@@ -63,12 +63,12 @@ public:
         m_CB = cb;
     }
 
-    void updateIDS(const int &targetID, const int &originatingID);
+    void updateIDS(const int &targetSystem, const int &originSystem);
 
     void run();
 
     //These 3 functions are related to transmitting a mission
-    void transmitMission(const MissionItem::MissionList &missionQueue);
+    void transmitMission(const int &targetSystem, const MissionItem::MissionList &missionQueue);
     void transmitMissionItem(const mace_mission_request_item_t &missionRequest);
     void receivedMissionACK(const mace_mission_ack_t &missionACK);
 
@@ -76,7 +76,7 @@ public:
     void recievedMissionItem(const mace_mission_item_t &missionItem);
 
     void requestMission(const Data::MissionKey &key);
-    void requestHome(const int &systemID);
+    void requestHome(const int &targetID);
     void receivedMissionHome(const mace_home_position_t &systemHome);
 
 
@@ -88,7 +88,7 @@ private:
     void clearPreviousTransmit();
 
 private:
-    int systemID;
+    int targetID;
     int transmittingID;
     requestState state;
 

@@ -719,11 +719,8 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
             correctedMission.setMissionKey(key);
             IModuleCommandVehicle* module = m_VehicleIDToPort.at(vehicleID);
             if(module != sender){
-                module->MarshalCommand(VehicleCommands::REQUEST_MISSION,key);
+                module->MarshalCommand(VehicleCommands::UPLOAD_MISSION,correctedMission);
             }
-//            if(module != sender){
-//                module->MarshalCommand(VehicleCommands::UPLOAD_MISSION,correctedMission);
-//            }
 
         }catch(const std::out_of_range &oor){
 

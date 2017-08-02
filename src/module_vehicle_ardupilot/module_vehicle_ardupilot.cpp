@@ -106,7 +106,6 @@ void ModuleVehicleArdupilot::cbi_VehicleMission(const int &systemID, const Missi
 
     //This function shall update the local vehicle object with the current vehicle mission
     vehicleData->mission->setCurrentMission(missionList);
-
     this->cbi_VehicleMissionData(systemID,missionTopic);
 }
 

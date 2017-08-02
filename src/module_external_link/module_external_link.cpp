@@ -343,10 +343,10 @@ void ModuleExternalLink::Command_SetHomePosition(const CommandItem::SpatialHome 
 void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &missionList)
 {
     MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
-
+    int targetSystem = missionList.getVehicleID();
     if(status.state == MissionItem::MissionList::COMPLETE)
     {
-        m_MissionController->transmitMission(missionList);
+        m_MissionController->transmitMission(targetSystem,missionList);
     }
 }
 
@@ -408,7 +408,7 @@ void ModuleExternalLink::NewlyAvailableOnboardMission(const Data::MissionKey &ke
     mission.mission_id = key.m_missionID;
     mission.mission_type = (uint8_t)key.m_missionType;
     mission.mission_system = key.m_systemID;
-    mission.mission_state = (uint8_t)Data::MissionTXState::ONBOARD;
+    mission.mission_state = (uint8_t)key.m_missionState;
 
     mace_message_t msg;
     mace_msg_new_onboard_mission_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&mission);
