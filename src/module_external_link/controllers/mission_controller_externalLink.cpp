@@ -78,7 +78,7 @@ void MissionController_ExternalLink::transmitMission(const int &targetSystem, co
 void MissionController_ExternalLink::transmitMissionItem(const mace_mission_request_item_t &missionRequest)
 {
     m_LambdasToRun.push_back([this, missionRequest]{
-        Data::MissionKey key(missionRequest.mission_system,missionRequest.mission_creator,missionRequest.mission_id,static_cast<Data::MissionType>(missionRequest.mission_type));
+        Data::MissionKey key(missionRequest.mission_system,missionRequest.mission_creator,missionRequest.mission_id,static_cast<Data::MissionType>(missionRequest.mission_type),static_cast<Data::MissionTXState>(missionRequest.mission_state));
 
         if(key != this->missionList.getMissionKey()) //this indicates for some reason the other system requested a different mission?
             return;
