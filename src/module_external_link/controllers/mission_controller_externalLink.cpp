@@ -3,13 +3,17 @@
 namespace ExternalLink {
 
 MissionController_ExternalLink::MissionController_ExternalLink(MissionController_Interface *cb):
-    targetID(0), transmittingID(0),
+    targetID(0), transmittingID(0),mLog(NULL),
     mToExit(false), currentRetry(0), maxRetries(5), responseTimeout(5000),\
     currentCommsState(Data::ControllerCommsState::NEUTRAL),
     m_CB(NULL), prevTransmit(NULL), state(NONE)
 {
-    //mLog = spdlog::get("Log_Vehicle" + std::to_string(this->systemID));
     connectCallback(cb);
+}
+
+void MissionController_ExternalLink::updateLoggerAddress(const std::string &loggerName)
+{
+    mLog = spdlog::get(loggerName);
 }
 
 void MissionController_ExternalLink::clearPreviousTransmit()
@@ -47,20 +51,20 @@ void MissionController_ExternalLink::transmitMission(const int &targetSystem, co
         return;
     }
 
+    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
+
     this->missionList = missionQueue;
 
     Data::MissionKey key = missionQueue.getMissionKey();
 
-    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     mace_mission_count_t count;
-
     count.count = this->missionList.getQueueSize();
     count.target_system = targetID;
     count.mission_system = key.m_systemID;
     count.mission_creator = key.m_creatorID;
     count.mission_id = key.m_missionID;
     count.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);
-    count.mission_state = static_cast<MAV_MISSION_STATE>(missionQueue.getMissionTXState());
+    count.mission_state = static_cast<MAV_MISSION_STATE>(key.m_missionState);
 
     clearPendingTasks();
     clearPreviousTransmit();
@@ -335,15 +339,14 @@ void MissionController_ExternalLink::run()
     }
 }
 
-
 void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
 {
+    currentCommsState = Data::ControllerCommsState::RECEIVING;
     this->state = MISSION;
     //mLog->info("Mission Controller has seen a request mission.");
 
     missionList.setMissionKey(key);
     this->missionList.clearQueue();
-    currentCommsState = Data::ControllerCommsState::RECEIVING;
 
     mace_mission_request_list_t request;
     request.mission_creator = key.m_creatorID;

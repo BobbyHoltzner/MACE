@@ -58,6 +58,8 @@ public:
         mToExit = true;
     }
 
+    void updateLoggerAddress(const std::string &loggerName);
+
     void connectCallback(MissionController_Interface *cb)
     {
         m_CB = cb;
@@ -68,16 +70,60 @@ public:
     void run();
 
     //These 3 functions are related to transmitting a mission
+    //!
+    //! \brief transmitMission function initiates transmitting the MissionList object to a remote instance. This function shal
+    //! transmit the mission_count message initiating a write transaction on the receiving instance. This function will initiate the controller thread
+    //! to make up to N attempts until a mission_item request or acknowledgement is heard from the target system.
+    //! \param targetSystem is the system that this information is getting written to.
+    //! \param missionQueue is the object containing the information to be sent to the target system.
+    //!
     void transmitMission(const int &targetSystem, const MissionItem::MissionList &missionQueue);
+
+    //!
+    //! \brief transmitMissionItem is a lambda function often initiated in response to the appropriate instance receiving
+    //! a mission_request_item. This function would interrupt reattempting to send a mission_count message and move the
+    //! state machine onto attempting to transmit this item.
+    //! \param missionRequest is the object containing the information containing the key and index of the item. If the key
+    //! does not match the key contained in this thread's missionList an mission result shall be emitted as response.
+    //!
     void transmitMissionItem(const mace_mission_request_item_t &missionRequest);
+
+    //!
+    //! \brief receivedMissionACK
+    //! \param missionACK
+    //!
     void receivedMissionACK(const mace_mission_ack_t &missionACK);
 
     void receivedMissionCount(const mace_mission_count_t &mission);
-    void recievedMissionItem(const mace_mission_item_t &missionItem);
 
-    void requestMission(const Data::MissionKey &key);
-    void requestHome(const int &targetID);
+    //!
+    //! \brief recievedMissionItem is called when the instance receives a mission item. This message should be heard in response
+    //! to emitting the mission_request_item message indicating a key and appropriate index of interest.
+    //! \param missionItem object containing the information about the mission item at an appropriate index.
+    //!
+    void recievedMissionItem(const mace_mission_item_t &missionItem);
     void receivedMissionHome(const mace_home_position_t &systemHome);
+
+    //This function creates a generic request of mission type
+    //!
+    //! \brief requestGenericMission transmits a request to the target system request any information known about
+    //! the mission type and state available based on the request. This function will initiate the controller thread
+    //! to make up to N attempts until a mission or acknowledgement is heard from the target system.
+    //! \param targetSystem represents the ID of the system intended to receive the mission request
+    //! \param type enumeration of mission that this system is interested in knowing about
+    //! \param state enumeration of the mission that this system is interested in knowing about
+    //!
+    void requestGenericMission(const int &targetSystem, const MAV_MISSION_TYPE &type, const MAV_MISSION_STATE &state);
+
+    //!
+    //! \brief requestMission transmits a request to the appropriate system as dictated by the key for the mission
+    //! associated with it. This function will initiate the controller thread to make up to N attempts until a mission
+    //! count or acknowledgement is heard from the target system.
+    //! \param key object describing the mission that this system is interesting in knowing about.
+    //!
+    void requestMission(const Data::MissionKey &key);
+
+    void requestHome(const int &targetID);
 
 
     Data::ControllerCommsState getCommsState() const

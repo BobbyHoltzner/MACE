@@ -1,13 +1,14 @@
 #ifndef MODULE_EXTERNAL_LINK_H
 #define MODULE_EXTERNAL_LINK_H
 
+#include "module_external_link_global.h"
+
 #include <sstream>
 #include <iostream>
 #include <stdint.h>
-
-#include "module_external_link_global.h"
 #include <chrono>
 
+#include "spdlog/spdlog.h"
 #include "mace.h"
 
 #include "common/common.h"
@@ -48,6 +49,10 @@ class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
 public:
 
     ModuleExternalLink();
+
+    ~ModuleExternalLink();
+
+    void createLog(const int &systemID);
 
     void transmitMessage(const mace_message_t &msg);
 
@@ -316,6 +321,8 @@ private:
     //!
     int associatedSystemID;
     std::map<int,int> systemIDMap;
+
+    std::shared_ptr<spdlog::logger> mLog;
 
     Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
