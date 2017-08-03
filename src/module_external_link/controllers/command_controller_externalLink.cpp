@@ -5,7 +5,7 @@ namespace ExternalLink {
 
 CommandController_ExternalLink::CommandController_ExternalLink(CommandController_Interface *cb):
     systemID(0), transmittingID(0),
-    mToExit(false), currentRetry(0), maxRetries(3), responseTimeout(5000),\
+    currentRetry(0), maxRetries(3), responseTimeout(5000),\
     currentCommsState(Data::ControllerCommsState::NEUTRAL),
     m_CB(NULL), prevTransmit(NULL)
 {
@@ -123,7 +123,6 @@ void CommandController_ExternalLink::setHomePosition(const CommandItem::SpatialH
 
         currentCommsState = Data::ControllerCommsState::TRANSMITTING;
         currentRetry = 0;
-        mToExit = false;
         this->start();
         mTimer.start();
 
@@ -151,7 +150,6 @@ void CommandController_ExternalLink::setSystemArm(const CommandItem::ActionArm &
 
     currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     currentRetry = 0;
-    mToExit = false;
     this->start();
     mTimer.start();
 
@@ -184,7 +182,6 @@ void CommandController_ExternalLink::setSystemTakeoff(const CommandItem::Spatial
 
     currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     currentRetry = 0;
-    mToExit = false;
     this->start();
     mTimer.start();
 
@@ -237,7 +234,6 @@ void CommandController_ExternalLink::setSystemRTL(const CommandItem::SpatialRTL 
 
     currentCommsState = Data::ControllerCommsState::TRANSMITTING;
     currentRetry = 0;
-    mToExit = false;
     this->start();
     mTimer.start();
 

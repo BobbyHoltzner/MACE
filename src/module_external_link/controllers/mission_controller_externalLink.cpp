@@ -4,7 +4,7 @@ namespace ExternalLink {
 
 MissionController_ExternalLink::MissionController_ExternalLink(MissionController_Interface *cb):
     targetID(0), transmittingID(0),mLog(NULL),
-    mToExit(false), currentRetry(0), maxRetries(5), responseTimeout(5000),\
+    currentRetry(0), maxRetries(5), responseTimeout(5000),\
     currentCommsState(Data::ControllerCommsState::NEUTRAL),
     m_CB(NULL), prevTransmit(NULL), state(NONE)
 {
@@ -71,7 +71,6 @@ void MissionController_ExternalLink::transmitMission(const int &targetSystem, co
     prevTransmit = new PreviousTransmission<mace_mission_count_t>(commsItemEnum::ITEM_TXCOUNT, count);
 
     currentRetry = 0;
-    mToExit = false;
     this->start();
     mTimer.start();
 
@@ -116,6 +115,9 @@ void MissionController_ExternalLink::transmitMissionItem(const mace_mission_requ
 
 void MissionController_ExternalLink::receivedMissionACK(const mace_mission_ack_t &missionACK)
 {
+    if(!isThreadActive())
+        return;
+
     m_LambdasToRun.push_back([this, missionACK]{
         std::cout<<"Mission Controller received a mission ack"<<std::endl;
         mToExit = true;
@@ -163,7 +165,6 @@ void MissionController_ExternalLink::receivedMissionCount(const mace_mission_cou
     if(m_CB)
         m_CB->cbiMissionController_TransmitMissionReq(request);
     currentRetry = 0;
-    mToExit = false;
     this->start();
     mTimer.start();
 }
@@ -363,9 +364,7 @@ void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
     if(m_CB)
         m_CB->cbiMissionController_TransmitMissionReqList(request);
     currentRetry = 0;
-    mToExit = false;
-    if(!isThreadActive())
-        this->start();
+    this->start();
     mTimer.start();
 }
 
@@ -387,9 +386,7 @@ void MissionController_ExternalLink::requestHome(const int &systemID)
         m_CB->cbiMissionController_TransmitHomeReq(request);
 
     currentRetry = 0;
-    mToExit = false;
-    if(!isThreadActive())
-        this->start();
+    this->start();
     mTimer.start();
 }
 

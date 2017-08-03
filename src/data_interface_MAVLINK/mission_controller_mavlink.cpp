@@ -4,7 +4,7 @@ namespace DataInterface_MAVLINK {
 
 MissionController_MAVLINK::MissionController_MAVLINK(const int &targetID, const int &originatingID):
     systemID(targetID), transmittingID(originatingID),
-    mToExit(false), currentRetry(0), maxRetries(5), responseTimeout(5000),\
+    currentRetry(0), maxRetries(5), responseTimeout(5000),\
     currentCommsState(Data::ControllerCommsState::NEUTRAL),
     m_CB(NULL), prevTransmit(NULL),
     helperMAVtoMACE(targetID),helperMACEtoMAV(originatingID,0)
@@ -41,24 +41,16 @@ void MissionController_MAVLINK::requestMission()
     clearPreviousTransmit();
     prevTransmit = new PreviousTransmission<mavlink_mission_request_list_t>(commsItemEnum::ITEM_RXLIST, request);
 
-    if(m_CB)
-        m_CB->cbiMissionController_TransmitMissionReqList(request);
     currentRetry = 0;
-    mToExit = false;
     this->start();
     mTimer.start();
+
+    if(m_CB)
+        m_CB->cbiMissionController_TransmitMissionReqList(request);
 }
 
 void MissionController_MAVLINK::transmitMission(const MissionItem::MissionList &missionQueue)
 {
-//    mace_new_proposed_mission_t missionProposed;
-//    missionProposed.count = missionList.getQueueSize();
-//    Data::MissionKey key = missionList.getMissionKey();
-//    missionProposed.mission_creator = key.m_creatorID;
-//    missionProposed.mission_id = key.m_missionID;
-//    missionProposed.mission_state = static_cast<MAV_MISSION_STATE>(missionList.getMissionTXState());
-//    missionProposed.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);
-//    missionProposed.target_system = key.m_systemID;
 
     mLog->info("Mission Controller has been instructed to transmit a mission.");
 
@@ -79,7 +71,6 @@ void MissionController_MAVLINK::transmitMission(const MissionItem::MissionList &
     prevTransmit = new PreviousTransmission<mavlink_mission_count_t>(commsItemEnum::ITEM_TXCOUNT, count);
 
     currentRetry = 0;
-    mToExit = false;
     this->start();
     mTimer.start();
 
@@ -147,6 +138,7 @@ void MissionController_MAVLINK::run()
             case Data::ControllerCommsState::NEUTRAL:
             {
                 //This case we should terminate this because there is nothing we should be doing apparently
+                clearPendingTasks();
                 clearPreviousTransmit();
                 mTimer.stop();
                 mToExit = true;
@@ -236,8 +228,9 @@ void MissionController_MAVLINK::receivedMissionACK(const mavlink_mission_ack_t &
         mTimer.stop();
         currentRetry = 0;
         currentCommsState = Data::ControllerCommsState::NEUTRAL;
+        mToExit = true;
         if(m_CB)
-            m_CB->cbiMissionController_MissionACK(missionACK);
+            m_CB->cbiMissionController_MissionACK(missionACK, this->missionList);
     });
 
 }

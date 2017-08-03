@@ -5,7 +5,7 @@
 class Thread {
 public:
     Thread() :
-        mThread(NULL)
+        mThread(NULL), mToExit(false)
     {
 
     }
@@ -18,6 +18,7 @@ public:
 
     void start() {
         stop();
+        mToExit = false;
         mThread = new std::thread([this]()
         {
             this->run();
@@ -27,6 +28,7 @@ public:
     void stop(){
         if(mThread)
         {
+            mToExit = true;
             mThread->join();
             delete mThread;
             mThread = NULL;
@@ -35,12 +37,14 @@ public:
 
     bool isThreadActive()
     {
-        if(mThread)
+        if((mThread) && (mToExit == false))
             return true;
         return false;
     }
 protected:
     std::thread *mThread;
+    bool mToExit;
+
 };
 
 #endif // THREADMANAGER_H

@@ -139,7 +139,6 @@ private:
     requestState state;
 
     Timer mTimer;
-    bool mToExit;
     int currentRetry;
     int maxRetries;
     int responseTimeout;

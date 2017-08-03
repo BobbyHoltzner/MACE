@@ -33,7 +33,7 @@ public:
     virtual void cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home) = 0;
     virtual void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList) = 0;
 
-    virtual void cbiMissionController_MissionACK(const mavlink_mission_ack_t &missionACK) = 0;
+    virtual void cbiMissionController_MissionACK(const mavlink_mission_ack_t &missionACK, const MissionItem::MissionList &missionList) = 0;
 };
 
 namespace DataInterface_MAVLINK {
@@ -79,7 +79,6 @@ private:
     int transmittingID;
 
     Timer mTimer;
-    bool mToExit;
     int currentRetry;
     int maxRetries;
     int responseTimeout;

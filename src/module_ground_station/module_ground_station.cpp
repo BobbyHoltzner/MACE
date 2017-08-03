@@ -267,7 +267,7 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
     missionList.setCreatorID(254);
     missionList.setVehicleID(vehicleID);
     missionList.initializeQueue(4);
-    latitude = latitude + 0.001;
+    latitude = latitude + 0.01;
     std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
     newWP->position.setPosition3D(latitude,-76.8153602,20.0);
     newWP->setTargetSystem(vehicleID);

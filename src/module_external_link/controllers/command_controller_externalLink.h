@@ -70,7 +70,6 @@ private:
     int transmittingID;
 
     Timer mTimer;
-    bool mToExit;
     int currentRetry;
     int maxRetries;
     int responseTimeout;
