@@ -118,6 +118,7 @@ void MissionController_ExternalLink::receivedMissionACK(const mace_mission_ack_t
 {
     m_LambdasToRun.push_back([this, missionACK]{
         std::cout<<"Mission Controller received a mission ack"<<std::endl;
+        mToExit = true;
         mTimer.stop();
         currentRetry = 0;
         currentCommsState = Data::ControllerCommsState::NEUTRAL;
@@ -163,15 +164,14 @@ void MissionController_ExternalLink::receivedMissionCount(const mace_mission_cou
         m_CB->cbiMissionController_TransmitMissionReq(request);
     currentRetry = 0;
     mToExit = false;
-    if(!isThreadActive())
-        this->start();
+    this->start();
     mTimer.start();
 }
 
 void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item_t &missionItem)
 {
     m_LambdasToRun.push_back([this, missionItem]{
-        Data::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<Data::MissionType>(missionItem.mission_type));
+        Data::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<Data::MissionType>(missionItem.mission_type),static_cast<Data::MissionTXState>(missionItem.mission_state));
 
         if(key != this->missionList.getMissionKey()) //this indicates for some reason the other system requested a different mission?
         {
@@ -209,6 +209,7 @@ void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item
             request.mission_id = key.m_missionID;
             request.mission_system = key.m_systemID;
             request.mission_type = (uint8_t)key.m_missionType;
+            request.mission_state = (uint8_t)key.m_missionState;
             request.seq = indexRequest;
 
             clearPreviousTransmit();

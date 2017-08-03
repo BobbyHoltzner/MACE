@@ -138,6 +138,28 @@ void ModuleExternalLink::cbiMissionController_ReceviedHome(const CommandItem::Sp
 void ModuleExternalLink::cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList)
 {
     std::cout<<"The external link module now has received the entire mission."<<std::endl;
+
+    if(missionList.getMissionTXState() == Data::MissionTXState::PROPOSED)
+    {
+        //This case implies that we were receiving the item from a ground module or
+        //someone without directly relating to the vehicle and therefore we should ack
+
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->ExternalEvent_FinishedRXProposedQueue(this, missionList);
+        });
+
+    }else if(missionList.getMissionTXState() == Data::MissionTXState::ONBOARD)
+    {
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->ExternalEvent_FinishedRXOnboardQueue(this, missionList);
+        });
+    }else if(missionList.getMissionTXState() == Data::MissionTXState::CURRENT)
+    {
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->ExternalEvent_FinishedRXCurrentQueue(this, missionList);
+        });
+    }
+
 }
 
 void ModuleExternalLink::cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK)

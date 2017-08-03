@@ -11,20 +11,26 @@ public:
     }
 
     virtual ~Thread() {
-        if(mThread)
-        {
-            mThread->join();
-            delete mThread;
-        }
+        stop();
     }
 
     virtual void run() = 0;
 
-    void start() {            
+    void start() {
+        stop();
         mThread = new std::thread([this]()
         {
             this->run();
         });
+    }
+
+    void stop(){
+        if(mThread)
+        {
+            mThread->join();
+            delete mThread;
+            mThread = NULL;
+        }
     }
 
     bool isThreadActive()

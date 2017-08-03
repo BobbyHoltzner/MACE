@@ -325,11 +325,6 @@ void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionLis
     default:
         break;
     }
-
-    //notify the core of the change
-    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-        ptr->EventVehicle_ACKProposedMission(this, missionList.getMissionKey());
-    });
 }
 
 

@@ -249,6 +249,8 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
 
 void ModuleGroundStation::testFunction1(const int &vehicleID)
 {
+    mLogs->debug("Module Ground Station saw a request on test function 1.");
+
     MissionItem::MissionList missionList;
     missionList.setMissionTXState(Data::MissionTXState::PROPOSED);
     missionList.setMissionType(Data::MissionType::AUTO);

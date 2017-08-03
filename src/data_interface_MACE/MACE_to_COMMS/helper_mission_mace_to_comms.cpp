@@ -285,5 +285,6 @@ void Helper_MissionMACEtoCOMMS::updateMissionKey(const Data::MissionKey &key, ma
     missionItem.mission_creator = key.m_creatorID;
     missionItem.mission_id = key.m_missionID;
     missionItem.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);
+    missionItem.mission_state = static_cast<MAV_MISSION_STATE>(key.m_missionState);
 }
 } //end of namespace DataMAVLINK
