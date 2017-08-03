@@ -69,6 +69,12 @@ ModuleGroundStation::ModuleGroundStation() :
         if(!m_fuelTimeoutOccured) {
             m_fuelTimeoutOccured = true;
         }
+
+        if(m_TcpServer) {
+            if(!m_TcpServer->isListening()) {
+                std::cout << "Server status: Disconnected" << std::endl;
+            }
+        }
     });
 
     m_timer->setSingleShot(false);
@@ -86,6 +92,10 @@ ModuleGroundStation::~ModuleGroundStation()
     if(m_timer)
     {
         m_timer->stop();
+    }
+
+    if(m_TcpServer) {
+        m_TcpServer->close();
     }
 }
 

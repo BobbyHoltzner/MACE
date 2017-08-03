@@ -12,7 +12,7 @@ import Avatar from 'material-ui/Avatar';
 import IconButton from 'material-ui/IconButton';
 import { aircraftImgSrcFromType } from '../util/VehicleHelper';
 import { Colors } from '../util/Colors';
-
+import * as MUIColors from 'material-ui/styles/colors';
 
 type Props = {
     vehicleID: string,
@@ -98,6 +98,15 @@ export class VehicleHUD extends React.Component<Props, State> {
                 style={{borderRadius: 30+'%'}}
             />;
 
+        let now = new Date();
+        const lastHeardSeconds = (now.getTime() - this.props.aircraft.general.lastHeard.getTime())/1000; // Time in seconds
+        let heartbeatColor = MUIColors.green500;
+        if(lastHeardSeconds > 10 && lastHeardSeconds <= 20) {
+            heartbeatColor = MUIColors.orange500;
+        }
+        else if(lastHeardSeconds > 20) {
+            heartbeatColor = MUIColors.red500;
+        }
         const hudTitle = <div className="row">
                             <div className="col-xs-6">
                                 <div className="col-xs-12">
@@ -108,6 +117,14 @@ export class VehicleHUD extends React.Component<Props, State> {
                                 </div>
                             </div>
                             <div className="col-xs-6" style={{paddingLeft: 0, paddingRight: 0}}>
+                                <div className="col-xs-12" style={{paddingLeft: 0, paddingRight: 0}}>
+                                    <div className="col-xs-6" style={{color: heartbeatColor, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingLeft: 0, paddingRight: 0}}>
+                                        <i className="material-icons">favorite</i>
+                                    </div>
+                                    <div className="col-xs-6" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', paddingLeft: 0, paddingRight: 0, paddingTop: 4+'px'}}>
+                                        <span style={{fontSize: 12, fontWeight: 'bold', color: heartbeatColor}}>{lastHeardSeconds + " s"}</span>
+                                    </div>
+                                </div>
                                 <div className="col-xs-12" style={{paddingLeft: 0, paddingRight: 0}}>
                                     <div className="col-xs-6" style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingLeft: 0, paddingRight: 0}}>
                                         <i className="material-icons">gps_fixed</i>
