@@ -21,8 +21,9 @@ public:
     /**
      * @brief initPolygon Given the boundary vertices, initialize the polygon for splitting
      * @param points Boundary vertices
+     * @param numVehicles Number of vehicles we are splitting the polygon for
      */
-    void initPolygon(std::vector<Point> points);
+    void initPolygon(std::vector<Point> points, int numVehicles);
 
     /**
      * @brief getCentroids Return the centroids of the areas split from the environment boundary

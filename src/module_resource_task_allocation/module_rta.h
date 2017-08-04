@@ -56,8 +56,9 @@ private:
     /**
      * @brief updateMACEMissions Sends new missions to MACE for each vehicle in the provided list
      * @param updateCells Map of cells that contain node lists to send to MACE
+     * @param direction Grid direction for missions (NORTH_SOUTH, EAST_WEST, or CLOSEST_POINT)
      */
-    void updateMACEMissions(std::map<int, Cell> updateCells);
+    void updateMACEMissions(std::map<int, Cell> updateCells, GridDirection direction);
 
     /**
      * @brief parseBoundaryVertices Given a string of delimited (lat, lon) pairs, parse into a vector of points

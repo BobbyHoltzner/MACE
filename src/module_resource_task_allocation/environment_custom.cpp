@@ -33,55 +33,56 @@ Environment_Map::Environment_Map(const std::vector<Point> verts, double gridSpac
  * @return
  */
 bool Environment_Map::computeBalancedVoronoi(const std::map<int, Point> vehicles, GridDirection direction) {
-    /* TODO:
-     * 1) Use the number of vehicles to create evenly spaced points in environment
-     * 2) Assign centroids to vehicles based on how close the vehicle position is to the site
-     * 2) Use computeVoronoi method with those spaced points
-     */
-    // Step 1):
+    bool success = false;
+    // Step 1): Use the number of vehicles to create evenly spaced points in environment
     int numVehicles = vehicles.size();
-    std::vector<Point> vehicleVector;
-    for(auto vehicle : vehicles) {
-        vehicleVector.push_back(vehicle.second);
-    }
     PolySplit polygon;
-    polygon.initPolygon(vehicleVector);
+    polygon.initPolygon(boundaryVerts, numVehicles);
 
-    // Step 2):
     std::vector<Point> centroids = polygon.getCentroids();
     if(centroids.size() != numVehicles) {
         std::cout << "Balanced Voronoi: Number of vehicles does not match number of available polygons." << std::endl;
-        return false;
     }
     else {
-        std::map<int, Point> vehiclesCentroids;
+        // Step 2): Compute voronoi partition based on centroids of each split polygon
+        std::vector<Cell> cellsVec;
+        success = computeVoronoi(cellsVec, getBoundingBox(), centroids, direction);
+
+        // Step 3): Assign cells to vehicle IDs based on distance to vehicle/site
+        std::vector<int> usedCellIndices;
         for(auto vehicle : vehicles) {
-            Point tmpPoint;
             double dist = std::numeric_limits<double>::max();
-            for(auto centroid : centroids) {
-                double tmpDist = distanceBetweenPoints(centroid, vehicle.second);
-                if(tmpDist < dist) {
-                    tmpPoint = centroid;
+            Cell tmpCell;
+            int counter = 0;
+            int index = counter;
+            for(auto cell : cellsVec) {
+                double tmpDist = distanceBetweenPoints(cell.site, vehicle.second);
+                if(tmpDist < dist && std::find(usedCellIndices.begin(), usedCellIndices.end(), counter) == usedCellIndices.end()) {
+                    dist = tmpDist;
+                    tmpCell = cell;
+                    index = counter;
                 }
+
+                counter++;
             }
-            vehiclesCentroids.insert(std::make_pair(vehicle.first, tmpPoint));
+            usedCellIndices.push_back(index);
+            cells.insert(std::make_pair(vehicle.first, tmpCell));
         }
-
-        // Step 3):
-        bool success = computeVoronoi(getBoundingBox(), vehiclesCentroids, direction);
-
-        std::cout << "Number of nodes in environment: " << getNumberOfNodes() << std::endl;
-        // Return success or failure:
-        return success;
     }
+
+//    std::cout << "Number of nodes in environment: " << getNumberOfNodes() << std::endl;
+    // Return success or failure:
+    return success;
 }
 
 /**
- * @brief computeVoronoi Given the bounding box and current site positions, compute a voronoi diagram
+ * @brief computeVoronoi Given the bounding box and current vehicle positions, compute a voronoi diagram
+ * @param cellVec Container for vector of cells to be assigned by vehicle distances
  * @param bbox Bounding box
- * @param sites Positions of sites (in x,y,z coordinates)
+ * @param sitePositions Positions of sites (in x,y,z coordinates)
+ * @return Success or Failure
  */
-bool Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int, Point> sites, GridDirection direction) {
+bool Environment_Map::computeVoronoi(std::vector<Cell> &cellVec, const BoundingBox bbox, const std::vector<Point> sites, GridDirection direction) {
     bool success = false;
 
     // Set up constants for the container geometry
@@ -102,37 +103,18 @@ bool Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
                  false,false,false,8);
 
 
-//    // Add plane walls to the container to make a 3D shape of the boundary
-//    wall_plane p1(0,0,0.5,1);  con.add_wall(p1); // Top wall
-//    wall_plane p2(0,0,-0.5,1); con.add_wall(p2); // Bottom wall
-//    // For every edge of the boundary, create a plane and add it to our container:
-//    std::vector<Point> tmpPts = boundaryVerts;
-//    tmpPts.push_back(boundaryVerts[0]);
-//    for(int i = 0; i < tmpPts.size(); i++) {
-//        if(i == tmpPts.size()-1) {
-//            continue;
-//        }
-//        Point pt1 = tmpPts[i];
-//        Point pt2 = tmpPts[i+1];
-//        Eigen::Vector3d vec1(pt2.x - pt1.x, pt2.y - pt1.y, z_min);
-//        Eigen::Vector3d vec2(pt2.x - pt1.x, pt2.y - pt1.y, z_max);
-//        Eigen::Vector3d normal = vec1.cross(vec2);
-//        wall_plane plane(normal[0],normal[1],normal[2],1);
-//        con.add_wall(plane);
-//    }
-
     // Import into container
     //con.import("pack_six_cube");
     // Add sites/particles into the container only if they are in the environment
+    int voronoiCounter = 0;
     for(auto particle : sites) {
-        if(particle.first > 0){
-            if(pointInPoly(boundaryVerts, particle.second)) {
+        if(pointInPoly(boundaryVerts, particle)) {
 //            if(con.point_inside(particle.second.x, particle.second.y, particle.second.z)) {
-                con.put(particle.first, particle.second.x, particle.second.y, particle.second.z);
-            }
-            else {
-                std::cout << "Point at position (" << particle.second.x << ", " << particle.second.y << ", " << particle.second.z << ") not within environment. Skipping." << std::endl;
-            }
+            voronoiCounter++;
+            con.put(voronoiCounter, particle.x, particle.y, particle.z);
+        }
+        else {
+            std::cout << "Point at position (" << particle.x << ", " << particle.y << ", " << particle.z << ") not within environment. Skipping." << std::endl;
         }
     }
 
@@ -214,33 +196,12 @@ bool Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
 
         // TODO-PAT: Instead of doing by vehicle, just insert into a cells array in order
         //              --Assign cells to vehicle ID by closest site?
-        cells.insert(std::make_pair(counter, cell));
+//        cells.insert(std::make_pair(counter, cell));
+        cellVec.push_back(cell);
 
-        // Get vehicle ID:
-//        int vehicleID = getVehicleID(cell, sites);
-//        // Insert into our map:
-//        //  - If our vehicle ID is < 0 (i.e. -1), we didn't find a vehicle in our cell. Something went wrong
-//        if(vehicleID > 0){
-//            cells[vehicleID] = cell;
-//        }
-//        else {
-//            std::cout << "Vehicle ID not found in cell." << std::endl;
-//        }
       } while (cl.inc()); // Increment to the next cell:
 
 
-//      // Print cell sites and vertices:
-//      for(auto cell : cells) {
-//        std::cout << "\n\Vehicle ID " << cell.first << " site: (" << cell.second.site.x << ", " << cell.second.site.y << ", " << cell.second.site.z << ")" << std::endl;
-//        int vertCount = 1;
-//        for(auto cellVert : cell.second.vertices) {
-//            double xTmp = cellVert.x;
-//            double yTmp = cellVert.y;
-//            double zTmp = cellVert.z;
-//            std::cout << "Cell vertex " << vertCount << ": (" << xTmp << ", " << yTmp << ", " << zTmp << ")" << std::endl;
-//            vertCount++;
-//        }
-//      }
 
       // Output the particle positions in gnuplot format
       con.draw_particles("polygons_p.gnu");
@@ -248,7 +209,7 @@ bool Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
       // Output the Voronoi cells in gnuplot format
       con.draw_cells_gnuplot("polygons_v.gnu");
 
-      if(cells.size() > 0) {
+      if(cellVec.size() > 0) {
           success = true;
       }
       return success;
@@ -410,6 +371,7 @@ void Environment_Map::setNodesInCell(Cell &cell) {
 
     std::map<double, std::map<double, Node> > tmpContainedNodes;
     int count = 0;
+    int nodeCounter = 0;
     for(auto nodeX : nodes) {
         double xVal = nodeX.first;
 
@@ -430,6 +392,8 @@ void Environment_Map::setNodesInCell(Cell &cell) {
                     cell.unsortedContainedPoints.push_back(Point(xVal, yVal, 0.0));
                 }
             }
+
+            nodeCounter++;
         }
 
         if(y_node_map_tmp.size() > 0) {
@@ -693,7 +657,7 @@ bool Environment_Map::updateVehiclePosition(const int &vehicleID, const Point &p
 }
 
 /**
- * @brief sortNodesInGridSort the nodes in the cell in a grid fashion
+ * @brief sortNodesInGrid Sort the nodes in the cell in a grid fashion
  * @param cell Cell to sort the nodes
  * @param direction Direction to sort nodes (north/south, east/west, or by closest node)
  */
@@ -709,17 +673,20 @@ std::vector<Point> Environment_Map::sortNodesInGrid(Cell &cell, GridDirection di
     case GridDirection::EAST_WEST:
     {
         int column = 0;
+        int containedPointsCounter = 0;
         for(auto xIt : cell.containedNodes) {
             double xVal = xIt.first;
             // If column is odd, iterate in reverse:
             if(column % 2 == 0) {
                 for(auto yIt : xIt.second) {
                     sortedPoints.push_back(Point(xVal, yIt.first, 0));
+                    containedPointsCounter++;
                 }
             }
             else {
                 for(auto yItRev = xIt.second.rbegin(); yItRev != xIt.second.rend(); ++yItRev) {
                     sortedPoints.push_back(Point(xVal, yItRev->first, 0));
+                    containedPointsCounter++;
                 }
             }
 
@@ -731,22 +698,32 @@ std::vector<Point> Environment_Map::sortNodesInGrid(Cell &cell, GridDirection di
     case GridDirection::NORTH_SOUTH:
     {
         int row = 0;
+        int containedPointsCounter = 0;
         for(auto yIt : cell.containedNodes_YX) {
             double yVal = yIt.first;
             // If column is odd, iterate in reverse:
             if(row % 2 == 0) {
                 for(auto xIt : yIt.second) {
                     sortedPoints.push_back(Point(xIt.first, yVal, 0));
+                    containedPointsCounter++;
                 }
             }
             else {
                 for(auto xItRev = yIt.second.rbegin(); xItRev != yIt.second.rend(); ++xItRev) {
                     sortedPoints.push_back(Point(xItRev->first, yVal, 0));
+                    containedPointsCounter++;
                 }
             }
 
             // Iterate column counter:
             row++;
+        }
+
+        int tmpCounter = 0;
+        for(auto xIt: cell.containedNodes_YX) {
+            for(auto yIt : xIt.second) {
+                tmpCounter++;
+            }
         }
     }
         break;
@@ -803,59 +780,80 @@ std::vector<Point> Environment_Map::sortNodesInGrid(Cell &cell, GridDirection di
  * @param cell Cell to set our YX pairs for
  */
 void Environment_Map::setContainedNodesYX(Cell &cell) {
-    double epsilon = 0.000001;
-    // TODO: Set YX pairs of contained nodes:
-    std::map<double, std::map<double, Node> > tmpContainedNodes_YX;
-    for(auto xIt : cell.containedNodes) {
-        double xVal = xIt.first;
-        // If column is odd, iterate in reverse:
-        std::map<double, Node> tmp_x_nodes;
-        for(auto yIt : xIt.second) {
-
-            // Find if there is a yVal in our tmpContainedNodes_YX map that corresponds to this yvalue.
-            //      -If so, find if there is already an x value in that map.
-            //      -If not (there shouldn't be), add it to the map
-            Node node = yIt.second;
-            double yVal = yIt.first;
-
-            auto mapIt = tmpContainedNodes_YX.lower_bound(yVal);
-            if(mapIt == tmpContainedNodes_YX.end()) {
-                // Nothing found. Need to insert a new entry
-                std::map<double, Node> tmp_x_node;
-                tmp_x_node.insert(std::make_pair(xVal, node));
-                tmpContainedNodes_YX.insert(std::make_pair(yVal, tmp_x_node));
-            }
-            else if(mapIt == tmpContainedNodes_YX.begin()) {
-                // Found beginning of map. Check if closer than epsilon away.
-                //      -If so, use it.
-                //      -If not, insert a new entry
-                if(fabs(mapIt->first - yVal) < epsilon) {
-                    mapIt->second.insert(std::make_pair(xVal, node));
+    if(cell.unsortedContainedPoints.size() > 0) {
+        double epsilon = 0.000001;
+        std::map<double, std::map<double, Node> > tmpContainedNodes_YX;
+        for(auto point : cell.unsortedContainedPoints) {
+            double xVal = point.x;
+            double yVal = point.y;
+            Node tmpNode;
+            bool nodeFound = findClosestNode(point, tmpNode);
+            if(nodeFound) {
+                auto mapIt = tmpContainedNodes_YX.lower_bound(yVal);
+                if(mapIt == tmpContainedNodes_YX.end()) {
+                    // Nothing found. Need to insert a new entry
+                    std::map<double, Node> x_tmp_map;
+                    x_tmp_map.insert(std::make_pair(xVal, tmpNode));
+                    tmpContainedNodes_YX.insert(std::make_pair(yVal, x_tmp_map));
+                }
+                else if(mapIt == tmpContainedNodes_YX.begin()) {
+                    // Found beginning of map. Check if closer than epsilon away.
+                    //      -If so, use it.
+                    //      -If not, insert a new entry
+                    if(fabs(mapIt->first - yVal) < epsilon) {
+                        mapIt->second.insert(std::make_pair(xVal, tmpNode));
+                    }
+                    else {
+                        std::map<double, Node> x_tmp_map;
+                        x_tmp_map.insert(std::make_pair(xVal, tmpNode));
+                        tmpContainedNodes_YX.insert(std::make_pair(yVal, x_tmp_map));
+                    }
                 }
                 else {
-                    std::map<double, Node> tmp_x_node;
-                    tmp_x_node.insert(std::make_pair(xVal, node));
-                    tmpContainedNodes_YX.insert(std::make_pair(yVal, tmp_x_node));
-                }
-            }
-            else {
-                // Check previous iterator.
-                //      -If closer to the yval we are checking, then use the previous iterator
-                std::map<double, std::map<double, Node> >::iterator prevIt = mapIt;
-                --prevIt;
-                if(fabs(prevIt->first - yVal) < fabs(mapIt->first - yVal)) {
-                    prevIt->second.insert(std::make_pair(xVal, node));
-                }
-                else {
-                    mapIt->second.insert(std::make_pair(xVal, node));
+                    bool isFound = false;
+                    // Create a map iterator and point to beginning of map
+                    std::map<double, std::map<double, Node> >::iterator yIt = tmpContainedNodes_YX.begin();
+                    // Iterate over the map using Iterator till end.
+                    while (yIt != tmpContainedNodes_YX.end())
+                    {
+                        if(fabs(yIt->first - yVal) < epsilon) {
+                            yIt->second.insert(std::make_pair(xVal, tmpNode));
+                            isFound = true;
+                            break;
+                        }
+                        yIt++;
+                    }
+                    if(!isFound) {
+                        std::map<double, Node> x_tmp_map;
+                        x_tmp_map.insert(std::make_pair(xVal, tmpNode));
+                        tmpContainedNodes_YX.insert(std::make_pair(yVal, x_tmp_map));
+                    }
                 }
             }
         }
-    }
 
-    // Set contained nodes YX:
-    cell.containedNodes_YX = tmpContainedNodes_YX;
+
+        // Set containedNodes
+        cell.containedNodes_YX = tmpContainedNodes_YX;
+    }
+    else {
+        std::cout << "No contained nodes to sort in YX fashion." << std::endl;
+    }
 }
+
+void Environment_Map::printMap(std::map<double, std::map<double, Node> > map) {
+    std::cout << " ******************** Printing Map ******************** " << std::endl;
+    int tmpCounter = 0;
+    for(auto xIt: map) {
+        for(auto yIt : xIt.second) {
+            tmpCounter++;
+            std::cout << "Point in map: (" << xIt.first << ", " << yIt.first << ")" << std::endl;
+        }
+    }
+    std::cout << "Number of nodes in map: " << tmpCounter << std::endl;
+    std::cout << " __________________ End Printing Map __________________ " << std::endl;
+}
+
 
 /**
  * @brief updateEnvironmentOrigin Given a new global origin, update x,y,z positions of each node and update the global origin
@@ -942,12 +940,11 @@ void Environment_Map::updateEnvironmentOrigin(const DataState::StateGlobalPositi
  * @return Number of nodes in the environment
  */
 int Environment_Map::getNumberOfNodes() {
-    int outerSize = nodes.size();
     int innerSize = 0;
     for(auto xVal : nodes) {
         innerSize += xVal.second.size();
     }
 
-    return outerSize*innerSize;
+    return innerSize;
 }
 

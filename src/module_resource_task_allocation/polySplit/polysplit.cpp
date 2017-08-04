@@ -3,8 +3,9 @@
 /**
  * @brief initPolygon Given the boundary vertices, initialize the polygon for splitting
  * @param points Boundary vertices
+ * @param numVehicles Number of vehicles we are splitting the polygon for
  */
-void PolySplit::initPolygon(std::vector<Point> points)
+void PolySplit::initPolygon(std::vector<Point> points, int numVehicles)
 {
     polygon.clear();
 
@@ -18,7 +19,7 @@ void PolySplit::initPolygon(std::vector<Point> points)
 //    polygon.push_back(Vector(400.0, 400.0));
 
     Polygon polygonToSplit = polygon;
-    for(int i = 0; i < points.size(); i++) {
+    for(int i = 0; i < numVehicles; i++) {
         Polygon poly1, poly2;
         Line cut;
         double squareToCut = polygonToSplit.countSquare() / (points.size()-i);

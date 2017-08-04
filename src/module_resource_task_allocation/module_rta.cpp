@@ -284,11 +284,11 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
 
         DataState::PositionalAid::GlobalPositionToLocal(tmpGlobalOrigin, tmpGlobalPosition, localPositionData);
 
-        Point localPosition(localPositionData.getX(), localPositionData.getY(), localPositionData.getZ());
-        bool updateMaceCore = environment->updateVehiclePosition(vehicleID, localPosition, true); // True for recomputing voronoi, false for adding to the vehicle map
-        if(updateMaceCore){
-//            updateMACEMissions(environment->getCells());
-        }
+//        Point localPosition(localPositionData.getX(), localPositionData.getY(), localPositionData.getZ());
+//        bool updateMaceCore = environment->updateVehiclePosition(vehicleID, localPosition, true); // True for recomputing voronoi, false for adding to the vehicle map
+//        if(updateMaceCore){
+////            updateMACEMissions(environment->getCells());
+//        }
     }
     else {
         std::cout << "No global origin set. Cannot update missions for MACE" << std::endl;
@@ -299,8 +299,9 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
 /**
  * @brief updateMACEMissions Sends new missions to MACE for each vehicle in the provided list
  * @param updateCells Map of cells that contain node lists to send to MACE
+ * @param direction Grid direction for missions (NORTH_SOUTH, EAST_WEST, or CLOSEST_POINT)
  */
-void ModuleRTA::updateMACEMissions(std::map<int, Cell> updateCells) {
+void ModuleRTA::updateMACEMissions(std::map<int, Cell> updateCells, GridDirection direction) {
     DataState::StateGlobalPosition tmpGlobalOrigin;
 
     if(environment->getGlobalOrigin()->has2DPositionSet()) {
@@ -325,7 +326,7 @@ void ModuleRTA::updateMACEMissions(std::map<int, Cell> updateCells) {
                 missionList.setVehicleID(vehicleID);
 
                 // Grab the sorted points from the cell:
-                std::vector<Point> sortedPoints = environment->sortNodesInGrid(cell.second, GridDirection::NORTH_SOUTH);
+                std::vector<Point> sortedPoints = environment->sortNodesInGrid(cell.second, direction);
                 // Loop over sorted points and insert into a mission:
                 for(auto point : sortedPoints) {
                     std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
@@ -365,8 +366,14 @@ void ModuleRTA::TestFunction(const int &vehicleID) {
     double tmpX = boundingRect.min.x + fabs(boundingRect.max.x - boundingRect.min.x)/2;
     double tmpY = boundingRect.min.y + fabs(boundingRect.max.y - boundingRect.min.y)/2;
 
-    bool updateMaceCore = environment->updateVehiclePosition(vehicleID, Point(tmpX, tmpY, 0), true);
+//    bool updateMaceCore = environment->updateVehiclePosition(vehicleID, Point(tmpX, tmpY, 0), true);
+    std::map<int, Point> vehicles;
+    vehicles.insert(std::make_pair(1, Point(tmpX + 5, tmpY + 5, 0)));
+    vehicles.insert(std::make_pair(2, Point(tmpX - 5, tmpY - 5, 0)));
+
+    GridDirection direction = GridDirection::EAST_WEST;
+    bool updateMaceCore = environment->computeBalancedVoronoi(vehicles, direction);
     if(updateMaceCore) {
-        updateMACEMissions(environment->getCells());
+        updateMACEMissions(environment->getCells(), direction);
     }
 }
