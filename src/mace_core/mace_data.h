@@ -752,7 +752,7 @@ public:
     */
     std::vector<Data::MissionKey> getOnboardMissionKeys(const int &systemID);
     void removeFromMissionMap(const Data::MissionKey &missionKey);
-    void receivedMissionACKKey(const Data::MissionKey &key, const Data::MissionTXState &state);
+    Data::MissionKey receivedMissionACKKey(const Data::MissionKey &key, const Data::MissionTXState &newState);
     void receivedNewCurrentMission(const MissionItem::MissionList &missionList);
     void receivedNewOnboardMission(const MissionItem::MissionList &missionList);
     void receivedNewProposedMission(const MissionItem::MissionList &missionList);
@@ -763,7 +763,7 @@ public:
     void updateMissionExeState(const Data::MissionKey &missionKey, const Data::MissionExecutionState &state);
     bool updateOnboardMission(const Data::MissionKey &missionKey);
     bool updateCurrentMission(const Data::MissionKey &missionKey);
-
+    bool checkForCurrentMission(const Data::MissionKey &missionKey);
 
 
 private:

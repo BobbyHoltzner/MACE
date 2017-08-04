@@ -230,14 +230,21 @@ void MaceData::removeFromMissionMap(const Data::MissionKey &missionKey)
     mapMissions.erase(missionKey);
 }
 
-void MaceData::receivedMissionACKKey(const Data::MissionKey &missionKey, const Data::MissionTXState &state)
+Data::MissionKey MaceData::receivedMissionACKKey(const Data::MissionKey &missionKey, const Data::MissionTXState &newState)
 {
     std::lock_guard<std::mutex> guard(MUTEXMissions);
     try{
-        mapMissions.at(missionKey).setMissionTXState(state);
+        MissionItem::MissionList copyList = mapMissions.at(missionKey);
+        Data::MissionKey newKey = missionKey;
+        newKey.m_missionState = newState;
+        copyList.setMissionKey(newKey);
+        mapMissions.erase(missionKey);
+        mapMissions[newKey] = copyList;
+        return newKey;
     }catch(const std::out_of_range &oor){
         std::cout<<"receivedMissionACKKey tried to access an item OOR"<<std::endl;
     }
+    return missionKey;
 }
 
 void MaceData::receivedNewCurrentMission(const MissionItem::MissionList &missionList)
@@ -306,6 +313,7 @@ bool MaceData::updateOnboardMission(const Data::MissionKey &missionKey)
     return false;
 }
 
+
 bool MaceData::updateCurrentMission(const Data::MissionKey &missionKey)
 {
     int systemID = missionKey.m_systemID;
@@ -327,4 +335,29 @@ bool MaceData::updateCurrentMission(const Data::MissionKey &missionKey)
     return false;
 }
 
+bool MaceData::checkForCurrentMission(const Data::MissionKey &missionKey)
+{
+    int systemID = missionKey.m_systemID;
+    std::lock_guard<std::mutex> guard(MUTEXMissions);
+
+    if((missionKey.m_missionState == Data::MissionTXState::CURRENT) &&
+            ((missionKey.m_missionType == Data::MissionType::AUTO) ||
+             (missionKey.m_missionType == Data::MissionType::GUIDED)))
+    {
+        //let us remove the old guided mission because this will no longer be valid
+        if(mapCurrentMission.count(systemID))
+        {
+            Data::MissionKey oldKey = mapCurrentMission.at(systemID);
+            try{
+                if(mapMissions.at(oldKey).getMissionType() == Data::MissionType::GUIDED)
+                    mapMissions.erase(oldKey);
+            }catch(const std::out_of_range &oor){
+            }
+        }
+        mapCurrentMission[systemID] = missionKey;
+        return true;
+    }
+    return false;
 }
+
+} //end of namespace MaceCore

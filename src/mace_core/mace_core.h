@@ -117,7 +117,7 @@ public:
 
     virtual void EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList);
 
-    virtual void EventVehicle_ACKProposedMission(const void *sender, const Data::MissionKey &key);
+    virtual void EventVehicle_MissionACK(const void *sender, const MissionItem::MissionACK &ack);
 
     virtual void EventVehicle_REJECTProposedMission(const void *sender, const Data::MissionKey &key);
 
@@ -135,6 +135,7 @@ public:
     /////////////////////////////////////////////////////////////////////////
     /// EXTERNAL LINK EVENTS
     /////////////////////////////////////////////////////////////////////////
+    virtual void ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID);
     virtual void ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved);
     virtual void ExternalEvent_ReceivingMissionQueue(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_FinishedRXProposedQueue(const void *sender, const MissionItem::MissionList &missionList);
@@ -237,6 +238,8 @@ private:
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
 
     std::list<std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
+    std::map<int, std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLinkIDToPort;
+
     //std::map<int, std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
 
     std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;

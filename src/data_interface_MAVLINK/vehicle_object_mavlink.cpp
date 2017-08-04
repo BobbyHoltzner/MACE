@@ -222,12 +222,12 @@ void VehicleObject_MAVLINK::cbiMissionController_MissionACK(const mavlink_missio
 {
     //first we need the original key as a reference when performing the acknowledgement
     Data::MissionKey originalKey = missionList.getMissionKey();
-
     if(missionACK.type == MAV_MISSION_ACCEPTED)
     {
         //we need to update the current state of the mission....since it has been accepted and transmitted
         //to the autopilot it is current
-        missionList.setMissionTXState(Data::MissionTXState::CURRENT);
+        MissionItem::MissionList missionCopy = missionList;
+        missionCopy.setMissionTXState(Data::MissionTXState::CURRENT);
         //next lets update the local data instance of the appropriate mission
         mission->setCurrentMission(missionList);
 

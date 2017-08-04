@@ -52,6 +52,26 @@ public:
 
     ~ModuleExternalLink();
 
+    //!
+    //! \brief This module as been attached as a module
+    //! \param ptr pointer to object that attached this instance to itself
+    //!
+    virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
+
+    //!
+    //! \brief Describes the strucure of the parameters for this module
+    //! \return Strucure
+    //!
+    virtual std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleConfigurationStructure() const;
+
+
+    //!
+    //! \brief Provides object contains parameters values to configure module with
+    //! \param params Parameters to configure
+    //!
+    virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
+
+
     void createLog(const int &systemID);
 
     void transmitMessage(const mace_message_t &msg);
@@ -108,22 +128,6 @@ public:
     //!
     void HeartbeatInfo(const int &systemID, const mace_heartbeat_t &heartbeatMSG);
 
-//    //!
-//    //! \brief MACESyncMessage
-//    //! \param linkName
-//    //! \param systemID
-//    //! \param syncMSG
-//    //!
-//    virtual void MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG);
-
-//    //!
-//    //! \brief VehicleCommandMACEACK
-//    //! \param linkName
-//    //! \param systemID
-//    //! \param cmdACK
-//    //!
-//    virtual void MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK);
-
     //!
     //! \brief NewTopic
     //! \param topicName
@@ -131,25 +135,6 @@ public:
     //! \param componentsUpdated
     //!
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
-
-    //!
-    //! \brief This module as been attached as a module
-    //! \param ptr pointer to object that attached this instance to itself
-    //!
-    virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
-
-    //!
-    //! \brief Describes the strucure of the parameters for this module
-    //! \return Strucure
-    //!
-    virtual std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleConfigurationStructure() const;
-
-
-    //!
-    //! \brief Provides object contains parameters values to configure module with
-    //! \param params Parameters to configure
-    //!
-    virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -306,6 +291,7 @@ public:
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
     virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey);
     virtual void NewlyAvailableVehicle(const int &systemID);
+    virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
 
 private:
     ExternalLink::CommandController_ExternalLink *m_CommandController;

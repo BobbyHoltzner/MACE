@@ -53,10 +53,9 @@ void ModuleVehicleArdupilot::cbi_VehicleCommandACK(const int &systemID, const ma
 void ModuleVehicleArdupilot::cbi_VehicleMissionACK(const MissionItem::MissionACK &ack)
 {
     std::cout<<"The module has now seen a mission ack."<<std::endl;
-    //Ken lets look into this
-//    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-//         ptr->EventVehicle_ACKProposedMission(this, missionList.getMissionKey());
-//     });
+    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+         ptr->EventVehicle_MissionACK(this, ack);
+     });
 }
 
 void ModuleVehicleArdupilot::cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)

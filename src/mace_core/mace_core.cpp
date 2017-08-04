@@ -458,23 +458,35 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
     }
 }
 
-void MaceCore::EventVehicle_ACKProposedMission(const void *sender, const Data::MissionKey &key)
+void MaceCore::EventVehicle_MissionACK(const void *sender, const MissionItem::MissionACK &ack)
 {
     UNUSED(sender);
 
-    if(m_GroundStation)
-    {
-        if(m_DataFusion->getMissionKeyValidity(key))
-        {
-            m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
-        }
-    }else if(m_ExternalLink.size() > 0)
+    //first we should update the core based on the acknowledgment information we had recieved
+    Data::MissionKey key = m_DataFusion->receivedMissionACKKey(ack.getMissionKey(), ack.getNewMissionState());
+    bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
+
+    if(m_ExternalLink.size() > 0)
     {
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
         {
             (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,key);
         }
     }
+    //we should send the acknowledgement to whoever had sent it
+
+
+    //This condition no longer makes sense....if we are receiving a mission ack
+    //and there is a connected ground station, the vehicle should be local link
+    //which will imply the vehicle will say it has a new current mission
+/*    if(m_GroundStation) //this condition implies that the
+    {
+        if(m_DataFusion->getMissionKeyValidity(key))
+        {
+            m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
+        }
+    }*/
+
 }
 
 void MaceCore::EventVehicle_REJECTProposedMission(const void *sender, const Data::MissionKey &key)
@@ -483,11 +495,12 @@ void MaceCore::EventVehicle_REJECTProposedMission(const void *sender, const Data
     UNUSED(key);
 }
 
-//void MaceCore::EventVehicle_ACKProposedMissionWChanges(const void *sender, const Data::MissionKey &originalKey, const Data::MissionACK &ackCode, const Data::MissionKey &newKey)
-//{
-
-//}
-
+void MaceCore::ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID)
+{
+    //KEN FIX THIS
+    IModuleCommandExternalLink* externalLink = (IModuleCommandExternalLink*)sender;
+    //m_ExternalLinkIDToPort.insert({remoteID,externalLink});
+}
 
 void MaceCore::ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
 {

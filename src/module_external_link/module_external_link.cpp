@@ -509,6 +509,11 @@ void ModuleExternalLink::NewlyAvailableVehicle(const int &systemID)
     }
 }
 
+void ModuleExternalLink::ReceivedMissionACK(const MissionItem::MissionACK &ack)
+{
+
+}
+
 //!
 //! \brief ModuleExternalLink::NewTopic
 //! \param topicName

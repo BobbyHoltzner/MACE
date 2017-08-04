@@ -12,6 +12,13 @@ class IModuleEventsExternalLink : public IModuleEventsGeneral, public IModuleEve
 public:
 
     //!
+    //! \brief ExternalEvent_UpdateRemoteID
+    //! \param sender
+    //! \param remoteID
+    //!
+    virtual void ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID) = 0;
+
+    //!
     //! \brief ExternalEvent_NewConstructedVehicle
     //! \param sender
     //! \param newVehicleObserved
