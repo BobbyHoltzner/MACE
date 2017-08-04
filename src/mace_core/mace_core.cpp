@@ -618,6 +618,16 @@ void MaceCore::ExternalEvent_MissionACK(const void* sender, const MissionItem::M
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
 }
 
+void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const int &targetID)
+{
+    std::unordered_map<std::string, TopicDatagram> topicMap = m_DataFusion->getAllLatestTopics(targetID);
+    for(auto it = topicMap.cbegin() ; it != topicMap.cend() ; ++it) {
+        std::vector<std::string> components = it->second.ListNonTerminals();
+        ModuleBase* base = (ModuleBase*)sender;
+        base->NewTopic(it->first,targetID,components);
+    }
+}
+
 void MaceCore::ExternalEvent_FinishedRXProposedQueue(const void* sender, const MissionItem::MissionList &missionList)
 {
     UNUSED(sender);

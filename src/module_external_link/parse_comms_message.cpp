@@ -48,8 +48,9 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_vehicle_sync_t decodedMSG;
         mace_msg_vehicle_sync_decode(message,&decodedMSG);
         std::cout<<"The external link saw a mace message of type vehicle sync"<<std::endl;
+        //We may not handle it this way anymore
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->Event_ForceVehicleDataSync(this, decodedMSG.target_system);
+            ptr->ExternalEvent_RequestingDataSync(this, decodedMSG.target_system);
         });
         break;
     }
@@ -253,8 +254,18 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_home_position_t decodedMSG;
         mace_msg_home_position_decode(message,&decodedMSG);
-        m_MissionController->receivedMissionHome(decodedMSG);
-
+        if(m_MissionController->isThreadActive())
+            m_MissionController->receivedMissionHome(decodedMSG);
+        else
+        {
+            CommandItem::SpatialHome newHome;
+            newHome.position.setX(decodedMSG.latitude / pow(10,7));
+            newHome.position.setY(decodedMSG.longitude / pow(10,7));
+            newHome.position.setZ(decodedMSG.altitude / pow(10,7));
+            newHome.setOriginatingSystem(systemID);
+            newHome.setTargetSystem(systemID);
+            cbiMissionController_ReceviedHome(newHome);
+        }
         break;
     }
     ////////////////////////////////////////////////////////////////////////////

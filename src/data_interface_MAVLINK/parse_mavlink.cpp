@@ -10,7 +10,6 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
     /// determine if the data has changed and should be published throughout MACE.
     //////////////////////////////////////////////////////////////////////////////
 
-    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
     switch ((int)msg->msgid) {
     case MAVLINK_MSG_ID_SYS_STATUS:
     {
@@ -74,7 +73,8 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleGPSStatus.set(gpsItem))
         {
             std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPSStatus = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(gpsItem);
-            rtnVector.push_back(ptrGPSStatus);
+            if(this->m_CB != NULL)
+                this->m_CB->cbi_VehicleStateData(systemID,ptrGPSStatus);
         }
 
         break;

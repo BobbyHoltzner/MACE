@@ -142,6 +142,7 @@ public:
     virtual void ExternalEvent_FinishedRXOnboardQueue(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_FinishedRXCurrentQueue(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK);
+    virtual void ExternalEvent_RequestingDataSync(const void *sender, const int &targetID);
 
 public:
 

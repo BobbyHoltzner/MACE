@@ -259,6 +259,22 @@ public:
         }
     }
 
+    std::unordered_map<std::string, TopicDatagram> getAllLatestTopics(const int &targetID)
+    {
+        std::lock_guard<std::mutex> guard(m_TopicMutex);
+        std::unordered_map<std::string, TopicDatagram> topicMap;
+        for(auto it = m_LatestTopic.cbegin() ; it != m_LatestTopic.cend() ; ++it) {
+            for(auto local_it = m_LatestTopic[it->first].cbegin(); local_it != m_LatestTopic[it->first].cend(); ++local_it)
+            {
+                if(local_it->first == targetID)
+                {
+                    topicMap[it->first] = local_it->second;
+                }
+            }
+        }
+        return topicMap;
+
+    }
 
     TopicDatagram GetCurrentTopicDatagram(const std::string &topicName, const int senderID) const {
         std::lock_guard<std::mutex> guard(m_TopicMutex);

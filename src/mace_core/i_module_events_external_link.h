@@ -11,6 +11,7 @@ class IModuleEventsExternalLink : public IModuleEventsGeneral, public IModuleEve
 {
 public:
 
+    virtual void ExternalEvent_RequestingDataSync(const void *sender, const int &targetID) = 0;
     //!
     //! \brief ExternalEvent_UpdateRemoteID
     //! \param sender
