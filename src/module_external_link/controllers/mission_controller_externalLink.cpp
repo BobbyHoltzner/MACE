@@ -116,7 +116,10 @@ void MissionController_ExternalLink::transmitMissionItem(const mace_mission_requ
 void MissionController_ExternalLink::receivedMissionACK(const mace_mission_ack_t &missionACK)
 {
     if(!isThreadActive())
+    {
+        std::cout<<"The thread is not currently active so this must be something else"<<std::endl;
         return;
+    }
 
     m_LambdasToRun.push_back([this, missionACK]{
         std::cout<<"Mission Controller received a mission ack"<<std::endl;
@@ -223,12 +226,21 @@ void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item
         }else{
             //mLog->info("Mission Controller has received the entire mission of " + std::to_string(this->missionList.getQueueSize()));
             mace_mission_ack_t ackMission;
-            ackMission.target_system = targetID;
             ackMission.mission_system = key.m_systemID;
             ackMission.mission_creator = key.m_creatorID;
             ackMission.mission_id = key.m_missionID;
             ackMission.mission_type = (uint8_t)key.m_missionType;
-            ackMission.mission_state = (uint8_t)Data::MissionTXState::RECEIVED;
+            ackMission.prev_mission_state = (uint8_t)key.m_missionState;
+            //KEN This is a hack but for now
+            if(key.m_missionState == Data::MissionTXState::PROPOSED)
+            {
+                ackMission.cur_mission_state = (uint8_t)Data::MissionTXState::RECEIVED;
+                missionList.setMissionTXState(Data::MissionTXState::RECEIVED);
+            }
+            else
+            {
+                ackMission.cur_mission_state = (uint8_t)key.m_missionState;
+            }
 
             m_CB->cbiMissionController_TransmitMissionACK(ackMission);
 

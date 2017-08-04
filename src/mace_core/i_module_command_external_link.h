@@ -56,7 +56,7 @@ public:
         });
 
         AddCommandLogic<MissionItem::MissionACK>(ExternalLinkCommands::RECEIVED_MISSION_ACK, [this](const MissionItem::MissionACK &ack){
-            ReceivedMissionACK(systemID);
+            ReceivedMissionACK(ack);
         });
 
     }

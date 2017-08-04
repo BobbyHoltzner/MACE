@@ -101,5 +101,5 @@ protected:
 };
 
 
-} //end of namespace DataInterface_MAVLINK
+} //end of namespace ExternalLink
 #endif // COMMAND_CONTROLLER_MAVLINK_H

@@ -6,7 +6,7 @@
 
 namespace Data
 {
-enum class CommandItemType{
+enum class CommandItemType : uint8_t{
     CI_NAV_HOME = 0,
     CI_NAV_LAND=1, /* Land at location |Abort Alt| Empty| Empty| Desired yaw angle. NaN for unchanged.| Latitude| Longitude| Altitude|  */
     CI_NAV_LOITER_TIME=2, /* Loiter around this CISSION for X seconds |Seconds (decimal)| Empty| Radius around CISSION, in meters. If positive loiter clockwise, else counter-clockwise| Forward moving aircraft this sets exit xtrack location: 0 for center of loiter wp, 1 for exit location. Else, this is desired yaw angle| Latitude| Longitude| Altitude|  */

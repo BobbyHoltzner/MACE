@@ -463,30 +463,19 @@ void MaceCore::EventVehicle_MissionACK(const void *sender, const MissionItem::Mi
     UNUSED(sender);
 
     //first we should update the core based on the acknowledgment information we had recieved
+    //this will update the approriate keys as necessary
     Data::MissionKey key = m_DataFusion->receivedMissionACKKey(ack.getMissionKey(), ack.getNewMissionState());
-    bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
 
-    if(m_ExternalLink.size() > 0)
+    if(m_ExternalLinkIDToPort.count(key.m_creatorID) > 0)
     {
-        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
-        {
-            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,key);
-        }
+        //this implies we can talk to the creator of this mission
+        //let us send the acknowledgement to them
+        m_ExternalLinkIDToPort.at(key.m_creatorID)->MarshalCommand(ExternalLinkCommands::RECEIVED_MISSION_ACK, ack);
     }
-    //we should send the acknowledgement to whoever had sent it
-
-
-    //This condition no longer makes sense....if we are receiving a mission ack
-    //and there is a connected ground station, the vehicle should be local link
-    //which will imply the vehicle will say it has a new current mission
-/*    if(m_GroundStation) //this condition implies that the
-    {
-        if(m_DataFusion->getMissionKeyValidity(key))
-        {
-            m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
-        }
-    }*/
-
+    //This may not be the place to do this
+    bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
+    if((isMissionCurrent) && (m_GroundStation))
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
 }
 
 void MaceCore::EventVehicle_REJECTProposedMission(const void *sender, const Data::MissionKey &key)
@@ -499,7 +488,7 @@ void MaceCore::ExternalEvent_UpdateRemoteID(const void *sender, const int &remot
 {
     //KEN FIX THIS
     IModuleCommandExternalLink* externalLink = (IModuleCommandExternalLink*)sender;
-    //m_ExternalLinkIDToPort.insert({remoteID,externalLink});
+    m_ExternalLinkIDToPort.insert({remoteID,externalLink});
 }
 
 void MaceCore::ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
@@ -615,11 +604,18 @@ void MaceCore::ExternalEvent_ReceivingMissionQueue(const void* sender, const Mis
     m_DataFusion->updateRXMission(missionList);
 }
 
-void MaceCore::ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTXState &state)
+void MaceCore::ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK)
 {
     UNUSED(sender);
-    UNUSED(key);
-    UNUSED(state);
+    std::cout<<"The core has seen an event from the external link confirming the mission"<<std::endl;
+    //first we should update the core based on the acknowledgment information we had recieved
+    //this will update the approriate keys as necessary
+    Data::MissionKey key = m_DataFusion->receivedMissionACKKey(missionACK.getMissionKey(), missionACK.getNewMissionState());
+
+    //This may not be the place to do this
+    bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
+    if((isMissionCurrent) && (m_GroundStation))
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
 }
 
 void MaceCore::ExternalEvent_FinishedRXProposedQueue(const void* sender, const MissionItem::MissionList &missionList)

@@ -28,10 +28,9 @@ public:
     //!
     //! \brief ExternalEvent_MissionACK
     //! \param sender
-    //! \param key
-    //! \param state
+    //! \param missionACK
     //!
-    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTXState &state) = 0;
+    virtual void ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK) = 0;
 
     //!
     //! \brief External_AppendMissionQueue

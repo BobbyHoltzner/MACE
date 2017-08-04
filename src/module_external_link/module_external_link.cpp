@@ -7,7 +7,7 @@
 ModuleExternalLink::ModuleExternalLink() :
     m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"),
     associatedSystemID(254), airborneInstance(true),
-    m_CommandController(NULL),m_MissionController(NULL)
+    m_CommandController(NULL),m_MissionController(NULL),m_HeartbeatController(NULL)
 {
     m_MissionController = new ExternalLink::MissionController_ExternalLink(this);
     m_CommandController = new ExternalLink::CommandController_ExternalLink(this);
@@ -15,6 +15,56 @@ ModuleExternalLink::ModuleExternalLink() :
 
 ModuleExternalLink::~ModuleExternalLink()
 {
+
+}
+
+//!
+//! \brief This module as been attached as a module
+//! \param ptr pointer to object that attached this instance to itself
+//!
+void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
+{
+    ptr->Subscribe(this, m_VehicleDataTopic.Name());
+    ptr->Subscribe(this, m_MissionDataTopic.Name());
+}
+
+//!
+//! \brief Describes the strucure of the parameters for this module
+//! \return Strucure
+//!
+std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleExternalLink::ModuleConfigurationStructure() const
+{
+    MaceCore::ModuleParameterStructure structure;
+    ConfigureMACEStructure(structure);
+    return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
+
+    std::shared_ptr<MaceCore::ModuleParameterStructure> moduleSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
+    moduleSettings->AddTerminalParameters("AirborneInstance", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
+    structure.AddNonTerminal("ModuleParameters", moduleSettings, true);
+
+    return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
+
+}
+
+
+//!
+//! \brief Provides object contains parameters values to configure module with
+//! \param params Parameters to configure
+//!
+void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
+{
+    ConfigureMACEComms(params);
+
+    if(params->HasNonTerminal("ModuleParameters"))
+    {
+        std::shared_ptr<MaceCore::ModuleParameterValue> moduleSettings = params->GetNonTerminalValue("ModuleParameters");
+        airborneInstance = moduleSettings->GetTerminalValue<bool>("AirborneInstance");
+
+        if(airborneInstance == false)
+        {
+
+        }
+    }
 
 }
 
@@ -69,6 +119,17 @@ void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command
 void ModuleExternalLink::cbiCommandController_CommandACK(const mace_command_ack_t &ack)
 {
 
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+/// The following are public virtual functions imposed from the Heartbeat Controller
+/// Interface via callback functionality.
+///////////////////////////////////////////////////////////////////////////////////////
+void ModuleExternalLink::cbiHeartbeatController_transmitCommand(const mace_heartbeat_t &heartbeat)
+{
+    mace_message_t msg;
+    mace_msg_heartbeat_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&heartbeat);
+    transmitMessage(msg);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -139,7 +200,7 @@ void ModuleExternalLink::cbiMissionController_ReceivedMission(const MissionItem:
 {
     std::cout<<"The external link module now has received the entire mission."<<std::endl;
 
-    if(missionList.getMissionTXState() == Data::MissionTXState::PROPOSED)
+    if(missionList.getMissionTXState() == Data::MissionTXState::RECEIVED)
     {
         //This case implies that we were receiving the item from a ground module or
         //someone without directly relating to the vehicle and therefore we should ack
@@ -169,51 +230,6 @@ void ModuleExternalLink::cbiMissionController_MissionACK(const mace_mission_ack_
 
 
 //!
-//! \brief This module as been attached as a module
-//! \param ptr pointer to object that attached this instance to itself
-//!
-void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
-{
-    ptr->Subscribe(this, m_VehicleDataTopic.Name());
-    ptr->Subscribe(this, m_MissionDataTopic.Name());
-}
-
-//!
-//! \brief Describes the strucure of the parameters for this module
-//! \return Strucure
-//!
-std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleExternalLink::ModuleConfigurationStructure() const
-{
-    MaceCore::ModuleParameterStructure structure;
-    ConfigureMACEStructure(structure);
-    return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
-
-    std::shared_ptr<MaceCore::ModuleParameterStructure> moduleSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
-    moduleSettings->AddTerminalParameters("AirborneInstance", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
-    structure.AddNonTerminal("ModuleParameters", moduleSettings, true);
-
-    return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
-
-}
-
-
-//!
-//! \brief Provides object contains parameters values to configure module with
-//! \param params Parameters to configure
-//!
-void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
-{
-    ConfigureMACEComms(params);
-
-    if(params->HasNonTerminal("ModuleParameters"))
-    {
-        std::shared_ptr<MaceCore::ModuleParameterValue> moduleSettings = params->GetNonTerminalValue("ModuleParameters");
-        airborneInstance = moduleSettings->GetTerminalValue<bool>("AirborneInstance");
-    }
-
-}
-
-//!
 //! \brief New Mavlink message received over a link
 //! \param linkName Name of link message received over
 //! \param msg Message received
@@ -230,6 +246,12 @@ void ModuleExternalLink::HeartbeatInfo(const int &systemID, const mace_heartbeat
 {
     if(systemIDMap.find(systemID) == systemIDMap.end())
     {
+        //this function should always be called by an external link connected to ground for now
+        //KEN this is a hack...but it will function for now
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->ExternalEvent_UpdateRemoteID(this, systemID);
+        });
+
         m_MissionController->updateIDS(systemID,254);
         m_CommandController->updateIDS(systemID,254);
 
@@ -506,12 +528,30 @@ void ModuleExternalLink::NewlyAvailableVehicle(const int &systemID)
     {
         m_MissionController->updateIDS(254,systemID);
         m_CommandController->updateIDS(254,systemID);
+
+        //this function should always be called by an external link connected to ground for now
+        //KEN this is a hack...but it will function for now
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->ExternalEvent_UpdateRemoteID(this, 254);
+        });
     }
 }
 
 void ModuleExternalLink::ReceivedMissionACK(const MissionItem::MissionACK &ack)
 {
+    mace_mission_ack_t missionACK;
+    Data::MissionKey key = ack.getMissionKey();
+    missionACK.cur_mission_state = (uint8_t)ack.getNewMissionState();
+    missionACK.mission_creator = key.m_creatorID;
+    missionACK.mission_id = key.m_missionID;
+    missionACK.mission_result = (uint8_t)ack.getMissionResult();
+    missionACK.mission_system = key.m_systemID;
+    missionACK.mission_type = (uint8_t)key.m_missionType;
+    missionACK.prev_mission_state = (uint8_t)key.m_missionState;
 
+    mace_message_t msg;
+    mace_msg_mission_ack_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&missionACK);
+    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 }
 
 //!

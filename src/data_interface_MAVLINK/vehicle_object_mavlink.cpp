@@ -236,7 +236,6 @@ void VehicleObject_MAVLINK::cbiMissionController_MissionACK(const mavlink_missio
         if(m_CB)
             m_CB->cbi_VehicleMissionACK(ack);
     }
-
 }
 } //end of namespace DataInterface_MAVLINK
 

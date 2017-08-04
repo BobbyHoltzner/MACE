@@ -141,7 +141,7 @@ public:
     virtual void ExternalEvent_FinishedRXProposedQueue(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_FinishedRXOnboardQueue(const void *sender, const MissionItem::MissionList &missionList);
     virtual void ExternalEvent_FinishedRXCurrentQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTXState &state);
+    virtual void ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK);
 
 public:
 
@@ -238,7 +238,7 @@ private:
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
 
     std::list<std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
-    std::map<int, std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLinkIDToPort;
+    std::map<int, IModuleCommandExternalLink*> m_ExternalLinkIDToPort;
 
     //std::map<int, std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
 

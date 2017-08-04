@@ -308,16 +308,16 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         std::cout<<"External link has received the mission ack"<<std::endl;
         m_MissionController->receivedMissionACK(decodedMSG);
 
-//        DataGenericItem::DataGenericItem_Text text;
-//        text.setSeverity(Data::StatusSeverityType::STATUS_NOTICE);
-//        std::string str = "Mission Received:" + std::to_string(key.m_systemID) + " Mission ID:" + std::to_string(key.m_missionID) + " Created By:" + std::to_string(key.m_creatorID);
-//        text.setText(str);
-//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> statusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(text);
-//        m_VehicleDataTopic.SetComponent(statusText, topicDatagram);
-//        //notify listneres of topic
-//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-//            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), key.m_systemID, MaceCore::TIME(), topicDatagram);
-//        });
+        Data::MissionTXState prevState = static_cast<Data::MissionTXState>(decodedMSG.prev_mission_state);
+        Data::MissionTXState curState = static_cast<Data::MissionTXState>(decodedMSG.cur_mission_state);
+        Data::MissionType type = static_cast<Data::MissionType>(decodedMSG.mission_type);
+
+        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,type,prevState);
+        MissionItem::MissionACK ack(systemID,static_cast<Data::MISSION_RESULT>(decodedMSG.mission_result),key,curState);
+
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+             ptr->ExternalEvent_MissionACK(this, ack);
+         });
 
         break;
     }

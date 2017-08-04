@@ -135,12 +135,12 @@ void CommandController_ExternalLink::setSystemArm(const CommandItem::ActionArm &
 
     std::stringstream buffer;
     buffer << commandItem;
-
+    std::cout<<"Sending a system arm command"<<std::endl;
     //mLog->debug("Command Controller is requesting the system to arm.");
     //mLog->info(buffer.str());
 
     mace_command_short_t cmd = initializeCommandShort();
-    cmd.command = MAV_CMD_COMPONENT_ARM_DISARM;
+    cmd.command = (uint8_t)Data::CommandItemType::CI_ACT_ARM;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
     cmd.param = commandItem.getRequestArm();
@@ -160,12 +160,13 @@ void CommandController_ExternalLink::setSystemTakeoff(const CommandItem::Spatial
 {
     std::stringstream buffer;
     buffer << commandItem;
+    std::cout<<"Sending a system takeoff command"<<std::endl;
 
     //mLog->debug("Command Controller is requesting the system to takeoff.");
     //mLog->info(buffer.str());
 
     mace_command_long_t cmd = initializeCommandLong();
-    cmd.command = MAV_CMD_NAV_TAKEOFF;
+    cmd.command = (uint8_t)Data::CommandItemType::CI_NAV_TAKEOFF;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
     Data::CoordinateFrameType cf = commandItem.position.getCoordinateFrame();
@@ -192,12 +193,13 @@ void CommandController_ExternalLink::setSystemLand(const CommandItem::SpatialLan
 {
     std::stringstream buffer;
     buffer << commandItem;
+    std::cout<<"Sending a system land command"<<std::endl;
 
     //mLog->debug("Command Controller is requesting the system to land.");
     //mLog->info(buffer.str());
 
     mace_command_long_t cmd = initializeCommandLong();
-    cmd.command = MAV_CMD_NAV_LAND;
+    cmd.command = (uint8_t)Data::CommandItemType::CI_NAV_LAND;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
 
@@ -223,9 +225,10 @@ void CommandController_ExternalLink::setSystemLand(const CommandItem::SpatialLan
 void CommandController_ExternalLink::setSystemRTL(const CommandItem::SpatialRTL &commandItem, const int &compID)
 {
     //mLog->debug("Command Controller is requesting the system to RTL.");
+    std::cout<<"Sending a system RTL command"<<std::endl;
 
     mace_command_short_t cmd = initializeCommandShort();
-    cmd.command = MAV_CMD_NAV_RETURN_TO_LAUNCH;
+    cmd.command = (uint8_t)Data::CommandItemType::CI_NAV_RETURN_TO_LAUNCH;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
 
@@ -243,6 +246,23 @@ void CommandController_ExternalLink::setSystemRTL(const CommandItem::SpatialRTL 
 void CommandController_ExternalLink::setSystemMissionCommand(const CommandItem::ActionMissionCommand &commandItem, const int &compID)
 {
     //mLog->debug("Command Controller is requesting to set the system mission command.");
+    std::cout<<"Sending a system mission command"<<std::endl;
+
+    mace_command_short_t cmd = initializeCommandShort();
+    cmd.command = (uint8_t)Data::CommandItemType::CI_ACT_MISSIONCOMMAND;
+    cmd.target_system = commandItem.getTargetSystem();
+    cmd.target_component = compID;
+    cmd.param = (uint8_t)commandItem.getMissionCommandAction();
+
+    clearPreviousTransmit();
+    prevTransmit = new PreviousCommand<mace_command_short_t>(commandItemEnum::COMMAND_SHORT, cmd);
+
+    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
+    currentRetry = 0;
+    this->start();
+    mTimer.start();
+
+    m_CB->cbiCommandController_transmitCommand(cmd);
 }
 
 void CommandController_ExternalLink::run()

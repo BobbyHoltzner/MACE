@@ -28,6 +28,11 @@ public:
         return this->newState;
     }
 
+    Data::MissionKey getUpdatedMissionKey() const{
+        Data::MissionKey key = getMissionKey();
+        key.m_missionState = getNewMissionState();
+        return key;
+    }
 
 public:
     void operator = (const MissionACK &rhs)

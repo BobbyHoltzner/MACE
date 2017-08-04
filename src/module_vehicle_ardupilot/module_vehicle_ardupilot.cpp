@@ -56,6 +56,11 @@ void ModuleVehicleArdupilot::cbi_VehicleMissionACK(const MissionItem::MissionACK
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
          ptr->EventVehicle_MissionACK(this, ack);
      });
+
+    //This function shall update the local MACE core of the new mission
+    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+        ptr->NewCurrentVehicleMission(this, ack.getUpdatedMissionKey());
+    });
 }
 
 void ModuleVehicleArdupilot::cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)

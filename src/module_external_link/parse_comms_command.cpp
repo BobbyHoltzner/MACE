@@ -22,6 +22,26 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_short_t *message)
         });
         break;
     }
+    case(Data::CommandItemType::CI_ACT_ARM):
+    {
+        CommandItem::ActionArm tmpArm;
+        tmpArm.setTargetSystem(message->target_system);
+        tmpArm.setVehicleArm(fabs(message->param) <= 0.001 ? false : true);
+
+        //acknowledge receiving the command
+        mace_command_ack_t commandACK;
+        commandACK.command = (uint8_t)Data::CommandItemType::CI_ACT_ARM;
+        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+        mace_message_t msg;
+        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+
+        //notify core
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+            ptr->Event_IssueCommandSystemArm(this, tmpArm);
+        });
+        break;
+    }
     default:
         break;
     }
@@ -37,26 +57,6 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         DataCOMMS::Mission_MACETOCOMMS missionConvert(message->target_system,message->target_component);
         mace_message_t msg = missionConvert.Home_MACETOCOMMS(missionHome);
         m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
-        break;
-    }
-    case((uint8_t)Data::CommandItemType::CI_ACT_ARM):
-    {
-        CommandItem::ActionArm tmpArm;
-        tmpArm.setTargetSystem(message->target_system);
-        tmpArm.setVehicleArm(fabs(message->param1) <= 0.001 ? false : true);
-
-        //acknowledge receiving the command
-        mace_command_ack_t commandACK;
-        commandACK.command = (uint8_t)Data::CommandItemType::CI_ACT_ARM;
-        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
-        mace_message_t msg;
-        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
-
-        //notify core
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->Event_IssueCommandSystemArm(this, tmpArm);
-        });
         break;
     }
     case((uint8_t)Data::CommandItemType::CI_NAV_TAKEOFF):

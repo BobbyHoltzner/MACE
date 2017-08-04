@@ -21,13 +21,15 @@ SOURCES += module_external_link.cpp \
     parse_comms_command.cpp \
     external_heartbeat.cpp \
     controllers/command_controller_externalLink.cpp \
-    controllers/mission_controller_externalLink.cpp
+    controllers/mission_controller_externalLink.cpp \
+    controllers/heartbeat_controller_externallink.cpp
 
 HEADERS += module_external_link.h\
         module_external_link_global.h \
     external_heartbeat.h \
     controllers/command_controller_externalLink.h \
-    controllers/mission_controller_externalLink.h
+    controllers/mission_controller_externalLink.h \
+    controllers/heartbeat_controller_externallink.h
 
 # Unix lib Install
 unix:!symbian {
@@ -53,7 +55,9 @@ INSTALLS       += headers_base
 headers_controllers.path    = $$(MACE_ROOT)/include/module_external_link/controllers
 headers_controllers.files   += \
     controllers/command_controller_externalLink.h \
-    controllers/mission_controller_externalLink.h
+    controllers/mission_controller_externalLink.h \
+    controllers/heartbeat_controller_externallink.h
+
 INSTALLS       += headers_controllers
 
 INCLUDEPATH += $$PWD/../

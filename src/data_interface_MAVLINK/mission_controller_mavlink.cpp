@@ -4,7 +4,7 @@ namespace DataInterface_MAVLINK {
 
 MissionController_MAVLINK::MissionController_MAVLINK(const int &targetID, const int &originatingID):
     systemID(targetID), transmittingID(originatingID),
-    currentRetry(0), maxRetries(5), responseTimeout(5000),\
+    currentRetry(0), maxRetries(5), responseTimeout(800),\
     currentCommsState(Data::ControllerCommsState::NEUTRAL),
     m_CB(NULL), prevTransmit(NULL),
     helperMAVtoMACE(targetID),helperMACEtoMAV(originatingID,0)

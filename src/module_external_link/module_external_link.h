@@ -37,12 +37,14 @@
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 #include "controllers/command_controller_externalLink.h"
+#include "controllers/heartbeat_controller_externallink.h"
 #include "controllers/mission_controller_externalLink.h"
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public MaceCore::IModuleCommandExternalLink,
         public CommsMACEHelper,
         public ExternalLink::CommandController_Interface,
+        public ExternalLink::HeartbeatController_Interface,
         public ExternalLink::MissionController_Interface
 {
 
@@ -84,6 +86,11 @@ public:
     void cbiCommandController_transmitCommand(const mace_command_long_t &cmd);
     void cbiCommandController_CommandACK(const mace_command_ack_t &ack);
 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    /// The following are public virtual functions imposed from the Heartbeat Controller
+    /// Interface via callback functionality.
+    ///////////////////////////////////////////////////////////////////////////////////////
+    void cbiHeartbeatController_transmitCommand(const mace_heartbeat_t &heartbeat);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from the Mission Controller
@@ -294,6 +301,7 @@ public:
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
 
 private:
+    ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
     ExternalLink::CommandController_ExternalLink *m_CommandController;
     ExternalLink::MissionController_ExternalLink *m_MissionController;
 
