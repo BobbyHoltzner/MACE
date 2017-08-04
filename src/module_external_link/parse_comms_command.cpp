@@ -42,6 +42,24 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_short_t *message)
         });
         break;
     }
+    case(Data::CommandItemType::CI_NAV_RETURN_TO_LAUNCH):
+    {
+        CommandItem::SpatialRTL tmpRTL;
+        tmpRTL.setTargetSystem(message->target_system);
+
+        //acknowledge receiving the command
+        mace_command_ack_t commandACK;
+        commandACK.command = (uint8_t)Data::CommandItemType::CI_NAV_RETURN_TO_LAUNCH;
+        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+        mace_message_t msg;
+        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+            ptr->Event_IssueCommandRTL(this, tmpRTL);
+        });
+        break;
+    }
     default:
         break;
     }
@@ -101,24 +119,6 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
             ptr->Event_IssueCommandLand(this, tmpLand);
-        });
-        break;
-    }
-    case((uint8_t)Data::CommandItemType::CI_NAV_RETURN_TO_LAUNCH):
-    {
-        CommandItem::SpatialRTL tmpRTL;
-        tmpRTL.setTargetSystem(message->target_system);
-
-        //acknowledge receiving the command
-        mace_command_ack_t commandACK;
-        commandACK.command = (uint8_t)Data::CommandItemType::CI_NAV_RETURN_TO_LAUNCH;
-        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
-        mace_message_t msg;
-        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
-
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->Event_IssueCommandRTL(this, tmpRTL);
         });
         break;
     }
