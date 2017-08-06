@@ -531,10 +531,6 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
-void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
-{
-    std::cout<<"This function is now deprecated"<<std::endl;
-}
 
 void MaceCore::GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome)
 {
@@ -543,6 +539,7 @@ void MaceCore::GVEvents_NewHomePosition(const void *sender, const CommandItem::S
     //specific methods and information. Otherwise we may be blasting to an unknown world.
     //This is also bad as we are assuming that the only item calling this would be a vehicle instance
     m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
+
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome);
     else if(m_ExternalLink.size() > 0)

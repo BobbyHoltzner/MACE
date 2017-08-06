@@ -254,8 +254,8 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_home_position_t decodedMSG;
         mace_msg_home_position_decode(message,&decodedMSG);
-        if(m_MissionController->isThreadActive())
-            m_MissionController->receivedMissionHome(decodedMSG);
+        if(m_HomeController->isThreadActive())
+            m_HomeController->receivedMissionHome(decodedMSG);
         else
         {
             CommandItem::SpatialHome newHome;
@@ -264,7 +264,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
             newHome.position.setZ(decodedMSG.altitude / pow(10,7));
             newHome.setOriginatingSystem(systemID);
             newHome.setTargetSystem(systemID);
-            cbiMissionController_ReceviedHome(newHome);
+            cbiHomeController_ReceviedHome(newHome);
         }
         break;
     }

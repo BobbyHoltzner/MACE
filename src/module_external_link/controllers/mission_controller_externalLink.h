@@ -33,23 +33,12 @@ public:
     virtual void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem) = 0;
     virtual void cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK) = 0;
 
-    virtual void cbiMissionController_TransmitHomeReq(const mace_mission_request_home_t &request) = 0;
-
-    virtual void cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home) = 0;
     virtual void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList) = 0;
     virtual void cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK) = 0;
 };
 
 class MissionController_ExternalLink : public Thread
 {
-private:
-    enum requestState{
-        MISSION,
-        HOME,
-        ALL,
-        NONE
-    };
-
 public:
     MissionController_ExternalLink(MissionController_Interface *cb);
 
@@ -102,7 +91,6 @@ public:
     //! \param missionItem object containing the information about the mission item at an appropriate index.
     //!
     void recievedMissionItem(const mace_mission_item_t &missionItem);
-    void receivedMissionHome(const mace_home_position_t &systemHome);
 
     //This function creates a generic request of mission type
     //!
@@ -113,7 +101,7 @@ public:
     //! \param type enumeration of mission that this system is interested in knowing about
     //! \param state enumeration of the mission that this system is interested in knowing about
     //!
-    void requestGenericMission(const int &targetSystem, const MAV_MISSION_TYPE &type, const MAV_MISSION_STATE &state);
+    void requestGenericMission(const int &targetSystem, const MAV_MISSION_TYPE &type, const MAV_MISSION_STATE &currentState);
 
     //!
     //! \brief requestMission transmits a request to the appropriate system as dictated by the key for the mission
@@ -122,9 +110,6 @@ public:
     //! \param key object describing the mission that this system is interesting in knowing about.
     //!
     void requestMission(const Data::MissionKey &key);
-
-    void requestHome(const int &targetID);
-
 
     Data::ControllerCommsState getCommsState() const
     {
@@ -136,7 +121,6 @@ private:
 private:
     int targetID;
     int transmittingID;
-    requestState state;
 
     Timer mTimer;
     int currentRetry;
@@ -156,7 +140,6 @@ private:
     Data::ControllerCommsState currentCommsState;
 
     MissionItem::MissionList missionList;
-    CommandItem::SpatialHome missionHome;
 
 protected:
     std::list<std::function<void()>> m_LambdasToRun;

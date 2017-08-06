@@ -7,9 +7,11 @@
 ModuleExternalLink::ModuleExternalLink() :
     m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"),
     associatedSystemID(254), airborneInstance(true),
-    m_CommandController(NULL),m_MissionController(NULL),m_HeartbeatController(NULL)
+    m_CommandController(NULL),m_HeartbeatController(NULL),m_HomeController(NULL),m_MissionController(NULL)
 {
+
     m_MissionController = new ExternalLink::MissionController_ExternalLink(this);
+    m_HomeController = new ExternalLink::HomeController_ExternalLink(this);
     m_CommandController = new ExternalLink::CommandController_ExternalLink(this);
 }
 
@@ -171,31 +173,6 @@ void ModuleExternalLink::cbiMissionController_TransmitMissionReq(const mace_miss
     transmitMessage(msg);
 }
 
-void ModuleExternalLink::cbiMissionController_TransmitHomeReq(const mace_mission_request_home_t &request)
-{
-    mace_message_t msg;
-    mace_msg_mission_request_home_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&request);
-    transmitMessage(msg);
-}
-
-void ModuleExternalLink::cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home)
-{
-    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-        ptr->GVEvents_NewHomePosition(this,home);
-    });
-
-    std::shared_ptr<CommandItem::SpatialHome> homePtr = std::make_shared<CommandItem::SpatialHome>(home);
-    std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
-    missionTopic->setHome(homePtr);
-
-    MaceCore::TopicDatagram topicDatagram;
-    m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
-    //notify listneres of topic
-    ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), home.getOriginatingSystem(), MaceCore::TIME(), topicDatagram);
-    });
-}
-
 void ModuleExternalLink::cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList)
 {
     std::cout<<"The external link module now has received the entire mission."<<std::endl;
@@ -228,6 +205,34 @@ void ModuleExternalLink::cbiMissionController_MissionACK(const mace_mission_ack_
     std::cout<<"The external link module now has received the mission ack."<<std::endl;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+/// The following are public virtual functions imposed from the Home Controller
+/// Interface via callback functionality.
+///////////////////////////////////////////////////////////////////////////////////////
+void ModuleExternalLink::cbiHomeController_TransmitHomeReq(const mace_mission_request_home_t &request)
+{
+    mace_message_t msg;
+    mace_msg_mission_request_home_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&request);
+    transmitMessage(msg);
+}
+
+void ModuleExternalLink::cbiHomeController_ReceviedHome(const CommandItem::SpatialHome &home)
+{
+    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+        ptr->GVEvents_NewHomePosition(this,home);
+    });
+
+    std::shared_ptr<CommandItem::SpatialHome> homePtr = std::make_shared<CommandItem::SpatialHome>(home);
+    std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+    missionTopic->setHome(homePtr);
+
+    MaceCore::TopicDatagram topicDatagram;
+    m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
+    //notify listneres of topic
+    ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), home.getOriginatingSystem(), MaceCore::TIME(), topicDatagram);
+    });
+}
 
 //!
 //! \brief New Mavlink message received over a link
@@ -274,15 +279,6 @@ void ModuleExternalLink::HeartbeatInfo(const int &systemID, const mace_heartbeat
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
     PublishVehicleData(systemID,ptrHeartbeat);
 }
-
-//Ken Fix This
-//void ModuleExternalLink::MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG)
-//{
-//    std::cout<<"External link saw a full data request from remote"<<std::endl;
-//    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-//        ptr->Event_ForceVehicleDataSync(this, syncMSG.target_system);
-//    });
-//}
 
 //!
 //! \brief ModuleExternalLink::VehicleCommandMACEACK
@@ -341,12 +337,20 @@ void ModuleExternalLink::PublishVehicleData(const int &systemID, const std::shar
 
 void ModuleExternalLink::Request_FullDataSync(const int &targetSystem)
 {
-    std::cout<<"External link saw a full data request from local"<<std::endl;
+    //This first segment causes all the topics to be republished
     mace_message_t msg;
     mace_vehicle_sync_t sync;
     sync.target_system = targetSystem;
     mace_msg_vehicle_sync_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&sync);
     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+
+    /*
+    The second segment is necessary to gaurantee that all information
+    requested is at a minimum answered with a DNE response. This function
+    cannont work the same way local vehicles do because there is to many
+    chains for a thread to wait on with no gaurantees from the vehicle module.
+    */
+    m_HomeController->requestHome(targetSystem);
 }
 
 void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &systemArm)
@@ -400,7 +404,7 @@ void ModuleExternalLink::Command_EmitHeartbeat(const CommandItem::SpatialTakeoff
 void ModuleExternalLink::Command_GetHomePosition(const int &vehicleID)
 {
     std::cout<<"External link module saw a get home position request"<<std::endl;
-    m_MissionController->requestHome(vehicleID);
+    m_HomeController->requestHome(vehicleID);
 }
 
 void ModuleExternalLink::Command_SetHomePosition(const CommandItem::SpatialHome &systemHome)

@@ -38,6 +38,7 @@
 
 #include "controllers/command_controller_externalLink.h"
 #include "controllers/heartbeat_controller_externallink.h"
+#include "controllers/home_controller_external_link.h"
 #include "controllers/mission_controller_externalLink.h"
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
@@ -45,6 +46,7 @@ class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public CommsMACEHelper,
         public ExternalLink::CommandController_Interface,
         public ExternalLink::HeartbeatController_Interface,
+        public ExternalLink::HomeController_Interface,
         public ExternalLink::MissionController_Interface
 {
 
@@ -101,10 +103,15 @@ public:
     void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item);
     void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request);
     void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem);
-    void cbiMissionController_TransmitHomeReq(const mace_mission_request_home_t &request);
-    void cbiMissionController_ReceviedHome(const CommandItem::SpatialHome &home);
     void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList);
     void cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    /// The following are public virtual functions imposed from the Home Controller
+    /// Interface via callback functionality.
+    ///////////////////////////////////////////////////////////////////////////////////////
+    void cbiHomeController_TransmitHomeReq(const mace_mission_request_home_t &request);
+    void cbiHomeController_ReceviedHome(const CommandItem::SpatialHome &home);
 
 
     bool isExternalLinkAirborne() const
@@ -301,8 +308,9 @@ public:
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
 
 private:
-    ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
     ExternalLink::CommandController_ExternalLink *m_CommandController;
+    ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
+    ExternalLink::HomeController_ExternalLink *m_HomeController;
     ExternalLink::MissionController_ExternalLink *m_MissionController;
 
 private:

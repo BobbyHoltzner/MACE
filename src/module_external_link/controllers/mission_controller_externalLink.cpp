@@ -6,7 +6,7 @@ MissionController_ExternalLink::MissionController_ExternalLink(MissionController
     targetID(0), transmittingID(0),mLog(NULL),
     currentRetry(0), maxRetries(5), responseTimeout(5000),\
     currentCommsState(Data::ControllerCommsState::NEUTRAL),
-    m_CB(NULL), prevTransmit(NULL), state(NONE)
+    m_CB(NULL), prevTransmit(NULL)
 {
     connectCallback(cb);
 }
@@ -308,16 +308,6 @@ void MissionController_ExternalLink::run()
                     if(m_CB)
                         m_CB->cbiMissionController_TransmitMissionReq(msgTransmit);
                 }
-                else if(type == commsItemEnum::ITEM_RXHOME)
-                {
-                    //mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
-                    std::cout<<"Making another request for home item"<<std::endl;
-                    PreviousTransmission<mace_mission_request_home_t> *tmp = static_cast<PreviousTransmission<mace_mission_request_home_t>*>(prevTransmit);
-                    mace_mission_request_home_t msgTransmit = tmp->getData();
-                    mTimer.start();
-                    if(m_CB)
-                        m_CB->cbiMissionController_TransmitHomeReq(msgTransmit);
-                }
                 break;
             }
             case Data::ControllerCommsState::TRANSMITTING:
@@ -356,7 +346,6 @@ void MissionController_ExternalLink::run()
 void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
 {
     currentCommsState = Data::ControllerCommsState::RECEIVING;
-    this->state = MISSION;
     //mLog->info("Mission Controller has seen a request mission.");
 
     missionList.setMissionKey(key);
@@ -378,52 +367,6 @@ void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
     currentRetry = 0;
     this->start();
     mTimer.start();
-}
-
-void MissionController_ExternalLink::requestHome(const int &systemID)
-{
-    this->state = HOME;
-    //mLog->info("Mission Controller has seen a request home.");
-    std::cout<<"Mission controller is making a request for the home position"<<std::endl;
-    currentCommsState = Data::ControllerCommsState::RECEIVING;
-
-    mace_mission_request_home_t request;
-    request.target_system = systemID;
-
-    clearPendingTasks();
-    clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mace_mission_request_home_t>(commsItemEnum::ITEM_RXHOME, request);
-
-    if(m_CB)
-        m_CB->cbiMissionController_TransmitHomeReq(request);
-
-    currentRetry = 0;
-    this->start();
-    mTimer.start();
-}
-
-void MissionController_ExternalLink::receivedMissionHome(const mace_home_position_t &home)
-{
-    m_LambdasToRun.push_back([this, home]{
-        mTimer.stop();
-        currentRetry = 0;
-        std::cout<<"Mission controller received the home position"<<std::endl;
-        //mLog->info("Mission Controller received system home item item.");
-
-        //This is the home position item associated with the vehicle
-        CommandItem::SpatialHome newHome;
-        newHome.position.setX(home.latitude / pow(10,7));
-        newHome.position.setY(home.longitude / pow(10,7));
-        newHome.position.setZ(home.altitude / pow(10,7));
-        newHome.setOriginatingSystem(targetID);
-        newHome.setTargetSystem(targetID);
-
-        clearPendingTasks();
-        mToExit = true;
-        currentCommsState = Data::ControllerCommsState::NEUTRAL;
-
-        m_CB->cbiMissionController_ReceviedHome(newHome);
-    });
 }
 
 } //end of namespace DataInterface_MAVLINK
