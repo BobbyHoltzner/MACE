@@ -26,6 +26,9 @@ class HomeController_Interface
 public:
     virtual void cbiHomeController_TransmitHomeReq(const mace_mission_request_home_t &request) = 0;
     virtual void cbiHomeController_ReceviedHome(const CommandItem::SpatialHome &home) = 0;
+
+    virtual void cbiHomeController_TransmitHomeSet(const mace_set_home_position_t &home) = 0;
+    virtual void cbiHomeController_ReceivedHomeSetACK(const mace_home_position_ack_t &ack) = 0;
 };
 
 class HomeController_ExternalLink : public Thread
@@ -50,8 +53,9 @@ public:
     void run();
 
     void requestHome(const int &targetID);
-
+    void setHome(const CommandItem::SpatialHome &home);
     void receivedMissionHome(const mace_home_position_t &systemHome);
+    void receivedHomePositionACK(const mace_home_position_ack_t &homeACK);
 
     Data::ControllerCommsState getCommsState() const
     {

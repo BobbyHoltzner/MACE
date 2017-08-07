@@ -25,6 +25,19 @@ void MissionController_ExternalLink::clearPreviousTransmit()
     }
 }
 
+void MissionController_ExternalLink::updateTransmittingJobs()
+{
+    std::map<int, std::list<MissionItem::MissionList>>::iterator it = missionList.begin();
+    int ID = (int)it->first;
+    MissionItem::MissionList list = it->second.front();
+    it->second.pop_front();
+    if(it->second.empty())
+    {
+        missionList.erase(it);
+    }
+    transmitMission(ID,list);
+}
+
 void MissionController_ExternalLink::updateIDS(const int &targetSystem, const int &originSystem)
 {
     this->targetID = targetSystem; //this is to whom this mission would be going to
@@ -40,6 +53,28 @@ void MissionController_ExternalLink::updateIDS(const int &targetSystem, const in
 /// to a remote instance of MACE.
 ///////////////////////////////////////////////////////////////////////////////
 
+void MissionController_ExternalLink::transmitMission(const int &targetSystem, const std::list<MissionItem::MissionList> &missionQueue)
+{
+    if(targetSystem == this->transmittingID)
+    {
+        std::cout<<"This doesn't make sense since this is ourselves."<<std::endl;
+        return;
+    }
+    if(missionQueue.size() > 0)
+    {
+        std::list<MissionItem::MissionList> copyList = missionQueue;
+        std::list<MissionItem::MissionList> currentList = missionList[targetSystem];
+        currentList.splice(currentList.end(),copyList);
+        missionList[targetSystem] = currentList;
+
+        if(!isThreadActive())
+        {
+            updateTransmittingJobs();
+        }
+    }
+}
+
+
 void MissionController_ExternalLink::transmitMission(const int &targetSystem, const MissionItem::MissionList &missionQueue)
 {
     std::cout<<"Mission Controller has been told to transmit mission"<<std::endl;
@@ -53,12 +88,12 @@ void MissionController_ExternalLink::transmitMission(const int &targetSystem, co
 
     currentCommsState = Data::ControllerCommsState::TRANSMITTING;
 
-    this->missionList = missionQueue;
+    this->missionQueue = missionQueue;
 
     Data::MissionKey key = missionQueue.getMissionKey();
 
     mace_mission_count_t count;
-    count.count = this->missionList.getQueueSize();
+    count.count = this->missionQueue.getQueueSize();
     count.target_system = targetID;
     count.mission_system = key.m_systemID;
     count.mission_creator = key.m_creatorID;
@@ -83,11 +118,11 @@ void MissionController_ExternalLink::transmitMissionItem(const mace_mission_requ
     m_LambdasToRun.push_back([this, missionRequest]{
         Data::MissionKey key(missionRequest.mission_system,missionRequest.mission_creator,missionRequest.mission_id,static_cast<Data::MissionType>(missionRequest.mission_type),static_cast<Data::MissionTXState>(missionRequest.mission_state));
 
-        if(key != this->missionList.getMissionKey()) //this indicates for some reason the other system requested a different mission?
+        if(key != this->missionQueue.getMissionKey()) //this indicates for some reason the other system requested a different mission?
             return;
 
         int index = missionRequest.seq;
-        if(index > this->missionList.getQueueSize()) //this indicates that RX system requested something OOR
+        if(index > this->missionQueue.getQueueSize()) //this indicates that RX system requested something OOR
             return;
 
         std::cout<<"Mission Controller has been told to transmit mission item with index "<<index<<std::endl;
@@ -96,7 +131,7 @@ void MissionController_ExternalLink::transmitMissionItem(const mace_mission_requ
         //mLog->info("Mission Controller has seen a request for mission item number " + std::to_string(index) + ".");
 
 
-        std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = this->missionList.getMissionItem(index);
+        std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = this->missionQueue.getMissionItem(index);
         mace_mission_item_t missionItem;
         helperMACEtoCOMMS.MACEMissionToCOMMSMission(ptrItem,index,missionItem);
         helperMACEtoCOMMS.updateMissionKey(key,missionItem);
@@ -126,9 +161,12 @@ void MissionController_ExternalLink::receivedMissionACK(const mace_mission_ack_t
         mToExit = true;
         mTimer.stop();
         currentRetry = 0;
+        clearPendingTasks();
+        clearPreviousTransmit();
         currentCommsState = Data::ControllerCommsState::NEUTRAL;
         if(m_CB)
             m_CB->cbiMissionController_MissionACK(missionACK);
+
     });
 
 }
@@ -147,8 +185,8 @@ void MissionController_ExternalLink::receivedMissionCount(const mace_mission_cou
 
     Data::MissionKey key(mission.mission_system,mission.mission_creator,mission.mission_id,static_cast<Data::MissionType>(mission.mission_type),static_cast<Data::MissionTXState>(mission.mission_state));
 
-    this->missionList.setMissionKey(key);
-    this->missionList.initializeQueue(mission.count);
+    this->missionQueue.setMissionKey(key);
+    this->missionQueue.initializeQueue(mission.count);
 
     mace_mission_request_item_t request;
     request.mission_creator = mission.mission_creator;
@@ -177,14 +215,14 @@ void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item
     m_LambdasToRun.push_back([this, missionItem]{
         Data::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<Data::MissionType>(missionItem.mission_type),static_cast<Data::MissionTXState>(missionItem.mission_state));
 
-        if(key != this->missionList.getMissionKey()) //this indicates for some reason the other system requested a different mission?
+        if(key != this->missionQueue.getMissionKey()) //this indicates for some reason the other system requested a different mission?
         {
             //mLog->error("Mission controller received a mission item with a key that is not equal to the one we were originally told.");
             return;
         }
 
         int index = missionItem.seq;
-        if(index > (this->missionList.getQueueSize() - 1)) //this should never happen
+        if(index > (this->missionQueue.getQueueSize() - 1)) //this should never happen
         {
             //mLog->error("Mission controller received a mission item with an index greater than available in the queue.");
             return;
@@ -199,8 +237,8 @@ void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item
 
         helperCOMMStoMACE.Convert_COMMSTOMACE(missionItem);
         std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = helperCOMMStoMACE.Convert_COMMSTOMACE(missionItem);
-        this->missionList.replaceMissionItemAtIndex(newMissionItem,index);
-        MissionItem::MissionList::MissionListStatus status = this->missionList.getMissionListStatus();
+        this->missionQueue.replaceMissionItemAtIndex(newMissionItem,index);
+        MissionItem::MissionList::MissionListStatus status = this->missionQueue.getMissionListStatus();
 
         if(status.state == MissionItem::MissionList::INCOMPLETE)
         {
@@ -235,7 +273,7 @@ void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item
             if(key.m_missionState == Data::MissionTXState::PROPOSED)
             {
                 ackMission.cur_mission_state = (uint8_t)Data::MissionTXState::RECEIVED;
-                missionList.setMissionTXState(Data::MissionTXState::RECEIVED);
+                missionQueue.setMissionTXState(Data::MissionTXState::RECEIVED);
             }
             else
             {
@@ -247,7 +285,7 @@ void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item
             clearPendingTasks();
             mToExit = true;
             currentCommsState = Data::ControllerCommsState::NEUTRAL;
-            m_CB->cbiMissionController_ReceivedMission(this->missionList);
+            m_CB->cbiMissionController_ReceivedMission(this->missionQueue);
         }
     });
 }
@@ -297,6 +335,16 @@ void MissionController_ExternalLink::run()
                     mTimer.start();
                     if(m_CB)
                         m_CB->cbiMissionController_TransmitMissionReqList(msgTransmit);
+                }
+                if(type == commsItemEnum::ITEM_RXGENLIST)
+                {
+                    //mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
+                    std::cout<<"Making another request for generic mission list"<<std::endl;
+                    PreviousTransmission<mace_mission_request_list_generic_t> *tmp = static_cast<PreviousTransmission<mace_mission_request_list_generic_t>*>(prevTransmit);
+                    mace_mission_request_list_generic_t msgTransmit = tmp->getData();
+                    mTimer.start();
+                    if(m_CB)
+                        m_CB->cbiMissionController_TransmitMissionGenericReqList(msgTransmit);
                 }
                 else if(type == commsItemEnum::ITEM_RXITEM)
                 {
@@ -348,8 +396,8 @@ void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
     currentCommsState = Data::ControllerCommsState::RECEIVING;
     //mLog->info("Mission Controller has seen a request mission.");
 
-    missionList.setMissionKey(key);
-    this->missionList.clearQueue();
+    missionQueue.setMissionKey(key);
+    this->missionQueue.clearQueue();
 
     mace_mission_request_list_t request;
     request.mission_creator = key.m_creatorID;
@@ -369,4 +417,21 @@ void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
     mTimer.start();
 }
 
+void MissionController_ExternalLink::requestCurrentMission(const int &targetSystem)
+{
+    mace_mission_request_list_generic_t request;
+    request.mission_system = targetSystem;
+    request.mission_type = (uint8_t)Data::MissionTXState::CURRENT;
+    request.mission_state = 0;
+
+    clearPendingTasks();
+    clearPreviousTransmit();
+    prevTransmit = new PreviousTransmission<mace_mission_request_list_generic_t>(commsItemEnum::ITEM_RXGENLIST, request);
+
+    if(m_CB)
+        m_CB->cbiMissionController_TransmitMissionGenericReqList(request);
+    currentRetry = 0;
+    this->start();
+    mTimer.start();
+}
 } //end of namespace DataInterface_MAVLINK

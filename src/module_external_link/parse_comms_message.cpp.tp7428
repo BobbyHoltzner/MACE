@@ -240,15 +240,8 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         //we need to respond to this with an acknowledgement receiving it
         mace_set_home_position_t decodedMSG;
         mace_msg_set_home_position_decode(message,&decodedMSG);
-
-        mace_message_t msg;
-        mace_home_position_ack_t ack;
-        ack.target_system = systemID;
-        ack.ack = 0;
-        mace_msg_home_position_ack_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&ack);
-        transmitMessage(msg);
-
         DataCOMMS::Mission_COMMSTOMACE missionConvert;
+
         CommandItem::SpatialHome systemHome;
         missionConvert.Home_COMMSTOMACE(decodedMSG,systemHome);
         systemHome.setTargetSystem(decodedMSG.target_system);

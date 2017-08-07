@@ -87,6 +87,16 @@ void HomeController_ExternalLink::run()
             }
             case Data::ControllerCommsState::TRANSMITTING:
             {
+                if(type == commsItemEnum::ITEM_SETHOME)
+                {
+                    //mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
+                    std::cout<<"Making another request for home item"<<std::endl;
+                    PreviousTransmission<mace_set_home_position_t> *tmp = static_cast<PreviousTransmission<mace_set_home_position_t>*>(prevTransmit);
+                    mace_set_home_position_t msgTransmit = tmp->getData();
+                    mTimer.start();
+                    if(m_CB)
+                        m_CB->cbiHomeController_TransmitHomeSet(msgTransmit);
+                }
                 break;
             }
             }
@@ -119,12 +129,35 @@ void HomeController_ExternalLink::requestHome(const int &systemID)
     mTimer.start();
 }
 
+void HomeController_ExternalLink::setHome(const CommandItem::SpatialHome &home)
+{
+    if(home.position.isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
+    {
+        mace_set_home_position_t setHome;
+        setHome.target_system = home.getTargetSystem();
+        setHome.latitude = home.position.getX() * pow(10,7);
+        setHome.longitude = home.position.getY()* pow(10,7);
+        setHome.altitude = home.position.getZ() * 1000.0;
+
+        clearPendingTasks();
+        clearPreviousTransmit();
+        prevTransmit = new PreviousTransmission<mace_set_home_position_t>(commsItemEnum::ITEM_SETHOME, setHome);
+
+        currentRetry = 0;
+        this->start();
+        mTimer.start();
+
+        m_CB->cbiHomeController_TransmitHomeSet(setHome);
+    }
+}
+
 void HomeController_ExternalLink::receivedMissionHome(const mace_home_position_t &home)
 {
     m_LambdasToRun.push_back([this, home]{
         mTimer.stop();
         currentRetry = 0;
         std::cout<<"Mission controller received the home position"<<std::endl;
+
         //mLog->info("Mission Controller received system home item item.");
 
         //This is the home position item associated with the vehicle
@@ -140,6 +173,28 @@ void HomeController_ExternalLink::receivedMissionHome(const mace_home_position_t
         currentCommsState = Data::ControllerCommsState::NEUTRAL;
 
         m_CB->cbiHomeController_ReceviedHome(newHome);
+    });
+}
+
+void HomeController_ExternalLink::receivedHomePositionACK(const mace_home_position_ack_t &homeACK)
+{
+    if(!isThreadActive())
+    {
+        std::cout<<"The thread is not currently active so this must be something else"<<std::endl;
+        return;
+    }
+
+    m_LambdasToRun.push_back([this, homeACK]{
+        std::cout<<"Mission Controller received a mission ack"<<std::endl;
+        mToExit = true;
+        mTimer.stop();
+        currentRetry = 0;
+        clearPendingTasks();
+        clearPreviousTransmit();
+        currentCommsState = Data::ControllerCommsState::NEUTRAL;
+        if(m_CB)
+            m_CB->cbiHomeController_ReceivedHomeSetACK(homeACK);
+
     });
 }
 

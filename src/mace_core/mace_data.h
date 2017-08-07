@@ -748,7 +748,6 @@ public:
     */
     void updateRXMission(const MissionItem::MissionList &missionList);
     bool getRXMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const;
-    void removeFromRXMissionList(const Data::MissionKey &missionKey);
 
     /*
     The following methods aid getting the mission list from the mace data class. The following methods aid getting
@@ -769,16 +768,14 @@ public:
     std::vector<Data::MissionKey> getOnboardMissionKeys(const int &systemID);
     void removeFromMissionMap(const Data::MissionKey &missionKey);
     Data::MissionKey receivedMissionACKKey(const Data::MissionKey &key, const Data::MissionTXState &newState);
-    void receivedNewCurrentMission(const MissionItem::MissionList &missionList);
-    void receivedNewOnboardMission(const MissionItem::MissionList &missionList);
-    void receivedNewProposedMission(const MissionItem::MissionList &missionList);
+
+    void receivedNewMission(const MissionItem::MissionList &missionList);
 
     /*
     The following methods update the mission type state of the appropriate mission items.
     */
     void updateMissionExeState(const Data::MissionKey &missionKey, const Data::MissionExecutionState &state);
     bool updateOnboardMission(const Data::MissionKey &missionKey);
-    bool updateCurrentMission(const Data::MissionKey &missionKey);
     bool checkForCurrentMission(const Data::MissionKey &missionKey);
 
 

@@ -66,12 +66,12 @@ public:
 
     friend std::ostream& operator<<(std::ostream& os, const VehicleTargetTopic& t);
 
+private:
+    int systemID;
+
 public:
     DataState::Base3DPosition targetPosition;
     double targetDistance;
-
-private:
-    int systemID;
 };
 } //end of namespace MissionTopic
 #endif // VEHICLE_TARGET_TOPIC_H

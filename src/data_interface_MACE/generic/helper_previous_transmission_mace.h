@@ -7,8 +7,10 @@ namespace DataInterface_MACE {
 
 enum commsItemEnum{
     ITEM_RXLIST,
+    ITEM_RXGENLIST,
     ITEM_RXITEM,
     ITEM_RXHOME,
+    ITEM_SETHOME,
     ITEM_TXCOUNT,
     ITEM_TXITEM
 };

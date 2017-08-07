@@ -19,7 +19,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += module_external_link.cpp \
     parse_comms_message.cpp \
     parse_comms_command.cpp \
-    external_heartbeat.cpp \
     controllers/command_controller_externalLink.cpp \
     controllers/mission_controller_externalLink.cpp \
     controllers/heartbeat_controller_externallink.cpp \
@@ -27,7 +26,6 @@ SOURCES += module_external_link.cpp \
 
 HEADERS += module_external_link.h\
         module_external_link_global.h \
-    external_heartbeat.h \
     controllers/command_controller_externalLink.h \
     controllers/mission_controller_externalLink.h \
     controllers/heartbeat_controller_externallink.h \
@@ -49,17 +47,16 @@ INSTALLS += lib
 headers_base.path    = $$(MACE_ROOT)/include/module_external_link
 headers_base.files   += \
         module_external_link_global.h \
-        module_external_link.h\
-        external_heartbeat.h
+        module_external_link.h
 INSTALLS       += headers_base
 
 #Header file copy
 headers_controllers.path    = $$(MACE_ROOT)/include/module_external_link/controllers
 headers_controllers.files   += \
     controllers/command_controller_externalLink.h \
-    controllers/mission_controller_externalLink.h \
-    controllers/heartbeat_controller_externallink.h
-
+    controllers/heartbeat_controller_externallink.h \
+    controllers/home_controller_external_link.h \
+    controllers/mission_controller_externalLink.h
 INSTALLS       += headers_controllers
 
 INCLUDEPATH += $$PWD/../

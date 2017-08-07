@@ -102,6 +102,7 @@ public:
     void cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count);
     void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item);
     void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request);
+    void cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request);
     void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem);
     void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList);
     void cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK);
@@ -112,7 +113,8 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
     void cbiHomeController_TransmitHomeReq(const mace_mission_request_home_t &request);
     void cbiHomeController_ReceviedHome(const CommandItem::SpatialHome &home);
-
+    void cbiHomeController_TransmitHomeSet(const mace_set_home_position_t &home);
+    void cbiHomeController_ReceivedHomeSetACK(const mace_home_position_ack_t &ack);
 
     bool isExternalLinkAirborne() const
     {

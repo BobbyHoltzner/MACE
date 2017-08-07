@@ -166,6 +166,13 @@ void ModuleExternalLink::cbiMissionController_TransmitMissionReqList(const mace_
     transmitMessage(msg);
 }
 
+void ModuleExternalLink::cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request)
+{
+    mace_message_t msg;
+    mace_msg_mission_request_list_generic_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&request);
+    transmitMessage(msg);
+}
+
 void ModuleExternalLink::cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem)
 {
     mace_message_t msg;
@@ -177,27 +184,9 @@ void ModuleExternalLink::cbiMissionController_ReceivedMission(const MissionItem:
 {
     std::cout<<"The external link module now has received the entire mission."<<std::endl;
 
-    if(missionList.getMissionTXState() == Data::MissionTXState::RECEIVED)
-    {
-        //This case implies that we were receiving the item from a ground module or
-        //someone without directly relating to the vehicle and therefore we should ack
-
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->ExternalEvent_FinishedRXProposedQueue(this, missionList);
-        });
-
-    }else if(missionList.getMissionTXState() == Data::MissionTXState::ONBOARD)
-    {
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->ExternalEvent_FinishedRXOnboardQueue(this, missionList);
-        });
-    }else if(missionList.getMissionTXState() == Data::MissionTXState::CURRENT)
-    {
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->ExternalEvent_FinishedRXCurrentQueue(this, missionList);
-        });
-    }
-
+    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+        ptr->ExternalEvent_FinishedRXMissionList(this, missionList);
+    });
 }
 
 void ModuleExternalLink::cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK)
@@ -228,10 +217,23 @@ void ModuleExternalLink::cbiHomeController_ReceviedHome(const CommandItem::Spati
 
     MaceCore::TopicDatagram topicDatagram;
     m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
+
     //notify listneres of topic
     ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
         ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), home.getOriginatingSystem(), MaceCore::TIME(), topicDatagram);
     });
+}
+
+void ModuleExternalLink::cbiHomeController_TransmitHomeSet(const mace_set_home_position_t &home)
+{
+    mace_message_t msg;
+    mace_msg_set_home_position_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&home);
+    transmitMessage(msg);
+}
+
+void ModuleExternalLink::cbiHomeController_ReceivedHomeSetACK(const mace_home_position_ack_t &ack)
+{
+    std::cout<<"The home controller received a set home ack"<<std::endl;
 }
 
 //!
@@ -257,8 +259,9 @@ void ModuleExternalLink::HeartbeatInfo(const int &systemID, const mace_heartbeat
             ptr->ExternalEvent_UpdateRemoteID(this, systemID);
         });
 
-        m_MissionController->updateIDS(systemID,254);
         m_CommandController->updateIDS(systemID,254);
+        m_HomeController->updateIDS(systemID,254);
+        m_MissionController->updateIDS(systemID,254);
 
         //The system has yet to have communicated through this module
         //We therefore have to notify the core that there is a new vehicle
@@ -351,6 +354,7 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem)
     chains for a thread to wait on with no gaurantees from the vehicle module.
     */
     m_HomeController->requestHome(targetSystem);
+    m_MissionController->requestCurrentMission(targetSystem);
 }
 
 void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &systemArm)
@@ -409,7 +413,7 @@ void ModuleExternalLink::Command_GetHomePosition(const int &vehicleID)
 
 void ModuleExternalLink::Command_SetHomePosition(const CommandItem::SpatialHome &systemHome)
 {
-    m_CommandController->setHomePosition(systemHome);
+    m_HomeController->setHome(systemHome);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -530,8 +534,9 @@ void ModuleExternalLink::NewlyAvailableVehicle(const int &systemID)
 {
     if(airborneInstance)
     {
-        m_MissionController->updateIDS(254,systemID);
         m_CommandController->updateIDS(254,systemID);
+        m_HomeController->updateIDS(254,systemID);
+        m_MissionController->updateIDS(254,systemID);
 
         //this function should always be called by an external link connected to ground for now
         //KEN this is a hack...but it will function for now

@@ -137,9 +137,9 @@ public:
     virtual void ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID);
     virtual void ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved);
     virtual void ExternalEvent_ReceivingMissionQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_FinishedRXProposedQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_FinishedRXOnboardQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_FinishedRXCurrentQueue(const void *sender, const MissionItem::MissionList &missionList);
+
+    virtual void ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList);
+
     virtual void ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK);
     virtual void ExternalEvent_RequestingDataSync(const void *sender, const int &targetID);
 

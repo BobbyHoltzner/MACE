@@ -1034,7 +1034,7 @@ static void mace_test_home_position(uint8_t system_id, uint8_t component_id, mac
         uint8_t buffer[MACE_MAX_PACKET_LEN];
         uint16_t i;
     mace_home_position_t packet_in = {
-        963497464,963497672,963497880,101.0,129.0,157.0,{ 185.0, 186.0, 187.0, 188.0 },297.0,325.0,353.0
+        963497464,963497672,963497880,101.0,129.0,157.0,{ 185.0, 186.0, 187.0, 188.0 },297.0,325.0,353.0,161
     };
     mace_home_position_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
@@ -1047,6 +1047,7 @@ static void mace_test_home_position(uint8_t system_id, uint8_t component_id, mac
         packet1.approach_x = packet_in.approach_x;
         packet1.approach_y = packet_in.approach_y;
         packet1.approach_z = packet_in.approach_z;
+        packet1.validity = packet_in.validity;
         
         mace_array_memcpy(packet1.q, packet_in.q, sizeof(float)*4);
         
@@ -1062,12 +1063,12 @@ static void mace_test_home_position(uint8_t system_id, uint8_t component_id, mac
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_home_position_pack(system_id, component_id, &msg , packet1.latitude , packet1.longitude , packet1.altitude , packet1.x , packet1.y , packet1.z , packet1.q , packet1.approach_x , packet1.approach_y , packet1.approach_z );
+    mace_msg_home_position_pack(system_id, component_id, &msg , packet1.validity , packet1.latitude , packet1.longitude , packet1.altitude , packet1.x , packet1.y , packet1.z , packet1.q , packet1.approach_x , packet1.approach_y , packet1.approach_z );
     mace_msg_home_position_decode(&msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_home_position_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.latitude , packet1.longitude , packet1.altitude , packet1.x , packet1.y , packet1.z , packet1.q , packet1.approach_x , packet1.approach_y , packet1.approach_z );
+    mace_msg_home_position_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.validity , packet1.latitude , packet1.longitude , packet1.altitude , packet1.x , packet1.y , packet1.z , packet1.q , packet1.approach_x , packet1.approach_y , packet1.approach_z );
     mace_msg_home_position_decode(&msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
@@ -1080,7 +1081,7 @@ static void mace_test_home_position(uint8_t system_id, uint8_t component_id, mac
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_home_position_send(MACE_COMM_1 , packet1.latitude , packet1.longitude , packet1.altitude , packet1.x , packet1.y , packet1.z , packet1.q , packet1.approach_x , packet1.approach_y , packet1.approach_z );
+    mace_msg_home_position_send(MACE_COMM_1 , packet1.validity , packet1.latitude , packet1.longitude , packet1.altitude , packet1.x , packet1.y , packet1.z , packet1.q , packet1.approach_x , packet1.approach_y , packet1.approach_z );
     mace_msg_home_position_decode(last_msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
@@ -1146,6 +1147,61 @@ static void mace_test_set_home_position(uint8_t system_id, uint8_t component_id,
         memset(&packet2, 0, sizeof(packet2));
     mace_msg_set_home_position_send(MACE_COMM_1 , packet1.target_system , packet1.latitude , packet1.longitude , packet1.altitude , packet1.x , packet1.y , packet1.z , packet1.q , packet1.approach_x , packet1.approach_y , packet1.approach_z );
     mace_msg_set_home_position_decode(last_msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+}
+
+static void mace_test_home_position_ack(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)
+{
+#ifdef MACE_STATUS_FLAG_OUT_MACE1
+    mace_status_t *status = mace_get_channel_status(MACE_COMM_0);
+        if ((status->flags & MACE_STATUS_FLAG_OUT_MACE1) && MACE_MSG_ID_HOME_POSITION_ACK >= 256) {
+            return;
+        }
+#endif
+    mace_message_t msg;
+        uint8_t buffer[MACE_MAX_PACKET_LEN];
+        uint16_t i;
+    mace_home_position_ack_t packet_in = {
+        5,72
+    };
+    mace_home_position_ack_t packet1, packet2;
+        memset(&packet1, 0, sizeof(packet1));
+        packet1.target_system = packet_in.target_system;
+        packet1.ack = packet_in.ack;
+        
+        
+#ifdef MACE_STATUS_FLAG_OUT_MACE1
+        if (status->flags & MACE_STATUS_FLAG_OUT_MACE1) {
+           // cope with extensions
+           memset(MACE_MSG_ID_HOME_POSITION_ACK_MIN_LEN + (char *)&packet1, 0, sizeof(packet1)-MACE_MSG_ID_HOME_POSITION_ACK_MIN_LEN);
+        }
+#endif
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_home_position_ack_encode(system_id, component_id, &msg, &packet1);
+    mace_msg_home_position_ack_decode(&msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_home_position_ack_pack(system_id, component_id, &msg , packet1.target_system , packet1.ack );
+    mace_msg_home_position_ack_decode(&msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_home_position_ack_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.target_system , packet1.ack );
+    mace_msg_home_position_ack_decode(&msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+        mace_msg_to_send_buffer(buffer, &msg);
+        for (i=0; i<mace_msg_get_send_buffer_length(&msg); i++) {
+            comm_send_ch(MACE_COMM_0, buffer[i]);
+        }
+    mace_msg_home_position_ack_decode(last_msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+        
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_home_position_ack_send(MACE_COMM_1 , packet1.target_system , packet1.ack );
+    mace_msg_home_position_ack_decode(last_msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
@@ -1228,6 +1284,7 @@ static void mace_test_mission(uint8_t system_id, uint8_t component_id, mace_mess
     mace_test_mission_request_home(system_id, component_id, last_msg);
     mace_test_home_position(system_id, component_id, last_msg);
     mace_test_set_home_position(system_id, component_id, last_msg);
+    mace_test_home_position_ack(system_id, component_id, last_msg);
     mace_test_guided_target_stats(system_id, component_id, last_msg);
 }
 

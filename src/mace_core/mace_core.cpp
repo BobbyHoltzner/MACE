@@ -440,7 +440,8 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
     UNUSED(sender);
    //Update the core about the information
     Data::MissionKey key = missionList.getMissionKey();
-    m_DataFusion->receivedNewOnboardMission(missionList);
+    m_DataFusion->receivedNewMission(missionList);
+    bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
 
    //Now update all potential listeners based on the type 
     if(m_GroundStation)
@@ -579,7 +580,7 @@ void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const Data::Mi
 void MaceCore::NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey)
 {
     UNUSED(sender);
-    m_DataFusion->updateCurrentMission(missionKey);
+    m_DataFusion->checkForCurrentMission(missionKey);
 
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,missionKey);
@@ -625,45 +626,22 @@ void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const int &t
     }
 }
 
-void MaceCore::ExternalEvent_FinishedRXProposedQueue(const void* sender, const MissionItem::MissionList &missionList)
+void MaceCore::ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList)
 {
     UNUSED(sender);
-    //This implies that we are finished receiving the mission and all of the elements are present for us to decide
-    //what we need to do with this
-    //This removes it from the map as a partial list that was being received
-    m_DataFusion->removeFromRXMissionList(missionList.getMissionKey());
-    //This will put it into the standard map in which the data is apart of working classes
-    m_DataFusion->receivedNewProposedMission(missionList);
-    //Notify the relevant listeners that we have received a proposed mission queue
-    int vehicleID = missionList.getVehicleID();
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::UPLOAD_MISSION,missionList);
-}
+    Data::MissionTXState state = missionList.getMissionTXState();
+    Data::MissionKey key = missionList.getMissionKey();
 
-void MaceCore::ExternalEvent_FinishedRXOnboardQueue(const void* sender, const MissionItem::MissionList &missionList)
-{
-    UNUSED(sender);
-    //This implies that we are finished receiving the mission and all of the elements are present for us to decide
-    //what we need to do with this
-    //This removes it from the map as a partial list that was being received
-    m_DataFusion->removeFromRXMissionList(missionList.getMissionKey());
-    //This will put it into the standard map in which the data is apart of working classes
-    m_DataFusion->receivedNewOnboardMission(missionList);
-    //Notify the relevant listeners that we have received a proposed mission queue
-}
+    m_DataFusion->receivedNewMission(missionList);
+    bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
 
-void MaceCore::ExternalEvent_FinishedRXCurrentQueue(const void* sender, const MissionItem::MissionList &missionList)
-{
-    UNUSED(sender);
-    //This implies that we are finished receiving the mission and all of the elements are present for us to decide
-    //what we need to do with this
-    //This removes it from the map as a partial list that was being received
-    m_DataFusion->removeFromRXMissionList(missionList.getMissionKey());
-    //This will put it into the standard map in which the data is apart of working classes
-    m_DataFusion->receivedNewCurrentMission(missionList);
-    //Notify the relevant listeners that we have received a proposed mission queue
-    if(m_GroundStation)
+    //This may not be the place to do this
+    if((isMissionCurrent) && (m_GroundStation))
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
+    else if(state == Data::MissionTXState::RECEIVED)//This implies that the mission state has just moved from proposed to received
     {
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,missionList.getMissionKey());
+        int vehicleID = missionList.getVehicleID();
+        m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::UPLOAD_MISSION,missionList);
     }
 }
 

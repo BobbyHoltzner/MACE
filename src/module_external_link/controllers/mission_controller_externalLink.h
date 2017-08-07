@@ -30,6 +30,7 @@ public:
     virtual void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item) = 0;
 
     virtual void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request) = 0;
+    virtual void cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request) = 0;
     virtual void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem) = 0;
     virtual void cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK) = 0;
 
@@ -57,6 +58,9 @@ public:
     void updateIDS(const int &targetSystem, const int &originSystem);
 
     void run();
+
+    void transmitMission(const int &targetSystem, const std::list<MissionItem::MissionList> &missionQueue);
+
 
     //These 3 functions are related to transmitting a mission
     //!
@@ -104,6 +108,12 @@ public:
     void requestGenericMission(const int &targetSystem, const MAV_MISSION_TYPE &type, const MAV_MISSION_STATE &currentState);
 
     //!
+    //! \brief requestCurrentMission
+    //! \param targetSystem
+    //!
+    void requestCurrentMission(const int &targetSystem);
+
+    //!
     //! \brief requestMission transmits a request to the appropriate system as dictated by the key for the mission
     //! associated with it. This function will initiate the controller thread to make up to N attempts until a mission
     //! count or acknowledgement is heard from the target system.
@@ -117,6 +127,8 @@ public:
     }
 private:
     void clearPreviousTransmit();
+
+    void updateTransmittingJobs();
 
 private:
     int targetID;
@@ -139,7 +151,9 @@ private:
 
     Data::ControllerCommsState currentCommsState;
 
-    MissionItem::MissionList missionList;
+    std::map<int, std::list<MissionItem::MissionList>> missionList;
+
+    MissionItem::MissionList missionQueue;
 
 protected:
     std::list<std::function<void()>> m_LambdasToRun;
