@@ -26,6 +26,7 @@ public:
 
     virtual void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home) = 0;
     virtual void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList) = 0;
+    virtual void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent &current) = 0;
 
     virtual void cbi_VehicleCommandACK(const int &systemID, const mavlink_command_ack_t &cmdACK) = 0;
     virtual void cbi_VehicleMissionACK(const MissionItem::MissionACK &ack) = 0;

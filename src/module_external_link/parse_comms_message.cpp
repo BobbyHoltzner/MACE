@@ -91,7 +91,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPS = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(newItem);
 
         m_VehicleDataTopic.SetComponent(ptrGPS, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -112,7 +112,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         DataState::StateAttitude newAttitude = DataCOMMS::State_COMMSTOMACE::Attitude_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(newAttitude);
         m_VehicleDataTopic.SetComponent(ptrAttitude, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -127,7 +127,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         DataState::StateAttitude newAttitude = DataCOMMS::State_COMMSTOMACE::Attitude_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(newAttitude);
         m_VehicleDataTopic.SetComponent(ptrAttitude, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -143,7 +143,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(newPosition);
 
         m_VehicleDataTopic.SetComponent(ptrLocalPosition, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -160,7 +160,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>(newPosition);
 
         m_VehicleDataTopic.SetComponent(ptrPosition, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -209,7 +209,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
 
         m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -386,16 +386,25 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_mission_current_t decodedMSG;
         mace_msg_mission_current_decode(message,&decodedMSG);
 
-        std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionCurrent = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
-        ptrMissionCurrent->setVehicleID(systemID);
-        ptrMissionCurrent->setMissionItemIndex(decodedMSG.seq);
+//        MissionItem::MissionItemCurrent current;
+//        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,static_cast<Data::MissionType>(decodedMSG.mission_type),static_cast<Data::MissionType>(decodedMSG.mission_state));
+//        current.setMissionKey(key);
+//        current.setMissionCurrentIndex(decodedMSG.seq);
 
-        MaceCore::TopicDatagram topicDatagram;
-        m_MissionDataTopic.SetComponent(ptrMissionCurrent, topicDatagram);
-        //notify listneres of topic
-        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-        });
+//        std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionCurrent = std::make_shared<MissionTopic::MissionItemCurrentTopic>(current);
+
+//        //This function updates MACECore
+//        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//            ptr->GVEvents_MissionItemCurrent(this, current);
+//        });
+
+        std::cout<<"The module external link received a mission item current message"<<std::endl;
+//        MaceCore::TopicDatagram topicDatagram;
+//        m_MissionDataTopic.SetComponent(ptrMissionCurrent, topicDatagram);
+//        //notify listeners of topic
+//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+//        });
         break;
     }
     case MACE_MSG_ID_MISSION_CLEAR:
@@ -410,16 +419,18 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_mission_item_reached_t decodedMSG;
         mace_msg_mission_item_reached_decode(message,&decodedMSG);
 
-        std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionReached = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
-        ptrMissionReached->setVehicleID(systemID);
-        ptrMissionReached->setMissionItemIndex(decodedMSG.seq);
+//        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,static_cast<Data::MissionType>(decodedMSG.mission_type),static_cast<Data::MissionType>(decodedMSG.mission_state));
+//        MissionItem::MissionItemAchieved achieved;
+//        achieved.setMissionKey(key);
+//        achieved.setMissionAchievedIndex(decodedMSG.seq);
+//        std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionReached = std::make_shared<MissionTopic::MissionItemCurrentTopic>(achieved);
 
-        MaceCore::TopicDatagram topicDatagram;
-        m_MissionDataTopic.SetComponent(ptrMissionReached, topicDatagram);
-        //notify listneres of topic
-        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-        });
+//        MaceCore::TopicDatagram topicDatagram;
+//        m_MissionDataTopic.SetComponent(ptrMissionReached, topicDatagram);
+//        //notify listeners of topic
+//        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//            ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+//        });
         break;
     }
     case MACE_MSG_ID_MISSION_EXE_STATE:

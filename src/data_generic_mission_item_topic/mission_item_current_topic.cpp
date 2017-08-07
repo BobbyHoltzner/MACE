@@ -5,34 +5,39 @@ namespace MissionTopic{
 const char MissionItemCurrentTopic_name[] = "MissionItemCurrent";
 const MaceCore::TopicComponentStructure MissionItemCurrentTopic_structure = []{
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<int>("vehicleID");
-    structure.AddTerminal<int>("missionItemIndex");
+    structure.AddTerminal<Data::MissionKey>("key");
+    structure.AddTerminal<int>("currentIndex");
     return structure;
 }();
 
 MaceCore::TopicDatagram MissionItemCurrentTopic::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<int>("vehicleID",vehicleID);
-    datagram.AddTerminal<int>("missionItemIndex",missionItemIndex);
+    datagram.AddTerminal<Data::MissionKey>("key",key);
+    datagram.AddTerminal<int>("currentIndex",indexCurrent);
     return datagram;
 }
 
 void MissionItemCurrentTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagram)
 {
-    vehicleID = datagram.GetTerminal<int>("vehicleID");
-    missionItemIndex = datagram.GetTerminal<int>("missionItemIndex");
+    key = datagram.GetTerminal<Data::MissionKey>("key");
+    indexCurrent = datagram.GetTerminal<int>("currentIndex");
 }
 
-MissionItemCurrentTopic::MissionItemCurrentTopic():
-    vehicleID(0), missionItemIndex(0)
+MissionItemCurrentTopic::MissionItemCurrentTopic()
 {
 
+}
+
+MissionItemCurrentTopic::MissionItemCurrentTopic(const MissionItem::MissionItemCurrent &achievedItem)
+{
+    this->key = achievedItem.getMissionKey();
+    this->indexCurrent = achievedItem.getMissionCurrentIndex();
 }
 
 MissionItemCurrentTopic::MissionItemCurrentTopic(const MissionItemCurrentTopic &copyObj)
 {
-    this->vehicleID = copyObj.vehicleID;
-    this->missionItemIndex = copyObj.missionItemIndex;
+    this->key = copyObj.getMissionKey();
+    this->indexCurrent = copyObj.getMissionCurrentIndex();
 }
 
 } //end of namespace MissionTopic

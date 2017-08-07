@@ -63,36 +63,17 @@ int MaceData::getAvailableMissionID(const Data::MissionKey &key)
 /// MISSION METHODS | HANDLING NEW RECEIVING QUEUES
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-The following methods aid in handling the reception of a new mission over the external link. The items handled
-in here will be partial lists and should not migrate into the main mission queue.
-*/
-void MaceData::updateRXMission(const MissionItem::MissionList &missionList)
-{
-    std::lock_guard<std::mutex> guard(MUTEXRXMissions);
-    Data::MissionKey key = missionList.getMissionKey();
-    mapRXMissions[key] = missionList;
-}
-
-bool MaceData::getRXMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const
-{
-    //this will search through the proposed mission queue for the mission key
-    //and reutrn the list associated with this
-    std::map<Data::MissionKey,MissionItem::MissionList>::const_iterator it;
-    std::lock_guard<std::mutex> guard(MUTEXRXMissions);
-    it = mapRXMissions.find(missionKey);
-
-    if(it != mapRXMissions.end())
-    {
-        missionList = it->second;
-        return true;
-    }
-    return false;
-}
-
-/*
 The following methods aid getting the mission list from the mace data class. The following methods aid getting
 the current mission object and keys.
 */
+bool MaceData::updateCurrentMissionItem(const MissionItem::MissionItemCurrent &current)
+{
+    Data::MissionKey key = current.getMissionKey();
+    int index = current.getMissionCurrentIndex();
+
+    std::lock_guard<std::mutex> guard(MUTEXMissions);
+    mapMissions.find(key)->second.setActiveIndex(index);
+}
 
 bool MaceData::getMissionList(const int &systemID, const Data::MissionType &type, const Data::MissionTXState &state, MissionItem::MissionList &missionList) const
 {

@@ -746,8 +746,7 @@ public:
     The following methods aid in handling the reception of a new mission over the external link. The items handled
     in here will be partial lists and should not migrate into the main mission queue.
     */
-    void updateRXMission(const MissionItem::MissionList &missionList);
-    bool getRXMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const;
+    bool updateCurrentMissionItem(const MissionItem::MissionItemCurrent &current);
 
     /*
     The following methods aid getting the mission list from the mace data class. The following methods aid getting

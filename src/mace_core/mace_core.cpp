@@ -570,6 +570,16 @@ void MaceCore::GVEvents_MissionExeStateUpdated(const void *sender, const Data::M
     }
 }
 
+void MaceCore::GVEvents_MissionItemAchieved(const void *sender, const MissionItem::MissionItemAchieved &achieved)
+{
+    //I dont know if we need to do anything with this?
+}
+
+void MaceCore::GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current)
+{
+    m_DataFusion->updateCurrentMissionItem(current);
+}
+
 void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey)
 {
     UNUSED(sender);
@@ -589,18 +599,6 @@ void MaceCore::NewCurrentVehicleMission(const void *sender, const Data::MissionK
 /////////////////////////////////////////////////////////////////////////
 /// EXTERNAL LINK EVENTS
 /////////////////////////////////////////////////////////////////////////
-
-//!
-//! \brief External_AppendMissionQueue
-//! \param sender
-//! \param missionList
-//!
-void MaceCore::ExternalEvent_ReceivingMissionQueue(const void* sender, const MissionItem::MissionList &missionList){
-
-    UNUSED(sender);
-    //This implies we are in the middle of receiving a mission and dont know yet the context
-    m_DataFusion->updateRXMission(missionList);
-}
 
 void MaceCore::ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK)
 {

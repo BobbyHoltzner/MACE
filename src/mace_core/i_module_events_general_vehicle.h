@@ -48,6 +48,20 @@ public:
     //!
     virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey) = 0;
 
+    //!
+    //! \brief GVEvents_MissionItemAchieved
+    //! \param sender
+    //! \param achieved
+    //!
+    virtual void GVEvents_MissionItemAchieved(const void *sender, const MissionItem::MissionItemAchieved &achieved) = 0;
+
+    //!
+    //! \brief GVEvents_MissionItemCurrent
+    //! \param sender
+    //! \param current
+    //!
+    virtual void GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current) = 0;
+
 };
 
 } //End MaceCore Namespace

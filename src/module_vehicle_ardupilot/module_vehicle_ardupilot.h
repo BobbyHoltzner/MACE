@@ -60,6 +60,7 @@ public:
     void cbi_VehicleCommandACK(const int &systemID, const mavlink_command_ack_t &cmdACK);
     void cbi_VehicleMissionACK(const MissionItem::MissionACK &ack);
     void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
+    void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent & current);
     void cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
     void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home);
     void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList);
