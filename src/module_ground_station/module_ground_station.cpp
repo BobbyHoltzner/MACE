@@ -700,7 +700,7 @@ void ModuleGroundStation::sendMissionItemReached(const int &vehicleID, const std
     QJsonObject json;
     json["dataType"] = "MissionItemReached";
     json["vehicleID"] = vehicleID;
-    json["itemIndex"] = component->getMissionItemIndex();
+    json["itemIndex"] = component->getMissionAchievedIndex();
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
@@ -841,7 +841,7 @@ void ModuleGroundStation::sendCurrentMissionItem(const int &vehicleID, const std
     QJsonObject json;
     json["dataType"] = "CurrentMissionItem";
     json["vehicleID"] = vehicleID;
-    json["missionItemIndex"] = component->getMissionItemIndex();
+    json["missionItemIndex"] = component->getMissionCurrentIndex();
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());

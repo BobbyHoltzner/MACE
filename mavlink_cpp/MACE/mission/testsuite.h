@@ -737,48 +737,49 @@ static void mace_test_mission_set_current(uint8_t system_id, uint8_t component_i
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
-static void mace_test_mission_current(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)
+static void mace_test_mission_item_current(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)
 {
 #ifdef MACE_STATUS_FLAG_OUT_MACE1
     mace_status_t *status = mace_get_channel_status(MACE_COMM_0);
-        if ((status->flags & MACE_STATUS_FLAG_OUT_MACE1) && MACE_MSG_ID_MISSION_CURRENT >= 256) {
+        if ((status->flags & MACE_STATUS_FLAG_OUT_MACE1) && MACE_MSG_ID_MISSION_ITEM_CURRENT >= 256) {
             return;
         }
 #endif
     mace_message_t msg;
         uint8_t buffer[MACE_MAX_PACKET_LEN];
         uint16_t i;
-    mace_mission_current_t packet_in = {
-        17235,139,206,17,84
+    mace_mission_item_current_t packet_in = {
+        17235,139,206,17,84,151
     };
-    mace_mission_current_t packet1, packet2;
+    mace_mission_item_current_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
         packet1.seq = packet_in.seq;
         packet1.mission_system = packet_in.mission_system;
         packet1.mission_creator = packet_in.mission_creator;
         packet1.mission_id = packet_in.mission_id;
         packet1.mission_type = packet_in.mission_type;
+        packet1.mission_state = packet_in.mission_state;
         
         
 #ifdef MACE_STATUS_FLAG_OUT_MACE1
         if (status->flags & MACE_STATUS_FLAG_OUT_MACE1) {
            // cope with extensions
-           memset(MACE_MSG_ID_MISSION_CURRENT_MIN_LEN + (char *)&packet1, 0, sizeof(packet1)-MACE_MSG_ID_MISSION_CURRENT_MIN_LEN);
+           memset(MACE_MSG_ID_MISSION_ITEM_CURRENT_MIN_LEN + (char *)&packet1, 0, sizeof(packet1)-MACE_MSG_ID_MISSION_ITEM_CURRENT_MIN_LEN);
         }
 #endif
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_mission_current_encode(system_id, component_id, &msg, &packet1);
-    mace_msg_mission_current_decode(&msg, &packet2);
+    mace_msg_mission_item_current_encode(system_id, component_id, &msg, &packet1);
+    mace_msg_mission_item_current_decode(&msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_mission_current_pack(system_id, component_id, &msg , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.seq );
-    mace_msg_mission_current_decode(&msg, &packet2);
+    mace_msg_mission_item_current_pack(system_id, component_id, &msg , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.mission_state , packet1.seq );
+    mace_msg_mission_item_current_decode(&msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_mission_current_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.seq );
-    mace_msg_mission_current_decode(&msg, &packet2);
+    mace_msg_mission_item_current_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.mission_state , packet1.seq );
+    mace_msg_mission_item_current_decode(&msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
@@ -786,12 +787,12 @@ static void mace_test_mission_current(uint8_t system_id, uint8_t component_id, m
         for (i=0; i<mace_msg_get_send_buffer_length(&msg); i++) {
             comm_send_ch(MACE_COMM_0, buffer[i]);
         }
-    mace_msg_mission_current_decode(last_msg, &packet2);
+    mace_msg_mission_item_current_decode(last_msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_mission_current_send(MACE_COMM_1 , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.seq );
-    mace_msg_mission_current_decode(last_msg, &packet2);
+    mace_msg_mission_item_current_send(MACE_COMM_1 , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.mission_state , packet1.seq );
+    mace_msg_mission_item_current_decode(last_msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
@@ -807,7 +808,7 @@ static void mace_test_mission_item_reached(uint8_t system_id, uint8_t component_
         uint8_t buffer[MACE_MAX_PACKET_LEN];
         uint16_t i;
     mace_mission_item_reached_t packet_in = {
-        17235,139,206,17,84
+        17235,139,206,17,84,151
     };
     mace_mission_item_reached_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
@@ -816,6 +817,7 @@ static void mace_test_mission_item_reached(uint8_t system_id, uint8_t component_
         packet1.mission_creator = packet_in.mission_creator;
         packet1.mission_id = packet_in.mission_id;
         packet1.mission_type = packet_in.mission_type;
+        packet1.mission_state = packet_in.mission_state;
         
         
 #ifdef MACE_STATUS_FLAG_OUT_MACE1
@@ -830,12 +832,12 @@ static void mace_test_mission_item_reached(uint8_t system_id, uint8_t component_
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_mission_item_reached_pack(system_id, component_id, &msg , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.seq );
+    mace_msg_mission_item_reached_pack(system_id, component_id, &msg , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.mission_state , packet1.seq );
     mace_msg_mission_item_reached_decode(&msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_mission_item_reached_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.seq );
+    mace_msg_mission_item_reached_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.mission_state , packet1.seq );
     mace_msg_mission_item_reached_decode(&msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
@@ -848,7 +850,7 @@ static void mace_test_mission_item_reached(uint8_t system_id, uint8_t component_
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_mission_item_reached_send(MACE_COMM_1 , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.seq );
+    mace_msg_mission_item_reached_send(MACE_COMM_1 , packet1.mission_system , packet1.mission_creator , packet1.mission_id , packet1.mission_type , packet1.mission_state , packet1.seq );
     mace_msg_mission_item_reached_decode(last_msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
@@ -1277,7 +1279,7 @@ static void mace_test_mission(uint8_t system_id, uint8_t component_id, mace_mess
     mace_test_mission_write_partial_list(system_id, component_id, last_msg);
     mace_test_starting_current_mission(system_id, component_id, last_msg);
     mace_test_mission_set_current(system_id, component_id, last_msg);
-    mace_test_mission_current(system_id, component_id, last_msg);
+    mace_test_mission_item_current(system_id, component_id, last_msg);
     mace_test_mission_item_reached(system_id, component_id, last_msg);
     mace_test_mission_clear(system_id, component_id, last_msg);
     mace_test_mission_exe_state(system_id, component_id, last_msg);
