@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE MISSION_CLEAR PACKING
 
-#define MACE_MSG_ID_MISSION_CLEAR 113
+#define MACE_MSG_ID_MISSION_CLEAR 114
 
 MACEPACKED(
 typedef struct __mace_mission_clear_t {
@@ -13,17 +13,17 @@ typedef struct __mace_mission_clear_t {
 
 #define MACE_MSG_ID_MISSION_CLEAR_LEN 4
 #define MACE_MSG_ID_MISSION_CLEAR_MIN_LEN 4
-#define MACE_MSG_ID_113_LEN 4
-#define MACE_MSG_ID_113_MIN_LEN 4
+#define MACE_MSG_ID_114_LEN 4
+#define MACE_MSG_ID_114_MIN_LEN 4
 
 #define MACE_MSG_ID_MISSION_CLEAR_CRC 34
-#define MACE_MSG_ID_113_CRC 34
+#define MACE_MSG_ID_114_CRC 34
 
 
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_MISSION_CLEAR { \
-    113, \
+    114, \
     "MISSION_CLEAR", \
     4, \
     {  { "target_system", NULL, MACE_TYPE_UINT8_T, 0, 0, offsetof(mace_mission_clear_t, target_system) }, \

@@ -25,7 +25,8 @@ void VehicleTargetTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datag
     targetDistance = datagram.GetTerminal<double>("targetDistance");
 }
 
-VehicleTargetTopic::VehicleTargetTopic() : systemID(0), targetDistance(0.0)
+VehicleTargetTopic::VehicleTargetTopic() :
+    systemID(0), targetDistance(0.0)
 {
 
 }

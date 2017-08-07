@@ -108,7 +108,7 @@ public:
     //! \param message Message to send
     //!
     template <typename T>
-    void SendMessage(const std::string &linkName, const T& message);
+    void SendMACEMessage(const std::string &linkName, const T& message);
 
 
 
@@ -161,34 +161,6 @@ private:
     //! \param message Message that has been received
     //!
     virtual void MessageReceived(const ILink* link_ptr, const mace_message_t &message) const;
-
-
-    //!
-    //! \brief SyncRequest
-    //! \param link_ptr
-    //! \param vehicleId
-    //! \param syncMSG
-    //!
-    virtual void SyncRequest(const ILink* link_ptr, const int &systemID, const mace_vehicle_sync_t &syncMSG) const;
-
-    //!
-    //! \brief Heartbeat of vehicle received
-    //! \param link
-    //! \param vehicleId
-    //! \param vehicleMavlinkVersion
-    //! \param vehicleFirmwareType
-    //! \param vehicleType
-    //!
-    virtual void HeartbeatInfo(const ILink* link_ptr, const int &systemID, const mace_heartbeat_t &heartbeatMSG) const;
-
-    //!
-    //! \brief VehicleCommandACK
-    //! \param link_ptr
-    //! \param vehicleId
-    //! \param cmdACKMSG
-    //!
-    virtual void CommandACK(const ILink* link_ptr, const int &systemID, const mace_command_ack_t &cmdACK) const;
-
 
     //!
     //! \brief A new radio status packet received

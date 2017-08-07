@@ -22,8 +22,8 @@ public:
 
 public:
     Data::DataGetSetNotifier<CommandItem::SpatialHome> home;
-    Data::DataGetSetNotifier<MissionTopic::MissionItemReachedTopic> missionItemReached;
-    Data::DataGetSetNotifier<MissionTopic::MissionItemCurrentTopic> missionItemCurrent;
+    Data::DataGetSetNotifier<MissionItem::MissionItemAchieved> missionItemReached;
+    Data::DataGetSetNotifier<MissionItem::MissionItemCurrent> missionItemCurrent;
 
 public:
 
@@ -71,6 +71,16 @@ public:
         default:
             break;
         }
+    }
+
+    Data::MissionKey getCurrentAutoMissionKey() const
+    {
+        return currentAutoMission.get().getMissionKey();
+    }
+
+    Data::MissionKey getCurrentGuidedMissionKey() const
+    {
+        return currentGuidedMission.get().getMissionKey();
     }
 
     MissionItem::MissionList Command_GetCurrentMission(const Data::MissionType &type){

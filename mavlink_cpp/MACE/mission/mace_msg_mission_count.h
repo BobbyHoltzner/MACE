@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE MISSION_COUNT PACKING
 
-#define MACE_MSG_ID_MISSION_COUNT 104
+#define MACE_MSG_ID_MISSION_COUNT 105
 
 MACEPACKED(
 typedef struct __mace_mission_count_t {
@@ -16,17 +16,17 @@ typedef struct __mace_mission_count_t {
 
 #define MACE_MSG_ID_MISSION_COUNT_LEN 8
 #define MACE_MSG_ID_MISSION_COUNT_MIN_LEN 8
-#define MACE_MSG_ID_104_LEN 8
-#define MACE_MSG_ID_104_MIN_LEN 8
+#define MACE_MSG_ID_105_LEN 8
+#define MACE_MSG_ID_105_MIN_LEN 8
 
 #define MACE_MSG_ID_MISSION_COUNT_CRC 165
-#define MACE_MSG_ID_104_CRC 165
+#define MACE_MSG_ID_105_CRC 165
 
 
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_MISSION_COUNT { \
-    104, \
+    105, \
     "MISSION_COUNT", \
     7, \
     {  { "count", NULL, MACE_TYPE_UINT16_T, 0, 0, offsetof(mace_mission_count_t, count) }, \

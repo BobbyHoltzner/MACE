@@ -6,10 +6,54 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     int compID = message->compid;
 
     switch ((int)message->msgid) {
-    ////////////////////////////////////////////////////////////////////////////
-    /// GENERAL STATE EVENTS: These are events that may have a direct
-    ////////////////////////////////////////////////////////////////////////////
+    case MACE_MSG_ID_HEARTBEAT:
+    {
+        mace_heartbeat_t decodedMSG;
+        mace_msg_heartbeat_decode(message,&decodedMSG);
+        HeartbeatInfo(systemID,decodedMSG);
+        break;
+    }
+    case MACE_MSG_ID_COMMAND_ACK:
+    {
+        mace_command_ack_t decodedMSG;
+        mace_msg_command_ack_decode(message,&decodedMSG);
 
+        std::cout<<"The command acknowledgement came from: "<<decodedMSG.command<<std::endl;
+        switch(decodedMSG.result)
+        {
+            case MAV_RESULT_ACCEPTED:
+                std::cout<<"MAV result accepted"<<std::endl;
+                break;
+            case MAV_RESULT_TEMPORARILY_REJECTED:
+                std::cout<<"MAV result rejected"<<std::endl;
+                break;
+            case MAV_RESULT_DENIED:
+                std::cout<<"MAV result denied"<<std::endl;
+                break;
+            case MAV_RESULT_UNSUPPORTED:
+                std::cout<<"MAV result unsupported"<<std::endl;
+                break;
+            case MAV_RESULT_FAILED:
+                std::cout<<"MAV result failed"<<std::endl;
+                break;
+            default:
+                std::cout<<"Uknown ack!"<<std::endl;
+        }
+
+        m_CommandController->receivedCommandACK(decodedMSG);
+        break;
+    }
+    case MACE_MSG_ID_VEHICLE_SYNC:
+    {
+        mace_vehicle_sync_t decodedMSG;
+        mace_msg_vehicle_sync_decode(message,&decodedMSG);
+        std::cout<<"The external link saw a mace message of type vehicle sync"<<std::endl;
+        //We may not handle it this way anymore
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->ExternalEvent_RequestingDataSync(this, decodedMSG.target_system);
+        });
+        break;
+    }
     case MACE_MSG_ID_VEHICLE_ARMED:
     {
         mace_vehicle_armed_t decodedMSG;
@@ -37,34 +81,6 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         PublishVehicleData(systemID,ptrBattery);
         break;
     }
-    case MACE_MSG_ID_COMMAND_ACK:
-    {
-        mace_command_ack_t decodedMSG;
-        mace_msg_command_ack_decode(message,&decodedMSG);
-        std::cout<<"The command acknowledgement came from: "<<decodedMSG.command<<std::endl;
-        switch(decodedMSG.result)
-        {
-            case MAV_RESULT_ACCEPTED:
-                std::cout<<"MAV result accepted"<<std::endl;
-                break;
-            case MAV_RESULT_TEMPORARILY_REJECTED:
-                std::cout<<"MAV result rejected"<<std::endl;
-                break;
-            case MAV_RESULT_DENIED:
-                std::cout<<"MAV result denied"<<std::endl;
-                break;
-            case MAV_RESULT_UNSUPPORTED:
-                std::cout<<"MAV result unsupported"<<std::endl;
-                break;
-            case MAV_RESULT_FAILED:
-                std::cout<<"MAV result failed"<<std::endl;
-                break;
-            default:
-                std::cout<<"Uknown ack!"<<std::endl;
-        }
-        break;
-    }
-
     case MACE_MSG_ID_GPS_RAW_INT:
     {
         //This is message definition 24
@@ -75,7 +91,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPS = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(newItem);
 
         m_VehicleDataTopic.SetComponent(ptrGPS, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -96,7 +112,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         DataState::StateAttitude newAttitude = DataCOMMS::State_COMMSTOMACE::Attitude_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(newAttitude);
         m_VehicleDataTopic.SetComponent(ptrAttitude, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -111,7 +127,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         DataState::StateAttitude newAttitude = DataCOMMS::State_COMMSTOMACE::Attitude_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(newAttitude);
         m_VehicleDataTopic.SetComponent(ptrAttitude, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -127,7 +143,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(newPosition);
 
         m_VehicleDataTopic.SetComponent(ptrLocalPosition, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -144,7 +160,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>(newPosition);
 
         m_VehicleDataTopic.SetComponent(ptrPosition, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -193,7 +209,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
 
         m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -203,12 +219,36 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     ////////////////////////////////////////////////////////////////////////////
     /// HOME BASED EVENTS:
     ////////////////////////////////////////////////////////////////////////////
+    case MACE_MSG_ID_MISSION_REQUEST_HOME:
+    {
+        std::cout<<"Saw a mission request home"<<std::endl;
+
+        mace_mission_request_home_t decodedMSG;
+        mace_msg_mission_request_home_decode(message,&decodedMSG);
+        CommandItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(decodedMSG.target_system);
+
+        mace_message_t msg;
+        mace_home_position_t homeMACE;
+        homeMACE.latitude = home.position.getX() * pow(10,7);
+        homeMACE.longitude = home.position.getY() * pow(10,7);
+        homeMACE.altitude = home.position.getZ() * pow(10,7);
+        mace_msg_home_position_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&homeMACE);
+        transmitMessage(msg);
+    }
     case MACE_MSG_ID_SET_HOME_POSITION:
     {
+        //we need to respond to this with an acknowledgement receiving it
         mace_set_home_position_t decodedMSG;
         mace_msg_set_home_position_decode(message,&decodedMSG);
-        DataCOMMS::Mission_COMMSTOMACE missionConvert;
 
+        mace_message_t msg;
+        mace_home_position_ack_t ack;
+        ack.target_system = systemID;
+        ack.ack = 0;
+        mace_msg_home_position_ack_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&ack);
+        transmitMessage(msg);
+
+        DataCOMMS::Mission_COMMSTOMACE missionConvert;
         CommandItem::SpatialHome systemHome;
         missionConvert.Home_COMMSTOMACE(decodedMSG,systemHome);
         systemHome.setTargetSystem(decodedMSG.target_system);
@@ -221,28 +261,18 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_home_position_t decodedMSG;
         mace_msg_home_position_decode(message,&decodedMSG);
-
-        CommandItem::SpatialHome spatialHome;
-        spatialHome.position.setX(decodedMSG.latitude / pow(10,7));
-        spatialHome.position.setY(decodedMSG.longitude / pow(10,7));
-        spatialHome.position.setZ(decodedMSG.altitude / 1000);
-        spatialHome.setOriginatingSystem(systemID);
-
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->GVEvents_NewHomePosition(this,spatialHome);
-        });
-
-        std::shared_ptr<CommandItem::SpatialHome> homePtr = std::make_shared<CommandItem::SpatialHome>(spatialHome);
-        std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
-        missionTopic->setHome(homePtr);
-
-        MaceCore::TopicDatagram topicDatagram;
-        m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
-        //notify listneres of topic
-        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-        });
-
+        if(m_HomeController->isThreadActive())
+            m_HomeController->receivedMissionHome(decodedMSG);
+        else
+        {
+            CommandItem::SpatialHome newHome;
+            newHome.position.setX(decodedMSG.latitude / pow(10,7));
+            newHome.position.setY(decodedMSG.longitude / pow(10,7));
+            newHome.position.setZ(decodedMSG.altitude / pow(10,7));
+            newHome.setOriginatingSystem(systemID);
+            newHome.setTargetSystem(systemID);
+            cbiHomeController_ReceviedHome(newHome);
+        }
         break;
     }
     ////////////////////////////////////////////////////////////////////////////
@@ -257,103 +287,54 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
         Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
 
-        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
+        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState);
 
-        bool valid = this->getDataObject()->getMissionKeyValidity(key);
-//        if(valid)
-//        {
-//            //this means we have it already and perhaps the state has changed and we should update it
-//        }
-//        else{
-            //this mace instance has no idea what that mission profile looks like so lets request more information
-            mace_mission_request_list_t request;
-            request.mission_creator = key.m_creatorID;
-            request.mission_id = key.m_missionID;
-            request.mission_type = (uint8_t)key.m_missionType;
-            request.mission_system = key.m_systemID;
+        m_MissionController->requestMission(key);
 
-            mace_message_t msg;
-            mace_msg_mission_request_list_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&request);
-            m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-        //}
-
+        //bool valid = this->getDataObject()->getMissionKeyValidity(key);
         break;
     }
-    case MACE_MSG_ID_NEW_PROPOSED_MISSION:
+    case MACE_MSG_ID_MISSION_ACK:
     {
-        //A vechile instance of MACE should receive this message
-        mace_new_proposed_mission_t decodedMSG;
-        mace_msg_new_proposed_mission_decode(message,&decodedMSG);
+        mace_mission_ack_t decodedMSG;
+        mace_msg_mission_ack_decode(message,&decodedMSG);
 
-        //at this point associatedSystemID should be the same as decodedMSG.target_system
-        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
+        std::cout<<"External link has received the mission ack"<<std::endl;
+        m_MissionController->receivedMissionACK(decodedMSG);
 
-        MissionItem::MissionList newMissionList(decodedMSG.target_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState,decodedMSG.count);
-        MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();
+        Data::MissionTXState prevState = static_cast<Data::MissionTXState>(decodedMSG.prev_mission_state);
+        Data::MissionTXState curState = static_cast<Data::MissionTXState>(decodedMSG.cur_mission_state);
+        Data::MissionType type = static_cast<Data::MissionType>(decodedMSG.mission_type);
 
-        //now we tell the core that we have some sort of new list that external link may be receiving
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->ExternalEvent_ReceivingMissionQueue(this, newMissionList);
-        });
-
-        mace_message_t msg;
-        mace_msg_mission_request_item_pack_chan(decodedMSG.target_system,compID,m_LinkChan,&msg,systemID,decodedMSG.target_system,decodedMSG.mission_creator,decodedMSG.mission_id,decodedMSG.mission_type,0);
-        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-
-        break;
-    }
-    case MACE_MSG_ID_ACK_RXMISSION:
-    {
-        mace_ack_rxmission_t decodedMSG;
-        mace_msg_ack_rxmission_decode(message,&decodedMSG);
-        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
-        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
+        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,type,prevState);
+        MissionItem::MissionACK ack(systemID,static_cast<Data::MISSION_RESULT>(decodedMSG.mission_result),key,curState);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->ExternalEvent_MissionACK(this, key, missionState);
-        });
-
-        DataGenericItem::DataGenericItem_Text text;
-        text.setSeverity(Data::StatusSeverityType::STATUS_NOTICE);
-        std::string str = "Mission Received:" + std::to_string(key.m_systemID) + " Mission ID:" + std::to_string(key.m_missionID) + " Created By:" + std::to_string(key.m_creatorID);
-        text.setText(str);
-        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> statusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(text);
-        m_VehicleDataTopic.SetComponent(statusText, topicDatagram);
-        //notify listneres of topic
-        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), key.m_systemID, MaceCore::TIME(), topicDatagram);
-        });
+             ptr->ExternalEvent_MissionACK(this, ack);
+         });
 
         break;
     }
     case MACE_MSG_ID_MISSION_REQUEST_LIST:
     {
+        std::cout<<"I saw a mission request list"<<std::endl;
+
         mace_mission_request_list_t decodedMSG;
         mace_msg_mission_request_list_decode(message,&decodedMSG);
 
         Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
+        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
+        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState);
+        std::cout<<key<<std::endl;
         MissionItem::MissionList missionList;
-        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
+
         bool validity = this->getDataObject()->getMissionList(key,missionList);
 
         if(!validity){ //KEN TODO: Return a message saying that the request is invalid because the item does not exsist...probably enum failure value / validity
             std::cout<<"The requested key was not valid"<<std::endl;
             return;
         }
-
-        mace_mission_count_t missionCount;
-        missionCount.count = missionList.getQueueSize();
-        missionCount.mission_creator = key.m_creatorID;
-        missionCount.mission_id = key.m_missionID;
-        missionCount.mission_system = key.m_systemID;
-        missionCount.mission_type = decodedMSG.mission_type;
-        missionCount.target_system = systemID;
-
-        mace_message_t msg;
-        mace_msg_mission_count_encode_chan(associatedSystemID,compID,m_LinkChan,&msg,&missionCount);
-        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
+        m_MissionController->transmitMission(systemID,missionList);
         break;
     }
     case MACE_MSG_ID_MISSION_COUNT:
@@ -362,20 +343,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_mission_count_t decodedMSG;
         mace_msg_mission_count_decode(message,&decodedMSG);
 
-        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
-
-        MissionItem::MissionList newMissionList(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState,decodedMSG.count);
-        MissionItem::MissionList::MissionListStatus status = newMissionList.getMissionListStatus();
-
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->ExternalEvent_ReceivingMissionQueue(this, newMissionList);
-        });
-
-        mace_message_t msg;
-        mace_msg_mission_request_item_pack_chan(decodedMSG.target_system,compID,m_LinkChan,&msg,systemID,decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,decodedMSG.mission_type,0);
-        m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-
+        m_MissionController->receivedMissionCount(decodedMSG);
         break;
     }
     case MACE_MSG_ID_MISSION_REQUEST_PARTIAL_LIST:
@@ -393,63 +361,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_mission_item_t decodedMSG;
         mace_msg_mission_item_decode(message,&decodedMSG);
 
-        DataCOMMS::Mission_COMMSTOMACE missionConvert;
-        std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = missionConvert.Covert_COMMSTOMACE(decodedMSG);
-
-        //Get the MissionItem::MissionList from the data core
-        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        Data::MissionKey itemKey(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType);
-        MissionItem::MissionList missionList;
-        bool valid = this->getDataObject()->getRXMissionList(itemKey,missionList);
-        if(valid) //if the mission didnt already exist than something is out of order and we currently cant handle it
-        {
-            missionList.replaceMissionItemAtIndex(newMissionItem,decodedMSG.seq);
-            MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
-            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-                ptr->ExternalEvent_ReceivingMissionQueue(this, missionList);
-            });
-            if(status.state == MissionItem::MissionList::INCOMPLETE)
-            {
-                mace_message_t msg;
-                mace_msg_mission_request_item_pack_chan(decodedMSG.target_system,compID,m_LinkChan,&msg,systemID,decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,decodedMSG.mission_type,status.remainingItems.at(0));
-                m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-                //should we tell anyone that we have received another mission item however the mission is incomplete
-            }else{
-                if(missionList.getMissionTXState() == Data::MissionTXState::PROPOSED)
-                {
-                    //This case implies that we were receiving the item from a ground module or
-                    //someone without directly relating to the vehicle and therefore we should ack
-
-                    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-                        ptr->ExternalEvent_FinishedRXProposedQueue(this, missionList);
-                    });
-
-                    //We should only send an acknowledgement if we are receiving a proposed mission
-                    mace_message_t msg;
-                    mace_ack_rxmission_t ackMission;
-                    ackMission.target_system = systemID;
-                    ackMission.mission_system = itemKey.m_systemID;
-                    ackMission.mission_creator = itemKey.m_creatorID;
-                    ackMission.mission_id = itemKey.m_missionID;
-                    ackMission.mission_type = (uint8_t)itemKey.m_missionType;
-                    //KEN TODO: Maybe we have another state reflect that it has been received differnt than onboard (implying received by the aircraft instance)
-                    ackMission.mission_state = (uint8_t)Data::MissionTXState::RECEIVED;
-                    mace_msg_ack_rxmission_encode_chan(itemKey.m_systemID,0,m_LinkChan,&msg,&ackMission);
-                    m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-
-                }else if(missionList.getMissionTXState() == Data::MissionTXState::ONBOARD)
-                {
-                    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-                        ptr->ExternalEvent_FinishedRXOnboardQueue(this, missionList);
-                    });
-                }else if(missionList.getMissionTXState() == Data::MissionTXState::CURRENT)
-                {
-                    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-                        ptr->ExternalEvent_FinishedRXCurrentQueue(this, missionList);
-                    });
-                }
-            }
-        }
+        m_MissionController->recievedMissionItem(decodedMSG);
         break;
     }
     case MACE_MSG_ID_MISSION_REQUEST_ITEM:
@@ -459,25 +371,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_mission_request_item_t decodedMSG;
         mace_msg_mission_request_item_decode(message,&decodedMSG);
 
-        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-
-        Data::MissionKey itemKey(decodedMSG.mission_system, decodedMSG.mission_creator, decodedMSG.mission_id, missionType);
-        MissionItem::MissionList missionList;
-
-        bool valid = this->getDataObject()->getMissionList(itemKey,missionList);
-
-        if((!valid) || (decodedMSG.seq > missionList.getQueueSize() - 1))
-            return;
-
-        DataCOMMS::Mission_MACETOCOMMS missionConvert(decodedMSG.target_system, systemID, itemKey, m_LinkChan);
-        std::shared_ptr<CommandItem::AbstractCommandItem> missionItem;
-        missionItem = missionList.getMissionItem(decodedMSG.seq);
-
-        mace_message_t msg;
-        bool msgValid = missionConvert.MACEMissionToCOMMSMission(missionItem, decodedMSG.seq, msg);
-        if(msgValid){
-            m_LinkMarshaler->SendMessage<mace_message_t>(m_LinkName, msg);
-        }
+        m_MissionController->transmitMissionItem(decodedMSG);
         break;
     }
     case MACE_MSG_ID_MISSION_SET_CURRENT:
@@ -487,18 +381,26 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
         break;
     }
-    case MACE_MSG_ID_MISSION_CURRENT:
+    case MACE_MSG_ID_MISSION_ITEM_CURRENT:
     {
-        mace_mission_current_t decodedMSG;
-        mace_msg_mission_current_decode(message,&decodedMSG);
+        mace_mission_item_current_t decodedMSG;
+        mace_msg_mission_item_current_decode(message,&decodedMSG);
 
-        std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionCurrent = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
-        ptrMissionCurrent->setVehicleID(systemID);
-        ptrMissionCurrent->setMissionItemIndex(decodedMSG.seq);
+        MissionItem::MissionItemCurrent current;
+        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,static_cast<Data::MissionType>(decodedMSG.mission_type),static_cast<Data::MissionTXState>(decodedMSG.mission_state));
+        current.setMissionKey(key);
+        current.setMissionCurrentIndex(decodedMSG.seq);
+
+        std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionCurrent = std::make_shared<MissionTopic::MissionItemCurrentTopic>(current);
+
+        //This function updates MACECore
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->GVEvents_MissionItemCurrent(this, current);
+        });
 
         MaceCore::TopicDatagram topicDatagram;
         m_MissionDataTopic.SetComponent(ptrMissionCurrent, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -516,13 +418,15 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_mission_item_reached_t decodedMSG;
         mace_msg_mission_item_reached_decode(message,&decodedMSG);
 
-        std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionReached = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
-        ptrMissionReached->setVehicleID(systemID);
-        ptrMissionReached->setMissionItemIndex(decodedMSG.seq);
+        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,static_cast<Data::MissionType>(decodedMSG.mission_type),static_cast<Data::MissionTXState>(decodedMSG.mission_state));
+        MissionItem::MissionItemAchieved achieved;
+        achieved.setMissionKey(key);
+        achieved.setMissionAchievedIndex(decodedMSG.seq);
+        std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionReached = std::make_shared<MissionTopic::MissionItemReachedTopic>(achieved);
 
         MaceCore::TopicDatagram topicDatagram;
         m_MissionDataTopic.SetComponent(ptrMissionReached, topicDatagram);
-        //notify listneres of topic
+        //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });
@@ -539,6 +443,30 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
             ptr->GVEvents_MissionExeStateUpdated(this, key, state);
         });
 
+        break;
+    }
+
+    case MACE_MSG_ID_MISSION_REQUEST_LIST_GENERIC:
+    {
+        mace_mission_request_list_generic_t decodedMSG;
+        mace_msg_mission_request_list_generic_decode(message,&decodedMSG);
+        Data::MissionTXState state = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
+        if(state == Data::MissionTXState::CURRENT)
+        {
+            MissionItem::MissionList currentMission;
+            bool exists = this->getDataObject()->getCurrentMission(decodedMSG.mission_system,currentMission);
+            if(exists)
+                m_MissionController->transmitMission(systemID,currentMission);
+            else
+            {
+                //This is the case where there is no current mission known for this system
+                mace_mission_ack_t ack;
+                ack.mission_system = decodedMSG.mission_system;
+                ack.cur_mission_state = decodedMSG.mission_state;
+                ack.mission_result = (uint8_t)Data::MISSION_RESULT::MISSION_RESULT_DOES_NOT_EXIST;
+                cbiMissionController_MissionACK(ack);
+            }
+        }
         break;
     }
     default:

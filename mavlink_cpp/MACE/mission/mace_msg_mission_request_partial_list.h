@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE MISSION_REQUEST_PARTIAL_LIST PACKING
 
-#define MACE_MSG_ID_MISSION_REQUEST_PARTIAL_LIST 107
+#define MACE_MSG_ID_MISSION_REQUEST_PARTIAL_LIST 108
 
 MACEPACKED(
 typedef struct __mace_mission_request_partial_list_t {
@@ -14,17 +14,17 @@ typedef struct __mace_mission_request_partial_list_t {
 
 #define MACE_MSG_ID_MISSION_REQUEST_PARTIAL_LIST_LEN 7
 #define MACE_MSG_ID_MISSION_REQUEST_PARTIAL_LIST_MIN_LEN 7
-#define MACE_MSG_ID_107_LEN 7
-#define MACE_MSG_ID_107_MIN_LEN 7
+#define MACE_MSG_ID_108_LEN 7
+#define MACE_MSG_ID_108_MIN_LEN 7
 
 #define MACE_MSG_ID_MISSION_REQUEST_PARTIAL_LIST_CRC 4
-#define MACE_MSG_ID_107_CRC 4
+#define MACE_MSG_ID_108_CRC 4
 
 
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_MISSION_REQUEST_PARTIAL_LIST { \
-    107, \
+    108, \
     "MISSION_REQUEST_PARTIAL_LIST", \
     5, \
     {  { "start_index", NULL, MACE_TYPE_INT16_T, 0, 0, offsetof(mace_mission_request_partial_list_t, start_index) }, \

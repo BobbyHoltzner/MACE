@@ -170,7 +170,7 @@ uint8_t CommsMarshaler::GetProtocolChannel(const std::string &linkName) const
 //! \param message Message to send
 //!
 template <typename T>
-void CommsMarshaler::SendMessage(const std::string &linkName, const T& message)
+void CommsMarshaler::SendMACEMessage(const std::string &linkName, const T& message)
 {
     if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
@@ -313,39 +313,6 @@ void CommsMarshaler::MessageReceived(const ILink* link_ptr, const mace_message_t
 }
 
 //!
-//! \brief Heartbeat of vehicle received
-//! \param link
-//! \param vehicleId
-//! \param vehicleMavlinkVersion
-//! \param vehicleFirmwareType
-//! \param vehicleType
-//!
-void CommsMarshaler::HeartbeatInfo(const ILink* link_ptr, const int &systemID, const mace_heartbeat_t &heartbeatMSG) const
-{
-    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
-        throw std::runtime_error("Provided link does not exists");
-
-    Emit([&](CommsEvents *ptr){ptr->MACEHeartbeatInfo(m_CreatedLinksPtrToName.at(link_ptr), systemID, heartbeatMSG);});
-}
-
-void CommsMarshaler::SyncRequest(const ILink* link_ptr, const int &systemID, const mace_vehicle_sync_t &syncMSG) const
-{
-    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
-        throw std::runtime_error("Provided link does not exists");
-
-    Emit([&](CommsEvents *ptr){ptr->MACESyncMessage(m_CreatedLinksPtrToName.at(link_ptr), systemID, syncMSG);});
-}
-
-//!
-void CommsMarshaler::CommandACK(const ILink* link_ptr, const int &systemID, const mace_command_ack_t &cmdACK) const
-{
-    if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
-        throw std::runtime_error("Provided link does not exists");
-
-    Emit([&](CommsEvents *ptr){ptr->MACECommandACK(m_CreatedLinksPtrToName.at(link_ptr), systemID, cmdACK);});
-}
-
-//!
 //! \brief A new radio status packet received
 //! \param link
 //! \param rxerrors
@@ -367,6 +334,6 @@ void CommsMarshaler::RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors
 
 
 
-template void CommsMarshaler::SendMessage<mace_message_t>(const std::string &, const mace_message_t&);
+template void CommsMarshaler::SendMACEMessage<mace_message_t>(const std::string &, const mace_message_t&);
 
 }//END Comms

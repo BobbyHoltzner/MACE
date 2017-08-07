@@ -11,35 +11,37 @@ class IModuleEventsExternalLink : public IModuleEventsGeneral, public IModuleEve
 {
 public:
 
-    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTXState &state) = 0;
+    virtual void ExternalEvent_RequestingDataSync(const void *sender, const int &targetID) = 0;
+    //!
+    //! \brief ExternalEvent_UpdateRemoteID
+    //! \param sender
+    //! \param remoteID
+    //!
+    virtual void ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID) = 0;
 
     //!
-    //! \brief External_AppendMissionQueue
+    //! \brief ExternalEvent_NewConstructedVehicle
     //! \param sender
-    //! \param missionList
+    //! \param newVehicleObserved
     //!
-    virtual void ExternalEvent_ReceivingMissionQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved) = 0;
 
     //!
-    //! \brief ExternalEvent_FinisedRXProposedQueue
+    //! \brief ExternalEvent_MissionACK
     //! \param sender
-    //! \param missionList
+    //! \param missionACK
     //!
-    virtual void ExternalEvent_FinishedRXProposedQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK) = 0;
 
     //!
-    //! \brief ExternalEvent_FinisedRXOnboardQueue
-    //! \param sender
-    //! \param missionList
+    //! \brief ExternalEvent_FinishedRXMissionList function event emitted by an external link module after the controller
+    //! had completed receiving a mission. The type and state of the mission are contained in the list object. It will be
+    //! up top the core to decypher this information and organize it in the appropriate place.
+    //! \param sender pointer to the module emitting the event.
+    //! \param missionList reference to the mission queue the module had received. This should be a complete mission
+    //! without any holes or gaps in the queue.
     //!
-    virtual void ExternalEvent_FinishedRXOnboardQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
-
-    //!
-    //! \brief ExternalEvent_FinisedRXCurrentQueue
-    //! \param sender
-    //! \param missionList
-    //!
-    virtual void ExternalEvent_FinishedRXCurrentQueue(const void* sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList) = 0;
 
 };
 

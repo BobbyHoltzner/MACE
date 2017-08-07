@@ -41,7 +41,9 @@ SOURCES += \
     spatial_items/spatial_waypoint.cpp \
     mission_items/mission_ack.cpp \
     mission_items/mission_list.cpp \
-    command_item_ack.cpp
+    command_item_ack.cpp \
+    mission_items/mission_item_achieved.cpp \
+    mission_items/mission_item_current.cpp
 HEADERS +=\
     do_items/action_arm.h \
     do_items/action_change_mode.h \
@@ -63,7 +65,9 @@ HEADERS +=\
     data_generic_command_item_global.h \
     command_item_components.h \
     abstract_command_item.h \
-    command_item_ack.h
+    command_item_ack.h \
+    mission_items/mission_item_achieved.h \
+    mission_items/mission_item_current.h
 
 # Unix lib Install
 unix:!symbian {
@@ -101,6 +105,8 @@ INSTALLS       += headers_doComponents
 headers_missionComponents.path    = $$(MACE_ROOT)/include/data_generic_command_item/mission_items
 headers_missionComponents.files   += \
     mission_items/mission_ack.h \
+    mission_items/mission_item_achieved.h \
+    mission_items/mission_item_current.h \
     mission_items/mission_list.h
 INSTALLS       += headers_missionComponents
 

@@ -111,11 +111,13 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
 
     handleStartMission = () => {
         let command = "AUTO_START";
-        if(this.props.connectedVehicles[this.props.selectedAircraftID].vehicleMission.missionState === "EXECUTING") {
-            command = "AUTO_PAUSE";
-        }
-        else if(this.props.connectedVehicles[this.props.selectedAircraftID].vehicleMission.missionState === "PAUSED") {
-            command = "AUTO_RESUME";
+        if(this.state.selectedAircraftID !== "0"){
+            if(this.props.connectedVehicles[this.props.selectedAircraftID].vehicleMission.missionState === "EXECUTING") {
+                command = "AUTO_PAUSE";
+            }
+            else if(this.props.connectedVehicles[this.props.selectedAircraftID].vehicleMission.missionState === "PAUSED") {
+                command = "AUTO_RESUME";
+            }
         }
 
         this.props.onAircraftCommand(this.state.selectedAircraftID.toString(), "ISSUE_COMMAND", command);

@@ -28,34 +28,6 @@ public:
     //!
     virtual void MessageReceived(const ILink* link_ptr, const mace_message_t &message) const = 0;
 
-
-    //!
-    //! \brief Heartbeat of vehicle received
-    //! \param link
-    //! \param vehicleId
-    //! \param vehicleMavlinkVersion
-    //! \param vehicleFirmwareType
-    //! \param vehicleType
-    //!
-    virtual void HeartbeatInfo(const ILink* link_ptr, const int &systemID, const mace_heartbeat_t &heartbeatMSG) const = 0;
-
-    //!
-    //! \brief SyncRequest
-    //! \param link_ptr
-    //! \param systemID
-    //! \param syncMSG
-    //!
-    virtual void SyncRequest(const ILink* link_ptr, const int &systemID, const mace_vehicle_sync_t &syncMSG) const = 0;
-
-    //!
-    //! \brief VehicleCommandACk
-    //! \param link_ptr
-    //! \param vehicleId
-    //! \param cmdACKMSG
-    //!
-    virtual void CommandACK(const ILink* link_ptr, const int &systemID, const mace_command_ack_t &cmdACKMSG) const = 0;
-
-
     //!
     //! \brief A new radio status packet received
     //! \param link

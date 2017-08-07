@@ -23,6 +23,7 @@ namespace DataCOMMS{
 class Mission_MACETOCOMMS
 {
 public:
+
     Mission_MACETOCOMMS(const int &systemFrom, const int &systemTo, const Data::MissionKey &missionKey, const uint8_t &chan);
     Mission_MACETOCOMMS(const int &systemFrom, const uint8_t &chan);
 

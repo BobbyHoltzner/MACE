@@ -5,22 +5,38 @@ namespace MissionTopic{
 const char MissionItemReachedTopic_name[] = "MissionItemReached";
 const MaceCore::TopicComponentStructure MissionItemReachedTopic_structure = []{
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<int>("vehicleID");
-    structure.AddTerminal<int>("missionItemIndex");
+    structure.AddTerminal<Data::MissionKey>("key");
+    structure.AddTerminal<int>("index");
     return structure;
 }();
 
 MaceCore::TopicDatagram MissionItemReachedTopic::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<int>("vehicleID",vehicleID);
-    datagram.AddTerminal<int>("missionItemIndex",missionItemIndex);
+    datagram.AddTerminal<Data::MissionKey>("key",key);
+    datagram.AddTerminal<int>("index",indexAchieved);
     return datagram;
 }
 
 void MissionItemReachedTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagram)
 {
-    vehicleID = datagram.GetTerminal<int>("vehicleID");
-    missionItemIndex = datagram.GetTerminal<int>("missionItemIndex");
+    key = datagram.GetTerminal<Data::MissionKey>("key");
+    indexAchieved = datagram.GetTerminal<int>("index");
 }
 
+MissionItemReachedTopic::MissionItemReachedTopic()
+{
+
+}
+
+MissionItemReachedTopic::MissionItemReachedTopic(const MissionItem::MissionItemAchieved &achievedItem)
+{
+    this->key = achievedItem.getMissionKey();
+    this->indexAchieved = achievedItem.getMissionAchievedIndex();
+}
+
+MissionItemReachedTopic::MissionItemReachedTopic(const MissionItemReachedTopic &copyObj)
+{
+    this->key = copyObj.getMissionKey();
+    this->indexAchieved = copyObj.getMissionAchievedIndex();
+}
 } //end of namespace MissionTopic

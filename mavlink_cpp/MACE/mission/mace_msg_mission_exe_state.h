@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE MISSION_EXE_STATE PACKING
 
-#define MACE_MSG_ID_MISSION_EXE_STATE 114
+#define MACE_MSG_ID_MISSION_EXE_STATE 115
 
 MACEPACKED(
 typedef struct __mace_mission_exe_state_t {
@@ -14,17 +14,17 @@ typedef struct __mace_mission_exe_state_t {
 
 #define MACE_MSG_ID_MISSION_EXE_STATE_LEN 5
 #define MACE_MSG_ID_MISSION_EXE_STATE_MIN_LEN 5
-#define MACE_MSG_ID_114_LEN 5
-#define MACE_MSG_ID_114_MIN_LEN 5
+#define MACE_MSG_ID_115_LEN 5
+#define MACE_MSG_ID_115_MIN_LEN 5
 
 #define MACE_MSG_ID_MISSION_EXE_STATE_CRC 55
-#define MACE_MSG_ID_114_CRC 55
+#define MACE_MSG_ID_115_CRC 55
 
 
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_MISSION_EXE_STATE { \
-    114, \
+    115, \
     "MISSION_EXE_STATE", \
     5, \
     {  { "mission_system", NULL, MACE_TYPE_UINT8_T, 0, 0, offsetof(mace_mission_exe_state_t, mission_system) }, \
