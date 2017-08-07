@@ -63,13 +63,13 @@ private:
 public:
 
     MaceData() :
-        m_MSTOKEEP(DEFAULT_MS_RECORD_TO_KEEP),flagGlobalOrigin(false), flagBoundaryVerts(false)
+        m_MSTOKEEP(DEFAULT_MS_RECORD_TO_KEEP), flagBoundaryVerts(false)
     {
 
     }
 
     MaceData(uint64_t historyToKeepInms) :
-        m_MSTOKEEP(historyToKeepInms),flagGlobalOrigin(false), flagBoundaryVerts(false)
+        m_MSTOKEEP(historyToKeepInms), flagBoundaryVerts(false)
     {
 
     }
@@ -151,33 +151,35 @@ private:
 
     void UpdateVehicleHomePosition(const CommandItem::SpatialHome &vehicleHome)
     {
-        //Setup a copy constructor
-        CommandItem::SpatialHome newHome;
-        newHome = vehicleHome;
-
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        m_VehicleHomeMap[vehicleHome.getOriginatingSystem()] = newHome;
-        //KEN FIX THIS
-//        if(flagGlobalOrigin == true)
-//        {
-//            Eigen::Vector3f translation;
-//            newHome.position.translationTransformation(m_GlobalOrigin.position,translation);
-//            m_VehicleToGlobalTranslation[vehicleHome.getOriginatingSystem()] = translation;
-//        }
+        m_VehicleHomeMap[vehicleHome.getOriginatingSystem()] = vehicleHome;
+
+        if(m_GlobalOrigin.position.has2DPositionSet())
+        {
+            if(vehicleHome.position.getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
+            {
+                Eigen::Vector3f translation;
+                DataState::StateGlobalPosition origin(m_GlobalOrigin.position.getX(),m_GlobalOrigin.position.getY(),m_GlobalOrigin.position.getZ());
+                DataState::StateGlobalPosition home(vehicleHome.position.getX(),vehicleHome.position.getY(),vehicleHome.position.getZ());
+                home.translationTransformation3D(origin,translation);
+                m_VehicleToGlobalTranslation[vehicleHome.getOriginatingSystem()] = translation;
+            }
+        }
     }
 
     void UpdateGlobalOrigin(const CommandItem::SpatialHome &globalOrigin)
     {
-        std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_GlobalOrigin = globalOrigin;
-        flagGlobalOrigin = true;
-        //KEN FIX THIS
-//        for (std::map<int,CommandItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
-//        {
-//            Eigen::Vector3f translation;
-//            it->second.position.translationTransformation(m_GlobalOrigin.position,translation);
-//            m_VehicleToGlobalTranslation[it->first] = translation;
-//        }
+        for (std::map<int,CommandItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
+        {
+            Eigen::Vector3f translation;
+            DataState::Base3DPosition pos = it->second.position;
+            DataState::StateGlobalPosition home(pos.getX(),pos.getY(),pos.getZ());
+            DataState::StateGlobalPosition origin(m_GlobalOrigin.position.getX(),m_GlobalOrigin.position.getY(),m_GlobalOrigin.position.getZ());
+            home.translationTransformation3D(origin,translation);
+            m_VehicleToGlobalTranslation[it->first] = translation;
+        }
     }
 
     void UpdateEnvironmentVertices(const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
@@ -310,13 +312,6 @@ public:
         if(success == false)
             return false;
         return true;
-    }
-
-    bool GetVehicleLife(const std::string &rn, const TIME &time, VehicleLife &life) const
-    {
-        std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
-
-        return GetObservation<VehicleLife>(m_VehicleLifeHistory.at(rn), time, life, [this](const TIME& t, const VehicleLife& d0, const TIME& t0, const VehicleLife& d1, const TIME& t1){ return Fuse_VehicleLife(t, d0, t0, d1, t1);});
     }
 
 
@@ -676,7 +671,6 @@ private:
     std::map<int, CommandItem::SpatialHome> m_VehicleHomeMap;
     std::map<int, Eigen::Vector3f> m_VehicleToGlobalTranslation;
     CommandItem::SpatialHome m_GlobalOrigin;
-    bool flagGlobalOrigin;
     mutable std::mutex m_EnvironmentBoundaryMutex;
     std::vector<DataState::StateGlobalPosition> m_BoundaryVerts;
     bool flagBoundaryVerts;
@@ -734,9 +728,6 @@ private:
     */
 //variables
 private:
-    mutable std::mutex MUTEXRXMissions;
-    std::map<Data::MissionKey,MissionItem::MissionList> mapRXMissions;
-
     mutable std::mutex MUTEXMissions;
     std::map<Data::MissionKey,MissionItem::MissionList> mapMissions;
     std::map<int,Data::MissionKey> mapCurrentMission;

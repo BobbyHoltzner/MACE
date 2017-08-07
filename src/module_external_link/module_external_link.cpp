@@ -645,59 +645,16 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                 MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), senderID);
                 if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
                     std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
-                    m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
-                    Data::MissionKey key = component->getMissionKey();
-                    int index = component->getMissionCurrentIndex();
                     mace_message_t msg;
-                    mace_mission_item_current_t current;
-                    current.seq = index;
-                    current.mission_system = key.m_systemID;
-                    current.mission_creator = key.m_creatorID;
-                    current.mission_id = key.m_missionID;
-                    current.mission_type = (uint8_t)key.m_missionType;
-                    current.mission_state = (uint8_t)key.m_missionState;
-
-                    mace_msg_mission_item_current_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&current);
+                    mace_mission_current_t current;
+                    mace_msg_mission_current_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&current);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
-                }
-                else if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
-                    std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
-                    m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
-                    Data::MissionKey key = component->getMissionKey();
-                    int index = component->getMissionAchievedIndex();
-                    mace_message_t msg;
-                    mace_mission_item_reached_t reached;
-                    reached.seq = index;
-                    reached.mission_system = key.m_systemID;
-                    reached.mission_creator = key.m_creatorID;
-                    reached.mission_id = key.m_missionID;
-                    reached.mission_type = (uint8_t)key.m_missionType;
-                    reached.mission_state = (uint8_t)key.m_missionState;
-
-                    mace_msg_mission_item_reached_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&reached);
-                    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
                 }
                 else if(componentsUpdated.at(i) == MissionTopic::VehicleTargetTopic::Name()) {
                     std::shared_ptr<MissionTopic::VehicleTargetTopic> component = std::make_shared<MissionTopic::VehicleTargetTopic>();
                     m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-
-                    if(component->targetPosition.getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL)
-                    {
-                        mace_message_t msg;
-                        mace_guided_target_stats_t guided;
-                        guided.coordinate_frame = MAV_FRAME_GLOBAL;
-                        guided.x = component->targetPosition.getX();
-                        guided.y = component->targetPosition.getY();
-                        guided.z = component->targetPosition.getZ();
-                        guided.distance = component->targetDistance;
-                        mace_msg_guided_target_stats_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&guided);
-                        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
-                    }
-                    else{
-                        std::cout<<"The external link has been asked to send a guided target with a coordinate frame not recognized"<<std::endl;
-                    }
                 }
             }
         }
