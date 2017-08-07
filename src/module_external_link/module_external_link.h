@@ -1,13 +1,14 @@
 #ifndef MODULE_EXTERNAL_LINK_H
 #define MODULE_EXTERNAL_LINK_H
 
+#include "module_external_link_global.h"
+
 #include <sstream>
 #include <iostream>
 #include <stdint.h>
-
-#include "module_external_link_global.h"
 #include <chrono>
 
+#include "spdlog/spdlog.h"
 #include "mace.h"
 
 #include "common/common.h"
@@ -35,14 +36,85 @@
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
+#include "controllers/command_controller_externalLink.h"
+#include "controllers/heartbeat_controller_externallink.h"
+#include "controllers/home_controller_external_link.h"
+#include "controllers/mission_controller_externalLink.h"
+
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public MaceCore::IModuleCommandExternalLink,
-        public CommsMACEHelper
+        public CommsMACEHelper,
+        public ExternalLink::CommandController_Interface,
+        public ExternalLink::HeartbeatController_Interface,
+        public ExternalLink::HomeController_Interface,
+        public ExternalLink::MissionController_Interface
 {
 
 public:
 
     ModuleExternalLink();
+
+    ~ModuleExternalLink();
+
+    //!
+    //! \brief This module as been attached as a module
+    //! \param ptr pointer to object that attached this instance to itself
+    //!
+    virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
+
+    //!
+    //! \brief Describes the strucure of the parameters for this module
+    //! \return Strucure
+    //!
+    virtual std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleConfigurationStructure() const;
+
+
+    //!
+    //! \brief Provides object contains parameters values to configure module with
+    //! \param params Parameters to configure
+    //!
+    virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
+
+
+    void createLog(const int &systemID);
+
+    void transmitMessage(const mace_message_t &msg);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    /// The following are public virtual functions imposed from the Command Controller
+    /// Interface via callback functionality.
+    ///////////////////////////////////////////////////////////////////////////////////////
+    void cbiCommandController_transmitCommand(const mace_command_short_t &cmd);
+    void cbiCommandController_transmitCommand(const mace_command_long_t &cmd);
+    void cbiCommandController_CommandACK(const mace_command_ack_t &ack);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    /// The following are public virtual functions imposed from the Heartbeat Controller
+    /// Interface via callback functionality.
+    ///////////////////////////////////////////////////////////////////////////////////////
+    void cbiHeartbeatController_transmitCommand(const mace_heartbeat_t &heartbeat);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    /// The following are public virtual functions imposed from the Mission Controller
+    /// Interface via callback functionality.
+    ///////////////////////////////////////////////////////////////////////////////////////
+    void cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK);
+    void cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count);
+    void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item);
+    void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request);
+    void cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request);
+    void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem);
+    void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList);
+    void cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK);
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    /// The following are public virtual functions imposed from the Home Controller
+    /// Interface via callback functionality.
+    ///////////////////////////////////////////////////////////////////////////////////////
+    void cbiHomeController_TransmitHomeReq(const mace_mission_request_home_t &request);
+    void cbiHomeController_ReceviedHome(const CommandItem::SpatialHome &home);
+    void cbiHomeController_TransmitHomeSet(const mace_set_home_position_t &home);
+    void cbiHomeController_ReceivedHomeSetACK(const mace_home_position_ack_t &ack);
 
     bool isExternalLinkAirborne() const
     {
@@ -70,23 +142,7 @@ public:
     //! \param systemID
     //! \param heartbeatMSG
     //!
-    virtual void MACEHeartbeatInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG);
-
-    //!
-    //! \brief MACESyncMessage
-    //! \param linkName
-    //! \param systemID
-    //! \param syncMSG
-    //!
-    virtual void MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG);
-
-    //!
-    //! \brief VehicleCommandMACEACK
-    //! \param linkName
-    //! \param systemID
-    //! \param cmdACK
-    //!
-    virtual void MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK);
+    void HeartbeatInfo(const int &systemID, const mace_heartbeat_t &heartbeatMSG);
 
     //!
     //! \brief NewTopic
@@ -95,27 +151,6 @@ public:
     //! \param componentsUpdated
     //!
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
-
-    //!
-    //! \brief This module as been attached as a module
-    //! \param ptr pointer to object that attached this instance to itself
-    //!
-    virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
-
-    //!
-    //! \brief Describes the strucure of the parameters for this module
-    //! \return Strucure
-    //!
-    virtual std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleConfigurationStructure() const;
-
-
-    //!
-    //! \brief Provides object contains parameters values to configure module with
-    //! \param params Parameters to configure
-    //!
-    virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
-
-
 
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +175,7 @@ public:
     //! \brief Command_ChangeVehicleArm
     //! \param vehicleArm
     //!
-    virtual void Command_SystemArm(const CommandItem::ActionArm &vehicleArm);
+    virtual void Command_SystemArm(const CommandItem::ActionArm &systemArm);
 
     //!
     //! \brief Command_ChangeVehicleOperationalMode
@@ -158,13 +193,13 @@ public:
     //! \brief Command_Land
     //! \param command
     //!
-    virtual void Command_Land(const CommandItem::SpatialLand &command);
+    virtual void Command_Land(const CommandItem::SpatialLand &vehicleLand);
 
     //!
     //! \brief Command_ReturnToLaunch
     //! \param command
     //!
-    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command);
+    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &vehicleRTL);
 
 
     //!
@@ -262,7 +297,7 @@ public:
     //! \brief Command_SetHomePosition
     //! \param vehicleHome
     //!
-    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome);
+    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &systemHome);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from IModuleCommandExternalLink.
@@ -271,6 +306,14 @@ public:
     virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key);
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
     virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey);
+    virtual void NewlyAvailableVehicle(const int &systemID);
+    virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
+
+private:
+    ExternalLink::CommandController_ExternalLink *m_CommandController;
+    ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
+    ExternalLink::HomeController_ExternalLink *m_HomeController;
+    ExternalLink::MissionController_ExternalLink *m_MissionController;
 
 private:
     bool airborneInstance;
@@ -282,6 +325,8 @@ private:
     //!
     int associatedSystemID;
     std::map<int,int> systemIDMap;
+
+    std::shared_ptr<spdlog::logger> mLog;
 
     Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;

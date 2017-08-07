@@ -259,12 +259,15 @@ void ModuleGroundStation::parseTCPRequest(const QJsonObject &jsonObj)
 
 void ModuleGroundStation::testFunction1(const int &vehicleID)
 {
+    mLogs->debug("Module Ground Station saw a request on test function 1.");
+
     MissionItem::MissionList missionList;
     missionList.setMissionTXState(Data::MissionTXState::PROPOSED);
     missionList.setMissionType(Data::MissionType::AUTO);
+    missionList.setCreatorID(254);
     missionList.setVehicleID(vehicleID);
     missionList.initializeQueue(4);
-    latitude = latitude + 0.001;
+    latitude = latitude + 0.01;
     std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
     newWP->position.setPosition3D(latitude,-76.8153602,20.0);
     newWP->setTargetSystem(vehicleID);
@@ -697,7 +700,7 @@ void ModuleGroundStation::sendMissionItemReached(const int &vehicleID, const std
     QJsonObject json;
     json["dataType"] = "MissionItemReached";
     json["vehicleID"] = vehicleID;
-    json["itemIndex"] = component->getMissionItemIndex();
+    json["itemIndex"] = component->getMissionAchievedIndex();
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
@@ -838,7 +841,7 @@ void ModuleGroundStation::sendCurrentMissionItem(const int &vehicleID, const std
     QJsonObject json;
     json["dataType"] = "CurrentMissionItem";
     json["vehicleID"] = vehicleID;
-    json["missionItemIndex"] = component->getMissionItemIndex();
+    json["missionItemIndex"] = component->getMissionCurrentIndex();
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());

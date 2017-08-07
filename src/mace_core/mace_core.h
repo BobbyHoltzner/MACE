@@ -113,9 +113,11 @@ public:
     /// SPECIFIC VEHICLE EVENTS: These events are associated from IModuleEventsVehicleVehicle
     /////////////////////////////////////////////////////////////////////////////////////////
 
+    virtual void EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved);
+
     virtual void EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList);
 
-    virtual void EventVehicle_ACKProposedMission(const void *sender, const Data::MissionKey &key);
+    virtual void EventVehicle_MissionACK(const void *sender, const MissionItem::MissionACK &ack);
 
     virtual void EventVehicle_REJECTProposedMission(const void *sender, const Data::MissionKey &key);
 
@@ -124,20 +126,23 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////
     /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle
     ////////////////////////////////////////////////////////////////////////////////////////
-    virtual void NewConstructedVehicle(const void* sender, const int &newVehicleObserved);
     virtual void GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome);
     virtual void GVEvents_MissionExeStateUpdated(const void *sender, const Data::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState);
+    virtual void GVEvents_MissionItemAchieved(const void *sender, const MissionItem::MissionItemAchieved &achieved);
+    virtual void GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current);
     virtual void ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey);
     virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey);
 
     /////////////////////////////////////////////////////////////////////////
     /// EXTERNAL LINK EVENTS
     /////////////////////////////////////////////////////////////////////////
-    virtual void ExternalEvent_ReceivingMissionQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_FinishedRXProposedQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_FinishedRXOnboardQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_FinishedRXCurrentQueue(const void *sender, const MissionItem::MissionList &missionList);
-    virtual void ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTXState &state);
+    virtual void ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID);
+    virtual void ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved);
+
+    virtual void ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList);
+
+    virtual void ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK);
+    virtual void ExternalEvent_RequestingDataSync(const void *sender, const int &targetID);
 
 public:
 
@@ -233,7 +238,10 @@ private:
     std::map<std::string, IModuleCommandVehicle*> m_VehicleIDToPtr;
     std::map<IModuleCommandVehicle*, std::string> m_VehiclePTRToID;
 
-    std::map<int, std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
+    std::list<std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
+    std::map<int, IModuleCommandExternalLink*> m_ExternalLinkIDToPort;
+
+    //std::map<int, std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
 
     std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;

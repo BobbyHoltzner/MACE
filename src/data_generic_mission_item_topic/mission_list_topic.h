@@ -19,7 +19,7 @@ public:
     MissionListTopic(const MissionItem::MissionList missionList);
 
 public:
-    void setMissionList(const MissionItem::MissionList missionList);
+    void setMissionList(const MissionItem::MissionList missionListA);
     MissionItem::MissionList getMissionList();
 
     int getVehicleID() const{

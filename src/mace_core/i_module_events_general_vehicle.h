@@ -16,15 +16,6 @@ namespace MaceCore
 class IModuleEventsGeneralVehicle
 {
 public:
-
-    //!
-    //! \brief NewConstructedVehicle
-    //! \param sender
-    //! \param newVehicleObserved
-    //!
-    virtual void NewConstructedVehicle(const void *sender, const int &newVehicleObserved) = 0;
-
-
     //!
     //! \brief GVEvents_NewHomePosition This function is emitted to alert the core that a module connected to a vehicle
     //! has received and set a new home position for the system. This should typically be in response to a Command_SetHomePosition
@@ -56,6 +47,20 @@ public:
     //! \param missionID
     //!
     virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey) = 0;
+
+    //!
+    //! \brief GVEvents_MissionItemAchieved
+    //! \param sender
+    //! \param achieved
+    //!
+    virtual void GVEvents_MissionItemAchieved(const void *sender, const MissionItem::MissionItemAchieved &achieved) = 0;
+
+    //!
+    //! \brief GVEvents_MissionItemCurrent
+    //! \param sender
+    //! \param current
+    //!
+    virtual void GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current) = 0;
 
 };
 

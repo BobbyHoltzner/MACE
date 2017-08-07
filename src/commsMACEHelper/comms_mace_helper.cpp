@@ -11,28 +11,6 @@ CommsMACEHelper::~CommsMACEHelper()
 
 }
 
-void CommsMACEHelper::MACEHeartbeatInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG)
-{
-    UNUSED(linkName);
-    UNUSED(systemID);
-    UNUSED(heartbeatMSG);
-    std::cout<<"I am in the comms mace helper heartbeat info routine"<<std::endl;
-}
-
-void CommsMACEHelper::MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &syncMSG)
-{
-    UNUSED(linkName);
-    UNUSED(systemID);
-    UNUSED(syncMSG);
-}
-
-void CommsMACEHelper::MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK)
-{
-    UNUSED(linkName);
-    UNUSED(systemID);
-    UNUSED(cmdACK);
-}
-
 void CommsMACEHelper::MACEMessage(const std::string &linkName, const mace_message_t &message)
 {
     UNUSED(linkName);

@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE MISSION_ITEM PACKING
 
-#define MACE_MSG_ID_MISSION_ITEM 106
+#define MACE_MSG_ID_MISSION_ITEM 107
 
 MACEPACKED(
 typedef struct __mace_mission_item_t {
@@ -19,26 +19,27 @@ typedef struct __mace_mission_item_t {
  uint8_t mission_creator; /*< Creator ID*/
  uint8_t mission_id; /*< Mission ID*/
  uint8_t mission_type; /*< Mission type, see MISSION_TYPE*/
+ uint8_t mission_state; /*< The mission state, see MISSION_STATE*/
  uint8_t frame; /*< The coordinate system of the MISSION. see MAV_FRAME in mavlink_types.h*/
  uint8_t current; /*< false:0, true:1*/
  uint8_t autocontinue; /*< autocontinue to next wp*/
 }) mace_mission_item_t;
 
-#define MACE_MSG_ID_MISSION_ITEM_LEN 40
-#define MACE_MSG_ID_MISSION_ITEM_MIN_LEN 40
-#define MACE_MSG_ID_106_LEN 40
-#define MACE_MSG_ID_106_MIN_LEN 40
+#define MACE_MSG_ID_MISSION_ITEM_LEN 41
+#define MACE_MSG_ID_MISSION_ITEM_MIN_LEN 41
+#define MACE_MSG_ID_107_LEN 41
+#define MACE_MSG_ID_107_MIN_LEN 41
 
-#define MACE_MSG_ID_MISSION_ITEM_CRC 111
-#define MACE_MSG_ID_106_CRC 111
+#define MACE_MSG_ID_MISSION_ITEM_CRC 49
+#define MACE_MSG_ID_107_CRC 49
 
 
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_MISSION_ITEM { \
-    106, \
+    107, \
     "MISSION_ITEM", \
-    17, \
+    18, \
     {  { "param1", NULL, MACE_TYPE_FLOAT, 0, 0, offsetof(mace_mission_item_t, param1) }, \
          { "param2", NULL, MACE_TYPE_FLOAT, 0, 4, offsetof(mace_mission_item_t, param2) }, \
          { "param3", NULL, MACE_TYPE_FLOAT, 0, 8, offsetof(mace_mission_item_t, param3) }, \
@@ -53,15 +54,16 @@ typedef struct __mace_mission_item_t {
          { "mission_creator", NULL, MACE_TYPE_UINT8_T, 0, 34, offsetof(mace_mission_item_t, mission_creator) }, \
          { "mission_id", NULL, MACE_TYPE_UINT8_T, 0, 35, offsetof(mace_mission_item_t, mission_id) }, \
          { "mission_type", NULL, MACE_TYPE_UINT8_T, 0, 36, offsetof(mace_mission_item_t, mission_type) }, \
-         { "frame", NULL, MACE_TYPE_UINT8_T, 0, 37, offsetof(mace_mission_item_t, frame) }, \
-         { "current", NULL, MACE_TYPE_UINT8_T, 0, 38, offsetof(mace_mission_item_t, current) }, \
-         { "autocontinue", NULL, MACE_TYPE_UINT8_T, 0, 39, offsetof(mace_mission_item_t, autocontinue) }, \
+         { "mission_state", NULL, MACE_TYPE_UINT8_T, 0, 37, offsetof(mace_mission_item_t, mission_state) }, \
+         { "frame", NULL, MACE_TYPE_UINT8_T, 0, 38, offsetof(mace_mission_item_t, frame) }, \
+         { "current", NULL, MACE_TYPE_UINT8_T, 0, 39, offsetof(mace_mission_item_t, current) }, \
+         { "autocontinue", NULL, MACE_TYPE_UINT8_T, 0, 40, offsetof(mace_mission_item_t, autocontinue) }, \
          } \
 }
 #else
 #define MACE_MESSAGE_INFO_MISSION_ITEM { \
     "MISSION_ITEM", \
-    17, \
+    18, \
     {  { "param1", NULL, MACE_TYPE_FLOAT, 0, 0, offsetof(mace_mission_item_t, param1) }, \
          { "param2", NULL, MACE_TYPE_FLOAT, 0, 4, offsetof(mace_mission_item_t, param2) }, \
          { "param3", NULL, MACE_TYPE_FLOAT, 0, 8, offsetof(mace_mission_item_t, param3) }, \
@@ -76,9 +78,10 @@ typedef struct __mace_mission_item_t {
          { "mission_creator", NULL, MACE_TYPE_UINT8_T, 0, 34, offsetof(mace_mission_item_t, mission_creator) }, \
          { "mission_id", NULL, MACE_TYPE_UINT8_T, 0, 35, offsetof(mace_mission_item_t, mission_id) }, \
          { "mission_type", NULL, MACE_TYPE_UINT8_T, 0, 36, offsetof(mace_mission_item_t, mission_type) }, \
-         { "frame", NULL, MACE_TYPE_UINT8_T, 0, 37, offsetof(mace_mission_item_t, frame) }, \
-         { "current", NULL, MACE_TYPE_UINT8_T, 0, 38, offsetof(mace_mission_item_t, current) }, \
-         { "autocontinue", NULL, MACE_TYPE_UINT8_T, 0, 39, offsetof(mace_mission_item_t, autocontinue) }, \
+         { "mission_state", NULL, MACE_TYPE_UINT8_T, 0, 37, offsetof(mace_mission_item_t, mission_state) }, \
+         { "frame", NULL, MACE_TYPE_UINT8_T, 0, 38, offsetof(mace_mission_item_t, frame) }, \
+         { "current", NULL, MACE_TYPE_UINT8_T, 0, 39, offsetof(mace_mission_item_t, current) }, \
+         { "autocontinue", NULL, MACE_TYPE_UINT8_T, 0, 40, offsetof(mace_mission_item_t, autocontinue) }, \
          } \
 }
 #endif
@@ -94,6 +97,7 @@ typedef struct __mace_mission_item_t {
  * @param mission_creator Creator ID
  * @param mission_id Mission ID
  * @param mission_type Mission type, see MISSION_TYPE
+ * @param mission_state The mission state, see MISSION_STATE
  * @param seq Sequence
  * @param frame The coordinate system of the MISSION. see MAV_FRAME in mavlink_types.h
  * @param command The scheduled action for the MISSION. see MAV_CMD in common.xml MAVLink specs
@@ -109,7 +113,7 @@ typedef struct __mace_mission_item_t {
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mace_msg_mission_item_pack(uint8_t system_id, uint8_t component_id, mace_message_t* msg,
-                               uint8_t target_system, uint8_t mission_system, uint8_t mission_creator, uint8_t mission_id, uint8_t mission_type, uint16_t seq, uint8_t frame, uint16_t command, uint8_t current, uint8_t autocontinue, float param1, float param2, float param3, float param4, float x, float y, float z)
+                               uint8_t target_system, uint8_t mission_system, uint8_t mission_creator, uint8_t mission_id, uint8_t mission_type, uint8_t mission_state, uint16_t seq, uint8_t frame, uint16_t command, uint8_t current, uint8_t autocontinue, float param1, float param2, float param3, float param4, float x, float y, float z)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_MISSION_ITEM_LEN];
@@ -127,9 +131,10 @@ static inline uint16_t mace_msg_mission_item_pack(uint8_t system_id, uint8_t com
     _mace_put_uint8_t(buf, 34, mission_creator);
     _mace_put_uint8_t(buf, 35, mission_id);
     _mace_put_uint8_t(buf, 36, mission_type);
-    _mace_put_uint8_t(buf, 37, frame);
-    _mace_put_uint8_t(buf, 38, current);
-    _mace_put_uint8_t(buf, 39, autocontinue);
+    _mace_put_uint8_t(buf, 37, mission_state);
+    _mace_put_uint8_t(buf, 38, frame);
+    _mace_put_uint8_t(buf, 39, current);
+    _mace_put_uint8_t(buf, 40, autocontinue);
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), buf, MACE_MSG_ID_MISSION_ITEM_LEN);
 #else
@@ -148,6 +153,7 @@ static inline uint16_t mace_msg_mission_item_pack(uint8_t system_id, uint8_t com
     packet.mission_creator = mission_creator;
     packet.mission_id = mission_id;
     packet.mission_type = mission_type;
+    packet.mission_state = mission_state;
     packet.frame = frame;
     packet.current = current;
     packet.autocontinue = autocontinue;
@@ -170,6 +176,7 @@ static inline uint16_t mace_msg_mission_item_pack(uint8_t system_id, uint8_t com
  * @param mission_creator Creator ID
  * @param mission_id Mission ID
  * @param mission_type Mission type, see MISSION_TYPE
+ * @param mission_state The mission state, see MISSION_STATE
  * @param seq Sequence
  * @param frame The coordinate system of the MISSION. see MAV_FRAME in mavlink_types.h
  * @param command The scheduled action for the MISSION. see MAV_CMD in common.xml MAVLink specs
@@ -186,7 +193,7 @@ static inline uint16_t mace_msg_mission_item_pack(uint8_t system_id, uint8_t com
  */
 static inline uint16_t mace_msg_mission_item_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
                                mace_message_t* msg,
-                                   uint8_t target_system,uint8_t mission_system,uint8_t mission_creator,uint8_t mission_id,uint8_t mission_type,uint16_t seq,uint8_t frame,uint16_t command,uint8_t current,uint8_t autocontinue,float param1,float param2,float param3,float param4,float x,float y,float z)
+                                   uint8_t target_system,uint8_t mission_system,uint8_t mission_creator,uint8_t mission_id,uint8_t mission_type,uint8_t mission_state,uint16_t seq,uint8_t frame,uint16_t command,uint8_t current,uint8_t autocontinue,float param1,float param2,float param3,float param4,float x,float y,float z)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_MISSION_ITEM_LEN];
@@ -204,9 +211,10 @@ static inline uint16_t mace_msg_mission_item_pack_chan(uint8_t system_id, uint8_
     _mace_put_uint8_t(buf, 34, mission_creator);
     _mace_put_uint8_t(buf, 35, mission_id);
     _mace_put_uint8_t(buf, 36, mission_type);
-    _mace_put_uint8_t(buf, 37, frame);
-    _mace_put_uint8_t(buf, 38, current);
-    _mace_put_uint8_t(buf, 39, autocontinue);
+    _mace_put_uint8_t(buf, 37, mission_state);
+    _mace_put_uint8_t(buf, 38, frame);
+    _mace_put_uint8_t(buf, 39, current);
+    _mace_put_uint8_t(buf, 40, autocontinue);
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), buf, MACE_MSG_ID_MISSION_ITEM_LEN);
 #else
@@ -225,6 +233,7 @@ static inline uint16_t mace_msg_mission_item_pack_chan(uint8_t system_id, uint8_
     packet.mission_creator = mission_creator;
     packet.mission_id = mission_id;
     packet.mission_type = mission_type;
+    packet.mission_state = mission_state;
     packet.frame = frame;
     packet.current = current;
     packet.autocontinue = autocontinue;
@@ -246,7 +255,7 @@ static inline uint16_t mace_msg_mission_item_pack_chan(uint8_t system_id, uint8_
  */
 static inline uint16_t mace_msg_mission_item_encode(uint8_t system_id, uint8_t component_id, mace_message_t* msg, const mace_mission_item_t* mission_item)
 {
-    return mace_msg_mission_item_pack(system_id, component_id, msg, mission_item->target_system, mission_item->mission_system, mission_item->mission_creator, mission_item->mission_id, mission_item->mission_type, mission_item->seq, mission_item->frame, mission_item->command, mission_item->current, mission_item->autocontinue, mission_item->param1, mission_item->param2, mission_item->param3, mission_item->param4, mission_item->x, mission_item->y, mission_item->z);
+    return mace_msg_mission_item_pack(system_id, component_id, msg, mission_item->target_system, mission_item->mission_system, mission_item->mission_creator, mission_item->mission_id, mission_item->mission_type, mission_item->mission_state, mission_item->seq, mission_item->frame, mission_item->command, mission_item->current, mission_item->autocontinue, mission_item->param1, mission_item->param2, mission_item->param3, mission_item->param4, mission_item->x, mission_item->y, mission_item->z);
 }
 
 /**
@@ -260,7 +269,7 @@ static inline uint16_t mace_msg_mission_item_encode(uint8_t system_id, uint8_t c
  */
 static inline uint16_t mace_msg_mission_item_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mace_message_t* msg, const mace_mission_item_t* mission_item)
 {
-    return mace_msg_mission_item_pack_chan(system_id, component_id, chan, msg, mission_item->target_system, mission_item->mission_system, mission_item->mission_creator, mission_item->mission_id, mission_item->mission_type, mission_item->seq, mission_item->frame, mission_item->command, mission_item->current, mission_item->autocontinue, mission_item->param1, mission_item->param2, mission_item->param3, mission_item->param4, mission_item->x, mission_item->y, mission_item->z);
+    return mace_msg_mission_item_pack_chan(system_id, component_id, chan, msg, mission_item->target_system, mission_item->mission_system, mission_item->mission_creator, mission_item->mission_id, mission_item->mission_type, mission_item->mission_state, mission_item->seq, mission_item->frame, mission_item->command, mission_item->current, mission_item->autocontinue, mission_item->param1, mission_item->param2, mission_item->param3, mission_item->param4, mission_item->x, mission_item->y, mission_item->z);
 }
 
 /**
@@ -272,6 +281,7 @@ static inline uint16_t mace_msg_mission_item_encode_chan(uint8_t system_id, uint
  * @param mission_creator Creator ID
  * @param mission_id Mission ID
  * @param mission_type Mission type, see MISSION_TYPE
+ * @param mission_state The mission state, see MISSION_STATE
  * @param seq Sequence
  * @param frame The coordinate system of the MISSION. see MAV_FRAME in mavlink_types.h
  * @param command The scheduled action for the MISSION. see MAV_CMD in common.xml MAVLink specs
@@ -287,7 +297,7 @@ static inline uint16_t mace_msg_mission_item_encode_chan(uint8_t system_id, uint
  */
 #ifdef MACE_USE_CONVENIENCE_FUNCTIONS
 
-static inline void mace_msg_mission_item_send(mace_channel_t chan, uint8_t target_system, uint8_t mission_system, uint8_t mission_creator, uint8_t mission_id, uint8_t mission_type, uint16_t seq, uint8_t frame, uint16_t command, uint8_t current, uint8_t autocontinue, float param1, float param2, float param3, float param4, float x, float y, float z)
+static inline void mace_msg_mission_item_send(mace_channel_t chan, uint8_t target_system, uint8_t mission_system, uint8_t mission_creator, uint8_t mission_id, uint8_t mission_type, uint8_t mission_state, uint16_t seq, uint8_t frame, uint16_t command, uint8_t current, uint8_t autocontinue, float param1, float param2, float param3, float param4, float x, float y, float z)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_MISSION_ITEM_LEN];
@@ -305,9 +315,10 @@ static inline void mace_msg_mission_item_send(mace_channel_t chan, uint8_t targe
     _mace_put_uint8_t(buf, 34, mission_creator);
     _mace_put_uint8_t(buf, 35, mission_id);
     _mace_put_uint8_t(buf, 36, mission_type);
-    _mace_put_uint8_t(buf, 37, frame);
-    _mace_put_uint8_t(buf, 38, current);
-    _mace_put_uint8_t(buf, 39, autocontinue);
+    _mace_put_uint8_t(buf, 37, mission_state);
+    _mace_put_uint8_t(buf, 38, frame);
+    _mace_put_uint8_t(buf, 39, current);
+    _mace_put_uint8_t(buf, 40, autocontinue);
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_MISSION_ITEM, buf, MACE_MSG_ID_MISSION_ITEM_MIN_LEN, MACE_MSG_ID_MISSION_ITEM_LEN, MACE_MSG_ID_MISSION_ITEM_CRC);
 #else
@@ -326,6 +337,7 @@ static inline void mace_msg_mission_item_send(mace_channel_t chan, uint8_t targe
     packet.mission_creator = mission_creator;
     packet.mission_id = mission_id;
     packet.mission_type = mission_type;
+    packet.mission_state = mission_state;
     packet.frame = frame;
     packet.current = current;
     packet.autocontinue = autocontinue;
@@ -342,7 +354,7 @@ static inline void mace_msg_mission_item_send(mace_channel_t chan, uint8_t targe
 static inline void mace_msg_mission_item_send_struct(mace_channel_t chan, const mace_mission_item_t* mission_item)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
-    mace_msg_mission_item_send(chan, mission_item->target_system, mission_item->mission_system, mission_item->mission_creator, mission_item->mission_id, mission_item->mission_type, mission_item->seq, mission_item->frame, mission_item->command, mission_item->current, mission_item->autocontinue, mission_item->param1, mission_item->param2, mission_item->param3, mission_item->param4, mission_item->x, mission_item->y, mission_item->z);
+    mace_msg_mission_item_send(chan, mission_item->target_system, mission_item->mission_system, mission_item->mission_creator, mission_item->mission_id, mission_item->mission_type, mission_item->mission_state, mission_item->seq, mission_item->frame, mission_item->command, mission_item->current, mission_item->autocontinue, mission_item->param1, mission_item->param2, mission_item->param3, mission_item->param4, mission_item->x, mission_item->y, mission_item->z);
 #else
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_MISSION_ITEM, (const char *)mission_item, MACE_MSG_ID_MISSION_ITEM_MIN_LEN, MACE_MSG_ID_MISSION_ITEM_LEN, MACE_MSG_ID_MISSION_ITEM_CRC);
 #endif
@@ -356,7 +368,7 @@ static inline void mace_msg_mission_item_send_struct(mace_channel_t chan, const 
   is usually the receive buffer for the channel, and allows a reply to an
   incoming message with minimum stack space usage.
  */
-static inline void mace_msg_mission_item_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t target_system, uint8_t mission_system, uint8_t mission_creator, uint8_t mission_id, uint8_t mission_type, uint16_t seq, uint8_t frame, uint16_t command, uint8_t current, uint8_t autocontinue, float param1, float param2, float param3, float param4, float x, float y, float z)
+static inline void mace_msg_mission_item_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t target_system, uint8_t mission_system, uint8_t mission_creator, uint8_t mission_id, uint8_t mission_type, uint8_t mission_state, uint16_t seq, uint8_t frame, uint16_t command, uint8_t current, uint8_t autocontinue, float param1, float param2, float param3, float param4, float x, float y, float z)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char *buf = (char *)msgbuf;
@@ -374,9 +386,10 @@ static inline void mace_msg_mission_item_send_buf(mace_message_t *msgbuf, mace_c
     _mace_put_uint8_t(buf, 34, mission_creator);
     _mace_put_uint8_t(buf, 35, mission_id);
     _mace_put_uint8_t(buf, 36, mission_type);
-    _mace_put_uint8_t(buf, 37, frame);
-    _mace_put_uint8_t(buf, 38, current);
-    _mace_put_uint8_t(buf, 39, autocontinue);
+    _mace_put_uint8_t(buf, 37, mission_state);
+    _mace_put_uint8_t(buf, 38, frame);
+    _mace_put_uint8_t(buf, 39, current);
+    _mace_put_uint8_t(buf, 40, autocontinue);
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_MISSION_ITEM, buf, MACE_MSG_ID_MISSION_ITEM_MIN_LEN, MACE_MSG_ID_MISSION_ITEM_LEN, MACE_MSG_ID_MISSION_ITEM_CRC);
 #else
@@ -395,6 +408,7 @@ static inline void mace_msg_mission_item_send_buf(mace_message_t *msgbuf, mace_c
     packet->mission_creator = mission_creator;
     packet->mission_id = mission_id;
     packet->mission_type = mission_type;
+    packet->mission_state = mission_state;
     packet->frame = frame;
     packet->current = current;
     packet->autocontinue = autocontinue;
@@ -460,6 +474,16 @@ static inline uint8_t mace_msg_mission_item_get_mission_type(const mace_message_
 }
 
 /**
+ * @brief Get field mission_state from mission_item message
+ *
+ * @return The mission state, see MISSION_STATE
+ */
+static inline uint8_t mace_msg_mission_item_get_mission_state(const mace_message_t* msg)
+{
+    return _MACE_RETURN_uint8_t(msg,  37);
+}
+
+/**
  * @brief Get field seq from mission_item message
  *
  * @return Sequence
@@ -476,7 +500,7 @@ static inline uint16_t mace_msg_mission_item_get_seq(const mace_message_t* msg)
  */
 static inline uint8_t mace_msg_mission_item_get_frame(const mace_message_t* msg)
 {
-    return _MACE_RETURN_uint8_t(msg,  37);
+    return _MACE_RETURN_uint8_t(msg,  38);
 }
 
 /**
@@ -496,7 +520,7 @@ static inline uint16_t mace_msg_mission_item_get_command(const mace_message_t* m
  */
 static inline uint8_t mace_msg_mission_item_get_current(const mace_message_t* msg)
 {
-    return _MACE_RETURN_uint8_t(msg,  38);
+    return _MACE_RETURN_uint8_t(msg,  39);
 }
 
 /**
@@ -506,7 +530,7 @@ static inline uint8_t mace_msg_mission_item_get_current(const mace_message_t* ms
  */
 static inline uint8_t mace_msg_mission_item_get_autocontinue(const mace_message_t* msg)
 {
-    return _MACE_RETURN_uint8_t(msg,  39);
+    return _MACE_RETURN_uint8_t(msg,  40);
 }
 
 /**
@@ -602,6 +626,7 @@ static inline void mace_msg_mission_item_decode(const mace_message_t* msg, mace_
     mission_item->mission_creator = mace_msg_mission_item_get_mission_creator(msg);
     mission_item->mission_id = mace_msg_mission_item_get_mission_id(msg);
     mission_item->mission_type = mace_msg_mission_item_get_mission_type(msg);
+    mission_item->mission_state = mace_msg_mission_item_get_mission_state(msg);
     mission_item->frame = mace_msg_mission_item_get_frame(msg);
     mission_item->current = mace_msg_mission_item_get_current(msg);
     mission_item->autocontinue = mace_msg_mission_item_get_autocontinue(msg);

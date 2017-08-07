@@ -3,13 +3,19 @@
 namespace Data {
 
 MissionKey::MissionKey():
-    m_systemID(0),m_creatorID(0),m_missionID(0),m_missionType(Data::MissionType::AUTO)
+    m_systemID(0),m_creatorID(0),m_missionID(0),m_missionType(Data::MissionType::AUTO),m_missionState(Data::MissionTXState::CURRENT)
 {
 
 }
 
 MissionKey::MissionKey(const int &systemID, const int &creatorID, const int &missionID, const Data::MissionType &missionType):
-    m_systemID(systemID),m_creatorID(creatorID),m_missionID(missionID),m_missionType(missionType)
+    m_systemID(systemID),m_creatorID(creatorID),m_missionID(missionID),m_missionType(missionType),m_missionState(Data::MissionTXState::CURRENT)
+{
+
+}
+
+MissionKey::MissionKey(const int &systemID, const int &creatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTXState &missionState):
+    m_systemID(systemID),m_creatorID(creatorID),m_missionID(missionID),m_missionType(missionType),m_missionState(missionState)
 {
 
 }
@@ -20,6 +26,8 @@ MissionKey::MissionKey(const MissionKey &obj)
     this->m_creatorID =obj.m_creatorID;
     this->m_missionID = obj.m_missionID;
     this->m_missionType = obj.m_missionType;
+    this->m_missionState = obj.m_missionState;
+
 }
 
 void MissionKey::operator =(const MissionKey &rhs)
@@ -28,6 +36,7 @@ void MissionKey::operator =(const MissionKey &rhs)
     this->m_creatorID =rhs.m_creatorID;
     this->m_missionID = rhs.m_missionID;
     this->m_missionType = rhs.m_missionType;
+    this->m_missionState = rhs.m_missionState;
 }
 
 bool MissionKey::operator <(const MissionKey &rhs) const
@@ -54,8 +63,14 @@ bool MissionKey::operator <(const MissionKey &rhs) const
                     return false;
                 else if(this->m_missionType < rhs.m_missionType)
                     return true;
-                else{
-                    return false;
+                else{ //this implies that the missionType was equal
+                    if(this->m_missionState > rhs.m_missionState)
+                        return false;
+                    else if(this->m_missionState < rhs.m_missionState)
+                        return true;
+                    else{
+                        return false;
+                    }
                 }
             }
         }
@@ -72,6 +87,8 @@ bool MissionKey::operator ==(const MissionKey &rhs) const
     if(this->m_missionID != rhs.m_missionID)
         return false;
     if(this->m_missionType != rhs.m_missionType)
+        return false;
+    if(this->m_missionState != rhs.m_missionState)
         return false;
     return true;
 }

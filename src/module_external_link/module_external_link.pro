@@ -14,14 +14,22 @@ DEFINES += MODULE_EXTERNAL_LINK_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
+DEFINES += QT_DEPRECATED_WARNINGS
+
 SOURCES += module_external_link.cpp \
     parse_comms_message.cpp \
     parse_comms_command.cpp \
-    external_heartbeat.cpp
+    controllers/command_controller_externalLink.cpp \
+    controllers/mission_controller_externalLink.cpp \
+    controllers/heartbeat_controller_externallink.cpp \
+    controllers/home_controller_external_link.cpp
 
 HEADERS += module_external_link.h\
         module_external_link_global.h \
-    external_heartbeat.h
+    controllers/command_controller_externalLink.h \
+    controllers/mission_controller_externalLink.h \
+    controllers/heartbeat_controller_externallink.h \
+    controllers/home_controller_external_link.h
 
 # Unix lib Install
 unix:!symbian {
@@ -36,15 +44,25 @@ else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_external
 INSTALLS += lib
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_external_link
-headers.files   += \
-        module_external_link.h\
-        module_external_link_global.h
-INSTALLS       += headers
+headers_base.path    = $$(MACE_ROOT)/include/module_external_link
+headers_base.files   += \
+        module_external_link_global.h \
+        module_external_link.h
+INSTALLS       += headers_base
 
+#Header file copy
+headers_controllers.path    = $$(MACE_ROOT)/include/module_external_link/controllers
+headers_controllers.files   += \
+    controllers/command_controller_externalLink.h \
+    controllers/heartbeat_controller_externallink.h \
+    controllers/home_controller_external_link.h \
+    controllers/mission_controller_externalLink.h
+INSTALLS       += headers_controllers
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
+INCLUDEPATH += $$PWD/../../speedLog/
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
+INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
@@ -98,13 +116,8 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_comms/release/
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_comms/debug/ -ldata_comms
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_comms/ -ldata_comms
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/release/ -ldata_vehicle_MAVLINK
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/debug/ -ldata_vehicle_MAVLINK
-else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_MAVLINK/ -ldata_vehicle_MAVLINK
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MACE/release/ -ldata_interface_MACE
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MACE/debug/ -ldata_interface_MACE
+else:unix:!macx: LIBS += -L$$OUT_PWD/../data_interface_MACE/ -ldata_interface_MACE
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/release/ -ldata_vehicle_ardupilot
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/debug/ -ldata_vehicle_ardupilot
-else:unix: LIBS += -L$$OUT_PWD/../data_vehicle_ardupilot/ -ldata_vehicle_ardupilot
-
-INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 

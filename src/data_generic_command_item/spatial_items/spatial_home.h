@@ -2,7 +2,6 @@
 #define SPATIAL_HOME_H
 
 #include <iostream>
-#include <iomanip>
 #include <sstream>
 
 #include "data/command_item_type.h"

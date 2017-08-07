@@ -50,9 +50,17 @@ void ModuleVehicleArdupilot::cbi_VehicleCommandACK(const int &systemID, const ma
         m_AircraftController->updateCommandACK(cmdACK);
 }
 
-void ModuleVehicleArdupilot::cbi_VehicleMissionACK(const int &systemID, const mavlink_mission_ack_t &misACK)
+void ModuleVehicleArdupilot::cbi_VehicleMissionACK(const MissionItem::MissionACK &ack)
 {
+    std::cout<<"The module has now seen a mission ack."<<std::endl;
+    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+         ptr->EventVehicle_MissionACK(this, ack);
+     });
 
+    //This function shall update the local MACE core of the new mission
+    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+        ptr->NewCurrentVehicleMission(this, ack.getUpdatedMissionKey());
+    });
 }
 
 void ModuleVehicleArdupilot::cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)
@@ -62,6 +70,18 @@ void ModuleVehicleArdupilot::cbi_VehicleMissionData(const int &systemID, std::sh
     ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
         ptr->NewTopicDataValues(this, m_VehicleMissionTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
     });
+}
+
+void ModuleVehicleArdupilot::cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent &current)
+{
+    std::cout<<"The vehicle module has seen a current mission item"<<std::endl;
+    //This function shall update the local MACE core of the new mission
+    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+        ptr->GVEvents_MissionItemCurrent(this, current);
+    });
+
+    std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>(current);
+    cbi_VehicleMissionData(current.getMissionKey().m_systemID,ptrMissionTopic);
 }
 
 void ModuleVehicleArdupilot::cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)
@@ -97,13 +117,15 @@ void ModuleVehicleArdupilot::cbi_VehicleMission(const int &systemID, const Missi
 {
     mLogs->debug("Receieved a new vehicle mission.");
 
-    //We should update the core
+    //This function shall update the local MACE CORE instance of the mission
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
         ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
     });
     //We should update all listeners
     std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>(missionList);
 
+    //This function shall update the local vehicle object with the current vehicle mission
+    vehicleData->mission->setCurrentMission(missionList);
     this->cbi_VehicleMissionData(systemID,missionTopic);
 }
 
@@ -323,11 +345,6 @@ void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionLis
     default:
         break;
     }
-
-    //notify the core of the change
-    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-        ptr->EventVehicle_ACKProposedMission(this, missionList.getMissionKey());
-    });
 }
 
 
@@ -412,7 +429,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
         vehicleData->connectCallback(this);
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-            ptr->NewConstructedVehicle(this, systemID);
+            ptr->EventVehicle_NewConstructedVehicle(this, systemID);
         });
 
         vehicleData->m_MissionController->requestMission();
@@ -469,7 +486,7 @@ void ModuleVehicleArdupilot::PublishVehicleData(const int &systemID, const std::
         for(size_t i = 0 ; i < components.size() ; i++)
         {
             m_VehicleDataTopic.SetComponent(components.at(i), topicDatagram);
-            //notify listneres of topic
+            //notify listeners of topic
             ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
                 ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
             });

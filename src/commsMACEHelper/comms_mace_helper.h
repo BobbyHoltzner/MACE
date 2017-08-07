@@ -35,12 +35,6 @@ public:
 
     virtual void MACEMessage(const std::string &linkName, const mace_message_t &message);
 
-    virtual void MACEHeartbeatInfo(const std::string &linkName, const int &systemID, const mace_heartbeat_t &heartbeatMSG);
-
-    virtual void MACESyncMessage(const std::string &linkName, const int &systemID, const mace_vehicle_sync_t &heartbeatMSG);
-
-    virtual void MACECommandACK(const std::string &linkName, const int &systemID, const mace_command_ack_t &cmdACK);
-
     virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics()
     {
         //return IModuleCommandVehicle::GetTopics();

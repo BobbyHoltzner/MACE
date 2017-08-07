@@ -259,6 +259,22 @@ public:
         }
     }
 
+    std::unordered_map<std::string, TopicDatagram> getAllLatestTopics(const int &targetID)
+    {
+        std::lock_guard<std::mutex> guard(m_TopicMutex);
+        std::unordered_map<std::string, TopicDatagram> topicMap;
+        for(auto it = m_LatestTopic.cbegin() ; it != m_LatestTopic.cend() ; ++it) {
+            for(auto local_it = m_LatestTopic[it->first].cbegin(); local_it != m_LatestTopic[it->first].cend(); ++local_it)
+            {
+                if(local_it->first == targetID)
+                {
+                    topicMap[it->first] = local_it->second;
+                }
+            }
+        }
+        return topicMap;
+
+    }
 
     TopicDatagram GetCurrentTopicDatagram(const std::string &topicName, const int senderID) const {
         std::lock_guard<std::mutex> guard(m_TopicMutex);
@@ -730,9 +746,7 @@ public:
     The following methods aid in handling the reception of a new mission over the external link. The items handled
     in here will be partial lists and should not migrate into the main mission queue.
     */
-    void updateRXMission(const MissionItem::MissionList &missionList);
-    bool getRXMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const;
-    void removeFromRXMissionList(const Data::MissionKey &missionKey);
+    bool updateCurrentMissionItem(const MissionItem::MissionItemCurrent &current);
 
     /*
     The following methods aid getting the mission list from the mace data class. The following methods aid getting
@@ -752,18 +766,16 @@ public:
     */
     std::vector<Data::MissionKey> getOnboardMissionKeys(const int &systemID);
     void removeFromMissionMap(const Data::MissionKey &missionKey);
-    void receivedMissionACKKey(const Data::MissionKey &key, const Data::MissionTXState &state);
-    void receivedNewCurrentMission(const MissionItem::MissionList &missionList);
-    void receivedNewOnboardMission(const MissionItem::MissionList &missionList);
-    void receivedNewProposedMission(const MissionItem::MissionList &missionList);
+    Data::MissionKey receivedMissionACKKey(const Data::MissionKey &key, const Data::MissionTXState &newState);
+
+    void receivedNewMission(const MissionItem::MissionList &missionList);
 
     /*
     The following methods update the mission type state of the appropriate mission items.
     */
     void updateMissionExeState(const Data::MissionKey &missionKey, const Data::MissionExecutionState &state);
     bool updateOnboardMission(const Data::MissionKey &missionKey);
-    bool updateCurrentMission(const Data::MissionKey &missionKey);
-
+    bool checkForCurrentMission(const Data::MissionKey &missionKey);
 
 
 private:

@@ -3,6 +3,8 @@
 
 #include <string>
 
+namespace DataInterface_MAVLINK {
+
 enum commsItemEnum{
     ITEM_RXLIST,
     ITEM_RXITEM,
@@ -34,6 +36,6 @@ inline std::string getCommsItemEnumString(const commsItemEnum &value)
     return rtnValue;
 }
 
-
+} //end of namespace DataInterface_MAVLINK
 
 #endif // COMMS_ITEM_H

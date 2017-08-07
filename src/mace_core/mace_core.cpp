@@ -60,8 +60,7 @@ void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink>
 {
     externalLink->addListener(this);
     externalLink->addTopicListener(this);
-    //KEN Fix this...make dynamic based on learned information
-    m_ExternalLink[254] = externalLink;
+    m_ExternalLink.push_back(externalLink);
 }
 
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
@@ -138,8 +137,11 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
     UNUSED(sender);
 //    UNUSED(vehicleID);
 
-    if(m_RTA) {
-        m_RTA->MarshalCommand(RTACommands::TEST_FUNCTION, vehicleID);
+    try{
+        std::cout<<"Saw a request dummy function"<<std::endl;
+        m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
+    }catch(const std::out_of_range &oor){
+
     }
 }
 
@@ -438,7 +440,8 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
     UNUSED(sender);
    //Update the core about the information
     Data::MissionKey key = missionList.getMissionKey();
-    m_DataFusion->receivedNewOnboardMission(missionList);
+    m_DataFusion->receivedNewMission(missionList);
+    bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
 
    //Now update all potential listeners based on the type 
     if(m_GroundStation)
@@ -449,28 +452,31 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
         }
     }else if(m_ExternalLink.size() > 0)
     {
-        //we need to transfer this to the ground station
-        //KEN FIX THIS
-        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,missionList.getMissionKey());
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,missionList.getMissionKey());
+        }
     }
 }
 
-void MaceCore::EventVehicle_ACKProposedMission(const void *sender, const Data::MissionKey &key)
+void MaceCore::EventVehicle_MissionACK(const void *sender, const MissionItem::MissionACK &ack)
 {
     UNUSED(sender);
 
-    if(m_GroundStation)
+    //first we should update the core based on the acknowledgment information we had recieved
+    //this will update the approriate keys as necessary
+    Data::MissionKey key = m_DataFusion->receivedMissionACKKey(ack.getMissionKey(), ack.getNewMissionState());
+
+    if(m_ExternalLinkIDToPort.count(key.m_creatorID) > 0)
     {
-        if(m_DataFusion->getMissionKeyValidity(key))
-        {
-            m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
-        }
-    }else if(m_ExternalLink.size() > 0)
-    {
-        //we need to transfer this to the ground station
-        //KEN FIX THIS
-        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION,key);
+        //this implies we can talk to the creator of this mission
+        //let us send the acknowledgement to them
+        m_ExternalLinkIDToPort.at(key.m_creatorID)->MarshalCommand(ExternalLinkCommands::RECEIVED_MISSION_ACK, ack);
     }
+    //This may not be the place to do this
+    bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
+    if((isMissionCurrent) && (m_GroundStation))
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
 }
 
 void MaceCore::EventVehicle_REJECTProposedMission(const void *sender, const Data::MissionKey &key)
@@ -479,15 +485,14 @@ void MaceCore::EventVehicle_REJECTProposedMission(const void *sender, const Data
     UNUSED(key);
 }
 
-//void MaceCore::EventVehicle_ACKProposedMissionWChanges(const void *sender, const Data::MissionKey &originalKey, const Data::MissionACK &ackCode, const Data::MissionKey &newKey)
-//{
+void MaceCore::ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID)
+{
+    //KEN FIX THIS
+    IModuleCommandExternalLink* externalLink = (IModuleCommandExternalLink*)sender;
+    m_ExternalLinkIDToPort.insert({remoteID,externalLink});
+}
 
-//}
-
-/////////////////////////////////////////////////////////////////////////
-/// VEHICLE EVENTS
-/////////////////////////////////////////////////////////////////////////
-void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
+void MaceCore::ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
 {
     std::lock_guard<std::mutex> guard(m_VehicleMutex);
 
@@ -502,6 +507,32 @@ void MaceCore::NewConstructedVehicle(const void *sender, const int &newVehicleOb
         m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
 }
 
+void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
+{
+    std::lock_guard<std::mutex> guard(m_VehicleMutex);
+
+    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
+    m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
+    m_DataFusion->AddAvailableVehicle(newVehicleObserved);
+
+    if(m_RTA)
+        m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+
+    if(m_GroundStation)
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+    else if(m_ExternalLink.size() > 0)
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////
+/// VEHICLE EVENTS
+/////////////////////////////////////////////////////////////////////////
+
 void MaceCore::GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome)
 {
     UNUSED(sender);
@@ -509,10 +540,16 @@ void MaceCore::GVEvents_NewHomePosition(const void *sender, const CommandItem::S
     //specific methods and information. Otherwise we may be blasting to an unknown world.
     //This is also bad as we are assuming that the only item calling this would be a vehicle instance
     m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
+
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome);
     else if(m_ExternalLink.size() > 0)
-        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome);
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome);
+        }
+    }
 }
 
 void MaceCore::GVEvents_MissionExeStateUpdated(const void *sender, const Data::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState)
@@ -525,7 +562,22 @@ void MaceCore::GVEvents_MissionExeStateUpdated(const void *sender, const Data::M
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEW_MISSION_EXE_STATE,missionKey);
     else if(m_ExternalLink.size() > 0)
-        m_ExternalLink.at(254)->MarshalCommand(ExternalLinkCommands::NEW_MISSION_EXE_STATE,missionKey);
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommand(ExternalLinkCommands::NEW_MISSION_EXE_STATE,missionKey);
+        }
+    }
+}
+
+void MaceCore::GVEvents_MissionItemAchieved(const void *sender, const MissionItem::MissionItemAchieved &achieved)
+{
+    //I dont know if we need to do anything with this?
+}
+
+void MaceCore::GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current)
+{
+    m_DataFusion->updateCurrentMissionItem(current);
 }
 
 void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey)
@@ -538,7 +590,7 @@ void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const Data::Mi
 void MaceCore::NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey)
 {
     UNUSED(sender);
-    m_DataFusion->updateCurrentMission(missionKey);
+    m_DataFusion->checkForCurrentMission(missionKey);
 
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,missionKey);
@@ -548,64 +600,46 @@ void MaceCore::NewCurrentVehicleMission(const void *sender, const Data::MissionK
 /// EXTERNAL LINK EVENTS
 /////////////////////////////////////////////////////////////////////////
 
-//!
-//! \brief External_AppendMissionQueue
-//! \param sender
-//! \param missionList
-//!
-void MaceCore::ExternalEvent_ReceivingMissionQueue(const void* sender, const MissionItem::MissionList &missionList){
-
-    UNUSED(sender);
-    //This implies we are in the middle of receiving a mission and dont know yet the context
-    m_DataFusion->updateRXMission(missionList);
-}
-
-void MaceCore::ExternalEvent_MissionACK(const void* sender, const Data::MissionKey &key, const Data::MissionTXState &state)
+void MaceCore::ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK)
 {
     UNUSED(sender);
-    UNUSED(key);
-    UNUSED(state);
+    std::cout<<"The core has seen an event from the external link confirming the mission"<<std::endl;
+    //first we should update the core based on the acknowledgment information we had recieved
+    //this will update the approriate keys as necessary
+    Data::MissionKey key = m_DataFusion->receivedMissionACKKey(missionACK.getMissionKey(), missionACK.getNewMissionState());
+
+    //This may not be the place to do this
+    bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
+    if((isMissionCurrent) && (m_GroundStation))
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
 }
 
-void MaceCore::ExternalEvent_FinishedRXProposedQueue(const void* sender, const MissionItem::MissionList &missionList)
+void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const int &targetID)
 {
-    UNUSED(sender);
-    //This implies that we are finished receiving the mission and all of the elements are present for us to decide
-    //what we need to do with this
-    //This removes it from the map as a partial list that was being received
-    m_DataFusion->removeFromRXMissionList(missionList.getMissionKey());
-    //This will put it into the standard map in which the data is apart of working classes
-    m_DataFusion->receivedNewProposedMission(missionList);
-    //Notify the relevant listeners that we have received a proposed mission queue
-    int vehicleID = missionList.getVehicleID();
-    m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::UPLOAD_MISSION,missionList);
+    std::unordered_map<std::string, TopicDatagram> topicMap = m_DataFusion->getAllLatestTopics(targetID);
+    for(auto it = topicMap.cbegin() ; it != topicMap.cend() ; ++it) {
+        std::vector<std::string> components = it->second.ListNonTerminals();
+        ModuleBase* base = (ModuleBase*)sender;
+        base->NewTopic(it->first,targetID,components);
+    }
 }
 
-void MaceCore::ExternalEvent_FinishedRXOnboardQueue(const void* sender, const MissionItem::MissionList &missionList)
+void MaceCore::ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList)
 {
     UNUSED(sender);
-    //This implies that we are finished receiving the mission and all of the elements are present for us to decide
-    //what we need to do with this
-    //This removes it from the map as a partial list that was being received
-    m_DataFusion->removeFromRXMissionList(missionList.getMissionKey());
-    //This will put it into the standard map in which the data is apart of working classes
-    m_DataFusion->receivedNewOnboardMission(missionList);
-    //Notify the relevant listeners that we have received a proposed mission queue
-}
+    Data::MissionTXState state = missionList.getMissionTXState();
+    Data::MissionKey key = missionList.getMissionKey();
 
-void MaceCore::ExternalEvent_FinishedRXCurrentQueue(const void* sender, const MissionItem::MissionList &missionList)
-{
-    UNUSED(sender);
-    //This implies that we are finished receiving the mission and all of the elements are present for us to decide
-    //what we need to do with this
-    //This removes it from the map as a partial list that was being received
-    m_DataFusion->removeFromRXMissionList(missionList.getMissionKey());
-    //This will put it into the standard map in which the data is apart of working classes
-    m_DataFusion->receivedNewCurrentMission(missionList);
-    //Notify the relevant listeners that we have received a proposed mission queue
-    if(m_GroundStation)
+    m_DataFusion->receivedNewMission(missionList);
+    bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
+
+    //This may not be the place to do this
+    if((isMissionCurrent) && (m_GroundStation))
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
+    else if(state == Data::MissionTXState::RECEIVED)//This implies that the mission state has just moved from proposed to received
     {
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,missionList.getMissionKey());
+        int vehicleID = missionList.getVehicleID();
+        m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::UPLOAD_MISSION,missionList);
     }
 }
 

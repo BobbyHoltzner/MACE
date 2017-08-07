@@ -10,7 +10,6 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
     /// determine if the data has changed and should be published throughout MACE.
     //////////////////////////////////////////////////////////////////////////////
 
-    std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> rtnVector;
     switch ((int)msg->msgid) {
     case MAVLINK_MSG_ID_SYS_STATUS:
     {
@@ -74,7 +73,8 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleGPSStatus.set(gpsItem))
         {
             std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPSStatus = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(gpsItem);
-            rtnVector.push_back(ptrGPSStatus);
+            if(this->m_CB != NULL)
+                this->m_CB->cbi_VehicleStateData(systemID,ptrGPSStatus);
         }
 
         break;
@@ -281,21 +281,25 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         mavlink_mission_current_t decodedMSG;
         mavlink_msg_mission_current_decode(msg,&decodedMSG);
 
-        if(decodedMSG.seq == 0)
-        {
-            //the current target is home and we should handle this differently
-        }
-        else{
-            int currentTarget = decodedMSG.seq - 1;
-            MissionTopic::MissionItemCurrentTopic missionTopic;
-            missionTopic.setVehicleID(this->systemID);
-            missionTopic.setMissionItemIndex(currentTarget);
+        MissionItem::MissionItemCurrent current;
+        current.setMissionKey(mission->getCurrentAutoMissionKey());
+        current.setMissionCurrentIndex(decodedMSG.seq);
 
-            if(mission->missionItemCurrent.set(missionTopic))
+        if(mission->missionItemCurrent.set(current))
+        {
+            if(decodedMSG.seq == 0)
             {
-                std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>(missionTopic);
+                //the current target is home and we should handle this differently
+            }
+            else{
+                int currentIndex = decodedMSG.seq - 1;
+
+                MissionItem::MissionItemCurrent current;
+                current.setMissionKey(mission->getCurrentAutoMissionKey());
+                current.setMissionCurrentIndex(currentIndex);
+
                 if(this->m_CB != NULL)
-                    m_CB->cbi_VehicleMissionData(systemID,ptrMissionTopic);
+                    m_CB->cbi_VehicleMissionItemCurrent(current);
             }
         }
 
@@ -323,13 +327,13 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
 
         if(missionIndex >= 0)
         {
-            MissionTopic::MissionItemReachedTopic missionTopic;
-            missionTopic.setVehicleID(this->systemID);
-            missionTopic.setMissionItemIndex(missionIndex);
+            MissionItem::MissionItemAchieved itemAchieved;
+            itemAchieved.setMissionKey(mission->getCurrentAutoMissionKey());
+            itemAchieved.setMissionAchievedIndex(missionIndex);
 
-            if(mission->missionItemReached.set(missionTopic))
+            if(mission->missionItemReached.set(itemAchieved))
             {
-                std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>(missionTopic);
+                std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>(itemAchieved);
                 if(this->m_CB != NULL)
                     m_CB->cbi_VehicleMissionData(systemID,ptrMissionTopic);
             }

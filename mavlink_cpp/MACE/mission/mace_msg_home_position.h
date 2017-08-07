@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE HOME_POSITION PACKING
 
-#define MACE_MSG_ID_HOME_POSITION 242
+#define MACE_MSG_ID_HOME_POSITION 117
 
 MACEPACKED(
 typedef struct __mace_home_position_t {
@@ -15,23 +15,24 @@ typedef struct __mace_home_position_t {
  float approach_x; /*< Local X position of the end of the approach vector. Multicopters should set this position based on their takeoff path. Grass-landing fixed wing aircraft should set it the same way as multicopters. Runway-landing fixed wing aircraft should set it to the opposite direction of the takeoff, assuming the takeoff happened from the threshold / touchdown zone.*/
  float approach_y; /*< Local Y position of the end of the approach vector. Multicopters should set this position based on their takeoff path. Grass-landing fixed wing aircraft should set it the same way as multicopters. Runway-landing fixed wing aircraft should set it to the opposite direction of the takeoff, assuming the takeoff happened from the threshold / touchdown zone.*/
  float approach_z; /*< Local Z position of the end of the approach vector. Multicopters should set this position based on their takeoff path. Grass-landing fixed wing aircraft should set it the same way as multicopters. Runway-landing fixed wing aircraft should set it to the opposite direction of the takeoff, assuming the takeoff happened from the threshold / touchdown zone.*/
+ uint8_t validity; /*< Enumeration reflecting the validity of the home position. This flag is often used in response to a request for home position when such information may not have been available at that time.*/
 }) mace_home_position_t;
 
-#define MACE_MSG_ID_HOME_POSITION_LEN 52
-#define MACE_MSG_ID_HOME_POSITION_MIN_LEN 52
-#define MACE_MSG_ID_242_LEN 52
-#define MACE_MSG_ID_242_MIN_LEN 52
+#define MACE_MSG_ID_HOME_POSITION_LEN 53
+#define MACE_MSG_ID_HOME_POSITION_MIN_LEN 53
+#define MACE_MSG_ID_117_LEN 53
+#define MACE_MSG_ID_117_MIN_LEN 53
 
-#define MACE_MSG_ID_HOME_POSITION_CRC 104
-#define MACE_MSG_ID_242_CRC 104
+#define MACE_MSG_ID_HOME_POSITION_CRC 149
+#define MACE_MSG_ID_117_CRC 149
 
 #define MACE_MSG_HOME_POSITION_FIELD_Q_LEN 4
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_HOME_POSITION { \
-    242, \
+    117, \
     "HOME_POSITION", \
-    10, \
+    11, \
     {  { "latitude", NULL, MACE_TYPE_INT32_T, 0, 0, offsetof(mace_home_position_t, latitude) }, \
          { "longitude", NULL, MACE_TYPE_INT32_T, 0, 4, offsetof(mace_home_position_t, longitude) }, \
          { "altitude", NULL, MACE_TYPE_INT32_T, 0, 8, offsetof(mace_home_position_t, altitude) }, \
@@ -42,12 +43,13 @@ typedef struct __mace_home_position_t {
          { "approach_x", NULL, MACE_TYPE_FLOAT, 0, 40, offsetof(mace_home_position_t, approach_x) }, \
          { "approach_y", NULL, MACE_TYPE_FLOAT, 0, 44, offsetof(mace_home_position_t, approach_y) }, \
          { "approach_z", NULL, MACE_TYPE_FLOAT, 0, 48, offsetof(mace_home_position_t, approach_z) }, \
+         { "validity", NULL, MACE_TYPE_UINT8_T, 0, 52, offsetof(mace_home_position_t, validity) }, \
          } \
 }
 #else
 #define MACE_MESSAGE_INFO_HOME_POSITION { \
     "HOME_POSITION", \
-    10, \
+    11, \
     {  { "latitude", NULL, MACE_TYPE_INT32_T, 0, 0, offsetof(mace_home_position_t, latitude) }, \
          { "longitude", NULL, MACE_TYPE_INT32_T, 0, 4, offsetof(mace_home_position_t, longitude) }, \
          { "altitude", NULL, MACE_TYPE_INT32_T, 0, 8, offsetof(mace_home_position_t, altitude) }, \
@@ -58,6 +60,7 @@ typedef struct __mace_home_position_t {
          { "approach_x", NULL, MACE_TYPE_FLOAT, 0, 40, offsetof(mace_home_position_t, approach_x) }, \
          { "approach_y", NULL, MACE_TYPE_FLOAT, 0, 44, offsetof(mace_home_position_t, approach_y) }, \
          { "approach_z", NULL, MACE_TYPE_FLOAT, 0, 48, offsetof(mace_home_position_t, approach_z) }, \
+         { "validity", NULL, MACE_TYPE_UINT8_T, 0, 52, offsetof(mace_home_position_t, validity) }, \
          } \
 }
 #endif
@@ -68,6 +71,7 @@ typedef struct __mace_home_position_t {
  * @param component_id ID of this component (e.g. 200 for IMU)
  * @param msg The MAVLink message to compress the data into
  *
+ * @param validity Enumeration reflecting the validity of the home position. This flag is often used in response to a request for home position when such information may not have been available at that time.
  * @param latitude Latitude (WGS84), in degrees * 1E7
  * @param longitude Longitude (WGS84, in degrees * 1E7
  * @param altitude Altitude (AMSL), in meters * 1000 (positive for up)
@@ -81,7 +85,7 @@ typedef struct __mace_home_position_t {
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mace_msg_home_position_pack(uint8_t system_id, uint8_t component_id, mace_message_t* msg,
-                               int32_t latitude, int32_t longitude, int32_t altitude, float x, float y, float z, const float *q, float approach_x, float approach_y, float approach_z)
+                               uint8_t validity, int32_t latitude, int32_t longitude, int32_t altitude, float x, float y, float z, const float *q, float approach_x, float approach_y, float approach_z)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_HOME_POSITION_LEN];
@@ -94,6 +98,7 @@ static inline uint16_t mace_msg_home_position_pack(uint8_t system_id, uint8_t co
     _mace_put_float(buf, 40, approach_x);
     _mace_put_float(buf, 44, approach_y);
     _mace_put_float(buf, 48, approach_z);
+    _mace_put_uint8_t(buf, 52, validity);
     _mace_put_float_array(buf, 24, q, 4);
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), buf, MACE_MSG_ID_HOME_POSITION_LEN);
 #else
@@ -107,6 +112,7 @@ static inline uint16_t mace_msg_home_position_pack(uint8_t system_id, uint8_t co
     packet.approach_x = approach_x;
     packet.approach_y = approach_y;
     packet.approach_z = approach_z;
+    packet.validity = validity;
     mace_array_memcpy(packet.q, q, sizeof(float)*4);
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), &packet, MACE_MSG_ID_HOME_POSITION_LEN);
 #endif
@@ -121,6 +127,7 @@ static inline uint16_t mace_msg_home_position_pack(uint8_t system_id, uint8_t co
  * @param component_id ID of this component (e.g. 200 for IMU)
  * @param chan The MAVLink channel this message will be sent over
  * @param msg The MAVLink message to compress the data into
+ * @param validity Enumeration reflecting the validity of the home position. This flag is often used in response to a request for home position when such information may not have been available at that time.
  * @param latitude Latitude (WGS84), in degrees * 1E7
  * @param longitude Longitude (WGS84, in degrees * 1E7
  * @param altitude Altitude (AMSL), in meters * 1000 (positive for up)
@@ -135,7 +142,7 @@ static inline uint16_t mace_msg_home_position_pack(uint8_t system_id, uint8_t co
  */
 static inline uint16_t mace_msg_home_position_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
                                mace_message_t* msg,
-                                   int32_t latitude,int32_t longitude,int32_t altitude,float x,float y,float z,const float *q,float approach_x,float approach_y,float approach_z)
+                                   uint8_t validity,int32_t latitude,int32_t longitude,int32_t altitude,float x,float y,float z,const float *q,float approach_x,float approach_y,float approach_z)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_HOME_POSITION_LEN];
@@ -148,6 +155,7 @@ static inline uint16_t mace_msg_home_position_pack_chan(uint8_t system_id, uint8
     _mace_put_float(buf, 40, approach_x);
     _mace_put_float(buf, 44, approach_y);
     _mace_put_float(buf, 48, approach_z);
+    _mace_put_uint8_t(buf, 52, validity);
     _mace_put_float_array(buf, 24, q, 4);
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), buf, MACE_MSG_ID_HOME_POSITION_LEN);
 #else
@@ -161,6 +169,7 @@ static inline uint16_t mace_msg_home_position_pack_chan(uint8_t system_id, uint8
     packet.approach_x = approach_x;
     packet.approach_y = approach_y;
     packet.approach_z = approach_z;
+    packet.validity = validity;
     mace_array_memcpy(packet.q, q, sizeof(float)*4);
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), &packet, MACE_MSG_ID_HOME_POSITION_LEN);
 #endif
@@ -179,7 +188,7 @@ static inline uint16_t mace_msg_home_position_pack_chan(uint8_t system_id, uint8
  */
 static inline uint16_t mace_msg_home_position_encode(uint8_t system_id, uint8_t component_id, mace_message_t* msg, const mace_home_position_t* home_position)
 {
-    return mace_msg_home_position_pack(system_id, component_id, msg, home_position->latitude, home_position->longitude, home_position->altitude, home_position->x, home_position->y, home_position->z, home_position->q, home_position->approach_x, home_position->approach_y, home_position->approach_z);
+    return mace_msg_home_position_pack(system_id, component_id, msg, home_position->validity, home_position->latitude, home_position->longitude, home_position->altitude, home_position->x, home_position->y, home_position->z, home_position->q, home_position->approach_x, home_position->approach_y, home_position->approach_z);
 }
 
 /**
@@ -193,13 +202,14 @@ static inline uint16_t mace_msg_home_position_encode(uint8_t system_id, uint8_t 
  */
 static inline uint16_t mace_msg_home_position_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mace_message_t* msg, const mace_home_position_t* home_position)
 {
-    return mace_msg_home_position_pack_chan(system_id, component_id, chan, msg, home_position->latitude, home_position->longitude, home_position->altitude, home_position->x, home_position->y, home_position->z, home_position->q, home_position->approach_x, home_position->approach_y, home_position->approach_z);
+    return mace_msg_home_position_pack_chan(system_id, component_id, chan, msg, home_position->validity, home_position->latitude, home_position->longitude, home_position->altitude, home_position->x, home_position->y, home_position->z, home_position->q, home_position->approach_x, home_position->approach_y, home_position->approach_z);
 }
 
 /**
  * @brief Send a home_position message
  * @param chan MAVLink channel to send the message
  *
+ * @param validity Enumeration reflecting the validity of the home position. This flag is often used in response to a request for home position when such information may not have been available at that time.
  * @param latitude Latitude (WGS84), in degrees * 1E7
  * @param longitude Longitude (WGS84, in degrees * 1E7
  * @param altitude Altitude (AMSL), in meters * 1000 (positive for up)
@@ -213,7 +223,7 @@ static inline uint16_t mace_msg_home_position_encode_chan(uint8_t system_id, uin
  */
 #ifdef MACE_USE_CONVENIENCE_FUNCTIONS
 
-static inline void mace_msg_home_position_send(mace_channel_t chan, int32_t latitude, int32_t longitude, int32_t altitude, float x, float y, float z, const float *q, float approach_x, float approach_y, float approach_z)
+static inline void mace_msg_home_position_send(mace_channel_t chan, uint8_t validity, int32_t latitude, int32_t longitude, int32_t altitude, float x, float y, float z, const float *q, float approach_x, float approach_y, float approach_z)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_HOME_POSITION_LEN];
@@ -226,6 +236,7 @@ static inline void mace_msg_home_position_send(mace_channel_t chan, int32_t lati
     _mace_put_float(buf, 40, approach_x);
     _mace_put_float(buf, 44, approach_y);
     _mace_put_float(buf, 48, approach_z);
+    _mace_put_uint8_t(buf, 52, validity);
     _mace_put_float_array(buf, 24, q, 4);
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_HOME_POSITION, buf, MACE_MSG_ID_HOME_POSITION_MIN_LEN, MACE_MSG_ID_HOME_POSITION_LEN, MACE_MSG_ID_HOME_POSITION_CRC);
 #else
@@ -239,6 +250,7 @@ static inline void mace_msg_home_position_send(mace_channel_t chan, int32_t lati
     packet.approach_x = approach_x;
     packet.approach_y = approach_y;
     packet.approach_z = approach_z;
+    packet.validity = validity;
     mace_array_memcpy(packet.q, q, sizeof(float)*4);
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_HOME_POSITION, (const char *)&packet, MACE_MSG_ID_HOME_POSITION_MIN_LEN, MACE_MSG_ID_HOME_POSITION_LEN, MACE_MSG_ID_HOME_POSITION_CRC);
 #endif
@@ -252,7 +264,7 @@ static inline void mace_msg_home_position_send(mace_channel_t chan, int32_t lati
 static inline void mace_msg_home_position_send_struct(mace_channel_t chan, const mace_home_position_t* home_position)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
-    mace_msg_home_position_send(chan, home_position->latitude, home_position->longitude, home_position->altitude, home_position->x, home_position->y, home_position->z, home_position->q, home_position->approach_x, home_position->approach_y, home_position->approach_z);
+    mace_msg_home_position_send(chan, home_position->validity, home_position->latitude, home_position->longitude, home_position->altitude, home_position->x, home_position->y, home_position->z, home_position->q, home_position->approach_x, home_position->approach_y, home_position->approach_z);
 #else
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_HOME_POSITION, (const char *)home_position, MACE_MSG_ID_HOME_POSITION_MIN_LEN, MACE_MSG_ID_HOME_POSITION_LEN, MACE_MSG_ID_HOME_POSITION_CRC);
 #endif
@@ -266,7 +278,7 @@ static inline void mace_msg_home_position_send_struct(mace_channel_t chan, const
   is usually the receive buffer for the channel, and allows a reply to an
   incoming message with minimum stack space usage.
  */
-static inline void mace_msg_home_position_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  int32_t latitude, int32_t longitude, int32_t altitude, float x, float y, float z, const float *q, float approach_x, float approach_y, float approach_z)
+static inline void mace_msg_home_position_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t validity, int32_t latitude, int32_t longitude, int32_t altitude, float x, float y, float z, const float *q, float approach_x, float approach_y, float approach_z)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char *buf = (char *)msgbuf;
@@ -279,6 +291,7 @@ static inline void mace_msg_home_position_send_buf(mace_message_t *msgbuf, mace_
     _mace_put_float(buf, 40, approach_x);
     _mace_put_float(buf, 44, approach_y);
     _mace_put_float(buf, 48, approach_z);
+    _mace_put_uint8_t(buf, 52, validity);
     _mace_put_float_array(buf, 24, q, 4);
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_HOME_POSITION, buf, MACE_MSG_ID_HOME_POSITION_MIN_LEN, MACE_MSG_ID_HOME_POSITION_LEN, MACE_MSG_ID_HOME_POSITION_CRC);
 #else
@@ -292,6 +305,7 @@ static inline void mace_msg_home_position_send_buf(mace_message_t *msgbuf, mace_
     packet->approach_x = approach_x;
     packet->approach_y = approach_y;
     packet->approach_z = approach_z;
+    packet->validity = validity;
     mace_array_memcpy(packet->q, q, sizeof(float)*4);
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_HOME_POSITION, (const char *)packet, MACE_MSG_ID_HOME_POSITION_MIN_LEN, MACE_MSG_ID_HOME_POSITION_LEN, MACE_MSG_ID_HOME_POSITION_CRC);
 #endif
@@ -302,6 +316,16 @@ static inline void mace_msg_home_position_send_buf(mace_message_t *msgbuf, mace_
 
 // MESSAGE HOME_POSITION UNPACKING
 
+
+/**
+ * @brief Get field validity from home_position message
+ *
+ * @return Enumeration reflecting the validity of the home position. This flag is often used in response to a request for home position when such information may not have been available at that time.
+ */
+static inline uint8_t mace_msg_home_position_get_validity(const mace_message_t* msg)
+{
+    return _MACE_RETURN_uint8_t(msg,  52);
+}
 
 /**
  * @brief Get field latitude from home_position message
@@ -422,6 +446,7 @@ static inline void mace_msg_home_position_decode(const mace_message_t* msg, mace
     home_position->approach_x = mace_msg_home_position_get_approach_x(msg);
     home_position->approach_y = mace_msg_home_position_get_approach_y(msg);
     home_position->approach_z = mace_msg_home_position_get_approach_z(msg);
+    home_position->validity = mace_msg_home_position_get_validity(msg);
 #else
         uint8_t len = msg->len < MACE_MSG_ID_HOME_POSITION_LEN? msg->len : MACE_MSG_ID_HOME_POSITION_LEN;
         memset(home_position, 0, MACE_MSG_ID_HOME_POSITION_LEN);

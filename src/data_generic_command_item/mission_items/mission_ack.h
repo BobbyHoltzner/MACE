@@ -1,44 +1,59 @@
 #ifndef MISSION_ACK_H
 #define MISSION_ACK_H
 
-#include "data/mission_type.h"
+#include "data/mission_ack.h"
+#include "data/mission_key.h"
 
 namespace MissionItem {
 
 class MissionACK
 {
 public:
-    MissionACK(const int &systemID);
+    MissionACK(const int &systemID, const Data::MISSION_RESULT &ack, const Data::MissionKey &key, const Data::MissionTXState &newState);
 
 public:
-    void setSystemID(const int &systemID){
-        m_SystemID = systemID;
-    }
-
     int getSystemID() const{
-        return m_SystemID;
+        return this->m_SystemID;
     }
 
-    void setMissionType(const Data::MissionType &missionType){
-        this->missionType = missionType;
+    Data::MISSION_RESULT getMissionResult() const{
+        return this->result;
     }
 
-    Data::MissionType getCommandType() const{
-        return missionType;
+    Data::MissionKey getMissionKey() const{
+        return this->refKey;
+    }
+
+    Data::MissionTXState getNewMissionState() const{
+        return this->newState;
+    }
+
+    Data::MissionKey getUpdatedMissionKey() const{
+        Data::MissionKey key = getMissionKey();
+        key.m_missionState = getNewMissionState();
+        return key;
     }
 
 public:
     void operator = (const MissionACK &rhs)
     {
         this->m_SystemID = rhs.m_SystemID;
-        this->missionType = rhs.missionType;
+        this->result = rhs.result;
+        this->refKey = rhs.refKey;
+        this->newState = rhs.newState;
     }
 
     bool operator == (const MissionACK &rhs) {
         if(this->m_SystemID != rhs.m_SystemID){
             return false;
         }
-        if(this->missionType != rhs.missionType){
+        if(this->result != rhs.result){
+            return false;
+        }
+        if(!(this->refKey != rhs.refKey)){
+            return false;
+        }
+        if(this->newState != rhs.newState){
             return false;
         }
         return true;
@@ -50,17 +65,13 @@ public:
 
 
 private:
-
-    //!
-    //! \brief m_SystemID
-    //!
     int m_SystemID;
 
-    //!
-    //! \brief missionType This denotes the queue in which the information should be stored.
-    //! This parameter will be packaged in the COMPID protocol for now.
-    //!
-    Data::MissionType missionType;
+    Data::MISSION_RESULT result;
+
+    Data::MissionKey refKey;
+
+    Data::MissionTXState newState;
 };
 
 } //end of namespace MissionItem

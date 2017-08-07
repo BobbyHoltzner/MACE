@@ -4,7 +4,7 @@ namespace DataInterface_MAVLINK {
 
 GuidedController_MAVLINK::GuidedController_MAVLINK(const int &targetID, const int &originatingID):
     systemID(targetID), transmittingID(originatingID),
-    mToExit(false), currentRetry(0), maxRetries(5), responseTimeout(500),
+    currentRetry(0), maxRetries(5), responseTimeout(500),
     currentCommsState(Data::ControllerCommsState::NEUTRAL),
     m_CB(NULL), prevTransmit(NULL),
     helperMAVtoMACE(targetID),helperMACEtoMAV(originatingID,0)
@@ -38,13 +38,11 @@ void GuidedController_MAVLINK::updateWaypointTarget(const CommandItem::SpatialWa
     prevTransmit = new PreviousGuided<mavlink_mission_item_t>(guidedItemEnum::WAYPOINT, request);
 
     currentRetry = 0;
-    mToExit = false;
+    this->start();
+    mTimer.start();
 
     if(m_CB)
         m_CB->cbiGuidedController_TransmitMissionItem(request);
-
-    this->start();
-    mTimer.start();
 }
 
 void GuidedController_MAVLINK::receivedMissionACK(const mavlink_mission_ack_t &missionACK)

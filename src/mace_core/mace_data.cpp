@@ -63,42 +63,17 @@ int MaceData::getAvailableMissionID(const Data::MissionKey &key)
 /// MISSION METHODS | HANDLING NEW RECEIVING QUEUES
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-The following methods aid in handling the reception of a new mission over the external link. The items handled
-in here will be partial lists and should not migrate into the main mission queue.
-*/
-void MaceData::updateRXMission(const MissionItem::MissionList &missionList)
-{
-    std::lock_guard<std::mutex> guard(MUTEXRXMissions);
-    Data::MissionKey key = missionList.getMissionKey();
-    mapRXMissions[key] = missionList;
-}
-
-bool MaceData::getRXMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const
-{
-    //this will search through the proposed mission queue for the mission key
-    //and reutrn the list associated with this
-    std::map<Data::MissionKey,MissionItem::MissionList>::const_iterator it;
-    std::lock_guard<std::mutex> guard(MUTEXRXMissions);
-    it = mapRXMissions.find(missionKey);
-
-    if(it != mapRXMissions.end())
-    {
-        missionList = it->second;
-        return true;
-    }
-    return false;
-}
-
-void MaceData::removeFromRXMissionList(const Data::MissionKey &missionKey)
-{
-    std::lock_guard<std::mutex> guard(MUTEXRXMissions);
-    mapRXMissions.erase(missionKey);
-}
-
-/*
 The following methods aid getting the mission list from the mace data class. The following methods aid getting
 the current mission object and keys.
 */
+bool MaceData::updateCurrentMissionItem(const MissionItem::MissionItemCurrent &current)
+{
+    Data::MissionKey key = current.getMissionKey();
+    int index = current.getMissionCurrentIndex();
+
+    std::lock_guard<std::mutex> guard(MUTEXMissions);
+    mapMissions.find(key)->second.setActiveIndex(index);
+}
 
 bool MaceData::getMissionList(const int &systemID, const Data::MissionType &type, const Data::MissionTXState &state, MissionItem::MissionList &missionList) const
 {
@@ -230,42 +205,32 @@ void MaceData::removeFromMissionMap(const Data::MissionKey &missionKey)
     mapMissions.erase(missionKey);
 }
 
-void MaceData::receivedMissionACKKey(const Data::MissionKey &missionKey, const Data::MissionTXState &state)
+Data::MissionKey MaceData::receivedMissionACKKey(const Data::MissionKey &missionKey, const Data::MissionTXState &newState)
 {
     std::lock_guard<std::mutex> guard(MUTEXMissions);
     try{
-        mapMissions.at(missionKey).setMissionTXState(state);
+        MissionItem::MissionList copyList = mapMissions.at(missionKey);
+        Data::MissionKey newKey = missionKey;
+        newKey.m_missionState = newState;
+        copyList.setMissionKey(newKey);
+        mapMissions.erase(missionKey);
+        mapMissions[newKey] = copyList;
+        return newKey;
     }catch(const std::out_of_range &oor){
         std::cout<<"receivedMissionACKKey tried to access an item OOR"<<std::endl;
     }
+    return missionKey;
 }
 
-void MaceData::receivedNewCurrentMission(const MissionItem::MissionList &missionList)
-{
-    bool returnVal = this->updateCurrentMission(missionList.getMissionKey());
-    UNUSED(returnVal);
-
-    std::lock_guard<std::mutex> guard(MUTEXMissions);
-    Data::MissionKey key = missionList.getMissionKey();
-    mapMissions[key] = missionList;
-}
-
-void MaceData::receivedNewOnboardMission(const MissionItem::MissionList &missionList)
+void MaceData::receivedNewMission(const MissionItem::MissionList &missionList)
 {
     std::lock_guard<std::mutex> guard(MUTEXMissions);
     Data::MissionKey key = missionList.getMissionKey();
     mapMissions[key] = missionList;
 
-    //KEN THIS IS A HACK
-    if(mapCurrentMission.count(key.m_systemID) == 0)
-        mapCurrentMission[key.m_systemID] = key;
-}
-
-void MaceData::receivedNewProposedMission(const MissionItem::MissionList &missionList)
-{
-    std::lock_guard<std::mutex> guard(MUTEXMissions);
-    Data::MissionKey key = missionList.getMissionKey();
-    mapMissions[key] = missionList;
+    //KEN fix: we should update this current mission list, the issue is the lock ga
+//    if(missionList.getMissionTXState() == Data::MissionTXState::CURRENT)
+//        this->updateCurrentMission(missionList.getMissionKey());
 }
 
 /*
@@ -306,25 +271,29 @@ bool MaceData::updateOnboardMission(const Data::MissionKey &missionKey)
     return false;
 }
 
-bool MaceData::updateCurrentMission(const Data::MissionKey &missionKey)
+bool MaceData::checkForCurrentMission(const Data::MissionKey &missionKey)
 {
     int systemID = missionKey.m_systemID;
     std::lock_guard<std::mutex> guard(MUTEXMissions);
 
-    if(mapCurrentMission.count(systemID))
+    if((missionKey.m_missionState == Data::MissionTXState::CURRENT) &&
+            ((missionKey.m_missionType == Data::MissionType::AUTO) ||
+             (missionKey.m_missionType == Data::MissionType::GUIDED)))
     {
-        Data::MissionKey oldKey = mapCurrentMission.at(systemID);
-        try{
-            if(mapMissions.at(oldKey).getMissionType() == Data::MissionType::GUIDED)
-                mapMissions.erase(oldKey);
-        }catch(const std::out_of_range &oor){
+        //let us remove the old guided mission because this will no longer be valid
+        if(mapCurrentMission.count(systemID))
+        {
+            Data::MissionKey oldKey = mapCurrentMission.at(systemID);
+            try{
+                if(mapMissions.at(oldKey).getMissionType() == Data::MissionType::GUIDED)
+                    mapMissions.erase(oldKey);
+            }catch(const std::out_of_range &oor){
+            }
         }
-    }
-
-    if(mapMissions.count(missionKey) > 0) //this means we have the data
+        mapCurrentMission[systemID] = missionKey;
         return true;
-
+    }
     return false;
 }
 
-}
+} //end of namespace MaceCore

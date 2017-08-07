@@ -3,6 +3,8 @@
 
 #include <string>
 
+namespace DataInterface_MAVLINK{
+
 enum commandItemEnum{
     COMMAND_INT,
     COMMAND_LONG,
@@ -29,5 +31,7 @@ inline std::string getCommandItemEnumString(const commandItemEnum &value)
 
     return rtnValue;
 }
+
+} // end of namespace DataInterface_MAVLINK
 
 #endif // COMMAND_ITEM_H
