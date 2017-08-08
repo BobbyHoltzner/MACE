@@ -11,9 +11,10 @@ HomeController_ExternalLink::HomeController_ExternalLink(HomeController_Interfac
     connectCallback(cb);
 }
 
-void HomeController_ExternalLink::updateLoggerAddress(const std::string &loggerName)
+void HomeController_ExternalLink::updateLogging(const bool &toLog, const std::string &name)
 {
-    mLog = spdlog::get(loggerName);
+    UNUSED(toLog);
+    mLog = spdlog::get(name);
 }
 
 void HomeController_ExternalLink::clearPreviousTransmit()

@@ -149,6 +149,8 @@ private:
     int activeMissionItem;
 
 public:
+    friend std::ostream& operator<<(std::ostream& os, const MissionList& t);
+
     std::vector<std::shared_ptr<CommandItem::AbstractCommandItem>> missionQueue;
 };
 

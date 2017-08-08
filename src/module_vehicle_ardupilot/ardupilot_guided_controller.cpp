@@ -21,14 +21,6 @@ void Ardupilot_GuidedController::updateCommandACK(const mavlink_command_ack_t &c
     UNUSED(cmdACK);
 }
 
-void Ardupilot_GuidedController::initializeMissionSequence()
-{
-//    executionState = true;
-//    std::shared_ptr<CommandItem::AbstractCommandItem> missionItem = m_CurrentMission.getActiveMissionItem();
-//    mavlink_message_t msg;
-//    vehicleDataObject->generateBasicGuidedMessage(missionItem,m_LinkChan,msg);
-//    m_LinkMarshaler->SendMAVMessage<mavlink_message_t>(m_LinkName, msg);
-}
 
 double Ardupilot_GuidedController::distanceToTarget(){
     std::shared_ptr<CommandItem::AbstractCommandItem> currentMissionItem = m_CurrentMission.getActiveMissionItem();

@@ -53,7 +53,6 @@ private:
 
     void SpinDownController();
 
-
 public:
 
     //callback interface support for the DataInterface_MAVLINK object
