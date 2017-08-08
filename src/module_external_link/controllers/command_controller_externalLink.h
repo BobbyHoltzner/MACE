@@ -5,6 +5,7 @@
 #include <QDate>
 #include "spdlog/spdlog.h"
 
+#include "common/common.h"
 #include "mace.h"
 
 #include "data/controller_comms_state.h"
@@ -35,6 +36,8 @@ public:
         std::cout << "Destructor on the mavlink command controller" << std::endl;
         mToExit = true;
     }
+
+    void updateLogging(const bool &toLog, const std::string &name);
 
     void connectCallback(CommandController_Interface *cb)
     {

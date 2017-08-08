@@ -7,12 +7,16 @@ CommandController_ExternalLink::CommandController_ExternalLink(CommandController
     systemID(0), transmittingID(0),
     currentRetry(0), maxRetries(3), responseTimeout(5000),\
     currentCommsState(Data::ControllerCommsState::NEUTRAL),
-    m_CB(NULL), prevTransmit(NULL)
+    m_CB(NULL), prevTransmit(NULL), mLog(NULL)
 {
-    //mLog = spdlog::get("Log_Vehicle" + std::to_string(this->systemID));
     connectCallback(cb);
 }
 
+void CommandController_ExternalLink::updateLogging(const bool &toLog, const std::string &name)
+{
+    UNUSED(toLog);
+    mLog = spdlog::get(name);
+}
 
 void CommandController_ExternalLink::updateIDS(const int &targetID, const int &originatingID)
 {
@@ -35,6 +39,9 @@ void CommandController_ExternalLink::receivedCommandACK(const mace_command_ack_t
         mTimer.stop();
 
         logCommandACK(cmdACK);
+
+        if(mLog)
+           mLog->error("Command Controller recevied an acknowledgement of type " + std::to_string(cmdACK.result) + " for command " + std::to_string(cmdACK.command) + ".");
 
         commandItemEnum type = prevTransmit->getType();
         switch(type)
@@ -101,12 +108,14 @@ mace_command_short_t CommandController_ExternalLink::initializeCommandShort()
 
 void CommandController_ExternalLink::setSystemArm(const CommandItem::ActionArm &commandItem, const int &compID)
 {
+    if(mLog)
+    {
+        std::stringstream buffer;
+        buffer << commandItem;
 
-    std::stringstream buffer;
-    buffer << commandItem;
-    std::cout<<"Sending a system arm command"<<std::endl;
-    //mLog->debug("Command Controller is requesting the system to arm.");
-    //mLog->info(buffer.str());
+        mLog->debug("Command Controller is requesting the system to arm.");
+        mLog->info(buffer.str());
+    }
 
     mace_command_short_t cmd = initializeCommandShort();
     cmd.command = (uint8_t)Data::CommandItemType::CI_ACT_ARM;
@@ -127,12 +136,14 @@ void CommandController_ExternalLink::setSystemArm(const CommandItem::ActionArm &
 
 void CommandController_ExternalLink::setSystemTakeoff(const CommandItem::SpatialTakeoff &commandItem, const int &compID)
 {
-    std::stringstream buffer;
-    buffer << commandItem;
-    std::cout<<"Sending a system takeoff command"<<std::endl;
+    if(mLog)
+    {
+        std::stringstream buffer;
+        buffer << commandItem;
 
-    //mLog->debug("Command Controller is requesting the system to takeoff.");
-    //mLog->info(buffer.str());
+        mLog->debug("Command Controller is requesting the system to takeoff.");
+        mLog->info(buffer.str());
+    }
 
     mace_command_long_t cmd = initializeCommandLong();
     cmd.command = (uint8_t)Data::CommandItemType::CI_NAV_TAKEOFF;
@@ -160,12 +171,14 @@ void CommandController_ExternalLink::setSystemTakeoff(const CommandItem::Spatial
 
 void CommandController_ExternalLink::setSystemLand(const CommandItem::SpatialLand &commandItem, const int &compID)
 {
-    std::stringstream buffer;
-    buffer << commandItem;
-    std::cout<<"Sending a system land command"<<std::endl;
+    if(mLog)
+    {
+        std::stringstream buffer;
+        buffer << commandItem;
 
-    //mLog->debug("Command Controller is requesting the system to land.");
-    //mLog->info(buffer.str());
+        mLog->debug("Command Controller is requesting the system to land.");
+        mLog->info(buffer.str());
+    }
 
     mace_command_long_t cmd = initializeCommandLong();
     cmd.command = (uint8_t)Data::CommandItemType::CI_NAV_LAND;
@@ -193,8 +206,8 @@ void CommandController_ExternalLink::setSystemLand(const CommandItem::SpatialLan
 
 void CommandController_ExternalLink::setSystemRTL(const CommandItem::SpatialRTL &commandItem, const int &compID)
 {
-    //mLog->debug("Command Controller is requesting the system to RTL.");
-    std::cout<<"Sending a system RTL command"<<std::endl;
+    if(mLog)
+        mLog->debug("Command Controller is requesting the system to RTL.");
 
     mace_command_short_t cmd = initializeCommandShort();
     cmd.command = (uint8_t)Data::CommandItemType::CI_NAV_RETURN_TO_LAUNCH;
@@ -214,8 +227,8 @@ void CommandController_ExternalLink::setSystemRTL(const CommandItem::SpatialRTL 
 
 void CommandController_ExternalLink::setSystemMissionCommand(const CommandItem::ActionMissionCommand &commandItem, const int &compID)
 {
-    //mLog->debug("Command Controller is requesting to set the system mission command.");
-    std::cout<<"Sending a system mission command"<<std::endl;
+    if(mLog)
+        mLog->debug("Command Controller is requesting to set the system mission command.");
 
     mace_command_short_t cmd = initializeCommandShort();
     cmd.command = (uint8_t)Data::CommandItemType::CI_ACT_MISSIONCOMMAND;
@@ -273,18 +286,20 @@ void CommandController_ExternalLink::run()
 
                 if(type == commandItemEnum::COMMAND_SHORT)
                 {
-                    //mLog->error("Command Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommandItemEnumString(type) + ".");
                     PreviousCommand<mace_command_short_t> *tmp = static_cast<PreviousCommand<mace_command_short_t>*>(prevTransmit);
                     mace_command_short_t msgTransmit = tmp->getData();
+                    if(mLog)
+                        mLog->error("Command Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommandItemEnumString(type) + " of type " + std::to_string(msgTransmit.command) + ".");
                     mTimer.start();
                     if(m_CB)
                         m_CB->cbiCommandController_transmitCommand(msgTransmit);
                 }
                 else if(type == commandItemEnum::COMMAND_LONG)
                 {
-                    //mLog->error("Command Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommandItemEnumString(type) + ".");
                     PreviousCommand<mace_command_long_t> *tmp = static_cast<PreviousCommand<mace_command_long_t>*>(prevTransmit);
                     mace_command_long_t msgTransmit = tmp->getData();
+                    if(mLog)
+                        mLog->error("Command Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommandItemEnumString(type) + " of type " + std::to_string(msgTransmit.command) + ".");
                     mTimer.start();
                     if(m_CB)
                         m_CB->cbiCommandController_transmitCommand(msgTransmit);
