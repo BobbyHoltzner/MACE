@@ -117,5 +117,15 @@ void MissionList::setActiveIndex(const int &activeIndex)
     activeMissionItem = activeIndex;
 }
 
+std::ostream& operator<<(std::ostream& os, const MissionList& t)
+{
+    std::stringstream stream;
+    stream.precision(6);
+    stream << std::fixed << "Mission List Key" << t.getMissionKey()
+           <<", Size: " << std::to_string(t.getQueueSize()) << ".";
+    os << stream.str();
+
+    return os;
+}
 
 }//end of namespace MissionItem

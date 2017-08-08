@@ -101,7 +101,9 @@ bool MissionKey::operator !=(const MissionKey &rhs) const
 std::ostream& operator<<(std::ostream& os, const MissionKey& t)
 {
     std::stringstream stream;
-    stream << std::fixed << "Mission Key: System ID " << std::to_string(t.m_systemID) << ", Creator ID"<< std::to_string(t.m_creatorID) << ".";
+    stream << std::fixed << "Mission Key: System ID " << std::to_string(t.m_systemID)
+           << ", Creator ID"<< std::to_string(t.m_creatorID)
+           << ", Mission ID " << std::to_string(t.m_missionID) << ".";
     os << stream.str();
 
     return os;

@@ -48,7 +48,7 @@ public:
         mToExit = true;
     }
 
-    void updateLoggerAddress(const std::string &loggerName);
+    void updateLogging(const bool &toLog, const std::string &name);
 
     void connectCallback(MissionController_Interface *cb)
     {

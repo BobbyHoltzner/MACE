@@ -70,7 +70,7 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 
 }
 
-void ModuleExternalLink::createLog(const int &systemID)
+std::string ModuleExternalLink::createLog(const int &systemID)
 {
     std::string logname = "";
     char* MACEPath = getenv("MACE_ROOT");
@@ -93,6 +93,7 @@ void ModuleExternalLink::createLog(const int &systemID)
     spdlog::set_async_mode(q_size,spdlog::async_overflow_policy::discard_log_msg,nullptr,std::chrono::seconds(2));
     mLog = spdlog::basic_logger_mt(logNameArray, logname);
     mLog->set_level(spdlog::level::debug);
+    return loggerName;
 }
 
 void ModuleExternalLink::transmitMessage(const mace_message_t &msg)
@@ -259,9 +260,13 @@ void ModuleExternalLink::HeartbeatInfo(const int &systemID, const mace_heartbeat
             ptr->ExternalEvent_UpdateRemoteID(this, systemID);
         });
 
+        std::string loggerName = createLog(systemID);
         m_CommandController->updateIDS(systemID,254);
+        m_CommandController->updateLogging(true,loggerName);
         m_HomeController->updateIDS(systemID,254);
+        m_HomeController->updateLogging(true,loggerName);
         m_MissionController->updateIDS(systemID,254);
+        m_MissionController->updateLogging(true,loggerName);
 
         //The system has yet to have communicated through this module
         //We therefore have to notify the core that there is a new vehicle
@@ -647,8 +652,8 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                     std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
 
                     mace_message_t msg;
-                    mace_mission_current_t current;
-                    mace_msg_mission_current_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&current);
+                    mace_mission_item_current_t current;
+                    mace_msg_mission_item_current_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&current);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 
                 }

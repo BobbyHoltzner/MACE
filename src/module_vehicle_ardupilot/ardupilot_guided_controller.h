@@ -28,7 +28,6 @@ public:
         std::cout << "Destructor on guidance controller" << std::endl;
     }
 
-    void initializeMissionSequence();
     void updatedMission(const MissionItem::MissionList &updatedMission);
 
     double distanceToTarget();

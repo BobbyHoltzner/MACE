@@ -15,7 +15,8 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += \
     system_description.cpp \
     mission_key.cpp \
-    mission_key_change.cpp
+    mission_key_change.cpp \
+    environment_time.cpp
 
 HEADERS += data_global.h \
     i_topic_component_data_object.h \
@@ -44,7 +45,8 @@ HEADERS += data_global.h \
     mission_command.h \
     mission_execution_state.h \
     command_validity_type.h \
-    controller_comms_state.h
+    controller_comms_state.h \
+    environment_time.h
     loiter_direction.h
 
 # Unix lib Install

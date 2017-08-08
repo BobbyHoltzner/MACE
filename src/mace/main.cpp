@@ -9,6 +9,8 @@
 
 #include "module_collection.h"
 
+#include "data/environment_time.h"
+
 const char kPathSeparator =
 #ifdef _WIN32
                             '\\';
@@ -18,9 +20,11 @@ const char kPathSeparator =
 
 int main(int argc, char *argv[])
 {
+    Data::EnvironmentTime currentTime;
+    Data::EnvironmentTime::CurrentTime(Data::Devices::SYSTEMCLOCK, currentTime);
+    currentTime.ToString()
     //generate the factory that can make module instances
     MaceCore::ModuleFactory* factory = ModuleCollection::GenerateFactory();
-
 
     //Initialize core and configure data object
     MaceCore::MaceCore core;
