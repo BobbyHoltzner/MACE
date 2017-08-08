@@ -1,6 +1,9 @@
 #include <iostream>
 #include <thread>
 
+#include <QDir>
+#include <QString>
+
 #include "mace_core/mace_core.h"
 
 #include "configuration_reader_xml.h"
@@ -22,7 +25,7 @@ int main(int argc, char *argv[])
 {
     Data::EnvironmentTime currentTime;
     Data::EnvironmentTime::CurrentTime(Data::Devices::SYSTEMCLOCK, currentTime);
-    currentTime.ToString()
+
     //generate the factory that can make module instances
     MaceCore::ModuleFactory* factory = ModuleCollection::GenerateFactory();
 
@@ -34,10 +37,23 @@ int main(int argc, char *argv[])
     std::string filename = "";
 
     char* MACEPath = getenv("MACE_ROOT");
-
+    std::string loggingPath = "";
     if(MACEPath){
-
         std::string rootPath(MACEPath);
+        rootPath += "/logs/";
+        QDir loggingDirectory(QString::fromStdString(rootPath));
+
+        std::string newPath = currentTime.dateString() + "_Test_";
+        int testIndex = 0;
+        std::string finalPath = newPath + std::to_string(testIndex);
+
+        while(!loggingDirectory.mkdir(QString::fromStdString(finalPath)))
+        {
+            testIndex++;
+            finalPath = newPath + std::to_string(testIndex);
+        }
+        loggingPath = loggingDirectory.absolutePath().toStdString() + finalPath;
+
         std::cout << "The current MACE_ROOT path is: " << rootPath << std::endl;
         filename = rootPath + kPathSeparator + "MaceSetup.xml";
     }else{

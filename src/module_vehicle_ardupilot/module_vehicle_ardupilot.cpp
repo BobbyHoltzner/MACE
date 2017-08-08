@@ -15,18 +15,7 @@ void ModuleVehicleArdupilot::ConfigureModule(const std::shared_ptr<MaceCore::Mod
 
 void ModuleVehicleArdupilot::createLog(const int &systemID)
 {
-    std::string logname = "";
-    char* MACEPath = getenv("MACE_ROOT");
-
-    const char kPathSeparator =
-    #ifdef _WIN32
-                                '\\';
-    #else
-                                '/';
-    #endif
-
-    std::string rootPath(MACEPath);
-    logname = rootPath + kPathSeparator + "logs/VehicleModule_" + std::to_string(systemID) + ".txt";
+    std::string logname = this->loggingPath + "/VehicleModule_" + std::to_string(systemID) + ".txt";
     std::string loggerName = "VehicleModule_" + std::to_string(systemID);
     char logNameArray[loggerName.size()+1];//as 1 char space for null is also required
     strcpy(logNameArray, loggerName.c_str());
