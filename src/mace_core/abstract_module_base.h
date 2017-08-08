@@ -101,6 +101,15 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<ModuleParameterValue> &params) = 0;
 
+    //!
+    //! \brief AssignLoggingDirectory
+    //! \param path
+    //!
+    void AssignLoggingDirectory(const std::string &path)
+    {
+        this->loggingPath = path;
+    }
+
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated) = 0;
 
@@ -122,8 +131,10 @@ public:
         return m_Data;
     }
 
-private:
+protected:
+    std::string loggingPath;
 
+private:
     std::shared_ptr<const MaceData> m_Data;
 };
 
