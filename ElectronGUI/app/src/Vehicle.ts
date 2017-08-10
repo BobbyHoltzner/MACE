@@ -26,6 +26,7 @@ export class Vehicle{
     highlightColor: string;
     opaqueHighlightColor: string;
     currentTarget: {distanceToTarget: number, targetPosition: PositionType, icon: L.DivIcon, active: boolean};
+    availableModes: string[]
 
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
@@ -121,6 +122,8 @@ export class Vehicle{
             }),
             active: false
         }
+
+        this.availableModes = ["STABILIZE", "LOITER", "UNKNOWN"];
     }
 
     setPosition(position: PositionType) {

@@ -9,6 +9,7 @@ import { textSeverityToColor } from '../util/Colors';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import Avatar from 'material-ui/Avatar';
+import Menu from 'material-ui/Menu';
 import IconButton from 'material-ui/IconButton';
 import { aircraftImgSrcFromType } from '../util/VehicleHelper';
 import { Colors } from '../util/Colors';
@@ -25,7 +26,9 @@ type Props = {
 type State = {
     selectedBattery?: string,
     batteryText?: string,
-    showHUDMessage?: boolean
+    showHUDMessage?: boolean,
+    vehicleModeText?: string,
+    openVehicleMode?: boolean
 }
 
 export class VehicleHUD extends React.Component<Props, State> {
@@ -36,7 +39,9 @@ export class VehicleHUD extends React.Component<Props, State> {
         this.state = {
             selectedBattery: "Voltage",
             batteryText: this.props.aircraft.fuel.batteryVoltage + " V",
-            showHUDMessage: false
+            showHUDMessage: false,
+            vehicleModeText: this.props.aircraft.vehicleMode,
+            openVehicleMode: false
         }
     }
 
@@ -52,6 +57,10 @@ export class VehicleHUD extends React.Component<Props, State> {
             else {
                 this.setState({showHUDMessage: true});
             }
+        }
+
+        if(nextProps.aircraft.vehicleMode !== this.props.aircraft.vehicleMode) {
+            this.setState({vehicleModeText: nextProps.aircraft.vehicleMode});
         }
 
     }
@@ -87,6 +96,12 @@ export class VehicleHUD extends React.Component<Props, State> {
         });
     };
 
+    handleModeChange = (value: any) => {
+        // let modeText = this.props.aircraft.vehicleMode;
+        console.log("Handle mode change: " + value);
+        this.props.handleAircraftCommand(this.props.vehicleID, "SET_VEHICLE_MODE", value);
+    }
+
     render() {
         const boxShadow = this.props.aircraft.isSelected ? this.props.highlightColor + " 0px 1px 20px, rgba(0, 0, 0, .5) 0px 1px 4px" : "rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px"
         const hudStyle = {position: "relative", width: 90 + "%", marginBottom: 15, boxShadow: boxShadow};
@@ -107,13 +122,32 @@ export class VehicleHUD extends React.Component<Props, State> {
         else if(lastHeardSeconds > 20) {
             heartbeatColor = MUIColors.red500;
         }
+
+        let modeMenuItems = [];
+        for(let index in this.props.aircraft.availableModes) {
+            let mode = this.props.aircraft.availableModes[index];
+            modeMenuItems.push(
+                <MenuItem key={mode} targetOrigin={{color: 'rgba(0,0,0,0.38)', horizontal: 'middle', vertical: 'center'}} style={{paddingLeft: 0, paddingRight: 0, paddingTop: 0, paddingBottom: 0, marginLeft: 0, marginRight: 0}} value={mode} primaryText={mode} label={mode} />
+            )
+        }
+
         const hudTitle = <div className="row">
                             <div className="col-xs-6">
                                 <div className="col-xs-12">
                                     <span>ID: {this.props.vehicleID}</span>
                                 </div>
-                                <div className="col-xs-12">
-                                    <span style={{fontSize: 14+'px', color: 'rgba(0, 0, 0, 0.541176)'}}>{this.props.aircraft.vehicleMode}</span>
+                                <div className="col-xs-12" style={{paddingTop: 0, paddingBottom: 0}}>
+                                    <Menu desktop={true} style={{paddingLeft: 0, paddingRight: 0, paddingTop: -30, paddingBottom: 0, marginTop: -15, marginLeft: -30, marginRight: 0}}>
+                                        <MenuItem
+                                            targetOrigin={{horizontal: 'right', vertical: 'top'}}
+                                            style={{color: 'rgba(0,0,0,0.7)', width: -30, paddingLeft: 0, paddingRight: 0, paddingTop: 0, paddingBottom: 0, marginLeft: 0, marginRight: 0}}
+                                            primaryText={this.props.aircraft.vehicleMode}
+                                            rightIcon={<i style={{marginLeft: -50}} className="material-icons">arrow_drop_down</i>}
+                                            menuItems={[
+                                                modeMenuItems
+                                            ]}
+                                        />
+                                    </Menu>
                                 </div>
                             </div>
                             <div className="col-xs-6" style={{paddingLeft: 0, paddingRight: 0}}>

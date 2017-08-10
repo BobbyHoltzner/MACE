@@ -26,8 +26,6 @@ import { getRandomRGB } from '../util/Colors';
 import FlatButton from 'material-ui/FlatButton';
 
 import * as deepcopy from 'deepcopy';
-var winston = require('winston');
-winston.emitErrs = true;
 
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
@@ -65,7 +63,8 @@ type State = {
   useContext?: boolean,
   contextAnchor?: L.LeafletMouseEvent,
   MACEConnected?: boolean,
-  environmentBoundary?: PositionType[]
+  environmentBoundary?: PositionType[],
+  showDraw?: boolean
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -122,41 +121,10 @@ export default class AppContainer extends React.Component<Props, State> {
       showTakeoffDialog: false,
       showSaveTakeoff: false,
       MACEConnected: false,
-      environmentBoundary: []
+      environmentBoundary: [],
+      showDraw: false
     }
 
-    // // Set up logger:
-    // this.logger = new winston.Logger({
-    //     transports: [
-    //         new winston.transports.File({
-    //             timestamp: function() {
-    //               let date = new Date();
-    //               let year = date.getFullYear();
-    //               let month = ('0'+(date.getMonth()+1)).slice(-2);
-    //               let day = date.getDate();
-    //               let hour = date.getHours();
-    //               let minutes = date.getMinutes();
-    //               let seconds = date.getSeconds();
-    //               let msecs = date.getMilliseconds();
-    //               return '[' + year + '-' + month + '-' + day + ' ' + hour + ':' + minutes + ':' + seconds + '.' + msecs + ']';
-    //             },
-    //             level: 'info',
-    //             filename: '../logs/GUI_logs.log',
-    //             handleExceptions: true,
-    //             json: false,
-    //             maxsize: 5242880, //5MB
-    //             maxFiles: 5,
-    //             colorize: false,
-    //             formatter: function customFileFormatter (options: any) {
-    //                 // Return string will be passed to logger.
-    //                 return options.timestamp() +' ['+ options.level.toUpperCase() +'] '+ (undefined !== options.message ? options.message : '') +
-    //                 (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '' );
-    //             }
-    //         })
-    //     ],
-    //     exitOnError: false
-    // });
-    // this.logger.info('************************ Starting log ************************');
   }
 
   componentDidMount(){
@@ -236,15 +204,16 @@ export default class AppContainer extends React.Component<Props, State> {
     if(jsonData.dataType === "ConnectedVehicles"){
       let jsonVehicles = jsonData as ConnectedVehiclesType;
 
-      console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
+      // console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
 
       // Check if vehicle is already in the map. If so, do nothing. If not, add it:
       for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
         if (stateCopy[jsonVehicles.connectedVehicles[i].toString()] !== undefined){
-          return;
+          // console.log("Vehicle found: " + jsonVehicles.connectedVehicles[i]);
+          continue;
         }
         else {
-          console.log("Index: " + i);
+          console.log("Vehicle NOT found: " + jsonVehicles.connectedVehicles[i]);
           let newVehicle = new Vehicle(jsonVehicles.connectedVehicles[i]);
           let rgb = getRandomRGB();
 
@@ -284,7 +253,7 @@ export default class AppContainer extends React.Component<Props, State> {
         Object.keys(this.state.connectedVehicles).length === 1)
       {
         stateCopy[vehiclePosition.vehicleID].isNew = false;
-        this.setState({mapCenter: [stateCopy[vehiclePosition.vehicleID].position.lat, stateCopy[vehiclePosition.vehicleID].position.lon], mapZoom: 19});
+        // this.setState({mapCenter: [stateCopy[vehiclePosition.vehicleID].position.lat, stateCopy[vehiclePosition.vehicleID].position.lon], mapZoom: 19});
       }
 
       this.vehicleDB = stateCopy;
@@ -539,6 +508,9 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(action === "TestButton2") {
       this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION2", "");
     }
+    else if(action === "EditBoundary") {
+      this.setState({showDraw: true, openDrawer: false});
+    }
   }
 
   handleSaveVehicleHome = (vehicleID: string, vehicleHome: PositionType) => {
@@ -613,7 +585,7 @@ export default class AppContainer extends React.Component<Props, State> {
         selectedID = stateCopy[id].isSelected ? id : "0";
 
         if(stateCopy[id].isSelected === true && (stateCopy[id].position.lat !== 0 && stateCopy[id].position.lat !== 0)){
-          this.setState({mapCenter: [stateCopy[id].position.lat, stateCopy[id].position.lon]});
+          // this.setState({mapCenter: [stateCopy[id].position.lat, stateCopy[id].position.lon]});
         }
       }
       else {
@@ -780,6 +752,7 @@ export default class AppContainer extends React.Component<Props, State> {
               contextGoHere={this.contextGoHere}
               MACEConnected={this.state.MACEConnected}
               environmentBoundary={this.state.environmentBoundary}
+              showDraw={this.state.showDraw}
              />
 
 

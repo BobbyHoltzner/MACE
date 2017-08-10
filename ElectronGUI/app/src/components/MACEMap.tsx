@@ -5,6 +5,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme();
 
 import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon } from 'react-leaflet';
+// import { EditControl } from "react-leaflet-draw"
 import * as colors from 'material-ui/styles/colors';
 import { Vehicle } from '../Vehicle';
 import { ContextMenu } from '../components/ContextMenu';
@@ -25,7 +26,8 @@ type Props = {
     setContextAnchor: (e: L.LeafletMouseEvent) => void
     contextAnchor: L.LeafletMouseEvent,
     MACEConnected: boolean,
-    environmentBoundary: PositionType[]
+    environmentBoundary: PositionType[],
+    showDraw: boolean
 }
 
 type State = {
@@ -62,6 +64,40 @@ export default class MACEMap extends React.Component<Props, State> {
   triggerContextMenu = (event: L.LeafletMouseEvent) => {
     this.props.setContextAnchor(event);
     this.setState({showContextMenu: !this.state.showContextMenu});
+  }
+
+  _onDrawEditPath = (e: any) => {
+    console.log('Path edited !');
+  }
+
+  _onDrawCreate = (e: any) => {
+    // polyline = e.layer;
+    // To edit this polyline call : polyline.handler.enable()
+    console.log('Path created !');
+  }
+
+  _onDrawDeleted = (e: any) => {
+    console.log('Path deleted !');
+  }
+
+  _mountedDraw = (drawControl: any) => {
+    console.log('Component mounted !');
+  }
+
+  _onDrawEditStart = () => {
+    console.log('Edit is starting !');
+  }
+
+  _onDrawEditStop = () => {
+    console.log('Edit is stopping !');
+  }
+
+  _onDrawDeleteStart = () => {
+    console.log('Delete is starting !');
+  }
+
+  _onDrawDeleteStop = () => {
+    console.log('Delete is stopping !');
   }
 
 
@@ -183,6 +219,27 @@ export default class MACEMap extends React.Component<Props, State> {
                     })}
 
                   </LayerGroup>
+                }
+
+                {this.props.showDraw &&
+                  {/* <FeatureGroup>
+                      <EditControl
+                        position='topleft'
+                        onEdited={this._onDrawEditPath}
+                        onCreated={this._onDrawCreate}
+                        onDeleted={this._onDrawDeleted}
+                        onMounted={this._mountedDraw}
+                        onEditStart={this._onDrawEditStart}
+                        onEditStop={this._onDrawEditStop}
+                        onDeleteStart={this._onDrawDeleteStart}
+                        onDeleteStop={this._onDrawDeleteStop}
+                        draw={
+                          {
+                            marker: false
+                          }
+                        }
+                      />
+                  </FeatureGroup> */}
                 }
 
             </Map>
