@@ -276,7 +276,6 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
     }
     case MAVLINK_MSG_ID_MISSION_CURRENT:
     {
-        std::cout<<"How many times was this called"<<std::endl;
         //This is message definition 42
         //Message that announces the sequence number of the current active mission item. The MAV will fly towards this mission item.
         mavlink_mission_current_t decodedMSG;
