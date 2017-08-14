@@ -40,13 +40,14 @@ int main(int argc, char *argv[])
     std::string loggingPath = "";
     if(MACEPath){
         std::string rootPath(MACEPath);
-        rootPath += "/logs/";
-        QDir loggingDirectory(QString::fromStdString(rootPath));
+        //rootPath += "/logs/";
+        QDir loggingDirectory(QString::fromStdString(rootPath + "/logs/"));
 
         std::string newPath = currentTime.dateString() + "_Test_";
         int testIndex = 0;
         std::string finalPath = newPath + std::to_string(testIndex);
 
+        loggingDirectory.mkpath(QString::fromStdString(rootPath + "/logs/"));
         while(!loggingDirectory.mkdir(QString::fromStdString(finalPath)))
         {
             testIndex++;
