@@ -16,6 +16,14 @@ DataGenericItem_GPS::DataGenericItem_GPS(const DataGenericItem_GPS &copyObj)
     this->VDOP = copyObj.getVDOP();
 }
 
+DataGenericItem_GPS::DataGenericItem_GPS(const mace_gps_raw_int_t &copyObj)
+{
+    this->fixtype = static_cast<Data::GPSFixType>(copyObj.fix_type);
+    this->satellitesVisible = copyObj.satellites_visible;
+    this->HDOP = copyObj.eph;
+    this->VDOP = copyObj.epv;
+}
+
 mace_gps_raw_int_t DataGenericItem_GPS::getMACECommsObject() const
 {
     mace_gps_raw_int_t rtnObj;
@@ -26,4 +34,13 @@ mace_gps_raw_int_t DataGenericItem_GPS::getMACECommsObject() const
 
     return rtnObj;
 }
+
+mace_message_t DataGenericItem_GPS::getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const
+{
+    mace_message_t msg;
+    mace_gps_raw_int_t gps = getMACECommsObject();
+    mace_msg_gps_raw_int_encode_chan(systemID,compID,chan,&msg,&gps);
+    return msg;
+}
+
 } //end of namespace DataGenericItem

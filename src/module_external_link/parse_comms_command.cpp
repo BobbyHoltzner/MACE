@@ -69,14 +69,6 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
 {
     switch(message->command)
     {
-    case(MAV_CMD_GET_HOME_POSITION):
-    {
-        CommandItem::SpatialHome missionHome = this->getDataObject()->GetVehicleHomePostion(message->target_system);
-        DataCOMMS::Mission_MACETOCOMMS missionConvert(message->target_system,message->target_component);
-        mace_message_t msg = missionConvert.Home_MACETOCOMMS(missionHome);
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
-        break;
-    }
     case((uint8_t)Data::CommandItemType::CI_NAV_TAKEOFF):
     {
         CommandItem::SpatialTakeoff tmpTakeoff;

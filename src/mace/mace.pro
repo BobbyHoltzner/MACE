@@ -52,16 +52,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../commsMACEHelper/rel
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../commsMACEHelper/debug/ -lcommsMACEHelper
 else:unix:!macx: LIBS += -L$$OUT_PWD/../commsMACEHelper/ -lcommsMACEHelper
 
-
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_comms/release/ -ldata_comms
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_comms/debug/ -ldata_comms
-else:unix: LIBS += -L$$OUT_PWD/../data_comms/ -ldata_comms
-
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
 else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
-
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_item/release/ -ldata_generic_item
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_item/debug/ -ldata_generic_item

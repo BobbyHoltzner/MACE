@@ -55,6 +55,12 @@ public:
     //!
     StateGlobalPosition(const Data::CoordinateFrameType &frame, const double &latitude, const double &longitude, const double &altitude);
 
+    //!
+    //! \brief StateGlobalPosition
+    //! \param pos
+    //!
+    StateGlobalPosition(const mace_global_position_int_t &pos);
+
 
 public:
     //!
@@ -101,7 +107,9 @@ public:
     //!
     double getAltitude() const;
 
+public:
     mace_global_position_int_t getMACECommsObject() const;
+    mace_message_t getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
 
 public:
     static double convertDegreesToRadians(const double &degrees);

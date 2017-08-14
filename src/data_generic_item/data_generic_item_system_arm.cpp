@@ -19,6 +19,13 @@ DataGenericItem_SystemArm::DataGenericItem_SystemArm(const DataGenericItem_Syste
     this->armed = copyObj.getSystemArm();
 }
 
+DataGenericItem_SystemArm::DataGenericItem_SystemArm(const mace_vehicle_armed_t &copyObj)
+{
+    if(copyObj.vehicle_armed == 1)
+        this->armed = true;
+    else
+        this->armed = false;
+}
 
 mace_vehicle_armed_t DataGenericItem_SystemArm::getMACECommsObject() const
 {
@@ -27,6 +34,14 @@ mace_vehicle_armed_t DataGenericItem_SystemArm::getMACECommsObject() const
     rtnObj.vehicle_armed = this->armed ? 1 : 0;
 
     return rtnObj;
+}
+
+mace_message_t DataGenericItem_SystemArm::getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const
+{
+    mace_message_t msg;
+    mace_vehicle_armed_t armed = getMACECommsObject();
+    mace_msg_vehicle_armed_encode_chan(systemID,compID,chan,&msg,&armed);
+    return msg;
 }
 
 } //end of namespace DataGenericItem

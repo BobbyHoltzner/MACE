@@ -4,6 +4,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "mace.h"
+
 #include "data/command_item_type.h"
 #include "data_generic_command_item/abstract_command_item.h"
 #include "data_generic_state_item/base_3d_position.h"
@@ -37,6 +39,9 @@ public:
     //! A developer should be aware that this value defaults to 0 if no arguments are provided.
     //!
     SpatialHome(const int &systemOrigin, const int &systemTarget = 0);
+
+    mace_home_position_t getMACECommsObject() const;
+    mace_message_t getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
 
 public:
     //!

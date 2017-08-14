@@ -12,6 +12,11 @@ public:
     StateAttitude();
     StateAttitude(const StateAttitude &attitude);
 
+    StateAttitude(const mace_attitude_t &att);
+    StateAttitude(const mace_attitude_rates_t &rates);
+    StateAttitude(const mace_attitude_t &att, const mace_attitude_rates_t &attRates);
+    StateAttitude(const mace_attitude_state_full_t &att);
+
 public:
     void setAttitude(const double &roll, const double &pitch, const double &yaw);
     void setAttitudeRates(const double &rollRate, const double &pitchRate, const double &yawRate);
@@ -20,6 +25,10 @@ public:
     mace_attitude_state_full_t getMACEAttitudeStateFull() const;
     mace_attitude_t getMACEEuler() const;
     mace_attitude_rates_t getMACEEulerRates() const;
+    mace_message_t getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
+    mace_message_t getMACEMsg_Rates(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
+    mace_message_t getMACEMsg_Full(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
+
 
 public:
     void operator = (const StateAttitude &rhs)

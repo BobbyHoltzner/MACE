@@ -14,6 +14,8 @@ public:
 
     DataGenericItem_SystemArm(const DataGenericItem_SystemArm &copyObj);
 
+    DataGenericItem_SystemArm(const mace_vehicle_armed_t &copyObj);
+
     void setSystemArm(const bool &arm)
     {
         this->armed = arm;
@@ -25,6 +27,7 @@ public:
     }
 
     mace_vehicle_armed_t getMACECommsObject() const;
+    mace_message_t getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
 
 public:
     void operator = (const DataGenericItem_SystemArm &rhs)

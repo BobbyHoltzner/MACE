@@ -52,6 +52,8 @@ public:
 
     DataGenericItem_GPS(const DataGenericItem_GPS &copyObj);
 
+    DataGenericItem_GPS(const mace_gps_raw_int_t &copyObj);
+
 
     void setGPSFix(const Data::GPSFixType &fix){
         this->fixtype = fix;
@@ -82,6 +84,7 @@ public:
     }
 
     mace_gps_raw_int_t getMACECommsObject() const;
+    mace_message_t getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
 
 public:
     void operator = (const DataGenericItem_GPS &rhs)
