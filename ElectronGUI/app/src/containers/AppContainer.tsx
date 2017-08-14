@@ -399,6 +399,7 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[jsonHeartbeat.vehicleID].general.aircraftType = jsonHeartbeat.aircraftType;
       stateCopy[jsonHeartbeat.vehicleID].general.companion = jsonHeartbeat.companion;
       stateCopy[jsonHeartbeat.vehicleID].general.lastHeard = new Date();
+      stateCopy[jsonHeartbeat.vehicleID].setAvailableVehicleModes();
       this.vehicleDB = stateCopy;
     }
     else if(jsonData.dataType === 'VehicleArm') {
