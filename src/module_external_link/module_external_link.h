@@ -13,10 +13,6 @@
 
 #include "common/common.h"
 
-#include "data_comms/data_external_comms.h"
-#include "data_comms/MACE_to_COMMS/state_mace_to_comms.h"
-#include "data_comms/MACE_to_COMMS/mission_mace_to_comms.h"
-
 #include "commsMACEHelper/comms_mace_helper.h"
 
 #include "mace_core/i_module_topic_events.h"

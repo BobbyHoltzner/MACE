@@ -3,7 +3,7 @@
 namespace DataGenericItem {
 
 DataGenericItem_Text::DataGenericItem_Text() :
-    severity(Data::StatusSeverityType::STATUS_INFO), dataString("")
+    severity(STATUS_SEVERITY::STATUS_INFO), dataString("")
 {
 
 }
@@ -16,7 +16,7 @@ DataGenericItem_Text::DataGenericItem_Text(const DataGenericItem_Text &copyObj)
 
 DataGenericItem_Text::DataGenericItem_Text(const mace_statustext_t &copyObj)
 {
-    this->severity = static_cast<Data::StatusSeverityType>(copyObj.severity);
+    this->severity = static_cast<STATUS_SEVERITY>(copyObj.severity);
     this->dataString = copyObj.text;
 }
 

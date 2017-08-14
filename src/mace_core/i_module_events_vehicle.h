@@ -1,8 +1,6 @@
 #ifndef I_MODULE_VEHICLE_EVENTS_H
 #define I_MODULE_VEHICLE_EVENTS_H
 
-#include "data/mission_ack.h"
-
 #include "i_module_events_general_vehicle.h"
 
 namespace MaceCore

@@ -231,7 +231,7 @@ void VehicleObject_MAVLINK::cbiMissionController_MissionACK(const mavlink_missio
         //next lets update the local data instance of the appropriate mission
         mission->setCurrentMission(missionList);
 
-        MissionItem::MissionACK ack(this->systemID, Data::MISSION_RESULT::MISSION_RESULT_ACCEPTED, originalKey, Data::MissionTXState::CURRENT);
+        MissionItem::MissionACK ack(this->systemID, MissionItem::MissionACK::MISSION_RESULT::MISSION_RESULT_ACCEPTED, originalKey, Data::MissionTXState::CURRENT);
 
         if(m_CB)
             m_CB->cbi_VehicleMissionACK(ack);

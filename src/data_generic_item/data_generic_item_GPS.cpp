@@ -3,7 +3,7 @@
 namespace DataGenericItem {
 
 DataGenericItem_GPS::DataGenericItem_GPS() :
-    fixtype(Data::GPSFixType::GPS_FIX_NO_FIX), satellitesVisible(0), HDOP(UINT16_MAX), VDOP(UINT16_MAX)
+    fixtype(GPSFixType::GPS_FIX_NO_FIX), satellitesVisible(0), HDOP(UINT16_MAX), VDOP(UINT16_MAX)
 {
 
 }
@@ -18,7 +18,7 @@ DataGenericItem_GPS::DataGenericItem_GPS(const DataGenericItem_GPS &copyObj)
 
 DataGenericItem_GPS::DataGenericItem_GPS(const mace_gps_raw_int_t &copyObj)
 {
-    this->fixtype = static_cast<Data::GPSFixType>(copyObj.fix_type);
+    this->fixtype = static_cast<GPSFixType>(copyObj.fix_type);
     this->satellitesVisible = copyObj.satellites_visible;
     this->HDOP = copyObj.eph;
     this->VDOP = copyObj.epv;

@@ -310,7 +310,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         Data::MissionType type = static_cast<Data::MissionType>(decodedMSG.mission_type);
 
         Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,type,prevState);
-        MissionItem::MissionACK ack(systemID,static_cast<Data::MISSION_RESULT>(decodedMSG.mission_result),key,curState);
+        MissionItem::MissionACK ack(systemID,static_cast<MissionItem::MissionACK::MISSION_RESULT>(decodedMSG.mission_result),key,curState);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
              ptr->ExternalEvent_MissionACK(this, ack);
@@ -466,7 +466,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
                 mace_mission_ack_t ack;
                 ack.mission_system = decodedMSG.mission_system;
                 ack.cur_mission_state = decodedMSG.mission_state;
-                ack.mission_result = (uint8_t)Data::MISSION_RESULT::MISSION_RESULT_DOES_NOT_EXIST;
+                ack.mission_result = (uint8_t)MissionItem::MissionACK::MISSION_RESULT::MISSION_RESULT_DOES_NOT_EXIST;
                 cbiMissionController_MissionACK(ack);
             }
         }
