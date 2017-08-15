@@ -4,6 +4,8 @@
 #include "data/i_topic_component_data_object.h"
 #include "data_generic_command_item/mission_items/mission_list.h"
 
+using namespace MissionItem;
+
 namespace MissionTopic{
 
 extern const char MissionListTopic_name[];
@@ -34,11 +36,11 @@ public:
         return missionList.getMissionID();
     }
 
-    Data::MissionType getCommandType() const{
+    MISSIONTYPE getCommandType() const{
         return missionList.getMissionType();
     }
 
-    Data::MissionTXState getMissionTXState() const{
+    MISSIONSTATE getMissionTXState() const{
         return missionList.getMissionTXState();
     }
 

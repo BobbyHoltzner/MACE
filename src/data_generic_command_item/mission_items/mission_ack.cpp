@@ -2,7 +2,7 @@
 
 namespace MissionItem {
 
-MissionACK::MissionACK(const int &ID, const MISSION_RESULT &ack, const Data::MissionKey &key, const Data::MissionTXState &state):
+MissionACK::MissionACK(const int &ID, const MISSION_RESULT &ack, const MissionKey &key, const MISSIONSTATE &state):
     m_SystemID(ID), result(ack), refKey(key), newState(state)
 {
 

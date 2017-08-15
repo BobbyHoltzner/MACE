@@ -4,7 +4,6 @@
 #include "topic.h"
 
 #include "data/mission_execution_state.h"
-#include "data/mission_key.h"
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_command_item/command_item_components.h"
 
@@ -31,14 +30,14 @@ public:
     //! \param missionKey
     //! \param missionExeState
     //!
-    virtual void GVEvents_MissionExeStateUpdated(const void *sender, const Data::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState) = 0;
+    virtual void GVEvents_MissionExeStateUpdated(const void *sender, const MissionItem::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState) = 0;
 
     //!
     //! \brief ConfirmedOnboardVehicleMission
     //! \param sender
     //! \param missionKey
     //!
-    virtual void ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey) = 0;
+    virtual void ConfirmedOnboardVehicleMission(const void *sender, const MissionItem::MissionKey &missionKey) = 0;
 
     //!
     //! \brief UpdateCurrentVehicleMission
@@ -46,7 +45,7 @@ public:
     //! \param systemID
     //! \param missionID
     //!
-    virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey) = 0;
+    virtual void NewCurrentVehicleMission(const void *sender, const MissionItem::MissionKey &missionKey) = 0;
 
     //!
     //! \brief GVEvents_MissionItemAchieved

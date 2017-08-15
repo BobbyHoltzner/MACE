@@ -5,21 +5,21 @@ namespace MissionTopic{
 const char MissionItemCurrentTopic_name[] = "MissionItemCurrent";
 const MaceCore::TopicComponentStructure MissionItemCurrentTopic_structure = []{
     MaceCore::TopicComponentStructure structure;
-    structure.AddTerminal<Data::MissionKey>("key");
+    structure.AddTerminal<MissionItem::MissionKey>("key");
     structure.AddTerminal<int>("currentIndex");
     return structure;
 }();
 
 MaceCore::TopicDatagram MissionItemCurrentTopic::GenerateDatagram() const {
     MaceCore::TopicDatagram datagram;
-    datagram.AddTerminal<Data::MissionKey>("key",key);
+    datagram.AddTerminal<MissionItem::MissionKey>("key",key);
     datagram.AddTerminal<int>("currentIndex",indexCurrent);
     return datagram;
 }
 
 void MissionItemCurrentTopic::CreateFromDatagram(const MaceCore::TopicDatagram &datagram)
 {
-    key = datagram.GetTerminal<Data::MissionKey>("key");
+    key = datagram.GetTerminal<MissionItem::MissionKey>("key");
     indexCurrent = datagram.GetTerminal<int>("currentIndex");
 }
 

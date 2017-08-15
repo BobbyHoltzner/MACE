@@ -49,7 +49,7 @@ public:
 
     static void updateMissionPosition(const DataState::Base3DPosition &pos, mace_mission_item_t &item);
 
-    static void updateMissionKey(const Data::MissionKey &key, mace_mission_item_t &missionItem);
+    static void updateMissionKey(const MissionItem::MissionKey &key, mace_mission_item_t &missionItem);
 
 protected:
     static void initializeMACEMissionItem(mace_mission_item_t &mavMission);

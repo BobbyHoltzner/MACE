@@ -1,7 +1,7 @@
 #ifndef MISSION_ITEM_CURRENT_H
 #define MISSION_ITEM_CURRENT_H
 
-#include "data/mission_key.h"
+#include "mission_key.h"
 
 namespace MissionItem {
 
@@ -9,14 +9,14 @@ class MissionItemCurrent
 {
 public:
     MissionItemCurrent();
-    MissionItemCurrent(const Data::MissionKey &missionKey, const int &index);
+    MissionItemCurrent(const MissionKey &missionKey, const int &index);
 
 public:
-    void setMissionKey(const Data::MissionKey &missionKey){
+    void setMissionKey(const MissionKey &missionKey){
         this->key = missionKey;
     }
 
-    Data::MissionKey getMissionKey() const{
+    MissionKey getMissionKey() const{
         return key;
     }
 
@@ -48,7 +48,7 @@ public:
     }
 
 protected:
-    Data::MissionKey key;
+    MissionKey key;
     int indexCurrent;
 };
 

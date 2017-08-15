@@ -19,6 +19,10 @@
 #include "data_generic_command_item/mission_items/mission_ack.h"
 #include "data_generic_command_item/mission_items/mission_item_achieved.h"
 #include "data_generic_command_item/mission_items/mission_item_current.h"
+#include "data_generic_command_item/mission_items/mission_key.h"
+#include "data_generic_command_item/mission_items/mission_key_change.h"
 #include "data_generic_command_item/mission_items/mission_list.h"
+#include "data_generic_command_item/mission_items/mission_state.h"
+#include "data_generic_command_item/mission_items/mission_type.h"
 
 #endif // COMMAND_ITEM_COMPONENTS_H

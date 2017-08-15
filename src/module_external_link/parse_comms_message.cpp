@@ -287,10 +287,10 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_new_onboard_mission_t decodedMSG;
         mace_msg_new_onboard_mission_decode(message,&decodedMSG);
 
-        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
+        MissionItem::MISSIONTYPE missionType = static_cast<MissionItem::MISSIONTYPE>(decodedMSG.mission_type);
+        MissionItem::MISSIONSTATE missionState = static_cast<MissionItem::MISSIONSTATE>(decodedMSG.mission_state);
 
-        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState);
+        MissionItem::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState);
 
         m_MissionController->requestMission(key);
 
@@ -305,11 +305,11 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         std::cout<<"External link has received the mission ack"<<std::endl;
         m_MissionController->receivedMissionACK(decodedMSG);
 
-        Data::MissionTXState prevState = static_cast<Data::MissionTXState>(decodedMSG.prev_mission_state);
-        Data::MissionTXState curState = static_cast<Data::MissionTXState>(decodedMSG.cur_mission_state);
-        Data::MissionType type = static_cast<Data::MissionType>(decodedMSG.mission_type);
+        MissionItem::MISSIONSTATE prevState = static_cast<MissionItem::MISSIONSTATE>(decodedMSG.prev_mission_state);
+        MissionItem::MISSIONSTATE curState = static_cast<MissionItem::MISSIONSTATE>(decodedMSG.cur_mission_state);
+        MissionItem::MISSIONTYPE type = static_cast<MissionItem::MISSIONTYPE>(decodedMSG.mission_type);
 
-        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,type,prevState);
+        MissionItem::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,type,prevState);
         MissionItem::MissionACK ack(systemID,static_cast<MissionItem::MissionACK::MISSION_RESULT>(decodedMSG.mission_result),key,curState);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
@@ -325,9 +325,9 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_mission_request_list_t decodedMSG;
         mace_msg_mission_request_list_decode(message,&decodedMSG);
 
-        Data::MissionType missionType = static_cast<Data::MissionType>(decodedMSG.mission_type);
-        Data::MissionTXState missionState = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
-        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState);
+        MissionItem::MISSIONTYPE missionType = static_cast<MissionItem::MISSIONTYPE>(decodedMSG.mission_type);
+        MissionItem::MISSIONSTATE missionState = static_cast<MissionItem::MISSIONSTATE>(decodedMSG.mission_state);
+        MissionItem::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState);
         std::cout<<key<<std::endl;
         MissionItem::MissionList missionList;
 
@@ -390,7 +390,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_msg_mission_item_current_decode(message,&decodedMSG);
 
         MissionItem::MissionItemCurrent current;
-        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,static_cast<Data::MissionType>(decodedMSG.mission_type),static_cast<Data::MissionTXState>(decodedMSG.mission_state));
+        MissionItem::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,static_cast<MissionItem::MISSIONTYPE>(decodedMSG.mission_type),static_cast<MissionItem::MISSIONSTATE>(decodedMSG.mission_state));
         current.setMissionKey(key);
         current.setMissionCurrentIndex(decodedMSG.seq);
 
@@ -421,7 +421,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_mission_item_reached_t decodedMSG;
         mace_msg_mission_item_reached_decode(message,&decodedMSG);
 
-        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,static_cast<Data::MissionType>(decodedMSG.mission_type),static_cast<Data::MissionTXState>(decodedMSG.mission_state));
+        MissionItem::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,static_cast<MissionItem::MISSIONTYPE>(decodedMSG.mission_type),static_cast<MissionItem::MISSIONSTATE>(decodedMSG.mission_state));
         MissionItem::MissionItemAchieved achieved;
         achieved.setMissionKey(key);
         achieved.setMissionAchievedIndex(decodedMSG.seq);
@@ -439,7 +439,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_mission_exe_state_t decodedMSG;
         mace_msg_mission_exe_state_decode(message,&decodedMSG);
-        Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,static_cast<Data::MissionType>(decodedMSG.mission_type));
+        MissionItem::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,static_cast<MissionItem::MISSIONTYPE>(decodedMSG.mission_type));
         Data::MissionExecutionState state = static_cast<Data::MissionExecutionState>(decodedMSG.mission_state);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
@@ -453,8 +453,8 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_mission_request_list_generic_t decodedMSG;
         mace_msg_mission_request_list_generic_decode(message,&decodedMSG);
-        Data::MissionTXState state = static_cast<Data::MissionTXState>(decodedMSG.mission_state);
-        if(state == Data::MissionTXState::CURRENT)
+        MissionItem::MISSIONSTATE state = static_cast<MissionItem::MISSIONSTATE>(decodedMSG.mission_state);
+        if(state == MissionItem::MISSIONSTATE::CURRENT)
         {
             MissionItem::MissionList currentMission;
             bool exists = this->getDataObject()->getCurrentMission(decodedMSG.mission_system,currentMission);

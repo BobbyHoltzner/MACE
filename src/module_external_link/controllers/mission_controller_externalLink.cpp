@@ -97,7 +97,7 @@ void MissionController_ExternalLink::transmitMission(const int &targetSystem, co
 
     this->missionQueue = missionQueue;
 
-    Data::MissionKey key = missionQueue.getMissionKey();
+    MissionItem::MissionKey key = missionQueue.getMissionKey();
 
     mace_mission_count_t count;
     count.count = this->missionQueue.getQueueSize();
@@ -124,7 +124,7 @@ void MissionController_ExternalLink::transmitMissionItem(const mace_mission_requ
 {
     m_LambdasToRun.push_back([this, missionRequest]{
 
-        Data::MissionKey key(missionRequest.mission_system,missionRequest.mission_creator,missionRequest.mission_id,static_cast<Data::MissionType>(missionRequest.mission_type),static_cast<Data::MissionTXState>(missionRequest.mission_state));
+        MissionItem::MissionKey key(missionRequest.mission_system,missionRequest.mission_creator,missionRequest.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionRequest.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionRequest.mission_state));
 
         if(key != this->missionQueue.getMissionKey())
         {
@@ -196,7 +196,7 @@ void MissionController_ExternalLink::receivedMissionACK(const mace_mission_ack_t
 void MissionController_ExternalLink::receivedMissionCount(const mace_mission_count_t &mission)
 {
 
-    Data::MissionKey key(mission.mission_system,mission.mission_creator,mission.mission_id,static_cast<Data::MissionType>(mission.mission_type),static_cast<Data::MissionTXState>(mission.mission_state));
+    MissionItem::MissionKey key(mission.mission_system,mission.mission_creator,mission.mission_id,static_cast<MissionItem::MISSIONTYPE>(mission.mission_type),static_cast<MissionItem::MISSIONSTATE>(mission.mission_state));
 
     this->missionQueue.setMissionKey(key);
     this->missionQueue.initializeQueue(mission.count);
@@ -232,7 +232,7 @@ void MissionController_ExternalLink::receivedMissionCount(const mace_mission_cou
 void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item_t &missionItem)
 {
     m_LambdasToRun.push_back([this, missionItem]{
-        Data::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<Data::MissionType>(missionItem.mission_type),static_cast<Data::MissionTXState>(missionItem.mission_state));
+        MissionItem::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionItem.mission_state));
 
         if(key != this->missionQueue.getMissionKey()) //this indicates for some reason the other system requested a different mission?
         {
@@ -307,10 +307,10 @@ void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item
             ackMission.prev_mission_state = (uint8_t)key.m_missionState;
 
             //KEN This is a hack but for now
-            if(key.m_missionState == Data::MissionTXState::PROPOSED)
+            if(key.m_missionState == MissionItem::MISSIONSTATE::PROPOSED)
             {
-                ackMission.cur_mission_state = (uint8_t)Data::MissionTXState::RECEIVED;
-                missionQueue.setMissionTXState(Data::MissionTXState::RECEIVED);
+                ackMission.cur_mission_state = (uint8_t)MissionItem::MISSIONSTATE::RECEIVED;
+                missionQueue.setMissionTXState(MissionItem::MISSIONSTATE::RECEIVED);
             }
             else
             {
@@ -433,7 +433,7 @@ void MissionController_ExternalLink::run()
     }
 }
 
-void MissionController_ExternalLink::requestMission(const Data::MissionKey &key)
+void MissionController_ExternalLink::requestMission(const MissionItem::MissionKey &key)
 {
     currentCommsState = Data::ControllerCommsState::RECEIVING;
     if(mLog)
@@ -470,7 +470,7 @@ void MissionController_ExternalLink::requestCurrentMission(const int &targetSyst
         mLog->info("MissionController_ExternalLink is requesting the current mission from system " + std::to_string(targetSystem) + ".");
     mace_mission_request_list_generic_t request;
     request.mission_system = targetSystem;
-    request.mission_type = (uint8_t)Data::MissionTXState::CURRENT;
+    request.mission_type = (uint8_t)MissionItem::MISSIONSTATE::CURRENT;
     request.mission_state = 0;
 
     clearPendingTasks();

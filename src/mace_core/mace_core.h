@@ -88,8 +88,8 @@ public:
     virtual void Event_ChangeSystemMode(const void* sender, const CommandItem::ActionChangeMode &command);
     virtual void Event_IssueGeneralCommand(const void* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command);
 
-    virtual void Event_GetMission(const void* sender, const Data::MissionKey &key);
-    virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const Data::MissionType &type);
+    virtual void Event_GetMission(const void* sender, const MissionItem::MissionKey &key);
+    virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const MissionItem::MISSIONTYPE &type);
     virtual void Event_GetCurrentMission(const void* sender, const int &systemID);
 
     virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID);
@@ -119,19 +119,19 @@ public:
 
     virtual void EventVehicle_MissionACK(const void *sender, const MissionItem::MissionACK &ack);
 
-    virtual void EventVehicle_REJECTProposedMission(const void *sender, const Data::MissionKey &key);
+    virtual void EventVehicle_REJECTProposedMission(const void *sender, const MissionItem::MissionKey &key);
 
-//    virtual void EventVehicle_ACKProposedMissionWChanges(const void *sender, const Data::MissionKey &originalKey, const Data::MissionACK &ackCode, const Data::MissionKey &newKey);
+//    virtual void EventVehicle_ACKProposedMissionWChanges(const void *sender, const MissionItem::MissionKey &originalKey, const Data::MissionACK &ackCode, const MissionItem::MissionKey &newKey);
 
     ////////////////////////////////////////////////////////////////////////////////////////
     /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle
     ////////////////////////////////////////////////////////////////////////////////////////
     virtual void GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome);
-    virtual void GVEvents_MissionExeStateUpdated(const void *sender, const Data::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState);
+    virtual void GVEvents_MissionExeStateUpdated(const void *sender, const MissionItem::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState);
     virtual void GVEvents_MissionItemAchieved(const void *sender, const MissionItem::MissionItemAchieved &achieved);
     virtual void GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current);
-    virtual void ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey);
-    virtual void NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey);
+    virtual void ConfirmedOnboardVehicleMission(const void *sender, const MissionItem::MissionKey &missionKey);
+    virtual void NewCurrentVehicleMission(const void *sender, const MissionItem::MissionKey &missionKey);
 
     /////////////////////////////////////////////////////////////////////////
     /// EXTERNAL LINK EVENTS

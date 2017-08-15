@@ -39,11 +39,11 @@ public:
     IModuleCommandExternalLink():
         AbstractModule_VehicleListener()
     {
-        AddCommandLogic<Data::MissionKey>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const Data::MissionKey &key){
+        AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const MissionItem::MissionKey &key){
             NewlyAvailableOnboardMission(key);
         });
 
-        AddCommandLogic<Data::MissionKey>(ExternalLinkCommands::NEW_MISSION_EXE_STATE, [this](const Data::MissionKey &key){
+        AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEW_MISSION_EXE_STATE, [this](const MissionItem::MissionKey &key){
             NewlyAvailableMissionExeState(key);
         });
 
@@ -68,9 +68,9 @@ public:
 
 public:
 
-    virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key) = 0;
+    virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key) = 0;
 
-    virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey) = 0;
+    virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey) = 0;
 
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home) = 0;
 

@@ -1,20 +1,20 @@
 #include "mission_key.h"
 
-namespace Data {
+namespace MissionItem {
 
 MissionKey::MissionKey():
-    m_systemID(0),m_creatorID(0),m_missionID(0),m_missionType(Data::MissionType::AUTO),m_missionState(Data::MissionTXState::CURRENT)
+    m_systemID(0),m_creatorID(0),m_missionID(0),m_missionType(MISSIONTYPE::AUTO),m_missionState(MISSIONSTATE::CURRENT)
 {
 
 }
 
-MissionKey::MissionKey(const int &systemID, const int &creatorID, const int &missionID, const Data::MissionType &missionType):
-    m_systemID(systemID),m_creatorID(creatorID),m_missionID(missionID),m_missionType(missionType),m_missionState(Data::MissionTXState::CURRENT)
+MissionKey::MissionKey(const int &systemID, const int &creatorID, const int &missionID, const MISSIONTYPE &missionType):
+    m_systemID(systemID),m_creatorID(creatorID),m_missionID(missionID),m_missionType(missionType),m_missionState(MISSIONSTATE::CURRENT)
 {
 
 }
 
-MissionKey::MissionKey(const int &systemID, const int &creatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTXState &missionState):
+MissionKey::MissionKey(const int &systemID, const int &creatorID, const int &missionID, const MISSIONTYPE &missionType, const MISSIONSTATE &missionState):
     m_systemID(systemID),m_creatorID(creatorID),m_missionID(missionID),m_missionType(missionType),m_missionState(missionState)
 {
 

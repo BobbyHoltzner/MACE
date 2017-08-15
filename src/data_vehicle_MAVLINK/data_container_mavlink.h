@@ -37,7 +37,7 @@ public:
 
     public:
 
-    Data::MissionKey proposedMissionConfirmed(){
+    MissionItem::MissionKey proposedMissionConfirmed(){
         MissionItem::MissionList propList = proposedAutoMission.get();
         currentAutoMission.set(propList);
         propList.clearQueue();
@@ -49,12 +49,12 @@ public:
     {
         switch(missionList.getMissionType())
         {
-        case Data::MissionType::AUTO:
+        case MissionItem::MISSIONTYPE::AUTO:
         {
             currentAutoMission.set(missionList);
             break;
         }
-        case Data::MissionType::GUIDED:
+        case MissionItem::MISSIONTYPE::GUIDED:
         {
             currentGuidedMission.set(missionList);
             break;
@@ -68,12 +68,12 @@ public:
     {
         switch(missionList.getMissionType())
         {
-        case Data::MissionType::AUTO:
+        case MissionItem::MISSIONTYPE::AUTO:
         {
             proposedAutoMission.set(missionList);
             break;
         }
-        case Data::MissionType::GUIDED:
+        case MissionItem::MISSIONTYPE::GUIDED:
         {
             proposedGuidedMission.set(missionList);
             break;
@@ -83,15 +83,15 @@ public:
         }
     }
 
-    MissionItem::MissionList Command_GetCurrentMission(const Data::MissionType &type){
+    MissionItem::MissionList Command_GetCurrentMission(const MissionItem::MISSIONTYPE &type){
         MissionItem::MissionList rtnList;
         switch(type){
-        case Data::MissionType::AUTO:
+        case MissionItem::MISSIONTYPE::AUTO:
         {
             rtnList = currentAutoMission.get();
             break;
         }
-        case Data::MissionType::GUIDED:
+        case MissionItem::MISSIONTYPE::GUIDED:
         {
             rtnList = currentGuidedMission.get();
             break;
@@ -104,15 +104,15 @@ public:
         return rtnList;
     }
 
-    MissionItem::MissionList getProposedMission(const Data::MissionType &type){
+    MissionItem::MissionList getProposedMission(const MissionItem::MISSIONTYPE &type){
         MissionItem::MissionList rtnList;
         switch(type){
-        case Data::MissionType::AUTO:
+        case MissionItem::MISSIONTYPE::AUTO:
         {
             rtnList = proposedAutoMission.get();
             break;
         }
-        case Data::MissionType::GUIDED:
+        case MissionItem::MISSIONTYPE::GUIDED:
         {
             rtnList = proposedGuidedMission.get();
             break;

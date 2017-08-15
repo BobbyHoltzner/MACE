@@ -1,6 +1,6 @@
 #include "mission_key_change.h"
 
-namespace Data {
+namespace MissionItem {
 
 MissionKeyChange::MissionKeyChange(const MissionKey &oldK, const MissionKey &newK) :
     oldKey(oldK), newKey(newK)

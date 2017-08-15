@@ -435,13 +435,13 @@ void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &m
     }
 }
 
-void ModuleExternalLink::Command_GetMission(const Data::MissionKey &key)
+void ModuleExternalLink::Command_GetMission(const MissionItem::MissionKey &key)
 {
     UNUSED(key);
     m_MissionController->requestMission(key);
 }
 
-void ModuleExternalLink::Command_SetCurrentMission(const Data::MissionKey &key)
+void ModuleExternalLink::Command_SetCurrentMission(const MissionItem::MissionKey &key)
 {
     //    mace_message_t msg;
     //    mace_mission_set_current_t request;
@@ -486,7 +486,7 @@ void ModuleExternalLink::Command_ClearOnboardGuided(const int &targetSystem)
     UNUSED(targetSystem);
 }
 
-void ModuleExternalLink::NewlyAvailableOnboardMission(const Data::MissionKey &key)
+void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::MissionKey &key)
 {
     mace_new_onboard_mission_t mission;
     mission.mission_creator = key.m_creatorID;
@@ -513,7 +513,7 @@ void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHo
 }
 
 //Ken FIX THIS: I dont know if I should pass the pertinent systemID with the key
-void ModuleExternalLink::NewlyAvailableMissionExeState(const Data::MissionKey &key)
+void ModuleExternalLink::NewlyAvailableMissionExeState(const MissionItem::MissionKey &key)
 {
     MissionItem::MissionList list;
     bool validity = this->getDataObject()->getMissionList(key,list);
@@ -552,7 +552,7 @@ void ModuleExternalLink::NewlyAvailableVehicle(const int &systemID)
 void ModuleExternalLink::ReceivedMissionACK(const MissionItem::MissionACK &ack)
 {
     mace_mission_ack_t missionACK;
-    Data::MissionKey key = ack.getMissionKey();
+    MissionItem::MissionKey key = ack.getMissionKey();
     missionACK.cur_mission_state = (uint8_t)ack.getNewMissionState();
     missionACK.mission_creator = key.m_creatorID;
     missionACK.mission_id = key.m_missionID;

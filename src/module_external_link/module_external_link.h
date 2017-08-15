@@ -234,8 +234,8 @@ public:
 
     virtual void Command_GetCurrentMission(const int &targetSystem);
 
-    virtual void Command_SetCurrentMission(const Data::MissionKey &key);
-    virtual void Command_GetMission(const Data::MissionKey &key);
+    virtual void Command_SetCurrentMission(const MissionItem::MissionKey &key);
+    virtual void Command_GetMission(const MissionItem::MissionKey &key);
     virtual void Command_ClearCurrentMission(const int &targetSystem);
 
 
@@ -299,9 +299,9 @@ public:
     /// The following are public virtual functions imposed from IModuleCommandExternalLink.
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key);
+    virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key);
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
-    virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey);
+    virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey);
     virtual void NewlyAvailableVehicle(const int &systemID);
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
 

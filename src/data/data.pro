@@ -14,8 +14,6 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
     system_description.cpp \
-    mission_key.cpp \
-    mission_key_change.cpp \
     environment_time.cpp
 
 HEADERS += data_global.h \
@@ -30,9 +28,6 @@ HEADERS += data_global.h \
     autopilot_types.h \
     controller_state.h \
     system_description.h \
-    mission_type.h \
-    mission_key.h \
-    mission_key_change.h \
     data_get_set_notifier.h \
     threadmanager.h \
     system_type.h \
