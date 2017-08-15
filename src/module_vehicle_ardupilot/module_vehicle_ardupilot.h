@@ -14,9 +14,6 @@
 #include "module_vehicle_ardupilot_global.h"
 #include "module_vehicle_MAVLINK/module_vehicle_mavlink.h"
 
-#include "data_vehicle_ardupilot/components.h"
-#include "data_vehicle_ardupilot/vehicle_object_ardupilot.h"
-
 #include "data_vehicle_MAVLINK/MACE_to_MAVLINK/command_mace_to_mavlink.h"
 #include "data_vehicle_MAVLINK/MACE_to_MAVLINK/mission_mace_to_mavlink.h"
 
@@ -36,7 +33,7 @@
 
 using namespace std::placeholders;
 
-class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
+class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
 {
 public:
     ModuleVehicleArdupilot();

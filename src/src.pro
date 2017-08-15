@@ -24,8 +24,6 @@ SUBDIRS += \
     module_vehicle_sensors \
     data_vehicle_sensors \
     module_resource_task_allocation \
-#    TestCodeHolder \
-#    TestSpatialMath \
     commsMAVLINK \
     commsMACEHelper \
 #    Voronoi

@@ -35,6 +35,11 @@ SpatialWaypoint::SpatialWaypoint(const int &systemOrigin, const int &systemTarge
 
 }
 
+SpatialWaypoint::~SpatialWaypoint()
+{
+
+}
+
 std::ostream& operator<<(std::ostream& os, const SpatialWaypoint& t)
 {
     std::stringstream stream;

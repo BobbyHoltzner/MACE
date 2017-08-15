@@ -43,6 +43,11 @@ protected:
 
     }
 
+    virtual ~AbstractCommandItem()
+    {
+
+    }
+
 public:
 
     //!
@@ -109,7 +114,7 @@ public:
     //! \brief operator = overloaded assignment operator for AbstractCommandItems.
     //! \param rhs object that the data is copied from in the assignmnet operator.
     //!
-    void operator = (const AbstractCommandItem &rhs)
+    AbstractCommandItem& operator = (const AbstractCommandItem &rhs)
     {
         this->originatingSystem = rhs.originatingSystem;
         this->targetSystem = rhs.targetSystem;

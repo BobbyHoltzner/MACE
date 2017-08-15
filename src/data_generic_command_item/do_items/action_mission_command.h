@@ -12,7 +12,6 @@ namespace CommandItem {
 class ActionMissionCommand : public AbstractCommandItem
 {
 
-
 public:
     virtual Data::CommandItemType getCommandType() const;
 

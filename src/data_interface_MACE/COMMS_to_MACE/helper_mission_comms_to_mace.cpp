@@ -99,9 +99,9 @@ void Helper_MissionCOMMStoMACE::convertHome(const mace_set_home_position_t &mace
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    missionItem.position.setX(maceItem.latitude / pow(10,7));
-    missionItem.position.setY(maceItem.longitude / pow(10,7));
-    missionItem.position.setZ(maceItem.altitude / pow(10,3));
+    missionItem.position->setX(maceItem.latitude / pow(10,7));
+    missionItem.position->setY(maceItem.longitude / pow(10,7));
+    missionItem.position->setZ(maceItem.altitude / pow(10,3));
 }
 
 void Helper_MissionCOMMStoMACE::convertChangespeed(const mace_mission_item_t &maceItem, CommandItem::ActionChangeSpeed &missionItem)

@@ -448,9 +448,9 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
     tmpHome.setTargetSystem(vehicleID);
     QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
 
-    tmpHome.position.setX(position.value("lat").toDouble());
-    tmpHome.position.setY(position.value("lon").toDouble());
-    tmpHome.position.setZ(position.value("alt").toDouble());
+    tmpHome.position->setX(position.value("lat").toDouble());
+    tmpHome.position->setY(position.value("lon").toDouble());
+    tmpHome.position->setZ(position.value("alt").toDouble());
 
     std::stringstream buffer;
     buffer << tmpHome;
@@ -466,9 +466,9 @@ void ModuleGroundStation::setGlobalOrigin(const QJsonObject &jsonObj)
 {
     CommandItem::SpatialHome tmpGlobalOrigin;
     QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
-    tmpGlobalOrigin.position.setX(position.value("lat").toDouble());
-    tmpGlobalOrigin.position.setY(position.value("lon").toDouble());
-    tmpGlobalOrigin.position.setZ(position.value("alt").toDouble());
+    tmpGlobalOrigin.position->setX(position.value("lat").toDouble());
+    tmpGlobalOrigin.position->setY(position.value("lon").toDouble());
+    tmpGlobalOrigin.position->setZ(position.value("alt").toDouble());
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
         ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
@@ -874,9 +874,9 @@ void ModuleGroundStation::sendVehicleHome(const int &vehicleID, const CommandIte
     json["dataType"] = "VehicleHome";
     json["vehicleID"] = vehicleID;
 
-    json["lat"] = home.position.getX();
-    json["lon"] = home.position.getY();
-    json["alt"] = home.position.getZ();
+    json["lat"] = home.position->getX();
+    json["lon"] = home.position->getY();
+    json["alt"] = home.position->getZ();
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());

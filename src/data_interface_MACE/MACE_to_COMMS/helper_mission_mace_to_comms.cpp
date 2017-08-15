@@ -134,11 +134,10 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertHome(const CommandItem::Sp
     mace_mission_item_t item;
     initializeMACEMissionItem(item);
     item.command = MAV_CMD_DO_SET_HOME;
-    updateMissionPosition(missionItem.position,item);
-    if(missionItem.position.has2DPositionSet())
+    if(missionItem.position->has2DPositionSet())
     {
         item.param1 = 0; //denotes to use specified location
-        updateMissionPosition(missionItem.position,item);
+        updateMissionPosition(*missionItem.position,item);
     }
     else
         item.param1 = 1; //denotes to use current location

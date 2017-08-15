@@ -21,6 +21,8 @@ public:
     SpatialWaypoint(const SpatialWaypoint &obj);
     SpatialWaypoint(const int &systemOrigin, const int &systemTarget = 0);
 
+    ~SpatialWaypoint();
+
 public:
 
     //!

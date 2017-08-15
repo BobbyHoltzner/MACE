@@ -142,14 +142,14 @@ void CommandController_MAVLINK::setHomePosition(const CommandItem::SpatialHome &
     mLog->info(buffer.str());
 
     mavlink_command_long_t cmd = initializeCommandLong();
-    if(commandItem.position.isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
+    if(commandItem.position->isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
     {
         cmd.command = MAV_CMD_DO_SET_HOME;
         cmd.target_system = commandItem.getTargetSystem();
         cmd.target_component = compID;
-        cmd.param5 = commandItem.position.getX();
-        cmd.param6 = commandItem.position.getY();
-        cmd.param7 = commandItem.position.getZ();
+        cmd.param5 = commandItem.position->getX();
+        cmd.param6 = commandItem.position->getY();
+        cmd.param7 = commandItem.position->getZ();
 
         clearPreviousTransmit();
         prevTransmit = new PreviousCommand<mavlink_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);

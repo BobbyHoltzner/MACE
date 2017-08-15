@@ -132,13 +132,13 @@ void HomeController_ExternalLink::requestHome(const int &systemID)
 
 void HomeController_ExternalLink::setHome(const CommandItem::SpatialHome &home)
 {
-    if(home.position.isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
+    if(home.position->isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
     {
         mace_set_home_position_t setHome;
         setHome.target_system = home.getTargetSystem();
-        setHome.latitude = home.position.getX() * pow(10,7);
-        setHome.longitude = home.position.getY()* pow(10,7);
-        setHome.altitude = home.position.getZ() * 1000.0;
+        setHome.latitude = home.position->getX() * pow(10,7);
+        setHome.longitude = home.position->getY()* pow(10,7);
+        setHome.altitude = home.position->getZ() * 1000.0;
 
         clearPendingTasks();
         clearPreviousTransmit();
@@ -163,9 +163,9 @@ void HomeController_ExternalLink::receivedMissionHome(const mace_home_position_t
 
         //This is the home position item associated with the vehicle
         CommandItem::SpatialHome newHome;
-        newHome.position.setX(home.latitude / pow(10,7));
-        newHome.position.setY(home.longitude / pow(10,7));
-        newHome.position.setZ(home.altitude / pow(10,7));
+        newHome.position->setX(home.latitude / pow(10,7));
+        newHome.position->setY(home.longitude / pow(10,7));
+        newHome.position->setZ(home.altitude / pow(10,7));
         newHome.setOriginatingSystem(targetID);
         newHome.setTargetSystem(targetID);
 

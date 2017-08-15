@@ -94,9 +94,9 @@ void Helper_MissionMAVLINKtoMACE::convertHome(const mavlink_set_home_position_t 
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    missionItem.position.setX(mavlinkItem.latitude / pow(10,7));
-    missionItem.position.setY(mavlinkItem.longitude / pow(10,7));
-    missionItem.position.setZ(mavlinkItem.altitude / pow(10,3));
+    missionItem.position->setX(mavlinkItem.latitude / pow(10,7));
+    missionItem.position->setY(mavlinkItem.longitude / pow(10,7));
+    missionItem.position->setZ(mavlinkItem.altitude / pow(10,3));
 }
 
 void Helper_MissionMAVLINKtoMACE::convertChangespeed(const mavlink_mission_item_t &mavlinkItem, CommandItem::ActionChangeSpeed &missionItem)

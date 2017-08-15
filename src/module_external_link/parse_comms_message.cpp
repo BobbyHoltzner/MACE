@@ -229,9 +229,9 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
         mace_message_t msg;
         mace_home_position_t homeMACE;
-        homeMACE.latitude = home.position.getX() * pow(10,7);
-        homeMACE.longitude = home.position.getY() * pow(10,7);
-        homeMACE.altitude = home.position.getZ() * pow(10,7);
+        homeMACE.latitude = home.position->getX() * pow(10,7);
+        homeMACE.longitude = home.position->getY() * pow(10,7);
+        homeMACE.altitude = home.position->getZ() * pow(10,3);
         mace_msg_home_position_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&homeMACE);
         transmitMessage(msg);
     }
@@ -249,10 +249,10 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         transmitMessage(msg);
 
         CommandItem::SpatialHome systemHome;
-        systemHome.position.setCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT);
-        systemHome.position.setX(decodedMSG.latitude / pow(10,7));
-        systemHome.position.setY(decodedMSG.longitude / pow(10,7));
-        systemHome.position.setZ(decodedMSG.altitude / pow(10,3));
+        systemHome.position->setCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT);
+        systemHome.position->setX(decodedMSG.latitude / pow(10,7));
+        systemHome.position->setY(decodedMSG.longitude / pow(10,7));
+        systemHome.position->setZ(decodedMSG.altitude / pow(10,3));
         systemHome.setTargetSystem(decodedMSG.target_system);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
@@ -269,9 +269,9 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         else
         {
             CommandItem::SpatialHome newHome;
-            newHome.position.setX(decodedMSG.latitude / pow(10,7));
-            newHome.position.setY(decodedMSG.longitude / pow(10,7));
-            newHome.position.setZ(decodedMSG.altitude / pow(10,7));
+            newHome.position->setX(decodedMSG.latitude / pow(10,7));
+            newHome.position->setY(decodedMSG.longitude / pow(10,7));
+            newHome.position->setZ(decodedMSG.altitude / pow(10,7));
             newHome.setOriginatingSystem(systemID);
             newHome.setTargetSystem(systemID);
             cbiHomeController_ReceviedHome(newHome);

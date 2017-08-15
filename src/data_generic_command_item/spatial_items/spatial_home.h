@@ -9,14 +9,14 @@
 #include "data/command_item_type.h"
 #include "data_generic_command_item/abstract_command_item.h"
 #include "data_generic_state_item/base_3d_position.h"
-
+#include "spatial_abstract_position.h"
 
 namespace CommandItem {
 
 //!
 //! \brief The SpatialHome class
 //!
-class SpatialHome : public AbstractCommandItem
+class SpatialHome : public AbstractCommandItem, public SpatialAbstractPosition
 {
 public:
     //!
@@ -25,6 +25,8 @@ public:
     //! a global relative alt coordinate frame definition.
     //!
     SpatialHome();
+
+    ~SpatialHome();
 
     //!
     //! \brief SpatialHome A default copy constructor of a SpatialHome commandItem object.
@@ -74,10 +76,15 @@ public:
     //! \brief operator =
     //! \param rhs
     //!
-    void operator = (const SpatialHome &rhs)
+    SpatialHome& operator = (const SpatialHome &rhs)
     {
-        AbstractCommandItem::operator =(rhs);
-        this->position = rhs.position;
+        *((AbstractCommandItem*)this) = *((AbstractCommandItem*)&rhs);
+        *((SpatialAbstractPosition*)this) = *((SpatialAbstractPosition*)&rhs);
+
+//        AbstractCommandItem::operator =(rhs);
+//        SpatialAbstractPosition::operator =(rhs);
+
+        //this->position = rhs.position;
     }
 
     //!
@@ -90,7 +97,7 @@ public:
         {
             return false;
         }
-        if(this->position != rhs.position)
+        if(!SpatialAbstractPosition::operator ==(rhs))
         {
             return false;
         }
@@ -112,7 +119,7 @@ public:
     //!
     //! \brief position
     //!
-    DataState::Base3DPosition position;
+//    DataState::Base3DPosition *position;
 };
 
 } //end of namespace MissionItem
