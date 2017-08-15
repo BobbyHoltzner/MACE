@@ -33,6 +33,7 @@
 
 using namespace std::placeholders;
 
+//class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
 class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
 {
 public:
