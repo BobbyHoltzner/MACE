@@ -18,9 +18,6 @@
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
-#include "data_vehicle_ardupilot/components.h"
-#include "data_vehicle_ardupilot/vehicle_object_ardupilot.h"
-
 #include "comms/comms_marshaler.h"
 
 #include "data/threadmanager.h"
