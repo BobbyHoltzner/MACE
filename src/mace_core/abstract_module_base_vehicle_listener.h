@@ -4,7 +4,7 @@
 #include "abstract_module_event_listeners.h"
 #include "metadata_vehicle.h"
 
-#include "data/mission_key.h"
+#include "data_generic_command_item/command_item_components.h"
 
 #define BASE_MODULE_VEHICLE_LISTENER_ENUMS EMIT_HEARTBEAT, ISSUE_GENERAL_COMMAND, \
     CHANGE_VEHICLE_ARM, REQUEST_VEHICLE_TAKEOFF, REQUEST_VEHICLE_LAND, REQUEST_VEHICLE_RTL, CHANGE_VEHICLE_MODE, \
@@ -85,7 +85,7 @@ public:
             Command_UploadMission(missionList);
         });
 
-        this->template AddCommandLogic<Data::MissionKey>(CT::SET_CURRENT_MISSION, [this](const Data::MissionKey &key){
+        this->template AddCommandLogic<MissionItem::MissionKey>(CT::SET_CURRENT_MISSION, [this](const MissionItem::MissionKey &key){
             Command_SetCurrentMission(key);
         });
 
@@ -93,7 +93,7 @@ public:
             Command_GetCurrentMission(targetSystem);
         });
 
-        this->template AddCommandLogic<Data::MissionKey>(CT::REQUEST_MISSION, [this](const Data::MissionKey &key){
+        this->template AddCommandLogic<MissionItem::MissionKey>(CT::REQUEST_MISSION, [this](const MissionItem::MissionKey &key){
             Command_GetMission(key);
         });
 
@@ -159,9 +159,9 @@ public:
     virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode) = 0;
 
     virtual void Command_UploadMission(const MissionItem::MissionList &missionList) = 0;
-    virtual void Command_SetCurrentMission(const Data::MissionKey &key) = 0;
+    virtual void Command_SetCurrentMission(const MissionItem::MissionKey &key) = 0;
     virtual void Command_GetCurrentMission(const int &targetSystem) = 0;
-    virtual void Command_GetMission(const Data::MissionKey &key) = 0;
+    virtual void Command_GetMission(const MissionItem::MissionKey &key) = 0;
     virtual void Command_ClearCurrentMission(const int &targetSystem) = 0;
 
     virtual void Command_GetOnboardAuto(const int &targetSystem) = 0;

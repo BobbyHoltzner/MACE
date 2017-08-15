@@ -37,7 +37,7 @@ StateGlobalPosition::StateGlobalPosition(const mace_global_position_int_t &pos)
 {
     setLatitude(pos.lat / pow(10,7));
     setLongitude(pos.lon / pow(10,7));
-    setAltitude(pos.alt / pow(10,7));
+    setAltitude(pos.alt / pow(10,3));
 }
 
 void StateGlobalPosition::setPosition(const double &latitude, const double &longitude, const double &altitude)

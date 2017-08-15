@@ -7,7 +7,7 @@ MissionItemAchieved::MissionItemAchieved()
 
 }
 
-MissionItemAchieved::MissionItemAchieved(const Data::MissionKey &missionKey, const int &index):
+MissionItemAchieved::MissionItemAchieved(const MissionKey &missionKey, const int &index):
     key(missionKey), indexAchieved(index)
 {
 

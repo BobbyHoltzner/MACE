@@ -229,7 +229,7 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
             int mode = tmp.getFlightModeFromString("AUTO");
             vehicleData->m_CommandController->setNewMode(mode);
 
-//            Data::MissionKey key = tmpData->data->currentAutoMission.get().getMissionKey();
+//            MissionItem::MissionKey key = tmpData->data->currentAutoMission.get().getMissionKey();
 //            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
 //                ptr->GVEvents_MissionExeStateUpdated(this, key, Data::MissionExecutionState::MESTATE_EXECUTING);
 //            });
@@ -296,7 +296,7 @@ void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialH
 /// direct MACE hardware module.
 /////////////////////////////////////////////////////////////////////////
 
-void ModuleVehicleArdupilot::UpdateMissionKey(const Data::MissionKeyChange &key)
+void ModuleVehicleArdupilot::UpdateMissionKey(const MissionItem::MissionKeyChange &key)
 {
 //    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(key.oldKey.m_systemID);
 //    MissionItem::MissionList missionList = tmpData->data->Command_GetCurrentMission(key.oldKey.m_missionType);
@@ -311,13 +311,13 @@ void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionLis
 {
     switch(missionList.getMissionType())
     {
-    case(Data::MissionType::AUTO): //This case should push the mission directly to the aircraft
+    case(MissionItem::MISSIONTYPE::AUTO): //This case should push the mission directly to the aircraft
     {
         if(vehicleData)
             vehicleData->m_MissionController->transmitMission(missionList);
         break;
     }
-    case(Data::MissionType::GUIDED):
+    case(MissionItem::MISSIONTYPE::GUIDED):
     {
         //In these two cases the mission should be carefully considered if we are a module
         //aboard MACE hardware companion package or communicating via ground link
@@ -337,7 +337,7 @@ void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionLis
 }
 
 
-void ModuleVehicleArdupilot::Command_SetCurrentMission(const Data::MissionKey &key)
+void ModuleVehicleArdupilot::Command_SetCurrentMission(const MissionItem::MissionKey &key)
 {
     UNUSED(key);
 }
@@ -349,7 +349,7 @@ void ModuleVehicleArdupilot::Command_GetCurrentMission(const int &targetSystem)
 //    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleVehicleArdupilot::Command_GetMission(const Data::MissionKey &key)
+void ModuleVehicleArdupilot::Command_GetMission(const MissionItem::MissionKey &key)
 {
     UNUSED(key);
 }

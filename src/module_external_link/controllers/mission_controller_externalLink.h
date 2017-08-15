@@ -119,7 +119,7 @@ public:
     //! count or acknowledgement is heard from the target system.
     //! \param key object describing the mission that this system is interesting in knowing about.
     //!
-    void requestMission(const Data::MissionKey &key);
+    void requestMission(const MissionItem::MissionKey &key);
 
     Data::ControllerCommsState getCommsState() const
     {

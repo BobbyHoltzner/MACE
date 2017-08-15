@@ -7,15 +7,16 @@
 #include <sstream>
 
 #include "mission_type.h"
+#include "mission_state.h"
 
-namespace Data {
+namespace MissionItem {
 
 class MissionKey
 {
 public:
     MissionKey();
-    MissionKey(const int &systemID, const int &creatorID, const int &missionID, const Data::MissionType &missionType);
-    MissionKey(const int &systemID, const int &creatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTXState &missionState);
+    MissionKey(const int &systemID, const int &creatorID, const int &missionID, const MISSIONTYPE &missionType);
+    MissionKey(const int &systemID, const int &creatorID, const int &missionID, const MISSIONTYPE &missionType, const MISSIONSTATE &missionState);
     MissionKey(const MissionKey &obj);
 public:
     int m_systemID;
@@ -29,9 +30,9 @@ public:
     //!
     uint64_t m_missionID;
 
-    Data::MissionType m_missionType;
+    MISSIONTYPE m_missionType;
 
-    Data::MissionTXState m_missionState;
+    MISSIONSTATE m_missionState;
 
     void operator =(const MissionKey &rhs);
 

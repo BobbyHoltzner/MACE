@@ -1,8 +1,9 @@
 #ifndef MISSION_KEY_CHANGE_H
 #define MISSION_KEY_CHANGE_H
 
-#include "data/mission_key.h"
-namespace Data {
+#include "mission_key.h"
+
+namespace MissionItem {
 
 class MissionKeyChange
 {

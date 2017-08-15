@@ -24,8 +24,6 @@
 #include "data_generic_command_item/command_item_components.h"
 
 #include "data/system_description.h"
-#include "data/mission_key.h"
-#include "data/mission_type.h"
 #include "data/mission_execution_state.h"
 
 namespace MaceCore
@@ -718,10 +716,10 @@ private:
     std::map<int,std::map<int,int>> mapMissionID;
 //methods
 public:
-    Data::MissionKey appendAssociatedMissionMap(const MissionItem::MissionList &missionList);
-    Data::MissionKey appendAssociatedMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList);
+    MissionItem::MissionKey appendAssociatedMissionMap(const MissionItem::MissionList &missionList);
+    MissionItem::MissionKey appendAssociatedMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList);
 private:
-    int getAvailableMissionID(const Data::MissionKey &key);
+    int getAvailableMissionID(const MissionItem::MissionKey &key);
 
     /*
     The following aids in handling mission reception to/from the core.
@@ -729,8 +727,8 @@ private:
 //variables
 private:
     mutable std::mutex MUTEXMissions;
-    std::map<Data::MissionKey,MissionItem::MissionList> mapMissions;
-    std::map<int,Data::MissionKey> mapCurrentMission;
+    std::map<MissionItem::MissionKey,MissionItem::MissionList> mapMissions;
+    std::map<int,MissionItem::MissionKey> mapCurrentMission;
 //methods
 public:
     /*
@@ -743,30 +741,30 @@ public:
     The following methods aid getting the mission list from the mace data class. The following methods aid getting
     the current mission object and keys.
     */
-    bool getMissionList(const int &systemID, const Data::MissionType &type, const Data::MissionTXState &state, MissionItem::MissionList &missionList) const;
-    bool getMissionList(const Data::MissionKey &missionKey, MissionItem::MissionList &missionList) const;
-    bool getCurrentMissionKey(const int &systemID, Data::MissionKey &key) const;
+    bool getMissionList(const int &systemID, const MissionItem::MISSIONTYPE &type, const MissionItem::MISSIONSTATE &state, MissionItem::MissionList &missionList) const;
+    bool getMissionList(const MissionItem::MissionKey &missionKey, MissionItem::MissionList &missionList) const;
+    bool getCurrentMissionKey(const int &systemID, MissionItem::MissionKey &key) const;
     bool getCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission) const;
     bool getCurrentMissionValidity(const int &systemID) const;
-    bool getMissionKeyValidity(const Data::MissionKey &key) const;
+    bool getMissionKeyValidity(const MissionItem::MissionKey &key) const;
 
 
     /*
     The following methods aid getting the mission list from the mace data class. The following methods aid getting
     the current mission object and keys.
     */
-    std::vector<Data::MissionKey> getOnboardMissionKeys(const int &systemID);
-    void removeFromMissionMap(const Data::MissionKey &missionKey);
-    Data::MissionKey receivedMissionACKKey(const Data::MissionKey &key, const Data::MissionTXState &newState);
+    std::vector<MissionItem::MissionKey> getOnboardMissionKeys(const int &systemID);
+    void removeFromMissionMap(const MissionItem::MissionKey &missionKey);
+    MissionItem::MissionKey receivedMissionACKKey(const MissionItem::MissionKey &key, const MissionItem::MISSIONSTATE &newState);
 
     void receivedNewMission(const MissionItem::MissionList &missionList);
 
     /*
     The following methods update the mission type state of the appropriate mission items.
     */
-    void updateMissionExeState(const Data::MissionKey &missionKey, const Data::MissionExecutionState &state);
-    bool updateOnboardMission(const Data::MissionKey &missionKey);
-    bool checkForCurrentMission(const Data::MissionKey &missionKey);
+    void updateMissionExeState(const MissionItem::MissionKey &missionKey, const Data::MissionExecutionState &state);
+    bool updateOnboardMission(const MissionItem::MissionKey &missionKey);
+    bool checkForCurrentMission(const MissionItem::MissionKey &missionKey);
 
 
 private:

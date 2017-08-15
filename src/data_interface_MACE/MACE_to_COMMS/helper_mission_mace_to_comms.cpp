@@ -279,7 +279,7 @@ void Helper_MissionMACEtoCOMMS::updateMissionPosition(const DataState::Base3DPos
     item.z = pos.getZ();
 }
 
-void Helper_MissionMACEtoCOMMS::updateMissionKey(const Data::MissionKey &key, mace_mission_item_t &missionItem)
+void Helper_MissionMACEtoCOMMS::updateMissionKey(const MissionItem::MissionKey &key, mace_mission_item_t &missionItem)
 {
     missionItem.mission_system = key.m_systemID;
     missionItem.mission_creator = key.m_creatorID;

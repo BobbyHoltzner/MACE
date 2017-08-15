@@ -320,8 +320,8 @@ void ModuleRTA::updateMACEMissions(std::map<int, Cell> updateCells) {
                 int vehicleID = cell.first;
 
                 MissionItem::MissionList missionList;
-                missionList.setMissionTXState(Data::MissionTXState::PROPOSED);
-                missionList.setMissionType(Data::MissionType::AUTO);
+                missionList.setMissionTXState(MissionItem::MISSIONSTATE::PROPOSED);
+                missionList.setMissionType(MissionItem::MISSIONTYPE::AUTO);
                 missionList.setVehicleID(vehicleID);
 
                 // Grab the sorted points from the cell:

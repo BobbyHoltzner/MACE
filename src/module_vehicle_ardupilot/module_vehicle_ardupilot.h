@@ -159,11 +159,11 @@ public:
 
     virtual void Command_UploadMission(const MissionItem::MissionList &missionList);
 
-    virtual void Command_SetCurrentMission(const Data::MissionKey &key);
+    virtual void Command_SetCurrentMission(const MissionItem::MissionKey &key);
 
     virtual void Command_GetCurrentMission(const int &targetSystem);
 
-    virtual void Command_GetMission(const Data::MissionKey &key);
+    virtual void Command_GetMission(const MissionItem::MissionKey &key);
 
     virtual void Command_ClearCurrentMission(const int &targetSystem);
 
@@ -200,7 +200,7 @@ public:
     //! \brief UpdateMissionKey
     //! \param key
     //!
-    virtual void UpdateMissionKey(const Data::MissionKeyChange &key);
+    virtual void UpdateMissionKey(const MissionItem::MissionKeyChange &key);
 
 
     /////////////////////////////////////////////////////////////////////////////

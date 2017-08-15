@@ -43,7 +43,9 @@ SOURCES += \
     mission_items/mission_list.cpp \
     command_item_ack.cpp \
     mission_items/mission_item_achieved.cpp \
-    mission_items/mission_item_current.cpp
+    mission_items/mission_item_current.cpp \
+    mission_items/mission_key.cpp \
+    mission_items/mission_key_change.cpp
 HEADERS +=\
     do_items/action_arm.h \
     do_items/action_change_mode.h \
@@ -67,7 +69,11 @@ HEADERS +=\
     abstract_command_item.h \
     command_item_ack.h \
     mission_items/mission_item_achieved.h \
-    mission_items/mission_item_current.h
+    mission_items/mission_item_current.h \
+    mission_items/mission_state.h \
+    mission_items/mission_type.h \
+    mission_items/mission_key.h \
+    mission_items/mission_key_change.h
 
 # Unix lib Install
 unix:!symbian {
@@ -107,7 +113,11 @@ headers_missionComponents.files   += \
     mission_items/mission_ack.h \
     mission_items/mission_item_achieved.h \
     mission_items/mission_item_current.h \
-    mission_items/mission_list.h
+    mission_items/mission_key.h \
+    mission_items/mission_key_change.h \
+    mission_items/mission_list.h \
+    mission_items/mission_state.h \
+    mission_items/mission_type.h
 INSTALLS       += headers_missionComponents
 
 #Header file copy

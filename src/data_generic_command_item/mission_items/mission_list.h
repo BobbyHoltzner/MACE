@@ -5,8 +5,10 @@
 #include <memory>
 #include <vector>
 
+#include "mission_key.h"
+
 #include "data_generic_command_item/abstract_command_item.h"
-#include "data/mission_key.h"
+
 #include "data/mission_execution_state.h"
 
 namespace MissionItem {
@@ -26,9 +28,9 @@ public:
 
 public:
     MissionList();
-    MissionList(const int &targetID, const int &generatorID, const Data::MissionType &missionType, const Data::MissionTXState &state);
-    MissionList(const int &targetID, const int &generatorID, const Data::MissionType &missionType, const Data::MissionTXState &state, const int &size);
-    MissionList(const int &targetID, const int &generatorID, const int &missionID, const Data::MissionType &missionType, const Data::MissionTXState &state, const int &size);
+    MissionList(const int &targetID, const int &generatorID, const MISSIONTYPE &missionType, const MISSIONSTATE &state);
+    MissionList(const int &targetID, const int &generatorID, const MISSIONTYPE &missionType, const MISSIONSTATE &state, const int &size);
+    MissionList(const int &targetID, const int &generatorID, const int &missionID, const MISSIONTYPE &missionType, const MISSIONSTATE &state, const int &size);
     MissionList(const MissionList &rhs);
 
 public:
@@ -45,11 +47,11 @@ public:
 
 public:
 
-    Data::MissionKey getMissionKey() const{
+    MissionKey getMissionKey() const{
         return this->missionKey;
     }
 
-    void setMissionKey(const Data::MissionKey &key){
+    void setMissionKey(const MissionKey &key){
         this->missionKey = key;
     }
 
@@ -77,19 +79,19 @@ public:
         return this->missionKey.m_missionID;
     }
 
-    void setMissionType(const Data::MissionType &missionType){
+    void setMissionType(const MISSIONTYPE &missionType){
         this->missionKey.m_missionType = missionType;
     }
 
-    Data::MissionType getMissionType() const{
+    MISSIONTYPE getMissionType() const{
         return this->missionKey.m_missionType;
     }
 
-    void setMissionTXState(const Data::MissionTXState &missionTypeState){
+    void setMissionTXState(const MISSIONSTATE &missionTypeState){
         this->missionKey.m_missionState = missionTypeState;
     }
 
-    Data::MissionTXState getMissionTXState() const{
+    MISSIONSTATE getMissionTXState() const{
         return this->missionKey.m_missionState;
     }
 
@@ -139,7 +141,7 @@ public:
 
 private:
 
-    Data::MissionKey missionKey;
+    MissionKey missionKey;
 
     Data::MissionExecutionState missionExeState;
 

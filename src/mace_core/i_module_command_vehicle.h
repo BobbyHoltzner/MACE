@@ -6,8 +6,8 @@
 
 #include "i_module_topic_events.h"
 #include "i_module_events_vehicle.h"
-#include "data/mission_key_change.h"
-#include "data/mission_ack.h"
+
+#include "data_generic_command_item/command_item_components.h"
 
 namespace MaceCore
 {
@@ -37,7 +37,7 @@ public:
             RequestDummyFunction(vehicleID);
         });
 
-        this->template AddCommandLogic<Data::MissionKeyChange>(VehicleCommands::UPDATE_MISSION_KEY, [this](const Data::MissionKeyChange &key){
+        this->template AddCommandLogic<MissionItem::MissionKeyChange>(VehicleCommands::UPDATE_MISSION_KEY, [this](const MissionItem::MissionKeyChange &key){
             UpdateMissionKey(key);
         });
 
@@ -51,7 +51,7 @@ public:
 
 public:
     virtual void RequestDummyFunction(const int &vehicleID) = 0;
-    virtual void UpdateMissionKey(const Data::MissionKeyChange &key) = 0;
+    virtual void UpdateMissionKey(const MissionItem::MissionKeyChange &key) = 0;
 };
 
 

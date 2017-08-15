@@ -1,7 +1,7 @@
 #ifndef MISSION_ACK_H
 #define MISSION_ACK_H
 
-#include "data/mission_key.h"
+#include "mission_key.h"
 
 namespace MissionItem {
 
@@ -22,7 +22,7 @@ public:
     };
 
 public:
-    MissionACK(const int &systemID, const MISSION_RESULT &ack, const Data::MissionKey &key, const Data::MissionTXState &newState);
+    MissionACK(const int &systemID, const MISSION_RESULT &ack, const MissionKey &key, const MISSIONSTATE &newState);
 
 public:
     int getSystemID() const{
@@ -33,16 +33,16 @@ public:
         return this->result;
     }
 
-    Data::MissionKey getMissionKey() const{
+    MissionKey getMissionKey() const{
         return this->refKey;
     }
 
-    Data::MissionTXState getNewMissionState() const{
+    MISSIONSTATE getNewMissionState() const{
         return this->newState;
     }
 
-    Data::MissionKey getUpdatedMissionKey() const{
-        Data::MissionKey key = getMissionKey();
+    MissionKey getUpdatedMissionKey() const{
+        MissionKey key = getMissionKey();
         key.m_missionState = getNewMissionState();
         return key;
     }
@@ -82,9 +82,9 @@ private:
 
     MISSION_RESULT result;
 
-    Data::MissionKey refKey;
+    MissionKey refKey;
 
-    Data::MissionTXState newState;
+    MISSIONSTATE newState;
 };
 
 } //end of namespace MissionItem

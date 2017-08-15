@@ -262,8 +262,8 @@ void ModuleGroundStation::testFunction1(const int &vehicleID)
     mLogs->debug("Module Ground Station saw a request on test function 1.");
 
     MissionItem::MissionList missionList;
-    missionList.setMissionTXState(Data::MissionTXState::PROPOSED);
-    missionList.setMissionType(Data::MissionType::AUTO);
+    missionList.setMissionTXState(MissionItem::MISSIONSTATE::PROPOSED);
+    missionList.setMissionType(MissionItem::MISSIONTYPE::AUTO);
     missionList.setCreatorID(254);
     missionList.setVehicleID(vehicleID);
     missionList.initializeQueue(4);
@@ -739,7 +739,7 @@ void ModuleGroundStation::sendVehicleMission(const int &vehicleID, const Mission
 
     Data::MissionExecutionState missionState = missionList.getMissionExeState();
     json["missionState"] = QString::fromStdString(Data::MissionExecutionStateToString(missionState));
-    json["missionType"] = QString::fromStdString(Data::MissionTypeToString(missionList.getMissionType()));
+    json["missionType"] = QString::fromStdString(MissionItem::MissionTypeToString(missionList.getMissionType()));
     QJsonArray missionItems;
     missionListToJSON(missionList,missionItems);
     json["missionItems"] = missionItems;
@@ -1056,7 +1056,7 @@ void ModuleGroundStation::sendVehicleGPS(const int &vehicleID, const std::shared
 }
 
 
-void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &missionKey)
+void ModuleGroundStation::NewlyAvailableCurrentMission(const MissionItem::MissionKey &missionKey)
 {
     std::cout<<"New available mission for ground station."<<std::endl;
     MissionItem::MissionList newList;
@@ -1067,7 +1067,7 @@ void ModuleGroundStation::NewlyAvailableCurrentMission(const Data::MissionKey &m
     }
 }
 
-void ModuleGroundStation::NewlyAvailableMissionExeState(const Data::MissionKey &key)
+void ModuleGroundStation::NewlyAvailableMissionExeState(const MissionItem::MissionKey &key)
 {
     MissionItem::MissionList list;
     bool validity = this->getDataObject()->getMissionList(key,list);
