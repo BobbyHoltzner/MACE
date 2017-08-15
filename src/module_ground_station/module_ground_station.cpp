@@ -1028,7 +1028,7 @@ void ModuleGroundStation::sendVehicleText(const int &vehicleID, const std::share
     QJsonObject json;
     json["dataType"] = "VehicleText";
     json["vehicleID"] = vehicleID;
-    json["severity"] =  QString::fromStdString(Data::StatusSeverityTypeToString(component->getSeverity()));
+    json["severity"] =  QString::fromStdString(DataGenericItem::DataGenericItem_Text::StatusSeverityToString(component->getSeverity()));
     json["text"] = QString::fromStdString(component->getText());
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
@@ -1044,7 +1044,7 @@ void ModuleGroundStation::sendVehicleGPS(const int &vehicleID, const std::shared
     json["dataType"] = "VehicleGPS";
     json["vehicleID"] = vehicleID;
     json["visibleSats"] = component->getSatVisible();
-    json["gpsFix"] = QString::fromStdString(Data::GPSFixTypeToString(component->getGPSFix()));
+    json["gpsFix"] = QString::fromStdString(DataGenericItem::DataGenericItem_GPS::GPSFixTypeToString(component->getGPSFix()));
     json["hdop"] = component->getHDOP();
     json["vdop"] = component->getVDOP();
     QJsonDocument doc(json);

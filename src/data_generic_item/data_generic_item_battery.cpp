@@ -33,4 +33,12 @@ mace_battery_status_t DataGenericItem_Battery::getMACECommsObject() const
     return rtnObj;
 }
 
+mace_message_t DataGenericItem_Battery::getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const
+{
+    mace_message_t msg;
+    mace_battery_status_t battery = getMACECommsObject();
+    mace_msg_battery_status_encode_chan(systemID,compID,chan,&msg,&battery);
+    return msg;
+}
+
 } //end of namespace DataGenericItem

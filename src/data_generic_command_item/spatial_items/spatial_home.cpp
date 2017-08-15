@@ -35,6 +35,23 @@ SpatialHome::SpatialHome(const int &systemOrigin, const int &systemTarget):
 
 }
 
+mace_home_position_t SpatialHome::getMACECommsObject() const
+{
+    mace_home_position_t homePosition;
+    homePosition.latitude = position.getX() * pow(10,7);
+    homePosition.longitude = position.getY() * pow(10,7);
+    homePosition.altitude = position.getZ() * pow(10,3);
+    return homePosition;
+}
+
+mace_message_t SpatialHome::getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const
+{
+    mace_message_t msg;
+    mace_home_position_t homePosition = getMACECommsObject();
+    mace_msg_home_position_encode_chan(systemID,compID,chan,&msg,&homePosition);
+    return msg;
+}
+
 std::ostream& operator<<(std::ostream& os, const SpatialHome& t)
 {
     std::stringstream stream;

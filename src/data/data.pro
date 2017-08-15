@@ -34,12 +34,9 @@ HEADERS += data_global.h \
     mission_key.h \
     mission_key_change.h \
     data_get_set_notifier.h \
-    mission_ack.h \
     threadmanager.h \
     system_type.h \
     comms_protocol.h \
-    gps_fix_type.h \
-    status_severity_type.h \
     command_item_type.h \
     command_ack_type.h \
     mission_command.h \

@@ -6,38 +6,19 @@ Ardupilot_TakeoffController::Ardupilot_TakeoffController(std::shared_ptr<DataInt
 {
     controllerType = CONTROLLER_TAKEOFF;
     vehicleMissionState = ArdupilotMissionState(2,10,10);
-    std::cout << "Constructor on takeoff controller" << std::endl;
-//    this->vehicleDataObject->data->ArducopterFlightMode.AddNotifier(this, [this]{
-//        //modeUpdated = true;
+    this->vehicleDataObject->state->vehicleAttitude.AddNotifier(this,[this]
+    {
+        m_LambdasToRun.push_back([this]{
+            std::cout<<"The attitude is functioning"<<std::endl;
+        });
+    });
 
-//        m_LambdasToRun.push_back([this]{
-//            switch(currentStateLogic)
-//            {
-//            case DISARMED:
-//            {
-//                if(currentVehicleMode.getVehicleArmed())
-//                {
-//                    if(currentVehicleMode.getFlightModeString() == "GUIDED")
-//                    {
-//                        currentStateLogic = ARMED_RIGHT_MODE;
-//                        mavlink_message_t msg = vehicleDataObject->generateTakeoffMessage(missionItem_Takeoff,m_LinkChan);
-//                        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-//                    }else{
-//                        currentStateLogic = ARMED_WRONG_MODE;
-//                        int requiredMode = currentVehicleMode.getFlightModeFromString("GUIDED");
-//                        int vehicleID = vehicleDataObject->getVehicleID();
-//                        mavlink_message_t msg = vehicleDataObject->generateChangeMode(vehicleID,m_LinkChan,requiredMode);
-//                        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-//                    }
-
-//                }
-//            }
-//            default:
-//                throw std::runtime_error("Not Implemented")
-
-//            }
-//        });
-//    });
+    this->vehicleDataObject->state->vehicleGlobalPosition.AddNotifier(this,[this]
+    {
+        m_LambdasToRun.push_back([this]{
+            std::cout<<"The position is functioning"<<std::endl;
+        });
+    });
 }
 
 Ardupilot_TakeoffController::~Ardupilot_TakeoffController() {

@@ -231,7 +231,7 @@ void CommandController_ExternalLink::setSystemMissionCommand(const CommandItem::
         mLog->debug("Command Controller is requesting to set the system mission command.");
 
     mace_command_short_t cmd = initializeCommandShort();
-    cmd.command = (uint8_t)Data::CommandItemType::CI_ACT_MISSIONCOMMAND;
+    cmd.command = (uint16_t)Data::CommandItemType::CI_ACT_MISSIONCOMMAND;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
     cmd.param = (uint8_t)commandItem.getMissionCommandAction();

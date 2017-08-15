@@ -25,6 +25,8 @@ public:
 
     StateLocalPosition(const Data::CoordinateFrameType &frame, const double &x, const double &y, const double &z);
 
+    StateLocalPosition(const mace_local_position_ned_t &pos);
+
 public:
     void setPosition(const double &posX, const double &posY, const double &posZ);
     void setPositionX(const double &value);

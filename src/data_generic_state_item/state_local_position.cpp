@@ -33,6 +33,13 @@ StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame, c
 
 }
 
+StateLocalPosition::StateLocalPosition(const mace_local_position_ned_t &pos)
+{
+    this->setX(pos.x);
+    this->setY(pos.y);
+    this->setZ(pos.z);
+}
+
 void StateLocalPosition::setPosition(const double &posX, const double &posY, const double &posZ)
 {
     this->setX(posX);

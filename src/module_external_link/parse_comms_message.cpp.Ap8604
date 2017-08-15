@@ -67,7 +67,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_vehicle_mode_t decodedMSG;
         mace_msg_vehicle_mode_decode(message,&decodedMSG);
-        DataGenericItem::DataGenericItem_FlightMode newItem(decodedMSG);
+        DataGenericItem::DataGenericItem_FlightMode newItem = DataCOMMS::Generic_COMMSTOMACE::SystemMode_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrMode = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>(newItem);
         PublishVehicleData(systemID,ptrMode);
         break;
@@ -76,7 +76,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_battery_status_t decodedMSG;
         mace_msg_battery_status_decode(message,&decodedMSG);
-        DataGenericItem::DataGenericItem_Battery newItem(decodedMSG);
+        DataGenericItem::DataGenericItem_Battery newItem = DataCOMMS::Generic_COMMSTOMACE::Battery_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> ptrBattery = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>(newItem);
         PublishVehicleData(systemID,ptrBattery);
         break;
@@ -87,7 +87,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         //The global position, as returned by the Global Positioning System (GPS). This is NOT the global position estimate of the system, but rather a RAW sensor value. See message GLOBAL_POSITION for the global position estimate. Coordinate frame is right-handed, Z-axis up (GPS frame).
         mace_gps_raw_int_t decodedMSG;
         mace_msg_gps_raw_int_decode(message,&decodedMSG);
-        DataGenericItem::DataGenericItem_GPS newItem(decodedMSG);
+        DataGenericItem::DataGenericItem_GPS newItem = DataCOMMS::Generic_COMMSTOMACE::GPS_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPS = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(newItem);
 
         m_VehicleDataTopic.SetComponent(ptrGPS, topicDatagram);
@@ -109,7 +109,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mace_attitude_t decodedMSG;
         mace_msg_attitude_decode(message,&decodedMSG);
-        DataState::StateAttitude newAttitude(decodedMSG);
+        DataState::StateAttitude newAttitude = DataCOMMS::State_COMMSTOMACE::Attitude_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(newAttitude);
         m_VehicleDataTopic.SetComponent(ptrAttitude, topicDatagram);
         //notify listeners of topic
@@ -122,9 +122,9 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         //This is message definition 30
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
-        mace_attitude_state_full_t decodedMSG;
-        mace_msg_attitude_state_full_decode(message,&decodedMSG);
-        DataState::StateAttitude newAttitude(decodedMSG);
+        mace_attitude_t decodedMSG;
+        mace_msg_attitude_decode(message,&decodedMSG);
+        DataState::StateAttitude newAttitude = DataCOMMS::State_COMMSTOMACE::Attitude_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(newAttitude);
         m_VehicleDataTopic.SetComponent(ptrAttitude, topicDatagram);
         //notify listeners of topic
@@ -139,7 +139,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         //The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
         mace_local_position_ned_t decodedMSG;
         mace_msg_local_position_ned_decode(message,&decodedMSG);
-        DataState::StateLocalPosition newPosition(decodedMSG);
+        DataState::StateLocalPosition newPosition = DataCOMMS::State_COMMSTOMACE::LocalPosition_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(newPosition);
 
         m_VehicleDataTopic.SetComponent(ptrLocalPosition, topicDatagram);
@@ -156,7 +156,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         //The filtered global position (e.g. fused GPS and accelerometers). The position is in GPS-frame (right-handed, Z-up). It is designed as scaled integer message since the resolution of float is not sufficient.
         mace_global_position_int_t decodedMSG;
         mace_msg_global_position_int_decode(message,&decodedMSG);
-        DataState::StateGlobalPosition newPosition(decodedMSG);
+        DataState::StateGlobalPosition newPosition = DataCOMMS::State_COMMSTOMACE::GlobalPosition_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>(newPosition);
 
         m_VehicleDataTopic.SetComponent(ptrPosition, topicDatagram);
@@ -205,7 +205,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         //This is message definition 253
         mace_statustext_t decodedMSG;
         mace_msg_statustext_decode(message,&decodedMSG);
-        DataGenericItem::DataGenericItem_Text newText(decodedMSG);
+        DataGenericItem::DataGenericItem_Text newText = DataCOMMS::Generic_COMMSTOMACE::Text_COMMSTOMACE(decodedMSG,systemID);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
 
         m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
@@ -248,13 +248,10 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_msg_home_position_ack_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&ack);
         transmitMessage(msg);
 
+        DataCOMMS::Mission_COMMSTOMACE missionConvert;
         CommandItem::SpatialHome systemHome;
-        systemHome.position.setCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT);
-        systemHome.position.setX(decodedMSG.latitude / pow(10,7));
-        systemHome.position.setY(decodedMSG.longitude / pow(10,7));
-        systemHome.position.setZ(decodedMSG.altitude / pow(10,3));
+        missionConvert.Home_COMMSTOMACE(decodedMSG,systemHome);
         systemHome.setTargetSystem(decodedMSG.target_system);
-
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->Event_SetHomePosition(this, systemHome);
         });
@@ -310,7 +307,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         Data::MissionType type = static_cast<Data::MissionType>(decodedMSG.mission_type);
 
         Data::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,type,prevState);
-        MissionItem::MissionACK ack(systemID,static_cast<MissionItem::MissionACK::MISSION_RESULT>(decodedMSG.mission_result),key,curState);
+        MissionItem::MissionACK ack(systemID,static_cast<Data::MISSION_RESULT>(decodedMSG.mission_result),key,curState);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
              ptr->ExternalEvent_MissionACK(this, ack);
@@ -466,7 +463,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
                 mace_mission_ack_t ack;
                 ack.mission_system = decodedMSG.mission_system;
                 ack.cur_mission_state = decodedMSG.mission_state;
-                ack.mission_result = (uint8_t)MissionItem::MissionACK::MISSION_RESULT::MISSION_RESULT_DOES_NOT_EXIST;
+                ack.mission_result = (uint8_t)Data::MISSION_RESULT::MISSION_RESULT_DOES_NOT_EXIST;
                 cbiMissionController_MissionACK(ack);
             }
         }

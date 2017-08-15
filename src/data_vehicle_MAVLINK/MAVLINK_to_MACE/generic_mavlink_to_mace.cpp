@@ -33,31 +33,31 @@ DataGenericItem::DataGenericItem_GPS Generic_MAVLINKTOMACE::GPS_MAVLINKTOMACE(co
     switch(genericItem.fix_type)
     {
     case GPS_FIX_TYPE_2D_FIX:
-        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_2D_FIX);
+        gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_2D_FIX);
         break;
     case GPS_FIX_TYPE_3D_FIX:
-        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_3D_FIX);
+        gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_3D_FIX);
         break;
     case GPS_FIX_TYPE_DGPS:
-        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_DGPS);
+        gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_DGPS);
         break;
     case GPS_FIX_TYPE_NO_FIX:
-        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NO_FIX);
+        gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_NO_FIX);
         break;
     case GPS_FIX_TYPE_NO_GPS:
-        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NONE);
+        gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_NONE);
         break;
     case GPS_FIX_TYPE_RTK_FIXED:
-        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_RTK_FIXED);
+        gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_RTK_FIXED);
         break;
     case GPS_FIX_TYPE_RTK_FLOAT:
-        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_RTK_FLOAT);
+        gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_RTK_FLOAT);
         break;
     case GPS_FIX_TYPE_STATIC:
-        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_STATIC);
+        gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_STATIC);
         break;
     default:
-        gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NO_FIX);
+        gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_NO_FIX);
         break;
     }
 
@@ -85,28 +85,28 @@ DataGenericItem::DataGenericItem_Text Generic_MAVLINKTOMACE::Text_MAVLINKTOMACE(
 
     switch (genericItem.severity) {
     case MAV_SEVERITY_EMERGENCY:
-        statusText.setSeverity(Data::StatusSeverityType::STATUS_EMERGENCY);
+        statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_EMERGENCY);
         break;
     case MAV_SEVERITY_ALERT:
-        statusText.setSeverity(Data::StatusSeverityType::STATUS_ALERT);
+        statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_ALERT);
         break;
     case MAV_SEVERITY_CRITICAL:
-        statusText.setSeverity(Data::StatusSeverityType::STATUS_CRITICAL);
+        statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_CRITICAL);
         break;
     case MAV_SEVERITY_ERROR:
-        statusText.setSeverity(Data::StatusSeverityType::STATUS_ERROR);
+        statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_ERROR);
         break;
     case MAV_SEVERITY_WARNING:
-        statusText.setSeverity(Data::StatusSeverityType::STATUS_WARNING);
+        statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_WARNING);
         break;
     case MAV_SEVERITY_NOTICE:
-        statusText.setSeverity(Data::StatusSeverityType::STATUS_NOTICE);
+        statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_NOTICE);
         break;
     case MAV_SEVERITY_INFO:
-        statusText.setSeverity(Data::StatusSeverityType::STATUS_INFO);
+        statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_INFO);
         break;
     case MAV_SEVERITY_DEBUG:
-        statusText.setSeverity(Data::StatusSeverityType::STATUS_DEBUG);
+        statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_DEBUG);
         break;
     default:
         break;
