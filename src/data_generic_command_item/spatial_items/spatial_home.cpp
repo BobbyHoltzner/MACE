@@ -18,26 +18,30 @@ bool SpatialHome::hasSpatialInfluence() const
 }
 
 SpatialHome::SpatialHome():
-    AbstractCommandItem(0,0), SpatialAbstractPosition()
+    AbstractCommandItem(0,0)
 {
 
 }
 
 SpatialHome::~SpatialHome()
 {
-
+    if(position)
+    {
+        delete position;
+        position = NULL;
+    }
 }
 
 SpatialHome::SpatialHome(const SpatialHome &obj):
-    AbstractCommandItem(obj), SpatialAbstractPosition(obj)
+    AbstractCommandItem(obj)
 {
-
+    position = obj.position;
 }
 
 SpatialHome::SpatialHome(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget), SpatialAbstractPosition()
+    AbstractCommandItem(systemOrigin,systemTarget)
 {
-
+    position = new DataState::Base3DPosition();
 }
 
 mace_home_position_t SpatialHome::getMACECommsObject() const
@@ -61,7 +65,7 @@ std::ostream& operator<<(std::ostream& os, const SpatialHome& t)
 {
     std::stringstream stream;
     stream.precision(6);
-    stream << std::fixed << "Spatial Home: ";// << t.position->getX() << ", "<< t.position->getY() << ", "<< t.position->getZ() << ".";
+    stream << std::fixed << "Spatial Home: ";
     os << stream.str();
 
     return os;
