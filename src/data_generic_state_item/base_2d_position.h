@@ -155,6 +155,7 @@ public:
         this->y = rhs.y;
         this->posXFlag = rhs.posXFlag;
         this->posYFlag = rhs.posYFlag;
+        return *this;
     }
 
     //!

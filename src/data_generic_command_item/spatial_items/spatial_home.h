@@ -16,7 +16,7 @@ namespace CommandItem {
 //!
 //! \brief The SpatialHome class
 //!
-class SpatialHome : public AbstractCommandItem
+class SpatialHome : public AbstractCommandItem, public SpatialAbstractPosition
 {
 public:
     //!
@@ -79,7 +79,8 @@ public:
     SpatialHome& operator = (const SpatialHome &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        this->position = rhs.position;
+        SpatialAbstractPosition::operator =(rhs);
+        return *this;
     }
 
     //!
@@ -92,7 +93,7 @@ public:
         {
             return false;
         }
-        if(this->position != rhs.position)
+        if(!SpatialAbstractPosition::operator ==(rhs))
         {
             return false;
         }
@@ -114,7 +115,7 @@ public:
     //!
     //! \brief position
     //!
-    DataState::Base3DPosition *position;
+    //DataState::Base3DPosition *position;
 };
 
 } //end of namespace MissionItem

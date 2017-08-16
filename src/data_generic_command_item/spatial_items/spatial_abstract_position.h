@@ -19,7 +19,7 @@ public:
         position = new DataState::Base3DPosition();
     }
 
-    virtual ~SpatialAbstractPosition()
+    ~SpatialAbstractPosition()
     {
         if(position)
         {
@@ -28,9 +28,10 @@ public:
         }
     }
 
-    SpatialAbstractPosition(const SpatialAbstractPosition &obj)
+    SpatialAbstractPosition(const SpatialAbstractPosition &copy)
     {
-        this->position = obj.position;
+        position = new DataState::Base3DPosition();
+        *position = *copy.position;
     }
 
 
@@ -41,7 +42,8 @@ public:
     //!
     SpatialAbstractPosition& operator = (const SpatialAbstractPosition &rhs)
     {
-        this->position = rhs.position;
+        *this->position = *rhs.position;
+        return *this;
     }
 
     //!

@@ -11,9 +11,9 @@ mavlink_message_t Command_MACETOMAVLINK::generateSetHomePosition(const CommandIt
 {
     mavlink_message_t msg;
     mavlink_set_home_position_t cmd;
-    cmd.latitude = vehicleHome.position.getX() * pow(10,7);
-    cmd.longitude = vehicleHome.position.getY() * pow(10,7);
-    cmd.altitude = vehicleHome.position.getZ() * 1000;
+    cmd.latitude = vehicleHome.position->getX() * pow(10,7);
+    cmd.longitude = vehicleHome.position->getY() * pow(10,7);
+    cmd.altitude = vehicleHome.position->getZ() * 1000;
     mavlink_msg_set_home_position_encode_chan(mSystemID,mCompID,chan,&msg,&cmd);
     return msg;
 }

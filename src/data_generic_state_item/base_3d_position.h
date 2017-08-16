@@ -107,6 +107,7 @@ public:
         Base2DPosition::operator =(rhs);
         this->z = rhs.z;
         this->posZFlag = rhs.posZFlag;
+        return *this;
     }
 
     //!

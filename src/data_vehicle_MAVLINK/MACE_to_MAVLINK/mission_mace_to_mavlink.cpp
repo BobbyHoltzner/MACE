@@ -11,9 +11,9 @@ mavlink_message_t Mission_MACETOMAVLINK::Home_MACETOMAVLINK(const CommandItem::S
 {
     mavlink_message_t msg;
     mavlink_home_position_t homePosition;
-    homePosition.latitude = missionItem.position.getX() * pow(10,7);
-    homePosition.longitude = missionItem.position.getY() * pow(10,7);
-    homePosition.altitude = missionItem.position.getZ() * pow(10,3);
+    homePosition.latitude = missionItem.position->getX() * pow(10,7);
+    homePosition.longitude = missionItem.position->getY() * pow(10,7);
+    homePosition.altitude = missionItem.position->getZ() * pow(10,3);
     mavlink_msg_home_position_encode_chan(missionItem.getOriginatingSystem(),0,chan,&msg,&homePosition);
     return msg;
 }

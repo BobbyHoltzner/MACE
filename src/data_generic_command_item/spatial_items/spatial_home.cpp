@@ -18,30 +18,26 @@ bool SpatialHome::hasSpatialInfluence() const
 }
 
 SpatialHome::SpatialHome():
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(0,0), SpatialAbstractPosition()
 {
 
 }
 
 SpatialHome::~SpatialHome()
 {
-    if(position)
-    {
-        delete position;
-        position = NULL;
-    }
+
 }
 
 SpatialHome::SpatialHome(const SpatialHome &obj):
-    AbstractCommandItem(obj)
+    AbstractCommandItem(obj), SpatialAbstractPosition(obj)
 {
-    position = obj.position;
+
 }
 
 SpatialHome::SpatialHome(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
+    AbstractCommandItem(systemOrigin,systemTarget), SpatialAbstractPosition()
 {
-    position = new DataState::Base3DPosition();
+
 }
 
 mace_home_position_t SpatialHome::getMACECommsObject() const

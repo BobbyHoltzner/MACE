@@ -118,6 +118,7 @@ public:
     {
         this->originatingSystem = rhs.originatingSystem;
         this->targetSystem = rhs.targetSystem;
+        return *this;
     }
 
     //!
