@@ -127,7 +127,7 @@ export class VehicleHUD extends React.Component<Props, State> {
         for(let index in this.props.aircraft.availableModes) {
             let mode = this.props.aircraft.availableModes[index];
             modeMenuItems.push(
-                <MenuItem key={mode} targetOrigin={{color: 'rgba(0,0,0,0.38)', horizontal: 'middle', vertical: 'center'}} style={{paddingLeft: 0, paddingRight: 0, paddingTop: 0, paddingBottom: 0, marginLeft: 0, marginRight: 0}} value={mode} primaryText={mode} label={mode} />
+                <MenuItem key={mode} onClick={() => this.handleModeChange(this.props.aircraft.availableModes[index])} targetOrigin={{color: 'rgba(0,0,0,0.38)', horizontal: 'middle', vertical: 'center'}} style={{paddingLeft: 0, paddingRight: 0, paddingTop: 0, paddingBottom: 0, marginLeft: 0, marginRight: 0}} value={mode} primaryText={mode} label={mode} />
             )
         }
 
