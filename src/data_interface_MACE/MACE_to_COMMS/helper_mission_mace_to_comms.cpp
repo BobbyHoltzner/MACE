@@ -255,7 +255,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertWaypoint(const CommandItem
     item.command = MAV_CMD_NAV_WAYPOINT;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
-    updateMissionPosition(missionItem.position,item);
+    updateMissionPosition(*missionItem.position,item);
     return item;
 }
 

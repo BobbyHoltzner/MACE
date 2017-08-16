@@ -19,19 +19,19 @@ bool SpatialLoiter_Time::hasSpatialInfluence() const
 
 
 SpatialLoiter_Time::SpatialLoiter_Time():
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(0,0), AbstractSpatialPosition()
 {
 
 }
 
 SpatialLoiter_Time::SpatialLoiter_Time(const SpatialLoiter_Time &obj):
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(obj), AbstractSpatialPosition(obj)
 {
     this->operator =(obj);
 }
 
 SpatialLoiter_Time::SpatialLoiter_Time(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
+    AbstractCommandItem(systemOrigin,systemTarget), AbstractSpatialPosition()
 {
 
 }

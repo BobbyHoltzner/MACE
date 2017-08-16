@@ -167,7 +167,7 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
         if(command.getTargetSystem() == vehicleData->getSystemID())
         {
             Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(vehicleData);
-            if(command.position.has3DPositionSet())
+            if(command.position->has3DPositionSet())
                 newController->initializeTakeoffSequence(command);
             else{
                 CommandItem::SpatialTakeoff defaultTakeoff = command;
@@ -250,6 +250,8 @@ void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionC
 
     DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
     int mode = tmp.getFlightModeFromString(command.getRequestMode());
+    vehicleData->m_CommandController->setNewMode(mode);
+
     vehicleData->command->setNewMode(mode,255,m_LinkChan);
 }
 

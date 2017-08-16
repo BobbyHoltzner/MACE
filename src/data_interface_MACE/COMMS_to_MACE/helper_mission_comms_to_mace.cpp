@@ -180,7 +180,7 @@ void Helper_MissionCOMMStoMACE::convertWaypoint(const mace_mission_item_t &maceI
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(maceItem,missionItem.position);
+    updatePosition(maceItem,*missionItem.position);
 }
 
 void Helper_MissionCOMMStoMACE::updatePosition(const mace_mission_item_t &maceItem, DataState::Base3DPosition &pos)

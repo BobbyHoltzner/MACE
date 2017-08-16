@@ -159,7 +159,7 @@ mavlink_mission_item_t Helper_MissionMACEtoMAVLINK::convertLand(const CommandIte
     item.command = MAV_CMD_NAV_LAND;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
-    updateMissionPosition(missionItem.position,item);
+    updateMissionPosition(*missionItem.position,item);
     return item;
 }
 
@@ -171,7 +171,7 @@ mavlink_mission_item_t Helper_MissionMACEtoMAVLINK::convertLoiterTime(const Comm
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     item.param1 = missionItem.duration;
-    updateMissionPosition(missionItem.position,item);
+    updateMissionPosition(*missionItem.position,item);
 
     if(missionItem.direction == Data::LoiterDirection::CW)
     {
@@ -190,7 +190,7 @@ mavlink_mission_item_t Helper_MissionMACEtoMAVLINK::convertLoiterTurns(const Com
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     item.param1 = missionItem.turns;
-    updateMissionPosition(missionItem.position,item);
+    updateMissionPosition(*missionItem.position,item);
 
     if(missionItem.direction == Data::LoiterDirection::CW)
     {
@@ -208,7 +208,7 @@ mavlink_mission_item_t Helper_MissionMACEtoMAVLINK::convertLoiterUnlimited(const
     item.command = MAV_CMD_NAV_LOITER_UNLIM;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
-    updateMissionPosition(missionItem.position,item);
+    updateMissionPosition(*missionItem.position,item);
 
     if(missionItem.direction == Data::LoiterDirection::CW)
     {
@@ -236,7 +236,7 @@ mavlink_mission_item_t Helper_MissionMACEtoMAVLINK::convertTakeoff(const Command
     item.command = MAV_CMD_NAV_TAKEOFF;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
-    updateMissionPosition(missionItem.position,item);
+    updateMissionPosition(*missionItem.position,item);
     return item;
 }
 
@@ -247,7 +247,7 @@ mavlink_mission_item_t Helper_MissionMACEtoMAVLINK::convertWaypoint(const Comman
     item.command = MAV_CMD_NAV_WAYPOINT;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
-    updateMissionPosition(missionItem.position,item);
+    updateMissionPosition(*missionItem.position,item);
     return item;
 }
 

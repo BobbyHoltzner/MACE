@@ -18,7 +18,7 @@ bool SpatialHome::hasSpatialInfluence() const
 }
 
 SpatialHome::SpatialHome():
-    AbstractCommandItem(0,0), SpatialAbstractPosition()
+    AbstractCommandItem(0,0), AbstractSpatialPosition()
 {
 
 }
@@ -29,13 +29,13 @@ SpatialHome::~SpatialHome()
 }
 
 SpatialHome::SpatialHome(const SpatialHome &obj):
-    AbstractCommandItem(obj), SpatialAbstractPosition(obj)
+    AbstractCommandItem(obj), AbstractSpatialPosition(obj)
 {
 
 }
 
 SpatialHome::SpatialHome(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget), SpatialAbstractPosition()
+    AbstractCommandItem(systemOrigin,systemTarget), AbstractSpatialPosition()
 {
 
 }
@@ -61,7 +61,7 @@ std::ostream& operator<<(std::ostream& os, const SpatialHome& t)
 {
     std::stringstream stream;
     stream.precision(6);
-    stream << std::fixed << "Spatial Home: ";
+    stream << std::fixed << "Spatial Home: "<< t.position->getX() << ", "<< t.position->getY() << ", "<< t.position->getZ() << ".";
     os << stream.str();
 
     return os;

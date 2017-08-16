@@ -74,7 +74,7 @@ HEADERS +=\
     mission_items/mission_type.h \
     mission_items/mission_key.h \
     mission_items/mission_key_change.h \
-    spatial_items/spatial_abstract_position.h
+    spatial_items/abstract_spatial_position.h
 
 # Unix lib Install
 unix:!symbian {
@@ -124,7 +124,7 @@ INSTALLS       += headers_missionComponents
 #Header file copy
 headers_spatialComponents.path    = $$(MACE_ROOT)/include/data_generic_command_item/spatial_items
 headers_spatialComponents.files   += \
-    spatial_items/spatial_abstract_position.h \
+    spatial_items/abstract_spatial_position.h \
     spatial_items/spatial_components.h \
     spatial_items/spatial_home.h \
     spatial_items/spatial_land.h \

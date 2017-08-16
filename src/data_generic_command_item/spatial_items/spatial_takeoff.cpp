@@ -18,19 +18,20 @@ bool SpatialTakeoff::hasSpatialInfluence() const
 }
 
 SpatialTakeoff::SpatialTakeoff():
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(0,0), AbstractSpatialPosition()
+
 {
 
 }
 
 SpatialTakeoff::SpatialTakeoff(const SpatialTakeoff &obj):
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(obj), AbstractSpatialPosition(obj)
 {
     this->operator =(obj);
 }
 
 SpatialTakeoff::SpatialTakeoff(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
+    AbstractCommandItem(systemOrigin,systemTarget), AbstractSpatialPosition()
 {
 
 }
@@ -39,7 +40,7 @@ std::ostream& operator<<(std::ostream& os, const SpatialTakeoff& t)
 {
     std::stringstream stream;
     stream.precision(6);
-    stream << std::fixed << "Spatial Takeoff: " << t.position.getX() << ", "<< t.position.getY() << ", "<< t.position.getZ() << ".";
+    stream << std::fixed << "Spatial Takeoff: " << t.position->getX() << ", "<< t.position->getY() << ", "<< t.position->getZ() << ".";
     os << stream.str();
 
     return os;

@@ -118,14 +118,14 @@ void Helper_MissionMAVLINKtoMACE::convertLand(const mavlink_mission_item_t &mavl
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(mavlinkItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(mavlinkItem));
 }
 
 void Helper_MissionMAVLINKtoMACE::convertLoiterTime(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time &missionItem)
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(mavlinkItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(mavlinkItem));
     missionItem.duration = mavlinkItem.param1;
     missionItem.radius = fabs(mavlinkItem.param3);
     missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
@@ -135,7 +135,7 @@ void Helper_MissionMAVLINKtoMACE::convertLoiterTurns(const mavlink_mission_item_
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(mavlinkItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(mavlinkItem));
     missionItem.turns = mavlinkItem.param1;
     missionItem.radius = fabs(mavlinkItem.param3);
     missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
@@ -145,13 +145,9 @@ void Helper_MissionMAVLINKtoMACE::convertLoiterUnlimted(const mavlink_mission_it
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    if((mavlinkItem.command == MAV_CMD_NAV_LOITER_UNLIM) && (mavlinkItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
-        missionItem.position.setX(mavlinkItem.x);
-        missionItem.position.setY(mavlinkItem.y);
-        missionItem.position.setZ(mavlinkItem.z);
-        missionItem.radius = fabs(mavlinkItem.param3);
-        missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
-    }
+    missionItem.setPosition(getBasePosition(mavlinkItem));
+    missionItem.radius = fabs(mavlinkItem.param3);
+    missionItem.direction = (mavlinkItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
 }
 
 void Helper_MissionMAVLINKtoMACE::convertRTL(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialRTL &missionItem)
@@ -168,21 +164,23 @@ void Helper_MissionMAVLINKtoMACE::convertTakeoff(const mavlink_mission_item_t &m
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(mavlinkItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(mavlinkItem));
 }
 
 void Helper_MissionMAVLINKtoMACE::convertWaypoint(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialWaypoint &missionItem)
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(mavlinkItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(mavlinkItem));
 }
 
-void Helper_MissionMAVLINKtoMACE::updatePosition(const mavlink_mission_item_t &mavlinkItem, DataState::Base3DPosition &pos)
+DataState::Base3DPosition Helper_MissionMAVLINKtoMACE::getBasePosition(const mavlink_mission_item_t &mavlinkItem)
 {
+    DataState::Base3DPosition pos;
     Data::CoordinateFrameType frame = static_cast<Data::CoordinateFrameType>(mavlinkItem.frame);
     pos.setCoordinateFrame(frame);
     pos.setPosition3D(mavlinkItem.x,mavlinkItem.y,mavlinkItem.z);
+    return pos;
 }
 
 } //end of namespace DataMAVLINK

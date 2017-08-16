@@ -338,7 +338,7 @@ void ModuleRTA::updateMACEMissions(std::map<int, Cell> updateCells) {
 
                     DataState::StateGlobalPosition tmpGlobalPoint;
                     DataState::PositionalAid::LocalPositionToGlobal(tmpGlobalOrigin, tmpLocalPoint, tmpGlobalPoint);
-                    newWP->position = tmpGlobalPoint;
+                    newWP->setPosition(tmpGlobalPoint);
 
                     missionList.insertMissionItem(newWP);
                 }

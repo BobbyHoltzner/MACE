@@ -503,10 +503,9 @@ void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::Mission
 void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home)
 {
     mace_home_position_t homePos;
-    float power = pow(10,7);
-    homePos.latitude = home.position->getX() * power;
-    homePos.longitude = home.position->getY() * power;
-    homePos.altitude = home.position->getZ() * power;
+    homePos.latitude = home.position->getX() * pow(10,7);
+    homePos.longitude = home.position->getY() * pow(10,7);
+    homePos.altitude = home.position->getZ() * pow(10,3);
     mace_message_t msg;
     mace_msg_home_position_encode_chan(home.getOriginatingSystem(),0,m_LinkChan,&msg,&homePos);
     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);

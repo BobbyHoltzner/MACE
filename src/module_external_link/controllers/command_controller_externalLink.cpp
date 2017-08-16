@@ -149,14 +149,14 @@ void CommandController_ExternalLink::setSystemTakeoff(const CommandItem::Spatial
     cmd.command = (uint8_t)Data::CommandItemType::CI_NAV_TAKEOFF;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
-    Data::CoordinateFrameType cf = commandItem.position.getCoordinateFrame();
+    Data::CoordinateFrameType cf = commandItem.position->getCoordinateFrame();
 
-    if(commandItem.position.has2DPositionSet())
+    if(commandItem.position->has2DPositionSet())
     {
-        cmd.param5 = commandItem.position.getX();
-        cmd.param6 = commandItem.position.getY();
+        cmd.param5 = commandItem.position->getX();
+        cmd.param6 = commandItem.position->getY();
     }
-    cmd.param7 = commandItem.position.getZ();
+    cmd.param7 = commandItem.position->getZ();
 
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mace_command_long_t>(commandItemEnum::COMMAND_LONG, cmd);
@@ -185,11 +185,11 @@ void CommandController_ExternalLink::setSystemLand(const CommandItem::SpatialLan
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
 
-    if(commandItem.position.isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
+    if(commandItem.position->isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
     {
-        cmd.param5 = commandItem.position.getX() * pow(10,7);
-        cmd.param6 = commandItem.position.getY() * pow(10,7);
-        cmd.param7 = commandItem.position.getZ() * 1000;
+        cmd.param5 = commandItem.position->getX() * pow(10,7);
+        cmd.param6 = commandItem.position->getY() * pow(10,7);
+        cmd.param7 = commandItem.position->getZ() * 1000;
     }
 
     clearPreviousTransmit();

@@ -5,14 +5,19 @@
 #include <iomanip>
 #include <sstream>
 
+#include "mace.h"
+
+#include "abstract_spatial_position.h"
+
 #include "data/command_item_type.h"
 
-#include "data_generic_command_item/abstract_command_item.h"
 #include "data_generic_state_item/base_3d_position.h"
+
+#include "data_generic_command_item/abstract_command_item.h"
 
 namespace CommandItem {
 
-class SpatialLand : public AbstractCommandItem
+class SpatialLand : public AbstractCommandItem, public AbstractSpatialPosition
 {
 
 public:
@@ -51,7 +56,7 @@ public:
     void operator = (const SpatialLand &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        this->position = rhs.position;
+        AbstractSpatialPosition::operator =(rhs);
     }
 
     bool operator == (const SpatialLand &rhs) {
@@ -59,7 +64,7 @@ public:
         {
             return false;
         }
-        if(this->position != rhs.position)
+        if(!AbstractSpatialPosition::operator ==(rhs))
         {
             return false;
         }
@@ -71,10 +76,6 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream& os, const SpatialLand& t);
-
-public:
-    DataState::Base3DPosition position;
-
 };
 
 } //end of namespace MissionItem

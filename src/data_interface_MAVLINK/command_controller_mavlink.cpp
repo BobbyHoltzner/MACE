@@ -203,11 +203,11 @@ void CommandController_MAVLINK::setSystemTakeoff(const CommandItem::SpatialTakeo
     cmd.command = MAV_CMD_NAV_TAKEOFF;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
-    Data::CoordinateFrameType cf = commandItem.position.getCoordinateFrame();
+    Data::CoordinateFrameType cf = commandItem.position->getCoordinateFrame();
 
     if(cf == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
     {
-        cmd.param7 = commandItem.position.getZ();
+        cmd.param7 = commandItem.position->getZ();
     }
 
     clearPreviousTransmit();
@@ -235,11 +235,11 @@ void CommandController_MAVLINK::setSystemLand(const CommandItem::SpatialLand &co
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
 
-    if(commandItem.position.isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
+    if(commandItem.position->isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
     {
-        cmd.param5 = commandItem.position.getX() * pow(10,7);
-        cmd.param6 = commandItem.position.getY() * pow(10,7);
-        cmd.param7 = commandItem.position.getZ() * 1000;
+        cmd.param5 = commandItem.position->getX() * pow(10,7);
+        cmd.param6 = commandItem.position->getY() * pow(10,7);
+        cmd.param7 = commandItem.position->getZ() * pow(10,3);
     }
 
     clearPreviousTransmit();

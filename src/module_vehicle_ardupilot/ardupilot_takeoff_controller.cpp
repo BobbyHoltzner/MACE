@@ -70,7 +70,7 @@ double Ardupilot_TakeoffController::distanceToTarget(){
     case(ALTITUDE_TRANSITION):
     {
         DataState::StateGlobalPosition currentPosition = vehicleDataObject->state->vehicleGlobalPosition.get();
-        DataState::StateGlobalPosition targetPosition(currentPosition.getX(),currentPosition.getY(),missionItem_Takeoff.position.getZ());
+        DataState::StateGlobalPosition targetPosition(currentPosition.getX(),currentPosition.getY(),missionItem_Takeoff.position->getZ());
         distance  = fabs(currentPosition.deltaAltitude(targetPosition));
         MissionTopic::VehicleTargetTopic vehicleTarget(vehicleDataObject->getSystemID(), targetPosition, distance);
         m_CBTarget(m_FunctionTarget,vehicleTarget);
@@ -78,7 +78,7 @@ double Ardupilot_TakeoffController::distanceToTarget(){
     }
     case(HORIZONTAL_TRANSITION):
     {
-        DataState::StateGlobalPosition targetPosition(missionItem_Takeoff.position.getX(),missionItem_Takeoff.position.getY(),missionItem_Takeoff.position.getZ());
+        DataState::StateGlobalPosition targetPosition(missionItem_Takeoff.position->getX(),missionItem_Takeoff.position->getY(),missionItem_Takeoff.position->getZ());
         distance = vehicleDataObject->state->vehicleGlobalPosition.get().distanceBetween3D(targetPosition);
         MissionTopic::VehicleTargetTopic vehicleTarget(vehicleDataObject->getSystemID(), targetPosition, distance);
         m_CBTarget(m_FunctionTarget,vehicleTarget);
@@ -106,13 +106,13 @@ void Ardupilot_TakeoffController::generateControl(const Data::ControllerState &c
     }
     case Data::ControllerState::ACHIEVED:
     {
-        if((currentStateLogic == ALTITUDE_TRANSITION) && (missionItem_Takeoff.position.has3DPositionSet()))
+        if((currentStateLogic == ALTITUDE_TRANSITION) && (missionItem_Takeoff.position->has3DPositionSet()))
         {
             currentStateLogic = HORIZONTAL_TRANSITION;
             CommandItem::SpatialWaypoint target;
             target.setTargetSystem(missionItem_Takeoff.getTargetSystem());
             target.setOriginatingSystem(missionItem_Takeoff.getOriginatingSystem());
-            target.position = missionItem_Takeoff.position;
+            target.setPosition(missionItem_Takeoff.getPosition());
             vehicleDataObject->m_GuidedController->updateWaypointTarget(target);
         }
         else

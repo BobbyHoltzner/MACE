@@ -17,7 +17,8 @@ bool SpatialRTL::hasSpatialInfluence() const
     return true;
 }
 
-SpatialRTL::SpatialRTL()
+SpatialRTL::SpatialRTL():
+    AbstractCommandItem(0,0)
 {
 
 }

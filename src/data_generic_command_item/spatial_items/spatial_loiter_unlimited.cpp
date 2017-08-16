@@ -24,13 +24,13 @@ SpatialLoiter_Unlimited::SpatialLoiter_Unlimited():
 }
 
 SpatialLoiter_Unlimited::SpatialLoiter_Unlimited(const SpatialLoiter_Unlimited &obj):
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(obj), AbstractSpatialPosition(obj)
 {
     this->operator =(obj);
 }
 
 SpatialLoiter_Unlimited::SpatialLoiter_Unlimited(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
+    AbstractCommandItem(systemOrigin,systemTarget), AbstractSpatialPosition()
 {
 
 }

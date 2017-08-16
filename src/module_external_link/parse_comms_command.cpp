@@ -75,10 +75,10 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         tmpTakeoff.setTargetSystem(message->target_system);
         if(message->param1 > 0.0)
         {
-            tmpTakeoff.position.setX(message->param5);
-            tmpTakeoff.position.setY(message->param6);
+            tmpTakeoff.position->setX(message->param5);
+            tmpTakeoff.position->setY(message->param6);
         }
-        tmpTakeoff.position.setZ(message->param7);
+        tmpTakeoff.position->setZ(message->param7);
 
         //acknowledge receiving the command
         mace_command_ack_t commandACK;
@@ -97,9 +97,9 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
     {
         CommandItem::SpatialLand tmpLand;
         tmpLand.setTargetSystem(message->target_system);
-        tmpLand.position.setX(message->param5);
-        tmpLand.position.setY(message->param6);
-        tmpLand.position.setZ(message->param7);
+        tmpLand.position->setX(message->param5);
+        tmpLand.position->setY(message->param6);
+        tmpLand.position->setZ(message->param7);
 
         //acknowledge receiving the command
         mace_command_ack_t commandACK;

@@ -18,19 +18,19 @@ bool SpatialWaypoint::hasSpatialInfluence() const
 }
 
 SpatialWaypoint::SpatialWaypoint():
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(0,0), AbstractSpatialPosition()
 {
 
 }
 
 SpatialWaypoint::SpatialWaypoint(const SpatialWaypoint &obj):
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(0,0), AbstractSpatialPosition(obj)
 {
     this->operator =(obj);
 }
 
 SpatialWaypoint::SpatialWaypoint(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
+    AbstractCommandItem(systemOrigin,systemTarget), AbstractSpatialPosition()
 {
 
 }
@@ -44,7 +44,7 @@ std::ostream& operator<<(std::ostream& os, const SpatialWaypoint& t)
 {
     std::stringstream stream;
     stream.precision(6);
-    stream << std::fixed << "Spatial Waypoint: " << t.position.getX() << ", "<< t.position.getY() << ", "<< t.position.getZ() << ".";
+    stream << std::fixed << "Spatial Waypoint: " << t.position->getX() << ", "<< t.position->getY() << ", "<< t.position->getZ() << ".";
     os << stream.str();
 
     return os;

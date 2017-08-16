@@ -1,7 +1,7 @@
 #ifndef SPATIAL_COMPONENTS_H
 #define SPATIAL_COMPONENTS_H
 
-#include "spatial_abstract_position.h"
+#include "abstract_spatial_position.h"
 
 #include "spatial_home.h"
 #include "spatial_land.h"
