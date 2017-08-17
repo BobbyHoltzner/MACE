@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "command_item_type.h"
+#include "data_generic_command_item/command_item_type.h"
 #include "data_generic_command_item/abstract_command_item.h"
 
 

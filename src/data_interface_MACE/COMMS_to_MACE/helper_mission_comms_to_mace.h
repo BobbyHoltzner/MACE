@@ -45,6 +45,8 @@ public:
 
     void convertWaypoint(const mace_mission_item_t &maceItem, CommandItem::SpatialWaypoint &missionItem);
 
+    DataState::Base3DPosition getBasePosition(const mace_mission_item_t &maceItem);
+
     void updatePosition(const mace_mission_item_t &maceItem, DataState::Base3DPosition &pos);
 
 private:

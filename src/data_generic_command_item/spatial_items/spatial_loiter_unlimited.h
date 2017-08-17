@@ -9,7 +9,7 @@
 
 #include "abstract_spatial_position.h"
 
-#include "command_item_type.h"
+#include "data_generic_command_item/command_item_type.h"
 #include "data/loiter_direction.h"
 #include "data_generic_state_item/base_3d_position.h"
 

@@ -118,7 +118,7 @@ void CommandController_ExternalLink::setSystemArm(const CommandItem::ActionArm &
     }
 
     mace_command_short_t cmd = initializeCommandShort();
-    cmd.command = (uint8_t)Data::CommandItemType::CI_ACT_ARM;
+    cmd.command = (uint8_t)CommandItem::COMMANDITEM::CI_ACT_ARM;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
     cmd.param = commandItem.getRequestArm();
@@ -146,7 +146,7 @@ void CommandController_ExternalLink::setSystemTakeoff(const CommandItem::Spatial
     }
 
     mace_command_long_t cmd = initializeCommandLong();
-    cmd.command = (uint8_t)Data::CommandItemType::CI_NAV_TAKEOFF;
+    cmd.command = (uint8_t)CommandItem::COMMANDITEM::CI_NAV_TAKEOFF;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
     Data::CoordinateFrameType cf = commandItem.position->getCoordinateFrame();
@@ -181,7 +181,7 @@ void CommandController_ExternalLink::setSystemLand(const CommandItem::SpatialLan
     }
 
     mace_command_long_t cmd = initializeCommandLong();
-    cmd.command = (uint8_t)Data::CommandItemType::CI_NAV_LAND;
+    cmd.command = (uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
 
@@ -210,7 +210,7 @@ void CommandController_ExternalLink::setSystemRTL(const CommandItem::SpatialRTL 
         mLog->debug("Command Controller is requesting the system to RTL.");
 
     mace_command_short_t cmd = initializeCommandShort();
-    cmd.command = (uint8_t)Data::CommandItemType::CI_NAV_RETURN_TO_LAUNCH;
+    cmd.command = (uint8_t)CommandItem::COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
 
@@ -231,7 +231,7 @@ void CommandController_ExternalLink::setSystemMissionCommand(const CommandItem::
         mLog->debug("Command Controller is requesting to set the system mission command.");
 
     mace_command_short_t cmd = initializeCommandShort();
-    cmd.command = (uint16_t)Data::CommandItemType::CI_ACT_MISSIONCOMMAND;
+    cmd.command = (uint16_t)CommandItem::COMMANDITEM::CI_ACT_MISSIONCOMMAND;
     cmd.target_system = commandItem.getTargetSystem();
     cmd.target_component = compID;
     cmd.param = (uint8_t)commandItem.getMissionCommandAction();

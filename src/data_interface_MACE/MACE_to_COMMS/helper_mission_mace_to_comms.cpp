@@ -60,7 +60,7 @@ bool Helper_MissionMACEtoCOMMS::MACEMissionToCOMMSMission(std::shared_ptr<Comman
 {
     switch(missionItem->getCommandType())
     {
-    case(Data::CommandItemType::CI_ACT_CHANGESPEED):
+    case(CommandItem::COMMANDITEM::CI_ACT_CHANGESPEED):
     {
         std::shared_ptr<CommandItem::ActionChangeSpeed> castItem = std::dynamic_pointer_cast<CommandItem::ActionChangeSpeed>(missionItem);
         CommandItem::ActionChangeSpeed baseItem = *castItem.get();
@@ -68,7 +68,7 @@ bool Helper_MissionMACEtoCOMMS::MACEMissionToCOMMSMission(std::shared_ptr<Comman
         return true;
         break;
     }
-    case(Data::CommandItemType::CI_NAV_LAND):
+    case(CommandItem::COMMANDITEM::CI_NAV_LAND):
     {
         std::shared_ptr<CommandItem::SpatialLand> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLand>(missionItem);
         CommandItem::SpatialLand baseItem = *castItem.get();
@@ -76,7 +76,7 @@ bool Helper_MissionMACEtoCOMMS::MACEMissionToCOMMSMission(std::shared_ptr<Comman
         return true;
         break;
     }
-    case(Data::CommandItemType::CI_NAV_LOITER_TIME):
+    case(CommandItem::COMMANDITEM::CI_NAV_LOITER_TIME):
     {
         std::shared_ptr<CommandItem::SpatialLoiter_Time> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLoiter_Time>(missionItem);
         CommandItem::SpatialLoiter_Time baseItem = *castItem.get();
@@ -84,7 +84,7 @@ bool Helper_MissionMACEtoCOMMS::MACEMissionToCOMMSMission(std::shared_ptr<Comman
         return true;
         break;
     }
-    case(Data::CommandItemType::CI_NAV_LOITER_TURNS):
+    case(CommandItem::COMMANDITEM::CI_NAV_LOITER_TURNS):
     {
         std::shared_ptr<CommandItem::SpatialLoiter_Turns> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLoiter_Turns>(missionItem);
         CommandItem::SpatialLoiter_Turns baseItem = *castItem.get();
@@ -92,7 +92,7 @@ bool Helper_MissionMACEtoCOMMS::MACEMissionToCOMMSMission(std::shared_ptr<Comman
         return true;
         break;
     }
-    case(Data::CommandItemType::CI_NAV_LOITER_UNLIM):
+    case(CommandItem::COMMANDITEM::CI_NAV_LOITER_UNLIM):
     {
         std::shared_ptr<CommandItem::SpatialLoiter_Unlimited> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLoiter_Unlimited>(missionItem);
         CommandItem::SpatialLoiter_Unlimited baseItem = *castItem.get();
@@ -100,7 +100,7 @@ bool Helper_MissionMACEtoCOMMS::MACEMissionToCOMMSMission(std::shared_ptr<Comman
         return true;
         break;
     }
-    case(Data::CommandItemType::CI_NAV_RETURN_TO_LAUNCH):
+    case(CommandItem::COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH):
     {
         std::shared_ptr<CommandItem::SpatialRTL> castItem = std::dynamic_pointer_cast<CommandItem::SpatialRTL>(missionItem);
         CommandItem::SpatialRTL baseItem = *castItem.get();
@@ -108,7 +108,7 @@ bool Helper_MissionMACEtoCOMMS::MACEMissionToCOMMSMission(std::shared_ptr<Comman
         return true;
         break;
     }
-    case(Data::CommandItemType::CI_NAV_TAKEOFF):
+    case(CommandItem::COMMANDITEM::CI_NAV_TAKEOFF):
     {
         std::shared_ptr<CommandItem::SpatialTakeoff> castItem = std::dynamic_pointer_cast<CommandItem::SpatialTakeoff>(missionItem);
         CommandItem::SpatialTakeoff baseItem = *castItem.get();
@@ -116,7 +116,7 @@ bool Helper_MissionMACEtoCOMMS::MACEMissionToCOMMSMission(std::shared_ptr<Comman
         return true;
         break;
     }
-    case(Data::CommandItemType::CI_NAV_WAYPOINT):
+    case(CommandItem::COMMANDITEM::CI_NAV_WAYPOINT):
     {
         std::shared_ptr<CommandItem::SpatialWaypoint> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint>(missionItem);
         CommandItem::SpatialWaypoint baseItem = *castItem.get();
@@ -167,7 +167,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertLand(const CommandItem::Sp
     item.command = MAV_CMD_NAV_LAND;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
-    updateMissionPosition(missionItem.position,item);
+    updateMissionPosition(*missionItem.position,item);
     return item;
 }
 
@@ -179,7 +179,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertLoiterTime(const CommandIt
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     item.param1 = missionItem.duration;
-    updateMissionPosition(missionItem.position,item);
+    updateMissionPosition(*missionItem.position,item);
 
     if(missionItem.direction == Data::LoiterDirection::CW)
     {
@@ -198,7 +198,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertLoiterTurns(const CommandI
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     item.param1 = missionItem.turns;
-    updateMissionPosition(missionItem.position,item);
+    updateMissionPosition(*missionItem.position,item);
 
     if(missionItem.direction == Data::LoiterDirection::CW)
     {
@@ -216,7 +216,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertLoiterUnlimited(const Comm
     item.command = MAV_CMD_NAV_LOITER_UNLIM;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
-    updateMissionPosition(missionItem.position,item);
+    updateMissionPosition(*missionItem.position,item);
 
     if(missionItem.direction == Data::LoiterDirection::CW)
     {
@@ -244,7 +244,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertTakeoff(const CommandItem:
     item.command = MAV_CMD_NAV_TAKEOFF;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
-    updateMissionPosition(missionItem.position,item);
+    updateMissionPosition(*missionItem.position,item);
     return item;
 }
 

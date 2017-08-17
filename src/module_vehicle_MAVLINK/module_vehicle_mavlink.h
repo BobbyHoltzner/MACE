@@ -20,12 +20,9 @@
 #include "comms/udp_link.h"
 #include "comms/protocol_mavlink.h"
 
-#include "data_vehicle_MAVLINK/mavlink_parser.h"
-
 #include "mace_core/module_factory.h"
 
-#include "data_vehicle_MAVLINK/components.h"
-#include "data_vehicle_MAVLINK/vehicle_object_mavlink.h"
+#include "data_interface_MAVLINK/components/data_interface_mavlink_components.h"
 
 #include "commsMAVLINK/comms_mavlink.h"
 /*
@@ -174,10 +171,6 @@ public:
 
 protected:
     bool airborneInstance;
-
-private:
-    std::map<int,DataMAVLINK::VehicleObject_MAVLINK*> m_MAVLINKData;
-
 };
 
 #endif // MODULE_VEHICLE_MAVLINK_H

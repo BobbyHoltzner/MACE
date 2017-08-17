@@ -123,14 +123,14 @@ void Helper_MissionCOMMStoMACE::convertLand(const mace_mission_item_t &maceItem,
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(maceItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(maceItem));
 }
 
 void Helper_MissionCOMMStoMACE::convertLoiterTime(const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Time &missionItem)
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(maceItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(maceItem));
     missionItem.duration = maceItem.param1;
     missionItem.radius = fabs(maceItem.param3);
     missionItem.direction = (maceItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
@@ -140,7 +140,7 @@ void Helper_MissionCOMMStoMACE::convertLoiterTurns(const mace_mission_item_t &ma
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(maceItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(maceItem));
     missionItem.turns = maceItem.param1;
     missionItem.radius = fabs(maceItem.param3);
     missionItem.direction = (maceItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
@@ -151,9 +151,7 @@ void Helper_MissionCOMMStoMACE::convertLoiterUnlimted(const mace_mission_item_t 
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
     if((maceItem.command == MAV_CMD_NAV_LOITER_UNLIM) && (maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
-        missionItem.position.setX(maceItem.x);
-        missionItem.position.setY(maceItem.y);
-        missionItem.position.setZ(maceItem.z);
+        missionItem.setPosition(getBasePosition(maceItem));
         missionItem.radius = fabs(maceItem.param3);
         missionItem.direction = (maceItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
     }
@@ -173,21 +171,23 @@ void Helper_MissionCOMMStoMACE::convertTakeoff(const mace_mission_item_t &maceIt
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(maceItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(maceItem));
 }
 
 void Helper_MissionCOMMStoMACE::convertWaypoint(const mace_mission_item_t &maceItem, CommandItem::SpatialWaypoint &missionItem)
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(maceItem,*missionItem.position);
+    missionItem.setPosition(getBasePosition(maceItem));
 }
 
-void Helper_MissionCOMMStoMACE::updatePosition(const mace_mission_item_t &maceItem, DataState::Base3DPosition &pos)
+DataState::Base3DPosition Helper_MissionCOMMStoMACE::getBasePosition(const mace_mission_item_t &maceItem)
 {
+    DataState::Base3DPosition pos;
     Data::CoordinateFrameType frame = static_cast<Data::CoordinateFrameType>(maceItem.frame);
     pos.setCoordinateFrame(frame);
     pos.setPosition3D(maceItem.x,maceItem.y,maceItem.z);
+    return pos;
 }
 
 } //end of namespace DataMAVLINK

@@ -5,6 +5,8 @@
 
 #include "data_generic_command_item/command_item_ack.h"
 
+using namespace CommandItem;
+
 namespace CommandTopic {
 
 extern const char DataCommandItemTopicACK_name[];
