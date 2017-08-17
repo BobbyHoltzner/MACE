@@ -2,9 +2,9 @@
 
 namespace CommandItem {
 
-Data::CommandItemType SpatialLoiter_Unlimited::getCommandType() const
+COMMANDITEM SpatialLoiter_Unlimited::getCommandType() const
 {
-    return Data::CommandItemType::CI_NAV_LOITER_UNLIM;
+    return COMMANDITEM::CI_NAV_LOITER_UNLIM;
 }
 
 std::string SpatialLoiter_Unlimited::getDescription() const

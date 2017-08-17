@@ -2,9 +2,9 @@
 
 namespace CommandItem {
 
-Data::CommandItemType SpatialTakeoff::getCommandType() const
+COMMANDITEM SpatialTakeoff::getCommandType() const
 {
-    return Data::CommandItemType::CI_NAV_TAKEOFF;
+    return COMMANDITEM::CI_NAV_TAKEOFF;
 }
 
 std::string SpatialTakeoff::getDescription() const

@@ -2,9 +2,9 @@
 
 namespace CommandItem {
 
-Data::CommandItemType SpatialLoiter_Turns::getCommandType() const
+COMMANDITEM SpatialLoiter_Turns::getCommandType() const
 {
-    return Data::CommandItemType::CI_NAV_LOITER_TURNS;
+    return COMMANDITEM::CI_NAV_LOITER_TURNS;
 }
 
 std::string SpatialLoiter_Turns::getDescription() const

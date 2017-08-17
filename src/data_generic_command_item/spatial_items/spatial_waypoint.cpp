@@ -2,9 +2,9 @@
 
 namespace CommandItem {
 
-Data::CommandItemType SpatialWaypoint::getCommandType() const
+COMMANDITEM SpatialWaypoint::getCommandType() const
 {
-    return Data::CommandItemType::CI_NAV_WAYPOINT;
+    return COMMANDITEM::CI_NAV_WAYPOINT;
 }
 
 std::string SpatialWaypoint::getDescription() const

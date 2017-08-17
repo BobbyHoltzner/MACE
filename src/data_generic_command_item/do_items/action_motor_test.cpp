@@ -2,9 +2,9 @@
 
 namespace CommandItem {
 
-Data::CommandItemType ActionMotorTest::getCommandType() const
+COMMANDITEM ActionMotorTest::getCommandType() const
 {
-    return Data::CommandItemType::CI_ACT_MOTORTEST;
+    return COMMANDITEM::CI_ACT_MOTORTEST;
 }
 
 std::string ActionMotorTest::getDescription() const

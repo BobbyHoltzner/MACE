@@ -2,9 +2,9 @@
 
 namespace CommandItem {
 
-Data::CommandItemType SpatialLand::getCommandType() const
+COMMANDITEM SpatialLand::getCommandType() const
 {
-    return Data::CommandItemType::CI_NAV_LAND;
+    return COMMANDITEM::CI_NAV_LAND;
 }
 
 std::string SpatialLand::getDescription() const

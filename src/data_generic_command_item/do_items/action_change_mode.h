@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "data/command_item_type.h"
+#include "command_item_type.h"
 #include "data_generic_command_item/abstract_command_item.h"
 
 
@@ -13,7 +13,7 @@ namespace CommandItem {
 class ActionChangeMode : public AbstractCommandItem
 {
 public:
-    virtual Data::CommandItemType getCommandType() const;
+    virtual COMMANDITEM getCommandType() const;
 
     virtual std::string getDescription() const;
 

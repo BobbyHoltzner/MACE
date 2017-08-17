@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "data/command_item_type.h"
+#include "command_item_type.h"
 
 namespace CommandItem {
 
@@ -54,7 +54,7 @@ public:
     //! \brief getCommandType returns the type of the object that this command type is.
     //! \return Data::CommandType resolving the type of command this object is.
     //!
-    virtual Data::CommandItemType getCommandType() const = 0;
+    virtual COMMANDITEM getCommandType() const = 0;
 
     //!
     //! \brief hasSpatialInfluence returns a boolean reflecting whether or not the commandItem has

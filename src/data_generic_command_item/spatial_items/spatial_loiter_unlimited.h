@@ -9,7 +9,7 @@
 
 #include "abstract_spatial_position.h"
 
-#include "data/command_item_type.h"
+#include "command_item_type.h"
 #include "data/loiter_direction.h"
 #include "data_generic_state_item/base_3d_position.h"
 
@@ -31,7 +31,7 @@ public:
     //! \brief getCommandType returns the type of the object that this command type is.
     //! \return Data::CommandType resolving the type of command this object is.
     //!
-    virtual Data::CommandItemType getCommandType()const;
+    virtual COMMANDITEM getCommandType()const;
 
     //!
     //! \brief getDescription

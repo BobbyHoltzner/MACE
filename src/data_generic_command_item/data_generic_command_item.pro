@@ -74,7 +74,8 @@ HEADERS +=\
     mission_items/mission_type.h \
     mission_items/mission_key.h \
     mission_items/mission_key_change.h \
-    spatial_items/abstract_spatial_position.h
+    spatial_items/abstract_spatial_position.h \
+    command_item_type.h
 
 # Unix lib Install
 unix:!symbian {
@@ -91,10 +92,11 @@ INSTALLS += lib
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/data_generic_command_item
 headers.files   += \
-    data_generic_command_item_global.h \
     abstract_command_item.h \
     command_item_ack.h \
-    command_item_components.h
+    command_item_components.h \
+    command_item_type.h \
+    data_generic_command_item_global.h
 INSTALLS       += headers
 
 #Header file copy

@@ -1,12 +1,13 @@
-#ifndef MISSION_ITEM_TYPE_H
-#define MISSION_ITEM_TYPE_H
+#ifndef COMMAND_ITEM_TYPE_H
+#define COMMAND_ITEM_TYPE_H
 
 #include <string>
 #include <stdexcept>
 
-namespace Data
+namespace CommandItem
 {
-enum class CommandItemType : uint8_t{
+
+enum class COMMANDITEM : uint8_t{
     CI_NAV_HOME = 0,
     CI_NAV_LAND=1, /* Land at location |Abort Alt| Empty| Empty| Desired yaw angle. NaN for unchanged.| Latitude| Longitude| Altitude|  */
     CI_NAV_LOITER_TIME=2, /* Loiter around this CISSION for X seconds |Seconds (decimal)| Empty| Radius around CISSION, in meters. If positive loiter clockwise, else counter-clockwise| Forward moving aircraft this sets exit xtrack location: 0 for center of loiter wp, 1 for exit location. Else, this is desired yaw angle| Latitude| Longitude| Altitude|  */
@@ -21,72 +22,72 @@ enum class CommandItemType : uint8_t{
     CI_ACT_MOTORTEST = 11,
     CI_ACT_MISSIONCOMMAND = 12,
     CI_UNKNOWN = 14,
-    COMMANDITEMTYPEEND = 15
+    COMMANDITEMEND = 15
 };
 
-inline std::string CommandItemTypeToString(const CommandItemType &commandItemType) {
+inline std::string CommandItemToString(const COMMANDITEM &commandItemType) {
     switch (commandItemType) {
-    case CommandItemType::CI_NAV_LAND:
+    case COMMANDITEM::CI_NAV_LAND:
         return "CI_NAV_LAND";
-    case CommandItemType::CI_NAV_LOITER_TIME:
+    case COMMANDITEM::CI_NAV_LOITER_TIME:
         return "CI_NAV_LOITER_TIME";
-    case CommandItemType::CI_NAV_LOITER_TURNS:
+    case COMMANDITEM::CI_NAV_LOITER_TURNS:
         return "CI_NAV_LOITER_TURNS";
-    case CommandItemType::CI_NAV_LOITER_UNLIM:
+    case COMMANDITEM::CI_NAV_LOITER_UNLIM:
         return "CI_NAV_LOITER_UNLIM";
-    case CommandItemType::CI_NAV_RETURN_TO_LAUNCH:
+    case COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH:
         return "CI_NAV_RETURN_TO_LAUNCH";
-    case CommandItemType::CI_NAV_TAKEOFF:
+    case COMMANDITEM::CI_NAV_TAKEOFF:
         return "CI_NAV_TAKEOFF";
-    case CommandItemType::CI_NAV_WAYPOINT:
+    case COMMANDITEM::CI_NAV_WAYPOINT:
         return "CI_NAV_WAYPOINT";
-    case CommandItemType::CI_ACT_ARM:
+    case COMMANDITEM::CI_ACT_ARM:
         return "CI_ACT_ARM";
-    case CommandItemType::CI_ACT_CHANGESPEED:
+    case COMMANDITEM::CI_ACT_CHANGESPEED:
         return "CI_ACT_CHANGESPEED";
-    case CommandItemType::CI_ACT_CHANGEMODE:
+    case COMMANDITEM::CI_ACT_CHANGEMODE:
         return "CI_ACT_CHANGEMODE";
-    case CommandItemType::CI_ACT_MOTORTEST:
+    case COMMANDITEM::CI_ACT_MOTORTEST:
         return "CI_ACT_MOTORTEST";
-    case CommandItemType::CI_ACT_MISSIONCOMMAND:
+    case COMMANDITEM::CI_ACT_MISSIONCOMMAND:
         return "CI_ACT_MISSIONCOMMAND";
-    case CommandItemType::CI_UNKNOWN:
+    case COMMANDITEM::CI_UNKNOWN:
         return "CI_UNKNOWN";
     default:
         throw std::runtime_error("Unknown mission item enum seen");
     }
 }
 
-inline CommandItemType CommandItemTypeFromString(const std::string &str) {
+inline COMMANDITEM CommandItemFromString(const std::string &str) {
     if(str == "CI_NAV_LAND")
-        return CommandItemType::CI_NAV_LAND;
+        return COMMANDITEM::CI_NAV_LAND;
     if(str == "CI_NAV_LOITER_TIME")
-        return CommandItemType::CI_NAV_LOITER_TIME;
+        return COMMANDITEM::CI_NAV_LOITER_TIME;
     if(str == "CI_NAV_LOITER_TURNS")
-        return CommandItemType::CI_NAV_LOITER_TURNS;
+        return COMMANDITEM::CI_NAV_LOITER_TURNS;
     if(str == "CI_NAV_LOITER_UNLIM")
-        return CommandItemType::CI_NAV_LOITER_UNLIM;
+        return COMMANDITEM::CI_NAV_LOITER_UNLIM;
     if(str == "CI_NAV_RETURN_TO_LAUNCH")
-        return CommandItemType::CI_NAV_RETURN_TO_LAUNCH;
+        return COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH;
     if(str == "CI_NAV_TAKEOFF")
-        return CommandItemType::CI_NAV_TAKEOFF;
+        return COMMANDITEM::CI_NAV_TAKEOFF;
     if(str == "CI_NAV_WAYPOINT")
-        return CommandItemType::CI_NAV_WAYPOINT;
+        return COMMANDITEM::CI_NAV_WAYPOINT;
     if(str == "CI_ACT_ARM")
-        return CommandItemType::CI_ACT_ARM;
+        return COMMANDITEM::CI_ACT_ARM;
     if(str == "CI_ACT_CHANGESPEED")
-        return CommandItemType::CI_ACT_CHANGESPEED;
+        return COMMANDITEM::CI_ACT_CHANGESPEED;
     if(str == "CI_ACT_CHANGEMODE")
-        return CommandItemType::CI_ACT_CHANGEMODE;
+        return COMMANDITEM::CI_ACT_CHANGEMODE;
     if(str == "CI_ACT_MOTORTEST")
-        return CommandItemType::CI_ACT_MOTORTEST;
+        return COMMANDITEM::CI_ACT_MOTORTEST;
     if(str == "CI_ACT_MISSIONCOMMAND")
-        return CommandItemType::CI_ACT_MISSIONCOMMAND;
+        return COMMANDITEM::CI_ACT_MISSIONCOMMAND;
     if(str == "CI_UNKNOWN")
-        return CommandItemType::CI_UNKNOWN;
+        return COMMANDITEM::CI_UNKNOWN;
     throw std::runtime_error("Unknown mission item string seen");
 }
 
 } //end of namespace Data
 
-#endif // MISSION_ITEM_TYPE_H
+#endif // COMMAND_ITEM_TYPE_H
