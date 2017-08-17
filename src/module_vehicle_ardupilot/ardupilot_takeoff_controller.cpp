@@ -6,19 +6,19 @@ Ardupilot_TakeoffController::Ardupilot_TakeoffController(std::shared_ptr<DataInt
 {
     controllerType = CONTROLLER_TAKEOFF;
     vehicleMissionState = ArdupilotMissionState(2,10,10);
-    this->vehicleDataObject->state->vehicleAttitude.AddNotifier(this,[this]
-    {
-        m_LambdasToRun.push_back([this]{
-            std::cout<<"The attitude is functioning"<<std::endl;
-        });
-    });
+//    this->vehicleDataObject->state->vehicleAttitude.AddNotifier(this,[this]
+//    {
+//        m_LambdasToRun.push_back([this]{
+//            std::cout<<"The attitude is functioning"<<std::endl;
+//        });
+//    });
 
-    this->vehicleDataObject->state->vehicleGlobalPosition.AddNotifier(this,[this]
-    {
-        m_LambdasToRun.push_back([this]{
-            std::cout<<"The position is functioning"<<std::endl;
-        });
-    });
+//    this->vehicleDataObject->state->vehicleGlobalPosition.AddNotifier(this,[this]
+//    {
+//        m_LambdasToRun.push_back([this]{
+//            std::cout<<"The position is functioning"<<std::endl;
+//        });
+//    });
 }
 
 Ardupilot_TakeoffController::~Ardupilot_TakeoffController() {

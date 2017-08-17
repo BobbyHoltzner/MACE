@@ -48,8 +48,6 @@ ModuleGroundStation::ModuleGroundStation() :
 {
     latitude = 37.8910356;
 
-    initiateLogs();
-
     m_positionTimeoutOccured = false;
     m_attitudeTimeoutOccured = false;
     m_modeTimeoutOccured = false;
@@ -101,18 +99,8 @@ ModuleGroundStation::~ModuleGroundStation()
 
 void ModuleGroundStation::initiateLogs()
 {
-    std::string logname = "";
-    char* MACEPath = getenv("MACE_ROOT");
 
-    const char kPathSeparator =
-    #ifdef _WIN32
-                                '\\';
-    #else
-                                '/';
-    #endif
-
-    std::string rootPath(MACEPath);
-    logname = rootPath + kPathSeparator + "logs/MACE_Module_GCS.txt";
+    std::string logname = this->loggingPath + "/MACE_Module_GCS.txt";
     //initiate the logs
     size_t q_size = 8192; //queue size must be power of 2
     spdlog::set_async_mode(q_size,spdlog::async_overflow_policy::discard_log_msg,nullptr,std::chrono::seconds(2));
@@ -527,6 +515,17 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
     UNUSED(params);
 }
 
+void ModuleGroundStation::AssignLoggingDirectory(const std::string &path)
+{
+    ModuleBase::AssignLoggingDirectory(path);
+    initiateLogs();
+}
+
+void ModuleGroundStation::start()
+{
+    AbstractModule_EventListeners::start();
+}
+
 void ModuleGroundStation::AttachedAsModule(MaceCore::IModuleTopicEvents *ptr)
 {
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
@@ -840,7 +839,7 @@ void ModuleGroundStation::getEnvironmentBoundary() {
 void ModuleGroundStation::sendCurrentMissionItem(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionItemCurrentTopic> &component) {
     QJsonObject json;
     json["dataType"] = "CurrentMissionItem";
-    json["vehicleID"] = vehicleID;
+    json["vehicleID"] = component->getMissionKey().m_systemID;
     json["missionItemIndex"] = component->getMissionCurrentIndex();
 
     QJsonDocument doc(json);

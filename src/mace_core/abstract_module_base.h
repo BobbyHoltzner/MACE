@@ -105,7 +105,7 @@ public:
     //! \brief AssignLoggingDirectory
     //! \param path
     //!
-    void AssignLoggingDirectory(const std::string &path)
+    virtual void AssignLoggingDirectory(const std::string &path)
     {
         this->loggingPath = path;
     }
@@ -133,6 +133,7 @@ public:
 
 protected:
     std::string loggingPath;
+    bool loggerCreated = false;
 
 private:
     std::shared_ptr<const MaceData> m_Data;

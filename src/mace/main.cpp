@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
             testIndex++;
             finalPath = newPath + std::to_string(testIndex);
         }
-        loggingPath = loggingDirectory.absolutePath().toStdString() + finalPath;
+        loggingPath = loggingDirectory.absolutePath().toStdString() + "/" + finalPath;
 
         std::cout << "The current MACE_ROOT path is: " << rootPath << std::endl;
         filename = rootPath + kPathSeparator + "MaceSetup.xml";
@@ -101,6 +101,8 @@ int main(int argc, char *argv[])
         std::shared_ptr<MaceCore::ModuleBase> module = it->first;
         std::string moduleType = it->second;
         std::cout << "Creating a " << MaceCore::ModuleBase::ModuleTypeToString(module->ModuleClass()) << " module of type: " << moduleType << std::endl;
+
+        module->AssignLoggingDirectory(loggingPath);
 
         //set data object of module
         module->setDataObject(data);

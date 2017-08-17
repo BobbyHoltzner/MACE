@@ -22,58 +22,58 @@ std::shared_ptr<CommandItem::AbstractCommandItem> Helper_MissionCOMMStoMACE::Con
 {
     std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = NULL;
 
-    switch(maceItem.command)
+    switch(static_cast<COMMANDITEM>(maceItem.command))
     {
-    case MAV_CMD_DO_CHANGE_SPEED:
+    case COMMANDITEM::CI_ACT_CHANGESPEED:
     {
         CommandItem::ActionChangeSpeed missionItem;
         convertChangespeed(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::ActionChangeSpeed>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_LAND:
+    case COMMANDITEM::CI_NAV_LAND:
     {
         CommandItem::SpatialLand missionItem;
         convertLand(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::SpatialLand>(missionItem);
         break;
-    }
-    case MAV_CMD_NAV_LOITER_TIME:
+    }        
+    case COMMANDITEM::CI_NAV_LOITER_TIME:
     {
         CommandItem::SpatialLoiter_Time missionItem;
         convertLoiterTime(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Time>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_LOITER_TURNS:
+    case COMMANDITEM::CI_NAV_LOITER_TURNS:
     {
         CommandItem::SpatialLoiter_Turns missionItem;
         convertLoiterTurns(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Turns>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_LOITER_UNLIM:
+    case COMMANDITEM::CI_NAV_LOITER_UNLIM:
     {
         CommandItem::SpatialLoiter_Unlimited missionItem;
         convertLoiterUnlimted(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Unlimited>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_RETURN_TO_LAUNCH:
+    case COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH:
     {
         CommandItem::SpatialRTL missionItem;
         convertRTL(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::SpatialRTL>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_TAKEOFF:
+    case COMMANDITEM::CI_NAV_TAKEOFF:
     {
         CommandItem::SpatialTakeoff missionItem;
         convertTakeoff(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::SpatialTakeoff>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_WAYPOINT:
+    case COMMANDITEM::CI_NAV_WAYPOINT:
     {
         CommandItem::SpatialWaypoint missionItem;
         convertWaypoint(maceItem,missionItem);

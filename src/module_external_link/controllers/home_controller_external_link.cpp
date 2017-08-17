@@ -76,7 +76,7 @@ void HomeController_ExternalLink::run()
             {
                 if(type == commsItemEnum::ITEM_RXHOME)
                 {
-                    //mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
+                    mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
                     std::cout<<"Making another request for home item"<<std::endl;
                     PreviousTransmission<mace_mission_request_home_t> *tmp = static_cast<PreviousTransmission<mace_mission_request_home_t>*>(prevTransmit);
                     mace_mission_request_home_t msgTransmit = tmp->getData();
@@ -90,7 +90,7 @@ void HomeController_ExternalLink::run()
             {
                 if(type == commsItemEnum::ITEM_SETHOME)
                 {
-                    //mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
+                    mLog->error("Mission Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommsItemEnumString(type) + ".");
                     std::cout<<"Making another request for home item"<<std::endl;
                     PreviousTransmission<mace_set_home_position_t> *tmp = static_cast<PreviousTransmission<mace_set_home_position_t>*>(prevTransmit);
                     mace_set_home_position_t msgTransmit = tmp->getData();
@@ -111,8 +111,7 @@ void HomeController_ExternalLink::run()
 
 void HomeController_ExternalLink::requestHome(const int &systemID)
 {
-    //mLog->info("Mission Controller has seen a request home.");
-    std::cout<<"Mission controller is making a request for the home position"<<std::endl;
+    mLog->info("Mission Controller has seen a request home.");
     currentCommsState = Data::ControllerCommsState::RECEIVING;
 
     mace_mission_request_home_t request;

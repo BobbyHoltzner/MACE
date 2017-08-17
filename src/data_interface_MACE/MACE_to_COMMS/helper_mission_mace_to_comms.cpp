@@ -148,7 +148,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertChangeSpeed(const CommandI
 {
     mace_mission_item_t item;
     initializeMACEMissionItem(item);
-    item.command = MAV_CMD_DO_CHANGE_SPEED;
+    item.command = (uint16_t)COMMANDITEM::CI_ACT_CHANGESPEED;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     item.param1 = 0.0; //assume the default required is AIRSPEED
@@ -164,7 +164,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertLand(const CommandItem::Sp
 {
     mace_mission_item_t item;
     initializeMACEMissionItem(item);
-    item.command = MAV_CMD_NAV_LAND;
+    item.command = (uint16_t)COMMANDITEM::CI_NAV_LAND;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     updateMissionPosition(*missionItem.position,item);
@@ -175,7 +175,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertLoiterTime(const CommandIt
 {
     mace_mission_item_t item;
     initializeMACEMissionItem(item);
-    item.command = MAV_CMD_NAV_LOITER_TIME;
+    item.command = (uint16_t)COMMANDITEM::CI_NAV_LOITER_TIME;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     item.param1 = missionItem.duration;
@@ -194,7 +194,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertLoiterTurns(const CommandI
 {
     mace_mission_item_t item;
     initializeMACEMissionItem(item);
-    item.command = MAV_CMD_NAV_LOITER_TURNS;
+    item.command = (uint16_t)COMMANDITEM::CI_NAV_LOITER_TURNS;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     item.param1 = missionItem.turns;
@@ -213,7 +213,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertLoiterUnlimited(const Comm
 {
     mace_mission_item_t item;
     initializeMACEMissionItem(item);
-    item.command = MAV_CMD_NAV_LOITER_UNLIM;
+    item.command = (uint16_t)COMMANDITEM::CI_NAV_LOITER_UNLIM;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     updateMissionPosition(*missionItem.position,item);
@@ -231,7 +231,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertRTL(const CommandItem::Spa
 {
     mace_mission_item_t item;
     initializeMACEMissionItem(item);
-    item.command = MAV_CMD_NAV_RETURN_TO_LAUNCH;
+    item.command = (uint16_t)COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     return item;
@@ -241,7 +241,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertTakeoff(const CommandItem:
 {
     mace_mission_item_t item;
     initializeMACEMissionItem(item);
-    item.command = MAV_CMD_NAV_TAKEOFF;
+    item.command = (uint16_t)COMMANDITEM::CI_NAV_TAKEOFF;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     updateMissionPosition(*missionItem.position,item);
@@ -252,7 +252,7 @@ mace_mission_item_t Helper_MissionMACEtoCOMMS::convertWaypoint(const CommandItem
 {
     mace_mission_item_t item;
     initializeMACEMissionItem(item);
-    item.command = MAV_CMD_NAV_WAYPOINT;
+    item.command = (uint16_t)COMMANDITEM::CI_NAV_TAKEOFF;
     item.seq = itemIndex;
     item.target_system = missionItem.getTargetSystem();
     updateMissionPosition(*missionItem.position,item);

@@ -317,7 +317,6 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
     }
     case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
     {
-        std::cout<<"I have reached a mission item"<<std::endl;
         //This is message definition 46
         //A certain mission item has been reached. The system will either hold this position (or circle on the orbit) or
         //(if the autocontinue on the WP was set) continue to the next MISSION.

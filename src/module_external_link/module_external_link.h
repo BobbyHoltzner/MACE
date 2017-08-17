@@ -71,7 +71,6 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
-
     std::string createLog(const int &systemID);
 
     void transmitMessage(const mace_message_t &msg);

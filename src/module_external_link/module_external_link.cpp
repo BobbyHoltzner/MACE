@@ -72,18 +72,8 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 
 std::string ModuleExternalLink::createLog(const int &systemID)
 {
-    std::string logname = "";
-    char* MACEPath = getenv("MACE_ROOT");
-
-    const char kPathSeparator =
-        #ifdef _WIN32
-            '\\';
-#else
-            '/';
-#endif
-
-    std::string rootPath(MACEPath);
-    logname = rootPath + kPathSeparator + "logs/ExternalLinkModule" + std::to_string(systemID) + ".txt";
+    loggerCreated = true;
+    std::string logname = this->loggingPath + "/ExternalLinkModule" + std::to_string(systemID) + ".txt";
     std::string loggerName = "ExternalLinkModule_" + std::to_string(systemID);
     char logNameArray[loggerName.size()+1];//as 1 char space for null is also required
     strcpy(logNameArray, loggerName.c_str());
@@ -536,6 +526,7 @@ void ModuleExternalLink::NewlyAvailableVehicle(const int &systemID)
 {
     if(airborneInstance)
     {
+        this->associatedSystemID = systemID;
         m_CommandController->updateIDS(254,systemID);
         m_HomeController->updateIDS(254,systemID);
         m_MissionController->updateIDS(254,systemID);
@@ -585,6 +576,8 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
             //example of how to get data and parse through the components that were updated
             for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
                 if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Heartbeat::Name()) {
+                    if(!loggerCreated)
+                        createLog(senderID);
                     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>();
                     m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
                     mace_message_t msg = component->getMACEMsg(senderID,0,m_LinkChan);
@@ -641,16 +634,15 @@ void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, st
                 MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), senderID);
                 if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
                     std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
-
-                    mace_message_t msg;
-                    mace_mission_item_current_t current;
-                    mace_msg_mission_item_current_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&current);
+                    m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+                    mace_message_t msg = component->getMACEMsg(senderID,0,m_LinkChan);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
-
                 }
                 else if(componentsUpdated.at(i) == MissionTopic::VehicleTargetTopic::Name()) {
                     std::shared_ptr<MissionTopic::VehicleTargetTopic> component = std::make_shared<MissionTopic::VehicleTargetTopic>();
                     m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+                    mace_message_t msg = component->getMACEMsg(senderID,0,m_LinkChan);
+                    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
                 }
             }
         }

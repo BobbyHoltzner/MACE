@@ -153,6 +153,7 @@ void CommandController_ExternalLink::setSystemTakeoff(const CommandItem::Spatial
 
     if(commandItem.position->has2DPositionSet())
     {
+        cmd.param1 = 1.0;
         cmd.param5 = commandItem.position->getX();
         cmd.param6 = commandItem.position->getY();
     }

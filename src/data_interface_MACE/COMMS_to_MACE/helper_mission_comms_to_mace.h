@@ -14,6 +14,8 @@
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
+using namespace CommandItem;
+
 namespace DataInterface_MACE {
 
 class Helper_MissionCOMMStoMACE

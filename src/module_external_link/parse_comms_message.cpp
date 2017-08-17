@@ -47,7 +47,8 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_vehicle_sync_t decodedMSG;
         mace_msg_vehicle_sync_decode(message,&decodedMSG);
-        std::cout<<"The external link saw a mace message of type vehicle sync"<<std::endl;
+        if(mLog)
+            mLog->debug("External link saw a request to sync its data to a remote instance.");
         //We may not handle it this way anymore
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->ExternalEvent_RequestingDataSync(this, decodedMSG.target_system);
@@ -470,6 +471,21 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
                 cbiMissionController_MissionACK(ack);
             }
         }
+        break;
+    }
+    case MACE_MSG_ID_GUIDED_TARGET_STATS:
+    {
+        mace_guided_target_stats_t decodedMSG;
+        mace_msg_guided_target_stats_decode(message,&decodedMSG);
+
+        std::shared_ptr<MissionTopic::VehicleTargetTopic> ptrTarget = std::make_shared<MissionTopic::VehicleTargetTopic>(decodedMSG);
+
+        MaceCore::TopicDatagram topicDatagram;
+        m_MissionDataTopic.SetComponent(ptrTarget, topicDatagram);
+        //notify listeners of topic
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
         break;
     }
     default:

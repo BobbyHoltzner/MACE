@@ -44,7 +44,12 @@ void ModuleVehicleArdupilot::cbi_VehicleCommandACK(const int &systemID, const ma
 
 void ModuleVehicleArdupilot::cbi_VehicleMissionACK(const MissionItem::MissionACK &ack)
 {
-    std::cout<<"The module has now seen a mission ack."<<std::endl;
+    std::stringstream buffer;
+    buffer << ack.getMissionKey();
+
+    mLogs->info("The module has now seen a mission ack.");
+    mLogs->debug(buffer);
+
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
          ptr->EventVehicle_MissionACK(this, ack);
      });
@@ -66,7 +71,12 @@ void ModuleVehicleArdupilot::cbi_VehicleMissionData(const int &systemID, std::sh
 
 void ModuleVehicleArdupilot::cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent &current)
 {
-    std::cout<<"The vehicle module has seen a current mission item"<<std::endl;
+    std::stringstream buffer;
+    buffer << current.getMissionKey();
+
+    mLogs->info("The vehicle module has seen a current mission item" + std::to_string(current.getMissionCurrentIndex()));
+    mLogs->debug(buffer);
+
     //This function shall update the local MACE core of the new mission
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
         ptr->GVEvents_MissionItemCurrent(this, current);
@@ -107,7 +117,11 @@ void ModuleVehicleArdupilot::cbi_VehicleHome(const int &systemID, const CommandI
 
 void ModuleVehicleArdupilot::cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList)
 {
-    mLogs->debug("Receieved a new vehicle mission.");
+    std::stringstream buffer;
+    buffer << missionList;
+
+    mLogs->info("Receieved a new vehicle mission.");
+    mLogs->info(buffer.str());
 
     //This function shall update the local MACE CORE instance of the mission
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
@@ -222,10 +236,6 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
                 int mode = tmp.getFlightModeFromString("LOITER");
                 vehicleData->m_CommandController->setNewMode(mode);
             }
-
-//            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-//                ptr->GVEvents_MissionExeStateUpdated(this, key, Data::MissionExecutionState::MESTATE_PAUSED);
-//            });
         }else if(command.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_START)
         {
             DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
@@ -314,6 +324,12 @@ void ModuleVehicleArdupilot::UpdateMissionKey(const MissionItem::MissionKeyChang
 
 void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionList &missionList)
 {
+    std::stringstream buffer;
+    buffer << missionList;
+
+    mLogs->info("Vehicle module has been told to upload a mission.");
+    mLogs->info(buffer.str());
+
     switch(missionList.getMissionType())
     {
     case(MissionItem::MISSIONTYPE::AUTO): //This case should push the mission directly to the aircraft
@@ -419,7 +435,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     {
         createLog(systemID);
         //this is the first time we have seen this heartbeat or the data was destroyed for some reason
-        vehicleData = std::make_shared<DataInterface_MAVLINK::VehicleObject_MAVLINK>(systemID,255);
+        vehicleData = std::make_shared<DataInterface_MAVLINK::VehicleObject_MAVLINK>(this->loggingPath,systemID,255);
         vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
         vehicleData->connectCallback(this);
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
