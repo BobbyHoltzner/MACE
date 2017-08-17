@@ -4,8 +4,8 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme();
 
-import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon } from 'react-leaflet';
-// import { EditControl } from "react-leaflet-draw"
+import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon, FeatureGroup } from 'react-leaflet';
+import { EditControl } from "react-leaflet-draw"
 import * as colors from 'material-ui/styles/colors';
 import { Vehicle } from '../Vehicle';
 import { ContextMenu } from '../components/ContextMenu';
@@ -93,11 +93,11 @@ export default class MACEMap extends React.Component<Props, State> {
   }
 
   _onDrawDeleteStart = () => {
-    console.log('Delete is starting !');
+    console.log('Delete is starting ! ... Probably want to make this an "undo" style button. Undo the previous layer');
   }
 
   _onDrawDeleteStop = () => {
-    console.log('Delete is stopping !');
+    console.log('Delete is stopping ! ... Probably want to just delete');
   }
 
 
@@ -221,8 +221,8 @@ export default class MACEMap extends React.Component<Props, State> {
                   </LayerGroup>
                 }
 
-                {this.props.showDraw &&
-                  {/* <FeatureGroup>
+                {/* {this.props.showDraw && */}
+                   <FeatureGroup>
                       <EditControl
                         position='topleft'
                         onEdited={this._onDrawEditPath}
@@ -235,12 +235,16 @@ export default class MACEMap extends React.Component<Props, State> {
                         onDeleteStop={this._onDrawDeleteStop}
                         draw={
                           {
-                            marker: false
+                            marker: false,
+                            circle: false,
+                            polyline: false,
+                            delete: false
                           }
                         }
+                        style={{size: 100}}
                       />
-                  </FeatureGroup> */}
-                }
+                  </FeatureGroup>
+                {/* } */}
 
             </Map>
           </div>
