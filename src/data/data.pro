@@ -32,7 +32,6 @@ HEADERS += data_global.h \
     threadmanager.h \
     system_type.h \
     comms_protocol.h \
-    command_item_type.h \
     command_ack_type.h \
     mission_command.h \
     mission_execution_state.h \

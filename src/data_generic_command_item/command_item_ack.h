@@ -3,8 +3,9 @@
 
 #include <iostream>
 
-#include "data/command_item_type.h"
 #include "data/command_ack_type.h"
+
+#include "command_item_type.h"
 
 namespace CommandItem {
 
@@ -12,11 +13,11 @@ class CommandItemACK
 {
 public:
     CommandItemACK();
-    CommandItemACK(const Data::CommandItemType &cmdType, const Data::CommandACKType &codeType);
-    CommandItemACK(const int &systemOrigin, const Data::CommandItemType &cmdType, const Data::CommandACKType &codeType, const int &systemTarget = 0);
+    CommandItemACK(const COMMANDITEM &cmdType, const Data::CommandACKType &codeType);
+    CommandItemACK(const int &systemOrigin, const COMMANDITEM &cmdType, const Data::CommandACKType &codeType, const int &systemTarget = 0);
 
 public:
-    Data::CommandItemType getCommandType() const
+    COMMANDITEM getCommandType() const
     {
         return this->cmd;
     }
@@ -35,7 +36,7 @@ public:
     }
 
 public:
-    void setCommandType(const Data::CommandItemType &cmdType)
+    void setCommandType(const COMMANDITEM &cmdType)
     {
         this->cmd = cmdType;
     }
@@ -84,7 +85,7 @@ public:
 
 public:
     //KEN TODO: add and originating component in order to direct this information rather than broadcast
-    Data::CommandItemType cmd;
+    COMMANDITEM cmd;
     Data::CommandACKType code;
     int originatingSystem;
     int targetSystem;

@@ -3,19 +3,9 @@
 namespace DataInterface_MAVLINK {
 
 
-void VehicleObject_MAVLINK::async_example()
+void VehicleObject_MAVLINK::async_example(const std::string &loggingPath)
 {
-
-    const char kPathSeparator =
-    #ifdef _WIN32
-                                '\\';
-    #else
-                                '/';
-    #endif
-
-    char* MACEPath = getenv("MACE_ROOT");
-    std::string rootPath(MACEPath);
-    std::string baseLogName = rootPath + kPathSeparator + "logs/VehicleData_" + std::to_string(this->systemID);
+    std::string baseLogName = loggingPath + "/VehicleData_" + std::to_string(this->systemID);
 
     std::string dataLogName = baseLogName + ".txt";
 
@@ -30,13 +20,13 @@ void VehicleObject_MAVLINK::async_example()
     mLog->set_level(spdlog::level::debug);
 }
 
-VehicleObject_MAVLINK::VehicleObject_MAVLINK(const int &vehicleID, const int &transmittingID):
+VehicleObject_MAVLINK::VehicleObject_MAVLINK(const std::string &loggingPath, const int &vehicleID, const int &transmittingID):
     m_CB(NULL), m_CommandController(NULL), m_MissionController(NULL),
     command(NULL), mission(NULL), state(NULL),
     systemID(vehicleID), commandID(transmittingID),
     m_LinkMarshaler(NULL), m_LinkName(""), m_LinkChan(0)
 {
-    async_example();
+    async_example(loggingPath);
 
     command = new CommandInterface_MAVLINK(systemID, 0);
     command->connectCallback_CommandLong(VehicleObject_MAVLINK::staticCallbackCMDLongFunction, this);

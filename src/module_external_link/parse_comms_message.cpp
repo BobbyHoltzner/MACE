@@ -47,7 +47,8 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_vehicle_sync_t decodedMSG;
         mace_msg_vehicle_sync_decode(message,&decodedMSG);
-        std::cout<<"The external link saw a mace message of type vehicle sync"<<std::endl;
+        if(mLog)
+            mLog->debug("External link saw a request to sync its data to a remote instance.");
         //We may not handle it this way anymore
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->ExternalEvent_RequestingDataSync(this, decodedMSG.target_system);
@@ -229,9 +230,9 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
         mace_message_t msg;
         mace_home_position_t homeMACE;
-        homeMACE.latitude = home.position.getX() * pow(10,7);
-        homeMACE.longitude = home.position.getY() * pow(10,7);
-        homeMACE.altitude = home.position.getZ() * pow(10,7);
+        homeMACE.latitude = home.position->getX() * pow(10,7);
+        homeMACE.longitude = home.position->getY() * pow(10,7);
+        homeMACE.altitude = home.position->getZ() * pow(10,3);
         mace_msg_home_position_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&homeMACE);
         transmitMessage(msg);
     }
@@ -249,10 +250,10 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         transmitMessage(msg);
 
         CommandItem::SpatialHome systemHome;
-        systemHome.position.setCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT);
-        systemHome.position.setX(decodedMSG.latitude / pow(10,7));
-        systemHome.position.setY(decodedMSG.longitude / pow(10,7));
-        systemHome.position.setZ(decodedMSG.altitude / pow(10,3));
+        systemHome.position->setCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT);
+        systemHome.position->setX(decodedMSG.latitude / pow(10,7));
+        systemHome.position->setY(decodedMSG.longitude / pow(10,7));
+        systemHome.position->setZ(decodedMSG.altitude / pow(10,3));
         systemHome.setTargetSystem(decodedMSG.target_system);
 
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
@@ -269,9 +270,9 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         else
         {
             CommandItem::SpatialHome newHome;
-            newHome.position.setX(decodedMSG.latitude / pow(10,7));
-            newHome.position.setY(decodedMSG.longitude / pow(10,7));
-            newHome.position.setZ(decodedMSG.altitude / pow(10,7));
+            newHome.position->setX(decodedMSG.latitude / pow(10,7));
+            newHome.position->setY(decodedMSG.longitude / pow(10,7));
+            newHome.position->setZ(decodedMSG.altitude / pow(10,7));
             newHome.setOriginatingSystem(systemID);
             newHome.setTargetSystem(systemID);
             cbiHomeController_ReceviedHome(newHome);
@@ -470,6 +471,21 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
                 cbiMissionController_MissionACK(ack);
             }
         }
+        break;
+    }
+    case MACE_MSG_ID_GUIDED_TARGET_STATS:
+    {
+        mace_guided_target_stats_t decodedMSG;
+        mace_msg_guided_target_stats_decode(message,&decodedMSG);
+
+        std::shared_ptr<MissionTopic::VehicleTargetTopic> ptrTarget = std::make_shared<MissionTopic::VehicleTargetTopic>(decodedMSG);
+
+        MaceCore::TopicDatagram topicDatagram;
+        m_MissionDataTopic.SetComponent(ptrTarget, topicDatagram);
+        //notify listeners of topic
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
         break;
     }
     default:

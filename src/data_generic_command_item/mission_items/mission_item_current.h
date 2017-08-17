@@ -3,6 +3,8 @@
 
 #include "mission_key.h"
 
+#include "mace.h"
+
 namespace MissionItem {
 
 class MissionItemCurrent
@@ -10,6 +12,7 @@ class MissionItemCurrent
 public:
     MissionItemCurrent();
     MissionItemCurrent(const MissionKey &missionKey, const int &index);
+    MissionItemCurrent(const mace_mission_item_current_t &obj);
 
 public:
     void setMissionKey(const MissionKey &missionKey){
@@ -27,6 +30,10 @@ public:
     int getMissionCurrentIndex() const{
         return indexCurrent;
     }
+
+    mace_mission_item_current_t getMACECommsObject() const;
+    mace_message_t getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
+
     void operator = (const MissionItemCurrent &rhs)
     {
         this->key = rhs.key;

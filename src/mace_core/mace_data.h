@@ -152,13 +152,13 @@ private:
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_VehicleHomeMap[vehicleHome.getOriginatingSystem()] = vehicleHome;
 
-        if(m_GlobalOrigin.position.has2DPositionSet())
+        if(m_GlobalOrigin.position->has2DPositionSet())
         {
-            if(vehicleHome.position.getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
+            if(vehicleHome.position->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
             {
                 Eigen::Vector3f translation;
-                DataState::StateGlobalPosition origin(m_GlobalOrigin.position.getX(),m_GlobalOrigin.position.getY(),m_GlobalOrigin.position.getZ());
-                DataState::StateGlobalPosition home(vehicleHome.position.getX(),vehicleHome.position.getY(),vehicleHome.position.getZ());
+                DataState::StateGlobalPosition origin(m_GlobalOrigin.position->getX(),m_GlobalOrigin.position->getY(),m_GlobalOrigin.position->getZ());
+                DataState::StateGlobalPosition home(vehicleHome.position->getX(),vehicleHome.position->getY(),vehicleHome.position->getZ());
                 home.translationTransformation3D(origin,translation);
                 m_VehicleToGlobalTranslation[vehicleHome.getOriginatingSystem()] = translation;
             }
@@ -172,9 +172,9 @@ private:
         for (std::map<int,CommandItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
         {
             Eigen::Vector3f translation;
-            DataState::Base3DPosition pos = it->second.position;
-            DataState::StateGlobalPosition home(pos.getX(),pos.getY(),pos.getZ());
-            DataState::StateGlobalPosition origin(m_GlobalOrigin.position.getX(),m_GlobalOrigin.position.getY(),m_GlobalOrigin.position.getZ());
+            DataState::Base3DPosition *pos = it->second.position;
+            DataState::StateGlobalPosition home(pos->getX(),pos->getY(),pos->getZ());
+            DataState::StateGlobalPosition origin(m_GlobalOrigin.position->getX(),m_GlobalOrigin.position->getY(),m_GlobalOrigin.position->getZ());
             home.translationTransformation3D(origin,translation);
             m_VehicleToGlobalTranslation[it->first] = translation;
         }

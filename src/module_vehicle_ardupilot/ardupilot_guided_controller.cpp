@@ -27,7 +27,7 @@ double Ardupilot_GuidedController::distanceToTarget(){
     double distance = 0.0;
     switch(currentMissionItem->getCommandType())
     {
-    case(Data::CommandItemType::CI_NAV_WAYPOINT):
+    case(CommandItem::COMMANDITEM::CI_NAV_WAYPOINT):
     {
 //        std::shared_ptr<CommandItem::SpatialWaypoint> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint>(currentMissionItem);
 //        DataState::StateGlobalPosition currentPosition = vehicleDataObject->data->vehicleGlobalPosition.get();

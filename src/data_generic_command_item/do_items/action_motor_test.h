@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "data/command_item_type.h"
+#include "data_generic_command_item/command_item_type.h"
 #include "data_generic_command_item/abstract_command_item.h"
 
 
@@ -18,7 +18,7 @@ class ActionMotorTest : public AbstractCommandItem
     };
 
 public:
-    virtual Data::CommandItemType getCommandType() const;
+    virtual COMMANDITEM getCommandType() const;
 
     virtual std::string getDescription() const;
 

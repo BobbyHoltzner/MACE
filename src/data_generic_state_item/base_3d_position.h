@@ -102,11 +102,12 @@ public:
     //! \brief operator =
     //! \param rhs
     //!
-    void operator = (const Base3DPosition &rhs)
+    Base3DPosition& operator = (const Base3DPosition &rhs)
     {
         Base2DPosition::operator =(rhs);
         this->z = rhs.z;
         this->posZFlag = rhs.posZFlag;
+        return *this;
     }
 
     //!

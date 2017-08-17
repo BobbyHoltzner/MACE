@@ -27,9 +27,9 @@ class VehicleObject_MAVLINK : public CommandController_Interface, public GuidedC
 {
 public:
 
-    void async_example();
+    void async_example(const std::string &loggingPath);
 
-    VehicleObject_MAVLINK(const int &vehicleID, const int &transmittingID);
+    VehicleObject_MAVLINK(const std::string &loggingPath, const int &vehicleID, const int &transmittingID);
 
     ~VehicleObject_MAVLINK();
 

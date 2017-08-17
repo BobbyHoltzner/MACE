@@ -18,7 +18,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
 
         DataGenericItem::DataGenericItem_Battery battery;
         battery.setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
-        battery.setBatteryCurrent(decodedMSG.current_battery/10000.0);
+        battery.setBatteryCurrent(decodedMSG.current_battery/100.0);
         battery.setBatteryRemaining(decodedMSG.battery_remaining);
         if(state->vehicleFuel.set(battery))
         {
@@ -317,7 +317,6 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
     }
     case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
     {
-        std::cout<<"I have reached a mission item"<<std::endl;
         //This is message definition 46
         //A certain mission item has been reached. The system will either hold this position (or circle on the orbit) or
         //(if the autocontinue on the WP was set) continue to the next MISSION.
@@ -369,9 +368,9 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         mavlink_msg_home_position_decode(msg,&decodedMSG);
 
         CommandItem::SpatialHome spatialHome;
-        spatialHome.position.setX(decodedMSG.latitude / pow(10,7));
-        spatialHome.position.setY(decodedMSG.longitude / pow(10,7));
-        spatialHome.position.setZ(decodedMSG.altitude / 1000);
+        spatialHome.position->setX(decodedMSG.latitude / pow(10,7));
+        spatialHome.position->setY(decodedMSG.longitude / pow(10,7));
+        spatialHome.position->setZ(decodedMSG.altitude / 1000);
         spatialHome.setOriginatingSystem(systemID);
         mission->home.set(spatialHome);
         if(this->m_CB)

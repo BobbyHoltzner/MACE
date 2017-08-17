@@ -2,9 +2,9 @@
 
 namespace CommandItem {
 
-Data::CommandItemType SpatialHome::getCommandType() const
+COMMANDITEM SpatialHome::getCommandType() const
 {
-    return Data::CommandItemType::CI_NAV_HOME;
+    return COMMANDITEM::CI_NAV_HOME;
 }
 
 std::string SpatialHome::getDescription() const
@@ -18,19 +18,24 @@ bool SpatialHome::hasSpatialInfluence() const
 }
 
 SpatialHome::SpatialHome():
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(0,0), AbstractSpatialPosition()
+{
+
+}
+
+SpatialHome::~SpatialHome()
 {
 
 }
 
 SpatialHome::SpatialHome(const SpatialHome &obj):
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(obj), AbstractSpatialPosition(obj)
 {
-    this->operator =(obj);
+
 }
 
 SpatialHome::SpatialHome(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
+    AbstractCommandItem(systemOrigin,systemTarget), AbstractSpatialPosition()
 {
 
 }
@@ -38,9 +43,9 @@ SpatialHome::SpatialHome(const int &systemOrigin, const int &systemTarget):
 mace_home_position_t SpatialHome::getMACECommsObject() const
 {
     mace_home_position_t homePosition;
-    homePosition.latitude = position.getX() * pow(10,7);
-    homePosition.longitude = position.getY() * pow(10,7);
-    homePosition.altitude = position.getZ() * pow(10,3);
+    homePosition.latitude = position->getX() * pow(10,7);
+    homePosition.longitude = position->getY() * pow(10,7);
+    homePosition.altitude = position->getZ() * pow(10,3);
     return homePosition;
 }
 
@@ -56,7 +61,7 @@ std::ostream& operator<<(std::ostream& os, const SpatialHome& t)
 {
     std::stringstream stream;
     stream.precision(6);
-    stream << std::fixed << "Spatial Home: " << t.position.getX() << ", "<< t.position.getY() << ", "<< t.position.getZ() << ".";
+    stream << std::fixed << "Spatial Home: "<< t.position->getX() << ", "<< t.position->getY() << ", "<< t.position->getZ() << ".";
     os << stream.str();
 
     return os;

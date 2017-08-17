@@ -2,9 +2,9 @@
 
 namespace CommandItem {
 
-Data::CommandItemType ActionArm::getCommandType() const
+COMMANDITEM ActionArm::getCommandType() const
 {
-    return Data::CommandItemType::CI_ACT_ARM;
+    return COMMANDITEM::CI_ACT_ARM;
 }
 
 std::string ActionArm::getDescription() const

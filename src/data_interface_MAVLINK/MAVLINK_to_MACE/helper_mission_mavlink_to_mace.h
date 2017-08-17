@@ -43,7 +43,7 @@ public:
 
     void convertWaypoint(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialWaypoint &missionItem);
 
-    void updatePosition(const mavlink_mission_item_t &mavlinkItem, DataState::Base3DPosition &pos);
+    DataState::Base3DPosition getBasePosition(const mavlink_mission_item_t &mavlinkItem);
 
 private:
     int systemID;

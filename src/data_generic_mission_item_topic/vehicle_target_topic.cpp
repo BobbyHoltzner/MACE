@@ -45,6 +45,33 @@ VehicleTargetTopic::VehicleTargetTopic(const VehicleTargetTopic &target)
     this->targetDistance = target.targetDistance;
 }
 
+VehicleTargetTopic::VehicleTargetTopic(const mace_guided_target_stats_t &obj)
+{
+    this->targetPosition.setCoordinateFrame(static_cast<Data::CoordinateFrameType>(obj.coordinate_frame));
+    this->targetDistance = obj.distance;
+    this->targetPosition.setX(obj.x);
+    this->targetPosition.setY(obj.y);
+    this->targetPosition.setZ(obj.z);
+}
+
+mace_guided_target_stats_t VehicleTargetTopic::getMACECommsObject() const
+{
+    mace_guided_target_stats_t rtn;
+    rtn.coordinate_frame = (uint8_t)this->targetPosition.getCoordinateFrame();
+    rtn.distance = this->targetDistance;
+    rtn.x = this->targetPosition.getX();
+    rtn.y = this->targetPosition.getY();
+    rtn.z = this->targetPosition.getZ();
+    return rtn;
+}
+mace_message_t VehicleTargetTopic::getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const
+{
+    mace_guided_target_stats_t target = getMACECommsObject();
+    mace_message_t msg;
+    mace_msg_guided_target_stats_encode_chan(systemID,compID,chan,&msg,&target);
+    return msg;
+}
+
 std::ostream& operator<<(std::ostream& os, const VehicleTargetTopic& t)
 {
     std::stringstream stream;

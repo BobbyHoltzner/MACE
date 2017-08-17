@@ -1,8 +1,8 @@
 #ifndef HELPER_PREVIOUS_COMMAND_MAVLINK_H
 #define HELPER_PREVIOUS_COMMAND_MAVLINK_H
 
-#include "generic/command_item.h"
-#include "generic/helper_previous_transmission.h"
+#include "data_interface_MAVLINK/generic/command_item.h"
+#include "data_interface_MAVLINK/generic/helper_previous_transmission.h"
 
 namespace DataInterface_MAVLINK {
 

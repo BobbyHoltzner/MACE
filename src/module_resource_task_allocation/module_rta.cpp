@@ -80,9 +80,9 @@ void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
 
         // Set global origin for MACE:
         CommandItem::SpatialHome tmpGlobalOrigin;
-        tmpGlobalOrigin.position.setX(globalLat);
-        tmpGlobalOrigin.position.setY(globalLon);
-        tmpGlobalOrigin.position.setZ(0);
+        tmpGlobalOrigin.position->setX(globalLat);
+        tmpGlobalOrigin.position->setY(globalLon);
+        tmpGlobalOrigin.position->setZ(0);
 
         globalOrigin.setLatitude(globalLat);
         globalOrigin.setLongitude(globalLon);
@@ -203,9 +203,9 @@ void ModuleRTA::NewTopic(const std::string &topicName, int senderID, std::vector
 {
     if(!originSent) {
         CommandItem::SpatialHome tmpGlobalOrigin;
-        tmpGlobalOrigin.position.setX(environment->getGlobalOrigin()->getLatitude());
-        tmpGlobalOrigin.position.setY(environment->getGlobalOrigin()->getLongitude());
-        tmpGlobalOrigin.position.setZ(0);
+        tmpGlobalOrigin.position->setX(environment->getGlobalOrigin()->getLatitude());
+        tmpGlobalOrigin.position->setY(environment->getGlobalOrigin()->getLongitude());
+        tmpGlobalOrigin.position->setZ(0);
         ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
             ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
         });
@@ -338,7 +338,7 @@ void ModuleRTA::updateMACEMissions(std::map<int, Cell> updateCells) {
 
                     DataState::StateGlobalPosition tmpGlobalPoint;
                     DataState::PositionalAid::LocalPositionToGlobal(tmpGlobalOrigin, tmpLocalPoint, tmpGlobalPoint);
-                    newWP->position = tmpGlobalPoint;
+                    newWP->setPosition(tmpGlobalPoint);
 
                     missionList.insertMissionItem(newWP);
                 }

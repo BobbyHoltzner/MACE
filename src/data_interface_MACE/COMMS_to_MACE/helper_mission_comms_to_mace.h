@@ -14,6 +14,8 @@
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
+using namespace CommandItem;
+
 namespace DataInterface_MACE {
 
 class Helper_MissionCOMMStoMACE
@@ -44,6 +46,8 @@ public:
     void convertTakeoff(const mace_mission_item_t &maceItem, CommandItem::SpatialTakeoff &missionItem);
 
     void convertWaypoint(const mace_mission_item_t &maceItem, CommandItem::SpatialWaypoint &missionItem);
+
+    DataState::Base3DPosition getBasePosition(const mace_mission_item_t &maceItem);
 
     void updatePosition(const mace_mission_item_t &maceItem, DataState::Base3DPosition &pos);
 

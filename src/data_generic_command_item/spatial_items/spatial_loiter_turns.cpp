@@ -2,9 +2,9 @@
 
 namespace CommandItem {
 
-Data::CommandItemType SpatialLoiter_Turns::getCommandType() const
+COMMANDITEM SpatialLoiter_Turns::getCommandType() const
 {
-    return Data::CommandItemType::CI_NAV_LOITER_TURNS;
+    return COMMANDITEM::CI_NAV_LOITER_TURNS;
 }
 
 std::string SpatialLoiter_Turns::getDescription() const
@@ -18,20 +18,20 @@ bool SpatialLoiter_Turns::hasSpatialInfluence() const
 }
 
 SpatialLoiter_Turns::SpatialLoiter_Turns():
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(0,0), AbstractSpatialPosition()
 {
 
 }
 
 
 SpatialLoiter_Turns::SpatialLoiter_Turns(const SpatialLoiter_Turns &obj):
-    AbstractCommandItem(0,0)
+    AbstractCommandItem(obj), AbstractSpatialPosition(obj)
 {
     this->operator =(obj);
 }
 
 SpatialLoiter_Turns::SpatialLoiter_Turns(const int &systemOrigin, const int &systemTarget):
-    AbstractCommandItem(systemOrigin,systemTarget)
+    AbstractCommandItem(systemOrigin,systemTarget), AbstractSpatialPosition()
 {
 
 }

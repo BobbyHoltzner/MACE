@@ -22,58 +22,58 @@ std::shared_ptr<CommandItem::AbstractCommandItem> Helper_MissionCOMMStoMACE::Con
 {
     std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = NULL;
 
-    switch(maceItem.command)
+    switch(static_cast<COMMANDITEM>(maceItem.command))
     {
-    case MAV_CMD_DO_CHANGE_SPEED:
+    case COMMANDITEM::CI_ACT_CHANGESPEED:
     {
         CommandItem::ActionChangeSpeed missionItem;
         convertChangespeed(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::ActionChangeSpeed>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_LAND:
+    case COMMANDITEM::CI_NAV_LAND:
     {
         CommandItem::SpatialLand missionItem;
         convertLand(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::SpatialLand>(missionItem);
         break;
-    }
-    case MAV_CMD_NAV_LOITER_TIME:
+    }        
+    case COMMANDITEM::CI_NAV_LOITER_TIME:
     {
         CommandItem::SpatialLoiter_Time missionItem;
         convertLoiterTime(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Time>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_LOITER_TURNS:
+    case COMMANDITEM::CI_NAV_LOITER_TURNS:
     {
         CommandItem::SpatialLoiter_Turns missionItem;
         convertLoiterTurns(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Turns>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_LOITER_UNLIM:
+    case COMMANDITEM::CI_NAV_LOITER_UNLIM:
     {
         CommandItem::SpatialLoiter_Unlimited missionItem;
         convertLoiterUnlimted(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::SpatialLoiter_Unlimited>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_RETURN_TO_LAUNCH:
+    case COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH:
     {
         CommandItem::SpatialRTL missionItem;
         convertRTL(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::SpatialRTL>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_TAKEOFF:
+    case COMMANDITEM::CI_NAV_TAKEOFF:
     {
         CommandItem::SpatialTakeoff missionItem;
         convertTakeoff(maceItem,missionItem);
         newMissionItem = std::make_shared<CommandItem::SpatialTakeoff>(missionItem);
         break;
     }
-    case MAV_CMD_NAV_WAYPOINT:
+    case COMMANDITEM::CI_NAV_WAYPOINT:
     {
         CommandItem::SpatialWaypoint missionItem;
         convertWaypoint(maceItem,missionItem);
@@ -99,9 +99,9 @@ void Helper_MissionCOMMStoMACE::convertHome(const mace_set_home_position_t &mace
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    missionItem.position.setX(maceItem.latitude / pow(10,7));
-    missionItem.position.setY(maceItem.longitude / pow(10,7));
-    missionItem.position.setZ(maceItem.altitude / pow(10,3));
+    missionItem.position->setX(maceItem.latitude / pow(10,7));
+    missionItem.position->setY(maceItem.longitude / pow(10,7));
+    missionItem.position->setZ(maceItem.altitude / pow(10,3));
 }
 
 void Helper_MissionCOMMStoMACE::convertChangespeed(const mace_mission_item_t &maceItem, CommandItem::ActionChangeSpeed &missionItem)
@@ -123,14 +123,14 @@ void Helper_MissionCOMMStoMACE::convertLand(const mace_mission_item_t &maceItem,
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(maceItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(maceItem));
 }
 
 void Helper_MissionCOMMStoMACE::convertLoiterTime(const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Time &missionItem)
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(maceItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(maceItem));
     missionItem.duration = maceItem.param1;
     missionItem.radius = fabs(maceItem.param3);
     missionItem.direction = (maceItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
@@ -140,7 +140,7 @@ void Helper_MissionCOMMStoMACE::convertLoiterTurns(const mace_mission_item_t &ma
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(maceItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(maceItem));
     missionItem.turns = maceItem.param1;
     missionItem.radius = fabs(maceItem.param3);
     missionItem.direction = (maceItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
@@ -151,9 +151,7 @@ void Helper_MissionCOMMStoMACE::convertLoiterUnlimted(const mace_mission_item_t 
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
     if((maceItem.command == MAV_CMD_NAV_LOITER_UNLIM) && (maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
-        missionItem.position.setX(maceItem.x);
-        missionItem.position.setY(maceItem.y);
-        missionItem.position.setZ(maceItem.z);
+        missionItem.setPosition(getBasePosition(maceItem));
         missionItem.radius = fabs(maceItem.param3);
         missionItem.direction = (maceItem.param3 > 0.0) ? Data::LoiterDirection::CW : Data::LoiterDirection::CCW;
     }
@@ -173,21 +171,23 @@ void Helper_MissionCOMMStoMACE::convertTakeoff(const mace_mission_item_t &maceIt
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(maceItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(maceItem));
 }
 
 void Helper_MissionCOMMStoMACE::convertWaypoint(const mace_mission_item_t &maceItem, CommandItem::SpatialWaypoint &missionItem)
 {
     missionItem.setTargetSystem(systemID);
     missionItem.setOriginatingSystem(systemID);
-    updatePosition(maceItem,missionItem.position);
+    missionItem.setPosition(getBasePosition(maceItem));
 }
 
-void Helper_MissionCOMMStoMACE::updatePosition(const mace_mission_item_t &maceItem, DataState::Base3DPosition &pos)
+DataState::Base3DPosition Helper_MissionCOMMStoMACE::getBasePosition(const mace_mission_item_t &maceItem)
 {
+    DataState::Base3DPosition pos;
     Data::CoordinateFrameType frame = static_cast<Data::CoordinateFrameType>(maceItem.frame);
     pos.setCoordinateFrame(frame);
     pos.setPosition3D(maceItem.x,maceItem.y,maceItem.z);
+    return pos;
 }
 
 } //end of namespace DataMAVLINK
