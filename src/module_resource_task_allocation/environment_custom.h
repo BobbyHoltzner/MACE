@@ -8,10 +8,10 @@
 #include <memory>
 #include <iostream>
 
-#include "voro_index.hh"
-#include "container.hh"
-#include <v_compute.hh>
-#include <c_loops.hh>
+#include "voropp/voro_index.hh"
+#include "voropp/container.hh"
+#include "voropp/v_compute.hh"
+#include "voropp/c_loops.hh"
 #include <tuple>
 
 #include "data_generic_state_item_topic/state_topic_components.h"

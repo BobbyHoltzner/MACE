@@ -18,7 +18,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
 
         DataGenericItem::DataGenericItem_Battery battery;
         battery.setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
-        battery.setBatteryCurrent(decodedMSG.current_battery/10000.0);
+        battery.setBatteryCurrent(decodedMSG.current_battery/100.0);
         battery.setBatteryRemaining(decodedMSG.battery_remaining);
         if(state->vehicleFuel.set(battery))
         {

@@ -25,7 +25,7 @@ SUBDIRS += \
     module_ground_station \
     module_path_planning_NASAPhase2 \
     module_vehicle_sensors \
+    voropp \
     module_resource_task_allocation \
 #    Voronoi
-    voropp \
     mace
