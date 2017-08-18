@@ -9,7 +9,7 @@ import MenuItem from 'material-ui/MenuItem';
 
 
 type Props = {
-    menuAnchor: L.LeafletMouseEvent,
+    menuAnchor: L.MouseEvent,
     handleClose: () => void,
     handleSetHome: () => void,
     handleSetGlobal: () => void,
@@ -56,7 +56,7 @@ export class ContextMenu extends React.Component<Props, State> {
     render() {
 
         const menuStyle = {
-            position: "absolute",
+            position: "absolute" as "absolute",
             left: this.state.xPos,
             top: this.state.yPos+65,
             width: 200,

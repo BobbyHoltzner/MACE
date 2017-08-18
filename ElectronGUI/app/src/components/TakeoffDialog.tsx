@@ -23,7 +23,7 @@ type Props = {
     onSelectedAircraftChange: (id: string) => void,
     showSaveTakeoff: boolean,
     handleSaveTakeoff: (alt: string) => void,
-    contextAnchor: L.LeafletMouseEvent,
+    contextAnchor: L.MouseEvent,
     useContext: boolean,
     showNotification: (title: string, message: string, level: string, position: string, label: string) => void
 }

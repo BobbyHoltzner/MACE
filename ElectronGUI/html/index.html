@@ -21,10 +21,16 @@
 
         <div id="map-container"></div>
 
-        <script>
-          require('../app/build/containers/AppContainer.js');
-          require('../app/build/app.js');
-        </script>
+    <script>
+        var bundlePath = '../app/build/bundle.js';
+        if(typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+            bundlePath = 'http://localhost:8080/app/build/bundle.js';
+        }
+        var bundleScriptEl = document.createElement('script');
+        window.electronRequire = require;
+        bundleScriptEl.src = bundlePath;
+        document.currentScript.parentNode.insertBefore(bundleScriptEl, document.currentScript);
+    </script>
 
     </body>
 

@@ -19,7 +19,7 @@ type Props = {
     open: boolean,
     handleClose: () => void,
     handleSave: (vehicleID: string, vehicleHome: PositionType) => void,
-    contextAnchor: L.LeafletMouseEvent,
+    contextAnchor: L.MouseEvent,
     useContext: boolean,
     allowVehicleSelect: boolean,
     onSelectedAircraftChange: (id: string) => void,
@@ -75,7 +75,7 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
         console.log("Selected vehicle ID: " + this.state.selectedVehicleID);
         let vehicleHome: PositionType = {
             lat: this.state.homeLat,
-            lon: this.state.homeLon,
+            lng: this.state.homeLon,
             alt: this.state.homeAlt
         }
         if(this.state.selectedVehicleID !== '0') {

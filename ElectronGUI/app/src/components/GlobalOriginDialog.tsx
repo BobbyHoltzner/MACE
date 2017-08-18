@@ -16,7 +16,7 @@ type Props = {
     onGlobalHomeCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void,
     globalOrigin: PositionType,
     handleSave: (vehicleHome: PositionType) => void,
-    contextAnchor: L.LeafletMouseEvent,
+    contextAnchor: L.MouseEvent,
     useContext: boolean
 }
 
@@ -55,7 +55,7 @@ export class GlobalOriginDialog extends React.Component<Props, State> {
     handleSave = () => {
         let globalHome: PositionType = {
             lat: this.state.globalLat,
-            lon: this.state.globalLon,
+            lng: this.state.globalLon,
             alt: this.state.globalAlt
         }
         this.props.handleSave(globalHome);

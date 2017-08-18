@@ -8,6 +8,7 @@ var NotificationSystem = require('react-notification-system');
 import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
 import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
 import { VehicleCommandsContainer } from './VehicleCommandsContainer';
+import { DrawButtonsContainer } from './DrawButtonsContainer';
 import { AppDrawer } from './AppDrawer';
 import AppBar from 'material-ui/AppBar';
 import * as colors from 'material-ui/styles/colors';
@@ -30,7 +31,7 @@ import * as deepcopy from 'deepcopy';
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
-var net = require('net');
+var net = electronRequire('net');
 
 // // Performance testing:
 // var Perf = require('react-addons-perf');
@@ -58,17 +59,18 @@ type State = {
   showSaveTakeoff?: boolean,
   maxZoom?: number,
   mapZoom?: number,
-  mapCenter?: number[]
+  mapCenter?: PositionType
   globalOrigin?: PositionType
   useContext?: boolean,
-  contextAnchor?: L.LeafletMouseEvent,
+  contextAnchor?: L.MouseEvent,
   MACEConnected?: boolean,
   environmentBoundary?: PositionType[],
-  showDraw?: boolean
+  showDraw?: boolean,
+  drawPolygonPts?: PositionType[]
 }
 
 export default class AppContainer extends React.Component<Props, State> {
-  notificationSystem: NotificationSystem;
+  notificationSystem: any; // TODO: Figure out why I cant make this a NotificationSystem type...
   m_AttitudeInterval: number[];
   m_AttitudeTimeout: number;
   m_PositionInterval: number[];
@@ -93,7 +95,7 @@ export default class AppContainer extends React.Component<Props, State> {
       tcpPort: 5678,
       maxZoom: 21,
       mapZoom: 20,
-      mapCenter: [37.889231, -76.810302], // Bob's Farm
+      mapCenter: {lat: 37.889231, lng: -76.810302, alt: 0}, // Bob's Farm
       // mapCenter: [-35.363272, 149.165249], // SITL Default
       // mapCenter: [45.283410, -111.400850], // Big Sky
       connectedVehicles: {},
@@ -104,7 +106,7 @@ export default class AppContainer extends React.Component<Props, State> {
       allowVehicleSelect: true,
       showEditVehicleHomeDialog: false,
       showEditGlobalHomeDialog: false,
-      globalOrigin: {lat: 0, lon: 0, alt: 0},
+      globalOrigin: {lat: 0, lng: 0, alt: 0},
       selectedVehicleID: "0",
       showMessagesMenu: false,
       messagePreferences: {
@@ -122,7 +124,8 @@ export default class AppContainer extends React.Component<Props, State> {
       showSaveTakeoff: false,
       MACEConnected: false,
       environmentBoundary: [],
-      showDraw: false
+      showDraw: false,
+      drawPolygonPts: []
     }
 
   }
@@ -152,7 +155,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
   setupTCPServer = () => {
     // Create a TCP socket listener
-    this.state.tcpServer = net.Server(function (socket: any) {
+    let tcpServer = net.createServer(function (socket: any) {
 
         // Add the new client socket connection to the array of sockets
         this.state.tcpSockets.push(socket);
@@ -176,22 +179,24 @@ export default class AppContainer extends React.Component<Props, State> {
 
     }.bind(this));
 
+    this.setState({tcpServer: tcpServer}, () => {
+      // TODO: Allow for user configuration of the port and probably address too
+      try{
+        this.state.tcpServer.listen(1234);
+        this.setState({MACEConnected: true});
+      }
+      catch(e) {
+        console.log('Error: ' + e);
+      }
 
-    // TODO: Allow for user configuration of the port and probably address too
-    try{
-      this.state.tcpServer.listen(1234);
-      this.setState({MACEConnected: true});
-    }
-    catch(e) {
-      console.log('Error: ' + e);
-    }
+      console.log('System listening at http://localhost:1234');
 
-    console.log('System listening at http://localhost:1234');
+      // Set interval to set state to DB:
+      setInterval(() => {
+        this.setState({connectedVehicles: this.vehicleDB});
+      }, 1500);
+    });
 
-    // Set interval to set state to DB:
-    setInterval(() => {
-      this.setState({connectedVehicles: this.vehicleDB});
-    }, 1500);
   }
 
 
@@ -241,7 +246,7 @@ export default class AppContainer extends React.Component<Props, State> {
       let vehiclePosition = jsonData as TCPPositionType;
 
       stateCopy[vehiclePosition.vehicleID].position.lat = vehiclePosition.lat;
-      stateCopy[vehiclePosition.vehicleID].position.lon = vehiclePosition.lon;
+      stateCopy[vehiclePosition.vehicleID].position.lng = vehiclePosition.lng;
       stateCopy[vehiclePosition.vehicleID].position.alt = vehiclePosition.alt;
       stateCopy[vehiclePosition.vehicleID].numSats = vehiclePosition.numSats;
       stateCopy[vehiclePosition.vehicleID].positionFix = vehiclePosition.positionFix;
@@ -287,7 +292,7 @@ export default class AppContainer extends React.Component<Props, State> {
       let stateCopy = deepcopy(this.state.connectedVehicles);
       let tmpHome = {
         lat: vehicleHome.lat,
-        lon: vehicleHome.lon,
+        lon: vehicleHome.lng,
         alt: vehicleHome.alt
       }
       stateCopy[vehicleHome.vehicleID].updateHomePosition(tmpHome);
@@ -361,7 +366,7 @@ export default class AppContainer extends React.Component<Props, State> {
     }
     else if(jsonData.dataType === 'GlobalOrigin') {
       let jsonOrigin = jsonData as TCPPositionType;
-      let origin = {lat: jsonOrigin.lat, lon: jsonOrigin.lon, alt: jsonOrigin.alt};
+      let origin = {lat: jsonOrigin.lat, lng: jsonOrigin.lng, alt: jsonOrigin.alt};
       this.setState({globalOrigin: origin});
     }
     else if(jsonData.dataType === 'SensorFootprint') {
@@ -412,7 +417,7 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[jsonVehicleTarget.vehicleID].currentTarget.active = true;
       stateCopy[jsonVehicleTarget.vehicleID].currentTarget.distanceToTarget = jsonVehicleTarget.distanceToTarget;
       stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.lat = jsonVehicleTarget.lat;
-      stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.lon = jsonVehicleTarget.lon;
+      stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.lng = jsonVehicleTarget.lng;
       stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.alt = jsonVehicleTarget.alt;
       this.vehicleDB = stateCopy;
     }
@@ -466,7 +471,7 @@ export default class AppContainer extends React.Component<Props, State> {
         console.log('Error: ' + err);
         let str = err+"";
         if(str.indexOf("ECONNREFUSED") > 0){
-          this.handleClearGUI();
+          // this.handleClearGUI();
         }
         socket.destroy();
     }.bind(this));
@@ -617,14 +622,53 @@ export default class AppContainer extends React.Component<Props, State> {
     this.makeTCPRequest(parseInt(vehicleID), "VEHICLE_TAKEOFF", JSON.stringify({takeoffPosition: takeoffPosition, latLonFlag: latLonFlag}));
   }
 
-  updateMapCenter = (e: L.LeafletMouseEvent) => {
-    this.setState({mapCenter: [e.target.getCenter().lat, e.target.getCenter().lng], mapZoom: e.target.getZoom()});
+  updateMapCenter = (e: L.DragEndEvent) => {
+    this.setState({mapCenter: {lat: e.target.getCenter().lat, lng: e.target.getCenter().lng, alt: 0}, mapZoom: e.target.getZoom()});
   }
 
   handleSyncAll = () => {
     this.makeTCPRequest(0, "GET_ENVIRONMENT_BOUNDARY", "");
 
     this.makeTCPRequest(0, "ISSUE_COMMAND", "FORCE_DATA_SYNC");
+  }
+
+  handleAddPolygonPt = (e: L.MouseEvent) => {
+    if(this.state.showDraw) {
+      let tmpPts = this.state.drawPolygonPts;
+      tmpPts.push({lat: e.latlng.lat, lng: e.latlng.lng, alt: 0});
+      this.setState({drawPolygonPts: tmpPts});
+    }
+  }
+
+  handleDeleteLastPolygonPt = () => {
+    let tmpPts = this.state.drawPolygonPts;
+    tmpPts.pop();
+    this.setState({drawPolygonPts: tmpPts});
+  }
+
+  handleDisableDraw = () => {
+    this.setState({showDraw: false, drawPolygonPts: []});
+  }
+
+  handleSubmitBoundary = () => {
+    // TODO:
+    //  1) Send environment boundary to MACE
+
+    // TODO: Send to MACE:
+
+    if(this.state.drawPolygonPts.length > 2) {
+      this.setState({showDraw: false, drawPolygonPts: []});
+      this.makeTCPRequest(0, "SET_ENVIRONMENT_VERTICES", JSON.stringify({boundary: this.state.drawPolygonPts}));
+    }
+    else {
+      let title = 'Draw boundary';
+      let level = 'info';
+      this.showNotification(title, 'Boundary must have 3 or more vertices to be valid', level, 'tc', 'Got it');
+    }
+  }
+
+  handleClearPts = () => {
+    this.setState({drawPolygonPts: []});
   }
 
   render() {
@@ -651,7 +695,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
             <AppBar
                 title="MACE"
-                style={{backgroundColor: colors.orange700}}
+                style={{backgroundColor: colors.orange700, position: 'fixed'}}
                 onLeftIconButtonTouchTap={() => this.setState({openDrawer: !this.state.openDrawer})}
                 iconElementRight={<ToolbarRight />}
             />
@@ -736,9 +780,19 @@ export default class AppContainer extends React.Component<Props, State> {
             }
 
 
+            {this.state.showDraw &&
+              <DrawButtonsContainer
+                onDeleteLastPolygonPt={this.handleDeleteLastPolygonPt}
+                onDisableDraw={this.handleDisableDraw}
+                onSubmitBoundary={this.handleSubmitBoundary}
+                onClearAllPts={this.handleClearPts}
+              />
+            }
+
+
             <MACEMap
               handleSelectedAircraftUpdate={this.handleSelectedAircraftUpdate}
-              setContextAnchor={(anchor: L.LeafletMouseEvent) => this.setState({contextAnchor: anchor})}
+              setContextAnchor={(anchor: L.MouseEvent) => this.setState({contextAnchor: anchor})}
               connectedVehicles={this.state.connectedVehicles}
               selectedVehicleID={this.state.selectedVehicleID}
               mapCenter={this.state.mapCenter}
@@ -753,7 +807,8 @@ export default class AppContainer extends React.Component<Props, State> {
               contextGoHere={this.contextGoHere}
               MACEConnected={this.state.MACEConnected}
               environmentBoundary={this.state.environmentBoundary}
-              showDraw={this.state.showDraw}
+              drawPolygonPts={this.state.drawPolygonPts}
+              onAddPolygonPt={this.handleAddPolygonPt}
              />
 
 

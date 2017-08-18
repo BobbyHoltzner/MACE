@@ -1,6 +1,10 @@
+
+declare var electronRequire: any;
+declare module 'deepcopy';
+
 type PositionType = {
     lat: number,
-    lon: number,
+    lng: number,
     alt: number
 };
 
@@ -121,7 +125,7 @@ type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType |
 
 type MarkerType = {
   latLon: L.LatLng,
-  icon: L.Icon,
+  icon: L.DivIcon,
   altitude: number,
   vehicleId?: number
 };

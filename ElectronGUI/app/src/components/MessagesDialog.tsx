@@ -45,7 +45,8 @@ export class MessagesDialog extends React.Component<Props, State> {
     }
 
     handleCancel = () => {
-        this.state.preferences = deepcopy(this.props.preferences);
+        let tmpPreferences = deepcopy(this.props.preferences);
+        this.setState({preferences: tmpPreferences});
         this.props.handleClose();
     }
 

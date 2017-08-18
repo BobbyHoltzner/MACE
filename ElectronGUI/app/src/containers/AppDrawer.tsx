@@ -72,7 +72,7 @@ export class AppDrawer extends React.Component<Props, State> {
                         />
                     </MenuItem>
 
-                    {/* <MenuItem onTouchTap={() => this.props.onDrawerAction("EditBoundary")}>
+                     <MenuItem onTouchTap={() => this.props.onDrawerAction("EditBoundary")}>
                         <FlatButton
                             labelStyle={drawerItemLabelStyle}
                             label="Edit boundary"
@@ -81,7 +81,7 @@ export class AppDrawer extends React.Component<Props, State> {
                             disableFocusRipple={false}
                             hoverColor={'rgba(0,0,0, 0.0)'}
                         />
-                    </MenuItem> */}
+                    </MenuItem>
 
                     {/*
                     <MenuItem onTouchTap={() => this.props.onDrawerAction("Logging")}>

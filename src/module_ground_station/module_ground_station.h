@@ -34,6 +34,7 @@
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 #include "data_vehicle_sensors/components.h"
+#include "data_generic_state_item/positional_aid.h"
 
 #include "guitimer.h"
 
@@ -121,6 +122,7 @@ private:
     void setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj);
     void setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj);
     void setGlobalOrigin(const QJsonObject &jsonObj);
+    void setEnvironmentVertices(const QJsonObject &jsonObj);
     void setGoHere(const int &vehicleID, const QJsonObject &jsonObj);
     void takeoff(const int &vehicleID, const QJsonObject &jsonObj);
     void getVehicleMission(const int &vehicleID);
