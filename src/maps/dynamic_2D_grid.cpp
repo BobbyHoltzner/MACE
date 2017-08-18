@@ -33,7 +33,9 @@ void Dynamic2DGrid<T>::setGridSize(const double &x_min, const double &x_max, con
 
     // Cells memory:
     if (fill_value)
+    {
         m_dataMap.assign(xSize * ySize, *fill_value);
+    }
     else
         m_dataMap.resize(xSize * ySize);
 }

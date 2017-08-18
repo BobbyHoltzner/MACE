@@ -29,4 +29,5 @@ SUBDIRS += \
     module_resource_task_allocation \
 #    Voronoi
     mace \
-    maps
+    maps \
+    TestMaps
