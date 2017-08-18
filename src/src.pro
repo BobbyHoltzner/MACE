@@ -28,4 +28,5 @@ SUBDIRS += \
     voropp \
     module_resource_task_allocation \
 #    Voronoi
-    mace
+    mace \
+    maps
