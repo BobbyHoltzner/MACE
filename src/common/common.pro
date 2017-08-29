@@ -11,6 +11,8 @@ TEMPLATE = lib
 
 DEFINES += COMMON_LIBRARY
 
+QMAKE_CXXFLAGS += -std=c++11
+
 SOURCES +=
 
 HEADERS += common.h\

@@ -8,96 +8,203 @@ namespace Maps
 {
 
 template <class T>
+//!
+//! \brief The Dynamic2DGrid class
+//!
 class Dynamic2DGrid
 {
 public:
+
+    //!
+    //! \brief Dynamic2DGrid
+    //! \param x_min
+    //! \param x_max
+    //! \param y_min
+    //! \param y_max
+    //! \param x_res
+    //! \param y_res
+    //! \param fill_value
+    //!
     Dynamic2DGrid(const double &x_min = -10.0, const double &x_max = 10.0,
                   const double &y_min = -10.0, const double &y_max = 10.0,
                   const double &x_res = 0.5, const double &y_res = 0.5,
                   const T *fill_value = nullptr);
 
+    //!
+    //! \brief ~Dynamic2DGrid
+    //!
     virtual ~Dynamic2DGrid()
     {
 
     }
 
+    //!
+    //! \brief setGridSize
+    //! \param x_min
+    //! \param x_max
+    //! \param y_min
+    //! \param y_max
+    //! \param x_res
+    //! \param y_res
+    //! \param fill_value
+    //!
     void setGridSize(const double &x_min, const double &x_max,
                      const double &y_min, const double &y_max,
                      const double &x_res, const double &y_res,
                      const T *fill_value = nullptr);
 
-    //void clear();
+    //!
+    //! \brief clear
+    //!
+    void clear();
 
-    //void fill(const T& value);
+    //!
+    //! \brief fill
+    //! \param value
+    //!
+    void fill(const T& value);
     /*
     virtual void resize(const double &x_min, const double &x_max,
                      const double &y_min, const double &y_max,
                      const double &x_res, const double &y_res,
                      const T &fill_value, const double &margian = 2.0);
     */
-    //T* getCellByPos(const double &x, const double &y) const;
 
-    //T* getCellByIndex(const unsigned int &xIndex, const unsigned int &yIndex);
+    //!
+    //! \brief getCellByPos
+    //! \param x
+    //! \param y
+    //! \return
+    //!
+    T* getCellByPos(const double &x, const double &y) const;
 
+    //!
+    //! \brief getCellByIndex
+    //! \param xIndex
+    //! \param yIndex
+    //! \return
+    //!
+    T* getCellByIndex(const unsigned int &xIndex, const unsigned int &yIndex) const;
+
+    //!
+    //! \brief indexFromXPos
+    //! \param x
+    //! \return
+    //!
     int indexFromXPos(const double &x) const
     {
-        return static_cast<int>(round((x - xMin) / xResolution));
+        return static_cast<int>(round((x - m_xMin) / m_xResolution));
     }
 
+    //!
+    //! \brief indexFromYPos
+    //! \param y
+    //! \return
+    //!
     int indexFromYPos(const double &y) const
     {
-        return static_cast<int>(round((y - yMin) / yResolution));
+        return static_cast<int>(round((y - m_yMin) / m_yResolution));
     }
 
+    //!
+    //! \brief indexFromPos
+    //! \param x
+    //! \param y
+    //! \return
+    //!
     int indexFromPos(const double &x, const double &y) const
     {
-        return indexFromXPos(x) + indexFromYPos(y) * this->xSize;
+        return indexFromXPos(x) + indexFromYPos(y) * this->m_xSize;
     }
 
+    //!
+    //! \brief getSizeX
+    //! \return
+    //!
     size_t getSizeX() const
     {
-        return this->xSize;
+        return this->m_xSize;
     }
 
+    //!
+    //! \brief getSizeY
+    //! \return
+    //!
     size_t getSizeY() const
     {
-        return this->ySize;
+        return this->m_ySize;
     }
 
+    //!
+    //! \brief getXMin
+    //! \return
+    //!
     double getXMin() const
     {
-        return this->xMin;
+        return this->m_xMin;
     }
+
+    //!
+    //! \brief getYMin
+    //! \return
+    //!
     double getYMin() const
     {
-        return this->yMin;
+        return this->m_yMin;
     }
+
+    //!
+    //! \brief getXMax
+    //! \return
+    //!
     double getXMax() const
     {
-        return this->xMax;
+        return this->m_xMax;
     }
+
+    //!
+    //! \brief getYMax
+    //! \return
+    //!
     double getYMax() const
     {
-        return this->yMax;
+        return this->m_yMax;
     }
+
+    //!
+    //! \brief getXResolution
+    //! \return
+    //!
     double getXResolution() const
     {
-        return this->xResolution;
+        return this->m_xResolution;
     }
+
+    //!
+    //! \brief getYResolution
+    //! \return
+    //!
     double getYResolution() const
     {
-        return this->yResolution;
+        return this->m_yResolution;
     }
 
 
 protected:
+    //!
+    //! \brief m_dataMap
+    //!
     std::vector<T> m_dataMap;
 
-    double xMin, yMin;
-    double xMax, yMax;
-    double xResolution, yResolution;
-    size_t xSize, ySize;
+    //!
+    //! \brief m_defaultFill
+    //!
+    T m_defaultFill;
 
+    double m_xMin, m_yMin; //!< Description of members
+    double m_xMax, m_yMax; //!< Description of members
+    double m_xResolution, m_yResolution; //!< Description of members
+    size_t m_xSize, m_ySize; //!< Description of members
 };
 
 } //end of namespace Maps
