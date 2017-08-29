@@ -25,26 +25,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    pose/abstract_2d_position.cpp \
-    pose/abstract_3d_position.cpp \
-    pose/abstract_position.cpp \
-    pose/base_2d_point.cpp \
-    pose/base_3d_point.cpp \
-    pose/abstract_point.cpp
+    pose/point_2d.cpp \
+    pose/point_3d.cpp \
+    pose/cartesian_pos.cpp
 
 HEADERS +=\
         base_global.h \
-    pose/base_global.h \
     pose/coordinate_frame.h \
     pose/abstract_2d_position.h \
     pose/abstract_3d_position.h \
     pose/abstract_position.h \
-    pose/base_2d_point.h \
-    pose/base_3d_point.h \
-    pose/base_point.h \
-    pose/base_point_helper.h \
-    pose/pose_forward_definition.h \
-    pose/point.h
+    pose/point_2d.h \
+    pose/point_3d.h \
+    pose/abstract_point.h \
+    pose/cartesian_pos.h
 
 # Unix lib Install
 unix:!symbian {
@@ -59,9 +53,14 @@ else:win32:CONFIG(debug, debug|release):    lib.files   += debug/base.lib debug/
 INSTALLS += lib
 
 #Header file copy
+headers.path    = $$(MACE_ROOT)/include/base
+headers.files   += \
+        base_global.h
+INSTALLS       += headers
+
+#Header file copy
 headers_pose.path    = $$(MACE_ROOT)/include/base/pose
 headers_pose.files   += \
-    pose/base_global.h \
     pose/coordinate_frame.h \
     pose/abstract_2d_position.h \
     pose/abstract_3d_position.h \

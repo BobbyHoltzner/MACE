@@ -44,11 +44,11 @@ void ModuleVehicleArdupilot::cbi_VehicleCommandACK(const int &systemID, const ma
 
 void ModuleVehicleArdupilot::cbi_VehicleMissionACK(const MissionItem::MissionACK &ack)
 {
-    std::stringstream buffer;
-    buffer << ack.getMissionKey();
+//    std::stringstream buffer;
+//    buffer << ack.getMissionKey();
 
-    mLogs->info("The module has now seen a mission ack.");
-    mLogs->debug(buffer);
+//    mLogs->info("The module has now seen a mission ack.");
+//    mLogs->debug(buffer);
 
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
          ptr->EventVehicle_MissionACK(this, ack);
@@ -97,11 +97,11 @@ void ModuleVehicleArdupilot::cbi_VehicleStateData(const int &systemID, std::shar
 
 void ModuleVehicleArdupilot::cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home)
 {
-    std::stringstream buffer;
-    buffer << home;
+//    std::stringstream buffer;
+//    buffer << home;
 
-    mLogs->debug("Receieved a new vehicle home position.");
-    mLogs->info(buffer.str());
+//    mLogs->debug("Receieved a new vehicle home position.");
+//    mLogs->info(buffer.str());
 
     //notify the core of the change
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
@@ -117,11 +117,11 @@ void ModuleVehicleArdupilot::cbi_VehicleHome(const int &systemID, const CommandI
 
 void ModuleVehicleArdupilot::cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList)
 {
-    std::stringstream buffer;
-    buffer << missionList;
+//    std::stringstream buffer;
+//    buffer << missionList;
 
-    mLogs->info("Receieved a new vehicle mission.");
-    mLogs->info(buffer.str());
+//    mLogs->info("Receieved a new vehicle mission.");
+//    mLogs->info(buffer.str());
 
     //This function shall update the local MACE CORE instance of the mission
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
@@ -159,22 +159,22 @@ void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem)
 
 void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command)
 {
-    std::stringstream buffer;
-    buffer << command;
+//    std::stringstream buffer;
+//    buffer << command;
 
-    mLogs->debug("Receieved a command system arm.");
-    mLogs->info(buffer.str());
+//    mLogs->debug("Receieved a command system arm.");
+//    mLogs->info(buffer.str());
 
     vehicleData->m_CommandController->setSystemArm(command);
 }
 
 void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command)
 {
-    std::stringstream buffer;
-    buffer << command;
+//    std::stringstream buffer;
+//    buffer << command;
 
-    mLogs->debug("Receieved a command takeoff.");
-    mLogs->info(buffer.str());
+//    mLogs->debug("Receieved a command takeoff.");
+//    mLogs->info(buffer.str());
 
     if(vehicleData)
     {
@@ -197,11 +197,11 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
 
 void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &command)
 {
-    std::stringstream buffer;
-    buffer << command;
+//    std::stringstream buffer;
+//    buffer << command;
 
-    mLogs->debug("Receieved a command to land.");
-    mLogs->info(buffer.str());
+//    mLogs->debug("Receieved a command to land.");
+//    mLogs->info(buffer.str());
 
     if(vehicleData)
         vehicleData->m_CommandController->setSystemLand(command);
@@ -217,7 +217,7 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
 
 void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command)
 {
-    mLogs->debug("Receieved a command to change mission state.");
+    //mLogs->debug("Receieved a command to change mission state.");
 
     int systemID = command.getTargetSystem();
     if((vehicleData) && (vehicleData->getSystemID() == systemID))
@@ -252,11 +252,11 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
 
 void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command)
 {
-    std::stringstream buffer;
-    buffer << command;
+//    std::stringstream buffer;
+//    buffer << command;
 
-    mLogs->debug("Receieved a command to change the mode.");
-    mLogs->info(buffer.str());
+//    mLogs->debug("Receieved a command to change the mode.");
+//    mLogs->info(buffer.str());
 
     DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
     int mode = tmp.getFlightModeFromString(command.getRequestMode());
@@ -294,11 +294,11 @@ void ModuleVehicleArdupilot::Command_GetHomePosition(const int &vehicleID)
 
 void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome)
 {
-    std::stringstream buffer;
-    buffer << vehicleHome;
+//    std::stringstream buffer;
+//    buffer << vehicleHome;
 
-    mLogs->debug("Receieved a command to home position.");
-    mLogs->info(buffer.str());
+//    mLogs->debug("Receieved a command to home position.");
+//    mLogs->info(buffer.str());
 
     if((vehicleData) && (vehicleData->getSystemID() == vehicleHome.getTargetSystem()))
         vehicleData->m_CommandController->setHomePosition(vehicleHome);
@@ -324,11 +324,11 @@ void ModuleVehicleArdupilot::UpdateMissionKey(const MissionItem::MissionKeyChang
 
 void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionList &missionList)
 {
-    std::stringstream buffer;
-    buffer << missionList;
+//    std::stringstream buffer;
+//    buffer << missionList;
 
-    mLogs->info("Vehicle module has been told to upload a mission.");
-    mLogs->info(buffer.str());
+//    mLogs->info("Vehicle module has been told to upload a mission.");
+//    mLogs->info(buffer.str());
 
     switch(missionList.getMissionType())
     {
