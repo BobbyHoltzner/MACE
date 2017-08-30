@@ -18,7 +18,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
 
         DataGenericItem::DataGenericItem_Battery battery;
         battery.setBatteryVoltage(decodedMSG.voltage_battery/1000.0);
-        battery.setBatteryCurrent(decodedMSG.current_battery/10000.0);
+        battery.setBatteryCurrent(decodedMSG.current_battery/100.0);
         battery.setBatteryRemaining(decodedMSG.battery_remaining);
         if(state->vehicleFuel.set(battery))
         {
@@ -34,39 +34,39 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         //The global position, as returned by the Global Positioning System (GPS). This is NOT the global position estimate of the system, but rather a RAW sensor value. See message GLOBAL_POSITION for the global position estimate. Coordinate frame is right-handed, Z-axis up (GPS frame).
         mavlink_gps_raw_int_t decodedMSG;
         mavlink_msg_gps_raw_int_decode(msg,&decodedMSG);
-
         DataGenericItem::DataGenericItem_GPS gpsItem;
         gpsItem.setHDOP(decodedMSG.eph);
         gpsItem.setVDOP(decodedMSG.epv);
         gpsItem.setSatVisible(decodedMSG.satellites_visible);
+
         switch(decodedMSG.fix_type)
         {
         case GPS_FIX_TYPE_2D_FIX:
-            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_2D_FIX);
+            gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_2D_FIX);
             break;
         case GPS_FIX_TYPE_3D_FIX:
-            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_3D_FIX);
+            gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_3D_FIX);
             break;
         case GPS_FIX_TYPE_DGPS:
-            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_DGPS);
+            gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_DGPS);
             break;
         case GPS_FIX_TYPE_NO_FIX:
-            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NO_FIX);
+            gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_NO_FIX);
             break;
         case GPS_FIX_TYPE_NO_GPS:
-            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NONE);
+            gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_NONE);
             break;
         case GPS_FIX_TYPE_RTK_FIXED:
-            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_RTK_FIXED);
+            gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_RTK_FIXED);
             break;
         case GPS_FIX_TYPE_RTK_FLOAT:
-            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_RTK_FLOAT);
+            gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_RTK_FLOAT);
             break;
         case GPS_FIX_TYPE_STATIC:
-            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_STATIC);
+            gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_STATIC);
             break;
         default:
-            gpsItem.setGPSFix(Data::GPSFixType::GPS_FIX_NO_FIX);
+            gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_NO_FIX);
             break;
         }
 
@@ -200,28 +200,28 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         statusText.setText(decodedMSG.text);
         switch (decodedMSG.severity) {
         case MAV_SEVERITY_EMERGENCY:
-            statusText.setSeverity(Data::StatusSeverityType::STATUS_EMERGENCY);
+            statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_EMERGENCY);
             break;
         case MAV_SEVERITY_ALERT:
-            statusText.setSeverity(Data::StatusSeverityType::STATUS_ALERT);
+            statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_ALERT);
             break;
         case MAV_SEVERITY_CRITICAL:
-            statusText.setSeverity(Data::StatusSeverityType::STATUS_CRITICAL);
+            statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_CRITICAL);
             break;
         case MAV_SEVERITY_ERROR:
-            statusText.setSeverity(Data::StatusSeverityType::STATUS_ERROR);
+            statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_ERROR);
             break;
         case MAV_SEVERITY_WARNING:
-            statusText.setSeverity(Data::StatusSeverityType::STATUS_WARNING);
+            statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_WARNING);
             break;
         case MAV_SEVERITY_NOTICE:
-            statusText.setSeverity(Data::StatusSeverityType::STATUS_NOTICE);
+            statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_NOTICE);
             break;
         case MAV_SEVERITY_INFO:
-            statusText.setSeverity(Data::StatusSeverityType::STATUS_INFO);
+            statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_INFO);
             break;
         case MAV_SEVERITY_DEBUG:
-            statusText.setSeverity(Data::StatusSeverityType::STATUS_DEBUG);
+            statusText.setSeverity(statusText.STATUS_SEVERITY::STATUS_DEBUG);
             break;
         default:
             break;
@@ -276,7 +276,6 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
     }
     case MAVLINK_MSG_ID_MISSION_CURRENT:
     {
-//        std::cout<<"How many times was this called"<<std::endl;
         //This is message definition 42
         //Message that announces the sequence number of the current active mission item. The MAV will fly towards this mission item.
         mavlink_mission_current_t decodedMSG;
@@ -318,7 +317,6 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
     }
     case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
     {
-        std::cout<<"I have reached a mission item"<<std::endl;
         //This is message definition 46
         //A certain mission item has been reached. The system will either hold this position (or circle on the orbit) or
         //(if the autocontinue on the WP was set) continue to the next MISSION.
@@ -370,9 +368,9 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         mavlink_msg_home_position_decode(msg,&decodedMSG);
 
         CommandItem::SpatialHome spatialHome;
-        spatialHome.position.setX(decodedMSG.latitude / pow(10,7));
-        spatialHome.position.setY(decodedMSG.longitude / pow(10,7));
-        spatialHome.position.setZ(decodedMSG.altitude / 1000);
+        spatialHome.position->setX(decodedMSG.latitude / pow(10,7));
+        spatialHome.position->setY(decodedMSG.longitude / pow(10,7));
+        spatialHome.position->setZ(decodedMSG.altitude / 1000);
         spatialHome.setOriginatingSystem(systemID);
         mission->home.set(spatialHome);
         if(this->m_CB)

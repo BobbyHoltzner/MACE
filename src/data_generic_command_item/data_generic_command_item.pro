@@ -43,7 +43,9 @@ SOURCES += \
     mission_items/mission_list.cpp \
     command_item_ack.cpp \
     mission_items/mission_item_achieved.cpp \
-    mission_items/mission_item_current.cpp
+    mission_items/mission_item_current.cpp \
+    mission_items/mission_key.cpp \
+    mission_items/mission_key_change.cpp
 HEADERS +=\
     do_items/action_arm.h \
     do_items/action_change_mode.h \
@@ -67,7 +69,13 @@ HEADERS +=\
     abstract_command_item.h \
     command_item_ack.h \
     mission_items/mission_item_achieved.h \
-    mission_items/mission_item_current.h
+    mission_items/mission_item_current.h \
+    mission_items/mission_state.h \
+    mission_items/mission_type.h \
+    mission_items/mission_key.h \
+    mission_items/mission_key_change.h \
+    spatial_items/abstract_spatial_position.h \
+    command_item_type.h
 
 # Unix lib Install
 unix:!symbian {
@@ -84,10 +92,11 @@ INSTALLS += lib
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/data_generic_command_item
 headers.files   += \
-    data_generic_command_item_global.h \
     abstract_command_item.h \
     command_item_ack.h \
-    command_item_components.h
+    command_item_components.h \
+    command_item_type.h \
+    data_generic_command_item_global.h
 INSTALLS       += headers
 
 #Header file copy
@@ -107,12 +116,17 @@ headers_missionComponents.files   += \
     mission_items/mission_ack.h \
     mission_items/mission_item_achieved.h \
     mission_items/mission_item_current.h \
-    mission_items/mission_list.h
+    mission_items/mission_key.h \
+    mission_items/mission_key_change.h \
+    mission_items/mission_list.h \
+    mission_items/mission_state.h \
+    mission_items/mission_type.h
 INSTALLS       += headers_missionComponents
 
 #Header file copy
 headers_spatialComponents.path    = $$(MACE_ROOT)/include/data_generic_command_item/spatial_items
 headers_spatialComponents.files   += \
+    spatial_items/abstract_spatial_position.h \
     spatial_items/spatial_components.h \
     spatial_items/spatial_home.h \
     spatial_items/spatial_land.h \
@@ -126,6 +140,11 @@ INSTALLS       += headers_spatialComponents
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
+else:unix:!macx: LIBS += -L$$OUT_PWD/../common/ -lcommon
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata

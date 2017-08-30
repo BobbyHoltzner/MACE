@@ -37,7 +37,8 @@ SOURCES += \
     MAVLINK_to_MACE/helper_mission_mavlink_to_mace.cpp \
     components/ardupilot_component_flight_mode.cpp \
     command_controller_mavlink.cpp \
-    guided_controller_mavlink.cpp
+    guided_controller_mavlink.cpp \
+    components/empty_mavlink.cpp
 
 HEADERS +=\
         data_interface_mavlink_global.h \
@@ -56,7 +57,9 @@ HEADERS +=\
     generic/command_item.h \
     generic/helper_previous_command_mavlink.h \
     guided_controller_mavlink.h \
-    generic/helper_previous_guided_mavlink.h
+    generic/helper_previous_guided_mavlink.h \
+    components/data_interface_mavlink_components.h \
+    components/empty_mavlink.h
 
 
 # Unix lib Install
@@ -99,7 +102,9 @@ INSTALLS       += headers_generic
 #Header file copy
 headers_components.path    = $$(MACE_ROOT)/include/data_interface_MAVLINK/components
 headers_components.files   += \
-    components/ardupilot_component_flight_mode.h
+    components/ardupilot_component_flight_mode.h \
+    components/data_interface_mavlink_components.h \
+    components/empty_mavlink.h
 INSTALLS       += headers_components
 
 #Header file copy

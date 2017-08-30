@@ -78,6 +78,13 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
+    //!
+    //! \brief AssignLoggingDirectory
+    //! \param path
+    //!
+    virtual void AssignLoggingDirectory(const std::string &path);
+
+    virtual void start();
 
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
@@ -86,8 +93,8 @@ public:
 public:
 
     virtual void NewlyAvailableVehicle(const int &vehicleID);
-    virtual void NewlyAvailableCurrentMission(const Data::MissionKey &missionKey);
-    virtual void NewlyAvailableMissionExeState(const Data::MissionKey &key);
+    virtual void NewlyAvailableCurrentMission(const MissionItem::MissionKey &missionKey);
+    virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &key);
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
 
 private:
@@ -108,7 +115,7 @@ private:
     void sendMissionItemReached(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionItemReachedTopic> &component);
     void sendVehicleArm(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> &component);
     void sendVehicleAirspeed(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAirspeedTopic> &component);
-    void sendMissionState(const Data::MissionKey &key, const MissionItem::MissionList &list);
+    void sendMissionState(const MissionItem::MissionKey &key, const MissionItem::MissionList &list);
     void sendVehicleTarget(const int &vehicleID, const std::shared_ptr<MissionTopic::VehicleTargetTopic> &component);
 
     bool writeTCPData(QByteArray data);

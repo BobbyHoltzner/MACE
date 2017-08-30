@@ -38,6 +38,7 @@ public:
     }
 
     mace_battery_status_t getMACECommsObject() const;
+    mace_message_t getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
 
 public:
     void operator = (const DataGenericItem_Battery &rhs)

@@ -1,8 +1,6 @@
 #ifndef I_MODULE_VEHICLE_EVENTS_H
 #define I_MODULE_VEHICLE_EVENTS_H
 
-#include "data/mission_ack.h"
-
 #include "i_module_events_general_vehicle.h"
 
 namespace MaceCore
@@ -35,9 +33,9 @@ public:
     //!
     virtual void EventVehicle_MissionACK(const void *sender, const MissionItem::MissionACK &ack) = 0;
 
-    virtual void EventVehicle_REJECTProposedMission(const void *sender, const Data::MissionKey &key) = 0;
+    virtual void EventVehicle_REJECTProposedMission(const void *sender, const MissionItem::MissionKey &key) = 0;
 
-    //virtual void EventVehicle_ACKProposedMissionWChanges(const void *sender, const Data::MissionKey &originalKey, const Data::MissionACK &ackCode, const Data::MissionKey &newKey) = 0;
+    //virtual void EventVehicle_ACKProposedMissionWChanges(const void *sender, const MissionItem::MissionKey &originalKey, const Data::MissionACK &ackCode, const MissionItem::MissionKey &newKey) = 0;
 };
 
 } //End MaceCore Namespace

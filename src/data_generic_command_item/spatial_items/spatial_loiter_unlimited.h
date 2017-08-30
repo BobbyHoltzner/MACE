@@ -5,15 +5,19 @@
 #include <iomanip>
 #include <sstream>
 
-#include "data/command_item_type.h"
+#include "mace.h"
+
+#include "abstract_spatial_position.h"
+
+#include "data_generic_command_item/command_item_type.h"
 #include "data/loiter_direction.h"
+#include "data_generic_state_item/base_3d_position.h"
 
 #include "data_generic_command_item/abstract_command_item.h"
-#include "data_generic_state_item/base_3d_position.h"
 
 namespace CommandItem {
 
-class SpatialLoiter_Unlimited : public AbstractCommandItem
+class SpatialLoiter_Unlimited : public AbstractCommandItem, public AbstractSpatialPosition
 {
 
 public:
@@ -27,7 +31,7 @@ public:
     //! \brief getCommandType returns the type of the object that this command type is.
     //! \return Data::CommandType resolving the type of command this object is.
     //!
-    virtual Data::CommandItemType getCommandType()const;
+    virtual COMMANDITEM getCommandType()const;
 
     //!
     //! \brief getDescription
@@ -50,7 +54,7 @@ public:
     void operator = (const SpatialLoiter_Unlimited &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        this->position = rhs.position;
+        AbstractSpatialPosition::operator =(rhs);
         this->direction = rhs.direction;
         this->radius = rhs.radius;
     }
@@ -60,7 +64,7 @@ public:
         {
             return false;
         }
-        if(this->position != rhs.position)
+        if(!AbstractSpatialPosition::operator ==(rhs))
         {
             return false;
         }
@@ -80,7 +84,6 @@ public:
     }
 
 public:
-    DataState::Base3DPosition position;
     Data::LoiterDirection direction;
     double radius;
 };

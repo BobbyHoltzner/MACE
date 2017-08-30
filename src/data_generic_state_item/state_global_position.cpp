@@ -33,6 +33,13 @@ StateGlobalPosition::StateGlobalPosition(const Data::CoordinateFrameType &frame,
 
 }
 
+StateGlobalPosition::StateGlobalPosition(const mace_global_position_int_t &pos)
+{
+    setLatitude(pos.lat / pow(10,7));
+    setLongitude(pos.lon / pow(10,7));
+    setAltitude(pos.alt / pow(10,3));
+}
+
 void StateGlobalPosition::setPosition(const double &latitude, const double &longitude, const double &altitude)
 {
     this->setX(latitude);
@@ -70,12 +77,19 @@ void StateGlobalPosition::setAltitude(const double &value)
 mace_global_position_int_t StateGlobalPosition::getMACECommsObject() const
 {
     mace_global_position_int_t rtnObj;
-
     rtnObj.lat = (int32_t)(this->getLatitude() * pow(10,7));
     rtnObj.lon = (int32_t)(this->getLongitude() * pow(10,7));
     rtnObj.alt = (int32_t)(this->getAltitude() * 1000.0);
 
     return rtnObj;
+}
+
+mace_message_t StateGlobalPosition::getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const
+{
+    mace_message_t msg;
+    mace_global_position_int_t pos = getMACECommsObject();
+    mace_msg_global_position_int_encode_chan(systemID,compID,chan,&msg,&pos);
+    return msg;
 }
 
 //!

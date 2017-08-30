@@ -148,13 +148,14 @@ public:
     //! \brief operator =
     //! \param rhs
     //!
-    void operator = (const Base2DPosition &rhs)
+    Base2DPosition& operator = (const Base2DPosition &rhs)
     {
         this->m_CoordinateFrame = rhs.m_CoordinateFrame;
         this->x = rhs.x;
         this->y = rhs.y;
         this->posXFlag = rhs.posXFlag;
         this->posYFlag = rhs.posYFlag;
+        return *this;
     }
 
     //!

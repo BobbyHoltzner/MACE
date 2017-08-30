@@ -26,5 +26,8 @@
       <Parameter Name="Parity">false</Parameter>
       <Parameter Name="FlowControl">1</Parameter>
     </Parameter>
+	<Parameter Name="ModuleParameters">
+      <Parameter Name="AirborneInstance">true</Parameter>
+    </Parameter>
   </Module>
 </ModuleConfigurations>

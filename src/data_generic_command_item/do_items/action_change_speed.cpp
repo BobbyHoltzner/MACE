@@ -2,9 +2,9 @@
 
 namespace CommandItem {
 
-Data::CommandItemType ActionChangeSpeed::getCommandType() const
+COMMANDITEM ActionChangeSpeed::getCommandType() const
 {
-    return Data::CommandItemType::CI_ACT_CHANGESPEED;
+    return COMMANDITEM::CI_ACT_CHANGESPEED;
 }
 
 std::string ActionChangeSpeed::getDescription() const

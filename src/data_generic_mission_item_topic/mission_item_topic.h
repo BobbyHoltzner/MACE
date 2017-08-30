@@ -2,7 +2,6 @@
 #define MISSION_ITEM_TOPIC_H
 
 #include "data/i_topic_component_data_object.h"
-#include "data/mission_type.h"
 #include "data_generic_command_item/abstract_command_item.h"
 
 namespace MissionTopic{

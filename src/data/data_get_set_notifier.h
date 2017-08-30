@@ -48,7 +48,8 @@ public:
 
         std::lock_guard<std::mutex> guardNotifier(m_NotifierListMutex);
         for(auto it = m_Funcs.cbegin() ; it != m_Funcs.cend() ; ++it) {
-            *it;
+            std::function<void()> func = it->second;
+            func();
         }
         return true;
     }

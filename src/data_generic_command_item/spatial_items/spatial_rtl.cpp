@@ -2,9 +2,9 @@
 
 namespace CommandItem {
 
-Data::CommandItemType SpatialRTL::getCommandType() const
+COMMANDITEM SpatialRTL::getCommandType() const
 {
-    return Data::CommandItemType::CI_NAV_RETURN_TO_LAUNCH;
+    return COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH;
 }
 
 std::string SpatialRTL::getDescription() const
@@ -17,7 +17,8 @@ bool SpatialRTL::hasSpatialInfluence() const
     return true;
 }
 
-SpatialRTL::SpatialRTL()
+SpatialRTL::SpatialRTL():
+    AbstractCommandItem(0,0)
 {
 
 }

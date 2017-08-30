@@ -28,8 +28,8 @@ public:
 
     virtual void Event_IssueGeneralCommand(const void* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;
 
-    virtual void Event_GetMission(const void* sender, const Data::MissionKey &key) = 0;
-    virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const Data::MissionType &type) = 0;
+    virtual void Event_GetMission(const void* sender, const MissionItem::MissionKey &key) = 0;
+    virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const MissionItem::MISSIONTYPE &type) = 0;
     virtual void Event_GetCurrentMission(const void* sender, const int &systemID) = 0;
 
     virtual void RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID) = 0;

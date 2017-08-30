@@ -6,36 +6,17 @@ Ardupilot_TakeoffController::Ardupilot_TakeoffController(std::shared_ptr<DataInt
 {
     controllerType = CONTROLLER_TAKEOFF;
     vehicleMissionState = ArdupilotMissionState(2,10,10);
-    std::cout << "Constructor on takeoff controller" << std::endl;
-//    this->vehicleDataObject->data->ArducopterFlightMode.AddNotifier(this, [this]{
-//        //modeUpdated = true;
-
+//    this->vehicleDataObject->state->vehicleAttitude.AddNotifier(this,[this]
+//    {
 //        m_LambdasToRun.push_back([this]{
-//            switch(currentStateLogic)
-//            {
-//            case DISARMED:
-//            {
-//                if(currentVehicleMode.getVehicleArmed())
-//                {
-//                    if(currentVehicleMode.getFlightModeString() == "GUIDED")
-//                    {
-//                        currentStateLogic = ARMED_RIGHT_MODE;
-//                        mavlink_message_t msg = vehicleDataObject->generateTakeoffMessage(missionItem_Takeoff,m_LinkChan);
-//                        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-//                    }else{
-//                        currentStateLogic = ARMED_WRONG_MODE;
-//                        int requiredMode = currentVehicleMode.getFlightModeFromString("GUIDED");
-//                        int vehicleID = vehicleDataObject->getVehicleID();
-//                        mavlink_message_t msg = vehicleDataObject->generateChangeMode(vehicleID,m_LinkChan,requiredMode);
-//                        m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
-//                    }
+//            std::cout<<"The attitude is functioning"<<std::endl;
+//        });
+//    });
 
-//                }
-//            }
-//            default:
-//                throw std::runtime_error("Not Implemented")
-
-//            }
+//    this->vehicleDataObject->state->vehicleGlobalPosition.AddNotifier(this,[this]
+//    {
+//        m_LambdasToRun.push_back([this]{
+//            std::cout<<"The position is functioning"<<std::endl;
 //        });
 //    });
 }
@@ -89,7 +70,7 @@ double Ardupilot_TakeoffController::distanceToTarget(){
     case(ALTITUDE_TRANSITION):
     {
         DataState::StateGlobalPosition currentPosition = vehicleDataObject->state->vehicleGlobalPosition.get();
-        DataState::StateGlobalPosition targetPosition(currentPosition.getX(),currentPosition.getY(),missionItem_Takeoff.position.getZ());
+        DataState::StateGlobalPosition targetPosition(currentPosition.getX(),currentPosition.getY(),missionItem_Takeoff.position->getZ());
         distance  = fabs(currentPosition.deltaAltitude(targetPosition));
         MissionTopic::VehicleTargetTopic vehicleTarget(vehicleDataObject->getSystemID(), targetPosition, distance);
         m_CBTarget(m_FunctionTarget,vehicleTarget);
@@ -97,7 +78,7 @@ double Ardupilot_TakeoffController::distanceToTarget(){
     }
     case(HORIZONTAL_TRANSITION):
     {
-        DataState::StateGlobalPosition targetPosition(missionItem_Takeoff.position.getX(),missionItem_Takeoff.position.getY(),missionItem_Takeoff.position.getZ());
+        DataState::StateGlobalPosition targetPosition(missionItem_Takeoff.position->getX(),missionItem_Takeoff.position->getY(),missionItem_Takeoff.position->getZ());
         distance = vehicleDataObject->state->vehicleGlobalPosition.get().distanceBetween3D(targetPosition);
         MissionTopic::VehicleTargetTopic vehicleTarget(vehicleDataObject->getSystemID(), targetPosition, distance);
         m_CBTarget(m_FunctionTarget,vehicleTarget);
@@ -125,13 +106,13 @@ void Ardupilot_TakeoffController::generateControl(const Data::ControllerState &c
     }
     case Data::ControllerState::ACHIEVED:
     {
-        if((currentStateLogic == ALTITUDE_TRANSITION) && (missionItem_Takeoff.position.has3DPositionSet()))
+        if((currentStateLogic == ALTITUDE_TRANSITION) && (missionItem_Takeoff.position->has3DPositionSet()))
         {
             currentStateLogic = HORIZONTAL_TRANSITION;
             CommandItem::SpatialWaypoint target;
             target.setTargetSystem(missionItem_Takeoff.getTargetSystem());
             target.setOriginatingSystem(missionItem_Takeoff.getOriginatingSystem());
-            target.position = missionItem_Takeoff.position;
+            target.setPosition(missionItem_Takeoff.getPosition());
             vehicleDataObject->m_GuidedController->updateWaypointTarget(target);
         }
         else

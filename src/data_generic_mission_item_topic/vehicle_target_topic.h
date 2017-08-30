@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <sstream>
 
+#include "mace.h"
+
 #include "data_generic_state_item/base_3d_position.h"
 
 #include "data/i_topic_component_data_object.h"
@@ -24,6 +26,7 @@ public:
     VehicleTargetTopic();
     VehicleTargetTopic(const int &vehicleID, const DataState::Base3DPosition &targetPosition, const double &targetDistance);
     VehicleTargetTopic(const VehicleTargetTopic &target);
+    VehicleTargetTopic(const mace_guided_target_stats_t &obj);
 
 public:
     int getVehicleID() const{
@@ -33,6 +36,9 @@ public:
     void setVehicleID(const int &ID){
         this->systemID = ID;
     }
+
+    mace_guided_target_stats_t getMACECommsObject() const;
+    mace_message_t getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
 
 public:
     void operator = (const VehicleTargetTopic &rhs)

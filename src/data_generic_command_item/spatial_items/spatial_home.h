@@ -2,19 +2,25 @@
 #define SPATIAL_HOME_H
 
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 
-#include "data/command_item_type.h"
-#include "data_generic_command_item/abstract_command_item.h"
+#include "mace.h"
+
+#include "abstract_spatial_position.h"
+
+#include "data_generic_command_item/command_item_type.h"
+
 #include "data_generic_state_item/base_3d_position.h"
 
+#include "data_generic_command_item/abstract_command_item.h"
 
 namespace CommandItem {
 
 //!
 //! \brief The SpatialHome class
 //!
-class SpatialHome : public AbstractCommandItem
+class SpatialHome : public AbstractCommandItem, public AbstractSpatialPosition
 {
 public:
     //!
@@ -24,11 +30,13 @@ public:
     //!
     SpatialHome();
 
+    ~SpatialHome();
+
     //!
     //! \brief SpatialHome A default copy constructor of a SpatialHome commandItem object.
     //! \param obj of type SpatialHome that the data shall be copied from.
     //!
-    SpatialHome(const SpatialHome &obj);
+    SpatialHome(const SpatialHome &copy);
 
     //!
     //! \brief SpatialHome An overloaded default constructor for a SpatialHome commandItem.
@@ -38,12 +46,15 @@ public:
     //!
     SpatialHome(const int &systemOrigin, const int &systemTarget = 0);
 
+    mace_home_position_t getMACECommsObject() const;
+    mace_message_t getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
+
 public:
     //!
     //! \brief getCommandType returns the type of the object that this command type is.
     //! \return Data::CommandType resolving the type of command this object is.
     //!
-    virtual Data::CommandItemType getCommandType()const;
+    virtual COMMANDITEM getCommandType()const;
 
     //!
     //! \brief getDescription
@@ -69,10 +80,11 @@ public:
     //! \brief operator =
     //! \param rhs
     //!
-    void operator = (const SpatialHome &rhs)
+    SpatialHome& operator = (const SpatialHome &rhs)
     {
         AbstractCommandItem::operator =(rhs);
-        this->position = rhs.position;
+        AbstractSpatialPosition::operator =(rhs);
+        return *this;
     }
 
     //!
@@ -85,7 +97,7 @@ public:
         {
             return false;
         }
-        if(this->position != rhs.position)
+        if(!AbstractSpatialPosition::operator ==(rhs))
         {
             return false;
         }
@@ -102,12 +114,6 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream& os, const SpatialHome& t);
-
-public:
-    //!
-    //! \brief position
-    //!
-    DataState::Base3DPosition position;
 };
 
 } //end of namespace MissionItem

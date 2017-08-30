@@ -13,10 +13,6 @@
 
 #include "common/common.h"
 
-#include "data_comms/data_external_comms.h"
-#include "data_comms/MACE_to_COMMS/state_mace_to_comms.h"
-#include "data_comms/MACE_to_COMMS/mission_mace_to_comms.h"
-
 #include "commsMACEHelper/comms_mace_helper.h"
 
 #include "mace_core/i_module_topic_events.h"
@@ -74,7 +70,6 @@ public:
     //! \param params Parameters to configure
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
-
 
     std::string createLog(const int &systemID);
 
@@ -238,8 +233,8 @@ public:
 
     virtual void Command_GetCurrentMission(const int &targetSystem);
 
-    virtual void Command_SetCurrentMission(const Data::MissionKey &key);
-    virtual void Command_GetMission(const Data::MissionKey &key);
+    virtual void Command_SetCurrentMission(const MissionItem::MissionKey &key);
+    virtual void Command_GetMission(const MissionItem::MissionKey &key);
     virtual void Command_ClearCurrentMission(const int &targetSystem);
 
 
@@ -303,9 +298,9 @@ public:
     /// The following are public virtual functions imposed from IModuleCommandExternalLink.
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    virtual void NewlyAvailableOnboardMission(const Data::MissionKey &key);
+    virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key);
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
-    virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey);
+    virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey);
     virtual void NewlyAvailableVehicle(const int &systemID);
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
 

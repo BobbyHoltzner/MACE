@@ -2,9 +2,9 @@
 
 namespace CommandItem {
 
-Data::CommandItemType ActionChangeMode::getCommandType() const
+COMMANDITEM ActionChangeMode::getCommandType() const
 {
-    return Data::CommandItemType::CI_ACT_CHANGEMODE;
+    return COMMANDITEM::CI_ACT_CHANGEMODE;
 }
 
 std::string ActionChangeMode::getDescription() const

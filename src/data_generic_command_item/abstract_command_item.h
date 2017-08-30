@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "data/command_item_type.h"
+#include "command_item_type.h"
 
 namespace CommandItem {
 
@@ -43,13 +43,18 @@ protected:
 
     }
 
+    virtual ~AbstractCommandItem()
+    {
+
+    }
+
 public:
 
     //!
     //! \brief getCommandType returns the type of the object that this command type is.
     //! \return Data::CommandType resolving the type of command this object is.
     //!
-    virtual Data::CommandItemType getCommandType() const = 0;
+    virtual COMMANDITEM getCommandType() const = 0;
 
     //!
     //! \brief hasSpatialInfluence returns a boolean reflecting whether or not the commandItem has
@@ -109,10 +114,11 @@ public:
     //! \brief operator = overloaded assignment operator for AbstractCommandItems.
     //! \param rhs object that the data is copied from in the assignmnet operator.
     //!
-    void operator = (const AbstractCommandItem &rhs)
+    AbstractCommandItem& operator = (const AbstractCommandItem &rhs)
     {
         this->originatingSystem = rhs.originatingSystem;
         this->targetSystem = rhs.targetSystem;
+        return *this;
     }
 
     //!

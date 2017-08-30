@@ -4,9 +4,10 @@
 #include "abstract_module_event_listeners.h"
 #include "metadata_ground_station.h"
 
-#include "data/mission_key.h"
 #include "i_module_topic_events.h"
 #include "i_module_events_ground_station.h"
+
+#include "data_generic_command_item/command_item_components.h"
 
 namespace MaceCore
 {
@@ -33,11 +34,11 @@ public:
             NewlyAvailableVehicle(vehicleID);
         });
 
-        AddCommandLogic<Data::MissionKey>(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION, [this](const Data::MissionKey &missionKey){
+        AddCommandLogic<MissionItem::MissionKey>(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION, [this](const MissionItem::MissionKey &missionKey){
             NewlyAvailableCurrentMission(missionKey);
         });
 
-        AddCommandLogic<Data::MissionKey>(GroundStationCommands::NEW_MISSION_EXE_STATE, [this](const Data::MissionKey &missionKey){
+        AddCommandLogic<MissionItem::MissionKey>(GroundStationCommands::NEW_MISSION_EXE_STATE, [this](const MissionItem::MissionKey &missionKey){
             NewlyAvailableMissionExeState(missionKey);
         });
 
@@ -54,9 +55,9 @@ public:
 public:
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
-    virtual void NewlyAvailableCurrentMission(const Data::MissionKey &missionKey) = 0;
+    virtual void NewlyAvailableCurrentMission(const MissionItem::MissionKey &missionKey) = 0;
 
-    virtual void NewlyAvailableMissionExeState(const Data::MissionKey &missionKey) = 0;
+    virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey) = 0;
 
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home) = 0;
 

@@ -9,14 +9,6 @@ DataGenericItem_Heartbeat::DataGenericItem_Heartbeat() :
 
 }
 
-//DataGenericItem_Heartbeat::DataGenericItem_Heartbeat(const mace_heartbeat_t &heartbeat)
-//{
-//    protocol = static_cast<MAV_PROTOCOL>(heartbeat.protocol);
-//    type = static_cast<MAV_TYPE>(heartbeat.type);
-//    autopilot = static_cast<MAV_AUTOPILOT>(heartbeat.autopilot);
-//    maceCompanion = (heartbeat.mace_companion > 0) ? true : false;
-//}
-
 DataGenericItem_Heartbeat::DataGenericItem_Heartbeat(const DataGenericItem_Heartbeat &copyObj)
 {
     this->protocol = copyObj.getProtocol();
@@ -37,6 +29,14 @@ mace_heartbeat_t DataGenericItem_Heartbeat::getMACECommsObject() const
     rtnObj.type = (uint8_t)this->type;
 
     return rtnObj;
+}
+
+mace_message_t DataGenericItem_Heartbeat::getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const
+{
+    mace_message_t msg;
+    mace_heartbeat_t heartbeat = getMACECommsObject();
+    mace_msg_heartbeat_encode_chan(systemID,compID,chan,&msg,&heartbeat);
+    return msg;
 }
 
 } //end of namespace DataGenericItem

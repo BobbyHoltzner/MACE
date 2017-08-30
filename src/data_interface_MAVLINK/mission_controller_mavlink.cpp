@@ -253,9 +253,9 @@ void MissionController_MAVLINK::recievedMissionItem(const mavlink_mission_item_t
     {
         //This is the home position item associated with the vehicle
         CommandItem::SpatialHome newHome;
-        newHome.position.setX(missionItem.x);
-        newHome.position.setY(missionItem.y);
-        newHome.position.setZ(missionItem.z);
+        newHome.position->setX(missionItem.x);
+        newHome.position->setY(missionItem.y);
+        newHome.position->setZ(missionItem.z);
         newHome.setOriginatingSystem(systemID);
         newHome.setTargetSystem(systemID);
         m_CB->cbiMissionController_ReceviedHome(newHome);

@@ -1,6 +1,7 @@
 #ifndef COMMAND_ITEM_COMPONENTS_H
 #define COMMAND_ITEM_COMPONENTS_H
 
+#include "data_generic_command_item/spatial_items/abstract_spatial_position.h"
 #include "data_generic_command_item/spatial_items/spatial_home.h"
 #include "data_generic_command_item/spatial_items/spatial_loiter_time.h"
 #include "data_generic_command_item/spatial_items/spatial_loiter_turns.h"
@@ -19,6 +20,12 @@
 #include "data_generic_command_item/mission_items/mission_ack.h"
 #include "data_generic_command_item/mission_items/mission_item_achieved.h"
 #include "data_generic_command_item/mission_items/mission_item_current.h"
+#include "data_generic_command_item/mission_items/mission_key.h"
+#include "data_generic_command_item/mission_items/mission_key_change.h"
 #include "data_generic_command_item/mission_items/mission_list.h"
+#include "data_generic_command_item/mission_items/mission_state.h"
+#include "data_generic_command_item/mission_items/mission_type.h"
+
+#include "command_item_type.h"
 
 #endif // COMMAND_ITEM_COMPONENTS_H

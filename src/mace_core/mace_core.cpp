@@ -67,8 +67,7 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
 {
     groundStation->addListener(this);
     groundStation->addTopicListener(this);
-    bool serverStarted = groundStation->StartTCPServer();
-    UNUSED(serverStarted);
+    groundStation->StartTCPServer();
     m_GroundStation = groundStation;
 }
 
@@ -291,7 +290,7 @@ void MaceCore::Event_IssueGeneralCommand(const void* sender, const std::shared_p
     UNUSED(command);
 }
 
-void MaceCore::Event_GetMission(const void *sender, const Data::MissionKey &key)
+void MaceCore::Event_GetMission(const void *sender, const MissionItem::MissionKey &key)
 {
     UNUSED(sender);
     int systemID = key.m_systemID;
@@ -308,16 +307,16 @@ void MaceCore::Event_GetMission(const void *sender, const Data::MissionKey &key)
     }
 }
 
-void MaceCore::Event_GetOnboardMission(const void *sender, const int &systemID, const Data::MissionType &type)
+void MaceCore::Event_GetOnboardMission(const void *sender, const int &systemID, const MissionItem::MISSIONTYPE &type)
 {
     UNUSED(sender);
 
     VehicleCommands cmd = VehicleCommands::REQUEST_ONBOARD_AUTO_MISSION;
 
-    if(type == Data::MissionType::AUTO)
+    if(type == MissionItem::MISSIONTYPE::AUTO)
     {
         //nothing to change since this is the default
-    }else if(type == Data::MissionType::GUIDED){
+    }else if(type == MissionItem::MISSIONTYPE::GUIDED){
         cmd = VehicleCommands::REQUEST_ONBOARD_GUIDED_MISSION;
     }else{
         //we should throw some type of error
@@ -442,7 +441,7 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const void *sender, const M
 {
     UNUSED(sender);
    //Update the core about the information
-    Data::MissionKey key = missionList.getMissionKey();
+    MissionItem::MissionKey key = missionList.getMissionKey();
     m_DataFusion->receivedNewMission(missionList);
     bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
 
@@ -468,7 +467,7 @@ void MaceCore::EventVehicle_MissionACK(const void *sender, const MissionItem::Mi
 
     //first we should update the core based on the acknowledgment information we had recieved
     //this will update the approriate keys as necessary
-    Data::MissionKey key = m_DataFusion->receivedMissionACKKey(ack.getMissionKey(), ack.getNewMissionState());
+    MissionItem::MissionKey key = m_DataFusion->receivedMissionACKKey(ack.getMissionKey(), ack.getNewMissionState());
 
     if(m_ExternalLinkIDToPort.count(key.m_creatorID) > 0)
     {
@@ -482,7 +481,7 @@ void MaceCore::EventVehicle_MissionACK(const void *sender, const MissionItem::Mi
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
 }
 
-void MaceCore::EventVehicle_REJECTProposedMission(const void *sender, const Data::MissionKey &key)
+void MaceCore::EventVehicle_REJECTProposedMission(const void *sender, const MissionItem::MissionKey &key)
 {
     UNUSED(sender);
     UNUSED(key);
@@ -555,7 +554,7 @@ void MaceCore::GVEvents_NewHomePosition(const void *sender, const CommandItem::S
     }
 }
 
-void MaceCore::GVEvents_MissionExeStateUpdated(const void *sender, const Data::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState)
+void MaceCore::GVEvents_MissionExeStateUpdated(const void *sender, const MissionItem::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState)
 {
     UNUSED(sender);
     //TODO FIX KEN: We should incorporate a method that shall exist to understand who wants to receive
@@ -583,14 +582,14 @@ void MaceCore::GVEvents_MissionItemCurrent(const void *sender, const MissionItem
     m_DataFusion->updateCurrentMissionItem(current);
 }
 
-void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const Data::MissionKey &missionKey)
+void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const MissionItem::MissionKey &missionKey)
 {
     UNUSED(sender);
     UNUSED(missionKey);
     //m_DataFusion->updateOnboardMissions(missionKey);
 }
 
-void MaceCore::NewCurrentVehicleMission(const void *sender, const Data::MissionKey &missionKey)
+void MaceCore::NewCurrentVehicleMission(const void *sender, const MissionItem::MissionKey &missionKey)
 {
     UNUSED(sender);
     m_DataFusion->checkForCurrentMission(missionKey);
@@ -609,7 +608,7 @@ void MaceCore::ExternalEvent_MissionACK(const void* sender, const MissionItem::M
     std::cout<<"The core has seen an event from the external link confirming the mission"<<std::endl;
     //first we should update the core based on the acknowledgment information we had recieved
     //this will update the approriate keys as necessary
-    Data::MissionKey key = m_DataFusion->receivedMissionACKKey(missionACK.getMissionKey(), missionACK.getNewMissionState());
+    MissionItem::MissionKey key = m_DataFusion->receivedMissionACKKey(missionACK.getMissionKey(), missionACK.getNewMissionState());
 
     //This may not be the place to do this
     bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
@@ -630,8 +629,8 @@ void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const int &t
 void MaceCore::ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList)
 {
     UNUSED(sender);
-    Data::MissionTXState state = missionList.getMissionTXState();
-    Data::MissionKey key = missionList.getMissionKey();
+    MissionItem::MISSIONSTATE state = missionList.getMissionTXState();
+    MissionItem::MissionKey key = missionList.getMissionKey();
 
     m_DataFusion->receivedNewMission(missionList);
     bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
@@ -639,7 +638,7 @@ void MaceCore::ExternalEvent_FinishedRXMissionList(const void *sender, const Mis
     //This may not be the place to do this
     if((isMissionCurrent) && (m_GroundStation))
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
-    else if(state == Data::MissionTXState::RECEIVED)//This implies that the mission state has just moved from proposed to received
+    else if(state ==  MissionItem::MISSIONSTATE::RECEIVED)//This implies that the mission state has just moved from proposed to received
     {
         int vehicleID = missionList.getVehicleID();
         m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::UPLOAD_MISSION,missionList);
@@ -700,7 +699,7 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
     {
         for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
             int nextSystemID = it->first;
-            Data::MissionKey key = m_DataFusion->appendAssociatedMissionMap(nextSystemID,missionList);
+            MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(nextSystemID,missionList);
             MissionItem::MissionList correctedMission = missionList;
             correctedMission.setMissionKey(key);
             if(it->second != sender){
@@ -709,7 +708,7 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
         }
     }else{ //transmit the mission to a specific vehicle
         try{
-            Data::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
+            MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
             MissionItem::MissionList correctedMission = missionList;
             correctedMission.setMissionKey(key);
             IModuleCommandVehicle* module = m_VehicleIDToPort.at(vehicleID);

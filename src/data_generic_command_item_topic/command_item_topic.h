@@ -4,6 +4,8 @@
 #include "data/i_topic_component_data_object.h"
 #include "data_generic_command_item/command_item_components.h"
 
+using namespace CommandItem;
+
 namespace CommandTopic{
 
 extern const char CommandItemTopic_name[];
@@ -41,7 +43,7 @@ public:
         return commandItem->getTargetSystem();
     }
 
-    Data::CommandItemType getCommandType() const
+    COMMANDITEM getCommandType() const
     {
         return commandItem->getCommandType();
     }

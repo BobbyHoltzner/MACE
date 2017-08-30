@@ -1,9 +1,9 @@
 #include "action_mission_command.h"
 namespace CommandItem {
 
-Data::CommandItemType ActionMissionCommand::getCommandType() const
+COMMANDITEM ActionMissionCommand::getCommandType() const
 {
-    return Data::CommandItemType::CI_ACT_MISSIONCOMMAND;
+    return COMMANDITEM::CI_ACT_MISSIONCOMMAND;
 }
 
 std::string ActionMissionCommand::getDescription() const
