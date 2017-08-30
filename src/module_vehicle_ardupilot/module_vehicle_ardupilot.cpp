@@ -48,7 +48,7 @@ void ModuleVehicleArdupilot::cbi_VehicleMissionACK(const MissionItem::MissionACK
     buffer << ack.getMissionKey();
 
     mLogs->info("The module has now seen a mission ack.");
-    mLogs->debug(buffer);
+    mLogs->debug(buffer.str());
 
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
          ptr->EventVehicle_MissionACK(this, ack);
@@ -75,7 +75,7 @@ void ModuleVehicleArdupilot::cbi_VehicleMissionItemCurrent(const MissionItem::Mi
     buffer << current.getMissionKey();
 
     mLogs->info("The vehicle module has seen a current mission item" + std::to_string(current.getMissionCurrentIndex()));
-    mLogs->debug(buffer);
+    mLogs->debug(buffer.str());
 
     //This function shall update the local MACE core of the new mission
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){

@@ -444,9 +444,9 @@ void ModuleGroundStation::setVehicleHome(const int &vehicleID, const QJsonObject
     CommandItem::SpatialHome tmpHome;
     tmpHome.setTargetSystem(vehicleID);
     QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
-    tmpHome.position.setX(position.value("lat").toDouble());
-    tmpHome.position.setY(position.value("lng").toDouble());
-    tmpHome.position.setZ(position.value("alt").toDouble());
+    tmpHome.position->setX(position.value("lat").toDouble());
+    tmpHome.position->setY(position.value("lng").toDouble());
+    tmpHome.position->setZ(position.value("alt").toDouble());
 
     std::stringstream buffer;
     buffer << tmpHome;
@@ -462,9 +462,9 @@ void ModuleGroundStation::setGlobalOrigin(const QJsonObject &jsonObj)
 {
     CommandItem::SpatialHome tmpGlobalOrigin;
     QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
-    tmpGlobalOrigin.position.setX(position.value("lat").toDouble());
-    tmpGlobalOrigin.position.setY(position.value("lng").toDouble());
-    tmpGlobalOrigin.position.setZ(position.value("alt").toDouble());
+    tmpGlobalOrigin.position->setX(position.value("lat").toDouble());
+    tmpGlobalOrigin.position->setY(position.value("lng").toDouble());
+    tmpGlobalOrigin.position->setZ(position.value("alt").toDouble());
 
     ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
         ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
@@ -513,8 +513,8 @@ void ModuleGroundStation::takeoff(const int &vehicleID, const QJsonObject &jsonO
     bool latLonFlag = vehicleCommand["latLonFlag"].toBool();
 
     if(latLonFlag) {
-        newTakeoff.position.setX(position.value("lat").toDouble());
-        newTakeoff.position.setY(position.value("lng").toDouble());
+        newTakeoff.position->setX(position.value("lat").toDouble());
+        newTakeoff.position->setY(position.value("lng").toDouble());
     }
     newTakeoff.position->setZ(position.value("alt").toDouble());
     newTakeoff.setTargetSystem(vehicleID);
@@ -931,9 +931,9 @@ void ModuleGroundStation::sendVehicleHome(const int &vehicleID, const CommandIte
     json["dataType"] = "VehicleHome";
     json["vehicleID"] = vehicleID;
 
-    json["lat"] = home.position.getX();
-    json["lng"] = home.position.getY();
-    json["alt"] = home.position.getZ();
+    json["lat"] = home.position->getX();
+    json["lng"] = home.position->getY();
+    json["alt"] = home.position->getZ();
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
@@ -1185,27 +1185,27 @@ void ModuleGroundStation::missionListToJSON(const MissionItem::MissionList &list
         {
             std::shared_ptr<CommandItem::SpatialTakeoff> castItem = std::dynamic_pointer_cast<CommandItem::SpatialTakeoff>(missionItem);
             obj["positionalFrame"] = "global";
-            obj["lat"] = castItem->position.getX();
-            obj["lng"] = castItem->position.getY();
-            obj["alt"] = castItem->position.getZ();
+            obj["lat"] = castItem->position->getX();
+            obj["lng"] = castItem->position->getY();
+            obj["alt"] = castItem->position->getZ();
             break;
         }
         case CommandItem::COMMANDITEM::CI_NAV_WAYPOINT:
         {
             std::shared_ptr<CommandItem::SpatialWaypoint> castItem = std::dynamic_pointer_cast<CommandItem::SpatialWaypoint>(missionItem);
             obj["positionalFrame"] = "global";
-            obj["lat"] = castItem->position.getX();
-            obj["lng"] = castItem->position.getY();
-            obj["alt"] = castItem->position.getZ();
+            obj["lat"] = castItem->position->getX();
+            obj["lng"] = castItem->position->getY();
+            obj["alt"] = castItem->position->getZ();
             break;
         }
         case CommandItem::COMMANDITEM::CI_NAV_LOITER_TIME:
         {
             std::shared_ptr<CommandItem::SpatialLoiter_Time> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLoiter_Time>(missionItem);
             obj["positionalFrame"] = "global";
-            obj["lat"] = castItem->position.getX();
-            obj["lng"] = castItem->position.getY();
-            obj["alt"] = castItem->position.getZ();
+            obj["lat"] = castItem->position->getX();
+            obj["lng"] = castItem->position->getY();
+            obj["alt"] = castItem->position->getZ();
             obj["duration"] = castItem->duration;
             if(castItem->direction == Data::LoiterDirection::CW)
             {
@@ -1219,9 +1219,9 @@ void ModuleGroundStation::missionListToJSON(const MissionItem::MissionList &list
         {
             std::shared_ptr<CommandItem::SpatialLoiter_Turns> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLoiter_Turns>(missionItem);
             obj["positionalFrame"] = "global";
-            obj["lat"] = castItem->position.getX();
-            obj["lng"] = castItem->position.getY();
-            obj["alt"] = castItem->position.getZ();
+            obj["lat"] = castItem->position->getX();
+            obj["lng"] = castItem->position->getY();
+            obj["alt"] = castItem->position->getZ();
             obj["turns"] = castItem->turns;
             if(castItem->direction == Data::LoiterDirection::CW)
             {
@@ -1235,9 +1235,9 @@ void ModuleGroundStation::missionListToJSON(const MissionItem::MissionList &list
         {
             std::shared_ptr<CommandItem::SpatialLoiter_Unlimited> castItem = std::dynamic_pointer_cast<CommandItem::SpatialLoiter_Unlimited>(missionItem);
             obj["positionalFrame"] = "global";
-            obj["lat"] = castItem->position.getX();
-            obj["lng"] = castItem->position.getY();
-            obj["alt"] = castItem->position.getZ();
+            obj["lat"] = castItem->position->getX();
+            obj["lng"] = castItem->position->getY();
+            obj["alt"] = castItem->position->getZ();
             if(castItem->direction == Data::LoiterDirection::CW)
             {
                 obj["radius"] = castItem->radius;
