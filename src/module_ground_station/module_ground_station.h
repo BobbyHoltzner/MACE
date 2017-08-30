@@ -160,6 +160,10 @@ private:
     bool m_modeTimeoutOccured;
     bool m_fuelTimeoutOccured;
     std::shared_ptr<GUITimer> m_timer;
+    QHostAddress m_listenAddress;
+    int m_listenPort;
+    QHostAddress m_sendAddress;
+    int m_sendPort;
 };
 
 #endif // MODULE_GROUND_STATION_H

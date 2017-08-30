@@ -1,0 +1,13 @@
+{
+    "MACEComms": {
+        "listenAddress": "127.0.0.1",
+		"listenPortNumber": 1234
+    },
+	"GUIInit": {
+		"mapCenter": [37.889246, -76.814084],
+		"mapZoom": 17
+	},
+	"VehicleSettings": {
+		"defaultTakeoffAlt": 10
+	}
+}

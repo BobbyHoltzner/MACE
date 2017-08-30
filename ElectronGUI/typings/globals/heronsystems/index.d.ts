@@ -2,6 +2,22 @@
 declare var electronRequire: any;
 declare module 'deepcopy';
 
+type MACEConfig = {
+  MACEComms?: {
+    listenAddress?: string,
+    listenPortNumber?: number
+  },
+  GUIInit?: {
+    mapCenter?: number[],
+    mapZoom?: number,
+    maxZoom?: number
+  },
+  VehicleSettings?: {
+    defaultTakeoffAlt?: number
+  }
+}
+
+
 type PositionType = {
     lat: number,
     lng: number,

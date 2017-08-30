@@ -32,9 +32,9 @@ var config = {
   },
 
   performance: { hints: false },
-  // node: {
-  //   fs: "empty"
-  // },
+  node: {
+    fs: "empty"
+  },
   module: {
     /*
      * Each loader needs an associated Regex test that goes through each
