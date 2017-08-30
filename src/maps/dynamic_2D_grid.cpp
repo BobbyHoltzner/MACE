@@ -52,8 +52,8 @@ void Dynamic2DGrid<T>::clear()
 template <class T>
 void Dynamic2DGrid<T>::fill(const T &value)
 {
-    for (std::vector<T>::iterator it = m_dataMap.begin(); it != m_dataMap.end(); it++)
-        *it = value;
+//    for (std::vector<T>::iterator it = m_dataMap.begin(); it != m_dataMap.end(); it++)
+//        *it = value;
 }
 
 template <class T>

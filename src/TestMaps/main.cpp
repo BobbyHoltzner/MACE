@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 
 #include "dynamic_2D_grid.h"
+#include "base/pose/point_3d.h"
 
 #include <iostream>
 
@@ -38,17 +39,19 @@ private:
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-
-    Maps::Dynamic2DGrid<StateData> newGrid;
-    int xInd = newGrid.indexFromXPos(5.3);
-    int yInd = newGrid.indexFromYPos(3.9);
-    double value = -10.0;
-    int counter = 0;
-    while(value <= 10.0)
-    {
-        std::cout<<"The value here is: "<<value<<"at position: "<<counter<<"."<<std::endl;
-        counter++;
-        value += 0.5;
-    }
+    mace::pose::Point3D newPoint;
+    newPoint.setX(0.5);
+    newPoint.setY(0.5);
+//    Maps::Dynamic2DGrid<StateData> newGrid;
+//    int xInd = newGrid.indexFromXPos(5.3);
+//    int yInd = newGrid.indexFromYPos(3.9);
+//    double value = -10.0;
+//    int counter = 0;
+//    while(value <= 10.0)
+//    {
+//        std::cout<<"The value here is: "<<value<<"at position: "<<counter<<"."<<std::endl;
+//        counter++;
+//        value += 0.5;
+//    }
     return a.exec();
 }
