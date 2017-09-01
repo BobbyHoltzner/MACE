@@ -24,7 +24,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES +=
+SOURCES += \
+    geometry/polygon2d.cpp \
+    pose/point_2d.cpp \
+    pose/point_3d.cpp
 
 HEADERS +=\
         base_global.h \
@@ -33,7 +36,12 @@ HEADERS +=\
     pose/point.h \
     pose/point_2d.h \
     pose/point_3d.h \
-    pose/point_forward_definition.h
+    pose/point_forward_definition.h \
+    abstractpostion.h \
+    abstractposition2.h \
+    math/array_numeric.h \
+    math/helper_pi.h \
+    geometry/polygon2d.h
 
 # Unix lib Install
 unix:!symbian {
@@ -46,6 +54,13 @@ lib.path    = $$(MACE_ROOT)/lib
 win32:CONFIG(release, debug|release):       lib.files   += release/base.lib release/base.dll
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/base.lib debug/base.dll
 INSTALLS += lib
+
+#Header file copy
+headers.path    = $$(MACE_ROOT)/include/base
+headers.files   += \
+        base_global.h \
+    abstractpostion.h
+INSTALLS       += headers
 
 #Header file copy
 headers_pose.path    = $$(MACE_ROOT)/include/base/pose

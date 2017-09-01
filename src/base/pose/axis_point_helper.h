@@ -12,6 +12,7 @@ class AxisPointHelper;
 template <class DERIVEDCLASS>
 class AxisPointHelper<DERIVEDCLASS, true>
 {
+public:
     //!
     //! \brief setZ
     //! \param posZ

@@ -31,7 +31,7 @@ public:
 } //end of namespace details
 
 template <class DERIVEDCLASS>
-class AbstractPoint : public AbstractPointHelper<DERIVEDCLASS,details::PointTypeHelper<DERIVEDCLASS>::is_3D_val>{
+class AbstractPoint : public AxisPointHelper<DERIVEDCLASS,details::PointTypeHelper<DERIVEDCLASS>::is_3D_val>{
 public:
     /** Common among all point classes */
 

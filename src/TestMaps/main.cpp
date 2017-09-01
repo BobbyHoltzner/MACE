@@ -1,6 +1,6 @@
 #include <QCoreApplication>
 
-#include "dynamic_2D_grid.h"
+#include "base/pose/point_2d.h"
 #include "base/pose/point_3d.h"
 
 #include <iostream>
@@ -39,9 +39,25 @@ private:
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    mace::pose::Point3D newPoint;
-    newPoint.setX(0.5);
-    newPoint.setY(0.5);
+    mace::pose::Point2D point2D(0.1,0.1);
+    mace::pose::Point3D point3D(0,0,1.0);
+    if(point2D < point3D)
+    {
+        std::cout<<"The values are equal"<<std::endl;
+    }else
+    {
+        std::cout<<"The values are not equal"<<std::endl;
+    }
+
+    if(point3D < point2D)
+    {
+        std::cout<<"The values are equal"<<std::endl;
+    }else
+    {
+        std::cout<<"The values are not equal"<<std::endl;
+    }
+
+    //mace::pose::CartesianPosition<mace::pose::Point3D> pos;
 //    Maps::Dynamic2DGrid<StateData> newGrid;
 //    int xInd = newGrid.indexFromXPos(5.3);
 //    int yInd = newGrid.indexFromYPos(3.9);
