@@ -121,7 +121,7 @@ bool ModuleGroundStation::StartTCPServer()
             this->on_newConnection();
     });
 
-    m_TcpServer->listen(m_listenAddress, m_listenPort);
+    m_TcpServer->listen(QHostAddress::Any, m_listenPort);
 
     m_TcpServer->moveToThread(m_ListenThread);
     m_ListenThread->start();
