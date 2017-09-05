@@ -41,9 +41,8 @@ type Props = {
 }
 
 type State = {
-  tcpSendHost?: string,
+  tcpIPHost?: string,
   tcpSendPort?: number,
-  tcpListenHost?: string,
   tcpListenPort?: number,
   connectedVehicles?: {[id: string]: Vehicle}
   vehicleWarnings?: VehicleWarning[]
@@ -93,9 +92,8 @@ export default class AppContainer extends React.Component<Props, State> {
     this.m_PositionTimeout = 1234;
 
     this.state = {
-      tcpSendHost: '127.0.0.1',
+      tcpIPHost: '127.0.0.1',
       tcpSendPort: 5678,
-      tcpListenHost: '127.0.0.1',
       tcpListenPort: 1234,
       maxZoom: 21,
       mapZoom: 20,
@@ -166,16 +164,19 @@ export default class AppContainer extends React.Component<Props, State> {
     let jsonConfig: MACEConfig = require('../../../../GUIConfig.json');
 
     if(jsonConfig.MACEComms) {
-      if(jsonConfig.MACEComms.listenAddress) {
-        this.setState({tcpListenHost: jsonConfig.MACEComms.listenAddress});
+      if(jsonConfig.MACEComms.ipAddress) {
+        this.setState({tcpIPHost: jsonConfig.MACEComms.ipAddress});
       }
       if(jsonConfig.MACEComms.listenPortNumber) {
         this.setState({tcpListenPort: jsonConfig.MACEComms.listenPortNumber});
       }
+      if(jsonConfig.MACEComms.sendPortNumber) {
+        this.setState({tcpSendPort: jsonConfig.MACEComms.sendPortNumber});
+      }
     }
     if(jsonConfig.GUIInit) {
       if(jsonConfig.GUIInit.mapCenter) {
-        let center = {lat: jsonConfig.GUIInit.mapCenter[0], lng: jsonConfig.GUIInit.mapCenter[1], alt: 0};
+        let center = {lat: jsonConfig.GUIInit.mapCenter.lat, lng: jsonConfig.GUIInit.mapCenter.lng, alt: 0};
         this.setState({mapCenter: center});
       }
       if(jsonConfig.GUIInit.mapZoom) {
@@ -190,16 +191,6 @@ export default class AppContainer extends React.Component<Props, State> {
         this.setState({takeoffAlt: jsonConfig.VehicleSettings.defaultTakeoffAlt.toString()});
       }
     }
-
-
-    // TODO:
-    //       3) MAKE SURE WE CAN STILL SET UP A SERVE COMMUNICATION TO MACE
-    //       4) ADD CONFIG ELEMENTS TO MACE
-    //       5) USE VALGRIND TO START PROFILING WITH VM
-
-    //       6) DOWN THE ROAD, MAKE GUI ELEMENT TO SET CERTAIN STATE ITEMS (like comms stuff and other map related things)
-
-
   }
 
   setupTCPServer = () => {
@@ -231,14 +222,14 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({tcpServer: tcpServer}, () => {
       // TODO: Allow for user configuration of the port and probably address too
       try{
-        this.state.tcpServer.listen(this.state.tcpListenPort, this.state.tcpListenHost);
+        this.state.tcpServer.listen(this.state.tcpListenPort);
         this.setState({MACEConnected: true});
       }
       catch(e) {
         console.log('Error: ' + e);
       }
 
-      console.log('System listening at http://' + this.state.tcpListenHost + ':' + this.state.tcpListenPort);
+      console.log('System listening at http://' + this.state.tcpIPHost + ':' + this.state.tcpListenPort);
 
       // Set interval to set state to DB:
       setInterval(() => {
@@ -480,7 +471,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
     let socket = new net.Socket();
     this.setupTCPClient(socket);
-    socket.connect(this.state.tcpSendPort, this.state.tcpSendHost, function() {
+    socket.connect(this.state.tcpSendPort, this.state.tcpIPHost, function() {
       // console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
       let tcpRequest = {
         tcpCommand: tcpCommand,

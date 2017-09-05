@@ -4,11 +4,12 @@ declare module 'deepcopy';
 
 type MACEConfig = {
   MACEComms?: {
-    listenAddress?: string,
-    listenPortNumber?: number
+    ipAddress?: string,
+    listenPortNumber?: number,
+    sendPortNumber?: number
   },
   GUIInit?: {
-    mapCenter?: number[],
+    mapCenter?: PositionType,
     mapZoom?: number,
     maxZoom?: number
   },
