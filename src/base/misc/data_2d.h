@@ -1,57 +1,77 @@
-#ifndef POINT_2D_H
-#define POINT_2D_H
+#ifndef DATA_2D_H
+#define DATA_2D_H
 
 #include "Eigen/Dense"
-#include "point.h"
+
+#include "abstract_data.h"
 
 namespace mace {
-namespace pose {
+namespace misc {
 
-class Point2D
+class Data2D
 {
 public:
     //!
-    //! \brief Point2D
+    //! \brief Data2D
     //!
-    Point2D();
+    Data2D();
 
     //!
-    ~Point2D();
+    ~Data2D();
 
     //!
-    //! \brief Point2D
+    //! \brief Data2D
     //! \param copy
     //!
-    Point2D(const Point2D &copy);
+    Data2D(const Data2D &copy);
 
     //!
-    //! \brief Point2D
+    //! \brief Data2D
     //! \param x
     //! \param y
     //!
-    Point2D(const double &x, const double &y);
+    Data2D(const double &x, const double &y);
 
+    /** Implied through inheritance of AbstractPoint */
 public:
-    /** Common among all point classes */
-
-    bool is3D() const
+    virtual bool is3D() const
     {
         return false;
     }
 
+    /** Common among all point classes */
+public:
 
     //!
-    //! \brief set2DPosition
-    //! \param point2D
+    //! \brief setData
+    //! \param data2D
     //!
-    void set2DPosition(const Point2D &point2D);
+    void setData(const Data2D &data2D);
 
     //!
-    //! \brief set2DPosition
+    //! \brief setData
     //! \param x
     //! \param y
     //!
-    void set2DPosition(const double &x, const double &y);
+    void setData(const double &x, const double &y);
+
+    //!
+    //! \brief getDataYFlag
+    //! \return
+    //!
+    bool getDataXFlag() const
+    {
+        return this->dataXFlag;
+    }
+
+    //!
+    //! \brief getDataYFlag
+    //! \return
+    //!
+    bool getDataYFlag() const
+    {
+        return this->dataYFlag;
+    }
 
     //!
     //! \brief setX
@@ -60,7 +80,7 @@ public:
     void setX(const double &posX)
     {
         this->x = posX;
-        this->posXFlag = true;
+        this->dataXFlag = true;
     }
 
     //!
@@ -73,22 +93,13 @@ public:
     }
 
     //!
-    //! \brief getPosXFlag
-    //! \return
-    //!
-    bool getPosXFlag() const
-    {
-        return this->posXFlag;
-    }
-
-    //!
     //! \brief setY
     //! \param posY
     //!
     void setY(const double &posY)
     {
         this->y = posY;
-        this->posYFlag = true;
+        this->dataYFlag = true;
     }
 
     //!
@@ -100,15 +111,6 @@ public:
         return this->y;
     }
 
-    //!
-    //! \brief getPosYFlag
-    //! \return
-    //!
-    bool getPosYFlag() const
-    {
-        return this->posXFlag;
-    }
-
     /** Arithmetic Operators */
 public:
 
@@ -117,11 +119,11 @@ public:
     //! \param that
     //! \return
     //!
-    Point2D operator + (const Point2D &that) const
+    Data2D operator + (const Data2D &that) const
     {
         double newX = this->x + that.x;
         double newY = this->y + that.y;
-        Point2D newPoint(newX, newY);
+        Data2D newPoint(newX, newY);
         return newPoint;
     }
 
@@ -130,11 +132,11 @@ public:
     //! \param that
     //! \return
     //!
-    Point2D operator - (const Point2D &that) const
+    Data2D operator - (const Data2D &that) const
     {
         double newX = this->x - that.x;
         double newY = this->y - that.y;
-        Point2D newPoint(newX, newY);
+        Data2D newPoint(newX, newY);
         return newPoint;
     }
 
@@ -146,7 +148,7 @@ public:
     //! \param rhs
     //! \return
     //!
-    bool operator < (const Point2D &rhs) const
+    bool operator < (const Data2D &rhs) const
     {
         if(this->x >= rhs.x)
             return false;
@@ -161,7 +163,7 @@ public:
     //! \param rhs
     //! \return
     //!
-    bool operator >= (const Point2D &rhs) const
+    bool operator >= (const Data2D &rhs) const
     {
         return !(*this < rhs);
     }
@@ -171,7 +173,7 @@ public:
     //! \param rhs
     //! \return
     //!
-    bool operator > (const Point2D &rhs) const
+    bool operator > (const Data2D &rhs) const
     {
         if(this->x <= rhs.x)
             return false;
@@ -186,7 +188,7 @@ public:
     //! \param rhs
     //! \return
     //!
-    bool operator <= (const Point2D &rhs) const
+    bool operator <= (const Data2D &rhs) const
     {
         return !(*this > rhs);
     }
@@ -196,7 +198,7 @@ public:
     //! \param rhs
     //! \return
     //!
-    bool operator == (const Point2D &rhs) const
+    bool operator == (const Data2D &rhs) const
     {
         if(this->x != rhs.x){
             return false;
@@ -204,10 +206,10 @@ public:
         if(this->y != rhs.y){
             return false;
         }
-        if(this->posXFlag != rhs.posXFlag){
+        if(this->dataXFlag != rhs.dataXFlag){
             return false;
         }
-        if(this->posYFlag != rhs.posYFlag){
+        if(this->dataYFlag != rhs.dataYFlag){
             return false;
         }
         return true;
@@ -218,7 +220,7 @@ public:
     //! \param rhs
     //! \return
     //!
-    bool operator != (const Point2D &rhs) {
+    bool operator != (const Data2D &rhs) {
         return !(*this == rhs);
     }
 
@@ -230,12 +232,12 @@ public:
     //! \param rhs
     //! \return
     //!
-    Point2D& operator = (const Point2D &rhs)
+    Data2D& operator = (const Data2D &rhs)
     {
         this->x = rhs.x;
         this->y = rhs.y;
-        this->posXFlag = rhs.posXFlag;
-        this->posYFlag = rhs.posYFlag;
+        this->dataXFlag = rhs.dataXFlag;
+        this->dataYFlag = rhs.dataYFlag;
         return *this;
     }
 
@@ -244,7 +246,7 @@ public:
     //! \param that
     //! \return
     //!
-    Point2D& operator += (const Point2D &rhs)
+    Data2D& operator += (const Data2D &rhs)
     {
         this->x += rhs.x;
         this->y += rhs.y;
@@ -256,7 +258,7 @@ public:
     //! \param that
     //! \return
     //!
-    Point2D& operator -= (const Point2D &rhs)
+    Data2D& operator -= (const Data2D &rhs)
     {
         this->x -= rhs.x;
         this->y -= rhs.y;
@@ -277,17 +279,17 @@ protected:
     double y = 0.0;
 
     //!
-    //! \brief posXFlag
+    //! \brief dataXFlag
     //!
-    bool posXFlag = 0.0;
+    bool dataXFlag = 0.0;
 
     //!
-    //! \brief posYFlag
+    //! \brief dataYFlag
     //!
-    bool posYFlag = 0.0;
+    bool dataYFlag = 0.0;
 };
 
-} //end of namespace pose
+} //end of namespace misc
 } //end of namespace mace
 
 #endif // POINT_2D_H

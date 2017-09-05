@@ -26,22 +26,25 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     geometry/polygon2d.cpp \
-    pose/point_2d.cpp \
-    pose/point_3d.cpp
+    pose/geodetic_posiiton.cpp \
+    misc/data_2d.cpp \
+    misc/data_3d.cpp
 
 HEADERS +=\
         base_global.h \
-    pose/abstract_point.h \
-    pose/axis_point_helper.h \
-    pose/point.h \
-    pose/point_2d.h \
-    pose/point_3d.h \
-    pose/point_forward_definition.h \
-    abstractpostion.h \
-    abstractposition2.h \
     math/array_numeric.h \
     math/helper_pi.h \
-    geometry/polygon2d.h
+    geometry/polygon2d.h \
+    pose/abstract_position.h \
+    pose/geodetic_position.h \
+    pose/cartesian_position_2D.h \
+    pose/coordinate_frame.h \
+    pose/base_position.h \
+    pose/cartesian_position_3D.h \
+    misc/abstract_data.h \
+    misc/data_2d.h \
+    misc/data_3d.h \
+    misc/data_forward_definition.h
 
 # Unix lib Install
 unix:!symbian {
@@ -65,12 +68,20 @@ INSTALLS       += headers
 #Header file copy
 headers_pose.path    = $$(MACE_ROOT)/include/base/pose
 headers_pose.files   += \
-    pose/abstract_point.h \
-    pose/axis_point_helper.h \
-    pose/point.h \
-    pose/point_2d.h \
-    pose/point_3d.h \
-    pose/point_forward_definition.h
+    pose/abstract_position.h \
+    pose/geodetic_position.h \
+    pose/cartesian_position_2D.h \
+    pose/coordinate_frame.h \
+    pose/base_position.h \
+    pose/cartesian_position_3D.h
+INSTALLS       += headers_pose
+
+headers_misc.path    = $$(MACE_ROOT)/include/base/misc
+headers_misc.files   += \
+    misc/abstract_data.h \
+    misc/data_2d.h \
+    misc/data_3d.h \
+    misc/data_forward_definition.h
 INSTALLS       += headers_pose
 
 
