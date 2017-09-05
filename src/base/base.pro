@@ -25,16 +25,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    geometry/polygon2d.cpp \
     pose/geodetic_posiiton.cpp \
     misc/data_2d.cpp \
-    misc/data_3d.cpp
+    misc/data_3d.cpp \
+    geometry/base_polygon.cpp
 
 HEADERS +=\
-        base_global.h \
+    base_global.h \
     math/array_numeric.h \
     math/helper_pi.h \
-    geometry/polygon2d.h \
     pose/abstract_position.h \
     pose/geodetic_position.h \
     pose/cartesian_position_2D.h \
@@ -44,8 +43,9 @@ HEADERS +=\
     misc/abstract_data.h \
     misc/data_2d.h \
     misc/data_3d.h \
-    misc/data_forward_definition.h
-
+    misc/data_forward_definition.h \
+    geometry/base_polygon.h \
+    pose/cartesian_position_temp.h
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib
@@ -73,7 +73,9 @@ headers_pose.files   += \
     pose/cartesian_position_2D.h \
     pose/coordinate_frame.h \
     pose/base_position.h \
-    pose/cartesian_position_3D.h
+    pose/cartesian_position_3D.h \
+    pose/cartesian_position_temp.h
+
 INSTALLS       += headers_pose
 
 headers_misc.path    = $$(MACE_ROOT)/include/base/misc

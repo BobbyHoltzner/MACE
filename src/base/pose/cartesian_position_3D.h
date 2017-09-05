@@ -31,7 +31,7 @@ public:
     CartesianPosition_3D(const double x, const double &y, const double &z)
     {
         this->setCoordinateFrame(CoordinateFrame::CF_LOCAL_ENU);
-        this->position.set3DPosition(x,y,z);
+        this->position.setData(x,y,z);
     }
 
     template <class DERIVED>

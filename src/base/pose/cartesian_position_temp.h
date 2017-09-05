@@ -1,5 +1,5 @@
-#ifndef CARTESIAN_POSITION_2D_H
-#define CARTESIAN_POSITION_2D_H
+#ifndef CARTESIAN_POSITION_TEMP_H
+#define CARTESIAN_POSITION_TEMP_H
 
 #include <iostream>
 
@@ -11,30 +11,33 @@
 namespace mace{
 namespace pose {
 
-class CartesianPosition_2D : public Position<misc::Data2D>, public AbstractPosition<CartesianPosition_2D>
+template <class DATA_DIMENSION>
+class CartesianPosition :
+        public Position<DATA_DIMENSION>,
+        public AbstractPosition<CartesianPosition<DATA_DIMENSION>>
 {
 public:
-    CartesianPosition_2D()
+    CartesianPosition()
     {
         std::cout<<"Default cartesian position 2d constructor"<<std::endl;
         this->setCoordinateFrame(CoordinateFrame::CF_LOCAL_ENU);
     }
 
-    CartesianPosition_2D(const CartesianPosition_2D &copy):
-        Position(copy)
+    CartesianPosition(const CartesianPosition &copy):
+        Position<DATA_DIMENSION>(copy)
     {
 
     }
 
-    CartesianPosition_2D(const double x, const double &y)
+    CartesianPosition(const double x, const double &y)
     {
         this->setCoordinateFrame(CoordinateFrame::CF_LOCAL_ENU);
-        this->position.setData(x,y);
+        this->position.set2DPosition(x,y);
     }
 
     template <class DERIVED>
-    CartesianPosition_2D(const Position<DERIVED> &derived):
-        Position(derived)
+    CartesianPosition(const Position<DERIVED> &derived):
+        Position<DERIVED>(derived)
     {
 
     }
@@ -45,7 +48,7 @@ public:
     //! \param position
     //! \return
     //!
-    virtual double distanceBetween2D(const CartesianPosition_2D &pos) const
+    virtual double distanceBetween2D(const CartesianPosition &pos) const
     {
         double deltaX = this->position.getX() - pos.position.getX();
         double deltaY = this->position.getY() - pos.position.getY();
@@ -58,7 +61,7 @@ public:
     //! \param position
     //! \return
     //!
-    double distanceTo(const CartesianPosition_2D &pos) const
+    double distanceTo(const CartesianPosition &pos) const
     {
         return this->distanceBetween2D(pos);
     }
@@ -68,7 +71,7 @@ public:
     //! \param position
     //! \return
     //!
-    virtual double bearingTo(const CartesianPosition_2D &pos) const
+    virtual double bearingTo(const CartesianPosition &pos) const
     {
 
     }
@@ -79,7 +82,7 @@ public:
     //! \param bearing
     //! \return
     //!
-    virtual CartesianPosition_2D newPosition(const double &distance, const double &bearing) const
+    virtual CartesianPosition newPosition(const double &distance, const double &bearing) const
     {
 
     }
@@ -106,4 +109,4 @@ public:
 } //end of namespace pose
 } //end of namespace mace
 
-#endif // CARTESIAN_POSITION_2D_H
+#endif // CARTESIAN_POSITION_TEMP_H

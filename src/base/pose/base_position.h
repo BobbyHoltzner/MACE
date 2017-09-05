@@ -29,12 +29,12 @@ public:
         this->position = copy.position;
     }
 
-//    template <class DATA_DIMENSION>
-//    Position(const Position<DATA_DIMENSION> &derived)
-//    {
-//        this->frame = derived.frame;
-//        this->position = derived.position;
-//    }
+    template <class DERIVED>
+    Position(const Position<DERIVED> &derived)
+    {
+        this->frame = derived.frame;
+        this->position = derived.position;
+    }
 
     bool is3D() const
     {
