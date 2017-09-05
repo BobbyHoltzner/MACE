@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <iostream>
+#include <stdexcept>
 
 #include "mace.h"
 
