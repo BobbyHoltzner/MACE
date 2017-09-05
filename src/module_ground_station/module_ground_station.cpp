@@ -556,16 +556,13 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
 {
     if(params->HasNonTerminal("MACEComms")) {
         std::shared_ptr<MaceCore::ModuleParameterValue> maceCommsXML = params->GetNonTerminalValue("MACEComms");
-        if(maceCommsXML->HasTerminal("ListenAddress")) {
-            std::string listenAddress = maceCommsXML->GetTerminalValue<std::string>("ListenAddress");
-            m_listenAddress = QHostAddress(QString::fromStdString(listenAddress));
+        if(maceCommsXML->HasTerminal("GUIHostAddress")) {
+            std::string hostAddress = maceCommsXML->GetTerminalValue<std::string>("GUIHostAddress");
+            m_listenAddress = QHostAddress(QString::fromStdString(hostAddress));
+            m_sendAddress = QHostAddress(QString::fromStdString(hostAddress));
         }
         if(maceCommsXML->HasTerminal("ListenPort")) {
             m_listenPort = maceCommsXML->GetTerminalValue<int>("ListenPort");
-        }
-        if(maceCommsXML->HasTerminal("SendAddress")) {
-            std::string sendAddress = maceCommsXML->GetTerminalValue<std::string>("SendAddress");
-            m_sendAddress = QHostAddress(QString::fromStdString(sendAddress));
         }
         if(maceCommsXML->HasTerminal("SendPort")) {
             m_sendPort = maceCommsXML->GetTerminalValue<int>("SendPort");
