@@ -28,7 +28,8 @@ SOURCES += \
     pose/geodetic_posiiton.cpp \
     misc/data_2d.cpp \
     misc/data_3d.cpp \
-    geometry/base_polygon.cpp
+    geometry/base_polygon.cpp \
+    pose/cartesian_position_temp.cpp
 
 HEADERS +=\
     base_global.h \

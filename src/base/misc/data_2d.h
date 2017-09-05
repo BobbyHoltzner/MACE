@@ -1,6 +1,8 @@
 #ifndef DATA_2D_H
 #define DATA_2D_H
 
+#include <iostream>
+
 #include "Eigen/Dense"
 
 #include "abstract_data.h"

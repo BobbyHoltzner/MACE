@@ -42,9 +42,18 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
     using namespace mace::pose;
 
+
+    mace::misc::Data2D data2D(0.5,0.5);
+    mace::misc::Data3D data3D(1.0,1.0,1.0);
+
+    mace::misc::Data3D newData3D(data2D);
+
     CartesianPosition<mace::misc::Data2D> cartesian2D_1;
     CartesianPosition<mace::misc::Data2D> cartesian2D_2;
+    CartesianPosition<mace::misc::Data3D> cartesian3D_1;
 
+    std::cout<<cartesian2D_1.distanceTo(cartesian2D_2)<<std::endl;
+    std::cout<<cartesian3D_1.distanceTo(cartesian2D_1)<<std::endl;
 
     //mace::pose::CartesianPosition<mace::pose::Point3D> pos;
 //    Maps::Dynamic2DGrid<StateData> newGrid;

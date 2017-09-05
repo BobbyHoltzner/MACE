@@ -35,20 +35,13 @@ public:
         this->position.set2DPosition(x,y);
     }
 
-    template <class DERIVED>
-    CartesianPosition(const Position<DERIVED> &derived):
-        Position<DERIVED>(derived)
-    {
-
-    }
-
 public:
     //!
     //! \brief distanceBetween2D
     //! \param position
     //! \return
     //!
-    virtual double distanceBetween2D(const CartesianPosition &pos) const
+    virtual double distanceBetween2D(const CartesianPosition<DATA_DIMENSION> &pos) const
     {
         double deltaX = this->position.getX() - pos.position.getX();
         double deltaY = this->position.getY() - pos.position.getY();
@@ -61,7 +54,7 @@ public:
     //! \param position
     //! \return
     //!
-    double distanceTo(const CartesianPosition &pos) const
+    virtual double distanceTo(const CartesianPosition<DATA_DIMENSION> &pos) const
     {
         return this->distanceBetween2D(pos);
     }
@@ -71,7 +64,7 @@ public:
     //! \param position
     //! \return
     //!
-    virtual double bearingTo(const CartesianPosition &pos) const
+    virtual double bearingTo(const CartesianPosition<DATA_DIMENSION> &pos) const
     {
 
     }
@@ -82,7 +75,7 @@ public:
     //! \param bearing
     //! \return
     //!
-    virtual CartesianPosition newPosition(const double &distance, const double &bearing) const
+    virtual CartesianPosition<DATA_DIMENSION> newPosition(const double &distance, const double &bearing) const
     {
 
     }

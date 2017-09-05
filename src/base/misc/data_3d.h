@@ -26,6 +26,12 @@ public:
     //! \brief Data3D
     //! \param copy
     //!
+    Data3D(const Data2D &copy);
+
+    //!
+    //! \brief Data3D
+    //! \param copy
+    //!
     Data3D(const Data2D &copy, const double &z);
 
     //!

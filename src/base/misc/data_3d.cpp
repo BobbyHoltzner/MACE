@@ -14,8 +14,15 @@ Data3D::Data3D()
 Data3D::Data3D(const Data3D &copy):
     Data2D(copy)
 {
+    std::cout<<"copy constructor Data3D"<<std::endl;
     this->z = copy.z;
     this->dataZFlag = copy.dataZFlag;
+}
+
+Data3D::Data3D(const Data2D &copy):
+    Data2D(copy)
+{
+
 }
 
 Data3D::Data3D(const Data2D &copy, const double &z):
