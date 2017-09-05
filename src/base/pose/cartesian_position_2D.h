@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "Eigen/Dense"
+#include "Eigen/Core"
 #include "misc/data_2d.h"
 
 #include "base_position.h"

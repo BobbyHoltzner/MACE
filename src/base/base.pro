@@ -29,11 +29,12 @@ SOURCES += \
     misc/data_2d.cpp \
     misc/data_3d.cpp \
     geometry/base_polygon.cpp \
-    pose/cartesian_position_temp.cpp
+    pose/cartesian_position_temp.cpp \
+    pose/orientation_2d.cpp \
+    pose/orientation_3d.cpp
 
 HEADERS +=\
     base_global.h \
-    math/array_numeric.h \
     math/helper_pi.h \
     pose/abstract_position.h \
     pose/geodetic_position.h \
@@ -46,7 +47,9 @@ HEADERS +=\
     misc/data_3d.h \
     misc/data_forward_definition.h \
     geometry/base_polygon.h \
-    pose/cartesian_position_temp.h
+    pose/cartesian_position_temp.h \
+    pose/orientation_2d.h \
+    pose/orientation_3d.h
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib
@@ -75,7 +78,9 @@ headers_pose.files   += \
     pose/coordinate_frame.h \
     pose/base_position.h \
     pose/cartesian_position_3D.h \
-    pose/cartesian_position_temp.h
+    pose/cartesian_position_temp.h \
+    pose/orientation_2d.h \
+    pose/orientation_3d.h
 
 INSTALLS       += headers_pose
 
@@ -85,7 +90,7 @@ headers_misc.files   += \
     misc/data_2d.h \
     misc/data_3d.h \
     misc/data_forward_definition.h
-INSTALLS       += headers_pose
+INSTALLS       += headers_misc
 
 
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
