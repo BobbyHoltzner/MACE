@@ -25,6 +25,7 @@ import MACEMap from '../components/MACEMap';
 import { getRandomRGB } from '../util/Colors';
 // import FontIcon from 'material-ui/FontIcon';
 import FlatButton from 'material-ui/FlatButton';
+var geometryHelper = require('leaflet-geometryutil');
 
 import * as deepcopy from 'deepcopy';
 
@@ -67,7 +68,9 @@ type State = {
   MACEConnected?: boolean,
   environmentBoundary?: PositionType[],
   showDraw?: boolean,
-  drawPolygonPts?: PositionType[]
+  drawPolygonPts?: PositionType[],
+  gridSpacing?: number,
+  gridPts?: L.LatLng[]
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -127,7 +130,8 @@ export default class AppContainer extends React.Component<Props, State> {
       MACEConnected: false,
       environmentBoundary: [],
       showDraw: false,
-      drawPolygonPts: []
+      drawPolygonPts: [],
+      gridSpacing: -1
     }
 
   }
@@ -323,7 +327,7 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(jsonData.dataType === 'VehicleMission') {
       let vehicleMission = jsonData as TCPMissionType;
       let stateCopy = deepcopy(this.state.connectedVehicles);
-      console.log(Object.keys(stateCopy).length);
+      // console.log(Object.keys(stateCopy).length);
       stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
       this.vehicleDB = stateCopy;
     }
@@ -405,9 +409,9 @@ export default class AppContainer extends React.Component<Props, State> {
       }
     }
     else if(jsonData.dataType === 'GlobalOrigin') {
-      let jsonOrigin = jsonData as TCPPositionType;
+      let jsonOrigin = jsonData as TCPOriginType;
       let origin = {lat: jsonOrigin.lat, lng: jsonOrigin.lng, alt: jsonOrigin.alt};
-      this.setState({globalOrigin: origin});
+      this.setState({globalOrigin: origin, gridSpacing: jsonOrigin.gridSpacing});
     }
     else if(jsonData.dataType === 'SensorFootprint') {
       let jsonFootprint = jsonData as TCPSensorFootprintType;
@@ -554,7 +558,10 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(action === "TestButton2") {
       this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION2", "");
     }
-    else if(action === "EditBoundary") {
+    else if(action === "EditEnvironment") {
+      // Ask for global origin:
+      this.makeTCPRequest(0, "GET_GLOBAL_ORIGIN", "");
+
       this.setState({showDraw: true, openDrawer: false});
     }
   }
@@ -677,6 +684,7 @@ export default class AppContainer extends React.Component<Props, State> {
       let tmpPts = this.state.drawPolygonPts;
       tmpPts.push({lat: e.latlng.lat, lng: e.latlng.lng, alt: 0});
       this.setState({drawPolygonPts: tmpPts});
+      this.updateGrid();
     }
   }
 
@@ -684,10 +692,11 @@ export default class AppContainer extends React.Component<Props, State> {
     let tmpPts = this.state.drawPolygonPts;
     tmpPts.pop();
     this.setState({drawPolygonPts: tmpPts});
+    this.updateGrid();
   }
 
   handleDisableDraw = () => {
-    this.setState({showDraw: false, drawPolygonPts: []});
+    this.setState({showDraw: false, drawPolygonPts: [], gridPts: []});
   }
 
   handleSubmitBoundary = () => {
@@ -708,8 +717,99 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleClearPts = () => {
-    this.setState({drawPolygonPts: []});
+    this.setState({drawPolygonPts: [], gridPts: []});
   }
+
+  updateGrid = () => {
+    let coordinatesArr: any = [];
+    this.state.drawPolygonPts.forEach(function(coord) {
+      coordinatesArr.push([coord.lat, coord.lng]);
+    });
+
+    let geoJsonData = {"type": "Feature", "properties": {},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          coordinatesArr
+        ]
+      }
+    };
+    let geoJsonLayer = L.geoJSON(geoJsonData);
+    let bounds: L.LatLngBounds = geoJsonLayer.getBounds();
+    let boundingBox: PositionType[] = [];
+    boundingBox.push({lat: bounds.getSouthWest().lng, lng: bounds.getSouthWest().lat, alt: 0}); // Bottom Left
+    boundingBox.push({lat: bounds.getSouthWest().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Bottom Right
+    boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Top Right
+    boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getSouthWest().lat, alt: 0}); // Top Left
+    // this.setState({envBoundingBox: boundingBox});
+
+    // Calculate grid lines based on global origin:
+    this.calculateGridPts(boundingBox);
+  }
+
+  calculateGridPts = (boundingBox: PositionType[]) => {
+    // Only if lat/lng are not at the origin and the grid spacing is greater than 0
+    if(this.state.globalOrigin.lat !== 0 && this.state.globalOrigin.lng !== 0) {
+      if(this.state.gridSpacing > 0) {
+        let bottomLeft = new L.LatLng(boundingBox[0].lat, boundingBox[0].lng);
+        let bottomRight = new L.LatLng(boundingBox[1].lat, boundingBox[1].lng);
+        // let topRight = new L.LatLng(boundingBox[2].lat, boundingBox[2].lng);
+        let topLeft = new L.LatLng(boundingBox[3].lat, boundingBox[3].lng);
+        let horizDistance = geometryHelper.length([bottomLeft, bottomRight]); // distance between bottom two points
+        let vertDistance = geometryHelper.length([bottomLeft, topLeft]); // distance between two left points
+
+        let distanceToNextPt = this.state.gridSpacing;
+        let prevPt = bottomLeft;
+        let tmpGridPts: L.LatLng[] = [];
+        let numXPts = Math.round(horizDistance/distanceToNextPt);
+        let numYPts = Math.round(vertDistance/distanceToNextPt);
+        for(let i = 0; i < numYPts; i++) {
+          // Add previous point to the array:
+          if(this.isPtInPoly(prevPt, this.state.drawPolygonPts)) {
+            tmpGridPts.push(prevPt);
+          }
+          let tmpNewPt = prevPt;
+          for(let j = 0; j < numXPts; j++) {
+            // Move East to the next point and add to the map:
+            tmpNewPt = geometryHelper.destination(tmpNewPt, 90, distanceToNextPt);;
+
+            // Check if in the polygon or not:
+            if(this.isPtInPoly(tmpNewPt, this.state.drawPolygonPts)) {
+              tmpGridPts.push(tmpNewPt);
+            }
+          }
+
+          // Move North to the next point:
+          prevPt = geometryHelper.destination(prevPt, 0, distanceToNextPt);;
+        }
+
+        // Set the grid points to display:
+        this.setState({gridPts: tmpGridPts});
+      }
+    }
+  }
+
+
+  isPtInPoly = (marker: L.LatLng, boundary: PositionType[]): boolean => {
+    let polyPoints: L.LatLng[] = [];
+    for(let i = 0; i < boundary.length; i++) {
+      polyPoints.push(new L.LatLng(boundary[i].lat, boundary[i].lng));
+    }
+    var x = marker.lat;
+    let y = marker.lng;
+
+    var inside = false;
+    for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
+      var xi = polyPoints[i].lat, yi = polyPoints[i].lng;
+      var xj = polyPoints[j].lat, yj = polyPoints[j].lng;
+
+      var intersect = ((yi > y) != (yj > y))
+          && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+
+    return inside;
+  };
 
   render() {
 
@@ -849,6 +949,8 @@ export default class AppContainer extends React.Component<Props, State> {
               environmentBoundary={this.state.environmentBoundary}
               drawPolygonPts={this.state.drawPolygonPts}
               onAddPolygonPt={this.handleAddPolygonPt}
+              gridSpacing={this.state.gridSpacing}
+              gridPts={this.state.gridPts}
              />
 
 

@@ -28,12 +28,15 @@ type Props = {
     MACEConnected: boolean,
     environmentBoundary: PositionType[],
     drawPolygonPts?: PositionType[],
-    onAddPolygonPt: (e: L.MouseEvent) => void
+    onAddPolygonPt: (e: L.MouseEvent) => void,
+    gridSpacing: number,
+    gridPts: L.LatLng[]
 }
 
 type State = {
     showContextMenu?: boolean,
-    dragging?: boolean
+    dragging?: boolean,
+    envBoundingBox?: PositionType[]
 }
 
 export default class MACEMap extends React.Component<Props, State> {
@@ -41,16 +44,10 @@ export default class MACEMap extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    // let tmpPts = [];
-    // tmpPts.push({lat: 37.88913048322613, lon: -76.81273314018251, alt: 0});
-    // tmpPts.push({lat: 37.88913048322613, lon: -76.81203314018251, alt: 0});
-    // tmpPts.push({lat: 37.88013048322613, lon: -76.81203314018251, alt: 0});
-    // tmpPts.push({lat: 37.88013048322613, lon: -76.81273314018251, alt: 0});
-
-
     this.state = {
       showContextMenu: false,
-      dragging: false
+      dragging: false,
+      envBoundingBox: []
     }
   }
 
@@ -111,7 +108,6 @@ export default class MACEMap extends React.Component<Props, State> {
   // }
 
   handleMapClick = (event: L.MouseEvent) => {
-    console.log("MAP CLICKED: " + event.latlng.lat + " / " + event.latlng.lng);
     if(!this.state.dragging) {
       this.props.onAddPolygonPt(event);
     }
@@ -129,6 +125,7 @@ export default class MACEMap extends React.Component<Props, State> {
   handleDrag = (e: L.MouseEvent) => {
     console.log("Dragging...");
   }
+
 
   render() {
 
@@ -162,6 +159,27 @@ export default class MACEMap extends React.Component<Props, State> {
     for(let i = 0; i < this.props.drawPolygonPts.length; i++) {
       tmpPts.push(this.props.drawPolygonPts[i]);
     }
+
+    let tmpBBoxPts = [];
+    if(this.props.drawPolygonPts.length > 2) {
+      for(let i = 0; i < this.state.envBoundingBox.length; i++) {
+        tmpBBoxPts.push(this.state.envBoundingBox[i]);
+      }
+    }
+
+    let tmpGridPts = [];;
+    if(this.props.drawPolygonPts.length > 2) {
+      let gridIcon = new L.Icon({
+            iconUrl: './images/ic_add_white_24dp_1x.png',
+            iconSize: [25, 25], // size of the icon
+            iconAnchor: [12, 12], // point of the icon which will correspond to marker's location
+            popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
+        });
+      for(let i = 0; i < this.props.gridPts.length; i++) {
+        tmpGridPts.push(<Marker key={i} position={this.props.gridPts[i]} title={i.toString()} icon={gridIcon} draggable={false} />);
+      }
+    }
+
 
 
     return (
@@ -264,8 +282,16 @@ export default class MACEMap extends React.Component<Props, State> {
                       }
                     })}
 
-                    <Polygon positions={tmpPts} color={colors.white} fillColor={colors.purple300} />
+                    {/* Bounding box */}
+                    {/* <Polygon positions={tmpBBoxPts} color={colors.blue100} fillColor={colors.blue100} /> */}
+                    {/* Grid points */ }
+                    {tmpGridPts}
+
+
+                    {/* Drawing polygon */}
+                     <Polygon positions={tmpPts} color={colors.white} fillColor={colors.purple400} />
                     {drawingMarkers}
+
 
                   </LayerGroup>
                 }

@@ -99,6 +99,7 @@ public:
     virtual void Event_SetHomePosition(const void* sender, const CommandItem::SpatialHome &vehicleHome);
 
     virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome);
+    virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing);
 
     virtual void Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts);
 

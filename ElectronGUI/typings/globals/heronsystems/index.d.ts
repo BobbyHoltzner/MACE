@@ -132,12 +132,16 @@ type TCPAirspeedType = TCPDescriptorType & {
 
 type TCPHeartbeatType = TCPDescriptorType & HeartbeatType;
 
+type TCPOriginType = TCPDescriptorType & PositionType & {
+  gridSpacing: number
+}
+
 type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType |
                      TCPFuelType | TCPMissionType | TCPModeType | TCPTextType |
                      TCPSensorFootprintType | TCPCurrentMissionItemType |
                      TCPGPSType | TCPHeartbeatType | TCPMissionItemReachedType |
                      TCPVehicleArmType | TCPAirspeedType | TCPEnvironmentBoundaryType |
-                     TCPVehicleTargetType;
+                     TCPVehicleTargetType | TCPOriginType;
 
 
 type MarkerType = {

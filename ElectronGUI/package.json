@@ -25,6 +25,7 @@
     "file-loader": "^0.11.2",
     "jquery": "^2.2.4",
     "leaflet": "^1.2.0",
+    "leaflet-geometryutil": "^0.8.0",
     "material-ui": "^0.18.1",
     "net": "^1.0.2",
     "react": "^15.4.2",

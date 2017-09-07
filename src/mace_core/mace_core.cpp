@@ -427,6 +427,12 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const CommandItem::Spat
     m_DataFusion->UpdateGlobalOrigin(globalHome);
 }
 
+void MaceCore::Event_SetGridSpacing(const void *sender, const double &gridSpacing)
+{
+    UNUSED(sender);
+    m_DataFusion->UpdateGridSpacing(gridSpacing);
+}
+
 void MaceCore::Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
     UNUSED(sender);
     m_DataFusion->UpdateEnvironmentVertices(boundaryVerts);

@@ -4,32 +4,6 @@ ModuleRTA::ModuleRTA():
     m_VehicleDataTopic("vehicleData"), m_SensorDataTopic("sensorData"),
     m_SensorFootprintDataTopic("sensorFootprint"), originSent(false), environmentBoundarySent(false)
 {
-//    // ****** TESTING ******
-//    // Temporary boundary verts for testing:
-//    std::vector<Point> boundaryVerts;
-//    boundaryVerts.push_back(Point(-1000,-1000,0));
-//    boundaryVerts.push_back(Point(-1000,1000,0));
-//    boundaryVerts.push_back(Point(1000,1000,0));
-//    boundaryVerts.push_back(Point(1000,-1000,0));
-
-//    environment = std::make_shared<Environment_Map>(boundaryVerts, 500);
-
-//    Point testPoint(-1.75,1.56,0);
-//    Node tmpNodeBefore;
-//    bool foundNode = environment->getNodeValue(testPoint, tmpNodeBefore);
-//    bool setNode = environment->setNodeValue(testPoint, 45);
-//    Node tmpNodeAfter;
-//    foundNode = environment->getNodeValue(testPoint, tmpNodeAfter);
-
-//    std::cout << "  *********   Val before: " << tmpNodeBefore.value << "  /  Val after: " << tmpNodeAfter.value << "   *********" << std::endl;
-
-//    std::vector<Point> sensorFootprint;
-//    sensorFootprint.push_back(Point(0,0,0));
-//    sensorFootprint.push_back(Point(0,10,0));
-//    sensorFootprint.push_back(Point(5,10,0));
-//    sensorFootprint.push_back(Point(5,0,0));
-//    environment->getNodesInPolygon(sensorFootprint);
-    // **** END TESTING ****
 }
 
 //!
@@ -83,15 +57,24 @@ void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
         tmpGlobalOrigin.position->setX(globalLat);
         tmpGlobalOrigin.position->setY(globalLon);
         tmpGlobalOrigin.position->setZ(0);
+        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+            ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
+        });
 
         globalOrigin.setLatitude(globalLat);
         globalOrigin.setLongitude(globalLon);
         globalOrigin.setAltitude(0);
+
     }
     if(params->HasNonTerminal("EnvironmentParameters")) {
         std::shared_ptr<MaceCore::ModuleParameterValue> environmentParams = params->GetNonTerminalValue("EnvironmentParameters");
         gridSpacing = environmentParams->GetTerminalValue<double>("GridSpacing");
         vertsStr = environmentParams->GetTerminalValue<std::string>("Vertices");
+
+        // Set grid spacing in MACE:
+        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+            ptr->Event_SetGridSpacing(this, gridSpacing);
+        });
     }
     else {
         throw std::runtime_error("Unkown RTA parameters encountered");
@@ -106,25 +89,6 @@ void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
     else {
         std::cout << "No global origin in config. Cannot set up RTA environment." << std::endl;
     }
-
-
-//        std::vector<Point> boundaryVerts;
-//        boundaryVerts.push_back(Point(-100,-100,0));
-//        boundaryVerts.push_back(Point(-100,1,0));
-//        boundaryVerts.push_back(Point(1,1,0));
-//        boundaryVerts.push_back(Point(1,-100,0));
-
-//        boundaryVerts.push_back(Point(-400,100,0));
-//        boundaryVerts.push_back(Point(-400,250,0));
-//        boundaryVerts.push_back(Point(50,250,0));
-//        boundaryVerts.push_back(Point(50,100,0));
-
-//        boundaryVerts.push_back(Point(-336.511555092,104.143333435,0));
-//        boundaryVerts.push_back(Point(-336.511555092,250.698242188,0));
-//        boundaryVerts.push_back(Point(79.5334091187,250.698242188,0));
-//        boundaryVerts.push_back(Point(79.5334091187,104.143333435,0));
-
-//        environment = std::make_shared<Environment_Map>(boundaryVerts, 75);
 }
 
 
@@ -208,6 +172,9 @@ void ModuleRTA::NewTopic(const std::string &topicName, int senderID, std::vector
         tmpGlobalOrigin.position->setZ(0);
         ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
             ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
+        });
+        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+            ptr->Event_SetGridSpacing(this, environment->getGridSpacing());
         });
 
         originSent = true;

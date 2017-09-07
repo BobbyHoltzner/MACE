@@ -206,6 +206,12 @@ public:
     std::shared_ptr<DataState::StateGlobalPosition> getGlobalOrigin() { return m_globalOrigin; }
 
     /**
+     * @brief getGridSpacing Get the current grid spacing
+     * @return Current grid spacing
+     */
+    double getGridSpacing() { return m_gridSpacing; }
+
+    /**
      * @brief getNumberOfNodes Get number of nodes in the environment for dividing between vehicles in the balanced case
      * @return Number of nodes in the environment
      */
@@ -330,6 +336,11 @@ private:
      * @brief m_globalOrigin Container for the current global origin
      */
     std::shared_ptr<DataState::StateGlobalPosition> m_globalOrigin;
+
+    /**
+     * @brief m_gridSpacing Spacing between nodes in the grid
+     */
+    double m_gridSpacing;
 };
 
 #endif // ENVIRONMENT_CUSTOM_H

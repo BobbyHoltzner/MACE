@@ -106,7 +106,6 @@ private:
     void sendVehicleText(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &component);
     void sendVehicleMission(const int &vehicleID, const MissionItem::MissionList &missionList);
     void sendVehicleHome(const int &vehicleID, const CommandItem::SpatialHome &home);
-    void sendGlobalOrigin(const std::shared_ptr<MissionTopic::MissionHomeTopic> &component);
     void sendSensorFootprint(const int &vehicleID, const std::shared_ptr<DataVehicleSensors::SensorVertices_Global> &component);
     void sendEnvironmentVertices(const std::shared_ptr<DataStateTopic::StateItemTopic_Boundary> &component);
     void sendCurrentMissionItem(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionItemCurrentTopic> &component);
@@ -136,6 +135,7 @@ private:
     void getConnectedVehicles();
     void getVehicleHome(const int &vehicleID);
     void getEnvironmentBoundary();
+    void getGlobalOrigin();
 
     // TESTING:
     void testFunction1(const int &vehicleID);

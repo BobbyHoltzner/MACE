@@ -18,7 +18,9 @@ double rnd() {return double(rand())/RAND_MAX;}
  * @param gridSpacing Spacing between grid points
  */
 Environment_Map::Environment_Map(const std::vector<Point> verts, double gridSpacing, const DataState::StateGlobalPosition globalOrigin) :
-    boundaryVerts(verts) {
+    boundaryVerts(verts),
+    m_gridSpacing(gridSpacing)
+{
 
     m_globalOrigin = std::make_shared<DataState::StateGlobalPosition>(globalOrigin);
 
