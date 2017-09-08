@@ -70,9 +70,11 @@ type State = {
   environmentBoundary?: PositionType[],
   showDraw?: boolean,
   drawPolygonPts?: PositionType[],
-  gridPts?: L.LatLng[],
+  gridPts?: {inPoly: L.LatLng[], trimmedPts: L.LatLng[]},
   showEnvironmentSettings?: boolean,
-  environmentSettings?: EnvironmentSettingsType
+  environmentSettings?: EnvironmentSettingsType,
+  pauseMACEComms?: boolean,
+  envBoundingBox?: PositionType[]
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -133,9 +135,11 @@ export default class AppContainer extends React.Component<Props, State> {
       environmentBoundary: [],
       showDraw: false,
       drawPolygonPts: [],
-      gridPts: [],
+      gridPts: {inPoly: [], trimmedPts: []},
       showEnvironmentSettings: false,
-      environmentSettings: {minSliderVal: 25, maxSliderVal: 100, showBoundingBox: false, gridSpacing: -1}
+      environmentSettings: {minSliderVal: 25, maxSliderVal: 100, showBoundingBox: false, gridSpacing: -1},
+      pauseMACEComms: false,
+      envBoundingBox: []
     }
 
   }
@@ -241,7 +245,9 @@ export default class AppContainer extends React.Component<Props, State> {
 
       // Set interval to set state to DB:
       setInterval(() => {
-        this.setState({connectedVehicles: this.vehicleDB});
+        if(!this.state.pauseMACEComms) {
+          this.setState({connectedVehicles: this.vehicleDB});
+        }
       }, 1500);
     });
 
@@ -553,10 +559,10 @@ export default class AppContainer extends React.Component<Props, State> {
 
   handleDrawerAction = (action: string) => {
     if(action === "Messages"){
-      this.setState({showMessagesMenu: true, showTakeoffDialog: false, showSaveTakeoff: false, openDrawer: false});
+      this.setState({showMessagesMenu: true, showTakeoffDialog: false, showSaveTakeoff: false, openDrawer: false, pauseMACEComms: false});
     }
     else if(action === "Takeoff"){
-      this.setState({showMessagesMenu: false, showTakeoffDialog: true, showSaveTakeoff: true, openDrawer: false});
+      this.setState({showMessagesMenu: false, showTakeoffDialog: true, showSaveTakeoff: true, openDrawer: false, pauseMACEComms: true});
     }
     else if(action === "TestButton1") {
       this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION1", "");
@@ -598,7 +604,8 @@ export default class AppContainer extends React.Component<Props, State> {
       allowVehicleSelect: true,
       showEditGlobalHomeDialog: false,
       showTakeoffDialog: false,
-      useContext: true
+      useContext: true,
+      pauseMACEComms: true
     });
   }
 
@@ -607,7 +614,8 @@ export default class AppContainer extends React.Component<Props, State> {
       showEditGlobalHomeDialog: true,
       allowVehicleSelect: false,
       showEditVehicleHomeDialog: false,
-      useContext: true
+      useContext: true,
+      pauseMACEComms: true
     });
   }
 
@@ -617,7 +625,8 @@ export default class AppContainer extends React.Component<Props, State> {
       allowVehicleSelect: false,
       showEditGlobalHomeDialog: false,
       showTakeoffDialog: true,
-      useContext: true
+      useContext: true,
+      pauseMACEComms: true
     })
   }
 
@@ -702,7 +711,7 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleDisableDraw = () => {
-    this.setState({showDraw: false, drawPolygonPts: [], gridPts: []});
+    this.setState({showDraw: false, drawPolygonPts: [], gridPts: {inPoly: [], trimmedPts: []}, pauseMACEComms: false});
   }
 
   handleSubmitBoundary = () => {
@@ -723,7 +732,7 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleClearPts = () => {
-    this.setState({drawPolygonPts: [], gridPts: []});
+    this.setState({drawPolygonPts: [], gridPts: {inPoly: [], trimmedPts: []}});
   }
 
   handleChangeGridSpacing = (val: number) => {
@@ -754,7 +763,7 @@ export default class AppContainer extends React.Component<Props, State> {
     boundingBox.push({lat: bounds.getSouthWest().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Bottom Right
     boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Top Right
     boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getSouthWest().lat, alt: 0}); // Top Left
-    // this.setState({envBoundingBox: boundingBox});
+    this.setState({envBoundingBox: boundingBox});
 
     // Calculate grid lines based on global origin:
     this.calculateGridPts(boundingBox);
@@ -774,21 +783,28 @@ export default class AppContainer extends React.Component<Props, State> {
         let distanceToNextPt = this.state.environmentSettings.gridSpacing;
         let prevPt = bottomLeft;
         let tmpGridPts: L.LatLng[] = [];
+        let tmpTrimmedPts: L.LatLng[] = [];
         let numXPts = Math.round(horizDistance/distanceToNextPt);
         let numYPts = Math.round(vertDistance/distanceToNextPt);
-        for(let i = 0; i < numYPts; i++) {
+        for(let i = 0; i <= numYPts; i++) {
           // Add previous point to the array:
           if(this.isPtInPoly(prevPt, this.state.drawPolygonPts)) {
             tmpGridPts.push(prevPt);
           }
+          else {
+            tmpTrimmedPts.push(prevPt);
+          }
           let tmpNewPt = prevPt;
-          for(let j = 0; j < numXPts; j++) {
+          for(let j = 0; j <= numXPts; j++) {
             // Move East to the next point and add to the map:
             tmpNewPt = geometryHelper.destination(tmpNewPt, 90, distanceToNextPt);;
 
             // Check if in the polygon or not:
             if(this.isPtInPoly(tmpNewPt, this.state.drawPolygonPts)) {
               tmpGridPts.push(tmpNewPt);
+            }
+            else {
+              tmpTrimmedPts.push(tmpNewPt);
             }
           }
 
@@ -797,7 +813,8 @@ export default class AppContainer extends React.Component<Props, State> {
         }
 
         // Set the grid points to display:
-        this.setState({gridPts: tmpGridPts});
+        let pts = {inPoly: tmpGridPts, trimmedPts: tmpTrimmedPts};
+        this.setState({gridPts: pts});
       }
     }
   }
@@ -825,7 +842,15 @@ export default class AppContainer extends React.Component<Props, State> {
   };
 
   saveEnvironmentSettings = (settings: EnvironmentSettingsType) => {
-    this.setState({environmentSettings: settings}, () => this.updateGrid());
+    if(settings.gridSpacing >= settings.minSliderVal && settings.gridSpacing <= settings.maxSliderVal) {
+      console.log("Settings: " + JSON.stringify(settings));
+      this.setState({environmentSettings: settings}, () => this.updateGrid());
+    }
+    else {
+      let title = 'Environment settings';
+      let level = 'info';
+      this.showNotification(title, 'Grid spacing must be within the minimum and maximum values.', level, 'tc', 'Got it');
+    }
   }
 
   render() {
@@ -876,7 +901,7 @@ export default class AppContainer extends React.Component<Props, State> {
               onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
               onAircraftCommand={this.handleAircraftCommand}
               selectedAircraftID={this.state.selectedVehicleID}
-              handleTakeoff={() => this.setState({showTakeoffDialog: true, showSaveTakeoff: false, useContext: false})}
+              handleTakeoff={() => this.setState({showTakeoffDialog: true, showSaveTakeoff: false, useContext: false, pauseMACEComms: true})}
             />
 
             <VehicleWarningsContainer
@@ -886,7 +911,7 @@ export default class AppContainer extends React.Component<Props, State> {
             {this.state.showEditVehicleHomeDialog &&
               <VehicleHomeDialog
                 open={this.state.showEditVehicleHomeDialog}
-                handleClose={() => this.setState({showEditVehicleHomeDialog: false, useContext: false})}
+                handleClose={() => this.setState({showEditVehicleHomeDialog: false, useContext: false, pauseMACEComms: false})}
                 vehicles={this.state.connectedVehicles}
                 selectedVehicleID={this.state.selectedVehicleID}
                 handleSave={this.handleSaveVehicleHome}
@@ -901,7 +926,7 @@ export default class AppContainer extends React.Component<Props, State> {
             {this.state.showEditGlobalHomeDialog &&
               <GlobalOriginDialog
                 open={this.state.showEditGlobalHomeDialog}
-                handleClose={() => this.setState({showEditGlobalHomeDialog: false, useContext: false})}
+                handleClose={() => this.setState({showEditGlobalHomeDialog: false, useContext: false, pauseMACEComms: false})}
                 onGlobalHomeCommand={this.handleAircraftCommand}
                 globalOrigin={this.state.globalOrigin}
                 handleSave={this.handleSaveGlobalOrigin}
@@ -913,7 +938,7 @@ export default class AppContainer extends React.Component<Props, State> {
             {this.state.showMessagesMenu &&
               <MessagesDialog
                 open={this.state.showMessagesMenu}
-                handleClose={() => this.setState({showMessagesMenu: false})}
+                handleClose={() => this.setState({showMessagesMenu: false, pauseMACEComms: false})}
                 handleSave={this.handleSaveMessagingPreferences}
                 preferences={this.state.messagePreferences}
               />
@@ -922,7 +947,7 @@ export default class AppContainer extends React.Component<Props, State> {
             {this.state.showTakeoffDialog &&
               <TakeoffDialog
                 open={this.state.showTakeoffDialog}
-                handleClose={() => this.setState({showTakeoffDialog: false, useContext: false})}
+                handleClose={() => this.setState({showTakeoffDialog: false, useContext: false, pauseMACEComms: false})}
                 vehicles={this.state.connectedVehicles}
                 selectedVehicleID={this.state.selectedVehicleID}
                 handleTakeoff={this.handleTakeoff}
@@ -944,7 +969,7 @@ export default class AppContainer extends React.Component<Props, State> {
                 onSubmitBoundary={this.handleSubmitBoundary}
                 onClearAllPts={this.handleClearPts}
                 handleChangeGridSpacing={this.handleChangeGridSpacing}
-                openEnvironmentSettings={() => this.setState({showEnvironmentSettings: true})}
+                openEnvironmentSettings={() => this.setState({showEnvironmentSettings: true, pauseMACEComms: true})}
                 environmentSettings={this.state.environmentSettings}
               />
             }
@@ -952,7 +977,7 @@ export default class AppContainer extends React.Component<Props, State> {
             {this.state.showEnvironmentSettings &&
               <EnvironmentSettings
                 open={this.state.showEnvironmentSettings}
-                handleClose={() => this.setState({showEnvironmentSettings: false})}
+                handleClose={() => this.setState({showEnvironmentSettings: false, pauseMACEComms: false})}
                 handleSave={this.saveEnvironmentSettings}
                 environmentSettings={this.state.environmentSettings}
               />
@@ -978,8 +1003,9 @@ export default class AppContainer extends React.Component<Props, State> {
               environmentBoundary={this.state.environmentBoundary}
               drawPolygonPts={this.state.drawPolygonPts}
               onAddPolygonPt={this.handleAddPolygonPt}
-              gridSpacing={this.state.environmentSettings.gridSpacing}
+              environmentSettings={this.state.environmentSettings}
               gridPts={this.state.gridPts}
+              envBoundingBox={this.state.envBoundingBox}
              />
 
 

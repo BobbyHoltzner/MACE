@@ -150,19 +150,19 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                     </div>
                     <MuiThemeProvider muiTheme={lightMuiTheme}>
                         <Slider
-                            value={this.state.sliderVal > this.state.minSliderVal ? this.state.sliderVal : this.state.minSliderVal}
-                            defaultValue={this.props.environmentSettings.gridSpacing > this.state.minSliderVal ? this.props.environmentSettings.gridSpacing : this.state.minSliderVal}
+                            value={(this.state.sliderVal >= this.props.environmentSettings.minSliderVal && this.state.sliderVal <= this.props.environmentSettings.maxSliderVal) ? this.state.sliderVal : this.state.minSliderVal}
+                            defaultValue={(this.props.environmentSettings.gridSpacing >= this.props.environmentSettings.minSliderVal && this.props.environmentSettings.gridSpacing <= this.props.environmentSettings.maxSliderVal) ? this.props.environmentSettings.gridSpacing : this.props.environmentSettings.minSliderVal}
                             onChange={this.handleChange}
                             onDragStop={this.onDragStop}
-                            min={this.state.minSliderVal}
-                            max={this.state.maxSliderVal}
+                            min={this.props.environmentSettings.minSliderVal}
+                            max={this.props.environmentSettings.maxSliderVal}
                             step={1}
                             sliderStyle={{padding: 0, marginBottom: 12, marginTop: 12}}
                         />
                     </MuiThemeProvider>
                     <div style={inlineContainer}>
-                        <p style={{color: materialColors.white, textAlign: 'center', fontSize: 18}}>Min: {this.state.minSliderVal} m</p>
-                        <p style={{color: materialColors.white, textAlign: 'center', fontSize: 18}}>Max: {this.state.maxSliderVal} m</p>
+                        <p style={{color: materialColors.white, textAlign: 'center', fontSize: 18}}>Min: {this.props.environmentSettings.minSliderVal} m</p>
+                        <p style={{color: materialColors.white, textAlign: 'center', fontSize: 18}}>Max: {this.props.environmentSettings.maxSliderVal} m</p>
                     </div>
                     {/* <Checkbox
                                     label="Emergency"

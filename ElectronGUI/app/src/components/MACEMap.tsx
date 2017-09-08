@@ -29,14 +29,14 @@ type Props = {
     environmentBoundary: PositionType[],
     drawPolygonPts?: PositionType[],
     onAddPolygonPt: (e: L.MouseEvent) => void,
-    gridSpacing: number,
-    gridPts: L.LatLng[]
+    environmentSettings: EnvironmentSettingsType,
+    gridPts?: {inPoly: L.LatLng[], trimmedPts: L.LatLng[]},
+    envBoundingBox?: PositionType[]
 }
 
 type State = {
     showContextMenu?: boolean,
     dragging?: boolean,
-    envBoundingBox?: PositionType[]
 }
 
 export default class MACEMap extends React.Component<Props, State> {
@@ -46,8 +46,7 @@ export default class MACEMap extends React.Component<Props, State> {
 
     this.state = {
       showContextMenu: false,
-      dragging: false,
-      envBoundingBox: []
+      dragging: false
     }
   }
 
@@ -127,6 +126,7 @@ export default class MACEMap extends React.Component<Props, State> {
   }
 
 
+
   render() {
 
     const width = window.screen.width;
@@ -162,10 +162,11 @@ export default class MACEMap extends React.Component<Props, State> {
 
     let tmpBBoxPts = [];
     if(this.props.drawPolygonPts.length > 2) {
-      for(let i = 0; i < this.state.envBoundingBox.length; i++) {
-        tmpBBoxPts.push(this.state.envBoundingBox[i]);
+      for(let i = 0; i < this.props.envBoundingBox.length; i++) {
+        tmpBBoxPts.push(this.props.envBoundingBox[i]);
       }
     }
+
 
     let tmpGridPts = [];;
     if(this.props.drawPolygonPts.length > 2) {
@@ -175,12 +176,23 @@ export default class MACEMap extends React.Component<Props, State> {
             iconAnchor: [12, 12], // point of the icon which will correspond to marker's location
             popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
         });
-      for(let i = 0; i < this.props.gridPts.length; i++) {
-        tmpGridPts.push(<Marker key={i} position={this.props.gridPts[i]} title={i.toString()} icon={gridIcon} draggable={false} />);
+      for(let i = 0; i < this.props.gridPts.inPoly.length; i++) {
+        tmpGridPts.push(<Marker key={i} position={this.props.gridPts.inPoly[i]} title={i.toString()} icon={gridIcon} draggable={false} />);
       }
     }
 
-
+    let tmpTrimmedGridPts = [];;
+    if(this.props.drawPolygonPts.length > 2) {
+      let trimmedIcon = new L.Icon({
+            iconUrl: './images/ic_add_grey600_48dp.png',
+            iconSize: [25, 25], // size of the icon
+            iconAnchor: [12, 12], // point of the icon which will correspond to marker's location
+            popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
+        });
+      for(let i = 0; i < this.props.gridPts.trimmedPts.length; i++) {
+        tmpTrimmedGridPts.push(<Marker key={i} position={this.props.gridPts.trimmedPts[i]} title={i.toString()} icon={trimmedIcon} draggable={false} />);
+      }
+    }
 
     return (
         <MuiThemeProvider muiTheme={lightMuiTheme}>
@@ -283,13 +295,20 @@ export default class MACEMap extends React.Component<Props, State> {
                     })}
 
                     {/* Bounding box */}
-                    {/* <Polygon positions={tmpBBoxPts} color={colors.blue100} fillColor={colors.blue100} /> */}
-                    {/* Grid points */ }
+                    {this.props.environmentSettings.showBoundingBox &&
+                      <Polygon positions={tmpBBoxPts} color={colors.blue100} fillColor={colors.blue100} />
+                    }
+                    {/* Grid points */}
                     {tmpGridPts}
+                    {/* Trimmed points */}
+                    {this.props.environmentSettings.showBoundingBox &&
+                      tmpTrimmedGridPts
+                    }
+
 
 
                     {/* Drawing polygon */}
-                     <Polygon positions={tmpPts} color={colors.white} fillColor={colors.purple400} />
+                    <Polygon positions={tmpPts} color={colors.white} fillColor={colors.purple400} />
                     {drawingMarkers}
 
 

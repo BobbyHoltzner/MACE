@@ -51,7 +51,9 @@ export class EnvironmentSettings extends React.Component<Props, State> {
         }
         this.setState({environmentSettings: settings});
         this.props.handleSave(settings);
-        this.props.handleClose();
+        if(settings.gridSpacing >= settings.minSliderVal && settings.gridSpacing <= settings.maxSliderVal) {
+            this.props.handleClose();
+        }
     }
 
     handleCancel = () => {
@@ -70,10 +72,8 @@ export class EnvironmentSettings extends React.Component<Props, State> {
         this.setState({[event.target.id]: parseInt(event.target.value)});
     }
 
-    handleCheck = (checked: boolean, preference: string) => {
-        let settings: any = deepcopy(this.state.environmentSettings);
-        settings[preference] = checked;
-        this.setState({environmentSettings: settings});
+    handleCheck = (checked: boolean) => {
+        this.setState({showBoundingBox: checked});
     }
 
     render() {
@@ -140,8 +140,8 @@ export class EnvironmentSettings extends React.Component<Props, State> {
                                     label="Show bounding box"
                                     labelStyle={{color: Colors.Primary, fontWeight: 'normal'}}
                                     style={checkboxStyle}
-                                    onCheck={(event: any, checked: boolean) => this.handleCheck(checked, "showBoundingBox")}
-                                    checked={this.state.environmentSettings.showBoundingBox}
+                                    onCheck={(event: any, checked: boolean) => this.handleCheck(checked)}
+                                    checked={this.state.showBoundingBox}
                                 />
                             </Col>
                         </Col>
