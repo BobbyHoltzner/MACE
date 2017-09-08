@@ -9,6 +9,7 @@ import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
 import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
 import { VehicleCommandsContainer } from './VehicleCommandsContainer';
 import { DrawButtonsContainer } from './DrawButtonsContainer';
+import { EnvironmentSettings } from '../components/EnvironmentSettings';
 import { AppDrawer } from './AppDrawer';
 import AppBar from 'material-ui/AppBar';
 import * as colors from 'material-ui/styles/colors';
@@ -69,8 +70,9 @@ type State = {
   environmentBoundary?: PositionType[],
   showDraw?: boolean,
   drawPolygonPts?: PositionType[],
-  gridSpacing?: number,
-  gridPts?: L.LatLng[]
+  gridPts?: L.LatLng[],
+  showEnvironmentSettings?: boolean,
+  environmentSettings?: EnvironmentSettingsType
 }
 
 export default class AppContainer extends React.Component<Props, State> {
@@ -131,7 +133,9 @@ export default class AppContainer extends React.Component<Props, State> {
       environmentBoundary: [],
       showDraw: false,
       drawPolygonPts: [],
-      gridSpacing: -1
+      gridPts: [],
+      showEnvironmentSettings: false,
+      environmentSettings: {minSliderVal: 25, maxSliderVal: 100, showBoundingBox: false, gridSpacing: -1}
     }
 
   }
@@ -411,7 +415,9 @@ export default class AppContainer extends React.Component<Props, State> {
     else if(jsonData.dataType === 'GlobalOrigin') {
       let jsonOrigin = jsonData as TCPOriginType;
       let origin = {lat: jsonOrigin.lat, lng: jsonOrigin.lng, alt: jsonOrigin.alt};
-      this.setState({globalOrigin: origin, gridSpacing: jsonOrigin.gridSpacing});
+      let settings = deepcopy(this.state.environmentSettings);
+      settings.gridSpacing = jsonOrigin.gridSpacing;
+      this.setState({globalOrigin: origin, environmentSettings: settings});
     }
     else if(jsonData.dataType === 'SensorFootprint') {
       let jsonFootprint = jsonData as TCPSensorFootprintType;
@@ -720,6 +726,13 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({drawPolygonPts: [], gridPts: []});
   }
 
+  handleChangeGridSpacing = (val: number) => {
+    let settings = deepcopy(this.state.environmentSettings);
+    settings.gridSpacing = val;
+    this.setState({environmentSettings: settings});
+    this.updateGrid();
+  }
+
   updateGrid = () => {
     let coordinatesArr: any = [];
     this.state.drawPolygonPts.forEach(function(coord) {
@@ -750,7 +763,7 @@ export default class AppContainer extends React.Component<Props, State> {
   calculateGridPts = (boundingBox: PositionType[]) => {
     // Only if lat/lng are not at the origin and the grid spacing is greater than 0
     if(this.state.globalOrigin.lat !== 0 && this.state.globalOrigin.lng !== 0) {
-      if(this.state.gridSpacing > 0) {
+      if(this.state.environmentSettings.gridSpacing > 0) {
         let bottomLeft = new L.LatLng(boundingBox[0].lat, boundingBox[0].lng);
         let bottomRight = new L.LatLng(boundingBox[1].lat, boundingBox[1].lng);
         // let topRight = new L.LatLng(boundingBox[2].lat, boundingBox[2].lng);
@@ -758,7 +771,7 @@ export default class AppContainer extends React.Component<Props, State> {
         let horizDistance = geometryHelper.length([bottomLeft, bottomRight]); // distance between bottom two points
         let vertDistance = geometryHelper.length([bottomLeft, topLeft]); // distance between two left points
 
-        let distanceToNextPt = this.state.gridSpacing;
+        let distanceToNextPt = this.state.environmentSettings.gridSpacing;
         let prevPt = bottomLeft;
         let tmpGridPts: L.LatLng[] = [];
         let numXPts = Math.round(horizDistance/distanceToNextPt);
@@ -810,6 +823,10 @@ export default class AppContainer extends React.Component<Props, State> {
 
     return inside;
   };
+
+  saveEnvironmentSettings = (settings: EnvironmentSettingsType) => {
+    this.setState({environmentSettings: settings}, () => this.updateGrid());
+  }
 
   render() {
 
@@ -926,6 +943,18 @@ export default class AppContainer extends React.Component<Props, State> {
                 onDisableDraw={this.handleDisableDraw}
                 onSubmitBoundary={this.handleSubmitBoundary}
                 onClearAllPts={this.handleClearPts}
+                handleChangeGridSpacing={this.handleChangeGridSpacing}
+                openEnvironmentSettings={() => this.setState({showEnvironmentSettings: true})}
+                environmentSettings={this.state.environmentSettings}
+              />
+            }
+
+            {this.state.showEnvironmentSettings &&
+              <EnvironmentSettings
+                open={this.state.showEnvironmentSettings}
+                handleClose={() => this.setState({showEnvironmentSettings: false})}
+                handleSave={this.saveEnvironmentSettings}
+                environmentSettings={this.state.environmentSettings}
               />
             }
 
@@ -949,7 +978,7 @@ export default class AppContainer extends React.Component<Props, State> {
               environmentBoundary={this.state.environmentBoundary}
               drawPolygonPts={this.state.drawPolygonPts}
               onAddPolygonPt={this.handleAddPolygonPt}
-              gridSpacing={this.state.gridSpacing}
+              gridSpacing={this.state.environmentSettings.gridSpacing}
               gridPts={this.state.gridPts}
              />
 

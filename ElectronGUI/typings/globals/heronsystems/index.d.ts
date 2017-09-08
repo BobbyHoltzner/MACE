@@ -177,3 +177,10 @@ type MessagePreferencesType = {
   info: boolean,
   debug: boolean
 }
+
+type EnvironmentSettingsType = {
+  minSliderVal: number,
+  maxSliderVal: number,
+  showBoundingBox: boolean,
+  gridSpacing: number
+}
