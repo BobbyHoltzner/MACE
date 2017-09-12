@@ -4,6 +4,11 @@
 #include <vector>
 #include <stdlib.h>
 
+#include "geometry_helper.h"
+
+#include "pose/cartesian_position_2D.h"
+#include "pose/cartesian_position_3D.h"
+
 namespace mace{
 namespace geometry{
 
@@ -11,21 +16,61 @@ template <class T>
 class PolygonBase
 {
 public:
-    PolygonBase();
+    PolygonBase(const std::string &descriptor = "Polygon"):
+        name(descriptor)
+    {
 
-    PolygonBase(const std::vector<T> &vector);
+    }
 
-    appendVertex(const T &vertex);
+    PolygonBase(const std::vector<T> &vector, const std::string &descriptor = "Polygon"):
+        name(descriptor)
+    {
+        //this->clearPolygon(); we should not have to call this case since this is in the constructer
+        m_vertex = vector;
+    }
 
-    removeVertex(const int &index);
+    PolygonBase(const PolygonBase &copy)
+    {
+        name = copy.name;
+        this->replaceVector(copy.m_vertex);
+    }
 
-    size_t polygonSize() const;
+    void appendVertex(const T &vertex)
+    {
+        m_vertex.push_back(vertex);
+    }
 
-    void clearPolygon();
+    void removeVertex(const int &index);
 
-private:
+    void replaceVector(const std::vector<T> &vector)
+    {
+        this->clearPolygon();
+        m_vertex = vector;
+    }
+
+    void clearPolygon()
+    {
+        m_vertex.clear();
+        m_vertex.shrink_to_fit();
+    }
+
+    size_t polygonSize() const
+    {
+        return m_vertex.size();
+    }
+
+    //!
+    //! \brief getVector
+    //! \return
+    //!
+    std::vector<T> getVector()
+    {
+        return m_vertex;
+    }
+
+protected:
+    std::string name;
     std::vector<T> m_vertex;
-
 };
 
 } //end of namepsace geometry

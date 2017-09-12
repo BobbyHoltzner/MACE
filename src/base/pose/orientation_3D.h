@@ -10,8 +10,8 @@ namespace pose {
 
 /** A class used to the store the heading anlge (phi) rotation as a functional
  * rotation matrix. This is only to be used when the dimension of the space
- * is 2. The storage of this value is often referred to as a special orthogonal
- * matrix SO(2).
+ * is 3. The storage of this value is often referred to as a special orthogonal
+ * matrix SO(3).
  */
 
 class Orientation_3D

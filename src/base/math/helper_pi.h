@@ -60,12 +60,14 @@ inline T angDistance(T from, T to)
         return d;
 }
 
-/** @} */
+template <class T>
+inline T correctBearing(const T &value)
+{
+    return fmod((value * 180.0/M_PI) + 360.0,360.0);
+}
 
 }  // End of MATH namespace
 }  // End of namespace
 
 #endif
 
-
-#endif // HELPER_PI_H

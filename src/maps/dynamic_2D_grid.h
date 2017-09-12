@@ -4,8 +4,8 @@
 #include <vector>
 #include <math.h>
 
-namespace Maps
-{
+namespace mace {
+namespace maps {
 
 template <class T>
 //!
@@ -63,12 +63,6 @@ public:
     //! \param value
     //!
     void fill(const T& value);
-    /*
-    virtual void resize(const double &x_min, const double &x_max,
-                     const double &y_min, const double &y_max,
-                     const double &x_res, const double &y_res,
-                     const T &fill_value, const double &margian = 2.0);
-    */
 
     //!
     //! \brief getCellByPos
@@ -190,6 +184,11 @@ public:
     }
 
 
+    std::vector<T> getDataMap() const
+    {
+        return this->m_dataMap;
+    }
+
 protected:
     //!
     //! \brief m_dataMap
@@ -207,7 +206,8 @@ protected:
     size_t m_xSize, m_ySize; //!< Description of members
 };
 
-} //end of namespace Maps
+} //end of namespace maps
+} //end of namespace mace
 
 #include "dynamic_2D_grid.cpp"
 

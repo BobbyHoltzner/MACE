@@ -29,6 +29,11 @@ enum class ExternalLinkCommands
     RECEIVED_MISSION_ACK
 };
 
+template <class U>
+class Testing{
+
+};
+
 class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_VehicleListener<Metadata_GroundStation, IModuleEventsExternalLink, ExternalLinkCommands>
 {
     friend class MaceCore;
@@ -39,6 +44,7 @@ public:
     IModuleCommandExternalLink():
         AbstractModule_VehicleListener()
     {
+
         AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const MissionItem::MissionKey &key){
             NewlyAvailableOnboardMission(key);
         });

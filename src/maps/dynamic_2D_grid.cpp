@@ -1,6 +1,7 @@
 #include "dynamic_2D_grid.h"
 
-namespace Maps {
+namespace mace {
+namespace maps {
 
 template <class T>
 Dynamic2DGrid<T>::Dynamic2DGrid(const double &x_min, const double &x_max,
@@ -52,8 +53,8 @@ void Dynamic2DGrid<T>::clear()
 template <class T>
 void Dynamic2DGrid<T>::fill(const T &value)
 {
-//    for (std::vector<T>::iterator it = m_dataMap.begin(); it != m_dataMap.end(); it++)
-//        *it = value;
+    for (std::vector<T>::iterator it = m_dataMap.begin(); it != m_dataMap.end(); ++it)
+        *it = value;
 }
 
 template <class T>
@@ -75,4 +76,5 @@ T* Dynamic2DGrid<T>::getCellByPos(const double &x, const double &y) const
     return &m_dataMap[cx + cy * m_xSize];
 }
 
-} //end of namespace Maps
+} //end of namespace maps
+} //end of namespace mace

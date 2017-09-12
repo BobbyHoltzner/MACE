@@ -25,11 +25,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    dynamic_2D_grid.cpp
+    dynamic_2D_grid.cpp \
+    bounded_2D_grid.cpp
 
 HEADERS +=\
         maps_global.h \
-    dynamic_2D_grid.h
+    dynamic_2D_grid.h \
+    bounded_2D_grid.h
 
 # Unix lib Install
 unix:!symbian {
@@ -42,3 +44,10 @@ lib.path    = $$(MACE_ROOT)/lib
 win32:CONFIG(release, debug|release):       lib.files   += release/maps.lib release/maps.dll
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/maps.lib debug/maps.dll
 INSTALLS += lib
+
+#Necessary includes
+INCLUDEPATH += $$PWD/../
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
