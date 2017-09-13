@@ -11,19 +11,30 @@ Polygon_2DC::Polygon_2DC(const std::string &descriptor):
 
 bool Polygon_2DC::contains(const double &x, const double &y, const bool &onLineCheck)
 {
-    if (m_vertex.size() < 3)
-        return false;
-
     const size_t num = this->m_vertex.size();
+
+    if (num < 3)
+        return false;
 
     if(onLineCheck == true)
     {
-        for(size_t i = 0; i < num; i++)
+        for(size_t i = 0; (i+1) < num; i++)
         {
-            if(isOnLine(m_vertex[i],m_vertex[i+1],x,y))
-                return true;
+            if((i+1) < num){
+                if(isOnLine(m_vertex[i],m_vertex[i+1],x,y))
+                    return true;
+            }
         }
+
+        /* this condition checks the last vertice to the first
+         * this was moved outside the for loop to avoid checking
+         * this condition at every vertice
+         */
+
+        if(isOnLine(m_vertex[num - 1],m_vertex[0],x,y))
+            return true;
     }
+    return false;
 
 
     int counter = 0;

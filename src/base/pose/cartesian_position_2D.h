@@ -12,7 +12,7 @@ public:
     CartesianPosition_2D():
         AbstractPosition(AbstractPosition::PositionType::CARTESIAN, CoordinateFrame::CF_LOCAL_ENU)
     {
-        std::cout<<"Default cartesian position 2d constructor"<<std::endl;
+
     }
 
     CartesianPosition_2D(const CartesianPosition_2D &copy):

@@ -6,8 +6,8 @@
 
 #include "geometry_helper.h"
 
-#include "pose/cartesian_position_2D.h"
-#include "pose/cartesian_position_3D.h"
+#include "base/pose/cartesian_position_2D.h"
+#include "base/pose/cartesian_position_3D.h"
 
 namespace mace{
 namespace geometry{

@@ -12,7 +12,6 @@ Dynamic2DGrid<T>::Dynamic2DGrid(const double &x_min, const double &x_max,
     m_xSize(0), m_ySize(0)
 
 {
-    m_defaultFill = *fill_value;
     setGridSize(x_min,x_max,y_min,y_max,x_res,y_res, fill_value);
 }
 
@@ -36,6 +35,7 @@ void Dynamic2DGrid<T>::setGridSize(const double &x_min, const double &x_max, con
     // Cells memory:
     if (fill_value)
     {
+        m_defaultFill = *fill_value;
         m_dataMap.assign(m_xSize * m_ySize, *fill_value);
     }
     else
@@ -53,7 +53,7 @@ void Dynamic2DGrid<T>::clear()
 template <class T>
 void Dynamic2DGrid<T>::fill(const T &value)
 {
-    for (std::vector<T>::iterator it = m_dataMap.begin(); it != m_dataMap.end(); ++it)
+    for (typename std::vector<T>::iterator it = m_dataMap.begin(); it != m_dataMap.end(); ++it)
         *it = value;
 }
 

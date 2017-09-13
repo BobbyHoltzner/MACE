@@ -3,7 +3,7 @@
 
 #include "base_polygon.h"
 
-#include "pose/base_position.h"
+#include "base/pose/cartesian_position_2D.h"
 
 namespace mace{
 namespace geometry {

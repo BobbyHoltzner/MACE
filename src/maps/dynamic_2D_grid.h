@@ -90,6 +90,16 @@ public:
         return static_cast<int>(round((x - m_xMin) / m_xResolution));
     }
 
+    void getPositionFromIndex(const unsigned int &index, double &x, double &y)
+    {
+        int yIndex = floor(index/m_xSize);
+        y = m_yMin + yIndex * m_yResolution;
+
+        int xIndex = (index % m_xSize);
+        x = m_xMin + xIndex * m_xResolution;
+
+    }
+
     //!
     //! \brief indexFromYPos
     //! \param y
@@ -187,6 +197,11 @@ public:
     std::vector<T> getDataMap() const
     {
         return this->m_dataMap;
+    }
+
+    unsigned int getNodeCount() const
+    {
+        return m_dataMap.size();
     }
 
 protected:

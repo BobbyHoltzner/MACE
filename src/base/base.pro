@@ -43,7 +43,6 @@ HEADERS +=\
     pose/coordinate_frame.h \
     pose/base_position.h \
     pose/cartesian_position_3D.h \
-    misc/abstract_data.h \
     misc/data_2d.h \
     misc/data_3d.h \
     misc/data_forward_definition.h \
@@ -54,7 +53,9 @@ HEADERS +=\
     pose/orientation_2D.h \
     pose/orientation_3D.h \
     math/math_forward.h \
-    state_space/real_vector_bounds.h
+    state_space/real_vector_bounds.h \
+    misc/abstract_data.h
+
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib
@@ -103,7 +104,7 @@ headers_pose.files   += \
     pose/base_position.h \
     pose/cartesian_position_3D.h \
     pose/orientation_2D.h \
-    pose/orientation_3D.h \
+    pose/orientation_3D.h
 INSTALLS       += headers_pose
 
 headers_state_space.path    = $$(MACE_ROOT)/include/base/state_space
@@ -112,5 +113,5 @@ headers_state_space.files   += \
     state_space/real_vector_bounds.h
 INSTALLS       += headers_state_space
 
-
+INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3

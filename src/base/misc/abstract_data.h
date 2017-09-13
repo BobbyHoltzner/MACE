@@ -29,4 +29,5 @@ public:
 
 } //end of namespace misc
 } //end of namespace mace
+
 #endif // ABSTRACT_DATA_H

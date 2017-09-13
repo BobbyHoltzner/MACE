@@ -26,12 +26,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     dynamic_2D_grid.cpp \
-    bounded_2D_grid.cpp
+    bounded_2D_grid.cpp \
+    voronoi_2Dcell.cpp
 
 HEADERS +=\
         maps_global.h \
     dynamic_2D_grid.h \
-    bounded_2D_grid.h
+    bounded_2D_grid.h \
+    voronoi_2Dcell.h
 
 # Unix lib Install
 unix:!symbian {
@@ -47,6 +49,7 @@ INSTALLS += lib
 
 #Necessary includes
 INCLUDEPATH += $$PWD/../
+INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase

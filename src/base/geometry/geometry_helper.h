@@ -4,7 +4,7 @@
 #include <cmath>
 #include <limits>
 
-#include "pose/cartesian_position_2D.h"
+#include "base/pose/cartesian_position_2D.h"
 
 namespace mace {
 namespace geometry{

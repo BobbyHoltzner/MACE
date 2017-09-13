@@ -5,13 +5,11 @@
 #include <cmath>
 #include <Eigen/Core>
 
-#include "math/math_forward.h"
-
 #include "abstract_position.h"
-#include "misc/data_2d.h"
-#include "misc/data_3d.h"
+#include "base/misc/data_2d.h"
+#include "base/misc/data_3d.h"
 
-#include "coordinate_frame.h"
+#include "base/math/helper_pi.h"
 
 namespace mace{
 namespace pose{

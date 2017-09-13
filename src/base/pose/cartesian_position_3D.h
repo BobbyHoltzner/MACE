@@ -1,9 +1,6 @@
 #ifndef CARTESIAN_POSITION_3D_H
 #define CARTESIAN_POSITION_3D_H
 
-#include <iostream>
-#include <cmath>
-
 #include "base_position.h"
 
 namespace mace{

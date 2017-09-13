@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     common \
+    base \
     data \
     comms \
     commsMACE \
@@ -30,5 +31,4 @@ SUBDIRS += \
 #    Voronoi
     mace \
     maps \
-    TestMaps \
-    base
+    TestMaps

@@ -1,8 +1,7 @@
 #ifndef ABSTRACT_POSITION_H
 #define ABSTRACT_POSITION_H
 
-#include "misc/abstract_data.h"
-
+#include "base/misc/abstract_data.h"
 #include "coordinate_frame.h"
 
 namespace mace{
@@ -19,8 +18,6 @@ public:
     };
 
 public:
-    AbstractPosition() = delete;
-
     ~AbstractPosition() = default;
 
     AbstractPosition(const PositionType &desiredType, const CoordinateFrame &desiredFrame)

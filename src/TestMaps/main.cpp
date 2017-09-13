@@ -1,8 +1,6 @@
 #include <QCoreApplication>
 
-#include "base/pose/cartesian_position_2D.h"
-#include "base/pose/cartesian_position_3D.h"
-#include "base/pose/cartesian_position_temp.h"
+#include "maps/bounded_2d_grid.h"
 
 #include <iostream>
 
@@ -40,24 +38,26 @@ private:
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    using namespace mace::pose;
 
 
-    mace::misc::Data2D data2D(0.5,0.5);
-    mace::misc::Data3D data3D(1.0,1.0,1.0);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("TEST1",-1.0,-1.0);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("TEST",-1.0,1.0);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point3("TEST1",1.0,1.0);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point4("TEST",1.0,-1.0);
 
-    mace::misc::Data3D newData3D(data2D);
+    mace::geometry::Polygon_2DC polygon;
+    polygon.appendVertex(point1);
+    polygon.appendVertex(point2);
+    polygon.appendVertex(point3);
+    polygon.appendVertex(point4);
 
-    CartesianPosition<mace::misc::Data2D> cartesian2D_1;
-    CartesianPosition<mace::misc::Data2D> cartesian2D_2;
-    CartesianPosition<mace::misc::Data3D> cartesian3D_1;
-
-    std::cout<<cartesian2D_1.distanceTo(cartesian2D_2)<<std::endl;
-    std::cout<<cartesian3D_1.distanceTo(cartesian2D_1)<<std::endl;
-
-    //mace::pose::CartesianPosition<mace::pose::Point3D> pos;
-//    Maps::Dynamic2DGrid<StateData> newGrid;
-//    int xInd = newGrid.indexFromXPos(5.3);
+    mace::maps::Bounded2DGrid newGrid;
+    double x = 0.0;
+    double y = 0.0;
+    std::vector<mace::maps::Test*> inB = newGrid.setBoundingPolygon(polygon);
+    mace::maps::Test* individual = inB[0];
+    individual->pos.updatePosition(14.2,19.4);
+    //    int xInd = newGrid.indexFromXPos(5.3);
 //    int yInd = newGrid.indexFromYPos(3.9);
 //    double value = -10.0;
 //    int counter = 0;
