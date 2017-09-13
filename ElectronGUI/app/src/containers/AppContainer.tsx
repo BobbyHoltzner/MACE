@@ -26,6 +26,8 @@ import MACEMap from '../components/MACEMap';
 import { getRandomRGB } from '../util/Colors';
 // import FontIcon from 'material-ui/FontIcon';
 import FlatButton from 'material-ui/FlatButton';
+var turf = require('@turf/turf');
+
 var geometryHelper = require('leaflet-geometryutil');
 
 import * as deepcopy from 'deepcopy';
@@ -697,9 +699,34 @@ export default class AppContainer extends React.Component<Props, State> {
   handleAddPolygonPt = (e: L.MouseEvent) => {
     if(this.state.showDraw) {
       let tmpPts = this.state.drawPolygonPts;
-      tmpPts.push({lat: e.latlng.lat, lng: e.latlng.lng, alt: 0});
-      this.setState({drawPolygonPts: tmpPts});
-      this.updateGrid();
+
+      // Make sure the new point is not causing an intersection with the existing polygon:
+      let intersection = false;
+      if(this.state.drawPolygonPts.length > 2) {
+        let prevPt = this.state.drawPolygonPts[this.state.drawPolygonPts.length-1];
+        let newLine = turf.lineString([[prevPt.lat, prevPt.lng], [e.latlng.lat, e.latlng.lng]]);
+        for(let i = 1; i < this.state.drawPolygonPts.length-1; i++) {
+          let pt1 = [this.state.drawPolygonPts[i-1].lat, this.state.drawPolygonPts[i-1].lng];
+          let pt2 = [this.state.drawPolygonPts[i].lat, this.state.drawPolygonPts[i].lng];
+          let tmpLine = turf.lineString([pt1, pt2]);
+          let intersects = turf.lineIntersect(tmpLine, newLine);
+
+          if(intersects.features[0]) {
+            intersection = true;
+          }
+        }
+      }
+
+      if(!intersection) {
+        tmpPts.push({lat: e.latlng.lat, lng: e.latlng.lng, alt: 0});
+        this.setState({drawPolygonPts: tmpPts});
+        this.updateGrid();
+      }
+      else {
+        let title = 'Draw boundary';
+        let level = 'warning';
+        this.showNotification(title, 'Segment cannot intersect boundary.', level, 'tc', 'Got it');
+      }
     }
   }
 
