@@ -5,6 +5,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme();
 
 import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon } from 'react-leaflet';
+// import { EditControl } from "react-leaflet-draw"
 import * as colors from 'material-ui/styles/colors';
 import { Vehicle } from '../Vehicle';
 import { ContextMenu } from '../components/ContextMenu';
@@ -15,21 +16,24 @@ type Props = {
     selectedVehicleID: string,
     maxZoom: number,
     mapZoom: number,
-    mapCenter: number[],
+    mapCenter: PositionType,
     globalOrigin: PositionType,
-    updateMapCenter: (e: L.LeafletMouseEvent) => void,
+    updateMapCenter: (e: L.DragEndEvent) => void,
     contextSetHome: () => void,
     contextSetGlobal: () => void,
     contextGoHere: () => void,
     contextSetTakeoff: () => void,
-    setContextAnchor: (e: L.LeafletMouseEvent) => void
-    contextAnchor: L.LeafletMouseEvent,
+    setContextAnchor: (e: L.MouseEvent) => void
+    contextAnchor: L.MouseEvent,
     MACEConnected: boolean,
-    environmentBoundary: PositionType[]
+    environmentBoundary: PositionType[],
+    drawPolygonPts?: PositionType[],
+    onAddPolygonPt: (e: L.MouseEvent) => void
 }
 
 type State = {
-    showContextMenu?: boolean
+    showContextMenu?: boolean,
+    dragging?: boolean
 }
 
 export default class MACEMap extends React.Component<Props, State> {
@@ -37,8 +41,16 @@ export default class MACEMap extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    // let tmpPts = [];
+    // tmpPts.push({lat: 37.88913048322613, lon: -76.81273314018251, alt: 0});
+    // tmpPts.push({lat: 37.88913048322613, lon: -76.81203314018251, alt: 0});
+    // tmpPts.push({lat: 37.88013048322613, lon: -76.81203314018251, alt: 0});
+    // tmpPts.push({lat: 37.88013048322613, lon: -76.81273314018251, alt: 0});
+
+
     this.state = {
       showContextMenu: false,
+      dragging: false
     }
   }
 
@@ -51,29 +63,82 @@ export default class MACEMap extends React.Component<Props, State> {
   // }
 
   componentDidMount(){
-    this.leafletMap = this.refs.map;
+    this.leafletMap = this.refs.map as any;
   }
 
 
-  handleMarkerClick = (e: L.LeafletMouseEvent, vehicleId: string, type: string) => {
+  handleMarkerClick = (e: L.MouseEvent, vehicleId: string, type: string) => {
     this.props.handleSelectedAircraftUpdate(vehicleId);
   }
 
-  triggerContextMenu = (event: L.LeafletMouseEvent) => {
+  triggerContextMenu = (event: L.MouseEvent) => {
     this.props.setContextAnchor(event);
     this.setState({showContextMenu: !this.state.showContextMenu});
   }
 
+  // _onDrawEditPath = (e: any) => {
+  //   console.log('Path edited !');
+  // }
+
+  // _onDrawCreate = (e: any) => {
+  //   // polyline = e.layer;
+  //   // To edit this polyline call : polyline.handler.enable()
+  //   console.log('Path created !');
+  // }
+
+  // _onDrawDeleted = (e: any) => {
+  //   console.log('Path deleted !');
+  // }
+
+  // _mountedDraw = (drawControl: any) => {
+  //   console.log('Component mounted !');
+  // }
+
+  // _onDrawEditStart = () => {
+  //   console.log('Edit is starting !');
+  // }
+
+  // _onDrawEditStop = () => {
+  //   console.log('Edit is stopping !');
+  // }
+
+  // _onDrawDeleteStart = () => {
+  //   console.log('Delete is starting ! ... Probably want to make this an "undo" style button. Undo the previous layer');
+  // }
+
+  // _onDrawDeleteStop = () => {
+  //   console.log('Delete is stopping ! ... Probably want to just delete');
+  // }
+
+  handleMapClick = (event: L.MouseEvent) => {
+    console.log("MAP CLICKED: " + event.latlng.lat + " / " + event.latlng.lng);
+    if(!this.state.dragging) {
+      this.props.onAddPolygonPt(event);
+    }
+  }
+
+  handleDragStart = (e: L.MouseEvent) => {
+    console.log("Drag start");
+    // this.setState({dragging: true});
+  }
+
+  handleDragEnd = (e: L.MouseEvent) => {
+    console.log("Drag end");
+  }
+
+  handleDrag = (e: L.MouseEvent) => {
+    console.log("Dragging...");
+  }
 
   render() {
 
     const width = window.screen.width;
     const height = window.screen.height;
     const parentStyle = {height: height + 'px', width: width + 'px'};
-    const mapStyle = { top: 0, left: 0, height: height + 'px', width: width + 'px' };
+    const mapStyle = { top: 64, left: 0, height: height + 'px', width: width + 'px' };
 
     const globalOriginMarker = {
-      position: new L.LatLng(this.props.globalOrigin.lat, this.props.globalOrigin.lon),
+      position: new L.LatLng(this.props.globalOrigin.lat, this.props.globalOrigin.lng),
       icon: new L.Icon({
           iconUrl: './images/userlocation_icon.png',
           iconSize: [41, 41], // size of the icon
@@ -81,6 +146,23 @@ export default class MACEMap extends React.Component<Props, State> {
           popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
       })
     };
+
+    const drawingMarkers = [];
+    let icon = new L.Icon({
+          iconUrl: './images/marker-icon-orange.png',
+          iconSize: [25, 41], // size of the icon
+          iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
+          popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
+      });
+    for(let i = 0; i < this.props.drawPolygonPts.length; i++) {
+      drawingMarkers.push(<Marker key={i} position={this.props.drawPolygonPts[i]} title={i.toString()} icon={icon} draggable={false} />);
+    }
+
+    let tmpPts = [];
+    for(let i = 0; i < this.props.drawPolygonPts.length; i++) {
+      tmpPts.push(this.props.drawPolygonPts[i]);
+    }
+
 
     return (
         <MuiThemeProvider muiTheme={lightMuiTheme}>
@@ -97,7 +179,7 @@ export default class MACEMap extends React.Component<Props, State> {
               />
             }
 
-            <Map ref="map" onDragend={this.props.updateMapCenter} useFlyTo={true} animate={true} center={this.props.mapCenter} zoom={this.props.mapZoom} style={mapStyle} zoomControl={false} maxZoom={this.props.maxZoom} onContextmenu={this.triggerContextMenu} >
+            <Map ref="map" ondragend={this.props.updateMapCenter} useFlyTo={true} animate={true} center={this.props.mapCenter} zoom={this.props.mapZoom} style={mapStyle} zoomControl={false} maxZoom={this.props.maxZoom} oncontextmenu={this.triggerContextMenu} onclick={this.handleMapClick} >
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.props.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
 
@@ -107,7 +189,7 @@ export default class MACEMap extends React.Component<Props, State> {
                     {/* Aircraft Icons */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
                       return (
-                        <Marker zIndexOffset={1000} onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.props.connectedVehicles[key].vehicleMarker.latLon} icon={this.props.connectedVehicles[key].vehicleMarker.icon} title={key}>
+                        <Marker zIndexOffset={1000} onclick={(e: L.MouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.props.connectedVehicles[key].vehicleMarker.latLon} icon={this.props.connectedVehicles[key].vehicleMarker.icon} title={key}>
                         {/*
                           <Popup open={true}>
                           </Popup>
@@ -119,7 +201,7 @@ export default class MACEMap extends React.Component<Props, State> {
                     {/* Home Icons */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
                       return (
-                        <Marker onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "home")} key={key} position={this.props.connectedVehicles[key].homePosition.latLon} icon={this.props.connectedVehicles[key].homePosition.icon} title={key}>
+                        <Marker onclick={(e: L.MouseEvent) => this.handleMarkerClick(e, key, "home")} key={key} position={this.props.connectedVehicles[key].homePosition.latLon} icon={this.props.connectedVehicles[key].homePosition.icon} title={key}>
                         {/*
                           <Popup open={true}>
                             <span>Selected</span>
@@ -182,8 +264,36 @@ export default class MACEMap extends React.Component<Props, State> {
                       }
                     })}
 
+                    <Polygon positions={tmpPts} color={colors.white} fillColor={colors.purple300} />
+                    {drawingMarkers}
+
                   </LayerGroup>
                 }
+
+                {/* {this.props.showDraw && */}
+                    {/* <FeatureGroup>
+                      <EditControl
+                        position='topleft'
+                        onEdited={this._onDrawEditPath}
+                        onCreated={this._onDrawCreate}
+                        onDeleted={this._onDrawDeleted}
+                        onMounted={this._mountedDraw}
+                        onEditStart={this._onDrawEditStart}
+                        onEditStop={this._onDrawEditStop}
+                        onDeleteStart={this._onDrawDeleteStart}
+                        onDeleteStop={this._onDrawDeleteStop}
+                        draw={
+                          {
+                            marker: false,
+                            circle: false,
+                            polyline: false,
+                            delete: false
+                          }
+                        }
+                        style={{size: 100}}
+                      />
+                  </FeatureGroup> */}
+                 {/* } */}
 
             </Map>
           </div>

@@ -260,9 +260,8 @@ void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionC
 
     DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
     int mode = tmp.getFlightModeFromString(command.getRequestMode());
+//    vehicleData->command->setNewMode(mode,255,m_LinkChan);
     vehicleData->m_CommandController->setNewMode(mode);
-
-    vehicleData->command->setNewMode(mode,255,m_LinkChan);
 }
 
 void ModuleVehicleArdupilot::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)

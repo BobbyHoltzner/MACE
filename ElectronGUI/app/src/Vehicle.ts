@@ -26,6 +26,7 @@ export class Vehicle{
     highlightColor: string;
     opaqueHighlightColor: string;
     currentTarget: {distanceToTarget: number, targetPosition: PositionType, icon: L.DivIcon, active: boolean};
+    availableModes: string[]
 
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
@@ -58,7 +59,7 @@ export class Vehicle{
             this.position = position;
         }
         else {
-            this.position = {lat: 0, lon: 0, alt: 0};
+            this.position = {lat: 0, lng: 0, alt: 0};
             // this.position = {lat: -35.363272, lon: 149.165249, alt: 0};
         }
         if(attitude){
@@ -72,7 +73,7 @@ export class Vehicle{
 
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
-            latLon: new L.LatLng(this.position.lat, this.position.lon),
+            latLon: new L.LatLng(this.position.lat, this.position.lng),
             altitude: this.position.alt,
             icon: new L.DivIcon({
                 html: vehicleIconHTML,
@@ -112,7 +113,7 @@ export class Vehicle{
         let currentTargetHTML = '<img src="./images/guided-icon.png" alt="Guided icon" style="width:41px; height:41px;">';
         this.currentTarget = {
             distanceToTarget: null,
-            targetPosition: {lat: null, lon: null, alt: null},
+            targetPosition: {lat: null, lng: null, alt: null},
             icon: new L.DivIcon({
                 html: currentTargetHTML,
                 iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
@@ -120,6 +121,66 @@ export class Vehicle{
                 className: '' // setting this overrides default css and gets rid of white box
             }),
             active: false
+        }
+
+        this.availableModes = [];
+    }
+
+    setAvailableVehicleModes() {
+        if(this.general.aircraftType === "GENERIC") {
+        }
+        else if(this.general.aircraftType === "HELICOPTER") {
+            this.availableModes = ["STABILIZE", "ACRO", "ALT_HOLD",
+                                    "AUTO", "GUIDED", "LOITER", "RTL",
+                                    "CIRCLE", "LAND", "DRIFT", "SPORT",
+                                    "FLIP", "AUTOTUNE", "POSHOLD", "BRAKE",
+                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKOWN"];
+        }
+        else if(this.general.aircraftType === "GCS") {
+        }
+        else if(this.general.aircraftType === "REPEATER") {
+        }
+        else if(this.general.aircraftType === "GROUND_ROVER") {
+        }
+        else if(this.general.aircraftType === "SURFACE_BOAT") {
+        }
+        else if(this.general.aircraftType === "TRICOPTER") {
+            this.availableModes = ["STABILIZE", "ACRO", "ALT_HOLD",
+                                    "AUTO", "GUIDED", "LOITER", "RTL",
+                                    "CIRCLE", "LAND", "DRIFT", "SPORT",
+                                    "FLIP", "AUTOTUNE", "POSHOLD", "BRAKE",
+                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKOWN"];
+        }
+        else if(this.general.aircraftType === "QUADROTOR") {
+            this.availableModes = ["STABILIZE", "ACRO", "ALT_HOLD",
+                                    "AUTO", "GUIDED", "LOITER", "RTL",
+                                    "CIRCLE", "LAND", "DRIFT", "SPORT",
+                                    "FLIP", "AUTOTUNE", "POSHOLD", "BRAKE",
+                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKOWN"];
+        }
+        else if(this.general.aircraftType === "HEXAROTOR") {
+            this.availableModes = ["STABILIZE", "ACRO", "ALT_HOLD",
+                                    "AUTO", "GUIDED", "LOITER", "RTL",
+                                    "CIRCLE", "LAND", "DRIFT", "SPORT",
+                                    "FLIP", "AUTOTUNE", "POSHOLD", "BRAKE",
+                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKOWN"];
+        }
+        else if(this.general.aircraftType === "OCTOROTOR") {
+            this.availableModes = ["STABILIZE", "ACRO", "ALT_HOLD",
+                                    "AUTO", "GUIDED", "LOITER", "RTL",
+                                    "CIRCLE", "LAND", "DRIFT", "SPORT",
+                                    "FLIP", "AUTOTUNE", "POSHOLD", "BRAKE",
+                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKOWN"];
+        }
+        else if(this.general.aircraftType === "ONBOARD_CONTROLLER") {
+        }
+        else if(this.general.aircraftType === "FIXED_WING") {
+            this.availableModes = ["MANUAL", "CIRCLE", "STABILIZE", "TRAINING",
+                                    "ACRO", "FLY_BY_WIRE_A", "FLY_BY_WIRE_B",
+                                    "CRUISE", "AUTOTUNE", "AUTO", "RTL",
+                                    "LOITER", "AVOID_ADSB", "GUIDED", "INITIALISING",
+                                    "QSTABILIZE", "QHOVER", "QLOITER", "QLAND",
+                                    "QRTL", "UNKNOWN", "NR"];
         }
     }
 
@@ -150,11 +211,11 @@ export class Vehicle{
         for(let i = 0; i < mission.missionItems.length; i++) {
             this.vehicleMission.descriptions.push(mission.missionItems[i].description);
             this.vehicleMission.itemTypes.push(mission.missionItems[i].type);
-            let tmpLatLng = new L.LatLng(mission.missionItems[i].lat ? mission.missionItems[i].lat : prevLatLng.lat, mission.missionItems[i].lon ? mission.missionItems[i].lon : prevLatLng.lng);
+            let tmpLatLng = new L.LatLng(mission.missionItems[i].lat ? mission.missionItems[i].lat : prevLatLng.lat, mission.missionItems[i].lng ? mission.missionItems[i].lng : prevLatLng.lng);
             this.vehicleMission.latLons.push(tmpLatLng);
 
             let tmpIcon = this.getMarkerIcon(mission.missionItems[i].type, false);
-            this.vehicleMission.icons.push(tmpIcon);
+            this.vehicleMission.icons.push(tmpIcon as L.Icon);
 
             // Set prevLatLng to this lat lng
             prevLatLng = tmpLatLng;
@@ -314,7 +375,7 @@ export class Vehicle{
 
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
-            latLon: new L.LatLng(posUpdate.lat, posUpdate.lon),
+            latLon: new L.LatLng(posUpdate.lat, posUpdate.lng),
             altitude: 0,
             icon: new L.DivIcon({
                 html: iconHTML,
@@ -337,7 +398,7 @@ export class Vehicle{
 
         this.vehicleMarker = {
             vehicleId: this.vehicleId,
-            latLon: new L.LatLng(this.position.lat, this.position.lon),
+            latLon: new L.LatLng(this.position.lat, this.position.lng),
             altitude: 0,
             icon: new L.DivIcon({
                 html: iconHTML,
@@ -351,7 +412,7 @@ export class Vehicle{
     updateSensorFootprint(newFootprint: PositionType[]) {
         this.sensorFootprint = [];
         for(let i = 0; i < newFootprint.length; i++) {
-            let vertex = new L.LatLng(newFootprint[i].lat, newFootprint[i].lon);
+            let vertex = new L.LatLng(newFootprint[i].lat, newFootprint[i].lng);
             this.sensorFootprint.push(vertex);
         }
     }
@@ -360,7 +421,7 @@ export class Vehicle{
         let previousItem = this.currentMissionItem;
         // Set previous mission item icon back to original:
         let prevIcon = this.getMarkerIcon(this.vehicleMission.itemTypes[previousItem], false);
-        this.vehicleMission.icons[previousItem] = prevIcon;
+        this.vehicleMission.icons[previousItem] = prevIcon as L.Icon;
 
         // Set new mission item icon and current mission item. If clearActive flag is set, don't show active on top of the icon:
         let currentIcon = new L.DivIcon({});
@@ -370,7 +431,7 @@ export class Vehicle{
         else {
             currentIcon = this.getMarkerIcon(this.vehicleMission.itemTypes[currentMissionItem], true);
         }
-        this.vehicleMission.icons[currentMissionItem] = currentIcon;
+        this.vehicleMission.icons[currentMissionItem] = currentIcon as L.Icon;
         this.currentMissionItem = currentMissionItem;
     }
 }

@@ -123,11 +123,20 @@ public:
 
     /**
      * @brief computeVoronoi Given the bounding box and current vehicle positions, compute a voronoi diagram
+     * @param cellVec Container for vector of cells to be assigned by vehicle distances
      * @param bbox Bounding box
-     * @param sitePositions Positions of vehicles (in x,y,z coordinates)
+     * @param sitePositions Positions of sites (in x,y,z coordinates)
      * @return Success or Failure
      */
-    bool computeVoronoi(const BoundingBox bbox, const std::map<int, Point> vehicles, GridDirection direction);
+    bool computeVoronoi(std::vector<Cell> &cellVec, const BoundingBox bbox, const std::vector<Point> vehicles, GridDirection direction);
+
+    /**
+     * @brief Environment_Map::computeBalancedVoronoi Use the number of vehicles and their positions to create a balanced Voronoi partition
+     * @param vehicles Map of vehicles and their positions
+     * @param direction Grid direction for the resulting waypoint pattern
+     * @return
+     */
+    bool computeBalancedVoronoi(const std::map<int, Point> vehicles, GridDirection direction);
 
     /**
      * @brief setBoundaryVerts Set the new boundary vertices
@@ -200,6 +209,15 @@ public:
      * @return Current global origin
      */
     std::shared_ptr<DataState::StateGlobalPosition> getGlobalOrigin() { return m_globalOrigin; }
+
+    /**
+     * @brief getNumberOfNodes Get number of nodes in the environment for dividing between vehicles in the balanced case
+     * @return Number of nodes in the environment
+     */
+    int getNumberOfNodes();
+
+
+    void printMap(std::map<double, std::map<double, Node> > map);
 
 private:
 
@@ -281,6 +299,10 @@ private:
      * @param cell Cell to set our YX pairs for
      */
     void setContainedNodesYX(Cell &cell);
+
+    // TODO: Comment
+//    std::map<double, std::map<double, Node> >::iterator Environment_Map::findMapIterator(const std::map<double, std::map<double, Node> > map, const double yVal);
+
 
 
 private:

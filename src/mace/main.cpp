@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
     Data::EnvironmentTime currentTime;
     Data::EnvironmentTime::CurrentTime(Data::Devices::SYSTEMCLOCK, currentTime);
 
+//    currentTime.ToString();
     //generate the factory that can make module instances
     MaceCore::ModuleFactory* factory = ModuleCollection::GenerateFactory();
 

@@ -25,11 +25,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += module_rta.cpp \
-            environment_custom.cpp
+            environment_custom.cpp \
+            polySplit/polygon.cpp \
+            polySplit/line.cpp \
+            polySplit/polysplit.cpp
 
 HEADERS += module_rta.h\
         module_resource_task_allocation_global.h \
-        environment_custom.h
+        environment_custom.h \
+        polySplit/vector.h \
+        polySplit/polygon.h \
+        polySplit/line.h \
+        polySplit/polysplit.h
 
 # Unix lib Install
 unix:!symbian {
@@ -48,7 +55,12 @@ headers.path    = $$(MACE_ROOT)/include/module_resource_task_allocation
 headers.files   += \
             module_resource_task_allocation_global.h \
             module_rta.h \
-            environment_custom.h
+            environment_custom.h \
+            polySplit/vector.h \
+            polySplit/vector.h \
+            polySplit/polygon.h \
+            polySplit/line.h \
+            polySplit/polysplit.h
 INSTALLS       += headers
 
 #Necessary header includes

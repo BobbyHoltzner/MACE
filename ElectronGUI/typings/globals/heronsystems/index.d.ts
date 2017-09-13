@@ -1,6 +1,27 @@
+
+declare var electronRequire: any;
+declare module 'deepcopy';
+
+type MACEConfig = {
+  MACEComms?: {
+    ipAddress?: string,
+    listenPortNumber?: number,
+    sendPortNumber?: number
+  },
+  GUIInit?: {
+    mapCenter?: PositionType,
+    mapZoom?: number,
+    maxZoom?: number
+  },
+  VehicleSettings?: {
+    defaultTakeoffAlt?: number
+  }
+}
+
+
 type PositionType = {
     lat: number,
-    lon: number,
+    lng: number,
     alt: number
 };
 
@@ -121,7 +142,7 @@ type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType |
 
 type MarkerType = {
   latLon: L.LatLng,
-  icon: L.Icon,
+  icon: L.DivIcon,
   altitude: number,
   vehicleId?: number
 };

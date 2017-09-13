@@ -1,7 +1,7 @@
 #ifndef HELPER_PREVIOUS_GUIDED_MAVLINK_H
 #define HELPER_PREVIOUS_GUIDED_MAVLINK_H
 
-#include "data_interface_mavlink/generic/helper_previous_transmission.h"
+#include "data_interface_MAVLINK/generic/helper_previous_transmission.h"
 
 namespace DataInterface_MAVLINK {
 

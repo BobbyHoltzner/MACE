@@ -263,7 +263,7 @@ private:
 
     void callbackFunction_VehicleTarget(const MissionTopic::VehicleTargetTopic &target)
     {
-        std::cout<<target<<std::endl;
+        std::cout << target << std::endl;
         std::shared_ptr<MissionTopic::VehicleTargetTopic> ptrTarget = std::make_shared<MissionTopic::VehicleTargetTopic>(target);
         cbi_VehicleMissionData(target.getVehicleID(),ptrTarget);
     }

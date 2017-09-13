@@ -136,11 +136,14 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
     UNUSED(sender);
 //    UNUSED(vehicleID);
 
-    try{
-        std::cout<<"Saw a request dummy function"<<std::endl;
-        m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
-    }catch(const std::out_of_range &oor){
+//    try{
+//        std::cout<<"Saw a request dummy function"<<std::endl;
+//        m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
+//    }catch(const std::out_of_range &oor){
 
+//    }
+    if(m_RTA) {
+        m_RTA->MarshalCommand(RTACommands::TEST_FUNCTION, vehicleID);
     }
 }
 

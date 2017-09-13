@@ -51,3 +51,4 @@ PrebuiltBinaries/*
 *.gnu
 
 /logs/*
+ElectronGUI/yarn-error.log

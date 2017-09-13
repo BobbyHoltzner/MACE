@@ -61,7 +61,7 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
 
     componentWillReceiveProps(nextProps: Props) {
         if(this.props.selectedAircraftID !== nextProps.selectedAircraftID) {
-            this.state.selectedAircraftID = nextProps.selectedAircraftID;
+            this.setState({selectedAircraftID: nextProps.selectedAircraftID});
         }
 
         // if(Object.keys(nextProps.connectedVehicles).length > 0 && this.props.selectedAircraftID !== "0") {
@@ -130,15 +130,15 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
         // const height = window.screen.height;
         const aircraftCommsContainer = {
             // backgroundColor: colors.orange700,
-            position: 'absolute',
+            position: 'absolute' as 'absolute',
             bottom: 0,
             left: 50 + '%',
             // height: 64,
             zIndex: 9999,
             width: 50 + "%",
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+            justifyContent: "center" as "center",
+            alignItems: "center" as "center",
             marginLeft: -width*0.25
         };
         const buttonStyle = { margin: 5 };

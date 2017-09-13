@@ -34,6 +34,7 @@
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 #include "data_vehicle_sensors/components.h"
+#include "data_generic_state_item/positional_aid.h"
 
 #include "guitimer.h"
 
@@ -124,10 +125,11 @@ private:
     void parseTCPRequest(const QJsonObject &jsonObj);
 
     void issueCommand(const int &vehicleID, const QJsonObject &jsonObj);
-//    void setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj);
+    void setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj);
     void setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj);
     void setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj);
     void setGlobalOrigin(const QJsonObject &jsonObj);
+    void setEnvironmentVertices(const QJsonObject &jsonObj);
     void setGoHere(const int &vehicleID, const QJsonObject &jsonObj);
     void takeoff(const int &vehicleID, const QJsonObject &jsonObj);
     void getVehicleMission(const int &vehicleID);
@@ -165,6 +167,10 @@ private:
     bool m_modeTimeoutOccured;
     bool m_fuelTimeoutOccured;
     std::shared_ptr<GUITimer> m_timer;
+    QHostAddress m_listenAddress;
+    int m_listenPort;
+    QHostAddress m_sendAddress;
+    int m_sendPort;
 };
 
 #endif // MODULE_GROUND_STATION_H
