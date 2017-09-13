@@ -12,6 +12,16 @@ Bounded2DGrid::Bounded2DGrid(const double &x_min, const double &x_max,
 
 }
 
+Bounded2DGrid::Bounded2DGrid(const geometry::Polygon_2DC &boundingPolygon,
+                             const double &x_res, const double &y_res,
+                             const Test *fill_value):
+    Dynamic2DGrid(boundingPolygon.getXMin(),boundingPolygon.getXMin(),
+                  boundingPolygon.getXMin(),boundingPolygon.getXMin(),
+                  x_res,y_res,fill_value)
+{
+    setBoundingPolygon(boundingPolygon);
+}
+
 std::vector<Test*> Bounded2DGrid::setBoundingPolygon(const geometry::Polygon_2DC &polygon)
 {
     this->m_boundary = polygon;

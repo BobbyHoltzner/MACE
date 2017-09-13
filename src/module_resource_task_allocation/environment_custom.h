@@ -15,6 +15,11 @@
 #include <tuple>
 
 #include "data_generic_state_item_topic/state_topic_components.h"
+#include "base/pose/cartesian_position_2D.h"
+#include "base/geometry/polygon_2dc.h"
+#include "maps/bounded_2d_grid.h"
+
+#include "data/timer.h"
 
 /**
  * @brief The GridDirection enum to denote how we sort cell nodes
@@ -107,7 +112,7 @@ public:
      * @param verts Vector of vertices that make up the environment boundary
      * @param gridSpacing Spacing between grid points
      */
-    Environment_Map(const std::vector<Point> verts, double gridSpacing, const DataState::StateGlobalPosition globalOrigin);
+    Environment_Map(const std::vector<Point> &verts, double &gridSpacing, const DataState::StateGlobalPosition &globalOrigin);
 
     /**
      * @brief initializeEnvironment Initialize each node in the grid with a 0 value

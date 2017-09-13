@@ -28,6 +28,10 @@ public:
                   const double &x_res = 0.5, const double &y_res = 0.5,
                    const Test *fill_value = nullptr);
 
+    Bounded2DGrid(const geometry::Polygon_2DC &boundingPolygon,
+                  const double &x_res = 0.5, const double &y_res = 0.5,
+                  const Test *fill_value = nullptr);
+
     std::vector<Test*> setBoundingPolygon(const geometry::Polygon_2DC &polygon);
 
     std::vector<Test*> getBoundedDataPoints() const;

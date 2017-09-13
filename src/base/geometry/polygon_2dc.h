@@ -24,6 +24,9 @@ public:
     //!
     Polygon_2DC getBoundingRect() const;
 
+
+    void getBoundingValues(double &xMin, double &yMin, double &xMax, double &yMax) const;
+
     //!
     //! \brief contains
     //! \param point
@@ -47,6 +50,34 @@ public:
     //! \return
     //!
     Position<CartesianPosition_2D> getCenter() const;
+
+public:
+    double getXMin() const
+    {
+        return m_xMin;
+    }
+
+    double getYMin() const
+    {
+        return m_yMin;
+    }
+
+    double getXMax() const
+    {
+        return m_xMax;
+    }
+
+    double getYMax() const
+    {
+        return m_yMax;
+    }
+
+protected:
+    void updateBoundingBox();
+
+private:
+    double m_xMin, m_xMax;
+    double m_yMin, m_yMax;
 };
 
 } //end of namespace geometry

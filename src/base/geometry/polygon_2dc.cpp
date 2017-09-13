@@ -71,47 +71,56 @@ bool Polygon_2DC::contains(const Position<CartesianPosition_2D> &point, const bo
     return contains(point.getXPosition(), point.getYPosition(),onLineCheck);
 }
 
-
-Polygon_2DC Polygon_2DC::getBoundingRect() const
+void Polygon_2DC::updateBoundingBox()
 {
     bool firstExe = true;
     double maxXVal, minXVal, maxYVal, minYVal;
-    Polygon_2DC polygon("Bounding Polygon");
-
     if (m_vertex.size() >= 3)
     {
         if(firstExe)
         {
-            maxXVal = m_vertex[0].getXPosition();
-            minXVal = maxXVal;
-            maxYVal = m_vertex[0].getYPosition();
-            minYVal = maxYVal;
+            m_xMax = m_vertex[0].getXPosition();
+            m_xMin = m_xMax;
+            m_yMax = m_vertex[0].getYPosition();
+            m_yMin = m_yMax;
         }
 
         const size_t num = this->m_vertex.size();
         for(size_t i = 1; i < num; i++)
         {
             if(m_vertex[i].getXPosition() > maxXVal)
-                maxXVal = m_vertex[i].getXPosition();
+                m_xMax = m_vertex[i].getXPosition();
             else if(m_vertex[i].getXPosition() < minXVal)
-                minXVal = m_vertex[i].getXPosition();
+                m_xMin = m_vertex[i].getXPosition();
             if(m_vertex[i].getYPosition() > maxYVal)
-                maxYVal = m_vertex[i].getYPosition();
+                m_yMax = m_vertex[i].getYPosition();
             else if(m_vertex[i].getYPosition() < minYVal)
-                minYVal = m_vertex[i].getYPosition();
+                m_yMin = m_vertex[i].getYPosition();
         }
-
-
-        Position<CartesianPosition_2D> LL("Lower Left",minXVal,minYVal);
-        Position<CartesianPosition_2D> UL("Upper Left",minXVal,maxYVal);
-        Position<CartesianPosition_2D> UR("Upper Right",maxXVal,maxYVal);
-        Position<CartesianPosition_2D> LR("Lower Right",maxXVal,minYVal);
-
-        polygon.appendVertex(LL);
-        polygon.appendVertex(UL);
-        polygon.appendVertex(UR);
-        polygon.appendVertex(LR);
     }
+}
+
+void Polygon_2DC::getBoundingValues(double &xMin, double &yMin, double &xMax, double &yMax) const
+{
+    xMin = m_xMin;
+    yMin = m_yMin;
+    xMax = m_xMax;
+    yMax = m_yMax;
+}
+
+Polygon_2DC Polygon_2DC::getBoundingRect() const
+{
+    Polygon_2DC polygon("Bounding Polygon");
+
+    Position<CartesianPosition_2D> LL("Lower Left",m_xMin,m_yMin);
+    Position<CartesianPosition_2D> UL("Upper Left",m_xMin,m_yMax);
+    Position<CartesianPosition_2D> UR("Upper Right",m_xMax,m_yMax);
+    Position<CartesianPosition_2D> LR("Lower Right",m_xMax,m_yMin);
+
+    polygon.appendVertex(LL);
+    polygon.appendVertex(UL);
+    polygon.appendVertex(UR);
+    polygon.appendVertex(LR);
 
     return polygon;
 }

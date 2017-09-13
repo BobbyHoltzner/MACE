@@ -31,7 +31,6 @@ public:
     Position(const Position<NEWT> &ref):
         T(ref)
     {
-        std::cout<<"In the copy constuctor"<<std::endl;
         this->name = ref.name;
     }
 
@@ -40,7 +39,6 @@ public:
         T(arg ...),
         name(str)
     {
-        std::cout<<"In the crazy constuctor"<<std::endl;
     }
 
 public:

@@ -27,6 +27,7 @@ public:
     {
         //this->clearPolygon(); we should not have to call this case since this is in the constructer
         m_vertex = vector;
+        updateBoundingBox();
     }
 
     PolygonBase(const PolygonBase &copy)
@@ -38,6 +39,7 @@ public:
     void appendVertex(const T &vertex)
     {
         m_vertex.push_back(vertex);
+        updateBoundingBox();
     }
 
     void removeVertex(const int &index);
@@ -46,6 +48,7 @@ public:
     {
         this->clearPolygon();
         m_vertex = vector;
+        updateBoundingBox();
     }
 
     void clearPolygon()
@@ -66,6 +69,17 @@ public:
     std::vector<T> getVector()
     {
         return m_vertex;
+    }
+
+    T at(const int &index)
+    {
+        return m_vertex[index];
+    }
+
+protected:
+    virtual void updateBoundingBox()
+    {
+
     }
 
 protected:

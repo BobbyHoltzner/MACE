@@ -14,10 +14,19 @@ double rnd() {return double(rand())/RAND_MAX;}
  * @param verts Vector of vertices that make up the environment boundary
  * @param gridSpacing Spacing between grid points
  */
-Environment_Map::Environment_Map(const std::vector<Point> verts, double gridSpacing, const DataState::StateGlobalPosition globalOrigin) :
+Environment_Map::Environment_Map(const std::vector<Point> &verts, double &gridSpacing, const DataState::StateGlobalPosition &globalOrigin) :
     boundaryVerts(verts) {
 
     m_globalOrigin = std::make_shared<DataState::StateGlobalPosition>(globalOrigin);
+    mace::geometry::Polygon_2DC boundary;
+
+    unsigned int size = verts.size();
+    for(int i = 0; i < size; i++)
+    {
+        mace::pose::Position<mace::pose::CartesianPosition_2D> vertex("Vertice",verts[i].x,verts[i].y);
+        boundary.appendVertex(vertex);
+    }
+    mace::maps::Bounded2DGrid grid(boundary,gridSpacing,gridSpacing);
 
     calculateBoundingRect(verts);
     initializeEnvironment(gridSpacing);
@@ -148,20 +157,6 @@ bool Environment_Map::computeVoronoi(const BoundingBox bbox, const std::map<int,
             std::cout << "Vehicle ID not found in cell." << std::endl;
         }
       } while (cl.inc()); // Increment to the next cell:
-
-
-//      // Print cell sites and vertices:
-//      for(auto cell : cells) {
-//        std::cout << "\n\Vehicle ID " << cell.first << " site: (" << cell.second.site.x << ", " << cell.second.site.y << ", " << cell.second.site.z << ")" << std::endl;
-//        int vertCount = 1;
-//        for(auto cellVert : cell.second.vertices) {
-//            double xTmp = cellVert.x;
-//            double yTmp = cellVert.y;
-//            double zTmp = cellVert.z;
-//            std::cout << "Cell vertex " << vertCount << ": (" << xTmp << ", " << yTmp << ", " << zTmp << ")" << std::endl;
-//            vertCount++;
-//        }
-//      }
 
       // Output the particle positions in gnuplot format
       con.draw_particles("polygons_p.gnu");

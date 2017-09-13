@@ -106,25 +106,6 @@ void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
     else {
         std::cout << "No global origin in config. Cannot set up RTA environment." << std::endl;
     }
-
-
-//        std::vector<Point> boundaryVerts;
-//        boundaryVerts.push_back(Point(-100,-100,0));
-//        boundaryVerts.push_back(Point(-100,1,0));
-//        boundaryVerts.push_back(Point(1,1,0));
-//        boundaryVerts.push_back(Point(1,-100,0));
-
-//        boundaryVerts.push_back(Point(-400,100,0));
-//        boundaryVerts.push_back(Point(-400,250,0));
-//        boundaryVerts.push_back(Point(50,250,0));
-//        boundaryVerts.push_back(Point(50,100,0));
-
-//        boundaryVerts.push_back(Point(-336.511555092,104.143333435,0));
-//        boundaryVerts.push_back(Point(-336.511555092,250.698242188,0));
-//        boundaryVerts.push_back(Point(79.5334091187,250.698242188,0));
-//        boundaryVerts.push_back(Point(79.5334091187,104.143333435,0));
-
-//        environment = std::make_shared<Environment_Map>(boundaryVerts, 75);
 }
 
 
@@ -159,12 +140,6 @@ bool ModuleRTA::parseBoundaryVertices(std::string unparsedVertices, const DataSt
     }
     if (!nextVert.empty())
          verts.push_back(nextVert);
-
-//    CommandItem::SpatialHome origin = this->getDataObject()->GetGlobalOrigin();
-//    DataState::StateGlobalPosition tmpGlobalOrigin;
-//    tmpGlobalOrigin.setLatitude(origin.position.getX());
-//    tmpGlobalOrigin.setLongitude(origin.position.getY());
-//    tmpGlobalOrigin.setAltitude(origin.position.getZ());
 
     // Now parse each string in the vector for each lat/lon to be inserted into our vertices vector:
     for(auto str : verts) {
