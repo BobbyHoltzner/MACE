@@ -3,22 +3,28 @@
 This is the GUI for the ground side of the MACE software suite. The goal of this GUI is to link a user interface to the MACE modules/libraries for display and high-level control of multiple vehicles. 
 
 ## Install
-To build the GUI from source, you will need [npm](http://npmjs.com) and [gulp](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md) installed.
+To build the GUI from source, you will need [npm](http://npmjs.com) installed.
 
 Open a new console and change directories into the `MACE/ElectronGUI` directory. Install Node dependencies and build the React project:
 
 ```bash
 npm i
-gulp defaultBuild
+npm run build
 ```
-Note that linking only needs to be done once. If you delete the node_modules folder for whatever reason, re-run the above commands.
+If you delete the node_modules folder for whatever reason, re-run the above commands.
 
 Now start the GUI:
 
+In one terminal, run the watcher
+```bash
+npm run watch
+```
+In another terminal, start the GUI
 ```bash
 npm start
 ```
-If any changes are made to the React project, you can simply run `gulp defaultBuild` from the `MACE/ElectronGUI` directory and then press `Ctrl + R` in the electron GUI to refresh the application. 
+
+If any changes are made to the React project, the watcher should recompile the project and reload the GUI.
 
 ## Prebuilt Binaries
 If you do not want to build from source, there are prebuilt binaries included in the latest release version in a zipped file (`PrebuiltBinaries.zip`). This zipped file contains binary files for several architectures. Simply unzip the file and find your architecture and run the executable in the corresponding directory to start the MACE GUI. The following architectures are supported:
