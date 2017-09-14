@@ -51,6 +51,15 @@ public:
     Data2D get2DData() const;
 
 
+    Data3D norm() const
+    {
+        double length = sqrt(x*x + y*y + z*z);
+        if(length == 0)
+            return Data3D();
+        else
+            return Data3D(x / length, y / length, z / length);
+    }
+
     /** Common functions among all Point3D objects */
 public:
 
@@ -121,6 +130,23 @@ public:
     }
 
     friend Data3D operator - (const Data2D &lhs, const Data3D &rhs);
+
+    Data3D operator * (const double &value) const
+    {
+        Data3D newPoint(x*value, y*value, z * value);
+        return newPoint;
+    }
+
+    Data3D operator / (const double &value) const
+    {
+        Data3D newPoint(x/value, y/value, z/value);
+        return newPoint;
+    }
+
+    double dot(const Data3D &that) const
+    {
+        return x * that.x + y * that.y + z * that.z;
+    }
 
 
     /** Relational Operators */

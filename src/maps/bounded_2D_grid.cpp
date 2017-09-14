@@ -6,24 +6,26 @@ namespace maps {
 Bounded2DGrid::Bounded2DGrid(const double &x_min, const double &x_max,
                              const double &y_min, const double &y_max,
                              const double &x_res, const double &y_res,
-                             const Test *fill_value):
+                             const Position<CartesianPosition_2D> *fill_value):
     Dynamic2DGrid(x_min, x_max, y_min, y_max, x_res, y_res, fill_value)
 {
-
+    this->
 }
 
 Bounded2DGrid::Bounded2DGrid(const geometry::Polygon_2DC &boundingPolygon,
                              const double &x_res, const double &y_res,
-                             const Test *fill_value):
-    Dynamic2DGrid(boundingPolygon.getXMin(),boundingPolygon.getXMin(),
-                  boundingPolygon.getXMin(),boundingPolygon.getXMin(),
+                             const Position<CartesianPosition_2D> *fill_value):
+    Dynamic2DGrid(boundingPolygon.getXMin(),boundingPolygon.getXMax(),
+                  boundingPolygon.getYMin(),boundingPolygon.getYMax(),
                   x_res,y_res,fill_value)
 {
     setBoundingPolygon(boundingPolygon);
 }
 
-std::vector<Test*> Bounded2DGrid::setBoundingPolygon(const geometry::Polygon_2DC &polygon)
+std::vector<Position<CartesianPosition_2D> *> Bounded2DGrid::setBoundingPolygon(const geometry::Polygon_2DC &polygon)
 {
+    this->clearData();
+
     this->m_boundary = polygon;
     unsigned int size = getNodeCount();
 
@@ -31,7 +33,7 @@ std::vector<Test*> Bounded2DGrid::setBoundingPolygon(const geometry::Polygon_2DC
     {
         double x = 0, y = 0;
         getPositionFromIndex(i,x,y);
-        m_dataMap[i].pos.updatePosition(x,y);
+        m_dataMap[i].updatePosition(x,y);
         if(m_boundary.contains(x,y,true))
         {
             m_constrainedData.push_back(&m_dataMap[i]);
@@ -40,9 +42,30 @@ std::vector<Test*> Bounded2DGrid::setBoundingPolygon(const geometry::Polygon_2DC
     return m_constrainedData;
 }
 
-std::vector<Test*> Bounded2DGrid::getBoundedDataPoints() const
+std::vector<Position<CartesianPosition_2D> *> Bounded2DGrid::getBoundedDataVector() const
 {
     return this->m_constrainedData;
+}
+
+std::list<Position<CartesianPosition_2D> *> Bounded2DGrid::getBoundedDataList() const
+{
+    std::list<Position<CartesianPosition_2D> *> returnList;
+    size_t size = m_constrainedData.size();
+    for(int i = 0; i < size; i++)
+    {
+        returnList.push_back(m_constrainedData[i]);
+    }
+
+    return returnList;
+}
+
+void Bounded2DGrid::print() const
+{
+    size_t size = m_constrainedData.size();
+    for(int i = 0; i < size; i++)
+    {
+        std::cout<<"Value at "<<i<<" X:"<<m_constrainedData[i]->getXPosition()<<" Y:"<<m_constrainedData[i]->getYPosition()<<std::endl;
+    }
 }
 
 void Bounded2DGrid::clearData()

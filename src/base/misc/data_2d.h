@@ -2,6 +2,8 @@
 #define DATA_2D_H
 
 #include <iostream>
+#include <cmath>
+
 #include "abstract_data.h"
 
 namespace mace {
@@ -30,6 +32,16 @@ public:
     //! \param y
     //!
     Data2D(const double &x, const double &y);
+
+
+    Data2D norm() const
+    {
+        double length = sqrt(x*x + y*y);
+        if(length == 0)
+            return Data2D();
+        else
+            return Data2D(x / length, y / length);
+    }
 
     /** Implied through inheritance of AbstractPoint */
 public:
@@ -137,6 +149,23 @@ public:
         double newY = this->y - that.y;
         Data2D newPoint(newX, newY);
         return newPoint;
+    }
+
+    Data2D operator * (const double &value) const
+    {
+        Data2D newPoint(x*value, y*value);
+        return newPoint;
+    }
+
+    Data2D operator / (const double &value) const
+    {
+        Data2D newPoint(x/value, y/value);
+        return newPoint;
+    }
+
+    double dot(const Data2D &that) const
+    {
+        return x * that.x + y * that.y;
     }
 
     /** Relational Operators */

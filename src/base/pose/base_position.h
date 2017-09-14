@@ -27,6 +27,8 @@ public:
 
     Position() = default;
 
+    ~Position() = default;
+
     template <typename NEWT>
     Position(const Position<NEWT> &ref):
         T(ref)

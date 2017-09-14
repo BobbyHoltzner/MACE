@@ -66,7 +66,7 @@ public:
     //! \brief getVector
     //! \return
     //!
-    std::vector<T> getVector()
+    std::vector<T> getVector() const
     {
         return m_vertex;
     }

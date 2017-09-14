@@ -2,7 +2,7 @@
 #define POLYGON_2DC_H
 
 #include "base_polygon.h"
-
+#include "list"
 #include "base/pose/cartesian_position_2D.h"
 
 namespace mace{
@@ -15,6 +15,11 @@ class Polygon_2DC : public PolygonBase<Position<CartesianPosition_2D>>
 public:
 
     Polygon_2DC(const std::string &descriptor = "2D Cartesian Polygon");
+
+    Polygon_2DC(const std::vector<Position<CartesianPosition_2D>> &vector, const std::string &descriptor = "2D Cartesian Polygon");
+
+    Polygon_2DC(const Polygon_2DC &copy);
+
 
     ~Polygon_2DC() = default;
 
@@ -42,8 +47,15 @@ public:
     //! \param onLineCheck
     //! \return
     //!
-    bool contains(const double &x, const double &y, const bool &onLineCheck = false);
+    bool contains(const double &x, const double &y, const bool &onLineCheck = false) const;
 
+    //!
+    //! \brief contains
+    //! \param checkVector
+    //! \param onLineCheck
+    //! \return
+    //!
+    std::vector<bool> contains(std::vector<Position<CartesianPosition_2D>> &checkVector, const bool &onLineCheck = false);
 
     //!
     //! \brief getCenter
@@ -73,7 +85,7 @@ public:
     }
 
 protected:
-    void updateBoundingBox();
+    void updateBoundingBox() override;
 
 private:
     double m_xMin, m_xMax;

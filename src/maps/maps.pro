@@ -26,14 +26,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     dynamic_2D_grid.cpp \
-    bounded_2D_grid.cpp \
-    voronoi_2Dcell.cpp
+    bounded_2D_grid.cpp
 
 HEADERS +=\
         maps_global.h \
     dynamic_2D_grid.h \
-    bounded_2D_grid.h \
-    voronoi_2Dcell.h
+    bounded_2D_grid.h
 
 # Unix lib Install
 unix:!symbian {

@@ -1,4 +1,4 @@
-#include "polygon_2dc.h"
+#include "polygon_2DC.h"
 
 namespace mace{
 namespace geometry {
@@ -9,7 +9,34 @@ Polygon_2DC::Polygon_2DC(const std::string &descriptor):
 
 }
 
-bool Polygon_2DC::contains(const double &x, const double &y, const bool &onLineCheck)
+Polygon_2DC::Polygon_2DC(const std::vector<Position<CartesianPosition_2D>> &vector, const std::string &descriptor):
+    PolygonBase(vector, descriptor)
+{
+
+}
+
+Polygon_2DC::Polygon_2DC(const Polygon_2DC &copy):
+    PolygonBase(copy)
+{
+    updateBoundingBox();
+}
+
+std::vector<bool> Polygon_2DC::contains(std::vector<Position<CartesianPosition_2D>> &checkVector, const bool &onLineCheck)
+{
+    std::vector<bool> rtnVector;
+    const size_t size = checkVector.size();
+
+    if (size >= 3){
+        for(int i = 0; i < size; i++)
+        {
+            rtnVector.push_back(contains(checkVector[i].getXPosition(),checkVector[i].getYPosition(),onLineCheck));
+        }
+    }
+
+    return rtnVector;
+}
+
+bool Polygon_2DC::contains(const double &x, const double &y, const bool &onLineCheck) const
 {
     const size_t num = this->m_vertex.size();
 
@@ -34,8 +61,6 @@ bool Polygon_2DC::contains(const double &x, const double &y, const bool &onLineC
         if(isOnLine(m_vertex[num - 1],m_vertex[0],x,y))
             return true;
     }
-    return false;
-
 
     int counter = 0;
     for(size_t i = 0; i < num; i++)
@@ -47,8 +72,6 @@ bool Polygon_2DC::contains(const double &x, const double &y, const bool &onLineC
                 double value = isLeftOfInf(m_vertex[i],m_vertex[(i+1)%num],x,y);
                 if(value > 0)
                     ++counter;
-                else
-                    return true;
             }
         }
         else{
@@ -57,8 +80,6 @@ bool Polygon_2DC::contains(const double &x, const double &y, const bool &onLineC
                 double value = isLeftOfInf(m_vertex[i],m_vertex[(i+1)%num],x,y);
                 if(value < 0)
                     --counter;
-                else
-                    return true;
             }
         }
     }
@@ -73,28 +94,23 @@ bool Polygon_2DC::contains(const Position<CartesianPosition_2D> &point, const bo
 
 void Polygon_2DC::updateBoundingBox()
 {
-    bool firstExe = true;
-    double maxXVal, minXVal, maxYVal, minYVal;
     if (m_vertex.size() >= 3)
     {
-        if(firstExe)
-        {
-            m_xMax = m_vertex[0].getXPosition();
-            m_xMin = m_xMax;
-            m_yMax = m_vertex[0].getYPosition();
-            m_yMin = m_yMax;
-        }
+        m_xMax = m_vertex[0].getXPosition();
+        m_xMin = m_xMax;
+        m_yMax = m_vertex[0].getYPosition();
+        m_yMin = m_yMax;
 
         const size_t num = this->m_vertex.size();
         for(size_t i = 1; i < num; i++)
         {
-            if(m_vertex[i].getXPosition() > maxXVal)
+            if(m_vertex[i].getXPosition() > m_xMax)
                 m_xMax = m_vertex[i].getXPosition();
-            else if(m_vertex[i].getXPosition() < minXVal)
+            else if(m_vertex[i].getXPosition() < m_xMin)
                 m_xMin = m_vertex[i].getXPosition();
-            if(m_vertex[i].getYPosition() > maxYVal)
+            if(m_vertex[i].getYPosition() > m_yMax)
                 m_yMax = m_vertex[i].getYPosition();
-            else if(m_vertex[i].getYPosition() < minYVal)
+            else if(m_vertex[i].getYPosition() < m_yMin)
                 m_yMin = m_vertex[i].getYPosition();
         }
     }

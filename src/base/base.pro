@@ -34,7 +34,8 @@ SOURCES += \
     pose/cartesian_position_3D.cpp \
     pose/cartesian_position_2D.cpp \
     state_space/real_vector_bounds.cpp \
-    pose/geodetic_position_2D.cpp
+    pose/geodetic_position_2D.cpp \
+    geometry/cell_2DC.cpp
 
 HEADERS +=\
     base_global.h \
@@ -50,13 +51,14 @@ HEADERS +=\
     geometry/base_polygon.h \
     state_space/real_vector.h \
     geometry/geometry_helper.h \
-    geometry/polygon_2dc.h \
     pose/orientation_2D.h \
     pose/orientation_3D.h \
     math/math_forward.h \
     state_space/real_vector_bounds.h \
     misc/abstract_data.h \
-    pose/geodetic_position_2D.h
+    pose/geodetic_position_2D.h \
+    geometry/polygon_2DC.h \
+    geometry/cell_2DC.h
 
 # Unix lib Install
 unix:!symbian {
@@ -81,7 +83,8 @@ headers_geometry.path    = $$(MACE_ROOT)/include/base/geometry
 headers_geometry.files   += \
     geometry/base_polygon.h \
     geometry/geometry_helper.h \
-    geometry/polygon_2dc.h
+    geometry/polygon_2DC.h \
+    geometry/cell_2DC.h
 INSTALLS       += headers_geometry
 
 headers_math.path    = $$(MACE_ROOT)/include/base/math
