@@ -9,6 +9,11 @@ import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon } from 'react-lea
 import * as colors from 'material-ui/styles/colors';
 import { Vehicle } from '../Vehicle';
 import { ContextMenu } from '../components/ContextMenu';
+// import HeatmapLayer from 'react-leaflet-heatmap-layer';
+
+require('../../../html/js/webgl-heatmap.js');
+require('../../../html/js/leaflet-webgl-heatmap.min.js');
+
 
 type Props = {
     handleSelectedAircraftUpdate: (id: string) => void,
@@ -40,7 +45,7 @@ type State = {
 }
 
 export default class MACEMap extends React.Component<Props, State> {
-  leafletMap: L.Map;
+  leafletMap: any;
   constructor(props: Props) {
     super(props);
 
@@ -59,7 +64,33 @@ export default class MACEMap extends React.Component<Props, State> {
   // }
 
   componentDidMount(){
-    this.leafletMap = this.refs.map as any;
+    // this.leafletMap = this.refs.map as any;
+
+
+    var heatmap = L.webGLHeatmap({
+      size: 60,
+      units: 'm',
+      opacity: 0.75,
+      gradientTexture: './images/heatgradient2.png'
+    });
+
+    // 37.889231, -76.810302
+
+    var dataPoints = [
+      [37.889031, -76.810302, 0.3],
+      [37.888131, -76.810302, 0.4],
+      [37.887231, -76.810302, 0.5],
+      [37.886331, -76.810302, 0.6],
+      [37.885431, -76.810302, 0.7],
+      [37.884531, -76.810302, 0.8],
+      [37.883631, -76.810302, 1]
+    ];
+
+    heatmap.setData( dataPoints );
+
+    console.log(heatmap);
+    // console.log(this.leafletMap.leafletElement);
+    this.leafletMap.leafletElement.addLayer(heatmap);
   }
 
 
@@ -167,7 +198,6 @@ export default class MACEMap extends React.Component<Props, State> {
       }
     }
 
-
     let tmpGridPts = [];;
     if(this.props.drawPolygonPts.length > 2) {
       let gridIcon = new L.Icon({
@@ -194,6 +224,13 @@ export default class MACEMap extends React.Component<Props, State> {
       }
     }
 
+    // const addressPoints = [
+    //   [37.889231, -76.810302, "39"],
+    //   [37.889231, -76.812302, "29"],
+    //   [37.889231, -76.814302, "19"],
+    //   [37.889231, -76.816302, "9"]
+    // ];
+
     return (
         <MuiThemeProvider muiTheme={lightMuiTheme}>
           <div style={parentStyle}>
@@ -209,7 +246,7 @@ export default class MACEMap extends React.Component<Props, State> {
               />
             }
 
-            <Map ref="map" ondragend={this.props.updateMapCenter} useFlyTo={true} animate={true} center={this.props.mapCenter} zoom={this.props.mapZoom} style={mapStyle} zoomControl={false} maxZoom={this.props.maxZoom} oncontextmenu={this.triggerContextMenu} onclick={this.handleMapClick} >
+            <Map ref={(map: any) => {this.leafletMap = map}} ondragend={this.props.updateMapCenter} useFlyTo={true} animate={true} center={this.props.mapCenter} zoom={this.props.mapZoom} style={mapStyle} zoomControl={false} maxZoom={this.props.maxZoom} oncontextmenu={this.triggerContextMenu} onclick={this.handleMapClick} >
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.props.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
 
@@ -339,6 +376,22 @@ export default class MACEMap extends React.Component<Props, State> {
                       />
                   </FeatureGroup> */}
                  {/* } */}
+
+                 {/* <HeatmapLayer
+                  fitBoundsOnLoad={ false }
+                  fitBoundsOnUpdate={ false }
+                  points={ addressPoints }
+                  longitudeExtractor={ (m: any) => m[1] }
+                  latitudeExtractor={ (m: any) => m[0] }
+                  intensityExtractor={ (m: any) => parseFloat(m[2]) }
+                  max={39}
+                  radius={10}
+                  minOpacity={0.2}
+                  blur={1}
+                  gradient={{ 0.2: 'blue', 0.6: 'orange', 1.0: 'red' }}
+                  scaleRadius={false}
+                  useLocalExtrema={true}
+                 /> */}
 
             </Map>
           </div>

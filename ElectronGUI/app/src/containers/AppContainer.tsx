@@ -530,6 +530,9 @@ export default class AppContainer extends React.Component<Props, State> {
         let str = err+"";
         if(str.indexOf("ECONNREFUSED") > 0){
           // this.handleClearGUI();
+          // let title = '';
+          // let level = 'error'
+          // this.showNotification(title, 'Lost connection to MACE. ', level, 'tc', 'Got it');
         }
         socket.destroy();
     }.bind(this));
