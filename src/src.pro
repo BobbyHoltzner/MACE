@@ -31,4 +31,5 @@ SUBDIRS += \
 #    Voronoi
     mace \
     maps \
-    TestMaps
+    TestMaps \
+    planners

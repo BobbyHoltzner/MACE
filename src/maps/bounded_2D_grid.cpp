@@ -9,7 +9,7 @@ Bounded2DGrid::Bounded2DGrid(const double &x_min, const double &x_max,
                              const Position<CartesianPosition_2D> *fill_value):
     Dynamic2DGrid(x_min, x_max, y_min, y_max, x_res, y_res, fill_value)
 {
-    this->
+
 }
 
 Bounded2DGrid::Bounded2DGrid(const geometry::Polygon_2DC &boundingPolygon,

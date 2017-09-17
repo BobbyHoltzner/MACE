@@ -1,7 +1,7 @@
 #include <QCoreApplication>
 
-#include "maps/bounded_2d_grid.h"
 #include "base/geometry/cell_2DC.h"
+#include "planners/tsp_greedy_nearest_neighbor.h"
 
 #include <iostream>
 
@@ -40,32 +40,46 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
+    std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> vector;
+    mace::pose::Position<mace::pose::CartesianPosition_2D> start("start",0.0,0.0);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("point1",1.0,1.0);
+    vector.push_back(point1);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("point2",2.0,2.0);
+    vector.push_back(point2);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point3("point3",3.0,3.0);
+    vector.push_back(point3);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point4("point4",4.0,4.0);
+    vector.push_back(point4);
 
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos1("Node1",-10,-10);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos2("Node2",-10,10);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos3("Node3",0,10);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos4("Node4",0,-10);
+    mace::planners::TSP_GreedyNearestNeighbor<mace::pose::Position<mace::pose::CartesianPosition_2D>> TSP;
+    TSP.updateSites(vector);
+    TSP.executeTSP(start);
 
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos5("Node5",10,10);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos6("Node6",10,-10);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> pos1("Node1",-10,-10);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> pos2("Node2",-10,10);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> pos3("Node3",0,10);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> pos4("Node4",0,-10);
 
-    mace::geometry::Cell_2DC polygon3;
-    polygon3.appendVertex(pos1);
-    polygon3.appendVertex(pos2);
-    polygon3.appendVertex(pos5);
-    polygon3.appendVertex(pos6);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> pos5("Node5",10,10);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> pos6("Node6",10,-10);
+
+//    mace::geometry::Cell_2DC polygon3;
+//    polygon3.appendVertex(pos1);
+//    polygon3.appendVertex(pos2);
+//    polygon3.appendVertex(pos5);
+//    polygon3.appendVertex(pos6);
 
 
-    mace::maps::Bounded2DGrid newGrid(polygon3,2,2);
+//    mace::maps::Bounded2DGrid newGrid(polygon3,2,2);
 
-    mace::geometry::Cell_2DC polygon1;
-    polygon1.appendVertex(pos1);
-    polygon1.appendVertex(pos2);
-    polygon1.appendVertex(pos3);
-    polygon1.appendVertex(pos4);
+//    mace::geometry::Cell_2DC polygon1;
+//    polygon1.appendVertex(pos1);
+//    polygon1.appendVertex(pos2);
+//    polygon1.appendVertex(pos3);
+//    polygon1.appendVertex(pos4);
 
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos10("Test",4,-10);
-    std::cout<<"Does it contain this point: "<<polygon1.contains(pos10)<<std::endl;
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> pos10("Test",4,-10);
+//    std::cout<<"Does it contain this point: "<<polygon1.contains(pos10)<<std::endl;
 
 //    std::list<mace::pose::Position<mace::pose::CartesianPosition_2D>*> nodeList = m_dataGrid->getBoundedDataList();
 //    polygon1.insertNodes(nodeList,true);

@@ -1,15 +1,15 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-08-17T19:32:56
+# Project created by QtCreator 2017-09-16T11:10:32
 #
 #-------------------------------------------------
 
 QT       -= core gui
 
-TARGET = maps
+TARGET = planners
 TEMPLATE = lib
 
-DEFINES += MAPS_LIBRARY
+DEFINES += PLANNERS_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
@@ -25,16 +25,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    dynamic_2D_grid.cpp \
-    bounded_2D_grid.cpp
+        planners.cpp \
+    nearest_neighbor_linear.cpp \
+    tsp_greedy_nearest_neighbor.cpp
 
-HEADERS +=\
-        maps_global.h \
-    dynamic_2D_grid.h \
-    bounded_2D_grid.h
+HEADERS += \
+        planners.h \
+        planners_global.h \ 
+    nearest_neighbor.h \
+    nearest_neighbor_linear.h \
+    tsp_greedy_nearest_neighbor.h
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/maps
+headers.path    = $$(MACE_ROOT)/include/planners
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
@@ -46,11 +49,10 @@ unix:!symbian {
 
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib
-win32:CONFIG(release, debug|release):       lib.files   += release/maps.lib release/maps.dll
-else:win32:CONFIG(debug, debug|release):    lib.files   += debug/maps.lib debug/maps.dll
+win32:CONFIG(release, debug|release):       lib.files   += release/planners.lib release/planners.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/planners.lib debug/planners.dll
 INSTALLS += lib
 
-#Necessary includes
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 

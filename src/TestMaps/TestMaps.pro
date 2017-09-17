@@ -28,16 +28,11 @@ INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../maps/release/ -lmaps
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../maps/debug/ -lmaps
-else:unix:!macx: LIBS += -L$$OUT_PWD/../maps/ -lmaps
-
-INCLUDEPATH += $$PWD/../maps
-DEPENDPATH += $$PWD/../maps
-
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
 else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
 
-INCLUDEPATH += $$PWD/../base
-DEPENDPATH += $$PWD/../base
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../planners/release/ -lplanners
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../planners/debug/ -lplanners
+else:unix:!macx: LIBS += -L$$OUT_PWD/../planners/ -lplanners
+
