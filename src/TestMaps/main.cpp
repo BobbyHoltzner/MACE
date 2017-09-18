@@ -4,6 +4,9 @@
 #include "planners/tsp_2opt.h"
 
 #include <iostream>
+#include <QFile>
+#include <QTextStream>
+#include <QStringList>
 
 class StateData{
 public:
@@ -41,17 +44,43 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> vector;
+
+    int counter = 0;
+
+    char* MACEPath = getenv("MACE_ROOT");
+    if(MACEPath){
+        std::string rootPath(MACEPath);
+        QFile inputFile(QString::fromStdString(rootPath + "/US48.txt"));
+        if (inputFile.open(QIODevice::ReadOnly))
+        {
+           QTextStream in(&inputFile);
+           while (!in.atEnd())
+           {
+
+              QString line = in.readLine();
+              QStringList list = line.split(" ");
+              std::string name = "point_" + std::to_string(counter);
+              double x = list.at(1).toDouble();
+              double y = list.at(2).toDouble();
+              mace::pose::Position<mace::pose::CartesianPosition_2D> point(name.c_str(), x, y);
+              vector.push_back(point);
+              counter++;
+           }
+           inputFile.close();
+        }
+    }
+
     std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> rtn;
 
-    mace::pose::Position<mace::pose::CartesianPosition_2D> start("start",-10.0,10.0);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("point1",-5.0,5.0);
-    vector.push_back(point1);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("point2",5.0,-5.0);
-    vector.push_back(point2);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> point3("point3",-5.0,-5.0);
-    vector.push_back(point3);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> point4("point4",5.0,5.0);
-    vector.push_back(point4);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> start("start",0.0,0.0);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("point1",-5.0,5.0);
+//    vector.push_back(point1);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("point2",5.0,-5.0);
+//    vector.push_back(point2);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> point3("point3",-5.0,-5.0);
+//    vector.push_back(point3);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> point4("point4",5.0,5.0);
+//    vector.push_back(point4);
 
     mace::planners::TSP_2OPT<mace::pose::Position<mace::pose::CartesianPosition_2D>> TSP;
     TSP.updateSites(vector);
