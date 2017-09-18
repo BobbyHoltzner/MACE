@@ -41,9 +41,9 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> vector;
+    std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> rtn;
 
     mace::pose::Position<mace::pose::CartesianPosition_2D> start("start",-10.0,10.0);
-    vector.push_back(start);
     mace::pose::Position<mace::pose::CartesianPosition_2D> point1("point1",-5.0,5.0);
     vector.push_back(point1);
     mace::pose::Position<mace::pose::CartesianPosition_2D> point2("point2",5.0,-5.0);
@@ -55,7 +55,8 @@ int main(int argc, char *argv[])
 
     mace::planners::TSP_2OPT<mace::pose::Position<mace::pose::CartesianPosition_2D>> TSP;
     TSP.updateSites(vector);
-    TSP.executeTSP(start,vector);
+
+    TSP.executeTSP(start,rtn);
 
 //    mace::pose::Position<mace::pose::CartesianPosition_2D> pos1("Node1",-10,-10);
 //    mace::pose::Position<mace::pose::CartesianPosition_2D> pos2("Node2",-10,10);

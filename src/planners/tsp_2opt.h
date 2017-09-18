@@ -2,6 +2,7 @@
 #define TSP_2OPT_H
 
 #include <cmath>
+
 #include "tsp_greedy_nearest_neighbor.h"
 
 namespace mace {
@@ -14,7 +15,14 @@ public:
     TSP_2OPT();
 
 public:
+    double execute2OPT(const T &start, std::vector<T> &tour, const bool &greedyFirst = true);
+
     double executeTSP(const T &start, std::vector<T> &tour) override;
+
+
+private:
+    void performSwap(const int &start, const int &end, std::vector<T*> &tour);
+
 };
 
 } //end of namespace planners

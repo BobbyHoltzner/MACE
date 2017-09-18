@@ -66,7 +66,6 @@ double TSP_GreedyNearestNeighbor<T>::executeTSP(const T &start, std::vector<T> &
         tour.push_back(*siteList[currentMinIndex]);
         siteList.erase(siteList.begin() + currentMinIndex);
     }
-
     return tourCost;
 }
 

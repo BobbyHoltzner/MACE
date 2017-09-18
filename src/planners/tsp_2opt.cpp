@@ -11,39 +11,67 @@ TSP_2OPT<T>::TSP_2OPT():
 }
 
 template <class T>
-double TSP_2OPT<T>::executeTSP(const T &start, std::vector<T> &tour)
+
+void TSP_2OPT<T>::performSwap(const int &start, const int &end, std::vector<T*> &tour)
 {
-    //double greedyLength = TSP_GreedyNearestNeighbor<T>::executeTSP(start, tour);
-
-    std::vector<T*> backup = TSP_GreedyNearestNeighbor<T>::copy_sites(tour);
-    double greedyLength = TSP_GreedyNearestNeighbor<T>::computeTourLength(backup);
-
-    double currentLength = greedyLength;
-    double newTourLength = 0.0;
-
-    std::vector<T*> copyHold = TSP_GreedyNearestNeighbor<T>::copy_sites(tour);
-    unsigned int tourLength = copyHold.size();
-    unsigned int halfwayLength = (unsigned int)ceil(tourLength/2.0);
-    //we can optimize this routine but for now lets just leave it
-    for (unsigned int i = 1; i <= halfwayLength ; i++)
+    std::vector<T*> oldValues;
+    for(int i = start; i <= end; i++)
     {
-        for (unsigned int j = i+1; j < tourLength; j++)
-        {
-            std::vector<T*> swap = copyHold;
-            T* base = swap[i];
-            T* iter = swap[j];
+        oldValues.push_back(tour[i]);
+    }
 
-            //perform the swap
-            swap[i] = iter;
-            swap[j] = base;
-            newTourLength = TSP_GreedyNearestNeighbor<T>::computeTourLength(swap);
-            if(newTourLength < currentLength)
+    size_t size = oldValues.size();
+    for(int i = 0; i < size; i++)
+    {
+        tour[end - i] = oldValues[i];
+    }
+}
+
+template <class T>
+double TSP_2OPT<T>::execute2OPT(const T &start, std::vector<T> &tour, const bool &greedyFirst)
+{
+    double currentLength, adjustedLength, oldLength;
+    std::vector<T*> data;
+
+    if(greedyFirst)
+    {
+        currentLength = TSP_GreedyNearestNeighbor<T>::executeTSP(start, tour);
+        data = TSP_GreedyNearestNeighbor<T>::copy_sites(tour);
+    }
+    else{
+        data = TSP_GreedyNearestNeighbor<T>::copy_sites();
+        currentLength = TSP_GreedyNearestNeighbor<T>::computeTourLength(data);
+    }
+
+    size_t size = data.size();
+
+    unsigned int halfwayLength = (unsigned int)ceil(size/2.0);
+    //we can optimize this routine but for now lets just leave it
+    for (unsigned int i = 0; i < halfwayLength ; i++)
+    {
+        //std::cout<<"Evalutaing points: "<<i<<","<<i+1<<std::endl;
+        for (unsigned int j = i+2; (j+1) < size ; j++)
+        {
+            //std::cout<<"Sub-evalutaing points: "<<j<<","<<(j+1)<<std::endl;
+
+            //We can do this because of the triangle inequality
+            oldLength = data[i]->distanceTo(*data[i+1]) + data[j]->distanceTo(*data[j+1]);
+            adjustedLength = data[i]->distanceTo(*data[j]) + data[i+1]->distanceTo(*data[j+1]);
+
+            if(adjustedLength < oldLength)
             {
-                copyHold = swap;
-                currentLength = newTourLength;
+                performSwap(i+1,j,data);
+                currentLength -= (oldLength - adjustedLength);
             }
         }
     }
+    return currentLength;
+}
+
+template <class T>
+double TSP_2OPT<T>::executeTSP(const T &start, std::vector<T> &tour)
+{
+    return execute2OPT(start,tour);
 }
 
 template class TSP_2OPT<pose::Position<pose::CartesianPosition_2D>>;
