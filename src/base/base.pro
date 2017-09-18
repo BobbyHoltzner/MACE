@@ -35,7 +35,10 @@ SOURCES += \
     pose/cartesian_position_2D.cpp \
     state_space/real_vector_bounds.cpp \
     pose/geodetic_position_2D.cpp \
-    geometry/cell_2DC.cpp
+    geometry/cell_2DC.cpp \
+    state_space/state_space.cpp \
+    state_space/cartesian_2D_space.cpp \
+    math/random_number_generator.cpp
 
 HEADERS +=\
     base_global.h \
@@ -58,7 +61,15 @@ HEADERS +=\
     misc/abstract_data.h \
     pose/geodetic_position_2D.h \
     geometry/polygon_2DC.h \
-    geometry/cell_2DC.h
+    geometry/cell_2DC.h \
+    state_space/state_sampler.h \
+    state_space/state_space_types.h \
+    state_space/state_space.h \
+    state_space/state.h \
+    state_space/space_information.h \
+    state_space/state_validity_checker.h \
+    state_space/cartesian_2D_space.h \
+    math/random_number_generator.h
 
 # Unix lib Install
 unix:!symbian {

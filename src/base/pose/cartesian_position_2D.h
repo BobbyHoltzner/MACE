@@ -2,6 +2,7 @@
 #define CARTESIAN_POSITION_2D_H
 
 #include "base_position.h"
+#include "state_space/state_space.h"
 
 namespace mace{
 namespace pose {
