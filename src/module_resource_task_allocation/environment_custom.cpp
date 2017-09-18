@@ -17,13 +17,54 @@ double rnd() {return double(rand())/RAND_MAX;}
  * @param verts Vector of vertices that make up the environment boundary
  * @param gridSpacing Spacing between grid points
  */
-Environment_Map::Environment_Map(const std::vector<Point> verts, double gridSpacing, const DataState::StateGlobalPosition globalOrigin) :
+Environment_Map::Environment_Map(const std::vector<Point> &verts, double &gridSpacing, const DataState::StateGlobalPosition &globalOrigin) :
     boundaryVerts(verts) {
 
     m_globalOrigin = std::make_shared<DataState::StateGlobalPosition>(globalOrigin);
 
-    calculateBoundingRect(verts);
-    initializeEnvironment(gridSpacing);
+    unsigned int size = verts.size();
+    for(int i = 0; i < size; i++)
+    {
+        mace::pose::Position<mace::pose::CartesianPosition_2D> vertex("Vertice",verts[i].x,verts[i].y);
+        m_boundary.appendVertex(vertex);
+    }
+    m_dataGrid = new mace::maps::Bounded2DGrid(-10,10,-10,10,2,2);
+    //m_dataGrid = new mace::maps::Bounded2DGrid(m_boundary,gridSpacing,gridSpacing);
+
+    mace::pose::Position<mace::pose::CartesianPosition_2D> pos1("Node1",-10,-10);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> pos2("Node2",-10,10);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> pos3("Node3",0,10);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> pos4("Node4",0,-10);
+
+    mace::pose::Position<mace::pose::CartesianPosition_2D> pos5("Node5",10,10);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> pos6("Node6",10,-10);
+
+    mace::geometry::Cell_2DC polygon3;
+    polygon3.appendVertex(pos1);
+    polygon3.appendVertex(pos2);
+    polygon3.appendVertex(pos5);
+    polygon3.appendVertex(pos6);
+    m_dataGrid->setBoundingPolygon(polygon3);
+
+    mace::geometry::Cell_2DC polygon1;
+    polygon1.appendVertex(pos1);
+    polygon1.appendVertex(pos2);
+    polygon1.appendVertex(pos3);
+    polygon1.appendVertex(pos4);
+
+    mace::geometry::Cell_2DC polygon2;
+    polygon2.appendVertex(pos4);
+    polygon2.appendVertex(pos3);
+    polygon2.appendVertex(pos5);
+    polygon2.appendVertex(pos6);
+
+
+    std::list<mace::pose::Position<mace::pose::CartesianPosition_2D>*> nodeList = m_dataGrid->getBoundedDataList();
+    polygon1.insertNodes(nodeList,true);
+    std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>*> poly1Nodes = polygon1.getNodes();
+    poly1Nodes[0]->setXPosition(14.8);
+    //calculateBoundingRect(verts);
+    //initializeEnvironment(gridSpacing);
 }
 
 /**
@@ -36,8 +77,9 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Point> vehicles
     bool success = false;
     // Step 1): Use the number of vehicles to create evenly spaced points in environment
     int numVehicles = vehicles.size();
+
     PolySplit polygon;
-    polygon.initPolygon(boundaryVerts, numVehicles);
+    polygon.initPolygon(m_boundary, numVehicles);
 
     std::vector<Point> centroids = polygon.getCentroids();
     if(centroids.size() != numVehicles) {
@@ -46,7 +88,7 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Point> vehicles
     else {
         // Step 2): Compute voronoi partition based on centroids of each split polygon
         std::vector<Cell> cellsVec;
-        success = computeVoronoi(cellsVec, getBoundingBox(), centroids, direction);
+        success = computeVoronoi(cellsVec, centroids, direction);
 
         // Step 3): Assign cells to vehicle IDs based on distance to vehicle/site
         std::vector<int> usedCellIndices;
@@ -78,17 +120,17 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Point> vehicles
 /**
  * @brief computeVoronoi Given the bounding box and current vehicle positions, compute a voronoi diagram
  * @param cellVec Container for vector of cells to be assigned by vehicle distances
- * @param bbox Bounding box
  * @param sitePositions Positions of sites (in x,y,z coordinates)
  * @return Success or Failure
  */
-bool Environment_Map::computeVoronoi(std::vector<Cell> &cellVec, const BoundingBox bbox, const std::vector<Point> sites, GridDirection direction) {
+bool Environment_Map::computeVoronoi(std::vector<Cell> &cellVec, const std::vector<Point> sites, GridDirection direction) {
     bool success = false;
 
     // Set up constants for the container geometry
-    const double x_min = bbox.min.x, x_max = bbox.max.x;
-    const double y_min = bbox.min.y, y_max = bbox.max.y;
+    double x_min, y_min, x_max, y_max;
     const double z_min = -0.5, z_max = 0.5;
+
+    m_boundary.getBoundingValues(x_min, y_min, x_max, y_max);
 
     double x,y,z;
     voronoicell_neighbor c;
@@ -102,20 +144,12 @@ bool Environment_Map::computeVoronoi(std::vector<Cell> &cellVec, const BoundingB
     container con(x_min,x_max,y_min,y_max,z_min,z_max,n_x,n_y,n_z,
                  false,false,false,8);
 
-
-    // Import into container
-    //con.import("pack_six_cube");
     // Add sites/particles into the container only if they are in the environment
     int voronoiCounter = 0;
+
     for(auto particle : sites) {
-        if(pointInPoly(boundaryVerts, particle)) {
-//            if(con.point_inside(particle.second.x, particle.second.y, particle.second.z)) {
-            voronoiCounter++;
-            con.put(voronoiCounter, particle.x, particle.y, particle.z);
-        }
-        else {
-            std::cout << "Point at position (" << particle.x << ", " << particle.y << ", " << particle.z << ") not within environment. Skipping." << std::endl;
-        }
+        voronoiCounter++;
+        con.put(voronoiCounter, particle.x, particle.y, particle.z);
     }
 
     // Loop over all sites in the container and compute each Voronoi
@@ -201,8 +235,6 @@ bool Environment_Map::computeVoronoi(std::vector<Cell> &cellVec, const BoundingB
 
       } while (cl.inc()); // Increment to the next cell:
 
-
-
       // Output the particle positions in gnuplot format
       con.draw_particles("polygons_p.gnu");
 
@@ -286,12 +318,7 @@ void Environment_Map::sortCellVerticesCCW(Cell &cell) {
 }
 
 
-
-/**
- * @brief initializeEnvironment Initialize each node in the grid with a 0 value
- * @param gridSpacing Grid spacing
- * @return initial environment map
- */
+/*
 std::map<double, std::map<double, Node> > Environment_Map::initializeEnvironment(const double gridSpacing) {
     std::map<double, std::map<double, Node> > tmpNodes;
     // Set up X points:
@@ -318,14 +345,22 @@ std::map<double, std::map<double, Node> > Environment_Map::initializeEnvironment
     nodes = tmpNodes;
     return nodes;
 }
+*/
 
 /**
  * @brief setBoundaryVerts Set the new boundary vertices
  * @param verts Vector of Points defining the environment boundary
  */
 void Environment_Map::setBoundaryVerts(std::vector<Point> verts) {
-    boundaryVerts = verts;
-    calculateBoundingRect(verts);
+    m_boundary.clearPolygon();
+
+    size_t size = verts.size();
+    for(int i = 0; i < size; i++)
+    {
+        mace::pose::Position<mace::pose::CartesianPosition_2D> vertex("Vertice",verts[i].x,verts[i].y);
+        m_boundary.appendVertex(vertex);
+    }
+    m_dataGrid->setBoundingPolygon(m_boundary);
 }
 
 /**
@@ -489,10 +524,7 @@ bool Environment_Map::findClosestNode(Point testPoint, Node &closestNode) {
     return foundPt;
 }
 
-/**
- * @brief calculateBoundingRect Calculate the bounding rectangle given a set of vertices
- * @param verts Vertices to calculate the bounding rectangle for
- */
+/*
 void Environment_Map::calculateBoundingRect(const std::vector<Point> verts) {
     BoundingBox rect;
     rect.min = Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
@@ -516,6 +548,7 @@ void Environment_Map::calculateBoundingRect(const std::vector<Point> verts) {
     boundingRect.min = Point(minXVal, minYVal, 0);
     boundingRect.max = Point(maxXVal, maxYVal, 0);
 }
+*/
 
 /**
  * @brief createRange Create a vector of evenly space numbers

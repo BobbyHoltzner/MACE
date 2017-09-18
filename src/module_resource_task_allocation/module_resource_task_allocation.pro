@@ -63,9 +63,20 @@ headers.files   += \
             polySplit/polysplit.h
 INSTALLS       += headers
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
-INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/common
+#Necessary header includes
 INCLUDEPATH += $$PWD/../
+INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/common
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../maps/release/ -lmaps
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../maps/debug/ -lmaps
+else:unix:!macx: LIBS += -L$$OUT_PWD/../maps/ -lmaps
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
@@ -112,24 +123,6 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sensor
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sensors/debug/ -ldata_vehicle_sensors
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_sensors/ -ldata_vehicle_sensors
 
-#win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../Voronoi/release/ -lvoronoi_generator
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../Voronoi/debug/ -lvoronoi_generator
-#else:unix:!macx: LIBS += -L$$OUT_PWD/../Voronoi/ -lvoronoi_generator
-
-#INCLUDEPATH += $$PWD/../Voronoi
-#DEPENDPATH += $$PWD/../Voronoi
-
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../voropp/release/ -lvoropp
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../voropp/debug/ -lvoropp
 else:unix:!macx: LIBS += -L$$OUT_PWD/../voropp/ -lvoropp
-
-INCLUDEPATH += $$PWD/../voropp
-DEPENDPATH += $$PWD/../voropp
-
-INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
-
-
-# Octomap
-INCLUDEPATH += $$(OCTOMAP_ROOT)/include
-
-

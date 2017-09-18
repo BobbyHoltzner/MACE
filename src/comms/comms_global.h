@@ -1,7 +1,6 @@
 #ifndef COMMS_GLOBAL_H
 #define COMMS_GLOBAL_H
 
-
 #ifdef _MSC_VER
 #  if defined(COMMS_LIBRARY)
 #    define COMMSSHARED_EXPORT  __declspec(dllexport)

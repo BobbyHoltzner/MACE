@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_POSITION_H
-#define ABSTRACT_POSITION_H
+#ifndef ABSTRACT_POSITIONOLD_H
+#define ABSTRACT_POSITIONOLD_H
 
 #include <Eigen/Dense>
 
@@ -59,4 +59,4 @@ public:
 
 } //end of namespace DataState
 
-#endif // ABSTRACT_POSITION_H
+#endif // ABSTRACT_POSITIONOLD_H

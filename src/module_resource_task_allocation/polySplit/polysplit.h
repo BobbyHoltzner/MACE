@@ -20,16 +20,16 @@ public:
 
     /**
      * @brief initPolygon Given the boundary vertices, initialize the polygon for splitting
-     * @param points Boundary vertices
+     * @param boundary Boundary vertices
      * @param numVehicles Number of vehicles we are splitting the polygon for
      */
-    void initPolygon(std::vector<Point> points, int numVehicles);
+    void initPolygon(const mace::geometry::Polygon_2DC &boundary, const int &numVehicles);
 
     /**
      * @brief getCentroids Return the centroids of the areas split from the environment boundary
      * @return Vector of points corresponding to area centroids
      */
-    std::vector<Point> getCentroids();
+    std::vector<Point> getCentroids() const;
 
 private:
     /**
