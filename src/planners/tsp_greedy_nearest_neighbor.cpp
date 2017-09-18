@@ -4,6 +4,13 @@ namespace mace {
 namespace planners {
 
 template <class T>
+TSP_GreedyNearestNeighbor<T>::TSP_GreedyNearestNeighbor():
+    Planners()
+{
+
+}
+
+template <class T>
 void TSP_GreedyNearestNeighbor<T>::updateSites(const std::vector<T> &sites)
 {
     m_siteNodes = sites;
@@ -69,6 +76,20 @@ double TSP_GreedyNearestNeighbor<T>::executeTSP(const T &start, std::vector<T> &
     return tourCost;
 }
 
+
+template <class T>
+void TSP_GreedyNearestNeighbor<T>::logTour(const std::vector<T*> tour)
+{
+    mLog->debug("Logging the tour");
+
+    size_t size = tour.size();
+    for(unsigned int i = 0; i < size; i++)
+    {
+        std::stringstream buffer;
+        buffer << *tour[i];
+        mLog->info(buffer.str());
+    }
+}
 
 template <class T>
 std::vector<T*> TSP_GreedyNearestNeighbor<T>::copy_sites()

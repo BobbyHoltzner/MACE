@@ -73,5 +73,18 @@ CartesianPosition_2D CartesianPosition_2D::newPositionFromCompass(const double &
     return newPositionFromPolar(distance,polarBearing);
 }
 
+
+std::ostream& operator<<(std::ostream& os, const CartesianPosition_2D& t)
+{
+    std::stringstream stream;
+    stream.precision(6);
+    stream << std::fixed << "Cartesian Position 2D: "<<
+              t.getXPosition() << ", "<< t.getYPosition() << ".";
+    os << stream.str();
+
+    return os;
+}
+
+
 } //end of namespace pose
 } //end of namespace mace

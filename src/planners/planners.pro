@@ -56,6 +56,7 @@ else:win32:CONFIG(debug, debug|release):    lib.files   += debug/planners.lib de
 INSTALLS += lib
 
 INCLUDEPATH += $$PWD/../
+INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase

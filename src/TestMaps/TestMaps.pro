@@ -21,6 +21,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 INCLUDEPATH += $$PWD/../
+INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
 # You can also make your code fail to compile if you use deprecated APIs.

@@ -43,6 +43,8 @@ double TSP_2OPT<T>::execute2OPT(const T &start, std::vector<T> &tour, const bool
         currentLength = TSP_GreedyNearestNeighbor<T>::computeTourLength(data);
     }
 
+    TSP_GreedyNearestNeighbor<T>::logTour(data);
+
     size_t size = data.size();
 
     unsigned int halfwayLength = (unsigned int)ceil(size/2.0);
@@ -65,6 +67,8 @@ double TSP_2OPT<T>::execute2OPT(const T &start, std::vector<T> &tour, const bool
             }
         }
     }
+
+    TSP_GreedyNearestNeighbor<T>::logTour(data);
     return currentLength;
 }
 
