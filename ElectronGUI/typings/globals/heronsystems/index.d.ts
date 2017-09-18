@@ -1,6 +1,6 @@
 
-declare var electronRequire: any;
-declare module 'deepcopy';
+//declare var electronRequire: any;
+//declare module 'deepcopy';
 
 type MACEConfig = {
   MACEComms?: {

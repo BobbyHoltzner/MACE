@@ -31,6 +31,7 @@ template <class T>
 double TSP_2OPT<T>::execute2OPT(const T &start, std::vector<T> &tour, const bool &greedyFirst)
 {
     double currentLength, adjustedLength, oldLength;
+    bool swapPerformed = true;
     std::vector<T*> data;
 
     if(greedyFirst)
@@ -49,21 +50,27 @@ double TSP_2OPT<T>::execute2OPT(const T &start, std::vector<T> &tour, const bool
 
     unsigned int halfwayLength = (unsigned int)ceil(size/2.0);
     //we can optimize this routine but for now lets just leave it
-    for (unsigned int i = 0; i < halfwayLength ; i++)
+    while(swapPerformed)
     {
-        //std::cout<<"Evalutaing points: "<<i<<","<<i+1<<std::endl;
-        for (unsigned int j = i+2; (j+1) < size ; j++)
+        swapPerformed = false;
+        for (unsigned int i = 0; i < size ; i++)
         {
-            //std::cout<<"Sub-evalutaing points: "<<j<<","<<(j+1)<<std::endl;
-
-            //We can do this because of the triangle inequality
-            oldLength = data[i]->distanceTo(*data[i+1]) + data[j]->distanceTo(*data[j+1]);
-            adjustedLength = data[i]->distanceTo(*data[j]) + data[i+1]->distanceTo(*data[j+1]);
-
-            if(adjustedLength < oldLength)
+            //std::cout<<"Evalutaing points: "<<i<<","<<i+1<<std::endl;
+            for (unsigned int j = i+2; (j+1) < size ; j++)
             {
-                performSwap(i+1,j,data);
-                currentLength -= (oldLength - adjustedLength);
+                //std::cout<<"Sub-evalutaing points: "<<j<<","<<(j+1)<<std::endl;
+
+                //We can do this because of the triangle inequality
+                oldLength = data[i]->distanceTo(*data[i+1]) + data[j]->distanceTo(*data[j+1]);
+                adjustedLength = data[i]->distanceTo(*data[j]) + data[i+1]->distanceTo(*data[j+1]);
+
+                if(adjustedLength < oldLength)
+                {
+                    swapPerformed = true;
+                    performSwap(i+1,j,data);
+                    currentLength -= (oldLength - adjustedLength);
+                    std::cout<<"The current length is: "<<currentLength<<std::endl;
+                }
             }
         }
     }

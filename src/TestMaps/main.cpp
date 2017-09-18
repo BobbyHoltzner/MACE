@@ -2,6 +2,8 @@
 
 #include "base/geometry/cell_2DC.h"
 #include "planners/tsp_2opt.h"
+#include "maps/bounded_2d_grid.h"
+#include "base/geometry/polygon_2dc.h"
 
 #include <iostream>
 #include <QFile>
@@ -44,46 +46,57 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> vector;
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("point1",-100.0,-100.0);
+    vector.push_back(point1);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("point2",-100.0,100.0);
+    vector.push_back(point2);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point3("point3",100.0,100.0);
+    vector.push_back(point3);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point4("point4",100.0,-100.0);
+    vector.push_back(point4);
+
+    mace::geometry::Polygon_2DC boundary(vector);
 
     int counter = 0;
 
-    char* MACEPath = getenv("MACE_ROOT");
-    if(MACEPath){
-        std::string rootPath(MACEPath);
-        QFile inputFile(QString::fromStdString(rootPath + "/US48.txt"));
-        if (inputFile.open(QIODevice::ReadOnly))
-        {
-           QTextStream in(&inputFile);
-           while (!in.atEnd())
-           {
+//    char* MACEPath = getenv("MACE_ROOT");
+//    if(MACEPath){
+//        std::string rootPath(MACEPath);
+//        QFile inputFile(QString::fromStdString(rootPath + "/US48.txt"));
+//        if (inputFile.open(QIODevice::ReadOnly))
+//        {
+//           QTextStream in(&inputFile);
+//           while (!in.atEnd())
+//           {
 
-              QString line = in.readLine();
-              QStringList list = line.split(" ");
-              std::string name = "point_" + std::to_string(counter);
-              double x = list.at(1).toDouble();
-              double y = list.at(2).toDouble();
-              mace::pose::Position<mace::pose::CartesianPosition_2D> point(name.c_str(), x, y);
-              vector.push_back(point);
-              counter++;
-           }
-           inputFile.close();
-        }
-    }
+//              QString line = in.readLine();
+//              QStringList list = line.split(" ");
+//              std::string name = "point_" + std::to_string(counter);
+//              double x = list.at(1).toDouble();
+//              double y = list.at(2).toDouble();
+//              mace::pose::Position<mace::pose::CartesianPosition_2D> point(name.c_str(), x, y);
+//              vector.push_back(point);
+//              counter++;
+//           }
+//           inputFile.close();
+//        }
+//    }
 
     std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> rtn;
 
-    mace::pose::Position<mace::pose::CartesianPosition_2D> start("start",0.0,0.0);
-//    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("point1",-5.0,5.0);
-//    vector.push_back(point1);
-//    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("point2",5.0,-5.0);
-//    vector.push_back(point2);
-//    mace::pose::Position<mace::pose::CartesianPosition_2D> point3("point3",-5.0,-5.0);
-//    vector.push_back(point3);
-//    mace::pose::Position<mace::pose::CartesianPosition_2D> point4("point4",5.0,5.0);
-//    vector.push_back(point4);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> start("start",-100.0,-100.0);
+    mace::maps::Bounded2DGrid grid(-100,100,-100,100,5,5);
+    grid.setBoundingPolygon(boundary);
+    std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>*> data = grid.getBoundedDataVector();
+    std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> sites;
+
+    for(int i = 0; i < data.size(); i++)
+    {
+        sites.push_back(*data[i]);
+    }
 
     mace::planners::TSP_2OPT<mace::pose::Position<mace::pose::CartesianPosition_2D>> TSP;
-    TSP.updateSites(vector);
+    TSP.updateSites(sites);
 
     TSP.executeTSP(start,rtn);
 
