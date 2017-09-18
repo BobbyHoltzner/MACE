@@ -12,7 +12,6 @@ import { ContextMenu } from '../components/ContextMenu';
 import { Heatmap } from './mapLayers/heatmap';
 
 
-
 type Props = {
     handleSelectedAircraftUpdate: (id: string) => void,
     connectedVehicles: {[id: string]: Vehicle},

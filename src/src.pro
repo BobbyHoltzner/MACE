@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     common \
+    base \
     data \
     comms \
     commsMACE \
@@ -28,4 +29,7 @@ SUBDIRS += \
     voropp \
     module_resource_task_allocation \
 #    Voronoi
-    mace
+    mace \
+    maps \
+    TestMaps \
+    planners

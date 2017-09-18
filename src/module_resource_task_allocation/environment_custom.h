@@ -15,6 +15,11 @@
 #include <tuple>
 
 #include "data_generic_state_item_topic/state_topic_components.h"
+#include "base/pose/cartesian_position_2D.h"
+#include "base/geometry/cell_2DC.h"
+#include "maps/bounded_2d_grid.h"
+
+#include "data/timer.h"
 
 /**
  * @brief The GridDirection enum to denote how we sort cell nodes
@@ -107,7 +112,13 @@ public:
      * @param verts Vector of vertices that make up the environment boundary
      * @param gridSpacing Spacing between grid points
      */
-    Environment_Map(const std::vector<Point> verts, double gridSpacing, const DataState::StateGlobalPosition globalOrigin);
+    Environment_Map(const std::vector<Point> &verts, double &gridSpacing, const DataState::StateGlobalPosition &globalOrigin);
+
+    ~Environment_Map()
+    {
+        delete m_dataGrid;
+        m_dataGrid = NULL;
+    }
 
     /**
      * @brief initializeEnvironment Initialize each node in the grid with a 0 value
@@ -119,11 +130,10 @@ public:
     /**
      * @brief computeVoronoi Given the bounding box and current vehicle positions, compute a voronoi diagram
      * @param cellVec Container for vector of cells to be assigned by vehicle distances
-     * @param bbox Bounding box
      * @param sitePositions Positions of sites (in x,y,z coordinates)
      * @return Success or Failure
      */
-    bool computeVoronoi(std::vector<Cell> &cellVec, const BoundingBox bbox, const std::vector<Point> vehicles, GridDirection direction);
+    bool computeVoronoi(std::vector<Cell> &cellVec, const std::vector<Point> vehicles, GridDirection direction);
 
     /**
      * @brief Environment_Map::computeBalancedVoronoi Use the number of vehicles and their positions to create a balanced Voronoi partition
@@ -307,6 +317,28 @@ private:
 
 
 private:
+
+    void clearDataGrid()
+    {
+        delete m_dataGrid;
+        m_dataGrid = NULL;
+    }
+
+    /**
+     * @brief m_dataGrid data structure holding a standardized grid of data
+     * that is constrained by a Polygon_2DC boundary.
+     */
+    mace::maps::Bounded2DGrid* m_dataGrid;
+
+    /**
+     * @brief m_boundary data structure holding a vector of Cartesian_2D points
+     * that define the boundary in which the environment is valid for vehicle
+     * movement.
+     */
+    mace::geometry::Polygon_2DC m_boundary;
+
+
+
     /**
      * @brief nodes Environment map (sorted Xval, Yval)
      */

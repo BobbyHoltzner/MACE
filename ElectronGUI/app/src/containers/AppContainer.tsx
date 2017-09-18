@@ -35,7 +35,8 @@ import * as deepcopy from 'deepcopy';
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
-var net = electronRequire('net');
+//var net = electronRequire('net');
+var net = require('net');
 
 // // Performance testing:
 // var Perf = require('react-addons-perf');

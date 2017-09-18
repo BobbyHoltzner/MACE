@@ -1,5 +1,5 @@
-#ifndef COORDINATE_FRAME_H
-#define COORDINATE_FRAME_H
+#ifndef COORDINATE_FRAMEOLD_H
+#define COORDINATE_FRAMEOLD_H
 
 #include <string>
 #include <stdexcept>

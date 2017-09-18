@@ -124,12 +124,6 @@ bool ModuleRTA::parseBoundaryVertices(std::string unparsedVertices, const DataSt
     if (!nextVert.empty())
          verts.push_back(nextVert);
 
-//    CommandItem::SpatialHome origin = this->getDataObject()->GetGlobalOrigin();
-//    DataState::StateGlobalPosition tmpGlobalOrigin;
-//    tmpGlobalOrigin.setLatitude(origin.position.getX());
-//    tmpGlobalOrigin.setLongitude(origin.position.getY());
-//    tmpGlobalOrigin.setAltitude(origin.position.getZ());
-
     // Now parse each string in the vector for each lat/lon to be inserted into our vertices vector:
     for(auto str : verts) {
         std::cout << "Vertex: " << str << std::endl;
