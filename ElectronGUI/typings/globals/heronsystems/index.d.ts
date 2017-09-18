@@ -185,3 +185,11 @@ type EnvironmentSettingsType = {
   showBoundingBox: boolean,
   gridSpacing: number
 }
+
+type HeatmapOptions = {
+  size?: number,
+  units?: 'm' | 'px',
+  opacity?: number,
+  gradientTexture?: string,
+  alphaRange?: number
+}

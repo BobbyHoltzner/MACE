@@ -9,10 +9,8 @@ import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon } from 'react-lea
 import * as colors from 'material-ui/styles/colors';
 import { Vehicle } from '../Vehicle';
 import { ContextMenu } from '../components/ContextMenu';
-// import HeatmapLayer from 'react-leaflet-heatmap-layer';
+import { Heatmap } from './mapLayers/heatmap';
 
-require('../../../html/js/webgl-heatmap.js');
-require('../../../html/js/leaflet-webgl-heatmap.min.js');
 
 
 type Props = {
@@ -41,11 +39,12 @@ type Props = {
 
 type State = {
     showContextMenu?: boolean,
-    dragging?: boolean,
+    dragging?: boolean
 }
 
 export default class MACEMap extends React.Component<Props, State> {
   leafletMap: any;
+  heatmap: Heatmap;
   constructor(props: Props) {
     super(props);
 
@@ -64,18 +63,6 @@ export default class MACEMap extends React.Component<Props, State> {
   // }
 
   componentDidMount(){
-    // this.leafletMap = this.refs.map as any;
-
-
-    var heatmap = L.webGLHeatmap({
-      size: 60,
-      units: 'm',
-      opacity: 0.75,
-      gradientTexture: './images/heatgradient2.png'
-    });
-
-    // 37.889231, -76.810302
-
     var dataPoints = [
       [37.889031, -76.810302, 0.3],
       [37.888131, -76.810302, 0.4],
@@ -86,11 +73,7 @@ export default class MACEMap extends React.Component<Props, State> {
       [37.883631, -76.810302, 1]
     ];
 
-    heatmap.setData( dataPoints );
-
-    console.log(heatmap);
-    // console.log(this.leafletMap.leafletElement);
-    this.leafletMap.leafletElement.addLayer(heatmap);
+    this.heatmap = new Heatmap(this.leafletMap, dataPoints);
   }
 
 
@@ -103,60 +86,11 @@ export default class MACEMap extends React.Component<Props, State> {
     this.setState({showContextMenu: !this.state.showContextMenu});
   }
 
-  // _onDrawEditPath = (e: any) => {
-  //   console.log('Path edited !');
-  // }
-
-  // _onDrawCreate = (e: any) => {
-  //   // polyline = e.layer;
-  //   // To edit this polyline call : polyline.handler.enable()
-  //   console.log('Path created !');
-  // }
-
-  // _onDrawDeleted = (e: any) => {
-  //   console.log('Path deleted !');
-  // }
-
-  // _mountedDraw = (drawControl: any) => {
-  //   console.log('Component mounted !');
-  // }
-
-  // _onDrawEditStart = () => {
-  //   console.log('Edit is starting !');
-  // }
-
-  // _onDrawEditStop = () => {
-  //   console.log('Edit is stopping !');
-  // }
-
-  // _onDrawDeleteStart = () => {
-  //   console.log('Delete is starting ! ... Probably want to make this an "undo" style button. Undo the previous layer');
-  // }
-
-  // _onDrawDeleteStop = () => {
-  //   console.log('Delete is stopping ! ... Probably want to just delete');
-  // }
-
   handleMapClick = (event: L.MouseEvent) => {
     if(!this.state.dragging) {
       this.props.onAddPolygonPt(event);
     }
   }
-
-  handleDragStart = (e: L.MouseEvent) => {
-    console.log("Drag start");
-    // this.setState({dragging: true});
-  }
-
-  handleDragEnd = (e: L.MouseEvent) => {
-    console.log("Drag end");
-  }
-
-  handleDrag = (e: L.MouseEvent) => {
-    console.log("Dragging...");
-  }
-
-
 
   render() {
 
@@ -224,13 +158,6 @@ export default class MACEMap extends React.Component<Props, State> {
       }
     }
 
-    // const addressPoints = [
-    //   [37.889231, -76.810302, "39"],
-    //   [37.889231, -76.812302, "29"],
-    //   [37.889231, -76.814302, "19"],
-    //   [37.889231, -76.816302, "9"]
-    // ];
-
     return (
         <MuiThemeProvider muiTheme={lightMuiTheme}>
           <div style={parentStyle}>
@@ -256,36 +183,19 @@ export default class MACEMap extends React.Component<Props, State> {
                     {/* Aircraft Icons */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
                       return (
-                        <Marker zIndexOffset={1000} onclick={(e: L.MouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.props.connectedVehicles[key].vehicleMarker.latLon} icon={this.props.connectedVehicles[key].vehicleMarker.icon} title={key}>
-                        {/*
-                          <Popup open={true}>
-                          </Popup>
-                        */}
-                        </Marker>
+                        <Marker zIndexOffset={1000} onclick={(e: L.MouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.props.connectedVehicles[key].vehicleMarker.latLon} icon={this.props.connectedVehicles[key].vehicleMarker.icon} title={key} />
                       );
                     })}
 
                     {/* Home Icons */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
                       return (
-                        <Marker onclick={(e: L.MouseEvent) => this.handleMarkerClick(e, key, "home")} key={key} position={this.props.connectedVehicles[key].homePosition.latLon} icon={this.props.connectedVehicles[key].homePosition.icon} title={key}>
-                        {/*
-                          <Popup open={true}>
-                            <span>Selected</span>
-                          </Popup>
-                        */}
-                        </Marker>
+                        <Marker onclick={(e: L.MouseEvent) => this.handleMarkerClick(e, key, "home")} key={key} position={this.props.connectedVehicles[key].homePosition.latLon} icon={this.props.connectedVehicles[key].homePosition.icon} title={key} />
                       );
                     })}
 
                     {/* Global Origin */}
-                    <Marker position={globalOriginMarker.position} icon={globalOriginMarker.icon}>
-                    {/*
-                      <Popup open={true}>
-                        <span>Selected</span>
-                      </Popup>
-                    */}
-                    </Marker>
+                    <Marker position={globalOriginMarker.position} icon={globalOriginMarker.icon} />
 
                     {/* Mission Paths */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
@@ -342,8 +252,6 @@ export default class MACEMap extends React.Component<Props, State> {
                       tmpTrimmedGridPts
                     }
 
-
-
                     {/* Drawing polygon */}
                     <Polygon positions={tmpPts} color={colors.white} fillColor={colors.purple400} />
                     {drawingMarkers}
@@ -351,47 +259,6 @@ export default class MACEMap extends React.Component<Props, State> {
 
                   </LayerGroup>
                 }
-
-                {/* {this.props.showDraw && */}
-                    {/* <FeatureGroup>
-                      <EditControl
-                        position='topleft'
-                        onEdited={this._onDrawEditPath}
-                        onCreated={this._onDrawCreate}
-                        onDeleted={this._onDrawDeleted}
-                        onMounted={this._mountedDraw}
-                        onEditStart={this._onDrawEditStart}
-                        onEditStop={this._onDrawEditStop}
-                        onDeleteStart={this._onDrawDeleteStart}
-                        onDeleteStop={this._onDrawDeleteStop}
-                        draw={
-                          {
-                            marker: false,
-                            circle: false,
-                            polyline: false,
-                            delete: false
-                          }
-                        }
-                        style={{size: 100}}
-                      />
-                  </FeatureGroup> */}
-                 {/* } */}
-
-                 {/* <HeatmapLayer
-                  fitBoundsOnLoad={ false }
-                  fitBoundsOnUpdate={ false }
-                  points={ addressPoints }
-                  longitudeExtractor={ (m: any) => m[1] }
-                  latitudeExtractor={ (m: any) => m[0] }
-                  intensityExtractor={ (m: any) => parseFloat(m[2]) }
-                  max={39}
-                  radius={10}
-                  minOpacity={0.2}
-                  blur={1}
-                  gradient={{ 0.2: 'blue', 0.6: 'orange', 1.0: 'red' }}
-                  scaleRadius={false}
-                  useLocalExtrema={true}
-                 /> */}
 
             </Map>
           </div>
