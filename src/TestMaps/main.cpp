@@ -1,7 +1,7 @@
 #include <QCoreApplication>
 
 #include "base/geometry/cell_2DC.h"
-#include "planners/tsp_greedy_nearest_neighbor.h"
+#include "planners/tsp_2opt.h"
 
 #include <iostream>
 
@@ -41,19 +41,21 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> vector;
-    mace::pose::Position<mace::pose::CartesianPosition_2D> start("start",0.0,0.0);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("point1",1.0,1.0);
+
+    mace::pose::Position<mace::pose::CartesianPosition_2D> start("start",-10.0,10.0);
+    vector.push_back(start);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("point1",-5.0,5.0);
     vector.push_back(point1);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("point2",2.0,2.0);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("point2",5.0,-5.0);
     vector.push_back(point2);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> point3("point3",3.0,3.0);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point3("point3",-5.0,-5.0);
     vector.push_back(point3);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> point4("point4",4.0,4.0);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point4("point4",5.0,5.0);
     vector.push_back(point4);
 
-    mace::planners::TSP_GreedyNearestNeighbor<mace::pose::Position<mace::pose::CartesianPosition_2D>> TSP;
+    mace::planners::TSP_2OPT<mace::pose::Position<mace::pose::CartesianPosition_2D>> TSP;
     TSP.updateSites(vector);
-    TSP.executeTSP(start);
+    TSP.executeTSP(start,vector);
 
 //    mace::pose::Position<mace::pose::CartesianPosition_2D> pos1("Node1",-10,-10);
 //    mace::pose::Position<mace::pose::CartesianPosition_2D> pos2("Node2",-10,10);

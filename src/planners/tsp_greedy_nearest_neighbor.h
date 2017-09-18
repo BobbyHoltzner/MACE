@@ -24,11 +24,13 @@ public:
 
     void clearSites();
 
-    std::vector<T> executeTSP(const T &start);
+    double computeTourLength(const std::vector<T*> tour);
 
+    virtual double executeTSP(const T &start, std::vector<T> &tour);
 
-private:
+protected:
     std::vector<T*> copy_sites();
+    std::vector<T*> copy_sites(std::vector<T> &tour);
 
 private:
     std::vector<T> m_siteNodes;

@@ -27,14 +27,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         planners.cpp \
     nearest_neighbor_linear.cpp \
-    tsp_greedy_nearest_neighbor.cpp
+    tsp_greedy_nearest_neighbor.cpp \
+    tsp_2opt.cpp
 
 HEADERS += \
         planners.h \
         planners_global.h \ 
     nearest_neighbor.h \
     nearest_neighbor_linear.h \
-    tsp_greedy_nearest_neighbor.h
+    tsp_greedy_nearest_neighbor.h \
+    tsp_2opt.h
 
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/planners

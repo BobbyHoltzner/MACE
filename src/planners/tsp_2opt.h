@@ -1,0 +1,22 @@
+#ifndef TSP_2OPT_H
+#define TSP_2OPT_H
+
+#include <cmath>
+#include "tsp_greedy_nearest_neighbor.h"
+
+namespace mace {
+namespace planners{
+
+template <class T>
+class TSP_2OPT : public TSP_GreedyNearestNeighbor<T>
+{
+public:
+    TSP_2OPT();
+
+public:
+    double executeTSP(const T &start, std::vector<T> &tour) override;
+};
+
+} //end of namespace planners
+} //end of namespace mace
+#endif // TSP_2OPT_H
