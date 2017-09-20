@@ -62,17 +62,17 @@ export default class MACEMap extends React.Component<Props, State> {
   // }
 
   componentDidMount(){
-    var dataPoints = [
-      [37.889031, -76.810302, 0.3],
-      [37.888131, -76.810302, 0.4],
-      [37.887231, -76.810302, 0.5],
-      [37.886331, -76.810302, 0.6],
-      [37.885431, -76.810302, 0.7],
-      [37.884531, -76.810302, 0.8],
-      [37.883631, -76.810302, 1]
-    ];
+    // var dataPoints = [
+    //   [37.889031, -76.810302, 0.3],
+    //   [37.888131, -76.810302, 0.4],
+    //   [37.887231, -76.810302, 0.5],
+    //   [37.886331, -76.810302, 0.6],
+    //   [37.885431, -76.810302, 0.7],
+    //   [37.884531, -76.810302, 0.8],
+    //   [37.883631, -76.810302, 1]
+    // ];
 
-    this.heatmap = new Heatmap(this.leafletMap, dataPoints);
+    this.heatmap = new Heatmap(this.leafletMap);
   }
 
 
@@ -132,6 +132,7 @@ export default class MACEMap extends React.Component<Props, State> {
     }
 
     let tmpGridPts = [];;
+    // let tmpHeatPts = [];
     if(this.props.drawPolygonPts.length > 2) {
       let gridIcon = new L.Icon({
             iconUrl: './images/ic_add_white_24dp_1x.png',
@@ -141,7 +142,10 @@ export default class MACEMap extends React.Component<Props, State> {
         });
       for(let i = 0; i < this.props.gridPts.inPoly.length; i++) {
         tmpGridPts.push(<Marker key={i} position={this.props.gridPts.inPoly[i]} title={i.toString()} icon={gridIcon} draggable={false} />);
+        // tmpHeatPts.push([this.props.gridPts.inPoly[i].lat, this.props.gridPts.inPoly[i].lng, 0.5]);
       }
+
+      // this.heatmap.setData(tmpHeatPts, false);
     }
 
     let tmpTrimmedGridPts = [];;

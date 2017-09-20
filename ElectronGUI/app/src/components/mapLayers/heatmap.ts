@@ -11,7 +11,7 @@ export class Heatmap {
     // Leaflet namespace for some reason doesn't have `leafletElement` on the map, which throws compiler errors
     constructor(leafletMap: any, data?: number[][], options?: HeatmapOptions){
         this.leafletMap = leafletMap;
-        this.options = options ? options : {size: 200, units: 'm', opacity: 0.75, gradientTexture: './images/heatgradient2.png'};
+        this.options = options ? options : {size: 100, units: 'm', opacity: 0.75, gradientTexture: './images/heatgradient2.png'};
         this.dataPoints = data ? data : [];
         this.heatmap = L.webGLHeatmap(this.options);
 
