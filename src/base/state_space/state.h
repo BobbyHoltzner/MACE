@@ -1,7 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include "base_global.h"
+#include "base/base_global.h"
 
 //This class is intended to be abstract as well
 
@@ -14,12 +14,6 @@ public:
     State() = default;
 
     virtual ~State() = default;
-
-    /** \brief Disable copy-constructor */
-    State(const State &) = delete;
-
-    /** \brief Disable copy operator */
-    const State &operator=(const State &) = delete;
 
 public:
     template <class T>

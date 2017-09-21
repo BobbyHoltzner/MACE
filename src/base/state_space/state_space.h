@@ -3,7 +3,8 @@
 
 #include <string>
 
-#include "base_global.h"
+#include "base/base_global.h"
+
 #include "state_space_types.h"
 #include "state.h"
 

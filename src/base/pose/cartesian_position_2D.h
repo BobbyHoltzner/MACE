@@ -2,12 +2,13 @@
 #define CARTESIAN_POSITION_2D_H
 
 #include "base_position.h"
-#include "state_space/state_space.h"
+#include "base/state_space/state.h"
 
 namespace mace{
 namespace pose {
 
-class CartesianPosition_2D : public AbstractPosition<CartesianPosition_2D, misc::Data2D>, public CartesianPosition
+class CartesianPosition_2D : public AbstractPosition<CartesianPosition_2D, misc::Data2D>, public CartesianPosition,
+        public state_space::State
 {
 public:
     CartesianPosition_2D():
