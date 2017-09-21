@@ -269,7 +269,6 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
  */
 void ModuleRTA::updateMACEMissions(std::map<int, Cell_2DC> updateCells, GridDirection direction) {
     DataState::StateGlobalPosition tmpGlobalOrigin;
-
     if(environment->getGlobalOrigin()->has2DPositionSet()) {
         tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getLatitude());
         tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getLongitude());
@@ -326,21 +325,66 @@ void ModuleRTA::updateMACEMissions(std::map<int, Cell_2DC> updateCells, GridDire
 
 
 void ModuleRTA::TestFunction(const int &vehicleID) {
-    GridDirection direction = GridDirection::EAST_WEST;
-    std::map<int, Position<CartesianPosition_2D> > vehicles;
-    Position<CartesianPosition_2D> pt1, pt2;
-    pt1.setXPosition(5); pt1.setYPosition(5);
-    pt2.setXPosition(-5); pt2.setYPosition(-5);
-    vehicles.insert(std::make_pair(1, pt1));
-    vehicles.insert(std::make_pair(2, pt2));
+//    GridDirection direction = GridDirection::EAST_WEST;
+//    std::map<int, Position<CartesianPosition_2D> > vehicles;
+//    Position<CartesianPosition_2D> pt1, pt2;
+//    pt1.setXPosition(5); pt1.setYPosition(5);
+//    pt2.setXPosition(-5); pt2.setYPosition(-5);
+//    vehicles.insert(std::make_pair(1, pt1));
+//    vehicles.insert(std::make_pair(2, pt2));
 
-    bool updateMaceCore = environment->computeBalancedVoronoi(vehicles);
-    if(updateMaceCore) {
-        updateMACEMissions(environment->getCells(), direction);
+//    bool updateMaceCore = environment->computeBalancedVoronoi(vehicles);
+//    if(updateMaceCore) {
+//        updateMACEMissions(environment->getCells(), direction);
+//    }
+
+//    std::map<int, Cell_2DC> cells = environment->getCells();
+//    for(auto cell : cells) {
+//        environment->printCellInfo(cell.second);
+//    }
+
+    DataState::StateGlobalPosition tmpGlobalOrigin;
+    if(environment->getGlobalOrigin()->has2DPositionSet()) {
+        tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getLatitude());
+        tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getLongitude());
+        tmpGlobalOrigin.setAltitude(environment->getGlobalOrigin()->getAltitude());
+    }
+    else {
+        std::cout << "No global origin set. Cannot update missions for MACE" << std::endl;
+        return;
     }
 
-    std::map<int, Cell_2DC> cells = environment->getCells();
-    for(auto cell : cells) {
-        environment->printCellInfo(cell.second);
+
+    std::vector<Position<CartesianPosition_2D> > pts;
+    Position<CartesianPosition_2D> pt1; pt1.setXPosition(0.0); pt1.setYPosition(0.0);
+    Position<CartesianPosition_2D> pt2; pt2.setXPosition(10.0); pt2.setYPosition(0.0);
+    Position<CartesianPosition_2D> pt3; pt3.setXPosition(30.0); pt3.setYPosition(0.0);
+    Position<CartesianPosition_2D> pt4; pt4.setXPosition(80.0); pt4.setYPosition(0.0);
+    pts.push_back(pt1); pts.push_back(pt2); pts.push_back(pt3); pts.push_back(pt4);
+
+    MissionItem::MissionList missionList;
+    missionList.setMissionTXState(MissionItem::MISSIONSTATE::PROPOSED);
+    missionList.setMissionType(MissionItem::MISSIONTYPE::AUTO);
+    missionList.setVehicleID(2);
+
+    for(auto point : pts) {
+        std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
+        newWP->setTargetSystem(vehicleID);
+
+        DataState::StateLocalPosition tmpLocalPoint;
+        tmpLocalPoint.setX(point.getXPosition());
+        tmpLocalPoint.setY(point.getYPosition());
+        tmpLocalPoint.setZ(10);
+
+        DataState::StateGlobalPosition tmpGlobalPoint;
+        DataState::PositionalAid::LocalPositionToGlobal(tmpGlobalOrigin, tmpLocalPoint, tmpGlobalPoint);
+        newWP->setPosition(tmpGlobalPoint);
+
+        missionList.insertMissionItem(newWP);
     }
+
+    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr){
+        ptr->GSEvent_UploadMission(this, missionList);
+    });
+
 }
