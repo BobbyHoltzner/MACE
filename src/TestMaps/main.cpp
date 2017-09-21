@@ -7,7 +7,7 @@
 
 #include "base/state_space/cartesian_2D_space.h"
 
-#include "flann.hpp"
+#include "planners/rrt_base.h"
 
 #include <iostream>
 #include <QFile>
@@ -50,12 +50,14 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
     using namespace mace::state_space;
 
-    Cartesian2DSpaceBounds bounds(-10,10,-10,10);
-    Cartesian2DSpace space;
-    space.setBounds(bounds);
-    Cartesian2DSpace_Sampler sampler(&space);
-    mace::pose::CartesianPosition_2D state;
-    sampler.sampleUniform(&state);
+//    Cartesian2DSpaceBounds bounds(-10,10,-10,10);
+//    Cartesian2DSpace space;
+//    space.setBounds(bounds);
+//    Cartesian2DSpace_Sampler sampler(&space);
+//    mace::pose::CartesianPosition_2D state;
+//    sampler.sampleUniform(&state);
+
+    mace::nn::KDTreeTest test;
 
 //    char* MACEPath = getenv("MACE_ROOT");
 //    if(MACEPath){

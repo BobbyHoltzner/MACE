@@ -12,6 +12,7 @@ TEMPLATE = lib
 DEFINES += PLANNERS_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unknown-pragmas
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -71,8 +72,7 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbas
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
 else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
 
+unix:!macx|win32: LIBS += -L$$PWD/../../../Flann/build/lib/ -llibflann_cpp.dll
 
-unix:!macx|win32: LIBS += -L$$PWD/../../Flann/build/lib/ -llibflann.dll
-
-INCLUDEPATH += $$PWD/../../Flann/build/include
-DEPENDPATH += $$PWD/../../Flann/build/include
+INCLUDEPATH += $$PWD/../../../Flann/build/include
+DEPENDPATH += $$PWD/../../../Flann/build/include

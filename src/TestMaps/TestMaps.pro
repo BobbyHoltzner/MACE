@@ -10,6 +10,7 @@ CONFIG -= app_bundle
 TEMPLATE = app
 
 QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unknown-pragmas
 
 SOURCES += main.cpp
 
@@ -23,6 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -40,3 +42,8 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../planners/ -lplanners
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../maps/release/ -lmaps
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../maps/debug/ -lmaps
 else:unix:!macx: LIBS += -L$$OUT_PWD/../maps/ -lmaps
+
+unix:!macx|win32: LIBS += -L$$PWD/../../../Flann/build/lib/ -llibflann_cpp.dll
+
+INCLUDEPATH += $$PWD/../../../Flann/build/include
+DEPENDPATH += $$PWD/../../../Flann/build/include
