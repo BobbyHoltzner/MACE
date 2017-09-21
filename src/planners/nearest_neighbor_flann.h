@@ -165,7 +165,7 @@ public:
 
     T nearest(const T &data) const override
     {
-        if (size())
+        if (size() > 0)
         {
             auto &cast = const_cast<T &>(data);
             const flann::Matrix<T> query(&cast, 1, dimension_);
