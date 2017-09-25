@@ -44,5 +44,4 @@ void PositionalAid::LocalPositionToGlobal(const StateGlobalPosition &origin, con
     double distance = position.distanceFromOrigin();
     global = origin.NewPositionFromHeadingBearing(distance,bearing,false);
 }
-
 } //end of namespace DataState

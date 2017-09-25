@@ -3,9 +3,9 @@ TEMPLATE = subdirs
 SUBDIRS += \
     common \
     base \
-    data \
     maps \
     planners \
+    data \
     comms \
     commsMACE \
     data_generic_item \
@@ -31,6 +31,4 @@ SUBDIRS += \
     voropp \
     module_resource_task_allocation \
     module_ROS \
-#    Voronoi
     mace
-#    TestMaps \
