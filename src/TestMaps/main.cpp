@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 //    mace::pose::CartesianPosition_2D state;
 //    sampler.sampleUniform(&state);
 
-    mace::nn::KDTreeTest test;
+    //mace::nn::KDTreeTest test;
 
 //    char* MACEPath = getenv("MACE_ROOT");
 //    if(MACEPath){

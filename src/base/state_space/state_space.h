@@ -50,6 +50,12 @@ public:
     {
         return m_type;
     }
+
+public:
+    virtual State* getNewState() const = 0;
+
+    virtual void removeState(State* state) const = 0;
+
 protected:
     StateSpaceTypes m_type;
 

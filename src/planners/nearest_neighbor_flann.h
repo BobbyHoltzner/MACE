@@ -200,6 +200,11 @@ public:
             nn[i] = *index_->getPoint(indices[0][i]);
     }
 
+    //!
+    //! \brief list function is override from base NearestNeighbor that retrieves all of the elements
+    //! stored in the KD-Tree of FLANN and returns.
+    //! \param data object that is used to rethrn the information contained in the tree.
+    //!
     void list(std::vector<T> &data) const override
     {
         std::size_t sz = size();
@@ -246,6 +251,35 @@ protected:
 
     unsigned int dimension_;
 };
+
+
+//class KDTreeTest
+//{
+//   public:
+//    KDTreeTest()
+//    {
+//        NearestNeighbor_FLANN<TestState*> tree = NearestNeighbor_FLANN<TestState*>(std::shared_ptr<flann::LinearIndexParams>(new flann::LinearIndexParams()));
+//        tree.setDistanceFunction([](const TestState* a, const TestState* b)
+//        {
+//            return std::fabs(a->getValue()-b->getValue());
+//        });
+
+//        TestState pos0;
+//        pos0.setValue(10.0);
+//        tree.add(&pos0);
+
+//        TestState pos1;
+//        pos1.setValue(20.0);
+//        tree.add(&pos1);
+
+//        TestState pos2;
+//        pos2.setValue(30.0);
+//        tree.add(&pos2);
+
+//        TestState* nearest = tree.nearest(&pos0);
+//        std::cout<<"I am complete"<<std::endl;
+//    }
+//};
 
 } //end of namespace nn
 } //end of namespace mace

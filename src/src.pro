@@ -3,6 +3,8 @@ TEMPLATE = subdirs
 SUBDIRS += \
     common \
     base \
+    maps \
+    planners \
     data \
     comms \
     commsMACE \
@@ -30,6 +32,4 @@ SUBDIRS += \
     module_resource_task_allocation \
 #    Voronoi
     mace \
-    maps \
-    TestMaps \
-    planners
+    TestMaps

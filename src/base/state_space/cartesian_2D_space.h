@@ -102,6 +102,18 @@ public:
 
     }
 
+    State* getNewState() const override
+    {
+        pose::CartesianPosition_2D* newState = new pose::CartesianPosition_2D();
+        return newState;
+    }
+
+    void removeState(State* state) const override
+    {
+        delete state;
+        state = NULL;
+    }
+
     void setBounds(const Cartesian2DSpaceBounds &bounds)
     {
         this->m_bounds = bounds;
