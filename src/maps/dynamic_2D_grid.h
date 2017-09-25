@@ -224,6 +224,6 @@ protected:
 } //end of namespace maps
 } //end of namespace mace
 
-#include "dynamic_2D_grid.cpp"
+#include "dynamic_2D_grid.tpp"
 
 #endif // DYNAMIC_2D_GRID_H

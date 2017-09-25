@@ -21,7 +21,7 @@ void TSP_2OPT<T>::performSwap(const int &start, const int &end, std::vector<T*> 
     }
 
     size_t size = oldValues.size();
-    for(int i = 0; i < size; i++)
+    for(unsigned int i = 0; i < size; i++)
     {
         tour[end - i] = oldValues[i];
     }
@@ -48,7 +48,6 @@ double TSP_2OPT<T>::execute2OPT(const T &start, std::vector<T> &tour, const bool
 
     size_t size = data.size();
 
-    unsigned int halfwayLength = (unsigned int)ceil(size/2.0);
     //we can optimize this routine but for now lets just leave it
     while(swapPerformed)
     {

@@ -35,7 +35,11 @@ SOURCES += \
     pose/cartesian_position_2D.cpp \
     state_space/real_vector_bounds.cpp \
     pose/geodetic_position_2D.cpp \
-    geometry/cell_2DC.cpp
+    geometry/cell_2DC.cpp \
+    state_space/state_space.cpp \
+    state_space/cartesian_2D_space.cpp \
+    math/random_number_generator.cpp \
+    math/cost.cpp
 
 HEADERS +=\
     base_global.h \
@@ -58,7 +62,16 @@ HEADERS +=\
     misc/abstract_data.h \
     pose/geodetic_position_2D.h \
     geometry/polygon_2DC.h \
-    geometry/cell_2DC.h
+    geometry/cell_2DC.h \
+    state_space/state_sampler.h \
+    state_space/state_space_types.h \
+    state_space/state_space.h \
+    state_space/state.h \
+    state_space/space_information.h \
+    state_space/state_validity_checker.h \
+    state_space/cartesian_2D_space.h \
+    math/random_number_generator.h \
+    math/cost.h
 
 # Unix lib Install
 unix:!symbian {
@@ -90,7 +103,9 @@ INSTALLS       += headers_geometry
 headers_math.path    = $$(MACE_ROOT)/include/base/math
 headers_math.files   += \
     math/helper_pi.h \
-    math/math_forward.h
+    math/math_forward.h \
+    math/random_number_generator.h \
+    math/cost.h
 INSTALLS       += headers_math
 
 headers_misc.path    = $$(MACE_ROOT)/include/base/misc
@@ -115,8 +130,13 @@ INSTALLS       += headers_pose
 
 headers_state_space.path    = $$(MACE_ROOT)/include/base/state_space
 headers_state_space.files   += \
-    state_space/real_vector.h \
-    state_space/real_vector_bounds.h
+    state_space/state_sampler.h \
+    state_space/state_space_types.h \
+    state_space/state_space.h \
+    state_space/state.h \
+    state_space/space_information.h \
+    state_space/state_validity_checker.h \
+    state_space/cartesian_2D_space.h
 INSTALLS       += headers_state_space
 
 INCLUDEPATH += $$PWD/../

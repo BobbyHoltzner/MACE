@@ -12,6 +12,7 @@ TEMPLATE = lib
 DEFINES += PLANNERS_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unknown-pragmas
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -28,15 +29,22 @@ SOURCES += \
         planners.cpp \
     nearest_neighbor_linear.cpp \
     tsp_greedy_nearest_neighbor.cpp \
-    tsp_2opt.cpp
+    tsp_2opt.cpp \
+    probabilistic_roadmap.cpp \
+    rrt_base.cpp \
+    nearest_neighbor_flann.cpp
 
 HEADERS += \
         planners.h \
         planners_global.h \ 
-    nearest_neighbor.h \
     nearest_neighbor_linear.h \
     tsp_greedy_nearest_neighbor.h \
-    tsp_2opt.h
+    tsp_2opt.h \
+    probabilistic_roadmap.h \
+    rrt_base.h \
+    nearest_neighbor_flann.h \
+    nearest_neighbor_abstract.h
+
 
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/planners
@@ -55,6 +63,7 @@ win32:CONFIG(release, debug|release):       lib.files   += release/planners.lib 
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/planners.lib debug/planners.dll
 INSTALLS += lib
 
+
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
@@ -62,3 +71,8 @@ INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
 else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
+
+unix:!macx|win32: LIBS += -L$$PWD/../../../Flann/build/lib/ -llibflann_cpp.dll
+
+INCLUDEPATH += $$PWD/../../../Flann/build/include
+DEPENDPATH += $$PWD/../../../Flann/build/include
