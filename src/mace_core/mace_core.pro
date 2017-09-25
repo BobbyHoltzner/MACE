@@ -32,8 +32,11 @@ HEADERS += mace_core.h\
     optional_parameter.h \
     vehicle_data.h \
     i_module_command_path_planning.h \
+    i_module_command_ROS.h \
     i_module_events_path_planning.h \
+    i_module_events_ROS.h \
     metadata_path_planning.h \
+    metadata_ROS.h \
     mace_data.h \
     observation_history.h \
     module_parameters.h \

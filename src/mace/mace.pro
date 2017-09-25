@@ -89,6 +89,10 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_path_plannin
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_path_planning_NASAPhase2/debug/ -lmodule_path_planning_NASAPhase2
 else:unix: LIBS += -L$$OUT_PWD/../module_path_planning_NASAPhase2/ -lmodule_path_planning_NASAPhase2
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_ROS/release/ -lmodule_ROS
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_ROS/debug/ -lmodule_ROS
+else:unix: LIBS += -L$$OUT_PWD/../module_ROS/ -lmodule_ROS
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/release/ -lmodule_resource_task_allocation
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/debug/ -lmodule_resource_task_allocation
 else:unix:!macx: LIBS += -L$$OUT_PWD/../module_resource_task_allocation/ -lmodule_resource_task_allocation
@@ -142,5 +146,8 @@ INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 
 
-
-
+unix {
+exists(/opt/ros/indigo/lib/) {
+    DEFINES += ROS_EXISTS
+}
+}

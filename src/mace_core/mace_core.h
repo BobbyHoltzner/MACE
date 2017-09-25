@@ -14,6 +14,7 @@
 #include "i_module_command_external_link.h"
 #include "i_module_command_ground_station.h"
 #include "i_module_command_path_planning.h"
+#include "i_module_command_ROS.h"
 #include "i_module_command_RTA.h"
 #include "i_module_command_sensors.h"
 #include "i_module_command_vehicle.h"
@@ -21,6 +22,7 @@
 #include "i_module_events_external_link.h"
 #include "i_module_events_ground_station.h"
 #include "i_module_events_path_planning.h"
+#include "i_module_events_ROS.h"
 #include "i_module_events_rta.h"
 #include "i_module_events_sensors.h"
 #include "i_module_events_vehicle.h"
@@ -32,7 +34,7 @@
 namespace MaceCore
 {
 
-class MACE_CORESHARED_EXPORT MaceCore : public IModuleTopicEvents, public IModuleEventsVehicle, public IModuleEventsSensors, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsGroundStation, public IModuleEventsExternalLink
+class MACE_CORESHARED_EXPORT MaceCore : public IModuleTopicEvents, public IModuleEventsVehicle, public IModuleEventsSensors, public IModuleEventsRTA, public IModuleEventsPathPlanning, public IModuleEventsROS, public IModuleEventsGroundStation, public IModuleEventsExternalLink
 {
 
 
@@ -60,6 +62,8 @@ public: //The following functions add specific modules to connect to mace core
     void AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink);
 
     void AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning);
+
+    void AddROSModule(const std::shared_ptr<IModuleCommandROS> &ros);
 
     void AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta);
 
@@ -246,6 +250,7 @@ private:
 
     std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;
+    std::shared_ptr<IModuleCommandROS> m_ROS;
     std::shared_ptr<IModuleCommandSensors> m_Sensors;
     std::shared_ptr<IModuleCommandRTA> m_RTA;
 
