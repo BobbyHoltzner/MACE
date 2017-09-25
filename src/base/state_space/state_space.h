@@ -52,6 +52,8 @@ public:
     }
 
 public:
+    virtual double distanceBetween(const State* lhs, const State* rhs) const = 0;
+public:
     virtual State* getNewState() const = 0;
 
     virtual void removeState(State* state) const = 0;

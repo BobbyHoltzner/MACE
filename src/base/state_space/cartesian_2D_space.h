@@ -124,6 +124,8 @@ public:
         return m_bounds;
     }
 
+    double distanceBetween(const State* lhs, const State* rhs) const override;
+
 public:
     Cartesian2DSpaceBounds m_bounds;
 };
