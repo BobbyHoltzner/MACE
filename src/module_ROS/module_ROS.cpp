@@ -38,6 +38,10 @@ void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector
     UNUSED(topicName);
     UNUSED(senderID);
     UNUSED(componentsUpdated);
+
+    // TODO: On new vehicle position, send to ROS via publishVehiclePosition
+    // TODO: Figure out a better way to check for ROS_EXISTS...the way it is right now, everything
+    //          in this NewTopic method would have to check if ROS_EXISTS before calling any ROS specific methods
 }
 
 void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
@@ -60,6 +64,10 @@ void ModuleROS::setupROS() {
 
 void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {
     std::cout << "Ranges size: " << msg.ranges.size() << std::endl;
+}
+
+void publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos) {
+    std::cout << "Convert local position to Twist message and publish to ROS network" << std::endl;
 }
 
 #endif

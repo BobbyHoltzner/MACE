@@ -62,6 +62,8 @@ public:
     void setupROS();
 
     void newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg);
+
+    void publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos);
 #endif
 
 private:
