@@ -63,7 +63,7 @@ void ModuleROS::setupROS() {
 }
 
 void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {
-    std::cout << "Ranges size: " << msg.ranges.size() << std::endl;
+    std::cout << "Ranges size: " << msg->ranges.size() << std::endl;
 }
 
 void publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos) {

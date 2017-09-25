@@ -4,6 +4,8 @@ SUBDIRS += \
     common \
     base \
     data \
+    maps \
+    planners \
     comms \
     commsMACE \
     data_generic_item \
@@ -30,7 +32,5 @@ SUBDIRS += \
     module_resource_task_allocation \
     module_ROS \
 #    Voronoi
-    mace \
-    maps \
+    mace
 #    TestMaps \
-    planners

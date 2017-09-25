@@ -33,6 +33,14 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldat
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
 else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
+else:unix: LIBS += -L$$OUT_PWD/../base/ -lbase
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../maps/release/ -lmaps
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../maps/debug/ -lmaps
+else:unix: LIBS += -L$$OUT_PWD/../base/ -lmaps
+
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../comms/release/ -lcomms
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../comms/debug/ -lcomms
@@ -149,5 +157,24 @@ INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 unix {
 exists(/opt/ros/indigo/lib/) {
     DEFINES += ROS_EXISTS
+    INCLUDEPATH += /opt/ros/indigo/include
+    INCLUDEPATH += /opt/ros/indigo/lib
+
+        LIBS += -L/opt/ros/indigo/lib -lroscpp
+        LIBS += -L/opt/ros/indigo/lib -lroscpp_serialization
+        LIBS += -L/opt/ros/indigo/lib -lrostime
+        LIBS += -L/opt/ros/indigo/lib -lxmlrpcpp
+        LIBS += -L/opt/ros/indigo/lib -lcpp_common
+        LIBS += -L/opt/ros/indigo/lib -lrosconsole_log4cxx
+        LIBS += -L/opt/ros/indigo/lib -lrosconsole_backend_interface
+        LIBS += -L/opt/ros/indigo/lib -lroslib
+        LIBS += -L/opt/ros/indigo/lib -lrospack
+        LIBS += -L/opt/ros/indigo/lib -lmessage_filters
+        LIBS += -L/opt/ros/indigo/lib -lclass_loader
+        LIBS += -L/opt/ros/indigo/lib -lconsole_bridge
+        LIBS += -L/opt/ros/indigo/lib -lrosconsole
+        LIBS += -L/opt/ros/indigo/lib -limage_transport
+        LIBS += -L/opt/ros/indigo/lib -lcv_bridge
+
 }
 }
