@@ -9,6 +9,9 @@
 
 using namespace voro;
 
+namespace mace {
+namespace geometry{
+
 // This function returns a random double between 0 and 1
 double rnd() {return double(rand())/RAND_MAX;}
 
@@ -16,64 +19,20 @@ double rnd() {return double(rand())/RAND_MAX;}
  * @brief Environment_Map constructor
  * @param verts Vector of vertices that make up the environment boundary
  * @param gridSpacing Spacing between grid points
+ * @param globalOrigin Global origin for environment
  */
-Environment_Map::Environment_Map(const std::vector<Point> &verts, double &gridSpacing, const DataState::StateGlobalPosition &globalOrigin) :
-    boundaryVerts(verts) {
-
+Environment_Map::Environment_Map(const Polygon_2DC &boundingPolygon, double &gridSpacing, const DataState::StateGlobalPosition &globalOrigin) :
+    m_boundary(boundingPolygon) {
+    m_dataGrid = new mace::maps::Bounded2DGrid(m_boundary, gridSpacing, gridSpacing);
     m_globalOrigin = std::make_shared<DataState::StateGlobalPosition>(globalOrigin);
-
-    unsigned int size = verts.size();
-    for(int i = 0; i < size; i++)
-    {
-        mace::pose::Position<mace::pose::CartesianPosition_2D> vertex("Vertice",verts[i].x,verts[i].y);
-        m_boundary.appendVertex(vertex);
-    }
-    m_dataGrid = new mace::maps::Bounded2DGrid(-10,10,-10,10,2,2);
-    //m_dataGrid = new mace::maps::Bounded2DGrid(m_boundary,gridSpacing,gridSpacing);
-
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos1("Node1",-10,-10);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos2("Node2",-10,10);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos3("Node3",0,10);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos4("Node4",0,-10);
-
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos5("Node5",10,10);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> pos6("Node6",10,-10);
-
-    mace::geometry::Cell_2DC polygon3;
-    polygon3.appendVertex(pos1);
-    polygon3.appendVertex(pos2);
-    polygon3.appendVertex(pos5);
-    polygon3.appendVertex(pos6);
-    m_dataGrid->setBoundingPolygon(polygon3);
-
-    mace::geometry::Cell_2DC polygon1;
-    polygon1.appendVertex(pos1);
-    polygon1.appendVertex(pos2);
-    polygon1.appendVertex(pos3);
-    polygon1.appendVertex(pos4);
-
-    mace::geometry::Cell_2DC polygon2;
-    polygon2.appendVertex(pos4);
-    polygon2.appendVertex(pos3);
-    polygon2.appendVertex(pos5);
-    polygon2.appendVertex(pos6);
-
-
-    std::list<mace::pose::Position<mace::pose::CartesianPosition_2D>*> nodeList = m_dataGrid->getBoundedDataList();
-    polygon1.insertNodes(nodeList,true);
-    std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>*> poly1Nodes = polygon1.getNodes();
-    poly1Nodes[0]->setXPosition(14.8);
-    //calculateBoundingRect(verts);
-    //initializeEnvironment(gridSpacing);
 }
 
 /**
  * @brief Environment_Map::computeBalancedVoronoi Use the number of vehicles and their positions to create a balanced Voronoi partition
  * @param vehicles Map of vehicles and their positions
- * @param direction Grid direction for the resulting waypoint pattern
- * @return
+ * @return Success or Failure
  */
-bool Environment_Map::computeBalancedVoronoi(const std::map<int, Point> vehicles, GridDirection direction) {
+bool Environment_Map::computeBalancedVoronoi(const std::map<int, Position<CartesianPosition_2D> > &vehicles) {
     bool success = false;
     // Step 1): Use the number of vehicles to create evenly spaced points in environment
     int numVehicles = vehicles.size();
@@ -81,24 +40,25 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Point> vehicles
     PolySplit polygon;
     polygon.initPolygon(m_boundary, numVehicles);
 
-    std::vector<Point> centroids = polygon.getCentroids();
+    std::vector<Position<CartesianPosition_2D> > centroids = polygon.getCentroids();
     if(centroids.size() != numVehicles) {
         std::cout << "Balanced Voronoi: Number of vehicles does not match number of available polygons." << std::endl;
     }
     else {
         // Step 2): Compute voronoi partition based on centroids of each split polygon
-        std::vector<Cell> cellsVec;
-        success = computeVoronoi(cellsVec, centroids, direction);
+        std::vector<Cell_2DC> cellsVec;
+        success = computeVoronoi(cellsVec, centroids);
+
 
         // Step 3): Assign cells to vehicle IDs based on distance to vehicle/site
         std::vector<int> usedCellIndices;
         for(auto vehicle : vehicles) {
             double dist = std::numeric_limits<double>::max();
-            Cell tmpCell;
+            Cell_2DC tmpCell;
             int counter = 0;
             int index = counter;
             for(auto cell : cellsVec) {
-                double tmpDist = distanceBetweenPoints(cell.site, vehicle.second);
+                double tmpDist = cell.getCenter().distanceTo(vehicle.second);
                 if(tmpDist < dist && std::find(usedCellIndices.begin(), usedCellIndices.end(), counter) == usedCellIndices.end()) {
                     dist = tmpDist;
                     tmpCell = cell;
@@ -112,7 +72,6 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Point> vehicles
         }
     }
 
-//    std::cout << "Number of nodes in environment: " << getNumberOfNodes() << std::endl;
     // Return success or failure:
     return success;
 }
@@ -120,10 +79,10 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Point> vehicles
 /**
  * @brief computeVoronoi Given the bounding box and current vehicle positions, compute a voronoi diagram
  * @param cellVec Container for vector of cells to be assigned by vehicle distances
- * @param sitePositions Positions of sites (in x,y,z coordinates)
+ * @param sitePositions Positions of sites (in x,y coordinates)
  * @return Success or Failure
  */
-bool Environment_Map::computeVoronoi(std::vector<Cell> &cellVec, const std::vector<Point> sites, GridDirection direction) {
+bool Environment_Map::computeVoronoi(std::vector<Cell_2DC> &cellVec, const std::vector<Position<CartesianPosition_2D> > &sitePositions) {
     bool success = false;
 
     // Set up constants for the container geometry
@@ -147,9 +106,9 @@ bool Environment_Map::computeVoronoi(std::vector<Cell> &cellVec, const std::vect
     // Add sites/particles into the container only if they are in the environment
     int voronoiCounter = 0;
 
-    for(auto particle : sites) {
+    for(auto particle : sitePositions) {
         voronoiCounter++;
-        con.put(voronoiCounter, particle.x, particle.y, particle.z);
+        con.put(voronoiCounter, particle.getXPosition(), particle.getYPosition(), 0);
     }
 
     // Loop over all sites in the container and compute each Voronoi
@@ -185,7 +144,7 @@ bool Environment_Map::computeVoronoi(std::vector<Cell> &cellVec, const std::vect
         int count = 1;
         double xVal = NAN;
         double yVal = NAN;
-        std::vector<Point> coords;
+        std::vector<Position<CartesianPosition_2D> > coords;
         // Loop over vertex positions and determine which is the x coordinate, and which is y coordinate:
         for(auto vertexCoord : vertex_positions[counter]) {
             if(count == 1 ) {
@@ -202,7 +161,10 @@ bool Environment_Map::computeVoronoi(std::vector<Cell> &cellVec, const std::vect
                 // Z coord: add our point, reset counter
                 // Add point to our vector:
                 if(vertexCoord < 0) {
-                    coords.push_back(Point(xVal, yVal, 0));
+                    Position<CartesianPosition_2D> tmp;
+                    tmp.setXPosition(xVal);
+                    tmp.setYPosition(yVal);
+                    coords.push_back(tmp);
                 }
                 count = 1;
             }
@@ -212,34 +174,15 @@ bool Environment_Map::computeVoronoi(std::vector<Cell> &cellVec, const std::vect
         counter += 1;
 
         // Create cell and add to map:
-        Cell cell;
-        cell.site.x = x;
-        cell.site.y = y;
-        cell.site.z = z;
-        cell.vertices = coords;
+        Cell_2DC cell(coords, "2D Cartesian Polygon");
         // Sort the cell vertices:
         sortCellVerticesCCW(cell); // TODO: Optimize
-        // Get contained nodes:
-        setNodesInCell(cell); // TODO: Optimize
+        std::list<mace::pose::Position<mace::pose::CartesianPosition_2D>*> nodeList = m_dataGrid->getBoundedDataList();
+        cell.insertNodes(nodeList, true);
 
-        // TODO: There's got to be a better way to sort the North/South direction then creating a whole separate map of y-vals:
-        setContainedNodesYX(cell); // TODO: Optimize
-
-        // Sort the nodes:
-        sortNodesInGrid(cell, direction); // TODO: Optimize
-
-        // TODO-PAT: Instead of doing by vehicle, just insert into a cells array in order
-        //              --Assign cells to vehicle ID by closest site?
-//        cells.insert(std::make_pair(counter, cell));
         cellVec.push_back(cell);
 
       } while (cl.inc()); // Increment to the next cell:
-
-      // Output the particle positions in gnuplot format
-      con.draw_particles("polygons_p.gnu");
-
-      // Output the Voronoi cells in gnuplot format
-      con.draw_cells_gnuplot("polygons_v.gnu");
 
       if(cellVec.size() > 0) {
           success = true;
@@ -247,47 +190,12 @@ bool Environment_Map::computeVoronoi(std::vector<Cell> &cellVec, const std::vect
       return success;
 }
 
-/**
- * @brief getVehicleID Check a cell for the vehicle contained within the cell to grab its ID
- * @param cell Cell who's boundary we will check
- * @param vehicleList List of vehicles and their positions to check
- * @return Vehicle ID
- */
-int Environment_Map::getVehicleID(const Cell cell, const std::map<int, Point> vehicleList) {
-    int vehicleID = -1;
-    // For every vehicle in the vehicle list, test if the vehicle position is within the cell boundary
-    //  -If we have multiple vehicles within the cell boundary, check which one is closest to the cell's site position
-    //      - Whichever is closer, grab that ID
-    //  -If we only have one vehicle, then treat that vehicle as the vehicle as the cell's vehicle and grab its ID
-    //  -IF we don't get any vehicle within the boundary, then its probably time for a replan. return a -1
-
-    double prevDist = std::numeric_limits<double>::max();
-    for(auto vehicle : vehicleList) {
-        bool inCell = pointInPoly(cell.vertices, vehicle.second);
-        if(inCell) {
-            if(vehicleID < 0) {
-                // Means we don't have a vehicle yet. Set our vehicle ID to this vehicle ID
-                vehicleID = vehicle.first;
-                prevDist = distanceBetweenPoints(cell.site, vehicle.second);
-            }
-            else {
-                // Means we already have a vehicle ID. Check which position is closer--that is what we will treat as our cell's vehicle
-                double dist = distanceBetweenPoints(cell.site, vehicle.second);
-                if(dist < prevDist) {
-                    vehicleID = vehicle.first;
-                }
-            }
-        }
-    }
-
-    return vehicleID;
-}
 
 /**
  * @brief sortCellVertices Sort the vertices of a cell in CCW fashion
  * @param cell Cell to update vertex ordering
  */
-void Environment_Map::sortCellVerticesCCW(Cell &cell) {
+void Environment_Map::sortCellVerticesCCW(Cell_2DC &cell) {
     // 1) Create empty cell vertices vector
     // 2) Calculate polar angles and put into vector
     // 3) Find smallest angle
@@ -297,687 +205,65 @@ void Environment_Map::sortCellVerticesCCW(Cell &cell) {
 
     //  1) Calculate angle between site and all vertices
     std::vector<double> angles;
-    std::vector<Point> sortedVerts;
-    for(auto cellVert : cell.vertices) {
-        double angle = atan2(cellVert.y - cell.site.y, cellVert.x - cell.site.x) * (180/M_PI);
+    std::vector<Position<CartesianPosition_2D> > sortedVerts;
+    for(auto cellVert : cell.getVector()) {
+        double angle = atan2(cellVert.getYPosition() - cell.getCenter().getYPosition(), cellVert.getXPosition() - cell.getCenter().getXPosition()) * (180/M_PI);
         angles.push_back(angle);
     }
 
-    while(sortedVerts.size() < cell.vertices.size()) {
+    while(sortedVerts.size() < cell.getVector().size()) {
         std::vector<double>::iterator result = std::min_element(std::begin(angles), std::end(angles));
         int index = std::distance(std::begin(angles), result);
         // Add vertex at this index to our new vector:
-        sortedVerts.push_back(cell.vertices.at(index));
+        sortedVerts.push_back(cell.getVector().at(index));
 
         // Set angle to MAX double value:
         angles.at(index) = std::numeric_limits<double>::max();
     }
 
     // Set our vertices to sorted vertices:
-    cell.vertices = sortedVerts;
-}
-
-
-/*
-std::map<double, std::map<double, Node> > Environment_Map::initializeEnvironment(const double gridSpacing) {
-    std::map<double, std::map<double, Node> > tmpNodes;
-    // Set up X points:
-    int numXPoints = (int)std::floor((boundingRect.max.x - boundingRect.min.x)/gridSpacing);
-    std::vector<double> xVals = createRange(boundingRect.min.x, boundingRect.max.x, numXPoints);
-    // Set up Y points:
-    int numYPoints = (int)std::floor((boundingRect.max.y - boundingRect.min.y)/gridSpacing);
-    std::vector<double> yVals = createRange(boundingRect.min.y, boundingRect.max.y, numYPoints);
-
-    for(auto xVal : xVals) {
-        std::map<double, Node> y_node_map_tmp;
-        for(auto yVal : yVals) {
-            Point tmpPoint(xVal, yVal, 0);
-            Node tmpNode(tmpPoint, 0.0);
-            if(pointInPoly(boundaryVerts, tmpPoint)) {
-                y_node_map_tmp.insert(std::make_pair(yVal, tmpNode));
-            }
-        }
-
-        tmpNodes.insert(std::make_pair(xVal, y_node_map_tmp));
-    }
-
-    // Set environment nodes and return created nodes:
-    nodes = tmpNodes;
-    return nodes;
-}
-*/
-
-/**
- * @brief setBoundaryVerts Set the new boundary vertices
- * @param verts Vector of Points defining the environment boundary
- */
-void Environment_Map::setBoundaryVerts(std::vector<Point> verts) {
-    m_boundary.clearPolygon();
-
-    size_t size = verts.size();
-    for(int i = 0; i < size; i++)
-    {
-        mace::pose::Position<mace::pose::CartesianPosition_2D> vertex("Vertice",verts[i].x,verts[i].y);
-        m_boundary.appendVertex(vertex);
-    }
-    m_dataGrid->setBoundingPolygon(m_boundary);
+    cell.replaceVector(sortedVerts);
 }
 
 /**
- * @brief setNodeValue Set the value of the node closest to the given (x,y) point
- * @param location (x,y) point corresponding to the node we want to set
- * @param value New value for node
- * @return Success/failure
+ * @brief printCellInfo Print stats about a cell to the console
+ * @param cell Cell to print stats for
  */
-bool Environment_Map::setNodeValue(const Point location, double value) {
-    Point closestPt;
-    bool foundPoint = findClosestPoint(location, closestPt);
+void Environment_Map::printCellInfo(const Cell_2DC &cell) {
+    std::cout << " ******************** Printing Cell ******************** " << std::endl;
 
-    if(foundPoint) {
-        nodes.at(closestPt.x).at(closestPt.y).value = value;
+    // Print boundary vertices:
+    std::cout << "      **** Boundary vertices: " << std::endl;
+    std::vector<Position<CartesianPosition_2D> > boundaryVerts = cell.getVector();
+    int tmpVertCounter = 0;
+    for(auto vertex : boundaryVerts) {
+        tmpVertCounter++;
+        std::cout << "Vertex " << tmpVertCounter << ": (" << vertex.getXPosition() << ", " << vertex.getYPosition() << ")" << std::endl;
     }
+    std::cout << std::endl << std::endl;
 
-    return foundPoint;
+    // Print bounding rectangle:
+    std::cout << "      **** Boundary rectangle vertices: " << std::endl;
+    std::vector<Position<CartesianPosition_2D> > boundingRect = cell.getBoundingRect().getVector();
+    int tmpBoundingVertCounter = 0;
+    for(auto vertex : boundingRect) {
+        tmpBoundingVertCounter++;
+        std::cout << "Vertex " << tmpBoundingVertCounter << ": (" << vertex.getXPosition() << ", " << vertex.getYPosition() << ")" << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+
+    // Print center:
+    std::cout << "      **** Center: " << std::endl;
+    Position<CartesianPosition_2D> center = cell.getCenter();
+    std::cout << "Center: (" << center.getXPosition() << ", " << center.getYPosition() << ")" << std::endl;
+
+    // Print node stats:
+    std::cout << "      **** Node stats: " << std::endl;
+    std::vector<Position<CartesianPosition_2D>*> nodes = cell.getNodes();
+    std::cout << "Num nodes: " << nodes.size() << std::endl;
+
+    std::cout << " __________________ End Printing Cell __________________ " << std::endl;
 }
 
-/**
- * @brief getNodeValue Get the value of the node closest to the given (x,y) point
- * @param location (x,y) point corresponding to the node we want to set
- * @param node Node closest to the given point
- * @return Success/failure
- */
-bool Environment_Map::getNodeValue(const Point location, Node &node) {
-    bool foundNode = findClosestNode(location, node);
-
-    if(foundNode){
-        std::cout << "Closest node at (" << node.location.x << ", " << node.location.y << "), value: " << node.value << std::endl;
-    }
-
-    return foundNode;
-}
-
-/**
- * @brief setNodesInCell Get the nodes contained in the polygon provided in a cell
- * @param Cell Cell with boundary of points that make up the footprint we want to check
- */
-void Environment_Map::setNodesInCell(Cell &cell) {
-    // Clear unsorted points:
-    cell.unsortedContainedPoints.clear();
-
-    std::map<double, std::map<double, Node> > tmpContainedNodes;
-    int count = 0;
-    int nodeCounter = 0;
-    for(auto nodeX : nodes) {
-        double xVal = nodeX.first;
-
-        std::map<double, Node> y_node_map_tmp;
-        for(auto nodeY : nodeX.second) {
-            double yVal = nodeY.first;
-
-            Point tmpPoint = Point(xVal, yVal,0);
-            bool inCell = pointInPoly(cell.vertices, tmpPoint);
-
-            if(inCell){
-                bool inEnvironment = pointInPoly(boundaryVerts, tmpPoint);
-                if(inEnvironment) {
-                    count ++;
-                    y_node_map_tmp.insert(std::make_pair(yVal, nodeY.second));
-
-                    // Insert into unsorted points vector:
-                    cell.unsortedContainedPoints.push_back(Point(xVal, yVal, 0.0));
-                }
-            }
-
-            nodeCounter++;
-        }
-
-        if(y_node_map_tmp.size() > 0) {
-            tmpContainedNodes.insert(std::make_pair(xVal, y_node_map_tmp));
-        }
-    }
-
-
-//    std::cout << "Number of nodes in footprint: " << containedNodes.size() * containedNodes.begin()->second.size() << " / Total nodes: " << nodes.size() * nodes.begin()->second.size() << std::endl;
-
-    // Set containedNodes
-    cell.containedNodes = tmpContainedNodes;
-}
-
-/**
- * @brief findClosestPoint Find the closest (x,y) grid point corresponding to the (x,y) pair given
- * @param testPoint Location we want to grab the corresponding grid point for
- * @param closestPoint Grid point closest to the provided point
- * @return Success/failure
- */
-bool Environment_Map::findClosestPoint(Point testPoint, Point &closestPoint) {
-
-    // First check if the point is even in the environment we are observing:
-    if(pointInPoly(boundaryVerts, testPoint)) {
-        auto xPoint = nodes.lower_bound(testPoint.x);
-        if(xPoint != nodes.end()) {
-            auto xPrev = nodes.lower_bound(testPoint.x);
-            if(xPrev != nodes.begin()) {
-                --xPrev;
-            }
-
-            if(fabs(xPrev->first-testPoint.x) < fabs(xPoint->first-testPoint.x)){
-                xPoint = xPrev;
-            }
-
-
-            auto yPoint = xPoint->second.lower_bound(testPoint.y);
-            if(yPoint != xPoint->second.end()) {
-                auto yPrev = xPoint->second.lower_bound(testPoint.y);
-                if(yPrev != xPoint->second.begin()) {
-                    --yPrev;
-                }
-
-                if(fabs(yPrev->first-testPoint.y) < fabs(yPoint->first-testPoint.y)){
-                    yPoint = yPrev;
-                }
-
-                closestPoint = Point(xPoint->first, yPoint->first, 0);
-            }
-
-            return true;
-        }
-        else {
-            std::cout << "No point close to (" << testPoint.x << ", " << testPoint.y << std::endl;
-            closestPoint = Point(NAN, NAN, NAN); // TODO: Figure out better way to denote "not found"
-
-            return false;
-        }
-    }
-    else {
-        std::cout << "(" << testPoint.x << ", " << testPoint.y << ") is outside the environment we are observing." << std::endl;
-        closestPoint = Point(NAN, NAN, NAN);
-
-        return false;
-    }
-}
-
-/**
- * @brief distanceBetweenPoints Caluclate the distance between two points
- * @param pt1
- * @param pt2
- * @return Distance
- */
-double Environment_Map::distanceBetweenPoints(Point pt1, Point pt2) {
-    double xDiff = pt2.x - pt1.x;
-    double yDiff = pt2.y - pt1.y;
-    return sqrt((xDiff*xDiff) + (yDiff*yDiff));
-}
-
-/**
- * @brief findClosestNode Get the node at the closest point to the (x,y) pair provided
- * @param testPoint (x,y) pair we want to find the corresponding grid point for
- * @param closestNode Node at the closest grid point
- * @return Succes/failure
- */
-bool Environment_Map::findClosestNode(Point testPoint, Node &closestNode) {
-    Point closestPt;
-    bool foundPt = findClosestPoint(testPoint, closestPt);
-
-    if(foundPt){
-        closestNode = nodes.at(closestPt.x).at(closestPt.y);
-    }
-    return foundPt;
-}
-
-/*
-void Environment_Map::calculateBoundingRect(const std::vector<Point> verts) {
-    BoundingBox rect;
-    rect.min = Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
-    rect.max = Point(-1, -1, -1);
-
-    double maxXVal = rect.max.x;
-    double minXVal = rect.min.x;
-    double maxYVal = rect.max.y;
-    double minYVal = rect.min.y;
-
-    for(auto val : verts) {
-        // Check for min/max X
-        if(val.x > maxXVal) maxXVal = val.x;
-        if(val.x < minXVal) minXVal = val.x;
-        // Check for min/max Y
-        if(val.y > maxYVal) maxYVal = val.y;
-        if(val.y < minYVal) minYVal = val.y;
-    }
-
-    // Set our new bounding rectangle:
-    boundingRect.min = Point(minXVal, minYVal, 0);
-    boundingRect.max = Point(maxXVal, maxYVal, 0);
-}
-*/
-
-/**
- * @brief createRange Create a vector of evenly space numbers
- * @param min Minimum value
- * @param max Maximum value
- * @param N Number of values in the range
- * @return Vector of evenly spaced values from min to max
- */
-std::vector<double> Environment_Map::createRange(double min, double max, int N) {
-    std::vector<double> range;
-    double delta = (max-min)/double(N);
-    for(int i=0; i<=N; i++) {
-        range.push_back(min + i*delta);
-    }
-    return range;
-}
-
-
-// method taken from: https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html and converted to my notation
-/**
- * @brief pointInPoly Determine if a point is in a polygon
- * @param vertices Vertices of a polygon to check
- * @param testPoint Point to check if in the polygon
- * @return True if inside the polygon, false if outside the polygon
- */
-bool Environment_Map::pointInPoly(std::vector<Point> vertices, Point testPoint)
-{
-    // First check if the point lies on any of the line segments created by the boundary. If so, return true:
-    int vertCount = 0;
-    for(auto vert : vertices) {
-        Point vert1, vert2;
-        if(vertCount == 0){
-            vert1 = vert;
-            vert2 = vertices[vertices.size()-1];
-        }
-        else {
-            vert1 = vertices[vertCount-1];
-            vert2 = vert;
-        }
-        double epsilon = 0.00001;
-        if(distanceToSegment(vert1, vert2, testPoint) < epsilon)
-            return true;
-
-        // Increment counter
-        vertCount++;
-    }
-
-    // If not on any of the line segments, check if inside the polygon:
-    int nvert = boundaryVerts.size();
-    int i, j, c = 0;
-    for (i = 0, j = nvert-1; i < nvert; j = i++) {
-        if (
-                ((vertices[i].y > testPoint.y) != (vertices[j].y > testPoint.y)) &&
-                (testPoint.x < (vertices[j].x-vertices[i].x) * (testPoint.y-vertices[i].y) / (vertices[j].y-vertices[i].y) + vertices[i].x)
-             ) {
-                // If we've crossed a boundary, toggle the counter
-                c = !c;
-        }
-    }
-
-    // If c, which denotes the number of times a horizontal ray has crossed a boundary, is 0, that means we
-    //        are outside of the polygon (we've crossed an even number of times). Else, we are inside the polygon
-    if(c == 0) {
-      return false;
-    }
-    else {
-      return true;
-    }
-}
-
-/**
- * @brief distanceToSegment Determine shortest distance to a line segment
- * @param p1 First vertex of the line segment
- * @param p2 Second vertex of the line segment
- * @param testPoint Point to check
- * @return Distance to the line segment
- */
-double Environment_Map::distanceToSegment(Point p1, Point p2, Point testPoint) {
-    double diffX = p2.x - p1.x;
-    float diffY = p2.y - p1.y;
-    if ((diffX == 0) && (diffY == 0))
-    {
-        diffX = testPoint.x - p1.x;
-        diffY = testPoint.y - p1.y;
-        return sqrt(diffX * diffX + diffY * diffY);
-    }
-
-    float t = ((testPoint.x - p1.x) * diffX + (testPoint.y - p1.y) * diffY) / (diffX * diffX + diffY * diffY);
-
-    if (t < 0)
-    {
-        //point is nearest to the first point i.e p1.x and p1.y
-        diffX = testPoint.x - p1.x;
-        diffY = testPoint.y - p1.y;
-    }
-    else if (t > 1)
-    {
-        //point is nearest to the end point i.e p2.x and p2.y
-        diffX = testPoint.x - p2.x;
-        diffY = testPoint.y - p2.y;
-    }
-    else
-    {
-        //if perpendicular line intersect the line segment.
-        diffX = testPoint.x - (p1.x + t * diffX);
-        diffY = testPoint.y - (p1.y + t * diffY);
-    }
-
-    //returning shortest distance
-    return sqrt(diffX * diffX + diffY * diffY);
-}
-
-
-/**
- * @brief addVehicle Update/insert a vehicle in our map and re-compute the voronoi partition
- * @param vehicleID ID of the vehicle to add
- * @param position Last known position of the vehicle
- * @return True if we should send to MACE core, false if not
- */
-bool Environment_Map::updateVehiclePosition(const int &vehicleID, const Point &position, bool recomputeVoronoi) {
-
-    // Add/overwrite our vehicle position to the map
-    bool success = false;
-    if(vehicleID != 0) {
-        m_vehicles[vehicleID] = position;
-    }
-    else {
-        std::cout << "Invalid vehicle ID '0'. Cannot update vehicle position for RTA." << std::endl;
-        return success;
-    }
-
-    // If recompute flag is set, recompute the voronoi partition:
-    if(recomputeVoronoi) {
-//        success = computeVoronoi(boundingRect, m_vehicles, GridDirection::NORTH_SOUTH);
-        success = computeBalancedVoronoi(m_vehicles, GridDirection::NORTH_SOUTH);
-    }
-
-    return success; // If false, don't send to MACE core
-}
-
-/**
- * @brief sortNodesInGrid Sort the nodes in the cell in a grid fashion
- * @param cell Cell to sort the nodes
- * @param direction Direction to sort nodes (north/south, east/west, or by closest node)
- */
-std::vector<Point> Environment_Map::sortNodesInGrid(Cell &cell, GridDirection direction) {
-    // TODO:
-    // -For north/south, start a counter for x-vals (proxy for "column"). If even, loop normally over y's and add each to new list. If odd, loop over y's in reverse and add each to new list
-    // -For east/west, maybe use a private variable that is sorted by y as the first value and do the same as the x sorting?
-    // -For closest point, populate a list of all nodes and start at the first. as we loop over, find the closest point, add to a container, and then pop that off the list we're looping over. (use while loop over the size of this list)
-
-    std::vector<Point> sortedPoints;
-
-    switch (direction) {
-    case GridDirection::EAST_WEST:
-    {
-        int column = 0;
-        int containedPointsCounter = 0;
-        for(auto xIt : cell.containedNodes) {
-            double xVal = xIt.first;
-            // If column is odd, iterate in reverse:
-            if(column % 2 == 0) {
-                for(auto yIt : xIt.second) {
-                    sortedPoints.push_back(Point(xVal, yIt.first, 0));
-                    containedPointsCounter++;
-                }
-            }
-            else {
-                for(auto yItRev = xIt.second.rbegin(); yItRev != xIt.second.rend(); ++yItRev) {
-                    sortedPoints.push_back(Point(xVal, yItRev->first, 0));
-                    containedPointsCounter++;
-                }
-            }
-
-            // Iterate column counter:
-            column++;
-        }
-    }
-        break;
-    case GridDirection::NORTH_SOUTH:
-    {
-        int row = 0;
-        int containedPointsCounter = 0;
-        for(auto yIt : cell.containedNodes_YX) {
-            double yVal = yIt.first;
-            // If column is odd, iterate in reverse:
-            if(row % 2 == 0) {
-                for(auto xIt : yIt.second) {
-                    sortedPoints.push_back(Point(xIt.first, yVal, 0));
-                    containedPointsCounter++;
-                }
-            }
-            else {
-                for(auto xItRev = yIt.second.rbegin(); xItRev != yIt.second.rend(); ++xItRev) {
-                    sortedPoints.push_back(Point(xItRev->first, yVal, 0));
-                    containedPointsCounter++;
-                }
-            }
-
-            // Iterate column counter:
-            row++;
-        }
-
-        int tmpCounter = 0;
-        for(auto xIt: cell.containedNodes_YX) {
-            for(auto yIt : xIt.second) {
-                tmpCounter++;
-            }
-        }
-    }
-        break;
-    case GridDirection::CLOSEST_POINT:
-    {
-        std::vector<int> usedIndeces;
-        for(int i = 0; i < cell.unsortedContainedPoints.size(); i++) {
-            Point tmpClosestPoint(std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), 0);
-            double prevDist = std::numeric_limits<double>::max();
-
-            int usedIndex = 0;
-            if(i == 0) {
-                sortedPoints.push_back(cell.unsortedContainedPoints[i]);
-                usedIndeces.push_back(usedIndex);
-                continue;
-            }
-            for(int j = 1; j < cell.unsortedContainedPoints.size(); j++) {
-                // Check that we aren't comparing the same indeces or that we've already used the index.
-                //      -If we have, continue
-                //      -If not, check distance for closest point:
-                if((i-1) == j || std::find(usedIndeces.begin(), usedIndeces.end(), j) != usedIndeces.end()){
-                    continue;
-                }
-                else {
-                    double dist = distanceBetweenPoints(sortedPoints[i-1], cell.unsortedContainedPoints[j]);
-                    if(dist < prevDist) {
-                        prevDist = dist;
-                        tmpClosestPoint = Point(cell.unsortedContainedPoints[j]);
-                        usedIndex = j;
-                    }
-                }
-            }
-
-            // Insert closest point:
-            sortedPoints.push_back(tmpClosestPoint);
-
-            // Insert index into vector:
-            usedIndeces.push_back(usedIndex);
-        }
-    }
-        break;
-    default:
-    {
-        std::cout << "Invalid grid direction" << std::endl;
-    }
-        break;
-    }
-
-    return sortedPoints;
-}
-
-/**
- * @brief setContainedNodesYX For sorting a grid in the North/South direction, we need the nodes in Y,X order instead of X,Y order
- * @param cell Cell to set our YX pairs for
- */
-void Environment_Map::setContainedNodesYX(Cell &cell) {
-    if(cell.unsortedContainedPoints.size() > 0) {
-        double epsilon = 0.000001;
-        std::map<double, std::map<double, Node> > tmpContainedNodes_YX;
-        for(auto point : cell.unsortedContainedPoints) {
-            double xVal = point.x;
-            double yVal = point.y;
-            Node tmpNode;
-            bool nodeFound = findClosestNode(point, tmpNode);
-            if(nodeFound) {
-                auto mapIt = tmpContainedNodes_YX.lower_bound(yVal);
-                if(mapIt == tmpContainedNodes_YX.end()) {
-                    // Nothing found. Need to insert a new entry
-                    std::map<double, Node> x_tmp_map;
-                    x_tmp_map.insert(std::make_pair(xVal, tmpNode));
-                    tmpContainedNodes_YX.insert(std::make_pair(yVal, x_tmp_map));
-                }
-                else if(mapIt == tmpContainedNodes_YX.begin()) {
-                    // Found beginning of map. Check if closer than epsilon away.
-                    //      -If so, use it.
-                    //      -If not, insert a new entry
-                    if(fabs(mapIt->first - yVal) < epsilon) {
-                        mapIt->second.insert(std::make_pair(xVal, tmpNode));
-                    }
-                    else {
-                        std::map<double, Node> x_tmp_map;
-                        x_tmp_map.insert(std::make_pair(xVal, tmpNode));
-                        tmpContainedNodes_YX.insert(std::make_pair(yVal, x_tmp_map));
-                    }
-                }
-                else {
-                    bool isFound = false;
-                    // Create a map iterator and point to beginning of map
-                    std::map<double, std::map<double, Node> >::iterator yIt = tmpContainedNodes_YX.begin();
-                    // Iterate over the map using Iterator till end.
-                    while (yIt != tmpContainedNodes_YX.end())
-                    {
-                        if(fabs(yIt->first - yVal) < epsilon) {
-                            yIt->second.insert(std::make_pair(xVal, tmpNode));
-                            isFound = true;
-                            break;
-                        }
-                        yIt++;
-                    }
-                    if(!isFound) {
-                        std::map<double, Node> x_tmp_map;
-                        x_tmp_map.insert(std::make_pair(xVal, tmpNode));
-                        tmpContainedNodes_YX.insert(std::make_pair(yVal, x_tmp_map));
-                    }
-                }
-            }
-        }
-
-
-        // Set containedNodes
-        cell.containedNodes_YX = tmpContainedNodes_YX;
-    }
-    else {
-        std::cout << "No contained nodes to sort in YX fashion." << std::endl;
-    }
-}
-
-void Environment_Map::printMap(std::map<double, std::map<double, Node> > map) {
-    std::cout << " ******************** Printing Map ******************** " << std::endl;
-    int tmpCounter = 0;
-    for(auto xIt: map) {
-        for(auto yIt : xIt.second) {
-            tmpCounter++;
-            std::cout << "Point in map: (" << xIt.first << ", " << yIt.first << ")" << std::endl;
-        }
-    }
-    std::cout << "Number of nodes in map: " << tmpCounter << std::endl;
-    std::cout << " __________________ End Printing Map __________________ " << std::endl;
-}
-
-
-/**
- * @brief updateEnvironmentOrigin Given a new global origin, update x,y,z positions of each node and update the global origin
- * @param globalOrigin New global origin
- */
-void Environment_Map::updateEnvironmentOrigin(const DataState::StateGlobalPosition &globalOrigin) {
-    // Before we set the new origin, check if there are currently nodes in the environment. If so, update each by adding the difference in x and y to each value:
-    //      - Do the same with each cell, boundary vertices, vehicle positions, and bounding box
-
-    // Get x,y,z differences from previous origin:
-    DataState::StateLocalPosition localPos;
-    DataState::StateGlobalPosition globalPos;
-    globalPos.setLatitude(m_globalOrigin->getX());
-    globalPos.setLongitude(m_globalOrigin->getY());
-    globalPos.setAltitude(m_globalOrigin->getZ());
-    DataState::PositionalAid::GlobalPositionToLocal(globalPos, globalOrigin, localPos);
-    double xDiff = localPos.getX();
-    double yDiff = localPos.getY();
-    double zDiff = localPos.getZ();
-
-    // Update nodes and other associated data:
-    if(this->nodes.size() > 0){
-        // Update boundary vertices and re-compute the bounding box:
-        for(auto vertex : boundaryVerts) {
-            vertex.x += xDiff;
-            vertex.y += yDiff;
-            vertex.z += zDiff;
-        }
-
-        // Update the vehicle positions:
-        for(auto vehicle : m_vehicles) {
-            vehicle.second.x += xDiff;
-            vehicle.second.y += yDiff;
-            vehicle.second.z += zDiff;
-        }
-
-        // Update each node in the environment:
-        std::map<double, std::map<double, Node> > tmpNodes;
-        for(auto xIt : nodes) {
-            double xVal, yVal;
-            xVal = xIt.first + xDiff;
-            std::map<double, Node> tmpYMap;
-            for(auto yIt : xIt.second) {
-                yVal = yIt.first + yDiff;
-                Node tmpNode = yIt.second;
-                tmpNode.location.x += xDiff;
-                tmpNode.location.y += yDiff;
-                tmpNode.location.z += zDiff;
-
-                tmpYMap.insert(std::make_pair(yVal, tmpNode));
-            }
-            tmpNodes.insert(std::make_pair(xVal, tmpYMap));
-        }
-        // Set new node positions:
-        nodes = tmpNodes;
-
-        // Update each cell site and boundary points and call setNodesInCell (i think):
-        for(auto cell : cells) {
-            // Update cell site:
-            cell.second.site.x += xDiff;
-            cell.second.site.y += yDiff;
-            cell.second.site.z += zDiff;
-
-            // Update cell boundary:
-            for(auto vertex : cell.second.vertices) {
-                vertex.x += xDiff;
-                vertex.y += yDiff;
-                vertex.z += zDiff;
-            }
-
-            // Call the nodes in each cell:
-            sortCellVerticesCCW(cell.second);
-            setNodesInCell(cell.second);
-            setContainedNodesYX(cell.second);
-        }
-    }
-
-    // Set new origin:
-    m_globalOrigin = std::make_shared<DataState::StateGlobalPosition>(globalOrigin);
-}
-
-/**
- * @brief getNumberOfNodes Get number of nodes in the environment for dividing between vehicles in the balanced case
- * @return Number of nodes in the environment
- */
-int Environment_Map::getNumberOfNodes() {
-    int innerSize = 0;
-    for(auto xVal : nodes) {
-        innerSize += xVal.second.size();
-    }
-
-    return innerSize;
-}
-
+} //end of namespace geometry
+} //end of namespace mace

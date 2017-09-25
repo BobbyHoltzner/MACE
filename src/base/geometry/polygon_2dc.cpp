@@ -12,7 +12,7 @@ Polygon_2DC::Polygon_2DC(const std::string &descriptor):
 Polygon_2DC::Polygon_2DC(const std::vector<Position<CartesianPosition_2D>> &vector, const std::string &descriptor):
     PolygonBase(vector, descriptor)
 {
-
+    updateBoundingBox();
 }
 
 Polygon_2DC::Polygon_2DC(const Polygon_2DC &copy):

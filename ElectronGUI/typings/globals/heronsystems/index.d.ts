@@ -1,6 +1,7 @@
 
-//declare var electronRequire: any;
-//declare module 'deepcopy';
+declare var electronRequire: any;
+declare module 'deepcopy';
+declare module 'react-leaflet-heatmap-layer';
 
 type MACEConfig = {
   MACEComms?: {
@@ -132,12 +133,16 @@ type TCPAirspeedType = TCPDescriptorType & {
 
 type TCPHeartbeatType = TCPDescriptorType & HeartbeatType;
 
+type TCPOriginType = TCPDescriptorType & PositionType & {
+  gridSpacing: number
+}
+
 type TCPReturnType = ConnectedVehiclesType | TCPPositionType | TCPAttitudeType |
                      TCPFuelType | TCPMissionType | TCPModeType | TCPTextType |
                      TCPSensorFootprintType | TCPCurrentMissionItemType |
                      TCPGPSType | TCPHeartbeatType | TCPMissionItemReachedType |
                      TCPVehicleArmType | TCPAirspeedType | TCPEnvironmentBoundaryType |
-                     TCPVehicleTargetType;
+                     TCPVehicleTargetType | TCPOriginType;
 
 
 type MarkerType = {
@@ -172,4 +177,19 @@ type MessagePreferencesType = {
   notice: boolean,
   info: boolean,
   debug: boolean
+}
+
+type EnvironmentSettingsType = {
+  minSliderVal: number,
+  maxSliderVal: number,
+  showBoundingBox: boolean,
+  gridSpacing: number
+}
+
+type HeatmapOptions = {
+  size?: number,
+  units?: 'm' | 'px',
+  opacity?: number,
+  gradientTexture?: string,
+  alphaRange?: number
 }

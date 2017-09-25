@@ -17,6 +17,9 @@
 #include "environment_custom.h"
 
 
+using namespace mace ;
+using namespace geometry;
+
 class MODULE_RESOURCE_TASK_ALLOCATIONSHARED_EXPORT ModuleRTA : public MaceCore::IModuleCommandRTA
 {
 
@@ -58,7 +61,7 @@ private:
      * @param updateCells Map of cells that contain node lists to send to MACE
      * @param direction Grid direction for missions (NORTH_SOUTH, EAST_WEST, or CLOSEST_POINT)
      */
-    void updateMACEMissions(std::map<int, Cell> updateCells, GridDirection direction);
+    void updateMACEMissions(std::map<int, Cell_2DC> updateCells, GridDirection direction);
 
     /**
      * @brief parseBoundaryVertices Given a string of delimited (lat, lon) pairs, parse into a vector of points
@@ -67,7 +70,7 @@ private:
      * @param vertices Container for boundary vertices
      * @return true denotes >= 3 vertices to make a polygon, false denotes invalid polygon
      */
-    bool parseBoundaryVertices(std::string unparsedVertices, const DataState::StateGlobalPosition globalOrigin, std::vector<Point> &vertices);
+    bool parseBoundaryVertices(std::string unparsedVertices, const DataState::StateGlobalPosition globalOrigin, std::vector<Position<CartesianPosition_2D> > &vertices);
 
 private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;

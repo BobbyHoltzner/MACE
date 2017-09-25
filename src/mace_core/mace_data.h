@@ -130,6 +130,13 @@ public:
         return globalHome;
     }
 
+    double GetGridSpacing() const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+        double gridSpacing = m_GridSpacing;
+        return gridSpacing;
+    }
+
     std::vector<DataState::StateGlobalPosition> GetEnvironmentBoundary() const
     {
         std::lock_guard<std::mutex> guard(m_EnvironmentBoundaryMutex);
@@ -178,6 +185,12 @@ private:
             home.translationTransformation3D(origin,translation);
             m_VehicleToGlobalTranslation[it->first] = translation;
         }
+    }
+
+    void UpdateGridSpacing(const double &gridSpacing)
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+        m_GridSpacing = gridSpacing;
     }
 
     void UpdateEnvironmentVertices(const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
@@ -669,6 +682,7 @@ private:
     std::map<int, CommandItem::SpatialHome> m_VehicleHomeMap;
     std::map<int, Eigen::Vector3f> m_VehicleToGlobalTranslation;
     CommandItem::SpatialHome m_GlobalOrigin;
+    double m_GridSpacing = -1;
     mutable std::mutex m_EnvironmentBoundaryMutex;
     std::vector<DataState::StateGlobalPosition> m_BoundaryVerts;
     bool flagBoundaryVerts;
