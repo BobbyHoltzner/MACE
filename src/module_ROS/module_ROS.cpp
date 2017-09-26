@@ -56,10 +56,12 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 
 void ModuleROS::setupROS() {
 
-    // Subscribers
-    laserSub = nh.subscribe <sensor_msgs::LaserScan> ("/scan", 500, &ModuleROS::newLaserScan, this);
+    std::cout << "***********ROS SETUP**************" << std::endl;
 
-    ros::spin();
+    // Subscribers
+//    laserSub = nh.subscribe <sensor_msgs::LaserScan> ("/scan", 500, &ModuleROS::newLaserScan, this);
+
+//    ros::spin();
 }
 
 void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {

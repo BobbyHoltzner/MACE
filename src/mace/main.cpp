@@ -75,6 +75,11 @@ int main(int argc, char *argv[])
 
     std::cout << "Reading MACE configuration file from: " << filename << std::endl;
 
+#ifdef ROS_EXISTS
+    // TODO: Figure out a way to do this only if the ROS module is present in the config file
+    ros::init(argc, argv, "ROS_module");
+#endif
+
     ConfigurationReader_XML parser(factory);
     ConfigurationParseResult parseResult = parser.Parse(filename);
     if(parseResult.success == false)
@@ -175,8 +180,6 @@ int main(int argc, char *argv[])
             }
             core.AddROSModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandROS>(module));
             addedROS = true;
-
-            ros::init(argc, argv, "ROS_module");
 #else
             std::cout << "ROS not included on this system. Skipping ROS module setup." << std::endl;
 #endif
