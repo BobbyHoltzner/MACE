@@ -77,16 +77,16 @@ public:
 private:
 
 #ifdef ROS_EXISTS
-//    ros::NodeHandle nh;
-
     ros::Subscriber laserSub;
 
-    ros::Publisher laserPub;
-
-    int responseTimeout;
+    ros::Publisher velocityPub;
 #endif
 
     std::shared_ptr<ROSTimer> m_timer;
+
+    // TESTING:
+    int counter;
+    // END TESTING
 };
 
 #endif // MODULE_ROS_H

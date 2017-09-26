@@ -6,9 +6,16 @@
 #include <string>
 #include <iostream>
 
+#ifdef ROS_EXISTS
+#include <geometry_msgs/Twist.h>
+#endif
+
 ModuleROS::ModuleROS() :
     MaceCore::IModuleCommandROS()
 {
+    // TESTING:
+    counter = 0;
+    // END TESTING
 }
 
 ModuleROS::~ModuleROS() {
@@ -30,6 +37,13 @@ void ModuleROS::start() {
     m_timer = std::make_shared<ROSTimer>([=]()
     {
         ros::spinOnce();
+        counter++;
+
+        if(counter%10 == 0) {
+            std::cout << "**** **** **** Fire publisher..." << std::endl;
+            DataState::StateLocalPosition pos;
+            publishVehiclePosition(counter, pos);
+        }
     });
 
     m_timer->setSingleShot(false);
@@ -90,6 +104,9 @@ void ModuleROS::setupROS() {
     // Subscribers
     laserSub = nh.subscribe <sensor_msgs::LaserScan> ("/scan", 500, &ModuleROS::newLaserScan, this);
 
+    // Publishers
+    velocityPub = nh.advertise <geometry_msgs::Twist> ("/mobile_base/commands/velocity", 1000);
+
     ros::spinOnce();
 }
 
@@ -97,8 +114,26 @@ void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {
     std::cout << "Ranges size: " << msg->ranges.size() << std::endl;
 }
 
-void publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos) {
-    std::cout << "Convert local position to Twist message and publish to ROS network" << std::endl;
+void ModuleROS::publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos) {
+    // Publish the "velocity" topic to the turtlebot
+
+    // Set up the publisher rate to 10 Hz
+    ros::Rate loop_rate(10);
+
+    // Initialize the twist message that we will command turtlebot with
+    geometry_msgs::Twist msg;
+    msg.linear.x = 0.0;
+    msg.linear.y = 0.0;
+    msg.linear.z = 0.0;
+    msg.angular.x = 0.0;
+    msg.angular.y = 0.0;
+    msg.angular.z = vehicleID/10;
+
+    // Publish the twist message to anyone listening
+    velocityPub.publish(msg);
+
+    // "Spin" a callback in case we set up any callbacks
+    ros::spinOnce();
 }
 
 #endif
