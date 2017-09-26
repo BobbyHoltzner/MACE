@@ -1,5 +1,5 @@
-#ifndef STATE_VALIDITY_CHECKER_H
-#define STATE_VALIDITY_CHECKER_H
+#ifndef STATE_VALIDITY_CHECK_H
+#define STATE_VALIDITY_CHECK_H
 
 #include "base_global.h"
 
@@ -63,4 +63,4 @@ protected:
 } //end of namespace state_space
 } //end of namespace mace
 
-#endif // STATE_VALIDITY_CHECKER_H
+#endif // STATE_VALIDITY_CHECK_H

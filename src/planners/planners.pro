@@ -43,7 +43,8 @@ HEADERS += \
     probabilistic_roadmap.h \
     rrt_base.h \
     nearest_neighbor_flann.h \
-    nearest_neighbor_abstract.h
+    nearest_neighbor_abstract.h \
+    rrt_node.h
 
 
 #Header file copy

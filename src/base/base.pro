@@ -68,10 +68,11 @@ HEADERS +=\
     state_space/state_space.h \
     state_space/state.h \
     state_space/space_information.h \
-    state_space/state_validity_checker.h \
     state_space/cartesian_2D_space.h \
     math/random_number_generator.h \
-    math/cost.h
+    math/cost.h \
+    state_space/state_validity_check.h \
+    state_space/goal.h
 
 # Unix lib Install
 unix:!symbian {

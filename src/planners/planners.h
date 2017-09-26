@@ -14,6 +14,7 @@ class PLANNERSSHARED_EXPORT Planners
 public:
     Planners();
 
+    virtual void solve() = 0;
 protected:
     void createLog();
 

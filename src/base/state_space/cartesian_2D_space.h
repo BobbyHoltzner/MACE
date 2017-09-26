@@ -15,6 +15,17 @@
 namespace mace {
 namespace state_space {
 
+/**
+\* @file  cartesian_2D_space.h
+\*
+\* @section PROJECT
+\*
+\*   This is a part of the Heron System's project MACE.
+\*
+\* @section DESCRIPTION
+\*
+\*  Header for gui widget displaying test setup progress
+\*/
 
 class BASESHARED_EXPORT Cartesian2DSpaceBounds
 {
@@ -97,7 +108,8 @@ private:
 class BASESHARED_EXPORT Cartesian2DSpace : public StateSpace
 {
 public:
-    Cartesian2DSpace()
+    Cartesian2DSpace():
+        m_type(StateSpaceTypes::CARTESIAN_2D), m_name("Cartesian 2D")
     {
 
     }

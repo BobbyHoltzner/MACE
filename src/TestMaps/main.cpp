@@ -8,6 +8,7 @@
 #include "base/state_space/cartesian_2D_space.h"
 
 #include "planners/rrt_base.h"
+#include "planners/nearest_neighbor_flann.h"
 
 #include <iostream>
 #include <QFile>
@@ -49,6 +50,14 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     using namespace mace::state_space;
+
+    using namespace mace::nn;
+
+    mace::planners_sampling::RRTBase newBase();
+    newBase.setNearestNeighbor<NearestNeighbor_FLANNLinear>();
+
+//    NearestNeighbor_FLANN<mace::planners_sampling::RootNode*> tree =
+//            NearestNeighbor_FLANN<mace::planners_sampling::RootNode*>(std::shared_ptr<flann::LinearIndexParams>(new flann::LinearIndexParams()));
 
 //    Cartesian2DSpaceBounds bounds(-10,10,-10,10);
 //    Cartesian2DSpace space;
