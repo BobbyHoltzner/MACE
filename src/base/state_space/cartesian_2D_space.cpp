@@ -24,7 +24,7 @@ void Cartesian2DSpace_Sampler::sampleGaussian(State *sample, const State *mean, 
 
 }
 
-void Cartesian2DSpace::distanceBetween(const State *lhs, const State *rhs) const
+double Cartesian2DSpace::distanceBetween(const State *lhs, const State *rhs) const
 {
     return lhs->as<pose::CartesianPosition_2D>()->distanceBetween2D(*rhs->as<pose::CartesianPosition_2D>());
 }

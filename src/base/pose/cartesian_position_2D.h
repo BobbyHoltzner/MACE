@@ -31,6 +31,11 @@ public:
         this->data.setData(x,y);
     }
 
+    void getClone(State* clone) override
+    {
+        clone = new CartesianPosition_2D(*this);
+    }
+
 public:
     void updatePosition(const double &x, const double &y)
     {

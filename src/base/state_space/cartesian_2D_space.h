@@ -108,10 +108,10 @@ private:
 class BASESHARED_EXPORT Cartesian2DSpace : public StateSpace
 {
 public:
-    Cartesian2DSpace():
-        m_type(StateSpaceTypes::CARTESIAN_2D), m_name("Cartesian 2D")
+    Cartesian2DSpace()
     {
-
+        m_type = StateSpaceTypes::CARTESIAN_2D;
+        m_name = "Cartesian 2D";
     }
 
     State* getNewState() const override

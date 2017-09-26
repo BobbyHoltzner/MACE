@@ -6,11 +6,14 @@
 
 #include "base/base_global.h"
 
+#include "common/class_forward.h"
 #include "state_space_types.h"
 #include "state.h"
 
 namespace mace {
 namespace state_space {
+
+MACE_CLASS_FORWARD(StateSpace);
 
 class BASESHARED_EXPORT StateSpace
 {
@@ -21,8 +24,6 @@ public:
 
     StateSpace(const StateSpace& copy) = delete;
     StateSpace &operator =(const StateSpace &copy) = delete;
-
-    typedef State StateType;
 
     template <class T>
     T *as()
@@ -82,11 +83,6 @@ public:
 
 protected:
     StateSpaceTypes m_type;
-
-    /** Members to handle validation of the state/state transition. */
-protected:
-
-private:
     std::string m_name;
 
 };
