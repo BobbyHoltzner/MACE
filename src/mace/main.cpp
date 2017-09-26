@@ -75,11 +75,6 @@ int main(int argc, char *argv[])
 
     std::cout << "Reading MACE configuration file from: " << filename << std::endl;
 
-#ifdef ROS_EXISTS
-    // TODO: Figure out a way to do this only if the ROS module is present in the config file
-    ros::init(argc, argv, "ROS_module");
-#endif
-
     ConfigurationReader_XML parser(factory);
     ConfigurationParseResult parseResult = parser.Parse(filename);
     if(parseResult.success == false)

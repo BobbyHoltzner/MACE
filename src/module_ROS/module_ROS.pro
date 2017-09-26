@@ -13,10 +13,12 @@ DEFINES += MODULE_ROS_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-SOURCES += module_ROS.cpp
+SOURCES += module_ROS.cpp \
+    rosTimer.cpp
 
 HEADERS += module_ROS.h \
-    module_ROS_global.h
+    module_ROS_global.h \
+    rosTimer.h
 
 # Unix lib Install
 unix:!symbian {

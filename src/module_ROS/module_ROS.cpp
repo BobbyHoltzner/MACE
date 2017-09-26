@@ -2,13 +2,40 @@
 
 #include "mace_core/module_factory.h"
 
+#include <map>
+#include <string>
 #include <iostream>
 
 ModuleROS::ModuleROS() :
     MaceCore::IModuleCommandROS()
 {
+}
+
+ModuleROS::~ModuleROS() {
+    if(m_timer)
+    {
+        m_timer->stop();
+    }
+
+#ifdef ROS_EXISTS
+    ros::shutdown();
+#endif
+}
+
+void ModuleROS::start() {
 #ifdef ROS_EXISTS
     this->setupROS();
+
+    // Start timer:
+    m_timer = std::make_shared<ROSTimer>([=]()
+    {
+        ros::spinOnce();
+    });
+
+    m_timer->setSingleShot(false);
+    m_timer->setInterval(ROSTimer::Interval(500));
+    m_timer->start(true);
+
 #endif
 }
 
@@ -42,6 +69,8 @@ void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector
     // TODO: On new vehicle position, send to ROS via publishVehiclePosition
     // TODO: Figure out a better way to check for ROS_EXISTS...the way it is right now, everything
     //          in this NewTopic method would have to check if ROS_EXISTS before calling any ROS specific methods
+
+    std::cout << "NEW TOPIC" << std::endl;
 }
 
 void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
@@ -55,13 +84,13 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 #ifdef ROS_EXISTS
 
 void ModuleROS::setupROS() {
-
-    std::cout << "***********ROS SETUP**************" << std::endl;
-
+    std::map<std::string, std::string> remappings;
+    ros::init(remappings,"ROS_Module");
+    ros::NodeHandle nh;
     // Subscribers
-//    laserSub = nh.subscribe <sensor_msgs::LaserScan> ("/scan", 500, &ModuleROS::newLaserScan, this);
+    laserSub = nh.subscribe <sensor_msgs::LaserScan> ("/scan", 500, &ModuleROS::newLaserScan, this);
 
-//    ros::spin();
+    ros::spinOnce();
 }
 
 void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {

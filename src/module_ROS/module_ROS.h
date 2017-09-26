@@ -6,11 +6,15 @@
 
 #include "mace_core/i_module_command_ROS.h"
 
+#include <memory>
+
 
 #ifdef ROS_EXISTS
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
 #endif
+
+#include "rosTimer.h"
 
 
 class MODULE_ROSSHARED_EXPORT ModuleROS : public MaceCore::IModuleCommandROS
@@ -18,6 +22,10 @@ class MODULE_ROSSHARED_EXPORT ModuleROS : public MaceCore::IModuleCommandROS
 
 public:
     ModuleROS();
+
+    ~ModuleROS();
+
+    void start();
 
     //! Default methods for module configuration:
 public:
@@ -69,12 +77,16 @@ public:
 private:
 
 #ifdef ROS_EXISTS
-    ros::NodeHandle nh;
+//    ros::NodeHandle nh;
 
     ros::Subscriber laserSub;
 
     ros::Publisher laserPub;
+
+    int responseTimeout;
 #endif
+
+    std::shared_ptr<ROSTimer> m_timer;
 };
 
 #endif // MODULE_ROS_H
