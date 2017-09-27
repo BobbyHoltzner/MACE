@@ -126,6 +126,11 @@ public:
         state = NULL;
     }
 
+    State* copyState(const State* state) const override
+    {
+
+    }
+
     void setBounds(const Cartesian2DSpaceBounds &bounds)
     {
         this->m_bounds = bounds;

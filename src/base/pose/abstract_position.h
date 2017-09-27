@@ -18,7 +18,7 @@ public:
     };
 
 public:
-    ~AbstractPosition() = default;
+    virtual ~AbstractPosition() = default;
 
     AbstractPosition(const PositionType &desiredType, const CoordinateFrame &desiredFrame)
     {

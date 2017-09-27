@@ -15,7 +15,6 @@ public:
 
     virtual ~State() = default;
 
-    virtual void getClone(State* clone) = 0;
 public:
     template <class T>
     const T *as() const

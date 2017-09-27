@@ -27,7 +27,7 @@ std::vector<bool> Polygon_2DC::contains(std::vector<Position<CartesianPosition_2
     const size_t size = checkVector.size();
 
     if (size >= 3){
-        for(int i = 0; i < size; i++)
+        for(unsigned int i = 0; i < size; i++)
         {
             rtnVector.push_back(contains(checkVector[i].getXPosition(),checkVector[i].getYPosition(),onLineCheck));
         }

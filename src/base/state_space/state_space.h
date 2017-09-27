@@ -25,6 +25,7 @@ public:
     StateSpace(const StateSpace& copy) = delete;
     StateSpace &operator =(const StateSpace &copy) = delete;
 
+
     template <class T>
     T *as()
     {
@@ -74,6 +75,13 @@ public:
     //! \param state
     //!
     virtual void removeState(State* state) const = 0;
+
+    //!
+    //! \brief copyState
+    //! \param state
+    //! \return
+    //!
+    virtual State* copyState(const State* state) const = 0;
 
     //!
     //! \brief removeStates

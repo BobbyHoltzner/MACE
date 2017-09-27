@@ -18,7 +18,7 @@ public:
     Data2D() = default;
 
     //!
-    ~Data2D() = default;
+    virtual ~Data2D() = default;
 
     //!
     //! \brief Data2D

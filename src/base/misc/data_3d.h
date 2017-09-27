@@ -15,7 +15,7 @@ public:
     //!
     Data3D() = default;
 
-    ~Data3D() = default;
+    virtual ~Data3D() = default;
 
     //!
     //! \brief Data3D

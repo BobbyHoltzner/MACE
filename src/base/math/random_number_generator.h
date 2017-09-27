@@ -13,6 +13,8 @@ public:
 
     double uniformReal(const double &lower, const double &upper);
 
+    void sampleRadial(const double &radius, double &theta, double &length);
+
 private:
 
     std::mt19937 generator;

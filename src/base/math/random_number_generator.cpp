@@ -14,5 +14,10 @@ double RandomNumberGenerator::uniformReal(const double &lower, const double &upp
     return (delta * uniDist(generator)) + lower;
 }
 
+void RandomNumberGenerator::sampleRadial(const double &radius, double &theta, double &length)
+{
+
+}
+
 } //end of namespace math
 } //end of namespace mace
