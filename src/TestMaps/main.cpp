@@ -1,14 +1,6 @@
 #include <QCoreApplication>
 
-#include "base/geometry/cell_2DC.h"
-#include "planners/tsp_2opt.h"
-#include "maps/bounded_2d_grid.h"
-#include "base/geometry/polygon_2dc.h"
-
 #include "base/state_space/cartesian_2D_space.h"
-
-#include "planners/rrt_base.h"
-#include "planners/nearest_neighbor_flann.h"
 
 #include <iostream>
 #include <QFile>
@@ -51,11 +43,20 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
     using namespace mace::state_space;
 
-    using namespace mace::nn;
+//    using namespace mace::nn;
 
-    mace::planners_sampling::RRTBase newBase();
-    newBase.setNearestNeighbor<NearestNeighbor_FLANNLinear>();
+//    mace::planners_sampling::RRTBase newBase();
+//    newBase.setNearestNeighbor<NearestNeighbor_FLANNLinear>();
 
+    mace::state_space::Cartesian2DSpace space;
+    mace::pose::CartesianPosition_2D* state1 = space.getNewState()->as<mace::pose::CartesianPosition_2D>();
+    //mace::pose::CartesianPosition_2D* cast = state1->
+    mace::pose::CartesianPosition_2D* state2 = space.copyState(state1)->as<mace::pose::CartesianPosition_2D>();
+    state2->setXPosition(50.0);
+    std::cout<<"Pause here"<<std::endl;
+    space.removeState(state1);
+    space.removeState(state2);
+    std::cout<<"Pause here"<<std::endl;
 //    NearestNeighbor_FLANN<mace::planners_sampling::RootNode*> tree =
 //            NearestNeighbor_FLANN<mace::planners_sampling::RootNode*>(std::shared_ptr<flann::LinearIndexParams>(new flann::LinearIndexParams()));
 

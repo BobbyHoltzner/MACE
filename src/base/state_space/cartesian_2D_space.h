@@ -126,9 +126,18 @@ public:
         state = NULL;
     }
 
-    State* copyState(const State* state) const override
+    void removeStates(std::vector<State*> states) const override
     {
+        for(unsigned int i = 0; i < states.size(); i++)
+            removeState(states[i]);
+    }
 
+    State* copyState(State* state) const override
+    {
+        pose::CartesianPosition_2D* newState;
+        pose::CartesianPosition_2D* castState = state->as<pose::CartesianPosition_2D>();
+        castState->getClone(newState);
+        return newState;
     }
 
     void setBounds(const Cartesian2DSpaceBounds &bounds)
