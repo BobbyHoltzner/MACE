@@ -8,6 +8,11 @@ RandomNumberGenerator::RandomNumberGenerator()
 
 }
 
+double RandomNumberGenerator::uniform01()
+{
+    return uniDist(generator);
+}
+
 double RandomNumberGenerator::uniformReal(const double &lower, const double &upper)
 {
     double delta = upper - lower;

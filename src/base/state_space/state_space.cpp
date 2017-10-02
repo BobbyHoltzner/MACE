@@ -12,5 +12,10 @@ StateSpace::~StateSpace()
 
 }
 
+bool StateSpace::interpolateStates(const State *begin, const State *end, const double &distance, State *interState)
+{
+    return false;
+}
+
 } //end of namespace state
 } //end of namespace mace

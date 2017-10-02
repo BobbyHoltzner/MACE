@@ -115,6 +115,11 @@ public:
 
 
 public:
+
+    void normalize();
+
+    void scale(const double &value);
+
     //!
     //! \brief distanceBetween2D
     //! \param position

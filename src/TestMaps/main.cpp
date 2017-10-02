@@ -48,14 +48,20 @@ int main(int argc, char *argv[])
 //    mace::planners_sampling::RRTBase newBase();
 //    newBase.setNearestNeighbor<NearestNeighbor_FLANNLinear>();
 
-    mace::state_space::Cartesian2DSpace space;
-    mace::pose::CartesianPosition_2D* state1 = space.getNewState()->as<mace::pose::CartesianPosition_2D>();
-    //mace::pose::CartesianPosition_2D* cast = state1->
-    mace::pose::CartesianPosition_2D* state2 = space.copyState(state1)->as<mace::pose::CartesianPosition_2D>();
-    state2->setXPosition(50.0);
-    std::cout<<"Pause here"<<std::endl;
-    space.removeState(state1);
-    space.removeState(state2);
+    mace::state_space::Cartesian2DSpace* space = new mace::state_space::Cartesian2DSpace();
+    space->bounds.setBounds(-10,10,-10,10);
+    mace::state_space::State* sampleState = space->getNewState();
+
+    mace::state_space::Cartesian2DSpace_Sampler sampler(space);
+    sampler.sampleUniform(sampleState);
+
+//    mace::pose::CartesianPosition_2D* state1 = space.getNewState()->as<mace::pose::CartesianPosition_2D>();
+//    //mace::pose::CartesianPosition_2D* cast = state1->
+//    mace::pose::CartesianPosition_2D* state2 = space.copyState(state1)->as<mace::pose::CartesianPosition_2D>();
+//    state2->setXPosition(50.0);
+//    std::cout<<"Pause here"<<std::endl;
+//    space.removeState(state1);
+//    space.removeState(state2);
     std::cout<<"Pause here"<<std::endl;
 //    NearestNeighbor_FLANN<mace::planners_sampling::RootNode*> tree =
 //            NearestNeighbor_FLANN<mace::planners_sampling::RootNode*>(std::shared_ptr<flann::LinearIndexParams>(new flann::LinearIndexParams()));

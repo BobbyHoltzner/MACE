@@ -89,6 +89,8 @@ public:
     //!
     virtual void removeStates(std::vector<State*> states) const = 0;
 
+    virtual bool interpolateStates(const State* begin, const State* end, const double & percentage, State* interState);
+
 protected:
     StateSpaceTypes m_type;
     std::string m_name;

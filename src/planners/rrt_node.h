@@ -1,16 +1,21 @@
 #ifndef RRT_NODE_H
 #define RRT_NODE_H
 
-#include "base/state_space/state.h"
-
+#include "base/state_space/state_space.h"
 namespace mace {
 namespace planners_sampling{
 
-class RootNode : public state_space::State
+class RootNode
 {
 public:
-    RootNode():
-        currentState(nullptr), parentNode(nullptr)
+    RootNode(const state_space::StateSpacePtr &stateSpace):
+        currentState(stateSpace->getNewState()), parentNode(nullptr)
+    {
+
+    }
+
+    RootNode(state_space::State* state):
+        currentState(state), parentNode(nullptr)
     {
 
     }

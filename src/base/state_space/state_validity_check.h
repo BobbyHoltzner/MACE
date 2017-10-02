@@ -1,24 +1,21 @@
 #ifndef STATE_VALIDITY_CHECK_H
 #define STATE_VALIDITY_CHECK_H
 
-#include "base_global.h"
+#include "base/base_global.h"
+#include "common/class_forward.h"
 
-#include "space_information.h"
+#include "state_space.h"
 
 namespace mace {
 namespace state_space {
 
+MACE_CLASS_FORWARD(StateValidityCheck);
+
 class BASESHARED_EXPORT StateValidityCheck{
 
 public:
-    StateValidityCheck(SpaceInformation* info):
-        m_spaceInfo(info)
-    {
-
-    }
-
-    StateValidityCheck(const SpaceInformationPtr &info):
-        m_spaceInfo(info.get())
+    StateValidityCheck(StateSpacePtr space):
+        m_stateSpace(space)
     {
 
     }
@@ -28,35 +25,26 @@ public:
 
     virtual bool isValid(const State *state) const = 0;
 protected:
-    SpaceInformation* m_spaceInfo;
+    StateSpacePtr m_stateSpace;
 
 };
 
 class BASESHARED_EXPORT AllValidStateChecker: public StateValidityCheck{
 
 public:
-    AllValidStateChecker(SpaceInformation* info):
-        StateValidityCheck(info)
+    AllValidStateChecker(StateSpacePtr space):
+        StateValidityCheck(space)
     {
 
     }
 
-    AllValidStateChecker(const SpaceInformationPtr &info):
-        StateValidityCheck(info.get())
-    {
-
-    }
-
-    virtual ~StateValidityCheck() = default;
+    virtual ~AllValidStateChecker() = default;
 
 
     bool isValid(const State *state) const override
     {
         return true;
     }
-
-protected:
-    SpaceInformation* m_spaceInfo;
 
 };
 

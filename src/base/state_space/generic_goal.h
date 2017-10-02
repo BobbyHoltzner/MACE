@@ -84,6 +84,8 @@ public:
 
     }
 
+    virtual void sampleGoal(State* sample) = 0;
+
     virtual void setSampleFunction(const SampleFunction &distFun) {
         sampleFunction = distFun;
     }

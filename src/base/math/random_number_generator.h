@@ -15,6 +15,9 @@ public:
 
     void sampleRadial(const double &radius, double &theta, double &length);
 
+    double uniform01();
+
+
 private:
 
     std::mt19937 generator;

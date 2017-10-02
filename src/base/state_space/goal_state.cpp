@@ -13,5 +13,20 @@ GoalState::GoalState(StateSpacePtr &space, const double &value):
     });
 }
 
+void GoalState::setState(State* state)
+{
+    goalState = state;
+}
+
+const State* GoalState::getState() const
+{
+    return goalState;
+}
+
+void GoalState::sampleGoal(State* sample)
+{
+    sampleFunction(sample);
+}
+
 } //end of namespace state_space
 } //end of namespace mace

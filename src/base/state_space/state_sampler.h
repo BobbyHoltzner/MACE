@@ -8,6 +8,8 @@
 namespace mace {
 namespace state_space {
 
+MACE_CLASS_FORWARD(StateSampler);
+
 class StateSampler{
 public:
     StateSampler(const StateSampler& copy) = delete;

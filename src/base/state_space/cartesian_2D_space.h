@@ -123,7 +123,7 @@ public:
     void removeState(State* state) const override
     {
         delete state;
-        state = NULL;
+        state = nullptr;
     }
 
     void removeStates(std::vector<State*> states) const override
@@ -142,18 +142,19 @@ public:
 
     void setBounds(const Cartesian2DSpaceBounds &bounds)
     {
-        this->m_bounds = bounds;
+        this->bounds = bounds;
     }
 
     const Cartesian2DSpaceBounds& getBounds() const
     {
-        return m_bounds;
+        return bounds;
     }
 
     double distanceBetween(const State* lhs, const State* rhs) const override;
 
+    bool interpolateStates(const State *begin, const State *end, const double &percentage, State *interState) override;
 public:
-    Cartesian2DSpaceBounds m_bounds;
+    Cartesian2DSpaceBounds bounds;
 };
 
 } //end of namespace state_space

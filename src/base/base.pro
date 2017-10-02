@@ -40,7 +40,8 @@ SOURCES += \
     state_space/cartesian_2D_space.cpp \
     math/random_number_generator.cpp \
     math/cost.cpp \
-    state_space/goal_state.cpp
+    state_space/goal_state.cpp \
+    state_space/space_information.cpp
 
 HEADERS +=\
     base_global.h \

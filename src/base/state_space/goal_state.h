@@ -15,9 +15,11 @@ class GoalState : public GoalSampler
 public:
     GoalState(StateSpacePtr &space, const double &value = 0.0);
 
-    void setState(const State* state);
+    void setState(State *state);
 
     const State* getState() const;
+
+    void sampleGoal(State* sample) override;
 
 private:
     State* goalState;
