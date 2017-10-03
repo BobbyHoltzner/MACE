@@ -17,7 +17,7 @@
 #include "data_generic_state_item_topic/state_topic_components.h"
 #include "base/pose/cartesian_position_2D.h"
 #include "base/geometry/cell_2DC.h"
-#include "maps/bounded_2d_grid.h"
+#include "maps/bounded_2D_grid.h"
 
 #include "data/timer.h"
 

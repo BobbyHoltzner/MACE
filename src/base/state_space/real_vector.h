@@ -14,11 +14,11 @@ public:
     RealVector(unsigned int dim = 0);
 
 public:
-    addDimension(double minBound = 0.0, double maxBound = 0.0);
+    void addDimension(double minBound = 0.0, double maxBound = 0.0);
 
     const std::string getDimensionName(const size_t &index) const;
 
-    const setDimensionName(const size_t &index, const std::string &name);
+    const void setDimensionName(const size_t &index, const std::string &name);
 
 
 protected:

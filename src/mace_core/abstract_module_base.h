@@ -30,6 +30,7 @@ public:
         EXTERNAL_LINK,
         GROUND_STATION,
         PATH_PLANNING,
+        ROS,
         RTA,
         SENSORS,
         VEHICLE_COMMS,
@@ -45,6 +46,8 @@ public:
             return "GroundStation";
         case PATH_PLANNING:
             return "PathPlanning";
+        case ROS:
+            return "ROS";
         case RTA:
             return "RTA";
         case SENSORS:
@@ -65,6 +68,8 @@ public:
             return GROUND_STATION;
         if(string == "PathPlanning")
             return PATH_PLANNING;
+        if(string == "ROS")
+            return ROS;
         if(string == "RTA")
             return RTA;
         if(string == "Sensors")
