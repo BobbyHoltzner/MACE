@@ -2,6 +2,9 @@
 
 #include "base/state_space/cartesian_2D_space.h"
 
+#include "planners/rrt_base.h"
+#include "planners/nearest_neighbor_flann.h"
+
 #include <iostream>
 #include <QFile>
 #include <QTextStream>
@@ -47,14 +50,34 @@ int main(int argc, char *argv[])
 
 //    mace::planners_sampling::RRTBase newBase();
 //    newBase.setNearestNeighbor<NearestNeighbor_FLANNLinear>();
+//    mace::state_space::State* sampleState = space->getNewState();
 
-    mace::state_space::Cartesian2DSpace* space = new mace::state_space::Cartesian2DSpace();
-    space->bounds.setBounds(-10,10,-10,10);
-    mace::state_space::State* sampleState = space->getNewState();
+//    mace::state_space::Cartesian2DSpace_Sampler sampler(space);
+//    sampler.sampleUniform(sampleState);
 
-    mace::state_space::Cartesian2DSpace_Sampler sampler(space);
-    sampler.sampleUniform(sampleState);
+    mace::state_space::Cartesian2DSpacePtr space = std::make_shared<mace::state_space::Cartesian2DSpace>();
+    space->bounds.setBounds(0,10,0,10);
+    mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(space.get());
 
+    mace::state_space::SpaceInformationPtr spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(space);
+    spaceInfo->setStateSampler(sampler);
+
+    mace::planners_sampling::RRTBase rrt(spaceInfo);
+    mace::state_space::GoalState* begin = new mace::state_space::GoalState(space);
+    begin->setState(new mace::pose::CartesianPosition_2D(0,0));
+    mace::state_space::GoalState* end = new mace::state_space::GoalState(space,1.0);
+    end->setState(new mace::pose::CartesianPosition_2D(10,10));
+    end->setRadialRegion(1.0);
+
+    rrt.setPlanningParameters(begin,end);
+
+    rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
+    std::vector<mace::state_space::State*> solution = rrt.solve();
+    std::cout<<"The solution looks like this: "<<std::endl;
+    for (int i = 0; i < solution.size(); i++)
+    {
+        std::cout<<"X: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
+    }
 //    mace::pose::CartesianPosition_2D* state1 = space.getNewState()->as<mace::pose::CartesianPosition_2D>();
 //    //mace::pose::CartesianPosition_2D* cast = state1->
 //    mace::pose::CartesianPosition_2D* state2 = space.copyState(state1)->as<mace::pose::CartesianPosition_2D>();

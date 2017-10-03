@@ -16,7 +16,7 @@ class PLANNERSSHARED_EXPORT Planners
 public:
     Planners(const state_space::SpaceInformationPtr &spaceInfo = nullptr);
 
-    virtual void solve() = 0;
+    virtual std::vector<state_space::State*> solve() = 0;
 
     virtual void setPlanningSpaceInfo(const state_space::SpaceInformationPtr spaceInfo);
 

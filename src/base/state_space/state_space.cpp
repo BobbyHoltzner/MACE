@@ -12,9 +12,9 @@ StateSpace::~StateSpace()
 
 }
 
-bool StateSpace::interpolateStates(const State *begin, const State *end, const double &distance, State *interState)
+bool StateSpace::interpolateStates(const State *begin, const State *end, const double &distance, State** interState)
 {
-    begin->getClone(interState);
+    *interState = begin->getClone();
     return false;
 }
 

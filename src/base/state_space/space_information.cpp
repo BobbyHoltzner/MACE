@@ -29,7 +29,7 @@ bool SpaceInformation::isEdgeValid(const State *lhs, const State *rhs) const
 
 double SpaceInformation::distanceBetween(const State *lhs, const State *rhs) const
 {
-    m_stateSpace->distanceBetween(lhs, rhs);
+    return m_stateSpace->distanceBetween(lhs, rhs);
 }
 
 //!
@@ -68,6 +68,17 @@ void SpaceInformation::removeStates(std::vector<State*> states) const
 {
     m_stateSpace->removeStates(states);
 }
+
+void SpaceInformation::setStateSampler(const StateSamplerPtr &sampler)
+{
+    m_stateSampler = sampler;
+}
+
+StateSamplerPtr SpaceInformation::getStateSampler() const
+{
+    return m_stateSampler;
+}
+
 
 } //end of namespace state_space
 } //end of namespace mace

@@ -12,7 +12,7 @@ MACE_CLASS_FORWARD(Goal);
 
 class Goal{
 public:
-    Goal(StateSpacePtr &space):
+    Goal(const StateSpacePtr &space):
         stateSpace(space)
     {
 
@@ -38,7 +38,7 @@ public:
         return stateSpace;
     }
 protected:
-    StateSpacePtr stateSpace;
+    const StateSpacePtr stateSpace;
 };
 
 MACE_CLASS_FORWARD(GoalRegion);
@@ -46,7 +46,7 @@ MACE_CLASS_FORWARD(GoalRegion);
 class GoalRegion: public Goal
 {
 public:
-    GoalRegion(StateSpacePtr &space, const double &value = 0.0):
+    GoalRegion(const StateSpacePtr &space, const double &value = 0.0):
         Goal(space), radialSatisfy(value)
     {
 
@@ -78,7 +78,7 @@ class GoalSampler : public GoalRegion
 public:
     typedef std::function<void(State*)> SampleFunction;
 
-    GoalSampler(StateSpacePtr &space, const double &value = 0.0):
+    GoalSampler(const StateSpacePtr &space, const double &value = 0.0):
         GoalRegion(space, value)
     {
 

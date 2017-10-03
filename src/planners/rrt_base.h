@@ -18,22 +18,28 @@ namespace planners_sampling{
 
 class RRTBase : public planners::Planners{
 
-    RRTBase(const state_space::SpaceInformationPtr &spaceInfo)
+public:
+    RRTBase(const state_space::SpaceInformationPtr &spaceInfo):
+        Planners(spaceInfo), goalProbability(0.1), maxBranchLength(1.0)
     {
-
+        m_samplingStrategy = spaceInfo->getStateSampler();
     }
 
 public:
     void setPlanningParameters(state_space::GoalState *begin, state_space::GoalState *end) override;
 
-    void solve() override;
+    std::vector<state_space::State*> solve() override;
 
 public:
 
-    template <template <typename T> class NN>
+    template <class T>
     void setNearestNeighbor()
     {
-        m_nnStrategy = std::make_shared<NN<RootNode*>>();
+        m_nnStrategy = std::make_shared<T>();
+        m_nnStrategy->setDistanceFunction([this](const RootNode* lhs, const RootNode *rhs)
+        {
+            return distanceFunction(lhs,rhs);
+        });
     }
 
     /** The basis for the following functions is that these are base paramters
@@ -46,6 +52,12 @@ public:
     void setMaxBranchLength(const double &length);
 
     double getMaxBranchLength() const;
+
+private:
+    double distanceFunction(const RootNode* lhs, const RootNode* rhs)
+    {
+        return m_spaceInfo->distanceBetween(lhs->getCurrentState(), rhs->getCurrentState());
+    }
 
 protected:
 
@@ -62,14 +74,14 @@ protected:
      * indeed expands and tries to connect to the goal rather than randomly through
      * the space.
      */
-    double goalProbability;
+    double goalProbability = 0.1;
 
     /**
      * @brief The maximum branch length used to connect from a root of the tree to
      * the random sampled point. This length will determine where a new root of the
      * tree is added between the two points.
      */
-    double maxBranchLength;
+    double maxBranchLength = 1.0;
 };
 
 

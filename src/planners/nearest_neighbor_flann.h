@@ -223,6 +223,11 @@ public:
         searchParams_.checks = checks;
     }
 
+    std::vector<T> getData() const override
+    {
+        return this->data_;
+    }
+
 protected:
 
     void createIndex(const flann::Matrix<T> &mat)

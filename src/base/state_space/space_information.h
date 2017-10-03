@@ -8,6 +8,7 @@
 
 #include "base/state_space/state_space.h"
 #include "base/state_space/state_validity_check.h"
+#include "base/state_space/state_sampler.h"
 
 //This class is intended to be abstract as well
 
@@ -47,6 +48,9 @@ public:
         //return m_stateValidCheck.isValid(state);
     }
 
+    void setStateSampler(const StateSamplerPtr &sampler);
+
+    StateSamplerPtr getStateSampler() const;
 
 public:
     /** \brief Cast this instance to a desired type. */
@@ -94,6 +98,7 @@ public:
 protected:
     StateSpacePtr m_stateSpace;
     StateValidityCheck* m_stateValidCheck;
+    StateSamplerPtr m_stateSampler;
 };
 
 } //end of namespace state_space

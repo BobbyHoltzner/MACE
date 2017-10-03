@@ -29,7 +29,7 @@ double Cartesian2DSpace::distanceBetween(const State *lhs, const State *rhs) con
     return lhs->as<pose::CartesianPosition_2D>()->distanceBetween2D(*rhs->as<pose::CartesianPosition_2D>());
 }
 
-bool Cartesian2DSpace::interpolateStates(const State *begin, const State *end, const double &percentage, State *interState)
+bool Cartesian2DSpace::interpolateStates(const State *begin, const State *end, const double &percentage, State** interState)
 {
 
     pose::CartesianPosition_2D castBegin(*begin->as<pose::CartesianPosition_2D>());
@@ -41,11 +41,11 @@ bool Cartesian2DSpace::interpolateStates(const State *begin, const State *end, c
      * Let v = (x1,y1) - (x0,y0) and u = v/magnitude(v)
      * New point is now (x0,y0) + d*u
      */
-    pose::CartesianPosition_2D v = castBegin - castEnd;
+    pose::CartesianPosition_2D v = castEnd - castBegin;
     v.normalize();
     v.scale(distance * percentage);
 
-    interState = new pose::CartesianPosition_2D(v + castBegin);
+    *interState = new pose::CartesianPosition_2D(v + castBegin);
     return true;
 }
 

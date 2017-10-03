@@ -12,8 +12,12 @@ void RRTBase::setPlanningParameters(state_space::GoalState *begin, state_space::
 //!
 //! \brief RRTBase::solve function that initiates the solve routine of the planner
 //!
-void RRTBase::solve()
+std::vector<state_space::State*> RRTBase::solve()
 {
+
+    RootNode* finalNode = nullptr;
+    bool solutionFound = false;
+    std::vector<state_space::State*> path;
 
     /**
      * 1. Create the root node of the search based on the starting state and
@@ -23,11 +27,10 @@ void RRTBase::solve()
     RootNode* start = new RootNode(startState);
     m_nnStrategy->add(start);
 
-    {
+    while(true){
         RootNode* sampleNode = new RootNode(m_spaceInfo->getStateSpace());
         //get the state from the node so that we can update this in memory when sampling
         state_space::State* sampleState = sampleNode->getCurrentState();
-
         /**
          * 2. Sample a state from the state space
          */
@@ -51,30 +54,44 @@ void RRTBase::solve()
         if(distance > maxBranchLength)
         {
             //do the interpretation
-            bool validity = m_spaceInfo->getStateSpace()->interpolateStates(closestState,sampleState,maxBranchLength/distance,sampleState);
+            bool validity = m_spaceInfo->getStateSpace()->interpolateStates(closestState,sampleState,maxBranchLength/distance,&sampleState);
+            sampleNode->setCurrentState(sampleState);
         }
 
         /**
          * 5. Check that 1)State is valid and collision free, 2)Path edge is valid sampled at desired intervals
          * related to the aircraft size
          */
+        if(m_spaceInfo->isEdgeValid(closestState,sampleState))
+        {
+            /**
+             *5a. At this point the sampled state is clearly valid
+             */
+            sampleNode->setParentNode(closestNode);
+            m_nnStrategy->add(sampleNode);
 
-        /**
-         * 6. At this point the sampled state is clearly valid
-         */
-        sampleNode->setParentNode(closestNode);
-        m_nnStrategy->add(sampleNode);
+            /**
+             *5b. Check if this satisfies the goal criteria
+             */
+            solutionFound = m_stateEnd->isGoalSatisfied(sampleState);
+            if(solutionFound == true)
+            {
+                finalNode = sampleNode;
+                break;
+            }
+        }
+    } //end of while loop
+
+    if(finalNode != nullptr)
+    {
+        while(finalNode != nullptr)
+        {
+            path.push_back(finalNode->getCurrentState());
+            finalNode = finalNode->getParentNode();
+        }
     }
-    //we need a start state and an end state
 
-    //while termination conditions have not been met
-    //state_space::GoalState goal;
-
-    //check if the goal is not null, is it time to sample around the goal, is the goal region samplable
-    //if( (goal!= nullptr) && (m_RNG.uniform01() < goalProbability))
-    //sample the goal somehow
-    //else
-    //m_SamplingStrategy->sampleUniform();
+    return path;
 }
 
 void RRTBase::setGoalProbability(const double &probability)

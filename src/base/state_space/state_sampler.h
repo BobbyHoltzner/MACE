@@ -15,7 +15,7 @@ public:
     StateSampler(const StateSampler& copy) = delete;
     StateSampler &operator =(const StateSampler &copy) = delete;
 
-    StateSampler(const StateSpace *space):
+    StateSampler(const StateSpace* space):
         m_space(space)
     {
 
@@ -30,7 +30,7 @@ public:
     virtual void sampleGaussian(State *sample, const State *mean, const double stdDev = 0) = 0;
 
 protected:
-    const StateSpace *m_space;
+    const StateSpace* m_space;
 };
 
 } //end of namespace state_space

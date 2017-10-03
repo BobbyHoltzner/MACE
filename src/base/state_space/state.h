@@ -31,7 +31,17 @@ public:
     }
 
 public:
-    virtual void getClone(State* clone) const = 0;
+    //an option to avoid the virtual may be something like this
+//    template <class T>
+//    State* getClone() const
+//    {
+//        return new T(*this->as<T>());
+//    }
+
+    virtual State* getClone() const = 0;
+
+    virtual void getClone(State** state) const = 0;
+
 };
 
 

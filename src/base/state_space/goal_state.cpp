@@ -3,7 +3,7 @@
 namespace mace {
 namespace state_space {
 
-GoalState::GoalState(StateSpacePtr &space, const double &value):
+GoalState::GoalState(const StateSpacePtr &space, const double &value):
     GoalSampler(space,value)
 {
     this->setSampleFunction([this](State* sample)
@@ -26,6 +26,14 @@ const State* GoalState::getState() const
 void GoalState::sampleGoal(State* sample)
 {
     sampleFunction(sample);
+}
+
+bool GoalState::isGoalSatisfied(const State *current)
+{
+    double distance = stateSpace->distanceBetween(goalState,current);
+    if(distance < radialSatisfy)
+        return true;
+    return false;
 }
 
 } //end of namespace state_space

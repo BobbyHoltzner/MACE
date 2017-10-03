@@ -13,13 +13,15 @@ MACE_CLASS_FORWARD(GoalState);
 class GoalState : public GoalSampler
 {
 public:
-    GoalState(StateSpacePtr &space, const double &value = 0.0);
+    GoalState(const StateSpacePtr &space, const double &value = 0.0);
 
     void setState(State *state);
 
     const State* getState() const;
 
     void sampleGoal(State* sample) override;
+
+    bool isGoalSatisfied(const State* current);
 
 private:
     State* goalState;

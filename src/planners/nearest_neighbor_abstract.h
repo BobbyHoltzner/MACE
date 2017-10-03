@@ -54,6 +54,7 @@ public:
 
     virtual void list(std::vector<T> &data) const = 0;
 
+    virtual std::vector<T> getData() const = 0;
 
 
 protected:

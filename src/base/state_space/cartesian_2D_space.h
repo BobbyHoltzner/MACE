@@ -86,6 +86,8 @@ private:
     double min_Y;
 };
 
+MACE_CLASS_FORWARD(Cartesian2DSpace_Sampler);
+
 class BASESHARED_EXPORT Cartesian2DSpace_Sampler: public StateSampler
 {
 public:
@@ -104,6 +106,8 @@ public:
 private:
     math::RandomNumberGenerator m_rng;
 };
+
+MACE_CLASS_FORWARD(Cartesian2DSpace);
 
 class BASESHARED_EXPORT Cartesian2DSpace : public StateSpace
 {
@@ -134,9 +138,8 @@ public:
 
     State* copyState(const State* state) const override
     {
-        pose::CartesianPosition_2D* newState;
         const pose::CartesianPosition_2D* castState = state->as<const pose::CartesianPosition_2D>();
-        castState->getClone(newState);
+        state_space::State* newState = castState->getClone();
         return newState;
     }
 
@@ -152,7 +155,7 @@ public:
 
     double distanceBetween(const State* lhs, const State* rhs) const override;
 
-    bool interpolateStates(const State *begin, const State *end, const double &percentage, State *interState) override;
+    bool interpolateStates(const State *begin, const State *end, const double &percentage, State** interState) override;
 public:
     Cartesian2DSpaceBounds bounds;
 };
