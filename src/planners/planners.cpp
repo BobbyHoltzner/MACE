@@ -4,10 +4,17 @@
 namespace mace{
 namespace planners {
 
-Planners::Planners()
+Planners::Planners(const state_space::SpaceInformationPtr &spaceInfo):
+    m_spaceInfo(std::move(spaceInfo)), m_stateBegin(nullptr), m_stateEnd(nullptr)
 {
     createLog();
 }
+
+void Planners::setPlanningSpaceInfo(const state_space::SpaceInformationPtr spaceInfo)
+{
+    m_spaceInfo = spaceInfo;
+}
+
 
 void Planners::createLog()
 {

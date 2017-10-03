@@ -17,7 +17,10 @@ namespace pose{
 
 class CartesianPosition
 {
+public:
+    CartesianPosition() = default;
 
+    virtual ~CartesianPosition() = default;
 };
 
 template<typename T>

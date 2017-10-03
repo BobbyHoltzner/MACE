@@ -39,7 +39,9 @@ SOURCES += \
     state_space/state_space.cpp \
     state_space/cartesian_2D_space.cpp \
     math/random_number_generator.cpp \
-    math/cost.cpp
+    math/cost.cpp \
+    state_space/goal_state.cpp \
+    state_space/space_information.cpp
 
 HEADERS +=\
     base_global.h \
@@ -68,10 +70,12 @@ HEADERS +=\
     state_space/state_space.h \
     state_space/state.h \
     state_space/space_information.h \
-    state_space/state_validity_checker.h \
     state_space/cartesian_2D_space.h \
     math/random_number_generator.h \
-    math/cost.h
+    math/cost.h \
+    state_space/state_validity_check.h \
+    state_space/generic_goal.h \
+    state_space/goal_state.h
 
 # Unix lib Install
 unix:!symbian {
@@ -141,3 +145,8 @@ INSTALLS       += headers_state_space
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
+else:unix:!macx: LIBS += -L$$OUT_PWD/../common/ -lcommon
+

@@ -15,6 +15,17 @@
 namespace mace {
 namespace state_space {
 
+/**
+\* @file  cartesian_2D_space.h
+\*
+\* @section PROJECT
+\*
+\*   This is a part of the Heron System's project MACE.
+\*
+\* @section DESCRIPTION
+\*
+\*  Header for gui widget displaying test setup progress
+\*/
 
 class BASESHARED_EXPORT Cartesian2DSpaceBounds
 {
@@ -75,6 +86,8 @@ private:
     double min_Y;
 };
 
+MACE_CLASS_FORWARD(Cartesian2DSpace_Sampler);
+
 class BASESHARED_EXPORT Cartesian2DSpace_Sampler: public StateSampler
 {
 public:
@@ -94,12 +107,15 @@ private:
     math::RandomNumberGenerator m_rng;
 };
 
+MACE_CLASS_FORWARD(Cartesian2DSpace);
+
 class BASESHARED_EXPORT Cartesian2DSpace : public StateSpace
 {
 public:
     Cartesian2DSpace()
     {
-
+        m_type = StateSpaceTypes::CARTESIAN_2D;
+        m_name = "Cartesian 2D";
     }
 
     State* getNewState() const override
@@ -111,21 +127,37 @@ public:
     void removeState(State* state) const override
     {
         delete state;
-        state = NULL;
+        state = nullptr;
+    }
+
+    void removeStates(std::vector<State*> states) const override
+    {
+        for(unsigned int i = 0; i < states.size(); i++)
+            removeState(states[i]);
+    }
+
+    State* copyState(const State* state) const override
+    {
+        const pose::CartesianPosition_2D* castState = state->as<const pose::CartesianPosition_2D>();
+        state_space::State* newState = castState->getClone();
+        return newState;
     }
 
     void setBounds(const Cartesian2DSpaceBounds &bounds)
     {
-        this->m_bounds = bounds;
+        this->bounds = bounds;
     }
 
     const Cartesian2DSpaceBounds& getBounds() const
     {
-        return m_bounds;
+        return bounds;
     }
 
+    double distanceBetween(const State* lhs, const State* rhs) const override;
+
+    bool interpolateStates(const State *begin, const State *end, const double &percentage, State** interState) override;
 public:
-    Cartesian2DSpaceBounds m_bounds;
+    Cartesian2DSpaceBounds bounds;
 };
 
 } //end of namespace state_space

@@ -15,6 +15,8 @@ public:
         std::cout<<"Default cartesian position 3d constructor"<<std::endl;
     }
 
+    ~CartesianPosition_3D() = default;
+
     CartesianPosition_3D(const CartesianPosition_3D &copy):
         AbstractPosition(copy)
     {

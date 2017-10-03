@@ -7,6 +7,8 @@
 #include "flann/flann.hpp"
 
 #include "nearest_neighbor_abstract.h"
+#include "rrt_node.h"
+
 #include "base/state_space/state.h"
 
 namespace mace {
@@ -46,7 +48,8 @@ template <typename T>
 class DistanceFunctionFLANN
 {
 public:
-    using ElementType = TestState*;
+    //this is only being done until type can be figured out
+    using ElementType = T;
     using ResultType = double;
 
     DistanceFunctionFLANN(const typename NearestNeighborAbstract<T>::DistanceFunction &func):
@@ -56,7 +59,7 @@ public:
     }
 
     template <typename IT1, typename IT2>
-    double operator ()(IT1 a, IT2 b, size_t, double = -1) const
+    double operator ()(IT1 a, IT2 b, size_t, ResultType = -1) const
     {
         return m_distanceFunction(*a,*b);
     }
@@ -220,6 +223,11 @@ public:
         searchParams_.checks = checks;
     }
 
+    std::vector<T> getData() const override
+    {
+        return this->data_;
+    }
+
 protected:
 
     void createIndex(const flann::Matrix<T> &mat)
@@ -253,33 +261,16 @@ protected:
 };
 
 
-//class KDTreeTest
-//{
-//   public:
-//    KDTreeTest()
-//    {
-//        NearestNeighbor_FLANN<TestState*> tree = NearestNeighbor_FLANN<TestState*>(std::shared_ptr<flann::LinearIndexParams>(new flann::LinearIndexParams()));
-//        tree.setDistanceFunction([](const TestState* a, const TestState* b)
-//        {
-//            return std::fabs(a->getValue()-b->getValue());
-//        });
+template <typename T, typename F = DistanceFunctionFLANN<T>>
+class NearestNeighbor_FLANNLinear : public NearestNeighbor_FLANN<T, F>
+{
+public:
+    NearestNeighbor_FLANNLinear():
+        NearestNeighbor_FLANN<T,F>(std::shared_ptr<flann::LinearIndexParams>(new flann::LinearIndexParams()))
+    {
 
-//        TestState pos0;
-//        pos0.setValue(10.0);
-//        tree.add(&pos0);
-
-//        TestState pos1;
-//        pos1.setValue(20.0);
-//        tree.add(&pos1);
-
-//        TestState pos2;
-//        pos2.setValue(30.0);
-//        tree.add(&pos2);
-
-//        TestState* nearest = tree.nearest(&pos0);
-//        std::cout<<"I am complete"<<std::endl;
-//    }
-//};
+    }
+};
 
 } //end of namespace nn
 } //end of namespace mace

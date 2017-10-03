@@ -29,7 +29,21 @@ public:
         //ensure that we are attempting to cast it to a type of state
         return static_cast<T *>(this);
     }
+
+public:
+    //an option to avoid the virtual may be something like this
+//    template <class T>
+//    State* getClone() const
+//    {
+//        return new T(*this->as<T>());
+//    }
+
+    virtual State* getClone() const = 0;
+
+    virtual void getClone(State** state) const = 0;
+
 };
+
 
 } //end of namespace state_space
 } //end of namespace mace

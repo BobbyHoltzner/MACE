@@ -31,6 +31,18 @@ public:
         this->data.setData(x,y);
     }
 
+    State* getClone() const override
+    {
+        return (new CartesianPosition_2D(*this));
+    }
+
+    void getClone(State** state) const override
+    {
+        *state = new CartesianPosition_2D(*this);
+    }
+
+
+
 public:
     void updatePosition(const double &x, const double &y)
     {
@@ -110,6 +122,11 @@ public:
 
 
 public:
+
+    void normalize();
+
+    void scale(const double &value);
+
     //!
     //! \brief distanceBetween2D
     //! \param position

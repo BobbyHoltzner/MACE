@@ -24,5 +24,31 @@ void Cartesian2DSpace_Sampler::sampleGaussian(State *sample, const State *mean, 
 
 }
 
+double Cartesian2DSpace::distanceBetween(const State *lhs, const State *rhs) const
+{
+    return lhs->as<pose::CartesianPosition_2D>()->distanceBetween2D(*rhs->as<pose::CartesianPosition_2D>());
+}
+
+bool Cartesian2DSpace::interpolateStates(const State *begin, const State *end, const double &percentage, State** interState)
+{
+
+    pose::CartesianPosition_2D castBegin(*begin->as<pose::CartesianPosition_2D>());
+    pose::CartesianPosition_2D castEnd(*end->as<pose::CartesianPosition_2D>());
+
+    double distance = castBegin.distanceTo(castEnd);
+
+    /**
+     * Let v = (x1,y1) - (x0,y0) and u = v/magnitude(v)
+     * New point is now (x0,y0) + d*u
+     */
+    pose::CartesianPosition_2D v = castEnd - castBegin;
+    v.normalize();
+    v.scale(distance * percentage);
+
+    *interState = new pose::CartesianPosition_2D(v + castBegin);
+    return true;
+}
+
+
 } //end of namespace state_space
 } //end of namespace mace
