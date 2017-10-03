@@ -55,6 +55,7 @@ std::vector<state_space::State*> RRTBase::solve()
         {
             //do the interpretation
             bool validity = m_spaceInfo->getStateSpace()->interpolateStates(closestState,sampleState,maxBranchLength/distance,&sampleState);
+            //Madison, why do I need to do this
             sampleNode->setCurrentState(sampleState);
         }
 

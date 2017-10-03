@@ -30,5 +30,6 @@ SUBDIRS += \
     module_vehicle_sensors \
     voropp \
     module_resource_task_allocation \
+    module_ROS \
     mace \
     TestMaps

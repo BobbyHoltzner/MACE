@@ -1,17 +1,44 @@
+## Table of Contents
+- [Building](#building)
+- [Requirements](#requirements)
+- [Dependencies](#dependencies)
+  - [Eigen](#eigen)
+  - [Download MAVLink Libraries](#mavlink-libraries)
+  - [Qt Libraries](#qt-libraries)
+  - [Building on ODROID](#building-on-odroid)
+- [Command line Compile MACE with UNIX](#mace-compile-unix)
+  - [CMake](#cmake)
+  - [QMake](#qmake)
+- [Develop with Qt IDE on ODROID](#qt-on-odroid)
+  - [Install Qt Creator](#install-creator-odroid)
+  - [Configure Qt Creator](#configure-creator-odroid)
+- [Develop with Qt IDE on Windows](#qt-on-windows)\
+  - [Configure Qt Creator](#configure-creator-windows)
+- [Running on ODROID](#running-on-odroid)
+- [(Optional) ROS Setup](#ros-setup)
+  - [ROS UAV Models](#ros-uavs)
+    - [Hector Quadrotor](#hector-quadrotor)
+  - [ROS UGV Models](#ros-ugvs)
+    - [Turtlebot](#turtlebot)
+    - [Husky](#husky)
+    - [Grizzly](#grizzly)
+    - [Jackal](#jackal)
 
-#Building
+
+
+# <a name="building"></a> Building
 
 Use information bellow to buld entire source tree for your platform
 
-##Requirments
+## <a name="requirements"></a> Requirments
 List which MACE has been successfully targeted.
 * GCC 4.6.4+ OR MSVC2013
 * QT 5.7.0+
 
 
-## Dependencies
+## <a name="dependencies"></a> Dependencies
 
-### Eigen
+### <a name="eigen"></a> Eigen
 
 Download and install the lastest Eigen library from  
 `http://eigen.tuxfamily.org/index.php?title=Main_Page`
@@ -19,7 +46,7 @@ Download and install the lastest Eigen library from
 For both Unix/Windows the default install location is fine.
 For windows you may need to open a `cmd.exe` window with adminstator privaliges, then run `INSTALL.vcxproj` in the build directory such that the "INSTALL" project can copy it's files onto the filesystem.
 
-### Download Mavlink libraries
+### <a name="mavlink-libraries"></a> Download Mavlink libraries
 
 The Mavlink library is configured as a submodule in git.
 To download the nessessary files, run the following command in a shell on the project.
@@ -27,13 +54,13 @@ To download the nessessary files, run the following command in a shell on the pr
 git submodule update --init --recursive
 ```
 
-### Qt Libraries
+### <a name="qt-libraries"></a> Qt Libraries
 
 Currently we utialize QtSerialPort library to faciliate communication to vehicles therefore Qt's libraries are required. However it is not required to use Qt's toolchain to build/develop MACE.
 
 For Windows or "typical" linux install QT as per normal
 
-#### Building On ODROID
+#### <a name="building-on-odroid"></a> Building On ODROID
 
 For ODROID, QT will need to be compiled from source due to archetecture.
 
@@ -63,9 +90,9 @@ export PATH
 ```
 to `.profile`, after this change log-off/log-on would be required.
 
-##Command Line Compile MACE with UNIX
+## <a name="mace-compile-unix"></a> Command Line Compile MACE with UNIX
 
-###CMake
+### <a name="cmake"></a> CMake
 
 From the project's root directoy create a build folder
 ```
@@ -88,7 +115,7 @@ make
 make install
 ```
 
-###QMake
+### <a name="qmake"></a> QMake
 
 From the project's root directoy create a build folder
 ```
@@ -107,11 +134,11 @@ make
 make install
 ```
 
-#Develop with QT IDE on ODROID
+# <a name="qt-on-odroid"></a> Develop with QT IDE on ODROID
 
 The following steps detail how to develop with Qt on the odroid and how to install and operate qtcreator on the odroid to build MACE.
 
-##Install QtCreator
+## <a name="install-creator-odroid"></a> Install QtCreator
 
 To add qt creator use apt-get
 ```
@@ -124,7 +151,7 @@ qtcreator -noload Welcome
 ```
 This change can be perminatly set by navigting to Help->Plugins and unchecking "Welcome"
 
-##Configure QtCreator
+## <a name="configure-creator-odroid"></a> Configure QtCreator
 
 With QtCreator open the build kit must first be configured.  
 Open Options menu under Tools->options. Select "Build and Run" on left side.
@@ -144,7 +171,7 @@ Apply changes.
 Now open MACE/src/src.pro ensuring that it is using the kit you just created and build MACE project as you wish.
 Under "Project" option on left you may want to check "Shadow build" this helps keep your source directory clean of build artifacts.
 
-#Develop with QT IDE on Windows
+# <a name="qt-on-windows"></a> Develop with QT IDE on Windows
 
 The following steps detail how to develop with Qt on windows.
 
@@ -152,7 +179,7 @@ The following steps detail how to develop with Qt on windows.
 
 Likely this was installed in the above step to 
 
-##Configure QtCreator
+## <a name="configure-creator-windows"></a> Configure QtCreator
 
 With QtCreator open the build kit must first be configured.  
 Open Options menu under Tools->options. Select "Build and Run" on left side.
@@ -173,7 +200,7 @@ Now open MACE/src/src.pro ensuring that it is using the kit you just created and
 Under "Project" option on left you may want to check "Shadow build" this helps keep your source directory clean of build artifacts.
 
 
-## Running on ODROID:
+# <a name="running-on-odroid"></a> Running on ODROID:
 _NOTE_: If you cannot run via command line on an ODROID, try running the following command:
 
 `export LD_LIBRARY_PATH=<path_to_MACE>/lib`
@@ -181,3 +208,34 @@ _NOTE_: If you cannot run via command line on an ODROID, try running the followi
 where `<path_to_MACE>` is replaced with the local path to your MACE root directory. This tells the console when running an application to also look in that path for any applicable libraries. 
 
 
+# <a name="ros-setup"></a> (Optional) ROS Setup
+Currently, the only tested ROS distribution with MACE is Indigo. Follow the instructions on the ROS wiki to install:
+[Install ROS Indigo](http://wiki.ros.org/indigo/Installation/Ubuntu)
+
+Follow the default install and use default install paths, as MACE currently checks the default locations for library linkings.
+
+## <a name="ros-uavs"></a> ROS UAV Models
+### <a name="hector-quadrotor"></a> Hector Quadrotor Installation
+Hector Quadrotor is a quadrotor package for ROS with laser-scanning and mapping capabilities. The stack provides packages related to modeling, control and simulation of quadrotor UAV systems. To install, run the following:
+
+```
+sudo apt-get install ros-indigo-hector-quadrotor ros-indigo-hector-localization ros-indigo-hector-gazebo ros-indigo-hector-models ros-indigo-hector-quadrotor-demo
+```
+
+## <a name="ros-ugvs"></a> ROS UGV Models
+### <a name="turtlebot"></a> Turtlebot Installation
+A simple to use, common robot platform with ROS integrations is the Turtlebot. It contains an RGB camera and a laser scanner. To install, follow the steps on the ROS wiki:
+[Install Turtlebot](http://wiki.ros.org/turtlebot_simulator)
+
+If the installation fails or other issues present themselves, try installing the packages outlined in the Debs installation section [HERE](http://wiki.ros.org/turtlebot/Tutorials/indigo/Turtlebot%20Installation)
+
+### <a name="husky"></a> Husky UGV
+Husky is a rugged, outdoor-ready unmanned ground vehicle (UGV), suitable for research and rapid prototyping applications. Husky fully supports ROS. To simulate the Husky UGV, follow the steps [HERE](http://wiki.ros.org/husky_gazebo/Tutorials/Simulating%20Husky)
+
+### <a name="grizzly"></a> Husky UGV
+Grizzly Robotic Utility Vehicle (RUV) is designed for rough, rugged, outdoor environments. With four 26" all-terrain tires, a solid steel chassis, and 48V at 400Ah of power, it's ideal for military, mining an agricultural applications. Grizzly RUV offers incredible strength, an unbeatable control system and front axle articulation that keeps the vehicle grounded and stable on even the most challenging terrain. Combined power and precision is the result of onboard current and voltage sensors, high precision wheel encoders, IMU, GPS, and a maximum drawbar of almost 1700lbf.
+
+The Grizzly simulator is implemented using simulator_gazebo stack. It is a three-dimensional, rigid-body model of the Grizzly with most of the hardware-ROS interfaces found on the actual robot. You can install the simulator following the steps [HERE](http://wiki.ros.org/grizzly_simulator)
+
+### <a name="jackal"></a> Husky UGV
+Jackal's fully integrated, weatherproof design offers unique capability in a compact package. To install, follow the steps [HERE](http://wiki.ros.org/jackal_simulator). 

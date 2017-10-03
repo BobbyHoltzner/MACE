@@ -14,6 +14,11 @@
 
 #include "data/environment_time.h"
 
+#ifdef ROS_EXISTS
+#include <ros/ros.h>
+#endif
+
+
 const char kPathSeparator =
 #ifdef _WIN32
                             '\\';
@@ -88,6 +93,7 @@ int main(int argc, char *argv[])
 
     bool addedGroundStation = false;
     bool addedPathPlanning = false;
+    bool addedROS = false;
     bool addedRTA = false;
     bool addedSensors = false;
     int numVehicles = 1;
@@ -157,6 +163,21 @@ int main(int argc, char *argv[])
             }
             core.AddPathPlanningModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandPathPlanning>(module));
             addedPathPlanning = true;
+            break;
+        }
+        case MaceCore::ModuleBase::ROS:
+        {
+#ifdef ROS_EXISTS
+            if(addedROS == true)
+            {
+                std::cerr << "Only one ROS module can be added" << std::endl;
+                return 1;
+            }
+            core.AddROSModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandROS>(module));
+            addedROS = true;
+#else
+            std::cout << "ROS not included on this system. Skipping ROS module setup." << std::endl;
+#endif
             break;
         }
         case MaceCore::ModuleBase::RTA:

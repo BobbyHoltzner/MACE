@@ -78,6 +78,13 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
     m_PathPlanning = pathPlanning;
 }
 
+void MaceCore::AddROSModule(const std::shared_ptr<IModuleCommandROS> &ros)
+{
+    ros->addListener(this);
+    ros->addTopicListener(this);
+    m_ROS = ros;
+}
+
 void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
 {
     rta->addListener(this);
