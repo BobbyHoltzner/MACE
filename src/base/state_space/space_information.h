@@ -83,7 +83,7 @@ public:
     //! \param state
     //! \return
     //!
-    State* copyState(State* state) const;
+    State* copyState(const State *state) const;
 
     //!
     //! \brief removeStates

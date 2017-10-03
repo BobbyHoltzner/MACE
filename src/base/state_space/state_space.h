@@ -81,7 +81,7 @@ public:
     //! \param state
     //! \return
     //!
-    virtual State* copyState(State* state) const = 0;
+    virtual State* copyState(const State* state) const = 0;
 
     //!
     //! \brief removeStates

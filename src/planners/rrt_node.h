@@ -27,8 +27,8 @@ public:
     void setCurrentState(state_space::State* state) { this->currentState = state; }
     void setParentNode(RootNode* node) { this->parentNode = node; }
 
-    state_space::State* getCurrentState(){ return this->currentState; }
-    RootNode* getParentNode(){ return this->parentNode; }
+    state_space::State* getCurrentState()const { return this->currentState; }
+    RootNode* getParentNode()const { return this->parentNode; }
 
 private:
     state_space::State* currentState;

@@ -30,7 +30,7 @@ protected:
 
     state_space::SpaceInformationPtr m_spaceInfo;
 
-    state_space::State* m_stateBegin;
+    state_space::GoalState* m_stateBegin;
 
     state_space::GoalState* m_stateEnd;
 };

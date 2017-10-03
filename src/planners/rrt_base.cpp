@@ -3,10 +3,10 @@
 namespace mace {
 namespace planners_sampling{
 
-void RRTBase::setPlanningParameters(state_space::GoalState *begin, state_space::GoalState *end):
-    m_stateBegin(begin), m_stateEnd(end)
+void RRTBase::setPlanningParameters(state_space::GoalState *begin, state_space::GoalState *end)
 {
-
+    m_stateBegin = begin;
+    m_stateEnd = end;
 }
 
 //!
@@ -19,7 +19,7 @@ void RRTBase::solve()
      * 1. Create the root node of the search based on the starting state and
      * insert into the allocated tree structure.
      */
-    state_space::State* startState = m_spaceInfo->copyState(m_stateBegin);
+    state_space::State* startState = m_spaceInfo->copyState(m_stateBegin->getState());
     RootNode* start = new RootNode(startState);
     m_nnStrategy->add(start);
 
@@ -51,11 +51,19 @@ void RRTBase::solve()
         if(distance > maxBranchLength)
         {
             //do the interpretation
-            m_spaceInfo->getStateSpace()->
-            //update the address of the
+            bool validity = m_spaceInfo->getStateSpace()->interpolateStates(closestState,sampleState,maxBranchLength/distance,sampleState);
         }
 
+        /**
+         * 5. Check that 1)State is valid and collision free, 2)Path edge is valid sampled at desired intervals
+         * related to the aircraft size
+         */
 
+        /**
+         * 6. At this point the sampled state is clearly valid
+         */
+        sampleNode->setParentNode(closestNode);
+        m_nnStrategy->add(sampleNode);
     }
     //we need a start state and an end state
 

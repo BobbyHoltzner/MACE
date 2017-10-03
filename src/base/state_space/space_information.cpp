@@ -55,7 +55,7 @@ void SpaceInformation::removeState(State* state) const
 //! \param state
 //! \return
 //!
-State* SpaceInformation::copyState(State* state) const
+State* SpaceInformation::copyState(const State* state) const
 {
     return m_stateSpace->copyState(state);
 }

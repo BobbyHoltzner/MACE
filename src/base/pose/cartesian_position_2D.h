@@ -31,10 +31,11 @@ public:
         this->data.setData(x,y);
     }
 
-    void getClone(CartesianPosition_2D* clone)
+    void getClone(State* clone) const override
     {
         clone = new CartesianPosition_2D(*this);
     }
+
 
 public:
     void updatePosition(const double &x, const double &y)

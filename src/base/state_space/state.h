@@ -29,7 +29,11 @@ public:
         //ensure that we are attempting to cast it to a type of state
         return static_cast<T *>(this);
     }
+
+public:
+    virtual void getClone(State* clone) const = 0;
 };
+
 
 } //end of namespace state_space
 } //end of namespace mace
