@@ -1,4 +1,4 @@
-#include "motion_validity_check.h"
+#include "abstract_motion_validity_check.h"
 
 namespace mace {
 namespace state_space {

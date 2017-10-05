@@ -8,8 +8,8 @@
 
 #include "base/state_space/state_space.h"
 #include "base/state_space/state_sampler.h"
-#include "base/state_space/state_validity_check.h"
-#include "base/state_space/motion_validity_check.h"
+#include "base/state_space/abstract_state_validity_check.h"
+#include "base/state_space/abstract_motion_validity_check.h"
 
 namespace mace {
 namespace state_space {
@@ -22,35 +22,88 @@ class BASESHARED_EXPORT SpaceInformation
 {
 
 public:
-    /** \brief Constructor. Sets the instance of the state space to plan with. */
+    /**
+     * @brief SpaceInformation
+     * @param space
+     */
     SpaceInformation(const StateSpacePtr &space);
 
+    /**
+      */
     virtual ~SpaceInformation() = default;
 
+    /**
+      */
+
+    /**
+     * @brief SpaceInformation
+     */
     SpaceInformation(const SpaceInformation &) = delete;
+
+    /**
+     * @brief operator =
+     * @return
+     */
     SpaceInformation &operator=(const SpaceInformation &) = delete;
 
+    /**
+     * @brief updateStateSpace
+     * @param space
+     */
     void updateStateSpace(const StateSpacePtr &space);
 
+    /**
+     * @brief getStateSpace
+     * @return
+     */
     const StateSpacePtr& getStateSpace() const;
 
 public:
 
+    /**
+     * @brief isStateValid
+     * @param state
+     * @return
+     */
     bool isStateValid(const State* state) const;
 
+    /**
+     * @brief isEdgeValid
+     * @param lhs
+     * @param rhs
+     * @return
+     */
     bool isEdgeValid(const State* lhs, const State* rhs) const;
 
+    /**
+     * @brief distanceBetween
+     * @param lhs
+     * @param rhs
+     * @return
+     */
     double distanceBetween(const State* lhs, const State* rhs) const;
 
-    /** \brief Check if a given state is valid or not */
+    /**
+     * @brief isValid
+     * @param state
+     * @return
+     */
     bool isValid(const State *state) const
     {
         return true;
         //return m_stateValidCheck.isValid(state);
     }
 
+    /**
+     * @brief setStateSampler
+     * @param sampler
+     */
     void setStateSampler(const StateSamplerPtr &sampler);
 
+    /**
+     * @brief getStateSampler
+     * @return
+     */
     StateSamplerPtr getStateSampler() const;
 
 public:
@@ -71,39 +124,42 @@ public:
     }
 
 public:
-    //!
-    //! \brief getNewState
-    //! \return
-    //!
+    /**
+     * @brief getNewState
+     * @return
+     */
     State* getNewState() const;
 
-    //!
-    //! \brief removeState
-    //! \param state
-    //!
+    /**
+     * @brief removeState
+     * @param state
+     */
     void removeState(State* state) const;
 
-    //!
-    //! \brief copyState
-    //! \param state
-    //! \return
-    //!
+    /**
+     * @brief copyState
+     * @param state
+     * @return
+     */
     State* copyState(const State *state) const;
 
-    //!
-    //! \brief removeStates
-    //! \param states
-    //!
+    /**
+     * @brief removeStates
+     * @param states
+     */
     void removeStates(std::vector<State*> states) const;
 
 private:
+    /**
+     * @brief isSetup
+     */
     bool isSetup;
 
 protected:
     StateSpacePtr m_stateSpace;
 
-    StateValidityCheckPtr m_stateValidCheck;
-    MotionValidityCheckPtr m_motionValidCheck;
+    AbstractStateValidityCheckPtr m_stateValidCheck;
+    AbstractMotionValidityCheckPtr m_motionValidCheck;
     StateSamplerPtr m_stateSampler;
 };
 

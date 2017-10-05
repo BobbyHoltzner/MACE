@@ -42,7 +42,8 @@ SOURCES += \
     math/cost.cpp \
     state_space/goal_state.cpp \
     state_space/space_information.cpp \
-    state_space/motion_validity_check.cpp
+    state_space/motion_validity_check.cpp \
+    state_space/discrete_motion_validity_check.cpp
 
 HEADERS +=\
     base_global.h \
@@ -74,10 +75,11 @@ HEADERS +=\
     state_space/cartesian_2D_space.h \
     math/random_number_generator.h \
     math/cost.h \
-    state_space/state_validity_check.h \
     state_space/generic_goal.h \
     state_space/goal_state.h \
-    state_space/motion_validity_check.h
+    state_space/abstract_motion_validity_check.h \
+    state_space/abstract_state_validity_check.h \
+    state_space/discrete_motion_validity_check.h
 
 # Unix lib Install
 unix:!symbian {

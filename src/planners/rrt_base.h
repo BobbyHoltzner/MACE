@@ -61,6 +61,9 @@ private:
 
 protected:
 
+    /**
+     * @brief m_samplingStrategy
+     */
     state_space::StateSamplerPtr m_samplingStrategy;
 
     //!
@@ -79,7 +82,8 @@ protected:
     /**
      * @brief The maximum branch length used to connect from a root of the tree to
      * the random sampled point. This length will determine where a new root of the
-     * tree is added between the two points.
+     * tree is added between the two points. The units are the equivalent to the units
+     * defined by user implemented specific distanceBetween function.
      */
     double maxBranchLength = 1.0;
 };
