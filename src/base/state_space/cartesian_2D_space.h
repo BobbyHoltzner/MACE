@@ -91,7 +91,7 @@ MACE_CLASS_FORWARD(Cartesian2DSpace_Sampler);
 class BASESHARED_EXPORT Cartesian2DSpace_Sampler: public StateSampler
 {
 public:
-    Cartesian2DSpace_Sampler(const StateSpace* space):
+    Cartesian2DSpace_Sampler(const StateSpacePtr space):
         StateSampler(space)
     {
 

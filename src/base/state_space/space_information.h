@@ -7,10 +7,9 @@
 #include "base/base_global.h"
 
 #include "base/state_space/state_space.h"
-#include "base/state_space/state_validity_check.h"
 #include "base/state_space/state_sampler.h"
-
-//This class is intended to be abstract as well
+#include "base/state_space/state_validity_check.h"
+#include "base/state_space/motion_validity_check.h"
 
 namespace mace {
 namespace state_space {
@@ -24,12 +23,14 @@ class BASESHARED_EXPORT SpaceInformation
 
 public:
     /** \brief Constructor. Sets the instance of the state space to plan with. */
-    SpaceInformation(StateSpacePtr space);
+    SpaceInformation(const StateSpacePtr &space);
 
     virtual ~SpaceInformation() = default;
 
     SpaceInformation(const SpaceInformation &) = delete;
     SpaceInformation &operator=(const SpaceInformation &) = delete;
+
+    void updateStateSpace(const StateSpacePtr &space);
 
     const StateSpacePtr& getStateSpace() const;
 
@@ -95,9 +96,14 @@ public:
     //!
     void removeStates(std::vector<State*> states) const;
 
+private:
+    bool isSetup;
+
 protected:
     StateSpacePtr m_stateSpace;
-    StateValidityCheck* m_stateValidCheck;
+
+    StateValidityCheckPtr m_stateValidCheck;
+    MotionValidityCheckPtr m_motionValidCheck;
     StateSamplerPtr m_stateSampler;
 };
 

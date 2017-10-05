@@ -3,11 +3,28 @@
 namespace mace {
 namespace state_space {
 
+StateValidityCheckPtr m_stateValidCheck;
+MotionValidityCheckPtr m_motionValidCheck;
+StateSamplerPtr m_stateSampler;
+
 //consider std::move of the shared pointer here
-SpaceInformation::SpaceInformation(StateSpacePtr space):
-    m_stateSpace(space)
+SpaceInformation::SpaceInformation(const StateSpacePtr &space):
+    m_stateSpace(space), isSetup(false),
+    m_stateValidCheck(nullptr), m_motionValidCheck(nullptr),
+    m_stateSampler(nullptr)
 {
 
+}
+
+void SpaceInformation::updateStateSpace(const StateSpacePtr &space)
+{
+    m_stateSpace = space;
+    if(m_stateValidCheck)
+        m_stateValidCheck->updateStateSpace(m_stateSpace);
+    if(m_motionValidCheck)
+        m_motionValidCheck->updateStateSpace(m_stateSpace);
+    if(m_stateSampler)
+        m_stateSampler->updateStateSpace(m_stateSpace);
 }
 
 const StateSpacePtr& SpaceInformation::getStateSpace() const

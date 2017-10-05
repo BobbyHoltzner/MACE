@@ -15,30 +15,42 @@ class BASESHARED_EXPORT StateValidityCheck{
 
 public:
     StateValidityCheck(StateSpacePtr space):
-        m_stateSpace(space)
+        m_stateSpace(space.get())
     {
 
     }
 
+    StateValidityCheck(const StateValidityCheck &) = delete;
+    StateValidityCheck &operator=(const StateValidityCheck &) = delete;
+
     virtual ~StateValidityCheck() = default;
 
+    const void updateStateSpace(const StateSpacePtr &space)
+    {
+        m_stateSpace = space.get();
+    }
 
     virtual bool isValid(const State *state) const = 0;
 protected:
-    StateSpacePtr m_stateSpace;
+    /**
+     * @brief m_stateSpace
+     */
+    StateSpace* m_stateSpace;
 
 };
 
-class BASESHARED_EXPORT AllValidStateChecker: public StateValidityCheck{
+MACE_CLASS_FORWARD(AllValidStateCheck);
+
+class BASESHARED_EXPORT AllValidStateCheck: public StateValidityCheck{
 
 public:
-    AllValidStateChecker(StateSpacePtr space):
+    AllValidStateCheck(StateSpacePtr space):
         StateValidityCheck(space)
     {
 
     }
 
-    virtual ~AllValidStateChecker() = default;
+    virtual ~AllValidStateCheck() = default;
 
 
     bool isValid(const State *state) const override
