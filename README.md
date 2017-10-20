@@ -18,6 +18,7 @@
 - [(Optional) ROS Setup](#ros-setup)
   - [ROS UAV Models](#ros-uavs)
     - [Hector Quadrotor](#hector-quadrotor)
+      - [Hector Quadrotor Sensors](#quadrotor-sensors)
   - [ROS UGV Models](#ros-ugvs)
     - [Turtlebot](#turtlebot)
     - [Husky](#husky)
@@ -221,6 +222,9 @@ Hector Quadrotor is a quadrotor package for ROS with laser-scanning and mapping 
 ```
 sudo apt-get install ros-indigo-hector-quadrotor ros-indigo-hector-localization ros-indigo-hector-gazebo ros-indigo-hector-models ros-indigo-hector-quadrotor-demo
 ```
+
+#### <a name="quadrotor-sensors"></a> Hector Quadrotor Sensors
+A rundown of the available sensors for Hector Quadrotor is located [HERE](https://github.com/heronsystems/MACE/wiki/Hector-Quadrotor-Sensors)
 
 ## <a name="ros-ugvs"></a> ROS UGV Models
 ### <a name="turtlebot"></a> Turtlebot Installation
