@@ -12,6 +12,7 @@
 #ifdef ROS_EXISTS
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
+#include <nav_msgs/OccupancyGrid.h>
 #endif
 
 #include "rosTimer.h"
@@ -70,19 +71,31 @@ public:
     void setupROS();
 
     void newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg);
+    void newOccupancyGrid(const nav_msgs::OccupancyGrid::ConstPtr& msg);
 
     void publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos);
+
+    void addSensorsToROS();
 #endif
 
 private:
 
 #ifdef ROS_EXISTS
     ros::Subscriber laserSub;
+    ros::Subscriber mapSub;
 
     ros::Publisher velocityPub;
+
+    std::vector<std::string> vehicleSensors;
 #endif
 
     std::shared_ptr<ROSTimer> m_timer;
+
+    int m_vehicleID;
+
+    bool airborneInstance;
+
+    std::vector<std::tuple<std::string, std::string> > m_sensors;
 
     // TESTING:
     int counter;
