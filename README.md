@@ -210,36 +210,4 @@ where `<path_to_MACE>` is replaced with the local path to your MACE root directo
 
 
 # <a name="ros-setup"></a> (Optional) ROS Setup
-Currently, the only tested ROS distribution with MACE is Indigo. Follow the instructions on the ROS wiki to install:
-[Install ROS Indigo](http://wiki.ros.org/indigo/Installation/Ubuntu)
-
-Follow the default install and use default install paths, as MACE currently checks the default locations for library linkings.
-
-## <a name="ros-uavs"></a> ROS UAV Models
-### <a name="hector-quadrotor"></a> Hector Quadrotor Installation
-Hector Quadrotor is a quadrotor package for ROS with laser-scanning and mapping capabilities. The stack provides packages related to modeling, control and simulation of quadrotor UAV systems. To install, run the following:
-
-```
-sudo apt-get install ros-indigo-hector-quadrotor ros-indigo-hector-localization ros-indigo-hector-gazebo ros-indigo-hector-models ros-indigo-hector-quadrotor-demo
-```
-
-#### <a name="quadrotor-sensors"></a> Hector Quadrotor Sensors
-A rundown of the available sensors for Hector Quadrotor is located [HERE](https://github.com/heronsystems/MACE/wiki/Hector-Quadrotor-Sensors)
-
-## <a name="ros-ugvs"></a> ROS UGV Models
-### <a name="turtlebot"></a> Turtlebot Installation
-A simple to use, common robot platform with ROS integrations is the Turtlebot. It contains an RGB camera and a laser scanner. To install, follow the steps on the ROS wiki:
-[Install Turtlebot](http://wiki.ros.org/turtlebot_simulator)
-
-If the installation fails or other issues present themselves, try installing the packages outlined in the Debs installation section [HERE](http://wiki.ros.org/turtlebot/Tutorials/indigo/Turtlebot%20Installation)
-
-### <a name="husky"></a> Husky UGV
-Husky is a rugged, outdoor-ready unmanned ground vehicle (UGV), suitable for research and rapid prototyping applications. Husky fully supports ROS. To simulate the Husky UGV, follow the steps [HERE](http://wiki.ros.org/husky_gazebo/Tutorials/Simulating%20Husky)
-
-### <a name="grizzly"></a> Husky UGV
-Grizzly Robotic Utility Vehicle (RUV) is designed for rough, rugged, outdoor environments. With four 26" all-terrain tires, a solid steel chassis, and 48V at 400Ah of power, it's ideal for military, mining an agricultural applications. Grizzly RUV offers incredible strength, an unbeatable control system and front axle articulation that keeps the vehicle grounded and stable on even the most challenging terrain. Combined power and precision is the result of onboard current and voltage sensors, high precision wheel encoders, IMU, GPS, and a maximum drawbar of almost 1700lbf.
-
-The Grizzly simulator is implemented using simulator_gazebo stack. It is a three-dimensional, rigid-body model of the Grizzly with most of the hardware-ROS interfaces found on the actual robot. You can install the simulator following the steps [HERE](http://wiki.ros.org/grizzly_simulator)
-
-### <a name="jackal"></a> Husky UGV
-Jackal's fully integrated, weatherproof design offers unique capability in a compact package. To install, follow the steps [HERE](http://wiki.ros.org/jackal_simulator). 
+ROS can be used to simulate worlds and sensors. Steps to set up ROS and configure various vehicles can be found in the [ROS Setup](https://github.com/heronsystems/MACE/wiki/ROS---MACE-Setup) wiki page. 
