@@ -167,11 +167,23 @@ void ModuleROS::addSensorsToROS() {
 }
 
 void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {
-    std::cout << "Ranges size: " << msg->ranges.size() << std::endl;    
+    std::cout << "********** Laser Scan **********" << std::endl;
+    std::cout << "  Min angle: " << msg->angle_min << std::endl;
+    std::cout << "  Max angle: " << msg->angle_max << std::endl;
+    std::cout << "  Angle Increment: " << msg->angle_increment << std::endl;
+    std::cout << "  Time increment: " << msg->time_increment << std::endl;
+    std::cout << "  Scan time: " << msg->scan_time << std::endl;
+    std::cout << "  Min range: " << msg->range_min << std::endl;
+    std::cout << "  Max range: " << msg->range_max << std::endl;
+    std::cout << "  Ranges size: " << msg->ranges.size() << std::endl;
+    std::cout << "  Intensities size: " << msg->intensities.size() << std::endl;
+    std::cout << "________________________________" << std::endl;
 }
 
 void ModuleROS::newOccupancyGrid(const nav_msgs::OccupancyGrid::ConstPtr& msg) {
-    std::cout << "Map size: " << std::endl;
+    std::cout << "********** Occupancy Grid **********" << std::endl;
+    std::cout << "  Map size: " << msg->data.size() << std::endl;
+    std::cout << "________________________________" << std::endl;
 }
 
 void ModuleROS::publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos) {
