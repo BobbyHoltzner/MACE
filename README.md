@@ -16,14 +16,6 @@
   - [Configure Qt Creator](#configure-creator-windows)
 - [Running on ODROID](#running-on-odroid)
 - [(Optional) ROS Setup](#ros-setup)
-  - [ROS UAV Models](#ros-uavs)
-    - [Hector Quadrotor](#hector-quadrotor)
-      - [Hector Quadrotor Sensors](#quadrotor-sensors)
-  - [ROS UGV Models](#ros-ugvs)
-    - [Turtlebot](#turtlebot)
-    - [Husky](#husky)
-    - [Grizzly](#grizzly)
-    - [Jackal](#jackal)
 
 
 
