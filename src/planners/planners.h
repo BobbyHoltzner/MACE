@@ -1,6 +1,8 @@
 #ifndef PLANNERS_H
 #define PLANNERS_H
 
+#include <list>
+
 #include "planners_global.h"
 #include "spdlog/spdlog.h"
 

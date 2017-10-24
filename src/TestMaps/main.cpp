@@ -5,6 +5,9 @@
 #include "planners/rrt_base.h"
 #include "planners/nearest_neighbor_flann.h"
 
+#include "base/state_space/discrete_motion_validity_check.h"
+#include "base/state_space/special_validity_check.h"
+
 #include <iostream>
 #include <QFile>
 #include <QTextStream>
@@ -57,10 +60,17 @@ int main(int argc, char *argv[])
 
     mace::state_space::Cartesian2DSpacePtr space = std::make_shared<mace::state_space::Cartesian2DSpace>();
     space->bounds.setBounds(0,10,0,10);
-    mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(space.get());
+    mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(space);
+
+    mace::state_space::DiscreteMotionValidityCheckPtr motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(space);
+    mace::state_space::SpecialValidityCheckPtr stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(space);
+    motionCheck->setStateValidityCheck(stateCheck);
+    motionCheck->setMinCheckDistance(0.25);
 
     mace::state_space::SpaceInformationPtr spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(space);
     spaceInfo->setStateSampler(sampler);
+    spaceInfo->setStateValidityCheck(stateCheck);
+    spaceInfo->setMotionValidityCheck(motionCheck);
 
     mace::planners_sampling::RRTBase rrt(spaceInfo);
     mace::state_space::GoalState* begin = new mace::state_space::GoalState(space);

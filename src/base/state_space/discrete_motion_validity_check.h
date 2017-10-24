@@ -3,8 +3,9 @@
 
 #include "base/base_global.h"
 #include "common/class_forward.h"
-
 #include "base/state_space/abstract_motion_validity_check.h"
+
+#include "base/state_space/abstract_state_validity_check.h"
 
 namespace mace {
 namespace state_space {
@@ -16,6 +17,8 @@ class DiscreteMotionValidityCheck : public AbstractMotionValidityCheck
 public:
     DiscreteMotionValidityCheck(const StateSpacePtr &space);
 
+    void setStateValidityCheck(const AbstractStateValidityCheckPtr &stateChecker);
+
 public:
     /**
      * @brief isValid
@@ -24,6 +27,9 @@ public:
      * @return
      */
     bool isValid(const State* begin, const State *end) const override;
+
+private:
+    AbstractStateValidityCheckPtr m_StateCheck;
 };
 
 } //end of namespace state_space

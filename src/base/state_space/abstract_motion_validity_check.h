@@ -25,7 +25,7 @@ public:
      * @param space
      */
     AbstractMotionValidityCheck(const StateSpacePtr &space):
-        m_stateSpace(space.get())
+        m_stateSpace(space.get()), minCheckDistance(1.0)
     {
 
     }
@@ -63,6 +63,24 @@ public:
      */
     virtual bool isValid(const State* begin, const State *end) const = 0;
 
+    /**
+     * @brief setMinCheckDistance
+     * @param distance
+     */
+    virtual void setMinCheckDistance(const double &distance)
+    {
+        minCheckDistance = distance;
+    }
+
+    /**
+     * @brief getMinCheckDistance
+     * @return
+     */
+    virtual double getMinCheckDistance() const
+    {
+        return minCheckDistance;
+    }
+
 protected:
     /**
      * @brief m_stateSpace reference to the state space in which this validation
@@ -71,6 +89,10 @@ protected:
      */
     StateSpace* m_stateSpace;
 
+    /**
+     * @brief minCheckDistance
+     */
+    double minCheckDistance;
 };
 
 } //end of state_space

@@ -2,6 +2,7 @@
 #define RRT_BASE_H
 
 #include <memory>
+#include <algorithm>
 
 #include "planners.h"
 #include "rrt_node.h"
@@ -13,6 +14,9 @@
 #include "base/state_space/state_sampler.h"
 #include "base/state_space/space_information.h"
 
+#include "base/pose/cartesian_position_2D.h"
+
+#include "planners/path_reduction.h"
 namespace mace {
 namespace planners_sampling{
 

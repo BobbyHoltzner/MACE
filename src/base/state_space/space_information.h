@@ -149,6 +149,11 @@ public:
      */
     void removeStates(std::vector<State*> states) const;
 
+public:
+    void setStateValidityCheck(const AbstractStateValidityCheckPtr &stateChecker);
+
+    void setMotionValidityCheck(const AbstractMotionValidityCheckPtr &motionChecker);
+
 private:
     /**
      * @brief isSetup

@@ -43,7 +43,8 @@ SOURCES += \
     state_space/goal_state.cpp \
     state_space/space_information.cpp \
     state_space/motion_validity_check.cpp \
-    state_space/discrete_motion_validity_check.cpp
+    state_space/discrete_motion_validity_check.cpp \
+    state_space/special_validity_check.cpp
 
 HEADERS +=\
     base_global.h \
@@ -79,7 +80,8 @@ HEADERS +=\
     state_space/goal_state.h \
     state_space/abstract_motion_validity_check.h \
     state_space/abstract_state_validity_check.h \
-    state_space/discrete_motion_validity_check.h
+    state_space/discrete_motion_validity_check.h \
+    state_space/special_validity_check.h
 
 # Unix lib Install
 unix:!symbian {
@@ -138,13 +140,20 @@ INSTALLS       += headers_pose
 
 headers_state_space.path    = $$(MACE_ROOT)/include/base/state_space
 headers_state_space.files   += \
-    state_space/state_sampler.h \
-    state_space/state_space_types.h \
-    state_space/state_space.h \
-    state_space/state.h \
+    state_space/abstract_motion_validity_check.h \
+    state_space/abstract_state_validity_check.h \
+    state_space/cartesian_2D_space.h \
+    state_space/discrete_motion_validity_check.h \
+    state_space/generic_goal.h \
+    state_space/goal_state.h \
+    state_space/real_vector.h \
+    state_space/real_vector_bounds.h \
     state_space/space_information.h \
-    state_space/state_validity_checker.h \
-    state_space/cartesian_2D_space.h
+    state_space/special_validity_check.h \
+    state_space/state.h \
+    state_space/state_sampler.h \
+    state_space/state_space.h \
+    state_space/state_space_types.h \
 INSTALLS       += headers_state_space
 
 INCLUDEPATH += $$PWD/../
