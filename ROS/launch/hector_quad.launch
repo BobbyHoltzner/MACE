@@ -2,9 +2,11 @@
 
 <launch>
   <arg name="world" default="$(find hector_gazebo_worlds)/worlds/small_indoor_scenario.world"/>
-  <arg name="gui" default="true"/>
+  <arg name="gui" default="false"/>
   <arg name="rviz" default="true"/>
   <arg name="aircraft_name" default="quadrotor"/>
+  <arg name="xbox_teleop" default="false"/>
+  <arg name="octomap" default="false"/>
   <arg name="args" default=""/>
 
   <param name="/use_sim_time" value="true" />
@@ -46,6 +48,29 @@
   <!-- Start rviz visualization with preset config -->
   <group if="$(arg rviz)">
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(env MACE_ROOT)/ROS/rviz/robot.rviz" />
+  </group>
+
+  <!-- Control hector with xbox controller -->
+  <group if="$(arg xbox_teleop)">
+    <include file="$(find hector_quadrotor_teleop)/launch/xbox_controller.launch" >
+      <arg name="control_mode" value="position"/>
+    </include>
+  </group>
+
+  <!-- Start Octomap Server -->
+  <group if="$(arg octomap)">
+    <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
+	<param name="resolution" value="0.05" />
+
+	<!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
+	<param name="frame_id" type="string" value="world" />
+
+	<!-- maximum range to integrate (speedup!) -->
+	<param name="sensor_model/max_range" value="5.0" />
+
+	<!-- data source to integrate (PointCloud2) -->
+	<remap from="cloud_in" to="/camera/depth/points" />
+    </node>
   </group>
 
 
