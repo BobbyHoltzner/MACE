@@ -2,6 +2,7 @@
 #define RRT_BASE_H
 
 #include <memory>
+#include <algorithm>
 
 #include "planners.h"
 #include "rrt_node.h"
@@ -13,6 +14,9 @@
 #include "base/state_space/state_sampler.h"
 #include "base/state_space/space_information.h"
 
+#include "base/pose/cartesian_position_2D.h"
+
+#include "planners/path_reduction.h"
 namespace mace {
 namespace planners_sampling{
 
@@ -61,6 +65,9 @@ private:
 
 protected:
 
+    /**
+     * @brief m_samplingStrategy
+     */
     state_space::StateSamplerPtr m_samplingStrategy;
 
     //!
@@ -79,7 +86,8 @@ protected:
     /**
      * @brief The maximum branch length used to connect from a root of the tree to
      * the random sampled point. This length will determine where a new root of the
-     * tree is added between the two points.
+     * tree is added between the two points. The units are the equivalent to the units
+     * defined by user implemented specific distanceBetween function.
      */
     double maxBranchLength = 1.0;
 };

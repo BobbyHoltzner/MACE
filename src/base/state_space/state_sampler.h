@@ -12,17 +12,23 @@ MACE_CLASS_FORWARD(StateSampler);
 
 class StateSampler{
 public:
-    StateSampler(const StateSampler& copy) = delete;
-    StateSampler &operator =(const StateSampler &copy) = delete;
-
-    StateSampler(const StateSpace* space):
-        m_space(space)
+    StateSampler(const StateSpacePtr &space):
+        m_space(space.get())
     {
 
     }
 
+    StateSampler(const StateSampler& copy) = delete;
+    StateSampler &operator =(const StateSampler &copy) = delete;
+
     virtual ~StateSampler() = default;
 
+    void updateStateSpace(const StateSpacePtr &space)
+    {
+        m_space = space.get();
+    }
+
+public:
     virtual void sampleUniform(State *sample) = 0;
 
     virtual void sampleUniformNear(State *sample, const State *near, const double distance = 1) = 0;
