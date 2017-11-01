@@ -6,3 +6,12 @@
 [submodule "tools/octomap"]
 	path = tools/octomap
 	url = https://github.com/OctoMap/octomap.git
+[submodule "tools/flann"]
+	path = tools/flann
+	url = https://github.com/mariusmuja/flann.git
+[submodule "tools/fcl"]
+	path = tools/fcl
+	url = https://github.com/flexible-collision-library/fcl.git
+[submodule "tools/libccd"]
+	path = tools/libccd
+	url = https://github.com/danfis/libccd.git
