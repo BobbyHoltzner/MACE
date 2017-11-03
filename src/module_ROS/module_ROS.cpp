@@ -51,7 +51,7 @@ void ModuleROS::start() {
             std::cout << "**** **** **** Fire publisher..." << std::endl;
             DataState::StateLocalPosition pos;
             publishVehiclePosition(counter, pos);
-        }
+        }        
     });
 
     m_timer->setSingleShot(false);
