@@ -37,9 +37,10 @@ headers.path    = $$(MACE_ROOT)/include/module_ROS
 headers.files   += $$HEADERS
 INSTALLS       += headers
 
-INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
-INCLUDEPATH += $$(MACE_ROOT)/include
 INCLUDEPATH += $$PWD/../
+INCLUDEPATH += $$(MACE_ROOT)/include
+INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
+INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 DEPENDPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
@@ -50,29 +51,35 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ 
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
 else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
 
-INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base_topic/release/ -lbase_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base_topic/debug/ -lbase_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base_topic/ -lbase_topic
 
 unix {
-exists(/opt/ros/indigo/lib/) {
+exists(/opt/ros/kinetic/lib/) {
     DEFINES += ROS_EXISTS
-    INCLUDEPATH += /opt/ros/indigo/include
-    INCLUDEPATH += /opt/ros/indigo/lib
+    INCLUDEPATH += /opt/ros/kinetic/include
+    INCLUDEPATH += /opt/ros/kinetic/lib
 
-        LIBS += -L/opt/ros/indigo/lib -lroscpp
-        LIBS += -L/opt/ros/indigo/lib -lroscpp_serialization
-        LIBS += -L/opt/ros/indigo/lib -lrostime
-        LIBS += -L/opt/ros/indigo/lib -lxmlrpcpp
-        LIBS += -L/opt/ros/indigo/lib -lcpp_common
-        LIBS += -L/opt/ros/indigo/lib -lrosconsole_log4cxx
-        LIBS += -L/opt/ros/indigo/lib -lrosconsole_backend_interface
-        LIBS += -L/opt/ros/indigo/lib -lroslib
-        LIBS += -L/opt/ros/indigo/lib -lrospack
-        LIBS += -L/opt/ros/indigo/lib -lmessage_filters
-        LIBS += -L/opt/ros/indigo/lib -lclass_loader
-        LIBS += -L/opt/ros/indigo/lib -lconsole_bridge
-        LIBS += -L/opt/ros/indigo/lib -lrosconsole
-        LIBS += -L/opt/ros/indigo/lib -limage_transport
-        LIBS += -L/opt/ros/indigo/lib -lcv_bridge
-
+        LIBS += -L/opt/ros/kinetic/lib -lroscpp
+        LIBS += -L/opt/ros/kinetic/lib -lroscpp_serialization
+        LIBS += -L/opt/ros/kinetic/lib -lrostime
+        LIBS += -L/opt/ros/kinetic/lib -lxmlrpcpp
+        LIBS += -L/opt/ros/kinetic/lib -lcpp_common
+        LIBS += -L/opt/ros/kinetic/lib -lrosconsole_log4cxx
+        LIBS += -L/opt/ros/kinetic/lib -lrosconsole_backend_interface
+        LIBS += -L/opt/ros/kinetic/lib -lroslib
+        LIBS += -L/opt/ros/kinetic/lib -lrospack
+        LIBS += -L/opt/ros/kinetic/lib -lmessage_filters
+        LIBS += -L/opt/ros/kinetic/lib -lclass_loader
+        LIBS += -L/opt/ros/kinetic/lib -lconsole_bridge
+        LIBS += -L/opt/ros/kinetic/lib -lrosconsole
+        LIBS += -L/opt/ros/kinetic/lib -limage_transport
+        LIBS += -L/opt/ros/kinetic/lib -lcv_bridge
 }
 }
+

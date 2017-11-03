@@ -59,12 +59,18 @@ std::vector<state_space::State*> RRTBase::solve()
             sampleNode->setCurrentState(sampleState);
         }
 
+        if(m_CB)
+            m_CB->cbiPlanner_SampledState(sampleState);
+
         /**
          * 5. Check that 1)State is valid and collision free, 2)Path edge is valid sampled at desired intervals
          * related to the aircraft size
          */
         if(m_spaceInfo->isEdgeValid(closestState,sampleState))
         {
+            if(m_CB)
+                m_CB->cbiPlanner_NewConnection(sampleState, closestState);
+
             /**
              *5a. At this point the sampled state is clearly valid
              */
@@ -81,6 +87,8 @@ std::vector<state_space::State*> RRTBase::solve()
                 break;
             }
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
     } //end of while loop
 
     if(finalNode != nullptr)

@@ -12,6 +12,13 @@
 namespace mace{
 namespace planners {
 
+class Planner_Interface
+{
+public:
+    virtual void cbiPlanner_SampledState(const state_space::State* sampleState) = 0;
+    virtual void cbiPlanner_NewConnection(const state_space::State* beginState, const state_space::State* secondState) = 0;
+};
+
 class PLANNERSSHARED_EXPORT Planners
 {
 
@@ -24,6 +31,11 @@ public:
 
     virtual void setPlanningParameters(state_space::GoalState* begin, state_space::GoalState* end) = 0;
 
+    void setCallbackFunction(Planner_Interface* callback)
+    {
+        m_CB = callback;
+    }
+
 protected:
     void createLog();
 
@@ -35,6 +47,8 @@ protected:
     state_space::GoalState* m_stateBegin;
 
     state_space::GoalState* m_stateEnd;
+
+    Planner_Interface* m_CB;
 };
 
 } //end of namespace planners
