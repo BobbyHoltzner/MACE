@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find sim_description)/urdf/mybot.xacro'"/>
+  
+  <node name="state_publisher" pkg="test_move" type="state_publisher"/>
+
+  <node name="rviz" pkg="rviz" type="rviz"/>
+</launch>
+
+
+
+
