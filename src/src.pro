@@ -14,6 +14,7 @@ SUBDIRS += \
     mace_core \
     commsMAVLINK \
     commsMACEHelper \
+    base_topic \
     data_generic_item_topic \
     data_generic_state_item_topic \
     data_generic_command_item_topic \

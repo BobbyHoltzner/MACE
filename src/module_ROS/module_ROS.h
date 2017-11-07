@@ -15,6 +15,9 @@
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
 #include <visualization_msgs/Marker.h>
+#include <gazebo_msgs/SetModelState.h>
+#include <sensor_msgs/JointState.h>
+#include <tf/transform_broadcaster.h>
 #endif
 
 #include "rosTimer.h"
@@ -87,6 +90,12 @@ private:
     ros::Subscriber laserSub;
     ros::Publisher velocityPub, markerPub;
     visualization_msgs::Marker points, line_strip, line_list;
+
+    ros::ServiceClient m_client;
+    static tf::TransformBroadcaster m_broadcaster;
+    tf::Transform m_transform;
+    gazebo_msgs::ModelState m_modelState;
+    gazebo_msgs::SetModelState m_srv;
 #endif
 
     std::shared_ptr<ROSTimer> m_timer;
