@@ -19,7 +19,8 @@ SOURCES += module_ground_station.cpp \
 
 HEADERS += module_ground_station.h \
         module_ground_station_global.h \
-    guitimer.h
+    guitimer.h \
+    guitomace.h
 
 # Unix lib Install
 unix:!symbian {

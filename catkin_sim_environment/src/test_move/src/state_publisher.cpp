@@ -7,8 +7,9 @@
 int main(int argc, char** argv) {
     ros::init(argc, argv, "state_publisher");
     ros::NodeHandle n;
-    ros::Publisher joint_pub = n.advertise<sensor_msgs::JointState>("joint_states", 1);
-    tf::TransformBroadcaster broadcaster;
+    static tf::TransformBroadcaster broadcaster;
+    tf::Transform transform;
+
     ros::Rate loop_rate(30);
 
     const double degree = M_PI/180;
@@ -20,16 +21,20 @@ int main(int argc, char** argv) {
     geometry_msgs::Point robotPosition;
     robotPosition.x = 0.0;
     robotPosition.y = 0.0;
-    robotPosition.z = 0.0;
+    robotPosition.z = 1.0;
+    transform.setOrigin(tf::Vector3(robotPosition.x,robotPosition.y,robotPosition.z));
 
     geometry_msgs::Quaternion attitude;
     attitude.x = 0.0;
     attitude.y = 0.0;
     attitude.z = 0.0;
     attitude.w = 1.0;
+    transform.setRotation(tf::Quaternion(attitude.x,attitude.y,attitude.z,attitude.w));
+
+    broadcaster.sendTransform(tf::StampedTransform(transform,ros::Time::now(),"world","base_link"));
 
     gazebo_msgs::ModelState modelState;
-    modelState.model_name = (std::string)"mybot";
+    modelState.model_name = (std::string)"quadrotor";
     modelState.reference_frame = (std::string)"world";
 
     gazebo_msgs::SetModelState srv;
@@ -42,7 +47,10 @@ int main(int argc, char** argv) {
         geometry_msgs::Pose pose;
         pose.position = robotPosition;
         pose.orientation = attitude;
-	modelState.pose = pose;
+        modelState.pose = pose;
+        transform.setOrigin(tf::Vector3(robotPosition.x,robotPosition.y,robotPosition.z));
+        transform.setRotation(tf::Quaternion(attitude.x,attitude.y,attitude.z,attitude.w));
+        broadcaster.sendTransform(tf::StampedTransform(transform,ros::Time::now(),"world","base_link"));
 
         srv.request.model_state = modelState;
         if(client.call(srv))

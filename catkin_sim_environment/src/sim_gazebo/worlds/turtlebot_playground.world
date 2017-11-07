@@ -1,3 +1,5 @@
+<?xml version="1.0" ?>
+
 <sdf version='1.4'>
   <world name='default'>
     <light name='sun' type='directional'>
@@ -641,5 +643,8 @@
       <pose>1.41131 -1 0 0 -0 0.9</pose>
       <static>0</static>
     </model>
+    <plugin name="stopPhysics" filename="libStopPhysicsPlugin.so">
+      <robotNamespace/>
+    </plugin>
   </world>
 </sdf>
