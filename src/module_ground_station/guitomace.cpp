@@ -18,6 +18,9 @@ GUItoMACE::~GUItoMACE() {
 
 }
 
+//!
+//! \brief getEnvironmentBoundary Initiate a request to MACE core for the current environment boundary vertices
+//!
 void GUItoMACE::getEnvironmentBoundary() {
     std::shared_ptr<const MaceCore::MaceData> data = m_parent->getDataObject();
     std::vector<DataState::StateGlobalPosition> environmentVertices = data->GetEnvironmentBoundary();
@@ -46,6 +49,9 @@ void GUItoMACE::getEnvironmentBoundary() {
     }
 }
 
+//!
+//! \brief getGlobalOrigin Initiate a request to MACE core for the current global origin position
+//!
 void GUItoMACE::getGlobalOrigin()
 {
     std::shared_ptr<const MaceCore::MaceData> data = m_parent->getDataObject();
@@ -67,6 +73,11 @@ void GUItoMACE::getGlobalOrigin()
     }
 }
 
+//!
+//! \brief setVehicleHome GUI command to set a new vehicle home position
+//! \param vehicleID Vehicle ID that the command is initated from (0 = all vehicles)
+//! \param jsonObj JSON data containing the new vehicle home data
+//!
 void GUItoMACE::setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj)
 {
     CommandItem::SpatialHome tmpHome;
@@ -86,6 +97,10 @@ void GUItoMACE::setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj)
     });
 }
 
+//!
+//! \brief setGlobalOrigin GUI command to set a new global origin position
+//! \param jsonObj JSON data containing the new global origin data
+//!
 void GUItoMACE::setGlobalOrigin(const QJsonObject &jsonObj)
 {
     CommandItem::SpatialHome tmpGlobalOrigin;
@@ -99,6 +114,10 @@ void GUItoMACE::setGlobalOrigin(const QJsonObject &jsonObj)
     });
 }
 
+//!
+//! \brief setEnvironmentVertices GUI command to set new environment boundary vertices
+//! \param jsonObj JSON data containing the new environment vertices
+//!
 void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
 {
     QJsonObject tmpBoundaryObj = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
@@ -126,13 +145,22 @@ void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
     getEnvironmentBoundary();
 }
 
+//!
+//! \brief setGoHere GUI command to set a new "go here" lat/lon/alt position
+//! \param vehicleID Vehicle ID that the command is initated from (0 = all vehicles)
+//! \param jsonObj JSON data containing the "go here" position
+//!
 void GUItoMACE::setGoHere(const int &vehicleID, const QJsonObject &jsonObj)
 {
     // TODO:
     std::cout << "Go here command issued" << std::endl;
 }
 
-
+//!
+//! \brief takeoff GUI command initiating a takeoff
+//! \param vehicleID Vehicle ID that the command is initated from (0 = all vehicles)
+//! \param jsonObj JSON data containing the takeoff position and altitude
+//!
 void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
 {
     CommandItem::SpatialTakeoff newTakeoff;
@@ -157,6 +185,11 @@ void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
     });
 }
 
+//!
+//! \brief issueCommand Issue command via the GUI to MACE
+//! \param vehicleID Vehicle ID that the command is initated from (0 = all vehicles)
+//! \param jsonObj JSON data containing the command to be issued
+//!
 void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
 {
     if(jsonObj["vehicleCommand"] == "FORCE_DATA_SYNC") {
@@ -266,6 +299,9 @@ void GUItoMACE::testFunction2(const int &vehicleID)
     });
 }
 
+//!
+//! \brief getConnectedVehicles Initiate a request to MACE Core for the list of currently connected vehicles
+//!
 void GUItoMACE::getConnectedVehicles()
 {
 //    mLogs->debug("Module Ground Station saw a request for getting connected vehicles.");
@@ -300,6 +336,10 @@ void GUItoMACE::getConnectedVehicles()
     }
 }
 
+//!
+//! \brief getVehicleMission GUI command that grabs a vehicle mission from MACE
+//! \param vehicleID Vehicle ID that the command is initated from (0 = all vehicles)
+//!
 void GUItoMACE::getVehicleMission(const int &vehicleID)
 {
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
@@ -307,6 +347,10 @@ void GUItoMACE::getVehicleMission(const int &vehicleID)
     });
 }
 
+//!
+//! \brief getVehicleHome Initiate a request to MACE Core for the vehicle home location
+//! \param vehicleID Vehicle ID that the command is initated from (0 = all vehicles)
+//!
 void GUItoMACE::getVehicleHome(const int &vehicleID)
 {
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
@@ -314,6 +358,11 @@ void GUItoMACE::getVehicleHome(const int &vehicleID)
     });
 }
 
+//!
+//! \brief setVehicleArm GUI command initiating a vehicle arm status change
+//! \param vehicleID Vehicle ID that the command is initated from (0 = all vehicles)
+//! \param jsonObj JSON data containing the new vehicle arm status
+//!
 void GUItoMACE::setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj)
 {
     CommandItem::ActionArm tmpArm;
@@ -332,6 +381,11 @@ void GUItoMACE::setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj)
     });
 }
 
+//!
+//! \brief setVehicleMode GUI command initiating a vehicle mode change
+//! \param vehicleID Vehicle ID that the command is initated from (0 = all vehicles)
+//! \param jsonObj JSON data containing the new vehicle mode
+//!
 void GUItoMACE::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
 {
     CommandItem::ActionChangeMode tmpMode;
@@ -343,7 +397,10 @@ void GUItoMACE::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
     });
 }
 
-
+//!
+//! \brief parseTCPRequest Parse data that has been sent to MACE via the MACE GUI
+//! \param jsonObj JSON data to parse from the MACE GUI
+//!
 void GUItoMACE::parseTCPRequest(const QJsonObject &jsonObj)
 {
     QString command = jsonObj["tcpCommand"].toString();
@@ -417,6 +474,11 @@ void GUItoMACE::parseTCPRequest(const QJsonObject &jsonObj)
     }
 }
 
+//!
+//! \brief writeTCPData Write data to the MACE GUI via TCP
+//! \param data Data to be sent to the MACE GUI
+//! \return True: success / False: failure
+//!
 bool GUItoMACE::writeTCPData(QByteArray data)
 {
     std::shared_ptr<QTcpSocket> tcpSocket = std::make_shared<QTcpSocket>();

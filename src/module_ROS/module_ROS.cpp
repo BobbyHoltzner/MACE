@@ -31,6 +31,9 @@ ModuleROS::~ModuleROS() {
 #endif
 }
 
+//!
+//! \brief start Start ROS loop
+//!
 void ModuleROS::start() {
 #ifdef ROS_EXISTS
     // TODO: Call MACE core getAttachedVehicleID (or whatever we call it)
@@ -117,6 +120,12 @@ void ModuleROS::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
     }
 }
 
+//!
+//! \brief NewTopic New topic available from MACE Core
+//! \param topicName Topic name that has been published
+//! \param senderID Topic sender ID
+//! \param componentsUpdated List of MACE core components that have updated data
+//!
 void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
     UNUSED(topicName);
@@ -134,6 +143,10 @@ void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector
     std::cout << "NEW TOPIC" << std::endl;
 }
 
+//!
+//! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
+//! \param vehicleID Vehilce ID of the newly available vehicle
+//!
 void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 {
     // Set vehicle ID:
@@ -144,7 +157,9 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 ////! ======================  ROS Specific functions:  =======================
 ////! ========================================================================
 #ifdef ROS_EXISTS
-
+//!
+//! \brief setupROS Setup ROS subscribers, publishers, and node handler
+//!
 void ModuleROS::setupROS() {
     std::map<std::string, std::string> remappings;
     ros::init(remappings,"ROS_Module");
@@ -162,10 +177,17 @@ void ModuleROS::setupROS() {
     ros::spinOnce();
 }
 
+//!
+//! \brief addSensorsToROS Spawn sensor models in ROS
+//!
 void ModuleROS::addSensorsToROS() {
     // Spawn sensor models in ROS per m_sensors vector:
 }
 
+//!
+//! \brief newLaserScan Callback for ROS laser scan subscriber
+//! \param msg Laser scan message
+//!
 void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {
     std::cout << "********** Laser Scan **********" << std::endl;
     std::cout << "  Min angle: " << msg->angle_min << std::endl;
@@ -180,12 +202,21 @@ void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {
     std::cout << "________________________________" << std::endl;
 }
 
+//!
+//! \brief newOccupancyGrid Callback for ROS occupancy grid subscriber
+//! \param msg Occupancy grid message
+//!
 void ModuleROS::newOccupancyGrid(const nav_msgs::OccupancyGrid::ConstPtr& msg) {
     std::cout << "********** Occupancy Grid **********" << std::endl;
     std::cout << "  Map size: " << msg->data.size() << std::endl;
     std::cout << "________________________________" << std::endl;
 }
 
+//!
+//! \brief publishVehiclePosition Publish vehicle position to ROS
+//! \param vehicleID Vehicle ID for which to set the new position
+//! \param localPos New vehicle position
+//!
 void ModuleROS::publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos) {
     // Publish the "velocity" topic to the turtlebot
 

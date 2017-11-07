@@ -98,6 +98,9 @@ ModuleGroundStation::~ModuleGroundStation()
     }
 }
 
+//!
+//! \brief initiateLogs Start log files and logging for the Ground Station module
+//!
 void ModuleGroundStation::initiateLogs()
 {
 
@@ -110,6 +113,10 @@ void ModuleGroundStation::initiateLogs()
 //    mLogs->set_level(spdlog::level::debug);
 }
 
+//!
+//! \brief Starts the TCP server for the GCS to send requests to
+//! \return
+//!
 bool ModuleGroundStation::StartTCPServer()
 {
     m_TcpServer = std::make_shared<QTcpServer>();
@@ -136,6 +143,9 @@ bool ModuleGroundStation::StartTCPServer()
     return m_TcpServer->isListening();
 }
 
+//!
+//! \brief on_newConnection Slot to fire when a new TCP connection is initiated
+//!
 void ModuleGroundStation::on_newConnection()
 {
     while (m_TcpServer->hasPendingConnections())
@@ -226,17 +236,28 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
     m_toGUIHandler->setSendPort(sendPort);
 }
 
+//!
+//! \brief AssignLoggingDirectory
+//! \param path
+//!
 void ModuleGroundStation::AssignLoggingDirectory(const std::string &path)
 {
     ModuleBase::AssignLoggingDirectory(path);
     initiateLogs();
 }
 
+//!
+//! \brief start Start event listener thread
+//!
 void ModuleGroundStation::start()
 {
     AbstractModule_EventListeners::start();
 }
 
+//!
+//! \brief This module as been attached as a module
+//! \param ptr pointer to object that attached this instance to itself
+//!
 void ModuleGroundStation::AttachedAsModule(MaceCore::IModuleTopicEvents *ptr)
 {
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
@@ -246,6 +267,12 @@ void ModuleGroundStation::AttachedAsModule(MaceCore::IModuleTopicEvents *ptr)
 
 }
 
+//!
+//! \brief NewTopic New topic available from MACE Core
+//! \param topicName Topic name that has been published
+//! \param senderID Topic sender ID
+//! \param componentsUpdated List of MACE core components that have updated data
+//!
 void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
     //example read of vehicle data
@@ -390,8 +417,10 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
     }
 }
 
-
-
+//!
+//! \brief NewlyAvailableCurrentMission Subscriber to a new vehicle mission topic
+//! \param missionKey Key denoting which mission is available
+//!
 void ModuleGroundStation::NewlyAvailableCurrentMission(const MissionItem::MissionKey &missionKey)
 {
     std::cout<<"New available mission for ground station."<<std::endl;
@@ -403,6 +432,10 @@ void ModuleGroundStation::NewlyAvailableCurrentMission(const MissionItem::Missio
     }
 }
 
+//!
+//! \brief NewlyAvailableMissionExeState Subscriber to a new vehicle mission state topic
+//! \param key Key denoting which mission has a new exe state
+//!
 void ModuleGroundStation::NewlyAvailableMissionExeState(const MissionItem::MissionKey &key)
 {
     MissionItem::MissionList list;
@@ -414,11 +447,19 @@ void ModuleGroundStation::NewlyAvailableMissionExeState(const MissionItem::Missi
     }
 }
 
+//!
+//! \brief NewlyAvailableHomePosition Subscriber to a new home position
+//! \param home New home position
+//!
 void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home)
 {
     m_toGUIHandler->sendVehicleHome(home.getOriginatingSystem(), home);
 }
 
+//!
+//! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
+//! \param vehicleID Vehilce ID of the newly available vehicle
+//!
 void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
 {
     UNUSED(vehicleID);
