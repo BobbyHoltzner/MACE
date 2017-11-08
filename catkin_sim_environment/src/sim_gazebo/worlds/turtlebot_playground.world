@@ -25,12 +25,6 @@
       <real_time_factor>1</real_time_factor>
       <real_time_update_rate>100</real_time_update_rate>
       <gravity>0 0 -9.8</gravity>
-      <ode>
-        <solver>
-          <type>quick</type>
-          <iters>1</iters>
-        </solver>
-      </ode>
     </physics>
     <model name='bookshelf'>
       <static>1</static>

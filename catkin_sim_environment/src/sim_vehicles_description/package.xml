@@ -22,5 +22,6 @@
   <build_depend>xacro</build_depend>
 
   <run_depend>xacro</run_depend>
+  <run_depend>sim_sensors_description</run_depend>
 
 </package>

@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
     broadcaster.sendTransform(tf::StampedTransform(transform,ros::Time::now(),"world","base_link"));
 
     gazebo_msgs::ModelState modelState;
-    modelState.model_name = (std::string)"quadrotor";
+    modelState.model_name = (std::string)"techpod";
     modelState.reference_frame = (std::string)"world";
 
     gazebo_msgs::SetModelState srv;
