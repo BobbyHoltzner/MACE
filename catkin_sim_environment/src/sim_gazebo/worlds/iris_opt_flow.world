@@ -10,10 +10,10 @@
       <uri>model://ground_plane</uri>
     </include>
     <include>
-      <uri>model://iris</uri>
+      <uri>model://asphalt_plane</uri>
     </include>
     <include>
-      <uri>model://asphalt_plane</uri>
+      <uri>model://iris_opt_flow</uri>
     </include>
 
     <!-- Only one ROS interface plugin is required per world, as any other plugin can connect a Gazebo

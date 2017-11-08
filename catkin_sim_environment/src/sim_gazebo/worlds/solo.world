@@ -10,7 +10,7 @@
       <uri>model://ground_plane</uri>
     </include>
     <include>
-      <uri>model://iris</uri>
+      <uri>model://solo</uri>
     </include>
     <include>
       <uri>model://asphalt_plane</uri>

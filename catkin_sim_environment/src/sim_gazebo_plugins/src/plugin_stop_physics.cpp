@@ -6,7 +6,7 @@ namespace gazebo {
   StopPhysicsPlugin::StopPhysicsPlugin():
 	WorldPlugin()
   {
-	ROS_ERROR("On the constructor");
+	ROS_INFO("StopPhysicsPlugin has been instantiated.");
   }
 
   // Destructor
@@ -16,10 +16,10 @@ namespace gazebo {
 
   void StopPhysicsPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   {
-	ROS_ERROR("On the load");
+	ROS_INFO("StopPhysicsPlugin load callback function.");
 	if(_world->GetEnablePhysicsEngine())
 	{
-		ROS_ERROR("In the if");
+		ROS_INFO("StopPhysicsPlugin is turning off physics.");
 		_world->EnablePhysicsEngine(false);
 	}
   }

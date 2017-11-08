@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
     geometry_msgs::Point robotPosition;
     robotPosition.x = 0.0;
     robotPosition.y = 0.0;
-    robotPosition.z = 1.0;
+    robotPosition.z = 10.0;
     transform.setOrigin(tf::Vector3(robotPosition.x,robotPosition.y,robotPosition.z));
 
     geometry_msgs::Quaternion attitude;
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
     broadcaster.sendTransform(tf::StampedTransform(transform,ros::Time::now(),"world","base_link"));
 
     gazebo_msgs::ModelState modelState;
-    modelState.model_name = (std::string)"techpod";
+    modelState.model_name = (std::string)"quadrotor";
     modelState.reference_frame = (std::string)"world";
 
     gazebo_msgs::SetModelState srv;
