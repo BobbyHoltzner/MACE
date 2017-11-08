@@ -92,7 +92,7 @@ private:
     visualization_msgs::Marker points, line_strip, line_list;
 
     ros::ServiceClient m_client;
-    static tf::TransformBroadcaster m_broadcaster;
+    tf::TransformBroadcaster m_broadcaster;
     tf::Transform m_transform;
     gazebo_msgs::ModelState m_modelState;
     gazebo_msgs::SetModelState m_srv;
@@ -102,6 +102,8 @@ private:
 
     // TESTING:
     int counter;
+    const double degree =  M_PI/180;
+    double tilt, tinc, swivel, angle, height, hinc;
     // END TESTING
 
 private:

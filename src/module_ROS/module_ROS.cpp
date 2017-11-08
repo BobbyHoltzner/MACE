@@ -16,6 +16,8 @@ ModuleROS::ModuleROS() :
 {
     // TESTING:
     counter = 0;
+//    degree = M_PI/180;
+    tilt = 0, tinc = degree, swivel=0, angle=0, height=0, hinc=0.005;
     // END TESTING
 }
 
@@ -41,14 +43,14 @@ void ModuleROS::start() {
         counter++;
 
         if(counter%10 == 0) {
-            std::cout << "**** **** **** Fire publisher..." << std::endl;
+//            std::cout << "**** **** **** Fire publisher..." << std::endl;
             DataState::StateLocalPosition pos;
             publishVehiclePosition(counter, pos);
         }
     });
 
     m_timer->setSingleShot(false);
-    m_timer->setInterval(ROSTimer::Interval(500));
+    m_timer->setInterval(ROSTimer::Interval(50));
     m_timer->start(true);
 
 #endif
@@ -115,8 +117,6 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 #ifdef ROS_EXISTS
 
 void ModuleROS::setupROS() {
-    std::map<std::string, std::string> remappings;
-    ros::init(remappings,"ROS_Module");
     ros::NodeHandle nh;
     // Subscribers
     laserSub = nh.subscribe <sensor_msgs::LaserScan> ("/scan", 500, &ModuleROS::newLaserScan, this);
@@ -124,38 +124,14 @@ void ModuleROS::setupROS() {
     // Publishers
     velocityPub = nh.advertise <geometry_msgs::Twist> ("/mobile_base/commands/velocity", 1000);
 
-
-//    static tf::TransformBroadcaster broadcaster;
-//    tf::Transform transform;
-
-//    ros::Rate loop_rate(30);
-
-//    const double degree = M_PI/180;
-
-//    // robot state
-//    double tilt = 0, tinc = degree, swivel=0, angle=0, height=0, hinc=0.005;
-
     m_client = nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
-//    geometry_msgs::Point robotPosition;
-//    robotPosition.x = 0.0;
-//    robotPosition.y = 0.0;
-//    robotPosition.z = 1.0;
     m_transform.setOrigin(tf::Vector3(0.0,0.0,1.0));
-
-//    geometry_msgs::Quaternion attitude;
-//    attitude.x = 0.0;
-//    attitude.y = 0.0;
-//    attitude.z = 0.0;
-//    attitude.w = 1.0;
     m_transform.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
 
     m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","base_link"));
 
-//    gazebo_msgs::ModelState modelState;
     m_modelState.model_name = (std::string)"quadrotor";
     m_modelState.reference_frame = (std::string)"world";
-
-//    gazebo_msgs::SetModelState srv;
 
 
 //    //State Planning Publisher
@@ -209,18 +185,16 @@ void ModuleROS::setupROS() {
 }
 
 void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {
-    std::cout << "Ranges size: " << msg->ranges.size() << std::endl;
+//    std::cout << "Ranges size: " << msg->ranges.size() << std::endl;
 }
 
 void ModuleROS::publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos) {
-    // Publish the "velocity" topic to the turtlebot
-
     // Set up the publisher rate to 10 Hz
-    ros::Rate loop_rate(30);
+    ros::Rate loop_rate(10);
 
     // robot state
-    const double degree = M_PI/180;
-    double tilt = 0, tinc = degree, swivel=0, angle=0, height=0, hinc=0.005;
+//    const double degree = M_PI/180;
+//    double tilt = 0, tinc = degree, swivel=0, angle=0, height=0, hinc=0.005;
     geometry_msgs::Point robotPosition;
     robotPosition.x  = cos(angle)*2;
     robotPosition.y = sin(angle)*2;
@@ -257,8 +231,8 @@ void ModuleROS::publishVehiclePosition(const int &vehicleID, const DataState::St
     swivel += degree;
     angle += degree/4;
 
-    // This will adjust as needed per iteration
-//    loop_rate.sleep();
+//    std::cout << " ========= ROS FIRE ======== " << std::endl;
+
     ros::spinOnce();
 }
 
