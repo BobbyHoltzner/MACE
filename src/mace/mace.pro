@@ -166,6 +166,8 @@ INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 
 
+LIBS += -lboost_system
+
 unix {
 exists(/opt/ros/kinetic/lib/) {
     DEFINES += ROS_EXISTS
@@ -187,6 +189,9 @@ exists(/opt/ros/kinetic/lib/) {
         LIBS += -L/opt/ros/kinetic/lib -lrosconsole
         LIBS += -L/opt/ros/kinetic/lib -limage_transport
         LIBS += -L/opt/ros/kinetic/lib -lcv_bridge
-
+        LIBS += -L/opt/ros/kinetic/lib -ltf
+        LIBS += -L/opt/ros/kinetic/lib -ltf2
+        LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
+        LIBS += -L/opt/ros/kinetic/lib -lactionlib
 }
 }

@@ -73,6 +73,11 @@ int main(int argc, char *argv[])
         //filename = argv[1];
     }
 
+#ifdef ROS_EXISTS
+    std::map<std::string, std::string> remappings;
+    ros::init(remappings,"ROS_Module");
+#endif
+
     std::cout << "Reading MACE configuration file from: " << filename << std::endl;
 
     ConfigurationReader_XML parser(factory);
@@ -100,8 +105,6 @@ int main(int argc, char *argv[])
 
     std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string > modules = parser.GetCreatedModules();
     std::vector<std::thread*> threads;
-
-
 
     for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
     {
