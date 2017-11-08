@@ -56,11 +56,6 @@ HEADERS += voropp.h\
         worklist.hh \
         voro_index.hh
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}
-
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib
