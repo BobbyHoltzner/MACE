@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-
-<robot name="quadrotor" xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:include filename="$(find sim_vehicles_description)/urdf/basic_quadrotor/quadrotor_with_cam.urdf.xacro" />
-</robot>
-
