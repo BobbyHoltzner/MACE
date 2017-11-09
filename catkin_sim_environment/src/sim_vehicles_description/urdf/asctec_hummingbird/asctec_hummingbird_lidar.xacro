@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 
-<robot name="firefly" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="hummingbird" xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <!-- Instantiate firefly "mechanics" -->
-  <xacro:include filename="$(find sim_vehicles_description)/urdf/asctec_firefly/asctec_firefly.xacro" />
+  <!-- Instantiate hummingbird "mechanics" -->
+  <xacro:include filename="$(find sim_vehicles_description)/urdf/asctec_hummingbird/asctec_hummingbird.xacro" />
 
     <!-- Hokuyo UTM-30LX mounted upside down below the quadrotor body -->
     <xacro:include filename="$(find sim_sensors_description)/urdf/hokuyo_utm30lx.urdf.xacro" />

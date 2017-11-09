@@ -20,7 +20,9 @@
 -->
 
 <robot name="pelican" xmlns:xacro="http://ros.org/wiki/xacro">
+
   <!-- Instantiate pelican "mechanics" -->
   <xacro:include filename="$(find sim_vehicles_description)/urdf/asctec_pelican/asctec_pelican.xacro" />
+
 </robot>
 

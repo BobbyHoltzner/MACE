@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 
-<robot name="firefly" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="iris" xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <!-- Instantiate firefly "mechanics" -->
-  <xacro:include filename="$(find sim_vehicles_description)/urdf/asctec_firefly/asctec_firefly.xacro" />
+  <!-- Instantiate iris "mechanics" -->
+  <xacro:include filename="$(find sim_vehicles_description)/urdf/iris/iris.xacro" />
 
   <!-- Kinect -->
   <xacro:include filename="$(find sim_sensors_description)/urdf/kinect_camera.urdf.xacro" />
