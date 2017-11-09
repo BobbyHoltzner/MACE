@@ -14,6 +14,7 @@
 #ifdef ROS_EXISTS
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
+#include <sensor_msgs/PointCloud2.h>
 #include <visualization_msgs/Marker.h>
 #include <gazebo_msgs/SetModelState.h>
 #include <sensor_msgs/JointState.h>
@@ -77,6 +78,10 @@ public:
 
     void newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg);
 
+    void newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
+
+    void pixelTo3DPoint(const sensor_msgs::PointCloud2::ConstPtr& pCloud, const int u, const int v, geometry_msgs::Point &p);
+
     void publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos);
 
     void renderState(const mace::pose::CartesianPosition_2D &state);
@@ -88,6 +93,7 @@ private:
 
 #ifdef ROS_EXISTS
     ros::Subscriber laserSub;
+    ros::Subscriber pointCloudSub;
     ros::Publisher velocityPub, markerPub;
     visualization_msgs::Marker points, line_strip, line_list;
 

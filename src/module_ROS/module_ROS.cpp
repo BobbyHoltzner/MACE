@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream>
 
+#include <limits>
+
 #ifdef ROS_EXISTS
 #include <geometry_msgs/Twist.h>
 #endif
@@ -120,6 +122,7 @@ void ModuleROS::setupROS() {
     ros::NodeHandle nh;
     // Subscribers
     laserSub = nh.subscribe <sensor_msgs::LaserScan> ("/scan", 500, &ModuleROS::newLaserScan, this);
+    pointCloudSub = nh.subscribe <sensor_msgs::PointCloud2> ("basic_quadrotor/kinect/depth/points", 1000, &ModuleROS::newPointCloud, this);
 
     // Publishers
     velocityPub = nh.advertise <geometry_msgs::Twist> ("/mobile_base/commands/velocity", 1000);
@@ -128,9 +131,9 @@ void ModuleROS::setupROS() {
     m_transform.setOrigin(tf::Vector3(0.0,0.0,1.0));
     m_transform.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
 
-    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","base_link"));
+    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","basic_quadrotor/base_link"));
 
-    m_modelState.model_name = (std::string)"quadrotor";
+    m_modelState.model_name = (std::string)"basic_quadrotor";
     m_modelState.reference_frame = (std::string)"world";
 
 
@@ -188,6 +191,48 @@ void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {
 //    std::cout << "Ranges size: " << msg->ranges.size() << std::endl;
 }
 
+void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
+    double distance = std::numeric_limits<double>::max();
+
+    int xPt = 0;
+    int yPt = 0;
+    geometry_msgs::Point point;
+    pixelTo3DPoint(msg, xPt,yPt, point);
+
+    std::cout << "Pixel at (" << point.x << ", " << point.y << ", " << point.z << ") from point cloud pixel: (" << xPt << ", " << yPt << ")" << std::endl;
+}
+
+void ModuleROS::pixelTo3DPoint(const sensor_msgs::PointCloud2::ConstPtr& pCloud, const int u, const int v, geometry_msgs::Point &p) {
+  // get width and height of 2D point cloud data
+  int width = pCloud->width;
+  int height = pCloud->height;
+
+  std::cout << "Point cloud width: " << width << std::endl;
+  std::cout << "Point cloud height: " << height << std::endl;
+
+  // Convert from u (column / width), v (row/height) to position in array
+  // where X,Y,Z data starts
+  int arrayPosition = v*pCloud->row_step + u*pCloud->point_step;
+
+  // compute position in array where x,y,z data start
+  int arrayPosX = arrayPosition + pCloud->fields[0].offset; // X has an offset of 0
+  int arrayPosY = arrayPosition + pCloud->fields[1].offset; // Y has an offset of 4
+  int arrayPosZ = arrayPosition + pCloud->fields[2].offset; // Z has an offset of 8
+
+  float X = 0.0;
+  float Y = 0.0;
+  float Z = 0.0;
+
+  memcpy(&X, &pCloud->data[arrayPosX], sizeof(float));
+  memcpy(&Y, &pCloud->data[arrayPosY], sizeof(float));
+  memcpy(&Z, &pCloud->data[arrayPosZ], sizeof(float));
+
+  p.x = X;
+  p.y = Y;
+  p.z = Z;
+
+}
+
 void ModuleROS::publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos) {
     // Set up the publisher rate to 10 Hz
     ros::Rate loop_rate(10);
@@ -196,9 +241,12 @@ void ModuleROS::publishVehiclePosition(const int &vehicleID, const DataState::St
 //    const double degree = M_PI/180;
 //    double tilt = 0, tinc = degree, swivel=0, angle=0, height=0, hinc=0.005;
     geometry_msgs::Point robotPosition;
-    robotPosition.x  = cos(angle)*2;
-    robotPosition.y = sin(angle)*2;
-    robotPosition.z = 1.0;
+//    robotPosition.x  = cos(angle)*2;
+//    robotPosition.y = sin(angle)*2;
+//    robotPosition.z = 0.75;
+    robotPosition.x  = 0;
+    robotPosition.y = 1;
+    robotPosition.z = 0.3;
 
     geometry_msgs::Quaternion attitude;
     attitude.x = 0.0;
@@ -213,7 +261,7 @@ void ModuleROS::publishVehiclePosition(const int &vehicleID, const DataState::St
     m_modelState.pose = pose;
     m_transform.setOrigin(tf::Vector3(robotPosition.x,robotPosition.y,robotPosition.z));
     m_transform.setRotation(tf::Quaternion(attitude.x,attitude.y,attitude.z,attitude.w));
-    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","base_link"));
+    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","basic_quadrotor/base_link"));
 
     m_srv.request.model_state = m_modelState;
     if(m_client.call(m_srv))
@@ -224,12 +272,14 @@ void ModuleROS::publishVehiclePosition(const int &vehicleID, const DataState::St
         //this means it was not a success
     }
     // Create new robot state
-    tilt += tinc;
-    if (tilt<-.5 || tilt>0) tinc *= -1;
-    height += hinc;
-    if (height>.2 || height<0) hinc *= -1;
-    swivel += degree;
-    angle += degree/4;
+//    tilt += tinc;
+//    if (tilt<-.5 || tilt>0) tinc *= -1;
+//    height += hinc;
+//    if (height>.2 || height<0) hinc *= -1;
+//    swivel += degree;
+//    angle += degree/4;
+
+    tilt = 0, tinc = degree, swivel=0, angle=0, height=0, hinc=0.005;
 
 //    std::cout << " ========= ROS FIRE ======== " << std::endl;
 
