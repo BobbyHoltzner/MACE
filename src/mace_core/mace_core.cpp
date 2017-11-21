@@ -520,6 +520,9 @@ void MaceCore::ExternalEvent_NewConstructedVehicle(const void *sender, const int
 
     if(m_RTA)
         m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+
+    if(m_ROS)
+        m_ROS->MarshalCommand(ROSCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
 }
 
 void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
@@ -545,6 +548,9 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
             (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
         }
     }
+
+    if(m_ROS)
+        m_ROS->MarshalCommand(ROSCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
 }
 
 /////////////////////////////////////////////////////////////////////////

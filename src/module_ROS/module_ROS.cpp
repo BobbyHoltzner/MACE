@@ -14,7 +14,8 @@
 
 ModuleROS::ModuleROS() :
     MaceCore::IModuleCommandROS(),
-    m_PlanningStateTopic("planningState")
+    m_PlanningStateTopic("planningState"),
+    m_VehicleDataTopic("vehicleData")
 {
     // TESTING:
     counter = 0;
@@ -81,10 +82,6 @@ void ModuleROS::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
 
 void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
-    UNUSED(topicName);
-    UNUSED(senderID);
-    UNUSED(componentsUpdated);
-
     // TODO: On new vehicle position, send to ROS via publishVehiclePosition
     // TODO: Figure out a better way to check for ROS_EXISTS...the way it is right now, everything
     //          in this NewTopic method would have to check if ROS_EXISTS before calling any ROS specific methods
@@ -102,10 +99,29 @@ void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector
                 std::shared_ptr<mace::geometryTopic::Line_2DC_Topic> component = std::make_shared<mace::geometryTopic::Line_2DC_Topic>();
                 m_PlanningStateTopic.GetComponent(component, read_topicDatagram);
                 this->renderEdge(component->getLine());
+            }                        
+        }
+    }
+    else if(topicName == m_VehicleDataTopic.Name())
+    {
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
+            if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write Attitude data to the GUI:
+                updateAttitudeData(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateLocalPositionTopic> component = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write Position data to the GUI:
+                updatePositionData(senderID, component);
             }
         }
     }
-
 }
 
 void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
@@ -121,7 +137,7 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 void ModuleROS::setupROS() {
     ros::NodeHandle nh;
     // Subscribers
-    laserSub = nh.subscribe <sensor_msgs::LaserScan> ("/scan", 500, &ModuleROS::newLaserScan, this);
+    laserSub = nh.subscribe("basic_quadrotor/scan", 500, &ModuleROS::newLaserScan, this);
     pointCloudSub = nh.subscribe <sensor_msgs::PointCloud2> ("basic_quadrotor/kinect/depth/points", 1000, &ModuleROS::newPointCloud, this);
 
     // Publishers
@@ -136,59 +152,36 @@ void ModuleROS::setupROS() {
     m_modelState.model_name = (std::string)"basic_quadrotor";
     m_modelState.reference_frame = (std::string)"world";
 
-
-//    //State Planning Publisher
-//    markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 10);
-
-//    // %Tag(MARKER_INIT)%
-//        points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = "/map";
-//        points.header.stamp = line_strip.header.stamp = line_list.header.stamp = ros::Time::now();
-//        points.ns = line_strip.ns = line_list.ns = "points_and_lines";
-//        points.action = line_strip.action = line_list.action = visualization_msgs::Marker::ADD;
-//        points.pose.orientation.w = line_strip.pose.orientation.w = line_list.pose.orientation.w = 1.0;
-//    // %EndTag(MARKER_INIT)%
-
-//    // %Tag(ID)%
-//        points.id = 0;
-//        line_strip.id = 1;
-//        line_list.id = 2;
-//    // %EndTag(ID)%
-
-//    // %Tag(TYPE)%
-//        points.type = visualization_msgs::Marker::POINTS;
-//        line_strip.type = visualization_msgs::Marker::LINE_STRIP;
-//        line_list.type = visualization_msgs::Marker::LINE_LIST;
-//    // %EndTag(TYPE)%
-
-//    // %Tag(SCALE)%
-//        // POINTS markers use x and y scale for width/height respectively
-//        points.scale.x = 0.1;
-//        points.scale.y = 0.1;
-
-//        // LINE_STRIP/LINE_LIST markers use only the x component of scale, for the line width
-//        line_strip.scale.x = 0.05;
-//        line_list.scale.x = 0.05;
-//    // %EndTag(SCALE)%
-
-//    // %Tag(COLOR)%
-//        // Points are green
-//        points.color.g = 1.0f;
-//        points.color.a = 1.0;
-
-//        // Line strip is blue
-//        line_strip.color.b = 1.0;
-//        line_strip.color.a = 1.0;
-
-//        // Line list is red
-//        line_list.color.r = 1.0;
-//        line_list.color.a = 1.0;
-//    // %EndTag(COLOR)%
-
     ros::spinOnce();
 }
 
-void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {
-//    std::cout << "Ranges size: " << msg->ranges.size() << std::endl;
+void ModuleROS::newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan const>& event) {
+    // ** Message event metadata
+    const std::string& publisher_name = event.getPublisherName();
+    const ros::M_string& header = event.getConnectionHeader();
+    std::string topic = header.at("topic");
+    ros::Time receipt_time = event.getReceiptTime();
+
+    std::cout << "**** Message Event ****" << std::endl;
+    std::cout << "  Publisher name: " << publisher_name << std::endl;
+    std::cout << "  Header -- topic: " << topic << std::endl;
+    std::cout << "  receipt_time: " << receipt_time << std::endl;
+    std::cout << "**** **** ****" << std::endl;
+
+
+    // ** Get Laser Scan message from message event:
+    const sensor_msgs::LaserScan::ConstPtr& msg = event.getMessage();
+    std::cout << "  Ranges size: " << msg->ranges.size() << std::endl;
+    std::cout << "  Range min: " << msg->range_min << std::endl;
+    std::cout << "  Range max: " << msg->range_max << std::endl;
+
+    double minDistance = std::numeric_limits<double>::max();
+    for(int i = 0; i < msg->ranges.size(); i++) {
+        if(msg->ranges[i] < minDistance) {
+            minDistance = msg->ranges[i];
+        }
+    }
+    std::cout << "  Loop range min: " << minDistance << std::endl;
 }
 
 void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
@@ -311,4 +304,23 @@ void ModuleROS::renderEdge(const mace::geometry::Line_2DC &edge) {
     line_list.points.push_back(endPoint);
     markerPub.publish(line_list);
 }
+
+void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component)
+{
+    std::cout << "Update position data" << std::endl;
+
+    double lat = component->getX();
+    double lng = component->getY();
+    double alt = component->getZ();
+}
+
+void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component)
+{
+    std::cout << "Update attitude data" << std::endl;
+
+    double roll = component->roll * (180/M_PI);
+    double pitch = component->pitch * (180/M_PI);
+    double yaw = (component->yaw * (180/M_PI) < 0) ? (component->yaw * (180/M_PI) + 360) : (component->yaw * (180/M_PI));
+}
+
 #endif

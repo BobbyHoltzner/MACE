@@ -9,6 +9,12 @@
 #include "data/topic_data_object_collection.h"
 #include "base_topic/base_topic_components.h"
 
+#include "data_generic_state_item/state_item_components.h"
+#include "data_generic_state_item_topic/state_topic_components.h"
+
+#include "data_generic_item/data_generic_item_components.h"
+#include "data_generic_item_topic/data_generic_item_topic_components.h"
+
 #include <memory>
 
 #ifdef ROS_EXISTS
@@ -43,7 +49,8 @@ public:
     //!
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
     {
-        ptr->Subscribe(this,m_PlanningStateTopic.Name());
+        ptr->Subscribe(this, m_PlanningStateTopic.Name());
+        ptr->Subscribe(this, m_VehicleDataTopic.Name());
     }
 
     //!
@@ -76,7 +83,7 @@ public:
 
     void setupROS();
 
-    void newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg);
+    void newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan const>& event);
 
     void newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
 
@@ -87,6 +94,9 @@ public:
     void renderState(const mace::pose::CartesianPosition_2D &state);
 
     void renderEdge(const mace::geometry::Line_2DC &edge);
+
+    void updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component);
+    void updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
 #endif
 
 private:
@@ -104,6 +114,8 @@ private:
     gazebo_msgs::SetModelState m_srv;
 #endif
 
+    std::map<int, std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> > m_vehicleMap;
+
     std::shared_ptr<ROSTimer> m_timer;
 
     // TESTING:
@@ -114,6 +126,7 @@ private:
 
 private:
     Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;
+    Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
 };
 
 #endif // MODULE_ROS_H
