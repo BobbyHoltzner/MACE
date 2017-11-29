@@ -45,9 +45,6 @@ void ModuleROS::start() {
 
     this->setupROS();
 
-    // Add sensors to the ROS instance:
-    addSensorsToROS();
-
     // Start timer:
     m_timer = std::make_shared<ROSTimer>([=]()
     {

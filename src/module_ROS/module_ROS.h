@@ -111,12 +111,6 @@ public:
     void pixelTo3DPoint(const sensor_msgs::PointCloud2::ConstPtr& pCloud, const int u, const int v, geometry_msgs::Point &p);
 
     //!
-    //! \brief newOccupancyGrid Callback for ROS occupancy grid subscriber
-    //! \param msg Occupancy grid message
-    //!
-    void newOccupancyGrid(const nav_msgs::OccupancyGrid::ConstPtr& msg);
-
-    //!
     //! \brief publishVehiclePosition Publish vehicle position to ROS
     //! \param vehicleID Vehicle ID for which to set the new position
     //! \param localPos New vehicle position
