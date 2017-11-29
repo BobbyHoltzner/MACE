@@ -54,8 +54,6 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../commsMAVLINK/releas
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../commsMAVLINK/debug/ -lcommsMAVLINK
 else:unix: LIBS += -L$$OUT_PWD/../commsMAVLINK/ -lcommsMAVLINK
 
-
-
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../commsMACE/release/ -lcommsMACE
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../commsMACE/debug/ -lcommsMACE
 else:unix: LIBS += -L$$OUT_PWD/../commsMACE/ -lcommsMACE
@@ -189,5 +187,9 @@ exists(/opt/ros/kinetic/lib/) {
         LIBS += -L/opt/ros/kinetic/lib -lrosconsole
         LIBS += -L/opt/ros/kinetic/lib -limage_transport
         LIBS += -L/opt/ros/kinetic/lib -lcv_bridge
+        LIBS += -L/opt/ros/kinetic/lib -ltf
+        LIBS += -L/opt/ros/kinetic/lib -ltf2
+        LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
+        LIBS += -L/opt/ros/kinetic/lib -lactionlib
 }
 }
