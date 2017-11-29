@@ -15,11 +15,14 @@ DEFINES += MODULE_GROUND_STATION_LIBRARY
 QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += module_ground_station.cpp \
-    guitimer.cpp
+    guitimer.cpp \
+    macetogui.cpp \
+    guitomace.cpp
 
 HEADERS += module_ground_station.h \
         module_ground_station_global.h \
     guitimer.h \
+    macetogui.h \
     guitomace.h
 
 # Unix lib Install

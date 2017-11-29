@@ -35,9 +35,18 @@ ModuleROS::~ModuleROS() {
 #endif
 }
 
+//!
+//! \brief start Start ROS loop
+//!
 void ModuleROS::start() {
 #ifdef ROS_EXISTS
+    // TODO: Call MACE core getAttachedVehicleID (or whatever we call it)
+    //          -Basically to handle if we miss the newly available vehicle topic
+
     this->setupROS();
+
+    // Add sensors to the ROS instance:
+    addSensorsToROS();
 
     // Start timer:
     m_timer = std::make_shared<ROSTimer>([=]()
@@ -67,6 +76,21 @@ void ModuleROS::start() {
 std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleROS::ModuleConfigurationStructure() const
 {
     MaceCore::ModuleParameterStructure structure;
+
+    std::shared_ptr<MaceCore::ModuleParameterStructure> moduleSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
+    moduleSettings->AddTerminalParameters("AirborneInstance", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
+    structure.AddNonTerminal("ModuleParameters", moduleSettings, true);
+
+    std::shared_ptr<MaceCore::ModuleParameterStructure> laserSensor = std::make_shared<MaceCore::ModuleParameterStructure>();
+    laserSensor->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+    laserSensor->AddTerminalParameters("Type", MaceCore::ModuleParameterTerminalTypes::STRING, true, "lidar_scan", {"lidar_scan", "lidar_flash"});
+    structure.AddNonTerminal("LaserSensor", laserSensor, true);
+
+    std::shared_ptr<MaceCore::ModuleParameterStructure> cameraSensor = std::make_shared<MaceCore::ModuleParameterStructure>();
+    cameraSensor->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+    cameraSensor->AddTerminalParameters("Type", MaceCore::ModuleParameterTerminalTypes::STRING, true, "rgb", {"rgb", "infrared"});
+    structure.AddNonTerminal("CameraSensor", cameraSensor, true);
+
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
 
@@ -77,9 +101,35 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleROS::ModuleConfigurati
 //!
 void ModuleROS::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-    UNUSED(params);
+    if(params->HasNonTerminal("ModuleParameters"))
+    {
+        std::shared_ptr<MaceCore::ModuleParameterValue> moduleSettings = params->GetNonTerminalValue("ModuleParameters");
+        airborneInstance = moduleSettings->GetTerminalValue<bool>("AirborneInstance");
+    }
+    if(params->HasNonTerminal("LaserSensor"))
+    {
+        std::shared_ptr<MaceCore::ModuleParameterValue> laserSettings = params->GetNonTerminalValue("LaserSensor");
+        std::cout << " **** **** **** **** Sensor name: " << laserSettings->GetTerminalValue<std::string>("Name") << std::endl;
+        std::cout << " **** **** **** **** Sensor type: " << laserSettings->GetTerminalValue<std::string>("Type") << std::endl;
+        std::tuple<std::string, std::string> sensor = std::make_tuple(laserSettings->GetTerminalValue<std::string>("Name"), laserSettings->GetTerminalValue<std::string>("Type"));
+        m_sensors.push_back(sensor);
+    }
+    if(params->HasNonTerminal("CameraSensor"))
+    {
+        std::shared_ptr<MaceCore::ModuleParameterValue> cameraSettings = params->GetNonTerminalValue("CameraSensor");
+        std::cout << " **** **** **** **** Sensor name: " << cameraSettings->GetTerminalValue<std::string>("Name") << std::endl;
+        std::cout << " **** **** **** **** Sensor type: " << cameraSettings->GetTerminalValue<std::string>("Type") << std::endl;
+        std::tuple<std::string, std::string> sensor = std::make_tuple(cameraSettings->GetTerminalValue<std::string>("Name"), cameraSettings->GetTerminalValue<std::string>("Type"));
+        m_sensors.push_back(sensor);
+    }
 }
 
+//!
+//! \brief NewTopic New topic available from MACE Core
+//! \param topicName Topic name that has been published
+//! \param senderID Topic sender ID
+//! \param componentsUpdated List of MACE core components that have updated data
+//!
 void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
     // TODO: On new vehicle position, send to ROS via publishVehiclePosition
@@ -99,7 +149,7 @@ void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector
                 std::shared_ptr<mace::geometryTopic::Line_2DC_Topic> component = std::make_shared<mace::geometryTopic::Line_2DC_Topic>();
                 m_PlanningStateTopic.GetComponent(component, read_topicDatagram);
                 this->renderEdge(component->getLine());
-            }                        
+            }
         }
     }
     else if(topicName == m_VehicleDataTopic.Name())
@@ -124,16 +174,23 @@ void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector
     }
 }
 
+//!
+//! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
+//! \param vehicleID Vehilce ID of the newly available vehicle
+//!
 void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 {
-    UNUSED(vehicleID);
+    // Set vehicle ID:
+    m_vehicleID = vehicleID;
 }
 
 ////! ========================================================================
 ////! ======================  ROS Specific functions:  =======================
 ////! ========================================================================
 #ifdef ROS_EXISTS
-
+//!
+//! \brief setupROS Setup ROS subscribers, publishers, and node handler
+//!
 void ModuleROS::setupROS() {
     ros::NodeHandle nh;
     // Subscribers
@@ -142,6 +199,7 @@ void ModuleROS::setupROS() {
 
     // Publishers
     velocityPub = nh.advertise <geometry_msgs::Twist> ("/mobile_base/commands/velocity", 1000);
+//    rosservice call ('set_model', 'model_name', (x,y,z));
 
     m_client = nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
     m_transform.setOrigin(tf::Vector3(0.0,0.0,1.0));

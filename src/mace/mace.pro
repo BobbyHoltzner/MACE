@@ -172,7 +172,7 @@ unix {
 exists(/opt/ros/kinetic/lib/) {
     DEFINES += ROS_EXISTS
     INCLUDEPATH += /opt/ros/kinetic/include
-    INCLUDEPATH += /opt/ros/indigo/lib
+    INCLUDEPATH += /opt/ros/kinetic/lib
 
         LIBS += -L/opt/ros/kinetic/lib -lroscpp
         LIBS += -L/opt/ros/kinetic/lib -lroscpp_serialization
@@ -189,9 +189,5 @@ exists(/opt/ros/kinetic/lib/) {
         LIBS += -L/opt/ros/kinetic/lib -lrosconsole
         LIBS += -L/opt/ros/kinetic/lib -limage_transport
         LIBS += -L/opt/ros/kinetic/lib -lcv_bridge
-        LIBS += -L/opt/ros/kinetic/lib -ltf
-        LIBS += -L/opt/ros/kinetic/lib -ltf2
-        LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
-        LIBS += -L/opt/ros/kinetic/lib -lactionlib
 }
 }

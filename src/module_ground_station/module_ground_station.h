@@ -17,27 +17,9 @@
 
 #include "common/common.h"
 
-#include "mace_core/i_module_topic_events.h"
-#include "mace_core/i_module_command_ground_station.h"
-
-#include "data/i_topic_component_data_object.h"
-#include "data/topic_data_object_collection.h"
-
-#include "data_generic_item/data_generic_item_components.h"
-#include "data_generic_item_topic/data_generic_item_topic_components.h"
-
-#include "data_generic_state_item/state_item_components.h"
-#include "data_generic_state_item_topic/state_topic_components.h"
-
-#include "data_generic_command_item/command_item_components.h"
-#include "data_generic_command_item_topic/command_item_topic_components.h"
-#include "data_generic_mission_item_topic/mission_item_topic_components.h"
-
-#include "data_vehicle_sensors/components.h"
-#include "data_generic_state_item/positional_aid.h"
-
 #include "guitimer.h"
-
+#include "macetogui.h"
+#include "guitomace.h"
 
 using namespace std;
 
@@ -49,7 +31,9 @@ public:
 
     ~ModuleGroundStation();
 
-
+    //!
+    //! \brief initiateLogs Start log files and logging for the Ground Station module
+    //!
     void initiateLogs();
 
     //!
@@ -64,13 +48,11 @@ public:
     //!
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr);
 
-
     //!
     //! \brief Describes the strucure of the parameters for this module
     //! \return Strucure
     //!
     virtual std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleConfigurationStructure() const;
-
 
     //!
     //! \brief Provides object contains parameters values to configure module with
@@ -84,93 +66,138 @@ public:
     //!
     virtual void AssignLoggingDirectory(const std::string &path);
 
+    //!
+    //! \brief start Start event listener thread
+    //!
     virtual void start();
 
+    //!
+    //! \brief NewTopic New topic available from MACE Core
+    //! \param topicName Topic name that has been published
+    //! \param senderID Topic sender ID
+    //! \param componentsUpdated List of MACE core components that have updated data
+    //!
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
 
-    //! Virtual functions as defined by IModuleCommandGroundStation
+    // ============================================================================= //
+    // ======== Virtual functions as defined by IModuleCommandGroundStation ======== //
+    // ============================================================================= //
 public:
 
+    //!
+    //! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
+    //! \param vehicleID Vehilce ID of the newly available vehicle
+    //!
     virtual void NewlyAvailableVehicle(const int &vehicleID);
+
+    //!
+    //! \brief NewlyAvailableCurrentMission Subscriber to a new vehicle mission topic
+    //! \param missionKey Key denoting which mission is available
+    //!
     virtual void NewlyAvailableCurrentMission(const MissionItem::MissionKey &missionKey);
+
+    //!
+    //! \brief NewlyAvailableMissionExeState Subscriber to a new vehicle mission state topic
+    //! \param key Key denoting which mission has a new exe state
+    //!
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &key);
+
+    //!
+    //! \brief NewlyAvailableHomePosition Subscriber to a new home position
+    //! \param home New home position
+    //!
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
 
-private:
 
-    void sendPositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> &component);
-    void sendAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
-    void sendVehicleFuel(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> &component);
-    void sendVehicleMode(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> &component);
-    void sendVehicleText(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> &component);
-    void sendVehicleMission(const int &vehicleID, const MissionItem::MissionList &missionList);
-    void sendVehicleHome(const int &vehicleID, const CommandItem::SpatialHome &home);
-    void sendSensorFootprint(const int &vehicleID, const std::shared_ptr<DataVehicleSensors::SensorVertices_Global> &component);
-    void sendEnvironmentVertices(const std::shared_ptr<DataStateTopic::StateItemTopic_Boundary> &component);
-    void sendCurrentMissionItem(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionItemCurrentTopic> &component);
-    void sendVehicleGPS(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> &component);
-    void sendVehicleHeartbeat(const int &vehicleID, const std::shared_ptr<DataGenericItem::DataGenericItem_Heartbeat> &component);
-    void sendMissionItemReached(const int &vehicleID, const std::shared_ptr<MissionTopic::MissionItemReachedTopic> &component);
-    void sendVehicleArm(const int &vehicleID, const std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> &component);
-    void sendVehicleAirspeed(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAirspeedTopic> &component);
-    void sendMissionState(const MissionItem::MissionKey &key, const MissionItem::MissionList &list);
-    void sendVehicleTarget(const int &vehicleID, const std::shared_ptr<MissionTopic::VehicleTargetTopic> &component);
-
-    bool writeTCPData(QByteArray data);
-
-
-    // Commands from GUI:
-    void parseTCPRequest(const QJsonObject &jsonObj);
-
-    void issueCommand(const int &vehicleID, const QJsonObject &jsonObj);
-    void setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj);
-    void setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj);
-    void setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj);
-    void setGlobalOrigin(const QJsonObject &jsonObj);
-    void setEnvironmentVertices(const QJsonObject &jsonObj);
-    void setGoHere(const int &vehicleID, const QJsonObject &jsonObj);
-    void takeoff(const int &vehicleID, const QJsonObject &jsonObj);
-    void getVehicleMission(const int &vehicleID);
-    void getConnectedVehicles();
-    void getVehicleHome(const int &vehicleID);
-    void getEnvironmentBoundary();
-    void getGlobalOrigin();
-
-    // TESTING:
-    void testFunction1(const int &vehicleID);
-    void testFunction2(const int &vehicleID);
-    // END TESTING
-
-    // Helpers:
-    void missionListToJSON(const MissionItem::MissionList &list, QJsonArray &missionItems);
-
+    // ============================================================================= //
+    // =============================== Public slots ================================ //
+    // ============================================================================= //
 public slots:
+    //!
+    //! \brief on_newConnection Slot to fire when a new TCP connection is initiated
+    //!
     void on_newConnection();
 
+
+    // ============================================================================= //
+    // ============================= Topic Collections ============================= //
+    // ============================================================================= //
 private:
+
+    //!
+    //! \brief m_SensorDataTopic Sensor data topic collection
+    //!
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
+
+    //!
+    //! \brief m_SensorFootprintDataTopic Sensor footprint data topic collection
+    //!
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;
+
+    //!
+    //! \brief m_VehicleDataTopic Vehicle data topic collection
+    //!
     Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
+
+    //!
+    //! \brief m_MissionDataTopic Mission data topic collection
+    //!
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 
+    // ============================================================================= //
+    // ================================== Loggers ================================== //
+    // ============================================================================= //
 private:
+
+    //!
+    //! \brief mLogs Ground station logs
+    //!
     std::shared_ptr<spdlog::logger> mLogs;
 
+    // ============================================================================= //
+    // ============================== Member Variables ============================= //
+    // ============================================================================= //
 private:
-    double latitude;
+
+    //!
+    //! \brief m_TcpServer TCP server to listen for GUI messages
+    //!
     std::shared_ptr<QTcpServer> m_TcpServer;
+
+    //!
+    //! \brief m_ListenThread Thread that listens for new TCP connections
+    //!
     QThread *m_ListenThread;
-//    QTcpSocket *m_TcpSocket;
-    bool m_positionTimeoutOccured;
-    bool m_attitudeTimeoutOccured;
-    bool m_modeTimeoutOccured;
-    bool m_fuelTimeoutOccured;
+
+    //!
+    //! \brief m_timer Timer that fires to adjust timeout flags
+    //!
     std::shared_ptr<GUITimer> m_timer;
+
+    //!
+    //! \brief m_listenAddress TCP listen address for GUI-to-MACE connection
+    //!
     QHostAddress m_listenAddress;
+
+    //!
+    //! \brief m_listenPort TCP listen port for GUI-to-MACE connection
+    //!
     int m_listenPort;
-    QHostAddress m_sendAddress;
-    int m_sendPort;
+
+    //!
+    //! \brief m_toMACEHandler Handler for all comms going to MACE from the GUI
+    //!
+    std::shared_ptr<GUItoMACE> m_toMACEHandler;
+
+    //!
+    //! \brief m_toGUIHandler Handler for all comms going to the GUI from MACE
+    //!
+    std::shared_ptr<MACEtoGUI> m_toGUIHandler;
+
+    // TESTING:
+    double latitude;
+    // END TESTING
 };
 
 #endif // MODULE_GROUND_STATION_H
