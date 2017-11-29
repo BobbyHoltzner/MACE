@@ -11,11 +11,18 @@ namespace state_space {
 class BASESHARED_EXPORT State{
 
 public:
+    /**
+      */
     State() = default;
 
+    /**
+      */
     virtual ~State() = default;
 
 public:
+    /**
+     *
+     */
     template <class T>
     const T *as() const
     {
@@ -23,6 +30,9 @@ public:
         return static_cast<const T *>(this);
     }
 
+    /**
+     *
+     */
     template <class T>
     T *as()
     {
@@ -38,8 +48,16 @@ public:
 //        return new T(*this->as<T>());
 //    }
 
+    /**
+     * @brief getClone
+     * @return
+     */
     virtual State* getClone() const = 0;
 
+    /**
+     * @brief getClone
+     * @param state
+     */
     virtual void getClone(State** state) const = 0;
 
 };

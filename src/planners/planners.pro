@@ -33,6 +33,7 @@ SOURCES += \
     probabilistic_roadmap.cpp \
     rrt_base.cpp \
 #    nearest_neighbor_flann.cpp
+    path_reduction.cpp
 
 HEADERS += \
         planners.h \
@@ -44,7 +45,8 @@ HEADERS += \
     rrt_base.h \
     nearest_neighbor_flann.h \
     nearest_neighbor_abstract.h \
-    rrt_node.h
+    rrt_node.h \
+    path_reduction.h
 
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/planners
@@ -72,7 +74,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbas
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
 else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
 
-unix:!macx|win32: LIBS += -L$$PWD/../../../Flann/build/lib/ -llibflann_cpp.dll
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/release/ -lflann
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/debug/ -lflann
+else:unix:!macx: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann
 
-INCLUDEPATH += $$PWD/../../../Flann/build/include
-DEPENDPATH += $$PWD/../../../Flann/build/include
+INCLUDEPATH += $$PWD/../../tools/flann/build
+DEPENDPATH += $$PWD/../../tools/flann/build

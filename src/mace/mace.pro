@@ -37,6 +37,10 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbas
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
 else:unix: LIBS += -L$$OUT_PWD/../base/ -lbase
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base_topic/release/ -lbase_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base_topic/debug/ -lbase_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base_topic/ -lbase_topic
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../maps/release/ -lmaps
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../maps/debug/ -lmaps
 else:unix: LIBS += -L$$OUT_PWD/../base/ -lmaps
@@ -49,8 +53,6 @@ else:unix: LIBS += -L$$OUT_PWD/../comms/ -lcomms
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../commsMAVLINK/release/ -lcommsMAVLINK
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../commsMAVLINK/debug/ -lcommsMAVLINK
 else:unix: LIBS += -L$$OUT_PWD/../commsMAVLINK/ -lcommsMAVLINK
-
-
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../commsMACE/release/ -lcommsMACE
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../commsMACE/debug/ -lcommsMACE
@@ -151,6 +153,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../maps/release/ -lmap
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../maps/debug/ -lmaps
 else:unix:!macx: LIBS += -L$$OUT_PWD/../maps/ -lmaps
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../planners/release/ -lplanners
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../planners/debug/ -lplanners
+else:unix:!macx: LIBS += -L$$OUT_PWD/../planners/ -lplanners
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
@@ -158,6 +163,8 @@ INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 
+
+LIBS += -lboost_system
 
 unix {
 exists(/opt/ros/kinetic/lib/) {
@@ -180,6 +187,9 @@ exists(/opt/ros/kinetic/lib/) {
         LIBS += -L/opt/ros/kinetic/lib -lrosconsole
         LIBS += -L/opt/ros/kinetic/lib -limage_transport
         LIBS += -L/opt/ros/kinetic/lib -lcv_bridge
-
+        LIBS += -L/opt/ros/kinetic/lib -ltf
+        LIBS += -L/opt/ros/kinetic/lib -ltf2
+        LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
+        LIBS += -L/opt/ros/kinetic/lib -lactionlib
 }
 }

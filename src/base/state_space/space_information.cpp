@@ -4,10 +4,23 @@ namespace mace {
 namespace state_space {
 
 //consider std::move of the shared pointer here
-SpaceInformation::SpaceInformation(StateSpacePtr space):
-    m_stateSpace(space)
+SpaceInformation::SpaceInformation(const StateSpacePtr &space):
+    m_stateSpace(space), isSetup(false),
+    m_stateValidCheck(nullptr), m_motionValidCheck(nullptr),
+    m_stateSampler(nullptr)
 {
 
+}
+
+void SpaceInformation::updateStateSpace(const StateSpacePtr &space)
+{
+    m_stateSpace = space;
+    if(m_stateValidCheck)
+        m_stateValidCheck->updateStateSpace(m_stateSpace);
+    if(m_motionValidCheck)
+        m_motionValidCheck->updateStateSpace(m_stateSpace);
+    if(m_stateSampler)
+        m_stateSampler->updateStateSpace(m_stateSpace);
 }
 
 const StateSpacePtr& SpaceInformation::getStateSpace() const
@@ -17,14 +30,17 @@ const StateSpacePtr& SpaceInformation::getStateSpace() const
 
 bool SpaceInformation::isStateValid(const State *state) const
 {
-    //for now lets just default this to true to see it work
-    return true;
+    return m_stateValidCheck->isValid(state);
 }
 
 bool SpaceInformation::isEdgeValid(const State *lhs, const State *rhs) const
 {
-    //for now lets just default this to true to see it work
-    return true;
+    if(m_stateValidCheck->isValid(rhs))
+    {
+        if(m_motionValidCheck->isValid(lhs,rhs))
+            return true;
+    }
+    return false;
 }
 
 double SpaceInformation::distanceBetween(const State *lhs, const State *rhs) const
@@ -77,6 +93,17 @@ void SpaceInformation::setStateSampler(const StateSamplerPtr &sampler)
 StateSamplerPtr SpaceInformation::getStateSampler() const
 {
     return m_stateSampler;
+}
+
+
+void SpaceInformation::setStateValidityCheck(const AbstractStateValidityCheckPtr &stateChecker)
+{
+    this->m_stateValidCheck = stateChecker;
+}
+
+void SpaceInformation::setMotionValidityCheck(const AbstractMotionValidityCheckPtr &motionChecker)
+{
+    this->m_motionValidCheck = motionChecker;
 }
 
 

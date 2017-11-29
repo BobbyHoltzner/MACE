@@ -6,17 +6,21 @@
 #include <string>
 #include <iostream>
 
+#include <limits>
+
 #ifdef ROS_EXISTS
 #include <geometry_msgs/Twist.h>
 #endif
 
 ModuleROS::ModuleROS() :
-    m_vehicleID(-1),
-    airborneInstance(false),
-    MaceCore::IModuleCommandROS()
+    MaceCore::IModuleCommandROS(),
+    m_PlanningStateTopic("planningState"),
+    m_VehicleDataTopic("vehicleData")
 {
     // TESTING:
     counter = 0;
+//    degree = M_PI/180;
+    tilt = 0, tinc = degree, swivel=0, angle=0, height=0, hinc=0.005;
     // END TESTING
 }
 
@@ -41,9 +45,6 @@ void ModuleROS::start() {
 
     this->setupROS();
 
-    // Add sensors to the ROS instance:
-    addSensorsToROS();
-
     // Start timer:
     m_timer = std::make_shared<ROSTimer>([=]()
     {
@@ -51,14 +52,14 @@ void ModuleROS::start() {
         counter++;
 
         if(counter%10 == 0) {
-            std::cout << "**** **** **** Fire publisher..." << std::endl;
+//            std::cout << "**** **** **** Fire publisher..." << std::endl;
             DataState::StateLocalPosition pos;
             publishVehiclePosition(counter, pos);
-        }        
+        }
     });
 
     m_timer->setSingleShot(false);
-    m_timer->setInterval(ROSTimer::Interval(500));
+    m_timer->setInterval(ROSTimer::Interval(50));
     m_timer->start(true);
 
 #endif
@@ -128,19 +129,46 @@ void ModuleROS::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
 //!
 void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
-    UNUSED(topicName);
-    UNUSED(senderID);
-    UNUSED(componentsUpdated);
-    if(senderID == m_vehicleID || !airborneInstance) {
-
-    }
-
-
     // TODO: On new vehicle position, send to ROS via publishVehiclePosition
     // TODO: Figure out a better way to check for ROS_EXISTS...the way it is right now, everything
     //          in this NewTopic method would have to check if ROS_EXISTS before calling any ROS specific methods
 
-    std::cout << "NEW TOPIC" << std::endl;
+    if(topicName == m_PlanningStateTopic.Name())
+    {
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_PlanningStateTopic.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
+            if(componentsUpdated.at(i) == mace::poseTopic::Cartesian_2D_Topic::Name()){
+                std::shared_ptr<mace::poseTopic::Cartesian_2D_Topic> component = std::make_shared<mace::poseTopic::Cartesian_2D_Topic>();
+                m_PlanningStateTopic.GetComponent(component, read_topicDatagram);
+                this->renderState(component->getPose());
+            }
+            else if(componentsUpdated.at(i) == mace::geometryTopic::Line_2DC_Topic::Name()) {
+                std::shared_ptr<mace::geometryTopic::Line_2DC_Topic> component = std::make_shared<mace::geometryTopic::Line_2DC_Topic>();
+                m_PlanningStateTopic.GetComponent(component, read_topicDatagram);
+                this->renderEdge(component->getLine());
+            }
+        }
+    }
+    else if(topicName == m_VehicleDataTopic.Name())
+    {
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
+            if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write Attitude data to the GUI:
+                updateAttitudeData(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateLocalPositionTopic> component = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write Position data to the GUI:
+                updatePositionData(senderID, component);
+            }
+        }
+    }
 }
 
 //!
@@ -161,82 +189,193 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 //! \brief setupROS Setup ROS subscribers, publishers, and node handler
 //!
 void ModuleROS::setupROS() {
-    std::map<std::string, std::string> remappings;
-    ros::init(remappings,"ROS_Module");
     ros::NodeHandle nh;
     // Subscribers
-    laserSub = nh.subscribe <sensor_msgs::LaserScan> ("/scan", 500, &ModuleROS::newLaserScan, this);
-    mapSub = nh.subscribe <nav_msgs::OccupancyGrid> ("/map", 500, &ModuleROS::newOccupancyGrid, this);
-
-
+    laserSub = nh.subscribe("basic_quadrotor/scan", 500, &ModuleROS::newLaserScan, this);
+    pointCloudSub = nh.subscribe <sensor_msgs::PointCloud2> ("basic_quadrotor/kinect/depth/points", 1000, &ModuleROS::newPointCloud, this);
 
     // Publishers
     velocityPub = nh.advertise <geometry_msgs::Twist> ("/mobile_base/commands/velocity", 1000);
 //    rosservice call ('set_model', 'model_name', (x,y,z));
 
+    m_client = nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
+    m_transform.setOrigin(tf::Vector3(0.0,0.0,1.0));
+    m_transform.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
+
+    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","basic_quadrotor/base_link"));
+
+    m_modelState.model_name = (std::string)"basic_quadrotor";
+    m_modelState.reference_frame = (std::string)"world";
+
     ros::spinOnce();
 }
 
-//!
-//! \brief addSensorsToROS Spawn sensor models in ROS
-//!
-void ModuleROS::addSensorsToROS() {
-    // Spawn sensor models in ROS per m_sensors vector:
-}
+void ModuleROS::newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan const>& event) {
+    // ** Message event metadata
+    const std::string& publisher_name = event.getPublisherName();
+    const ros::M_string& header = event.getConnectionHeader();
+    std::string topic = header.at("topic");
+    ros::Time receipt_time = event.getReceiptTime();
 
-//!
-//! \brief newLaserScan Callback for ROS laser scan subscriber
-//! \param msg Laser scan message
-//!
-void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {
-    std::cout << "********** Laser Scan **********" << std::endl;
-    std::cout << "  Min angle: " << msg->angle_min << std::endl;
-    std::cout << "  Max angle: " << msg->angle_max << std::endl;
-    std::cout << "  Angle Increment: " << msg->angle_increment << std::endl;
-    std::cout << "  Time increment: " << msg->time_increment << std::endl;
-    std::cout << "  Scan time: " << msg->scan_time << std::endl;
-    std::cout << "  Min range: " << msg->range_min << std::endl;
-    std::cout << "  Max range: " << msg->range_max << std::endl;
+    std::cout << "**** Message Event ****" << std::endl;
+    std::cout << "  Publisher name: " << publisher_name << std::endl;
+    std::cout << "  Header -- topic: " << topic << std::endl;
+    std::cout << "  receipt_time: " << receipt_time << std::endl;
+    std::cout << "**** **** ****" << std::endl;
+
+
+    // ** Get Laser Scan message from message event:
+    const sensor_msgs::LaserScan::ConstPtr& msg = event.getMessage();
     std::cout << "  Ranges size: " << msg->ranges.size() << std::endl;
-    std::cout << "  Intensities size: " << msg->intensities.size() << std::endl;
-    std::cout << "________________________________" << std::endl;
+    std::cout << "  Range min: " << msg->range_min << std::endl;
+    std::cout << "  Range max: " << msg->range_max << std::endl;
+
+    double minDistance = std::numeric_limits<double>::max();
+    for(int i = 0; i < msg->ranges.size(); i++) {
+        if(msg->ranges[i] < minDistance) {
+            minDistance = msg->ranges[i];
+        }
+    }
+    std::cout << "  Loop range min: " << minDistance << std::endl;
 }
 
-//!
-//! \brief newOccupancyGrid Callback for ROS occupancy grid subscriber
-//! \param msg Occupancy grid message
-//!
-void ModuleROS::newOccupancyGrid(const nav_msgs::OccupancyGrid::ConstPtr& msg) {
-    std::cout << "********** Occupancy Grid **********" << std::endl;
-    std::cout << "  Map size: " << msg->data.size() << std::endl;
-    std::cout << "________________________________" << std::endl;
+void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
+    double distance = std::numeric_limits<double>::max();
+
+    int xPt = 0;
+    int yPt = 0;
+    geometry_msgs::Point point;
+    pixelTo3DPoint(msg, xPt,yPt, point);
+
+    std::cout << "Pixel at (" << point.x << ", " << point.y << ", " << point.z << ") from point cloud pixel: (" << xPt << ", " << yPt << ")" << std::endl;
 }
 
-//!
-//! \brief publishVehiclePosition Publish vehicle position to ROS
-//! \param vehicleID Vehicle ID for which to set the new position
-//! \param localPos New vehicle position
-//!
+void ModuleROS::pixelTo3DPoint(const sensor_msgs::PointCloud2::ConstPtr& pCloud, const int u, const int v, geometry_msgs::Point &p) {
+  // get width and height of 2D point cloud data
+  int width = pCloud->width;
+  int height = pCloud->height;
+
+  std::cout << "Point cloud width: " << width << std::endl;
+  std::cout << "Point cloud height: " << height << std::endl;
+
+  // Convert from u (column / width), v (row/height) to position in array
+  // where X,Y,Z data starts
+  int arrayPosition = v*pCloud->row_step + u*pCloud->point_step;
+
+  // compute position in array where x,y,z data start
+  int arrayPosX = arrayPosition + pCloud->fields[0].offset; // X has an offset of 0
+  int arrayPosY = arrayPosition + pCloud->fields[1].offset; // Y has an offset of 4
+  int arrayPosZ = arrayPosition + pCloud->fields[2].offset; // Z has an offset of 8
+
+  float X = 0.0;
+  float Y = 0.0;
+  float Z = 0.0;
+
+  memcpy(&X, &pCloud->data[arrayPosX], sizeof(float));
+  memcpy(&Y, &pCloud->data[arrayPosY], sizeof(float));
+  memcpy(&Z, &pCloud->data[arrayPosZ], sizeof(float));
+
+  p.x = X;
+  p.y = Y;
+  p.z = Z;
+
+}
+
 void ModuleROS::publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos) {
-    // Publish the "velocity" topic to the turtlebot
-
     // Set up the publisher rate to 10 Hz
     ros::Rate loop_rate(10);
 
-    // Initialize the twist message that we will command turtlebot with
-    geometry_msgs::Twist msg;
-    msg.linear.x = 0.0;
-    msg.linear.y = 0.0;
-    msg.linear.z = 0.0;
-    msg.angular.x = 0.0;
-    msg.angular.y = 0.0;
-    msg.angular.z = vehicleID/10;
+    // robot state
+//    const double degree = M_PI/180;
+//    double tilt = 0, tinc = degree, swivel=0, angle=0, height=0, hinc=0.005;
+    geometry_msgs::Point robotPosition;
+//    robotPosition.x  = cos(angle)*2;
+//    robotPosition.y = sin(angle)*2;
+//    robotPosition.z = 0.75;
+    robotPosition.x  = 0;
+    robotPosition.y = 1;
+    robotPosition.z = 0.3;
 
-    // Publish the twist message to anyone listening
-    velocityPub.publish(msg);
+    geometry_msgs::Quaternion attitude;
+    attitude.x = 0.0;
+    attitude.y = 0.0;
+    attitude.z = 0.0;
+    attitude.w = 1.0;
+    attitude = tf::createQuaternionMsgFromYaw(angle+M_PI/2);
 
-    // "Spin" a callback in case we set up any callbacks
+    geometry_msgs::Pose pose;
+    pose.position = robotPosition;
+    pose.orientation = attitude;
+    m_modelState.pose = pose;
+    m_transform.setOrigin(tf::Vector3(robotPosition.x,robotPosition.y,robotPosition.z));
+    m_transform.setRotation(tf::Quaternion(attitude.x,attitude.y,attitude.z,attitude.w));
+    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","basic_quadrotor/base_link"));
+
+    m_srv.request.model_state = m_modelState;
+    if(m_client.call(m_srv))
+    {
+        //this means it was a success
+    }
+    else{
+        //this means it was not a success
+    }
+    // Create new robot state
+//    tilt += tinc;
+//    if (tilt<-.5 || tilt>0) tinc *= -1;
+//    height += hinc;
+//    if (height>.2 || height<0) hinc *= -1;
+//    swivel += degree;
+//    angle += degree/4;
+
+    tilt = 0, tinc = degree, swivel=0, angle=0, height=0, hinc=0.005;
+
+//    std::cout << " ========= ROS FIRE ======== " << std::endl;
+
     ros::spinOnce();
+}
+
+
+void ModuleROS::renderState(const mace::pose::CartesianPosition_2D &state) {
+    geometry_msgs::Point p;
+    p.x = state.getXPosition();
+    p.y = state.getYPosition();
+    points.points.push_back(p);
+    markerPub.publish(points);
+}
+
+void ModuleROS::renderEdge(const mace::geometry::Line_2DC &edge) {
+    geometry_msgs::Point startPoint;
+    mace::pose::CartesianPosition_2D begin(edge.getBeginLine());
+
+    startPoint.x = begin.getXPosition();
+    startPoint.y = begin.getYPosition();
+
+    geometry_msgs::Point endPoint;
+    mace::pose::CartesianPosition_2D end(edge.getEndLine());
+    endPoint.x = end.getXPosition();
+    endPoint.y = end.getYPosition();
+
+    line_list.points.push_back(startPoint);
+    line_list.points.push_back(endPoint);
+    markerPub.publish(line_list);
+}
+
+void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component)
+{
+    std::cout << "Update position data" << std::endl;
+
+    double lat = component->getX();
+    double lng = component->getY();
+    double alt = component->getZ();
+}
+
+void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component)
+{
+    std::cout << "Update attitude data" << std::endl;
+
+    double roll = component->roll * (180/M_PI);
+    double pitch = component->pitch * (180/M_PI);
+    double yaw = (component->yaw * (180/M_PI) < 0) ? (component->yaw * (180/M_PI) + 360) : (component->yaw * (180/M_PI));
 }
 
 #endif

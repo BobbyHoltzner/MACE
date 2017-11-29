@@ -59,12 +59,18 @@ std::vector<state_space::State*> RRTBase::solve()
             sampleNode->setCurrentState(sampleState);
         }
 
+        if(m_CB)
+            m_CB->cbiPlanner_SampledState(sampleState);
+
         /**
          * 5. Check that 1)State is valid and collision free, 2)Path edge is valid sampled at desired intervals
          * related to the aircraft size
          */
         if(m_spaceInfo->isEdgeValid(closestState,sampleState))
         {
+            if(m_CB)
+                m_CB->cbiPlanner_NewConnection(sampleState, closestState);
+
             /**
              *5a. At this point the sampled state is clearly valid
              */
@@ -81,15 +87,34 @@ std::vector<state_space::State*> RRTBase::solve()
                 break;
             }
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
     } //end of while loop
 
     if(finalNode != nullptr)
     {
+        path.push_back(m_spaceInfo->copyState(m_stateEnd->getState()));
         while(finalNode != nullptr)
         {
             path.push_back(finalNode->getCurrentState());
             finalNode = finalNode->getParentNode();
         }
+        std::reverse(path.begin(),path.end());
+    }
+
+    for(unsigned int i = 0; i < path.size(); i++)
+    {
+        std::string str = std::to_string(path.at(i)->as<mace::pose::CartesianPosition_2D>()->getXPosition()) + "," + std::to_string(path.at(i)->as<mace::pose::CartesianPosition_2D>()->getYPosition());
+        mLog->debug(str);
+    }
+
+    PathReduction newReduction(m_spaceInfo);
+    newReduction.recursiveShortening(path);
+
+    for(unsigned int i = 0; i < path.size(); i++)
+    {
+        std::string str = std::to_string(path.at(i)->as<mace::pose::CartesianPosition_2D>()->getXPosition()) + "," + std::to_string(path.at(i)->as<mace::pose::CartesianPosition_2D>()->getYPosition());
+        mLog->debug(str);
     }
 
     return path;

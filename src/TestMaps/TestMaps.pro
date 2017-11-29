@@ -39,7 +39,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../planners/release/ -
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../planners/debug/ -lplanners
 else:unix:!macx: LIBS += -L$$OUT_PWD/../planners/ -lplanners
 
-unix:!macx|win32: LIBS += -L$$PWD/../../../Flann/build/lib/ -llibflann_cpp.dll
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/release/ -lflann
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/debug/ -lflann
+else:unix:!macx: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann
 
-INCLUDEPATH += $$PWD/../../../Flann/build/include
-DEPENDPATH += $$PWD/../../../Flann/build/include
+INCLUDEPATH += $$PWD/../../tools/flann/build
+DEPENDPATH += $$PWD/../../tools/flann/build
