@@ -74,7 +74,29 @@ void CommsMarshaler::AddUDPLink(const std::string &name, const UdpConfiguration 
 //!
 void CommsMarshaler::AddDigiMeshLink(const std::string &name, const DigiMeshConfiguration &config)
 {
+    if(m_CreatedLinksNameToPtr.find(name) != m_CreatedLinksNameToPtr.cend())
+        throw std::runtime_error("The provided link name already exists");
 
+    std::shared_ptr<ILink> link = std::make_shared<DigiMeshLink>(config);
+
+    m_CreatedLinksNameToPtr.insert({name, link});
+    m_CreatedLinksPtrToName.insert({link.get(), name});
+    link->AddListener(this);
+}
+
+
+//!
+//! \brief Add a vechile that will be communicating out of this link
+//! \param vehicleID ID of vechile
+//!
+void CommsMarshaler::AddInternalVehicle(const std::string &name, int vehicleID)
+{
+    if(m_CreatedLinksNameToPtr.find(name) == m_CreatedLinksNameToPtr.cend())
+        throw std::runtime_error("The provided link name does not exists");
+
+    std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(name);\
+
+    link->AddInternalVehicle(vehicleID);
 }
 
 
@@ -179,7 +201,7 @@ uint8_t CommsMarshaler::GetProtocolChannel(const std::string &linkName) const
 //! \param message Message to send
 //!
 template <typename T>
-void CommsMarshaler::SendMACEMessage(const std::string &linkName, const T& message)
+void CommsMarshaler::SendMACEMessage(const std::string &linkName, const T& message, OptionalParameter<int> vehicleID)
 {
     if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
@@ -191,13 +213,13 @@ void CommsMarshaler::SendMACEMessage(const std::string &linkName, const T& messa
 
     ///////////////////
     /// Define function that sends the given message
-    auto func = [protocol_code, protocol_obj, link, message]() {
+    auto func = [protocol_code, protocol_obj, link, message, vehicleID]() {
         switch(protocol_code)
         {
         case Protocols::MAVLINK:
         {
             std::shared_ptr<MavlinkProtocol> protocol = std::static_pointer_cast<MavlinkProtocol>(protocol_obj);
-            protocol->SendProtocolMessage(link.get(), message);
+            protocol->SendProtocolMessage(link.get(), message, vehicleID);
             break;
         }
         default:
@@ -343,6 +365,6 @@ void CommsMarshaler::RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors
 
 
 
-template void CommsMarshaler::SendMACEMessage<mace_message_t>(const std::string &, const mace_message_t&);
+template void CommsMarshaler::SendMACEMessage<mace_message_t>(const std::string &, const mace_message_t&, OptionalParameter<int> vehicleID);
 
 }//END Comms

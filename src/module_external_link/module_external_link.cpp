@@ -86,9 +86,9 @@ std::string ModuleExternalLink::createLog(const int &systemID)
     return loggerName;
 }
 
-void ModuleExternalLink::transmitMessage(const mace_message_t &msg)
+void ModuleExternalLink::transmitMessage(const mace_message_t &msg, OptionalParameter<int> vehicleID)
 {
-    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, vehicleID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -522,8 +522,11 @@ void ModuleExternalLink::NewlyAvailableMissionExeState(const MissionItem::Missio
     }
 }
 
+//MTB - THIS IS WHERE I NEED TO CALL
 void ModuleExternalLink::NewlyAvailableVehicle(const int &systemID)
 {
+    m_LinkMarshaler->AddInternalVehicle(m_LinkName, systemID);
+
     if(airborneInstance)
     {
         this->associatedSystemID = systemID;

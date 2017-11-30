@@ -17,6 +17,7 @@
 
 #include "mavlink_configuration_mace.h"
 
+#include "common/optional_parameter.h"
 
 
 namespace CommsMACE
@@ -65,7 +66,7 @@ public:
     //! \param link Link to put message onto
     //! \param message Message to send
     //!
-    void SendProtocolMessage(const ILink *link, const mace_message_t &message);
+    void SendProtocolMessage(const ILink *link, const mace_message_t &message, OptionalParameter<int> vehicleID = OptionalParameter<int>());
 
 
     //!

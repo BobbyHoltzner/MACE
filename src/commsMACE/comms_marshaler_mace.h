@@ -17,6 +17,8 @@
 
 #include "comms_events_mace.h"
 
+#include "common/optional_parameter.h"
+
 namespace CommsMACE
 {
 
@@ -83,6 +85,14 @@ public:
 
 
     //!
+    //! \brief Add a vechile that will be communicating out of this link
+    //! \param name Name of link
+    //! \param vehicleID ID of vehicle
+    //!
+    void AddInternalVehicle(const std::string &name, int vehicleID);
+
+
+    //!
     //! \brief Set the protocol which a link is to use
     //! \param linkName Link name to set protocol of
     //! \param protocol Protocol type that link is to use
@@ -118,7 +128,7 @@ public:
     //! \param message Message to send
     //!
     template <typename T>
-    void SendMACEMessage(const std::string &linkName, const T& message);
+    void SendMACEMessage(const std::string &linkName, const T& message, OptionalParameter<int> VehicleID = OptionalParameter<int>());
 
 
 

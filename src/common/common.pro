@@ -18,7 +18,8 @@ SOURCES +=
 HEADERS += common.h\
     enum_class_hash.h \
     publisher.h \
-    class_forward.h
+    class_forward.h \
+    optional_parameter.h
 
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/common

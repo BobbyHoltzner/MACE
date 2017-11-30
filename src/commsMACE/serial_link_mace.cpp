@@ -75,7 +75,7 @@ void SerialLink::RequestReset()
     m_stoppMutex.unlock();
 }
 
-void SerialLink::WriteBytes(const char *bytes, int length) const
+void SerialLink::WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID) const
 {
     QByteArray data(bytes, length);
     if(m_port && m_port->isOpen()) {
@@ -85,6 +85,16 @@ void SerialLink::WriteBytes(const char *bytes, int length) const
         // Error occured
         _emitLinkError("Could not send data - link " + getPortName() + " is disconnected!");
     }
+}
+
+
+//!
+//! \brief Add a vechile that will be communicating out of this link
+//! \param vehicleID ID of vechile
+//!
+void SerialLink::AddInternalVehicle(int vehicleID)
+{
+    UNUSED(vehicleID);
 }
 
 //!

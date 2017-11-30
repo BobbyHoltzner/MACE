@@ -25,10 +25,33 @@ void DigiMeshLink::RequestReset()
 
 }
 
-void DigiMeshLink::WriteBytes(const char *bytes, int length) const
+void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID) const
 {
-    //m_Link->BroadcastData();
+    //pack into std::vector
+    std::vector<uint8_t> data;
+    for(size_t i = 0 ; i < length ; i++) {
+        data.push_back(bytes[i]);
+    }
+
+    //either broadcast or send to specific vehicle
+    if(vehicleID.IsSet() == false) {
+        m_Link->BroadcastData(data);
+    }
+    else {
+        m_Link->SendData(vehicleID.Data(), data);
+    }
 }
+
+
+//!
+//! \brief Add a vechile that will be communicating out of this link
+//! \param vehicleID ID of vechile
+//!
+void DigiMeshLink::AddInternalVehicle(int vehicleID)
+{
+    m_Link->AddVehicle(vehicleID);
+}
+
 
 bool DigiMeshLink::isConnected() const
 {

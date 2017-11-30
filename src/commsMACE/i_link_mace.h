@@ -8,6 +8,7 @@
 #include <QThread>
 
 #include "i_link_events_mace.h"
+#include "common/optional_parameter.h"
 
 namespace CommsMACE
 {
@@ -55,7 +56,15 @@ public:
 
     virtual void RequestReset() = 0;
 
-    virtual void WriteBytes(const char *bytes, int length) const = 0;
+    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID = OptionalParameter<int>()) const = 0;
+
+
+    //!
+    //! \brief Add a vechile that will be communicating out of this link
+    //! \param vehicleID ID of vechile
+    //!
+    virtual void AddInternalVehicle(int vehicleID) = 0;
+
 
     //!
     //! \brief Determine the connection status

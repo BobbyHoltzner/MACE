@@ -73,7 +73,7 @@ public:
 
     std::string createLog(const int &systemID);
 
-    void transmitMessage(const mace_message_t &msg);
+    void transmitMessage(const mace_message_t &msg, OptionalParameter<int> vehicleID = OptionalParameter<int>());
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from the Command Controller
