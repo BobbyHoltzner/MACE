@@ -94,6 +94,10 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
         }
 
     }
+
+
+    // TODO - MTB
+    // These three conditionals have duplicate code. Should be abstracted.
     if(params->HasNonTerminal("SerialParameters"))
     {
         std::shared_ptr<MaceCore::ModuleParameterValue> serialSettings = params->GetNonTerminalValue("SerialParameters");
@@ -212,6 +216,61 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
         //connect link
         if(m_LinkMarshaler->ConnectToLink(m_LinkName) == false){
             throw std::runtime_error("Connection to udp link failed");
+        }
+    }
+    else if(params->HasNonTerminal("DigiMeshParameters"))
+    {
+        std::shared_ptr<MaceCore::ModuleParameterValue> serialSettings = params->GetNonTerminalValue("DigiMeshParameters");
+
+
+        std::string portName = serialSettings->GetTerminalValue<std::string>("PortName");
+        int baudRate = serialSettings->GetTerminalValue<int>("BaudRate");
+
+
+        Comms::Protocols protocolToUse = Comms::Protocols::MAVLINK;
+
+        Comms::DigiMeshConfiguration config("config");
+        config.setPortName(portName);
+        config.setBaud(baudRate);
+
+        m_LinkName = "link_" + portName;
+        m_LinkMarshaler->AddLink(m_LinkName, config);
+
+
+        //now configure to use link with desired protocol
+        if(protocolToUse == Comms::Protocols::MAVLINK)
+        {
+            m_LinkMarshaler->SetProtocolForLink(m_LinkName, Comms::Protocols::MAVLINK);
+
+            std::shared_ptr<Comms::MavlinkConfiguration> mavlinkConfig = std::static_pointer_cast<Comms::MavlinkConfiguration>(m_AvailableProtocols.at(Comms::Protocols::MAVLINK));
+
+            //set version on mavlink channel
+            // I would prefer to put this in Comms library, but because the mavlinkstatus is static variable, things get messed up when linking
+            m_LinkChan = m_LinkMarshaler->GetProtocolChannel(m_LinkName);
+            mavlink_status_t* mavlinkStatus = mavlink_get_channel_status(m_LinkChan);
+            std::cout << mavlinkStatus << std::endl;
+            switch (mavlinkConfig->GetVersion()) {
+            case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersion2IfVehicle2:
+                if (mavlinkStatus->flags & MAVLINK_STATUS_FLAG_IN_MAVLINK1) {
+                    mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                    break;
+                }
+                // Fallthrough to set version 2
+            case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways2:
+                mavlinkStatus->flags &= ~MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                break;
+            default:
+            case Comms::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways1:
+                mavlinkStatus->flags |= MAVLINK_STATUS_FLAG_OUT_MAVLINK1;
+                break;
+            }
+        }
+
+
+        //connect link
+        bool success = m_LinkMarshaler->ConnectToLink(m_LinkName);
+        if(success == false) {
+            throw std::runtime_error("Connection to link failed");
         }
     }
     else

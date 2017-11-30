@@ -67,6 +67,15 @@ void CommsMarshaler::AddUDPLink(const std::string &name, const UdpConfiguration 
 }
 
 
+//!
+//! \brief Adds a DigiMesh link that can be used
+//! \param name Name of link for use when referencing later
+//! \param config Configuration of DigiMesh link
+//!
+void CommsMarshaler::AddDigiMeshLink(const std::string &name, const DigiMeshConfiguration &config)
+{
+
+}
 
 
 //!

@@ -10,6 +10,7 @@
 #include "i_link_mace.h"
 #include "serial_link_mace.h"
 #include "udp_link_mace.h"
+#include "digimesh_link.h"
 #include "protocol_mavlink_mace.h"
 
 #include "i_link_events_mace.h"
@@ -22,7 +23,8 @@ namespace CommsMACE
 enum class LinkTypes
 {
     SERIAL,
-    UDP
+    UDP,
+    DIGIMESH
 };
 
 enum class Protocols
@@ -70,6 +72,14 @@ public:
     //! \param config Configuration of UDP link
     //!
     void AddUDPLink(const std::string &name, const UdpConfiguration &config);
+
+
+    //!
+    //! \brief Adds a DigiMesh link that can be used
+    //! \param name Name of link for use when referencing later
+    //! \param config Configuration of DigiMesh link
+    //!
+    void AddDigiMeshLink(const std::string &name, const DigiMeshConfiguration &config);
 
 
     //!
