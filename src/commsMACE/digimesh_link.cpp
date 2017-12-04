@@ -3,6 +3,7 @@
 namespace CommsMACE
 {
 
+char VEHICLE_STR[] = "Vehicle";
 
 DigiMeshLink::DigiMeshLink(const DigiMeshConfiguration &config) :
     _config(config),
@@ -38,7 +39,7 @@ void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<i
         m_Link->BroadcastData(data);
     }
     else {
-        m_Link->SendData(vehicleID.Data(), data);
+        m_Link->SendData<VEHICLE_STR>(vehicleID.Data(), data);
     }
 }
 
@@ -49,7 +50,7 @@ void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<i
 //!
 void DigiMeshLink::AddInternalVehicle(int vehicleID)
 {
-    m_Link->AddVehicle(vehicleID);
+    m_Link->AddComponentItem<VEHICLE_STR>(vehicleID);
 }
 
 
@@ -74,7 +75,7 @@ uint64_t DigiMeshLink::getConnectionSpeed() const
 
 bool DigiMeshLink::Connect()
 {
-    m_Link = new MACEDigiMeshWrapper(_config.portName(), _config.baud());
+    m_Link = new MACEDigiMeshWrapper<VEHICLE_STR>(_config.portName(), _config.baud());
 }
 
 void DigiMeshLink::Disconnect()

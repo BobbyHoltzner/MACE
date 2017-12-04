@@ -64,6 +64,9 @@ INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
+INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
+LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
 else:unix:!macx: LIBS += -L$$OUT_PWD/../common/ -lcommon

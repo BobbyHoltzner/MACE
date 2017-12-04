@@ -20,9 +20,12 @@
 
 #include "mace_digimesh_wrapper.h"
 
+
+
 namespace CommsMACE
 {
 
+extern char VEHICLE_STR[];
 
 
 class COMMSMACESHARED_EXPORT DigiMeshLink : public ILink
@@ -79,7 +82,7 @@ private:
 private:
     DigiMeshConfiguration _config;
 
-    MACEDigiMeshWrapper *m_Link;
+    MACEDigiMeshWrapper<VEHICLE_STR> *m_Link;
 };
 
 } //END MAVLINKComms
