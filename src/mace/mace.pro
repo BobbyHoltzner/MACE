@@ -159,6 +159,7 @@ INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 
 
+
 unix {
 exists(/opt/ros/kinetic/lib/) {
     DEFINES += ROS_EXISTS
@@ -183,3 +184,6 @@ exists(/opt/ros/kinetic/lib/) {
 
 }
 }
+
+INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
+LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper
