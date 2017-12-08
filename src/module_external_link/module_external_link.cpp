@@ -91,6 +91,7 @@ void ModuleExternalLink::transmitMessage(const mace_message_t &msg, OptionalPara
     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, vehicleID);
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////////////
 /// The following are public virtual functions imposed from the Command Controller
 /// Interface via callback functionality.
@@ -522,7 +523,6 @@ void ModuleExternalLink::NewlyAvailableMissionExeState(const MissionItem::Missio
     }
 }
 
-//MTB - THIS IS WHERE I NEED TO CALL
 void ModuleExternalLink::NewlyAvailableVehicle(const int &systemID)
 {
     m_LinkMarshaler->AddInternalVehicle(m_LinkName, systemID);

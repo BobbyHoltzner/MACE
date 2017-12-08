@@ -138,6 +138,11 @@ private:
     /// React to Link Events
     //////////////////////////////////////////////////////////////
 
+
+    virtual void AddedExternalVehicle(ILink *link_ptr, int vehicleID) const;
+
+    virtual void RemovedExternalVehicle(ILink *link, int vehicleID) const;
+
     virtual void ReceiveData(ILink *link_ptr, const std::vector<uint8_t> &buffer) const;
 
     virtual void CommunicationError(const ILink* link_ptr, const std::string &type, const std::string &msg) const;

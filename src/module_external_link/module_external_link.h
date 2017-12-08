@@ -75,6 +75,7 @@ public:
 
     void transmitMessage(const mace_message_t &msg, OptionalParameter<int> vehicleID = OptionalParameter<int>());
 
+
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from the Command Controller
     /// Interface via callback functionality.

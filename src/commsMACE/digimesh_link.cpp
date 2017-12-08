@@ -76,6 +76,17 @@ uint64_t DigiMeshLink::getConnectionSpeed() const
 bool DigiMeshLink::Connect()
 {
     m_Link = new MACEDigiMeshWrapper<VEHICLE_STR>(_config.portName(), _config.baud());
+
+    m_Link->AddHandler_NewRemoteComponentItem<VEHICLE_STR>([this](int ID, uint64_t addr){
+        UNUSED(addr);
+        EmitEvent([this, &ID](const ILinkEvents *ptr){ptr->AddedExternalVehicle(this, ID);});
+    });
+
+    m_Link->AddHandler_Data([this](const std::vector<uint8_t> &data){
+        EmitEvent([this,&data](const ILinkEvents *ptr){ptr->ReceiveData(this, data);});
+    });
+
+    return true;
 }
 
 void DigiMeshLink::Disconnect()

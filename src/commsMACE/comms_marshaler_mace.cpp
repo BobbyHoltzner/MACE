@@ -238,6 +238,17 @@ void CommsMarshaler::SendMACEMessage(const std::string &linkName, const T& messa
 /// React to Link Events
 //////////////////////////////////////////////////////////////
 
+void CommsMarshaler::AddedExternalVehicle(ILink *link_ptr, int vehicleID) const
+{
+
+}
+
+
+void CommsMarshaler::RemovedExternalVehicle(ILink *link_ptr, int vehicleID) const
+{
+
+}
+
 void CommsMarshaler::ReceiveData(ILink* link, const std::vector<uint8_t> &buffer) const
 {
     if(m_LinksProtocol.find(link) == m_LinksProtocol.cend())
