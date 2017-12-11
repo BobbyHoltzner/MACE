@@ -1,22 +1,19 @@
-#ifndef DYNAMIC_2D_GRID_H
-#define DYNAMIC_2D_GRID_H
+#ifndef BASE_GRID_MAP_H
+#define BASE_GRID_MAP_H
 
-#include <vector>
 #include <math.h>
+
+#include "base/pose/cartesian_position_2D.h"
 
 namespace mace {
 namespace maps {
 
-template <class T>
-//!
-//! \brief The Dynamic2DGrid class
-//!
-class Dynamic2DGrid
+class BaseGridMap
 {
 public:
 
     //!
-    //! \brief Dynamic2DGrid
+    //! \brief BaseGridMap
     //! \param x_min
     //! \param x_max
     //! \param y_min
@@ -25,60 +22,23 @@ public:
     //! \param y_res
     //! \param fill_value
     //!
-    Dynamic2DGrid(const double &x_min = -10.0, const double &x_max = 10.0,
-                  const double &y_min = -10.0, const double &y_max = 10.0,
-                  const double &x_res = 0.5, const double &y_res = 0.5,
-                  const T *fill_value = nullptr);
+    BaseGridMap(const double &x_length = 10.0, const double &y_length = 10.0,
+                const double &x_res = 0.5, const double &y_res = 0.5,
+                const pose::CartesianPosition_2D &position);
 
     //!
-    //! \brief ~Dynamic2DGrid
+    //! \brief ~Dynamic2DGrids
     //!
-    virtual ~Dynamic2DGrid()
+    virtual ~BaseGridMap()
     {
 
     }
 
-    //!
-    //! \brief setGridSize
-    //! \param x_min
-    //! \param x_max
-    //! \param y_min
-    //! \param y_max
-    //! \param x_res
-    //! \param y_res
-    //! \param fill_value
-    //!
-    void setGridSize(const double &x_min, const double &x_max,
-                     const double &y_min, const double &y_max,
-                     const double &x_res, const double &y_res,
-                     const T *fill_value = nullptr);
 
-    //!
-    //! \brief clear
-    //!
-    void clear();
+    void updateGridSize(const double &x_length = 10.0, const double &y_length = 10.0,
+                     const double &x_res = 0.5, const double &y_res = 0.5);
 
-    //!
-    //! \brief fill
-    //! \param value
-    //!
-    void fill(const T& value);
-
-    //!
-    //! \brief getCellByPos
-    //! \param x
-    //! \param y
-    //! \return
-    //!
-    T* getCellByPos(const double &x, const double &y) const;
-
-    //!
-    //! \brief getCellByIndex
-    //! \param xIndex
-    //! \param yIndex
-    //! \return
-    //!
-    T* getCellByIndex(const unsigned int &xIndex, const unsigned int &yIndex) const;
+    void updatePosition(const pose::CartesianPosition_2D &position);
 
     //!
     //! \brief indexFromXPos
@@ -193,37 +153,21 @@ public:
         return this->m_yResolution;
     }
 
-
-    std::vector<T> getDataMap() const
-    {
-        return this->m_dataMap;
-    }
-
     unsigned int getNodeCount() const
     {
         return m_dataMap.size();
     }
 
 protected:
-    //!
-    //! \brief m_dataMap
-    //!
-    std::vector<T> m_dataMap;
+    pose::CartesianPosition_2D position; //!< Position of the map relative to the grid frame
 
-    //!
-    //! \brief m_defaultFill
-    //!
-    T m_defaultFill;
-
-    double m_xMin, m_yMin; //!< Description of members
-    double m_xMax, m_yMax; //!< Description of members
-    double m_xResolution, m_yResolution; //!< Description of members
-    size_t m_xSize, m_ySize; //!< Description of members
+    double xMin, yMin; //!< Description of members
+    double xMax, yMax; //!< Description of members
+    double xResolution, yResolution; //!< Description of members
+    size_t xSize, ySize; //!< Description of members
 };
 
 } //end of namespace maps
 } //end of namespace mace
 
-#include "dynamic_2D_grid.cpp"
-
-#endif // DYNAMIC_2D_GRID_H
+#endif // BASE_GRID_MAP_H

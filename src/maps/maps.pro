@@ -26,12 +26,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     bounded_2D_grid.cpp \
-    dynamic_2D_grid.tpp
+    base_grid_map.cpp \
+    dynamic_2D_grid.cpp \
+    iterators/circle_iterator.cpp \
+    iterators/grid_map_iterator.cpp
 
 HEADERS +=\
         maps_global.h \
     dynamic_2D_grid.h \
-    bounded_2D_grid.h
+    bounded_2D_grid.h \
+    base_grid_map.h \
+    iterators/circle_iterator.h \
+    iterators/grid_map_iterator.h
 
 #Header file copy
 headers_maps.path    = $$(MACE_ROOT)/include/maps
