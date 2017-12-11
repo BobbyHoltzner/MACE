@@ -405,6 +405,7 @@ void GUItoMACE::parseTCPRequest(const QJsonObject &jsonObj)
 {
     QString command = jsonObj["tcpCommand"].toString();
     int vehicleID = jsonObj["vehicleID"].toInt();
+
     QByteArray data;
     if(command == "SET_VEHICLE_MODE")
     {
@@ -493,7 +494,7 @@ bool GUItoMACE::writeTCPData(QByteArray data)
     }
     else
     {
-        std::cout << "TCP socket not connected" << std::endl;
+        std::cout << "TCP socket not connected GUI TO MACE" << std::endl;
         tcpSocket->close();
         return false;
     }

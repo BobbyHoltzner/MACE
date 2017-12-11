@@ -123,23 +123,29 @@ public:
 
     void updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component);
     void updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
+    bool sendGazeboModelState(const int &vehicleID);
+    void insertVehicleIfNotExist(const int &vehicleID);
 #endif
 
 private:
 
 #ifdef ROS_EXISTS
+    ros::NodeHandle nh;
     //!
     //! \brief laserSub Subscriber for ROS laser scan messages
     //!
     ros::Subscriber laserSub;
     ros::Subscriber pointCloudSub;
+
+    std::map<int, std::vector<ros::Subscriber> > m_sensorVehicleMap;
+
     ros::Publisher velocityPub, markerPub;
     visualization_msgs::Marker points, line_strip, line_list;
 
     ros::ServiceClient m_client;
     tf::TransformBroadcaster m_broadcaster;
     tf::Transform m_transform;
-    gazebo_msgs::ModelState m_modelState;
+//    gazebo_msgs::ModelState m_modelState;
     gazebo_msgs::SetModelState m_srv;
 #endif
 
