@@ -233,6 +233,29 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
 private:
+
+    template <typename T>
+    MarshalCommandToVehicle(int vehicleID, VehicleCommands vehicleCommand, ExternalLinkCommands externalCommand, const T &data)
+    {
+        //transmit to all
+        if(vehicleID == 0) {
+            throw std::runtime_error("Not Implimented");
+        }
+        else {
+            if(m_VehicleIDToPort.find(vehicleID) != m_VehicleIDToPort.cend()){
+                m_VehicleIDToPort.at(vehicleID)->MarshalCommand(vehicleCommand, data);
+            }
+
+            else if(m_ExternalLinkIDToPort.find(vehicleID) != m_ExternalLinkIDToPort.cend()){
+                m_ExternalLinkIDToPort.at(vehicleID)->MarshalCommand(externalCommand, data);
+            }
+            else {
+                throw std::runtime_error("Unknown vehicle");
+            }
+        }
+    }
+
+private:
     mutable std::mutex m_VehicleMutex;
 
     std::unordered_map<std::string, TopicStructure> m_Topics;

@@ -157,138 +157,49 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
 void MaceCore::Event_ForceVehicleDataSync(const void *sender, const int &targetSystemID)
 {
     UNUSED(sender);
-    if(targetSystemID == 0)
-    {
-        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            it->second->MarshalCommand(VehicleCommands::REQUEST_DATA_SYNC,it->first);
-        }
-    }else{
-        try{
-            m_VehicleIDToPort.at(targetSystemID)->MarshalCommand(VehicleCommands::REQUEST_DATA_SYNC,targetSystemID);
-        }catch(const std::out_of_range &oor){
-
-        }
-    }
+    MarshalCommandToVehicle(targetSystemID, VehicleCommands::REQUEST_DATA_SYNC, ExternalLinkCommands::REQUEST_DATA_SYNC, targetSystemID);
 }
 
 void MaceCore::Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    if(vehicleID == 0)
-    {
-        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            CommandItem::ActionArm newArm(command);
-            newArm.setTargetSystem(it->first);
-            it->second->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_ARM,newArm);
-        }
-    }else{
-        try{
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_ARM,command);
-        }catch(const std::out_of_range &oor){
-
-        }
-    }
+    MarshalCommandToVehicle(vehicleID, VehicleCommands::CHANGE_VEHICLE_ARM, ExternalLinkCommands::CHANGE_VEHICLE_ARM, command);
 }
 
 void MaceCore::Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    if(vehicleID == 0)
-    {
-        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            CommandItem::SpatialTakeoff newTakeoff(command);
-            newTakeoff.setTargetSystem(it->first);
-            it->second->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_TAKEOFF,newTakeoff);
-        }
-    }else{
-        try{
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_TAKEOFF,command);
-        }catch(const std::out_of_range &oor){
-
-        }
-    }
+    MarshalCommandToVehicle(vehicleID, VehicleCommands::REQUEST_VEHICLE_TAKEOFF, ExternalLinkCommands::REQUEST_VEHICLE_TAKEOFF, command);
 }
 
 void MaceCore::Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    if(vehicleID == 0)
-    {
-        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            CommandItem::SpatialLand newArm(command);
-            newArm.setTargetSystem(it->first);
-            it->second->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_LAND,newArm);
-        }
-    }else{
-        try{
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_LAND,command);
-        }catch(const std::out_of_range &oor){
-
-        }
-    }
+    MarshalCommandToVehicle(vehicleID, VehicleCommands::REQUEST_VEHICLE_LAND, ExternalLinkCommands::REQUEST_VEHICLE_LAND, command);
 }
 
 void MaceCore::Event_IssueCommandRTL(const void* sender, const CommandItem::SpatialRTL &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    if(vehicleID == 0)
-    {
-        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            CommandItem::SpatialRTL newArm(command);
-            newArm.setTargetSystem(it->first);
-            it->second->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_RTL,newArm);
-        }
-    }else{
-        try{
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_RTL,command);
-        }catch(const std::out_of_range &oor){
-
-        }
-    }
+    MarshalCommandToVehicle(vehicleID, VehicleCommands::REQUEST_VEHICLE_RTL, ExternalLinkCommands::REQUEST_VEHICLE_RTL, command);
 }
 
 void MaceCore::Event_IssueMissionCommand(const void* sender, const CommandItem::ActionMissionCommand &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    if(vehicleID == 0)
-    {
-        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            CommandItem::ActionMissionCommand newMissionCommand(command);
-            newMissionCommand.setTargetSystem(it->first);
-            it->second->MarshalCommand(VehicleCommands::SET_MISSION_STATE,newMissionCommand);
-        }
-    }else{
-        try{
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::SET_MISSION_STATE,command);
-        }catch(const std::out_of_range &oor){
-
-        }
-    }
+    MarshalCommandToVehicle(vehicleID, VehicleCommands::SET_MISSION_STATE, ExternalLinkCommands::SET_MISSION_STATE, command);
 }
 
 void MaceCore::Event_ChangeSystemMode(const void *sender, const CommandItem::ActionChangeMode &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    if(vehicleID == 0)
-    {
-        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            CommandItem::ActionChangeMode newMode(command);
-            newMode.setTargetSystem(it->first);
-            it->second->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_MODE,newMode);
-        }
-    }else{
-        try{
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CHANGE_VEHICLE_MODE,command);
-        }catch(const std::out_of_range &oor){
-
-        }
-    }
+    MarshalCommandToVehicle(vehicleID, VehicleCommands::CHANGE_VEHICLE_MODE, ExternalLinkCommands::CHANGE_VEHICLE_MODE, command);
 }
 
 void MaceCore::Event_IssueGeneralCommand(const void* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
@@ -307,7 +218,7 @@ void MaceCore::Event_GetMission(const void *sender, const MissionItem::MissionKe
 
     }else{
         try{
-            m_VehicleIDToPort.at(systemID)->MarshalCommand(VehicleCommands::REQUEST_MISSION,systemID);
+            MarshalCommandToVehicle(systemID, VehicleCommands::REQUEST_MISSION, ExternalLinkCommands::REQUEST_MISSION, systemID);
         }catch(const std::out_of_range &oor){
 
         }
@@ -319,12 +230,14 @@ void MaceCore::Event_GetOnboardMission(const void *sender, const int &systemID, 
     UNUSED(sender);
 
     VehicleCommands cmd = VehicleCommands::REQUEST_ONBOARD_AUTO_MISSION;
+    ExternalLinkCommands cmd2 = ExternalLinkCommands::REQUEST_ONBOARD_AUTO_MISSION;
 
     if(type == MissionItem::MISSIONTYPE::AUTO)
     {
         //nothing to change since this is the default
     }else if(type == MissionItem::MISSIONTYPE::GUIDED){
         cmd = VehicleCommands::REQUEST_ONBOARD_GUIDED_MISSION;
+        cmd2 = ExternalLinkCommands::REQUEST_ONBOARD_GUIDED_MISSION;
     }else{
         //we should throw some type of error
     }
@@ -334,7 +247,7 @@ void MaceCore::Event_GetOnboardMission(const void *sender, const int &systemID, 
         //how should we handle the case to transmit this to all vehicle instances
     }else{
         try{
-            m_VehicleIDToPort.at(systemID)->MarshalCommand(cmd,systemID);
+            MarshalCommandToVehicle(systemID, cmd, cmd2, systemID);
         }catch(const std::out_of_range &oor){
 
         }
@@ -344,88 +257,35 @@ void MaceCore::Event_GetOnboardMission(const void *sender, const int &systemID, 
 void MaceCore::Event_GetCurrentMission(const void *sender, const int &systemID)
 {
     UNUSED(sender);
-    if(systemID == 0)
-    {
-
-    }else{
-        try{
-            m_VehicleIDToPort.at(systemID)->MarshalCommand(VehicleCommands::REQUEST_CURRENT_MISSION,systemID);
-        }catch(const std::out_of_range &oor){
-
-        }
-    }
+    MarshalCommandToVehicle(systemID, VehicleCommands::REQUEST_CURRENT_MISSION, ExternalLinkCommands::REQUEST_CURRENT_MISSION, systemID);
 }
 
 void MaceCore::RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID)
 {
     UNUSED(sender);
-    if(systemID.getSystemID() == 0)
-    {
-        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            it->second->MarshalCommand(VehicleCommands::CLEAR_CURRENT_MISSION,systemID);
-        }
-    }else{
-        try{
-            m_VehicleIDToPort.at(systemID.getSystemID())->MarshalCommand(VehicleCommands::CLEAR_CURRENT_MISSION,systemID);
-        }catch(const std::out_of_range &oor){
-
-        }
-    }
+    MarshalCommandToVehicle(systemID.getSystemID(), VehicleCommands::CLEAR_CURRENT_MISSION, ExternalLinkCommands::CLEAR_CURRENT_MISSION, systemID);
 }
 
 
 void MaceCore::Event_GetHomePosition(const void* sender, const int &vehicleID)
 {
     UNUSED(sender);
-    if(vehicleID == 0)
-    {
-        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            it->second->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
-        }
-    }else{
-        try{
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
-        }catch(const std::out_of_range &oor){
-
-        }
-    }
+    MarshalCommandToVehicle(vehicleID, VehicleCommands::REQUEST_VEHICLE_HOME, ExternalLinkCommands::REQUEST_VEHICLE_HOME, vehicleID);
 }
 
 void MaceCore::Event_SetHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome)
 {
     UNUSED(sender);
     int vehicleID = vehicleHome.getTargetSystem();
-    if(vehicleID == 0)
-    {
-        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            CommandItem::SpatialHome newHome = vehicleHome;
-            newHome.setTargetSystem(it->first);
-            it->second->MarshalCommand(VehicleCommands::SET_VEHICLE_HOME,newHome);
-        }
-    }else{
-        try{
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::SET_VEHICLE_HOME,vehicleHome);
-        }catch(const std::out_of_range &oor){
-
-        }
-    }
+    MarshalCommandToVehicle(vehicleID, VehicleCommands::SET_VEHICLE_HOME, ExternalLinkCommands::SET_VEHICLE_HOME, vehicleHome);
 }
 
 void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID)
 {
     UNUSED(sender);
-    if(vehicleID == 0)
-    {
-        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            it->second->MarshalCommand(VehicleCommands::CLEAR_ONBOARD_GUIDED_MISSION,vehicleID);
-        }
-    }else{
-        try{
-            m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::CLEAR_ONBOARD_GUIDED_MISSION,vehicleID);
-        }catch(const std::out_of_range &oor){
 
-        }
-    }
+    MarshalCommandToVehicle(vehicleID, VehicleCommands::CLEAR_ONBOARD_GUIDED_MISSION, ExternalLinkCommands::CLEAR_ONBOARD_GUIDED_MISSION, vehicleID);
+
 }
 
 void MaceCore::Event_SetGlobalOrigin(const void *sender, const CommandItem::SpatialHome &globalHome)
@@ -511,8 +371,8 @@ void MaceCore::ExternalEvent_NewConstructedVehicle(const void *sender, const int
 {
     std::lock_guard<std::mutex> guard(m_VehicleMutex);
 
-    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-    m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
+    IModuleCommandExternalLink* externalLink = (IModuleCommandExternalLink*)sender;
+    m_ExternalLinkIDToPort.insert({newVehicleObserved, externalLink});
     m_DataFusion->AddAvailableVehicle(newVehicleObserved);
 
     if(m_GroundStation)
@@ -654,7 +514,7 @@ void MaceCore::ExternalEvent_FinishedRXMissionList(const void *sender, const Mis
     else if(state ==  MissionItem::MISSIONSTATE::RECEIVED)//This implies that the mission state has just moved from proposed to received
     {
         int vehicleID = missionList.getVehicleID();
-        m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::UPLOAD_MISSION,missionList);
+        MarshalCommandToVehicle(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, missionList);
     }
 }
 
@@ -709,30 +569,25 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
 
     int vehicleID = missionList.getVehicleID();
     if(vehicleID == 0) //transmit this mission to all vehicles
-    {
-        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-            int nextSystemID = it->first;
-            MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(nextSystemID,missionList);
-            MissionItem::MissionList correctedMission = missionList;
-            correctedMission.setMissionKey(key);
-            if(it->second != sender){
-                it->second->MarshalCommand(VehicleCommands::UPLOAD_MISSION,correctedMission);
+        {
+            for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+                int nextSystemID = it->first;
+                MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(nextSystemID,missionList);
+                MissionItem::MissionList correctedMission = missionList;
+                correctedMission.setMissionKey(key);
+                MarshalCommandToVehicle(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
+            }
+        }else{ //transmit the mission to a specific vehicle
+            try{
+                MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
+                MissionItem::MissionList correctedMission = missionList;
+                correctedMission.setMissionKey(key);
+                MarshalCommandToVehicle(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
+
+            }catch(const std::out_of_range &oor){
+
             }
         }
-    }else{ //transmit the mission to a specific vehicle
-        try{
-            MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
-            MissionItem::MissionList correctedMission = missionList;
-            correctedMission.setMissionKey(key);
-            IModuleCommandVehicle* module = m_VehicleIDToPort.at(vehicleID);
-            if(module != sender){
-                module->MarshalCommand(VehicleCommands::UPLOAD_MISSION,correctedMission);
-            }
-
-        }catch(const std::out_of_range &oor){
-
-        }
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////
