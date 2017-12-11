@@ -134,7 +134,7 @@ export class Vehicle{
                                     "AUTO", "GUIDED", "LOITER", "RTL",
                                     "CIRCLE", "LAND", "DRIFT", "SPORT",
                                     "FLIP", "AUTOTUNE", "POSHOLD", "BRAKE",
-                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKOWN"];
+                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKNOWN"];
         }
         else if(this.general.aircraftType === "GCS") {
         }
@@ -149,28 +149,28 @@ export class Vehicle{
                                     "AUTO", "GUIDED", "LOITER", "RTL",
                                     "CIRCLE", "LAND", "DRIFT", "SPORT",
                                     "FLIP", "AUTOTUNE", "POSHOLD", "BRAKE",
-                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKOWN"];
+                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKNOWN"];
         }
         else if(this.general.aircraftType === "QUADROTOR") {
             this.availableModes = ["STABILIZE", "ACRO", "ALT_HOLD",
                                     "AUTO", "GUIDED", "LOITER", "RTL",
                                     "CIRCLE", "LAND", "DRIFT", "SPORT",
                                     "FLIP", "AUTOTUNE", "POSHOLD", "BRAKE",
-                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKOWN"];
+                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKNOWN"];
         }
         else if(this.general.aircraftType === "HEXAROTOR") {
             this.availableModes = ["STABILIZE", "ACRO", "ALT_HOLD",
                                     "AUTO", "GUIDED", "LOITER", "RTL",
                                     "CIRCLE", "LAND", "DRIFT", "SPORT",
                                     "FLIP", "AUTOTUNE", "POSHOLD", "BRAKE",
-                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKOWN"];
+                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKNOWN"];
         }
         else if(this.general.aircraftType === "OCTOROTOR") {
             this.availableModes = ["STABILIZE", "ACRO", "ALT_HOLD",
                                     "AUTO", "GUIDED", "LOITER", "RTL",
                                     "CIRCLE", "LAND", "DRIFT", "SPORT",
                                     "FLIP", "AUTOTUNE", "POSHOLD", "BRAKE",
-                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKOWN"];
+                                    "THROW", "AVOID_ADSB", "GUIDED_NOGPS", "UNKNOWN"];
         }
         else if(this.general.aircraftType === "ONBOARD_CONTROLLER") {
         }
