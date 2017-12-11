@@ -24,6 +24,7 @@ class CommandController_Interface
 public:
     virtual void cbiCommandController_transmitCommand(const mace_command_short_t &cmd) = 0;
     virtual void cbiCommandController_transmitCommand(const mace_command_long_t &cmd) = 0;
+    virtual void cbiCommandController_transmitCommand(const mace_command_system_mode_t &cmd) = 0;
     virtual void cbiCommandController_CommandACK(const mace_command_ack_t &ack) = 0;
 };
 
@@ -49,11 +50,14 @@ public:
     void run();
 
     void receivedCommandACK(const mace_command_ack_t &cmdACK);
+    void receivedModeACK(const mace_system_mode_ack_t &modeACK);
 
     void setSystemArm(const CommandItem::ActionArm &commandItem, const int &compID = 0);
     void setSystemTakeoff(const CommandItem::SpatialTakeoff &commandItem, const int &compID = 0);
     void setSystemLand(const CommandItem::SpatialLand &commandItem, const int &compID = 0);
     void setSystemRTL(const CommandItem::SpatialRTL &commandItem, const int &compID = 0);
+    void setSystemMode(const CommandItem::ActionChangeMode &commandItem, const int &compID = 0);
+
     void setSystemMissionCommand(const CommandItem::ActionMissionCommand &commandItem, const int &compID = 0);
 
     Data::ControllerCommsState getCommsState() const

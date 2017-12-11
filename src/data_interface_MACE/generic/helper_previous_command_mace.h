@@ -9,7 +9,8 @@ namespace DataInterface_MACE {
 
 enum commandItemEnum{
     COMMAND_SHORT,
-    COMMAND_LONG
+    COMMAND_LONG,
+    COMMAND_MODE
 };
 
 inline std::string getCommandItemEnumString(const commandItemEnum &type)
@@ -22,6 +23,8 @@ inline std::string getCommandItemEnumString(const commandItemEnum &type)
         break;
     case COMMAND_LONG:
         rtnValue = "command long";
+    case COMMAND_MODE:
+        rtnValue = "command mode";
         break;
     default:
         break;

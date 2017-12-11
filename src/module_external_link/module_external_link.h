@@ -81,6 +81,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
     void cbiCommandController_transmitCommand(const mace_command_short_t &cmd);
     void cbiCommandController_transmitCommand(const mace_command_long_t &cmd);
+    void cbiCommandController_transmitCommand(const mace_command_system_mode_t &cmd);
     void cbiCommandController_CommandACK(const mace_command_ack_t &ack);
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -120,6 +121,7 @@ public:
 
     void ParseCommsCommand(const mace_command_long_t* message);
     void ParseCommsCommand(const mace_command_short_t* message);
+    void ParseCommsCommand(const mace_command_system_mode_t* message);
 
     void PublishVehicleData(const int &systemID, const std::shared_ptr<Data::ITopicComponentDataObject> &component);
 

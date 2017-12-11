@@ -122,3 +122,10 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
         break;
     }
 }
+
+void ModuleExternalLink::ParseCommsCommand(const mace_command_system_mode_t *message)
+{
+    CommandItem::ActionChangeMode cmd;
+    cmd.setTargetSystem(message->target_system);
+    cmd.setRequestMode(std::string(message->mode));
+}
