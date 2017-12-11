@@ -14,7 +14,8 @@
 
 ModuleROS::ModuleROS() :
     MaceCore::IModuleCommandROS(),
-    m_PlanningStateTopic("planningState")
+    m_PlanningStateTopic("planningState"),
+    m_VehicleDataTopic("vehicleData")
 {
     // TESTING:
     counter = 0;
@@ -34,8 +35,14 @@ ModuleROS::~ModuleROS() {
 #endif
 }
 
+//!
+//! \brief start Start ROS loop
+//!
 void ModuleROS::start() {
 #ifdef ROS_EXISTS
+    // TODO: Call MACE core getAttachedVehicleID (or whatever we call it)
+    //          -Basically to handle if we miss the newly available vehicle topic
+
     this->setupROS();
 
     // Start timer:
@@ -66,6 +73,21 @@ void ModuleROS::start() {
 std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleROS::ModuleConfigurationStructure() const
 {
     MaceCore::ModuleParameterStructure structure;
+
+    std::shared_ptr<MaceCore::ModuleParameterStructure> moduleSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
+    moduleSettings->AddTerminalParameters("AirborneInstance", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
+    structure.AddNonTerminal("ModuleParameters", moduleSettings, true);
+
+    std::shared_ptr<MaceCore::ModuleParameterStructure> laserSensor = std::make_shared<MaceCore::ModuleParameterStructure>();
+    laserSensor->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+    laserSensor->AddTerminalParameters("Type", MaceCore::ModuleParameterTerminalTypes::STRING, true, "lidar_scan", {"lidar_scan", "lidar_flash"});
+    structure.AddNonTerminal("LaserSensor", laserSensor, true);
+
+    std::shared_ptr<MaceCore::ModuleParameterStructure> cameraSensor = std::make_shared<MaceCore::ModuleParameterStructure>();
+    cameraSensor->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+    cameraSensor->AddTerminalParameters("Type", MaceCore::ModuleParameterTerminalTypes::STRING, true, "rgb", {"rgb", "infrared"});
+    structure.AddNonTerminal("CameraSensor", cameraSensor, true);
+
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
 
@@ -76,15 +98,37 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleROS::ModuleConfigurati
 //!
 void ModuleROS::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-    UNUSED(params);
+    if(params->HasNonTerminal("ModuleParameters"))
+    {
+        std::shared_ptr<MaceCore::ModuleParameterValue> moduleSettings = params->GetNonTerminalValue("ModuleParameters");
+        airborneInstance = moduleSettings->GetTerminalValue<bool>("AirborneInstance");
+    }
+    if(params->HasNonTerminal("LaserSensor"))
+    {
+        std::shared_ptr<MaceCore::ModuleParameterValue> laserSettings = params->GetNonTerminalValue("LaserSensor");
+        std::cout << " **** **** **** **** Sensor name: " << laserSettings->GetTerminalValue<std::string>("Name") << std::endl;
+        std::cout << " **** **** **** **** Sensor type: " << laserSettings->GetTerminalValue<std::string>("Type") << std::endl;
+        std::tuple<std::string, std::string> sensor = std::make_tuple(laserSettings->GetTerminalValue<std::string>("Name"), laserSettings->GetTerminalValue<std::string>("Type"));
+        m_sensors.push_back(sensor);
+    }
+    if(params->HasNonTerminal("CameraSensor"))
+    {
+        std::shared_ptr<MaceCore::ModuleParameterValue> cameraSettings = params->GetNonTerminalValue("CameraSensor");
+        std::cout << " **** **** **** **** Sensor name: " << cameraSettings->GetTerminalValue<std::string>("Name") << std::endl;
+        std::cout << " **** **** **** **** Sensor type: " << cameraSettings->GetTerminalValue<std::string>("Type") << std::endl;
+        std::tuple<std::string, std::string> sensor = std::make_tuple(cameraSettings->GetTerminalValue<std::string>("Name"), cameraSettings->GetTerminalValue<std::string>("Type"));
+        m_sensors.push_back(sensor);
+    }
 }
 
+//!
+//! \brief NewTopic New topic available from MACE Core
+//! \param topicName Topic name that has been published
+//! \param senderID Topic sender ID
+//! \param componentsUpdated List of MACE core components that have updated data
+//!
 void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
 {
-    UNUSED(topicName);
-    UNUSED(senderID);
-    UNUSED(componentsUpdated);
-
     // TODO: On new vehicle position, send to ROS via publishVehiclePosition
     // TODO: Figure out a better way to check for ROS_EXISTS...the way it is right now, everything
     //          in this NewTopic method would have to check if ROS_EXISTS before calling any ROS specific methods
@@ -105,27 +149,54 @@ void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector
             }
         }
     }
+    else if(topicName == m_VehicleDataTopic.Name())
+    {
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
+            if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
+                // Write Attitude data to the GUI:
+                updateAttitudeData(senderID, component);
+            }
+            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateLocalPositionTopic> component = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+                // Write Position data to the GUI:
+                updatePositionData(senderID, component);
+            }
+        }
+    }
 }
 
+//!
+//! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
+//! \param vehicleID Vehilce ID of the newly available vehicle
+//!
 void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 {
-    UNUSED(vehicleID);
+    // Set vehicle ID:
+    m_vehicleID = vehicleID;
 }
 
 ////! ========================================================================
 ////! ======================  ROS Specific functions:  =======================
 ////! ========================================================================
 #ifdef ROS_EXISTS
-
+//!
+//! \brief setupROS Setup ROS subscribers, publishers, and node handler
+//!
 void ModuleROS::setupROS() {
     ros::NodeHandle nh;
     // Subscribers
-    laserSub = nh.subscribe <sensor_msgs::LaserScan> ("/scan", 500, &ModuleROS::newLaserScan, this);
+    laserSub = nh.subscribe("basic_quadrotor/scan", 500, &ModuleROS::newLaserScan, this);
     pointCloudSub = nh.subscribe <sensor_msgs::PointCloud2> ("basic_quadrotor/kinect/depth/points", 1000, &ModuleROS::newPointCloud, this);
 
     // Publishers
     velocityPub = nh.advertise <geometry_msgs::Twist> ("/mobile_base/commands/velocity", 1000);
+//    rosservice call ('set_model', 'model_name', (x,y,z));
 
     m_client = nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
     m_transform.setOrigin(tf::Vector3(0.0,0.0,1.0));
@@ -136,59 +207,36 @@ void ModuleROS::setupROS() {
     m_modelState.model_name = (std::string)"basic_quadrotor";
     m_modelState.reference_frame = (std::string)"world";
 
-
-//    //State Planning Publisher
-//    markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 10);
-
-//    // %Tag(MARKER_INIT)%
-//        points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = "/map";
-//        points.header.stamp = line_strip.header.stamp = line_list.header.stamp = ros::Time::now();
-//        points.ns = line_strip.ns = line_list.ns = "points_and_lines";
-//        points.action = line_strip.action = line_list.action = visualization_msgs::Marker::ADD;
-//        points.pose.orientation.w = line_strip.pose.orientation.w = line_list.pose.orientation.w = 1.0;
-//    // %EndTag(MARKER_INIT)%
-
-//    // %Tag(ID)%
-//        points.id = 0;
-//        line_strip.id = 1;
-//        line_list.id = 2;
-//    // %EndTag(ID)%
-
-//    // %Tag(TYPE)%
-//        points.type = visualization_msgs::Marker::POINTS;
-//        line_strip.type = visualization_msgs::Marker::LINE_STRIP;
-//        line_list.type = visualization_msgs::Marker::LINE_LIST;
-//    // %EndTag(TYPE)%
-
-//    // %Tag(SCALE)%
-//        // POINTS markers use x and y scale for width/height respectively
-//        points.scale.x = 0.1;
-//        points.scale.y = 0.1;
-
-//        // LINE_STRIP/LINE_LIST markers use only the x component of scale, for the line width
-//        line_strip.scale.x = 0.05;
-//        line_list.scale.x = 0.05;
-//    // %EndTag(SCALE)%
-
-//    // %Tag(COLOR)%
-//        // Points are green
-//        points.color.g = 1.0f;
-//        points.color.a = 1.0;
-
-//        // Line strip is blue
-//        line_strip.color.b = 1.0;
-//        line_strip.color.a = 1.0;
-
-//        // Line list is red
-//        line_list.color.r = 1.0;
-//        line_list.color.a = 1.0;
-//    // %EndTag(COLOR)%
-
     ros::spinOnce();
 }
 
-void ModuleROS::newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg) {
-//    std::cout << "Ranges size: " << msg->ranges.size() << std::endl;
+void ModuleROS::newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan const>& event) {
+    // ** Message event metadata
+    const std::string& publisher_name = event.getPublisherName();
+    const ros::M_string& header = event.getConnectionHeader();
+    std::string topic = header.at("topic");
+    ros::Time receipt_time = event.getReceiptTime();
+
+    std::cout << "**** Message Event ****" << std::endl;
+    std::cout << "  Publisher name: " << publisher_name << std::endl;
+    std::cout << "  Header -- topic: " << topic << std::endl;
+    std::cout << "  receipt_time: " << receipt_time << std::endl;
+    std::cout << "**** **** ****" << std::endl;
+
+
+    // ** Get Laser Scan message from message event:
+    const sensor_msgs::LaserScan::ConstPtr& msg = event.getMessage();
+    std::cout << "  Ranges size: " << msg->ranges.size() << std::endl;
+    std::cout << "  Range min: " << msg->range_min << std::endl;
+    std::cout << "  Range max: " << msg->range_max << std::endl;
+
+    double minDistance = std::numeric_limits<double>::max();
+    for(int i = 0; i < msg->ranges.size(); i++) {
+        if(msg->ranges[i] < minDistance) {
+            minDistance = msg->ranges[i];
+        }
+    }
+    std::cout << "  Loop range min: " << minDistance << std::endl;
 }
 
 void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
@@ -311,4 +359,23 @@ void ModuleROS::renderEdge(const mace::geometry::Line_2DC &edge) {
     line_list.points.push_back(endPoint);
     markerPub.publish(line_list);
 }
+
+void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component)
+{
+    std::cout << "Update position data" << std::endl;
+
+    double lat = component->getX();
+    double lng = component->getY();
+    double alt = component->getZ();
+}
+
+void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component)
+{
+    std::cout << "Update attitude data" << std::endl;
+
+    double roll = component->roll * (180/M_PI);
+    double pitch = component->pitch * (180/M_PI);
+    double yaw = (component->yaw * (180/M_PI) < 0) ? (component->yaw * (180/M_PI) + 360) : (component->yaw * (180/M_PI));
+}
+
 #endif

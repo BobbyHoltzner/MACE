@@ -54,8 +54,6 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../commsMAVLINK/releas
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../commsMAVLINK/debug/ -lcommsMAVLINK
 else:unix: LIBS += -L$$OUT_PWD/../commsMAVLINK/ -lcommsMAVLINK
 
-
-
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../commsMACE/release/ -lcommsMACE
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../commsMACE/debug/ -lcommsMACE
 else:unix: LIBS += -L$$OUT_PWD/../commsMACE/ -lcommsMACE
@@ -172,7 +170,7 @@ unix {
 exists(/opt/ros/kinetic/lib/) {
     DEFINES += ROS_EXISTS
     INCLUDEPATH += /opt/ros/kinetic/include
-    INCLUDEPATH += /opt/ros/indigo/lib
+    INCLUDEPATH += /opt/ros/kinetic/lib
 
         LIBS += -L/opt/ros/kinetic/lib -lroscpp
         LIBS += -L/opt/ros/kinetic/lib -lroscpp_serialization

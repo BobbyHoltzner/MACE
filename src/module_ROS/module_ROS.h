@@ -9,6 +9,12 @@
 #include "data/topic_data_object_collection.h"
 #include "base_topic/base_topic_components.h"
 
+#include "data_generic_state_item/state_item_components.h"
+#include "data_generic_state_item_topic/state_topic_components.h"
+
+#include "data_generic_item/data_generic_item_components.h"
+#include "data_generic_item_topic/data_generic_item_topic_components.h"
+
 #include <memory>
 
 #ifdef ROS_EXISTS
@@ -32,9 +38,14 @@ public:
 
     ~ModuleROS();
 
+    //!
+    //! \brief start Start ROS loop
+    //!
     void start();
 
-    //! Default methods for module configuration:
+    // ============================================================================= //
+    // ================= Default methods for module configuration ================== //
+    // ============================================================================= //
 public:
 
     //!
@@ -43,7 +54,8 @@ public:
     //!
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
     {
-        ptr->Subscribe(this,m_PlanningStateTopic.Name());
+        ptr->Subscribe(this, m_PlanningStateTopic.Name());
+        ptr->Subscribe(this, m_VehicleDataTopic.Name());
     }
 
     //!
@@ -59,39 +71,66 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
+    //!
+    //! \brief NewTopic New topic available from MACE Core
+    //! \param topicName Topic name that has been published
+    //! \param senderID Topic sender ID
+    //! \param componentsUpdated List of MACE core components that have updated data
+    //!
     virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
 
-    //! Virtual functions as defined by IModuleCommandROS
+
+    // ============================================================================= //
+    // ======== Virtual functions as defined by IModuleCommandGroundStation ======== //
+    // ============================================================================= //
 public:
 
+    //!
+    //! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
+    //! \param vehicleID Vehilce ID of the newly available vehicle
+    //!
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
 
-    //! ========================================================================
-    //! ======================  ROS Specific functions:  =======================
-    //! ========================================================================
+    // ============================================================================= //
+    // ========================  ROS Specific functions:  ========================== //
+    // ============================================================================= //
 public:
 
 #ifdef ROS_EXISTS
 
+    //!
+    //! \brief setupROS Setup ROS subscribers, publishers, and node handler
+    //!
     void setupROS();
 
-    void newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg);
+    void newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan const>& event);
 
     void newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
 
     void pixelTo3DPoint(const sensor_msgs::PointCloud2::ConstPtr& pCloud, const int u, const int v, geometry_msgs::Point &p);
 
+    //!
+    //! \brief publishVehiclePosition Publish vehicle position to ROS
+    //! \param vehicleID Vehicle ID for which to set the new position
+    //! \param localPos New vehicle position
+    //!
     void publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos);
 
     void renderState(const mace::pose::CartesianPosition_2D &state);
 
     void renderEdge(const mace::geometry::Line_2DC &edge);
+
+    void updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component);
+    void updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
 #endif
 
 private:
 
 #ifdef ROS_EXISTS
+    //!
+    //! \brief laserSub Subscriber for ROS laser scan messages
+    //!
     ros::Subscriber laserSub;
     ros::Subscriber pointCloudSub;
     ros::Publisher velocityPub, markerPub;
@@ -104,7 +143,24 @@ private:
     gazebo_msgs::SetModelState m_srv;
 #endif
 
+    std::map<int, std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> > m_vehicleMap;
+
     std::shared_ptr<ROSTimer> m_timer;
+
+    //!
+    //! \brief m_vehicleID Vehicle ID attached to this ROS module instance
+    //!
+    int m_vehicleID;
+
+    //!
+    //! \brief airborneInstance Flag denoting if this ROS module is attached to an airborne instance
+    //!
+    bool airborneInstance;
+
+    //!
+    //! \brief m_sensors List of sensors that will be spawned into the ROS environment
+    //!
+    std::vector<std::tuple<std::string, std::string> > m_sensors;
 
     // TESTING:
     int counter;
@@ -114,6 +170,7 @@ private:
 
 private:
     Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;
+    Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
 };
 
 #endif // MODULE_ROS_H
