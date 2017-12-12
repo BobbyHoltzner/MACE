@@ -226,15 +226,32 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
         mace_mission_request_home_t decodedMSG;
         mace_msg_mission_request_home_decode(message,&decodedMSG);
-        CommandItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(decodedMSG.target_system);
 
-        mace_message_t msg;
-        mace_home_position_t homeMACE;
-        homeMACE.latitude = home.position->getX() * pow(10,7);
-        homeMACE.longitude = home.position->getY() * pow(10,7);
-        homeMACE.altitude = home.position->getZ() * pow(10,3);
-        mace_msg_home_position_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&homeMACE);
-        transmitMessage(msg);
+
+        auto func = [this](int vehicleID)
+        {
+            CommandItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(vehicleID);
+
+            mace_message_t msg;
+            mace_home_position_t homeMACE;
+            homeMACE.latitude = home.position->getX() * pow(10,7);
+            homeMACE.longitude = home.position->getY() * pow(10,7);
+            homeMACE.altitude = home.position->getZ() * pow(10,3);
+            mace_msg_home_position_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&homeMACE);
+            transmitMessage(msg);
+        };
+
+        if(decodedMSG.target_system == 0) {
+            //need to iterate over all internal vehicles
+            std::vector<int> vehicles;
+            this->getDataObject()->GetLocalVehicles(vehicles);
+            for(auto it = vehicles.cbegin() ; it != vehicles.cend() ; ++it) {
+                func(*it);
+            }
+        }
+        else {
+            func(decodedMSG.target_system);
+        }
     }
     case MACE_MSG_ID_SET_HOME_POSITION:
     {

@@ -25,7 +25,7 @@ public:
     }
 
     T Data() const {
-        mdata;
+        return mdata;
     }
 
 private:

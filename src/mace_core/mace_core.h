@@ -234,12 +234,31 @@ public:
 
 private:
 
+
+    /**
+     * @brief This function marshals a command to be sent to a vehicle
+     *
+     * The vehicle can either be attached locally or through external module
+     * @param vehicleID ID of vehicle, if zero then message is to be broadcast to all vehicles.
+     * @param vehicleCommand Command if vehicle attached locally
+     * @param externalCommand Command if vehicle attached remotly
+     * @param data Data to send to given vehicle
+     */
     template <typename T>
-    MarshalCommandToVehicle(int vehicleID, VehicleCommands vehicleCommand, ExternalLinkCommands externalCommand, const T &data)
+    MarshalCommandToVehicle(int vehicleID, VehicleCommands vehicleCommand, ExternalLinkCommands externalCommand, const T& data)
     {
         //transmit to all
         if(vehicleID == 0) {
-            throw std::runtime_error("Not Implimented");
+
+            for(auto it = m_VehicleIDToPort.begin() ; it != m_VehicleIDToPort.end() ; ++it)
+            {
+                it->second->MarshalCommand(vehicleCommand, data);
+            }
+
+            for(auto it = m_ExternalLink.begin() ; it != m_ExternalLink.end() ; ++it)
+            {
+                (*it)->MarshalCommand(externalCommand, data);
+            }
         }
         else {
             if(m_VehicleIDToPort.find(vehicleID) != m_VehicleIDToPort.cend()){

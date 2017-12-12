@@ -99,7 +99,7 @@ void MavlinkProtocol::SendProtocolMessage(const ILink *link, const mace_message_
     if (link->isConnected())
     {
         // Send the portion of the buffer now occupied by the message
-        link->WriteBytes((const char*)buffer, len);
+        link->WriteBytes((const char*)buffer, len, vehicleID);
     }
 }
 

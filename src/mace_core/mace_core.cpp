@@ -157,49 +157,49 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
 void MaceCore::Event_ForceVehicleDataSync(const void *sender, const int &targetSystemID)
 {
     UNUSED(sender);
-    MarshalCommandToVehicle(targetSystemID, VehicleCommands::REQUEST_DATA_SYNC, ExternalLinkCommands::REQUEST_DATA_SYNC, targetSystemID);
+    MarshalCommandToVehicle<int>(targetSystemID, VehicleCommands::REQUEST_DATA_SYNC, ExternalLinkCommands::REQUEST_DATA_SYNC, targetSystemID);
 }
 
 void MaceCore::Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    MarshalCommandToVehicle(vehicleID, VehicleCommands::CHANGE_VEHICLE_ARM, ExternalLinkCommands::CHANGE_VEHICLE_ARM, command);
+    MarshalCommandToVehicle<CommandItem::ActionArm>(vehicleID, VehicleCommands::CHANGE_VEHICLE_ARM, ExternalLinkCommands::CHANGE_VEHICLE_ARM, command);
 }
 
 void MaceCore::Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    MarshalCommandToVehicle(vehicleID, VehicleCommands::REQUEST_VEHICLE_TAKEOFF, ExternalLinkCommands::REQUEST_VEHICLE_TAKEOFF, command);
+    MarshalCommandToVehicle<CommandItem::SpatialTakeoff>(vehicleID, VehicleCommands::REQUEST_VEHICLE_TAKEOFF, ExternalLinkCommands::REQUEST_VEHICLE_TAKEOFF, command);
 }
 
 void MaceCore::Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    MarshalCommandToVehicle(vehicleID, VehicleCommands::REQUEST_VEHICLE_LAND, ExternalLinkCommands::REQUEST_VEHICLE_LAND, command);
+    MarshalCommandToVehicle<CommandItem::SpatialLand>(vehicleID, VehicleCommands::REQUEST_VEHICLE_LAND, ExternalLinkCommands::REQUEST_VEHICLE_LAND, command);
 }
 
 void MaceCore::Event_IssueCommandRTL(const void* sender, const CommandItem::SpatialRTL &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    MarshalCommandToVehicle(vehicleID, VehicleCommands::REQUEST_VEHICLE_RTL, ExternalLinkCommands::REQUEST_VEHICLE_RTL, command);
+    MarshalCommandToVehicle<CommandItem::SpatialRTL>(vehicleID, VehicleCommands::REQUEST_VEHICLE_RTL, ExternalLinkCommands::REQUEST_VEHICLE_RTL, command);
 }
 
 void MaceCore::Event_IssueMissionCommand(const void* sender, const CommandItem::ActionMissionCommand &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    MarshalCommandToVehicle(vehicleID, VehicleCommands::SET_MISSION_STATE, ExternalLinkCommands::SET_MISSION_STATE, command);
+    MarshalCommandToVehicle<CommandItem::ActionMissionCommand>(vehicleID, VehicleCommands::SET_MISSION_STATE, ExternalLinkCommands::SET_MISSION_STATE, command);
 }
 
 void MaceCore::Event_ChangeSystemMode(const void *sender, const CommandItem::ActionChangeMode &command)
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    MarshalCommandToVehicle(vehicleID, VehicleCommands::CHANGE_VEHICLE_MODE, ExternalLinkCommands::CHANGE_VEHICLE_MODE, command);
+    MarshalCommandToVehicle<CommandItem::ActionChangeMode>(vehicleID, VehicleCommands::CHANGE_VEHICLE_MODE, ExternalLinkCommands::CHANGE_VEHICLE_MODE, command);
 }
 
 void MaceCore::Event_IssueGeneralCommand(const void* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
@@ -218,7 +218,7 @@ void MaceCore::Event_GetMission(const void *sender, const MissionItem::MissionKe
 
     }else{
         try{
-            MarshalCommandToVehicle(systemID, VehicleCommands::REQUEST_MISSION, ExternalLinkCommands::REQUEST_MISSION, systemID);
+            MarshalCommandToVehicle<int>(systemID, VehicleCommands::REQUEST_MISSION, ExternalLinkCommands::REQUEST_MISSION, systemID);
         }catch(const std::out_of_range &oor){
 
         }
@@ -247,7 +247,7 @@ void MaceCore::Event_GetOnboardMission(const void *sender, const int &systemID, 
         //how should we handle the case to transmit this to all vehicle instances
     }else{
         try{
-            MarshalCommandToVehicle(systemID, cmd, cmd2, systemID);
+            MarshalCommandToVehicle<int>(systemID, cmd, cmd2, systemID);
         }catch(const std::out_of_range &oor){
 
         }
@@ -257,34 +257,34 @@ void MaceCore::Event_GetOnboardMission(const void *sender, const int &systemID, 
 void MaceCore::Event_GetCurrentMission(const void *sender, const int &systemID)
 {
     UNUSED(sender);
-    MarshalCommandToVehicle(systemID, VehicleCommands::REQUEST_CURRENT_MISSION, ExternalLinkCommands::REQUEST_CURRENT_MISSION, systemID);
+    MarshalCommandToVehicle<int>(systemID, VehicleCommands::REQUEST_CURRENT_MISSION, ExternalLinkCommands::REQUEST_CURRENT_MISSION, systemID);
 }
 
 void MaceCore::RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID)
 {
     UNUSED(sender);
-    MarshalCommandToVehicle(systemID.getSystemID(), VehicleCommands::CLEAR_CURRENT_MISSION, ExternalLinkCommands::CLEAR_CURRENT_MISSION, systemID);
+    MarshalCommandToVehicle<Data::SystemDescription>(systemID.getSystemID(), VehicleCommands::CLEAR_CURRENT_MISSION, ExternalLinkCommands::CLEAR_CURRENT_MISSION, systemID.getSystemID());
 }
 
 
 void MaceCore::Event_GetHomePosition(const void* sender, const int &vehicleID)
 {
     UNUSED(sender);
-    MarshalCommandToVehicle(vehicleID, VehicleCommands::REQUEST_VEHICLE_HOME, ExternalLinkCommands::REQUEST_VEHICLE_HOME, vehicleID);
+    MarshalCommandToVehicle<int>(vehicleID, VehicleCommands::REQUEST_VEHICLE_HOME, ExternalLinkCommands::REQUEST_VEHICLE_HOME, vehicleID);
 }
 
 void MaceCore::Event_SetHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome)
 {
     UNUSED(sender);
     int vehicleID = vehicleHome.getTargetSystem();
-    MarshalCommandToVehicle(vehicleID, VehicleCommands::SET_VEHICLE_HOME, ExternalLinkCommands::SET_VEHICLE_HOME, vehicleHome);
+    MarshalCommandToVehicle<CommandItem::SpatialHome>(vehicleID, VehicleCommands::SET_VEHICLE_HOME, ExternalLinkCommands::SET_VEHICLE_HOME, vehicleHome);
 }
 
 void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID)
 {
     UNUSED(sender);
 
-    MarshalCommandToVehicle(vehicleID, VehicleCommands::CLEAR_ONBOARD_GUIDED_MISSION, ExternalLinkCommands::CLEAR_ONBOARD_GUIDED_MISSION, vehicleID);
+    MarshalCommandToVehicle<int>(vehicleID, VehicleCommands::CLEAR_ONBOARD_GUIDED_MISSION, ExternalLinkCommands::CLEAR_ONBOARD_GUIDED_MISSION, vehicleID);
 
 }
 
@@ -373,7 +373,8 @@ void MaceCore::ExternalEvent_NewConstructedVehicle(const void *sender, const int
 
     IModuleCommandExternalLink* externalLink = (IModuleCommandExternalLink*)sender;
     m_ExternalLinkIDToPort.insert({newVehicleObserved, externalLink});
-    m_DataFusion->AddAvailableVehicle(newVehicleObserved);
+
+    m_DataFusion->AddAvailableVehicle(newVehicleObserved, false);
 
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
@@ -388,7 +389,7 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
 
     IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
     m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
-    m_DataFusion->AddAvailableVehicle(newVehicleObserved);
+    m_DataFusion->AddAvailableVehicle(newVehicleObserved, true);
 
     if(m_RTA)
         m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
@@ -514,7 +515,7 @@ void MaceCore::ExternalEvent_FinishedRXMissionList(const void *sender, const Mis
     else if(state ==  MissionItem::MISSIONSTATE::RECEIVED)//This implies that the mission state has just moved from proposed to received
     {
         int vehicleID = missionList.getVehicleID();
-        MarshalCommandToVehicle(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, missionList);
+        MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, missionList);
     }
 }
 
@@ -575,14 +576,14 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
                 MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(nextSystemID,missionList);
                 MissionItem::MissionList correctedMission = missionList;
                 correctedMission.setMissionKey(key);
-                MarshalCommandToVehicle(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
+                MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
             }
         }else{ //transmit the mission to a specific vehicle
             try{
                 MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
                 MissionItem::MissionList correctedMission = missionList;
                 correctedMission.setMissionKey(key);
-                MarshalCommandToVehicle(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
+                MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
 
             }catch(const std::out_of_range &oor){
 

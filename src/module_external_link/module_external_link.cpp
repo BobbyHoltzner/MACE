@@ -88,7 +88,14 @@ std::string ModuleExternalLink::createLog(const int &systemID)
 
 void ModuleExternalLink::transmitMessage(const mace_message_t &msg, OptionalParameter<int> vehicleID)
 {
-    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, vehicleID);
+    if(vehicleID.IsSet() && vehicleID.Data() != 0)
+    {
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, vehicleID);
+    }
+    else
+    {
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+    }
 }
 
 
@@ -162,7 +169,7 @@ void ModuleExternalLink::cbiMissionController_TransmitMissionGenericReqList(cons
 {
     mace_message_t msg;
     mace_msg_mission_request_list_generic_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&request);
-    transmitMessage(msg);
+    transmitMessage(msg, request.mission_system);
 }
 
 void ModuleExternalLink::cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem)
@@ -194,7 +201,7 @@ void ModuleExternalLink::cbiHomeController_TransmitHomeReq(const mace_mission_re
 {
     mace_message_t msg;
     mace_msg_mission_request_home_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&request);
-    transmitMessage(msg);
+    transmitMessage(msg, request.target_system);
 }
 
 void ModuleExternalLink::cbiHomeController_ReceviedHome(const CommandItem::SpatialHome &home)
@@ -341,7 +348,13 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem)
     mace_vehicle_sync_t sync;
     sync.target_system = targetSystem;
     mace_msg_vehicle_sync_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&sync);
-    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+    if(targetSystem != 0)
+    {
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, targetSystem);
+    }
+    else {
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+    }
 
     /*
     The second segment is necessary to gaurantee that all information
