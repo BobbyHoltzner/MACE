@@ -215,7 +215,6 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_msg_statustext_decode(message,&decodedMSG);
         DataGenericItem::DataGenericItem_Text newText(decodedMSG);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
-
         m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
         //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){

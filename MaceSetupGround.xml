@@ -17,5 +17,11 @@
       <Parameter Name="AirborneInstance">false</Parameter>
     </Parameter>
   </Module>
-  <Module Class="GroundStation" Type="NASAPhase2"/>
+    <Module Class="GroundStation" Type="NASAPhase2">
+	<Parameter Name="MACEComms">
+		<Parameter Name="GUIHostAddress">127.0.0.1</Parameter>
+		<Parameter Name="ListenPort">5678</Parameter>
+		<Parameter Name="SendPort">1234</Parameter>
+	</Parameter>	
+  </Module>
 </ModuleConfigurations>

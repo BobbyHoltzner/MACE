@@ -35,10 +35,10 @@ void CommandController_ExternalLink::clearPreviousTransmit()
 
 void CommandController_ExternalLink::receivedModeACK(const mace_system_mode_ack_t &modeACK)
 {
-    m_LambdasToRun.push_back([this, cmdACK]{
+    m_LambdasToRun.push_back([this, modeACK]{
         mTimer.stop();
 
-        logCommandACK(cmdACK);
+        //logCommandACK(modeACK);
 
         if(mLog)
             mLog->error("Command Controller recevied an acknowledgement of type " + std::to_string(modeACK.result) + " for system mode command.");
@@ -260,7 +260,7 @@ void CommandController_ExternalLink::setSystemMode(const CommandItem::ActionChan
 
     mace_command_system_mode_t cmd;
     cmd.target_system = commandItem.getTargetSystem();
-    cmd.mode = commandItem.getRequestMode().c_str();
+    strcpy(cmd.mode,commandItem.getDescription().c_str());
 
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mace_command_system_mode_t>(commandItemEnum::COMMAND_MODE, cmd);

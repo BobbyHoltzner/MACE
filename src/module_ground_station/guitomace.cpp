@@ -391,6 +391,7 @@ void GUItoMACE::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
     CommandItem::ActionChangeMode tmpMode;
     tmpMode.setTargetSystem(vehicleID); // the vehicle ID coordinates to the specific vehicle //vehicle 0 is reserved for all connected vehicles
     tmpMode.setRequestMode(jsonObj["vehicleCommand"].toString().toStdString()); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
+    std::cout<<"We are changing the vehicle mode as issued by the GUI: "<<tmpMode.getRequestMode()<<std::endl;
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->Event_ChangeSystemMode(this, tmpMode);
