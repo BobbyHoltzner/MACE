@@ -266,7 +266,6 @@ void MissionController_ExternalLink::recievedMissionItem(const mace_mission_item
         {
             int indexRequest = status.remainingItems.at(0);
 
-
             if(mLog)
             {
                 std::stringstream buffer;
@@ -339,6 +338,10 @@ void MissionController_ExternalLink::run()
         }
 
         this->RunPendingTasks();
+
+        //Check to see if any of the pending tasks have said that we can quit
+        if(mToExit)
+            continue;
 
         //The current state we can find out how much time has passed.
         //If one of the lambda expressions has fired the clock shoud

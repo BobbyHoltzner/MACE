@@ -252,6 +252,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         else {
             func(decodedMSG.target_system);
         }
+        break;
     }
     case MACE_MSG_ID_SET_HOME_POSITION:
     {

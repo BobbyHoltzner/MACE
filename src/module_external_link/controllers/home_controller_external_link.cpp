@@ -51,6 +51,10 @@ void HomeController_ExternalLink::run()
 
         this->RunPendingTasks();
 
+        //Check to see if any of the pending tasks have said that we can quit
+        if(mToExit)
+            continue;
+
         //The current state we can find out how much time has passed.
         //If one of the lambda expressions has fired the clock shoud
         //be reset right at the end, thus making this value small and
@@ -156,8 +160,6 @@ void HomeController_ExternalLink::receivedMissionHome(const mace_home_position_t
     m_LambdasToRun.push_back([this, home]{
         mTimer.stop();
         currentRetry = 0;
-        std::cout<<"Mission controller received the home position"<<std::endl;
-
         //mLog->info("Mission Controller received system home item item.");
 
         //This is the home position item associated with the vehicle
@@ -169,6 +171,7 @@ void HomeController_ExternalLink::receivedMissionHome(const mace_home_position_t
         newHome.setTargetSystem(targetID);
 
         clearPendingTasks();
+        clearPreviousTransmit();
         mToExit = true;
         currentCommsState = Data::ControllerCommsState::NEUTRAL;
 
@@ -185,7 +188,6 @@ void HomeController_ExternalLink::receivedHomePositionACK(const mace_home_positi
     }
 
     m_LambdasToRun.push_back([this, homeACK]{
-        std::cout<<"Mission Controller received a mission ack"<<std::endl;
         mToExit = true;
         mTimer.stop();
         currentRetry = 0;
