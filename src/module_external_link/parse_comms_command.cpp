@@ -71,46 +71,51 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
     {
     case((uint8_t)CommandItem::COMMANDITEM::CI_NAV_TAKEOFF):
     {
-        CommandItem::SpatialTakeoff tmpTakeoff;
-        tmpTakeoff.setTargetSystem(message->target_system);
-        if(message->param1 > 0.0)
-        {
-            tmpTakeoff.position->setX(message->param5);
-            tmpTakeoff.position->setY(message->param6);
-        }
-        tmpTakeoff.position->setZ(message->param7);
+        BroadcastLogicToAllVehicles(message->target_system, [this, message](int vehicleID){
 
-        //acknowledge receiving the command
-        mace_command_ack_t commandACK;
-        commandACK.command = (uint8_t)CommandItem::COMMANDITEM::CI_NAV_TAKEOFF;
-        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
-        mace_message_t msg;
-        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+            CommandItem::SpatialTakeoff tmpTakeoff;
+            tmpTakeoff.setTargetSystem(vehicleID);
+            if(message->param1 > 0.0)
+            {
+                tmpTakeoff.position->setX(message->param5);
+                tmpTakeoff.position->setY(message->param6);
+            }
+            tmpTakeoff.position->setZ(message->param7);
 
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->Event_IssueCommandTakeoff(this, tmpTakeoff);
+            //acknowledge receiving the command
+            mace_command_ack_t commandACK;
+            commandACK.command = (uint8_t)CommandItem::COMMANDITEM::CI_NAV_TAKEOFF;
+            commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+            mace_message_t msg;
+            mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
+            m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+                ptr->Event_IssueCommandTakeoff(this, tmpTakeoff);
+            });
         });
         break;
     }
     case((uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND):
     {
-        CommandItem::SpatialLand tmpLand;
-        tmpLand.setTargetSystem(message->target_system);
-        tmpLand.position->setX(message->param5);
-        tmpLand.position->setY(message->param6);
-        tmpLand.position->setZ(message->param7);
+        BroadcastLogicToAllVehicles(message->target_system, [this, message](int vehicleID){
+            CommandItem::SpatialLand tmpLand;
+            tmpLand.setTargetSystem(vehicleID);
+            tmpLand.position->setX(message->param5);
+            tmpLand.position->setY(message->param6);
+            tmpLand.position->setZ(message->param7);
 
-        //acknowledge receiving the command
-        mace_command_ack_t commandACK;
-        commandACK.command = (uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND;
-        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
-        mace_message_t msg;
-        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+            //acknowledge receiving the command
+            mace_command_ack_t commandACK;
+            commandACK.command = (uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND;
+            commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+            mace_message_t msg;
+            mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
+            m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->Event_IssueCommandLand(this, tmpLand);
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+                ptr->Event_IssueCommandLand(this, tmpLand);
+            });
         });
         break;
     }

@@ -49,6 +49,11 @@ void HomeController_ExternalLink::run()
             break;
         }
 
+        if(prevTransmit == NULL) {
+            mTimer.stop();
+            break;
+        }
+
         this->RunPendingTasks();
 
         //Check to see if any of the pending tasks have said that we can quit

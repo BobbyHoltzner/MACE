@@ -7,6 +7,7 @@
 #include <iostream>
 #include <stdint.h>
 #include <chrono>
+#include <functional>
 
 #include "spdlog/spdlog.h"
 #include "mace.h"
@@ -45,6 +46,31 @@ class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public ExternalLink::HomeController_Interface,
         public ExternalLink::MissionController_Interface
 {
+
+
+private:
+
+    /**
+     * @brief BroadcastLogicToAllVehicles
+     * @param vehicleID VehicleID to send function to. If set to 0 then send to all local vehicles
+     * @param func Function to call
+     */
+    void BroadcastLogicToAllVehicles(int vehicleID, const std::function<void(int)> &func)
+    {
+        if(vehicleID == 0)
+        {
+            std::vector<int> vehicleIDs;
+            this->getDataObject()->GetLocalVehicles(vehicleIDs);
+            for(auto it = vehicleIDs.begin() ; it != vehicleIDs.end() ; ++it)
+            {
+                func(*it);
+            }
+        }
+        else
+        {
+            func(vehicleID);
+        }
+    }
 
 public:
 
