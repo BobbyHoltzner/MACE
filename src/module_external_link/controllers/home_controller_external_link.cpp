@@ -49,6 +49,11 @@ void HomeController_ExternalLink::run()
             break;
         }
 
+        if(prevTransmit == NULL) {
+            mTimer.stop();
+            break;
+        }
+
         this->RunPendingTasks();
 
         //The current state we can find out how much time has passed.

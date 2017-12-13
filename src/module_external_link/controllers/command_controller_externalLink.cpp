@@ -43,6 +43,9 @@ void CommandController_ExternalLink::receivedCommandACK(const mace_command_ack_t
         if(mLog)
            mLog->error("Command Controller recevied an acknowledgement of type " + std::to_string(cmdACK.result) + " for command " + std::to_string(cmdACK.command) + ".");
 
+        if(prevTransmit == NULL) {
+            return;
+        }
         commandItemEnum type = prevTransmit->getType();
         switch(type)
         {
@@ -266,6 +269,12 @@ void CommandController_ExternalLink::run()
         //be reset right at the end, thus making this value small and
         //improbable the next function will fire
         double timeElapsed = mTimer.elapsedMilliseconds();
+
+        if(prevTransmit == NULL)
+        {
+            mTimer.stop();
+            break;
+        }
 
         if(timeElapsed > responseTimeout)
         {

@@ -474,19 +474,36 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         MissionItem::MISSIONSTATE state = static_cast<MissionItem::MISSIONSTATE>(decodedMSG.mission_state);
         if(state == MissionItem::MISSIONSTATE::CURRENT)
         {
-            MissionItem::MissionList currentMission;
-            bool exists = this->getDataObject()->getCurrentMission(decodedMSG.mission_system,currentMission);
-            if(exists)
-                m_MissionController->transmitMission(systemID,currentMission);
-            else
+            auto func = [this, systemID, decodedMSG](int vehicleID)
             {
-                //This is the case where there is no current mission known for this system
-                mace_mission_ack_t ack;
-                ack.mission_system = decodedMSG.mission_system;
-                ack.cur_mission_state = decodedMSG.mission_state;
-                ack.mission_result = (uint8_t)MissionItem::MissionACK::MISSION_RESULT::MISSION_RESULT_DOES_NOT_EXIST;
-                cbiMissionController_MissionACK(ack);
+                MissionItem::MissionList currentMission;
+                bool exists = this->getDataObject()->getCurrentMission(vehicleID, currentMission);
+                if(exists)
+                    m_MissionController->transmitMission(systemID,currentMission);
+                else
+                {
+                    //This is the case where there is no current mission known for this system
+                    mace_mission_ack_t ack;
+                    ack.mission_system = decodedMSG.mission_system;
+                    ack.cur_mission_state = decodedMSG.mission_state;
+                    ack.mission_result = (uint8_t)MissionItem::MissionACK::MISSION_RESULT::MISSION_RESULT_DOES_NOT_EXIST;
+                    cbiMissionController_MissionACK(ack);
+                }
+            };
+
+            if(decodedMSG.mission_system == 0) {
+                //need to iterate over all internal vehicles
+                std::vector<int> vehicles;
+                this->getDataObject()->GetLocalVehicles(vehicles);
+                for(auto it = vehicles.cbegin() ; it != vehicles.cend() ; ++it) {
+                    func(*it);
+                }
             }
+            else {
+                func(decodedMSG.mission_system);
+            }
+
+
         }
         break;
     }
