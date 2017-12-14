@@ -9,7 +9,8 @@
     "start": "cross-env NODE_ENV=development electron .",
     "build": "./node_modules/.bin/webpack",
     "watch": "./node_modules/.bin/webpack-dev-server --hot --inline",
-    "build:prod": "webpack --env.prod -p"
+    "build:prod": "webpack --env.prod -p",
+    "prepare": "node ./node_modules/patch-package/index.js"
   },
   "author": "Scotch",
   "license": "MIT",
@@ -60,6 +61,7 @@
     "gulp-exit": "0.0.2",
     "gulp-sourcemaps": "1.6.0",
     "gulp-typescript": "2.13.6",
+    "patch-package": "^5.0.0",
     "react-addons-perf": "15.4.2",
     "tsify": "3.0.4",
     "vinyl-buffer": "1.0.0",
