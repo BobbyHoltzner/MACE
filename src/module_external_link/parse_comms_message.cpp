@@ -13,6 +13,13 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         HeartbeatInfo(systemID,decodedMSG);
         break;
     }
+    case MACE_MSG_ID_SYSTEM_MODE_ACK:
+    {
+        mace_system_mode_ack_t decodedMSG;
+        mace_msg_system_mode_ack_decode(message,&decodedMSG);
+        m_CommandController->receivedModeACK(decodedMSG);
+        break;
+    }
     case MACE_MSG_ID_COMMAND_ACK:
     {
         mace_command_ack_t decodedMSG;
