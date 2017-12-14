@@ -8,6 +8,7 @@ import TextField from 'material-ui/TextField';
 import { Grid, Col } from 'react-bootstrap';
 
 import * as colors from 'material-ui/styles/colors';
+import * as L from 'leaflet';
 
 
 type Props = {
@@ -16,7 +17,7 @@ type Props = {
     onGlobalHomeCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void,
     globalOrigin: PositionType,
     handleSave: (vehicleHome: PositionType) => void,
-    contextAnchor: L.MouseEvent,
+    contextAnchor: L.LeafletMouseEvent,
     useContext: boolean
 }
 

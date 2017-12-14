@@ -37,6 +37,8 @@ var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 var net = electronRequire('net');
 
+import * as L from 'leaflet';
+
 // // Performance testing:
 // var Perf = require('react-addons-perf');
 // // End performance testing
@@ -67,7 +69,7 @@ type State = {
   mapCenter?: PositionType
   globalOrigin?: PositionType
   useContext?: boolean,
-  contextAnchor?: L.MouseEvent,
+  contextAnchor?: L.LeafletMouseEvent,
   MACEConnected?: boolean,
   environmentBoundary?: PositionType[],
   showDraw?: boolean,
@@ -175,6 +177,7 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   parseXMLConfig = () => {
+    // TODO: Make GUI element to set this
     let jsonConfig: MACEConfig = require('../../../../GUIConfig.json');
 
     if(jsonConfig.MACEComms) {
@@ -699,7 +702,7 @@ export default class AppContainer extends React.Component<Props, State> {
     this.makeTCPRequest(0, "ISSUE_COMMAND", "FORCE_DATA_SYNC");
   }
 
-  handleAddPolygonPt = (e: L.MouseEvent) => {
+  handleAddPolygonPt = (e: L.LeafletMouseEvent) => {
     if(this.state.showDraw) {
       let tmpPts = this.state.drawPolygonPts;
 
@@ -778,14 +781,21 @@ export default class AppContainer extends React.Component<Props, State> {
       coordinatesArr.push([coord.lat, coord.lng]);
     });
 
-    let geoJsonData = {"type": "Feature", "properties": {},
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          coordinatesArr
-        ]
-      }
+    // let geoJsonData: GeoJSON.GeoJsonObject = {"type": "Feature", "properties": {},
+    //   "geometry": {
+    //     "type": "Polygon",
+    //     "coordinates": [
+    //       coordinatesArr
+    //     ]
+    //   }
+    // };
+
+
+    let geoJsonData: GeoJSON.GeoJsonObject = {
+      type: "Feature",
+      bbox: coordinatesArr
     };
+
     let geoJsonLayer = L.geoJSON(geoJsonData);
     let bounds: L.LatLngBounds = geoJsonLayer.getBounds();
     let boundingBox: PositionType[] = [];
@@ -908,7 +918,7 @@ export default class AppContainer extends React.Component<Props, State> {
             <AppBar
                 title="MACE"
                 style={{backgroundColor: colors.orange700, position: 'fixed'}}
-                onLeftIconButtonTouchTap={() => this.setState({openDrawer: !this.state.openDrawer})}
+                onLeftIconButtonClick={() => this.setState({openDrawer: !this.state.openDrawer})}
                 iconElementRight={<ToolbarRight />}
             />
 
@@ -1016,7 +1026,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
             <MACEMap
               handleSelectedAircraftUpdate={this.handleSelectedAircraftUpdate}
-              setContextAnchor={(anchor: L.MouseEvent) => this.setState({contextAnchor: anchor})}
+              setContextAnchor={(anchor: L.LeafletMouseEvent) => this.setState({contextAnchor: anchor})}
               connectedVehicles={this.state.connectedVehicles}
               selectedVehicleID={this.state.selectedVehicleID}
               mapCenter={this.state.mapCenter}

@@ -1,4 +1,5 @@
 import { aircraftImgSrcFromType } from './util/VehicleHelper';
+import * as L from 'leaflet';
 
 export class Vehicle{
 
