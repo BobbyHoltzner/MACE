@@ -107,21 +107,21 @@ void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command
 {
     mace_message_t msg;
     mace_msg_command_short_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&cmd);
-    transmitMessage(msg);
+    transmitMessage(msg, cmd.target_system);
 }
 
 void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command_long_t &cmd)
 {
     mace_message_t msg;
     mace_msg_command_long_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&cmd);
-    transmitMessage(msg);
+    transmitMessage(msg, cmd.target_system);
 }
 
 void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command_system_mode_t &cmd)
 {
     mace_message_t msg;
     mace_msg_command_system_mode_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&cmd);
-    transmitMessage(msg);
+    transmitMessage(msg, cmd.target_system);
 }
 
 void ModuleExternalLink::cbiCommandController_CommandACK(const mace_command_ack_t &ack)

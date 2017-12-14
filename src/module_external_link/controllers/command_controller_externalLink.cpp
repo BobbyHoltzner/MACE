@@ -263,7 +263,7 @@ void CommandController_ExternalLink::setSystemMode(const CommandItem::ActionChan
 
     mace_command_system_mode_t cmd;
     cmd.target_system = commandItem.getTargetSystem();
-    strcpy(cmd.mode,commandItem.getDescription().c_str());
+    strcpy(cmd.mode,commandItem.getRequestMode().c_str());
 
     clearPreviousTransmit();
     prevTransmit = new PreviousCommand<mace_command_system_mode_t>(commandItemEnum::COMMAND_MODE, cmd);
