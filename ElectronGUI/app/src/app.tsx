@@ -1,3 +1,5 @@
+/// <reference path="../../typings/index.d.ts" />
+
 //React libraries
 import * as React from 'react';
 import {render} from 'react-dom';
