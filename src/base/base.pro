@@ -30,18 +30,21 @@ SOURCES += \
     pose/orientation_2d.cpp \
     pose/orientation_3d.cpp \
     state_space/real_vector.cpp \
-    geometry/polygon_2dc.cpp \
     pose/cartesian_position_3D.cpp \
     pose/cartesian_position_2D.cpp \
     state_space/real_vector_bounds.cpp \
     pose/geodetic_position_2D.cpp \
-    geometry/cell_2DC.cpp \
     state_space/state_space.cpp \
     state_space/cartesian_2D_space.cpp \
     math/random_number_generator.cpp \
     math/cost.cpp \
     state_space/goal_state.cpp \
-    state_space/space_information.cpp
+    state_space/space_information.cpp \
+    state_space/motion_validity_check.cpp \
+    state_space/discrete_motion_validity_check.cpp \
+    state_space/special_validity_check.cpp \
+    geometry/cell_2DC.cpp \
+    geometry/polygon_2dc.cpp
 
 HEADERS +=\
     base_global.h \
@@ -63,8 +66,6 @@ HEADERS +=\
     state_space/real_vector_bounds.h \
     misc/abstract_data.h \
     pose/geodetic_position_2D.h \
-    geometry/polygon_2DC.h \
-    geometry/cell_2DC.h \
     state_space/state_sampler.h \
     state_space/state_space_types.h \
     state_space/state_space.h \
@@ -73,9 +74,19 @@ HEADERS +=\
     state_space/cartesian_2D_space.h \
     math/random_number_generator.h \
     math/cost.h \
-    state_space/state_validity_check.h \
     state_space/generic_goal.h \
-    state_space/goal_state.h
+    state_space/goal_state.h \
+    state_space/abstract_motion_validity_check.h \
+    state_space/abstract_state_validity_check.h \
+    state_space/discrete_motion_validity_check.h \
+    state_space/special_validity_check.h \
+    geometry/base_line.h \
+    geometry/base_line.h \
+    geometry/base_polygon.h \
+    geometry/cell_2DC.h \
+    geometry/geometry_helper.h \
+    geometry/polygon_2DC.h \
+    geometry/base_line.h
 
 # Unix lib Install
 unix:!symbian {
@@ -98,10 +109,11 @@ INSTALLS       += headers
 #Header file copy
 headers_geometry.path    = $$(MACE_ROOT)/include/base/geometry
 headers_geometry.files   += \
+    geometry/base_line.h \
     geometry/base_polygon.h \
+    geometry/cell_2DC.h \
     geometry/geometry_helper.h \
-    geometry/polygon_2DC.h \
-    geometry/cell_2DC.h
+    geometry/polygon_2DC.h
 INSTALLS       += headers_geometry
 
 headers_math.path    = $$(MACE_ROOT)/include/base/math
@@ -134,13 +146,20 @@ INSTALLS       += headers_pose
 
 headers_state_space.path    = $$(MACE_ROOT)/include/base/state_space
 headers_state_space.files   += \
-    state_space/state_sampler.h \
-    state_space/state_space_types.h \
-    state_space/state_space.h \
-    state_space/state.h \
+    state_space/abstract_motion_validity_check.h \
+    state_space/abstract_state_validity_check.h \
+    state_space/cartesian_2D_space.h \
+    state_space/discrete_motion_validity_check.h \
+    state_space/generic_goal.h \
+    state_space/goal_state.h \
+    state_space/real_vector.h \
+    state_space/real_vector_bounds.h \
     state_space/space_information.h \
-    state_space/state_validity_checker.h \
-    state_space/cartesian_2D_space.h
+    state_space/special_validity_check.h \
+    state_space/state.h \
+    state_space/state_sampler.h \
+    state_space/state_space.h \
+    state_space/state_space_types.h
 INSTALLS       += headers_state_space
 
 INCLUDEPATH += $$PWD/../

@@ -6,13 +6,25 @@
 
 #include "mace_core/i_module_command_ROS.h"
 
-#include <memory>
+#include "data/topic_data_object_collection.h"
+#include "base_topic/base_topic_components.h"
 
+#include "data_generic_state_item/state_item_components.h"
+#include "data_generic_state_item_topic/state_topic_components.h"
+
+#include "data_generic_item/data_generic_item_components.h"
+#include "data_generic_item_topic/data_generic_item_topic_components.h"
+
+#include <memory>
 
 #ifdef ROS_EXISTS
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
-#include <nav_msgs/OccupancyGrid.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <visualization_msgs/Marker.h>
+#include <gazebo_msgs/SetModelState.h>
+#include <sensor_msgs/JointState.h>
+#include <tf/transform_broadcaster.h>
 #endif
 
 #include "rosTimer.h"
@@ -42,7 +54,8 @@ public:
     //!
     virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
     {
-        UNUSED(ptr);
+        ptr->Subscribe(this, m_PlanningStateTopic.Name());
+        ptr->Subscribe(this, m_VehicleDataTopic.Name());
     }
 
     //!
@@ -91,17 +104,11 @@ public:
     //!
     void setupROS();
 
-    //!
-    //! \brief newLaserScan Callback for ROS laser scan subscriber
-    //! \param msg Laser scan message
-    //!
-    void newLaserScan(const sensor_msgs::LaserScan::ConstPtr& msg);
+    void newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan const>& event);
 
-    //!
-    //! \brief newOccupancyGrid Callback for ROS occupancy grid subscriber
-    //! \param msg Occupancy grid message
-    //!
-    void newOccupancyGrid(const nav_msgs::OccupancyGrid::ConstPtr& msg);
+    void newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
+
+    void pixelTo3DPoint(const sensor_msgs::PointCloud2::ConstPtr& pCloud, const int u, const int v, geometry_msgs::Point &p);
 
     //!
     //! \brief publishVehiclePosition Publish vehicle position to ROS
@@ -110,10 +117,12 @@ public:
     //!
     void publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos);
 
-    //!
-    //! \brief addSensorsToROS Spawn sensor models in ROS
-    //!
-    void addSensorsToROS();
+    void renderState(const mace::pose::CartesianPosition_2D &state);
+
+    void renderEdge(const mace::geometry::Line_2DC &edge);
+
+    void updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component);
+    void updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
 #endif
 
 private:
@@ -123,26 +132,19 @@ private:
     //! \brief laserSub Subscriber for ROS laser scan messages
     //!
     ros::Subscriber laserSub;
+    ros::Subscriber pointCloudSub;
+    ros::Publisher velocityPub, markerPub;
+    visualization_msgs::Marker points, line_strip, line_list;
 
-    //!
-    //! \brief mapSub Subscriber for occupancy grid messages
-    //!
-    ros::Subscriber mapSub;
-
-    //!
-    //! \brief velocityPub Publisher for velocity/Twist messages
-    //!
-    ros::Publisher velocityPub;
-
-    //!
-    //! \brief vehicleSensors Vector of vehicle sensors that can be spawned in ROS
-    //!
-    std::vector<std::string> vehicleSensors;
+    ros::ServiceClient m_client;
+    tf::TransformBroadcaster m_broadcaster;
+    tf::Transform m_transform;
+    gazebo_msgs::ModelState m_modelState;
+    gazebo_msgs::SetModelState m_srv;
 #endif
 
-    //!
-    //! \brief m_timer Timer that fires and spins the ROS loop to fire any publishers or subscribers stuck in the queue
-    //!
+    std::map<int, std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> > m_vehicleMap;
+
     std::shared_ptr<ROSTimer> m_timer;
 
     //!
@@ -162,7 +164,13 @@ private:
 
     // TESTING:
     int counter;
+    const double degree =  M_PI/180;
+    double tilt, tinc, swivel, angle, height, hinc;
     // END TESTING
+
+private:
+    Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;
+    Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
 };
 
 #endif // MODULE_ROS_H

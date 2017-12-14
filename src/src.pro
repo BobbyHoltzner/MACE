@@ -14,6 +14,7 @@ SUBDIRS += \
     mace_core \
     commsMAVLINK \
     commsMACEHelper \
+    base_topic \
     data_generic_item_topic \
     data_generic_state_item_topic \
     data_generic_command_item_topic \
@@ -28,8 +29,7 @@ SUBDIRS += \
     module_ground_station \
     module_path_planning_NASAPhase2 \
     module_vehicle_sensors \
-    voropp \
+    #voropp \
     module_resource_task_allocation \
     module_ROS \
-    mace \
-    TestMaps
+    mace

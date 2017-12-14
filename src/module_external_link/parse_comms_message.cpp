@@ -188,6 +188,13 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         this->ParseCommsCommand(&decodedMSG);
         break;
     }
+    case MACE_MSG_ID_COMMAND_SYSTEM_MODE:
+    {
+        mace_command_system_mode_t decodedMSG;
+        mace_msg_command_system_mode_decode(message,&decodedMSG);
+        this->ParseCommsCommand(&decodedMSG);
+        break;
+    }
     case MACE_MSG_ID_RADIO_STATUS:
     {
         //This is message definition 109
@@ -208,7 +215,6 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_msg_statustext_decode(message,&decodedMSG);
         DataGenericItem::DataGenericItem_Text newText(decodedMSG);
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(newText);
-
         m_VehicleDataTopic.SetComponent(ptrStatusText, topicDatagram);
         //notify listeners of topic
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){

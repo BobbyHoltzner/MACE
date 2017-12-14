@@ -13,7 +13,7 @@
       <Parameter Name="AirborneInstance">true</Parameter>
     </Parameter>
   </Module>
-    <Module Class="ExternalLink" Type="Ardupilot">
+  <Module Class="ExternalLink" Type="Ardupilot">
     <Parameter Name="ProtocolParameters">
       <Parameter Name="Name">Mavlink</Parameter>
       <Parameter Name="Version">V2</Parameter>
@@ -26,7 +26,7 @@
       <Parameter Name="Parity">false</Parameter>
       <Parameter Name="FlowControl">1</Parameter>
     </Parameter>
-	<Parameter Name="ModuleParameters">
+		<Parameter Name="ModuleParameters">
       <Parameter Name="AirborneInstance">true</Parameter>
     </Parameter>
   </Module>
