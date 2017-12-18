@@ -4,13 +4,18 @@
   "version": "1.0.0",
   "description": "NASA GUI for demo",
   "main": "main.js",
+  "config": {
+    "port": "8080"
+  },
   "scripts": {
     "version": "electron -v",
-    "start": "cross-env NODE_ENV=development electron .",
+    "start": "cross-env NODE_ENV=development PORT=$npm_package_config_port electron .",
     "build": "./node_modules/.bin/webpack",
-    "watch": "./node_modules/.bin/webpack-dev-server --hot --inline",
-    "build:prod": "webpack --env.prod -p",
-    "prepare": "node ./node_modules/patch-package/index.js"
+    "watch": "cross-env PORT=$npm_package_config_port ./node_modules/.bin/webpack-dev-server --hot --inline",
+    "build:prod": "cross-env PORT=$npm_package_config_port webpack --env.prod -p",
+    "prepare": "node ./node_modules/patch-package/index.js",
+    "launch": "cross-env PORT=$npm_package_config_port parallel \"watch --nasa-gui:port=$npm_package_config_port\" \"start --nasa-gui:port=$npm_package_config_port\"",
+    "build:launch": "cross-env PORT=$npm_package_config_port parallel \"build:prod --nasa-gui:port=$npm_package_config_port\" \"launch --nasa-gui:port=$npm_package_config_port\""
   },
   "author": "Scotch",
   "license": "MIT",
@@ -61,6 +66,7 @@
     "gulp-exit": "0.0.2",
     "gulp-sourcemaps": "1.6.0",
     "gulp-typescript": "2.13.6",
+    "npm-parallel": "^2.0.1",
     "patch-package": "^5.0.0",
     "react-addons-perf": "15.4.2",
     "tsify": "3.0.4",
