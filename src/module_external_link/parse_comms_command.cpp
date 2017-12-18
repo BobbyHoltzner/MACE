@@ -7,57 +7,63 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_short_t *message)
     {
     case(CommandItem::COMMANDITEM::CI_ACT_MISSIONCOMMAND):
     {
-        //acknowledge receiving the command
-        mace_command_ack_t commandACK;
-        commandACK.command = (uint8_t)CommandItem::COMMANDITEM::CI_ACT_MISSIONCOMMAND;
-        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
-        mace_message_t msg;
-        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+        BroadcastLogicToAllVehicles(message->target_system, [this, message](int vehicleID){
+            //acknowledge receiving the command
+            mace_command_ack_t commandACK;
+            commandACK.command = (uint8_t)CommandItem::COMMANDITEM::CI_ACT_MISSIONCOMMAND;
+            commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+            mace_message_t msg;
+            mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
+            m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 
-        CommandItem::ActionMissionCommand missionCommand;
-        missionCommand.setTargetSystem(message->target_system);
-        missionCommand.setMissionCommandType(static_cast<Data::MissionCommandAction>(message->param));
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->Event_IssueMissionCommand(this, missionCommand);
+            CommandItem::ActionMissionCommand missionCommand;
+            missionCommand.setTargetSystem(vehicleID);
+            missionCommand.setMissionCommandType(static_cast<Data::MissionCommandAction>(message->param));
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+                ptr->Event_IssueMissionCommand(this, missionCommand);
+            });
         });
         break;
     }
     case(CommandItem::COMMANDITEM::CI_ACT_ARM):
     {
-        CommandItem::ActionArm tmpArm;
-        tmpArm.setTargetSystem(message->target_system);
-        tmpArm.setVehicleArm(fabs(message->param) <= 0.001 ? false : true);
+        BroadcastLogicToAllVehicles(message->target_system, [this, message](int vehicleID){
+            CommandItem::ActionArm tmpArm;
+            tmpArm.setTargetSystem(vehicleID);
+            tmpArm.setVehicleArm(fabs(message->param) <= 0.001 ? false : true);
 
-        //acknowledge receiving the command
-        mace_command_ack_t commandACK;
-        commandACK.command = (uint8_t)CommandItem::COMMANDITEM::CI_ACT_ARM;
-        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
-        mace_message_t msg;
-        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+            //acknowledge receiving the command
+            mace_command_ack_t commandACK;
+            commandACK.command = (uint8_t)CommandItem::COMMANDITEM::CI_ACT_ARM;
+            commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+            mace_message_t msg;
+            mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
+            m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 
-        //notify core
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->Event_IssueCommandSystemArm(this, tmpArm);
+            //notify core
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+                ptr->Event_IssueCommandSystemArm(this, tmpArm);
+            });
         });
         break;
     }
     case(CommandItem::COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH):
     {
-        CommandItem::SpatialRTL tmpRTL;
-        tmpRTL.setTargetSystem(message->target_system);
+        BroadcastLogicToAllVehicles(message->target_system, [this, message](int vehicleID){
+            CommandItem::SpatialRTL tmpRTL;
+            tmpRTL.setTargetSystem(message->target_system);
 
-        //acknowledge receiving the command
-        mace_command_ack_t commandACK;
-        commandACK.command = (uint8_t)CommandItem::COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH;
-        commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
-        mace_message_t msg;
-        mace_msg_command_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&commandACK);
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+            //acknowledge receiving the command
+            mace_command_ack_t commandACK;
+            commandACK.command = (uint8_t)CommandItem::COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH;
+            commandACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+            mace_message_t msg;
+            mace_msg_command_ack_encode_chan(vehicleID, 0, m_LinkChan,&msg,&commandACK);
+            m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
-            ptr->Event_IssueCommandRTL(this, tmpRTL);
+            ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+                ptr->Event_IssueCommandRTL(this, tmpRTL);
+            });
         });
         break;
     }
