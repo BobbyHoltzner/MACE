@@ -75,7 +75,7 @@ void SerialLink::RequestReset()
     m_stoppMutex.unlock();
 }
 
-void SerialLink::WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID) const
+void SerialLink::WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID, OptionalParameter<int> MACEID) const
 {
     QByteArray data(bytes, length);
     if(m_port && m_port->isOpen()) {
@@ -93,6 +93,12 @@ void SerialLink::WriteBytes(const char *bytes, int length, OptionalParameter<int
 //! \param vehicleID ID of vechile
 //!
 void SerialLink::AddInternalVehicle(int vehicleID)
+{
+    UNUSED(vehicleID);
+}
+
+
+void SerialLink::AddMACEInstance(int vehicleID)
 {
     UNUSED(vehicleID);
 }

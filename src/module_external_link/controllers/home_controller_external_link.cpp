@@ -118,7 +118,7 @@ void HomeController_ExternalLink::run()
 }
 
 
-void HomeController_ExternalLink::requestHome(const int &systemID)
+void HomeController_ExternalLink::requestHome(const int &systemID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     mLog->info("Mission Controller has seen a request home.");
     currentCommsState = Data::ControllerCommsState::RECEIVING;
@@ -128,10 +128,10 @@ void HomeController_ExternalLink::requestHome(const int &systemID)
 
     clearPendingTasks();
     clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mace_mission_request_home_t>(commsItemEnum::ITEM_RXHOME, request);
+    prevTransmit = new PreviousTransmission<mace_mission_request_home_t>(commsItemEnum::ITEM_RXHOME, request, sender);
 
     if(m_CB)
-        m_CB->cbiHomeController_TransmitHomeReq(request);
+        m_CB->cbiHomeController_TransmitHomeReq(request, sender);
 
     currentRetry = 0;
     this->start();

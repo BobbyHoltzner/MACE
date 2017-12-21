@@ -12,6 +12,7 @@
 #include "mace_core_global.h"
 
 #include "module_characteristics.h"
+#include "optional_parameter.h"
 
 
 //!
@@ -174,7 +175,7 @@ public:
         ZeroParamCaller *caller = (ZeroParamCaller*)m_EventProcedures.at(event).get();
         if(sender.IsSet() == true)
         {
-            caller->AddSender(sender.Value());
+            //caller->AddSender(sender.Value());
         }
         caller->Enable();
     }
@@ -194,7 +195,8 @@ public:
         caller->AddParameter(param1);
         if(sender.IsSet() == true)
         {
-            caller->AddSender(sender.Value());
+            MaceCore::ModuleCharacteristic a = sender.Value();
+            caller->AddSender(a);
         }
     }
 

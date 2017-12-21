@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "module_characteristics.h"
+
 namespace MaceCore
 {
 
@@ -154,10 +156,9 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
     }
 }
 
-void MaceCore::Event_ForceVehicleDataSync(const void *sender, const int &targetSystemID)
+void MaceCore::Event_ForceVehicleDataSync(const ModuleBase *sender, const int &targetSystemID)
 {
-    UNUSED(sender);
-    MarshalCommandToVehicle<int>(targetSystemID, VehicleCommands::REQUEST_DATA_SYNC, ExternalLinkCommands::REQUEST_DATA_SYNC, targetSystemID);
+    MarshalCommandToVehicle<int>(targetSystemID, VehicleCommands::REQUEST_DATA_SYNC, ExternalLinkCommands::REQUEST_DATA_SYNC, targetSystemID, sender->GetCharacteristic());
 }
 
 void MaceCore::Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command)
@@ -497,6 +498,21 @@ void MaceCore::ExternalEvent_MissionACK(const void* sender, const MissionItem::M
     bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
     if((isMissionCurrent) && (m_GroundStation))
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
+}
+
+void MaceCore::ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission)
+{
+    if(m_GroundStation != NULL)
+    {
+        ModuleCharacteristic requestFrom;
+        requestFrom.ID = m_GroundStation->GetID();
+        requestFrom.Class = ModuleClasses::GROUND_STATION;
+
+        if(sender->ModuleClass() == ModuleClasses::EXTERNAL_LINK)
+        {
+            ((IModuleCommandExternalLink*)sender)->MarshalCommand(ExternalLinkCommands::REQUEST_MISSION, mission, requestFrom);
+        }
+    }
 }
 
 void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const int &targetID)

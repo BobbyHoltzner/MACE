@@ -7,7 +7,7 @@
     </Parameter>
 	<Parameter Name="UDPParameters">
       <Parameter Name="ListenAddress">192.168.1.4</Parameter>
-      <Parameter Name="ListenPortNumber">14551</Parameter>
+      <Parameter Name="ListenPortNumber">14550</Parameter>
     </Parameter>
 	<Parameter Name="ModuleParameters">
       <Parameter Name="AirborneInstance">true</Parameter>

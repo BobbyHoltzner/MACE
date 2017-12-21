@@ -195,7 +195,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
     if(jsonObj["vehicleCommand"] == "FORCE_DATA_SYNC") {
 //        mLogs->debug("Module Ground Station issuing command force data sync to system " + std::to_string(vehicleID) + ".");
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_ForceVehicleDataSync(this, vehicleID);
+            ptr->Event_ForceVehicleDataSync(m_parent, vehicleID);
         });
     }
     else if(jsonObj["vehicleCommand"] == "RTL") {

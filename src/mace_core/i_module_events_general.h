@@ -5,6 +5,8 @@
 #include "data_generic_command_item/command_item_components.h"
 #include "data_generic_state_item/state_global_position.h"
 
+#include "abstract_module_base.h"
+
 namespace MaceCore
 {
 
@@ -12,7 +14,7 @@ class IModuleEventsGeneral
 {
 public:
 
-    virtual void Event_ForceVehicleDataSync(const void* sender, const int &targetSystemID) = 0;
+    virtual void Event_ForceVehicleDataSync(const ModuleBase* sender, const int &targetSystemID) = 0;
 
     virtual void Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command) = 0;
 

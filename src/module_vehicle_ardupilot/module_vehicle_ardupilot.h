@@ -103,7 +103,7 @@ public:
     //! \brief Request_FullDataSync
     //! \param targetSystem
     //!
-    virtual void Request_FullDataSync(const int &targetSystem);
+    virtual void Request_FullDataSync(const int &targetSystem, const OptionalParameter<MaceCore::ModuleCharacteristic>& = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     //!
     //! \brief Command_SystemArm
@@ -157,7 +157,7 @@ public:
 
     virtual void Command_GetCurrentMission(const int &targetSystem);
 
-    virtual void Command_GetMission(const MissionItem::MissionKey &key);
+    virtual void Command_GetMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     virtual void Command_ClearCurrentMission(const int &targetSystem);
 
@@ -207,7 +207,7 @@ public:
     //! \brief Command_GetHomePosition
     //! \param vehicleID
     //!
-    virtual void Command_GetHomePosition (const int &vehicleID);
+    virtual void Command_GetHomePosition (const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic>& = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     //!
     //! \brief Command_SetHomePosition

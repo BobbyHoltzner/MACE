@@ -38,6 +38,8 @@
 #include "controllers/home_controller_external_link.h"
 #include "controllers/mission_controller_externalLink.h"
 
+#include "mace_core/module_characteristics.h"
+
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public MaceCore::IModuleCommandExternalLink,
         public CommsMACEHelper,
@@ -102,6 +104,9 @@ public:
     void transmitMessage(const mace_message_t &msg, OptionalParameter<int> vehicleID = OptionalParameter<int>());
 
 
+    void transmitMessage(const mace_message_t &msg, OptionalParameter<MaceCore::ModuleCharacteristic> target);
+
+
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from the Command Controller
     /// Interface via callback functionality.
@@ -122,11 +127,11 @@ public:
     /// Interface via callback functionality.
     ///////////////////////////////////////////////////////////////////////////////////////
     void cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK);
-    void cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count);
+    void cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
     void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item);
-    void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request);
-    void cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request);
-    void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem);
+    void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
+    void cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
+    void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
     void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList);
     void cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK);
 
@@ -134,7 +139,7 @@ public:
     /// The following are public virtual functions imposed from the Home Controller
     /// Interface via callback functionality.
     ///////////////////////////////////////////////////////////////////////////////////////
-    void cbiHomeController_TransmitHomeReq(const mace_mission_request_home_t &request);
+    void cbiHomeController_TransmitHomeReq(const mace_mission_request_home_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
     void cbiHomeController_ReceviedHome(const CommandItem::SpatialHome &home);
     void cbiHomeController_TransmitHomeSet(const mace_set_home_position_t &home);
     void cbiHomeController_ReceivedHomeSetACK(const mace_home_position_ack_t &ack);
@@ -193,7 +198,7 @@ public:
     //! \brief Request_FullDataSync
     //! \param targetSystem
     //!
-    virtual void Request_FullDataSync(const int &targetSystem);
+    virtual void Request_FullDataSync(const int &targetSystem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     //!
     //! \brief Command_ChangeVehicleArm
@@ -263,7 +268,7 @@ public:
     virtual void Command_GetCurrentMission(const int &targetSystem);
 
     virtual void Command_SetCurrentMission(const MissionItem::MissionKey &key);
-    virtual void Command_GetMission(const MissionItem::MissionKey &key);
+    virtual void Command_GetMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
     virtual void Command_ClearCurrentMission(const int &targetSystem);
 
 
@@ -315,7 +320,7 @@ public:
     //! \brief Command_GetHomePosition
     //! \param vehicleID
     //!
-    virtual void Command_GetHomePosition (const int &vehicleID);
+    virtual void Command_GetHomePosition (const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     //!
     //! \brief Command_SetHomePosition
@@ -327,7 +332,7 @@ public:
     /// The following are public virtual functions imposed from IModuleCommandExternalLink.
     ///////////////////////////////////////////////////////////////////////////////////////
 
-    virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key);
+    virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey);
     virtual void NewlyAvailableVehicle(const int &systemID);

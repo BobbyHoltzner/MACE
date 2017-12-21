@@ -328,11 +328,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
         MissionItem::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState);
 
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->ExternalEvent_NewOnboardMission(this, key);
-        });
-
-        //m_MissionController->requestMission(key, sender);
+        m_MissionController->requestMission(key);
 
         //bool valid = this->getDataObject()->getMissionKeyValidity(key);
         break;
@@ -496,7 +492,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         MissionItem::MISSIONSTATE state = static_cast<MissionItem::MISSIONSTATE>(decodedMSG.mission_state);
         if(state == MissionItem::MISSIONSTATE::CURRENT)
         {
-            auto func = [this, systemID, decodedMSG, sender](int vehicleID)
+            auto func = [this, systemID, decodedMSG](int vehicleID)
             {
                 MissionItem::MissionList currentMission;
                 bool exists = this->getDataObject()->getCurrentMission(vehicleID, currentMission);

@@ -26,12 +26,12 @@ namespace ExternalLink {
 class MissionController_Interface
 {
 public:
-    virtual void cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count) = 0;
+    virtual void cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) = 0;
     virtual void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item) = 0;
 
-    virtual void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request) = 0;
-    virtual void cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request) = 0;
-    virtual void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem) = 0;
+    virtual void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) = 0;
+    virtual void cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) = 0;
+    virtual void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) = 0;
     virtual void cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK) = 0;
 
     virtual void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList) = 0;
@@ -59,7 +59,7 @@ public:
 
     void run();
 
-    void transmitMission(const int &targetSystem, const std::list<MissionItem::MissionList> &missionQueue);
+    void transmitMission(const int &targetSystem, const std::list<MissionItem::MissionList> &missionQueue, const MaceCore::ModuleCharacteristic &target);
 
 
     //These 3 functions are related to transmitting a mission
@@ -70,7 +70,7 @@ public:
     //! \param targetSystem is the system that this information is getting written to.
     //! \param missionQueue is the object containing the information to be sent to the target system.
     //!
-    void transmitMission(const int &targetSystem, const MissionItem::MissionList &missionQueue);
+    void transmitMission(const int &targetSystem, const MissionItem::MissionList &missionQueue, const MaceCore::ModuleCharacteristic &target);
 
     //!
     //! \brief transmitMissionItem is a lambda function often initiated in response to the appropriate instance receiving
@@ -111,7 +111,7 @@ public:
     //! \brief requestCurrentMission
     //! \param targetSystem
     //!
-    void requestCurrentMission(const int &targetSystem);
+    void requestCurrentMission(const int &targetSystem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     //!
     //! \brief requestMission transmits a request to the appropriate system as dictated by the key for the mission
@@ -119,7 +119,7 @@ public:
     //! count or acknowledgement is heard from the target system.
     //! \param key object describing the mission that this system is interesting in knowing about.
     //!
-    void requestMission(const MissionItem::MissionKey &key);
+    void requestMission(const MissionItem::MissionKey &key, const MaceCore::ModuleCharacteristic &target, const MaceCore::ModuleCharacteristic &sender);
 
     Data::ControllerCommsState getCommsState() const
     {
@@ -128,7 +128,7 @@ public:
 private:
     void clearPreviousTransmit();
 
-    void updateTransmittingJobs();
+    void updateTransmittingJobs(const MaceCore::ModuleCharacteristic &target);
 
 private:
     int targetID;

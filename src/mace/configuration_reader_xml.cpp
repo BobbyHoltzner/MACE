@@ -204,7 +204,7 @@ ConfigurationParseResult ConfigurationReader_XML::Parse(const std::string &filen
 
         //determine module class, error if unsuccessfull
         std::string moduleClassName = module.attribute("Class").as_string();
-        MaceCore::ModuleBase::Classes moduleClass;
+        MaceCore::ModuleClasses moduleClass;
         try
         {
             moduleClass = MaceCore::ModuleBase::StringToModuleClass(moduleClassName);

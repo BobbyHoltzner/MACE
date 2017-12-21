@@ -150,7 +150,7 @@ void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 /// acknowledgement or an event to take place when calling these items.
 ////////////////////////////////////////////////////////////////////////////
 
-void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem)
+void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> objectData = vehicleData->state->GetTopicData();
     this->PublishVehicleData(targetSystem,objectData);
@@ -285,7 +285,7 @@ void ModuleVehicleArdupilot::SpinDownController() {
 /// mission queue should prepend this position. Just the way ardupilot works.
 /////////////////////////////////////////////////////////////////////////////
 
-void ModuleVehicleArdupilot::Command_GetHomePosition(const int &vehicleID)
+void ModuleVehicleArdupilot::Command_GetHomePosition(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     if((vehicleData) && (vehicleData->getSystemID() == vehicleID))
         vehicleData->command->getSystemHome();
@@ -369,7 +369,7 @@ void ModuleVehicleArdupilot::Command_GetCurrentMission(const int &targetSystem)
 //    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleVehicleArdupilot::Command_GetMission(const MissionItem::MissionKey &key)
+void ModuleVehicleArdupilot::Command_GetMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     UNUSED(key);
 }

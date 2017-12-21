@@ -17,6 +17,8 @@
 #include "data_interface_MACE/COMMS_to_MACE/helper_mission_comms_to_mace.h"
 #include "data_interface_MACE/MACE_to_COMMS/helper_mission_mace_to_comms.h"
 
+#include "mace_core/module_characteristics.h"
+
 using namespace DataInterface_MACE;
 
 namespace ExternalLink {
@@ -24,7 +26,7 @@ namespace ExternalLink {
 class HomeController_Interface
 {
 public:
-    virtual void cbiHomeController_TransmitHomeReq(const mace_mission_request_home_t &request) = 0;
+    virtual void cbiHomeController_TransmitHomeReq(const mace_mission_request_home_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) = 0;
     virtual void cbiHomeController_ReceviedHome(const CommandItem::SpatialHome &home) = 0;
 
     virtual void cbiHomeController_TransmitHomeSet(const mace_set_home_position_t &home) = 0;
@@ -52,7 +54,7 @@ public:
 
     void run();
 
-    void requestHome(const int &targetID);
+    void requestHome(const int &targetID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
     void setHome(const CommandItem::SpatialHome &home);
     void receivedMissionHome(const mace_home_position_t &systemHome);
     void receivedHomePositionACK(const mace_home_position_ack_t &homeACK);

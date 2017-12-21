@@ -130,12 +130,12 @@ int main(int argc, char *argv[])
         //add to core (and check if too many have been added)
         MaceCore::ModuleClasses moduleClass = module->ModuleClass();
         switch (moduleClass) {
-        case MaceCore::ModuleClasses::EXTERNAL_LINK:
+        case MaceCore::ModuleBase::EXTERNAL_LINK:
         {
             core.AddExternalLink(std::dynamic_pointer_cast<MaceCore::IModuleCommandExternalLink>(module));
             break;
         }
-        case  MaceCore::ModuleClasses::GROUND_STATION:
+        case  MaceCore::ModuleBase::GROUND_STATION:
         {
             if(addedGroundStation == true)
             {
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
             addedGroundStation = true;
             break;
         }
-        case MaceCore::ModuleClasses::SENSORS:
+        case MaceCore::ModuleBase::SENSORS:
         {
             if(addedSensors == true)
             {
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
             addedSensors = true;
             break;
         }
-        case MaceCore::ModuleClasses::PATH_PLANNING:
+        case MaceCore::ModuleBase::PATH_PLANNING:
         {
             if(addedPathPlanning == true)
             {
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
             addedPathPlanning = true;
             break;
         }
-        case MaceCore::ModuleClasses::ROS:
+        case MaceCore::ModuleBase::ROS:
         {
 #ifdef ROS_EXISTS
             if(addedROS == true)
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 #endif
             break;
         }
-        case MaceCore::ModuleClasses::RTA:
+        case MaceCore::ModuleBase::RTA:
         {
             if(addedRTA == true)
             {
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
             addedRTA = true;
             break;
         }
-        case MaceCore::ModuleClasses::VEHICLE_COMMS:
+        case MaceCore::ModuleBase::VEHICLE_COMMS:
         {
             core.AddVehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));
             numVehicles++;

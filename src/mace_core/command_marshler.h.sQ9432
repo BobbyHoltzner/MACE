@@ -12,6 +12,7 @@
 #include "mace_core_global.h"
 
 #include "module_characteristics.h"
+#include "optional_parameter.h"
 
 
 //!
@@ -174,7 +175,7 @@ public:
         ZeroParamCaller *caller = (ZeroParamCaller*)m_EventProcedures.at(event).get();
         if(sender.IsSet() == true)
         {
-            caller->AddSender(sender.Value());
+            //caller->AddSender(sender.Value());
         }
         caller->Enable();
     }
@@ -185,16 +186,17 @@ public:
     //! \param event Command to queue the calling of internal lambda
     //!
     template<typename P1T>
-    void QueueCommand(T event, const P1T &param1, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>())
+    void QueueCommand(T event, const P1T &param1, const OptionalParameter<MaceCore::ModuleCharacteristic> &test = OptionalParameter<MaceCore::ModuleCharacteristic>())
     {
         if(m_EventProcedures.find(event) == m_EventProcedures.cend())
             throw std::runtime_error("Given command does not have a behavior defined");
 
         OneParamCaller<P1T> *caller = (OneParamCaller<P1T>*)m_EventProcedures.at(event).get();
         caller->AddParameter(param1);
-        if(sender.IsSet() == true)
+        if(test.IsSet() == true)
         {
-            caller->AddSender(sender.Value());
+            MaceCore::ModuleCharacteristic a = test.Value();
+            caller->AddSender(a);
         }
     }
 

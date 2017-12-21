@@ -31,6 +31,7 @@
 
 #include "topic.h"
 
+
 namespace MaceCore
 {
 
@@ -83,7 +84,7 @@ public:
     /// GENERAL MODULE EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    virtual void Event_ForceVehicleDataSync(const void* sender, const int &targetSystemID);
+    virtual void Event_ForceVehicleDataSync(const ModuleBase *sender, const int &targetSystemID);
     virtual void Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command);
     virtual void Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff &command);
     virtual void Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand &command);
@@ -148,6 +149,8 @@ public:
 
     virtual void ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK);
     virtual void ExternalEvent_RequestingDataSync(const void *sender, const int &targetID);
+
+    virtual void ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission);
 
 public:
 
@@ -245,7 +248,7 @@ private:
      * @param data Data to send to given vehicle
      */
     template <typename T>
-    MarshalCommandToVehicle(int vehicleID, VehicleCommands vehicleCommand, ExternalLinkCommands externalCommand, const T& data)
+    MarshalCommandToVehicle(int vehicleID, VehicleCommands vehicleCommand, ExternalLinkCommands externalCommand, const T& data, OptionalParameter<ModuleCharacteristic> sender = OptionalParameter<ModuleCharacteristic>())
     {
         //transmit to all
         if(vehicleID == 0) {
@@ -257,7 +260,7 @@ private:
 
             for(auto it = m_ExternalLink.begin() ; it != m_ExternalLink.end() ; ++it)
             {
-                (*it)->MarshalCommand(externalCommand, data);
+                (*it)->MarshalCommand(externalCommand, data, sender);
             }
         }
         else {
@@ -266,7 +269,7 @@ private:
             }
 
             else if(m_ExternalLinkIDToPort.find(vehicleID) != m_ExternalLinkIDToPort.cend()){
-                m_ExternalLinkIDToPort.at(vehicleID)->MarshalCommand(externalCommand, data);
+                m_ExternalLinkIDToPort.at(vehicleID)->MarshalCommand(externalCommand, data, sender);
             }
             else {
                 throw std::runtime_error("Unknown vehicle");

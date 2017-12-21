@@ -26,7 +26,7 @@ void MissionController_ExternalLink::clearPreviousTransmit()
     }
 }
 
-void MissionController_ExternalLink::updateTransmittingJobs()
+void MissionController_ExternalLink::updateTransmittingJobs(const MaceCore::ModuleCharacteristic &target)
 {
     std::map<int, std::list<MissionItem::MissionList>>::iterator it = missionList.begin();
     int ID = (int)it->first;
@@ -36,7 +36,7 @@ void MissionController_ExternalLink::updateTransmittingJobs()
     {
         missionList.erase(it);
     }
-    transmitMission(ID,list);
+    transmitMission(ID,list, target);
 }
 
 void MissionController_ExternalLink::updateIDS(const int &targetSystem, const int &originSystem)
@@ -54,29 +54,30 @@ void MissionController_ExternalLink::updateIDS(const int &targetSystem, const in
 /// to a remote instance of MACE.
 ///////////////////////////////////////////////////////////////////////////////
 
-void MissionController_ExternalLink::transmitMission(const int &targetSystem, const std::list<MissionItem::MissionList> &missionQueue)
+void MissionController_ExternalLink::transmitMission(const int &vehicleMissionsOn, const std::list<MissionItem::MissionList> &missionQueue, const MaceCore::ModuleCharacteristic &target)
 {
-    if(targetSystem == this->transmittingID)
+    if(target.Class == MaceCore::ModuleClasses::VEHICLE_COMMS && vehicleMissionsOn == target.ID)
     {
         std::cout<<"This doesn't make sense since this is ourselves."<<std::endl;
         return;
     }
+
     if(missionQueue.size() > 0)
     {
         std::list<MissionItem::MissionList> copyList = missionQueue;
-        std::list<MissionItem::MissionList> currentList = missionList[targetSystem];
+        std::list<MissionItem::MissionList> currentList = missionList[vehicleMissionsOn];
         currentList.splice(currentList.end(),copyList);
-        missionList[targetSystem] = currentList;
+        missionList[vehicleMissionsOn] = currentList;
 
         if(!isThreadActive())
         {
-            updateTransmittingJobs();
+            updateTransmittingJobs(target);
         }
     }
 }
 
 
-void MissionController_ExternalLink::transmitMission(const int &targetSystem, const MissionItem::MissionList &missionQueue)
+void MissionController_ExternalLink::transmitMission(const int &vehicleMissionsOn, const MissionItem::MissionList &missionQueue, const MaceCore::ModuleCharacteristic &target)
 {
     if(mLog)
     {
@@ -87,11 +88,15 @@ void MissionController_ExternalLink::transmitMission(const int &targetSystem, co
         mLog->info(buffer.str());
     }
 
-    if(targetSystem == this->transmittingID)
+    if(target.Class == MaceCore::ModuleClasses::VEHICLE_COMMS && vehicleMissionsOn == target.ID)
     {
         std::cout<<"This doesn't make sense since this is ourselves."<<std::endl;
         return;
     }
+
+    MaceCore::ModuleCharacteristic sender;
+    sender.ID = vehicleMissionsOn;
+    sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
     currentCommsState = Data::ControllerCommsState::TRANSMITTING;
 
@@ -101,7 +106,7 @@ void MissionController_ExternalLink::transmitMission(const int &targetSystem, co
 
     mace_mission_count_t count;
     count.count = this->missionQueue.getQueueSize();
-    count.target_system = targetID;
+    count.target_system = vehicleMissionsOn;
     count.mission_system = key.m_systemID;
     count.mission_creator = key.m_creatorID;
     count.mission_id = key.m_missionID;
@@ -110,14 +115,14 @@ void MissionController_ExternalLink::transmitMission(const int &targetSystem, co
 
     clearPendingTasks();
     clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mace_mission_count_t>(commsItemEnum::ITEM_TXCOUNT, count);
+    prevTransmit = new PreviousTransmission<mace_mission_count_t>(commsItemEnum::ITEM_TXCOUNT, count, sender, target);
 
     currentRetry = 0;
     this->start();
     mTimer.start();
 
     if(m_CB)
-        m_CB->cbiMissionController_TransmitMissionCount(count);
+        m_CB->cbiMissionController_TransmitMissionCount(count, sender, target);
 }
 
 void MissionController_ExternalLink::transmitMissionItem(const mace_mission_request_item_t &missionRequest)
@@ -337,6 +342,12 @@ void MissionController_ExternalLink::run()
             break;
         }
 
+        if(prevTransmit == NULL)
+        {
+            mTimer.stop();
+            break;
+        }
+
         this->RunPendingTasks();
 
         //Check to see if any of the pending tasks have said that we can quit
@@ -384,7 +395,7 @@ void MissionController_ExternalLink::run()
                     mace_mission_request_list_generic_t msgTransmit = tmp->getData();
                     mTimer.start();
                     if(m_CB)
-                        m_CB->cbiMissionController_TransmitMissionGenericReqList(msgTransmit);
+                        m_CB->cbiMissionController_TransmitMissionGenericReqList(msgTransmit, tmp->Sender());
                 }
                 else if(type == commsItemEnum::ITEM_RXITEM)
                 {
@@ -394,7 +405,7 @@ void MissionController_ExternalLink::run()
                     mace_mission_request_item_t msgTransmit = tmp->getData();
                     mTimer.start();
                     if(m_CB)
-                        m_CB->cbiMissionController_TransmitMissionReq(msgTransmit);
+                        m_CB->cbiMissionController_TransmitMissionReq(msgTransmit, tmp->Sender());
                 }
                 break;
             }
@@ -431,7 +442,7 @@ void MissionController_ExternalLink::run()
     }
 }
 
-void MissionController_ExternalLink::requestMission(const MissionItem::MissionKey &key)
+void MissionController_ExternalLink::requestMission(const MissionItem::MissionKey &key, const MaceCore::ModuleCharacteristic &target, const MaceCore::ModuleCharacteristic &sender)
 {
     currentCommsState = Data::ControllerCommsState::RECEIVING;
     if(mLog)
@@ -453,16 +464,16 @@ void MissionController_ExternalLink::requestMission(const MissionItem::MissionKe
 
     clearPendingTasks();
     clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mace_mission_request_list_t>(commsItemEnum::ITEM_RXLIST, request);
+    prevTransmit = new PreviousTransmission<mace_mission_request_list_t>(commsItemEnum::ITEM_RXLIST, request, target, sender);
 
     if(m_CB)
-        m_CB->cbiMissionController_TransmitMissionReqList(request);
+        m_CB->cbiMissionController_TransmitMissionReqList(request, sender, target);
     currentRetry = 0;
     this->start();
     mTimer.start();
 }
 
-void MissionController_ExternalLink::requestCurrentMission(const int &targetSystem)
+void MissionController_ExternalLink::requestCurrentMission(const int &targetSystem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     currentCommsState = Data::ControllerCommsState::RECEIVING;
     if(mLog)
@@ -474,10 +485,10 @@ void MissionController_ExternalLink::requestCurrentMission(const int &targetSyst
 
     clearPendingTasks();
     clearPreviousTransmit();
-    prevTransmit = new PreviousTransmission<mace_mission_request_list_generic_t>(commsItemEnum::ITEM_RXGENLIST, request);
+    prevTransmit = new PreviousTransmission<mace_mission_request_list_generic_t>(commsItemEnum::ITEM_RXGENLIST, request, sender);
 
     if(m_CB)
-        m_CB->cbiMissionController_TransmitMissionGenericReqList(request);
+        m_CB->cbiMissionController_TransmitMissionGenericReqList(request, sender);
     currentRetry = 0;
     this->start();
     mTimer.start();

@@ -9,12 +9,12 @@
 namespace MaceCore
 {
 
-ModuleBase::Classes IModuleCommandPathPlanning::moduleClass = ModuleBase::PATH_PLANNING;
-ModuleBase::Classes IModuleCommandROS::moduleClass = ModuleBase::ROS;
-ModuleBase::Classes IModuleCommandRTA::moduleClass = ModuleBase::RTA;
-ModuleBase::Classes IModuleCommandVehicle::moduleClass = ModuleBase::VEHICLE_COMMS;
-ModuleBase::Classes IModuleCommandGroundStation::moduleClass = ModuleBase::GROUND_STATION;
-ModuleBase::Classes IModuleCommandExternalLink::moduleClass = ModuleBase::EXTERNAL_LINK;
-ModuleBase::Classes IModuleCommandSensors::moduleClass = ModuleBase::SENSORS;
+ModuleClasses IModuleCommandPathPlanning::moduleClass = ModuleClasses::PATH_PLANNING;
+ModuleClasses IModuleCommandROS::moduleClass = ModuleClasses::ROS;
+ModuleClasses IModuleCommandRTA::moduleClass = ModuleClasses::RTA;
+ModuleClasses IModuleCommandVehicle::moduleClass = ModuleClasses::VEHICLE_COMMS;
+ModuleClasses IModuleCommandGroundStation::moduleClass = ModuleClasses::GROUND_STATION;
+ModuleClasses IModuleCommandExternalLink::moduleClass = ModuleClasses::EXTERNAL_LINK;
+ModuleClasses IModuleCommandSensors::moduleClass = ModuleClasses::SENSORS;
 
 }

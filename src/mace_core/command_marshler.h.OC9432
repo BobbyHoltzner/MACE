@@ -174,7 +174,7 @@ public:
         ZeroParamCaller *caller = (ZeroParamCaller*)m_EventProcedures.at(event).get();
         if(sender.IsSet() == true)
         {
-            caller->AddSender(sender.Value());
+            //caller->AddSender(sender.Value());
         }
         caller->Enable();
     }
