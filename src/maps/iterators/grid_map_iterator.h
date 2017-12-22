@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#include "maps/dynamic_2D_grid.h"
+#include "maps/base_grid_map.h"
 
 namespace mace{
 namespace maps {
@@ -11,23 +11,28 @@ namespace maps {
 class GridMapIterator
 {
 public:
-    GridMapIterator(const Dynamic2DGrid* map);
+    GridMapIterator(const BaseGridMap *map);
 
     GridMapIterator(const GridMapIterator* copy);
 
-    GridMapIterator& operator =(const GridMapIterator &rhs);
-
-    bool operator !=(const GridMapIterator &rhs) const;
-
-    const int operator *() const;
-
-    virtual GridMapIterator& operator ++();
-
+public:
     GridMapIterator begin() const;
 
     GridMapIterator end() const;
 
     bool isPastEnd() const;
+
+public:
+    virtual GridMapIterator& operator ++();
+    virtual GridMapIterator operator ++(int);
+
+    GridMapIterator& operator =(const GridMapIterator &rhs);
+
+    bool operator == (const GridMapIterator &rhs) const;
+
+    bool operator !=(const GridMapIterator &rhs) const;
+
+    const int operator *() const;
 
 private:
 

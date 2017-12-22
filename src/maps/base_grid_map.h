@@ -24,15 +24,12 @@ public:
     //!
     BaseGridMap(const double &x_length = 10.0, const double &y_length = 10.0,
                 const double &x_res = 0.5, const double &y_res = 0.5,
-                const pose::CartesianPosition_2D &position);
+                const pose::CartesianPosition_2D &position = pose::CartesianPosition_2D());
 
     //!
     //! \brief ~Dynamic2DGrids
     //!
-    virtual ~BaseGridMap()
-    {
-
-    }
+    virtual ~BaseGridMap() = default;
 
 
     void updateGridSize(const double &x_length = 10.0, const double &y_length = 10.0,
@@ -47,16 +44,16 @@ public:
     //!
     int indexFromXPos(const double &x) const
     {
-        return static_cast<int>(round((x - m_xMin) / m_xResolution));
+        return static_cast<int>(round((x - xMin) / xResolution));
     }
 
     void getPositionFromIndex(const unsigned int &index, double &x, double &y)
     {
-        int yIndex = floor(index/m_xSize);
-        y = m_yMin + yIndex * m_yResolution;
+        int yIndex = floor(index/xSize);
+        y = yMin + yIndex * yResolution;
 
-        int xIndex = (index % m_xSize);
-        x = m_xMin + xIndex * m_xResolution;
+        int xIndex = (index % xSize);
+        x = xMin + xIndex * xResolution;
 
     }
 
@@ -67,7 +64,7 @@ public:
     //!
     int indexFromYPos(const double &y) const
     {
-        return static_cast<int>(round((y - m_yMin) / m_yResolution));
+        return static_cast<int>(round((y - yMin) / yResolution));
     }
 
     //!
@@ -78,7 +75,7 @@ public:
     //!
     int indexFromPos(const double &x, const double &y) const
     {
-        return indexFromXPos(x) + indexFromYPos(y) * this->m_xSize;
+        return indexFromXPos(x) + indexFromYPos(y) * this->xSize;
     }
 
     //!
@@ -87,7 +84,7 @@ public:
     //!
     size_t getSizeX() const
     {
-        return this->m_xSize;
+        return this->xSize;
     }
 
     //!
@@ -96,7 +93,7 @@ public:
     //!
     size_t getSizeY() const
     {
-        return this->m_ySize;
+        return this->ySize;
     }
 
     //!
@@ -105,7 +102,7 @@ public:
     //!
     double getXMin() const
     {
-        return this->m_xMin;
+        return this->xMin;
     }
 
     //!
@@ -114,7 +111,7 @@ public:
     //!
     double getYMin() const
     {
-        return this->m_yMin;
+        return this->yMin;
     }
 
     //!
@@ -123,7 +120,7 @@ public:
     //!
     double getXMax() const
     {
-        return this->m_xMax;
+        return this->xMax;
     }
 
     //!
@@ -132,7 +129,7 @@ public:
     //!
     double getYMax() const
     {
-        return this->m_yMax;
+        return this->yMax;
     }
 
     //!
@@ -141,7 +138,7 @@ public:
     //!
     double getXResolution() const
     {
-        return this->m_xResolution;
+        return this->xResolution;
     }
 
     //!
@@ -150,16 +147,16 @@ public:
     //!
     double getYResolution() const
     {
-        return this->m_yResolution;
+        return this->yResolution;
     }
 
     unsigned int getNodeCount() const
     {
-        return m_dataMap.size();
+        return xSize * ySize;
     }
 
 protected:
-    pose::CartesianPosition_2D position; //!< Position of the map relative to the grid frame
+    pose::CartesianPosition_2D originPosition; //!< Position of the map relative to the grid frame
 
     double xMin, yMin; //!< Description of members
     double xMax, yMax; //!< Description of members
