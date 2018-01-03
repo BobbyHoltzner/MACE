@@ -6,8 +6,7 @@
 #include "base/state_space/special_validity_check.h"
 
 #include "maps/iterators/grid_map_iterator.h"
-#include "maps/cartesianposition2dgrid.h"
-#include "maps/double_2d_grid.h"
+#include "maps/data_2d_grid.h"
 
 #include <iostream>
 #include <QFile>
@@ -63,24 +62,26 @@ public:
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    TestPointer newTest;
-    double value = 5.0;
-    double* newValue = newTest.testApp(&value);
-    value = 6;
-    newValue = &value;
-//    using namespace mace::state_space;
-//    double value = 0.0;
-//    mace::maps::Double2DGrid newGridMap(-10.0, 10.0,
-//                                              -10.0, 10.0,
-//                                              0.5, 0.5,
-//                                              &value);
-////    mace::pose::CartesianPosition_2D position(-1,-1);
-////    newGridMap.updatePosition(position);
-//    mace::maps::GridMapIterator newIterator(&newGridMap);
-//    newIterator++;
-//    double* ptr = newGridMap.getCellByIndex(*newIterator);
-//    double newValue = 100.0;
-//    ptr = &newValue;
+//    TestPointer newTest;
+//    double value = 5.0;
+//    double* newValue = newTest.testApp(&value);
+//    value = 6;
+//    newValue = &value;
+    using namespace mace::state_space;
+    double value = 0.0;
+    mace::maps::Data2DGrid<double> newGridMap(-10.0, 10.0,
+                                              -10.0, 10.0,
+                                              0.5, 0.5,
+                                              &value);
+    std::cout<<"This is a holding spot for the grid map"<<std::endl;
+    mace::pose::CartesianPosition_2D position(-1,-1);
+    //newGridMap.updatePosition(position);
+    mace::maps::GridMapIterator newIterator(&newGridMap);
+    newIterator++;
+    double* ptr = newGridMap.getCellByIndex(*newIterator);
+    double newValue = 100.0;
+    *ptr = newValue;
+    std::cout<<"New placeholder"<<std::endl;
     //    using namespace mace::nn;
 
 //    mace::planners_sampling::RRTBase newBase();

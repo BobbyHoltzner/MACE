@@ -29,10 +29,7 @@ SOURCES += \
     base_grid_map.cpp \
     dynamic_2D_grid.cpp \
     iterators/circle_iterator.cpp \
-    iterators/grid_map_iterator.cpp \
-    data_2d_grid.cpp \
-    double_2d_grid.cpp \
-    cartesianposition2dgrid.cpp
+    iterators/grid_map_iterator.cpp
 
 HEADERS +=\
         maps_global.h \
@@ -41,9 +38,7 @@ HEADERS +=\
     base_grid_map.h \
     iterators/circle_iterator.h \
     iterators/grid_map_iterator.h \
-    data_2d_grid.h \
-    double_2d_grid.h \
-    cartesianposition2dgrid.h
+    data_2d_grid.h
 
 #Header file copy
 headers_maps.path    = $$(MACE_ROOT)/include/maps
