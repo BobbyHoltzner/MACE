@@ -24,6 +24,30 @@ struct ModuleCharacteristic
     ModuleClasses Class;
 };
 
+struct ModuleCharacteristicCmp {
+    bool operator()(const ModuleCharacteristic& lhs, const ModuleCharacteristic& rhs) const {
+        if(lhs.Class < rhs.Class)
+            return true;
+        if(lhs.ID < rhs.ID) {
+            return true;
+        }
+        return false;
+    }
+};
+
+
+struct ModuleCharacteristicEQ {
+    bool operator()(const ModuleCharacteristic& lhs, const ModuleCharacteristic& rhs) const {
+        if(lhs.Class != rhs.Class)
+            return false;
+        if(lhs.ID != rhs.ID) {
+            return false;
+        }
+        return true;
+    }
+};
+
+
 }
 
 #endif // MODULE_CHARACTERISTICS_H

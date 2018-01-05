@@ -30,13 +30,14 @@ MissionKey::MissionKey(const MissionKey &obj)
 
 }
 
-void MissionKey::operator =(const MissionKey &rhs)
+MissionKey& MissionKey::operator =(const MissionKey &rhs)
 {
     this->m_systemID = rhs.m_systemID;
     this->m_creatorID =rhs.m_creatorID;
     this->m_missionID = rhs.m_missionID;
     this->m_missionType = rhs.m_missionType;
     this->m_missionState = rhs.m_missionState;
+    return *this;
 }
 
 bool MissionKey::operator <(const MissionKey &rhs) const
@@ -46,35 +47,16 @@ bool MissionKey::operator <(const MissionKey &rhs) const
 
     if(this->m_systemID > rhs.m_systemID)
         return false;
-    else if(this->m_systemID < rhs.m_systemID)
-        return true;
-    else{ //this implies that targetID was equal
-        if(this->m_missionID > rhs.m_missionID)
-            return false;
-        else if(this->m_missionID < rhs.m_missionID)
-            return true;
-        else{ //this implies that the missionID was equal
-            if(this->m_creatorID > rhs.m_creatorID)
-                return false;
-            else if(this->m_creatorID < rhs.m_creatorID)
-                return true;
-            else{ //this implies that the creatorID was equal
-                if(this->m_missionType > rhs.m_missionType)
-                    return false;
-                else if(this->m_missionType < rhs.m_missionType)
-                    return true;
-                else{ //this implies that the missionType was equal
-                    if(this->m_missionState > rhs.m_missionState)
-                        return false;
-                    else if(this->m_missionState < rhs.m_missionState)
-                        return true;
-                    else{
-                        return false;
-                    }
-                }
-            }
-        }
-    }
+    if(this->m_missionID > rhs.m_missionID)
+        return false;
+    if(this->m_creatorID > rhs.m_creatorID)
+        return false;
+    if(this->m_missionType > rhs.m_missionType)
+        return false;
+    if(this->m_missionState > rhs.m_missionState)
+        return false;
+
+    return true;
 
 }
 

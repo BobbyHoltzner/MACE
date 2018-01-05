@@ -81,6 +81,10 @@ public:
         return m_sender.Value();
     }
 
+    MaceCore::ModuleCharacteristic Target() const {
+        return m_target.Value();
+    }
+
 private:
     T obj;
     OptionalParameter<MaceCore::ModuleCharacteristic> m_sender;

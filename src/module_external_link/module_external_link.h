@@ -36,7 +36,11 @@
 #include "controllers/command_controller_externalLink.h"
 #include "controllers/heartbeat_controller_externallink.h"
 #include "controllers/home_controller_external_link.h"
-#include "controllers/mission_controller_externalLink.h"
+
+#include "controllers/mission_upload_controller.h"
+#include "controllers/mission_download_controller.h"
+
+#include "controller_collection.h"
 
 #include "mace_core/module_characteristics.h"
 
@@ -46,7 +50,8 @@ class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public ExternalLink::CommandController_Interface,
         public ExternalLink::HeartbeatController_Interface,
         public ExternalLink::HomeController_Interface,
-        public ExternalLink::MissionController_Interface
+        public ExternalLink::MissionUploadInterface,
+        public ExternalLink::MissionDownloadInterface
 {
 
 
@@ -73,6 +78,13 @@ private:
             func(vehicleID);
         }
     }
+
+
+    enum class ContainedControllers
+    {
+        MISSION_DOWNLOAD,
+        MISSION_UPLOAD
+    };
 
 public:
 
@@ -126,14 +138,17 @@ public:
     /// The following are public virtual functions imposed from the Mission Controller
     /// Interface via callback functionality.
     ///////////////////////////////////////////////////////////////////////////////////////
-    void cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK);
+    void cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
     void cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
-    void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item);
+    void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
     void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
     void cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
-    void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
+    void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
     void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList);
     void cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK);
+
+    bool FetchMissionList(const MissionItem::MissionKey &key, MissionItem::MissionList &list);
+    void ReceivedMission(const MissionItem::MissionList &list);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from the Home Controller
@@ -342,7 +357,8 @@ private:
     ExternalLink::CommandController_ExternalLink *m_CommandController;
     ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
     ExternalLink::HomeController_ExternalLink *m_HomeController;
-    ExternalLink::MissionController_ExternalLink *m_MissionController;
+
+    ControllerCollection<ExternalLink::MissionDownloadController, ExternalLink::MissionUploadController> m_Controllers;
 
 private:
     bool airborneInstance;

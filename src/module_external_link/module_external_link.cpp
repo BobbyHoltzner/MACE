@@ -7,12 +7,15 @@
 ModuleExternalLink::ModuleExternalLink() :
     m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"),
     associatedSystemID(254), airborneInstance(true),
-    m_CommandController(NULL),m_HeartbeatController(NULL),m_HomeController(NULL),m_MissionController(NULL)
+    m_CommandController(NULL),m_HeartbeatController(NULL),m_HomeController(NULL)
 {
 
-    m_MissionController = new ExternalLink::MissionController_ExternalLink(this);
     m_HomeController = new ExternalLink::HomeController_ExternalLink(this);
     m_CommandController = new ExternalLink::CommandController_ExternalLink(this);
+
+
+    m_Controllers.Add(new ExternalLink::MissionDownloadController(this, m_LinkChan));
+    m_Controllers.Add(new ExternalLink::MissionUploadController(this, m_LinkChan));
 }
 
 ModuleExternalLink::~ModuleExternalLink()
@@ -167,11 +170,11 @@ void ModuleExternalLink::cbiHeartbeatController_transmitCommand(const mace_heart
 /// The following are public virtual functions imposed from the Mission Controller
 /// Interface via callback functionality.
 ///////////////////////////////////////////////////////////////////////////////////////
-void ModuleExternalLink::cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK)
+void ModuleExternalLink::cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
     mace_message_t msg;
-    mace_msg_mission_ack_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&missionACK);
-    transmitMessage(msg);
+    mace_msg_mission_ack_encode_chan(sender().ID, (int)sender().Class,m_LinkChan,&msg,&missionACK);
+    transmitMessage(msg, target);
 }
 
 void ModuleExternalLink::cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
@@ -181,11 +184,11 @@ void ModuleExternalLink::cbiMissionController_TransmitMissionCount(const mace_mi
     transmitMessage(msg, target);
 }
 
-void ModuleExternalLink::cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item)
+void ModuleExternalLink::cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
     mace_message_t msg;
-    mace_msg_mission_item_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&item);
-    transmitMessage(msg);
+    mace_msg_mission_item_encode_chan(sender().ID, (int)sender().Class,m_LinkChan,&msg,&item);
+    transmitMessage(msg, target);
 }
 
 void ModuleExternalLink::cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
@@ -206,7 +209,7 @@ void ModuleExternalLink::cbiMissionController_TransmitMissionGenericReqList(cons
     transmitMessage(msg, request.mission_system);
 }
 
-void ModuleExternalLink::cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
+void ModuleExternalLink::cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
     if(sender.IsSet() == false) {
         throw std::runtime_error("no sender given");
@@ -214,15 +217,26 @@ void ModuleExternalLink::cbiMissionController_TransmitMissionReq(const mace_miss
 
     mace_message_t msg;
     mace_msg_mission_request_item_encode_chan(sender().ID, (int)sender().Class, m_LinkChan,&msg,&requestItem);
-    transmitMessage(msg, requestItem.mission_system);
+    transmitMessage(msg, target);
 }
 
 void ModuleExternalLink::cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList)
 {
+    return ReceivedMission(missionList);
+}
+
+
+bool ModuleExternalLink::FetchMissionList(const MissionItem::MissionKey &key, MissionItem::MissionList &list)
+{
+    return this->getDataObject()->getMissionList(key, list);
+}
+
+void ModuleExternalLink::ReceivedMission(const MissionItem::MissionList &list)
+{
     std::cout<<"The external link module now has received the entire mission."<<std::endl;
 
     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-        ptr->ExternalEvent_FinishedRXMissionList(this, missionList);
+        ptr->ExternalEvent_FinishedRXMissionList(this, list);
     });
 }
 
@@ -285,6 +299,10 @@ void ModuleExternalLink::cbiHomeController_ReceivedHomeSetACK(const mace_home_po
 void ModuleExternalLink::MACEMessage(const std::string &linkName, const mace_message_t &message)
 {
     UNUSED(linkName);
+    m_Controllers.ForEach([message](ExternalLink::GenericController* ptr) {
+       ptr->ReceiveMessage(&message);
+    });
+
     this->ParseForData(&message);
 }
 
@@ -305,8 +323,6 @@ void ModuleExternalLink::HeartbeatInfo(const int &systemID, const mace_heartbeat
         m_CommandController->updateLogging(true,loggerName);
         m_HomeController->updateIDS(systemID,254);
         m_HomeController->updateLogging(true,loggerName);
-        m_MissionController->updateIDS(systemID,254);
-        m_MissionController->updateLogging(true,loggerName);
 
         //The system has yet to have communicated through this module
         //We therefore have to notify the core that there is a new vehicle
@@ -413,7 +429,8 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem, const Opt
     chains for a thread to wait on with no gaurantees from the vehicle module.
     */
     m_HomeController->requestHome(targetSystem, sender);
-    m_MissionController->requestCurrentMission(targetSystem, sender);
+
+    m_Controllers.Retreive<ExternalLink::MissionDownloadController>()->requestCurrentMission(targetSystem, sender);
 }
 
 void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &systemArm)
@@ -491,7 +508,7 @@ void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &m
 
     if(status.state == MissionItem::MissionList::COMPLETE)
     {
-        m_MissionController->transmitMission(targetSystem,missionList, target);
+        m_Controllers.Retreive<ExternalLink::MissionUploadController>()->transmitMission(missionList, target);
     }
 }
 
@@ -506,7 +523,7 @@ void ModuleExternalLink::Command_GetMission(const MissionItem::MissionKey &key, 
     target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
     UNUSED(key);
-    m_MissionController->requestMission(key, target, sender());
+    m_Controllers.Retreive<ExternalLink::MissionDownloadController>()->requestMission(key, target, sender());
 }
 
 void ModuleExternalLink::Command_SetCurrentMission(const MissionItem::MissionKey &key)
@@ -609,7 +626,6 @@ void ModuleExternalLink::NewlyAvailableVehicle(const int &systemID)
         this->associatedSystemID = systemID;
         m_CommandController->updateIDS(254,systemID);
         m_HomeController->updateIDS(254,systemID);
-        m_MissionController->updateIDS(254,systemID);
 
         //this function should always be called by an external link connected to ground for now
         //KEN this is a hack...but it will function for now

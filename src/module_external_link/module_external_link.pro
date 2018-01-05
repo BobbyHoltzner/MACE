@@ -22,14 +22,20 @@ SOURCES += module_external_link.cpp \
     controllers/command_controller_externalLink.cpp \
     controllers/mission_controller_externalLink.cpp \
     controllers/heartbeat_controller_externallink.cpp \
-    controllers/home_controller_external_link.cpp
+    controllers/home_controller_external_link.cpp \
+    controllers/mission_download_controller.cpp \
+    controllers/mission_upload_controller.cpp
 
 HEADERS += module_external_link.h\
         module_external_link_global.h \
     controllers/command_controller_externalLink.h \
     controllers/mission_controller_externalLink.h \
     controllers/heartbeat_controller_externallink.h \
-    controllers/home_controller_external_link.h
+    controllers/home_controller_external_link.h \
+    controllers/mission_download_controller.h \
+    controllers/generic_controller.h \
+    controllers/mission_upload_controller.h \
+    controller_collection.h
 
 # Unix lib Install
 unix:!symbian {
@@ -47,7 +53,8 @@ INSTALLS += lib
 headers_base.path    = $$(MACE_ROOT)/include/module_external_link
 headers_base.files   += \
         module_external_link_global.h \
-        module_external_link.h
+        module_external_link.h \
+        controller_collection.h
 INSTALLS       += headers_base
 
 #Header file copy
@@ -56,7 +63,10 @@ headers_controllers.files   += \
     controllers/command_controller_externalLink.h \
     controllers/heartbeat_controller_externallink.h \
     controllers/home_controller_external_link.h \
-    controllers/mission_controller_externalLink.h
+    controllers/mission_controller_externalLink.h \
+    controllers/generic_controller.h \
+    controllers/mission_download_controller.h \
+    controllers/mission_upload_controller.h \
 INSTALLS       += headers_controllers
 
 INCLUDEPATH += $$PWD/../

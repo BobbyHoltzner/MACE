@@ -27,12 +27,12 @@ class MissionController_Interface
 {
 public:
     virtual void cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) = 0;
-    virtual void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item) = 0;
+    virtual void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) = 0;
 
     virtual void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) = 0;
     virtual void cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) = 0;
-    virtual void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) = 0;
-    virtual void cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK) = 0;
+    virtual void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) = 0;
+    virtual void cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) = 0;
 
     virtual void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList) = 0;
     virtual void cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK) = 0;
@@ -70,7 +70,7 @@ public:
     //! \param targetSystem is the system that this information is getting written to.
     //! \param missionQueue is the object containing the information to be sent to the target system.
     //!
-    void transmitMission(const int &targetSystem, const MissionItem::MissionList &missionQueue, const MaceCore::ModuleCharacteristic &target);
+    void transmitMission(const MissionItem::MissionList &missionQueue, const MaceCore::ModuleCharacteristic &target);
 
     //!
     //! \brief transmitMissionItem is a lambda function often initiated in response to the appropriate instance receiving
@@ -79,7 +79,7 @@ public:
     //! \param missionRequest is the object containing the information containing the key and index of the item. If the key
     //! does not match the key contained in this thread's missionList an mission result shall be emitted as response.
     //!
-    void transmitMissionItem(const mace_mission_request_item_t &missionRequest);
+    void transmitMissionItem(const mace_mission_request_item_t &missionRequest, const MaceCore::ModuleCharacteristic &target);
 
     //!
     //! \brief receivedMissionACK
@@ -87,14 +87,14 @@ public:
     //!
     void receivedMissionACK(const mace_mission_ack_t &missionACK);
 
-    void receivedMissionCount(const mace_mission_count_t &mission);
+    void receivedMissionCount(const mace_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender);
 
     //!
     //! \brief recievedMissionItem is called when the instance receives a mission item. This message should be heard in response
     //! to emitting the mission_request_item message indicating a key and appropriate index of interest.
     //! \param missionItem object containing the information about the mission item at an appropriate index.
     //!
-    void recievedMissionItem(const mace_mission_item_t &missionItem);
+    void recievedMissionItem(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender);
 
     //This function creates a generic request of mission type
     //!
@@ -140,6 +140,13 @@ private:
     int responseTimeout;
 
 private:
+
+    struct MissionRequestStruct
+    {
+        MaceCore::ModuleCharacteristic requester;
+        MissionItem::MissionList missionList;
+    };
+
     std::shared_ptr<spdlog::logger> mLog;
 
     MissionController_Interface *m_CB;
@@ -154,6 +161,8 @@ private:
     std::map<int, std::list<MissionItem::MissionList>> missionList;
 
     MissionItem::MissionList missionQueue;
+
+    std::map<MissionItem::MissionKey, MissionRequestStruct> m_MissionsBeingFetching;
 
 protected:
     std::list<std::function<void()>> m_LambdasToRun;

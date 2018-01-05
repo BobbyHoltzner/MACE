@@ -39,7 +39,7 @@ void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<i
     if(vehicleID.IsSet() == true) {
         m_Link->SendData<VEHICLE_STR>(vehicleID.Value(), data);
     }
-    if(MACEID.IsSet() == true) {
+    else if(MACEID.IsSet() == true) {
         m_Link->SendData<MACE_STR>(vehicleID.Value(), data);
     }
     else {

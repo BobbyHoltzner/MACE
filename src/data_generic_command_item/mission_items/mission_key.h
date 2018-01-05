@@ -34,7 +34,7 @@ public:
 
     MISSIONSTATE m_missionState;
 
-    void operator =(const MissionKey &rhs);
+    MissionKey& operator =(const MissionKey &rhs);
 
     bool operator< (const MissionKey &rhs) const;
 
@@ -44,7 +44,25 @@ public:
 
     friend std::ostream& operator<<(std::ostream& os, const MissionKey& t);
 
+    friend class MissionKeyHasher;
 };
+
+struct MissionKeyHasher
+{
+  std::size_t operator()(const MissionKey& k) const
+  {
+    using std::size_t;
+    using std::hash;
+    using std::string;
+
+    return ((hash<int>()(k.m_systemID))
+             ^ (hash<int>()(k.m_creatorID))
+             ^ (hash<int>()(k.m_missionID))
+             ^ (hash<int>()((int)k.m_missionType))
+             ^ (hash<int>()((int)k.m_missionState)));
+  }
+};
+
 
 
 } //end of namespace Data

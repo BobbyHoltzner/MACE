@@ -337,84 +337,12 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         //bool valid = this->getDataObject()->getMissionKeyValidity(key);
         break;
     }
-    case MACE_MSG_ID_MISSION_ACK:
-    {
-        mace_mission_ack_t decodedMSG;
-        mace_msg_mission_ack_decode(message,&decodedMSG);
-
-        std::cout<<"External link has received the mission ack"<<std::endl;
-        m_MissionController->receivedMissionACK(decodedMSG);
-
-        MissionItem::MISSIONSTATE prevState = static_cast<MissionItem::MISSIONSTATE>(decodedMSG.prev_mission_state);
-        MissionItem::MISSIONSTATE curState = static_cast<MissionItem::MISSIONSTATE>(decodedMSG.cur_mission_state);
-        MissionItem::MISSIONTYPE type = static_cast<MissionItem::MISSIONTYPE>(decodedMSG.mission_type);
-
-        MissionItem::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,type,prevState);
-        MissionItem::MissionACK ack(systemID,static_cast<MissionItem::MissionACK::MISSION_RESULT>(decodedMSG.mission_result),key,curState);
-
-        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-             ptr->ExternalEvent_MissionACK(this, ack);
-         });
-
-        break;
-    }
-    case MACE_MSG_ID_MISSION_REQUEST_LIST:
-    {
-        std::cout<<"I saw a mission request list"<<std::endl;
-
-        mace_mission_request_list_t decodedMSG;
-        mace_msg_mission_request_list_decode(message,&decodedMSG);
-
-        MissionItem::MISSIONTYPE missionType = static_cast<MissionItem::MISSIONTYPE>(decodedMSG.mission_type);
-        MissionItem::MISSIONSTATE missionState = static_cast<MissionItem::MISSIONSTATE>(decodedMSG.mission_state);
-        MissionItem::MissionKey key(decodedMSG.mission_system,decodedMSG.mission_creator,decodedMSG.mission_id,missionType,missionState);
-        std::cout<<key<<std::endl;
-        MissionItem::MissionList missionList;
-
-        bool validity = this->getDataObject()->getMissionList(key,missionList);
-
-        if(!validity){ //KEN TODO: Return a message saying that the request is invalid because the item does not exsist...probably enum failure value / validity
-            std::cout<<"The requested key was not valid"<<std::endl;
-            return;
-        }
-        m_MissionController->transmitMission(systemID,missionList, sender);
-        break;
-    }
-    case MACE_MSG_ID_MISSION_COUNT:
-    {
-        //This message indicates that the sender has a new mission for us to handle
-        mace_mission_count_t decodedMSG;
-        mace_msg_mission_count_decode(message,&decodedMSG);
-
-        m_MissionController->receivedMissionCount(decodedMSG);
-        break;
-    }
     case MACE_MSG_ID_MISSION_REQUEST_PARTIAL_LIST:
     {
         break;
     }
     case MACE_MSG_ID_MISSION_WRITE_PARTIAL_LIST:
     {
-        break;
-    }
-    case MACE_MSG_ID_MISSION_ITEM:
-    {
-        //This is message definition 39
-        //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
-        mace_mission_item_t decodedMSG;
-        mace_msg_mission_item_decode(message,&decodedMSG);
-
-        m_MissionController->recievedMissionItem(decodedMSG);
-        break;
-    }
-    case MACE_MSG_ID_MISSION_REQUEST_ITEM:
-    {
-        //Request the information of the mission item with the sequence number seq.
-        //The response of the system to this message should be a MISSION_ITEM message.
-        mace_mission_request_item_t decodedMSG;
-        mace_msg_mission_request_item_decode(message,&decodedMSG);
-
-        m_MissionController->transmitMissionItem(decodedMSG);
         break;
     }
     case MACE_MSG_ID_MISSION_SET_CURRENT:
@@ -491,6 +419,8 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
     case MACE_MSG_ID_MISSION_REQUEST_LIST_GENERIC:
     {
+        throw std::runtime_error("Not Impliemented");
+        /*
         mace_mission_request_list_generic_t decodedMSG;
         mace_msg_mission_request_list_generic_decode(message,&decodedMSG);
         MissionItem::MISSIONSTATE state = static_cast<MissionItem::MISSIONSTATE>(decodedMSG.mission_state);
@@ -501,7 +431,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
                 MissionItem::MissionList currentMission;
                 bool exists = this->getDataObject()->getCurrentMission(vehicleID, currentMission);
                 if(exists)
-                    m_MissionController->transmitMission(systemID,currentMission, sender);
+                    m_MissionController->transmitMission(currentMission, sender);
                 else
                 {
                     //This is the case where there is no current mission known for this system
@@ -527,6 +457,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
 
         }
+        */
         break;
     }
     case MACE_MSG_ID_GUIDED_TARGET_STATS:
