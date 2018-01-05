@@ -20,7 +20,6 @@ SOURCES += module_external_link.cpp \
     parse_comms_message.cpp \
     parse_comms_command.cpp \
     controllers/command_controller_externalLink.cpp \
-    controllers/mission_controller_externalLink.cpp \
     controllers/heartbeat_controller_externallink.cpp \
     controllers/home_controller_external_link.cpp \
     controllers/mission_download_controller.cpp \
@@ -29,7 +28,6 @@ SOURCES += module_external_link.cpp \
 HEADERS += module_external_link.h\
         module_external_link_global.h \
     controllers/command_controller_externalLink.h \
-    controllers/mission_controller_externalLink.h \
     controllers/heartbeat_controller_externallink.h \
     controllers/home_controller_external_link.h \
     controllers/mission_download_controller.h \
@@ -63,7 +61,6 @@ headers_controllers.files   += \
     controllers/command_controller_externalLink.h \
     controllers/heartbeat_controller_externallink.h \
     controllers/home_controller_external_link.h \
-    controllers/mission_controller_externalLink.h \
     controllers/generic_controller.h \
     controllers/mission_download_controller.h \
     controllers/mission_upload_controller.h \
