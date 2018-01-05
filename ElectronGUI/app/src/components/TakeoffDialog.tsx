@@ -11,6 +11,7 @@ import { Vehicle } from '../Vehicle';
 import { Grid, Col } from 'react-bootstrap';
 
 import * as colors from 'material-ui/styles/colors';
+import * as L from 'leaflet';
 
 
 type Props = {
@@ -23,7 +24,7 @@ type Props = {
     onSelectedAircraftChange: (id: string) => void,
     showSaveTakeoff: boolean,
     handleSaveTakeoff: (alt: string) => void,
-    contextAnchor: L.MouseEvent,
+    contextAnchor: L.LeafletMouseEvent,
     useContext: boolean,
     showNotification: (title: string, message: string, level: string, position: string, label: string) => void
 }

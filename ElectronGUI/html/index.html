@@ -29,7 +29,7 @@
     <script>
         var bundlePath = '../app/build/bundle.js';
         if(typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
-            bundlePath = 'http://localhost:8080/app/build/bundle.js';
+            bundlePath = `http://localhost:${process.env.PORT}/app/build/bundle.js`;
         }
         var bundleScriptEl = document.createElement('script');
         window.electronRequire = require;

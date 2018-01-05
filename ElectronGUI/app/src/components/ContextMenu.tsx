@@ -7,9 +7,11 @@ import MenuItem from 'material-ui/MenuItem';
 
 // import * as colors from 'material-ui/styles/colors';
 
+import * as L from 'leaflet';
+
 
 type Props = {
-    menuAnchor: L.MouseEvent,
+    menuAnchor: L.LeafletMouseEvent,
     handleClose: () => void,
     handleSetHome: () => void,
     handleSetGlobal: () => void,

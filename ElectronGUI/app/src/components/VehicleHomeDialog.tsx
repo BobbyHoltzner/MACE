@@ -11,6 +11,7 @@ import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 
 import * as colors from 'material-ui/styles/colors';
+import * as L from 'leaflet';
 
 
 type Props = {
@@ -19,7 +20,7 @@ type Props = {
     open: boolean,
     handleClose: () => void,
     handleSave: (vehicleID: string, vehicleHome: PositionType) => void,
-    contextAnchor: L.MouseEvent,
+    contextAnchor: L.LeafletMouseEvent,
     useContext: boolean,
     allowVehicleSelect: boolean,
     onSelectedAircraftChange: (id: string) => void,
