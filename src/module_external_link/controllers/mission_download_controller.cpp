@@ -81,9 +81,27 @@ void MissionDownloadController::requestMission(const MissionItem::MissionKey &ke
     });
 }
 
-void MissionDownloadController::requestCurrentMission(const int &targetSystem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
+void MissionDownloadController::requestCurrentMission(const MaceCore::ModuleCharacteristic &target, const MaceCore::ModuleCharacteristic &sender)
 {
-    throw std::runtime_error("Not Impliemented");
+    if(mLog)
+    {
+        mLog->info("MissionController_ExternalLink is requesting the current mission from system " + std::to_string(target.ID) + ".");
+    }
+    mace_mission_request_list_generic_t request;
+    request.mission_system = target.ID;
+    request.mission_type = (uint8_t)MissionItem::MISSIONSTATE::CURRENT;
+    request.mission_state = 0;
+
+    MissionItem::MissionList newList;
+    MissionRequestStruct requestStruct;
+    requestStruct.missionList = newList;
+    requestStruct.requester = sender;
+    m_ActiveCurrentMissionRequests.insert({target, requestStruct});
+
+    std::cout << "Mission Download Progress: Generic List Request" << std::endl;
+    m_ActiveCurrentMissionRequests[target].currentActiveTransmission = QueueTransmission([this, request, sender, target](){
+        EncodeMessage(mace_msg_mission_request_list_generic_encode_chan, request, sender, target);
+    });
 }
 
 
@@ -91,15 +109,35 @@ void MissionDownloadController::receivedMissionCount(const mace_mission_count_t 
 {
     MissionItem::MissionKey key(mission.mission_system,mission.mission_creator,mission.mission_id,static_cast<MissionItem::MISSIONTYPE>(mission.mission_type),static_cast<MissionItem::MISSIONSTATE>(mission.mission_state));
 
-    RemoveTransmissionFromQueue(m_MissionsBeingFetching[key].currentActiveTransmission);
-    m_MissionsBeingFetching[key].currentActiveTransmission = -1;
 
-    MaceCore::ModuleCharacteristic target = sender;
-
+    //This may of been a response to two types of reqeust:
+    //  Request Specific Mission - m_MissionsBeingFetched will be populated
+    //    Remove transmission from queue and continue
+    //  Request Current Mission - m_MissionsBeingFetched will not be populated
+    //    m_ActiveCurrentMissionRequest will be populated, now that the MissionKey is known data is to be
+    //    moved to m_MissionsBeingFetched
     if(m_MissionsBeingFetching.find(key) == m_MissionsBeingFetching.cend())
     {
-        throw std::runtime_error("Given missionKey hasn't been requested to be downloaded");
+        if(this->m_ActiveCurrentMissionRequests.find(sender) == m_ActiveCurrentMissionRequests.cend())
+        {
+            throw std::runtime_error("Given missionKey hasn't been requested to be downloaded");
+        }
+        else
+        {
+            RemoveTransmissionFromQueue(m_ActiveCurrentMissionRequests[sender].currentActiveTransmission);
+            m_MissionsBeingFetching.insert({key, m_ActiveCurrentMissionRequests.at(sender)});
+            m_ActiveCurrentMissionRequests.erase(sender);
+        }
     }
+    else
+    {
+        RemoveTransmissionFromQueue(m_MissionsBeingFetching[key].currentActiveTransmission);
+        m_MissionsBeingFetching[key].currentActiveTransmission = -1;
+    }
+
+
+
+    MaceCore::ModuleCharacteristic target = sender;
     MaceCore::ModuleCharacteristic requester = m_MissionsBeingFetching.at(key).requester;
 
     m_MissionsBeingFetching.at(key).missionList.initializeQueue(mission.count);
@@ -121,7 +159,7 @@ void MissionDownloadController::receivedMissionCount(const mace_mission_count_t 
     request.target_system = target.ID;
     request.seq = 0;
 
-    std::cout << "Mission Download Progress: Sending Item Reqeust 0" << std::endl;
+    std::cout << "Mission Download Progress: Asking For Item 0" << std::endl;
     m_MissionsBeingFetching[key].currentActiveTransmission = QueueTransmission([this, request, requester, target](){
         EncodeMessage(mace_msg_mission_request_item_encode_chan, request, requester, target);
     });
@@ -146,6 +184,7 @@ void MissionDownloadController::recievedMissionItem(const mace_mission_item_t &m
     int seqReceived = missionItem.seq;
     if(seqReceived > (m_MissionsBeingFetching[key].missionList.getQueueSize() - 1)) //this should never happen
     {
+        std::cout << "Mission download Error: received a mission item with an index greater than available in the queue" << std::endl;
         if(mLog)
             mLog->error("Mission controller received a mission item with an index greater than available in the queue.");
         return;

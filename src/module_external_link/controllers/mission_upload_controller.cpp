@@ -54,6 +54,41 @@ bool MissionUploadController::ReceiveMessage(const mace_message_t* message)
             transmitMissionItem(decodedMSG, sender);
             break;
         }
+        case MACE_MSG_ID_MISSION_REQUEST_LIST_GENERIC:
+        {
+            //throw std::runtime_error("Not Impliemented");
+
+            mace_mission_request_list_generic_t decodedMSG;
+            mace_msg_mission_request_list_generic_decode(message,&decodedMSG);
+            MissionItem::MISSIONSTATE state = static_cast<MissionItem::MISSIONSTATE>(decodedMSG.mission_state);
+            if(state == MissionItem::MISSIONSTATE::CURRENT)
+            {
+
+                m_CB->ActionForAllCurrentMission(decodedMSG.mission_system,
+                    [this, sender](const MissionItem::MissionList &currentMission)
+                    {
+                        transmitMission(currentMission, sender);
+                    },
+                    [this, sender, decodedMSG](const MaceCore::ModuleCharacteristic &target){
+                        mace_mission_ack_t ack;
+                        ack.mission_system = decodedMSG.mission_system;
+                        ack.cur_mission_state = decodedMSG.mission_state;
+                        ack.mission_result = (uint8_t)MissionItem::MissionACK::MISSION_RESULT::MISSION_RESULT_DOES_NOT_EXIST;
+                        EncodeMessage(mace_msg_mission_ack_encode_chan, ack, sender, target);
+                    });
+            }
+
+            break;
+        }
+        case MACE_MSG_ID_MISSION_ACK:
+        {
+            mace_mission_ack_t decodedMSG;
+            mace_msg_mission_ack_decode(message,&decodedMSG);
+
+            receivedMissionACK(decodedMSG);
+
+            break;
+        }
     }
 }
 
@@ -148,7 +183,7 @@ void MissionUploadController::transmitMissionItem(const mace_mission_request_ite
     Helper_MissionMACEtoCOMMS::MACEMissionToCOMMSMission(ptrItem,index,missionItem);
     Helper_MissionMACEtoCOMMS::updateMissionKey(key,missionItem);
 
-    std::cout << "Mission Download Progress: Sending Mission Item " << index << std::endl;
+    std::cout << "Mission Upload Progress: Sending Mission Item " << index << std::endl;
     m_MissionsUploading[key].currentActiveTransmission = QueueTransmission([this, missionItem, sender, target](){
         EncodeMessage(mace_msg_mission_item_encode_chan, missionItem, sender, target);
     });
@@ -161,7 +196,7 @@ void MissionUploadController::receivedMissionACK(const mace_mission_ack_t &missi
     RemoveTransmissionFromQueue(m_MissionsUploading[key].currentActiveTransmission);
     m_MissionsUploading[key].currentActiveTransmission = -1;
 
-    std::cout << "Mission Download Progress: Completion Ack received" << std::endl;
+    std::cout << "Mission Upload Progress: Completion Ack received" << std::endl;
     if(m_MissionsUploading.find(key) != m_MissionsUploading.cend())
     {
         m_MissionsUploading.erase(key);

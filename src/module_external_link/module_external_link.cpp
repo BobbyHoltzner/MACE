@@ -231,6 +231,37 @@ bool ModuleExternalLink::FetchMissionList(const MissionItem::MissionKey &key, Mi
     return this->getDataObject()->getMissionList(key, list);
 }
 
+void ModuleExternalLink::ActionForAllCurrentMission(int vehicleID, const std::function<void(MissionItem::MissionList list)> &MissionFunc, const std::function<void(const MaceCore::ModuleCharacteristic &vehicle)> &NoMissionFunc)
+{
+    auto func = [this, &MissionFunc, &NoMissionFunc](int vehicleID)
+    {
+        MissionItem::MissionList currentMission;
+        bool exists = this->getDataObject()->getCurrentMission(vehicleID, currentMission);
+        if(exists)
+            MissionFunc(currentMission);
+        else
+        {
+            MaceCore::ModuleCharacteristic sender;
+            sender.ID = vehicleID;
+            sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+            NoMissionFunc(sender);
+        }
+    };
+
+    if(vehicleID == 0) {
+        //need to iterate over all internal vehicles
+        std::vector<int> vehicles;
+        this->getDataObject()->GetLocalVehicles(vehicles);
+        for(auto it = vehicles.cbegin() ; it != vehicles.cend() ; ++it) {
+            func(*it);
+        }
+    }
+    else {
+        func(vehicleID);
+    }
+}
+
 void ModuleExternalLink::ReceivedMission(const MissionItem::MissionList &list)
 {
     std::cout<<"The external link module now has received the entire mission."<<std::endl;
@@ -414,13 +445,7 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem, const Opt
     mace_vehicle_sync_t sync;
     sync.target_system = targetSystem;
     mace_msg_vehicle_sync_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &sync);
-    if(targetSystem != 0)
-    {
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, targetSystem);
-    }
-    else {
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
-    }
+    transmitMessage(msg, target);
 
     /*
     The second segment is necessary to gaurantee that all information
@@ -430,7 +455,7 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem, const Opt
     */
     m_HomeController->requestHome(targetSystem, sender);
 
-    m_Controllers.Retreive<ExternalLink::MissionDownloadController>()->requestCurrentMission(targetSystem, sender);
+    m_Controllers.Retreive<ExternalLink::MissionDownloadController>()->requestCurrentMission(target, sender());
 }
 
 void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &systemArm)

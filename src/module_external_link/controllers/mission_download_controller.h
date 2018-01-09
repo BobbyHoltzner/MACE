@@ -46,6 +46,7 @@ private:
     std::shared_ptr<spdlog::logger> mLog;
 
     std::map<MissionItem::MissionKey, MissionRequestStruct> m_MissionsBeingFetching;
+    std::map<MaceCore::ModuleCharacteristic, MissionRequestStruct, MaceCore::ModuleCharacteristicCmp> m_ActiveCurrentMissionRequests;
 
 public:
     MissionDownloadController(MissionDownloadInterface *cb, int linkChan);
@@ -54,6 +55,19 @@ public:
         std::cout << "Destructor on the mavlink mission controller" << std::endl;
         mToExit = true;
     }
+
+    //!
+    //! \brief requestMission transmits a request to the appropriate system as dictated by the key for the mission
+    //! associated with it. This function will initiate the controller thread to make up to N attempts until a mission
+    //! count or acknowledgement is heard from the target system.
+    //! \param key object describing the mission that this system is interesting in knowing about.
+    //!
+    void requestMission(const MissionItem::MissionKey &key, const MaceCore::ModuleCharacteristic &target, const MaceCore::ModuleCharacteristic &sender);
+
+
+    void requestCurrentMission(const MaceCore::ModuleCharacteristic &target, const MaceCore::ModuleCharacteristic &sender);
+
+
 
     //!
     //! \brief Receive a message for the controller
@@ -72,19 +86,6 @@ public:
     //! \param missionItem object containing the information about the mission item at an appropriate index.
     //!
     void recievedMissionItem(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender);
-
-
-    //!
-    //! \brief requestMission transmits a request to the appropriate system as dictated by the key for the mission
-    //! associated with it. This function will initiate the controller thread to make up to N attempts until a mission
-    //! count or acknowledgement is heard from the target system.
-    //! \param key object describing the mission that this system is interesting in knowing about.
-    //!
-    void requestMission(const MissionItem::MissionKey &key, const MaceCore::ModuleCharacteristic &target, const MaceCore::ModuleCharacteristic &sender);
-
-
-    void requestCurrentMission(const int &targetSystem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
-
 
 };
 

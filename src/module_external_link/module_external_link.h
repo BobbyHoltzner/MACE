@@ -148,6 +148,7 @@ public:
     void cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK);
 
     bool FetchMissionList(const MissionItem::MissionKey &key, MissionItem::MissionList &list);
+    virtual void ActionForAllCurrentMission(int vehicleID, const std::function<void(MissionItem::MissionList list)> &MissionFunc, const std::function<void(const MaceCore::ModuleCharacteristic &vehicle)> &NoMissionFunc);
     void ReceivedMission(const MissionItem::MissionList &list);
 
     ///////////////////////////////////////////////////////////////////////////////////////

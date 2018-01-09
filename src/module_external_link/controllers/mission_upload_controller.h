@@ -29,6 +29,7 @@ class MissionUploadInterface : public GenericControllerInterface
 {
 public:
     virtual bool FetchMissionList(const MissionItem::MissionKey &key, MissionItem::MissionList &list) = 0;
+    virtual void ActionForAllCurrentMission(int vehicleID, const std::function<void(MissionItem::MissionList list)> &MissionFunc, const std::function<void(const MaceCore::ModuleCharacteristic &vehicle)> &NoMissionFunc) = 0;
 };
 
 class MissionUploadController : public GenericControllerSpecalizedCallback<MissionUploadInterface>
