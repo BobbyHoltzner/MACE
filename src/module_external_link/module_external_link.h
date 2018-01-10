@@ -37,8 +37,7 @@
 #include "controllers/heartbeat_controller_externallink.h"
 #include "controllers/home_controller_external_link.h"
 
-#include "controllers/mission_upload_controller.h"
-#include "controllers/mission_download_controller.h"
+#include "controllers/mission_controller.h"
 
 #include "controller_collection.h"
 
@@ -50,8 +49,8 @@ class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public ExternalLink::CommandController_Interface,
         public ExternalLink::HeartbeatController_Interface,
         public ExternalLink::HomeController_Interface,
-        public ExternalLink::MissionUploadInterface,
-        public ExternalLink::MissionDownloadInterface
+        public ExternalLink::MissionRequestInterface,
+        public ExternalLink::MissionResponseInterface
 {
 
 
@@ -359,7 +358,7 @@ private:
     ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
     ExternalLink::HomeController_ExternalLink *m_HomeController;
 
-    ControllerCollection<ExternalLink::MissionDownloadController, ExternalLink::MissionUploadController> m_Controllers;
+    ControllerCollection<ExternalLink::MissionController> m_Controllers;
 
 private:
     bool airborneInstance;

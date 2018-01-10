@@ -12,26 +12,9 @@
 namespace ExternalLink {
 
 
-class GenericControllerInterface
-{
-public:
-    virtual void transmitMessage(const mace_message_t &msg, OptionalParameter<MaceCore::ModuleCharacteristic> target) = 0;
-};
 
-
+template <typename ...TRANSMITARGS>
 class GenericController : public Thread
-{
-public:
-    //!
-    //! \brief Receive a message for the controller
-    //! \param message Message to receive
-    //! \return True if action was taken, false if this module didnt' care about message
-    //!
-    virtual bool ReceiveMessage(const mace_message_t* message) = 0;
-};
-
-template <typename T>
-class GenericControllerSpecalizedCallback : public GenericController
 {
 private:
 
@@ -54,48 +37,61 @@ private:
         std::chrono::time_point<std::chrono::system_clock> lastTransmit;
     };
 
-protected:
-
-    T *m_CB;
 
 private:
-
-    int m_LinkChan;
 
     std::mutex m_ActiveTransmitsMutex;
     std::unordered_map<int, TransmitTask> m_ActiveTransmits;
 
+    std::function<void(TRANSMITARGS...)> m_TransmitFunction;
+
 
 public:
-    GenericControllerSpecalizedCallback(T *cb, int linkChan)
+
+    //!
+    //! \brief Receive a message for the controller
+    //! \param message Message to receive
+    //! \return True if action was taken, false if this module didnt' care about message
+    //!
+    virtual bool ReceiveMessage(const mace_message_t* message) = 0;
+
+
+    GenericController(const OptionalParameter<const std::function<void(TRANSMITARGS...)>> &func = OptionalParameter<const std::function<void(TRANSMITARGS...)>>())
     {
-        connectCallback(cb, linkChan);
+        if(func.IsSet())
+        {
+            SetTransmit(func.Value());
+        }
         start();
     }
 
-    ~GenericControllerSpecalizedCallback()
+    ~GenericController()
     {
     }
 
-    void connectCallback(T *cb, int linkChan)
+
+    void SetTransmit(const std::function<void(TRANSMITARGS...)> &func)
     {
-        m_CB = cb;
-        m_LinkChan = linkChan;
+        m_TransmitFunction = func;
     }
 
 
+    void TransmitMessage(TRANSMITARGS ...args)
+    {
+        m_TransmitFunction(args...);
+    }
 
-
+    /*
     template <typename FUNC, typename TT>
-    EncodeMessage(FUNC func, TT requestItem, OptionalParameter<MaceCore::ModuleCharacteristic> sender, OptionalParameter<MaceCore::ModuleCharacteristic> target)
+    EncodeMessage(FUNC func, TT requestItem, TRANSMITARGS... args)
     {
         if(sender.IsSet() == false) {
             throw std::runtime_error("no sender given");
         }
 
-        mace_message_t msg;
+        MESSAGETYPE msg;
         func(sender().ID, (int)sender().Class, m_LinkChan, &msg, &requestItem);
-        transmitMessage(msg, target);
+        m_TransmitFunction(msg, target);
     }
 
     void transmitMessage(const mace_message_t &msg, OptionalParameter<MaceCore::ModuleCharacteristic> target)
@@ -106,6 +102,7 @@ public:
         }
         m_CB->transmitMessage(msg, target);
     }
+    */
 
 
     int QueueTransmission(std::function<void()> transmitAction)
@@ -168,7 +165,6 @@ public:
 
 
 };
-
 
 }
 

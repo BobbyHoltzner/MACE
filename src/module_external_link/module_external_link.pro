@@ -22,18 +22,17 @@ SOURCES += module_external_link.cpp \
     controllers/command_controller_externalLink.cpp \
     controllers/heartbeat_controller_externallink.cpp \
     controllers/home_controller_external_link.cpp \
-    controllers/mission_download_controller.cpp \
-    controllers/mission_upload_controller.cpp
+    controllers/mission_controller.cpp
 
 HEADERS += module_external_link.h\
         module_external_link_global.h \
     controllers/command_controller_externalLink.h \
     controllers/heartbeat_controller_externallink.h \
     controllers/home_controller_external_link.h \
-    controllers/mission_download_controller.h \
     controllers/generic_controller.h \
-    controllers/mission_upload_controller.h \
-    controller_collection.h
+    controller_collection.h \
+    controllers/mission_controller.h \
+    controllers/generic_mace_controller.h
 
 # Unix lib Install
 unix:!symbian {
@@ -62,8 +61,8 @@ headers_controllers.files   += \
     controllers/heartbeat_controller_externallink.h \
     controllers/home_controller_external_link.h \
     controllers/generic_controller.h \
-    controllers/mission_download_controller.h \
-    controllers/mission_upload_controller.h \
+    controllers/mission_controller.h \
+    controllers/generic_mace_controller.h
 INSTALLS       += headers_controllers
 
 INCLUDEPATH += $$PWD/../

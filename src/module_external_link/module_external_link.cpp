@@ -13,9 +13,13 @@ ModuleExternalLink::ModuleExternalLink() :
     m_HomeController = new ExternalLink::HomeController_ExternalLink(this);
     m_CommandController = new ExternalLink::CommandController_ExternalLink(this);
 
+    m_Controllers.Add(new ExternalLink::MissionController(this, this, m_LinkChan));
 
-    m_Controllers.Add(new ExternalLink::MissionDownloadController(this, m_LinkChan));
-    m_Controllers.Add(new ExternalLink::MissionUploadController(this, m_LinkChan));
+    m_Controllers.ForEach<ExternalLink::GenericMACEController>([this](ExternalLink::GenericMACEController *ptr){
+        ptr->SetTransmit([this](mace_message_t msg, MaceCore::ModuleCharacteristic target){
+            transmitMessage(msg, target);
+        });
+    });
 }
 
 ModuleExternalLink::~ModuleExternalLink()
@@ -330,7 +334,7 @@ void ModuleExternalLink::cbiHomeController_ReceivedHomeSetACK(const mace_home_po
 void ModuleExternalLink::MACEMessage(const std::string &linkName, const mace_message_t &message)
 {
     UNUSED(linkName);
-    m_Controllers.ForEach([message](ExternalLink::GenericController* ptr) {
+    m_Controllers.ForEach<ExternalLink::GenericMACEController>([message](ExternalLink::GenericMACEController* ptr) {
        ptr->ReceiveMessage(&message);
     });
 
@@ -455,7 +459,7 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem, const Opt
     */
     m_HomeController->requestHome(targetSystem, sender);
 
-    m_Controllers.Retreive<ExternalLink::MissionDownloadController>()->requestCurrentMission(target, sender());
+    m_Controllers.Retreive<ExternalLink::MissionController>()->requestCurrentMission(target, sender());
 }
 
 void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &systemArm)
@@ -533,7 +537,7 @@ void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &m
 
     if(status.state == MissionItem::MissionList::COMPLETE)
     {
-        m_Controllers.Retreive<ExternalLink::MissionUploadController>()->transmitMission(missionList, target);
+        m_Controllers.Retreive<ExternalLink::MissionController>()->TransmitMission(missionList, target);
     }
 }
 
@@ -548,7 +552,7 @@ void ModuleExternalLink::Command_GetMission(const MissionItem::MissionKey &key, 
     target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
     UNUSED(key);
-    m_Controllers.Retreive<ExternalLink::MissionDownloadController>()->requestMission(key, target, sender());
+    m_Controllers.Retreive<ExternalLink::MissionController>()->requestMission(key, target, sender());
 }
 
 void ModuleExternalLink::Command_SetCurrentMission(const MissionItem::MissionKey &key)

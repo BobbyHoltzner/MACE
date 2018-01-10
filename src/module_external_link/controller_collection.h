@@ -2,64 +2,13 @@
 #define CONTROLLER_COLLECTION_H
 
 #include "controllers/generic_controller.h"
+#include "common/pointer_collection.h"
 
-template <typename ...T>
-class ControllerIteration;
-
-template <typename Head, typename ...Tail>
-class ControllerIteration<Head, Tail...> : public ControllerIteration<Tail...>
-{
-public:
-
-    using ControllerIteration<Tail...>::Set;
-    using ControllerIteration<Tail...>::Get;
-
-private:
-
-    Head *m_ptr;
-
-public:
-    ControllerIteration<Head, Tail...>() :
-        ControllerIteration<Tail...>(),
-        m_ptr(NULL)
-    {
-    }
-
-    void Set(Head* ptr) {
-        m_ptr = ptr;
-    }
-
-    void Get(Head* &ptr) {
-        ptr = m_ptr;
-    }
-
-    std::vector<ExternalLink::GenericController*> GetAll() {
-        std::vector<ExternalLink::GenericController*> list = ControllerIteration<Tail...>::GetAll();
-        list.push_back((ExternalLink::GenericController*)m_ptr);
-        return list;
-    }
-};
-
-
-template <>
-class ControllerIteration<>
-{
-public:
-    void Set() {
-    }
-
-    void Get() {
-    }
-
-    std::vector<ExternalLink::GenericController*> GetAll() {
-        return {};
-    }
-};
 
 
 
 template <typename ...TT>
-class ControllerCollection : public ControllerIteration<TT...>
+class ControllerCollection : public PointerCollection<TT...>
 {
 private:
 
@@ -79,12 +28,13 @@ public:
         return ptr;
     }
 
-    ForEach(std::function<void(ExternalLink::GenericController* ptr)> func)
+    template<typename T>
+    void ForEach(std::function<void(T* ptr)> func)
     {
-        std::vector<ExternalLink::GenericController*> list = this->GetAll();
+        std::vector<void*> list = this->GetAll();
         for(auto it = list.cbegin() ; it != list.cend() ; ++it)
         {
-            func(*it);
+            func((T*)*it);
         }
     }
 };

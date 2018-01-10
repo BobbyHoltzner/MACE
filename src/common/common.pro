@@ -19,7 +19,9 @@ HEADERS += common.h\
     enum_class_hash.h \
     publisher.h \
     class_forward.h \
-    optional_parameter.h
+    optional_parameter.h \
+    fsm.h \
+    pointer_collection.h
 
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/common
