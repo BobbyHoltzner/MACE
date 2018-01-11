@@ -13,14 +13,14 @@ using namespace DataInterface_MACE;
 namespace ExternalLink {
 
 
-class MissionRequestInterface
+class MissionDownloadInterface
 {
 public:
     virtual void ReceivedMission(const MissionItem::MissionList &list) = 0;
 };
 
 
-class MissionResponseInterface
+class MissionUploadInterface
 {
 public:
     virtual bool FetchMissionList(const MissionItem::MissionKey &key, MissionItem::MissionList &list) = 0;
@@ -28,7 +28,7 @@ public:
 };
 
 
-class MissionController : public GenericMACEController_RequestResponse<MissionResponseInterface, MissionRequestInterface>
+class MissionController : public GenericMACEController_DownloadUpload<MissionDownloadInterface, MissionUploadInterface>
 {
 
 private:
@@ -59,20 +59,20 @@ public:
 
 
 
-    MissionController(MissionResponseInterface *cb_response, MissionRequestInterface *cb_request, int linkChan) :
-        GenericMACEController_RequestResponse<MissionResponseInterface, MissionRequestInterface>(cb_response, cb_request, linkChan)
+    MissionController(MissionDownloadInterface *cb_download, MissionUploadInterface *cb_upload, int linkChan) :
+        GenericMACEController_DownloadUpload<MissionDownloadInterface, MissionUploadInterface>(cb_download, cb_upload, linkChan)
     {
 
 
         ///////////////////////////////////////////////////////////////
-        //// REQUEST BEHAVIOR
+        //// DOWNLOAD BEHAVIOR
         ///////////////////////////////////////////////////////////////
 
         AddMessageLogic(
                 MaceMessageIDEq<MACE_MSG_ID_MISSION_COUNT>(),
                 MaceProcessFSMState<mace_mission_count_t>(mace_msg_mission_count_decode, [this](const mace_mission_count_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
-                    Requester_ReceivedMissionCount(msg, sender);
+                    Download_ReceivedMissionCount(msg, sender);
                 })
         );
 
@@ -80,7 +80,7 @@ public:
                 MaceMessageIDEq<MACE_MSG_ID_MISSION_ITEM>(),
                 MaceProcessFSMState<mace_mission_item_t>(mace_msg_mission_item_decode, [this](const mace_mission_item_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
-                    Requester_ReceivedMissionItem(msg, sender);
+                    Download_ReceiveMissionItem(msg, sender);
                 })
         );
 
@@ -93,7 +93,7 @@ public:
 
 
         ///////////////////////////////////////////////////////////////
-        //// RESPONSE BEHAVIOR
+        //// UPLOAD BEHAVIOR
         ///////////////////////////////////////////////////////////////
 
         AddMessageLogic(
@@ -105,12 +105,12 @@ public:
                     MissionItem::MissionKey key(msg.mission_system, msg.mission_creator, msg.mission_id, missionType, missionState);
 
                     MissionItem::MissionList missionList;
-                    bool validity = Callback<MissionResponseInterface>()->FetchMissionList(key, missionList);
+                    bool validity = Callback<MissionUploadInterface>()->FetchMissionList(key, missionList);
                     if(!validity){ //KEN TODO: Return a message saying that the request is invalid because the item does not exsist...probably enum failure value / validity
                         std::cout<<"The requested key was not valid"<<std::endl;
                     }
 
-                    TransmitMission(missionList, sender);
+                    UploadMission(missionList, sender);
                 })
         );
 
@@ -118,7 +118,7 @@ public:
                 MaceMessageIDEq<MACE_MSG_ID_MISSION_REQUEST_ITEM>(),
                 MaceProcessFSMState<mace_mission_request_item_t>(mace_msg_mission_request_item_decode, [this](const mace_mission_request_item_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
-                    Responder_MissionItem(msg, sender);
+                    UploadMissionItem(msg, sender);
                 })
         );
 
@@ -130,10 +130,10 @@ public:
                     if(state == MissionItem::MISSIONSTATE::CURRENT)
                     {
 
-                        Callback<MissionResponseInterface>()->ActionForAllCurrentMission(msg.mission_system,
+                        Callback<MissionUploadInterface>()->ActionForAllCurrentMission(msg.mission_system,
                             [this, sender](const MissionItem::MissionList &currentMission)
                             {
-                                TransmitMission(currentMission, sender);
+                                UploadMission(currentMission, sender);
                             },
                             [this, sender, msg](const MaceCore::ModuleCharacteristic &target){
                                 mace_mission_ack_t ack;
@@ -150,7 +150,16 @@ public:
                 MaceMessageIDEq<MACE_MSG_ID_MISSION_ACK>(),
                 MaceProcessFSMState<mace_mission_ack_t>(mace_msg_mission_ack_decode, [this](const mace_mission_ack_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
-                    Responder_MissionACK(msg);
+                    MissionItem::MissionKey key(msg.mission_system, msg.mission_creator, msg.mission_id, static_cast<MissionItem::MISSIONTYPE>(msg.mission_type), static_cast<MissionItem::MISSIONSTATE>(msg.cur_mission_state));
+
+                    RemoveTransmissionFromQueue(m_MissionsUploading[key].currentActiveTransmission);
+                    m_MissionsUploading[key].currentActiveTransmission = -1;
+
+                    std::cout << "Mission Upload Progress: Completion Ack received" << std::endl;
+                    if(m_MissionsUploading.find(key) != m_MissionsUploading.cend())
+                    {
+                        m_MissionsUploading.erase(key);
+                    }
                 })
         );
 
@@ -216,7 +225,7 @@ public:
     }
 
 
-    void TransmitMission(const MissionItem::MissionList &missionQueue, const MaceCore::ModuleCharacteristic &target)
+    void UploadMission(const MissionItem::MissionList &missionQueue, const MaceCore::ModuleCharacteristic &target)
     {
         if(mLog)
         {
@@ -270,7 +279,7 @@ public:
 
 private:
 
-    void Requester_ReceivedMissionCount(const mace_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender)
+    void Download_ReceivedMissionCount(const mace_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender)
     {
         MissionItem::MissionKey key(mission.mission_system,mission.mission_creator,mission.mission_id,static_cast<MissionItem::MISSIONTYPE>(mission.mission_type),static_cast<MissionItem::MISSIONSTATE>(mission.mission_state));
 
@@ -330,7 +339,7 @@ private:
         });
     }
 
-    void Requester_ReceivedMissionItem(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender)
+    void Download_ReceiveMissionItem(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender)
     {
         MissionItem::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionItem.mission_state));
 
@@ -427,14 +436,14 @@ private:
             MissionList finishedList = m_MissionsBeingFetching[key].missionList;
             m_MissionsBeingFetching.erase(key);
 
-            Callback<MissionRequestInterface>()->ReceivedMission(finishedList);
+            Callback<MissionDownloadInterface>()->ReceivedMission(finishedList);
         }
     }
 
 
 
 
-    void Responder_MissionItem(const mace_mission_request_item_t &missionRequest, const MaceCore::ModuleCharacteristic &target)
+    void UploadMissionItem(const mace_mission_request_item_t &missionRequest, const MaceCore::ModuleCharacteristic &target)
     {
 
         MissionItem::MissionKey key(missionRequest.mission_system,missionRequest.mission_creator,missionRequest.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionRequest.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionRequest.mission_state));
@@ -475,20 +484,6 @@ private:
         m_MissionsUploading[key].currentActiveTransmission = QueueTransmission([this, missionItem, sender, target](){
             EncodeMessage(mace_msg_mission_item_encode_chan, missionItem, sender, target);
         });
-    }
-
-    void Responder_MissionACK(const mace_mission_ack_t &missionACK)
-    {
-        MissionItem::MissionKey key(missionACK.mission_system, missionACK.mission_creator, missionACK.mission_id, static_cast<MissionItem::MISSIONTYPE>(missionACK.mission_type), static_cast<MissionItem::MISSIONSTATE>(missionACK.cur_mission_state));
-
-        RemoveTransmissionFromQueue(m_MissionsUploading[key].currentActiveTransmission);
-        m_MissionsUploading[key].currentActiveTransmission = -1;
-
-        std::cout << "Mission Upload Progress: Completion Ack received" << std::endl;
-        if(m_MissionsUploading.find(key) != m_MissionsUploading.cend())
-        {
-            m_MissionsUploading.erase(key);
-        }
     }
 
 

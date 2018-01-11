@@ -49,8 +49,8 @@ class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public ExternalLink::CommandController_Interface,
         public ExternalLink::HeartbeatController_Interface,
         public ExternalLink::HomeController_Interface,
-        public ExternalLink::MissionRequestInterface,
-        public ExternalLink::MissionResponseInterface
+        public ExternalLink::MissionDownloadInterface,
+        public ExternalLink::MissionUploadInterface
 {
 
 

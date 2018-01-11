@@ -11,18 +11,18 @@ namespace ExternalLink {
 
 typedef GenericController<mace_message_t, MaceCore::ModuleCharacteristic> GenericMACEController;
 
-template<typename RequestInterface, typename ResponseInterface>
-class GenericMACEController_RequestResponse : public GenericMACEController
+template<typename DownloadInterface, typename UploadInterface>
+class GenericMACEController_DownloadUpload : public GenericMACEController
 {
 private:
 
     int m_LinkChan;
 
 
-    ResponseInterface *m_CB_Response;
-    RequestInterface *m_CB_Request;
+    UploadInterface *m_CB_Response;
+    DownloadInterface *m_CB_Request;
 
-    PointerCollection<ResponseInterface, RequestInterface> m_cb;
+    PointerCollection<UploadInterface, DownloadInterface> m_cb;
 
 protected:
 
@@ -44,12 +44,12 @@ public:
         m_MessageBehaviors.push_back(newItem);
     }
 
-    GenericMACEController_RequestResponse(RequestInterface *cb_requestCB, ResponseInterface *cb_response, int linkChan) :
+    GenericMACEController_DownloadUpload(DownloadInterface *cb_download, UploadInterface *cb_upload, int linkChan) :
         GenericMACEController(),
         m_LinkChan(linkChan)
     {
-        m_cb.Set(cb_requestCB);
-        m_cb.Set(cb_response);
+        m_cb.Set(cb_download);
+        m_cb.Set(cb_upload);
     }
 
     template <const int I>

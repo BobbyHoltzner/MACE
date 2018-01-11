@@ -537,7 +537,7 @@ void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &m
 
     if(status.state == MissionItem::MissionList::COMPLETE)
     {
-        m_Controllers.Retreive<ExternalLink::MissionController>()->TransmitMission(missionList, target);
+        m_Controllers.Retreive<ExternalLink::MissionController>()->UploadMission(missionList, target);
     }
 }
 
