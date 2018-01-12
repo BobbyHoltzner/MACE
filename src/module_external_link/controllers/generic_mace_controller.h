@@ -11,9 +11,68 @@ namespace ExternalLink {
 
 typedef GenericController<mace_message_t, MaceCore::ModuleCharacteristic> GenericMACEController;
 
-template<typename DownloadInterface, typename UploadInterface>
-class GenericMACEController_DownloadUpload : public GenericMACEController
+
+
+template <typename ...T>
+class GenericMACEControllerTransmitTracking;
+
+template <typename Head, typename ...T>
+class GenericMACEControllerTransmitTracking<Head, T...> : public GenericMACEControllerTransmitTracking<T...>
 {
+public:
+    using GenericMACEControllerTransmitTracking<T...>::QueueTransmission;
+    using GenericMACEControllerTransmitTracking<T...>::RemoveTransmission;
+
+private:
+
+
+
+    std::unordered_map<Head, int> m_ActiveTransmissions;
+
+public:
+    void QueueTransmission(const Head &key, const std::function<void()> &transmitAction)
+    {
+        int num = GenericMACEController::QueueTransmission(transmitAction);
+        m_ActiveTransmissions.insert({key, num});
+        std::cout << "Transmission Queued: " << num << std::endl;
+    }
+
+    void RemoveTransmission(const Head &key)
+    {
+        if(m_ActiveTransmissions.find(key) != m_ActiveTransmissions.cend())
+        {
+            std::cout << "Transmission Removed: " << m_ActiveTransmissions.at(key) << std::endl;
+            GenericMACEController::RemoveTransmissionFromQueue(m_ActiveTransmissions.at(key));
+            m_ActiveTransmissions.erase(key);
+        }
+    }
+
+};
+
+template <>
+class GenericMACEControllerTransmitTracking<> : public GenericMACEController
+{
+public:
+
+    void QueueTransmission()
+    {
+
+    }
+
+    void RemoveTransmission()
+    {
+
+    }
+};
+
+
+
+template<typename DownloadInterface, typename UploadInterface, typename ...TransmitKeys>
+class GenericMACEController_DownloadUpload : public GenericMACEControllerTransmitTracking<TransmitKeys...>
+{
+public:
+    using GenericMACEControllerTransmitTracking<TransmitKeys...>::RemoveTransmission;
+
 private:
 
     int m_LinkChan;
@@ -45,7 +104,7 @@ public:
     }
 
     GenericMACEController_DownloadUpload(DownloadInterface *cb_download, UploadInterface *cb_upload, int linkChan) :
-        GenericMACEController(),
+        GenericMACEControllerTransmitTracking<TransmitKeys...>(),
         m_LinkChan(linkChan)
     {
         m_cb.Set(cb_download);
@@ -83,6 +142,8 @@ public:
         MaceCore::ModuleCharacteristic sender;
         sender.ID = systemID;
         sender.Class = (MaceCore::ModuleClasses)compID;
+
+        RemoveTransmission(sender);
 
         for(auto it = m_MessageBehaviors.cbegin() ; it != m_MessageBehaviors.cend() ; ++it)
         {

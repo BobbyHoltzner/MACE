@@ -28,39 +28,29 @@ public:
 };
 
 
-class MissionController : public GenericMACEController_DownloadUpload<MissionDownloadInterface, MissionUploadInterface>
+class MissionController : public GenericMACEController_DownloadUpload<MissionDownloadInterface, MissionUploadInterface, MissionKey, MaceCore::ModuleCharacteristic>
 {
 
 private:
 
-    struct MissionRequestStruct
-    {
-        MaceCore::ModuleCharacteristic requester;
-        MissionItem::MissionList missionList;
-        int currentActiveTransmission;
-    };
-
-
-    struct ActiveMissionUpload
-    {
-        MaceCore::ModuleCharacteristic requester;
-        MissionItem::MissionList mission;
-        int currentActiveTransmission;
-    };
-
     std::shared_ptr<spdlog::logger> mLog;
 
-    std::map<MissionItem::MissionKey, MissionRequestStruct> m_MissionsBeingFetching;
-    std::map<MaceCore::ModuleCharacteristic, MissionRequestStruct, MaceCore::ModuleCharacteristicCmp> m_ActiveCurrentMissionRequests;
+    struct MissionRequestStruct
+    {
+        MissionItem::MissionList mission;
+        MaceCore::ModuleCharacteristic requester;
+    };
 
-    std::unordered_map<MissionItem::MissionKey, ActiveMissionUpload, MissionItem::MissionKeyHasher> m_MissionsUploading;
+    std::unordered_map<MissionItem::MissionKey, MissionRequestStruct> m_MissionsBeingFetching;
+
+    std::unordered_map<MissionItem::MissionKey, MissionItem::MissionList> m_MissionsUploading;
 
 public:
 
 
 
     MissionController(MissionDownloadInterface *cb_download, MissionUploadInterface *cb_upload, int linkChan) :
-        GenericMACEController_DownloadUpload<MissionDownloadInterface, MissionUploadInterface>(cb_download, cb_upload, linkChan)
+        GenericMACEController_DownloadUpload<MissionDownloadInterface, MissionUploadInterface, MissionKey, MaceCore::ModuleCharacteristic>(cb_download, cb_upload, linkChan)
     {
 
 
@@ -72,6 +62,9 @@ public:
                 MaceMessageIDEq<MACE_MSG_ID_MISSION_COUNT>(),
                 MaceProcessFSMState<mace_mission_count_t>(mace_msg_mission_count_decode, [this](const mace_mission_count_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
+                    MissionItem::MissionKey key(msg.mission_system, msg.mission_creator, msg.mission_id, static_cast<MissionItem::MISSIONTYPE>(msg.mission_type), static_cast<MissionItem::MISSIONSTATE>(msg.mission_state));
+                    RemoveTransmission(key);
+
                     Download_ReceivedMissionCount(msg, sender);
                 })
         );
@@ -80,6 +73,9 @@ public:
                 MaceMessageIDEq<MACE_MSG_ID_MISSION_ITEM>(),
                 MaceProcessFSMState<mace_mission_item_t>(mace_msg_mission_item_decode, [this](const mace_mission_item_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
+                    MissionItem::MissionKey key(msg.mission_system, msg.mission_creator, msg.mission_id, static_cast<MissionItem::MISSIONTYPE>(msg.mission_type), static_cast<MissionItem::MISSIONSTATE>(msg.mission_state));
+                    RemoveTransmission(key);
+
                     Download_ReceiveMissionItem(msg, sender);
                 })
         );
@@ -100,9 +96,11 @@ public:
                 MaceMessageIDEq<MACE_MSG_ID_MISSION_REQUEST_LIST>(),
                 MaceProcessFSMState<mace_mission_request_list_t>(mace_msg_mission_request_list_decode, [this](const mace_mission_request_list_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
+                    MissionItem::MissionKey key(msg.mission_system, msg.mission_creator, msg.mission_id, static_cast<MissionItem::MISSIONTYPE>(msg.mission_type), static_cast<MissionItem::MISSIONSTATE>(msg.mission_state));
+                    RemoveTransmission(key);
+
                     MissionItem::MISSIONTYPE missionType = static_cast<MissionItem::MISSIONTYPE>(msg.mission_type);
                     MissionItem::MISSIONSTATE missionState = static_cast<MissionItem::MISSIONSTATE>(msg.mission_state);
-                    MissionItem::MissionKey key(msg.mission_system, msg.mission_creator, msg.mission_id, missionType, missionState);
 
                     MissionItem::MissionList missionList;
                     bool validity = Callback<MissionUploadInterface>()->FetchMissionList(key, missionList);
@@ -118,6 +116,9 @@ public:
                 MaceMessageIDEq<MACE_MSG_ID_MISSION_REQUEST_ITEM>(),
                 MaceProcessFSMState<mace_mission_request_item_t>(mace_msg_mission_request_item_decode, [this](const mace_mission_request_item_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
+                    MissionItem::MissionKey key(msg.mission_system, msg.mission_creator, msg.mission_id, static_cast<MissionItem::MISSIONTYPE>(msg.mission_type), static_cast<MissionItem::MISSIONSTATE>(msg.mission_state));
+                    RemoveTransmission(key);
+
                     UploadMissionItem(msg, sender);
                 })
         );
@@ -151,9 +152,7 @@ public:
                 MaceProcessFSMState<mace_mission_ack_t>(mace_msg_mission_ack_decode, [this](const mace_mission_ack_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
                     MissionItem::MissionKey key(msg.mission_system, msg.mission_creator, msg.mission_id, static_cast<MissionItem::MISSIONTYPE>(msg.mission_type), static_cast<MissionItem::MISSIONSTATE>(msg.cur_mission_state));
-
-                    RemoveTransmissionFromQueue(m_MissionsUploading[key].currentActiveTransmission);
-                    m_MissionsUploading[key].currentActiveTransmission = -1;
+                    RemoveTransmission(key);
 
                     std::cout << "Mission Upload Progress: Completion Ack received" << std::endl;
                     if(m_MissionsUploading.find(key) != m_MissionsUploading.cend())
@@ -190,13 +189,13 @@ public:
         MissionItem::MissionList newList;
         newList.setMissionKey(key);
         newList.clearQueue();
-        MissionRequestStruct requestStruct;
-        requestStruct.missionList = newList;
-        requestStruct.requester = sender;
-        m_MissionsBeingFetching.insert({key, requestStruct});
+        MissionRequestStruct newItem;
+        newItem.mission = newList;
+        newItem.requester = sender;
+        m_MissionsBeingFetching.insert({key, newItem});
 
         std::cout << "Mission Download Progress: Sending Initial List Reqeust" << std::endl;
-        m_MissionsBeingFetching[key].currentActiveTransmission = QueueTransmission([this, request, sender, target](){
+        QueueTransmission(key, [this, request, sender, target](){
             EncodeMessage(mace_msg_mission_request_list_encode_chan, request, sender, target);
         });
     }
@@ -212,14 +211,8 @@ public:
         request.mission_type = (uint8_t)MissionItem::MISSIONSTATE::CURRENT;
         request.mission_state = 0;
 
-        MissionItem::MissionList newList;
-        MissionRequestStruct requestStruct;
-        requestStruct.missionList = newList;
-        requestStruct.requester = sender;
-        m_ActiveCurrentMissionRequests.insert({target, requestStruct});
-
         std::cout << "Mission Download Progress: Generic List Request" << std::endl;
-        m_ActiveCurrentMissionRequests[target].currentActiveTransmission = QueueTransmission([this, request, sender, target](){
+        QueueTransmission(target, [this, request, sender, target](){
             EncodeMessage(mace_msg_mission_request_list_generic_encode_chan, request, sender, target);
         });
     }
@@ -250,16 +243,12 @@ public:
 
         MissionItem::MissionKey key = missionQueue.getMissionKey();
 
-        ActiveMissionUpload newActiveUpload;
-        newActiveUpload.requester = sender;
-        newActiveUpload.mission = missionQueue;
-
         if(m_MissionsUploading.find(key) != m_MissionsUploading.cend())
         {
             std::cout << "Mission Upload Progress: The mission that was requested to be transmitted is already being transmitted" << std::endl;
             return;
         }
-        m_MissionsUploading.insert({key, newActiveUpload});
+        m_MissionsUploading.insert({key, missionQueue});
 
         mace_mission_count_t count;
         count.count = missionQueue.getQueueSize();
@@ -271,7 +260,7 @@ public:
         count.mission_state = static_cast<MAV_MISSION_STATE>(key.m_missionState);
 
         std::cout << "Mission Upload Progress: Sending Mission Count" << std::endl;
-        m_MissionsUploading.at(key).currentActiveTransmission = QueueTransmission([this, count, sender, target](){
+        QueueTransmission(key, [this, count, sender, target](){
             EncodeMessage(mace_msg_mission_count_encode_chan, count, sender, target);
         });
 
@@ -284,29 +273,15 @@ private:
         MissionItem::MissionKey key(mission.mission_system,mission.mission_creator,mission.mission_id,static_cast<MissionItem::MISSIONTYPE>(mission.mission_type),static_cast<MissionItem::MISSIONSTATE>(mission.mission_state));
 
 
-        //This may of been a response to two types of reqeust:
-        //  Request Specific Mission - m_MissionsBeingFetched will be populated
-        //    Remove transmission from queue and continue
-        //  Request Current Mission - m_MissionsBeingFetched will not be populated
-        //    m_ActiveCurrentMissionRequest will be populated, now that the MissionKey is known data is to be
-        //    moved to m_MissionsBeingFetched
         if(m_MissionsBeingFetching.find(key) == m_MissionsBeingFetching.cend())
         {
-            if(this->m_ActiveCurrentMissionRequests.find(sender) == m_ActiveCurrentMissionRequests.cend())
-            {
-                throw std::runtime_error("Given missionKey hasn't been requested to be downloaded");
-            }
-            else
-            {
-                RemoveTransmissionFromQueue(m_ActiveCurrentMissionRequests[sender].currentActiveTransmission);
-                m_MissionsBeingFetching.insert({key, m_ActiveCurrentMissionRequests.at(sender)});
-                m_ActiveCurrentMissionRequests.erase(sender);
-            }
-        }
-        else
-        {
-            RemoveTransmissionFromQueue(m_MissionsBeingFetching[key].currentActiveTransmission);
-            m_MissionsBeingFetching[key].currentActiveTransmission = -1;
+                MissionItem::MissionList newList;
+                newList.setMissionKey(key);
+                newList.clearQueue();
+                MissionRequestStruct newItem;
+                newItem.mission = newList;
+                newItem.requester = sender;
+                m_MissionsBeingFetching.insert({key, newItem});
         }
 
 
@@ -314,7 +289,7 @@ private:
         MaceCore::ModuleCharacteristic target = sender;
         MaceCore::ModuleCharacteristic requester = m_MissionsBeingFetching.at(key).requester;
 
-        m_MissionsBeingFetching.at(key).missionList.initializeQueue(mission.count);
+        m_MissionsBeingFetching.at(key).mission.initializeQueue(mission.count);
 
         if(mLog)
         {
@@ -334,7 +309,7 @@ private:
         request.seq = 0;
 
         std::cout << "Mission Download Progress: Asking For Item 0" << std::endl;
-        m_MissionsBeingFetching[key].currentActiveTransmission = QueueTransmission([this, request, requester, target](){
+        QueueTransmission(key, [this, request, requester, target](){
             EncodeMessage(mace_msg_mission_request_item_encode_chan, request, requester, target);
         });
     }
@@ -356,7 +331,7 @@ private:
         MaceCore::ModuleCharacteristic requester = m_MissionsBeingFetching.at(key).requester;
 
         int seqReceived = missionItem.seq;
-        if(seqReceived > (m_MissionsBeingFetching[key].missionList.getQueueSize() - 1)) //this should never happen
+        if(seqReceived > (m_MissionsBeingFetching[key].mission.getQueueSize() - 1)) //this should never happen
         {
             std::cout << "Mission download Error: received a mission item with an index greater than available in the queue" << std::endl;
             if(mLog)
@@ -373,9 +348,9 @@ private:
 
 
         std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = DataInterface_MACE::Helper_MissionCOMMStoMACE::Convert_COMMSTOMACE(missionItem, target);
-        m_MissionsBeingFetching[key].missionList.replaceMissionItemAtIndex(newMissionItem, seqReceived);
+        m_MissionsBeingFetching[key].mission.replaceMissionItemAtIndex(newMissionItem, seqReceived);
 
-        MissionItem::MissionList::MissionListStatus status = m_MissionsBeingFetching[key].missionList.getMissionListStatus();
+        MissionItem::MissionList::MissionListStatus status = m_MissionsBeingFetching[key].mission.getMissionListStatus();
         if(status.state == MissionItem::MissionList::INCOMPLETE)
         {
             int indexRequest = status.remainingItems.at(0);
@@ -397,7 +372,7 @@ private:
             request.seq = indexRequest;
 
             std::cout << "Mission Download Progress: Asking For Item " << indexRequest << std::endl;
-            m_MissionsBeingFetching[key].currentActiveTransmission = QueueTransmission([this, request, requester, target](){
+            QueueTransmission(key, [this, request, requester, target](){
                 EncodeMessage(mace_msg_mission_request_item_encode_chan, request, requester, target);
             });
 
@@ -406,7 +381,7 @@ private:
             {
                 std::stringstream buffer;
                 buffer << key;
-                mLog->info("Mission Controller has received the entire mission of " + std::to_string(m_MissionsBeingFetching[key].missionList.getQueueSize()) + " for mission " + buffer.str() + ".");
+                mLog->info("Mission Controller has received the entire mission of " + std::to_string(m_MissionsBeingFetching[key].mission.getQueueSize()) + " for mission " + buffer.str() + ".");
             }
 
             mace_mission_ack_t ackMission;
@@ -420,7 +395,7 @@ private:
             if(key.m_missionState == MissionItem::MISSIONSTATE::PROPOSED)
             {
                 ackMission.cur_mission_state = (uint8_t)MissionItem::MISSIONSTATE::RECEIVED;
-                m_MissionsBeingFetching[key].missionList.setMissionTXState(MissionItem::MISSIONSTATE::RECEIVED);
+                m_MissionsBeingFetching[key].mission.setMissionTXState(MissionItem::MISSIONSTATE::RECEIVED);
             }
             else
             {
@@ -429,11 +404,11 @@ private:
 
 
             std::cout << "Mission Download Progress: Sending Final Ack" << std::endl;
-            m_MissionsBeingFetching[key].currentActiveTransmission = QueueTransmission([this, ackMission, requester, target](){
+            QueueTransmission(key, [this, ackMission, requester, target](){
                 EncodeMessage(mace_msg_mission_ack_encode_chan, ackMission, requester, target);
             });
 
-            MissionList finishedList = m_MissionsBeingFetching[key].missionList;
+            MissionList finishedList = m_MissionsBeingFetching[key].mission;
             m_MissionsBeingFetching.erase(key);
 
             Callback<MissionDownloadInterface>()->ReceivedMission(finishedList);
@@ -448,9 +423,6 @@ private:
 
         MissionItem::MissionKey key(missionRequest.mission_system,missionRequest.mission_creator,missionRequest.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionRequest.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionRequest.mission_state));
 
-        RemoveTransmissionFromQueue(m_MissionsUploading[key].currentActiveTransmission);
-        m_MissionsUploading[key].currentActiveTransmission = -1;
-
         MaceCore::ModuleCharacteristic sender;
         sender.ID = missionRequest.target_system;
         sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
@@ -463,7 +435,7 @@ private:
         }
 
         int index = missionRequest.seq;
-        if(index >= m_MissionsUploading[key].mission.getQueueSize())
+        if(index >= m_MissionsUploading[key].getQueueSize())
         {
             //this indicates that RX system requested something OOR
             if(mLog)
@@ -474,14 +446,14 @@ private:
         if(mLog)
             mLog->info("MissionController_ExternalLink has been told to transmit a mission item with index " + std::to_string(index) + ".");
 
-        std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = this->m_MissionsUploading[key].mission.getMissionItem(index);
+        std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = this->m_MissionsUploading[key].getMissionItem(index);
         mace_mission_item_t missionItem;
 
         Helper_MissionMACEtoCOMMS::MACEMissionToCOMMSMission(ptrItem,index,missionItem);
         Helper_MissionMACEtoCOMMS::updateMissionKey(key,missionItem);
 
         std::cout << "Mission Upload Progress: Sending Mission Item " << index << std::endl;
-        m_MissionsUploading[key].currentActiveTransmission = QueueTransmission([this, missionItem, sender, target](){
+        QueueTransmission(key, [this, missionItem, sender, target](){
             EncodeMessage(mace_msg_mission_item_encode_chan, missionItem, sender, target);
         });
     }

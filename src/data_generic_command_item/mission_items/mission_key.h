@@ -47,23 +47,26 @@ public:
     friend class MissionKeyHasher;
 };
 
-struct MissionKeyHasher
-{
-  std::size_t operator()(const MissionKey& k) const
-  {
-    using std::size_t;
-    using std::hash;
-    using std::string;
-
-    return ((hash<int>()(k.m_systemID))
-             ^ (hash<int>()(k.m_creatorID))
-             ^ (hash<int>()(k.m_missionID))
-             ^ (hash<int>()((int)k.m_missionType))
-             ^ (hash<int>()((int)k.m_missionState)));
-  }
-};
-
-
-
 } //end of namespace Data
+
+namespace std
+{
+template <>
+struct hash<MissionItem::MissionKey>
+{
+    std::size_t operator()(const MissionItem::MissionKey& k) const
+    {
+        using std::size_t;
+        using std::hash;
+        using std::string;
+
+        return ((hash<int>()(k.m_systemID))
+                 ^ (hash<int>()(k.m_creatorID))
+                 ^ (hash<int>()(k.m_missionID))
+                 ^ (hash<int>()((int)k.m_missionType))
+                 ^ (hash<int>()((int)k.m_missionState)));
+    }
+};
+}
+
 #endif // MISSION_KEY_H
