@@ -147,14 +147,14 @@ export class ConfigDialog extends React.Component<Props, State> {
     render() {
 
         let actions = [];
-        if(this.state.activeTab === "browse") {
+        if(this.state.activeTab !== "vehicle") {
             actions = [
                 <FlatButton
                     label="Cancel"
                     onTouchTap={this.handleCancel}
                 />,
                 <FlatButton
-                    label="Save and Reload"
+                    label="Save and reload"
                     labelStyle={{color: colors.orange700}}
                     onTouchTap={() => this.handleSave(true)}
                 />,
