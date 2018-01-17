@@ -9,7 +9,7 @@ Open a new console and change directories into the `MACE/ElectronGUI` directory.
 
 ```bash
 npm i
-npm run build
+npm run build:prod
 ```
 If you delete the node_modules folder for whatever reason, re-run the above commands.
 
@@ -17,14 +17,9 @@ Now start the GUI:
 
 In one terminal, run the watcher
 ```bash
-npm run watch
+npm run launch
 ```
-In another terminal, start the GUI
-```bash
-npm start
-```
-
-If any changes are made to the React project, the watcher should recompile the project and reload the GUI.
+This will launch the GUI and the watcher. Give the GUI a minute to load as the watcher boots up. If any changes are made to the React project, the watcher should recompile the project and reload the GUI.
 
 ## Prebuilt Binaries
 If you do not want to build from source, there are prebuilt binaries included in the latest release version in a zipped file (`PrebuiltBinaries.zip`). This zipped file contains binary files for several architectures. Simply unzip the file and find your architecture and run the executable in the corresponding directory to start the MACE GUI. The following architectures are supported:
