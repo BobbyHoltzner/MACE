@@ -126,6 +126,18 @@ public:
     //!
     void getGlobalOrigin();
 
+    //!
+    //! \brief setSendAddress Set the TCP send address for GUI-to-MACE comms
+    //! \param sendAddress TCP send address
+    //!
+    void setSendAddress(const QHostAddress &sendAddress);
+
+    //!
+    //! \brief setSendPort Set the TCP send port for GUI-to-MACE comms
+    //! \param sendPort TCP send port
+    //!
+    void setSendPort(const int &sendPort);
+
 
     // TESTING:
     void testFunction1(const int &vehicleID);

@@ -13,25 +13,19 @@ import { EnvironmentSettings } from '../components/EnvironmentSettings';
 import { AppDrawer } from './AppDrawer';
 import AppBar from 'material-ui/AppBar';
 import * as colors from 'material-ui/styles/colors';
-// import IconMenu from 'material-ui/IconMenu';
-// import MenuItem from 'material-ui/MenuItem';
-// import IconButton from 'material-ui/IconButton';
-// import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import { Vehicle } from '../Vehicle';
 import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
 import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
 import { MessagesDialog } from '../components/MessagesDialog';
+import { ConfigDialog } from '../components/ConfigDialog';
 import { TakeoffDialog } from '../components/TakeoffDialog';
 import MACEMap from '../components/MACEMap';
 import { getRandomRGB } from '../util/Colors';
-// import FontIcon from 'material-ui/FontIcon';
 import FlatButton from 'material-ui/FlatButton';
 var turf = require('@turf/turf');
-
 var geometryHelper = require('leaflet-geometryutil');
-
 import * as deepcopy from 'deepcopy';
-
+var fs = electronRequire('fs');
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
@@ -47,9 +41,14 @@ type Props = {
 }
 
 type State = {
-  tcpIPHost?: string,
-  tcpSendPort?: number,
-  tcpListenPort?: number,
+  MACEconfig?: ConfigSettingsType,
+  // tcpIPHost?: string,
+  // tcpSendPort?: number,
+  // tcpListenPort?: number,
+  // takeoffAlt?: string,
+  // maxZoom?: number,
+  // mapZoom?: number,
+  // mapCenter?: PositionType,
   connectedVehicles?: {[id: string]: Vehicle}
   vehicleWarnings?: VehicleWarning[]
   selectedVehicleID?: string,
@@ -60,13 +59,10 @@ type State = {
   showEditVehicleHomeDialog?: boolean,
   showEditGlobalHomeDialog?: boolean,
   showMessagesMenu?: boolean,
+  showConfigDialog?: boolean,
   messagePreferences?: MessagePreferencesType,
-  takeoffAlt?: string,
   showTakeoffDialog?: boolean,
   showSaveTakeoff?: boolean,
-  maxZoom?: number,
-  mapZoom?: number,
-  mapCenter?: PositionType
   globalOrigin?: PositionType
   useContext?: boolean,
   contextAnchor?: L.LeafletMouseEvent,
@@ -78,39 +74,52 @@ type State = {
   showEnvironmentSettings?: boolean,
   environmentSettings?: EnvironmentSettingsType,
   pauseMACEComms?: boolean,
-  envBoundingBox?: PositionType[]
+  envBoundingBox?: PositionType[],
+  getConnectedVehiclesTimeout?: number
 }
 
 export default class AppContainer extends React.Component<Props, State> {
   notificationSystem: any; // TODO: Figure out why I cant make this a NotificationSystem type...
-  m_AttitudeInterval: number[];
-  m_AttitudeTimeout: number;
-  m_PositionInterval: number[];
-  m_PositionTimeout: number;
-
+  getVehiclesInterval: any;
   vehicleDB: {[id: string]: Vehicle};
-
   logger: any;
 
   constructor(props: Props) {
     super(props);
 
     this.vehicleDB = {};
-
-    this.m_AttitudeInterval = [];
-    this.m_PositionInterval = [];
-    this.m_AttitudeTimeout = 1111;
-    this.m_PositionTimeout = 1234;
+    this.getVehiclesInterval = null;
 
     this.state = {
-      tcpIPHost: '127.0.0.1',
-      tcpSendPort: 5678,
-      tcpListenPort: 1234,
-      maxZoom: 21,
-      mapZoom: 20,
-      mapCenter: {lat: 37.889231, lng: -76.810302, alt: 0}, // Bob's Farm
+      MACEconfig: {
+        filename: '../GUIConfig.json',
+        config: {
+          MACEComms: {
+            ipAddress: '127.0.0.1',
+            listenPortNumber: 1234,
+            sendPortNumber: 5678
+          },
+          GUIInit: {
+            mapCenter: {lat: 37.889231, lng: -76.810302, alt: 0}, // Bob's Farm
+            // mapCenter: [-35.363272, 149.165249], // SITL Default
+            // mapCenter: [45.283410, -111.400850], // Big Sky
+            mapZoom: 20,
+            maxZoom: 21
+          },
+          VehicleSettings: {
+            defaultTakeoffAlt: 5
+          }
+        }
+      },
+      // tcpIPHost: '127.0.0.1',
+      // tcpSendPort: 5678,
+      // tcpListenPort: 1234,
+      // maxZoom: 21,
+      // mapZoom: 20,
+      // mapCenter: {lat: 37.889231, lng: -76.810302, alt: 0}, // Bob's Farm
       // mapCenter: [-35.363272, 149.165249], // SITL Default
       // mapCenter: [45.283410, -111.400850], // Big Sky
+      // takeoffAlt: "5",
       connectedVehicles: {},
       vehicleWarnings: [],
       openDrawer: false,
@@ -122,6 +131,7 @@ export default class AppContainer extends React.Component<Props, State> {
       globalOrigin: {lat: 0, lng: 0, alt: 0},
       selectedVehicleID: "0",
       showMessagesMenu: false,
+      showConfigDialog: false,
       messagePreferences: {
         emergency: true,
         alert: true,
@@ -132,7 +142,6 @@ export default class AppContainer extends React.Component<Props, State> {
         info: true,
         debug: true
       },
-      takeoffAlt: "5",
       showTakeoffDialog: false,
       showSaveTakeoff: false,
       MACEConnected: false,
@@ -143,7 +152,8 @@ export default class AppContainer extends React.Component<Props, State> {
       showEnvironmentSettings: false,
       environmentSettings: {minSliderVal: 25, maxSliderVal: 100, showBoundingBox: false, gridSpacing: -1},
       pauseMACEComms: false,
-      envBoundingBox: []
+      envBoundingBox: [],
+      getConnectedVehiclesTimeout: 3000
     }
 
   }
@@ -163,57 +173,96 @@ export default class AppContainer extends React.Component<Props, State> {
 
 
     // Parse XML File:
-    this.parseXMLConfig();
-
+    this.parseJSONConfig(this.state.MACEconfig.filename);
 
     this.notificationSystem = this.refs.notificationSystem;
-    this.setupTCPServer();
 
     this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
 
-    setInterval(() => {
+    this.getVehiclesInterval = setInterval(() => {
       this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
-    }, 3000);
+    }, this.state.getConnectedVehiclesTimeout);
   }
 
-  parseXMLConfig = () => {
-    // TODO: Make GUI element to set this
-    let jsonConfig: MACEConfig = require('../../../../GUIConfig.json');
+  parseJSONConfig = (filename: string, restartServer: boolean = true) => {
+    // let jsonConfig: MACEConfig = require(filename);
+    // let jsonConfig: MACEConfig = require("C:/Code/MACE/GUIConfig.json");
 
+    let jsonConfig = JSON.parse(fs.readFileSync(filename));
+    let MACEconfig: ConfigSettingsType = this.state.MACEconfig;
+
+    MACEconfig.filename = filename;
     if(jsonConfig.MACEComms) {
       if(jsonConfig.MACEComms.ipAddress) {
-        this.setState({tcpIPHost: jsonConfig.MACEComms.ipAddress});
+        MACEconfig.config.MACEComms.ipAddress = jsonConfig.MACEComms.ipAddress;
+        if(restartServer) {
+          this.setupTCPServer();
+        }
+
+        // Reset interval and start requests again:
+        if(this.getVehiclesInterval) {
+          clearInterval(this.getVehiclesInterval);
+          this.getVehiclesInterval = setInterval(() => {
+            this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
+          }, this.state.getConnectedVehiclesTimeout);
+        }
       }
       if(jsonConfig.MACEComms.listenPortNumber) {
-        this.setState({tcpListenPort: jsonConfig.MACEComms.listenPortNumber});
+        MACEconfig.config.MACEComms.listenPortNumber = jsonConfig.MACEComms.listenPortNumber;
+        if(restartServer) {
+          this.setupTCPServer();
+        }
       }
       if(jsonConfig.MACEComms.sendPortNumber) {
-        this.setState({tcpSendPort: jsonConfig.MACEComms.sendPortNumber});
+        MACEconfig.config.MACEComms.sendPortNumber = jsonConfig.MACEComms.sendPortNumber;
+
+        // Reset interval and start requests again:
+        if(this.getVehiclesInterval) {
+          clearInterval(this.getVehiclesInterval);
+          this.getVehiclesInterval = setInterval(() => {
+            this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
+          }, this.state.getConnectedVehiclesTimeout);
+        }
       }
     }
     if(jsonConfig.GUIInit) {
       if(jsonConfig.GUIInit.mapCenter) {
         let center = {lat: jsonConfig.GUIInit.mapCenter.lat, lng: jsonConfig.GUIInit.mapCenter.lng, alt: 0};
-        this.setState({mapCenter: center});
+        MACEconfig.config.GUIInit.mapCenter = center;
       }
       if(jsonConfig.GUIInit.mapZoom) {
-        this.setState({mapZoom: jsonConfig.GUIInit.mapZoom});
+        MACEconfig.config.GUIInit.mapZoom = jsonConfig.GUIInit.mapZoom;
       }
       if(jsonConfig.GUIInit.maxZoom) {
-        this.setState({maxZoom: jsonConfig.GUIInit.maxZoom});
+        MACEconfig.config.GUIInit.maxZoom = jsonConfig.GUIInit.maxZoom;
       }
     }
     if(jsonConfig.VehicleSettings) {
       if(jsonConfig.VehicleSettings.defaultTakeoffAlt) {
-        this.setState({takeoffAlt: jsonConfig.VehicleSettings.defaultTakeoffAlt.toString()});
+        MACEconfig.config.VehicleSettings.defaultTakeoffAlt = jsonConfig.VehicleSettings.defaultTakeoffAlt;
       }
     }
+
+    this.setState({MACEconfig: MACEconfig});
   }
 
   setupTCPServer = () => {
+    // Close server if already exists:
+    if(this.state.tcpServer !== null) {
+      this.state.tcpServer.close();
+    }
+
+    // Close all existing sockets:
+    let tcpSockets = deepcopy(this.state.tcpSockets);
+    for(let i = 0; i < tcpSockets.length; i++) {
+      tcpSockets[i].destroy();
+    }
+    this.setState({tcpSockets: []});
+
     // Create a TCP socket listener
     let tcpServer = net.createServer(function (socket: any) {
-
+      let remoteAddr = socket.remoteAddress.replace(/^.*:/, '')
+      if(remoteAddr === this.state.MACEconfig.config.MACEComms.ipAddress) {
         // Add the new client socket connection to the array of sockets
         this.state.tcpSockets.push(socket);
 
@@ -221,9 +270,7 @@ export default class AppContainer extends React.Component<Props, State> {
         socket.on('data', function (msg_sent: any) {
           // console.log("Data from socket: " + msg_sent);
           let jsonData: TCPReturnType = JSON.parse(msg_sent);
-
           this.parseTCPClientData(jsonData);
-
         }.bind(this));
         // Use splice to get rid of the socket that is ending.
         // The 'end' event means tcp client has disconnected.
@@ -233,20 +280,20 @@ export default class AppContainer extends React.Component<Props, State> {
             this.state.tcpSockets.splice(i, 1);
         }.bind(this));
 
-
+      }
     }.bind(this));
 
     this.setState({tcpServer: tcpServer}, () => {
       // TODO: Allow for user configuration of the port and probably address too
       try{
-        this.state.tcpServer.listen(this.state.tcpListenPort);
+        this.state.tcpServer.listen(this.state.MACEconfig.config.MACEComms.listenPortNumber);
         this.setState({MACEConnected: true});
       }
       catch(e) {
-        console.log('Error: ' + e);
+        console.log(e);
       }
 
-      console.log('System listening at http://' + this.state.tcpIPHost + ':' + this.state.tcpListenPort);
+      console.log('System listening at http://' + this.state.MACEconfig.config.MACEComms.ipAddress + ':' + this.state.MACEconfig.config.MACEComms.listenPortNumber);
 
       // Set interval to set state to DB:
       setInterval(() => {
@@ -484,15 +531,13 @@ export default class AppContainer extends React.Component<Props, State> {
     }
   }
 
-
   makeTCPRequest = (vehicleID: number, tcpCommand: string, vehicleCommand: string) => {
-
     // Log message:
     // this.logger.info("{TCP Command: " + tcpCommand + "}  {Vehicle Command: " + vehicleCommand + "}");
 
     let socket = new net.Socket();
     this.setupTCPClient(socket);
-    socket.connect(this.state.tcpSendPort, this.state.tcpIPHost, function() {
+    socket.connect(this.state.MACEconfig.config.MACEComms.sendPortNumber, this.state.MACEconfig.config.MACEComms.ipAddress, function() {
       // console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
       let tcpRequest = {
         tcpCommand: tcpCommand,
@@ -503,7 +548,6 @@ export default class AppContainer extends React.Component<Props, State> {
       socket.end();
     }.bind(this));
   }
-
 
   setupTCPClient = (socket: any) => {
     // Add a 'data' event handler for the client socket
@@ -529,7 +573,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
     // Add an 'error' event handler
     socket.on('error', function(err: any) {
-        console.log('Error: ' + err);
+        console.log('Socket ' + err);
         let str = err+"";
         if(str.indexOf("ECONNREFUSED") > 0){
           // this.handleClearGUI();
@@ -566,11 +610,14 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleDrawerAction = (action: string) => {
-    if(action === "Messages"){
-      this.setState({showMessagesMenu: true, showTakeoffDialog: false, showSaveTakeoff: false, openDrawer: false, pauseMACEComms: false});
+    if(action === "MACEConfig"){
+      this.setState({showMessagesMenu: false, showConfigDialog: true, showTakeoffDialog: false, showSaveTakeoff: false, openDrawer: false, pauseMACEComms: true});
+    }
+    else if(action === "Messages"){
+      this.setState({showMessagesMenu: true, showConfigDialog: false,  showTakeoffDialog: false, showSaveTakeoff: false, openDrawer: false, pauseMACEComms: false});
     }
     else if(action === "Takeoff"){
-      this.setState({showMessagesMenu: false, showTakeoffDialog: true, showSaveTakeoff: true, openDrawer: false, pauseMACEComms: true});
+      this.setState({showMessagesMenu: false, showConfigDialog: false,  showTakeoffDialog: true, showSaveTakeoff: true, openDrawer: false, pauseMACEComms: true});
     }
     else if(action === "TestButton1") {
       this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION1", "");
@@ -679,6 +726,20 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setState({messagePreferences: preferences});
   }
 
+  handleSaveMACEConfig = (config: ConfigSettingsType, reload: boolean = false) => {
+    this.setState({MACEconfig: config});
+    if(reload) {
+      this.setupTCPServer();
+    }
+    // Reset interval and start requests again:
+    if(this.getVehiclesInterval) {
+      clearInterval(this.getVehiclesInterval);
+      this.getVehiclesInterval = setInterval(() => {
+        this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
+      }, this.state.getConnectedVehiclesTimeout);
+    }
+  }
+
   handleTakeoff = (vehicleID: string, takeoffAlt: string, takeoffLat?: string, takeoffLon?: string) => {
     let takeoffPosition = {
       lat: takeoffLat ? parseFloat(takeoffLat) : 0,
@@ -693,7 +754,10 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   updateMapCenter = (e: L.DragEndEvent) => {
-    this.setState({mapCenter: {lat: e.target.getCenter().lat, lng: e.target.getCenter().lng, alt: 0}, mapZoom: e.target.getZoom()});
+    let MACEconfig = this.state.MACEconfig;
+    MACEconfig.config.GUIInit.mapCenter = {lat: e.target.getCenter().lat, lng: e.target.getCenter().lng, alt: 0};
+    MACEconfig.config.GUIInit.mapZoom = e.target.getZoom();
+    this.setState({MACEconfig});
   }
 
   handleSyncAll = () => {
@@ -893,6 +957,12 @@ export default class AppContainer extends React.Component<Props, State> {
     }
   }
 
+  handleSaveTakeoff = (takeoffAlt: string) => {
+    let MACEconfig = this.state.MACEconfig;
+    MACEconfig.config.VehicleSettings.defaultTakeoffAlt = parseFloat(takeoffAlt);
+    this.setState({MACEconfig});
+  }
+
   render() {
 
     const width = window.screen.width;
@@ -984,6 +1054,16 @@ export default class AppContainer extends React.Component<Props, State> {
               />
             }
 
+            {this.state.showConfigDialog &&
+              <ConfigDialog
+                open={this.state.showConfigDialog}
+                handleClose={() => this.setState({showConfigDialog: false, pauseMACEComms: false})}
+                handleSave={(configSettings: ConfigSettingsType, reload: boolean) => this.handleSaveMACEConfig(configSettings, reload)}
+                configSettings={this.state.MACEconfig}
+                handleParseJSON={(filename: string, restartServer: boolean) => this.parseJSONConfig(filename, restartServer)}
+              />
+            }
+
             {this.state.showTakeoffDialog &&
               <TakeoffDialog
                 open={this.state.showTakeoffDialog}
@@ -991,10 +1071,10 @@ export default class AppContainer extends React.Component<Props, State> {
                 vehicles={this.state.connectedVehicles}
                 selectedVehicleID={this.state.selectedVehicleID}
                 handleTakeoff={this.handleTakeoff}
-                takeoffAlt={this.state.takeoffAlt}
+                takeoffAlt={this.state.MACEconfig.config.VehicleSettings.defaultTakeoffAlt.toString()}
                 onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
                 showSaveTakeoff={this.state.showSaveTakeoff}
-                handleSaveTakeoff={(alt: string) => this.setState({takeoffAlt: alt})}
+                handleSaveTakeoff={(alt: string) => this.handleSaveTakeoff(alt)}
                 contextAnchor={this.state.contextAnchor}
                 useContext={this.state.useContext}
                 showNotification={this.showNotification}
@@ -1029,9 +1109,9 @@ export default class AppContainer extends React.Component<Props, State> {
               setContextAnchor={(anchor: L.LeafletMouseEvent) => this.setState({contextAnchor: anchor})}
               connectedVehicles={this.state.connectedVehicles}
               selectedVehicleID={this.state.selectedVehicleID}
-              mapCenter={this.state.mapCenter}
-              maxZoom={this.state.maxZoom}
-              mapZoom={this.state.mapZoom}
+              mapCenter={this.state.MACEconfig.config.GUIInit.mapCenter}
+              maxZoom={this.state.MACEconfig.config.GUIInit.maxZoom}
+              mapZoom={this.state.MACEconfig.config.GUIInit.mapZoom}
               globalOrigin={this.state.globalOrigin}
               updateMapCenter={this.updateMapCenter}
               contextAnchor={this.state.contextAnchor}
