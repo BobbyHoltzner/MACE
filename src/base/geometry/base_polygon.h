@@ -76,6 +76,13 @@ public:
         return m_vertex[index];
     }
 
+public:
+    virtual T getTopLeft() const = 0;
+
+    virtual T getBottomRight() const = 0;
+
+    virtual void getCorners(T &topLeft, T &bottomRight) const = 0;
+
 protected:
     virtual void updateBoundingBox()
     {

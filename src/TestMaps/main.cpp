@@ -6,6 +6,8 @@
 #include "base/state_space/special_validity_check.h"
 
 #include "maps/iterators/grid_map_iterator.h"
+#include "maps/iterators/circle_map_iterator.h"
+
 #include "maps/data_2d_grid.h"
 
 #include <iostream>
@@ -69,18 +71,35 @@ int main(int argc, char *argv[])
 //    newValue = &value;
     using namespace mace::state_space;
     double value = 0.0;
-    mace::maps::Data2DGrid<double> newGridMap(-10.0, 10.0,
-                                              -10.0, 10.0,
-                                              0.5, 0.5,
-                                              &value);
+    mace::pose::CartesianPosition_2D position(0,0);
+    mace::maps::Data2DGrid<double> newGridMap(-2.0, 2.0,
+                                              -2.0, 2.0,
+                                              1.0, 1.0,
+                                              &value, position);
+    for(int i = 0; i < newGridMap.getNodeCount(); i++)
+    {
+        double x = 0, y = 0;
+        newGridMap.getPositionFromIndex(i,x,y);
+        std::cout<<"The position at index: "<<i<<" is: X:"<<x<<" Y:"<<y<<std::endl;
+    }
     std::cout<<"This is a holding spot for the grid map"<<std::endl;
-    mace::pose::CartesianPosition_2D position(-1,-1);
     //newGridMap.updatePosition(position);
+    mace::maps::CircleMapIterator newCircleIterator(&newGridMap,position,1.0);
+    for(;!newCircleIterator.isPastEnd();++newCircleIterator)
+    {
+        const int value = *newCircleIterator;
+        std::cout<<"The index of the position is:"<<value<<std::endl;
+    }
+
+
     mace::maps::GridMapIterator newIterator(&newGridMap);
     newIterator++;
     double* ptr = newGridMap.getCellByIndex(*newIterator);
     double newValue = 100.0;
     *ptr = newValue;
+    double* newpPtr = newGridMap.getCellByPos(-1.0,1.0);
+    newpPtr = newGridMap.getCellByPos(0.0,0.0);
+    newpPtr = newGridMap.getCellByPos(1.0,-1.0);
     std::cout<<"New placeholder"<<std::endl;
     //    using namespace mace::nn;
 

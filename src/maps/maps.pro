@@ -28,17 +28,27 @@ SOURCES += \
     bounded_2D_grid.cpp \
     base_grid_map.cpp \
     dynamic_2D_grid.cpp \
-    iterators/circle_iterator.cpp \
-    iterators/grid_map_iterator.cpp
+    iterators/grid_map_iterator.cpp \
+    iterators/polygon_map_iterator.cpp \
+    grid_map_math.cpp \
+    iterators/submap_iterator.cpp \
+    generic_submap.cpp \
+    iterators/circle_map_iterator.cpp \
+    iterators/generic_map_iterator.cpp
 
 HEADERS +=\
         maps_global.h \
     dynamic_2D_grid.h \
     bounded_2D_grid.h \
     base_grid_map.h \
-    iterators/circle_iterator.h \
     iterators/grid_map_iterator.h \
-    data_2d_grid.h
+    data_2d_grid.h \
+    iterators/polygon_map_iterator.h \
+    grid_map_math.h \
+    iterators/submap_iterator.h \
+    generic_submap.h \
+    iterators/circle_map_iterator.h \
+    iterators/generic_map_iterator.h
 
 #Header file copy
 headers_maps.path    = $$(MACE_ROOT)/include/maps

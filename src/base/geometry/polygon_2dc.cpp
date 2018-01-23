@@ -155,6 +155,25 @@ Position<pose::CartesianPosition_2D> Polygon_2DC::getCenter() const
     return center;
 }
 
+Position<CartesianPosition_2D> Polygon_2DC::getTopLeft() const
+{
+    Position<CartesianPosition_2D> UL("Upper Left",m_xMin,m_yMax);
+    return UL;
+}
+
+Position<CartesianPosition_2D> Polygon_2DC::getBottomRight() const
+{
+    Position<CartesianPosition_2D> LR("Lower Right",m_xMax,m_yMin);
+    return LR;
+}
+
+void Polygon_2DC::getCorners(Position<CartesianPosition_2D> &topLeft, Position<CartesianPosition_2D> &bottomRight) const
+{
+    topLeft = getTopLeft();
+    bottomRight = getBottomRight();
+}
+
+
 
 }
 }

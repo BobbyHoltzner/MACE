@@ -60,6 +60,18 @@ public:
         return *this;
     }
 
+    bool operator == (const Position &rhs) const
+    {
+        if(this->name != rhs.name){
+            return false;
+        }
+    }
+
+    bool operator !=(const Position &rhs) const
+    {
+        return !(*this == rhs);
+    }
+
 
 private:
     std::string name;

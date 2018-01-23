@@ -35,7 +35,6 @@ public:
     const int operator *() const;
 
 private:
-
     size_t currentIndex;
     size_t mapSize;
 

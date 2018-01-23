@@ -47,7 +47,7 @@ public:
         return static_cast<int>(round((x - xMin) / xResolution));
     }
 
-    void getPositionFromIndex(const unsigned int &index, double &x, double &y)
+    void getPositionFromIndex(const unsigned int &index, double &x, double &y) const
     {
         int yIndex = floor(index/xSize);
         y = yMin + yIndex * yResolution;
@@ -153,6 +153,16 @@ public:
     unsigned int getNodeCount() const
     {
         return xSize * ySize;
+    }
+
+    double getXLength() const
+    {
+        return xMax - xMin;
+    }
+
+    double getYLength() const
+    {
+        return yMax - yMin;
     }
 
 protected:

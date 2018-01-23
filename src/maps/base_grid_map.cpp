@@ -25,8 +25,8 @@ void BaseGridMap::updateGridSize(const double &x_length, const double &y_length,
     yMax = (yResolution * lrint((y_length / 2) / yResolution)) + originPosition.getYPosition();
 
     // Now the number of cells should be integers:
-    xSize = round((xMax - xMin) / xResolution);
-    ySize = round((yMax - yMin) / yResolution);
+    xSize = round((xMax - xMin) / xResolution) + 1;
+    ySize = round((yMax - yMin) / yResolution) + 1;
 }
 
 void BaseGridMap::updatePosition(const pose::CartesianPosition_2D &position)

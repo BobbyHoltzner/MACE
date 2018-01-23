@@ -18,7 +18,16 @@ public:
                            const double &x_res, const double &y_res,
                            const T *fill_value):
         BaseGridMap(x_max - x_min, y_max - y_min, x_res, y_res,
-                    pose::CartesianPosition_2D((x_max-x_min)/2,(y_max-y_min)/2))
+                    pose::CartesianPosition_2D((x_max+x_min)/2,(y_max+y_min)/2))
+    {
+        sizeGrid(fill_value);
+    }
+
+    Data2DGrid(const double &x_min, const double &x_max,
+                           const double &y_min, const double &y_max,
+                           const double &x_res, const double &y_res,
+                           const T *fill_value, const pose::CartesianPosition_2D &origin):
+        BaseGridMap(x_max - x_min, y_max - y_min, x_res, y_res,origin)
     {
         sizeGrid(fill_value);
     }
@@ -60,7 +69,7 @@ public:
     //! \param y
     //! \return
     //!
-    T* getCellByPos(const double &x, const double &y) const
+    T* getCellByPos(const double &x, const double &y)
     {
         int cx = indexFromXPos(x);
         int cy = indexFromYPos(y);

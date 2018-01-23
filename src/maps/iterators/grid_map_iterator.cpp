@@ -88,9 +88,6 @@ const int GridMapIterator::operator *() const
     return currentIndex;
 }
 
-
-
-
 } //end of namepsace mace
 } //end of namespace maps
 
