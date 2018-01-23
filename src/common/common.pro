@@ -21,7 +21,9 @@ HEADERS += common.h\
     class_forward.h \
     optional_parameter.h \
     fsm.h \
-    pointer_collection.h
+    pointer_collection.h \
+    transmit_queue.h \
+    thread_manager.h
 
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/common

@@ -34,6 +34,10 @@ public:
         std::vector<void*> list = this->GetAll();
         for(auto it = list.cbegin() ; it != list.cend() ; ++it)
         {
+            if(*it == NULL)
+            {
+                continue;
+            }
             func((T*)*it);
         }
     }

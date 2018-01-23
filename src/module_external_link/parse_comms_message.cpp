@@ -237,6 +237,8 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     ////////////////////////////////////////////////////////////////////////////
     /// HOME BASED EVENTS:
     ////////////////////////////////////////////////////////////////////////////
+
+    /*
     case MACE_MSG_ID_MISSION_REQUEST_HOME:
     {
         std::cout<<"Saw a mission request home"<<std::endl;
@@ -300,6 +302,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_home_position_t decodedMSG;
         mace_msg_home_position_decode(message,&decodedMSG);
+
         if(m_HomeController->isThreadActive())
             m_HomeController->receivedMissionHome(decodedMSG);
         else
@@ -312,8 +315,12 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
             newHome.setTargetSystem(systemID);
             cbiHomeController_ReceviedHome(newHome);
         }
+
         break;
     }
+
+    */
+
     ////////////////////////////////////////////////////////////////////////////
     /// MISSION BASED EVENTS:
     ////////////////////////////////////////////////////////////////////////////

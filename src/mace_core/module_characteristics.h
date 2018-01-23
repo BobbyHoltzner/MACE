@@ -33,6 +33,11 @@ struct ModuleCharacteristic
         }
         return true;
     }
+
+    bool operator!= (const ModuleCharacteristic &rhs) const
+    {
+        return !(*this == rhs);
+    }
 };
 
 

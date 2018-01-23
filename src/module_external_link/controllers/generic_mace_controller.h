@@ -4,15 +4,21 @@
 #include "generic_controller.h"
 #include "common/fsm.h"
 #include "common/pointer_collection.h"
+#include "spdlog/spdlog.h"
 
 #include <tuple>
+#include <functional>
+
+#include "common/transmit_queue.h"
 
 namespace ExternalLink {
 
-typedef GenericController<mace_message_t, MaceCore::ModuleCharacteristic> GenericMACEController;
+//typedef GenericController<mace_message_t, MaceCore::ModuleCharacteristic> GenericMACEController;
 
 
+typedef TransmitQueue<mace_message_t, MaceCore::ModuleCharacteristic> MACETransmissionQueue;
 
+/*
 template <typename ...T>
 class GenericMACEControllerTransmitTracking;
 
@@ -64,38 +70,147 @@ public:
 
     }
 };
+*/
 
 
-
-template<typename DownloadInterface, typename UploadInterface, typename ...TransmitKeys>
-class GenericMACEController_DownloadUpload : public GenericMACEControllerTransmitTracking<TransmitKeys...>
+template <typename T>
+class KeyWithInt
 {
 public:
-    using GenericMACEControllerTransmitTracking<TransmitKeys...>::RemoveTransmission;
+
+    T m_obj;
+    int m_int;
+
+public:
+    KeyWithInt(const T &obj, const int &integer) :
+        m_obj(obj),
+        m_int(integer)
+    {
+
+    }
+
+    bool operator== (const KeyWithInt &rhs) const
+    {
+        if(this->m_obj != rhs.m_obj)
+            return false;
+        if(this->m_int != rhs.m_int) {
+            return false;
+        }
+        return true;
+    }
+};
+
+
+template< typename Key, typename Type>
+class DataItem
+{
+public:
+
+    typedef std::vector<std::tuple<Key, Type>> FetchKeyReturn;
+    typedef std::vector<std::tuple<MaceCore::ModuleCharacteristic, std::vector<std::tuple<Key, Type>>>> FetchModuleReturn;
 
 private:
 
+    OptionalParameter<std::function<void(const Key &, const Type &)>> m_lambda_DataRecieved;
+    OptionalParameter<std::function<FetchKeyReturn(const OptionalParameter<Key> &)>> m_lambda_FetchDataFromKey;
+    OptionalParameter<std::function<FetchModuleReturn(const OptionalParameter<MaceCore::ModuleCharacteristic> &)>> m_lambda_FetchAll;
+public:
+
+
+    void setLambda_DataReceived(const std::function<void(const Key &, const Type &)> &lambda){
+        m_lambda_DataRecieved = lambda;
+    }
+
+    void onDataReceived(const Key &key, const Type &data){
+        if(m_lambda_DataRecieved.IsSet() == false) {
+            throw std::runtime_error("Data Received Lambda not set!");
+        }
+
+        m_lambda_DataRecieved()(key, data);
+    }
+
+
+
+
+    void setLambda_FetchDataFromKey(const std::function<FetchKeyReturn(const OptionalParameter<Key> &)> &lambda){
+        m_lambda_FetchDataFromKey = lambda;
+    }
+
+    void FetchDataFromKey(const OptionalParameter<Key> &key, FetchKeyReturn &data){
+        if(m_lambda_FetchDataFromKey.IsSet() == false) {
+            throw std::runtime_error("FetchKey Lambda not set!");
+        }
+
+        data = m_lambda_FetchDataFromKey()(key);
+    }
+
+
+
+
+    void setLambda_FetchAll(const std::function<FetchModuleReturn(const OptionalParameter<MaceCore::ModuleCharacteristic> &)> &lambda){
+        m_lambda_FetchAll = lambda;
+    }
+
+    void FetchFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &target, FetchModuleReturn &data) {
+        if(m_lambda_FetchAll.IsSet() == false) {
+            throw std::runtime_error("FetchFromModule Lambda not set!");
+        }
+
+        data = m_lambda_FetchAll()(target);
+        return;
+    }
+};
+
+
+
+template <typename ...T>
+class A;
+
+template<typename HEAD, typename ...T>
+class A<HEAD, T...> : public A<T...>, public HEAD
+{
+
+};
+
+template<>
+class A<>
+{
+
+};
+
+
+class MACEControllerInterface
+{
+public:
+    virtual void TransmitMessage(const mace_message_t &, const OptionalParameter<MaceCore::ModuleCharacteristic> &) const = 0;
+};
+
+
+//template<typename TransmitQueueType, typename ...DataItems>
+//class GenericMACEController : public TransmitQueueType, public A<DataItems...>, public GenericController
+template<typename TransmitQueueType, typename ...DataItems>
+class GenericMACEController : public GenericController, public TransmitQueueType, public A<DataItems...>
+{
+public:
+
+private:
+
+
+
     int m_LinkChan;
 
-
-    UploadInterface *m_CB_Response;
-    DownloadInterface *m_CB_Request;
-
-    PointerCollection<UploadInterface, DownloadInterface> m_cb;
+    const MACEControllerInterface* m_CB;
 
 protected:
 
-    std::vector<std::tuple<std::function<bool(MaceCore::ModuleCharacteristic, const mace_message_t*)>, std::function<void(MaceCore::ModuleCharacteristic, const mace_message_t*)>>> m_MessageBehaviors;
+    std::shared_ptr<spdlog::logger> mLog;
+
+    std::vector<std::tuple<
+        std::function<bool(MaceCore::ModuleCharacteristic, const mace_message_t*)>,
+        std::function<void(MaceCore::ModuleCharacteristic, const mace_message_t*)>
+    >> m_MessageBehaviors;
 
 public:
-
-    template <typename T>
-    T* Callback()
-    {
-        T* ptr;
-        m_cb.Get(ptr);
-        return ptr;
-    }
 
     AddMessageLogic(const std::function<bool(MaceCore::ModuleCharacteristic, const mace_message_t*)> &critera, const std::function<void(MaceCore::ModuleCharacteristic, const mace_message_t*)> &action)
     {
@@ -103,13 +218,42 @@ public:
         m_MessageBehaviors.push_back(newItem);
     }
 
-    GenericMACEController_DownloadUpload(DownloadInterface *cb_download, UploadInterface *cb_upload, int linkChan) :
-        GenericMACEControllerTransmitTracking<TransmitKeys...>(),
-        m_LinkChan(linkChan)
+    template <const int I, typename KEY, typename DECODE_TYPE, typename DECODE_FUNC>
+    AddMaceMessagLogic(DECODE_FUNC func, const std::function<KEY(const DECODE_TYPE&, const MaceCore::ModuleCharacteristic &sender)> &keyExtractor, const std::function<void(const DECODE_TYPE &msg, KEY &key, const MaceCore::ModuleCharacteristic &sender)> &action)
     {
-        m_cb.Set(cb_download);
-        m_cb.Set(cb_upload);
+
+        auto newItem = std::make_tuple(MaceMessageIDEq<I>(),
+                                       MaceProcessFSMState<DECODE_TYPE>(func, [this, action, keyExtractor](const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)
+                                        {
+                                            KEY key = keyExtractor(msg, sender);
+                                            TransmitQueueType::RemoveTransmission(KeyWithInt<KEY>(key, I));
+
+                                            action(msg, key, sender);
+                                        }));
+
+        m_MessageBehaviors.push_back(newItem);
     }
+
+
+    template <const int I, typename DECODE_TYPE, typename DECODE_FUNC>
+    AddMaceMessagLogic(DECODE_FUNC func, const std::function<void(const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)> &action)
+    {
+
+        auto newItem = std::make_tuple(MaceMessageIDEq<I>(),
+                                       MaceProcessFSMState<DECODE_TYPE>(func, [this, action](const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)
+                                        {
+                                            action(msg, sender);
+                                        }));
+
+        m_MessageBehaviors.push_back(newItem);
+    }
+
+    GenericMACEController(const MACEControllerInterface* cb, int linkChan) :
+        m_LinkChan(linkChan),
+        m_CB(cb)
+    {
+    }
+
 
     template <const int I>
     static std::function<bool(MaceCore::ModuleCharacteristic, const mace_message_t*)> MaceMessageIDEq()
@@ -132,6 +276,13 @@ public:
     }
 
 
+    template <typename T>
+    void QueueTransmission(const T &key, const int &messageID, const std::function<void()> &transmitAction)
+    {
+        TransmitQueueType::QueueTransmission(KeyWithInt<T>(key, messageID), transmitAction);
+    }
+
+
 
 
     virtual bool ReceiveMessage(const mace_message_t *message)
@@ -143,8 +294,6 @@ public:
         sender.ID = systemID;
         sender.Class = (MaceCore::ModuleClasses)compID;
 
-        RemoveTransmission(sender);
-
         for(auto it = m_MessageBehaviors.cbegin() ; it != m_MessageBehaviors.cend() ; ++it)
         {
             bool criteraEvaluation = std::get<0>(*it)(sender, message);
@@ -154,14 +303,17 @@ public:
                 return true;
             }
         }
+
+        return false;
     }
+
 
 
 protected:
 
 
     template <typename FUNC, typename TT>
-    EncodeMessage(FUNC func, TT requestItem, OptionalParameter<MaceCore::ModuleCharacteristic> sender, const MaceCore::ModuleCharacteristic &target)
+    void EncodeMessage(FUNC func, TT requestItem, OptionalParameter<MaceCore::ModuleCharacteristic> sender, const MaceCore::ModuleCharacteristic &target)
     {
         if(sender.IsSet() == false) {
             throw std::runtime_error("no sender given");
@@ -169,12 +321,44 @@ protected:
 
         mace_message_t msg;
         func(sender().ID, (int)sender().Class, m_LinkChan, &msg, &requestItem);
-        GenericMACEController::TransmitMessage(msg, target);
+        m_CB->TransmitMessage(msg, target);
     }
+
+private:
+    GenericMACEController(const GenericMACEController &rhs);
+    GenericMACEController& operator=(const GenericMACEController&);
 
 };
 
 
+
+}
+
+
+
+namespace std
+{
+
+template <typename T>
+struct hash<ExternalLink::KeyWithInt<T>>
+{
+    std::size_t operator()(const ExternalLink::KeyWithInt<T>& k) const
+    {
+        using std::size_t;
+        using std::hash;
+        using std::string;
+
+
+
+      // Compute individual hash values for first,
+      // second and third and combine them using XOR
+      // and bit shifting:
+
+        std::size_t const h1 ( std::hash<T>{}(k.m_obj) );
+        std::size_t const h2 ( std::hash<int>{}((int)k.m_int) );
+        return h1 ^ (h2 << 1);
+    }
+};
 }
 
 #endif // GENERIC_MACE_CONTROLLER_H
