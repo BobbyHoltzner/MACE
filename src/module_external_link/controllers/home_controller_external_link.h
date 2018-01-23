@@ -40,7 +40,7 @@ public:
         //// DOWNLOAD BEHAVIOR
         ///////////////////////////////////////////////////////////////
 
-        AddMaceMessagLogic<MACE_MSG_ID_SET_HOME_POSITION, mace_set_home_position_t >( mace_msg_set_home_position_decode,
+        AddTriggeredLogic<MACE_MSG_ID_SET_HOME_POSITION, mace_set_home_position_t >( mace_msg_set_home_position_decode,
                 [this](const mace_set_home_position_t  &msg, const MaceCore::ModuleCharacteristic &sender){
 
                     MaceCore::ModuleCharacteristic target = sender;
@@ -65,7 +65,7 @@ public:
                 }
         );
 
-        AddMaceMessagLogic<MACE_MSG_ID_HOME_POSITION, MaceCore::ModuleCharacteristic, mace_home_position_t  >( mace_msg_home_position_decode,
+        AddResponseLogic<MACE_MSG_ID_HOME_POSITION, MaceCore::ModuleCharacteristic, mace_home_position_t  >( mace_msg_home_position_decode,
                 [](const mace_home_position_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
                    UNUSED(msg);
@@ -112,7 +112,7 @@ public:
         //// UPLOAD BEHAVIOR
         ///////////////////////////////////////////////////////////////
 
-        AddMaceMessagLogic<MACE_MSG_ID_HOME_POSITION_ACK, MaceCore::ModuleCharacteristic, mace_home_position_ack_t >( mace_msg_home_position_ack_decode,
+        AddResponseLogic<MACE_MSG_ID_HOME_POSITION_ACK, MaceCore::ModuleCharacteristic, mace_home_position_ack_t >( mace_msg_home_position_ack_decode,
                 [](const mace_home_position_ack_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
                   UNUSED(msg);
@@ -125,7 +125,7 @@ public:
                 }
         );
 
-        AddMaceMessagLogic<MACE_MSG_ID_MISSION_REQUEST_HOME, MaceCore::ModuleCharacteristic, mace_mission_request_home_t>( mace_msg_mission_request_home_decode,
+        AddResponseLogic<MACE_MSG_ID_MISSION_REQUEST_HOME, MaceCore::ModuleCharacteristic, mace_mission_request_home_t>( mace_msg_mission_request_home_decode,
                 [](const mace_mission_request_home_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
                     MaceCore::ModuleCharacteristic homeInQuestion;

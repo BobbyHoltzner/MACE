@@ -44,7 +44,7 @@ public:
         //// DOWNLOAD BEHAVIOR
         ///////////////////////////////////////////////////////////////
 
-        AddMaceMessagLogic<MACE_MSG_ID_MISSION_COUNT, MissionItem::MissionKey, mace_mission_count_t>( mace_msg_mission_count_decode,
+        AddResponseLogic<MACE_MSG_ID_MISSION_COUNT, MissionItem::MissionKey, mace_mission_count_t>( mace_msg_mission_count_decode,
                 [](const mace_mission_count_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
                     UNUSED(sender);
@@ -56,7 +56,7 @@ public:
                 }
         );
 
-        AddMaceMessagLogic<MACE_MSG_ID_MISSION_ITEM, MissionItem::MissionKey, mace_mission_item_t>( mace_msg_mission_item_decode,
+        AddResponseLogic<MACE_MSG_ID_MISSION_ITEM, MissionItem::MissionKey, mace_mission_item_t>( mace_msg_mission_item_decode,
                 [](const mace_mission_item_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
                     UNUSED(sender);
@@ -79,7 +79,7 @@ public:
         //// UPLOAD BEHAVIOR
         ///////////////////////////////////////////////////////////////
 
-        AddMaceMessagLogic<MACE_MSG_ID_MISSION_REQUEST_LIST, MissionItem::MissionKey, mace_mission_request_list_t>( mace_msg_mission_request_list_decode,
+        AddResponseLogic<MACE_MSG_ID_MISSION_REQUEST_LIST, MissionItem::MissionKey, mace_mission_request_list_t>( mace_msg_mission_request_list_decode,
                 [](const mace_mission_request_list_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
                     UNUSED(sender);
@@ -98,7 +98,7 @@ public:
         );
 
 
-        AddMaceMessagLogic<MACE_MSG_ID_MISSION_REQUEST_ITEM, MissionItem::MissionKey, mace_mission_request_item_t>( mace_msg_mission_request_item_decode,
+        AddResponseLogic<MACE_MSG_ID_MISSION_REQUEST_ITEM, MissionItem::MissionKey, mace_mission_request_item_t>( mace_msg_mission_request_item_decode,
                 [](const mace_mission_request_item_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
                     UNUSED(sender);
@@ -111,7 +111,7 @@ public:
         );
 
 
-        AddMaceMessagLogic<MACE_MSG_ID_MISSION_REQUEST_LIST_GENERIC, mace_mission_request_list_generic_t>( mace_msg_mission_request_list_generic_decode,
+        AddTriggeredLogic<MACE_MSG_ID_MISSION_REQUEST_LIST_GENERIC, mace_mission_request_list_generic_t>( mace_msg_mission_request_list_generic_decode,
                 [this](const mace_mission_request_list_generic_t &msg, const MaceCore::ModuleCharacteristic &sender){
                     MaceCore::ModuleCharacteristic target = sender;
                     MissionItem::MISSIONSTATE state = static_cast<MissionItem::MISSIONSTATE>(msg.mission_state);
@@ -149,7 +149,7 @@ public:
         );
 
 
-        AddMaceMessagLogic<MACE_MSG_ID_MISSION_ACK, MissionItem::MissionKey, mace_mission_ack_t>( mace_msg_mission_ack_decode,
+        AddResponseLogic<MACE_MSG_ID_MISSION_ACK, MissionItem::MissionKey, mace_mission_ack_t>( mace_msg_mission_ack_decode,
                 [](const mace_mission_ack_t &msg, const MaceCore::ModuleCharacteristic &sender)
                 {
                     UNUSED(sender);

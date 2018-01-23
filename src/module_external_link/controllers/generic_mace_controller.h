@@ -189,7 +189,7 @@ public:
 //template<typename TransmitQueueType, typename ...DataItems>
 //class GenericMACEController : public TransmitQueueType, public A<DataItems...>, public GenericController
 template<typename TransmitQueueType, typename ...DataItems>
-class GenericMACEController : public GenericController, public TransmitQueueType, public A<DataItems...>
+class GenericMACEController : protected GenericController, public TransmitQueueType, public A<DataItems...>
 {
 public:
 
@@ -212,14 +212,45 @@ protected:
 
 public:
 
-    AddMessageLogic(const std::function<bool(MaceCore::ModuleCharacteristic, const mace_message_t*)> &critera, const std::function<void(MaceCore::ModuleCharacteristic, const mace_message_t*)> &action)
+
+    GenericMACEController(const MACEControllerInterface* cb, int linkChan) :
+        m_LinkChan(linkChan),
+        m_CB(cb)
     {
-        auto newItem = std::make_tuple(critera, action);
-        m_MessageBehaviors.push_back(newItem);
     }
 
+
+    //!
+    //! \brief Queue a transmission
+    //!
+    //! \template T Unique key type of entity that is transmitting this message
+    //! \param key key of entity that is transmitting this message
+    //! \param messageID ID of message that is expected to respond to this message
+    //! \param transmitAction Action to take to do transmissions
+    //!
+    template <typename T>
+    void QueueTransmission(const T &key, const int &messageID, const std::function<void()> &transmitAction)
+    {
+        TransmitQueueType::QueueTransmission(KeyWithInt<T>(key, messageID), transmitAction);
+    }
+
+
+
+    //!
+    //! \brief Add logic that is response to a message already sent out by this object.
+    //!
+    //! This function will set up logic that will automatically check and delete queued messages that where created by QueueTransmission
+    //!
+    //! \template I Message id this logic pertains to
+    //! \template KEY Datatype that can hold unique identifier that received message is associated with
+    //! \template DECODE_TYPE type that received message is decoded to
+    //! \template DECODE_FUNC function to decode received message to DECODE_TYPE
+    //! \param func function to decode the message received.
+    //! \param keyExtractor function to extract key from message
+    //! \param action Action to partake with message.
+    //!
     template <const int I, typename KEY, typename DECODE_TYPE, typename DECODE_FUNC>
-    AddMaceMessagLogic(DECODE_FUNC func, const std::function<KEY(const DECODE_TYPE&, const MaceCore::ModuleCharacteristic &sender)> &keyExtractor, const std::function<void(const DECODE_TYPE &msg, KEY &key, const MaceCore::ModuleCharacteristic &sender)> &action)
+    AddResponseLogic(DECODE_FUNC func, const std::function<KEY(const DECODE_TYPE&, const MaceCore::ModuleCharacteristic &sender)> &keyExtractor, const std::function<void(const DECODE_TYPE &msg, KEY &key, const MaceCore::ModuleCharacteristic &sender)> &action)
     {
 
         auto newItem = std::make_tuple(MaceMessageIDEq<I>(),
@@ -235,8 +266,19 @@ public:
     }
 
 
+    //!
+    //! \brief Add logic that is triggered by unsolicited message
+    //!
+    //! The logic added by this function does NOT delete any queued transmission.
+    //!
+    //! \template I Message id this logic pertains to
+    //! \template DECODE_TYPE type that received message is decoded to
+    //! \template DECODE_FUNC function to decode received message to DECODE_TYPE
+    //! \param func function to decode the message received.
+    //! \param action Action to partake with message.
+    //!
     template <const int I, typename DECODE_TYPE, typename DECODE_FUNC>
-    AddMaceMessagLogic(DECODE_FUNC func, const std::function<void(const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)> &action)
+    AddTriggeredLogic(DECODE_FUNC func, const std::function<void(const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)> &action)
     {
 
         auto newItem = std::make_tuple(MaceMessageIDEq<I>(),
@@ -247,41 +289,6 @@ public:
 
         m_MessageBehaviors.push_back(newItem);
     }
-
-    GenericMACEController(const MACEControllerInterface* cb, int linkChan) :
-        m_LinkChan(linkChan),
-        m_CB(cb)
-    {
-    }
-
-
-    template <const int I>
-    static std::function<bool(MaceCore::ModuleCharacteristic, const mace_message_t*)> MaceMessageIDEq()
-    {
-        return [](MaceCore::ModuleCharacteristic sender, const mace_message_t* message){
-            return message->msgid ==I;
-        };
-    }
-
-    template <typename DECODE_TYPE, typename DECODE_FUNC>
-    static std::function<void(MaceCore::ModuleCharacteristic, const mace_message_t*)> MaceProcessFSMState(DECODE_FUNC decode_func, const std::function<void(const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)> &func)
-    {
-        return [decode_func, func](MaceCore::ModuleCharacteristic sender, const mace_message_t* message)
-        {
-            DECODE_TYPE decodedMSG;
-            decode_func(message, &decodedMSG);
-
-            func(decodedMSG, sender);
-        };
-    }
-
-
-    template <typename T>
-    void QueueTransmission(const T &key, const int &messageID, const std::function<void()> &transmitAction)
-    {
-        TransmitQueueType::QueueTransmission(KeyWithInt<T>(key, messageID), transmitAction);
-    }
-
 
 
 
@@ -325,6 +332,27 @@ protected:
     }
 
 private:
+
+    template <const int I>
+    static std::function<bool(MaceCore::ModuleCharacteristic, const mace_message_t*)> MaceMessageIDEq()
+    {
+        return [](MaceCore::ModuleCharacteristic sender, const mace_message_t* message){
+            return message->msgid ==I;
+        };
+    }
+
+    template <typename DECODE_TYPE, typename DECODE_FUNC>
+    static std::function<void(MaceCore::ModuleCharacteristic, const mace_message_t*)> MaceProcessFSMState(DECODE_FUNC decode_func, const std::function<void(const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)> &func)
+    {
+        return [decode_func, func](MaceCore::ModuleCharacteristic sender, const mace_message_t* message)
+        {
+            DECODE_TYPE decodedMSG;
+            decode_func(message, &decodedMSG);
+
+            func(decodedMSG, sender);
+        };
+    }
+
     GenericMACEController(const GenericMACEController &rhs);
     GenericMACEController& operator=(const GenericMACEController&);
 
