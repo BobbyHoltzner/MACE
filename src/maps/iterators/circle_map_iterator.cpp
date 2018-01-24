@@ -143,5 +143,5 @@ void CircleMapIterator::findValidStartIndex()
     }
 }
 
-}
-}
+} //end of namespace maps
+} //end of namespace mace

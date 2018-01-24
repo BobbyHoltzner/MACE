@@ -38,7 +38,7 @@ public:
     //! \param onLineCheck
     //! \return
     //!
-    bool contains(const Position<CartesianPosition_2D> &point, const bool &onLineCheck = false);
+    bool contains(const Position<CartesianPosition_2D> &point, const bool &onLineCheck = false) const;
 
     //!
     //! \brief contains
@@ -65,7 +65,9 @@ public:
 
 public:
     Position<CartesianPosition_2D> getTopLeft() const override;
+    Position<CartesianPosition_2D> getTopRight() const override;
 
+    Position<CartesianPosition_2D> getBottomLeft() const override;
     Position<CartesianPosition_2D> getBottomRight() const override;
 
     void getCorners(Position<CartesianPosition_2D> &topLeft, Position<CartesianPosition_2D> &bottomRight) const override;
@@ -73,30 +75,70 @@ public:
 public:
     double getXMin() const
     {
-        return m_xMin;
+        return xMin;
     }
 
     double getYMin() const
     {
-        return m_yMin;
+        return yMin;
     }
 
     double getXMax() const
     {
-        return m_xMax;
+        return xMax;
     }
 
     double getYMax() const
     {
-        return m_yMax;
+        return yMax;
     }
 
 protected:
     void updateBoundingBox() override;
 
+public:
+    //!
+    //! \brief operator ==
+    //! \param rhs
+    //! \return
+    //!
+    bool operator == (const Polygon_2DC &rhs) const
+    {
+        if(!PolygonBase<Position<CartesianPosition_2D>>::operator ==(rhs))
+        {
+            return false;
+        }
+        if(this->xMin != rhs.xMin)
+        {
+            return false;
+        }
+        if(this->xMax != rhs.xMax)
+        {
+            return false;
+        }
+        if(this->yMin != rhs.yMin)
+        {
+            return false;
+        }
+        if(this->yMax != rhs.yMax)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    //!
+    //! \brief operator !=
+    //! \param rhs
+    //! \return
+    //!
+    bool operator != (const Polygon_2DC &rhs) const {
+        return !(*this == rhs);
+    }
+
 private:
-    double m_xMin, m_xMax;
-    double m_yMin, m_yMax;
+    double xMin, xMax;
+    double yMin, yMax;
 };
 
 } //end of namespace geometry

@@ -2,11 +2,14 @@
 
 #include "base/state_space/cartesian_2D_space.h"
 
+#include "base/geometry/polygon_2DC.h"
+
 #include "base/state_space/discrete_motion_validity_check.h"
 #include "base/state_space/special_validity_check.h"
 
 #include "maps/iterators/grid_map_iterator.h"
 #include "maps/iterators/circle_map_iterator.h"
+#include "maps/iterators/polygon_map_iterator.h"
 
 #include "maps/data_2d_grid.h"
 
@@ -71,9 +74,21 @@ int main(int argc, char *argv[])
 //    newValue = &value;
     using namespace mace::state_space;
     double value = 0.0;
+    std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> vertices;
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("TL",-2,2);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("TR",2,2);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point4("LR",2,-2);
+    mace::pose::Position<mace::pose::CartesianPosition_2D> point3("LL",-2,-2);
+    vertices.push_back(point1);
+    vertices.push_back(point2);
+    vertices.push_back(point4);
+    vertices.push_back(point3);
+    mace::geometry::Polygon_2DC boundingPolygon(vertices);
+    std::cout<<"The boundary contains this: "<<boundingPolygon.contains(-1,0)<<std::endl;
+
     mace::pose::CartesianPosition_2D position(0,0);
-    mace::maps::Data2DGrid<double> newGridMap(-2.0, 2.0,
-                                              -2.0, 2.0,
+    mace::maps::Data2DGrid<double> newGridMap(-10.0, 10.0,
+                                              -10.0, 10.0,
                                               1.0, 1.0,
                                               &value, position);
     for(int i = 0; i < newGridMap.getNodeCount(); i++)
@@ -84,10 +99,12 @@ int main(int argc, char *argv[])
     }
     std::cout<<"This is a holding spot for the grid map"<<std::endl;
     //newGridMap.updatePosition(position);
-    mace::maps::CircleMapIterator newCircleIterator(&newGridMap,position,1.0);
-    for(;!newCircleIterator.isPastEnd();++newCircleIterator)
+    //mace::maps::CircleMapIterator newCircleIterator(&newGridMap,position,1.0);
+    mace::maps::PolygonMapIterator newPolygonIterator(&newGridMap,boundingPolygon);
+
+    for(;!newPolygonIterator.isPastEnd();++newPolygonIterator)
     {
-        const int value = *newCircleIterator;
+        const int value = *newPolygonIterator;
         std::cout<<"The index of the position is:"<<value<<std::endl;
     }
 

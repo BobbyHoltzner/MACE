@@ -1,13 +1,13 @@
 #ifndef POLYGON_MAP_ITERATOR_H
 #define POLYGON_MAP_ITERATOR_H
 
-#include <stddef.h>
+#include "maps/iterators/generic_map_iterator.h"
 
 #include "base/geometry/polygon_2DC.h"
 #include "maps/base_grid_map.h"
 
-namespace mace {
-namespace maps {
+namespace mace{
+namespace maps{
 
 class PolygonMapIterator
 {
@@ -16,12 +16,48 @@ public:
 
     PolygonMapIterator(const PolygonMapIterator* copy);
 
-    void determineSubmap(const geometry::Polygon_2DC &polygon, size_t startIndex, size_t mapSize) const;
+    ~PolygonMapIterator()
+    {
+        if(it)
+        {
+            delete it;
+            it = nullptr;
+        }
+    }
 
-    size_t xLength, yLength;
+public:
+    PolygonMapIterator begin() const;
 
+    PolygonMapIterator end() const;
+
+    bool isPastEnd() const;
+
+public:
+    virtual PolygonMapIterator& operator ++();
+
+    virtual PolygonMapIterator operator ++(int);
+
+    PolygonMapIterator& operator =(const PolygonMapIterator &rhs);
+
+    bool operator == (const PolygonMapIterator &rhs) const;
+
+    bool operator !=(const PolygonMapIterator &rhs) const;
+
+    const int operator *() const;
+
+private:
+    bool isInside() const;
+
+    void boundSubmap(const geometry::Polygon_2DC &boundary);
+
+    void findValidStartIndex();
+
+private:
+    GenericMapIterator* it;
+    geometry::Polygon_2DC polygon;
 };
 
+} //end of namepsace mace
 } //end of namespace maps
-} //end of namespace mace
+
 #endif // POLYGON_MAP_ITERATOR_H
