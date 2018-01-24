@@ -13,6 +13,9 @@
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="./css/bootstrap.min.css">
 
+        <!-- Heron Systems CSS -->
+        <link rel="stylesheet" href="./css/heronsystems/style.css">
+
         <meta charset="utf-8">
         <title>NASA GUI</title>
 
@@ -29,13 +32,13 @@
     <script>
         var bundlePath = '../app/build/bundle.js';
         if(typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
-            bundlePath = 'http://localhost:8080/app/build/bundle.js';
+            bundlePath = `http://localhost:${process.env.PORT}/app/build/bundle.js`;
         }
         var bundleScriptEl = document.createElement('script');
         window.electronRequire = require;
         bundleScriptEl.src = bundlePath;
         document.currentScript.parentNode.insertBefore(bundleScriptEl, document.currentScript);
-    </script>
+</script>
 
 
     </body>

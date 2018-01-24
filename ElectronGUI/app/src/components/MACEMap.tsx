@@ -10,6 +10,7 @@ import * as colors from 'material-ui/styles/colors';
 import { Vehicle } from '../Vehicle';
 import { ContextMenu } from '../components/ContextMenu';
 import { Heatmap } from './mapLayers/heatmap';
+import * as L from 'leaflet';
 
 
 type Props = {
@@ -25,12 +26,12 @@ type Props = {
     contextSetGlobal: () => void,
     contextGoHere: () => void,
     contextSetTakeoff: () => void,
-    setContextAnchor: (e: L.MouseEvent) => void
-    contextAnchor: L.MouseEvent,
+    setContextAnchor: (e: L.LeafletMouseEvent) => void
+    contextAnchor: L.LeafletMouseEvent,
     MACEConnected: boolean,
     environmentBoundary: PositionType[],
     drawPolygonPts?: PositionType[],
-    onAddPolygonPt: (e: L.MouseEvent) => void,
+    onAddPolygonPt: (e: L.LeafletMouseEvent) => void,
     environmentSettings: EnvironmentSettingsType,
     gridPts?: {inPoly: L.LatLng[], trimmedPts: L.LatLng[]},
     envBoundingBox?: PositionType[]
@@ -72,20 +73,20 @@ export default class MACEMap extends React.Component<Props, State> {
     //   [37.883631, -76.810302, 1]
     // ];
 
-    this.heatmap = new Heatmap(this.leafletMap);
+    // this.heatmap = new Heatmap(this.leafletMap);
   }
 
 
-  handleMarkerClick = (e: L.MouseEvent, vehicleId: string, type: string) => {
+  handleMarkerClick = (e: L.LeafletMouseEvent, vehicleId: string, type: string) => {
     this.props.handleSelectedAircraftUpdate(vehicleId);
   }
 
-  triggerContextMenu = (event: L.MouseEvent) => {
+  triggerContextMenu = (event: L.LeafletMouseEvent) => {
     this.props.setContextAnchor(event);
     this.setState({showContextMenu: !this.state.showContextMenu});
   }
 
-  handleMapClick = (event: L.MouseEvent) => {
+  handleMapClick = (event: L.LeafletMouseEvent) => {
     if(!this.state.dragging) {
       this.props.onAddPolygonPt(event);
     }
@@ -186,14 +187,14 @@ export default class MACEMap extends React.Component<Props, State> {
                     {/* Aircraft Icons */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
                       return (
-                        <Marker zIndexOffset={1000} onclick={(e: L.MouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.props.connectedVehicles[key].vehicleMarker.latLon} icon={this.props.connectedVehicles[key].vehicleMarker.icon} title={key} />
+                        <Marker zIndexOffset={1000} onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "vehicle")} key={key} position={this.props.connectedVehicles[key].vehicleMarker.latLon} icon={this.props.connectedVehicles[key].vehicleMarker.icon} title={key} />
                       );
                     })}
 
                     {/* Home Icons */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
                       return (
-                        <Marker onclick={(e: L.MouseEvent) => this.handleMarkerClick(e, key, "home")} key={key} position={this.props.connectedVehicles[key].homePosition.latLon} icon={this.props.connectedVehicles[key].homePosition.icon} title={key} />
+                        <Marker onclick={(e: L.LeafletMouseEvent) => this.handleMarkerClick(e, key, "home")} key={key} position={this.props.connectedVehicles[key].homePosition.latLon} icon={this.props.connectedVehicles[key].homePosition.icon} title={key} />
                       );
                     })}
 
@@ -230,6 +231,7 @@ export default class MACEMap extends React.Component<Props, State> {
 
                     {/* Guided target */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
+                      if(this.props.connectedVehicles[key].vehicleMode === 'GUIDED')
                       return (
                         <Marker key={key} position={this.props.connectedVehicles[key].currentTarget.targetPosition} icon={this.props.connectedVehicles[key].currentTarget.icon} title={key}>
                         </Marker>
@@ -237,7 +239,7 @@ export default class MACEMap extends React.Component<Props, State> {
                     })}
                     {/* Guided target Paths */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
-                      if(this.props.connectedVehicles[key].currentTarget.active) {
+                      if(this.props.connectedVehicles[key].currentTarget.active && this.props.connectedVehicles[key].vehicleMode === 'GUIDED') {
                         return (
                           <Polyline key={key} positions={[this.props.connectedVehicles[key].vehicleMarker.latLon, this.props.connectedVehicles[key].currentTarget.targetPosition]} color={this.props.selectedVehicleID === key ? this.props.connectedVehicles[key].highlightColor : this.props.connectedVehicles[key].opaqueHighlightColor} />
                         );

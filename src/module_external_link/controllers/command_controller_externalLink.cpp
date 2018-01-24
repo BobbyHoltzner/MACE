@@ -33,6 +33,33 @@ void CommandController_ExternalLink::clearPreviousTransmit()
     }
 }
 
+void CommandController_ExternalLink::receivedModeACK(const mace_system_mode_ack_t &modeACK)
+{
+    m_LambdasToRun.push_back([this, modeACK]{
+        mTimer.stop();
+
+        //logCommandACK(modeACK);
+
+        if(mLog)
+            mLog->error("Command Controller recevied an acknowledgement of type " + std::to_string(modeACK.result) + " for system mode command.");
+
+        commandItemEnum type = prevTransmit->getType();
+        switch(type)
+        {
+        case(commandItemEnum::COMMAND_MODE):
+        {
+            clearPendingTasks();
+            mToExit = true;
+            currentCommsState = Data::ControllerCommsState::NEUTRAL;
+            break;
+        }
+        default:
+        {
+
+        }
+        }
+    });
+}
 void CommandController_ExternalLink::receivedCommandACK(const mace_command_ack_t &cmdACK)
 {
     m_LambdasToRun.push_back([this, cmdACK]{
@@ -41,7 +68,7 @@ void CommandController_ExternalLink::receivedCommandACK(const mace_command_ack_t
         logCommandACK(cmdACK);
 
         if(mLog)
-           mLog->error("Command Controller recevied an acknowledgement of type " + std::to_string(cmdACK.result) + " for command " + std::to_string(cmdACK.command) + ".");
+            mLog->error("Command Controller recevied an acknowledgement of type " + std::to_string(cmdACK.result) + " for command " + std::to_string(cmdACK.command) + ".");
 
         commandItemEnum type = prevTransmit->getType();
         switch(type)
@@ -226,6 +253,26 @@ void CommandController_ExternalLink::setSystemRTL(const CommandItem::SpatialRTL 
     m_CB->cbiCommandController_transmitCommand(cmd);
 }
 
+void CommandController_ExternalLink::setSystemMode(const CommandItem::ActionChangeMode &commandItem, const int &compID)
+{
+    if(mLog)
+        mLog->debug("Command Controller is requesting the system to change modes.");
+
+    mace_command_system_mode_t cmd;
+    cmd.target_system = commandItem.getTargetSystem();
+    strcpy(cmd.mode,commandItem.getDescription().c_str());
+
+    clearPreviousTransmit();
+    prevTransmit = new PreviousCommand<mace_command_system_mode_t>(commandItemEnum::COMMAND_MODE, cmd);
+
+    currentCommsState = Data::ControllerCommsState::TRANSMITTING;
+    currentRetry = 0;
+    this->start();
+    mTimer.start();
+
+    m_CB->cbiCommandController_transmitCommand(cmd);
+}
+
 void CommandController_ExternalLink::setSystemMissionCommand(const CommandItem::ActionMissionCommand &commandItem, const int &compID)
 {
     if(mLog)
@@ -280,7 +327,7 @@ void CommandController_ExternalLink::run()
                 clearPreviousTransmit();
                 mTimer.stop();
                 mToExit = true;
-             break;
+                break;
             }
             case Data::ControllerCommsState::TRANSMITTING:
             {
@@ -301,6 +348,16 @@ void CommandController_ExternalLink::run()
                     mace_command_long_t msgTransmit = tmp->getData();
                     if(mLog)
                         mLog->error("Command Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommandItemEnumString(type) + " of type " + std::to_string(msgTransmit.command) + ".");
+                    mTimer.start();
+                    if(m_CB)
+                        m_CB->cbiCommandController_transmitCommand(msgTransmit);
+                }
+                else if(type == commandItemEnum::COMMAND_MODE)
+                {
+                    PreviousCommand<mace_command_system_mode_t> *tmp = static_cast<PreviousCommand<mace_command_system_mode_t>*>(prevTransmit);
+                    mace_command_system_mode_t msgTransmit = tmp->getData();
+                    if(mLog)
+                        mLog->error("Command Controller is on attempt " + std::to_string(currentRetry) + " for " + getCommandItemEnumString(type) + ".");
                     mTimer.start();
                     if(m_CB)
                         m_CB->cbiCommandController_transmitCommand(msgTransmit);

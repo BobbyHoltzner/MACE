@@ -137,9 +137,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_ardu
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_ardupilot/debug/ -lmodule_vehicle_ardupilot
 else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_ardupilot/ -lmodule_vehicle_ardupilot
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../voropp/release/ -lvoropp
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../voropp/debug/ -lvoropp
-else:unix:!macx: LIBS += -L$$OUT_PWD/../voropp/ -lvoropp
+#win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../voropp/release/ -lvoropp
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../voropp/debug/ -lvoropp
+#else:unix:!macx: LIBS += -L$$OUT_PWD/../voropp/ -lvoropp
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/release/ -ldata_interface_MAVLINK
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/debug/ -ldata_interface_MAVLINK
@@ -164,7 +164,7 @@ INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 
 
-LIBS += -lboost_system
+#LIBS += -lboost_system
 
 unix {
 exists(/opt/ros/kinetic/lib/) {

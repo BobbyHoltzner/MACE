@@ -15,11 +15,12 @@ var config = {
   output: {
       filename: 'bundle.js',
       path: __dirname + '/app/build',
-      publicPath: 'http://localhost:8080/app/build'
+      publicPath: `http://localhost:${process.env.PORT}/app/build`
     },
 
   devServer:{
-        contentBase: 'html'
+        contentBase: 'html',
+        port: process.env.PORT
   },
 
   /*

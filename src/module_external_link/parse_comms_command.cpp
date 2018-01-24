@@ -1,4 +1,5 @@
 #include "module_external_link.h"
+//Ken: The target system here in this file is not correct.
 
 void ModuleExternalLink::ParseCommsCommand(const mace_command_short_t *message)
 {
@@ -121,4 +122,23 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
     default:
         break;
     }
+}
+
+void ModuleExternalLink::ParseCommsCommand(const mace_command_system_mode_t *message)
+{  
+    CommandItem::ActionChangeMode tmpMode;
+    tmpMode.setTargetSystem(message->target_system);
+    tmpMode.setRequestMode(std::string(message->mode));
+    std::cout<<"We are trying to change the mode RX in external link: "<<tmpMode.getRequestMode()<<std::endl;
+
+    //acknowledge receiving the command
+    mace_system_mode_ack_t modeACK;
+    modeACK.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+    mace_message_t msg;
+    mace_msg_system_mode_ack_encode_chan(message->target_system,0,m_LinkChan,&msg,&modeACK);
+    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+
+    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+        ptr->Event_ChangeSystemMode(this, tmpMode);
+    });
 }

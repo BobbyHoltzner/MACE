@@ -140,12 +140,12 @@ void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector
             if(componentsUpdated.at(i) == mace::poseTopic::Cartesian_2D_Topic::Name()){
                 std::shared_ptr<mace::poseTopic::Cartesian_2D_Topic> component = std::make_shared<mace::poseTopic::Cartesian_2D_Topic>();
                 m_PlanningStateTopic.GetComponent(component, read_topicDatagram);
-                this->renderState(component->getPose());
+                //this->renderState(component->getPose());
             }
             else if(componentsUpdated.at(i) == mace::geometryTopic::Line_2DC_Topic::Name()) {
                 std::shared_ptr<mace::geometryTopic::Line_2DC_Topic> component = std::make_shared<mace::geometryTopic::Line_2DC_Topic>();
                 m_PlanningStateTopic.GetComponent(component, read_topicDatagram);
-                this->renderEdge(component->getLine());
+                //this->renderEdge(component->getLine());
             }
         }
     }
@@ -158,14 +158,14 @@ void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write Attitude data to the GUI:
-                updateAttitudeData(senderID, component);
+                //updateAttitudeData(senderID, component);
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateLocalPositionTopic> component = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write Position data to the GUI:
-                updatePositionData(senderID, component);
+                //updatePositionData(senderID, component);
             }
         }
     }

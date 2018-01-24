@@ -186,6 +186,11 @@ type EnvironmentSettingsType = {
   gridSpacing: number
 }
 
+type ConfigSettingsType = {
+  filename?: string,
+  config?: MACEConfig
+}
+
 type HeatmapOptions = {
   size?: number,
   units?: 'm' | 'px',

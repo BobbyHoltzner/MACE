@@ -1,6 +1,7 @@
 #ifndef MODULE_PATH_PLANNING_NASAPHASE2_H
 #define MODULE_PATH_PLANNING_NASAPHASE2_H
 
+
 #include "module_path_planning_nasaphase2_global.h"
 
 #include "common/common.h"
@@ -12,7 +13,7 @@
 #include "base/state_space/cartesian_2D_space.h"
 
 #include "planners/rrt_base.h"
-#include "planners/nearest_neighbor_flann.h"
+//#include "planners/nearest_neighbor_flann.h"
 
 #include "base/state_space/discrete_motion_validity_check.h"
 #include "base/state_space/special_validity_check.h"
@@ -66,5 +67,4 @@ private:
     Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;
 
 };
-
 #endif // MODULE_PATH_PLANNING_NASAPHASE2_H

@@ -109,6 +109,13 @@ void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command
     transmitMessage(msg);
 }
 
+void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command_system_mode_t &cmd)
+{
+    mace_message_t msg;
+    mace_msg_command_system_mode_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&cmd);
+    transmitMessage(msg);
+}
+
 void ModuleExternalLink::cbiCommandController_CommandACK(const mace_command_ack_t &ack)
 {
 
@@ -359,7 +366,8 @@ void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &systemA
 
 void ModuleExternalLink::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode)
 {
-    UNUSED(vehicleMode);
+    std::cout<<"We are trying to change the mode in external link"<<std::endl;
+    m_CommandController->setSystemMode(vehicleMode);
 }
 
 void ModuleExternalLink::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &vehicleTakeoff)
