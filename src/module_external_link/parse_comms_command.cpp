@@ -3,6 +3,8 @@
 
 void ModuleExternalLink::ParseCommsCommand(const mace_command_short_t *message)
 {
+    return;
+
     switch(static_cast<CommandItem::COMMANDITEM>(message->command))
     {
     case(CommandItem::COMMANDITEM::CI_ACT_MISSIONCOMMAND):
@@ -74,6 +76,8 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_short_t *message)
 
 void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
 {
+    return;
+
     switch(message->command)
     {
     case((uint8_t)CommandItem::COMMANDITEM::CI_NAV_TAKEOFF):
@@ -137,6 +141,7 @@ void ModuleExternalLink::ParseCommsCommand(const mace_command_long_t *message)
 
 void ModuleExternalLink::ParseCommsCommand(const mace_command_system_mode_t *message)
 {  
+    return;
     CommandItem::ActionChangeMode tmpMode;
     tmpMode.setTargetSystem(message->target_system);
     tmpMode.setRequestMode(std::string(message->mode));

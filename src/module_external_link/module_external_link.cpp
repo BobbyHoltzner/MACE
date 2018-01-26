@@ -25,11 +25,21 @@ ModuleExternalLink::ModuleExternalLink() :
     homeController->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &key, const CommandItem::SpatialHome &home){this->ReceivedHome(home);});
     homeController->setLambda_FetchDataFromKey([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &key){return this->FetchHomeFromKey(key);});
     homeController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllHomeFromModule(module);});
-
     m_Controllers.Add(homeController);
-    //m_Controllers.Add(new ExternalLink::HomeController_ExternalLink(this, this, m_LinkChan));
+
+    auto commandController = new ExternalLink::CommandController(this, m_LinkChan);
+    commandController->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){this->ReceivedCommand(sender, command);});
+    m_Controllers.Add(commandController);
 
 
+
+}
+
+void ModuleExternalLink::ReceivedCommand(const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command)
+{
+    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+        ptr->Event_IssueGeneralCommand(this, command);
+    });
 }
 
 ModuleExternalLink::~ModuleExternalLink()
@@ -566,7 +576,7 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem, const Opt
     cannont work the same way local vehicles do because there is to many
     chains for a thread to wait on with no gaurantees from the vehicle module.
     */
-    m_Controllers.Retreive<ExternalLink::HomeController_ExternalLink>()->requestHome(target, sender);
+    m_Controllers.Retreive<ExternalLink::HomeController_ExternalLink>()->requestHome(target, sender());
 
     m_Controllers.Retreive<ExternalLink::MissionController>()->requestCurrentMission(target, sender());
 }
@@ -576,15 +586,15 @@ void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &systemA
     m_CommandController->setSystemArm(systemArm);
 }
 
-void ModuleExternalLink::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode)
+void ModuleExternalLink::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::cout<<"We are trying to change the mode in external link"<<std::endl;
-    m_CommandController->setSystemMode(vehicleMode);
+    m_Controllers.Retreive<ExternalLink::CommandController>()->setSystemMode(vehicleMode, sender());
 }
 
-void ModuleExternalLink::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &vehicleTakeoff)
+void ModuleExternalLink::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &vehicleTakeoff, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    m_CommandController->setSystemTakeoff(vehicleTakeoff);
+    m_Controllers.Retreive<ExternalLink::CommandController>()->setSystemTakeoff(vehicleTakeoff, sender());
 }
 
 void ModuleExternalLink::Command_Land(const CommandItem::SpatialLand &vehicleLand)
@@ -626,7 +636,7 @@ void ModuleExternalLink::Command_GetHomePosition(const int &vehicleID, const Opt
     target.ID = vehicleID;
     target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-    m_Controllers.Retreive<ExternalLink::HomeController_ExternalLink>()->requestHome(target, sender);
+    m_Controllers.Retreive<ExternalLink::HomeController_ExternalLink>()->requestHome(target, sender());
 }
 
 void ModuleExternalLink::Command_SetHomePosition(const CommandItem::SpatialHome &systemHome)
@@ -730,15 +740,9 @@ void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::Mission
     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home)
+void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    mace_home_position_t homePos;
-    homePos.latitude = home.position->getX() * pow(10,7);
-    homePos.longitude = home.position->getY() * pow(10,7);
-    homePos.altitude = home.position->getZ() * pow(10,3);
-    mace_message_t msg;
-    mace_msg_home_position_encode_chan(home.getOriginatingSystem(),0,m_LinkChan,&msg,&homePos);
-    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+    m_Controllers.Retreive<ExternalLink::HomeController_ExternalLink>()->BroadcastHome(home, sender());
 }
 
 //Ken FIX THIS: I dont know if I should pass the pertinent systemID with the key

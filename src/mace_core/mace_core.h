@@ -85,13 +85,13 @@ public:
     /////////////////////////////////////////////////////////////////////////
 
     virtual void Event_ForceVehicleDataSync(const ModuleBase *sender, const int &targetSystemID);
-    virtual void Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command);
-    virtual void Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff &command);
-    virtual void Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand &command);
-    virtual void Event_IssueCommandRTL(const void* sender, const CommandItem::SpatialRTL &command);
-    virtual void Event_IssueMissionCommand(const void* sender, const CommandItem::ActionMissionCommand &command);
-    virtual void Event_ChangeSystemMode(const void* sender, const CommandItem::ActionChangeMode &command);
-    virtual void Event_IssueGeneralCommand(const void* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command);
+    virtual void Event_IssueCommandSystemArm(const ModuleBase* sender, const CommandItem::ActionArm &command);
+    virtual void Event_IssueCommandTakeoff(const ModuleBase* sender, const CommandItem::SpatialTakeoff &command);
+    virtual void Event_IssueCommandLand(const ModuleBase* sender, const CommandItem::SpatialLand &command);
+    virtual void Event_IssueCommandRTL(const ModuleBase* sender, const CommandItem::SpatialRTL &command);
+    virtual void Event_IssueMissionCommand(const ModuleBase* sender, const CommandItem::ActionMissionCommand &command);
+    virtual void Event_ChangeSystemMode(const ModuleBase *sender, const CommandItem::ActionChangeMode &command);
+    virtual void Event_IssueGeneralCommand(const ModuleBase* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command);
 
     virtual void Event_GetMission(const void* sender, const MissionItem::MissionKey &key);
     virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const MissionItem::MISSIONTYPE &type);
@@ -121,7 +121,7 @@ public:
 
     virtual void EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved);
 
-    virtual void EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void EventVehicle_NewOnboardVehicleMission(const ModuleBase *sender, const MissionItem::MissionList &missionList);
 
     virtual void EventVehicle_MissionACK(const void *sender, const MissionItem::MissionACK &ack);
 
@@ -132,7 +132,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////
     /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle
     ////////////////////////////////////////////////////////////////////////////////////////
-    virtual void GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome);
+    virtual void GVEvents_NewHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome);
     virtual void GVEvents_MissionExeStateUpdated(const void *sender, const MissionItem::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState);
     virtual void GVEvents_MissionItemAchieved(const void *sender, const MissionItem::MissionItemAchieved &achieved);
     virtual void GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current);

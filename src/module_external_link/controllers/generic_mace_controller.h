@@ -320,14 +320,10 @@ protected:
 
 
     template <typename FUNC, typename TT>
-    void EncodeMessage(FUNC func, TT requestItem, OptionalParameter<MaceCore::ModuleCharacteristic> sender, const MaceCore::ModuleCharacteristic &target)
+    void EncodeMessage(FUNC func, TT requestItem, const MaceCore::ModuleCharacteristic &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>())
     {
-        if(sender.IsSet() == false) {
-            throw std::runtime_error("no sender given");
-        }
-
         mace_message_t msg;
-        func(sender().ID, (int)sender().Class, m_LinkChan, &msg, &requestItem);
+        func(sender.ID, (int)sender.Class, m_LinkChan, &msg, &requestItem);
         m_CB->TransmitMessage(msg, target);
     }
 

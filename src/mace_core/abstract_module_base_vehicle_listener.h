@@ -49,7 +49,7 @@ public:
         });
 
         this->template AddCommandLogic<CommandItem::SpatialTakeoff>(CT::REQUEST_VEHICLE_TAKEOFF, [this](const CommandItem::SpatialTakeoff &command, const OptionalParameter<ModuleCharacteristic> &sender){
-            Command_VehicleTakeoff(command);
+            Command_VehicleTakeoff(command, sender);
         });
 
         this->template AddCommandLogic<CommandItem::SpatialLand>(CT::REQUEST_VEHICLE_LAND, [this](const CommandItem::SpatialLand &command, const OptionalParameter<ModuleCharacteristic> &sender){
@@ -70,7 +70,7 @@ public:
 
 
         this->template AddCommandLogic<CommandItem::ActionChangeMode>(CT::CHANGE_VEHICLE_MODE, [this](const CommandItem::ActionChangeMode &command, const OptionalParameter<ModuleCharacteristic> &sender){
-            Command_ChangeSystemMode(command);
+            Command_ChangeSystemMode(command, sender);
         });
 
 
@@ -150,13 +150,13 @@ public:
     virtual void Request_FullDataSync(const int &targetSystem, const OptionalParameter<ModuleCharacteristic>& = OptionalParameter<ModuleCharacteristic>()) = 0;
 
     virtual void Command_SystemArm(const CommandItem::ActionArm &command) = 0;
-    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command) = 0;
+    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
     virtual void Command_Land(const CommandItem::SpatialLand &command) = 0;
     virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command) = 0;
     virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command) = 0;
     virtual void Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;
 
-    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode) = 0;
+    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
 
     virtual void Command_UploadMission(const MissionItem::MissionList &missionList) = 0;
     virtual void Command_SetCurrentMission(const MissionItem::MissionKey &key) = 0;

@@ -51,17 +51,12 @@ public:
                     systemHome.position->setY(msg.longitude / pow(10,7));
                     systemHome.position->setZ(msg.altitude / pow(10,3));
                     systemHome.setTargetSystem(msg.target_system);
+                    systemHome.setOriginatingSystem(msg.target_system);
 
+                    std::cout<<"Home controller: received an onsolicieted home position"<<std::endl;
                     onDataReceived(sender, systemHome);
 
-                    MaceCore::ModuleCharacteristic vehicleFrom;
-                    vehicleFrom.ID = msg.target_system;
-                    vehicleFrom.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-
-                    std::cout << "Home Controller: Send Ack" << std::endl;
-                    mace_home_position_ack_t ack;
-                    EncodeMessage(mace_msg_home_position_ack_encode_chan, ack, target, target);
-
+                    //No need to send an ACK when a request wasn't made
                 }
         );
 
@@ -159,7 +154,7 @@ public:
     }
 
 
-    void requestHome(const MaceCore::ModuleCharacteristic &target, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>())
+    void requestHome(const MaceCore::ModuleCharacteristic &target, const MaceCore::ModuleCharacteristic &sender)
     {
         if(mLog)
         {
@@ -167,22 +162,36 @@ public:
         }
 
         mace_mission_request_home_t request;
+        request.target_system = target.ID;
 
-        if(sender.IsSet() == true)
-        {
-            request.target_system = target.ID;
-        }
-        else {
-            request.target_system = 0;
-        }
-
-        m_HomeRequestedFrom.insert({target, sender()});
+        m_HomeRequestedFrom.insert({target, sender});
 
         std::cout << "Home Controller: Send Home Request" << std::endl;
         QueueTransmission(target, MACE_MSG_ID_HOME_POSITION, [this, request, sender, target](){
             EncodeMessage(mace_msg_mission_request_home_encode_chan, request, sender, target);
         });
 
+    }
+
+    void BroadcastHome(const CommandItem::SpatialHome &home, MaceCore::ModuleCharacteristic sender)
+    {
+        if(home.position->isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
+        {
+            mace_set_home_position_t setHome;
+            setHome.target_system = home.getTargetSystem();
+            setHome.latitude = home.position->getX() * pow(10,7);
+            setHome.longitude = home.position->getY()* pow(10,7);
+            setHome.altitude = home.position->getZ() * 1000.0;
+
+
+            std::cout << "Home Controller: Boadcast Home" << std::endl;
+            EncodeMessage(mace_msg_set_home_position_encode_chan, setHome, sender);
+
+        }
+        else
+        {
+            throw std::runtime_error("Not Implemented");
+        }
     }
 
     void setHome(const CommandItem::SpatialHome &home, MaceCore::ModuleCharacteristic sender)

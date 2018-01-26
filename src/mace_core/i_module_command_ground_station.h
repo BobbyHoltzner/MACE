@@ -43,7 +43,7 @@ public:
         });
 
         AddCommandLogic<CommandItem::SpatialHome>(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const CommandItem::SpatialHome &home, const OptionalParameter<ModuleCharacteristic> &sender){
-            NewlyAvailableHomePosition(home);
+            NewlyAvailableHomePosition(home, sender);
         });
     }
 
@@ -59,7 +59,7 @@ public:
 
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey) = 0;
 
-    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home) = 0;
+    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
 
     virtual bool StartTCPServer() = 0;
 

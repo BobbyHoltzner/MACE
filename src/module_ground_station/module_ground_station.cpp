@@ -454,7 +454,7 @@ void ModuleGroundStation::NewlyAvailableMissionExeState(const MissionItem::Missi
 //! \brief NewlyAvailableHomePosition Subscriber to a new home position
 //! \param home New home position
 //!
-void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home)
+void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     m_toGUIHandler->sendVehicleHome(home.getOriginatingSystem(), home);
 }

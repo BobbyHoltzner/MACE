@@ -115,7 +115,7 @@ public:
     //! \brief Command_VehicleTakeoff
     //! \param vehicleTakeoff
     //!
-    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command);
+    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_Land
@@ -139,7 +139,7 @@ public:
     //! \brief Command_ChangeSystemMode
     //! \param vehicleMode
     //!
-    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command);
+    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_IssueGeneralCommand

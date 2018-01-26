@@ -32,7 +32,8 @@ HEADERS += module_external_link.h\
     controllers/generic_controller.h \
     controller_collection.h \
     controllers/mission_controller.h \
-    controllers/generic_mace_controller.h
+    controllers/generic_mace_controller.h \
+    controllers/command_controller.h
 
 # Unix lib Install
 unix:!symbian {
@@ -62,7 +63,8 @@ headers_controllers.files   += \
     controllers/home_controller_external_link.h \
     controllers/generic_controller.h \
     controllers/mission_controller.h \
-    controllers/generic_mace_controller.h
+    controllers/generic_mace_controller.h \
+    controllers/command_controller.h
 INSTALLS       += headers_controllers
 
 INCLUDEPATH += $$PWD/../

@@ -38,6 +38,7 @@
 #include "controllers/home_controller_external_link.h"
 
 #include "controllers/mission_controller.h"
+#include "controllers/command_controller.h"
 
 #include "controller_collection.h"
 
@@ -154,6 +155,7 @@ public:
     ExternalLink::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchKeyReturn FetchHomeFromKey(const OptionalParameter<MaceCore::ModuleCharacteristic> &key);
     ExternalLink::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchModuleReturn FetchAllHomeFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
 
+    void ReceivedCommand(const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from the Home Controller
@@ -230,13 +232,13 @@ public:
     //! \brief Command_ChangeVehicleOperationalMode
     //! \param vehicleMode
     //!
-    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode);
+    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_RequestVehicleTakeoff
     //! \param vehicleTakeoff
     //!
-    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &vehicleTakeoff);
+    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &vehicleTakeoff, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_Land
@@ -353,7 +355,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
 
     virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
-    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
+    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey);
     virtual void NewlyAvailableVehicle(const int &systemID);
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
@@ -364,7 +366,8 @@ private:
 
     ControllerCollection<
         ExternalLink::MissionController,
-        ExternalLink::HomeController_ExternalLink
+        ExternalLink::HomeController_ExternalLink,
+        ExternalLink::CommandController
     > m_Controllers;
 
 private:

@@ -22,7 +22,7 @@ public:
     //! \param sender
     //! \param vehicleHome
     //!
-    virtual void GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome) = 0;
+    virtual void GVEvents_NewHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome) = 0;
 
     //!
     //! \brief GVEvents_MissionExecutionStateUpdated

@@ -168,7 +168,7 @@ void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &com
     vehicleData->m_CommandController->setSystemArm(command);
 }
 
-void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command)
+void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::stringstream buffer;
     buffer << command;
@@ -250,7 +250,7 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
     }
 }
 
-void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command)
+void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::stringstream buffer;
     buffer << command;
@@ -437,6 +437,9 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         vehicleData = std::make_shared<DataInterface_MAVLINK::VehicleObject_MAVLINK>(this->loggingPath,systemID,255);
         vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
         vehicleData->connectCallback(this);
+
+        this->SetID(systemID);
+
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
             ptr->EventVehicle_NewConstructedVehicle(this, systemID);
         });

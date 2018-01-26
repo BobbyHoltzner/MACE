@@ -16,19 +16,19 @@ public:
 
     virtual void Event_ForceVehicleDataSync(const ModuleBase* sender, const int &targetSystemID) = 0;
 
-    virtual void Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command) = 0;
+    virtual void Event_IssueCommandSystemArm(const ModuleBase* sender, const CommandItem::ActionArm &command) = 0;
 
-    virtual void Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff &command) = 0;
+    virtual void Event_IssueCommandTakeoff(const ModuleBase* sender, const CommandItem::SpatialTakeoff &command) = 0;
 
-    virtual void Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand &command) = 0;
+    virtual void Event_IssueCommandLand(const ModuleBase* sender, const CommandItem::SpatialLand &command) = 0;
 
-    virtual void Event_IssueCommandRTL(const void* sender, const CommandItem::SpatialRTL &command) = 0;
+    virtual void Event_IssueCommandRTL(const ModuleBase* sender, const CommandItem::SpatialRTL &command) = 0;
 
-    virtual void Event_IssueMissionCommand(const void* sender, const CommandItem::ActionMissionCommand &command) = 0;
+    virtual void Event_IssueMissionCommand(const ModuleBase* sender, const CommandItem::ActionMissionCommand &command) = 0;
 
-    virtual void Event_ChangeSystemMode(const void* sender, const CommandItem::ActionChangeMode &command) = 0;
+    virtual void Event_ChangeSystemMode(const ModuleBase *sender, const CommandItem::ActionChangeMode &command) = 0;
 
-    virtual void Event_IssueGeneralCommand(const void* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;
+    virtual void Event_IssueGeneralCommand(const ModuleBase* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;
 
     virtual void Event_GetMission(const void* sender, const MissionItem::MissionKey &key) = 0;
     virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const MissionItem::MISSIONTYPE &type) = 0;
