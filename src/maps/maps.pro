@@ -27,21 +27,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     bounded_2D_grid.cpp \
     base_grid_map.cpp \
-    dynamic_2D_grid.cpp \
     iterators/grid_map_iterator.cpp \
     iterators/polygon_map_iterator.cpp \
     iterators/circle_map_iterator.cpp \
-    iterators/generic_map_iterator.cpp
+    iterators/generic_map_iterator.cpp \
+    dynamic_2D_grid.tpp
 
 HEADERS +=\
         maps_global.h \
     dynamic_2D_grid.h \
     bounded_2D_grid.h \
     base_grid_map.h \
-    iterators/grid_map_iterator.h \
     data_2d_grid.h \
     iterators/polygon_map_iterator.h \
     iterators/circle_map_iterator.h \
+    iterators/grid_map_iterator.h \
     iterators/generic_map_iterator.h
 
 #Header file copy
@@ -57,8 +57,10 @@ INSTALLS       += headers_maps
 #Header file copy
 headers_iterators.path    = $$(MACE_ROOT)/include/iterators
 headers_iterators.files   += \
-        iterators/circle_iterator.h \
-        iterators/grid_map_iterator.h
+    iterators/polygon_map_iterator.h \
+    iterators/circle_map_iterator.h \
+    iterators/grid_map_iterator.h \
+    iterators/generic_map_iterator.h
 INSTALLS       += headers_iterators
 
 # Windows lib install
