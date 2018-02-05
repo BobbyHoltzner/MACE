@@ -33,7 +33,8 @@ SOURCES += \
     probabilistic_roadmap.cpp \
     rrt_base.cpp \
 #    nearest_neighbor_flann.cpp
-    path_reduction.cpp
+    path_reduction.cpp \
+    graph_planning_node.cpp
 
 HEADERS += \
         planners.h \
@@ -46,7 +47,8 @@ HEADERS += \
     nearest_neighbor_flann.h \
     nearest_neighbor_abstract.h \
     rrt_node.h \
-    path_reduction.h
+    path_reduction.h \
+    graph_planning_node.h
 
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/planners
