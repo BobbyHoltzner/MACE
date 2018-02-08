@@ -88,23 +88,40 @@ int main(int argc, char *argv[])
     std::cout<<"The boundary contains this: "<<boundingPolygon.contains(-1,0)<<std::endl;
     
     mace::pose::CartesianPosition_2D position(0,0);
+    mace::planners_graph::GraphNode graphNode;
+
     mace::maps::Data2DGrid<mace::pose::CartesianPosition_2D> newGridMap(0.0, 10.0,
                                               0.0, 10.0,
                                               1.0, 1.0,
                                               &position, position);
 
 
+    mace::maps::Data2DGrid<mace::planners_graph::GraphNode> graphMap(0.0, 10.0,
+                                              0.0, 10.0,
+                                              1.0, 1.0,
+                                              &graphNode, position);
+
+
     for(int i = 0; i < newGridMap.getNodeCount(); i++)
     {
         double x = 0, y = 0;
         newGridMap.getPositionFromIndex(i,x,y);
-        std::cout<<"The position at index: "<<i<<" is: X:"<<x<<" Y:"<<y<<std::endl;
         newGridMap.getCellByIndex(i)->updatePosition(x,y);
+        graphMap.getCellByIndex(i)->setCurrentState(newGridMap.getCellByIndex(i));
     }
     std::cout<<"This is a holding spot for the grid map"<<std::endl;
 
     StateSpacePtr space = std::make_shared<mace::maps::Data2DGridSpace>(&newGridMap);
     mace::state_space::SpaceInformationPtr spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(space);
+
+    mace::state_space::DiscreteMotionValidityCheckPtr motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(space);
+    mace::state_space::SpecialValidityCheckPtr stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(space);
+    motionCheck->setStateValidityCheck(stateCheck);
+    motionCheck->setMinCheckDistance(0.25);
+
+    spaceInfo->setStateValidityCheck(stateCheck);
+    spaceInfo->setMotionValidityCheck(motionCheck);
+
     mace::planners_graph::AStarBase a_star(spaceInfo);
 
     mace::state_space::GoalState* begin = new mace::state_space::GoalState(space);
@@ -114,7 +131,7 @@ int main(int argc, char *argv[])
     end->setRadialRegion(1.0);
 
     a_star.setPlanningParameters(begin,end);
-    a_star.solve();
+    a_star.solve(graphMap);
     /*
     mace::maps::PolygonMapIterator newPolygonIterator(&newGridMap,boundingPolygon);
     

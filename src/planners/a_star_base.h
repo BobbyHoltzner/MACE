@@ -5,9 +5,11 @@
 #include <list>
 #include <set>
 #include <unordered_set>
+#include <iostream>
 
 #include "planners.h"
 #include "graph_planning_node.h"
+#include "maps/data_2d_grid.h"
 
 namespace mace {
 namespace planners_graph{
@@ -23,6 +25,9 @@ public:
     ~AStarBase() = default;
 
 public:
+    std::vector<state_space::State*> solve(maps::Data2DGrid<GraphNode> &stateGridData);
+
+public:
     std::vector<state_space::State*> solve() override;
 
     void setPlanningParameters(state_space::GoalState* begin, state_space::GoalState* end) override;
@@ -32,8 +37,8 @@ public:
      * 2) Remove nodes from the set
      * 3) Open set requires an ability to search it for the lowest F cost
      */
-
-    //the open set is a container of nodes to be evaluated
+private:
+    void retracePath(const GraphNode* start, const GraphNode* end, std::vector<state_space::State *> &path);
 
 };
 

@@ -15,7 +15,7 @@ GraphNode::GraphNode(const GraphNode &copy)
     this->gValueChild = copy.gValueChild;
     this->gValue = copy.gValue;
     this->hValue = copy.hValue;
-    this->visited = copy.visited;
+    this->open = copy.open;
     this->closed = copy.closed;
     this->parentNode = copy.parentNode;
     this->currentState = copy.currentState;
@@ -63,14 +63,16 @@ void GraphNode::setParentNode(GraphNode* parent)
     this->parentNode = parent;
 }
 
-void GraphNode::hasBeenVisited(const bool &value)
+void GraphNode::hasBeenOpened(const bool &value)
 {
-    this->visited = value;
+    this->open = value;
+    this->closed = !value;
 }
 
 void GraphNode::hasBeenClosed(const bool &value)
 {
     this->closed = value;
+    this->open = !value;
 }
 
 void GraphNode::updateFValue()
@@ -106,9 +108,9 @@ double  GraphNode::getHValue() const
     return hValue;
 }
 
-bool  GraphNode::isVisted() const
+bool  GraphNode::isOpen() const
 {
-    return visited;
+    return open;
 }
 
 bool  GraphNode::isClosed() const

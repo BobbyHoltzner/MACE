@@ -1,6 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include <string>
 #include "base/base_global.h"
 
 //This class is intended to be abstract as well
@@ -18,6 +19,13 @@ public:
     /**
       */
     virtual ~State() = default;
+
+public:
+    virtual std::string printInfo() const
+    {
+        std::string rtn = "";
+        return rtn;
+    }
 
 public:
     /**

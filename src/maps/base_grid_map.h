@@ -26,13 +26,22 @@ public:
                 const double &x_res = 0.5, const double &y_res = 0.5,
                 const pose::CartesianPosition_2D &position = pose::CartesianPosition_2D());
 
+    BaseGridMap(const double &x_min = -10.0, const double &x_max = 10.0,
+                             const double &y_min = -10.0, const double &y_max = 10.0,
+                             const double &x_res = 0.5, const double &y_res = 0.5,
+                             const pose::CartesianPosition_2D &origin = pose::CartesianPosition_2D());
+
     //!
     //! \brief ~Dynamic2DGrids
     //!
     virtual ~BaseGridMap() = default;
 
 
-    void updateGridSize(const double &x_length = 10.0, const double &y_length = 10.0,
+    void updateGridSize(const double &x_min = -10.0, const double &x_max = 10.0,
+                        const double &y_min = -10.0, const double &y_max = 10.0,
+                        const double &x_res = 0.5, const double &y_res = 0.5);
+
+    void updateGridSizeEven(const double &x_length = 10.0, const double &y_length = 10.0,
                      const double &x_res = 0.5, const double &y_res = 0.5);
 
     void updatePosition(const pose::CartesianPosition_2D &position);

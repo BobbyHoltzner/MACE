@@ -16,9 +16,9 @@ class Data2DGrid : public BaseGridMap
 {
 public:
     Data2DGrid(const double &x_min, const double &x_max,
-                           const double &y_min, const double &y_max,
-                           const double &x_res, const double &y_res,
-                           const T *fill_value):
+               const double &y_min, const double &y_max,
+               const double &x_res, const double &y_res,
+               const T *fill_value):
         BaseGridMap(x_max - x_min, y_max - y_min, x_res, y_res,
                     pose::CartesianPosition_2D((x_max+x_min)/2,(y_max+y_min)/2))
     {
@@ -26,10 +26,10 @@ public:
     }
 
     Data2DGrid(const double &x_min, const double &x_max,
-                           const double &y_min, const double &y_max,
-                           const double &x_res, const double &y_res,
-                           const T *fill_value, const pose::CartesianPosition_2D &origin):
-        BaseGridMap(x_max - x_min, y_max - y_min, x_res, y_res,origin)
+               const double &y_min, const double &y_max,
+               const double &x_res, const double &y_res,
+               const T *fill_value, const pose::CartesianPosition_2D &origin):
+        BaseGridMap(x_min, x_max, y_min, y_max, x_res, y_res, origin)
     {
         sizeGrid(fill_value);
     }
@@ -91,6 +91,7 @@ public:
             {
                 if((j > (int)xSize - 1) || ((i == (int)indexY) && (j == (int)indexX)))
                     continue;
+                std::cout<<"Getting cell number "<<std::to_string(j + i * xSize)<<std::endl;
                 rtnCells.push_back(this->getCellByPosIndex(j,i));
             }
         }
@@ -135,7 +136,7 @@ public:
     bool findIndex(const T* find, int &index)
     {
         for (int i = 0; i < getSize(); i++)
-            if(find = &m_dataMap.at(i))
+            if(find == &m_dataMap.at(i))
             {
                 index = i;
                 return true;
@@ -182,7 +183,10 @@ public:
 
     double traversalCost(const state_space::State* begin, const state_space::State* end) override
     {
-        return 1.0;
+        const mace::pose::CartesianPosition_2D* castBegin = begin->as<mace::pose::CartesianPosition_2D>();
+        const mace::pose::CartesianPosition_2D* castEnd = end->as<mace::pose::CartesianPosition_2D>();
+
+        return castBegin->distanceBetween2D(*castEnd);
     }
 
     double distanceBetween(const mace::state_space::State* lhs, const mace::state_space::State* rhs) const override
@@ -194,9 +198,12 @@ public:
     {
         const mace::pose::CartesianPosition_2D* castState = currentState->as<mace::pose::CartesianPosition_2D>();
         std::vector<state_space::State*> rtn;
+        std::vector<mace::pose::CartesianPosition_2D*> newVector;
         int index = currentGrid->indexFromPos(castState->getXPosition(),castState->getYPosition());
-//        if(currentGrid->findIndex(castState,index))
-//            rtn = currentGrid->getCellNeighbors(index);
+        if(index < currentGrid->getNodeCount() - 1)
+            newVector = currentGrid->getCellNeighbors(index);
+        for(int i = 0; i < newVector.size(); i++)
+            rtn.push_back(newVector.at(i)->as<state_space::State>());
         return rtn;
     }
 

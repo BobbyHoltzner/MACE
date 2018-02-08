@@ -36,7 +36,7 @@ public:
 
     void setParentNode(GraphNode *parent);
 
-    void hasBeenVisited(const bool &value);
+    void hasBeenOpened(const bool &value);
 
     void hasBeenClosed(const bool &value);
 
@@ -47,7 +47,7 @@ public:
 
     double getHValue() const;
 
-    bool isVisted() const;
+    bool isOpen() const;
 
     bool isClosed() const;
 
@@ -111,6 +111,30 @@ public:
     //!
     bool operator == (const GraphNode &rhs) const
     {
+        if(this->fValue != rhs.fValue){
+            return false;
+        }
+        if(this->gValueParent != rhs.gValueParent){
+            return false;
+        }
+        if(this->gValueChild != rhs.gValueChild){
+            return false;
+        }
+        if(this->gValue != rhs.gValue){
+            return false;
+        }
+        if(this->hValue != rhs.hValue){
+            return false;
+        }
+        if(this->open != rhs.open){
+            return false;
+        }
+        if(this->closed != rhs.closed){
+            return false;
+        }
+        if(this->parentNode != rhs.parentNode){
+            return false;
+        }
         if(this->currentState != rhs.currentState){
             return false;
         }
@@ -134,7 +158,7 @@ private:
     double gValue = 0.0; /**< Member holding the summation of g parent and child.*/
     double hValue = 0.0; /**< Member containing an estimate of the remaining cost to achieve the goal.*/
 
-    bool visited = false; /**< Member boolean denoting whether this node as already been visited and expanded.*/
+    bool open = false; /**< Member boolean denoting whether this node as already been visited and expanded.*/
     bool closed = false; /**< Member boolean denoting whether this node as already been visited and expanded.*/
 
     GraphNode* parentNode; /**< Member variable that contains a pointer to the parent node connecting
