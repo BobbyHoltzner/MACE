@@ -6,6 +6,8 @@
 
 #include "base_grid_map.h"
 
+#include "base/state_space/state_space.h"
+
 namespace mace {
 namespace maps {
 
@@ -54,6 +56,11 @@ public:
             *it = value;
     }
 
+    //!
+    //! \brief getCellByIndex
+    //! \param index
+    //! \return
+    //!
     T* getCellByIndex(const unsigned int &index)
     {
         if (index > (this->getNodeCount() - 1))
@@ -62,6 +69,33 @@ public:
             return &m_dataMap[index];
     }
 
+    //!
+    //! \brief getCellNeighbors
+    //! \param index
+    //! \return
+    //!
+    std::vector<T*> getCellNeighbors(const unsigned int &index)
+    {
+        std::vector<T*> rtnCells;
+
+        unsigned int indexX, indexY;
+        getIndexDecomposed(index,indexX,indexY);
+
+        int startY = (((int)indexY + 1) >= ((int)ySize - 1)) ? (ySize - 1) : (int)indexY + 1;
+        int endY = (((int)indexY - 1) >= 0) ? (indexY - 1) : 0;
+
+        for(int i = startY; i >= endY; i--)
+        {
+            int startX = (((int)indexX - 1) >= 0) ? (indexX - 1) : 0;
+            for(int j = startX; j <= (int)indexX + 1; j++)
+            {
+                if((j > (int)xSize - 1) || ((i == (int)indexY) && (j == (int)indexX)))
+                    continue;
+                rtnCells.push_back(this->getCellByPosIndex(j,i));
+            }
+        }
+        return rtnCells;
+    }
 
     //!
     //! \brief getCellByPos
@@ -84,7 +118,7 @@ public:
     //! \param yIndex
     //! \return
     //!
-    T* getCellByPosIndex(const unsigned int &xIndex, const unsigned int &yIndex) const
+    T* getCellByPosIndex(const unsigned int &xIndex, const unsigned int &yIndex)
     {
         if (xIndex >= xSize || yIndex >= ySize)
             return nullptr;
@@ -97,6 +131,18 @@ public:
     {
         return this->m_dataMap;
     }
+
+    bool findIndex(const T* find, int &index)
+    {
+        for (int i = 0; i < getSize(); i++)
+            if(find = &m_dataMap.at(i))
+            {
+                index = i;
+                return true;
+            }
+        return false;
+    }
+
 protected:
     void sizeGrid(const T *fill_value)
     {
@@ -120,6 +166,44 @@ protected:
     //! \brief m_defaultFill
     //!
     T m_defaultFill;
+
+};
+
+
+MACE_CLASS_FORWARD(Data2DGridSpace);
+
+class Data2DGridSpace : public state_space::StateSpace
+{
+public:
+    Data2DGridSpace(Data2DGrid<mace::pose::CartesianPosition_2D>* grid)
+    {
+        currentGrid = grid;
+    }
+
+    double traversalCost(const state_space::State* begin, const state_space::State* end) override
+    {
+        return 1.0;
+    }
+
+    double distanceBetween(const mace::state_space::State* lhs, const mace::state_space::State* rhs) const override
+    {
+        return 1.0;
+    }
+
+    std::vector<state_space::State*> getNeighboringStates(const state_space::State* currentState) const override
+    {
+        const mace::pose::CartesianPosition_2D* castState = currentState->as<mace::pose::CartesianPosition_2D>();
+        std::vector<state_space::State*> rtn;
+        int index = currentGrid->indexFromPos(castState->getXPosition(),castState->getYPosition());
+//        if(currentGrid->findIndex(castState,index))
+//            rtn = currentGrid->getCellNeighbors(index);
+        return rtn;
+    }
+
+
+
+private:
+    Data2DGrid<mace::pose::CartesianPosition_2D>* currentGrid;
 
 };
 

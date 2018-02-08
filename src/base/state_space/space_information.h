@@ -154,6 +154,9 @@ public:
 
     void setMotionValidityCheck(const AbstractMotionValidityCheckPtr &motionChecker);
 
+    double getTraversalCost(const State *begin, const State *end, const bool &neighbor = false) const;
+
+
 private:
     /**
      * @brief isSetup

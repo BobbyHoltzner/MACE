@@ -34,7 +34,8 @@ SOURCES += \
     rrt_base.cpp \
 #    nearest_neighbor_flann.cpp
     path_reduction.cpp \
-    graph_planning_node.cpp
+    graph_planning_node.cpp \
+    a_star_base.cpp
 
 HEADERS += \
         planners.h \
@@ -48,7 +49,8 @@ HEADERS += \
     nearest_neighbor_abstract.h \
     rrt_node.h \
     path_reduction.h \
-    graph_planning_node.h
+    graph_planning_node.h \
+    a_star_base.h
 
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/planners

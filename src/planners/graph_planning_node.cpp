@@ -2,21 +2,53 @@
 
 namespace mace {
 namespace planners_graph{
-GraphNode::GraphNode()
+GraphNode::GraphNode():
+    parentNode(nullptr), currentState(nullptr)
 {
 
 }
 
-GraphNode::~GraphNode()
+GraphNode::GraphNode(const GraphNode &copy)
 {
+    this->fValue = copy.fValue;
+    this->gValueParent = copy.gValueParent;
+    this->gValueChild = copy.gValueChild;
+    this->gValue = copy.gValue;
+    this->hValue = copy.hValue;
+    this->visited = copy.visited;
+    this->closed = copy.closed;
+    this->parentNode = copy.parentNode;
+    this->currentState = copy.currentState;
 
 }
 
-double GraphNode::updateGValue(const double &newValue)
+double GraphNode::updateGValue(const GRelationship &obj, const double &newValue)
 {
-    this->gValue = newValue;
-    this->updateFValue();
-    return this->fValue;
+    switch (obj) {
+    case GRelationship::G_TOTAL:
+        gValue = newValue;
+        break;
+    case GRelationship::G_PARENT:
+        gValueParent = newValue;
+        gValue = gValueParent + gValueChild;
+        break;
+    case GRelationship::G_CHILD:
+        gValueChild = newValue;
+        gValue = gValueParent + gValueChild;
+        break;
+    default:
+        break;
+    }
+
+    return gValue;
+}
+
+double GraphNode::updateGValue(const double &valueParent, const double &valueChild)
+{
+    gValueParent = valueParent;
+    gValueChild = valueChild;
+    gValue = gValueParent + gValueChild;
+    return gValue;
 }
 
 double GraphNode::updateHValue(const double &newValue)
@@ -26,7 +58,7 @@ double GraphNode::updateHValue(const double &newValue)
     return this->fValue;
 }
 
-void GraphNode::setParentNode(const GraphNode *parent)
+void GraphNode::setParentNode(GraphNode* parent)
 {
     this->parentNode = parent;
 }
@@ -51,9 +83,22 @@ double  GraphNode::getFValue() const
     return fValue;
 }
 
-double  GraphNode::getGValue() const
+double  GraphNode::getGValue(const GRelationship &obj) const
 {
-    return gValue;
+    switch (obj) {
+    case GRelationship::G_TOTAL:
+        return gValue;
+        break;
+    case GRelationship::G_PARENT:
+        return gValueParent;
+        break;
+    case GRelationship::G_CHILD:
+        return gValueChild;
+        break;
+    default:
+        return gValue;
+        break;
+    }
 }
 
 double  GraphNode::getHValue() const
