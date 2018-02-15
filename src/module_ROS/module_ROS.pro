@@ -79,31 +79,31 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_item_topic/debug/ -ldata_generic_state_item_topic
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_state_item_topic/ -ldata_generic_state_item_topic
 
-unix {
-exists(/opt/ros/kinetic/lib/) {
-    DEFINES += ROS_EXISTS
-    INCLUDEPATH += /opt/ros/kinetic/include
-    INCLUDEPATH += /opt/ros/kinetic/lib
+#unix {
+#exists(/opt/ros/kinetic/lib/) {
+#    DEFINES += ROS_EXISTS
+#    INCLUDEPATH += /opt/ros/kinetic/include
+#    INCLUDEPATH += /opt/ros/kinetic/lib
 
-        LIBS += -L/opt/ros/kinetic/lib -lroscpp
-        LIBS += -L/opt/ros/kinetic/lib -lroscpp_serialization
-        LIBS += -L/opt/ros/kinetic/lib -lrostime
-        LIBS += -L/opt/ros/kinetic/lib -lxmlrpcpp
-        LIBS += -L/opt/ros/kinetic/lib -lcpp_common
-        LIBS += -L/opt/ros/kinetic/lib -lrosconsole_log4cxx
-        LIBS += -L/opt/ros/kinetic/lib -lrosconsole_backend_interface
-        LIBS += -L/opt/ros/kinetic/lib -lroslib
-        LIBS += -L/opt/ros/kinetic/lib -lrospack
-        LIBS += -L/opt/ros/kinetic/lib -lmessage_filters
-        LIBS += -L/opt/ros/kinetic/lib -lclass_loader
-        LIBS += -L/opt/ros/kinetic/lib -lconsole_bridge
-        LIBS += -L/opt/ros/kinetic/lib -lrosconsole
-        LIBS += -L/opt/ros/kinetic/lib -limage_transport
-        LIBS += -L/opt/ros/kinetic/lib -lcv_bridge
-        LIBS += -L/opt/ros/kinetic/lib -ltf
-        LIBS += -L/opt/ros/kinetic/lib -ltf2
-        LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
-        LIBS += -L/opt/ros/kinetic/lib -lactionlib
-}
-}
+#        LIBS += -L/opt/ros/kinetic/lib -lroscpp
+#        LIBS += -L/opt/ros/kinetic/lib -lroscpp_serialization
+#        LIBS += -L/opt/ros/kinetic/lib -lrostime
+#        LIBS += -L/opt/ros/kinetic/lib -lxmlrpcpp
+#        LIBS += -L/opt/ros/kinetic/lib -lcpp_common
+#        LIBS += -L/opt/ros/kinetic/lib -lrosconsole_log4cxx
+#        LIBS += -L/opt/ros/kinetic/lib -lrosconsole_backend_interface
+#        LIBS += -L/opt/ros/kinetic/lib -lroslib
+#        LIBS += -L/opt/ros/kinetic/lib -lrospack
+#        LIBS += -L/opt/ros/kinetic/lib -lmessage_filters
+#        LIBS += -L/opt/ros/kinetic/lib -lclass_loader
+#        LIBS += -L/opt/ros/kinetic/lib -lconsole_bridge
+#        LIBS += -L/opt/ros/kinetic/lib -lrosconsole
+#        LIBS += -L/opt/ros/kinetic/lib -limage_transport
+#        LIBS += -L/opt/ros/kinetic/lib -lcv_bridge
+#        LIBS += -L/opt/ros/kinetic/lib -ltf
+#        LIBS += -L/opt/ros/kinetic/lib -ltf2
+#        LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
+#        LIBS += -L/opt/ros/kinetic/lib -lactionlib
+#}
+#}
 

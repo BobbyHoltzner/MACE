@@ -6,7 +6,7 @@
 //    m_VehicleMissionTopic("vehicleMission"), m_AircraftController(NULL), vehicleData(NULL)
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<>(),
-    m_VehicleMissionTopic("vehicleMission"), m_AircraftController(NULL), vehicleData(NULL)
+    m_VehicleMissionTopic("vehicleMission"), m_AircraftController(NULL), vehicleData(NULL), stateMachine(nullptr)
 {
 
 }
@@ -347,7 +347,8 @@ void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionLis
             //This implies we are aboard the aircraft directly communicating with the autopilot
             //Thus higher rate capabilities and request for state are available
         }else{
-
+            //since we are not airborne and someone has requested a guided mission, we will assume that
+            //we
         }
         break;
     }
@@ -442,6 +443,17 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         });
 
         vehicleData->m_MissionController->requestMission();
+
+        if(stateMachine)
+        {
+            delete stateMachine;
+            stateMachine = nullptr;
+        }
+
+        stateMachine = new hsm::StateMachine();
+        stateMachine->Initialize<ardupilot::state::State_Grounded>(vehicleData.get());
+        stateMachine->UpdateStates();
+        stateMachine->ProcessStateTransitions();
     }
 
 

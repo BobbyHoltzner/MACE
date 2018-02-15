@@ -20,14 +20,50 @@ SOURCES += module_vehicle_ardupilot.cpp \
     ardupilot_guided_controller.cpp \
     ardupilot_mission_state.cpp \
     ardupilot_takeoff_controller.cpp \
-    ardupilot_general_controller.cpp
+    ardupilot_general_controller.cpp \
+    ardupilot_states/abstract_state_ardupilot.cpp \
+    ardupilot_states/state_takeoff_climbing.cpp \
+    ardupilot_states/state_takeoff_transitioning.cpp \
+    ardupilot_states/state_flight_guided.cpp \
+    ardupilot_states/state_grounded_idle.cpp \
+    ardupilot_states/state_grounded_arming.cpp \
+    ardupilot_states/state_grounded_disarming.cpp \
+    ardupilot_states/state_grounded_armed.cpp \
+    ardupilot_states/state_grounded.cpp \
+    ardupilot_states/state_takeoff.cpp \
+    ardupilot_states/state_landing_transitioning.cpp \
+    ardupilot_states/state_landing_descent.cpp \
+    ardupilot_states/state_landing.cpp \
+    ardupilot_states/state_flight_manual.cpp \
+    ardupilot_states/state_flight_auto.cpp \
+    ardupilot_states/state_flight_brake.cpp
 
 HEADERS += module_vehicle_ardupilot.h\
         module_vehicle_ardupilot_global.h \
     ardupilot_guided_controller.h \
     ardupilot_mission_state.h \
     ardupilot_takeoff_controller.h \
-    ardupilot_general_controller.h
+    ardupilot_general_controller.h \
+    ardupilot_states/abstract_state_ardupilot.h \
+    ardupilot_states/ardupilot_hsm.h \
+    ardupilot_states/ardupilot_state_types.h \
+    ardupilot_states/state_components.h \
+    ardupilot_states/state_flight_guided.h \
+    ardupilot_states/state_grounded.h \
+    ardupilot_states/state_grounded_armed.h \
+    ardupilot_states/state_grounded_arming.h \
+    ardupilot_states/state_grounded_disarming.h \
+    ardupilot_states/state_grounded_idle.h \
+    ardupilot_states/state_takeoff_climbing.h \
+    ardupilot_states/state_takeoff_transitioning.h \
+    ardupilot_states/state_takeoff.h \
+    ardupilot_states/state_landing_transitioning.h \
+    ardupilot_states/state_landing_descent.h \
+    ardupilot_states/state_landing.h \
+    ardupilot_states/state_flight_manual.h \
+    ardupilot_states/state_flight_auto.h \
+    ardupilot_states/state_flight_brake.h
+
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../../speedLog/
@@ -49,9 +85,33 @@ else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_
 INSTALLS += lib
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot
-headers.files   += $$HEADERS
-INSTALLS       += headers
+headers_module.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot
+headers_module.files   += \
+module_vehicle_ardupilot.h\
+        module_vehicle_ardupilot_global.h \
+    ardupilot_guided_controller.h \
+    ardupilot_mission_state.h \
+    ardupilot_takeoff_controller.h \
+    ardupilot_general_controller.h
+INSTALLS       += headers_module
+
+#Header file copy
+headers_ardupilot_states.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot/ardupilot_states
+headers_ardupilot_states.files   += \
+    ardupilot_states/abstract_state_ardupilot.h \
+    ardupilot_states/ardupilot_hsm.h \
+    ardupilot_states/ardupilot_state_types.h \
+    ardupilot_states/state_components.h \
+    ardupilot_states/state_flight_guided.h \
+    ardupilot_states/state_grounded.h \
+    ardupilot_states/state_grounded_armed.h \
+    ardupilot_states/state_grounded_arming.h \
+    ardupilot_states/state_grounded_disarming.h \
+    ardupilot_states/state_grounded_idle.h \
+    ardupilot_states/state_takeoff_climbing.h \
+    ardupilot_states/state_takeoff_transitioning.h
+INSTALLS       += headers_ardupilot_states
+
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata

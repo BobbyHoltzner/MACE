@@ -29,8 +29,8 @@ SUBDIRS += \
     module_ground_station \
     module_path_planning_NASAPhase2 \
     module_vehicle_sensors \
-    voropp \
-    module_resource_task_allocation \
+    #voropp \
+    #module_resource_task_allocation \
     module_ROS \
     mace \
     TestMaps

@@ -22,6 +22,9 @@
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
+#include "ardupilot_states/ardupilot_hsm.h"
+#include "ardupilot_states/state_components.h"
+
 //__________________
 #include "data_interface_MAVLINK/callback_interface_data_mavlink.h"
 
@@ -278,6 +281,9 @@ private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;
 
     Ardupilot_GeneralController* m_AircraftController;
+
+    hsm::StateMachine* stateMachine; /**< Member variable containing a pointer to the state
+ machine. This state machine evolves the state per event updates and/or external commands. */
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H
