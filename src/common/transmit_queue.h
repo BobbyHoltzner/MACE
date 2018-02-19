@@ -6,6 +6,7 @@
 #include <mutex>
 #include <functional>
 #include <unordered_map>
+#include <vector>
 
 template <typename ...TRANSMITARGS>
 class TransmitQueue : public Thread
@@ -86,6 +87,8 @@ public:
         m_ActiveTransmits.insert({num, TransmitTask(transmitAction)});
         m_ActiveTransmitsMutex.unlock();
 
+        printf("Added Transmision - Number active: %d\n", m_ActiveTransmits.size());
+
         return num;
     }
 
@@ -98,6 +101,8 @@ public:
             m_ActiveTransmits.erase(ID);
         }
         m_ActiveTransmitsMutex.unlock();
+
+        printf("Removed Transmision - Number active: %d\n", m_ActiveTransmits.size());
     }
 
     void run()
@@ -106,6 +111,7 @@ public:
         {
             if(isThreadActive() == false)
             {
+                printf("!!!!!!!!!!!!SHUTTING DOWN TRANSMIT QUEUE!!!!!!\n");
                 break;
             }
 
@@ -142,6 +148,7 @@ class TransmitQueueWithKeys<Queue, Head, T...> : public TransmitQueueWithKeys<Qu
 public:
     using TransmitQueueWithKeys<Queue, T...>::QueueTransmission;
     using TransmitQueueWithKeys<Queue, T...>::RemoveTransmission;
+    using TransmitQueueWithKeys<Queue, T...>::m_Queue;
 
 private:
 
@@ -149,12 +156,26 @@ private:
 
     std::unordered_map<Head, int> m_ActiveTransmissions;
 
+    std::unordered_map<int, std::vector<Head>> m_ActiveTransmissionsToKeyMap;
+
 public:
 
     void QueueTransmission(const Head &key, const std::function<void()> &transmitAction)
     {
-        int num = Queue::QueueTransmission(transmitAction);
+        int num = m_Queue->QueueTransmission(transmitAction);
         m_ActiveTransmissions.insert({key, num});
+        m_ActiveTransmissionsToKeyMap.insert({num, {key}});
+        //std::cout << "Transmission Queued: " << num << std::endl;
+    }
+
+    void QueueTransmission(const std::vector<Head> &keys, const std::function<void()> &transmitAction)
+    {
+        int num = m_Queue->QueueTransmission(transmitAction);
+        for(auto it = keys.cbegin() ; it != keys.cend() ; ++it)
+        {
+            m_ActiveTransmissions.insert({*it, num});
+        }
+        m_ActiveTransmissionsToKeyMap.insert({num, keys});
         //std::cout << "Transmission Queued: " << num << std::endl;
     }
 
@@ -162,18 +183,32 @@ public:
     {
         if(m_ActiveTransmissions.find(key) != m_ActiveTransmissions.cend())
         {
+            int num = m_ActiveTransmissions.at(key);
             //std::cout << "Transmission Removed: " << m_ActiveTransmissions.at(key) << std::endl;
-            Queue::RemoveTransmissionFromQueue(m_ActiveTransmissions.at(key));
-            m_ActiveTransmissions.erase(key);
+            m_Queue->RemoveTransmissionFromQueue(num);
+
+            for(auto it = m_ActiveTransmissionsToKeyMap.at(num).cbegin() ; it != m_ActiveTransmissionsToKeyMap.at(num).cend() ; ++it)
+            {
+                m_ActiveTransmissions.erase(*it);
+            }
+            m_ActiveTransmissionsToKeyMap.erase(num);
         }
     }
 
 };
 
 template <typename Queue>
-class TransmitQueueWithKeys<Queue> : public Queue
+class TransmitQueueWithKeys<Queue>
 {
+protected:
+
+    Queue* m_Queue;
+
 public:
+
+    void SetQueue(Queue* queue) {
+        m_Queue = queue;
+    }
 
     void QueueTransmission()
     {

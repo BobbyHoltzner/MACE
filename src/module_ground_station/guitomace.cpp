@@ -93,7 +93,7 @@ void GUItoMACE::setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj)
 //    mLogs->info(buffer.str());
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->Event_SetHomePosition(this, tmpHome);
+        ptr->Event_SetHomePosition(m_parent, tmpHome);
     });
 }
 

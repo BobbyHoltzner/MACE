@@ -15,6 +15,14 @@ MavlinkProtocol::MavlinkProtocol(const MavlinkConfiguration &config) :
     memset(&totalErrorCounter, 0, sizeof(totalErrorCounter));
     memset(&currReceiveCounter, 0, sizeof(currReceiveCounter));
     memset(&currLossCounter, 0, sizeof(currLossCounter));
+
+    for(int i = 0 ; i < 256 ; i++)
+    {
+        for(int j = 0 ; j < 256 ; j++)
+        {
+            lastIndex[i][j] = 0;
+        }
+    }
 }
 
 void MavlinkProtocol::AddListner(const IProtocolMavlinkEvents* listener)
@@ -115,6 +123,8 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
     uint8_t mavlinkChannel = m_MavlinkChannels.at(link);
 
     mace_message_t message;
+    message.seq = 0;
+    message.compid = 0;
     mace_status_t status;
 
     static int mavlink09Count = 0;

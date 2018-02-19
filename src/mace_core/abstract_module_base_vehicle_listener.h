@@ -53,7 +53,7 @@ public:
         });
 
         this->template AddCommandLogic<CommandItem::SpatialLand>(CT::REQUEST_VEHICLE_LAND, [this](const CommandItem::SpatialLand &command, const OptionalParameter<ModuleCharacteristic> &sender){
-            Command_Land(command);
+            Command_Land(command, sender);
         });
 
         this->template AddCommandLogic<CommandItem::SpatialRTL>(CT::REQUEST_VEHICLE_RTL, [this](const CommandItem::SpatialRTL &command, const OptionalParameter<ModuleCharacteristic> &sender){
@@ -140,7 +140,7 @@ public:
         });
 
         this->template AddCommandLogic<CommandItem::SpatialHome>(CT::SET_VEHICLE_HOME, [this](const CommandItem::SpatialHome &vehicleHome, const OptionalParameter<ModuleCharacteristic> &sender){
-            Command_SetHomePosition(vehicleHome);
+            Command_SetHomePosition(vehicleHome, sender);
         });
 
     }
@@ -151,7 +151,7 @@ public:
 
     virtual void Command_SystemArm(const CommandItem::ActionArm &command) = 0;
     virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
-    virtual void Command_Land(const CommandItem::SpatialLand &command) = 0;
+    virtual void Command_Land(const CommandItem::SpatialLand &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
     virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command) = 0;
     virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command) = 0;
     virtual void Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;
@@ -171,7 +171,7 @@ public:
     virtual void Command_ClearOnboardGuided(const int &targetSystem) = 0;
 
     virtual void Command_GetHomePosition(const int &vehicleID, const OptionalParameter<ModuleCharacteristic>& = OptionalParameter<ModuleCharacteristic>()) = 0;
-    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome) = 0;
+    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome, const OptionalParameter<ModuleCharacteristic>& = OptionalParameter<ModuleCharacteristic>()) = 0;
 
 
 };

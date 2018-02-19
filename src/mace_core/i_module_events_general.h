@@ -38,7 +38,7 @@ public:
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID) = 0;
 
     virtual void Event_GetHomePosition(const void* sender, const int &vehicleID) = 0;
-    virtual void Event_SetHomePosition(const void* sender, const CommandItem::SpatialHome &vehicleHome) = 0;
+    virtual void Event_SetHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome) = 0;
 
     virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome) = 0;
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing) = 0;

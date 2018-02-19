@@ -1,5 +1,6 @@
-#ifndef COMMAND_CONTROLLER_H
-#define COMMAND_CONTROLLER_H
+#ifndef BASE_SHORT_COMMAND_H
+#define BASE_SHORT_COMMAND_H
+
 #include <iostream>
 #include <QDate>
 #include "spdlog/spdlog.h"
@@ -14,15 +15,12 @@
 
 #include "mace_core/module_characteristics.h"
 
-#include "generic_mace_controller.h"
+#include "../generic_mace_controller.h"
 
-
-namespace ExternalLink {
-
-
-class CommandController : public GenericMACEController<
+template<const int COMMAND_ID, const int ACK_ID, typename COMMAND_TYPE>
+class GenericLongCommandController : public GenericMACEController<
         TransmitQueueWithKeys<MACETransmissionQueue, KeyWithInt<MaceCore::ModuleCharacteristic>>,
-        DataItem<MaceCore::ModuleCharacteristic, std::shared_ptr<AbstractCommandItem>>
+        DataItem<MaceCore::ModuleCharacteristic, AbstractCommandItem>
         >
 {
 private:
@@ -30,44 +28,58 @@ private:
     std::unordered_map<MaceCore::ModuleCharacteristic, MaceCore::ModuleCharacteristic> m_CommandRequestedFrom;
 
 public:
-    CommandController(const MACEControllerInterface* cb, int linkChan) :
-        GenericMACEController(cb, linkChan)
+    GenericLongCommandController(const MACEControllerInterface* cb, MACETransmissionQueue * queue, int linkChan) :
+        GenericMACEController(cb, queue, linkChan)
     {
-        /*
-        case MACE_MSG_ID_COMMAND_LONG:
-        {
-            mace_command_long_t decodedMSG;
-            mace_msg_command_long_decode(message,&decodedMSG);
-            this->ParseCommsCommand(&decodedMSG);
-            break;
-        }
-        case MACE_MSG_ID_COMMAND_SHORT:
-        {
-            mace_command_short_t decodedMSG;
-            mace_msg_command_short_decode(message,&decodedMSG);
-            this->ParseCommsCommand(&decodedMSG);
-            break;
-        }
-        case MACE_MSG_ID_COMMAND_SYSTEM_MODE:
-        {
-            mace_command_system_mode_t decodedMSG;
-            mace_msg_command_system_mode_decode(message,&decodedMSG);
-            this->ParseCommsCommand(&decodedMSG);
-            break;
-        }
-            */
+        AddTriggeredLogic<MACE_MSG_ID_COMMAND_SHORT, mace_command_short_t >( mace_msg_command_long_decode,
+                [this](const mace_command_short_t  &msg, const MaceCore::ModuleCharacteristic &sender){
+                    this->ParseCommsCommand(&msg, sender);
+                }
+        );
 
         AddTriggeredLogic<MACE_MSG_ID_COMMAND_LONG, mace_command_long_t >( mace_msg_command_long_decode,
                 [this](const mace_command_long_t  &msg, const MaceCore::ModuleCharacteristic &sender){
                     this->ParseCommsCommand(&msg, sender);
                 }
         );
+    }
 
-        AddTriggeredLogic<MACE_MSG_ID_COMMAND_SYSTEM_MODE, mace_command_system_mode_t >( mace_msg_command_system_mode_decode,
-                [this](const mace_command_system_mode_t  &msg, const MaceCore::ModuleCharacteristic &sender){
-                    HandleSystemModeCommand(msg, sender);
-                }
-        );
+    void IssueCommand(const CommandItem::SpatialTakeoff &commandItem, const MaceCore::ModuleCharacteristic &sender)
+    {
+        if(mLog)
+        {
+            std::stringstream buffer;
+            buffer << commandItem;
+
+            mLog->debug("Command Controller is requesting the system to takeoff.");
+            mLog->info(buffer.str());
+        }
+
+        OptionalParameter<MaceCore::ModuleCharacteristic> target = OptionalParameter<MaceCore::ModuleCharacteristic>();
+        if(commandItem.getTargetSystem() != 0)
+        {
+            MaceCore::ModuleCharacteristic module;
+            module.ID = commandItem.getTargetSystem();
+            module.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            target = module;
+        }
+
+        mace_command_long_t cmd = initializeCommandLong();
+        cmd.command = (uint8_t)CommandItem::COMMANDITEM::CI_NAV_TAKEOFF;
+        cmd.target_system = commandItem.getTargetSystem();
+        cmd.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
+        Data::CoordinateFrameType cf = commandItem.position->getCoordinateFrame();
+
+        if(commandItem.position->has2DPositionSet())
+        {
+            cmd.param1 = 1.0;
+            cmd.param5 = commandItem.position->getX();
+            cmd.param6 = commandItem.position->getY();
+        }
+        cmd.param7 = commandItem.position->getZ();
+
+        // TODO - MTB- NEED TO ITERATE OVER ALL ATTACHED VEHICLES
+        QueueCommand(cmd, mace_msg_command_long_encode_chan, sender, target);
     }
 
     void HandleSystemModeCommand(const mace_command_system_mode_t  &msg, const MaceCore::ModuleCharacteristic &sender) {
@@ -366,5 +378,4 @@ private:
     }
 };
 
-}
-#endif // COMMAND_CONTROLLER_H
+#endif // BASE_SHORT_COMMAND_H

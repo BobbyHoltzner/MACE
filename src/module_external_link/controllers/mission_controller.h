@@ -36,8 +36,8 @@ public:
 
 
 
-    MissionController(const MACEControllerInterface* cb, int linkChan) :
-        GenericMACEController(cb, linkChan)
+    MissionController(const MACEControllerInterface* cb, MACETransmissionQueue * queue, int linkChan) :
+        GenericMACEController(cb, queue, linkChan)
     {
 
         ///////////////////////////////////////////////////////////////
@@ -423,7 +423,7 @@ private:
             std::cout << "Mission Download Progress: Sending Final Ack" << std::endl;
             EncodeMessage(mace_msg_mission_ack_encode_chan, ackMission, requester, target);
 
-            MissionList finishedList = m_MissionsBeingFetching[key].mission;
+            std::shared_ptr<MissionList> finishedList = std::make_shared<MissionList>(m_MissionsBeingFetching[key].mission);
             m_MissionsBeingFetching.erase(key);
 
             onDataReceived(key, finishedList);

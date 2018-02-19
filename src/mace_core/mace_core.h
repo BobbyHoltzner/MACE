@@ -101,7 +101,7 @@ public:
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
 
     virtual void Event_GetHomePosition(const void* sender, const int &vehicleID);
-    virtual void Event_SetHomePosition(const void* sender, const CommandItem::SpatialHome &vehicleHome);
+    virtual void Event_SetHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome);
 
     virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome);
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing);
@@ -248,18 +248,36 @@ private:
      * @param data Data to send to given vehicle
      */
     template <typename T>
-    MarshalCommandToVehicle(int vehicleID, VehicleCommands vehicleCommand, ExternalLinkCommands externalCommand, const T& data, OptionalParameter<ModuleCharacteristic> sender = OptionalParameter<ModuleCharacteristic>())
+    void MarshalCommandToVehicle(int vehicleID, VehicleCommands vehicleCommand, ExternalLinkCommands externalCommand, const T& data, OptionalParameter<ModuleCharacteristic> sender = OptionalParameter<ModuleCharacteristic>())
     {
         //transmit to all
         if(vehicleID == 0) {
 
             for(auto it = m_VehicleIDToPort.begin() ; it != m_VehicleIDToPort.end() ; ++it)
             {
+                //don't resend to sender.
+                if(sender.IsSet() && it->second->GetCharacteristic() == sender())
+                {
+                    continue;
+                }
+                /*
+                T *Copy = new T(data);
+                if(((CommandItem::AbstractCommandItem *)Copy)->getTargetSystem() == 0)
+                {
+                    int ID = it->second->GetCharacteristic().ID;
+                    ((CommandItem::AbstractCommandItem *)Copy)->setTargetSystem(ID);
+                }
+                */
                 it->second->MarshalCommand(vehicleCommand, data);
             }
 
             for(auto it = m_ExternalLink.begin() ; it != m_ExternalLink.end() ; ++it)
             {
+                //don't resend to sender.
+                if(sender.IsSet() && (*it)->GetCharacteristic() == sender())
+                {
+                    continue;
+                }
                 (*it)->MarshalCommand(externalCommand, data, sender);
             }
         }

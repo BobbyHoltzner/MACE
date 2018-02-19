@@ -11,26 +11,47 @@
 ModuleExternalLink::ModuleExternalLink() :
     m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"),
     associatedSystemID(254), airborneInstance(true),
-    m_CommandController(NULL),m_HeartbeatController(NULL)
+    m_HeartbeatController(NULL)
 {
-    m_CommandController = new ExternalLink::CommandController_ExternalLink(this);
 
-    auto externalLink = new ExternalLink::MissionController(this, m_LinkChan);
-    externalLink->setLambda_DataReceived([this](const MissionKey &key, const MissionList &list){this->ReceivedMission(list);});
-    externalLink->setLambda_FetchDataFromKey([this](const OptionalParameter<MissionKey> &key){return this->FetchMissionFromKey(key);});
-    externalLink->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllMissionFromModule(module);});
-    m_Controllers.Add(externalLink);
+    ExternalLink::MACETransmissionQueue *queue = new ExternalLink::MACETransmissionQueue();
 
-    auto homeController = new ExternalLink::HomeController_ExternalLink(this, m_LinkChan);
-    homeController->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &key, const CommandItem::SpatialHome &home){this->ReceivedHome(home);});
+
+    //auto externalLink = new ExternalLink::MissionController(this, queue, m_LinkChan);
+    //externalLink->setLambda_DataReceived([this](const MissionKey &key, const std::shared_ptr<MissionList> &list){this->ReceivedMission(*list);});
+    //externalLink->setLambda_FetchDataFromKey([this](const OptionalParameter<MissionKey> &key){return this->FetchMissionFromKey(key);});
+    //externalLink->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllMissionFromModule(module);});
+    //m_Controllers.Add(externalLink);
+
+
+
+    auto commandLandController = new ExternalLink::CommandLand(this, queue, m_LinkChan);
+    commandLandController->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){this->ReceivedCommand(sender, command);});
+    m_Controllers.Add(commandLandController);
+
+
+    auto commandTakeoffController = new ExternalLink::CommandTakeoff(this, queue, m_LinkChan);
+    commandTakeoffController->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){this->ReceivedCommand(sender, command);});
+    m_Controllers.Add(commandTakeoffController);
+
+
+    auto controller_SystemMode = new ExternalLink::ControllerSystemMode(this, queue, m_LinkChan);
+    controller_SystemMode->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){this->ReceivedCommand(sender, command);});
+    m_Controllers.Add(controller_SystemMode);
+
+
+    auto homeController = new ExternalLink::ControllerHome(this, queue, m_LinkChan);
+    homeController->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &key, const std::shared_ptr<CommandItem::SpatialHome> &home){this->ReceivedHome(*home);});
     homeController->setLambda_FetchDataFromKey([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &key){return this->FetchHomeFromKey(key);});
     homeController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllHomeFromModule(module);});
     m_Controllers.Add(homeController);
 
-    auto commandController = new ExternalLink::CommandController(this, m_LinkChan);
-    commandController->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){this->ReceivedCommand(sender, command);});
-    m_Controllers.Add(commandController);
 
+    auto missionController = new ExternalLink::ControllerMission(this, queue, m_LinkChan);
+    missionController->setLambda_DataReceived([this](const MissionKey &key, const std::shared_ptr<MissionList> &list){this->ReceivedMission(*list);});
+    missionController->setLambda_FetchDataFromKey([this](const OptionalParameter<MissionKey> &key){return this->FetchMissionFromKey(key);});
+    missionController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllMissionFromModule(module);});
+    m_Controllers.Add(missionController);
 
 
 }
@@ -475,8 +496,6 @@ void ModuleExternalLink::HeartbeatInfo(const int &systemID, const mace_heartbeat
         });
 
         std::string loggerName = createLog(systemID);
-        m_CommandController->updateIDS(systemID,254);
-        m_CommandController->updateLogging(true,loggerName);
 
         //The system has yet to have communicated through this module
         //We therefore have to notify the core that there is a new vehicle
@@ -559,57 +578,67 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem, const Opt
         throw std::runtime_error("no sender given");
     }
 
-    MaceCore::ModuleCharacteristic target;
-    target.ID = targetSystem;
-    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
 
     //This first segment causes all the topics to be republished
     mace_message_t msg;
     mace_vehicle_sync_t sync;
     sync.target_system = targetSystem;
     mace_msg_vehicle_sync_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &sync);
-    transmitMessage(msg, target);
 
-    /*
-    The second segment is necessary to gaurantee that all information
-    requested is at a minimum answered with a DNE response. This function
-    cannont work the same way local vehicles do because there is to many
-    chains for a thread to wait on with no gaurantees from the vehicle module.
-    */
-    m_Controllers.Retreive<ExternalLink::HomeController_ExternalLink>()->requestHome(target, sender());
+    if(targetSystem == 0)
+    {
+        transmitMessage(msg);
+    }
+    else {
+        MaceCore::ModuleCharacteristic target;
+        target.ID = targetSystem;
+        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-    m_Controllers.Retreive<ExternalLink::MissionController>()->requestCurrentMission(target, sender());
+        transmitMessage(msg, target);
+
+        m_Controllers.Retreive<ExternalLink::ControllerHome>()->Request(sender(), target);
+
+        throw std::runtime_error("Not implimeneted");
+        //m_Controllers.Retreive<ExternalLink::MissionController>()->requestCurrentMission(target, sender());
+    }
 }
 
 void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &systemArm)
 {
-    m_CommandController->setSystemArm(systemArm);
+    throw std::runtime_error("Not Implemented");
+    //m_CommandController->setSystemArm(systemArm);
 }
 
 void ModuleExternalLink::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::cout<<"We are trying to change the mode in external link"<<std::endl;
-    m_Controllers.Retreive<ExternalLink::CommandController>()->setSystemMode(vehicleMode, sender());
+    MaceCore::ModuleCharacteristic target;
+    target.ID = vehicleMode.getTargetSystem();
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+    m_Controllers.Retreive<ExternalLink::ControllerSystemMode>()->Send(vehicleMode, sender(), target);
 }
 
 void ModuleExternalLink::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &vehicleTakeoff, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    m_Controllers.Retreive<ExternalLink::CommandController>()->setSystemTakeoff(vehicleTakeoff, sender());
+    m_Controllers.Retreive<ExternalLink::CommandTakeoff>()->Set(vehicleTakeoff, sender());
 }
 
-void ModuleExternalLink::Command_Land(const CommandItem::SpatialLand &vehicleLand)
+void ModuleExternalLink::Command_Land(const CommandItem::SpatialLand &vehicleLand, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    m_CommandController->setSystemLand(vehicleLand);
+    m_Controllers.Retreive<ExternalLink::CommandLand>()->Set(vehicleLand, sender());
 }
 
 void ModuleExternalLink::Command_ReturnToLaunch(const CommandItem::SpatialRTL &vehicleRTL)
 {
-    m_CommandController->setSystemRTL(vehicleRTL);
+    throw std::runtime_error("Not Implemented");//
+    //m_CommandController->setSystemRTL(vehicleRTL);
 }
 
 void ModuleExternalLink::Command_MissionState(const CommandItem::ActionMissionCommand &command)
 {
-    m_CommandController->setSystemMissionCommand(command);
+    throw std::runtime_error("Not Implemented");//
+    //m_CommandController->setSystemMissionCommand(command);
 }
 
 void ModuleExternalLink::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
@@ -636,14 +665,18 @@ void ModuleExternalLink::Command_GetHomePosition(const int &vehicleID, const Opt
     target.ID = vehicleID;
     target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-    m_Controllers.Retreive<ExternalLink::HomeController_ExternalLink>()->requestHome(target, sender());
+
+    m_Controllers.Retreive<ExternalLink::ControllerHome>()->Request(sender(), target);
 }
 
-void ModuleExternalLink::Command_SetHomePosition(const CommandItem::SpatialHome &systemHome)
+void ModuleExternalLink::Command_SetHomePosition(const CommandItem::SpatialHome &systemHome, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    MaceCore::ModuleCharacteristic sender;
-    throw std::runtime_error("Not implimeneted");
-    m_Controllers.Retreive<ExternalLink::HomeController_ExternalLink>()->setHome(systemHome, sender);
+    MaceCore::ModuleCharacteristic target;
+    target.ID = systemHome.getTargetSystem();
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+
+    m_Controllers.Retreive<ExternalLink::ControllerHome>()->Send(systemHome, sender(), target);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -678,7 +711,7 @@ void ModuleExternalLink::Command_GetMission(const MissionItem::MissionKey &key, 
     target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
     UNUSED(key);
-    m_Controllers.Retreive<ExternalLink::MissionController>()->requestMission(key, target, sender());
+    m_Controllers.Retreive<ExternalLink::ControllerMission>()->RequestMission(key, sender(), target);
 }
 
 void ModuleExternalLink::Command_SetCurrentMission(const MissionItem::MissionKey &key)
@@ -742,7 +775,7 @@ void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::Mission
 
 void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    m_Controllers.Retreive<ExternalLink::HomeController_ExternalLink>()->BroadcastHome(home, sender());
+    m_Controllers.Retreive<ExternalLink::ControllerHome>()->Broadcast(home, sender());
 }
 
 //Ken FIX THIS: I dont know if I should pass the pertinent systemID with the key
@@ -773,7 +806,6 @@ void ModuleExternalLink::NewlyAvailableVehicle(const int &systemID)
     if(airborneInstance)
     {
         this->associatedSystemID = systemID;
-        m_CommandController->updateIDS(254,systemID);
 
         //this function should always be called by an external link connected to ground for now
         //KEN this is a hack...but it will function for now

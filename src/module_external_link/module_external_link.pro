@@ -20,20 +20,44 @@ SOURCES += module_external_link.cpp \
     parse_comms_message.cpp \
     parse_comms_command.cpp \
     controllers/command_controller_externalLink.cpp \
+    controllers/home_controller_external_link.cpp \
+    controllers/mission_controller.cpp \
     controllers/heartbeat_controller_externallink.cpp \
     controllers/home_controller_external_link.cpp \
     controllers/mission_controller.cpp
 
 HEADERS += module_external_link.h\
         module_external_link_global.h \
-    controllers/command_controller_externalLink.h \
-    controllers/heartbeat_controller_externallink.h \
     controllers/home_controller_external_link.h \
     controllers/generic_controller.h \
     controller_collection.h \
     controllers/mission_controller.h \
     controllers/generic_mace_controller.h \
-    controllers/command_controller.h
+    controllers/command_controller.h \
+    controllers/command_controller.h \
+    controllers/command_controller_externalLink.h \
+    controllers/generic_controller.h \
+    controllers/generic_mace_controller.h \
+    controllers/heartbeat_controller_externallink.h \
+    controllers/home_controller_external_link.h \
+    controllers/mission_controller.h \
+    controllers/command_controllers/command_takeoff.h \
+    controllers/command_controllers/generic_long_command.h \
+    controllers/command_controllers/generic_short_command.h \
+    controllers/command_controllers/command_land.h \
+    controllers/controller_system_mode.h \
+    controllers/controller_home.h \
+    controllers/helper_controller_request.h \
+    controllers/helper_controller_broadcast.h \
+    controllers/controller_mission.h \
+    controllers/helper_controller_send.h \
+    controllers/action_send.h \
+    controllers/action_base.h \
+    controllers/action_finish.h \
+    controllers/action_request.h \
+    controllers/action_intermediate_receive.h \
+    controllers/action_intermediate_respond.h \
+    controllers/action_final_receive_respond.h
 
 # Unix lib Install
 unix:!symbian {
@@ -58,14 +82,34 @@ INSTALLS       += headers_base
 #Header file copy
 headers_controllers.path    = $$(MACE_ROOT)/include/module_external_link/controllers
 headers_controllers.files   += \
-    controllers/command_controller_externalLink.h \
-    controllers/heartbeat_controller_externallink.h \
     controllers/home_controller_external_link.h \
     controllers/generic_controller.h \
     controllers/mission_controller.h \
     controllers/generic_mace_controller.h \
-    controllers/command_controller.h
+    controllers/command_controller.h \
+    controllers/generic_request_controller.h \
+    controllers/controller_system_mode.h \
+    controllers/controller_home.h \
+    controllers/helper_controller_request.h \
+    controllers/helper_controller_broadcast.h \
+    controllers/helper_controller_send.h \
+    controllers/controller_mission.h \
+    controllers/action_send.h \
+    controllers/action_base.h \
+    controllers/action_finish.h \
+    controllers/action_request.h \
+    controllers/action_intermediate_receive.h \
+    controllers/action_intermediate_respond.h \
+    controllers/action_final_receive_respond.h
 INSTALLS       += headers_controllers
+
+headers_command_controllers.path    = $$(MACE_ROOT)/include/module_external_link/controllers/command_controllers
+headers_command_controllers.files += \
+    controllers/command_controllers/command_takeoff.h \
+    controllers/command_controllers/command_land.h \
+    controllers/command_controllers/generic_long_command.h \
+    controllers/command_controllers/generic_short_command.h
+INSTALLS       += headers_command_controllers
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../../speedLog/

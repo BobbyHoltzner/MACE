@@ -111,17 +111,17 @@ public:
 
 private:
 
-    OptionalParameter<std::function<void(const Key &, const Type &)>> m_lambda_DataRecieved;
+    OptionalParameter<std::function<void(const Key &, const std::shared_ptr<Type> &)>> m_lambda_DataRecieved;
     OptionalParameter<std::function<FetchKeyReturn(const OptionalParameter<Key> &)>> m_lambda_FetchDataFromKey;
     OptionalParameter<std::function<FetchModuleReturn(const OptionalParameter<MaceCore::ModuleCharacteristic> &)>> m_lambda_FetchAll;
 public:
 
 
-    void setLambda_DataReceived(const std::function<void(const Key &, const Type &)> &lambda){
+    void setLambda_DataReceived(const std::function<void(const Key &, const std::shared_ptr<Type> &)> &lambda){
         m_lambda_DataRecieved = lambda;
     }
 
-    void onDataReceived(const Key &key, const Type &data){
+    void onDataReceived(const Key &key, const std::shared_ptr<Type> &data){
         if(m_lambda_DataRecieved.IsSet() == false) {
             throw std::runtime_error("Data Received Lambda not set!");
         }
@@ -136,7 +136,8 @@ public:
         m_lambda_FetchDataFromKey = lambda;
     }
 
-    void FetchDataFromKey(const OptionalParameter<Key> &key, FetchKeyReturn &data){
+    void FetchDataFromKey(const OptionalParameter<Key> &key, FetchKeyReturn &data) const
+    {
         if(m_lambda_FetchDataFromKey.IsSet() == false) {
             throw std::runtime_error("FetchKey Lambda not set!");
         }
@@ -147,11 +148,13 @@ public:
 
 
 
-    void setLambda_FetchAll(const std::function<FetchModuleReturn(const OptionalParameter<MaceCore::ModuleCharacteristic> &)> &lambda){
+    void setLambda_FetchAll(const std::function<FetchModuleReturn(const OptionalParameter<MaceCore::ModuleCharacteristic> &)> &lambda)
+    {
         m_lambda_FetchAll = lambda;
     }
 
-    void FetchFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &target, FetchModuleReturn &data) {
+    void FetchFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &target, FetchModuleReturn &data) const
+    {
         if(m_lambda_FetchAll.IsSet() == false) {
             throw std::runtime_error("FetchFromModule Lambda not set!");
         }
@@ -201,6 +204,7 @@ private:
 
     const MACEControllerInterface* m_CB;
 
+
 protected:
 
     std::shared_ptr<spdlog::logger> mLog;
@@ -213,10 +217,11 @@ protected:
 public:
 
 
-    GenericMACEController(const MACEControllerInterface* cb, int linkChan) :
+    GenericMACEController(const MACEControllerInterface* cb, MACETransmissionQueue* queue, int linkChan) :
         m_LinkChan(linkChan),
         m_CB(cb)
     {
+        TransmitQueueType::SetQueue(queue);
     }
 
 
@@ -232,6 +237,23 @@ public:
     void QueueTransmission(const T &key, const int &messageID, const std::function<void()> &transmitAction)
     {
         TransmitQueueType::QueueTransmission(KeyWithInt<T>(key, messageID), transmitAction);
+    }
+
+    template <typename T>
+    void QueueTransmission(const T &key, const std::vector<int> &messagesID, const std::function<void()> &transmitAction)
+    {
+        std::vector<KeyWithInt<T>> vec;
+        for(auto it = messagesID.cbegin() ; it != messagesID.cend() ; ++it)
+        {
+            vec.push_back(KeyWithInt<T>(key, *it));
+        }
+        TransmitQueueType::QueueTransmission(vec, transmitAction);
+    }
+
+    template <typename T>
+    void RemoveTransmission(const T &key, const int &messageID)
+    {
+        TransmitQueueType::RemoveTransmission(KeyWithInt<T>(key, messageID));
     }
 
 
@@ -250,7 +272,7 @@ public:
     //! \param action Action to partake with message.
     //!
     template <const int I, typename KEY, typename DECODE_TYPE, typename DECODE_FUNC>
-    AddResponseLogic(DECODE_FUNC func, const std::function<KEY(const DECODE_TYPE&, const MaceCore::ModuleCharacteristic &sender)> &keyExtractor, const std::function<void(const DECODE_TYPE &msg, KEY &key, const MaceCore::ModuleCharacteristic &sender)> &action)
+    void AddResponseLogic(DECODE_FUNC func, const std::function<KEY(const DECODE_TYPE&, const MaceCore::ModuleCharacteristic &sender)> &keyExtractor, const std::function<void(const DECODE_TYPE &msg, KEY &key, const MaceCore::ModuleCharacteristic &sender)> &action)
     {
 
         auto newItem = std::make_tuple(MaceMessageIDEq<I>(),
@@ -278,7 +300,7 @@ public:
     //! \param action Action to partake with message.
     //!
     template <const int I, typename DECODE_TYPE, typename DECODE_FUNC>
-    AddTriggeredLogic(DECODE_FUNC func, const std::function<void(const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)> &action)
+    void AddTriggeredLogic(DECODE_FUNC func, const std::function<void(const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)> &action)
     {
 
         auto newItem = std::make_tuple(MaceMessageIDEq<I>(),
@@ -301,22 +323,23 @@ public:
         sender.ID = systemID;
         sender.Class = (MaceCore::ModuleClasses)compID;
 
+        bool usedMessage = false;
         for(auto it = m_MessageBehaviors.cbegin() ; it != m_MessageBehaviors.cend() ; ++it)
         {
             bool criteraEvaluation = std::get<0>(*it)(sender, message);
             if(criteraEvaluation)
             {
                 std::get<1>(*it)(sender, message);
-                return true;
+                usedMessage = true;
             }
         }
 
-        return false;
+        return usedMessage;
     }
 
 
 
-protected:
+public:
 
 
     template <typename FUNC, typename TT>

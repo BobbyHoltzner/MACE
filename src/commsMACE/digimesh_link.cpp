@@ -3,8 +3,8 @@
 namespace CommsMACE
 {
 
-char VEHICLE_STR[] = "Vehicle";
-char MACE_STR[] = "Mace";
+char VEHICLE_STR[] = "Vehicle\0";
+char MACE_STR[] = "Mace\0";
 
 DigiMeshLink::DigiMeshLink(const DigiMeshConfiguration &config) :
     _config(config),

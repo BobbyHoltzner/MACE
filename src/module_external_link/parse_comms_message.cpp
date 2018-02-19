@@ -21,7 +21,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         mace_system_mode_ack_t decodedMSG;
         mace_msg_system_mode_ack_decode(message,&decodedMSG);
-        m_CommandController->receivedModeACK(decodedMSG);
+        //m_CommandController->receivedModeACK(decodedMSG);
         break;
     }
     case MACE_MSG_ID_COMMAND_ACK:
@@ -51,7 +51,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
                 std::cout<<"Uknown ack!"<<std::endl;
         }
 
-        m_CommandController->receivedCommandACK(decodedMSG);
+        //m_CommandController->receivedCommandACK(decodedMSG);
         break;
     }
     case MACE_MSG_ID_VEHICLE_SYNC:

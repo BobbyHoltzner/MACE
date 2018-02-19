@@ -4,7 +4,7 @@
 #include <iostream>
 #include <functional>
 
-#include <QApplication>
+#include <QCoreApplication>
 #include <QString>
 #include <QDataStream>
 
@@ -426,7 +426,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 //!
 void ModuleGroundStation::NewlyAvailableCurrentMission(const MissionItem::MissionKey &missionKey)
 {
-    std::cout<<"New available mission for ground station."<<std::endl;
+    std::cout<<"Ground Control: New available mission"<<std::endl;
     MissionItem::MissionList newList;
     bool valid = this->getDataObject()->getMissionList(missionKey,newList);
     if(valid)
@@ -456,6 +456,7 @@ void ModuleGroundStation::NewlyAvailableMissionExeState(const MissionItem::Missi
 //!
 void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    std::cout<<"Ground Control: New available home position"<<std::endl;
     m_toGUIHandler->sendVehicleHome(home.getOriginatingSystem(), home);
 }
 

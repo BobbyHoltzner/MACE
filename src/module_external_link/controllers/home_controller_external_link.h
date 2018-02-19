@@ -31,8 +31,8 @@ private:
     std::unordered_map<MaceCore::ModuleCharacteristic, MaceCore::ModuleCharacteristic> m_HomeRequestedFrom;
 
 public:
-    HomeController_ExternalLink(const MACEControllerInterface* cb, int linkChan) :
-        GenericMACEController(cb, linkChan)
+    HomeController_ExternalLink(const MACEControllerInterface* cb, MACETransmissionQueue * queue, int linkChan) :
+        GenericMACEController(cb, queue, linkChan)
     {
 
 
@@ -54,7 +54,7 @@ public:
                     systemHome.setOriginatingSystem(msg.target_system);
 
                     std::cout<<"Home controller: received an onsolicieted home position"<<std::endl;
-                    onDataReceived(sender, systemHome);
+                    //onDataReceived(sender, systemHome);
 
                     //No need to send an ACK when a request wasn't made
                 }
@@ -92,7 +92,7 @@ public:
                         newHome.setOriginatingSystem(target.ID);
                         newHome.setTargetSystem(target.ID);
 
-                        onDataReceived(sender, newHome);
+                        //onDataReceived(sender, newHome);
 
                         std::cout << "Home Controller: Send Ack" << std::endl;
                         mace_home_position_ack_t ack;

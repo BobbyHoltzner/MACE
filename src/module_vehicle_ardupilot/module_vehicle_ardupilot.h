@@ -121,7 +121,7 @@ public:
     //! \brief Command_Land
     //! \param command
     //!
-    virtual void Command_Land(const CommandItem::SpatialLand &command);
+    virtual void Command_Land(const CommandItem::SpatialLand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_ReturnToLaunch
@@ -213,7 +213,7 @@ public:
     //! \brief Command_SetHomePosition
     //! \param vehicleHome
     //!
-    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome);
+    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome, const OptionalParameter<MaceCore::ModuleCharacteristic>& = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
 
     bool checkControllerState()

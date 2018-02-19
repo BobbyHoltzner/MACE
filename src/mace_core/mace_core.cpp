@@ -8,7 +8,10 @@
 namespace MaceCore
 {
 
-MaceCore::MaceCore()
+MaceCore::MaceCore() :
+    m_GroundStation(NULL),
+    m_PathPlanning(NULL),
+    m_RTA(NULL)
 {
 
 }
@@ -179,7 +182,7 @@ void MaceCore::Event_IssueCommandLand(const ModuleBase* sender, const CommandIte
 {
     UNUSED(sender);
     int vehicleID = command.getTargetSystem();
-    MarshalCommandToVehicle<CommandItem::SpatialLand>(vehicleID, VehicleCommands::REQUEST_VEHICLE_LAND, ExternalLinkCommands::REQUEST_VEHICLE_LAND, command);
+    MarshalCommandToVehicle<CommandItem::SpatialLand>(vehicleID, VehicleCommands::REQUEST_VEHICLE_LAND, ExternalLinkCommands::REQUEST_VEHICLE_LAND, command, sender->GetCharacteristic());
 }
 
 void MaceCore::Event_IssueCommandRTL(const ModuleBase* sender, const CommandItem::SpatialRTL &command)
@@ -303,11 +306,11 @@ void MaceCore::Event_GetHomePosition(const void* sender, const int &vehicleID)
     MarshalCommandToVehicle<int>(vehicleID, VehicleCommands::REQUEST_VEHICLE_HOME, ExternalLinkCommands::REQUEST_VEHICLE_HOME, vehicleID);
 }
 
-void MaceCore::Event_SetHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome)
+void MaceCore::Event_SetHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome)
 {
     UNUSED(sender);
     int vehicleID = vehicleHome.getTargetSystem();
-    MarshalCommandToVehicle<CommandItem::SpatialHome>(vehicleID, VehicleCommands::SET_VEHICLE_HOME, ExternalLinkCommands::SET_VEHICLE_HOME, vehicleHome);
+    MarshalCommandToVehicle<CommandItem::SpatialHome>(vehicleID, VehicleCommands::SET_VEHICLE_HOME, ExternalLinkCommands::SET_VEHICLE_HOME, vehicleHome, sender->GetCharacteristic());
 }
 
 void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID)
@@ -430,7 +433,7 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
     if(m_PathPlanning)
         m_PathPlanning->MarshalCommand(PathPlanningCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
 
-    if(m_GroundStation)
+    if(m_GroundStation.get() != NULL)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
     else if(m_ExternalLink.size() > 0)
     {
@@ -456,14 +459,24 @@ void MaceCore::GVEvents_NewHomePosition(const ModuleBase *sender, const CommandI
     //This is also bad as we are assuming that the only item calling this would be a vehicle instance
     m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
 
-    if(m_GroundStation)
+    if(m_GroundStation && m_GroundStation.get() != sender)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome, sender->GetCharacteristic());
     else if(m_ExternalLink.size() > 0)
     {
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
         {
+            if(it->get() == sender)
+            {
+                continue;
+            }
             (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome, sender->GetCharacteristic());
         }
+    }
+
+    //If targeting a vehicle on this module and not comming from self, set the home.
+    if(m_VehicleIDToPort.find(vehicleHome.getTargetSystem()) != m_VehicleIDToPort.cend() && m_VehicleIDToPort.at(vehicleHome.getTargetSystem()) != sender)
+    {
+        m_VehicleIDToPort.at(vehicleHome.getTargetSystem())->MarshalCommand(VehicleCommands::SET_VEHICLE_HOME, vehicleHome, sender->GetCharacteristic());
     }
 }
 

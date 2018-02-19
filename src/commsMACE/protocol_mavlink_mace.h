@@ -26,6 +26,11 @@ namespace CommsMACE
 class COMMSMACESHARED_EXPORT MavlinkProtocol : public IProtocol
 {
 
+    class DecodeEncodeLibrary
+    {
+
+    };
+
 public:
     MavlinkProtocol(const MavlinkConfiguration &config);
 

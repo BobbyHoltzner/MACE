@@ -35,10 +35,14 @@
 
 #include "controllers/command_controller_externalLink.h"
 #include "controllers/heartbeat_controller_externallink.h"
-#include "controllers/home_controller_external_link.h"
 
 #include "controllers/mission_controller.h"
-#include "controllers/command_controller.h"
+#include "controllers/controller_system_mode.h"
+#include "controllers/command_controllers/command_land.h"
+#include "controllers/command_controllers/command_takeoff.h"
+#include "controllers/controller_system_mode.h"
+#include "controllers/controller_home.h"
+#include "controllers/controller_mission.h"
 
 #include "controller_collection.h"
 
@@ -244,7 +248,7 @@ public:
     //! \brief Command_Land
     //! \param command
     //!
-    virtual void Command_Land(const CommandItem::SpatialLand &vehicleLand);
+    virtual void Command_Land(const CommandItem::SpatialLand &vehicleLand, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_ReturnToLaunch
@@ -348,7 +352,7 @@ public:
     //! \brief Command_SetHomePosition
     //! \param vehicleHome
     //!
-    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &systemHome);
+    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &systemHome, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from IModuleCommandExternalLink.
@@ -361,13 +365,15 @@ public:
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
 
 private:
-    ExternalLink::CommandController_ExternalLink *m_CommandController;
     ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
 
     ControllerCollection<
         ExternalLink::MissionController,
-        ExternalLink::HomeController_ExternalLink,
-        ExternalLink::CommandController
+        ExternalLink::CommandTakeoff,
+        ExternalLink::CommandLand,
+        ExternalLink::ControllerSystemMode,
+        ExternalLink::ControllerHome,
+        ExternalLink::ControllerMission
     > m_Controllers;
 
 private:
