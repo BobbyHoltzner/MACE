@@ -3,7 +3,7 @@
 
 #include "action_base.h"
 
-namespace ExternalLink {
+namespace Controllers {
 
 template<typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_ACK_ID>
 class ActionRequest_TargetedWithResponse :
@@ -16,10 +16,6 @@ protected:
 
 public:
 
-    ActionRequest_TargetedWithResponse()
-    {
-        throw std::runtime_error("Default Constructor not supported");
-    }
 
     ActionRequest_TargetedWithResponse(CONTROLLER_TYPE *controller,
                const std::function<void(uint8_t system_id, uint8_t, uint8_t, mace_message_t*, const MSG_TYPE*)> &encode_chan) :

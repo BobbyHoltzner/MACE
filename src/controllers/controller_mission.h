@@ -4,99 +4,76 @@
 #include "data_interface_MACE/COMMS_to_MACE/helper_mission_comms_to_mace.h"
 #include "data_interface_MACE/MACE_to_COMMS/helper_mission_mace_to_comms.h"
 
-#include "helper_controller_request.h"
-#include "helper_controller_send.h"
-#include "helper_controller_broadcast.h"
+#include "generic_controller.h"
 
-#include "action_send.h"
-#include "action_intermediate_respond.h"
-#include "action_intermediate_receive.h"
-#include "action_final_receive_respond.h"
-#include "action_finish.h"
+#include "actions/action_send.h"
+#include "actions/action_intermediate_respond.h"
+#include "actions/action_intermediate_receive.h"
+#include "actions/action_intermediate.h"
+#include "actions/action_final_receive_respond.h"
+#include "actions/action_finish.h"
 
-namespace ExternalLink {
-
-typedef GenericMACEController<TransmitQueueWithKeys<MACETransmissionQueue, KeyWithInt<MaceCore::ModuleCharacteristic>, KeyWithInt<MissionItem::MissionKey>>,DataItem<MissionKey, MissionList>> CONTROLLER_MISSION_TYPE;
+namespace Controllers {
 
 
-
+template<typename MESSAGETYPE>
+using CONTROLLER_MISSION_TYPE = GenericController<MESSAGETYPE, TransmitQueueWithKeys<MessageModuleTransmissionQueue<MESSAGETYPE>, KeyWithInt<MaceCore::ModuleCharacteristic>, KeyWithInt<MissionItem::MissionKey>>,DataItem<MissionKey, MissionList>>;
 
 
 
 
-typedef ActionSend_TargetedWithResponse<
-        CONTROLLER_MISSION_TYPE,
-        MissionItem::MissionKey,
-        MissionItem::MissionKey,
-        mace_mission_request_list_t,
-        MACE_MSG_ID_MISSION_COUNT
-    >
-    SendHelper_RequestMissionDownload;
+template <typename MESSAGETYPE>
+using SendHelper_RequestMissionDownload = ActionSend<
+    CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
+    MissionItem::MissionKey,
+    MissionItem::MissionKey,
+    mace_mission_request_list_t,
+    MACE_MSG_ID_MISSION_COUNT
+>;
 
 
-
-typedef ActionIntermediateReceive<
-        CONTROLLER_MISSION_TYPE,
-        MissionItem::MissionKey,
-        mace_mission_request_list_t,
-        MACE_MSG_ID_MISSION_REQUEST_LIST,
-        mace_mission_count_t
-    >
-    SendHelper_ReceiveRequestList;
-
-typedef ActionIntermediateRespond<
-        CONTROLLER_MISSION_TYPE,
-        mace_mission_count_t,
-        MACE_MSG_ID_MISSION_REQUEST_ITEM
-    >
-    SendHelper_RespondRequestList;
+template <typename MESSAGETYPE>
+using SendHelper_RequestList = ActionIntermediate<
+    CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
+    MissionItem::MissionKey,
+    mace_mission_request_list_t,
+    MACE_MSG_ID_MISSION_REQUEST_LIST,
+    mace_mission_count_t,
+    MACE_MSG_ID_MISSION_REQUEST_ITEM
+>;
 
 
-typedef ActionIntermediateReceive<
-        CONTROLLER_MISSION_TYPE,
-        MissionItem::MissionKey,
-        mace_mission_count_t,
-        MACE_MSG_ID_MISSION_COUNT,
-        mace_mission_request_item_t
-    >
-    SendHelper_ReceiveCount;
-
-typedef ActionIntermediateRespond<
-        CONTROLLER_MISSION_TYPE,
-        mace_mission_request_item_t,
-        MACE_MSG_ID_MISSION_ITEM
-    >
-    SendHelper_RespondItem;
+template <typename MESSAGETYPE>
+using SendHelper_ReceiveCountRespondItemRequest = ActionIntermediate<
+    CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
+    MissionItem::MissionKey,
+    mace_mission_count_t,
+    MACE_MSG_ID_MISSION_COUNT,
+    mace_mission_request_item_t,
+    MACE_MSG_ID_MISSION_ITEM
+>;
 
 
-
-typedef ActionIntermediateReceive<
-        CONTROLLER_MISSION_TYPE,
-        MissionItem::MissionKey,
-        mace_mission_request_item_t,
-        MACE_MSG_ID_MISSION_REQUEST_ITEM,
-        mace_mission_item_t
-    >
-    SendHelper_ReceiveRequestItem;
-
-typedef ActionIntermediateRespond<
-        CONTROLLER_MISSION_TYPE,
-        mace_mission_item_t,
-        MACE_MSG_ID_MISSION_REQUEST_ITEM,
-        MACE_MSG_ID_MISSION_ACK
-    >
-    SendHelper_RespondRequestItem;
+template <typename MESSAGETYPE>
+using SendHelper_RequestItem = ActionIntermediate<
+    CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
+    MissionItem::MissionKey,
+    mace_mission_request_item_t,
+    MACE_MSG_ID_MISSION_REQUEST_ITEM,
+    mace_mission_item_t,
+    MACE_MSG_ID_MISSION_REQUEST_ITEM,
+    MACE_MSG_ID_MISSION_ACK
+>;
 
 
-
-typedef ActionIntermediateReceive<
-        CONTROLLER_MISSION_TYPE,
-        MissionItem::MissionKey,
-        mace_mission_item_t,
-        MACE_MSG_ID_MISSION_ITEM,
-        mace_mission_request_item_t
-    >
-    SendHelper_ReceiveItem;
+template <typename MESSAGETYPE>
+using SendHelper_ReceiveItem = ActionIntermediateReceive<
+    CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
+    MissionItem::MissionKey,
+    mace_mission_item_t,
+    MACE_MSG_ID_MISSION_ITEM,
+    mace_mission_request_item_t
+>;
 
 /*
  * Duplicate
@@ -110,36 +87,34 @@ typedef ActionResponseIntermediate<
 
 
 
+template <typename MESSAGETYPE>
+using SendHelper_Final = ActionFinalReceiveRespond<
+    CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
+    MissionItem::MissionKey,
+    MissionItem::MissionList,
+    mace_mission_item_t,
+    mace_mission_ack_t,
+    MACE_MSG_ID_MISSION_ITEM
+>;
 
-typedef ActionFinalReceiveRespond<
-        CONTROLLER_MISSION_TYPE,
-        MissionItem::MissionKey,
-        MissionItem::MissionList,
-        mace_mission_item_t,
-        mace_mission_ack_t,
-        MACE_MSG_ID_MISSION_ITEM
-    >
-    SendHelper_Final;
 
-typedef ActionFinish<
-        CONTROLLER_MISSION_TYPE,
-        MissionItem::MissionKey,
-        mace_mission_ack_t,
-        MACE_MSG_ID_MISSION_ACK
-    >
-    SendHelper_FinalFinal;
+template <typename MESSAGETYPE>
+using SendHelper_FinalFinal = ActionFinish<
+    CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
+    MissionItem::MissionKey,
+    mace_mission_ack_t,
+    MACE_MSG_ID_MISSION_ACK
+>;
 
-class ControllerMission : public CONTROLLER_MISSION_TYPE,
-        public SendHelper_RequestMissionDownload,
-        public SendHelper_ReceiveRequestList,
-        public SendHelper_RespondRequestList,
-        public SendHelper_ReceiveCount,
-        public SendHelper_RespondItem,
-        public SendHelper_ReceiveRequestItem,
-        public SendHelper_RespondRequestItem,
-        public SendHelper_ReceiveItem,
-        public SendHelper_Final,
-        public SendHelper_FinalFinal
+template <typename MESSAGETYPE>
+class ControllerMission : public CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
+        public SendHelper_RequestMissionDownload<MESSAGETYPE>,
+        public SendHelper_RequestList<MESSAGETYPE>,
+        public SendHelper_ReceiveCountRespondItemRequest<MESSAGETYPE>,
+        public SendHelper_RequestItem<MESSAGETYPE>,
+        public SendHelper_ReceiveItem<MESSAGETYPE>,
+        public SendHelper_Final<MESSAGETYPE>,
+        public SendHelper_FinalFinal<MESSAGETYPE>
 {
 
 private:
@@ -198,7 +173,7 @@ protected:
         vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         std::vector<std::tuple<MissionKey, MissionList>> missions;
-        FetchDataFromKey(key, missions);
+        CONTROLLER_MISSION_TYPE<MESSAGETYPE>::FetchDataFromKey(key, missions);
 
         if(missions.size() == 0)
         {
@@ -300,8 +275,8 @@ protected:
 
         if(m_MissionsUploading.find(key) == m_MissionsUploading.cend())
         {
-            if(mLog)
-                mLog->error("MissionController_ExternalLink has been told to transmit a mission item from a mission which keys dont match the contained.");
+            if(CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog)
+                CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog->error("MissionController_ExternalLink has been told to transmit a mission item from a mission which keys dont match the contained.");
             return false;
         }
 
@@ -309,13 +284,13 @@ protected:
         if(index >= m_MissionsUploading[key].getQueueSize())
         {
             //this indicates that RX system requested something OOR
-            if(mLog)
-                mLog->error("MissionController_ExternalLink has been told to transmit a mission item with index " + std::to_string(index) + " which is greater than the size of the list contained.");
+            if(CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog)
+                CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog->error("MissionController_ExternalLink has been told to transmit a mission item with index " + std::to_string(index) + " which is greater than the size of the list contained.");
             return false;
         }
 
-        if(mLog)
-            mLog->info("MissionController_ExternalLink has been told to transmit a mission item with index " + std::to_string(index) + ".");
+        if(CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog)
+            CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog->info("MissionController_ExternalLink has been told to transmit a mission item with index " + std::to_string(index) + ".");
 
         std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = this->m_MissionsUploading[key].getMissionItem(index);
 
@@ -349,8 +324,8 @@ protected:
         //check if mission item received is part of a mission we are activly downloading
         if(this->m_MissionsBeingFetching.find(key) == m_MissionsBeingFetching.cend())
         {
-            if(mLog)
-                mLog->error("Mission controller received a mission item with a key that is not equal to the one we were originally told.");
+            if(CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog)
+                CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog->error("Mission controller received a mission item with a key that is not equal to the one we were originally told.");
             return false;
         }
 
@@ -358,8 +333,8 @@ protected:
         if(seqReceived > (m_MissionsBeingFetching[key].mission.getQueueSize() - 1)) //this should never happen
         {
             std::cout << "Mission download Error: received a mission item with an index greater than available in the queue" << std::endl;
-            if(mLog)
-                mLog->error("Mission controller received a mission item with an index greater than available in the queue.");
+            if(CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog)
+                CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog->error("Mission controller received a mission item with an index greater than available in the queue.");
             return false;
         }
         //execution will only continue if not last item
@@ -413,8 +388,8 @@ protected:
         //check if mission item received is part of a mission we are activly downloading
         if(this->m_MissionsBeingFetching.find(key) == m_MissionsBeingFetching.cend())
         {
-            if(mLog)
-                mLog->error("Mission controller received a mission item with a key that is not equal to the one we were originally told.");
+            if(CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog)
+                CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog->error("Mission controller received a mission item with a key that is not equal to the one we were originally told.");
             return false;
         }
 
@@ -422,8 +397,8 @@ protected:
         if(seqReceived > (m_MissionsBeingFetching[key].mission.getQueueSize() - 1)) //this should never happen
         {
             std::cout << "Mission download Error: received a mission item with an index greater than available in the queue" << std::endl;
-            if(mLog)
-                mLog->error("Mission controller received a mission item with an index greater than available in the queue.");
+            if(CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog)
+                CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog->error("Mission controller received a mission item with an index greater than available in the queue.");
             return false;
         }
 
@@ -442,11 +417,11 @@ protected:
             throw std::runtime_error("Reached end of request but missions are not completed");
         }
 
-        if(mLog)
+        if(CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog)
         {
             std::stringstream buffer;
             buffer << key;
-            mLog->info("Mission Controller has received the entire mission of " + std::to_string(m_MissionsBeingFetching[key].mission.getQueueSize()) + " for mission " + buffer.str() + ".");
+            CONTROLLER_MISSION_TYPE<MESSAGETYPE>::mLog->info("Mission Controller has received the entire mission of " + std::to_string(m_MissionsBeingFetching[key].mission.getQueueSize()) + " for mission " + buffer.str() + ".");
         }
 
         ackMission.mission_system = key.m_systemID;
@@ -483,33 +458,17 @@ protected:
 
 public:
 
-    ControllerMission(const MACEControllerInterface* cb, MACETransmissionQueue * queue, int linkChan) :
-        CONTROLLER_MISSION_TYPE(cb, queue, linkChan),
-        SendHelper_RequestMissionDownload(this,
-                                mace_msg_mission_request_list_encode_chan),
-        SendHelper_ReceiveRequestList(this,
-                                [this](const mace_mission_count_t &A, const MaceCore::ModuleCharacteristic &B, const MissionItem::MissionKey &C, const MaceCore::ModuleCharacteristic &D){SendHelper_RespondRequestList::NextTransmission(A,B,C,D);},
-                                mace_msg_mission_request_list_decode),
-        SendHelper_RespondRequestList(this,
-                                mace_msg_mission_count_encode_chan),
-        SendHelper_ReceiveCount(this,
-                                [this](const mace_mission_request_item_t &A, const MaceCore::ModuleCharacteristic &B, const MissionItem::MissionKey &C, const MaceCore::ModuleCharacteristic &D){SendHelper_RespondItem::NextTransmission(A,B,C,D);},
-                                mace_msg_mission_count_decode),
-        SendHelper_RespondItem(this,
-                                mace_msg_mission_request_item_encode_chan),
-        SendHelper_ReceiveRequestItem(this,
-                                [this](const mace_mission_item_t &A, const MaceCore::ModuleCharacteristic &B, const MissionItem::MissionKey &C, const MaceCore::ModuleCharacteristic &D){SendHelper_RespondRequestItem::NextTransmission(A,B,C,D);},
-                                mace_msg_mission_request_item_decode),
-        SendHelper_RespondRequestItem(this,
-                                mace_msg_mission_item_encode_chan),
-        SendHelper_ReceiveItem(this,
-                               [this](const mace_mission_request_item_t &A, const MaceCore::ModuleCharacteristic &B, const MissionItem::MissionKey &C, const MaceCore::ModuleCharacteristic &D){SendHelper_RespondItem::NextTransmission(A,B,C,D);},
+    ControllerMission(const MACEControllerInterface<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
+        CONTROLLER_MISSION_TYPE<MESSAGETYPE>(cb, queue, linkChan),
+        SendHelper_RequestMissionDownload<MESSAGETYPE>(this, mace_msg_mission_request_list_encode_chan),
+        SendHelper_RequestList<MESSAGETYPE>(this, mace_msg_mission_request_list_decode, mace_msg_mission_count_encode_chan),
+        SendHelper_ReceiveCountRespondItemRequest<MESSAGETYPE>(this, mace_msg_mission_count_decode, mace_msg_mission_request_item_encode_chan),
+        SendHelper_RequestItem<MESSAGETYPE>(this, mace_msg_mission_request_item_decode, mace_msg_mission_item_encode_chan),
+        SendHelper_ReceiveItem<MESSAGETYPE>(this,
+                               [this](const mace_mission_request_item_t &A, const MaceCore::ModuleCharacteristic &B, const MissionItem::MissionKey &C, const MaceCore::ModuleCharacteristic &D){SendHelper_ReceiveCountRespondItemRequest<MESSAGETYPE>::NextTransmission(A,B,C,D);},
                                mace_msg_mission_item_decode),
-        SendHelper_Final(this,
-                                mace_msg_mission_item_decode,
-                                mace_msg_mission_ack_encode_chan),
-        SendHelper_FinalFinal(this,
-                                mace_msg_mission_ack_decode)
+        SendHelper_Final<MESSAGETYPE>(this, mace_msg_mission_item_decode, mace_msg_mission_ack_encode_chan),
+        SendHelper_FinalFinal<MESSAGETYPE>(this, mace_msg_mission_ack_decode)
 
     {
 
@@ -518,7 +477,7 @@ public:
 
     void RequestMission(const MissionItem::MissionKey &key, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
     {
-        SendHelper_RequestMissionDownload::Send(key, sender, target);
+        SendHelper_RequestMissionDownload<MESSAGETYPE>::Send(key, sender, target);
     }
 
 };

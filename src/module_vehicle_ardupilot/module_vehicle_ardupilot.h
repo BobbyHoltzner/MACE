@@ -109,7 +109,7 @@ public:
     //! \brief Command_SystemArm
     //! \param vehicleArm
     //!
-    virtual void Command_SystemArm(const CommandItem::ActionArm &command);
+    virtual void Command_SystemArm(const CommandItem::ActionArm &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_VehicleTakeoff
@@ -127,13 +127,13 @@ public:
     //! \brief Command_ReturnToLaunch
     //! \param command
     //!
-    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command);
+    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_MissionState
     //! \param command
     //!
-    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command);
+    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_ChangeSystemMode

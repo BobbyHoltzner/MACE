@@ -3,7 +3,7 @@
 
 #include "action_base.h"
 
-namespace ExternalLink {
+namespace Controllers {
 
 template<typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID>
 class ActionFinish :
@@ -18,10 +18,6 @@ protected:
 
 public:
 
-    ActionFinish()
-    {
-        throw std::runtime_error("Default Constructor not supported");
-    }
 
     ActionFinish(CONTROLLER_TYPE *controller,
                            const std::function<void(const mace_message_t*, MSG_TYPE*)> &decode) :

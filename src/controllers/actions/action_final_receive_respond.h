@@ -3,7 +3,7 @@
 
 #include "action_base.h"
 
-namespace ExternalLink {
+namespace Controllers {
 
 template<typename CONTROLLER_TYPE, typename FINAL_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID>
 class ActionFinalReceive :
@@ -54,11 +54,6 @@ protected:
     virtual bool Construct_FinalObjectAndResponse(const MSG_TYPE &, const MaceCore::ModuleCharacteristic &sender, ACK_TYPE &, std::shared_ptr<FINAL_TYPE> &, MaceCore::ModuleCharacteristic &vehicleObj, QUEUE_TYPE &queueObj)= 0;
 
 public:
-
-    ActionFinalReceiveRespond()
-    {
-        throw std::runtime_error("Default Constructor not supported");
-    }
 
     ActionFinalReceiveRespond(CONTROLLER_TYPE *controller,
                            const std::function<void(const mace_message_t*, MSG_TYPE*)> &decode,

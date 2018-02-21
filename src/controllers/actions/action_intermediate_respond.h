@@ -3,7 +3,7 @@
 
 #include "action_base.h"
 
-namespace ExternalLink {
+namespace Controllers {
 
 template<typename CONTROLLER_TYPE, typename MSG_TYPE, const int ...MESSAGE_ACK_ID>
 class ActionIntermediateRespond :

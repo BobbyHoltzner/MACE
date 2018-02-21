@@ -5,14 +5,15 @@
 
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 
-namespace ExternalLink {
+namespace Controllers {
 
 
-class CommandLand : public Controller_GenericLongCommand<CommandItem::SpatialLand, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND>
+template <typename MESSAGETYPE>
+class CommandLand : public Controller_GenericLongCommand<MESSAGETYPE, CommandItem::SpatialLand, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND>
 {
 public:
-    CommandLand(const MACEControllerInterface* cb, MACETransmissionQueue * queue, int linkChan) :
-        Controller_GenericLongCommand(cb, queue, linkChan)
+    CommandLand(const MACEControllerInterface<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
+        Controller_GenericLongCommand<MESSAGETYPE, CommandItem::SpatialLand, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND>(cb, queue, linkChan)
     {
 
     }

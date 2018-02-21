@@ -166,7 +166,7 @@ void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem, const
     vehicleData->m_MissionController->requestMission();
 }
 
-void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command)
+void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
     CommandItem::ActionArm commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionArm>(command, this->GetCharacteristic().ID);
@@ -225,7 +225,7 @@ void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &comman
         vehicleData->m_CommandController->setSystemLand(commandWithTarget);
 }
 
-void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command)
+void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
     CommandItem::SpatialRTL commandWithTarget = CopyCommandAndInsertTarget<CommandItem::SpatialRTL>(command, this->GetCharacteristic().ID);
@@ -236,7 +236,7 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
         vehicleData->m_CommandController->setSystemRTL(commandWithTarget);
 }
 
-void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command)
+void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
     CommandItem::ActionMissionCommand commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionMissionCommand>(command, this->GetCharacteristic().ID);

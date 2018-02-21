@@ -5,14 +5,14 @@
 
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 
-namespace ExternalLink {
+namespace Controllers {
 
-
-class CommandTakeoff : public Controller_GenericLongCommand<CommandItem::SpatialTakeoff, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_TAKEOFF>
+template <typename MESSAGETYPE>
+class CommandTakeoff : public Controller_GenericLongCommand<MESSAGETYPE, CommandItem::SpatialTakeoff, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_TAKEOFF>
 {
 public:
-    CommandTakeoff(const MACEControllerInterface* cb, MACETransmissionQueue * queue, int linkChan) :
-        Controller_GenericLongCommand(cb, queue, linkChan)
+    CommandTakeoff(const MACEControllerInterface<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
+        Controller_GenericLongCommand<MESSAGETYPE, CommandItem::SpatialTakeoff, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_TAKEOFF>(cb, queue, linkChan)
     {
 
     }

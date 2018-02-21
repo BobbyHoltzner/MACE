@@ -1,57 +1,75 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-01-13T16:56:01
+# Project created by QtCreator 2018-02-20T12:27:44
 #
 #-------------------------------------------------
-QT += serialport
-QT += network
-QT       -= core gui
 
-TARGET = module_external_link
+QT       -= gui
+
+TARGET = mace_controllers
 TEMPLATE = lib
 
-DEFINES += MODULE_EXTERNAL_LINK_LIBRARY
+DEFINES += MACE_CONTROLLERS_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
+# The following define makes your compiler emit warnings if you use
+# any feature of Qt which has been marked as deprecated (the exact warnings
+# depend on your compiler). Please consult the documentation of the
+# deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
-SOURCES += module_external_link.cpp \
-    parse_comms_message.cpp \
-    parse_comms_command.cpp \
-    controllers/heartbeat_controller_externallink.cpp
+# You can also make your code fail to compile if you use deprecated APIs.
+# In order to do so, uncomment the following line.
+# You can also select to disable deprecated APIs only up to a certain version of Qt.
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-HEADERS += module_external_link.h\
-        module_external_link_global.h \
-    controller_collection.h \
-    controllers/heartbeat_controller_externallink.h
+SOURCES +=
 
+HEADERS += \
+    controllers_global.h \
+    actions/action_base.h \
+    actions/action_broadcast.h \
+    actions/action_final_receive_respond.h \
+    actions/action_finish.h \
+    actions/action_intermediate_receive.h \
+    actions/action_intermediate_respond.h \
+    actions/action_intermediate.h \
+    actions/action_request.h \
+    actions/action_send.h \
+    controller_home.h \
+    controller_mission.h \
+    controller_system_mode.h \
+    controllers_global.h \
+    I_controller.h \
+    generic_controller.h \
+    commands/command_land.h \
+    commands/command_takeoff.h \
+    commands/generic_long_command.h \
+    commands/generic_short_command.h \
+    generic_controller_queue_data_with_module.h \
+    commands/command_arm.h \
+    commands/command_rtl.h \
+    commands/command_mission_item.h
 
-# Unix lib Install
-unix:!symbian {
-    target.path = $$(MACE_ROOT)/lib
-    INSTALLS += target
-}
 
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib
-win32:CONFIG(release, debug|release):       lib.files   += release/module_external_link.lib release/module_external_link.dll
-else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_external_link.lib debug/module_external_link.dll
+win32:CONFIG(release, debug|release):       lib.files   += release/controllers.lib release/controllers.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/controllers.lib debug/controllers.dll
 INSTALLS += lib
 
-#Header file copy
-headers_base.path    = $$(MACE_ROOT)/include/module_external_link
-headers_base.files   += \
-        module_external_link_global.h \
-        module_external_link.h \
-        controller_collection.h
-INSTALLS       += headers_base
 
-#Header file copy
-headers_controllers.path    = $$(MACE_ROOT)/include/module_external_link/controllers
-headers_controllers.files   += \
-    controllers/heartbeat_controller_externallink.h
-INSTALLS       += headers_controllers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/controllers
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
+
+
+
+
+
+
 
 
 
@@ -115,4 +133,5 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MACE
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MACE/debug/ -ldata_interface_MACE
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_interface_MACE/ -ldata_interface_MACE
 
-
+SUBDIRS += \
+    controllers.pro

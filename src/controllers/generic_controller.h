@@ -1,7 +1,8 @@
 #ifndef GENERIC_MACE_CONTROLLER_H
 #define GENERIC_MACE_CONTROLLER_H
 
-#include "generic_controller.h"
+#include "mace_core/module_characteristics.h"
+#include "I_controller.h"
 #include "common/fsm.h"
 #include "common/pointer_collection.h"
 #include "spdlog/spdlog.h"
@@ -11,66 +12,15 @@
 
 #include "common/transmit_queue.h"
 
-namespace ExternalLink {
+#include "common/optional_parameter.h"
+
+namespace Controllers {
 
 //typedef GenericController<mace_message_t, MaceCore::ModuleCharacteristic> GenericMACEController;
 
 
-typedef TransmitQueue<mace_message_t, MaceCore::ModuleCharacteristic> MACETransmissionQueue;
-
-/*
-template <typename ...T>
-class GenericMACEControllerTransmitTracking;
-
-template <typename Head, typename ...T>
-class GenericMACEControllerTransmitTracking<Head, T...> : public GenericMACEControllerTransmitTracking<T...>
-{
-public:
-    using GenericMACEControllerTransmitTracking<T...>::QueueTransmission;
-    using GenericMACEControllerTransmitTracking<T...>::RemoveTransmission;
-
-private:
-
-
-
-    std::unordered_map<Head, int> m_ActiveTransmissions;
-
-public:
-    void QueueTransmission(const Head &key, const std::function<void()> &transmitAction)
-    {
-        int num = GenericMACEController::QueueTransmission(transmitAction);
-        m_ActiveTransmissions.insert({key, num});
-        std::cout << "Transmission Queued: " << num << std::endl;
-    }
-
-    void RemoveTransmission(const Head &key)
-    {
-        if(m_ActiveTransmissions.find(key) != m_ActiveTransmissions.cend())
-        {
-            std::cout << "Transmission Removed: " << m_ActiveTransmissions.at(key) << std::endl;
-            GenericMACEController::RemoveTransmissionFromQueue(m_ActiveTransmissions.at(key));
-            m_ActiveTransmissions.erase(key);
-        }
-    }
-
-};
-
-template <>
-class GenericMACEControllerTransmitTracking<> : public GenericMACEController
-{
-public:
-
-    void QueueTransmission()
-    {
-
-    }
-
-    void RemoveTransmission()
-    {
-
-    }
-};
-*/
+template<typename MESSAGETYPE>
+using MessageModuleTransmissionQueue = TransmitQueue<MESSAGETYPE, MaceCore::ModuleCharacteristic>;
 
 
 template <typename T>
@@ -182,17 +132,18 @@ class A<>
 };
 
 
+template<typename MESSAGETYPE>
 class MACEControllerInterface
 {
 public:
-    virtual void TransmitMessage(const mace_message_t &, const OptionalParameter<MaceCore::ModuleCharacteristic> &) const = 0;
+    virtual void TransmitMessage(const MESSAGETYPE &, const OptionalParameter<MaceCore::ModuleCharacteristic> &) const = 0;
 };
 
 
 //template<typename TransmitQueueType, typename ...DataItems>
 //class GenericMACEController : public TransmitQueueType, public A<DataItems...>, public GenericController
-template<typename TransmitQueueType, typename ...DataItems>
-class GenericMACEController : protected GenericController, public TransmitQueueType, public A<DataItems...>
+template<typename MESSAGETYPE, typename TransmitQueueType, typename ...DataItems>
+class GenericController : protected IController<MESSAGETYPE>, public TransmitQueueType, public A<DataItems...>
 {
 public:
 
@@ -202,7 +153,7 @@ private:
 
     int m_LinkChan;
 
-    const MACEControllerInterface* m_CB;
+    const MACEControllerInterface<MESSAGETYPE>* m_CB;
 
 
 protected:
@@ -210,14 +161,14 @@ protected:
     std::shared_ptr<spdlog::logger> mLog;
 
     std::vector<std::tuple<
-        std::function<bool(MaceCore::ModuleCharacteristic, const mace_message_t*)>,
-        std::function<void(MaceCore::ModuleCharacteristic, const mace_message_t*)>
+        std::function<bool(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)>,
+        std::function<void(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)>
     >> m_MessageBehaviors;
 
 public:
 
 
-    GenericMACEController(const MACEControllerInterface* cb, MACETransmissionQueue* queue, int linkChan) :
+    GenericController(const MACEControllerInterface<MESSAGETYPE>* cb, MessageModuleTransmissionQueue<MESSAGETYPE>* queue, int linkChan) :
         m_LinkChan(linkChan),
         m_CB(cb)
     {
@@ -372,8 +323,8 @@ private:
         };
     }
 
-    GenericMACEController(const GenericMACEController &rhs);
-    GenericMACEController& operator=(const GenericMACEController&);
+    GenericController(const GenericController &rhs);
+    GenericController& operator=(const GenericController&);
 
 };
 
@@ -387,9 +338,9 @@ namespace std
 {
 
 template <typename T>
-struct hash<ExternalLink::KeyWithInt<T>>
+struct hash<Controllers::KeyWithInt<T>>
 {
-    std::size_t operator()(const ExternalLink::KeyWithInt<T>& k) const
+    std::size_t operator()(const Controllers::KeyWithInt<T>& k) const
     {
         using std::size_t;
         using std::hash;

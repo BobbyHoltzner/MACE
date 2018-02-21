@@ -33,27 +33,32 @@
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
-#include "controllers/command_controller_externalLink.h"
 #include "controllers/heartbeat_controller_externallink.h"
 
-#include "controllers/mission_controller.h"
-#include "controllers/controller_system_mode.h"
-#include "controllers/command_controllers/command_land.h"
-#include "controllers/command_controllers/command_takeoff.h"
+#include "controllers/generic_controller.h"
+
+
+#include "controllers/commands/command_land.h"
+#include "controllers/commands/command_takeoff.h"
+#include "controllers/commands/command_arm.h"
+#include "controllers/commands/command_rtl.h"
+#include "controllers/commands/command_mission_item.h"
 #include "controllers/controller_system_mode.h"
 #include "controllers/controller_home.h"
 #include "controllers/controller_mission.h"
+
+
 
 #include "controller_collection.h"
 
 #include "mace_core/module_characteristics.h"
 
+
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public MaceCore::IModuleCommandExternalLink,
         public CommsMACEHelper,
-        public ExternalLink::CommandController_Interface,
         public ExternalLink::HeartbeatController_Interface,
-        public ExternalLink::MACEControllerInterface
+        public Controllers::MACEControllerInterface<mace_message_t>
 {
 
 
@@ -151,13 +156,13 @@ public:
     void cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK);
 
     void ReceivedMission(const MissionItem::MissionList &list);
-    ExternalLink::DataItem<MissionKey, MissionList>::FetchKeyReturn FetchMissionFromKey(const OptionalParameter<MissionKey> &key);
-    ExternalLink::DataItem<MissionKey, MissionList>::FetchModuleReturn FetchAllMissionFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
+    Controllers::DataItem<MissionKey, MissionList>::FetchKeyReturn FetchMissionFromKey(const OptionalParameter<MissionKey> &key);
+    Controllers::DataItem<MissionKey, MissionList>::FetchModuleReturn FetchAllMissionFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
 
 
     void ReceivedHome(const CommandItem::SpatialHome &home);
-    ExternalLink::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchKeyReturn FetchHomeFromKey(const OptionalParameter<MaceCore::ModuleCharacteristic> &key);
-    ExternalLink::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchModuleReturn FetchAllHomeFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
+    Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchKeyReturn FetchHomeFromKey(const OptionalParameter<MaceCore::ModuleCharacteristic> &key);
+    Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchModuleReturn FetchAllHomeFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
 
     void ReceivedCommand(const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command);
 
@@ -230,7 +235,7 @@ public:
     //! \brief Command_ChangeVehicleArm
     //! \param vehicleArm
     //!
-    virtual void Command_SystemArm(const CommandItem::ActionArm &systemArm);
+    virtual void Command_SystemArm(const CommandItem::ActionArm &systemArm, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_ChangeVehicleOperationalMode
@@ -254,14 +259,14 @@ public:
     //! \brief Command_ReturnToLaunch
     //! \param command
     //!
-    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &vehicleRTL);
+    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &vehicleRTL, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
 
     //!
     //! \brief Command_MissionState
     //! \param command
     //!
-    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command);
+    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_IssueGeneralCommand
@@ -368,12 +373,14 @@ private:
     ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
 
     ControllerCollection<
-        ExternalLink::MissionController,
-        ExternalLink::CommandTakeoff,
-        ExternalLink::CommandLand,
-        ExternalLink::ControllerSystemMode,
-        ExternalLink::ControllerHome,
-        ExternalLink::ControllerMission
+        Controllers::CommandTakeoff<mace_message_t>,
+        Controllers::CommandLand<mace_message_t>,
+        Controllers::CommandARM<mace_message_t>,
+        Controllers::CommandRTL<mace_message_t>,
+        Controllers::CommandMissionItem<mace_message_t>,
+        Controllers::ControllerSystemMode<mace_message_t>,
+        Controllers::ControllerHome<mace_message_t>,
+        Controllers::ControllerMission<mace_message_t>
     > m_Controllers;
 
 private:
