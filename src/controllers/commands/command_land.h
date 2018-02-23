@@ -12,7 +12,7 @@ template <typename MESSAGETYPE>
 class CommandLand : public Controller_GenericLongCommand<MESSAGETYPE, CommandItem::SpatialLand, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND>
 {
 public:
-    CommandLand(const MACEControllerInterface<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
+    CommandLand(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
         Controller_GenericLongCommand<MESSAGETYPE, CommandItem::SpatialLand, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND>(cb, queue, linkChan)
     {
 

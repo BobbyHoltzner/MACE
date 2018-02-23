@@ -12,7 +12,7 @@ template <typename MESSAGETYPE>
 class CommandRTL : public Controller_GenericShortCommand<MESSAGETYPE, CommandItem::SpatialRTL, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH>
 {
 public:
-    CommandRTL(const MACEControllerInterface<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
+    CommandRTL(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
         Controller_GenericShortCommand<MESSAGETYPE, CommandItem::SpatialRTL, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH>(cb, queue, linkChan)
     {
 

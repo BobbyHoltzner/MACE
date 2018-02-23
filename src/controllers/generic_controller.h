@@ -3,158 +3,47 @@
 
 #include "mace_core/module_characteristics.h"
 #include "I_controller.h"
-#include "common/fsm.h"
 #include "common/pointer_collection.h"
 #include "spdlog/spdlog.h"
 
 #include <tuple>
 #include <functional>
 
-#include "common/transmit_queue.h"
-
 #include "common/optional_parameter.h"
+#include "common/chain_inheritance.h"
+#include "common/object_int_tuple.h"
+
+#include "I_message_notifier.h"
+
+#include "base_data_item.h"
+
+#include "base_module_queue.h"
 
 namespace Controllers {
 
-//typedef GenericController<mace_message_t, MaceCore::ModuleCharacteristic> GenericMACEController;
 
-
-template<typename MESSAGETYPE>
-using MessageModuleTransmissionQueue = TransmitQueue<MESSAGETYPE, MaceCore::ModuleCharacteristic>;
-
-
-template <typename T>
-class KeyWithInt
-{
-public:
-
-    T m_obj;
-    int m_int;
-
-public:
-    KeyWithInt(const T &obj, const int &integer) :
-        m_obj(obj),
-        m_int(integer)
-    {
-
-    }
-
-    bool operator== (const KeyWithInt &rhs) const
-    {
-        if(this->m_obj != rhs.m_obj)
-            return false;
-        if(this->m_int != rhs.m_int) {
-            return false;
-        }
-        return true;
-    }
-};
-
-
-template< typename Key, typename Type>
-class DataItem
-{
-public:
-
-    typedef std::vector<std::tuple<Key, Type>> FetchKeyReturn;
-    typedef std::vector<std::tuple<MaceCore::ModuleCharacteristic, std::vector<std::tuple<Key, Type>>>> FetchModuleReturn;
-
-private:
-
-    OptionalParameter<std::function<void(const Key &, const std::shared_ptr<Type> &)>> m_lambda_DataRecieved;
-    OptionalParameter<std::function<FetchKeyReturn(const OptionalParameter<Key> &)>> m_lambda_FetchDataFromKey;
-    OptionalParameter<std::function<FetchModuleReturn(const OptionalParameter<MaceCore::ModuleCharacteristic> &)>> m_lambda_FetchAll;
-public:
-
-
-    void setLambda_DataReceived(const std::function<void(const Key &, const std::shared_ptr<Type> &)> &lambda){
-        m_lambda_DataRecieved = lambda;
-    }
-
-    void onDataReceived(const Key &key, const std::shared_ptr<Type> &data){
-        if(m_lambda_DataRecieved.IsSet() == false) {
-            throw std::runtime_error("Data Received Lambda not set!");
-        }
-
-        m_lambda_DataRecieved()(key, data);
-    }
-
-
-
-
-    void setLambda_FetchDataFromKey(const std::function<FetchKeyReturn(const OptionalParameter<Key> &)> &lambda){
-        m_lambda_FetchDataFromKey = lambda;
-    }
-
-    void FetchDataFromKey(const OptionalParameter<Key> &key, FetchKeyReturn &data) const
-    {
-        if(m_lambda_FetchDataFromKey.IsSet() == false) {
-            throw std::runtime_error("FetchKey Lambda not set!");
-        }
-
-        data = m_lambda_FetchDataFromKey()(key);
-    }
-
-
-
-
-    void setLambda_FetchAll(const std::function<FetchModuleReturn(const OptionalParameter<MaceCore::ModuleCharacteristic> &)> &lambda)
-    {
-        m_lambda_FetchAll = lambda;
-    }
-
-    void FetchFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &target, FetchModuleReturn &data) const
-    {
-        if(m_lambda_FetchAll.IsSet() == false) {
-            throw std::runtime_error("FetchFromModule Lambda not set!");
-        }
-
-        data = m_lambda_FetchAll()(target);
-        return;
-    }
-};
-
-
-
-template <typename ...T>
-class A;
-
-template<typename HEAD, typename ...T>
-class A<HEAD, T...> : public A<T...>, public HEAD
-{
-
-};
-
-template<>
-class A<>
-{
-
-};
-
-
-template<typename MESSAGETYPE>
-class MACEControllerInterface
-{
-public:
-    virtual void TransmitMessage(const MESSAGETYPE &, const OptionalParameter<MaceCore::ModuleCharacteristic> &) const = 0;
-};
-
-
-//template<typename TransmitQueueType, typename ...DataItems>
-//class GenericMACEController : public TransmitQueueType, public A<DataItems...>, public GenericController
+//!
+//! \brief Sets up basic operations of a controller
+//!
+//! The purpose of the controller is to receive messages and queue transmissions.
+//!
+//! Queued transmissions are initiated with parameters that signify what reception satifisfies the transmissions.
+//! i.e. when the transmission doesn't need to transmit anymore.
+//!
+//! The controller can also set up the actions to take when a message is received, which may be a further transmission or finish off the exchange.
+//!
+//! \template MESSAGETYPE The type of message the controller is to injest/output
+//! \template TransmitQueueType Queue object the controller is to use when sending messages
+//! \template DataItems Data items the controller is to transmit
+//!
 template<typename MESSAGETYPE, typename TransmitQueueType, typename ...DataItems>
-class GenericController : protected IController<MESSAGETYPE>, public TransmitQueueType, public A<DataItems...>
+class GenericController : protected IController<MESSAGETYPE>, public TransmitQueueType, public ChainInheritance<DataItems...>
 {
-public:
-
 private:
-
-
 
     int m_LinkChan;
 
-    const MACEControllerInterface<MESSAGETYPE>* m_CB;
-
+    const IMessageNotifier<MESSAGETYPE>* m_CB;
 
 protected:
 
@@ -167,8 +56,7 @@ protected:
 
 public:
 
-
-    GenericController(const MACEControllerInterface<MESSAGETYPE>* cb, MessageModuleTransmissionQueue<MESSAGETYPE>* queue, int linkChan) :
+    GenericController(const IMessageNotifier<MESSAGETYPE>* cb, MessageModuleTransmissionQueue<MESSAGETYPE>* queue, int linkChan) :
         m_LinkChan(linkChan),
         m_CB(cb)
     {
@@ -187,16 +75,16 @@ public:
     template <typename T>
     void QueueTransmission(const T &key, const int &messageID, const std::function<void()> &transmitAction)
     {
-        TransmitQueueType::QueueTransmission(KeyWithInt<T>(key, messageID), transmitAction);
+        TransmitQueueType::QueueTransmission(ObjectIntTuple<T>(key, messageID), transmitAction);
     }
 
     template <typename T>
     void QueueTransmission(const T &key, const std::vector<int> &messagesID, const std::function<void()> &transmitAction)
     {
-        std::vector<KeyWithInt<T>> vec;
+        std::vector<ObjectIntTuple<T>> vec;
         for(auto it = messagesID.cbegin() ; it != messagesID.cend() ; ++it)
         {
-            vec.push_back(KeyWithInt<T>(key, *it));
+            vec.push_back(ObjectIntTuple<T>(key, *it));
         }
         TransmitQueueType::QueueTransmission(vec, transmitAction);
     }
@@ -204,7 +92,7 @@ public:
     template <typename T>
     void RemoveTransmission(const T &key, const int &messageID)
     {
-        TransmitQueueType::RemoveTransmission(KeyWithInt<T>(key, messageID));
+        TransmitQueueType::RemoveTransmission(ObjectIntTuple<T>(key, messageID));
     }
 
 
@@ -230,7 +118,7 @@ public:
                                        MaceProcessFSMState<DECODE_TYPE>(func, [this, action, keyExtractor](const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)
                                         {
                                             KEY key = keyExtractor(msg, sender);
-                                            TransmitQueueType::RemoveTransmission(KeyWithInt<KEY>(key, I));
+                                            TransmitQueueType::RemoveTransmission(ObjectIntTuple<KEY>(key, I));
 
                                             action(msg, key, sender);
                                         }));
@@ -332,31 +220,5 @@ private:
 
 }
 
-
-
-namespace std
-{
-
-template <typename T>
-struct hash<Controllers::KeyWithInt<T>>
-{
-    std::size_t operator()(const Controllers::KeyWithInt<T>& k) const
-    {
-        using std::size_t;
-        using std::hash;
-        using std::string;
-
-
-
-      // Compute individual hash values for first,
-      // second and third and combine them using XOR
-      // and bit shifting:
-
-        std::size_t const h1 ( std::hash<T>{}(k.m_obj) );
-        std::size_t const h2 ( std::hash<int>{}((int)k.m_int) );
-        return h1 ^ (h2 << 1);
-    }
-};
-}
 
 #endif // GENERIC_MACE_CONTROLLER_H

@@ -130,7 +130,7 @@ protected:
 
 public:
 
-    Controller_GenericLongCommand(const MACEControllerInterface<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
+    Controller_GenericLongCommand(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
         GenericControllerQueueDataWithModule<MESSAGETYPE, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
         ActionSend_CommandLong_Broadcast<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mace_msg_command_long_encode_chan),
         ActionSend_Command_TargedWithResponse<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mace_msg_command_long_encode_chan),

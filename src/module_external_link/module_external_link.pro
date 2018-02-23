@@ -23,7 +23,6 @@ SOURCES += module_external_link.cpp \
 
 HEADERS += module_external_link.h\
         module_external_link_global.h \
-    controller_collection.h \
     controllers/heartbeat_controller_externallink.h
 
 

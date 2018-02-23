@@ -12,7 +12,7 @@ template <typename MESSAGETYPE>
 class CommandMissionItem : public Controller_GenericShortCommand<MESSAGETYPE, CommandItem::ActionMissionCommand, (uint8_t)CommandItem::COMMANDITEM::CI_ACT_MISSIONCOMMAND>
 {
 public:
-    CommandMissionItem(const MACEControllerInterface<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
+    CommandMissionItem(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
         Controller_GenericShortCommand<MESSAGETYPE, CommandItem::ActionMissionCommand, (uint8_t)CommandItem::COMMANDITEM::CI_ACT_MISSIONCOMMAND>(cb, queue, linkChan)
     {
 

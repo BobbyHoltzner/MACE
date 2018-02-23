@@ -132,7 +132,7 @@ protected:
 
 public:
 
-    Controller_GenericShortCommand(const MACEControllerInterface<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
+    Controller_GenericShortCommand(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
         GenericControllerQueueDataWithModule<MESSAGETYPE, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
         ActionSend_CommandShort_Broadcast<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mace_msg_command_short_encode_chan),
         ActionSend_CommandShort_TargedWithResponse<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mace_msg_command_short_encode_chan),

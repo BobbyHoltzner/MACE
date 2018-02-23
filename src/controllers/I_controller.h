@@ -4,10 +4,14 @@
 namespace Controllers {
 
 
+//!
+//! \brief Interface for all controllers to take.
+//!
+//! \template MESSAGETYPE the type of message the controller is to injest/output
+//!
 template <typename MESSAGETYPE>
 class IController
 {
-
 
 public:
 

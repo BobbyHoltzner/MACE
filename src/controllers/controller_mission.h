@@ -17,7 +17,7 @@ namespace Controllers {
 
 
 template<typename MESSAGETYPE>
-using CONTROLLER_MISSION_TYPE = GenericController<MESSAGETYPE, TransmitQueueWithKeys<MessageModuleTransmissionQueue<MESSAGETYPE>, KeyWithInt<MaceCore::ModuleCharacteristic>, KeyWithInt<MissionItem::MissionKey>>,DataItem<MissionKey, MissionList>>;
+using CONTROLLER_MISSION_TYPE = GenericController<MESSAGETYPE, TransmitQueueWithKeys<MessageModuleTransmissionQueue<MESSAGETYPE>, ObjectIntTuple<MaceCore::ModuleCharacteristic>, ObjectIntTuple<MissionItem::MissionKey>>,DataItem<MissionKey, MissionList>>;
 
 
 
@@ -458,7 +458,7 @@ protected:
 
 public:
 
-    ControllerMission(const MACEControllerInterface<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
+    ControllerMission(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
         CONTROLLER_MISSION_TYPE<MESSAGETYPE>(cb, queue, linkChan),
         SendHelper_RequestMissionDownload<MESSAGETYPE>(this, mace_msg_mission_request_list_encode_chan),
         SendHelper_RequestList<MESSAGETYPE>(this, mace_msg_mission_request_list_decode, mace_msg_mission_count_encode_chan),

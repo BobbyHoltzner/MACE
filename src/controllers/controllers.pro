@@ -50,7 +50,10 @@ HEADERS += \
     generic_controller_queue_data_with_module.h \
     commands/command_arm.h \
     commands/command_rtl.h \
-    commands/command_mission_item.h
+    commands/command_mission_item.h \
+    I_message_notifier.h \
+    base_data_item.h \
+    base_module_queue.h
 
 
 # Windows lib install

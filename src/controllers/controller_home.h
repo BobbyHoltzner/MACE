@@ -280,7 +280,7 @@ protected:
 
 public:
 
-    ControllerHome(const MACEControllerInterface<MESSAGETYPE>* cb, MessageModuleTransmissionQueue<MESSAGETYPE> * queue, int linkChan) :
+    ControllerHome(const IMessageNotifier<MESSAGETYPE>* cb, MessageModuleTransmissionQueue<MESSAGETYPE> * queue, int linkChan) :
         GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>(cb, queue, linkChan),
         ControllerHome_Step_BroadcastHome<MESSAGETYPE>(this, mace_msg_home_position_encode_chan),
         ControllerHome_Step_ReceiveBroadcastedHome<MESSAGETYPE>(this, mace_msg_home_position_decode),

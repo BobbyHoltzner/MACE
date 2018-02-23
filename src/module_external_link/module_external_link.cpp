@@ -138,23 +138,6 @@ std::string ModuleExternalLink::createLog(const int &systemID)
     return loggerName;
 }
 
-void ModuleExternalLink::transmitMessage(const mace_message_t &msg, OptionalParameter<int> vehicleID)
-{
-    if(vehicleID.IsSet() && vehicleID.Value() != 0)
-    {
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, vehicleID);
-    }
-    else
-    {
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
-    }
-}
-
-void ModuleExternalLink::transmitMessage(const mace_message_t &msg, OptionalParameter<MaceCore::ModuleCharacteristic> target)
-{
-    return TransmitMessage(msg, target);
-}
-
 void ModuleExternalLink::TransmitMessage(const mace_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target) const
 {
     //broadcast
@@ -176,37 +159,6 @@ void ModuleExternalLink::TransmitMessage(const mace_message_t &msg, const Option
     }
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////
-/// The following are public virtual functions imposed from the Command Controller
-/// Interface via callback functionality.
-///////////////////////////////////////////////////////////////////////////////////////
-void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command_short_t &cmd)
-{
-    mace_message_t msg;
-    mace_msg_command_short_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&cmd);
-    transmitMessage(msg, cmd.target_system);
-}
-
-void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command_long_t &cmd)
-{
-    mace_message_t msg;
-    mace_msg_command_long_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&cmd);
-    transmitMessage(msg, cmd.target_system);
-}
-
-void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command_system_mode_t &cmd)
-{
-    mace_message_t msg;
-    mace_msg_command_system_mode_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&cmd);
-    transmitMessage(msg, cmd.target_system);
-}
-
-void ModuleExternalLink::cbiCommandController_CommandACK(const mace_command_ack_t &ack)
-{
-
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////
 /// The following are public virtual functions imposed from the Heartbeat Controller
 /// Interface via callback functionality.
@@ -215,66 +167,7 @@ void ModuleExternalLink::cbiHeartbeatController_transmitCommand(const mace_heart
 {
     mace_message_t msg;
     mace_msg_heartbeat_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&heartbeat);
-    transmitMessage(msg);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-/// The following are public virtual functions imposed from the Mission Controller
-/// Interface via callback functionality.
-///////////////////////////////////////////////////////////////////////////////////////
-void ModuleExternalLink::cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
-{
-    mace_message_t msg;
-    mace_msg_mission_ack_encode_chan(sender().ID, (int)sender().Class,m_LinkChan,&msg,&missionACK);
-    transmitMessage(msg, target);
-}
-
-void ModuleExternalLink::cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
-{
-    mace_message_t msg;
-    mace_msg_mission_count_encode_chan(sender().ID, (int)sender().Class, m_LinkChan,&msg,&count);
-    transmitMessage(msg, target);
-}
-
-void ModuleExternalLink::cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
-{
-    mace_message_t msg;
-    mace_msg_mission_item_encode_chan(sender().ID, (int)sender().Class,m_LinkChan,&msg,&item);
-    transmitMessage(msg, target);
-}
-
-void ModuleExternalLink::cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
-{
-    mace_message_t msg;
-    mace_msg_mission_request_list_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &request);
-    transmitMessage(msg, target);
-}
-
-void ModuleExternalLink::cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
-{
-    if(sender.IsSet() == false) {
-        throw std::runtime_error("no sender given");
-    }
-
-    mace_message_t msg;
-    mace_msg_mission_request_list_generic_encode_chan(sender().ID, (int)sender().Class, m_LinkChan,&msg,&request);
-    transmitMessage(msg, request.mission_system);
-}
-
-void ModuleExternalLink::cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
-{
-    if(sender.IsSet() == false) {
-        throw std::runtime_error("no sender given");
-    }
-
-    mace_message_t msg;
-    mace_msg_mission_request_item_encode_chan(sender().ID, (int)sender().Class, m_LinkChan,&msg,&requestItem);
-    transmitMessage(msg, target);
-}
-
-void ModuleExternalLink::cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList)
-{
-    return ReceivedMission(missionList);
+    TransmitMessage(msg);
 }
 
 
@@ -426,50 +319,6 @@ Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>:
     return rtn;
 }
 
-
-void ModuleExternalLink::cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK)
-{
-    std::cout<<"The external link module now has received the mission ack."<<std::endl;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-/// The following are public virtual functions imposed from the Home Controller
-/// Interface via callback functionality.
-///////////////////////////////////////////////////////////////////////////////////////
-void ModuleExternalLink::cbiHomeController_TransmitHomeReq(const mace_mission_request_home_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
-{
-    throw std::runtime_error("No longer used");
-}
-
-void ModuleExternalLink::cbiHomeController_ReceviedHome(const CommandItem::SpatialHome &home)
-{
-    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-        ptr->GVEvents_NewHomePosition(this,home);
-    });
-
-    std::shared_ptr<CommandItem::SpatialHome> homePtr = std::make_shared<CommandItem::SpatialHome>(home);
-    std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
-    missionTopic->setHome(homePtr);
-
-    MaceCore::TopicDatagram topicDatagram;
-    m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
-
-    //notify listeners of topic
-    ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), home.getOriginatingSystem(), MaceCore::TIME(), topicDatagram);
-    });
-}
-
-void ModuleExternalLink::cbiHomeController_TransmitHomeSet(const mace_set_home_position_t &home)
-{
-    throw std::runtime_error("No longer used");
-}
-
-void ModuleExternalLink::cbiHomeController_ReceivedHomeSetACK(const mace_home_position_ack_t &ack)
-{
-    std::cout<<"The home controller received a set home ack"<<std::endl;
-}
-
 //!
 //! \brief New Mavlink message received over a link
 //! \param linkName Name of link message received over
@@ -590,14 +439,14 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem, const Opt
 
     if(targetSystem == 0)
     {
-        transmitMessage(msg);
+        TransmitMessage(msg);
     }
     else {
         MaceCore::ModuleCharacteristic target;
         target.ID = targetSystem;
         target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-        transmitMessage(msg, target);
+        TransmitMessage(msg, target);
 
         m_Controllers.Retreive<Controllers::ControllerHome<mace_message_t>>()->Request(sender(), target);
 

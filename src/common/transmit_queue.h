@@ -50,29 +50,6 @@ public:
     {
     }
 
-    /*
-    template <typename FUNC, typename TT>
-    EncodeMessage(FUNC func, TT requestItem, TRANSMITARGS... args)
-    {
-        if(sender.IsSet() == false) {
-            throw std::runtime_error("no sender given");
-        }
-
-        MESSAGETYPE msg;
-        func(sender().ID, (int)sender().Class, m_LinkChan, &msg, &requestItem);
-        m_TransmitFunction(msg, target);
-    }
-
-    void transmitMessage(const mace_message_t &msg, OptionalParameter<MaceCore::ModuleCharacteristic> target)
-    {
-        if(m_CB == NULL)
-        {
-            throw std::runtime_error("Callback not Set!");
-        }
-        m_CB->transmitMessage(msg, target);
-    }
-    */
-
 
     int QueueTransmission(std::function<void()> transmitAction)
     {
@@ -137,6 +114,8 @@ public:
 
     }
 };
+
+
 
 template <typename Queue, typename ...T>
 class TransmitQueueWithKeys;

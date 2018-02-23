@@ -102,7 +102,7 @@ protected:
 
 public:
 
-    ControllerSystemMode(const MACEControllerInterface<MESSAGETYPE>* cb, MessageModuleTransmissionQueue<MESSAGETYPE> * queue, int linkChan) :
+    ControllerSystemMode(const IMessageNotifier<MESSAGETYPE>* cb, MessageModuleTransmissionQueue<MESSAGETYPE> * queue, int linkChan) :
         GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>(cb, queue, linkChan),
         SystemModeSend<MESSAGETYPE>(this, mace_msg_command_system_mode_encode_chan),
         SystemMode_FinalReceiveRespond<MESSAGETYPE>(this, mace_msg_command_system_mode_decode, mace_msg_system_mode_ack_encode_chan),

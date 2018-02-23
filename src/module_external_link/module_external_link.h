@@ -48,9 +48,6 @@
 #include "controllers/controller_mission.h"
 
 
-
-#include "controller_collection.h"
-
 #include "mace_core/module_characteristics.h"
 
 
@@ -58,7 +55,7 @@ class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public MaceCore::IModuleCommandExternalLink,
         public CommsMACEHelper,
         public ExternalLink::HeartbeatController_Interface,
-        public Controllers::MACEControllerInterface<mace_message_t>
+        public Controllers::IMessageNotifier<mace_message_t>
 {
 
 
@@ -120,21 +117,7 @@ public:
 
     std::string createLog(const int &systemID);
 
-    void transmitMessage(const mace_message_t &msg, OptionalParameter<int> vehicleID = OptionalParameter<int>());
-
-    void transmitMessage(const mace_message_t &msg, OptionalParameter<MaceCore::ModuleCharacteristic> target);
-
-    virtual void TransmitMessage(const mace_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target) const;
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////
-    /// The following are public virtual functions imposed from the Command Controller
-    /// Interface via callback functionality.
-    ///////////////////////////////////////////////////////////////////////////////////////
-    void cbiCommandController_transmitCommand(const mace_command_short_t &cmd);
-    void cbiCommandController_transmitCommand(const mace_command_long_t &cmd);
-    void cbiCommandController_transmitCommand(const mace_command_system_mode_t &cmd);
-    void cbiCommandController_CommandACK(const mace_command_ack_t &ack);
+    virtual void TransmitMessage(const mace_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) const;
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from the Heartbeat Controller
@@ -142,18 +125,6 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
     void cbiHeartbeatController_transmitCommand(const mace_heartbeat_t &heartbeat);
 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    /// The following are public virtual functions imposed from the Mission Controller
-    /// Interface via callback functionality.
-    ///////////////////////////////////////////////////////////////////////////////////////
-    void cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
-    void cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
-    void cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
-    void cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
-    void cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
-    void cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
-    void cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList);
-    void cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK);
 
     void ReceivedMission(const MissionItem::MissionList &list);
     Controllers::DataItem<MissionKey, MissionList>::FetchKeyReturn FetchMissionFromKey(const OptionalParameter<MissionKey> &key);
@@ -166,14 +137,6 @@ public:
 
     void ReceivedCommand(const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command);
 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    /// The following are public virtual functions imposed from the Home Controller
-    /// Interface via callback functionality.
-    ///////////////////////////////////////////////////////////////////////////////////////
-    void cbiHomeController_TransmitHomeReq(const mace_mission_request_home_t &request, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
-    void cbiHomeController_ReceviedHome(const CommandItem::SpatialHome &home);
-    void cbiHomeController_TransmitHomeSet(const mace_set_home_position_t &home);
-    void cbiHomeController_ReceivedHomeSetACK(const mace_home_position_ack_t &ack);
 
     bool isExternalLinkAirborne() const
     {
@@ -182,9 +145,6 @@ public:
 
     void ParseForData(const mace_message_t* message);
 
-    void ParseCommsCommand(const mace_command_long_t* message);
-    void ParseCommsCommand(const mace_command_short_t* message);
-    void ParseCommsCommand(const mace_command_system_mode_t* message);
 
     void PublishVehicleData(const int &systemID, const std::shared_ptr<Data::ITopicComponentDataObject> &component);
 
@@ -372,7 +332,7 @@ public:
 private:
     ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
 
-    ControllerCollection<
+    PointerCollection<
         Controllers::CommandTakeoff<mace_message_t>,
         Controllers::CommandLand<mace_message_t>,
         Controllers::CommandARM<mace_message_t>,

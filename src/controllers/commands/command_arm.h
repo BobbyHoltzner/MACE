@@ -12,7 +12,7 @@ template <typename MESSAGETYPE>
 class CommandARM : public Controller_GenericShortCommand<MESSAGETYPE, CommandItem::ActionArm, (uint8_t)CommandItem::COMMANDITEM::CI_ACT_ARM>
 {
 public:
-    CommandARM(const MACEControllerInterface<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
+    CommandARM(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
         Controller_GenericShortCommand<MESSAGETYPE, CommandItem::ActionArm, (uint8_t)CommandItem::COMMANDITEM::CI_ACT_ARM>(cb, queue, linkChan)
     {
 

@@ -20,10 +20,12 @@ HEADERS += common.h\
     publisher.h \
     class_forward.h \
     optional_parameter.h \
-    fsm.h \
     pointer_collection.h \
     transmit_queue.h \
-    thread_manager.h
+    thread_manager.h \
+    chain inheritance.h \
+    chain_inheritance.h \
+    object_int_tuple.h
 
 #Header file copy
 headers.path    = $$(MACE_ROOT)/include/common

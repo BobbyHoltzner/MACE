@@ -11,7 +11,7 @@ template <typename MESSAGETYPE>
 class CommandTakeoff : public Controller_GenericLongCommand<MESSAGETYPE, CommandItem::SpatialTakeoff, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_TAKEOFF>
 {
 public:
-    CommandTakeoff(const MACEControllerInterface<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
+    CommandTakeoff(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
         Controller_GenericLongCommand<MESSAGETYPE, CommandItem::SpatialTakeoff, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_TAKEOFF>(cb, queue, linkChan)
     {
 

@@ -24,36 +24,6 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         //m_CommandController->receivedModeACK(decodedMSG);
         break;
     }
-    case MACE_MSG_ID_COMMAND_ACK:
-    {
-        mace_command_ack_t decodedMSG;
-        mace_msg_command_ack_decode(message,&decodedMSG);
-
-        std::cout<<"The command acknowledgement came from: "<<decodedMSG.command<<std::endl;
-        switch(decodedMSG.result)
-        {
-            case MAV_RESULT_ACCEPTED:
-                std::cout<<"MAV result accepted"<<std::endl;
-                break;
-            case MAV_RESULT_TEMPORARILY_REJECTED:
-                std::cout<<"MAV result rejected"<<std::endl;
-                break;
-            case MAV_RESULT_DENIED:
-                std::cout<<"MAV result denied"<<std::endl;
-                break;
-            case MAV_RESULT_UNSUPPORTED:
-                std::cout<<"MAV result unsupported"<<std::endl;
-                break;
-            case MAV_RESULT_FAILED:
-                std::cout<<"MAV result failed"<<std::endl;
-                break;
-            default:
-                std::cout<<"Uknown ack!"<<std::endl;
-        }
-
-        //m_CommandController->receivedCommandACK(decodedMSG);
-        break;
-    }
     case MACE_MSG_ID_VEHICLE_SYNC:
     {
         mace_vehicle_sync_t decodedMSG;
@@ -183,27 +153,6 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     {
         //This is message definition 74
         //Metrics typically displayed on a HUD for fixed wing aircraft
-        break;
-    }
-    case MACE_MSG_ID_COMMAND_LONG:
-    {
-        mace_command_long_t decodedMSG;
-        mace_msg_command_long_decode(message,&decodedMSG);
-        this->ParseCommsCommand(&decodedMSG);
-        break;
-    }
-    case MACE_MSG_ID_COMMAND_SHORT:
-    {
-        mace_command_short_t decodedMSG;
-        mace_msg_command_short_decode(message,&decodedMSG);
-        this->ParseCommsCommand(&decodedMSG);
-        break;
-    }
-    case MACE_MSG_ID_COMMAND_SYSTEM_MODE:
-    {
-        mace_command_system_mode_t decodedMSG;
-        mace_msg_command_system_mode_decode(message,&decodedMSG);
-        this->ParseCommsCommand(&decodedMSG);
         break;
     }
     case MACE_MSG_ID_RADIO_STATUS:
