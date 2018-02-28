@@ -5,7 +5,7 @@
 
 namespace Controllers {
 
-template<typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_ACK_ID>
+template<typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename MSG_TYPE, const int ...MESSAGE_ACK_ID>
 class ActionRequest_TargetedWithResponse :
         public ActionBase<CONTROLLER_TYPE, MSG_TYPE>
 {
@@ -31,7 +31,9 @@ public:
         QUEUE_TYPE queueObj;
         Request_Construct(sender, target, cmd, queueObj);
 
-        BASE::m_Controller-> template QueueTransmission<QUEUE_TYPE>(queueObj, MESSAGE_ACK_ID, [this, cmd, sender, target](){
+        std::vector<int> expectedResponses { { MESSAGE_ACK_ID... } };
+
+        BASE::m_Controller-> template QueueTransmission<QUEUE_TYPE>(queueObj, expectedResponses, [this, cmd, sender, target](){
             BASE::m_Controller-> template EncodeMessage(BASE::m_EncodeChanFunc, cmd, sender, target);
         });
     }

@@ -49,6 +49,8 @@ class ActionFinalReceiveRespond :
 
     typedef ActionBase<CONTROLLER_TYPE, MSG_TYPE> BASE;
 
+    std::function<void(uint8_t, uint8_t, uint8_t, mace_message_t*, const ACK_TYPE*)> m_encode_ack_chan;
+
 protected:
 
     virtual bool Construct_FinalObjectAndResponse(const MSG_TYPE &, const MaceCore::ModuleCharacteristic &sender, ACK_TYPE &, std::shared_ptr<FINAL_TYPE> &, MaceCore::ModuleCharacteristic &vehicleObj, QUEUE_TYPE &queueObj)= 0;
@@ -58,7 +60,8 @@ public:
     ActionFinalReceiveRespond(CONTROLLER_TYPE *controller,
                            const std::function<void(const mace_message_t*, MSG_TYPE*)> &decode,
                            const std::function<void(uint8_t, uint8_t, uint8_t, mace_message_t*, const ACK_TYPE*)> &encode_ack_chan) :
-        ActionBase<CONTROLLER_TYPE, MSG_TYPE>(controller, [](uint8_t, uint8_t, uint8_t, mace_message_t*, const MSG_TYPE*){}, decode)
+        ActionBase<CONTROLLER_TYPE, MSG_TYPE>(controller, [](uint8_t, uint8_t, uint8_t, mace_message_t*, const MSG_TYPE*){}, decode),
+        m_encode_ack_chan(encode_ack_chan)
     {
 
 
@@ -77,10 +80,16 @@ public:
                     {
                         BASE::m_Controller->RemoveTransmission(queueObj, MESSAGE_REQUEST_ID);
                         BASE::m_Controller->onDataReceived(queueObj, finalObj);
-                        BASE::m_Controller->template EncodeMessage(encode_ack_chan, ack, vehicleFrom, target);
+                        this->template FinalResponse(ack, vehicleFrom, queueObj, target);
                     }
                 }
         );
+    }
+
+    void FinalResponse(const ACK_TYPE &cmd, const MaceCore::ModuleCharacteristic &sender, const QUEUE_TYPE &queueObj, const MaceCore::ModuleCharacteristic &target)
+    {
+        UNUSED(queueObj);
+        BASE::m_Controller->template EncodeMessage(m_encode_ack_chan, cmd, sender, target);
     }
 
 protected:

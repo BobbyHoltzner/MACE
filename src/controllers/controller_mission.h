@@ -12,6 +12,7 @@
 #include "actions/action_intermediate.h"
 #include "actions/action_final_receive_respond.h"
 #include "actions/action_finish.h"
+#include "actions/action_request.h"
 
 namespace Controllers {
 
@@ -106,6 +107,36 @@ using SendHelper_FinalFinal = ActionFinish<
     MACE_MSG_ID_MISSION_ACK
 >;
 
+
+template <typename MESSAGETYPE>
+using Action_RequestCurrentMission_Initiate = ActionRequest_TargetedWithResponse<
+    CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
+    MaceCore::ModuleCharacteristic,
+    mace_mission_request_list_generic_t,
+    MACE_MSG_ID_MISSION_COUNT,
+    MACE_MSG_ID_MISSION_ACK
+>;
+
+
+template <typename MESSAGETYPE>
+using Action_RequestCurrentMission_Response = ActionIntermediateReceive<
+    CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
+    MissionItem::MissionKey,
+    mace_mission_request_list_generic_t,
+    MACE_MSG_ID_MISSION_REQUEST_LIST_GENERIC,
+    mace_mission_count_t
+>;
+
+template <typename MESSAGETYPE>
+using Action_RequestCurrentMission_NoMissionResponse = ActionIntermediateReceive<
+    CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
+    MissionItem::MissionKey,
+    mace_mission_request_list_generic_t,
+    MACE_MSG_ID_MISSION_REQUEST_LIST_GENERIC,
+    mace_mission_ack_t
+>;
+
+
 template <typename MESSAGETYPE>
 class ControllerMission : public CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
         public SendHelper_RequestMissionDownload<MESSAGETYPE>,
@@ -114,7 +145,10 @@ class ControllerMission : public CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
         public SendHelper_RequestItem<MESSAGETYPE>,
         public SendHelper_ReceiveItem<MESSAGETYPE>,
         public SendHelper_Final<MESSAGETYPE>,
-        public SendHelper_FinalFinal<MESSAGETYPE>
+        public SendHelper_FinalFinal<MESSAGETYPE>,
+        public Action_RequestCurrentMission_Initiate<MESSAGETYPE>,
+        public Action_RequestCurrentMission_Response<MESSAGETYPE>,
+        public Action_RequestCurrentMission_NoMissionResponse<MESSAGETYPE>
 {
 
 private:
@@ -456,6 +490,129 @@ protected:
         return true;
     }
 
+
+    virtual void Request_Construct(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_mission_request_list_generic_t &msg, MaceCore::ModuleCharacteristic &queueObj)
+    {
+        UNUSED(sender);
+        msg.mission_system = target.ID;
+        msg.mission_type = (uint8_t)MissionItem::MISSIONSTATE::CURRENT;
+        msg.mission_state = 0;
+
+        queueObj = target;
+    }
+
+    virtual bool BuildData_Send(const mace_mission_request_list_generic_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_mission_count_t &response, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &queueObj)
+    {
+        MissionItem::MISSIONSTATE state = static_cast<MissionItem::MISSIONSTATE>(msg.mission_state);
+        if(state == MissionItem::MISSIONSTATE::CURRENT)
+        {
+            DataItem<MissionKey, MissionList>::FetchModuleReturn items;
+
+            vehicleObj.ID = msg.mission_system;
+            vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+            this-> template FetchFromModule(vehicleObj, items);
+
+            //no modules reported back!
+            if(items.size() == 0)
+            {
+                throw std::runtime_error("No modules reported back");
+            }
+
+            //too many modules reported back!
+            if(items.size() > 1)
+            {
+                throw std::runtime_error("More than one module reported");
+            }
+
+            std::vector<std::tuple<MissionKey, MissionList>> vec = std::get<1>(items.at(0));
+            if(vec.size() == 0)
+            {
+                return false;
+            }
+            if(vec.size() == 1)
+            {
+                MissionItem::MissionKey key = std::get<0>(vec.at(0));
+                queueObj = key;
+
+                if(m_MissionsUploading.find(key) != m_MissionsUploading.cend())
+                {
+                    std::cout << "Mission Upload Progress: The mission that was requested to be transmitted is already being transmitted" << std::endl;
+                    return false;
+                }
+                MissionList mission = std::get<1>(vec.at(0));
+                m_MissionsUploading.insert({key, mission});
+
+
+                response.count = m_MissionsUploading.at(key).getQueueSize();
+                response.target_system = m_MissionsUploading.at(key).getVehicleID();
+                response.mission_system = key.m_systemID;
+                response.mission_creator = key.m_creatorID;
+                response.mission_id = key.m_missionID;
+                response.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);
+                response.mission_state = static_cast<MAV_MISSION_STATE>(key.m_missionState);
+
+                std::cout << "Mission Controller: Sending Mission Count" << std::endl;
+
+                return true;
+            }
+            if(vec.size() > 1)
+            {
+                throw std::runtime_error("Multiple missions reported back, this is a non-op");
+            }
+        }
+        return false;
+    }
+
+
+    virtual bool BuildData_Send(const mace_mission_request_list_generic_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_mission_ack_t &response, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &queueObj)
+    {
+        MissionItem::MISSIONSTATE state = static_cast<MissionItem::MISSIONSTATE>(msg.mission_state);
+        if(state == MissionItem::MISSIONSTATE::CURRENT)
+        {
+            DataItem<MissionKey, MissionList>::FetchModuleReturn items;
+
+            vehicleObj.ID = msg.mission_system;
+            vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+            this-> template FetchFromModule(vehicleObj, items);
+
+            //no modules reported back!
+            if(items.size() == 0)
+            {
+                throw std::runtime_error("No modules reported back");
+            }
+
+            //too many modules reported back!
+            if(items.size() > 1)
+            {
+                throw std::runtime_error("More than one module reported");
+            }
+
+            std::vector<std::tuple<MissionKey, MissionList>> vec = std::get<1>(items.at(0));
+            if(vec.size() == 0)
+            {
+                response.mission_system = msg.mission_system;
+                response.cur_mission_state = msg.mission_state;
+                response.mission_result = (uint8_t)MissionItem::MissionACK::MISSION_RESULT::MISSION_RESULT_DOES_NOT_EXIST;
+
+
+                return true;
+            }
+            if(vec.size() == 1)
+            {
+                return false;
+            }
+            if(vec.size() > 1)
+            {
+                throw std::runtime_error("Multiple missions reported back, this is a non-op");
+            }
+        }
+        return false;
+    }
+
+
+
 public:
 
     ControllerMission(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
@@ -468,8 +625,14 @@ public:
                                [this](const mace_mission_request_item_t &A, const MaceCore::ModuleCharacteristic &B, const MissionItem::MissionKey &C, const MaceCore::ModuleCharacteristic &D){SendHelper_ReceiveCountRespondItemRequest<MESSAGETYPE>::NextTransmission(A,B,C,D);},
                                mace_msg_mission_item_decode),
         SendHelper_Final<MESSAGETYPE>(this, mace_msg_mission_item_decode, mace_msg_mission_ack_encode_chan),
-        SendHelper_FinalFinal<MESSAGETYPE>(this, mace_msg_mission_ack_decode)
-
+        SendHelper_FinalFinal<MESSAGETYPE>(this, mace_msg_mission_ack_decode),
+        Action_RequestCurrentMission_Initiate<MESSAGETYPE>(this, mace_msg_mission_request_list_generic_encode_chan),
+        Action_RequestCurrentMission_Response<MESSAGETYPE>(this,
+                                [this](const mace_mission_count_t &A, const MaceCore::ModuleCharacteristic &B, const MissionItem::MissionKey &C, const MaceCore::ModuleCharacteristic &D){SendHelper_RequestList<MESSAGETYPE>::NextTransmission(A,B,C,D);},
+                                mace_msg_mission_request_list_generic_decode),
+        Action_RequestCurrentMission_NoMissionResponse<MESSAGETYPE>(this,
+                                [this](const mace_mission_ack_t &A, const MaceCore::ModuleCharacteristic &B, const MissionItem::MissionKey &C, const MaceCore::ModuleCharacteristic &D){SendHelper_Final<MESSAGETYPE>::FinalResponse(A,B,C,D);},
+                                mace_msg_mission_request_list_generic_decode)
     {
 
     }
@@ -480,240 +643,12 @@ public:
         SendHelper_RequestMissionDownload<MESSAGETYPE>::Send(key, sender, target);
     }
 
-};
-
-/*
-typedef HelperControllerSend<
-        CONTROLLER_MISSION_TYPE,
-        MissionItem::MissionKey,
-        mace_mission_request_list_t,
-        mace_mission_count_t,
-        MACE_MSG_ID_MISSION_REQUEST_LIST,
-        MACE_MSG_ID_MISSION_COUNT,
-        MissionItem::MissionKey
-    >
-    SendHelper_CountResponse;
-
-typedef HelperControllerSend<
-        CONTROLLER_MISSION_TYPE,
-        MissionItem::MissionKey,
-        mace_mission_count_t,
-        mace_mission_request_item_t,
-        MACE_MSG_ID_MISSION_COUNT,
-        MACE_MSG_ID_MISSION_REQUEST_ITEM,
-        MissionItem::MissionKey
-    >
-    SendHelper_ItemRequestResponse;
-
-typedef HelperControllerSend<
-        CONTROLLER_MISSION_TYPE,
-        MissionItem::MissionKey,
-        mace_mission_request_item_t,
-        mace_mission_item_t,
-        MACE_MSG_ID_MISSION_REQUEST_ITEM,
-        MACE_MSG_ID_MISSION_ITEM,
-        MissionItem::MissionKey
-    >
-    SendHelper_ItemResponse;
-
-typedef HelperControllerSend<
-        CONTROLLER_MISSION_TYPE,
-        MissionItem::MissionKey,
-        mace_mission_item_t,
-        mace_mission_request_item_t,
-        MACE_MSG_ID_MISSION_ITEM,
-        MACE_MSG_ID_MISSION_REQUEST_ITEM,
-        MissionItem::MissionKey
-    >
-    SendHelper_NextItemRequestResponse;
-
-typedef HelperControllerSend<
-        CONTROLLER_MISSION_TYPE,
-        MissionItem::MissionKey,
-        mace_mission_request_item_t,
-        mace_mission_ack_t,
-        MACE_MSG_ID_MISSION_REQUEST_ITEM,
-        MACE_MSG_ID_MISSION_ACK,
-        MissionItem::MissionKey,
-        MissionItem::MissionList
-    >
-    SendHelper_FinalAckResponse;
-
-class ControllerMission : public CONTROLLER_MISSION_TYPE,
-        public SendHelper_CountResponse,
-        public SendHelper_ItemRequestResponse,
-        public SendHelper_ItemResponse,
-        public SendHelper_NextItemRequestResponse,
-        public SendHelper_FinalAckResponse
-{
-private:
-
-    struct MissionRequestStruct
+    void RequestCurrentMission(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
     {
-        MissionItem::MissionList mission;
-        MaceCore::ModuleCharacteristic requester;
-    };
-
-    OptionalParameter<MaceCore::ModuleCharacteristic> m_GenericRequester;
-    std::unordered_map<MissionItem::MissionKey, MissionRequestStruct> m_MissionsBeingFetching;
-
-    std::unordered_map<MissionItem::MissionKey, MissionItem::MissionList> m_MissionsUploading;
-
-
-protected:
-
-
-    //!
-    //! \brief Called when building mavlink packet initial request to a mission
-    //! \param data
-    //! \param cmd
-    //!
-    virtual void BuildMessage_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_list_t &cmd, MissionItem::MissionKey &queueObj, MaceCore::ModuleCharacteristic &target)
-    {
-        target = sender;
-        queueObj = data;
-
-        cmd.mission_creator = data.m_creatorID;
-        cmd.mission_id = data.m_missionID;
-        cmd.mission_system = data.m_systemID;
-        cmd.mission_type = (uint8_t)data.m_missionType;
-        cmd.mission_state = (uint8_t)data.m_missionState;
-
-        if(m_MissionsBeingFetching.find(data) != m_MissionsBeingFetching.cend())
-        {
-            throw std::runtime_error("Mission is already being downloaded");
-        }
-
-        MissionItem::MissionList newList;
-        newList.setMissionKey(data);
-        newList.clearQueue();
-        MissionRequestStruct newItem;
-        newItem.mission = newList;
-        newItem.requester = sender;
-        m_MissionsBeingFetching.insert({data, newItem});
+        Action_RequestCurrentMission_Initiate<MESSAGETYPE>::Request(sender, target);
     }
-
-
-    //!
-    //! \brief Called when received mavlink packet requesting a mission
-    //! \param cmd
-    //! \param data
-    //! \param rtn
-    //! \return
-    //!
-    virtual bool BuildData_Send(const mace_mission_request_list_t &cmd, mace_mission_count_t &rtn, MaceCore::ModuleCharacteristic &vehicleFrom, MissionItem::MissionKey &queueObj)
-    {
-        MissionItem::MissionKey key(cmd.mission_system, cmd.mission_creator, cmd.mission_id, static_cast<MissionItem::MISSIONTYPE>(cmd.mission_type), static_cast<MissionItem::MISSIONSTATE>(cmd.mission_state));
-        queueObj = key;
-
-        std::vector<std::tuple<MissionKey, MissionList>> missions;
-        FetchDataFromKey(key, missions);
-
-        if(missions.size() == 0)
-        {
-            return false;
-        }
-        if(missions.size() > 1)
-        {
-            throw std::runtime_error("Multiple missions assigned to the same key returned, This is a non-op");
-        }
-        if(std::get<0>(missions.at(0)) != key)
-        {
-            throw std::runtime_error("Requesting a specific missionkey did not return the same key, This is a non-op");
-        }
-
-
-        if(m_MissionsUploading.find(key) != m_MissionsUploading.cend())
-        {
-            std::cout << "Mission Upload Progress: The mission that was requested to be transmitted is already being transmitted" << std::endl;
-            return false;
-        }
-        MissionList mission = std::get<1>(missions.at(0));
-        m_MissionsUploading.insert({key, mission});
-
-
-        rtn.count = m_MissionsUploading.at(key).getQueueSize();
-        rtn.target_system = m_MissionsUploading.at(key).getVehicleID();
-        rtn.mission_system = key.m_systemID;
-        rtn.mission_creator = key.m_creatorID;
-        rtn.mission_id = key.m_missionID;
-        rtn.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);
-        rtn.mission_state = static_cast<MAV_MISSION_STATE>(key.m_missionState);
-
-        return true;
-    }
-
-
-
-
-    //!
-    //! \brief Building mavlink packet initial request to a mission
-    //! \param data
-    //! \param sender
-    //! \param queueObj
-    //! \param target
-    //!
-    virtual void BuildMessage_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, mace_mission_count_t &, MissionItem::MissionKey &queueObj, MaceCore::ModuleCharacteristic &target)
-    {
-
-    }
-
-    virtual bool BuildData_Send(const mace_mission_count_t &, mace_mission_request_item_t&, MaceCore::ModuleCharacteristic &vehicleFrom, MissionItem::MissionKey &queueObj)
-    {
-        return true;
-    }
-
-
-
-
-    virtual void BuildMessage_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &, MissionItem::MissionKey &queueObj, MaceCore::ModuleCharacteristic &target)
-    {
-
-    }
-
-    virtual bool BuildData_Send(const mace_mission_request_item_t &, mace_mission_item_t&, MaceCore::ModuleCharacteristic &vehicleFrom, MissionItem::MissionKey &queueObj)
-    {
-        return true;
-    }
-
-
-
-    virtual void BuildMessage_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, mace_mission_item_t &, MissionItem::MissionKey &queueObj, MaceCore::ModuleCharacteristic &target)
-    {
-
-    }
-
-    virtual bool BuildData_Send(const mace_mission_item_t &, mace_mission_request_item_t&, MaceCore::ModuleCharacteristic &vehicleFrom, MissionItem::MissionKey &queueObj)
-    {
-        return true;
-    }
-
-
-
-//Repeated above
-    //virtual void BuildMessage_Set(const MissionItem::MissionKey &data, mace_mission_request_item_t &)
-    //{
-//
-    //}
-
-    virtual bool BuildData_Send(const mace_mission_request_item_t &, std::shared_ptr<MissionItem::MissionList>, mace_mission_ack_t&, MaceCore::ModuleCharacteristic &vehicleFrom, MissionItem::MissionKey &queueObj)
-    {
-        return true;
-    }
-
-public:
-
-    ControllerMission(const MACEControllerInterface* cb, MACETransmissionQueue * queue, int linkChan) :
-        CONTROLLER_MISSION_TYPE(cb, queue, linkChan),
-        SendHelper_CountResponse(this, mace_msg_mission_request_list_encode_chan, mace_msg_mission_request_list_decode, mace_msg_mission_count_encode_chan)
-    {
-
-    }
-
 
 };
-*/
-
 
 }
 

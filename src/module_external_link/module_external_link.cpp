@@ -450,8 +450,7 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem, const Opt
 
         m_Controllers.Retreive<Controllers::ControllerHome<mace_message_t>>()->Request(sender(), target);
 
-        throw std::runtime_error("Not implimeneted");
-        //m_Controllers.Retreive<ExternalLink::MissionController>()->requestCurrentMission(target, sender());
+        m_Controllers.Retreive<Controllers::ControllerMission<mace_message_t>>()->RequestCurrentMission(sender(), target);
     }
 }
 
