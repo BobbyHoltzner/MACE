@@ -5,7 +5,7 @@
 
 namespace Controllers {
 
-template<typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID, typename ACK_TYPE>
+template<typename CONTROLLER_TYPE, typename RECEIVE_QUEUE_TYPE, typename RESPOND_QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID, typename ACK_TYPE>
 class ActionIntermediateReceive :
         public ActionBase<CONTROLLER_TYPE, MSG_TYPE>
 {
@@ -14,7 +14,7 @@ class ActionIntermediateReceive :
 
 protected:
 
-    virtual bool BuildData_Send(const MSG_TYPE &, const MaceCore::ModuleCharacteristic &sender, ACK_TYPE &, MaceCore::ModuleCharacteristic &vehicleObj, QUEUE_TYPE &queueObj)= 0;
+    virtual bool BuildData_Send(const MSG_TYPE &, const MaceCore::ModuleCharacteristic &sender, ACK_TYPE &, MaceCore::ModuleCharacteristic &vehicleObj, RECEIVE_QUEUE_TYPE &receiveQueueObj, RESPOND_QUEUE_TYPE &respondQueueObj)= 0;
 
 public:
 
@@ -24,7 +24,7 @@ public:
     }
 
     ActionIntermediateReceive(CONTROLLER_TYPE *controller,
-                                  const std::function<void(const ACK_TYPE &, const MaceCore::ModuleCharacteristic &, const QUEUE_TYPE &, const MaceCore::ModuleCharacteristic &)> &nextStep,
+                                  const std::function<void(const ACK_TYPE &, const MaceCore::ModuleCharacteristic &, const RESPOND_QUEUE_TYPE &, const MaceCore::ModuleCharacteristic &)> &nextStep,
                                   const std::function<void(const mace_message_t*, MSG_TYPE*)> &decode) :
         ActionBase<CONTROLLER_TYPE, MSG_TYPE>(controller, {}, decode)
     {
@@ -37,17 +37,18 @@ public:
 
                     MaceCore::ModuleCharacteristic vehicleFrom;
                     ACK_TYPE ack;
-                    QUEUE_TYPE queueObj;
+                    RECEIVE_QUEUE_TYPE receiveQueueObj;
+                    RESPOND_QUEUE_TYPE respondQueueObj;
 
-                    bool valid = this-> template BuildData_Send(msg, sender, ack, vehicleFrom, queueObj);
+                    bool valid = this-> template BuildData_Send(msg, sender, ack, vehicleFrom, receiveQueueObj, respondQueueObj);
 
 
                     if(valid == true)
                     {
-                        BASE::m_Controller->RemoveTransmission(queueObj, MESSAGE_REQUEST_ID);
+                        BASE::m_Controller->RemoveTransmission(receiveQueueObj, MESSAGE_REQUEST_ID);
 
                         //BASE::m_Controller->Set(ack, vehicleFrom, queueObj, target);
-                        nextStep(ack, vehicleFrom, queueObj, target);
+                        nextStep(ack, vehicleFrom, respondQueueObj, target);
                     }
                 }
         );

@@ -48,6 +48,7 @@ template <typename MESSAGETYPE>
 using ControllerHome_Step_ReceiveHomeRequest = ActionIntermediate<
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
     MaceCore::ModuleCharacteristic,
+    MaceCore::ModuleCharacteristic,
     mace_mission_request_home_t,
     MACE_MSG_ID_MISSION_REQUEST_HOME,
     mace_home_position_t,
@@ -142,6 +143,8 @@ protected:
         msg.latitude = data.position->getX() * pow(10,7);
         msg.longitude = data.position->getY()* pow(10,7);
         msg.altitude = data.position->getZ() * 1000.0;
+
+        std::cout << "Home Controller: Broadcasting Home" << std::endl;
     }
 
 
@@ -169,6 +172,8 @@ protected:
         data->setTargetSystem(sender.ID);
         data->setOriginatingSystem(sender.ID);
 
+        std::cout << "Home Controller: Received broadcasted home" << std::endl;
+
         return true;
     }
 
@@ -181,12 +186,15 @@ protected:
         queueObj = target;
 
         m_ModulesRequestedFrom.insert({target, sender});
+
+        std::cout << "Home Controller: Sending home request" << std::endl;
     }
 
 
-    virtual bool BuildData_Send(const mace_mission_request_home_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_home_position_t &rsp, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool BuildData_Send(const mace_mission_request_home_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_home_position_t &rsp, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &receiveQueueObj, MaceCore::ModuleCharacteristic &respondQueueObj)
     {
-        queueObj = sender;
+        receiveQueueObj = sender;
+        respondQueueObj = receiveQueueObj;
 
         vehicleObj.ID = msg.target_system;
         vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
@@ -200,6 +208,7 @@ protected:
         rsp.longitude = homeToSend.position->getY() * pow(10,7);
         rsp.altitude = homeToSend.position->getZ() * pow(10,3);
 
+        std::cout << "Home Controller: Receive home request, sending home position" << std::endl;
 
         return true;
     }
@@ -228,6 +237,8 @@ protected:
 
         response.target_system = sender.ID;
 
+        std::cout << "Home Controller: Receive home position, sending ack" << std::endl;
+
         return true;
     }
 
@@ -236,6 +247,9 @@ protected:
     {
         UNUSED(ack);
         queueObj = sender;
+
+        std::cout << "Home Controller: Receive ACK, done" << std::endl;
+
         return true;
     }
 
@@ -253,6 +267,8 @@ protected:
 
         queueObj.ID = data.getTargetSystem();
         queueObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+        std::cout << "Home Controller: Sending set home position" << std::endl;
     }
 
     virtual bool Construct_FinalObjectAndResponse(const mace_set_home_position_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_home_position_ack_t &ack, std::shared_ptr<CommandItem::SpatialHome> &data, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &queueObj)
@@ -274,6 +290,8 @@ protected:
 
 
         ack.target_system = msg.target_system;
+
+        std::cout << "Home Controller: Receive new set home, sending ack" << std::endl;
 
         return true;
     }
