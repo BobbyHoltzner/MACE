@@ -29,7 +29,6 @@ HEADERS += data_global.h \
     controller_state.h \
     system_description.h \
     data_get_set_notifier.h \
-    threadmanager.h \
     system_type.h \
     comms_protocol.h \
     command_ack_type.h \

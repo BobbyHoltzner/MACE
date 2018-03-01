@@ -92,6 +92,9 @@ public:
     void AddInternalVehicle(const std::string &name, int vehicleID);
 
 
+    void AddMACEInstance(const std::string &name, int ID);
+
+
     //!
     //! \brief Set the protocol which a link is to use
     //! \param linkName Link name to set protocol of
@@ -128,7 +131,7 @@ public:
     //! \param message Message to send
     //!
     template <typename T>
-    void SendMACEMessage(const std::string &linkName, const T& message, OptionalParameter<int> VehicleID = OptionalParameter<int>());
+    void SendMACEMessage(const std::string &linkName, const T& message, OptionalParameter<int> VehicleID = OptionalParameter<int>(), OptionalParameter<int> MACEID = OptionalParameter<int>());
 
 
 

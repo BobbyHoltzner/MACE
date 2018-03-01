@@ -14,8 +14,8 @@ public:
     }
 
     OptionalParameter(const T &data) :
-        mdata(data),
-        mIsSet(true)
+        mIsSet(true),
+        mdata(data)
     {
 
     }
@@ -24,7 +24,12 @@ public:
         return mIsSet;
     }
 
-    T Data() const {
+    T Value() const
+    {
+        return mdata;
+    }
+
+    T operator()() const {
         return mdata;
     }
 

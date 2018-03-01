@@ -32,7 +32,7 @@ public:
     virtual void RequestReset();
     virtual uint64_t getConnectionSpeed() const;
 
-    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID = OptionalParameter<int>()) const;
+    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID = OptionalParameter<int>(), OptionalParameter<int> MACEID = OptionalParameter<int>()) const;
 
 
     //!
@@ -40,6 +40,9 @@ public:
     //! \param vehicleID ID of vechile
     //!
     virtual void AddInternalVehicle(int vehicleID);
+
+
+    virtual void AddMACEInstance(int vehicleID);
 
 
     //!

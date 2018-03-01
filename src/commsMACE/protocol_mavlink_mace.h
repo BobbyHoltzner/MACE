@@ -26,6 +26,11 @@ namespace CommsMACE
 class COMMSMACESHARED_EXPORT MavlinkProtocol : public IProtocol
 {
 
+    class DecodeEncodeLibrary
+    {
+
+    };
+
 public:
     MavlinkProtocol(const MavlinkConfiguration &config);
 
@@ -66,7 +71,7 @@ public:
     //! \param link Link to put message onto
     //! \param message Message to send
     //!
-    void SendProtocolMessage(const ILink *link, const mace_message_t &message, OptionalParameter<int> vehicleID = OptionalParameter<int>());
+    void SendProtocolMessage(const ILink *link, const mace_message_t &message, OptionalParameter<int> vehicleID = OptionalParameter<int>(), OptionalParameter<int> MACEID = OptionalParameter<int>());
 
 
     //!

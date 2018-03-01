@@ -100,6 +100,17 @@ void CommsMarshaler::AddInternalVehicle(const std::string &name, int vehicleID)
 }
 
 
+void CommsMarshaler::AddMACEInstance(const std::string &name, int ID)
+{
+    if(m_CreatedLinksNameToPtr.find(name) == m_CreatedLinksNameToPtr.cend())
+        throw std::runtime_error("The provided link name does not exists");
+
+    std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(name);\
+
+    link->AddMACEInstance(ID);
+}
+
+
 //!
 //! \brief Set the protocol which a link is to use
 //! \param linkName Link name to set protocol of
@@ -201,7 +212,7 @@ uint8_t CommsMarshaler::GetProtocolChannel(const std::string &linkName) const
 //! \param message Message to send
 //!
 template <typename T>
-void CommsMarshaler::SendMACEMessage(const std::string &linkName, const T& message, OptionalParameter<int> vehicleID)
+void CommsMarshaler::SendMACEMessage(const std::string &linkName, const T& message, OptionalParameter<int> vehicleID, OptionalParameter<int> MACEID)
 {
     if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
@@ -213,13 +224,13 @@ void CommsMarshaler::SendMACEMessage(const std::string &linkName, const T& messa
 
     ///////////////////
     /// Define function that sends the given message
-    auto func = [protocol_code, protocol_obj, link, message, vehicleID]() {
+    auto func = [protocol_code, protocol_obj, link, message, vehicleID, MACEID]() {
         switch(protocol_code)
         {
         case Protocols::MAVLINK:
         {
             std::shared_ptr<MavlinkProtocol> protocol = std::static_pointer_cast<MavlinkProtocol>(protocol_obj);
-            protocol->SendProtocolMessage(link.get(), message, vehicleID);
+            protocol->SendProtocolMessage(link.get(), message, vehicleID, MACEID);
             break;
         }
         default:
@@ -376,6 +387,6 @@ void CommsMarshaler::RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors
 
 
 
-template void CommsMarshaler::SendMACEMessage<mace_message_t>(const std::string &, const mace_message_t&, OptionalParameter<int> vehicleID);
+template void CommsMarshaler::SendMACEMessage<mace_message_t>(const std::string &, const mace_message_t&, OptionalParameter<int> vehicleID, OptionalParameter<int> MACEID);
 
 }//END Comms

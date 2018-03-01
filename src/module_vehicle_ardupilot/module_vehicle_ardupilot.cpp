@@ -1,6 +1,15 @@
 #include "module_vehicle_ardupilot.h"
 #include <functional>
 
+template <typename T>
+T CopyCommandAndInsertTarget(const CommandItem::AbstractCommandItem &item, int targetSystem)
+{
+    T cpy((T&)item);
+    cpy.setTargetSystem(targetSystem);
+    return cpy;
+}
+
+
 //ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 //    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),
 //    m_VehicleMissionTopic("vehicleMission"), m_AircraftController(NULL), vehicleData(NULL)
@@ -150,41 +159,47 @@ void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 /// acknowledgement or an event to take place when calling these items.
 ////////////////////////////////////////////////////////////////////////////
 
-void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem)
+void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> objectData = vehicleData->state->GetTopicData();
     this->PublishVehicleData(targetSystem,objectData);
     vehicleData->m_MissionController->requestMission();
 }
 
-void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command)
+void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    //Temporary solution to solve boadcasting until rework of commands can be done
+    CommandItem::ActionArm commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionArm>(command, this->GetCharacteristic().ID);
+
     std::stringstream buffer;
-    buffer << command;
+    buffer << commandWithTarget;
 
     mLogs->debug("Receieved a command system arm.");
     mLogs->info(buffer.str());
 
-    vehicleData->m_CommandController->setSystemArm(command);
+    vehicleData->m_CommandController->setSystemArm(commandWithTarget);
 }
 
-void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command)
+void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    //Temporary solution to solve boadcasting until rework of commands can be done
+    CommandItem::SpatialTakeoff commandWithTarget = CopyCommandAndInsertTarget<CommandItem::SpatialTakeoff>(command, this->GetCharacteristic().ID);
+
     std::stringstream buffer;
-    buffer << command;
+    buffer << commandWithTarget;
 
     mLogs->debug("Receieved a command takeoff.");
     mLogs->info(buffer.str());
 
     if(vehicleData)
     {
-        if(command.getTargetSystem() == vehicleData->getSystemID())
+        if(commandWithTarget.getTargetSystem() == vehicleData->getSystemID())
         {
             Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(vehicleData);
-            if(command.position->has3DPositionSet())
-                newController->initializeTakeoffSequence(command);
+            if(commandWithTarget.position->has3DPositionSet())
+                newController->initializeTakeoffSequence(commandWithTarget);
             else{
-                CommandItem::SpatialTakeoff defaultTakeoff = command;
+                CommandItem::SpatialTakeoff defaultTakeoff = commandWithTarget;
                 newController->initializeTakeoffSequence(defaultTakeoff);
             }
             newController->connectTargetCallback(ModuleVehicleArdupilot::staticCallbackFunction_VehicleTarget, this);
@@ -195,34 +210,43 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
 
 }
 
-void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &command)
+void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    //Temporary solution to solve boadcasting until rework of commands can be done
+    CommandItem::SpatialLand commandWithTarget = CopyCommandAndInsertTarget<CommandItem::SpatialLand>(command, this->GetCharacteristic().ID);
+
     std::stringstream buffer;
-    buffer << command;
+    buffer << commandWithTarget;
 
     mLogs->debug("Receieved a command to land.");
     mLogs->info(buffer.str());
 
     if(vehicleData)
-        vehicleData->m_CommandController->setSystemLand(command);
+        vehicleData->m_CommandController->setSystemLand(commandWithTarget);
 }
 
-void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command)
+void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    //Temporary solution to solve boadcasting until rework of commands can be done
+    CommandItem::SpatialRTL commandWithTarget = CopyCommandAndInsertTarget<CommandItem::SpatialRTL>(command, this->GetCharacteristic().ID);
+
     mLogs->debug("Receieved a command RTL.");
 
     if(vehicleData)
-        vehicleData->m_CommandController->setSystemRTL(command);
+        vehicleData->m_CommandController->setSystemRTL(commandWithTarget);
 }
 
-void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command)
+void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    //Temporary solution to solve boadcasting until rework of commands can be done
+    CommandItem::ActionMissionCommand commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionMissionCommand>(command, this->GetCharacteristic().ID);
+
     mLogs->debug("Receieved a command to change mission state.");
 
-    int systemID = command.getTargetSystem();
+    int systemID = commandWithTarget.getTargetSystem();
     if((vehicleData) && (vehicleData->getSystemID() == systemID))
     {
-        if(command.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_PAUSE)
+        if(commandWithTarget.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_PAUSE)
         {
             DataGenericItem::DataGenericItem_Heartbeat heartbeat = vehicleData->state->vehicleHeartbeat.get();
             if(Data::isSystemTypeRotary(heartbeat.getType()))
@@ -236,7 +260,7 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
                 int mode = tmp.getFlightModeFromString("LOITER");
                 vehicleData->m_CommandController->setNewMode(mode);
             }
-        }else if(command.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_START)
+        }else if(commandWithTarget.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_START)
         {
             DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
             int mode = tmp.getFlightModeFromString("AUTO");
@@ -250,16 +274,19 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
     }
 }
 
-void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command)
+void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    //Temporary solution to solve boadcasting until rework of commands can be done
+    CommandItem::ActionChangeMode commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionChangeMode>(command, this->GetCharacteristic().ID);
+
     std::stringstream buffer;
-    buffer << command;
+    buffer << commandWithTarget;
 
     mLogs->debug("Receieved a command to change the mode.");
     mLogs->info(buffer.str());
 
     DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
-    int mode = tmp.getFlightModeFromString(command.getRequestMode());
+    int mode = tmp.getFlightModeFromString(commandWithTarget.getRequestMode());
 //    vehicleData->command->setNewMode(mode,255,m_LinkChan);
     vehicleData->m_CommandController->setNewMode(mode);
 }
@@ -285,13 +312,13 @@ void ModuleVehicleArdupilot::SpinDownController() {
 /// mission queue should prepend this position. Just the way ardupilot works.
 /////////////////////////////////////////////////////////////////////////////
 
-void ModuleVehicleArdupilot::Command_GetHomePosition(const int &vehicleID)
+void ModuleVehicleArdupilot::Command_GetHomePosition(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     if((vehicleData) && (vehicleData->getSystemID() == vehicleID))
         vehicleData->command->getSystemHome();
 }
 
-void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome)
+void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::stringstream buffer;
     buffer << vehicleHome;
@@ -369,7 +396,7 @@ void ModuleVehicleArdupilot::Command_GetCurrentMission(const int &targetSystem)
 //    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
-void ModuleVehicleArdupilot::Command_GetMission(const MissionItem::MissionKey &key)
+void ModuleVehicleArdupilot::Command_GetMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     UNUSED(key);
 }
@@ -437,6 +464,9 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         vehicleData = std::make_shared<DataInterface_MAVLINK::VehicleObject_MAVLINK>(this->loggingPath,systemID,255);
         vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
         vehicleData->connectCallback(this);
+
+        this->SetID(systemID);
+
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
             ptr->EventVehicle_NewConstructedVehicle(this, systemID);
         });

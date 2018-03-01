@@ -3,7 +3,8 @@
 namespace CommsMACE
 {
 
-char VEHICLE_STR[] = "Vehicle";
+char VEHICLE_STR[] = "Vehicle\0";
+char MACE_STR[] = "Mace\0";
 
 DigiMeshLink::DigiMeshLink(const DigiMeshConfiguration &config) :
     _config(config),
@@ -26,7 +27,7 @@ void DigiMeshLink::RequestReset()
 
 }
 
-void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID) const
+void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID, OptionalParameter<int> MACEID) const
 {
     //pack into std::vector
     std::vector<uint8_t> data;
@@ -35,11 +36,14 @@ void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<i
     }
 
     //either broadcast or send to specific vehicle
-    if(vehicleID.IsSet() == false) {
-        m_Link->BroadcastData(data);
+    if(vehicleID.IsSet() == true) {
+        m_Link->SendData<VEHICLE_STR>(vehicleID.Value(), data);
+    }
+    else if(MACEID.IsSet() == true) {
+        m_Link->SendData<MACE_STR>(vehicleID.Value(), data);
     }
     else {
-        m_Link->SendData<VEHICLE_STR>(vehicleID.Data(), data);
+        m_Link->BroadcastData(data);
     }
 }
 
@@ -51,6 +55,13 @@ void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<i
 void DigiMeshLink::AddInternalVehicle(int vehicleID)
 {
     m_Link->AddComponentItem<VEHICLE_STR>(vehicleID);
+}
+
+
+
+void DigiMeshLink::AddMACEInstance(int vehicleID)
+{
+    m_Link->AddComponentItem<MACE_STR>(vehicleID);
 }
 
 

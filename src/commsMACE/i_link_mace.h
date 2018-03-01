@@ -56,7 +56,7 @@ public:
 
     virtual void RequestReset() = 0;
 
-    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID = OptionalParameter<int>()) const = 0;
+    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID = OptionalParameter<int>(), OptionalParameter<int> MACEID = OptionalParameter<int>()) const = 0;
 
 
     //!
@@ -64,6 +64,9 @@ public:
     //! \param vehicleID ID of vechile
     //!
     virtual void AddInternalVehicle(int vehicleID) = 0;
+
+
+    virtual void AddMACEInstance(int MACEID) = 0;
 
 
     //!

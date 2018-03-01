@@ -107,7 +107,7 @@ public:
     //! \brief NewlyAvailableHomePosition Subscriber to a new home position
     //! \param home New home position
     //!
-    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home);
+    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
 
     // ============================================================================= //

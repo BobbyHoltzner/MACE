@@ -43,6 +43,8 @@ public:
     //!
     virtual void ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList) = 0;
 
+
+    virtual void ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission) = 0;
 };
 
 } //End MaceCore Namespace

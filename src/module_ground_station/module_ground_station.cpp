@@ -4,7 +4,7 @@
 #include <iostream>
 #include <functional>
 
-#include <QApplication>
+#include <QCoreApplication>
 #include <QString>
 #include <QDataStream>
 
@@ -204,6 +204,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleGroundStation::ModuleC
     maceCommsParams->AddTerminalParameters("ListenPort", MaceCore::ModuleParameterTerminalTypes::INT, false);
     maceCommsParams->AddTerminalParameters("SendPort", MaceCore::ModuleParameterTerminalTypes::INT, false);
     structure.AddNonTerminal("MACEComms", maceCommsParams, false);
+    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, true);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -231,6 +232,8 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
             sendPort = maceCommsXML->GetTerminalValue<int>("SendPort");
         }
     }
+
+    this->SetID(params->GetTerminalValue<int>("ID"));
 
     m_toGUIHandler->setSendAddress(sendAddress);
     m_toGUIHandler->setSendPort(sendPort);
@@ -423,7 +426,7 @@ void ModuleGroundStation::NewTopic(const std::string &topicName, int senderID, s
 //!
 void ModuleGroundStation::NewlyAvailableCurrentMission(const MissionItem::MissionKey &missionKey)
 {
-    std::cout<<"New available mission for ground station."<<std::endl;
+    std::cout<<"Ground Control: New available mission"<<std::endl;
     MissionItem::MissionList newList;
     bool valid = this->getDataObject()->getMissionList(missionKey,newList);
     if(valid)
@@ -451,8 +454,9 @@ void ModuleGroundStation::NewlyAvailableMissionExeState(const MissionItem::Missi
 //! \brief NewlyAvailableHomePosition Subscriber to a new home position
 //! \param home New home position
 //!
-void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home)
+void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    std::cout<<"Ground Control: New available home position"<<std::endl;
     m_toGUIHandler->sendVehicleHome(home.getOriginatingSystem(), home);
 }
 

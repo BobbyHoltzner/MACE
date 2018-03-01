@@ -15,7 +15,7 @@ namespace CommandItem {
 //!
 class AbstractCommandItem
 {
-protected:
+public:
     //!
     //! \brief AbstractCommandItem The default constructor used when this class is inherited. The default
     //! constructor shall assign the initial originating system and target system to IDs of 0. A developer

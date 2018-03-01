@@ -54,7 +54,8 @@ HEADERS +=\
     udp_configuration_mace.h \
     udp_link_mace.h \
     digimesh_configuration.h \
-    digimesh_link.h
+    digimesh_link.h \
+    generic_encodedecode_library.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
