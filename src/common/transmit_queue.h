@@ -13,7 +13,7 @@ class TransmitQueue : public Thread
 {
 private:
 
-    static const int DEFAULT_RESPONSE_WAIT_IN_MS = 2000000000;
+    static const int DEFAULT_RESPONSE_WAIT_IN_MS = 2000;
 
 private:
 
