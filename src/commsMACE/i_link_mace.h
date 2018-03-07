@@ -56,17 +56,9 @@ public:
 
     virtual void RequestReset() = 0;
 
-    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID = OptionalParameter<int>(), OptionalParameter<int> MACEID = OptionalParameter<int>()) const = 0;
+    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target = OptionalParameter<std::tuple<const char*, int>>()) const = 0;
 
-
-    //!
-    //! \brief Add a vechile that will be communicating out of this link
-    //! \param vehicleID ID of vechile
-    //!
-    virtual void AddInternalVehicle(int vehicleID) = 0;
-
-
-    virtual void AddMACEInstance(int MACEID) = 0;
+    virtual void AddResource(const char *resourceType, int ID) = 0;
 
 
     //!

@@ -66,6 +66,12 @@ void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink>
     externalLink->addListener(this);
     externalLink->addTopicListener(this);
     m_ExternalLink.push_back(externalLink);
+
+    //if there is a ground station, notify this new external link about the existance of GS
+    if(m_GroundStation != NULL)
+    {
+        externalLink->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic());
+    }
 }
 
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
@@ -74,6 +80,16 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
     groundStation->addTopicListener(this);
     groundStation->StartTCPServer();
     m_GroundStation = groundStation;
+
+
+    //notify all existing external links about new ground station.
+    if(m_ExternalLink.size() > 0)
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic());
+        }
+    }
 }
 
 void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning)
@@ -400,23 +416,27 @@ void MaceCore::ExternalEvent_UpdateRemoteID(const void *sender, const int &remot
     m_ExternalLinkIDToPort.insert({remoteID,externalLink});
 }
 
-void MaceCore::ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
+void MaceCore::ExternalEvent_NewModule(const void *sender, const ModuleCharacteristic &newModule)
 {
     std::lock_guard<std::mutex> guard(m_VehicleMutex);
 
-    IModuleCommandExternalLink* externalLink = (IModuleCommandExternalLink*)sender;
-    m_ExternalLinkIDToPort.insert({newVehicleObserved, externalLink});
+    if(newModule.Class == ModuleClasses::VEHICLE_COMMS)
+    {
 
-    m_DataFusion->AddAvailableVehicle(newVehicleObserved, false);
+        IModuleCommandExternalLink* externalLink = (IModuleCommandExternalLink*)sender;
+        m_ExternalLinkIDToPort.insert({newModule.ID, externalLink});
 
-    if(m_GroundStation)
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+        m_DataFusion->AddAvailableVehicle(newModule.ID, false);
 
-    if(m_RTA)
-        m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+        if(m_GroundStation)
+            m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newModule.ID);
 
-    if(m_ROS)
-        m_ROS->MarshalCommand(ROSCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+        if(m_RTA)
+            m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newModule.ID);
+
+        if(m_ROS)
+            m_ROS->MarshalCommand(ROSCommands::NEW_AVAILABLE_VEHICLE, newModule.ID);
+    }
 }
 
 void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
@@ -437,9 +457,12 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
         m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
     else if(m_ExternalLink.size() > 0)
     {
+        ModuleCharacteristic module;
+        module.ID = newVehicleObserved;
+        module.Class = ModuleClasses::VEHICLE_COMMS;
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
         {
-            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, module);
         }
     }
 

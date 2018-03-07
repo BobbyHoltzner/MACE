@@ -26,7 +26,7 @@ enum class ExternalLinkCommands
     NEWLY_AVAILABLE_ONBOARD_MISSION,
     NEW_MISSION_EXE_STATE,
     NEWLY_AVAILABLE_HOME_POSITION,
-    NEWLY_AVAILABLE_VEHICLE,
+    NEWLY_AVAILABLE_MODULE,
     RECEIVED_MISSION_ACK
 };
 
@@ -58,8 +58,8 @@ public:
             NewlyAvailableHomePosition(home, sender);
         });
 
-        AddCommandLogic<int>(ExternalLinkCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &systemID, const OptionalParameter<ModuleCharacteristic> &sender){
-            NewlyAvailableVehicle(systemID);
+        AddCommandLogic<ModuleCharacteristic>(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, [this](const ModuleCharacteristic &module, const OptionalParameter<ModuleCharacteristic> &sender){
+            NewlyAvailableModule(module);
         });
 
         AddCommandLogic<MissionItem::MissionACK>(ExternalLinkCommands::RECEIVED_MISSION_ACK, [this](const MissionItem::MissionACK &ack, const OptionalParameter<ModuleCharacteristic> &sender){
@@ -81,7 +81,7 @@ public:
 
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
 
-    virtual void NewlyAvailableVehicle(const int &systemID) = 0;
+    virtual void NewlyAvailableModule(const ModuleCharacteristic &module) = 0;
 
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack) = 0;
 

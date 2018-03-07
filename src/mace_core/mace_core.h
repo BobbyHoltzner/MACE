@@ -143,7 +143,8 @@ public:
     /// EXTERNAL LINK EVENTS
     /////////////////////////////////////////////////////////////////////////
     virtual void ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID);
-    virtual void ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved);
+    virtual void ExternalEvent_NewModule(const void *sender, const ModuleCharacteristic &newModule);
+
 
     virtual void ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList);
 

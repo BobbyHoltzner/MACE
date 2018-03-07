@@ -75,7 +75,8 @@ void SerialLink::RequestReset()
     m_stoppMutex.unlock();
 }
 
-void SerialLink::WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID, OptionalParameter<int> MACEID) const
+
+void SerialLink::WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target) const
 {
     QByteArray data(bytes, length);
     if(m_port && m_port->isOpen()) {
@@ -87,21 +88,12 @@ void SerialLink::WriteBytes(const char *bytes, int length, OptionalParameter<int
     }
 }
 
-
-//!
-//! \brief Add a vechile that will be communicating out of this link
-//! \param vehicleID ID of vechile
-//!
-void SerialLink::AddInternalVehicle(int vehicleID)
+void SerialLink::AddResource(const char *resourceType, int ID)
 {
-    UNUSED(vehicleID);
+    UNUSED(resourceType);
+    UNUSED(ID);
 }
 
-
-void SerialLink::AddMACEInstance(int vehicleID)
-{
-    UNUSED(vehicleID);
-}
 
 //!
 //! \brief Determine the connection status

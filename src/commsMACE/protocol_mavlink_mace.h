@@ -71,7 +71,7 @@ public:
     //! \param link Link to put message onto
     //! \param message Message to send
     //!
-    void SendProtocolMessage(const ILink *link, const mace_message_t &message, OptionalParameter<int> vehicleID = OptionalParameter<int>(), OptionalParameter<int> MACEID = OptionalParameter<int>());
+    void SendProtocolMessage(const ILink *link, const mace_message_t &message, OptionalParameter<std::tuple<const char *, int> > target = OptionalParameter<std::tuple<const char *, int> >());
 
 
     //!

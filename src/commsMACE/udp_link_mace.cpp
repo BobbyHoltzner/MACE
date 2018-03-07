@@ -169,7 +169,7 @@ bool UdpLink::_hardwareConnect(QAbstractSocket::SocketError &error, QString& err
 }
 
 
-void UdpLink::WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID, OptionalParameter<int> MACEID) const
+void UdpLink::WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target) const
 {
     QByteArray data(bytes, length);
     if(m_socket && m_socket->isOpen()) {
@@ -182,19 +182,10 @@ void UdpLink::WriteBytes(const char *bytes, int length, OptionalParameter<int> v
     }
 }
 
-
-//!
-//! \brief Add a vechile that will be communicating out of this link
-//! \param vehicleID ID of vechile
-//!
-void UdpLink::AddInternalVehicle(int vehicleID)
+void UdpLink::AddResource(const char *resourceType, int ID)
 {
-    UNUSED(vehicleID);
-}
-
-void UdpLink::AddMACEInstance(int vehicleID)
-{
-    UNUSED(vehicleID);
+    UNUSED(resourceType);
+    UNUSED(ID);
 }
 
 

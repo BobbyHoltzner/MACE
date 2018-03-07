@@ -3,8 +3,8 @@
 namespace CommsMACE
 {
 
-char VEHICLE_STR[] = "Vehicle\0";
-char MACE_STR[] = "Mace\0";
+char VEHICLE_STR[] = "Vehicle";
+char GROUNDSTATION_STR[] = "GroundStation";
 
 DigiMeshLink::DigiMeshLink(const DigiMeshConfiguration &config) :
     _config(config),
@@ -27,7 +27,7 @@ void DigiMeshLink::RequestReset()
 
 }
 
-void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID, OptionalParameter<int> MACEID) const
+void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target) const
 {
     //pack into std::vector
     std::vector<uint8_t> data;
@@ -36,32 +36,17 @@ void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<i
     }
 
     //either broadcast or send to specific vehicle
-    if(vehicleID.IsSet() == true) {
-        m_Link->SendData<VEHICLE_STR>(vehicleID.Value(), data);
-    }
-    else if(MACEID.IsSet() == true) {
-        m_Link->SendData<MACE_STR>(vehicleID.Value(), data);
+    if(target.IsSet() == true) {
+        m_Link->SendData(std::get<0>(target.Value()), std::get<1>(target.Value()), data);
     }
     else {
         m_Link->BroadcastData(data);
     }
 }
 
-
-//!
-//! \brief Add a vechile that will be communicating out of this link
-//! \param vehicleID ID of vechile
-//!
-void DigiMeshLink::AddInternalVehicle(int vehicleID)
+void DigiMeshLink::AddResource(const char *resourceType, int ID)
 {
-    m_Link->AddComponentItem<VEHICLE_STR>(vehicleID);
-}
-
-
-
-void DigiMeshLink::AddMACEInstance(int vehicleID)
-{
-    m_Link->AddComponentItem<MACE_STR>(vehicleID);
+    m_Link->AddComponentItem(resourceType, ID);
 }
 
 
@@ -86,11 +71,11 @@ uint64_t DigiMeshLink::getConnectionSpeed() const
 
 bool DigiMeshLink::Connect()
 {
-    m_Link = new MACEDigiMeshWrapper<VEHICLE_STR>(_config.portName(), _config.baud());
+    m_Link = new MACEDigiMeshWrapper<VEHICLE_STR, GROUNDSTATION_STR>(_config.portName(), _config.baud());
 
-    m_Link->AddHandler_NewRemoteComponentItem<VEHICLE_STR>([this](int ID, uint64_t addr){
+    m_Link->AddHandler_NewRemoteComponentItem_Generic([this](const char* resourceName, int ID, uint64_t addr){
         UNUSED(addr);
-        EmitEvent([this, &ID](const ILinkEvents *ptr){ptr->AddedExternalVehicle(this, ID);});
+        EmitEvent([this, &resourceName, &ID](const ILinkEvents *ptr){ptr->AddedExternalResource(this, resourceName, ID);});
     });
 
     m_Link->AddHandler_Data([this](const std::vector<uint8_t> &data){

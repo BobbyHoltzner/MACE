@@ -4,7 +4,6 @@
 ///             CONFIGURE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 template <typename T>
 T* Helper_CreateAndSetUp(ModuleExternalLink* obj, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, uint8_t chan)
 {
@@ -99,6 +98,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleExternalLink::ModuleCo
 }
 
 
+
 //!
 //! \brief Provides object contains parameters values to configure module with
 //! \param params Parameters to configure
@@ -107,12 +107,20 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 {
     ConfigureMACEComms(params);
 
+    m_LinkMarshaler->SpecifyAddedModuleAction(m_LinkName, [this](const char* resourceName, int ID){
+        this->ExternalModuleAdded(resourceName, ID);
+    });
+
+    m_LinkMarshaler->SpecifyAddedModuleAction(m_LinkName, [this](const char* resourceName, int ID){
+        this->ExternalModuleRemoved(resourceName, ID);
+    });
+
     if(params->HasNonTerminal("ModuleParameters"))
     {
         std::shared_ptr<MaceCore::ModuleParameterValue> moduleSettings = params->GetNonTerminalValue("ModuleParameters");
         airborneInstance = moduleSettings->GetTerminalValue<bool>("AirborneInstance");
 
-        m_LinkMarshaler->AddMACEInstance(m_LinkName, associatedSystemID);
+        //m_LinkMarshaler->AddResource(m_LinkName, GROUNDSTATION_STR, associatedSystemID);
 
         if(airborneInstance == false)
         {
@@ -120,6 +128,38 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
         }
     }
 
+}
+
+//!
+//! \brief Event to fire when an external module has been added
+//! \param resourceName Name of resource (module) added
+//! \param ID ID of module
+//!
+void ModuleExternalLink::ExternalModuleAdded(const char* resourceName, int ID)
+{
+    MaceCore::ModuleCharacteristic module;
+    module.ID = ID;
+    if(strcmp(resourceName, CommsMACE::VEHICLE_STR) == 0)
+    {
+        module.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+    }
+    else if(strcmp(resourceName, CommsMACE::GROUNDSTATION_STR) == 0)
+    {
+        module.Class = MaceCore::ModuleClasses::GROUND_STATION;
+    }
+    else {
+        printf("%s\n", CommsMACE::GROUNDSTATION_STR);
+        throw std::runtime_error("Unknown module class received");
+    }
+
+    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+        ptr->ExternalEvent_NewModule(this, module);
+    });
+}
+
+void ModuleExternalLink::ExternalModuleRemoved(const char* ResourceName, int ID)
+{
+    throw std::runtime_error("Not Implimented");
 }
 
 std::string ModuleExternalLink::createLog(const int &systemID)
@@ -148,11 +188,11 @@ void ModuleExternalLink::TransmitMessage(const mace_message_t &msg, const Option
 
     else if(target().Class == MaceCore::ModuleClasses::VEHICLE_COMMS)
     {
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, target().ID);
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, std::make_tuple<const char*, int>(CommsMACE::VEHICLE_STR, target.Value().ID));
     }
     else if(target().Class == MaceCore::ModuleClasses::GROUND_STATION)
     {
-        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, OptionalParameter<int>(), target().ID);
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, std::make_tuple<const char*, int>(CommsMACE::GROUNDSTATION_STR, target.Value().ID));
     }
     else {
         throw std::runtime_error("Unknown target given");
@@ -347,15 +387,22 @@ void ModuleExternalLink::HeartbeatInfo(const int &systemID, const mace_heartbeat
         });
 
         std::string loggerName = createLog(systemID);
+        systemIDMap.insert({systemID,0});
 
         //The system has yet to have communicated through this module
         //We therefore have to notify the core that there is a new vehicle
-        systemIDMap.insert({systemID,0});
+
+        /*
+         * Now handled by ExternalModuleAdded Method
+         *
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->ExternalEvent_NewConstructedVehicle(this, systemID);
         });
+        */
+
         //Request_FullDataSync(systemID);
     }
+
 
     DataGenericItem::DataGenericItem_Heartbeat heartbeat;
     heartbeat.setAutopilot(static_cast<Data::AutopilotType>(heartbeatMSG.autopilot));
@@ -697,13 +744,20 @@ void ModuleExternalLink::NewlyAvailableMissionExeState(const MissionItem::Missio
     }
 }
 
-void ModuleExternalLink::NewlyAvailableVehicle(const int &systemID)
+void ModuleExternalLink::NewlyAvailableModule(const MaceCore::ModuleCharacteristic &module)
 {
-    m_LinkMarshaler->AddInternalVehicle(m_LinkName, systemID);
+    if(module.Class == MaceCore::ModuleClasses::VEHICLE_COMMS)
+    {
+        m_LinkMarshaler->AddResource(m_LinkName, CommsMACE::VEHICLE_STR, module.ID);
+    }
+    if(module.Class == MaceCore::ModuleClasses::GROUND_STATION)
+    {
+        m_LinkMarshaler->AddResource(m_LinkName, CommsMACE::GROUNDSTATION_STR, module.ID);
+    }
 
     if(airborneInstance)
     {
-        this->associatedSystemID = systemID;
+        this->associatedSystemID = module.ID;
 
         //this function should always be called by an external link connected to ground for now
         //KEN this is a hack...but it will function for now

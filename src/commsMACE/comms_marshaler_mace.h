@@ -45,6 +45,11 @@ enum class Protocols
 //!
 class COMMSMACESHARED_EXPORT CommsMarshaler : public Publisher<CommsEvents>, private ILinkEvents, private IProtocolMavlinkEvents
 {
+private:
+
+    std::unordered_map<const ILink*, std::function<void(const char* resourceName, int vehicleID)>> m_AddedModuleAction;
+    std::unordered_map<const ILink*, std::function<void(const char* resourceName, int vehicleID)>> m_RemovedModuleAction;
+
 public:
 
     //////////////////////////////////////////////////////////////
@@ -52,6 +57,16 @@ public:
     //////////////////////////////////////////////////////////////
 
     CommsMarshaler();
+
+    void SpecifyAddedModuleAction(const std::string &linkName, const std::function<void(const char* resourceName, int vehicleID)> &lambda)
+    {
+        m_AddedModuleAction.insert({m_CreatedLinksNameToPtr.at(linkName).get(), lambda});
+    }
+
+    void SpecifyRemovedModuleAction(const std::string &linkName, const std::function<void(const char* resourceName, int vehicleID)> &lambda)
+    {
+        m_RemovedModuleAction.insert({m_CreatedLinksNameToPtr.at(linkName).get(), lambda});
+    }
 
     //!
     //! \brief Create a mavlink protocol to be used as transport layer of a link
@@ -89,10 +104,7 @@ public:
     //! \param name Name of link
     //! \param vehicleID ID of vehicle
     //!
-    void AddInternalVehicle(const std::string &name, int vehicleID);
-
-
-    void AddMACEInstance(const std::string &name, int ID);
+    void AddResource(const std::string &name, const char *resourceName, int vehicleID);
 
 
     //!
@@ -131,7 +143,7 @@ public:
     //! \param message Message to send
     //!
     template <typename T>
-    void SendMACEMessage(const std::string &linkName, const T& message, OptionalParameter<int> VehicleID = OptionalParameter<int>(), OptionalParameter<int> MACEID = OptionalParameter<int>());
+    void SendMACEMessage(const std::string &linkName, const T& message, OptionalParameter<std::tuple<const char *, int> > target = OptionalParameter<std::tuple<const char *, int> >());
 
 
 
@@ -141,10 +153,9 @@ private:
     /// React to Link Events
     //////////////////////////////////////////////////////////////
 
+    virtual void AddedExternalResource(ILink *link_ptr, const char* resourceName, int vehicleID) const;
 
-    virtual void AddedExternalVehicle(ILink *link_ptr, int vehicleID) const;
-
-    virtual void RemovedExternalVehicle(ILink *link, int vehicleID) const;
+    virtual void RemovedExternalResource(ILink *link_ptr, const char* resourceName, int vehicleID) const;
 
     virtual void ReceiveData(ILink *link_ptr, const std::vector<uint8_t> &buffer) const;
 

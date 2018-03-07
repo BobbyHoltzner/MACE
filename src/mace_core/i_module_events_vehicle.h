@@ -14,7 +14,7 @@ public:
     //A vehicle module can indicate something has happened
 
     //!
-    //! \brief ExternalEvent_NewConstructedVehicle
+    //! \brief ExternalEvent_NewModule
     //! \param sender
     //! \param newVehicleObserved
     //!

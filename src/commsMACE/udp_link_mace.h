@@ -32,17 +32,9 @@ public:
     virtual void RequestReset();
     virtual uint64_t getConnectionSpeed() const;
 
-    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<int> vehicleID = OptionalParameter<int>(), OptionalParameter<int> MACEID = OptionalParameter<int>()) const;
+    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target = OptionalParameter<std::tuple<const char*, int>>()) const;
 
-
-    //!
-    //! \brief Add a vechile that will be communicating out of this link
-    //! \param vehicleID ID of vechile
-    //!
-    virtual void AddInternalVehicle(int vehicleID);
-
-
-    virtual void AddMACEInstance(int vehicleID);
+    virtual void AddResource(const char *resourceType, int ID);
 
 
     //!

@@ -13,7 +13,7 @@ class TransmitQueue : public Thread
 {
 private:
 
-    static const int DEFAULT_RESPONSE_WAIT_IN_MS = 2000;
+    static const int DEFAULT_RESPONSE_WAIT_IN_MS = 2000000000;
 
 private:
 
@@ -100,6 +100,11 @@ public:
                     int elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(currTime - it->second.lastTransmit).count();
                     if(it->second.numTries == 0 || elapsed_ms > DEFAULT_RESPONSE_WAIT_IN_MS)
                     {
+                        if(it->second.numTries >= 1)
+                        {
+                            printf("Retransmitting %d\n", it->second.numTries);
+                        }
+
                         it->second.lastTransmit = currTime;
                         it->second.numTries++;
                         it->second.transmitAction();

@@ -115,6 +115,16 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
+
+    //!
+    //! \brief Event to fire when an external module has been added
+    //! \param resourceName Name of resource (module) added
+    //! \param ID ID of module
+    //!
+    void ExternalModuleAdded(const char* ResourceName, int ID);
+
+    void ExternalModuleRemoved(const char* ResourceName, int ID);
+
     std::string createLog(const int &systemID);
 
     virtual void TransmitMessage(const mace_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) const;
@@ -326,7 +336,7 @@ public:
     virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey);
-    virtual void NewlyAvailableVehicle(const int &systemID);
+    virtual void NewlyAvailableModule(const MaceCore::ModuleCharacteristic &module);
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
 
 private:
