@@ -3,6 +3,7 @@ CONFIG += console c++11
 CONFIG -= app_bundle
 QT += serialport
 QT += network
+QT -= gui
 
 TARGET = MACE
 QMAKE_CXXFLAGS += -std=c++11
