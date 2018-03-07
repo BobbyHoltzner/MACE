@@ -539,13 +539,29 @@ export default class AppContainer extends React.Component<Props, State> {
     this.setupTCPClient(socket);
     socket.connect(this.state.MACEconfig.config.MACEComms.sendPortNumber, this.state.MACEconfig.config.MACEComms.ipAddress, function() {
       // console.log('Connected to: ' + this.state.tcpHost + ':' + this.state.tcpPort);
-      let tcpRequest = {
-        tcpCommand: tcpCommand,
-        vehicleID: vehicleID,
-        vehicleCommand: vehicleCommand
-      };
-      socket.write(JSON.stringify(tcpRequest));
-      socket.end();
+
+      // If vehicle ID == 0, loop over every vehicle ID and make a request:
+      if(vehicleID === 0) {
+        for(let vehicle in this.state.connectedVehicles) {
+          let tcpRequest = {
+            tcpCommand: tcpCommand,
+            vehicleID: vehicle,
+            vehicleCommand: vehicleCommand
+          };
+          socket.write(JSON.stringify(tcpRequest));
+          socket.end();
+        }
+      }
+      else {
+        let tcpRequest = {
+          tcpCommand: tcpCommand,
+          vehicleID: vehicleID,
+          vehicleCommand: vehicleCommand
+        };
+        socket.write(JSON.stringify(tcpRequest));
+        socket.end();
+      }
+
     }.bind(this));
   }
 

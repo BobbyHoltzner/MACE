@@ -76,6 +76,52 @@ public:
         return m_vertex[index];
     }
 
+public:
+    virtual T getTopLeft() const = 0;
+
+    virtual T getTopRight() const = 0;
+
+    virtual T getBottomLeft() const = 0;
+
+    virtual T getBottomRight() const = 0;
+
+    virtual void getCorners(T &topLeft, T &bottomRight) const = 0;
+
+public:
+    //!
+    //! \brief operator ==
+    //! \param rhs
+    //! \return
+    //!
+    bool operator == (const PolygonBase &rhs) const
+    {
+        if(this->name != rhs.name)
+        {
+            return false;
+        }
+        if(this->m_vertex.size() != rhs.m_vertex.size())
+        {
+            return false;
+        }
+
+        for(int i = 0; i < this->m_vertex.size(); i++)
+        {
+            if(m_vertex.at(i) != rhs.m_vertex.at(i))
+                return false;
+        }
+        return true;
+    }
+
+    //!
+    //! \brief operator !=
+    //! \param rhs
+    //! \return
+    //!
+    bool operator != (const PolygonBase &rhs) const {
+        return !(*this == rhs);
+    }
+
+
 protected:
     virtual void updateBoundingBox()
     {
