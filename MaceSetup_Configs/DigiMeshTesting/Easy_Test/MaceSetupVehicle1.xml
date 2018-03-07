@@ -6,7 +6,7 @@
       <Parameter Name="Version">V2</Parameter>	  
     </Parameter>
 	<Parameter Name="UDPParameters">
-      <Parameter Name="ListenAddress">192.168.1.4</Parameter>
+      <Parameter Name="ListenAddress">192.168.1.20</Parameter>
       <Parameter Name="ListenPortNumber">14550</Parameter>
     </Parameter>
 	<Parameter Name="ModuleParameters">
@@ -19,7 +19,7 @@
       <Parameter Name="Version">V2</Parameter>
     </Parameter>
     <Parameter Name="DigiMeshParameters">
-      <Parameter Name="PortName">COM5</Parameter>
+      <Parameter Name="PortName">/dev/ttyUSB1</Parameter>
       <Parameter Name="BaudRate">9600</Parameter>
     </Parameter>
   </Module>
