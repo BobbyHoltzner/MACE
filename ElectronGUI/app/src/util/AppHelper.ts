@@ -1,178 +1,47 @@
-import * as React from 'react';
-
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-const lightMuiTheme = getMuiTheme();
-
-var NotificationSystem = require('react-notification-system');
-import { ConnectedVehiclesContainer } from './ConnectedVehiclesContainer';
-import { VehicleWarningsContainer, VehicleWarning } from './VehicleWarningsContainer';
-import { VehicleCommandsContainer } from './VehicleCommandsContainer';
-import { DrawButtonsContainer } from './DrawButtonsContainer';
-import { EnvironmentSettings } from '../components/EnvironmentSettings';
-import { AppDrawer } from './AppDrawer';
-import AppBar from 'material-ui/AppBar';
-import * as colors from 'material-ui/styles/colors';
-import { Vehicle } from '../Vehicle';
-import { AppHelper } from '../util/AppHelper';
-import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
-import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
-import { MessagesDialog } from '../components/MessagesDialog';
-import { ConfigDialog } from '../components/ConfigDialog';
-import { TakeoffDialog } from '../components/TakeoffDialog';
-import MACEMap from '../components/MACEMap';
-import { getRandomRGB } from '../util/Colors';
-import FlatButton from 'material-ui/FlatButton';
-var turf = require('@turf/turf');
-var geometryHelper = require('leaflet-geometryutil');
 import * as deepcopy from 'deepcopy';
 var fs = electronRequire('fs');
-
-var injectTapEventPlugin = require("react-tap-event-plugin");
-injectTapEventPlugin();
 var net = electronRequire('net');
-
+import { Vehicle } from '../Vehicle';
+import { getRandomRGB } from './Colors';
+var turf = require('@turf/turf');
+var geometryHelper = require('leaflet-geometryutil');
 import * as L from 'leaflet';
 
-// // Performance testing:
-// var Perf = require('react-addons-perf');
-// // End performance testing
+export class AppHelper {
+    state: any; // TODO: Figure out how to get State type in here...
+    vehicleDB: {[id: string]: Vehicle};
+    MACEconfig: ConfigSettingsType;
+    notificationSystem: any; // TODO: Figure out why I cant make this a NotificationSystem type...
+    getVehiclesInterval: any;
 
-type Props = {
-}
-
-type State = {
-  MACEconfig?: ConfigSettingsType,
-  connectedVehicles?: {[id: string]: Vehicle}
-  vehicleWarnings?: VehicleWarning[]
-  selectedVehicleID?: string,
-  openDrawer?: boolean,
-  tcpSockets?: any[],
-  tcpServer?: any,
-  allowVehicleSelect?: boolean,
-  showEditVehicleHomeDialog?: boolean,
-  showEditGlobalHomeDialog?: boolean,
-  showMessagesMenu?: boolean,
-  showConfigDialog?: boolean,
-  messagePreferences?: MessagePreferencesType,
-  showTakeoffDialog?: boolean,
-  showSaveTakeoff?: boolean,
-  globalOrigin?: PositionType
-  useContext?: boolean,
-  contextAnchor?: L.LeafletMouseEvent,
-  MACEConnected?: boolean,
-  environmentBoundary?: PositionType[],
-  showDraw?: boolean,
-  drawPolygonPts?: PositionType[],
-  gridPts?: {inPoly: L.LatLng[], trimmedPts: L.LatLng[]},
-  showEnvironmentSettings?: boolean,
-  environmentSettings?: EnvironmentSettingsType,
-  pauseMACEComms?: boolean,
-  envBoundingBox?: PositionType[],
-  getConnectedVehiclesTimeout?: number
-}
-
-export default class AppContainer extends React.Component<Props, State> {
-  notificationSystem: any; // TODO: Figure out why I cant make this a NotificationSystem type...
-  getVehiclesInterval: any;
-  vehicleDB: {[id: string]: Vehicle};
-  logger: any;
-  appHelper: AppHelper;
-
-  constructor(props: Props) {
-    super(props);
-
-    this.vehicleDB = {};
-    this.getVehiclesInterval = null;
-
-    this.state = {
-      MACEconfig: {
-        filename: '../GUIConfig.json',
-        config: {
-          MACEComms: {
-            ipAddress: '127.0.0.1',
-            listenPortNumber: 1234,
-            sendPortNumber: 5678
-          },
-          GUIInit: {
-            mapCenter: {lat: 37.889231, lng: -76.810302, alt: 0}, // Bob's Farm
-            // mapCenter: [-35.363272, 149.165249], // SITL Default
-            // mapCenter: [45.283410, -111.400850], // Big Sky
-            mapZoom: 20,
-            maxZoom: 21
-          },
-          VehicleSettings: {
-            defaultTakeoffAlt: 5
-          }
-        }
-      },
-      connectedVehicles: {},
-      vehicleWarnings: [],
-      openDrawer: false,
-      tcpSockets: [],
-      tcpServer: null,
-      allowVehicleSelect: true,
-      showEditVehicleHomeDialog: false,
-      showEditGlobalHomeDialog: false,
-      globalOrigin: {lat: 0, lng: 0, alt: 0},
-      selectedVehicleID: "0",
-      showMessagesMenu: false,
-      showConfigDialog: false,
-      messagePreferences: {
-        emergency: true,
-        alert: true,
-        critical: true,
-        error: true,
-        warning: true,
-        notice: true,
-        info: true,
-        debug: true
-      },
-      showTakeoffDialog: false,
-      showSaveTakeoff: false,
-      MACEConnected: false,
-      environmentBoundary: [],
-      showDraw: false,
-      drawPolygonPts: [],
-      gridPts: {inPoly: [], trimmedPts: []},
-      showEnvironmentSettings: false,
-      environmentSettings: {minSliderVal: 25, maxSliderVal: 100, showBoundingBox: false, gridSpacing: -1},
-      pauseMACEComms: false,
-      envBoundingBox: [],
-      getConnectedVehiclesTimeout: 3000
+    constructor(appState: any){
+        this.state = appState;
+        this.vehicleDB = {};
+        this.getVehiclesInterval = null;
+        this.MACEconfig = {
+            filename: '../GUIConfig.json',
+            config: {
+            MACEComms: {
+                ipAddress: '127.0.0.1',
+                listenPortNumber: 1234,
+                sendPortNumber: 5678
+            },
+            GUIInit: {
+                mapCenter: {lat: 37.889231, lng: -76.810302, alt: 0}, // Bob's Farm
+                // mapCenter: [-35.363272, 149.165249], // SITL Default
+                // mapCenter: [45.283410, -111.400850], // Big Sky
+                mapZoom: 20,
+                maxZoom: 21
+            },
+            VehicleSettings: {
+                defaultTakeoffAlt: 5
+            }
+            }
+        };
     }
 
 
-    this.appHelper = new AppHelper(this.state);
-  }
-
-  componentDidMount(){
-    // // Performance testing:
-    // setTimeout(() => {
-    //   console.log("Start performance testing...");
-    //   Perf.start();
-    //   setTimeout(() => {
-    //     Perf.stop();
-    //     const measurements = Perf.getLastMeasurements();
-    //     Perf.printWasted(measurements);
-    //   }, 30000);
-    // }, 5000);
-    // // End performance testing
-
-
-    // Parse XML File:
-    this.parseJSONConfig(this.state.MACEconfig.filename);
-
-    this.notificationSystem = this.refs.notificationSystem;
-
-    this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
-
-    this.getVehiclesInterval = setInterval(() => {
-      this.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
-    }, this.state.getConnectedVehiclesTimeout);
-  }
-
-  parseJSONConfig = (filename: string, restartServer: boolean = true) => {
+    parseJSONConfig = (filename: string, restartServer: boolean = true) => {
     // let jsonConfig: MACEConfig = require(filename);
     // let jsonConfig: MACEConfig = require("C:/Code/MACE/GUIConfig.json");
 
@@ -231,8 +100,9 @@ export default class AppContainer extends React.Component<Props, State> {
       }
     }
 
-    this.setState({MACEconfig: MACEconfig});
+    this.MACEconfig = MACEconfig;
   }
+
 
   setupTCPServer = () => {
     // Close server if already exists:
@@ -245,7 +115,7 @@ export default class AppContainer extends React.Component<Props, State> {
     for(let i = 0; i < tcpSockets.length; i++) {
       tcpSockets[i].destroy();
     }
-    this.setState({tcpSockets: []});
+    this.state.tcpSockets = [];
 
     // Create a TCP socket listener
     let tcpServer = net.createServer(function (socket: any) {
@@ -271,27 +141,27 @@ export default class AppContainer extends React.Component<Props, State> {
       }
     }.bind(this));
 
-    this.setState({tcpServer: tcpServer}, () => {
-      try{
-        this.state.tcpServer.listen(this.state.MACEconfig.config.MACEComms.listenPortNumber);
-        this.setState({MACEConnected: true});
-      }
-      catch(e) {
-        console.log(e);
-      }
+    this.state.tcpServer = tcpServer;
 
-      console.log('System listening at http://' + this.state.MACEconfig.config.MACEComms.ipAddress + ':' + this.state.MACEconfig.config.MACEComms.listenPortNumber);
+    // TODO: Allow for user configuration of the port and probably address too
+    try{
+    this.state.tcpServer.listen(this.state.MACEconfig.config.MACEComms.listenPortNumber);
+    this.state.MACEConnected = true;
+    }
+    catch(e) {
+    console.log(e);
+    }
 
-      // Set interval to set state to DB:
-      setInterval(() => {
-        if(!this.state.pauseMACEComms) {
-          this.setState({connectedVehicles: this.vehicleDB});
-        }
-      }, 1500);
-    });
+    console.log('System listening at http://' + this.state.MACEconfig.config.MACEComms.ipAddress + ':' + this.state.MACEconfig.config.MACEComms.listenPortNumber);
+
+    // Set interval to set state to DB:
+    setInterval(() => {
+    if(!this.state.pauseMACEComms) {
+        this.state.connectedVehicles = this.vehicleDB;
+    }
+    }, 1500);
 
   }
-
 
   parseTCPClientData = (jsonData: TCPReturnType) => {
     let stateCopy = deepcopy(this.state.connectedVehicles);
@@ -301,6 +171,8 @@ export default class AppContainer extends React.Component<Props, State> {
 
     if(jsonData.dataType === "ConnectedVehicles"){
       let jsonVehicles = jsonData as ConnectedVehiclesType;
+
+      // console.log("Connected vehicles: " + jsonVehicles.connectedVehicles);
 
       // Check if vehicle is already in the map. If so, do nothing. If not, add it:
       for(let i = 0; i < jsonVehicles.connectedVehicles.length; i++){
@@ -349,6 +221,7 @@ export default class AppContainer extends React.Component<Props, State> {
         Object.keys(this.state.connectedVehicles).length === 1)
       {
         stateCopy[vehiclePosition.vehicleID].isNew = false;
+        // this.setState({mapCenter: [stateCopy[vehiclePosition.vehicleID].position.lat, stateCopy[vehiclePosition.vehicleID].position.lon], mapZoom: 19});
       }
 
       this.vehicleDB = stateCopy;
@@ -459,7 +332,8 @@ export default class AppContainer extends React.Component<Props, State> {
       let origin = {lat: jsonOrigin.lat, lng: jsonOrigin.lng, alt: jsonOrigin.alt};
       let settings = deepcopy(this.state.environmentSettings);
       settings.gridSpacing = jsonOrigin.gridSpacing;
-      this.setState({globalOrigin: origin, environmentSettings: settings});
+      this.state.globalOrigin = origin;
+      this.state.environmentSettings = settings;
     }
     else if(jsonData.dataType === 'SensorFootprint') {
       let jsonFootprint = jsonData as TCPSensorFootprintType;
@@ -468,7 +342,7 @@ export default class AppContainer extends React.Component<Props, State> {
     }
     else if(jsonData.dataType === 'EnvironmentBoundary') {
       let jsonBoundary = jsonData as TCPEnvironmentBoundaryType;
-      this.setState({environmentBoundary: jsonBoundary.environmentBoundary});
+      this.state.environmentBoundary = jsonBoundary.environmentBoundary;
     }
     else if(jsonData.dataType === 'VehicleGPS') {
       let jsonGPS = jsonData as TCPGPSType;
@@ -601,7 +475,9 @@ export default class AppContainer extends React.Component<Props, State> {
 
   handleClearGUI = () => {
     this.vehicleDB = {};
-    this.setState({connectedVehicles: {}, selectedVehicleID: "0", MACEConnected: false});
+    this.state.connectedVehicles = {};
+    this.state.selectedVehicleID = "0";
+    this.state.MACEConnected = false;
   }
 
   handleAircraftCommand = (id: string, tcpCommand: string, vehicleCommand: string) => {
@@ -611,13 +487,28 @@ export default class AppContainer extends React.Component<Props, State> {
 
   handleDrawerAction = (action: string) => {
     if(action === "MACEConfig"){
-      this.setState({showMessagesMenu: false, showConfigDialog: true, showTakeoffDialog: false, showSaveTakeoff: false, openDrawer: false, pauseMACEComms: true});
+      this.state.showMessagesMenu = false;
+      this.state.showConfigDialog = true;
+      this.state.showTakeoffDialog = false;
+      this.state.showSaveTakeoff = false;
+      this.state.openDrawer = false;
+      this.state.pauseMACEComms = true;
     }
     else if(action === "Messages"){
-      this.setState({showMessagesMenu: true, showConfigDialog: false,  showTakeoffDialog: false, showSaveTakeoff: false, openDrawer: false, pauseMACEComms: false});
+      this.state.showMessagesMenu = true;
+      this.state.showConfigDialog = false;
+      this.state.showTakeoffDialog = false;
+      this.state.showSaveTakeoff = false;
+      this.state.openDrawer = false;
+      this.state.pauseMACEComms = false;
     }
     else if(action === "Takeoff"){
-      this.setState({showMessagesMenu: false, showConfigDialog: false,  showTakeoffDialog: true, showSaveTakeoff: true, openDrawer: false, pauseMACEComms: true});
+      this.state.showMessagesMenu = false;
+      this.state.showConfigDialog = false;
+      this.state.showTakeoffDialog = true;
+      this.state.showSaveTakeoff = true;
+      this.state.openDrawer = false;
+      this.state.pauseMACEComms = true;
     }
     else if(action === "TestButton1") {
       this.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION1", "");
@@ -629,7 +520,8 @@ export default class AppContainer extends React.Component<Props, State> {
       // Ask for global origin:
       this.makeTCPRequest(0, "GET_GLOBAL_ORIGIN", "");
 
-      this.setState({showDraw: true, openDrawer: false});
+      this.state.showDraw = true;
+      this.state.openDrawer = false;
     }
   }
 
@@ -639,48 +531,40 @@ export default class AppContainer extends React.Component<Props, State> {
 
   handleSaveGlobalOrigin = (globalOrigin: PositionType) => {
     this.handleAircraftCommand("0", "SET_GLOBAL_ORIGIN", JSON.stringify(globalOrigin));
-    this.setState({globalOrigin: globalOrigin});
+    this.state.globalOrigin = globalOrigin;
   }
 
   contextSetHome = () => {
-    this.setState({
-      showEditVehicleHomeDialog: true,
-      allowVehicleSelect: true,
-      showEditGlobalHomeDialog: false,
-      showTakeoffDialog: false,
-      useContext: true,
-      pauseMACEComms: true
-    });
+    this.state.showEditVehicleHomeDialog = true;
+    this.state.allowVehicleSelect = true;
+    this.state.showEditGlobalHomeDialog = false;
+    this.state.showTakeoffDialog = false;
+    this.state.useContext = true;
+    this.state.pauseMACEComms = true;
   }
 
   contextSetGlobal = () => {
-    this.setState({
-      showEditGlobalHomeDialog: true,
-      allowVehicleSelect: false,
-      showEditVehicleHomeDialog: false,
-      useContext: true,
-      pauseMACEComms: true
-    });
+    this.state.showEditGlobalHomeDialog = true;
+    this.state.allowVehicleSelect = false;
+    this.state.showEditVehicleHomeDialog = false;
+    this.state.useContext = true;
+    this.state.pauseMACEComms = true;
   }
 
   contextSetTakeoff = () => {
-    this.setState({
-      showEditVehicleHomeDialog: false,
-      allowVehicleSelect: false,
-      showEditGlobalHomeDialog: false,
-      showTakeoffDialog: true,
-      useContext: true,
-      pauseMACEComms: true
-    })
+    this.state.showEditVehicleHomeDialog = false;
+    this.state.allowVehicleSelect = false;
+    this.state.showEditGlobalHomeDialog = false;
+    this.state.showTakeoffDialog = true;
+    this.state.useContext = true;
+    this.state.pauseMACEComms = true;
   }
 
   contextGoHere = () => {
-    this.setState({
-      showEditGlobalHomeDialog: false,
-      allowVehicleSelect: false,
-      showEditVehicleHomeDialog: false,
-      useContext: true
-    });
+    this.state.showEditGlobalHomeDialog = false;
+    this.state.allowVehicleSelect = false;
+    this.state.showEditVehicleHomeDialog = false;
+    this.state.useContext = true;
     let goHere = {
       lat: this.state.contextAnchor.latlng.lat,
       lon: this.state.contextAnchor.latlng.lng
@@ -708,15 +592,16 @@ export default class AppContainer extends React.Component<Props, State> {
     });
 
     this.vehicleDB = stateCopy;
-    this.setState({connectedVehicles: stateCopy, selectedVehicleID: selectedID});
+    this.state.connectedVehicles = stateCopy;
+    this.state.selectedVehicleID = selectedID;
   }
 
   handleSaveMessagingPreferences = (preferences: MessagePreferencesType) => {
-    this.setState({messagePreferences: preferences});
+    this.state.messagePreferences = preferences;
   }
 
   handleSaveMACEConfig = (config: ConfigSettingsType, reload: boolean = false) => {
-    this.setState({MACEconfig: config});
+    this.state.MACEconfig = config;
     if(reload) {
       this.setupTCPServer();
     }
@@ -746,7 +631,7 @@ export default class AppContainer extends React.Component<Props, State> {
     let MACEconfig = this.state.MACEconfig;
     MACEconfig.config.GUIInit.mapCenter = {lat: e.target.getCenter().lat, lng: e.target.getCenter().lng, alt: 0};
     MACEconfig.config.GUIInit.mapZoom = e.target.getZoom();
-    this.setState({MACEconfig});
+    this.state.MACEconfig = MACEconfig;
   }
 
   handleSyncAll = () => {
@@ -778,7 +663,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
       if(!intersection) {
         tmpPts.push({lat: e.latlng.lat, lng: e.latlng.lng, alt: 0});
-        this.setState({drawPolygonPts: tmpPts});
+        this.state.drawPolygonPts = tmpPts;
         this.updateGrid();
       }
       else {
@@ -792,12 +677,15 @@ export default class AppContainer extends React.Component<Props, State> {
   handleDeleteLastPolygonPt = () => {
     let tmpPts = this.state.drawPolygonPts;
     tmpPts.pop();
-    this.setState({drawPolygonPts: tmpPts});
+    this.state.drawPolygonPts = tmpPts;
     this.updateGrid();
   }
 
   handleDisableDraw = () => {
-    this.setState({showDraw: false, drawPolygonPts: [], gridPts: {inPoly: [], trimmedPts: []}, pauseMACEComms: false});
+    this.state.showDraw = false;
+    this.state.drawPolygonPts = [];
+    this.state.gridPts = {inPoly: [], trimmedPts: []};
+    this.state.pauseMACEComms = false;
   }
 
   handleSubmitBoundary = () => {
@@ -807,7 +695,8 @@ export default class AppContainer extends React.Component<Props, State> {
     // TODO: Send to MACE:
 
     if(this.state.drawPolygonPts.length > 2) {
-      this.setState({showDraw: false, drawPolygonPts: []});
+      this.state.showDraw = false;
+      this.state.drawPolygonPts = [];
       this.makeTCPRequest(0, "SET_ENVIRONMENT_VERTICES", JSON.stringify({boundary: this.state.drawPolygonPts}));
     }
     else {
@@ -818,19 +707,20 @@ export default class AppContainer extends React.Component<Props, State> {
   }
 
   handleClearPts = () => {
-    this.setState({drawPolygonPts: [], gridPts: {inPoly: [], trimmedPts: []}});
+    this.state.drawPolygonPts = [];
+    this.state.gridPts = {inPoly: [], trimmedPts: []};
   }
 
   handleChangeGridSpacing = (val: number) => {
     let settings = deepcopy(this.state.environmentSettings);
     settings.gridSpacing = val;
-    this.setState({environmentSettings: settings});
+    this.state.environmentSettings = settings;
     this.updateGrid();
   }
 
   updateGrid = () => {
     let coordinatesArr: any = [];
-    this.state.drawPolygonPts.forEach(function(coord) {
+    this.state.drawPolygonPts.forEach(function(coord: PositionType) {
       coordinatesArr.push([coord.lat, coord.lng]);
     });
 
@@ -856,7 +746,7 @@ export default class AppContainer extends React.Component<Props, State> {
     boundingBox.push({lat: bounds.getSouthWest().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Bottom Right
     boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Top Right
     boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getSouthWest().lat, alt: 0}); // Top Left
-    this.setState({envBoundingBox: boundingBox});
+    this.state.envBoundingBox = boundingBox;
 
     // Calculate grid lines based on global origin:
     this.calculateGridPts(boundingBox);
@@ -907,7 +797,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
         // Set the grid points to display:
         let pts = {inPoly: tmpGridPts, trimmedPts: tmpTrimmedPts};
-        this.setState({gridPts: pts});
+        this.state.gridPts = pts;
       }
     }
   }
@@ -937,7 +827,8 @@ export default class AppContainer extends React.Component<Props, State> {
   saveEnvironmentSettings = (settings: EnvironmentSettingsType) => {
     if(settings.gridSpacing >= settings.minSliderVal && settings.gridSpacing <= settings.maxSliderVal) {
       console.log("Settings: " + JSON.stringify(settings));
-      this.setState({environmentSettings: settings}, () => this.updateGrid());
+      this.state.environmentSettings = settings;
+      this.updateGrid();
     }
     else {
       let title = 'Environment settings';
@@ -949,181 +840,6 @@ export default class AppContainer extends React.Component<Props, State> {
   handleSaveTakeoff = (takeoffAlt: string) => {
     let MACEconfig = this.state.MACEconfig;
     MACEconfig.config.VehicleSettings.defaultTakeoffAlt = parseFloat(takeoffAlt);
-    this.setState({MACEconfig});
-  }
-
-  render() {
-
-    const width = window.screen.width;
-    const height = window.screen.height;
-    const parentStyle = {height: height + 'px', width: width + 'px'};
-
-    const ToolbarRight = () => (
-
-      <FlatButton
-        label={"Sync all"}
-        labelPosition={"before"}
-        onClick={this.handleSyncAll}
-        icon={<i className="material-icons">cached</i>}
-        style={{color: "white"}}
-        />
-
-    );
-
-    return (
-        <MuiThemeProvider muiTheme={lightMuiTheme}>
-          <div style={parentStyle}>
-
-            <AppBar
-                title="MACE"
-                style={{backgroundColor: colors.orange700, position: 'fixed'}}
-                onLeftIconButtonClick={() => this.setState({openDrawer: !this.state.openDrawer})}
-                iconElementRight={<ToolbarRight />}
-            />
-
-            <AppDrawer
-              openDrawer={this.state.openDrawer}
-              onToggleDrawer={(open: boolean) => this.setState({openDrawer: open})}
-              onDrawerAction={(action: string) => this.handleDrawerAction(action)}
-              showMessagesMenu={this.state.showMessagesMenu}
-             />
-
-            <ConnectedVehiclesContainer
-              connectedVehicles={this.state.connectedVehicles}
-              onAircraftCommand={this.handleAircraftCommand}
-              handleChangeSelectedVehicle={this.handleSelectedAircraftUpdate}
-              selectedVehicleID={this.state.selectedVehicleID}
-            />
-
-            <VehicleCommandsContainer
-              connectedVehicles={this.state.connectedVehicles}
-              onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
-              onAircraftCommand={this.handleAircraftCommand}
-              selectedAircraftID={this.state.selectedVehicleID}
-              handleTakeoff={() => this.setState({showTakeoffDialog: true, showSaveTakeoff: false, useContext: false, pauseMACEComms: true})}
-            />
-
-            <VehicleWarningsContainer
-              vehicleWarnings={this.state.vehicleWarnings}
-            />
-
-            {this.state.showEditVehicleHomeDialog &&
-              <VehicleHomeDialog
-                open={this.state.showEditVehicleHomeDialog}
-                handleClose={() => this.setState({showEditVehicleHomeDialog: false, useContext: false, pauseMACEComms: false})}
-                vehicles={this.state.connectedVehicles}
-                selectedVehicleID={this.state.selectedVehicleID}
-                handleSave={this.handleSaveVehicleHome}
-                contextAnchor={this.state.contextAnchor}
-                useContext={this.state.useContext}
-                allowVehicleSelect={this.state.allowVehicleSelect}
-                onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
-                showNotification={this.showNotification}
-              />
-            }
-
-            {this.state.showEditGlobalHomeDialog &&
-              <GlobalOriginDialog
-                open={this.state.showEditGlobalHomeDialog}
-                handleClose={() => this.setState({showEditGlobalHomeDialog: false, useContext: false, pauseMACEComms: false})}
-                onGlobalHomeCommand={this.handleAircraftCommand}
-                globalOrigin={this.state.globalOrigin}
-                handleSave={this.handleSaveGlobalOrigin}
-                contextAnchor={this.state.contextAnchor}
-                useContext={this.state.useContext}
-              />
-            }
-
-            {this.state.showMessagesMenu &&
-              <MessagesDialog
-                open={this.state.showMessagesMenu}
-                handleClose={() => this.setState({showMessagesMenu: false, pauseMACEComms: false})}
-                handleSave={this.handleSaveMessagingPreferences}
-                preferences={this.state.messagePreferences}
-              />
-            }
-
-            {this.state.showConfigDialog &&
-              <ConfigDialog
-                open={this.state.showConfigDialog}
-                handleClose={() => this.setState({showConfigDialog: false, pauseMACEComms: false})}
-                handleSave={(configSettings: ConfigSettingsType, reload: boolean) => this.handleSaveMACEConfig(configSettings, reload)}
-                configSettings={this.state.MACEconfig}
-                handleParseJSON={(filename: string, restartServer: boolean) => this.parseJSONConfig(filename, restartServer)}
-              />
-            }
-
-            {this.state.showTakeoffDialog &&
-              <TakeoffDialog
-                open={this.state.showTakeoffDialog}
-                handleClose={() => this.setState({showTakeoffDialog: false, useContext: false, pauseMACEComms: false})}
-                vehicles={this.state.connectedVehicles}
-                selectedVehicleID={this.state.selectedVehicleID}
-                handleTakeoff={this.handleTakeoff}
-                takeoffAlt={this.state.MACEconfig.config.VehicleSettings.defaultTakeoffAlt.toString()}
-                onSelectedAircraftChange={this.handleSelectedAircraftUpdate}
-                showSaveTakeoff={this.state.showSaveTakeoff}
-                handleSaveTakeoff={(alt: string) => this.handleSaveTakeoff(alt)}
-                contextAnchor={this.state.contextAnchor}
-                useContext={this.state.useContext}
-                showNotification={this.showNotification}
-              />
-            }
-
-
-            {this.state.showDraw &&
-              <DrawButtonsContainer
-                onDeleteLastPolygonPt={this.handleDeleteLastPolygonPt}
-                onDisableDraw={this.handleDisableDraw}
-                onSubmitBoundary={this.handleSubmitBoundary}
-                onClearAllPts={this.handleClearPts}
-                handleChangeGridSpacing={this.handleChangeGridSpacing}
-                openEnvironmentSettings={() => this.setState({showEnvironmentSettings: true, pauseMACEComms: true})}
-                environmentSettings={this.state.environmentSettings}
-              />
-            }
-
-            {this.state.showEnvironmentSettings &&
-              <EnvironmentSettings
-                open={this.state.showEnvironmentSettings}
-                handleClose={() => this.setState({showEnvironmentSettings: false, pauseMACEComms: false})}
-                handleSave={this.saveEnvironmentSettings}
-                environmentSettings={this.state.environmentSettings}
-              />
-            }
-
-
-            <MACEMap
-              handleSelectedAircraftUpdate={this.handleSelectedAircraftUpdate}
-              setContextAnchor={(anchor: L.LeafletMouseEvent) => this.setState({contextAnchor: anchor})}
-              connectedVehicles={this.state.connectedVehicles}
-              selectedVehicleID={this.state.selectedVehicleID}
-              mapCenter={this.state.MACEconfig.config.GUIInit.mapCenter}
-              maxZoom={this.state.MACEconfig.config.GUIInit.maxZoom}
-              mapZoom={this.state.MACEconfig.config.GUIInit.mapZoom}
-              globalOrigin={this.state.globalOrigin}
-              updateMapCenter={this.updateMapCenter}
-              contextAnchor={this.state.contextAnchor}
-              contextSetGlobal={this.contextSetGlobal}
-              contextSetHome={this.contextSetHome}
-              contextSetTakeoff={this.contextSetTakeoff}
-              contextGoHere={this.contextGoHere}
-              MACEConnected={this.state.MACEConnected}
-              environmentBoundary={this.state.environmentBoundary}
-              drawPolygonPts={this.state.drawPolygonPts}
-              onAddPolygonPt={this.handleAddPolygonPt}
-              environmentSettings={this.state.environmentSettings}
-              gridPts={this.state.gridPts}
-              envBoundingBox={this.state.envBoundingBox}
-             />
-
-
-            <div>
-              <NotificationSystem ref="notificationSystem" />
-            </div>
-
-          </div>
-        </MuiThemeProvider>
-    );
+    this.state.MACEconfig = MACEconfig;
   }
 }
