@@ -17,6 +17,17 @@ bool ActionArm::hasSpatialInfluence() const
     return false;
 }
 
+AbstractCommandItem* ActionArm::getClone() const
+{
+    return (new ActionArm(*this));
+}
+
+void ActionArm::getClone(AbstractCommandItem** command) const
+{
+    *command = new ActionArm(*this);
+}
+
+
 ActionArm::ActionArm()
 {
 

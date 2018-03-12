@@ -59,7 +59,7 @@ hsm::Transition State_Grounded::GetTransition()
     return rtn;
 }
 
-void State_Grounded::handleCommand()
+void State_Grounded::handleCommand(const AbstractCommandItem* command)
 {
 
 }
@@ -79,7 +79,6 @@ void State_Grounded::OnEnter()
     {
         this->desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
     }
-
 }
 
 } //end of namespace ardupilot

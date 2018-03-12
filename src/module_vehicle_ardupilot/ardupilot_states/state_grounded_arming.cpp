@@ -39,7 +39,7 @@ hsm::Transition State_GroundedArming::GetTransition()
     return rtn;
 }
 
-void State_GroundedArming::handleCommand()
+void State_GroundedArming::handleCommand(const AbstractCommandItem* command)
 {
 
 }

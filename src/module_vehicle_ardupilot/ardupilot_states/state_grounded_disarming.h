@@ -6,6 +6,8 @@
 namespace ardupilot{
 namespace state{
 
+class State_GroundedIdle;
+
 class State_GroundedDisarming : public AbstractStateArdupilot
 {
 public:
@@ -20,7 +22,7 @@ public:
     hsm::Transition GetTransition() override;
 
 public:
-    void handleCommand() override;
+    void handleCommand(const AbstractCommandItem* command) override;
 
     void Update() override;
 

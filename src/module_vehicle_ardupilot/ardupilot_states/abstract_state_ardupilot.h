@@ -5,6 +5,7 @@
 #include <thread>
 
 #include "common/class_forward.h"
+#include "data_generic_command_item/abstract_command_item.h"
 
 #include "ardupilot_hsm.h"
 #include "ardupilot_state_types.h"
@@ -58,7 +59,7 @@ public:
     virtual void getClone(AbstractStateArdupilot** state) const = 0;
 
 public:
-    virtual void handleCommand() = 0;
+    virtual void handleCommand(const AbstractCommandItem* command) = 0;
 
     virtual ArdupilotFlightState getCurrentState() const;
 
@@ -68,8 +69,7 @@ protected:
     void clearCommand();
 
 protected:
-//    GalilSettings mSettings;
-//    const AbstractCommand* currentCommand;
+    const AbstractCommandItem* currentCommand;
 
     ArdupilotFlightState currentState;
     ArdupilotFlightState desiredState;

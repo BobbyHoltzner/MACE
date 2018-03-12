@@ -17,6 +17,16 @@ bool ActionMotorTest::hasSpatialInfluence() const
     return false;
 }
 
+AbstractCommandItem* ActionMotorTest::getClone() const
+{
+    return (new ActionMotorTest(*this));
+}
+
+void ActionMotorTest::getClone(AbstractCommandItem** command) const
+{
+    *command = new ActionMotorTest(*this);
+}
+
 ActionMotorTest::ActionMotorTest()
 {
 

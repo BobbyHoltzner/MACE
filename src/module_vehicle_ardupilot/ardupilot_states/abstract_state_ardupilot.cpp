@@ -26,7 +26,11 @@ ArdupilotFlightState AbstractStateArdupilot::getDesiredState() const
 
 void AbstractStateArdupilot::clearCommand()
 {
-
+    if(this->currentCommand)
+    {
+        delete currentCommand;
+        currentCommand = nullptr;
+    }
 }
 
 

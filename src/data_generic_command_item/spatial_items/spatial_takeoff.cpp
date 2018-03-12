@@ -17,6 +17,16 @@ bool SpatialTakeoff::hasSpatialInfluence() const
     return true;
 }
 
+AbstractCommandItem* SpatialTakeoff::getClone() const
+{
+    return (new SpatialTakeoff(*this));
+}
+
+void SpatialTakeoff::getClone(AbstractCommandItem** command) const
+{
+    *command = new SpatialTakeoff(*this);
+}
+
 SpatialTakeoff::SpatialTakeoff():
     AbstractCommandItem(0,0), AbstractSpatialPosition()
 

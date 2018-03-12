@@ -44,7 +44,7 @@ hsm::Transition State_TakeoffClimbing::GetTransition()
     return rtn;
 }
 
-void State_TakeoffClimbing::handleCommand()
+void State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
 {
 
 }

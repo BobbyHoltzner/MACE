@@ -31,22 +31,30 @@ hsm::Transition State_GroundedDisarming::GetTransition()
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
         switch (desiredState) {
+        case ArdupilotFlightState::STATE_GROUNDED_IDLE:
+        {
+            return hsm::InnerEntryTransition<State_GroundedIdle>();
+            break;
+        }
         default:
-            std::cout<<"I dont know how we eneded up in this transition state from State_EStop."<<std::endl;
+            std::cout<<"I dont know how we eneded up in this transition state from State_GroundedDisarming."<<std::endl;
             break;
         }
     }
     return rtn;
 }
 
-void State_GroundedDisarming::handleCommand()
+void State_GroundedDisarming::handleCommand(const AbstractCommandItem* command)
 {
 
 }
 
 void State_GroundedDisarming::Update()
 {
-
+    if(Owner().state->vehicleArm.get().getSystemArm() == false)
+    {
+        this->desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
+    }
 }
 
 void State_GroundedDisarming::OnEnter()
@@ -56,3 +64,5 @@ void State_GroundedDisarming::OnEnter()
 
 } //end of namespace ardupilot
 } //end of namespace state
+
+#include "ardupilot_states/state_grounded_idle.h"

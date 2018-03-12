@@ -39,7 +39,7 @@ hsm::Transition State_FlightManual::GetTransition()
     return rtn;
 }
 
-void State_FlightManual::handleCommand()
+void State_FlightManual::handleCommand(const AbstractCommandItem* command)
 {
 
 }

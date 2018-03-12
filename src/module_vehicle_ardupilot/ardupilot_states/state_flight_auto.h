@@ -20,7 +20,7 @@ public:
     hsm::Transition GetTransition() override;
 
 public:
-    void handleCommand() override;
+    void handleCommand(const AbstractCommandItem* command) override;
 
     void Update() override;
 

@@ -17,6 +17,16 @@ bool SpatialRTL::hasSpatialInfluence() const
     return true;
 }
 
+AbstractCommandItem* SpatialRTL::getClone() const
+{
+    return (new SpatialRTL(*this));
+}
+
+void SpatialRTL::getClone(AbstractCommandItem** command) const
+{
+    *command = new SpatialRTL(*this);
+}
+
 SpatialRTL::SpatialRTL():
     AbstractCommandItem(0,0)
 {

@@ -31,7 +31,7 @@ public:
     //! \brief getCommandType returns the type of the object that this command type is.
     //! \return Data::CommandType resolving the type of command this object is.
     //!
-    virtual COMMANDITEM getCommandType()const;
+    COMMANDITEM getCommandType() const override;
 
     //!
     //! \brief getDescription
@@ -39,7 +39,7 @@ public:
     //! GUI or somewhere a display needs to interface and decisions have to be made describing what
     //! would happen when issuing such a command.
     //!
-    virtual std::string getDescription()const;
+    std::string getDescription() const override;
 
     //!
     //! \brief hasSpatialInfluence returns a boolean reflecting whether or not the commandItem has
@@ -48,7 +48,19 @@ public:
     //! \return false if the command does not have an affect over the vehicles position directly.
     //! For example, change speed has no influence over a vehicles position.
     //!
-    virtual bool hasSpatialInfluence()const;
+    bool hasSpatialInfluence() const override;
+
+    //!
+    //! \brief getClone
+    //! \return
+    //!
+    AbstractCommandItem* getClone() const override;
+
+    //!
+    //! \brief getClone
+    //! \param command
+    //!
+    void getClone(AbstractCommandItem** command) const override;
 
 public:
     void operator = (const SpatialLoiter_Unlimited &rhs)
