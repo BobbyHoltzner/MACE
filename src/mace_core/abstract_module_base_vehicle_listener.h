@@ -27,6 +27,7 @@ template<typename T, typename I, typename CT>
 class AbstractModule_VehicleListener : public AbstractModule_EventListeners<T, I, CT>
 {
 friend class MaceCore;
+
 public:
 
     AbstractModule_VehicleListener() :

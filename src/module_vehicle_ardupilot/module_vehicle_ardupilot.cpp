@@ -533,8 +533,34 @@ void ModuleVehicleArdupilot::PublishVehicleData(const int &systemID, const std::
     } //if there is information available
 }
 
-void ModuleVehicleArdupilot::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
+//!
+//! \brief New non-spooled topic given
+//!
+//! NonSpooled topics send their data immediatly.
+//! \param topicName Name of stopic
+//! \param sender Module that sent topic
+//! \param data Data for topic
+//! \param target Target module (or broadcasted)
+//!
+void ModuleVehicleArdupilot::NewTopicGiven(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
+
+}
+
+
+//!
+//! \brief New Spooled topic given
+//!
+//! Spooled topics are stored on the core's datafusion.
+//! This method is used to notify other modules that there exists new data for the given components on the given module.
+//! \param topicName Name of topic given
+//! \param sender Module that sent topic
+//! \param componentsUpdated Components in topic that where updated
+//! \param target Target moudle (or broadcast)
+//!
+void ModuleVehicleArdupilot::NewTopicAvailable(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+{
+    int senderID = sender.ID;
     if(topicName == m_VehicleMissionTopic.Name())
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleMissionTopic.Name(), senderID);

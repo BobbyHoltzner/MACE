@@ -50,6 +50,14 @@
 
 #include "mace_core/module_characteristics.h"
 
+#include "data/topic_components/altitude.h"
+#include "data/topic_components/position_global.h"
+#include "data/topic_components/position_local.h"
+#include "data/topic_components/topic_component_void.h"
+#include "data/topic_components/topic_component_string.h"
+
+#include "base_topic/vehicle_topics.h"
+
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public MaceCore::IModuleCommandExternalLink,
@@ -95,6 +103,8 @@ public:
     ModuleExternalLink();
 
     ~ModuleExternalLink();
+
+    virtual std::vector<MaceCore::TopicCharacteristic> GetEmittedTopics();
 
     //!
     //! \brief This module as been attached as a module
@@ -174,13 +184,31 @@ public:
     //!
     void HeartbeatInfo(const int &systemID, const mace_heartbeat_t &heartbeatMSG);
 
+
     //!
-    //! \brief NewTopic
-    //! \param topicName
-    //! \param senderID
-    //! \param componentsUpdated
+    //! \brief New non-spooled topic given
     //!
-    virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
+    //! NonSpooled topics send their data immediatly.
+    //! \param topicName Name of stopic
+    //! \param sender Module that sent topic
+    //! \param data Data for topic
+    //! \param target Target module (or broadcasted)
+    //!
+    virtual void NewTopicGiven(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target);
+
+
+    //!
+    //! \brief New Spooled topic given
+    //!
+    //! Spooled topics are stored on the core's datafusion.
+    //! This method is used to notify other modules that there exists new data for the given components on the given module.
+    //! \param topicName Name of topic given
+    //! \param sender Module that sent topic
+    //! \param componentsUpdated Components in topic that where updated
+    //! \param target Target moudle (or broadcast)
+    //!
+    virtual void NewTopicAvailable(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
+
 
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -366,8 +394,10 @@ private:
 
     std::shared_ptr<spdlog::logger> mLog;
 
-    Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
-    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
+    MaceCore::SpooledTopic<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
+    MaceCore::SpooledTopic<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
+
+    BaseTopic::VehicleTopics m_VehicleTopics;
 };
 
 #endif // MODULE_EXTERNAL_LINK_H

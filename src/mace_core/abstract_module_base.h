@@ -121,13 +121,37 @@ public:
         this->loggingPath = path;
     }
 
+    //!
+    //! \brief New non-spooled topic given
+    //!
+    //! NonSpooled topics send their data immediatly.
+    //! \param topicName Name of stopic
+    //! \param sender Module that sent topic
+    //! \param data Data for topic
+    //! \param target Target module (or broadcasted)
+    //!
+    virtual void NewTopicGiven(const std::string &topicName, const ModuleCharacteristic &sender, const TopicDatagram &data, const OptionalParameter<ModuleCharacteristic> &target = OptionalParameter<ModuleCharacteristic>()) = 0;
 
-    virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated) = 0;
 
+    //!
+    //! \brief New Spooled topic given
+    //!
+    //! Spooled topics are stored on the core's datafusion.
+    //! This method is used to notify other modules that there exists new data for the given components on the given module.
+    //! \param topicName Name of topic given
+    //! \param sender Module that sent topic
+    //! \param componentsUpdated Components in topic that where updated
+    //! \param target Target moudle (or broadcast)
+    //!
+    virtual void NewTopicAvailable(const std::string &topicName, const ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<ModuleCharacteristic> &target = OptionalParameter<ModuleCharacteristic>()) = 0;
 
-    virtual std::unordered_map<std::string, TopicStructure> GetTopics()
+    //!
+    //! \brief Get all topics that are to be emited by this module
+    //! \return List of topics
+    //!
+    virtual std::vector<TopicCharacteristic> GetEmittedTopics()
     {
-        //TODO make pure
+        //TODO - Make pure virtual
         return {};
     }
 

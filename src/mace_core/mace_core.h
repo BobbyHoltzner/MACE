@@ -58,6 +58,8 @@ public:
 
 public: //The following functions add specific modules to connect to mace core
 
+    void AddModule(const std::shared_ptr<ModuleBase> &module);
+
     void AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation);
 
     void AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink);
@@ -72,10 +74,17 @@ public: //The following functions add specific modules to connect to mace core
 
 public:
 
-    void AddTopic(const std::string &topicName, const TopicStructure &topic);
+    //!
+    //! \brief Add a module's topic chacteristic to the mace core
+    //! \param sender Module that will be using topic
+    //! \param topic Characteristic of topic
+    //!
+    void AddTopicCharacteristic(const ModuleBase *sender, const TopicCharacteristic &topic);
 
 
     virtual void Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &senderIDs = {}, const std::vector<std::string> &components = {});
+
+    virtual void NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const ModuleCharacteristic &sender, const TIME &time, const TopicDatagram &value, const OptionalParameter<ModuleCharacteristic> &target = OptionalParameter<ModuleCharacteristic>());
 
     virtual void NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value);
 
@@ -299,7 +308,7 @@ private:
 private:
     mutable std::mutex m_VehicleMutex;
 
-    std::unordered_map<std::string, TopicStructure> m_Topics;
+    std::unordered_map<const ModuleBase*, std::unordered_map<std::string, TopicCharacteristic>> m_TopicsToReceive;
     std::unordered_map<std::string, std::vector<ModuleBase*>> m_TopicNotifier;
 
     std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;

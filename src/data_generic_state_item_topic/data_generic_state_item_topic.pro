@@ -33,7 +33,8 @@ SOURCES += \
     state_global_position_ex_topic.cpp \
     state_local_position_ex_topic.cpp \
     state_airspeed_topic.cpp \
-    state_item_topic_boundary.cpp
+    state_item_topic_boundary.cpp \
+    prototype_topic_global_position.cpp
 
 HEADERS +=\
         data_generic_state_item_topic_global.h \
@@ -46,7 +47,8 @@ HEADERS +=\
     state_global_position_ex_topic.h \
     state_local_position_ex_topic.h \
     state_airspeed_topic.h \
-    state_item_topic_boundary.h
+    state_item_topic_boundary.h \
+    prototype_topic_global_position.h
 
 # Unix lib Install
 unix:!symbian {

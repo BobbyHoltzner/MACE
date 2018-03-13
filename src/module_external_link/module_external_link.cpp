@@ -69,6 +69,16 @@ ModuleExternalLink::~ModuleExternalLink()
 
 }
 
+std::vector<MaceCore::TopicCharacteristic> ModuleExternalLink::GetEmittedTopics()
+{
+    std::vector<MaceCore::TopicCharacteristic> topics;
+
+    topics.push_back(this->m_VehicleDataTopic.Characterisic());
+    topics.push_back(this->m_MissionDataTopic.Characterisic());
+
+    return topics;
+}
+
 //!
 //! \brief This module as been attached as a module
 //! \param ptr pointer to object that attached this instance to itself
@@ -77,6 +87,8 @@ void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
     ptr->Subscribe(this, m_MissionDataTopic.Name());
+
+    ptr->Subscribe(this, m_VehicleTopics.m_CommandSystemMode.Name());
 }
 
 //!
@@ -301,9 +313,13 @@ void ModuleExternalLink::ReceivedHome(const CommandItem::SpatialHome &home)\
     MaceCore::TopicDatagram topicDatagram;
     m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
 
+    MaceCore::ModuleCharacteristic sender;
+    sender.ID = home.getOriginatingSystem();
+    sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
     //notify listeners of topic
     ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), home.getOriginatingSystem(), MaceCore::TIME(), topicDatagram);
+        ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), sender, MaceCore::TIME(), topicDatagram);
     });
 }
 
@@ -454,9 +470,14 @@ void ModuleExternalLink::PublishVehicleData(const int &systemID, const std::shar
     //construct datagram
     MaceCore::TopicDatagram topicDatagram;
     m_VehicleDataTopic.SetComponent(component, topicDatagram);
+
+    MaceCore::ModuleCharacteristic sender;
+    sender.ID = systemID;
+    sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
     //notify listeners of topic
     ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), sender, MaceCore::TIME(), topicDatagram);
     });
 }
 
@@ -784,16 +805,41 @@ void ModuleExternalLink::ReceivedMissionACK(const MissionItem::MissionACK &ack)
     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 }
 
+
 //!
-//! \brief ModuleExternalLink::NewTopic
-//! \param topicName
-//! \param senderID
-//! \param componentsUpdated
+//! \brief New non-spooled topic given
 //!
-void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
+//! NonSpooled topics send their data immediatly.
+//! \param topicName Name of stopic
+//! \param sender Module that sent topic
+//! \param data Data for topic
+//! \param target Target module (or broadcasted)
+//!
+void ModuleExternalLink::NewTopicGiven(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
+    if(topicName == m_VehicleTopics.m_CommandSystemMode.Name())
+    {
+        printf("Command System Mode Topic received by External Link!");
+    }
+}
+
+
+//!
+//! \brief New Spooled topic given
+//!
+//! Spooled topics are stored on the core's datafusion.
+//! This method is used to notify other modules that there exists new data for the given components on the given module.
+//! \param topicName Name of topic given
+//! \param sender Module that sent topic
+//! \param componentsUpdated Components in topic that where updated
+//! \param target Target moudle (or broadcast)
+//!
+void ModuleExternalLink::NewTopicAvailable(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+{
+    int senderID = sender.ID;
     if(airborneInstance)
     {
+
         //In relevance to the external link module, the module when receiving a new topic should pack that up for transmission
         //to other instances of MACE
         //example read of vehicle data

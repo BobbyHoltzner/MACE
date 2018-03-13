@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 
+#include "common/common.h"
+
 namespace MaceCore
 {
 
@@ -32,6 +34,32 @@ public:
         m_NonTerminalDataFields.insert({str, std::make_shared<TopicComponentStructure>(fields)});
     }
 
+    static TopicComponentStructure Merge(const TopicComponentStructure &merge1, const TopicComponentStructure &merge2)
+    {
+        TopicComponentStructure newStructure;
+
+        for(auto it = merge1.m_TerminalDataFields.cbegin() ; it != merge1.m_TerminalDataFields.cend() ; ++it)
+        {
+            newStructure.m_TerminalDataFields.insert({it->first, it->second});
+        }
+        for(auto it = merge2.m_TerminalDataFields.cbegin() ; it != merge2.m_TerminalDataFields.cend() ; ++it)
+        {
+            newStructure.m_TerminalDataFields.insert({it->first, it->second});
+        }
+
+
+        for(auto it = merge1.m_NonTerminalDataFields.cbegin() ; it != merge1.m_NonTerminalDataFields.cend() ; ++it)
+        {
+            newStructure.m_NonTerminalDataFields.insert({it->first, it->second});
+        }
+        for(auto it = merge2.m_NonTerminalDataFields.cbegin() ; it != merge2.m_NonTerminalDataFields.cend() ; ++it)
+        {
+            newStructure.m_NonTerminalDataFields.insert({it->first, it->second});
+        }
+
+        return newStructure;
+    }
+
 private:
 
     std::unordered_map<std::string, std::string> m_TerminalDataFields;
@@ -39,24 +67,7 @@ private:
 };
 
 
-class TopicStructure
-{
-public:
 
-    TopicStructure()
-    {
-
-    }
-
-    void AddComponent(const std::string &name, const TopicComponentStructure &datagram, bool required = true){
-        m_Components.insert({name, datagram});
-        m_ComponentRequired.insert({name, required});
-    }
-
-private:
-    std::unordered_map<std::string, TopicComponentStructure> m_Components;
-    std::unordered_map<std::string, bool> m_ComponentRequired;
-};
 
 
 
@@ -94,6 +105,32 @@ private:
     };
 
 public:
+
+    static TopicDatagram Merge(const TopicDatagram &merge1, const TopicDatagram &merge2)
+    {
+        TopicDatagram newStructure;
+
+        for(auto it = merge1.m_TerminalValues.cbegin() ; it != merge1.m_TerminalValues.cend() ; ++it)
+        {
+            newStructure.m_TerminalValues.insert({it->first, it->second});
+        }
+        for(auto it = merge2.m_TerminalValues.cbegin() ; it != merge2.m_TerminalValues.cend() ; ++it)
+        {
+            newStructure.m_TerminalValues.insert({it->first, it->second});
+        }
+
+
+        for(auto it = merge1.m_NonTerminalValues.cbegin() ; it != merge1.m_NonTerminalValues.cend() ; ++it)
+        {
+            newStructure.m_NonTerminalValues.insert({it->first, it->second});
+        }
+        for(auto it = merge2.m_NonTerminalValues.cbegin() ; it != merge2.m_NonTerminalValues.cend() ; ++it)
+        {
+            newStructure.m_NonTerminalValues.insert({it->first, it->second});
+        }
+
+        return newStructure;
+    }
 
     template<typename T>
     void AddTerminal(const std::string &str, const T &value){
@@ -183,6 +220,225 @@ private:
     std::unordered_map<std::string, std::shared_ptr<void> > m_TerminalValues;
     std::unordered_map<std::string, std::shared_ptr<TopicDatagram> > m_NonTerminalValues;
 };
+
+
+
+class ITopicComponentPrototype {
+public:
+    virtual MaceCore::TopicDatagram GenerateDatagram() const = 0;
+
+    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram) = 0;
+};
+
+
+class TopicCharacteristic
+{
+private:
+    bool m_Spooled;
+    std::string m_Name;
+
+public:
+
+    TopicCharacteristic(bool spooled, const std::string &name) :
+        m_Spooled(spooled),
+        m_Name(name)
+    {
+
+    }
+
+    bool Spooled() const
+    {
+        return m_Spooled;
+    }
+
+    std::string Name() const
+    {
+        return m_Name;
+    }
+};
+
+
+
+
+
+
+template <typename... Args>
+class _Topic;
+
+template <>
+class _Topic<>
+{
+public:
+    _Topic(const std::string &name) :
+        m_TopicName(name)
+    {
+
+    }
+
+//TODO: Kenny commented this out as it was unused
+//    MaceCore::TopicDatagram GenerateDatagram(const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &list) const
+//    {
+//        UNUSED(list);
+//    }
+
+
+    void SetComponent(std::shared_ptr<ITopicComponentPrototype> ptr, MaceCore::TopicDatagram &datagram) const {
+        //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
+        throw std::runtime_error("Unknown component passed to topic");
+    }
+
+
+    bool GetComponent(std::shared_ptr<ITopicComponentPrototype> ptr, const MaceCore::TopicDatagram &datagram) const {
+        //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
+        throw std::runtime_error("Unknown component passed to topic");
+    }
+
+
+    std::string Name() {
+        return m_TopicName;
+    }
+
+
+
+protected:
+    std::string m_TopicName;
+};
+
+
+
+template <typename T, typename... Args>
+class _Topic<T, Args...> : public _Topic<Args...>
+{
+public:
+    //using _Topic<Args...>::SetComponent;
+    //using _Topic<Args...>::GetComponent;
+
+    _Topic(const std::string &topicName) :
+        _Topic<Args...>(topicName),
+        m_TopicName(topicName)
+    {
+    }
+
+    std::string Name() const {
+        return m_TopicName;
+    }
+
+
+    void SetComponent(std::shared_ptr<ITopicComponentPrototype> ptr, MaceCore::TopicDatagram &datagram) const {
+        if(std::dynamic_pointer_cast<T>(ptr) != 0) {
+            SetComponent(std::dynamic_pointer_cast<T>(ptr), datagram);
+        }
+        else {
+            _Topic<Args...>::SetComponent(ptr, datagram);
+        }
+    }
+
+
+    bool GetComponent(std::shared_ptr<ITopicComponentPrototype> ptr, const MaceCore::TopicDatagram &datagram) const {
+        if(std::dynamic_pointer_cast<T>(ptr) != 0) {
+            return GetComponent(datagram, std::dynamic_pointer_cast<T>(ptr));
+        }
+        else {
+            return _Topic<Args...>::GetComponent(ptr, datagram);
+        }
+
+    }
+
+
+    void SetComponent(const std::shared_ptr<T> &component, MaceCore::TopicDatagram &datagram) const {
+        MaceCore::TopicDatagram dg = component->GenerateDatagram();
+        datagram.AddNonTerminal(T::Name(), dg);
+    }
+
+
+    bool GetComponent(const MaceCore::TopicDatagram &datagram, std::shared_ptr<T> value) const{
+        if(datagram.HasNonTerminal(T::Name()) == false) {
+            return false;
+        }
+
+        value->CreateFromDatagram(*datagram.GetNonTerminal(T::Name()));
+        return true;
+    }
+
+protected:
+    std::string m_TopicName;
+
+};
+
+
+
+template <typename ...T>
+class SpooledTopic : public _Topic<T...>
+{
+private:
+
+public:
+    SpooledTopic(std::string name) :
+        _Topic<T...>(name)
+    {
+    }
+
+    bool IsSpooled() const {
+        return true;
+    }
+
+    TopicCharacteristic Characterisic() const
+    {
+        return TopicCharacteristic(true, _Topic<T...>::m_TopicName);
+    }
+
+
+};
+
+template <typename ...T>
+class NonSpooledTopic : public _Topic<T...>
+{
+private:
+
+public:
+    NonSpooledTopic(std::string name) :
+        _Topic<T...>(name)
+    {
+    }
+
+    bool IsSpooled() const {
+        return false;
+    }
+
+    TopicCharacteristic Characterisic() const
+    {
+        return TopicCharacteristic(true, _Topic<T...>::m_TopicName);
+    }
+
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 

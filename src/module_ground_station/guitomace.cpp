@@ -1,13 +1,15 @@
 #include "guitomace.h"
 
-GUItoMACE::GUItoMACE(const MaceCore::IModuleCommandGroundStation* ptrRef) :
+GUItoMACE::GUItoMACE(const MaceCore::IModuleCommandGroundStation* ptrRef, const BaseTopic::VehicleTopics *ptr) :
+    m_VehicleTopics(ptr),
     m_sendAddress(QHostAddress::LocalHost),
     m_sendPort(1234)
 {
     m_parent = ptrRef;
 }
 
-GUItoMACE::GUItoMACE(const MaceCore::IModuleCommandGroundStation* ptrRef, const QHostAddress &sendAddress, const int &sendPort) :
+GUItoMACE::GUItoMACE(const MaceCore::IModuleCommandGroundStation* ptrRef, const BaseTopic::VehicleTopics *ptr, const QHostAddress &sendAddress, const int &sendPort) :
+    m_VehicleTopics(ptr),
     m_sendAddress(sendAddress),
     m_sendPort(sendPort)
 {
@@ -168,21 +170,34 @@ void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
     QJsonObject position = vehicleCommand["takeoffPosition"].toObject();
     bool latLonFlag = vehicleCommand["latLonFlag"].toBool();
 
+
+    /*
+    std::shared_ptr<Data::NamedTopicComponentDataObject> data;
     if(latLonFlag) {
-        newTakeoff.position->setX(position.value("lat").toDouble());
-        newTakeoff.position->setY(position.value("lng").toDouble());
+        data = std::make_shared<Data::TopicComponents::PositionGlobal>(
+                    position.value("alt").toDouble(),
+                    Data::ReferenceAltitude::REF_ALT_MSL,
+                    position.value("lat").toDouble(),
+                    position.value("lng").toDouble(),
+                    Data::ReferenceGeoCoords::REF_GEO_DEG;
+                );
     }
-    newTakeoff.position->setZ(position.value("alt").toDouble());
-    newTakeoff.setTargetSystem(vehicleID);
+    else {
+        data = std::make_shared<Data::TopicComponents::Altitude>(
+                    position.value("alt").toDouble(),
+                    Data::ReferenceAltitude::REF_ALT_MSL
+                );
+    }
 
-    std::stringstream buffer;
-    buffer << newTakeoff;
-//    mLogs->debug("Module Ground Station issuing a takeoff command to system " + std::to_string(vehicleID) + ".");
-//    mLogs->info(buffer.str());
-
-    m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->Event_IssueCommandTakeoff(m_parent, newTakeoff);
+    MaceCore::TopicDatagram topicDatagram;
+    m_VehicleTopics->m_CommandTakeoff.SetComponent(data, topicDatagram);
+    MaceCore::ModuleCharacteristic target;
+    target.ID = vehicleID;
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+    m_parent->NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
     });
+    */
 }
 
 //!
@@ -191,7 +206,7 @@ void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
 //! \param jsonObj JSON data containing the command to be issued
 //!
 void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
-{
+{    
     if(jsonObj["vehicleCommand"] == "FORCE_DATA_SYNC") {
 //        mLogs->debug("Module Ground Station issuing command force data sync to system " + std::to_string(vehicleID) + ".");
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
@@ -388,6 +403,7 @@ void GUItoMACE::setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj)
 //!
 void GUItoMACE::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
 {
+    /*
     CommandItem::ActionChangeMode tmpMode;
     tmpMode.setTargetSystem(vehicleID); // the vehicle ID coordinates to the specific vehicle //vehicle 0 is reserved for all connected vehicles
     tmpMode.setRequestMode(jsonObj["vehicleCommand"].toString().toStdString()); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
@@ -395,6 +411,25 @@ void GUItoMACE::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->Event_ChangeSystemMode(m_parent, tmpMode);
+    });
+    */
+
+
+
+
+    std::shared_ptr<MaceCore::ITopicComponentPrototype> data = std::make_shared<Data::TopicComponents::String>(
+                    jsonObj["vehicleCommand"].toString().toStdString()
+                );
+
+
+    MaceCore::ModuleCharacteristic target;
+    target.ID = vehicleID;
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+    MaceCore::TopicDatagram topicDatagram;
+    m_VehicleTopics->m_CommandSystemMode.SetComponent(data, topicDatagram);
+    m_parent->NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(m_parent, m_VehicleTopics->m_CommandSystemMode.Name(), m_parent->GetCharacteristic(), MaceCore::TIME(), topicDatagram, target);
     });
 }
 

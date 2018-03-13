@@ -28,11 +28,16 @@
 #include "data_vehicle_sensors/components.h"
 #include "data_generic_state_item/positional_aid.h"
 
+#include "base_topic/vehicle_topics.h"
+
 class GUItoMACE
 {
+private:
+
+    const BaseTopic::VehicleTopics *m_VehicleTopics;
 public:
-    GUItoMACE(const MaceCore::IModuleCommandGroundStation *ptrRef);
-    GUItoMACE(const MaceCore::IModuleCommandGroundStation *ptrRef, const QHostAddress &sendAddress, const int &sendPort);
+    GUItoMACE(const MaceCore::IModuleCommandGroundStation *ptrRef, const BaseTopic::VehicleTopics *);
+    GUItoMACE(const MaceCore::IModuleCommandGroundStation *ptrRef, const BaseTopic::VehicleTopics *, const QHostAddress &sendAddress, const int &sendPort);
 
     ~GUItoMACE();
 
