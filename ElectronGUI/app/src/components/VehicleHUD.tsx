@@ -178,6 +178,7 @@ export class VehicleHUD extends React.Component<Props, State> {
                             </div>
                          </div>
 
+
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
                 <Card expanded={true} onExpandChange={() => this.props.handleChangeSelectedVehicle(this.props.vehicleID)} style={hudStyle}>
