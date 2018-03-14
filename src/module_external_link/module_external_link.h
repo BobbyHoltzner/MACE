@@ -398,6 +398,9 @@ private:
     MaceCore::SpooledTopic<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 
     BaseTopic::VehicleTopics m_VehicleTopics;
+
+
+    std::unordered_map<std::string, Controllers::IController<mace_message_t>*> m_TopicToControllers;
 };
 
 #endif // MODULE_EXTERNAL_LINK_H

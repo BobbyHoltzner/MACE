@@ -33,7 +33,8 @@ SUBDIRS += \
     voropp \
     module_resource_task_allocation \
     module_ROS \
-    mace
+    mace \
+    module_generic_MAVLINK
 
 
 base.depends = common

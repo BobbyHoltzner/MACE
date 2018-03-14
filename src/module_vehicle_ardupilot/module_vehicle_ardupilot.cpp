@@ -1,6 +1,8 @@
 #include "module_vehicle_ardupilot.h"
 #include <functional>
 
+#include "module_generic_MAVLINK/controllers/congroller_mavlink_generic_set.h"
+
 template <typename T>
 T CopyCommandAndInsertTarget(const CommandItem::AbstractCommandItem &item, int targetSystem)
 {
@@ -17,12 +19,54 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<>(),
     m_VehicleMissionTopic("vehicleMission"), m_AircraftController(NULL), vehicleData(NULL)
 {
+    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
+
+
+    auto controller_SystemMode = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequest<
+            mavlink_message_t,
+            MaceCore::TopicDatagram,
+            mavlink_set_mode_t,
+            mavlink_command_ack_t,
+            MAVLINK_MSG_ID_SET_MODE,
+            MAVLINK_MSG_ID_COMMAND_ACK
+            >
+            (this, queue, m_LinkChan,
+                mavlink_msg_set_mode_encode_chan,
+                mavlink_msg_command_ack_decode
+            );
+    controller_SystemMode->FillSetObject([this](const MaceCore::TopicDatagram &commandItem, const MaceCore::ModuleCharacteristic &target, mavlink_set_mode_t &cmd)
+    {
+        std::shared_ptr<Data::TopicComponents::String> component = std::make_shared<Data::TopicComponents::String>();
+        this->m_VehicleTopics.m_CommandSystemMode.GetComponent(commandItem, component);
+
+
+        DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
+        int mode = tmp.getFlightModeFromString(component->Str());
+
+        cmd.target_system = target.ID;
+        cmd.base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
+        cmd.custom_mode = mode;
+    });
+    m_TopicToControllers.insert({this->m_VehicleTopics.m_CommandSystemMode.Name(), controller_SystemMode});
 
 }
+
+
 
 void ModuleVehicleArdupilot::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
     ModuleVehicleMAVLINK::ConfigureModule(params);
+}
+
+//!
+//! \brief TransmitMessage
+//! \param msg Message to transmit
+//! \param target Target to transmitt to. Broadcast if not set.
+//!
+void ModuleVehicleArdupilot::TransmitMessage(const mavlink_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target) const
+{
+    UNUSED(target);
+    m_LinkMarshaler->SendMAVMessage(m_LinkName, msg);
 }
 
 void ModuleVehicleArdupilot::createLog(const int &systemID)
@@ -151,6 +195,8 @@ void ModuleVehicleArdupilot::cbi_VehicleMission(const int &systemID, const Missi
 void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
     ptr->Subscribe(this, m_VehicleMissionTopic.Name());
+
+    ptr->Subscribe(this, this->m_VehicleTopics.m_CommandSystemMode.Name());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -544,7 +590,21 @@ void ModuleVehicleArdupilot::PublishVehicleData(const int &systemID, const std::
 //!
 void ModuleVehicleArdupilot::NewTopicGiven(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
+    if(this->m_TopicToControllers.find(topicName) == m_TopicToControllers.cend())
+    {
+        throw std::runtime_error("Attempting to send a topic that external link has no knowledge of");
+    }
 
+    Controllers::IController<mavlink_message_t> *controller = m_TopicToControllers.at(topicName);
+
+
+
+    if(controller->ContainsAction(Controllers::Actions::SEND) == false)
+    {
+        throw std::runtime_error("Attempting to send a topic to a controller that has no send action");
+    }
+    Controllers::IActionSend<MaceCore::TopicDatagram> *sendAction = dynamic_cast<Controllers::IActionSend<MaceCore::TopicDatagram>*>(controller);
+    sendAction->Send(data, sender, this->GetCharacteristic());
 }
 
 

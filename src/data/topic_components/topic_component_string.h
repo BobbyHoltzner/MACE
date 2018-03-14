@@ -23,7 +23,14 @@ public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
+    String();
+
     String(const std::string str);
+
+    std::string Str() const
+    {
+        return m_Str;
+    }
 };
 
 

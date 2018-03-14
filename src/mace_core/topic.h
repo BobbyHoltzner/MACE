@@ -384,7 +384,7 @@ public:
 
     TopicCharacteristic Characterisic() const
     {
-        return TopicCharacteristic(true, _Topic<T...>::m_TopicName);
+        return TopicCharacteristic(IsSpooled(), _Topic<T...>::m_TopicName);
     }
 
 
@@ -405,9 +405,13 @@ public:
         return false;
     }
 
+    std::string Name() const {
+        return _Topic<T...>::m_TopicName;
+    }
+
     TopicCharacteristic Characterisic() const
     {
-        return TopicCharacteristic(true, _Topic<T...>::m_TopicName);
+        return TopicCharacteristic(IsSpooled(), _Topic<T...>::m_TopicName);
     }
 
 

@@ -1,5 +1,7 @@
 #include "module_external_link.h"
 
+#include "module_generic_MAVLINK/controllers/congroller_mavlink_generic_set.h"
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///             CONFIGURE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,6 +24,51 @@ ModuleExternalLink::ModuleExternalLink() :
     Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mace_message_t>();
 
 
+
+
+
+    auto controller_SystemMode2 = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequestRespond<
+            mace_message_t,
+            MaceCore::TopicDatagram,
+            mace_command_system_mode_t,
+            mace_system_mode_ack_t,
+            MACE_MSG_ID_COMMAND_SYSTEM_MODE,
+            MACE_MSG_ID_SYSTEM_MODE_ACK
+            >
+            (this, queue, m_LinkChan,
+                mace_msg_command_system_mode_encode_chan,
+                mace_msg_command_system_mode_decode,
+                mace_msg_system_mode_ack_encode_chan,
+                mace_msg_system_mode_ack_decode
+            );
+    controller_SystemMode2->FillSetObject([this](const MaceCore::TopicDatagram &commandItem, const MaceCore::ModuleCharacteristic &target, mace_command_system_mode_t &cmd)
+    {
+        std::shared_ptr<Data::TopicComponents::String> component = std::make_shared<Data::TopicComponents::String>();
+        this->m_VehicleTopics.m_CommandSystemMode.GetComponent(commandItem, component);
+
+        strcpy(cmd.mode, component->Str().c_str());
+        cmd.target_system = target.ID;
+    });
+    controller_SystemMode2->FillDataAndAck([this](const mace_command_system_mode_t &msg, std::shared_ptr<MaceCore::TopicDatagram> &data, mace_system_mode_ack_t &ack){
+
+        std::shared_ptr<Data::TopicComponents::String> component = std::make_shared<Data::TopicComponents::String>(std::string(msg.mode));
+
+        data = std::make_shared<MaceCore::TopicDatagram>();
+        this->m_VehicleTopics.m_CommandSystemMode.SetComponent(component, *data);
+
+        ack.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+    });
+    controller_SystemMode2->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<MaceCore::TopicDatagram> &command){
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, this->m_VehicleTopics.m_CommandSystemMode.Name(), sender, MaceCore::TIME(), *command);
+        });
+    });
+    m_TopicToControllers.insert({this->m_VehicleTopics.m_CommandSystemMode.Name(), controller_SystemMode2});
+
+
+
+
+
     //auto externalLink = new ExternalLink::MissionController(this, queue, m_LinkChan);
     //externalLink->setLambda_DataReceived([this](const MissionKey &key, const std::shared_ptr<MissionList> &list){this->ReceivedMission(*list);});
     //externalLink->setLambda_FetchDataFromKey([this](const OptionalParameter<MissionKey> &key){return this->FetchMissionFromKey(key);});
@@ -36,9 +83,11 @@ ModuleExternalLink::ModuleExternalLink() :
     m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandMissionItem<mace_message_t>>(this, queue, m_LinkChan));
 
 
+    /*
     auto controller_SystemMode = new Controllers::ControllerSystemMode<mace_message_t>(this, queue, m_LinkChan);
     controller_SystemMode->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){this->ReceivedCommand(sender, command);});
     m_Controllers.Add(controller_SystemMode);
+    */
 
 
     auto homeController = new Controllers::ControllerHome<mace_message_t>(this, queue, m_LinkChan);
@@ -75,6 +124,7 @@ std::vector<MaceCore::TopicCharacteristic> ModuleExternalLink::GetEmittedTopics(
 
     topics.push_back(this->m_VehicleDataTopic.Characterisic());
     topics.push_back(this->m_MissionDataTopic.Characterisic());
+    topics.push_back(this->m_VehicleTopics.m_CommandSystemMode.Characterisic());
 
     return topics;
 }
@@ -386,6 +436,11 @@ void ModuleExternalLink::MACEMessage(const std::string &linkName, const mace_mes
     m_Controllers.ForEach<Controllers::IController<mace_message_t>>([message](Controllers::IController<mace_message_t>* ptr) {
        ptr->ReceiveMessage(&message);
     });
+
+    for(auto it = m_TopicToControllers.cbegin() ; it != m_TopicToControllers.cend() ; ++it)
+    {
+        it->second->ReceiveMessage(&message);
+    }
 
     this->ParseForData(&message);
 }
@@ -817,9 +872,29 @@ void ModuleExternalLink::ReceivedMissionACK(const MissionItem::MissionACK &ack)
 //!
 void ModuleExternalLink::NewTopicGiven(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
-    if(topicName == m_VehicleTopics.m_CommandSystemMode.Name())
+
+    if(this->m_TopicToControllers.find(topicName) == m_TopicToControllers.cend())
     {
-        printf("Command System Mode Topic received by External Link!");
+        throw std::runtime_error("Attempting to send a topic that external link has no knowledge of");
+    }
+
+    Controllers::IController<mace_message_t> *controller = m_TopicToControllers.at(topicName);
+    if(target.IsSet())
+    {
+        if(controller->ContainsAction(Controllers::Actions::SEND) == false)
+        {
+            throw std::runtime_error("Attempting to send a topic to a controller that has no send action");
+        }
+        Controllers::IActionSend<MaceCore::TopicDatagram> *sendAction = dynamic_cast<Controllers::IActionSend<MaceCore::TopicDatagram>*>(controller);
+        sendAction->Send(data, sender, target());
+    }
+    else {
+        if(controller->ContainsAction(Controllers::Actions::BROADCAST) == false)
+        {
+            throw std::runtime_error("Attempting to broadcast a topic to a controller that has no broadcast action");
+        }
+        Controllers::IActionBroadcast<MaceCore::TopicDatagram> *sendAction = dynamic_cast<Controllers::IActionBroadcast<MaceCore::TopicDatagram>*>(controller);
+        sendAction->Broadcast(data, sender);
     }
 }
 

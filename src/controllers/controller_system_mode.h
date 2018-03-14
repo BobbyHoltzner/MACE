@@ -13,17 +13,9 @@
 namespace Controllers {
 
 
-template <typename T>
-using SystemModeSend = ActionSend<
-    GenericControllerQueueDataWithModule<T, CommandItem::ActionChangeMode>,
-    MaceCore::ModuleCharacteristic,
-    CommandItem::ActionChangeMode,
-    mace_command_system_mode_t,
-    MACE_MSG_ID_SYSTEM_MODE_ACK
->;
-
 template <typename MESSAGETYPE>
 using SystemModeSend = ActionSend<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
     CommandItem::ActionChangeMode,
@@ -33,6 +25,7 @@ using SystemModeSend = ActionSend<
 
 template <typename MESSAGETYPE>
 using SystemMode_FinalReceiveRespond = ActionFinalReceiveRespond<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
     CommandItem::ActionChangeMode,
@@ -43,6 +36,7 @@ using SystemMode_FinalReceiveRespond = ActionFinalReceiveRespond<
 
 template <typename MESSAGETYPE>
 using SystemModeFinish = ActionFinish<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
     mace_system_mode_ack_t,
@@ -64,12 +58,9 @@ class ControllerSystemMode : public GenericControllerQueueDataWithModule<MESSAGE
 protected:
 
 
-    virtual void Construct_Send(const CommandItem::ActionChangeMode &commandItem, const MaceCore::ModuleCharacteristic &sender, mace_command_system_mode_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
+    virtual void Construct_Send(const CommandItem::ActionChangeMode &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_command_system_mode_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
-        MaceCore::ModuleCharacteristic target;
-        target.ID = commandItem.getTargetSystem();
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
         queueObj = target;
 
         cmd.target_system = commandItem.getTargetSystem();

@@ -1,29 +1,32 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-01-13T16:56:01
+# Project created by QtCreator 2018-03-13T16:22:22
 #
 #-------------------------------------------------
-QT += serialport
-QT += network
+
 QT       -= core gui
 
-TARGET = module_external_link
+TARGET = module_generic_MAVLINK
 TEMPLATE = lib
 
-DEFINES += MODULE_EXTERNAL_LINK_LIBRARY
+DEFINES += MODULE_GENERIC_MAVLINK_LIBRARY
 
-QMAKE_CXXFLAGS += -std=c++11
-
+# The following define makes your compiler emit warnings if you use
+# any feature of Qt which has been marked as deprecated (the exact warnings
+# depend on your compiler). Please consult the documentation of the
+# deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
-SOURCES += module_external_link.cpp \
-    parse_comms_message.cpp \
-    parse_comms_command.cpp \
-    controllers/heartbeat_controller_externallink.cpp
+# You can also make your code fail to compile if you use deprecated APIs.
+# In order to do so, uncomment the following line.
+# You can also select to disable deprecated APIs only up to a certain version of Qt.
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-HEADERS += module_external_link.h\
-        module_external_link_global.h \
-    controllers/heartbeat_controller_externallink.h
+SOURCES +=
+
+HEADERS += \
+        module_generic_mavlink_global.h \   
+    controllers/congroller_mavlink_generic_set.h
 
 
 # Unix lib Install
@@ -34,33 +37,18 @@ unix:!symbian {
 
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib
-win32:CONFIG(release, debug|release):       lib.files   += release/module_external_link.lib release/module_external_link.dll
-else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_external_link.lib debug/module_external_link.dll
+win32:CONFIG(release, debug|release):       lib.files   += release/module_generic_MAVLINK.lib release/module_generic_MAVLINK.dll
+else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_generic_MAVLINK.lib debug/module_generic_MAVLINK.dll
 INSTALLS += lib
 
-#Header file copy
-headers_base.path    = $$(MACE_ROOT)/include/module_external_link
-headers_base.files   += \
-        module_external_link_global.h \
-        module_external_link.h \
-        controller_collection.h
-INSTALLS       += headers_base
 
-#Header file copy
-headers_controllers.path    = $$(MACE_ROOT)/include/module_external_link/controllers
-headers_controllers.files   += \
-    controllers/heartbeat_controller_externallink.h
-INSTALLS       += headers_controllers
-
+INSTALL_PREFIX = $$(MACE_ROOT)/include/module_generic_MAVLINK
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
 
 
 INCLUDEPATH += $$PWD/../
-INCLUDEPATH += $$PWD/../../speedLog/
-INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
-INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
-INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
-LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
@@ -113,9 +101,3 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/ -ldata_
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MACE/release/ -ldata_interface_MACE
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MACE/debug/ -ldata_interface_MACE
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_interface_MACE/ -ldata_interface_MACE
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_generic_MAVLINK/release/ -lmodule_generic_MAVLINK
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_generic_MAVLINK/debug/ -lmodule_generic_MAVLINK
-else:unix:!macx: LIBS += -L$$OUT_PWD/../module_generic_MAVLINK/ -lmodule_generic_MAVLINK
-
-

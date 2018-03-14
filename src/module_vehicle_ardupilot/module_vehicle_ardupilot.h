@@ -27,15 +27,23 @@
 
 #include "data_interface_MAVLINK/vehicle_object_mavlink.h"
 
+#include "base_topic/vehicle_topics.h"
+
+#include "controllers/I_controller.h"
+#include "controllers/I_message_notifier.h"
+
 using namespace std::placeholders;
 
 //class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
-class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
+class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK,
+        public Controllers::IMessageNotifier<mavlink_message_t>
 {
 public:
     ModuleVehicleArdupilot();
 
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
+
+    virtual void TransmitMessage(const mavlink_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) const;
 
     void createLog(const int &systemID);
 
@@ -295,7 +303,11 @@ private:
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;
 
+    BaseTopic::VehicleTopics m_VehicleTopics;
+
     Ardupilot_GeneralController* m_AircraftController;
+
+    std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> m_TopicToControllers;
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H

@@ -5,12 +5,12 @@
 
 namespace Controllers {
 
-template<typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID>
+template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID>
 class ActionFinish :
-        public ActionBase<CONTROLLER_TYPE, MSG_TYPE>
+        public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>
 {
 
-    typedef ActionBase<CONTROLLER_TYPE, MSG_TYPE> BASE;
+    typedef ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE> BASE;
 
 protected:
 
@@ -20,8 +20,8 @@ public:
 
 
     ActionFinish(CONTROLLER_TYPE *controller,
-                           const std::function<void(const mace_message_t*, MSG_TYPE*)> &decode) :
-        ActionBase<CONTROLLER_TYPE, MSG_TYPE>(controller, [](uint8_t, uint8_t, uint8_t, mace_message_t*, const MSG_TYPE*){}, decode)
+                           const std::function<void(const MESSAGE_TYPE*, MSG_TYPE*)> &decode) :
+        ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>(controller, [](uint8_t, uint8_t, uint8_t, MESSAGE_TYPE*, const MSG_TYPE*){}, decode)
     {
 
 

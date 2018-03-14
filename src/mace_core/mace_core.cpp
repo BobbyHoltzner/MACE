@@ -175,7 +175,7 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
         throw std::runtime_error("Topic emitted to MaceCore was not expected");
     }
 
-    if(this->m_TopicsToReceive.at(moduleFrom).at(topicName).Spooled() == false)
+    if(this->m_TopicsToReceive.at(moduleFrom).at(topicName).Spooled() == true)
     {
         std::vector<std::string> components = value.ListNonTerminals();
 

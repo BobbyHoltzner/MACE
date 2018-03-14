@@ -31,6 +31,11 @@ void String::CreateFromDatagram(const MaceCore::TopicDatagram &datagram)
     m_Str = datagram.GetTerminal<std::string>("string");
 }
 
+String::String() :
+    m_Str("")
+{
+
+}
 
 String::String(const std::string str) :
     m_Str(str)
