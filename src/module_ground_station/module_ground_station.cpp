@@ -45,7 +45,7 @@ ModuleGroundStation::ModuleGroundStation() :
     m_VehicleDataTopic("vehicleData"),
     m_MissionDataTopic("vehicleMission"),
     m_ListenThread(NULL),
-    m_listenAddress(QHostAddress::LocalHost),
+    m_guiHostAddress(QHostAddress::LocalHost),
     m_listenPort(5678)
 {
     latitude = 37.8910356;
@@ -125,6 +125,8 @@ bool ModuleGroundStation::StartTCPServer()
             this->on_newConnection();
     });
 
+    // For some reason, listening on any other specific address (i.e. not Any) fails.
+    //      - As a workaround, I check the incoming connection below for equality with the guiHostAddress before parsing
     m_TcpServer->listen(QHostAddress::Any, m_listenPort);
 
     m_TcpServer->moveToThread(m_ListenThread);
@@ -151,6 +153,18 @@ void ModuleGroundStation::on_newConnection()
     while (m_TcpServer->hasPendingConnections())
     {
         QTcpSocket *socket = m_TcpServer->nextPendingConnection();
+
+        // Workaround for server listening on Any address (see above)
+        //  - Compare incoming address with guiHostAddress. IF the same continue, otherwise break out.
+        std::string peerAddress = socket->peerAddress().toString().toStdString();
+        // Split string and find just the address part:
+        std::size_t found = peerAddress.find_last_of(":\\");
+        peerAddress = peerAddress.substr(found+1);
+        if(peerAddress != m_guiHostAddress.toString().toStdString()) {
+            std::cout << "Unknown IP address: " << peerAddress << ". Compare to GUI Host Address: " << m_guiHostAddress.toString().toStdString() << std::endl;
+            return;
+        }
+
         while (socket->waitForReadyRead())
         {
             QByteArray data = socket->readAll();
@@ -216,14 +230,14 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleGroundStation::ModuleC
 //!
 void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-    QHostAddress listenAddress, sendAddress;
+    QHostAddress guiHostAddress;
     int listenPort, sendPort;
     if(params->HasNonTerminal("MACEComms")) {
         std::shared_ptr<MaceCore::ModuleParameterValue> maceCommsXML = params->GetNonTerminalValue("MACEComms");
         if(maceCommsXML->HasTerminal("GUIHostAddress")) {
             std::string hostAddress = maceCommsXML->GetTerminalValue<std::string>("GUIHostAddress");
-            listenAddress = QHostAddress(QString::fromStdString(hostAddress));
-            sendAddress = QHostAddress(QString::fromStdString(hostAddress));
+            guiHostAddress = QHostAddress(QString::fromStdString(hostAddress));
+//            sendAddress = QHostAddress(QString::fromStdString(hostAddress));
         }
         if(maceCommsXML->HasTerminal("ListenPort")) {
             listenPort = maceCommsXML->GetTerminalValue<int>("ListenPort");
@@ -235,8 +249,13 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
 
     this->SetID(params->GetTerminalValue<int>("ID"));
 
-    m_toGUIHandler->setSendAddress(sendAddress);
+    m_guiHostAddress = guiHostAddress;
+    m_listenPort = listenPort;
+  
+    m_toGUIHandler->setSendAddress(guiHostAddress);
     m_toGUIHandler->setSendPort(sendPort);
+    m_toMACEHandler->setSendAddress(guiHostAddress);
+    m_toMACEHandler->setSendPort(sendPort);
 }
 
 //!

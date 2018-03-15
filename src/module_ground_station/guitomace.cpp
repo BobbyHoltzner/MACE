@@ -15,7 +15,22 @@ GUItoMACE::GUItoMACE(const MaceCore::IModuleCommandGroundStation* ptrRef, const 
 }
 
 GUItoMACE::~GUItoMACE() {
+}
 
+//!
+//! \brief setSendAddress Set the TCP send address for MACE-to-GUI comms
+//! \param sendAddress TCP send address
+//!
+void GUItoMACE::setSendAddress(const QHostAddress &sendAddress) {
+    m_sendAddress = sendAddress;
+}
+
+//!
+//! \brief setSendPort Set the TCP send port for MACE-to-GUI comms
+//! \param sendPort TCP send port
+//!
+void GUItoMACE::setSendPort(const int &sendPort) {
+    m_sendPort = sendPort;
 }
 
 //!

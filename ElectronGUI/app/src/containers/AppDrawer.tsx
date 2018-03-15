@@ -107,6 +107,16 @@ export class AppDrawer extends React.Component<Props, State> {
                         />
                         {this.state.openSettingsSubmenu &&
                             <div>
+                                <MenuItem onTouchTap={() => this.props.onDrawerAction("MACEConfig")}>
+                                    <FlatButton
+                                        labelStyle={drawerItemLabelStyle}
+                                        label="MACE Config"
+                                        icon={<FontIcon className="material-icons">flight_takeoff</FontIcon>}
+                                        disableTouchRipple={false}
+                                        disableFocusRipple={false}
+                                        hoverColor={'rgba(0,0,0, 0.0)'}
+                                    />
+                                </MenuItem>
                                 <MenuItem onTouchTap={() => this.props.onDrawerAction("Messages")}>
                                     <FlatButton
                                         labelStyle={drawerItemLabelStyle}

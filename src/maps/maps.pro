@@ -26,22 +26,48 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     bounded_2D_grid.cpp \
+    base_grid_map.cpp \
+    iterators/grid_map_iterator.cpp \
+    iterators/polygon_map_iterator.cpp \
+    iterators/circle_map_iterator.cpp \
+    iterators/generic_map_iterator.cpp \
     dynamic_2D_grid.tpp
 
 HEADERS +=\
         maps_global.h \
     dynamic_2D_grid.h \
-    bounded_2D_grid.h
+    bounded_2D_grid.h \
+    base_grid_map.h \
+    data_2d_grid.h \
+    iterators/polygon_map_iterator.h \
+    iterators/circle_map_iterator.h \
+    iterators/grid_map_iterator.h \
+    iterators/generic_map_iterator.h
 
 #Header file copy
 headers_maps.path    = $$(MACE_ROOT)/include/maps
 headers_maps.files   += \
-        maps_global.h \
-    dynamic_2D_grid.h \
-    bounded_2D_grid.h \
-    dynamic_2D_grid.tpp
+        base_grid_map.h \
+        bounded_2D_grid.h \
+        data_2d_grid.h \
+        dynamic_2D_grid.h \
+        maps_global.h
 INSTALLS       += headers_maps
 
+#Header file copy
+headers_iterators.path    = $$(MACE_ROOT)/include/iterators
+headers_iterators.files   += \
+    iterators/polygon_map_iterator.h \
+    iterators/circle_map_iterator.h \
+    iterators/grid_map_iterator.h \
+    iterators/generic_map_iterator.h
+INSTALLS       += headers_iterators
+
+# Unix lib Install
+unix:!symbian {
+    target.path = $$(MACE_ROOT)/lib
+    INSTALLS += target
+}
 
 # Unix lib Install
 unix:!symbian {

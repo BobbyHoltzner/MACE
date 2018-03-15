@@ -231,6 +231,7 @@ export default class MACEMap extends React.Component<Props, State> {
 
                     {/* Guided target */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
+                      if(this.props.connectedVehicles[key].vehicleMode === 'GUIDED')
                       return (
                         <Marker key={key} position={this.props.connectedVehicles[key].currentTarget.targetPosition} icon={this.props.connectedVehicles[key].currentTarget.icon} title={key}>
                         </Marker>
@@ -238,7 +239,7 @@ export default class MACEMap extends React.Component<Props, State> {
                     })}
                     {/* Guided target Paths */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {
-                      if(this.props.connectedVehicles[key].currentTarget.active) {
+                      if(this.props.connectedVehicles[key].currentTarget.active && this.props.connectedVehicles[key].vehicleMode === 'GUIDED') {
                         return (
                           <Polyline key={key} positions={[this.props.connectedVehicles[key].vehicleMarker.latLon, this.props.connectedVehicles[key].currentTarget.targetPosition]} color={this.props.selectedVehicleID === key ? this.props.connectedVehicles[key].highlightColor : this.props.connectedVehicles[key].opaqueHighlightColor} />
                         );
