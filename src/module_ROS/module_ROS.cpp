@@ -130,7 +130,7 @@ void ModuleROS::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
 //! \param data Data for topic
 //! \param target Target module (or broadcasted)
 //!
-void ModuleROS::NewTopicGiven(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModuleROS::NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
 
 }
@@ -146,7 +146,7 @@ void ModuleROS::NewTopicGiven(const std::string &topicName, const MaceCore::Modu
 //! \param componentsUpdated Components in topic that where updated
 //! \param target Target moudle (or broadcast)
 //!
-void ModuleROS::NewTopicAvailable(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
     int senderID = sender.ID;
     // TODO: On new vehicle position, send to ROS via publishVehiclePosition

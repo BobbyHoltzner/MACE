@@ -870,7 +870,7 @@ void ModuleExternalLink::ReceivedMissionACK(const MissionItem::MissionACK &ack)
 //! \param data Data for topic
 //! \param target Target module (or broadcasted)
 //!
-void ModuleExternalLink::NewTopicGiven(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModuleExternalLink::NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
 
     if(this->m_TopicToControllers.find(topicName) == m_TopicToControllers.cend())
@@ -909,7 +909,7 @@ void ModuleExternalLink::NewTopicGiven(const std::string &topicName, const MaceC
 //! \param componentsUpdated Components in topic that where updated
 //! \param target Target moudle (or broadcast)
 //!
-void ModuleExternalLink::NewTopicAvailable(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModuleExternalLink::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
     int senderID = sender.ID;
     if(airborneInstance)

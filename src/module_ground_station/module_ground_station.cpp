@@ -291,7 +291,7 @@ void ModuleGroundStation::AttachedAsModule(MaceCore::IModuleTopicEvents *ptr)
 //! \param data Data for topic
 //! \param target Target module (or broadcasted)
 //!
-void ModuleGroundStation::NewTopicGiven(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModuleGroundStation::NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
 
 }
@@ -307,7 +307,7 @@ void ModuleGroundStation::NewTopicGiven(const std::string &topicName, const Mace
 //! \param componentsUpdated Components in topic that where updated
 //! \param target Target moudle (or broadcast)
 //!
-void ModuleGroundStation::NewTopicAvailable(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())

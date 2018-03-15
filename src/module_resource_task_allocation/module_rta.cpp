@@ -170,7 +170,7 @@ bool ModuleRTA::parseBoundaryVertices(std::string unparsedVertices, const DataSt
 //! \param data Data for topic
 //! \param target Target module (or broadcasted)
 //!
-void ModuleRTA::NewTopicGiven(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModuleRTA::NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
 
 }
@@ -186,7 +186,7 @@ void ModuleRTA::NewTopicGiven(const std::string &topicName, const MaceCore::Modu
 //! \param componentsUpdated Components in topic that where updated
 //! \param target Target moudle (or broadcast)
 //!
-void ModuleRTA::NewTopicAvailable(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
     int senderID = sender.ID;
     if(!originSent) {

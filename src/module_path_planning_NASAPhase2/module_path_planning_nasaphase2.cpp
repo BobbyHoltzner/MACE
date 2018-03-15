@@ -41,7 +41,7 @@ void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCor
 //! \param data Data for topic
 //! \param target Target module (or broadcasted)
 //!
-void ModulePathPlanningNASAPhase2::NewTopicGiven(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModulePathPlanningNASAPhase2::NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
 
 }
@@ -57,7 +57,7 @@ void ModulePathPlanningNASAPhase2::NewTopicGiven(const std::string &topicName, c
 //! \param componentsUpdated Components in topic that where updated
 //! \param target Target moudle (or broadcast)
 //!
-void ModulePathPlanningNASAPhase2::NewTopicAvailable(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
     UNUSED(topicName);
     UNUSED(sender);

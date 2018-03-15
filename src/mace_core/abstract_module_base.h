@@ -130,7 +130,7 @@ public:
     //! \param data Data for topic
     //! \param target Target module (or broadcasted)
     //!
-    virtual void NewTopicGiven(const std::string &topicName, const ModuleCharacteristic &sender, const TopicDatagram &data, const OptionalParameter<ModuleCharacteristic> &target = OptionalParameter<ModuleCharacteristic>()) = 0;
+    virtual void NewTopicData(const std::string &topicName, const ModuleCharacteristic &sender, const TopicDatagram &data, const OptionalParameter<ModuleCharacteristic> &target = OptionalParameter<ModuleCharacteristic>()) = 0;
 
 
     //!
@@ -143,7 +143,7 @@ public:
     //! \param componentsUpdated Components in topic that where updated
     //! \param target Target moudle (or broadcast)
     //!
-    virtual void NewTopicAvailable(const std::string &topicName, const ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<ModuleCharacteristic> &target = OptionalParameter<ModuleCharacteristic>()) = 0;
+    virtual void NewTopicSpooled(const std::string &topicName, const ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<ModuleCharacteristic> &target = OptionalParameter<ModuleCharacteristic>()) = 0;
 
     //!
     //! \brief Get all topics that are to be emited by this module

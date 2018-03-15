@@ -84,7 +84,7 @@ void ModuleVehicleSensors::ConfigureModule(const std::shared_ptr<MaceCore::Modul
 //! \param data Data for topic
 //! \param target Target module (or broadcasted)
 //!
-void ModuleVehicleSensors::NewTopicGiven(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModuleVehicleSensors::NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
 
 }
@@ -100,7 +100,7 @@ void ModuleVehicleSensors::NewTopicGiven(const std::string &topicName, const Mac
 //! \param componentsUpdated Components in topic that where updated
 //! \param target Target moudle (or broadcast)
 //!
-void ModuleVehicleSensors::NewTopicAvailable(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModuleVehicleSensors::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
     int senderID = sender.ID;
     //example read of vehicle data

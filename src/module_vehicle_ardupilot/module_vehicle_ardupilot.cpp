@@ -588,7 +588,7 @@ void ModuleVehicleArdupilot::PublishVehicleData(const int &systemID, const std::
 //! \param data Data for topic
 //! \param target Target module (or broadcasted)
 //!
-void ModuleVehicleArdupilot::NewTopicGiven(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModuleVehicleArdupilot::NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
     if(this->m_TopicToControllers.find(topicName) == m_TopicToControllers.cend())
     {
@@ -618,7 +618,7 @@ void ModuleVehicleArdupilot::NewTopicGiven(const std::string &topicName, const M
 //! \param componentsUpdated Components in topic that where updated
 //! \param target Target moudle (or broadcast)
 //!
-void ModuleVehicleArdupilot::NewTopicAvailable(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+void ModuleVehicleArdupilot::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
     int senderID = sender.ID;
     if(topicName == m_VehicleMissionTopic.Name())
