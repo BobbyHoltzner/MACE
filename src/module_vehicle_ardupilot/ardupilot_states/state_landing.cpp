@@ -54,5 +54,10 @@ void State_Landing::OnEnter()
 
 }
 
+void State_Landing::OnEnter(const AbstractCommandItem *command)
+{
+    this->OnEnter();
+}
+
 } //end of namespace ardupilot
 } //end of namespace state

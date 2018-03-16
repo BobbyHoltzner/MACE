@@ -111,12 +111,13 @@ public:
     void setActiveIndex(const int &activeIndex);
 
 public:
-    void operator = (const MissionList &rhs)
+    MissionList& operator = (const MissionList &rhs)
     {
         this->missionKey = rhs.missionKey;
         this->missionQueue = rhs.missionQueue;
         this->missionExeState = rhs.missionExeState;
         this->activeMissionItem = rhs.activeMissionItem;
+        return *this;
     }
 
     bool operator == (const MissionList &rhs) const{

@@ -37,8 +37,12 @@ public:
 
     bool isThreadActive()
     {
-        if((mThread) && (mToExit == false))
+        if(mToExit == false)
+        {
             return true;
+        }
+        printf("%x\n", mThread);
+        printf("%d\n", mToExit);
         return false;
     }
 protected:

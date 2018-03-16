@@ -26,6 +26,7 @@ public:
 
     void OnEnter() override;
 
+    void OnEnter(const AbstractCommandItem* command) override;
 };
 
 } //end of namespace ardupilot

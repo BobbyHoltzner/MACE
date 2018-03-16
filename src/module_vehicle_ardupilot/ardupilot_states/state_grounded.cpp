@@ -61,12 +61,20 @@ hsm::Transition State_Grounded::GetTransition()
 
 void State_Grounded::handleCommand(const AbstractCommandItem* command)
 {
-
+    COMMANDITEM::CI_ACT_ARM commandType = command->getCommandType();
+    switch (commandType) {
+    case COMMANDITEM::CI_ACT_ARM:
+    {
+        desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMING;
+    }
+    default:
+        break;
+    }
 }
 
 void State_Grounded::Update()
 {
-
+    //this update should continue to check if the vehicle is not armed and as such remain in this state
 }
 
 void State_Grounded::OnEnter()
@@ -79,6 +87,11 @@ void State_Grounded::OnEnter()
     {
         this->desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
     }
+}
+
+void State_Grounded::OnEnter(const AbstractCommandItem *command)
+{
+    this->OnEnter();
 }
 
 } //end of namespace ardupilot

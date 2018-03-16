@@ -32,7 +32,10 @@ public:
     virtual void RequestReset();
     virtual uint64_t getConnectionSpeed() const;
 
-    virtual void WriteBytes(const char *bytes, int length) const;
+    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target = OptionalParameter<std::tuple<const char*, int>>()) const;
+
+    virtual void AddResource(const char *resourceType, int ID);
+
 
     //!
     //! \brief Determine the connection status

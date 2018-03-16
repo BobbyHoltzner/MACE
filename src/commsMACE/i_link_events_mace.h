@@ -16,6 +16,10 @@ class ILinkEvents
 {
 public:
 
+    virtual void AddedExternalResource(ILink *link_ptr, const char* resourceName, int vehicleID) const = 0;
+
+    virtual void RemovedExternalResource(ILink *link_ptr, const char* resourceName, int vehicleID) const = 0;
+
     virtual void ReceiveData(ILink *link_ptr, const std::vector<uint8_t> &buffer) const = 0;
 
     virtual void CommunicationError(const ILink* link_ptr, const std::string &type, const std::string &msg) const = 0;

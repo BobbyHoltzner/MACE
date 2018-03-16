@@ -34,6 +34,9 @@ HEADERS += comms_mace_helper.h\
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 
+INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
+LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper
+
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib

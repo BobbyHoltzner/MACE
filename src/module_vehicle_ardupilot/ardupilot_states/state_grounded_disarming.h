@@ -7,6 +7,7 @@ namespace ardupilot{
 namespace state{
 
 class State_GroundedIdle;
+class State_GroundedArmed;
 
 class State_GroundedDisarming : public AbstractStateArdupilot
 {
@@ -28,6 +29,7 @@ public:
 
     void OnEnter() override;
 
+    void OnEnter(const AbstractCommandItem* command) override;
 };
 
 } //end of namespace ardupilot

@@ -70,6 +70,12 @@ unix:!symbian {
     INSTALLS += target
 }
 
+# Unix lib Install
+unix:!symbian {
+    target.path = $$(MACE_ROOT)/lib
+    INSTALLS += target
+}
+
 # Windows lib install
 lib.path    = $$(MACE_ROOT)/lib
 win32:CONFIG(release, debug|release):       lib.files   += release/maps.lib release/maps.dll

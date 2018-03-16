@@ -7,7 +7,7 @@
 #include "mavlink.h"
 
 #include "data/controller_comms_state.h"
-#include "data/threadmanager.h"
+#include "common/thread_manager.h"
 #include "data/timer.h"
 
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"

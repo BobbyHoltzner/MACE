@@ -65,6 +65,9 @@ public:
 
     virtual ArdupilotFlightState getDesiredState() const;
 
+public:
+    virtual void OnEnter(const AbstractCommandItem* command) = 0;
+
 protected:
     void clearCommand();
 

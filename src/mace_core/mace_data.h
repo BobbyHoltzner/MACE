@@ -116,6 +116,12 @@ public:
         vehicleIDs = m_AvailableVehicles;
     }
 
+    void GetLocalVehicles(std::vector<int> &vehicleIDs) const
+    {
+        std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
+        vehicleIDs = m_LocalVehicles;
+    }
+
     CommandItem::SpatialHome GetVehicleHomePostion(const int &vehicleID) const
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
@@ -146,12 +152,18 @@ public:
 
 private:
 
-    void AddAvailableVehicle(const int &vehicleID)
+    void AddAvailableVehicle(const int &vehicleID, bool internal)
     {
         std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
         m_AvailableVehicles.push_back(vehicleID);
         std::sort( m_AvailableVehicles.begin(), m_AvailableVehicles.end());
         m_AvailableVehicles.erase( unique( m_AvailableVehicles.begin(), m_AvailableVehicles.end() ), m_AvailableVehicles.end() );
+
+        if(internal == true)
+        {
+            m_LocalVehicles.push_back(vehicleID);
+            m_LocalVehicles.erase( unique( m_LocalVehicles.begin(), m_LocalVehicles.end() ), m_LocalVehicles.end() );
+        }
     }
 
     void UpdateVehicleHomePosition(const CommandItem::SpatialHome &vehicleHome)
@@ -677,6 +689,7 @@ private:
 
     mutable std::mutex m_AvailableVehicleMutex;
     std::vector<int> m_AvailableVehicles;
+    std::vector<int> m_LocalVehicles;
 
     mutable std::mutex m_VehicleHomeMutex;
     std::map<int, CommandItem::SpatialHome> m_VehicleHomeMap;

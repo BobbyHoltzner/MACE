@@ -51,7 +51,6 @@ void State_GroundedIdle::handleCommand(const AbstractCommandItem* command)
     case COMMANDITEM::CI_ACT_ARM: //This should cause a state transition to the grounded_arming state
     {
         desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMING;
-        this->currentCommand = command->getClone();
         break;
     }
     default:
@@ -67,6 +66,11 @@ void State_GroundedIdle::Update()
 void State_GroundedIdle::OnEnter()
 {
 
+}
+
+void State_GroundedIdle::OnEnter(const AbstractCommandItem *command)
+{
+    this->OnEnter();
 }
 
 } //end of namespace ardupilot

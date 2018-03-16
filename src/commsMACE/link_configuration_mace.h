@@ -2,6 +2,7 @@
 #define I_LINK_CONFIGURATION_MACE_H
 
 #include <string>
+#include <QCoreApplication>
 
 namespace CommsMACE
 {

@@ -27,23 +27,23 @@ class MACE_CORESHARED_EXPORT IModuleCommandVehicle : public AbstractModule_Vehic
 friend class MaceCore;
 public:
 
-    static Classes moduleClass;
+    static ModuleClasses moduleClass;
 
     IModuleCommandVehicle():
         AbstractModule_VehicleListener()
     {
         //These are from MACE Core to modules
-        this->template AddCommandLogic<int>(VehicleCommands::REQUEST_DUMMY_FUNCTION, [this](const int &vehicleID){
+        this->template AddCommandLogic<int>(VehicleCommands::REQUEST_DUMMY_FUNCTION, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             RequestDummyFunction(vehicleID);
         });
 
-        this->template AddCommandLogic<MissionItem::MissionKeyChange>(VehicleCommands::UPDATE_MISSION_KEY, [this](const MissionItem::MissionKeyChange &key){
+        this->template AddCommandLogic<MissionItem::MissionKeyChange>(VehicleCommands::UPDATE_MISSION_KEY, [this](const MissionItem::MissionKeyChange &key, const OptionalParameter<ModuleCharacteristic> &sender){
             UpdateMissionKey(key);
         });
 
     }
 
-    virtual Classes ModuleClass() const
+    virtual ModuleClasses ModuleClass() const
     {
         return moduleClass;
     }

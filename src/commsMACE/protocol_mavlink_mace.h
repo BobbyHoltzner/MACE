@@ -17,6 +17,7 @@
 
 #include "mavlink_configuration_mace.h"
 
+#include "common/optional_parameter.h"
 
 
 namespace CommsMACE
@@ -24,6 +25,11 @@ namespace CommsMACE
 
 class COMMSMACESHARED_EXPORT MavlinkProtocol : public IProtocol
 {
+
+    class DecodeEncodeLibrary
+    {
+
+    };
 
 public:
     MavlinkProtocol(const MavlinkConfiguration &config);
@@ -65,7 +71,7 @@ public:
     //! \param link Link to put message onto
     //! \param message Message to send
     //!
-    void SendProtocolMessage(const ILink *link, const mace_message_t &message);
+    void SendProtocolMessage(const ILink *link, const mace_message_t &message, OptionalParameter<std::tuple<const char *, int> > target = OptionalParameter<std::tuple<const char *, int> >());
 
 
     //!

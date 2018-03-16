@@ -3,6 +3,10 @@
 
 #include "helper_previous_transmission_base_mace.h"
 
+#include "mace_core/module_characteristics.h"
+#include "common/optional_parameter.h"
+
+
 namespace DataInterface_MACE {
 
 enum commsItemEnum{
@@ -46,8 +50,8 @@ template <class T>
 class PreviousTransmission : public PreviousTransmissionBase<commsItemEnum>
 {
 public:
-    PreviousTransmission(const commsItemEnum &objType, const T &data):
-        PreviousTransmissionBase(objType), obj(data)
+    PreviousTransmission(const commsItemEnum &objType, const T &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>(), const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()):
+        PreviousTransmissionBase(objType), obj(data), m_sender(sender), m_target(target)
     {
 
     }
@@ -67,8 +71,24 @@ public:
     {
         return this->obj;
     }
+
+    bool HasSender() const
+    {
+        return m_sender.IsSet();
+    }
+
+    MaceCore::ModuleCharacteristic Sender() const {
+        return m_sender.Value();
+    }
+
+    MaceCore::ModuleCharacteristic Target() const {
+        return m_target.Value();
+    }
+
 private:
     T obj;
+    OptionalParameter<MaceCore::ModuleCharacteristic> m_sender;
+    OptionalParameter<MaceCore::ModuleCharacteristic> m_target;
 };
 
 } //end of namespace DataInterface_MACE

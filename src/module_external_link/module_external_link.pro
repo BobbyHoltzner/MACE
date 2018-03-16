@@ -19,17 +19,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += module_external_link.cpp \
     parse_comms_message.cpp \
     parse_comms_command.cpp \
-    controllers/command_controller_externalLink.cpp \
-    controllers/mission_controller_externalLink.cpp \
-    controllers/heartbeat_controller_externallink.cpp \
-    controllers/home_controller_external_link.cpp
+    controllers/heartbeat_controller_externallink.cpp
 
 HEADERS += module_external_link.h\
         module_external_link_global.h \
-    controllers/command_controller_externalLink.h \
-    controllers/mission_controller_externalLink.h \
-    controllers/heartbeat_controller_externallink.h \
-    controllers/home_controller_external_link.h
+    controllers/heartbeat_controller_externallink.h
+
 
 # Unix lib Install
 unix:!symbian {
@@ -47,22 +42,25 @@ INSTALLS += lib
 headers_base.path    = $$(MACE_ROOT)/include/module_external_link
 headers_base.files   += \
         module_external_link_global.h \
-        module_external_link.h
+        module_external_link.h \
+        controller_collection.h
 INSTALLS       += headers_base
 
 #Header file copy
 headers_controllers.path    = $$(MACE_ROOT)/include/module_external_link/controllers
 headers_controllers.files   += \
-    controllers/command_controller_externalLink.h \
-    controllers/heartbeat_controller_externallink.h \
-    controllers/home_controller_external_link.h \
-    controllers/mission_controller_externalLink.h
+    controllers/heartbeat_controller_externallink.h
 INSTALLS       += headers_controllers
+
+
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+
+INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
+LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon

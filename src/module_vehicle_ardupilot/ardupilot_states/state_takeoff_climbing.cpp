@@ -59,6 +59,11 @@ void State_TakeoffClimbing::OnEnter()
 
 }
 
+void State_TakeoffClimbing::OnEnter(const AbstractCommandItem *command)
+{
+    this->OnEnter();
+}
+
 } //end of namespace ardupilot
 } //end of namespace state
 

@@ -10,11 +10,14 @@
 #include "i_link_mace.h"
 #include "serial_link_mace.h"
 #include "udp_link_mace.h"
+#include "digimesh_link.h"
 #include "protocol_mavlink_mace.h"
 
 #include "i_link_events_mace.h"
 
 #include "comms_events_mace.h"
+
+#include "common/optional_parameter.h"
 
 namespace CommsMACE
 {
@@ -22,7 +25,8 @@ namespace CommsMACE
 enum class LinkTypes
 {
     SERIAL,
-    UDP
+    UDP,
+    DIGIMESH
 };
 
 enum class Protocols
@@ -41,6 +45,11 @@ enum class Protocols
 //!
 class COMMSMACESHARED_EXPORT CommsMarshaler : public Publisher<CommsEvents>, private ILinkEvents, private IProtocolMavlinkEvents
 {
+private:
+
+    std::unordered_map<const ILink*, std::function<void(const char* resourceName, int vehicleID)>> m_AddedModuleAction;
+    std::unordered_map<const ILink*, std::function<void(const char* resourceName, int vehicleID)>> m_RemovedModuleAction;
+
 public:
 
     //////////////////////////////////////////////////////////////
@@ -48,6 +57,16 @@ public:
     //////////////////////////////////////////////////////////////
 
     CommsMarshaler();
+
+    void SpecifyAddedModuleAction(const std::string &linkName, const std::function<void(const char* resourceName, int vehicleID)> &lambda)
+    {
+        m_AddedModuleAction.insert({m_CreatedLinksNameToPtr.at(linkName).get(), lambda});
+    }
+
+    void SpecifyRemovedModuleAction(const std::string &linkName, const std::function<void(const char* resourceName, int vehicleID)> &lambda)
+    {
+        m_RemovedModuleAction.insert({m_CreatedLinksNameToPtr.at(linkName).get(), lambda});
+    }
 
     //!
     //! \brief Create a mavlink protocol to be used as transport layer of a link
@@ -70,6 +89,22 @@ public:
     //! \param config Configuration of UDP link
     //!
     void AddUDPLink(const std::string &name, const UdpConfiguration &config);
+
+
+    //!
+    //! \brief Adds a DigiMesh link that can be used
+    //! \param name Name of link for use when referencing later
+    //! \param config Configuration of DigiMesh link
+    //!
+    void AddDigiMeshLink(const std::string &name, const DigiMeshConfiguration &config);
+
+
+    //!
+    //! \brief Add a vechile that will be communicating out of this link
+    //! \param name Name of link
+    //! \param vehicleID ID of vehicle
+    //!
+    void AddResource(const std::string &name, const char *resourceName, int vehicleID);
 
 
     //!
@@ -108,7 +143,7 @@ public:
     //! \param message Message to send
     //!
     template <typename T>
-    void SendMACEMessage(const std::string &linkName, const T& message);
+    void SendMACEMessage(const std::string &linkName, const T& message, OptionalParameter<std::tuple<const char *, int> > target = OptionalParameter<std::tuple<const char *, int> >());
 
 
 
@@ -117,6 +152,10 @@ private:
     //////////////////////////////////////////////////////////////
     /// React to Link Events
     //////////////////////////////////////////////////////////////
+
+    virtual void AddedExternalResource(ILink *link_ptr, const char* resourceName, int vehicleID) const;
+
+    virtual void RemovedExternalResource(ILink *link_ptr, const char* resourceName, int vehicleID) const;
 
     virtual void ReceiveData(ILink *link_ptr, const std::vector<uint8_t> &buffer) const;
 

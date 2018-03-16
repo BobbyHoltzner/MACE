@@ -62,7 +62,13 @@ void State_GroundedDisarming::OnEnter()
 
 }
 
+void State_GroundedDisarming::OnEnter(const AbstractCommandItem *command)
+{
+    this->OnEnter();
+}
+
 } //end of namespace ardupilot
 } //end of namespace state
 
 #include "ardupilot_states/state_grounded_idle.h"
+#include "ardupilot_states/state_grounded_armed.h"
