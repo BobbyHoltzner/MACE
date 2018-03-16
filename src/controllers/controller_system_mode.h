@@ -45,6 +45,7 @@ template <typename MESSAGETYPE>
 using SystemModeFinish = ActionFinish<
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
+    uint8_t,
     mace_system_mode_ack_t,
     MACE_MSG_ID_SYSTEM_MODE_ACK
 >;

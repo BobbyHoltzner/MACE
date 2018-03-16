@@ -36,7 +36,7 @@ namespace Controllers {
 //! \template TransmitQueueType Queue object the controller is to use when sending messages
 //! \template DataItems Data items the controller is to transmit
 //!
-template<typename MESSAGETYPE, typename TransmitQueueType, typename ...DataItems>
+template<typename MESSAGETYPE, typename TransmitQueueType, typename ...DataItems, typename FINISH_CODE>
 class GenericController : protected IController<MESSAGETYPE>, public TransmitQueueType, public ChainInheritance<DataItems...>
 {
 private:
@@ -54,6 +54,8 @@ protected:
         std::function<void(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)>
     >> m_MessageBehaviors;
 
+    std::function<void(const TransmitQueueType &key, const bool completed, const FINISH_CODE finishCode)> m_FinishLambda;
+
 public:
 
     GenericController(const IMessageNotifier<MESSAGETYPE>* cb, MessageModuleTransmissionQueue<MESSAGETYPE>* queue, int linkChan) :
@@ -61,6 +63,19 @@ public:
         m_CB(cb)
     {
         TransmitQueueType::SetQueue(queue);
+    }
+
+
+    void setLambda_Finished(const std::function<void(const TransmitQueueType &key, const bool completed, const FINISH_CODE finishCode)> &lambda){
+        m_FinishLambda = lambda;
+    }
+
+    void onFinished(const TransmitQueueType &key, const bool completed, const FINISH_CODE finishCode){
+        if(m_lambda_DataRecieved.IsSet() == false) {
+            throw std::runtime_error("Data Received Lambda not set!");
+        }
+
+        m_FinishLambda(key, completed, finishCode);
     }
 
 

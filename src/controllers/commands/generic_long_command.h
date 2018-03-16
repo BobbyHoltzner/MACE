@@ -43,6 +43,7 @@ template<typename MESSAGETYPE, typename T>
 using ActionFinish_Command = ActionFinish<
     GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
     MaceCore::ModuleCharacteristic,
+    uint8_t,
     mace_command_ack_t,
     MACE_MSG_ID_COMMAND_ACK
 >;

@@ -118,6 +118,7 @@ template <typename MESSAGETYPE>
 using SendHelper_FinalFinal = ActionFinish<
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MissionItem::MissionKey,
+    uint8_t,
     mace_mission_ack_t,
     MACE_MSG_ID_MISSION_ACK
 >;

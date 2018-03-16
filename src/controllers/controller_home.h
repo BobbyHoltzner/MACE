@@ -71,6 +71,7 @@ template <typename MESSAGETYPE>
 using ControllerHome_Step_ReceiveFinishingAck = ActionFinish<
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
     MaceCore::ModuleCharacteristic,
+    uint8_t,
     mace_home_position_ack_t,
     MACE_MSG_ID_HOME_POSITION_ACK
 >;
@@ -243,10 +244,11 @@ protected:
     }
 
 
-    virtual bool Finish_Receive(const mace_home_position_ack_t &ack, const MaceCore::ModuleCharacteristic &sender, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Finish_Receive(const mace_home_position_ack_t &ack, const MaceCore::ModuleCharacteristic &sender, uint8_t &ack_code, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(ack);
         queueObj = sender;
+        ack_code = ack.ack;
 
         std::cout << "Home Controller: Receive ACK, done" << std::endl;
 
