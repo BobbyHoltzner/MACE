@@ -33,7 +33,7 @@ public:
                     bool valid = this-> template Finish_Receive(msg, sender, code, queueObj);
                     if(valid == true)
                     {
-                        BASE::m_Controller->onFinished(queueObj, true, code);
+                        BASE::m_Controller->onFinished(true, code);
                         BASE::m_Controller->RemoveTransmission(queueObj, MESSAGE_REQUEST_ID);
                     }
                 }

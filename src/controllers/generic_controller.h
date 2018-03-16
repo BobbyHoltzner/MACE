@@ -36,7 +36,7 @@ namespace Controllers {
 //! \template TransmitQueueType Queue object the controller is to use when sending messages
 //! \template DataItems Data items the controller is to transmit
 //!
-template<typename MESSAGETYPE, typename TransmitQueueType, typename ...DataItems, typename FINISH_CODE>
+template<typename MESSAGETYPE, typename TransmitQueueType, typename FINISH_CODE, typename ...DataItems>
 class GenericController : protected IController<MESSAGETYPE>, public TransmitQueueType, public ChainInheritance<DataItems...>
 {
 private:
@@ -54,7 +54,7 @@ protected:
         std::function<void(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)>
     >> m_MessageBehaviors;
 
-    std::function<void(const TransmitQueueType &key, const bool completed, const FINISH_CODE finishCode)> m_FinishLambda;
+    OptionalParameter<std::function<void(const bool completed, const FINISH_CODE finishCode)>> m_FinishLambda;
 
 public:
 
@@ -66,16 +66,16 @@ public:
     }
 
 
-    void setLambda_Finished(const std::function<void(const TransmitQueueType &key, const bool completed, const FINISH_CODE finishCode)> &lambda){
+    void setLambda_Finished(const std::function<void(const bool completed, const FINISH_CODE finishCode)> &lambda){
         m_FinishLambda = lambda;
     }
 
-    void onFinished(const TransmitQueueType &key, const bool completed, const FINISH_CODE finishCode){
-        if(m_lambda_DataRecieved.IsSet() == false) {
+    void onFinished(const bool completed, const FINISH_CODE finishCode = FINISH_CODE()){
+        if(m_FinishLambda.IsSet() == false) {
             throw std::runtime_error("Data Received Lambda not set!");
         }
 
-        m_FinishLambda(key, completed, finishCode);
+        m_FinishLambda()(completed, finishCode);
     }
 
 
@@ -90,18 +90,24 @@ public:
     template <typename T>
     void QueueTransmission(const T &key, const int &messageID, const std::function<void()> &transmitAction)
     {
-        TransmitQueueType::QueueTransmission(ObjectIntTuple<T>(key, messageID), transmitAction);
+        auto lambda = [this](){
+            onFinished(false);
+        };
+        TransmitQueueType::QueueTransmission(ObjectIntTuple<T>(key, messageID), transmitAction, lambda);
     }
 
     template <typename T>
     void QueueTransmission(const T &key, const std::vector<int> &messagesID, const std::function<void()> &transmitAction)
     {
+        auto lambda = [this](){
+            onFinished(false);
+        };
         std::vector<ObjectIntTuple<T>> vec;
         for(auto it = messagesID.cbegin() ; it != messagesID.cend() ; ++it)
         {
             vec.push_back(ObjectIntTuple<T>(key, *it));
         }
-        TransmitQueueType::QueueTransmission(vec, transmitAction);
+        TransmitQueueType::QueueTransmission(vec, transmitAction, lambda);
     }
 
     template <typename T>

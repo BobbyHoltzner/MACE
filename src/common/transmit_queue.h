@@ -14,6 +14,7 @@ class TransmitQueue : public Thread
 private:
 
     static const int DEFAULT_RESPONSE_WAIT_IN_MS = 2000000000;
+    static const int DEFAULT_NUM_RETRIES = 3;
 
 private:
 
@@ -21,14 +22,16 @@ private:
     {
     public:
 
-        TransmitTask(std::function<void()> action) :
+        TransmitTask(std::function<void()> action, std::function<void()> failure) :
             numTries(0),
-            transmitAction(action)
+            transmitAction(action),
+            failureAction(failure)
         {
         }
 
         int numTries;
         std::function<void()> transmitAction;
+        std::function<void()> failureAction;
         std::chrono::time_point<std::chrono::system_clock> lastTransmit;
     };
 
@@ -38,11 +41,21 @@ private:
     std::mutex m_ActiveTransmitsMutex;
     std::unordered_map<int, TransmitTask> m_ActiveTransmits;
 
+    int m_WaitForRetries;
+    int m_NumRetries;
+
 
 public:
 
-    TransmitQueue()
+    TransmitQueue(int waitForRetries = DEFAULT_RESPONSE_WAIT_IN_MS, int numRetries = DEFAULT_NUM_RETRIES)
     {
+        m_WaitForRetries = waitForRetries;
+        m_NumRetries = numRetries;
+
+        if(waitForRetries > 1000000000)
+        {
+            printf("WARNING!!! Wait for retransmit is unreasonably high. Is is left on a debug value?");
+        }
         start();
     }
 
@@ -51,7 +64,7 @@ public:
     }
 
 
-    int QueueTransmission(std::function<void()> transmitAction)
+    int QueueTransmission(std::function<void()> transmitAction, const std::function<void()> onFailure = [](){})
     {
         m_ActiveTransmitsMutex.lock();
         int num;
@@ -61,7 +74,7 @@ public:
         }
         while(this->m_ActiveTransmits.find(num) != m_ActiveTransmits.cend());
 
-        m_ActiveTransmits.insert({num, TransmitTask(transmitAction)});
+        m_ActiveTransmits.insert({num, TransmitTask(transmitAction, onFailure)});
         m_ActiveTransmitsMutex.unlock();
 
         printf("Added Transmision - Number active: %d\n", m_ActiveTransmits.size());
@@ -98,16 +111,27 @@ public:
                 {
                     std::chrono::time_point<std::chrono::system_clock> currTime = std::chrono::system_clock::now();
                     int elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(currTime - it->second.lastTransmit).count();
-                    if(it->second.numTries == 0 || elapsed_ms > DEFAULT_RESPONSE_WAIT_IN_MS)
+                    if(it->second.numTries == 0 || elapsed_ms > m_WaitForRetries)
                     {
+                        //if we have exceeded number of retries then remove and fail out
+                        if(it->second.numTries >= m_NumRetries)
+                        {
+                            m_ActiveTransmits.erase(it->first);
+                            it->second.failureAction();
+                            continue;
+                        }
+
                         if(it->second.numTries >= 1)
                         {
-                            printf("Retransmitting %d\n", it->second.numTries);
+                            // +1 to include original transmission
+                            printf("Retransmitting for %d time\n", it->second.numTries+1);
                         }
 
                         it->second.lastTransmit = currTime;
                         it->second.numTries++;
                         it->second.transmitAction();
+
+
                     }
                 }
                 m_ActiveTransmitsMutex.unlock();
@@ -144,17 +168,17 @@ private:
 
 public:
 
-    void QueueTransmission(const Head &key, const std::function<void()> &transmitAction)
+    void QueueTransmission(const Head &key, const std::function<void()> &transmitAction, const std::function<void()> onFailure = [](){})
     {
-        int num = m_Queue->QueueTransmission(transmitAction);
+        int num = m_Queue->QueueTransmission(transmitAction, onFailure);
         m_ActiveTransmissions.insert({key, num});
         m_ActiveTransmissionsToKeyMap.insert({num, {key}});
         //std::cout << "Transmission Queued: " << num << std::endl;
     }
 
-    void QueueTransmission(const std::vector<Head> &keys, const std::function<void()> &transmitAction)
+    void QueueTransmission(const std::vector<Head> &keys, const std::function<void()> &transmitAction, const std::function<void()> onFailure = [](){})
     {
-        int num = m_Queue->QueueTransmission(transmitAction);
+        int num = m_Queue->QueueTransmission(transmitAction, onFailure);
         for(auto it = keys.cbegin() ; it != keys.cend() ; ++it)
         {
             m_ActiveTransmissions.insert({*it, num});
