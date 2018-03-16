@@ -15,6 +15,14 @@ MavlinkProtocol::MavlinkProtocol(const MavlinkConfiguration &config) :
     memset(&totalErrorCounter, 0, sizeof(totalErrorCounter));
     memset(&currReceiveCounter, 0, sizeof(currReceiveCounter));
     memset(&currLossCounter, 0, sizeof(currLossCounter));
+
+    for(int i = 0 ; i < 256 ; i++)
+    {
+        for(int j = 0 ; j < 256 ; j++)
+        {
+            lastIndex[i][j] = 0;
+        }
+    }
 }
 
 void MavlinkProtocol::AddListner(const IProtocolMavlinkEvents* listener)
@@ -89,7 +97,7 @@ void MavlinkProtocol::SetChannel(ILink *link, uint8_t channel)
 //! \param link Link to put message onto
 //! \param message Message to send
 //!
-void MavlinkProtocol::SendProtocolMessage(const ILink *link, const mace_message_t &message)
+void MavlinkProtocol::SendProtocolMessage(const ILink *link, const mace_message_t &message, OptionalParameter<std::tuple<const char*, int>> target)
 {
     // Create buffer
     static uint8_t buffer[MACE_MAX_PACKET_LEN];
@@ -99,7 +107,7 @@ void MavlinkProtocol::SendProtocolMessage(const ILink *link, const mace_message_
     if (link->isConnected())
     {
         // Send the portion of the buffer now occupied by the message
-        link->WriteBytes((const char*)buffer, len);
+        link->WriteBytes((const char*)buffer, len, target);
     }
 }
 
@@ -115,6 +123,8 @@ void MavlinkProtocol::ReceiveData(ILink *link, const std::vector<uint8_t> &buffe
     uint8_t mavlinkChannel = m_MavlinkChannels.at(link);
 
     mace_message_t message;
+    message.seq = 0;
+    message.compid = 0;
     mace_status_t status;
 
     static int mavlink09Count = 0;

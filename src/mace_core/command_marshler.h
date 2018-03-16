@@ -11,6 +11,8 @@
 
 #include "mace_core_global.h"
 
+#include "module_characteristics.h"
+
 
 //!
 //! \brief Object that stores functions to call given some enumeration.
@@ -31,16 +33,23 @@ private:
 
         virtual int NumCalls() const = 0;
 
+        void AddSender(const MaceCore::ModuleCharacteristic &sender)
+        {
+           m_Sender = sender;
+        }
+
     protected:
 
         std::mutex m_Mutex;
+
+        OptionalParameter<MaceCore::ModuleCharacteristic> m_Sender;
     };
 
 
     class ZeroParamCaller : public FunctionCallerBase
     {
     public:
-        ZeroParamCaller(const std::function<void()> &func) :
+        ZeroParamCaller(const std::function<void(const OptionalParameter<MaceCore::ModuleCharacteristic>&)> &func) :
             m_Func(func)
         {
         }
@@ -60,17 +69,17 @@ private:
         virtual void Call()
         {
             isEnabled = false;
-            m_Func();
+            m_Func(this->m_Sender);
         }
 
-        void InvokeOneInstance()
+        void InvokeOneInstance(const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>())
         {
-            m_Func();
+            m_Func(sender);
         }
 
     private:
 
-        const std::function<void()> m_Func;
+        const std::function<void(const OptionalParameter<MaceCore::ModuleCharacteristic> &)> m_Func;
 
         bool isEnabled;
     };
@@ -80,7 +89,7 @@ private:
     class OneParamCaller : public FunctionCallerBase
     {
     public:
-        OneParamCaller(const std::function<void(const FT&)> &func) :
+        OneParamCaller(const std::function<void(const FT&, const OptionalParameter<MaceCore::ModuleCharacteristic>&)> &func) :
             m_Func(func)
         {
 
@@ -107,17 +116,17 @@ private:
             this->m_Mutex.unlock();
 
             for(FT param : listCpy)
-                m_Func(param);
+                m_Func(param, this->m_Sender);
         }
 
-        void InvokeOneInstance(const FT& param)
+        void InvokeOneInstance(const FT& param, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>())
         {
-            m_Func(param);
+            m_Func(param, sender);
         }
 
     private:
 
-        const std::function<void(const FT&)> m_Func;
+        const std::function<void(const FT&, const OptionalParameter<MaceCore::ModuleCharacteristic>&)> m_Func;
 
         std::list<FT> m_Param1;
     };
@@ -131,7 +140,7 @@ public:
     //! \param event Command to triger lambda on
     //! \param lambda Lambda to trigger
     //!
-    void AddLambda(T event, const std::function<void()> &lambda)
+    void AddLambda(T event, const std::function<void(const OptionalParameter<MaceCore::ModuleCharacteristic>&)> &lambda)
     {
         m_EventProcedures.insert({event, std::make_shared<ZeroParamCaller>(lambda)});
         m_CallRate.insert({event, std::chrono::milliseconds(0)});
@@ -145,7 +154,7 @@ public:
     //! \param lambda Lambda to trigger
     //!
     template<typename P1T>
-    void AddLambda(T event, const std::function<void(const P1T&)> &lambda)
+    void AddLambda(T event, const std::function<void(const P1T&, const OptionalParameter<MaceCore::ModuleCharacteristic>&)> &lambda)
     {
         m_EventProcedures.insert({event, std::make_shared<OneParamCaller<P1T>>(lambda)});
         m_CallRate.insert({event, std::chrono::milliseconds(0)});
@@ -157,12 +166,16 @@ public:
     //! \brief Queue the fireing of a parameterless command
     //! \param event Command to queue the calling of internal lambda
     //!
-    void QueueCommand(T event)
+    void QueueCommand(T event, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>())
     {
         if(m_EventProcedures.find(event) == m_EventProcedures.cend())
             throw std::runtime_error("Given command does not have a behavior defined");
 
         ZeroParamCaller *caller = (ZeroParamCaller*)m_EventProcedures.at(event).get();
+        if(sender.IsSet() == true)
+        {
+            caller->AddSender(sender.Value());
+        }
         caller->Enable();
     }
 
@@ -172,13 +185,17 @@ public:
     //! \param event Command to queue the calling of internal lambda
     //!
     template<typename P1T>
-    void QueueCommand(T event, const P1T &param1)
+    void QueueCommand(T event, const P1T &param1, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>())
     {
         if(m_EventProcedures.find(event) == m_EventProcedures.cend())
             throw std::runtime_error("Given command does not have a behavior defined");
 
         OneParamCaller<P1T> *caller = (OneParamCaller<P1T>*)m_EventProcedures.at(event).get();
         caller->AddParameter(param1);
+        if(sender.IsSet() == true)
+        {
+            caller->AddSender(sender.Value());
+        }
     }
 
 
@@ -186,13 +203,13 @@ public:
     //! \brief Immediatly invoke the command on the thread this method is called from
     //! \param event Command to immediatly invoke
     //!
-    void ImmediatlyCallCommand(T event)
+    void ImmediatlyCallCommand(T event, OptionalParameter<MaceCore::ModuleCharacteristic> sender = OptionalParameter<MaceCore::ModuleCharacteristic>())
     {
         if(m_EventProcedures.find(event) == m_EventProcedures.cend())
             throw std::runtime_error("Given command does not have a behavior defined");
 
         ZeroParamCaller *caller = (ZeroParamCaller*)m_EventProcedures.at(event).get();
-        caller->InvokeOneInstance();
+        caller->InvokeOneInstance(sender);
     }
 
 
@@ -201,13 +218,13 @@ public:
     //! \param event Command to immediatly invoke
     //!
     template<typename P1T>
-    void ImmediatlyCallCommand(T event, const P1T &param1)
+    void ImmediatlyCallCommand(T event, const P1T &param1, OptionalParameter<MaceCore::ModuleCharacteristic> sender = OptionalParameter<MaceCore::ModuleCharacteristic>())
     {
         if(m_EventProcedures.find(event) == m_EventProcedures.cend())
             throw std::runtime_error("Given command does not have a behavior defined");
 
         OneParamCaller<P1T> *caller = (OneParamCaller<P1T>*)m_EventProcedures.at(event).get();
-        caller->InvokeOneInstance(param1);
+        caller->InvokeOneInstance(param1, sender);
     }
 
 

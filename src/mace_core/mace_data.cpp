@@ -288,6 +288,7 @@ bool MaceData::checkForCurrentMission(const MissionItem::MissionKey &missionKey)
                 if(mapMissions.at(oldKey).getMissionType() == MissionItem::MISSIONTYPE::GUIDED)
                     mapMissions.erase(oldKey);
             }catch(const std::out_of_range &oor){
+                std::cout<<"checkForCurrentMission tried to access an item OOR"<<std::endl;
             }
         }
         mapCurrentMission[systemID] = missionKey;

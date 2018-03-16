@@ -32,7 +32,9 @@ SOURCES += \
     serial_configuration_mace.cpp \
     serial_link_mace.cpp \
     udp_configuration_mace.cpp \
-    udp_link_mace.cpp
+    udp_link_mace.cpp \
+    digimesh_configuration.cpp \
+    digimesh_link.cpp
 
 HEADERS +=\
         commsmace_global.h \
@@ -50,10 +52,16 @@ HEADERS +=\
     serial_configuration_mace.h \
     serial_link_mace.h \
     udp_configuration_mace.h \
-    udp_link_mace.h
+    udp_link_mace.h \
+    digimesh_configuration.h \
+    digimesh_link.h \
+    generic_encodedecode_library.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
+
+INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
+LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper
 
 # Unix lib Install
 unix:!symbian {

@@ -15,6 +15,7 @@
 #include "i_module_events_external_link.h"
 
 #include "command_marshler.h"
+#include "module_characteristics.h"
 
 namespace MaceCore
 {
@@ -25,7 +26,7 @@ enum class ExternalLinkCommands
     NEWLY_AVAILABLE_ONBOARD_MISSION,
     NEW_MISSION_EXE_STATE,
     NEWLY_AVAILABLE_HOME_POSITION,
-    NEWLY_AVAILABLE_VEHICLE,
+    NEWLY_AVAILABLE_MODULE,
     RECEIVED_MISSION_ACK
 };
 
@@ -39,48 +40,48 @@ class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_
     friend class MaceCore;
 public:
 
-    static Classes moduleClass;
+    static ModuleClasses moduleClass;
 
     IModuleCommandExternalLink():
         AbstractModule_VehicleListener()
     {
 
-        AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const MissionItem::MissionKey &key){
-            NewlyAvailableOnboardMission(key);
+        AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender){
+            NewlyAvailableOnboardMission(key, sender);
         });
 
-        AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEW_MISSION_EXE_STATE, [this](const MissionItem::MissionKey &key){
+        AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEW_MISSION_EXE_STATE, [this](const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender){
             NewlyAvailableMissionExeState(key);
         });
 
-        AddCommandLogic<CommandItem::SpatialHome>(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const CommandItem::SpatialHome &home){
-            NewlyAvailableHomePosition(home);
+        AddCommandLogic<CommandItem::SpatialHome>(ExternalLinkCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const CommandItem::SpatialHome &home, const OptionalParameter<ModuleCharacteristic> &sender){
+            NewlyAvailableHomePosition(home, sender);
         });
 
-        AddCommandLogic<int>(ExternalLinkCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &systemID){
-            NewlyAvailableVehicle(systemID);
+        AddCommandLogic<ModuleCharacteristic>(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, [this](const ModuleCharacteristic &module, const OptionalParameter<ModuleCharacteristic> &sender){
+            NewlyAvailableModule(module);
         });
 
-        AddCommandLogic<MissionItem::MissionACK>(ExternalLinkCommands::RECEIVED_MISSION_ACK, [this](const MissionItem::MissionACK &ack){
+        AddCommandLogic<MissionItem::MissionACK>(ExternalLinkCommands::RECEIVED_MISSION_ACK, [this](const MissionItem::MissionACK &ack, const OptionalParameter<ModuleCharacteristic> &sender){
             ReceivedMissionACK(ack);
         });
 
     }
 
-    virtual Classes ModuleClass() const
+    virtual ModuleClasses ModuleClass() const
     {
         return moduleClass;
     }
 
 public:
 
-    virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key) = 0;
+    virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>()) = 0;
 
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey) = 0;
 
-    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home) = 0;
+    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
 
-    virtual void NewlyAvailableVehicle(const int &systemID) = 0;
+    virtual void NewlyAvailableModule(const ModuleCharacteristic &module) = 0;
 
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack) = 0;
 
