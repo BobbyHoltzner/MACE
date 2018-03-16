@@ -5,7 +5,7 @@ import * as React from 'react';
 import {render} from 'react-dom';
 
 //Import Container component
-import AppContainer from './containers/AppContainer';
+import AppContainer from './containers/AppContainer/AppContainer';
 
 type Props = {
 };

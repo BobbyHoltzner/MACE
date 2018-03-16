@@ -4,9 +4,9 @@ const lightMuiTheme = getMuiTheme();
 import * as React from 'react';
 import FlatButton from 'material-ui/FlatButton'
 
-import { VehicleHUD } from '../components/VehicleHUD';
-import { VehicleMessages } from '../components/VehicleMessages';
-import { Vehicle } from '../Vehicle';
+import { VehicleHUD } from '../../components/VehicleHUD/VehicleHUD';
+import { VehicleMessages } from '../../components/VehicleMessages/VehicleMessages';
+import { Vehicle } from '../../util/Vehicle/Vehicle';
 
 
 type Props = {

@@ -1,6 +1,6 @@
 import * as deepcopy from 'deepcopy';
 var net = electronRequire('net');
-import { VehicleDB } from './VehicleDB';
+import { VehicleDB } from '../Vehicle/VehicleDB';
 
 export class MACECommsHelper {
     tcpServer: any;

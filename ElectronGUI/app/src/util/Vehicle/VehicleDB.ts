@@ -1,6 +1,6 @@
 import * as deepcopy from 'deepcopy';
-import { getRandomRGB } from './Colors';
-import { Vehicle } from '../Vehicle';
+import { getRandomRGB } from '../misc/Colors';
+import { Vehicle } from '../Vehicle/Vehicle';
 
 export class VehicleDB {
     vehicles: {[id: string]: Vehicle};

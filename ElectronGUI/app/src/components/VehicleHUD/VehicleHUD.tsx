@@ -4,15 +4,15 @@ const lightMuiTheme = getMuiTheme();
 import * as React from 'react';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-import { Vehicle } from '../Vehicle';
-import { textSeverityToColor } from '../util/Colors';
+import { Vehicle } from '../../util/Vehicle/Vehicle';
+import { textSeverityToColor } from '../../util/misc/Colors';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import Avatar from 'material-ui/Avatar';
 import Menu from 'material-ui/Menu';
 import IconButton from 'material-ui/IconButton';
-import { aircraftImgSrcFromType } from '../util/VehicleHelper';
-import { Colors } from '../util/Colors';
+import { aircraftImgSrcFromType } from '../../util/Helpers/VehicleHelper';
+import { Colors } from '../../util/misc/Colors';
 import * as MUIColors from 'material-ui/styles/colors';
 
 type Props = {

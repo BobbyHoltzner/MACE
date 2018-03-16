@@ -8,7 +8,7 @@ import Checkbox from 'material-ui/Checkbox';
 import { Grid, Col } from 'react-bootstrap';
 import * as deepcopy from 'deepcopy';
 import TextField from 'material-ui/TextField';
-import { Colors } from '../util/Colors';
+import { Colors } from '../../util/misc/Colors';
 
 import * as colors from 'material-ui/styles/colors';
 

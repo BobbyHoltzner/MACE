@@ -6,9 +6,9 @@ const lightMuiTheme = getMuiTheme();
 
 import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon } from 'react-leaflet';
 import * as colors from 'material-ui/styles/colors';
-import { Vehicle } from '../Vehicle';
-import { ContextMenu } from '../components/ContextMenu';
-import { Heatmap } from './mapLayers/heatmap';
+import { Vehicle } from '../../util/Vehicle/Vehicle';
+import { ContextMenu } from '../../components/ContextMenu/ContextMenu';
+import { Heatmap } from '../mapLayers/heatmap';
 import * as L from 'leaflet';
 
 

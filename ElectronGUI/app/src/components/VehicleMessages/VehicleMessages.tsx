@@ -4,11 +4,11 @@ const lightMuiTheme = getMuiTheme();
 import * as React from 'react';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-import { Vehicle } from '../Vehicle';
-import { textSeverityToColor } from '../util/Colors';
-import { aircraftImgSrcFromType } from '../util/VehicleHelper';
+import { Vehicle } from '../../util/Vehicle/Vehicle';
+import { textSeverityToColor } from '../../util/misc/Colors';
+import { aircraftImgSrcFromType } from '../../util/Helpers/VehicleHelper';
 import Avatar from 'material-ui/Avatar';
-import { Colors } from '../util/Colors';
+import { Colors } from '../../util/misc/Colors';
 
 type Props = {
     vehicleID: string,

@@ -1,5 +1,5 @@
 import * as materialColors from 'material-ui/styles/colors';
-import { Colors } from '../util/Colors';
+import { Colors } from '../../util/misc/Colors';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme({

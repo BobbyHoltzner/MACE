@@ -1,5 +1,5 @@
 var fs = electronRequire('fs');
-import { Vehicle } from '../Vehicle';
+import { Vehicle } from '../Vehicle/Vehicle';
 import * as L from 'leaflet';
 import { MACECommsHelper } from './MACECommsHelper';
 

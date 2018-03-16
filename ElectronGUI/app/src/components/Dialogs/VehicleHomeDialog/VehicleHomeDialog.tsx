@@ -5,7 +5,7 @@ import * as React from 'react';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
-import { Vehicle } from '../Vehicle';
+import { Vehicle } from '../../../util/Vehicle/Vehicle';
 import { Grid, Col } from 'react-bootstrap';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';

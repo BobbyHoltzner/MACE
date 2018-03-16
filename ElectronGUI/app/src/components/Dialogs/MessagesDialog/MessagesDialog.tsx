@@ -7,7 +7,7 @@ import FlatButton from 'material-ui/FlatButton';
 import Checkbox from 'material-ui/Checkbox';
 import { Grid, Col } from 'react-bootstrap';
 import * as deepcopy from 'deepcopy';
-import { textSeverityToColor } from '../util/Colors';
+import { textSeverityToColor } from '../../../util/misc/Colors';
 
 import * as colors from 'material-ui/styles/colors';
 

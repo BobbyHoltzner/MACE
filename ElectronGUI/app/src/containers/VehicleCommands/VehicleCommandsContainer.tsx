@@ -10,7 +10,7 @@ import MenuItem from 'material-ui/MenuItem';
 // import FontIcon from 'material-ui/FontIcon';
 // import { Grid, Col, Row } from 'react-bootstrap';
 
-import { Vehicle } from '../Vehicle';
+import { Vehicle } from '../../util/Vehicle/Vehicle';
 
 
 type Props = {
