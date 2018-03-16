@@ -5,7 +5,6 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme();
 
 import { Map, TileLayer, LayerGroup, Marker, Polyline, Polygon } from 'react-leaflet';
-// import { EditControl } from "react-leaflet-draw"
 import * as colors from 'material-ui/styles/colors';
 import { Vehicle } from '../Vehicle';
 import { ContextMenu } from '../components/ContextMenu';
@@ -28,7 +27,6 @@ type Props = {
     contextSetTakeoff: () => void,
     setContextAnchor: (e: L.LeafletMouseEvent) => void
     contextAnchor: L.LeafletMouseEvent,
-    MACEConnected: boolean,
     environmentBoundary: PositionType[],
     drawPolygonPts?: PositionType[],
     onAddPolygonPt: (e: L.LeafletMouseEvent) => void,
@@ -54,26 +52,7 @@ export default class MACEMap extends React.Component<Props, State> {
     }
   }
 
-  // shouldComponentUpdate(nextProps: Props, nextState: State) {
-  //   if(nextState.showContextMenu === this.state.showContextMenu) {
-  //     return false;
-  //   }
-
-  //   return true;
-  // }
-
   componentDidMount(){
-    // var dataPoints = [
-    //   [37.889031, -76.810302, 0.3],
-    //   [37.888131, -76.810302, 0.4],
-    //   [37.887231, -76.810302, 0.5],
-    //   [37.886331, -76.810302, 0.6],
-    //   [37.885431, -76.810302, 0.7],
-    //   [37.884531, -76.810302, 0.8],
-    //   [37.883631, -76.810302, 1]
-    // ];
-
-    // this.heatmap = new Heatmap(this.leafletMap);
   }
 
 
@@ -133,7 +112,6 @@ export default class MACEMap extends React.Component<Props, State> {
     }
 
     let tmpGridPts = [];;
-    // let tmpHeatPts = [];
     if(this.props.drawPolygonPts.length > 2) {
       let gridIcon = new L.Icon({
             iconUrl: './images/ic_add_white_24dp_1x.png',
@@ -143,10 +121,7 @@ export default class MACEMap extends React.Component<Props, State> {
         });
       for(let i = 0; i < this.props.gridPts.inPoly.length; i++) {
         tmpGridPts.push(<Marker key={i} position={this.props.gridPts.inPoly[i]} title={i.toString()} icon={gridIcon} draggable={false} />);
-        // tmpHeatPts.push([this.props.gridPts.inPoly[i].lat, this.props.gridPts.inPoly[i].lng, 0.5]);
       }
-
-      // this.heatmap.setData(tmpHeatPts, false);
     }
 
     let tmpTrimmedGridPts = [];;
@@ -181,7 +156,6 @@ export default class MACEMap extends React.Component<Props, State> {
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.props.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
 
-                {this.props.MACEConnected &&
                   <LayerGroup>
 
                     {/* Aircraft Icons */}
@@ -263,7 +237,6 @@ export default class MACEMap extends React.Component<Props, State> {
 
 
                   </LayerGroup>
-                }
 
             </Map>
           </div>

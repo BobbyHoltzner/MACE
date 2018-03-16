@@ -14,6 +14,8 @@ import AppBar from 'material-ui/AppBar';
 import * as colors from 'material-ui/styles/colors';
 import { Vehicle } from '../Vehicle';
 import { AppHelper } from '../util/AppHelper';
+import { MACECommsHelper } from '../util/MACECommsHelper';
+import { PolygonHelper } from '../util/PolygonHelper';
 import { VehicleHomeDialog } from '../components/VehicleHomeDialog';
 import { GlobalOriginDialog } from '../components/GlobalOriginDialog';
 import { MessagesDialog } from '../components/MessagesDialog';
@@ -56,6 +58,8 @@ export default class AppContainer extends React.Component<Props, State> {
   getVehiclesInterval: any;
   logger: any;
   appHelper: AppHelper;
+  maceCommsHelper: MACECommsHelper;
+  polygonHelper: PolygonHelper;
 
   constructor(props: Props) {
     super(props);
@@ -79,6 +83,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
 
     this.appHelper = new AppHelper(this.state);
+    this.polygonHelper = new PolygonHelper();
   }
 
   componentDidMount(){
@@ -96,17 +101,17 @@ export default class AppContainer extends React.Component<Props, State> {
 
     this.notificationSystem = this.refs.notificationSystem;
 
-    this.appHelper.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
+    this.appHelper.maceCommsHelper.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
 
     this.getVehiclesInterval = setInterval(() => {
-      this.appHelper.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
+      this.appHelper.maceCommsHelper.makeTCPRequest(0, "GET_CONNECTED_VEHICLES", "");
     }, this.appHelper.getConnectedVehiclesTimeout);
 
 
     // Set interval to set state to DB:
     setInterval(() => {
       if(!this.appHelper.pauseMACEComms) {
-          this.setState({connectedVehicles: this.appHelper.vehicleDB});
+          this.setState({connectedVehicles: this.appHelper.maceCommsHelper.vehicleDB.vehicles});
       }
     }, 1500);
   }
@@ -127,7 +132,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
   handleAircraftCommand = (id: string, tcpCommand: string, vehicleCommand: string) => {
     console.log(tcpCommand);
-    this.appHelper.makeTCPRequest(parseInt(id), tcpCommand, vehicleCommand);
+    this.appHelper.maceCommsHelper.makeTCPRequest(parseInt(id), tcpCommand, vehicleCommand);
   }
 
   handleDrawerAction = (action: string) => {
@@ -144,17 +149,17 @@ export default class AppContainer extends React.Component<Props, State> {
       this.appHelper.pauseMACEComms = false;
     }
     else if(action === "TestButton1") {
-      this.appHelper.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION1", "");
+      this.appHelper.maceCommsHelper.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION1", "");
     }
     else if(action === "TestButton2") {
-      this.appHelper.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION2", "");
+      this.appHelper.maceCommsHelper.makeTCPRequest(parseInt(this.state.selectedVehicleID), "TEST_FUNCTION2", "");
     }
     else if(action === "EditEnvironment") {
       // Ask for global origin:
-      this.appHelper.makeTCPRequest(0, "GET_GLOBAL_ORIGIN", "");
+      this.appHelper.maceCommsHelper.makeTCPRequest(0, "GET_GLOBAL_ORIGIN", "");
 
       this.setState({openDrawer: false});
-      this.appHelper.showDraw = true;
+      this.polygonHelper.showDraw = true;
     }
   }
 
@@ -223,25 +228,16 @@ export default class AppContainer extends React.Component<Props, State> {
       stateCopy[key].updateVehicleMarkerPosition();
     });
 
-    // this.vehicleDB = stateCopy;
-    // this.setState({connectedVehicles: stateCopy, selectedVehicleID: selectedID});
-    this.appHelper.vehicleDB = stateCopy;
+    this.appHelper.maceCommsHelper.vehicleDB.vehicles = stateCopy;
     this.setState({selectedVehicleID: selectedID});
   }
 
   updateMapCenter = (e: L.DragEndEvent) => {
-    // let MACEconfig = this.state.MACEconfig;
-    // MACEconfig.config.GUIInit.mapCenter = {lat: e.target.getCenter().lat, lng: e.target.getCenter().lng, alt: 0};
-    // MACEconfig.config.GUIInit.mapZoom = e.target.getZoom();
     this.appHelper.updateMapCenter(e);
-    // this.setState({MACEconfig: this.appHelper.MACEconfig});
   }
 
   handleSaveTakeoff = (takeoffAlt: string) => {
-    // let MACEconfig = this.state.MACEconfig;
-    // MACEconfig.config.VehicleSettings.defaultTakeoffAlt = parseFloat(takeoffAlt);
     this.appHelper.handleSaveTakeoff(takeoffAlt);
-    // this.setState({MACEconfig: this.appHelper.MACEconfig});
   }
 
   handleTakeoff = () => {
@@ -340,7 +336,7 @@ export default class AppContainer extends React.Component<Props, State> {
                 open={this.state.showEditGlobalHomeDialog}
                 handleClose={this.handleCloseDialogs}
                 onGlobalHomeCommand={this.handleAircraftCommand}
-                globalOrigin={this.appHelper.globalOrigin}
+                globalOrigin={this.appHelper.maceCommsHelper.vehicleDB.globalOrigin}
                 handleSave={this.appHelper.handleSaveGlobalOrigin}
                 contextAnchor={this.state.contextAnchor}
                 useContext={this.state.useContext}
@@ -352,7 +348,7 @@ export default class AppContainer extends React.Component<Props, State> {
                 open={this.state.showMessagesMenu}
                 handleClose={this.handleCloseDialogs}
                 handleSave={this.appHelper.handleSaveMessagingPreferences}
-                preferences={this.appHelper.messagePreferences}
+                preferences={this.appHelper.maceCommsHelper.vehicleDB.messagePreferences}
               />
             }
 
@@ -384,15 +380,15 @@ export default class AppContainer extends React.Component<Props, State> {
             }
 
 
-            {this.appHelper.showDraw &&
+            {this.polygonHelper.showDraw &&
               <DrawButtonsContainer
-                onDeleteLastPolygonPt={this.appHelper.handleDeleteLastPolygonPt}
-                onDisableDraw={this.appHelper.handleDisableDraw}
-                onSubmitBoundary={this.appHelper.handleSubmitBoundary}
-                onClearAllPts={this.appHelper.handleClearPts}
-                handleChangeGridSpacing={this.appHelper.handleChangeGridSpacing}
+                onDeleteLastPolygonPt={this.polygonHelper.handleDeleteLastPolygonPt}
+                onDisableDraw={this.polygonHelper.handleDisableDraw}
+                onSubmitBoundary={this.polygonHelper.handleSubmitBoundary}
+                onClearAllPts={this.polygonHelper.handleClearPts}
+                handleChangeGridSpacing={this.polygonHelper.handleChangeGridSpacing}
                 openEnvironmentSettings={this.handleOpenEnvironmentSettings}
-                environmentSettings={this.appHelper.environmentSettings}
+                environmentSettings={this.polygonHelper.environmentSettings}
               />
             }
 
@@ -400,11 +396,10 @@ export default class AppContainer extends React.Component<Props, State> {
               <EnvironmentSettings
                 open={this.state.showEnvironmentSettings}
                 handleClose={this.handleCloseDialogs}
-                handleSave={this.appHelper.saveEnvironmentSettings}
-                environmentSettings={this.appHelper.environmentSettings}
+                handleSave={this.polygonHelper.saveEnvironmentSettings}
+                environmentSettings={this.polygonHelper.environmentSettings}
               />
             }
-
 
             <MACEMap
               handleSelectedAircraftUpdate={this.handleSelectedAircraftUpdate}
@@ -414,20 +409,19 @@ export default class AppContainer extends React.Component<Props, State> {
               mapCenter={this.appHelper.MACEconfig.config.GUIInit.mapCenter}
               maxZoom={this.appHelper.MACEconfig.config.GUIInit.maxZoom}
               mapZoom={this.appHelper.MACEconfig.config.GUIInit.mapZoom}
-              globalOrigin={this.appHelper.globalOrigin}
+              globalOrigin={this.appHelper.maceCommsHelper.vehicleDB.globalOrigin}
               updateMapCenter={this.updateMapCenter}
               contextAnchor={this.state.contextAnchor}
               contextSetGlobal={this.contextSetGlobal}
               contextSetHome={this.contextSetHome}
               contextSetTakeoff={this.contextSetTakeoff}
               contextGoHere={this.contextGoHere}
-              MACEConnected={this.appHelper.MACEConnected}
-              environmentBoundary={this.appHelper.environmentBoundary}
-              drawPolygonPts={this.appHelper.drawPolygonPts}
-              onAddPolygonPt={this.appHelper.handleAddPolygonPt}
-              environmentSettings={this.appHelper.environmentSettings}
-              gridPts={this.appHelper.gridPts}
-              envBoundingBox={this.appHelper.envBoundingBox}
+              environmentBoundary={this.appHelper.maceCommsHelper.vehicleDB.environmentBoundary}
+              drawPolygonPts={this.polygonHelper.drawPolygonPts}
+              onAddPolygonPt={this.polygonHelper.handleAddPolygonPt}
+              environmentSettings={this.polygonHelper.environmentSettings}
+              gridPts={this.polygonHelper.gridPts}
+              envBoundingBox={this.polygonHelper.envBoundingBox}
              />
 
 
