@@ -39,12 +39,6 @@ public:
 
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
 
-    virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics()
-    {
-        //return IModuleCommandVehicle::GetTopics();
-        return {};
-    }
-
 protected:
     Comms::CommsMarshaler *m_LinkMarshaler;
     std::string m_LinkName;
