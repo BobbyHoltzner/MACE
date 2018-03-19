@@ -186,7 +186,7 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
         {
             for(std::vector<ModuleBase*>::const_iterator it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
                 if((*it) == moduleFrom) continue;
-                (*it)->NewTopicAvailable(topicName, sender, components, target);
+                (*it)->NewTopicSpooled(topicName, sender, components, target);
             }
         }
     }
@@ -197,7 +197,7 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
         {
             for(std::vector<ModuleBase*>::const_iterator it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
                 if((*it) == moduleFrom) continue;
-                (*it)->NewTopicGiven(topicName, sender, value, target);
+                (*it)->NewTopicData(topicName, sender, value, target);
             }
         }
     }
@@ -223,7 +223,7 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
     {
         for(std::vector<ModuleBase*>::const_iterator it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
             if((*it) == moduleFrom) continue;
-            (*it)->NewTopicAvailable(topicName, sender, components);
+            (*it)->NewTopicSpooled(topicName, sender, components);
         }
     }
 }
