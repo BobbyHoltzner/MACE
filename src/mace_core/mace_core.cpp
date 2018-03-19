@@ -27,6 +27,14 @@ void MaceCore::AddDataFusion(const std::shared_ptr<MaceData> dataFusion)
     m_DataFusion = dataFusion;
 }
 
+void MaceCore::AddModule(const std::shared_ptr<ModuleBase> &module)
+{
+    std::vector<TopicCharacteristic> topics = module->GetEmittedTopics();
+    for(auto it = topics.cbegin() ; it != topics.cend() ; ++it) {
+        this->AddTopicCharacteristic(module.get(), *it);
+    }
+}
+
 void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle)
 {
     std::lock_guard<std::mutex> guard(m_VehicleMutex);
@@ -37,13 +45,12 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
     m_VehicleIDToPtr.insert({ID, vehicle.get()});
     m_VehiclePTRToID.insert({vehicle.get(), ID});
 
+    AddModule(vehicle);
+
     vehicle->addListener(this);
     vehicle->addTopicListener(this);
 
-    std::unordered_map<std::string, TopicStructure> topics = vehicle->GetTopics();
-    for(auto it = topics.cbegin() ; it != topics.cend() ; ++it) {
-        this->AddTopic(it->first, it->second);
-    }
+
 }
 
 
@@ -63,6 +70,8 @@ void MaceCore::RemoveVehicle(const std::string &ID)
 //The following add the appropriate modules to the core
 void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink)
 {
+    AddModule(externalLink);
+
     externalLink->addListener(this);
     externalLink->addTopicListener(this);
     m_ExternalLink.push_back(externalLink);
@@ -72,6 +81,8 @@ void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink>
     {
         externalLink->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic());
     }
+
+
 }
 
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
@@ -90,6 +101,8 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
             (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic());
         }
     }
+
+    AddModule(groundStation);
 }
 
 void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning)
@@ -97,6 +110,8 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
     pathPlanning->addListener(this);
     pathPlanning->addTopicListener(this);
     m_PathPlanning = pathPlanning;
+
+    AddModule(pathPlanning);
 }
 
 void MaceCore::AddROSModule(const std::shared_ptr<IModuleCommandROS> &ros)
@@ -104,6 +119,8 @@ void MaceCore::AddROSModule(const std::shared_ptr<IModuleCommandROS> &ros)
     ros->addListener(this);
     ros->addTopicListener(this);
     m_ROS = ros;
+
+    AddModule(ros);
 }
 
 void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
@@ -111,6 +128,8 @@ void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
     rta->addListener(this);
     rta->addTopicListener(this);
     m_RTA = rta;
+
+    AddModule(rta);
 }
 
 void MaceCore::AddSensorsModule(const std::shared_ptr<IModuleCommandSensors> &sensors)
@@ -118,13 +137,24 @@ void MaceCore::AddSensorsModule(const std::shared_ptr<IModuleCommandSensors> &se
     sensors->addListener(this);
     sensors->addTopicListener(this);
     m_Sensors = sensors;
+
+    AddModule(sensors);
 }
 
 //This ends the functions adding appropriate modules
 
 
-void MaceCore::AddTopic(const std::string &topicName, const TopicStructure &topic) {
-    m_Topics.insert({topicName, topic});
+void MaceCore::AddTopicCharacteristic(const ModuleBase *sender, const TopicCharacteristic &topic) {
+
+    if(m_TopicsToReceive.find(sender) == m_TopicsToReceive.cend())
+    {
+        m_TopicsToReceive.insert({sender, {}});
+    }
+
+    if(m_TopicsToReceive.at(sender).find(topic.Name()) == m_TopicsToReceive.at(sender).cend())
+    {
+        m_TopicsToReceive.at(sender).insert({topic.Name(), topic});
+    }
 }
 
 void MaceCore::Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &senderIDs, const std::vector<std::string> &components)
@@ -138,18 +168,62 @@ void MaceCore::Subscribe(ModuleBase* sender, const std::string &topicName, const
     m_TopicNotifier[topicName].push_back(sender);
 }
 
+void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const ModuleCharacteristic &sender, const TIME &time, const TopicDatagram &value, const OptionalParameter<ModuleCharacteristic> &target)
+{
+    if(this->m_TopicsToReceive.at(moduleFrom).find(topicName) == m_TopicsToReceive.at(moduleFrom).cend())
+    {
+        throw std::runtime_error("Topic emitted to MaceCore was not expected");
+    }
+
+    if(this->m_TopicsToReceive.at(moduleFrom).at(topicName).Spooled() == true)
+    {
+        std::vector<std::string> components = value.ListNonTerminals();
+
+        m_DataFusion->setTopicDatagram(topicName, sender.ID, time, value);
+
+        //list through all interested parties and notify of new topic data
+        if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
+        {
+            for(std::vector<ModuleBase*>::const_iterator it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
+                if((*it) == moduleFrom) continue;
+                (*it)->NewTopicAvailable(topicName, sender, components, target);
+            }
+        }
+    }
+    else
+    {
+        //list through all interested parties and notify of new topic data
+        if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
+        {
+            for(std::vector<ModuleBase*>::const_iterator it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
+                if((*it) == moduleFrom) continue;
+                (*it)->NewTopicGiven(topicName, sender, value, target);
+            }
+        }
+    }
+
+
+}
+
 void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
+
+    printf("Deprecated!\n");
+    //throw std::runtime_error("Deprecated");
 
     std::vector<std::string> components = value.ListNonTerminals();
 
     m_DataFusion->setTopicDatagram(topicName, senderID, time, value);
 
+    ModuleCharacteristic sender;
+    sender.ID = senderID;
+    sender.Class = ModuleClasses::VEHICLE_COMMS;
+
     //list through all interested parties and notify of new topic data
     if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
-    {        
-        for(auto it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
+    {
+        for(std::vector<ModuleBase*>::const_iterator it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
             if((*it) == moduleFrom) continue;
-            (*it)->NewTopic(topicName, senderID, components);
+            (*it)->NewTopicAvailable(topicName, sender, components);
         }
     }
 }
@@ -586,7 +660,8 @@ void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const int &t
     for(auto it = topicMap.cbegin() ; it != topicMap.cend() ; ++it) {
         std::vector<std::string> components = it->second.ListNonTerminals();
         ModuleBase* base = (ModuleBase*)sender;
-        base->NewTopic(it->first,targetID,components);
+        //base->NewTopic(it->first,targetID,components);
+        throw std::runtime_error("Requesting Data Sync Not Implemented");
     }
 }
 

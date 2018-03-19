@@ -1,6 +1,7 @@
 require('../../../../html/js/webgl-heatmap.js');
 require('../../../../html/js/leaflet-webgl-heatmap.min.js');
 // import * as L from 'leaflet';
+// import { styles } from "./styles";
 
 /*
 

@@ -30,15 +30,23 @@
 
 #include "data_interface_MAVLINK/vehicle_object_mavlink.h"
 
+#include "base_topic/vehicle_topics.h"
+
+#include "controllers/I_controller.h"
+#include "controllers/I_message_notifier.h"
+
 using namespace std::placeholders;
 
 //class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
-class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
+class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK,
+        public Controllers::IMessageNotifier<mavlink_message_t>
 {
 public:
     ModuleVehicleArdupilot();
 
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
+
+    virtual void TransmitMessage(const mavlink_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) const;
 
     void createLog(const int &systemID);
 
@@ -70,13 +78,31 @@ public:
     //!
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
 
+
     //!
-    //! \brief NewTopic
-    //! \param topicName
-    //! \param senderID
-    //! \param componentsUpdated
+    //! \brief New non-spooled topic given
     //!
-    virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
+    //! NonSpooled topics send their data immediatly.
+    //! \param topicName Name of stopic
+    //! \param sender Module that sent topic
+    //! \param data Data for topic
+    //! \param target Target module (or broadcasted)
+    //!
+    virtual void NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target);
+
+
+    //!
+    //! \brief New Spooled topic given
+    //!
+    //! Spooled topics are stored on the core's datafusion.
+    //! This method is used to notify other modules that there exists new data for the given components on the given module.
+    //! \param topicName Name of topic given
+    //! \param sender Module that sent topic
+    //! \param componentsUpdated Components in topic that where updated
+    //! \param target Target moudle (or broadcast)
+    //!
+    virtual void NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
+
 
     //!
     //! \brief This module as been attached as a module
@@ -280,10 +306,16 @@ private:
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;
 
+    BaseTopic::VehicleTopics m_VehicleTopics;
+
     Ardupilot_GeneralController* m_AircraftController;
 
+<<<<<<< HEAD
     hsm::StateMachine* stateMachine; /**< Member variable containing a pointer to the state
  machine. This state machine evolves the state per event updates and/or external commands. */
+=======
+    std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> m_TopicToControllers;
+>>>>>>> master
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H
