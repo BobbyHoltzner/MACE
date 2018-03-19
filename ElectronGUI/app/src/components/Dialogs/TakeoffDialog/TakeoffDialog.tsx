@@ -12,6 +12,7 @@ import { Grid, Col } from 'react-bootstrap';
 
 import * as colors from 'material-ui/styles/colors';
 import * as L from 'leaflet';
+// import { styles } from "./styles";
 
 
 type Props = {

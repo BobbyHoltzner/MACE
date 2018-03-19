@@ -17,6 +17,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import FontIcon from 'material-ui/FontIcon';
 import Slider from 'material-ui/Slider';
 import IconButton from 'material-ui/IconButton';
+import { styles } from "./styles";
 
 
 type Props = {
@@ -75,41 +76,11 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
 
     render() {
 
-        const parentContainer = {
-            position: 'absolute' as 'absolute',
-            top: 80,
-            left: 26,
-            display: "flex",
-            justifyContent: "space-between" as "space-between",
-            flexDirection: "row" as "row",
-        }
-
-        const buttonsContainer = {
-            display: "flex",
-            justifyContent: "space-between" as "space-between",
-            alignItems: "center" as "center",
-            flexDirection: "column" as "column",
-        };
-
-        const sliderContainer = {
-            position: 'relative' as 'relative',
-            left: 26,
-            width: 250,
-            zIndex: 100
-        };
-
-        const inlineContainer = {
-            display: "flex",
-            justifyContent: "space-between" as "space-between",
-            alignItems: "center" as "center",
-            flexDirection: "row" as "row",
-        };
-
         // <i className="material-icons">battery_charging_full</i>
 
         return(
-            <div style={parentContainer}>
-                <div style={buttonsContainer}>
+            <div style={styles.parentContainer}>
+                <div style={styles.buttonsContainer}>
                     <MuiThemeProvider muiTheme={lightMuiTheme}>
                         <RaisedButton
                             onClick={this.props.onSubmitBoundary}
@@ -143,8 +114,8 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                         />
                     </MuiThemeProvider>
                 </div>
-                <div style={sliderContainer}>
-                    <div style={inlineContainer}>
+                <div style={styles.sliderContainer}>
+                    <div style={styles.inlineContainer}>
                         <p style={{color: materialColors.white, textAlign: 'center', fontSize: 18}}>Grid spacing: {this.state.sliderVal} meters</p>
                         <IconButton onClick={this.openEnvSettings} style={{paddingBottom: 10, padding: 0, color: materialColors.white}}><i className="material-icons">settings</i></IconButton>
                     </div>
@@ -160,7 +131,7 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                             sliderStyle={{padding: 0, marginBottom: 12, marginTop: 12}}
                         />
                     </MuiThemeProvider>
-                    <div style={inlineContainer}>
+                    <div style={styles.inlineContainer}>
                         <p style={{color: materialColors.white, textAlign: 'center', fontSize: 18}}>Min: {this.props.environmentSettings.minSliderVal} m</p>
                         <p style={{color: materialColors.white, textAlign: 'center', fontSize: 18}}>Max: {this.props.environmentSettings.maxSliderVal} m</p>
                     </div>

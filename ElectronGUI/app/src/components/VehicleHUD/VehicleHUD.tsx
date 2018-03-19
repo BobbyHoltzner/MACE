@@ -14,6 +14,7 @@ import IconButton from 'material-ui/IconButton';
 import { aircraftImgSrcFromType } from '../../util/Helpers/VehicleHelper';
 import { Colors } from '../../util/misc/Colors';
 import * as MUIColors from 'material-ui/styles/colors';
+// import { styles } from "./styles";
 
 type Props = {
     vehicleID: string,
@@ -104,8 +105,11 @@ export class VehicleHUD extends React.Component<Props, State> {
     }
 
     render() {
+
+        // TODO: Figure out how to move this style to a separate styles file. The conditional is hard:
         const boxShadow = this.props.aircraft.isSelected ? this.props.highlightColor + " 0px 1px 20px, rgba(0, 0, 0, .5) 0px 1px 4px" : "rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px"
         const hudStyle = {position: "relative" as "relative", width: 90 + "%", marginBottom: 15, boxShadow: boxShadow};
+
         // const hudAvatar = aircraftImgSrcFromType(this.props.aircraft.general.aircraftType);
         const hudAvatar: JSX.Element =
             <Avatar

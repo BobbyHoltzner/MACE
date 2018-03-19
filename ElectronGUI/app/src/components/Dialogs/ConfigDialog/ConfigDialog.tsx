@@ -10,6 +10,7 @@ import {Tabs, Tab} from 'material-ui/Tabs';
 import * as deepcopy from 'deepcopy';
 
 import * as colors from 'material-ui/styles/colors';
+// import { styles } from "./styles";
 
 
 type Props = {

@@ -12,6 +12,7 @@ import MenuItem from 'material-ui/MenuItem';
 
 import * as colors from 'material-ui/styles/colors';
 import * as L from 'leaflet';
+// import { styles } from "./styles";
 
 
 type Props = {

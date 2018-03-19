@@ -11,6 +11,7 @@ import TextField from 'material-ui/TextField';
 import { Colors } from '../../util/misc/Colors';
 
 import * as colors from 'material-ui/styles/colors';
+import { styles } from "./styles";
 
 
 type Props = {
@@ -77,8 +78,6 @@ export class EnvironmentSettings extends React.Component<Props, State> {
     }
 
     render() {
-
-        const checkboxStyle = {paddingTop: 24};
         const actions = [
             <FlatButton
                 label="Cancel"
@@ -139,7 +138,7 @@ export class EnvironmentSettings extends React.Component<Props, State> {
                                 <Checkbox
                                     label="Show bounding box"
                                     labelStyle={{color: Colors.Primary, fontWeight: 'normal'}}
-                                    style={checkboxStyle}
+                                    style={styles.checkboxStyle}
                                     onCheck={(event: any, checked: boolean) => this.handleCheck(checked)}
                                     checked={this.state.showBoundingBox}
                                 />

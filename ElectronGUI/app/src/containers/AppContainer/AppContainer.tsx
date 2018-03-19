@@ -3,6 +3,7 @@ import * as React from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 const lightMuiTheme = getMuiTheme();
+import { styles } from "./styles";
 
 var NotificationSystem = require('react-notification-system');
 import { ConnectedVehiclesContainer } from '../ConnectedVehicles/ConnectedVehiclesContainer';
@@ -80,7 +81,6 @@ export default class AppContainer extends React.Component<Props, State> {
       useContext: false,
       connectedVehicles: {}
     }
-
 
     this.appHelper = new AppHelper(this.state);
     this.polygonHelper = new PolygonHelper();
@@ -269,10 +269,6 @@ export default class AppContainer extends React.Component<Props, State> {
 
   render() {
 
-    const width = window.screen.width;
-    const height = window.screen.height;
-    const parentStyle = {height: height + 'px', width: width + 'px'};
-
     const ToolbarRight = () => (
       <FlatButton
         label={"Sync all"}
@@ -285,7 +281,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
     return (
         <MuiThemeProvider muiTheme={lightMuiTheme}>
-          <div style={parentStyle}>
+          <div style={styles.parentStyle}>
 
             <AppBar
                 title="MACE"

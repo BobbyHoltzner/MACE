@@ -29,6 +29,7 @@ export class VehicleMessages extends React.Component<Props, State> {
     }
 
     render() {
+        // TODO: Figure out how to move this style to a separate styles file. The conditional is hard:
         const boxShadow = this.props.aircraft.isSelected ? this.props.aircraft.highlightColor + " 0px 1px 20px, rgba(0, 0, 0, .5) 0px 1px 4px" : "rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px"
         const hudStyle = {
             position: "relative" as "relative",
@@ -36,6 +37,8 @@ export class VehicleMessages extends React.Component<Props, State> {
             marginBottom: 15,
             boxShadow: boxShadow
         };
+
+
         // const hudAvatar = aircraftImgSrcFromType(this.props.aircraft.general.aircraftType);
         const hudAvatar: JSX.Element =
             <Avatar

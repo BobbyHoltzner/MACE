@@ -7,6 +7,7 @@ import FlatButton from 'material-ui/FlatButton';
 import MenuItem from 'material-ui/MenuItem';
 import FontIcon from 'material-ui/FontIcon';
 import Divider from 'material-ui/Divider';
+import { styles } from "./styles";
 
 
 type Props = {
@@ -33,8 +34,6 @@ export class AppDrawer extends React.Component<Props, State> {
 
     render() {
 
-        const drawerItemLabelStyle = { fontSize: 18, marginLeft: 20 };
-
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
                 <Drawer
@@ -52,7 +51,7 @@ export class AppDrawer extends React.Component<Props, State> {
 
                     <MenuItem onTouchTap={() => this.props.onDrawerAction("TestButton1")}>
                         <FlatButton
-                            labelStyle={drawerItemLabelStyle}
+                            labelStyle={styles.drawerItemLabelStyle}
                             label="TESTING 1"
                             icon={<FontIcon className="material-icons">gesture</FontIcon>}
                             disableTouchRipple={false}
@@ -63,7 +62,7 @@ export class AppDrawer extends React.Component<Props, State> {
 
                     <MenuItem onTouchTap={() => this.props.onDrawerAction("TestButton2")}>
                         <FlatButton
-                            labelStyle={drawerItemLabelStyle}
+                            labelStyle={styles.drawerItemLabelStyle}
                             label="TESTING 2"
                             icon={<FontIcon className="material-icons">gesture</FontIcon>}
                             disableTouchRipple={false}
@@ -74,7 +73,7 @@ export class AppDrawer extends React.Component<Props, State> {
 
                      <MenuItem onTouchTap={() => this.props.onDrawerAction("EditEnvironment")}>
                         <FlatButton
-                            labelStyle={drawerItemLabelStyle}
+                            labelStyle={styles.drawerItemLabelStyle}
                             label="Environment"
                             icon={<FontIcon className="material-icons">border_style</FontIcon>}
                             disableTouchRipple={false}
@@ -97,7 +96,7 @@ export class AppDrawer extends React.Component<Props, State> {
 
                     <MenuItem onTouchTap={() => this.setState({openSettingsSubmenu: !this.state.openSettingsSubmenu})}>
                         <FlatButton
-                            labelStyle={drawerItemLabelStyle}
+                            labelStyle={styles.drawerItemLabelStyle}
                             label="Settings"
                             labelPosition="before"
                             icon={this.state.openSettingsSubmenu ? <FontIcon className="material-icons">expand_less</FontIcon> : <FontIcon className="material-icons">expand_more</FontIcon>}
@@ -109,7 +108,7 @@ export class AppDrawer extends React.Component<Props, State> {
                             <div>
                                 <MenuItem onTouchTap={() => this.props.onDrawerAction("MACEConfig")}>
                                     <FlatButton
-                                        labelStyle={drawerItemLabelStyle}
+                                        labelStyle={styles.drawerItemLabelStyle}
                                         label="MACE Config"
                                         icon={<FontIcon className="material-icons">flight_takeoff</FontIcon>}
                                         disableTouchRipple={false}
@@ -119,7 +118,7 @@ export class AppDrawer extends React.Component<Props, State> {
                                 </MenuItem>
                                 <MenuItem onTouchTap={() => this.props.onDrawerAction("Messages")}>
                                     <FlatButton
-                                        labelStyle={drawerItemLabelStyle}
+                                        labelStyle={styles.drawerItemLabelStyle}
                                         label="Messages"
                                         icon={<FontIcon className="material-icons">event_note</FontIcon>}
                                         disableTouchRipple={false}
@@ -129,7 +128,7 @@ export class AppDrawer extends React.Component<Props, State> {
                                 </MenuItem>
                                 <MenuItem onTouchTap={() => this.props.onDrawerAction("Takeoff")}>
                                     <FlatButton
-                                        labelStyle={drawerItemLabelStyle}
+                                        labelStyle={styles.drawerItemLabelStyle}
                                         label="Takeoff"
                                         icon={<FontIcon className="material-icons">flight_takeoff</FontIcon>}
                                         disableTouchRipple={false}

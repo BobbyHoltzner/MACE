@@ -10,6 +10,7 @@ import { Vehicle } from '../../util/Vehicle/Vehicle';
 import { ContextMenu } from '../../components/ContextMenu/ContextMenu';
 import { Heatmap } from '../mapLayers/heatmap';
 import * as L from 'leaflet';
+import { styles } from "./styles";
 
 
 type Props = {
@@ -73,11 +74,6 @@ export default class MACEMap extends React.Component<Props, State> {
 
   render() {
 
-    const width = window.screen.width;
-    const height = window.screen.height;
-    const parentStyle = {height: height + 'px', width: width + 'px'};
-    const mapStyle = { top: 64, left: 0, height: height + 'px', width: width + 'px' };
-
     const globalOriginMarker = {
       position: new L.LatLng(this.props.globalOrigin.lat, this.props.globalOrigin.lng),
       icon: new L.Icon({
@@ -139,7 +135,7 @@ export default class MACEMap extends React.Component<Props, State> {
 
     return (
         <MuiThemeProvider muiTheme={lightMuiTheme}>
-          <div style={parentStyle}>
+          <div style={styles.parentStyle}>
 
             {this.state.showContextMenu &&
               <ContextMenu
@@ -152,7 +148,7 @@ export default class MACEMap extends React.Component<Props, State> {
               />
             }
 
-            <Map ref={(map: any) => {this.leafletMap = map}} ondragend={this.props.updateMapCenter} useFlyTo={true} animate={true} center={this.props.mapCenter} zoom={this.props.mapZoom} style={mapStyle} zoomControl={false} maxZoom={this.props.maxZoom} oncontextmenu={this.triggerContextMenu} onclick={this.handleMapClick} >
+            <Map ref={(map: any) => {this.leafletMap = map}} ondragend={this.props.updateMapCenter} useFlyTo={true} animate={true} center={this.props.mapCenter} zoom={this.props.mapZoom} style={styles.mapStyle} zoomControl={false} maxZoom={this.props.maxZoom} oncontextmenu={this.triggerContextMenu} onclick={this.handleMapClick} >
                 {/* <TileLayer url='http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' />  */}
                 <TileLayer url='http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' maxZoom={this.props.maxZoom} subdomains={['mt0','mt1','mt2','mt3']} />
 
