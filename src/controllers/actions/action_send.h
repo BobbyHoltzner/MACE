@@ -44,10 +44,11 @@ protected:
     //!
     //! \param data Incomming data to translate, given in the Send function
     //! \param sender Module emitting this action, given in the Send function
+    //! \param target Module targeted by action
     //! \param msg Communications message to send to comms interface
     //! \param queue Queue object to identifiy this tranmissions when ack is returned
     //!
-    virtual void Construct_Send(const DATA_TYPE &data, const MaceCore::ModuleCharacteristic &sender, MSG_TYPE &msg, QUEUE_TYPE &queue) = 0;
+    virtual void Construct_Send(const DATA_TYPE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, MSG_TYPE &msg, QUEUE_TYPE &queue) = 0;
 
 public:
 
@@ -69,7 +70,7 @@ public:
     {
         MSG_TYPE cmd;
         QUEUE_TYPE queueObj;
-        Construct_Send(data, sender, cmd, queueObj);
+        Construct_Send(data, sender, target, cmd, queueObj);
 
         BASE::m_Controller-> template QueueTransmission<QUEUE_TYPE>(queueObj, MESSAGE_ACK_ID, [this, cmd, sender, target](){
             BASE::m_Controller-> template EncodeMessage(BASE::m_EncodeChanFunc, cmd, sender, target);
