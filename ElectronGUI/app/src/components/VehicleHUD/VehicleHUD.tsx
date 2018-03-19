@@ -5,7 +5,6 @@ import * as React from 'react';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
 import { Vehicle } from '../../util/Vehicle/Vehicle';
-import { textSeverityToColor } from '../../util/misc/Colors';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import Avatar from 'material-ui/Avatar';
@@ -14,7 +13,8 @@ import IconButton from 'material-ui/IconButton';
 import { aircraftImgSrcFromType } from '../../util/Helpers/VehicleHelper';
 import { Colors } from '../../util/misc/Colors';
 import * as MUIColors from 'material-ui/styles/colors';
-// import { styles } from "./styles";
+import { textSeverityToColor } from '../../util/misc/Colors';
+import { styles } from "./styles";
 
 type Props = {
     vehicleID: string,
@@ -115,7 +115,7 @@ export class VehicleHUD extends React.Component<Props, State> {
             <Avatar
                 backgroundColor={this.props.aircraft.isArmed ? Colors.Success : Colors.Primary}
                 src={aircraftImgSrcFromType(this.props.aircraft.general.aircraftType)}
-                style={{borderRadius: 30+'%'}}
+                style={styles.avatar}
             />;
 
         let now = new Date();
@@ -141,12 +141,12 @@ export class VehicleHUD extends React.Component<Props, State> {
                                 <div className="col-xs-12">
                                     <span>ID: {this.props.vehicleID}</span>
                                 </div>
-                                <div className="col-xs-12" style={{paddingTop: 0, paddingBottom: 0}}>
-                                    <Menu desktop={true} style={{paddingLeft: 0, paddingRight: 0, paddingTop: -30, paddingBottom: 0, marginTop: -15, marginLeft: -30, marginRight: 0}}>
+                                <div className="col-xs-12" style={styles.col_flat}>
+                                    <Menu desktop={true} style={styles.menuStyle}>
                                         <MenuItem
-                                            style={{color: 'rgba(0,0,0,0.7)', width: -30, paddingLeft: 0, paddingRight: 0, paddingTop: 0, paddingBottom: 0, marginLeft: 0, marginRight: 0}}
+                                            style={styles.menuItem}
                                             primaryText={this.props.aircraft.vehicleMode}
-                                            rightIcon={<i style={{marginLeft: -50}} className="material-icons">arrow_drop_down</i>}
+                                            rightIcon={<i style={styles.iconStyle} className="material-icons">arrow_drop_down</i>}
                                             menuItems={[
                                                 modeMenuItems
                                             ]}
@@ -154,8 +154,9 @@ export class VehicleHUD extends React.Component<Props, State> {
                                     </Menu>
                                 </div>
                             </div>
-                            <div className="col-xs-6" style={{paddingLeft: 0, paddingRight: 0}}>
-                                <div className="col-xs-12" style={{paddingLeft: 0, paddingRight: 0}}>
+                            <div className="col-xs-6" style={styles.col_thin}>
+                                <div className="col-xs-12" style={styles.col_thin}>
+                                    {/* TODO: Figure out how to move this heartbeat color to separate stylesheet */}
                                     <div className="col-xs-6" style={{color: heartbeatColor, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingLeft: 0, paddingRight: 0}}>
                                         <i className="material-icons">favorite</i>
                                     </div>
@@ -163,20 +164,20 @@ export class VehicleHUD extends React.Component<Props, State> {
                                         <span style={{fontSize: 12, fontWeight: 'bold', color: heartbeatColor}}>{lastHeardSeconds + " s"}</span>
                                     </div>
                                 </div>
-                                <div className="col-xs-12" style={{paddingLeft: 0, paddingRight: 0}}>
-                                    <div className="col-xs-6" style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingLeft: 0, paddingRight: 0}}>
+                                <div className="col-xs-12" style={styles.col_thin}>
+                                    <div className="col-xs-6" style={styles.col_icon}>
                                         <i className="material-icons">gps_fixed</i>
                                     </div>
-                                    <div className="col-xs-6" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', paddingLeft: 0, paddingRight: 0, paddingTop: 4+'px'}}>
-                                        <span style={{fontSize: 12}}>{this.props.aircraft.gps.gpsFix}</span>
+                                    <div className="col-xs-6" style={styles.col_iconLabel}>
+                                        <span style={styles.iconLabelText}>{this.props.aircraft.gps.gpsFix}</span>
                                     </div>
                                 </div>
-                                <div className="col-xs-12" style={{paddingLeft: 0, paddingRight: 0}}>
-                                    <div className="col-xs-6" style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingLeft: 0, paddingRight: 0}}>
+                                <div className="col-xs-12"style={styles.col_thin}>
+                                    <div className="col-xs-6" style={styles.col_icon}>
                                         <i className="material-icons">satellite</i>
                                     </div>
-                                    <div className="col-xs-6" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', paddingLeft: 0, paddingRight: 0, paddingTop: 4+'px'}}>
-                                        <span style={{fontSize: 12}}>{this.props.aircraft.gps.visibleSats}</span>
+                                    <div className="col-xs-6" style={styles.col_iconLabel}>
+                                        <span style={styles.iconLabelText}>{this.props.aircraft.gps.visibleSats}</span>
                                     </div>
                                 </div>
                             </div>
@@ -187,7 +188,7 @@ export class VehicleHUD extends React.Component<Props, State> {
             <MuiThemeProvider muiTheme={lightMuiTheme}>
                 <Card expanded={true} onExpandChange={() => this.props.handleChangeSelectedVehicle(this.props.vehicleID)} style={hudStyle}>
                     <CardHeader
-                        titleStyle={{fontSize: 24}}
+                        titleStyle={styles.cardHeaderText}
                         title={hudTitle}
                         avatar={hudAvatar}
                         actAsExpander={true}
@@ -205,33 +206,33 @@ export class VehicleHUD extends React.Component<Props, State> {
                                     {"Lon: " + this.props.aircraft.position.lon.toFixed(2)}
                                 </CardText>
                                 */}
-                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
+                                <CardText style={styles.cardText}>
                                     {"Alt: " + this.props.aircraft.position.alt.toFixed(2)}
                                 </CardText>
-                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
+                                <CardText style={styles.cardText}>
                                     {"Airspeed: " + this.props.aircraft.airspeed.toFixed(2)}
                                 </CardText>
-                                <div className="col-xs-5" style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingLeft: 0, paddingRight: 0}}>
-                                    <IconMenu style={{padding: 0}} iconButtonElement={<IconButton style={{padding: 0}}><i className="material-icons">battery_charging_full</i><i className="material-icons">arrow_drop_down</i></IconButton>} onChange={(e:any, value:string) => this.handleBatteryChange(value)} value={this.state.selectedBattery}>
+                                <div className="col-xs-5" style={styles.batteryContainer}>
+                                    <IconMenu style={styles.batteryMenu} iconButtonElement={<IconButton style={{padding: 0}}><i className="material-icons">battery_charging_full</i><i className="material-icons">arrow_drop_down</i></IconButton>} onChange={(e:any, value:string) => this.handleBatteryChange(value)} value={this.state.selectedBattery}>
                                         <MenuItem value="Voltage" primaryText="Voltage" label="Voltage (V)"/>
                                         <MenuItem value="Percent" primaryText="Percent" label="Percent (%)"/>
                                         <MenuItem value="Current" primaryText="Current" label="Current (A)"/>
                                     </IconMenu>
                                 </div>
-                                <div className="col-xs-7" style={{fontSize: 18+'px', display: 'flex', justifyContent: 'flex-start', alignItems: 'center', paddingLeft: 0, paddingRight: 0, paddingTop: 11+'px'}}>
+                                <div className="col-xs-7" style={styles.batteryText}>
                                     {this.state.batteryText}
                                 </div>
                             </div>
                         </div>
                         <div className="col-xs-6">
                             <div className="box">
-                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
+                                <CardText style={styles.rpyText}>
                                     {"Roll: " + this.props.aircraft.attitude.roll.toFixed(2)}
                                 </CardText>
-                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
+                                <CardText style={styles.rpyText}>
                                     {"Pitch: " + this.props.aircraft.attitude.pitch.toFixed(2)}
                                 </CardText>
-                                <CardText style={{fontSize: 18, paddingTop: 0, paddingBottom: 0}}>
+                                <CardText style={styles.rpyText}>
                                     {"Yaw: " + this.props.aircraft.attitude.yaw.toFixed(2)}
                                 </CardText>
                             </div>
@@ -240,8 +241,8 @@ export class VehicleHUD extends React.Component<Props, State> {
                         {(this.props.aircraft.messages.length > 0 && this.state.showHUDMessage) &&
                             <div className="col-xs-12">
                                 <br></br>
-                                <div style={{width: '100%', height: '9px', borderBottom: '1px solid #8c8b8b', textAlign: 'center'}}>
-                                    <span style={{backgroundColor: '#fff', padding: '0 10px'}}>
+                                <div style={styles.messagesContainer}>
+                                    <span style={styles.messagesTitle}>
                                         Messages
                                     </span>
                                 </div>
@@ -252,14 +253,14 @@ export class VehicleHUD extends React.Component<Props, State> {
                                     </CardText>
                                 </div>
                                 <br></br>
-                                <div style={{width: '100%', borderBottom: '1px solid #8c8b8b'}}></div>
+                                <div style={styles.borderLine}></div>
                             </div>
                         }
 
                     </div>
 
 
-                    <CardActions style={{textAlign: "center"}}>
+                    <CardActions style={styles.cardActions}>
                         <FlatButton
                             label="Loiter"
                             onClick={this.handleLoiter}

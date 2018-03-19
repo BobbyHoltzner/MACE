@@ -37,13 +37,13 @@ export class AppDrawer extends React.Component<Props, State> {
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
                 <Drawer
-                containerStyle={{position: "absolute", top: 64}}
+                containerStyle={styles.drawerContainer}
                 docked={true}
                 open={this.props.openDrawer}
                 onRequestChange={(open: boolean) => this.props.onToggleDrawer(open)}
                 >
 
-                    <div style={{ textAlign: "center" }}>
+                    <div style={styles.logo}>
                         <img className="image" src={"images/HeronLogo_Small.png"} />
                     </div>
 

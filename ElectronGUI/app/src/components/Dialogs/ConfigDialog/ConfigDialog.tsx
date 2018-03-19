@@ -9,8 +9,7 @@ import { Grid, Col } from 'react-bootstrap';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import * as deepcopy from 'deepcopy';
 
-import * as colors from 'material-ui/styles/colors';
-// import { styles } from "./styles";
+import { styles } from "./styles";
 
 
 type Props = {
@@ -156,7 +155,7 @@ export class ConfigDialog extends React.Component<Props, State> {
                 />,
                 <FlatButton
                     label="Save and reload"
-                    labelStyle={{color: colors.orange700}}
+                    labelStyle={styles.flatButtonLabel}
                     onTouchTap={() => this.handleSave(true)}
                 />,
             ];
@@ -169,7 +168,7 @@ export class ConfigDialog extends React.Component<Props, State> {
                 />,
                 <FlatButton
                     label="Save"
-                    labelStyle={{color: colors.orange700}}
+                    labelStyle={styles.flatButtonLabel}
                     onTouchTap={() => this.handleSave()}
                 />,
             ];
@@ -177,12 +176,12 @@ export class ConfigDialog extends React.Component<Props, State> {
 
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <Dialog titleStyle={{backgroundColor: colors.orange700, color: colors.white}} title="MACE Config" actions={actions} modal={false} open={this.props.open} onRequestClose={this.handleCancel} contentStyle={{width: '30%'}}>
-                    <Grid style={{marginTop: 35}} fluid>
+                <Dialog titleStyle={styles.dialogTitle} title="MACE Config" actions={actions} modal={false} open={this.props.open} onRequestClose={this.handleCancel} contentStyle={styles.contentStyle}>
+                    <Grid style={styles.gridStyle} fluid>
                         <Col xs={12} md={12}>
                             <Tabs value={this.state.activeTab}>
-                                <Tab value="browse" onActive={this.handleChangeTab} label="Browse" style={{backgroundColor: colors.white, color: colors.orange700}}>
-                                    <Col xs={12} md={12} style={{marginTop: 20, display: 'flex', justifyContent: 'center'}}>
+                                <Tab value="browse" onActive={this.handleChangeTab} label="Browse" style={styles.tab}>
+                                    <Col xs={12} md={12} style={styles.colStyle_margin}>
                                         {/* <TextField
                                             id={"filename"}
                                             floatingLabelFocusStyle={{color: colors.orange700}}
@@ -195,102 +194,102 @@ export class ConfigDialog extends React.Component<Props, State> {
                                             inputStyle={{fontSize: 20}}
                                         /> */}
 
-                                        <i className="material-icons" style={{color: "black"}}>file_upload</i>
+                                        <i className="material-icons" style={styles.blackIcon}>file_upload</i>
                                         <input type="file" name="file" id="file" className="inputfile" onChange={this.chooseFileChange} />
                                         <label htmlFor="file">{this.state.configSettings.filename == '' ? "Choose a file..." : this.state.configSettings.filename}</label>
                                     </Col>
                                 </Tab>
-                                <Tab value="comms" onActive={this.handleChangeTab} label="Comms" style={{backgroundColor: colors.white, color: colors.orange700}}>
-                                    <Col xs={12} md={12} style={{display: 'flex', justifyContent: 'center'}}>
+                                <Tab value="comms" onActive={this.handleChangeTab} label="Comms" style={styles.tab}>
+                                    <Col xs={12} md={12} style={styles.colStyle}>
                                         <TextField
                                             id={"ipAddress"}
                                             floatingLabelText="IP address"
-                                            floatingLabelFocusStyle={{color: colors.orange700}}
-                                            underlineFocusStyle={{borderColor: colors.orange700}}
+                                            floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                            underlineFocusStyle={styles.underlineFolcusStyle}
                                             onChange={this.handleTextChange}
                                             value={this.state.configSettings.config.MACEComms.ipAddress}
                                         />
                                     </Col>
-                                    <Col xs={12} md={12} style={{display: 'flex', justifyContent: 'center'}}>
+                                    <Col xs={12} md={12} style={styles.colStyle}>
                                         <TextField
                                             id={"listenPortNumber"}
                                             floatingLabelText="Listen port"
-                                            floatingLabelFocusStyle={{color: colors.orange700}}
-                                            underlineFocusStyle={{borderColor: colors.orange700}}
+                                            floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                            underlineFocusStyle={styles.underlineFolcusStyle}
                                             onChange={this.handleTextChange}
                                             type={"number"}
                                             value={this.state.configSettings.config.MACEComms.listenPortNumber}
                                         />
                                     </Col>
-                                    <Col xs={12} md={12} style={{display: 'flex', justifyContent: 'center'}}>
+                                    <Col xs={12} md={12} style={styles.colStyle}>
                                         <TextField
                                             id={"sendPortNumber"}
                                             floatingLabelText="Send port"
-                                            floatingLabelFocusStyle={{color: colors.orange700}}
-                                            underlineFocusStyle={{borderColor: colors.orange700}}
+                                            floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                            underlineFocusStyle={styles.underlineFolcusStyle}
                                             onChange={this.handleTextChange}
                                             type={"number"}
                                             value={this.state.configSettings.config.MACEComms.sendPortNumber}
                                         />
                                     </Col>
                                 </Tab>
-                                <Tab value="map" onActive={this.handleChangeTab} label="Map" style={{backgroundColor: colors.white, color: colors.orange700}}>
-                                    <Col xs={6} md={6} style={{display: 'flex', justifyContent: 'center'}}>
+                                <Tab value="map" onActive={this.handleChangeTab} label="Map" style={styles.tab}>
+                                    <Col xs={6} md={6} style={styles.colStyle}>
                                         <TextField
                                             id={"mapCenterLat"}
                                             floatingLabelText="Map center latitude"
-                                            floatingLabelFocusStyle={{color: colors.orange700}}
-                                            underlineFocusStyle={{borderColor: colors.orange700}}
+                                            floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                            underlineFocusStyle={styles.underlineFolcusStyle}
                                             onChange={this.handleTextChange}
                                             type={"number"}
                                             value={this.state.configSettings.config.GUIInit.mapCenter.lat}
-                                            style={{width: "90%"}}
+                                            style={styles.textStyle}
                                         />
                                     </Col>
-                                    <Col xs={6} md={6} style={{display: 'flex', justifyContent: 'center'}}>
+                                    <Col xs={6} md={6} style={styles.colStyle}>
                                         <TextField
                                             id={"mapCenterLng"}
                                             floatingLabelText="Map center longitude"
-                                            floatingLabelFocusStyle={{color: colors.orange700}}
-                                            underlineFocusStyle={{borderColor: colors.orange700}}
+                                            floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                            underlineFocusStyle={styles.underlineFolcusStyle}
                                             onChange={this.handleTextChange}
                                             type={"number"}
                                             value={this.state.configSettings.config.GUIInit.mapCenter.lng}
-                                            style={{width: "90%"}}
+                                            style={styles.textStyle}
                                         />
                                     </Col>
 
-                                    <Col xs={12} md={12} style={{display: 'flex', justifyContent: 'center'}}>
+                                    <Col xs={12} md={12} style={styles.colStyle}>
                                         <TextField
                                             id={"mapZoom"}
                                             floatingLabelText="Default map zoom"
-                                            floatingLabelFocusStyle={{color: colors.orange700}}
-                                            underlineFocusStyle={{borderColor: colors.orange700}}
+                                            floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                            underlineFocusStyle={styles.underlineFolcusStyle}
                                             onChange={this.handleTextChange}
                                             type={"number"}
                                             value={this.state.configSettings.config.GUIInit.mapZoom}
                                         />
                                     </Col>
 
-                                    <Col xs={12} md={12} style={{display: 'flex', justifyContent: 'center'}}>
+                                    <Col xs={12} md={12} style={styles.colStyle}>
                                         <TextField
                                             id={"maxZoom"}
                                             floatingLabelText="Max zoom level"
-                                            floatingLabelFocusStyle={{color: colors.orange700}}
-                                            underlineFocusStyle={{borderColor: colors.orange700}}
+                                            floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                            underlineFocusStyle={styles.underlineFolcusStyle}
                                             onChange={this.handleTextChange}
                                             type={"number"}
                                             value={this.state.configSettings.config.GUIInit.maxZoom}
                                         />
                                     </Col>
                                 </Tab>
-                                <Tab value="vehicle" onActive={this.handleChangeTab} label="Vehicle" style={{backgroundColor: colors.white, color: colors.orange700}}>
-                                    <Col xs={12} md={12} style={{display: 'flex', justifyContent: 'center'}}>
+                                <Tab value="vehicle" onActive={this.handleChangeTab} label="Vehicle" style={styles.tab}>
+                                    <Col xs={12} md={12} style={styles.colStyle}>
                                         <TextField
                                             id={"defaultTakeoffAlt"}
                                             floatingLabelText="Default Takeoff altitude"
-                                            floatingLabelFocusStyle={{color: colors.orange700}}
-                                            underlineFocusStyle={{borderColor: colors.orange700}}
+                                            floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                            underlineFocusStyle={styles.underlineFolcusStyle}
                                             onChange={this.handleTextChange}
                                             type={"number"}
                                             value={this.state.configSettings.config.VehicleSettings.defaultTakeoffAlt}

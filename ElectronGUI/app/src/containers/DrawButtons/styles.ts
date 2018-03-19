@@ -1,3 +1,4 @@
+import * as materialColors from 'material-ui/styles/colors';
 
 export const styles = {
     parentContainer: {
@@ -28,5 +29,28 @@ export const styles = {
         justifyContent: "space-between" as "space-between",
         alignItems: "center" as "center",
         flexDirection: "row" as "row",
+    },
+
+    buttonStyle: {
+        marginTop: 5,
+        width: 120
+    },
+
+    textStyle: {
+        color: materialColors.white,
+        textAlign: 'center',
+        fontSize: 18
+    },
+
+    iconButtonStyle: {
+        paddingBottom: 10,
+        padding: 0,
+        color: materialColors.white
+    },
+
+    sliderStyle: {
+        padding: 0,
+        marginBottom: 12,
+        marginTop: 12
     }
 }

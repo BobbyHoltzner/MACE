@@ -8,9 +8,7 @@ import Checkbox from 'material-ui/Checkbox';
 import { Grid, Col } from 'react-bootstrap';
 import * as deepcopy from 'deepcopy';
 import TextField from 'material-ui/TextField';
-import { Colors } from '../../util/misc/Colors';
 
-import * as colors from 'material-ui/styles/colors';
 import { styles } from "./styles";
 
 
@@ -85,22 +83,22 @@ export class EnvironmentSettings extends React.Component<Props, State> {
             />,
             <FlatButton
                 label="Save"
-                labelStyle={{color: colors.orange700}}
+                labelStyle={styles.labelStyle}
                 onTouchTap={this.handleSave}
             />,
         ];
 
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <Dialog titleStyle={{backgroundColor: colors.orange700, color: colors.white}} title="Environment Drawing Settings" actions={actions} modal={false} open={this.props.open} onRequestClose={this.handleCancel}>
-                    <Grid style={{marginTop: 35}} fluid>
+                <Dialog titleStyle={styles.dialogTitle} title="Environment Drawing Settings" actions={actions} modal={false} open={this.props.open} onRequestClose={this.handleCancel}>
+                    <Grid style={styles.gridStyle} fluid>
                         <Col xs={12} md={6}>
                             <Col xs={12} md={12}>
                                 <TextField
                                     id={"minSliderVal"}
                                     floatingLabelText="Min Grid Spacing"
-                                    floatingLabelFocusStyle={{color: colors.orange700}}
-                                    underlineFocusStyle={{borderColor: colors.orange700}}
+                                    floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                    underlineFocusStyle={styles.underlineFolcusStyle}
                                     onChange={this.handleTextChange}
                                     type={"number"}
                                     value={this.state.minSliderVal.toString()}
@@ -112,8 +110,8 @@ export class EnvironmentSettings extends React.Component<Props, State> {
                                 <TextField
                                     id={"maxSliderVal"}
                                     floatingLabelText="Max grid spacing"
-                                    floatingLabelFocusStyle={{color: colors.orange700}}
-                                    underlineFocusStyle={{borderColor: colors.orange700}}
+                                    floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                    underlineFocusStyle={styles.underlineFolcusStyle}
                                     onChange={this.handleTextChange}
                                     type={"number"}
                                     value={this.state.maxSliderVal.toString()}
@@ -125,8 +123,8 @@ export class EnvironmentSettings extends React.Component<Props, State> {
                                 <TextField
                                     id={"defaultGridSpacing"}
                                     floatingLabelText="Default grid spacing"
-                                    floatingLabelFocusStyle={{color: colors.orange700}}
-                                    underlineFocusStyle={{borderColor: colors.orange700}}
+                                    floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                    underlineFocusStyle={styles.underlineFolcusStyle}
                                     onChange={this.handleTextChange}
                                     type={"number"}
                                     value={this.state.defaultGridSpacing.toString()}
@@ -137,7 +135,7 @@ export class EnvironmentSettings extends React.Component<Props, State> {
                             <Col xs={12} md={12}>
                                 <Checkbox
                                     label="Show bounding box"
-                                    labelStyle={{color: Colors.Primary, fontWeight: 'normal'}}
+                                    labelStyle={styles.checkboxLabelStyle}
                                     style={styles.checkboxStyle}
                                     onCheck={(event: any, checked: boolean) => this.handleCheck(checked)}
                                     checked={this.state.showBoundingBox}

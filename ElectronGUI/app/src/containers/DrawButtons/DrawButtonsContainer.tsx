@@ -86,7 +86,7 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                             onClick={this.props.onSubmitBoundary}
                             icon={<FontIcon className="material-icons" color={materialColors.black}>check</FontIcon>}
                             label={"Submit"}
-                            style={{marginTop: 5, width: 120}}
+                            style={styles.buttonStyle}
                         />
                     </MuiThemeProvider>
                     <MuiThemeProvider muiTheme={lightMuiTheme}>
@@ -94,7 +94,7 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                             onClick={this.props.onDeleteLastPolygonPt}
                             icon={<FontIcon className="material-icons" color={materialColors.black}>undo</FontIcon>}
                             label={"Undo"}
-                            style={{marginTop: 5, width: 120}}
+                            style={styles.buttonStyle}
                         />
                     </MuiThemeProvider>
                     <MuiThemeProvider muiTheme={lightMuiTheme}>
@@ -102,7 +102,7 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                             onClick={this.props.onClearAllPts}
                             icon={<FontIcon className="material-icons" color={materialColors.black}>delete</FontIcon>}
                             label={"Clear"}
-                            style={{marginTop: 5, width: 120}}
+                            style={styles.buttonStyle}
                         />
                     </MuiThemeProvider>
                     <MuiThemeProvider muiTheme={lightMuiTheme}>
@@ -110,14 +110,14 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                             onClick={this.props.onDisableDraw}
                             icon={<FontIcon className="material-icons" color={materialColors.black}>clear</FontIcon>}
                             label={"Exit"}
-                            style={{marginTop: 20, width: 120}}
+                            style={styles.buttonStyle}
                         />
                     </MuiThemeProvider>
                 </div>
                 <div style={styles.sliderContainer}>
                     <div style={styles.inlineContainer}>
-                        <p style={{color: materialColors.white, textAlign: 'center', fontSize: 18}}>Grid spacing: {this.state.sliderVal} meters</p>
-                        <IconButton onClick={this.openEnvSettings} style={{paddingBottom: 10, padding: 0, color: materialColors.white}}><i className="material-icons">settings</i></IconButton>
+                        <p style={styles.textStyle}>Grid spacing: {this.state.sliderVal} meters</p>
+                        <IconButton onClick={this.openEnvSettings} style={styles.iconButtonStyle}><i className="material-icons">settings</i></IconButton>
                     </div>
                     <MuiThemeProvider muiTheme={lightMuiTheme}>
                         <Slider
@@ -128,12 +128,12 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                             min={this.props.environmentSettings.minSliderVal}
                             max={this.props.environmentSettings.maxSliderVal}
                             step={1}
-                            sliderStyle={{padding: 0, marginBottom: 12, marginTop: 12}}
+                            sliderStyle={styles.sliderStyle}
                         />
                     </MuiThemeProvider>
                     <div style={styles.inlineContainer}>
-                        <p style={{color: materialColors.white, textAlign: 'center', fontSize: 18}}>Min: {this.props.environmentSettings.minSliderVal} m</p>
-                        <p style={{color: materialColors.white, textAlign: 'center', fontSize: 18}}>Max: {this.props.environmentSettings.maxSliderVal} m</p>
+                        <p style={styles.textStyle}>Min: {this.props.environmentSettings.minSliderVal} m</p>
+                        <p style={styles.textStyle}>Max: {this.props.environmentSettings.maxSliderVal} m</p>
                     </div>
                     {/* <Checkbox
                                     label="Emergency"

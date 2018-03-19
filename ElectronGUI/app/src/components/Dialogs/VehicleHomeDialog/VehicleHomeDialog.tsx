@@ -12,7 +12,7 @@ import MenuItem from 'material-ui/MenuItem';
 
 import * as colors from 'material-ui/styles/colors';
 import * as L from 'leaflet';
-// import { styles } from "./styles";
+import { styles } from "./styles";
 
 
 type Props = {
@@ -119,11 +119,11 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
 
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <Dialog titleStyle={{backgroundColor: colors.orange700, color: colors.white}} title="Set vehicle home position" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose} contentStyle={{width: '20%'}}>
+                <Dialog titleStyle={styles.dialogTitle} title="Set vehicle home position" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose} contentStyle={styles.dialogContent}>
                     <Grid fluid>
                         <Col xs={12} md={12}>
                                 <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                    <SelectField floatingLabelText="Select a vehicle" style={{marginRight: 10, width: '100%', backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedVehicleID} onChange={this.handleDropdownChange}>
+                                    <SelectField floatingLabelText="Select a vehicle" style={styles.selectField} value={this.state.selectedVehicleID} onChange={this.handleDropdownChange}>
                                         <MenuItem value={"0"} primaryText={"Select a vehicle..."} label={"Select a vehicle..."} />
                                         {vehicleIDs}
                                     </SelectField>
@@ -133,8 +133,8 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
                             <TextField
                                 id={"homeLat"}
                                 floatingLabelText="Latitude (decimal)"
-                                floatingLabelFocusStyle={{color: colors.orange700}}
-                                underlineFocusStyle={{borderColor: colors.orange700}}
+                                floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                underlineFocusStyle={styles.underlineFolcusStyle}
                                 onChange={this.handleTextChange}
                                 type={"number"}
                                 value={this.state.homeLat}
@@ -144,8 +144,8 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
                             <TextField
                                 id={"homeLon"}
                                 floatingLabelText="Longitude (decimal)"
-                                floatingLabelFocusStyle={{color: colors.orange700}}
-                                underlineFocusStyle={{borderColor: colors.orange700}}
+                                floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                underlineFocusStyle={styles.underlineFolcusStyle}
                                 onChange={this.handleTextChange}
                                 type={"number"}
                                 value={this.state.homeLon}

@@ -1,5 +1,7 @@
 const width = window.screen.width;
 // const height = window.screen.height;
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+const lightMuiTheme = getMuiTheme();
 
 export const styles = {
     aircraftCommsContainer: {
@@ -17,5 +19,10 @@ export const styles = {
     },
     buttonStyle: {
         margin: 5
+    },
+    dropdownMenu: {
+        marginRight: 10,
+        width: 150,
+        backgroundColor: lightMuiTheme.palette.canvasColor
     }
 }

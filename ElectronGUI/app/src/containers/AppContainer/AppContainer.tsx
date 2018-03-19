@@ -12,7 +12,6 @@ import { DrawButtonsContainer } from '../DrawButtons/DrawButtonsContainer';
 import { EnvironmentSettings } from '../../components/Settings/EnvironmentSettings';
 import { AppDrawer } from '../AppDrawer/AppDrawer';
 import AppBar from 'material-ui/AppBar';
-import * as colors from 'material-ui/styles/colors';
 import { Vehicle } from '../../util/Vehicle/Vehicle';
 import { AppHelper } from '../../util/Helpers/AppHelper';
 import { MACECommsHelper } from '../../util/Helpers/MACECommsHelper';
@@ -275,7 +274,7 @@ export default class AppContainer extends React.Component<Props, State> {
         labelPosition={"before"}
         onClick={this.appHelper.handleSyncAll}
         icon={<i className="material-icons">cached</i>}
-        style={{color: "white"}}
+        style={styles.whiteButton}
         />
     );
 
@@ -285,7 +284,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
             <AppBar
                 title="MACE"
-                style={{backgroundColor: colors.orange700, position: 'fixed'}}
+                style={styles.appBar}
                 onLeftIconButtonClick={() => this.setState({openDrawer: !this.state.openDrawer})}
                 iconElementRight={<ToolbarRight />}
             />

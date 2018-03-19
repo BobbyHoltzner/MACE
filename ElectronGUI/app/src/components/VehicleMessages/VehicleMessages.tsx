@@ -9,6 +9,7 @@ import { textSeverityToColor } from '../../util/misc/Colors';
 import { aircraftImgSrcFromType } from '../../util/Helpers/VehicleHelper';
 import Avatar from 'material-ui/Avatar';
 import { Colors } from '../../util/misc/Colors';
+import { styles } from './styles';
 
 type Props = {
     vehicleID: string,
@@ -44,7 +45,7 @@ export class VehicleMessages extends React.Component<Props, State> {
             <Avatar
                 backgroundColor={this.props.aircraft.isArmed ? Colors.Success : Colors.Primary}
                 src={aircraftImgSrcFromType(this.props.aircraft.general.aircraftType)}
-                style={{borderRadius: 30+'%'}}
+                style={styles.avatar}
             />;
 
         let messages: JSX.Element[] = [];
@@ -61,7 +62,7 @@ export class VehicleMessages extends React.Component<Props, State> {
             <MuiThemeProvider muiTheme={lightMuiTheme}>
                 <Card expanded={true} style={hudStyle}>
                     <CardHeader
-                        titleStyle={{fontSize: 24}}
+                        titleStyle={styles.cardTitle}
                         title={"ID: " + this.props.vehicleID}
                         subtitle={this.props.aircraft.vehicleMode}
                         avatar={hudAvatar}
@@ -71,13 +72,13 @@ export class VehicleMessages extends React.Component<Props, State> {
 
                     <div className="row">
                         <div className="col-xs-12">
-                            <div className="box" style={{overflowY: 'scroll', maxHeight: '150px'}}>
+                            <div className="box" style={styles.messagesContainer}>
                                 {messages}
                             </div>
                         </div>
                     </div>
 
-                    <CardActions style={{textAlign: "center"}}>
+                    <CardActions style={styles.cardActions}>
                         <FlatButton
                             label="Clear"
                             onClick={this.handleClear}

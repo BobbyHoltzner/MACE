@@ -142,7 +142,7 @@ export class VehicleCommandsContainer extends React.Component<Props, State> {
                     <div style={styles.aircraftCommsContainer}>
                             {Object.keys(this.props.connectedVehicles).length > 0 &&
                                 <MuiThemeProvider muiTheme={lightMuiTheme}>
-                                    <DropDownMenu animated={false} anchorOrigin={{ vertical: 'bottom', horizontal: 'left',}} style={{marginRight: 10, width: 150, backgroundColor: lightMuiTheme.palette.canvasColor}} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>
+                                    <DropDownMenu animated={false} anchorOrigin={{ vertical: 'bottom', horizontal: 'left',}} style={styles.dropdownMenu} value={this.state.selectedAircraftID} onChange={this.handleDropdownChange}>
                                         <MenuItem value={"0"} primaryText={"All vehicles"} label={"All vehicles"} />
                                         {vehicleIDs}
                                     </DropDownMenu>
