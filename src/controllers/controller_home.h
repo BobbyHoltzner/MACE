@@ -267,7 +267,7 @@ protected:
     }
 
 
-    virtual void Construct_Send(const CommandItem::SpatialHome &data, const MaceCore::ModuleCharacteristic &sender, mace_set_home_position_t &msg, MaceCore::ModuleCharacteristic &queueObj)
+    virtual void Construct_Send(const CommandItem::SpatialHome &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_set_home_position_t &msg, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
 

@@ -5,7 +5,6 @@
 
 namespace Controllers {
 
-
 template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename FINAL_TYPE, typename MSG_TYPE, typename ACK_TYPE, const int MESSAGE_REQUEST_ID>
 class ActionFinalReceiveRespond :
         public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>

@@ -16,7 +16,7 @@ namespace Controllers {
 
 template <typename MESSAGETYPE, typename T>
 using ActionSend_CommandShort_Broadcast = ActionBroadcast<
-    mace_message_t,
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
     T,
     mace_command_short_t
@@ -25,7 +25,7 @@ using ActionSend_CommandShort_Broadcast = ActionBroadcast<
 
 template <typename MESSAGETYPE, typename T>
 using ActionSend_CommandShort_TargedWithResponse = ActionSend<
-    mace_message_t,
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
     MaceCore::ModuleCharacteristic,
     T,
@@ -35,7 +35,7 @@ using ActionSend_CommandShort_TargedWithResponse = ActionSend<
 
 template <typename MESSAGETYPE, typename T>
 using ActionSend_CommandShort_ReceiveRespond = ActionFinalReceiveRespond<
-    mace_message_t,
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
     MaceCore::ModuleCharacteristic,
     T,
@@ -46,7 +46,7 @@ using ActionSend_CommandShort_ReceiveRespond = ActionFinalReceiveRespond<
 
 template<typename MESSAGETYPE, typename T>
 using ActionFinish_CommandShort = ActionFinish<
-    mace_message_t,
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
     MaceCore::ModuleCharacteristic,
     uint8_t,
@@ -90,7 +90,7 @@ protected:
         FillCommand(data, cmd);
     }
 
-    virtual void Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, mace_command_short_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
+    virtual void Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_command_short_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
         queueObj.ID = data.getTargetSystem();

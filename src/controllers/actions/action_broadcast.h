@@ -7,6 +7,17 @@
 
 namespace Controllers {
 
+
+template<typename DATA_TYPE>
+class IActionBroadcast
+{
+public:
+    virtual void Broadcast(const DATA_TYPE &commandItem, const MaceCore::ModuleCharacteristic &sender) = 0;
+};
+
+template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename DATA_TYPE, typename MSG_TYPE>
+
+
 //!
 //! \brief Sets up an action to broadcast data
 //!
@@ -20,7 +31,8 @@ namespace Controllers {
 //!
 template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename DATA_TYPE, typename MSG_TYPE>
 class ActionBroadcast :
-        public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>
+        public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>,
+        public IActionBroadcast<DATA_TYPE>
 {
 
     typedef ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE> BASE;
@@ -50,7 +62,7 @@ public:
      * @param commandItem Data to broadcast
      * @param sender Module sending
      */
-    void Broadcast(const DATA_TYPE &commandItem, const MaceCore::ModuleCharacteristic &sender)
+    virtual void Broadcast(const DATA_TYPE &commandItem, const MaceCore::ModuleCharacteristic &sender)
     {
         MSG_TYPE cmd;
         Construct_Broadcast(commandItem, sender, cmd);

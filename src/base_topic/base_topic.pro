@@ -26,13 +26,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     geometry/line_2DC_topic.cpp \
-    pose/cartesian_2D_topic.cpp
+    pose/cartesian_2D_topic.cpp \
+    vehicle_topics.cpp
 
 HEADERS += \
     base_topic_global.h \
     geometry/line_2DC_topic.h \
     pose/cartesian_2D_topic.h \
-    base_topic_components.h
+    base_topic_components.h \
+    vehicle_topics.h
 
 # Unix lib Install
 unix:!symbian {

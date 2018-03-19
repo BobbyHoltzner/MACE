@@ -10,7 +10,6 @@
 namespace Controllers {
 
 
-
 template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename MSG_TYPE>
 class ActionBase
 {

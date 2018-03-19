@@ -5,7 +5,6 @@
 
 namespace Controllers {
 
-
 //!
 //! \brief Finishes a previously schedule action, used to receive an ACK
 //!

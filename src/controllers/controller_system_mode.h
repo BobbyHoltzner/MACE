@@ -59,12 +59,9 @@ class ControllerSystemMode : public GenericControllerQueueDataWithModule<MESSAGE
 protected:
 
 
-    virtual void Construct_Send(const CommandItem::ActionChangeMode &commandItem, const MaceCore::ModuleCharacteristic &sender, mace_command_system_mode_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
+    virtual void Construct_Send(const CommandItem::ActionChangeMode &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_command_system_mode_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
-        MaceCore::ModuleCharacteristic target;
-        target.ID = commandItem.getTargetSystem();
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
         queueObj = target;
 
         cmd.target_system = commandItem.getTargetSystem();

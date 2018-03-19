@@ -7,6 +7,13 @@
 
 namespace Controllers {
 
+template<typename DATA_TYPE>
+class IActionSend
+{
+public:
+    virtual void Send(const DATA_TYPE &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target) = 0;
+};
+
 
 //!
 //! \brief Sets up an action that sends a data type to an underlaying communications paradigm.
@@ -24,7 +31,8 @@ namespace Controllers {
 //!
 template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename DATA_TYPE, typename MSG_TYPE, const int MESSAGE_ACK_ID>
 class ActionSend :
-        public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>
+        public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>,
+        public IActionSend<DATA_TYPE>
 {
 
     typedef ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE> BASE;

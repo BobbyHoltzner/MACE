@@ -206,7 +206,7 @@ protected:
     //! \param data
     //! \param cmd
     //!
-    virtual void Construct_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_list_t &cmd, MissionItem::MissionKey &queueObj)
+    virtual void Construct_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_mission_request_list_t &cmd, MissionItem::MissionKey &queueObj)
     {
         queueObj = data;
 
