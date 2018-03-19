@@ -14,6 +14,7 @@
 #include "actions/action_intermediate_receive.h"
 #include "actions/action_intermediate_respond.h"
 #include "actions/action_intermediate.h"
+#include "actions/action_unsolicited_receive.h"
 
 namespace Controllers {
 
@@ -28,7 +29,7 @@ using ControllerHome_Step_BroadcastHome = ActionBroadcast<
 
 //Receive a broadcasted home position, accept and finish (no response)
 template <typename MESSAGETYPE>
-using ControllerHome_Step_ReceiveBroadcastedHome = ActionFinalReceive<
+using ControllerHome_Step_ReceiveBroadcastedHome = ActionUnsolicitedReceive<
     MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
     CommandItem::SpatialHome,
@@ -38,12 +39,12 @@ using ControllerHome_Step_ReceiveBroadcastedHome = ActionFinalReceive<
 
 //Request a home position, wait to receive the home position
 template <typename MESSAGETYPE>
-using ControllerHome_Step_RequestHome = ActionRequest_TargetedWithResponse<
-MESSAGETYPE,
-GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
-MaceCore::ModuleCharacteristic,
-mace_mission_request_home_t,
-MACE_MSG_ID_HOME_POSITION
+using ControllerHome_Step_RequestHome = ActionRequest<
+    MESSAGETYPE,
+    GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
+    MaceCore::ModuleCharacteristic,
+    mace_mission_request_home_t,
+    MACE_MSG_ID_HOME_POSITION
 >;
 
 //Receive a request for home, send out the home position, and wait to receive ack

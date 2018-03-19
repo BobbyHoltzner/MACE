@@ -138,7 +138,7 @@ using SendHelper_FinalFinal = ActionFinish<
 
 
 template <typename MESSAGETYPE>
-using Action_RequestCurrentMission_Initiate = ActionRequest_TargetedWithResponse<
+using Action_RequestCurrentMission_Initiate = ActionRequest<
     MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MaceCore::ModuleCharacteristic,
