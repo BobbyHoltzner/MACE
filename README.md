@@ -4,6 +4,7 @@
 - [Dependencies](#dependencies)
   - [Eigen](#eigen)
   - [Download MAVLink Libraries](#mavlink-libraries)
+  - [DigiMesh](#digimesh-library)
   - [Qt Libraries](#qt-libraries)
   - [Building on ODROID](#building-on-odroid)
 - [Command line Compile MACE with UNIX](#mace-compile-unix)
@@ -52,6 +53,13 @@ git submodule update --init --recursive
 Currently we utialize QtSerialPort library to faciliate communication to vehicles therefore Qt's libraries are required. However it is not required to use Qt's toolchain to build/develop MACE.
 
 For Windows or "typical" linux install QT as per normal
+
+### <a name="digimesh-library"></a> Digimesh Library
+
+Download and compile Digimesh library distributed by Heron Systems: https://github.com/heronsystems/MACEDigiWrapper
+
+Generated headers and lib should install to a `/headers` and `/lib` directory off the root of the project, this is done by default by doing `make install` on above project.
+Add an environment variable `MACE_DIGIMESH_WRAPPER` set to that root such that `%MACE_DIGIMESH_WRAPPER%/include` and `%MACE_DIGIMESH_WRAPPER%/lib` resolves to the appropriate directories. There is no need to add either to the `PATH` environment variable.
 
 #### <a name="building-on-odroid"></a> Building On ODROID
 

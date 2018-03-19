@@ -18,7 +18,12 @@ namespace Controllers {
 
 
 template<typename MESSAGETYPE>
-using CONTROLLER_MISSION_TYPE = GenericController<MESSAGETYPE, TransmitQueueWithKeys<MessageModuleTransmissionQueue<MESSAGETYPE>, ObjectIntTuple<MaceCore::ModuleCharacteristic>, ObjectIntTuple<MissionItem::MissionKey>>,DataItem<MissionKey, MissionList>>;
+using CONTROLLER_MISSION_TYPE = GenericController<
+    MESSAGETYPE,
+    TransmitQueueWithKeys<MessageModuleTransmissionQueue<MESSAGETYPE>, ObjectIntTuple<MaceCore::ModuleCharacteristic>, ObjectIntTuple<MissionItem::MissionKey>>,
+    uint8_t,
+    DataItem<MissionKey, MissionList>
+    >;
 
 
 
@@ -126,6 +131,7 @@ using SendHelper_FinalFinal = ActionFinish<
     MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MissionItem::MissionKey,
+    uint8_t,
     mace_mission_ack_t,
     MACE_MSG_ID_MISSION_ACK
 >;
@@ -549,10 +555,12 @@ protected:
         return true;
     }
 
-    virtual bool Finish_Receive(const mace_mission_ack_t &missionItem, const MaceCore::ModuleCharacteristic &sender, MissionItem::MissionKey &queueObj)
+    virtual bool Finish_Receive(const mace_mission_ack_t &missionItem, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MissionItem::MissionKey &queueObj)
     {
         MissionItem::MissionKey key(missionItem.mission_system, missionItem.mission_creator, missionItem.mission_id, static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type), static_cast<MissionItem::MISSIONSTATE>(missionItem.cur_mission_state));
         queueObj = key;
+
+        ack = missionItem.mission_result;
 
         std::cout << "Mission Controller: Received Final ACK" << std::endl;
 

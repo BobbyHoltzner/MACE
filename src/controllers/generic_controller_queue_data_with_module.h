@@ -6,7 +6,10 @@
 namespace Controllers {
 
 template <typename MESSAGETYPE, typename T>
-using GenericControllerQueueDataWithModule = GenericController<MESSAGETYPE, TransmitQueueWithKeys<MessageModuleTransmissionQueue<MESSAGETYPE>, ObjectIntTuple<MaceCore::ModuleCharacteristic>>,DataItem<MaceCore::ModuleCharacteristic, T>>;
+using GenericControllerQueueDataWithModule = GenericController<MESSAGETYPE,
+    TransmitQueueWithKeys<MessageModuleTransmissionQueue<MESSAGETYPE>, ObjectIntTuple<MaceCore::ModuleCharacteristic>>,
+    uint8_t,
+    DataItem<MaceCore::ModuleCharacteristic, T>>;
 
 }
 

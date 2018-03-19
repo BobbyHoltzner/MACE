@@ -49,6 +49,7 @@ using ActionFinish_CommandShort = ActionFinish<
     MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
     MaceCore::ModuleCharacteristic,
+    uint8_t,
     mace_command_ack_t,
     MACE_MSG_ID_COMMAND_ACK
 >;
@@ -127,10 +128,11 @@ protected:
     }
 
 
-    virtual bool Finish_Receive(const mace_command_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Finish_Receive(const mace_command_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(msg);
         queueObj = sender;
+        ack = msg.result;
         return true;
     }
 

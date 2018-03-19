@@ -6,11 +6,23 @@
 ///             CONFIGURE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void FinishedMessage(const bool completed, const uint8_t finishCode)
+{
+    if(completed == false)
+    {
+        printf("Controller timed out sending message, gave up sending message\n");
+    }
+    else {
+        printf("Controller Received Final ACK with code of %d\n", finishCode);
+    }
+}
+
 template <typename T>
 T* Helper_CreateAndSetUp(ModuleExternalLink* obj, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, uint8_t chan)
 {
     T* newController = new T(obj, queue, chan);
     newController->setLambda_DataReceived([obj](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){obj->ReceivedCommand(sender, command);});
+    newController->setLambda_Finished(FinishedMessage);
     return newController;
 }
 
@@ -21,7 +33,7 @@ ModuleExternalLink::ModuleExternalLink() :
     m_HeartbeatController(NULL)
 {
 
-    Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mace_message_t>();
+    Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mace_message_t>(2000, 3);
 
 
 
@@ -86,6 +98,7 @@ ModuleExternalLink::ModuleExternalLink() :
     /*
     auto controller_SystemMode = new Controllers::ControllerSystemMode<mace_message_t>(this, queue, m_LinkChan);
     controller_SystemMode->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){this->ReceivedCommand(sender, command);});
+    controller_SystemMode->setLambda_Finished(FinishedMessage);
     m_Controllers.Add(controller_SystemMode);
     */
 
@@ -94,6 +107,7 @@ ModuleExternalLink::ModuleExternalLink() :
     homeController->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &key, const std::shared_ptr<CommandItem::SpatialHome> &home){this->ReceivedHome(*home);});
     homeController->setLambda_FetchDataFromKey([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &key){return this->FetchHomeFromKey(key);});
     homeController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllHomeFromModule(module);});
+    homeController->setLambda_Finished(FinishedMessage);
     m_Controllers.Add(homeController);
 
 
@@ -101,6 +115,7 @@ ModuleExternalLink::ModuleExternalLink() :
     missionController->setLambda_DataReceived([this](const MissionKey &key, const std::shared_ptr<MissionList> &list){this->ReceivedMission(*list);});
     missionController->setLambda_FetchDataFromKey([this](const OptionalParameter<MissionKey> &key){return this->FetchMissionFromKey(key);});
     missionController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllMissionFromModule(module);});
+    missionController->setLambda_Finished(FinishedMessage);
     m_Controllers.Add(missionController);
 
 

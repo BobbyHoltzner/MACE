@@ -39,6 +39,7 @@ using SystemModeFinish = ActionFinish<
     MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
+    uint8_t,
     mace_system_mode_ack_t,
     MACE_MSG_ID_SYSTEM_MODE_ACK
 >;
@@ -84,10 +85,11 @@ protected:
         return true;
     }
 
-    virtual bool Finish_Receive(const mace_system_mode_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Finish_Receive(const mace_system_mode_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(msg);
         queueObj = sender;
+        ack = msg.result;
         return true;
     }
 

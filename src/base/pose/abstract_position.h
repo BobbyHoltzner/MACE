@@ -200,6 +200,12 @@ public:
         if(this->data != rhs.data){
             return false;
         }
+        if(this->frame != rhs.frame){
+            return false;
+        }
+        if(this->type != rhs.type){
+            return false;
+        }
         return true;
     }
 
@@ -208,7 +214,7 @@ public:
     //! \param rhs
     //! \return
     //!
-    bool operator != (const AbstractPosition &rhs) {
+    bool operator != (const AbstractPosition &rhs) const {
         return !(*this == rhs);
     }
 

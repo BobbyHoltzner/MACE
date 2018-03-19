@@ -34,6 +34,7 @@ SUBDIRS += \
     module_resource_task_allocation \
     module_ROS \
     mace \
+    TestMaps \
     module_generic_MAVLINK
 
 
@@ -69,3 +70,4 @@ voropp.depends = module_vehicle_sensors
 module_resource_task_allocation.depends = voropp
 module_ROS.depends = module_resource_task_allocation
 mace.depends = module_ROS
+

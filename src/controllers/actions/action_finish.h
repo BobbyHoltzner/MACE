@@ -14,7 +14,7 @@ class ActionFinish :
 
 protected:
 
-    virtual bool Finish_Receive(const MSG_TYPE &, const MaceCore::ModuleCharacteristic &sender, QUEUE_TYPE &queueObj) = 0;
+    virtual bool Finish_Receive(const MSG_TYPE &, const MaceCore::ModuleCharacteristic &sender, ACK_TYPE&, QUEUE_TYPE &queueObj) = 0;
 
 public:
 
@@ -29,9 +29,11 @@ public:
                 [this](const MSG_TYPE  &msg, const MaceCore::ModuleCharacteristic &sender){
 
                     QUEUE_TYPE queueObj;
-                    bool valid = this-> template Finish_Receive(msg, sender, queueObj);
+                    ACK_TYPE code;
+                    bool valid = this-> template Finish_Receive(msg, sender, code, queueObj);
                     if(valid == true)
                     {
+                        BASE::m_Controller->onFinished(true, code);
                         BASE::m_Controller->RemoveTransmission(queueObj, MESSAGE_REQUEST_ID);
                     }
                 }

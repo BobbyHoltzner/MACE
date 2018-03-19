@@ -25,7 +25,7 @@ public:
 
     }
 
-    CartesianPosition_2D(const double x, const double &y):
+    CartesianPosition_2D(const double &x, const double &y):
         AbstractPosition(AbstractPosition::PositionType::CARTESIAN, CoordinateFrame::CF_LOCAL_ENU)
     {
         this->data.setData(x,y);
