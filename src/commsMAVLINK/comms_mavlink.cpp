@@ -94,6 +94,8 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
         }
 
     }
+
+
     if(params->HasNonTerminal("SerialParameters"))
     {
         std::shared_ptr<MaceCore::ModuleParameterValue> serialSettings = params->GetNonTerminalValue("SerialParameters");
@@ -150,13 +152,6 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
                 break;
             }
         }
-
-
-        //connect link
-        bool success = m_LinkMarshaler->ConnectToLink(m_LinkName);
-        if(success == false) {
-            throw std::runtime_error("Connection to link failed");
-        }
     }
     else if(params->HasNonTerminal("UDPParameters"))
     {
@@ -210,13 +205,18 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
         // ********************************************************************************************
 
         //connect link
-        if(m_LinkMarshaler->ConnectToLink(m_LinkName) == false){
-            throw std::runtime_error("Connection to udp link failed");
-        }
+
     }
     else
     {
         throw std::runtime_error("No Link has been configured for the vehicle MAVLINK module");
     }
 
+}
+
+
+void CommsMAVLINK::ConnectComms() {
+    if(m_LinkMarshaler->ConnectToLink(m_LinkName) == false){
+        throw std::runtime_error("Connection to udp link failed");
+    }
 }

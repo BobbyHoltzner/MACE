@@ -31,6 +31,7 @@
 
 #include "topic.h"
 
+
 namespace MaceCore
 {
 
@@ -83,14 +84,14 @@ public:
     /// GENERAL MODULE EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    virtual void Event_ForceVehicleDataSync(const void* sender, const int &targetSystemID);
-    virtual void Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command);
-    virtual void Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff &command);
-    virtual void Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand &command);
-    virtual void Event_IssueCommandRTL(const void* sender, const CommandItem::SpatialRTL &command);
-    virtual void Event_IssueMissionCommand(const void* sender, const CommandItem::ActionMissionCommand &command);
-    virtual void Event_ChangeSystemMode(const void* sender, const CommandItem::ActionChangeMode &command);
-    virtual void Event_IssueGeneralCommand(const void* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command);
+    virtual void Event_ForceVehicleDataSync(const ModuleBase *sender, const int &targetSystemID);
+    virtual void Event_IssueCommandSystemArm(const ModuleBase* sender, const CommandItem::ActionArm &command);
+    virtual void Event_IssueCommandTakeoff(const ModuleBase* sender, const CommandItem::SpatialTakeoff &command);
+    virtual void Event_IssueCommandLand(const ModuleBase* sender, const CommandItem::SpatialLand &command);
+    virtual void Event_IssueCommandRTL(const ModuleBase* sender, const CommandItem::SpatialRTL &command);
+    virtual void Event_IssueMissionCommand(const ModuleBase* sender, const CommandItem::ActionMissionCommand &command);
+    virtual void Event_ChangeSystemMode(const ModuleBase *sender, const CommandItem::ActionChangeMode &command);
+    virtual void Event_IssueGeneralCommand(const ModuleBase* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command);
 
     virtual void Event_GetMission(const void* sender, const MissionItem::MissionKey &key);
     virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const MissionItem::MISSIONTYPE &type);
@@ -100,7 +101,7 @@ public:
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID);
 
     virtual void Event_GetHomePosition(const void* sender, const int &vehicleID);
-    virtual void Event_SetHomePosition(const void* sender, const CommandItem::SpatialHome &vehicleHome);
+    virtual void Event_SetHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome);
 
     virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome);
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing);
@@ -120,7 +121,7 @@ public:
 
     virtual void EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved);
 
-    virtual void EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList);
+    virtual void EventVehicle_NewOnboardVehicleMission(const ModuleBase *sender, const MissionItem::MissionList &missionList);
 
     virtual void EventVehicle_MissionACK(const void *sender, const MissionItem::MissionACK &ack);
 
@@ -131,7 +132,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////
     /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle
     ////////////////////////////////////////////////////////////////////////////////////////
-    virtual void GVEvents_NewHomePosition(const void *sender, const CommandItem::SpatialHome &vehicleHome);
+    virtual void GVEvents_NewHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome);
     virtual void GVEvents_MissionExeStateUpdated(const void *sender, const MissionItem::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState);
     virtual void GVEvents_MissionItemAchieved(const void *sender, const MissionItem::MissionItemAchieved &achieved);
     virtual void GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current);
@@ -142,12 +143,15 @@ public:
     /// EXTERNAL LINK EVENTS
     /////////////////////////////////////////////////////////////////////////
     virtual void ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID);
-    virtual void ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved);
+    virtual void ExternalEvent_NewModule(const void *sender, const ModuleCharacteristic &newModule);
+
 
     virtual void ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList);
 
     virtual void ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK);
     virtual void ExternalEvent_RequestingDataSync(const void *sender, const int &targetID);
+
+    virtual void ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission);
 
 public:
 
@@ -231,6 +235,66 @@ public:
     /////////////////////////////////////////////////////////////////////////
     /// MACE COMMS EVENTS
     /////////////////////////////////////////////////////////////////////////
+
+private:
+
+
+    /**
+     * @brief This function marshals a command to be sent to a vehicle
+     *
+     * The vehicle can either be attached locally or through external module
+     * @param vehicleID ID of vehicle, if zero then message is to be broadcast to all vehicles.
+     * @param vehicleCommand Command if vehicle attached locally
+     * @param externalCommand Command if vehicle attached remotly
+     * @param data Data to send to given vehicle
+     */
+    template <typename T>
+    void MarshalCommandToVehicle(int vehicleID, VehicleCommands vehicleCommand, ExternalLinkCommands externalCommand, const T& data, OptionalParameter<ModuleCharacteristic> sender = OptionalParameter<ModuleCharacteristic>())
+    {
+        //transmit to all
+        if(vehicleID == 0) {
+
+            for(auto it = m_VehicleIDToPort.begin() ; it != m_VehicleIDToPort.end() ; ++it)
+            {
+                //don't resend to sender.
+                if(sender.IsSet() && it->second->GetCharacteristic() == sender())
+                {
+                    continue;
+                }
+                /*
+                T *Copy = new T(data);
+                if(((CommandItem::AbstractCommandItem *)Copy)->getTargetSystem() == 0)
+                {
+                    int ID = it->second->GetCharacteristic().ID;
+                    ((CommandItem::AbstractCommandItem *)Copy)->setTargetSystem(ID);
+                }
+                */
+                it->second->MarshalCommand(vehicleCommand, data);
+            }
+
+            for(auto it = m_ExternalLink.begin() ; it != m_ExternalLink.end() ; ++it)
+            {
+                //don't resend to sender.
+                if(sender.IsSet() && (*it)->GetCharacteristic() == sender())
+                {
+                    continue;
+                }
+                (*it)->MarshalCommand(externalCommand, data, sender);
+            }
+        }
+        else {
+            if(m_VehicleIDToPort.find(vehicleID) != m_VehicleIDToPort.cend()){
+                m_VehicleIDToPort.at(vehicleID)->MarshalCommand(vehicleCommand, data);
+            }
+
+            else if(m_ExternalLinkIDToPort.find(vehicleID) != m_ExternalLinkIDToPort.cend()){
+                m_ExternalLinkIDToPort.at(vehicleID)->MarshalCommand(externalCommand, data, sender);
+            }
+            else {
+                throw std::runtime_error("Unknown vehicle");
+            }
+        }
+    }
 
 private:
     mutable std::mutex m_VehicleMutex;

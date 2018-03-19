@@ -23,7 +23,7 @@ public:
     {
     }
 
-    bool RegisterFactory(const ModuleBase::Classes &type, const std::string &moduleName, std::function<std::shared_ptr<ModuleBase>()> createExpression)
+    bool RegisterFactory(const ModuleClasses &type, const std::string &moduleName, std::function<std::shared_ptr<ModuleBase>()> createExpression)
     {
         if(_factories.find(type) == _factories.cend())
             _factories.insert({type, std::unordered_map<std::string, std::function<std::shared_ptr<ModuleBase>()>>()});
@@ -33,7 +33,7 @@ public:
         return true;
     }
 
-    std::shared_ptr<ModuleBase> Create(const ModuleBase::Classes &type, const std::string &moduleName) const
+    std::shared_ptr<ModuleBase> Create(const ModuleClasses &type, const std::string &moduleName) const
     {
 
         if(_factories.find(type) == _factories.cend())
@@ -47,7 +47,7 @@ public:
     }
 
 
-    std::list<std::string> GetTypes(const ModuleBase::Classes &type) const
+    std::list<std::string> GetTypes(const ModuleClasses &type) const
     {
         std::list<std::string> result;
         for(auto& item: _factories.at(type))
@@ -59,7 +59,7 @@ public:
 
 
 private:
-    std::map<ModuleBase::Classes, std::unordered_map<std::string, std::function<std::shared_ptr<ModuleBase>()>>> _factories;
+    std::map<ModuleClasses, std::unordered_map<std::string, std::function<std::shared_ptr<ModuleBase>()>>> _factories;
 };
 
 

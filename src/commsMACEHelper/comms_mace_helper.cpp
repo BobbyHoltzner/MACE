@@ -37,11 +37,15 @@ void CommsMACEHelper::ConfigureMACEStructure(MaceCore::ModuleParameterStructure 
     udpSettings->AddTerminalParameters("ListenAddress", MaceCore::ModuleParameterTerminalTypes::STRING, true);
     udpSettings->AddTerminalParameters("ListenPortNumber", MaceCore::ModuleParameterTerminalTypes::INT, true);
 
+    std::shared_ptr<MaceCore::ModuleParameterStructure> digiMeshSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
+    digiMeshSettings->AddTerminalParameters("PortName", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+    digiMeshSettings->AddTerminalParameters("BaudRate", MaceCore::ModuleParameterTerminalTypes::INT, true);
+
     std::shared_ptr<MaceCore::ModuleParameterStructure> protocolSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
     protocolSettings->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true, "Mavlink", {"Mavlink"});
     protocolSettings->AddTerminalParameters("Version", MaceCore::ModuleParameterTerminalTypes::STRING, true, "V1", {"V1", "V2"});
 
-    structure.AddMutuallyExclusiveNonTerminal({{"SerialParameters", serialSettings}, {"UDPParameters", udpSettings}}, false);
+    structure.AddMutuallyExclusiveNonTerminal({{"SerialParameters", serialSettings}, {"UDPParameters", udpSettings}, {"DigiMeshParameters", digiMeshSettings}}, false);
     structure.AddNonTerminal("ProtocolParameters", protocolSettings, true);
 }
 
@@ -114,6 +118,61 @@ void CommsMACEHelper::ConfigureMACEComms(const std::shared_ptr<MaceCore::ModuleP
 
         m_LinkName = "link_" + portName;
         m_LinkMarshaler->AddLink(m_LinkName, config);
+
+
+        //now configure to use link with desired protocol
+        if(protocolToUse == CommsMACE::Protocols::MAVLINK)
+        {
+            m_LinkMarshaler->SetProtocolForLink(m_LinkName, CommsMACE::Protocols::MAVLINK);
+
+            std::shared_ptr<CommsMACE::MavlinkConfiguration> mavlinkConfig = std::static_pointer_cast<CommsMACE::MavlinkConfiguration>(m_AvailableProtocols.at(CommsMACE::Protocols::MAVLINK));
+
+            //set version on mavlink channel
+            // I would prefer to put this in CommsMACE library, but because the mavlinkstatus is static variable, things get messed up when linking
+            m_LinkChan = m_LinkMarshaler->GetProtocolChannel(m_LinkName);
+            mace_status_t* maceStatus = mace_get_channel_status(m_LinkChan);
+            std::cout << maceStatus << std::endl;
+            switch (mavlinkConfig->GetVersion()) {
+            case CommsMACE::MavlinkConfiguration::MavlinkVersion::MavlinkVersion2IfVehicle2:
+                if (maceStatus->flags & MACE_STATUS_FLAG_IN_MACE1) {
+                    maceStatus->flags |= MACE_STATUS_FLAG_OUT_MACE1;
+                    break;
+                }
+                // Fallthrough to set version 2
+            case CommsMACE::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways2:
+                maceStatus->flags &= ~MACE_STATUS_FLAG_OUT_MACE1;
+                break;
+            default:
+            case CommsMACE::MavlinkConfiguration::MavlinkVersion::MavlinkVersionAlways1:
+                maceStatus->flags |= MACE_STATUS_FLAG_OUT_MACE1;
+                break;
+            }
+        }
+
+
+        //connect link
+        bool success = m_LinkMarshaler->ConnectToLink(m_LinkName);
+        if(success == false) {
+            throw std::runtime_error("Connection to link failed");
+        }
+    }
+    else if(params->HasNonTerminal("DigiMeshParameters"))
+    {
+        std::shared_ptr<MaceCore::ModuleParameterValue> digiMeshSettings = params->GetNonTerminalValue("DigiMeshParameters");
+
+
+        std::string portName = digiMeshSettings->GetTerminalValue<std::string>("PortName");
+        int baudRate = digiMeshSettings->GetTerminalValue<int>("BaudRate");
+
+
+        CommsMACE::Protocols protocolToUse = CommsMACE::Protocols::MAVLINK;
+
+        CommsMACE::DigiMeshConfiguration config("config");
+        config.setPortName(portName);
+        config.setBaud(baudRate);
+
+        m_LinkName = "digiMesh_" + portName;
+        m_LinkMarshaler->AddDigiMeshLink(m_LinkName, config);
 
 
         //now configure to use link with desired protocol

@@ -8,6 +8,7 @@
 #include <QThread>
 
 #include "i_link_events_mace.h"
+#include "common/optional_parameter.h"
 
 namespace CommsMACE
 {
@@ -55,7 +56,10 @@ public:
 
     virtual void RequestReset() = 0;
 
-    virtual void WriteBytes(const char *bytes, int length) const = 0;
+    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target = OptionalParameter<std::tuple<const char*, int>>()) const = 0;
+
+    virtual void AddResource(const char *resourceType, int ID) = 0;
+
 
     //!
     //! \brief Determine the connection status

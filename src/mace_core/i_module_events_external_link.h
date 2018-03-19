@@ -20,11 +20,11 @@ public:
     virtual void ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID) = 0;
 
     //!
-    //! \brief ExternalEvent_NewConstructedVehicle
+    //! \brief ExternalEvent_NewModule
     //! \param sender
     //! \param newVehicleObserved
     //!
-    virtual void ExternalEvent_NewConstructedVehicle(const void *sender, const int &newVehicleObserved) = 0;
+    virtual void ExternalEvent_NewModule(const void *sender, const ModuleCharacteristic &module) = 0;
 
     //!
     //! \brief ExternalEvent_MissionACK
@@ -43,6 +43,8 @@ public:
     //!
     virtual void ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList) = 0;
 
+
+    virtual void ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission) = 0;
 };
 
 } //End MaceCore Namespace

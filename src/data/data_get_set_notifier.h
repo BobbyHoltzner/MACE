@@ -12,6 +12,12 @@ template <typename T>
 class DataGetSetNotifier
 {
 public:
+    DataGetSetNotifier()  :
+        m_BeenSet(false)
+    {
+
+    }
+
     void AddNotifier(void* obj, const std::function<void()> func) {
         std::lock_guard<std::mutex> guardData(m_NotifierListMutex);
 
@@ -40,11 +46,12 @@ public:
     bool set(const T &data) {
         std::lock_guard<std::mutex> guardData(m_AccessMutex);
 
-        if(m_Data == data) {
+        if(m_BeenSet == true && m_Data == data) {
             return false;
         }
 
         m_Data = data;
+        m_BeenSet = true;
 
         std::lock_guard<std::mutex> guardNotifier(m_NotifierListMutex);
         for(auto it = m_Funcs.cbegin() ; it != m_Funcs.cend() ; ++it) {
@@ -67,6 +74,7 @@ public:
 private:
     std::unordered_map<void*, std::function<void()>> m_Funcs;
     T m_Data;
+    bool m_BeenSet;
     mutable std::mutex m_AccessMutex;
     mutable std::mutex m_NotifierListMutex;
 };

@@ -108,7 +108,7 @@ void GUItoMACE::setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj)
 //    mLogs->info(buffer.str());
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->Event_SetHomePosition(this, tmpHome);
+        ptr->Event_SetHomePosition(m_parent, tmpHome);
     });
 }
 
@@ -196,7 +196,7 @@ void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
 //    mLogs->info(buffer.str());
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->Event_IssueCommandTakeoff(this, newTakeoff);
+        ptr->Event_IssueCommandTakeoff(m_parent, newTakeoff);
     });
 }
 
@@ -210,7 +210,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
     if(jsonObj["vehicleCommand"] == "FORCE_DATA_SYNC") {
 //        mLogs->debug("Module Ground Station issuing command force data sync to system " + std::to_string(vehicleID) + ".");
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_ForceVehicleDataSync(this, vehicleID);
+            ptr->Event_ForceVehicleDataSync(m_parent, vehicleID);
         });
     }
     else if(jsonObj["vehicleCommand"] == "RTL") {
@@ -220,7 +220,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
         // TODO: Set generating system and coordinate frame
 
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_IssueCommandRTL(this, rtlCommand);
+            ptr->Event_IssueCommandRTL(m_parent, rtlCommand);
         });
     }
     else if(jsonObj["vehicleCommand"] == "LAND") {
@@ -230,7 +230,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
         // TODO: Set generating system and coordinate frame
 
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_IssueCommandLand(this, landCommand);
+            ptr->Event_IssueCommandLand(m_parent, landCommand);
         });
     }
     else if(jsonObj["vehicleCommand"] == "AUTO_START") {
@@ -241,7 +241,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
         // TODO: Set generating system and coordinate frame
 
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_IssueMissionCommand(this, missionCommand);
+            ptr->Event_IssueMissionCommand(m_parent, missionCommand);
         });
     }
     else if(jsonObj["vehicleCommand"] == "AUTO_PAUSE") {
@@ -252,7 +252,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
         // TODO: Set generating system and coordinate frame
 
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_IssueMissionCommand(this, missionCommand);
+            ptr->Event_IssueMissionCommand(m_parent, missionCommand);
         });
     }
     else if(jsonObj["vehicleCommand"] == "AUTO_RESUME") {
@@ -263,7 +263,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
         // TODO: Set generating system and coordinate frame
 
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_IssueMissionCommand(this, missionCommand);
+            ptr->Event_IssueMissionCommand(m_parent, missionCommand);
         });
     }
 
@@ -392,7 +392,7 @@ void GUItoMACE::setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj)
 //    mLogs->info(buffer.str());
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->Event_IssueCommandSystemArm(this, tmpArm);
+        ptr->Event_IssueCommandSystemArm(m_parent, tmpArm);
     });
 }
 
@@ -409,7 +409,7 @@ void GUItoMACE::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
     std::cout<<"We are changing the vehicle mode as issued by the GUI: "<<tmpMode.getRequestMode()<<std::endl;
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->Event_ChangeSystemMode(this, tmpMode);
+        ptr->Event_ChangeSystemMode(m_parent, tmpMode);
     });
 }
 
