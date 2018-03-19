@@ -53,6 +53,13 @@ Currently we utialize QtSerialPort library to faciliate communication to vehicle
 
 For Windows or "typical" linux install QT as per normal
 
+### <a name="digimesh library"></a> Digimesh Library
+
+Download and compile Digimesh library distributed by Heron Systems: https://github.com/heronsystems/MACEDigiWrapper
+
+Headers and lib should install to a `/headers` and `/lib` directory off the root of the project.
+Add an environment variable `MACE_DIGIMESH_WRAPPER` set to that root such that `%MACE_DIGIMESH_WRAPPER%/include` and `%MACE_DIGIMESH_WRAPPER%/lib` resolves to the appropriate directories. There is no need to add either the `PATH` environment variable.
+
 #### <a name="building-on-odroid"></a> Building On ODROID
 
 For ODROID, QT will need to be compiled from source due to archetecture.
