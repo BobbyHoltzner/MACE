@@ -3,8 +3,7 @@
 
 #include "common/common.h"
 
-#include "generic_controller.h"
-#include "generic_controller_queue_data_with_module.h"
+#include "controllers/generic_controller_queue_data_with_module.h"
 
 #include "data_generic_command_item/do_items/action_change_mode.h"
 
@@ -12,21 +11,21 @@
 #include "controllers/actions/action_final_receive_respond.h"
 #include "controllers/actions/action_finish.h"
 
-namespace MAVLINKControllers {
+namespace MAVLINKVehicleControllers {
 
 
 template <typename MESSAGETYPE>
-using SystemModeSend = ActionSend<
+using SystemModeSend = Controllers::ActionSend<
     MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
+    Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
     CommandItem::ActionChangeMode,
-    mace_command_system_mode_t,
+    mavlink_set_mode_t,
     MACE_MSG_ID_SYSTEM_MODE_ACK
 >;
 
 template<typename MESSAGETYPE>
-class ControllerSystemMode : public GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
+class ControllerSystemMode : public Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
         public SystemModeSend<MESSAGETYPE>
 {
 
@@ -43,6 +42,8 @@ protected:
         //cmd.custom_mode = newMode;
     }
 
+    /*
+     * Add back in with ActionFinish
     virtual bool Finish_Receive(const mace_system_mode_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(msg);
@@ -50,10 +51,12 @@ protected:
         ack = msg.result;
         return true;
     }
+    */
 
 public:
 
-    ControllerSystemMode(const IMessageNotifier<MESSAGETYPE>* cb, MessageModuleTransmissionQueue<MESSAGETYPE> * queue, int linkChan) :
+    ControllerSystemMode(const Controllers::IMessageNotifier<MESSAGETYPE>* cb, Controllers::MessageModuleTransmissionQueue<MESSAGETYPE> * queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>(cb, queue, linkChan),
         SystemModeSend<MESSAGETYPE>(this, mavlink_msg_set_mode_encode_chan)
     {
 

@@ -5,32 +5,34 @@
 
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 
-namespace MAVLINKControllers{
+namespace MAVLINKVehicleControllers{
 
 
-template <typename MESSAGETYPE>
-class CommandARM : public Controller_GenericLongCommand<MESSAGETYPE, mavlink_command_long_t, MAV_CMD_COMPONENT_ARM_DISARM>
+class CommandARM : public Controller_GenericLongCommand<CommandItem::ActionArm, MAV_CMD_COMPONENT_ARM_DISARM>
 {
 public:
-    CommandARM(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
-        Controller_GenericLongCommand<MESSAGETYPE, mavlink_command_long_t, MAV_CMD_COMPONENT_ARM_DISARM>(cb, queue, linkChan)
+    CommandARM(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+        Controller_GenericLongCommand<CommandItem::ActionArm, MAV_CMD_COMPONENT_ARM_DISARM>(cb, queue, linkChan)
     {
 
     }
 
     protected:
 
-    virtual void FillCommand(const CommandItem::ActionArm &commandItem, mace_command_short_t &cmd) const
+    virtual void FillCommand(const CommandItem::ActionArm &commandItem, mavlink_command_long_t &cmd) const
     {
         cmd.target_system = commandItem.getTargetSystem();
-        cmd.param = commandItem.getRequestArm();
+        throw std::runtime_error("Unsure what to do here. it is a short in MACE (mave_command_short_t), but there is no such in mavlink");
+        //cmd.param = commandItem.getRequestArm();
     }
 
-    virtual void BuildCommand(const mace_command_short_t &message, std::shared_ptr<CommandItem::ActionArm> data) const
+    virtual void BuildCommand(const mavlink_command_long_t &message, std::shared_ptr<CommandItem::ActionArm> data) const
     {
-        data->setVehicleArm(message.param);
+        throw std::runtime_error("Unsure what to do here. it is a short in MACE (mave_command_short_t), but there is no such in mavlink");
+        //data->setVehicleArm(message.param);
     }
 };
+
 
 
 }

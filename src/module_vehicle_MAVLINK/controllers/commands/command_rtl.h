@@ -5,15 +5,14 @@
 
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 
-namespace MAVLINKControllers {
+namespace MAVLINKVehicleControllers {
 
 
-template <typename MESSAGETYPE>
-class CommandRTL : public Controller_GenericLongCommand<MESSAGETYPE, mavlink_command_long_t, MAV_CMD_NAV_RETURN_TO_LAUNCH>
+class CommandRTL : public Controller_GenericLongCommand<CommandItem::SpatialRTL, MAV_CMD_NAV_RETURN_TO_LAUNCH>
 {
 public:
-    CommandRTL(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
-        Controller_GenericLongCommand<MESSAGETYPE, mavlink_command_long_t, MAV_CMD_NAV_RETURN_TO_LAUNCH>(cb, queue, linkChan)
+    CommandRTL(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+        Controller_GenericLongCommand<CommandItem::SpatialRTL, MAV_CMD_NAV_RETURN_TO_LAUNCH>(cb, queue, linkChan)
     {
 
     }

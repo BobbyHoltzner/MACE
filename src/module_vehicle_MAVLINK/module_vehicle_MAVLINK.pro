@@ -20,8 +20,6 @@ SOURCES += module_vehicle_mavlink.cpp
 HEADERS += module_vehicle_mavlink.h\
         module_vehicle_mavlink_global.h \
     controllers/controller_system_mode.h \
-    controllers/generic_controller.h \
-    controllers/generic_controller_queue_data_with_module.h \
     controllers/commands/command_arm.h \
     controllers/commands/command_land.h \
     controllers/commands/command_rtl.h \
@@ -30,6 +28,7 @@ HEADERS += module_vehicle_mavlink.h\
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega
+INCLUDEPATH += $$PWD/../../speedLog/
 
 # Unix lib Install
 unix:!symbian {

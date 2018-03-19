@@ -5,15 +5,16 @@
 
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 
-namespace MAVLINKControllers {
+#include "mavlink.h"
+
+namespace MAVLINKVehicleControllers {
 
 
-template <typename MESSAGETYPE>
-class CommandLand : public Controller_GenericLongCommand<MESSAGETYPE, mavlink_command_long_t, MAV_CMD_NAV_LAND>
+class CommandLand : public Controller_GenericLongCommand<CommandItem::SpatialLand, MAV_CMD_NAV_LAND>
 {
 public:
-    CommandLand(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
-        Controller_GenericLongCommand<MESSAGETYPE, mavlink_command_long_t, MAV_CMD_NAV_LAND>(cb, queue, linkChan)
+    CommandLand(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+        Controller_GenericLongCommand<CommandItem::SpatialLand, MAV_CMD_NAV_LAND>(cb, queue, linkChan)
     {
 
     }

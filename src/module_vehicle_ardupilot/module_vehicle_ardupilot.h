@@ -38,15 +38,12 @@
 using namespace std::placeholders;
 
 //class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
-class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK,
-        public Controllers::IMessageNotifier<mavlink_message_t>
+class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
 {
 public:
     ModuleVehicleArdupilot();
 
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
-
-    virtual void TransmitMessage(const mavlink_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) const;
 
     void createLog(const int &systemID);
 

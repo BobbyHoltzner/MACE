@@ -13,7 +13,7 @@
 namespace ModuleGenericMavlink {
 
 
-namespace MAVLINKGenericControllers {
+namespace MAVLINKControllers {
 
 /*
 template <typename MESSAGETYPE>

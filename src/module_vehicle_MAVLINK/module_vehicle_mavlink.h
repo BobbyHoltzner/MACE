@@ -29,11 +29,11 @@
 #include "controllers/generic_controller.h"
 
 
-#include "module_vehicle_mavlink/controllers/commands/command_land.h"
-#include "module_vehicle_mavlink/controllers/commands/command_takeoff.h"
-#include "module_vehicle_mavlink/controllers/commands/command_arm.h"
-#include "module_vehicle_mavlink/controllers/commands/command_rtl.h"
-#include "module_vehicle_mavlink/controllers/controller_system_mode.h"
+#include "controllers/commands/command_land.h"
+#include "controllers/commands/command_takeoff.h"
+#include "controllers/commands/command_arm.h"
+#include "controllers/commands/command_rtl.h"
+#include "controllers/controller_system_mode.h"
 
 /*
  *
@@ -72,7 +72,7 @@ template <typename T, typename TT>
 T* Helper_CreateAndSetUp(TT* obj, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, uint8_t chan)
 {
     T* newController = new T(obj, queue, chan);
-    newController->setLambda_DataReceived([obj](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){obj->ReceivedCommand(sender, command);});
+    //newController->setLambda_DataReceived([obj](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){obj->ReceivedCommand(sender, command);});
     newController->setLambda_Finished(FinishedMessage);
     return newController;
 }
@@ -80,7 +80,8 @@ T* Helper_CreateAndSetUp(TT* obj, Controllers::MessageModuleTransmissionQueue<ma
 template <typename ...VehicleTopicAdditionalComponents>
 class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK :
         public ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES>,
-        public CommsMAVLINK
+        public CommsMAVLINK,
+        public Controllers::IMessageNotifier<mavlink_message_t>
 {
 protected:
     typedef ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES> ModuleVehicleMavlinkBase;
@@ -96,13 +97,13 @@ public:
     {
         Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>(2000, 3);
 
-        m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKControllers::CommandLand<mavlink_message_t>>(this, queue, m_LinkChan));
-        m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKControllers::CommandTakeoff<mavlink_message_t>>(this, queue, m_LinkChan));
-        m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKControllers::CommandARM<mavlink_message_t>>(this, queue, m_LinkChan));
-        m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKControllers::CommandRTL<mavlink_message_t>>(this, queue, m_LinkChan));
+        m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKVehicleControllers::CommandLand>(this, queue, m_LinkChan));
+        m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKVehicleControllers::CommandTakeoff>(this, queue, m_LinkChan));
+        m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKVehicleControllers::CommandARM>(this, queue, m_LinkChan));
+        m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKVehicleControllers::CommandRTL>(this, queue, m_LinkChan));
 
 
-        auto controller_SystemMode = new MAVLINKControllers::ControllerSystemMode<mavlink_message_t>(this, queue, m_LinkChan);
+        auto controller_SystemMode = new MAVLINKVehicleControllers::ControllerSystemMode<mavlink_message_t>(this, queue, m_LinkChan);
         controller_SystemMode->setLambda_Finished(FinishedMessage);
         m_Controllers.Add(controller_SystemMode);
     }
@@ -137,6 +138,18 @@ public:
             std::shared_ptr<MaceCore::ModuleParameterValue> moduleSettings = params->GetNonTerminalValue("ModuleParameters");
             airborneInstance = moduleSettings->GetTerminalValue<bool>("AirborneInstance");
         }
+    }
+
+
+    //!
+    //! \brief TransmitMessage
+    //! \param msg Message to transmit
+    //! \param target Target to transmitt to. Broadcast if not set.
+    //!
+    virtual void TransmitMessage(const mavlink_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target) const
+    {
+        UNUSED(target);
+        m_LinkMarshaler->SendMAVMessage(m_LinkName, msg);
     }
 
     virtual void start()
@@ -219,11 +232,11 @@ protected:
 
 protected:
     PointerCollection<
-        MAVLINKControllers::CommandTakeoff<mavlink_message_t>,
-        MAVLINKControllers::CommandLand<mavlink_message_t>,
-        MAVLINKControllers::CommandARM<mavlink_message_t>,
-        MAVLINKControllers::CommandRTL<mavlink_message_t>,
-        MAVLINKControllers::ControllerSystemMode<mavlink_message_t>
+        MAVLINKVehicleControllers::CommandTakeoff,
+        MAVLINKVehicleControllers::CommandLand,
+        MAVLINKVehicleControllers::CommandARM,
+        MAVLINKVehicleControllers::CommandRTL,
+        MAVLINKVehicleControllers::ControllerSystemMode<mavlink_message_t>
     > m_Controllers;
 };
 

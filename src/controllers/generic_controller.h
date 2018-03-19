@@ -4,7 +4,8 @@
 #include "mace_core/module_characteristics.h"
 #include "I_controller.h"
 #include "common/pointer_collection.h"
-#include "spdlog/spdlog.h"
+
+#include <spdlog/spdlog.h>
 
 #include <tuple>
 #include <functional>

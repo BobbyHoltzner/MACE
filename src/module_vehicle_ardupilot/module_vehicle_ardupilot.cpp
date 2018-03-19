@@ -58,17 +58,6 @@ void ModuleVehicleArdupilot::ConfigureModule(const std::shared_ptr<MaceCore::Mod
     ModuleVehicleMAVLINK::ConfigureModule(params);
 }
 
-//!
-//! \brief TransmitMessage
-//! \param msg Message to transmit
-//! \param target Target to transmitt to. Broadcast if not set.
-//!
-void ModuleVehicleArdupilot::TransmitMessage(const mavlink_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target) const
-{
-    UNUSED(target);
-    m_LinkMarshaler->SendMAVMessage(m_LinkName, msg);
-}
-
 void ModuleVehicleArdupilot::createLog(const int &systemID)
 {
     std::string logname = this->loggingPath + "/VehicleModule_" + std::to_string(systemID) + ".txt";

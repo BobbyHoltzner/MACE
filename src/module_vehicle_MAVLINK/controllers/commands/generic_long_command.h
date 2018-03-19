@@ -3,20 +3,21 @@
 
 #include "common/common.h"
 
-#include "../generic_controller.h"
-#include "../generic_controller_queue_data_with_module.h"
+#include "controllers/generic_controller_queue_data_with_module.h"
 
 #include "controllers/actions/action_broadcast.h"
 #include "controllers/actions/action_send.h"
 #include "controllers/actions/action_final_receive_respond.h"
 #include "controllers/actions/action_finish.h"
 
-namespace MAVLINKControllers {
+#include "mavlink.h"
 
-template <typename MESSAGETYPE, typename T>
-using ActionSend_Command_TargedWithResponse = ActionSend<
-    MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+namespace MAVLINKVehicleControllers {
+
+template <typename T>
+using ActionSend_Command_TargedWithResponse = Controllers::ActionSend<
+    mavlink_message_t,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
     MaceCore::ModuleCharacteristic,
     T,
     mavlink_command_long_t,
@@ -24,9 +25,9 @@ using ActionSend_Command_TargedWithResponse = ActionSend<
 >;
 
 
-template <typename MESSAGETYPE, typename COMMANDDATASTRUCTURE, const int COMMANDTYPE>
-class Controller_GenericLongCommand : public GenericControllerQueueDataWithModule<MESSAGETYPE, COMMANDDATASTRUCTURE>,
-        public ActionSend_Command_TargedWithResponse<MESSAGETYPE, COMMANDDATASTRUCTURE>
+template <typename COMMANDDATASTRUCTURE, const int COMMANDTYPE>
+class Controller_GenericLongCommand : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, COMMANDDATASTRUCTURE>,
+        public ActionSend_Command_TargedWithResponse<COMMANDDATASTRUCTURE>
 {
 private:
 
@@ -40,7 +41,7 @@ protected:
 
 protected:
 
-    virtual void Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_command_long_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
+    virtual void Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_command_long_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
         UNUSED(target);
@@ -66,9 +67,9 @@ protected:
 
 public:
 
-    Controller_GenericLongCommand(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
-        GenericControllerQueueDataWithModule<MESSAGETYPE, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
-        ActionSend_Command_TargedWithResponse<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mavlink_msg_command_long_encode_chan)
+    Controller_GenericLongCommand(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
+        ActionSend_Command_TargedWithResponse<COMMANDDATASTRUCTURE>(this, mavlink_msg_command_long_encode_chan)
     {
 
     }
