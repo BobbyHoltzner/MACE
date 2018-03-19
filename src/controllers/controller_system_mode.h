@@ -13,17 +13,9 @@
 namespace Controllers {
 
 
-template <typename T>
-using SystemModeSend = ActionSend<
-    GenericControllerQueueDataWithModule<T, CommandItem::ActionChangeMode>,
-    MaceCore::ModuleCharacteristic,
-    CommandItem::ActionChangeMode,
-    mace_command_system_mode_t,
-    MACE_MSG_ID_SYSTEM_MODE_ACK
->;
-
 template <typename MESSAGETYPE>
 using SystemModeSend = ActionSend<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
     CommandItem::ActionChangeMode,
@@ -33,6 +25,7 @@ using SystemModeSend = ActionSend<
 
 template <typename MESSAGETYPE>
 using SystemMode_FinalReceiveRespond = ActionFinalReceiveRespond<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
     CommandItem::ActionChangeMode,
@@ -43,6 +36,7 @@ using SystemMode_FinalReceiveRespond = ActionFinalReceiveRespond<
 
 template <typename MESSAGETYPE>
 using SystemModeFinish = ActionFinish<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
     uint8_t,

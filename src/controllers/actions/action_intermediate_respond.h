@@ -5,12 +5,12 @@
 
 namespace Controllers {
 
-template<typename CONTROLLER_TYPE, typename MSG_TYPE, const int ...MESSAGE_ACK_ID>
+template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename MSG_TYPE, const int ...MESSAGE_ACK_ID>
 class ActionIntermediateRespond :
-        public ActionBase<CONTROLLER_TYPE, MSG_TYPE>
+        public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>
 {
 
-    typedef ActionBase<CONTROLLER_TYPE, MSG_TYPE> BASE;
+    typedef ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE> BASE;
 
 public:
 
@@ -20,8 +20,8 @@ public:
     }
 
     ActionIntermediateRespond(CONTROLLER_TYPE *controller,
-                                  const std::function<void(uint8_t system_id, uint8_t, uint8_t, mace_message_t*, const MSG_TYPE*)> &encode_chan) :
-        ActionBase<CONTROLLER_TYPE, MSG_TYPE>(controller, encode_chan, {})
+                                  const std::function<void(uint8_t system_id, uint8_t, uint8_t, MESSAGE_TYPE*, const MSG_TYPE*)> &encode_chan) :
+        ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>(controller, encode_chan, {})
     {
     }
 

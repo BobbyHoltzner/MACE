@@ -11,15 +11,15 @@ namespace Controllers {
 
 
 
-template<typename CONTROLLER_TYPE, typename MSG_TYPE>
+template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename MSG_TYPE>
 class ActionBase
 {
 protected:
 
     CONTROLLER_TYPE *m_Controller;
 
-    std::function<void(uint8_t, uint8_t, uint8_t, mace_message_t*, const MSG_TYPE*)> m_EncodeChanFunc;
-    std::function<void(const mace_message_t*, MSG_TYPE*)> m_DecodeFunc;
+    std::function<void(uint8_t, uint8_t, uint8_t, MESSAGE_TYPE*, const MSG_TYPE*)> m_EncodeChanFunc;
+    std::function<void(const MESSAGE_TYPE*, MSG_TYPE*)> m_DecodeFunc;
 
 
 
@@ -34,8 +34,8 @@ public:
     }
 
     ActionBase(CONTROLLER_TYPE *controller,
-                              const std::function<void(uint8_t system_id, uint8_t, uint8_t, mace_message_t*, const MSG_TYPE*)> &encode_chan,
-                              const std::function<void(const mace_message_t*, MSG_TYPE*)> &decode) :
+                              const std::function<void(uint8_t system_id, uint8_t, uint8_t, MESSAGE_TYPE*, const MSG_TYPE*)> &encode_chan,
+                              const std::function<void(const MESSAGE_TYPE*, MSG_TYPE*)> &decode) :
         m_Controller(controller),
         m_EncodeChanFunc(encode_chan),
         m_DecodeFunc(decode)

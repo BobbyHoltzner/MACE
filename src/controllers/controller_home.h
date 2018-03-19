@@ -14,12 +14,14 @@
 #include "actions/action_intermediate_receive.h"
 #include "actions/action_intermediate_respond.h"
 #include "actions/action_intermediate.h"
+#include "actions/action_unsolicited_receive.h"
 
 namespace Controllers {
 
 //Broadcast a home position out, send and finish. (No waiting for response)
 template <typename MESSAGETYPE>
 using ControllerHome_Step_BroadcastHome = ActionBroadcast<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
     CommandItem::SpatialHome,
     mace_home_position_t
@@ -27,7 +29,8 @@ using ControllerHome_Step_BroadcastHome = ActionBroadcast<
 
 //Receive a broadcasted home position, accept and finish (no response)
 template <typename MESSAGETYPE>
-using ControllerHome_Step_ReceiveBroadcastedHome = ActionFinalReceive<
+using ControllerHome_Step_ReceiveBroadcastedHome = ActionUnsolicitedReceive<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
     CommandItem::SpatialHome,
     mace_home_position_t,
@@ -36,16 +39,18 @@ using ControllerHome_Step_ReceiveBroadcastedHome = ActionFinalReceive<
 
 //Request a home position, wait to receive the home position
 template <typename MESSAGETYPE>
-using ControllerHome_Step_RequestHome = ActionRequest_TargetedWithResponse<
-GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
-MaceCore::ModuleCharacteristic,
-mace_mission_request_home_t,
-MACE_MSG_ID_HOME_POSITION
+using ControllerHome_Step_RequestHome = ActionRequest<
+    MESSAGETYPE,
+    GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
+    MaceCore::ModuleCharacteristic,
+    mace_mission_request_home_t,
+    MACE_MSG_ID_HOME_POSITION
 >;
 
 //Receive a request for home, send out the home position, and wait to receive ack
 template <typename MESSAGETYPE>
 using ControllerHome_Step_ReceiveHomeRequest = ActionIntermediate<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
     MaceCore::ModuleCharacteristic,
     MaceCore::ModuleCharacteristic,
@@ -58,6 +63,7 @@ using ControllerHome_Step_ReceiveHomeRequest = ActionIntermediate<
 //Receive home position after requesting for it, send ack out upon reception
 template <typename MESSAGETYPE>
 using ControllerHome_Step_ReceiveHomePositionSendAck = ActionFinalReceiveRespond<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
     MaceCore::ModuleCharacteristic,
     CommandItem::SpatialHome,
@@ -69,6 +75,7 @@ using ControllerHome_Step_ReceiveHomePositionSendAck = ActionFinalReceiveRespond
 //Receive ack of home position received after sending it
 template <typename MESSAGETYPE>
 using ControllerHome_Step_ReceiveFinishingAck = ActionFinish<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
     MaceCore::ModuleCharacteristic,
     uint8_t,
@@ -79,6 +86,7 @@ using ControllerHome_Step_ReceiveFinishingAck = ActionFinish<
 //Set a home position on another controller
 template <typename MESSAGETYPE>
 using ControllerHome_Step_SendHomePosition = ActionSend<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
     MaceCore::ModuleCharacteristic,
     CommandItem::SpatialHome,
@@ -89,6 +97,7 @@ using ControllerHome_Step_SendHomePosition = ActionSend<
 //Receive the set home and send an ack out.
 template <typename MESSAGETYPE>
 using ControllerHome_Step_ReceiveSetHomeSendACK = ActionFinalReceiveRespond<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
     MaceCore::ModuleCharacteristic,
     CommandItem::SpatialHome,
@@ -112,6 +121,7 @@ class ControllerHome : public GenericControllerQueueDataWithModule<MESSAGETYPE, 
 private:
 
     typedef ActionFinalReceiveRespond<
+        MESSAGETYPE,
         GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
         MaceCore::ModuleCharacteristic,
         CommandItem::SpatialHome,
@@ -123,6 +133,7 @@ private:
 
 
     typedef ActionFinalReceiveRespond<
+        MESSAGETYPE,
         GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::SpatialHome>,
         MaceCore::ModuleCharacteristic,
         CommandItem::SpatialHome,

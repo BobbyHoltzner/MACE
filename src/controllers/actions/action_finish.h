@@ -5,23 +5,49 @@
 
 namespace Controllers {
 
-template<typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename ACK_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID>
+
+//!
+//! \brief Finishes a previously schedule action, used to receive an ACK
+//!
+//! Use of this method requires the caller to set a lambda in setLambda_Finished.
+//! The lambda set will be called with received ACK_TYPE when appropriate message is received.
+//!
+//! \template MESSAGE_TYPE Underlaying generic message type that all communication is done through
+//! \template CONTROLLER_TYPE Type of controller being used by this action, will be used to queue transmissions.
+//! \template QUEUE_TYPE Type of object that will establish uniqueness in the queue.
+//!   This ultimatly allows a controller to have two identical messages going out to two entities.
+//! \template ACK_TYPE Data type to represent acknowledgment code to be received by this action.
+//! \template MSG_TYPE Communication message class received by this action
+//! \template MESSAGE_REQUEST_ID Integer code for message that is to kick off this action
+//!
+template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename ACK_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID>
 class ActionFinish :
-        public ActionBase<CONTROLLER_TYPE, MSG_TYPE>
+        public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>
 {
 
-    typedef ActionBase<CONTROLLER_TYPE, MSG_TYPE> BASE;
+    typedef ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE> BASE;
 
 protected:
 
-    virtual bool Finish_Receive(const MSG_TYPE &, const MaceCore::ModuleCharacteristic &sender, ACK_TYPE&, QUEUE_TYPE &queueObj) = 0;
+    //!
+    //! \brief Method that is to be implimented for this action to act on received ack message.
+    //!
+    //! Translates a received MSG_TYPE to the ACK_TYPE contained within, and the queue object to identify the transmission that should be removed.
+    //!
+    //! \param msg Message received over communication network
+    //! \param sender Module that sent message received
+    //! \param ack Ack code to be generated from given message/sender
+    //! \param queueObj Key that is to be generated from message/sender which identifies what queued transmission needs to be removed
+    //! \return True if message is to be consumed, false if ignored (and possibly consumed by another action)
+    //!
+    virtual bool Finish_Receive(const MSG_TYPE &msg, const MaceCore::ModuleCharacteristic &sender, ACK_TYPE& ack, QUEUE_TYPE &queueObj) = 0;
 
 public:
 
 
     ActionFinish(CONTROLLER_TYPE *controller,
-                           const std::function<void(const mace_message_t*, MSG_TYPE*)> &decode) :
-        ActionBase<CONTROLLER_TYPE, MSG_TYPE>(controller, [](uint8_t, uint8_t, uint8_t, mace_message_t*, const MSG_TYPE*){}, decode)
+                           const std::function<void(const MESSAGE_TYPE*, MSG_TYPE*)> &decode) :
+        ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>(controller, [](uint8_t, uint8_t, uint8_t, MESSAGE_TYPE*, const MSG_TYPE*){}, decode)
     {
 
 
