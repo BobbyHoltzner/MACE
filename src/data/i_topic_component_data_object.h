@@ -10,13 +10,8 @@ enum TopicType{
     VEHICLEMISSION
 };
 
-class ITopicComponentDataObject {
-
+class ITopicComponentDataObject : public MaceCore::ITopicComponentPrototype {
 public:
-    virtual MaceCore::TopicDatagram GenerateDatagram() const = 0;
-
-    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram) = 0;
-
     const char* name;
 };
 

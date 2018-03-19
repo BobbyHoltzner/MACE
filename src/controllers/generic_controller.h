@@ -174,7 +174,7 @@ public:
 
 
 
-    virtual bool ReceiveMessage(const mace_message_t *message)
+    virtual bool ReceiveMessage(const MESSAGETYPE *message)
     {
         int systemID = message->sysid;
         int compID = message->compid;
@@ -205,7 +205,7 @@ public:
     template <typename FUNC, typename TT>
     void EncodeMessage(FUNC func, TT requestItem, const MaceCore::ModuleCharacteristic &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>())
     {
-        mace_message_t msg;
+        MESSAGETYPE msg;
         func(sender.ID, (int)sender.Class, m_LinkChan, &msg, &requestItem);
         m_CB->TransmitMessage(msg, target);
     }
@@ -213,17 +213,17 @@ public:
 private:
 
     template <const int I>
-    static std::function<bool(MaceCore::ModuleCharacteristic, const mace_message_t*)> MaceMessageIDEq()
+    static std::function<bool(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)> MaceMessageIDEq()
     {
-        return [](MaceCore::ModuleCharacteristic sender, const mace_message_t* message){
+        return [](MaceCore::ModuleCharacteristic sender, const MESSAGETYPE* message){
             return message->msgid ==I;
         };
     }
 
     template <typename DECODE_TYPE, typename DECODE_FUNC>
-    static std::function<void(MaceCore::ModuleCharacteristic, const mace_message_t*)> MaceProcessFSMState(DECODE_FUNC decode_func, const std::function<void(const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)> &func)
+    static std::function<void(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)> MaceProcessFSMState(DECODE_FUNC decode_func, const std::function<void(const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)> &func)
     {
-        return [decode_func, func](MaceCore::ModuleCharacteristic sender, const mace_message_t* message)
+        return [decode_func, func](MaceCore::ModuleCharacteristic sender, const MESSAGETYPE* message)
         {
             DECODE_TYPE decodedMSG;
             decode_func(message, &decodedMSG);

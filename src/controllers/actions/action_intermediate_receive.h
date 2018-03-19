@@ -5,12 +5,12 @@
 
 namespace Controllers {
 
-template<typename CONTROLLER_TYPE, typename RECEIVE_QUEUE_TYPE, typename RESPOND_QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID, typename ACK_TYPE>
+template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename RECEIVE_QUEUE_TYPE, typename RESPOND_QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID, typename ACK_TYPE>
 class ActionIntermediateReceive :
-        public ActionBase<CONTROLLER_TYPE, MSG_TYPE>
+        public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>
 {
 
-    typedef ActionBase<CONTROLLER_TYPE, MSG_TYPE> BASE;
+    typedef ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE> BASE;
 
 protected:
 
@@ -25,8 +25,8 @@ public:
 
     ActionIntermediateReceive(CONTROLLER_TYPE *controller,
                                   const std::function<void(const ACK_TYPE &, const MaceCore::ModuleCharacteristic &, const RESPOND_QUEUE_TYPE &, const MaceCore::ModuleCharacteristic &)> &nextStep,
-                                  const std::function<void(const mace_message_t*, MSG_TYPE*)> &decode) :
-        ActionBase<CONTROLLER_TYPE, MSG_TYPE>(controller, {}, decode)
+                                  const std::function<void(const MESSAGE_TYPE*, MSG_TYPE*)> &decode) :
+        ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>(controller, {}, decode)
     {
 
 

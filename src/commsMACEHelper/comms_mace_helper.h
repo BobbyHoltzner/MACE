@@ -35,7 +35,7 @@ public:
 
     virtual void MACEMessage(const std::string &linkName, const mace_message_t &message);
 
-    virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics()
+    virtual std::unordered_map<std::string, MaceCore::TopicCharacteristic> GetTopics()
     {
         //return IModuleCommandVehicle::GetTopics();
         return {};

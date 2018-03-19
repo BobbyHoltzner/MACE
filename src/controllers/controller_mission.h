@@ -30,6 +30,7 @@ using CONTROLLER_MISSION_TYPE = GenericController<
 
 template <typename MESSAGETYPE>
 using SendHelper_RequestMissionDownload = ActionSend<
+    MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -40,6 +41,7 @@ using SendHelper_RequestMissionDownload = ActionSend<
 
 template <typename MESSAGETYPE>
 using SendHelper_RequestList = ActionIntermediate<
+    MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -52,6 +54,7 @@ using SendHelper_RequestList = ActionIntermediate<
 
 template <typename MESSAGETYPE>
 using SendHelper_ReceiveCountRespondItemRequest = ActionIntermediate<
+    MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -63,6 +66,7 @@ using SendHelper_ReceiveCountRespondItemRequest = ActionIntermediate<
 
 template <typename MESSAGETYPE>
 using SendHelper_ReceiveCountRespondItemRequest_FromRequest = ActionIntermediate<
+    MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MaceCore::ModuleCharacteristic,
     MissionItem::MissionKey,
@@ -75,6 +79,7 @@ using SendHelper_ReceiveCountRespondItemRequest_FromRequest = ActionIntermediate
 
 template <typename MESSAGETYPE>
 using SendHelper_RequestItem = ActionIntermediate<
+    MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -88,6 +93,7 @@ using SendHelper_RequestItem = ActionIntermediate<
 
 template <typename MESSAGETYPE>
 using SendHelper_ReceiveItem = ActionIntermediateReceive<
+    MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -110,6 +116,7 @@ typedef ActionResponseIntermediate<
 
 template <typename MESSAGETYPE>
 using SendHelper_Final = ActionFinalReceiveRespond<
+    MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MissionItem::MissionKey,
     MissionItem::MissionList,
@@ -121,6 +128,7 @@ using SendHelper_Final = ActionFinalReceiveRespond<
 
 template <typename MESSAGETYPE>
 using SendHelper_FinalFinal = ActionFinish<
+    MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MissionItem::MissionKey,
     uint8_t,
@@ -131,6 +139,7 @@ using SendHelper_FinalFinal = ActionFinish<
 
 template <typename MESSAGETYPE>
 using Action_RequestCurrentMission_Initiate = ActionRequest_TargetedWithResponse<
+    MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MaceCore::ModuleCharacteristic,
     mace_mission_request_list_generic_t,
@@ -141,6 +150,7 @@ using Action_RequestCurrentMission_Initiate = ActionRequest_TargetedWithResponse
 
 template <typename MESSAGETYPE>
 using Action_RequestCurrentMission_Response = ActionIntermediateReceive<
+    MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -151,6 +161,7 @@ using Action_RequestCurrentMission_Response = ActionIntermediateReceive<
 
 template <typename MESSAGETYPE>
 using Action_RequestCurrentMission_NoMissionResponse = ActionIntermediateReceive<
+    MESSAGETYPE,
     CONTROLLER_MISSION_TYPE<MESSAGETYPE>,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -195,7 +206,7 @@ protected:
     //! \param data
     //! \param cmd
     //!
-    virtual void Construct_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_list_t &cmd, MissionItem::MissionKey &queueObj)
+    virtual void Construct_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_mission_request_list_t &cmd, MissionItem::MissionKey &queueObj)
     {
         queueObj = data;
 
