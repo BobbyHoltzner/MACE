@@ -25,6 +25,16 @@
 #include "data_interface_MAVLINK/components/data_interface_mavlink_components.h"
 
 #include "commsMAVLINK/comms_mavlink.h"
+
+#include "controllers/generic_controller.h"
+
+
+#include "module_vehicle_mavlink/controllers/commands/command_land.h"
+#include "module_vehicle_mavlink/controllers/commands/command_takeoff.h"
+#include "module_vehicle_mavlink/controllers/commands/command_arm.h"
+#include "module_vehicle_mavlink/controllers/commands/command_rtl.h"
+#include "module_vehicle_mavlink/controllers/controller_system_mode.h"
+
 /*
  *
  * USAGE:
@@ -47,6 +57,7 @@
  *
  * */
 
+
 template <typename ...VehicleTopicAdditionalComponents>
 class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK :
         public ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES>,
@@ -60,12 +71,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ModuleVehicleMAVLINK() :
-        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataMAVLINK::EmptyMAVLINK>(),
-        airborneInstance(false)
-    {
-
-    }
+    ModuleVehicleMAVLINK();
 
 
     //!
@@ -177,6 +183,15 @@ public:
 
 protected:
     bool airborneInstance;
+
+protected:
+    PointerCollection<
+        MAVLINKControllers::CommandTakeoff<mavlink_message_t>,
+        MAVLINKControllers::CommandLand<mavlink_message_t>,
+        MAVLINKControllers::CommandARM<mavlink_message_t>,
+        MAVLINKControllers::CommandRTL<mavlink_message_t>,
+        MAVLINKControllers::ControllerSystemMode<mavlink_message_t>
+    > m_Controllers;
 };
 
 #endif // MODULE_VEHICLE_MAVLINK_H

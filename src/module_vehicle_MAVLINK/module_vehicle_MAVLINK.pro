@@ -18,7 +18,15 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += module_vehicle_mavlink.cpp
 
 HEADERS += module_vehicle_mavlink.h\
-        module_vehicle_mavlink_global.h
+        module_vehicle_mavlink_global.h \
+    controllers/controller_system_mode.h \
+    controllers/generic_controller.h \
+    controllers/generic_controller_queue_data_with_module.h \
+    controllers/commands/command_arm.h \
+    controllers/commands/command_land.h \
+    controllers/commands/command_rtl.h \
+    controllers/commands/command_takeoff.h \
+    controllers/commands/generic_long_command.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega
@@ -61,6 +69,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ 
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
 else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../controllers/release/ -lmace_controllers
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../controllers/debug/ -lmace_controllers
+else:unix:!macx: LIBS += -L$$OUT_PWD/../controllers/ -lmace_controllers
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_item/release/ -ldata_generic_item
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_item/debug/ -ldata_generic_item
