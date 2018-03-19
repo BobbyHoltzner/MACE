@@ -47,9 +47,6 @@ private:
     const IMessageNotifier<MESSAGETYPE>* m_CB;
 
 protected:
-
-    std::shared_ptr<spdlog::logger> mLog;
-
     std::vector<std::tuple<
         std::function<bool(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)>,
         std::function<void(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)>

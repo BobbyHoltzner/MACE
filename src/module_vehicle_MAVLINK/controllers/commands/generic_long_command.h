@@ -13,9 +13,9 @@
 
 namespace MAVLINKControllers {
 
-
 template <typename MESSAGETYPE, typename T>
 using ActionSend_Command_TargedWithResponse = ActionSend<
+    MESSAGETYPE,
     GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
     MaceCore::ModuleCharacteristic,
     T,
@@ -40,9 +40,10 @@ protected:
 
 protected:
 
-    virtual void Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, mace_command_long_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
+    virtual void Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_command_long_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
+        UNUSED(target);
         queueObj.ID = data.getTargetSystem();
         queueObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 

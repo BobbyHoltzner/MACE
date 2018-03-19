@@ -1,6 +1,6 @@
 #include "module_external_link.h"
 
-#include "module_generic_MAVLINK/controllers/congroller_mavlink_generic_set.h"
+#include "module_generic_MAVLINK/controllers/controller_mavlink_generic_set.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///             CONFIGURE

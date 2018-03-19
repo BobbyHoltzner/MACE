@@ -15,13 +15,14 @@
 namespace MAVLINKControllers {
 
 
-template <typename T>
+template <typename MESSAGETYPE>
 using SystemModeSend = ActionSend<
-    GenericControllerQueueDataWithModule<T, CommandItem::ActionChangeMode>,
+    MESSAGETYPE,
+    GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
     CommandItem::ActionChangeMode,
     mace_command_system_mode_t,
-    MAVLINK_MSG_ID_COMMAND_ACK
+    MACE_MSG_ID_SYSTEM_MODE_ACK
 >;
 
 template<typename MESSAGETYPE>
@@ -31,13 +32,15 @@ class ControllerSystemMode : public GenericControllerQueueDataWithModule<MESSAGE
 
 protected:
 
-    virtual void Construct_Send(const CommandItem::ActionChangeMode &commandItem, const MaceCore::ModuleCharacteristic &sender, mavlink_set_mode_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
+    virtual void Construct_Send(const CommandItem::ActionChangeMode &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_set_mode_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
+        UNUSED(target);
 
         cmd.target_system = commandItem.getTargetSystem();
         cmd.base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
-        cmd.custom_mode = newMode;
+        //KEN FIX THIS MODE IS BROKEN
+        //cmd.custom_mode = newMode;
     }
 
     virtual bool Finish_Receive(const mace_system_mode_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj)

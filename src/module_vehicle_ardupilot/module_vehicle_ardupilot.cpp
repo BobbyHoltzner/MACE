@@ -1,7 +1,7 @@
 #include "module_vehicle_ardupilot.h"
 #include <functional>
 
-#include "module_generic_MAVLINK/controllers/congroller_mavlink_generic_set.h"
+#include "module_generic_MAVLINK/controllers/controller_mavlink_generic_set.h"
 
 template <typename T>
 T CopyCommandAndInsertTarget(const CommandItem::AbstractCommandItem &item, int targetSystem)

@@ -57,6 +57,25 @@
  *
  * */
 
+void FinishedMessage(const bool completed, const uint8_t finishCode)
+{
+    if(completed == false)
+    {
+        printf("Controller timed out sending message, gave up sending message\n");
+    }
+    else {
+        printf("Controller Received Final ACK with code of %d\n", finishCode);
+    }
+}
+
+template <typename T, typename TT>
+T* Helper_CreateAndSetUp(TT* obj, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, uint8_t chan)
+{
+    T* newController = new T(obj, queue, chan);
+    newController->setLambda_DataReceived([obj](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){obj->ReceivedCommand(sender, command);});
+    newController->setLambda_Finished(FinishedMessage);
+    return newController;
+}
 
 template <typename ...VehicleTopicAdditionalComponents>
 class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK :
@@ -71,8 +90,22 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ModuleVehicleMAVLINK();
+    ModuleVehicleMAVLINK():
+        ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataMAVLINK::EmptyMAVLINK>(),
+        airborneInstance(false)
+    {
+        Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>(2000, 3);
 
+        m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKControllers::CommandLand<mavlink_message_t>>(this, queue, m_LinkChan));
+        m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKControllers::CommandTakeoff<mavlink_message_t>>(this, queue, m_LinkChan));
+        m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKControllers::CommandARM<mavlink_message_t>>(this, queue, m_LinkChan));
+        m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKControllers::CommandRTL<mavlink_message_t>>(this, queue, m_LinkChan));
+
+
+        auto controller_SystemMode = new MAVLINKControllers::ControllerSystemMode<mavlink_message_t>(this, queue, m_LinkChan);
+        controller_SystemMode->setLambda_Finished(FinishedMessage);
+        m_Controllers.Add(controller_SystemMode);
+    }
 
     //!
     //! \brief Describes the strucure of the parameters for this module

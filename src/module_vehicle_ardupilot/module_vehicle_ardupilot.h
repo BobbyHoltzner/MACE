@@ -310,12 +310,10 @@ private:
 
     Ardupilot_GeneralController* m_AircraftController;
 
-<<<<<<< HEAD
     hsm::StateMachine* stateMachine; /**< Member variable containing a pointer to the state
  machine. This state machine evolves the state per event updates and/or external commands. */
-=======
+
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> m_TopicToControllers;
->>>>>>> master
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H
