@@ -53,7 +53,8 @@ HEADERS += \
     commands/command_mission_item.h \
     I_message_notifier.h \
     base_data_item.h \
-    base_module_queue.h
+    base_module_queue.h \
+    actions/action_unsolicited_receive.h
 
 
 # Windows lib install
