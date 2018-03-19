@@ -3,6 +3,42 @@ declare var electronRequire: any;
 declare module 'deepcopy';
 declare module 'react-leaflet-heatmap-layer';
 
+
+/*
+TODO: Figure out how to define this so we can pass it to AppHelper as a type STATE:
+
+  MACEconfig?: ConfigSettingsType,
+  connectedVehicles?: {[id: string]: Vehicle}
+  vehicleWarnings?: VehicleWarning[]
+  selectedVehicleID?: string,
+  openDrawer?: boolean,
+  tcpServer?: any,
+  allowVehicleSelect?: boolean,
+  showEditVehicleHomeDialog?: boolean,
+  showEditGlobalHomeDialog?: boolean,
+  showMessagesMenu?: boolean,
+  showConfigDialog?: boolean,
+  messagePreferences?: MessagePreferencesType,
+  showTakeoffDialog?: boolean,
+  showSaveTakeoff?: boolean,
+  globalOrigin?: PositionType
+  useContext?: boolean,
+  contextAnchor?: L.LeafletMouseEvent,
+  MACEConnected?: boolean,
+  environmentBoundary?: PositionType[],
+  showDraw?: boolean,
+  drawPolygonPts?: PositionType[],
+  gridPts?: {inPoly: L.LatLng[], trimmedPts: L.LatLng[]},
+  showEnvironmentSettings?: boolean,
+  environmentSettings?: EnvironmentSettingsType,
+  pauseMACEComms?: boolean,
+  envBoundingBox?: PositionType[],
+  getConnectedVehiclesTimeout?: number
+
+
+*/
+
+
 type MACEConfig = {
   MACEComms?: {
     ipAddress?: string,

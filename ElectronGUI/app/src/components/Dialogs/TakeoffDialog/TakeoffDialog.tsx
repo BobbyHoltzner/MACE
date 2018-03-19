@@ -7,11 +7,11 @@ import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
-import { Vehicle } from '../Vehicle';
+import { Vehicle } from '../../../util/Vehicle/Vehicle';
 import { Grid, Col } from 'react-bootstrap';
 
-import * as colors from 'material-ui/styles/colors';
 import * as L from 'leaflet';
+import { styles } from "./styles";
 
 
 type Props = {
@@ -98,7 +98,7 @@ export class TakeoffDialog extends React.Component<Props, State> {
                 />,
                 <FlatButton
                     label="Save takeoff"
-                    labelStyle={{color: colors.orange700}}
+                    labelStyle={styles.labelStyle}
                     onTouchTap={this.handleSaveTakeoff}
                 />,
             ]
@@ -110,7 +110,7 @@ export class TakeoffDialog extends React.Component<Props, State> {
                 />,
                 <FlatButton
                     label="Takeoff"
-                    labelStyle={{color: colors.orange700}}
+                    labelStyle={styles.labelStyle}
                     onTouchTap={this.handleTakeoff}
                 />,
             ]
@@ -127,15 +127,15 @@ export class TakeoffDialog extends React.Component<Props, State> {
 
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <Dialog titleStyle={{backgroundColor: colors.orange700, color: colors.white}} title="Set vehicle takeoff altitude" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose} contentStyle={{width: '20%'}}>
+                <Dialog titleStyle={styles.dialogTitle} title="Set vehicle takeoff altitude" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose} contentStyle={styles.dialogContent}>
                     {this.props.showSaveTakeoff ?
                         <Grid fluid>
                             <Col xs={12} md={12}>
                                 <TextField
                                     id={"takeoffAlt"}
                                     floatingLabelText="Takeoff altitude"
-                                    floatingLabelFocusStyle={{color: colors.orange700}}
-                                    underlineFocusStyle={{borderColor: colors.orange700}}
+                                    floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                    underlineFocusStyle={styles.underlineFolcusStyle}
                                     onChange={this.handleTextChange}
                                     type={"number"}
                                     value={this.state.takeoffAlt}
@@ -158,8 +158,8 @@ export class TakeoffDialog extends React.Component<Props, State> {
                                         <TextField
                                             id={"takeoffLat"}
                                             floatingLabelText="Takeoff latitude"
-                                            floatingLabelFocusStyle={{color: colors.orange700}}
-                                            underlineFocusStyle={{borderColor: colors.orange700}}
+                                            floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                            underlineFocusStyle={styles.underlineFolcusStyle}
                                             onChange={this.handleTextChange}
                                             type={"number"}
                                             value={this.state.takeoffLat}
@@ -169,8 +169,8 @@ export class TakeoffDialog extends React.Component<Props, State> {
                                         <TextField
                                             id={"takeoffLon"}
                                             floatingLabelText="Takeoff longitude"
-                                            floatingLabelFocusStyle={{color: colors.orange700}}
-                                            underlineFocusStyle={{borderColor: colors.orange700}}
+                                            floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                            underlineFocusStyle={styles.underlineFolcusStyle}
                                             onChange={this.handleTextChange}
                                             type={"number"}
                                             value={this.state.takeoffLon}
@@ -182,8 +182,8 @@ export class TakeoffDialog extends React.Component<Props, State> {
                                 <TextField
                                     id={"takeoffAlt"}
                                     floatingLabelText="Takeoff altitude"
-                                    floatingLabelFocusStyle={{color: colors.orange700}}
-                                    underlineFocusStyle={{borderColor: colors.orange700}}
+                                    floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                    underlineFocusStyle={styles.underlineFolcusStyle}
                                     onChange={this.handleTextChange}
                                     type={"number"}
                                     value={this.state.takeoffAlt}

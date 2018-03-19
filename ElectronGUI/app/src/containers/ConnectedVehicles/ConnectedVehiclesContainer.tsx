@@ -4,9 +4,10 @@ const lightMuiTheme = getMuiTheme();
 import * as React from 'react';
 import FlatButton from 'material-ui/FlatButton'
 
-import { VehicleHUD } from '../components/VehicleHUD';
-import { VehicleMessages } from '../components/VehicleMessages';
-import { Vehicle } from '../Vehicle';
+import { VehicleHUD } from '../../components/VehicleHUD/VehicleHUD';
+import { VehicleMessages } from '../../components/VehicleMessages/VehicleMessages';
+import { Vehicle } from '../../util/Vehicle/Vehicle';
+import { styles } from "./styles";
 
 
 type Props = {
@@ -36,23 +37,6 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
     }
 
     render() {
-        const height = window.screen.height;
-        const connectedVehiclesContainer = {
-            position: 'absolute' as 'absolute',
-            top: 64,
-            right: 0,
-            zIndex: 999,
-            width: 20 + "%",
-            backgroundColor: 'rgba(255,255,255,1)',
-            display: 'flex',
-            alignItems: 'center' as 'center',
-            flexDirection: 'column' as 'column',
-            maxHeight: height-165,
-            height: height,
-            overflowY: "scroll" as "scroll",
-            overflowX: "hidden" as "hidden"
-        };
-        // const openButtonContainer = { position: 'absolute', top: 15, right: 15, zIndex: 999, backgroundColor: "rgba(255,255,255,1)" };
 
         let vehicleHUDs: JSX.Element[] = [];
         let vehicleMessages: JSX.Element[] = [];
@@ -81,7 +65,7 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
             <MuiThemeProvider muiTheme={lightMuiTheme}>
                 <div>
                     {Object.keys(this.props.connectedVehicles).length > 0 ?
-                        <div style={connectedVehiclesContainer}>
+                        <div style={styles.connectedVehiclesContainer}>
                             <div>
                                 <FlatButton
                                     label={this.state.showHUDs ? "Vehicle Messages" : "Vehicle HUDs"}
