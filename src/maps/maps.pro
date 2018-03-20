@@ -51,7 +51,8 @@ headers_maps.files   += \
         bounded_2D_grid.h \
         data_2d_grid.h \
         dynamic_2D_grid.h \
-        maps_global.h
+        maps_global.h \
+        dynamic_2D_grid.tpp
 INSTALLS       += headers_maps
 
 #Header file copy
