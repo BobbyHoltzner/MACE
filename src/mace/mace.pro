@@ -191,3 +191,6 @@ INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 #        LIBS += -L/opt/ros/kinetic/lib -lactionlib
 #}
 #}
+
+INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
+LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper

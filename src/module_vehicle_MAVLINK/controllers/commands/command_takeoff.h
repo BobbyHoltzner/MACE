@@ -1,5 +1,5 @@
-#ifndef COMMAND_TAKEOFF_H
-#define COMMAND_TAKEOFF_H
+#ifndef MODULE_VEHICLE_MAVLINK_COMMAND_TAKEOFF_H
+#define MODULE_VEHICLE_MAVLINK_COMMAND_TAKEOFF_H
 
 #include "generic_long_command.h"
 
@@ -44,4 +44,4 @@ protected:
 
 }
 
-#endif // COMMAND_TAKEOFF_H
+#endif // MODULE_VEHICLE_MAVLINK_COMMAND_TAKEOFF_H

@@ -28,12 +28,11 @@
 
 #include "controllers/generic_controller.h"
 
-
-#include "controllers/commands/command_land.h"
-#include "controllers/commands/command_takeoff.h"
-#include "controllers/commands/command_arm.h"
-#include "controllers/commands/command_rtl.h"
-#include "controllers/controller_system_mode.h"
+#include "module_vehicle_MAVLINK/controllers/commands/command_land.h"
+#include "module_vehicle_MAVLINK/controllers/commands/command_takeoff.h"
+#include "module_vehicle_MAVLINK/controllers/commands/command_arm.h"
+#include "module_vehicle_MAVLINK/controllers/commands/command_rtl.h"
+#include "module_vehicle_MAVLINK/controllers/controller_system_mode.h"
 
 /*
  *

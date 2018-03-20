@@ -1,5 +1,5 @@
-#ifndef COMMAND_ARM_H
-#define COMMAND_ARM_H
+#ifndef MODULE_VEHICLE_MAVLINK_COMMAND_ARM_H
+#define MODULE_VEHICLE_MAVLINK_COMMAND_ARM_H
 
 #include "generic_long_command.h"
 
@@ -38,4 +38,4 @@ public:
 }
 
 
-#endif // COMMAND_ARM_H
+#endif // MODULE_VEHICLE_MAVLINK_COMMAND_ARM_H

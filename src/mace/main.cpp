@@ -14,6 +14,8 @@
 
 #include "data/environment_time.h"
 
+#include "mace_core/module_characteristics.h"
+
 #ifdef ROS_EXISTS
 #include <ros/ros.h>
 #endif
@@ -128,14 +130,14 @@ int main(int argc, char *argv[])
         threads.push_back(thread);
 
         //add to core (and check if too many have been added)
-        MaceCore::ModuleBase::Classes moduleClass = module->ModuleClass();
+        MaceCore::ModuleClasses moduleClass = module->ModuleClass();
         switch (moduleClass) {
-        case MaceCore::ModuleBase::EXTERNAL_LINK:
+        case MaceCore::ModuleClasses::EXTERNAL_LINK:
         {
             core.AddExternalLink(std::dynamic_pointer_cast<MaceCore::IModuleCommandExternalLink>(module));
             break;
         }
-        case  MaceCore::ModuleBase::GROUND_STATION:
+        case  MaceCore::ModuleClasses::GROUND_STATION:
         {
             if(addedGroundStation == true)
             {
@@ -146,7 +148,7 @@ int main(int argc, char *argv[])
             addedGroundStation = true;
             break;
         }
-        case MaceCore::ModuleBase::SENSORS:
+        case MaceCore::ModuleClasses::SENSORS:
         {
             if(addedSensors == true)
             {
@@ -157,7 +159,7 @@ int main(int argc, char *argv[])
             addedSensors = true;
             break;
         }
-        case MaceCore::ModuleBase::PATH_PLANNING:
+        case MaceCore::ModuleClasses::PATH_PLANNING:
         {
             if(addedPathPlanning == true)
             {
@@ -168,7 +170,7 @@ int main(int argc, char *argv[])
             addedPathPlanning = true;
             break;
         }
-        case MaceCore::ModuleBase::ROS:
+        case MaceCore::ModuleClasses::ROS:
         {
 #ifdef ROS_EXISTS
             if(addedROS == true)
@@ -194,7 +196,7 @@ int main(int argc, char *argv[])
 //            addedRTA = true;
 //            break;
 //        }
-        case MaceCore::ModuleBase::VEHICLE_COMMS:
+        case MaceCore::ModuleClasses::VEHICLE_COMMS:
         {
             core.AddVehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));
             numVehicles++;

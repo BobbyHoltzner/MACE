@@ -1,5 +1,5 @@
-#ifndef COMMAND_RTL_H
-#define COMMAND_RTL_H
+#ifndef MODULE_VEHICLE_MAVLINK_COMMAND_RTL_H
+#define MODULE_VEHICLE_MAVLINK_COMMAND_RTL_H
 
 #include "generic_long_command.h"
 
@@ -36,4 +36,4 @@ public:
 
 }
 
-#endif // COMMAND_RTL_H
+#endif // MODULE_VEHICLE_MAVLINK_COMMAND_RTL_H
