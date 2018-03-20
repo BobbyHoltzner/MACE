@@ -57,23 +57,12 @@
  *
  * */
 
-void FinishedMessage(const bool completed, const uint8_t finishCode)
-{
-    if(completed == false)
-    {
-        printf("Controller timed out sending message, gave up sending message\n");
-    }
-    else {
-        printf("Controller Received Final ACK with code of %d\n", finishCode);
-    }
-}
-
 template <typename T, typename TT>
 T* Helper_CreateAndSetUp(TT* obj, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, uint8_t chan)
 {
     T* newController = new T(obj, queue, chan);
     //newController->setLambda_DataReceived([obj](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){obj->ReceivedCommand(sender, command);});
-    newController->setLambda_Finished(FinishedMessage);
+    //newController->setLambda_Finished(FinishedMAVLINKMessage);
     return newController;
 }
 
@@ -104,7 +93,7 @@ public:
 
 
         auto controller_SystemMode = new MAVLINKVehicleControllers::ControllerSystemMode<mavlink_message_t>(this, queue, m_LinkChan);
-        controller_SystemMode->setLambda_Finished(FinishedMessage);
+        //controller_SystemMode->setLambda_Finished(FinishedMAVLINKMessage);
         m_Controllers.Add(controller_SystemMode);
     }
 

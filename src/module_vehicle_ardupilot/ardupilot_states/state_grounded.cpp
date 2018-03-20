@@ -61,7 +61,7 @@ hsm::Transition State_Grounded::GetTransition()
 
 void State_Grounded::handleCommand(const AbstractCommandItem* command)
 {
-    COMMANDITEM::CI_ACT_ARM commandType = command->getCommandType();
+    COMMANDITEM commandType = command->getCommandType();
     switch (commandType) {
     case COMMANDITEM::CI_ACT_ARM:
     {
