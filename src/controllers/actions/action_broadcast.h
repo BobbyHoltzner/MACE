@@ -15,8 +15,6 @@ public:
     virtual void Broadcast(const DATA_TYPE &commandItem, const MaceCore::ModuleCharacteristic &sender) = 0;
 };
 
-template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename DATA_TYPE, typename MSG_TYPE>
-
 
 //!
 //! \brief Sets up an action to broadcast data

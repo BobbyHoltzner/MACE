@@ -4,11 +4,12 @@ const lightMuiTheme = getMuiTheme();
 import * as React from 'react';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-import { Vehicle } from '../Vehicle';
-import { textSeverityToColor } from '../util/Colors';
-import { aircraftImgSrcFromType } from '../util/VehicleHelper';
+import { Vehicle } from '../../util/Vehicle/Vehicle';
+import { textSeverityToColor } from '../../util/misc/Colors';
+import { aircraftImgSrcFromType } from '../../util/Helpers/VehicleHelper';
 import Avatar from 'material-ui/Avatar';
-import { Colors } from '../util/Colors';
+import { Colors } from '../../util/misc/Colors';
+import { styles } from './styles';
 
 type Props = {
     vehicleID: string,
@@ -29,6 +30,7 @@ export class VehicleMessages extends React.Component<Props, State> {
     }
 
     render() {
+        // TODO: Figure out how to move this style to a separate styles file. The conditional is hard:
         const boxShadow = this.props.aircraft.isSelected ? this.props.aircraft.highlightColor + " 0px 1px 20px, rgba(0, 0, 0, .5) 0px 1px 4px" : "rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px"
         const hudStyle = {
             position: "relative" as "relative",
@@ -36,12 +38,14 @@ export class VehicleMessages extends React.Component<Props, State> {
             marginBottom: 15,
             boxShadow: boxShadow
         };
+
+
         // const hudAvatar = aircraftImgSrcFromType(this.props.aircraft.general.aircraftType);
         const hudAvatar: JSX.Element =
             <Avatar
                 backgroundColor={this.props.aircraft.isArmed ? Colors.Success : Colors.Primary}
                 src={aircraftImgSrcFromType(this.props.aircraft.general.aircraftType)}
-                style={{borderRadius: 30+'%'}}
+                style={styles.avatar}
             />;
 
         let messages: JSX.Element[] = [];
@@ -58,7 +62,7 @@ export class VehicleMessages extends React.Component<Props, State> {
             <MuiThemeProvider muiTheme={lightMuiTheme}>
                 <Card expanded={true} style={hudStyle}>
                     <CardHeader
-                        titleStyle={{fontSize: 24}}
+                        titleStyle={styles.cardTitle}
                         title={"ID: " + this.props.vehicleID}
                         subtitle={this.props.aircraft.vehicleMode}
                         avatar={hudAvatar}
@@ -68,13 +72,13 @@ export class VehicleMessages extends React.Component<Props, State> {
 
                     <div className="row">
                         <div className="col-xs-12">
-                            <div className="box" style={{overflowY: 'scroll', maxHeight: '150px'}}>
+                            <div className="box" style={styles.messagesContainer}>
                                 {messages}
                             </div>
                         </div>
                     </div>
 
-                    <CardActions style={{textAlign: "center"}}>
+                    <CardActions style={styles.cardActions}>
                         <FlatButton
                             label="Clear"
                             onClick={this.handleClear}

@@ -7,8 +7,8 @@ import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import { Grid, Col } from 'react-bootstrap';
 
-import * as colors from 'material-ui/styles/colors';
 import * as L from 'leaflet';
+import { styles } from "./styles";
 
 
 type Props = {
@@ -71,21 +71,21 @@ export class GlobalOriginDialog extends React.Component<Props, State> {
             />,
             <FlatButton
                 label="Save"
-                labelStyle={{color: colors.orange700}}
+                labelStyle={styles.labelStyle}
                 onTouchTap={this.handleSave}
             />,
         ];
 
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <Dialog titleStyle={{backgroundColor: colors.orange700, color: colors.white}} title="Set global home position" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose} contentStyle={{width: '20%'}}>
+                <Dialog titleStyle={styles.dialogTitle} title="Set global home position" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose} contentStyle={styles.dialogContent}>
                     <Grid fluid>
                         <Col xs={12} md={12}>
                             <TextField
                                 id={"globalLat"}
                                 floatingLabelText="Latitude (decimal)"
-                                floatingLabelFocusStyle={{color: colors.orange700}}
-                                underlineFocusStyle={{borderColor: colors.orange700}}
+                                floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                underlineFocusStyle={styles.underlineFolcusStyle}
                                 onChange={this.handleTextChange}
                                 value={this.state.globalLat}
                                 type={"number"}
@@ -95,8 +95,8 @@ export class GlobalOriginDialog extends React.Component<Props, State> {
                             <TextField
                                 id={"globalLon"}
                                 floatingLabelText="Longitude (decimal)"
-                                floatingLabelFocusStyle={{color: colors.orange700}}
-                                underlineFocusStyle={{borderColor: colors.orange700}}
+                                floatingLabelFocusStyle={styles.floatingLabelFocus}
+                                underlineFocusStyle={styles.underlineFolcusStyle}
                                 onChange={this.handleTextChange}
                                 value={this.state.globalLon}
                                 type={"number"}

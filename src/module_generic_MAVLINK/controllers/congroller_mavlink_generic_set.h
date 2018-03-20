@@ -60,6 +60,7 @@ class GenericControllerSetRequest : public Controllers::GenericControllerQueueDa
             MESSAGETYPE,
             Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, DATA>,
             MaceCore::ModuleCharacteristic,
+            uint8_t,
             ACK_TYPE,
             ACK_ID
         >
@@ -111,10 +112,11 @@ protected:
         FillObject(commandItem, target, cmd);
     }
 
-    virtual bool Finish_Receive(const ACK_TYPE &msg, const MaceCore::ModuleCharacteristic &sender, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Finish_Receive(const ACK_TYPE &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(msg);
         queueObj = sender;
+        ack = msg.result;
         return true;
     }
 
@@ -140,6 +142,7 @@ public:
                     MESSAGETYPE,
                     Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, DATA>,
                     MaceCore::ModuleCharacteristic,
+                    uint8_t,
                     ACK_TYPE,
                     ACK_ID
                 >(this, decode_ack)

@@ -4,6 +4,7 @@ const lightMuiTheme = getMuiTheme();
 import * as React from 'react';
 import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
+// import { styles } from "./styles";
 
 // import * as colors from 'material-ui/styles/colors';
 
@@ -56,7 +57,7 @@ export class ContextMenu extends React.Component<Props, State> {
     }
 
     render() {
-
+        // TODO: Figure out how to move this style to a separate styles file. The state var is hard:
         const menuStyle = {
             position: "absolute" as "absolute",
             left: this.state.xPos,

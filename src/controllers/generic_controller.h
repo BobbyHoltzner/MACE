@@ -37,7 +37,7 @@ namespace Controllers {
 //! \template DataItems Data items the controller is to transmit
 //!
 template<typename MESSAGETYPE, typename TransmitQueueType, typename FINISH_CODE, typename ...DataItems>
-class GenericController : protected IController<MESSAGETYPE>, public TransmitQueueType, public ChainInheritance<DataItems...>
+class GenericController : public IController<MESSAGETYPE>, public TransmitQueueType, public ChainInheritance<DataItems...>
 {
 private:
 
