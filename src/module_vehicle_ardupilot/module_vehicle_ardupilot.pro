@@ -113,6 +113,14 @@ headers_ardupilot_states.files   += \
 INSTALLS       += headers_ardupilot_states
 
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base_topic/release/ -lbase_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base_topic/debug/ -lbase_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base_topic/ -lbase_topic
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
 else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata

@@ -52,6 +52,14 @@ INSTALLS       += headers
 INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/common/
 INCLUDEPATH += $$PWD/../
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base_topic/release/ -lbase_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base_topic/debug/ -lbase_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base_topic/ -lbase_topic
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
 else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
@@ -106,5 +114,3 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_g
 else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_generic/ -lmodule_vehicle_generic
 
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
-
-
