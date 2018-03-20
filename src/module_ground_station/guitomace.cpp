@@ -186,6 +186,22 @@ void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
     bool latLonFlag = vehicleCommand["latLonFlag"].toBool();
 
 
+    if(latLonFlag) {
+        newTakeoff.position->setX(position.value("lat").toDouble());
+        newTakeoff.position->setY(position.value("lng").toDouble());
+    }
+    newTakeoff.position->setZ(position.value("alt").toDouble());
+    newTakeoff.setTargetSystem(vehicleID);
+
+    std::stringstream buffer;
+    buffer << newTakeoff;
+//    mLogs->debug("Module Ground Station issuing a takeoff command to system " + std::to_string(vehicleID) + ".");
+//    mLogs->info(buffer.str());
+
+    m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+        ptr->Event_IssueCommandTakeoff(m_parent, newTakeoff);
+    });
+
     /*
     std::shared_ptr<Data::NamedTopicComponentDataObject> data;
     if(latLonFlag) {
