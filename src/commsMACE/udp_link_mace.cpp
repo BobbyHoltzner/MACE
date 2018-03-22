@@ -1,6 +1,8 @@
 #include "udp_link_mace.h"
 #include <QCoreApplication>
 
+#include "common/common.h"
+
 namespace CommsMACE
 {
 
@@ -167,7 +169,7 @@ bool UdpLink::_hardwareConnect(QAbstractSocket::SocketError &error, QString& err
 }
 
 
-void UdpLink::WriteBytes(const char *bytes, int length) const
+void UdpLink::WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target) const
 {
     QByteArray data(bytes, length);
     if(m_socket && m_socket->isOpen()) {
@@ -180,6 +182,11 @@ void UdpLink::WriteBytes(const char *bytes, int length) const
     }
 }
 
+void UdpLink::AddResource(const char *resourceType, int ID)
+{
+    UNUSED(resourceType);
+    UNUSED(ID);
+}
 
 
 //!

@@ -1,7 +1,7 @@
 #ifndef VEHICLE_DATA_H
 #define VEHICLE_DATA_H
 
-#include "optional_parameter.h"
+#include "common/optional_parameter.h"
 
 namespace MaceCore
 {

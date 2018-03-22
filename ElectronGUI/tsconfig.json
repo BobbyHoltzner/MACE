@@ -10,10 +10,18 @@
       "target": "ES5",
       "experimentalDecorators": true,
       "outDir": "build/js",
-      "inlineSourceMap": true
+      "inlineSourceMap": true,
+      "moduleResolution": "node",
+      "allowSyntheticDefaultImports": true,
+      "types": [
+          "leaflet",
+          "material-ui"
+      ],
+      "typeRoots": ["./node_modules/@types"]
     },
     "compileOnSave": false,
     "exclude": [
-        "node_modules"
+        "node_modules/**",
+        "typings/*"
     ]
 }

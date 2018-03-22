@@ -3,6 +3,7 @@ CONFIG += console c++11
 CONFIG -= app_bundle
 QT += serialport
 QT += network
+QT -= gui
 
 TARGET = MACE
 QMAKE_CXXFLAGS += -std=c++11
@@ -27,7 +28,6 @@ target.path = $$(MACE_ROOT)/bin
 INSTALLS += target
 
 INCLUDEPATH += $$(MACE_ROOT)/include
-
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
@@ -163,8 +163,9 @@ INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 
+win32: LIBS += -limagehlp
 
-LIBS += -lboost_system
+#LIBS += -lboost_system
 
 unix {
 exists(/opt/ros/kinetic/lib/) {
@@ -193,3 +194,6 @@ exists(/opt/ros/kinetic/lib/) {
         LIBS += -L/opt/ros/kinetic/lib -lactionlib
 }
 }
+
+INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
+LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper -lDigiMesh

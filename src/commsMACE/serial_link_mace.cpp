@@ -75,7 +75,8 @@ void SerialLink::RequestReset()
     m_stoppMutex.unlock();
 }
 
-void SerialLink::WriteBytes(const char *bytes, int length) const
+
+void SerialLink::WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target) const
 {
     QByteArray data(bytes, length);
     if(m_port && m_port->isOpen()) {
@@ -86,6 +87,13 @@ void SerialLink::WriteBytes(const char *bytes, int length) const
         _emitLinkError("Could not send data - link " + getPortName() + " is disconnected!");
     }
 }
+
+void SerialLink::AddResource(const char *resourceType, int ID)
+{
+    UNUSED(resourceType);
+    UNUSED(ID);
+}
+
 
 //!
 //! \brief Determine the connection status

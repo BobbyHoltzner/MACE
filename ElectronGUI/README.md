@@ -9,22 +9,33 @@ Open a new console and change directories into the `MACE/ElectronGUI` directory.
 
 ```bash
 npm i
-npm run build
+npm run build:prod
 ```
 If you delete the node_modules folder for whatever reason, re-run the above commands.
 
 Now start the GUI:
 
-In one terminal, run the watcher
+In one terminal, run the watcher and the GUI
 ```bash
-npm run watch
+npm run launch
 ```
-In another terminal, start the GUI
-```bash
-npm start
-```
+This will launch the GUI and the watcher. Give the GUI a minute to load as the watcher boots up. If any changes are made to the React project, the watcher should recompile the project and reload the GUI.
 
-If any changes are made to the React project, the watcher should recompile the project and reload the GUI.
+**NOTE:** In the past, we have seen errors resembling the following 
+```
+events.js:137
+  throw er; // Unhandled 'error' event
+  
+Error: listen EACCES 127.0.0.1:8080
+```
+If this happens, re-build the GUI and relaunch with a different port number:
+```
+npm run build:prod --nasa_gui:port=<newport>
+npm run launch --nasa_gui:port=<newport>
+```
+(Replace `<newport>` with the desired port number)
+
+Alternatively, you can also edit the config in the `pacakge.json` file. Simply change the port number in that file and run the build and launch commands without any additional arguments.
 
 ## Prebuilt Binaries
 If you do not want to build from source, there are prebuilt binaries included in the latest release version in a zipped file (`PrebuiltBinaries.zip`). This zipped file contains binary files for several architectures. Simply unzip the file and find your architecture and run the executable in the corresponding directory to start the MACE GUI. The following architectures are supported:

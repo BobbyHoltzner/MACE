@@ -13,6 +13,8 @@
 
 #include "topic.h"
 
+#include "module_characteristics.h"
+
 namespace MaceCore
 {
 
@@ -22,37 +24,23 @@ namespace MaceCore
 class ModuleBase
 {
 public:
-    //!
-    //! \brief Types of modules that can be instantiated
-    //!
-    enum Classes
-    {
-        EXTERNAL_LINK,
-        GROUND_STATION,
-        PATH_PLANNING,
-        ROS,
-        RTA,
-        SENSORS,
-        VEHICLE_COMMS,
-        NR_TYPES
-    };
 
-    static std::string ModuleTypeToString(const Classes &type)
+    static std::string ModuleTypeToString(const ModuleClasses &type)
     {
         switch (type) {
-        case EXTERNAL_LINK:
+        case ModuleClasses::EXTERNAL_LINK:
             return "ExternalLink";
-        case GROUND_STATION:
+        case ModuleClasses::GROUND_STATION:
             return "GroundStation";
-        case PATH_PLANNING:
+        case ModuleClasses::PATH_PLANNING:
             return "PathPlanning";
-        case ROS:
+        case ModuleClasses::ROS:
             return "ROS";
-        case RTA:
+        case ModuleClasses::RTA:
             return "RTA";
-        case SENSORS:
+        case ModuleClasses::SENSORS:
             return "Sensors";
-        case VEHICLE_COMMS:
+        case ModuleClasses::VEHICLE_COMMS:
             return "VehicleComms";
         default:
             throw std::runtime_error("Unknown module type");
@@ -60,31 +48,49 @@ public:
     }
 
 
-    static Classes StringToModuleClass(const std::string &string)
+    static ModuleClasses StringToModuleClass(const std::string &string)
     {
         if(string == "ExternalLink")
-            return EXTERNAL_LINK;
+            return ModuleClasses::EXTERNAL_LINK;
         if(string == "GroundStation")
-            return GROUND_STATION;
+            return ModuleClasses::GROUND_STATION;
         if(string == "PathPlanning")
-            return PATH_PLANNING;
+            return ModuleClasses::PATH_PLANNING;
         if(string == "ROS")
-            return ROS;
+            return ModuleClasses::ROS;
         if(string == "RTA")
-            return RTA;
+            return ModuleClasses::RTA;
         if(string == "Sensors")
-            return SENSORS;
+            return ModuleClasses::SENSORS;
         if(string == "VehicleComms")
-            return VEHICLE_COMMS;
+            return ModuleClasses::VEHICLE_COMMS;
         throw std::runtime_error("Unknown module type");
     }
 
 public:
 
 
-    const static Classes moduleClass;
+    const static ModuleClasses moduleClass;
 
-    virtual Classes ModuleClass() const = 0;
+    virtual ModuleClasses ModuleClass() const = 0;
+
+    void SetID(int ID)
+    {
+        m_ID = ID;
+    }
+
+    int GetID() const
+    {
+        return m_ID;
+    }
+
+    ModuleCharacteristic GetCharacteristic() const
+    {
+        ModuleCharacteristic obj;
+        obj.ID = m_ID;
+        obj.Class = ModuleClass();
+        return obj;
+    }
 
 
     //!
@@ -115,13 +121,37 @@ public:
         this->loggingPath = path;
     }
 
+    //!
+    //! \brief New non-spooled topic given
+    //!
+    //! NonSpooled topics send their data immediatly.
+    //! \param topicName Name of stopic
+    //! \param sender Module that sent topic
+    //! \param data Data for topic
+    //! \param target Target module (or broadcasted)
+    //!
+    virtual void NewTopicData(const std::string &topicName, const ModuleCharacteristic &sender, const TopicDatagram &data, const OptionalParameter<ModuleCharacteristic> &target = OptionalParameter<ModuleCharacteristic>()) = 0;
 
-    virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated) = 0;
 
+    //!
+    //! \brief New Spooled topic given
+    //!
+    //! Spooled topics are stored on the core's datafusion.
+    //! This method is used to notify other modules that there exists new data for the given components on the given module.
+    //! \param topicName Name of topic given
+    //! \param sender Module that sent topic
+    //! \param componentsUpdated Components in topic that where updated
+    //! \param target Target moudle (or broadcast)
+    //!
+    virtual void NewTopicSpooled(const std::string &topicName, const ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<ModuleCharacteristic> &target = OptionalParameter<ModuleCharacteristic>()) = 0;
 
-    virtual std::unordered_map<std::string, TopicStructure> GetTopics()
+    //!
+    //! \brief Get all topics that are to be emited by this module
+    //! \return List of topics
+    //!
+    virtual std::vector<TopicCharacteristic> GetEmittedTopics()
     {
-        //TODO make pure
+        //TODO - Make pure virtual
         return {};
     }
 
@@ -142,6 +172,8 @@ protected:
 
 private:
     std::shared_ptr<const MaceData> m_Data;
+
+    int m_ID;
 };
 
 

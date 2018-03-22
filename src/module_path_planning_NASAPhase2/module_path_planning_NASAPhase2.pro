@@ -46,24 +46,32 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lc
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
 else:unix:!macx: LIBS += -L$$OUT_PWD/../common/ -lcommon
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
-else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
+else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
-else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
+else:unix: LIBS += -L$$OUT_PWD/../base/ -lbase
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base_topic/release/ -lbase_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base_topic/debug/ -lbase_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base_topic/ -lbase_topic
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ -lmace_core
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
+else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../planners/release/ -lplanners
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../planners/debug/ -lplanners
 else:unix:!macx: LIBS += -L$$OUT_PWD/../planners/ -lplanners
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/release/ -lflann
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/debug/ -lflann
-else:unix:!macx: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/release/ -lflann
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/debug/ -lflann
+#else:unix:!macx: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann
 
-INCLUDEPATH += $$PWD/../../tools/flann/build
-DEPENDPATH += $$PWD/../../tools/flann/build
+#INCLUDEPATH += $$PWD/../../tools/flann/build
+#DEPENDPATH += $$PWD/../../tools/flann/build
 
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 

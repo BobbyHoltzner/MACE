@@ -7,6 +7,7 @@
 
 #include "i_module_topic_events.h"
 #include <algorithm>
+#include "module_characteristics.h"
 
 namespace MaceCore
 {
@@ -126,7 +127,7 @@ public:
     //! \param command Command to add logic to
     //! \param logic Lambda function to call when command is invoked.
     //!
-    void AddCommandLogic(const CT command, const std::function<void()> &logic)
+    void AddCommandLogic(const CT command, const std::function<void(const OptionalParameter<ModuleCharacteristic> &sender)> &logic)
     {
         m_CommandDispatcher.AddLambda(command, logic);
     }
@@ -138,7 +139,7 @@ public:
     //! \param logic Lambda function to call when command is invoked.
     //!
     template<typename P1T>
-    void AddCommandLogic(const CT command, const std::function<void(const P1T&)> &lambda)
+    void AddCommandLogic(const CT command, const std::function<void(const P1T&, const OptionalParameter<ModuleCharacteristic> &sender)> &lambda)
     {
         m_CommandDispatcher.AddLambda(command, lambda);
     }
@@ -231,7 +232,7 @@ protected:
     //! \brief Execute a module's command with no parameters
     //! \param enumValue Command to call.
     //!
-    void MarshalCommand(CT enumValue)
+    void MarshalCommand(CT enumValue, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>())
     {
         bool IssueOnThread;
         if(m_MarshalCommandsOnEventLoop.find(enumValue) == m_MarshalCommandsOnEventLoop.cend())
@@ -240,9 +241,9 @@ protected:
             IssueOnThread = m_MarshalCommandsOnEventLoop.at(enumValue);
 
         if(IssueOnThread == true)
-            this->m_CommandDispatcher.QueueCommand(enumValue);
+            this->m_CommandDispatcher.QueueCommand(enumValue, sender);
         else
-            this->m_CommandDispatcher.ImmediatlyCallCommand(enumValue);
+            this->m_CommandDispatcher.ImmediatlyCallCommand(enumValue, sender);
     }
 
 
@@ -252,7 +253,7 @@ protected:
     //! \param value Value of first parameter
     //!
     template<typename P1T>
-    void MarshalCommand(CT enumValue, const P1T &value)
+    void MarshalCommand(CT enumValue, const P1T &value, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>())
     {
         bool IssueOnModuleEventLoop;
         if(m_MarshalCommandsOnEventLoop.find(enumValue) == m_MarshalCommandsOnEventLoop.cend())
@@ -261,9 +262,9 @@ protected:
             IssueOnModuleEventLoop = m_MarshalCommandsOnEventLoop.at(enumValue);
 
         if(IssueOnModuleEventLoop == true)
-            this->m_CommandDispatcher.QueueCommand(enumValue, value);
+            this->m_CommandDispatcher.QueueCommand(enumValue, value, sender);
         else
-            this->m_CommandDispatcher.ImmediatlyCallCommand(enumValue, value);
+            this->m_CommandDispatcher.ImmediatlyCallCommand(enumValue, value, sender);
     }
 
 

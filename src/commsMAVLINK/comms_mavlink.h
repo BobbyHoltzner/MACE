@@ -33,15 +33,11 @@ public:
 
     virtual void ConfigureComms(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
+    virtual void ConnectComms();
+
     virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message);
 
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
-
-    virtual std::unordered_map<std::string, MaceCore::TopicStructure> GetTopics()
-    {
-        //return IModuleCommandVehicle::GetTopics();
-        return {};
-    }
 
 protected:
     Comms::CommsMarshaler *m_LinkMarshaler;

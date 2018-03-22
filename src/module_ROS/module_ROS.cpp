@@ -123,13 +123,37 @@ void ModuleROS::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
 }
 
 //!
-//! \brief NewTopic New topic available from MACE Core
-//! \param topicName Topic name that has been published
-//! \param senderID Topic sender ID
-//! \param componentsUpdated List of MACE core components that have updated data
+//! \brief New non-spooled topic given
 //!
-void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
+//! NonSpooled topics send their data immediatly.
+//! \param topicName Name of stopic
+//! \param sender Module that sent topic
+//! \param data Data for topic
+//! \param target Target module (or broadcasted)
+//!
+void ModuleROS::NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
+
+}
+
+
+//!
+//! \brief New Spooled topic given
+//!
+//! Spooled topics are stored on the core's datafusion.
+//! This method is used to notify other modules that there exists new data for the given components on the given module.
+//! \param topicName Name of topic given
+//! \param sender Module that sent topic
+//! \param componentsUpdated Components in topic that where updated
+//! \param target Target moudle (or broadcast)
+//!
+void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+{
+    int senderID = sender.ID;
+    // TODO: On new vehicle position, send to ROS via publishVehiclePosition
+    // TODO: Figure out a better way to check for ROS_EXISTS...the way it is right now, everything
+    //          in this NewTopic method would have to check if ROS_EXISTS before calling any ROS specific methods
+
     if(topicName == m_PlanningStateTopic.Name())
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_PlanningStateTopic.Name(), senderID);
@@ -137,12 +161,12 @@ void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector
             if(componentsUpdated.at(i) == mace::poseTopic::Cartesian_2D_Topic::Name()){
                 std::shared_ptr<mace::poseTopic::Cartesian_2D_Topic> component = std::make_shared<mace::poseTopic::Cartesian_2D_Topic>();
                 m_PlanningStateTopic.GetComponent(component, read_topicDatagram);
-                this->renderState(component->getPose());
+                //this->renderState(component->getPose());
             }
             else if(componentsUpdated.at(i) == mace::geometryTopic::Line_2DC_Topic::Name()) {
                 std::shared_ptr<mace::geometryTopic::Line_2DC_Topic> component = std::make_shared<mace::geometryTopic::Line_2DC_Topic>();
                 m_PlanningStateTopic.GetComponent(component, read_topicDatagram);
-                this->renderEdge(component->getLine());
+                //this->renderEdge(component->getLine());
             }
         }
     }
@@ -158,7 +182,7 @@ void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector
                 insertVehicleIfNotExist(senderID);
 
                 // Write Attitude data to the GUI:
-                updateAttitudeData(senderID, component);
+                //updateAttitudeData(senderID, component);
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateLocalPositionTopic> component = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
@@ -168,7 +192,7 @@ void ModuleROS::NewTopic(const std::string &topicName, int senderID, std::vector
                 insertVehicleIfNotExist(senderID);
 
                 // Write Position data to the GUI:
-                updatePositionData(senderID, component);
+                //updatePositionData(senderID, component);
             }
         }
     }

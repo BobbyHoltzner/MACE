@@ -105,6 +105,7 @@ void MACEtoGUI::sendVehicleTarget(const int &vehicleID, const std::shared_ptr<Mi
     json["lat"] = component->targetPosition.getX();
     json["lng"] = component->targetPosition.getY();
     json["alt"] = component->targetPosition.getZ();
+    json["active"] = true;
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());

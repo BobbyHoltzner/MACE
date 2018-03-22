@@ -1937,6 +1937,115 @@ static void mace_test_command_ack(uint8_t system_id, uint8_t component_id, mace_
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
+static void mace_test_command_system_mode(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)
+{
+#ifdef MACE_STATUS_FLAG_OUT_MACE1
+    mace_status_t *status = mace_get_channel_status(MACE_COMM_0);
+        if ((status->flags & MACE_STATUS_FLAG_OUT_MACE1) && MACE_MSG_ID_COMMAND_SYSTEM_MODE >= 256) {
+            return;
+        }
+#endif
+    mace_message_t msg;
+        uint8_t buffer[MACE_MAX_PACKET_LEN];
+        uint16_t i;
+    mace_command_system_mode_t packet_in = {
+        5,"BCDEFGHIJKLMNOPQRST"
+    };
+    mace_command_system_mode_t packet1, packet2;
+        memset(&packet1, 0, sizeof(packet1));
+        packet1.target_system = packet_in.target_system;
+        
+        mace_array_memcpy(packet1.mode, packet_in.mode, sizeof(char)*20);
+        
+#ifdef MACE_STATUS_FLAG_OUT_MACE1
+        if (status->flags & MACE_STATUS_FLAG_OUT_MACE1) {
+           // cope with extensions
+           memset(MACE_MSG_ID_COMMAND_SYSTEM_MODE_MIN_LEN + (char *)&packet1, 0, sizeof(packet1)-MACE_MSG_ID_COMMAND_SYSTEM_MODE_MIN_LEN);
+        }
+#endif
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_command_system_mode_encode(system_id, component_id, &msg, &packet1);
+    mace_msg_command_system_mode_decode(&msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_command_system_mode_pack(system_id, component_id, &msg , packet1.target_system , packet1.mode );
+    mace_msg_command_system_mode_decode(&msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_command_system_mode_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.target_system , packet1.mode );
+    mace_msg_command_system_mode_decode(&msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+        mace_msg_to_send_buffer(buffer, &msg);
+        for (i=0; i<mace_msg_get_send_buffer_length(&msg); i++) {
+            comm_send_ch(MACE_COMM_0, buffer[i]);
+        }
+    mace_msg_command_system_mode_decode(last_msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+        
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_command_system_mode_send(MACE_COMM_1 , packet1.target_system , packet1.mode );
+    mace_msg_command_system_mode_decode(last_msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+}
+
+static void mace_test_system_mode_ack(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)
+{
+#ifdef MACE_STATUS_FLAG_OUT_MACE1
+    mace_status_t *status = mace_get_channel_status(MACE_COMM_0);
+        if ((status->flags & MACE_STATUS_FLAG_OUT_MACE1) && MACE_MSG_ID_SYSTEM_MODE_ACK >= 256) {
+            return;
+        }
+#endif
+    mace_message_t msg;
+        uint8_t buffer[MACE_MAX_PACKET_LEN];
+        uint16_t i;
+    mace_system_mode_ack_t packet_in = {
+        5
+    };
+    mace_system_mode_ack_t packet1, packet2;
+        memset(&packet1, 0, sizeof(packet1));
+        packet1.result = packet_in.result;
+        
+        
+#ifdef MACE_STATUS_FLAG_OUT_MACE1
+        if (status->flags & MACE_STATUS_FLAG_OUT_MACE1) {
+           // cope with extensions
+           memset(MACE_MSG_ID_SYSTEM_MODE_ACK_MIN_LEN + (char *)&packet1, 0, sizeof(packet1)-MACE_MSG_ID_SYSTEM_MODE_ACK_MIN_LEN);
+        }
+#endif
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_system_mode_ack_encode(system_id, component_id, &msg, &packet1);
+    mace_msg_system_mode_ack_decode(&msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_system_mode_ack_pack(system_id, component_id, &msg , packet1.result );
+    mace_msg_system_mode_ack_decode(&msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_system_mode_ack_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.result );
+    mace_msg_system_mode_ack_decode(&msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+
+        memset(&packet2, 0, sizeof(packet2));
+        mace_msg_to_send_buffer(buffer, &msg);
+        for (i=0; i<mace_msg_get_send_buffer_length(&msg); i++) {
+            comm_send_ch(MACE_COMM_0, buffer[i]);
+        }
+    mace_msg_system_mode_ack_decode(last_msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+        
+        memset(&packet2, 0, sizeof(packet2));
+    mace_msg_system_mode_ack_send(MACE_COMM_1 , packet1.result );
+    mace_msg_system_mode_ack_decode(last_msg, &packet2);
+        MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
+}
+
 static void mace_test_radio_status(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)
 {
 #ifdef MACE_STATUS_FLAG_OUT_MACE1
@@ -2870,6 +2979,8 @@ static void mace_test_common(uint8_t system_id, uint8_t component_id, mace_messa
     mace_test_command_long(system_id, component_id, last_msg);
     mace_test_command_short(system_id, component_id, last_msg);
     mace_test_command_ack(system_id, component_id, last_msg);
+    mace_test_command_system_mode(system_id, component_id, last_msg);
+    mace_test_system_mode_ack(system_id, component_id, last_msg);
     mace_test_radio_status(system_id, component_id, last_msg);
     mace_test_timesync(system_id, component_id, last_msg);
     mace_test_power_status(system_id, component_id, last_msg);
