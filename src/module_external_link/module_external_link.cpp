@@ -70,6 +70,7 @@ ModuleExternalLink::ModuleExternalLink() :
 
         ack.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
     });
+    controller_SystemMode2->setLambda_Finished(FinishedMessage);
     controller_SystemMode2->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<MaceCore::TopicDatagram> &command){
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, this->m_VehicleTopics.m_CommandSystemMode.Name(), sender, MaceCore::TIME(), *command);
