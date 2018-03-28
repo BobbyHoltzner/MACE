@@ -21,6 +21,7 @@
     </group>
   </group>
 
+
   <group unless="$(arg add_sensors)">
     <group ns="basic_quadrotor_$(arg vehicle_id)">
       <include file="$(find sim_vehicles_description)/launch/spawn/spawn_basic_quadrotor.launch">
@@ -32,5 +33,6 @@
       </include>
     </group>
   </group>
+
 
 </launch>

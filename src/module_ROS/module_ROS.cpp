@@ -62,7 +62,6 @@ void ModuleROS::start() {
     m_timer->setSingleShot(false);
     m_timer->setInterval(ROSTimer::Interval(50));
     m_timer->start(true);
-
 #endif
 }
 
@@ -88,6 +87,8 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleROS::ModuleConfigurati
     cameraSensor->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true);
     cameraSensor->AddTerminalParameters("Type", MaceCore::ModuleParameterTerminalTypes::STRING, true, "rgb", {"rgb", "infrared"});
     structure.AddNonTerminal("CameraSensor", cameraSensor, true);
+
+//    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, true);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -120,6 +121,8 @@ void ModuleROS::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
         std::tuple<std::string, std::string> sensor = std::make_tuple(cameraSettings->GetTerminalValue<std::string>("Name"), cameraSettings->GetTerminalValue<std::string>("Type"));
         m_sensors.push_back(sensor);
     }
+
+//    this->SetID(params->GetTerminalValue<int>("ID"));
 }
 
 //!
@@ -154,6 +157,7 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
     // TODO: Figure out a better way to check for ROS_EXISTS...the way it is right now, everything
     //          in this NewTopic method would have to check if ROS_EXISTS before calling any ROS specific methods
 
+
     if(topicName == m_PlanningStateTopic.Name())
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_PlanningStateTopic.Name(), senderID);
@@ -182,7 +186,7 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
                 insertVehicleIfNotExist(senderID);
 
                 // Write Attitude data to the GUI:
-                //updateAttitudeData(senderID, component);
+                updateAttitudeData(senderID, component);
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateLocalPositionTopic> component = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
@@ -192,7 +196,7 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
                 insertVehicleIfNotExist(senderID);
 
                 // Write Position data to the GUI:
-                //updatePositionData(senderID, component);
+                updatePositionData(senderID, component);
             }
         }
     }
@@ -222,6 +226,7 @@ void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
         // Add subscriber(s) for vehicle sensor messages
         std::vector<ros::Subscriber> vehicleSensors;
         std::string modelName = "basic_quadrotor_" + vehicleID;
+//        std::string modelName = "basic_quadrotor";
         for(auto sensor : m_sensors) {
 
             std::cout << " ===== SENSOR ===== " << std::endl;
@@ -426,13 +431,13 @@ void ModuleROS::renderEdge(const mace::geometry::Line_2DC &edge) {
 
 void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component)
 {
-    double lat = component->getX();
-    double lng = component->getY();
-    double alt = component->getZ();    
+    double x = component->getX();
+    double y = component->getY();
+    double z = component->getZ();
 
     if(m_vehicleMap.find(vehicleID) != m_vehicleMap.end()) {
         std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple;
-        DataState::StateLocalPosition tmpPos = DataState::StateLocalPosition(component->getCoordinateFrame(), lat, lng, alt);
+        DataState::StateLocalPosition tmpPos = DataState::StateLocalPosition(component->getCoordinateFrame(), x, y, z);
         DataState::StateAttitude tmpAtt = std::get<1>(m_vehicleMap[vehicleID]);
         tmpTuple = std::make_tuple(tmpPos, tmpAtt);
         m_vehicleMap[vehicleID] = tmpTuple;
@@ -448,9 +453,16 @@ void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<D
 //        std::cout << "Update attitude data" << std::endl;
 //    }
 
-    double roll = component->roll * (180/M_PI);
-    double pitch = component->pitch * (180/M_PI);
-    double yaw = (component->yaw * (180/M_PI) < 0) ? (component->yaw * (180/M_PI) + 360) : (component->yaw * (180/M_PI));
+//    double roll = component->roll * (180/M_PI);
+//    double pitch = component->pitch * (180/M_PI);
+//    double yaw = (component->yaw * (180/M_PI) < 0) ? (component->yaw * (180/M_PI) + 360) : (component->yaw * (180/M_PI));
+    double roll = component->roll;
+    double pitch = component->pitch;
+    double yaw = component->yaw;
+
+
+
+//    std::cout << "ROLL: " << roll << " / PITCH: " << pitch << " / YAW: " << yaw << std::endl;
 
     if(m_vehicleMap.find(vehicleID) != m_vehicleMap.end()) {
         std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple;
@@ -465,6 +477,47 @@ void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<D
     sendGazeboModelState(vehicleID);
 }
 
+void ModuleROS::convertToGazeboCartesian(DataState::StateLocalPosition& localPos) {
+
+    switch (localPos.getCoordinateFrame()) {
+    case Data::CoordinateFrameType::CF_GLOBAL:
+        // TODO:
+        break;
+    case Data::CoordinateFrameType::CF_LOCAL_NED:
+        localPos.setZ(-localPos.getZ());
+        break;
+    case Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT:
+        // TODO:
+        break;
+    case Data::CoordinateFrameType::CF_LOCAL_ENU:
+        // TODO:
+        break;
+    case Data::CoordinateFrameType::CF_GLOBAL_INT:
+        // TODO:
+        break;
+    case Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT_INT:
+        // TODO:
+        break;
+    case Data::CoordinateFrameType::CF_LOCAL_OFFSET_NED:
+        // TODO:
+        break;
+    case Data::CoordinateFrameType::CF_BODY_NED:
+        // TODO:
+        break;
+    case Data::CoordinateFrameType::CF_BODY_OFFSET_NED:
+        // TODO:
+        break;
+    case Data::CoordinateFrameType::CF_GLOBAL_TERRAIN_ALT:
+        // TODO:
+        break;
+    case Data::CoordinateFrameType::CF_GLOBAL_TERRAIN_ALT_INT:
+        // TODO:
+        break;
+    default:
+        std::cout << "Unknown coordinate system seen when sending to ROS/Gazebo." << std::endl;
+    }
+}
+
 bool ModuleROS::sendGazeboModelState(const int &vehicleID) {
     // Set up the publisher rate to 10 Hz
     ros::Rate loop_rate(10);
@@ -472,6 +525,8 @@ bool ModuleROS::sendGazeboModelState(const int &vehicleID) {
     // robot state
     DataState::StateLocalPosition tmpLocalPos = std::get<0>(m_vehicleMap[vehicleID]);
     DataState::StateAttitude tmpAtt = std::get<1>(m_vehicleMap[vehicleID]);
+
+    convertToGazeboCartesian(tmpLocalPos);
 
     geometry_msgs::Point robotPosition;
     robotPosition.x  = tmpLocalPos.getPositionX();
@@ -492,6 +547,7 @@ bool ModuleROS::sendGazeboModelState(const int &vehicleID) {
     // Set model state and name:
     gazebo_msgs::ModelState modelState;
     modelState.model_name = "basic_quadrotor_" + std::to_string(vehicleID);
+//    modelState.model_name = "basic_quadrotor";
     modelState.reference_frame = "world";
     modelState.pose = pose;
     m_transform.setOrigin(tf::Vector3(robotPosition.x,robotPosition.y,robotPosition.z));
@@ -502,6 +558,7 @@ bool ModuleROS::sendGazeboModelState(const int &vehicleID) {
     m_srv.request.model_state = modelState;
 
     ros::spinOnce();
+
 
     if(m_client.call(m_srv))
     {

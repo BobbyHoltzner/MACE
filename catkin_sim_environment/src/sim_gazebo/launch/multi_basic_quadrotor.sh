@@ -7,9 +7,9 @@ args=("$@")
 ELEMENTS=${#args[@]} 
 
 # Default values:
-idList=""
-sensorList=$idList
-addSensors="false"
+idList="" # Formatted as: idArr:=[1,2,5] in command. No spaces, comma separated
+sensorList=$idList # Formatted as: sensorArr:=[kinect,kinect,kinect] in command. No spaces, comma separated
+addSensors="true"
 worldName="turtlebot_playground"
 gui="false"
 paused="false"
@@ -20,9 +20,9 @@ rvizRun="false"
 for (( i=0;i<$ELEMENTS;i++)); do 
     IFS='=' read -r var value <<< "${args[${i}]}"
     argCall="${var:0:${#var}-1}"
-#    echo "ARG #" $i
-#    echo "ARG NAME:" $argCall
-#    echo "ARG VALUE:" $value
+    #echo "ARG #" $i
+    #echo "ARG NAME:" $argCall
+    #echo "ARG VALUE:" $value
 
     if [ $argCall = "idArr" ]
 	then
@@ -63,6 +63,7 @@ done
 idArray=(${idList//,/ })
 sensorArray=(${sensorList//,/ })
 
+
 # Before we go any further, if we are adding sensors, first check if the arrays are the same size
 if [ $addSensors = "true" ]
 	then
@@ -82,6 +83,7 @@ fi
 source $MACE_ROOT/catkin_sim_environment/devel/setup.bash
 world_name=$(rospack find sim_gazebo)/worlds/$worldName.world
 xterm -title "World" -hold -e roslaunch sim_gazebo start_world.launch world_name:=$world_name paused:=$paused gui:=$gui &
+
 
 # Loop over vehicles and sensors to spawn each vehicle
 for i in "${!idArray[@]}"

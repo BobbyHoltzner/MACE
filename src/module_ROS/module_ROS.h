@@ -29,6 +29,9 @@
 
 #include "rosTimer.h"
 
+#include <chrono>
+#include <ctime>
+
 
 class MODULE_ROSSHARED_EXPORT ModuleROS : public MaceCore::IModuleCommandROS
 {
@@ -140,6 +143,7 @@ public:
 
     void updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component);
     void updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
+    void convertToGazeboCartesian(DataState::StateLocalPosition& localPos);
     bool sendGazeboModelState(const int &vehicleID);
     void insertVehicleIfNotExist(const int &vehicleID);
 #endif
