@@ -593,7 +593,7 @@ void ModuleVehicleArdupilot::NewTopicData(const std::string &topicName, const Ma
 {
     if(this->m_TopicToControllers.find(topicName) == m_TopicToControllers.cend())
     {
-        throw std::runtime_error("Attempting to send a topic that external link has no knowledge of");
+        throw std::runtime_error("Attempting to send a topic that the vehicle module link has no knowledge of");
     }
 
     Controllers::IController<mavlink_message_t> *controller = m_TopicToControllers.at(topicName);
