@@ -75,32 +75,39 @@ if [ $addSensors = "true" ]
 	    fi
 fi
 
-# Launch roscore:
-#xterm -title "roscore" -hold -e roscore &
 
-
-# Launch world:
+#gnome-terminal --geometry=150x50 --tab --command "bash -c \"echo hello there; exec bash\""
 source $MACE_ROOT/catkin_sim_environment/devel/setup.bash
 world_name=$(rospack find sim_gazebo)/worlds/$worldName.world
-xterm -title "World" -hold -e roslaunch sim_gazebo start_world.launch world_name:=$world_name paused:=$paused gui:=$gui &
 
 
-# Loop over vehicles and sensors to spawn each vehicle
+
+commandString="--tab --command 'roslaunch sim_gazebo start_world.launch world_name:=$world_name paused:=$paused gui:=$gui'"
+
 for i in "${!idArray[@]}"
 do
 	echo " ____________ Launch quad with Vehicle ID = ${idArray[i]} ____________ "
 	echo " ================= with sensor = ${sensorArray[i]} ================= "
-	
-	if [ i != ${#idArray[@]} ]
-	    then
-		xterm -title "Vehicle "${idArray[i]} -hold -e roslaunch sim_gazebo multi_basic_quadrotor.launch vehicle_id:=${idArray[i]} add_sensors:=$addSensors model_name:=${sensorArray[i]} x:=$i &
-	else
-		# WTF is this? Why did I have the same command in the if/else statement?
-		xterm -title "Vehicle "${idArray[i]} -hold -e roslaunch sim_gazebo multi_basic_quadrotor.launch vehicle_id:=${idArray[i]} add_sensors:=$addSensors model_name:=${sensorArray[i]} x:=$i
-	fi
+	tabStr="--tab --command 'roslaunch sim_gazebo multi_basic_quadrotor.launch vehicle_id:=1 add_sensors:=true model_name:=kinect x:=1'"
+	commandString=$commandString$tabStr
 done
 
-# Launch RVIZ, if applicable:
+echo "COMMAND:"
+echo $commandString
+
+
+cmd="gnome-terminal --geometry=150x50 $commandString"
+eval $cmd
+
+#gnome-terminal --geometry=150x50 --tab --command "roslaunch sim_gazebo start_world.launch world_name:=$world_name paused:=$paused gui:=$gui" --tab --command "roslaunch sim_gazebo multi_basic_quadrotor.launch vehicle_id:=1 add_sensors:=true model_name:=kinect x:=1"	
+
+#--tab --command "roslaunch sim_gazebo start_world.launch world_name:=$world_name paused:=$paused gui:=$gui" --tab --command "roslaunch sim_gazebo multi_basic_quadrotor.launch vehicle_id:=1 add_sensors:=true model_name:=kinect x:=1"
+
+			 
+#gnome-terminal --geometry=150x50 "$commandString"
+
+#roslaunch sim_gazebo start_world.launch world_name:=$world_name paused:=$paused gui:=$gui
+#roslaunch sim_gazebo multi_basic_quadrotor.launch vehicle_id:=${idArray[i]} add_sensors:=$addSensors model_name:=${sensorArray[i]} x:=$i
 
 
 
