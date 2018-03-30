@@ -5,7 +5,7 @@
   "description": "NASA GUI for demo",
   "main": "main.js",
   "config": {
-    "port": "8080"
+    "port": "8082"
   },
   "scripts": {
     "version": "electron -v",

@@ -112,3 +112,10 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/ -ldata_interface
 
 INCLUDEPATH += $$PWD/../data_interface_MAVLINK
 DEPENDPATH += $$PWD/../data_interface_MAVLINK
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base_topic/release/ -lbase_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base_topic/debug/ -lbase_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base_topic/ -lbase_topic
+
+INCLUDEPATH += $$PWD/../base_topic
+DEPENDPATH += $$PWD/../base_topic
