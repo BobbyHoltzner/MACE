@@ -31,12 +31,12 @@ protected:
 
     virtual void BuildCommand(const mavlink_command_long_t &message, std::shared_ptr<CommandItem::SpatialTakeoff> data) const
     {
+        data->setTargetSystem(message.target_system);
         if(message.param1 > 0.0)
         {
             data->position->setX(message.param5);
             data->position->setY(message.param6);
         }
-        data->setTargetSystem(message.target_system);
         data->position->setZ(message.param7);
     }
 };

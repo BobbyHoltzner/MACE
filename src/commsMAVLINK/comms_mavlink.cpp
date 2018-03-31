@@ -10,6 +10,11 @@ CommsMAVLINK::~CommsMAVLINK()
 
 }
 
+void CommsMAVLINK::TransmitMAVLINKMessage(const mavlink_message_t &msg)
+{
+    m_LinkMarshaler->SendMAVMessage(m_LinkName,msg);
+}
+
 void CommsMAVLINK::VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
     UNUSED(linkName);

@@ -39,6 +39,8 @@ public:
 
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
 
+    void TransmitMAVLINKMessage(const mavlink_message_t &msg);
+
 protected:
     Comms::CommsMarshaler *m_LinkMarshaler;
     std::string m_LinkName;

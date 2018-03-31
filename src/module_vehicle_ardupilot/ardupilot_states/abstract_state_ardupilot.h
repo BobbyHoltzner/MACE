@@ -9,15 +9,18 @@
 
 #include "ardupilot_hsm.h"
 #include "ardupilot_state_types.h"
-#include "data_interface_MAVLINK/vehicle_object_mavlink.h"
+
+#include "../vehicle_object/ardupilot_vehicle_object.h"
+
+//forward declaration of the class
 
 namespace ardupilot{
 namespace state{
 
-class AbstractStateArdupilot : public hsm::StateWithOwner<DataInterface_MAVLINK::VehicleObject_MAVLINK>
+class AbstractStateArdupilot : public hsm::StateWithOwner<ArdupilotVehicleObject>
 {
 public:
-    AbstractStateArdupilot();
+    AbstractStateArdupilot(const int &timeout = 2000, const int &attempts = 3);
 
     AbstractStateArdupilot(const AbstractStateArdupilot &copy);
 
@@ -72,6 +75,8 @@ protected:
     void clearCommand();
 
 protected:
+    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *controllerQueue;
+
     const AbstractCommandItem* currentCommand;
 
     ArdupilotFlightState currentState;

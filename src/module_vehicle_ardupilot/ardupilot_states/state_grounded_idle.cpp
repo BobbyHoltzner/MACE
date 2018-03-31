@@ -66,7 +66,7 @@ void State_GroundedIdle::Update()
 void State_GroundedIdle::OnEnter()
 {
     //Upon entering this state we should be grounded and disarmed
-
+    
 }
 
 void State_GroundedIdle::OnEnter(const AbstractCommandItem *command)

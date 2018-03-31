@@ -51,7 +51,23 @@ hsm::Transition State_GroundedArming::GetTransition()
 
 void State_GroundedArming::handleCommand(const AbstractCommandItem* command)
 {
-
+    COMMANDITEM commandType = command->getCommandType();
+    switch (commandType) {
+    case COMMANDITEM::CI_ACT_ARM: //This command is to be handled when in this state
+    {
+        MAVLINKVehicleControllers::CommandARM commandArm(this, controllerQueue, Owner().commsLink->m_LinkChan);
+        MaceCore::ModuleCharacteristic target;
+        target.ID = command->getTargetSystem();
+        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MaceCore::ModuleCharacteristic sender;
+        sender.ID = 255;
+        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        commandArm.Send(command->as<CommandItem::ActionArm>(),sender,target);
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 void State_GroundedArming::Update()

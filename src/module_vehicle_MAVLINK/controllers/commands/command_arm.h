@@ -22,14 +22,13 @@ public:
     virtual void FillCommand(const CommandItem::ActionArm &commandItem, mavlink_command_long_t &cmd) const
     {
         cmd.target_system = commandItem.getTargetSystem();
-        throw std::runtime_error("Unsure what to do here. it is a short in MACE (mave_command_short_t), but there is no such in mavlink");
-        //cmd.param = commandItem.getRequestArm();
+        cmd.param1 = commandItem.getRequestArm();
     }
 
     virtual void BuildCommand(const mavlink_command_long_t &message, std::shared_ptr<CommandItem::ActionArm> data) const
     {
-        throw std::runtime_error("Unsure what to do here. it is a short in MACE (mave_command_short_t), but there is no such in mavlink");
-        //data->setVehicleArm(message.param);
+        UNUSED(message);
+        UNUSED(data);
     }
 };
 

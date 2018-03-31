@@ -47,6 +47,7 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
         cmd.base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
         cmd.custom_mode = mode;
     });
+
     m_TopicToControllers.insert({this->m_VehicleTopics.m_CommandSystemMode.Name(), controller_SystemMode});
 
 }
