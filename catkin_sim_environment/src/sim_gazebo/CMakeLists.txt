@@ -7,7 +7,15 @@ project(sim_gazebo)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS 
+    roscpp
+    std_msgs 
+    std_srvs 
+    geometry_msgs 
+    nav_msgs 
+    tf 
+    dynamic_reconfigure
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -43,10 +51,10 @@ find_package(catkin REQUIRED)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
+#add_message_files(
 #   FILES
-#   Message1.msg
-#   Message2.msg
+#   PointCloud2ModelState.msg
+#   PointField.msg
 # )
 
 ## Generate services in the 'srv' folder
@@ -64,10 +72,10 @@ find_package(catkin REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+#generate_messages(
+#  DEPENDENCIES
+#  std_msgs  # Or other packages containing msgs
+#)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -101,7 +109,7 @@ find_package(catkin REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES sim_gazebo
-#  CATKIN_DEPENDS other_catkin_pkg
+#  CATKIN_DEPENDS message_runtime
 #  DEPENDS system_lib
 )
 
