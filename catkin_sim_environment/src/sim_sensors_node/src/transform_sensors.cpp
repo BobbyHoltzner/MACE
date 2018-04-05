@@ -32,8 +32,10 @@ void TransformSensors::laserCallback(const sensor_msgs::LaserScan::ConstPtr &msg
     sensor_msgs::PointCloud2 cloud;
     m_projector->transformLaserScanToPointCloud("world", *msg, cloud, *m_tfBuffer);
 
-    std::cout << "Frame for scan in: " << msg->header.frame_id << std::endl;
-    std::cout << "Frame for cloud out: " << cloud.header.frame_id << std::endl;
+    std::cout << "__Frames__" << std::endl;
+    ROS_WARN("Frame for cloud in: %s", msg->header.frame_id.c_str());
+    ROS_WARN("Frame for cloud out: %s", cloud.header.frame_id.c_str());
+    std::cout << std::endl;
 
     pointCloudPub_laserScan.publish(cloud);
 }
@@ -43,9 +45,6 @@ void TransformSensors::laserCallback(const sensor_msgs::LaserScan::ConstPtr &msg
  */
 void TransformSensors::kinectDepthCallback(const sensor_msgs::PointCloud2::ConstPtr &msg)
 {
-
-    std::cout << "TEST POINT CLOUD CALLBACK: " << msg->header.frame_id << std::endl;
-
     sensor_msgs::PointCloud2 cloud_in, cloud_out;
     cloud_in = *msg;
     geometry_msgs::TransformStamped transformStamped;
@@ -59,20 +58,22 @@ void TransformSensors::kinectDepthCallback(const sensor_msgs::PointCloud2::Const
     **************************************************************** 
     */
 
-    // try
-    // {
-    //     transformStamped = m_tfBuffer->lookupTransform("world", msg->header.frame_id, ros::Time(0), ros::Duration(1));
-    //     // std::cout << transformStamped << std::endl;
-    //     tf2::doTransform(cloud_in, cloud_out, transformStamped);
+    try
+    {
+        transformStamped = m_tfBuffer->lookupTransform("world", msg->header.frame_id, ros::Time(0), ros::Duration(1));
+        // std::cout << transformStamped << std::endl;
+        tf2::doTransform(cloud_in, cloud_out, transformStamped);
 
-    //     std::cout << "Frame for cloud in: " << cloud_in.header.frame_id << std::endl;
-    //     std::cout << "Frame for cloud out: " << cloud_out.header.frame_id << std::endl;
+        std::cout << "__Frames__" << std::endl;
+        ROS_WARN("Frame for cloud in: %s", cloud_in.header.frame_id.c_str());
+        ROS_WARN("Frame for cloud out: %s", cloud_out.header.frame_id.c_str());
+        std::cout << std::endl;
     
-    //     // Publish transformed point cloud:
-    //     pointCloudPub_kinect.publish(cloud_out);
-    // }
-    // catch (tf2::TransformException &ex)
-    // {
-    //     ROS_WARN("%s", ex.what());
-    // }
+        // Publish transformed point cloud:
+        pointCloudPub_kinect.publish(cloud_out);
+    }
+    catch (tf2::TransformException &ex)
+    {
+        ROS_WARN("%s", ex.what());
+    }
 }

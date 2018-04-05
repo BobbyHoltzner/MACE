@@ -25,7 +25,8 @@ int main(int argc, char **argv)
 
     // Setup subcribers
     ros::Subscriber laserSub = nh.subscribe<sensor_msgs::LaserScan>(modelName + "/scan", 500, &TransformSensors::laserCallback, &sensorTF);
-    ros::Subscriber pointCloudSub = nh.subscribe<sensor_msgs::PointCloud2>(modelName + "/kinect/depth/points", 1000, &TransformSensors::kinectDepthCallback, &sensorTF);
+    // Lower queue size because of memory leak (see comment in callback). This will still be an issue as we add more vehicles
+    ros::Subscriber pointCloudSub = nh.subscribe<sensor_msgs::PointCloud2>(modelName + "/kinect/depth/points", 10, &TransformSensors::kinectDepthCallback, &sensorTF);
 
     // Set up the publisher rate to 10 Hz
     ros::Rate loop_rate(10);
