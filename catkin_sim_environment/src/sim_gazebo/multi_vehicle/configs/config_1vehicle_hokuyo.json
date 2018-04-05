@@ -1,0 +1,10 @@
+{
+    "gui": false,
+    "pause": false,
+    "addSensors": true,
+    "worldName": "turtlebot_playground",
+    "rvizRun": false,
+    "vehicles": {
+        "1": "hokuyo_utm30lx"
+    }
+}

@@ -5,8 +5,6 @@
 #include <string>
 #include "transform_sensors.hpp"
 
-#include <typeinfo>
-
 int main(int argc, char **argv)
 {
     // Initialize ROS and name our node "talker"
@@ -25,32 +23,14 @@ int main(int argc, char **argv)
     // TransformSensors object
     TransformSensors sensorTF(modelName);
 
-    // Subscribe to the "scan" topic to listen for any
-    //   messages published on that topic.
-    // Set the buffer to 500 messages
-    // Set the callback to the chatterCallback method
-    ros::Subscriber laserSub = nh.subscribe<sensor_msgs::LaserScan>("/scan", 500, &TransformSensors::laserCallback, &sensorTF);
+    // Setup subcribers
+    ros::Subscriber laserSub = nh.subscribe<sensor_msgs::LaserScan>(modelName + "/scan", 500, &TransformSensors::laserCallback, &sensorTF);
     ros::Subscriber pointCloudSub = nh.subscribe<sensor_msgs::PointCloud2>(modelName + "/kinect/depth/points", 1000, &TransformSensors::kinectDepthCallback, &sensorTF);
-
-    // Publish the "velocity" topic to the turtlebot
-    ros::Publisher velocityPub = nh.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1000);
 
     // Set up the publisher rate to 10 Hz
     ros::Rate loop_rate(10);
 
-    while (ros::ok())
-    {
-        /*
-            TODO:
-                1) If any messages have changed, publish. (May just want to do this in each callback function...)
-        */
-
-        // "Spin" a callback in case we set up any callbacks
-        ros::spinOnce();
-
-        // Sleep for the remaining time until we hit our 10 Hz rate
-        loop_rate.sleep();
-    }
+    ros::spin();
 
     return 0;
 }

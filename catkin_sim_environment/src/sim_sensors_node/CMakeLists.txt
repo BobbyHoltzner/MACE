@@ -8,6 +8,11 @@ find_package(catkin REQUIRED COMPONENTS
 	roscpp
 	geometry_msgs
 	sensor_msgs
+    tf2
+    tf2_ros
+    tf2_msgs
+    tf2_sensor_msgs
+    laser_geometry
 )
 
 ## Declare a catkin package

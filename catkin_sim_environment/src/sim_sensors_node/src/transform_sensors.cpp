@@ -5,10 +5,13 @@
 /**
  * @brief TransfromSensors constructor
  */
-TransformSensors::TransformSensors(std::string modelName) :
-modelName(modelName)
+TransformSensors::TransformSensors(std::string modelName) : modelName(modelName)
 {
     setupPublishers();
+    
+    m_tfBuffer = std::make_shared<tf2_ros::Buffer>();
+    m_tfListener = std::make_shared<tf2_ros::TransformListener>(*m_tfBuffer);
+    m_projector = std::make_shared<laser_geometry::LaserProjection>();
 }
 
 /**
@@ -16,8 +19,9 @@ modelName(modelName)
  */
 void TransformSensors::setupPublishers()
 {
-    pointCloudPub = nh.advertise<sensor_msgs::PointCloud2>("/MACE/" + modelName + "/kinect/depth/points", 1000);
-    laserScanPub = nh.advertise<sensor_msgs::LaserScan>("/MACE/" + modelName + "/scan", 1000);
+    pointCloudPub_laserScan = nh.advertise<sensor_msgs::PointCloud2>("/MACE/" + modelName + "/scan/cloud", 1000);
+    pointCloudPub_kinect = nh.advertise<sensor_msgs::PointCloud2>("/MACE/" + modelName + "/kinect/depth/points", 1000);
+    // laserScanPub = nh.advertise<sensor_msgs::LaserScan>("/MACE/" + modelName + "/scan", 1000);
 }
 
 /**
@@ -25,7 +29,13 @@ void TransformSensors::setupPublishers()
  */
 void TransformSensors::laserCallback(const sensor_msgs::LaserScan::ConstPtr &msg)
 {
-    std::cout << "Ranges size: " << msg->ranges.size() << std::endl;
+    sensor_msgs::PointCloud2 cloud;
+    m_projector->transformLaserScanToPointCloud("world", *msg, cloud, *m_tfBuffer);
+
+    std::cout << "Frame for scan in: " << msg->header.frame_id << std::endl;
+    std::cout << "Frame for cloud out: " << cloud.header.frame_id << std::endl;
+
+    pointCloudPub_laserScan.publish(cloud);
 }
 
 /**
@@ -33,10 +43,23 @@ void TransformSensors::laserCallback(const sensor_msgs::LaserScan::ConstPtr &msg
  */
 void TransformSensors::kinectDepthCallback(const sensor_msgs::PointCloud2::ConstPtr &msg)
 {
-    std::cout << "Point cloud width: " << msg->width << std::endl;
-    std::cout << "Point cloud height: " << msg->height << std::endl;
+    sensor_msgs::PointCloud2 cloud_in, cloud_out;
+    cloud_in = *msg;
+    geometry_msgs::TransformStamped transformStamped;
+    try
+    {
+        transformStamped = m_tfBuffer->lookupTransform("world", msg->header.frame_id, ros::Time(0), ros::Duration(1));
+        // std::cout << transformStamped << std::endl;
+        tf2::doTransform(cloud_in, cloud_out, transformStamped);
 
-    std::cout << "FRAME ID: " << msg->header.frame_id << std::endl;
-
-    // pointCloudPub.publish(msg);
+        std::cout << "Frame for cloud in: " << cloud_in.header.frame_id << std::endl;
+        std::cout << "Frame for cloud out: " << cloud_out.header.frame_id << std::endl;
+    
+        // Publish transformed point cloud:
+        pointCloudPub_kinect.publish(cloud_out);
+    }
+    catch (tf2::TransformException &ex)
+    {
+        ROS_WARN("%s", ex.what());
+    }
 }
