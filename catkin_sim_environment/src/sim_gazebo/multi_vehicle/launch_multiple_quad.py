@@ -37,7 +37,7 @@ if __name__ == '__main__':
         terminal.extend(['--tab', '--command', '''
             bash -c '
             sleep 3
-            roslaunch sim_gazebo multi_basic_quadrotor.launch vehicle_id:={} add_sensors:={} model_name:={} x:={}
+            roslaunch -v sim_gazebo multi_basic_quadrotor.launch vehicle_id:={} add_sensors:={} model_name:={} x:={}
             '
         '''.format(key, add_sensors, value, key) % locals()])
 

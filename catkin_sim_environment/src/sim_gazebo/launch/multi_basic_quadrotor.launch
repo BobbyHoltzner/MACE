@@ -37,7 +37,7 @@
 
   <node
           pkg="transform_sensors"
-          name="transform_sensors"
+          name="transform_sensors_$(arg vehicle_id)"
           type="transform_sensors"
           output="screen"
           args="$(arg vehicle_id)"

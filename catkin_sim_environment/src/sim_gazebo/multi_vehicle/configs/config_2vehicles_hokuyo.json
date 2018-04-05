@@ -5,7 +5,7 @@
     "worldName": "turtlebot_playground",
     "rvizRun": false,
     "vehicles": {
-        "1": "kinect",
-        "2": "kinect"
+        "1": "hokuyo_utm30lx",
+        "2": "hokuyo_utm30lx"
     }
 }
