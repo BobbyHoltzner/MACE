@@ -34,10 +34,10 @@ class GUItoMACE
 {
 private:
 
-    const BaseTopic::VehicleTopics *m_VehicleTopics;
+    BaseTopic::VehicleTopics<false> *m_VehicleTopics;
 public:
-    GUItoMACE(const MaceCore::IModuleCommandGroundStation *ptrRef, const BaseTopic::VehicleTopics *);
-    GUItoMACE(const MaceCore::IModuleCommandGroundStation *ptrRef, const BaseTopic::VehicleTopics *, const QHostAddress &sendAddress, const int &sendPort);
+    GUItoMACE(const MaceCore::IModuleCommandGroundStation *ptrRef, BaseTopic::VehicleTopics<false> *);
+    GUItoMACE(const MaceCore::IModuleCommandGroundStation *ptrRef, BaseTopic::VehicleTopics<false> *, const QHostAddress &sendAddress, const int &sendPort);
 
     ~GUItoMACE();
 

@@ -25,6 +25,10 @@ void Altitude::CreateFromDatagram(const MaceCore::TopicDatagram &datagram) {
     m_Altitude = datagram.GetTerminal<double>("altitude");
 }
 
+Altitude::Altitude()
+{
+
+}
 
 Altitude::Altitude(const Altitude &copyObj) :
     Altitude(copyObj.m_Altitude, copyObj.m_Reference)
@@ -39,6 +43,11 @@ Altitude::Altitude(const double &altitude, const ReferenceAltitude &ref) :
 
 }
 
+
+double Altitude::Value() const
+{
+    return m_Altitude;
+}
 
 } // TopicComponentPrototypes
 

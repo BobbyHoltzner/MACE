@@ -260,8 +260,6 @@ public:
 
 
 
-
-
 template <typename... Args>
 class _Topic;
 
@@ -298,6 +296,8 @@ public:
         return m_TopicName;
     }
 
+
+    virtual TopicCharacteristic Characteristic() const = 0;
 
 
 protected:
@@ -382,7 +382,7 @@ public:
         return true;
     }
 
-    TopicCharacteristic Characterisic() const
+    virtual TopicCharacteristic Characteristic() const
     {
         return TopicCharacteristic(IsSpooled(), _Topic<T...>::m_TopicName);
     }
@@ -391,7 +391,7 @@ public:
 };
 
 template <typename ...T>
-class NonSpooledTopic : public _Topic<T...>
+class  NonSpooledTopic : public _Topic<T...>
 {
 private:
 
@@ -409,7 +409,7 @@ public:
         return _Topic<T...>::m_TopicName;
     }
 
-    TopicCharacteristic Characterisic() const
+    virtual TopicCharacteristic Characteristic() const
     {
         return TopicCharacteristic(IsSpooled(), _Topic<T...>::m_TopicName);
     }

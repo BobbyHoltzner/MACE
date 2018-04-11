@@ -17,6 +17,20 @@ extern const MaceCore::TopicComponentStructure TopicComponts_Altitude_structure;
 
 class Altitude : public TopicComponentPrototypes::Altitude, public Data::NamedTopicComponentDataObject<TopicComponts_Altitude_name, &TopicComponts_Altitude_structure>
 {
+private:
+
+
+
+public:
+    virtual MaceCore::TopicDatagram GenerateDatagram() const;
+    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
+
+    Altitude();
+
+    Altitude(const double &altitude, const ReferenceAltitude &ref);
+
+    Altitude(const Altitude &copyObj);
+
 };
 
 

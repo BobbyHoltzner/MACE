@@ -16,6 +16,17 @@ extern const MaceCore::TopicComponentStructure TopicComponts_LocalPosition_struc
 
 class LocalPosition : public TopicComponentPrototypes::PositionCartesian3D, public Data::NamedTopicComponentDataObject<TopicComponts_LocalPosition_name, &TopicComponts_LocalPosition_structure>
 {
+private:
+
+
+
+public:
+    virtual MaceCore::TopicDatagram GenerateDatagram() const;
+    virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
+
+    LocalPosition(const double &x, const double &y, const double &z, const ReferenceCartesian &ref);
+
+    LocalPosition(const LocalPosition &copyObj);
 };
 
 

@@ -11,6 +11,8 @@ T CopyCommandAndInsertTarget(const CommandItem::AbstractCommandItem &item, int t
     return cpy;
 }
 
+static const std::string CONTROLLER_NAME_SYSTEMMODE = "controller_SystemMode";
+
 
 //ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 //    ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>(),
@@ -22,7 +24,7 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
 
 
-    auto controller_SystemMode = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequest<
+    auto controller = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequest<
             mavlink_message_t,
             MaceCore::TopicDatagram,
             mavlink_set_mode_t,
@@ -34,10 +36,10 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
                 mavlink_msg_set_mode_encode_chan,
                 mavlink_msg_command_ack_decode
             );
-    controller_SystemMode->FillSetObject([this](const MaceCore::TopicDatagram &commandItem, const MaceCore::ModuleCharacteristic &target, mavlink_set_mode_t &cmd)
+    controller->FillSetObject([this](const MaceCore::TopicDatagram &commandItem, const MaceCore::ModuleCharacteristic &target, mavlink_set_mode_t &cmd)
     {
         std::shared_ptr<Data::TopicComponents::String> component = std::make_shared<Data::TopicComponents::String>();
-        this->m_VehicleTopics.m_CommandSystemMode.GetComponent(commandItem, component);
+        m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_SystemMode>()->GetComponent(commandItem, component);
 
 
         DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleFlightMode.get();
@@ -47,7 +49,60 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
         cmd.base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
         cmd.custom_mode = mode;
     });
-    m_TopicToControllers.insert({this->m_VehicleTopics.m_CommandSystemMode.Name(), controller_SystemMode});
+    m_ControllersCreated.insert({CONTROLLER_NAME_SYSTEMMODE, controller});
+
+
+    m_VehicleTopics.AddConsumptionAction<BaseTopic::VehicleTopicsNames::CommandName_SystemMode>([this](const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target){
+        Controllers::IActionSend<MaceCore::TopicDatagram> *sendAction = dynamic_cast<Controllers::IActionSend<MaceCore::TopicDatagram>*>(m_ControllersCreated.at(CONTROLLER_NAME_SYSTEMMODE));
+        sendAction->Send(data, sender, this->GetCharacteristic());
+    });
+
+    m_VehicleTopics.AddConsumptionAction<BaseTopic::VehicleTopicsNames::CommandName_Takeoff>([this](const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target){
+
+        //TEMPORARY until takeoff controller is added
+        CommandItem::SpatialTakeoff command;
+        command.setTargetSystem(target().ID);
+        command.setOriginatingSystem(sender.ID);
+
+        std::vector<std::string> Topics = data.ListNonTerminals();
+
+        Base3DPosition pos;
+        if(Topics.at(0) == Data::TopicComponents::Altitude::Name())
+        {
+            std::shared_ptr<Data::TopicComponents::Altitude> component = std::make_shared<Data::TopicComponents::Altitude>();
+            m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_Takeoff>()->GetComponent(component, data);
+
+            pos.setZ(component->Value());
+        }
+        else {
+            throw std::runtime_error("Unknown data component in TopicDatagram");
+        }
+        command.setPosition(pos);
+
+        Command_VehicleTakeoff(command, sender);
+    });
+
+
+    m_VehicleTopics.AddConsumptionAction<BaseTopic::VehicleTopicsNames::CommandName_Land>([this](const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target){
+
+        //TEMPORARY until takeoff controller is added
+        CommandItem::SpatialLand command;
+        command.setTargetSystem(target().ID);
+        command.setOriginatingSystem(sender.ID);
+
+        std::vector<std::string> Topics = data.ListNonTerminals();
+
+        Base3DPosition pos;
+        if(Topics.at(0) == Data::TopicComponents::Void::Name())
+        {
+        }
+        else {
+            throw std::runtime_error("Unknown data component in TopicDatagram");
+        }
+        command.setPosition(pos);
+
+        Command_Land(command, sender);
+    });
 
 }
 
@@ -196,7 +251,9 @@ void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
     ptr->Subscribe(this, m_VehicleMissionTopic.Name());
 
-    ptr->Subscribe(this, this->m_VehicleTopics.m_CommandSystemMode.Name());
+    ptr->Subscribe(this, m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_SystemMode>()->Name());
+    ptr->Subscribe(this, m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_Takeoff>()->Name());
+    ptr->Subscribe(this, m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_Land>()->Name());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -590,6 +647,10 @@ void ModuleVehicleArdupilot::PublishVehicleData(const int &systemID, const std::
 //!
 void ModuleVehicleArdupilot::NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
+    m_VehicleTopics.ConsumeAction(topicName.c_str(), sender, data, target);
+
+    /*
+
     if(this->m_TopicToControllers.find(topicName) == m_TopicToControllers.cend())
     {
         throw std::runtime_error("Attempting to send a topic that external link has no knowledge of");
@@ -605,6 +666,7 @@ void ModuleVehicleArdupilot::NewTopicData(const std::string &topicName, const Ma
     }
     Controllers::IActionSend<MaceCore::TopicDatagram> *sendAction = dynamic_cast<Controllers::IActionSend<MaceCore::TopicDatagram>*>(controller);
     sendAction->Send(data, sender, this->GetCharacteristic());
+    */
 }
 
 

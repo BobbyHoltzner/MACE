@@ -30,9 +30,7 @@ SOURCES += \
     iterators/grid_map_iterator.cpp \
     iterators/polygon_map_iterator.cpp \
     iterators/circle_map_iterator.cpp \
-    iterators/generic_map_iterator.cpp \
-    dynamic_2D_grid.tpp
-
+    iterators/generic_map_iterator.cpp
 HEADERS +=\
         maps_global.h \
     dynamic_2D_grid.h \
@@ -42,7 +40,9 @@ HEADERS +=\
     iterators/polygon_map_iterator.h \
     iterators/circle_map_iterator.h \
     iterators/grid_map_iterator.h \
-    iterators/generic_map_iterator.h
+    iterators/generic_map_iterator.h \
+    dynamic_2D_grid.tpp
+
 
 #Header file copy
 headers_maps.path    = $$(MACE_ROOT)/include/maps
@@ -51,7 +51,8 @@ headers_maps.files   += \
         bounded_2D_grid.h \
         data_2d_grid.h \
         dynamic_2D_grid.h \
-        maps_global.h
+        maps_global.h \
+        dynamic_2D_grid.tpp
 INSTALLS       += headers_maps
 
 #Header file copy

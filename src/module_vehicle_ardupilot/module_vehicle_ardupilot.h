@@ -303,11 +303,11 @@ private:
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;
 
-    BaseTopic::VehicleTopics m_VehicleTopics;
+    BaseTopic::VehicleTopics<false> m_VehicleTopics;
 
     Ardupilot_GeneralController* m_AircraftController;
 
-    std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> m_TopicToControllers;
+    std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> m_ControllersCreated;
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H

@@ -56,7 +56,7 @@ ModuleExternalLink::ModuleExternalLink() :
     controller_SystemMode2->FillSetObject([this](const MaceCore::TopicDatagram &commandItem, const MaceCore::ModuleCharacteristic &target, mace_command_system_mode_t &cmd)
     {
         std::shared_ptr<Data::TopicComponents::String> component = std::make_shared<Data::TopicComponents::String>();
-        this->m_VehicleTopics.m_CommandSystemMode.GetComponent(commandItem, component);
+        m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_SystemMode>()->GetComponent(commandItem, component);
 
         strcpy(cmd.mode, component->Str().c_str());
         cmd.target_system = target.ID;
@@ -66,16 +66,16 @@ ModuleExternalLink::ModuleExternalLink() :
         std::shared_ptr<Data::TopicComponents::String> component = std::make_shared<Data::TopicComponents::String>(std::string(msg.mode));
 
         data = std::make_shared<MaceCore::TopicDatagram>();
-        this->m_VehicleTopics.m_CommandSystemMode.SetComponent(component, *data);
+        m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_SystemMode>()->SetComponent(component, *data);
 
         ack.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
     });
     controller_SystemMode2->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<MaceCore::TopicDatagram> &command){
         ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(this, this->m_VehicleTopics.m_CommandSystemMode.Name(), sender, MaceCore::TIME(), *command);
+            ptr->NewTopicDataValues(this, m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_SystemMode>()->Name(), sender, MaceCore::TIME(), *command);
         });
     });
-    m_TopicToControllers.insert({this->m_VehicleTopics.m_CommandSystemMode.Name(), controller_SystemMode2});
+    m_TopicToControllers.insert({m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_SystemMode>()->Name(), controller_SystemMode2});
 
 
 
@@ -137,9 +137,9 @@ std::vector<MaceCore::TopicCharacteristic> ModuleExternalLink::GetEmittedTopics(
 {
     std::vector<MaceCore::TopicCharacteristic> topics;
 
-    topics.push_back(this->m_VehicleDataTopic.Characterisic());
-    topics.push_back(this->m_MissionDataTopic.Characterisic());
-    topics.push_back(this->m_VehicleTopics.m_CommandSystemMode.Characterisic());
+    topics.push_back(this->m_VehicleDataTopic.Characteristic());
+    topics.push_back(this->m_MissionDataTopic.Characteristic());
+    topics.push_back(m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_SystemMode>()->Characteristic());
 
     return topics;
 }
@@ -153,7 +153,7 @@ void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
     ptr->Subscribe(this, m_MissionDataTopic.Name());
 
-    ptr->Subscribe(this, m_VehicleTopics.m_CommandSystemMode.Name());
+    ptr->Subscribe(this, m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_SystemMode>()->Name());
 }
 
 //!

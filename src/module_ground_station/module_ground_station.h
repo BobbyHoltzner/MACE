@@ -167,7 +167,7 @@ private:
     //!
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 
-    BaseTopic::VehicleTopics m_VehicleTopics;
+    BaseTopic::VehicleTopics<false> m_VehicleTopics;
 
     // ============================================================================= //
     // ================================== Loggers ================================== //

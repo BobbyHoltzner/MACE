@@ -23,9 +23,13 @@ public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
+    Altitude();
+
     Altitude(const double &altitude, const ReferenceAltitude &ref);
 
     Altitude(const Altitude &copyObj);
+
+    double Value() const;
 };
 
 

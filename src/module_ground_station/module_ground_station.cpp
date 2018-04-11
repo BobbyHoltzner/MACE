@@ -102,9 +102,11 @@ std::vector<MaceCore::TopicCharacteristic> ModuleGroundStation::GetEmittedTopics
 {
     std::vector<MaceCore::TopicCharacteristic> topics;
 
-    topics.push_back(this->m_VehicleTopics.m_CommandLand.Characterisic());
-    topics.push_back(this->m_VehicleTopics.m_CommandSystemMode.Characterisic());
-    topics.push_back(this->m_VehicleTopics.m_CommandTakeoff.Characterisic());
+
+
+    topics.push_back(this->m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_Land>()->Characteristic());
+    topics.push_back(this->m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_Takeoff>()->Characteristic());
+    topics.push_back(this->m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_SystemMode>()->Characteristic());
 
     return topics;
 }
