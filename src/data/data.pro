@@ -25,7 +25,10 @@ SOURCES += \
     topic_prototypes/position_cartesian_3d.cpp \
     topic_components/topic_component_string.cpp \
     topic_components/topic_component_void.cpp \
-    topic_components/mission_key.cpp
+    topic_components/mission_key.cpp \
+    topic_components/topic_component_boolean.cpp \
+    topic_components/topic_component_enum.cpp \
+    topic_components/topic_component_vector.cpp
 
 HEADERS += data_global.h \
     i_topic_component_data_object.h \
@@ -61,7 +64,10 @@ HEADERS += data_global.h \
     topic_components/topic_component_void.h \
     topic_components/mission_key.h \
     mission_type.h \
-    mission_state.h
+    mission_state.h \
+    topic_components/topic_component_boolean.h \
+    topic_components/topic_component_enum.h \
+    topic_components/topic_component_vector.h
     loiter_direction.h
 
 # Unix lib Install

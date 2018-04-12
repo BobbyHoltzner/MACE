@@ -8,7 +8,7 @@ namespace TopicComponents
 {
 
 
-const char TopicComponts_String_name[] = "void";
+const char TopicComponts_String_name[] = "string";
 const MaceCore::TopicComponentStructure TopicComponts_String_structure = []{
     MaceCore::TopicComponentStructure structure;
 

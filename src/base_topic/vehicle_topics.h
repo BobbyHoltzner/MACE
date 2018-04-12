@@ -11,6 +11,8 @@
 #include "data/topic_components/position_local.h"
 #include "data/topic_components/topic_component_string.h"
 #include "data/topic_components/topic_component_void.h"
+#include "data/topic_components/topic_component_enum.h"
+#include "data/topic_components/topic_component_boolean.h"
 
 #include <functional>
 
@@ -35,10 +37,23 @@ namespace VehicleTopicsNames {
     static constexpr char CommandName_SystemMode[] = "command_systemMode";
 }
 
+enum EnumMissionCommandAction
+{
+    START,
+    PAUSE,
+    RESUME
+};
+
 namespace VehicleTopicsTypes {
     using Topic_Takeoff = MaceCore::NonSpooledTopic<Data::TopicComponents::Void, Data::TopicComponents::Altitude, Data::TopicComponents::PositionGlobal, Data::TopicComponents::LocalPosition>;
     using Topic_Land = MaceCore::NonSpooledTopic<Data::TopicComponents::Void, Data::TopicComponents::PositionGlobal, Data::TopicComponents::LocalPosition>;
     using Topic_SystemMode = MaceCore::NonSpooledTopic<Data::TopicComponents::String>;
+
+    using Topic_RTL = MaceCore::NonSpooledTopic<Data::TopicComponents::Void>;
+    using Topic_Sync = MaceCore::NonSpooledTopic<Data::TopicComponents::Void>;
+    using Topic_MissionCommandAction = MaceCore::NonSpooledTopic<Data::TopicComponents::Enum<EnumMissionCommandAction>>;
+    using Topic_Arm = MaceCore::NonSpooledTopic<Data::TopicComponents::Boolean>;
+    using Topic_GlobalPos = MaceCore::NonSpooledTopic<Data::TopicComponents::PositionGlobal>;
 }
 
 

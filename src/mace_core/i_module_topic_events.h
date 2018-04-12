@@ -23,6 +23,15 @@ public:
     virtual void Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &entityIDs = {}, const std::vector<std::string> &components = {}) = 0;
 
 
+    //!
+    //! \brief Publish a new topic to MACE to distribute to all other modules
+    //! \param moduleFrom
+    //! \param topicName
+    //! \param sender
+    //! \param time
+    //! \param value
+    //! \param target
+    //!
     virtual void NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const ModuleCharacteristic &sender, const TIME &time, const TopicDatagram &value, const OptionalParameter<ModuleCharacteristic> &target = OptionalParameter<ModuleCharacteristic>()) = 0;
 
     //!
