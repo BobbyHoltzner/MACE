@@ -3,6 +3,7 @@
 
 void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
 
+    uint8_t systemID = msg->sysid;
     ///////////////////////////////////////////////////////////////////////////////
     /// VEHICLE DATA ITEMS: The following contain information about the direct
     /// state of the vehicle. Each are used in a comparitive operation to
@@ -118,8 +119,6 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
     }
     case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
     {
-        state->performCallback();
-
         //This is message definition 33
         //The filtered global position (e.g. fused GPS and accelerometers). The position is in GPS-frame (right-handed, Z-up). It is designed as scaled integer message since the resolution of float is not sufficient.
         mavlink_global_position_int_t decodedMSG;
@@ -238,41 +237,6 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         /// MISSION ITEMS: The following case statements are executed
         /// for mission based message events.
         /////////////////////////////////////////////////////////////////////////
-
-    case MAVLINK_MSG_ID_COMMAND_ACK:
-    {
-        mavlink_command_ack_t decodedMSG;
-        mavlink_msg_command_ack_decode(msg,&decodedMSG);
-        this->m_CommandController->receivedCommandACK(decodedMSG);
-        if(this->m_CB != NULL)
-            this->m_CB->cbi_VehicleCommandACK(systemID,decodedMSG);
-        break;
-    }
-
-
-        /////////////////////////////////////////////////////////////////////////
-        /// MISSION ITEMS: The following case statements are executed
-        /// for mission based message events.
-        /////////////////////////////////////////////////////////////////////////
-
-    case MAVLINK_MSG_ID_MISSION_ITEM:
-    {
-        //This is message definition 39
-        //Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). See also http://qgroundcontrol.org/mavlink/waypoint_protocol.
-        mavlink_mission_item_t decodedMSG;
-        mavlink_msg_mission_item_decode(msg,&decodedMSG);
-        this->m_MissionController->recievedMissionItem(decodedMSG);
-        break;
-    }
-    case MAVLINK_MSG_ID_MISSION_REQUEST:
-    {
-        //This is message definition 40
-        //Request the information of the mission item with the sequence number seq. The response of the system to this message should be a MISSION_ITEM message. http://qgroundcontrol.org/mavlink/waypoint_protocol
-        mavlink_mission_request_t decodedMSG;
-        mavlink_msg_mission_request_decode(msg,&decodedMSG);
-        this->m_MissionController->transmitMissionItem(decodedMSG);
-        break;
-    }
     case MAVLINK_MSG_ID_MISSION_CURRENT:
     {
         //This is message definition 42
@@ -280,38 +244,28 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         mavlink_mission_current_t decodedMSG;
         mavlink_msg_mission_current_decode(msg,&decodedMSG);
 
-        MissionItem::MissionItemCurrent current;
-        current.setMissionKey(mission->getCurrentAutoMissionKey());
-        current.setMissionCurrentIndex(decodedMSG.seq);
+//        MissionItem::MissionItemCurrent current;
+//        current.setMissionKey(mission->getCurrentAutoMissionKey());
+//        current.setMissionCurrentIndex(decodedMSG.seq);
 
-        if(mission->missionItemCurrent.set(current))
-        {
-            if(decodedMSG.seq == 0)
-            {
-                //the current target is home and we should handle this differently
-            }
-            else{
-                int currentIndex = decodedMSG.seq - 1;
+//        if(mission->missionItemCurrent.set(current))
+//        {
+//            if(decodedMSG.seq == 0)
+//            {
+//                //the current target is home and we should handle this differently
+//            }
+//            else{
+//                int currentIndex = decodedMSG.seq - 1;
 
-                MissionItem::MissionItemCurrent current;
-                current.setMissionKey(mission->getCurrentAutoMissionKey());
-                current.setMissionCurrentIndex(currentIndex);
+//                MissionItem::MissionItemCurrent current;
+//                current.setMissionKey(mission->getCurrentAutoMissionKey());
+//                current.setMissionCurrentIndex(currentIndex);
 
-                if(this->m_CB != NULL)
-                    m_CB->cbi_VehicleMissionItemCurrent(current);
-            }
-        }
+//                if(this->m_CB != NULL)
+//                    m_CB->cbi_VehicleMissionItemCurrent(current);
+//            }
+//        }
 
-        break;
-    }
-    case MAVLINK_MSG_ID_MISSION_COUNT:
-    {
-        //This is message definition 44
-        //This message is emitted as response to MISSION_REQUEST_LIST by the MAV and to initiate a write transaction.
-        //The GCS can then request the individual mission item based on the knowledge of the total number of MISSION
-        mavlink_mission_count_t decodedMSG;
-        mavlink_msg_mission_count_decode(msg,&decodedMSG);
-        this->m_MissionController->receivedMissionCount(decodedMSG);
         break;
     }
     case MAVLINK_MSG_ID_MISSION_ITEM_REACHED:
@@ -319,39 +273,27 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         //This is message definition 46
         //A certain mission item has been reached. The system will either hold this position (or circle on the orbit) or
         //(if the autocontinue on the WP was set) continue to the next MISSION.
-        mavlink_mission_item_reached_t decodedMSG;
-        mavlink_msg_mission_item_reached_decode(msg,&decodedMSG);
-        int missionIndex = decodedMSG.seq - 1; //transforms the reference away from mavlink to MACE
+//        mavlink_mission_item_reached_t decodedMSG;
+//        mavlink_msg_mission_item_reached_decode(msg,&decodedMSG);
+//        int missionIndex = decodedMSG.seq - 1; //transforms the reference away from mavlink to MACE
 
-        if(missionIndex >= 0)
-        {
-            MissionItem::MissionItemAchieved itemAchieved;
-            itemAchieved.setMissionKey(mission->getCurrentAutoMissionKey());
-            itemAchieved.setMissionAchievedIndex(missionIndex);
+//        if(missionIndex >= 0)
+//        {
+//            MissionItem::MissionItemAchieved itemAchieved;
+//            itemAchieved.setMissionKey(mission->getCurrentAutoMissionKey());
+//            itemAchieved.setMissionAchievedIndex(missionIndex);
 
-            if(mission->missionItemReached.set(itemAchieved))
-            {
-                std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>(itemAchieved);
-                if(this->m_CB != NULL)
-                    m_CB->cbi_VehicleMissionData(systemID,ptrMissionTopic);
-            }
-        }
-        else{
-            //we have reached the home position, should we do anything here?
-        }
+//            if(mission->missionItemReached.set(itemAchieved))
+//            {
+//                std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>(itemAchieved);
+//                if(this->m_CB != NULL)
+//                    m_CB->cbi_VehicleMissionData(systemID,ptrMissionTopic);
+//            }
+//        }
+//        else{
+//            //we have reached the home position, should we do anything here?
+//        }
 
-        break;
-    }
-    case MAVLINK_MSG_ID_MISSION_ACK:
-    {
-        //This is message definition 47
-        //Ack message during MISSION handling. The type field states if this message is a positive ack (type=0) or if an error happened (type=non-zero).
-        mavlink_mission_ack_t decodedMSG;
-        mavlink_msg_mission_ack_decode(msg,&decodedMSG);
-        if(this->m_MissionController->getCommsState() == Data::ControllerCommsState::TRANSMITTING)
-            this->m_MissionController->receivedMissionACK(decodedMSG);
-        else if(this->m_GuidedController->getCommsState() == Data::ControllerCommsState::TRANSMITTING)
-            this->m_GuidedController->receivedMissionACK(decodedMSG);
         break;
     }
     case MAVLINK_MSG_ID_HOME_POSITION:
@@ -363,17 +305,17 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         //while the q parameter encodes the orientation of the surface. Under normal conditions it describes the heading and terrain slope, which can
         //be used by the aircraft to adjust the approach. The approach 3D vector describes the point to which the system should fly in normal flight
         //mode and then perform a landing sequence along the vector.
-        mavlink_home_position_t decodedMSG;
-        mavlink_msg_home_position_decode(msg,&decodedMSG);
+//        mavlink_home_position_t decodedMSG;
+//        mavlink_msg_home_position_decode(msg,&decodedMSG);
 
-        CommandItem::SpatialHome spatialHome;
-        spatialHome.position->setX(decodedMSG.latitude / pow(10,7));
-        spatialHome.position->setY(decodedMSG.longitude / pow(10,7));
-        spatialHome.position->setZ(decodedMSG.altitude / 1000);
-        spatialHome.setOriginatingSystem(systemID);
-        mission->home.set(spatialHome);
-        if(this->m_CB)
-            this->cbiMissionController_ReceviedHome(spatialHome);
+//        CommandItem::SpatialHome spatialHome;
+//        spatialHome.position->setX(decodedMSG.latitude / pow(10,7));
+//        spatialHome.position->setY(decodedMSG.longitude / pow(10,7));
+//        spatialHome.position->setZ(decodedMSG.altitude / 1000);
+//        spatialHome.setOriginatingSystem(systemID);
+//        mission->home.set(spatialHome);
+//        if(this->m_CB)
+//            this->cbiMissionController_ReceviedHome(spatialHome);
         break;
     }
 

@@ -24,6 +24,7 @@
 
 #include "ardupilot_states/ardupilot_hsm.h"
 #include "ardupilot_states/state_components.h"
+#include "vehicle_object/ardupilot_vehicle_object.h"
 
 //__________________
 #include "data_interface_MAVLINK/callback_interface_data_mavlink.h"
@@ -298,7 +299,7 @@ private:
     std::shared_ptr<spdlog::logger> mLogs;
 
 private:
-    std::shared_ptr<DataInterface_MAVLINK::VehicleObject_MAVLINK> vehicleData;
+    std::shared_ptr<ArdupilotVehicleObject> vehicleData;
 
 private:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;

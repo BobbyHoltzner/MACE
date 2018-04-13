@@ -1,6 +1,7 @@
 #include "ardupilot_vehicle_object.h"
 
-ArdupilotVehicleObject::ArdupilotVehicleObject()
+ArdupilotVehicleObject::ArdupilotVehicleObject():
+    MavlinkVehicleObject()
 {
 
 }

@@ -498,7 +498,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     {
         createLog(systemID);
         //this is the first time we have seen this heartbeat or the data was destroyed for some reason
-        vehicleData = std::make_shared<DataInterface_MAVLINK::VehicleObject_MAVLINK>(this->loggingPath,systemID,255);
+        vehicleData = std::make_shared<ArdupilotVehicleObject>();
         vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
         vehicleData->connectCallback(this);
 
