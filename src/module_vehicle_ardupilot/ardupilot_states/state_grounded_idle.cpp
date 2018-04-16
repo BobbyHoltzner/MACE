@@ -75,10 +75,7 @@ void State_GroundedIdle::OnEnter(const AbstractCommandItem *command)
 
     if(command != nullptr)
     {
-        Owner().issueNewGalilState(ECMStateToString(ECMState::STATE_TOUCHOFF));
-        Request_TellVariablePtr request = std::make_shared<Request_TellVariable>("Touchoff Status","touchst");
-        Owner().issueGalilAddPollingRequest(request);
-        this->handleCommand(command);
+
     }
     else{
         this->OnEnter();

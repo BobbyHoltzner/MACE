@@ -1,5 +1,5 @@
-#ifndef ARDUPILOT_COMPONENT_FLIGHT_MODE_OLD_H
-#define ARDUPILOT_COMPONENT_FLIGHT_MODE_OLD_H
+#ifndef ARDUPILOT_COMPONENT_FLIGHT_MODE_H
+#define ARDUPILOT_COMPONENT_FLIGHT_MODE_H
 
 
 #include <iostream>
@@ -12,10 +12,7 @@
 
 #include "data_generic_item_topic/data_generic_item_topic_flightmode.h"
 
-namespace DataARDUPILOT
-{
-
-class ARDUPILOTComponent_FlightMode : public DataGenericItemTopic::DataGenericItemTopic_FlightMode
+class ARDUPILOTComponent_FlightMode
 {
     enum class Arducopter_FM {
         ACFM_STABILIZE =     0,  // manual airframe angle with manual throttle
@@ -124,6 +121,4 @@ private:
     std::map<int,std::string> availableFM;
 };
 
-} //end of namespace DataArdupilot
-
-#endif // ARDUPILOT_COMPONENT_FLIGHT_MODE_OLD_H
+#endif // ARDUPILOT_COMPONENT_FLIGHT_MODE_H

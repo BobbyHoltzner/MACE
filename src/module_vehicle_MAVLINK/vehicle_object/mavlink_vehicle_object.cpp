@@ -1,18 +1,20 @@
 #include "mavlink_vehicle_object.h"
 
-MavlinkVehicleObject::MavlinkVehicleObject(CommsMAVLINK *commsObj)
+MavlinkVehicleObject::MavlinkVehicleObject(CommsMAVLINK *commsObj, const int &ID):
+    m_CB(nullptr), mavlinkID(ID)
 {
     this->commsLink = commsObj;
 
     controllerQueue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>(2000, 3);
-
-    //inside this object we should construct any of the controllers that are required across all states of the vehicle
-
-//    m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKVehicleControllers::CommandLand>(this, queue, m_LinkChan));
-//    m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKVehicleControllers::CommandTakeoff>(this, queue, m_LinkChan));
-//    m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKVehicleControllers::CommandARM>(this, queue, m_LinkChan));
-//    m_Controllers.Add(Helper_CreateAndSetUp<MAVLINKVehicleControllers::CommandRTL>(this, queue, m_LinkChan));
-//    m_Controllers.Retreive<MAVLINKVehicleControllers::CommandRTL>().
-
+    state = new StateData_MAVLINK();
 }
 
+int MavlinkVehicleObject::getMAVLINKID() const
+{
+    return this->mavlinkID;
+}
+
+CommsMAVLINK* MavlinkVehicleObject::getCommsObject() const
+{
+    return this->commsLink;
+}

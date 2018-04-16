@@ -41,6 +41,10 @@ public:
 
     void TransmitMAVLINKMessage(const mavlink_message_t &msg);
 
+    uint8_t getLinkChannel() const;
+
+    std::string getLinkName() const;
+
 protected:
     Comms::CommsMarshaler *m_LinkMarshaler;
     std::string m_LinkName;

@@ -23,7 +23,7 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleFuel.set(battery))
         {
             std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> ptrBattery = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>(battery);
-            if(this->m_CB != NULL)
+            if(this->m_CB)
                 this->m_CB->cbi_VehicleStateData(systemID,ptrBattery);
         }
         break;
@@ -73,7 +73,7 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleGPSStatus.set(gpsItem))
         {
             std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPSStatus = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(gpsItem);
-            if(this->m_CB != NULL)
+            if(this->m_CB)
                 this->m_CB->cbi_VehicleStateData(systemID,ptrGPSStatus);
         }
 
@@ -92,7 +92,7 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleAttitude.set(attitude))
         {
             std::shared_ptr<DataStateTopic::StateAttitudeTopic> ptrAttitude = std::make_shared<DataStateTopic::StateAttitudeTopic>(attitude);
-            if(this->m_CB != NULL)
+            if(this->m_CB)
                 this->m_CB->cbi_VehicleStateData(systemID,ptrAttitude);
         }
         break;
@@ -112,7 +112,7 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleLocalPosition.set(localPosition))
         {
             std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(localPosition);
-            if(this->m_CB != NULL)
+            if(this->m_CB)
                 this->m_CB->cbi_VehicleStateData(systemID,ptrLocalPosition);
         }
         break;
@@ -131,7 +131,7 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleGlobalPosition.set(position))
         {
             std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> ptrPosition = std::make_shared<DataStateTopic::StateGlobalPositionTopic>(position);
-            if(this->m_CB != NULL)
+            if(this->m_CB)
                 this->m_CB->cbi_VehicleStateData(systemID,ptrPosition);
         }
 
@@ -143,7 +143,7 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleGlobalPositionEx.set(positionEx))
         {
             std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> ptrPositionEx = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>(positionEx);
-            if(this->m_CB != NULL)
+            if(this->m_CB)
                 this->m_CB->cbi_VehicleStateData(systemID,ptrPositionEx);
         }
         break;
@@ -162,7 +162,7 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         if(state->vehicleAirspeed.set(airspeed))
         {
             std::shared_ptr<DataStateTopic::StateAirspeedTopic> ptrAirspeedTopic = std::make_shared<DataStateTopic::StateAirspeedTopic>(airspeed);
-            if(this->m_CB != NULL)
+            if(this->m_CB)
                 this->m_CB->cbi_VehicleStateData(systemID,ptrAirspeedTopic);
         }
         break;
@@ -228,7 +228,7 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         state->vehicleTextAlert.set(statusText);
 
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> ptrStatusText = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>(statusText);
-        if(this->m_CB != NULL)
+        if(this->m_CB)
             this->m_CB->cbi_VehicleStateData(systemID,ptrStatusText);
         break;
     }

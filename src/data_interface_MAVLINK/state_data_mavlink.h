@@ -1,5 +1,5 @@
-#ifndef STATE_DATA_MAVLINK_H
-#define STATE_DATA_MAVLINK_H
+#ifndef STATE_DATA_MAVLINK_OLD_H
+#define STATE_DATA_MAVLINK_OLD_H
 
 #include "data/data_get_set_notifier.h"
 
@@ -48,4 +48,4 @@ private:
 };
 
 } //end of namespace DataInterface_MAVLINK
-#endif // STATE_DATA_MAVLINK_H
+#endif // STATE_DATA_MAVLINK_OLD_H

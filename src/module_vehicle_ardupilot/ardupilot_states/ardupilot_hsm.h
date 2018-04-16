@@ -1200,7 +1200,7 @@ inline State* StateMachine::GetStateAtDepth(size_t depth, StateTypeId stateType)
 
 inline State* StateMachine::getCurrentState()
 {
-   return this->GetStateAtDepth(0);
+   return this->GetStateAtDepth(mStateStack.size() - 1);
 }
 
 inline State* StateMachine::GetOuterState(StateTypeId stateType, size_t startDepth)

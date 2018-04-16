@@ -36,9 +36,13 @@ public:
 class MavlinkVehicleObject : public Controllers::IMessageNotifier<mavlink_message_t>
 {
 public:
-    MavlinkVehicleObject(CommsMAVLINK *commsObj);
+    MavlinkVehicleObject(CommsMAVLINK *commsObj, const int &ID = 1);
 
     ~MavlinkVehicleObject() = default;
+
+    int getMAVLINKID() const;
+
+    CommsMAVLINK* getCommsObject() const;
 
     void connectCallback(CallbackInterface_MAVLINKVehicleObject *cb)
     {
@@ -62,6 +66,8 @@ public:
     StateData_MAVLINK *state;
 
 protected:
+    int mavlinkID;
+
     Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *controllerQueue;
 
     PointerCollection<

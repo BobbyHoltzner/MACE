@@ -54,6 +54,29 @@ headers.files   += \
         module_vehicle_mavlink_global.h
 INSTALLS       += headers
 
+#Header file copy
+headers_controllers.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK/controllers
+headers_controllers.files   += \
+    controllers/controller_system_mode.h
+INSTALLS       += headers_controllers
+
+#Header file copy
+headers_controller_commands.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK/controllers/commands
+headers_controller_commands.files   += \
+    controllers/commands/command_arm.h \
+    controllers/commands/command_land.h \
+    controllers/commands/command_rtl.h \
+    controllers/commands/command_takeoff.h \
+    controllers/commands/generic_long_command.h
+INSTALLS       += headers_controller_commands
+
+#Header file copy
+headers_vehicle_object.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK/vehicle_object
+headers_vehicle_object.files   += \
+    vehicle_object/mavlink_vehicle_object.h \
+    vehicle_object/state_data_mavlink.h
+INSTALLS       += headers_vehicle_object
+
 INCLUDEPATH += $$PWD/../../mavlink_cpp/Stable/common/
 INCLUDEPATH += $$PWD/../
 

@@ -55,14 +55,14 @@ void State_GroundedArming::handleCommand(const AbstractCommandItem* command)
     switch (commandType) {
     case COMMANDITEM::CI_ACT_ARM: //This command is to be handled when in this state
     {
-        MAVLINKVehicleControllers::CommandARM commandArm(this, controllerQueue, Owner().commsLink->m_LinkChan);
+        MAVLINKVehicleControllers::CommandARM commandArm(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
         MaceCore::ModuleCharacteristic target;
         target.ID = command->getTargetSystem();
         target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
         MaceCore::ModuleCharacteristic sender;
         sender.ID = 255;
         sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-        commandArm.Send(command->as<CommandItem::ActionArm>(),sender,target);
+        commandArm.Send(*command->as<CommandItem::ActionArm>(),sender,target);
         break;
     }
     default:
@@ -87,6 +87,16 @@ void State_GroundedArming::OnEnter()
     //when calling this function that means our intent is to arm the vehicle
     //first let us send this relevant command
     //issue command to controller here, and then setup a callback to handle the result
+    MAVLINKVehicleControllers::CommandARM commandArm(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+    MaceCore::ModuleCharacteristic target;
+    target.ID = Owner().getMAVLINKID();
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+    MaceCore::ModuleCharacteristic sender;
+    sender.ID = 255;
+    sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+    CommandItem::ActionArm action(255,target.ID);
+    action.setVehicleArm(true);
+    commandArm.Send(action,sender,target);
 }
 
 void State_GroundedArming::OnEnter(const AbstractCommandItem* command)

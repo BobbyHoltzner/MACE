@@ -1,7 +1,7 @@
 #include "ardupilot_vehicle_object.h"
 
-ArdupilotVehicleObject::ArdupilotVehicleObject():
-    MavlinkVehicleObject()
+ArdupilotVehicleObject::ArdupilotVehicleObject(CommsMAVLINK* commsObj, const int &ID):
+    MavlinkVehicleObject(commsObj, ID)
 {
 
 }

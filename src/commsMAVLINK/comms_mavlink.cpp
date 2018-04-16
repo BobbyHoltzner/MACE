@@ -10,6 +10,16 @@ CommsMAVLINK::~CommsMAVLINK()
 
 }
 
+uint8_t CommsMAVLINK::getLinkChannel() const
+{
+    return this->m_LinkChan;
+}
+
+std::string CommsMAVLINK::getLinkName() const
+{
+    return this->m_LinkName;
+}
+
 void CommsMAVLINK::TransmitMAVLINKMessage(const mavlink_message_t &msg)
 {
     m_LinkMarshaler->SendMAVMessage(m_LinkName,msg);
