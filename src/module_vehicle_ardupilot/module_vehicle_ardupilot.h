@@ -39,7 +39,7 @@
 using namespace std::placeholders;
 
 //class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
-class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
+class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>
 {
 public:
     ModuleVehicleArdupilot();
@@ -61,11 +61,6 @@ public:
     //callback interface support for the DataInterface_MAVLINK object
     void cbi_VehicleCommandACK(const int &systemID, const mavlink_command_ack_t &cmdACK);
     void cbi_VehicleMissionACK(const MissionItem::MissionACK &ack);
-    void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
-    void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent & current);
-    void cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
-    void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home);
-    void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList);
 
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
 
@@ -292,7 +287,7 @@ private:
     {
         std::cout << target << std::endl;
         std::shared_ptr<MissionTopic::VehicleTargetTopic> ptrTarget = std::make_shared<MissionTopic::VehicleTargetTopic>(target);
-        cbi_VehicleMissionData(target.getVehicleID(),ptrTarget);
+        ModuleVehicleMAVLINK::cbi_VehicleMissionData(target.getVehicleID(),ptrTarget);
     }
 
 private:
@@ -302,9 +297,6 @@ private:
     std::shared_ptr<ArdupilotVehicleObject> vehicleData;
 
 private:
-    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;
-
-    BaseTopic::VehicleTopics m_VehicleTopics;
 
     Ardupilot_GeneralController* m_AircraftController;
 

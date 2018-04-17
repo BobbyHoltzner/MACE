@@ -17,7 +17,7 @@ T CopyCommandAndInsertTarget(const CommandItem::AbstractCommandItem &item, int t
 //    m_VehicleMissionTopic("vehicleMission"), m_AircraftController(NULL), vehicleData(NULL)
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<>(),
-    m_VehicleMissionTopic("vehicleMission"), m_AircraftController(NULL), vehicleData(NULL), stateMachine(nullptr)
+    m_AircraftController(NULL), vehicleData(NULL), stateMachine(nullptr)
 {
 //    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
 
@@ -98,81 +98,6 @@ void ModuleVehicleArdupilot::cbi_VehicleMissionACK(const MissionItem::MissionACK
     ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
         ptr->NewCurrentVehicleMission(this, ack.getUpdatedMissionKey());
     });
-}
-
-void ModuleVehicleArdupilot::cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)
-{
-    MaceCore::TopicDatagram topicDatagram;
-    m_VehicleMissionTopic.SetComponent(data, topicDatagram);
-    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(this, m_VehicleMissionTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-    });
-}
-
-void ModuleVehicleArdupilot::cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent &current)
-{
-    std::stringstream buffer;
-    buffer << current.getMissionKey();
-
-    mLogs->info("The vehicle module has seen a current mission item" + std::to_string(current.getMissionCurrentIndex()));
-    mLogs->debug(buffer.str());
-
-    //This function shall update the local MACE core of the new mission
-    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-        ptr->GVEvents_MissionItemCurrent(this, current);
-    });
-
-    std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>(current);
-    cbi_VehicleMissionData(current.getMissionKey().m_systemID,ptrMissionTopic);
-}
-
-void ModuleVehicleArdupilot::cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)
-{
-    MaceCore::TopicDatagram topicDatagram;
-    m_VehicleDataTopic.SetComponent(data, topicDatagram);
-    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-    });
-}
-
-void ModuleVehicleArdupilot::cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home)
-{
-    std::stringstream buffer;
-    buffer << home;
-
-    mLogs->debug("Receieved a new vehicle home position.");
-    mLogs->info(buffer.str());
-
-    //notify the core of the change
-    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-        ptr->GVEvents_NewHomePosition(this, home);
-    });
-
-    std::shared_ptr<CommandItem::SpatialHome> ptrHome = std::make_shared<CommandItem::SpatialHome>(home);
-    std::shared_ptr<MissionTopic::MissionHomeTopic> homeTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
-    homeTopic->setHome(ptrHome);
-
-    this->cbi_VehicleMissionData(systemID,homeTopic);
-}
-
-void ModuleVehicleArdupilot::cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList)
-{
-    std::stringstream buffer;
-    buffer << missionList;
-
-    mLogs->info("Receieved a new vehicle mission.");
-    mLogs->info(buffer.str());
-
-    //This function shall update the local MACE CORE instance of the mission
-    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-        ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
-    });
-    //We should update all listeners
-    std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>(missionList);
-
-    //This function shall update the local vehicle object with the current vehicle mission
-    //vehicleData->mission->setCurrentMission(missionList);
-    this->cbi_VehicleMissionData(systemID,missionTopic);
 }
 
 //!
@@ -502,8 +427,8 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         createLog(systemID);
         //this is the first time we have seen this heartbeat or the data was destroyed for some reason
         vehicleData = std::make_shared<ArdupilotVehicleObject>(this,systemID);
+        vehicleData->connectCallback(this);
         //vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
-        //vehicleData->connectCallback(this);
 
         this->SetID(systemID);
 
@@ -539,7 +464,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     if(vehicleData->state->vehicleArm.set(arm))
     {
         std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> ptrArm = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>(arm);
-        this->cbi_VehicleStateData(systemID, ptrArm);
+        ModuleVehicleMAVLINK::cbi_VehicleStateData(systemID, ptrArm);
     }
 
     DataGenericItem::DataGenericItem_Heartbeat heartbeat;
@@ -563,7 +488,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     }
     vehicleData->state->vehicleHeartbeat.set(heartbeat);
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
-    this->cbi_VehicleStateData(systemID,ptrHeartbeat);
+    ModuleVehicleMAVLINK::cbi_VehicleStateData(systemID,ptrHeartbeat);
 
     stateMachine->UpdateStates();
     stateMachine->ProcessStateTransitions();

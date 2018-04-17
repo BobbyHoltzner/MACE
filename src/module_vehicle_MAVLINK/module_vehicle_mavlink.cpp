@@ -9,7 +9,3 @@
 #include "comms/serial_link.h"
 #include "comms/udp_link.h"
 #include "comms/protocol_mavlink.h"
-
-
-
-
