@@ -13,6 +13,7 @@
 #include "data/topic_components/topic_component_void.h"
 #include "data/topic_components/topic_component_enum.h"
 #include "data/topic_components/topic_component_boolean.h"
+#include "data/topic_components/topic_component_vector.h"
 
 #include <functional>
 
@@ -35,6 +36,8 @@ namespace VehicleTopicsNames {
     static constexpr char CommandName_Takeoff[] = "command_takeoff";
     static constexpr char CommandName_Land[] = "command_land";
     static constexpr char CommandName_SystemMode[] = "command_systemMode";
+
+    static constexpr char CommandName_EnvironmentVertices[] = "command_environmentVertices";
 }
 
 enum EnumMissionCommandAction
@@ -54,13 +57,16 @@ namespace VehicleTopicsTypes {
     using Topic_MissionCommandAction = MaceCore::NonSpooledTopic<Data::TopicComponents::Enum<EnumMissionCommandAction>>;
     using Topic_Arm = MaceCore::NonSpooledTopic<Data::TopicComponents::Boolean>;
     using Topic_GlobalPos = MaceCore::NonSpooledTopic<Data::TopicComponents::PositionGlobal>;
+    using Topic_EnvironmentVertices = MaceCore::NonSpooledTopic<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>>;
 }
 
 
 using VehicleTopicsTopicCollection = MaceCore::TopicCollection<
     MaceCore::NamedTopic<VehicleTopicsNames::CommandName_Takeoff, VehicleTopicsTypes::Topic_Takeoff>,
     MaceCore::NamedTopic<VehicleTopicsNames::CommandName_Land, VehicleTopicsTypes::Topic_Land>,
-    MaceCore::NamedTopic<VehicleTopicsNames::CommandName_SystemMode, VehicleTopicsTypes::Topic_SystemMode>
+    MaceCore::NamedTopic<VehicleTopicsNames::CommandName_SystemMode, VehicleTopicsTypes::Topic_SystemMode>,
+
+    MaceCore::NamedTopic<VehicleTopicsNames::CommandName_EnvironmentVertices, VehicleTopicsTypes::Topic_EnvironmentVertices>
 >;
 
 

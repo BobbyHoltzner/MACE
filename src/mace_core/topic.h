@@ -164,6 +164,11 @@ public:
         m_NonTerminalValues.insert({str, values});
     }
 
+    void AddNonTerminal(const std::string &str, const int index, const std::shared_ptr<TopicDatagram> &values) {
+        throw std::runtime_error("Non Implimented");
+        //m_NonTerminalValues.insert({str, values});
+    }
+
     std::shared_ptr<TopicDatagram> GetNonTerminal(const std::string &str) const {
         return m_NonTerminalValues.at(str);
     }

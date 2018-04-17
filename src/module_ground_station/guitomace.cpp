@@ -180,6 +180,34 @@ void GUItoMACE::setGoHere(const int &vehicleID, const QJsonObject &jsonObj)
 //!
 void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
 {
+    //tmp
+
+    std::shared_ptr<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>> test_data = std::make_shared<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>>();
+
+    test_data[0] = std::make_shared<Data::TopicComponents::PositionGlobal>(
+                        0,
+                        Data::ReferenceAltitude::REF_ALT_MSL,
+                        1,
+                        1,
+                        Data::ReferenceGeoCoords::REF_GEO_DEG
+                    );
+
+    MaceCore::ModuleCharacteristic test_target;
+    test_target.ID = vehicleID;
+    test_target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+    MaceCore::TopicDatagram test_topicDatagram;
+    m_VehicleTopics->Get<BaseTopic::VehicleTopicsNames::CommandName_EnvironmentVertices>()->SetComponent(test_data, test_topicDatagram);
+
+    m_parent->NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        std::string name = m_VehicleTopics->Get<BaseTopic::VehicleTopicsNames::CommandName_EnvironmentVertices>()->Name();
+        ptr->NewTopicDataValues(m_parent, name, m_parent->GetCharacteristic(), MaceCore::TIME(), test_topicDatagram, test_target);
+    });
+
+    //end temp
+
+
+
     CommandItem::SpatialTakeoff newTakeoff;
     QJsonObject vehicleCommand = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
     QJsonObject position = vehicleCommand["takeoffPosition"].toObject();

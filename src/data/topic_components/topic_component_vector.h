@@ -9,40 +9,68 @@ namespace Data {
 namespace TopicComponents
 {
 
-
-extern const char TopicComponts_Vector_name[];
-extern const MaceCore::TopicComponentStructure TopicComponts_Vector_structure;
-
 template <typename T>
-class Vector : public Data::NamedTopicComponentDataObject<TopicComponts_Vector_name, &TopicComponts_Vector_structure>
+class Vector : public ITopicComponentDataObject
 {
 private:
+
+    static constexpr MaceCore::TopicComponentStructure structure = []{
+        MaceCore::TopicComponentStructure subStructure = *(T::Structure());
+
+        MaceCore::TopicComponentStructure a;
+        a.AddNonTerminal(std::string("arr"), subStructure);
+        return a;
+    }();
 
     std::vector<T> m_Arr;
 
 public:
+
+    static std::string Name() {
+        return std::string("arr_") + std::string(T::Name());
+    }
+
+    static MaceCore::TopicComponentStructure* TopicStructure() {
+        return &structure;
+    }
+
     virtual MaceCore::TopicDatagram GenerateDatagram() const
     {
-        MaceCore::TopicDatagram diagram;
-        diagram.AddTerminal<T>("string", m_Arr);
-        return diagram;
+        MaceCore::TopicDatagram datagram;
+        for(size_t i = 0 ; i < m_Arr.size() ; i++)
+        {
+            datagram.AddNonTerminal("arr", i, m_Arr.at(i).GenerateDatagram());
+        }
+        return datagram;
     }
 
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram)
     {
+        throw std::runtime_error("Not Implimented");
+    }
+
+    Vector()
+    {
 
     }
 
-    Vector();
-
-    Vector(const std::vector<T> &arr);
+    Vector(const std::vector<T> &arr)
+    {
+        m_Arr = arr;
+    }
 
     size_t Size()
     {
         return m_Arr.size();
     }
 
-    std::vector<T>::const_reference at(const size_t i) const
+
+    typename std::vector<T>::reference operator[](const size_t i)
+    {
+        return m_Arr[i];
+    }
+
+    typename std::vector<T>::const_reference at(const size_t i) const
     {
         return m_Arr.at(i);
     }

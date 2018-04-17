@@ -29,7 +29,8 @@ public:
 
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram)
     {
-        m_Enum = datagram.GetTerminal<int>("enum");
+        int integer = datagram.GetTerminal<int>("enum");
+        m_Enum = integer;
     }
 
     Enum()
