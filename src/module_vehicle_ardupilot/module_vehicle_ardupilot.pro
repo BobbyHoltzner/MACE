@@ -100,6 +100,13 @@ module_vehicle_ardupilot.h\
 INSTALLS       += headers_module
 
 #Header file copy
+headers_vehicle_object.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot/vehicle_object
+headers_vehicle_object.files   += \
+    vehicle_object/ardupilot_component_flight_mode.h \
+    vehicle_object/ardupilot_vehicle_object.h
+INSTALLS       += headers_vehicle_object
+
+#Header file copy
 headers_ardupilot_states.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot/ardupilot_states
 headers_ardupilot_states.files   += \
     ardupilot_states/abstract_state_ardupilot.h \
