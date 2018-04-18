@@ -29,8 +29,8 @@ public:
         return std::string(CompName);
     }
 
-    static MaceCore::TopicComponentStructure* TopicStructure() {
-        return Structure;
+    static MaceCore::TopicComponentStructure TopicStructure() {
+        return *Structure;
     }
 
 

@@ -14,13 +14,7 @@ class Vector : public ITopicComponentDataObject
 {
 private:
 
-    static constexpr MaceCore::TopicComponentStructure structure = []{
-        MaceCore::TopicComponentStructure subStructure = *(T::Structure());
-
-        MaceCore::TopicComponentStructure a;
-        a.AddNonTerminal(std::string("arr"), subStructure);
-        return a;
-    }();
+    static MaceCore::TopicCharacteristic *structure;
 
     std::vector<T> m_Arr;
 
@@ -30,8 +24,12 @@ public:
         return std::string("arr_") + std::string(T::Name());
     }
 
-    static MaceCore::TopicComponentStructure* TopicStructure() {
-        return &structure;
+    static MaceCore::TopicComponentStructure TopicStructure() {
+        MaceCore::TopicComponentStructure subStructure = *(T::Structure());
+
+        MaceCore::TopicComponentStructure a;
+        a.AddNonTerminal(std::string("arr"), subStructure);
+        return MaceCore::TopicComponentStructure();
     }
 
     virtual MaceCore::TopicDatagram GenerateDatagram() const
@@ -39,7 +37,8 @@ public:
         MaceCore::TopicDatagram datagram;
         for(size_t i = 0 ; i < m_Arr.size() ; i++)
         {
-            datagram.AddNonTerminal("arr", i, m_Arr.at(i).GenerateDatagram());
+            std::shared_ptr<MaceCore::TopicDatagram> ptr = std::make_shared<MaceCore::TopicDatagram>(m_Arr.at(i).GenerateDatagram());
+            datagram.AddNonTerminal("arr", i, ptr);
         }
         return datagram;
     }
@@ -68,6 +67,11 @@ public:
     typename std::vector<T>::reference operator[](const size_t i)
     {
         return m_Arr[i];
+    }
+
+    void push_back(const T &obj)
+    {
+        m_Arr.push_back(obj);
     }
 
     typename std::vector<T>::const_reference at(const size_t i) const

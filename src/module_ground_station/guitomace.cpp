@@ -184,13 +184,13 @@ void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
 
     std::shared_ptr<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>> test_data = std::make_shared<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>>();
 
-    test_data[0] = std::make_shared<Data::TopicComponents::PositionGlobal>(
+    test_data->push_back(Data::TopicComponents::PositionGlobal(
                         0,
                         Data::ReferenceAltitude::REF_ALT_MSL,
                         1,
                         1,
                         Data::ReferenceGeoCoords::REF_GEO_DEG
-                    );
+                    ));
 
     MaceCore::ModuleCharacteristic test_target;
     test_target.ID = vehicleID;
