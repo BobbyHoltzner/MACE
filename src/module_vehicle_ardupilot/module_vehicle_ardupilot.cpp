@@ -427,6 +427,8 @@ bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
             if(!consumed)
                 consumed = vehicleData->parseMessage(&message);
         }
+        stateMachine->UpdateStates();
+        stateMachine->ProcessStateTransitions();
     }
 
     return consumed;

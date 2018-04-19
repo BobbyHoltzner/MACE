@@ -9,6 +9,7 @@ State_GroundedArming::State_GroundedArming():
     std::cout<<"We are in the constructor of STATE_GROUNDED_ARMING"<<std::endl;
     this->currentState = ArdupilotFlightState::STATE_GROUNDED_ARMING;
     this->desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMING;
+    armingCheck = false;
 }
 
 AbstractStateArdupilot* State_GroundedArming::getClone() const
@@ -27,19 +28,18 @@ hsm::Transition State_GroundedArming::GetTransition()
 
     if(currentState != desiredState)
     {
-        destroyCurrentControllers();
         //this means we want to chage the state of the vehicle for some reason
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
         switch (desiredState) {
         case ArdupilotFlightState::STATE_GROUNDED_IDLE:
         {
-            return hsm::InnerEntryTransition<State_GroundedIdle>();
+            return hsm::SiblingTransition<State_GroundedIdle>();
             break;
         }
         case ArdupilotFlightState::STATE_GROUNDED_ARMED:
         {
-            return hsm::InnerEntryTransition<State_GroundedArmed>();
+            return hsm::SiblingTransition<State_GroundedArmed>();
             break;
         }
         default:
@@ -72,8 +72,8 @@ void State_GroundedArming::Update()
      * point, in all likelyhood a mavlink vehicle is going to arm.
       */
 
-//    if(Owner().state->vehicleArm.get().getSystemArm())
-//        this->desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMED;
+    if(Owner().state->vehicleArm.get().getSystemArm())
+        this->desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMED;
 }
 
 void State_GroundedArming::OnEnter()
@@ -83,7 +83,10 @@ void State_GroundedArming::OnEnter()
     //issue command to controller here, and then setup a callback to handle the result
     auto commandArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
     commandArm->setLambda_Finished([this,commandArm](const bool completed, const uint8_t finishCode){
-        std::cout<<"We are in the lambda finished function: "<<completed<<std::endl;
+        if(finishCode == MAV_RESULT_ACCEPTED)
+            armingCheck = true;
+        else
+            desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
     });
 
     MaceCore::ModuleCharacteristic target;

@@ -31,6 +31,11 @@ hsm::Transition State_GroundedArmed::GetTransition()
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
         switch (desiredState) {
+        case ArdupilotFlightState::STATE_GROUNDED_IDLE:
+        {
+            return hsm::SiblingTransition<State_GroundedIdle>();
+            break;
+        }
         default:
             std::cout<<"I dont know how we eneded up in this transition state from State_EStop."<<std::endl;
             break;
@@ -46,7 +51,8 @@ void State_GroundedArmed::handleCommand(const AbstractCommandItem* command)
 
 void State_GroundedArmed::Update()
 {
-
+    if(!Owner().state->vehicleArm.get().getSystemArm())
+        this->desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
 }
 
 void State_GroundedArmed::OnEnter()

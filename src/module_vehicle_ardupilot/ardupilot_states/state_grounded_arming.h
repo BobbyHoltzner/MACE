@@ -33,6 +33,8 @@ public:
 
     void OnEnter(const AbstractCommandItem* command);
 
+private:
+    bool armingCheck;
 };
 
 } //end of namespace ardupilot

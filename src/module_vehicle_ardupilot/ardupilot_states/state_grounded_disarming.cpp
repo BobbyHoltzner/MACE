@@ -33,7 +33,7 @@ hsm::Transition State_GroundedDisarming::GetTransition()
         switch (desiredState) {
         case ArdupilotFlightState::STATE_GROUNDED_IDLE:
         {
-            return hsm::InnerEntryTransition<State_GroundedIdle>();
+            return hsm::SiblingTransition<State_GroundedIdle>();
             break;
         }
         default:
