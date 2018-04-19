@@ -155,15 +155,18 @@ public:
         UNUSED(cmdACK);
     }
 
+
     //!
-    //! \brief New Mavlink message received over a link
-    //! \param linkName Name of link message received over
-    //! \param msg Message received
+    //! \brief MavlinkMessage
+    //! \param linkName
+    //! \param message
+    //! \return if the data was consumed by a controller object
     //!
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
+    virtual bool MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
     {
         UNUSED(linkName);
         UNUSED(message);
+        return false;
     }
 
 
@@ -276,6 +279,12 @@ protected:
 
 protected:
     bool airborneInstance;
+
+//    PointerCollection<
+//        Controllers::ControllerHome<mavlink_message_t>,
+//        Controllers::ControllerMission<mavlink_message_t>
+//    > m_Controllers;
+
 
 };
 

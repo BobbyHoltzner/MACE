@@ -175,15 +175,8 @@ public:
 
 
 
-    virtual bool ReceiveMessage(const MESSAGETYPE *message)
+    virtual bool ReceiveMessage(const MESSAGETYPE *message, const MaceCore::ModuleCharacteristic &sender)
     {
-        int systemID = message->sysid;
-        int compID = message->compid;
-
-        MaceCore::ModuleCharacteristic sender;
-        sender.ID = systemID;
-        sender.Class = (MaceCore::ModuleClasses)compID;
-
         bool usedMessage = false;
         for(auto it = m_MessageBehaviors.cbegin() ; it != m_MessageBehaviors.cend() ; ++it)
         {

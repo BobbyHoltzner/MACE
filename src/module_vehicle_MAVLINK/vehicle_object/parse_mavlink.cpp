@@ -1,8 +1,8 @@
 #include "mavlink_vehicle_object.h"
 
 
-void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
-
+bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
+    bool consumed = true;
     uint8_t systemID = msg->sysid;
     ///////////////////////////////////////////////////////////////////////////////
     /// VEHICLE DATA ITEMS: The following contain information about the direct
@@ -321,7 +321,9 @@ void MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
 
     default:
     {
+        consumed = false;
         //std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
     }
     } //end of switch statement
+    return consumed;
 }

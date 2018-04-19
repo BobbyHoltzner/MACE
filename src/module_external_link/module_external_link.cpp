@@ -449,13 +449,20 @@ Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>:
 void ModuleExternalLink::MACEMessage(const std::string &linkName, const mace_message_t &message)
 {
     UNUSED(linkName);
-    m_Controllers.ForEach<Controllers::IController<mace_message_t>>([message](Controllers::IController<mace_message_t>* ptr) {
-       ptr->ReceiveMessage(&message);
+    int systemID = message.sysid;
+    int compID = message.compid;
+
+    MaceCore::ModuleCharacteristic sender;
+    sender.ID = systemID;
+    sender.Class = (MaceCore::ModuleClasses)compID;
+
+    m_Controllers.ForEach<Controllers::IController<mace_message_t>>([sender, message](Controllers::IController<mace_message_t>* ptr) {
+       ptr->ReceiveMessage(&message, sender);
     });
 
     for(auto it = m_TopicToControllers.cbegin() ; it != m_TopicToControllers.cend() ; ++it)
     {
-        it->second->ReceiveMessage(&message);
+        it->second->ReceiveMessage(&message, sender);
     }
 
     this->ParseForData(&message);

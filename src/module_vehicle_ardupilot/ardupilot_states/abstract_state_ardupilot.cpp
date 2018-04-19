@@ -42,17 +42,24 @@ void AbstractStateArdupilot::destroyCurrentControllers()
     }
 }
 
-void AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
+bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
 {
+    int systemID = msg.sysid;
+
+    MaceCore::ModuleCharacteristic sender;
+    sender.ID = systemID;
+    sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
     bool consumed = false;
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*>::iterator it;
     for(it=currentControllers.begin(); it!=currentControllers.end(); ++it)
     {
         Controllers::IController<mavlink_message_t>* obj = it->second;
-        consumed = obj->ReceiveMessage(msg);
+        if(msg.msgid == MAVLINK_MSG_ID_COMMAND_ACK)
+            std::cout<<"We definitely saw an ack"<<std::endl;
+        consumed = obj->ReceiveMessage(&msg, sender);
     }
-    if(!consumed)
-        Owner().parseMessage(msg);
+    return consumed;
 }
 
 } //end of namespace state

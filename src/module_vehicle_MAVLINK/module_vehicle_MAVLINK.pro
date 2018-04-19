@@ -29,7 +29,9 @@ HEADERS += module_vehicle_mavlink.h\
     controllers/commands/command_takeoff.h \
     controllers/commands/generic_long_command.h \
     vehicle_object/mavlink_vehicle_object.h \
-    vehicle_object/state_data_mavlink.h
+    vehicle_object/state_data_mavlink.h \
+    controllers/controller_home.h \
+    controllers/controller_mission.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega

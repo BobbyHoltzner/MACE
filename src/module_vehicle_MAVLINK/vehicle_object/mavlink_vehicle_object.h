@@ -60,7 +60,7 @@ public:
         commsLink->TransmitMAVLINKMessage(msg);
     }
 
-    virtual void parseMessage(const mavlink_message_t *msg);
+    virtual bool parseMessage(const mavlink_message_t *msg);
 
 public:
     StateData_MAVLINK *state;

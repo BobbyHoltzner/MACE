@@ -82,6 +82,10 @@ void State_GroundedArming::OnEnter()
     //first let us send this relevant command
     //issue command to controller here, and then setup a callback to handle the result
     auto commandArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+    commandArm->setLambda_Finished([this,commandArm](const bool completed, const uint8_t finishCode){
+        std::cout<<"We are in the lambda finished function: "<<completed<<std::endl;
+    });
+
     MaceCore::ModuleCharacteristic target;
     target.ID = Owner().getMAVLINKID();
     target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;

@@ -116,8 +116,8 @@ public:
                         //if we have exceeded number of retries then remove and fail out
                         if(it->second.numTries >= m_NumRetries)
                         {
-                            m_ActiveTransmits.erase(it->first);
                             it->second.failureAction();
+                            m_ActiveTransmits.erase(it->first);
                             continue;
                         }
 

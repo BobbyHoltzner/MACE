@@ -17,7 +17,7 @@ T CopyCommandAndInsertTarget(const CommandItem::AbstractCommandItem &item, int t
 //    m_VehicleMissionTopic("vehicleMission"), m_AircraftController(NULL), vehicleData(NULL)
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<>(),
-    m_AircraftController(NULL), vehicleData(NULL), stateMachine(nullptr)
+    m_AircraftController(NULL), vehicleData(nullptr), stateMachine(nullptr)
 {
 //    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
 
@@ -412,20 +412,31 @@ void ModuleVehicleArdupilot::Command_ClearOnboardGuided(const int &targetSystem)
 //! \param linkName Name of link message received over
 //! \param msg Message received
 //!
-void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
+bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
-//    ardupilot::state::AbstractStateArdupilot* currentState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentState());
-//    currentState->handleMAVLINKMessage(message);
-
+    bool consumed = false;
+    //this is necessary because if we have yet to have received a vehicle heartbeat,
+    //we have yet to form the vehicle object and accompanying state machine
     if(vehicleData)
-        vehicleData->parseMessage(&message);
+    {
+        consumed = ModuleVehicleMAVLINK::MavlinkMessage(linkName, message);
+        if(!consumed)
+        {
+            ardupilot::state::AbstractStateArdupilot* currentState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentState());
+            consumed = currentState->handleMAVLINKMessage(message);
+            if(!consumed)
+                consumed = vehicleData->parseMessage(&message);
+        }
+    }
+
+    return consumed;
 }
 
 
 void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
     UNUSED(linkName);
-    if(vehicleData == NULL)
+    if(vehicleData == nullptr)
     {
         createLog(systemID);
         //this is the first time we have seen this heartbeat or the data was destroyed for some reason

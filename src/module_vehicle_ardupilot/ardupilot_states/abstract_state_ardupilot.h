@@ -64,7 +64,7 @@ public:
 public:
     virtual void destroyCurrentControllers();
 
-    virtual void handleMAVLINKMessage(const mavlink_message_t &msg);
+    virtual bool handleMAVLINKMessage(const mavlink_message_t &msg);
 
     virtual void handleCommand(const AbstractCommandItem* command) = 0;
 

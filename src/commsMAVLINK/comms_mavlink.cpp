@@ -32,11 +32,11 @@ void CommsMAVLINK::VehicleHeartbeatInfo(const std::string &linkName, const int &
     UNUSED(heartbeatMSG);
 }
 
-void CommsMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
+bool CommsMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
     UNUSED(linkName);
     UNUSED(message);
-    std::cout<<"I am in the comms_mavlink library MavlinkMessage callback."<<std::endl;
+    return false;
 }
 
 //!
