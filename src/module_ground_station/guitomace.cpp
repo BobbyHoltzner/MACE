@@ -192,6 +192,22 @@ void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
                         Data::ReferenceGeoCoords::REF_GEO_DEG
                     ));
 
+    test_data->push_back(Data::TopicComponents::PositionGlobal(
+                        0,
+                        Data::ReferenceAltitude::REF_ALT_MSL,
+                        2,
+                        2,
+                        Data::ReferenceGeoCoords::REF_GEO_DEG
+                    ));
+
+    test_data->push_back(Data::TopicComponents::PositionGlobal(
+                        0,
+                        Data::ReferenceAltitude::REF_ALT_MSL,
+                        3,
+                        3,
+                        Data::ReferenceGeoCoords::REF_GEO_DEG
+                    ));
+
     MaceCore::ModuleCharacteristic test_target;
     test_target.ID = vehicleID;
     test_target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;

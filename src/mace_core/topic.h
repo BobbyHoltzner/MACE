@@ -157,20 +157,32 @@ public:
 
     void AddNonTerminal(const std::string &str, const TopicDatagram &values) {
         std::shared_ptr<TopicDatagram> ptr = std::make_shared<TopicDatagram>(values);
-        m_NonTerminalValues.insert({str, ptr});
+        m_NonTerminalValues.insert({str, {ptr}});
     }
 
-    void AddNonTerminal(const std::string &str, const std::shared_ptr<TopicDatagram> &values) {
-        m_NonTerminalValues.insert({str, values});
+    void AddNonTerminal(const std::string &str, const std::shared_ptr<TopicDatagram> &value) {
+        m_NonTerminalValues.insert({str, {value}});
     }
 
-    void AddNonTerminal(const std::string &str, const int index, const std::shared_ptr<TopicDatagram> &values) {
-        throw std::runtime_error("Non Implimented");
-        //m_NonTerminalValues.insert({str, values});
+    void AddNonTerminal(const std::string &str, const int index, const std::shared_ptr<TopicDatagram> &value) {
+        if(m_NonTerminalValues.find(str) == m_NonTerminalValues.cend())
+        {
+            m_NonTerminalValues.insert({str, {}});
+        }
+
+        m_NonTerminalValues[str].insert(m_NonTerminalValues[str].begin()+index, value);
     }
 
     std::shared_ptr<TopicDatagram> GetNonTerminal(const std::string &str) const {
+        return m_NonTerminalValues.at(str).at(0);
+    }
+
+    std::vector<std::shared_ptr<TopicDatagram>> GetNonTerminal_Arr(const std::string &str) const {
         return m_NonTerminalValues.at(str);
+    }
+
+    std::shared_ptr<TopicDatagram> GetNonTerminal_Index(const std::string &str, int index) const {
+        return m_NonTerminalValues.at(str).at(index);
     }
 
     bool HasNonTerminal(const std::string &str) const {
@@ -223,7 +235,7 @@ public:
 private:
 
     std::unordered_map<std::string, std::shared_ptr<void> > m_TerminalValues;
-    std::unordered_map<std::string, std::shared_ptr<TopicDatagram> > m_NonTerminalValues;
+    std::unordered_map<std::string, std::vector<std::shared_ptr<TopicDatagram>> > m_NonTerminalValues;
 };
 
 

@@ -104,6 +104,14 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
         Command_Land(command, sender);
     });
 
+
+    m_VehicleTopics.AddConsumptionAction<BaseTopic::VehicleTopicsNames::CommandName_EnvironmentVertices>([this](const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target){
+       printf("Environmental Vertices added!");
+
+       std::shared_ptr<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>> ptr;
+       m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_EnvironmentVertices>()->GetComponent(ptr, data);
+    });
+
 }
 
 
@@ -254,6 +262,8 @@ void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
     ptr->Subscribe(this, m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_SystemMode>()->Name());
     ptr->Subscribe(this, m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_Takeoff>()->Name());
     ptr->Subscribe(this, m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_Land>()->Name());
+
+    ptr->Subscribe(this, m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_EnvironmentVertices>()->Name());
 }
 
 ////////////////////////////////////////////////////////////////////////////
