@@ -62,6 +62,10 @@ public:
     virtual void getClone(AbstractStateArdupilot** state) const = 0;
 
 public:
+    virtual void destroyCurrentControllers();
+
+    virtual void handleMAVLINKMessage(const mavlink_message_t &msg);
+
     virtual void handleCommand(const AbstractCommandItem* command) = 0;
 
     virtual ArdupilotFlightState getCurrentState() const;
@@ -75,6 +79,8 @@ protected:
     void clearCommand();
 
 protected:
+    std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> currentControllers;
+
     Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *controllerQueue;
 
     const AbstractCommandItem* currentCommand;

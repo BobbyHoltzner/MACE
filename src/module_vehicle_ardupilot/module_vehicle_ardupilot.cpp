@@ -414,6 +414,9 @@ void ModuleVehicleArdupilot::Command_ClearOnboardGuided(const int &targetSystem)
 //!
 void ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
+//    ardupilot::state::AbstractStateArdupilot* currentState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentState());
+//    currentState->handleMAVLINKMessage(message);
+
     if(vehicleData)
         vehicleData->parseMessage(&message);
 }

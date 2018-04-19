@@ -14,6 +14,8 @@ class State_GroundedArming : public AbstractStateArdupilot
 public:
     State_GroundedArming();
 
+    virtual ~State_GroundedArming() = default;
+
 public:
     AbstractStateArdupilot* getClone() const override;
 
