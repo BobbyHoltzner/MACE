@@ -3,13 +3,15 @@
 namespace ardupilot{
 namespace state{
 
-AbstractStateArdupilot::AbstractStateArdupilot(const int &timeout, const int &attempts)
+AbstractStateArdupilot::AbstractStateArdupilot(const int &timeout, const int &attempts):
+    currentCommand(nullptr)
 {
     controllerQueue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>(timeout, attempts);
 }
 
 AbstractStateArdupilot::AbstractStateArdupilot(const AbstractStateArdupilot &copy)
 {
+    this->currentCommand = copy.currentCommand;
     this->currentState = copy.currentState;
     this->desiredState = copy.desiredState;
 }
@@ -26,7 +28,7 @@ ArdupilotFlightState AbstractStateArdupilot::getDesiredState() const
 
 void AbstractStateArdupilot::clearCommand()
 {
-    if(this->currentCommand)
+    if(this->currentCommand != nullptr)
     {
         delete currentCommand;
         currentCommand = nullptr;

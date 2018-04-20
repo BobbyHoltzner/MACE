@@ -6,6 +6,9 @@
 namespace ardupilot{
 namespace state{
 
+class State_TakeoffClimbing;
+class State_TakeoffTransitioning;
+
 class State_Takeoff : public AbstractStateArdupilot
 {
 public:

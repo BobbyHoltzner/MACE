@@ -11,6 +11,8 @@ class State_GroundedArming;
 class State_GroundedArmed;
 class State_GroundedDisarming;
 
+class State_Takeoff;
+
 class State_Grounded : public AbstractStateArdupilot
 {
 public:

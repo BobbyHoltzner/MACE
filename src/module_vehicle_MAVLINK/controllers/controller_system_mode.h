@@ -8,62 +8,79 @@
 #include "data_generic_command_item/do_items/action_change_mode.h"
 
 #include "controllers/actions/action_send.h"
-#include "controllers/actions/action_final_receive_respond.h"
 #include "controllers/actions/action_finish.h"
+
+#include "mavlink.h"
 
 namespace MAVLINKVehicleControllers {
 
+struct MAVLINKModeStruct
+{
+    uint8_t targetID;
+    uint8_t vehicleMode;
+};
 
-template <typename MESSAGETYPE>
 using SystemModeSend = Controllers::ActionSend<
-    MESSAGETYPE,
-    Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
+    mavlink_message_t,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MAVLINKModeStruct>,
     MaceCore::ModuleCharacteristic,
-    CommandItem::ActionChangeMode,
+    MAVLINKModeStruct,
     mavlink_set_mode_t,
-    MACE_MSG_ID_SYSTEM_MODE_ACK
+    MAVLINK_MSG_ID_COMMAND_ACK
 >;
 
-template<typename MESSAGETYPE>
-class ControllerSystemMode : public Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>,
-        public SystemModeSend<MESSAGETYPE>
+using SystemModeFinish = Controllers::ActionFinish<
+    mavlink_message_t,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MAVLINKModeStruct>,
+    MaceCore::ModuleCharacteristic,
+    uint8_t,
+    mavlink_command_ack_t,
+    MAVLINK_MSG_ID_COMMAND_ACK
+>;
+
+class ControllerSystemMode : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MAVLINKModeStruct>,
+        public SystemModeSend,
+        public SystemModeFinish
 {
+private:
+
+    std::unordered_map<MaceCore::ModuleCharacteristic, MaceCore::ModuleCharacteristic> m_CommandRequestedFrom;
 
 protected:
 
-    virtual void Construct_Send(const CommandItem::ActionChangeMode &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_set_mode_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
+    virtual void Construct_Send(const MAVLINKModeStruct &commandMode, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_set_mode_t &mode, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
-        UNUSED(target);
+        queueObj = target;
 
-        cmd.target_system = commandItem.getTargetSystem();
-        cmd.base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
-        //KEN FIX THIS MODE IS BROKEN
-        //cmd.custom_mode = newMode;
+        mode.target_system = commandMode.targetID;
+        mode.base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
+        mode.custom_mode = commandMode.vehicleMode;
+
     }
 
-    /*
-     * Add back in with ActionFinish
-    virtual bool Finish_Receive(const mace_system_mode_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj)
+
+    virtual bool Finish_Receive(const mavlink_command_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(msg);
         queueObj = sender;
         ack = msg.result;
         return true;
     }
-    */
 
 public:
 
-    ControllerSystemMode(const Controllers::IMessageNotifier<MESSAGETYPE>* cb, Controllers::MessageModuleTransmissionQueue<MESSAGETYPE> * queue, int linkChan) :
-        Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, CommandItem::ActionChangeMode>(cb, queue, linkChan),
-        SystemModeSend<MESSAGETYPE>(this, mavlink_msg_set_mode_encode_chan)
+    ControllerSystemMode(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MAVLINKModeStruct>(cb, queue, linkChan),
+        SystemModeSend(this, mavlink_msg_set_mode_encode_chan),
+        SystemModeFinish(this, mavlink_msg_command_ack_decode)
     {
 
     }
 
+
 };
 
-}
+} //end of namespace MAVLINKVehicleControllers
 
 #endif // MODULE_VEHICLE_MAVLINK_CONTROLLER_SYSTEM_MODE_H

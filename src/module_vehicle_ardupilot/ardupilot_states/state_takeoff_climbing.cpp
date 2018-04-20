@@ -33,7 +33,7 @@ hsm::Transition State_TakeoffClimbing::GetTransition()
         switch (desiredState) {
         case ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING:
         {
-            rtn = hsm::SiblingTransition<State_TakeoffTransitioning>();
+            rtn = hsm::SiblingTransition<State_TakeoffTransitioning>(currentCommand);
             break;
         }
         default:

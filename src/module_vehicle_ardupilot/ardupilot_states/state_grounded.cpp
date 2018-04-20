@@ -51,6 +51,13 @@ hsm::Transition State_Grounded::GetTransition()
             return hsm::InnerEntryTransition<State_GroundedDisarming>();
             break;
         }
+        case ArdupilotFlightState::STATE_TAKEOFF:
+        case ArdupilotFlightState::STATE_TAKEOFF_CLIMBING:
+        case ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING:
+        {
+            return hsm::SiblingTransition<State_Takeoff>(currentCommand);
+            break;
+        }
         default:
             std::cout<<"I dont know how we eneded up in this transition state from State_EStop."<<std::endl;
             break;
@@ -63,10 +70,6 @@ void State_Grounded::handleCommand(const AbstractCommandItem* command)
 {
     COMMANDITEM commandType = command->getCommandType();
     switch (commandType) {
-    case COMMANDITEM::CI_ACT_ARM:
-    {
-        desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMING;
-    }
     default:
         break;
     }
@@ -101,3 +104,5 @@ void State_Grounded::OnEnter(const AbstractCommandItem *command)
 #include "ardupilot_states/state_grounded_arming.h"
 #include "ardupilot_states/state_grounded_disarming.h"
 #include "ardupilot_states/state_grounded_idle.h"
+
+#include "ardupilot_states/state_takeoff.h"

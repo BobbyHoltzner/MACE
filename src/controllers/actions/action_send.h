@@ -16,9 +16,9 @@ public:
 
 
 //!
-//! \brief Sets up an action that sends a data type to an underlaying communications paradigm.
+//! \brief Sets up an action that sends a data type to an underlying communications paradigm.
 //!
-//! When sending an action the transmitt will be queued on the controller until the exepcted response is heard.
+//! When sending an action the transmit will be queued on the controller until the exepcted response is heard.
 //! When the given response type is heard by the expected object the queued transmission will be removed.
 //!
 //! \template MESSAGE_TYPE Underlaying generic message type that all communication is done through

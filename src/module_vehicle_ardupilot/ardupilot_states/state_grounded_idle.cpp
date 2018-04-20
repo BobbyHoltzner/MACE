@@ -33,7 +33,7 @@ hsm::Transition State_GroundedIdle::GetTransition()
         switch (desiredState) {
         case ArdupilotFlightState::STATE_GROUNDED_ARMING:
         {
-            return hsm::SiblingTransition<State_GroundedArming>();
+            return hsm::SiblingTransition<State_GroundedArming>(currentCommand);
             break;
         }
         default:
@@ -46,12 +46,24 @@ hsm::Transition State_GroundedIdle::GetTransition()
 
 void State_GroundedIdle::handleCommand(const AbstractCommandItem* command)
 {
-    COMMANDITEM commandType = command->getCommandType();
-    switch (commandType) {
+    const AbstractCommandItem* copyCommand = command->getClone(); //we first make a local copy so that we can manage the memory
+    this->clearCommand();
+
+    switch (copyCommand->getCommandType()) {
     case COMMANDITEM::CI_ACT_ARM: //This should cause a state transition to the grounded_arming state
     {
-        desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMING;
+        if(command->as<CommandItem::ActionArm>()->getRequestArm())
+            desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMING;
+        else
+            desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE; //this indicates the command was to disarm which we already were
+        delete copyCommand;
         break;
+    }
+    case COMMANDITEM::CI_NAV_TAKEOFF: //This should cause a state transition to the grounded_arming state
+    {
+        //This is a case where we want to walk all the way through arming to takeoff
+        desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMING;
+        currentCommand = copyCommand;
     }
     default:
         break;

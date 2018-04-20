@@ -31,8 +31,18 @@ hsm::Transition State_Takeoff::GetTransition()
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
         switch (desiredState) {
+        case ArdupilotFlightState::STATE_TAKEOFF_CLIMBING:
+        {
+            return hsm::InnerEntryTransition<State_TakeoffClimbing>(currentCommand);
+            break;
+        }
+        case ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING:
+        {
+            return hsm::InnerEntryTransition<State_TakeoffTransitioning>(currentCommand);
+            break;
+        }
         default:
-            std::cout<<"I dont know how we eneded up in this transition state from State_EStop."<<std::endl;
+            std::cout<<"I dont know how we eneded up in this transition state from STATE_TAKEOFF."<<std::endl;
             break;
         }
     }
@@ -51,14 +61,34 @@ void State_Takeoff::Update()
 
 void State_Takeoff::OnEnter()
 {
+    //check that the vehicle is truely armed and switch us into the guided mode
+    auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+    controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+        std::cout<<"The mode has changed"<<std::endl;
+    });
 
+    MaceCore::ModuleCharacteristic target;
+    target.ID = Owner().getMAVLINKID();
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+    MaceCore::ModuleCharacteristic sender;
+    sender.ID = 255;
+    sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+    MAVLINKVehicleControllers::MAVLINKModeStruct commandMode;
+    commandMode.targetID = target.ID;
+    commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString("GUIDED");
+    controllerSystemMode->Send(commandMode,sender,target);
+    currentControllers.insert({"modeController",controllerSystemMode});
 }
 
 void State_Takeoff::OnEnter(const AbstractCommandItem *command)
 {
     this->OnEnter();
+    this->clearCommand();
+    currentCommand = command->getClone();
 }
 
 } //end of namespace ardupilot
 } //end of namespace state
 
+#include "ardupilot_states/state_takeoff_climbing.h"
+#include "ardupilot_states/state_takeoff_transitioning.h"

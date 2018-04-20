@@ -52,11 +52,14 @@ hsm::Transition State_GroundedArming::GetTransition()
 
 void State_GroundedArming::handleCommand(const AbstractCommandItem* command)
 {
-    COMMANDITEM commandType = command->getCommandType();
-    switch (commandType) {
-    case COMMANDITEM::CI_ACT_ARM: //This command is to be handled when in this state
-    {
+    const AbstractCommandItem* copyCommand = command->getClone();
+    this->clearCommand();
 
+    switch (copyCommand->getCommandType()) {
+    case COMMANDITEM::CI_NAV_TAKEOFF:
+    {
+        this->desiredState = ArdupilotFlightState::STATE_TAKEOFF;
+        currentCommand = copyCommand;
         break;
     }
     default:
@@ -73,7 +76,11 @@ void State_GroundedArming::Update()
       */
 
     if(Owner().state->vehicleArm.get().getSystemArm())
+    {
         this->desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMED;
+        if(currentCommand != nullptr)
+            handleCommand(currentCommand);
+    }
 }
 
 void State_GroundedArming::OnEnter()
@@ -81,12 +88,28 @@ void State_GroundedArming::OnEnter()
     //when calling this function that means our intent is to arm the vehicle
     //first let us send this relevant command
     //issue command to controller here, and then setup a callback to handle the result
-    auto commandArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-    commandArm->setLambda_Finished([this,commandArm](const bool completed, const uint8_t finishCode){
-        if(finishCode == MAV_RESULT_ACCEPTED)
-            armingCheck = true;
-        else
-            desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
+//    auto commandArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+//    commandArm->setLambda_Finished([this,commandArm](const bool completed, const uint8_t finishCode){
+//        if(finishCode == MAV_RESULT_ACCEPTED)
+//            armingCheck = true;
+//        else
+//            desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
+//    });
+
+//    MaceCore::ModuleCharacteristic target;
+//    target.ID = Owner().getMAVLINKID();
+//    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+//    MaceCore::ModuleCharacteristic sender;
+//    sender.ID = 255;
+//    sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+//    CommandItem::ActionArm action(255,target.ID);
+//    action.setVehicleArm(true);
+//    commandArm->Send(action,sender,target);
+//    currentControllers.insert({"armController",commandArm});
+
+    auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+    controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+        std::cout<<"The mode has changed"<<std::endl;
     });
 
     MaceCore::ModuleCharacteristic target;
@@ -95,15 +118,22 @@ void State_GroundedArming::OnEnter()
     MaceCore::ModuleCharacteristic sender;
     sender.ID = 255;
     sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-    CommandItem::ActionArm action(255,target.ID);
-    action.setVehicleArm(true);
-    commandArm->Send(action,sender,target);
-    currentControllers.insert({"armController",commandArm});
+    MAVLINKVehicleControllers::MAVLINKModeStruct commandMode;
+    commandMode.targetID = target.ID;
+    commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString("GUIDED");
+    controllerSystemMode->Send(commandMode,sender,target);
+    currentControllers.insert({"modeController",controllerSystemMode});
 }
 
 void State_GroundedArming::OnEnter(const AbstractCommandItem* command)
 {
     this->OnEnter();
+    if(command != nullptr)
+    {
+        //in this case we dont want to handle the command right away, this is because we have to wait for the vehicle to arm
+        this->clearCommand();
+        currentCommand = command->getClone();
+    }
 }
 
 
