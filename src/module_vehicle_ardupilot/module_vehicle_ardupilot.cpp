@@ -153,23 +153,10 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
     mLogs->debug("Receieved a command takeoff.");
     mLogs->info(buffer.str());
 
-    if(vehicleData)
-    {
-//        if(commandWithTarget.getTargetSystem() == vehicleData->getSystemID())
-//        {
-//            Ardupilot_TakeoffController* newController = new Ardupilot_TakeoffController(vehicleData);
-//            if(commandWithTarget.position->has3DPositionSet())
-//                newController->initializeTakeoffSequence(commandWithTarget);
-//            else{
-//                CommandItem::SpatialTakeoff defaultTakeoff = commandWithTarget;
-//                newController->initializeTakeoffSequence(defaultTakeoff);
-//            }
-//            newController->connectTargetCallback(ModuleVehicleArdupilot::staticCallbackFunction_VehicleTarget, this);
-
-//            this->SpinUpController(newController);
-//        }
-    }
-
+    ardupilot::state::AbstractStateArdupilot* currentState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentState());
+    currentState->handleCommand(&commandWithTarget);
+    stateMachine->ProcessStateTransitions();
+    stateMachine->UpdateStates();
 }
 
 void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
@@ -248,11 +235,6 @@ void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionC
 
     mLogs->debug("Receieved a command to change the mode.");
     mLogs->info(buffer.str());
-
-//    DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleMode.get();
-//    int mode = tmp.getFlightModeFromString(commandWithTarget.getRequestMode());
-//    vehicleData->command->setNewMode(mode,255,m_LinkChan);
-//    vehicleData->m_CommandController->setNewMode(mode);
 }
 
 void ModuleVehicleArdupilot::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
@@ -467,13 +449,14 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     }
 
 
-//    DataARDUPILOT::ARDUPILOTComponent_FlightMode flightMode = vehicleData->state->vehicleMode.get();
-//    flightMode.parseMAVLINK(heartbeatMSG);
-//    if(vehicleData->state->vehicleMode.set(flightMode))
-//    {
-//        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrFlightMode = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>(flightMode);
-//        this->cbi_VehicleStateData(systemID, ptrFlightMode);
-//    }
+    std::string currentFlightMode = vehicleData->ardupilotMode.parseMAVLINK(heartbeatMSG);
+    DataGenericItem::DataGenericItem_FlightMode flightMode;
+    flightMode.setFlightMode(currentFlightMode);
+    if(vehicleData->state->vehicleMode.set(flightMode))
+    {
+        std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> ptrFlightMode = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>(flightMode);
+        this->cbi_VehicleStateData(systemID, ptrFlightMode);
+    }
 
     DataGenericItem::DataGenericItem_SystemArm arm;
     arm.setSystemArm(heartbeatMSG.base_mode & MAV_MODE_FLAG_DECODE_POSITION_SAFETY);
@@ -545,8 +528,6 @@ void ModuleVehicleArdupilot::NewTopicData(const std::string &topicName, const Ma
     }
 
     Controllers::IController<mavlink_message_t> *controller = m_TopicToControllers.at(topicName);
-
-
 
     if(controller->ContainsAction(Controllers::Actions::SEND) == false)
     {

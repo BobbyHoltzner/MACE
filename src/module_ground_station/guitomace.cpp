@@ -434,7 +434,6 @@ void GUItoMACE::setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj)
 //!
 void GUItoMACE::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
 {
-    /*
     CommandItem::ActionChangeMode tmpMode;
     tmpMode.setTargetSystem(vehicleID); // the vehicle ID coordinates to the specific vehicle //vehicle 0 is reserved for all connected vehicles
     tmpMode.setRequestMode(jsonObj["vehicleCommand"].toString().toStdString()); //where the string here is the desired Flight Mode...available modes can be found in the appropriate topic
@@ -443,25 +442,24 @@ void GUItoMACE::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
         ptr->Event_ChangeSystemMode(m_parent, tmpMode);
     });
-    */
 
 
 
 
-    std::shared_ptr<MaceCore::ITopicComponentPrototype> data = std::make_shared<Data::TopicComponents::String>(
-                    jsonObj["vehicleCommand"].toString().toStdString()
-                );
+//    std::shared_ptr<MaceCore::ITopicComponentPrototype> data = std::make_shared<Data::TopicComponents::String>(
+//                    jsonObj["vehicleCommand"].toString().toStdString()
+//                );
 
 
-    MaceCore::ModuleCharacteristic target;
-    target.ID = vehicleID;
-    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+//    MaceCore::ModuleCharacteristic target;
+//    target.ID = vehicleID;
+//    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-    MaceCore::TopicDatagram topicDatagram;
-    m_VehicleTopics->m_CommandSystemMode.SetComponent(data, topicDatagram);
-    m_parent->NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(m_parent, m_VehicleTopics->m_CommandSystemMode.Name(), m_parent->GetCharacteristic(), MaceCore::TIME(), topicDatagram, target);
-    });
+//    MaceCore::TopicDatagram topicDatagram;
+//    m_VehicleTopics->m_CommandSystemMode.SetComponent(data, topicDatagram);
+//    m_parent->NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//        ptr->NewTopicDataValues(m_parent, m_VehicleTopics->m_CommandSystemMode.Name(), m_parent->GetCharacteristic(), MaceCore::TIME(), topicDatagram, target);
+//    });
 }
 
 //!

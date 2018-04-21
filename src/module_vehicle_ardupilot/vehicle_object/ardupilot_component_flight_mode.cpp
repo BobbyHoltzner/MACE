@@ -25,19 +25,12 @@ void ARDUPILOTComponent_FlightMode::getAvailableFlightModes(const Data::VehicleT
     UNUSED(availableFM);
 }
 
-bool ARDUPILOTComponent_FlightMode::vehicleArmable()
-{
-//    if((flightModeString == "STABILIZE") || (flightModeString == "LOITER"))
-//        return true;
-//    return false;
-    return true;
-}
-
-void ARDUPILOTComponent_FlightMode::parseMAVLINK(const mavlink_heartbeat_t &msg)
+std::string ARDUPILOTComponent_FlightMode::parseMAVLINK(const mavlink_heartbeat_t &msg)
 {
     this->setVehicleTypeFromMAVLINK(msg.type);
     std::string newFlightMode = availableFM.at(msg.custom_mode);
-    //this->setFlightMode(newFlightMode);
+
+    return newFlightMode;
 }
 
 void ARDUPILOTComponent_FlightMode::setVehicleTypeFromMAVLINK(const int &vehicleType)

@@ -36,6 +36,11 @@ hsm::Transition State_TakeoffClimbing::GetTransition()
             rtn = hsm::SiblingTransition<State_TakeoffTransitioning>(currentCommand);
             break;
         }
+//        case ArdupilotFlightState::STATE_FLIGHT:
+//        {
+//            rtn = hsm::SiblingTransition<State_Flight>(currentCommand);
+//            break;
+//        }
         default:
             std::cout<<"I dont know how we eneded up in this transition state from State_EStop."<<std::endl;
             break;
@@ -46,7 +51,17 @@ hsm::Transition State_TakeoffClimbing::GetTransition()
 
 void State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
 {
+    clearCommand();
+    currentCommand = command->getClone();
+    switch (currentCommand->getCommandType()) {
+    case COMMANDITEM::CI_NAV_TAKEOFF:
+    {
 
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 void State_TakeoffClimbing::Update()
@@ -56,12 +71,13 @@ void State_TakeoffClimbing::Update()
 
 void State_TakeoffClimbing::OnEnter()
 {
-
+    //By default I dont think there are any actions that we need to do
 }
 
 void State_TakeoffClimbing::OnEnter(const AbstractCommandItem *command)
 {
     this->OnEnter();
+    handleCommand(command);
 }
 
 } //end of namespace ardupilot

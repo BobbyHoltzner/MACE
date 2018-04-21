@@ -56,7 +56,15 @@ void State_Takeoff::handleCommand(const AbstractCommandItem* command)
 
 void State_Takeoff::Update()
 {
+    StateData_MAVLINK* vehicleData = Owner().state;
 
+    if(!vehicleData->vehicleArm.get().getSystemArm())
+        desiredState = ArdupilotFlightState::STATE_GROUNDED;
+    else
+    {
+        if(vehicleData->vehicleMode.get().getFlightModeString() == "GUIDED")
+            desiredState = ArdupilotFlightState::STATE_TAKEOFF_CLIMBING;
+    }
 }
 
 void State_Takeoff::OnEnter()
@@ -64,7 +72,10 @@ void State_Takeoff::OnEnter()
     //check that the vehicle is truely armed and switch us into the guided mode
     auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
     controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
-        std::cout<<"The mode has changed"<<std::endl;
+        if(finishCode == MAV_RESULT_ACCEPTED)
+            std::cout<<"The vehicle mode is going to change"<<std::endl;
+        else
+            desiredState = ArdupilotFlightState::STATE_GROUNDED;
     });
 
     MaceCore::ModuleCharacteristic target;
@@ -78,6 +89,14 @@ void State_Takeoff::OnEnter()
     commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString("GUIDED");
     controllerSystemMode->Send(commandMode,sender,target);
     currentControllers.insert({"modeController",controllerSystemMode});
+
+    //    this->vehicleDataObject->state->vehicleAttitude.AddNotifier(this,[this]
+    //    {
+    //        m_LambdasToRun.push_back([this]{
+    //            std::cout<<"The attitude is functioning"<<std::endl;
+    //        });
+    //    });
+
 }
 
 void State_Takeoff::OnEnter(const AbstractCommandItem *command)

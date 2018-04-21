@@ -43,7 +43,7 @@ hsm::Transition State_GroundedArming::GetTransition()
             break;
         }
         default:
-            std::cout<<"I dont know how we eneded up in this transition state from State_EStop."<<std::endl;
+            std::cout<<"I dont know how we eneded up in this transition state from STATE_GROUNDED_ARMING."<<std::endl;
             break;
         }
     }
@@ -78,8 +78,6 @@ void State_GroundedArming::Update()
     if(Owner().state->vehicleArm.get().getSystemArm())
     {
         this->desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMED;
-        if(currentCommand != nullptr)
-            handleCommand(currentCommand);
     }
 }
 
@@ -88,28 +86,12 @@ void State_GroundedArming::OnEnter()
     //when calling this function that means our intent is to arm the vehicle
     //first let us send this relevant command
     //issue command to controller here, and then setup a callback to handle the result
-//    auto commandArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-//    commandArm->setLambda_Finished([this,commandArm](const bool completed, const uint8_t finishCode){
-//        if(finishCode == MAV_RESULT_ACCEPTED)
-//            armingCheck = true;
-//        else
-//            desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
-//    });
-
-//    MaceCore::ModuleCharacteristic target;
-//    target.ID = Owner().getMAVLINKID();
-//    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-//    MaceCore::ModuleCharacteristic sender;
-//    sender.ID = 255;
-//    sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-//    CommandItem::ActionArm action(255,target.ID);
-//    action.setVehicleArm(true);
-//    commandArm->Send(action,sender,target);
-//    currentControllers.insert({"armController",commandArm});
-
-    auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-    controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
-        std::cout<<"The mode has changed"<<std::endl;
+    auto commandArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+    commandArm->setLambda_Finished([this,commandArm](const bool completed, const uint8_t finishCode){
+        if(finishCode == MAV_RESULT_ACCEPTED)
+            armingCheck = true;
+        else
+            desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
     });
 
     MaceCore::ModuleCharacteristic target;
@@ -118,11 +100,10 @@ void State_GroundedArming::OnEnter()
     MaceCore::ModuleCharacteristic sender;
     sender.ID = 255;
     sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-    MAVLINKVehicleControllers::MAVLINKModeStruct commandMode;
-    commandMode.targetID = target.ID;
-    commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString("GUIDED");
-    controllerSystemMode->Send(commandMode,sender,target);
-    currentControllers.insert({"modeController",controllerSystemMode});
+    CommandItem::ActionArm action(255,target.ID);
+    action.setVehicleArm(true);
+    commandArm->Send(action,sender,target);
+    currentControllers.insert({"armController",commandArm});
 }
 
 void State_GroundedArming::OnEnter(const AbstractCommandItem* command)

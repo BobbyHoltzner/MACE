@@ -8,9 +8,8 @@
 #include <string>
 #include "common/common.h"
 
+#include "data/vehicle_types.h"
 #include "mavlink.h"
-
-#include "data_generic_item_topic/data_generic_item_topic_flightmode.h"
 
 class ARDUPILOTComponent_FlightMode
 {
@@ -65,15 +64,13 @@ class ARDUPILOTComponent_FlightMode
 public:
     ARDUPILOTComponent_FlightMode();
 
-    void parseMAVLINK(const mavlink_heartbeat_t &msg);
+    std::string parseMAVLINK(const mavlink_heartbeat_t &msg);
 
     void setVehicleTypeFromMAVLINK(const int &vehicleType);
 
     int getFlightModeFromString(const std::string &modeString);
 
     void getAvailableFlightModes(const Data::VehicleTypes &vehicleType, std::map<int, std::string> &availableFM);
-
-    bool vehicleArmable();
 
 private:
     std::map<int, std::string> arducopterFM = {{(int)Arducopter_FM::ACFM_STABILIZE,"STABILIZE"},
