@@ -7,8 +7,8 @@ State_GroundedIdle::State_GroundedIdle():
     AbstractStateArdupilot()
 {
     std::cout<<"We are in the constructor of STATE_GROUNDED_IDLE"<<std::endl;
-    this->currentState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
-    this->desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
+    currentStateEnum = ArdupilotFlightState::STATE_GROUNDED_IDLE;
+    desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_IDLE;
 }
 
 AbstractStateArdupilot* State_GroundedIdle::getClone() const
@@ -25,12 +25,12 @@ hsm::Transition State_GroundedIdle::GetTransition()
 {
     hsm::Transition rtn = hsm::NoTransition();
 
-    if(currentState != desiredState)
+    if(currentStateEnum != desiredStateEnum)
     {
         //this means we want to chage the state of the vehicle for some reason
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
-        switch (desiredState) {
+        switch (desiredStateEnum) {
         case ArdupilotFlightState::STATE_GROUNDED_ARMING:
         {
             return hsm::SiblingTransition<State_GroundedArming>(currentCommand);
@@ -44,7 +44,7 @@ hsm::Transition State_GroundedIdle::GetTransition()
     return rtn;
 }
 
-void State_GroundedIdle::handleCommand(const AbstractCommandItem* command)
+bool State_GroundedIdle::handleCommand(const AbstractCommandItem* command)
 {
     const AbstractCommandItem* copyCommand = command->getClone(); //we first make a local copy so that we can manage the memory
     this->clearCommand();
@@ -53,16 +53,16 @@ void State_GroundedIdle::handleCommand(const AbstractCommandItem* command)
     case COMMANDITEM::CI_ACT_ARM: //This should cause a state transition to the grounded_arming state
     {
         if(command->as<CommandItem::ActionArm>()->getRequestArm())
-            desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMING;
+            desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_ARMING;
         else
-            desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE; //this indicates the command was to disarm which we already were
+            desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_IDLE; //this indicates the command was to disarm which we already were
         delete copyCommand;
         break;
     }
     case COMMANDITEM::CI_NAV_TAKEOFF: //This should cause a state transition to the grounded_arming state
     {
         //This is a case where we want to walk all the way through arming to takeoff
-        desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMING;
+        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_ARMING;
         currentCommand = copyCommand;
     }
     default:

@@ -7,8 +7,8 @@ State_Grounded::State_Grounded():
     AbstractStateArdupilot()
 {
     std::cout<<"We are in the constructor of STATE_GROUNDED"<<std::endl;
-    this->currentState = ArdupilotFlightState::STATE_GROUNDED;
-    this->desiredState = ArdupilotFlightState::STATE_GROUNDED;
+    currentStateEnum = ArdupilotFlightState::STATE_GROUNDED;
+    desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
 }
 
 AbstractStateArdupilot* State_Grounded::getClone() const
@@ -25,12 +25,12 @@ hsm::Transition State_Grounded::GetTransition()
 {
     hsm::Transition rtn = hsm::NoTransition();
 
-    if(currentState != desiredState)
+    if(currentStateEnum != desiredStateEnum)
     {
         //this means we want to chage the state of the vehicle for some reason
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
-        switch (desiredState) {
+        switch (desiredStateEnum) {
         case ArdupilotFlightState::STATE_GROUNDED_IDLE:
         {
             return hsm::InnerEntryTransition<State_GroundedIdle>();
@@ -66,13 +66,11 @@ hsm::Transition State_Grounded::GetTransition()
     return rtn;
 }
 
-void State_Grounded::handleCommand(const AbstractCommandItem* command)
+bool State_Grounded::handleCommand(const AbstractCommandItem* command)
 {
     COMMANDITEM commandType = command->getCommandType();
-    switch (commandType) {
-    default:
-        break;
-    }
+    ardupilot::state::AbstractStateArdupilot* currentState = static_cast<ardupilot::state::AbstractStateArdupilot*>(GetImmediateInnerState());
+    currentState->handleCommand(command);
 }
 
 void State_Grounded::Update()
@@ -84,11 +82,11 @@ void State_Grounded::OnEnter()
 {
     if(Owner().state->vehicleArm.get().getSystemArm())
     {
-        this->desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMED;
+        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_ARMED;
     }
     else
     {
-        this->desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
+        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_IDLE;
     }
 }
 

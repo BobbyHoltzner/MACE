@@ -4,6 +4,7 @@
 #include "module_vehicle_MAVLINK/vehicle_object/mavlink_vehicle_object.h"
 
 #include "ardupilot_component_flight_mode.h"
+#include "../ardupilot_states/ardupilot_state_types.h"
 
 class ArdupilotVehicleObject : public MavlinkVehicleObject
 {
@@ -12,6 +13,7 @@ public:
 
 public:
     ARDUPILOTComponent_FlightMode ardupilotMode;
+
 };
 
 #endif // ARDUPILOT_VEHICLE_OBJECT_H

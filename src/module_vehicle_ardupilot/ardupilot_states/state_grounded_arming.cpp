@@ -7,8 +7,8 @@ State_GroundedArming::State_GroundedArming():
     AbstractStateArdupilot()
 {
     std::cout<<"We are in the constructor of STATE_GROUNDED_ARMING"<<std::endl;
-    this->currentState = ArdupilotFlightState::STATE_GROUNDED_ARMING;
-    this->desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMING;
+    currentStateEnum = ArdupilotFlightState::STATE_GROUNDED_ARMING;
+    desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_ARMING;
     armingCheck = false;
 }
 
@@ -26,12 +26,12 @@ hsm::Transition State_GroundedArming::GetTransition()
 {
     hsm::Transition rtn = hsm::NoTransition();
 
-    if(currentState != desiredState)
+    if(currentStateEnum != desiredStateEnum)
     {
         //this means we want to chage the state of the vehicle for some reason
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
-        switch (desiredState) {
+        switch (desiredStateEnum) {
         case ArdupilotFlightState::STATE_GROUNDED_IDLE:
         {
             return hsm::SiblingTransition<State_GroundedIdle>();
@@ -39,7 +39,7 @@ hsm::Transition State_GroundedArming::GetTransition()
         }
         case ArdupilotFlightState::STATE_GROUNDED_ARMED:
         {
-            return hsm::SiblingTransition<State_GroundedArmed>();
+            return hsm::SiblingTransition<State_GroundedArmed>(currentCommand);
             break;
         }
         default:
@@ -50,7 +50,7 @@ hsm::Transition State_GroundedArming::GetTransition()
     return rtn;
 }
 
-void State_GroundedArming::handleCommand(const AbstractCommandItem* command)
+bool State_GroundedArming::handleCommand(const AbstractCommandItem* command)
 {
     const AbstractCommandItem* copyCommand = command->getClone();
     this->clearCommand();
@@ -58,7 +58,7 @@ void State_GroundedArming::handleCommand(const AbstractCommandItem* command)
     switch (copyCommand->getCommandType()) {
     case COMMANDITEM::CI_NAV_TAKEOFF:
     {
-        this->desiredState = ArdupilotFlightState::STATE_TAKEOFF;
+        desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF;
         currentCommand = copyCommand;
         break;
     }
@@ -77,7 +77,7 @@ void State_GroundedArming::Update()
 
     if(Owner().state->vehicleArm.get().getSystemArm())
     {
-        this->desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMED;
+        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_ARMED;
     }
 }
 
@@ -91,7 +91,7 @@ void State_GroundedArming::OnEnter()
         if(finishCode == MAV_RESULT_ACCEPTED)
             armingCheck = true;
         else
-            desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
+            desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_IDLE;
     });
 
     MaceCore::ModuleCharacteristic target;
@@ -109,11 +109,12 @@ void State_GroundedArming::OnEnter()
 void State_GroundedArming::OnEnter(const AbstractCommandItem* command)
 {
     this->OnEnter();
-    if(command != nullptr)
-    {
-        //in this case we dont want to handle the command right away, this is because we have to wait for the vehicle to arm
-        this->clearCommand();
-        currentCommand = command->getClone();
+    if(command != nullptr) {
+        if(command->getCommandType() != COMMANDITEM::CI_ACT_ARM) {
+            //in this case we dont want to handle the command right away, this is because we have to wait for the vehicle to arm
+            this->clearCommand();
+            currentCommand = command->getClone();
+        }
     }
 }
 

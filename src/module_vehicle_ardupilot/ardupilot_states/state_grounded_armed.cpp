@@ -7,8 +7,8 @@ State_GroundedArmed::State_GroundedArmed():
     AbstractStateArdupilot()
 {
     std::cout<<"We are in the constructor of STATE_GROUNDED_ARMED"<<std::endl;
-    this->currentState = ArdupilotFlightState::STATE_GROUNDED_ARMED;
-    this->desiredState = ArdupilotFlightState::STATE_GROUNDED_ARMED;
+    currentStateEnum = ArdupilotFlightState::STATE_GROUNDED_ARMED;
+    desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_ARMED;
 }
 
 AbstractStateArdupilot* State_GroundedArmed::getClone() const
@@ -25,12 +25,12 @@ hsm::Transition State_GroundedArmed::GetTransition()
 {
     hsm::Transition rtn = hsm::NoTransition();
 
-    if(currentState != desiredState)
+    if(currentStateEnum != desiredStateEnum)
     {
         //this means we want to chage the state of the vehicle for some reason
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
-        switch (desiredState) {
+        switch (desiredStateEnum) {
         case ArdupilotFlightState::STATE_GROUNDED_DISARMING:
         {
             return hsm::SiblingTransition<State_GroundedDisarming>();
@@ -56,17 +56,20 @@ hsm::Transition State_GroundedArmed::GetTransition()
     return rtn;
 }
 
-void State_GroundedArmed::handleCommand(const AbstractCommandItem* command)
+bool State_GroundedArmed::handleCommand(const AbstractCommandItem* command)
 {
+    this->clearCommand();
     switch (command->getCommandType()) {
     case CommandItem::COMMANDITEM::CI_ACT_ARM:
     {
-        desiredState = ArdupilotFlightState::STATE_GROUNDED_DISARMING;
+        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_DISARMING;
         break;
     }
     case CommandItem::COMMANDITEM::CI_NAV_TAKEOFF:
     {
-        desiredState = ArdupilotFlightState::STATE_TAKEOFF;
+        desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF;
+        GetImmediateOuterState()->setDesiredStateEnum(desiredStateEnum);
+        static_cast<ardupilot::state::AbstractStateArdupilot*>(GetImmediateOuterState())->setCurrentCommand(command);
         break;
     }
     default:
@@ -77,7 +80,7 @@ void State_GroundedArmed::handleCommand(const AbstractCommandItem* command)
 void State_GroundedArmed::Update()
 {
     if(!Owner().state->vehicleArm.get().getSystemArm())
-        this->desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
+        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_IDLE;
 }
 
 void State_GroundedArmed::OnEnter()
@@ -88,7 +91,8 @@ void State_GroundedArmed::OnEnter()
 void State_GroundedArmed::OnEnter(const AbstractCommandItem *command)
 {
     //When entering this case we will have already armed and therefore have no reason to enter the OnEnter() function
-    handleCommand(command);
+    if(command != nullptr)
+        handleCommand(command);
 }
 
 } //end of namespace ardupilot

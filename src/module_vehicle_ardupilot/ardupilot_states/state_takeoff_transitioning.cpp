@@ -7,8 +7,8 @@ State_TakeoffTransitioning::State_TakeoffTransitioning():
     AbstractStateArdupilot()
 {
     std::cout<<"We are in the constructor of STATE_TAKEOFF_CLIMBING"<<std::endl;
-    this->currentState = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
-    this->desiredState = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
+    currentStateEnum = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
+    desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
 }
 
 AbstractStateArdupilot* State_TakeoffTransitioning::getClone() const
@@ -25,12 +25,12 @@ hsm::Transition State_TakeoffTransitioning::GetTransition()
 {
     hsm::Transition rtn = hsm::NoTransition();
 
-    if(currentState != desiredState)
+    if(currentStateEnum != desiredStateEnum)
     {
         //this means we want to chage the state of the vehicle for some reason
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
-        switch (desiredState) {
+        switch (desiredStateEnum) {
         default:
             std::cout<<"I dont know how we eneded up in this transition state from State_EStop."<<std::endl;
             break;
@@ -39,7 +39,7 @@ hsm::Transition State_TakeoffTransitioning::GetTransition()
     return rtn;
 }
 
-void State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* command)
+bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* command)
 {
 
 }

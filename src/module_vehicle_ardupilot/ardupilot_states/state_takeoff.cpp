@@ -7,8 +7,8 @@ State_Takeoff::State_Takeoff():
     AbstractStateArdupilot()
 {
     std::cout<<"We are in the constructor of STATE_TAKEOFF"<<std::endl;
-    this->currentState = ArdupilotFlightState::STATE_TAKEOFF;
-    this->desiredState = ArdupilotFlightState::STATE_TAKEOFF;
+    currentStateEnum = ArdupilotFlightState::STATE_TAKEOFF;
+    desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF;
 }
 
 AbstractStateArdupilot* State_Takeoff::getClone() const
@@ -25,12 +25,17 @@ hsm::Transition State_Takeoff::GetTransition()
 {
     hsm::Transition rtn = hsm::NoTransition();
 
-    if(currentState != desiredState)
+    if(currentStateEnum != desiredStateEnum)
     {
         //this means we want to chage the state of the vehicle for some reason
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
-        switch (desiredState) {
+        switch (desiredStateEnum) {
+        case ArdupilotFlightState::STATE_GROUNDED:
+        {
+            return hsm::SiblingTransition<State_Grounded>(currentCommand);
+            break;
+        }
         case ArdupilotFlightState::STATE_TAKEOFF_CLIMBING:
         {
             return hsm::InnerEntryTransition<State_TakeoffClimbing>(currentCommand);
@@ -49,7 +54,7 @@ hsm::Transition State_Takeoff::GetTransition()
     return rtn;
 }
 
-void State_Takeoff::handleCommand(const AbstractCommandItem* command)
+bool State_Takeoff::handleCommand(const AbstractCommandItem* command)
 {
 
 }
@@ -59,11 +64,11 @@ void State_Takeoff::Update()
     StateData_MAVLINK* vehicleData = Owner().state;
 
     if(!vehicleData->vehicleArm.get().getSystemArm())
-        desiredState = ArdupilotFlightState::STATE_GROUNDED;
+        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
     else
     {
         if(vehicleData->vehicleMode.get().getFlightModeString() == "GUIDED")
-            desiredState = ArdupilotFlightState::STATE_TAKEOFF_CLIMBING;
+            desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_CLIMBING;
     }
 }
 
@@ -75,7 +80,7 @@ void State_Takeoff::OnEnter()
         if(finishCode == MAV_RESULT_ACCEPTED)
             std::cout<<"The vehicle mode is going to change"<<std::endl;
         else
-            desiredState = ArdupilotFlightState::STATE_GROUNDED;
+            desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
     });
 
     MaceCore::ModuleCharacteristic target;
@@ -101,13 +106,17 @@ void State_Takeoff::OnEnter()
 
 void State_Takeoff::OnEnter(const AbstractCommandItem *command)
 {
-    this->OnEnter();
-    this->clearCommand();
-    currentCommand = command->getClone();
+    if(command != nullptr)
+    {
+        this->OnEnter();
+        this->clearCommand();
+        currentCommand = command->getClone();
+    }
 }
 
 } //end of namespace ardupilot
 } //end of namespace state
 
+#include "ardupilot_states/state_grounded.h"
 #include "ardupilot_states/state_takeoff_climbing.h"
 #include "ardupilot_states/state_takeoff_transitioning.h"

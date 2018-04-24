@@ -18,7 +18,8 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += module_vehicle_mavlink.cpp \
     vehicle_object/mavlink_vehicle_object.cpp \
     vehicle_object/state_data_mavlink.cpp \
-    vehicle_object/parse_mavlink.cpp
+    vehicle_object/parse_mavlink.cpp \
+    controllers/controller_guided_mission_item.cpp
 
 HEADERS += module_vehicle_mavlink.h\
         module_vehicle_mavlink_global.h \
@@ -31,7 +32,8 @@ HEADERS += module_vehicle_mavlink.h\
     vehicle_object/mavlink_vehicle_object.h \
     vehicle_object/state_data_mavlink.h \
     controllers/controller_home.h \
-    controllers/controller_mission.h
+    controllers/controller_mission.h \
+    controllers/controller_guided_mission_item.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega

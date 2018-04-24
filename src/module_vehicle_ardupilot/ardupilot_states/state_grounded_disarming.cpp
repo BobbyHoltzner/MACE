@@ -7,8 +7,8 @@ State_GroundedDisarming::State_GroundedDisarming():
     AbstractStateArdupilot()
 {
     std::cout<<"We are in the constructor of STATE_GROUNDED_DISARMING"<<std::endl;
-    this->currentState = ArdupilotFlightState::STATE_GROUNDED_DISARMING;
-    this->desiredState = ArdupilotFlightState::STATE_GROUNDED_DISARMING;
+    currentStateEnum = ArdupilotFlightState::STATE_GROUNDED_DISARMING;
+    desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_DISARMING;
 }
 
 AbstractStateArdupilot* State_GroundedDisarming::getClone() const
@@ -25,12 +25,12 @@ hsm::Transition State_GroundedDisarming::GetTransition()
 {
     hsm::Transition rtn = hsm::NoTransition();
 
-    if(currentState != desiredState)
+    if(currentStateEnum != desiredStateEnum)
     {
         //this means we want to chage the state of the vehicle for some reason
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
-        switch (desiredState) {
+        switch (desiredStateEnum) {
         case ArdupilotFlightState::STATE_GROUNDED_IDLE:
         {
             return hsm::SiblingTransition<State_GroundedIdle>();
@@ -44,7 +44,7 @@ hsm::Transition State_GroundedDisarming::GetTransition()
     return rtn;
 }
 
-void State_GroundedDisarming::handleCommand(const AbstractCommandItem* command)
+bool State_GroundedDisarming::handleCommand(const AbstractCommandItem* command)
 {
 
 }
@@ -53,7 +53,7 @@ void State_GroundedDisarming::Update()
 {
     if(Owner().state->vehicleArm.get().getSystemArm() == false)
     {
-        this->desiredState = ArdupilotFlightState::STATE_GROUNDED_IDLE;
+        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_IDLE;
     }
 }
 

@@ -6,6 +6,7 @@
 namespace ardupilot{
 namespace state{
 
+class State_Grounded;
 class State_TakeoffClimbing;
 class State_TakeoffTransitioning;
 
@@ -23,7 +24,7 @@ public:
     hsm::Transition GetTransition() override;
 
 public:
-    void handleCommand(const AbstractCommandItem* command) override;
+    bool handleCommand(const AbstractCommandItem* command) override;
 
     void Update() override;
 

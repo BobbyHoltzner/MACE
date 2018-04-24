@@ -134,8 +134,9 @@ void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &com
 
     mLogs->debug("Receieved a command system arm.");
     mLogs->info(buffer.str());
-    ardupilot::state::AbstractStateArdupilot* currentState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentState());
-    currentState->handleCommand(&command);
+    ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+    ardupilot::state::AbstractStateArdupilot* currentInnerState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentState());
+    currentOuterState->handleCommand(&command);
     stateMachine->ProcessStateTransitions();
     stateMachine->UpdateStates();
 

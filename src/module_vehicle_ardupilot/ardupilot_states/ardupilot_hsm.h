@@ -6,6 +6,8 @@
 // (See accompanying file LICENSE.txt or copy at
 // http://opensource.org/licenses/MIT)
 
+//Modified for Ardupilot State Machine Kenneth Kroeger
+
 /// \file hsm.h
 /// \brief Single header for HSM library
 
@@ -13,6 +15,8 @@
 #include <cstdarg>
 #include <functional>
 #include <memory>
+
+#include "ardupilot_state_types.h" //This could be templated out but we don't have the time for that
 
 #pragma once
 #ifndef __HSM_H__
@@ -519,14 +523,27 @@ struct State
 		: mOwnerStateMachine(0)
 		, mStackDepth(0)
 		, mStateValueResetters(0)
-		, mStateDebugName(0)
+        , mStateDebugName(0)
+        , currentStateEnum(ardupilot::state::ArdupilotFlightState::STATE_GROUNDED)
+        , desiredStateEnum(ardupilot::state::ArdupilotFlightState::STATE_GROUNDED)
 	{
 	}
+
 
 	virtual ~State()
 	{
 		ResetStateValues();
 	}
+
+    ardupilot::state::ArdupilotFlightState getCurrentStateEnum() const
+    {
+        return currentStateEnum;
+    }
+
+    ardupilot::state::ArdupilotFlightState getDesiredStateEnum() const
+    {
+        return desiredStateEnum;
+    }
 
 	// RTTI interface
 	StateTypeId GetStateType() const { return mStateTypeId; }
@@ -545,6 +562,8 @@ struct State
 
 	template <typename StateType>
 	const StateType* GetState() const;
+
+    State* GetImmediateOuterState();
 
 	// Searches for state on stack starting from immediate outer to outermost, returns NULL if not found
 	template <typename StateType>
@@ -635,6 +654,20 @@ struct State
 
 	template <typename SourceState>
 	StateOverride<SourceState> GetStateOverride();
+
+public:
+    void setDesiredStateEnum(const ardupilot::state::ArdupilotFlightState &state)
+    {
+        desiredStateEnum = state;
+    }
+
+    void setCurrentStateEnum(const ardupilot::state::ArdupilotFlightState &state)
+    {
+        currentStateEnum = state;
+    }
+protected:
+    ardupilot::state::ArdupilotFlightState currentStateEnum;
+    ardupilot::state::ArdupilotFlightState desiredStateEnum;
 
 private:
 	friend void detail::InitState(State* state, StateMachine* ownerStateMachine, size_t stackDepth, const StateFactory& stateFactory);
@@ -909,6 +942,7 @@ public:
 	HSM_DEPRECATED("Use GetDebugLevel")
 	size_t GetDebugLevel() { return static_cast<size_t>(GetDebugTraceLevel()); }
 
+    State* getCurrentOuterState();
     State* getCurrentState();
 private:
 	friend struct State;
@@ -992,6 +1026,11 @@ template <typename StateType>
 hsm_bool State::IsInState() const
 {
 	return GetStateMachine().IsInState<StateType>();
+}
+
+inline State* State::GetImmediateOuterState()
+{
+    return GetStateMachine().GetStateAtDepth(mStackDepth - 1);
 }
 
 inline State* State::GetImmediateInnerState()
@@ -1198,6 +1237,10 @@ inline State* StateMachine::GetStateAtDepth(size_t depth, StateTypeId stateType)
 	return (state && state->GetStateType() == stateType) ? state : 0;
 }
 
+inline State* StateMachine::getCurrentOuterState()
+{
+    return this->GetStateAtDepth(0);
+}
 inline State* StateMachine::getCurrentState()
 {
    return this->GetStateAtDepth(mStateStack.size() - 1);
@@ -1211,6 +1254,7 @@ inline State* StateMachine::GetOuterState(StateTypeId stateType, size_t startDep
 	for (size_t i = 0; i < numStatesToCompare; ++i, --currDepth)
 	{
 		State* state = mStateStack[currDepth];
+        StateTypeId currentType = state->GetStateType();
 		if (state->GetStateType() == stateType)
 			return state;
 	}

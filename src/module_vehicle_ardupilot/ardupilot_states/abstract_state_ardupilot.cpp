@@ -12,19 +12,21 @@ AbstractStateArdupilot::AbstractStateArdupilot(const int &timeout, const int &at
 AbstractStateArdupilot::AbstractStateArdupilot(const AbstractStateArdupilot &copy)
 {
     this->currentCommand = copy.currentCommand;
-    this->currentState = copy.currentState;
-    this->desiredState = copy.desiredState;
+    currentStateEnum = copy.currentStateEnum;
+    desiredStateEnum = copy.desiredStateEnum;
 }
 
-ArdupilotFlightState AbstractStateArdupilot::getCurrentState() const
-{
-    return currentState;
-}
 
-ArdupilotFlightState AbstractStateArdupilot::getDesiredState() const
-{
-    return desiredState;
-}
+
+//ArdupilotFlightState AbstractStateArdupilot::getCurrentState() const
+//{
+//    return currentStateEnum;
+//}
+
+//ArdupilotFlightState AbstractStateArdupilot::getDesiredState() const
+//{
+//    return desiredStateEnum;
+//}
 
 void AbstractStateArdupilot::clearCommand()
 {
@@ -42,6 +44,10 @@ void AbstractStateArdupilot::destroyCurrentControllers()
     {
         delete it->second;
     }
+}
+void AbstractStateArdupilot::setCurrentCommand(const AbstractCommandItem *command)
+{
+    this->currentCommand = command->getClone();
 }
 
 bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)

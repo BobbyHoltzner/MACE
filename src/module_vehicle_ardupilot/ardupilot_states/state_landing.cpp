@@ -7,8 +7,8 @@ State_Landing::State_Landing():
     AbstractStateArdupilot()
 {
     std::cout<<"We are in the constructor of STATE_LANDING"<<std::endl;
-    this->currentState = ArdupilotFlightState::STATE_LANDING;
-    this->desiredState = ArdupilotFlightState::STATE_LANDING;
+    currentStateEnum = ArdupilotFlightState::STATE_LANDING;
+    desiredStateEnum = ArdupilotFlightState::STATE_LANDING;
 }
 
 AbstractStateArdupilot* State_Landing::getClone() const
@@ -25,12 +25,12 @@ hsm::Transition State_Landing::GetTransition()
 {
     hsm::Transition rtn = hsm::NoTransition();
 
-    if(currentState != desiredState)
+    if(currentStateEnum != desiredStateEnum)
     {
         //this means we want to chage the state of the vehicle for some reason
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
-        switch (desiredState) {
+        switch (desiredStateEnum) {
         default:
             std::cout<<"I dont know how we eneded up in this transition state from State_EStop."<<std::endl;
             break;
@@ -39,7 +39,7 @@ hsm::Transition State_Landing::GetTransition()
     return rtn;
 }
 
-void State_Landing::handleCommand(const AbstractCommandItem* command)
+bool State_Landing::handleCommand(const AbstractCommandItem* command)
 {
 
 }

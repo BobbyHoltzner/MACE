@@ -66,11 +66,13 @@ public:
 
     virtual bool handleMAVLINKMessage(const mavlink_message_t &msg);
 
-    virtual void handleCommand(const AbstractCommandItem* command) = 0;
+    void setCurrentCommand(const AbstractCommandItem* command);
 
-    virtual ArdupilotFlightState getCurrentState() const;
+    virtual bool handleCommand(const AbstractCommandItem* command) = 0;
 
-    virtual ArdupilotFlightState getDesiredState() const;
+//    virtual ArdupilotFlightState getCurrentState() const;
+
+//    virtual ArdupilotFlightState getDesiredState() const;
 
 public:
     virtual void OnEnter(const AbstractCommandItem* command) = 0;
@@ -85,8 +87,8 @@ protected:
 
     const AbstractCommandItem* currentCommand;
 
-    ArdupilotFlightState currentState;
-    ArdupilotFlightState desiredState;
+//    ArdupilotFlightState currentState;
+//    ArdupilotFlightState desiredState;
 };
 
 } //end of namespace ardupilot
