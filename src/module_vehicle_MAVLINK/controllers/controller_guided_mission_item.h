@@ -14,20 +14,20 @@
 
 namespace MAVLINKVehicleControllers {
 
-template <typename MISSIONITEM>
+template <typename T>
 using GuidedMISend = Controllers::ActionSend<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MISSIONITEM>,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
     MaceCore::ModuleCharacteristic,
-    MISSIONITEM,
+    T,
     mavlink_mission_item_t,
     MAVLINK_MSG_ID_MISSION_ACK
 >;
 
-template <typename MISSIONITEM>
+template <typename T>
 using GuidedMIFinish = Controllers::ActionFinish<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MISSIONITEM>,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
     MaceCore::ModuleCharacteristic,
     uint8_t,
     mavlink_mission_ack_t,
@@ -35,7 +35,7 @@ using GuidedMIFinish = Controllers::ActionFinish<
 >;
 
 template <typename MISSIONITEM>
-class ControllerGuidedMissionItem : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MAVLINKModeStruct>,
+class ControllerGuidedMissionItem : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MISSIONITEM>,
         public GuidedMISend,
         public GuidedMIFinish
 {
@@ -59,7 +59,7 @@ protected:
     {
         UNUSED(msg);
         queueObj = sender;
-        ack = msg.result;
+        ack = msg.type; //this is MAV_MISSION_RESULT
         return true;
     }
 
@@ -83,14 +83,14 @@ protected:
         missionItem.x = 0.0;
         missionItem.y = 0.0;
         missionItem.z = 0.0;
-        mavMission.mission_type = MAV_MISSION_TYPE_MISSION;
+        //mavMission.mission_type = MAV_MISSION_TYPE_MISSION;
     }
 public:
 
     ControllerSystemMode(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
-        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MAVLINKModeStruct>(cb, queue, linkChan),
-        GuidedMISend(this, mavlink_msg_set_mode_encode_chan),
-        GuidedMIFinish(this, mavlink_msg_command_ack_decode)
+        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MISSIONITEM>(cb, queue, linkChan),
+        GuidedMISend<MISSIONITEM>(this, mavlink_msg_mission_item_encode_chan),
+        GuidedMIFinish<MISSIONITEM>(this, mavlink_msg_mission_ack_decode)
     {
 
     }
