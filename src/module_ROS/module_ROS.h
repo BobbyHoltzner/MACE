@@ -128,15 +128,6 @@ public:
 
     void newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
 
-    void pixelTo3DPoint(const sensor_msgs::PointCloud2::ConstPtr& pCloud, const int u, const int v, geometry_msgs::Point &p);
-
-    //!
-    //! \brief publishVehiclePosition Publish vehicle position to ROS
-    //! \param vehicleID Vehicle ID for which to set the new position
-    //! \param localPos New vehicle position
-    //!
-    void publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos);
-
     void renderState(const mace::pose::CartesianPosition_2D &state);
 
     void renderEdge(const mace::geometry::Line_2DC &edge);
@@ -152,6 +143,7 @@ private:
 
 #ifdef ROS_EXISTS
     ros::NodeHandle nh;
+
     //!
     //! \brief laserSub Subscriber for ROS laser scan messages
     //!
@@ -160,13 +152,12 @@ private:
 
     std::map<int, std::vector<ros::Subscriber> > m_sensorVehicleMap;
 
-    ros::Publisher velocityPub, markerPub;
+    ros::Publisher markerPub;
     visualization_msgs::Marker points, line_strip, line_list;
 
     ros::ServiceClient m_client;
     tf::TransformBroadcaster m_broadcaster;
     tf::Transform m_transform;
-//    gazebo_msgs::ModelState m_modelState;
     gazebo_msgs::SetModelState m_srv;
 #endif
 
@@ -188,12 +179,6 @@ private:
     //! \brief m_sensors List of sensors that will be spawned into the ROS environment
     //!
     std::vector<std::tuple<std::string, std::string> > m_sensors;
-
-    // TESTING:
-    int counter;
-    const double degree =  M_PI/180;
-    double tilt, tinc, swivel, angle, height, hinc;
-    // END TESTING
 
 private:
     Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;
