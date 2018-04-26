@@ -19,6 +19,9 @@
 
 #endif
 
+//!
+//! \brief ModuleROS Default constructor
+//!
 ModuleROS::ModuleROS() :
     MaceCore::IModuleCommandROS(),
     m_PlanningStateTopic("planningState"),
@@ -244,6 +247,7 @@ void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
 //!
 void ModuleROS::setupROS() {
     m_client = nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
+    // TODO: Do I need to use the transform container? Or can I just create a transform before sending the model state to Gazebo?
     m_transform.setOrigin(tf::Vector3(0.0,0.0,1.0));
     m_transform.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
 
@@ -253,6 +257,10 @@ void ModuleROS::setupROS() {
     ros::spinOnce();
 }
 
+//!
+//! \brief newLaserScan Laser scan callback for ROS LaserScan message
+//! \param event LaserScan message
+//!
 void ModuleROS::newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan const>& event) {
     // ** Message event metadata
     const std::string& publisher_name = event.getPublisherName();
@@ -281,6 +289,10 @@ void ModuleROS::newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan cons
     std::cout << "  Loop range min: " << minDistance << std::endl;
 }
 
+//!
+//! \brief newPointCloud Point cloud callback for ROS PointCloud2 message
+//! \param msg PointCloud2 message
+//!
 void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     // Convert to Octomap Point Cloud:
     octomap::Pointcloud octoPointCloud;
@@ -292,6 +304,10 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     std::cout << octoPointCloud.getPoint(0).distanceXY({0,0,0}) << std::endl;
 }
 
+//!
+//! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz
+//! \param state 2D Cartesian Position to render
+//!
 void ModuleROS::renderState(const mace::pose::CartesianPosition_2D &state) {
     geometry_msgs::Point p;
     p.x = state.getXPosition();
@@ -300,6 +316,10 @@ void ModuleROS::renderState(const mace::pose::CartesianPosition_2D &state) {
     markerPub.publish(points);
 }
 
+//!
+//! \brief renderEdge Publish the 2D line to ROS for rendering in RViz
+//! \param edge Edge/line to render
+//!
 void ModuleROS::renderEdge(const mace::geometry::Line_2DC &edge) {
     geometry_msgs::Point startPoint;
     mace::pose::CartesianPosition_2D begin(edge.getBeginLine());
@@ -317,6 +337,11 @@ void ModuleROS::renderEdge(const mace::geometry::Line_2DC &edge) {
     markerPub.publish(line_list);
 }
 
+//!
+//! \brief updatePositionData Update the position of the corresponding Gazebo model based on position of MACE vehicle
+//! \param vehicleID ID of the vehicle to update
+//! \param component Position (in the local frame)
+//!
 void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component)
 {
     double x = component->getX();
@@ -335,6 +360,11 @@ void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<D
     sendGazeboModelState(vehicleID);
 }
 
+//!
+//! \brief updateAttitudeData Update the attitude of the corresponding Gazebo model based on attitude of MACE vehicle
+//! \param vehicleID ID of the vehicle to update
+//! \param component Attitude
+//!
 void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component)
 {
     double roll = component->roll;
@@ -354,6 +384,10 @@ void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<D
     sendGazeboModelState(vehicleID);
 }
 
+//!
+//! \brief convertToGazeboCartesian Convert position in local frame to Gazebo's world frame
+//! \param localPos MACE local position
+//!
 void ModuleROS::convertToGazeboCartesian(DataState::StateLocalPosition& localPos) {
 
     switch (localPos.getCoordinateFrame()) {
@@ -395,6 +429,11 @@ void ModuleROS::convertToGazeboCartesian(DataState::StateLocalPosition& localPos
     }
 }
 
+//!
+//! \brief sendGazeboModelState Send the current position and attitude of the corresponding vehicle model to Gazebo
+//! \param vehicleID ID of the vehicle to update
+//! \return True for success, False for failure
+//!
 bool ModuleROS::sendGazeboModelState(const int &vehicleID) {
     // Set up the publisher rate to 10 Hz
     ros::Rate loop_rate(10);
@@ -426,6 +465,8 @@ bool ModuleROS::sendGazeboModelState(const int &vehicleID) {
     modelState.model_name = "basic_quadrotor_" + std::to_string(vehicleID);
     modelState.reference_frame = "world";
     modelState.pose = pose;
+
+    // TODO: Do I need to use the transform container? Or can I just create a transform before sending the model state to Gazebo?
     m_transform.setOrigin(tf::Vector3(robotPosition.x,robotPosition.y,robotPosition.z));
     m_transform.setRotation(tf::Quaternion(attitude.x,attitude.y,attitude.z,attitude.w));
     std::string childLink = modelState.model_name + "/base_link";
