@@ -18,7 +18,6 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += module_vehicle_ardupilot.cpp \
     module_vehicle_ardupilot_mission_parser.cpp \
     ardupilot_guided_controller.cpp \
-    ardupilot_mission_state.cpp \
     ardupilot_takeoff_controller.cpp \
     ardupilot_general_controller.cpp \
     ardupilot_states/abstract_state_ardupilot.cpp \
@@ -38,12 +37,12 @@ SOURCES += module_vehicle_ardupilot.cpp \
     ardupilot_states/state_flight_auto.cpp \
     ardupilot_states/state_flight_brake.cpp \
     vehicle_object/ardupilot_vehicle_object.cpp \
-    vehicle_object/ardupilot_component_flight_mode.cpp
+    vehicle_object/ardupilot_component_flight_mode.cpp \
+    ardupilot_target_progess.cpp
 
 HEADERS += module_vehicle_ardupilot.h\
         module_vehicle_ardupilot_global.h \
     ardupilot_guided_controller.h \
-    ardupilot_mission_state.h \
     ardupilot_takeoff_controller.h \
     ardupilot_general_controller.h \
     ardupilot_states/abstract_state_ardupilot.h \
@@ -66,7 +65,8 @@ HEADERS += module_vehicle_ardupilot.h\
     ardupilot_states/state_flight_auto.h \
     ardupilot_states/state_flight_brake.h \
     vehicle_object/ardupilot_vehicle_object.h \
-    vehicle_object/ardupilot_component_flight_mode.h
+    vehicle_object/ardupilot_component_flight_mode.h \
+    ardupilot_target_progess.h
 
 
 INCLUDEPATH += $$PWD/../

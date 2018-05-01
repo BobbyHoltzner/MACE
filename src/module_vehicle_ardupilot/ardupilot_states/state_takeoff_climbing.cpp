@@ -66,7 +66,10 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
 
 void State_TakeoffClimbing::Update()
 {
-
+    if()
+    DataState::StateGlobalPosition currentPosition = vehicleDataObject->state->vehicleGlobalPosition.get();
+    DataState::StateGlobalPosition targetPosition(currentPosition.getX(),currentPosition.getY(),missionItem_Takeoff.position->getZ());
+    distance  = fabs(currentPosition.deltaAltitude(targetPosition));
 }
 
 void State_TakeoffClimbing::OnEnter()

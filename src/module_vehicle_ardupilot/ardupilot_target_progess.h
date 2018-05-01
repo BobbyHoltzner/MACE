@@ -1,17 +1,17 @@
-#ifndef ARDUPILOT_MISSION_STATE_H
-#define ARDUPILOT_MISSION_STATE_H
+#ifndef ARDUPILOT_TARGET_PROGRESS_H
+#define ARDUPILOT_TARGET_PROGRESS_H
 
 #include <limits>
 #include <chrono>
 
 #include "data/controller_state.h"
 
-class ArdupilotMissionState
+class ArdupilotTargetProgess
 {
 public:
-    ArdupilotMissionState();
+    ArdupilotTargetProgess();
 
-    ArdupilotMissionState(const double &achievedDistance, const double &huntingDistance, const double &maxHuntingDuration);
+    ArdupilotTargetProgess(const double &achievedDistance, const double &huntingDistance, const double &maxHuntingDuration);
 
 
     void updateMaxDurationRouting(const double &value)
@@ -61,4 +61,4 @@ private:
     double maxDuration_Hunting;
 };
 
-#endif // ARDUPILOT_MISSION_STATE_H
+#endif // ARDUPILOT_TARGET_PROGRESS_H

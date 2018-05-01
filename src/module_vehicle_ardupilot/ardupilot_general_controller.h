@@ -21,7 +21,7 @@
 #include "comms/comms_marshaler.h"
 
 #include "common/thread_manager.h"
-#include "ardupilot_mission_state.h"
+#include "ardupilot_target_progess.h"
 
 #include <list>
 
@@ -69,7 +69,7 @@ protected:
     bool mToExit;
 
     //Methods for determining state of the vehicle
-    ArdupilotMissionState vehicleMissionState;
+    ArdupilotTargetProgess vehicleMissionState;
 
 protected:
     std::list<std::function<void()>> m_LambdasToRun;

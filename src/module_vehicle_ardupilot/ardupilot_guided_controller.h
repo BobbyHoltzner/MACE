@@ -12,7 +12,7 @@
 #include "data_interface_MAVLINK/vehicle_object_mavlink.h"
 
 #include "ardupilot_general_controller.h"
-#include "ardupilot_mission_state.h"
+#include "ardupilot_target_progess.h"
 
 class Ardupilot_GuidedController : public Ardupilot_GeneralController
 {
