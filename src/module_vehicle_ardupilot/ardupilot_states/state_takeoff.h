@@ -9,6 +9,8 @@ namespace state{
 class State_Grounded;
 class State_TakeoffClimbing;
 class State_TakeoffTransitioning;
+class State_TakeoffComplete;
+class State_Flight;
 
 class State_Takeoff : public AbstractStateArdupilot
 {

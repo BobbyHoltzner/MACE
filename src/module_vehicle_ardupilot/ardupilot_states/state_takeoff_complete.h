@@ -1,17 +1,16 @@
-#ifndef STATE_TAKEOFF_CLIMBING_H
-#define STATE_TAKEOFF_CLIMBING_H
+#ifndef STATE_TAKEOFF_COMPLETE_H
+#define STATE_TAKEOFF_COMPLETE_H
 
 #include "abstract_state_ardupilot.h"
 
 namespace ardupilot{
 namespace state{
 
-class State_TakeoffTransitioning;
 
-class State_TakeoffClimbing : public AbstractStateArdupilot
+class State_TakeoffComplete : public AbstractStateArdupilot
 {
 public:
-    State_TakeoffClimbing();
+    State_TakeoffComplete();
 
 public:
     AbstractStateArdupilot* getClone() const override;
@@ -31,10 +30,11 @@ public:
     void OnEnter(const AbstractCommandItem* command) override;
 
 private:
-    void updateDistanceToTarget    
+
 };
 
 } //end of namespace ardupilot
 } //end of namespace state
 
-#endif // STATE_TAKEOFF_CLIMBING_H
+
+#endif // STATE_TAKEOFF_COMPLETE_H

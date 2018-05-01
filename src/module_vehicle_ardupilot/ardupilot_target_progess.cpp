@@ -2,9 +2,9 @@
 
 ArdupilotTargetProgess::ArdupilotTargetProgess()
 {
-    distanceThresholdAchieved = 0.0;
-    distanceThresholdHunting = 1.0;
-    maxDuration_Hunting = 10.0;
+    distanceThresholdAchieved = 3.0;
+    distanceThresholdHunting = 20.0;
+    maxDuration_Hunting = 20.0;
     maxDuration_Routing = std::numeric_limits<double>::max();
     state = Data::ControllerState::TRACKING;
     initializeTargetState();
@@ -23,6 +23,11 @@ Data::ControllerState ArdupilotTargetProgess::newTargetItem(const double &distan
     initializeTargetStart();
     Data::ControllerState rtnState = updateTargetState(distance);
     return rtnState;
+}
+
+Data::ControllerState ArdupilotTargetProgess::updateTargetTimes()
+{
+
 }
 
 Data::ControllerState ArdupilotTargetProgess::updateTargetState(const double &distance)

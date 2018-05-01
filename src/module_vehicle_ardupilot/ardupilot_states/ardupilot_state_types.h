@@ -15,17 +15,19 @@ enum class ArdupilotFlightState{
     STATE_GROUNDED_ARMING = 2, /**< */
     STATE_GROUNDED_ARMED = 3, /**< */
     STATE_GROUNDED_DISARMING = 4, /**< */
-    STATE_FLIGHT = 5, /**< */
-    STATE_TAKEOFF = 6, /**< */
-    STATE_TAKEOFF_CLIMBING = 7, /**< */
-    STATE_TAKEOFF_TRANSITIONING = 8, /**< */
-    STATE_FLIGHT_MANUAL = 9, /**< */
-    STATE_FLIGHT_GUIDED = 10, /**< */
-    STATE_FLIGHT_AUTO = 11, /**< */
-    STATE_FLIGHT_BRAKE= 12, /**< */
-    STATE_LANDING= 13, /**< */
-    STATE_LANDING_TRANSITIONING = 14, /**< */
-    STATE_LANDING_DESCENDING = 15 /**< */
+    STATE_TAKEOFF = 5, /**< */
+    STATE_TAKEOFF_CLIMBING = 6, /**< */
+    STATE_TAKEOFF_TRANSITIONING = 7, /**< */
+    STATE_TAKEOFF_COMPLETE = 8, /**< */
+    STATE_FLIGHT = 9, /**< */
+    STATE_FLIGHT_MANUAL = 10, /**< */
+    STATE_FLIGHT_GUIDED = 11, /**< */
+    STATE_FLIGHT_AUTO = 12, /**< */
+    STATE_FLIGHT_BRAKE= 13, /**< */
+    STATE_LANDING= 14, /**< */
+    STATE_LANDING_TRANSITIONING = 15, /**< */
+    STATE_LANDING_DESCENDING = 16, /**< */
+    STATE_LANDING_COMPLETE = 17 /**< */
 };
 
 //!

@@ -6,6 +6,11 @@
 namespace ardupilot{
 namespace state{
 
+class State_LandingTransitioning;
+class State_LandingDescent;
+class State_LandingComplete;
+class State_Grounded;
+
 class State_Landing : public AbstractStateArdupilot
 {
 public:

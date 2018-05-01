@@ -6,9 +6,9 @@ namespace state{
 State_FlightGuided::State_FlightGuided():
     AbstractStateArdupilot()
 {
-    std::cout<<"We are in the constructor of STATE_TAKEOFF_CLIMBING"<<std::endl;
-    currentStateEnum = ArdupilotFlightState::STATE_TAKEOFF_CLIMBING;
-    desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_CLIMBING;
+    std::cout<<"We are in the constructor of STATE_FLIGHT_GUIDED"<<std::endl;
+    currentStateEnum = ArdupilotFlightState::STATE_FLIGHT_GUIDED;
+    desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_GUIDED;
 }
 
 AbstractStateArdupilot* State_FlightGuided::getClone() const

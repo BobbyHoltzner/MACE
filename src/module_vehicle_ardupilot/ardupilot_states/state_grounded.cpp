@@ -69,8 +69,35 @@ hsm::Transition State_Grounded::GetTransition()
 bool State_Grounded::handleCommand(const AbstractCommandItem* command)
 {
     COMMANDITEM commandType = command->getCommandType();
-    ardupilot::state::AbstractStateArdupilot* currentState = static_cast<ardupilot::state::AbstractStateArdupilot*>(GetImmediateInnerState());
-    currentState->handleCommand(command);
+    switch (commandType) {
+    case COMMANDITEM::CI_ACT_CHANGEMODE:
+    {
+        //check that the vehicle is truely armed and switch us into the guided mode
+        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+            if(finishCode == MAV_RESULT_ACCEPTED)
+                std::cout<<"The vehicle mode is going to change"<<std::endl;
+            else
+                desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
+        });
+
+        MaceCore::ModuleCharacteristic target;
+        target.ID = Owner().getMAVLINKID();
+        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MaceCore::ModuleCharacteristic sender;
+        sender.ID = 255;
+        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MAVLINKVehicleControllers::MAVLINKModeStruct commandMode;
+        commandMode.targetID = target.ID;
+        commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString(command->as<CommandItem::ActionChangeMode>()->getRequestMode());
+        controllerSystemMode->Send(commandMode,sender,target);
+
+        //currentControllers.insert({"modeController",controllerSystemMode});
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 void State_Grounded::Update()

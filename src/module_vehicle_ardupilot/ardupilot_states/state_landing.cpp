@@ -27,16 +27,32 @@ hsm::Transition State_Landing::GetTransition()
 
     if(currentStateEnum != desiredStateEnum)
     {
-        //this means we want to chage the state of the vehicle for some reason
-        //this could be caused by a command, action sensed by the vehicle, or
-        //for various other peripheral reasons
-        switch (desiredStateEnum) {
-        default:
-            std::cout<<"I dont know how we eneded up in this transition state from State_EStop."<<std::endl;
-            break;
+        if(IsInInnerState<State_LandingComplete>())
+        {
+            rtn = hsm::SiblingTransition<State_Grounded>();
+        }
+        else
+        {
+            //this means we want to chage the state of the vehicle for some reason
+            //this could be caused by a command, action sensed by the vehicle, or
+            //for various other peripheral reasons
+            switch (desiredStateEnum) {
+            case ArdupilotFlightState::STATE_LANDING_DESCENDING:
+            {
+                rtn = hsm::InnerEntryTransition<State_LandingDescent>(currentCommand);
+                break;
+            }
+            case ArdupilotFlightState::STATE_LANDING_TRANSITIONING:
+            {
+                rtn = hsm::InnerEntryTransition<State_LandingTransitioning>(currentCommand);
+                break;
+            }
+            default:
+                std::cout<<"I dont know how we eneded up in this transition state from STATE_TAKEOFF."<<std::endl;
+                break;
+            }
         }
     }
-    return rtn;
 }
 
 bool State_Landing::handleCommand(const AbstractCommandItem* command)
@@ -61,3 +77,8 @@ void State_Landing::OnEnter(const AbstractCommandItem *command)
 
 } //end of namespace ardupilot
 } //end of namespace state
+
+#include "ardupilot_states/state_landing_descent.h"
+#include "ardupilot_states/state_landing_transitioning.h"
+#include "ardupilot_states/state_landing_complete.h"
+#include "ardupilot_states/state_grounded.h"

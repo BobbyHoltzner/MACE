@@ -145,7 +145,7 @@ public:
     //!
     bool getPosZFlag() const
     {
-        return this->posXFlag;
+        return this->posZFlag;
     }
 
     //!

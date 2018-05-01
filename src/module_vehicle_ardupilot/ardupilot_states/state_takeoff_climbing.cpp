@@ -6,6 +6,7 @@ namespace state{
 State_TakeoffClimbing::State_TakeoffClimbing():
     AbstractStateArdupilot()
 {
+    guidedProgress = ArdupilotTargetProgess(2,10,10);
     std::cout<<"We are in the constructor of STATE_TAKEOFF_CLIMBING"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_TAKEOFF_CLIMBING;
     desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_CLIMBING;
@@ -36,11 +37,11 @@ hsm::Transition State_TakeoffClimbing::GetTransition()
             rtn = hsm::SiblingTransition<State_TakeoffTransitioning>(currentCommand);
             break;
         }
-//        case ArdupilotFlightState::STATE_FLIGHT:
-//        {
-//            rtn = hsm::SiblingTransition<State_Flight>(currentCommand);
-//            break;
-//        }
+        case ArdupilotFlightState::STATE_TAKEOFF_COMPLETE:
+        {
+            rtn = hsm::SiblingTransition<State_TakeoffComplete>(currentCommand);
+            break;
+        }
         default:
             std::cout<<"I dont know how we eneded up in this transition state from State_EStop."<<std::endl;
             break;
@@ -56,7 +57,34 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
     switch (currentCommand->getCommandType()) {
     case COMMANDITEM::CI_NAV_TAKEOFF:
     {
+        const CommandItem::SpatialTakeoff* cmd = currentCommand->as<CommandItem::SpatialTakeoff>();
+        if(cmd->getPosition().getPosZFlag())
+        {
+            Owner().state->vehicleGlobalPosition.AddNotifier(this,[this,cmd]
+            {
+                if(currentCommand->getCommandType() == COMMANDITEM::CI_NAV_TAKEOFF)
+                {
+                    if(cmd->getPosition().getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
+                    {
+                        StateGlobalPosition cmdPos(cmd->getPosition().getX(),cmd->getPosition().getY(),cmd->getPosition().getZ());
+                        StateGlobalPosition currentPosition = Owner().state->vehicleGlobalPosition.get();
+                        double distance = fabs(currentPosition.deltaAltitude(cmdPos));
+                        Data::ControllerState guidedState = guidedProgress.updateTargetState(distance);
+                        if(guidedState == Data::ControllerState::ACHIEVED)
+                        {
+                            if(cmd->getPosition().has3DPositionSet())
+                                desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
+                            else
+                            {
+                                desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_COMPLETE;
+                            }
+                        }
 
+                    }
+                }
+
+            });
+        }
         break;
     }
     default:
@@ -66,10 +94,7 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
 
 void State_TakeoffClimbing::Update()
 {
-    if()
-    DataState::StateGlobalPosition currentPosition = vehicleDataObject->state->vehicleGlobalPosition.get();
-    DataState::StateGlobalPosition targetPosition(currentPosition.getX(),currentPosition.getY(),missionItem_Takeoff.position->getZ());
-    distance  = fabs(currentPosition.deltaAltitude(targetPosition));
+
 }
 
 void State_TakeoffClimbing::OnEnter()
@@ -80,11 +105,12 @@ void State_TakeoffClimbing::OnEnter()
 void State_TakeoffClimbing::OnEnter(const AbstractCommandItem *command)
 {
     this->OnEnter();
-    handleCommand(command);
+    if(command != nullptr)
+        handleCommand(command);
 }
 
 } //end of namespace ardupilot
 } //end of namespace state
 
 #include "ardupilot_states/state_takeoff_transitioning.h"
-
+#include "ardupilot_states/state_takeoff_complete.h"

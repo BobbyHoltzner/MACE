@@ -36,8 +36,8 @@ using GuidedMIFinish = Controllers::ActionFinish<
 
 template <typename MISSIONITEM>
 class ControllerGuidedMissionItem : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MISSIONITEM>,
-        public GuidedMISend,
-        public GuidedMIFinish
+        public GuidedMISend<MISSIONITEM>,
+        public GuidedMIFinish<MISSIONITEM>
 {
 private:
 
@@ -83,11 +83,12 @@ protected:
         missionItem.x = 0.0;
         missionItem.y = 0.0;
         missionItem.z = 0.0;
-        //mavMission.mission_type = MAV_MISSION_TYPE_MISSION;
+        missionItem.mission_type = MAV_MISSION_TYPE_GUIDED;
     }
+
 public:
 
-    ControllerSystemMode(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+    ControllerGuidedMissionItem(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
         Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MISSIONITEM>(cb, queue, linkChan),
         GuidedMISend<MISSIONITEM>(this, mavlink_msg_mission_item_encode_chan),
         GuidedMIFinish<MISSIONITEM>(this, mavlink_msg_mission_ack_decode)

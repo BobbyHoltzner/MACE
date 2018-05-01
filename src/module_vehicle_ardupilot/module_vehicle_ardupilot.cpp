@@ -236,6 +236,9 @@ void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionC
 
     mLogs->debug("Receieved a command to change the mode.");
     mLogs->info(buffer.str());
+
+    ardupilot::state::AbstractStateArdupilot* outerState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+    outerState->handleCommand(&commandWithTarget);
 }
 
 void ModuleVehicleArdupilot::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)

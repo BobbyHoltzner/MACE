@@ -34,16 +34,18 @@ public:
         distanceThresholdAchieved = value;
     }
 
-    Data::ControllerState newMissionItem(const double &distance);
+    Data::ControllerState newTargetItem(const double &distance);
 
-    Data::ControllerState updateMissionState(const double &distance);
+    Data::ControllerState updateTargetState(const double &distance);
+
+    Data::ControllerState updateTargetTimes();
 
     float getCurrentMissionTime();
     float getCurrentTargetTime();
     float getHuntingTime();
 
 private:
-    void initializeMissionState();
+    void initializeTargetState();
     void initializeTargetStart();
 
 private:
