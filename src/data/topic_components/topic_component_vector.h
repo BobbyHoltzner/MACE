@@ -45,7 +45,13 @@ public:
 
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram)
     {
-        throw std::runtime_error("Not Implimented");
+        for(size_t i = 0 ; i < datagram.GetNonTerminal_Num("arr") ; i++)
+        {
+            std::shared_ptr<MaceCore::TopicDatagram> subData = datagram.GetNonTerminal_Index("arr", i);
+            std::shared_ptr<T> ptr = std::make_shared<T>();
+            ptr->CreateFromDatagram(*subData);
+            m_Arr.push_back(*ptr);
+        }
     }
 
     Vector()

@@ -135,28 +135,42 @@ void GUItoMACE::setGlobalOrigin(const QJsonObject &jsonObj)
 //! \brief setEnvironmentVertices GUI command to set new environment boundary vertices
 //! \param jsonObj JSON data containing the new environment vertices
 //!
-void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
+void GUItoMACE::setEnvironmentVertices(const int &vehicleID, const QJsonObject &jsonObj)
 {
     QJsonObject tmpBoundaryObj = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
     QJsonArray boundary = tmpBoundaryObj.value("boundary").toArray();
 
-    std::vector<DataState::StateGlobalPosition> globalBoundary;
+
+    std::shared_ptr<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>> data = std::make_shared<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>>();
     foreach(const QJsonValue & v, boundary) {
+
         std::cout << "Lat: " << v.toObject().value("lat").toDouble() << " / Lon: " << v.toObject().value("lng").toDouble() << std::endl;
         double tmpLat = v.toObject().value("lat").toDouble();
         double tmpLon = v.toObject().value("lng").toDouble();
         double tmpAlt = v.toObject().value("alt").toDouble();
 
-        DataState::StateGlobalPosition globalPos;
-        globalPos.setLatitude(tmpLat);
-        globalPos.setLongitude(tmpLon);
-        globalPos.setAltitude(tmpAlt);
-        globalBoundary.push_back(globalPos);
+        data->push_back(Data::TopicComponents::PositionGlobal(
+            tmpAlt,
+            Data::ReferenceAltitude::REF_ALT_MSL,
+            tmpLat,
+            tmpLon,
+            Data::ReferenceGeoCoords::REF_GEO_DEG
+        ));
+
     }
 
-    m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->Event_SetEnvironmentVertices(this, globalBoundary);
+    MaceCore::ModuleCharacteristic test_target;
+    test_target.ID = vehicleID;
+    test_target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+    MaceCore::TopicDatagram test_topicDatagram;
+    m_VehicleTopics->Get<BaseTopic::VehicleTopicsNames::CommandName_EnvironmentVertices>()->SetComponent(data, test_topicDatagram);
+
+    m_parent->NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        std::string name = m_VehicleTopics->Get<BaseTopic::VehicleTopicsNames::CommandName_EnvironmentVertices>()->Name();
+        ptr->NewTopicDataValues(m_parent, name, m_parent->GetCharacteristic(), MaceCore::TIME(), test_topicDatagram, test_target);
     });
+
 
     // Get and send vertices to the GUI:
     getEnvironmentBoundary();
@@ -180,49 +194,6 @@ void GUItoMACE::setGoHere(const int &vehicleID, const QJsonObject &jsonObj)
 //!
 void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
 {
-    //tmp
-
-    std::shared_ptr<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>> test_data = std::make_shared<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>>();
-
-    test_data->push_back(Data::TopicComponents::PositionGlobal(
-                        0,
-                        Data::ReferenceAltitude::REF_ALT_MSL,
-                        1,
-                        1,
-                        Data::ReferenceGeoCoords::REF_GEO_DEG
-                    ));
-
-    test_data->push_back(Data::TopicComponents::PositionGlobal(
-                        0,
-                        Data::ReferenceAltitude::REF_ALT_MSL,
-                        2,
-                        2,
-                        Data::ReferenceGeoCoords::REF_GEO_DEG
-                    ));
-
-    test_data->push_back(Data::TopicComponents::PositionGlobal(
-                        0,
-                        Data::ReferenceAltitude::REF_ALT_MSL,
-                        3,
-                        3,
-                        Data::ReferenceGeoCoords::REF_GEO_DEG
-                    ));
-
-    MaceCore::ModuleCharacteristic test_target;
-    test_target.ID = vehicleID;
-    test_target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-
-    MaceCore::TopicDatagram test_topicDatagram;
-    m_VehicleTopics->Get<BaseTopic::VehicleTopicsNames::CommandName_EnvironmentVertices>()->SetComponent(test_data, test_topicDatagram);
-
-    m_parent->NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        std::string name = m_VehicleTopics->Get<BaseTopic::VehicleTopicsNames::CommandName_EnvironmentVertices>()->Name();
-        ptr->NewTopicDataValues(m_parent, name, m_parent->GetCharacteristic(), MaceCore::TIME(), test_topicDatagram, test_target);
-    });
-
-    //end temp
-
-
 
     CommandItem::SpatialTakeoff newTakeoff;
     QJsonObject vehicleCommand = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
@@ -540,7 +511,7 @@ void GUItoMACE::parseTCPRequest(const QJsonObject &jsonObj)
     }
     else if(command == "SET_ENVIRONMENT_VERTICES")
     {
-        setEnvironmentVertices(jsonObj);
+        setEnvironmentVertices(vehicleID, jsonObj);
     }
     else if(command == "SET_VEHICLE_ARM")
     {

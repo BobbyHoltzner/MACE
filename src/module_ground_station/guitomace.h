@@ -88,7 +88,7 @@ public:
     //! \brief setEnvironmentVertices GUI command to set new environment boundary vertices
     //! \param jsonObj JSON data containing the new environment vertices
     //!
-    void setEnvironmentVertices(const QJsonObject &jsonObj);
+    void setEnvironmentVertices(const int &vehicleID, const QJsonObject &jsonObj);
 
     //!
     //! \brief setGoHere GUI command to set a new "go here" lat/lon/alt position

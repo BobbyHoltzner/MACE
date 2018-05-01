@@ -27,6 +27,11 @@ void PositionGeoreference::CreateFromDatagram(const MaceCore::TopicDatagram &dat
     m_longitude = datagram.GetTerminal<double>("longitude");
 }
 
+PositionGeoreference::PositionGeoreference() :
+    PositionGeoreference(0, 0, ReferenceGeoCoords::REF_GEO_DEG)
+{
+
+}
 
 PositionGeoreference::PositionGeoreference(const PositionGeoreference &copyObj) :
     PositionGeoreference(copyObj.m_lattitude, copyObj.m_longitude, copyObj.m_Reference)

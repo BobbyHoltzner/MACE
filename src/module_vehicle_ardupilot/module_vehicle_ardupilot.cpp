@@ -21,7 +21,7 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<>(),
     m_VehicleMissionTopic("vehicleMission"), m_AircraftController(NULL), vehicleData(NULL)
 {
-    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
+    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>(2000);
 
 
     auto controller = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequest<
@@ -106,13 +106,17 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 
 
     m_VehicleTopics.AddConsumptionAction<BaseTopic::VehicleTopicsNames::CommandName_EnvironmentVertices>([this](const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target){
-       printf("Environmental Vertices added!");
 
-       std::shared_ptr<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>> ptr;
+       std::shared_ptr<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>> ptr = std::make_shared<Data::TopicComponents::Vector<Data::TopicComponents::PositionGlobal>>();
        m_VehicleTopics.Get<BaseTopic::VehicleTopicsNames::CommandName_EnvironmentVertices>()->GetComponent(ptr, data);
+
+       printf("Environmental Vertices functionality not added!");
+
     });
 
 }
+
+
 
 
 

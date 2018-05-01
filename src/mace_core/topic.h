@@ -181,6 +181,10 @@ public:
         return m_NonTerminalValues.at(str);
     }
 
+    size_t GetNonTerminal_Num(const std::string &str) const {
+        return m_NonTerminalValues.at(str).size();
+    }
+
     std::shared_ptr<TopicDatagram> GetNonTerminal_Index(const std::string &str, int index) const {
         return m_NonTerminalValues.at(str).at(index);
     }

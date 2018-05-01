@@ -24,6 +24,8 @@ public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram);
 
+    PositionGeoreference();
+
     PositionGeoreference(const double &lattitude, const double &longitude, const ReferenceGeoCoords &ref);
 
     PositionGeoreference(const PositionGeoreference &copyObj);

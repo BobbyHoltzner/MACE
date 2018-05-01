@@ -28,6 +28,8 @@ public:
 
     PositionGlobal(const double &altitude, const ReferenceAltitude &alt_ref, const double &lattitude, const double &longitude, const ReferenceGeoCoords &geo_ref);
 
+    PositionGlobal();
+
     PositionGlobal(const PositionGlobal &copyObj);
 };
 

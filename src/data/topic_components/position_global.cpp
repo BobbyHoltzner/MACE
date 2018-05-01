@@ -30,6 +30,13 @@ PositionGlobal::PositionGlobal(const double &altitude, const ReferenceAltitude &
 
 }
 
+PositionGlobal::PositionGlobal() :
+    TopicComponentPrototypes::Altitude(),
+    TopicComponentPrototypes::PositionGeoreference()
+{
+
+}
+
 PositionGlobal::PositionGlobal(const PositionGlobal &copyObj) :
     TopicComponentPrototypes::Altitude(copyObj),
     TopicComponentPrototypes::PositionGeoreference(copyObj)
