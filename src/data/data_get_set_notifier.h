@@ -44,14 +44,17 @@ public:
     }
 
     bool set(const T &data) {
-        std::lock_guard<std::mutex> guardData(m_AccessMutex);
-
+        //std::lock_guard<std::mutex> guardData(m_AccessMutex);
+        m_AccessMutex.lock();
         if(m_BeenSet == true && m_Data == data) {
+            m_AccessMutex.unlock();
             return false;
         }
 
         m_Data = data;
         m_BeenSet = true;
+        m_AccessMutex.unlock();
+
 
         std::lock_guard<std::mutex> guardNotifier(m_NotifierListMutex);
         for(auto it = m_Funcs.cbegin() ; it != m_Funcs.cend() ; ++it) {
