@@ -82,8 +82,21 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
 
                     }
                 }
-
             });
+
+            auto commandClimb = new MAVLINKVehicleControllers::CommandTakeoff(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+            commandClimb->setLambda_Finished([this,commandClimb](const bool completed, const uint8_t finishCode){
+                if(!completed || (finishCode != MAV_RESULT_ACCEPTED))
+                    std::cout<<"We are not going to takeoff...we should figure out something to transition to."<<std::endl;
+            });
+            MaceCore::ModuleCharacteristic target;
+                    target.ID = cmd->getTargetSystem();
+            target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            MaceCore::ModuleCharacteristic sender;
+            sender.ID = 255;
+            sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            commandClimb->Send(*cmd,sender,target);
+            currentControllers.insert({"commandClimb",commandClimb});
         }
         break;
     }

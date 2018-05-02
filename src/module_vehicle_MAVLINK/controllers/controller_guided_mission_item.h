@@ -50,7 +50,6 @@ protected:
         UNUSED(sender);
         queueObj = target;
 
-        missionItem.target_system = commandItem.targetID;
         FillMissionItem(commandItem,missionItem);
     }
 
@@ -83,7 +82,7 @@ protected:
         missionItem.x = 0.0;
         missionItem.y = 0.0;
         missionItem.z = 0.0;
-        missionItem.mission_type = MAV_MISSION_TYPE_GUIDED;
+        //missionItem.mission_type = MAV_MISSION_TYPE_AUTO;
     }
 
 public:

@@ -72,13 +72,13 @@ bool State_Grounded::handleCommand(const AbstractCommandItem* command)
     switch (commandType) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
-
         auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
         controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
-            if(finishCode == MAV_RESULT_ACCEPTED)
-                std::cout<<"The vehicle mode is going to change"<<std::endl;
-            else
-                desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
+            if(completed)
+            {
+                if(finishCode != MAV_RESULT_ACCEPTED)
+                    desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
+            }
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -96,8 +96,12 @@ bool State_Grounded::handleCommand(const AbstractCommandItem* command)
         break;
     }
     default:
+    {
+        ardupilot::state::AbstractStateArdupilot* currentInnerState = static_cast<ardupilot::state::AbstractStateArdupilot*>(GetImmediateInnerState());
+        currentInnerState->handleCommand(command);
         break;
     }
+    } //end of switch statement
 }
 
 void State_Grounded::Update()

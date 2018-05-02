@@ -84,9 +84,9 @@ void State_Takeoff::OnEnter()
     //check that the vehicle is truely armed and switch us into the guided mode
     auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
     controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
-        if(finishCode == MAV_RESULT_ACCEPTED)
-            std::cout<<"The vehicle mode is going to change"<<std::endl;
-        else
+        std::cout<<"Guided mode lambda finished."<<std::endl;
+        currentControllers.erase("modeController");
+        if(!completed || (finishCode != MAV_RESULT_ACCEPTED))
             desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
     });
 
@@ -101,8 +101,9 @@ void State_Takeoff::OnEnter()
     commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString("GUIDED");
     controllerSystemMode->Send(commandMode,sender,target);
     currentControllers.insert({"modeController",controllerSystemMode});
-
 }
+
+
 
 void State_Takeoff::OnEnter(const AbstractCommandItem *command)
 {

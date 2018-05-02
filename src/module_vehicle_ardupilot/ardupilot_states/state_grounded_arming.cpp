@@ -88,6 +88,7 @@ void State_GroundedArming::OnEnter()
     //issue command to controller here, and then setup a callback to handle the result
     auto commandArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
     commandArm->setLambda_Finished([this,commandArm](const bool completed, const uint8_t finishCode){
+        std::cout<<"Arm lambda finished."<<std::endl;
         if(finishCode == MAV_RESULT_ACCEPTED)
             armingCheck = true;
         else

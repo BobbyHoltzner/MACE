@@ -60,12 +60,15 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
 
     bool consumed = false;
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*>::iterator it;
-    for(it=currentControllers.begin(); it!=currentControllers.end(); ++it)
+    for(it=currentControllers.begin(); it!=currentControllers.end();)
     {
         Controllers::IController<mavlink_message_t>* obj = it->second;
-        if(msg.msgid == MAVLINK_MSG_ID_COMMAND_ACK)
-            std::cout<<"We definitely saw an ack"<<std::endl;
         consumed = obj->ReceiveMessage(&msg, sender);
+        if(consumed)
+            it = currentControllers.erase(it);
+        else
+            it++;
+
     }
     if(!consumed)
     {
