@@ -101,6 +101,7 @@ void State_Takeoff::OnEnter()
     commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString("GUIDED");
     controllerSystemMode->Send(commandMode,sender,target);
     currentControllers.insert({"modeController",controllerSystemMode});
+
 }
 
 void State_Takeoff::OnEnter(const AbstractCommandItem *command)

@@ -408,8 +408,8 @@ bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
         consumed = ModuleVehicleMAVLINK::MavlinkMessage(linkName, message);
         if(!consumed)
         {
-            ardupilot::state::AbstractStateArdupilot* currentState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentState());
-            consumed = currentState->handleMAVLINKMessage(message);
+            ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+            consumed = currentOuterState->handleMAVLINKMessage(message);
             if(!consumed)
                 consumed = vehicleData->parseMessage(&message);
         }

@@ -72,7 +72,7 @@ bool State_Grounded::handleCommand(const AbstractCommandItem* command)
     switch (commandType) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
-        //check that the vehicle is truely armed and switch us into the guided mode
+
         auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
         controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
             if(finishCode == MAV_RESULT_ACCEPTED)
@@ -91,8 +91,8 @@ bool State_Grounded::handleCommand(const AbstractCommandItem* command)
         commandMode.targetID = target.ID;
         commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString(command->as<CommandItem::ActionChangeMode>()->getRequestMode());
         controllerSystemMode->Send(commandMode,sender,target);
+        currentControllers.insert({"modeController",controllerSystemMode});
 
-        //currentControllers.insert({"modeController",controllerSystemMode});
         break;
     }
     default:

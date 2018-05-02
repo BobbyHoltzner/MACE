@@ -67,6 +67,12 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
             std::cout<<"We definitely saw an ack"<<std::endl;
         consumed = obj->ReceiveMessage(&msg, sender);
     }
+    if(!consumed)
+    {
+        ardupilot::state::AbstractStateArdupilot* childState = static_cast<ardupilot::state::AbstractStateArdupilot*>(GetImmediateInnerState());
+        if(childState != nullptr)
+            consumed = childState->handleMAVLINKMessage(msg);
+    }
     return consumed;
 }
 
