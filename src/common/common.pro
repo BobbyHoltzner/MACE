@@ -27,10 +27,12 @@ HEADERS += common.h\
     chain_inheritance.h \
     object_int_tuple.h
 
+
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/common
-headers.files   += $$HEADERS
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
 
 INCLUDEPATH += $$(MACE_ROOT)/include
 

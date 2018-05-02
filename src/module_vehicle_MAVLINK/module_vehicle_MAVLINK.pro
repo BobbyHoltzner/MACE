@@ -51,12 +51,12 @@ win32:CONFIG(release, debug|release):       lib.files   += release/module_vehicl
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_MAVLINK.lib debug/module_vehicle_MAVLINK.dll
 INSTALLS += lib
 
+
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK
-headers.files   += \
-        module_vehicle_mavlink.h \
-        module_vehicle_mavlink_global.h
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
 
 #Header file copy
 headers_controllers.path    = $$(MACE_ROOT)/include/module_vehicle_MAVLINK/controllers

@@ -94,6 +94,10 @@ void State_GroundedArming::OnEnter()
         else
             desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_IDLE;
     });
+    commandArm->setLambda_Shutdown([this]()
+    {
+        std::cout<<"We are going to shutdown the controller."<<std::endl;
+    });
 
     MaceCore::ModuleCharacteristic target;
     target.ID = Owner().getMAVLINKID();

@@ -81,6 +81,8 @@ protected:
     void clearCommand();
 
 protected:
+    std::mutex currentControllerMutex;
+
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> currentControllers;
 
     Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *controllerQueue;

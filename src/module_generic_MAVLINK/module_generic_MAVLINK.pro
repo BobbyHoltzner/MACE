@@ -49,7 +49,8 @@ else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_generic_
 INSTALLS += lib
 
 
-INSTALL_PREFIX = $$(MACE_ROOT)/include/module_generic_MAVLINK
+#Header file copy
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
 INSTALL_HEADERS = $$HEADERS
 include(../headerinstall.pri)
 

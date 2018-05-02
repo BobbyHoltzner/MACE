@@ -79,6 +79,15 @@ bool State_Grounded::handleCommand(const AbstractCommandItem* command)
                 if(finishCode != MAV_RESULT_ACCEPTED)
                     desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
             }
+            controllerSystemMode->Shutdown();
+        });
+
+        controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
+        {
+            currentControllerMutex.lock();
+            currentControllers.erase("modeController");
+            delete controllerSystemMode;
+            currentControllerMutex.unlock();
         });
 
         MaceCore::ModuleCharacteristic target;

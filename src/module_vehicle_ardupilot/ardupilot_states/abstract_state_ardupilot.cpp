@@ -60,16 +60,19 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
 
     bool consumed = false;
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*>::iterator it;
-    for(it=currentControllers.begin(); it!=currentControllers.end();)
+    currentControllerMutex.lock();
+    for(it=currentControllers.begin(); it!=currentControllers.end(); ++it)
     {
         Controllers::IController<mavlink_message_t>* obj = it->second;
         consumed = obj->ReceiveMessage(&msg, sender);
-        if(consumed)
-            it = currentControllers.erase(it);
-        else
-            it++;
+//        if(consumed)
+
+//            it = currentControllers.erase(it);
+//        else
+//            it++;
 
     }
+    currentControllerMutex.unlock();
     if(!consumed)
     {
         ardupilot::state::AbstractStateArdupilot* childState = static_cast<ardupilot::state::AbstractStateArdupilot*>(GetImmediateInnerState());

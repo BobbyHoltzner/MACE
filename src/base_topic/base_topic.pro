@@ -50,23 +50,9 @@ INSTALLS += lib
 
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/base_topic
-headers.files   += \
-    base_topic_global.h \
-    base_topic_components.h
-INSTALLS       += headers
-
-#Header file copy
-headers_geometry.path    = $$(MACE_ROOT)/include/base_topic/geometry
-headers_geometry.files   += \
-    geometry/line_2DC_topic.h
-INSTALLS       += headers_geometry
-
-#Header file copy
-headers_pose.path    = $$(MACE_ROOT)/include/base_topic/pose
-headers_pose.files   += \
-    pose/cartesian_2D_topic.h
-INSTALLS       += headers_pose
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3

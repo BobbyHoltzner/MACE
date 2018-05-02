@@ -94,41 +94,11 @@ win32:CONFIG(release, debug|release):       lib.files   += release/module_vehicl
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_ardupilot.lib debug/module_vehicle_ardupilot.dll
 INSTALLS += lib
 
-#Header file copy
-headers_module.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot
-headers_module.files   += \
-module_vehicle_ardupilot.h\
-        module_vehicle_ardupilot_global.h \
-    ardupilot_guided_controller.h \
-    ardupilot_mission_state.h \
-    ardupilot_takeoff_controller.h \
-    ardupilot_general_controller.h
-INSTALLS       += headers_module
 
 #Header file copy
-headers_vehicle_object.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot/vehicle_object
-headers_vehicle_object.files   += \
-    vehicle_object/ardupilot_component_flight_mode.h \
-    vehicle_object/ardupilot_vehicle_object.h
-INSTALLS       += headers_vehicle_object
-
-#Header file copy
-headers_ardupilot_states.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot/ardupilot_states
-headers_ardupilot_states.files   += \
-    ardupilot_states/abstract_state_ardupilot.h \
-    ardupilot_states/ardupilot_hsm.h \
-    ardupilot_states/ardupilot_state_types.h \
-    ardupilot_states/state_components.h \
-    ardupilot_states/state_flight_guided.h \
-    ardupilot_states/state_grounded.h \
-    ardupilot_states/state_grounded_armed.h \
-    ardupilot_states/state_grounded_arming.h \
-    ardupilot_states/state_grounded_disarming.h \
-    ardupilot_states/state_grounded_idle.h \
-    ardupilot_states/state_takeoff_climbing.h \
-    ardupilot_states/state_takeoff_transitioning.h
-INSTALLS       += headers_ardupilot_states
-
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
