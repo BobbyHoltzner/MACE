@@ -36,10 +36,12 @@ win32:CONFIG(release, debug|release):       lib.files   += release/module_ground
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_ground_station.lib debug/module_ground_station.dll
 INSTALLS += lib
 
+
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_ground_station
-headers.files   += $$HEADERS
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
 
 INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/

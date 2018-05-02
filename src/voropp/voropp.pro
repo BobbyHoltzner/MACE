@@ -68,23 +68,8 @@ win32:CONFIG(release, debug|release):       lib.files   += release/voropp.lib re
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/voropp.lib debug/voropp.dll
 INSTALLS += lib
 
+
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/voropp
-headers.files   += \
-        voropp.h\
-        voropp_global.h \
-        c_loops.hh \
-        cell.hh \
-        common.hh \
-        config.hh \
-        container.hh \
-        container_prd.hh \
-        pre_container.hh \
-        rad_option.hh \
-        unitcell.hh \
-        v_base.hh \
-        v_compute.hh \
-        voro_index.hh \
-        wall.hh \
-        worklist.hh
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)

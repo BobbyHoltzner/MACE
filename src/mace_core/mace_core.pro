@@ -68,9 +68,9 @@ else:win32:CONFIG(debug, debug|release):    lib.files   += debug/mace_core.lib d
 INSTALLS += lib
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/mace_core
-headers.files   += $$HEADERS
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon

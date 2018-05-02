@@ -76,10 +76,12 @@ win32:CONFIG(release, debug|release):       lib.files   += release/data.lib rele
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/data.lib debug/data.dll
 INSTALLS += lib
 
+
 #Header file copy
-INSTALL_PREFIX = $$(MACE_ROOT)/include/data
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
 INSTALL_HEADERS = $$HEADERS
 include(../headerinstall.pri)
+
 
 INCLUDEPATH += $$PWD/../
 

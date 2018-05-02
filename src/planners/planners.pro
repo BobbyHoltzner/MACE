@@ -48,10 +48,12 @@ HEADERS += \
     rrt_node.h \
     path_reduction.h
 
+
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/planners
-headers.files   += $$HEADERS
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
 
 # Unix lib Install
 unix:!symbian {

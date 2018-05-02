@@ -51,30 +51,11 @@ INSTALLS += lib
 
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/data_interface_MACE
-headers.files   += \
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
 
-#Header file copy
-headers_generic.path    = $$(MACE_ROOT)/include/data_interface_MACE/generic
-headers_generic.files   += \
-    generic/helper_previous_command_mace.h \
-    generic/helper_previous_guided_mace.h \
-    generic/helper_previous_transmission_mace.h \
-    generic/helper_previous_transmission_base_mace.h
-INSTALLS       += headers_generic
 
-#Header file copy
-headers_MACE_to_COMMS.path    = $$(MACE_ROOT)/include/data_interface_MACE/MACE_to_COMMS
-headers_MACE_to_COMMS.files   += \
-    MACE_to_COMMS/helper_mission_mace_to_comms.h
-INSTALLS       += headers_MACE_to_COMMS
-
-#Header file copy
-headers_COMMS_to_MACE.path    = $$(MACE_ROOT)/include/data_interface_MACE/COMMS_to_MACE
-headers_COMMS_to_MACE.files   += \
-    COMMS_to_MACE/helper_mission_comms_to_mace.h
-INSTALLS       += headers_COMMS_to_MACE
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../../speedLog/

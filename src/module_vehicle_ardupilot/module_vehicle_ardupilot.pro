@@ -48,10 +48,12 @@ win32:CONFIG(release, debug|release):       lib.files   += release/module_vehicl
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_ardupilot.lib debug/module_vehicle_ardupilot.dll
 INSTALLS += lib
 
+
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_vehicle_ardupilot
-headers.files   += $$HEADERS
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata

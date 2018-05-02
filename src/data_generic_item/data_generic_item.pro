@@ -54,10 +54,12 @@ win32:CONFIG(release, debug|release):       lib.files   += release/data_generic_
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/data_generic_item.lib debug/data_generic_item.dll
 INSTALLS += lib
 
+
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/data_generic_item
-headers.files   += $$HEADERS
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
