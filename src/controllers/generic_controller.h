@@ -229,6 +229,7 @@ public:
 
     virtual bool ReceiveMessage(const MESSAGETYPE *message, const MaceCore::ModuleCharacteristic &sender)
     {
+        std::lock_guard<std::mutex> lock(m_MessageBehaviorsMutex);
         bool usedMessage = false;
         for(auto it = m_MessageBehaviors.cbegin() ; it != m_MessageBehaviors.cend() ; ++it)
         {
