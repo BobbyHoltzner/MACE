@@ -12,6 +12,12 @@ State_TakeoffClimbing::State_TakeoffClimbing():
     desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_CLIMBING;
 }
 
+void State_TakeoffClimbing::OnExit()
+{
+    AbstractStateArdupilot::OnExit();
+    Owner().state->vehicleGlobalPosition.RemoveNotifier(this);
+}
+
 AbstractStateArdupilot* State_TakeoffClimbing::getClone() const
 {
     return (new State_TakeoffClimbing(*this));
@@ -53,44 +59,50 @@ hsm::Transition State_TakeoffClimbing::GetTransition()
 bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
 {
     clearCommand();
-    currentCommand = command->getClone();
-    switch (currentCommand->getCommandType()) {
+    switch (command->getCommandType()) {
     case COMMANDITEM::CI_NAV_TAKEOFF:
     {
-        const CommandItem::SpatialTakeoff* cmd = currentCommand->as<CommandItem::SpatialTakeoff>();
+        const CommandItem::SpatialTakeoff* cmd = command->getClone()->as<CommandItem::SpatialTakeoff>();
         if(cmd->getPosition().getPosZFlag())
         {
             Owner().state->vehicleGlobalPosition.AddNotifier(this,[this,cmd]
             {
-                if(currentCommand->getCommandType() == COMMANDITEM::CI_NAV_TAKEOFF)
+                if(cmd->getPosition().getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
                 {
-                    if(cmd->getPosition().getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
+                    StateGlobalPosition cmdPos(cmd->getPosition().getX(),cmd->getPosition().getY(),cmd->getPosition().getZ());
+                    StateGlobalPosition currentPosition = Owner().state->vehicleGlobalPosition.get();
+                    double distance = fabs(currentPosition.deltaAltitude(cmdPos));
+                    Data::ControllerState guidedState = guidedProgress.updateTargetState(distance);
+                    std::cout<<"The distance to the target is approximately: "<<distance<<std::endl;
+                    if(guidedState == Data::ControllerState::ACHIEVED)
                     {
-                        StateGlobalPosition cmdPos(cmd->getPosition().getX(),cmd->getPosition().getY(),cmd->getPosition().getZ());
-                        StateGlobalPosition currentPosition = Owner().state->vehicleGlobalPosition.get();
-                        double distance = fabs(currentPosition.deltaAltitude(cmdPos));
-                        Data::ControllerState guidedState = guidedProgress.updateTargetState(distance);
-                        if(guidedState == Data::ControllerState::ACHIEVED)
-                        {
-                            if(cmd->getPosition().has3DPositionSet())
-                                desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
-                            else
-                            {
-                                desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_COMPLETE;
-                            }
-                        }
-
+                        //                            if(cmd->getPosition().has3DPositionSet())
+                        //                                desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
+                        //                            else
+                        //                            {
+                        desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_COMPLETE;
+                        //                            }
                     }
+
                 }
             });
 
             auto commandClimb = new MAVLINKVehicleControllers::CommandTakeoff(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
             commandClimb->setLambda_Finished([this,commandClimb](const bool completed, const uint8_t finishCode){
-                if(!completed || (finishCode != MAV_RESULT_ACCEPTED))
-                    std::cout<<"We are not going to takeoff...we should figure out something to transition to."<<std::endl;
+                if(completed && (finishCode != MAV_RESULT_ACCEPTED))
+                    commandClimb->Shutdown();
             });
+
+            commandClimb->setLambda_Shutdown([this,commandClimb]()
+            {
+                currentControllerMutex.lock();
+                currentControllers.erase("commandClimb");
+                delete commandClimb;
+                currentControllerMutex.unlock();
+            });
+
             MaceCore::ModuleCharacteristic target;
-                    target.ID = cmd->getTargetSystem();
+            target.ID = cmd->getTargetSystem();
             target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
             MaceCore::ModuleCharacteristic sender;
             sender.ID = 255;
@@ -119,7 +131,10 @@ void State_TakeoffClimbing::OnEnter(const AbstractCommandItem *command)
 {
     this->OnEnter();
     if(command != nullptr)
+    {
         handleCommand(command);
+        delete command;
+    }
 }
 
 } //end of namespace ardupilot

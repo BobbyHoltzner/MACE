@@ -34,6 +34,9 @@ public:
 
     void OnEnter(const AbstractCommandItem* command) override;
 
+    void OnExit() override;
+
+
 private:
     ArdupilotTargetProgess guidedProgress;
 

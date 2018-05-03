@@ -16,6 +16,10 @@ AbstractStateArdupilot::AbstractStateArdupilot(const AbstractStateArdupilot &cop
     desiredStateEnum = copy.desiredStateEnum;
 }
 
+void AbstractStateArdupilot::OnExit()
+{
+
+}
 
 
 //ArdupilotFlightState AbstractStateArdupilot::getCurrentState() const
@@ -65,12 +69,6 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
     {
         Controllers::IController<mavlink_message_t>* obj = it->second;
         consumed = obj->ReceiveMessage(&msg, sender);
-//        if(consumed)
-
-//            it = currentControllers.erase(it);
-//        else
-//            it++;
-
     }
     currentControllerMutex.unlock();
     if(!consumed)

@@ -55,6 +55,7 @@ hsm::Transition State_Grounded::GetTransition()
         case ArdupilotFlightState::STATE_TAKEOFF_CLIMBING:
         case ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING:
         {
+            std::cout<<"We should transition to the takeoff state!"<<std::endl;
             return hsm::SiblingTransition<State_Takeoff>(currentCommand);
             break;
         }

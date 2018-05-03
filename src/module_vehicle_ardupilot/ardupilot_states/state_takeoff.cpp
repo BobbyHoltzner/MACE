@@ -84,10 +84,19 @@ void State_Takeoff::OnEnter()
     //check that the vehicle is truely armed and switch us into the guided mode
     auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
     controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
-        std::cout<<"Guided mode lambda finished."<<std::endl;
-        currentControllers.erase("modeController");
-        if(!completed || (finishCode != MAV_RESULT_ACCEPTED))
+        controllerSystemMode->Shutdown();
+        if(completed && (finishCode == MAV_RESULT_ACCEPTED))
+            desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_CLIMBING;
+        else
             desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
+    });
+
+    controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
+    {
+        currentControllerMutex.lock();
+        currentControllers.erase("modeController");
+        delete controllerSystemMode;
+        currentControllerMutex.unlock();
     });
 
     MaceCore::ModuleCharacteristic target;

@@ -86,15 +86,24 @@ void State_GroundedArming::OnEnter()
     //when calling this function that means our intent is to arm the vehicle
     //first let us send this relevant command
     //issue command to controller here, and then setup a callback to handle the result
-    auto commandArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-    commandArm->setLambda_Finished([this,commandArm](const bool completed, const uint8_t finishCode){
-        std::cout<<"Arm lambda finished."<<std::endl;
-        if(finishCode == MAV_RESULT_ACCEPTED)
+    auto controllerArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+    controllerArm->setLambda_Finished([this,controllerArm](const bool completed, const uint8_t finishCode){
+        controllerArm->Shutdown();
+        if(completed && (finishCode == MAV_RESULT_ACCEPTED))
             armingCheck = true;
         else
             desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_IDLE;
     });
-    commandArm->setLambda_Shutdown([this]()
+
+    controllerArm->setLambda_Shutdown([this,controllerArm]()
+    {
+        currentControllerMutex.lock();
+        currentControllers.erase("armController");
+        delete controllerArm;
+        currentControllerMutex.unlock();
+    });
+
+    controllerArm->setLambda_Shutdown([this]()
     {
         std::cout<<"We are going to shutdown the controller."<<std::endl;
     });
@@ -107,8 +116,8 @@ void State_GroundedArming::OnEnter()
     sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
     CommandItem::ActionArm action(255,target.ID);
     action.setVehicleArm(true);
-    commandArm->Send(action,sender,target);
-    currentControllers.insert({"armController",commandArm});
+    controllerArm->Send(action,sender,target);
+    currentControllers.insert({"armController",controllerArm});
 }
 
 void State_GroundedArming::OnEnter(const AbstractCommandItem* command)
