@@ -32,6 +32,26 @@ hsm::Transition State_Flight::GetTransition()
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
         switch (desiredStateEnum) {
+        case ArdupilotFlightState::STATE_FLIGHT_AUTO:
+        {
+            rtn = hsm::InnerEntryTransition<State_FlightAuto>();
+            break;
+        }
+        case ArdupilotFlightState::STATE_FLIGHT_BRAKE:
+        {
+            rtn = hsm::InnerEntryTransition<State_FlightBrake>();
+            break;
+        }
+        case ArdupilotFlightState::STATE_FLIGHT_GUIDED:
+        {
+            rtn = hsm::InnerEntryTransition<State_FlightGuided>();
+            break;
+        }
+        case ArdupilotFlightState::STATE_FLIGHT_MANUAL:
+        {
+            rtn = hsm::InnerEntryTransition<State_FlightManual>();
+            break;
+        }
         default:
             std::cout<<"I dont know how we eneded up in this transition state from STATE_FLIGHT."<<std::endl;
             break;
@@ -43,15 +63,46 @@ hsm::Transition State_Flight::GetTransition()
 bool State_Flight::handleCommand(const AbstractCommandItem* command)
 {
     COMMANDITEM commandType = command->getCommandType();
-    ardupilot::state::AbstractStateArdupilot* currentState = static_cast<ardupilot::state::AbstractStateArdupilot*>(GetImmediateInnerState());
     switch (commandType) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
+    {
+        ardupilot::state::AbstractStateArdupilot* childState = static_cast<ardupilot::state::AbstractStateArdupilot*>(GetImmediateInnerState());
+        childState->handleCommand(command);
+
+        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+            if(completed && (finishCode == MAV_RESULT_ACCEPTED))
+            {
+                checkTransitionFromMode();
+            }
+            controllerSystemMode->Shutdown();
+        });
+
+        controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
+        {
+            currentControllerMutex.lock();
+            currentControllers.erase("modeController");
+            delete controllerSystemMode;
+            currentControllerMutex.unlock();
+        });
+
+        MaceCore::ModuleCharacteristic target;
+        target.ID = Owner().getMAVLINKID();
+        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MaceCore::ModuleCharacteristic sender;
+        sender.ID = 255;
+        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MAVLINKVehicleControllers::MAVLINKModeStruct commandMode;
+        commandMode.targetID = target.ID;
+        commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString(command->as<CommandItem::ActionChangeMode>()->getRequestMode());
+        controllerSystemMode->Send(commandMode,sender,target);
+        currentControllers.insert({"modeController",controllerSystemMode});
 
         break;
+    }
     default:
         break;
     }
-    currentState->handleCommand(command);
 }
 
 void State_Flight::Update()
@@ -61,7 +112,7 @@ void State_Flight::Update()
 
 void State_Flight::OnEnter()
 {
-
+    checkTransitionFromMode();
 }
 
 void State_Flight::OnEnter(const AbstractCommandItem *command)
@@ -69,6 +120,35 @@ void State_Flight::OnEnter(const AbstractCommandItem *command)
     if(command != nullptr)
     {
         this->OnEnter();
+    }
+}
+
+void State_Flight::checkTransitionFromMode()
+{
+    std::string currentModeString = Owner().state->vehicleMode.get().getFlightModeString();
+
+    if(currentModeString == "AUTO")
+    {
+        desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_AUTO;
+    }
+    else if(currentModeString == "BRAKE")
+    {
+        desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_BRAKE;
+    }
+    else if(currentModeString == "GUIDED")
+    {
+        desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_GUIDED;
+    }
+    else if(currentModeString == "STABILIZE")
+    {
+        desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_MANUAL;
+    }
+    else if(currentModeString == "LAND")
+    {
+
+    }
+    else{
+
     }
 }
 

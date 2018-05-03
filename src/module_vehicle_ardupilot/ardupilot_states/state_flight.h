@@ -32,6 +32,10 @@ public:
     void OnEnter() override;
 
     void OnEnter(const AbstractCommandItem* command) override;
+
+private:
+    void checkTransitionFromMode();
+
 };
 
 } //end of namespace ardupilot

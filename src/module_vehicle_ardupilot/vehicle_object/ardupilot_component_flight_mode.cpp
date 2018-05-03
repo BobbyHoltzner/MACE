@@ -29,7 +29,7 @@ std::string ARDUPILOTComponent_FlightMode::parseMAVLINK(const mavlink_heartbeat_
 {
     this->setVehicleTypeFromMAVLINK(msg.type);
     std::string newFlightMode = availableFM.at(msg.custom_mode);
-
+    currentFM = msg.custom_mode;
     return newFlightMode;
 }
 

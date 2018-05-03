@@ -116,6 +116,7 @@ private:
                                                {(int)Arduplane_FM::APFM_UNKNOWN,"UNKNOWN"}};
 private:
     std::map<int,std::string> availableFM;
+    int currentFM;
 };
 
 #endif // ARDUPILOT_COMPONENT_FLIGHT_MODE_H
