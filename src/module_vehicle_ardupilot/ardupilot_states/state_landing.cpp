@@ -37,14 +37,14 @@ hsm::Transition State_Landing::GetTransition()
             //this could be caused by a command, action sensed by the vehicle, or
             //for various other peripheral reasons
             switch (desiredStateEnum) {
-            case ArdupilotFlightState::STATE_LANDING_DESCENDING:
-            {
-                rtn = hsm::InnerEntryTransition<State_LandingDescent>(currentCommand);
-                break;
-            }
             case ArdupilotFlightState::STATE_LANDING_TRANSITIONING:
             {
                 rtn = hsm::InnerEntryTransition<State_LandingTransitioning>(currentCommand);
+                break;
+            }
+            case ArdupilotFlightState::STATE_LANDING_DESCENDING:
+            {
+                rtn = hsm::InnerEntryTransition<State_LandingDescent>(currentCommand);
                 break;
             }
             default:
@@ -57,7 +57,16 @@ hsm::Transition State_Landing::GetTransition()
 
 bool State_Landing::handleCommand(const AbstractCommandItem* command)
 {
-
+    switch(command->getCommandType())
+    {
+    case COMMANDITEM::CI_ACT_CHANGEMODE:
+    {
+        AbstractStateArdupilot::handleCommand(command);
+        break;
+    }
+    default:
+        break;
+    } //end of switch statement
 }
 
 void State_Landing::Update()

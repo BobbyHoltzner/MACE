@@ -73,36 +73,7 @@ bool State_Grounded::handleCommand(const AbstractCommandItem* command)
     switch (commandType) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
-        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-        controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
-            if(completed)
-            {
-                if(finishCode != MAV_RESULT_ACCEPTED)
-                    desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
-            }
-            controllerSystemMode->Shutdown();
-        });
-
-        controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
-        {
-            currentControllerMutex.lock();
-            currentControllers.erase("modeController");
-            delete controllerSystemMode;
-            currentControllerMutex.unlock();
-        });
-
-        MaceCore::ModuleCharacteristic target;
-        target.ID = Owner().getMAVLINKID();
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-        MaceCore::ModuleCharacteristic sender;
-        sender.ID = 255;
-        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-        MAVLINKVehicleControllers::MAVLINKModeStruct commandMode;
-        commandMode.targetID = target.ID;
-        commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString(command->as<CommandItem::ActionChangeMode>()->getRequestMode());
-        controllerSystemMode->Send(commandMode,sender,target);
-        currentControllers.insert({"modeController",controllerSystemMode});
-
+        AbstractStateArdupilot::handleCommand(command);
         break;
     }
     default:

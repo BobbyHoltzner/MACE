@@ -68,7 +68,7 @@ public:
 
     void setCurrentCommand(const AbstractCommandItem* command);
 
-    virtual bool handleCommand(const AbstractCommandItem* command) = 0;
+    virtual bool handleCommand(const AbstractCommandItem* command);
 
 //    virtual ArdupilotFlightState getCurrentState() const;
 

@@ -76,12 +76,12 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
                     std::cout<<"The distance to the target is approximately: "<<distance<<std::endl;
                     if(guidedState == Data::ControllerState::ACHIEVED)
                     {
-                        //                            if(cmd->getPosition().has3DPositionSet())
-                        //                                desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
-                        //                            else
-                        //                            {
-                        desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_COMPLETE;
-                        //                            }
+                        if(cmd->getPosition().has3DPositionSet())
+                            desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
+                        else
+                        {
+                            desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_COMPLETE;
+                        }
                     }
 
                 }
@@ -108,7 +108,7 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
             sender.ID = 255;
             sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
             commandClimb->Send(*cmd,sender,target);
-            currentControllers.insert({"commandClimb",commandClimb});
+            currentControllers.insert({"commandTakeoffClimb",commandClimb});
         }
         break;
     }

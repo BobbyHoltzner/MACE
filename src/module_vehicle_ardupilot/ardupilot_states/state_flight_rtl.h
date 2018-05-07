@@ -1,21 +1,15 @@
-#ifndef STATE_TAKEOFF_TRANSITIONING_H
-#define STATE_TAKEOFF_TRANSITIONING_H
-
+#ifndef STATE_FLIGHT_RTL_H
+#define STATE_FLIGHT_RTL_H
 
 #include "abstract_state_ardupilot.h"
-
-#include "../ardupilot_target_progess.h"
-
-#include "module_vehicle_MAVLINK/controllers/controller_guided_mission_item.h"
-
 
 namespace ardupilot{
 namespace state{
 
-class State_TakeoffTransitioning : public AbstractStateArdupilot
+class State_FlightRTL : public AbstractStateArdupilot
 {
 public:
-    State_TakeoffTransitioning();
+    State_FlightRTL();
 
 public:
     AbstractStateArdupilot* getClone() const override;
@@ -33,12 +27,9 @@ public:
     void OnEnter() override;
 
     void OnEnter(const AbstractCommandItem* command) override;
-
-private:
-    ArdupilotTargetProgess guidedProgress;
 };
 
 } //end of namespace ardupilot
 } //end of namespace state
 
-#endif // STATE_TAKEOFF_TRANSITIONING_H
+#endif // STATE_FLIGHT_RTL_H

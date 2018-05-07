@@ -143,9 +143,15 @@ void State_Flight::checkTransitionFromMode()
     {
         desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_MANUAL;
     }
+    else if(currentModeString == "RTL")
+    {
+        desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_RTL;
+    }
     else if(currentModeString == "LAND")
     {
-
+        //This event is handled differently than the land command issued from the GUI
+        //A mode change we really have no way to track the progress of where we
+        //are going to land or the
     }
     else{
 

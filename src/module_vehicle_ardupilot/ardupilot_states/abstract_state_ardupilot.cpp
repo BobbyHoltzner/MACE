@@ -54,6 +54,43 @@ void AbstractStateArdupilot::setCurrentCommand(const AbstractCommandItem *comman
     this->currentCommand = command->getClone();
 }
 
+bool AbstractStateArdupilot::handleCommand(const AbstractCommandItem *command)
+{
+    switch (command->getCommandType()) {
+    case COMMANDITEM::CI_ACT_CHANGEMODE:
+    {
+        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+
+            controllerSystemMode->Shutdown();
+        });
+
+        controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
+        {
+            currentControllerMutex.lock();
+            currentControllers.erase("modeController");
+            delete controllerSystemMode;
+            currentControllerMutex.unlock();
+        });
+
+        MaceCore::ModuleCharacteristic target;
+        target.ID = Owner().getMAVLINKID();
+        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MaceCore::ModuleCharacteristic sender;
+        sender.ID = 255;
+        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MAVLINKVehicleControllers::MAVLINKModeStruct commandMode;
+        commandMode.targetID = target.ID;
+        commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString(command->as<CommandItem::ActionChangeMode>()->getRequestMode());
+        controllerSystemMode->Send(commandMode,sender,target);
+        currentControllers.insert({"modeController",controllerSystemMode});
+        break;
+    }
+    default:
+        break;
+    }
+}
+
 bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
 {
     int systemID = msg.sysid;
