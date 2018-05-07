@@ -19,9 +19,6 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<>(),
     m_AircraftController(NULL), vehicleData(nullptr), stateMachine(nullptr)
 {
-    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
-
-    m_MissionController = new MAVLINKVehicleControllers::ControllerMission(this, queue, m_LinkChan);
 
 //    auto controller_SystemMode = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequest<
 //            mavlink_message_t,
@@ -402,11 +399,18 @@ void ModuleVehicleArdupilot::Command_ClearOnboardGuided(const int &targetSystem)
 //!
 bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
+    if(message.msgid == 44)
+    {
+        printf("Hi\n");
+    }
     bool consumed = false;
+
     //this is necessary because if we have yet to have received a vehicle heartbeat,
     //we have yet to form the vehicle object and accompanying state machine
     if(vehicleData)
     {
+        consumed = m_MissionController->ReceiveMessage(&message, this->GetCharacteristic());
+
         consumed = ModuleVehicleMAVLINK::MavlinkMessage(linkName, message);
         if(!consumed)
         {
@@ -433,6 +437,17 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         vehicleData = std::make_shared<ArdupilotVehicleObject>(this,systemID);
         vehicleData->connectCallback(this);
         //vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
+
+
+        //create "stateless" mission controller
+        Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
+        m_MissionController = new MAVLINKVehicleControllers::ControllerMission(vehicleData.get(), queue, m_LinkChan);
+
+        //reqrest the missions on the vehicle
+        MaceCore::ModuleCharacteristic vehicle;
+        vehicle.ID = systemID;
+        vehicle.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        m_MissionController->GetMissions(vehicle);
 
         this->SetID(systemID);
 

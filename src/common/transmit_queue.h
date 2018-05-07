@@ -54,7 +54,7 @@ public:
 
         if(waitForRetries > 1000000000)
         {
-            printf("WARNING!!! Wait for retransmit is unreasonably high. Is is left on a debug value?");
+            printf("WARNING!!! Wait for retransmit is unreasonably high. Is is left on a debug value?\n");
         }
         start();
     }

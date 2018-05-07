@@ -41,7 +41,7 @@ namespace MAVLINKVehicleControllers {
  */
 using CONTROLLER_MISSION_TYPE = Controllers::GenericController<
     mavlink_message_t,
-    TransmitQueueWithKeys<Controllers::MessageModuleTransmissionQueue<mavlink_message_t>, int, ObjectIntTuple<MissionItem::MissionKey>>,
+    TransmitQueueWithKeys<Controllers::MessageModuleTransmissionQueue<mavlink_message_t>, ObjectIntTuple<void*>, ObjectIntTuple<MissionItem::MissionKey>>,
     uint8_t,
     Controllers::DataItem<MissionKey, MissionList>
 >;
@@ -206,6 +206,18 @@ using MissionAction_RequestCurrentMission_Initiate = Controllers::ActionRequest<
     MAVLINK_MSG_ID_MISSION_ACK
 >;
 
+/*
+ * Action to receive the ACK that vehicle sends if no mission is present.
+ */
+using MissionAction_ReceiveAckDueToEmptyMission = Controllers::ActionFinish<
+    mavlink_message_t,
+    CONTROLLER_MISSION_TYPE,
+    void*,
+    uint8_t,
+    mavlink_mission_ack_t,
+    MAVLINK_MSG_ID_MISSION_ACK
+>;
+
 using MissionAction_ReceiveCountRespondItemRequest = Controllers::ActionIntermediate<
     mavlink_message_t,
     CONTROLLER_MISSION_TYPE,
@@ -219,8 +231,11 @@ using MissionAction_ReceiveCountRespondItemRequest = Controllers::ActionIntermed
 
 
 
+
+
 class ControllerMission : public CONTROLLER_MISSION_TYPE,
         public MissionAction_RequestCurrentMission_Initiate,
+        public MissionAction_ReceiveAckDueToEmptyMission,
         public MissionAction_ReceiveCountRespondItemRequest
 {
 
@@ -239,18 +254,31 @@ private:
 
 protected:
 
-    /*
+
     void Request_Construct(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_request_list_t &msg, void* &queue)
     {
         printf("Madison Test. If Ken sees this it shouldn't of been commited\n  -- Constructing request list\n");
+        msg.mission_type = 0;
+        msg.target_system = target.ID;
+        msg.target_component = 0;
+        queue = 0;
+    }
+
+    virtual bool Finish_Receive(const mavlink_mission_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, void* &queueObj)
+    {
+        printf("Madison Test. If Ken sees this it shouldn't of been commited\n  -- Received ack with no queued transmission\n");
+        queueObj = 0;
+        ack = -1;
+
+        return true;
     }
 
 
-    virtual bool BuildData_Send(const mavlink_mission_count_t &, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_request_t &, MaceCore::ModuleCharacteristic &vehicleObj, void* &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
+    virtual bool BuildData_Send(const mavlink_mission_count_t &msg, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_request_t &cmd, MaceCore::ModuleCharacteristic &vehicleObj, void* &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
     {
         printf("Madison Test. If Ken sees this it shouldn't of been commited\n  -- Constructing request from received count\n");
     }
-    */
+
 
     /*
     //!
@@ -754,13 +782,20 @@ public:
     ControllerMission(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
         CONTROLLER_MISSION_TYPE(cb, queue, linkChan),
         MissionAction_RequestCurrentMission_Initiate(this, mavlink_msg_mission_request_list_encode_chan),
+        MissionAction_ReceiveAckDueToEmptyMission(this, mavlink_msg_mission_ack_decode),
         MissionAction_ReceiveCountRespondItemRequest(this, mavlink_msg_mission_count_decode, mavlink_msg_mission_request_encode_chan)
     {
 
     }
 
 
+    void GetMissions(MaceCore::ModuleCharacteristic &vehicle)
+    {
+        MissionAction_RequestCurrentMission_Initiate::Request(vehicle, vehicle);
+    }
 
+
+    /*
     void RequestMission(const MissionItem::MissionKey &key, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
     {
         SendHelper_RequestMissionDownload::Send(key, sender, target);
@@ -770,6 +805,7 @@ public:
     {
         Action_RequestCurrentMission_Initiate::Request(sender, target);
     }
+    */
 
 
 };
