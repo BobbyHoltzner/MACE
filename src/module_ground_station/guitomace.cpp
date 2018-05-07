@@ -188,7 +188,7 @@ void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
 
     if(latLonFlag) {
         newTakeoff.position->setX(position.value("lat").toDouble());
-        newTakeoff.position->setY(position.value("lng").toDouble());
+        newTakeoff.position->setY(position.value("lon").toDouble());
     }
     newTakeoff.position->setZ(position.value("alt").toDouble());
     newTakeoff.setTargetSystem(vehicleID);

@@ -8,9 +8,10 @@
 
 #include "module_vehicle_MAVLINK/controllers/controller_guided_mission_item.h"
 
-
 namespace ardupilot{
 namespace state{
+
+class State_TakeoffComplete;
 
 class State_TakeoffTransitioning : public AbstractStateArdupilot
 {
@@ -33,6 +34,8 @@ public:
     void OnEnter() override;
 
     void OnEnter(const AbstractCommandItem* command) override;
+
+    void OnExit() override;
 
 private:
     ArdupilotTargetProgess guidedProgress;

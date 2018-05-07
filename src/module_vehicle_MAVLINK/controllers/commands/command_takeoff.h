@@ -23,8 +23,8 @@ protected:
         cmd.target_system = commandItem.getTargetSystem();
         if(commandItem.position->has2DPositionSet())
         {
-            cmd.param5 = commandItem.position->getX();
-            cmd.param6 = commandItem.position->getY();
+            cmd.param5 = commandItem.position->getX(); //we can fill this in however it is unsupported in via arducopter
+            cmd.param6 = commandItem.position->getY(); //we can fill this in however it is unsupported in via arducopter
         }
         cmd.param7 = commandItem.position->getZ();
     }

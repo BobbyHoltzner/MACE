@@ -432,6 +432,8 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         //this is the first time we have seen this heartbeat or the data was destroyed for some reason
         vehicleData = std::make_shared<ArdupilotVehicleObject>(this,systemID);
         vehicleData->connectCallback(this);
+        vehicleData->connectTargetCallback(ModuleVehicleArdupilot::staticCallbackFunction_VehicleTarget, this);
+
         //vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
 
         this->SetID(systemID);

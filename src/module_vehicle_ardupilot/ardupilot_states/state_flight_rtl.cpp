@@ -13,7 +13,7 @@ State_FlightRTL::State_FlightRTL():
 
 AbstractStateArdupilot* State_FlightRTL::getClone() const
 {
-    return (new State_FlightManual(*this));
+    return (new State_FlightRTL(*this));
 }
 
 void State_FlightRTL::getClone(AbstractStateArdupilot** state) const

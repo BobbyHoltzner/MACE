@@ -7,9 +7,15 @@ State_TakeoffTransitioning::State_TakeoffTransitioning():
     AbstractStateArdupilot()
 {
     guidedProgress = ArdupilotTargetProgess(2,10,10);
-    std::cout<<"We are in the constructor of STATE_TAKEOFF_CLIMBING"<<std::endl;
+    std::cout<<"We are in the constructor of STATE_TAKEOFF_TRANSITIONING"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
     desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
+}
+
+void State_TakeoffTransitioning::OnExit()
+{
+    AbstractStateArdupilot::OnExit();
+    Owner().state->vehicleGlobalPosition.RemoveNotifier(this);
 }
 
 AbstractStateArdupilot* State_TakeoffTransitioning::getClone() const
@@ -32,8 +38,13 @@ hsm::Transition State_TakeoffTransitioning::GetTransition()
         //this could be caused by a command, action sensed by the vehicle, or
         //for various other peripheral reasons
         switch (desiredStateEnum) {
+        case ArdupilotFlightState::STATE_TAKEOFF_COMPLETE:
+        {
+            rtn = hsm::SiblingTransition<State_TakeoffComplete>(currentCommand);
+            break;
+        }
         default:
-            std::cout<<"I dont know how we eneded up in this transition state from State_EStop."<<std::endl;
+            std::cout<<"I dont know how we eneded up in this transition state from State_TakeoffTransitioning."<<std::endl;
             break;
         }
     }
@@ -47,7 +58,7 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
     case COMMANDITEM::CI_NAV_TAKEOFF:
     {
         const CommandItem::SpatialTakeoff* cmd = command->getClone()->as<CommandItem::SpatialTakeoff>();
-        if(cmd->getPosition().getPosZFlag())
+        if(cmd->getPosition().has3DPositionSet())
         {
             Owner().state->vehicleGlobalPosition.AddNotifier(this,[this,cmd]
             {
@@ -66,17 +77,18 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
                 }
             });
 
-            auto commandClimb = new MAVLINKVehicleControllers::CommandTakeoff(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-            commandClimb->setLambda_Finished([this,commandClimb](const bool completed, const uint8_t finishCode){
-                if(completed && (finishCode != MAV_RESULT_ACCEPTED))
-                    commandClimb->Shutdown();
+            auto takeoffTransition = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+            takeoffTransition->setLambda_Finished([this,takeoffTransition](const bool completed, const uint8_t finishCode){
+                if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
+                    std::cout<<"We are not going to perform the transition portion of the takeoff."<<std::endl;
+                takeoffTransition->Shutdown();
             });
 
-            commandClimb->setLambda_Shutdown([this,commandClimb]()
+            takeoffTransition->setLambda_Shutdown([this,takeoffTransition]()
             {
                 currentControllerMutex.lock();
-                currentControllers.erase("commandClimb");
-                delete commandClimb;
+                currentControllers.erase("takeoffTransition");
+                delete takeoffTransition;
                 currentControllerMutex.unlock();
             });
 
@@ -86,8 +98,11 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
             MaceCore::ModuleCharacteristic sender;
             sender.ID = 255;
             sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-            commandClimb->Send(*cmd,sender,target);
-            currentControllers.insert({"commandTakeoffTransition",commandClimb});
+            Base3DPosition cmdPosition = cmd->getPosition();
+            CommandItem::SpatialWaypoint takeoffTarget(255,cmd->getTargetSystem());
+            takeoffTarget.setPosition(cmdPosition);
+            takeoffTransition->Send(takeoffTarget,sender,target);
+            currentControllers.insert({"takeoffTransition",takeoffTransition});
         }
         break;
     }
@@ -103,14 +118,20 @@ void State_TakeoffTransitioning::Update()
 
 void State_TakeoffTransitioning::OnEnter()
 {
-
+    //By default I dont think there are any actions that we need to do
 }
 
 void State_TakeoffTransitioning::OnEnter(const AbstractCommandItem *command)
 {
     this->OnEnter();
+    if(command != nullptr)
+    {
+        handleCommand(command);
+        delete command;
+    }
 }
 
 } //end of namespace ardupilot
 } //end of namespace state
 
+#include "ardupilot_states/state_takeoff_complete.h"
