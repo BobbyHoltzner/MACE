@@ -19,7 +19,9 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<>(),
     m_AircraftController(NULL), vehicleData(nullptr), stateMachine(nullptr)
 {
-//    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
+    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
+
+    m_MissionController = new MAVLINKVehicleControllers::ControllerMission(this, queue, m_LinkChan);
 
 //    auto controller_SystemMode = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequest<
 //            mavlink_message_t,

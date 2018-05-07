@@ -36,6 +36,8 @@
 #include "controllers/I_controller.h"
 #include "controllers/I_message_notifier.h"
 
+#include "module_vehicle_MAVLINK/controllers/controller_mission.h"
+
 using namespace std::placeholders;
 
 //class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
@@ -304,6 +306,8 @@ private:
  machine. This state machine evolves the state per event updates and/or external commands. */
 
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> m_TopicToControllers;
+
+    MAVLINKVehicleControllers::ControllerMission * m_MissionController;
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H
