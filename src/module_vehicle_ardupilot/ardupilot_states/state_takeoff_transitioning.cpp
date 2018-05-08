@@ -67,7 +67,7 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
                     StateGlobalPosition cmdPos(cmd->getPosition().getX(),cmd->getPosition().getY(),cmd->getPosition().getZ());
                     StateGlobalPosition currentPosition = Owner().state->vehicleGlobalPosition.get();
                     double distance = fabs(currentPosition.distanceBetween2D(cmdPos));
-                    MissionTopic::VehicleTargetTopic vehicleTarget(cmd->getTargetSystem(), targetPosition, distance);
+                    MissionTopic::VehicleTargetTopic vehicleTarget(cmd->getTargetSystem(), cmdPos, distance);
                     Owner().callTargetCallback(vehicleTarget);
 
                     Data::ControllerState guidedState = guidedProgress.updateTargetState(distance);

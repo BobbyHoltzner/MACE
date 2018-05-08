@@ -43,7 +43,7 @@ hsm::Transition State_GroundedArming::GetTransition()
             break;
         }
         default:
-            std::cout<<"I dont know how we eneded up in this transition state from STATE_GROUNDED_ARMING."<<std::endl;
+            std::cout<<"I dont know how we eneded up in this transition state from STATE_GROUNDED_ARMING."<<(int)desiredStateEnum<<std::endl;
             break;
         }
     }

@@ -81,7 +81,6 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
                     Owner().callTargetCallback(vehicleTarget);
 
                     Data::ControllerState guidedState = guidedProgress.updateTargetState(distance);
-                    std::cout<<"The distance to the target is approximately: "<<distance<<std::endl;
                     if(guidedState == Data::ControllerState::ACHIEVED)
                     {
                         if(cmd->getPosition().has3DPositionSet())

@@ -63,6 +63,8 @@ hsm::Transition State_Landing::GetTransition()
             }
         }
     }
+
+    return rtn;
 }
 
 bool State_Landing::handleCommand(const AbstractCommandItem* command)
@@ -145,7 +147,10 @@ void State_Landing::OnEnter(const AbstractCommandItem *command)
             if(command->as<CommandItem::SpatialLand>()->getPosition().has2DPositionSet())
                 handleCommand(command);
             else
+            {
+                currentCommand = command->getClone();
                 this->OnEnter();
+            }
             break;
         default:
             break;

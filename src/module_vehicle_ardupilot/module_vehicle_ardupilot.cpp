@@ -423,9 +423,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         }
 
         stateMachine = new hsm::StateMachine();
-        stateMachine->Initialize<ardupilot::state::State_Grounded>(vehicleData.get());
-        stateMachine->UpdateStates();
-        stateMachine->ProcessStateTransitions();
+        stateMachine->Initialize<ardupilot::state::State_Unknown>(vehicleData.get());
     }
 
 
@@ -471,7 +469,6 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
 
     stateMachine->UpdateStates();
     stateMachine->ProcessStateTransitions();
-
 }
 
 void ModuleVehicleArdupilot::PublishVehicleData(const int &systemID, const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &components)

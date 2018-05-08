@@ -50,7 +50,8 @@ public:
             NewlyAvailableOnboardMission(key, sender);
         });
 
-        AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEW_MISSION_EXE_STATE, [this](const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEW_MISSION_EXE_STATE, [this](const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender){            
+            UNUSED(sender);
             NewlyAvailableMissionExeState(key);
         });
 
@@ -59,10 +60,12 @@ public:
         });
 
         AddCommandLogic<ModuleCharacteristic>(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, [this](const ModuleCharacteristic &module, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             NewlyAvailableModule(module);
         });
 
         AddCommandLogic<MissionItem::MissionACK>(ExternalLinkCommands::RECEIVED_MISSION_ACK, [this](const MissionItem::MissionACK &ack, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             ReceivedMissionACK(ack);
         });
 

@@ -12,6 +12,12 @@ State_LandingTransitioning::State_LandingTransitioning():
     desiredStateEnum = ArdupilotFlightState::STATE_LANDING_TRANSITIONING;
 }
 
+void State_LandingTransitioning::OnExit()
+{
+    AbstractStateArdupilot::OnExit();
+    Owner().state->vehicleGlobalPosition.RemoveNotifier(this);
+}
+
 AbstractStateArdupilot* State_LandingTransitioning::getClone() const
 {
     return (new State_LandingTransitioning(*this));

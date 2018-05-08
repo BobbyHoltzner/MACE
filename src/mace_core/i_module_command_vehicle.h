@@ -34,10 +34,12 @@ public:
     {
         //These are from MACE Core to modules
         this->template AddCommandLogic<int>(VehicleCommands::REQUEST_DUMMY_FUNCTION, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             RequestDummyFunction(vehicleID);
         });
 
         this->template AddCommandLogic<MissionItem::MissionKeyChange>(VehicleCommands::UPDATE_MISSION_KEY, [this](const MissionItem::MissionKeyChange &key, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             UpdateMissionKey(key);
         });
 

@@ -98,7 +98,7 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
     case COMMANDITEM::CI_NAV_LAND:
     {
         currentCommand = command->getClone();
-        desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_LAND;
+        desiredStateEnum = ArdupilotFlightState::STATE_LANDING;
         break;
     }
     default:

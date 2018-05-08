@@ -1,18 +1,20 @@
-#ifndef STATE_LANDING_TRANSITIONING_H
-#define STATE_LANDING_TRANSITIONING_H
+#ifndef STATE_UNKNOWN_H
+#define STATE_UNKNOWN_H
 
 #include "abstract_state_ardupilot.h"
-
-#include "../ardupilot_target_progess.h"
-#include "module_vehicle_MAVLINK/controllers/controller_guided_mission_item.h"
 
 namespace ardupilot{
 namespace state{
 
-class State_LandingTransitioning : public AbstractStateArdupilot
+class State_Grounded;
+class State_Takeoff;
+class State_Flight;
+class State_Landing;
+
+class State_Unknown : public AbstractStateArdupilot
 {
 public:
-    State_LandingTransitioning();
+    State_Unknown();
 
 public:
     AbstractStateArdupilot* getClone() const override;
@@ -30,14 +32,10 @@ public:
     void OnEnter() override;
 
     void OnEnter(const AbstractCommandItem* command) override;
-
-    void OnExit() override;
-
-private:
-    ArdupilotTargetProgess guidedProgress;
 };
 
 } //end of namespace ardupilot
 } //end of namespace state
 
-#endif // STATE_LANDING_TRANSITIONING_H
+
+#endif // STATE_UNKNOWN_H

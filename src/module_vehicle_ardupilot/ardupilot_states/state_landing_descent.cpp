@@ -6,6 +6,7 @@ namespace state{
 State_LandingDescent::State_LandingDescent():
     AbstractStateArdupilot()
 {
+    guidedProgress = ArdupilotTargetProgess(0,10,10);
     std::cout<<"We are in the constructor of STATE_LANDING_DESCENT"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_LANDING_DESCENDING;
     desiredStateEnum = ArdupilotFlightState::STATE_LANDING_DESCENDING;
@@ -13,7 +14,8 @@ State_LandingDescent::State_LandingDescent():
 
 void State_LandingDescent::OnExit()
 {
-
+    AbstractStateArdupilot::OnExit();
+    Owner().state->vehicleGlobalPosition.RemoveNotifier(this);
 }
 
 AbstractStateArdupilot* State_LandingDescent::getClone() const
@@ -56,49 +58,49 @@ bool State_LandingDescent::handleCommand(const AbstractCommandItem* command)
     case COMMANDITEM::CI_NAV_LAND:
     {
         const CommandItem::SpatialLand* cmd = command->getClone()->as<CommandItem::SpatialLand>();
-        Owner().state->vehicleGlobalPosition.AddNotifier(this,[this,cmd]
+        StateGlobalPosition cmdPos(cmd->getPosition().getX(),cmd->getPosition().getY(),cmd->getPosition().getZ());
+        cmdPos.setCoordinateFrame(cmd->getPosition().getCoordinateFrame());
+        Owner().state->vehicleGlobalPosition.AddNotifier(this,[this,cmd,cmdPos]
         {
-            if(cmd->getPosition().getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
+            if(cmdPos.getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
             {
-                StateGlobalPosition cmdPos(cmd->getPosition().getX(),cmd->getPosition().getY(),cmd->getPosition().getZ());
                 StateGlobalPosition currentPosition = Owner().state->vehicleGlobalPosition.get();
                 double distance = fabs(currentPosition.deltaAltitude(cmdPos));
                 MissionTopic::VehicleTargetTopic vehicleTarget(cmd->getTargetSystem(), cmdPos, distance);
                 Owner().callTargetCallback(vehicleTarget);
                 Data::ControllerState guidedState = guidedProgress.updateTargetState(distance);
-                std::cout<<"The distance to the target is approximately: "<<distance<<std::endl;
                 if(guidedState == Data::ControllerState::ACHIEVED)
                 {
-                        desiredStateEnum = ArdupilotFlightState::STATE_LANDING_COMPLETE;
+                    desiredStateEnum = ArdupilotFlightState::STATE_LANDING_COMPLETE;
                 }
             }
         });
 
 
-            auto controllerDescent = new MAVLINKVehicleControllers::CommandLand(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-            controllerDescent->setLambda_Finished([this,controllerDescent](const bool completed, const uint8_t finishCode){
-                if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
-                    GetImmediateOuterState()->setDesiredStateEnum(ArdupilotFlightState::STATE_FLIGHT);
-                controllerDescent->Shutdown();
-            });
+        auto controllerDescent = new MAVLINKVehicleControllers::CommandLand(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        controllerDescent->setLambda_Finished([this,controllerDescent](const bool completed, const uint8_t finishCode){
+            if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
+                GetImmediateOuterState()->setDesiredStateEnum(ArdupilotFlightState::STATE_FLIGHT);
+            controllerDescent->Shutdown();
+        });
 
-            controllerDescent->setLambda_Shutdown([this,controllerDescent]()
-            {
-                currentControllerMutex.lock();
-                currentControllers.erase("landingDescent");
-                delete controllerDescent;
-                currentControllerMutex.unlock();
-            });
+        controllerDescent->setLambda_Shutdown([this,controllerDescent]()
+        {
+            currentControllerMutex.lock();
+            currentControllers.erase("landingDescent");
+            delete controllerDescent;
+            currentControllerMutex.unlock();
+        });
 
-            MaceCore::ModuleCharacteristic target;
-            target.ID = Owner().getMAVLINKID();
-            target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-            MaceCore::ModuleCharacteristic sender;
-            sender.ID = 255;
-            sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MaceCore::ModuleCharacteristic target;
+        target.ID = Owner().getMAVLINKID();
+        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MaceCore::ModuleCharacteristic sender;
+        sender.ID = 255;
+        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-            controllerDescent->Send(*cmd,sender,target);
-            currentControllers.insert({"landingDescent",controllerDescent});
+        controllerDescent->Send(*cmd,sender,target);
+        currentControllers.insert({"landingDescent",controllerDescent});
         break;
     }
     default:
@@ -118,7 +120,13 @@ void State_LandingDescent::OnEnter()
 
 void State_LandingDescent::OnEnter(const AbstractCommandItem *command)
 {
-    this->OnEnter();
+    if(command != nullptr)
+    {
+        handleCommand(command);
+        delete command;
+    }
+    else
+        OnEnter();
 }
 
 } //end of namespace ardupilot
