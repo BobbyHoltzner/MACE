@@ -9,7 +9,12 @@ namespace state{
 class State_FlightAuto;
 class State_FlightBrake;
 class State_FlightGuided;
+class State_FlightLand;
 class State_FlightManual;
+class State_FlightRTL;
+class State_FlightUnknown;
+
+class State_Landing;
 
 class State_Flight : public AbstractStateArdupilot
 {
@@ -33,8 +38,10 @@ public:
 
     void OnEnter(const AbstractCommandItem* command) override;
 
+    void OnExit() override;
+
 private:
-    void checkTransitionFromMode();
+    void checkTransitionFromMode(const std::string &mode);
 
 };
 

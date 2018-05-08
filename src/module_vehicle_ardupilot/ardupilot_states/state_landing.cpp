@@ -47,6 +47,16 @@ hsm::Transition State_Landing::GetTransition()
                 rtn = hsm::InnerEntryTransition<State_LandingDescent>(currentCommand);
                 break;
             }
+            case ArdupilotFlightState::STATE_GROUNDED:
+            {
+                rtn = hsm::SiblingTransition<State_Grounded>(currentCommand);
+                break;
+            }
+            case ArdupilotFlightState::STATE_FLIGHT:
+            {
+                rtn = hsm::SiblingTransition<State_Flight>(currentCommand);
+                break;
+            }
             default:
                 std::cout<<"I dont know how we eneded up in this transition state from STATE_TAKEOFF."<<std::endl;
                 break;
@@ -57,11 +67,48 @@ hsm::Transition State_Landing::GetTransition()
 
 bool State_Landing::handleCommand(const AbstractCommandItem* command)
 {
+    this->clearCommand();
+
     switch(command->getCommandType())
     {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
         AbstractStateArdupilot::handleCommand(command);
+        break;
+    }
+    case COMMANDITEM::CI_NAV_LAND:
+    {
+        this->currentCommand = command->getClone();
+        //check that the vehicle is truely armed and switch us into the guided mode
+        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+            controllerSystemMode->Shutdown();
+            if(completed && (finishCode == MAV_RESULT_ACCEPTED))
+                desiredStateEnum = ArdupilotFlightState::STATE_LANDING_TRANSITIONING;
+            else
+                desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT;
+        });
+
+        controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
+        {
+            currentControllerMutex.lock();
+            currentControllers.erase("modeController");
+            delete controllerSystemMode;
+            currentControllerMutex.unlock();
+        });
+
+        MaceCore::ModuleCharacteristic target;
+        target.ID = Owner().getMAVLINKID();
+        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MaceCore::ModuleCharacteristic sender;
+        sender.ID = 255;
+        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MAVLINKVehicleControllers::MAVLINKModeStruct commandMode;
+        commandMode.targetID = target.ID;
+        commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString("GUIDED");
+        controllerSystemMode->Send(commandMode,sender,target);
+        currentControllers.insert({"modeController",controllerSystemMode});
+
         break;
     }
     default:
@@ -71,17 +118,44 @@ bool State_Landing::handleCommand(const AbstractCommandItem* command)
 
 void State_Landing::Update()
 {
+    StateData_MAVLINK* vehicleData = Owner().state;
 
+    if(!vehicleData->vehicleArm.get().getSystemArm())
+        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
+    else
+    {
+        if(vehicleData->vehicleMode.get().getFlightModeString() == "GUIDED")
+            desiredStateEnum = ArdupilotFlightState::STATE_LANDING_TRANSITIONING;
+    }
 }
 
+//this function would be called when issuing a mode change
 void State_Landing::OnEnter()
 {
-
+    desiredStateEnum = ArdupilotFlightState::STATE_LANDING_DESCENDING;
 }
 
+//this function is only called from the GUI
 void State_Landing::OnEnter(const AbstractCommandItem *command)
 {
-    this->OnEnter();
+    if(command != nullptr)
+    {
+        switch (command->getCommandType()) {
+        case COMMANDITEM::CI_NAV_LAND:
+            if(command->as<CommandItem::SpatialLand>()->getPosition().has2DPositionSet())
+                handleCommand(command);
+            else
+                this->OnEnter();
+            break;
+        default:
+            break;
+        }
+        delete command;
+    }
+    else
+    {
+        this->OnEnter();
+    }
 }
 
 } //end of namespace ardupilot
@@ -91,3 +165,4 @@ void State_Landing::OnEnter(const AbstractCommandItem *command)
 #include "ardupilot_states/state_landing_transitioning.h"
 #include "ardupilot_states/state_landing_complete.h"
 #include "ardupilot_states/state_grounded.h"
+#include "ardupilot_states/state_flight.h"

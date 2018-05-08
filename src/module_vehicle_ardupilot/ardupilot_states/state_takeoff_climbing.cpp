@@ -65,15 +65,21 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
         const CommandItem::SpatialTakeoff* cmd = command->getClone()->as<CommandItem::SpatialTakeoff>();
         if(cmd->getPosition().getPosZFlag())
         {
-            Owner().state->vehicleGlobalPosition.AddNotifier(this,[this,cmd]
+            StateGlobalPosition currentPosition = Owner().state->vehicleGlobalPosition.get();
+            StateGlobalPosition targetPosition(currentPosition.getX(), currentPosition.getY(), cmd->getPosition().getZ());
+            double distance = fabs(currentPosition.deltaAltitude(targetPosition));
+            MissionTopic::VehicleTargetTopic vehicleTarget(cmd->getTargetSystem(), targetPosition, distance);
+            Owner().callTargetCallback(vehicleTarget);
+
+            Owner().state->vehicleGlobalPosition.AddNotifier(this,[this,cmd,targetPosition]
             {
                 if(cmd->getPosition().getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
                 {
-                    StateGlobalPosition cmdPos(cmd->getPosition().getX(),cmd->getPosition().getY(),cmd->getPosition().getZ());
                     StateGlobalPosition currentPosition = Owner().state->vehicleGlobalPosition.get();
-                    double distance = fabs(currentPosition.deltaAltitude(cmdPos));
-                    MissionTopic::VehicleTargetTopic vehicleTarget(cmd->getTargetSystem(), cmdPos, distance);
+                    double distance = fabs(currentPosition.deltaAltitude(targetPosition));
+                    MissionTopic::VehicleTargetTopic vehicleTarget(cmd->getTargetSystem(), targetPosition, distance);
                     Owner().callTargetCallback(vehicleTarget);
+
                     Data::ControllerState guidedState = guidedProgress.updateTargetState(distance);
                     std::cout<<"The distance to the target is approximately: "<<distance<<std::endl;
                     if(guidedState == Data::ControllerState::ACHIEVED)

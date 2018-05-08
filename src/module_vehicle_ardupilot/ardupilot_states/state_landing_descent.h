@@ -3,8 +3,13 @@
 
 #include "abstract_state_ardupilot.h"
 
+#include "../ardupilot_target_progess.h"
+#include "module_vehicle_MAVLINK/controllers/controller_guided_mission_item.h"
+
 namespace ardupilot{
 namespace state{
+
+class State_LandingComplete;
 
 class State_LandingDescent : public AbstractStateArdupilot
 {
@@ -27,6 +32,11 @@ public:
     void OnEnter() override;
 
     void OnEnter(const AbstractCommandItem* command) override;
+
+    void OnExit() override;
+
+private:
+    ArdupilotTargetProgess guidedProgress;
 };
 
 } //end of namespace ardupilot

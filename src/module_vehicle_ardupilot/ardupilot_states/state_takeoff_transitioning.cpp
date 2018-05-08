@@ -66,8 +66,12 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
                 {
                     StateGlobalPosition cmdPos(cmd->getPosition().getX(),cmd->getPosition().getY(),cmd->getPosition().getZ());
                     StateGlobalPosition currentPosition = Owner().state->vehicleGlobalPosition.get();
-                    double distance = fabs(currentPosition.distanceBetween3D(cmdPos));
+                    double distance = fabs(currentPosition.distanceBetween2D(cmdPos));
                     Data::ControllerState guidedState = guidedProgress.updateTargetState(distance);
+
+                    MissionTopic::VehicleTargetTopic vehicleTarget(cmd->getTargetSystem(), cmdPos, distance);
+                    Owner().callTargetCallback(vehicleTarget);
+
                     std::cout<<"The distance to the target is approximately: "<<distance<<std::endl;
                     if(guidedState == Data::ControllerState::ACHIEVED)
                     {

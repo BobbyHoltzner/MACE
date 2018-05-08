@@ -3,6 +3,9 @@
 
 #include "abstract_state_ardupilot.h"
 
+#include "../ardupilot_target_progess.h"
+
+
 namespace ardupilot{
 namespace state{
 

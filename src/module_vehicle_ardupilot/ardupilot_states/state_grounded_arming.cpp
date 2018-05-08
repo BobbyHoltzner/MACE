@@ -52,14 +52,16 @@ hsm::Transition State_GroundedArming::GetTransition()
 
 bool State_GroundedArming::handleCommand(const AbstractCommandItem* command)
 {
-    const AbstractCommandItem* copyCommand = command->getClone();
     this->clearCommand();
-
-    switch (copyCommand->getCommandType()) {
+    switch (command->getCommandType()) {
+    case COMMANDITEM::CI_ACT_ARM:
+    {
+        break;
+    }
     case COMMANDITEM::CI_NAV_TAKEOFF:
     {
+        currentCommand = command->getClone();
         desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF;
-        currentCommand = copyCommand;
         break;
     }
     default:
@@ -124,11 +126,8 @@ void State_GroundedArming::OnEnter(const AbstractCommandItem* command)
 {
     this->OnEnter();
     if(command != nullptr) {
-        if(command->getCommandType() != COMMANDITEM::CI_ACT_ARM) {
-            //in this case we dont want to handle the command right away, this is because we have to wait for the vehicle to arm
-            this->clearCommand();
-            currentCommand = command->getClone();
-        }
+        handleCommand(command);
+        delete command;
     }
 }
 

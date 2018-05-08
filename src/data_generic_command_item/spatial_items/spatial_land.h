@@ -62,10 +62,6 @@ public:
     void getClone(AbstractCommandItem** command) const override;
 
 public:
-    bool getLandFlag() const;
-    void setLandFlag(const bool &landFlag);
-
-public:
     void operator = (const SpatialLand &rhs)
     {
         AbstractCommandItem::operator =(rhs);

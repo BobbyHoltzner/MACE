@@ -52,6 +52,10 @@ hsm::Transition State_Takeoff::GetTransition()
                 rtn = hsm::InnerEntryTransition<State_TakeoffTransitioning>(currentCommand);
                 break;
             }
+            case ArdupilotFlightState::STATE_FLIGHT:
+            {
+                rtn = hsm::SiblingTransition<State_Flight>(currentCommand);
+            }
             default:
                 std::cout<<"I dont know how we eneded up in this transition state from STATE_TAKEOFF."<<std::endl;
                 break;
@@ -67,12 +71,12 @@ bool State_Takeoff::handleCommand(const AbstractCommandItem* command)
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
         AbstractStateArdupilot::handleCommand(command);
-//        MAVLINKVehicleControllers::ControllerSystemMode* modeController = dynamic_cast<T*>(currentControllers.at("modeController"));
         MAVLINKVehicleControllers::ControllerSystemMode* modeController = (MAVLINKVehicleControllers::ControllerSystemMode*)currentControllers.at("modeController");
         modeController->setLambda_Finished([this,modeController](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
             {
                 //if a mode change was issued while in the takeoff sequence we may have to handle it in a specific way based on the conditions
+                desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT;
             }
             else
             {

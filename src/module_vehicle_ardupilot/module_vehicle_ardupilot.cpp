@@ -135,7 +135,6 @@ void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &com
     mLogs->debug("Receieved a command system arm.");
     mLogs->info(buffer.str());
     ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
-    ardupilot::state::AbstractStateArdupilot* currentInnerState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentState());
     currentOuterState->handleCommand(&command);
     stateMachine->ProcessStateTransitions();
     stateMachine->UpdateStates();
@@ -154,8 +153,8 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
     mLogs->debug("Receieved a command takeoff.");
     mLogs->info(buffer.str());
 
-    ardupilot::state::AbstractStateArdupilot* currentState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentState());
-    currentState->handleCommand(&commandWithTarget);
+    ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+    currentOuterState->handleCommand(&commandWithTarget);
     stateMachine->ProcessStateTransitions();
     stateMachine->UpdateStates();
 }
@@ -171,8 +170,10 @@ void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &comman
     mLogs->debug("Receieved a command to land.");
     mLogs->info(buffer.str());
 
-//    if(vehicleData)
-//        vehicleData->m_CommandController->setSystemLand(commandWithTarget);
+    ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+    currentOuterState->handleCommand(&commandWithTarget);
+    stateMachine->ProcessStateTransitions();
+    stateMachine->UpdateStates();
 }
 
 void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)

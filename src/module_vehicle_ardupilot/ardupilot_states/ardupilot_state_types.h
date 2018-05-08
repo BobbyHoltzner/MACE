@@ -25,10 +25,13 @@ enum class ArdupilotFlightState{
     STATE_FLIGHT_AUTO = 12, /**< */
     STATE_FLIGHT_BRAKE= 13, /**< */
     STATE_FLIGHT_RTL = 14, /**< */
-    STATE_LANDING= 15, /**< */
-    STATE_LANDING_TRANSITIONING = 16, /**< */
-    STATE_LANDING_DESCENDING = 17, /**< */
-    STATE_LANDING_COMPLETE = 18 /**< */
+    STATE_FLIGHT_LAND = 15,
+    STATE_FLIGHT_UNKNOWN = 16,
+    STATE_LANDING= 17, /**< */
+    STATE_LANDING_TRANSITIONING = 18, /**< */
+    STATE_LANDING_DESCENDING = 19, /**< */
+    STATE_LANDING_COMPLETE = 20, /**< */
+    STATE_UNKNOWN = 21 /**< */
 };
 
 //!
