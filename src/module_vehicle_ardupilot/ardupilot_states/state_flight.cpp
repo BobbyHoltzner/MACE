@@ -40,17 +40,17 @@ hsm::Transition State_Flight::GetTransition()
         switch (desiredStateEnum) {
         case ArdupilotFlightState::STATE_FLIGHT_AUTO:
         {
-            rtn = hsm::InnerEntryTransition<State_FlightAuto>();
+            rtn = hsm::InnerTransition<State_FlightAuto>();
             break;
         }
         case ArdupilotFlightState::STATE_FLIGHT_BRAKE:
         {
-            rtn = hsm::InnerEntryTransition<State_FlightBrake>();
+            rtn = hsm::InnerTransition<State_FlightBrake>();
             break;
         }
         case ArdupilotFlightState::STATE_FLIGHT_GUIDED:
         {
-            rtn = hsm::InnerEntryTransition<State_FlightGuided>();
+            rtn = hsm::InnerTransition<State_FlightGuided>();
             break;
         }
         case ArdupilotFlightState::STATE_LANDING:
@@ -58,19 +58,24 @@ hsm::Transition State_Flight::GetTransition()
             rtn = hsm::SiblingTransition<State_Landing>(currentCommand);
             break;
         }
+        case ArdupilotFlightState::STATE_FLIGHT_LOITER:
+        {
+            rtn = hsm::InnerTransition<State_FlightLoiter>(currentCommand);
+            break;
+        }
         case ArdupilotFlightState::STATE_FLIGHT_MANUAL:
         {
-            rtn = hsm::InnerEntryTransition<State_FlightManual>();
+            rtn = hsm::InnerTransition<State_FlightManual>();
             break;
         }
         case ArdupilotFlightState::STATE_FLIGHT_RTL:
         {
-            rtn = hsm::InnerEntryTransition<State_FlightRTL>();
+            rtn = hsm::InnerTransition<State_FlightRTL>();
             break;
         }
         case ArdupilotFlightState::STATE_FLIGHT_UNKNOWN:
         {
-            rtn = hsm::InnerEntryTransition<State_FlightUnknown>();
+            rtn = hsm::InnerTransition<State_FlightUnknown>();
             break;
         }
         default:
@@ -154,6 +159,12 @@ void State_Flight::checkTransitionFromMode(const std::string &mode)
         //A mode change we really have no way to track the progress of where we are
         desiredStateEnum = ArdupilotFlightState::STATE_LANDING;
     }
+    else if(mode == "LOITER")
+    {
+        //This event is handled differently than the land command issued from the GUI
+        //A mode change we really have no way to track the progress of where we are
+        desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_LOITER;
+    }
     else if(mode == "STABILIZE")
     {
         desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_MANUAL;
@@ -174,6 +185,7 @@ void State_Flight::checkTransitionFromMode(const std::string &mode)
 #include "ardupilot_states/state_flight_brake.h"
 #include "ardupilot_states/state_flight_guided.h"
 #include "ardupilot_states/state_flight_land.h"
+#include "ardupilot_states/state_flight_loiter.h"
 #include "ardupilot_states/state_flight_manual.h"
 #include "ardupilot_states/state_flight_rtl.h"
 #include "ardupilot_states/state_flight_unknown.h"

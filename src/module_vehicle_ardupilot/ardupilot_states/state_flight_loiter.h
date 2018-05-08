@@ -1,26 +1,15 @@
-#ifndef STATE_FLIGHT_H
-#define STATE_FLIGHT_H
+#ifndef STATE_FLIGHT_LOITER_H
+#define STATE_FLIGHT_LOITER_H
 
 #include "abstract_state_ardupilot.h"
 
 namespace ardupilot{
 namespace state{
 
-class State_FlightAuto;
-class State_FlightBrake;
-class State_FlightGuided;
-class State_FlightLand;
-class State_FlightLoiter;
-class State_FlightManual;
-class State_FlightRTL;
-class State_FlightUnknown;
-
-class State_Landing;
-
-class State_Flight : public AbstractStateArdupilot
+class State_FlightLoiter : public AbstractStateArdupilot
 {
 public:
-    State_Flight();
+    State_FlightLoiter();
 
 public:
     AbstractStateArdupilot* getClone() const override;
@@ -38,15 +27,9 @@ public:
     void OnEnter() override;
 
     void OnEnter(const AbstractCommandItem* command) override;
-
-    void OnExit() override;
-
-private:
-    void checkTransitionFromMode(const std::string &mode);
-
 };
 
 } //end of namespace ardupilot
 } //end of namespace state
 
-#endif // STATE_FLIGHT_H
+#endif // STATE_FLIGHT_LOITER_H

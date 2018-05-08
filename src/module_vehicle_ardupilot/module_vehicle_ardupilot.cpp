@@ -19,33 +19,6 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<>(),
     m_AircraftController(NULL), vehicleData(nullptr), stateMachine(nullptr)
 {
-//    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
-
-//    auto controller_SystemMode = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequest<
-//            mavlink_message_t,
-//            MaceCore::TopicDatagram,
-//            mavlink_set_mode_t,
-//            mavlink_command_ack_t,
-//            MAVLINK_MSG_ID_SET_MODE,
-//            MAVLINK_MSG_ID_COMMAND_ACK
-//            >
-//            (this, queue, m_LinkChan,
-//                mavlink_msg_set_mode_encode_chan,
-//                mavlink_msg_command_ack_decode
-//            );
-//    controller_SystemMode->FillSetObject([this](const MaceCore::TopicDatagram &commandItem, const MaceCore::ModuleCharacteristic &target, mavlink_set_mode_t &cmd)
-//    {
-//        std::shared_ptr<Data::TopicComponents::String> component = std::make_shared<Data::TopicComponents::String>();
-//        this->m_VehicleTopics.m_CommandSystemMode.GetComponent(commandItem, component);
-
-//        int mode = vehicleData->ardupilotMode.getFlightModeFromString(component->Str());
-
-//        cmd.target_system = target.ID;
-//        cmd.base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
-//        cmd.custom_mode = mode;
-//    });
-
-//    m_TopicToControllers.insert({this->m_VehicleTopics.m_CommandSystemMode.Name(), controller_SystemMode});
 
 }
 
@@ -138,8 +111,6 @@ void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &com
     currentOuterState->handleCommand(&command);
     stateMachine->ProcessStateTransitions();
     stateMachine->UpdateStates();
-
-    //vehicleData->m_CommandController->setSystemArm(commandWithTarget);
 }
 
 void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
@@ -416,8 +387,8 @@ bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
             if(!consumed)
                 consumed = vehicleData->parseMessage(&message);
         }
-        stateMachine->UpdateStates();
         stateMachine->ProcessStateTransitions();
+        stateMachine->UpdateStates();
     }
 
     return consumed;
