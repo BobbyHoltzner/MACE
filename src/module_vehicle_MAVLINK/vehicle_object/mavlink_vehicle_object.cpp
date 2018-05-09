@@ -7,6 +7,7 @@ MavlinkVehicleObject::MavlinkVehicleObject(CommsMAVLINK *commsObj, const int &ID
 
     controllerQueue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>(2000, 3);
     state = new StateData_MAVLINK();
+    mission = new MissionData_MAVLINK();
 }
 
 int MavlinkVehicleObject::getMAVLINKID() const

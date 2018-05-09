@@ -1,7 +1,7 @@
 #ifndef STATE_GROUNDED_H
 #define STATE_GROUNDED_H
 
-#include "abstract_state_ardupilot.h"
+#include "abstract_root_state.h"
 
 namespace ardupilot{
 namespace state{
@@ -13,7 +13,7 @@ class State_GroundedDisarming;
 
 class State_Takeoff;
 
-class State_Grounded : public AbstractStateArdupilot
+class State_Grounded : public AbstractRootState
 {
 public:
     State_Grounded();

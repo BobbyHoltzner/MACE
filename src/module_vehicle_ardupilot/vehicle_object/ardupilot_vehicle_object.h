@@ -15,6 +15,11 @@ class ArdupilotVehicleObject : public MavlinkVehicleObject
 public:
     ArdupilotVehicleObject(CommsMAVLINK* commsObj, const int &ID = 1);
 
+    CallbackInterface_MAVLINKVehicleObject* getMAVLINKCallback()
+    {
+        return m_CB;
+    }
+
 
     void connectTargetCallback(CallbackFunctionPtr_VehicleTarget cb, void *p)
     {

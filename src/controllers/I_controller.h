@@ -2,6 +2,7 @@
 #define I_CONTROLLER_H
 
 #include <vector>
+#include "common/common.h"
 
 #include "actions/action_base.h"
 
@@ -41,6 +42,7 @@ public:
     //!
     virtual bool ContainsAction(const Actions action)
     {
+        UNUSED(action);
         //no time to fix controllers that will be ultimatly removed. Adding implimentation for now.
         //We want this to eventually be pure
         printf("DEPRECATED!!! Function should be pure. Other controllers should impliment this");

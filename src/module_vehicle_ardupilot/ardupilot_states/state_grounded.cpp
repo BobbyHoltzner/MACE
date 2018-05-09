@@ -4,7 +4,7 @@ namespace ardupilot{
 namespace state{
 
 State_Grounded::State_Grounded():
-    AbstractStateArdupilot()
+    AbstractRootState()
 {
     std::cout<<"We are in the constructor of STATE_GROUNDED"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_GROUNDED;
@@ -72,8 +72,9 @@ bool State_Grounded::handleCommand(const AbstractCommandItem* command)
     COMMANDITEM commandType = command->getCommandType();
     switch (commandType) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
+    case COMMANDITEM::CI_NAV_HOME:
     {
-        AbstractStateArdupilot::handleCommand(command);
+        AbstractRootState::handleCommand(command);
         break;
     }
     default:

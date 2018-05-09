@@ -154,8 +154,10 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
 
     mLogs->debug("Receieved a command RTL.");
 
-//    if(vehicleData)
-//        vehicleData->m_CommandController->setSystemRTL(commandWithTarget);
+    ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+    currentOuterState->handleCommand(&commandWithTarget);
+    stateMachine->ProcessStateTransitions();
+    stateMachine->UpdateStates();
 }
 
 void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
@@ -250,8 +252,10 @@ void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialH
     mLogs->debug("Receieved a command to home position.");
     mLogs->info(buffer.str());
 
-//    if((vehicleData) && (vehicleData->getSystemID() == vehicleHome.getTargetSystem()))
-//        vehicleData->m_CommandController->setHomePosition(vehicleHome);
+    ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+    currentOuterState->handleCommand(&vehicleHome);
+    stateMachine->ProcessStateTransitions();
+    stateMachine->UpdateStates();
 }
 
 

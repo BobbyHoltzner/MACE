@@ -52,7 +52,7 @@ bool State_LandingTransitioning::handleCommand(const AbstractCommandItem* comman
     switch (command->getCommandType()) {
     case COMMANDITEM::CI_NAV_LAND:
     {
-        const CommandItem::SpatialLand* cmd = command->getClone()->as<CommandItem::SpatialLand>();
+        const CommandItem::SpatialLand* cmd = command->as<CommandItem::SpatialLand>();
         if(cmd->getPosition().has3DPositionSet())
         {
             Owner().state->vehicleGlobalPosition.AddNotifier(this,[this,cmd]

@@ -244,27 +244,27 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         mavlink_mission_current_t decodedMSG;
         mavlink_msg_mission_current_decode(msg,&decodedMSG);
 
-//        MissionItem::MissionItemCurrent current;
-//        current.setMissionKey(mission->getCurrentAutoMissionKey());
-//        current.setMissionCurrentIndex(decodedMSG.seq);
+        //        MissionItem::MissionItemCurrent current;
+        //        current.setMissionKey(mission->getCurrentAutoMissionKey());
+        //        current.setMissionCurrentIndex(decodedMSG.seq);
 
-//        if(mission->missionItemCurrent.set(current))
-//        {
-//            if(decodedMSG.seq == 0)
-//            {
-//                //the current target is home and we should handle this differently
-//            }
-//            else{
-//                int currentIndex = decodedMSG.seq - 1;
+        //        if(mission->missionItemCurrent.set(current))
+        //        {
+        //            if(decodedMSG.seq == 0)
+        //            {
+        //                //the current target is home and we should handle this differently
+        //            }
+        //            else{
+        //                int currentIndex = decodedMSG.seq - 1;
 
-//                MissionItem::MissionItemCurrent current;
-//                current.setMissionKey(mission->getCurrentAutoMissionKey());
-//                current.setMissionCurrentIndex(currentIndex);
+        //                MissionItem::MissionItemCurrent current;
+        //                current.setMissionKey(mission->getCurrentAutoMissionKey());
+        //                current.setMissionCurrentIndex(currentIndex);
 
-//                if(this->m_CB != NULL)
-//                    m_CB->cbi_VehicleMissionItemCurrent(current);
-//            }
-//        }
+        //                if(this->m_CB != NULL)
+        //                    m_CB->cbi_VehicleMissionItemCurrent(current);
+        //            }
+        //        }
 
         break;
     }
@@ -273,49 +273,46 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         //This is message definition 46
         //A certain mission item has been reached. The system will either hold this position (or circle on the orbit) or
         //(if the autocontinue on the WP was set) continue to the next MISSION.
-//        mavlink_mission_item_reached_t decodedMSG;
-//        mavlink_msg_mission_item_reached_decode(msg,&decodedMSG);
-//        int missionIndex = decodedMSG.seq - 1; //transforms the reference away from mavlink to MACE
+        //        mavlink_mission_item_reached_t decodedMSG;
+        //        mavlink_msg_mission_item_reached_decode(msg,&decodedMSG);
+        //        int missionIndex = decodedMSG.seq - 1; //transforms the reference away from mavlink to MACE
 
-//        if(missionIndex >= 0)
-//        {
-//            MissionItem::MissionItemAchieved itemAchieved;
-//            itemAchieved.setMissionKey(mission->getCurrentAutoMissionKey());
-//            itemAchieved.setMissionAchievedIndex(missionIndex);
+        //        if(missionIndex >= 0)
+        //        {
+        //            MissionItem::MissionItemAchieved itemAchieved;
+        //            itemAchieved.setMissionKey(mission->getCurrentAutoMissionKey());
+        //            itemAchieved.setMissionAchievedIndex(missionIndex);
 
-//            if(mission->missionItemReached.set(itemAchieved))
-//            {
-//                std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>(itemAchieved);
-//                if(this->m_CB != NULL)
-//                    m_CB->cbi_VehicleMissionData(systemID,ptrMissionTopic);
-//            }
-//        }
-//        else{
-//            //we have reached the home position, should we do anything here?
-//        }
+        //            if(mission->missionItemReached.set(itemAchieved))
+        //            {
+        //                std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>(itemAchieved);
+        //                if(this->m_CB != NULL)
+        //                    m_CB->cbi_VehicleMissionData(systemID,ptrMissionTopic);
+        //            }
+        //        }
+        //        else{
+        //            //we have reached the home position, should we do anything here?
+        //        }
 
         break;
     }
     case MAVLINK_MSG_ID_HOME_POSITION:
     {
-        //This is message definition 242
-        //This message can be requested by sending the MAV_CMD_GET_HOME_POSITION command. The position the system will return to and land on.
-        //The position is set automatically by the system during the takeoff in case it was not explicitely set by the operator before or after.
-        //The position the system will return to and land on. The global and local positions encode the position in the respective coordinate frames,
-        //while the q parameter encodes the orientation of the surface. Under normal conditions it describes the heading and terrain slope, which can
-        //be used by the aircraft to adjust the approach. The approach 3D vector describes the point to which the system should fly in normal flight
-        //mode and then perform a landing sequence along the vector.
-//        mavlink_home_position_t decodedMSG;
-//        mavlink_msg_home_position_decode(msg,&decodedMSG);
+        mavlink_home_position_t decodedMSG;
+        mavlink_msg_home_position_decode(msg,&decodedMSG);
+        CommandItem::SpatialHome home;
 
-//        CommandItem::SpatialHome spatialHome;
-//        spatialHome.position->setX(decodedMSG.latitude / pow(10,7));
-//        spatialHome.position->setY(decodedMSG.longitude / pow(10,7));
-//        spatialHome.position->setZ(decodedMSG.altitude / 1000);
-//        spatialHome.setOriginatingSystem(systemID);
-//        mission->home.set(spatialHome);
-//        if(this->m_CB)
-//            this->cbiMissionController_ReceviedHome(spatialHome);
+        DataState::StateGlobalPosition position;
+        position.setPosition(decodedMSG.latitude / pow(10,7), decodedMSG.longitude / pow(10,7), decodedMSG.altitude / 1000);
+        home.setPosition(position);
+
+        //check that something has actually changed
+        if(mission->vehicleHomePosition.set(home))
+        {
+            std::shared_ptr<CommandItem::SpatialHome> ptrHome = std::make_shared<CommandItem::SpatialHome>(home);
+            if(this->m_CB)
+                this->m_CB->cbi_VehicleHome(systemID,home);
+        }
         break;
     }
 

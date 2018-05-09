@@ -21,17 +21,6 @@ void AbstractStateArdupilot::OnExit()
 
 }
 
-
-//ArdupilotFlightState AbstractStateArdupilot::getCurrentState() const
-//{
-//    return currentStateEnum;
-//}
-
-//ArdupilotFlightState AbstractStateArdupilot::getDesiredState() const
-//{
-//    return desiredStateEnum;
-//}
-
 void AbstractStateArdupilot::clearCommand()
 {
     if(this->currentCommand != nullptr)
@@ -49,12 +38,12 @@ void AbstractStateArdupilot::destroyCurrentControllers()
         delete it->second;
     }
 }
-void AbstractStateArdupilot::setCurrentCommand(const AbstractCommandItem *command)
+void AbstractStateArdupilot::setCurrentCommand(const CommandItem::AbstractCommandItem *command)
 {
     this->currentCommand = command->getClone();
 }
 
-bool AbstractStateArdupilot::handleCommand(const AbstractCommandItem *command)
+bool AbstractStateArdupilot::handleCommand(const CommandItem::AbstractCommandItem *command)
 {
     switch (command->getCommandType()) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:

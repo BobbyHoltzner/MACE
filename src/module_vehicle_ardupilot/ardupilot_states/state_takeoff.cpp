@@ -4,7 +4,7 @@ namespace ardupilot{
 namespace state{
 
 State_Takeoff::State_Takeoff():
-    AbstractStateArdupilot()
+    AbstractRootState()
 {
     std::cout<<"We are in the constructor of STATE_TAKEOFF"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_TAKEOFF;
@@ -68,6 +68,11 @@ hsm::Transition State_Takeoff::GetTransition()
 bool State_Takeoff::handleCommand(const AbstractCommandItem* command)
 {
     switch(command->getCommandType()) {
+    case COMMANDITEM::CI_NAV_HOME:
+    {
+        AbstractRootState::handleCommand(command);
+        break;
+    }
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
         AbstractStateArdupilot::handleCommand(command);

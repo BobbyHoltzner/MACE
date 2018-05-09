@@ -46,7 +46,8 @@ SOURCES += module_vehicle_ardupilot.cpp \
     ardupilot_states/state_flight_unknown.cpp \
     ardupilot_states/state_flight_land.cpp \
     ardupilot_states/state_flight_loiter.cpp \
-    ardupilot_states/state_unknown.cpp
+    ardupilot_states/state_unknown.cpp \
+    ardupilot_states/abstract_root_state.cpp
 
 HEADERS += module_vehicle_ardupilot.h\
         module_vehicle_ardupilot_global.h \
@@ -82,7 +83,8 @@ HEADERS += module_vehicle_ardupilot.h\
     ardupilot_states/state_flight_unknown.h \
     ardupilot_states/state_flight_land.h \
     ardupilot_states/state_flight_loiter.h \
-    ardupilot_states/state_unknown.h
+    ardupilot_states/state_unknown.h \
+    ardupilot_states/abstract_root_state.h
 
 
 INCLUDEPATH += $$PWD/../

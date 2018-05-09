@@ -1,7 +1,7 @@
 #ifndef STATE_LANDING_H
 #define STATE_LANDING_H
 
-#include "abstract_state_ardupilot.h"
+#include "abstract_root_state.h"
 
 namespace ardupilot{
 namespace state{
@@ -12,7 +12,7 @@ class State_LandingComplete;
 class State_Grounded;
 class State_Flight;
 
-class State_Landing : public AbstractStateArdupilot
+class State_Landing : public AbstractRootState
 {
 public:
     State_Landing();

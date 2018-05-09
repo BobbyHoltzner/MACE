@@ -12,6 +12,7 @@
 #include "../controllers/controller_system_mode.h"
 
 #include "state_data_mavlink.h"
+#include "mission_data_mavlink.h"
 
 template <typename T, typename TT>
 T* Helper_CreateAndSetUp(TT* obj, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, uint8_t chan)
@@ -64,6 +65,7 @@ public:
 
 public:
     StateData_MAVLINK *state;
+    MissionData_MAVLINK *mission;
 
 protected:
     int mavlinkID;

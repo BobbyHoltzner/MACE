@@ -4,7 +4,7 @@ namespace ardupilot{
 namespace state{
 
 State_Flight::State_Flight():
-    AbstractStateArdupilot()
+    AbstractRootState()
 {
     std::cout<<"We are in the constructor of STATE_FLIGHT"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_FLIGHT;
@@ -73,6 +73,11 @@ hsm::Transition State_Flight::GetTransition()
             rtn = hsm::InnerTransition<State_FlightRTL>();
             break;
         }
+        case ArdupilotFlightState::STATE_GROUNDED:
+        {
+            rtn = hsm::SiblingTransition<State_Grounded>();
+            break;
+        }
         case ArdupilotFlightState::STATE_FLIGHT_UNKNOWN:
         {
             rtn = hsm::InnerTransition<State_FlightUnknown>();
@@ -90,9 +95,10 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
 {
     COMMANDITEM commandType = command->getCommandType();
     switch (commandType) {
+    case COMMANDITEM::CI_NAV_HOME:
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
-        AbstractStateArdupilot::handleCommand(command);
+        AbstractRootState::handleCommand(command);
         break;
     }
     case COMMANDITEM::CI_NAV_LAND:
@@ -100,6 +106,35 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
         currentCommand = command->getClone();
         desiredStateEnum = ArdupilotFlightState::STATE_LANDING;
         break;
+    }
+    case COMMANDITEM::CI_NAV_RETURN_TO_LAUNCH:
+    {
+        const CommandItem::SpatialRTL* cmd = command->as<CommandItem::SpatialRTL>();
+
+        auto controllerRTL = new MAVLINKVehicleControllers::CommandRTL(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        controllerRTL->setLambda_Finished([this,controllerRTL](const bool completed, const uint8_t finishCode){
+            if(completed && (finishCode == MAV_RESULT_ACCEPTED))
+                desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_RTL;
+            controllerRTL->Shutdown();
+        });
+
+        controllerRTL->setLambda_Shutdown([this,controllerRTL]()
+        {
+            currentControllerMutex.lock();
+            currentControllers.erase("RTLController");
+            delete controllerRTL;
+            currentControllerMutex.unlock();
+        });
+
+        MaceCore::ModuleCharacteristic target;
+        target.ID = Owner().getMAVLINKID();
+        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MaceCore::ModuleCharacteristic sender;
+        sender.ID = 255;
+        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+        controllerRTL->Send(*cmd,sender,target);
+        currentControllers.insert({"RTLController",controllerRTL});
     }
     default:
     {
@@ -113,6 +148,8 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
 void State_Flight::Update()
 {
     //mode changes are directly handled via add notifier events established in the OnEnter() method
+    if(!Owner().state->vehicleArm.get().getSystemArm())
+        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
 }
 
 void State_Flight::OnEnter()
@@ -191,6 +228,7 @@ void State_Flight::checkTransitionFromMode(const std::string &mode)
 #include "ardupilot_states/state_flight_unknown.h"
 
 #include "ardupilot_states/state_landing.h"
+#include "ardupilot_states/state_grounded.h"
 
 
 

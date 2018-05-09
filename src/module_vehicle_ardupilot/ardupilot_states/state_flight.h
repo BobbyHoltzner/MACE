@@ -1,7 +1,9 @@
 #ifndef STATE_FLIGHT_H
 #define STATE_FLIGHT_H
 
-#include "abstract_state_ardupilot.h"
+#include "abstract_root_state.h"
+
+#include "module_vehicle_MAVLINK/controllers/commands/command_rtl.h"
 
 namespace ardupilot{
 namespace state{
@@ -16,8 +18,9 @@ class State_FlightRTL;
 class State_FlightUnknown;
 
 class State_Landing;
+class State_Grounded;
 
-class State_Flight : public AbstractStateArdupilot
+class State_Flight : public AbstractRootState
 {
 public:
     State_Flight();
