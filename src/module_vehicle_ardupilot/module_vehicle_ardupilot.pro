@@ -18,16 +18,62 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += module_vehicle_ardupilot.cpp \
     module_vehicle_ardupilot_mission_parser.cpp \
     ardupilot_guided_controller.cpp \
-    ardupilot_mission_state.cpp \
     ardupilot_takeoff_controller.cpp \
-    ardupilot_general_controller.cpp
+    ardupilot_general_controller.cpp \
+    ardupilot_states/abstract_state_ardupilot.cpp \
+    ardupilot_states/state_takeoff_climbing.cpp \
+    ardupilot_states/state_takeoff_transitioning.cpp \
+    ardupilot_states/state_flight_guided.cpp \
+    ardupilot_states/state_grounded_idle.cpp \
+    ardupilot_states/state_grounded_arming.cpp \
+    ardupilot_states/state_grounded_disarming.cpp \
+    ardupilot_states/state_grounded_armed.cpp \
+    ardupilot_states/state_grounded.cpp \
+    ardupilot_states/state_takeoff.cpp \
+    ardupilot_states/state_landing_transitioning.cpp \
+    ardupilot_states/state_landing_descent.cpp \
+    ardupilot_states/state_landing.cpp \
+    ardupilot_states/state_flight_manual.cpp \
+    ardupilot_states/state_flight_auto.cpp \
+    ardupilot_states/state_flight_brake.cpp \
+    vehicle_object/ardupilot_vehicle_object.cpp \
+    vehicle_object/ardupilot_component_flight_mode.cpp \
+    ardupilot_target_progess.cpp \
+    ardupilot_states/state_takeoff_complete.cpp \
+    ardupilot_states/state_flight.cpp \
+    ardupilot_states/state_landing_complete.cpp
 
 HEADERS += module_vehicle_ardupilot.h\
         module_vehicle_ardupilot_global.h \
     ardupilot_guided_controller.h \
-    ardupilot_mission_state.h \
     ardupilot_takeoff_controller.h \
-    ardupilot_general_controller.h
+    ardupilot_general_controller.h \
+    ardupilot_states/abstract_state_ardupilot.h \
+    ardupilot_states/ardupilot_hsm.h \
+    ardupilot_states/ardupilot_state_types.h \
+    ardupilot_states/state_components.h \
+    ardupilot_states/state_flight_guided.h \
+    ardupilot_states/state_grounded.h \
+    ardupilot_states/state_grounded_armed.h \
+    ardupilot_states/state_grounded_arming.h \
+    ardupilot_states/state_grounded_disarming.h \
+    ardupilot_states/state_grounded_idle.h \
+    ardupilot_states/state_takeoff_climbing.h \
+    ardupilot_states/state_takeoff_transitioning.h \
+    ardupilot_states/state_takeoff.h \
+    ardupilot_states/state_landing_transitioning.h \
+    ardupilot_states/state_landing_descent.h \
+    ardupilot_states/state_landing.h \
+    ardupilot_states/state_flight_manual.h \
+    ardupilot_states/state_flight_auto.h \
+    ardupilot_states/state_flight_brake.h \
+    vehicle_object/ardupilot_vehicle_object.h \
+    vehicle_object/ardupilot_component_flight_mode.h \
+    ardupilot_target_progess.h \
+    ardupilot_states/state_takeoff_complete.h \
+    ardupilot_states/state_flight.h \
+    ardupilot_states/state_landing_complete.h
+
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../../speedLog/
@@ -54,6 +100,13 @@ INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
 INSTALL_HEADERS = $$HEADERS
 include(../headerinstall.pri)
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base_topic/release/ -lbase_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base_topic/debug/ -lbase_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base_topic/ -lbase_topic
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata

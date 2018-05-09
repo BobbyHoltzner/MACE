@@ -54,7 +54,7 @@ public:
 
         if(waitForRetries > 1000000000)
         {
-            printf("WARNING!!! Wait for retransmit is unreasonably high. Is is left on a debug value?");
+            printf("WARNING!!! Wait for retransmit is unreasonably high. Is is left on a debug value?\n");
         }
         start();
     }
@@ -116,8 +116,8 @@ public:
                         //if we have exceeded number of retries then remove and fail out
                         if(it->second.numTries >= m_NumRetries)
                         {
-                            m_ActiveTransmits.erase(it->first);
                             it->second.failureAction();
+                            m_ActiveTransmits.erase(it->first);
                             continue;
                         }
 

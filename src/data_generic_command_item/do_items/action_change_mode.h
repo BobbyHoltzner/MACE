@@ -13,11 +13,35 @@ namespace CommandItem {
 class ActionChangeMode : public AbstractCommandItem
 {
 public:
-    virtual COMMANDITEM getCommandType() const;
+    /**
+     * @brief getCommandType
+     * @return
+     */
+    COMMANDITEM getCommandType() const override;
 
-    virtual std::string getDescription() const;
+    /**
+     * @brief getDescription
+     * @return
+     */
+    std::string getDescription() const override;
 
-    virtual bool hasSpatialInfluence() const;
+    /**
+     * @brief hasSpatialInfluence
+     * @return
+     */
+    bool hasSpatialInfluence() const override;
+
+    /**
+     * @brief getClone
+     * @return
+     */
+    AbstractCommandItem* getClone() const override;
+
+    /**
+     * @brief getClone
+     * @param state
+     */
+    void getClone(AbstractCommandItem** command) const override;
 
 public:
     ActionChangeMode();

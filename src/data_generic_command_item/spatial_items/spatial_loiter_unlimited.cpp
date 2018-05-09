@@ -17,6 +17,16 @@ bool SpatialLoiter_Unlimited::hasSpatialInfluence() const
     return true;
 }
 
+AbstractCommandItem* SpatialLoiter_Unlimited::getClone() const
+{
+    return (new SpatialLoiter_Unlimited(*this));
+}
+
+void SpatialLoiter_Unlimited::getClone(AbstractCommandItem** command) const
+{
+    *command = new SpatialLoiter_Unlimited(*this);
+}
+
 SpatialLoiter_Unlimited::SpatialLoiter_Unlimited():
     AbstractCommandItem(0,0)
 {

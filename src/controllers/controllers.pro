@@ -71,13 +71,6 @@ include(../headerinstall.pri)
 
 
 
-
-
-
-
-
-
-
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/

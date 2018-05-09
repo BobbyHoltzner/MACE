@@ -1,42 +1,45 @@
 #ifndef BASE_SHORT_COMMAND_H
 #define BASE_SHORT_COMMAND_H
 
-#include "../generic_controller.h"
-#include "../generic_controller_queue_data_with_module.h"
+#include "controllers/generic_controller.h"
+#include "controllers/generic_controller_queue_data_with_module.h"
 
 
-#include "../actions/action_broadcast.h"
-#include "../actions/action_send.h"
-#include "../actions/action_final_receive_respond.h"
-#include "../actions/action_finish.h"
+#include "controllers/actions/action_broadcast.h"
+#include "controllers/actions/action_send.h"
+#include "controllers/actions/action_final_receive_respond.h"
+#include "controllers/actions/action_finish.h"
 
-namespace Controllers {
+namespace ModuleGenericMavlink {
+
+
+namespace MAVLINKGenericControllers {
 
 
 
-template <typename MESSAGETYPE, typename T>
+template <typename MESSAGETYPE, typename T, typename SHORT_COMMAND>
 using ActionSend_CommandShort_Broadcast = ActionBroadcast<
     MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+    Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
     T,
     mace_command_short_t
 >;
 
 
-template <typename MESSAGETYPE, typename T>
+template <typename MESSAGETYPE, typename T, typename SHORT_COMMAND>
 using ActionSend_CommandShort_TargedWithResponse = ActionSend<
     MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+    Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
     MaceCore::ModuleCharacteristic,
     T,
     mace_command_short_t,
     MACE_MSG_ID_COMMAND_ACK
 >;
 
-template <typename MESSAGETYPE, typename T>
+template <typename MESSAGETYPE, typename T, typename SHORT_COMMAND, typename SHORT_ACK>
 using ActionSend_CommandShort_ReceiveRespond = ActionFinalReceiveRespond<
     MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+    Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
     MaceCore::ModuleCharacteristic,
     T,
     mace_command_short_t,
@@ -44,10 +47,10 @@ using ActionSend_CommandShort_ReceiveRespond = ActionFinalReceiveRespond<
     MACE_MSG_ID_COMMAND_SHORT
 >;
 
-template<typename MESSAGETYPE, typename T>
+template<typename MESSAGETYPE, typename T, typename SHORT_ACK, const int SHORT_ACK_ID>
 using ActionFinish_CommandShort = ActionFinish<
     MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+    Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
     MaceCore::ModuleCharacteristic,
     mace_command_ack_t,
     MACE_MSG_ID_COMMAND_ACK
@@ -158,6 +161,7 @@ public:
 
 };
 
+}
 }
 
 #endif // BASE_SHORT_COMMAND_H

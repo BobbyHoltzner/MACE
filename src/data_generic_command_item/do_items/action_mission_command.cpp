@@ -16,6 +16,16 @@ bool ActionMissionCommand::hasSpatialInfluence() const
     return false;
 }
 
+AbstractCommandItem* ActionMissionCommand::getClone() const
+{
+    return (new ActionMissionCommand(*this));
+}
+
+void ActionMissionCommand::getClone(AbstractCommandItem** command) const
+{
+    *command = new ActionMissionCommand(*this);
+}
+
 ActionMissionCommand::ActionMissionCommand()
 {
 

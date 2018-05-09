@@ -207,7 +207,7 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 
 void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
 
-    printf("Deprecated!\n");
+    //printf("Deprecated!\n");
     //throw std::runtime_error("Deprecated");
 
     std::vector<std::string> components = value.ListNonTerminals();

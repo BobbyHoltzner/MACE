@@ -17,6 +17,16 @@ bool SpatialLand::hasSpatialInfluence() const
     return true;
 }
 
+AbstractCommandItem* SpatialLand::getClone() const
+{
+    return (new SpatialLand(*this));
+}
+
+void SpatialLand::getClone(AbstractCommandItem** command) const
+{
+    *command = new SpatialLand(*this);
+}
+
 SpatialLand::SpatialLand():
     AbstractCommandItem(0,0), AbstractSpatialPosition()
 {

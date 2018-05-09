@@ -32,7 +32,7 @@ public:
     //! \param message Message to receive
     //! \return True if action was taken, false if this module didnt' care about message
     //!
-    virtual bool ReceiveMessage(const MESSAGETYPE* message) = 0;
+    virtual bool ReceiveMessage(const MESSAGETYPE* message, const MaceCore::ModuleCharacteristic &sender) = 0;
 
     //!
     //! \brief Query to be given to determin if controller has the given action

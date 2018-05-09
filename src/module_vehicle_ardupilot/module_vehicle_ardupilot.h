@@ -22,6 +22,10 @@
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
+#include "ardupilot_states/ardupilot_hsm.h"
+#include "ardupilot_states/state_components.h"
+#include "vehicle_object/ardupilot_vehicle_object.h"
+
 //__________________
 #include "data_interface_MAVLINK/callback_interface_data_mavlink.h"
 
@@ -32,18 +36,17 @@
 #include "controllers/I_controller.h"
 #include "controllers/I_message_notifier.h"
 
+#include "module_vehicle_MAVLINK/controllers/controller_mission.h"
+
 using namespace std::placeholders;
 
 //class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
-class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK,
-        public Controllers::IMessageNotifier<mavlink_message_t>
+class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>
 {
 public:
     ModuleVehicleArdupilot();
 
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
-
-    virtual void TransmitMessage(const mavlink_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) const;
 
     void createLog(const int &systemID);
 
@@ -60,11 +63,6 @@ public:
     //callback interface support for the DataInterface_MAVLINK object
     void cbi_VehicleCommandACK(const int &systemID, const mavlink_command_ack_t &cmdACK);
     void cbi_VehicleMissionACK(const MissionItem::MissionACK &ack);
-    void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
-    void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent & current);
-    void cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
-    void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home);
-    void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList);
 
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
 
@@ -73,7 +71,7 @@ public:
     //! \param linkName Name of link message received over
     //! \param msg Message received
     //!
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
+    virtual bool MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
 
 
     //!
@@ -291,23 +289,25 @@ private:
     {
         std::cout << target << std::endl;
         std::shared_ptr<MissionTopic::VehicleTargetTopic> ptrTarget = std::make_shared<MissionTopic::VehicleTargetTopic>(target);
-        cbi_VehicleMissionData(target.getVehicleID(),ptrTarget);
+        ModuleVehicleMAVLINK::cbi_VehicleMissionData(target.getVehicleID(),ptrTarget);
     }
 
 private:
     std::shared_ptr<spdlog::logger> mLogs;
 
 private:
-    std::shared_ptr<DataInterface_MAVLINK::VehicleObject_MAVLINK> vehicleData;
+    std::shared_ptr<ArdupilotVehicleObject> vehicleData;
 
 private:
-    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;
-
-    BaseTopic::VehicleTopics m_VehicleTopics;
 
     Ardupilot_GeneralController* m_AircraftController;
 
+    hsm::StateMachine* stateMachine; /**< Member variable containing a pointer to the state
+ machine. This state machine evolves the state per event updates and/or external commands. */
+
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> m_TopicToControllers;
+
+    MAVLINKVehicleControllers::ControllerMission * m_MissionController;
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H

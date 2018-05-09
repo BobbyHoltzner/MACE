@@ -1,31 +1,36 @@
-#include "ardupilot_mission_state.h"
+#include "ardupilot_target_progess.h"
 
-ArdupilotMissionState::ArdupilotMissionState()
+ArdupilotTargetProgess::ArdupilotTargetProgess()
 {
-    distanceThresholdAchieved = 0.0;
-    distanceThresholdHunting = 1.0;
-    maxDuration_Hunting = 10.0;
+    distanceThresholdAchieved = 3.0;
+    distanceThresholdHunting = 20.0;
+    maxDuration_Hunting = 20.0;
     maxDuration_Routing = std::numeric_limits<double>::max();
     state = Data::ControllerState::TRACKING;
-    initializeMissionState();
+    initializeTargetState();
 }
 
-ArdupilotMissionState::ArdupilotMissionState(const double &achievedDistance, const double &huntingDistance, const double &maxHuntingDuration) :
+ArdupilotTargetProgess::ArdupilotTargetProgess(const double &achievedDistance, const double &huntingDistance, const double &maxHuntingDuration) :
     distanceThresholdAchieved(achievedDistance), distanceThresholdHunting(huntingDistance), maxDuration_Hunting(maxHuntingDuration)
 {
     state = Data::ControllerState::TRACKING;
     maxDuration_Routing = std::numeric_limits<double>::max();
-    initializeMissionState();
+    initializeTargetState();
 }
 
-Data::ControllerState ArdupilotMissionState::newMissionItem(const double &distance)
+Data::ControllerState ArdupilotTargetProgess::newTargetItem(const double &distance)
 {
     initializeTargetStart();
-    Data::ControllerState rtnState = updateMissionState(distance);
+    Data::ControllerState rtnState = updateTargetState(distance);
     return rtnState;
 }
 
-Data::ControllerState ArdupilotMissionState::updateMissionState(const double &distance)
+Data::ControllerState ArdupilotTargetProgess::updateTargetTimes()
+{
+
+}
+
+Data::ControllerState ArdupilotTargetProgess::updateTargetState(const double &distance)
 {
     if(distance > distanceThresholdHunting)
     {
@@ -54,28 +59,18 @@ Data::ControllerState ArdupilotMissionState::updateMissionState(const double &di
 /// state of the mission/target/hunting times.
 ////////////////////////////////////////////////////////////////////////////
 
-void ArdupilotMissionState::initializeMissionState()
+void ArdupilotTargetProgess::initializeTargetState()
 {
-    missionStart = std::chrono::system_clock::now();
     targetStart = std::chrono::system_clock::now();
     huntingStart = std::chrono::system_clock::now();
 }
 
-void ArdupilotMissionState::initializeTargetStart()
+void ArdupilotTargetProgess::initializeTargetStart()
 {
     targetStart = std::chrono::system_clock::now();
 }
 
-
-float ArdupilotMissionState::getCurrentMissionTime()
-{
-    std::chrono::time_point<std::chrono::system_clock> now;
-    now = std::chrono::system_clock::now();
-    std::chrono::duration<float> elapsed_seconds = now - missionStart;
-    return elapsed_seconds.count();
-}
-
-float ArdupilotMissionState::getCurrentTargetTime()
+float ArdupilotTargetProgess::getCurrentTargetTime()
 {
     std::chrono::time_point<std::chrono::system_clock> now;
     now = std::chrono::system_clock::now();
@@ -83,7 +78,7 @@ float ArdupilotMissionState::getCurrentTargetTime()
     return elapsed_seconds.count();
 }
 
-float ArdupilotMissionState::getHuntingTime()
+float ArdupilotTargetProgess::getHuntingTime()
 {
     std::chrono::time_point<std::chrono::system_clock> now;
     now = std::chrono::system_clock::now();

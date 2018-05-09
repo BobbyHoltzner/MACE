@@ -14,6 +14,8 @@
 
 #include "data/environment_time.h"
 
+#include "mace_core/module_characteristics.h"
+
 #ifdef ROS_EXISTS
 #include <ros/ros.h>
 #endif
@@ -56,7 +58,6 @@ int main(int argc, char *argv[])
         loggingDirectory.mkpath(QString::fromStdString(rootPath + "/logs/"));
         while(!loggingDirectory.mkdir(QString::fromStdString(finalPath)))
         {
-            printf("%s, %s\n", rootPath.c_str(), finalPath.c_str());
             testIndex++;
             finalPath = newPath + std::to_string(testIndex);
         }
@@ -107,8 +108,6 @@ int main(int argc, char *argv[])
     std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string > modules = parser.GetCreatedModules();
     std::vector<std::thread*> threads;
 
-
-    //configure and add modules to core
     for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
     {
         std::shared_ptr<MaceCore::ModuleBase> module = it->first;
@@ -123,6 +122,12 @@ int main(int argc, char *argv[])
         //configure module
         module->ConfigureModule(parser.GetModuleConfiguration(module));
 
+        //start thread
+        std::thread *thread = new std::thread([module]()
+        {
+            module->start();
+        });
+        threads.push_back(thread);
 
         //add to core (and check if too many have been added)
         MaceCore::ModuleClasses moduleClass = module->ModuleClass();
@@ -180,17 +185,17 @@ int main(int argc, char *argv[])
 #endif
             break;
         }
-        case MaceCore::ModuleClasses::RTA:
-        {
-            if(addedRTA == true)
-            {
-                std::cerr << "Only one RTA module can be added" << std::endl;
-                return 1;
-            }
-            core.AddRTAModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandRTA>(module));
-            addedRTA = true;
-            break;
-        }
+//        case MaceCore::ModuleBase::RTA:
+//        {
+//            if(addedRTA == true)
+//            {
+//                std::cerr << "Only one RTA module can be added" << std::endl;
+//                return 1;
+//            }
+//            core.AddRTAModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandRTA>(module));
+//            addedRTA = true;
+//            break;
+//        }
         case MaceCore::ModuleClasses::VEHICLE_COMMS:
         {
             core.AddVehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));
@@ -206,18 +211,6 @@ int main(int argc, char *argv[])
 
 
 
-    }
-
-
-    //start all modules in their own thread
-    for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
-    {
-        std::shared_ptr<MaceCore::ModuleBase> module = it->first;
-        std::thread *thread = new std::thread([module]()
-        {
-            module->start();
-        });
-        threads.push_back(thread);
     }
 
 

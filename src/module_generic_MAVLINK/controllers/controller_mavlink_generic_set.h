@@ -1,5 +1,5 @@
-#ifndef CONGROLLER_MAVLINK_GENERIC_SET_H
-#define CONGROLLER_MAVLINK_GENERIC_SET_H
+#ifndef CONTROLLER_MAVLINK_GENERIC_SET_H
+#define CONTROLLER_MAVLINK_GENERIC_SET_H
 
 #include "controllers/generic_controller.h"
 #include "controllers/generic_controller_queue_data_with_module.h"
@@ -246,4 +246,4 @@ public:
 
 }
 
-#endif // CONGROLLER_MAVLINK_GENERIC_SET_H
+#endif // CONTROLLER_MAVLINK_GENERIC_SET_H

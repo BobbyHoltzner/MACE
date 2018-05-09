@@ -56,6 +56,12 @@ public:
         return *this->position;
     }
 
+    const Base3DPosition getPosition() const
+    {
+        return *this->position;
+    }
+
+
 public:
     //!
     //! \brief operator =

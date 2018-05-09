@@ -216,7 +216,7 @@ void VehicleObject_MAVLINK::cbiMissionController_MissionACK(const mavlink_missio
     {
         //we need to update the current state of the mission....since it has been accepted and transmitted
         //to the autopilot it is current
-        MissionItem::MissionList missionCopy = missionList;
+        MissionItem::MissionList missionCopy(missionList);
         missionCopy.setMissionTXState(MissionItem::MISSIONSTATE::CURRENT);
         //next lets update the local data instance of the appropriate mission
         mission->setCurrentMission(missionList);

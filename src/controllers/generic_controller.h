@@ -4,7 +4,8 @@
 #include "mace_core/module_characteristics.h"
 #include "I_controller.h"
 #include "common/pointer_collection.h"
-#include "spdlog/spdlog.h"
+
+#include <spdlog/spdlog.h>
 
 #include <tuple>
 #include <functional>
@@ -226,15 +227,8 @@ public:
 
 
 
-    virtual bool ReceiveMessage(const MESSAGETYPE *message)
+    virtual bool ReceiveMessage(const MESSAGETYPE *message, const MaceCore::ModuleCharacteristic &sender)
     {
-        int systemID = message->sysid;
-        int compID = message->compid;
-
-        MaceCore::ModuleCharacteristic sender;
-        sender.ID = systemID;
-        sender.Class = (MaceCore::ModuleClasses)compID;
-
         std::lock_guard<std::mutex> lock(m_MessageBehaviorsMutex);
         bool usedMessage = false;
         for(auto it = m_MessageBehaviors.cbegin() ; it != m_MessageBehaviors.cend() ; ++it)

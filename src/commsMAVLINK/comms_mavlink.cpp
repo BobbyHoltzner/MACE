@@ -10,6 +10,21 @@ CommsMAVLINK::~CommsMAVLINK()
 
 }
 
+uint8_t CommsMAVLINK::getLinkChannel() const
+{
+    return this->m_LinkChan;
+}
+
+std::string CommsMAVLINK::getLinkName() const
+{
+    return this->m_LinkName;
+}
+
+void CommsMAVLINK::TransmitMAVLINKMessage(const mavlink_message_t &msg)
+{
+    m_LinkMarshaler->SendMAVMessage(m_LinkName,msg);
+}
+
 void CommsMAVLINK::VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
     UNUSED(linkName);
@@ -17,11 +32,11 @@ void CommsMAVLINK::VehicleHeartbeatInfo(const std::string &linkName, const int &
     UNUSED(heartbeatMSG);
 }
 
-void CommsMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
+bool CommsMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
     UNUSED(linkName);
     UNUSED(message);
-    std::cout<<"I am in the comms_mavlink library MavlinkMessage callback."<<std::endl;
+    return false;
 }
 
 //!
