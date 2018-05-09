@@ -7,6 +7,24 @@
 
 namespace Controllers {
 
+/**
+ *
+ * An action that is an intermediate step. It doesn't invoke a finished and it isn't instigated by the user.
+ *
+ * Example Usage:
+ *      using SendHelper_RequestItem = ActionIntermediate<
+ *          mace_messate_t,                         //Fundemental packet that data is sent out on
+ *          CONTROLLER_MISSION_TYPE,                //Controller type
+ *          MissionItem::MissionKey,                //Queue that received message belongs to. Used to remove request this is response to from queue
+ *          MissionItem::MissionKey,                //Queue that followup message will belong to. Used to add followup transmission to queue
+ *          mace_mission_request_item_t,            //Message type to receive
+ *          MACE_MSG_ID_MISSION_REQUEST_ITEM,       //ID of received message
+ *          mace_mission_item_t,                    //Message type to followup with
+ *          MACE_MSG_ID_MISSION_REQUEST_ITEM,       // List of message IDs that can unqueue the followup transmission
+ *          MACE_MSG_ID_MISSION_ACK
+ *      >;
+ *
+ */
 template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename RECEIVE_QUEUE_TYPE, typename RESPOND_QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID, typename ACK_TYPE, const int ...MESSAGE_ACK_ID>
 class ActionIntermediate :
         public ActionIntermediateReceive<MESSAGE_TYPE, CONTROLLER_TYPE, RECEIVE_QUEUE_TYPE, RESPOND_QUEUE_TYPE, MSG_TYPE, MESSAGE_REQUEST_ID, ACK_TYPE>,

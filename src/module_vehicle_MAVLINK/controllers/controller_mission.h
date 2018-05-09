@@ -17,10 +17,14 @@
 
 #include "mavlink.h"
 
+#include "data_interface_MAVLINK/MAVLINK_to_MACE/helper_mission_mavlink_to_mace.h"
+
 namespace MAVLINKVehicleControllers {
 
+/// Data that is to be downloaded from mission
+using MissionDownloadResult = std::tuple<CommandItem::SpatialHome, MissionList>;
 
-/*
+/**
  * Definition of the controller that will be used for the mission
  *
  * [Param1]
@@ -28,169 +32,25 @@ namespace MAVLINKVehicleControllers {
  *
  * [Param2]
  * When request are given to the queue they can be removed by two actions:
- * Expected message type (int)
+ * Expected message type and nothing else (ObjectIntTuple<void*>)
  * Expected message type and mission Key (ObjectIntTuple<MissionItem::MissionKey>)
  *
  * [Param3]
  * When finished a code of type uint8_t will be returned
  *
  * [Param4]
- * The controller can be kicked off by two behavors:
- * A key is given to download from vehicle.
- * A mission is given to upload to vehicle.
+ * The controller can return data of the form MissionDownloadResult with no key
+ * No key is needed because we always attached to a single vehicle in this module.
  */
 using CONTROLLER_MISSION_TYPE = Controllers::GenericController<
     mavlink_message_t,
     TransmitQueueWithKeys<Controllers::MessageModuleTransmissionQueue<mavlink_message_t>, ObjectIntTuple<void*>, ObjectIntTuple<MissionItem::MissionKey>>,
     uint8_t,
-    Controllers::DataItem<MissionKey, MissionList>
+    Controllers::DataItem<void*, MissionDownloadResult>
 >;
 
 
-
-/*
-using SendHelper_RequestMissionDownload = Controllers::ActionSend<
-    mavlink_message_t,
-    CONTROLLER_MISSION_TYPE,
-    MissionItem::MissionKey,
-    MissionItem::MissionKey,
-    mavlink_mission_request_list_t,
-    MAVLINK_MSG_ID_MISSION_COUNT
->;
-
-
-using SendHelper_RequestList = Controllers::ActionIntermediate<
-    mavlink_message_t,
-    CONTROLLER_MISSION_TYPE,
-    MissionItem::MissionKey,
-    MissionItem::MissionKey,
-    mavlink_mission_request_list_t,
-    MAVLINK_MSG_ID_MISSION_REQUEST_LIST,
-    mavlink_mission_count_t,
-    MAVLINK_MSG_ID_MISSION_REQUEST_ITEM
->;
-
-
-
-using SendHelper_ReceiveCountRespondItemRequest = Controllers::ActionIntermediate<
-    mavlink_message_t,
-    CONTROLLER_MISSION_TYPE,
-    MissionItem::MissionKey,
-    MissionItem::MissionKey,
-    mavlink_mission_count_t,
-    MAVLINK_MSG_ID_MISSION_COUNT,
-    mavlink_mission_request_item_t,
-    MAVLINK_MSG_ID_MISSION_ITEM
->;
-
-
-using SendHelper_ReceiveCountRespondItemRequest_FromRequest = Controllers::ActionIntermediate<
-    mavlink_message_t,
-    CONTROLLER_MISSION_TYPE,
-    MaceCore::ModuleCharacteristic,
-    MissionItem::MissionKey,
-    mavlink_mission_count_t,
-    MAVLINK_MSG_ID_MISSION_COUNT,
-    mavlink_mission_request_item_t,
-    MAVLINK_MSG_ID_MISSION_ITEM
->;
-
-
-
-using SendHelper_RequestItem = Controllers::ActionIntermediate<
-    mavlink_message_t,
-    CONTROLLER_MISSION_TYPE,
-    MissionItem::MissionKey,
-    MissionItem::MissionKey,
-    mavlink_mission_request_item_t,
-    MAVLINK_MSG_ID_MISSION_REQUEST_ITEM,
-    mavlink_mission_item_t,
-    MAVLINK_MSG_ID_MISSION_REQUEST_ITEM,
-    MAVLINK_MSG_ID_MISSION_ACK
->;
-
-
-
-using SendHelper_ReceiveItem = Controllers::ActionIntermediateReceive<
-    mavlink_message_t,
-    CONTROLLER_MISSION_TYPE,
-    MissionItem::MissionKey,
-    MissionItem::MissionKey,
-    mavlink_mission_item_t,
-    MAVLINK_MSG_ID_MISSION_ITEM,
-    mavlink_mission_request_item_t
->;
-
-////Duplicate
-//typedef ActionResponseIntermediate<
-//        CONTROLLER_MISSION_TYPE,
-//        MAVLINK_mission_request_item_t,
-//        MAVLINK_MSG_ID_MISSION_ITEM
-//    >
-//    SendHelper_RespondItem;
-
-
-
-
-
-using SendHelper_Final = Controllers::ActionFinalReceiveRespond<
-    mavlink_message_t,
-    CONTROLLER_MISSION_TYPE,
-    MissionItem::MissionKey,
-    MissionItem::MissionList,
-    mavlink_mission_item_t,
-    mavlink_mission_ack_t,
-    MAVLINK_MSG_ID_MISSION_ITEM
->;
-
-
-
-using SendHelper_FinalFinal = Controllers::ActionFinish<
-    mavlink_message_t,
-    CONTROLLER_MISSION_TYPE,
-    MissionItem::MissionKey,
-    uint8_t,
-    mavlink_mission_ack_t,
-    MAVLINK_MSG_ID_MISSION_ACK
->;
-
-
-
-using Action_RequestCurrentMission_Initiate = Controllers::ActionRequest<
-    mavlink_message_t,
-    CONTROLLER_MISSION_TYPE,
-    MaceCore::ModuleCharacteristic,
-    mavlink_mission_request_list_generic_t,
-    MAVLINK_MSG_ID_MISSION_COUNT,
-    MAVLINK_MSG_ID_MISSION_ACK
->;
-
-
-
-using Action_RequestCurrentMission_Response = Controllers::ActionIntermediateReceive<
-    mavlink_message_t,
-    CONTROLLER_MISSION_TYPE,
-    MissionItem::MissionKey,
-    MissionItem::MissionKey,
-    mavlink_mission_request_list_generic_t,
-    MAVLINK_MSG_ID_MISSION_REQUEST_LIST_GENERIC,
-    mavlink_mission_count_t
->;
-
-
-using Action_RequestCurrentMission_NoMissionResponse = Controllers::ActionIntermediateReceive<
-    mavlink_message_t,
-    CONTROLLER_MISSION_TYPE,
-    MissionItem::MissionKey,
-    MissionItem::MissionKey,
-    mavlink_mission_request_list_generic_t,
-    MAVLINK_MSG_ID_MISSION_REQUEST_LIST_GENERIC,
-    mavlink_mission_ack_t
->;
-*/
-
-
-/*
+/**
  * Action that request a list of all missions on the remote vehicle
  *
  * This action transmitts a mavlink_mission_request_list_t
@@ -202,59 +62,99 @@ using MissionAction_RequestCurrentMission_Initiate = Controllers::ActionRequest<
     CONTROLLER_MISSION_TYPE,
     void*,
     mavlink_mission_request_list_t,
-    MAVLINK_MSG_ID_MISSION_COUNT,
-    MAVLINK_MSG_ID_MISSION_ACK
+    MAVLINK_MSG_ID_MISSION_COUNT
 >;
 
-/*
- * Action to receive the ACK that vehicle sends if no mission is present.
+
+/**
+ * Action to receive the count and finish.
+ *
+ * This action will only trigger if count received is zero.
+ * i.e. there is no mission on vehicle.
  */
 using MissionAction_ReceiveAckDueToEmptyMission = Controllers::ActionFinish<
     mavlink_message_t,
     CONTROLLER_MISSION_TYPE,
     void*,
     uint8_t,
-    mavlink_mission_ack_t,
-    MAVLINK_MSG_ID_MISSION_ACK
+    mavlink_mission_count_t,
+    MAVLINK_MSG_ID_MISSION_COUNT
 >;
 
+
+/**
+ * Action to receive the count and continue with mission download
+ *
+ * This action will trigger if count is greater than zero.
+ * It will trigger an action of requesting the first mission item.
+ */
 using MissionAction_ReceiveCountRespondItemRequest = Controllers::ActionIntermediate<
     mavlink_message_t,
     CONTROLLER_MISSION_TYPE,
     void*,
-    MissionItem::MissionKey,
+    void*,
     mavlink_mission_count_t,
     MAVLINK_MSG_ID_MISSION_COUNT,
     mavlink_mission_request_t,
-    MAVLINK_MSG_ID_MISSION_REQUEST
+    MAVLINK_MSG_ID_MISSION_ITEM
 >;
 
 
+/**
+ * Action to receive a mission item and make follow up request for next mission item.
+ */
+using MissionAction_ReceiveItemFollowUpNextItemRequest = Controllers::ActionIntermediate<
+    mavlink_message_t,
+    CONTROLLER_MISSION_TYPE,
+    void*,
+    void*,
+    mavlink_mission_item_t,
+    MAVLINK_MSG_ID_MISSION_ITEM,
+    mavlink_mission_request_t,
+    MAVLINK_MSG_ID_MISSION_ITEM
+>;
+
+
+/**
+ * Action to receive the final mission item and respond with an ACK to signal everything is done
+ */
+using MissionAction_ReceiveFinalItem = Controllers::ActionFinalReceiveRespond<
+    mavlink_message_t,
+    CONTROLLER_MISSION_TYPE,
+    void*,
+    MissionDownloadResult,
+    mavlink_mission_item_t,
+    mavlink_mission_ack_t,
+    MAVLINK_MSG_ID_MISSION_ITEM
+>;
 
 
 
 class ControllerMission : public CONTROLLER_MISSION_TYPE,
         public MissionAction_RequestCurrentMission_Initiate,
         public MissionAction_ReceiveAckDueToEmptyMission,
-        public MissionAction_ReceiveCountRespondItemRequest
+        public MissionAction_ReceiveCountRespondItemRequest,
+        public MissionAction_ReceiveItemFollowUpNextItemRequest,
+        public MissionAction_ReceiveFinalItem
 {
 
 private:
 
-    struct MissionRequestStruct
-    {
-        MissionItem::MissionList mission;
-        MaceCore::ModuleCharacteristic requester;
-    };
+    /// Number of items in the mission being downloaded. Set to -1 if no mission is being downloaded.
+    int m_MissionDownloadCount;
 
-    OptionalParameter<MaceCore::ModuleCharacteristic> m_GenericRequester;
-    std::unordered_map<MissionItem::MissionKey, MissionRequestStruct> m_MissionsBeingFetching;
-
-    std::unordered_map<MissionItem::MissionKey, MissionItem::MissionList> m_MissionsUploading;
+    std::shared_ptr<MissionDownloadResult> m_MissionDownloading;
 
 protected:
 
 
+    /**
+     * @brief Build request for mission list
+     * @param sender Unused for this module
+     * @param target Vehicle sending to
+     * @param msg Message to send to vehicle
+     * @param queue Unused for this module, set to zero
+     */
     void Request_Construct(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_request_list_t &msg, void* &queue)
     {
         printf("Madison Test. If Ken sees this it shouldn't of been commited\n  -- Constructing request list\n");
@@ -262,518 +162,153 @@ protected:
         msg.target_system = target.ID;
         msg.target_component = 0;
         queue = 0;
-    }
 
-    virtual bool Finish_Receive(const mavlink_mission_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, void* &queueObj)
-    {
-        printf("Madison Test. If Ken sees this it shouldn't of been commited\n  -- Received ack with no queued transmission\n");
-        queueObj = 0;
-        ack = -1;
-
-        return true;
+        m_MissionDownloading = std::make_shared<std::tuple<CommandItem::SpatialHome, MissionList>>();
     }
 
 
-    virtual bool BuildData_Send(const mavlink_mission_count_t &msg, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_request_t &cmd, MaceCore::ModuleCharacteristic &vehicleObj, void* &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
+    /**
+     * @brief From a mission_count message determine if this is the final transmission.
+     *
+     * In this instance it is only the final transmission if count=0.
+     * i.e. no mission exists on the vehicle.
+     *
+     * @param msg Message received from vehicle
+     * @param sender Vehicle that sent message
+     * @param ack Ack to pass up should this be the final transmission
+     * @param queueObj Unused for this module, set to zero
+     * @return True if count=0 and we are to stop download
+     */
+    virtual bool Finish_Receive(const mavlink_mission_count_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, void* &queueObj)
     {
-        printf("Madison Test. If Ken sees this it shouldn't of been commited\n  -- Constructing request from received count\n");
-    }
 
-
-    /*
-    //!
-    //! \brief Called when building mavlink packet initial request to a mission
-    //! \param data
-    //! \param cmd
-    //!
-    virtual void Construct_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_request_list_t &cmd, MissionItem::MissionKey &queueObj)
-    {
-        queueObj = data;
-
-        cmd.mission_creator = data.m_creatorID;
-        cmd.mission_id = data.m_missionID;
-        cmd.mission_system = data.m_systemID;
-        cmd.mission_type = (uint8_t)data.m_missionType;
-        cmd.mission_state = (uint8_t)data.m_missionState;
-
-        if(m_MissionsBeingFetching.find(data) != m_MissionsBeingFetching.cend())
+        if(msg.count == 0)
         {
-            throw std::runtime_error("Mission is already being downloaded");
-        }
+            printf("Madison Test. If Ken sees this it shouldn't of been commited\n  -- Received mission count with zero elements\n");
 
-        MissionItem::MissionList newList;
-        newList.setMissionKey(data);
-        newList.clearQueue();
-        MissionRequestStruct newItem;
-        newItem.mission = newList;
-        newItem.requester = sender;
-        m_MissionsBeingFetching.insert({data, newItem});
+            queueObj = 0;
+            ack = -1;
 
-        std::cout << "Mission Controller: Sending Mission Request List" << std::endl;
-    }
-
-    virtual bool BuildData_Send(const mavlink_mission_request_list_t &cmd, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_count_t &rtn, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
-    {
-        UNUSED(sender);
-        MissionItem::MissionKey key(cmd.mission_system, cmd.mission_creator, cmd.mission_id, static_cast<MissionItem::MISSIONTYPE>(cmd.mission_type), static_cast<MissionItem::MISSIONSTATE>(cmd.mission_state));
-        receiveQueueObj = key;
-        respondQueueObj = key;
-
-        vehicleObj.ID = key.m_systemID;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-
-        std::vector<std::tuple<MissionKey, MissionList>> missions;
-        CONTROLLER_MISSION_TYPE::FetchDataFromKey(key, missions);
-
-        if(missions.size() == 0)
-        {
-            return false;
-        }
-        if(missions.size() > 1)
-        {
-            throw std::runtime_error("Multiple missions assigned to the same key returned, This is a non-op");
-        }
-        if(std::get<0>(missions.at(0)) != key)
-        {
-            throw std::runtime_error("Requesting a specific missionkey did not return the same key, This is a non-op");
-        }
-
-
-        if(m_MissionsUploading.find(key) != m_MissionsUploading.cend())
-        {
-            std::cout << "Mission Upload Progress: The mission that was requested to be transmitted is already being transmitted" << std::endl;
-            return false;
-        }
-        MissionList mission = std::get<1>(missions.at(0));
-        m_MissionsUploading.insert({key, mission});
-
-
-        rtn.count = m_MissionsUploading.at(key).getQueueSize();
-        rtn.target_system = m_MissionsUploading.at(key).getVehicleID();
-        rtn.mission_system = key.m_systemID;
-        rtn.mission_creator = key.m_creatorID;
-        rtn.mission_id = key.m_missionID;
-        rtn.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);
-        rtn.mission_state = static_cast<MAV_MISSION_STATE>(key.m_missionState);
-
-        std::cout << "Mission Controller: Sending Mission Count" << std::endl;
-
-        return true;
-    }
-
-
-
-
-
-
-
-
-    virtual bool BuildData_Send(const mavlink_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
-    {
-        UNUSED(sender);
-        MissionItem::MissionKey key(mission.mission_system,mission.mission_creator,mission.mission_id,static_cast<MissionItem::MISSIONTYPE>(mission.mission_type),static_cast<MissionItem::MISSIONSTATE>(mission.mission_state));
-        receiveQueueObj = key;
-        respondQueueObj = key;
-
-
-        if(m_MissionsBeingFetching.find(key) == m_MissionsBeingFetching.cend())
-        {
-            return false;
-        }
-
-        vehicleObj = m_MissionsBeingFetching[key].requester;
-
-        m_MissionsBeingFetching.at(key).mission.initializeQueue(mission.count);
-
-        request.mission_creator = mission.mission_creator;
-        request.mission_id = mission.mission_id;
-        request.mission_system = mission.mission_system;
-        request.mission_type = mission.mission_type;
-        request.mission_state = mission.mission_state;
-        request.target_system = mission.target_system;
-        request.seq = 0;
-
-        std::cout << "Mission Controller: Requesting Item " << 0 << std::endl;
-
-        return true;
-    }
-
-
-    virtual bool BuildData_Send(const mavlink_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
-    {
-        UNUSED(sender);
-        MissionItem::MissionKey key(mission.mission_system,mission.mission_creator,mission.mission_id,static_cast<MissionItem::MISSIONTYPE>(mission.mission_type),static_cast<MissionItem::MISSIONSTATE>(mission.mission_state));
-        receiveQueueObj = sender;
-        respondQueueObj = key;
-
-
-        if(m_MissionsBeingFetching.find(key) != m_MissionsBeingFetching.cend())
-        {
-            return false;
-        }
-
-        if(m_GenericRequester.IsSet() == false) {
-            throw std::runtime_error("Do not know what module requested a mission");
-        }
-
-        MissionItem::MissionList newList;
-        newList.setMissionKey(key);
-        newList.clearQueue();
-        MissionRequestStruct newItem;
-        newItem.mission = newList;
-        newItem.requester = m_GenericRequester();
-        m_MissionsBeingFetching.insert({key, newItem});
-
-        m_GenericRequester = OptionalParameter<MaceCore::ModuleCharacteristic>();
-
-        vehicleObj = m_MissionsBeingFetching[key].requester;
-
-        m_MissionsBeingFetching.at(key).mission.initializeQueue(mission.count);
-
-        request.mission_creator = mission.mission_creator;
-        request.mission_id = mission.mission_id;
-        request.mission_system = mission.mission_system;
-        request.mission_type = mission.mission_type;
-        request.mission_state = mission.mission_state;
-        request.target_system = mission.target_system;
-        request.seq = 0;
-
-        std::cout << "Mission Controller: Requesting Item " << 0 << std::endl;
-
-        return true;
-    }
-
-
-
-
-
-
-    virtual bool BuildData_Send(const mavlink_mission_request_item_t &missionRequest, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_item_t &missionItem, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
-    {
-        UNUSED(sender);
-        MissionItem::MissionKey key(missionRequest.mission_system,missionRequest.mission_creator,missionRequest.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionRequest.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionRequest.mission_state));
-        receiveQueueObj = key;
-        respondQueueObj = key;
-
-        vehicleObj.ID = key.m_systemID;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-
-        if(m_MissionsUploading.find(key) == m_MissionsUploading.cend())
-        {
-            if(CONTROLLER_MISSION_TYPE::mLog)
-                CONTROLLER_MISSION_TYPE::mLog->error("MissionController_ExternalLink has been told to transmit a mission item from a mission which keys dont match the contained.");
-            return false;
-        }
-
-        int index = missionRequest.seq;
-        if(index >= m_MissionsUploading[key].getQueueSize())
-        {
-            //this indicates that RX system requested something OOR
-            if(CONTROLLER_MISSION_TYPE::mLog)
-                CONTROLLER_MISSION_TYPE::mLog->error("MissionController_ExternalLink has been told to transmit a mission item with index " + std::to_string(index) + " which is greater than the size of the list contained.");
-            return false;
-        }
-
-        if(CONTROLLER_MISSION_TYPE::mLog)
-            CONTROLLER_MISSION_TYPE::mLog->info("MissionController_ExternalLink has been told to transmit a mission item with index " + std::to_string(index) + ".");
-
-        std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = this->m_MissionsUploading[key].getMissionItem(index);
-
-        Helper_MissionMACEtoCOMMS::MACEMissionToCOMMSMission(ptrItem,index,missionItem);
-        Helper_MissionMACEtoCOMMS::updateMissionKey(key,missionItem);
-
-        std::cout << "Mission Controller: Sending Item " << index << std::endl;
-
-        return true;
-    }
-
-
-
-
-
-
-
-
-    virtual bool BuildData_Send(const mavlink_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
-    {
-        UNUSED(sender);
-        MaceCore::ModuleCharacteristic target;
-        target.ID = missionItem.target_system;
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-
-        MissionItem::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionItem.mission_state));
-        receiveQueueObj = key;
-        respondQueueObj = key;
-
-        vehicleObj = m_MissionsBeingFetching[key].requester;
-
-        //check if mission item received is part of a mission we are activly downloading
-        if(this->m_MissionsBeingFetching.find(key) == m_MissionsBeingFetching.cend())
-        {
-            if(CONTROLLER_MISSION_TYPE::mLog)
-                CONTROLLER_MISSION_TYPE::mLog->error("Mission controller received a mission item with a key that is not equal to the one we were originally told.");
-            return false;
-        }
-
-        int seqReceived = missionItem.seq;
-        if(seqReceived > (m_MissionsBeingFetching[key].mission.getQueueSize() - 1)) //this should never happen
-        {
-            std::cout << "Mission download Error: received a mission item with an index greater than available in the queue" << std::endl;
-            if(CONTROLLER_MISSION_TYPE::mLog)
-                CONTROLLER_MISSION_TYPE::mLog->error("Mission controller received a mission item with an index greater than available in the queue.");
-            return false;
-        }
-        //execution will only continue if not last item
-        if(seqReceived == (m_MissionsBeingFetching[key].mission.getQueueSize() - 1))
-        {
-            return false;
-        }
-
-        std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = DataInterface_MACE::Helper_MissionCOMMStoMACE::Convert_COMMSTOMACE(missionItem, target);
-        m_MissionsBeingFetching[key].mission.replaceMissionItemAtIndex(newMissionItem, seqReceived);
-
-        MissionItem::MissionList::MissionListStatus status = m_MissionsBeingFetching[key].mission.getMissionListStatus();
-        if(status.state == MissionItem::MissionList::COMPLETE)
-        {
-            throw std::runtime_error("Still have more items to request, but mission is full");
-        }
-
-
-        int indexRequest = status.remainingItems.at(0);
-
-        request.target_system = target.ID;
-        request.mission_creator = key.m_creatorID;
-        request.mission_id = key.m_missionID;
-        request.mission_system = key.m_systemID;
-        request.mission_type = (uint8_t)key.m_missionType;
-        request.mission_state = (uint8_t)key.m_missionState;
-        request.seq = indexRequest;
-
-        std::cout << "Mission Controller: Requesting Item " << indexRequest << std::endl;
-
-        return true;
-    }
-
-
-
-
-
-    virtual bool Construct_FinalObjectAndResponse(const mavlink_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_ack_t &ackMission, std::shared_ptr<MissionItem::MissionList> &finalList, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &queueObj)
-    {
-        UNUSED(sender);
-        MaceCore::ModuleCharacteristic target;
-        target.ID = missionItem.target_system;
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-
-        MissionItem::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionItem.mission_state));
-        queueObj = key;
-
-        vehicleObj.ID = key.m_systemID;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-
-        //check if mission item received is part of a mission we are activly downloading
-        if(this->m_MissionsBeingFetching.find(key) == m_MissionsBeingFetching.cend())
-        {
-            if(CONTROLLER_MISSION_TYPE::mLog)
-                CONTROLLER_MISSION_TYPE::mLog->error("Mission controller received a mission item with a key that is not equal to the one we were originally told.");
-            return false;
-        }
-
-        int seqReceived = missionItem.seq;
-        if(seqReceived > (m_MissionsBeingFetching[key].mission.getQueueSize() - 1)) //this should never happen
-        {
-            std::cout << "Mission download Error: received a mission item with an index greater than available in the queue" << std::endl;
-            if(CONTROLLER_MISSION_TYPE::mLog)
-                CONTROLLER_MISSION_TYPE::mLog->error("Mission controller received a mission item with an index greater than available in the queue.");
-            return false;
-        }
-
-        //execution will only continue if last item
-        if(seqReceived < (m_MissionsBeingFetching[key].mission.getQueueSize() - 1))
-        {
-            return false;
-        }
-
-        std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = DataInterface_MACE::Helper_MissionCOMMStoMACE::Convert_COMMSTOMACE(missionItem, target);
-        m_MissionsBeingFetching[key].mission.replaceMissionItemAtIndex(newMissionItem, seqReceived);
-
-        MissionItem::MissionList::MissionListStatus status = m_MissionsBeingFetching[key].mission.getMissionListStatus();
-        if(status.state == MissionItem::MissionList::INCOMPLETE)
-        {
-            throw std::runtime_error("Reached end of request but missions are not completed");
-        }
-
-        if(CONTROLLER_MISSION_TYPE::mLog)
-        {
-            std::stringstream buffer;
-            buffer << key;
-            CONTROLLER_MISSION_TYPE::mLog->info("Mission Controller has received the entire mission of " + std::to_string(m_MissionsBeingFetching[key].mission.getQueueSize()) + " for mission " + buffer.str() + ".");
-        }
-
-        ackMission.mission_system = key.m_systemID;
-        ackMission.mission_creator = key.m_creatorID;
-        ackMission.mission_id = key.m_missionID;
-        ackMission.mission_type = (uint8_t)key.m_missionType;
-        ackMission.prev_mission_state = (uint8_t)key.m_missionState;
-
-        //KEN This is a hack but for now
-        if(key.m_missionState == MissionItem::MISSIONSTATE::PROPOSED)
-        {
-            ackMission.cur_mission_state = (uint8_t)MissionItem::MISSIONSTATE::RECEIVED;
-            m_MissionsBeingFetching[key].mission.setMissionTXState(MissionItem::MISSIONSTATE::RECEIVED);
-        }
-        else
-        {
-            ackMission.cur_mission_state = (uint8_t)key.m_missionState;
-        }
-
-        finalList = std::make_shared<MissionItem::MissionList>(m_MissionsBeingFetching[key].mission);
-        m_MissionsBeingFetching.erase(key);
-
-        std::cout << "Mission Controller: Sending Final ACK" << std::endl;
-
-        return true;
-    }
-
-    virtual bool Finish_Receive(const mavlink_mission_ack_t &missionItem, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MissionItem::MissionKey &queueObj)
-    {
-        MissionItem::MissionKey key(missionItem.mission_system, missionItem.mission_creator, missionItem.mission_id, static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type), static_cast<MissionItem::MISSIONSTATE>(missionItem.cur_mission_state));
-        queueObj = key;
-
-        ack = missionItem.mission_result;
-
-        std::cout << "Mission Controller: Received Final ACK" << std::endl;
-
-        return true;
-    }
-
-
-    virtual void Request_Construct(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_request_list_generic_t &msg, MaceCore::ModuleCharacteristic &queueObj)
-    {
-        UNUSED(sender);
-        msg.mission_system = target.ID;
-        msg.mission_type = (uint8_t)MissionItem::MISSIONSTATE::CURRENT;
-        msg.mission_state = 0;
-
-        m_GenericRequester = sender;
-
-        queueObj = target;
-
-        std::cout << "Mission Controller: Sending mission request" << std::endl;
-    }
-
-    virtual bool BuildData_Send(const mavlink_mission_request_list_generic_t &msg, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_count_t &response, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &responseQueueObj)
-    {
-        MissionItem::MISSIONSTATE state = static_cast<MissionItem::MISSIONSTATE>(msg.mission_state);
-        if(state == MissionItem::MISSIONSTATE::CURRENT)
-        {
-            DataItem<MissionKey, MissionList>::FetchModuleReturn items;
-
-            vehicleObj.ID = msg.mission_system;
-            vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-
-            this-> template FetchFromModule(vehicleObj, items);
-
-            //no modules reported back!
-            if(items.size() == 0)
-            {
-                throw std::runtime_error("No modules reported back");
-            }
-
-            //too many modules reported back!
-            if(items.size() > 1)
-            {
-                throw std::runtime_error("More than one module reported");
-            }
-
-            std::vector<std::tuple<MissionKey, MissionList>> vec = std::get<1>(items.at(0));
-            if(vec.size() == 0)
-            {
-                return false;
-            }
-            if(vec.size() == 1)
-            {
-                MissionItem::MissionKey key = std::get<0>(vec.at(0));
-                receiveQueueObj = key;
-                responseQueueObj = key;
-
-                if(m_MissionsUploading.find(key) != m_MissionsUploading.cend())
-                {
-                    std::cout << "Mission Upload Progress: The mission that was requested to be transmitted is already being transmitted" << std::endl;
-                    return false;
-                }
-                MissionList mission = std::get<1>(vec.at(0));
-                m_MissionsUploading.insert({key, mission});
-
-
-                response.count = m_MissionsUploading.at(key).getQueueSize();
-                response.target_system = m_MissionsUploading.at(key).getVehicleID();
-                response.mission_system = key.m_systemID;
-                response.mission_creator = key.m_creatorID;
-                response.mission_id = key.m_missionID;
-                response.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);
-                response.mission_state = static_cast<MAV_MISSION_STATE>(key.m_missionState);
-
-                std::cout << "Mission Controller: Sending Mission Count" << std::endl;
-
-                return true;
-            }
-            if(vec.size() > 1)
-            {
-                throw std::runtime_error("Multiple missions reported back, this is a non-op");
-            }
+            return true;
         }
         return false;
     }
 
 
-    virtual bool BuildData_Send(const mavlink_mission_request_list_generic_t &msg, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_ack_t &response, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
+    /**
+     * @brief From a mission_count message determine the next request
+     *
+     * In this instance a follow up request will only be made if count > 1.
+     *
+     * @param msg Message received from vehicle
+     * @param sender Vehicle that sent message
+     * @param cmd Follow up command that can be made
+     * @param vehicleObj Target of followup command
+     * @param receiveQueueObj Unused for this module, set to zero
+     * @param respondQueueObj Unused for this module, set to zero
+     * @return
+     */
+    virtual bool BuildData_Send(const mavlink_mission_count_t &msg, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_request_t &cmd, MaceCore::ModuleCharacteristic &vehicleObj, void* &receiveQueueObj, void* &respondQueueObj)
     {
-        MissionItem::MISSIONSTATE state = static_cast<MissionItem::MISSIONSTATE>(msg.mission_state);
-        if(state == MissionItem::MISSIONSTATE::CURRENT)
+        if(msg.count > 0)
         {
-            DataItem<MissionKey, MissionList>::FetchModuleReturn items;
+            printf("Madison Test. If Ken sees this it shouldn't of been commited\n  -- Constructing request from received count\n");
 
-            vehicleObj.ID = msg.mission_system;
-            vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            cmd.target_system = msg.target_system;
+            cmd.target_component = msg.target_component;
+            cmd.mission_type = msg.mission_type;
+            cmd.seq = 0;
 
-            this-> template FetchFromModule(vehicleObj, items);
+            vehicleObj = sender;
 
-            //no modules reported back!
-            if(items.size() == 0)
-            {
-                throw std::runtime_error("No modules reported back");
-            }
+            receiveQueueObj = 0;
+            respondQueueObj = 0;
 
-            //too many modules reported back!
-            if(items.size() > 1)
-            {
-                throw std::runtime_error("More than one module reported");
-            }
+            m_MissionDownloadCount = msg.count;
+            std::get<1>(*m_MissionDownloading).initializeQueue(msg.count - 1); // minus one because first item is home
 
-            std::vector<std::tuple<MissionKey, MissionList>> vec = std::get<1>(items.at(0));
-            if(vec.size() == 0)
-            {
-                response.mission_system = msg.mission_system;
-                response.cur_mission_state = msg.mission_state;
-                response.mission_result = (uint8_t)MissionItem::MissionACK::MISSION_RESULT::MISSION_RESULT_DOES_NOT_EXIST;
-
-                std::cout << "Mission Controller: Received request list, no missions so sending ack" << std::endl;
-
-                return true;
-            }
-            if(vec.size() == 1)
-            {
-                return false;
-            }
-            if(vec.size() > 1)
-            {
-                throw std::runtime_error("Multiple missions reported back, this is a non-op");
-            }
+            return true;
         }
+
         return false;
     }
-    */
+
+
+    /**
+     * @brief Method to receive/determine if still transmitting mission items.
+     *
+     * This method is to receive a mission_item, determine if there are more items to request and construct that request
+     *
+     * @param msg Mission Item received
+     * @param sender Vehicle that sent message
+     * @param cmd mission_request to send out if there are more items to request
+     * @param vehicleObj Target of followup command
+     * @param receiveQueueObj Unused for this module, set to zero
+     * @param respondQueueObj Unused for this module, set to zero
+     * @return True if a followup request is to be made. False if no request should be made
+     */
+    virtual bool BuildData_Send(const mavlink_mission_item_t &msg, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_request_t &cmd, MaceCore::ModuleCharacteristic &vehicleObj, void* &receiveQueueObj, void* &respondQueueObj)
+    {
+        if(msg.seq < m_MissionDownloadCount-1)
+        {
+            printf("Madison Test. If Ken sees this it shouldn't of been commited\n  -- Mission Item Received. Followup Request for Item\n");
+            ReceiveMissionItem(msg, sender);
+
+            cmd.target_system = msg.target_system;
+            cmd.target_component = msg.target_component;
+            cmd.mission_type = msg.mission_type;
+            cmd.seq = msg.seq + 1;
+
+            vehicleObj = sender;
+
+            receiveQueueObj = 0;
+            respondQueueObj = 0;
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * @brief Method to receive the final mission_item
+     *
+     * This method is to receive a mission_item, determine if it is the last item and construct a mission_ack to send back.
+     * Data will also be set indicating MissionList/Home position that was downloaded from vehicle. This is sent back by setting a pointer passed to this function.
+     * The Action will then call onDataReceived function with that data.
+     *
+     * @param msg Mission Item received
+     * @param sender Vehicle that sent message
+     * @param cmd mission_ack that is to be sent out if last item was received
+     * @param data Mission/Home data that was collected during the mission download process.
+     * @param vehicleObj Unused for this module, set to zero
+     * @param queueObj Unused for this module, set to zero
+     * @return True if item received as last item.
+     */
+    virtual bool Construct_FinalObjectAndResponse(const mavlink_mission_item_t &msg, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_ack_t &cmd, std::shared_ptr<MissionDownloadResult> &data, MaceCore::ModuleCharacteristic &vehicleObj, void* &queueObj)
+    {
+        if(msg.seq == m_MissionDownloadCount-1)
+        {
+            ReceiveMissionItem(msg, sender);
+
+            cmd.target_system = msg.target_system;
+            cmd.target_component = msg.target_component;
+            cmd.mission_type = msg.mission_type;
+
+            queueObj = 0;
+            vehicleObj = sender;
+
+
+            data = m_MissionDownloading;
+
+            return true;
+        }
+
+        return false;
+    }
+
+
 
 
 
@@ -782,10 +317,12 @@ public:
     ControllerMission(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
         CONTROLLER_MISSION_TYPE(cb, queue, linkChan),
         MissionAction_RequestCurrentMission_Initiate(this, mavlink_msg_mission_request_list_encode_chan),
-        MissionAction_ReceiveAckDueToEmptyMission(this, mavlink_msg_mission_ack_decode),
-        MissionAction_ReceiveCountRespondItemRequest(this, mavlink_msg_mission_count_decode, mavlink_msg_mission_request_encode_chan)
+        MissionAction_ReceiveAckDueToEmptyMission(this, mavlink_msg_mission_count_decode),
+        MissionAction_ReceiveCountRespondItemRequest(this, mavlink_msg_mission_count_decode, mavlink_msg_mission_request_encode_chan),
+        MissionAction_ReceiveItemFollowUpNextItemRequest(this, mavlink_msg_mission_item_decode, mavlink_msg_mission_request_encode_chan),
+        MissionAction_ReceiveFinalItem(this, mavlink_msg_mission_item_decode, mavlink_msg_mission_ack_encode_chan)
     {
-
+        m_MissionDownloadCount = -1;
     }
 
 
@@ -795,17 +332,30 @@ public:
     }
 
 
-    /*
-    void RequestMission(const MissionItem::MissionKey &key, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
-    {
-        SendHelper_RequestMissionDownload::Send(key, sender, target);
-    }
 
-    void RequestCurrentMission(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
+private:
+
+    /**
+     * @brief Process Mission Item received
+     * @param msg Mission Item
+     * @param sender Vehicle that sent mission item
+     */
+    void ReceiveMissionItem(const mavlink_mission_item_t &msg, const MaceCore::ModuleCharacteristic &sender)
     {
-        Action_RequestCurrentMission_Initiate::Request(sender, target);
+        if(msg.seq == 0)
+        {
+            std::get<0>(*m_MissionDownloading).position->setX(msg.x);
+            std::get<0>(*m_MissionDownloading).position->setY(msg.y);
+            std::get<0>(*m_MissionDownloading).position->setZ(msg.z);
+            std::get<0>(*m_MissionDownloading).setOriginatingSystem(sender.ID);
+            std::get<0>(*m_MissionDownloading).setTargetSystem(sender.ID);
+        }
+        else {
+            int adjustedIndex = msg.seq - 1; //we decrement 1 only here because ardupilot references home as 0 and we 0 index in our mission queue
+            std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = DataMAVLINK::Helper_MissionMAVLINKtoMACE::Convert_MAVLINKTOMACE(sender.ID, msg);
+            std::get<1>(*m_MissionDownloading).replaceMissionItemAtIndex(newMissionItem, adjustedIndex);
+        }
     }
-    */
 
 
 };

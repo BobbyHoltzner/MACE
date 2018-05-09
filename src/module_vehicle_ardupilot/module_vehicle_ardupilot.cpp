@@ -442,6 +442,39 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         //create "stateless" mission controller
         Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
         m_MissionController = new MAVLINKVehicleControllers::ControllerMission(vehicleData.get(), queue, m_LinkChan);
+        m_MissionController->setLambda_DataReceived([this](const void* key, const std::shared_ptr<MAVLINKVehicleControllers::MissionDownloadResult> &data){
+
+            //////////////////////////////
+            ///Update about Home position
+            CommandItem::SpatialHome home = std::get<0>(*data);
+            //notify the core of the change
+            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+                ptr->GVEvents_NewHomePosition(this, home);
+            });
+
+            std::shared_ptr<CommandItem::SpatialHome> ptrHome = std::make_shared<CommandItem::SpatialHome>(home);
+            std::shared_ptr<MissionTopic::MissionHomeTopic> homeTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+            homeTopic->setHome(ptrHome);
+
+            this->cbi_VehicleMissionData(this->GetCharacteristic().ID, homeTopic);
+
+
+
+            //////////////////////////////
+            ///Update about mission list
+            MissionItem::MissionList missionList = std::get<1>(*data);
+
+            //This function shall update the local MACE CORE instance of the mission
+            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+                ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
+            });
+            //We should update all listeners
+            std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>(missionList);
+            this->cbi_VehicleMissionData(this->GetCharacteristic().ID, missionTopic);
+        });
+        m_MissionController->setLambda_Finished([](const bool completed, const uint8_t code){
+            printf("Mission Completed");
+        });
 
         //reqrest the missions on the vehicle
         MaceCore::ModuleCharacteristic vehicle;
