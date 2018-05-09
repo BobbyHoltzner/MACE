@@ -167,6 +167,11 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
                 break;
             }
         }
+
+
+        if(m_LinkMarshaler->ConnectToLink(m_LinkName) == false){
+            throw std::runtime_error("Connection to udp link failed");
+        }
     }
     else if(params->HasNonTerminal("UDPParameters"))
     {
@@ -220,6 +225,9 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
         // ********************************************************************************************
 
         //connect link
+        if(m_LinkMarshaler->ConnectToLink(m_LinkName) == false){
+            throw std::runtime_error("Connection to udp link failed");
+        }
 
     }
     else
@@ -227,11 +235,4 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
         throw std::runtime_error("No Link has been configured for the vehicle MAVLINK module");
     }
 
-}
-
-
-void CommsMAVLINK::ConnectComms() {
-    if(m_LinkMarshaler->ConnectToLink(m_LinkName) == false){
-        throw std::runtime_error("Connection to udp link failed");
-    }
 }
