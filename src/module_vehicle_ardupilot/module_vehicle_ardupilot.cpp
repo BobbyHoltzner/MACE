@@ -20,6 +20,7 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     m_AircraftController(NULL), vehicleData(nullptr), stateMachine(nullptr)
 {
 
+
 }
 
 
@@ -378,11 +379,18 @@ void ModuleVehicleArdupilot::Command_ClearOnboardGuided(const int &targetSystem)
 //!
 bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
+    if(message.msgid == 44)
+    {
+        printf("Hi\n"); //Madison printing when we receive a mission count.
+    }
     bool consumed = false;
+
     //this is necessary because if we have yet to have received a vehicle heartbeat,
     //we have yet to form the vehicle object and accompanying state machine
     if(vehicleData)
     {
+        consumed = m_MissionController->ReceiveMessage(&message, this->GetCharacteristic());
+
         consumed = ModuleVehicleMAVLINK::MavlinkMessage(linkName, message);
         if(!consumed)
         {
@@ -411,6 +419,50 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         vehicleData->connectTargetCallback(ModuleVehicleArdupilot::staticCallbackFunction_VehicleTarget, this);
 
         //vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
+
+
+        //create "stateless" mission controller
+        Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
+        m_MissionController = new MAVLINKVehicleControllers::ControllerMission(vehicleData.get(), queue, m_LinkChan);
+        m_MissionController->setLambda_DataReceived([this](const void* key, const std::shared_ptr<MAVLINKVehicleControllers::MissionDownloadResult> &data){
+
+            //////////////////////////////
+            ///Update about Home position
+            CommandItem::SpatialHome home = std::get<0>(*data);
+            //notify the core of the change
+            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+                ptr->GVEvents_NewHomePosition(this, home);
+            });
+
+            std::shared_ptr<CommandItem::SpatialHome> ptrHome = std::make_shared<CommandItem::SpatialHome>(home);
+            std::shared_ptr<MissionTopic::MissionHomeTopic> homeTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+            homeTopic->setHome(ptrHome);
+
+            this->cbi_VehicleMissionData(this->GetCharacteristic().ID, homeTopic);
+
+
+
+            //////////////////////////////
+            ///Update about mission list
+            MissionItem::MissionList missionList = std::get<1>(*data);
+
+            //This function shall update the local MACE CORE instance of the mission
+            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+                ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
+            });
+            //We should update all listeners
+            std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>(missionList);
+            this->cbi_VehicleMissionData(this->GetCharacteristic().ID, missionTopic);
+        });
+        m_MissionController->setLambda_Finished([](const bool completed, const uint8_t code){
+            printf("Mission Completed");
+        });
+
+        //reqrest the missions on the vehicle
+        MaceCore::ModuleCharacteristic vehicle;
+        vehicle.ID = systemID;
+        vehicle.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        m_MissionController->GetMissions(vehicle);
 
         this->SetID(systemID);
 

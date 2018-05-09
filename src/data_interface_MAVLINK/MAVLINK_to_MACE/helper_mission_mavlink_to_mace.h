@@ -25,25 +25,28 @@ public:
 
     std::shared_ptr<CommandItem::AbstractCommandItem> Convert_MAVLINKTOMACE(const mavlink_mission_item_t &mavlinkItem);
 
-    void convertHome(const mavlink_set_home_position_t &mavlinkItem, CommandItem::SpatialHome &missionItem);
+    static std::shared_ptr<CommandItem::AbstractCommandItem> Convert_MAVLINKTOMACE(const int systemID, const mavlink_mission_item_t &mavlinkItem);
 
-    void convertChangespeed(const mavlink_mission_item_t &mavlinkItem, CommandItem::ActionChangeSpeed &missionItem);
 
-    void convertLand(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLand &missionItem);
+    static void convertHome(const int sysID, const mavlink_set_home_position_t &mavlinkItem, CommandItem::SpatialHome &missionItem);
 
-    void convertLoiterTime(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time &missionItem);
+    static void convertChangespeed(const int sysID, const mavlink_mission_item_t &mavlinkItem, CommandItem::ActionChangeSpeed &missionItem);
 
-    void convertLoiterTurns(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Turns &missionItem);
+    static void convertLand(const int sysID, const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLand &missionItem);
 
-    void convertLoiterUnlimted(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Unlimited &missionItem);
+    static void convertLoiterTime(const int sysID, const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Time &missionItem);
 
-    void convertRTL(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialRTL &missionItem);
+    static void convertLoiterTurns(const int sysID, const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Turns &missionItem);
 
-    void convertTakeoff(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialTakeoff &missionItem);
+    static void convertLoiterUnlimted(const int sysID, const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialLoiter_Unlimited &missionItem);
 
-    void convertWaypoint(const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialWaypoint &missionItem);
+    static void convertRTL(const int sysID, const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialRTL &missionItem);
 
-    DataState::Base3DPosition getBasePosition(const mavlink_mission_item_t &mavlinkItem);
+    static void convertTakeoff(const int sysID, const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialTakeoff &missionItem);
+
+    static void convertWaypoint(const int sysID, const mavlink_mission_item_t &mavlinkItem, CommandItem::SpatialWaypoint &missionItem);
+
+    static DataState::Base3DPosition getBasePosition(const mavlink_mission_item_t &mavlinkItem);
 
 private:
     int systemID;

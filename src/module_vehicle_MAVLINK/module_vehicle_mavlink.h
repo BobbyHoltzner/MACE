@@ -117,7 +117,6 @@ public:
 
     virtual void start()
     {
-        ConnectComms();
         ModuleVehicleMavlinkBase::start();
     }
 
