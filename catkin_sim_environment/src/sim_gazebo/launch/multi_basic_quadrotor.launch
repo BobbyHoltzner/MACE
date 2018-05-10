@@ -41,6 +41,6 @@
           type="transform_sensors"
           output="screen"
           args="$(arg vehicle_id)"
-  />
+  />  
 
 </launch>

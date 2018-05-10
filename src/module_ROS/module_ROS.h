@@ -269,6 +269,10 @@ private:
     //! \brief m_srv Container for the Gazebo send model state message
     //!
     gazebo_msgs::SetModelState m_srv;
+
+    // TESTING:
+    ros::Publisher cloudInPub;
+    // END TESTING
 #endif
 
 private:

@@ -3,7 +3,7 @@
     "pause": false,
     "addSensors": true,
     "worldName": "turtlebot_playground",
-    "rvizRun": false,
+    "octomap": false,
     "vehicles": {
         "1": "kinect",
         "2": "kinect"

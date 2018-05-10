@@ -254,6 +254,10 @@ void ModuleROS::setupROS() {
     // TODO: Do I need to send this transform before I do anything else? And should I send it for every basic_quadrotor_ID?
 //    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","basic_quadrotor/base_link"));
 
+    // TESTING:
+    cloudInPub = nh.advertise<sensor_msgs::PointCloud2>("cloud_in", 50);
+    // END TESTING
+
     ros::spinOnce();
 }
 
@@ -301,7 +305,17 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     // TODO: Send converted point cloud to MACE so path planning can take over.
 
     std::cout << "Converted PC..." << std::endl;
-    std::cout << octoPointCloud.getPoint(0).distanceXY({0,0,0}) << std::endl;
+    std::cout << octoPointCloud.size() << std::endl;
+
+    // TESTING OCTOMAP VISUALIZATION:
+    // TODO: Publish PointCloud2 on correct topic for RViz visualization with octomap plugins
+    //      - This is to avoid remapping every vehicle's point cloud topics to the cloudIn topic required by octomap server
+    //          - Ideally, for the entire octomap, we don't care about which vehicle its coming from. They should be updating the
+    //              same octomap
+
+    cloudInPub.publish(msg);
+
+    //
 }
 
 //!

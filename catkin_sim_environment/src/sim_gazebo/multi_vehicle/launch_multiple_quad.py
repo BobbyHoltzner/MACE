@@ -9,7 +9,7 @@ import json
 if __name__ == '__main__':
     # Parse command line arguments:
     parser = argparse.ArgumentParser()
-    parser.add_argument('fp', type=str, help='Relative file path to the launch script JSON configuration file. (e.g.: ./config_2vehicles_kinect.json')
+    parser.add_argument('fp', type=str, help='Relative file path to the launch script JSON configuration file. (e.g.: ./config_2vehicles_kinect.json)')
     args = parser.parse_args()
     with open(args.fp, 'r') as in_file:
         args = json.load(in_file)
@@ -23,9 +23,9 @@ if __name__ == '__main__':
     terminal = ['gnome-terminal']
     terminal.extend(['--tab', '--command', '''
         bash -c '
-        roslaunch sim_gazebo start_world.launch paused:={} gui:={} world_name:={}
+        roslaunch sim_gazebo start_world.launch paused:={} gui:={} world_name:={} octomap_rviz:={}
         '
-    '''.format(args['pause'], args['gui'], args['worldName']) % locals()])
+    '''.format(args['pause'], args['gui'], args['worldName'], args['octomap']) % locals()])
 
     # Loop over vehicle ID/sensor array to extend the command to launch each vehicle
     for key, value in args["vehicles"].items():

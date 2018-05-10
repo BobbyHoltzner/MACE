@@ -80,7 +80,7 @@ export default class MACEMap extends React.Component<Props, State> {
           iconUrl: './images/userlocation_icon.png',
           iconSize: [41, 41], // size of the icon
           iconAnchor: [20, 20], // point of the icon which will correspond to marker's location
-          popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor
+          popupAnchor: [0, -38] // point from which the popup should open relative to the iconAnchor,
       })
     };
 
