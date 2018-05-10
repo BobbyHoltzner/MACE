@@ -1,21 +1,20 @@
-#ifndef STATE_LANDING_H
-#define STATE_LANDING_H
+#ifndef STATE_UNKNOWN_H
+#define STATE_UNKNOWN_H
 
-#include "abstract_root_state.h"
+#include "abstract_state_ardupilot.h"
 
 namespace ardupilot{
 namespace state{
 
-class State_LandingTransitioning;
-class State_LandingDescent;
-class State_LandingComplete;
 class State_Grounded;
+class State_Takeoff;
 class State_Flight;
+class State_Landing;
 
-class State_Landing : public AbstractRootState
+class State_Unknown : public AbstractStateArdupilot
 {
 public:
-    State_Landing();
+    State_Unknown();
 
 public:
     AbstractStateArdupilot* getClone() const override;
@@ -38,4 +37,5 @@ public:
 } //end of namespace ardupilot
 } //end of namespace state
 
-#endif // STATE_LANDING_H
+
+#endif // STATE_UNKNOWN_H

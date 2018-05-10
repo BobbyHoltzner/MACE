@@ -1,6 +1,8 @@
 #ifndef GENERIC_MACE_CONTROLLER_H
 #define GENERIC_MACE_CONTROLLER_H
 
+#include "common/common.h"
+
 #include "mace_core/module_characteristics.h"
 #include "I_controller.h"
 #include "common/pointer_collection.h"
@@ -263,6 +265,7 @@ private:
     static std::function<bool(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)> MaceMessageIDEq()
     {
         return [](MaceCore::ModuleCharacteristic sender, const MESSAGETYPE* message){
+            UNUSED(sender);
             return message->msgid ==I;
         };
     }

@@ -1,5 +1,5 @@
-#ifndef MISSION_DATA_MAVLINK_H
-#define MISSION_DATA_MAVLINK_H
+#ifndef MISSION_DATA_MAVLINK_OLD_H
+#define MISSION_DATA_MAVLINK__OLD_H
 
 #include "data/data_get_set_notifier.h"
 

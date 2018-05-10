@@ -6,10 +6,35 @@
 #include "ardupilot_component_flight_mode.h"
 #include "../ardupilot_states/ardupilot_state_types.h"
 
+#include "data_generic_mission_item_topic/vehicle_target_topic.h"
+
+typedef void(*CallbackFunctionPtr_VehicleTarget)(void*, MissionTopic::VehicleTargetTopic&);
+
 class ArdupilotVehicleObject : public MavlinkVehicleObject
 {
 public:
     ArdupilotVehicleObject(CommsMAVLINK* commsObj, const int &ID = 1);
+
+    CallbackInterface_MAVLINKVehicleObject* getMAVLINKCallback()
+    {
+        return m_CB;
+    }
+
+
+    void connectTargetCallback(CallbackFunctionPtr_VehicleTarget cb, void *p)
+    {
+        m_CBTarget = cb;
+        m_FunctionTarget = p;
+    }
+
+    void callTargetCallback(MissionTopic::VehicleTargetTopic &topic)
+    {
+        m_CBTarget(m_FunctionTarget,topic);
+    }
+
+protected:
+    CallbackFunctionPtr_VehicleTarget m_CBTarget;
+    void *m_FunctionTarget;
 
 public:
     ARDUPILOTComponent_FlightMode ardupilotMode;

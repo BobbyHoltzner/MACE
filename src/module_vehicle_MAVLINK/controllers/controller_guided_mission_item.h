@@ -48,7 +48,13 @@ protected:
     virtual void Construct_Send(const MISSIONITEM &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_item_t &missionItem, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
-        queueObj = target;
+        UNUSED(target);
+        queueObj.ID = commandItem.getTargetSystem();
+        queueObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+        missionItem = initializeMAVLINKMissionItem();
+        missionItem.target_system = commandItem.getTargetSystem();
+        missionItem.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         FillMissionItem(commandItem,missionItem);
     }
@@ -83,10 +89,11 @@ protected:
         missionItem.y = 0.0;
         missionItem.z = 0.0;
         //missionItem.mission_type = MAV_MISSION_TYPE_AUTO;
+
+        return missionItem;
     }
 
 public:
-
     ControllerGuidedMissionItem(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
         Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MISSIONITEM>(cb, queue, linkChan),
         GuidedMISend<MISSIONITEM>(this, mavlink_msg_mission_item_encode_chan),

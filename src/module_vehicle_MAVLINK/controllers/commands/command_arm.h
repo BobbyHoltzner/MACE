@@ -32,9 +32,7 @@ public:
     }
 };
 
-
-
-}
+} //end of namespace MAVLINKVehicleControllers
 
 
 #endif // MODULE_VEHICLE_MAVLINK_COMMAND_ARM_H

@@ -66,6 +66,7 @@ public:
         });
 
         this->template AddCommandLogic<std::shared_ptr<CommandItem::AbstractCommandItem>>(CT::ISSUE_GENERAL_COMMAND, [this](const std::shared_ptr<CommandItem::AbstractCommandItem> &command, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_IssueGeneralCommand(command);
         });
 
@@ -83,14 +84,17 @@ public:
         /////////////////////////////////////////////////////////////////////////////////////////////
 
         this->template AddCommandLogic<MissionItem::MissionList>(CT::UPLOAD_MISSION, [this](const MissionItem::MissionList &missionList, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_UploadMission(missionList);
         });
 
         this->template AddCommandLogic<MissionItem::MissionKey>(CT::SET_CURRENT_MISSION, [this](const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_SetCurrentMission(key);
         });
 
         this->template AddCommandLogic<int>(CT::REQUEST_CURRENT_MISSION, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_GetCurrentMission(targetSystem);
         });
 
@@ -99,6 +103,7 @@ public:
         });
 
         this->template AddCommandLogic<int>(CT::CLEAR_CURRENT_MISSION, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_ClearCurrentMission(targetSystem);
         });
 
@@ -109,10 +114,12 @@ public:
         ////////////////////////////////////////////////////////////////////////////
 
         this->template AddCommandLogic<int>(CT::REQUEST_ONBOARD_AUTO_MISSION, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_GetOnboardAuto(targetSystem);
         });
 
         this->template AddCommandLogic<int>(CT::CLEAR_ONBOARD_AUTO_MISSION, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_ClearOnboardAuto(targetSystem);
         });
 
@@ -123,10 +130,12 @@ public:
         /////////////////////////////////////////////////////////////////////////
 
         this->template AddCommandLogic<int>(CT::REQUEST_ONBOARD_GUIDED_MISSION, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_GetOnboardGuided(targetSystem);
         });
 
         this->template AddCommandLogic<int>(CT::CLEAR_ONBOARD_GUIDED_MISSION, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_ClearOnboardGuided(targetSystem);
         });
 

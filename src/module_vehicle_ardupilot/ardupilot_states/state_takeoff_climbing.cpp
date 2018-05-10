@@ -65,50 +65,63 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
         const CommandItem::SpatialTakeoff* cmd = command->getClone()->as<CommandItem::SpatialTakeoff>();
         if(cmd->getPosition().getPosZFlag())
         {
-            Owner().state->vehicleGlobalPosition.AddNotifier(this,[this,cmd]
+            StateGlobalPosition currentPosition = Owner().state->vehicleGlobalPosition.get();
+            StateGlobalPosition targetPosition(currentPosition.getX(), currentPosition.getY(), cmd->getPosition().getZ());
+            double distance = fabs(currentPosition.deltaAltitude(targetPosition));
+            MissionTopic::VehicleTargetTopic vehicleTarget(cmd->getTargetSystem(), targetPosition, distance);
+            Owner().callTargetCallback(vehicleTarget);
+
+            Owner().state->vehicleGlobalPosition.AddNotifier(this,[this,cmd,targetPosition]
             {
                 if(cmd->getPosition().getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
                 {
-                    StateGlobalPosition cmdPos(cmd->getPosition().getX(),cmd->getPosition().getY(),cmd->getPosition().getZ());
                     StateGlobalPosition currentPosition = Owner().state->vehicleGlobalPosition.get();
-                    double distance = fabs(currentPosition.deltaAltitude(cmdPos));
+                    double distance = fabs(currentPosition.deltaAltitude(targetPosition));
+                    MissionTopic::VehicleTargetTopic vehicleTarget(cmd->getTargetSystem(), targetPosition, distance);
+                    Owner().callTargetCallback(vehicleTarget);
+
                     Data::ControllerState guidedState = guidedProgress.updateTargetState(distance);
-                    std::cout<<"The distance to the target is approximately: "<<distance<<std::endl;
                     if(guidedState == Data::ControllerState::ACHIEVED)
                     {
-                        //                            if(cmd->getPosition().has3DPositionSet())
-                        //                                desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
-                        //                            else
-                        //                            {
-                        desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_COMPLETE;
-                        //                            }
+                        if(cmd->getPosition().has3DPositionSet())
+                        {
+                            this->currentCommand = cmd;
+                            desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
+                        }
+                        else
+                        {
+                            desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_COMPLETE;
+                        }
                     }
 
                 }
             });
 
-            auto commandClimb = new MAVLINKVehicleControllers::CommandTakeoff(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-            commandClimb->setLambda_Finished([this,commandClimb](const bool completed, const uint8_t finishCode){
-                if(completed && (finishCode != MAV_RESULT_ACCEPTED))
-                    commandClimb->Shutdown();
+
+            auto controllerClimb = new MAVLINKVehicleControllers::CommandTakeoff(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+            controllerClimb->setLambda_Finished([this,controllerClimb](const bool completed, const uint8_t finishCode){
+                if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
+                    GetImmediateOuterState()->setDesiredStateEnum(ArdupilotFlightState::STATE_GROUNDED);
+                controllerClimb->Shutdown();
             });
 
-            commandClimb->setLambda_Shutdown([this,commandClimb]()
+            controllerClimb->setLambda_Shutdown([this,controllerClimb]()
             {
                 currentControllerMutex.lock();
-                currentControllers.erase("commandClimb");
-                delete commandClimb;
+                currentControllers.erase("takeoffClimb");
+                delete controllerClimb;
                 currentControllerMutex.unlock();
             });
 
             MaceCore::ModuleCharacteristic target;
-            target.ID = cmd->getTargetSystem();
+            target.ID = Owner().getMAVLINKID();
             target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
             MaceCore::ModuleCharacteristic sender;
             sender.ID = 255;
             sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-            commandClimb->Send(*cmd,sender,target);
-            currentControllers.insert({"commandClimb",commandClimb});
+
+            controllerClimb->Send(*cmd,sender,target);
+            currentControllers.insert({"takeoffClimb",controllerClimb});
         }
         break;
     }

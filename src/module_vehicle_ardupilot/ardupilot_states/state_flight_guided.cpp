@@ -62,4 +62,3 @@ void State_FlightGuided::OnEnter(const AbstractCommandItem *command)
 } //end of namespace ardupilot
 } //end of namespace state
 
-#include "ardupilot_states/state_takeoff_transitioning.h"

@@ -17,34 +17,9 @@ T CopyCommandAndInsertTarget(const CommandItem::AbstractCommandItem &item, int t
 //    m_VehicleMissionTopic("vehicleMission"), m_AircraftController(NULL), vehicleData(NULL)
 ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     ModuleVehicleMAVLINK<>(),
-    m_AircraftController(NULL), vehicleData(nullptr), stateMachine(nullptr)
+    vehicleData(nullptr), stateMachine(nullptr)
 {
 
-//    auto controller_SystemMode = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequest<
-//            mavlink_message_t,
-//            MaceCore::TopicDatagram,
-//            mavlink_set_mode_t,
-//            mavlink_command_ack_t,
-//            MAVLINK_MSG_ID_SET_MODE,
-//            MAVLINK_MSG_ID_COMMAND_ACK
-//            >
-//            (this, queue, m_LinkChan,
-//                mavlink_msg_set_mode_encode_chan,
-//                mavlink_msg_command_ack_decode
-//            );
-//    controller_SystemMode->FillSetObject([this](const MaceCore::TopicDatagram &commandItem, const MaceCore::ModuleCharacteristic &target, mavlink_set_mode_t &cmd)
-//    {
-//        std::shared_ptr<Data::TopicComponents::String> component = std::make_shared<Data::TopicComponents::String>();
-//        this->m_VehicleTopics.m_CommandSystemMode.GetComponent(commandItem, component);
-
-//        int mode = vehicleData->ardupilotMode.getFlightModeFromString(component->Str());
-
-//        cmd.target_system = target.ID;
-//        cmd.base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
-//        cmd.custom_mode = mode;
-//    });
-
-//    m_TopicToControllers.insert({this->m_VehicleTopics.m_CommandSystemMode.Name(), controller_SystemMode});
 
 }
 
@@ -67,36 +42,6 @@ void ModuleVehicleArdupilot::createLog(const int &systemID)
     spdlog::set_async_mode(q_size,spdlog::async_overflow_policy::discard_log_msg,nullptr,std::chrono::seconds(2));
     this->mLogs = spdlog::basic_logger_mt(logNameArray, logname);
     mLogs->set_level(spdlog::level::debug);
-}
-
-////////////////////////////////////////////////////////////////////////////
-/// DataInterface_MAVLINK: These functions are required for the connection
-/// of the virtual interface via the vehicleData object
-////////////////////////////////////////////////////////////////////////////
-
-void ModuleVehicleArdupilot::cbi_VehicleCommandACK(const int &systemID, const mavlink_command_ack_t &cmdACK)
-{
-    UNUSED(systemID);
-    if(checkControllerState())
-        m_AircraftController->updateCommandACK(cmdACK);
-}
-
-void ModuleVehicleArdupilot::cbi_VehicleMissionACK(const MissionItem::MissionACK &ack)
-{
-    std::stringstream buffer;
-    buffer << ack.getMissionKey();
-
-    mLogs->info("The module has now seen a mission ack.");
-    mLogs->debug(buffer.str());
-
-    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-         ptr->EventVehicle_MissionACK(this, ack);
-     });
-
-    //This function shall update the local MACE core of the new mission
-    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-        ptr->NewCurrentVehicleMission(this, ack.getUpdatedMissionKey());
-    });
 }
 
 //!
@@ -134,12 +79,9 @@ void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &com
     mLogs->debug("Receieved a command system arm.");
     mLogs->info(buffer.str());
     ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
-    ardupilot::state::AbstractStateArdupilot* currentInnerState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentState());
     currentOuterState->handleCommand(&command);
     stateMachine->ProcessStateTransitions();
     stateMachine->UpdateStates();
-
-    //vehicleData->m_CommandController->setSystemArm(commandWithTarget);
 }
 
 void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
@@ -153,8 +95,8 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
     mLogs->debug("Receieved a command takeoff.");
     mLogs->info(buffer.str());
 
-    ardupilot::state::AbstractStateArdupilot* currentState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentState());
-    currentState->handleCommand(&commandWithTarget);
+    ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+    currentOuterState->handleCommand(&commandWithTarget);
     stateMachine->ProcessStateTransitions();
     stateMachine->UpdateStates();
 }
@@ -170,8 +112,10 @@ void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &comman
     mLogs->debug("Receieved a command to land.");
     mLogs->info(buffer.str());
 
-//    if(vehicleData)
-//        vehicleData->m_CommandController->setSystemLand(commandWithTarget);
+    ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+    currentOuterState->handleCommand(&commandWithTarget);
+    stateMachine->ProcessStateTransitions();
+    stateMachine->UpdateStates();
 }
 
 void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
@@ -181,8 +125,10 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
 
     mLogs->debug("Receieved a command RTL.");
 
-//    if(vehicleData)
-//        vehicleData->m_CommandController->setSystemRTL(commandWithTarget);
+    ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+    currentOuterState->handleCommand(&commandWithTarget);
+    stateMachine->ProcessStateTransitions();
+    stateMachine->UpdateStates();
 }
 
 void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
@@ -238,21 +184,13 @@ void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionC
 
     ardupilot::state::AbstractStateArdupilot* outerState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
     outerState->handleCommand(&commandWithTarget);
+    stateMachine->ProcessStateTransitions();
+    stateMachine->UpdateStates();
 }
 
 void ModuleVehicleArdupilot::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
 {
 
-}
-
-void ModuleVehicleArdupilot::SpinUpController(Ardupilot_GeneralController *newController) {
-
-    m_AircraftController = newController;
-    m_AircraftController->start();
-}
-
-void ModuleVehicleArdupilot::SpinDownController() {
-    m_AircraftController->terminateObject();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -275,8 +213,10 @@ void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialH
     mLogs->debug("Receieved a command to home position.");
     mLogs->info(buffer.str());
 
-//    if((vehicleData) && (vehicleData->getSystemID() == vehicleHome.getTargetSystem()))
-//        vehicleData->m_CommandController->setHomePosition(vehicleHome);
+    ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+    currentOuterState->handleCommand(&vehicleHome);
+    stateMachine->ProcessStateTransitions();
+    stateMachine->UpdateStates();
 }
 
 
@@ -399,10 +339,6 @@ void ModuleVehicleArdupilot::Command_ClearOnboardGuided(const int &targetSystem)
 //!
 bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
-    if(message.msgid == 44)
-    {
-        printf("Hi\n");
-    }
     bool consumed = false;
 
     //this is necessary because if we have yet to have received a vehicle heartbeat,
@@ -419,8 +355,8 @@ bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
             if(!consumed)
                 consumed = vehicleData->parseMessage(&message);
         }
-        stateMachine->UpdateStates();
         stateMachine->ProcessStateTransitions();
+        stateMachine->UpdateStates();
     }
 
     return consumed;
@@ -436,6 +372,8 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         //this is the first time we have seen this heartbeat or the data was destroyed for some reason
         vehicleData = std::make_shared<ArdupilotVehicleObject>(this,systemID);
         vehicleData->connectCallback(this);
+        vehicleData->connectTargetCallback(ModuleVehicleArdupilot::staticCallbackFunction_VehicleTarget, this);
+
         //vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
 
 
@@ -447,30 +385,33 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
             //////////////////////////////
             ///Update about Home position
             CommandItem::SpatialHome home = std::get<0>(*data);
+            this->cbi_VehicleHome(home.getOriginatingSystem(),home);
             //notify the core of the change
-            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                ptr->GVEvents_NewHomePosition(this, home);
-            });
+//            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+//                ptr->GVEvents_NewHomePosition(this, home);
+//            });
 
-            std::shared_ptr<CommandItem::SpatialHome> ptrHome = std::make_shared<CommandItem::SpatialHome>(home);
-            std::shared_ptr<MissionTopic::MissionHomeTopic> homeTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
-            homeTopic->setHome(ptrHome);
+//            std::shared_ptr<CommandItem::SpatialHome> ptrHome = std::make_shared<CommandItem::SpatialHome>(home);
+//            std::shared_ptr<MissionTopic::MissionHomeTopic> homeTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+//            homeTopic->setHome(ptrHome);
 
-            this->cbi_VehicleMissionData(this->GetCharacteristic().ID, homeTopic);
+//            this->cbi_VehicleMissionData(this->GetCharacteristic().ID, homeTopic);
 
 
 
             //////////////////////////////
             ///Update about mission list
             MissionItem::MissionList missionList = std::get<1>(*data);
+            this->cbi_VehicleMission(missionList.getVehicleID(),missionList);
 
-            //This function shall update the local MACE CORE instance of the mission
-            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-                ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
-            });
-            //We should update all listeners
-            std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>(missionList);
-            this->cbi_VehicleMissionData(this->GetCharacteristic().ID, missionTopic);
+//            //This function shall update the local MACE CORE instance of the mission
+//            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+//                ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
+//            });
+
+//            //We should update all listeners
+//            std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>(missionList);
+//            this->cbi_VehicleMissionData(this->GetCharacteristic().ID, missionTopic);
         });
         m_MissionController->setLambda_Finished([](const bool completed, const uint8_t code){
             printf("Mission Completed");
@@ -497,9 +438,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         }
 
         stateMachine = new hsm::StateMachine();
-        stateMachine->Initialize<ardupilot::state::State_Grounded>(vehicleData.get());
-        stateMachine->UpdateStates();
-        stateMachine->ProcessStateTransitions();
+        stateMachine->Initialize<ardupilot::state::State_Unknown>(vehicleData.get());
     }
 
 
@@ -545,7 +484,6 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
 
     stateMachine->UpdateStates();
     stateMachine->ProcessStateTransitions();
-
 }
 
 void ModuleVehicleArdupilot::PublishVehicleData(const int &systemID, const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &components)

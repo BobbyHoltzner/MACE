@@ -4,7 +4,7 @@ namespace ardupilot{
 namespace state{
 
 State_Takeoff::State_Takeoff():
-    AbstractStateArdupilot()
+    AbstractRootState()
 {
     std::cout<<"We are in the constructor of STATE_TAKEOFF"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_TAKEOFF;
@@ -52,6 +52,10 @@ hsm::Transition State_Takeoff::GetTransition()
                 rtn = hsm::InnerEntryTransition<State_TakeoffTransitioning>(currentCommand);
                 break;
             }
+            case ArdupilotFlightState::STATE_FLIGHT:
+            {
+                rtn = hsm::SiblingTransition<State_Flight>(currentCommand);
+            }
             default:
                 std::cout<<"I dont know how we eneded up in this transition state from STATE_TAKEOFF."<<std::endl;
                 break;
@@ -63,7 +67,33 @@ hsm::Transition State_Takeoff::GetTransition()
 
 bool State_Takeoff::handleCommand(const AbstractCommandItem* command)
 {
-
+    switch(command->getCommandType()) {
+    case COMMANDITEM::CI_NAV_HOME:
+    {
+        AbstractRootState::handleCommand(command);
+        break;
+    }
+    case COMMANDITEM::CI_ACT_CHANGEMODE:
+    {
+        AbstractStateArdupilot::handleCommand(command);
+        MAVLINKVehicleControllers::ControllerSystemMode* modeController = (MAVLINKVehicleControllers::ControllerSystemMode*)currentControllers.at("modeController");
+        modeController->setLambda_Finished([this,modeController](const bool completed, const uint8_t finishCode){
+            if(completed && (finishCode == MAV_RESULT_ACCEPTED))
+            {
+                //if a mode change was issued while in the takeoff sequence we may have to handle it in a specific way based on the conditions
+                desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT;
+            }
+            else
+            {
+                //we got issues?
+            }
+            modeController->Shutdown();
+        });
+        break;
+    }
+    default:
+        break;
+    } //end of switch statement
 }
 
 void State_Takeoff::Update()

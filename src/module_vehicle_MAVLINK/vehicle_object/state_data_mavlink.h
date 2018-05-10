@@ -29,6 +29,8 @@ public:
     Data::DataGetSetNotifier<DataState::StateLocalPosition> vehicleLocalPosition;
     Data::DataGetSetNotifier<DataState::StateAttitude> vehicleAttitude;
     Data::DataGetSetNotifier<DataState::StateAirspeed> vehicleAirspeed;
+    Data::DataGetSetNotifier<DataState::StateGlobalPosition> vehicleHomePosition;
+
 };
 
 #endif // STATE_DATA_MAVLINK_H

@@ -1254,7 +1254,7 @@ inline State* StateMachine::GetOuterState(StateTypeId stateType, size_t startDep
 	for (size_t i = 0; i < numStatesToCompare; ++i, --currDepth)
 	{
 		State* state = mStateStack[currDepth];
-        StateTypeId currentType = state->GetStateType();
+        //StateTypeId currentType = state->GetStateType();
 		if (state->GetStateType() == stateType)
 			return state;
 	}

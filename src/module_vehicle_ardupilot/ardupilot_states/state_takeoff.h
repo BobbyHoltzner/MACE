@@ -1,7 +1,10 @@
 #ifndef STATE_TAKEOFF_H
 #define STATE_TAKEOFF_H
 
-#include "abstract_state_ardupilot.h"
+#include "abstract_root_state.h"
+
+#include "../ardupilot_target_progess.h"
+
 
 namespace ardupilot{
 namespace state{
@@ -12,7 +15,7 @@ class State_TakeoffTransitioning;
 class State_TakeoffComplete;
 class State_Flight;
 
-class State_Takeoff : public AbstractStateArdupilot
+class State_Takeoff : public AbstractRootState
 {
 public:
     State_Takeoff();

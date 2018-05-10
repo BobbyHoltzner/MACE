@@ -20,14 +20,19 @@ enum class ArdupilotFlightState{
     STATE_TAKEOFF_TRANSITIONING = 7, /**< */
     STATE_TAKEOFF_COMPLETE = 8, /**< */
     STATE_FLIGHT = 9, /**< */
-    STATE_FLIGHT_MANUAL = 10, /**< */
-    STATE_FLIGHT_GUIDED = 11, /**< */
-    STATE_FLIGHT_AUTO = 12, /**< */
-    STATE_FLIGHT_BRAKE= 13, /**< */
-    STATE_LANDING= 14, /**< */
-    STATE_LANDING_TRANSITIONING = 15, /**< */
-    STATE_LANDING_DESCENDING = 16, /**< */
-    STATE_LANDING_COMPLETE = 17 /**< */
+    STATE_FLIGHT_LOITER = 10, /**< */
+    STATE_FLIGHT_MANUAL = 11, /**< */
+    STATE_FLIGHT_GUIDED = 12, /**< */
+    STATE_FLIGHT_AUTO = 13, /**< */
+    STATE_FLIGHT_BRAKE= 14, /**< */
+    STATE_FLIGHT_RTL = 15, /**< */
+    STATE_FLIGHT_LAND = 16,
+    STATE_FLIGHT_UNKNOWN = 17,
+    STATE_LANDING= 18, /**< */
+    STATE_LANDING_TRANSITIONING = 19, /**< */
+    STATE_LANDING_DESCENDING = 20, /**< */
+    STATE_LANDING_COMPLETE = 21, /**< */
+    STATE_UNKNOWN = 22 /**< */
 };
 
 //!
@@ -63,6 +68,8 @@ inline std::string ArdupilotStateToString(const ArdupilotFlightState &type) {
         return "Flight Auto";
     case ArdupilotFlightState::STATE_FLIGHT_BRAKE:
         return "Flight Brake";
+    case ArdupilotFlightState::STATE_FLIGHT_RTL:
+        return "Flight RTL";
     case ArdupilotFlightState::STATE_LANDING:
         return "Flight Landing";
     case ArdupilotFlightState::STATE_LANDING_TRANSITIONING:
