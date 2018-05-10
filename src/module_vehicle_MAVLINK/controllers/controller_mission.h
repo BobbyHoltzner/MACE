@@ -130,6 +130,44 @@ using MissionAction_ReceiveFinalItem = Controllers::ActionFinalReceiveRespond<
 
 
 
+
+
+
+
+using MissionAction_Upload_Initiate = Controllers::ActionSend<
+    mavlink_message_t,
+    CONTROLLER_MISSION_TYPE,
+    void*,
+    MissionItem::MissionList,
+    mavlink_mission_count_t,
+    MAVLINK_MSG_ID_MISSION_REQUEST
+>;
+
+
+using MissionAction_Upload_ReceiveRequestSendItem = Controllers::ActionIntermediate<
+    mavlink_message_t,
+    CONTROLLER_MISSION_TYPE,
+    void*,
+    void*,
+    mavlink_mission_request_t,
+    MAVLINK_MSG_ID_MISSION_REQUEST,
+    mavlink_mission_item_t,
+    MAVLINK_MSG_ID_MISSION_REQUEST,
+    MAVLINK_MSG_ID_MISSION_ACK
+>;
+
+
+using MissionAction_Upload_Finish = Controllers::ActionFinish<
+    mavlink_message_t,
+    CONTROLLER_MISSION_TYPE,
+    void*,
+    uint8_t,
+    mavlink_mission_ack_t,
+    MAVLINK_MSG_ID_MISSION_ACK
+>;
+
+
+
 class ControllerMission : public CONTROLLER_MISSION_TYPE,
         public MissionAction_RequestCurrentMission_Initiate,
         public MissionAction_ReceiveAckDueToEmptyMission,
@@ -144,6 +182,9 @@ private:
     int m_MissionDownloadCount;
 
     std::shared_ptr<MissionDownloadResult> m_MissionDownloading;
+
+
+    std::shared_ptr<MissionList> m_MissionUploading;
 
 protected:
 
@@ -311,6 +352,58 @@ protected:
 
 
 
+    virtual void Construct_Send(const MissionItem::MissionList &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_count_t &msg, void* &queue)
+    {
+        printf("Madison Test. If Ken sees this it shouldn't of been commited\n  -- Mission Upload.  Sending Count\n");
+
+
+        m_MissionUploading = std::make_shared<MissionItem::MissionList>(data);
+
+        target = sender;
+        queue = 0;
+
+        msg.count = data.getQueueSize() + 1;
+        msg.target_component = 0;
+        msg.target_system = target.ID;
+        msg.mission_type = MAV_MISSION_TYPE_MISSION;
+    }
+
+
+    virtual bool BuildData_Send(const mavlink_mission_request_t &msg, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_item_t &cmd, MaceCore::ModuleCharacteristic &vehicleObj, void* &receiveQueueObj, void* &respondQueueObj)
+    {
+        if(m_MissionUploading != NULL)
+        {
+            printf("Madison Test. If Ken sees this it shouldn't of been commited\n  -- Mission Upload.  Item Request\n");
+
+            int index = msg.seq;
+
+            if(index == 0) //the vehicle requested the home position
+            {
+                throw std::runtime_error("Requested home position and unsure how to handle that");
+                //missionItem = helperMACEtoMAV.convertHome(this->missionHome);
+            }
+            else{
+                std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = m_MissionUploading->getMissionItem(index - 1);
+                helperMACEtoMAV.MACEMissionToMAVLINKMission(ptrItem, index, cmd);
+            }
+
+            vehicleObj = sender;
+
+            receiveQueueObj = 0;
+            respondQueueObj = 0;
+
+            return true;
+        }
+        return false;
+    }
+
+    virtual bool Finish_Receive(const mavlink_mission_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, void* &queueObj)
+    {
+        printf("Madison Test. If Ken sees this it shouldn't of been commited\n  -- Mission Upload.  Ack Received\n");
+
+        m_MissionUploading = NULL;
+        return true;
+    }
 
 public:
 
@@ -329,6 +422,11 @@ public:
     void GetMissions(MaceCore::ModuleCharacteristic &vehicle)
     {
         MissionAction_RequestCurrentMission_Initiate::Request(vehicle, vehicle);
+    }
+
+    void UploadMission(const MissionItem::MissionList &mission)
+    {
+
     }
 
 
@@ -356,6 +454,8 @@ private:
             std::get<1>(*m_MissionDownloading).replaceMissionItemAtIndex(newMissionItem, adjustedIndex);
         }
     }
+
+
 
 
 };
