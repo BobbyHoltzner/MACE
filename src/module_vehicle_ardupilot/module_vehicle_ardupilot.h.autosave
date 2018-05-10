@@ -229,28 +229,6 @@ public:
     //!
     virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome, const OptionalParameter<MaceCore::ModuleCharacteristic>& = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
-
-    bool checkControllerState()
-    {
-        if(m_AircraftController)
-        {
-          //The current controller is not null
-            if(m_AircraftController->isThreadActive())
-            {
-                //The controller is valid and is actively doing something
-                return true;
-            }
-            else{
-                //The controller is valid however it is done for some reason
-                //The thread is no longer active
-                //KEN TODO: We should figure out if this is the proper way to clean this up
-                delete m_AircraftController;
-                return false;
-            }
-        }
-        return false;
-    }
-
     virtual void RequestDummyFunction(const int &vehicleID)
     {
 //        std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(vehicleID);

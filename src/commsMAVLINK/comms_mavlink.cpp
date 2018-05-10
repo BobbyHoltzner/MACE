@@ -1,13 +1,9 @@
 #include "comms_mavlink.h"
+
 CommsMAVLINK::CommsMAVLINK() :
     m_LinkMarshaler(new Comms::CommsMarshaler), m_LinkName(""), m_LinkChan(0)
 {
     m_LinkMarshaler->AddSubscriber(this);
-}
-
-CommsMAVLINK::~CommsMAVLINK()
-{
-
 }
 
 uint8_t CommsMAVLINK::getLinkChannel() const
