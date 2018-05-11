@@ -402,6 +402,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
             //////////////////////////////
             ///Update about mission list
             MissionItem::MissionList missionList = std::get<1>(*data);
+            missionList.setVehicleID(this->GetCharacteristic().ID);
             this->cbi_VehicleMission(missionList.getVehicleID(),missionList);
 
 //            //This function shall update the local MACE CORE instance of the mission
