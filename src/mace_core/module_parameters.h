@@ -346,6 +346,7 @@ public:
         }
 
         m_IsTagRequired.push_back(std::make_tuple(name_Vec, required));
+        m_MutuallyExclusiveSets.push_back(name_Vec);
     }
 
 
@@ -457,6 +458,42 @@ public:
         return false;
     }
 
+    //!
+    //! \brief Determines if the two tags are mutually exclusive
+    //! \param tag1 Tag 1
+    //! \param tag2 Tag 2
+    //! \return true if mutually exclusive
+    //!
+    bool IsTagMutuallyExclusive(const std::string &tag1, const std::string &tag2) const
+    {
+        if(tag1 == tag2)
+        {
+            return false;
+        }
+        for(auto it = m_MutuallyExclusiveSets.cbegin() ; it != m_MutuallyExclusiveSets.cend() ; ++it)
+        {
+            bool has1 = false;
+            bool has2 = false;
+            for(auto itt = it->cbegin() ; itt != it->cend() ; ++itt)
+            {
+                if(*itt == tag1)
+                {
+                    has1 = true;
+                }
+
+                if(*itt == tag2)
+                {
+                    has2 = true;
+                }
+            }
+
+            if(has1 == true && has2 == true)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     //!
     //! \brief Return if provided tag is required in the structure
@@ -493,6 +530,8 @@ private:
     std::unordered_map<std::string, std::shared_ptr<ModuleParameterStructure> > m_NonTerminalParams;
 
     std::unordered_map<std::string, bool> m_NonTerminalMultipleAllowed;
+
+    std::vector<std::vector<std::string>> m_MutuallyExclusiveSets;
 
  };
 

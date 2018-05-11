@@ -45,7 +45,7 @@ void CommsMACEHelper::ConfigureMACEStructure(MaceCore::ModuleParameterStructure 
     protocolSettings->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true, "Mavlink", {"Mavlink"});
     protocolSettings->AddTerminalParameters("Version", MaceCore::ModuleParameterTerminalTypes::STRING, true, "V1", {"V1", "V2"});
 
-    structure.AddMutuallyExclusiveNonTerminal({{"SerialParameters", serialSettings}, {"UDPParameters", udpSettings}, {"DigiMeshParameters", digiMeshSettings}}, false);
+    structure.AddMutuallyExclusiveNonTerminal({{"SerialParameters", serialSettings}, {"UDPParameters", udpSettings}, {"DigiMeshParameters", digiMeshSettings}}, true);
     structure.AddNonTerminal("ProtocolParameters", protocolSettings, true);
 }
 
