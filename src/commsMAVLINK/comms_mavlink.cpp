@@ -58,7 +58,7 @@ void CommsMAVLINK::ConfigureMAVLINKStructure(MaceCore::ModuleParameterStructure 
     protocolSettings->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true, "Mavlink", {"Mavlink"});
     protocolSettings->AddTerminalParameters("Version", MaceCore::ModuleParameterTerminalTypes::STRING, true, "V1", {"V1", "V2"});
 
-    structure.AddMutuallyExclusiveNonTerminal({{"SerialParameters", serialSettings}, {"UDPParameters", udpSettings}}, false);
+    structure.AddMutuallyExclusiveNonTerminal({{"SerialParameters", serialSettings}, {"UDPParameters", udpSettings}}, true);
     structure.AddNonTerminal("ProtocolParameters", protocolSettings, true);
 }
 
