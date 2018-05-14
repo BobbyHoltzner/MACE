@@ -39,6 +39,8 @@ ModuleExternalLink::ModuleExternalLink() :
 
 
 
+    /*
+     * In development modification that was accidently merged in.
     auto controller_SystemMode2 = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequestRespond<
             mace_message_t,
             MaceCore::TopicDatagram,
@@ -77,6 +79,7 @@ ModuleExternalLink::ModuleExternalLink() :
         });
     });
     m_TopicToControllers.insert({this->m_VehicleTopics.m_CommandSystemMode.Name(), controller_SystemMode2});
+    */
 
 
 
@@ -96,12 +99,10 @@ ModuleExternalLink::ModuleExternalLink() :
     m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandMissionItem<mace_message_t>>(this, queue, m_LinkChan));
 
 
-    /*
     auto controller_SystemMode = new Controllers::ControllerSystemMode<mace_message_t>(this, queue, m_LinkChan);
     controller_SystemMode->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){this->ReceivedCommand(sender, command);});
     controller_SystemMode->setLambda_Finished(FinishedMessage);
     m_Controllers.Add(controller_SystemMode);
-    */
 
 
     auto homeController = new Controllers::ControllerHome<mace_message_t>(this, queue, m_LinkChan);
