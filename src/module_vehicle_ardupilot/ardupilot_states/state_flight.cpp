@@ -101,6 +101,10 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
         AbstractRootState::handleCommand(command);
         break;
     }
+    case COMMANDITEM::CI_ACT_MISSIONCOMMAND:
+    {
+        break;
+    }
     case COMMANDITEM::CI_NAV_LAND:
     {
         currentCommand = command->getClone();
@@ -148,6 +152,7 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
 void State_Flight::Update()
 {
     //mode changes are directly handled via add notifier events established in the OnEnter() method
+
     if(!Owner().state->vehicleArm.get().getSystemArm())
         desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
 }

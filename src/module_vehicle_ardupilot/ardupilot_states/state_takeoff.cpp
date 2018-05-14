@@ -67,6 +67,8 @@ hsm::Transition State_Takeoff::GetTransition()
 
 bool State_Takeoff::handleCommand(const AbstractCommandItem* command)
 {
+    this->clearCommand();
+
     switch(command->getCommandType()) {
     case COMMANDITEM::CI_NAV_HOME:
     {
@@ -89,6 +91,11 @@ bool State_Takeoff::handleCommand(const AbstractCommandItem* command)
             }
             modeController->Shutdown();
         });
+        break;
+    }
+    case COMMANDITEM::CI_NAV_TAKEOFF:
+    {
+        currentCommand = command->getClone();
         break;
     }
     default:
@@ -149,8 +156,8 @@ void State_Takeoff::OnEnter(const AbstractCommandItem *command)
     if(command != nullptr)
     {
         this->OnEnter();
-        this->clearCommand();
-        currentCommand = command->getClone();
+        this->handleCommand(command);
+        delete command;
     }
 }
 

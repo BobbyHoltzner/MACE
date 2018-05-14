@@ -347,7 +347,9 @@ bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
     {
         consumed = m_MissionController->ReceiveMessage(&message, this->GetCharacteristic());
 
-        consumed = ModuleVehicleMAVLINK::MavlinkMessage(linkName, message);
+        if(!consumed)
+            consumed = ModuleVehicleMAVLINK::MavlinkMessage(linkName, message);
+
         if(!consumed)
         {
             ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
@@ -385,6 +387,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
             //////////////////////////////
             ///Update about Home position
             CommandItem::SpatialHome home = std::get<0>(*data);
+            vehicleData->mission->vehicleHomePosition.set(home);
             this->cbi_VehicleHome(home.getOriginatingSystem(),home);
             //notify the core of the change
 //            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
@@ -402,6 +405,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
             //////////////////////////////
             ///Update about mission list
             MissionItem::MissionList missionList = std::get<1>(*data);
+            vehicleData->mission->currentAutoMission.set(missionList);
             this->cbi_VehicleMission(missionList.getVehicleID(),missionList);
 
 //            //This function shall update the local MACE CORE instance of the mission

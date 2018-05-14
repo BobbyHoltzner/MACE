@@ -67,9 +67,11 @@ bool State_Unknown::handleCommand(const AbstractCommandItem* command)
 void State_Unknown::Update()
 {
     if(!Owner().state->vehicleArm.get().getSystemArm())
-        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
+        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED; //This is a definite case condition
     else
+    {
         desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT;
+    }
 }
 
 void State_Unknown::OnEnter()

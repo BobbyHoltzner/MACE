@@ -222,6 +222,7 @@ public:
     //    mLogs->debug("Receieved a new vehicle home position.");
     //    mLogs->info(buffer.str());
 
+
         //notify the core of the change
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
             ptr->GVEvents_NewHomePosition(this, home);
