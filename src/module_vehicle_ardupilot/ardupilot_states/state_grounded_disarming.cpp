@@ -46,7 +46,17 @@ hsm::Transition State_GroundedDisarming::GetTransition()
 
 bool State_GroundedDisarming::handleCommand(const AbstractCommandItem* command)
 {
-
+    COMMANDITEM type = command->getCommandType();
+    switch (type) {
+    case COMMANDITEM::CI_ACT_ARM:
+    {
+        break;
+    }
+    default:
+        clearCommand();
+        currentCommand = command->getClone();
+        break;
+    }
 }
 
 void State_GroundedDisarming::Update()
@@ -59,12 +69,49 @@ void State_GroundedDisarming::Update()
 
 void State_GroundedDisarming::OnEnter()
 {
+    //when calling this function that means our intent is to disarm the vehicle
+    //first let us send this relevant command
+    //issue command to controller here, and then setup a callback to handle the result
+    auto controllerArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+    controllerArm->setLambda_Finished([this,controllerArm](const bool completed, const uint8_t finishCode){
+        controllerArm->Shutdown();
+        if(!completed || (finishCode != MAV_RESULT_ACCEPTED))
+            desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_ARMED;
+    });
 
+    controllerArm->setLambda_Shutdown([this,controllerArm]()
+    {
+        currentControllerMutex.lock();
+        currentControllers.erase("armController");
+        delete controllerArm;
+        currentControllerMutex.unlock();
+    });
+
+    controllerArm->setLambda_Shutdown([this]()
+    {
+        std::cout<<"We are going to shutdown the controller."<<std::endl;
+    });
+
+    MaceCore::ModuleCharacteristic target;
+    target.ID = Owner().getMAVLINKID();
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+    MaceCore::ModuleCharacteristic sender;
+    sender.ID = 255;
+    sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+    CommandItem::ActionArm action(255,target.ID);
+    action.setVehicleArm(false);
+    controllerArm->Send(action,sender,target);
+    currentControllers.insert({"armController",controllerArm});
 }
 
 void State_GroundedDisarming::OnEnter(const AbstractCommandItem *command)
 {
     this->OnEnter();
+    if(command != nullptr)
+    {
+        handleCommand(command);
+        delete command;
+    }
 }
 
 } //end of namespace ardupilot

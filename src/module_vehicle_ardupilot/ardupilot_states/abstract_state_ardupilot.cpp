@@ -18,7 +18,7 @@ AbstractStateArdupilot::AbstractStateArdupilot(const AbstractStateArdupilot &cop
 
 void AbstractStateArdupilot::OnExit()
 {
-
+    destroyCurrentControllers();
 }
 
 void AbstractStateArdupilot::clearCommand()
@@ -32,10 +32,15 @@ void AbstractStateArdupilot::clearCommand()
 
 void AbstractStateArdupilot::destroyCurrentControllers()
 {
+    currentControllerMutex.lock();
+
+    currentControllerMutex.unlock();
+
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*>::iterator it;
-    for(it=currentControllers.begin(); it!=currentControllers.end(); ++it)
+    for(it=currentControllers.begin(); it!=currentControllers.end();)
     {
         delete it->second;
+        currentControllers.erase(it++);
     }
 }
 void AbstractStateArdupilot::setCurrentCommand(const CommandItem::AbstractCommandItem *command)
@@ -99,9 +104,13 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
     currentControllerMutex.unlock();
     if(!consumed)
     {
-        ardupilot::state::AbstractStateArdupilot* childState = static_cast<ardupilot::state::AbstractStateArdupilot*>(GetImmediateInnerState());
-        if(childState != nullptr)
-            consumed = childState->handleMAVLINKMessage(msg);
+        State* innerState = GetImmediateInnerState();
+        if(innerState != nullptr)
+        {
+            ardupilot::state::AbstractStateArdupilot* castChild = static_cast<ardupilot::state::AbstractStateArdupilot*>(innerState);
+            consumed = castChild->handleMAVLINKMessage(msg);
+        }
+
     }
     return consumed;
 }

@@ -1225,7 +1225,7 @@ inline State* StateMachine::GetStateAtDepth(size_t depth)
 {
 	if (depth >= mStateStack.size())
 	{
-		return 0;
+        return nullptr;
 	}
 
 	return mStateStack[depth];

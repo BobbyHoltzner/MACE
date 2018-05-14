@@ -62,7 +62,8 @@ bool State_GroundedArmed::handleCommand(const AbstractCommandItem* command)
     switch (command->getCommandType()) {
     case CommandItem::COMMANDITEM::CI_ACT_ARM:
     {
-        desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_DISARMING;
+        if(command->as<CommandItem::ActionArm>()->getRequestArm() == false)
+            desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_DISARMING;
         break;
     }
     case CommandItem::COMMANDITEM::CI_NAV_TAKEOFF:

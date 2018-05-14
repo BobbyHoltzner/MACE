@@ -15,7 +15,7 @@
 namespace MAVLINKVehicleControllers {
 
 template <typename T>
-using ActionSend_Command_TargedWithResponse = Controllers::ActionSend<
+using ActionSend_LongCommand_TargedWithResponse = Controllers::ActionSend<
     mavlink_message_t,
     Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
     MaceCore::ModuleCharacteristic,
@@ -25,7 +25,7 @@ using ActionSend_Command_TargedWithResponse = Controllers::ActionSend<
 >;
 
 template<typename T>
-using ActionFinish_Command = Controllers::ActionFinish<
+using ActionFinish_LongCommand = Controllers::ActionFinish<
     mavlink_message_t,
     Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
     MaceCore::ModuleCharacteristic,
@@ -37,8 +37,8 @@ using ActionFinish_Command = Controllers::ActionFinish<
 
 template <typename COMMANDDATASTRUCTURE, const int COMMANDTYPE>
 class Controller_GenericLongCommand : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, COMMANDDATASTRUCTURE>,
-        public ActionSend_Command_TargedWithResponse<COMMANDDATASTRUCTURE>,
-        public ActionFinish_Command<COMMANDDATASTRUCTURE>
+        public ActionSend_LongCommand_TargedWithResponse<COMMANDDATASTRUCTURE>,
+        public ActionFinish_LongCommand<COMMANDDATASTRUCTURE>
 {
 private:
 
@@ -80,8 +80,8 @@ public:
 
     Controller_GenericLongCommand(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
         Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
-        ActionSend_Command_TargedWithResponse<COMMANDDATASTRUCTURE>(this, mavlink_msg_command_long_encode_chan),
-        ActionFinish_Command<COMMANDDATASTRUCTURE>(this, mavlink_msg_command_ack_decode)
+        ActionSend_LongCommand_TargedWithResponse<COMMANDDATASTRUCTURE>(this, mavlink_msg_command_long_encode_chan),
+        ActionFinish_LongCommand<COMMANDDATASTRUCTURE>(this, mavlink_msg_command_ack_decode)
     {
 
     }

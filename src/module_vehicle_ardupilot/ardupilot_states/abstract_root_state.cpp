@@ -51,7 +51,7 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
     case COMMANDITEM::CI_NAV_HOME:
     {
         const CommandItem::SpatialHome* cmd = command->as<CommandItem::SpatialHome>();
-        auto controllerSystemHome = new MAVLINKVehicleControllers::Command_SetHome(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        auto controllerSystemHome = new MAVLINKVehicleControllers::Command_SetHomeInt(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
         controllerSystemHome->setLambda_Finished([this,controllerSystemHome,cmd](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
             {
