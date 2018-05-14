@@ -54,16 +54,6 @@ bool State_GroundedArming::handleCommand(const AbstractCommandItem* command)
 {
     this->clearCommand();
     switch (command->getCommandType()) {
-    case COMMANDITEM::CI_ACT_ARM:
-    {
-        break;
-    }
-    case COMMANDITEM::CI_NAV_TAKEOFF:
-    {
-        currentCommand = command->getClone();
-        desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF;
-        break;
-    }
     default:
         break;
     }
@@ -91,9 +81,7 @@ void State_GroundedArming::OnEnter()
     auto controllerArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
     controllerArm->setLambda_Finished([this,controllerArm](const bool completed, const uint8_t finishCode){
         controllerArm->Shutdown();
-        if(completed && (finishCode == MAV_RESULT_ACCEPTED))
-            armingCheck = true;
-        else
+        if(!completed || (finishCode != MAV_RESULT_ACCEPTED))
             desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_IDLE;
     });
 
@@ -126,7 +114,7 @@ void State_GroundedArming::OnEnter(const AbstractCommandItem* command)
 {
     this->OnEnter();
     if(command != nullptr) {
-        handleCommand(command);
+        this->currentCommand = command->getClone();
         delete command;
     }
 }

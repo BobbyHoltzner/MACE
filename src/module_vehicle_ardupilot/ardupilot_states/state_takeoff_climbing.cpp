@@ -62,7 +62,8 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
     switch (command->getCommandType()) {
     case COMMANDITEM::CI_NAV_TAKEOFF:
     {
-        const CommandItem::SpatialTakeoff* cmd = command->getClone()->as<CommandItem::SpatialTakeoff>();
+        currentCommand = command->getClone();
+        const CommandItem::SpatialTakeoff* cmd = currentCommand->as<CommandItem::SpatialTakeoff>();
         if(cmd->getPosition().getPosZFlag())
         {
             StateGlobalPosition currentPosition = Owner().state->vehicleGlobalPosition.get();
