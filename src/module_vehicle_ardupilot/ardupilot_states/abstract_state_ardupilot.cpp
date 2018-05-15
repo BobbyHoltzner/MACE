@@ -34,14 +34,14 @@ void AbstractStateArdupilot::destroyCurrentControllers()
 {
     currentControllerMutex.lock();
 
-    currentControllerMutex.unlock();
-
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*>::iterator it;
     for(it=currentControllers.begin(); it!=currentControllers.end();)
     {
         delete it->second;
         currentControllers.erase(it++);
     }
+
+    currentControllerMutex.unlock();
 }
 void AbstractStateArdupilot::setCurrentCommand(const CommandItem::AbstractCommandItem *command)
 {
