@@ -2,8 +2,8 @@
 
 namespace ardupilot {
 namespace state {
-AbstractRootState::AbstractRootState(const int &timeout, const int &attempts):
-    AbstractStateArdupilot(timeout,attempts)
+AbstractRootState::AbstractRootState(ControllerFactory *controllerFactory):
+    AbstractStateArdupilot(controllerFactory, controllerMutex, messageQueue)
 {
 
 }
@@ -20,7 +20,7 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
     switch (command->getCommandType()) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
-        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
         controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
 
             controllerSystemMode->Shutdown();
@@ -28,10 +28,10 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
 
         controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
         {
-            currentControllerMutex.lock();
-            currentControllers.erase("modeController");
+            m_ControllerFactory->controllerMutex.lock();
+            m_ControllerFactory->controllers.erase("modeController");
             delete controllerSystemMode;
-            currentControllerMutex.unlock();
+            m_ControllerFactory->controllerMutex.unlock();
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -44,14 +44,14 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
         commandMode.targetID = target.ID;
         commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString(command->as<CommandItem::ActionChangeMode>()->getRequestMode());
         controllerSystemMode->Send(commandMode,sender,target);
-        currentControllers.insert({"modeController",controllerSystemMode});
+        m_ControllerFactory->controllers.insert({"modeController",controllerSystemMode});
         break;
     }
 
     case COMMANDITEM::CI_NAV_HOME:
     {
         const CommandItem::SpatialHome* cmd = command->as<CommandItem::SpatialHome>();
-        auto controllerSystemHome = new MAVLINKVehicleControllers::Command_SetHomeInt(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        auto controllerSystemHome = new MAVLINKVehicleControllers::Command_SetHomeInt(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
         controllerSystemHome->setLambda_Finished([this,controllerSystemHome,cmd](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
             {
@@ -62,10 +62,10 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
 
         controllerSystemHome->setLambda_Shutdown([this,controllerSystemHome]()
         {
-            currentControllerMutex.lock();
-            currentControllers.erase("setHomeController");
+            m_ControllerFactory->controllerMutex.lock();
+            m_ControllerFactory->controllers.erase("setHomeController");
             delete controllerSystemHome;
-            currentControllerMutex.unlock();
+            m_ControllerFactory->controllerMutex.unlock();
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -76,7 +76,7 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
         sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         controllerSystemHome->Send(*cmd,sender,target);
-        currentControllers.insert({"setHomeController",controllerSystemHome});
+        m_ControllerFactory->controllers.insert({"setHomeController",controllerSystemHome});
         break;
     }
     default:

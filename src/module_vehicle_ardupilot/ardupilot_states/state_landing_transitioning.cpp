@@ -3,8 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-State_LandingTransitioning::State_LandingTransitioning():
-    AbstractStateArdupilot()
+State_LandingTransitioning::State_LandingTransitioning(ControllerFactory *controllerFactory):
+    AbstractStateArdupilot(controllerFactory)
 {
     guidedProgress = ArdupilotTargetProgess(2,10,10);
     std::cout<<"We are in the constructor of STATE_LANDING_TRANSITIONING"<<std::endl;
@@ -73,7 +73,7 @@ bool State_LandingTransitioning::handleCommand(const AbstractCommandItem* comman
                 }
             });
 
-            auto landingTransitioning = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+            auto landingTransitioning = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
             landingTransitioning->setLambda_Finished([this,landingTransitioning](const bool completed, const uint8_t finishCode){
                 if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
                     std::cout<<"We are not going to perform the transition portion of the landing."<<std::endl;
@@ -82,10 +82,10 @@ bool State_LandingTransitioning::handleCommand(const AbstractCommandItem* comman
 
             landingTransitioning->setLambda_Shutdown([this,landingTransitioning]()
             {
-                currentControllerMutex.lock();
-                currentControllers.erase("landingTransition");
+                m_ControllerFactory->controllerMutex.lock();
+                m_ControllerFactory->controllers.erase("landingTransition");
                 delete landingTransitioning;
-                currentControllerMutex.unlock();
+                m_ControllerFactory->controllerMutex.unlock();
             });
 
             MaceCore::ModuleCharacteristic target;
@@ -98,7 +98,7 @@ bool State_LandingTransitioning::handleCommand(const AbstractCommandItem* comman
             CommandItem::SpatialWaypoint landingTarget(255,cmd->getTargetSystem());
             landingTarget.setPosition(cmdPosition);
             landingTransitioning->Send(landingTarget,sender,target);
-            currentControllers.insert({"landingTransition",landingTransitioning});
+            m_ControllerFactory->controllers.insert({"landingTransition",landingTransitioning});
         }
         break;
     }

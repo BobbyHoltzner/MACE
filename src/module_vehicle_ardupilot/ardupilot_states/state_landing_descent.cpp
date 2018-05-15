@@ -3,8 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-State_LandingDescent::State_LandingDescent():
-    AbstractStateArdupilot()
+State_LandingDescent::State_LandingDescent(ControllerFactory *controllerFactory):
+    AbstractStateArdupilot(controllerFactory)
 {
     guidedProgress = ArdupilotTargetProgess(0,10,10);
     std::cout<<"We are in the constructor of STATE_LANDING_DESCENT"<<std::endl;
@@ -79,7 +79,7 @@ bool State_LandingDescent::handleCommand(const AbstractCommandItem* command)
         });
 
 
-        auto controllerDescent = new MAVLINKVehicleControllers::CommandLand(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        auto controllerDescent = new MAVLINKVehicleControllers::CommandLand(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
         controllerDescent->setLambda_Finished([this,controllerDescent](const bool completed, const uint8_t finishCode){
             if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
                 GetImmediateOuterState()->setDesiredStateEnum(ArdupilotFlightState::STATE_FLIGHT);
@@ -88,10 +88,10 @@ bool State_LandingDescent::handleCommand(const AbstractCommandItem* command)
 
         controllerDescent->setLambda_Shutdown([this,controllerDescent]()
         {
-            currentControllerMutex.lock();
-            currentControllers.erase("landingDescent");
+            m_ControllerFactory->controllerMutex.lock();
+            m_ControllerFactory->controllers.erase("landingDescent");
             delete controllerDescent;
-            currentControllerMutex.unlock();
+            m_ControllerFactory->controllerMutex.unlock();
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -102,7 +102,7 @@ bool State_LandingDescent::handleCommand(const AbstractCommandItem* command)
         sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         controllerDescent->Send(*cmd,sender,target);
-        currentControllers.insert({"landingDescent",controllerDescent});
+        m_ControllerFactory->controllers.insert({"landingDescent",controllerDescent});
         break;
     }
     default:

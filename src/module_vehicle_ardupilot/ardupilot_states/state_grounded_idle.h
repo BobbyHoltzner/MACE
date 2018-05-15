@@ -11,7 +11,7 @@ class State_GroundedArming;
 class State_GroundedIdle : public AbstractStateArdupilot
 {
 public:
-    State_GroundedIdle();
+    State_GroundedIdle(ControllerFactory *controllerFactory);
 
 public:
     AbstractStateArdupilot* getClone() const override;

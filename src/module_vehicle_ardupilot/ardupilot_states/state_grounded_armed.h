@@ -12,7 +12,7 @@ class State_GroundedDisarming;
 class State_GroundedArmed : public AbstractStateArdupilot
 {
 public:
-    State_GroundedArmed();
+    State_GroundedArmed(ControllerFactory *controllerFactory);
 
 public:
     AbstractStateArdupilot* getClone() const override;

@@ -15,7 +15,7 @@ class State_Flight;
 class State_Landing : public AbstractRootState
 {
 public:
-    State_Landing();
+    State_Landing(ControllerFactory *controllerFactory);
 
 public:
     AbstractStateArdupilot* getClone() const override;

@@ -18,6 +18,12 @@
 
 #include "ardupilot_state_types.h" //This could be templated out but we don't have the time for that
 
+#include <unordered_map>
+#include <mutex>
+#include <controllers/I_controller.h>
+#include <controllers/generic_controller.h>
+#include <mavlink.h>
+
 #pragma once
 #ifndef __HSM_H__
 #define __HSM_H__
@@ -260,7 +266,7 @@ inline bool operator!=(const StateFactory& lhs, const StateFactory& rhs) { retur
 
 // ConcreteStateFactory is the actual state creator; these are allocated statically in the transition
 // functions (below) and stored within Transition instances.
-template <typename TargetState>
+template <typename TargetState, typename AdditionalArg>
 struct ConcreteStateFactory : StateFactory
 {
 	virtual StateTypeId GetStateType() const
@@ -275,20 +281,25 @@ struct ConcreteStateFactory : StateFactory
 
 	virtual State* AllocateState() const
 	{
-		return HSM_NEW TargetState();
+        return HSM_NEW TargetState(m_arg);
 	}
 
 private:
 	// Only GetStateFactory can create this type
 	friend const StateFactory& GetStateFactory<TargetState>();
-	ConcreteStateFactory() {}
+    ConcreteStateFactory(AdditionalArg arg) :
+        m_arg(arg)
+    {
+    }
+
+    AdditionalArg m_arg;
 };
 
-template <typename TargetState>
-const StateFactory& GetStateFactory()
+template <typename TargetState, typename AdditionalArg>
+const StateFactory& GetStateFactory(AdditionalArg args)
 {
 	static_assert(std::is_convertible<TargetState, State>::value, "TargetState must derive from hsm::State");
-	static ConcreteStateFactory<TargetState> instance;
+    static ConcreteStateFactory<TargetState, AdditionalArg> instance(args);
 	return instance;
 }
 
@@ -1399,12 +1410,26 @@ inline hsm_bool StateMachine::ProcessStateTransitionsOnce()
 
 inline void StateMachine::PushState(State* state)
 {
+    printf("Adding State. Size:%d\n", mStateStack.size()+1);
 	mStateStack.push_back(state);
+
+    for(int i = 0 ; i < mStateStack.size() ; i++)
+    {
+        State* state = mStateStack.at(i);
+        printf("  Name: %s\n  PTR: %d\n", state->GetStateDebugName(), state);
+    }
 }
 
 inline void StateMachine::PopState()
 {
-	mStateStack.pop_back();
+    printf("Adding State. Size:%d\n", mStateStack.size()-1);
+    mStateStack.pop_back();
+
+    for(int i = 0 ; i < mStateStack.size() ; i++)
+    {
+        State* state = mStateStack.at(i);
+        printf("  Name: %s\n  PTR: %d\n", state->GetStateDebugName(), state);
+    }
 }
 
 inline void StateMachine::Log(size_t minLevel, size_t numSpaces, const hsm_char* format, ...)

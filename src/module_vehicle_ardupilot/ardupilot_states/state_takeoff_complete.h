@@ -10,7 +10,7 @@ namespace state{
 class State_TakeoffComplete : public AbstractStateArdupilot
 {
 public:
-    State_TakeoffComplete();
+    State_TakeoffComplete(ControllerFactory *controllerFactory);
 
 public:
     AbstractStateArdupilot* getClone() const override;

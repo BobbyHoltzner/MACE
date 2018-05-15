@@ -17,10 +17,21 @@
 namespace ardupilot{
 namespace state{
 
+
+class ControllerFactory
+{
+public:
+    std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> controllers;
+    std::mutex controllerMutex;
+    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> messageQueue;
+};
+
+
+
 class AbstractStateArdupilot : public hsm::StateWithOwner<ArdupilotVehicleObject>
 {
 public:
-    AbstractStateArdupilot(const int &timeout = 2000, const int &attempts = 3);
+    AbstractStateArdupilot(ControllerFactory *controllerFactory);
 
     AbstractStateArdupilot(const AbstractStateArdupilot &copy);
 
@@ -62,7 +73,6 @@ public:
     virtual void getClone(AbstractStateArdupilot** state) const = 0;
 
 public:
-    virtual void destroyCurrentControllers();
 
     virtual bool handleMAVLINKMessage(const mavlink_message_t &msg);
 
@@ -80,11 +90,7 @@ protected:
     void clearCommand();
 
 protected:
-    std::mutex currentControllerMutex;
-
-    std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> currentControllers;
-
-    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *controllerQueue;
+    ControllerFactory* m_ControllerFactory;
 
     const CommandItem::AbstractCommandItem* currentCommand;
 

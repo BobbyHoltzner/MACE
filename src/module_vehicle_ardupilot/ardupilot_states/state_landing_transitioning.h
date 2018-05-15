@@ -12,7 +12,7 @@ namespace state{
 class State_LandingTransitioning : public AbstractStateArdupilot
 {
 public:
-    State_LandingTransitioning();
+    State_LandingTransitioning(ControllerFactory *controllerFactory);
 
 public:
     AbstractStateArdupilot* getClone() const override;

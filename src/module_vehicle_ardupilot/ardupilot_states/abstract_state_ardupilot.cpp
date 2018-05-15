@@ -3,10 +3,11 @@
 namespace ardupilot{
 namespace state{
 
-AbstractStateArdupilot::AbstractStateArdupilot(const int &timeout, const int &attempts):
-    currentCommand(nullptr)
+AbstractStateArdupilot::AbstractStateArdupilot(ControllerFactory *controllerFactory) :
+    currentCommand(nullptr),
+    m_ControllerFactory(controllerFactory)
+
 {
-    controllerQueue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>(timeout, attempts);
 }
 
 AbstractStateArdupilot::AbstractStateArdupilot(const AbstractStateArdupilot &copy)
@@ -18,7 +19,6 @@ AbstractStateArdupilot::AbstractStateArdupilot(const AbstractStateArdupilot &cop
 
 void AbstractStateArdupilot::OnExit()
 {
-    destroyCurrentControllers();
 }
 
 void AbstractStateArdupilot::clearCommand()
@@ -30,19 +30,6 @@ void AbstractStateArdupilot::clearCommand()
     }
 }
 
-void AbstractStateArdupilot::destroyCurrentControllers()
-{
-    currentControllerMutex.lock();
-
-    std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*>::iterator it;
-    for(it=currentControllers.begin(); it!=currentControllers.end();)
-    {
-        delete it->second;
-        currentControllers.erase(it++);
-    }
-
-    currentControllerMutex.unlock();
-}
 void AbstractStateArdupilot::setCurrentCommand(const CommandItem::AbstractCommandItem *command)
 {
     this->currentCommand = command->getClone();
@@ -53,7 +40,7 @@ bool AbstractStateArdupilot::handleCommand(const CommandItem::AbstractCommandIte
     switch (command->getCommandType()) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
-        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
         controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
 
             controllerSystemMode->Shutdown();
@@ -61,10 +48,10 @@ bool AbstractStateArdupilot::handleCommand(const CommandItem::AbstractCommandIte
 
         controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
         {
-            currentControllerMutex.lock();
-            currentControllers.erase("modeController");
+            m_ControllerFactory->controllerMutex.lock();
+            m_ControllerFactory->controllers.erase("modeController");
             delete controllerSystemMode;
-            currentControllerMutex.unlock();
+            m_ControllerFactory->controllerMutex.unlock();
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -77,7 +64,7 @@ bool AbstractStateArdupilot::handleCommand(const CommandItem::AbstractCommandIte
         commandMode.targetID = target.ID;
         commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString(command->as<CommandItem::ActionChangeMode>()->getRequestMode());
         controllerSystemMode->Send(commandMode,sender,target);
-        currentControllers.insert({"modeController",controllerSystemMode});
+        m_ControllerFactory->controllers.insert({"modeController",controllerSystemMode});
         break;
     }
     default:
@@ -95,16 +82,22 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
 
     bool consumed = false;
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*>::iterator it;
-    currentControllerMutex.lock();
-    for(it=currentControllers.begin(); it!=currentControllers.end(); ++it)
+    m_ControllerFactory->controllerMutex.lock();
+    for(it=m_ControllerFactory->controllers.begin(); it!=m_ControllerFactory->controllers.end(); ++it)
     {
         Controllers::IController<mavlink_message_t>* obj = it->second;
         consumed = obj->ReceiveMessage(&msg, sender);
     }
-    currentControllerMutex.unlock();
+    m_ControllerFactory->controllerMutex.unlock();
     if(!consumed)
     {
         State* innerState = GetImmediateInnerState();
+        if(innerState == this)
+        {
+            printf("!!!!!! WARNING: Immediate Inner State is equal to the outer state. This is a non-op that will result in infinte recursion. Ignoring but it probably points to a larger bug\n");
+            return consumed;
+        }
+
         if(innerState != nullptr)
         {
             ardupilot::state::AbstractStateArdupilot* castChild = static_cast<ardupilot::state::AbstractStateArdupilot*>(innerState);

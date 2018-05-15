@@ -3,8 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-State_TakeoffTransitioning::State_TakeoffTransitioning():
-    AbstractStateArdupilot()
+State_TakeoffTransitioning::State_TakeoffTransitioning(ControllerFactory *controllerFactory):
+    AbstractStateArdupilot(controllerFactory)
 {
     guidedProgress = ArdupilotTargetProgess(2,10,10);
     std::cout<<"We are in the constructor of STATE_TAKEOFF_TRANSITIONING"<<std::endl;
@@ -79,7 +79,7 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
                 }
             });
 
-            auto takeoffTransition = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+            auto takeoffTransition = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
             takeoffTransition->setLambda_Finished([this,takeoffTransition](const bool completed, const uint8_t finishCode){
                 if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
                     std::cout<<"We are not going to perform the transition portion of the takeoff."<<std::endl;
@@ -88,10 +88,10 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
 
             takeoffTransition->setLambda_Shutdown([this,takeoffTransition]()
             {
-                currentControllerMutex.lock();
-                currentControllers.erase("takeoffTransition");
+                m_ControllerFactory->controllerMutex.lock();
+                m_ControllerFactory->controllers.erase("takeoffTransition");
                 delete takeoffTransition;
-                currentControllerMutex.unlock();
+                m_ControllerFactory->controllerMutex.unlock();
             });
 
             MaceCore::ModuleCharacteristic target;
@@ -104,7 +104,7 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
             CommandItem::SpatialWaypoint takeoffTarget(255,cmd->getTargetSystem());
             takeoffTarget.setPosition(cmdPosition);
             takeoffTransition->Send(takeoffTarget,sender,target);
-            currentControllers.insert({"takeoffTransition",takeoffTransition});
+            m_ControllerFactory->controllers.insert({"takeoffTransition",takeoffTransition});
         }
         break;
     }

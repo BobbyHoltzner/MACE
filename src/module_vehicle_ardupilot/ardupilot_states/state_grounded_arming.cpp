@@ -3,8 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-State_GroundedArming::State_GroundedArming():
-    AbstractStateArdupilot()
+State_GroundedArming::State_GroundedArming(ControllerFactory *controllerFactory):
+    AbstractStateArdupilot(controllerFactory)
 {
     std::cout<<"We are in the constructor of STATE_GROUNDED_ARMING"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_GROUNDED_ARMING;
@@ -78,7 +78,7 @@ void State_GroundedArming::OnEnter()
     //when calling this function that means our intent is to arm the vehicle
     //first let us send this relevant command
     //issue command to controller here, and then setup a callback to handle the result
-    auto controllerArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+    auto controllerArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
     controllerArm->setLambda_Finished([this,controllerArm](const bool completed, const uint8_t finishCode){
         controllerArm->Shutdown();
         if(!completed || (finishCode != MAV_RESULT_ACCEPTED))
@@ -87,10 +87,10 @@ void State_GroundedArming::OnEnter()
 
     controllerArm->setLambda_Shutdown([this,controllerArm]()
     {
-        currentControllerMutex.lock();
-        currentControllers.erase("armController");
+        m_ControllerFactory->controllerMutex.lock();
+        m_ControllerFactory->controllers.erase("armController");
         delete controllerArm;
-        currentControllerMutex.unlock();
+        m_ControllerFactory->controllerMutex.unlock();
     });
 
     controllerArm->setLambda_Shutdown([this]()
@@ -107,7 +107,7 @@ void State_GroundedArming::OnEnter()
     CommandItem::ActionArm action(255,target.ID);
     action.setVehicleArm(true);
     controllerArm->Send(action,sender,target);
-    currentControllers.insert({"armController",controllerArm});
+    m_ControllerFactory->controllers.insert({"armController",controllerArm});
 }
 
 void State_GroundedArming::OnEnter(const AbstractCommandItem* command)

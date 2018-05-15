@@ -3,8 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-State_Flight::State_Flight():
-    AbstractRootState()
+State_Flight::State_Flight(ControllerFactory *controllerFactory):
+    AbstractRootState(controllerFactory)
 {
     std::cout<<"We are in the constructor of STATE_FLIGHT"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_FLIGHT;
@@ -115,7 +115,7 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
     {
         const CommandItem::SpatialRTL* cmd = command->as<CommandItem::SpatialRTL>();
 
-        auto controllerRTL = new MAVLINKVehicleControllers::CommandRTL(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        auto controllerRTL = new MAVLINKVehicleControllers::CommandRTL(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
         controllerRTL->setLambda_Finished([this,controllerRTL](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
                 desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_RTL;
@@ -124,10 +124,10 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
 
         controllerRTL->setLambda_Shutdown([this,controllerRTL]()
         {
-            currentControllerMutex.lock();
-            currentControllers.erase("RTLController");
+            m_ControllerFactory->controllerMutex.lock();
+            m_ControllerFactory->controllers.erase("RTLController");
             delete controllerRTL;
-            currentControllerMutex.unlock();
+            m_ControllerFactory->controllerMutex.unlock();
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -138,7 +138,7 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
         sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         controllerRTL->Send(*cmd,sender,target);
-        currentControllers.insert({"RTLController",controllerRTL});
+        m_ControllerFactory->controllers.insert({"RTLController",controllerRTL});
     }
     default:
     {

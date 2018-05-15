@@ -3,8 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-State_TakeoffClimbing::State_TakeoffClimbing():
-    AbstractStateArdupilot()
+State_TakeoffClimbing::State_TakeoffClimbing(ControllerFactory *controllerFactory):
+    AbstractStateArdupilot(controllerFactory)
 {
     guidedProgress = ArdupilotTargetProgess(2,10,10);
     std::cout<<"We are in the constructor of STATE_TAKEOFF_CLIMBING"<<std::endl;
@@ -99,7 +99,7 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
             });
 
 
-            auto controllerClimb = new MAVLINKVehicleControllers::CommandTakeoff(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+            auto controllerClimb = new MAVLINKVehicleControllers::CommandTakeoff(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
             controllerClimb->setLambda_Finished([this,controllerClimb](const bool completed, const uint8_t finishCode){
                 if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
                     GetImmediateOuterState()->setDesiredStateEnum(ArdupilotFlightState::STATE_GROUNDED);
@@ -108,10 +108,10 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
 
             controllerClimb->setLambda_Shutdown([this,controllerClimb]()
             {
-                currentControllerMutex.lock();
-                currentControllers.erase("takeoffClimb");
+                m_ControllerFactory->controllerMutex.lock();
+                m_ControllerFactory->controllers.erase("takeoffClimb");
                 delete controllerClimb;
-                currentControllerMutex.unlock();
+                m_ControllerFactory->controllerMutex.unlock();
             });
 
             MaceCore::ModuleCharacteristic target;
@@ -122,7 +122,7 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
             sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
             controllerClimb->Send(*cmd,sender,target);
-            currentControllers.insert({"takeoffClimb",controllerClimb});
+            m_ControllerFactory->controllers.insert({"takeoffClimb",controllerClimb});
         }
         break;
     }

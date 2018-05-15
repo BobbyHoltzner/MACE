@@ -3,7 +3,7 @@
 namespace ardupilot{
 namespace state{
 
-State_Landing::State_Landing():
+State_Landing::State_Landing(ControllerFactory *controllerFactory):
     AbstractRootState()
 {
     std::cout<<"We are in the constructor of STATE_LANDING"<<std::endl;
@@ -83,7 +83,7 @@ bool State_Landing::handleCommand(const AbstractCommandItem* command)
     {
         this->currentCommand = command->getClone();
         //check that the vehicle is truely armed and switch us into the guided mode
-        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
+        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
         controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
             controllerSystemMode->Shutdown();
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
@@ -94,10 +94,10 @@ bool State_Landing::handleCommand(const AbstractCommandItem* command)
 
         controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
         {
-            currentControllerMutex.lock();
-            currentControllers.erase("modeController");
+            m_ControllerFactory->controllerMutex.lock();
+            m_ControllerFactory->controllers.erase("modeController");
             delete controllerSystemMode;
-            currentControllerMutex.unlock();
+            m_ControllerFactory->controllerMutex.unlock();
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -110,7 +110,7 @@ bool State_Landing::handleCommand(const AbstractCommandItem* command)
         commandMode.targetID = target.ID;
         commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString("GUIDED");
         controllerSystemMode->Send(commandMode,sender,target);
-        currentControllers.insert({"modeController",controllerSystemMode});
+        m_ControllerFactory->controllers.insert({"modeController",controllerSystemMode});
 
         break;
     }
