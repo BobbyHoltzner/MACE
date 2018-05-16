@@ -193,10 +193,17 @@ exists(/opt/ros/kinetic/lib/) {
         LIBS += -L/opt/ros/kinetic/lib -ltf2
         LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
         LIBS += -L/opt/ros/kinetic/lib -lactionlib
-        LIBS += -L/opt/ros/kinetic/lib -loctomap
-        LIBS += -L/opt/ros/kinetic/lib -loctomap_ros
+#        LIBS += -L/opt/ros/kinetic/lib -loctomap
+#        LIBS += -L/opt/ros/kinetic/lib -loctomap_ros
 }
 }
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/lib/release -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/lib/debug -loctomap -loctomath
+else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+
+INCLUDEPATH += $$PWD/../../tools/octomap
+DEPENDPATH += $$PWD/../../tools/octomap
 
 INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
 LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper

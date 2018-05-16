@@ -300,7 +300,7 @@ void ModuleROS::newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan cons
 void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     // Convert to Octomap Point Cloud:
     octomap::Pointcloud octoPointCloud;
-    octomap::pointCloud2ToOctomap(*msg, octoPointCloud);
+//    octomap::pointCloud2ToOctomap(*msg, octoPointCloud);
 
     // TODO: Send converted point cloud to MACE so path planning can take over.
 
@@ -313,7 +313,7 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     //          - Ideally, for the entire octomap, we don't care about which vehicle its coming from. They should be updating the
     //              same octomap
 
-    cloudInPub.publish(msg);
+//    cloudInPub.publish(msg);
 
     //
 }

@@ -103,7 +103,7 @@ void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 
 void ModulePathPlanningNASAPhase2::NewlyUpdatedOccupancyMap()
 {
-    octomap::OcTree* occupancyMap = this->getDataObject()->OccupancyMap_GetCopy();
+    octomap::OcTree occupancyMap = this->getDataObject()->OccupancyMap_GetCopy();
 }
 
 void ModulePathPlanningNASAPhase2::cbiPlanner_SampledState(const mace::state_space::State *sampleState)
