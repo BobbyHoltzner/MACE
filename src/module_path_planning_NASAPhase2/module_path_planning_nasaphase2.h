@@ -18,6 +18,9 @@
 #include "base/state_space/discrete_motion_validity_check.h"
 #include "base/state_space/special_validity_check.h"
 
+#include "octomap/octomap.h"
+#include "octomap/OcTree.h"
+
 class MODULE_PATH_PLANNING_NASAPHASE2SHARED_EXPORT ModulePathPlanningNASAPhase2 : public MaceCore::IModuleCommandPathPlanning, public mace::planners::Planner_Interface
 {
 
@@ -78,6 +81,9 @@ public:
 public:
 
     void NewlyAvailableVehicle(const int &vehicleID) override;
+
+    void NewlyUpdatedOccupancyMap() override;
+
 
 public:
     void cbiPlanner_SampledState(const mace::state_space::State* sampleState) override;

@@ -97,3 +97,10 @@ INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 
+
+
+unix:!macx|win32: LIBS += -L$$PWD/../../tools/octomap/octomap/lib/ -lliboctomap
+
+INCLUDEPATH += $$PWD/../../tools/octomap/octomap/include
+DEPENDPATH += $$PWD/../../tools/octomap/octomap/include
+

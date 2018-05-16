@@ -77,4 +77,7 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../planners/ -lplanners
 
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
+unix:!macx|win32: LIBS += -L$$PWD/../../tools/octomap/octomap/lib/ -loctomap
 
+INCLUDEPATH += $$PWD/../../tools/octomap/octomap/include
+DEPENDPATH += $$PWD/../../tools/octomap/octomap/include

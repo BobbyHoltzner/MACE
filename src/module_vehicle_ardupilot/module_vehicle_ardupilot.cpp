@@ -434,6 +434,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
             ptr->EventVehicle_NewConstructedVehicle(this, systemID);
         });
 
+
         //vehicleData->m_MissionController->requestMission();
 
         if(stateMachine)
@@ -504,6 +505,7 @@ void ModuleVehicleArdupilot::PublishVehicleData(const int &systemID, const std::
             ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
                 ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
             });
+
         }
     } //if there is information available
 }
