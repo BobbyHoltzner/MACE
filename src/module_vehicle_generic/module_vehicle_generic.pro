@@ -24,12 +24,12 @@ win32:CONFIG(release, debug|release):       lib.files   += release/module_vehicl
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_vehicle_generic.lib debug/module_vehicle_generic.dll
 INSTALLS += lib
 
+
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_vehicle_generic
-headers.files   += \
-        module_vehicle_generic.h \
-        module_vehicle_generic_global.h
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../

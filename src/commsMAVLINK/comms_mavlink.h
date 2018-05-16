@@ -27,17 +27,21 @@ class COMMSMAVLINKSHARED_EXPORT CommsMAVLINK :
 public:
     CommsMAVLINK();
 
-    virtual ~CommsMAVLINK();
+    virtual ~CommsMAVLINK() = default;
 
     virtual void ConfigureMAVLINKStructure(MaceCore::ModuleParameterStructure &structure) const;
 
     virtual void ConfigureComms(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
-    virtual void ConnectComms();
-
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message);
+    virtual bool MavlinkMessage(const std::string &linkName, const mavlink_message_t &message);
 
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
+
+    void TransmitMAVLINKMessage(const mavlink_message_t &msg);
+
+    uint8_t getLinkChannel() const;
+
+    std::string getLinkName() const;
 
 protected:
     Comms::CommsMarshaler *m_LinkMarshaler;

@@ -89,54 +89,12 @@ win32:CONFIG(release, debug|release):       lib.files   += release/data_generic_
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/data_generic_command_item.lib debug/data_generic_command_item.dll
 INSTALLS += lib
 
-#Header file copy
-headers.path    = $$(MACE_ROOT)/include/data_generic_command_item
-headers.files   += \
-    abstract_command_item.h \
-    command_item_ack.h \
-    command_item_components.h \
-    command_item_type.h \
-    data_generic_command_item_global.h
-INSTALLS       += headers
 
 #Header file copy
-headers_doComponents.path    = $$(MACE_ROOT)/include/data_generic_command_item/do_items
-headers_doComponents.files   += \
-    do_items/action_arm.h \
-    do_items/action_change_mode.h \
-    do_items/action_change_speed.h \
-    do_items/action_motor_test.h \
-    do_items/action_mission_command.h \
-    do_items/do_components.h
-INSTALLS       += headers_doComponents
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
 
-#Header file copy
-headers_missionComponents.path    = $$(MACE_ROOT)/include/data_generic_command_item/mission_items
-headers_missionComponents.files   += \
-    mission_items/mission_ack.h \
-    mission_items/mission_item_achieved.h \
-    mission_items/mission_item_current.h \
-    mission_items/mission_key.h \
-    mission_items/mission_key_change.h \
-    mission_items/mission_list.h \
-    mission_items/mission_state.h \
-    mission_items/mission_type.h
-INSTALLS       += headers_missionComponents
-
-#Header file copy
-headers_spatialComponents.path    = $$(MACE_ROOT)/include/data_generic_command_item/spatial_items
-headers_spatialComponents.files   += \
-    spatial_items/abstract_spatial_position.h \
-    spatial_items/spatial_components.h \
-    spatial_items/spatial_home.h \
-    spatial_items/spatial_land.h \
-    spatial_items/spatial_loiter_time.h \
-    spatial_items/spatial_loiter_turns.h \
-    spatial_items/spatial_loiter_unlimited.h \
-    spatial_items/spatial_rtl.h \
-    spatial_items/spatial_takeoff.h \
-    spatial_items/spatial_waypoint.h
-INSTALLS       += headers_spatialComponents
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../

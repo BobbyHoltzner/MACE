@@ -50,18 +50,12 @@ win32:CONFIG(release, debug|release):       lib.files   += release/module_resour
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_resource_task_allocation.lib debug/module_resource_task_allocation.dll
 INSTALLS += lib
 
+
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_resource_task_allocation
-headers.files   += \
-            module_resource_task_allocation_global.h \
-            module_rta.h \
-            environment_custom.h \
-            polySplit/vector.h \
-            polySplit/vector.h \
-            polySplit/polygon.h \
-            polySplit/line.h \
-            polySplit/polysplit.h
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
 
 #Necessary header includes
 INCLUDEPATH += $$PWD/../

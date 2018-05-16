@@ -38,19 +38,11 @@ win32:CONFIG(release, debug|release):       lib.files   += release/module_extern
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_external_link.lib debug/module_external_link.dll
 INSTALLS += lib
 
-#Header file copy
-headers_base.path    = $$(MACE_ROOT)/include/module_external_link
-headers_base.files   += \
-        module_external_link_global.h \
-        module_external_link.h \
-        controller_collection.h
-INSTALLS       += headers_base
 
 #Header file copy
-headers_controllers.path    = $$(MACE_ROOT)/include/module_external_link/controllers
-headers_controllers.files   += \
-    controllers/heartbeat_controller_externallink.h
-INSTALLS       += headers_controllers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
 
 
 
@@ -126,3 +118,4 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../data_interface_MACE/ -ldata_interface_MA
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_generic_MAVLINK/release/ -lmodule_generic_MAVLINK
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_generic_MAVLINK/debug/ -lmodule_generic_MAVLINK
 else:unix:!macx: LIBS += -L$$OUT_PWD/../module_generic_MAVLINK/ -lmodule_generic_MAVLINK
+

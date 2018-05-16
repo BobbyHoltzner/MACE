@@ -17,6 +17,15 @@ bool SpatialLoiter_Time::hasSpatialInfluence() const
     return true;
 }
 
+AbstractCommandItem* SpatialLoiter_Time::getClone() const
+{
+    return (new SpatialLoiter_Time(*this));
+}
+
+void SpatialLoiter_Time::getClone(AbstractCommandItem** command) const
+{
+    *command = new SpatialLoiter_Time(*this);
+}
 
 SpatialLoiter_Time::SpatialLoiter_Time():
     AbstractCommandItem(0,0), AbstractSpatialPosition()

@@ -64,16 +64,10 @@ else:win32:CONFIG(debug, debug|release):    lib.files   += debug/controllers.lib
 INSTALLS += lib
 
 
-INSTALL_PREFIX = $$(MACE_ROOT)/include/controllers
+#Header file copy
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
 INSTALL_HEADERS = $$HEADERS
 include(../headerinstall.pri)
-
-
-
-
-
-
-
 
 
 

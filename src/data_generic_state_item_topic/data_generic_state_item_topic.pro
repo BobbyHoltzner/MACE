@@ -64,9 +64,10 @@ INSTALLS += lib
 
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/data_generic_state_item_topic
-headers.files   += $$HEADERS
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../

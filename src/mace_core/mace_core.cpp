@@ -207,7 +207,7 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 
 void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
 
-    printf("Deprecated!\n");
+    //printf("Deprecated!\n");
     //throw std::runtime_error("Deprecated");
 
     std::vector<std::string> components = value.ListNonTerminals();
@@ -597,11 +597,14 @@ void MaceCore::GVEvents_MissionExeStateUpdated(const void *sender, const Mission
 
 void MaceCore::GVEvents_MissionItemAchieved(const void *sender, const MissionItem::MissionItemAchieved &achieved)
 {
+    UNUSED(sender);
+    UNUSED(achieved);
     //I dont know if we need to do anything with this?
 }
 
 void MaceCore::GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current)
 {
+    UNUSED(sender);
     m_DataFusion->updateCurrentMissionItem(current);
 }
 
@@ -728,6 +731,8 @@ void MaceCore::CommandNewVehicleMode(const std::string &vehicleMode)
 //!
 void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::MissionList &missionList)
 {
+    UNUSED(sender);
+
     MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
 
     if(status.state == MissionItem::MissionList::INCOMPLETE) //this checks to make sure the list is fully populated

@@ -1,6 +1,6 @@
 #include "module_external_link.h"
 
-#include "module_generic_MAVLINK/controllers/congroller_mavlink_generic_set.h"
+#include "module_generic_MAVLINK/controllers/controller_mavlink_generic_set.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///             CONFIGURE
@@ -39,6 +39,8 @@ ModuleExternalLink::ModuleExternalLink() :
 
 
 
+    /*
+     * In development modification that was accidently merged in.
     auto controller_SystemMode2 = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequestRespond<
             mace_message_t,
             MaceCore::TopicDatagram,
@@ -77,6 +79,7 @@ ModuleExternalLink::ModuleExternalLink() :
         });
     });
     m_TopicToControllers.insert({this->m_VehicleTopics.m_CommandSystemMode.Name(), controller_SystemMode2});
+    */
 
 
 
@@ -96,12 +99,10 @@ ModuleExternalLink::ModuleExternalLink() :
     m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandMissionItem<mace_message_t>>(this, queue, m_LinkChan));
 
 
-    /*
     auto controller_SystemMode = new Controllers::ControllerSystemMode<mace_message_t>(this, queue, m_LinkChan);
     controller_SystemMode->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){this->ReceivedCommand(sender, command);});
     controller_SystemMode->setLambda_Finished(FinishedMessage);
     m_Controllers.Add(controller_SystemMode);
-    */
 
 
     auto homeController = new Controllers::ControllerHome<mace_message_t>(this, queue, m_LinkChan);
@@ -449,13 +450,20 @@ Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>:
 void ModuleExternalLink::MACEMessage(const std::string &linkName, const mace_message_t &message)
 {
     UNUSED(linkName);
-    m_Controllers.ForEach<Controllers::IController<mace_message_t>>([message](Controllers::IController<mace_message_t>* ptr) {
-       ptr->ReceiveMessage(&message);
+    int systemID = message.sysid;
+    int compID = message.compid;
+
+    MaceCore::ModuleCharacteristic sender;
+    sender.ID = systemID;
+    sender.Class = (MaceCore::ModuleClasses)compID;
+
+    m_Controllers.ForEach<Controllers::IController<mace_message_t>>([sender, message](Controllers::IController<mace_message_t>* ptr) {
+       ptr->ReceiveMessage(&message, sender);
     });
 
     for(auto it = m_TopicToControllers.cbegin() ; it != m_TopicToControllers.cend() ; ++it)
     {
-        it->second->ReceiveMessage(&message);
+        it->second->ReceiveMessage(&message, sender);
     }
 
     this->ParseForData(&message);

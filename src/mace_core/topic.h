@@ -284,12 +284,16 @@ public:
 
     void SetComponent(std::shared_ptr<ITopicComponentPrototype> ptr, MaceCore::TopicDatagram &datagram) const {
         //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
+        UNUSED(ptr);
+        UNUSED(datagram);
         throw std::runtime_error("Unknown component passed to topic");
     }
 
 
     bool GetComponent(std::shared_ptr<ITopicComponentPrototype> ptr, const MaceCore::TopicDatagram &datagram) const {
         //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
+        UNUSED(ptr);
+        UNUSED(datagram);
         throw std::runtime_error("Unknown component passed to topic");
     }
 

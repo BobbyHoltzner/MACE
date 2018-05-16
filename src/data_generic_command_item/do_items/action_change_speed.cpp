@@ -17,6 +17,16 @@ bool ActionChangeSpeed::hasSpatialInfluence() const
     return false;
 }
 
+AbstractCommandItem* ActionChangeSpeed::getClone() const
+{
+    return (new ActionChangeSpeed(*this));
+}
+
+void ActionChangeSpeed::getClone(AbstractCommandItem** command) const
+{
+    *command = new ActionChangeSpeed(*this);
+}
+
 ActionChangeSpeed::ActionChangeSpeed()
 {
 

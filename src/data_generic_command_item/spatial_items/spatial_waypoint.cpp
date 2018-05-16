@@ -17,6 +17,16 @@ bool SpatialWaypoint::hasSpatialInfluence() const
     return true;
 }
 
+AbstractCommandItem* SpatialWaypoint::getClone() const
+{
+    return (new SpatialWaypoint(*this));
+}
+
+void SpatialWaypoint::getClone(AbstractCommandItem** command) const
+{
+    *command = new SpatialWaypoint(*this);
+}
+
 SpatialWaypoint::SpatialWaypoint():
     AbstractCommandItem(0,0), AbstractSpatialPosition()
 {

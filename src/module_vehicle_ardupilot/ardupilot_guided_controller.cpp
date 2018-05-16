@@ -5,7 +5,7 @@ Ardupilot_GuidedController::Ardupilot_GuidedController(std::shared_ptr<DataInter
     Ardupilot_GeneralController(vehicleData)
 {
     controllerType = CONTROLLER_GUIDED;
-    vehicleMissionState = ArdupilotMissionState(3,10,10);
+    vehicleMissionState = ArdupilotTargetProgess(3,10,10);
     std::cout << "Constructor on guidance controller" << std::endl;
 }
 
@@ -93,7 +93,7 @@ void Ardupilot_GuidedController::run()
                 double distance = distanceToTarget();
 
                 std::cout<<"The distance to the target is: "<<distance<<std::endl;
-                Data::ControllerState currentState = vehicleMissionState.updateMissionState(distance);
+                Data::ControllerState currentState = vehicleMissionState.updateTargetState(distance);
                 generateControl(currentState);
             }
 

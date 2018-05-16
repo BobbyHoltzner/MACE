@@ -29,6 +29,7 @@ public:
         AbstractModule_EventListeners()
     {
         AddCommandLogic<int>(ROSCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });
     }

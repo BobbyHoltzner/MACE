@@ -1,10 +1,13 @@
 #ifndef GENERIC_MACE_CONTROLLER_H
 #define GENERIC_MACE_CONTROLLER_H
 
+#include "common/common.h"
+
 #include "mace_core/module_characteristics.h"
 #include "I_controller.h"
 #include "common/pointer_collection.h"
-#include "spdlog/spdlog.h"
+
+#include <spdlog/spdlog.h>
 
 #include <tuple>
 #include <functional>
@@ -54,7 +57,10 @@ protected:
         std::function<void(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)>
     >> m_MessageBehaviors;
 
+    std::mutex m_MessageBehaviorsMutex;
+
     OptionalParameter<std::function<void(const bool completed, const FINISH_CODE finishCode)>> m_FinishLambda;
+    OptionalParameter<std::function<void()>> m_ShutdownLambda;
 
 public:
 
@@ -64,6 +70,8 @@ public:
     {
         TransmitQueueType::SetQueue(queue);
     }
+
+    virtual ~GenericController() = default;
 
 
     void setLambda_Finished(const std::function<void(const bool completed, const FINISH_CODE finishCode)> &lambda){
@@ -77,6 +85,51 @@ public:
 
         m_FinishLambda()(completed, finishCode);
     }
+
+
+    //!
+    //! \brief Sets a lambda to perform some shutdown action.
+    //!
+    //! The shutdown action will be performed on its own thread when Shutdown is called.
+    //! See Shutdown method for more discussion on this behavior.
+    //! \param lambda Lambda to set
+    //!
+    void setLambda_Shutdown(const std::function<void()> &lambda){
+        m_ShutdownLambda = lambda;
+    }
+
+
+    //!
+    //! \brief Shutdown the controller.
+    //!
+    //! Will call the lambda set by setLambda_Shutdown on a seperate thread.
+    //! This allows a mutex to lock out resources that will probably be locked when other lambdas are called.
+    //!   i.e. if the controller is removed from a list when onFinished is called, any mutex protecting that removal will probably already be locked from receiving.
+    //!
+    void Shutdown()
+    {
+        std::thread thread([this](){
+            this->onShutdown();
+        });
+        thread.detach();
+    }
+
+private:
+
+    void onShutdown(){
+
+        m_MessageBehaviorsMutex.lock();
+        m_MessageBehaviors.clear();
+        m_MessageBehaviorsMutex.unlock();
+
+        if(m_ShutdownLambda.IsSet() == false) {
+            throw std::runtime_error("Shutdown Lambda not set!");
+        }
+
+        m_ShutdownLambda()();
+    }
+
+public:
 
 
     //!
@@ -144,6 +197,7 @@ public:
                                             action(msg, key, sender);
                                         }));
 
+        std::lock_guard<std::mutex> lock(m_MessageBehaviorsMutex);
         m_MessageBehaviors.push_back(newItem);
     }
 
@@ -169,20 +223,15 @@ public:
                                             action(msg, sender);
                                         }));
 
+        std::lock_guard<std::mutex> lock(m_MessageBehaviorsMutex);
         m_MessageBehaviors.push_back(newItem);
     }
 
 
 
-    virtual bool ReceiveMessage(const MESSAGETYPE *message)
+    virtual bool ReceiveMessage(const MESSAGETYPE *message, const MaceCore::ModuleCharacteristic &sender)
     {
-        int systemID = message->sysid;
-        int compID = message->compid;
-
-        MaceCore::ModuleCharacteristic sender;
-        sender.ID = systemID;
-        sender.Class = (MaceCore::ModuleClasses)compID;
-
+        std::lock_guard<std::mutex> lock(m_MessageBehaviorsMutex);
         bool usedMessage = false;
         for(auto it = m_MessageBehaviors.cbegin() ; it != m_MessageBehaviors.cend() ; ++it)
         {
@@ -216,6 +265,7 @@ private:
     static std::function<bool(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)> MaceMessageIDEq()
     {
         return [](MaceCore::ModuleCharacteristic sender, const MESSAGETYPE* message){
+            UNUSED(sender);
             return message->msgid ==I;
         };
     }

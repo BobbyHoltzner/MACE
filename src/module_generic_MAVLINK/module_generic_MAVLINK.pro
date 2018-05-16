@@ -26,14 +26,14 @@ SOURCES +=
 
 HEADERS += \
         module_generic_mavlink_global.h \   
-    controllers/congroller_mavlink_generic_set.h \
     controllers/commands/command_arm.h \
     controllers/commands/command_land.h \
     controllers/commands/command_mission_item.h \
     controllers/commands/command_rtl.h \
     controllers/commands/command_takeoff.h \
     controllers/commands/generic_long_command.h \
-    controllers/commands/generic_short_command.h
+    controllers/commands/generic_short_command.h \
+    controllers/controller_mavlink_generic_set.h
 
 
 # Unix lib Install
@@ -49,7 +49,8 @@ else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_generic_
 INSTALLS += lib
 
 
-INSTALL_PREFIX = $$(MACE_ROOT)/include/module_generic_MAVLINK
+#Header file copy
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
 INSTALL_HEADERS = $$HEADERS
 include(../headerinstall.pri)
 

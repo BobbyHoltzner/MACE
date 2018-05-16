@@ -28,6 +28,7 @@ class MACE_CORESHARED_EXPORT IModuleCommandSensors : public AbstractModule_Event
         AbstractModule_EventListeners()
     {
         AddCommandLogic<int>(SensorCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });
     }

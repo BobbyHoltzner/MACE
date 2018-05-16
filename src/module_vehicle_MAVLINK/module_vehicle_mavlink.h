@@ -25,6 +25,21 @@
 #include "data_interface_MAVLINK/components/data_interface_mavlink_components.h"
 
 #include "commsMAVLINK/comms_mavlink.h"
+
+#include "controllers/generic_controller.h"
+
+#include "module_vehicle_MAVLINK/controllers/commands/command_land.h"
+#include "module_vehicle_MAVLINK/controllers/commands/command_takeoff.h"
+#include "module_vehicle_MAVLINK/controllers/commands/command_arm.h"
+#include "module_vehicle_MAVLINK/controllers/commands/command_rtl.h"
+#include "module_vehicle_MAVLINK/controllers/controller_system_mode.h"
+
+#include "base_topic/vehicle_topics.h"
+#include "data_generic_state_item_topic/state_topic_components.h"
+#include "data_generic_command_item_topic/command_item_topic_components.h"
+#include "data_generic_mission_item_topic/mission_item_topic_components.h"
+#include "vehicle_object/mavlink_vehicle_object.h"
+
 /*
  *
  * USAGE:
@@ -50,7 +65,8 @@
 template <typename ...VehicleTopicAdditionalComponents>
 class MODULE_VEHICLE_MAVLINKSHARED_EXPORT ModuleVehicleMAVLINK :
         public ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES>,
-        public CommsMAVLINK
+        public CommsMAVLINK,
+        public CallbackInterface_MAVLINKVehicleObject
 {
 protected:
     typedef ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DATA_VEHICLE_MAVLINK_TYPES> ModuleVehicleMavlinkBase;
@@ -60,13 +76,12 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///             CONFIGURE
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ModuleVehicleMAVLINK() :
+    ModuleVehicleMAVLINK():
         ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataMAVLINK::EmptyMAVLINK>(),
-        airborneInstance(false)
+        airborneInstance(false), m_VehicleMissionTopic("vehicleMission")
     {
 
     }
-
 
     //!
     //! \brief Describes the strucure of the parameters for this module
@@ -102,7 +117,6 @@ public:
 
     virtual void start()
     {
-        ConnectComms();
         ModuleVehicleMavlinkBase::start();
     }
 
@@ -140,15 +154,18 @@ public:
         UNUSED(cmdACK);
     }
 
+
     //!
-    //! \brief New Mavlink message received over a link
-    //! \param linkName Name of link message received over
-    //! \param msg Message received
+    //! \brief MavlinkMessage
+    //! \param linkName
+    //! \param message
+    //! \return if the data was consumed by a controller object
     //!
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
+    virtual bool MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
     {
         UNUSED(linkName);
         UNUSED(message);
+        return false;
     }
 
 
@@ -175,8 +192,100 @@ public:
         UNUSED(vehicleID);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///Functional Interface required from CallbackInterface_MAVLINKVehicleObject
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    virtual void cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)
+    {
+        MaceCore::TopicDatagram topicDatagram;
+        this->m_VehicleDataTopic.SetComponent(data, topicDatagram);
+        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, this->m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
+    }
+
+    virtual void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)
+    {
+        MaceCore::TopicDatagram topicDatagram;
+        m_VehicleMissionTopic.SetComponent(data, topicDatagram);
+        ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_VehicleMissionTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        });
+    }
+
+    virtual void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home)
+    {
+    //    std::stringstream buffer;
+    //    buffer << home;
+
+    //    mLogs->debug("Receieved a new vehicle home position.");
+    //    mLogs->info(buffer.str());
+
+
+        //notify the core of the change
+        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->GVEvents_NewHomePosition(this, home);
+        });
+
+        std::shared_ptr<CommandItem::SpatialHome> ptrHome = std::make_shared<CommandItem::SpatialHome>(home);
+        std::shared_ptr<MissionTopic::MissionHomeTopic> homeTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
+        homeTopic->setHome(ptrHome);
+
+        this->cbi_VehicleMissionData(systemID,homeTopic);
+    }
+
+    virtual void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList)
+    {
+    //    std::stringstream buffer;
+    //    buffer << missionList;
+
+    //    mLogs->info("Receieved a new vehicle mission.");
+    //    mLogs->info(buffer.str());
+
+        //This function shall update the local MACE CORE instance of the mission
+        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->EventVehicle_NewOnboardVehicleMission(this, missionList);
+        });
+        //We should update all listeners
+        std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>(missionList);
+
+        //This function shall update the local vehicle object with the current vehicle mission
+        //vehicleData->mission->setCurrentMission(missionList);
+        this->cbi_VehicleMissionData(systemID,missionTopic);
+    }
+
+    virtual void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent &current)
+    {
+    //    std::stringstream buffer;
+    //    buffer << current.getMissionKey();
+
+    //    mLogs->info("The vehicle module has seen a current mission item" + std::to_string(current.getMissionCurrentIndex()));
+    //    mLogs->debug(buffer.str());
+
+        //This function shall update the local MACE core of the new mission
+        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+            ptr->GVEvents_MissionItemCurrent(this, current);
+        });
+
+        std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>(current);
+        cbi_VehicleMissionData(current.getMissionKey().m_systemID,ptrMissionTopic);
+    }
+
+protected:
+    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;
+
+    BaseTopic::VehicleTopics m_VehicleTopics;
+
 protected:
     bool airborneInstance;
+
+//    PointerCollection<
+//        Controllers::ControllerHome<mavlink_message_t>,
+//        Controllers::ControllerMission<mavlink_message_t>
+//    > m_Controllers;
+
+
 };
 
 #endif // MODULE_VEHICLE_MAVLINK_H
