@@ -164,33 +164,39 @@ INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 
-#unix {
-#exists(/opt/ros/kinetic/lib/) {
-#    DEFINES += ROS_EXISTS
-#    INCLUDEPATH += /opt/ros/kinetic/include
-#    INCLUDEPATH += /opt/ros/kinetic/lib
+win32: LIBS += -limagehlp
 
-#        LIBS += -L/opt/ros/kinetic/lib -lroscpp
-#        LIBS += -L/opt/ros/kinetic/lib -lroscpp_serialization
-#        LIBS += -L/opt/ros/kinetic/lib -lrostime
-#        LIBS += -L/opt/ros/kinetic/lib -lxmlrpcpp
-#        LIBS += -L/opt/ros/kinetic/lib -lcpp_common
-#        LIBS += -L/opt/ros/kinetic/lib -lrosconsole_log4cxx
-#        LIBS += -L/opt/ros/kinetic/lib -lrosconsole_backend_interface
-#        LIBS += -L/opt/ros/kinetic/lib -lroslib
-#        LIBS += -L/opt/ros/kinetic/lib -lrospack
-#        LIBS += -L/opt/ros/kinetic/lib -lmessage_filters
-#        LIBS += -L/opt/ros/kinetic/lib -lclass_loader
-#        LIBS += -L/opt/ros/kinetic/lib -lconsole_bridge
-#        LIBS += -L/opt/ros/kinetic/lib -lrosconsole
-#        LIBS += -L/opt/ros/kinetic/lib -limage_transport
-#        LIBS += -L/opt/ros/kinetic/lib -lcv_bridge
-#        LIBS += -L/opt/ros/kinetic/lib -ltf
-#        LIBS += -L/opt/ros/kinetic/lib -ltf2
-#        LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
-#        LIBS += -L/opt/ros/kinetic/lib -lactionlib
-#}
-#}
+unix: LIBS += -lboost_system
+
+unix {
+exists(/opt/ros/kinetic/lib/) {
+    DEFINES += ROS_EXISTS
+    INCLUDEPATH += /opt/ros/kinetic/include
+    INCLUDEPATH += /opt/ros/kinetic/lib
+
+        LIBS += -L/opt/ros/kinetic/lib -lroscpp
+        LIBS += -L/opt/ros/kinetic/lib -lroscpp_serialization
+        LIBS += -L/opt/ros/kinetic/lib -lrostime
+        LIBS += -L/opt/ros/kinetic/lib -lxmlrpcpp
+        LIBS += -L/opt/ros/kinetic/lib -lcpp_common
+        LIBS += -L/opt/ros/kinetic/lib -lrosconsole_log4cxx
+        LIBS += -L/opt/ros/kinetic/lib -lrosconsole_backend_interface
+        LIBS += -L/opt/ros/kinetic/lib -lroslib
+        LIBS += -L/opt/ros/kinetic/lib -lrospack
+        LIBS += -L/opt/ros/kinetic/lib -lmessage_filters
+        LIBS += -L/opt/ros/kinetic/lib -lclass_loader
+        LIBS += -L/opt/ros/kinetic/lib -lconsole_bridge
+        LIBS += -L/opt/ros/kinetic/lib -lrosconsole
+        LIBS += -L/opt/ros/kinetic/lib -limage_transport
+        LIBS += -L/opt/ros/kinetic/lib -lcv_bridge
+        LIBS += -L/opt/ros/kinetic/lib -ltf
+        LIBS += -L/opt/ros/kinetic/lib -ltf2
+        LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
+        LIBS += -L/opt/ros/kinetic/lib -lactionlib
+        LIBS += -L/opt/ros/kinetic/lib -loctomap
+        LIBS += -L/opt/ros/kinetic/lib -loctomap_ros
+}
+}
 
 INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
 LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper

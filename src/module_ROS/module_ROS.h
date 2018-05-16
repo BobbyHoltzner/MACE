@@ -29,11 +29,17 @@
 
 #include "rosTimer.h"
 
+#include <chrono>
+#include <ctime>
+
 
 class MODULE_ROSSHARED_EXPORT ModuleROS : public MaceCore::IModuleCommandROS
 {
 
 public:
+    //!
+    //! \brief ModuleROS Default constructor
+    //!
     ModuleROS();
 
     ~ModuleROS();
@@ -115,53 +121,83 @@ public:
 public:
 
 #ifdef ROS_EXISTS
+    //!
+    //! \brief insertVehicleIfNotExist Insert a new vehicle into the map if it does not exist
+    //! \param vehicleID ID of vehicle to check against current vehicle map
+    //!
+    void insertVehicleIfNotExist(const int &vehicleID);
 
     //!
     //! \brief setupROS Setup ROS subscribers, publishers, and node handler
     //!
     void setupROS();
 
+    //!
+    //! \brief newLaserScan Laser scan callback for ROS LaserScan message
+    //! \param event LaserScan message
+    //!
     void newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan const>& event);
 
+    //!
+    //! \brief newPointCloud Point cloud callback for ROS PointCloud2 message
+    //! \param msg PointCloud2 message
+    //!
     void newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
 
-    void pixelTo3DPoint(const sensor_msgs::PointCloud2::ConstPtr& pCloud, const int u, const int v, geometry_msgs::Point &p);
-
     //!
-    //! \brief publishVehiclePosition Publish vehicle position to ROS
-    //! \param vehicleID Vehicle ID for which to set the new position
-    //! \param localPos New vehicle position
+    //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz
+    //! \param state 2D Cartesian Position to render
     //!
-    void publishVehiclePosition(const int &vehicleID, const DataState::StateLocalPosition &localPos);
-
     void renderState(const mace::pose::CartesianPosition_2D &state);
 
+    //!
+    //! \brief renderEdge Publish the 2D line to ROS for rendering in RViz
+    //! \param edge Edge/line to render
+    //!
     void renderEdge(const mace::geometry::Line_2DC &edge);
 
+    //!
+    //! \brief updatePositionData Update the position of the corresponding Gazebo model based on position of MACE vehicle
+    //! \param vehicleID ID of the vehicle to update
+    //! \param component Position (in the local frame)
+    //!
     void updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component);
+
+    //!
+    //! \brief updateAttitudeData Update the attitude of the corresponding Gazebo model based on attitude of MACE vehicle
+    //! \param vehicleID ID of the vehicle to update
+    //! \param component Attitude
+    //!
     void updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
+
+    //!
+    //! \brief convertToGazeboCartesian Convert position in local frame to Gazebo's world frame
+    //! \param localPos MACE local position
+    //!
+    void convertToGazeboCartesian(DataState::StateLocalPosition& localPos);
+
+    //!
+    //! \brief sendGazeboModelState Send the current position and attitude of the corresponding vehicle model to Gazebo
+    //! \param vehicleID ID of the vehicle to update
+    //! \return True for success, False for failure
+    //!
+    bool sendGazeboModelState(const int &vehicleID);
+
+
 #endif
 
+    // ============================================================================= //
+    // ========================  Module private members:  ========================== //
+    // ============================================================================= //
 private:
-
-#ifdef ROS_EXISTS
     //!
-    //! \brief laserSub Subscriber for ROS laser scan messages
+    //! \brief m_vehicleMap Container for map of vehicle IDs and corresponding most recent Position and Attitude data
     //!
-    ros::Subscriber laserSub;
-    ros::Subscriber pointCloudSub;
-    ros::Publisher velocityPub, markerPub;
-    visualization_msgs::Marker points, line_strip, line_list;
-
-    ros::ServiceClient m_client;
-    tf::TransformBroadcaster m_broadcaster;
-    tf::Transform m_transform;
-    gazebo_msgs::ModelState m_modelState;
-    gazebo_msgs::SetModelState m_srv;
-#endif
-
     std::map<int, std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> > m_vehicleMap;
 
+    //!
+    //! \brief m_timer Timer that triggers a ROS spin event to cycle through any queued ROS messages
+    //!
     std::shared_ptr<ROSTimer> m_timer;
 
     //!
@@ -179,11 +215,65 @@ private:
     //!
     std::vector<std::tuple<std::string, std::string> > m_sensors;
 
+    // ============================================================================= //
+    // =====================  ROS Specific private members:  ======================= //
+    // ============================================================================= //
+#ifdef ROS_EXISTS
+    //!
+    //! \brief nh ROS node handler
+    //!
+    ros::NodeHandle nh;
+
+    //!
+    //! \brief laserSub Subscriber for ROS laser scan messages
+    //!
+    ros::Subscriber laserSub;
+
+    //!
+    //! \brief pointCloudSub Subscriber for ROS point cloud messages
+    //!
+    ros::Subscriber pointCloudSub;
+
+    //!
+    //! \brief m_sensorVehicleMap Map of the sensors applicable to each vehicle ID
+    //!
+    std::map<int, std::vector<ros::Subscriber> > m_sensorVehicleMap;
+
+    //!
+    //! \brief markerPub Publisher for markers to be rendered in RViz
+    //!
+    ros::Publisher markerPub;
+
+    //!
+    //! \brief points Marker containers
+    //!
+    visualization_msgs::Marker points, line_strip, line_list;
+
+    //!
+    //! \brief m_client Service client for publishing update model state service to Gazebo
+    //!
+    ros::ServiceClient m_client;
+
+    //!
+    //! \brief m_broadcaster ROS TF broadcaster for coordinate transformations
+    //!
+    tf::TransformBroadcaster m_broadcaster;
+
+    // TODO: Do I need this? Or can I just create a transform before sending the model state to Gazebo?
+    //!
+    //! \brief m_transform Container for transform between vehicles and the world frame
+    //!
+    tf::Transform m_transform;
+
+    //!
+    //! \brief m_srv Container for the Gazebo send model state message
+    //!
+    gazebo_msgs::SetModelState m_srv;
+
     // TESTING:
-    int counter;
-    const double degree =  M_PI/180;
-    double tilt, tinc, swivel, angle, height, hinc;
+    ros::Publisher cloudInPub;
     // END TESTING
+#endif
 
 private:
     Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;

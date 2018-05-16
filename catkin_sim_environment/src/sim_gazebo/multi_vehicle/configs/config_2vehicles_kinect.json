@@ -1,0 +1,11 @@
+{
+    "gui": false,
+    "pause": false,
+    "addSensors": true,
+    "worldName": "turtlebot_playground",
+    "octomap": false,
+    "vehicles": {
+        "1": "kinect",
+        "2": "kinect"
+    }
+}

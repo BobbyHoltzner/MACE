@@ -104,7 +104,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         mavlink_local_position_ned_t decodedMSG;
         mavlink_msg_local_position_ned_decode(msg,&decodedMSG);
 
-        DataState::StateLocalPosition localPosition;
+        DataState::StateLocalPosition localPosition(Data::CoordinateFrameType::CF_LOCAL_NED);
         localPosition.setPositionX(decodedMSG.x);
         localPosition.setPositionY(decodedMSG.y);
         localPosition.setPositionZ(decodedMSG.z);

@@ -603,7 +603,7 @@ bool MACEtoGUI::writeTCPData(QByteArray data)
     }
     else
     {
-        std::cout << "TCP socket not connected" << std::endl;
+        std::cout << "TCP socket not connected MACE TO GUI" << std::endl;
         tcpSocket->close();
         return false;
     }
