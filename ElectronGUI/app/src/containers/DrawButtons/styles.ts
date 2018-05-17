@@ -38,7 +38,7 @@ export const styles = {
 
     textStyle: {
         color: materialColors.white,
-        textAlign: 'center',
+        textAlign: "center" as "center",
         fontSize: 18
     },
 

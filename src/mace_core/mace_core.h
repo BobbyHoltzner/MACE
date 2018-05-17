@@ -32,6 +32,9 @@
 #include "topic.h"
 
 
+#include "octomap/octomap.h"
+#include "octomap/OcTree.h"
+
 namespace MaceCore
 {
 
@@ -239,6 +242,12 @@ public:
     virtual void ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>> &commands);
 
 
+public:
+
+    /////////////////////////////////////////////////////////////////////////
+    /// SENSOR MODULE EVENTS
+    /////////////////////////////////////////////////////////////////////////
+    void ROS_NewLaserScan(const octomap::Pointcloud* obj) override;
 public:
 
     /////////////////////////////////////////////////////////////////////////

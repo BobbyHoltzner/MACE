@@ -827,6 +827,23 @@ void MaceCore::ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>
 
 }
 
+/////////////////////////////////////////////////////////////////////////
+/// SENSOR MODULE EVENTS
+/////////////////////////////////////////////////////////////////////////
+void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud *obj)
+{
+    m_DataFusion->insertObservation(obj);
+    //Marshal Command To PP and RTA
+
+/*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+    }); *///this is a general publication event, however, no one knows explicitly how to handle
+
+/*    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+        ptr->EventVehicle_NewConstructedVehicle(this, systemID);
+    });*/ //this one explicitly calls mace_core and its up to you to handle in core
+
+}
 
 /////////////////////////////////////////////////////////////////////////
 /// MACE COMMS EVENTS

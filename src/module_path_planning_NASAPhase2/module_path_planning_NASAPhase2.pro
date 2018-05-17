@@ -42,6 +42,7 @@ INCLUDEPATH += $$(MACE_ROOT)/include
 INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
+INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
 DEPENDPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
@@ -77,13 +78,8 @@ DEPENDPATH += $$PWD/../../tools/flann/build
 
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
 else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+
 INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
-
-#unix:!macx|win32: LIBS += -L$$PWD/../../tools/octomap/lib/ -loctomap
-
-#INCLUDEPATH += $$PWD/../../tools/octomap
-#DEPENDPATH += $$PWD/../../tools/octomap
-
