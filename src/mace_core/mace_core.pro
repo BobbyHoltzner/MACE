@@ -97,3 +97,8 @@ INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include

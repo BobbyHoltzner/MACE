@@ -123,10 +123,7 @@ public:
 
 
 protected:
-    virtual void updateBoundingBox()
-    {
-
-    }
+    virtual void updateBoundingBox() = 0;
 
 protected:
     std::string name;

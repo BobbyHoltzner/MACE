@@ -87,8 +87,6 @@ std::vector<state_space::State*> RRTBase::solve()
                 break;
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
-
     } //end of while loop
 
     if(finalNode != nullptr)

@@ -72,9 +72,13 @@ INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
+INCLUDEPATH += $$PWD/../../tools/flann/src/cpp
+
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
 else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
+
 
 #win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/release/ -lflann
 #else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/debug/ -lflann
@@ -82,3 +86,8 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
 
 #INCLUDEPATH += $$PWD/../../tools/flann/build
 #DEPENDPATH += $$PWD/../../tools/flann/build
+
+unix:!macx|win32: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann_s
+
+INCLUDEPATH += $$PWD/../../tools/flann/build
+DEPENDPATH += $$PWD/../../tools/flann/build

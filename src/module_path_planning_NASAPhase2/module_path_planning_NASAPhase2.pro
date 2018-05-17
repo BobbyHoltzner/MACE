@@ -68,13 +68,22 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../planners/release/ -
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../planners/debug/ -lplanners
 else:unix:!macx: LIBS += -L$$OUT_PWD/../planners/ -lplanners
 
-#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/release/ -lflann
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/debug/ -lflann
-#else:unix:!macx: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/release/ -lflann
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/debug/ -lflann
+else:unix:!macx: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann
 
-#INCLUDEPATH += $$PWD/../../tools/flann/build
-#DEPENDPATH += $$PWD/../../tools/flann/build
+INCLUDEPATH += $$PWD/../../tools/flann/build
+DEPENDPATH += $$PWD/../../tools/flann/build
 
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
+
+#unix:!macx|win32: LIBS += -L$$PWD/../../tools/octomap/lib/ -loctomap
+
+#INCLUDEPATH += $$PWD/../../tools/octomap
+#DEPENDPATH += $$PWD/../../tools/octomap
 

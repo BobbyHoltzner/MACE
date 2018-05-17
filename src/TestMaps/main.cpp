@@ -1,23 +1,28 @@
 #include <QCoreApplication>
 
-#include "base/state_space/cartesian_2D_space.h"
+//#include "base/state_space/cartesian_2D_space.h"
 
-#include "base/geometry/polygon_2DC.h"
+//#include "base/geometry/polygon_2DC.h"
 
-#include "base/state_space/discrete_motion_validity_check.h"
-#include "base/state_space/special_validity_check.h"
+//#include "base/state_space/discrete_motion_validity_check.h"
+//#include "base/state_space/special_validity_check.h"
 
-#include "maps/iterators/grid_map_iterator.h"
-#include "maps/iterators/circle_map_iterator.h"
-#include "maps/iterators/polygon_map_iterator.h"
+//#include "maps/iterators/grid_map_iterator.h"
+//#include "maps/iterators/circle_map_iterator.h"
+//#include "maps/iterators/polygon_map_iterator.h"
 
-#include "maps/data_2d_grid.h"
+//#include "maps/data_2d_grid.h"
 
 #include <iostream>
 #include <QFile>
 #include <QTextStream>
 #include <QStringList>
 
+//#include "planners/rrt_base.h"
+//#include "planners/nearest_neighbor_flann.h"
+
+#include "octomap/OcTree.h"
+using namespace octomap;
 //class StateData{
 //public:
 
@@ -72,65 +77,57 @@ int main(int argc, char *argv[])
 //    double* newValue = newTest.testApp(&value);
 //    value = 6;
 //    newValue = &value;
-    using namespace mace::state_space;
-    double value = 0.0;
-    std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> vertices;
-    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("TL",-2,2);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("TR",2,2);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> point4("LR",2,-2);
-    mace::pose::Position<mace::pose::CartesianPosition_2D> point3("LL",-2,-2);
-    vertices.push_back(point1);
-    vertices.push_back(point2);
-    vertices.push_back(point4);
-    vertices.push_back(point3);
-    mace::geometry::Polygon_2DC boundingPolygon(vertices);
-    std::cout<<"The boundary contains this: "<<boundingPolygon.contains(-1,0)<<std::endl;
+    //using namespace mace::state_space;
+    OcTree* tree = new OcTree(0.5);
+//    double value = 0.0;
+//    std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> vertices;
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("TL",-2,2);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("TR",2,2);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> point4("LR",2,-2);
+//    mace::pose::Position<mace::pose::CartesianPosition_2D> point3("LL",-2,-2);
+//    vertices.push_back(point1);
+//    vertices.push_back(point2);
+//    vertices.push_back(point4);
+//    vertices.push_back(point3);
+//    mace::geometry::Polygon_2DC boundingPolygon(vertices);
+//    std::cout<<"The boundary contains this: "<<boundingPolygon.contains(-1,0)<<std::endl;
 
-    mace::pose::CartesianPosition_2D position(0,0);
-    mace::maps::Data2DGrid<double> newGridMap(-10.0, 10.0,
-                                              -10.0, 10.0,
-                                              1.0, 1.0,
-                                              &value, position);
-    for(int i = 0; i < newGridMap.getNodeCount(); i++)
-    {
-        double x = 0, y = 0;
-        newGridMap.getPositionFromIndex(i,x,y);
-        std::cout<<"The position at index: "<<i<<" is: X:"<<x<<" Y:"<<y<<std::endl;
-    }
-    std::cout<<"This is a holding spot for the grid map"<<std::endl;
+//    mace::pose::CartesianPosition_2D position(0,0);
+//    mace::maps::Data2DGrid<double> newGridMap(-10.0, 10.0,
+//                                              -10.0, 10.0,
+//                                              1.0, 1.0,
+//                                              &value, position);
+//    for(int i = 0; i < newGridMap.getNodeCount(); i++)
+//    {
+//        double x = 0, y = 0;
+//        newGridMap.getPositionFromIndex(i,x,y);
+//        std::cout<<"The position at index: "<<i<<" is: X:"<<x<<" Y:"<<y<<std::endl;
+//    }
+//    std::cout<<"This is a holding spot for the grid map"<<std::endl;
     //newGridMap.updatePosition(position);
     //mace::maps::CircleMapIterator newCircleIterator(&newGridMap,position,1.0);
-    mace::maps::PolygonMapIterator newPolygonIterator(&newGridMap,boundingPolygon);
+//    mace::maps::PolygonMapIterator newPolygonIterator(&newGridMap,boundingPolygon);
 
-    for(;!newPolygonIterator.isPastEnd();++newPolygonIterator)
-    {
-        const int value = *newPolygonIterator;
-        std::cout<<"The index of the position is:"<<value<<std::endl;
-    }
+//    for(;!newPolygonIterator.isPastEnd();++newPolygonIterator)
+//    {
+//        const int value = *newPolygonIterator;
+//        std::cout<<"The index of the position is:"<<value<<std::endl;
+//    }
 
 
-    mace::maps::GridMapIterator newIterator(&newGridMap);
-    newIterator++;
-    double* ptr = newGridMap.getCellByIndex(*newIterator);
-    double newValue = 100.0;
-    *ptr = newValue;
-    double* newpPtr = newGridMap.getCellByPos(-1.0,1.0);
-    newpPtr = newGridMap.getCellByPos(0.0,0.0);
-    newpPtr = newGridMap.getCellByPos(1.0,-1.0);
-    std::cout<<"New placeholder"<<std::endl;
-    //    using namespace mace::nn;
-
-//    mace::planners_sampling::RRTBase newBase();
-//    newBase.setNearestNeighbor<NearestNeighbor_FLANNLinear>();
-//    mace::state_space::State* sampleState = space->getNewState();
-
-//    mace::state_space::Cartesian2DSpace_Sampler sampler(space);
-//    sampler.sampleUniform(sampleState);
-
+//    mace::maps::GridMapIterator newIterator(&newGridMap);
+//    newIterator++;
+//    double* ptr = newGridMap.getCellByIndex(*newIterator);
+//    double newValue = 100.0;
+//    *ptr = newValue;
+//    double* newpPtr = newGridMap.getCellByPos(-1.0,1.0);
+//    newpPtr = newGridMap.getCellByPos(0.0,0.0);
+//    newpPtr = newGridMap.getCellByPos(1.0,-1.0);
+//    std::cout<<"New placeholder"<<std::endl;
 //    mace::state_space::Cartesian2DSpacePtr space = std::make_shared<mace::state_space::Cartesian2DSpace>();
 //    space->bounds.setBounds(0,10,0,10);
-//    mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(space);
 
+//    mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(space);
 //    mace::state_space::DiscreteMotionValidityCheckPtr motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(space);
 //    mace::state_space::SpecialValidityCheckPtr stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(space);
 //    motionCheck->setStateValidityCheck(stateCheck);
@@ -151,6 +148,7 @@ int main(int argc, char *argv[])
 //    rrt.setPlanningParameters(begin,end);
 
 //    rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
+//    //rrt.setCallbackFunction(this);
 //    std::vector<mace::state_space::State*> solution = rrt.solve();
 //    std::cout<<"The solution looks like this: "<<std::endl;
 //    for (int i = 0; i < solution.size(); i++)

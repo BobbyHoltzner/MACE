@@ -67,38 +67,37 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
 void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 {
 //    UNUSED(vehicleID);
-//    m_Space = std::make_shared<mace::state_space::Cartesian2DSpace>();
-//    m_Space->bounds.setBounds(0,10,0,10);
+    m_Space = std::make_shared<mace::state_space::Cartesian2DSpace>();
+    m_Space->bounds.setBounds(0,10,0,10);
 
-//    mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(m_Space);
+    mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(m_Space);
+    mace::state_space::DiscreteMotionValidityCheckPtr motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(m_Space);
+    mace::state_space::SpecialValidityCheckPtr stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(m_Space);
+    motionCheck->setStateValidityCheck(stateCheck);
+    motionCheck->setMinCheckDistance(0.25);
 
-//    mace::state_space::DiscreteMotionValidityCheckPtr motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(m_Space);
-//    mace::state_space::SpecialValidityCheckPtr stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(m_Space);
-//    motionCheck->setStateValidityCheck(stateCheck);
-//    motionCheck->setMinCheckDistance(0.25);
+    mace::state_space::SpaceInformationPtr spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(m_Space);
+    spaceInfo->setStateSampler(sampler);
+    spaceInfo->setStateValidityCheck(stateCheck);
+    spaceInfo->setMotionValidityCheck(motionCheck);
 
-//    mace::state_space::SpaceInformationPtr spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(m_Space);
-//    spaceInfo->setStateSampler(sampler);
-//    spaceInfo->setStateValidityCheck(stateCheck);
-//    spaceInfo->setMotionValidityCheck(motionCheck);
+    mace::planners_sampling::RRTBase rrt(spaceInfo);
+    mace::state_space::GoalState* begin = new mace::state_space::GoalState(m_Space);
+    begin->setState(new mace::pose::CartesianPosition_2D(0,0));
+    mace::state_space::GoalState* end = new mace::state_space::GoalState(m_Space,1.0);
+    end->setState(new mace::pose::CartesianPosition_2D(10,10));
+    end->setRadialRegion(1.0);
 
-//    mace::planners_sampling::RRTBase rrt(spaceInfo);
-//    mace::state_space::GoalState* begin = new mace::state_space::GoalState(m_Space);
-//    begin->setState(new mace::pose::CartesianPosition_2D(0,0));
-//    mace::state_space::GoalState* end = new mace::state_space::GoalState(m_Space,1.0);
-//    end->setState(new mace::pose::CartesianPosition_2D(10,10));
-//    end->setRadialRegion(1.0);
+    rrt.setPlanningParameters(begin,end);
 
-//    rrt.setPlanningParameters(begin,end);
-
-//    rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
-//    rrt.setCallbackFunction(this);
-//    std::vector<mace::state_space::State*> solution = rrt.solve();
-//    std::cout<<"The solution looks like this: "<<std::endl;
-//    for (int i = 0; i < solution.size(); i++)
-//    {
-//        std::cout<<"X: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
-//    }
+    rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
+    rrt.setCallbackFunction(this);
+    std::vector<mace::state_space::State*> solution = rrt.solve();
+    std::cout<<"The solution looks like this: "<<std::endl;
+    for (int i = 0; i < solution.size(); i++)
+    {
+        std::cout<<"X: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
+    }
 }
 
 void ModulePathPlanningNASAPhase2::cbiPlanner_SampledState(const mace::state_space::State *sampleState)
