@@ -213,6 +213,7 @@ void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
         std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple = std::make_tuple(localPos, att);
         m_vehicleMap.insert(std::make_pair(vehicleID, tmpTuple));
 
+#ifdef ROS_EXISTS
         // Add subscriber(s) for vehicle sensor messages
         std::vector<ros::Subscriber> vehicleSensors;
         std::string modelName = "basic_quadrotor_" + std::to_string(vehicleID);
@@ -235,7 +236,59 @@ void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
         }
         // Add sensor list to sensor map:
         m_sensorVehicleMap.insert(std::make_pair(vehicleID, vehicleSensors));
+#endif
     }
+}
+
+//!
+//! \brief updatePositionData Update the position of the corresponding Gazebo model based on position of MACE vehicle
+//! \param vehicleID ID of the vehicle to update
+//! \param component Position (in the local frame)
+//!
+void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component)
+{
+    double x = component->getX();
+    double y = component->getY();
+    double z = component->getZ();
+
+    if(m_vehicleMap.find(vehicleID) != m_vehicleMap.end()) {
+        std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple;
+        DataState::StateLocalPosition tmpPos = DataState::StateLocalPosition(component->getCoordinateFrame(), x, y, z);
+        DataState::StateAttitude tmpAtt = std::get<1>(m_vehicleMap[vehicleID]);
+        tmpTuple = std::make_tuple(tmpPos, tmpAtt);
+        m_vehicleMap[vehicleID] = tmpTuple;
+    }
+
+#ifdef ROS_EXISTS
+    // Send gazebo model state:
+    sendGazeboModelState(vehicleID);
+#endif
+}
+
+//!
+//! \brief updateAttitudeData Update the attitude of the corresponding Gazebo model based on attitude of MACE vehicle
+//! \param vehicleID ID of the vehicle to update
+//! \param component Attitude
+//!
+void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component)
+{
+    double roll = component->roll;
+    double pitch = component->pitch;
+    double yaw = component->yaw;
+
+    if(m_vehicleMap.find(vehicleID) != m_vehicleMap.end()) {
+        std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple;
+        DataState::StateLocalPosition tmpPos = std::get<0>(m_vehicleMap[vehicleID]);
+        DataState::StateAttitude tmpAtt = DataState::StateAttitude();
+        tmpAtt.setAttitude(roll, pitch, yaw);
+        tmpTuple = std::make_tuple(tmpPos, tmpAtt);
+        m_vehicleMap[vehicleID] = tmpTuple;
+    }
+
+#ifdef ROS_EXISTS
+    // Send gazebo model state:
+    sendGazeboModelState(vehicleID);
+#endif
 }
 
 ////! ========================================================================
@@ -349,53 +402,6 @@ void ModuleROS::renderEdge(const mace::geometry::Line_2DC &edge) {
     line_list.points.push_back(startPoint);
     line_list.points.push_back(endPoint);
     markerPub.publish(line_list);
-}
-
-//!
-//! \brief updatePositionData Update the position of the corresponding Gazebo model based on position of MACE vehicle
-//! \param vehicleID ID of the vehicle to update
-//! \param component Position (in the local frame)
-//!
-void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component)
-{
-    double x = component->getX();
-    double y = component->getY();
-    double z = component->getZ();
-
-    if(m_vehicleMap.find(vehicleID) != m_vehicleMap.end()) {
-        std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple;
-        DataState::StateLocalPosition tmpPos = DataState::StateLocalPosition(component->getCoordinateFrame(), x, y, z);
-        DataState::StateAttitude tmpAtt = std::get<1>(m_vehicleMap[vehicleID]);
-        tmpTuple = std::make_tuple(tmpPos, tmpAtt);
-        m_vehicleMap[vehicleID] = tmpTuple;
-    }
-
-    // Send gazebo model state:
-    sendGazeboModelState(vehicleID);
-}
-
-//!
-//! \brief updateAttitudeData Update the attitude of the corresponding Gazebo model based on attitude of MACE vehicle
-//! \param vehicleID ID of the vehicle to update
-//! \param component Attitude
-//!
-void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component)
-{
-    double roll = component->roll;
-    double pitch = component->pitch;
-    double yaw = component->yaw;
-
-    if(m_vehicleMap.find(vehicleID) != m_vehicleMap.end()) {
-        std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple;
-        DataState::StateLocalPosition tmpPos = std::get<0>(m_vehicleMap[vehicleID]);
-        DataState::StateAttitude tmpAtt = DataState::StateAttitude();
-        tmpAtt.setAttitude(roll, pitch, yaw);
-        tmpTuple = std::make_tuple(tmpPos, tmpAtt);
-        m_vehicleMap[vehicleID] = tmpTuple;
-    }
-
-    // Send gazebo model state:
-    sendGazeboModelState(vehicleID);
 }
 
 //!

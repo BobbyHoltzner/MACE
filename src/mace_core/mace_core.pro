@@ -98,9 +98,8 @@ INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
 
-unix:!macx|win32: LIBS += -L$$PWD/../../tools/octomap/octomap/lib/ -lliboctomap
-
-INCLUDEPATH += $$PWD/../../tools/octomap/octomap/include
-DEPENDPATH += $$PWD/../../tools/octomap/octomap/include
-
+INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include

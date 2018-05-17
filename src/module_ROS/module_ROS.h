@@ -116,16 +116,36 @@ public:
 
 
     // ============================================================================= //
-    // ========================  ROS Specific functions:  ========================== //
+    // ======================== Module specific functions: ========================= //
     // ============================================================================= //
 public:
 
-#ifdef ROS_EXISTS
     //!
     //! \brief insertVehicleIfNotExist Insert a new vehicle into the map if it does not exist
     //! \param vehicleID ID of vehicle to check against current vehicle map
     //!
     void insertVehicleIfNotExist(const int &vehicleID);
+
+    //!
+    //! \brief updatePositionData Update the position of the corresponding Gazebo model based on position of MACE vehicle
+    //! \param vehicleID ID of the vehicle to update
+    //! \param component Position (in the local frame)
+    //!
+    void updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component);
+
+    //!
+    //! \brief updateAttitudeData Update the attitude of the corresponding Gazebo model based on attitude of MACE vehicle
+    //! \param vehicleID ID of the vehicle to update
+    //! \param component Attitude
+    //!
+    void updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
+
+    // ============================================================================= //
+    // ========================  ROS Specific functions:  ========================== //
+    // ============================================================================= //
+public:
+
+#ifdef ROS_EXISTS
 
     //!
     //! \brief setupROS Setup ROS subscribers, publishers, and node handler
@@ -155,20 +175,6 @@ public:
     //! \param edge Edge/line to render
     //!
     void renderEdge(const mace::geometry::Line_2DC &edge);
-
-    //!
-    //! \brief updatePositionData Update the position of the corresponding Gazebo model based on position of MACE vehicle
-    //! \param vehicleID ID of the vehicle to update
-    //! \param component Position (in the local frame)
-    //!
-    void updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component);
-
-    //!
-    //! \brief updateAttitudeData Update the attitude of the corresponding Gazebo model based on attitude of MACE vehicle
-    //! \param vehicleID ID of the vehicle to update
-    //! \param component Attitude
-    //!
-    void updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
 
     //!
     //! \brief convertToGazeboCartesian Convert position in local frame to Gazebo's world frame

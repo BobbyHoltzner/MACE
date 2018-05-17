@@ -32,6 +32,9 @@
 #include "topic.h"
 
 
+#include "octomap/octomap.h"
+#include "octomap/OcTree.h"
+
 namespace MaceCore
 {
 
