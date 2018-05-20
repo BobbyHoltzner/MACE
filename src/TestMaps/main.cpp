@@ -1,28 +1,36 @@
 #include <QCoreApplication>
 
-//#include "base/state_space/cartesian_2D_space.h"
+#include "base/state_space/cartesian_2D_space.h"
 
-//#include "base/geometry/polygon_2DC.h"
+#include "base/geometry/polygon_2DC.h"
 
-//#include "base/state_space/discrete_motion_validity_check.h"
-//#include "base/state_space/special_validity_check.h"
+#include "base/state_space/discrete_motion_validity_check.h"
+#include "base/state_space/special_validity_check.h"
 
-//#include "maps/iterators/grid_map_iterator.h"
-//#include "maps/iterators/circle_map_iterator.h"
-//#include "maps/iterators/polygon_map_iterator.h"
+#include "maps/iterators/grid_map_iterator.h"
+#include "maps/iterators/circle_map_iterator.h"
+#include "maps/iterators/polygon_map_iterator.h"
 
-//#include "maps/data_2d_grid.h"
+#include "maps/data_2d_grid.h"
 
 #include <iostream>
 #include <QFile>
 #include <QTextStream>
 #include <QStringList>
 
-//#include "planners/rrt_base.h"
-//#include "planners/nearest_neighbor_flann.h"
+#include "planners/rrt_base.h"
+#include "planners/nearest_neighbor_flann.h"
 
 #include "octomap/OcTree.h"
 using namespace octomap;
+
+const char kPathSeparator =
+#ifdef _WIN32
+                            '\\';
+#else
+                            '/';
+#endif
+
 //class StateData{
 //public:
 
@@ -78,7 +86,7 @@ int main(int argc, char *argv[])
 //    value = 6;
 //    newValue = &value;
     //using namespace mace::state_space;
-    OcTree* tree = new OcTree(0.5);
+    //OcTree* tree = new OcTree(0.5);
 //    double value = 0.0;
 //    std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> vertices;
 //    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("TL",-2,2);
@@ -124,37 +132,53 @@ int main(int argc, char *argv[])
 //    newpPtr = newGridMap.getCellByPos(0.0,0.0);
 //    newpPtr = newGridMap.getCellByPos(1.0,-1.0);
 //    std::cout<<"New placeholder"<<std::endl;
-//    mace::state_space::Cartesian2DSpacePtr space = std::make_shared<mace::state_space::Cartesian2DSpace>();
-//    space->bounds.setBounds(0,10,0,10);
+    char* MACEPath = getenv("MACE_ROOT");
+    std::string rootPath(MACEPath);
+    std::string btFile = rootPath + kPathSeparator + "MACE_small_town.bt";
+    octomap::OcTree* newTree = new octomap::OcTree("MACE_small_town.bt");
+//    newTree->readBinary()
+//    octomap::Pointcloud pc;
+//    octomap::point3d endPoint (1.0,1.0,1.0);
+//    pc.push_back(endPoint);
+//    octomap::point3d origin (0,0,0);
+//    newTree->insertPointCloud(pc,origin);
 
-//    mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(space);
-//    mace::state_space::DiscreteMotionValidityCheckPtr motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(space);
-//    mace::state_space::SpecialValidityCheckPtr stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(space);
-//    motionCheck->setStateValidityCheck(stateCheck);
-//    motionCheck->setMinCheckDistance(0.25);
+//    if (newTree->writeBinary("test.bt"))
+//        std::cout<<"Create octree file."<<std::endl;
+//    else
+//        std::cout<<"Cannot create octree file."<<std::endl;
 
-//    mace::state_space::SpaceInformationPtr spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(space);
-//    spaceInfo->setStateSampler(sampler);
-//    spaceInfo->setStateValidityCheck(stateCheck);
-//    spaceInfo->setMotionValidityCheck(motionCheck);
+    mace::state_space::Cartesian2DSpacePtr space = std::make_shared<mace::state_space::Cartesian2DSpace>();
+    space->bounds.setBounds(0,10,0,10);
 
-//    mace::planners_sampling::RRTBase rrt(spaceInfo);
-//    mace::state_space::GoalState* begin = new mace::state_space::GoalState(space);
-//    begin->setState(new mace::pose::CartesianPosition_2D(0,0));
-//    mace::state_space::GoalState* end = new mace::state_space::GoalState(space,1.0);
-//    end->setState(new mace::pose::CartesianPosition_2D(10,10));
-//    end->setRadialRegion(1.0);
+    mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(space);
+    mace::state_space::DiscreteMotionValidityCheckPtr motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(space);
+    mace::state_space::SpecialValidityCheckPtr stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(space);
+    motionCheck->setStateValidityCheck(stateCheck);
+    motionCheck->setMinCheckDistance(0.25);
 
-//    rrt.setPlanningParameters(begin,end);
+    mace::state_space::SpaceInformationPtr spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(space);
+    spaceInfo->setStateSampler(sampler);
+    spaceInfo->setStateValidityCheck(stateCheck);
+    spaceInfo->setMotionValidityCheck(motionCheck);
 
-//    rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
-//    //rrt.setCallbackFunction(this);
-//    std::vector<mace::state_space::State*> solution = rrt.solve();
-//    std::cout<<"The solution looks like this: "<<std::endl;
-//    for (int i = 0; i < solution.size(); i++)
-//    {
-//        std::cout<<"X: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
-//    }
+    mace::planners_sampling::RRTBase rrt(spaceInfo);
+    mace::state_space::GoalState* begin = new mace::state_space::GoalState(space);
+    begin->setState(new mace::pose::CartesianPosition_2D(0,0));
+    mace::state_space::GoalState* end = new mace::state_space::GoalState(space,1.0);
+    end->setState(new mace::pose::CartesianPosition_2D(10,10));
+    end->setRadialRegion(1.0);
+
+    rrt.setPlanningParameters(begin,end);
+
+    rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
+    //rrt.setCallbackFunction(this);
+    std::vector<mace::state_space::State*> solution = rrt.solve();
+    std::cout<<"The solution looks like this: "<<std::endl;
+    for (int i = 0; i < solution.size(); i++)
+    {
+        std::cout<<"X: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
+    }
 //    mace::pose::CartesianPosition_2D* state1 = space.getNewState()->as<mace::pose::CartesianPosition_2D>();
 //    //mace::pose::CartesianPosition_2D* cast = state1->
 //    mace::pose::CartesianPosition_2D* state2 = space.copyState(state1)->as<mace::pose::CartesianPosition_2D>();

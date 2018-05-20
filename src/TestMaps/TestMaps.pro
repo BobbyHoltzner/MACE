@@ -21,10 +21,10 @@ SOURCES += main.cpp
 DEFINES += QT_DEPRECATED_WARNINGS
 
 
-#INCLUDEPATH += $$PWD/../
-#INCLUDEPATH += $$PWD/../../speedLog/
-#INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
-#INCLUDEPATH += $$PWD/../../tools/flann/src/cpp
+INCLUDEPATH += $$PWD/../
+INCLUDEPATH += $$PWD/../../speedLog/
+INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+INCLUDEPATH += $$PWD/../../tools/flann/src/cpp
 
 
 # You can also make your code fail to compile if you use deprecated APIs.
@@ -32,41 +32,34 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-#win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
-#else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
 
-#win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../maps/release/ -lmaps
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../maps/debug/ -lmaps
-#else:unix:!macx: LIBS += -L$$OUT_PWD/../maps/ -lmaps
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../maps/release/ -lmaps
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../maps/debug/ -lmaps
+else:unix:!macx: LIBS += -L$$OUT_PWD/../maps/ -lmaps
 
-#INCLUDEPATH += $$PWD/../maps
-#DEPENDPATH += $$PWD/../maps
+INCLUDEPATH += $$PWD/../maps
+DEPENDPATH += $$PWD/../maps
 
-#win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../planners/release/ -lplanners
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../planners/debug/ -lplanners
-#else:unix:!macx: LIBS += -L$$OUT_PWD/../planners/ -lplanners
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../planners/release/ -lplanners
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../planners/debug/ -lplanners
+else:unix:!macx: LIBS += -L$$OUT_PWD/../planners/ -lplanners
 
-#INCLUDEPATH += $$PWD/../planners
-#DEPENDPATH += $$PWD/../planners
+INCLUDEPATH += $$PWD/../planners
+DEPENDPATH += $$PWD/../planners
 
-#unix:!macx|win32: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann_s
+unix:!macx|win32: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann_s
 
-#INCLUDEPATH += $$PWD/../../tools/flann/build
-#DEPENDPATH += $$PWD/../../tools/flann/build
+INCLUDEPATH += $$PWD/../../tools/flann/build
+DEPENDPATH += $$PWD/../../tools/flann/build
 
-#unix:!macx|win32: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann_s
+unix:!macx|win32: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann_s
 
 
-+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
-+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
-+else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
-
-unix:!macx|win32: LIBS += -L$$PWD/../../tools/octomap/lib/ -loctomap
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
 
 INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
-DEPENDPATH += $$OUT_PWD/../../tools/octomap/octomap/include
-
-
-INCLUDEPATH += $$PWD/../../tools/octomap
-DEPENDPATH += $$PWD/../../tools/octomap
