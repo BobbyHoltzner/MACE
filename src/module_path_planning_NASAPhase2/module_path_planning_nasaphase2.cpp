@@ -7,7 +7,8 @@
 
 ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
     MaceCore::IModuleCommandPathPlanning(),
-    m_PlanningStateTopic("planningState")
+    m_PlanningStateTopic("planningState"),
+    originSent(false)
 {
 }
 
@@ -19,6 +20,15 @@ ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
 std::shared_ptr<MaceCore::ModuleParameterStructure> ModulePathPlanningNASAPhase2::ModuleConfigurationStructure() const
 {
     MaceCore::ModuleParameterStructure structure;
+    std::shared_ptr<MaceCore::ModuleParameterStructure> environmentParams = std::make_shared<MaceCore::ModuleParameterStructure>();
+    environmentParams->AddTerminalParameters("Vertices", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+    structure.AddNonTerminal("EnvironmentParameters", environmentParams, true);
+
+    std::shared_ptr<MaceCore::ModuleParameterStructure> globalOrigin = std::make_shared<MaceCore::ModuleParameterStructure>();
+    globalOrigin->AddTerminalParameters("Latitude", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    globalOrigin->AddTerminalParameters("Longitude", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    structure.AddNonTerminal("GlobalOrigin", globalOrigin, true);
+
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
 
@@ -29,7 +39,54 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModulePathPlanningNASAPhase2
 //!
 void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-    UNUSED(params);
+    double globalLat = 0 , globalLon = 0;
+    DataState::StateGlobalPosition globalOrigin;
+    std::string vertsStr;
+    if(params->HasNonTerminal("GlobalOrigin")) {
+        std::shared_ptr<MaceCore::ModuleParameterValue> globalOriginXML = params->GetNonTerminalValue("GlobalOrigin");
+        globalLat = globalOriginXML->GetTerminalValue<double>("Latitude");
+        globalLon = globalOriginXML->GetTerminalValue<double>("Longitude");
+
+        // Set global origin for MACE:
+        CommandItem::SpatialHome tmpGlobalOrigin;
+        tmpGlobalOrigin.position->setX(globalLat);
+        tmpGlobalOrigin.position->setY(globalLon);
+        tmpGlobalOrigin.position->setZ(0);
+        globalOrigin.setLatitude(globalLat);
+        globalOrigin.setLongitude(globalLon);
+        globalOrigin.setAltitude(tmpGlobalOrigin.position->getZ());
+        // TODO: Figure out a way to send to the core (to fix github issue #126: )
+        /*ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
+            ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
+        });*/ //this one explicitly calls mace_core and its up to you to handle in core
+
+        /*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+                ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+            }); */ //this is a general publication event, however, no one knows explicitly how to handle
+
+        m_globalOrigin = std::make_shared<CommandItem::SpatialHome>(tmpGlobalOrigin);
+    }
+    if(params->HasNonTerminal("EnvironmentParameters")) {
+        std::shared_ptr<MaceCore::ModuleParameterValue> environmentParams = params->GetNonTerminalValue("EnvironmentParameters");
+        vertsStr = environmentParams->GetTerminalValue<std::string>("Vertices");
+    }
+    else {
+        throw std::runtime_error("Unkown Path Planning parameters encountered");
+    }
+
+    // Set up environment:
+    if(globalOrigin.has2DPositionSet()) {
+        std::vector<Position<CartesianPosition_2D> > verts;
+        bool validPoly = parseBoundaryVertices(vertsStr, globalOrigin, verts);
+        // Set vertices in MACE core:
+        if(validPoly) {
+            // TODO: Set vertices in MACE core
+            std::cout << "TODO: Send verts to MACE core: " << verts.size() << std::endl;
+        }
+    }
+    else {
+        std::cout << "No global origin in Path Planning config." << std::endl;
+    }
 }
 
 //!
@@ -62,10 +119,35 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
     UNUSED(topicName);
     UNUSED(sender);
     UNUSED(componentsUpdated);
+
+    if(!originSent) {
+        // TODO: This is a workaround for github issue #126:
+        ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
+            ptr->Event_SetGlobalOrigin(this, *m_globalOrigin);
+        }); //this one explicitly calls mace_core and its up to you to handle in core
+
+        /*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+                ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+            }); */ //this is a general publication event, however, no one knows explicitly how to handle
+
+        originSent = true;
+    }
 }
 
 void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 {
+    if(!originSent) {
+        // TODO: This is a workaround for github issue #126:
+        ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
+            ptr->Event_SetGlobalOrigin(this, *m_globalOrigin);
+        }); //this one explicitly calls mace_core and its up to you to handle in core
+
+        /*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+                ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+            }); */ //this is a general publication event, however, no one knows explicitly how to handle
+
+        originSent = true;
+    }
 //    UNUSED(vehicleID);
 //    m_Space = std::make_shared<mace::state_space::Cartesian2DSpace>();
 //    m_Space->bounds.setBounds(0,10,0,10);
@@ -140,5 +222,72 @@ void ModulePathPlanningNASAPhase2::cbiPlanner_NewConnection(const mace::state_sp
         ptr->NewTopicDataValues(this, m_PlanningStateTopic.Name(), 0, MaceCore::TIME(), topicDatagram);
     });
 
+}
+
+/**
+ * @brief parseBoundaryVertices Given a string of delimited (lat, lon) pairs, parse into a vector of points
+ * @param unparsedVertices String to parse with delimiters
+ * @param globalOrigin Global position to convert relative to
+ * @param vertices Container for boundary vertices
+ * @return true denotes >= 3 vertices to make a polygon, false denotes invalid polygon
+ */
+bool ModulePathPlanningNASAPhase2::parseBoundaryVertices(std::string unparsedVertices, const DataState::StateGlobalPosition globalOrigin, std::vector<Position<CartesianPosition_2D> > &vertices) {
+    bool validPolygon = false;
+
+    std::cout << "Unparsed vertices string: " << unparsedVertices << std::endl;
+
+    std::string nextVert;
+    std::vector<std::string> verts;
+    // For each character in the string
+    for (std::string::const_iterator it = unparsedVertices.begin(); it != unparsedVertices.end(); it++) {
+        // If we've hit the ';' terminal character
+        if (*it == ';') {
+            // If we have some characters accumulated
+            if (!nextVert.empty()) {
+                // Add them to the result vector
+                verts.push_back(nextVert);
+                nextVert.clear();
+            }
+        } else {
+            // Accumulate the next character into the sequence
+            nextVert += *it;
+        }
+    }
+    if (!nextVert.empty())
+         verts.push_back(nextVert);
+
+    // Now parse each string in the vector for each lat/lon to be inserted into our vertices vector:
+    for(auto str : verts) {
+        std::cout << "Vertex: " << str << std::endl;
+        int pos = str.find_first_of(',');
+        std::string lonStr = str.substr(pos+1);
+        std::string latStr = str.substr(0, pos);
+        double latitude = std::stod(latStr);
+        double longitude = std::stod(lonStr);
+
+        DataState::StateGlobalPosition vertexToConvert;
+        vertexToConvert.setLatitude(latitude);
+        vertexToConvert.setLongitude(longitude);
+        vertexToConvert.setAltitude(0);
+
+        // Convert to local x,y:
+        DataState::StateLocalPosition localPos;
+        DataState::StateGlobalPosition tmpGlobal(globalOrigin.getX(), globalOrigin.getY(), globalOrigin.getZ());
+        DataState::PositionalAid::GlobalPositionToLocal(tmpGlobal, vertexToConvert, localPos);
+
+        // Add to our vector:
+        Position<CartesianPosition_2D> tmp;
+        tmp.setXPosition(localPos.getX());
+        tmp.setYPosition(localPos.getY());
+        vertices.push_back(tmp);
+    }
+
+
+    // Check if we have enough vertices for a valid polygon:
+    if(vertices.size() >= 3){
+        validPolygon = true;
+    }
+
+    return validPolygon;
 }
 

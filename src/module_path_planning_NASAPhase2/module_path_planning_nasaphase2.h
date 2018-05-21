@@ -18,8 +18,15 @@
 #include "base/state_space/discrete_motion_validity_check.h"
 #include "base/state_space/special_validity_check.h"
 
+#include "base/pose/cartesian_position_2D.h"
+#include "data_generic_state_item/positional_aid.h"
+#include "base/geometry/cell_2DC.h"
+
 #include "octomap/octomap.h"
 #include "octomap/OcTree.h"
+
+using namespace mace ;
+using namespace geometry;
 
 class MODULE_PATH_PLANNING_NASAPHASE2SHARED_EXPORT ModulePathPlanningNASAPhase2 : public MaceCore::IModuleCommandPathPlanning, public mace::planners::Planner_Interface
 {
@@ -90,7 +97,22 @@ public:
     void cbiPlanner_NewConnection(const mace::state_space::State* beginState, const mace::state_space::State* secondState) override;
 
 private:
+    /**
+     * @brief parseBoundaryVertices Given a string of delimited (lat, lon) pairs, parse into a vector of points
+     * @param unparsedVertices String to parse with delimiters
+     * @param globalOrigin Global position to convert relative to
+     * @param vertices Container for boundary vertices
+     * @return true denotes >= 3 vertices to make a polygon, false denotes invalid polygon
+     */
+    bool parseBoundaryVertices(std::string unparsedVertices, const DataState::StateGlobalPosition globalOrigin, std::vector<Position<CartesianPosition_2D> > &vertices);
+
+private:
     mace::state_space::Cartesian2DSpacePtr m_Space;
+
+    std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
+
+    // Flags:
+    bool originSent;
 
 private:
     Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;
