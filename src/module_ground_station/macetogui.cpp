@@ -139,6 +139,28 @@ void MACEtoGUI::sendVehicleHome(const int &vehicleID, const CommandItem::Spatial
 }
 
 //!
+//! \brief MACEtoGUI::sendGlobalOrigin Send new global origin to the MACE GUI
+//! \param origin New global origin
+//!
+void MACEtoGUI::sendGlobalOrigin(const CommandItem::SpatialHome &origin)
+{
+    QJsonObject json;
+    json["dataType"] = "GlobalOrigin";
+    json["vehicleID"] = 0;
+
+    json["lat"] = origin.position->getX();
+    json["lng"] = origin.position->getY();
+    json["alt"] = origin.position->getZ();
+
+    QJsonDocument doc(json);
+    bool bytesWritten = writeTCPData(doc.toJson());
+
+    if(!bytesWritten){
+        std::cout << "Write global origin failed..." << std::endl;
+    }
+}
+
+//!
 //! \brief sendPositionData Send vehicle position data to the MACE GUI
 //! \param vehicleID Vehicle ID with new position update
 //! \param component Global position component

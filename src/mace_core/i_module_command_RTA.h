@@ -11,7 +11,7 @@ namespace MaceCore
 
 enum class RTACommands
 {
-    NEW_AVAILABLE_VEHICLE,
+    BASE_MODULE_LISTENER_ENUMS,
     TEST_FUNCTION
 };
 
@@ -25,7 +25,7 @@ public:
     IModuleCommandRTA():
         AbstractModule_EventListeners()
     {
-        AddCommandLogic<int>(RTACommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<int>(RTACommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });

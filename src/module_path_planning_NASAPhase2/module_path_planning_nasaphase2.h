@@ -91,6 +91,8 @@ public:
 
     void NewlyUpdatedOccupancyMap() override;
 
+    void NewlyUpdatedGlobalOrigin() override;
+
 
 public:
     void cbiPlanner_SampledState(const mace::state_space::State* sampleState) override;

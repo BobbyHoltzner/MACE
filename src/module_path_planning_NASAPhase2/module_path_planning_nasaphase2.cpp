@@ -136,18 +136,6 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
 
 void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 {
-    if(!originSent) {
-        // TODO: This is a workaround for github issue #126:
-        ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
-            ptr->Event_SetGlobalOrigin(this, *m_globalOrigin);
-        }); //this one explicitly calls mace_core and its up to you to handle in core
-
-        /*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-                ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-            }); */ //this is a general publication event, however, no one knows explicitly how to handle
-
-        originSent = true;
-    }
 //    UNUSED(vehicleID);
 //    m_Space = std::make_shared<mace::state_space::Cartesian2DSpace>();
 //    m_Space->bounds.setBounds(0,10,0,10);
@@ -190,6 +178,14 @@ void ModulePathPlanningNASAPhase2::NewlyUpdatedOccupancyMap()
 
     std::cout << "New grid from ROS module (in PP module): " << occupancyMap.size() << std::endl;
 }
+
+void ModulePathPlanningNASAPhase2::NewlyUpdatedGlobalOrigin()
+{
+    m_globalOrigin = std::make_shared<CommandItem::SpatialHome>(this->getDataObject()->GetGlobalOrigin());
+
+    std::cout << "New global origin received (PP): (" << m_globalOrigin->getPosition().getX() << " , " << m_globalOrigin->getPosition().getY() << ")" << std::endl;
+}
+
 
 void ModulePathPlanningNASAPhase2::cbiPlanner_SampledState(const mace::state_space::State *sampleState)
 {

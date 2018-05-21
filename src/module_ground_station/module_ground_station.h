@@ -23,6 +23,9 @@
 
 #include "base_topic/vehicle_topics.h"
 
+#include "mace_core/i_module_command_ground_station.h"
+
+
 using namespace std;
 
 class MODULE_GROUND_STATIONSHARED_EXPORT ModuleGroundStation : public MaceCore::IModuleCommandGroundStation
@@ -111,25 +114,30 @@ public:
     //! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
     //! \param vehicleID Vehilce ID of the newly available vehicle
     //!
-    virtual void NewlyAvailableVehicle(const int &vehicleID);
+    void NewlyAvailableVehicle(const int &vehicleID) override;
 
     //!
     //! \brief NewlyAvailableCurrentMission Subscriber to a new vehicle mission topic
     //! \param missionKey Key denoting which mission is available
     //!
-    virtual void NewlyAvailableCurrentMission(const MissionItem::MissionKey &missionKey);
+    void NewlyAvailableCurrentMission(const MissionItem::MissionKey &missionKey) override;
 
     //!
     //! \brief NewlyAvailableMissionExeState Subscriber to a new vehicle mission state topic
     //! \param key Key denoting which mission has a new exe state
     //!
-    virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &key);
+    void NewlyAvailableMissionExeState(const MissionItem::MissionKey &key) override;
 
     //!
     //! \brief NewlyAvailableHomePosition Subscriber to a new home position
     //! \param home New home position
     //!
-    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
+    void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender) override;
+
+    //!
+    //! \brief NewlyAvailableGlobalOrigin Subscriber to a new global origin
+    //!
+    void NewlyUpdatedGlobalOrigin() override;
 
 
     // ============================================================================= //

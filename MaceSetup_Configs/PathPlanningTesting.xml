@@ -42,4 +42,13 @@
     </Parameter>
   </Module>
 -->
+
+  <Module Class="GroundStation" Type="NASAPhase2">
+	<Parameter Name="ID">1</Parameter>
+	<Parameter Name="MACEComms">
+		<Parameter Name="GUIHostAddress">192.168.1.47</Parameter>
+		<Parameter Name="ListenPort">5678</Parameter>
+		<Parameter Name="SendPort">1234</Parameter>
+	</Parameter>
+   </Module>
 </ModuleConfigurations>
