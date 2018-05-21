@@ -113,6 +113,16 @@ private:
 
     std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
 
+    std::string m_octomapFilename;
+    bool m_project2D;
+    double m_minRange;
+    double m_maxRange;
+    double m_occupancyThreshold;
+    double m_probabilityOfHit;
+    double m_probabilityOfMiss;
+    double m_minThreshold;
+    double m_maxThreshold;
+
     // Flags:
     bool originSent;
 

@@ -8,7 +8,16 @@
 ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
     MaceCore::IModuleCommandPathPlanning(),
     m_PlanningStateTopic("planningState"),
-    originSent(false)
+    originSent(false),
+    m_octomapFilename(""),
+    m_project2D(true),
+    m_minRange(0.0),
+    m_maxRange(9999),
+    m_occupancyThreshold(1),
+    m_probabilityOfHit(0.7),
+    m_probabilityOfMiss(0.4),
+    m_minThreshold(0.12),
+    m_maxThreshold(0.97)
 {
 }
 
@@ -28,6 +37,18 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModulePathPlanningNASAPhase2
     globalOrigin->AddTerminalParameters("Latitude", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
     globalOrigin->AddTerminalParameters("Longitude", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
     structure.AddNonTerminal("GlobalOrigin", globalOrigin, true);
+
+    std::shared_ptr<MaceCore::ModuleParameterStructure> octomapParams = std::make_shared<MaceCore::ModuleParameterStructure>();
+    octomapParams->AddTerminalParameters("Filename", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+    octomapParams->AddTerminalParameters("Project2D", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
+    octomapParams->AddTerminalParameters("MinRange", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    octomapParams->AddTerminalParameters("MaxRange", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    octomapParams->AddTerminalParameters("OccupancyThreshold", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    octomapParams->AddTerminalParameters("ProbabilityOfHit", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    octomapParams->AddTerminalParameters("ProbabilityOfMiss", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    octomapParams->AddTerminalParameters("MinThreshold", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    octomapParams->AddTerminalParameters("MaxThreshold", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    structure.AddNonTerminal("OctomapParameters", octomapParams, true);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -69,6 +90,18 @@ void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCor
     if(params->HasNonTerminal("EnvironmentParameters")) {
         std::shared_ptr<MaceCore::ModuleParameterValue> environmentParams = params->GetNonTerminalValue("EnvironmentParameters");
         vertsStr = environmentParams->GetTerminalValue<std::string>("Vertices");
+    }
+    if(params->HasNonTerminal("OctomapParameters")) {
+        std::shared_ptr<MaceCore::ModuleParameterValue> octomapParams = params->GetNonTerminalValue("OctomapParameters");
+        m_octomapFilename = octomapParams->GetTerminalValue<std::string>("Filename"); // TODO: Relative or absolute path?
+        m_project2D = octomapParams->GetTerminalValue<bool>("Project2D");
+        m_minRange = octomapParams->GetTerminalValue<double>("MinRange");
+        m_maxRange = octomapParams->GetTerminalValue<double>("MaxRange");
+        m_occupancyThreshold = octomapParams->GetTerminalValue<double>("OccupancyThreshold");
+        m_probabilityOfHit = octomapParams->GetTerminalValue<double>("ProbabilityOfHit");
+        m_probabilityOfMiss = octomapParams->GetTerminalValue<double>("ProbabilityOfMiss");
+        m_minThreshold = octomapParams->GetTerminalValue<double>("MinThreshold");
+        m_maxThreshold = octomapParams->GetTerminalValue<double>("MaxThreshold");
     }
     else {
         throw std::runtime_error("Unkown Path Planning parameters encountered");
