@@ -6,7 +6,7 @@
       <Parameter Name="Version">V2</Parameter>	  
     </Parameter>
     <Parameter Name="SerialParameters">
-      <Parameter Name="PortName">COM8</Parameter>
+      <Parameter Name="PortName">COM5</Parameter>
       <Parameter Name="BaudRate">57600</Parameter>
       <Parameter Name="DataBits">8</Parameter>
       <Parameter Name="StopBits">1</Parameter>
@@ -20,7 +20,7 @@
 	  <Module Class="GroundStation" Type="NASAPhase2">
 	<Parameter Name="ID">1</Parameter>
 	<Parameter Name="MACEComms">
-		<Parameter Name="GUIHostAddress">192.168.1.217</Parameter>
+		<Parameter Name="GUIHostAddress">192.168.1.81</Parameter>
 		<Parameter Name="ListenPort">5678</Parameter>
 		<Parameter Name="SendPort">1234</Parameter>
 	</Parameter>
