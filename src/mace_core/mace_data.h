@@ -571,10 +571,16 @@ public:
         return m_OccupancyMap;
     }
 
-    void insertObservation(const octomap::Pointcloud* obj)
+    void insertObservation(const octomap::Pointcloud& obj)
     {
         std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
-        //m_OccupancyMap.insertPointCloudRays(); //insert cloud thing here
+        // TODO: Test insert and origin point. We'll have to ensure a (0,0,0) origin works, or we'll have to calculate the sensor origin as it moves
+        //          - One option is instead of transforming to the world frame, we can pass in a sensor origin AND frame origin point, and the
+        //              overloaded version of insertPointCloud() will transform for us. I'm partial to all sensor data being reported in the world
+        //              frame in this case though
+
+        m_OccupancyMap.insertPointCloud(obj, octomap::point3d(0,0,0));
+        //        m_OccupancyMap.insertPointCloudRays(obj, octomap::point3d(0,0,0)); // Less efficient than insertPointCloud() accordoing to docs
     }
 
 

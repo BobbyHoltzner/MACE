@@ -542,6 +542,7 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
 
     if(m_ROS)
         m_ROS->MarshalCommand(ROSCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -830,19 +831,19 @@ void MaceCore::ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>
 /////////////////////////////////////////////////////////////////////////
 /// SENSOR MODULE EVENTS
 /////////////////////////////////////////////////////////////////////////
-void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud *obj)
+void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud &obj)
 {
     m_DataFusion->insertObservation(obj);
     //Marshal Command To PP and RTA
 
-/*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-    }); *///this is a general publication event, however, no one knows explicitly how to handle
+    // TODO: instead of marshalling directly to PP or RTA, notify listeners of a new occupancy map
+    //          - listeners can then come grab the data if they want
 
-/*    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-        ptr->EventVehicle_NewConstructedVehicle(this, systemID);
-    });*/ //this one explicitly calls mace_core and its up to you to handle in core
+//    if(m_RTA)
+//        m_RTA->MarshalCommand(ROSCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
 
+    if(m_PathPlanning)
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP, 0); // TODO: Parse for vehicle ID
 }
 
 /////////////////////////////////////////////////////////////////////////

@@ -355,10 +355,21 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     octomap::Pointcloud octoPointCloud;
 //    octomap::pointCloud2ToOctomap(*msg, octoPointCloud);
 
-    // TODO: Send converted point cloud to MACE so path planning can take over.
+    // TODO: Send converted point cloud to MACE core so path planning can take over.
+
 
     std::cout << "Converted PC..." << std::endl;
     std::cout << octoPointCloud.size() << std::endl;
+
+    /*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        }); *///this is a general publication event, however, no one knows explicitly how to handle
+
+    // TODO: Make this NotifyListeners method name better -- this is directly to Mace core
+        ModuleROS::NotifyListeners([&](MaceCore::IModuleEventsROS* ptr){
+            ptr->ROS_NewLaserScan(octoPointCloud);
+        }); //this one explicitly calls mace_core and its up to you to handle in core
+
 
     // TESTING OCTOMAP VISUALIZATION:
     // TODO: Publish PointCloud2 on correct topic for RViz visualization with octomap plugins

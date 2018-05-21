@@ -10,7 +10,7 @@ class IModuleEventsROS  : public IModuleEventsGeneral
 {
 
 public:
-    virtual void ROS_NewLaserScan(const octomap::Pointcloud* obj) = 0;
+    virtual void ROS_NewLaserScan(const octomap::Pointcloud& obj) = 0;
 
 };
 

@@ -104,6 +104,9 @@ void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 void ModulePathPlanningNASAPhase2::NewlyUpdatedOccupancyMap()
 {
     octomap::OcTree occupancyMap = this->getDataObject()->OccupancyMap_GetCopy();
+    // Do something with occupancyMap
+
+    std::cout << "New grid from ROS module (in PP module): " << occupancyMap.size() << std::endl;
 }
 
 void ModulePathPlanningNASAPhase2::cbiPlanner_SampledState(const mace::state_space::State *sampleState)

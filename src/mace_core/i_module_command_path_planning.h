@@ -34,7 +34,7 @@ public:
             NewlyAvailableVehicle(vehicleID);
         });
 
-        AddCommandLogic<int>(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP, [this](const int &vehicleID,const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<int>(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             UNUSED(vehicleID);
             NewlyUpdatedOccupancyMap();
