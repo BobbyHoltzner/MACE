@@ -44,7 +44,7 @@ bool AbstractStateArdupilot::handleCommand(const CommandItem::AbstractCommandIte
     {
         Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
         auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
-        controllerSystemMode->setLambda_Finished([this, controllerSystemMode](const bool completed, const uint8_t finishCode){
+        controllerSystemMode->AddLambda_Finished(this, [this, controllerSystemMode](const bool completed, const uint8_t finishCode){
 
             controllerSystemMode->Shutdown();
         });

@@ -75,7 +75,7 @@ bool State_LandingTransitioning::handleCommand(const AbstractCommandItem* comman
 
             Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
             auto landingTransitioning = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
-            landingTransitioning->setLambda_Finished([this,landingTransitioning](const bool completed, const uint8_t finishCode){
+            landingTransitioning->AddLambda_Finished(this, [this,landingTransitioning](const bool completed, const uint8_t finishCode){
                 if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
                     std::cout<<"We are not going to perform the transition portion of the landing."<<std::endl;
                 landingTransitioning->Shutdown();

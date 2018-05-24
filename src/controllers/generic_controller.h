@@ -78,6 +78,10 @@ public:
 
     virtual ~GenericController() = default;
 
+    //!
+    //! \brief Remove all action tied to the given host
+    //! \param ptr Pointer to host that actions attributed to are to be removed
+    //!
     virtual void RemoveHost(void* ptr)
     {
         m_MutexFinishLambda.lock();
@@ -102,9 +106,17 @@ public:
         m_MutexFinishLambda.unlock();
     }
 
-    void AddLambda_Finished(void* sender, const std::function<void(const bool completed, const FINISH_CODE finishCode)> &lambda){
+    //!
+    //! \brief Add a behavior to do when controller is finished
+    //!
+    //! This behavior is tied to a "host", which can be removed should the controller persist beyond the host
+    //!
+    //! \param host Pointer to host of behavior
+    //! \param lambda Action to perform
+    //!
+    void AddLambda_Finished(void* host, const std::function<void(const bool completed, const FINISH_CODE finishCode)> &lambda){
         m_MutexFinishLambda.lock();
-        m_FinishLambda.insert({sender, lambda});
+        m_FinishLambda.insert({host, lambda});
         m_MutexFinishLambda.unlock();
     }
 

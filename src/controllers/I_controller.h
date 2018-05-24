@@ -48,6 +48,11 @@ public:
         printf("DEPRECATED!!! Function should be pure. Other controllers should impliment this");
     }
 
+
+    //!
+    //! \brief Remove all action tied to the given host
+    //! \param ptr Pointer to host that actions attributed to are to be removed
+    //!
     virtual void RemoveHost(void * ptr) = 0;
 };
 

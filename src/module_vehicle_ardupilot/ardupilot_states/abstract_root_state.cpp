@@ -22,7 +22,7 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
     {
         Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
         auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
-        controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+        controllerSystemMode->AddLambda_Finished(this, [this,controllerSystemMode](const bool completed, const uint8_t finishCode){
 
             controllerSystemMode->Shutdown();
         });
@@ -52,7 +52,7 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
         const CommandItem::SpatialHome* cmd = command->as<CommandItem::SpatialHome>();
         Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
         auto controllerSystemHome = new MAVLINKVehicleControllers::Command_SetHomeInt(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
-        controllerSystemHome->setLambda_Finished([this,controllerSystemHome,cmd](const bool completed, const uint8_t finishCode){
+        controllerSystemHome->AddLambda_Finished(this, [this,controllerSystemHome,cmd](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
             {
 

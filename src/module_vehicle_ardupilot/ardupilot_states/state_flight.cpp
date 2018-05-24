@@ -117,7 +117,7 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
 
         Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
         auto controllerRTL = new MAVLINKVehicleControllers::CommandRTL(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
-        controllerRTL->setLambda_Finished([this,controllerRTL](const bool completed, const uint8_t finishCode){
+        controllerRTL->AddLambda_Finished(this, [this,controllerRTL](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
                 desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_RTL;
             controllerRTL->Shutdown();

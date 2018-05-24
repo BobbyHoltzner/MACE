@@ -81,7 +81,7 @@ bool State_LandingDescent::handleCommand(const AbstractCommandItem* command)
 
         Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
         auto controllerDescent = new MAVLINKVehicleControllers::CommandLand(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
-        controllerDescent->setLambda_Finished([this,controllerDescent](const bool completed, const uint8_t finishCode){
+        controllerDescent->AddLambda_Finished(this, [this,controllerDescent](const bool completed, const uint8_t finishCode){
             if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
                 GetImmediateOuterState()->setDesiredStateEnum(ArdupilotFlightState::STATE_FLIGHT);
             controllerDescent->Shutdown();

@@ -79,7 +79,7 @@ bool State_Takeoff::handleCommand(const AbstractCommandItem* command)
     {
         AbstractStateArdupilot::handleCommand(command);
         MAVLINKVehicleControllers::ControllerSystemMode* modeController = (MAVLINKVehicleControllers::ControllerSystemMode*)Owner().ControllersCollection()->At("modeController");
-        modeController->setLambda_Finished([this,modeController](const bool completed, const uint8_t finishCode){
+        modeController->AddLambda_Finished(this, [this,modeController](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
             {
                 //if a mode change was issued while in the takeoff sequence we may have to handle it in a specific way based on the conditions
@@ -121,7 +121,7 @@ void State_Takeoff::OnEnter()
     //check that the vehicle is truely armed and switch us into the guided mode
     Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
     auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
-    controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+    controllerSystemMode->AddLambda_Finished(this, [this,controllerSystemMode](const bool completed, const uint8_t finishCode){
         controllerSystemMode->Shutdown();
         if(completed && (finishCode == MAV_RESULT_ACCEPTED))
             desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_CLIMBING;

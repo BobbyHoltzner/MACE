@@ -101,7 +101,7 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
             Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
 
             auto controllerClimb = new MAVLINKVehicleControllers::CommandTakeoff(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
-            controllerClimb->setLambda_Finished([this,controllerClimb](const bool completed, const uint8_t finishCode){
+            controllerClimb->AddLambda_Finished(this, [this,controllerClimb](const bool completed, const uint8_t finishCode){
                 if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
                     GetImmediateOuterState()->setDesiredStateEnum(ArdupilotFlightState::STATE_GROUNDED);
                 controllerClimb->Shutdown();
