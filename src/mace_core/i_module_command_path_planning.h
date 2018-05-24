@@ -15,7 +15,7 @@ namespace MaceCore
 
 enum class PathPlanningCommands
 {
-    NEW_AVAILABLE_VEHICLE,
+    BASE_MODULE_LISTENER_ENUMS,
     NEWLY_UPDATED_OCCUPANCY_MAP
 };
 
@@ -29,15 +29,21 @@ public:
     IModuleCommandPathPlanning():
         AbstractModule_EventListeners()
     {
-        AddCommandLogic<int>(PathPlanningCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<int>(PathPlanningCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });
 
-        AddCommandLogic<int>(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP, [this](const int &vehicleID,const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<int>(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             UNUSED(vehicleID);
             NewlyUpdatedOccupancyMap();
+        });
+
+        AddCommandLogic<int>(PathPlanningCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            UNUSED(vehicleID);
+            NewlyUpdatedGlobalOrigin();
         });
     }
 
@@ -57,6 +63,11 @@ public:
     //! \brief NewlyUpdatedOccupancyMap
     //!
     virtual void NewlyUpdatedOccupancyMap() = 0;
+
+    //!
+    //! \brief NewlyUpdatedGlobalOrigin
+    //!
+    virtual void NewlyUpdatedGlobalOrigin() = 0;
 
 //    //!
 //    //! \brief New targets have been assigned to the given vehicle

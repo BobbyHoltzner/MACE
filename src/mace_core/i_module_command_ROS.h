@@ -18,7 +18,7 @@ namespace MaceCore
 
 enum class ROSCommands
 {
-    NEW_AVAILABLE_VEHICLE,
+    BASE_MODULE_LISTENER_ENUMS,
     NEWLY_COMPRESSED_OCCUPANCY_MAP,
     NEWLY_FOUND_PATH,
     TEST_FIRE
@@ -34,7 +34,7 @@ public:
     IModuleCommandROS():
         AbstractModule_EventListeners()
     {
-        AddCommandLogic<int>(ROSCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<int>(ROSCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });

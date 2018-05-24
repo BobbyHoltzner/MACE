@@ -415,6 +415,13 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const CommandItem::Spat
 {
     UNUSED(sender);
     m_DataFusion->UpdateGlobalOrigin(globalHome);
+    if(m_PathPlanning) {
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, 0); // TODO: Parse for vehicle ID
+    }
+
+    if(m_GroundStation) {
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, 0); // TODO: Parse for vehicle ID
+    }
 }
 
 void MaceCore::Event_SetGridSpacing(const void *sender, const double &gridSpacing)
@@ -503,13 +510,13 @@ void MaceCore::ExternalEvent_NewModule(const void *sender, const ModuleCharacter
         m_DataFusion->AddAvailableVehicle(newModule.ID, false);
 
         if(m_GroundStation)
-            m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newModule.ID);
+            m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, newModule.ID);
 
         if(m_RTA)
-            m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newModule.ID);
+            m_RTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_VEHICLE, newModule.ID);
 
         if(m_ROS)
-            m_ROS->MarshalCommand(ROSCommands::NEW_AVAILABLE_VEHICLE, newModule.ID);
+            m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_VEHICLE, newModule.ID);
     }
 }
 
@@ -523,13 +530,13 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
 
 
     if(m_RTA)
-        m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+        m_RTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
 
     if(m_PathPlanning)
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
 
     if(m_GroundStation.get() != NULL)
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
     else if(m_ExternalLink.size() > 0)
     {
         ModuleCharacteristic module;
@@ -543,7 +550,8 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
 
 
     if(m_ROS)
-        m_ROS->MarshalCommand(ROSCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
+
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -843,7 +851,7 @@ void MaceCore::ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>
 /////////////////////////////////////////////////////////////////////////
 /// SENSOR MODULE EVENTS
 /////////////////////////////////////////////////////////////////////////
-void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud *obj)
+void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud &obj)
 {
     m_DataFusion->insertObservation(obj);
     //Marshal Command To PP and RTA
@@ -856,6 +864,8 @@ void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud *obj)
         ptr->EventVehicle_NewConstructedVehicle(this, systemID);
     });*/ //this one explicitly calls mace_core and its up to you to handle in core
 
+    if(m_PathPlanning)
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP, 0); // TODO: Parse for vehicle ID
 }
 
 /////////////////////////////////////////////////////////////////////////

@@ -198,7 +198,7 @@ export class AppHelper {
 
   handleSaveGlobalOrigin = (globalOrigin: PositionType) => {
     this.handleAircraftCommand("0", "SET_GLOBAL_ORIGIN", JSON.stringify(globalOrigin));
-    this.maceCommsHelper.vehicleDB.globalOrigin = globalOrigin;
+    // this.maceCommsHelper.vehicleDB.globalOrigin = globalOrigin;
   }
 
   contextSetHome = () => {

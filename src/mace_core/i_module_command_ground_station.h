@@ -14,7 +14,7 @@ namespace MaceCore
 
 enum class GroundStationCommands
 {
-    NEW_AVAILABLE_VEHICLE,
+    BASE_MODULE_LISTENER_ENUMS,
     NEWLY_AVAILABLE_CURRENT_MISSION,
     NEW_MISSION_EXE_STATE,
     NEWLY_AVAILABLE_HOME_POSITION
@@ -30,7 +30,7 @@ public:
     IModuleCommandGroundStation():
         AbstractModule_EventListeners()
     {
-        AddCommandLogic<int>(GroundStationCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<int>(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });
@@ -48,6 +48,12 @@ public:
         AddCommandLogic<CommandItem::SpatialHome>(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const CommandItem::SpatialHome &home, const OptionalParameter<ModuleCharacteristic> &sender){
             NewlyAvailableHomePosition(home, sender);
         });
+
+        AddCommandLogic<int>(GroundStationCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            UNUSED(vehicleID);
+            NewlyUpdatedGlobalOrigin();
+        });
     }
 
     virtual ModuleClasses ModuleClass() const
@@ -63,6 +69,11 @@ public:
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey) = 0;
 
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
+
+    //!
+    //! \brief NewlyUpdatedGlobalOrigin
+    //!
+    virtual void NewlyUpdatedGlobalOrigin() = 0;
 
     virtual bool StartTCPServer() = 0;
 
