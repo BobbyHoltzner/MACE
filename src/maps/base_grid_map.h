@@ -224,6 +224,20 @@ public:
         return true;
     }
 
+    BaseGridMap& operator = (const BaseGridMap &rhs)
+    {
+        this->originPosition = rhs.originPosition;
+        this->xMin = rhs.xMin;
+        this->xMax = rhs.xMax;
+        this->yMin = rhs.yMin;
+        this->yMax = rhs.yMax;
+        this->xResolution = rhs.xResolution;
+        this->yResolution = rhs.yResolution;
+        this->xSize = rhs.xSize;
+        this->ySize = rhs.ySize;
+        return *this;
+    }
+
 protected:
     pose::CartesianPosition_2D originPosition; //!< Position of the map relative to the grid frame
 

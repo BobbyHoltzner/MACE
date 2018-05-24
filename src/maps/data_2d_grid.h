@@ -195,6 +195,15 @@ public:
         return true;
     }
 
+    Data2DGrid& operator = (const Data2DGrid &rhs)
+    {
+        BaseGridMap::operator ==(rhs);
+        this->m_defaultFill = rhs.getFill();
+        this->m_dataMap = rhs.getDataMap();
+        return *this;
+    }
+
+
 protected:
     //!
     //! \brief m_dataMap
