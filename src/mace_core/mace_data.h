@@ -748,6 +748,7 @@ private:
 
 private:
     mutable std::mutex m_Mutex_OctomapWrapper;
+    mace::maps::OctomapWrapper* m_OctomapWrapper;
     octomap::OcTree m_OccupancyTree;
     mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> m_OccupancyMap;
 

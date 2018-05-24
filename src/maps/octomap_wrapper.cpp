@@ -206,9 +206,24 @@ void OctomapWrapper::updateMapOccupancy(const octomap::OcTree::iterator &it, con
     }
 }
 
+void OctomapWrapper::get2DOccupancyMap(maps::Data2DGrid<OctomapWrapper::OccupiedResult> &map)
+{
+    map = *this->m_Map;
+}
+
 maps::Data2DGrid<OctomapWrapper::OccupiedResult>* OctomapWrapper::get2DOccupancyMap()
 {
     return this->m_Map;
+}
+
+void OctomapWrapper::get3DOccupancyMap(octomap::OcTree &map)
+{
+    map = *this->m_Tree;
+}
+
+octomap::OcTree* OctomapWrapper::get3DOccupancyMap()
+{
+    return this->m_Tree;
 }
 
 void OctomapWrapper::updateFreeNode(const octomap::OcTree::iterator &it)

@@ -34,13 +34,18 @@ public:
 
     bool loadOctreeFromBT(const std::string &path);
 
-    maps::Data2DGrid<OccupiedResult>* get2DOccupancyMap();
-
     void updateSensorProperties(const OctomapSensorDefinition &sensorProperties);
 
     void updateFromPointCloud(octomap::Pointcloud *pc, const octomap::pose6d &origin);
 
     void updateFromLaserScan(octomap::Pointcloud* pc, const octomap::pose6d &origin);
+
+public:
+    void get2DOccupancyMap(maps::Data2DGrid<OctomapWrapper::OccupiedResult> &map);
+    maps::Data2DGrid<OccupiedResult>* get2DOccupancyMap();
+
+    void get3DOccupancyMap(octomap::OcTree &map);
+    octomap::OcTree* get3DOccupancyMap();
 
 private:
     void updateMapContinuity();
