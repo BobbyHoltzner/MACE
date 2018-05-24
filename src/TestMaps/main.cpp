@@ -34,36 +34,64 @@ const char kPathSeparator =
         '/';
 #endif
 
-//class StateData{
-//public:
 
-//    StateData():
-//        value(4.5)
-//    {
+class StateData{
+public:
 
-//    }
-//    StateData(const StateData &copy)
-//    {
-//        this->value = copy.value;
-//    }
+    StateData():
+        value(4.5)
+    {
 
-//    StateData& operator =(const StateData &rhs)
-//    {
-//        this->value = rhs.value;
-//        return *this;
-//    }
+    }
+    StateData(const StateData &copy)
+    {
+        std::cout<<"The copy constructor of StateData is being called"<<std::endl;
+        this->value = copy.value;
+    }
 
-//    double getValue() const {
-//      this->value;
-//    }
+    StateData& operator =(const StateData &rhs)
+    {
+        this->value = rhs.value;
+        return *this;
+    }
 
-//    void setValue(const double &newValue){
-//        this->value = newValue;
-//    }
+    double getValue() const {
+      this->value;
+    }
 
-//private:
-//    double value;
-//};
+    void setValue(const double &newValue){
+        this->value = newValue;
+    }
+
+private:
+    double value;
+};
+
+class TestCopy
+{
+public:
+
+    TestCopy()
+    {
+        data = new StateData();
+    }
+
+    TestCopy(const TestCopy &copy)
+    {
+        data = new StateData(*copy.data);
+    }
+
+
+    StateData getStateData() const
+    {
+        return *data;
+    }
+
+
+private:
+    StateData* data;
+};
+
 
 class TestPointer
 {
@@ -83,6 +111,10 @@ public:
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
+
+    TestCopy firstData;
+    StateData newStateData = firstData.getStateData();
+    newStateData.setValue(5.0);
     //    TestPointer newTest;
     //    double value = 5.0;
     //    double* newValue = newTest.testApp(&value);
