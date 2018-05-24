@@ -16,7 +16,7 @@ class State_TakeoffComplete;
 class State_TakeoffTransitioning : public AbstractStateArdupilot
 {
 public:
-    State_TakeoffTransitioning(ControllerFactory *controllerFactory);
+    State_TakeoffTransitioning();
 
 public:
     AbstractStateArdupilot* getClone() const override;

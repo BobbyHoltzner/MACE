@@ -3,6 +3,8 @@
 
 #include "common/common.h"
 
+#include <unordered_map>
+
 #include "mace_core/module_characteristics.h"
 #include "I_controller.h"
 #include "common/pointer_collection.h"
@@ -59,8 +61,11 @@ protected:
 
     std::mutex m_MessageBehaviorsMutex;
 
-    OptionalParameter<std::function<void(const bool completed, const FINISH_CODE finishCode)>> m_FinishLambda;
-    OptionalParameter<std::function<void()>> m_ShutdownLambda;
+    std::unordered_map<void*, std::function<void(const bool completed, const FINISH_CODE finishCode)>> m_FinishLambda;
+    std::unordered_map<void*, std::function<void()>> m_ShutdownLambda;
+
+    std::mutex m_MutexFinishLambda;
+    std::mutex m_MutexShutdownLambda;
 
 public:
 
@@ -73,17 +78,68 @@ public:
 
     virtual ~GenericController() = default;
 
+    virtual void RemoveHost(void* ptr)
+    {
+        m_MutexFinishLambda.lock();
+        m_FinishLambda.erase(ptr);
+        m_MutexFinishLambda.unlock();
 
-    void setLambda_Finished(const std::function<void(const bool completed, const FINISH_CODE finishCode)> &lambda){
-        m_FinishLambda = lambda;
+        m_MutexShutdownLambda.lock();
+        m_ShutdownLambda.erase(ptr);
+        m_MutexShutdownLambda.unlock();
     }
 
-    void onFinished(const bool completed, const FINISH_CODE finishCode = FINISH_CODE()){
-        if(m_FinishLambda.IsSet() == false) {
-            throw std::runtime_error("Data Received Lambda not set!");
+    void setLambda_Finished(const std::function<void(const bool completed, const FINISH_CODE finishCode)> &lambda){
+        m_MutexFinishLambda.lock();
+
+        if(m_FinishLambda.find(0) != m_FinishLambda.cend())
+        {
+            printf("Warning!!!! A finish procedure already exists, replacing old with new\n");
+            m_FinishLambda.erase(0);
         }
 
-        m_FinishLambda()(completed, finishCode);
+        m_FinishLambda.insert({0, lambda});
+        m_MutexFinishLambda.unlock();
+    }
+
+    void AddLambda_Finished(void* sender, const std::function<void(const bool completed, const FINISH_CODE finishCode)> &lambda){
+        m_MutexFinishLambda.lock();
+        m_FinishLambda.insert({sender, lambda});
+        m_MutexFinishLambda.unlock();
+    }
+
+
+
+    void onFinished(const bool completed, const FINISH_CODE finishCode = FINISH_CODE()){
+
+        m_MutexFinishLambda.lock();
+        for(auto it = m_FinishLambda.cbegin() ; it != m_FinishLambda.cend() ; ++it)
+        {
+            it->second(completed, finishCode);
+        }
+        m_MutexFinishLambda.unlock();
+    }
+
+    //!
+    //! \brief Sets a lambda to perform some shutdown action.
+    //!
+    //! The shutdown action will be performed on its own thread when Shutdown is called.
+    //! See Shutdown method for more discussion on this behavior.
+    //! \param lambda Lambda to set
+    //!
+    void setLambda_Shutdown(const std::function<void()> &lambda){
+
+        if(m_ShutdownLambda.find(0) != m_ShutdownLambda.cend())
+        {
+            printf("Warning!!!! A shutdown procedure already exists, replacing old with new\n");
+            m_ShutdownLambda[0] = lambda;
+        }
+        else
+        {
+            m_ShutdownLambda.insert({0, lambda});
+        }
+
+
     }
 
 
@@ -94,8 +150,10 @@ public:
     //! See Shutdown method for more discussion on this behavior.
     //! \param lambda Lambda to set
     //!
-    void setLambda_Shutdown(const std::function<void()> &lambda){
-        m_ShutdownLambda = lambda;
+    void AddLambda_Shutdown(void* sender, const std::function<void()> &lambda){
+        m_MutexShutdownLambda.lock();
+        m_ShutdownLambda.insert({sender, lambda});
+        m_MutexShutdownLambda.unlock();
     }
 
 
@@ -122,11 +180,11 @@ private:
         m_MessageBehaviors.clear();
         m_MessageBehaviorsMutex.unlock();
 
-        if(m_ShutdownLambda.IsSet() == false) {
-            throw std::runtime_error("Shutdown Lambda not set!");
-        }
 
-        m_ShutdownLambda()();
+        for(auto it = m_ShutdownLambda.cbegin() ; it != m_ShutdownLambda.cend() ; ++it)
+        {
+            it->second();
+        }
     }
 
 public:

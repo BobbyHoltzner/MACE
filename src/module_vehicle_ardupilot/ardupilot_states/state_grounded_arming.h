@@ -12,7 +12,7 @@ class State_GroundedArmed;
 class State_GroundedArming : public AbstractStateArdupilot
 {
 public:
-    State_GroundedArming(ControllerFactory *controllerFactory);
+    State_GroundedArming();
 
     virtual ~State_GroundedArming() = default;
 

@@ -3,8 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-State_LandingTransitioning::State_LandingTransitioning(ControllerFactory *controllerFactory):
-    AbstractStateArdupilot(controllerFactory)
+State_LandingTransitioning::State_LandingTransitioning():
+    AbstractStateArdupilot()
 {
     guidedProgress = ArdupilotTargetProgess(2,10,10);
     std::cout<<"We are in the constructor of STATE_LANDING_TRANSITIONING"<<std::endl;
@@ -73,19 +73,18 @@ bool State_LandingTransitioning::handleCommand(const AbstractCommandItem* comman
                 }
             });
 
-            auto landingTransitioning = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
+            Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+            auto landingTransitioning = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
             landingTransitioning->setLambda_Finished([this,landingTransitioning](const bool completed, const uint8_t finishCode){
                 if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
                     std::cout<<"We are not going to perform the transition portion of the landing."<<std::endl;
                 landingTransitioning->Shutdown();
             });
 
-            landingTransitioning->setLambda_Shutdown([this,landingTransitioning]()
+            landingTransitioning->setLambda_Shutdown([this, collection]()
             {
-                m_ControllerFactory->controllerMutex.lock();
-                m_ControllerFactory->controllers.erase("landingTransition");
-                delete landingTransitioning;
-                m_ControllerFactory->controllerMutex.unlock();
+                auto ptr = collection->Remove("landingTransition");
+                delete ptr;
             });
 
             MaceCore::ModuleCharacteristic target;
@@ -98,7 +97,7 @@ bool State_LandingTransitioning::handleCommand(const AbstractCommandItem* comman
             CommandItem::SpatialWaypoint landingTarget(255,cmd->getTargetSystem());
             landingTarget.setPosition(cmdPosition);
             landingTransitioning->Send(landingTarget,sender,target);
-            m_ControllerFactory->controllers.insert({"landingTransition",landingTransitioning});
+            collection->Insert("landingTransition",landingTransitioning);
         }
         break;
     }

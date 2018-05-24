@@ -2,8 +2,8 @@
 
 namespace ardupilot {
 namespace state {
-AbstractRootState::AbstractRootState(ControllerFactory *controllerFactory):
-    AbstractStateArdupilot(controllerFactory, controllerMutex, messageQueue)
+AbstractRootState::AbstractRootState():
+    AbstractStateArdupilot()
 {
 
 }
@@ -20,18 +20,17 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
     switch (command->getCommandType()) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
-        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
+        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
         controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
 
             controllerSystemMode->Shutdown();
         });
 
-        controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
+        controllerSystemMode->setLambda_Shutdown([this, collection]()
         {
-            m_ControllerFactory->controllerMutex.lock();
-            m_ControllerFactory->controllers.erase("modeController");
-            delete controllerSystemMode;
-            m_ControllerFactory->controllerMutex.unlock();
+            auto ptr = collection->Remove("modeController");
+            delete ptr;
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -44,14 +43,15 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
         commandMode.targetID = target.ID;
         commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString(command->as<CommandItem::ActionChangeMode>()->getRequestMode());
         controllerSystemMode->Send(commandMode,sender,target);
-        m_ControllerFactory->controllers.insert({"modeController",controllerSystemMode});
+        collection->Insert("modeController",controllerSystemMode);
         break;
     }
 
     case COMMANDITEM::CI_NAV_HOME:
     {
         const CommandItem::SpatialHome* cmd = command->as<CommandItem::SpatialHome>();
-        auto controllerSystemHome = new MAVLINKVehicleControllers::Command_SetHomeInt(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
+        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        auto controllerSystemHome = new MAVLINKVehicleControllers::Command_SetHomeInt(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
         controllerSystemHome->setLambda_Finished([this,controllerSystemHome,cmd](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
             {
@@ -60,12 +60,10 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
             controllerSystemHome->Shutdown();
         });
 
-        controllerSystemHome->setLambda_Shutdown([this,controllerSystemHome]()
+        controllerSystemHome->setLambda_Shutdown([this, collection]()
         {
-            m_ControllerFactory->controllerMutex.lock();
-            m_ControllerFactory->controllers.erase("setHomeController");
-            delete controllerSystemHome;
-            m_ControllerFactory->controllerMutex.unlock();
+            auto ptr = collection->Remove("setHomeController");
+            delete ptr;
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -76,7 +74,7 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
         sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         controllerSystemHome->Send(*cmd,sender,target);
-        m_ControllerFactory->controllers.insert({"setHomeController",controllerSystemHome});
+        collection->Insert("setHomeController",controllerSystemHome);
         break;
     }
     default:

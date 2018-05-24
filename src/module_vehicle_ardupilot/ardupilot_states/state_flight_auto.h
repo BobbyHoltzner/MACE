@@ -9,7 +9,7 @@ namespace state{
 class State_FlightAuto : public AbstractStateArdupilot
 {
 public:
-    State_FlightAuto(ControllerFactory *controllerFactory);
+    State_FlightAuto();
 
 public:
     AbstractStateArdupilot* getClone() const override;

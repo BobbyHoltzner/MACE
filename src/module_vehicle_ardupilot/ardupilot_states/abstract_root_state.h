@@ -18,7 +18,7 @@ namespace state{
 class AbstractRootState : public AbstractStateArdupilot
 {
 public:
-    AbstractRootState(ControllerFactory *controllerFactory);
+    AbstractRootState();
 
     AbstractRootState(const AbstractRootState &copy);
 

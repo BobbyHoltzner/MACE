@@ -3,8 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-State_TakeoffTransitioning::State_TakeoffTransitioning(ControllerFactory *controllerFactory):
-    AbstractStateArdupilot(controllerFactory)
+State_TakeoffTransitioning::State_TakeoffTransitioning():
+    AbstractStateArdupilot()
 {
     guidedProgress = ArdupilotTargetProgess(2,10,10);
     std::cout<<"We are in the constructor of STATE_TAKEOFF_TRANSITIONING"<<std::endl;
@@ -79,19 +79,18 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
                 }
             });
 
-            auto takeoffTransition = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
+            Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+            auto takeoffTransition = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
             takeoffTransition->setLambda_Finished([this,takeoffTransition](const bool completed, const uint8_t finishCode){
                 if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
                     std::cout<<"We are not going to perform the transition portion of the takeoff."<<std::endl;
                 takeoffTransition->Shutdown();
             });
 
-            takeoffTransition->setLambda_Shutdown([this,takeoffTransition]()
+            takeoffTransition->setLambda_Shutdown([this, collection]()
             {
-                m_ControllerFactory->controllerMutex.lock();
-                m_ControllerFactory->controllers.erase("takeoffTransition");
-                delete takeoffTransition;
-                m_ControllerFactory->controllerMutex.unlock();
+                auto ptr = collection->Remove("takeoffTransition");
+                delete ptr;
             });
 
             MaceCore::ModuleCharacteristic target;
@@ -104,7 +103,7 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
             CommandItem::SpatialWaypoint takeoffTarget(255,cmd->getTargetSystem());
             takeoffTarget.setPosition(cmdPosition);
             takeoffTransition->Send(takeoffTarget,sender,target);
-            m_ControllerFactory->controllers.insert({"takeoffTransition",takeoffTransition});
+            collection->Insert("takeoffTransition",takeoffTransition);
         }
         break;
     }

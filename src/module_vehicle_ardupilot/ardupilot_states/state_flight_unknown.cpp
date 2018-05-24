@@ -3,8 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-State_FlightUnknown::State_FlightUnknown(ControllerFactory *controllerFactory):
-    AbstractStateArdupilot(controllerFactory)
+State_FlightUnknown::State_FlightUnknown():
+    AbstractStateArdupilot()
 {
     std::cout<<"We are in the constructor of STATE_FLIGHT_UNKNOWN"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_FLIGHT_UNKNOWN;

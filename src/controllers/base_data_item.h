@@ -5,6 +5,8 @@
 #include <functional>
 #include <memory>
 
+#include <unordered_map>
+
 #include "common/optional_parameter.h"
 #include "mace_core/module_characteristics.h"
 
@@ -38,22 +40,26 @@ public:
 
 private:
 
-    OptionalParameter<std::function<void(const Key &, const std::shared_ptr<Type> &)>> m_lambda_DataRecieved;
+    std::unordered_map<void*, std::function<void(const Key &, const std::shared_ptr<Type> &)>> m_lambda_DataRecieved;
     OptionalParameter<std::function<FetchKeyReturn(const OptionalParameter<Key> &)>> m_lambda_FetchDataFromKey;
     OptionalParameter<std::function<FetchModuleReturn(const OptionalParameter<MaceCore::ModuleCharacteristic> &)>> m_lambda_FetchAll;
 public:
 
 
     void setLambda_DataReceived(const std::function<void(const Key &, const std::shared_ptr<Type> &)> &lambda){
-        m_lambda_DataRecieved = lambda;
+        m_lambda_DataRecieved.insert({0, lambda});
+    }
+
+    void AddLambda_DataReceived(void* sender, const std::function<void(const Key &, const std::shared_ptr<Type> &)> &lambda){
+        m_lambda_DataRecieved.insert({sender, lambda});
     }
 
     void onDataReceived(const Key &key, const std::shared_ptr<Type> &data){
-        if(m_lambda_DataRecieved.IsSet() == false) {
-            throw std::runtime_error("Data Received Lambda not set!");
-        }
 
-        m_lambda_DataRecieved()(key, data);
+        for(auto it = m_lambda_DataRecieved.cbegin() ; it != m_lambda_DataRecieved.cend() ; ++it)
+        {
+            it->second(key, data);
+        }
     }
 
 

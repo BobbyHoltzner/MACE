@@ -23,11 +23,7 @@ class State_Grounded;
 class State_Flight : public AbstractRootState
 {
 public:
-    State_Flight(
-            std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> * controllers,
-            std::mutex *controllerMutex,
-            Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *messageQueue
-        );
+    State_Flight();
 
 public:
     AbstractStateArdupilot* getClone() const override;

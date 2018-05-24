@@ -16,7 +16,7 @@ class State_Takeoff;
 class State_Grounded : public AbstractRootState
 {
 public:
-    State_Grounded(ControllerFactory *controllerFactory);
+    State_Grounded();
 
 public:
     AbstractStateArdupilot* getClone() const override;

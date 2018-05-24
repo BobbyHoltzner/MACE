@@ -3,8 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-State_GroundedDisarming::State_GroundedDisarming(ControllerFactory *controllerFactory):
-    AbstractStateArdupilot(controllerFactory)
+State_GroundedDisarming::State_GroundedDisarming():
+    AbstractStateArdupilot()
 {
     std::cout<<"We are in the constructor of STATE_GROUNDED_DISARMING"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_GROUNDED_DISARMING;
@@ -72,24 +72,18 @@ void State_GroundedDisarming::OnEnter()
     //when calling this function that means our intent is to disarm the vehicle
     //first let us send this relevant command
     //issue command to controller here, and then setup a callback to handle the result
-    auto controllerArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
-    controllerArm->setLambda_Finished([this,controllerArm](const bool completed, const uint8_t finishCode){
+    Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+    auto controllerArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+    controllerArm->AddLambda_Finished(this, [this,controllerArm](const bool completed, const uint8_t finishCode){
         controllerArm->Shutdown();
         if(!completed || (finishCode != MAV_RESULT_ACCEPTED))
             desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_ARMED;
     });
 
-    controllerArm->setLambda_Shutdown([this,controllerArm]()
+    controllerArm->setLambda_Shutdown([this, collection]()
     {
-        m_ControllerFactory->controllerMutex.lock();
-        m_ControllerFactory->controllers.erase("armController");
-        delete controllerArm;
-        m_ControllerFactory->controllerMutex.unlock();
-    });
-
-    controllerArm->setLambda_Shutdown([this]()
-    {
-        std::cout<<"We are going to shutdown the controller."<<std::endl;
+        auto ptr = collection->Remove("armController");
+        delete ptr;
     });
 
     MaceCore::ModuleCharacteristic target;
@@ -101,7 +95,7 @@ void State_GroundedDisarming::OnEnter()
     CommandItem::ActionArm action(255,target.ID);
     action.setVehicleArm(false);
     controllerArm->Send(action,sender,target);
-    m_ControllerFactory->controllers.insert({"armController",controllerArm});
+    collection->Insert("armController",controllerArm);
 }
 
 void State_GroundedDisarming::OnEnter(const AbstractCommandItem *command)

@@ -3,7 +3,7 @@
 namespace ardupilot{
 namespace state{
 
-State_Landing::State_Landing(ControllerFactory *controllerFactory):
+State_Landing::State_Landing():
     AbstractRootState()
 {
     std::cout<<"We are in the constructor of STATE_LANDING"<<std::endl;
@@ -83,7 +83,9 @@ bool State_Landing::handleCommand(const AbstractCommandItem* command)
     {
         this->currentCommand = command->getClone();
         //check that the vehicle is truely armed and switch us into the guided mode
-        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
+        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+
+        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
         controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
             controllerSystemMode->Shutdown();
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
@@ -92,12 +94,10 @@ bool State_Landing::handleCommand(const AbstractCommandItem* command)
                 desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT;
         });
 
-        controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
+        controllerSystemMode->setLambda_Shutdown([this, collection]()
         {
-            m_ControllerFactory->controllerMutex.lock();
-            m_ControllerFactory->controllers.erase("modeController");
-            delete controllerSystemMode;
-            m_ControllerFactory->controllerMutex.unlock();
+            auto ptr = collection->Remove("modeController");
+            delete ptr;
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -110,7 +110,7 @@ bool State_Landing::handleCommand(const AbstractCommandItem* command)
         commandMode.targetID = target.ID;
         commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString("GUIDED");
         controllerSystemMode->Send(commandMode,sender,target);
-        m_ControllerFactory->controllers.insert({"modeController",controllerSystemMode});
+        collection->Insert("modeController",controllerSystemMode);
 
         break;
     }

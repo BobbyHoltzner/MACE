@@ -3,8 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-State_Flight::State_Flight(ControllerFactory *controllerFactory):
-    AbstractRootState(controllerFactory)
+State_Flight::State_Flight():
+    AbstractRootState()
 {
     std::cout<<"We are in the constructor of STATE_FLIGHT"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_FLIGHT;
@@ -115,19 +115,18 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
     {
         const CommandItem::SpatialRTL* cmd = command->as<CommandItem::SpatialRTL>();
 
-        auto controllerRTL = new MAVLINKVehicleControllers::CommandRTL(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
+        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        auto controllerRTL = new MAVLINKVehicleControllers::CommandRTL(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
         controllerRTL->setLambda_Finished([this,controllerRTL](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
                 desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_RTL;
             controllerRTL->Shutdown();
         });
 
-        controllerRTL->setLambda_Shutdown([this,controllerRTL]()
+        controllerRTL->setLambda_Shutdown([this, collection]()
         {
-            m_ControllerFactory->controllerMutex.lock();
-            m_ControllerFactory->controllers.erase("RTLController");
-            delete controllerRTL;
-            m_ControllerFactory->controllerMutex.unlock();
+            auto ptr = collection->Remove("RTLController");
+            delete ptr;
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -138,7 +137,7 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
         sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         controllerRTL->Send(*cmd,sender,target);
-        m_ControllerFactory->controllers.insert({"RTLController",controllerRTL});
+        collection->Insert("RTLController",controllerRTL);
     }
     default:
     {

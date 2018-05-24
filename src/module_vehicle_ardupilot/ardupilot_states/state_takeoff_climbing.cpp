@@ -3,8 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-State_TakeoffClimbing::State_TakeoffClimbing(ControllerFactory *controllerFactory):
-    AbstractStateArdupilot(controllerFactory)
+State_TakeoffClimbing::State_TakeoffClimbing():
+    AbstractStateArdupilot()
 {
     guidedProgress = ArdupilotTargetProgess(2,10,10);
     std::cout<<"We are in the constructor of STATE_TAKEOFF_CLIMBING"<<std::endl;
@@ -98,20 +98,19 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
                 }
             });
 
+            Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
 
-            auto controllerClimb = new MAVLINKVehicleControllers::CommandTakeoff(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
+            auto controllerClimb = new MAVLINKVehicleControllers::CommandTakeoff(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
             controllerClimb->setLambda_Finished([this,controllerClimb](const bool completed, const uint8_t finishCode){
                 if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
                     GetImmediateOuterState()->setDesiredStateEnum(ArdupilotFlightState::STATE_GROUNDED);
                 controllerClimb->Shutdown();
             });
 
-            controllerClimb->setLambda_Shutdown([this,controllerClimb]()
+            controllerClimb->setLambda_Shutdown([this, collection]()
             {
-                m_ControllerFactory->controllerMutex.lock();
-                m_ControllerFactory->controllers.erase("takeoffClimb");
-                delete controllerClimb;
-                m_ControllerFactory->controllerMutex.unlock();
+                auto ptr = collection->Remove("takeoffClimb");
+                delete ptr;
             });
 
             MaceCore::ModuleCharacteristic target;
@@ -122,7 +121,7 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
             sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
             controllerClimb->Send(*cmd,sender,target);
-            m_ControllerFactory->controllers.insert({"takeoffClimb",controllerClimb});
+            collection->Insert("takeoffClimb", controllerClimb);
         }
         break;
     }

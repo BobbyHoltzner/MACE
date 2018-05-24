@@ -266,7 +266,7 @@ inline bool operator!=(const StateFactory& lhs, const StateFactory& rhs) { retur
 
 // ConcreteStateFactory is the actual state creator; these are allocated statically in the transition
 // functions (below) and stored within Transition instances.
-template <typename TargetState, typename AdditionalArg>
+template <typename TargetState>
 struct ConcreteStateFactory : StateFactory
 {
 	virtual StateTypeId GetStateType() const
@@ -281,25 +281,23 @@ struct ConcreteStateFactory : StateFactory
 
 	virtual State* AllocateState() const
 	{
-        return HSM_NEW TargetState(m_arg);
+        return HSM_NEW TargetState();
 	}
 
 private:
 	// Only GetStateFactory can create this type
-	friend const StateFactory& GetStateFactory<TargetState>();
-    ConcreteStateFactory(AdditionalArg arg) :
-        m_arg(arg)
+    friend const StateFactory& GetStateFactory<TargetState>();
+    ConcreteStateFactory()
     {
     }
 
-    AdditionalArg m_arg;
 };
 
-template <typename TargetState, typename AdditionalArg>
-const StateFactory& GetStateFactory(AdditionalArg args)
+template <typename TargetState>
+const StateFactory& GetStateFactory()
 {
 	static_assert(std::is_convertible<TargetState, State>::value, "TargetState must derive from hsm::State");
-    static ConcreteStateFactory<TargetState, AdditionalArg> instance(args);
+    static ConcreteStateFactory<TargetState> instance;
 	return instance;
 }
 
@@ -379,13 +377,13 @@ inline Transition SiblingTransition(const StateFactory& stateFactory)
 template <typename TargetState>
 Transition SiblingTransition()
 {
-	return Transition(Transition::Sibling, GetStateFactory<TargetState>());
+    return Transition(Transition::Sibling, GetStateFactory<TargetState>());
 }
 
 template <typename TargetState, typename... Args>
 Transition SiblingTransition(Args&&... args)
 {
-	return Transition(Transition::Sibling, GetStateFactory<TargetState>(), detail::GenerateOnEnterArgsFunc<TargetState>(std::forward<Args>(args)...));
+    return Transition(Transition::Sibling, GetStateFactory<TargetState>(), detail::GenerateOnEnterArgsFunc<TargetState>(std::forward<Args>(args)...));
 }
 
 // Deprecated after v1.5 upon realizing that it's not possible to bind to the correct OnEnter for state
@@ -848,11 +846,11 @@ public:
 	~StateMachine();
 
 	// Initializes the state machine
-	template <typename InitialStateType>
-	void Initialize(Owner* owner = 0)
+    template <typename InitialStateType>
+    void Initialize(Owner* owner = 0)
 	{
 		HSM_ASSERT(mInitialTransition.IsNo());
-		mInitialTransition = SiblingTransition(GetStateFactory<InitialStateType>());
+        mInitialTransition = SiblingTransition(GetStateFactory<InitialStateType>());
 		mOwner = owner;
 	}
 
@@ -1410,26 +1408,12 @@ inline hsm_bool StateMachine::ProcessStateTransitionsOnce()
 
 inline void StateMachine::PushState(State* state)
 {
-    printf("Adding State. Size:%d\n", mStateStack.size()+1);
 	mStateStack.push_back(state);
-
-    for(int i = 0 ; i < mStateStack.size() ; i++)
-    {
-        State* state = mStateStack.at(i);
-        printf("  Name: %s\n  PTR: %d\n", state->GetStateDebugName(), state);
-    }
 }
 
 inline void StateMachine::PopState()
 {
-    printf("Adding State. Size:%d\n", mStateStack.size()-1);
     mStateStack.pop_back();
-
-    for(int i = 0 ; i < mStateStack.size() ; i++)
-    {
-        State* state = mStateStack.at(i);
-        printf("  Name: %s\n  PTR: %d\n", state->GetStateDebugName(), state);
-    }
 }
 
 inline void StateMachine::Log(size_t minLevel, size_t numSpaces, const hsm_char* format, ...)

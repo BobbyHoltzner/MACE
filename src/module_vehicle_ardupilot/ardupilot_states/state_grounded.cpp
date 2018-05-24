@@ -3,7 +3,7 @@
 namespace ardupilot{
 namespace state{
 
-State_Grounded::State_Grounded(ControllerFactory *controllerFactory):
+State_Grounded::State_Grounded():
     AbstractRootState()
 {
     std::cout<<"We are in the constructor of STATE_GROUNDED"<<std::endl;

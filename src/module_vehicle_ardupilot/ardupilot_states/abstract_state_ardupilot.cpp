@@ -3,9 +3,8 @@
 namespace ardupilot{
 namespace state{
 
-AbstractStateArdupilot::AbstractStateArdupilot(ControllerFactory *controllerFactory) :
-    currentCommand(nullptr),
-    m_ControllerFactory(controllerFactory)
+AbstractStateArdupilot::AbstractStateArdupilot() :
+    currentCommand(nullptr)
 
 {
 }
@@ -19,6 +18,9 @@ AbstractStateArdupilot::AbstractStateArdupilot(const AbstractStateArdupilot &cop
 
 void AbstractStateArdupilot::OnExit()
 {
+    Owner().ControllersCollection()->ForAll([this](Controllers::IController<mavlink_message_t>* controller){
+        controller->RemoveHost(this);
+    });
 }
 
 void AbstractStateArdupilot::clearCommand()
@@ -40,18 +42,17 @@ bool AbstractStateArdupilot::handleCommand(const CommandItem::AbstractCommandIte
     switch (command->getCommandType()) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
-        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), &m_ControllerFactory->messageQueue, Owner().getCommsObject()->getLinkChannel());
-        controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+        controllerSystemMode->setLambda_Finished([this, controllerSystemMode](const bool completed, const uint8_t finishCode){
 
             controllerSystemMode->Shutdown();
         });
 
-        controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
+        controllerSystemMode->setLambda_Shutdown([this, collection]()
         {
-            m_ControllerFactory->controllerMutex.lock();
-            m_ControllerFactory->controllers.erase("modeController");
-            delete controllerSystemMode;
-            m_ControllerFactory->controllerMutex.unlock();
+            auto ptr = collection->Remove("modeController");
+            delete ptr;
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -64,7 +65,9 @@ bool AbstractStateArdupilot::handleCommand(const CommandItem::AbstractCommandIte
         commandMode.targetID = target.ID;
         commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString(command->as<CommandItem::ActionChangeMode>()->getRequestMode());
         controllerSystemMode->Send(commandMode,sender,target);
-        m_ControllerFactory->controllers.insert({"modeController",controllerSystemMode});
+
+        collection->Insert("modeController", controllerSystemMode);
+
         break;
     }
     default:
@@ -74,6 +77,9 @@ bool AbstractStateArdupilot::handleCommand(const CommandItem::AbstractCommandIte
 
 bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
 {
+    throw std::runtime_error("States should not longer handle mavlink messages");
+
+    /*
     int systemID = msg.sysid;
 
     MaceCore::ModuleCharacteristic sender;
@@ -82,6 +88,7 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
 
     bool consumed = false;
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*>::iterator it;
+
     m_ControllerFactory->controllerMutex.lock();
     for(it=m_ControllerFactory->controllers.begin(); it!=m_ControllerFactory->controllers.end(); ++it)
     {
@@ -89,6 +96,8 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
         consumed = obj->ReceiveMessage(&msg, sender);
     }
     m_ControllerFactory->controllerMutex.unlock();
+
+
     if(!consumed)
     {
         State* innerState = GetImmediateInnerState();
@@ -106,6 +115,8 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
 
     }
     return consumed;
+    */
+    return false;
 }
 
 } //end of namespace state

@@ -47,6 +47,8 @@ public:
         //We want this to eventually be pure
         printf("DEPRECATED!!! Function should be pure. Other controllers should impliment this");
     }
+
+    virtual void RemoveHost(void * ptr) = 0;
 };
 
 }

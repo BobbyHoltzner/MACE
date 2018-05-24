@@ -14,7 +14,7 @@ class State_Landing;
 class State_Unknown : public AbstractStateArdupilot
 {
 public:
-    State_Unknown(ControllerFactory *controllerFactory);
+    State_Unknown();
 
 public:
     AbstractStateArdupilot* getClone() const override;
