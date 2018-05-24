@@ -4,6 +4,8 @@
 #include "base/base_global.h"
 #include "common/class_forward.h"
 
+#include "common/optional_parameter.h"
+
 #include "state_space.h"
 
 namespace mace {
@@ -61,13 +63,17 @@ public:
      */
     virtual bool isValid(const State *state) const = 0;
 
-    /**
-      */
+    void setLambda_Validity(const std::function<bool(const State *state)> &lambda){
+        m_ValidityCheckLamba = lambda;
+    }
+
 protected:
     /**
      * @brief m_stateSpace
      */
     StateSpace* m_stateSpace;
+
+    OptionalParameter<std::function<bool(const State *state)>> m_ValidityCheckLamba;
 
 };
 

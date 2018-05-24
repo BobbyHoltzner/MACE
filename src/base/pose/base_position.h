@@ -65,6 +65,7 @@ public:
         if(this->name != rhs.name){
             return false;
         }
+        return true;
     }
 
     bool operator !=(const Position &rhs) const

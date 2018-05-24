@@ -78,41 +78,41 @@ bool MaceData::updateCurrentMissionItem(const MissionItem::MissionItemCurrent &c
 bool MaceData::getMissionList(const int &systemID, const MissionItem::MISSIONTYPE &type, const MissionItem::MISSIONSTATE &state, MissionItem::MissionList &missionList) const
 {
     return false;
-//    bool rtnValue = false;
-//    switch(state)
-//    {
-//    case Data::MissionTypeState::CURRENT:
-//    {
-//        throw std::runtime_error("MaceData is not currently supporting get mission lists from the current queue");
-//        break;
-//    }
-//    case Data::MissionTypeState::ONBOARD:
-//    {
-//        std::lock_guard<std::mutex> guard(MUTEXMissions);
-//        if(mapOnboardMissions.count(systemID))
-//        {
-//            //this implies there is atleast a mission associated with the requested vehicleID
-//            std::map<MissionItem::MISSIONTYPE,MissionItem::MissionList>::iterator it;
-//            std::map<MissionItem::MISSIONTYPE,MissionItem::MissionList> subList = mapOnboardMissions.at(systemID);
+    //    bool rtnValue = false;
+    //    switch(state)
+    //    {
+    //    case Data::MissionTypeState::CURRENT:
+    //    {
+    //        throw std::runtime_error("MaceData is not currently supporting get mission lists from the current queue");
+    //        break;
+    //    }
+    //    case Data::MissionTypeState::ONBOARD:
+    //    {
+    //        std::lock_guard<std::mutex> guard(MUTEXMissions);
+    //        if(mapOnboardMissions.count(systemID))
+    //        {
+    //            //this implies there is atleast a mission associated with the requested vehicleID
+    //            std::map<MissionItem::MISSIONTYPE,MissionItem::MissionList>::iterator it;
+    //            std::map<MissionItem::MISSIONTYPE,MissionItem::MissionList> subList = mapOnboardMissions.at(systemID);
 
-//            //it = mapGenericMissions.at(missionKey.m_systemID).find(missionKey); I dont understand why I cannot do this
-//            it = subList.find(type);
-//            if(it != mapOnboardMissions.at(systemID).end())
-//            {
-//                //this implies that the iterator now points to the missionList
-//                missionList = it->second;
-//                rtnValue = true;
-//            }
-//        }
-//        break;
-//    }
-//    default:
-//    {
-//        throw std::runtime_error("MaceData has been asked to get a mission based on an unrecognized state");
-//        break;
-//    }
-//    }
-//    return rtnValue;
+    //            //it = mapGenericMissions.at(missionKey.m_systemID).find(missionKey); I dont understand why I cannot do this
+    //            it = subList.find(type);
+    //            if(it != mapOnboardMissions.at(systemID).end())
+    //            {
+    //                //this implies that the iterator now points to the missionList
+    //                missionList = it->second;
+    //                rtnValue = true;
+    //            }
+    //        }
+    //        break;
+    //    }
+    //    default:
+    //    {
+    //        throw std::runtime_error("MaceData has been asked to get a mission based on an unrecognized state");
+    //        break;
+    //    }
+    //    }
+    //    return rtnValue;
 }
 
 bool MaceData::getMissionList(const MissionItem::MissionKey &missionKey, MissionItem::MissionList &missionList) const
@@ -229,8 +229,8 @@ void MaceData::receivedNewMission(const MissionItem::MissionList &missionList)
     mapMissions[key] = missionList;
 
     //KEN fix: we should update this current mission list, the issue is the lock ga
-//    if(missionList.getMissionTXState() == MissionItem::MISSIONSTATE::CURRENT)
-//        this->updateCurrentMission(missionList.getMissionKey());
+    //    if(missionList.getMissionTXState() == MissionItem::MISSIONSTATE::CURRENT)
+    //        this->updateCurrentMission(missionList.getMissionKey());
 }
 
 /*
@@ -295,6 +295,22 @@ bool MaceData::checkForCurrentMission(const MissionItem::MissionKey &missionKey)
         return true;
     }
     return false;
+}
+
+/////////////////////////////////////////////////////////
+/// PATH PLANNING DATA
+/////////////////////////////////////////////////////////
+
+octomap::OcTree MaceData::getOccupancyGrid3D()
+{
+    std::lock_guard<std::mutex> guard(m_Mutex_OctomapWrapper);
+    return m_OccupancyTree;
+}
+
+mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> MaceData::getCompressedOccupancyGrid2D()
+{
+    std::lock_guard<std::mutex> guard(m_Mutex_OctomapWrapper);
+    return m_OccupancyMap;
 }
 
 } //end of namespace MaceCore

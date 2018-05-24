@@ -104,7 +104,7 @@ public:
             return false;
         }
 
-        for(int i = 0; i < this->m_vertex.size(); i++)
+        for(unsigned int i = 0; i < this->m_vertex.size(); i++)
         {
             if(m_vertex.at(i) != rhs.m_vertex.at(i))
                 return false;
@@ -123,7 +123,10 @@ public:
 
 
 protected:
-    virtual void updateBoundingBox() = 0;
+    virtual void updateBoundingBox()
+    {
+
+    }
 
 protected:
     std::string name;

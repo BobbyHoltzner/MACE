@@ -26,26 +26,20 @@ public:
                 const double &x_res = 0.5, const double &y_res = 0.5,
                 const pose::CartesianPosition_2D &position = pose::CartesianPosition_2D());
 
+    BaseGridMap(const double &x_min, const double &x_max,
+                  const double &y_min, const double &y_max,
+                  const double &x_res, const double &y_res,
+                const pose::CartesianPosition_2D &position);
+
+    BaseGridMap(const BaseGridMap &copy);
+
     //!
     //! \brief ~Dynamic2DGrids
     //!
     virtual ~BaseGridMap() = default;
 
 
-    void updateGridSize(const double &x_length = 10.0, const double &y_length = 10.0,
-                     const double &x_res = 0.5, const double &y_res = 0.5);
-
     void updatePosition(const pose::CartesianPosition_2D &position);
-
-    //!
-    //! \brief indexFromXPos
-    //! \param x
-    //! \return
-    //!
-    int indexFromXPos(const double &x) const
-    {
-        return static_cast<int>(round((x - xMin) / xResolution));
-    }
 
     void getPositionFromIndex(const unsigned int &index, double &x, double &y) const
     {
@@ -54,7 +48,28 @@ public:
 
         int xIndex = (index % xSize);
         x = xMin + xIndex * xResolution;
+    }
 
+    void getMinPositionFromIndex(const unsigned int &index, double &x, double &y) const
+    {
+        getPositionFromIndex(index,x,y);
+    }
+
+    void getMaxPositionFromIndex(const unsigned int &index, double &x, double &y) const
+    {
+        getPositionFromIndex(index,x,y);
+        x+=xResolution;
+        y+=yResolution;
+    }
+
+    //!
+    //! \brief indexFromXPos
+    //! \param x
+    //! \return
+    //!
+    int indexFromXPos(const double &x) const
+    {
+        return static_cast<int>(floor((x - xMin) / xResolution));
     }
 
     //!
@@ -64,7 +79,7 @@ public:
     //!
     int indexFromYPos(const double &y) const
     {
-        return static_cast<int>(round((y - yMin) / yResolution));
+        return static_cast<int>(floor((y - yMin) / yResolution));
     }
 
     //!
@@ -163,6 +178,50 @@ public:
     double getYLength() const
     {
         return yMax - yMin;
+    }
+
+    pose::CartesianPosition_2D getOriginPosition() const
+    {
+        return this->originPosition;
+    }
+
+protected:
+    virtual void updateGridSize(const double &minX, const double &maxX, const double &minY, const double &maxY, const double &x_res, const double &y_res);
+
+    virtual void updateGridSizeByLength(const double &x_length = 10.0, const double &y_length = 10.0,
+                     const double &x_res = 0.5, const double &y_res = 0.5);
+
+public:
+    bool operator == (const BaseGridMap &rhs) const
+    {
+        if(this->originPosition != rhs.originPosition){
+            return false;
+        }
+        if(this->xMin != rhs.xMin){
+            return false;
+        }
+        if(this->xMax != rhs.xMax){
+            return false;
+        }
+        if(this->yMin != rhs.yMin){
+            return false;
+        }
+        if(this->yMax != rhs.yMax){
+            return false;
+        }
+        if(this->xResolution != rhs.xResolution){
+            return false;
+        }
+        if(this->yResolution != rhs.yResolution){
+            return false;
+        }
+        if(this->xSize != rhs.xSize){
+            return false;
+        }
+        if(this->ySize != rhs.ySize){
+            return false;
+        }
+        return true;
     }
 
 protected:

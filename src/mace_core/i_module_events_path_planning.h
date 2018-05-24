@@ -3,6 +3,9 @@
 
 #include "i_module_events_general.h"
 
+#include "maps/data_2d_grid.h"
+#include "maps/octomap_wrapper.h"
+
 namespace MaceCore
 {
 
@@ -12,6 +15,9 @@ class IModuleEventsPathPlanning  : public IModuleEventsGeneral
 
 public:
 
+    virtual void EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> &map) = 0;
+
+    virtual void EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path) = 0;
 
 //    //!
 //    //! \brief Event fired to indicate what planning horizon is being utilized by the path planning module

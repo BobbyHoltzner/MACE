@@ -7,7 +7,8 @@
 
 ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
     MaceCore::IModuleCommandPathPlanning(),
-    m_PlanningStateTopic("planningState")
+    m_PlanningStateTopic("planningState"),
+    m_MapTopic("mappingData")
 {
 }
 
@@ -67,14 +68,38 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
 void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 {
 //    UNUSED(vehicleID);
+    char* MACEPath = getenv("MACE_ROOT");
+    std::string rootPath(MACEPath);
+    std::string btFile = rootPath + kPathSeparator + "simple_test_000_303030_newOrigin.bt";
+    mace::maps::OctomapWrapper octomap;
+    octomap.loadOctreeFromBT(btFile);
+    octomap.updateMapContinuity();
+    octomap.updateMapFromTree();
+    mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult>* compressedMap = octomap.get2DOccupancyMap();
+
+    compressedMap->updatePosition(mace::pose::CartesianPosition_2D(-15,-15));
+
+    ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr){
+        ptr->EventPP_New2DOccupancyMap(this, *compressedMap);
+    });
+
     m_Space = std::make_shared<mace::state_space::Cartesian2DSpace>();
-    m_Space->bounds.setBounds(0,10,0,10);
+    m_Space->bounds.setBounds(-15,15,-15,15);
 
     mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(m_Space);
     mace::state_space::DiscreteMotionValidityCheckPtr motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(m_Space);
     mace::state_space::SpecialValidityCheckPtr stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(m_Space);
+    auto stateValidityCheck = ([this,compressedMap](const mace::state_space::State *state){
+        const mace::pose::CartesianPosition_2D* castState = state->as<const mace::pose::CartesianPosition_2D>();
+        mace::maps::OctomapWrapper::OccupiedResult* result = compressedMap->getCellByPos(castState->getXPosition(),castState->getYPosition());
+        if(*result == mace::maps::OctomapWrapper::OccupiedResult::NOT_OCCUPIED)
+            return true;
+        return false;
+    });
+    stateCheck->setLambda_Validity(stateValidityCheck);
+
     motionCheck->setStateValidityCheck(stateCheck);
-    motionCheck->setMinCheckDistance(0.25);
+    motionCheck->setMinCheckDistance(0.125);
 
     mace::state_space::SpaceInformationPtr spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(m_Space);
     spaceInfo->setStateSampler(sampler);
@@ -83,9 +108,9 @@ void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 
     mace::planners_sampling::RRTBase rrt(spaceInfo);
     mace::state_space::GoalState* begin = new mace::state_space::GoalState(m_Space);
-    begin->setState(new mace::pose::CartesianPosition_2D(0,0));
+    begin->setState(new mace::pose::CartesianPosition_2D(14,-14.75));
     mace::state_space::GoalState* end = new mace::state_space::GoalState(m_Space,1.0);
-    end->setState(new mace::pose::CartesianPosition_2D(10,10));
+    end->setState(new mace::pose::CartesianPosition_2D(14,7.5));
     end->setRadialRegion(1.0);
 
     rrt.setPlanningParameters(begin,end);
@@ -93,11 +118,32 @@ void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
     rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
     rrt.setCallbackFunction(this);
     std::vector<mace::state_space::State*> solution = rrt.solve();
+    std::vector<mace::state_space::StatePtr> smartSolution;
+    smartSolution.resize(solution.size());
+
     std::cout<<"The solution looks like this: "<<std::endl;
     for (int i = 0; i < solution.size(); i++)
     {
-        std::cout<<"X: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
+        mace::state_space::StatePtr state(solution[i]->getClone());
+        smartSolution.at(i) = state;
+        std::cout<<"X: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
     }
+
+    ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr){
+        ptr->EventPP_NewPathFound(this, smartSolution);
+    });
+
+//    std::shared_ptr<MapItemTopics::Occupancy2DGrid_Topic> ptrMap= std::make_shared<MapItemTopics::Occupancy2DGrid_Topic>();
+//    ptrMap->setMap(std::shared_ptr<mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult>>(compressedMap));
+
+//    MaceCore::TopicDatagram topicDatagram;
+//    m_MapTopic.SetComponent(ptrMap, topicDatagram);
+
+//    ModulePathPlanningNASAPhase2::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//        ptr->NewTopicDataValues(this, m_MapTopic.Name(), 0, MaceCore::TIME(), topicDatagram);
+//    });
+
+//    std::cout<<"The event is right before firing"<<std::endl;
 }
 
 void ModulePathPlanningNASAPhase2::NewlyUpdatedOccupancyMap()

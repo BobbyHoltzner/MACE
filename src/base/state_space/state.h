@@ -3,10 +3,14 @@
 
 #include "base/base_global.h"
 
+#include "common/class_forward.h"
+
 //This class is intended to be abstract as well
 
 namespace mace {
 namespace state_space {
+
+MACE_CLASS_FORWARD(State);
 
 class BASESHARED_EXPORT State{
 
@@ -14,6 +18,8 @@ public:
     /**
       */
     State() = default;
+
+    State(const State &copy) = default;
 
     /**
       */

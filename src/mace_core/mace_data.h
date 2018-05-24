@@ -27,6 +27,9 @@
 #include "data/mission_execution_state.h"
 
 
+#include "maps/octomap_wrapper.h"
+#include "maps/data_2d_grid.h"
+
 #include "octomap/octomap.h"
 #include "octomap/OcTree.h"
 
@@ -730,13 +733,22 @@ private:
     mutable std::mutex m_VehicleDataMutex;
 
     mutable std::mutex m_Mutex_ResourceMap;
-    mutable std::mutex m_Mutex_OccupancyMap;
     mutable std::mutex m_Mutex_ProbabilityMap;
     mutable std::mutex m_TopicMutex;
 
 /////////////////////////////////////////////////////////
 /// PATH PLANNING DATA
 /////////////////////////////////////////////////////////
+
+private:
+    mutable std::mutex m_Mutex_OctomapWrapper;
+    octomap::OcTree m_OccupancyTree;
+    mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> m_OccupancyMap;
+
+public:
+    octomap::OcTree getOccupancyGrid3D();
+    mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> getCompressedOccupancyGrid2D();
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// VEHICLE MISSION METHODS: The following methods are in support of accessing the mission items stored within MaceData.

@@ -33,7 +33,8 @@ SOURCES += \
     iterators/circle_map_iterator.cpp \
     iterators/generic_map_iterator.cpp \
     octomap_wrapper.cpp \
-    octomap_sensor_definition.cpp
+    octomap_sensor_definition.cpp \
+    occupancy_2d_grid_topic.cpp
 
 HEADERS +=\
         maps_global.h \
@@ -46,7 +47,9 @@ HEADERS +=\
     iterators/grid_map_iterator.h \
     iterators/generic_map_iterator.h \
     octomap_wrapper.h \
-    octomap_sensor_definition.h
+    octomap_sensor_definition.h \
+    occupancy_2d_grid_topic.h \
+    map_topic_components.h
 
 
 #Header file copy

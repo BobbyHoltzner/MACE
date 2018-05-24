@@ -18,8 +18,20 @@
 #include "base/state_space/discrete_motion_validity_check.h"
 #include "base/state_space/special_validity_check.h"
 
-#include "octomap/octomap.h"
 #include "octomap/OcTree.h"
+
+#include "maps/octomap_wrapper.h"
+
+#include "maps/map_topic_components.h"
+
+using namespace octomap;
+
+const char kPathSeparator =
+        #ifdef _WIN32
+        '\\';
+#else
+        '/';
+#endif
 
 class MODULE_PATH_PLANNING_NASAPHASE2SHARED_EXPORT ModulePathPlanningNASAPhase2 : public MaceCore::IModuleCommandPathPlanning, public mace::planners::Planner_Interface
 {
@@ -94,6 +106,8 @@ private:
 
 private:
     Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;
+    Data::TopicDataObjectCollection<MAP_DATA_TOPICS> m_MapTopic;
+
 
 };
 #endif // MODULE_PATH_PLANNING_NASAPHASE2_H

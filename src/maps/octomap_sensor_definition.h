@@ -55,7 +55,7 @@ public:
     {
         return m_set_MinRange;
     }
-    double getMaxRange() const
+    double getMinRange() const
     {
         return m_MinRange;
     }
@@ -153,6 +153,17 @@ public:
         return m_ThreshMax;
     }
 
+
+    double getMinSizeX() const
+    {
+        return minSizeX;
+    }
+
+    double getMinSizeY() const
+    {
+        return minSizeY;
+    }
+
 public:
     OctomapSensorDefinition& operator = (const OctomapSensorDefinition &rhs)
     {
@@ -186,7 +197,7 @@ private:
     double m_MinRange = 0.0;
 
     bool   m_set_MaxRange;
-    double m_MaxRange = std::numeric_limits<double>::max();
+    double m_MaxRange = -1;
 
     bool   m_set_occupancyThresh;
     double m_occupancyThresh;
@@ -202,6 +213,9 @@ private:
 
     bool   m_set_ThreshMax;
     double m_ThreshMax = 0.97;
+
+    double minSizeX = 0.0;
+    double minSizeY = 0.0;
 };
 
 

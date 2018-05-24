@@ -1,10 +1,14 @@
 #ifndef OCTOMAP_WRAPPER_H
 #define OCTOMAP_WRAPPER_H
 
+
 #include "octomap/OcTree.h"
+#include "octomap/OcTreeIterator.hxx"
+
 #include "octomap_sensor_definition.h"
 
-#include "dynamic_2D_grid.h"
+#include "data_2d_grid.h"
+#include <iostream>
 
 namespace mace{
 namespace maps{
@@ -28,19 +32,52 @@ public:
 
     void set2DProjection(const bool enable);
 
-    void loadOctreeFromBT(const std::string &path);
+    bool loadOctreeFromBT(const std::string &path);
 
+    maps::Data2DGrid<OccupiedResult>* get2DOccupancyMap();
+
+    void updateSensorProperties(const OctomapSensorDefinition &sensorProperties);
+
+    void updateFromPointCloud(octomap::Pointcloud *pc, const octomap::pose6d &origin);
+
+    void updateFromLaserScan(octomap::Pointcloud* pc, const octomap::pose6d &origin);
 
 private:
-    bool enabled2DProjection = false;
+    void updateMapContinuity();
+
+    void updateMapFromTree();
+
+    void updateMapOccupancy(const octomap::OcTree::iterator &it, const bool &occupancy);
+
+private:
+    //void filterGroundPlane(const octomap::Pointcloud& pc, octomap::Pointcloud& ground, octomap::Pointcloud& nonground);
+    void updateOccupiedNode(const octomap::OcTree::iterator &it);
+    void updateFreeNode(const octomap::OcTree::iterator &it);
+
+private:
+    inline void mapIndex(const octomap::OcTreeKey& key, unsigned int &rows, unsigned int &colums) const {
+        rows = key[0] - paddedMinKey[0];
+        colums = key[1] - paddedMinKey[1];
+    }
+
+private:
+    bool enabled2DProjection = true;
     double treeResolution = 0.5;
     unsigned int treeDepth = 0;
+    unsigned int maxTreeDepth = 0;
 
+    unsigned int mapScaling = 0;
 
     octomap::OcTree* m_Tree;
-    maps::Dynamic2DGrid* m_Map;
+    octomap::OcTreeKey keyBBXMin;
+    octomap::OcTreeKey keyBBXMax;
+    octomap::OcTreeKey paddedMinKey;
+    octomap::OcTreeKey paddedMaxKey;
+
+    maps::Data2DGrid<OccupiedResult>* m_Map;
 
     OctomapSensorDefinition* m_sensorProperties;
+
 };
 
 } //end of namespace maps
