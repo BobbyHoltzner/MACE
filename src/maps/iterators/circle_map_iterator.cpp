@@ -89,7 +89,7 @@ CircleMapIterator CircleMapIterator::operator ++(int)
     return old;
 }
 
-const int CircleMapIterator::operator *() const
+int CircleMapIterator::operator *() const
 {
     return *(*it);
 }

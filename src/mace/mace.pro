@@ -193,8 +193,8 @@ exists(/opt/ros/kinetic/lib/) {
         LIBS += -L/opt/ros/kinetic/lib -ltf2
         LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
         LIBS += -L/opt/ros/kinetic/lib -lactionlib
-#        LIBS += -L/opt/ros/kinetic/lib -loctomap
-#        LIBS += -L/opt/ros/kinetic/lib -loctomap_ros
+        LIBS += -L/opt/ros/kinetic/lib -loctomap
+        LIBS += -L/opt/ros/kinetic/lib -loctomap_ros
 }
 }
 

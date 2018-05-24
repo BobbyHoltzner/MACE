@@ -304,13 +304,13 @@ bool MaceData::checkForCurrentMission(const MissionItem::MissionKey &missionKey)
 octomap::OcTree MaceData::getOccupancyGrid3D()
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
-    return m_OccupancyTree;
+    return *m_OctomapWrapper->get3DOccupancyMap();
 }
 
 mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> MaceData::getCompressedOccupancyGrid2D()
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
-    return m_OccupancyMap;
+    return *m_OctomapWrapper->get2DOccupancyMap();
 }
 
 } //end of namespace MaceCore

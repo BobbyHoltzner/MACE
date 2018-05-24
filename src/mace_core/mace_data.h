@@ -70,13 +70,13 @@ public:
     MaceData() :
         m_MSTOKEEP(DEFAULT_MS_RECORD_TO_KEEP), flagBoundaryVerts(false)
     {
-
+        m_OctomapWrapper = new mace::maps::OctomapWrapper();
     }
 
     MaceData(uint64_t historyToKeepInms) :
         m_MSTOKEEP(historyToKeepInms), flagBoundaryVerts(false)
     {
-
+        m_OctomapWrapper = new mace::maps::OctomapWrapper();
     }
 
     /////////////////////////////////////////////////////////
@@ -553,24 +553,6 @@ public:
         std::lock_guard<std::mutex> guard(m_Mutex_ResourceMap);
 
         func(m_ResourceMap);
-    }
-
-    //!
-    //! \brief Retreive a copy of the occupancy map
-    //!
-    //! Thread safe
-    //! \return Copy of occupancy map
-    //!
-    octomap::OcTree OccupancyTree_GetCopy() const
-    {
-        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
-        return m_OctomapWrapper->get2DOccupancyMap();
-    }
-
-    octomap::OcTree OccupancyTree_GetCopy() const
-    {
-        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
-        return m_OccupancyTree;
     }
 
     void insertObservation(octomap::Pointcloud& obj)

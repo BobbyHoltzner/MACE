@@ -124,7 +124,7 @@ public:
     //!
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
-    void TestFiring() override;
+    void NewlyUpdated3DOccupancyMap(); override;
 
     void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> &map) override;
 

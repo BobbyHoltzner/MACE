@@ -36,15 +36,12 @@ public:
 
     void updateSensorProperties(const OctomapSensorDefinition &sensorProperties);
 
-    void updateFromPointCloud(octomap::Pointcloud *pc, const octomap::pose6d &origin);
+    void updateFromPointCloud(octomap::Pointcloud *pc, const octomap::pose6d &origin = octomap::pose6d());
 
-    void updateFromLaserScan(octomap::Pointcloud* pc, const octomap::pose6d &origin);
+    void updateFromLaserScan(octomap::Pointcloud* pc, const octomap::pose6d &origin = octomap::pose6d());
 
 public:
-    void get2DOccupancyMap(maps::Data2DGrid<OctomapWrapper::OccupiedResult> &map);
     maps::Data2DGrid<OccupiedResult>* get2DOccupancyMap();
-
-    void get3DOccupancyMap(octomap::OcTree &map);
     octomap::OcTree* get3DOccupancyMap();
 
 private:
@@ -52,7 +49,9 @@ private:
 
     void updateMapFromTree();
 
-    void updateMapOccupancy(const octomap::OcTree::iterator &it, const bool &occupancy);
+    void updateMapOccupancy(const octomap::OcTreeKey &key, const bool &occupancy);
+
+    void updateMapOccupancyRecursiveCheck(const octomap::OcTree::iterator &it, const bool &occupancy);
 
 private:
     //void filterGroundPlane(const octomap::Pointcloud& pc, octomap::Pointcloud& ground, octomap::Pointcloud& nonground);

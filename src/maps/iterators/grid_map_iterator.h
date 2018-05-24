@@ -32,7 +32,7 @@ public:
 
     bool operator !=(const GridMapIterator &rhs) const;
 
-    const int operator *() const;
+    int operator *() const;
 
 private:
     size_t currentIndex;

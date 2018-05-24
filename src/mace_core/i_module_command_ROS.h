@@ -19,6 +19,7 @@ namespace MaceCore
 enum class ROSCommands
 {
     BASE_MODULE_LISTENER_ENUMS,
+    NEWLY_UPDATED_3D_OCCUPANCY_MAP,
     NEWLY_COMPRESSED_OCCUPANCY_MAP,
     NEWLY_FOUND_PATH,
     TEST_FIRE
@@ -46,10 +47,10 @@ public:
             UNUSED(sender);
             NewlyFoundPath(path);
         });
-        AddCommandLogic<int>(ROSCommands::TEST_FIRE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<int>(ROSCommands::NEWLY_UPDATED_3D_OCCUPANCY_MAP, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             UNUSED(vehicleID);
-            TestFiring();
+            NewlyUpdated3DOccupancyMap();
         });
     }
 
@@ -59,9 +60,9 @@ public:
     }
 
 public:
-    virtual void TestFiring() = 0;
-
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
+
+    virtual void NewlyUpdated3DOccupancyMap() = 0;
 
     virtual void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> &map) = 0;
 

@@ -43,7 +43,7 @@ public:
 
     bool operator !=(const CircleMapIterator &rhs) const;
 
-    const int operator *() const;
+    int operator *() const;
 
 private:
     bool isInside() const;

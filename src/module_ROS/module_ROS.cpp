@@ -16,6 +16,7 @@
 #include <tf2_sensor_msgs/tf2_sensor_msgs.h>
 #include <laser_geometry/laser_geometry.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include <octomap_ros/conversions.h>
 #endif
 
 //!
@@ -217,9 +218,10 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
     insertVehicleIfNotExist(vehicleID);
 }
 
-void ModuleROS::TestFiring()
+void ModuleROS::NewlyUpdated3DOccupancyMap()
 {
-    std::cout<<"Test firing catches"<<std::endl;
+    std::cout<<"The ROS module has seen a newly updated 3D occupancy map!"<<std::endl;
+    //this->getDataObject()->getOccupancyGrid3D()
 }
 
 void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> &map)
@@ -351,7 +353,7 @@ void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<D
 
 #ifdef ROS_EXISTS
     // Send gazebo model state:
-    sendGazeboModelState(vehicleID);
+//    sendGazeboModelState(vehicleID);
 #endif
 }
 
@@ -377,7 +379,7 @@ void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<D
 
 #ifdef ROS_EXISTS
     // Send gazebo model state:
-    sendGazeboModelState(vehicleID);
+//    sendGazeboModelState(vehicleID);
 #endif
 }
 
@@ -495,7 +497,7 @@ void ModuleROS::newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan cons
 void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     // Convert to Octomap Point Cloud:
     octomap::Pointcloud octoPointCloud;
-    //    octomap::pointCloud2ToOctomap(*msg, octoPointCloud);
+    octomap::pointCloud2ToOctomap(*msg, octoPointCloud);
 
     // TODO: Send converted point cloud to MACE core so path planning can take over.
 
@@ -525,31 +527,31 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
 }
 void ModuleROS::renderOccupancyMap()
 {
-    octomap::OcTree tree;
-    visualization_msgs::MarkerArray occupiedVoxels;
-    occupiedVoxels.markers.resize(tree.getTreeDepth() + 1);
-    for (octomap::OcTree::iterator it = tree->begin(tree.getTreeDepth()), end = tree->end(); it != end; ++it)
-    {
-        if(tree.isNodeOccupied(*it))
-        {
-            unsigned int leafIndex = it.getDepth();
+//    octomap::OcTree tree;
+//    visualization_msgs::MarkerArray occupiedVoxels;
+//    occupiedVoxels.markers.resize(tree.getTreeDepth() + 1);
+//    for (octomap::OcTree::iterator it = tree->begin(tree.getTreeDepth()), end = tree->end(); it != end; ++it)
+//    {
+//        if(tree.isNodeOccupied(*it))
+//        {
+//            unsigned int leafIndex = it.getDepth();
 
-            double size = it.getSize();
+//            double size = it.getSize();
 
-            double minX, minY, minZ, maxX, maxY, maxZ;
+//            double minX, minY, minZ, maxX, maxY, maxZ;
 
-            tree.getMetricMin(minX, minY, minZ);
-            tree.getMetricMax(maxX, maxY, maxZ);
-            geometry_msgs::Point cube;
-            cube.x = it.getX();
-            cube.y = it.getY();
-            cube.z = it.getZ();
-            double height = (1-std::min(std::max((it.getZ() - minZ)/(maxZ - minZ),0),1.0));
-            occupiedVoxels.markers[idx].points.push_back(cube);
-            occupiedVoxels.markers[idx].colors.push_back(generateColorHeight(height));
+//            tree.getMetricMin(minX, minY, minZ);
+//            tree.getMetricMax(maxX, maxY, maxZ);
+//            geometry_msgs::Point cube;
+//            cube.x = it.getX();
+//            cube.y = it.getY();
+//            cube.z = it.getZ();
+//            double height = (1-std::min(std::max((it.getZ() - minZ)/(maxZ - minZ),0),1.0));
+//            occupiedVoxels.markers[idx].points.push_back(cube);
+//            occupiedVoxels.markers[idx].colors.push_back(generateColorHeight(height));
 
-        }
-    }
+//        }
+//    }
 }
 
 //!
@@ -588,48 +590,48 @@ void ModuleROS::renderEdge(const mace::geometry::Line_2DC &edge) {
 std_msgs::ColorRGBA ModuleROS::generateColorHeight(const double height)
 {
     std_msgs::ColorRGBA color;
-    color.a = 1.0;
-    // blend over HSV-values (more colors)
+//    color.a = 1.0;
+//    // blend over HSV-values (more colors)
 
-    double s = 1.0;
-    double v = 1.0;
+//    double s = 1.0;
+//    double v = 1.0;
 
-    height -= floor(height);
-    height *= 6;
-    int i;
-    double m, n, f;
+//    height -= floor(height);
+//    height *= 6;
+//    int i;
+//    double m, n, f;
 
-    i = floor(height);
-    f = height - i;
-    if (!(i & 1))
-      f = 1 - f; // if i is even
-    m = v * (1 - s);
-    n = v * (1 - s * f);
+//    i = floor(height);
+//    f = height - i;
+//    if (!(i & 1))
+//      f = 1 - f; // if i is even
+//    m = v * (1 - s);
+//    n = v * (1 - s * f);
 
-    switch (i) {
-      case 6:
-      case 0:
-        color.r = v; color.g = n; color.b = m;
-        break;
-      case 1:
-        color.r = n; color.g = v; color.b = m;
-        break;
-      case 2:
-        color.r = m; color.g = v; color.b = n;
-        break;
-      case 3:
-        color.r = m; color.g = n; color.b = v;
-        break;
-      case 4:
-        color.r = n; color.g = m; color.b = v;
-        break;
-      case 5:
-        color.r = v; color.g = m; color.b = n;
-        break;
-      default:
-        color.r = 1; color.g = 0.5; color.b = 0.5;
-        break;
-    }
+//    switch (i) {
+//      case 6:
+//      case 0:
+//        color.r = v; color.g = n; color.b = m;
+//        break;
+//      case 1:
+//        color.r = n; color.g = v; color.b = m;
+//        break;
+//      case 2:
+//        color.r = m; color.g = v; color.b = n;
+//        break;
+//      case 3:
+//        color.r = m; color.g = n; color.b = v;
+//        break;
+//      case 4:
+//        color.r = n; color.g = m; color.b = v;
+//        break;
+//      case 5:
+//        color.r = v; color.g = m; color.b = n;
+//        break;
+//      default:
+//        color.r = 1; color.g = 0.5; color.b = 0.5;
+//        break;
+//    }
 
     return color;
 }

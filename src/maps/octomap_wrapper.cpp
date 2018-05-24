@@ -10,6 +10,7 @@ OctomapWrapper::OctomapWrapper(const double &resolution, const OctomapSensorDefi
 {
     m_sensorProperties = new OctomapSensorDefinition(sensorProperties);
     m_Tree = new octomap::OcTree(treeResolution);
+    m_Tree->enableChangeDetection(true);
 
     OccupiedResult fillValue = OccupiedResult::NO_DATA;
     m_Map = new maps::Data2DGrid<OccupiedResult>(&fillValue);
@@ -26,7 +27,27 @@ void OctomapWrapper::updateSensorProperties(const OctomapSensorDefinition &senso
 
 void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const octomap::pose6d &origin)
 {
+//    octomap::KeySet occupiedKeySet;
+//    octomap::KeySet freeKeySet;
     m_Tree->insertPointCloud(*pc,origin.trans(),m_sensorProperties->getMaxRange());
+    //The following function is already called when calling the insertPointCloud function, this would be inefficient
+    //As it would perform the ray trace operation twice. It may be better at some future date to modify the octomap
+    //library to merely deliver the changed values and keys on insertion and/or store as members.
+    //m_Tree->computeUpdate(*pc,origin.trans(),freeKeySet,occupiedKeySet,m_sensorProperties->getMaxRange());
+    if(m_Tree->numChangesDetected() > 0)
+    {
+        if(enabled2DProjection)
+        {
+            updateMapContinuity();
+            for (octomap::KeyBoolMap::const_iterator it = m_Tree->changedKeysBegin(), end = m_Tree->changedKeysEnd(); it != end; ++it)
+            {
+                octomap::OcTreeKey key = it->first;
+                bool occupied = m_Tree->isNodeOccupied(m_Tree->search(key,m_Tree->getTreeDepth()));
+                updateMapOccupancyRecursiveCheck();
+            }
+        }
+        m_Tree->resetChangeDetection();
+    }
 }
 
 void OctomapWrapper::updateFromLaserScan(octomap::Pointcloud *pc, const octomap::pose6d &origin)
@@ -152,17 +173,27 @@ void OctomapWrapper::updateMapFromTree()
             counter++;
             if(m_Tree->isNodeOccupied(*it))
             {
-                updateMapOccupancy(it,true);
+                updateMapOccupancyRecursiveCheck(it,true);
             }
             else
             {
-                updateMapOccupancy(it,false);
+                updateMapOccupancyRecursiveCheck(it,false);
             }
         }
     }
 }
 
-void OctomapWrapper::updateMapOccupancy(const octomap::OcTree::iterator &it, const bool &occupancy)
+void OctomapWrapper::updateMapOccupancy(const octomap::OcTreeKey &key, const bool &occupancy)
+{
+    octomap::point3d point = m_Tree->keyToCoord(key,maxTreeDepth);
+    OccupiedResult* ptr = m_Map->getCellByPos(point.x,point.y);
+    if(occupancy)
+        *ptr = OccupiedResult::OCCUPIED;
+    else
+        *ptr = OccupiedResult::NOT_OCCUPIED;
+}
+
+void OctomapWrapper::updateMapOccupancyRecursiveCheck(const octomap::OcTree::iterator &it, const bool &occupancy)
 {
     if(it.getDepth() == maxTreeDepth)
     {
@@ -206,19 +237,9 @@ void OctomapWrapper::updateMapOccupancy(const octomap::OcTree::iterator &it, con
     }
 }
 
-void OctomapWrapper::get2DOccupancyMap(maps::Data2DGrid<OctomapWrapper::OccupiedResult> &map)
-{
-    map = *this->m_Map;
-}
-
 maps::Data2DGrid<OctomapWrapper::OccupiedResult>* OctomapWrapper::get2DOccupancyMap()
 {
     return this->m_Map;
-}
-
-void OctomapWrapper::get3DOccupancyMap(octomap::OcTree &map)
-{
-    map = *this->m_Tree;
 }
 
 octomap::OcTree* OctomapWrapper::get3DOccupancyMap()
@@ -228,12 +249,12 @@ octomap::OcTree* OctomapWrapper::get3DOccupancyMap()
 
 void OctomapWrapper::updateFreeNode(const octomap::OcTree::iterator &it)
 {
-    updateMapOccupancy(it,false);
+    updateMapOccupancyRecursiveCheck(it,false);
 }
 
 void OctomapWrapper::updateOccupiedNode(const octomap::OcTree::iterator &it)
 {
-    updateMapOccupancy(it,true);
+    updateMapOccupancyRecursiveCheck(it,true);
 
 }
 
