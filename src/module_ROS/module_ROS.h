@@ -162,7 +162,6 @@ public:
 public:
 
 #ifdef ROS_EXISTS
-
     //!
     //! \brief setupROS Setup ROS subscribers, publishers, and node handler
     //!
@@ -211,6 +210,8 @@ public:
     //!
     //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz
     //! \param state 2D Cartesian Position to render
+    //! \brief convertToGazeboCartesian Convert position in local frame to Gazebo's world frame
+    //! \param localPos MACE local position
     //!
     void renderState(const mace::pose::CartesianPosition_2D &state);
 
