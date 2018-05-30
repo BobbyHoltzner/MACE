@@ -1,3 +1,12 @@
+/**
+ *  @file      module_ROS.cpp
+ *  @brief     ModuleRos class implementation
+ *  @details   Implementation of the ROS module support methods.
+ *  @author    Patrick Nolan (patnolan33)
+ *  @copyright BSD
+ */
+
+
 #include <module_ROS.h>
 
 #include "mace_core/module_factory.h"
@@ -178,7 +187,7 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
                 // Write Attitude data to the GUI:
                 updateAttitudeData(senderID, component);
             }
-            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
+            else if(componentsUpdated.at(i) == DataStateTopic::StateLocalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateLocalPositionTopic> component = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 
@@ -353,7 +362,7 @@ void ModuleROS::newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan cons
 void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     // Convert to Octomap Point Cloud:
     octomap::Pointcloud octoPointCloud;
-//    octomap::pointCloud2ToOctomap(*msg, octoPointCloud);
+    octomap::pointCloud2ToOctomap(*msg, octoPointCloud);
 
     // TODO: Send converted point cloud to MACE core so path planning can take over.
 

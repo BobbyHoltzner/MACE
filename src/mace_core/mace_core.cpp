@@ -534,6 +534,9 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
     if(m_PathPlanning)
         m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
 
+    if(m_ROS)
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
+
     if(m_GroundStation.get() != NULL)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
     else if(m_ExternalLink.size() > 0)
@@ -546,9 +549,6 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
             (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, module);
         }
     }
-
-    if(m_ROS)
-        m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
 
 }
 

@@ -15,7 +15,7 @@ namespace MaceCore
 
 enum class ROSCommands
 {
-    BASE_MODULE_LISTENER_ENUMS
+    NEWLY_AVAILABLE_VEHICLE
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandROS  : public AbstractModule_EventListeners<MetadataROS, IModuleEventsROS, ROSCommands>
