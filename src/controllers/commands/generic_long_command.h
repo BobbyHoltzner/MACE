@@ -99,6 +99,8 @@ protected:
         cmd.target_system = data.getTargetSystem();
         cmd.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
 
+        m_CommandRequestedFrom.insert({target, sender});
+
         FillCommand(data, cmd);
     }
 
@@ -128,10 +130,18 @@ protected:
 
     virtual bool Finish_Receive(const mace_command_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj)
     {
-        UNUSED(msg);
-        queueObj = sender;
-        ack = msg.result;
-        return true;
+        if(m_CommandRequestedFrom.find(sender) != m_CommandRequestedFrom.cend())
+        {
+            UNUSED(msg);
+            queueObj = sender;
+            ack = msg.result;
+            m_CommandRequestedFrom.erase(sender);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
 public:
