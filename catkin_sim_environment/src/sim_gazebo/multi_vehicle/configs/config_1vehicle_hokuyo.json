@@ -2,7 +2,7 @@
     "gui": true,
     "pause": false,
     "addSensors": true,
-    "worldName": "MACE_laser_test",
+    "worldName": "MACE_simple_test",
     "octomap": true,
     "vehicles": {
         "1": "hokuyo_utm30lx"

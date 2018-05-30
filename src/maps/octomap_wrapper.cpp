@@ -30,6 +30,11 @@ void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const octomap
 //    octomap::KeySet occupiedKeySet;
 //    octomap::KeySet freeKeySet;
     m_Tree->insertPointCloud(*pc,origin.trans(),m_sensorProperties->getMaxRange());
+
+    //Update the depth of the tree
+    treeDepth = m_Tree->getTreeDepth();
+    maxTreeDepth = treeDepth;
+
     //The following function is already called when calling the insertPointCloud function, this would be inefficient
     //As it would perform the ray trace operation twice. It may be better at some future date to modify the octomap
     //library to merely deliver the changed values and keys on insertion and/or store as members.
@@ -42,8 +47,9 @@ void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const octomap
             for (octomap::KeyBoolMap::const_iterator it = m_Tree->changedKeysBegin(), end = m_Tree->changedKeysEnd(); it != end; ++it)
             {
                 octomap::OcTreeKey key = it->first;
+                octomap::point3d point = m_Tree->keyToCoord(key,maxTreeDepth);
                 bool occupied = m_Tree->isNodeOccupied(m_Tree->search(key,m_Tree->getTreeDepth()));
-                updateMapOccupancyRecursiveCheck();
+                updateMapOccupancyRecursiveCheck(point.x(),point.y(),maxTreeDepth,occupied);
             }
         }
         m_Tree->resetChangeDetection();
@@ -143,7 +149,7 @@ void OctomapWrapper::updateMapContinuity()
     mapScaling = 1 << (treeDepth - maxTreeDepth);
     unsigned int width = (paddedMaxKey[0] - paddedMinKey[0])/mapScaling;
     unsigned int height = (paddedMaxKey[0] - paddedMinKey[0])/mapScaling; //I dont know if this should match the grid size
-    double gridRes = m_Tree->getNodeSize(maxTreeDepth);
+    double gridRes = m_Tree->getNodeSize(m_Tree->getTreeDepth());
     m_Map->updateGridSize(minX,maxX,minY,maxY,gridRes,gridRes);
 
     int mapOriginX = minKey[0] - paddedMinKey[0];
@@ -153,8 +159,10 @@ void OctomapWrapper::updateMapContinuity()
     octomap::point3d origin = m_Tree->keyToCoord(paddedMinKey, treeDepth);
     //    m_projectCompleteMap = (!m_incrementalUpdate || (std::abs(gridRes-m_gridmap.info.resolution) > 1e-6));
     //    m_gridmap.info.resolution = gridRes;
-    std::cout<<"X Position Origin: "<<origin.x() - gridRes*0.5<<std::endl;
-    std::cout<<"Y Position Origin: "<<origin.y() - gridRes*0.5<<std::endl;
+    pose::CartesianPosition_2D transformedOrigin(origin.x() - gridRes*0.5, origin.y() - gridRes*0.5);
+    m_Map->updatePosition(transformedOrigin);
+//    std::cout<<"X Position Origin: "<<origin.x() - gridRes*0.5<<std::endl;
+//    std::cout<<"Y Position Origin: "<<origin.y() - gridRes*0.5<<std::endl;
 
     if (maxTreeDepth != treeDepth){
         std::cout<<"Was this true"<<std::endl;
@@ -186,7 +194,7 @@ void OctomapWrapper::updateMapFromTree()
 void OctomapWrapper::updateMapOccupancy(const octomap::OcTreeKey &key, const bool &occupancy)
 {
     octomap::point3d point = m_Tree->keyToCoord(key,maxTreeDepth);
-    OccupiedResult* ptr = m_Map->getCellByPos(point.x,point.y);
+    OccupiedResult* ptr = m_Map->getCellByPos(point.x(),point.y());
     if(occupancy)
         *ptr = OccupiedResult::OCCUPIED;
     else
@@ -195,9 +203,14 @@ void OctomapWrapper::updateMapOccupancy(const octomap::OcTreeKey &key, const boo
 
 void OctomapWrapper::updateMapOccupancyRecursiveCheck(const octomap::OcTree::iterator &it, const bool &occupancy)
 {
-    if(it.getDepth() == maxTreeDepth)
+    updateMapOccupancyRecursiveCheck(it.getX(),it.getY(),it.getDepth(),occupancy);
+}
+
+void OctomapWrapper::updateMapOccupancyRecursiveCheck(const double &xPos, const double &yPos, const unsigned int &depth, const bool &occupancy)
+{
+    if(depth == maxTreeDepth)
     {
-        OccupiedResult* newPtr = m_Map->getCellByPos(it.getX(),it.getY());
+        OccupiedResult* newPtr = m_Map->getCellByPos(xPos,yPos);
         if(occupancy && ((*newPtr == OccupiedResult::NO_DATA) || (*newPtr == OccupiedResult::NOT_OCCUPIED)))
         {
             *newPtr = OccupiedResult::OCCUPIED;
@@ -217,9 +230,9 @@ void OctomapWrapper::updateMapOccupancyRecursiveCheck(const octomap::OcTree::ite
 
                 m_Tree->getMetricMin(minX, minY, minZ);
                 m_Tree->getMetricMax(maxX, maxY, maxZ);
-                double width = it.getSize()/2.0;
-                octomap::point3d minPt(it.getX() - width, it.getY() - width, minZ);
-                octomap::point3d maxPt(it.getX() + width, it.getY() + width, maxZ);
+                double width = m_Tree->getNodeSize(depth)/2.0;
+                octomap::point3d minPt(xPos - width, yPos - width, minZ);
+                octomap::point3d maxPt(xPos + width, yPos + width, maxZ);
                 for(octomap::OcTree::leaf_bbx_iterator it = m_Tree->begin_leafs_bbx(minPt,maxPt,maxTreeDepth), end=m_Tree->end_leafs_bbx();
                     it!=end;++it)
                 {

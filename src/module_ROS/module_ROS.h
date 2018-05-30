@@ -34,6 +34,9 @@
 #include <gazebo_msgs/SetModelState.h>
 #include <sensor_msgs/JointState.h>
 #include <tf/transform_broadcaster.h>
+
+#include <octomap_ros/conversions.h>
+
 #endif
 
 #include "rosTimer.h"
@@ -122,9 +125,9 @@ public:
     //! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
     //! \param vehicleID Vehilce ID of the newly available vehicle
     //!
-    virtual void NewlyAvailableVehicle(const int &vehicleID);
+    void NewlyAvailableVehicle(const int &vehicleID) override;
 
-    void NewlyUpdated3DOccupancyMap(); override;
+    void NewlyUpdated3DOccupancyMap() override;
 
     void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> &map) override;
 
@@ -200,12 +203,12 @@ public:
     // ============================================================================= //
 #ifdef ROS_EXISTS
 
-    std_msgs::ColorRGBA generateColorHeight(const double height);
+    std_msgs::ColorRGBA generateColorHeight(double height);
 
 
     //! \brief renderOccupancyMap
     //!
-    void renderOccupancyMap();
+    void renderOccupancyMap(const octomap::OcTree *tree);
 
     //!
     //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz
@@ -283,10 +286,11 @@ private:
 
     ros::Publisher compressedMapPub;
 
+    ros::Publisher testTransformedCloud;
     //!
     //! \brief octomapPub Publisher handling the occupied voxels of the octomap
     //!
-    ros::Publisher octomapPub;
+    ros::Publisher occupancyMapPub;
 
     //!
     //! \brief points Marker containers

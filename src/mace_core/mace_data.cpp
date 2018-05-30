@@ -301,13 +301,13 @@ bool MaceData::checkForCurrentMission(const MissionItem::MissionKey &missionKey)
 /// PATH PLANNING DATA
 /////////////////////////////////////////////////////////
 
-octomap::OcTree MaceData::getOccupancyGrid3D()
+octomap::OcTree MaceData::getOccupancyGrid3D() const
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
     return *m_OctomapWrapper->get3DOccupancyMap();
 }
 
-mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> MaceData::getCompressedOccupancyGrid2D()
+mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> MaceData::getCompressedOccupancyGrid2D() const
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
     return *m_OctomapWrapper->get2DOccupancyMap();

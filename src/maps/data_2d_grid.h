@@ -66,8 +66,12 @@ public:
 
     void updateGridSize(const double &minX, const double &maxX, const double &minY, const double &maxY, const double &x_res, const double &y_res) override
     {
+        if((minX != this->xMin) || (maxX != this->xMax) ||
+                (minY != this->xMin) || (maxY != this->xMax) ||
+                (x_res != this->xResolution) || (y_res != this->yResolution))
+        {
         //First clone this object
-        BaseGridMap* clone = new BaseGridMap(*this);
+        Data2DGrid* clone = new Data2DGrid(*this);
 
         //update the underlying size structure
         BaseGridMap::updateGridSize(minX,maxX,minY,maxY,x_res,y_res);
@@ -75,6 +79,17 @@ public:
         //clear this contents and update with the default values
         this->clear();
         //copy the contents over
+        double xPos, yPos;
+        mace::maps::GridMapIterator it(clone);
+        for(;!it.isPastEnd();++it)
+        {
+            const T* ptr = clone->getCellByIndex(*it);
+            clone->getPositionFromIndex(*it,xPos,yPos);
+            T* currentValue = this->getCellByPos(xPos,yPos);
+            if(currentValue != nullptr)
+                *currentValue = *ptr;
+        }
+        }
     }
 
     void updateGridSizeByLength(const double &x_length = 10.0, const double &y_length = 10.0,

@@ -728,8 +728,8 @@ private:
     mace::maps::OctomapWrapper* m_OctomapWrapper;
 
 public:
-    octomap::OcTree getOccupancyGrid3D();
-    mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> getCompressedOccupancyGrid2D();
+    octomap::OcTree getOccupancyGrid3D() const;
+    mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> getCompressedOccupancyGrid2D() const;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

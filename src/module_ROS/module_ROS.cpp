@@ -16,7 +16,6 @@
 #include <tf2_sensor_msgs/tf2_sensor_msgs.h>
 #include <laser_geometry/laser_geometry.h>
 #include <nav_msgs/OccupancyGrid.h>
-#include <octomap_ros/conversions.h>
 #endif
 
 //!
@@ -220,20 +219,22 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 
 void ModuleROS::NewlyUpdated3DOccupancyMap()
 {
-    std::cout<<"The ROS module has seen a newly updated 3D occupancy map!"<<std::endl;
-    //this->getDataObject()->getOccupancyGrid3D()
+    octomap::OcTree tree = this->getDataObject()->getOccupancyGrid3D();
+    this->renderOccupancyMap(&tree);
+    this->NewlyCompressedOccupancyMap(this->getDataObject()->getCompressedOccupancyGrid2D());
 }
 
 void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> &map)
 {
-    std::cout<<"I have made it into the ROS module."<<std::endl;
+    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","map"));
+
     nav_msgs::OccupancyGrid occupancyGrid;
     occupancyGrid.info.resolution = map.getXResolution();
     occupancyGrid.info.origin.position.x = map.getOriginPosition().getXPosition();
     occupancyGrid.info.origin.position.y = map.getOriginPosition().getYPosition();
     occupancyGrid.info.origin.position.z = 0.0;
     occupancyGrid.info.width = map.getSizeX();
-    occupancyGrid.info.height = map.getSizeX();
+    occupancyGrid.info.height = map.getSizeY();
     occupancyGrid.info.origin.orientation.x = 0.0;
     occupancyGrid.info.origin.orientation.y = 0.0;
     occupancyGrid.info.origin.orientation.z = 0.0;
@@ -244,7 +245,6 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
     const float cellMax = 100;
     const float cellRange = cellMax - cellMin;
     mace::maps::GridMapIterator it(&map);
-    occupancyGrid.data[0] = 100;
     for(;!it.isPastEnd();++it)
     {
         const mace::maps::OctomapWrapper::OccupiedResult* ptr = map.getCellByIndex(*it);
@@ -255,7 +255,7 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
             occupancyGrid.data[*it] = 100;
             break;
         }
-        case mace::maps::OctomapWrapper::OccupiedResult::NO_DATA:
+        case mace::maps::OctomapWrapper::OccupiedResult::NOT_OCCUPIED:
         {
             occupancyGrid.data[*it] = 0;
             break;
@@ -334,57 +334,6 @@ void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
 #endif
 }
 
-//!
-//! \brief updatePositionData Update the position of the corresponding Gazebo model based on position of MACE vehicle
-//! \param vehicleID ID of the vehicle to update
-//! \param component Position (in the local frame)
-//!
-void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component)
-{
-    double x = component->getX();
-    double y = component->getY();
-    double z = component->getZ();
-
-    if(m_vehicleMap.find(vehicleID) != m_vehicleMap.end()) {
-        std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple;
-        DataState::StateLocalPosition tmpPos = DataState::StateLocalPosition(component->getCoordinateFrame(), x, y, z);
-        DataState::StateAttitude tmpAtt = std::get<1>(m_vehicleMap[vehicleID]);
-        tmpTuple = std::make_tuple(tmpPos, tmpAtt);
-        m_vehicleMap[vehicleID] = tmpTuple;
-    }
-
-#ifdef ROS_EXISTS
-    // Send gazebo model state:
-//    sendGazeboModelState(vehicleID);
-#endif
-}
-
-//!
-//! \brief updateAttitudeData Update the attitude of the corresponding Gazebo model based on attitude of MACE vehicle
-//! \param vehicleID ID of the vehicle to update
-//! \param component Attitude
-//!
-void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component)
-{
-    double roll = component->roll;
-    double pitch = component->pitch;
-    double yaw = component->yaw;
-
-    if(m_vehicleMap.find(vehicleID) != m_vehicleMap.end()) {
-        std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple;
-        DataState::StateLocalPosition tmpPos = std::get<0>(m_vehicleMap[vehicleID]);
-        DataState::StateAttitude tmpAtt = DataState::StateAttitude();
-        tmpAtt.setAttitude(roll, pitch, yaw);
-        tmpTuple = std::make_tuple(tmpPos, tmpAtt);
-        m_vehicleMap[vehicleID] = tmpTuple;
-    }
-
-#ifdef ROS_EXISTS
-    // Send gazebo model state:
-//    sendGazeboModelState(vehicleID);
-#endif
-}
-
 ////! ========================================================================
 ////! ======================  ROS Specific functions:  =======================
 ////! ========================================================================
@@ -411,7 +360,7 @@ void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<D
 
     // Send gazebo model state:
 #ifdef ROS_EXISTS
-    sendGazeboModelState(vehicleID);
+    //sendGazeboModelState(vehicleID);
 #endif
 }
 
@@ -437,7 +386,7 @@ void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<D
 
     // Send gazebo model state:
 #ifdef ROS_EXISTS
-    sendGazeboModelState(vehicleID);
+    //sendGazeboModelState(vehicleID);
 #endif
 }
 
@@ -448,7 +397,7 @@ void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<D
 void ModuleROS::setupROS() {
     m_client = nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
     // TODO: Do I need to use the transform container? Or can I just create a transform before sending the model state to Gazebo?
-    m_transform.setOrigin(tf::Vector3(0.0,0.0,1.0));
+    m_transform.setOrigin(tf::Vector3(0.0,0.0,0.0));
     m_transform.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
 
     // TODO: Do I need to send this transform before I do anything else? And should I send it for every basic_quadrotor_ID?
@@ -457,10 +406,12 @@ void ModuleROS::setupROS() {
     // TESTING:
     cloudInPub = nh.advertise<sensor_msgs::PointCloud2>("cloud_in", 50);
     compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",2);
+    occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",0);
     // END TESTING
     markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",0);
+
     // %Tag(MARKER_INIT)%
-            points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = path_list.header.frame_id = "/map";
+            points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = path_list.header.frame_id;
             points.header.stamp = line_strip.header.stamp = line_list.header.stamp = path_list.header.stamp = ros::Time::now();
             points.ns = line_strip.ns = line_list.ns =  path_list.ns = "points_and_lines";
             points.action = line_strip.action = line_list.action = path_list.action = visualization_msgs::Marker::ADD;
@@ -556,10 +507,6 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
 
     // TODO: Send converted point cloud to MACE core so path planning can take over.
 
-
-    std::cout << "Converted PC..." << std::endl;
-    std::cout << octoPointCloud.size() << std::endl;
-
     /*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         }); *///this is a general publication event, however, no one knows explicitly how to handle
@@ -576,37 +523,51 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     //          - Ideally, for the entire octomap, we don't care about which vehicle its coming from. They should be updating the
     //              same octomap
 
-    //    cloudInPub.publish(msg);
+    cloudInPub.publish(msg);
 
     //
 }
-void ModuleROS::renderOccupancyMap()
+void ModuleROS::renderOccupancyMap(const octomap::OcTree* tree)
 {
-//    octomap::OcTree tree;
-//    visualization_msgs::MarkerArray occupiedVoxels;
-//    occupiedVoxels.markers.resize(tree.getTreeDepth() + 1);
-//    for (octomap::OcTree::iterator it = tree->begin(tree.getTreeDepth()), end = tree->end(); it != end; ++it)
-//    {
-//        if(tree.isNodeOccupied(*it))
-//        {
-//            unsigned int leafIndex = it.getDepth();
+    if(tree->size() > 0)
+    {
+        visualization_msgs::MarkerArray occupiedVoxels;
+        occupiedVoxels.markers.resize(tree->getTreeDepth() + 1);
+        for (octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end(); it != end; ++it)
+        {
+            if(tree->isNodeOccupied(*it))
+            {
+                unsigned int leafIndex = it.getDepth();
 
-//            double size = it.getSize();
+                double size = it.getSize();
 
-//            double minX, minY, minZ, maxX, maxY, maxZ;
+                double minX, minY, minZ, maxX, maxY, maxZ;
 
-//            tree.getMetricMin(minX, minY, minZ);
-//            tree.getMetricMax(maxX, maxY, maxZ);
-//            geometry_msgs::Point cube;
-//            cube.x = it.getX();
-//            cube.y = it.getY();
-//            cube.z = it.getZ();
-//            double height = (1-std::min(std::max((it.getZ() - minZ)/(maxZ - minZ),0),1.0));
-//            occupiedVoxels.markers[idx].points.push_back(cube);
-//            occupiedVoxels.markers[idx].colors.push_back(generateColorHeight(height));
+                tree->getMetricMin(minX, minY, minZ);
+                tree->getMetricMax(maxX, maxY, maxZ);
+                geometry_msgs::Point cube;
+                cube.x = it.getX();
+                cube.y = it.getY();
+                cube.z = it.getZ();
+                double height = (1-std::min(std::max((it.getZ() - minZ)/(maxZ - minZ),0.0),1.0));
+                occupiedVoxels.markers[leafIndex].points.push_back(cube);
+                occupiedVoxels.markers[leafIndex].colors.push_back(generateColorHeight(height));
+            }
+        }
+        for(unsigned int i = 0; i < occupiedVoxels.markers.size(); i++)
+        {
+            double size = tree->getNodeSize(i);
+            occupiedVoxels.markers[i].header.frame_id = "/map";
+            occupiedVoxels.markers[i].header.stamp = ros::Time::now();
+            occupiedVoxels.markers[i].type = visualization_msgs::Marker::CUBE_LIST;
+            occupiedVoxels.markers[i].scale.x = size;
+            occupiedVoxels.markers[i].scale.y = size;
+            occupiedVoxels.markers[i].scale.z = size;
+            occupiedVoxels.markers[i].action = visualization_msgs::Marker::ADD;
+        }
 
-//        }
-//    }
+        occupancyMapPub.publish(occupiedVoxels);
+    }
 }
 
 //!
@@ -642,51 +603,51 @@ void ModuleROS::renderEdge(const mace::geometry::Line_2DC &edge) {
     markerPub.publish(line_list);
 }
 
-std_msgs::ColorRGBA ModuleROS::generateColorHeight(const double height)
+std_msgs::ColorRGBA ModuleROS::generateColorHeight(double height)
 {
     std_msgs::ColorRGBA color;
-//    color.a = 1.0;
+    color.a = 1.0;
 //    // blend over HSV-values (more colors)
 
-//    double s = 1.0;
-//    double v = 1.0;
+    double s = 1.0;
+    double v = 1.0;
 
-//    height -= floor(height);
-//    height *= 6;
-//    int i;
-//    double m, n, f;
+    height -= floor(height);
+    height *= 6;
+    int i;
+    double m, n, f;
 
-//    i = floor(height);
-//    f = height - i;
-//    if (!(i & 1))
-//      f = 1 - f; // if i is even
-//    m = v * (1 - s);
-//    n = v * (1 - s * f);
+    i = floor(height);
+    f = height - i;
+    if (!(i & 1))
+      f = 1 - f; // if i is even
+    m = v * (1 - s);
+    n = v * (1 - s * f);
 
-//    switch (i) {
-//      case 6:
-//      case 0:
-//        color.r = v; color.g = n; color.b = m;
-//        break;
-//      case 1:
-//        color.r = n; color.g = v; color.b = m;
-//        break;
-//      case 2:
-//        color.r = m; color.g = v; color.b = n;
-//        break;
-//      case 3:
-//        color.r = m; color.g = n; color.b = v;
-//        break;
-//      case 4:
-//        color.r = n; color.g = m; color.b = v;
-//        break;
-//      case 5:
-//        color.r = v; color.g = m; color.b = n;
-//        break;
-//      default:
-//        color.r = 1; color.g = 0.5; color.b = 0.5;
-//        break;
-//    }
+    switch (i) {
+      case 6:
+      case 0:
+        color.r = v; color.g = n; color.b = m;
+        break;
+      case 1:
+        color.r = n; color.g = v; color.b = m;
+        break;
+      case 2:
+        color.r = m; color.g = v; color.b = n;
+        break;
+      case 3:
+        color.r = m; color.g = n; color.b = v;
+        break;
+      case 4:
+        color.r = n; color.g = m; color.b = v;
+        break;
+      case 5:
+        color.r = v; color.g = m; color.b = n;
+        break;
+      default:
+        color.r = 1; color.g = 0.5; color.b = 0.5;
+        break;
+    }
 
     return color;
 }

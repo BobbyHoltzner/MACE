@@ -26,7 +26,7 @@ public:
     };
 
 public:
-    OctomapWrapper(const double &resolution = 0.5, const OctomapSensorDefinition &sensorProperties = OctomapSensorDefinition());
+    OctomapWrapper(const double &resolution = 0.05, const OctomapSensorDefinition &sensorProperties = OctomapSensorDefinition());
 
     bool is2DProjectionEnabled() const;
 
@@ -51,6 +51,8 @@ private:
 
     void updateMapOccupancy(const octomap::OcTreeKey &key, const bool &occupancy);
 
+    void updateMapOccupancyRecursiveCheck(const double &xPos, const double &yPos, const unsigned int &depth, const bool &occupancy);
+
     void updateMapOccupancyRecursiveCheck(const octomap::OcTree::iterator &it, const bool &occupancy);
 
 private:
@@ -66,7 +68,7 @@ private:
 
 private:
     bool enabled2DProjection = true;
-    double treeResolution = 0.5;
+    double treeResolution = 0.05;
     unsigned int treeDepth = 0;
     unsigned int maxTreeDepth = 0;
 
