@@ -435,6 +435,19 @@ void MaceCore::Event_SetEnvironmentVertices(const void* sender, const std::vecto
     m_DataFusion->UpdateEnvironmentVertices(boundaryVerts);
 }
 
+void MaceCore::Event_SetVehicleBoundaryVertices(const void* sender, const std::map<int, std::vector<DataState::StateGlobalPosition> > &vehicleMap) {
+    UNUSED(sender);
+    m_DataFusion->UpdateVehicleBoundaryMap(vehicleMap);
+
+    if(m_PathPlanning) {
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, 0);
+    }
+
+    if(m_GroundStation) {
+//        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, 0);
+    }
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// SPECIFIC VEHICLE EVENTS: These events are associated from IModuleEventsVehicleVehicle

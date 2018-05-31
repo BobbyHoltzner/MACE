@@ -105,9 +105,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_ROS/release/
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_ROS/debug/ -lmodule_ROS
 else:unix: LIBS += -L$$OUT_PWD/../module_ROS/ -lmodule_ROS
 
-#win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/release/ -lmodule_resource_task_allocation
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/debug/ -lmodule_resource_task_allocation
-#else:unix:!macx: LIBS += -L$$OUT_PWD/../module_resource_task_allocation/ -lmodule_resource_task_allocation
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/release/ -lmodule_resource_task_allocation
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/debug/ -lmodule_resource_task_allocation
+else:unix:!macx: LIBS += -L$$OUT_PWD/../module_resource_task_allocation/ -lmodule_resource_task_allocation
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_ground_station/release/ -lmodule_ground_station
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_ground_station/debug/ -lmodule_ground_station
@@ -139,9 +139,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_ardu
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_ardupilot/debug/ -lmodule_vehicle_ardupilot
 else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_ardupilot/ -lmodule_vehicle_ardupilot
 
-#win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../voropp/release/ -lvoropp
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../voropp/debug/ -lvoropp
-#else:unix:!macx: LIBS += -L$$OUT_PWD/../voropp/ -lvoropp
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../voropp/release/ -lvoropp
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../voropp/debug/ -lvoropp
+else:unix:!macx: LIBS += -L$$OUT_PWD/../voropp/ -lvoropp
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/release/ -ldata_interface_MAVLINK
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/debug/ -ldata_interface_MAVLINK

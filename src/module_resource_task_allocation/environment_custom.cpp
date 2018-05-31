@@ -21,10 +21,15 @@ double rnd() {return double(rand())/RAND_MAX;}
  * @param gridSpacing Spacing between grid points
  * @param globalOrigin Global origin for environment
  */
-Environment_Map::Environment_Map(const Polygon_2DC &boundingPolygon, double &gridSpacing, const DataState::StateGlobalPosition &globalOrigin) :
-    m_boundary(boundingPolygon) {
-    m_dataGrid = new mace::maps::Bounded2DGrid(m_boundary, gridSpacing, gridSpacing);
-    m_globalOrigin = std::make_shared<DataState::StateGlobalPosition>(globalOrigin);
+Environment_Map::Environment_Map(const Polygon_2DC &boundingPolygon, const double &gridSpacing, const CommandItem::SpatialHome &globalOrigin, const bool &globalInstance) :
+    m_boundary(boundingPolygon), m_globalInstance(globalInstance) {
+
+    // Only generated and insert nodes if the RTA instance is a local instance (i.e. onboard a vehicle that needs to generate nodes)
+    if(!globalInstance) {
+        m_dataGrid = new mace::maps::Bounded2DGrid(m_boundary, gridSpacing, gridSpacing);
+    }
+
+    m_globalOrigin = std::make_shared<CommandItem::SpatialHome>(globalOrigin);
 }
 
 /**
@@ -177,8 +182,11 @@ bool Environment_Map::computeVoronoi(std::vector<Cell_2DC> &cellVec, const std::
         Cell_2DC cell(coords, "2D Cartesian Polygon");
         // Sort the cell vertices:
         sortCellVerticesCCW(cell); // TODO: Optimize
-        std::list<mace::pose::Position<mace::pose::CartesianPosition_2D>*> nodeList = m_dataGrid->getBoundedDataList();
-        cell.insertNodes(nodeList, true);
+        // Only generated and insert nodes if the RTA instance is a local instance (i.e. onboard a vehicle that needs to generate nodes)
+        if(!m_globalInstance) {
+            std::list<mace::pose::Position<mace::pose::CartesianPosition_2D>*> nodeList = m_dataGrid->getBoundedDataList();
+            cell.insertNodes(nodeList, true);
+        }
 
         cellVec.push_back(cell);
 

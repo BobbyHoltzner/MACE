@@ -16,7 +16,8 @@ namespace MaceCore
 enum class PathPlanningCommands
 {
     BASE_MODULE_LISTENER_ENUMS,
-    NEWLY_UPDATED_OCCUPANCY_MAP
+    NEWLY_UPDATED_OCCUPANCY_MAP,
+    NEWLY_UPDATE_VEHICLE_BOUNDARIES
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandPathPlanning  : public AbstractModule_EventListeners<MetadataPathPlanning, IModuleEventsPathPlanning, PathPlanningCommands>
@@ -45,6 +46,12 @@ public:
             UNUSED(vehicleID);
             NewlyUpdatedGlobalOrigin();
         });
+
+        AddCommandLogic<int>(PathPlanningCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            UNUSED(vehicleID);
+            NewlyUpdateVehicleBoundaries();
+        });
     }
 
     virtual ModuleClasses ModuleClass() const
@@ -68,6 +75,12 @@ public:
     //! \brief NewlyUpdatedGlobalOrigin
     //!
     virtual void NewlyUpdatedGlobalOrigin() = 0;
+
+
+    //!
+    //! \brief NewlyUpdatedGlobalOrigin
+    //!
+    virtual void NewlyUpdateVehicleBoundaries() = 0;
 
 //    //!
 //    //! \brief New targets have been assigned to the given vehicle

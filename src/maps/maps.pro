@@ -27,7 +27,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     bounded_2D_grid.cpp \
     base_grid_map.cpp \
-    dynamic_2D_grid.tpp \
     iterators/grid_map_iterator.cpp \
     iterators/polygon_map_iterator.cpp \
     iterators/circle_map_iterator.cpp \
@@ -42,7 +41,8 @@ HEADERS +=\
     iterators/polygon_map_iterator.h \
     iterators/circle_map_iterator.h \
     iterators/grid_map_iterator.h \
-    iterators/generic_map_iterator.h
+    iterators/generic_map_iterator.h \
+    dynamic_2D_grid.tpp
 
 
 #Header file copy

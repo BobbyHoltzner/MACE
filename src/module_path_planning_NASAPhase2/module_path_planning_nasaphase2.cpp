@@ -219,6 +219,13 @@ void ModulePathPlanningNASAPhase2::NewlyUpdatedGlobalOrigin()
     std::cout << "New global origin received (PP): (" << m_globalOrigin->getPosition().getX() << " , " << m_globalOrigin->getPosition().getY() << ")" << std::endl;
 }
 
+void ModulePathPlanningNASAPhase2::NewlyUpdateVehicleBoundaries()
+{
+    m_vehicleBoundary = this->getDataObject()->GetVehicleBoundaryMap();
+
+    std::cout << "New vehicle boundary map received (PP): " << m_vehicleBoundary.size() << std::endl;
+}
+
 
 void ModulePathPlanningNASAPhase2::cbiPlanner_SampledState(const mace::state_space::State *sampleState)
 {

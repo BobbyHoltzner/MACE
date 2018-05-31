@@ -154,6 +154,13 @@ public:
         return boundaryVerts;
     }
 
+    std::map<int, std::vector<DataState::StateGlobalPosition> > GetVehicleBoundaryMap() const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleBoundaryMutex);
+        std::map<int, std::vector<DataState::StateGlobalPosition> > vehicleMap = m_vehicleBoundaryMap;
+        return vehicleMap;
+    }
+
 private:
 
     void AddAvailableVehicle(const int &vehicleID, bool internal)
@@ -213,6 +220,11 @@ private:
         std::lock_guard<std::mutex> guard(m_EnvironmentBoundaryMutex);
         m_BoundaryVerts = boundaryVerts;
         flagBoundaryVerts = true;
+    }
+
+    void UpdateVehicleBoundaryMap(const std::map<int, std::vector<DataState::StateGlobalPosition> > &vehicleMap) {
+        std::lock_guard<std::mutex> gaurd(m_VehicleBoundaryMutex);
+        m_vehicleBoundaryMap = vehicleMap;
     }
 
 
@@ -718,7 +730,9 @@ private:
     CommandItem::SpatialHome m_GlobalOrigin;
     double m_GridSpacing = -1;
     mutable std::mutex m_EnvironmentBoundaryMutex;
+    mutable std::mutex m_VehicleBoundaryMutex;
     std::vector<DataState::StateGlobalPosition> m_BoundaryVerts;
+    std::map<int, std::vector<DataState::StateGlobalPosition> > m_vehicleBoundaryMap;
     bool flagBoundaryVerts;
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;

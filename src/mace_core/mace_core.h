@@ -119,6 +119,7 @@ public:
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing);
 
     virtual void Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts);
+    virtual void Event_SetVehicleBoundaryVertices(const void* sender, const std::map<int, std::vector<DataState::StateGlobalPosition> > &vehicleMap);
 
 public:
 
