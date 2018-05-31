@@ -12,7 +12,7 @@
         "enabled": true,
         "gui": true,
         "pause": false,
-        "worldName": "turtlebot_playground",
+        "worldName": "MACE_simple_test",
         "octomap": true
     },
     "MACEParams": {
