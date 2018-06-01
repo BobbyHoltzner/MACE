@@ -40,8 +40,11 @@ int main(int argc, char** argv) {
     gazebo_msgs::SetModelState srv;
 
     while (ros::ok()) {
-        robotPosition.x  = cos(angle)*2;
-        robotPosition.y = sin(angle)*2;
+        double radius = 3.0;
+       	double ascent = 0.05;
+        robotPosition.x  = cos(angle)*radius;
+        robotPosition.y = sin(angle)*radius;
+	robotPosition.z = tan(ascent)*radius*angle;
         attitude = tf::createQuaternionMsgFromYaw(angle+M_PI/2);
 
         geometry_msgs::Pose pose;

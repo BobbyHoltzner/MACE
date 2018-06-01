@@ -67,28 +67,49 @@ public:
     void updateGridSize(const double &minX, const double &maxX, const double &minY, const double &maxY, const double &x_res, const double &y_res) override
     {
         if((minX != this->xMin) || (maxX != this->xMax) ||
-                (minY != this->xMin) || (maxY != this->xMax) ||
+                (minY != this->yMin) || (maxY != this->yMax) ||
                 (x_res != this->xResolution) || (y_res != this->yResolution))
         {
-        //First clone this object
-        Data2DGrid* clone = new Data2DGrid(*this);
+            if((x_res != this->xResolution) || (y_res != this->yResolution))
+            {
+                std::cout<<"The resolution changed."<<std::endl;
+            }
+            //First clone this object
+            Data2DGrid* clone = new Data2DGrid(*this);
+            //update the underlying size structure
+            BaseGridMap::updateGridSize(minX,maxX,minY,maxY,x_res,y_res);
 
-        //update the underlying size structure
-        BaseGridMap::updateGridSize(minX,maxX,minY,maxY,x_res,y_res);
+            //clear this contents and update with the default values
+            this->clear();
+            //copy the contents over
+            double xPos, yPos;
+            mace::maps::GridMapIterator it(clone);
+            for(;!it.isPastEnd();++it)
+            {
+                const T* ptr = clone->getCellByIndex(*it);
+                clone->getPositionFromIndex(*it,xPos,yPos);
+                T* currentValue = this->getCellByPos(xPos,yPos);
+                if(currentValue != nullptr)
+                {
+                    if(*currentValue != this->getFill())
+                    {
+                        clone->getPositionFromIndex(*it,xPos,yPos);
+                        int thisIndex = this->indexFromPos(xPos,yPos);
+                        int otherIndex = *it;
+                        std::cout<<"I was already assigned a value."<<std::endl;
 
-        //clear this contents and update with the default values
-        this->clear();
-        //copy the contents over
-        double xPos, yPos;
-        mace::maps::GridMapIterator it(clone);
-        for(;!it.isPastEnd();++it)
-        {
-            const T* ptr = clone->getCellByIndex(*it);
-            clone->getPositionFromIndex(*it,xPos,yPos);
-            T* currentValue = this->getCellByPos(xPos,yPos);
-            if(currentValue != nullptr)
-                *currentValue = *ptr;
-        }
+                    }
+
+                    *currentValue = *ptr;
+
+                }
+                else
+                {
+                    std::cout<<"The value had a nullptr?"<<std::endl;
+                }
+            }
+            delete clone;
+            clone = nullptr;
         }
     }
 

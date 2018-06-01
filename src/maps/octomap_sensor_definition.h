@@ -194,7 +194,7 @@ private:
 
 
     bool   m_set_MinRange;
-    double m_MinRange = 0.0;
+    double m_MinRange = 0.5;
 
     bool   m_set_MaxRange;
     double m_MaxRange = -1;

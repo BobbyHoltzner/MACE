@@ -56,7 +56,7 @@ public:
     }
 
     double getValue() const {
-      this->value;
+        this->value;
     }
 
     void setValue(const double &newValue){
@@ -121,8 +121,47 @@ int main(int argc, char *argv[])
     //    value = 6;
     //    newValue = &value;
     //using namespace mace::state_space;
-    //OcTree* tree = new OcTree(0.5);
-    //double value = 0.0;
+    octomap::OcTree* tree = new octomap::OcTree(0.5);
+    tree->setProbHit(1.0);
+    tree->setProbMiss(0.0);
+    tree->setOccupancyThres(0.5);
+    octomap::Pointcloud pc;
+    pc.push_back(0,0,0);
+    point3d origin;
+    origin.x() = 0.0;
+    origin.y() = 0.0;
+    origin.z() = 0.0;
+    tree->insertPointCloud(pc,origin);
+    double minX, minY, minZ, maxX, maxY, maxZ;
+
+    tree->getMetricMin(minX, minY, minZ);
+    tree->getMetricMax(maxX, maxY, maxZ);
+
+//    for (octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end(); it != end; ++it)
+//    {
+//        if(tree->isNodeOccupied(*it))
+//        {
+//            std::cout<<"The node is occupied."<<std::endl;
+//        }
+//        else
+//        {
+//            std::cout<<"The node is not occupied."<<std::endl;
+//        }
+//    }
+
+//        for(double xPos = -1.0; xPos <= 1.1; xPos+=0.05)
+//        {
+//            octomap::OcTreeNode* node = tree->search(0,0,xPos,tree->getTreeDepth());
+//            if(node == NULL)
+//            {
+//                std::cout<<"The tree at "<<xPos<<" is null"<<std::endl;
+//            }
+//            else{
+//                std::cout<<"The tree is :";
+//                std::cout<<tree->isNodeOccupied(node);
+//                std::cout<<" at position "<<xPos<<std::endl;
+//            }
+//        }
     //    std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> vertices;
     //    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("TL",-2,2);
     //    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("TR",2,2);
@@ -138,48 +177,52 @@ int main(int argc, char *argv[])
     double value = 0.0;
     mace::pose::CartesianPosition_2D position(0,0);
     mace::maps::Data2DGrid<double> newGridMap(&value,
-                                              0, 2.0,
-                                              0.0, 2.0,
+                                              -2.0, 2.0,
+                                              -2.0, 2.0,
                                               1.0,1.0,
                                               position);
 
     double* ptr = newGridMap.getCellByIndex(0);
     double newValue = 100.0;
     *ptr = newValue;
-    mace::maps::Data2DGrid<double> copyGridMap(&value,
-                                               0, 2.0,
-                                               0.0, 2.0,
-                                               1.0,1.0,
-                                               position);
-    mace::maps::Data2DGrid<double> cloneGridMap(newGridMap);
 
-    if(copyGridMap == newGridMap)
-        std::cout<<"The values are the same before the copy construct"<<std::endl;
-    else
-        std::cout<<"The values are the not same before the copy construct"<<std::endl;
+    //    newGridMap.updateGridSize(-2.0,2.0,-2.0,2.0,1.0,1.0);
+    //    newGridMap.updateGridSize(-3.0,2.0,-2.0,2.0,1.0,1.0);
+    //    newGridMap.updateGridSize(-4.0,2.0,-2.0,2.0,1.0,1.0);
+    //    newGridMap.updateGridSize(-5.0,2.0,-2.0,2.0,1.0,1.0);
 
-    if(cloneGridMap == newGridMap)
-        std::cout<<"The values are the same after the copy construct"<<std::endl;
-    else
-        std::cout<<"The values are the not same after the copy construct"<<std::endl;
+    std::cout<<"Pause Here"<<std::endl;
+    //    mace::maps::Data2DGrid<double> copyGridMap(&value,
+    //                                               0, 2.0,
+    //                                               0.0, 2.0,
+    //                                               1.0,1.0,
+    //                                               position);
+    //    mace::maps::Data2DGrid<double> cloneGridMap(newGridMap);
+
+    //    if(copyGridMap == newGridMap)
+    //        std::cout<<"The values are the same before the copy construct"<<std::endl;
+    //    else
+    //        std::cout<<"The values are the not same before the copy construct"<<std::endl;
+
+    //    if(cloneGridMap == newGridMap)
+    //        std::cout<<"The values are the same after the copy construct"<<std::endl;
+    //    else
+    //        std::cout<<"The values are the not same after the copy construct"<<std::endl;
 
 
-    //std::cout<<"There are this many nodes: "<<newGridMap.getNodeCount()<<std::endl;
-    //    for(int i = 0; i < newGridMap.getNodeCount(); i++)
-    //    {
-    //        double x,y;
-    //        newGridMap.getPositionFromIndex(i,x,y);
-    //        std::cout<<"The position at index "<<i<<" is "<<x<<" "<<y<<std::endl;
-    //    }
+    //    std::cout<<"There are this many nodes: "<<newGridMap.getNodeCount()<<std::endl;
+    //        for(int i = 0; i < newGridMap.getNodeCount(); i++)
+    //        {
+    //            double x,y;
+    //            newGridMap.getPositionFromIndex(i,x,y);
+    //            std::cout<<"The position at index "<<i<<" is "<<x<<" "<<y<<std::endl;
+    //        }
 
-        for(double x=0;x<=2.0;x+=0.1)
-        {
-            std::cout<<"The position we are questioning is "<<x<<",1.5"<<std::endl;
-            std::cout<<"The index is: "<<newGridMap.indexFromPos(x,1.5)<<std::endl;
-        }
-        double xValue, yValue;
-        newGridMap.getPositionFromIndex(2,xValue,yValue);
-
+            for(double x=-2.0;x<=2.05;x+=0.1)
+            {
+                std::cout<<"The position we are questioning is "<<x<<",0"<<std::endl;
+                std::cout<<"The index is: "<<newGridMap.indexFromPos(x,0)<<std::endl;
+            }
 
     //    std::cout<<"This is a holding spot for the grid map"<<std::endl;
     //newGridMap.updatePosition(position);
@@ -205,13 +248,13 @@ int main(int argc, char *argv[])
 
     //!Everything below would help setting up the octomap on its initial load and anytime we get an update
     //! Things that the dynamic map should only update if the origin and/or the size of the space has changed
-//    char* MACEPath = getenv("MACE_ROOT");
-//    std::string rootPath(MACEPath);
-//    std::string btFile = rootPath + kPathSeparator + "simple_test_000_303030_newOrigin.bt";
-//    mace::maps::OctomapWrapper octomap;
-//    octomap.loadOctreeFromBT(btFile);
-//    octomap.updateMapContinuity();
-//    octomap.updateMapFromTree();
+    //    char* MACEPath = getenv("MACE_ROOT");
+    //    std::string rootPath(MACEPath);
+    //    std::string btFile = rootPath + kPathSeparator + "simple_test_000_303030_newOrigin.bt";
+    //    mace::maps::OctomapWrapper octomap;
+    //    octomap.loadOctreeFromBT(btFile);
+    //    octomap.updateMapContinuity();
+    //    octomap.updateMapFromTree();
 
     //        mace::maps::OctomapWrapper::OccupiedResult value = mace::maps::OctomapWrapper::OccupiedResult::NO_DATA;
     //        mace::pose::CartesianPosition_2D position(0,0);

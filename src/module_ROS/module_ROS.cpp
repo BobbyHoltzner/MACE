@@ -405,8 +405,8 @@ void ModuleROS::setupROS() {
 
     // TESTING:
     cloudInPub = nh.advertise<sensor_msgs::PointCloud2>("cloud_in", 50);
-    compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",2);
-    occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",0);
+    compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",1);
+    occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",1);
     // END TESTING
     markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",0);
 

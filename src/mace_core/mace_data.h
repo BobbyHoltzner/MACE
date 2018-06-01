@@ -471,7 +471,6 @@ private:
         //func(m_OccupancyMap);
     }
 
-
     //!
     //! \brief Entirely replaces the stored Probility map with given matrix
     //! \param occupancy map to replace with
@@ -558,7 +557,8 @@ public:
     void insertObservation(octomap::Pointcloud& obj)
     {
         std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
-        m_OctomapWrapper->updateFromPointCloud(&obj);
+        m_OctomapWrapper->updateFromLaserScan(&obj);
+        //m_OctomapWrapper->updateFromPointCloud(&obj);
         // TODO: Test insert and origin point. We'll have to ensure a (0,0,0) origin works, or we'll have to calculate the sensor origin as it moves
         //          - One option is instead of transforming to the world frame, we can pass in a sensor origin AND frame origin point, and the
         //              overloaded version of insertPointCloud() will transform for us. I'm partial to all sensor data being reported in the world

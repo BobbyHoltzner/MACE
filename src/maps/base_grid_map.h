@@ -43,7 +43,7 @@ public:
 
     void getPositionFromIndex(const unsigned int &index, double &x, double &y) const
     {
-        int yIndex = floor(index/xSize);
+        int yIndex = (index/xSize);
         y = yMin + yIndex * yResolution;
 
         int xIndex = (index % xSize);
@@ -69,7 +69,11 @@ public:
     //!
     int indexFromXPos(const double &x) const
     {
-        return static_cast<int>(floor((x - xMin) / xResolution));
+        double resultX = (x - xMin) / xResolution;
+        resultX = (std::abs(resultX - round(resultX)) < xResolution) ? round(resultX) : resultX;
+        int indexX = static_cast<int>(resultX);
+        indexX = (indexX > (getSizeX() - 1)) ? (getSizeX() - 1) : indexX;
+        return indexX;
     }
 
     //!
@@ -79,7 +83,11 @@ public:
     //!
     int indexFromYPos(const double &y) const
     {
-        return static_cast<int>(floor((y - yMin) / yResolution));
+        double resultY = (y - yMin) / yResolution;
+        resultY = (std::abs(resultY - round(resultY)) < yResolution) ? round(resultY) : resultY;
+        int indexY = static_cast<int>(resultY);
+        indexY = (indexY > (getSizeY() - 1)) ? (getSizeY() - 1) : indexY;
+        return indexY;
     }
 
     //!
