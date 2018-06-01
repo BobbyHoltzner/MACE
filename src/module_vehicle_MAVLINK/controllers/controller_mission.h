@@ -360,7 +360,7 @@ protected:
 
 
 
-    virtual void Construct_Send(const MissionDownloadResult &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_count_t &msg, void* &queue)
+    virtual bool Construct_Send(const MissionDownloadResult &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_count_t &msg, void* &queue)
     {
         m_MissionUploading = std::make_shared<MissionDownloadResult>(data);
 
@@ -370,6 +370,8 @@ protected:
         msg.target_component = 0;
         msg.target_system = target.ID;
         msg.mission_type = 0; //MAV_MISSION_TYPE_MISSION;
+
+        return true;
     }
 
 

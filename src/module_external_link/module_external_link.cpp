@@ -33,7 +33,7 @@ ModuleExternalLink::ModuleExternalLink() :
     m_HeartbeatController(NULL)
 {
 
-    Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mace_message_t>(2000, 3);
+    Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mace_message_t>(2000, 100);
 
 
 

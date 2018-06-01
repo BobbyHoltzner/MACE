@@ -206,7 +206,7 @@ protected:
     //! \param data
     //! \param cmd
     //!
-    virtual void Construct_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_mission_request_list_t &cmd, MissionItem::MissionKey &queueObj)
+    virtual bool Construct_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_mission_request_list_t &cmd, MissionItem::MissionKey &queueObj)
     {
         queueObj = data;
 
@@ -219,6 +219,7 @@ protected:
         if(m_MissionsBeingFetching.find(data) != m_MissionsBeingFetching.cend())
         {
             throw std::runtime_error("Mission is already being downloaded");
+            return false;
         }
 
         MissionItem::MissionList newList;
@@ -230,6 +231,8 @@ protected:
         m_MissionsBeingFetching.insert({data, newItem});
 
         std::cout << "Mission Controller: Sending Mission Request List" << std::endl;
+
+        return true;
     }
 
     virtual bool BuildData_Send(const mace_mission_request_list_t &cmd, const MaceCore::ModuleCharacteristic &sender, mace_mission_count_t &rtn, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
@@ -535,6 +538,7 @@ protected:
         ackMission.mission_id = key.m_missionID;
         ackMission.mission_type = (uint8_t)key.m_missionType;
         ackMission.prev_mission_state = (uint8_t)key.m_missionState;
+        ackMission.mission_result = MAV_MISSION_ACCEPTED;
 
         //KEN This is a hack but for now
         if(key.m_missionState == MissionItem::MISSIONSTATE::PROPOSED)

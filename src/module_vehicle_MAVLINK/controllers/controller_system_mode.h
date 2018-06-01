@@ -48,7 +48,7 @@ private:
 
 protected:
 
-    virtual void Construct_Send(const MAVLINKModeStruct &commandMode, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_set_mode_t &mode, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_Send(const MAVLINKModeStruct &commandMode, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_set_mode_t &mode, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
         queueObj = target;
@@ -57,6 +57,7 @@ protected:
         mode.base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
         mode.custom_mode = commandMode.vehicleMode;
 
+        return true;
     }
 
 
