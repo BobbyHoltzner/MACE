@@ -3,10 +3,10 @@
 namespace ardupilot{
 namespace state{
 
-AbstractStateArdupilot::AbstractStateArdupilot(const int &timeout, const int &attempts):
+AbstractStateArdupilot::AbstractStateArdupilot() :
     currentCommand(nullptr)
+
 {
-    controllerQueue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>(timeout, attempts);
 }
 
 AbstractStateArdupilot::AbstractStateArdupilot(const AbstractStateArdupilot &copy)
@@ -18,7 +18,9 @@ AbstractStateArdupilot::AbstractStateArdupilot(const AbstractStateArdupilot &cop
 
 void AbstractStateArdupilot::OnExit()
 {
-    destroyCurrentControllers();
+    Owner().ControllersCollection()->ForAll([this](Controllers::IController<mavlink_message_t>* controller){
+        controller->RemoveHost(this);
+    });
 }
 
 void AbstractStateArdupilot::clearCommand()
@@ -30,19 +32,6 @@ void AbstractStateArdupilot::clearCommand()
     }
 }
 
-void AbstractStateArdupilot::destroyCurrentControllers()
-{
-    currentControllerMutex.lock();
-
-    std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*>::iterator it;
-    for(it=currentControllers.begin(); it!=currentControllers.end();)
-    {
-        delete it->second;
-        currentControllers.erase(it++);
-    }
-
-    currentControllerMutex.unlock();
-}
 void AbstractStateArdupilot::setCurrentCommand(const CommandItem::AbstractCommandItem *command)
 {
     this->currentCommand = command->getClone();
@@ -53,18 +42,17 @@ bool AbstractStateArdupilot::handleCommand(const CommandItem::AbstractCommandIte
     switch (command->getCommandType()) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
-        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-        controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+        controllerSystemMode->AddLambda_Finished(this, [this, controllerSystemMode](const bool completed, const uint8_t finishCode){
 
             controllerSystemMode->Shutdown();
         });
 
-        controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
+        controllerSystemMode->setLambda_Shutdown([this, collection]()
         {
-            currentControllerMutex.lock();
-            currentControllers.erase("modeController");
-            delete controllerSystemMode;
-            currentControllerMutex.unlock();
+            auto ptr = collection->Remove("modeController");
+            delete ptr;
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -77,7 +65,9 @@ bool AbstractStateArdupilot::handleCommand(const CommandItem::AbstractCommandIte
         commandMode.targetID = target.ID;
         commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString(command->as<CommandItem::ActionChangeMode>()->getRequestMode());
         controllerSystemMode->Send(commandMode,sender,target);
-        currentControllers.insert({"modeController",controllerSystemMode});
+
+        collection->Insert("modeController", controllerSystemMode);
+
         break;
     }
     default:
@@ -87,6 +77,9 @@ bool AbstractStateArdupilot::handleCommand(const CommandItem::AbstractCommandIte
 
 bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
 {
+    throw std::runtime_error("States should not longer handle mavlink messages");
+
+    /*
     int systemID = msg.sysid;
 
     MaceCore::ModuleCharacteristic sender;
@@ -95,16 +88,25 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
 
     bool consumed = false;
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*>::iterator it;
-    currentControllerMutex.lock();
-    for(it=currentControllers.begin(); it!=currentControllers.end(); ++it)
+
+    m_ControllerFactory->controllerMutex.lock();
+    for(it=m_ControllerFactory->controllers.begin(); it!=m_ControllerFactory->controllers.end(); ++it)
     {
         Controllers::IController<mavlink_message_t>* obj = it->second;
         consumed = obj->ReceiveMessage(&msg, sender);
     }
-    currentControllerMutex.unlock();
+    m_ControllerFactory->controllerMutex.unlock();
+
+
     if(!consumed)
     {
         State* innerState = GetImmediateInnerState();
+        if(innerState == this)
+        {
+            printf("!!!!!! WARNING: Immediate Inner State is equal to the outer state. This is a non-op that will result in infinte recursion. Ignoring but it probably points to a larger bug\n");
+            return consumed;
+        }
+
         if(innerState != nullptr)
         {
             ardupilot::state::AbstractStateArdupilot* castChild = static_cast<ardupilot::state::AbstractStateArdupilot*>(innerState);
@@ -113,6 +115,8 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
 
     }
     return consumed;
+    */
+    return false;
 }
 
 } //end of namespace state

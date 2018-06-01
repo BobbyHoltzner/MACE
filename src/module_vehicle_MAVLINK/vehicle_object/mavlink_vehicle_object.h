@@ -10,6 +10,7 @@
 #include "../controllers/commands/command_arm.h"
 #include "../controllers/commands/command_rtl.h"
 #include "../controllers/controller_system_mode.h"
+#include "../controllers/controller_collection.h"
 
 #include "state_data_mavlink.h"
 #include "mission_data_mavlink.h"
@@ -63,6 +64,19 @@ public:
 
     virtual bool parseMessage(const mavlink_message_t *msg);
 
+
+    Controllers::ControllerCollection<mavlink_message_t>* ControllersCollection()
+    {
+        return &m_ControllersCollection;
+    }
+
+    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *GetControllerQueue()
+    {
+        return controllerQueue;
+    }
+
+    bool handleMAVLINKMessage(const mavlink_message_t &msg);
+
 public:
     StateData_MAVLINK *state;
     MissionData_MAVLINK *mission;
@@ -70,14 +84,16 @@ public:
 protected:
     int mavlinkID;
 
-    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *controllerQueue;
-
     PointerCollection<
     > m_Controllers;
 
     CommsMAVLINK *commsLink;
 
     CallbackInterface_MAVLINKVehicleObject* m_CB;
+
+    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *controllerQueue;
+
+    Controllers::ControllerCollection<mavlink_message_t> m_ControllersCollection;
 };
 
 #endif // MAVLINK_VEHICLE_OBJECT_H
