@@ -14,6 +14,8 @@ class CircleMapIterator
 public:
     CircleMapIterator(const BaseGridMap *map, const pose::CartesianPosition_2D &origin, const double &radius);
 
+    CircleMapIterator(const BaseGridMap *map, const unsigned int &index, const double &radius);
+
     CircleMapIterator(const CircleMapIterator* copy);
 
     ~CircleMapIterator()

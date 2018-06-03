@@ -38,7 +38,6 @@ public:
     //!
     virtual ~BaseGridMap() = default;
 
-
     void updatePosition(const pose::CartesianPosition_2D &position);
 
     void getPositionFromIndex(const unsigned int &index, double &x, double &y) const
@@ -71,7 +70,7 @@ public:
     {
         double resultX = (x - xMin) / xResolution;
         resultX = (std::abs(resultX - round(resultX)) < xResolution) ? round(resultX) : resultX;
-        int indexX = static_cast<int>(resultX);
+        unsigned int indexX = static_cast<unsigned int>(resultX);
         indexX = (indexX > (getSizeX() - 1)) ? (getSizeX() - 1) : indexX;
         return indexX;
     }
@@ -85,7 +84,7 @@ public:
     {
         double resultY = (y - yMin) / yResolution;
         resultY = (std::abs(resultY - round(resultY)) < yResolution) ? round(resultY) : resultY;
-        int indexY = static_cast<int>(resultY);
+        unsigned int indexY = static_cast<unsigned int>(resultY);
         indexY = (indexY > (getSizeY() - 1)) ? (getSizeY() - 1) : indexY;
         return indexY;
     }
@@ -194,12 +193,33 @@ public:
     }
 
 protected:
-    virtual void updateGridSize(const double &minX, const double &maxX, const double &minY, const double &maxY, const double &x_res, const double &y_res);
+    virtual bool updateGridSize(const double &minX, const double &maxX, const double &minY, const double &maxY, const double &x_res, const double &y_res);
 
-    virtual void updateGridSizeByLength(const double &x_length = 10.0, const double &y_length = 10.0,
+    virtual bool updateGridSizeByLength(const double &x_length = 10.0, const double &y_length = 10.0,
                      const double &x_res = 0.5, const double &y_res = 0.5);
 
+    virtual void setXResolution(const double &x_res);
+
+    virtual void setYResolution(const double &y_res);
+
+    virtual void updateResolution(const double &x_res, const double &y_res);
+
 public:
+
+    BaseGridMap& operator = (const BaseGridMap &rhs)
+    {
+        this->originPosition = rhs.originPosition;
+        this->xMin = rhs.xMin;
+        this->xMax = rhs.xMax;
+        this->yMin = rhs.yMin;
+        this->yMax = rhs.yMax;
+        this->xResolution = rhs.xResolution;
+        this->yResolution = rhs.yResolution;
+        this->xSize = rhs.xSize;
+        this->ySize = rhs.ySize;
+        return *this;
+    }
+
     bool operator == (const BaseGridMap &rhs) const
     {
         if(this->originPosition != rhs.originPosition){
@@ -232,18 +252,8 @@ public:
         return true;
     }
 
-    BaseGridMap& operator = (const BaseGridMap &rhs)
-    {
-        this->originPosition = rhs.originPosition;
-        this->xMin = rhs.xMin;
-        this->xMax = rhs.xMax;
-        this->yMin = rhs.yMin;
-        this->yMax = rhs.yMax;
-        this->xResolution = rhs.xResolution;
-        this->yResolution = rhs.yResolution;
-        this->xSize = rhs.xSize;
-        this->ySize = rhs.ySize;
-        return *this;
+    bool operator != (const BaseGridMap &rhs) const{
+        return !(*this == rhs);
     }
 
 protected:

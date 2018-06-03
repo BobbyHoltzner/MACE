@@ -2,8 +2,8 @@
 namespace mace{
 namespace maps{
 
-OctomapWrapper::OctomapWrapper(const double &resolution, const OctomapSensorDefinition &sensorProperties):
-    treeResolution(resolution),
+OctomapWrapper::OctomapWrapper(const double &treeResolution, const OctomapSensorDefinition &sensorProperties):
+    treeResolution(treeResolution),
     m_Tree(nullptr),
     m_Map(nullptr),
     m_sensorProperties(nullptr)
@@ -85,6 +85,7 @@ void OctomapWrapper::updateFromLaserScan(octomap::Pointcloud *pc, const octomap:
                     octomap::point3d point = m_Tree->keyToCoord(key,maxTreeDepth);
                     bool occupied = m_Tree->isNodeOccupied(m_Tree->search(key,m_Tree->getTreeDepth()));
                     updateMapOccupancyRecursiveCheck(point.x(),point.y(),maxTreeDepth,occupied);
+
                 }
             }
             m_Tree->resetChangeDetection();
@@ -97,14 +98,26 @@ bool OctomapWrapper::is2DProjectionEnabled() const
     return this->enabled2DProjection;
 }
 
+bool OctomapWrapper::is2DTrackingChanges() const
+{
+    return this->enabled2DTrackingChanges;
+}
+
 void OctomapWrapper::set2DProjection(const bool enable)
 {
     this->enabled2DProjection = enable;
     if(this->enabled2DProjection)
     {
         updateMapContinuity();
-        updateMapFromTree();
+        updateEntireMapFromTree();
     }
+}
+
+void OctomapWrapper::set2DTrackingChanges(const bool enable)
+{
+    this->enabled2DTrackingChanges = enable;
+    if(!enable) //if we are no longer interested in tracking changes, clear the queue
+        this->changesIn2DMap.clear();
 }
 
 bool OctomapWrapper::loadOctreeFromBT(const std::string &path)
@@ -168,40 +181,26 @@ void OctomapWrapper::updateMapContinuity()
     octomap::point3d maxPt(maxX, maxY, maxZ);
     octomap::OcTreeKey minKey = m_Tree->coordToKey(minPt, maxTreeDepth);
     octomap::OcTreeKey maxKey = m_Tree->coordToKey(maxPt, maxTreeDepth);
+    UNUSED(maxKey);
 
     bool minKeyCheck = m_Tree->coordToKeyChecked(minPt, maxTreeDepth, paddedMinKey);
     bool maxKeycheck = m_Tree->coordToKeyChecked(maxPt, maxTreeDepth, paddedMaxKey);
+    UNUSED(minKeyCheck); UNUSED(maxKeycheck);
 
     mapScaling = 1 << (treeDepth - maxTreeDepth);
     unsigned int width = (paddedMaxKey[0] - paddedMinKey[0])/mapScaling;
-    unsigned int height = (paddedMaxKey[0] - paddedMinKey[0])/mapScaling; //I dont know if this should match the grid size
+    unsigned int height = (paddedMaxKey[0] - paddedMinKey[0])/mapScaling;
+    UNUSED(width); UNUSED(height);
+
     double gridRes = m_Tree->getNodeSize(m_Tree->getTreeDepth());
 
-//    int occupiedCount = 0;
-//    for(unsigned int i = 0; i < m_Map->getNodeCount(); i++)
-//    {
-//        OccupiedResult* newPtr = m_Map->getCellByIndex(i);
-//        if(*newPtr == OccupiedResult::OCCUPIED)
-//            occupiedCount++;
-//    }
-
-//    std::cout<<"The number of occupied cells before updating size is: "<<occupiedCount<<std::endl;
-
-    m_Map->updateGridSize(minX,maxX,minY,maxY,gridRes,gridRes);
-
-//    occupiedCount = 0;
-//    for(unsigned int i = 0; i < m_Map->getNodeCount(); i++)
-//    {
-//        OccupiedResult* newPtr = m_Map->getCellByIndex(i);
-//        if(*newPtr == OccupiedResult::OCCUPIED)
-//            occupiedCount++;
-//    }
-
-//    std::cout<<"The number of occupied cells after updating size is: "<<occupiedCount<<std::endl;
-
+    bool resolutionChanged = m_Map->updateGridSize(minX,maxX,minY,maxY,gridRes,gridRes);
+    if(resolutionChanged)
+        this->updateEntireMapFromTree();
 
     int mapOriginX = minKey[0] - paddedMinKey[0];
     int mapOriginY = minKey[1] - paddedMinKey[1];
+    UNUSED(mapOriginX); UNUSED(mapOriginY);
 
     // might not exactly be min / max of octree:
     octomap::point3d origin = m_Tree->keyToCoord(paddedMinKey, treeDepth);
@@ -209,24 +208,21 @@ void OctomapWrapper::updateMapContinuity()
     //    m_gridmap.info.resolution = gridRes;
     pose::CartesianPosition_2D transformedOrigin(origin.x() - gridRes*0.5, origin.y() - gridRes*0.5);
     m_Map->updatePosition(transformedOrigin);
-//    std::cout<<"X Position Origin: "<<origin.x() - gridRes*0.5<<std::endl;
-//    std::cout<<"Y Position Origin: "<<origin.y() - gridRes*0.5<<std::endl;
 
-    if (maxTreeDepth != treeDepth){
-        std::cout<<"Was this true"<<std::endl;
+    //if (maxTreeDepth != treeDepth){
+    //    std::cout<<"Was this true"<<std::endl;
         //        m_gridmap.info.origin.position.x -= m_res/2.0;
         //        m_gridmap.info.origin.position.y -= m_res/2.0;
-    }
+    //}
 }
 
-void OctomapWrapper::updateMapFromTree()
+void OctomapWrapper::updateEntireMapFromTree()
 {
-    int counter = 0;
+    this->m_Map->clear();
 
     for (octomap::OcTree::iterator it = m_Tree->begin(maxTreeDepth), end = m_Tree->end(); it != end; ++it)
     {
-        if(it.getZ() > 0.5){
-            counter++;
+        if(it.getZ() > 0.5){ //should filter for the ground here
             if(m_Tree->isNodeOccupied(*it))
             {
                 updateMapOccupancyRecursiveCheck(it,true);
@@ -258,15 +254,32 @@ void OctomapWrapper::updateMapOccupancyRecursiveCheck(const double &xPos, const 
 {
     if(depth == maxTreeDepth)
     {
+        unsigned int currentIndex = m_Map->indexFromPos(xPos,yPos);
         OccupiedResult* newPtr = m_Map->getCellByPos(xPos,yPos);
+
         if(occupancy)
         {
-            *newPtr = OccupiedResult::OCCUPIED;
+            if(*newPtr != OccupiedResult::OCCUPIED) //means the value wasn't already previously occupied
+            {
+                *newPtr = OccupiedResult::OCCUPIED;
+                if(enabled2DTrackingChanges)
+                    this->changesIn2DMap.push_back(currentIndex);
+            }
         }
-        else
+        else //means we now want to mark the data as unoccupied
         {
-            if((newPtr == nullptr) || (*newPtr == OccupiedResult::NO_DATA) || (*newPtr == OccupiedResult::NOT_OCCUPIED))  //if we had no data before or was already unoccupied we can go ahead and mark it as occupied
+            if((newPtr == nullptr) || (*newPtr == OccupiedResult::NO_DATA))  //if we had no data before or the cell was null we can go ahead and immediately mark the space as unoccupied
+            {
+                if(enabled2DTrackingChanges)
+                    this->changesIn2DMap.push_back(currentIndex);
                 *newPtr = OccupiedResult::NOT_OCCUPIED;
+            }
+            else if(*newPtr == OccupiedResult::NOT_OCCUPIED)
+            {
+                //the cell was previously marked as unoccupied and it shall remain that way
+                //we have this condition wrapped in the else if so it doesnt track changes
+                //and doesn't perform the recursive search in the else condition
+            }
             else
             {
                 //this means this cell was previously occupied and now we are saying it is unoccuppied
@@ -288,6 +301,9 @@ void OctomapWrapper::updateMapOccupancyRecursiveCheck(const double &xPos, const 
                         return;
                 }
                 //if we have reached here, there are no nodes in the bbx that are occupied and therefore the node can be marked as free
+                //and therefore as a result of this case condition we must mark the cell as having been changed
+                if(enabled2DTrackingChanges)
+                    this->changesIn2DMap.push_back(currentIndex);
                 *newPtr = OccupiedResult::NOT_OCCUPIED;
             }
 
@@ -298,7 +314,7 @@ void OctomapWrapper::updateMapOccupancyRecursiveCheck(const double &xPos, const 
     }
 }
 
-maps::Data2DGrid<OctomapWrapper::OccupiedResult>* OctomapWrapper::get2DOccupancyMap()
+maps::Data2DGrid<OccupiedResult>* OctomapWrapper::get2DOccupancyMap()
 {
     return this->m_Map;
 }
@@ -306,6 +322,16 @@ maps::Data2DGrid<OctomapWrapper::OccupiedResult>* OctomapWrapper::get2DOccupancy
 octomap::OcTree* OctomapWrapper::get3DOccupancyMap()
 {
     return this->m_Tree;
+}
+
+std::vector<unsigned int> OctomapWrapper::getChanged2DIndices() const
+{
+    return this->changesIn2DMap;
+}
+
+void OctomapWrapper::reset2DChanges()
+{
+    this->changesIn2DMap.clear();
 }
 
 void OctomapWrapper::updateFreeNode(const octomap::OcTree::iterator &it)

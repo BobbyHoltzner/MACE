@@ -5,9 +5,10 @@
 #include "octomap/OcTree.h"
 #include "octomap/OcTreeIterator.hxx"
 
-#include "octomap_sensor_definition.h"
-
 #include "data_2d_grid.h"
+#include "octomap_sensor_definition.h"
+#include "occupancy_definition.h"
+
 #include <iostream>
 
 namespace mace{
@@ -16,22 +17,17 @@ namespace maps{
 class OctomapWrapper
 {
 public:
-
-    enum class OccupiedResult
-    {
-        NO_DATA,
-        OUTSIDE_ENVIRONMENT,
-        OCCUPIED,
-        NOT_OCCUPIED
-    };
-
-public:
-    OctomapWrapper(const double &resolution = 0.05, const OctomapSensorDefinition &sensorProperties = OctomapSensorDefinition());
+    OctomapWrapper(const double &treeResolution = 0.05, const OctomapSensorDefinition &sensorProperties = OctomapSensorDefinition());
 
     bool is2DProjectionEnabled() const;
 
+    bool is2DTrackingChanges() const;
+
     void set2DProjection(const bool enable);
 
+    void set2DTrackingChanges(const bool enable);
+
+public:
     bool loadOctreeFromBT(const std::string &path);
 
     void updateSensorProperties(const OctomapSensorDefinition &sensorProperties);
@@ -44,10 +40,13 @@ public:
     maps::Data2DGrid<OccupiedResult>* get2DOccupancyMap();
     octomap::OcTree* get3DOccupancyMap();
 
+    std::vector<unsigned int> getChanged2DIndices() const;
+    void reset2DChanges();
+
 private:
     void updateMapContinuity();
 
-    void updateMapFromTree();
+    void updateEntireMapFromTree();
 
     void updateMapOccupancy(const octomap::OcTreeKey &key, const bool &occupancy);
 
@@ -68,6 +67,11 @@ private:
 
 private:
     bool enabled2DProjection = true;
+    bool enabled2DTrackingChanges = true;
+    bool enabledIndependentMapResolution = false;
+
+    std::vector<unsigned int> changesIn2DMap;
+
     double treeResolution = 0.05;
     unsigned int treeDepth = 0;
     unsigned int maxTreeDepth = 0;

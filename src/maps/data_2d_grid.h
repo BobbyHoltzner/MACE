@@ -64,15 +64,22 @@ public:
         fill(m_defaultFill);
     }
 
-    void updateGridSize(const double &minX, const double &maxX, const double &minY, const double &maxY, const double &x_res, const double &y_res) override
+    bool updateGridResolution(const double &x_res, const double &y_res)
     {
+        return this->updateGridSize(this->xMin,this->xMax,this->yMin,this->yMax,x_res,y_res);
+    }
+
+    bool updateGridSize(const double &minX, const double &maxX, const double &minY, const double &maxY, const double &x_res, const double &y_res) override
+    {
+        bool resolutionChanged = false;
+
         if((minX != this->xMin) || (maxX != this->xMax) ||
                 (minY != this->yMin) || (maxY != this->yMax) ||
                 (x_res != this->xResolution) || (y_res != this->yResolution))
         {
             if((x_res != this->xResolution) || (y_res != this->yResolution))
             {
-                std::cout<<"The resolution changed."<<std::endl;
+                resolutionChanged = true;
             }
             //First clone this object
             Data2DGrid* clone = new Data2DGrid(*this);
@@ -111,9 +118,10 @@ public:
             delete clone;
             clone = nullptr;
         }
+        return resolutionChanged;
     }
 
-    void updateGridSizeByLength(const double &x_length = 10.0, const double &y_length = 10.0,
+    bool updateGridSizeByLength(const double &x_length = 10.0, const double &y_length = 10.0,
                                 const double &x_res = 0.5, const double &y_res = 0.5) override
     {
         //update the underlying size structure
@@ -214,6 +222,15 @@ protected:
     }
 
 public:
+
+    Data2DGrid& operator = (const Data2DGrid &rhs)
+    {
+        BaseGridMap::operator ==(rhs);
+        this->m_defaultFill = rhs.getFill();
+        this->m_dataMap = rhs.getDataMap();
+        return *this;
+    }
+
     bool operator == (const Data2DGrid &rhs) const
     {
         if(!BaseGridMap::operator ==(rhs))
@@ -231,12 +248,9 @@ public:
         return true;
     }
 
-    Data2DGrid& operator = (const Data2DGrid &rhs)
-    {
-        BaseGridMap::operator ==(rhs);
-        this->m_defaultFill = rhs.getFill();
-        this->m_dataMap = rhs.getDataMap();
-        return *this;
+
+    bool operator != (const BaseGridMap &rhs) const{
+        return !(*this == rhs);
     }
 
 

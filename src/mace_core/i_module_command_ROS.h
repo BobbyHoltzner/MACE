@@ -39,7 +39,7 @@ public:
             UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });
-        AddCommandLogic<mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult>>(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, [this](const mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> &map, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<mace::maps::Data2DGrid<mace::maps::OccupiedResult>>(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, [this](const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyCompressedOccupancyMap(map);
         });
@@ -64,7 +64,7 @@ public:
 
     virtual void NewlyUpdated3DOccupancyMap() = 0;
 
-    virtual void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> &map) = 0;
+    virtual void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) = 0;
 
     virtual void NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path) = 0;
 

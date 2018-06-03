@@ -129,7 +129,7 @@ public:
 
     void NewlyUpdated3DOccupancyMap() override;
 
-    void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> &map) override;
+    void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
 
     void NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path) override;
 

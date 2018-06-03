@@ -199,7 +199,7 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
             if(componentsUpdated.at(i) == MapItemTopics::Occupancy2DGrid_Topic::Name()) {
                 std::shared_ptr<MapItemTopics::Occupancy2DGrid_Topic> component =  std::shared_ptr<MapItemTopics::Occupancy2DGrid_Topic>();
                 m_MapTopic.GetComponent(component, read_topicDatagram);
-                std::shared_ptr<Data2DGrid<OctomapWrapper::OccupiedResult>> map = component->getOccupancyMap();
+                std::shared_ptr<Data2DGrid<OccupiedResult>> map = component->getOccupancyMap();
                 NewlyCompressedOccupancyMap(*map.get());
             }
         }
@@ -224,7 +224,7 @@ void ModuleROS::NewlyUpdated3DOccupancyMap()
     this->NewlyCompressedOccupancyMap(this->getDataObject()->getCompressedOccupancyGrid2D());
 }
 
-void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> &map)
+void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map)
 {
     m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","map"));
 
@@ -247,15 +247,15 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
     mace::maps::GridMapIterator it(&map);
     for(;!it.isPastEnd();++it)
     {
-        const mace::maps::OctomapWrapper::OccupiedResult* ptr = map.getCellByIndex(*it);
+        const mace::maps::OccupiedResult* ptr = map.getCellByIndex(*it);
         switch(*ptr)
         {
-        case mace::maps::OctomapWrapper::OccupiedResult::OCCUPIED:
+        case mace::maps::OccupiedResult::OCCUPIED:
         {
             occupancyGrid.data[*it] = 100;
             break;
         }
-        case mace::maps::OctomapWrapper::OccupiedResult::NOT_OCCUPIED:
+        case mace::maps::OccupiedResult::NOT_OCCUPIED:
         {
             occupancyGrid.data[*it] = 0;
             break;

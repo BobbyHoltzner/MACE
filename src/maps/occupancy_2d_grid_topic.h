@@ -26,23 +26,23 @@ public:
 
     }
 
-    Occupancy2DGrid_Topic(const std::shared_ptr<Data2DGrid<OctomapWrapper::OccupiedResult>> &map)
+    Occupancy2DGrid_Topic(const std::shared_ptr<Data2DGrid<OccupiedResult>> &map)
     {
         this->setMap(map);
     }
 
-    void setMap(const std::shared_ptr<Data2DGrid<OctomapWrapper::OccupiedResult>> &map)
+    void setMap(const std::shared_ptr<Data2DGrid<OccupiedResult>> &map)
     {
         this->occupancyMap = map;
     }
 
-    std::shared_ptr<Data2DGrid<OctomapWrapper::OccupiedResult>> getOccupancyMap() const
+    std::shared_ptr<Data2DGrid<OccupiedResult>> getOccupancyMap() const
     {
         return occupancyMap;
     }
 
 private:
-    std::shared_ptr<Data2DGrid<OctomapWrapper::OccupiedResult>> occupancyMap;
+    std::shared_ptr<Data2DGrid<OccupiedResult>> occupancyMap;
 };
 
 } //end of namespace MapItemTopics

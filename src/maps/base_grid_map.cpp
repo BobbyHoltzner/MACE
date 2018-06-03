@@ -33,7 +33,7 @@ BaseGridMap::BaseGridMap(const BaseGridMap &copy)
     this->ySize = copy.ySize;
 }
 
-void BaseGridMap::updateGridSize(const double &minX, const double &maxX, const double &minY, const double &maxY, const double &x_res, const double &y_res)
+bool BaseGridMap::updateGridSize(const double &minX, const double &maxX, const double &minY, const double &maxY, const double &x_res, const double &y_res)
 {
     // Update the internal resolution memebers
     xResolution = x_res;
@@ -50,7 +50,7 @@ void BaseGridMap::updateGridSize(const double &minX, const double &maxX, const d
     ySize = round((yMax - yMin) / yResolution); // Ken these originally had a + 1
 }
 
-void BaseGridMap::updateGridSizeByLength(const double &x_length, const double &y_length,
+bool BaseGridMap::updateGridSizeByLength(const double &x_length, const double &y_length,
                                  const double &x_res, const double &y_res)
 {
     // Update the internal resolution memebers
@@ -66,6 +66,21 @@ void BaseGridMap::updateGridSizeByLength(const double &x_length, const double &y
     // Now the number of cells should be integers:
     xSize = round((xMax - xMin) / xResolution); // Ken these originally had a + 1
     ySize = round((yMax - yMin) / yResolution); // Ken these originally had a + 1
+}
+
+void BaseGridMap::setXResolution(const double &x_res)
+{
+    this->updateResolution(x_res,this->yResolution);
+}
+
+void BaseGridMap::setYResolution(const double &y_res)
+{
+    this->updateResolution(this->xResolution,y_res);
+}
+
+void BaseGridMap::updateResolution(const double &x_res, const double &y_res)
+{
+    this->updateGridSize(this->xMin,this->xMax,this->yMin,this->yMax,x_res,y_res);
 }
 
 void BaseGridMap::updatePosition(const pose::CartesianPosition_2D &position)

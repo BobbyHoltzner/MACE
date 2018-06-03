@@ -808,7 +808,7 @@ void MaceCore::AppendVehicleCommands(const std::string &vehicleID, const std::ve
     m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::COMMANDS_APPENDED);
 }
 
-void MaceCore::EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> &map)
+void MaceCore::EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map)
 {
     if(m_ROS)
         m_ROS->MarshalCommand(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, map);
