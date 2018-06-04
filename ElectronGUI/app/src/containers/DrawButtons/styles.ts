@@ -15,6 +15,7 @@ export const styles = {
         justifyContent: "space-between" as "space-between",
         alignItems: "center" as "center",
         flexDirection: "column" as "column",
+        zIndex: 9999
     },
 
     sliderContainer: {

@@ -422,6 +422,10 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const CommandItem::Spat
     if(m_GroundStation) {
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, 0); // TODO: Parse for vehicle ID
     }
+
+    if(m_RTA) {
+        m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, 0); // TODO: Parse for vehicle ID
+    }
 }
 
 void MaceCore::Event_SetGridSpacing(const void *sender, const double &gridSpacing)
@@ -433,6 +437,10 @@ void MaceCore::Event_SetGridSpacing(const void *sender, const double &gridSpacin
 void MaceCore::Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
     UNUSED(sender);
     m_DataFusion->UpdateEnvironmentVertices(boundaryVerts);
+
+    if(m_RTA) {
+        m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_BOUNDARY_VERTICES, 0);
+    }
 }
 
 void MaceCore::Event_SetVehicleBoundaryVertices(const void* sender, const std::map<int, std::vector<DataState::StateGlobalPosition> > &vehicleMap) {

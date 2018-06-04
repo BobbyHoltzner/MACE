@@ -39,41 +39,43 @@ Environment_Map::Environment_Map(const Polygon_2DC &boundingPolygon, const doubl
  */
 bool Environment_Map::computeBalancedVoronoi(const std::map<int, Position<CartesianPosition_2D> > &vehicles) {
     bool success = false;
-    // Step 1): Use the number of vehicles to create evenly spaced points in environment
-    int numVehicles = vehicles.size();
+    if(m_boundary.getVector().size() > 2) {
+        // Step 1): Use the number of vehicles to create evenly spaced points in environment
+        int numVehicles = vehicles.size();
 
-    PolySplit polygon;
-    polygon.initPolygon(m_boundary, numVehicles);
+        PolySplit polygon;
+        polygon.initPolygon(m_boundary, numVehicles);
 
-    std::vector<Position<CartesianPosition_2D> > centroids = polygon.getCentroids();
-    if(centroids.size() != numVehicles) {
-        std::cout << "Balanced Voronoi: Number of vehicles does not match number of available polygons." << std::endl;
-    }
-    else {
-        // Step 2): Compute voronoi partition based on centroids of each split polygon
-        std::vector<Cell_2DC> cellsVec;
-        success = computeVoronoi(cellsVec, centroids);
+        std::vector<Position<CartesianPosition_2D> > centroids = polygon.getCentroids();
+        if(centroids.size() != numVehicles) {
+            std::cout << "Balanced Voronoi: Number of vehicles does not match number of available polygons." << std::endl;
+        }
+        else {
+            // Step 2): Compute voronoi partition based on centroids of each split polygon
+            std::vector<Cell_2DC> cellsVec;
+            success = computeVoronoi(cellsVec, centroids);
 
 
-        // Step 3): Assign cells to vehicle IDs based on distance to vehicle/site
-        std::vector<int> usedCellIndices;
-        for(auto vehicle : vehicles) {
-            double dist = std::numeric_limits<double>::max();
-            Cell_2DC tmpCell;
-            int counter = 0;
-            int index = counter;
-            for(auto cell : cellsVec) {
-                double tmpDist = cell.getCenter().distanceTo(vehicle.second);
-                if(tmpDist < dist && std::find(usedCellIndices.begin(), usedCellIndices.end(), counter) == usedCellIndices.end()) {
-                    dist = tmpDist;
-                    tmpCell = cell;
-                    index = counter;
+            // Step 3): Assign cells to vehicle IDs based on distance to vehicle/site
+            std::vector<int> usedCellIndices;
+            for(auto vehicle : vehicles) {
+                double dist = std::numeric_limits<double>::max();
+                Cell_2DC tmpCell;
+                int counter = 0;
+                int index = counter;
+                for(auto cell : cellsVec) {
+                    double tmpDist = cell.getCenter().distanceTo(vehicle.second);
+                    if(tmpDist < dist && std::find(usedCellIndices.begin(), usedCellIndices.end(), counter) == usedCellIndices.end()) {
+                        dist = tmpDist;
+                        tmpCell = cell;
+                        index = counter;
+                    }
+
+                    counter++;
                 }
-
-                counter++;
+                usedCellIndices.push_back(index);
+                cells.insert(std::make_pair(vehicle.first, tmpCell));
             }
-            usedCellIndices.push_back(index);
-            cells.insert(std::make_pair(vehicle.first, tmpCell));
         }
     }
 

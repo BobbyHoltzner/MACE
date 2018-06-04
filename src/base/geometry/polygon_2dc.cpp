@@ -116,12 +116,12 @@ void Polygon_2DC::updateBoundingBox()
     }
 }
 
-void Polygon_2DC::getBoundingValues(double &xMin, double &yMin, double &xMax, double &yMax) const
+void Polygon_2DC::getBoundingValues(double &minX, double &minY, double &maxX, double &maxY) const
 {
-    xMin = xMin;
-    yMin = yMin;
-    xMax = xMax;
-    yMax = yMax;
+    minX = xMin;
+    minY = yMin;
+    maxX = xMax;
+    maxY = yMax;
 }
 
 Polygon_2DC Polygon_2DC::getBoundingRect() const

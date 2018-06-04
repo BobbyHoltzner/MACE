@@ -78,7 +78,7 @@ public:
 
 
     //!
-    //! \brief NewlyUpdatedGlobalOrigin
+    //! \brief NewlyUpdateVehicleBoundaries
     //!
     virtual void NewlyUpdateVehicleBoundaries() = 0;
 

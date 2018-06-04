@@ -11,7 +11,7 @@ void PolySplit::initPolygon(const mace::geometry::Polygon_2DC &boundary, const i
     std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> boundaryVector = boundary.getVector();
 
     for(auto vertex : boundaryVector) {
-        polygon.push_back(Vector(vertex.getXPosition(), vertex.getYPosition()));
+        polygon.push_back(Vector(vertex.getXPosition(), vertex.getYPosition()));        
     }
 
     Polygon polygonToSplit = polygon;

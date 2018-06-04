@@ -5,6 +5,10 @@ ModuleRTA::ModuleRTA():
     m_SensorFootprintDataTopic("sensorFootprint"), gridSpacingSent(false), environmentBoundarySent(false),
     m_globalInstance(true), m_gridSpacing(1)
 {
+    std::vector<Position<CartesianPosition_2D> > localBoundaryVerts;
+    Polygon_2DC poly(localBoundaryVerts);
+    m_globalOrigin = std::make_shared<CommandItem::SpatialHome>();
+    environment = std::make_shared<Environment_Map>(poly, m_gridSpacing, *m_globalOrigin, m_globalInstance);
 }
 
 ModuleRTA::~ModuleRTA(){
@@ -116,10 +120,22 @@ void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
             if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> globalPositionData = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(globalPositionData, read_topicDatagram);
+
+                // Update vehicle position:
+                Position<CartesianPosition_2D> tmpPos;
+                DataState::StateLocalPosition localPositionData;
+                DataState::StateGlobalPosition tmpGlobalOrigin;
+                tmpGlobalOrigin.setLatitude(m_globalOrigin->getPosition().getX());
+                tmpGlobalOrigin.setLongitude(m_globalOrigin->getPosition().getY());
+                tmpGlobalOrigin.setAltitude(m_globalOrigin->getPosition().getZ());
+                DataState::PositionalAid::GlobalPositionToLocal(tmpGlobalOrigin, *globalPositionData, localPositionData);
+                tmpPos.setXPosition(localPositionData.getX());
+                tmpPos.setYPosition(localPositionData.getY());
+                // Insert/update into map
+                m_vehicles[senderID] = tmpPos;
             }else if(componentsUpdated.at(i) == DataStateTopic::StateLocalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateLocalPositionTopic> localPositionData = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(localPositionData, read_topicDatagram);
-
             }
         }
     }else if(topicName == m_SensorFootprintDataTopic.Name())
@@ -143,6 +159,9 @@ void ModuleRTA::updateEnvironment() {
     std::vector<DataState::StateGlobalPosition> environmentVertices = this->getDataObject()->GetEnvironmentBoundary();
     m_gridSpacing = this->getDataObject()->GetGridSpacing();
 
+    std::cout << "Update environment (RTA): (" << m_globalOrigin->getPosition().getX() << " , " << m_globalOrigin->getPosition().getY() << ")" << std::endl;
+    std::cout << "Environment vertex length: " << environmentVertices.size() << std::endl;
+
     //  1) Update environment with new boundary vertices and/or global origin
     std::vector<Position<CartesianPosition_2D> > localBoundaryVerts;
     for(auto&& vertex : environmentVertices) {
@@ -159,7 +178,7 @@ void ModuleRTA::updateEnvironment() {
         localBoundaryVerts.push_back(tmpPos);
     }
     if(m_globalOrigin->getPosition().has2DPositionSet()) {
-        Polygon_2DC poly(localBoundaryVerts);
+        Polygon_2DC poly(localBoundaryVerts);        
         environment = std::make_shared<Environment_Map>(poly, m_gridSpacing, *m_globalOrigin, m_globalInstance);
     }
     else {
@@ -177,6 +196,7 @@ void ModuleRTA::updateEnvironment() {
         // Print boundary vertices:
         std::cout << "      **** Boundary vertices: " << std::endl;
         std::vector<Position<CartesianPosition_2D> > boundaryVerts = cell.second.getVector();
+//        environment->printCellInfo(cell.second);
         int tmpVertCounter = 0;
         for(auto vertex : boundaryVerts) {
             tmpVertCounter++;

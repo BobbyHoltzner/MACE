@@ -30,7 +30,7 @@ public:
     Polygon_2DC getBoundingRect() const;
 
 
-    void getBoundingValues(double &xMin, double &yMin, double &xMax, double &yMax) const;
+    void getBoundingValues(double &xMin, double &minY, double &maxX, double &maxY) const;
 
     //!
     //! \brief contains

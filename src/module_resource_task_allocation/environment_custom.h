@@ -116,8 +116,10 @@ private:
      */
     void clearDataGrid()
     {
-        delete m_dataGrid;
-        m_dataGrid = NULL;
+        if(!m_globalInstance) {
+            delete m_dataGrid;
+            m_dataGrid = NULL;
+        }
     }
 
 private:
