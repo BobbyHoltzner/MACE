@@ -45,7 +45,7 @@ private:
 
 protected:
 
-    virtual void Construct_Send(const MISSIONITEM &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_item_t &missionItem, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_Send(const MISSIONITEM &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_item_t &missionItem, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
         UNUSED(target);
@@ -57,6 +57,8 @@ protected:
         missionItem.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         FillMissionItem(commandItem,missionItem);
+
+        return true;
     }
 
 

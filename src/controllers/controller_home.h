@@ -155,6 +155,17 @@ protected:
         msg.latitude = data.position->getX() * pow(10,7);
         msg.longitude = data.position->getY()* pow(10,7);
         msg.altitude = data.position->getZ() * 1000.0;
+        msg.x = 0;
+        msg.y = 0;
+        msg.z = 0;
+        msg.q[0] = 0;
+        msg.q[1] = 0;
+        msg.q[2] = 0;
+        msg.q[3] = 0;
+        msg.approach_x = 0;
+        msg.approach_y = 0;
+        msg.approach_z = 0;
+        msg.validity = 0;
 
         std::cout << "Home Controller: Broadcasting Home" << std::endl;
     }
@@ -267,7 +278,7 @@ protected:
     }
 
 
-    virtual void Construct_Send(const CommandItem::SpatialHome &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_set_home_position_t &msg, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_Send(const CommandItem::SpatialHome &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_set_home_position_t &msg, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
 
@@ -282,6 +293,8 @@ protected:
         queueObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         std::cout << "Home Controller: Sending set home position" << std::endl;
+
+        return true;
     }
 
     virtual bool Construct_FinalObjectAndResponse(const mace_set_home_position_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_home_position_ack_t &ack, std::shared_ptr<CommandItem::SpatialHome> &data, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &queueObj)

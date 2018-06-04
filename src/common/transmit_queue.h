@@ -25,7 +25,8 @@ private:
         TransmitTask(std::function<void()> action, std::function<void()> failure) :
             numTries(0),
             transmitAction(action),
-            failureAction(failure)
+            failureAction(failure),
+            active(true)
         {
         }
 
@@ -33,6 +34,7 @@ private:
         std::function<void()> transmitAction;
         std::function<void()> failureAction;
         std::chrono::time_point<std::chrono::system_clock> lastTransmit;
+        bool active;
     };
 
 
@@ -88,6 +90,7 @@ public:
         m_ActiveTransmitsMutex.lock();
         if(m_ActiveTransmits.find(ID) != m_ActiveTransmits.cend())
         {
+            m_ActiveTransmits.at(ID).active = false;
             m_ActiveTransmits.erase(ID);
         }
         m_ActiveTransmitsMutex.unlock();
@@ -109,6 +112,10 @@ public:
             {
                 for(auto it = m_ActiveTransmits.begin() ; it != m_ActiveTransmits.end() ; ++it)
                 {
+                    if(it->second.active == false)
+                    {
+                        continue;
+                    }
                     std::chrono::time_point<std::chrono::system_clock> currTime = std::chrono::system_clock::now();
                     int elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(currTime - it->second.lastTransmit).count();
                     if(it->second.numTries == 0 || elapsed_ms > m_WaitForRetries)
@@ -117,7 +124,11 @@ public:
                         if(it->second.numTries >= m_NumRetries)
                         {
                             it->second.failureAction();
-                            m_ActiveTransmits.erase(it->first);
+                            it->second.active = false;
+                            std::thread thread([this, it](){
+                                RemoveTransmissionFromQueue(it->first);
+                            });
+                            thread.detach();
                             continue;
                         }
 

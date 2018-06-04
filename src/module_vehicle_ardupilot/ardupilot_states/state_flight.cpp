@@ -115,19 +115,18 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
     {
         const CommandItem::SpatialRTL* cmd = command->as<CommandItem::SpatialRTL>();
 
-        auto controllerRTL = new MAVLINKVehicleControllers::CommandRTL(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-        controllerRTL->setLambda_Finished([this,controllerRTL](const bool completed, const uint8_t finishCode){
+        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        auto controllerRTL = new MAVLINKVehicleControllers::CommandRTL(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+        controllerRTL->AddLambda_Finished(this, [this,controllerRTL](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
                 desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_RTL;
             controllerRTL->Shutdown();
         });
 
-        controllerRTL->setLambda_Shutdown([this,controllerRTL]()
+        controllerRTL->setLambda_Shutdown([this, collection]()
         {
-            currentControllerMutex.lock();
-            currentControllers.erase("RTLController");
-            delete controllerRTL;
-            currentControllerMutex.unlock();
+            auto ptr = collection->Remove("RTLController");
+            delete ptr;
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -138,7 +137,7 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
         sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         controllerRTL->Send(*cmd,sender,target);
-        currentControllers.insert({"RTLController",controllerRTL});
+        collection->Insert("RTLController",controllerRTL);
     }
     default:
     {

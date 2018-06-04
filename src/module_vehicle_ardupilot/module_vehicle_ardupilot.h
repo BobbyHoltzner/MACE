@@ -261,6 +261,13 @@ private:
     }
 
 private:
+
+    //!
+    //! \brief Cause the state machine to update it's states
+    //!
+    void ProgressStateMachineStates();
+
+private:
     std::shared_ptr<spdlog::logger> mLogs;
 
 private:
@@ -268,6 +275,7 @@ private:
 
 private:
 
+    std::mutex m_Mutex_StateMachine;
     hsm::StateMachine* stateMachine; /**< Member variable containing a pointer to the state
  machine. This state machine evolves the state per event updates and/or external commands. */
 

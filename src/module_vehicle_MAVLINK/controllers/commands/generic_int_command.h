@@ -52,7 +52,7 @@ protected:
 
 protected:
 
-    virtual void Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_command_int_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_command_int_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
         UNUSED(target);
@@ -65,6 +65,8 @@ protected:
         cmd.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         FillCommand(data, cmd);
+
+        return true;
     }
 
 

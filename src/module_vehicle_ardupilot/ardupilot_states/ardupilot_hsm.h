@@ -18,6 +18,12 @@
 
 #include "ardupilot_state_types.h" //This could be templated out but we don't have the time for that
 
+#include <unordered_map>
+#include <mutex>
+#include <controllers/I_controller.h>
+#include <controllers/generic_controller.h>
+#include <mavlink.h>
+
 #pragma once
 #ifndef __HSM_H__
 #define __HSM_H__
@@ -275,20 +281,23 @@ struct ConcreteStateFactory : StateFactory
 
 	virtual State* AllocateState() const
 	{
-		return HSM_NEW TargetState();
+        return HSM_NEW TargetState();
 	}
 
 private:
 	// Only GetStateFactory can create this type
-	friend const StateFactory& GetStateFactory<TargetState>();
-	ConcreteStateFactory() {}
+    friend const StateFactory& GetStateFactory<TargetState>();
+    ConcreteStateFactory()
+    {
+    }
+
 };
 
 template <typename TargetState>
 const StateFactory& GetStateFactory()
 {
 	static_assert(std::is_convertible<TargetState, State>::value, "TargetState must derive from hsm::State");
-	static ConcreteStateFactory<TargetState> instance;
+    static ConcreteStateFactory<TargetState> instance;
 	return instance;
 }
 
@@ -368,13 +377,13 @@ inline Transition SiblingTransition(const StateFactory& stateFactory)
 template <typename TargetState>
 Transition SiblingTransition()
 {
-	return Transition(Transition::Sibling, GetStateFactory<TargetState>());
+    return Transition(Transition::Sibling, GetStateFactory<TargetState>());
 }
 
 template <typename TargetState, typename... Args>
 Transition SiblingTransition(Args&&... args)
 {
-	return Transition(Transition::Sibling, GetStateFactory<TargetState>(), detail::GenerateOnEnterArgsFunc<TargetState>(std::forward<Args>(args)...));
+    return Transition(Transition::Sibling, GetStateFactory<TargetState>(), detail::GenerateOnEnterArgsFunc<TargetState>(std::forward<Args>(args)...));
 }
 
 // Deprecated after v1.5 upon realizing that it's not possible to bind to the correct OnEnter for state
@@ -837,11 +846,11 @@ public:
 	~StateMachine();
 
 	// Initializes the state machine
-	template <typename InitialStateType>
-	void Initialize(Owner* owner = 0)
+    template <typename InitialStateType>
+    void Initialize(Owner* owner = 0)
 	{
 		HSM_ASSERT(mInitialTransition.IsNo());
-		mInitialTransition = SiblingTransition(GetStateFactory<InitialStateType>());
+        mInitialTransition = SiblingTransition(GetStateFactory<InitialStateType>());
 		mOwner = owner;
 	}
 
@@ -1404,7 +1413,7 @@ inline void StateMachine::PushState(State* state)
 
 inline void StateMachine::PopState()
 {
-	mStateStack.pop_back();
+    mStateStack.pop_back();
 }
 
 inline void StateMachine::Log(size_t minLevel, size_t numSpaces, const hsm_char* format, ...)

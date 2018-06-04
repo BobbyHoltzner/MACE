@@ -18,7 +18,7 @@ namespace state{
 class AbstractRootState : public AbstractStateArdupilot
 {
 public:
-    AbstractRootState(const int &timeout = 2000, const int &attempts = 3);
+    AbstractRootState();
 
     AbstractRootState(const AbstractRootState &copy);
 

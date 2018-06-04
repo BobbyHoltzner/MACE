@@ -83,8 +83,10 @@ bool State_Landing::handleCommand(const AbstractCommandItem* command)
     {
         this->currentCommand = command->getClone();
         //check that the vehicle is truely armed and switch us into the guided mode
-        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-        controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+
+        auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+        controllerSystemMode->AddLambda_Finished(this, [this,controllerSystemMode](const bool completed, const uint8_t finishCode){
             controllerSystemMode->Shutdown();
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
                 desiredStateEnum = ArdupilotFlightState::STATE_LANDING_TRANSITIONING;
@@ -92,12 +94,10 @@ bool State_Landing::handleCommand(const AbstractCommandItem* command)
                 desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT;
         });
 
-        controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
+        controllerSystemMode->setLambda_Shutdown([this, collection]()
         {
-            currentControllerMutex.lock();
-            currentControllers.erase("modeController");
-            delete controllerSystemMode;
-            currentControllerMutex.unlock();
+            auto ptr = collection->Remove("modeController");
+            delete ptr;
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -110,7 +110,7 @@ bool State_Landing::handleCommand(const AbstractCommandItem* command)
         commandMode.targetID = target.ID;
         commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString("GUIDED");
         controllerSystemMode->Send(commandMode,sender,target);
-        currentControllers.insert({"modeController",controllerSystemMode});
+        collection->Insert("modeController",controllerSystemMode);
 
         break;
     }

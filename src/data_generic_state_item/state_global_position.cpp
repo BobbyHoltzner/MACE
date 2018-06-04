@@ -80,6 +80,9 @@ mace_global_position_int_t StateGlobalPosition::getMACECommsObject() const
     rtnObj.lat = (int32_t)(this->getLatitude() * pow(10,7));
     rtnObj.lon = (int32_t)(this->getLongitude() * pow(10,7));
     rtnObj.alt = (int32_t)(this->getAltitude() * 1000.0);
+    rtnObj.relative_alt = 0;
+    rtnObj.hdg = 0;
+    rtnObj.time_boot_ms = 0;
 
     return rtnObj;
 }
