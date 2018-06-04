@@ -155,6 +155,17 @@ protected:
         msg.latitude = data.position->getX() * pow(10,7);
         msg.longitude = data.position->getY()* pow(10,7);
         msg.altitude = data.position->getZ() * 1000.0;
+        msg.x = 0;
+        msg.y = 0;
+        msg.z = 0;
+        msg.q[0] = 0;
+        msg.q[1] = 0;
+        msg.q[2] = 0;
+        msg.q[3] = 0;
+        msg.approach_x = 0;
+        msg.approach_y = 0;
+        msg.approach_z = 0;
+        msg.validity = 0;
 
         std::cout << "Home Controller: Broadcasting Home" << std::endl;
     }

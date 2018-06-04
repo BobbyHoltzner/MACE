@@ -340,6 +340,7 @@ protected:
 
             cmd.target_system = msg.target_system;
             cmd.target_component = msg.target_component;
+            cmd.type = MAV_MISSION_ACCEPTED;
             cmd.mission_type = msg.mission_type;
 
             queueObj = 0;
