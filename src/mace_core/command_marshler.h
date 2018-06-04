@@ -142,9 +142,9 @@ public:
     //!
     void AddLambda(T event, const std::function<void(const OptionalParameter<MaceCore::ModuleCharacteristic>&)> &lambda)
     {
-        m_EventProcedures.insert({event, std::make_shared<ZeroParamCaller>(lambda)});
         m_CallRate.insert({event, std::chrono::milliseconds(0)});
         m_LastCallTime.insert({event, 0});
+        m_EventProcedures.insert({event, std::make_shared<ZeroParamCaller>(lambda)});
     }
 
 
@@ -156,9 +156,9 @@ public:
     template<typename P1T>
     void AddLambda(T event, const std::function<void(const P1T&, const OptionalParameter<MaceCore::ModuleCharacteristic>&)> &lambda)
     {
-        m_EventProcedures.insert({event, std::make_shared<OneParamCaller<P1T>>(lambda)});
         m_CallRate.insert({event, std::chrono::milliseconds(0)});
         m_LastCallTime.insert({event, 0});
+        m_EventProcedures.insert({event, std::make_shared<OneParamCaller<P1T>>(lambda)});
     }
 
 

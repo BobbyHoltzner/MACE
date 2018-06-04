@@ -84,7 +84,7 @@ PolygonMapIterator PolygonMapIterator::operator ++(int)
     return old;
 }
 
-const int PolygonMapIterator::operator *() const
+int PolygonMapIterator::operator *() const
 {
     return *(*it);
 }
@@ -104,8 +104,8 @@ void PolygonMapIterator::boundSubmap(const geometry::Polygon_2DC &boundary)
 {
     //First, grab the most furthest edges of the iterator. We will need to map this into the actual map space
     //This will prvent iterators that are on the edges of the map going oob
-    pose::CartesianPosition_2D bottomLeft = polygon.getBottomLeft();
-    pose::CartesianPosition_2D upperRight = polygon.getTopRight();
+    pose::CartesianPosition_2D bottomLeft = boundary.getBottomLeft();
+    pose::CartesianPosition_2D upperRight = boundary.getTopRight();
 
     //Here we need to take those positions and map them to the actual map space
     //Check X positions

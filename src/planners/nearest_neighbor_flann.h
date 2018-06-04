@@ -5,7 +5,6 @@
 #include <utility>
 
 #include "flann/flann.hpp"
-
 #include "nearest_neighbor_abstract.h"
 #include "rrt_node.h"
 

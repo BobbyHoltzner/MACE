@@ -35,116 +35,85 @@
 using namespace mace ;
 using namespace geometry;
 
-class TestEnvironment
+#include "planners/rrt_base.h"
+#include "planners/nearest_neighbor_flann.h"
+
+#include "octomap/OcTree.h"
+
+#include "maps/octomap_wrapper.h"
+
+using namespace octomap;
+
+const char kPathSeparator =
+        #ifdef _WIN32
+        '\\';
+#else
+        '/';
+#endif
+
+
+class StateData{
+public:
+
+    StateData():
+        value(4.5)
+    {
+
+    }
+    StateData(const StateData &copy)
+    {
+        std::cout<<"The copy constructor of StateData is being called"<<std::endl;
+        this->value = copy.value;
+    }
+
+    StateData& operator =(const StateData &rhs)
+    {
+        this->value = rhs.value;
+        return *this;
+    }
+
+    double getValue() const {
+        this->value;
+    }
+
+    void setValue(const double &newValue){
+        this->value = newValue;
+    }
+
+private:
+    double value;
+};
+
+class TestCopy
 {
 public:
-    TestEnvironment() = default;
 
-    void updateEnvironment() {
-//        m_globalOrigin = std::make_shared<CommandItem::SpatialHome>(this->getDataObject()->GetGlobalOrigin());
-//        std::vector<DataState::StateGlobalPosition> environmentVertices = this->getDataObject()->GetEnvironmentBoundary();
-//        m_gridSpacing = this->getDataObject()->GetGridSpacing();
-
-//        std::cout << "Update environment (RTA): (" << m_globalOrigin->getPosition().getX() << " , " << m_globalOrigin->getPosition().getY() << ")" << std::endl;
-//        std::cout << "Environment vertex length: " << environmentVertices.size() << std::endl;
-
-        // Test values:
-        std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin = std::make_shared<CommandItem::SpatialHome>();
-        Base3DPosition basePos(37.88975705365012, -76.8113100528717, 0);
-        m_globalOrigin->setPosition(basePos);
-        std::vector<DataState::StateGlobalPosition> environmentVertices;
-        environmentVertices.push_back(DataState::StateGlobalPosition(37.89045135518932, -76.81392788887025, 0));
-        environmentVertices.push_back(DataState::StateGlobalPosition(37.891941541263336, -76.81021571159363, 0));
-        environmentVertices.push_back(DataState::StateGlobalPosition(37.889079679985066, -76.80793046951295, 0));
-        environmentVertices.push_back(DataState::StateGlobalPosition(37.887521696905814, -76.81257605552675, 0));
-
-        double m_gridSpacing = 0.5;
-        std::shared_ptr<Environment_Map> environment;
-        bool m_globalInstance = false;
-        std::map<int, Position<CartesianPosition_2D> > m_vehicles;
-
-        Position<CartesianPosition_2D> tmpPos;
-        DataState::StateLocalPosition localPositionData;
-        DataState::StateGlobalPosition tmpGlobalOrigin;
-        DataState::StateGlobalPosition globalPositionData(37.88975705365012, -76.8113100528717, 0);
-        tmpGlobalOrigin.setLatitude(m_globalOrigin->getPosition().getX());
-        tmpGlobalOrigin.setLongitude(m_globalOrigin->getPosition().getY());
-        tmpGlobalOrigin.setAltitude(m_globalOrigin->getPosition().getZ());
-        DataState::PositionalAid::GlobalPositionToLocal(tmpGlobalOrigin, globalPositionData, localPositionData);
-        tmpPos.setXPosition(localPositionData.getX());
-        tmpPos.setYPosition(localPositionData.getY());
-        // Insert/update into map
-        m_vehicles[1] = tmpPos;
-        std::map<int, std::vector<Position<CartesianPosition_2D> > > m_vehicleBoundaries;
-        // End test values
-
-
-
-        //  1) Update environment with new boundary vertices and/or global origin
-        std::vector<Position<CartesianPosition_2D> > localBoundaryVerts;
-
-        // MORE TEST VALUES:
-//        Position<CartesianPosition_2D> tmpPos4; tmpPos4.setXPosition(450); tmpPos4.setYPosition(100);
-//        Position<CartesianPosition_2D> tmpPos3; tmpPos3.setXPosition(900); tmpPos3.setYPosition(100);
-//        Position<CartesianPosition_2D> tmpPos2; tmpPos2.setXPosition(900); tmpPos2.setYPosition(400);
-//        Position<CartesianPosition_2D> tmpPos1; tmpPos1.setXPosition(450); tmpPos1.setYPosition(400);
-//        localBoundaryVerts.push_back(tmpPos1);
-//        localBoundaryVerts.push_back(tmpPos2);
-//        localBoundaryVerts.push_back(tmpPos3);
-//        localBoundaryVerts.push_back(tmpPos4);
-//        Position<CartesianPosition_2D> tmpVehiclePos1; tmpVehiclePos1.setXPosition(500); tmpVehiclePos1.setYPosition(200);
-//        m_vehicles[1] = tmpVehiclePos1;
-//        Position<CartesianPosition_2D> tmpVehiclePos2; tmpVehiclePos2.setXPosition(700); tmpVehiclePos2.setYPosition(200);
-//        m_vehicles[2] = tmpVehiclePos2;
-        // END MORE TEST VALUES
-
-
-        for(auto&& vertex : environmentVertices) {
-            DataState::StateLocalPosition localPositionData;
-            DataState::StateGlobalPosition tmpGlobalOrigin;
-            tmpGlobalOrigin.setLatitude(m_globalOrigin->getPosition().getX());
-            tmpGlobalOrigin.setLongitude(m_globalOrigin->getPosition().getY());
-            tmpGlobalOrigin.setAltitude(m_globalOrigin->getPosition().getZ());
-
-            DataState::PositionalAid::GlobalPositionToLocal(tmpGlobalOrigin, vertex, localPositionData);
-            Position<CartesianPosition_2D> tmpPos;
-            tmpPos.setXPosition(localPositionData.getX());
-            tmpPos.setYPosition(localPositionData.getY());
-            localBoundaryVerts.push_back(tmpPos);
-        }
-        if(m_globalOrigin->getPosition().has2DPositionSet()) {
-            Polygon_2DC poly(localBoundaryVerts);
-            environment = std::make_shared<Environment_Map>(poly, m_gridSpacing, *m_globalOrigin, m_globalInstance);
-        }
-        else {
-            std::cout << "No global origin set. Cannot set up RTA environment." << std::endl;
-        }
-
-        //  2) Re-partition space
-        environment->computeBalancedVoronoi(m_vehicles);
-        m_vehicleBoundaries.clear();
-
-        //  3) Distribute list of parititoned cells/boundary verts for each cell to core for path planner to grab (based on vehicle ID)
-        //      a) Set map of vehicle ID and vector of cartesian points making up the boundary for each vehicle
-        std::map<int, Cell_2DC> cells = environment->getCells();
-        for(auto cell : cells) {
-            std::vector<Position<CartesianPosition_2D> > boundaryVerts = cell.second.getVector();
-
-            // Print cell info:
-            std::cout << "      **** Cell " << cell.first << ": " << std::endl;
-            environment->printCellInfo(cell.second);
-            int tmpVertCounter = 0;
-            std::cout << "------- Boundary verts: "  << std::endl;
-            for(auto vertex : boundaryVerts) {
-                tmpVertCounter++;
-                std::cout << "Vertex " << tmpVertCounter << ": (" << vertex.getXPosition() << ", " << vertex.getYPosition() << ")" << std::endl;
-            }
-            std::cout << "------- END Boundary verts: "  << std::endl;
-            std::cout << std::endl << std::endl;
-
-            m_vehicleBoundaries.insert(std::make_pair(cell.first, boundaryVerts));
-        }
+    TestCopy()
+    {
+        data = new StateData();
     }
+
+    TestCopy(const TestCopy &copy)
+    {
+        data = new StateData(*copy.data);
+    }
+
+
+    StateData getStateData() const
+    {
+        return *data;
+    }
+
+
+private:
+    StateData* data;
+};
+
+
+class TestPointer
+{
+public:
+    TestPointer() = default;
 };
 
 
@@ -152,9 +121,254 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
+    TestCopy firstData;
+    StateData newStateData = firstData.getStateData();
+    newStateData.setValue(5.0);
+    //    TestPointer newTest;
+    //    double value = 5.0;
+    //    double* newValue = newTest.testApp(&value);
+    //    value = 6;
+    //    newValue = &value;
+    //using namespace mace::state_space;
+    octomap::OcTree* tree = new octomap::OcTree(0.5);
+    tree->setProbHit(1.0);
+    tree->setProbMiss(0.0);
+    tree->setOccupancyThres(0.5);
+    octomap::Pointcloud pc;
+    pc.push_back(0,0,0);
+    point3d origin;
+    origin.x() = 0.0;
+    origin.y() = 0.0;
+    origin.z() = 0.0;
+    tree->insertPointCloud(pc,origin);
+    double minX, minY, minZ, maxX, maxY, maxZ;
 
-    TestEnvironment env;
-    env.updateEnvironment();
+    tree->getMetricMin(minX, minY, minZ);
+    tree->getMetricMax(maxX, maxY, maxZ);
+
+//    for (octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end(); it != end; ++it)
+//    {
+//        if(tree->isNodeOccupied(*it))
+//        {
+//            std::cout<<"The node is occupied."<<std::endl;
+//        }
+//        else
+//        {
+//            std::cout<<"The node is not occupied."<<std::endl;
+//        }
+//    }
+
+//        for(double xPos = -1.0; xPos <= 1.1; xPos+=0.05)
+//        {
+//            octomap::OcTreeNode* node = tree->search(0,0,xPos,tree->getTreeDepth());
+//            if(node == NULL)
+//            {
+//                std::cout<<"The tree at "<<xPos<<" is null"<<std::endl;
+//            }
+//            else{
+//                std::cout<<"The tree is :";
+//                std::cout<<tree->isNodeOccupied(node);
+//                std::cout<<" at position "<<xPos<<std::endl;
+//            }
+//        }
+    //    std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> vertices;
+    //    mace::pose::Position<mace::pose::CartesianPosition_2D> point1("TL",-2,2);
+    //    mace::pose::Position<mace::pose::CartesianPosition_2D> point2("TR",2,2);
+    //    mace::pose::Position<mace::pose::CartesianPosition_2D> point4("LR",2,-2);
+    //    mace::pose::Position<mace::pose::CartesianPosition_2D> point3("LL",-2,-2);
+    //    vertices.push_back(point1);
+    //    vertices.push_back(point2);
+    //    vertices.push_back(point4);
+    //    vertices.push_back(point3);
+    //    mace::geometry::Polygon_2DC boundingPolygon(vertices);
+    //    std::cout<<"The boundary contains this: "<<boundingPolygon.contains(-1,0)<<std::endl;
+
+    double value = 0.0;
+    mace::pose::CartesianPosition_2D position(0,0);
+    mace::maps::Data2DGrid<double> newGridMap(&value,
+                                              -2.0, 2.0,
+                                              -2.0, 2.0,
+                                              1.0,1.0,
+                                              position);
+
+    double* ptr = newGridMap.getCellByIndex(0);
+    double newValue = 100.0;
+    *ptr = newValue;
+
+    //    newGridMap.updateGridSize(-2.0,2.0,-2.0,2.0,1.0,1.0);
+    //    newGridMap.updateGridSize(-3.0,2.0,-2.0,2.0,1.0,1.0);
+    //    newGridMap.updateGridSize(-4.0,2.0,-2.0,2.0,1.0,1.0);
+    //    newGridMap.updateGridSize(-5.0,2.0,-2.0,2.0,1.0,1.0);
+
+    std::cout<<"Pause Here"<<std::endl;
+    //    mace::maps::Data2DGrid<double> copyGridMap(&value,
+    //                                               0, 2.0,
+    //                                               0.0, 2.0,
+    //                                               1.0,1.0,
+    //                                               position);
+    //    mace::maps::Data2DGrid<double> cloneGridMap(newGridMap);
+
+    //    if(copyGridMap == newGridMap)
+    //        std::cout<<"The values are the same before the copy construct"<<std::endl;
+    //    else
+    //        std::cout<<"The values are the not same before the copy construct"<<std::endl;
+
+    //    if(cloneGridMap == newGridMap)
+    //        std::cout<<"The values are the same after the copy construct"<<std::endl;
+    //    else
+    //        std::cout<<"The values are the not same after the copy construct"<<std::endl;
+
+
+    //    std::cout<<"There are this many nodes: "<<newGridMap.getNodeCount()<<std::endl;
+    //        for(int i = 0; i < newGridMap.getNodeCount(); i++)
+    //        {
+    //            double x,y;
+    //            newGridMap.getPositionFromIndex(i,x,y);
+    //            std::cout<<"The position at index "<<i<<" is "<<x<<" "<<y<<std::endl;
+    //        }
+
+            for(double x=-2.0;x<=2.05;x+=0.1)
+            {
+                std::cout<<"The position we are questioning is "<<x<<",0"<<std::endl;
+                std::cout<<"The index is: "<<newGridMap.indexFromPos(x,0)<<std::endl;
+            }
+
+    //    std::cout<<"This is a holding spot for the grid map"<<std::endl;
+    //newGridMap.updatePosition(position);
+    //mace::maps::CircleMapIterator newCircleIterator(&newGridMap,position,1.0);
+    //    mace::maps::PolygonMapIterator newPolygonIterator(&newGridMap,boundingPolygon);
+
+    //    for(;!newPolygonIterator.isPastEnd();++newPolygonIterator)
+    //    {
+    //        const int value = *newPolygonIterator;
+    //        std::cout<<"The index of the position is:"<<value<<std::endl;
+    //    }
+
+
+    //    mace::maps::GridMapIterator newIterator(&newGridMap);
+    //    newIterator++;
+    //    double* ptr = newGridMap.getCellByIndex(*newIterator);
+    //    double newValue = 100.0;
+    //    *ptr = newValue;
+    //    double* newpPtr = newGridMap.getCellByPos(-1.0,1.0);
+    //    newpPtr = newGridMap.getCellByPos(0.0,0.0);
+    //    newpPtr = newGridMap.getCellByPos(1.0,-1.0);
+    //    std::cout<<"New placeholder"<<std::endl;
+
+    //!Everything below would help setting up the octomap on its initial load and anytime we get an update
+    //! Things that the dynamic map should only update if the origin and/or the size of the space has changed
+    //    char* MACEPath = getenv("MACE_ROOT");
+    //    std::string rootPath(MACEPath);
+    //    std::string btFile = rootPath + kPathSeparator + "simple_test_000_303030_newOrigin.bt";
+    //    mace::maps::OctomapWrapper octomap;
+    //    octomap.loadOctreeFromBT(btFile);
+    //    octomap.updateMapContinuity();
+    //    octomap.updateMapFromTree();
+
+    //        mace::maps::OctomapWrapper::OccupiedResult value = mace::maps::OctomapWrapper::OccupiedResult::NO_DATA;
+    //        mace::pose::CartesianPosition_2D position(0,0);
+    //        mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult> newGridMap(minX, maxX,
+    //                                                  minY, maxY,
+    //                                                  gridResolution, gridResolution,
+    //                                                  &value, position);
+
+    //        for(octomap::OcTree::iterator it = newTree->begin(newTree->getTreeDepth()), end = newTree->end(); it!=end; ++it)
+    //        {
+    //            double z = it.getZ();
+    //            if(newTree->isNodeOccupied(*it))
+    //            {
+    //                double size = it.getSize();
+    //                double x = it.getX();
+    //                double y = it.getY();
+    //                newGridMap.getCellByPos()
+    //            }
+    //        }
+
+    //    newTree->readBinary()
+    //    octomap::Pointcloud pc;
+    //    octomap::point3d endPoint (1.0,1.0,1.0);
+    //    pc.push_back(endPoint);
+    //    octomap::point3d origin (0,0,0);
+    //    newTree->insertPointCloud(pc,origin);
+
+    //    if (newTree->writeBinary("test.bt"))
+    //        std::cout<<"Create octree file."<<std::endl;
+    //    else
+    //        std::cout<<"Cannot create octree file."<<std::endl;
+
+    //    mace::state_space::Cartesian2DSpacePtr space = std::make_shared<mace::state_space::Cartesian2DSpace>();
+    //    space->bounds.setBounds(0,10,0,10);
+
+    //    mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(space);
+    //    mace::state_space::DiscreteMotionValidityCheckPtr motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(space);
+    //    mace::state_space::SpecialValidityCheckPtr stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(space);
+    //    motionCheck->setStateValidityCheck(stateCheck);
+    //    motionCheck->setMinCheckDistance(0.25);
+
+    //    mace::state_space::SpaceInformationPtr spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(space);
+    //    spaceInfo->setStateSampler(sampler);
+    //    spaceInfo->setStateValidityCheck(stateCheck);
+    //    spaceInfo->setMotionValidityCheck(motionCheck);
+
+    //    mace::planners_sampling::RRTBase rrt(spaceInfo);
+    //    mace::state_space::GoalState* begin = new mace::state_space::GoalState(space);
+    //    begin->setState(new mace::pose::CartesianPosition_2D(0,0));
+    //    mace::state_space::GoalState* end = new mace::state_space::GoalState(space,1.0);
+    //    end->setState(new mace::pose::CartesianPosition_2D(10,10));
+    //    end->setRadialRegion(1.0);
+
+    //    rrt.setPlanningParameters(begin,end);
+
+    //    rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
+    //    //rrt.setCallbackFunction(this);
+    //    std::vector<mace::state_space::State*> solution = rrt.solve();
+    //    std::cout<<"The solution looks like this: "<<std::endl;
+    //    for (int i = 0; i < solution.size(); i++)
+    //    {
+    //        std::cout<<"X: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<solution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
+    //    }
+    //    mace::pose::CartesianPosition_2D* state1 = space.getNewState()->as<mace::pose::CartesianPosition_2D>();
+    //    //mace::pose::CartesianPosition_2D* cast = state1->
+    //    mace::pose::CartesianPosition_2D* state2 = space.copyState(state1)->as<mace::pose::CartesianPosition_2D>();
+    //    state2->setXPosition(50.0);
+    //    std::cout<<"Pause here"<<std::endl;
+    //    space.removeState(state1);
+    //    space.removeState(state2);
+    std::cout<<"Pause here"<<std::endl;
+    //    NearestNeighbor_FLANN<mace::planners_sampling::RootNode*> tree =
+    //            NearestNeighbor_FLANN<mace::planners_sampling::RootNode*>(std::shared_ptr<flann::LinearIndexParams>(new flann::LinearIndexParams()));
+
+    //    Cartesian2DSpaceBounds bounds(-10,10,-10,10);
+    //    Cartesian2DSpace space;
+    //    space.setBounds(bounds);
+    //    Cartesian2DSpace_Sampler sampler(&space);
+    //    mace::pose::CartesianPosition_2D state;
+    //    sampler.sampleUniform(&state);
+
+    //mace::nn::KDTreeTest test;
+
+    //    char* MACEPath = getenv("MACE_ROOT");
+    //    if(MACEPath){
+    //        std::string rootPath(MACEPath);
+    //        QFile inputFile(QString::fromStdString(rootPath + "/US48.txt"));
+    //        if (inputFile.open(QIODevice::ReadOnly))
+    //        {
+    //           QTextStream in(&inputFile);
+    //           while (!in.atEnd())
+    //           {
+
+    //              QString line = in.readLine();
+    //              QStringList list = line.split(" ");
+    //              std::string name = "point_" + std::to_string(counter);
+    //              double x = list.at(1).toDouble();
+    //              double y = list.at(2).toDouble();
+    //              mace::pose::Position<mace::pose::CartesianPosition_2D> point(name.c_str(), x, y);
+    //              vector.push_back(point);
+    //              counter++;
+    //           }
+    //           inputFile.close();
+    //        }
+    //    }
 
 
     return a.exec();

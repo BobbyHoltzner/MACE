@@ -16,6 +16,8 @@ public:
 
     GenericMapIterator(const GenericMapIterator &copy);
 
+    virtual ~GenericMapIterator() = default;
+
 public:
     GenericMapIterator begin() const;
 
@@ -33,7 +35,7 @@ public:
 
     bool operator !=(const GenericMapIterator &rhs) const;
 
-    const int operator *() const;
+    int operator *() const;
 
 public:
     const BaseGridMap *parentMap;

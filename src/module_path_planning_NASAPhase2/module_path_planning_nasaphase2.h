@@ -13,10 +13,25 @@
 #include "base/state_space/cartesian_2D_space.h"
 
 #include "planners/rrt_base.h"
-//#include "planners/nearest_neighbor_flann.h"
+#include "planners/nearest_neighbor_flann.h"
 
 #include "base/state_space/discrete_motion_validity_check.h"
 #include "base/state_space/special_validity_check.h"
+
+#include "octomap/OcTree.h"
+
+#include "maps/octomap_wrapper.h"
+
+#include "maps/map_topic_components.h"
+
+using namespace octomap;
+
+const char kPathSeparator =
+#ifdef _WIN32
+        '\\';
+#else
+        '/';
+#endif
 
 #include "base/pose/cartesian_position_2D.h"
 #include "data_generic_state_item/positional_aid.h"
@@ -131,6 +146,8 @@ private:
 
 private:
     Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;
+    Data::TopicDataObjectCollection<MAP_DATA_TOPICS> m_MapTopic;
+
 
 };
 #endif // MODULE_PATH_PLANNING_NASAPHASE2_H

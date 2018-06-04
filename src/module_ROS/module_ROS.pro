@@ -107,14 +107,7 @@ exists(/opt/ros/kinetic/lib/) {
         LIBS += -L/opt/ros/kinetic/lib -ltf2
         LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
         LIBS += -L/opt/ros/kinetic/lib -lactionlib
-#        LIBS += -L/opt/ros/kinetic/lib -loctomap
-#        LIBS += -L/opt/ros/kinetic/lib -loctomap_ros
+        LIBS += -L/opt/ros/kinetic/lib -loctomap
+        LIBS += -L/opt/ros/kinetic/lib -loctomap_ros
 }
 }
-
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
-else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
-
-INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include

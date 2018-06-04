@@ -24,8 +24,7 @@
 #include <tf2/transform_datatypes.h>
 #include <tf2_sensor_msgs/tf2_sensor_msgs.h>
 #include <laser_geometry/laser_geometry.h>
-#include <octomap_ros/conversions.h>
-
+#include <nav_msgs/OccupancyGrid.h>
 #endif
 
 //!
@@ -34,7 +33,8 @@
 ModuleROS::ModuleROS() :
     MaceCore::IModuleCommandROS(),
     m_PlanningStateTopic("planningState"),
-    m_VehicleDataTopic("vehicleData")
+    m_VehicleDataTopic("vehicleData"),
+    m_MapTopic("mappingData")
 {
 }
 
@@ -67,6 +67,8 @@ void ModuleROS::start() {
     m_timer->setInterval(ROSTimer::Interval(50));
     m_timer->start(true);
 #endif
+
+    AbstractModule_EventListeners::start();
 }
 
 
@@ -92,7 +94,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleROS::ModuleConfigurati
     cameraSensor->AddTerminalParameters("Type", MaceCore::ModuleParameterTerminalTypes::STRING, true, "rgb", {"rgb", "infrared"});
     structure.AddNonTerminal("CameraSensor", cameraSensor, true);
 
-//    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, true);
+    //    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, true);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -126,7 +128,7 @@ void ModuleROS::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterV
         m_sensors.push_back(sensor);
     }
 
-//    this->SetID(params->GetTerminalValue<int>("ID"));
+    //    this->SetID(params->GetTerminalValue<int>("ID"));
 }
 
 //!
@@ -164,12 +166,12 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
             if(componentsUpdated.at(i) == mace::poseTopic::Cartesian_2D_Topic::Name()){
                 std::shared_ptr<mace::poseTopic::Cartesian_2D_Topic> component = std::make_shared<mace::poseTopic::Cartesian_2D_Topic>();
                 m_PlanningStateTopic.GetComponent(component, read_topicDatagram);
-                //this->renderState(component->getPose());
+                this->renderState(component->getPose());
             }
             else if(componentsUpdated.at(i) == mace::geometryTopic::Line_2DC_Topic::Name()) {
                 std::shared_ptr<mace::geometryTopic::Line_2DC_Topic> component = std::make_shared<mace::geometryTopic::Line_2DC_Topic>();
                 m_PlanningStateTopic.GetComponent(component, read_topicDatagram);
-                //this->renderEdge(component->getLine());
+                this->renderEdge(component->getLine());
             }
         }
     }
@@ -199,6 +201,18 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
             }
         }
     }
+    else if(topicName == m_MapTopic.Name())
+    {
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
+            if(componentsUpdated.at(i) == MapItemTopics::Occupancy2DGrid_Topic::Name()) {
+                std::shared_ptr<MapItemTopics::Occupancy2DGrid_Topic> component =  std::shared_ptr<MapItemTopics::Occupancy2DGrid_Topic>();
+                m_MapTopic.GetComponent(component, read_topicDatagram);
+                std::shared_ptr<Data2DGrid<OccupiedResult>> map = component->getOccupancyMap();
+                NewlyCompressedOccupancyMap(*map.get());
+            }
+        }
+    }
 }
 
 //!
@@ -207,11 +221,90 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
 //!
 void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 {
+    std::cout<<"The ROS module is going to see a new vehicle"<<std::endl;
     // If vehicle does not exist in our map, insert into the map
     insertVehicleIfNotExist(vehicleID);
 }
 
+void ModuleROS::NewlyUpdated3DOccupancyMap()
+{
+    octomap::OcTree tree = this->getDataObject()->getOccupancyGrid3D();
+    this->renderOccupancyMap(&tree);
+    this->NewlyCompressedOccupancyMap(this->getDataObject()->getCompressedOccupancyGrid2D());
+}
+
+void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map)
+{
+    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","map"));
+
+    nav_msgs::OccupancyGrid occupancyGrid;
+    occupancyGrid.info.resolution = map.getXResolution();
+    occupancyGrid.info.origin.position.x = map.getOriginPosition().getXPosition();
+    occupancyGrid.info.origin.position.y = map.getOriginPosition().getYPosition();
+    occupancyGrid.info.origin.position.z = 0.0;
+    occupancyGrid.info.width = map.getSizeX();
+    occupancyGrid.info.height = map.getSizeY();
+    occupancyGrid.info.origin.orientation.x = 0.0;
+    occupancyGrid.info.origin.orientation.y = 0.0;
+    occupancyGrid.info.origin.orientation.z = 0.0;
+    occupancyGrid.info.origin.orientation.w = 1.0;
+
+    occupancyGrid.data.resize(map.getNodeCount());
+    const float cellMin = 0;
+    const float cellMax = 100;
+    const float cellRange = cellMax - cellMin;
+    mace::maps::GridMapIterator it(&map);
+    for(;!it.isPastEnd();++it)
+    {
+        const mace::maps::OccupiedResult* ptr = map.getCellByIndex(*it);
+        switch(*ptr)
+        {
+        case mace::maps::OccupiedResult::OCCUPIED:
+        {
+            occupancyGrid.data[*it] = 100;
+            break;
+        }
+        case mace::maps::OccupiedResult::NOT_OCCUPIED:
+        {
+            occupancyGrid.data[*it] = 0;
+            break;
+        }
+        default:
+        {
+            occupancyGrid.data[*it] = -1;
+            break;
+        }
+        }
+    }
+    compressedMapPub.publish(occupancyGrid);
+}
+
+void ModuleROS::NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path)
+{
+    geometry_msgs::Point startPoint;
+    geometry_msgs::Point endPoint;
+
+    for(int i = 1; i < path.size();i ++)
+    {
+        std::cout<<"X: "<<path[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<path[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
+
+        mace::pose::CartesianPosition_2D begin(*path.at(i-1)->as<mace::pose::CartesianPosition_2D>());
+        startPoint.x = begin.getXPosition();
+        startPoint.y = begin.getYPosition();
+
+        mace::pose::CartesianPosition_2D end(*path.at(i)->as<mace::pose::CartesianPosition_2D>());
+        endPoint.x = end.getXPosition();
+        endPoint.y = end.getYPosition();
+
+        path_list.points.push_back(startPoint);
+        path_list.points.push_back(endPoint);
+    }
+    markerPub.publish(path_list);
+}
+
+
 void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
+#ifdef ROS_EXISTS
     if(m_vehicleMap.find(vehicleID) == m_vehicleMap.end()) {
 
         std::cout << " =================== IN IF STATEMENT =================== " << std::endl;
@@ -247,32 +340,12 @@ void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
         m_sensorVehicleMap.insert(std::make_pair(vehicleID, vehicleSensors));
 #endif
     }
-}
-
-//!
-//! \brief updatePositionData Update the position of the corresponding Gazebo model based on position of MACE vehicle
-//! \param vehicleID ID of the vehicle to update
-//! \param component Position (in the local frame)
-//!
-void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component)
-{
-    double x = component->getX();
-    double y = component->getY();
-    double z = component->getZ();
-
-    if(m_vehicleMap.find(vehicleID) != m_vehicleMap.end()) {
-        std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple;
-        DataState::StateLocalPosition tmpPos = DataState::StateLocalPosition(component->getCoordinateFrame(), x, y, z);
-        DataState::StateAttitude tmpAtt = std::get<1>(m_vehicleMap[vehicleID]);
-        tmpTuple = std::make_tuple(tmpPos, tmpAtt);
-        m_vehicleMap[vehicleID] = tmpTuple;
-    }
-
-#ifdef ROS_EXISTS
-    // Send gazebo model state:
-    sendGazeboModelState(vehicleID);
 #endif
 }
+
+////! ========================================================================
+////! ======================  ROS Specific functions:  =======================
+////! ========================================================================
 
 //!
 //! \brief updateAttitudeData Update the attitude of the corresponding Gazebo model based on attitude of MACE vehicle
@@ -294,15 +367,38 @@ void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<D
         m_vehicleMap[vehicleID] = tmpTuple;
     }
 
-#ifdef ROS_EXISTS
     // Send gazebo model state:
-    sendGazeboModelState(vehicleID);
+#ifdef ROS_EXISTS
+    //sendGazeboModelState(vehicleID);
 #endif
 }
 
-////! ========================================================================
-////! ======================  ROS Specific functions:  =======================
-////! ========================================================================
+
+//!
+//! \brief updatePositionData Update the position of the corresponding Gazebo model based on position of MACE vehicle
+//! \param vehicleID ID of the vehicle to update
+//! \param component Position (in the local frame)
+//!
+void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateLocalPositionTopic> &component)
+{
+    double x = component->getX();
+    double y = component->getY();
+    double z = component->getZ();
+
+    if(m_vehicleMap.find(vehicleID) != m_vehicleMap.end()) {
+        std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple;
+        DataState::StateLocalPosition tmpPos = DataState::StateLocalPosition(component->getCoordinateFrame(), x, y, z);
+        DataState::StateAttitude tmpAtt = std::get<1>(m_vehicleMap[vehicleID]);
+        tmpTuple = std::make_tuple(tmpPos, tmpAtt);
+        m_vehicleMap[vehicleID] = tmpTuple;
+    }
+
+    // Send gazebo model state:
+#ifdef ROS_EXISTS
+    //sendGazeboModelState(vehicleID);
+#endif
+}
+
 #ifdef ROS_EXISTS
 //!
 //! \brief setupROS Setup ROS subscribers, publishers, and node handler
@@ -310,15 +406,69 @@ void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<D
 void ModuleROS::setupROS() {
     m_client = nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
     // TODO: Do I need to use the transform container? Or can I just create a transform before sending the model state to Gazebo?
-    m_transform.setOrigin(tf::Vector3(0.0,0.0,1.0));
+    m_transform.setOrigin(tf::Vector3(0.0,0.0,0.0));
     m_transform.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
 
     // TODO: Do I need to send this transform before I do anything else? And should I send it for every basic_quadrotor_ID?
-//    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","basic_quadrotor/base_link"));
+    //    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","basic_quadrotor/base_link"));
 
     // TESTING:
     cloudInPub = nh.advertise<sensor_msgs::PointCloud2>("cloud_in", 50);
+    compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",1);
+    occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",1);
     // END TESTING
+    markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",0);
+
+    // %Tag(MARKER_INIT)%
+            points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = path_list.header.frame_id;
+            points.header.stamp = line_strip.header.stamp = line_list.header.stamp = path_list.header.stamp = ros::Time::now();
+            points.ns = line_strip.ns = line_list.ns =  path_list.ns = "points_and_lines";
+            points.action = line_strip.action = line_list.action = path_list.action = visualization_msgs::Marker::ADD;
+            points.pose.orientation.w = line_strip.pose.orientation.w = line_list.pose.orientation.w = path_list.pose.orientation.w = 1.0;
+        // %EndTag(MARKER_INIT)%
+
+        // %Tag(ID)%
+            points.id = 0;
+            line_strip.id = 1;
+            line_list.id = 2;
+            path_list.id = 3;
+        // %EndTag(ID)%
+
+        // %Tag(TYPE)%
+            points.type = visualization_msgs::Marker::POINTS;
+            line_strip.type = visualization_msgs::Marker::LINE_STRIP;
+            line_list.type = visualization_msgs::Marker::LINE_LIST;
+            path_list.type = visualization_msgs::Marker::LINE_LIST;
+
+        // %EndTag(TYPE)%
+
+        // %Tag(SCALE)%
+            // POINTS markers use x and y scale for width/height respectively
+            points.scale.x = 0.1;
+            points.scale.y = 0.1;
+
+            // LINE_STRIP/LINE_LIST markers use only the x component of scale, for the line width
+            line_strip.scale.x = 0.05;
+            line_list.scale.x = 0.05;
+            path_list.scale.x = 0.05;
+        // %EndTag(SCALE)%
+
+        // %Tag(COLOR)%
+            // Points are green
+            points.color.g = 1.0f;
+            points.color.a = 1.0;
+
+            // Line strip is blue
+            line_strip.color.b = 1.0;
+            line_strip.color.a = 1.0;
+
+            // Line list is red
+            line_list.color.r = 1.0;
+            line_list.color.a = 1.0;
+            // Path list is blue
+            path_list.color.b= 1.0;
+            path_list.color.a = 1.0;
+        // %EndTag(COLOR)%
 
     ros::spinOnce();
 }
@@ -366,10 +516,6 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
 
     // TODO: Send converted point cloud to MACE core so path planning can take over.
 
-
-    std::cout << "Converted PC..." << std::endl;
-    std::cout << octoPointCloud.size() << std::endl;
-
     /*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         }); *///this is a general publication event, however, no one knows explicitly how to handle
@@ -386,9 +532,51 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     //          - Ideally, for the entire octomap, we don't care about which vehicle its coming from. They should be updating the
     //              same octomap
 
-//    cloudInPub.publish(msg);
+    cloudInPub.publish(msg);
 
     //
+}
+void ModuleROS::renderOccupancyMap(const octomap::OcTree* tree)
+{
+    if(tree->size() > 0)
+    {
+        visualization_msgs::MarkerArray occupiedVoxels;
+        occupiedVoxels.markers.resize(tree->getTreeDepth() + 1);
+        for (octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end(); it != end; ++it)
+        {
+            if(tree->isNodeOccupied(*it))
+            {
+                unsigned int leafIndex = it.getDepth();
+
+                double size = it.getSize();
+
+                double minX, minY, minZ, maxX, maxY, maxZ;
+
+                tree->getMetricMin(minX, minY, minZ);
+                tree->getMetricMax(maxX, maxY, maxZ);
+                geometry_msgs::Point cube;
+                cube.x = it.getX();
+                cube.y = it.getY();
+                cube.z = it.getZ();
+                double height = (1-std::min(std::max((it.getZ() - minZ)/(maxZ - minZ),0.0),1.0));
+                occupiedVoxels.markers[leafIndex].points.push_back(cube);
+                occupiedVoxels.markers[leafIndex].colors.push_back(generateColorHeight(height));
+            }
+        }
+        for(unsigned int i = 0; i < occupiedVoxels.markers.size(); i++)
+        {
+            double size = tree->getNodeSize(i);
+            occupiedVoxels.markers[i].header.frame_id = "/map";
+            occupiedVoxels.markers[i].header.stamp = ros::Time::now();
+            occupiedVoxels.markers[i].type = visualization_msgs::Marker::CUBE_LIST;
+            occupiedVoxels.markers[i].scale.x = size;
+            occupiedVoxels.markers[i].scale.y = size;
+            occupiedVoxels.markers[i].scale.z = size;
+            occupiedVoxels.markers[i].action = visualization_msgs::Marker::ADD;
+        }
+
+        occupancyMapPub.publish(occupiedVoxels);
+    }
 }
 
 //!
@@ -422,6 +610,55 @@ void ModuleROS::renderEdge(const mace::geometry::Line_2DC &edge) {
     line_list.points.push_back(startPoint);
     line_list.points.push_back(endPoint);
     markerPub.publish(line_list);
+}
+
+std_msgs::ColorRGBA ModuleROS::generateColorHeight(double height)
+{
+    std_msgs::ColorRGBA color;
+    color.a = 1.0;
+//    // blend over HSV-values (more colors)
+
+    double s = 1.0;
+    double v = 1.0;
+
+    height -= floor(height);
+    height *= 6;
+    int i;
+    double m, n, f;
+
+    i = floor(height);
+    f = height - i;
+    if (!(i & 1))
+      f = 1 - f; // if i is even
+    m = v * (1 - s);
+    n = v * (1 - s * f);
+
+    switch (i) {
+      case 6:
+      case 0:
+        color.r = v; color.g = n; color.b = m;
+        break;
+      case 1:
+        color.r = n; color.g = v; color.b = m;
+        break;
+      case 2:
+        color.r = m; color.g = v; color.b = n;
+        break;
+      case 3:
+        color.r = m; color.g = n; color.b = v;
+        break;
+      case 4:
+        color.r = n; color.g = m; color.b = v;
+        break;
+      case 5:
+        color.r = v; color.g = m; color.b = n;
+        break;
+      default:
+        color.r = 1; color.g = 0.5; color.b = 0.5;
+        break;
+    }
+
+    return color;
 }
 
 //!

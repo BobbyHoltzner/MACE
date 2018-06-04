@@ -30,7 +30,10 @@ SOURCES += \
     iterators/grid_map_iterator.cpp \
     iterators/polygon_map_iterator.cpp \
     iterators/circle_map_iterator.cpp \
-    iterators/generic_map_iterator.cpp
+    iterators/generic_map_iterator.cpp \
+    octomap_wrapper.cpp \
+    occupancy_2d_grid_topic.cpp \
+    occupancy_map_2D_inflated.cpp
 
 HEADERS +=\
         maps_global.h \
@@ -43,6 +46,13 @@ HEADERS +=\
     iterators/grid_map_iterator.h \
     iterators/generic_map_iterator.h \
     dynamic_2D_grid.tpp
+    octomap_wrapper.h \
+    octomap_sensor_definition.h \
+    occupancy_2d_grid_topic.h \
+    map_topic_components.h \
+    octomap_2d_projection_definition.h \
+    occupancy_map_2D_inflated.h \
+    occupancy_definition.h
 
 
 #Header file copy
@@ -76,3 +86,9 @@ INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
 else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+
+INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
