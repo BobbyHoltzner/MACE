@@ -47,7 +47,7 @@ std::vector<state_space::State *> AStarBase::solve(maps::Data2DGrid<GraphNode> &
         {
             GraphNode* evalNode = *openSetIT;
             if((evalNode->getFValue() < currentNode->getFValue()) || ((evalNode->getFValue() == currentNode->getFValue()) &&
-                                                                  evalNode->getHValue() < currentNode->getHValue()))
+                                                                      evalNode->getHValue() < currentNode->getHValue()))
             {
                 currentNode = evalNode;
             }
@@ -93,7 +93,7 @@ std::vector<state_space::State *> AStarBase::solve(maps::Data2DGrid<GraphNode> &
                     neighborNode->hasBeenOpened(true);
                     openSet.insert(neighborNode);
                 }
-                }
+            }
         }
     }
 }

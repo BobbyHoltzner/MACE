@@ -61,6 +61,12 @@ public:
         y+=yResolution;
     }
 
+    void getIndexDecomposed(const unsigned int &index, unsigned int &xIndex, unsigned int &yIndex) const
+    {
+        yIndex = (index/xSize);
+        xIndex = (index % xSize);
+    }
+
     //!
     //! \brief indexFromXPos
     //! \param x
@@ -116,6 +122,15 @@ public:
     size_t getSizeY() const
     {
         return this->ySize;
+    }
+
+    //!
+    //! \brief getSize
+    //! \return
+    //!
+    size_t getSize() const
+    {
+        return (this->xSize * this->ySize);
     }
 
     //!

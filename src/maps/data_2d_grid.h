@@ -138,6 +138,39 @@ public:
             *it = value;
     }
 
+    bool findIndex(const T* find, int &index)
+    {
+        for (int i = 0; i < getSize(); i++)
+            if(find == &m_dataMap.at(i))
+            {
+                index = i;
+                return true;
+            }
+        return false;
+    }
+
+    std::vector<T*> getCellNeighbors(const unsigned int &index)
+    {
+        std::vector<T*> rtnCells;
+
+        unsigned int indexX, indexY;
+        getIndexDecomposed(index,indexX,indexY);
+
+        int startY = (((int)indexY + 1) >= ((int)ySize - 1)) ? (ySize - 1) : (int)indexY + 1;
+        int endY = (((int)indexY - 1) >= 0) ? (indexY - 1) : 0;
+
+        for(int i = startY; i >= endY; i--)
+        {
+            int startX = (((int)indexX - 1) >= 0) ? (indexX - 1) : 0;
+            for(int j = startX; j <= (int)indexX + 1; j++)
+            {
+                if((j > (int)xSize - 1) || ((i == (int)indexY) && (j == (int)indexX)))
+                    continue;
+                rtnCells.push_back(this->getCellByPosIndex(j,i));
+            }
+        }
+        return rtnCells;
+    }
 
     T getFill() const
     {
