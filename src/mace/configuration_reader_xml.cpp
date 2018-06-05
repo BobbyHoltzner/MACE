@@ -28,10 +28,11 @@ static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pug
 
     //prepare map of all expected paramters, to be set when they are seen
     std::unordered_map<std::string, bool> seenTerminals;
-    std::unordered_map<std::string, bool> seenNonTerminals;
+    std::unordered_map<std::string, bool> nonTerminalsPresentMap;
+    std::vector<std::string> seenNonTerminals;
     for(std::string item : structure->getNonTerminalNames())
     {
-        seenNonTerminals.insert({item, false});
+        nonTerminalsPresentMap.insert({item, false});
     }
     for(std::string item : structure->getTerminalNames())
     {
@@ -108,7 +109,8 @@ static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pug
             }
             valueContainer->AddNonTerminal(parameterName, ParseParameters(parameter, structure->getNonTerminalStructure(parameterName), result, nestedName));
 
-            seenNonTerminals[parameterName] = true;
+            nonTerminalsPresentMap[parameterName] = true;
+            seenNonTerminals.push_back(parameterName);
         }
         else
         {
@@ -143,16 +145,32 @@ static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pug
             }
         }
     }
-    for(auto it = seenNonTerminals.cbegin() ; it != seenNonTerminals.cend() ; ++it)
+    for(auto it = nonTerminalsPresentMap.cbegin() ; it != nonTerminalsPresentMap.cend() ; ++it)
     {
         std::string nestedName = "";
         if(superParameter != "")
             nestedName += superParameter + ".";
         nestedName += it->first;
 
+
         //entry not present, check if required, otherwise add default value
         if(it->second == false)
         {
+            //if tag that it is unseen it mutually exclusive with a seen tag, then ignore.
+            bool handledByMutuallyExclusiveParam = false;
+            for(auto itt = seenNonTerminals.cbegin() ; itt != seenNonTerminals.cend() ; ++itt)
+            {
+                if(structure->IsTagMutuallyExclusive(it->first, *itt) == true)
+                {
+                    handledByMutuallyExclusiveParam = true;
+                    break;
+                }
+            }
+            if(handledByMutuallyExclusiveParam == true)
+            {
+                continue;
+            }
+
             if(structure->IsTagRequired(it->first) == true)
             {
                 result.error = nestedName + " not present and is marked as required";
@@ -161,7 +179,8 @@ static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pug
             }
             else
             {
-                result.warnings.push_back(nestedName + " not set, using default value");
+                throw std::runtime_error("Default insertion on nonrequired nonterminal parameters not implimented");
+                //result.warnings.push_back(nestedName + " not set, using default value");
                 // TODO-PAT: Implement adding default values for non-required NonTerminals
 //                valueContainer->AddNonTerminal(it->first, structure->getDefaultNonTerminalValue(it->first));
             }
@@ -204,7 +223,7 @@ ConfigurationParseResult ConfigurationReader_XML::Parse(const std::string &filen
 
         //determine module class, error if unsuccessfull
         std::string moduleClassName = module.attribute("Class").as_string();
-        MaceCore::ModuleBase::Classes moduleClass;
+        MaceCore::ModuleClasses moduleClass;
         try
         {
             moduleClass = MaceCore::ModuleBase::StringToModuleClass(moduleClassName);

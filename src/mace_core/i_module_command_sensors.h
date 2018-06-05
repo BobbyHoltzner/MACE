@@ -22,17 +22,18 @@ class MACE_CORESHARED_EXPORT IModuleCommandSensors : public AbstractModule_Event
     friend class MaceCore;
     public:
 
-        static Classes moduleClass;
+        static ModuleClasses moduleClass;
 
     IModuleCommandSensors():
         AbstractModule_EventListeners()
     {
-        AddCommandLogic<int>(SensorCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID){
+        AddCommandLogic<int>(SensorCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });
     }
 
-    virtual Classes ModuleClass() const
+    virtual ModuleClasses ModuleClass() const
     {
         return moduleClass;
     }

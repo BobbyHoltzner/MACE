@@ -3,6 +3,8 @@
 
 #include "i_module_events_general_vehicle.h"
 
+#include "abstract_module_base.h"
+
 namespace MaceCore
 {
 
@@ -12,7 +14,7 @@ public:
     //A vehicle module can indicate something has happened
 
     //!
-    //! \brief ExternalEvent_NewConstructedVehicle
+    //! \brief ExternalEvent_NewModule
     //! \param sender
     //! \param newVehicleObserved
     //!
@@ -24,7 +26,7 @@ public:
     //! \param sender
     //! \param missionList
     //!
-    virtual void EventVehicle_NewOnboardVehicleMission(const void *sender, const MissionItem::MissionList &missionList) = 0;
+    virtual void EventVehicle_NewOnboardVehicleMission(const ModuleBase *sender, const MissionItem::MissionList &missionList) = 0;
 
     //!
     //! \brief EventVehicle_MissionACK

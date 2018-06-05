@@ -147,6 +147,7 @@ void CommandController_MAVLINK::setHomePosition(const CommandItem::SpatialHome &
         cmd.command = MAV_CMD_DO_SET_HOME;
         cmd.target_system = commandItem.getTargetSystem();
         cmd.target_component = compID;
+        cmd.param1 = 0;
         cmd.param5 = commandItem.position->getX();
         cmd.param6 = commandItem.position->getY();
         cmd.param7 = commandItem.position->getZ();

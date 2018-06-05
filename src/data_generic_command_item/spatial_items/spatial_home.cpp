@@ -17,6 +17,16 @@ bool SpatialHome::hasSpatialInfluence() const
     return true;
 }
 
+AbstractCommandItem* SpatialHome::getClone() const
+{
+    return (new SpatialHome(*this));
+}
+
+void SpatialHome::getClone(AbstractCommandItem** command) const
+{
+    *command = new SpatialHome(*this);
+}
+
 SpatialHome::SpatialHome():
     AbstractCommandItem(0,0), AbstractSpatialPosition()
 {

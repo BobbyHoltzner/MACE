@@ -100,67 +100,12 @@ win32:CONFIG(release, debug|release):       lib.files   += release/base.lib rele
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/base.lib debug/base.dll
 INSTALLS += lib
 
-#Header file copy
-headers.path    = $$(MACE_ROOT)/include/base
-headers.files   += \
-    base_global.h
-INSTALLS       += headers
 
 #Header file copy
-headers_geometry.path    = $$(MACE_ROOT)/include/base/geometry
-headers_geometry.files   += \
-    geometry/base_line.h \
-    geometry/base_polygon.h \
-    geometry/cell_2DC.h \
-    geometry/geometry_helper.h \
-    geometry/polygon_2DC.h
-INSTALLS       += headers_geometry
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
 
-headers_math.path    = $$(MACE_ROOT)/include/base/math
-headers_math.files   += \
-    math/helper_pi.h \
-    math/math_forward.h \
-    math/random_number_generator.h \
-    math/cost.h
-INSTALLS       += headers_math
-
-headers_misc.path    = $$(MACE_ROOT)/include/base/misc
-headers_misc.files   += \
-    misc/abstract_data.h \
-    misc/data_2d.h \
-    misc/data_3d.h \
-    misc/data_forward_definition.h
-INSTALLS       += headers_misc
-
-headers_pose.path    = $$(MACE_ROOT)/include/base/pose
-headers_pose.files   += \
-    pose/abstract_position.h \
-    pose/cartesian_position_2D.h \
-    pose/coordinate_frame.h \
-    pose/base_position.h \
-    pose/cartesian_position_3D.h \
-    pose/orientation_2D.h \
-    pose/orientation_3D.h \
-    pose/geodetic_position_2D.h
-INSTALLS       += headers_pose
-
-headers_state_space.path    = $$(MACE_ROOT)/include/base/state_space
-headers_state_space.files   += \
-    state_space/abstract_motion_validity_check.h \
-    state_space/abstract_state_validity_check.h \
-    state_space/cartesian_2D_space.h \
-    state_space/discrete_motion_validity_check.h \
-    state_space/generic_goal.h \
-    state_space/goal_state.h \
-    state_space/real_vector.h \
-    state_space/real_vector_bounds.h \
-    state_space/space_information.h \
-    state_space/special_validity_check.h \
-    state_space/state.h \
-    state_space/state_sampler.h \
-    state_space/state_space.h \
-    state_space/state_space_types.h
-INSTALLS       += headers_state_space
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3

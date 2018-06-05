@@ -29,7 +29,6 @@ HEADERS += mace_core.h\
     i_module_events_rta.h \
     i_module_events_ground_station.h \
     i_module_events_vehicle.h \
-    optional_parameter.h \
     vehicle_data.h \
     i_module_command_path_planning.h \
     i_module_command_ROS.h \
@@ -54,7 +53,8 @@ HEADERS += mace_core.h\
     metadata_sensors.h \
     i_module_events_external_link.h \
     i_module_events_general.h \
-    i_module_events_general_vehicle.h
+    i_module_events_general_vehicle.h \
+    module_characteristics.h
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib
@@ -68,9 +68,9 @@ else:win32:CONFIG(debug, debug|release):    lib.files   += debug/mace_core.lib d
 INSTALLS += lib
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/mace_core
-headers.files   += $$HEADERS
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon

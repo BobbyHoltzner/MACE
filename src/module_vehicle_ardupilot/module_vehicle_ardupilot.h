@@ -22,15 +22,26 @@
 #include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
+#include "ardupilot_states/ardupilot_hsm.h"
+#include "ardupilot_states/state_components.h"
+#include "vehicle_object/ardupilot_vehicle_object.h"
+
 //__________________
 #include "data_interface_MAVLINK/callback_interface_data_mavlink.h"
 
 #include "data_interface_MAVLINK/vehicle_object_mavlink.h"
 
+#include "base_topic/vehicle_topics.h"
+
+#include "controllers/I_controller.h"
+#include "controllers/I_message_notifier.h"
+
+#include "module_vehicle_MAVLINK/controllers/controller_mission.h"
+
 using namespace std::placeholders;
 
 //class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<DATA_VEHICLE_ARDUPILOT_TYPES>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
-class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>, public DataInterface_MAVLINK::CallbackInterface_DataMAVLINK
+class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public ModuleVehicleMAVLINK<>
 {
 public:
     ModuleVehicleArdupilot();
@@ -41,23 +52,8 @@ public:
 
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
-private:
-
-    void SpinUpController(Ardupilot_GeneralController *newController);
-
-    void SpinDownController();
 
 public:
-
-    //callback interface support for the DataInterface_MAVLINK object
-    void cbi_VehicleCommandACK(const int &systemID, const mavlink_command_ack_t &cmdACK);
-    void cbi_VehicleMissionACK(const MissionItem::MissionACK &ack);
-    void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
-    void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent & current);
-    void cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data);
-    void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home);
-    void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList);
-
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
 
     //!
@@ -65,15 +61,33 @@ public:
     //! \param linkName Name of link message received over
     //! \param msg Message received
     //!
-    virtual void MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
+    virtual bool MavlinkMessage(const std::string &linkName, const mavlink_message_t &msg);
+
 
     //!
-    //! \brief NewTopic
-    //! \param topicName
-    //! \param senderID
-    //! \param componentsUpdated
+    //! \brief New non-spooled topic given
     //!
-    virtual void NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated);
+    //! NonSpooled topics send their data immediatly.
+    //! \param topicName Name of stopic
+    //! \param sender Module that sent topic
+    //! \param data Data for topic
+    //! \param target Target module (or broadcasted)
+    //!
+    virtual void NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target);
+
+
+    //!
+    //! \brief New Spooled topic given
+    //!
+    //! Spooled topics are stored on the core's datafusion.
+    //! This method is used to notify other modules that there exists new data for the given components on the given module.
+    //! \param topicName Name of topic given
+    //! \param sender Module that sent topic
+    //! \param componentsUpdated Components in topic that where updated
+    //! \param target Target moudle (or broadcast)
+    //!
+    virtual void NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
+
 
     //!
     //! \brief This module as been attached as a module
@@ -103,43 +117,43 @@ public:
     //! \brief Request_FullDataSync
     //! \param targetSystem
     //!
-    virtual void Request_FullDataSync(const int &targetSystem);
+    virtual void Request_FullDataSync(const int &targetSystem, const OptionalParameter<MaceCore::ModuleCharacteristic>& = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     //!
     //! \brief Command_SystemArm
     //! \param vehicleArm
     //!
-    virtual void Command_SystemArm(const CommandItem::ActionArm &command);
+    virtual void Command_SystemArm(const CommandItem::ActionArm &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_VehicleTakeoff
     //! \param vehicleTakeoff
     //!
-    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command);
+    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_Land
     //! \param command
     //!
-    virtual void Command_Land(const CommandItem::SpatialLand &command);
+    virtual void Command_Land(const CommandItem::SpatialLand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_ReturnToLaunch
     //! \param command
     //!
-    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command);
+    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_MissionState
     //! \param command
     //!
-    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command);
+    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_ChangeSystemMode
     //! \param vehicleMode
     //!
-    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command);
+    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief Command_IssueGeneralCommand
@@ -157,7 +171,7 @@ public:
 
     virtual void Command_GetCurrentMission(const int &targetSystem);
 
-    virtual void Command_GetMission(const MissionItem::MissionKey &key);
+    virtual void Command_GetMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     virtual void Command_ClearCurrentMission(const int &targetSystem);
 
@@ -207,35 +221,13 @@ public:
     //! \brief Command_GetHomePosition
     //! \param vehicleID
     //!
-    virtual void Command_GetHomePosition (const int &vehicleID);
+    virtual void Command_GetHomePosition (const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic>& = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     //!
     //! \brief Command_SetHomePosition
     //! \param vehicleHome
     //!
-    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome);
-
-
-    bool checkControllerState()
-    {
-        if(m_AircraftController)
-        {
-          //The current controller is not null
-            if(m_AircraftController->isThreadActive())
-            {
-                //The controller is valid and is actively doing something
-                return true;
-            }
-            else{
-                //The controller is valid however it is done for some reason
-                //The thread is no longer active
-                //KEN TODO: We should figure out if this is the proper way to clean this up
-                delete m_AircraftController;
-                return false;
-            }
-        }
-        return false;
-    }
+    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome, const OptionalParameter<MaceCore::ModuleCharacteristic>& = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     virtual void RequestDummyFunction(const int &vehicleID)
     {
@@ -265,19 +257,31 @@ private:
     {
         std::cout << target << std::endl;
         std::shared_ptr<MissionTopic::VehicleTargetTopic> ptrTarget = std::make_shared<MissionTopic::VehicleTargetTopic>(target);
-        cbi_VehicleMissionData(target.getVehicleID(),ptrTarget);
+        ModuleVehicleMAVLINK::cbi_VehicleMissionData(target.getVehicleID(),ptrTarget);
     }
+
+private:
+
+    //!
+    //! \brief Cause the state machine to update it's states
+    //!
+    void ProgressStateMachineStates();
 
 private:
     std::shared_ptr<spdlog::logger> mLogs;
 
 private:
-    std::shared_ptr<DataInterface_MAVLINK::VehicleObject_MAVLINK> vehicleData;
+    std::shared_ptr<ArdupilotVehicleObject> vehicleData;
 
 private:
-    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;
 
-    Ardupilot_GeneralController* m_AircraftController;
+    std::mutex m_Mutex_StateMachine;
+    hsm::StateMachine* stateMachine; /**< Member variable containing a pointer to the state
+ machine. This state machine evolves the state per event updates and/or external commands. */
+
+    std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> m_TopicToControllers;
+
+    MAVLINKVehicleControllers::ControllerMission * m_MissionController;
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H

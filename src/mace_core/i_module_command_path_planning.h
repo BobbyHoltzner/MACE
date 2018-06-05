@@ -23,17 +23,18 @@ class MACE_CORESHARED_EXPORT IModuleCommandPathPlanning  : public AbstractModule
     friend class MaceCore;
 public:
 
-    static Classes moduleClass;
+    static ModuleClasses moduleClass;
 
     IModuleCommandPathPlanning():
         AbstractModule_EventListeners()
     {
-        AddCommandLogic<int>(PathPlanningCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID){
+        AddCommandLogic<int>(PathPlanningCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });
     }
 
-    virtual Classes ModuleClass() const
+    virtual ModuleClasses ModuleClass() const
     {
         return moduleClass;
     }

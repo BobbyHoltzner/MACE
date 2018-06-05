@@ -17,6 +17,16 @@ bool ActionChangeMode::hasSpatialInfluence() const
     return false;
 }
 
+AbstractCommandItem* ActionChangeMode::getClone() const
+{
+    return (new ActionChangeMode(*this));
+}
+
+void ActionChangeMode::getClone(AbstractCommandItem** command) const
+{
+    *command = new ActionChangeMode(*this);
+}
+
 ActionChangeMode::ActionChangeMode()
 {
 

@@ -20,20 +20,22 @@ class MACE_CORESHARED_EXPORT IModuleCommandRTA : public AbstractModule_EventList
     friend class MaceCore;
 public:
 
-    static Classes moduleClass;
+    static ModuleClasses moduleClass;
 
     IModuleCommandRTA():
         AbstractModule_EventListeners()
     {
-        AddCommandLogic<int>(RTACommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID){
+        AddCommandLogic<int>(RTACommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });
-        AddCommandLogic<int>(RTACommands::TEST_FUNCTION, [this](const int &vehicleID){
+        AddCommandLogic<int>(RTACommands::TEST_FUNCTION, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             TestFunction(vehicleID);
         });
     }
 
-    virtual Classes ModuleClass() const
+    virtual ModuleClasses ModuleClass() const
     {
         return moduleClass;
     }

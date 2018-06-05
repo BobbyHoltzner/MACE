@@ -4,7 +4,6 @@
 #
 #-------------------------------------------------
 QT       += network
-QT += widgets
 QT       -= gui
 
 TARGET = module_ground_station
@@ -37,10 +36,12 @@ win32:CONFIG(release, debug|release):       lib.files   += release/module_ground
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_ground_station.lib debug/module_ground_station.dll
 INSTALLS += lib
 
+
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/module_ground_station
-headers.files   += $$HEADERS
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
 
 INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
@@ -92,4 +93,8 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_command_item_topic/ -ldata_
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/release/ -ldata_generic_mission_item_topic
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/debug/ -ldata_generic_mission_item_topic
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/ -ldata_generic_mission_item_topic
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base_topic/release/ -lbase_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base_topic/debug/ -lbase_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base_topic/ -lbase_topic
 

@@ -33,7 +33,8 @@ SOURCES += \
     state_global_position_ex_topic.cpp \
     state_local_position_ex_topic.cpp \
     state_airspeed_topic.cpp \
-    state_item_topic_boundary.cpp
+    state_item_topic_boundary.cpp \
+    prototype_topic_global_position.cpp
 
 HEADERS +=\
         data_generic_state_item_topic_global.h \
@@ -46,7 +47,8 @@ HEADERS +=\
     state_global_position_ex_topic.h \
     state_local_position_ex_topic.h \
     state_airspeed_topic.h \
-    state_item_topic_boundary.h
+    state_item_topic_boundary.h \
+    prototype_topic_global_position.h
 
 # Unix lib Install
 unix:!symbian {
@@ -62,9 +64,10 @@ INSTALLS += lib
 
 
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/data_generic_state_item_topic
-headers.files   += $$HEADERS
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../

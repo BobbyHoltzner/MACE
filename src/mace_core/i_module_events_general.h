@@ -5,6 +5,8 @@
 #include "data_generic_command_item/command_item_components.h"
 #include "data_generic_state_item/state_global_position.h"
 
+#include "abstract_module_base.h"
+
 namespace MaceCore
 {
 
@@ -12,21 +14,21 @@ class IModuleEventsGeneral
 {
 public:
 
-    virtual void Event_ForceVehicleDataSync(const void* sender, const int &targetSystemID) = 0;
+    virtual void Event_ForceVehicleDataSync(const ModuleBase* sender, const int &targetSystemID) = 0;
 
-    virtual void Event_IssueCommandSystemArm(const void* sender, const CommandItem::ActionArm &command) = 0;
+    virtual void Event_IssueCommandSystemArm(const ModuleBase* sender, const CommandItem::ActionArm &command) = 0;
 
-    virtual void Event_IssueCommandTakeoff(const void* sender, const CommandItem::SpatialTakeoff &command) = 0;
+    virtual void Event_IssueCommandTakeoff(const ModuleBase* sender, const CommandItem::SpatialTakeoff &command) = 0;
 
-    virtual void Event_IssueCommandLand(const void* sender, const CommandItem::SpatialLand &command) = 0;
+    virtual void Event_IssueCommandLand(const ModuleBase* sender, const CommandItem::SpatialLand &command) = 0;
 
-    virtual void Event_IssueCommandRTL(const void* sender, const CommandItem::SpatialRTL &command) = 0;
+    virtual void Event_IssueCommandRTL(const ModuleBase* sender, const CommandItem::SpatialRTL &command) = 0;
 
-    virtual void Event_IssueMissionCommand(const void* sender, const CommandItem::ActionMissionCommand &command) = 0;
+    virtual void Event_IssueMissionCommand(const ModuleBase* sender, const CommandItem::ActionMissionCommand &command) = 0;
 
-    virtual void Event_ChangeSystemMode(const void* sender, const CommandItem::ActionChangeMode &command) = 0;
+    virtual void Event_ChangeSystemMode(const ModuleBase *sender, const CommandItem::ActionChangeMode &command) = 0;
 
-    virtual void Event_IssueGeneralCommand(const void* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;
+    virtual void Event_IssueGeneralCommand(const ModuleBase* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;
 
     virtual void Event_GetMission(const void* sender, const MissionItem::MissionKey &key) = 0;
     virtual void Event_GetOnboardMission(const void* sender, const int &systemID, const MissionItem::MISSIONTYPE &type) = 0;
@@ -36,7 +38,7 @@ public:
     virtual void RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID) = 0;
 
     virtual void Event_GetHomePosition(const void* sender, const int &vehicleID) = 0;
-    virtual void Event_SetHomePosition(const void* sender, const CommandItem::SpatialHome &vehicleHome) = 0;
+    virtual void Event_SetHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome) = 0;
 
     virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome) = 0;
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing) = 0;

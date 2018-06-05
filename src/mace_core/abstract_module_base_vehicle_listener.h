@@ -27,6 +27,7 @@ template<typename T, typename I, typename CT>
 class AbstractModule_VehicleListener : public AbstractModule_EventListeners<T, I, CT>
 {
 friend class MaceCore;
+
 public:
 
     AbstractModule_VehicleListener() :
@@ -40,37 +41,38 @@ public:
         /// or an event to take place when calling these items.
         /////////////////////////////////////////////////////////////////////////
 
-        this->template AddCommandLogic<int>(CT::REQUEST_DATA_SYNC, [this](const int &targetSystem){
-            Request_FullDataSync(targetSystem);
+        this->template AddCommandLogic<int>(CT::REQUEST_DATA_SYNC, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            Request_FullDataSync(targetSystem, sender);
         });
 
-        this->template AddCommandLogic<CommandItem::ActionArm>(CT::CHANGE_VEHICLE_ARM, [this](const CommandItem::ActionArm &command){
-            Command_SystemArm(command);
+        this->template AddCommandLogic<CommandItem::ActionArm>(CT::CHANGE_VEHICLE_ARM, [this](const CommandItem::ActionArm &command, const OptionalParameter<ModuleCharacteristic> &sender){
+            Command_SystemArm(command, sender);
         });
 
-        this->template AddCommandLogic<CommandItem::SpatialTakeoff>(CT::REQUEST_VEHICLE_TAKEOFF, [this](const CommandItem::SpatialTakeoff &command){
-            Command_VehicleTakeoff(command);
+        this->template AddCommandLogic<CommandItem::SpatialTakeoff>(CT::REQUEST_VEHICLE_TAKEOFF, [this](const CommandItem::SpatialTakeoff &command, const OptionalParameter<ModuleCharacteristic> &sender){
+            Command_VehicleTakeoff(command, sender);
         });
 
-        this->template AddCommandLogic<CommandItem::SpatialLand>(CT::REQUEST_VEHICLE_LAND, [this](const CommandItem::SpatialLand &command){
-            Command_Land(command);
+        this->template AddCommandLogic<CommandItem::SpatialLand>(CT::REQUEST_VEHICLE_LAND, [this](const CommandItem::SpatialLand &command, const OptionalParameter<ModuleCharacteristic> &sender){
+            Command_Land(command, sender);
         });
 
-        this->template AddCommandLogic<CommandItem::SpatialRTL>(CT::REQUEST_VEHICLE_RTL, [this](const CommandItem::SpatialRTL &command){
-            Command_ReturnToLaunch(command);
+        this->template AddCommandLogic<CommandItem::SpatialRTL>(CT::REQUEST_VEHICLE_RTL, [this](const CommandItem::SpatialRTL &command, const OptionalParameter<ModuleCharacteristic> &sender){
+            Command_ReturnToLaunch(command, sender);
         });
 
-        this->template AddCommandLogic<CommandItem::ActionMissionCommand>(CT::SET_MISSION_STATE, [this](const CommandItem::ActionMissionCommand &command){
-            Command_MissionState(command);
+        this->template AddCommandLogic<CommandItem::ActionMissionCommand>(CT::SET_MISSION_STATE, [this](const CommandItem::ActionMissionCommand &command, const OptionalParameter<ModuleCharacteristic> &sender){
+            Command_MissionState(command, sender);
         });
 
-        this->template AddCommandLogic<std::shared_ptr<CommandItem::AbstractCommandItem>>(CT::ISSUE_GENERAL_COMMAND, [this](const std::shared_ptr<CommandItem::AbstractCommandItem> &command){
+        this->template AddCommandLogic<std::shared_ptr<CommandItem::AbstractCommandItem>>(CT::ISSUE_GENERAL_COMMAND, [this](const std::shared_ptr<CommandItem::AbstractCommandItem> &command, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_IssueGeneralCommand(command);
         });
 
 
-        this->template AddCommandLogic<CommandItem::ActionChangeMode>(CT::CHANGE_VEHICLE_MODE, [this](const CommandItem::ActionChangeMode &command){
-            Command_ChangeSystemMode(command);
+        this->template AddCommandLogic<CommandItem::ActionChangeMode>(CT::CHANGE_VEHICLE_MODE, [this](const CommandItem::ActionChangeMode &command, const OptionalParameter<ModuleCharacteristic> &sender){
+            Command_ChangeSystemMode(command, sender);
         });
 
 
@@ -81,23 +83,27 @@ public:
         /// direct MACE hardware module.
         /////////////////////////////////////////////////////////////////////////////////////////////
 
-        this->template AddCommandLogic<MissionItem::MissionList>(CT::UPLOAD_MISSION, [this](const MissionItem::MissionList &missionList){
+        this->template AddCommandLogic<MissionItem::MissionList>(CT::UPLOAD_MISSION, [this](const MissionItem::MissionList &missionList, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_UploadMission(missionList);
         });
 
-        this->template AddCommandLogic<MissionItem::MissionKey>(CT::SET_CURRENT_MISSION, [this](const MissionItem::MissionKey &key){
+        this->template AddCommandLogic<MissionItem::MissionKey>(CT::SET_CURRENT_MISSION, [this](const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_SetCurrentMission(key);
         });
 
-        this->template AddCommandLogic<int>(CT::REQUEST_CURRENT_MISSION, [this](const int &targetSystem){
+        this->template AddCommandLogic<int>(CT::REQUEST_CURRENT_MISSION, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_GetCurrentMission(targetSystem);
         });
 
-        this->template AddCommandLogic<MissionItem::MissionKey>(CT::REQUEST_MISSION, [this](const MissionItem::MissionKey &key){
-            Command_GetMission(key);
+        this->template AddCommandLogic<MissionItem::MissionKey>(CT::REQUEST_MISSION, [this](const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender){
+            Command_GetMission(key, sender);
         });
 
-        this->template AddCommandLogic<int>(CT::CLEAR_CURRENT_MISSION, [this](const int &targetSystem){
+        this->template AddCommandLogic<int>(CT::CLEAR_CURRENT_MISSION, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_ClearCurrentMission(targetSystem);
         });
 
@@ -107,11 +113,13 @@ public:
         /// MACE HW module, or, vehicles that have timely or ever updating changes.
         ////////////////////////////////////////////////////////////////////////////
 
-        this->template AddCommandLogic<int>(CT::REQUEST_ONBOARD_AUTO_MISSION, [this](const int &targetSystem){
+        this->template AddCommandLogic<int>(CT::REQUEST_ONBOARD_AUTO_MISSION, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_GetOnboardAuto(targetSystem);
         });
 
-        this->template AddCommandLogic<int>(CT::CLEAR_ONBOARD_AUTO_MISSION, [this](const int &targetSystem){
+        this->template AddCommandLogic<int>(CT::CLEAR_ONBOARD_AUTO_MISSION, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_ClearOnboardAuto(targetSystem);
         });
 
@@ -121,11 +129,13 @@ public:
         /// MACE HW module, or, vehicles that have timely or ever updating changes.
         /////////////////////////////////////////////////////////////////////////
 
-        this->template AddCommandLogic<int>(CT::REQUEST_ONBOARD_GUIDED_MISSION, [this](const int &targetSystem){
+        this->template AddCommandLogic<int>(CT::REQUEST_ONBOARD_GUIDED_MISSION, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_GetOnboardGuided(targetSystem);
         });
 
-        this->template AddCommandLogic<int>(CT::CLEAR_ONBOARD_GUIDED_MISSION, [this](const int &targetSystem){
+        this->template AddCommandLogic<int>(CT::CLEAR_ONBOARD_GUIDED_MISSION, [this](const int &targetSystem, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             Command_ClearOnboardGuided(targetSystem);
         });
 
@@ -135,33 +145,33 @@ public:
         /// mission queue should prepend this position. Just the way ardupilot works.
         /////////////////////////////////////////////////////////////////////////
 
-        this->template AddCommandLogic<int>(CT::REQUEST_VEHICLE_HOME, [this](const int &vehicleID){
-            Command_GetHomePosition(vehicleID);
+        this->template AddCommandLogic<int>(CT::REQUEST_VEHICLE_HOME, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            Command_GetHomePosition(vehicleID, sender);
         });
 
-        this->template AddCommandLogic<CommandItem::SpatialHome>(CT::SET_VEHICLE_HOME, [this](const CommandItem::SpatialHome &vehicleHome){
-            Command_SetHomePosition(vehicleHome);
+        this->template AddCommandLogic<CommandItem::SpatialHome>(CT::SET_VEHICLE_HOME, [this](const CommandItem::SpatialHome &vehicleHome, const OptionalParameter<ModuleCharacteristic> &sender){
+            Command_SetHomePosition(vehicleHome, sender);
         });
 
     }
 
 public:
 
-    virtual void Request_FullDataSync(const int &targetSystem) = 0;
+    virtual void Request_FullDataSync(const int &targetSystem, const OptionalParameter<ModuleCharacteristic>& = OptionalParameter<ModuleCharacteristic>()) = 0;
 
-    virtual void Command_SystemArm(const CommandItem::ActionArm &command) = 0;
-    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command) = 0;
-    virtual void Command_Land(const CommandItem::SpatialLand &command) = 0;
-    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command) = 0;
-    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command) = 0;
+    virtual void Command_SystemArm(const CommandItem::ActionArm &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
+    virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
+    virtual void Command_Land(const CommandItem::SpatialLand &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
+    virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
+    virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
     virtual void Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;
 
-    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode) = 0;
+    virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
 
     virtual void Command_UploadMission(const MissionItem::MissionList &missionList) = 0;
     virtual void Command_SetCurrentMission(const MissionItem::MissionKey &key) = 0;
     virtual void Command_GetCurrentMission(const int &targetSystem) = 0;
-    virtual void Command_GetMission(const MissionItem::MissionKey &key) = 0;
+    virtual void Command_GetMission(const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic>& = OptionalParameter<ModuleCharacteristic>()) = 0;
     virtual void Command_ClearCurrentMission(const int &targetSystem) = 0;
 
     virtual void Command_GetOnboardAuto(const int &targetSystem) = 0;
@@ -170,8 +180,8 @@ public:
     virtual void Command_GetOnboardGuided(const int &targetSystem) = 0;
     virtual void Command_ClearOnboardGuided(const int &targetSystem) = 0;
 
-    virtual void Command_GetHomePosition(const int &vehicleID) = 0;
-    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome) = 0;
+    virtual void Command_GetHomePosition(const int &vehicleID, const OptionalParameter<ModuleCharacteristic>& = OptionalParameter<ModuleCharacteristic>()) = 0;
+    virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome, const OptionalParameter<ModuleCharacteristic>& = OptionalParameter<ModuleCharacteristic>()) = 0;
 
 
 };

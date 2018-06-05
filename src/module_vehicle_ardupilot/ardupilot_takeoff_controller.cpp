@@ -5,7 +5,7 @@ Ardupilot_TakeoffController::Ardupilot_TakeoffController(std::shared_ptr<DataInt
     currentStateLogic(DISARMED)
 {
     controllerType = CONTROLLER_TAKEOFF;
-    vehicleMissionState = ArdupilotMissionState(2,10,10);
+    vehicleMissionState = ArdupilotTargetProgess(2,10,10);
 //    this->vehicleDataObject->state->vehicleAttitude.AddNotifier(this,[this]
 //    {
 //        m_LambdasToRun.push_back([this]{
@@ -205,7 +205,7 @@ void Ardupilot_TakeoffController::run()
 void Ardupilot_TakeoffController::controlSequence()
 {
     //let us see how close we are to our target
-    double distance = distanceToTarget();
-    Data::ControllerState currentState = vehicleMissionState.updateMissionState(distance);
-    generateControl(currentState);
+//    double distance = distanceToTarget();
+//    Data::ControllerState currentState = vehicleMissionState.updateMissionState(distance);
+//    generateControl(currentState);
 }

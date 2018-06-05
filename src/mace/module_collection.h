@@ -5,7 +5,7 @@
 #include "module_ground_station/module_ground_station.h"
 
 #include "module_path_planning_NASAPhase2/module_path_planning_nasaphase2.h"
-#include "module_resource_task_allocation/module_rta.h"
+//#include "module_resource_task_allocation/module_rta.h"
 #include "module_ROS/module_ROS.h"
 
 #include "module_vehicle_sensors/module_vehicle_sensors.h"
@@ -26,7 +26,7 @@ public:
         Register<ModuleGroundStation>(factory, "NASAPhase2");
         Register<ModulePathPlanningNASAPhase2>(factory, "NASAPhase2");
         Register<ModuleROS>(factory, "NASAPhase2");
-        Register<ModuleRTA>(factory, "NASAPhase2");
+        //Register<ModuleRTA>(factory, "NASAPhase2");
         Register<ModuleVehicleSensors>(factory, "NASAPhase2");
         Register<ModuleVehicleArdupilot>(factory, "Ardupilot");
 

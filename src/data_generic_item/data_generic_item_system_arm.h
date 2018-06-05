@@ -48,7 +48,7 @@ public:
 
 
 protected:
-    bool armed;
+    bool armed = false;
 };
 
 } //end of namespace DataGenericItem

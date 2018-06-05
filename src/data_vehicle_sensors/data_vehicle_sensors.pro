@@ -48,21 +48,12 @@ win32:CONFIG(release, debug|release):       lib.files   += release/data_vehicle_
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/data_vehicle_sensors.lib debug/data_vehicle_sensors.dll
 INSTALLS += lib
 
-#Header file copy
-headers.path    = $$(MACE_ROOT)/include/data_vehicle_sensors
-headers.files   += \
-        data_vehicle_sensors_global.h \
-        components.h
-INSTALLS       += headers
 
 #Header file copy
-headers_Components.path    = $$(MACE_ROOT)/include/data_vehicle_sensors/components
-headers_Components.files   += \
-        components/sensor_camera.h \
-    components/sensor_vertices_global.h \
-    components/sensor_vertices_local.h
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
 
-INSTALLS       += headers_Components
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../

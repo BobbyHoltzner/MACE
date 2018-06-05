@@ -15,6 +15,14 @@ MavlinkProtocol::MavlinkProtocol(const MavlinkConfiguration &config) :
     memset(&totalErrorCounter, 0, sizeof(totalErrorCounter));
     memset(&currReceiveCounter, 0, sizeof(currReceiveCounter));
     memset(&currLossCounter, 0, sizeof(currLossCounter));
+
+    for(int i = 0 ; i < 256 ; i++)
+    {
+        for(int j = 0 ; j < 256 ; j++)
+        {
+            lastIndex[i][j] = 0;
+        }
+    }
 }
 
 void MavlinkProtocol::AddListner(const IProtocolMavlinkEvents* listener)

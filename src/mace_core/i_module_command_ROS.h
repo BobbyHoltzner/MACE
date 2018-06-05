@@ -23,17 +23,18 @@ class MACE_CORESHARED_EXPORT IModuleCommandROS  : public AbstractModule_EventLis
     friend class MaceCore;
 public:
 
-    static Classes moduleClass;
+    static ModuleClasses moduleClass;
 
     IModuleCommandROS():
         AbstractModule_EventListeners()
     {
-        AddCommandLogic<int>(ROSCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID){
+        AddCommandLogic<int>(ROSCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });
     }
 
-    virtual Classes ModuleClass() const
+    virtual ModuleClasses ModuleClass() const
     {
         return moduleClass;
     }

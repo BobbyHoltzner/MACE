@@ -1,13 +1,24 @@
 #include "comms_mavlink.h"
+
 CommsMAVLINK::CommsMAVLINK() :
     m_LinkMarshaler(new Comms::CommsMarshaler), m_LinkName(""), m_LinkChan(0)
 {
     m_LinkMarshaler->AddSubscriber(this);
 }
 
-CommsMAVLINK::~CommsMAVLINK()
+uint8_t CommsMAVLINK::getLinkChannel() const
 {
+    return this->m_LinkChan;
+}
 
+std::string CommsMAVLINK::getLinkName() const
+{
+    return this->m_LinkName;
+}
+
+void CommsMAVLINK::TransmitMAVLINKMessage(const mavlink_message_t &msg)
+{
+    m_LinkMarshaler->SendMAVMessage(m_LinkName,msg);
 }
 
 void CommsMAVLINK::VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
@@ -17,11 +28,11 @@ void CommsMAVLINK::VehicleHeartbeatInfo(const std::string &linkName, const int &
     UNUSED(heartbeatMSG);
 }
 
-void CommsMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
+bool CommsMAVLINK::MavlinkMessage(const std::string &linkName, const mavlink_message_t &message)
 {
     UNUSED(linkName);
     UNUSED(message);
-    std::cout<<"I am in the comms_mavlink library MavlinkMessage callback."<<std::endl;
+    return false;
 }
 
 //!
@@ -47,7 +58,7 @@ void CommsMAVLINK::ConfigureMAVLINKStructure(MaceCore::ModuleParameterStructure 
     protocolSettings->AddTerminalParameters("Name", MaceCore::ModuleParameterTerminalTypes::STRING, true, "Mavlink", {"Mavlink"});
     protocolSettings->AddTerminalParameters("Version", MaceCore::ModuleParameterTerminalTypes::STRING, true, "V1", {"V1", "V2"});
 
-    structure.AddMutuallyExclusiveNonTerminal({{"SerialParameters", serialSettings}, {"UDPParameters", udpSettings}}, false);
+    structure.AddMutuallyExclusiveNonTerminal({{"SerialParameters", serialSettings}, {"UDPParameters", udpSettings}}, true);
     structure.AddNonTerminal("ProtocolParameters", protocolSettings, true);
 }
 
@@ -94,6 +105,8 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
         }
 
     }
+
+
     if(params->HasNonTerminal("SerialParameters"))
     {
         std::shared_ptr<MaceCore::ModuleParameterValue> serialSettings = params->GetNonTerminalValue("SerialParameters");
@@ -152,10 +165,8 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
         }
 
 
-        //connect link
-        bool success = m_LinkMarshaler->ConnectToLink(m_LinkName);
-        if(success == false) {
-            throw std::runtime_error("Connection to link failed");
+        if(m_LinkMarshaler->ConnectToLink(m_LinkName) == false){
+            throw std::runtime_error("Connection to udp link failed");
         }
     }
     else if(params->HasNonTerminal("UDPParameters"))
@@ -213,6 +224,7 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
         if(m_LinkMarshaler->ConnectToLink(m_LinkName) == false){
             throw std::runtime_error("Connection to udp link failed");
         }
+
     }
     else
     {

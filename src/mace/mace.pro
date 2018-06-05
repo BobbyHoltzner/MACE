@@ -3,6 +3,7 @@ CONFIG += console c++11
 CONFIG -= app_bundle
 QT += serialport
 QT += network
+QT -= gui
 
 TARGET = MACE
 QMAKE_CXXFLAGS += -std=c++11
@@ -103,9 +104,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_ROS/release/
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_ROS/debug/ -lmodule_ROS
 else:unix: LIBS += -L$$OUT_PWD/../module_ROS/ -lmodule_ROS
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/release/ -lmodule_resource_task_allocation
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/debug/ -lmodule_resource_task_allocation
-else:unix:!macx: LIBS += -L$$OUT_PWD/../module_resource_task_allocation/ -lmodule_resource_task_allocation
+#win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/release/ -lmodule_resource_task_allocation
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/debug/ -lmodule_resource_task_allocation
+#else:unix:!macx: LIBS += -L$$OUT_PWD/../module_resource_task_allocation/ -lmodule_resource_task_allocation
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_ground_station/release/ -lmodule_ground_station
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_ground_station/debug/ -lmodule_ground_station
@@ -137,9 +138,9 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_ardu
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_ardupilot/debug/ -lmodule_vehicle_ardupilot
 else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_ardupilot/ -lmodule_vehicle_ardupilot
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../voropp/release/ -lvoropp
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../voropp/debug/ -lvoropp
-else:unix:!macx: LIBS += -L$$OUT_PWD/../voropp/ -lvoropp
+#win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../voropp/release/ -lvoropp
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../voropp/debug/ -lvoropp
+#else:unix:!macx: LIBS += -L$$OUT_PWD/../voropp/ -lvoropp
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/release/ -ldata_interface_MAVLINK
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MAVLINK/debug/ -ldata_interface_MAVLINK
@@ -163,8 +164,9 @@ INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 
+win32: LIBS += -limagehlp
 
-#LIBS += -lboost_system
+unix: LIBS += -lboost_system
 
 unix {
 exists(/opt/ros/kinetic/lib/) {
@@ -191,5 +193,10 @@ exists(/opt/ros/kinetic/lib/) {
         LIBS += -L/opt/ros/kinetic/lib -ltf2
         LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
         LIBS += -L/opt/ros/kinetic/lib -lactionlib
+        LIBS += -L/opt/ros/kinetic/lib -loctomap
+        LIBS += -L/opt/ros/kinetic/lib -loctomap_ros
 }
 }
+
+INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
+LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper

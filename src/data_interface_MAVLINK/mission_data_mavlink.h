@@ -1,5 +1,5 @@
-#ifndef MISSION_DATA_MAVLINK_H
-#define MISSION_DATA_MAVLINK_H
+#ifndef MISSION_DATA_MAVLINK_OLD_H
+#define MISSION_DATA_MAVLINK__OLD_H
 
 #include "data/data_get_set_notifier.h"
 
@@ -16,9 +16,7 @@ public:
 
 public:
     Data::DataGetSetNotifier<MissionItem::MissionList> currentAutoMission;
-    Data::DataGetSetNotifier<MissionItem::MissionList> proposedAutoMission;
     Data::DataGetSetNotifier<MissionItem::MissionList> currentGuidedMission;
-    Data::DataGetSetNotifier<MissionItem::MissionList> proposedGuidedMission;
 
 public:
     Data::DataGetSetNotifier<CommandItem::SpatialHome> home;
@@ -26,14 +24,6 @@ public:
     Data::DataGetSetNotifier<MissionItem::MissionItemCurrent> missionItemCurrent;
 
 public:
-
-    MissionItem::MissionKey proposedMissionConfirmed(){
-        MissionItem::MissionList propList = proposedAutoMission.get();
-        currentAutoMission.set(propList);
-        propList.clearQueue();
-        proposedAutoMission.set(propList);
-        return propList.getMissionKey();
-    }
 
     void setCurrentMission(const MissionItem::MissionList &missionList)
     {
@@ -54,25 +44,6 @@ public:
         }
     }
 
-    void setProposedMission(const MissionItem::MissionList &missionList)
-    {
-        switch(missionList.getMissionType())
-        {
-        case MissionItem::MISSIONTYPE::AUTO:
-        {
-            proposedAutoMission.set(missionList);
-            break;
-        }
-        case MissionItem::MISSIONTYPE::GUIDED:
-        {
-            proposedGuidedMission.set(missionList);
-            break;
-        }
-        default:
-            break;
-        }
-    }
-
     MissionItem::MissionKey getCurrentAutoMissionKey() const
     {
         return currentAutoMission.get().getMissionKey();
@@ -81,48 +52,6 @@ public:
     MissionItem::MissionKey getCurrentGuidedMissionKey() const
     {
         return currentGuidedMission.get().getMissionKey();
-    }
-
-    MissionItem::MissionList Command_GetCurrentMission(const MissionItem::MISSIONTYPE &type){
-        MissionItem::MissionList rtnList;
-        switch(type){
-        case MissionItem::MISSIONTYPE::AUTO:
-        {
-            rtnList = currentAutoMission.get();
-            break;
-        }
-        case MissionItem::MISSIONTYPE::GUIDED:
-        {
-            rtnList = currentGuidedMission.get();
-            break;
-        }
-        default:
-        {
-            break;
-        }
-        }
-        return rtnList;
-    }
-
-    MissionItem::MissionList getProposedMission(const MissionItem::MISSIONTYPE &type){
-        MissionItem::MissionList rtnList;
-        switch(type){
-        case MissionItem::MISSIONTYPE::AUTO:
-        {
-            rtnList = proposedAutoMission.get();
-            break;
-        }
-        case MissionItem::MISSIONTYPE::GUIDED:
-        {
-            rtnList = proposedGuidedMission.get();
-            break;
-        }
-        default:
-        {
-            break;
-        }
-        }
-        return rtnList;
     }
 };
 

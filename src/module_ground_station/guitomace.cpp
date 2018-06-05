@@ -1,13 +1,15 @@
 #include "guitomace.h"
 
-GUItoMACE::GUItoMACE(const MaceCore::IModuleCommandGroundStation* ptrRef) :
+GUItoMACE::GUItoMACE(const MaceCore::IModuleCommandGroundStation* ptrRef, const BaseTopic::VehicleTopics *ptr) :
+    m_VehicleTopics(ptr),
     m_sendAddress(QHostAddress::LocalHost),
     m_sendPort(1234)
 {
     m_parent = ptrRef;
 }
 
-GUItoMACE::GUItoMACE(const MaceCore::IModuleCommandGroundStation* ptrRef, const QHostAddress &sendAddress, const int &sendPort) :
+GUItoMACE::GUItoMACE(const MaceCore::IModuleCommandGroundStation* ptrRef, const BaseTopic::VehicleTopics *ptr, const QHostAddress &sendAddress, const int &sendPort) :
+    m_VehicleTopics(ptr),
     m_sendAddress(sendAddress),
     m_sendPort(sendPort)
 {
@@ -108,7 +110,7 @@ void GUItoMACE::setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj)
 //    mLogs->info(buffer.str());
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->Event_SetHomePosition(this, tmpHome);
+        ptr->Event_SetHomePosition(m_parent, tmpHome);
     });
 }
 
@@ -183,9 +185,10 @@ void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
     QJsonObject position = vehicleCommand["takeoffPosition"].toObject();
     bool latLonFlag = vehicleCommand["latLonFlag"].toBool();
 
+
     if(latLonFlag) {
         newTakeoff.position->setX(position.value("lat").toDouble());
-        newTakeoff.position->setY(position.value("lng").toDouble());
+        newTakeoff.position->setY(position.value("lon").toDouble());
     }
     newTakeoff.position->setZ(position.value("alt").toDouble());
     newTakeoff.setTargetSystem(vehicleID);
@@ -196,8 +199,36 @@ void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
 //    mLogs->info(buffer.str());
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->Event_IssueCommandTakeoff(this, newTakeoff);
+        ptr->Event_IssueCommandTakeoff(m_parent, newTakeoff);
     });
+
+    /*
+    std::shared_ptr<Data::NamedTopicComponentDataObject> data;
+    if(latLonFlag) {
+        data = std::make_shared<Data::TopicComponents::PositionGlobal>(
+                    position.value("alt").toDouble(),
+                    Data::ReferenceAltitude::REF_ALT_MSL,
+                    position.value("lat").toDouble(),
+                    position.value("lng").toDouble(),
+                    Data::ReferenceGeoCoords::REF_GEO_DEG;
+                );
+    }
+    else {
+        data = std::make_shared<Data::TopicComponents::Altitude>(
+                    position.value("alt").toDouble(),
+                    Data::ReferenceAltitude::REF_ALT_MSL
+                );
+    }
+
+    MaceCore::TopicDatagram topicDatagram;
+    m_VehicleTopics->m_CommandTakeoff.SetComponent(data, topicDatagram);
+    MaceCore::ModuleCharacteristic target;
+    target.ID = vehicleID;
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+    m_parent->NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+    });
+    */
 }
 
 //!
@@ -206,11 +237,11 @@ void GUItoMACE::takeoff(const int &vehicleID, const QJsonObject &jsonObj)
 //! \param jsonObj JSON data containing the command to be issued
 //!
 void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
-{
+{    
     if(jsonObj["vehicleCommand"] == "FORCE_DATA_SYNC") {
 //        mLogs->debug("Module Ground Station issuing command force data sync to system " + std::to_string(vehicleID) + ".");
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_ForceVehicleDataSync(this, vehicleID);
+            ptr->Event_ForceVehicleDataSync(m_parent, vehicleID);
         });
     }
     else if(jsonObj["vehicleCommand"] == "RTL") {
@@ -220,7 +251,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
         // TODO: Set generating system and coordinate frame
 
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_IssueCommandRTL(this, rtlCommand);
+            ptr->Event_IssueCommandRTL(m_parent, rtlCommand);
         });
     }
     else if(jsonObj["vehicleCommand"] == "LAND") {
@@ -230,7 +261,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
         // TODO: Set generating system and coordinate frame
 
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_IssueCommandLand(this, landCommand);
+            ptr->Event_IssueCommandLand(m_parent, landCommand);
         });
     }
     else if(jsonObj["vehicleCommand"] == "AUTO_START") {
@@ -241,7 +272,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
         // TODO: Set generating system and coordinate frame
 
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_IssueMissionCommand(this, missionCommand);
+            ptr->Event_IssueMissionCommand(m_parent, missionCommand);
         });
     }
     else if(jsonObj["vehicleCommand"] == "AUTO_PAUSE") {
@@ -252,7 +283,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
         // TODO: Set generating system and coordinate frame
 
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_IssueMissionCommand(this, missionCommand);
+            ptr->Event_IssueMissionCommand(m_parent, missionCommand);
         });
     }
     else if(jsonObj["vehicleCommand"] == "AUTO_RESUME") {
@@ -263,7 +294,7 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
         // TODO: Set generating system and coordinate frame
 
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-            ptr->Event_IssueMissionCommand(this, missionCommand);
+            ptr->Event_IssueMissionCommand(m_parent, missionCommand);
         });
     }
 
@@ -392,7 +423,7 @@ void GUItoMACE::setVehicleArm(const int &vehicleID, const QJsonObject &jsonObj)
 //    mLogs->info(buffer.str());
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->Event_IssueCommandSystemArm(this, tmpArm);
+        ptr->Event_IssueCommandSystemArm(m_parent, tmpArm);
     });
 }
 
@@ -409,8 +440,26 @@ void GUItoMACE::setVehicleMode(const int &vehicleID, const QJsonObject &jsonObj)
     std::cout<<"We are changing the vehicle mode as issued by the GUI: "<<tmpMode.getRequestMode()<<std::endl;
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->Event_ChangeSystemMode(this, tmpMode);
+        ptr->Event_ChangeSystemMode(m_parent, tmpMode);
     });
+
+
+
+
+//    std::shared_ptr<MaceCore::ITopicComponentPrototype> data = std::make_shared<Data::TopicComponents::String>(
+//                    jsonObj["vehicleCommand"].toString().toStdString()
+//                );
+
+
+//    MaceCore::ModuleCharacteristic target;
+//    target.ID = vehicleID;
+//    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+//    MaceCore::TopicDatagram topicDatagram;
+//    m_VehicleTopics->m_CommandSystemMode.SetComponent(data, topicDatagram);
+//    m_parent->NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//        ptr->NewTopicDataValues(m_parent, m_VehicleTopics->m_CommandSystemMode.Name(), m_parent->GetCharacteristic(), MaceCore::TIME(), topicDatagram, target);
+//    });
 }
 
 //!
@@ -421,6 +470,7 @@ void GUItoMACE::parseTCPRequest(const QJsonObject &jsonObj)
 {
     QString command = jsonObj["tcpCommand"].toString();
     int vehicleID = jsonObj["vehicleID"].toInt();
+
     QByteArray data;
     if(command == "SET_VEHICLE_MODE")
     {
@@ -509,7 +559,7 @@ bool GUItoMACE::writeTCPData(QByteArray data)
     }
     else
     {
-        std::cout << "TCP socket not connected" << std::endl;
+        std::cout << "TCP socket not connected GUI TO MACE" << std::endl;
         tcpSocket->close();
         return false;
     }

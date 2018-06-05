@@ -25,29 +25,32 @@ class MACE_CORESHARED_EXPORT IModuleCommandGroundStation : public AbstractModule
     friend class MaceCore;
 public:
 
-    static Classes moduleClass;
+    static ModuleClasses moduleClass;
 
     IModuleCommandGroundStation():
         AbstractModule_EventListeners()
     {
-        AddCommandLogic<int>(GroundStationCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID){
+        AddCommandLogic<int>(GroundStationCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });
 
-        AddCommandLogic<MissionItem::MissionKey>(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION, [this](const MissionItem::MissionKey &missionKey){
+        AddCommandLogic<MissionItem::MissionKey>(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION, [this](const MissionItem::MissionKey &missionKey, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             NewlyAvailableCurrentMission(missionKey);
         });
 
-        AddCommandLogic<MissionItem::MissionKey>(GroundStationCommands::NEW_MISSION_EXE_STATE, [this](const MissionItem::MissionKey &missionKey){
+        AddCommandLogic<MissionItem::MissionKey>(GroundStationCommands::NEW_MISSION_EXE_STATE, [this](const MissionItem::MissionKey &missionKey, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
             NewlyAvailableMissionExeState(missionKey);
         });
 
-        AddCommandLogic<CommandItem::SpatialHome>(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const CommandItem::SpatialHome &home){
-            NewlyAvailableHomePosition(home);
+        AddCommandLogic<CommandItem::SpatialHome>(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION, [this](const CommandItem::SpatialHome &home, const OptionalParameter<ModuleCharacteristic> &sender){
+            NewlyAvailableHomePosition(home, sender);
         });
     }
 
-    virtual Classes ModuleClass() const
+    virtual ModuleClasses ModuleClass() const
     {
         return moduleClass;
     }
@@ -59,7 +62,7 @@ public:
 
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey) = 0;
 
-    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home) = 0;
+    virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
 
     virtual bool StartTCPServer() = 0;
 

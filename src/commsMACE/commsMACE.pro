@@ -32,7 +32,9 @@ SOURCES += \
     serial_configuration_mace.cpp \
     serial_link_mace.cpp \
     udp_configuration_mace.cpp \
-    udp_link_mace.cpp
+    udp_link_mace.cpp \
+    digimesh_configuration.cpp \
+    digimesh_link.cpp
 
 HEADERS +=\
         commsmace_global.h \
@@ -50,10 +52,16 @@ HEADERS +=\
     serial_configuration_mace.h \
     serial_link_mace.h \
     udp_configuration_mace.h \
-    udp_link_mace.h
+    udp_link_mace.h \
+    digimesh_configuration.h \
+    digimesh_link.h \
+    generic_encodedecode_library.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
+
+INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
+LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper
 
 # Unix lib Install
 unix:!symbian {
@@ -67,10 +75,12 @@ win32:CONFIG(release, debug|release):       lib.files   += release/commsMACE.lib
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/commsMACE.lib debug/commsMACE.dll
 INSTALLS += lib
 
+
 #Header file copy
-headers.path    = $$(MACE_ROOT)/include/commsMACE
-headers.files   += $$HEADERS
-INSTALLS       += headers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon

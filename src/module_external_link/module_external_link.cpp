@@ -1,23 +1,149 @@
 #include "module_external_link.h"
 
+#include "module_generic_MAVLINK/controllers/controller_mavlink_generic_set.h"
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///             CONFIGURE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void FinishedMessage(const bool completed, const uint8_t finishCode)
+{
+    if(completed == false)
+    {
+        printf("Controller timed out sending message, gave up sending message\n");
+    }
+    else {
+        printf("Controller Received Final ACK with code of %d\n", finishCode);
+    }
+}
+
+template <typename T>
+T* Helper_CreateAndSetUp(ModuleExternalLink* obj, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, uint8_t chan)
+{
+    T* newController = new T(obj, queue, chan);
+    newController->setLambda_DataReceived([obj](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){obj->ReceivedCommand(sender, command);});
+    newController->setLambda_Finished(FinishedMessage);
+    return newController;
+}
+
+
 ModuleExternalLink::ModuleExternalLink() :
     m_VehicleDataTopic("vehicleData"),m_MissionDataTopic("vehicleMission"),
     associatedSystemID(254), airborneInstance(true),
-    m_CommandController(NULL),m_HeartbeatController(NULL),m_HomeController(NULL),m_MissionController(NULL)
+    m_HeartbeatController(NULL)
 {
 
-    m_MissionController = new ExternalLink::MissionController_ExternalLink(this);
-    m_HomeController = new ExternalLink::HomeController_ExternalLink(this);
-    m_CommandController = new ExternalLink::CommandController_ExternalLink(this);
+    Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mace_message_t>(2000, 3);
+
+
+
+
+
+    /*
+     * In development modification that was accidently merged in.
+    auto controller_SystemMode2 = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequestRespond<
+            mace_message_t,
+            MaceCore::TopicDatagram,
+            mace_command_system_mode_t,
+            mace_system_mode_ack_t,
+            MACE_MSG_ID_COMMAND_SYSTEM_MODE,
+            MACE_MSG_ID_SYSTEM_MODE_ACK
+            >
+            (this, queue, m_LinkChan,
+                mace_msg_command_system_mode_encode_chan,
+                mace_msg_command_system_mode_decode,
+                mace_msg_system_mode_ack_encode_chan,
+                mace_msg_system_mode_ack_decode
+            );
+    controller_SystemMode2->FillSetObject([this](const MaceCore::TopicDatagram &commandItem, const MaceCore::ModuleCharacteristic &target, mace_command_system_mode_t &cmd)
+    {
+        std::shared_ptr<Data::TopicComponents::String> component = std::make_shared<Data::TopicComponents::String>();
+        this->m_VehicleTopics.m_CommandSystemMode.GetComponent(commandItem, component);
+
+        strcpy(cmd.mode, component->Str().c_str());
+        cmd.target_system = target.ID;
+    });
+    controller_SystemMode2->FillDataAndAck([this](const mace_command_system_mode_t &msg, std::shared_ptr<MaceCore::TopicDatagram> &data, mace_system_mode_ack_t &ack){
+
+        std::shared_ptr<Data::TopicComponents::String> component = std::make_shared<Data::TopicComponents::String>(std::string(msg.mode));
+
+        data = std::make_shared<MaceCore::TopicDatagram>();
+        this->m_VehicleTopics.m_CommandSystemMode.SetComponent(component, *data);
+
+        ack.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
+    });
+    controller_SystemMode2->setLambda_Finished(FinishedMessage);
+    controller_SystemMode2->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<MaceCore::TopicDatagram> &command){
+        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+            ptr->NewTopicDataValues(this, this->m_VehicleTopics.m_CommandSystemMode.Name(), sender, MaceCore::TIME(), *command);
+        });
+    });
+    m_TopicToControllers.insert({this->m_VehicleTopics.m_CommandSystemMode.Name(), controller_SystemMode2});
+    */
+
+
+
+
+
+    //auto externalLink = new ExternalLink::MissionController(this, queue, m_LinkChan);
+    //externalLink->setLambda_DataReceived([this](const MissionKey &key, const std::shared_ptr<MissionList> &list){this->ReceivedMission(*list);});
+    //externalLink->setLambda_FetchDataFromKey([this](const OptionalParameter<MissionKey> &key){return this->FetchMissionFromKey(key);});
+    //externalLink->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllMissionFromModule(module);});
+    //m_Controllers.Add(externalLink);
+
+
+    m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandLand<mace_message_t>>(this, queue, m_LinkChan));
+    m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandTakeoff<mace_message_t>>(this, queue, m_LinkChan));
+    m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandARM<mace_message_t>>(this, queue, m_LinkChan));
+    m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandRTL<mace_message_t>>(this, queue, m_LinkChan));
+    m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandMissionItem<mace_message_t>>(this, queue, m_LinkChan));
+
+
+    auto controller_SystemMode = new Controllers::ControllerSystemMode<mace_message_t>(this, queue, m_LinkChan);
+    controller_SystemMode->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){this->ReceivedCommand(sender, command);});
+    controller_SystemMode->setLambda_Finished(FinishedMessage);
+    m_Controllers.Add(controller_SystemMode);
+
+
+    auto homeController = new Controllers::ControllerHome<mace_message_t>(this, queue, m_LinkChan);
+    homeController->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &key, const std::shared_ptr<CommandItem::SpatialHome> &home){this->ReceivedHome(*home);});
+    homeController->setLambda_FetchDataFromKey([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &key){return this->FetchHomeFromKey(key);});
+    homeController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllHomeFromModule(module);});
+    homeController->setLambda_Finished(FinishedMessage);
+    m_Controllers.Add(homeController);
+
+
+    auto missionController = new Controllers::ControllerMission<mace_message_t>(this, queue, m_LinkChan);
+    missionController->setLambda_DataReceived([this](const MissionKey &key, const std::shared_ptr<MissionList> &list){this->ReceivedMission(*list);});
+    missionController->setLambda_FetchDataFromKey([this](const OptionalParameter<MissionKey> &key){return this->FetchMissionFromKey(key);});
+    missionController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllMissionFromModule(module);});
+    missionController->setLambda_Finished(FinishedMessage);
+    m_Controllers.Add(missionController);
+
+
+}
+
+void ModuleExternalLink::ReceivedCommand(const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command)
+{
+    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
+        ptr->Event_IssueGeneralCommand(this, command);
+    });
 }
 
 ModuleExternalLink::~ModuleExternalLink()
 {
 
+}
+
+std::vector<MaceCore::TopicCharacteristic> ModuleExternalLink::GetEmittedTopics()
+{
+    std::vector<MaceCore::TopicCharacteristic> topics;
+
+    topics.push_back(this->m_VehicleDataTopic.Characterisic());
+    topics.push_back(this->m_MissionDataTopic.Characterisic());
+    topics.push_back(this->m_VehicleTopics.m_CommandSystemMode.Characterisic());
+
+    return topics;
 }
 
 //!
@@ -28,6 +154,8 @@ void ModuleExternalLink::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 {
     ptr->Subscribe(this, m_VehicleDataTopic.Name());
     ptr->Subscribe(this, m_MissionDataTopic.Name());
+
+    ptr->Subscribe(this, m_VehicleTopics.m_CommandSystemMode.Name());
 }
 
 //!
@@ -49,6 +177,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleExternalLink::ModuleCo
 }
 
 
+
 //!
 //! \brief Provides object contains parameters values to configure module with
 //! \param params Parameters to configure
@@ -57,10 +186,20 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
 {
     ConfigureMACEComms(params);
 
+    m_LinkMarshaler->SpecifyAddedModuleAction(m_LinkName, [this](const char* resourceName, int ID){
+        this->ExternalModuleAdded(resourceName, ID);
+    });
+
+    m_LinkMarshaler->SpecifyAddedModuleAction(m_LinkName, [this](const char* resourceName, int ID){
+        this->ExternalModuleRemoved(resourceName, ID);
+    });
+
     if(params->HasNonTerminal("ModuleParameters"))
     {
         std::shared_ptr<MaceCore::ModuleParameterValue> moduleSettings = params->GetNonTerminalValue("ModuleParameters");
         airborneInstance = moduleSettings->GetTerminalValue<bool>("AirborneInstance");
+
+        //m_LinkMarshaler->AddResource(m_LinkName, GROUNDSTATION_STR, associatedSystemID);
 
         if(airborneInstance == false)
         {
@@ -68,6 +207,38 @@ void ModuleExternalLink::ConfigureModule(const std::shared_ptr<MaceCore::ModuleP
         }
     }
 
+}
+
+//!
+//! \brief Event to fire when an external module has been added
+//! \param resourceName Name of resource (module) added
+//! \param ID ID of module
+//!
+void ModuleExternalLink::ExternalModuleAdded(const char* resourceName, int ID)
+{
+    MaceCore::ModuleCharacteristic module;
+    module.ID = ID;
+    if(strcmp(resourceName, CommsMACE::VEHICLE_STR) == 0)
+    {
+        module.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+    }
+    else if(strcmp(resourceName, CommsMACE::GROUNDSTATION_STR) == 0)
+    {
+        module.Class = MaceCore::ModuleClasses::GROUND_STATION;
+    }
+    else {
+        printf("%s\n", CommsMACE::GROUNDSTATION_STR);
+        throw std::runtime_error("Unknown module class received");
+    }
+
+    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+        ptr->ExternalEvent_NewModule(this, module);
+    });
+}
+
+void ModuleExternalLink::ExternalModuleRemoved(const char* ResourceName, int ID)
+{
+    throw std::runtime_error("Not Implimented");
 }
 
 std::string ModuleExternalLink::createLog(const int &systemID)
@@ -86,39 +257,25 @@ std::string ModuleExternalLink::createLog(const int &systemID)
     return loggerName;
 }
 
-void ModuleExternalLink::transmitMessage(const mace_message_t &msg)
+void ModuleExternalLink::TransmitMessage(const mace_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target) const
 {
-    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
-}
+    //broadcast
+    if(target.IsSet() == false)
+    {
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+    }
 
-///////////////////////////////////////////////////////////////////////////////////////
-/// The following are public virtual functions imposed from the Command Controller
-/// Interface via callback functionality.
-///////////////////////////////////////////////////////////////////////////////////////
-void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command_short_t &cmd)
-{
-    mace_message_t msg;
-    mace_msg_command_short_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&cmd);
-    transmitMessage(msg);
-}
-
-void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command_long_t &cmd)
-{
-    mace_message_t msg;
-    mace_msg_command_long_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&cmd);
-    transmitMessage(msg);
-}
-
-void ModuleExternalLink::cbiCommandController_transmitCommand(const mace_command_system_mode_t &cmd)
-{
-    mace_message_t msg;
-    mace_msg_command_system_mode_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&cmd);
-    transmitMessage(msg);
-}
-
-void ModuleExternalLink::cbiCommandController_CommandACK(const mace_command_ack_t &ack)
-{
-
+    else if(target().Class == MaceCore::ModuleClasses::VEHICLE_COMMS)
+    {
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, std::make_tuple<const char*, int>(CommsMACE::VEHICLE_STR, target.Value().ID));
+    }
+    else if(target().Class == MaceCore::ModuleClasses::GROUND_STATION)
+    {
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, std::make_tuple<const char*, int>(CommsMACE::GROUNDSTATION_STR, target.Value().ID));
+    }
+    else {
+        throw std::runtime_error("Unknown target given");
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -129,81 +286,88 @@ void ModuleExternalLink::cbiHeartbeatController_transmitCommand(const mace_heart
 {
     mace_message_t msg;
     mace_msg_heartbeat_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&heartbeat);
-    transmitMessage(msg);
+    TransmitMessage(msg);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-/// The following are public virtual functions imposed from the Mission Controller
-/// Interface via callback functionality.
-///////////////////////////////////////////////////////////////////////////////////////
-void ModuleExternalLink::cbiMissionController_TransmitMissionACK(const mace_mission_ack_t &missionACK)
-{
-    mace_message_t msg;
-    mace_msg_mission_ack_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&missionACK);
-    transmitMessage(msg);
-}
 
-void ModuleExternalLink::cbiMissionController_TransmitMissionCount(const mace_mission_count_t &count)
-{
-    mace_message_t msg;
-    mace_msg_mission_count_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&count);
-    transmitMessage(msg);
-}
-
-void ModuleExternalLink::cbiMissionController_TransmitMissionItem(const mace_mission_item_t &item)
-{
-    mace_message_t msg;
-    mace_msg_mission_item_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&item);
-    transmitMessage(msg);
-}
-
-void ModuleExternalLink::cbiMissionController_TransmitMissionReqList(const mace_mission_request_list_t &request)
-{
-    mace_message_t msg;
-    mace_msg_mission_request_list_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&request);
-    transmitMessage(msg);
-}
-
-void ModuleExternalLink::cbiMissionController_TransmitMissionGenericReqList(const mace_mission_request_list_generic_t &request)
-{
-    mace_message_t msg;
-    mace_msg_mission_request_list_generic_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&request);
-    transmitMessage(msg);
-}
-
-void ModuleExternalLink::cbiMissionController_TransmitMissionReq(const mace_mission_request_item_t &requestItem)
-{
-    mace_message_t msg;
-    mace_msg_mission_request_item_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&requestItem);
-    transmitMessage(msg);
-}
-
-void ModuleExternalLink::cbiMissionController_ReceivedMission(const MissionItem::MissionList &missionList)
+void ModuleExternalLink::ReceivedMission(const MissionItem::MissionList &list)
 {
     std::cout<<"The external link module now has received the entire mission."<<std::endl;
 
     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-        ptr->ExternalEvent_FinishedRXMissionList(this, missionList);
+        ptr->ExternalEvent_FinishedRXMissionList(this, list);
     });
 }
 
-void ModuleExternalLink::cbiMissionController_MissionACK(const mace_mission_ack_t &missionACK)
+
+Controllers::DataItem<MissionKey, MissionList>::FetchKeyReturn ModuleExternalLink::FetchMissionFromKey(const OptionalParameter<MissionKey> &key)
 {
-    std::cout<<"The external link module now has received the mission ack."<<std::endl;
+    if(key.IsSet() == false)
+    {
+        throw std::runtime_error("Key not set in fetchdatafromkey function");
+    }
+
+    Controllers::DataItem<MissionKey, MissionList>::FetchKeyReturn rtn;
+
+    MissionList list;
+    this->getDataObject()->getMissionList(key(), list);
+    rtn.push_back(std::make_tuple(key(), list));
+    return rtn;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-/// The following are public virtual functions imposed from the Home Controller
-/// Interface via callback functionality.
-///////////////////////////////////////////////////////////////////////////////////////
-void ModuleExternalLink::cbiHomeController_TransmitHomeReq(const mace_mission_request_home_t &request)
+Controllers::DataItem<MissionKey, MissionList>::FetchModuleReturn ModuleExternalLink::FetchAllMissionFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module)
 {
-    mace_message_t msg;
-    mace_msg_mission_request_home_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&request);
-    transmitMessage(msg);
+    Controllers::DataItem<MissionKey, MissionList>::FetchModuleReturn rtn;
+
+
+    //Function to fetch missions for given module
+    auto func = [this, &rtn](MaceCore::ModuleCharacteristic vehicle)
+    {
+        //fetch mission
+        MissionItem::MissionList currentMission;
+        bool exists = this->getDataObject()->getCurrentMission(vehicle.ID, currentMission);
+
+        //if exists append, if it doesn't append empty
+        if(exists)
+        {
+            MissionKey key = currentMission.getMissionKey();
+            std::vector<std::tuple<MissionKey, MissionList>> vec = {};
+            vec.push_back(std::make_tuple(key, currentMission));
+            std::tuple<MaceCore::ModuleCharacteristic, std::vector<std::tuple<MissionKey, MissionList>>> tmp = std::make_tuple(vehicle, vec);
+            rtn.push_back(tmp);
+        }
+        else
+        {
+            rtn.push_back(std::make_tuple(vehicle, std::vector<std::tuple<MissionKey, MissionList>>()));
+        }
+    };
+
+
+    //if no module is given then fetch all
+    if(module.IsSet() == false || module().ID == 0)
+    {
+        std::vector<int> vehicles;
+        this->getDataObject()->GetLocalVehicles(vehicles);
+        for(auto it = vehicles.cbegin() ; it != vehicles.cend() ; ++it) {
+            MaceCore::ModuleCharacteristic vehicle;
+            vehicle.ID = *it;
+            vehicle.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            func(vehicle);
+        }
+    }
+    else {
+        func(module());
+    }
+
+
+    return rtn;
 }
 
-void ModuleExternalLink::cbiHomeController_ReceviedHome(const CommandItem::SpatialHome &home)
+
+
+
+
+void ModuleExternalLink::ReceivedHome(const CommandItem::SpatialHome &home)\
 {
     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
         ptr->GVEvents_NewHomePosition(this,home);
@@ -216,22 +380,66 @@ void ModuleExternalLink::cbiHomeController_ReceviedHome(const CommandItem::Spati
     MaceCore::TopicDatagram topicDatagram;
     m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);
 
+    MaceCore::ModuleCharacteristic sender;
+    sender.ID = home.getOriginatingSystem();
+    sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
     //notify listeners of topic
     ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), home.getOriginatingSystem(), MaceCore::TIME(), topicDatagram);
+        ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), sender, MaceCore::TIME(), topicDatagram);
     });
 }
 
-void ModuleExternalLink::cbiHomeController_TransmitHomeSet(const mace_set_home_position_t &home)
+Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchKeyReturn ModuleExternalLink::FetchHomeFromKey(const OptionalParameter<MaceCore::ModuleCharacteristic> &key)
 {
-    mace_message_t msg;
-    mace_msg_set_home_position_encode_chan(this->associatedSystemID,0,m_LinkChan,&msg,&home);
-    transmitMessage(msg);
+    if(key.IsSet() == false)
+    {
+        throw std::runtime_error("Key not set in fetchdatafromkey function");
+    }
+
+    Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchKeyReturn rtn;
+
+    CommandItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(key().ID);
+    rtn.push_back(std::make_tuple(key(), home));
+    return rtn;
 }
 
-void ModuleExternalLink::cbiHomeController_ReceivedHomeSetACK(const mace_home_position_ack_t &ack)
+Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchModuleReturn ModuleExternalLink::FetchAllHomeFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module)
 {
-    std::cout<<"The home controller received a set home ack"<<std::endl;
+    Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchModuleReturn rtn;
+
+
+    //Function to fetch missions for given module
+    auto func = [this, &rtn](MaceCore::ModuleCharacteristic vehicle)
+    {
+        //fetch mission
+        CommandItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(vehicle.ID);
+
+        std::vector<std::tuple<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>> vec = {};
+        vec.push_back(std::make_tuple(vehicle, home));
+        std::tuple<MaceCore::ModuleCharacteristic, std::vector<std::tuple<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>>> tmp = std::make_tuple(vehicle, vec);
+        rtn.push_back(tmp);
+    };
+
+
+    //if no module is given then fetch all
+    if(module.IsSet() == false || module().ID == 0)
+    {
+        std::vector<int> vehicles;
+        this->getDataObject()->GetLocalVehicles(vehicles);
+        for(auto it = vehicles.cbegin() ; it != vehicles.cend() ; ++it) {
+            MaceCore::ModuleCharacteristic vehicle;
+            vehicle.ID = *it;
+            vehicle.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            func(vehicle);
+        }
+    }
+    else {
+        func(module());
+    }
+
+
+    return rtn;
 }
 
 //!
@@ -242,6 +450,22 @@ void ModuleExternalLink::cbiHomeController_ReceivedHomeSetACK(const mace_home_po
 void ModuleExternalLink::MACEMessage(const std::string &linkName, const mace_message_t &message)
 {
     UNUSED(linkName);
+    int systemID = message.sysid;
+    int compID = message.compid;
+
+    MaceCore::ModuleCharacteristic sender;
+    sender.ID = systemID;
+    sender.Class = (MaceCore::ModuleClasses)compID;
+
+    m_Controllers.ForEach<Controllers::IController<mace_message_t>>([sender, message](Controllers::IController<mace_message_t>* ptr) {
+       ptr->ReceiveMessage(&message, sender);
+    });
+
+    for(auto it = m_TopicToControllers.cbegin() ; it != m_TopicToControllers.cend() ; ++it)
+    {
+        it->second->ReceiveMessage(&message, sender);
+    }
+
     this->ParseForData(&message);
 }
 
@@ -258,21 +482,22 @@ void ModuleExternalLink::HeartbeatInfo(const int &systemID, const mace_heartbeat
         });
 
         std::string loggerName = createLog(systemID);
-        m_CommandController->updateIDS(systemID,254);
-        m_CommandController->updateLogging(true,loggerName);
-        m_HomeController->updateIDS(systemID,254);
-        m_HomeController->updateLogging(true,loggerName);
-        m_MissionController->updateIDS(systemID,254);
-        m_MissionController->updateLogging(true,loggerName);
+        systemIDMap.insert({systemID,0});
 
         //The system has yet to have communicated through this module
         //We therefore have to notify the core that there is a new vehicle
-        systemIDMap.insert({systemID,0});
+
+        /*
+         * Now handled by ExternalModuleAdded Method
+         *
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->ExternalEvent_NewConstructedVehicle(this, systemID);
         });
+        */
+
         //Request_FullDataSync(systemID);
     }
+
 
     DataGenericItem::DataGenericItem_Heartbeat heartbeat;
     heartbeat.setAutopilot(static_cast<Data::AutopilotType>(heartbeatMSG.autopilot));
@@ -324,9 +549,14 @@ void ModuleExternalLink::PublishVehicleData(const int &systemID, const std::shar
     //construct datagram
     MaceCore::TopicDatagram topicDatagram;
     m_VehicleDataTopic.SetComponent(component, topicDatagram);
+
+    MaceCore::ModuleCharacteristic sender;
+    sender.ID = systemID;
+    sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
     //notify listeners of topic
     ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), sender, MaceCore::TIME(), topicDatagram);
     });
 }
 
@@ -340,54 +570,119 @@ void ModuleExternalLink::PublishVehicleData(const int &systemID, const std::shar
 /// acknowledgement or an event to take place when calling these items.
 ////////////////////////////////////////////////////////////////////////////
 
-void ModuleExternalLink::Request_FullDataSync(const int &targetSystem)
+void ModuleExternalLink::Request_FullDataSync(const int &targetSystem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    if(sender.IsSet() == false) {
+        throw std::runtime_error("no sender given");
+    }
+
+
+
     //This first segment causes all the topics to be republished
     mace_message_t msg;
     mace_vehicle_sync_t sync;
     sync.target_system = targetSystem;
-    mace_msg_vehicle_sync_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&sync);
-    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+    mace_msg_vehicle_sync_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &sync);
 
-    /*
-    The second segment is necessary to gaurantee that all information
-    requested is at a minimum answered with a DNE response. This function
-    cannont work the same way local vehicles do because there is to many
-    chains for a thread to wait on with no gaurantees from the vehicle module.
-    */
-    m_HomeController->requestHome(targetSystem);
-    m_MissionController->requestCurrentMission(targetSystem);
+    if(targetSystem == 0)
+    {
+        TransmitMessage(msg);
+    }
+    else {
+        MaceCore::ModuleCharacteristic target;
+        target.ID = targetSystem;
+        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+        TransmitMessage(msg, target);
+
+        m_Controllers.Retreive<Controllers::ControllerHome<mace_message_t>>()->Request(sender(), target);
+
+        m_Controllers.Retreive<Controllers::ControllerMission<mace_message_t>>()->RequestCurrentMission(sender(), target);
+    }
 }
 
-void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &systemArm)
+void ModuleExternalLink::Command_SystemArm(const CommandItem::ActionArm &systemArm, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    m_CommandController->setSystemArm(systemArm);
+    MaceCore::ModuleCharacteristic target;
+    target.ID = systemArm.getTargetSystem();
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+    if(target.ID == 0)
+    {
+        m_Controllers.Retreive<Controllers::CommandARM<mace_message_t>>()->Broadcast(systemArm, sender());
+    }
+    else {
+        m_Controllers.Retreive<Controllers::CommandARM<mace_message_t>>()->Send(systemArm, sender(), target);
+    }
 }
 
-void ModuleExternalLink::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode)
+void ModuleExternalLink::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::cout<<"We are trying to change the mode in external link"<<std::endl;
-    m_CommandController->setSystemMode(vehicleMode);
+    MaceCore::ModuleCharacteristic target;
+    target.ID = vehicleMode.getTargetSystem();
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+    m_Controllers.Retreive<Controllers::ControllerSystemMode<mace_message_t>>()->Send(vehicleMode, sender(), target);
 }
 
-void ModuleExternalLink::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &vehicleTakeoff)
+void ModuleExternalLink::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &vehicleTakeoff, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    m_CommandController->setSystemTakeoff(vehicleTakeoff);
+    MaceCore::ModuleCharacteristic target;
+    target.ID = vehicleTakeoff.getTargetSystem();
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+    if(target.ID == 0)
+    {
+        m_Controllers.Retreive<Controllers::CommandTakeoff<mace_message_t>>()->Broadcast(vehicleTakeoff, sender());
+    }
+    else {
+        m_Controllers.Retreive<Controllers::CommandTakeoff<mace_message_t>>()->Send(vehicleTakeoff, sender(), target);
+    }
 }
 
-void ModuleExternalLink::Command_Land(const CommandItem::SpatialLand &vehicleLand)
+void ModuleExternalLink::Command_Land(const CommandItem::SpatialLand &vehicleLand, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    m_CommandController->setSystemLand(vehicleLand);
+    MaceCore::ModuleCharacteristic target;
+    target.ID = vehicleLand.getTargetSystem();
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+    if(target.ID == 0)
+    {
+        m_Controllers.Retreive<Controllers::CommandLand<mace_message_t>>()->Broadcast(vehicleLand, sender());
+    }
+    else {
+        m_Controllers.Retreive<Controllers::CommandLand<mace_message_t>>()->Send(vehicleLand, sender(), target);
+    }
 }
 
-void ModuleExternalLink::Command_ReturnToLaunch(const CommandItem::SpatialRTL &vehicleRTL)
+void ModuleExternalLink::Command_ReturnToLaunch(const CommandItem::SpatialRTL &vehicleRTL, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    m_CommandController->setSystemRTL(vehicleRTL);
+    MaceCore::ModuleCharacteristic target;
+    target.ID = vehicleRTL.getTargetSystem();
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+    if(target.ID == 0)
+    {
+        m_Controllers.Retreive<Controllers::CommandRTL<mace_message_t>>()->Broadcast(vehicleRTL, sender());
+    }
+    else {
+        m_Controllers.Retreive<Controllers::CommandRTL<mace_message_t>>()->Send(vehicleRTL, sender(), target);
+    }
 }
 
-void ModuleExternalLink::Command_MissionState(const CommandItem::ActionMissionCommand &command)
+void ModuleExternalLink::Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    m_CommandController->setSystemMissionCommand(command);
+    MaceCore::ModuleCharacteristic target;
+    target.ID = command.getTargetSystem();
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+    if(target.ID == 0)
+    {
+        m_Controllers.Retreive<Controllers::CommandMissionItem<mace_message_t>>()->Broadcast(command, sender());
+    }
+    else {
+        m_Controllers.Retreive<Controllers::CommandMissionItem<mace_message_t>>()->Send(command, sender(), target);
+    }
 }
 
 void ModuleExternalLink::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
@@ -406,15 +701,26 @@ void ModuleExternalLink::Command_EmitHeartbeat(const CommandItem::SpatialTakeoff
 /// mission queue should prepend this position. Just the way ardupilot works.
 /////////////////////////////////////////////////////////////////////////////
 
-void ModuleExternalLink::Command_GetHomePosition(const int &vehicleID)
+void ModuleExternalLink::Command_GetHomePosition(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::cout<<"External link module saw a get home position request"<<std::endl;
-    m_HomeController->requestHome(vehicleID);
+
+    MaceCore::ModuleCharacteristic target;
+    target.ID = vehicleID;
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+
+    m_Controllers.Retreive<Controllers::ControllerHome<mace_message_t>>()->Request(sender(), target);
 }
 
-void ModuleExternalLink::Command_SetHomePosition(const CommandItem::SpatialHome &systemHome)
+void ModuleExternalLink::Command_SetHomePosition(const CommandItem::SpatialHome &systemHome, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    m_HomeController->setHome(systemHome);
+    MaceCore::ModuleCharacteristic target;
+    target.ID = systemHome.getTargetSystem();
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+
+    m_Controllers.Retreive<Controllers::ControllerHome<mace_message_t>>()->Send(systemHome, sender(), target);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -427,16 +733,30 @@ void ModuleExternalLink::Command_UploadMission(const MissionItem::MissionList &m
 {
     MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
     int targetSystem = missionList.getVehicleID();
+
+    MaceCore::ModuleCharacteristic target;
+    target.ID = targetSystem;
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
     if(status.state == MissionItem::MissionList::COMPLETE)
     {
-        m_MissionController->transmitMission(targetSystem,missionList);
+        throw std::runtime_error("Not Implimented");
+        //m_Controllers.Retreive<Controllers::ControllerMission<mace_message_t>>()->UploadMission(missionList, target);
     }
 }
 
-void ModuleExternalLink::Command_GetMission(const MissionItem::MissionKey &key)
+void ModuleExternalLink::Command_GetMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    if(sender.IsSet() == false) {
+        throw std::runtime_error("no sender given");
+    }
+
+    MaceCore::ModuleCharacteristic target;
+    target.ID = key.m_systemID;
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
     UNUSED(key);
-    m_MissionController->requestMission(key);
+    m_Controllers.Retreive<Controllers::ControllerMission<mace_message_t>>()->RequestMission(key, sender(), target);
 }
 
 void ModuleExternalLink::Command_SetCurrentMission(const MissionItem::MissionKey &key)
@@ -484,7 +804,7 @@ void ModuleExternalLink::Command_ClearOnboardGuided(const int &targetSystem)
     UNUSED(targetSystem);
 }
 
-void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::MissionKey &key)
+void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     mace_new_onboard_mission_t mission;
     mission.mission_creator = key.m_creatorID;
@@ -494,19 +814,13 @@ void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::Mission
     mission.mission_state = (uint8_t)key.m_missionState;
 
     mace_message_t msg;
-    mace_msg_new_onboard_mission_encode_chan(associatedSystemID,0,m_LinkChan,&msg,&mission);
+    mace_msg_new_onboard_mission_encode_chan(sender().ID, (int)sender().Class, m_LinkChan,&msg,&mission);
     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 }
 
-void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home)
+void ModuleExternalLink::NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    mace_home_position_t homePos;
-    homePos.latitude = home.position->getX() * pow(10,7);
-    homePos.longitude = home.position->getY() * pow(10,7);
-    homePos.altitude = home.position->getZ() * pow(10,3);
-    mace_message_t msg;
-    mace_msg_home_position_encode_chan(home.getOriginatingSystem(),0,m_LinkChan,&msg,&homePos);
-    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+    m_Controllers.Retreive<Controllers::ControllerHome<mace_message_t>>()->Broadcast(home, sender());
 }
 
 //Ken FIX THIS: I dont know if I should pass the pertinent systemID with the key
@@ -530,14 +844,20 @@ void ModuleExternalLink::NewlyAvailableMissionExeState(const MissionItem::Missio
     }
 }
 
-void ModuleExternalLink::NewlyAvailableVehicle(const int &systemID)
+void ModuleExternalLink::NewlyAvailableModule(const MaceCore::ModuleCharacteristic &module)
 {
+    if(module.Class == MaceCore::ModuleClasses::VEHICLE_COMMS)
+    {
+        m_LinkMarshaler->AddResource(m_LinkName, CommsMACE::VEHICLE_STR, module.ID);
+    }
+    if(module.Class == MaceCore::ModuleClasses::GROUND_STATION)
+    {
+        m_LinkMarshaler->AddResource(m_LinkName, CommsMACE::GROUNDSTATION_STR, module.ID);
+    }
+
     if(airborneInstance)
     {
-        this->associatedSystemID = systemID;
-        m_CommandController->updateIDS(254,systemID);
-        m_HomeController->updateIDS(254,systemID);
-        m_MissionController->updateIDS(254,systemID);
+        this->associatedSystemID = module.ID;
 
         //this function should always be called by an external link connected to ground for now
         //KEN this is a hack...but it will function for now
@@ -564,16 +884,61 @@ void ModuleExternalLink::ReceivedMissionACK(const MissionItem::MissionACK &ack)
     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 }
 
+
 //!
-//! \brief ModuleExternalLink::NewTopic
-//! \param topicName
-//! \param senderID
-//! \param componentsUpdated
+//! \brief New non-spooled topic given
 //!
-void ModuleExternalLink::NewTopic(const std::string &topicName, int senderID, std::vector<std::string> &componentsUpdated)
+//! NonSpooled topics send their data immediatly.
+//! \param topicName Name of stopic
+//! \param sender Module that sent topic
+//! \param data Data for topic
+//! \param target Target module (or broadcasted)
+//!
+void ModuleExternalLink::NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
+
+    if(this->m_TopicToControllers.find(topicName) == m_TopicToControllers.cend())
+    {
+        throw std::runtime_error("Attempting to send a topic that external link has no knowledge of");
+    }
+
+    Controllers::IController<mace_message_t> *controller = m_TopicToControllers.at(topicName);
+    if(target.IsSet())
+    {
+        if(controller->ContainsAction(Controllers::Actions::SEND) == false)
+        {
+            throw std::runtime_error("Attempting to send a topic to a controller that has no send action");
+        }
+        Controllers::IActionSend<MaceCore::TopicDatagram> *sendAction = dynamic_cast<Controllers::IActionSend<MaceCore::TopicDatagram>*>(controller);
+        sendAction->Send(data, sender, target());
+    }
+    else {
+        if(controller->ContainsAction(Controllers::Actions::BROADCAST) == false)
+        {
+            throw std::runtime_error("Attempting to broadcast a topic to a controller that has no broadcast action");
+        }
+        Controllers::IActionBroadcast<MaceCore::TopicDatagram> *sendAction = dynamic_cast<Controllers::IActionBroadcast<MaceCore::TopicDatagram>*>(controller);
+        sendAction->Broadcast(data, sender);
+    }
+}
+
+
+//!
+//! \brief New Spooled topic given
+//!
+//! Spooled topics are stored on the core's datafusion.
+//! This method is used to notify other modules that there exists new data for the given components on the given module.
+//! \param topicName Name of topic given
+//! \param sender Module that sent topic
+//! \param componentsUpdated Components in topic that where updated
+//! \param target Target moudle (or broadcast)
+//!
+void ModuleExternalLink::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
+{
+    int senderID = sender.ID;
     if(airborneInstance)
     {
+
         //In relevance to the external link module, the module when receiving a new topic should pack that up for transmission
         //to other instances of MACE
         //example read of vehicle data

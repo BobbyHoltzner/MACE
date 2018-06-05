@@ -19,17 +19,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += module_external_link.cpp \
     parse_comms_message.cpp \
     parse_comms_command.cpp \
-    controllers/command_controller_externalLink.cpp \
-    controllers/mission_controller_externalLink.cpp \
-    controllers/heartbeat_controller_externallink.cpp \
-    controllers/home_controller_external_link.cpp
+    controllers/heartbeat_controller_externallink.cpp
 
 HEADERS += module_external_link.h\
         module_external_link_global.h \
-    controllers/command_controller_externalLink.h \
-    controllers/mission_controller_externalLink.h \
-    controllers/heartbeat_controller_externallink.h \
-    controllers/home_controller_external_link.h
+    controllers/heartbeat_controller_externallink.h
+
 
 # Unix lib Install
 unix:!symbian {
@@ -43,26 +38,30 @@ win32:CONFIG(release, debug|release):       lib.files   += release/module_extern
 else:win32:CONFIG(debug, debug|release):    lib.files   += debug/module_external_link.lib debug/module_external_link.dll
 INSTALLS += lib
 
-#Header file copy
-headers_base.path    = $$(MACE_ROOT)/include/module_external_link
-headers_base.files   += \
-        module_external_link_global.h \
-        module_external_link.h
-INSTALLS       += headers_base
 
 #Header file copy
-headers_controllers.path    = $$(MACE_ROOT)/include/module_external_link/controllers
-headers_controllers.files   += \
-    controllers/command_controller_externalLink.h \
-    controllers/heartbeat_controller_externallink.h \
-    controllers/home_controller_external_link.h \
-    controllers/mission_controller_externalLink.h
-INSTALLS       += headers_controllers
+INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
+INSTALL_HEADERS = $$HEADERS
+include(../headerinstall.pri)
+
+
 
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+
+INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
+LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base_topic/release/ -lbase_topic
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base_topic/debug/ -lbase_topic
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base_topic/ -lbase_topic
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
@@ -116,4 +115,7 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MACE
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_interface_MACE/debug/ -ldata_interface_MACE
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_interface_MACE/ -ldata_interface_MACE
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_generic_MAVLINK/release/ -lmodule_generic_MAVLINK
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_generic_MAVLINK/debug/ -lmodule_generic_MAVLINK
+else:unix:!macx: LIBS += -L$$OUT_PWD/../module_generic_MAVLINK/ -lmodule_generic_MAVLINK
 
