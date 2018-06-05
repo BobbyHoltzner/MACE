@@ -165,8 +165,10 @@ bool OctomapWrapper::loadOctreeFromBT(const std::string &path)
     keyBBXMax[1] = m_Tree->coordToKey(maxY);
     keyBBXMax[2] = m_Tree->coordToKey(maxZ);
 
-    if(enabled2DProjection)
+    if(enabled2DProjection){
         this->updateMapContinuity();
+        this->updateEntireMapFromTree();
+    }
 
     return true;
 }
@@ -322,7 +324,7 @@ void OctomapWrapper::updateMapOccupancyRecursiveCheck(const double &xPos, const 
         }
     }else
     {
-        std::cout<<"Somehow we made it into here where the depth does not equal maxTreeDepth of the updateMapOccupancyRecursiveCheck."<<std::endl;
+        //std::cout<<"Somehow we made it into here where the depth does not equal maxTreeDepth of the updateMapOccupancyRecursiveCheck."<<std::endl;
     }
 }
 

@@ -98,14 +98,14 @@ public:
                 T* currentValue = this->getCellByPos(xPos,yPos);
                 if(currentValue != nullptr)
                 {
-                    if(*currentValue != this->getFill())
-                    {
-                        clone->getPositionFromIndex(*it,xPos,yPos);
-                        int thisIndex = this->indexFromPos(xPos,yPos);
-                        int otherIndex = *it;
-                        std::cout<<"I was already assigned a value."<<std::endl;
+//                    if(*currentValue != this->getFill())
+//                    {
+//                        clone->getPositionFromIndex(*it,xPos,yPos);
+//                        int thisIndex = this->indexFromPos(xPos,yPos);
+//                        int otherIndex = *it;
+//                        std::cout<<"I was already assigned a value."<<std::endl;
 
-                    }
+//                    }
 
                     *currentValue = *ptr;
 
@@ -125,7 +125,7 @@ public:
                                 const double &x_res = 0.5, const double &y_res = 0.5) override
     {
         //update the underlying size structure
-        BaseGridMap::updateGridSizeByLength(x_length,y_length,x_res,y_res);
+        return BaseGridMap::updateGridSizeByLength(x_length,y_length,x_res,y_res);
     }
 
     //!

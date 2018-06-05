@@ -118,8 +118,6 @@ int main(int argc, char *argv[])
     std::string btFile = rootPath + kPathSeparator + "simple_test_000_303030_newOrigin.bt";
     mace::maps::OctomapWrapper octomap;
     octomap.loadOctreeFromBT(btFile);
-    octomap.updateMapContinuity();
-    octomap.updateMapFromTree();
     mace::maps::Data2DGrid<mace::maps::OccupiedResult>* compressedMap = octomap.get2DOccupancyMap();
 
     compressedMap->updatePosition(mace::pose::CartesianPosition_2D(-15,-15));
@@ -130,7 +128,7 @@ int main(int argc, char *argv[])
     mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(space);
     mace::state_space::DiscreteMotionValidityCheckPtr motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(space);
     mace::state_space::SpecialValidityCheckPtr stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(space);
-    auto stateValidityCheck = ([this,compressedMap](const mace::state_space::State *state){
+    auto stateValidityCheck = ([compressedMap](const mace::state_space::State *state){
         const mace::pose::CartesianPosition_2D* castState = state->as<const mace::pose::CartesianPosition_2D>();
         mace::maps::OccupiedResult* result = compressedMap->getCellByPos(castState->getXPosition(),castState->getYPosition());
         if(*result == mace::maps::OccupiedResult::NOT_OCCUPIED)
@@ -142,22 +140,22 @@ int main(int argc, char *argv[])
     motionCheck->setStateValidityCheck(stateCheck);
     motionCheck->setMinCheckDistance(0.125);
 
-    mace::state_space::SpaceInformationPtr spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(m_Space);
+    mace::state_space::SpaceInformationPtr spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(space);
     spaceInfo->setStateSampler(sampler);
     spaceInfo->setStateValidityCheck(stateCheck);
     spaceInfo->setMotionValidityCheck(motionCheck);
 
     mace::planners_sampling::RRTBase rrt(spaceInfo);
-    mace::state_space::GoalState* begin = new mace::state_space::GoalState(m_Space);
+    mace::state_space::GoalState* begin = new mace::state_space::GoalState(space);
     begin->setState(new mace::pose::CartesianPosition_2D(14,-14.75));
-    mace::state_space::GoalState* end = new mace::state_space::GoalState(m_Space,1.0);
+    mace::state_space::GoalState* end = new mace::state_space::GoalState(space,1.0);
     end->setState(new mace::pose::CartesianPosition_2D(14,7.5));
     end->setRadialRegion(1.0);
 
     rrt.setPlanningParameters(begin,end);
 
     rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
-    rrt.setCallbackFunction(this);
+    //rrt.setCallbackFunction(this);
     std::vector<mace::state_space::State*> solution = rrt.solve();
     std::vector<mace::state_space::StatePtr> smartSolution;
     smartSolution.resize(solution.size());
