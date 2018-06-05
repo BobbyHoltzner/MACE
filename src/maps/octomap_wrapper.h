@@ -7,6 +7,7 @@
 
 #include "data_2d_grid.h"
 #include "octomap_sensor_definition.h"
+#include "octomap_2d_projection_definition.h"
 #include "occupancy_definition.h"
 
 #include <iostream>
@@ -87,6 +88,7 @@ private:
     maps::Data2DGrid<OccupiedResult>* m_Map;
 
     OctomapSensorDefinition* m_sensorProperties;
+    Octomap2DProjectionDefinition* m_projectionProperties;
 
 };
 
