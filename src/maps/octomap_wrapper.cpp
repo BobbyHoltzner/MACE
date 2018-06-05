@@ -25,8 +25,11 @@ void OctomapWrapper::updateSensorProperties(const OctomapSensorDefinition &senso
     m_Tree->setClampingThresMin(m_sensorProperties->getThreshMin());
 }
 
-void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const octomap::pose6d &origin)
+void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<pose::CartesianPosition_3D> &position, const pose::Orientation_3D &orientation)
 {
+    octomap::pose6d origin(position.getXPosition(),position.getYPosition(),position.getZPosition(),
+                           orientation.getRoll(),orientation.getPitch(),orientation.getYaw());
+
     m_Tree->insertPointCloud(*pc,origin.trans(),m_sensorProperties->getMaxRange());
 
     //Update the depth of the tree
@@ -54,7 +57,7 @@ void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const octomap
     }
 }
 
-void OctomapWrapper::updateFromLaserScan(octomap::Pointcloud *pc, const octomap::pose6d &origin)
+void OctomapWrapper::updateFromLaserScan(octomap::Pointcloud *pc, const mace::pose::Position<pose::CartesianPosition_3D> &position, const pose::Orientation_3D &orientation)
 {
     //Update the depth of the tree
     treeDepth = m_Tree->getTreeDepth();
@@ -62,6 +65,9 @@ void OctomapWrapper::updateFromLaserScan(octomap::Pointcloud *pc, const octomap:
 
     if(pc->size() > 0)
     {
+        octomap::pose6d origin(position.getXPosition(),position.getYPosition(),position.getZPosition(),
+                               orientation.getRoll(),orientation.getPitch(),orientation.getYaw());
+
         octomap::Pointcloud* copy = new octomap::Pointcloud(*pc);
         octomap::ScanGraph scan;
         scan.addNode(copy,origin);
