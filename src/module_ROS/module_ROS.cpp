@@ -17,15 +17,6 @@
 
 #include <limits>
 
-#ifdef ROS_EXISTS
-#include <geometry_msgs/Twist.h>
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/transform_listener.h>
-#include <tf2/transform_datatypes.h>
-#include <tf2_sensor_msgs/tf2_sensor_msgs.h>
-#include <laser_geometry/laser_geometry.h>
-#include <nav_msgs/OccupancyGrid.h>
-#endif
 
 //!
 //! \brief ModuleROS Default constructor
@@ -36,6 +27,7 @@ ModuleROS::ModuleROS() :
     m_VehicleDataTopic("vehicleData"),
     m_MapTopic("mappingData")
 {
+    m_tfListener = std::make_shared<tf2_ros::TransformListener>(m_tfBuffer);
 }
 
 ModuleROS::~ModuleROS() {
@@ -520,10 +512,30 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         }); *///this is a general publication event, however, no one knows explicitly how to handle
 
+    // Lookup transform, set into MACE data structures, and publish along with octomap point cloud
+    geometry_msgs::TransformStamped transform;
+    try{
+        transform = m_tfBuffer.lookupTransform("world", msg->header.frame_id, ros::Time(0));
+    }
+    catch (tf::TransformException ex){
+        ROS_ERROR("%s",ex.what());
+    }
+    mace::pose::Position<mace::pose::CartesianPosition_3D> transform_position;
+    transform_position.setXPosition(transform.transform.translation.x);
+    transform_position.setYPosition(transform.transform.translation.y);
+    transform_position.setZPosition(transform.transform.translation.z);
+    mace::pose::Orientation_3D transform_orientation;
+    // Get RPY from quaternion
+    double roll, pitch, yaw;
+    tf::Quaternion quat(transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z, transform.transform.rotation.w);
+    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+    transform_orientation.setEuler(roll, pitch, yaw);
+
     // TODO: Make this NotifyListeners method name better -- this is directly to Mace core
-        ModuleROS::NotifyListeners([&](MaceCore::IModuleEventsROS* ptr){
-            ptr->ROS_NewLaserScan(octoPointCloud);
-        }); //this one explicitly calls mace_core and its up to you to handle in core
+    ModuleROS::NotifyListeners([&](MaceCore::IModuleEventsROS* ptr){
+        ptr->ROS_NewLaserScan(octoPointCloud, transform_position, transform_orientation); // TODO: Include transform as arguments (convert to MACE data structures first - Orientation 3D)
+    }); //this one explicitly calls mace_core and its up to you to handle in core
+
 
 
     // TESTING OCTOMAP VISUALIZATION:

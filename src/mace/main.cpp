@@ -20,6 +20,13 @@
 #include <ros/ros.h>
 #endif
 
+const char kPathSeparator =
+#ifdef _WIN32
+                            '\\';
+#else
+                            '/';
+#endif
+
 int main(int argc, char *argv[])
 {
     Data::EnvironmentTime currentTime;

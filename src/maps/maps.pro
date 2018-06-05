@@ -45,7 +45,7 @@ HEADERS +=\
     iterators/circle_map_iterator.h \
     iterators/grid_map_iterator.h \
     iterators/generic_map_iterator.h \
-    dynamic_2D_grid.tpp
+    dynamic_2D_grid.tpp \
     octomap_wrapper.h \
     octomap_sensor_definition.h \
     occupancy_2d_grid_topic.h \
@@ -53,7 +53,6 @@ HEADERS +=\
     octomap_2d_projection_definition.h \
     occupancy_map_2D_inflated.h \
     occupancy_definition.h
-
 
 #Header file copy
 INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET

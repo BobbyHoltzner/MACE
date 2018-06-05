@@ -26,13 +26,6 @@
 
 using namespace octomap;
 
-const char kPathSeparator =
-#ifdef _WIN32
-        '\\';
-#else
-        '/';
-#endif
-
 #include "base/pose/cartesian_position_2D.h"
 #include "data_generic_state_item/positional_aid.h"
 #include "base/geometry/cell_2DC.h"

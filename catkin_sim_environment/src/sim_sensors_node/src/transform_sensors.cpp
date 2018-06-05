@@ -30,7 +30,10 @@ void TransformSensors::setupPublishers()
 void TransformSensors::laserCallback(const sensor_msgs::LaserScan::ConstPtr &msg)
 {
     sensor_msgs::PointCloud2 cloud;
-    m_projector->transformLaserScanToPointCloud("world", *msg, cloud, *m_tfBuffer);
+    std::string modelName = msg->header.frame_id;
+    modelName = modelName.substr(0, modelName.find("/"));
+    std::string transformFrame = modelName + "/base_link";
+    m_projector->transformLaserScanToPointCloud(transformFrame, *msg, cloud, *m_tfBuffer);
 
     std::cout << "__Frames__" << std::endl;
     ROS_WARN("Frame for cloud in: %s", msg->header.frame_id.c_str());

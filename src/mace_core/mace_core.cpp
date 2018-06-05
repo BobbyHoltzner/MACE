@@ -870,7 +870,7 @@ void MaceCore::ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>
 /////////////////////////////////////////////////////////////////////////
 /// SENSOR MODULE EVENTS
 /////////////////////////////////////////////////////////////////////////
-void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud &obj)
+void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud &obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position, const mace::pose::Orientation_3D &orientation)
 {
     octomap::Pointcloud copyObj = obj;
     m_DataFusion->insertObservation(copyObj);
