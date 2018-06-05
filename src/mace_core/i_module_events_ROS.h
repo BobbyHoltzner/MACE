@@ -9,9 +9,8 @@ namespace MaceCore
 class IModuleEventsROS  : public IModuleEventsGeneral
 {
 
-
 public:
-
+    virtual void ROS_NewLaserScan(const octomap::Pointcloud& obj) = 0;
 
 };
 

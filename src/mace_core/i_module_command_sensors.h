@@ -12,7 +12,7 @@ namespace MaceCore
 
 enum class SensorCommands
 {
-    NEW_AVAILABLE_VEHICLE
+    BASE_MODULE_LISTENER_ENUMS
 };
 
 class MaceCore;
@@ -27,7 +27,7 @@ class MACE_CORESHARED_EXPORT IModuleCommandSensors : public AbstractModule_Event
     IModuleCommandSensors():
         AbstractModule_EventListeners()
     {
-        AddCommandLogic<int>(SensorCommands::NEW_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<int>(SensorCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });

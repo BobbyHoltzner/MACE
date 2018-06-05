@@ -83,7 +83,7 @@ GridMapIterator GridMapIterator::operator ++(int)
     return old;
 }
 
-const int GridMapIterator::operator *() const
+int GridMapIterator::operator *() const
 {
     return currentIndex;
 }

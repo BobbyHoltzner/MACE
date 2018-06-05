@@ -2,6 +2,8 @@
 #define MACE_CORE_H
 #include <QtGlobal>
 
+#include <iostream>
+
 #include <string>
 #include <map>
 #include <memory>
@@ -31,6 +33,9 @@
 
 #include "topic.h"
 
+
+#include "octomap/octomap.h"
+#include "octomap/OcTree.h"
 
 namespace MaceCore
 {
@@ -222,6 +227,9 @@ public:
 
     virtual void AppendVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands);
 
+    void EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
+
+    void EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path) override;
 
     //!
     //! \brief Event fired when a new occupancy map to be invoked when PathPlanning module generates a new occupancy map.
@@ -239,6 +247,12 @@ public:
     virtual void ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>> &commands);
 
 
+public:
+
+    /////////////////////////////////////////////////////////////////////////
+    /// SENSOR MODULE EVENTS
+    /////////////////////////////////////////////////////////////////////////
+    void ROS_NewLaserScan(const octomap::Pointcloud &obj) override;
 public:
 
     /////////////////////////////////////////////////////////////////////////

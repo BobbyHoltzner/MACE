@@ -94,7 +94,7 @@ GenericMapIterator GenericMapIterator::operator ++(int)
     return old;
 }
 
-const int GenericMapIterator::operator *() const
+int GenericMapIterator::operator *() const
 {
     return currentIndex;
 }

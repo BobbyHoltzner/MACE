@@ -4,35 +4,53 @@
 #include <iostream>
 #include <vector>
 
-#include "base_grid_map.h"
+#include "common/common.h"
+#include "common/class_forward.h"
 
-#include "base/state_space/state_space.h"
+#include "base_grid_map.h"
+#include "iterators/grid_map_iterator.h"
 
 namespace mace {
 namespace maps {
+
 
 template <class T>
 class Data2DGrid : public BaseGridMap
 {
 public:
-    Data2DGrid(const double &x_min, const double &x_max,
-               const double &y_min, const double &y_max,
-               const double &x_res, const double &y_res,
-               const T *fill_value):
-        BaseGridMap(x_max - x_min, y_max - y_min, x_res, y_res,
-                    pose::CartesianPosition_2D((x_max+x_min)/2,(y_max+y_min)/2))
+
+    Data2DGrid(const T *fill_value,
+               const double &x_min = -10, const double &x_max = 10,
+               const double &y_min = -10, const double &y_max = 10,
+               const double &x_res = 0.5, const double &y_res = 0.5,
+               const pose::CartesianPosition_2D &origin = pose::CartesianPosition_2D()):
+        BaseGridMap(x_min,x_max,y_min,y_max,x_res,y_res,origin)
     {
         sizeGrid(fill_value);
     }
 
-    Data2DGrid(const double &x_min, const double &x_max,
-               const double &y_min, const double &y_max,
+    Data2DGrid(const T *fill_value,
+               const double &x_length, const double &y_length,
                const double &x_res, const double &y_res,
-               const T *fill_value, const pose::CartesianPosition_2D &origin):
-        BaseGridMap(x_min, x_max, y_min, y_max, x_res, y_res, origin)
+               const pose::CartesianPosition_2D &origin = pose::CartesianPosition_2D()):
+        BaseGridMap(x_length,y_length,x_res,y_res,origin)
     {
         sizeGrid(fill_value);
     }
+
+    Data2DGrid(const Data2DGrid &copy):
+        BaseGridMap(copy)
+    {
+        this->m_defaultFill = copy.getFill();
+        this->clear();
+        mace::maps::GridMapIterator it(this);
+        for(;!it.isPastEnd();++it)
+        {
+            T* ptr = this->getCellByIndex(*it);
+            *ptr = *copy.getCellByIndex(*it);
+        }
+    }
+
 
     virtual ~Data2DGrid() = default;
 
@@ -46,6 +64,70 @@ public:
         fill(m_defaultFill);
     }
 
+    bool updateGridResolution(const double &x_res, const double &y_res)
+    {
+        return this->updateGridSize(this->xMin,this->xMax,this->yMin,this->yMax,x_res,y_res);
+    }
+
+    bool updateGridSize(const double &minX, const double &maxX, const double &minY, const double &maxY, const double &x_res, const double &y_res) override
+    {
+        bool resolutionChanged = false;
+
+        if((minX != this->xMin) || (maxX != this->xMax) ||
+                (minY != this->yMin) || (maxY != this->yMax) ||
+                (x_res != this->xResolution) || (y_res != this->yResolution))
+        {
+            if((x_res != this->xResolution) || (y_res != this->yResolution))
+            {
+                resolutionChanged = true;
+            }
+            //First clone this object
+            Data2DGrid* clone = new Data2DGrid(*this);
+            //update the underlying size structure
+            BaseGridMap::updateGridSize(minX,maxX,minY,maxY,x_res,y_res);
+
+            //clear this contents and update with the default values
+            this->clear();
+            //copy the contents over
+            double xPos, yPos;
+            mace::maps::GridMapIterator it(clone);
+            for(;!it.isPastEnd();++it)
+            {
+                const T* ptr = clone->getCellByIndex(*it);
+                clone->getPositionFromIndex(*it,xPos,yPos);
+                T* currentValue = this->getCellByPos(xPos,yPos);
+                if(currentValue != nullptr)
+                {
+                    if(*currentValue != this->getFill())
+                    {
+                        clone->getPositionFromIndex(*it,xPos,yPos);
+                        int thisIndex = this->indexFromPos(xPos,yPos);
+                        int otherIndex = *it;
+                        std::cout<<"I was already assigned a value."<<std::endl;
+
+                    }
+
+                    *currentValue = *ptr;
+
+                }
+                else
+                {
+                    std::cout<<"The value had a nullptr?"<<std::endl;
+                }
+            }
+            delete clone;
+            clone = nullptr;
+        }
+        return resolutionChanged;
+    }
+
+    bool updateGridSizeByLength(const double &x_length = 10.0, const double &y_length = 10.0,
+                                const double &x_res = 0.5, const double &y_res = 0.5) override
+    {
+        //update the underlying size structure
+        BaseGridMap::updateGridSizeByLength(x_length,y_length,x_res,y_res);
+    }
+
     //!
     //! \brief fill
     //! \param value
@@ -56,11 +138,12 @@ public:
             *it = value;
     }
 
-    //!
-    //! \brief getCellByIndex
-    //! \param index
-    //! \return
-    //!
+
+    T getFill() const
+    {
+        return this->m_defaultFill;
+    }
+
     T* getCellByIndex(const unsigned int &index)
     {
         if (index > (this->getNodeCount() - 1))
@@ -69,33 +152,12 @@ public:
             return &m_dataMap[index];
     }
 
-    //!
-    //! \brief getCellNeighbors
-    //! \param index
-    //! \return
-    //!
-    std::vector<T*> getCellNeighbors(const unsigned int &index)
+    const T* getCellByIndex(const unsigned int &index) const
     {
-        std::vector<T*> rtnCells;
-
-        unsigned int indexX, indexY;
-        getIndexDecomposed(index,indexX,indexY);
-
-        int startY = (((int)indexY + 1) >= ((int)ySize - 1)) ? (ySize - 1) : (int)indexY + 1;
-        int endY = (((int)indexY - 1) >= 0) ? (indexY - 1) : 0;
-
-        for(int i = startY; i >= endY; i--)
-        {
-            int startX = (((int)indexX - 1) >= 0) ? (indexX - 1) : 0;
-            for(int j = startX; j <= (int)indexX + 1; j++)
-            {
-                if((j > (int)xSize - 1) || ((i == (int)indexY) && (j == (int)indexX)))
-                    continue;
-                std::cout<<"Getting cell number "<<std::to_string(j + i * xSize)<<std::endl;
-                rtnCells.push_back(this->getCellByPosIndex(j,i));
-            }
-        }
-        return rtnCells;
+        if (index > (this->getNodeCount() - 1))
+            return nullptr;
+        else
+            return &m_dataMap[index];
     }
 
     //!
@@ -119,6 +181,20 @@ public:
     //! \param yIndex
     //! \return
     //!
+    T* getCellByPosIndex(const unsigned int &xIndex, const unsigned int &yIndex) const
+    {
+        if (xIndex >= xSize || yIndex >= ySize)
+            return nullptr;
+        else
+            return &m_dataMap[xIndex + yIndex * xSize];
+    }
+
+    //!
+    //! \brief getCellByPosIndex
+    //! \param xIndex
+    //! \param yIndex
+    //! \return
+    //!
     T* getCellByPosIndex(const unsigned int &xIndex, const unsigned int &yIndex)
     {
         if (xIndex >= xSize || yIndex >= ySize)
@@ -132,18 +208,6 @@ public:
     {
         return this->m_dataMap;
     }
-
-    bool findIndex(const T* find, int &index)
-    {
-        for (int i = 0; i < getSize(); i++)
-            if(find == &m_dataMap.at(i))
-            {
-                index = i;
-                return true;
-            }
-        return false;
-    }
-
 protected:
     void sizeGrid(const T *fill_value)
     {
@@ -156,6 +220,39 @@ protected:
         else
             m_dataMap.resize(xSize * ySize);
     }
+
+public:
+
+    Data2DGrid& operator = (const Data2DGrid &rhs)
+    {
+        BaseGridMap::operator ==(rhs);
+        this->m_defaultFill = rhs.getFill();
+        this->m_dataMap = rhs.getDataMap();
+        return *this;
+    }
+
+    bool operator == (const Data2DGrid &rhs) const
+    {
+        if(!BaseGridMap::operator ==(rhs))
+            return false;
+        if(this->m_defaultFill != rhs.m_defaultFill){
+            return false;
+        }
+        mace::maps::GridMapIterator it(this);
+        for(;!it.isPastEnd();++it)
+        {
+            const T* ptr = this->getCellByIndex(*it);
+            if(*ptr != *rhs.getCellByIndex(*it))
+                return false;
+        }
+        return true;
+    }
+
+
+    bool operator != (const BaseGridMap &rhs) const{
+        return !(*this == rhs);
+    }
+
 
 protected:
     //!
@@ -171,48 +268,6 @@ protected:
 };
 
 
-MACE_CLASS_FORWARD(Data2DGridSpace);
-
-class Data2DGridSpace : public state_space::StateSpace
-{
-public:
-    Data2DGridSpace(Data2DGrid<mace::pose::CartesianPosition_2D>* grid)
-    {
-        currentGrid = grid;
-    }
-
-    double traversalCost(const state_space::State* begin, const state_space::State* end) override
-    {
-        const mace::pose::CartesianPosition_2D* castBegin = begin->as<mace::pose::CartesianPosition_2D>();
-        const mace::pose::CartesianPosition_2D* castEnd = end->as<mace::pose::CartesianPosition_2D>();
-
-        return castBegin->distanceBetween2D(*castEnd);
-    }
-
-    double distanceBetween(const mace::state_space::State* lhs, const mace::state_space::State* rhs) const override
-    {
-        return 1.0;
-    }
-
-    std::vector<state_space::State*> getNeighboringStates(const state_space::State* currentState) const override
-    {
-        const mace::pose::CartesianPosition_2D* castState = currentState->as<mace::pose::CartesianPosition_2D>();
-        std::vector<state_space::State*> rtn;
-        std::vector<mace::pose::CartesianPosition_2D*> newVector;
-        int index = currentGrid->indexFromPos(castState->getXPosition(),castState->getYPosition());
-        if(index < currentGrid->getNodeCount() - 1)
-            newVector = currentGrid->getCellNeighbors(index);
-        for(int i = 0; i < newVector.size(); i++)
-            rtn.push_back(newVector.at(i)->as<state_space::State>());
-        return rtn;
-    }
-
-
-
-private:
-    Data2DGrid<mace::pose::CartesianPosition_2D>* currentGrid;
-
-};
 
 } //end of namespace maps
 } //end of namespace mace

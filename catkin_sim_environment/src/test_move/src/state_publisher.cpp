@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
     geometry_msgs::Point robotPosition;
     robotPosition.x = 0.0;
     robotPosition.y = 0.0;
-    robotPosition.z = 10.0;
+    robotPosition.z = 0.5;
     transform.setOrigin(tf::Vector3(robotPosition.x,robotPosition.y,robotPosition.z));
 
     geometry_msgs::Quaternion attitude;
@@ -31,17 +31,20 @@ int main(int argc, char** argv) {
     attitude.w = 1.0;
     transform.setRotation(tf::Quaternion(attitude.x,attitude.y,attitude.z,attitude.w));
 
-    broadcaster.sendTransform(tf::StampedTransform(transform,ros::Time::now(),"world","base_link"));
+    broadcaster.sendTransform(tf::StampedTransform(transform,ros::Time::now(),"world","basic_quadrotor_1/base_link"));
 
     gazebo_msgs::ModelState modelState;
-    modelState.model_name = (std::string)"quadrotor";
+    modelState.model_name = (std::string)"basic_quadrotor_1";
     modelState.reference_frame = (std::string)"world";
 
     gazebo_msgs::SetModelState srv;
 
     while (ros::ok()) {
-        robotPosition.x  = cos(angle)*2;
-        robotPosition.y = sin(angle)*2;
+        double radius = 3.0;
+       	double ascent = 0.05;
+        robotPosition.x  = cos(angle)*radius;
+        robotPosition.y = sin(angle)*radius;
+	robotPosition.z = tan(ascent)*radius*angle;
         attitude = tf::createQuaternionMsgFromYaw(angle+M_PI/2);
 
         geometry_msgs::Pose pose;
@@ -50,7 +53,7 @@ int main(int argc, char** argv) {
         modelState.pose = pose;
         transform.setOrigin(tf::Vector3(robotPosition.x,robotPosition.y,robotPosition.z));
         transform.setRotation(tf::Quaternion(attitude.x,attitude.y,attitude.z,attitude.w));
-        broadcaster.sendTransform(tf::StampedTransform(transform,ros::Time::now(),"world","base_link"));
+        broadcaster.sendTransform(tf::StampedTransform(transform,ros::Time::now(),"world","basic_quadrotor_1/base_link"));
 
         srv.request.model_state = modelState;
         if(client.call(srv))

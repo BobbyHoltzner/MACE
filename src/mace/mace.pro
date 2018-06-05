@@ -200,3 +200,11 @@ exists(/opt/ros/kinetic/lib/) {
 
 INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
 LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+
+INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
+
+

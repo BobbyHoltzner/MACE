@@ -236,14 +236,14 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
 {
     UNUSED(sender);
-//    UNUSED(vehicleID);
+    //    UNUSED(vehicleID);
 
-//    try{
-//        std::cout<<"Saw a request dummy function"<<std::endl;
-//        m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
-//    }catch(const std::out_of_range &oor){
+    //    try{
+    //        std::cout<<"Saw a request dummy function"<<std::endl;
+    //        m_VehicleIDToPort.at(vehicleID)->MarshalCommand(VehicleCommands::REQUEST_VEHICLE_HOME,vehicleID);
+    //    }catch(const std::out_of_range &oor){
 
-//    }
+    //    }
     if(m_RTA) {
         m_RTA->MarshalCommand(RTACommands::TEST_FUNCTION, vehicleID);
     }
@@ -415,6 +415,13 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const CommandItem::Spat
 {
     UNUSED(sender);
     m_DataFusion->UpdateGlobalOrigin(globalHome);
+    if(m_PathPlanning) {
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, 0); // TODO: Parse for vehicle ID
+    }
+
+    if(m_GroundStation) {
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, 0); // TODO: Parse for vehicle ID
+    }
 }
 
 void MaceCore::Event_SetGridSpacing(const void *sender, const double &gridSpacing)
@@ -436,12 +443,12 @@ void MaceCore::Event_SetEnvironmentVertices(const void* sender, const std::vecto
 void MaceCore::EventVehicle_NewOnboardVehicleMission(const ModuleBase *sender, const MissionItem::MissionList &missionList)
 {
     UNUSED(sender);
-   //Update the core about the information
+    //Update the core about the information
     MissionItem::MissionKey key = missionList.getMissionKey();
     m_DataFusion->receivedNewMission(missionList);
     bool isMissionCurrent = m_DataFusion->checkForCurrentMission(key);
 
-   //Now update all potential listeners based on the type 
+    //Now update all potential listeners based on the type
     if(m_GroundStation)
     {
         if(m_DataFusion->getCurrentMissionValidity(missionList.getVehicleID()))
@@ -503,13 +510,13 @@ void MaceCore::ExternalEvent_NewModule(const void *sender, const ModuleCharacter
         m_DataFusion->AddAvailableVehicle(newModule.ID, false);
 
         if(m_GroundStation)
-            m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newModule.ID);
+            m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, newModule.ID);
 
         if(m_RTA)
-            m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newModule.ID);
+            m_RTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_VEHICLE, newModule.ID);
 
         if(m_ROS)
-            m_ROS->MarshalCommand(ROSCommands::NEW_AVAILABLE_VEHICLE, newModule.ID);
+            m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_VEHICLE, newModule.ID);
     }
 }
 
@@ -521,14 +528,15 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
     m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
     m_DataFusion->AddAvailableVehicle(newVehicleObserved, true);
 
+
     if(m_RTA)
-        m_RTA->MarshalCommand(RTACommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+        m_RTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
 
     if(m_PathPlanning)
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
 
     if(m_GroundStation.get() != NULL)
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
     else if(m_ExternalLink.size() > 0)
     {
         ModuleCharacteristic module;
@@ -540,8 +548,10 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
         }
     }
 
+
     if(m_ROS)
-        m_ROS->MarshalCommand(ROSCommands::NEW_AVAILABLE_VEHICLE, newVehicleObserved);
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
+
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -740,25 +750,25 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
 
     int vehicleID = missionList.getVehicleID();
     if(vehicleID == 0) //transmit this mission to all vehicles
-        {
-            for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
-                int nextSystemID = it->first;
-                MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(nextSystemID,missionList);
-                MissionItem::MissionList correctedMission = missionList;
-                correctedMission.setMissionKey(key);
-                MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
-            }
-        }else{ //transmit the mission to a specific vehicle
-            try{
-                MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
-                MissionItem::MissionList correctedMission = missionList;
-                correctedMission.setMissionKey(key);
-                MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
-
-            }catch(const std::out_of_range &oor){
-
-            }
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            int nextSystemID = it->first;
+            MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(nextSystemID,missionList);
+            MissionItem::MissionList correctedMission = missionList;
+            correctedMission.setMissionKey(key);
+            MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
         }
+    }else{ //transmit the mission to a specific vehicle
+        try{
+            MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
+            MissionItem::MissionList correctedMission = missionList;
+            correctedMission.setMissionKey(key);
+            MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
+
+        }catch(const std::out_of_range &oor){
+
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -798,6 +808,18 @@ void MaceCore::AppendVehicleCommands(const std::string &vehicleID, const std::ve
     m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::COMMANDS_APPENDED);
 }
 
+void MaceCore::EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map)
+{
+    if(m_ROS)
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, map);
+}
+
+void MaceCore::EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path)
+{
+    UNUSED(sender);
+    if(m_ROS)
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_FOUND_PATH, path);
+}
 
 //!
 //! \brief Event fired when a new occupancy map to be invoked when PathPlanning module generates a new occupancy map.
@@ -806,7 +828,6 @@ void MaceCore::AppendVehicleCommands(const std::string &vehicleID, const std::ve
 void MaceCore::NewOccupancyMap(const Eigen::MatrixXd &occupancyMap)
 {
     m_DataFusion->OccupancyMap_ReplaceMatrix(occupancyMap);
-
 }
 
 
@@ -827,6 +848,30 @@ void MaceCore::ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>
 
 }
 
+/////////////////////////////////////////////////////////////////////////
+/// SENSOR MODULE EVENTS
+/////////////////////////////////////////////////////////////////////////
+void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud &obj)
+{
+    octomap::Pointcloud copyObj = obj;
+    m_DataFusion->insertObservation(copyObj);
+    //Marshal Command To PP and RTA
+
+    /*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
+    }); *///this is a general publication event, however, no one knows explicitly how to handle
+
+    /*    ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
+        ptr->EventVehicle_NewConstructedVehicle(this, systemID);
+    });*/ //this one explicitly calls mace_core and its up to you to handle in core
+
+//    if(m_PathPlanning)
+//        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP, 0); // TODO: Parse for vehicle ID
+
+    if(m_ROS)
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_UPDATED_3D_OCCUPANCY_MAP, 0); // TODO: Parse for vehicle ID
+
+}
 
 /////////////////////////////////////////////////////////////////////////
 /// MACE COMMS EVENTS

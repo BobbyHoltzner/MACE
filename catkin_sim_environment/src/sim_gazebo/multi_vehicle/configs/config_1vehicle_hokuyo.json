@@ -2,8 +2,8 @@
     "gui": true,
     "pause": false,
     "addSensors": true,
-    "worldName": "turtlebot_playground",
-    "octomap": false,
+    "worldName": "MACE_small_field",
+    "octomap": true,
     "vehicles": {
         "1": "hokuyo_utm30lx"
     }

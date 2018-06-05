@@ -19,6 +19,7 @@ public:
 
 public:
     bool isValid(const State *state) const override;
+
 };
 
 } //end of namespace state_space

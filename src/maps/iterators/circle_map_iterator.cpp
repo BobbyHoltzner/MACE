@@ -13,6 +13,19 @@ CircleMapIterator::CircleMapIterator(const BaseGridMap *map, const pose::Cartesi
     findValidStartIndex();
 }
 
+CircleMapIterator::CircleMapIterator(const BaseGridMap *map, const unsigned int &index, const double &radius)
+{
+    it = new GenericMapIterator(map);
+    double posX, posY;
+    map->getPositionFromIndex(index,posX,posY);
+
+    this->origin = pose::CartesianPosition_2D(posX,posY);
+    this->radius = radius;
+
+    boundSubmap(this->origin,this->radius);
+    findValidStartIndex();
+}
+
 CircleMapIterator::CircleMapIterator(const CircleMapIterator *copy)
 {
     this->it = new GenericMapIterator(copy->it->parentMap);
@@ -89,7 +102,7 @@ CircleMapIterator CircleMapIterator::operator ++(int)
     return old;
 }
 
-const int CircleMapIterator::operator *() const
+int CircleMapIterator::operator *() const
 {
     return *(*it);
 }
