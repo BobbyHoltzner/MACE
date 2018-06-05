@@ -79,19 +79,18 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
                 }
             });
 
-            auto takeoffTransition = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-            takeoffTransition->setLambda_Finished([this,takeoffTransition](const bool completed, const uint8_t finishCode){
+            Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+            auto takeoffTransition = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+            takeoffTransition->AddLambda_Finished(this, [this,takeoffTransition](const bool completed, const uint8_t finishCode){
                 if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
                     std::cout<<"We are not going to perform the transition portion of the takeoff."<<std::endl;
                 takeoffTransition->Shutdown();
             });
 
-            takeoffTransition->setLambda_Shutdown([this,takeoffTransition]()
+            takeoffTransition->setLambda_Shutdown([this, collection]()
             {
-                currentControllerMutex.lock();
-                currentControllers.erase("takeoffTransition");
-                delete takeoffTransition;
-                currentControllerMutex.unlock();
+                auto ptr = collection->Remove("takeoffTransition");
+                delete ptr;
             });
 
             MaceCore::ModuleCharacteristic target;
@@ -104,7 +103,7 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
             CommandItem::SpatialWaypoint takeoffTarget(255,cmd->getTargetSystem());
             takeoffTarget.setPosition(cmdPosition);
             takeoffTransition->Send(takeoffTarget,sender,target);
-            currentControllers.insert({"takeoffTransition",takeoffTransition});
+            collection->Insert("takeoffTransition",takeoffTransition);
         }
         break;
     }

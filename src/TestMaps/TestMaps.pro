@@ -70,3 +70,4 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap
 else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
 
 INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
+

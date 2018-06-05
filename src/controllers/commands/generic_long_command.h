@@ -88,7 +88,7 @@ protected:
         FillCommand(data, cmd);
     }
 
-    virtual void Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_command_long_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_command_long_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
         queueObj.ID = data.getTargetSystem();
@@ -99,7 +99,16 @@ protected:
         cmd.target_system = data.getTargetSystem();
         cmd.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
 
+        if(m_CommandRequestedFrom.find(target) != m_CommandRequestedFrom.cend())
+        {
+            printf("Command already issued, Ignoring\n");
+            return false;
+        }
+        m_CommandRequestedFrom.insert({target, sender});
+
         FillCommand(data, cmd);
+
+        return true;
     }
 
 
@@ -128,10 +137,18 @@ protected:
 
     virtual bool Finish_Receive(const mace_command_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj)
     {
-        UNUSED(msg);
-        queueObj = sender;
-        ack = msg.result;
-        return true;
+        if(m_CommandRequestedFrom.find(sender) != m_CommandRequestedFrom.cend())
+        {
+            UNUSED(msg);
+            queueObj = sender;
+            ack = msg.result;
+            m_CommandRequestedFrom.erase(sender);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
 public:

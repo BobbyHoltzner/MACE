@@ -78,8 +78,8 @@ bool State_Takeoff::handleCommand(const AbstractCommandItem* command)
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
         AbstractStateArdupilot::handleCommand(command);
-        MAVLINKVehicleControllers::ControllerSystemMode* modeController = (MAVLINKVehicleControllers::ControllerSystemMode*)currentControllers.at("modeController");
-        modeController->setLambda_Finished([this,modeController](const bool completed, const uint8_t finishCode){
+        MAVLINKVehicleControllers::ControllerSystemMode* modeController = (MAVLINKVehicleControllers::ControllerSystemMode*)Owner().ControllersCollection()->At("modeController");
+        modeController->AddLambda_Finished(this, [this,modeController](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
             {
                 //if a mode change was issued while in the takeoff sequence we may have to handle it in a specific way based on the conditions
@@ -119,8 +119,9 @@ void State_Takeoff::Update()
 void State_Takeoff::OnEnter()
 {
     //check that the vehicle is truely armed and switch us into the guided mode
-    auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-    controllerSystemMode->setLambda_Finished([this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+    Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+    auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+    controllerSystemMode->AddLambda_Finished(this, [this,controllerSystemMode](const bool completed, const uint8_t finishCode){
         controllerSystemMode->Shutdown();
         if(completed && (finishCode == MAV_RESULT_ACCEPTED))
             desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_CLIMBING;
@@ -128,12 +129,10 @@ void State_Takeoff::OnEnter()
             desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED;
     });
 
-    controllerSystemMode->setLambda_Shutdown([this,controllerSystemMode]()
+    controllerSystemMode->setLambda_Shutdown([this, collection]()
     {
-        currentControllerMutex.lock();
-        currentControllers.erase("modeController");
-        delete controllerSystemMode;
-        currentControllerMutex.unlock();
+        auto ptr = collection->Remove("modeController");
+        delete ptr;
     });
 
     MaceCore::ModuleCharacteristic target;
@@ -146,7 +145,7 @@ void State_Takeoff::OnEnter()
     commandMode.targetID = target.ID;
     commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString("GUIDED");
     controllerSystemMode->Send(commandMode,sender,target);
-    currentControllers.insert({"modeController",controllerSystemMode});
+    collection->Insert("modeController",controllerSystemMode);
 }
 
 

@@ -104,12 +104,14 @@ protected:
 protected:
 
 
-    virtual void Construct_Send(const DATA &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, SET_TYPE &cmd, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_Send(const DATA &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, SET_TYPE &cmd, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
         queueObj = target;
 
         FillObject(commandItem, target, cmd);
+
+        return true;
     }
 
     virtual bool Finish_Receive(const ACK_TYPE &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, MaceCore::ModuleCharacteristic &queueObj)

@@ -54,18 +54,36 @@ class ControllerSystemMode : public GenericControllerQueueDataWithModule<MESSAGE
 {
 
 
+private:
+
+    std::unordered_map<MaceCore::ModuleCharacteristic, bool> m_ActiveTransmits;
 
 
 protected:
 
 
-    virtual void Construct_Send(const CommandItem::ActionChangeMode &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_command_system_mode_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_Send(const CommandItem::ActionChangeMode &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_command_system_mode_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
         queueObj = target;
 
+        if(m_ActiveTransmits.find(target) != m_ActiveTransmits.cend() && m_ActiveTransmits.at(target) == true)
+        {
+            printf("System Mode is already being changed for this target, ignoring");
+            return false;
+        }
+
+        m_ActiveTransmits.insert({target, true});
+
+        for(size_t i = 0 ; i < sizeof(cmd.mode)/sizeof(*cmd.mode) ; i++)
+        {
+            cmd.mode[i] = 0;
+        }
+
         cmd.target_system = commandItem.getTargetSystem();
         strcpy(cmd.mode, commandItem.getRequestMode().c_str());
+
+        return true;
     }
 
 
@@ -90,6 +108,7 @@ protected:
         UNUSED(msg);
         queueObj = sender;
         ack = msg.result;
+        m_ActiveTransmits.erase(sender);
         return true;
     }
 

@@ -54,7 +54,8 @@ HEADERS += \
     I_message_notifier.h \
     base_data_item.h \
     base_module_queue.h \
-    actions/action_unsolicited_receive.h
+    actions/action_unsolicited_receive.h \
+    controller_collection.h
 
 
 # Windows lib install

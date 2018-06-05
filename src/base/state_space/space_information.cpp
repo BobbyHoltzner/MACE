@@ -48,6 +48,11 @@ double SpaceInformation::distanceBetween(const State *lhs, const State *rhs) con
     return m_stateSpace->distanceBetween(lhs, rhs);
 }
 
+double SpaceInformation::getTraversalCost(const State *begin, const State *end, const bool &neighbor) const
+{
+    return m_stateSpace->traversalCost(begin,end);
+}
+
 //!
 //! \brief getNewState
 //! \return

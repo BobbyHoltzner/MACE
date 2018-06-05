@@ -80,8 +80,8 @@ void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &com
     mLogs->info(buffer.str());
     ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
     currentOuterState->handleCommand(&command);
-    stateMachine->ProcessStateTransitions();
-    stateMachine->UpdateStates();
+
+    ProgressStateMachineStates();
 }
 
 void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
@@ -97,8 +97,7 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
 
     ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
     currentOuterState->handleCommand(&commandWithTarget);
-    stateMachine->ProcessStateTransitions();
-    stateMachine->UpdateStates();
+    ProgressStateMachineStates();
 }
 
 void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
@@ -114,8 +113,7 @@ void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &comman
 
     ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
     currentOuterState->handleCommand(&commandWithTarget);
-    stateMachine->ProcessStateTransitions();
-    stateMachine->UpdateStates();
+    ProgressStateMachineStates();
 }
 
 void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
@@ -127,8 +125,7 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
 
     ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
     currentOuterState->handleCommand(&commandWithTarget);
-    stateMachine->ProcessStateTransitions();
-    stateMachine->UpdateStates();
+    ProgressStateMachineStates();
 }
 
 void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
@@ -184,8 +181,7 @@ void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionC
 
     ardupilot::state::AbstractStateArdupilot* outerState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
     outerState->handleCommand(&commandWithTarget);
-    stateMachine->ProcessStateTransitions();
-    stateMachine->UpdateStates();
+    ProgressStateMachineStates();
 }
 
 void ModuleVehicleArdupilot::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
@@ -215,8 +211,7 @@ void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialH
 
     ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
     currentOuterState->handleCommand(&vehicleHome);
-    stateMachine->ProcessStateTransitions();
-    stateMachine->UpdateStates();
+    ProgressStateMachineStates();
 }
 
 
@@ -352,13 +347,13 @@ bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 
         if(!consumed)
         {
-            ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
-            consumed = currentOuterState->handleMAVLINKMessage(message);
+            //ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+            //consumed = currentOuterState->handleMAVLINKMessage(message);
+            consumed = vehicleData->handleMAVLINKMessage(message);
             if(!consumed)
                 consumed = vehicleData->parseMessage(&message);
         }
-        stateMachine->ProcessStateTransitions();
-        stateMachine->UpdateStates();
+        ProgressStateMachineStates();
     }
 
     return consumed;
@@ -418,7 +413,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
 //            std::shared_ptr<MissionTopic::MissionListTopic> missionTopic = std::make_shared<MissionTopic::MissionListTopic>(missionList);
 //            this->cbi_VehicleMissionData(this->GetCharacteristic().ID, missionTopic);
         });
-        m_MissionController->setLambda_Finished([](const bool completed, const uint8_t code){
+        m_MissionController->AddLambda_Finished(this, [](const bool completed, const uint8_t code){
             printf("Mission Completed");
         });
 
@@ -488,8 +483,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
     ModuleVehicleMAVLINK::cbi_VehicleStateData(systemID,ptrHeartbeat);
 
-    stateMachine->UpdateStates();
-    stateMachine->ProcessStateTransitions();
+    ProgressStateMachineStates();
 }
 
 void ModuleVehicleArdupilot::PublishVehicleData(const int &systemID, const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &components)
@@ -566,3 +560,14 @@ void ModuleVehicleArdupilot::NewTopicSpooled(const std::string &topicName, const
     }
 }
 
+
+//!
+//! \brief Cause the state machine to update it's states
+//!
+void ModuleVehicleArdupilot::ProgressStateMachineStates()
+{
+    m_Mutex_StateMachine.lock();
+    stateMachine->ProcessStateTransitions();
+    stateMachine->UpdateStates();
+    m_Mutex_StateMachine.unlock();
+}

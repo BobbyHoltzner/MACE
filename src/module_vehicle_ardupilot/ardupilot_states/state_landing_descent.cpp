@@ -79,19 +79,18 @@ bool State_LandingDescent::handleCommand(const AbstractCommandItem* command)
         });
 
 
-        auto controllerDescent = new MAVLINKVehicleControllers::CommandLand(&Owner(), controllerQueue, Owner().getCommsObject()->getLinkChannel());
-        controllerDescent->setLambda_Finished([this,controllerDescent](const bool completed, const uint8_t finishCode){
+        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        auto controllerDescent = new MAVLINKVehicleControllers::CommandLand(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+        controllerDescent->AddLambda_Finished(this, [this,controllerDescent](const bool completed, const uint8_t finishCode){
             if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
                 GetImmediateOuterState()->setDesiredStateEnum(ArdupilotFlightState::STATE_FLIGHT);
             controllerDescent->Shutdown();
         });
 
-        controllerDescent->setLambda_Shutdown([this,controllerDescent]()
+        controllerDescent->setLambda_Shutdown([this, collection]()
         {
-            currentControllerMutex.lock();
-            currentControllers.erase("landingDescent");
-            delete controllerDescent;
-            currentControllerMutex.unlock();
+            auto ptr = collection->Remove("landingDescent");
+            delete ptr;
         });
 
         MaceCore::ModuleCharacteristic target;
@@ -102,7 +101,7 @@ bool State_LandingDescent::handleCommand(const AbstractCommandItem* command)
         sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         controllerDescent->Send(*cmd,sender,target);
-        currentControllers.insert({"landingDescent",controllerDescent});
+        collection->Insert("landingDescent", controllerDescent);
         break;
     }
     default:

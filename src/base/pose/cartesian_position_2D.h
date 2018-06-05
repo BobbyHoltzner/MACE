@@ -41,7 +41,11 @@ public:
         *state = new CartesianPosition_2D(*this);
     }
 
-
+    std::string printInfo() const override
+    {
+        std::string rtn = "Cartesian Position 2D: " + std::to_string(getXPosition()) + ", " + std::to_string(getYPosition()) + ".";
+        return rtn;
+    }
 
 public:
     void updatePosition(const double &x, const double &y)
