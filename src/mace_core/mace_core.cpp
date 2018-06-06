@@ -447,12 +447,34 @@ void MaceCore::Event_SetVehicleBoundaryVertices(const void* sender, const std::m
     UNUSED(sender);
     m_DataFusion->UpdateVehicleBoundaryMap(vehicleMap);
 
+    std::map<int, std::vector<DataState::StateGlobalPosition>>::const_iterator it = vehicleMap.begin();
+    for(;it!=vehicleMap.end();++it)
+    {
+        //this function should check whether the communication module is via external or via direct connect
+        std::map<int, IModuleCommandVehicle*>::iterator portIT = m_VehicleIDToPort.find(it->first);
+        if(portIT != m_VehicleIDToPort.end()){
+             std::map<int, IModuleCommandExternalLink*>::iterator externalLinkIT = m_ExternalLinkIDToPort.find(it->first);
+             if(externalLinkIT != m_ExternalLinkIDToPort.end()) //that mean this exists and there is an external link talking to that ID
+             {
+                 IModuleCommandExternalLink* externalModule = it->second;
+                 externalModule->MarshalCommand(ExternalLinkCommands::NEWLY_UPDATED_OPERATIONAL_BOUNDARY);
+             }
+        }
+        else if() //check the local map or could assume an else coniditon
+        {
+            Event_SetEnvironmentVertices();
+            //implies that this is local and we need to do something with the nodes
+            //generate mission and notify new mission
+
+        }
+    }
+
     if(m_PathPlanning) {
         m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, 0);
     }
 
     if(m_GroundStation) {
-//        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, 0);
+        //        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, 0);
     }
 }
 
@@ -721,18 +743,6 @@ void MaceCore::ExternalEvent_FinishedRXMissionList(const void *sender, const Mis
 /////////////////////////////////////////////////////////////////////////
 
 
-//!
-//! \brief Event fired when a new list of targets are produced for a specific vehicle
-//! \param vehicleID Vechile new targets are to be applied to
-//! \param target List of positional targets
-//!
-void MaceCore::NewVehicleTargets(const std::string &vehicleID, const std::vector<Eigen::Vector3d> &target)
-{
-    m_DataFusion->setVehicleTarget(vehicleID, target);
-
-    //m_PathPlanning->NewVehicleTarget(vehicleID);
-}
-
 /////////////////////////////////////////////////////////////////////////
 /// GROUND STATION EVENTS
 /////////////////////////////////////////////////////////////////////////
@@ -884,8 +894,8 @@ void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud &obj, const mace::pose
         ptr->EventVehicle_NewConstructedVehicle(this, systemID);
     });*/ //this one explicitly calls mace_core and its up to you to handle in core
 
-//    if(m_PathPlanning)
-//        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP, 0); // TODO: Parse for vehicle ID
+    //    if(m_PathPlanning)
+    //        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP, 0); // TODO: Parse for vehicle ID
 
     if(m_ROS)
         m_ROS->MarshalCommand(ROSCommands::NEWLY_UPDATED_3D_OCCUPANCY_MAP, 0); // TODO: Parse for vehicle ID

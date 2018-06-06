@@ -120,8 +120,12 @@ public:
     virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome);
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing);
 
+    //!
+    //! \brief Event_SetEnvironmentVertices This event should be emitted by the External Link, Ground Station
+    //! \param sender
+    //! \param boundaryVerts
+    //!
     virtual void Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts);
-    virtual void Event_SetVehicleBoundaryVertices(const void* sender, const std::map<int, std::vector<DataState::StateGlobalPosition> > &vehicleMap);
 
 public:
 
@@ -174,14 +178,12 @@ public:
     /// RTA EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-
     //!
-    //! \brief Event fired when a new list of targets are produced for a specific vehicle
-    //! \param vehicleID Vechile new targets are to be applied to
-    //! \param target List of positional targets
+    //! \brief Event_SetVehicleBoundaryVertices
+    //! \param sender
+    //! \param vehicleMap
     //!
-    virtual void NewVehicleTargets(const std::string &vehicleID, const std::vector<Eigen::Vector3d> &target);
-
+    virtual void Event_SetVehicleBoundaryVertices(const void* sender, const std::map<int, std::vector<DataState::StateGlobalPosition> > &vehicleMap);
 
 public:
 
@@ -333,8 +335,6 @@ private:
 
     std::list<std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
     std::map<int, IModuleCommandExternalLink*> m_ExternalLinkIDToPort;
-
-    //std::map<int, std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
 
     std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;

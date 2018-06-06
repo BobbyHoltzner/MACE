@@ -804,6 +804,18 @@ void ModuleExternalLink::Command_ClearOnboardGuided(const int &targetSystem)
     UNUSED(targetSystem);
 }
 
+void ModuleExternalLink::NewOperationalBoundary(const int &senderID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
+{
+    //we have to packetize the mission
+    //generate the datatype
+    //mace_operational_boundary boundary;
+    //boundary.mission_system = senderID;
+
+    mace_message_t msg;
+    //mace_msg_operational_boundary(sender().ID, (int)sender().Class, m_LinkChan,&msg,&boundary);
+    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+}
+
 void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     mace_new_onboard_mission_t mission;

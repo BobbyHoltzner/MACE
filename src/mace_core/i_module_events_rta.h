@@ -10,8 +10,7 @@ namespace MaceCore
 class IModuleEventsRTA  : public IModuleEventsGeneral
 {
 public:
-    virtual void GSEvent_UploadMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
-
+    virtual void Event_SetVehicleBoundaryVertices(const void* sender, const std::map<int, std::vector<DataState::StateGlobalPosition> > &vehicleMap) = 0;
 };
 
 } //End MaceCore Namespace

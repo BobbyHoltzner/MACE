@@ -44,7 +44,6 @@ public:
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing) = 0;
 
     virtual void Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) = 0;
-    virtual void Event_SetVehicleBoundaryVertices(const void* sender, const std::map<int, std::vector<DataState::StateGlobalPosition> > &vehicleMap) = 0;
 };
 
 } //End MaceCore Namespace
