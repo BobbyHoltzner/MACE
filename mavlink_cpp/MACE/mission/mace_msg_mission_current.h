@@ -1,7 +1,7 @@
 #pragma once
 // MESSAGE MISSION_CURRENT PACKING
 
-#define MACE_MSG_ID_MISSION_CURRENT 112
+#define MACE_MSG_ID_MISSION_CURRENT 111
 
 MACEPACKED(
 typedef struct __mace_mission_current_t {
@@ -14,17 +14,17 @@ typedef struct __mace_mission_current_t {
 
 #define MACE_MSG_ID_MISSION_CURRENT_LEN 6
 #define MACE_MSG_ID_MISSION_CURRENT_MIN_LEN 6
-#define MACE_MSG_ID_112_LEN 6
-#define MACE_MSG_ID_112_MIN_LEN 6
+#define MACE_MSG_ID_111_LEN 6
+#define MACE_MSG_ID_111_MIN_LEN 6
 
 #define MACE_MSG_ID_MISSION_CURRENT_CRC 233
-#define MACE_MSG_ID_112_CRC 233
+#define MACE_MSG_ID_111_CRC 233
 
 
 
 #if MACE_COMMAND_24BIT
 #define MACE_MESSAGE_INFO_MISSION_CURRENT { \
-    112, \
+    111, \
     "MISSION_CURRENT", \
     5, \
     {  { "seq", NULL, MACE_TYPE_UINT16_T, 0, 0, offsetof(mace_mission_current_t, seq) }, \
