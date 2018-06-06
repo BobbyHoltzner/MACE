@@ -434,38 +434,64 @@ void MaceCore::Event_SetGridSpacing(const void *sender, const double &gridSpacin
     m_DataFusion->UpdateGridSpacing(gridSpacing);
 }
 
-void MaceCore::Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
-    UNUSED(sender);
+void MaceCore::Event_SetEnvironmentVertices(const ModuleBase *sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
+//    UNUSED(sender);
     m_DataFusion->UpdateEnvironmentVertices(boundaryVerts);
 
-    if(m_RTA) {
-        m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_BOUNDARY_VERTICES, 0);
+    if(sender->ModuleClass() != ModuleClasses::RTA) {
+        if(m_RTA) {
+            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_BOUNDARY_VERTICES, 0);
+        }
     }
 }
 
-void MaceCore::Event_SetVehicleBoundaryVertices(const void* sender, const std::map<int, std::vector<DataState::StateGlobalPosition> > &vehicleMap) {
+void MaceCore::Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const std::map<int, mace::geometry::Cell_2DC> &vehicleMap) {
     UNUSED(sender);
-    m_DataFusion->UpdateVehicleBoundaryMap(vehicleMap);
+    m_DataFusion->UpdateVehicleCellMap(vehicleMap);
 
-    std::map<int, std::vector<DataState::StateGlobalPosition>>::const_iterator it = vehicleMap.begin();
-    for(;it!=vehicleMap.end();++it)
+    std::map<int, mace::geometry::Cell_2DC>::const_iterator it = vehicleMap.begin();
+    for(; it!=vehicleMap.end(); ++it)
     {
         //this function should check whether the communication module is via external or via direct connect
         std::map<int, IModuleCommandVehicle*>::iterator portIT = m_VehicleIDToPort.find(it->first);
         if(portIT != m_VehicleIDToPort.end()){
-             std::map<int, IModuleCommandExternalLink*>::iterator externalLinkIT = m_ExternalLinkIDToPort.find(it->first);
-             if(externalLinkIT != m_ExternalLinkIDToPort.end()) //that mean this exists and there is an external link talking to that ID
-             {
-                 IModuleCommandExternalLink* externalModule = it->second;
-                 externalModule->MarshalCommand(ExternalLinkCommands::NEWLY_UPDATED_OPERATIONAL_BOUNDARY);
-             }
-        }
-        else if() //check the local map or could assume an else coniditon
-        {
-            Event_SetEnvironmentVertices();
-            //implies that this is local and we need to do something with the nodes
-            //generate mission and notify new mission
+            std::map<int, IModuleCommandExternalLink*>::iterator externalLinkIT = m_ExternalLinkIDToPort.find(it->first);
+            if(externalLinkIT != m_ExternalLinkIDToPort.end()) //that mean this exists and there is an external link talking to that ID
+            {
+                IModuleCommandExternalLink* externalModule = externalLinkIT->second;
+                externalModule->MarshalCommand(ExternalLinkCommands::NEW_OPERATIONAL_BOUNDARY);
+            }
+            else //check the local map or could assume an else coniditon
+            {
+                std::vector<mace::geometry::Position<mace::geometry::CartesianPosition_2D> > cartesianVerts = it->second.getVector();
+                std::vector<DataState::StateGlobalPosition> globalVerts;
+                for(auto&& vertex : cartesianVerts) {
+                    DataState::StateLocalPosition localPositionData;
+                    localPositionData.setX(vertex.getXPosition());
+                    localPositionData.setY(vertex.getYPosition());
+                    DataState::StateGlobalPosition tmpGlobalOrigin;
+                    CommandItem::SpatialHome globalOrigin = m_DataFusion->GetGlobalOrigin();
 
+                    if(globalOrigin.getPosition().has2DPositionSet()) {
+                        tmpGlobalOrigin.setLatitude(globalOrigin.getPosition().getX());
+                        tmpGlobalOrigin.setLongitude(globalOrigin.getPosition().getY());
+                        tmpGlobalOrigin.setAltitude(globalOrigin.getPosition().getZ());
+
+                        DataState::StateGlobalPosition globalPositionData;
+                        DataState::PositionalAid::LocalPositionToGlobal(tmpGlobalOrigin, localPositionData, globalPositionData);
+                        globalVerts.push_back(globalPositionData);
+                    }
+                    else {
+                        std::cout << "No global origin set. Cannot set vehicle boundary vertices." << std::endl;
+                    }
+                }
+
+                if(globalVerts.size() > 0) {
+                    Event_SetEnvironmentVertices(sender, globalVerts);
+                    //implies that this is local and we need to do something with the nodes
+                    //generate mission and notify new mission
+                }
+            }
         }
     }
 
@@ -883,7 +909,7 @@ void MaceCore::ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>
 void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud &obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position, const mace::pose::Orientation_3D &orientation)
 {
     octomap::Pointcloud copyObj = obj;
-    m_DataFusion->insertObservation(copyObj);
+    m_DataFusion->insertObservation(copyObj, position, orientation);
     //Marshal Command To PP and RTA
 
     /*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){

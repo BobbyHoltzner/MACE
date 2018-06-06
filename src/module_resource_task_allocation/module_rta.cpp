@@ -156,6 +156,8 @@ void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
 
 void ModuleRTA::updateEnvironment() {
     m_globalOrigin = std::make_shared<CommandItem::SpatialHome>(this->getDataObject()->GetGlobalOrigin());
+    // TODO: If global instance, grab global boundary. If local, only grab this vehicle's boundary
+    //      --Check if the above comment is needed
     std::vector<DataState::StateGlobalPosition> environmentVertices = this->getDataObject()->GetEnvironmentBoundary();
     m_gridSpacing = this->getDataObject()->GetGridSpacing();
 
@@ -187,60 +189,78 @@ void ModuleRTA::updateEnvironment() {
 
     //  2) Re-partition space
     environment->computeBalancedVoronoi(m_vehicles);
-    m_vehicleBoundaries.clear();
+    m_vehicleCells.clear();
+    m_vehicleCells = environment->getCells();
 
     //  3) Distribute list of parititoned cells/boundary verts for each cell to core for path planner to grab (based on vehicle ID)
     //      a) Set map of vehicle ID and vector of cartesian points making up the boundary for each vehicle
-    std::map<int, Cell_2DC> cells = environment->getCells();
-    for(auto cell : cells) {
-        // Print boundary vertices:
-        std::cout << "      **** Boundary vertices: " << std::endl;
-        std::vector<Position<CartesianPosition_2D> > boundaryVerts = cell.second.getVector();
-//        environment->printCellInfo(cell.second);
-        int tmpVertCounter = 0;
-        for(auto vertex : boundaryVerts) {
-            tmpVertCounter++;
-            std::cout << "Vertex " << tmpVertCounter << ": (" << vertex.getXPosition() << ", " << vertex.getYPosition() << ")" << std::endl;
-        }
-        std::cout << std::endl << std::endl;
+//    std::map<int, Cell_2DC> cells = environment->getCells();
+//    for(auto cell : cells) {
+//        // Print boundary vertices:
+//        std::cout << "      **** Boundary vertices: " << std::endl;
+//        std::vector<Position<CartesianPosition_2D> > boundaryVerts = cell.second.getVector();
+////        environment->printCellInfo(cell.second);
+//        int tmpVertCounter = 0;
+//        for(auto vertex : boundaryVerts) {
+//            tmpVertCounter++;
+//            std::cout << "Vertex " << tmpVertCounter << ": (" << vertex.getXPosition() << ", " << vertex.getYPosition() << ")" << std::endl;
+//        }
+//        std::cout << std::endl << std::endl;
 
-        m_vehicleBoundaries.insert(std::make_pair(cell.first, boundaryVerts));
-    }
+//        m_vehicleCells.insert(std::make_pair(cell.first, boundaryVerts));
+//    }
 }
 
 void ModuleRTA::NewlyUpdatedGridSpacing() {
     updateEnvironment();
+
+    if(m_globalInstance) {
+        //      b) Publish topic to core with new boundary data
+        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+            ptr->Event_SetVehicleBoundaryVertices(this, m_vehicleCells);
+        });
+    }
 }
 
 void ModuleRTA::NewlyUpdatedGlobalOrigin() {
     updateEnvironment();
+
+    if(m_globalInstance) {
+        //      b) Publish topic to core with new boundary data
+        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+            ptr->Event_SetVehicleBoundaryVertices(this, m_vehicleCells);
+        });
+    }
 }
 
 void ModuleRTA::NewlyUpdatedBoundaryVertices() {
     updateEnvironment();
 
-    //      a) Convert local boundary from RTA module into global
-    std::map<int, std::vector<DataState::StateGlobalPosition> > tmpMap;
-    for(auto vehicle : m_vehicleBoundaries) {
-        std::vector<DataState::StateGlobalPosition> globalPosVec;
-        for(auto point : vehicle.second) {
-            DataState::StateLocalPosition localPos;
-            localPos.setPosition2D(point.getXPosition(), point.getYPosition());
-            DataState::StateGlobalPosition tmpGlobalOrigin;
-            tmpGlobalOrigin.setLatitude(m_globalOrigin->getPosition().getX());
-            tmpGlobalOrigin.setLongitude(m_globalOrigin->getPosition().getY());
-            tmpGlobalOrigin.setAltitude(m_globalOrigin->getPosition().getZ());
-            DataState::StateGlobalPosition globalPos;
-            DataState::PositionalAid::LocalPositionToGlobal(tmpGlobalOrigin, localPos, globalPos);
-            globalPosVec.push_back(globalPos);
-        }
-        tmpMap.insert(std::make_pair(vehicle.first, globalPosVec));
-    }
+//    //      a) Convert local boundary from RTA module into global
+//    std::map<int, std::vector<DataState::StateGlobalPosition> > tmpMap;
+//    for(auto cell : m_vehicleCells) {
+//        std::vector<DataState::StateGlobalPosition> globalPosVec;
+//        std::vector<Position<CartesianPosition_2D> > cartesionPos = cell.second.getVector();
+//        for(auto point : cartesionPos) {
+//            DataState::StateLocalPosition localPos;
+//            localPos.setPosition2D(point.getXPosition(), point.getYPosition());
+//            DataState::StateGlobalPosition tmpGlobalOrigin;
+//            tmpGlobalOrigin.setLatitude(m_globalOrigin->getPosition().getX());
+//            tmpGlobalOrigin.setLongitude(m_globalOrigin->getPosition().getY());
+//            tmpGlobalOrigin.setAltitude(m_globalOrigin->getPosition().getZ());
+//            DataState::StateGlobalPosition globalPos;
+//            DataState::PositionalAid::LocalPositionToGlobal(tmpGlobalOrigin, localPos, globalPos);
+//            globalPosVec.push_back(globalPos);
+//        }
+//        tmpMap.insert(std::make_pair(cell.first, globalPosVec));
+//    }
 
-    //      b) Publish topic to core with new boundary data
-    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-        ptr->Event_SetVehicleBoundaryVertices(this, tmpMap);
-    });
+    if(m_globalInstance) {
+        //      b) Publish topic to core with new boundary data
+        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+            ptr->Event_SetVehicleBoundaryVertices(this, m_vehicleCells);
+        });
+    }
 }
 
 void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
@@ -397,8 +417,8 @@ void ModuleRTA::TestFunction(const int &vehicleID) {
         missionList.insertMissionItem(newWP);
     }
 
-    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr){
-        ptr->GSEvent_UploadMission(this, missionList);
-    });
+//    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr){
+//        ptr->GSEvent_UploadMission(this, missionList);
+//    });
 
 }
