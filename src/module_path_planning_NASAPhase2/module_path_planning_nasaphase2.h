@@ -101,7 +101,7 @@ public:
 
     void NewlyUpdatedGlobalOrigin() override;
 
-    void NewlyUpdateVehicleBoundaries() override;
+    void NewlyUpdatedVehicleCells() override;
 
 public:
     void cbiPlanner_SampledState(const mace::state_space::State* sampleState) override;
@@ -122,7 +122,7 @@ private:
 
     std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
 
-    std::map<int, std::vector<DataState::StateGlobalPosition> > m_vehicleBoundary;
+    std::map<int, mace::geometry::Cell_2DC> m_vehicleBoundary;
 
     std::string m_octomapFilename;
     bool m_project2D;

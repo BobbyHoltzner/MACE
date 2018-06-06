@@ -35,6 +35,7 @@
 
 #include "base/pose/cartesian_position_3D.h"
 #include "base/pose/orientation_3D.h"
+#include "base/geometry/cell_2DC.h"
 
 namespace MaceCore
 {
@@ -160,10 +161,10 @@ public:
         return boundaryVerts;
     }
 
-    std::map<int, std::vector<DataState::StateGlobalPosition> > GetVehicleBoundaryMap() const
+    std::map<int, mace::geometry::Cell_2DC> GetVehicleBoundaryMap() const
     {
         std::lock_guard<std::mutex> guard(m_VehicleBoundaryMutex);
-        std::map<int, std::vector<DataState::StateGlobalPosition> > vehicleMap = m_vehicleBoundaryMap;
+        std::map<int, mace::geometry::Cell_2DC> vehicleMap = m_vehicleCellMap;
         return vehicleMap;
     }
 
@@ -228,9 +229,9 @@ private:
         flagBoundaryVerts = true;
     }
 
-    void UpdateVehicleBoundaryMap(const std::map<int, std::vector<DataState::StateGlobalPosition> > &vehicleMap) {
+    void UpdateVehicleCellMap(const std::map<int, mace::geometry::Cell_2DC> &vehicleMap) {
         std::lock_guard<std::mutex> gaurd(m_VehicleBoundaryMutex);
-        m_vehicleBoundaryMap = vehicleMap;
+        m_vehicleCellMap = vehicleMap;
     }
 
 
@@ -716,7 +717,7 @@ private:
     mutable std::mutex m_EnvironmentBoundaryMutex;
     mutable std::mutex m_VehicleBoundaryMutex;
     std::vector<DataState::StateGlobalPosition> m_BoundaryVerts;
-    std::map<int, std::vector<DataState::StateGlobalPosition> > m_vehicleBoundaryMap;
+    std::map<int, mace::geometry::Cell_2DC> m_vehicleCellMap;
     bool flagBoundaryVerts;
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;

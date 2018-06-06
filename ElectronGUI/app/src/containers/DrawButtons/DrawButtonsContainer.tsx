@@ -15,8 +15,8 @@ const lightMuiTheme = getMuiTheme({
 import * as React from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
 import FontIcon from 'material-ui/FontIcon';
-import Slider from 'material-ui/Slider';
-import IconButton from 'material-ui/IconButton';
+// import Slider from 'material-ui/Slider';
+// import IconButton from 'material-ui/IconButton';
 import { styles } from "./styles";
 
 
@@ -115,11 +115,11 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                     </MuiThemeProvider>
                 </div>
                 <div style={styles.sliderContainer}>
-                    <div style={styles.inlineContainer}>
+                    {/* <div style={styles.inlineContainer}>
                         <p style={styles.textStyle}>Grid spacing: {this.state.sliderVal} meters</p>
                         <IconButton onClick={this.openEnvSettings} style={styles.iconButtonStyle}><i className="material-icons">settings</i></IconButton>
-                    </div>
-                    <MuiThemeProvider muiTheme={lightMuiTheme}>
+                    </div> */}
+                    {/* <MuiThemeProvider muiTheme={lightMuiTheme}>
                         <Slider
                             value={(this.state.sliderVal >= this.props.environmentSettings.minSliderVal && this.state.sliderVal <= this.props.environmentSettings.maxSliderVal) ? this.state.sliderVal : this.state.minSliderVal}
                             defaultValue={(this.props.environmentSettings.gridSpacing >= this.props.environmentSettings.minSliderVal && this.props.environmentSettings.gridSpacing <= this.props.environmentSettings.maxSliderVal) ? this.props.environmentSettings.gridSpacing : this.props.environmentSettings.minSliderVal}
@@ -130,11 +130,11 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                             step={1}
                             sliderStyle={styles.sliderStyle}
                         />
-                    </MuiThemeProvider>
-                    <div style={styles.inlineContainer}>
+                    </MuiThemeProvider> */}
+                    {/* <div style={styles.inlineContainer}>
                         <p style={styles.textStyle}>Min: {this.props.environmentSettings.minSliderVal} m</p>
                         <p style={styles.textStyle}>Max: {this.props.environmentSettings.maxSliderVal} m</p>
-                    </div>
+                    </div> */}
                     {/* <Checkbox
                                     label="Emergency"
                                     labelStyle={{color: textSeverityToColor('EMERGENCY')}}

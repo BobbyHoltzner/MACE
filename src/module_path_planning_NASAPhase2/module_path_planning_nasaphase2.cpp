@@ -264,7 +264,7 @@ void ModulePathPlanningNASAPhase2::NewlyUpdatedGlobalOrigin()
     std::cout << "New global origin received (PP): (" << m_globalOrigin->getPosition().getX() << " , " << m_globalOrigin->getPosition().getY() << ")" << std::endl;
 }
 
-void ModulePathPlanningNASAPhase2::NewlyUpdateVehicleBoundaries()
+void ModulePathPlanningNASAPhase2::NewlyUpdatedVehicleCells()
 {
     m_vehicleBoundary = this->getDataObject()->GetVehicleBoundaryMap();
 

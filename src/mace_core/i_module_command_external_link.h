@@ -49,8 +49,8 @@ public:
         AbstractModule_VehicleListener()
     {
 
-        AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEW_OPERATIONAL_BOUNDARY, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
-            NewlyRequiredOperationalBoundary(vehicleID, sender);
+        AddCommandLogic<int>(ExternalLinkCommands::NEW_OPERATIONAL_BOUNDARY, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            NewOperationalBoundary(vehicleID, sender);
         });
 
         AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender){

@@ -110,7 +110,7 @@ private:
 //    std::string m_vertsStr;
     std::vector<Position<CartesianPosition_2D> > m_boundaryVerts;
     std::map<int, Position<CartesianPosition_2D> > m_vehicles;
-    std::map<int, std::vector<Position<CartesianPosition_2D> > > m_vehicleBoundaries;
+    std::map<int, mace::geometry::Cell_2DC> m_vehicleCells;
 
     // Flags:
     bool m_globalInstance;

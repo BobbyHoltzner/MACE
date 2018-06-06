@@ -12,6 +12,7 @@
 
 #include "mace_core_global.h"
 #include "mace_data.h"
+#include "base/geometry/cell_2DC.h"
 
 #include "i_module_command_external_link.h"
 #include "i_module_command_ground_station.h"
@@ -33,9 +34,10 @@
 
 #include "topic.h"
 
-
 #include "octomap/octomap.h"
 #include "octomap/OcTree.h"
+
+#include "data_generic_state_item/positional_aid.h"
 
 namespace MaceCore
 {
@@ -125,7 +127,7 @@ public:
     //! \param sender
     //! \param boundaryVerts
     //!
-    virtual void Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts);
+    virtual void Event_SetEnvironmentVertices(const ModuleBase *sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts);
 
 public:
 
@@ -183,7 +185,7 @@ public:
     //! \param sender
     //! \param vehicleMap
     //!
-    virtual void Event_SetVehicleBoundaryVertices(const void* sender, const std::map<int, std::vector<DataState::StateGlobalPosition> > &vehicleMap);
+    virtual void Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const std::map<int, mace::geometry::Cell_2DC> &vehicleMap);
 
 public:
 

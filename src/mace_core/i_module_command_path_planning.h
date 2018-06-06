@@ -50,7 +50,7 @@ public:
         AddCommandLogic<int>(PathPlanningCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             UNUSED(vehicleID);
-            NewlyUpdateVehicleBoundaries();
+            NewlyUpdatedVehicleCells();
         });
     }
 
@@ -80,7 +80,7 @@ public:
     //!
     //! \brief NewlyUpdateVehicleBoundaries
     //!
-    virtual void NewlyUpdateVehicleBoundaries() = 0;
+    virtual void NewlyUpdatedVehicleCells() = 0;
 
 //    //!
 //    //! \brief New targets have been assigned to the given vehicle
