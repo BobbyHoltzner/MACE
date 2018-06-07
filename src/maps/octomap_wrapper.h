@@ -20,6 +20,8 @@ class OctomapWrapper
 public:
     OctomapWrapper(const double &treeResolution = 0.05, const OctomapSensorDefinition &sensorProperties = OctomapSensorDefinition());
 
+    ~OctomapWrapper();
+
     bool is2DProjectionEnabled() const;
 
     bool is2DTrackingChanges() const;

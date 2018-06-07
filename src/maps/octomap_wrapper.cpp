@@ -19,6 +19,15 @@ OctomapWrapper::OctomapWrapper(const double &treeResolution, const OctomapSensor
     m_Map = new maps::Data2DGrid<OccupiedResult>(&fillValue);
 }
 
+OctomapWrapper::~OctomapWrapper()
+{
+    delete m_sensorProperties;
+    delete m_projectionProperties;
+
+    delete m_Tree;
+    delete m_Map;
+}
+
 void OctomapWrapper::updateSensorProperties(const OctomapSensorDefinition &sensorProperties)
 {
     m_sensorProperties = new OctomapSensorDefinition(sensorProperties);
