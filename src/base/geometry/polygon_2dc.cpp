@@ -188,5 +188,5 @@ void Polygon_2DC::getCorners(Position<CartesianPosition_2D> &topLeft, Position<C
 
 
 
-}
-}
+} //end of namespace geometry
+} //end of namespace mace

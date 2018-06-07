@@ -55,7 +55,8 @@ HEADERS += \
     base_data_item.h \
     base_module_queue.h \
     actions/action_unsolicited_receive.h \
-    controller_collection.h
+    controller_collection.h \
+    controller_boundary.h
 
 
 # Windows lib install

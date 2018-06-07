@@ -36,10 +36,28 @@ public:
         this->replaceVector(copy.m_vertex);
     }
 
+    void initializePolygon(const unsigned int &size)
+    {
+        if(size <= 0){
+            // TODO-Ken/Pat: Throw a message with exception
+            std::cout << "Cannot initialize queue of 0" << std::endl;
+            throw std::exception();
+        }
+        m_vertex.clear();
+        std::vector<T> tmpVector(size,T());
+        m_vertex = tmpVector;
+        updateBoundingBox();
+    }
+
     void appendVertex(const T &vertex)
     {
         m_vertex.push_back(vertex);
         updateBoundingBox();
+    }
+
+    void insertVertexAtIndex(const T &vertex, const unsigned int &index)
+    {
+        m_vertex[index] = vertex;
     }
 
     void removeVertex(const int &index);
@@ -71,7 +89,21 @@ public:
         return m_vertex;
     }
 
-    T at(const int &index)
+
+    T getVertexAtIndex(const unsigned int &index) const
+    {
+        if(index < m_vertex.size())
+            return nullptr;
+        else
+            m_vertex.at(index);
+    }
+
+//    T at(const int &index)
+//    {
+//        return m_vertex[index];
+//    }
+
+    T at(const int &index) const
     {
         return m_vertex[index];
     }

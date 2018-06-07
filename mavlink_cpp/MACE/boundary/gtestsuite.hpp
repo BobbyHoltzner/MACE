@@ -82,19 +82,20 @@ TEST(boundary_interop, NEW_BOUNDARY_OBJECT)
 }
 #endif
 
-TEST(boundary, ACK_RXBOUNDARY)
+TEST(boundary, BOUNDARY_ACK)
 {
     mavlink::mavlink_message_t msg;
     mavlink::MsgMap map1(msg);
     mavlink::MsgMap map2(msg);
 
-    mavlink::boundary::msg::ACK_RXBOUNDARY packet_in{};
+    mavlink::boundary::msg::BOUNDARY_ACK packet_in{};
     packet_in.boundary_system = 5;
     packet_in.boundary_creator = 72;
     packet_in.boundary_type = 139;
+    packet_in.boundary_result = 206;
 
-    mavlink::boundary::msg::ACK_RXBOUNDARY packet1{};
-    mavlink::boundary::msg::ACK_RXBOUNDARY packet2{};
+    mavlink::boundary::msg::BOUNDARY_ACK packet1{};
+    mavlink::boundary::msg::BOUNDARY_ACK packet2{};
 
     packet1 = packet_in;
 
@@ -109,28 +110,30 @@ TEST(boundary, ACK_RXBOUNDARY)
     EXPECT_EQ(packet1.boundary_system, packet2.boundary_system);
     EXPECT_EQ(packet1.boundary_creator, packet2.boundary_creator);
     EXPECT_EQ(packet1.boundary_type, packet2.boundary_type);
+    EXPECT_EQ(packet1.boundary_result, packet2.boundary_result);
 }
 
 #ifdef TEST_INTEROP
-TEST(boundary_interop, ACK_RXBOUNDARY)
+TEST(boundary_interop, BOUNDARY_ACK)
 {
     mavlink_message_t msg;
 
     // to get nice print
     memset(&msg, 0, sizeof(msg));
 
-    mavlink_ack_rxboundary_t packet_c {
-         5, 72, 139
+    mavlink_boundary_ack_t packet_c {
+         5, 72, 139, 206
     };
 
-    mavlink::boundary::msg::ACK_RXBOUNDARY packet_in{};
+    mavlink::boundary::msg::BOUNDARY_ACK packet_in{};
     packet_in.boundary_system = 5;
     packet_in.boundary_creator = 72;
     packet_in.boundary_type = 139;
+    packet_in.boundary_result = 206;
 
-    mavlink::boundary::msg::ACK_RXBOUNDARY packet2{};
+    mavlink::boundary::msg::BOUNDARY_ACK packet2{};
 
-    mavlink_msg_ack_rxboundary_encode(1, 1, &msg, &packet_c);
+    mavlink_msg_boundary_ack_encode(1, 1, &msg, &packet_c);
 
     // simulate message-handling callback
     [&packet2](const mavlink_message_t *cmsg) {
@@ -142,6 +145,7 @@ TEST(boundary_interop, ACK_RXBOUNDARY)
     EXPECT_EQ(packet_in.boundary_system, packet2.boundary_system);
     EXPECT_EQ(packet_in.boundary_creator, packet2.boundary_creator);
     EXPECT_EQ(packet_in.boundary_type, packet2.boundary_type);
+    EXPECT_EQ(packet_in.boundary_result, packet2.boundary_result);
 
 #ifdef PRINT_MSG
     PRINT_MSG(msg);

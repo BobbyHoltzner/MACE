@@ -125,7 +125,7 @@ public:
                                 const double &x_res = 0.5, const double &y_res = 0.5) override
     {
         //update the underlying size structure
-        BaseGridMap::updateGridSizeByLength(x_length,y_length,x_res,y_res);
+        return BaseGridMap::updateGridSizeByLength(x_length,y_length,x_res,y_res);
     }
 
     //!

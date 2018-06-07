@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 #ifndef MACE_MESSAGE_CRCS
-#define MACE_MESSAGE_CRCS {{130, 154, 3, 0, 0, 0}, {131, 36, 3, 0, 0, 0}, {132, 247, 3, 0, 0, 0}, {133, 168, 5, 0, 0, 0}, {134, 205, 5, 0, 0, 0}, {135, 12, 18, 0, 0, 0}}
+#define MACE_MESSAGE_CRCS {{130, 154, 3, 0, 0, 0}, {131, 47, 4, 0, 0, 0}, {132, 247, 3, 0, 0, 0}, {133, 168, 5, 0, 0, 0}, {134, 205, 5, 0, 0, 0}, {135, 12, 18, 0, 0, 0}}
 #endif
 
 #include "../mace_protocol.h"
@@ -46,6 +46,24 @@ typedef enum BOUNDARY_TYPE
 } BOUNDARY_TYPE;
 #endif
 
+/** @brief result in a mavlink mission ack */
+#ifndef HAVE_ENUM_BOUNDARY_RESULT
+#define HAVE_ENUM_BOUNDARY_RESULT
+typedef enum BOUNDARY_RESULT
+{
+   BOUNDARY_ACCEPTED=0, /* boundary accepted OK | */
+   BOUNDARY_ERROR=1, /* generic error / not accepting mission commands at all right now | */
+   BOUNDARY_UNSUPPORTED_FRAME=2, /* coordinate frame is not supported | */
+   BOUNDARY_UNSUPPORTED=3, /* boundary is not supported | */
+   BOUNDARY_NO_SPACE=4, /* boundary item exceeds storage space | */
+   BOUNDARY_INVALID=5, /* one of the parameters has an invalid value | */
+   BOUNDARY_INVALID_SEQUENCE=6, /* received boundary item out of sequence | */
+   BOUNDARY_DENIED=7, /* not accepting any boundary commands from this communication partner | */
+   BOUNDARY_DOES_NOT_EXIST=15, /* the requested boundary with the associated key does not exist. | */
+   BOUNDARY_RESULT_ENUM_END=16, /*  | */
+} BOUNDARY_RESULT;
+#endif
+
 // MACE VERSION
 
 #ifndef MACE_VERSION
@@ -59,7 +77,7 @@ typedef enum BOUNDARY_TYPE
 
 // MESSAGE DEFINITIONS
 #include "./mace_msg_new_boundary_object.h"
-#include "./mace_msg_ack_rxboundary.h"
+#include "./mace_msg_boundary_ack.h"
 #include "./mace_msg_boundary_request_list.h"
 #include "./mace_msg_boundary_count.h"
 #include "./mace_msg_boundary_request_item.h"
@@ -72,7 +90,7 @@ typedef enum BOUNDARY_TYPE
 #define MACE_THIS_XML_IDX 3
 
 #if MACE_THIS_XML_IDX == MACE_PRIMARY_XML_IDX
-# define MACE_MESSAGE_INFO {MACE_MESSAGE_INFO_NEW_BOUNDARY_OBJECT, MACE_MESSAGE_INFO_ACK_RXBOUNDARY, MACE_MESSAGE_INFO_BOUNDARY_REQUEST_LIST, MACE_MESSAGE_INFO_BOUNDARY_COUNT, MACE_MESSAGE_INFO_BOUNDARY_REQUEST_ITEM, MACE_MESSAGE_INFO_BOUNDARY_ITEM}
+# define MACE_MESSAGE_INFO {MACE_MESSAGE_INFO_NEW_BOUNDARY_OBJECT, MACE_MESSAGE_INFO_BOUNDARY_ACK, MACE_MESSAGE_INFO_BOUNDARY_REQUEST_LIST, MACE_MESSAGE_INFO_BOUNDARY_COUNT, MACE_MESSAGE_INFO_BOUNDARY_REQUEST_ITEM, MACE_MESSAGE_INFO_BOUNDARY_ITEM}
 # if MACE_COMMAND_24BIT
 #  include "../mace_get_info.h"
 # endif

@@ -81,46 +81,47 @@ static void mace_test_new_boundary_object(uint8_t system_id, uint8_t component_i
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
-static void mace_test_ack_rxboundary(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)
+static void mace_test_boundary_ack(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)
 {
 #ifdef MACE_STATUS_FLAG_OUT_MACE1
     mace_status_t *status = mace_get_channel_status(MACE_COMM_0);
-        if ((status->flags & MACE_STATUS_FLAG_OUT_MACE1) && MACE_MSG_ID_ACK_RXBOUNDARY >= 256) {
+        if ((status->flags & MACE_STATUS_FLAG_OUT_MACE1) && MACE_MSG_ID_BOUNDARY_ACK >= 256) {
             return;
         }
 #endif
     mace_message_t msg;
         uint8_t buffer[MACE_MAX_PACKET_LEN];
         uint16_t i;
-    mace_ack_rxboundary_t packet_in = {
-        5,72,139
+    mace_boundary_ack_t packet_in = {
+        5,72,139,206
     };
-    mace_ack_rxboundary_t packet1, packet2;
+    mace_boundary_ack_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
         packet1.boundary_system = packet_in.boundary_system;
         packet1.boundary_creator = packet_in.boundary_creator;
         packet1.boundary_type = packet_in.boundary_type;
+        packet1.boundary_result = packet_in.boundary_result;
         
         
 #ifdef MACE_STATUS_FLAG_OUT_MACE1
         if (status->flags & MACE_STATUS_FLAG_OUT_MACE1) {
            // cope with extensions
-           memset(MACE_MSG_ID_ACK_RXBOUNDARY_MIN_LEN + (char *)&packet1, 0, sizeof(packet1)-MACE_MSG_ID_ACK_RXBOUNDARY_MIN_LEN);
+           memset(MACE_MSG_ID_BOUNDARY_ACK_MIN_LEN + (char *)&packet1, 0, sizeof(packet1)-MACE_MSG_ID_BOUNDARY_ACK_MIN_LEN);
         }
 #endif
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_ack_rxboundary_encode(system_id, component_id, &msg, &packet1);
-    mace_msg_ack_rxboundary_decode(&msg, &packet2);
+    mace_msg_boundary_ack_encode(system_id, component_id, &msg, &packet1);
+    mace_msg_boundary_ack_decode(&msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_ack_rxboundary_pack(system_id, component_id, &msg , packet1.boundary_system , packet1.boundary_creator , packet1.boundary_type );
-    mace_msg_ack_rxboundary_decode(&msg, &packet2);
+    mace_msg_boundary_ack_pack(system_id, component_id, &msg , packet1.boundary_system , packet1.boundary_creator , packet1.boundary_type , packet1.boundary_result );
+    mace_msg_boundary_ack_decode(&msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_ack_rxboundary_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.boundary_system , packet1.boundary_creator , packet1.boundary_type );
-    mace_msg_ack_rxboundary_decode(&msg, &packet2);
+    mace_msg_boundary_ack_pack_chan(system_id, component_id, MACE_COMM_0, &msg , packet1.boundary_system , packet1.boundary_creator , packet1.boundary_type , packet1.boundary_result );
+    mace_msg_boundary_ack_decode(&msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
@@ -128,12 +129,12 @@ static void mace_test_ack_rxboundary(uint8_t system_id, uint8_t component_id, ma
         for (i=0; i<mace_msg_get_send_buffer_length(&msg); i++) {
             comm_send_ch(MACE_COMM_0, buffer[i]);
         }
-    mace_msg_ack_rxboundary_decode(last_msg, &packet2);
+    mace_msg_boundary_ack_decode(last_msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-    mace_msg_ack_rxboundary_send(MACE_COMM_1 , packet1.boundary_system , packet1.boundary_creator , packet1.boundary_type );
-    mace_msg_ack_rxboundary_decode(last_msg, &packet2);
+    mace_msg_boundary_ack_send(MACE_COMM_1 , packet1.boundary_system , packet1.boundary_creator , packet1.boundary_type , packet1.boundary_result );
+    mace_msg_boundary_ack_decode(last_msg, &packet2);
         MACE_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
 
@@ -371,7 +372,7 @@ static void mace_test_boundary_item(uint8_t system_id, uint8_t component_id, mac
 static void mace_test_boundary(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)
 {
     mace_test_new_boundary_object(system_id, component_id, last_msg);
-    mace_test_ack_rxboundary(system_id, component_id, last_msg);
+    mace_test_boundary_ack(system_id, component_id, last_msg);
     mace_test_boundary_request_list(system_id, component_id, last_msg);
     mace_test_boundary_count(system_id, component_id, last_msg);
     mace_test_boundary_request_item(system_id, component_id, last_msg);
