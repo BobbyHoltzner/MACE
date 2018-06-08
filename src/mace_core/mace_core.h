@@ -38,6 +38,10 @@
 #include "octomap/OcTree.h"
 
 #include "data_generic_state_item/positional_aid.h"
+#include "data_generic_command_item/command_item_components.h"
+//#include "data_generic_command_item/boundary_items/boundary_key.h"
+//#include "data_generic_command_item/boundary_items/boundary_type.h"
+//#include "data_generic_command_item/boundary_items/boundary_list.h"
 
 namespace MaceCore
 {
@@ -173,6 +177,8 @@ public:
     virtual void ExternalEvent_RequestingDataSync(const void *sender, const int &targetID);
 
     virtual void ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission);
+
+    virtual void ExternalEvent_FinishedRXBoundaryList(const void *sender, const BoundaryItem::BoundaryList &boundaryList);
 
 public:
 

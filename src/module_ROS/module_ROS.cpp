@@ -548,6 +548,8 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
 
     //
 }
+
+
 void ModuleROS::renderOccupancyMap(const octomap::OcTree* tree)
 {
     if(tree->size() > 0)

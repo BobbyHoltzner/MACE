@@ -54,12 +54,12 @@ ModuleExternalLink::ModuleExternalLink() :
     homeController->setLambda_Finished(FinishedMessage);
     m_Controllers.Add(homeController);
 
-//    auto boundaryController = new Controllers::ControllerBoundary<mace_message_t>(this, queue, m_LinkChan);
-//    boundaryController->setLambda_DataReceived([this](const BoundaryKey &key, const std::shared_ptr<BoundaryList> &list){this->ReceivedBoundary(*list);});
-//    boundaryController->setLambda_FetchDataFromKey([this](const OptionalParameter<BoundaryKey> &key){return this->FetchBoundaryFromKey(key);});
-//    boundaryController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllBoundariesFromModule(module);});
-//    boundaryController->setLambda_Finished(FinishedMessage);
-//    m_Controllers.Add(boundaryController);
+    auto boundaryController = new Controllers::ControllerBoundary<mace_message_t>(this, queue, m_LinkChan);
+    boundaryController->setLambda_DataReceived([this](const BoundaryKey &key, const std::shared_ptr<BoundaryList> &list){this->ReceivedBoundary(*list);});
+    boundaryController->setLambda_FetchDataFromKey([this](const OptionalParameter<BoundaryKey> &key){return this->FetchBoundaryFromKey(key);});
+    boundaryController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllBoundariesFromModule(module);});
+    boundaryController->setLambda_Finished(FinishedMessage);
+    m_Controllers.Add(boundaryController);
 
     auto missionController = new Controllers::ControllerMission<mace_message_t>(this, queue, m_LinkChan);
     missionController->setLambda_DataReceived([this](const MissionKey &key, const std::shared_ptr<MissionList> &list){this->ReceivedMission(*list);});
@@ -246,9 +246,9 @@ void ModuleExternalLink::ReceivedBoundary(const BoundaryList &list)
 {
     std::cout<<"The external link module now has received the entire boundary."<<std::endl;
 
-//    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-//        ptr->ExternalEvent_FinishedRXMissionList(this, list);
-//    });
+    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+        ptr->ExternalEvent_FinishedRXBoundaryList(this, list);
+    });
 }
 
 
@@ -261,9 +261,13 @@ Controllers::DataItem<BoundaryKey, BoundaryList>::FetchKeyReturn ModuleExternalL
 
     Controllers::DataItem<BoundaryKey, BoundaryList>::FetchKeyReturn rtn;
 
-    BoundaryList list;
-//    this->getDataObject()->getMissionList(key(), list);
-//    rtn.push_back(std::make_tuple(key(), list));
+    std::vector<BoundaryItem::BoundaryList> boundaryListVec = this->getDataObject()->GetVehicleBoundaryList();
+    for(auto boundaryList : boundaryListVec) {
+        if(boundaryList.getBoundaryKey() == key()) {
+            rtn.push_back(std::make_tuple(key(), boundaryList));
+        }
+    }
+
     return rtn;
 }
 
@@ -271,45 +275,43 @@ Controllers::DataItem<BoundaryKey, BoundaryList>::FetchModuleReturn ModuleExtern
 {
     Controllers::DataItem<BoundaryKey, BoundaryList>::FetchModuleReturn rtn;
 
-
-//    //Function to fetch missions for given module
-//    auto func = [this, &rtn](MaceCore::ModuleCharacteristic vehicle)
-//    {
-//        //fetch mission
-//        BoundaryList currentBoundary;
-//        bool exists = this->getDataObject()->getCurrentMission(vehicle.ID, currentBoundary);
-
-//        //if exists append, if it doesn't append empty
-//        if(exists)
-//        {
-//            BoundaryKey key = currentBoundary.getBoundaryKey();
-//            std::vector<std::tuple<MissionKey, MissionList>> vec = {};
-//            vec.push_back(std::make_tuple(key, currentMission));
-//            std::tuple<MaceCore::ModuleCharacteristic, std::vector<std::tuple<MissionKey, MissionList>>> tmp = std::make_tuple(vehicle, vec);
-//            rtn.push_back(tmp);
-//        }
-//        else
-//        {
-//            rtn.push_back(std::make_tuple(vehicle, std::vector<std::tuple<BoundaryKey, BoundaryList>>()));
-//        }
-//    };
+    //Function to fetch missions for given module
+    auto func = [this, &rtn](MaceCore::ModuleCharacteristic vehicle)
+    {
+        std::vector<BoundaryItem::BoundaryList> boundaryListVec = this->getDataObject()->GetVehicleBoundaryList();
+        for(auto boundaryList : boundaryListVec) {
+            //if exists append, if it doesn't append empty
+            if(vehicle.ID == boundaryList.getBoundaryKey().m_creatorID)
+            {
+                BoundaryKey key = boundaryList.getBoundaryKey();
+                std::vector<std::tuple<BoundaryKey, BoundaryList>> vec = {};
+                vec.push_back(std::make_tuple(key, boundaryList));
+                std::tuple<MaceCore::ModuleCharacteristic, std::vector<std::tuple<BoundaryKey, BoundaryList>>> tmp = std::make_tuple(vehicle, vec);
+                rtn.push_back(tmp);
+            }
+            else
+            {
+                rtn.push_back(std::make_tuple(vehicle, std::vector<std::tuple<BoundaryKey, BoundaryList>>()));
+            }
+        }
+    };
 
 
-//    //if no module is given then fetch all
-//    if(module.IsSet() == false || module().ID == 0)
-//    {
-//        std::vector<int> vehicles;
-//        this->getDataObject()->GetLocalVehicles(vehicles);
-//        for(auto it = vehicles.cbegin() ; it != vehicles.cend() ; ++it) {
-//            MaceCore::ModuleCharacteristic vehicle;
-//            vehicle.ID = *it;
-//            vehicle.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-//            func(vehicle);
-//        }
-//    }
-//    else {
-//        func(module());
-//    }
+    //if no module is given then fetch all
+    if(module.IsSet() == false || module().ID == 0)
+    {
+        std::vector<int> vehicles;
+        this->getDataObject()->GetLocalVehicles(vehicles);
+        for(auto it = vehicles.cbegin() ; it != vehicles.cend() ; ++it) {
+            MaceCore::ModuleCharacteristic vehicle;
+            vehicle.ID = *it;
+            vehicle.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            func(vehicle);
+        }
+    }
+    else {
+        func(module());
+    }
 
 
     return rtn;
@@ -834,16 +836,23 @@ void ModuleExternalLink::Command_ClearOnboardGuided(const int &targetSystem)
     UNUSED(targetSystem);
 }
 
-void ModuleExternalLink::NewOperationalBoundary(const int &senderID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
+void ModuleExternalLink::NewOperationalBoundary(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    //we have to packetize the mission
-    //generate the datatype
-    //mace_operational_boundary boundary;
-    //boundary.mission_system = senderID;
+    std::vector<BoundaryItem::BoundaryList> boundaryList = this->getDataObject()->GetVehicleBoundaryList();
+    // TODO: @Ken - Do we want send boundary for every vehicle in the list? Or do we use the senderID here to only send that vehicle's boundary?
+    for(auto boundary : boundaryList) {
+        if(vehicleID == boundary.getVehicleID()){
+            mace_new_boundary_object_t boundaryObj;
+            boundaryObj.boundary_creator = boundary.getBoundaryKey().m_creatorID;
+            boundaryObj.boundary_system = boundary.getBoundaryKey().m_systemID; // Is this correct?
+            boundaryObj.boundary_type = (uint8_t)boundary.getBoundaryKey().m_boundaryType;
 
-    mace_message_t msg;
-    //mace_msg_operational_boundary(sender().ID, (int)sender().Class, m_LinkChan,&msg,&boundary);
-    m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+            mace_message_t msg;
+            mace_msg_new_boundary_object_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &boundaryObj);
+            //mace_msg_operational_boundary(sender().ID, (int)sender().Class, m_LinkChan,&msg,&boundary);
+            m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+        }
+    }
 }
 
 void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)

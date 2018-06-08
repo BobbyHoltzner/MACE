@@ -67,8 +67,16 @@ public:
         this->boundaryKey.m_boundaryType = boundaryType;
     }
 
-    BOUNDARYTYPE getMissionType() const{
+    BOUNDARYTYPE getBoundaryType() const{
         return this->boundaryKey.m_boundaryType;
+    }
+
+    mace::geometry::Polygon_2DC getBoundary() {
+        return boundingPolygon;
+    }
+
+    void setBoundary(const mace::geometry::Polygon_2DC &boundary) {
+        boundingPolygon = boundary;
     }
 
 public:

@@ -445,10 +445,11 @@ void MaceCore::Event_SetEnvironmentVertices(const ModuleBase *sender, const std:
     }
 }
 
+
 void MaceCore::Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const std::map<int, mace::geometry::Cell_2DC> &vehicleMap) {
-    UNUSED(sender);
     m_DataFusion->UpdateVehicleCellMap(vehicleMap);
 
+    std::vector<BoundaryItem::BoundaryList> boundaryList;
     std::map<int, mace::geometry::Cell_2DC>::const_iterator it = vehicleMap.begin();
     for(; it!=vehicleMap.end(); ++it)
     {
@@ -459,10 +460,15 @@ void MaceCore::Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const 
             if(externalLinkIT != m_ExternalLinkIDToPort.end()) //that mean this exists and there is an external link talking to that ID
             {
                 IModuleCommandExternalLink* externalModule = externalLinkIT->second;
-                externalModule->MarshalCommand(ExternalLinkCommands::NEW_OPERATIONAL_BOUNDARY);
+                externalModule->MarshalCommand(ExternalLinkCommands::NEW_OPERATIONAL_BOUNDARY, it->first);
             }
             else //check the local map or could assume an else coniditon
             {
+                BoundaryItem::BoundaryList tmpList;
+                tmpList.setCreatorID(sender->GetID()); // Is this correct?
+                tmpList.setVehicleID(it->first);
+                mace::geometry::Cell_2DC tmp;
+                mace::geometry::Polygon_2DC tmpPoly;
                 std::vector<mace::geometry::Position<mace::geometry::CartesianPosition_2D> > cartesianVerts = it->second.getVector();
                 std::vector<DataState::StateGlobalPosition> globalVerts;
                 for(auto&& vertex : cartesianVerts) {
@@ -484,7 +490,12 @@ void MaceCore::Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const 
                     else {
                         std::cout << "No global origin set. Cannot set vehicle boundary vertices." << std::endl;
                     }
+
+                    tmpPoly.appendVertex(vertex);
                 }
+
+                tmpList.setBoundary(tmpPoly);
+                boundaryList.push_back(tmpList);
 
                 if(globalVerts.size() > 0) {
                     Event_SetEnvironmentVertices(sender, globalVerts);
@@ -494,6 +505,10 @@ void MaceCore::Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const 
             }
         }
     }
+
+
+    m_DataFusion->UpdateVehicleBoundaryList(boundaryList);
+
 
     if(m_PathPlanning) {
         m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, 0);
@@ -761,6 +776,25 @@ void MaceCore::ExternalEvent_FinishedRXMissionList(const void *sender, const Mis
     {
         int vehicleID = missionList.getVehicleID();
         MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, missionList);
+    }
+}
+
+void MaceCore::ExternalEvent_FinishedRXBoundaryList(const void *sender, const BoundaryItem::BoundaryList &boundaryList)
+{
+    UNUSED(sender);
+    BoundaryItem::BOUNDARYTYPE type = boundaryList.getBoundaryType();
+    BoundaryItem::BoundaryKey key = boundaryList.getBoundaryKey();
+
+    std::cout << "External event finished RX boundary list" << std::endl;
+
+//    m_DataFusion->receivedNewBoundaryList(boundaryList);
+
+    if(m_PathPlanning) {
+        // Marshal command for new boundary list
+    }
+
+    if(m_RTA) {
+        // Marshal command for new boundary list
     }
 }
 

@@ -168,6 +168,13 @@ public:
         return vehicleMap;
     }
 
+    std::vector<BoundaryItem::BoundaryList> GetVehicleBoundaryList() const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleBoundaryMutex);
+        std::vector<BoundaryItem::BoundaryList> boundaryList = m_vehicleBoundaryList;
+        return boundaryList;
+    }
+
 private:
 
     void AddAvailableVehicle(const int &vehicleID, bool internal)
@@ -234,6 +241,10 @@ private:
         m_vehicleCellMap = vehicleMap;
     }
 
+    void UpdateVehicleBoundaryList(const std::vector<BoundaryItem::BoundaryList> &boundaryList) {
+        std::lock_guard<std::mutex> gaurd(m_VehicleBoundaryMutex);
+        m_vehicleBoundaryList = boundaryList;
+    }
 
 
     void RemoveVehicle(const std::string &rn)
@@ -718,6 +729,7 @@ private:
     mutable std::mutex m_VehicleBoundaryMutex;
     std::vector<DataState::StateGlobalPosition> m_BoundaryVerts;
     std::map<int, mace::geometry::Cell_2DC> m_vehicleCellMap;
+    std::vector<BoundaryItem::BoundaryList> m_vehicleBoundaryList;
     bool flagBoundaryVerts;
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;

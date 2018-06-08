@@ -9,6 +9,7 @@
 #include "mace_core/i_module_command_RTA.h"
 
 #include "data_generic_state_item_topic/state_topic_components.h"
+#include "data_generic_command_item/command_item_components.h"
 #include "data_vehicle_sensors/components.h"
 #include "data_generic_state_item/positional_aid.h"
 
@@ -116,6 +117,7 @@ private:
     bool m_globalInstance;
     bool gridSpacingSent;
     bool environmentBoundarySent;
+
 };
 
 #endif // MODULE_RTA_H
