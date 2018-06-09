@@ -940,6 +940,15 @@ void MaceCore::ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>
 /////////////////////////////////////////////////////////////////////////
 /// SENSOR MODULE EVENTS
 /////////////////////////////////////////////////////////////////////////
+
+void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud &obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position)
+{
+    octomap::Pointcloud copyObj = obj;
+    m_DataFusion->insertGlobalObservation(copyObj, position);
+    if(m_ROS)
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_UPDATED_3D_OCCUPANCY_MAP, 0); // TODO: Parse for vehicle ID
+}
+
 void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud &obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position, const mace::pose::Orientation_3D &orientation)
 {
     octomap::Pointcloud copyObj = obj;

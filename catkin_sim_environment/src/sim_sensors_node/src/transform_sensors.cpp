@@ -19,7 +19,7 @@ TransformSensors::TransformSensors(std::string modelName) : modelName(modelName)
  */
 void TransformSensors::setupPublishers()
 {
-    pointCloudPub_laserScan = nh.advertise<sensor_msgs::PointCloud2>("/MACE/" + modelName + "/scan/cloud", 1000);
+    pointCloudPub_laserScan = nh.advertise<sensor_msgs::PointCloud2>("/MACE/" + modelName + "/scan/cloud_global", 1000);
     pointCloudPub_kinect = nh.advertise<sensor_msgs::PointCloud2>("/MACE/" + modelName + "/kinect/depth/points", 1000);
     // laserScanPub = nh.advertise<sensor_msgs::LaserScan>("/MACE/" + modelName + "/scan", 1000);
 }
@@ -30,9 +30,10 @@ void TransformSensors::setupPublishers()
 void TransformSensors::laserCallback(const sensor_msgs::LaserScan::ConstPtr &msg)
 {
     sensor_msgs::PointCloud2 cloud;
-    std::string modelName = msg->header.frame_id;
-    modelName = modelName.substr(0, modelName.find("/"));
-    std::string transformFrame = modelName + "/base_link";
+    //std::string modelName = msg->header.frame_id;
+    //modelName = modelName.substr(0, modelName.find("/"));
+    //std::string transformFrame = modelName + "/base_link";
+    std::string transformFrame = "world";
     m_projector->transformLaserScanToPointCloud(transformFrame, *msg, cloud, *m_tfBuffer);
 
     std::cout << "__Frames__" << std::endl;

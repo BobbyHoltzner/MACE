@@ -581,10 +581,16 @@ public:
         func(m_ResourceMap);
     }
 
+    void insertGlobalObservation(octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
+        m_OctomapWrapper->updateFromPointCloud(&obj, position);
+    }
+
     void insertObservation(octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position, const mace::pose::Orientation_3D &orientation)
     {
         std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
-        m_OctomapWrapper->updateFromLaserScan(&obj, position, orientation);
+        m_OctomapWrapper->updateFromPointCloud(&obj, position, orientation);
         //m_OctomapWrapper->updateFromPointCloud(&obj);
         // TODO: Test insert and origin point. We'll have to ensure a (0,0,0) origin works, or we'll have to calculate the sensor origin as it moves
         //          - One option is instead of transforming to the world frame, we can pass in a sensor origin AND frame origin point, and the

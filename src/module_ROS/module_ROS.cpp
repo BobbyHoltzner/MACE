@@ -27,7 +27,7 @@ ModuleROS::ModuleROS() :
     m_VehicleDataTopic("vehicleData"),
     m_MapTopic("mappingData")
 {
-    m_tfListener = std::make_shared<tf2_ros::TransformListener>(m_tfBuffer);
+    //m_tfListener = std::make_shared<tf2_ros::TransformListener>(m_tfBuffer);
 }
 
 ModuleROS::~ModuleROS() {
@@ -314,19 +314,23 @@ void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
 
         for(auto sensor : m_sensors) {
             std::string sensorType = std::get<1>(sensor);
-            ros::Subscriber tmpSub;
+
             if(sensorType == "lidar_scan") {
-                tmpSub = nh.subscribe("MACE/" + modelName + "/scan/cloud", 500, &ModuleROS::newPointCloud, this);
+                ros::Subscriber tmpSub_global;
+                tmpSub_global = nh.subscribe("MACE/" + modelName + "/scan/cloud_global", 500, &ModuleROS::newGlobalPointCloud, this);
+                vehicleSensors.push_back(tmpSub_global);
+
             }
             else if(sensorType == "lidar_flash") {
                 std::cout << "In if lidar_scan for model: " << modelName << std::endl;
+                ros::Subscriber tmpSub;
                 tmpSub = nh.subscribe <sensor_msgs::PointCloud2> ("MACE/" + modelName + "/kinect/depth/points", 1000, &ModuleROS::newPointCloud, this);
+                vehicleSensors.push_back(tmpSub);
             }
             else if(sensorType == "camera") {
                 // TODO
             }
             // Add sensor to list:
-            vehicleSensors.push_back(tmpSub);
         }
         // Add sensor list to sensor map:
         m_sensorVehicleMap.insert(std::make_pair(vehicleID, vehicleSensors));
@@ -406,61 +410,61 @@ void ModuleROS::setupROS() {
 
     // TESTING:
     cloudInPub = nh.advertise<sensor_msgs::PointCloud2>("cloud_in", 50);
-    compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",1);
-    occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",1);
+    compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",10);
+    occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",10);
     // END TESTING
-    markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",0);
+    markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",10);
 
     // %Tag(MARKER_INIT)%
-            points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = path_list.header.frame_id;
-            points.header.stamp = line_strip.header.stamp = line_list.header.stamp = path_list.header.stamp = ros::Time::now();
-            points.ns = line_strip.ns = line_list.ns =  path_list.ns = "points_and_lines";
-            points.action = line_strip.action = line_list.action = path_list.action = visualization_msgs::Marker::ADD;
-            points.pose.orientation.w = line_strip.pose.orientation.w = line_list.pose.orientation.w = path_list.pose.orientation.w = 1.0;
-        // %EndTag(MARKER_INIT)%
+    points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = path_list.header.frame_id;
+    points.header.stamp = line_strip.header.stamp = line_list.header.stamp = path_list.header.stamp = ros::Time::now();
+    points.ns = line_strip.ns = line_list.ns =  path_list.ns = "points_and_lines";
+    points.action = line_strip.action = line_list.action = path_list.action = visualization_msgs::Marker::ADD;
+    points.pose.orientation.w = line_strip.pose.orientation.w = line_list.pose.orientation.w = path_list.pose.orientation.w = 1.0;
+    // %EndTag(MARKER_INIT)%
 
-        // %Tag(ID)%
-            points.id = 0;
-            line_strip.id = 1;
-            line_list.id = 2;
-            path_list.id = 3;
-        // %EndTag(ID)%
+    // %Tag(ID)%
+    points.id = 0;
+    line_strip.id = 1;
+    line_list.id = 2;
+    path_list.id = 3;
+    // %EndTag(ID)%
 
-        // %Tag(TYPE)%
-            points.type = visualization_msgs::Marker::POINTS;
-            line_strip.type = visualization_msgs::Marker::LINE_STRIP;
-            line_list.type = visualization_msgs::Marker::LINE_LIST;
-            path_list.type = visualization_msgs::Marker::LINE_LIST;
+    // %Tag(TYPE)%
+    points.type = visualization_msgs::Marker::POINTS;
+    line_strip.type = visualization_msgs::Marker::LINE_STRIP;
+    line_list.type = visualization_msgs::Marker::LINE_LIST;
+    path_list.type = visualization_msgs::Marker::LINE_LIST;
 
-        // %EndTag(TYPE)%
+    // %EndTag(TYPE)%
 
-        // %Tag(SCALE)%
-            // POINTS markers use x and y scale for width/height respectively
-            points.scale.x = 0.1;
-            points.scale.y = 0.1;
+    // %Tag(SCALE)%
+    // POINTS markers use x and y scale for width/height respectively
+    points.scale.x = 0.1;
+    points.scale.y = 0.1;
 
-            // LINE_STRIP/LINE_LIST markers use only the x component of scale, for the line width
-            line_strip.scale.x = 0.05;
-            line_list.scale.x = 0.05;
-            path_list.scale.x = 0.05;
-        // %EndTag(SCALE)%
+    // LINE_STRIP/LINE_LIST markers use only the x component of scale, for the line width
+    line_strip.scale.x = 0.05;
+    line_list.scale.x = 0.05;
+    path_list.scale.x = 0.05;
+    // %EndTag(SCALE)%
 
-        // %Tag(COLOR)%
-            // Points are green
-            points.color.g = 1.0f;
-            points.color.a = 1.0;
+    // %Tag(COLOR)%
+    // Points are green
+    points.color.g = 1.0f;
+    points.color.a = 1.0;
 
-            // Line strip is blue
-            line_strip.color.b = 1.0;
-            line_strip.color.a = 1.0;
+    // Line strip is blue
+    line_strip.color.b = 1.0;
+    line_strip.color.a = 1.0;
 
-            // Line list is red
-            line_list.color.r = 1.0;
-            line_list.color.a = 1.0;
-            // Path list is blue
-            path_list.color.b= 1.0;
-            path_list.color.a = 1.0;
-        // %EndTag(COLOR)%
+    // Line list is red
+    line_list.color.r = 1.0;
+    line_list.color.a = 1.0;
+    // Path list is blue
+    path_list.color.b= 1.0;
+    path_list.color.a = 1.0;
+    // %EndTag(COLOR)%
 
     ros::spinOnce();
 }
@@ -497,40 +501,58 @@ void ModuleROS::newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan cons
     std::cout << "  Loop range min: " << minDistance << std::endl;
 }
 
-//!
-//! \brief newPointCloud Point cloud callback for ROS PointCloud2 message
-//! \param msg PointCloud2 message
-//!
 void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     // Convert to Octomap Point Cloud:
     octomap::Pointcloud octoPointCloud;
     octomap::pointCloud2ToOctomap(*msg, octoPointCloud);
-
     // TODO: Send converted point cloud to MACE core so path planning can take over.
 
     /*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         }); *///this is a general publication event, however, no one knows explicitly how to handle
 
+    tf::StampedTransform sensorToWorldTf;
+    Eigen::Matrix4f sensorToWorld;
+
+    try {
+      m_tfListener.lookupTransform("world",msg->header.frame_id, msg->header.stamp, sensorToWorldTf);
+
+      double mv[12];
+      sensorToWorldTf.getBasis().getOpenGLSubMatrix(mv);
+      tf::Vector3 origin = sensorToWorldTf.getOrigin();
+
+      sensorToWorld (0, 0) = mv[0]; sensorToWorld (0, 1) = mv[4]; sensorToWorld (0, 2) = mv[8];
+      sensorToWorld (1, 0) = mv[1]; sensorToWorld (1, 1) = mv[5]; sensorToWorld (1, 2) = mv[9];
+      sensorToWorld (2, 0) = mv[2]; sensorToWorld (2, 1) = mv[6]; sensorToWorld (2, 2) = mv[10];
+
+      sensorToWorld (3, 0) = sensorToWorld (3, 1) = sensorToWorld (3, 2) = 0; sensorToWorld (3, 3) = 1;
+      sensorToWorld (0, 3) = origin.x ();
+      sensorToWorld (1, 3) = origin.y ();
+      sensorToWorld (2, 3) = origin.z ();
+
+    } catch(tf::TransformException& ex){
+      ROS_ERROR_STREAM( "Transform error of sensor data: " << ex.what() << ", quitting callback");
+      return;
+    }
+
     // Lookup transform, set into MACE data structures, and publish along with octomap point cloud
     geometry_msgs::TransformStamped transform;
     try{
-        transform = m_tfBuffer.lookupTransform("world", msg->header.frame_id, ros::Time(0));
+        transform = m_tfBuffer.lookupTransform("world",msg->header.frame_id, msg->header.stamp);
     }
     catch (tf::TransformException ex){
         ROS_ERROR("%s",ex.what());
     }
     mace::pose::Position<mace::pose::CartesianPosition_3D> transform_position;
-    transform_position.setXPosition(transform.transform.translation.x);
-    transform_position.setYPosition(transform.transform.translation.y);
-    transform_position.setZPosition(transform.transform.translation.z);
+    transform_position.setXPosition(sensorToWorld (0, 3));
+    transform_position.setYPosition(sensorToWorld (1, 3));
+    transform_position.setZPosition(sensorToWorld (2, 3));
     mace::pose::Orientation_3D transform_orientation;
     // Get RPY from quaternion
     double roll, pitch, yaw;
     tf::Quaternion quat(transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z, transform.transform.rotation.w);
     tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
     transform_orientation.setEuler(roll, pitch, yaw);
-
     // TODO: Make this NotifyListeners method name better -- this is directly to Mace core
     ModuleROS::NotifyListeners([&](MaceCore::IModuleEventsROS* ptr){
         ptr->ROS_NewLaserScan(octoPointCloud, transform_position, transform_orientation); // TODO: Include transform as arguments (convert to MACE data structures first - Orientation 3D)
@@ -547,6 +569,49 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     cloudInPub.publish(msg);
 
     //
+}
+
+//!
+//! \brief newPointCloud Point cloud callback for ROS PointCloud2 message
+//! \param msg PointCloud2 message
+//!
+void ModuleROS::newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
+    // Convert to Octomap Point Cloud:
+    octomap::Pointcloud octoPointCloud;
+    octomap::pointCloud2ToOctomap(*msg, octoPointCloud);
+
+    tf::StampedTransform worldToSensorTF;
+    Eigen::Matrix4f worldToSensor;
+
+    try {
+      m_tfListener.lookupTransform(msg->header.frame_id, "basic_quadrotor_1/base_link", msg->header.stamp, worldToSensorTF);
+
+      double mv[12];
+      worldToSensorTF.getBasis().getOpenGLSubMatrix(mv);
+      tf::Vector3 origin = worldToSensorTF.getOrigin();
+
+      worldToSensor (0, 0) = mv[0]; worldToSensor (0, 1) = mv[4]; worldToSensor (0, 2) = mv[8];
+      worldToSensor (1, 0) = mv[1]; worldToSensor (1, 1) = mv[5]; worldToSensor (1, 2) = mv[9];
+      worldToSensor (2, 0) = mv[2]; worldToSensor (2, 1) = mv[6]; worldToSensor (2, 2) = mv[10];
+
+      worldToSensor (3, 0) = worldToSensor (3, 1) = worldToSensor (3, 2) = 0; worldToSensor (3, 3) = 1;
+      worldToSensor (0, 3) = origin.x ();
+      worldToSensor (1, 3) = origin.y ();
+      worldToSensor (2, 3) = origin.z ();
+
+    } catch(tf::TransformException& ex){
+      ROS_ERROR_STREAM( "Transform error of sensor data: " << ex.what() << ", quitting callback");
+      return;
+    }
+
+    mace::pose::Position<mace::pose::CartesianPosition_3D> transform_position;
+    transform_position.setXPosition(worldToSensor (0, 3));
+    transform_position.setYPosition(worldToSensor (1, 3));
+    transform_position.setZPosition(worldToSensor (2, 3));
+    // TODO: Make this NotifyListeners method name better -- this is directly to Mace core
+    ModuleROS::NotifyListeners([&](MaceCore::IModuleEventsROS* ptr){
+        ptr->ROS_NewLaserScan(octoPointCloud, transform_position); // TODO: Include transform as arguments (convert to MACE data structures first - Orientation 3D)
+    }); //this one explicitly calls mace_core and its up to you to handle in core
 }
 
 
@@ -630,7 +695,7 @@ std_msgs::ColorRGBA ModuleROS::generateColorHeight(double height)
 {
     std_msgs::ColorRGBA color;
     color.a = 1.0;
-//    // blend over HSV-values (more colors)
+    //    // blend over HSV-values (more colors)
 
     double s = 1.0;
     double v = 1.0;
@@ -643,31 +708,31 @@ std_msgs::ColorRGBA ModuleROS::generateColorHeight(double height)
     i = floor(height);
     f = height - i;
     if (!(i & 1))
-      f = 1 - f; // if i is even
+        f = 1 - f; // if i is even
     m = v * (1 - s);
     n = v * (1 - s * f);
 
     switch (i) {
-      case 6:
-      case 0:
+    case 6:
+    case 0:
         color.r = v; color.g = n; color.b = m;
         break;
-      case 1:
+    case 1:
         color.r = n; color.g = v; color.b = m;
         break;
-      case 2:
+    case 2:
         color.r = m; color.g = v; color.b = n;
         break;
-      case 3:
+    case 3:
         color.r = m; color.g = n; color.b = v;
         break;
-      case 4:
+    case 4:
         color.r = n; color.g = m; color.b = v;
         break;
-      case 5:
+    case 5:
         color.r = v; color.g = m; color.b = n;
         break;
-      default:
+    default:
         color.r = 1; color.g = 0.5; color.b = 0.5;
         break;
     }

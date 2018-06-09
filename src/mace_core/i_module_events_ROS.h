@@ -13,6 +13,7 @@ class IModuleEventsROS  : public IModuleEventsGeneral
 {
 
 public:
+    virtual void ROS_NewLaserScan(const octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D>& position) = 0;
     virtual void ROS_NewLaserScan(const octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D>& position, const mace::pose::Orientation_3D& orientation) = 0;
 
 };

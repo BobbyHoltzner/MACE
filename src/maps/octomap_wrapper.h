@@ -34,9 +34,9 @@ public:
 
     void updateSensorProperties(const OctomapSensorDefinition &sensorProperties);
 
+    void updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position);
 
-
-    void updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position = mace::pose::Position<mace::pose::CartesianPosition_3D>() , const mace::pose::Orientation_3D &orientation = mace::pose::Orientation_3D());
+    void updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position, const mace::pose::Orientation_3D &orientation);
 
     void updateFromLaserScan(octomap::Pointcloud* pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position = mace::pose::Position<mace::pose::CartesianPosition_3D>(), const mace::pose::Orientation_3D &orientation = mace::pose::Orientation_3D());
 
