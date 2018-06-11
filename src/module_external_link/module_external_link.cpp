@@ -35,69 +35,11 @@ ModuleExternalLink::ModuleExternalLink() :
 
     Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mace_message_t>(2000, 3);
 
-
-
-
-
-    /*
-     * In development modification that was accidently merged in.
-    auto controller_SystemMode2 = new ModuleGenericMavlink::MAVLINKControllers::GenericControllerSetRequestRespond<
-            mace_message_t,
-            MaceCore::TopicDatagram,
-            mace_command_system_mode_t,
-            mace_system_mode_ack_t,
-            MACE_MSG_ID_COMMAND_SYSTEM_MODE,
-            MACE_MSG_ID_SYSTEM_MODE_ACK
-            >
-            (this, queue, m_LinkChan,
-                mace_msg_command_system_mode_encode_chan,
-                mace_msg_command_system_mode_decode,
-                mace_msg_system_mode_ack_encode_chan,
-                mace_msg_system_mode_ack_decode
-            );
-    controller_SystemMode2->FillSetObject([this](const MaceCore::TopicDatagram &commandItem, const MaceCore::ModuleCharacteristic &target, mace_command_system_mode_t &cmd)
-    {
-        std::shared_ptr<Data::TopicComponents::String> component = std::make_shared<Data::TopicComponents::String>();
-        this->m_VehicleTopics.m_CommandSystemMode.GetComponent(commandItem, component);
-
-        strcpy(cmd.mode, component->Str().c_str());
-        cmd.target_system = target.ID;
-    });
-    controller_SystemMode2->FillDataAndAck([this](const mace_command_system_mode_t &msg, std::shared_ptr<MaceCore::TopicDatagram> &data, mace_system_mode_ack_t &ack){
-
-        std::shared_ptr<Data::TopicComponents::String> component = std::make_shared<Data::TopicComponents::String>(std::string(msg.mode));
-
-        data = std::make_shared<MaceCore::TopicDatagram>();
-        this->m_VehicleTopics.m_CommandSystemMode.SetComponent(component, *data);
-
-        ack.result = (uint8_t)Data::CommandACKType::CA_RECEIVED;
-    });
-    controller_SystemMode2->setLambda_Finished(FinishedMessage);
-    controller_SystemMode2->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<MaceCore::TopicDatagram> &command){
-        ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-            ptr->NewTopicDataValues(this, this->m_VehicleTopics.m_CommandSystemMode.Name(), sender, MaceCore::TIME(), *command);
-        });
-    });
-    m_TopicToControllers.insert({this->m_VehicleTopics.m_CommandSystemMode.Name(), controller_SystemMode2});
-    */
-
-
-
-
-
-    //auto externalLink = new ExternalLink::MissionController(this, queue, m_LinkChan);
-    //externalLink->setLambda_DataReceived([this](const MissionKey &key, const std::shared_ptr<MissionList> &list){this->ReceivedMission(*list);});
-    //externalLink->setLambda_FetchDataFromKey([this](const OptionalParameter<MissionKey> &key){return this->FetchMissionFromKey(key);});
-    //externalLink->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllMissionFromModule(module);});
-    //m_Controllers.Add(externalLink);
-
-
     m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandLand<mace_message_t>>(this, queue, m_LinkChan));
     m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandTakeoff<mace_message_t>>(this, queue, m_LinkChan));
     m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandARM<mace_message_t>>(this, queue, m_LinkChan));
     m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandRTL<mace_message_t>>(this, queue, m_LinkChan));
     m_Controllers.Add(Helper_CreateAndSetUp<Controllers::CommandMissionItem<mace_message_t>>(this, queue, m_LinkChan));
-
 
     auto controller_SystemMode = new Controllers::ControllerSystemMode<mace_message_t>(this, queue, m_LinkChan);
     controller_SystemMode->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){this->ReceivedCommand(sender, command);});
@@ -112,6 +54,12 @@ ModuleExternalLink::ModuleExternalLink() :
     homeController->setLambda_Finished(FinishedMessage);
     m_Controllers.Add(homeController);
 
+    auto boundaryController = new Controllers::ControllerBoundary<mace_message_t>(this, queue, m_LinkChan);
+    boundaryController->setLambda_DataReceived([this](const BoundaryKey &key, const std::shared_ptr<BoundaryList> &list){this->ReceivedBoundary(*list);});
+    boundaryController->setLambda_FetchDataFromKey([this](const OptionalParameter<BoundaryKey> &key){return this->FetchBoundaryFromKey(key);});
+    boundaryController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllBoundariesFromModule(module);});
+    boundaryController->setLambda_Finished(FinishedMessage);
+    m_Controllers.Add(boundaryController);
 
     auto missionController = new Controllers::ControllerMission<mace_message_t>(this, queue, m_LinkChan);
     missionController->setLambda_DataReceived([this](const MissionKey &key, const std::shared_ptr<MissionList> &list){this->ReceivedMission(*list);});
@@ -289,6 +237,90 @@ void ModuleExternalLink::cbiHeartbeatController_transmitCommand(const mace_heart
     TransmitMessage(msg);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////
+/// The following are related to the Boundary Items
+///////////////////////////////////////////////////////////////////////////////////////
+
+void ModuleExternalLink::ReceivedBoundary(const BoundaryList &list)
+{
+    std::cout<<"The external link module now has received the entire boundary."<<std::endl;
+
+    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+        ptr->ExternalEvent_FinishedRXBoundaryList(this, list);
+    });
+}
+
+
+Controllers::DataItem<BoundaryKey, BoundaryList>::FetchKeyReturn ModuleExternalLink::FetchBoundaryFromKey(const OptionalParameter<BoundaryKey> &key)
+{
+    if(key.IsSet() == false)
+    {
+        throw std::runtime_error("Key not set in FetchBoundaryFromKey function");
+    }
+
+    Controllers::DataItem<BoundaryKey, BoundaryList>::FetchKeyReturn rtn;
+
+    std::vector<BoundaryItem::BoundaryList> boundaryListVec = this->getDataObject()->GetVehicleBoundaryList();
+    for(auto boundaryList : boundaryListVec) {
+        if(boundaryList.getBoundaryKey() == key()) {
+            rtn.push_back(std::make_tuple(key(), boundaryList));
+        }
+    }
+
+    return rtn;
+}
+
+Controllers::DataItem<BoundaryKey, BoundaryList>::FetchModuleReturn ModuleExternalLink::FetchAllBoundariesFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module)
+{
+    Controllers::DataItem<BoundaryKey, BoundaryList>::FetchModuleReturn rtn;
+
+    //Function to fetch missions for given module
+    auto func = [this, &rtn](MaceCore::ModuleCharacteristic vehicle)
+    {
+        std::vector<BoundaryItem::BoundaryList> boundaryListVec = this->getDataObject()->GetVehicleBoundaryList();
+        for(auto boundaryList : boundaryListVec) {
+            //if exists append, if it doesn't append empty
+            if(vehicle.ID == boundaryList.getBoundaryKey().m_creatorID)
+            {
+                BoundaryKey key = boundaryList.getBoundaryKey();
+                std::vector<std::tuple<BoundaryKey, BoundaryList>> vec = {};
+                vec.push_back(std::make_tuple(key, boundaryList));
+                std::tuple<MaceCore::ModuleCharacteristic, std::vector<std::tuple<BoundaryKey, BoundaryList>>> tmp = std::make_tuple(vehicle, vec);
+                rtn.push_back(tmp);
+            }
+            else
+            {
+                rtn.push_back(std::make_tuple(vehicle, std::vector<std::tuple<BoundaryKey, BoundaryList>>()));
+            }
+        }
+    };
+
+
+    //if no module is given then fetch all
+    if(module.IsSet() == false || module().ID == 0)
+    {
+        std::vector<int> vehicles;
+        this->getDataObject()->GetLocalVehicles(vehicles);
+        for(auto it = vehicles.cbegin() ; it != vehicles.cend() ; ++it) {
+            MaceCore::ModuleCharacteristic vehicle;
+            vehicle.ID = *it;
+            vehicle.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            func(vehicle);
+        }
+    }
+    else {
+        func(module());
+    }
+
+
+    return rtn;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+/// The following are related to the Mission Items
+///////////////////////////////////////////////////////////////////////////////////////
 
 void ModuleExternalLink::ReceivedMission(const MissionItem::MissionList &list)
 {
@@ -802,6 +834,25 @@ void ModuleExternalLink::Command_GetOnboardGuided(const int &targetSystem)
 void ModuleExternalLink::Command_ClearOnboardGuided(const int &targetSystem)
 {
     UNUSED(targetSystem);
+}
+
+void ModuleExternalLink::NewOperationalBoundary(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
+{
+    std::vector<BoundaryItem::BoundaryList> boundaryList = this->getDataObject()->GetVehicleBoundaryList();
+    // TODO: @Ken - Do we want send boundary for every vehicle in the list? Or do we use the senderID here to only send that vehicle's boundary?
+    for(auto boundary : boundaryList) {
+        if(vehicleID == boundary.getVehicleID()){
+            mace_new_boundary_object_t boundaryObj;
+            boundaryObj.boundary_creator = boundary.getBoundaryKey().m_creatorID;
+            boundaryObj.boundary_system = boundary.getBoundaryKey().m_systemID; // Is this correct?
+            boundaryObj.boundary_type = (uint8_t)boundary.getBoundaryKey().m_boundaryType;
+
+            mace_message_t msg;
+            mace_msg_new_boundary_object_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &boundaryObj);
+            //mace_msg_operational_boundary(sender().ID, (int)sender().Class, m_LinkChan,&msg,&boundary);
+            m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+        }
+    }
 }
 
 void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)

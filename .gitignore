@@ -57,3 +57,6 @@ ElectronGUI/yarn-error.log
 /catkin_sim_environment/devel/*
 /Eigen/EigenFull/build**
 /tools/*
+
+/docs/html/*
+/docs/latex/*

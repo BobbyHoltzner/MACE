@@ -63,7 +63,7 @@
       <param name="sensor_model/max_range" value="5.0" />
       
       <!-- data source to integrate (PointCloud2) -->
-      <!--<remap from="cloud_in" to="/narrow_stereo/points_filtered2" />-->
+     <remap from="cloud_in" to="/MACE/basic_quadrotor_1/scan/cloud" />
     
     </node>
   </group>

@@ -28,9 +28,11 @@ void OctomapWrapper::updateSensorProperties(const OctomapSensorDefinition &senso
     m_Tree->setClampingThresMin(m_sensorProperties->getThreshMin());
 }
 
-void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const octomap::pose6d &origin)
+void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<pose::CartesianPosition_3D> &position)
 {
-    m_Tree->insertPointCloud(*pc,origin.trans(),m_sensorProperties->getMaxRange());
+    octomap::point3d sensorOrigin(position.getXPosition(),position.getYPosition(),position.getZPosition());
+
+    m_Tree->insertPointCloud(*pc,sensorOrigin);
 
     //Update the depth of the tree
     treeDepth = m_Tree->getTreeDepth();
@@ -57,7 +59,42 @@ void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const octomap
     }
 }
 
-void OctomapWrapper::updateFromLaserScan(octomap::Pointcloud *pc, const octomap::pose6d &origin)
+void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<pose::CartesianPosition_3D> &position, const pose::Orientation_3D &orientation)
+{
+    octomap::pose6d origin(position.getXPosition(),position.getYPosition(),position.getZPosition(),
+                           orientation.getRoll(),orientation.getPitch(),orientation.getYaw());
+
+    octomap::point3d sensorOrigin;
+
+    m_Tree->insertPointCloud(*pc,sensorOrigin,origin);
+    //m_Tree->insertPointCloud(*pc,sensorOrigin,origin,m_sensorProperties->getMaxRange());
+
+    //Update the depth of the tree
+    treeDepth = m_Tree->getTreeDepth();
+    maxTreeDepth = treeDepth;
+
+    //The following function is already called when calling the insertPointCloud function, this would be inefficient
+    //As it would perform the ray trace operation twice. It may be better at some future date to modify the octomap
+    //library to merely deliver the changed values and keys on insertion and/or store as members.
+    //m_Tree->computeUpdate(*pc,origin.trans(),freeKeySet,occupiedKeySet,m_sensorProperties->getMaxRange());
+    if(m_Tree->numChangesDetected() > 0)
+    {
+        if(enabled2DProjection)
+        {
+            updateMapContinuity();
+            for (octomap::KeyBoolMap::const_iterator it = m_Tree->changedKeysBegin(), end = m_Tree->changedKeysEnd(); it != end; ++it)
+            {
+                octomap::OcTreeKey key = it->first;
+                octomap::point3d point = m_Tree->keyToCoord(key,maxTreeDepth);
+                bool occupied = m_Tree->isNodeOccupied(m_Tree->search(key,m_Tree->getTreeDepth()));
+                updateMapOccupancyRecursiveCheck(point.x(),point.y(),maxTreeDepth,occupied);
+            }
+        }
+        m_Tree->resetChangeDetection();
+    }
+}
+
+void OctomapWrapper::updateFromLaserScan(octomap::Pointcloud *pc, const mace::pose::Position<pose::CartesianPosition_3D> &position, const pose::Orientation_3D &orientation)
 {
     //Update the depth of the tree
     treeDepth = m_Tree->getTreeDepth();
@@ -65,6 +102,9 @@ void OctomapWrapper::updateFromLaserScan(octomap::Pointcloud *pc, const octomap:
 
     if(pc->size() > 0)
     {
+        octomap::pose6d origin(position.getXPosition(),position.getYPosition(),position.getZPosition(),
+                               orientation.getRoll(),orientation.getPitch(),orientation.getYaw());
+
         octomap::Pointcloud* copy = new octomap::Pointcloud(*pc);
         octomap::ScanGraph scan;
         scan.addNode(copy,origin);

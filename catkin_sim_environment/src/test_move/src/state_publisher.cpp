@@ -42,10 +42,13 @@ int main(int argc, char** argv) {
     while (ros::ok()) {
         double radius = 3.0;
        	double ascent = 0.05;
-        robotPosition.x  = cos(angle)*radius;
+        robotPosition.x  = cos(angle)*radius - 4;
+        //robotPosition.y  = 0.0;
         robotPosition.y = sin(angle)*radius;
-	robotPosition.z = tan(ascent)*radius*angle;
+	robotPosition.z = 1.0;	
+	//robotPosition.z = tan(ascent)*radius*angle;
         attitude = tf::createQuaternionMsgFromYaw(angle+M_PI/2);
+	//attitude = tf::createQuaternionMsgFromYaw(M_PI/2);
 
         geometry_msgs::Pose pose;
         pose.position = robotPosition;

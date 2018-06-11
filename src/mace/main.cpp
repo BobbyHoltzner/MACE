@@ -20,6 +20,13 @@
 #include <ros/ros.h>
 #endif
 
+const char kPathSeparator =
+#ifdef _WIN32
+                            '\\';
+#else
+                            '/';
+#endif
+
 int main(int argc, char *argv[])
 {
     Data::EnvironmentTime currentTime;
@@ -177,17 +184,17 @@ int main(int argc, char *argv[])
 #endif
             break;
         }
-//        case MaceCore::ModuleBase::RTA:
-//        {
-//            if(addedRTA == true)
-//            {
-//                std::cerr << "Only one RTA module can be added" << std::endl;
-//                return 1;
-//            }
-//            core.AddRTAModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandRTA>(module));
-//            addedRTA = true;
-//            break;
-//        }
+        case MaceCore::ModuleClasses::RTA:
+        {
+            if(addedRTA == true)
+            {
+                std::cerr << "Only one RTA module can be added" << std::endl;
+                return 1;
+            }
+            core.AddRTAModule(std::dynamic_pointer_cast<MaceCore::IModuleCommandRTA>(module));
+            addedRTA = true;
+            break;
+        }
         case MaceCore::ModuleClasses::VEHICLE_COMMS:
         {
             core.AddVehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));

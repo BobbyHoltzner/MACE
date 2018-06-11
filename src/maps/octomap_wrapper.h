@@ -1,6 +1,8 @@
 #ifndef OCTOMAP_WRAPPER_H
 #define OCTOMAP_WRAPPER_H
 
+#include "base/pose/cartesian_position_3D.h"
+#include "base/pose/orientation_3D.h"
 
 #include "octomap/OcTree.h"
 #include "octomap/OcTreeIterator.hxx"
@@ -33,9 +35,11 @@ public:
 
     void updateSensorProperties(const OctomapSensorDefinition &sensorProperties);
 
-    void updateFromPointCloud(octomap::Pointcloud *pc, const octomap::pose6d &origin = octomap::pose6d());
+    void updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position);
 
-    void updateFromLaserScan(octomap::Pointcloud* pc, const octomap::pose6d &origin = octomap::pose6d());
+    void updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position, const mace::pose::Orientation_3D &orientation);
+
+    void updateFromLaserScan(octomap::Pointcloud* pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position = mace::pose::Position<mace::pose::CartesianPosition_3D>(), const mace::pose::Orientation_3D &orientation = mace::pose::Orientation_3D());
 
 public:
     maps::Data2DGrid<OccupiedResult>* get2DOccupancyMap();

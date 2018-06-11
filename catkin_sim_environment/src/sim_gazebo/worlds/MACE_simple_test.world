@@ -605,6 +605,6 @@
       </link>
       <pose frame=''>15.6529 -12.8734 0 0 -0 0</pose>
     </model>
-    <plugin name='gazebo_octomap' filename='librotors_gazebo_octomap_plugin.so'/>
+    <plugin name='gazebo_octomap' filename='libBuildOctomapPlugin.so'/>
   </world>
 </sdf>

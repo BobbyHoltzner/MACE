@@ -23,6 +23,8 @@
 
 #include "maps/map_topic_components.h"
 
+#include "base/pose/orientation_3D.h"
+
 #include <memory>
 
 #ifdef ROS_EXISTS
@@ -37,6 +39,16 @@
 
 #include <octomap_ros/conversions.h>
 
+#include <geometry_msgs/Twist.h>
+#include <tf2_ros/buffer.h>
+//#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2/transform_datatypes.h>
+#include <tf2_sensor_msgs/tf2_sensor_msgs.h>
+#include <laser_geometry/laser_geometry.h>
+#include <nav_msgs/OccupancyGrid.h>
+
+#include <tf/transform_listener.h>
 #endif
 
 #include "rosTimer.h"
@@ -182,6 +194,9 @@ public:
     //!
     void newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
 
+    void newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
+
+
     //!
     //! \brief convertToGazeboCartesian Convert position in local frame to Gazebo's world frame
     //! \param localPos MACE local position
@@ -317,6 +332,10 @@ private:
     //! \brief m_srv Container for the Gazebo send model state message
     //!
     gazebo_msgs::SetModelState m_srv;
+
+    tf2_ros::Buffer m_tfBuffer;
+      tf::TransformListener m_tfListener;
+    //std::shared_ptr<tf2_ros::TransformListener> m_tfListener;
 
     // TESTING:
     ros::Publisher cloudInPub;

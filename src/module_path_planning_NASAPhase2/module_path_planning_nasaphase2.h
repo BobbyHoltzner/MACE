@@ -26,13 +26,6 @@
 
 using namespace octomap;
 
-const char kPathSeparator =
-#ifdef _WIN32
-        '\\';
-#else
-        '/';
-#endif
-
 #include "base/pose/cartesian_position_2D.h"
 #include "data_generic_state_item/positional_aid.h"
 #include "base/geometry/cell_2DC.h"
@@ -108,6 +101,7 @@ public:
 
     void NewlyUpdatedGlobalOrigin() override;
 
+    void NewlyUpdatedVehicleCells() override;
 
 public:
     void cbiPlanner_SampledState(const mace::state_space::State* sampleState) override;
@@ -127,6 +121,8 @@ private:
     mace::state_space::Cartesian2DSpacePtr m_Space;
 
     std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
+
+    std::map<int, mace::geometry::Cell_2DC> m_vehicleBoundary;
 
     std::string m_octomapFilename;
     bool m_project2D;

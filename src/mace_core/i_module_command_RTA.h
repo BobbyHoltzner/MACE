@@ -12,7 +12,9 @@ namespace MaceCore
 enum class RTACommands
 {
     BASE_MODULE_LISTENER_ENUMS,
-    TEST_FUNCTION
+    TEST_FUNCTION,
+    NEWLY_UPDATED_BOUNDARY_VERTICES,
+    NEWLY_UPDATED_GRID_SPACING
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandRTA : public AbstractModule_EventListeners<Metadata_RTA, IModuleEventsRTA, RTACommands>
@@ -33,6 +35,24 @@ public:
             UNUSED(sender);
             TestFunction(vehicleID);
         });
+
+        AddCommandLogic<int>(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            UNUSED(vehicleID);
+            NewlyUpdatedGlobalOrigin();
+        });
+
+        AddCommandLogic<int>(RTACommands::NEWLY_UPDATED_BOUNDARY_VERTICES, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            UNUSED(vehicleID);
+            NewlyUpdatedBoundaryVertices();
+        });
+
+        AddCommandLogic<int>(RTACommands::NEWLY_UPDATED_GRID_SPACING, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            UNUSED(vehicleID);
+            NewlyUpdatedGridSpacing();
+        });
     }
 
     virtual ModuleClasses ModuleClass() const
@@ -45,6 +65,20 @@ public:
 
     virtual void TestFunction(const int &vehicleID) = 0;
 
+    //!
+    //! \brief NewlyUpdatedGlobalOrigin
+    //!
+    virtual void NewlyUpdatedGlobalOrigin() = 0;
+
+    //!
+    //! \brief NewlyUpdatedBoundaryVertices
+    //!
+    virtual void NewlyUpdatedBoundaryVertices() = 0;
+
+    //!
+    //! \brief NewlyUpdatedGridSpacing
+    //!
+    virtual void NewlyUpdatedGridSpacing() = 0;
 };
 
 } //End MaceCore Namespace

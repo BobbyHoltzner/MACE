@@ -33,6 +33,10 @@
 #include "octomap/octomap.h"
 #include "octomap/OcTree.h"
 
+#include "base/pose/cartesian_position_3D.h"
+#include "base/pose/orientation_3D.h"
+#include "base/geometry/cell_2DC.h"
+
 namespace MaceCore
 {
 
@@ -157,6 +161,20 @@ public:
         return boundaryVerts;
     }
 
+    std::map<int, mace::geometry::Cell_2DC> GetVehicleBoundaryMap() const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleBoundaryMutex);
+        std::map<int, mace::geometry::Cell_2DC> vehicleMap = m_vehicleCellMap;
+        return vehicleMap;
+    }
+
+    std::vector<BoundaryItem::BoundaryList> GetVehicleBoundaryList() const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleBoundaryMutex);
+        std::vector<BoundaryItem::BoundaryList> boundaryList = m_vehicleBoundaryList;
+        return boundaryList;
+    }
+
 private:
 
     void AddAvailableVehicle(const int &vehicleID, bool internal)
@@ -218,6 +236,15 @@ private:
         flagBoundaryVerts = true;
     }
 
+    void UpdateVehicleCellMap(const std::map<int, mace::geometry::Cell_2DC> &vehicleMap) {
+        std::lock_guard<std::mutex> gaurd(m_VehicleBoundaryMutex);
+        m_vehicleCellMap = vehicleMap;
+    }
+
+    void UpdateVehicleBoundaryList(const std::vector<BoundaryItem::BoundaryList> &boundaryList) {
+        std::lock_guard<std::mutex> gaurd(m_VehicleBoundaryMutex);
+        m_vehicleBoundaryList = boundaryList;
+    }
 
 
     void RemoveVehicle(const std::string &rn)
@@ -554,10 +581,16 @@ public:
         func(m_ResourceMap);
     }
 
-    void insertObservation(octomap::Pointcloud& obj)
+    void insertGlobalObservation(octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position)
     {
         std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
-        m_OctomapWrapper->updateFromLaserScan(&obj);
+        m_OctomapWrapper->updateFromPointCloud(&obj, position);
+    }
+
+    void insertObservation(octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position, const mace::pose::Orientation_3D &orientation)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
+        m_OctomapWrapper->updateFromPointCloud(&obj, position, orientation);
         //m_OctomapWrapper->updateFromPointCloud(&obj);
         // TODO: Test insert and origin point. We'll have to ensure a (0,0,0) origin works, or we'll have to calculate the sensor origin as it moves
         //          - One option is instead of transforming to the world frame, we can pass in a sensor origin AND frame origin point, and the
@@ -699,7 +732,10 @@ private:
     CommandItem::SpatialHome m_GlobalOrigin;
     double m_GridSpacing = -1;
     mutable std::mutex m_EnvironmentBoundaryMutex;
+    mutable std::mutex m_VehicleBoundaryMutex;
     std::vector<DataState::StateGlobalPosition> m_BoundaryVerts;
+    std::map<int, mace::geometry::Cell_2DC> m_vehicleCellMap;
+    std::vector<BoundaryItem::BoundaryList> m_vehicleBoundaryList;
     bool flagBoundaryVerts;
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;

@@ -56,7 +56,6 @@ export default class MACEMap extends React.Component<Props, State> {
   componentDidMount(){
   }
 
-
   handleMarkerClick = (e: L.LeafletMouseEvent, vehicleId: string, type: string) => {
     this.props.handleSelectedAircraftUpdate(vehicleId);
   }

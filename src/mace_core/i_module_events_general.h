@@ -43,7 +43,7 @@ public:
     virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome) = 0;
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing) = 0;
 
-    virtual void Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) = 0;
+    virtual void Event_SetEnvironmentVertices(const ModuleBase *sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) = 0;
 };
 
 } //End MaceCore Namespace

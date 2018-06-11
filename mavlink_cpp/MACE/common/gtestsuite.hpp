@@ -2482,6 +2482,128 @@ TEST(common_interop, COMMAND_ACK)
 }
 #endif
 
+TEST(common, COMMAND_SYSTEM_MODE)
+{
+    mavlink::mavlink_message_t msg;
+    mavlink::MsgMap map1(msg);
+    mavlink::MsgMap map2(msg);
+
+    mavlink::common::msg::COMMAND_SYSTEM_MODE packet_in{};
+    packet_in.target_system = 5;
+    packet_in.mode = to_char_array("BCDEFGHIJKLMNOPQRST");
+
+    mavlink::common::msg::COMMAND_SYSTEM_MODE packet1{};
+    mavlink::common::msg::COMMAND_SYSTEM_MODE packet2{};
+
+    packet1 = packet_in;
+
+    //std::cout << packet1.to_yaml() << std::endl;
+
+    packet1.serialize(map1);
+
+    mavlink::mavlink_finalize_message(&msg, 1, 1, packet1.MIN_LENGTH, packet1.LENGTH, packet1.CRC_EXTRA);
+
+    packet2.deserialize(map2);
+
+    EXPECT_EQ(packet1.target_system, packet2.target_system);
+    EXPECT_EQ(packet1.mode, packet2.mode);
+}
+
+#ifdef TEST_INTEROP
+TEST(common_interop, COMMAND_SYSTEM_MODE)
+{
+    mavlink_message_t msg;
+
+    // to get nice print
+    memset(&msg, 0, sizeof(msg));
+
+    mavlink_command_system_mode_t packet_c {
+         5, "BCDEFGHIJKLMNOPQRST"
+    };
+
+    mavlink::common::msg::COMMAND_SYSTEM_MODE packet_in{};
+    packet_in.target_system = 5;
+    packet_in.mode = to_char_array("BCDEFGHIJKLMNOPQRST");
+
+    mavlink::common::msg::COMMAND_SYSTEM_MODE packet2{};
+
+    mavlink_msg_command_system_mode_encode(1, 1, &msg, &packet_c);
+
+    // simulate message-handling callback
+    [&packet2](const mavlink_message_t *cmsg) {
+        MsgMap map2(cmsg);
+
+        packet2.deserialize(map2);
+    } (&msg);
+
+    EXPECT_EQ(packet_in.target_system, packet2.target_system);
+    EXPECT_EQ(packet_in.mode, packet2.mode);
+
+#ifdef PRINT_MSG
+    PRINT_MSG(msg);
+#endif
+}
+#endif
+
+TEST(common, SYSTEM_MODE_ACK)
+{
+    mavlink::mavlink_message_t msg;
+    mavlink::MsgMap map1(msg);
+    mavlink::MsgMap map2(msg);
+
+    mavlink::common::msg::SYSTEM_MODE_ACK packet_in{};
+    packet_in.result = 5;
+
+    mavlink::common::msg::SYSTEM_MODE_ACK packet1{};
+    mavlink::common::msg::SYSTEM_MODE_ACK packet2{};
+
+    packet1 = packet_in;
+
+    //std::cout << packet1.to_yaml() << std::endl;
+
+    packet1.serialize(map1);
+
+    mavlink::mavlink_finalize_message(&msg, 1, 1, packet1.MIN_LENGTH, packet1.LENGTH, packet1.CRC_EXTRA);
+
+    packet2.deserialize(map2);
+
+    EXPECT_EQ(packet1.result, packet2.result);
+}
+
+#ifdef TEST_INTEROP
+TEST(common_interop, SYSTEM_MODE_ACK)
+{
+    mavlink_message_t msg;
+
+    // to get nice print
+    memset(&msg, 0, sizeof(msg));
+
+    mavlink_system_mode_ack_t packet_c {
+         5
+    };
+
+    mavlink::common::msg::SYSTEM_MODE_ACK packet_in{};
+    packet_in.result = 5;
+
+    mavlink::common::msg::SYSTEM_MODE_ACK packet2{};
+
+    mavlink_msg_system_mode_ack_encode(1, 1, &msg, &packet_c);
+
+    // simulate message-handling callback
+    [&packet2](const mavlink_message_t *cmsg) {
+        MsgMap map2(cmsg);
+
+        packet2.deserialize(map2);
+    } (&msg);
+
+    EXPECT_EQ(packet_in.result, packet2.result);
+
+#ifdef PRINT_MSG
+    PRINT_MSG(msg);
+#endif
+}
+#endif
+
 TEST(common, RADIO_STATUS)
 {
     mavlink::mavlink_message_t msg;
