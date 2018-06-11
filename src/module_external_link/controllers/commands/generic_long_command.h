@@ -1,40 +1,43 @@
 #ifndef BASE_LONG_COMMAND_H
 #define BASE_LONG_COMMAND_H
 
-#include "../generic_controller.h"
-#include "../generic_controller_queue_data_with_module.h"
+#include "controllers/generic_controller.h"
+#include "controllers/generic_controller_queue_data_with_module.h"
 
 
-#include "../actions/action_broadcast.h"
-#include "../actions/action_send.h"
-#include "../actions/action_final_receive_respond.h"
-#include "../actions/action_finish.h"
+#include "controllers/actions/action_broadcast.h"
+#include "controllers/actions/action_send.h"
+#include "controllers/actions/action_final_receive_respond.h"
+#include "controllers/actions/action_finish.h"
 
-namespace Controllers {
+#include <iostream>
+#include "data/command_ack_type.h"
+
+namespace ExternalLink {
 
 
-template <typename MESSAGETYPE, typename T>
-using ActionSend_CommandLong_Broadcast = ActionBroadcast<
-    MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+template <typename T>
+using ActionSend_CommandLong_Broadcast = Controllers::ActionBroadcast<
+    mace_message_t,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, T>,
     T,
     mace_command_long_t
 >;
 
-template <typename MESSAGETYPE, typename T>
-using ActionSend_Command_TargedWithResponse = ActionSend<
-    MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+template <typename T>
+using ActionSend_Command_TargedWithResponse = Controllers::ActionSend<
+    mace_message_t,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, T>,
     MaceCore::ModuleCharacteristic,
     T,
     mace_command_long_t,
     MACE_MSG_ID_COMMAND_ACK
 >;
 
-template <typename MESSAGETYPE, typename T>
-using ActionSend_Command_ReceiveRespond = ActionFinalReceiveRespond<
-    MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+template <typename T>
+using ActionSend_Command_ReceiveRespond = Controllers::ActionFinalReceiveRespond<
+    mace_message_t,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, T>,
     MaceCore::ModuleCharacteristic,
     T,
     mace_command_long_t,
@@ -42,10 +45,10 @@ using ActionSend_Command_ReceiveRespond = ActionFinalReceiveRespond<
     MACE_MSG_ID_COMMAND_LONG
 >;
 
-template<typename MESSAGETYPE, typename T>
-using ActionFinish_Command = ActionFinish<
-    MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+template<typename T>
+using ActionFinish_Command = Controllers::ActionFinish<
+    mace_message_t,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, T>,
     MaceCore::ModuleCharacteristic,
     uint8_t,
     mace_command_ack_t,
@@ -56,12 +59,12 @@ using ActionFinish_Command = ActionFinish<
 
 
 
-template <typename MESSAGETYPE, typename COMMANDDATASTRUCTURE, const int COMMANDTYPE>
-class Controller_GenericLongCommand : public GenericControllerQueueDataWithModule<MESSAGETYPE, COMMANDDATASTRUCTURE>,
-        public ActionSend_CommandLong_Broadcast<MESSAGETYPE, COMMANDDATASTRUCTURE>,
-        public ActionSend_Command_TargedWithResponse<MESSAGETYPE, COMMANDDATASTRUCTURE>,
-        public ActionSend_Command_ReceiveRespond<MESSAGETYPE, COMMANDDATASTRUCTURE>,
-        public ActionFinish_Command<MESSAGETYPE, COMMANDDATASTRUCTURE>
+template <typename COMMANDDATASTRUCTURE, const int COMMANDTYPE>
+class Controller_GenericLongCommand : public Controllers::GenericControllerQueueDataWithModule<mace_message_t, COMMANDDATASTRUCTURE>,
+        public ActionSend_CommandLong_Broadcast<COMMANDDATASTRUCTURE>,
+        public ActionSend_Command_TargedWithResponse<COMMANDDATASTRUCTURE>,
+        public ActionSend_Command_ReceiveRespond<COMMANDDATASTRUCTURE>,
+        public ActionFinish_Command<COMMANDDATASTRUCTURE>
 {
 private:
 
@@ -153,12 +156,12 @@ protected:
 
 public:
 
-    Controller_GenericLongCommand(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
-        GenericControllerQueueDataWithModule<MESSAGETYPE, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
-        ActionSend_CommandLong_Broadcast<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mace_msg_command_long_encode_chan),
-        ActionSend_Command_TargedWithResponse<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mace_msg_command_long_encode_chan),
-        ActionSend_Command_ReceiveRespond<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mace_msg_command_long_decode, mace_msg_command_ack_encode_chan),
-        ActionFinish_Command<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mace_msg_command_ack_decode)
+    Controller_GenericLongCommand(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<mace_message_t, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
+        ActionSend_CommandLong_Broadcast<COMMANDDATASTRUCTURE>(this, mace_msg_command_long_encode_chan),
+        ActionSend_Command_TargedWithResponse<COMMANDDATASTRUCTURE>(this, mace_msg_command_long_encode_chan),
+        ActionSend_Command_ReceiveRespond<COMMANDDATASTRUCTURE>(this, mace_msg_command_long_decode, mace_msg_command_ack_encode_chan),
+        ActionFinish_Command<COMMANDDATASTRUCTURE>(this, mace_msg_command_ack_decode)
     {
 
     }

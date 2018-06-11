@@ -376,15 +376,15 @@ private:
     ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
 
     PointerCollection<
-        Controllers::CommandTakeoff<mace_message_t>,
-        Controllers::CommandLand<mace_message_t>,
-        Controllers::CommandARM<mace_message_t>,
-        Controllers::CommandRTL<mace_message_t>,
-        Controllers::CommandMissionItem<mace_message_t>,
-        Controllers::ControllerSystemMode<mace_message_t>,
-        Controllers::ControllerHome<mace_message_t>,
-        Controllers::ControllerMission<mace_message_t>,
-        Controllers::ControllerBoundary<mace_message_t>
+        ExternalLink::CommandTakeoff,
+        ExternalLink::CommandLand,
+        ExternalLink::CommandARM,
+        ExternalLink::CommandRTL,
+        ExternalLink::CommandMissionItem,
+        ExternalLink::ControllerSystemMode,
+        ExternalLink::ControllerHome,
+        ExternalLink::ControllerMission,
+        ExternalLink::ControllerBoundary
     > m_Controllers;
 
 private:

@@ -1,42 +1,46 @@
 #ifndef BASE_SHORT_COMMAND_H
 #define BASE_SHORT_COMMAND_H
 
-#include "../generic_controller.h"
-#include "../generic_controller_queue_data_with_module.h"
+#include "controllers/generic_controller.h"
+#include "controllers/generic_controller_queue_data_with_module.h"
 
 
-#include "../actions/action_broadcast.h"
-#include "../actions/action_send.h"
-#include "../actions/action_final_receive_respond.h"
-#include "../actions/action_finish.h"
+#include "controllers/actions/action_broadcast.h"
+#include "controllers/actions/action_send.h"
+#include "controllers/actions/action_final_receive_respond.h"
+#include "controllers/actions/action_finish.h"
 
-namespace Controllers {
+#include <iostream>
+
+#include "data/command_ack_type.h"
+
+namespace ExternalLink {
 
 
 
-template <typename MESSAGETYPE, typename T>
-using ActionSend_CommandShort_Broadcast = ActionBroadcast<
-    MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+template <typename T>
+using ActionSend_CommandShort_Broadcast = Controllers::ActionBroadcast<
+    mace_message_t,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, T>,
     T,
     mace_command_short_t
 >;
 
 
-template <typename MESSAGETYPE, typename T>
-using ActionSend_CommandShort_TargedWithResponse = ActionSend<
-    MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+template <typename T>
+using ActionSend_CommandShort_TargedWithResponse = Controllers::ActionSend<
+    mace_message_t,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, T>,
     MaceCore::ModuleCharacteristic,
     T,
     mace_command_short_t,
     MACE_MSG_ID_COMMAND_ACK
 >;
 
-template <typename MESSAGETYPE, typename T>
-using ActionSend_CommandShort_ReceiveRespond = ActionFinalReceiveRespond<
-    MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+template <typename T>
+using ActionSend_CommandShort_ReceiveRespond = Controllers::ActionFinalReceiveRespond<
+    mace_message_t,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, T>,
     MaceCore::ModuleCharacteristic,
     T,
     mace_command_short_t,
@@ -44,10 +48,10 @@ using ActionSend_CommandShort_ReceiveRespond = ActionFinalReceiveRespond<
     MACE_MSG_ID_COMMAND_SHORT
 >;
 
-template<typename MESSAGETYPE, typename T>
-using ActionFinish_CommandShort = ActionFinish<
-    MESSAGETYPE,
-    GenericControllerQueueDataWithModule<MESSAGETYPE, T>,
+template<typename T>
+using ActionFinish_CommandShort = Controllers::ActionFinish<
+    mace_message_t,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, T>,
     MaceCore::ModuleCharacteristic,
     uint8_t,
     mace_command_ack_t,
@@ -58,12 +62,12 @@ using ActionFinish_CommandShort = ActionFinish<
 
 
 
-template <typename MESSAGETYPE, typename COMMANDDATASTRUCTURE, const int COMMANDTYPE>
-class Controller_GenericShortCommand : public GenericControllerQueueDataWithModule<MESSAGETYPE, COMMANDDATASTRUCTURE>,
-        public ActionSend_CommandShort_Broadcast<MESSAGETYPE, COMMANDDATASTRUCTURE>,
-        public ActionSend_CommandShort_TargedWithResponse<MESSAGETYPE, COMMANDDATASTRUCTURE>,
-        public ActionSend_CommandShort_ReceiveRespond<MESSAGETYPE, COMMANDDATASTRUCTURE>,
-        public ActionFinish_CommandShort<MESSAGETYPE, COMMANDDATASTRUCTURE>
+template <typename COMMANDDATASTRUCTURE, const int COMMANDTYPE>
+class Controller_GenericShortCommand : public Controllers::GenericControllerQueueDataWithModule<mace_message_t, COMMANDDATASTRUCTURE>,
+        public ActionSend_CommandShort_Broadcast<COMMANDDATASTRUCTURE>,
+        public ActionSend_CommandShort_TargedWithResponse<COMMANDDATASTRUCTURE>,
+        public ActionSend_CommandShort_ReceiveRespond<COMMANDDATASTRUCTURE>,
+        public ActionFinish_CommandShort<COMMANDDATASTRUCTURE>
 {
 private:
 
@@ -155,12 +159,12 @@ protected:
 
 public:
 
-    Controller_GenericShortCommand(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
-        GenericControllerQueueDataWithModule<MESSAGETYPE, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
-        ActionSend_CommandShort_Broadcast<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mace_msg_command_short_encode_chan),
-        ActionSend_CommandShort_TargedWithResponse<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mace_msg_command_short_encode_chan),
-        ActionSend_CommandShort_ReceiveRespond<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mace_msg_command_short_decode, mace_msg_command_ack_encode_chan),
-        ActionFinish_CommandShort<MESSAGETYPE, COMMANDDATASTRUCTURE>(this, mace_msg_command_ack_decode)
+    Controller_GenericShortCommand(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<mace_message_t, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
+        ActionSend_CommandShort_Broadcast<COMMANDDATASTRUCTURE>(this, mace_msg_command_short_encode_chan),
+        ActionSend_CommandShort_TargedWithResponse<COMMANDDATASTRUCTURE>(this, mace_msg_command_short_encode_chan),
+        ActionSend_CommandShort_ReceiveRespond<COMMANDDATASTRUCTURE>(this, mace_msg_command_short_decode, mace_msg_command_ack_encode_chan),
+        ActionFinish_CommandShort<COMMANDDATASTRUCTURE>(this, mace_msg_command_ack_decode)
     {
 
     }
