@@ -19,11 +19,31 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += module_external_link.cpp \
     parse_comms_message.cpp \
     parse_comms_command.cpp \
-    controllers/heartbeat_controller_externallink.cpp
+    controllers/heartbeat_controller_externallink.cpp \
+    controllers/controller_home.cpp \
+    controllers/controller_boundary.cpp \
+    controllers/controller_mission.cpp \
+    controllers/controller_system_mode.cpp \
+    controllers/commands/command_arm.cpp \
+    controllers/commands/command_land.cpp \
+    controllers/commands/command_mission_item.cpp \
+    controllers/commands/command_rtl.cpp \
+    controllers/commands/command_takeoff.cpp
 
 HEADERS += module_external_link.h\
         module_external_link_global.h \
-    controllers/heartbeat_controller_externallink.h
+    controllers/heartbeat_controller_externallink.h \
+    controllers/controller_boundary.h \
+    controllers/controller_home.h \
+    controllers/controller_mission.h \
+    controllers/controller_system_mode.h \
+    controllers/commands/command_arm.h \
+    controllers/commands/command_land.h \
+    controllers/commands/command_mission_item.h \
+    controllers/commands/command_rtl.h \
+    controllers/commands/command_takeoff.h \
+    controllers/commands/generic_long_command.h \
+    controllers/commands/generic_short_command.h
 
 
 # Unix lib Install

@@ -1,26 +1,15 @@
-#ifndef COMMAND_LAND_H
-#define COMMAND_LAND_H
+#include "command_land.h"
 
-#include "generic_long_command.h"
+namespace ExternalLink {
 
-#include "data_generic_command_item_topic/command_item_topic_components.h"
-
-namespace Controllers {
-
-
-template <typename MESSAGETYPE>
-class CommandLand : public Controller_GenericLongCommand<MESSAGETYPE, CommandItem::SpatialLand, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND>
-{
-public:
-    CommandLand(const IMessageNotifier<MESSAGETYPE> *cb, MessageModuleTransmissionQueue<MESSAGETYPE> *queue, int linkChan) :
-        Controller_GenericLongCommand<MESSAGETYPE, CommandItem::SpatialLand, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND>(cb, queue, linkChan)
+    CommandLand::CommandLand(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
+        Controller_GenericLongCommand<CommandItem::SpatialLand, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND>(cb, queue, linkChan)
     {
 
     }
 
-    protected:
 
-    virtual void FillCommand(const CommandItem::SpatialLand &commandItem, mace_command_long_t &cmd) const
+    void CommandLand::FillCommand(const CommandItem::SpatialLand &commandItem, mace_command_long_t &cmd) const
     {
         if(commandItem.position->isCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT))
         {
@@ -33,7 +22,7 @@ public:
         }
     }
 
-    virtual void BuildCommand(const mace_command_long_t &message, std::shared_ptr<CommandItem::SpatialLand> data) const
+    void CommandLand::BuildCommand(const mace_command_long_t &message, std::shared_ptr<CommandItem::SpatialLand> data) const
     {
         data->setTargetSystem(message.target_system);
 
@@ -50,9 +39,5 @@ public:
             data->position->setZ(message.param7);
         }
     }
-};
-
 
 }
-
-#endif // COMMAND_LAND_H
