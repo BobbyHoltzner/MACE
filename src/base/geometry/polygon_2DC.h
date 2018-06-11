@@ -30,7 +30,7 @@ public:
     Polygon_2DC getBoundingRect() const;
 
 
-    void getBoundingValues(double &xMin, double &yMin, double &xMax, double &yMax) const;
+    void getBoundingValues(double &xMin, double &minY, double &maxX, double &maxY) const;
 
     //!
     //! \brief contains
@@ -62,6 +62,21 @@ public:
     //! \return
     //!
     Position<CartesianPosition_2D> getCenter() const;
+
+    std::vector<int> findUndefinedVertices() const
+    {
+        int index = 0;
+        std::vector<int> nullItems;
+        for(std::vector<Position<CartesianPosition_2D>>::const_iterator it = m_vertex.begin(); it != m_vertex.end(); ++it) {
+            if(!it->hasXBeenSet() && !it->hasYBeenSet())
+            {
+                //This should see that the value is null
+                nullItems.push_back(index);
+            }
+            index++;
+        }
+        return nullItems;
+    }
 
 public:
     Position<CartesianPosition_2D> getTopLeft() const override;

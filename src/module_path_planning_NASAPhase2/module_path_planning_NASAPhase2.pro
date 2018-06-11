@@ -42,6 +42,7 @@ INCLUDEPATH += $$(MACE_ROOT)/include
 INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
+INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
 DEPENDPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
@@ -64,17 +65,31 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../mace_core/release/ 
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../mace_core/debug/ -lmace_core
 else:unix: LIBS += -L$$OUT_PWD/../mace_core/ -lmace_core
 
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../maps/release/ -lmaps
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../maps/debug/ -lmaps
+else:unix:!macx: LIBS += -L$$OUT_PWD/../maps/ -lmaps
+
+INCLUDEPATH += $$PWD/../maps
+DEPENDPATH += $$PWD/../maps
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../planners/release/ -lplanners
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../planners/debug/ -lplanners
 else:unix:!macx: LIBS += -L$$OUT_PWD/../planners/ -lplanners
 
-#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/release/ -lflann
-#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../tools/flann/build/lib/debug/ -lflann
-#else:unix:!macx: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann
+INCLUDEPATH += $$PWD/../planners
+DEPENDPATH += $$PWD/../planners
 
-#INCLUDEPATH += $$PWD/../../tools/flann/build
-#DEPENDPATH += $$PWD/../../tools/flann/build
+unix:!macx|win32: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann_s
 
-INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+INCLUDEPATH += $$PWD/../../tools/flann/build
+DEPENDPATH += $$PWD/../../tools/flann/build
+
+unix:!macx|win32: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann_s
 
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+
+INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include

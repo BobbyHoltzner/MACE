@@ -2,6 +2,8 @@
 #define MACE_CORE_H
 #include <QtGlobal>
 
+#include <iostream>
+
 #include <string>
 #include <map>
 #include <memory>
@@ -10,6 +12,7 @@
 
 #include "mace_core_global.h"
 #include "mace_data.h"
+#include "base/geometry/cell_2DC.h"
 
 #include "i_module_command_external_link.h"
 #include "i_module_command_ground_station.h"
@@ -31,6 +34,14 @@
 
 #include "topic.h"
 
+#include "octomap/octomap.h"
+#include "octomap/OcTree.h"
+
+#include "data_generic_state_item/positional_aid.h"
+#include "data_generic_command_item/command_item_components.h"
+//#include "data_generic_command_item/boundary_items/boundary_key.h"
+//#include "data_generic_command_item/boundary_items/boundary_type.h"
+//#include "data_generic_command_item/boundary_items/boundary_list.h"
 
 namespace MaceCore
 {
@@ -115,7 +126,12 @@ public:
     virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome);
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing);
 
-    virtual void Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts);
+    //!
+    //! \brief Event_SetEnvironmentVertices This event should be emitted by the External Link, Ground Station
+    //! \param sender
+    //! \param boundaryVerts
+    //!
+    virtual void Event_SetEnvironmentVertices(const ModuleBase *sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts);
 
 public:
 
@@ -162,20 +178,20 @@ public:
 
     virtual void ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission);
 
+    virtual void ExternalEvent_FinishedRXBoundaryList(const void *sender, const BoundaryItem::BoundaryList &boundaryList);
+
 public:
 
     /////////////////////////////////////////////////////////////////////////
     /// RTA EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-
     //!
-    //! \brief Event fired when a new list of targets are produced for a specific vehicle
-    //! \param vehicleID Vechile new targets are to be applied to
-    //! \param target List of positional targets
+    //! \brief Event_SetVehicleBoundaryVertices
+    //! \param sender
+    //! \param vehicleMap
     //!
-    virtual void NewVehicleTargets(const std::string &vehicleID, const std::vector<Eigen::Vector3d> &target);
-
+    virtual void Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const std::map<int, mace::geometry::Cell_2DC> &vehicleMap);
 
 public:
 
@@ -222,6 +238,9 @@ public:
 
     virtual void AppendVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands);
 
+    void EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
+
+    void EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path) override;
 
     //!
     //! \brief Event fired when a new occupancy map to be invoked when PathPlanning module generates a new occupancy map.
@@ -239,6 +258,14 @@ public:
     virtual void ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>> &commands);
 
 
+public:
+
+    /////////////////////////////////////////////////////////////////////////
+    /// SENSOR MODULE EVENTS
+    /////////////////////////////////////////////////////////////////////////
+    void ROS_NewLaserScan(const octomap::Pointcloud &obj, const mace::pose::Position<mace::pose::CartesianPosition_3D>& position) override;
+
+    void ROS_NewLaserScan(const octomap::Pointcloud &obj, const mace::pose::Position<mace::pose::CartesianPosition_3D>& position, const mace::pose::Orientation_3D& orientation) override;
 public:
 
     /////////////////////////////////////////////////////////////////////////
@@ -318,8 +345,6 @@ private:
 
     std::list<std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
     std::map<int, IModuleCommandExternalLink*> m_ExternalLinkIDToPort;
-
-    //std::map<int, std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
 
     std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;

@@ -309,12 +309,12 @@ protected:
     //!
     //! \brief dataXFlag
     //!
-    bool dataXFlag = 0.0;
+    bool dataXFlag = false;
 
     //!
     //! \brief dataYFlag
     //!
-    bool dataYFlag = 0.0;
+    bool dataYFlag = false;
 };
 
 } //end of namespace misc

@@ -20,7 +20,7 @@ public:
     ~CartesianPosition_2D() = default;
 
     CartesianPosition_2D(const CartesianPosition_2D &copy):
-        AbstractPosition(copy)
+        AbstractPosition(copy), state_space::State(copy)
     {
 
     }

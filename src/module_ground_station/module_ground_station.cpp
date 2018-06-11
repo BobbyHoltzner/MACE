@@ -512,6 +512,14 @@ void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialH
     m_toGUIHandler->sendVehicleHome(home.getOriginatingSystem(), home);
 }
 
+
+void ModuleGroundStation::NewlyUpdatedGlobalOrigin()
+{
+    std::cout << "Ground Control: New available global origin" << std::endl;
+    CommandItem::SpatialHome origin = this->getDataObject()->GetGlobalOrigin();
+    m_toGUIHandler->sendGlobalOrigin(origin);
+}
+
 //!
 //! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
 //! \param vehicleID Vehilce ID of the newly available vehicle

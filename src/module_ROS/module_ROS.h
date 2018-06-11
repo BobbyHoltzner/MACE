@@ -1,6 +1,12 @@
 #ifndef MODULE_ROS_H
 #define MODULE_ROS_H
 
+#include <iostream>
+#include <chrono>
+#include <mutex>
+#include <iostream>
+#include <thread>
+
 #include "common/common.h"
 #include "module_ROS_global.h"
 
@@ -15,6 +21,10 @@
 #include "data_generic_item/data_generic_item_components.h"
 #include "data_generic_item_topic/data_generic_item_topic_components.h"
 
+#include "maps/map_topic_components.h"
+
+#include "base/pose/orientation_3D.h"
+
 #include <memory>
 
 #ifdef ROS_EXISTS
@@ -22,9 +32,23 @@
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 #include <gazebo_msgs/SetModelState.h>
 #include <sensor_msgs/JointState.h>
 #include <tf/transform_broadcaster.h>
+
+#include <octomap_ros/conversions.h>
+
+#include <geometry_msgs/Twist.h>
+#include <tf2_ros/buffer.h>
+//#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2/transform_datatypes.h>
+#include <tf2_sensor_msgs/tf2_sensor_msgs.h>
+#include <laser_geometry/laser_geometry.h>
+#include <nav_msgs/OccupancyGrid.h>
+
+#include <tf/transform_listener.h>
 #endif
 
 #include "rosTimer.h"
@@ -62,6 +86,7 @@ public:
     {
         ptr->Subscribe(this, m_PlanningStateTopic.Name());
         ptr->Subscribe(this, m_VehicleDataTopic.Name());
+        ptr->Subscribe(this, m_MapTopic.Name());
     }
 
     //!
@@ -112,14 +137,19 @@ public:
     //! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
     //! \param vehicleID Vehilce ID of the newly available vehicle
     //!
-    virtual void NewlyAvailableVehicle(const int &vehicleID);
+    void NewlyAvailableVehicle(const int &vehicleID) override;
+
+    void NewlyUpdated3DOccupancyMap() override;
+
+    void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
+
+    void NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path) override;
 
 
     // ============================================================================= //
-    // ========================  ROS Specific functions:  ========================== //
+    // ======================== Module specific functions: ========================= //
     // ============================================================================= //
 public:
-
 
     //!
     //! \brief insertVehicleIfNotExist Insert a new vehicle into the map if it does not exist
@@ -141,6 +171,10 @@ public:
     //!
     void updateAttitudeData(const int &vehicleID, const std::shared_ptr<DataStateTopic::StateAttitudeTopic> &component);
 
+    // ============================================================================= //
+    // ========================  ROS Specific functions:  ========================== //
+    // ============================================================================= //
+public:
 
 #ifdef ROS_EXISTS
     //!
@@ -160,17 +194,8 @@ public:
     //!
     void newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
 
-    //!
-    //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz
-    //! \param state 2D Cartesian Position to render
-    //!
-    void renderState(const mace::pose::CartesianPosition_2D &state);
+    void newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
 
-    //!
-    //! \brief renderEdge Publish the 2D line to ROS for rendering in RViz
-    //! \param edge Edge/line to render
-    //!
-    void renderEdge(const mace::geometry::Line_2DC &edge);
 
     //!
     //! \brief convertToGazeboCartesian Convert position in local frame to Gazebo's world frame
@@ -185,6 +210,34 @@ public:
     //!
     bool sendGazeboModelState(const int &vehicleID);
 
+
+#endif
+
+    // ============================================================================= //
+    // =====================  ROS Specific private functions:  ===================== //
+    // ============================================================================= //
+#ifdef ROS_EXISTS
+
+    std_msgs::ColorRGBA generateColorHeight(double height);
+
+
+    //! \brief renderOccupancyMap
+    //!
+    void renderOccupancyMap(const octomap::OcTree *tree);
+
+    //!
+    //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz
+    //! \param state 2D Cartesian Position to render
+    //! \brief convertToGazeboCartesian Convert position in local frame to Gazebo's world frame
+    //! \param localPos MACE local position
+    //!
+    void renderState(const mace::pose::CartesianPosition_2D &state);
+
+    //!
+    //! \brief renderEdge Publish the 2D line to ROS for rendering in RViz
+    //! \param edge Edge/line to render
+    //!
+    void renderEdge(const mace::geometry::Line_2DC &edge);
 
 #endif
 
@@ -246,10 +299,18 @@ private:
     //!
     ros::Publisher markerPub;
 
+    ros::Publisher compressedMapPub;
+
+    ros::Publisher testTransformedCloud;
+    //!
+    //! \brief octomapPub Publisher handling the occupied voxels of the octomap
+    //!
+    ros::Publisher occupancyMapPub;
+
     //!
     //! \brief points Marker containers
     //!
-    visualization_msgs::Marker points, line_strip, line_list;
+    visualization_msgs::Marker points, line_strip, line_list, path_list;
 
     //!
     //! \brief m_client Service client for publishing update model state service to Gazebo
@@ -272,6 +333,10 @@ private:
     //!
     gazebo_msgs::SetModelState m_srv;
 
+    tf2_ros::Buffer m_tfBuffer;
+      tf::TransformListener m_tfListener;
+    //std::shared_ptr<tf2_ros::TransformListener> m_tfListener;
+
     // TESTING:
     ros::Publisher cloudInPub;
     // END TESTING
@@ -280,6 +345,7 @@ private:
 private:
     Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;
     Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
+    Data::TopicDataObjectCollection<MAP_DATA_TOPICS> m_MapTopic;
 };
 
 #endif // MODULE_ROS_H

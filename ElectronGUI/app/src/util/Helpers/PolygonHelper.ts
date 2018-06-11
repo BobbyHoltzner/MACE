@@ -1,6 +1,6 @@
 import * as deepcopy from 'deepcopy';
 var turf = require('@turf/turf');
-var geometryHelper = require('leaflet-geometryutil');
+// var geometryHelper = require('leaflet-geometryutil');
 import * as L from 'leaflet';
 
 
@@ -98,91 +98,82 @@ export class PolygonHelper {
         let settings = deepcopy(this.environmentSettings);
         settings.gridSpacing = val;
         this.environmentSettings = settings;
-        this.updateGrid();
+        // this.updateGrid();
     }
 
     updateGrid = () => {
-        let coordinatesArr: any = [];
-        this.drawPolygonPts.forEach(function(coord: PositionType) {
-            coordinatesArr.push([coord.lat, coord.lng]);
-        });
+        // let coordinatesArr: any = [];
+        // this.drawPolygonPts.forEach(function(coord: PositionType) {
+        //     coordinatesArr.push([coord.lat, coord.lng]);
+        // });
 
-        // let geoJsonData: GeoJSON.GeoJsonObject = {"type": "Feature", "properties": {},
-        //   "geometry": {
-        //     "type": "Polygon",
-        //     "coordinates": [
-        //       coordinatesArr
-        //     ]
-        //   }
+
+        // let geoJsonData: GeoJSON.GeoJsonObject = {
+        //     type: "Feature",
+        //     bbox: coordinatesArr
         // };
 
-
-        let geoJsonData: GeoJSON.GeoJsonObject = {
-            type: "Feature",
-            bbox: coordinatesArr
-        };
-
-        let geoJsonLayer = L.geoJSON(geoJsonData);
-        let bounds: L.LatLngBounds = geoJsonLayer.getBounds();
-        let boundingBox: PositionType[] = [];
-        boundingBox.push({lat: bounds.getSouthWest().lng, lng: bounds.getSouthWest().lat, alt: 0}); // Bottom Left
-        boundingBox.push({lat: bounds.getSouthWest().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Bottom Right
-        boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Top Right
-        boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getSouthWest().lat, alt: 0}); // Top Left
-        this.envBoundingBox = boundingBox;
+        // let geoJsonLayer = L.geoJSON(geoJsonData);
+        // let bounds: L.LatLngBounds = geoJsonLayer.getBounds();
+        // let boundingBox: PositionType[] = [];
+        // boundingBox.push({lat: bounds.getSouthWest().lng, lng: bounds.getSouthWest().lat, alt: 0}); // Bottom Left
+        // boundingBox.push({lat: bounds.getSouthWest().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Bottom Right
+        // boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Top Right
+        // boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getSouthWest().lat, alt: 0}); // Top Left
+        // this.envBoundingBox = boundingBox;
 
         // Calculate grid lines based on global origin:
-        this.calculateGridPts(boundingBox);
+        // this.calculateGridPts(boundingBox);
     }
 
     calculateGridPts = (boundingBox: PositionType[]) => {
-        // Only if lat/lng are not at the origin and the grid spacing is greater than 0
-        if(this.globalOrigin.lat !== 0 && this.globalOrigin.lng !== 0) {
-        if(this.environmentSettings.gridSpacing > 0) {
-            let bottomLeft = new L.LatLng(boundingBox[0].lat, boundingBox[0].lng);
-            let bottomRight = new L.LatLng(boundingBox[1].lat, boundingBox[1].lng);
-            // let topRight = new L.LatLng(boundingBox[2].lat, boundingBox[2].lng);
-            let topLeft = new L.LatLng(boundingBox[3].lat, boundingBox[3].lng);
-            let horizDistance = geometryHelper.length([bottomLeft, bottomRight]); // distance between bottom two points
-            let vertDistance = geometryHelper.length([bottomLeft, topLeft]); // distance between two left points
+        // // Only if lat/lng are not at the origin and the grid spacing is greater than 0
+        // if(this.globalOrigin.lat !== 0 && this.globalOrigin.lng !== 0) {
+        // if(this.environmentSettings.gridSpacing > 0) {
+        //     let bottomLeft = new L.LatLng(boundingBox[0].lat, boundingBox[0].lng);
+        //     let bottomRight = new L.LatLng(boundingBox[1].lat, boundingBox[1].lng);
+        //     // let topRight = new L.LatLng(boundingBox[2].lat, boundingBox[2].lng);
+        //     let topLeft = new L.LatLng(boundingBox[3].lat, boundingBox[3].lng);
+        //     let horizDistance = geometryHelper.length([bottomLeft, bottomRight]); // distance between bottom two points
+        //     let vertDistance = geometryHelper.length([bottomLeft, topLeft]); // distance between two left points
 
-            let distanceToNextPt = this.environmentSettings.gridSpacing;
-            let prevPt = bottomLeft;
-            let tmpGridPts: L.LatLng[] = [];
-            let tmpTrimmedPts: L.LatLng[] = [];
-            let numXPts = Math.round(horizDistance/distanceToNextPt);
-            let numYPts = Math.round(vertDistance/distanceToNextPt);
-            for(let i = 0; i <= numYPts; i++) {
-            // Add previous point to the array:
-            if(this.isPtInPoly(prevPt, this.drawPolygonPts)) {
-                tmpGridPts.push(prevPt);
-            }
-            else {
-                tmpTrimmedPts.push(prevPt);
-            }
-            let tmpNewPt = prevPt;
-            for(let j = 0; j <= numXPts; j++) {
-                // Move East to the next point and add to the map:
-                tmpNewPt = geometryHelper.destination(tmpNewPt, 90, distanceToNextPt);;
+        //     let distanceToNextPt = this.environmentSettings.gridSpacing;
+        //     let prevPt = bottomLeft;
+        //     let tmpGridPts: L.LatLng[] = [];
+        //     let tmpTrimmedPts: L.LatLng[] = [];
+        //     let numXPts = Math.round(horizDistance/distanceToNextPt);
+        //     let numYPts = Math.round(vertDistance/distanceToNextPt);
+        //     for(let i = 0; i <= numYPts; i++) {
+        //     // Add previous point to the array:
+        //     if(this.isPtInPoly(prevPt, this.drawPolygonPts)) {
+        //         tmpGridPts.push(prevPt);
+        //     }
+        //     else {
+        //         tmpTrimmedPts.push(prevPt);
+        //     }
+        //     let tmpNewPt = prevPt;
+        //     for(let j = 0; j <= numXPts; j++) {
+        //         // Move East to the next point and add to the map:
+        //         tmpNewPt = geometryHelper.destination(tmpNewPt, 90, distanceToNextPt);;
 
-                // Check if in the polygon or not:
-                if(this.isPtInPoly(tmpNewPt, this.drawPolygonPts)) {
-                tmpGridPts.push(tmpNewPt);
-                }
-                else {
-                tmpTrimmedPts.push(tmpNewPt);
-                }
-            }
+        //         // Check if in the polygon or not:
+        //         if(this.isPtInPoly(tmpNewPt, this.drawPolygonPts)) {
+        //         tmpGridPts.push(tmpNewPt);
+        //         }
+        //         else {
+        //         tmpTrimmedPts.push(tmpNewPt);
+        //         }
+        //     }
 
-            // Move North to the next point:
-            prevPt = geometryHelper.destination(prevPt, 0, distanceToNextPt);;
-            }
+        //     // Move North to the next point:
+        //     prevPt = geometryHelper.destination(prevPt, 0, distanceToNextPt);;
+        //     }
 
-            // Set the grid points to display:
-            let pts = {inPoly: tmpGridPts, trimmedPts: tmpTrimmedPts};
-            this.gridPts = pts;
-        }
-        }
+        //     // Set the grid points to display:
+        //     let pts = {inPoly: tmpGridPts, trimmedPts: tmpTrimmedPts};
+        //     this.gridPts = pts;
+        // }
+        // }
     }
 
 
@@ -208,10 +199,10 @@ export class PolygonHelper {
     };
 
     saveEnvironmentSettings = (settings: EnvironmentSettingsType) => {
-        if(settings.gridSpacing >= settings.minSliderVal && settings.gridSpacing <= settings.maxSliderVal) {
-        console.log("Settings: " + JSON.stringify(settings));
-        this.environmentSettings = settings;
-        this.updateGrid();
+            if(settings.gridSpacing >= settings.minSliderVal && settings.gridSpacing <= settings.maxSliderVal) {
+            console.log("Settings: " + JSON.stringify(settings));
+            this.environmentSettings = settings;
+            // this.updateGrid();
         }
         else {
         // let title = 'Environment settings';

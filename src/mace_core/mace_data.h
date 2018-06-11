@@ -26,6 +26,17 @@
 #include "data/system_description.h"
 #include "data/mission_execution_state.h"
 
+
+#include "maps/octomap_wrapper.h"
+#include "maps/data_2d_grid.h"
+
+#include "octomap/octomap.h"
+#include "octomap/OcTree.h"
+
+#include "base/pose/cartesian_position_3D.h"
+#include "base/pose/orientation_3D.h"
+#include "base/geometry/cell_2DC.h"
+
 namespace MaceCore
 {
 
@@ -63,13 +74,13 @@ public:
     MaceData() :
         m_MSTOKEEP(DEFAULT_MS_RECORD_TO_KEEP), flagBoundaryVerts(false)
     {
-
+        m_OctomapWrapper = new mace::maps::OctomapWrapper();
     }
 
     MaceData(uint64_t historyToKeepInms) :
         m_MSTOKEEP(historyToKeepInms), flagBoundaryVerts(false)
     {
-
+        m_OctomapWrapper = new mace::maps::OctomapWrapper();
     }
 
     /////////////////////////////////////////////////////////
@@ -150,6 +161,20 @@ public:
         return boundaryVerts;
     }
 
+    std::map<int, mace::geometry::Cell_2DC> GetVehicleBoundaryMap() const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleBoundaryMutex);
+        std::map<int, mace::geometry::Cell_2DC> vehicleMap = m_vehicleCellMap;
+        return vehicleMap;
+    }
+
+    std::vector<BoundaryItem::BoundaryList> GetVehicleBoundaryList() const
+    {
+        std::lock_guard<std::mutex> guard(m_VehicleBoundaryMutex);
+        std::vector<BoundaryItem::BoundaryList> boundaryList = m_vehicleBoundaryList;
+        return boundaryList;
+    }
+
 private:
 
     void AddAvailableVehicle(const int &vehicleID, bool internal)
@@ -211,6 +236,15 @@ private:
         flagBoundaryVerts = true;
     }
 
+    void UpdateVehicleCellMap(const std::map<int, mace::geometry::Cell_2DC> &vehicleMap) {
+        std::lock_guard<std::mutex> gaurd(m_VehicleBoundaryMutex);
+        m_vehicleCellMap = vehicleMap;
+    }
+
+    void UpdateVehicleBoundaryList(const std::vector<BoundaryItem::BoundaryList> &boundaryList) {
+        std::lock_guard<std::mutex> gaurd(m_VehicleBoundaryMutex);
+        m_vehicleBoundaryList = boundaryList;
+    }
 
 
     void RemoveVehicle(const std::string &rn)
@@ -435,9 +469,7 @@ private:
     //!
     void OccupancyMap_ReplaceMatrix(const Eigen::MatrixXd &newOccupancyMap)
     {
-        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
-
-        m_OccupancyMap = newOccupancyMap;
+        //m_OccupancyMap = newOccupancyMap;
     }
 
 
@@ -450,9 +482,7 @@ private:
     //!
     void OccupanyMap_ReplaceCells(const std::vector<MatrixCellData<double>> &cells)
     {
-        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
-
-        ReplaceCellsInMatrix(m_OccupancyMap, cells);
+        //ReplaceCellsInMatrix(m_OccupancyMap, cells);
     }
 
 
@@ -465,11 +495,8 @@ private:
     //!
     void OccupancyMap_GenericOperation(const std::function<void(Eigen::MatrixXd &)> &func)
     {
-        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
-
-        func(m_OccupancyMap);
+        //func(m_OccupancyMap);
     }
-
 
     //!
     //! \brief Entirely replaces the stored Probility map with given matrix
@@ -554,23 +581,35 @@ public:
         func(m_ResourceMap);
     }
 
-
-
-
-    //!
-    //! \brief Retreive a copy of the occupancy map
-    //!
-    //! Thread safe
-    //! \return Copy of occupancy map
-    //!
-    Eigen::MatrixXd OccupancyMap_GetCopy() const
+    void insertGlobalObservation(octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position)
     {
-        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
+        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
+        m_OctomapWrapper->updateFromPointCloud(&obj, position);
+    }
 
-        return m_OccupancyMap;
+    void insertObservation(octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position, const mace::pose::Orientation_3D &orientation)
+    {
+        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
+        m_OctomapWrapper->updateFromPointCloud(&obj, position, orientation);
+        //m_OctomapWrapper->updateFromPointCloud(&obj);
+        // TODO: Test insert and origin point. We'll have to ensure a (0,0,0) origin works, or we'll have to calculate the sensor origin as it moves
+        //          - One option is instead of transforming to the world frame, we can pass in a sensor origin AND frame origin point, and the
+        //              overloaded version of insertPointCloud() will transform for us. I'm partial to all sensor data being reported in the world
+        //              frame in this case though
+
+        //m_OccupancyMap.insertPointCloud(obj, octomap::point3d(0,0,0));
+        //        m_OccupancyMap.insertPointCloudRays(obj, octomap::point3d(0,0,0)); // Less efficient than insertPointCloud() accordoing to docs
     }
 
 
+    //!
+    //! \brief checkForOccupancy rather than copying the entire occupancy map
+    //! to the module, the check can be done right from the core
+    //!
+    bool checkForOccupancy()
+    {
+
+    }
 
     //!
     //! \brief Read specific cells from occupancy map
@@ -578,9 +617,7 @@ public:
     //!
     void OccupancyMap_ReadCells(std::vector<MatrixCellData<double>> &cells)
     {
-        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
-
-        ReadCellsInMatrix(m_OccupancyMap, cells);
+        //ReadCellsInMatrix(m_OccupancyMap, cells);
     }
 
 
@@ -593,9 +630,7 @@ public:
     //!
     void OccupancyMap_GenericConstOperation(std::function<void(const Eigen::MatrixXd &)> &func) const
     {
-        std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMap);
-
-        func(m_OccupancyMap);
+        //func(m_OccupancyMap);
     }
 
 
@@ -697,7 +732,10 @@ private:
     CommandItem::SpatialHome m_GlobalOrigin;
     double m_GridSpacing = -1;
     mutable std::mutex m_EnvironmentBoundaryMutex;
+    mutable std::mutex m_VehicleBoundaryMutex;
     std::vector<DataState::StateGlobalPosition> m_BoundaryVerts;
+    std::map<int, mace::geometry::Cell_2DC> m_vehicleCellMap;
+    std::vector<BoundaryItem::BoundaryList> m_vehicleBoundaryList;
     bool flagBoundaryVerts;
 
     std::map<std::string, ObservationHistory<TIME, VectorDynamics> > m_PositionDynamicsHistory;
@@ -708,20 +746,27 @@ private:
 
 
     Eigen::MatrixXd m_ResourceMap;
-    Eigen::MatrixXd m_OccupancyMap;
     Eigen::MatrixXd m_ProbabilityMap;
 
 
     mutable std::mutex m_VehicleDataMutex;
 
     mutable std::mutex m_Mutex_ResourceMap;
-    mutable std::mutex m_Mutex_OccupancyMap;
     mutable std::mutex m_Mutex_ProbabilityMap;
     mutable std::mutex m_TopicMutex;
 
 /////////////////////////////////////////////////////////
 /// PATH PLANNING DATA
 /////////////////////////////////////////////////////////
+
+private:
+    mutable std::mutex m_Mutex_OccupancyMaps;
+    mace::maps::OctomapWrapper* m_OctomapWrapper;
+
+public:
+    octomap::OcTree getOccupancyGrid3D() const;
+    mace::maps::Data2DGrid<mace::maps::OccupiedResult> getCompressedOccupancyGrid2D() const;
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// VEHICLE MISSION METHODS: The following methods are in support of accessing the mission items stored within MaceData.

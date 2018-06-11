@@ -12,7 +12,7 @@ public:
     CartesianPosition_3D():
         AbstractPosition(AbstractPosition::PositionType::CARTESIAN, CoordinateFrame::CF_LOCAL_ENU)
     {
-        std::cout<<"Default cartesian position 3d constructor"<<std::endl;
+        //std::cout<<"Default cartesian position 3d constructor"<<std::endl;
     }
 
     ~CartesianPosition_3D() = default;

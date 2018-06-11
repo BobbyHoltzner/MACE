@@ -3,15 +3,18 @@
 
 #include "i_module_events_general.h"
 
+#include "base/pose/orientation_3D.h"
+#include "base/pose/cartesian_position_3D.h"
+
 namespace MaceCore
 {
 
 class IModuleEventsROS  : public IModuleEventsGeneral
 {
 
-
 public:
-
+    virtual void ROS_NewLaserScan(const octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D>& position) = 0;
+    virtual void ROS_NewLaserScan(const octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D>& position, const mace::pose::Orientation_3D& orientation) = 0;
 
 };
 

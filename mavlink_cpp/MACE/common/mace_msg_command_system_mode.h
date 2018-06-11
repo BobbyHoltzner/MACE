@@ -6,7 +6,7 @@
 MACEPACKED(
 typedef struct __mace_command_system_mode_t {
  uint8_t target_system; /*< Target system ID.*/
- char mode[20]; /*< Char string of the desired flight mode. 20 char limit. */
+ char mode[20]; /*< Char string of the desired flight mode. 20 char limit.*/
 }) mace_command_system_mode_t;
 
 #define MACE_MSG_ID_COMMAND_SYSTEM_MODE_LEN 21
@@ -45,7 +45,7 @@ typedef struct __mace_command_system_mode_t {
  * @param msg The MAVLink message to compress the data into
  *
  * @param target_system Target system ID.
- * @param mode Char string of the desired flight mode. 20 char limit. 
+ * @param mode Char string of the desired flight mode. 20 char limit.
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mace_msg_command_system_mode_pack(uint8_t system_id, uint8_t component_id, mace_message_t* msg,
@@ -74,7 +74,7 @@ static inline uint16_t mace_msg_command_system_mode_pack(uint8_t system_id, uint
  * @param chan The MAVLink channel this message will be sent over
  * @param msg The MAVLink message to compress the data into
  * @param target_system Target system ID.
- * @param mode Char string of the desired flight mode. 20 char limit. 
+ * @param mode Char string of the desired flight mode. 20 char limit.
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mace_msg_command_system_mode_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
@@ -129,7 +129,7 @@ static inline uint16_t mace_msg_command_system_mode_encode_chan(uint8_t system_i
  * @param chan MAVLink channel to send the message
  *
  * @param target_system Target system ID.
- * @param mode Char string of the desired flight mode. 20 char limit. 
+ * @param mode Char string of the desired flight mode. 20 char limit.
  */
 #ifdef MACE_USE_CONVENIENCE_FUNCTIONS
 
@@ -204,7 +204,7 @@ static inline uint8_t mace_msg_command_system_mode_get_target_system(const mace_
 /**
  * @brief Get field mode from command_system_mode message
  *
- * @return Char string of the desired flight mode. 20 char limit. 
+ * @return Char string of the desired flight mode. 20 char limit.
  */
 static inline uint16_t mace_msg_command_system_mode_get_mode(const mace_message_t* msg, char *mode)
 {

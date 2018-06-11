@@ -46,6 +46,7 @@
 #include "controllers/controller_system_mode.h"
 #include "controllers/controller_home.h"
 #include "controllers/controller_mission.h"
+#include "controllers/controller_boundary.h"
 
 
 #include "mace_core/module_characteristics.h"
@@ -144,6 +145,10 @@ public:
     /// Interface via callback functionality.
     ///////////////////////////////////////////////////////////////////////////////////////
     void cbiHeartbeatController_transmitCommand(const mace_heartbeat_t &heartbeat);
+
+    void ReceivedBoundary(const BoundaryList &list);
+    Controllers::DataItem<BoundaryKey, BoundaryList>::FetchKeyReturn FetchBoundaryFromKey(const OptionalParameter<BoundaryKey> &key);
+    Controllers::DataItem<BoundaryKey, BoundaryList>::FetchModuleReturn FetchAllBoundariesFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
 
 
     void ReceivedMission(const MissionItem::MissionList &list);
@@ -360,7 +365,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from IModuleCommandExternalLink.
     ///////////////////////////////////////////////////////////////////////////////////////
-
+    void NewOperationalBoundary(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) override;
     virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey);
@@ -378,7 +383,8 @@ private:
         Controllers::CommandMissionItem<mace_message_t>,
         Controllers::ControllerSystemMode<mace_message_t>,
         Controllers::ControllerHome<mace_message_t>,
-        Controllers::ControllerMission<mace_message_t>
+        Controllers::ControllerMission<mace_message_t>,
+        Controllers::ControllerBoundary<mace_message_t>
     > m_Controllers;
 
 private:

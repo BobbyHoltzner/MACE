@@ -14,6 +14,8 @@ class CircleMapIterator
 public:
     CircleMapIterator(const BaseGridMap *map, const pose::CartesianPosition_2D &origin, const double &radius);
 
+    CircleMapIterator(const BaseGridMap *map, const unsigned int &index, const double &radius);
+
     CircleMapIterator(const CircleMapIterator* copy);
 
     ~CircleMapIterator()
@@ -43,7 +45,7 @@ public:
 
     bool operator !=(const CircleMapIterator &rhs) const;
 
-    const int operator *() const;
+    int operator *() const;
 
 private:
     bool isInside() const;

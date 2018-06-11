@@ -14,18 +14,21 @@ extern "C" {
 #define MACE_TEST_ALL
 static void mace_test_common(uint8_t, uint8_t, mace_message_t *last_msg);
 static void mace_test_mission(uint8_t, uint8_t, mace_message_t *last_msg);
+static void mace_test_boundary(uint8_t, uint8_t, mace_message_t *last_msg);
 static void mace_test_mace_common(uint8_t, uint8_t, mace_message_t *last_msg);
 
 static void mace_test_all(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)
 {
     mace_test_common(system_id, component_id, last_msg);
     mace_test_mission(system_id, component_id, last_msg);
+    mace_test_boundary(system_id, component_id, last_msg);
     mace_test_mace_common(system_id, component_id, last_msg);
 }
 #endif
 
 #include "../common/testsuite.h"
 #include "../mission/testsuite.h"
+#include "../boundary/testsuite.h"
 
 
 static void mace_test_vehicle_sync(uint8_t system_id, uint8_t component_id, mace_message_t *last_msg)

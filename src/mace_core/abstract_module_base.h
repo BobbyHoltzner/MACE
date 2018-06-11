@@ -15,6 +15,8 @@
 
 #include "module_characteristics.h"
 
+#define BASE_MODULE_LISTENER_ENUMS NEWLY_AVAILABLE_VEHICLE, NEWLY_UPDATED_GLOBAL_ORIGIN
+
 namespace MaceCore
 {
 

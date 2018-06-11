@@ -28,6 +28,8 @@ std::vector<state_space::State*> RRTBase::solve()
     m_nnStrategy->add(start);
 
     while(true){
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
         RootNode* sampleNode = new RootNode(m_spaceInfo->getStateSpace());
         //get the state from the node so that we can update this in memory when sampling
         state_space::State* sampleState = sampleNode->getCurrentState();
@@ -87,8 +89,6 @@ std::vector<state_space::State*> RRTBase::solve()
                 break;
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
-
     } //end of while loop
 
     if(finalNode != nullptr)

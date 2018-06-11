@@ -9,6 +9,7 @@
 #include "mace_core/i_module_command_RTA.h"
 
 #include "data_generic_state_item_topic/state_topic_components.h"
+#include "data_generic_command_item/command_item_components.h"
 #include "data_vehicle_sensors/components.h"
 #include "data_generic_state_item/positional_aid.h"
 
@@ -25,6 +26,8 @@ class MODULE_RESOURCE_TASK_ALLOCATIONSHARED_EXPORT ModuleRTA : public MaceCore::
 
 public:
     ModuleRTA();
+
+    ~ModuleRTA();
 
     //!
     //! \brief This module as been attached as a module
@@ -74,9 +77,15 @@ public:
     //! Virtual functions as defined by IModuleCommandRTA
 public:
 
-    virtual void NewlyAvailableVehicle(const int &vehicleID);
+    void NewlyAvailableVehicle(const int &vehicleID) override;
 
-    virtual void TestFunction(const int &vehicleID);
+    void TestFunction(const int &vehicleID) override;
+
+    void NewlyUpdatedGridSpacing() override;
+
+    void NewlyUpdatedGlobalOrigin() override;
+
+    void NewlyUpdatedBoundaryVertices() override;
 
 private:
     /**
@@ -86,14 +95,7 @@ private:
      */
     void updateMACEMissions(std::map<int, Cell_2DC> updateCells, GridDirection direction);
 
-    /**
-     * @brief parseBoundaryVertices Given a string of delimited (lat, lon) pairs, parse into a vector of points
-     * @param unparsedVertices String to parse with delimiters
-     * @param globalOrigin Global position to convert relative to
-     * @param vertices Container for boundary vertices
-     * @return true denotes >= 3 vertices to make a polygon, false denotes invalid polygon
-     */
-    bool parseBoundaryVertices(std::string unparsedVertices, const DataState::StateGlobalPosition globalOrigin, std::vector<Position<CartesianPosition_2D> > &vertices);
+    void updateEnvironment();
 
 private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
@@ -104,9 +106,18 @@ private:
     // Environment
     std::shared_ptr<Environment_Map> environment;
 
+    std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
+    double m_gridSpacing;
+//    std::string m_vertsStr;
+    std::vector<Position<CartesianPosition_2D> > m_boundaryVerts;
+    std::map<int, Position<CartesianPosition_2D> > m_vehicles;
+    std::map<int, mace::geometry::Cell_2DC> m_vehicleCells;
+
     // Flags:
-    bool originSent;
+    bool m_globalInstance;
+    bool gridSpacingSent;
     bool environmentBoundarySent;
+
 };
 
 #endif // MODULE_RTA_H

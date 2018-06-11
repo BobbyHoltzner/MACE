@@ -43,6 +43,7 @@ INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$(MACE_ROOT)/include
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
 DEPENDPATH += $$PWD/../
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
@@ -110,4 +111,3 @@ exists(/opt/ros/kinetic/lib/) {
         LIBS += -L/opt/ros/kinetic/lib -loctomap_ros
 }
 }
-

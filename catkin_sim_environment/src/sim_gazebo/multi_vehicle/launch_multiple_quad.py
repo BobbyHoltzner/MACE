@@ -10,14 +10,16 @@ if __name__ == '__main__':
     # Parse command line arguments:
     parser = argparse.ArgumentParser()
     parser.add_argument('fp', type=str, help='Relative file path to the launch script JSON configuration file. (e.g.: ./config_2vehicles_kinect.json)')
-    args = parser.parse_args()
-    with open(args.fp, 'r') as in_file:
-        args = json.load(in_file)
+    config = parser.parse_args()
+    with open(config.fp, 'r') as in_file:
+        config = json.load(in_file)
 
+    rosArgs = config['ROSParams']
+    vehicles = config['vehicles']
     
     # Get an instance of RosPack with the default search paths
     rospack = rospkg.RosPack()
-    world_name = rospack.get_path('sim_gazebo') + "/worlds/" + args['worldName'] + ".world"
+    world_name = rospack.get_path('sim_gazebo') + "/worlds/" + rosArgs['worldName'] + ".world"
 
     # Define a terminal and add the world launch to the first tab:
     terminal = ['gnome-terminal']
@@ -25,21 +27,21 @@ if __name__ == '__main__':
         bash -c '
         roslaunch sim_gazebo start_world.launch paused:={} gui:={} world_name:={} octomap_rviz:={}
         '
-    '''.format(args['pause'], args['gui'], args['worldName'], args['octomap']) % locals()])
+    '''.format(rosArgs['pause'], rosArgs['gui'], rosArgs['worldName'], rosArgs['octomap']) % locals()])
 
     # Loop over vehicle ID/sensor array to extend the command to launch each vehicle
-    for key, value in args["vehicles"].items():
+    for key, value in vehicles.items():
         print("____________ Launch quad with Vehicle ID = {} ____________".format(key))
         print("================= with sensor = {} =================".format(value))
         # is_fat = True
         # state = "fat" if is_fat else "not fat"
-        add_sensors = args["addSensors"] if value != "" else False
+        add_sensors = value["enableSensor"] if value != "" else False
         terminal.extend(['--tab', '--command', '''
             bash -c '
             sleep 3
             roslaunch -v sim_gazebo multi_basic_quadrotor.launch vehicle_id:={} add_sensors:={} model_name:={} x:={}
             '
-        '''.format(key, add_sensors, value, key) % locals()])
+        '''.format(key, add_sensors, value["sensor"], key) % locals()])
 
 
     # Execute the command:

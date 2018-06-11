@@ -39,8 +39,8 @@ SUBDIRS += \
 
 
 base.depends = common
-planners.depends = base
 maps.depends = base
+planners.depends = maps
 data.depends = common
 baseTopic.depends = base
 comms.depends = common
