@@ -122,6 +122,9 @@ public:
     //!
     virtual T newPositionFromCompass(const double &distance, const double &bearing) const = 0;
 
+    virtual void applyPositionalShiftFromPolar(const double &distance, const double &bearing)  = 0;
+
+    virtual void applyPositionalShiftFromCompass(const double &distance, const double &bearing)  = 0;
 
 
 protected:

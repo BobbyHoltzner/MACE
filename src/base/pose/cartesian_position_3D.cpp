@@ -78,5 +78,15 @@ CartesianPosition_3D CartesianPosition_3D::newPositionFromCompass(const double &
     return newPositionFromPolar(distance,polarBearing);
 }
 
+void CartesianPosition_3D::applyPositionalShiftFromPolar(const double &distance, const double &bearing)
+{
+
+}
+
+void CartesianPosition_3D::applyPositionalShiftFromCompass(const double &distance, const double &bearing)
+{
+
+}
+
 } //end of namespace pose
 } //end of namespace mace

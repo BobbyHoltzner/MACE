@@ -154,7 +154,7 @@ public:
         return gridSpacing;
     }
 
-    std::vector<mace::geometry::Polygon_2DC>
+    std::vector<mace::geometry::Polygon_2DC> 
     //This is like the
     std::vector<DataState::StateGlobalPosition> GetEnvironmentBoundary() const
     {

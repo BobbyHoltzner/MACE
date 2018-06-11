@@ -149,6 +149,10 @@ public:
     //! \return
     //!
     GeodeticPosition_2D newPositionFromCompass(const double &distance, const double &bearing) const override;
+
+    void applyPositionalShiftFromPolar(const double &distance, const double &bearing) override;
+
+    void applyPositionalShiftFromCompass(const double &distance, const double &bearing) override;
 };
 
 } //end of namespace pose

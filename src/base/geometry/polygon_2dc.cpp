@@ -186,6 +186,10 @@ void Polygon_2DC::getCorners(Position<CartesianPosition_2D> &topLeft, Position<C
     bottomRight = getBottomRight();
 }
 
+CoordinateFrame Polygon_2DC::getVertexCoordinateFrame() const
+{
+    return CoordinateFrame::CF_LOCAL_ENU;
+}
 
 
 } //end of namespace geometry

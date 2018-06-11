@@ -26,10 +26,8 @@
 #include "maps/octomap_wrapper.h"
 
 using namespace octomap;
-=======
 using namespace mace ;
 using namespace geometry;
->>>>>>> master
 
 const char kPathSeparator =
         #ifdef _WIN32
@@ -108,7 +106,6 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-<<<<<<< HEAD
     char* MACEPath = getenv("MACE_ROOT");
     std::string rootPath(MACEPath);
     std::string btFile = rootPath + kPathSeparator + "simple_test_000_303030_newOrigin.bt";
@@ -163,12 +160,5 @@ int main(int argc, char *argv[])
         smartSolution.at(i) = state;
         std::cout<<"X: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
     }
-
-=======
-    Polygon_2DC newPolygon;
-    newPolygon.initializePolygon(10);
-    std::vector<int> indices = newPolygon.findUndefinedVertices();
-    std::cout<<"The size of the vector is: "<<indices.size()<<std::endl;
->>>>>>> master
     return a.exec();
 }

@@ -65,5 +65,15 @@ GeodeticPosition_2D GeodeticPosition_2D::newPositionFromCompass(const double &di
 
 }
 
+void GeodeticPosition_2D::applyPositionalShiftFromPolar(const double &distance, const double &bearing)
+{
+
+}
+
+void GeodeticPosition_2D::applyPositionalShiftFromCompass(const double &distance, const double &bearing)
+{
+
+}
+
 } //end of namespace pose
 } //end of namespace mace

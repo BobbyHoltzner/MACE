@@ -396,7 +396,6 @@ void OctomapWrapper::updateFreeNode(const octomap::OcTree::iterator &it)
 void OctomapWrapper::updateOccupiedNode(const octomap::OcTree::iterator &it)
 {
     updateMapOccupancyRecursiveCheck(it,true);
-
 }
 
 //void OctomapWrapper::filterGroundPlane(const octomap::Pointcloud& pc, octomap::Pointcloud& ground, octomap::Pointcloud& nonground) const

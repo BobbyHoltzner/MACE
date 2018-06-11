@@ -90,6 +90,7 @@ private:
     octomap::OcTreeKey paddedMaxKey;
 
     maps::Data2DGrid<OccupiedResult>* m_Map;
+    maps::Data2DGrid<unsigned int>* m_InflatedMap;
 
     OctomapSensorDefinition* m_sensorProperties;
     Octomap2DProjectionDefinition* m_projectionProperties;

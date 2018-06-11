@@ -175,6 +175,10 @@ public:
     //!
     CartesianPosition_2D newPositionFromCompass(const double &distance, const double &bearing) const override;
 
+    void applyPositionalShiftFromPolar(const double &distance, const double &bearing) override;
+
+    void applyPositionalShiftFromCompass(const double &distance, const double &bearing) override;
+
 public:
     friend std::ostream& operator<<(std::ostream& os, const CartesianPosition_2D& t);
 

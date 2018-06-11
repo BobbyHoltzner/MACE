@@ -73,6 +73,16 @@ CartesianPosition_2D CartesianPosition_2D::newPositionFromCompass(const double &
     return newPositionFromPolar(distance,polarBearing);
 }
 
+void CartesianPosition_2D::applyPositionalShiftFromPolar(const double &distance, const double &bearing)
+{
+
+}
+
+void CartesianPosition_2D::applyPositionalShiftFromCompass(const double &distance, const double &bearing)
+{
+
+}
+
 void CartesianPosition_2D::normalize()
 {
     double magnitude = sqrt(pow(getXPosition(),2) + pow(getYPosition(),2));
@@ -85,6 +95,7 @@ void CartesianPosition_2D::scale(const double &value)
     this->setXPosition(getXPosition()*value);
     this->setYPosition(getYPosition()*value);
 }
+
 
 std::ostream& operator<<(std::ostream& os, const CartesianPosition_2D& t)
 {

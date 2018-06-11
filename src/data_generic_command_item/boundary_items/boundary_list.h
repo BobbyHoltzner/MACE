@@ -1,13 +1,20 @@
 #ifndef BOUNDARY_LIST_H
 #define BOUNDARY_LIST_H
 
+#include "common/common.h"
+
 #include "base/geometry/polygon_2DC.h"
 
 #include "boundary_key.h"
 
 using namespace mace::pose;
 
+MACE_CLASS_FORWARD(BoundaryList);
+
 namespace BoundaryItem {
+
+typedef std::pair<BoundaryKey, BoundaryList> BoundaryPair;
+typedef std::pair<int, BoundaryPair> BoundaryMapPair;
 
 class BoundaryList
 {
@@ -101,9 +108,11 @@ public:
         return !(*this == rhs);
     }
 
+public:
+    mace::geometry::Polygon_2DC boundingPolygon;
+
 private:
     BoundaryKey boundaryKey;
-    mace::geometry::Polygon_2DC boundingPolygon;
 
 public:
     friend std::ostream& operator<<(std::ostream& os, const BoundaryList& t);

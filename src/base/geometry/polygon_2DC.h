@@ -63,7 +63,7 @@ public:
     //!
     Position<CartesianPosition_2D> getCenter() const;
 
-    std::vector<int> findUndefinedVertices() const
+    std::vector<int> findUndefinedVertices() const override
     {
         int index = 0;
         std::vector<int> nullItems;
@@ -86,6 +86,8 @@ public:
     Position<CartesianPosition_2D> getBottomRight() const override;
 
     void getCorners(Position<CartesianPosition_2D> &topLeft, Position<CartesianPosition_2D> &bottomRight) const override;
+
+    mace::pose::CoordinateFrame getVertexCoordinateFrame() const override;
 
 public:
     double getXMin() const
