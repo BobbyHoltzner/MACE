@@ -409,7 +409,7 @@ void ModuleROS::setupROS() {
     //    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","basic_quadrotor/base_link"));
 
     // TESTING:
-    cloudInPub = nh.advertise<sensor_msgs::PointCloud2>("cloud_in", 50);
+//    cloudInPub = nh.advertise<sensor_msgs::PointCloud2>("cloud_in", 50);
     compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",10);
     occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",10);
     // END TESTING
@@ -566,7 +566,7 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     //          - Ideally, for the entire octomap, we don't care about which vehicle its coming from. They should be updating the
     //              same octomap
 
-    cloudInPub.publish(msg);
+//    cloudInPub.publish(msg);
 
     //
 }
