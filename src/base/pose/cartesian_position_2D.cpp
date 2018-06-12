@@ -69,18 +69,22 @@ CartesianPosition_2D CartesianPosition_2D::newPositionFromPolar(const double &di
 //!
 CartesianPosition_2D CartesianPosition_2D::newPositionFromCompass(const double &distance, const double &bearing) const
 {
-    double polarBearing = -bearing + 90;
+    double polarBearing = wrapTo2Pi(-bearing + 90);
     return newPositionFromPolar(distance,polarBearing);
 }
 
 void CartesianPosition_2D::applyPositionalShiftFromPolar(const double &distance, const double &bearing)
 {
-
+    double deltaX = distance * sin(bearing);
+    double deltaY = distance * cos(bearing);
+    this->setXPosition(getXPosition() + deltaX);
+    this->setYPosition(getTPosition() + deltaY);
 }
 
 void CartesianPosition_2D::applyPositionalShiftFromCompass(const double &distance, const double &bearing)
 {
-
+    double polarBearing = wrapTo2Pi(-bearing + 90);
+    applyPositionalShiftFromPolar(distance,polarBearing);
 }
 
 void CartesianPosition_2D::normalize()

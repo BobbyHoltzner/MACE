@@ -4,6 +4,8 @@
 #include "base_position.h"
 #include "base/state_space/state.h"
 
+using namespace mace::math;
+
 namespace mace{
 namespace pose {
 

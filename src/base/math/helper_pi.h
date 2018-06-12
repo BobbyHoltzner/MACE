@@ -66,7 +66,29 @@ inline T correctBearing(const T &value)
     return fmod((value * 180.0/M_PI) + 360.0,360.0);
 }
 
-}  // End of MATH namespace
+/**
+ * @brief Position::convertDegreesToRadians
+ * @param degrees
+ * @return
+ */
+inline double convertDegreesToRadians(const double &degrees)
+{
+    double radians = degrees * (M_PI/180.0);
+    return radians;
+}
+
+/**
+ * @brief Position::convertRadiansToDegrees
+ * @param radians
+ * @return
+ */
+inline double convertRadiansToDegrees(const double &radians)
+{
+    double degrees = radians * (180.0/M_PI);
+    return degrees;
+}
+
+}  // End of math namespace
 }  // End of namespace
 
 #endif

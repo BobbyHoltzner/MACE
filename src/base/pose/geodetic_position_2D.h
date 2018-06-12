@@ -3,7 +3,9 @@
 
 #include "base_position.h"
 
-namespace mace{
+using namespace mace::math;
+
+namespace mace {
 namespace pose {
 
 class GeodeticPosition_2D : public AbstractPosition<GeodeticPosition_2D, misc::Data2D>
