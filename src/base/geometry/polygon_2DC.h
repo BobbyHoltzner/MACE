@@ -61,7 +61,7 @@ public:
     //! \brief getCenter
     //! \return
     //!
-    Position<CartesianPosition_2D> getCenter() const;
+    Position<CartesianPosition_2D> getCenter() const;    
 
     std::vector<int> findUndefinedVertices() const override
     {
@@ -89,6 +89,8 @@ public:
 
     mace::pose::CoordinateFrame getVertexCoordinateFrame() const override;
 
+    void applyCoordinateShift(const double &distance, const double &bearing);
+
 public:
     double getXMin() const
     {
@@ -113,7 +115,24 @@ public:
 protected:
     void updateBoundingBox() override;
 
+    /** Assignment Operators **/
 public:
+
+    //!
+    //! \brief operator =
+    //! \param rhs
+    //! \return
+    //!
+    Polygon_2DC& operator = (const Polygon_2DC &rhs)
+    {
+        PolygonBase::operator =(rhs);
+        this->xMin = rhs.xMin;
+        this->yMin = rhs.yMin;
+        this->xMax = rhs.xMax;
+        this->yMax = rhs.yMax;
+        return *this;
+    }
+
     //!
     //! \brief operator ==
     //! \param rhs

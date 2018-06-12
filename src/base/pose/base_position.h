@@ -23,6 +23,14 @@ public:
     virtual ~CartesianPosition() = default;
 };
 
+class GeodeticPosition
+{
+public:
+    GeodeticPosition() = default;
+
+    virtual ~GeodeticPosition() = default;
+};
+
 template<typename T>
 class Position : public T
 {
@@ -37,6 +45,13 @@ public:
         T(ref)
     {
         this->name = ref.name;
+    }
+
+    template<typename ... Arg>
+    Position(const Arg ... arg):
+        T(arg ...),
+        name("Position Object")
+    {
     }
 
     template<typename ... Arg>

@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 #Necessary header includes
 INCLUDEPATH += $$(MACE_ROOT)/include
+INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/common

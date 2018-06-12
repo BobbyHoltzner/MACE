@@ -5,13 +5,13 @@
 namespace BoundaryItem {
 
 BoundaryList::BoundaryList() :
-    boundaryKey(0,0,BOUNDARYTYPE::GENERIC_POLYGON), boundingPolygon(BoundaryTypeToString(BOUNDARYTYPE::GENERIC_POLYGON))
+    boundaryKey(0,0,BOUNDARYTYPE::GENERIC_POLYGON)
 {
 
 }
 
 BoundaryList::BoundaryList(const int &targetID, const int &generatorID, const BOUNDARYTYPE &boundaryType) :
-    boundaryKey(targetID,generatorID,boundaryType), boundingPolygon(BoundaryTypeToString(boundaryType) + " for " + std::to_string(targetID))
+    boundaryKey(targetID,generatorID,boundaryType)
 {
 
 }
@@ -24,39 +24,43 @@ BoundaryList::BoundaryList(const BoundaryList &rhs)
 
 void BoundaryList::initializeBoundary(const int &size)
 {
-    boundingPolygon.initializePolygon(size);
+    boundingPolygon->initializePolygon(size);
 }
 
 void BoundaryList::clearQueue()
 {
-    boundingPolygon.clearPolygon();
+    boundingPolygon->clearPolygon();
 }
 
-void BoundaryList::appendVertexItem(const Position<CartesianPosition_2D> &vertexItem)
+template<typename T>
+void BoundaryList::appendVertexItem(const Position<T> &vertexItem)
 {
-    boundingPolygon.appendVertex(vertexItem);
+    boundingPolygon->appendVertex(vertexItem);
 }
 
-void BoundaryList::replaceVertexItemAtIndex(const Position<CartesianPosition_2D> &vertexItem, const int &index)
+template<typename T>
+void BoundaryList::replaceVertexItemAtIndex(const Position<T> &vertexItem, const int &index)
 {
-    boundingPolygon.insertVertexAtIndex(vertexItem, index);
+    boundingPolygon->insertVertexAtIndex(vertexItem,index);
 }
 
-Position<CartesianPosition_2D> BoundaryList::getBoundaryItemAtIndex(const int &index) const
+template<typename T>
+Position<T> BoundaryList::getBoundaryItemAtIndex(const int &index) const
 {
-    Position<CartesianPosition_2D> vertex = boundingPolygon.at(index);
-    return vertex;
+    return boundingPolygon->at(index);
+    //return vertex;
 }
 
-int BoundaryList::getQueueSize() const
+template<typename T>
+int BoundaryList<T>::getQueueSize() const
 {
-    return boundingPolygon.polygonSize();
+    return boundingPolygon->polygonSize();
 }
 
 BoundaryList::BoundaryListStatus BoundaryList::getBoundaryListStatus() const
 {
     BoundaryListState boundaryState = BoundaryListState::COMPLETE;
-    std::vector<int> nullItems = boundingPolygon.findUndefinedVertices();
+    std::vector<int> nullItems = boundingPolygon->findUndefinedVertices();
     if(nullItems.size() > 0)
         boundaryState = BoundaryListState::INCOMPLETE;
 
@@ -66,7 +70,6 @@ BoundaryList::BoundaryListStatus BoundaryList::getBoundaryListStatus() const
 
     return boundaryStatus;
 }
-
 
 std::ostream& operator<<(std::ostream& os, const BoundaryList& t)
 {

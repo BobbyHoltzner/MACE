@@ -13,9 +13,39 @@ double GeodeticPosition_2D::deltaLongitude(const GeodeticPosition_2D &that) cons
     return this->getLongitude() - that.getLongitude();
 }
 
-double GeodeticPosition_2D::distanceBetween2D(const GeodeticPosition_2D &pos) const
+double GeodeticPosition_2D::distanceFromOrigin() const
 {
+    GeodeticPosition_2D origin;
+    return distanceBetween2D(origin);
+}
 
+double GeodeticPosition_2D::polarBearingFromOrigin() const
+{
+    GeodeticPosition_2D origin;
+    return origin.polarBearingTo(*this);
+}
+
+double GeodeticPosition_2D::distanceBetween2D(const GeodeticPosition_2D &position) const
+{
+    double earthRadius = 6371000; //approximate value in meters
+
+    double originLatitude = convertDegreesToRadians(this->getLatitude());
+    double originLongitude = convertDegreesToRadians(this->getLongitude());
+    double finalLatitude = convertDegreesToRadians(position.getLatitude());
+    double finalLongitude = convertDegreesToRadians(position.getLongitude());
+
+    double deltaLatitude = finalLatitude - originLatitude;
+    double deltaLongitude = finalLongitude - originLongitude;
+
+    double tmpA = sin(deltaLatitude/2) * sin(deltaLatitude/2) +
+            cos(originLatitude) * cos(finalLatitude) *
+            sin(deltaLongitude/2) * sin(deltaLongitude/2);
+
+    double tmpC = 2 * atan2(sqrt(tmpA),sqrt(1-tmpA));
+
+    double distance = earthRadius * tmpC;
+
+    return distance;
 }
 
 double GeodeticPosition_2D::distanceTo(const GeodeticPosition_2D &pos) const
@@ -55,20 +85,20 @@ double GeodeticPosition_2D::compassBearingTo(const GeodeticPosition_2D &pos) con
     return correctBearing(polarBearingTo(pos));
 }
 
+
 //!
-//! \brief GeodeticPosition_2D::newPositionFromPolar
+//! \brief GeodeticPosition_3D::newPositionFromPolar
 //! \param distance
 //! \param bearing
 //! \return
 //!
 GeodeticPosition_2D GeodeticPosition_2D::newPositionFromPolar(const double &distance, const double &bearing) const
 {
-    double compassDirection = -90 + bearing;
-    return newPositionFromCompass(distance,wrapTo2Pi(compassDirection));
+    return newPositionFromCompass(distance,polarToCompassBearing(bearing));
 }
 
 //!
-//! \brief GeodeticPosition_2D::newPositionFromCompass
+//! \brief GeodeticPosition_3D::newPositionFromCompass
 //! \param distance
 //! \param bearing
 //! \return
@@ -92,12 +122,16 @@ GeodeticPosition_2D GeodeticPosition_2D::newPositionFromCompass(const double &di
 
 void GeodeticPosition_2D::applyPositionalShiftFromPolar(const double &distance, const double &bearing)
 {
-
+    GeodeticPosition_2D newPosition = newPositionFromPolar(distance,bearing);
+    this->setLatitude(newPosition.getLatitude());
+    this->setLongitude(newPosition.getLongitude());
 }
 
 void GeodeticPosition_2D::applyPositionalShiftFromCompass(const double &distance, const double &bearing)
 {
-
+    GeodeticPosition_2D newPosition = newPositionFromCompass(distance,bearing);
+    this->setLatitude(newPosition.getLatitude());
+    this->setLongitude(newPosition.getLongitude());
 }
 
 } //end of namespace pose

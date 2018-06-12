@@ -13,7 +13,8 @@ enum class RTACommands
 {
     BASE_MODULE_LISTENER_ENUMS,
     TEST_FUNCTION,
-    NEWLY_UPDATED_BOUNDARY_VERTICES,
+    NEWLY_UPDATED_OPERATIONAL_FENCE,
+    NEWLY_UPDATED_RESOURCE_FENCE,
     NEWLY_UPDATED_GRID_SPACING
 };
 
@@ -42,10 +43,14 @@ public:
             NewlyUpdatedGlobalOrigin();
         });
 
-        AddCommandLogic<int>(RTACommands::NEWLY_UPDATED_BOUNDARY_VERTICES, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<BoundaryItem::BoundaryList>(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, [this](const BoundaryItem::BoundaryList &boundary, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
-            UNUSED(vehicleID);
-            NewlyUpdatedBoundaryVertices();
+            NewlyUpdatedOperationalFence(boundary);
+        });
+
+        AddCommandLogic<BoundaryItem::BoundaryList>(RTACommands::NEWLY_UPDATED_RESOURCE_FENCE, [this](const BoundaryItem::BoundaryList &boundary, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            NewlyUpdatedResourceFence(boundary);
         });
 
         AddCommandLogic<int>(RTACommands::NEWLY_UPDATED_GRID_SPACING, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
@@ -73,7 +78,12 @@ public:
     //!
     //! \brief NewlyUpdatedBoundaryVertices
     //!
-    virtual void NewlyUpdatedBoundaryVertices() = 0;
+    virtual void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) = 0;
+
+    //!
+    //! \brief NewlyUpdatedResourceFence
+    //!
+    virtual void NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boundary) = 0;
 
     //!
     //! \brief NewlyUpdatedGridSpacing

@@ -1,5 +1,5 @@
-#ifndef GEODETIC_POSITION_2D_H
-#define GEODETIC_POSITION_2D_H
+#ifndef GEODETIC_POSITION_3D_H
+#define GEODETIC_POSITION_3D_H
 
 #include "base_position.h"
 #include "base/state_space/state.h"
@@ -9,42 +9,47 @@ using namespace mace::math;
 namespace mace {
 namespace pose {
 
-class GeodeticPosition_2D : public AbstractPosition<GeodeticPosition_2D, misc::Data2D>, public GeodeticPosition,
+class GeodeticPosition_3D : public AbstractPosition<GeodeticPosition_3D, misc::Data3D>, public GeodeticPosition,
         public state_space::State
 {
 public:
-    GeodeticPosition_2D():
+    GeodeticPosition_3D():
         AbstractPosition(AbstractPosition::PositionType::GEODETIC, CoordinateFrame::CF_GLOBAL_RELATIVE_ALT)
     {
 
     }
 
-    GeodeticPosition_2D(const GeodeticPosition_2D &copy):
+    GeodeticPosition_3D(const GeodeticPosition_3D &copy):
         AbstractPosition(copy), state_space::State(copy)
     {
 
     }
 
-    GeodeticPosition_2D(const double latitude, const double &longitude):
+    GeodeticPosition_3D(const double latitude, const double &longitude, const double &altitude):
         AbstractPosition(AbstractPosition::PositionType::CARTESIAN, CoordinateFrame::CF_GLOBAL_RELATIVE_ALT)
     {
-        this->data.setData(latitude,longitude);
+        this->data.setData(latitude,longitude,altitude);
     }
 
     State* getClone() const override
     {
-        return (new GeodeticPosition_2D(*this));
+        return (new GeodeticPosition_3D(*this));
     }
 
     void getClone(State** state) const override
     {
-        *state = new GeodeticPosition_2D(*this);
+        *state = new GeodeticPosition_3D(*this);
     }
 
 public:
     void updatePosition(const double &latitude, const double &longitude)
     {
-        this->data.setData(latitude,longitude);
+        this->data.setData(latitude,longitude,this->getAltitude());
+    }
+
+    void updatePosition(const double &latitude, const double &longitude, const double &altitude)
+    {
+        this->data.setData(latitude,longitude,altitude);
     }
 
     void setLatitude(const double &latitude)
@@ -57,6 +62,11 @@ public:
         this->data.setY(longitude);
     }
 
+    void setAltitude(const double &altitude)
+    {
+        this->data.setZ(altitude);
+    }
+
     double getLatitude() const
     {
         return this->data.getX();
@@ -67,9 +77,14 @@ public:
         return this->data.getY();
     }
 
-    Eigen::Vector2d getAsVector()
+    double getAltitude() const
     {
-        Eigen::Vector2d vec(this->data.getX(), this->data.getY());
+        return this->data.getZ();
+    }
+
+    Eigen::Vector3d getAsVector()
+    {
+        Eigen::Vector3d vec(this->data.getX(), this->data.getY(), this->data.getZ());
         return vec;
     }
 
@@ -80,11 +95,17 @@ public:
 
     bool hasLongitudeBeenSet() const
     {
-        return this->data.getDataYFlag();
+        return this->data.getDataXFlag();
     }
+
+    bool hasAltitudeBeenSet() const
+    {
+        return this->data.getDataZFlag();
+    }
+
 public:
-    double deltaLatitude(const GeodeticPosition_2D &that) const;
-    double deltaLongitude(const GeodeticPosition_2D &that) const;
+    double deltaLatitude(const GeodeticPosition_3D &that) const;
+    double deltaLongitude(const GeodeticPosition_3D &that) const;
 public:
     void setCoordinateFrame(const GlobalFrameType &desiredFrame)
     {
@@ -99,9 +120,9 @@ public:
     //! \param that
     //! \return
     //!
-    GeodeticPosition_2D operator + (const GeodeticPosition_2D &that) const
+    GeodeticPosition_3D operator + (const GeodeticPosition_3D &that) const
     {
-        GeodeticPosition_2D newPoint(*this);
+        GeodeticPosition_3D newPoint(*this);
         newPoint.data = this->data + that.data;
         return newPoint;
     }
@@ -111,9 +132,9 @@ public:
     //! \param that
     //! \return
     //!
-    GeodeticPosition_2D operator - (const GeodeticPosition_2D &that) const
+    GeodeticPosition_3D operator - (const GeodeticPosition_3D &that) const
     {
-        GeodeticPosition_2D newPoint(*this);
+        GeodeticPosition_3D newPoint(*this);
         newPoint.data = this->data - that.data;
         return newPoint;
     }
@@ -121,37 +142,58 @@ public:
 
 public:
 
-    double distanceFromOrigin() const override;
-
-    double polarBearingFromOrigin() const override;
+    //!
+    //! \brief deltaAltitude
+    //! \param position
+    //! \return
+    //!
+    double deltaAltitude(const GeodeticPosition_3D &position) const;
 
     //!
     //! \brief distanceBetween2D
     //! \param position
     //! \return
     //!
-    double distanceBetween2D(const GeodeticPosition_2D &position) const override;
+    double distanceBetween2D(const GeodeticPosition_3D &pos) const override;
+
+    //!
+    //! \brief distanceBetween3D
+    //! \param position
+    //! \return
+    //!
+    double distanceBetween3D(const GeodeticPosition_3D &position) const;
 
     //!
     //! \brief distanceTo
     //! \param position
     //! \return
     //!
-    double distanceTo(const GeodeticPosition_2D &pos) const override;
+    double distanceTo(const GeodeticPosition_3D &pos) const override;
+
+    double distanceFromOrigin() const override;
+
+    double polarBearingFromOrigin() const override;
 
     //!
     //! \brief polarBearingTo
     //! \param position
     //! \return
     //!
-    double polarBearingTo(const GeodeticPosition_2D &pos) const override;
+    double polarBearingTo(const GeodeticPosition_3D &pos) const override;
 
     //!
     //! \brief polarBearingTo
     //! \param position
     //! \return
     //!
-    double compassBearingTo(const GeodeticPosition_2D &pos) const override;
+    double compassBearingTo(const GeodeticPosition_3D &pos) const override;
+
+    //!
+    //! \brief polarAzimuthTo
+    //! \param position
+    //! \return
+    //!
+    double elevationAngleTo(const GeodeticPosition_3D &position) const;
 
     //!
     //! \brief newPositionFromPolar
@@ -159,7 +201,9 @@ public:
     //! \param compassBearing
     //! \return
     //!
-    GeodeticPosition_2D newPositionFromPolar(const double &distance, const double &bearing) const override;
+    GeodeticPosition_3D newPositionFromPolar(const double &distance, const double &bearing) const override;
+
+    GeodeticPosition_3D newPositionFromPolar(const double &distance, const double &bearing, const double &elevation) const;
 
     //!
     //! \brief newPositionFromPolar
@@ -167,7 +211,7 @@ public:
     //! \param compassBearing
     //! \return
     //!
-    GeodeticPosition_2D newPositionFromCompass(const double &distance, const double &bearing) const override;
+    GeodeticPosition_3D newPositionFromCompass(const double &distance, const double &bearing) const override;
 
     //!
     //! \brief applyPositionalShiftFromPolar
@@ -187,4 +231,4 @@ public:
 } //end of namespace pose
 } //end of namespace mace
 
-#endif // GEODETIC_POSITION_2D_H
+#endif // GEODETIC_POSITION_3D_H

@@ -10,15 +10,7 @@ ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
     m_PlanningStateTopic("planningState"),
     m_MapTopic("mappingData"),
     originSent(false),
-    m_octomapFilename(""),
-    m_project2D(true),
-    m_minRange(0.0),
-    m_maxRange(9999),
-    m_occupancyThreshold(1),
-    m_probabilityOfHit(0.7),
-    m_probabilityOfMiss(0.4),
-    m_minThreshold(0.12),
-    m_maxThreshold(0.97)
+    m_OctomapSensorProperties()
 {
 }
 
@@ -40,15 +32,16 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModulePathPlanningNASAPhase2
     structure.AddNonTerminal("GlobalOrigin", globalOrigin, true);
 
     std::shared_ptr<MaceCore::ModuleParameterStructure> octomapParams = std::make_shared<MaceCore::ModuleParameterStructure>();
-    octomapParams->AddTerminalParameters("Filename", MaceCore::ModuleParameterTerminalTypes::STRING, true);
-    octomapParams->AddTerminalParameters("Project2D", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
-    octomapParams->AddTerminalParameters("MinRange", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    octomapParams->AddTerminalParameters("MaxRange", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    octomapParams->AddTerminalParameters("OccupancyThreshold", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    octomapParams->AddTerminalParameters("ProbabilityOfHit", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    octomapParams->AddTerminalParameters("ProbabilityOfMiss", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    octomapParams->AddTerminalParameters("MinThreshold", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    octomapParams->AddTerminalParameters("MaxThreshold", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    octomapParams->AddTerminalParameters("Filename", MaceCore::ModuleParameterTerminalTypes::STRING, false);
+    octomapParams->AddTerminalParameters("Resolution", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+    octomapParams->AddTerminalParameters("Project2D", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, false);
+    octomapParams->AddTerminalParameters("MinRange", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+    octomapParams->AddTerminalParameters("MaxRange", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+    octomapParams->AddTerminalParameters("OccupancyThreshold", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+    octomapParams->AddTerminalParameters("ProbabilityOfHit", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+    octomapParams->AddTerminalParameters("ProbabilityOfMiss", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+    octomapParams->AddTerminalParameters("MinThreshold", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+    octomapParams->AddTerminalParameters("MaxThreshold", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
     structure.AddNonTerminal("OctomapParameters", octomapParams, true);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
@@ -94,15 +87,15 @@ void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCor
     }
     if(params->HasNonTerminal("OctomapParameters")) {
         std::shared_ptr<MaceCore::ModuleParameterValue> octomapParams = params->GetNonTerminalValue("OctomapParameters");
-        m_octomapFilename = octomapParams->GetTerminalValue<std::string>("Filename"); // TODO: Relative or absolute path?
-        m_project2D = octomapParams->GetTerminalValue<bool>("Project2D");
-        m_minRange = octomapParams->GetTerminalValue<double>("MinRange");
-        m_maxRange = octomapParams->GetTerminalValue<double>("MaxRange");
-        m_occupancyThreshold = octomapParams->GetTerminalValue<double>("OccupancyThreshold");
-        m_probabilityOfHit = octomapParams->GetTerminalValue<double>("ProbabilityOfHit");
-        m_probabilityOfMiss = octomapParams->GetTerminalValue<double>("ProbabilityOfMiss");
-        m_minThreshold = octomapParams->GetTerminalValue<double>("MinThreshold");
-        m_maxThreshold = octomapParams->GetTerminalValue<double>("MaxThreshold");
+        m_OctomapSensorProperties.setInitialLoadFile(octomapParams->GetTerminalValue<std::string>("Filename"));
+        m_OctomapSensorProperties.setTreeResolution(octomapParams->GetTerminalValue<double>("Resolution"));
+        m_OctomapSensorProperties.setMaxRange(octomapParams->GetTerminalValue<double>("MaxRange"));
+        m_OctomapSensorProperties.setMinRange(octomapParams->GetTerminalValue<double>("MinRange"));
+        m_OctomapSensorProperties.setOccupancyThreshold(octomapParams->GetTerminalValue<double>("OccupancyThreshold"));
+        m_OctomapSensorProperties.setProbHit(octomapParams->GetTerminalValue<double>("ProbabilityOfHit"));
+        m_OctomapSensorProperties.setProbMiss(octomapParams->GetTerminalValue<double>("ProbabilityOfMiss"));
+        m_OctomapSensorProperties.setThreshMax(octomapParams->GetTerminalValue<double>("MaxThreshold"));
+        m_OctomapSensorProperties.setThreshMin(octomapParams->GetTerminalValue<double>("MinThreshold"));
     }
     else {
         throw std::runtime_error("Unkown Path Planning parameters encountered");
@@ -267,7 +260,6 @@ void ModulePathPlanningNASAPhase2::NewlyUpdatedGlobalOrigin()
 void ModulePathPlanningNASAPhase2::NewlyUpdatedVehicleCells()
 {
     //Cell will contain a boundary and a list of target locations
-    m_vehicleBoundary = this->getDataObject()->GetVehicleBoundaryMap();
 
     std::cout << "New vehicle boundary map received (PP): " << m_vehicleBoundary.size() << std::endl;
 }

@@ -44,7 +44,11 @@ SOURCES += \
     state_space/discrete_motion_validity_check.cpp \
     state_space/special_validity_check.cpp \
     geometry/cell_2DC.cpp \
-    geometry/polygon_2dc.cpp
+    geometry/polygon_2dc.cpp \
+    misc/data_1d.cpp \
+    state_space/start_state.cpp \
+    pose/geodetic_position_3D.cpp \
+    pose/dynamics_aid.cpp
 
 HEADERS +=\
     base_global.h \
@@ -86,7 +90,13 @@ HEADERS +=\
     geometry/cell_2DC.h \
     geometry/geometry_helper.h \
     geometry/polygon_2DC.h \
-    geometry/base_line.h
+    geometry/base_line.h \
+    pose/abstract_velocity.h \
+    misc/data_1d.h \
+    state_space/start_state.h \
+    state_space/generic_start.h \
+    pose/geodetic_position_3D.h \
+    pose/dynamics_aid.h
 
 # Unix lib Install
 unix:!symbian {

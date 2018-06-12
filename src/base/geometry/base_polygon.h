@@ -26,6 +26,18 @@ class PolygonAbstract
         this->name = copy.name;
     }
 public:
+
+    //!
+    //! \brief operator =
+    //! \param rhs
+    //! \return
+    //!
+    PolygonAbstract& operator = (const PolygonAbstract &rhs)
+    {
+        this->name = rhs.name;
+        return *this;
+    }
+
     //!
     //! \brief operator ==
     //! \param rhs
@@ -158,8 +170,21 @@ public:
 
     virtual std::vector<int> findUndefinedVertices() const = 0;
 
-
+    /** Assignment Operators **/
 public:
+
+    //!
+    //! \brief operator =
+    //! \param rhs
+    //! \return
+    //!
+    PolygonBase& operator = (const PolygonBase &rhs)
+    {
+        PolygonAbstract::operator =(rhs);
+        this->m_vertex = rhs.m_vertex;
+        return *this;
+    }
+
     //!
     //! \brief operator ==
     //! \param rhs
@@ -175,7 +200,6 @@ public:
         {
             return false;
         }
-
         for(unsigned int i = 0; i < this->m_vertex.size(); i++)
         {
             if(m_vertex.at(i) != rhs.m_vertex.at(i))

@@ -2,7 +2,6 @@
 
 #include "base/geometry/polygon_2DC.h"
 
-<<<<<<< HEAD
 #include "base/state_space/discrete_motion_validity_check.h"
 #include "base/state_space/special_validity_check.h"
 #include "base/state_space/cartesian_2D_space.h"

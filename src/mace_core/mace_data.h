@@ -62,7 +62,7 @@ class MaceCore;
 //!
 class MACE_CORESHARED_EXPORT MaceData
 {
-friend class MaceCore;
+    friend class MaceCore;
 
     static const uint64_t DEFAULT_MS_RECORD_TO_KEEP = 1000;
 
@@ -154,20 +154,12 @@ public:
         return gridSpacing;
     }
 
-    std::vector<mace::geometry::Polygon_2DC>
-    //This is like the
+
     std::vector<DataState::StateGlobalPosition> GetEnvironmentBoundary() const
     {
-        std::lock_guard<std::mutex> guard(m_EnvironmentBoundaryMutex);
+        std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
         std::vector<DataState::StateGlobalPosition> boundaryVerts = m_BoundaryVerts;
         return boundaryVerts;
-    }
-
-    std::map<int, mace::geometry::Cell_2DC> GetVehicleBoundaryMap() const
-    {
-        std::lock_guard<std::mutex> guard(m_VehicleBoundaryMutex);
-        std::map<int, mace::geometry::Cell_2DC> vehicleMap = m_vehicleCellMap;
-        return vehicleMap;
     }
 
     std::vector<BoundaryItem::BoundaryList> GetVehicleBoundaryList() const
@@ -213,7 +205,14 @@ private:
 
     void UpdateGlobalOrigin(const CommandItem::SpatialHome &globalOrigin)
     {
-         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+        std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
+
+        CartesianPosition_3D originalOrigin(m_GlobalOrigin.getPosition().getX(),m_GlobalOrigin.getPosition().getY(),m_GlobalOrigin.getPosition().getZ());
+        CartesianPosition_3D newOrigin(globalOrigin.getPosition().getX(),globalOrigin.getPosition().getY(),globalOrigin.getPosition().getZ());
+        double bearingTo = newOrigin.polarBearingTo(originalOrigin);
+        double distanceTo = newOrigin.distanceBetween2D(originalOrigin); //in this case we need the 2D value since we are going to update only 2D position of boundaries
+        updateBoundariesNewOrigin(distanceTo, bearingTo);
+
         m_GlobalOrigin = globalOrigin;
         for (std::map<int,CommandItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
         {
@@ -235,7 +234,7 @@ private:
 
     //Gets called when you draw on the GUI
     void UpdateEnvironmentVertices(const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
-        std::lock_guard<std::mutex> guard(m_EnvironmentBoundaryMutex);
+        std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
         m_BoundaryVerts = boundaryVerts;
         flagBoundaryVerts = true;
     }
@@ -382,7 +381,7 @@ public:
     //! \brief get the list of targets that a specific vehicle is to move to
     //!
     //! The target is a macro-level list, of general positions a vehicle is to acheive.
-    //! Targets may not express the actuall path a vehicle is to take, therefore a vehicle should not be flown based on targets.
+    //! Targets may not express the actual path a vehicle is to take, therefore a vehicle should not be flown based on targets.
     //! Will return empty array if no targets are desired for vehicle
     //! \param vehicleID Id of Vehicle
     //! \return List of targeted positions.
@@ -738,9 +737,6 @@ private:
     CommandItem::SpatialHome m_GlobalOrigin;
     double m_GridSpacing = -1;
 
-    mutable std::mutex m_EnvironmentalBoundaryMutex;
-    std::map<int,std::map<BoundaryItem::BoundaryKey,BoundaryItem::BoundaryList>> m_EnvironmentalBoundaryMap;
-
     mutable std::mutex m_VehicleBoundaryMutex;
     std::vector<DataState::StateGlobalPosition> m_BoundaryVerts;
     std::map<int, mace::geometry::Cell_2DC> m_vehicleCellMap;
@@ -764,9 +760,9 @@ private:
     mutable std::mutex m_Mutex_ProbabilityMap;
     mutable std::mutex m_TopicMutex;
 
-/////////////////////////////////////////////////////////
-/// PATH PLANNING DATA
-/////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
+    /// PATH PLANNING DATA
+    /////////////////////////////////////////////////////////
 
 private:
     mutable std::mutex m_Mutex_OccupancyMaps;
@@ -776,15 +772,15 @@ public:
     octomap::OcTree getOccupancyGrid3D() const;
     mace::maps::Data2DGrid<mace::maps::OccupiedResult> getCompressedOccupancyGrid2D() const;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// VEHICLE MISSION METHODS: The following methods are in support of accessing the mission items stored within MaceData.
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// VEHICLE MISSION METHODS: The following methods are in support of accessing the mission items stored within MaceData.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
     The following methods aid a MACE instance in assigning an appropriate missionID to the mission in the core data.
     The data class is responsible for reporting an updated missionKey to the calling agent attempting to update
     the core data structure.
     */
-//variables
+    //variables
 private:
     mutable std::mutex MUTEXMissionID;
     //!
@@ -794,7 +790,7 @@ private:
     //! the missionID as the unique identifier associated with the actual mission.
     //!
     std::map<int,std::map<int,int>> mapMissionID;
-//methods
+    //methods
 public:
     MissionItem::MissionKey appendAssociatedMissionMap(const MissionItem::MissionList &missionList);
     MissionItem::MissionKey appendAssociatedMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList);
@@ -804,12 +800,12 @@ private:
     /*
     The following aids in handling mission reception to/from the core.
     */
-//variables
+    //variables
 private:
     mutable std::mutex MUTEXMissions;
     std::map<MissionItem::MissionKey,MissionItem::MissionList> mapMissions;
     std::map<int,MissionItem::MissionKey> mapCurrentMission;
-//methods
+    //methods
 public:
     /*
     The following methods aid in handling the reception of a new mission over the external link. The items handled
@@ -846,8 +842,30 @@ public:
     bool updateOnboardMission(const MissionItem::MissionKey &missionKey);
     bool checkForCurrentMission(const MissionItem::MissionKey &missionKey);
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// MACE BOUNDARY METHODS
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+      * Methods for working with the boundaries associated with MACE.
+      * Boundaries defined in these functions are generic to include
+      * operational and resource boundaries. The only accepted data type
+      * at the current time is a cartesian boundary. This simplifies
+      * math operations when global origin and other updates are required.
+      */
+
+public:
+    void updateBoundariesNewOrigin(const double &distance, const double &bearing);
+
+public:
+    void getOperationalBoundary(BoundaryItem::BoundaryList* operationBoundary, const int &vehicleID = 0) const;
+
+    void getResourceBoundary(BoundaryItem::BoundaryList* resourceBoundary, const int &vehicleID);
 
 private:
+    mutable std::mutex m_EnvironmentalBoundaryMutex;
+    std::map<BoundaryItem::BoundaryMapPair,BoundaryItem::BoundaryList> m_EnvironmentalBoundaryMap;
+
 };
 
 } //END MaceCore Namespace

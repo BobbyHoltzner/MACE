@@ -313,4 +313,48 @@ mace::maps::Data2DGrid<mace::maps::OccupiedResult> MaceData::getCompressedOccupa
     return *m_OctomapWrapper->get2DOccupancyMap();
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// MACE BOUNDARY METHODS
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void MaceData::updateBoundariesNewOrigin(const double &distance, const double &bearing)
+{
+    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
+    std::map<BoundaryItem::BoundaryMapPair,BoundaryItem::BoundaryList>::iterator it = m_EnvironmentalBoundaryMap.begin();
+
+    for(; it!=m_EnvironmentalBoundaryMap.end(); ++it)
+    {
+        BoundaryItem::BoundaryList list = it->second;
+        list.boundingPolygon.applyCoordinateShift(distance, bearing);
+    }
+}
+
+void MaceData::getOperationalBoundary(BoundaryItem::BoundaryList* operationBoundary, const int &vehicleID) const
+{
+    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
+    try{
+        BoundaryItem::BoundaryMapPair mapPair(vehicleID,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+        *operationBoundary = m_EnvironmentalBoundaryMap.at(mapPair);
+    }catch(const std::exception& error)
+    {
+        std::cout<<"An exception was raised during getOperationalBoundary: "<<error.what()<<std::endl;
+        operationBoundary = nullptr;
+    }
+}
+
+void MaceData::getResourceBoundary(BoundaryItem::BoundaryList* resourceBoundary, const int &vehicleID)
+{
+    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
+    try{
+        BoundaryItem::BoundaryMapPair mapPair(vehicleID,BoundaryItem::BOUNDARYTYPE::RESOURCE_FENCE);
+        *resourceBoundary = m_EnvironmentalBoundaryMap.at(mapPair);
+    }catch(const std::exception& error)
+    {
+        std::cout<<"An exception was raised during getResourceBoundary: "<<error.what()<<std::endl;
+        resourceBoundary = nullptr;
+    }
+}
+
+
 } //end of namespace MaceCore

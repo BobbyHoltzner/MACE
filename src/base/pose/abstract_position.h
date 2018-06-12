@@ -4,11 +4,13 @@
 #include "base/misc/abstract_data.h"
 #include "coordinate_frame.h"
 
+using namespace mace::misc::details;
+
 namespace mace{
 namespace pose{
 
 template <class T, class DIM>
-class AbstractPosition
+class AbstractPosition: public DataTypeHelper<T,DIM>
 {
 public:
     enum class PositionType{
@@ -72,11 +74,31 @@ public:
     //!
     bool is3D() const
     {
-        if(mace::misc::details::DataTypeHelper<DIM>::static_size > 2)
+        if(mace::misc::details::DataTypeHelper<T,DIM>::static_size > 2)
             return true;
         return false;
     }
 
+    //!
+    //! \brief distanceFromOrigin
+    //! \return
+    //!
+    virtual double distanceFromOrigin() const = 0;
+
+    //!
+    //! \brief polarBearingFromOrigin
+    //! \return
+    //!
+    virtual double polarBearingFromOrigin() const = 0;
+
+    //!
+    //! \brief elevationFromOrigin
+    //! \return
+    //!
+    virtual double elevationFromOrigin() const
+    {
+        return 0.0;
+    }
 
     //!
     //! \brief distanceBetween2D
@@ -252,6 +274,8 @@ protected:
 
     DIM data;
 };
+
+
 
 } //end of namespace pose
 } //end of namespace mace

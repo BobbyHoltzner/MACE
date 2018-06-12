@@ -54,12 +54,12 @@ ModuleExternalLink::ModuleExternalLink() :
     homeController->setLambda_Finished(FinishedMessage);
     m_Controllers.Add(homeController);
 
-    auto boundaryController = new ExternalLink::ControllerBoundary(this, queue, m_LinkChan);
-    boundaryController->setLambda_DataReceived([this](const BoundaryKey &key, const std::shared_ptr<BoundaryList> &list){this->ReceivedBoundary(*list);});
-    boundaryController->setLambda_FetchDataFromKey([this](const OptionalParameter<BoundaryKey> &key){return this->FetchBoundaryFromKey(key);});
-    boundaryController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllBoundariesFromModule(module);});
-    boundaryController->setLambda_Finished(FinishedMessage);
-    m_Controllers.Add(boundaryController);
+//    auto boundaryController = new ExternalLink::ControllerBoundary(this, queue, m_LinkChan);
+//    boundaryController->setLambda_DataReceived([this](const BoundaryKey &key, const std::shared_ptr<BoundaryList> &list){this->ReceivedBoundary(*list);});
+//    boundaryController->setLambda_FetchDataFromKey([this](const OptionalParameter<BoundaryKey> &key){return this->FetchBoundaryFromKey(key);});
+//    boundaryController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllBoundariesFromModule(module);});
+//    boundaryController->setLambda_Finished(FinishedMessage);
+//    m_Controllers.Add(boundaryController);
 
     auto missionController = new ExternalLink::ControllerMission(this, queue, m_LinkChan);
     missionController->setLambda_DataReceived([this](const MissionKey &key, const std::shared_ptr<MissionList> &list){this->ReceivedMission(*list);});

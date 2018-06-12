@@ -90,6 +90,7 @@ public:
      */
     bool isValid(const State *state) const
     {
+        UNUSED(state);
         return true;
         //return m_stateValidCheck.isValid(state);
     }

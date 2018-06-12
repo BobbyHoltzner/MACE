@@ -18,10 +18,8 @@
 #include "base/state_space/discrete_motion_validity_check.h"
 #include "base/state_space/special_validity_check.h"
 
-#include "octomap/OcTree.h"
 
 #include "maps/octomap_wrapper.h"
-
 #include "maps/map_topic_components.h"
 
 using namespace octomap;
@@ -30,8 +28,6 @@ using namespace octomap;
 #include "data_generic_state_item/positional_aid.h"
 #include "base/geometry/cell_2DC.h"
 
-#include "octomap/octomap.h"
-#include "octomap/OcTree.h"
 
 using namespace mace ;
 using namespace geometry;
@@ -122,17 +118,11 @@ private:
 
     std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
 
+    mace::geometry::Polygon_2DC m_OperationalBoundary;
+
     std::map<int, mace::geometry::Cell_2DC> m_vehicleBoundary;
 
-    std::string m_octomapFilename;
-    bool m_project2D;
-    double m_minRange;
-    double m_maxRange;
-    double m_occupancyThreshold;
-    double m_probabilityOfHit;
-    double m_probabilityOfMiss;
-    double m_minThreshold;
-    double m_maxThreshold;
+    mace::maps::OctomapSensorDefinition m_OctomapSensorProperties;
 
     // Flags:
     bool originSent;

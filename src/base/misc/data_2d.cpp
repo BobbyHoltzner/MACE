@@ -5,7 +5,6 @@ namespace misc {
 
 Data2D::Data2D(const Data2D &copy)
 {
-    std::cout<<"copy constructor 2d"<<std::endl;
     this->x = copy.x;
     this->dataXFlag = copy.dataXFlag;
 

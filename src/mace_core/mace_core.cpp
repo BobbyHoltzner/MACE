@@ -434,13 +434,14 @@ void MaceCore::Event_SetGridSpacing(const void *sender, const double &gridSpacin
     m_DataFusion->UpdateGridSpacing(gridSpacing);
 }
 
+
 void MaceCore::Event_SetEnvironmentVertices(const ModuleBase *sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
 //    UNUSED(sender);
     m_DataFusion->UpdateEnvironmentVertices(boundaryVerts);
 
     if(sender->ModuleClass() != ModuleClasses::RTA) {
         if(m_RTA) {
-            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_BOUNDARY_VERTICES, 0);
+            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, 0);
         }
     }
 }

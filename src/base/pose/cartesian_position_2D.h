@@ -88,7 +88,7 @@ public:
 
     bool hasYBeenSet() const
     {
-        return this->data.getDataXFlag();
+        return this->data.getDataYFlag();
     }
 public:
     double deltaX(const CartesianPosition_2D &that) const;
@@ -132,6 +132,18 @@ public:
     void normalize();
 
     void scale(const double &value);
+
+    //!
+    //! \brief distanceFromOrigin
+    //! \return
+    //!
+    double distanceFromOrigin() const override;
+
+    //!
+    //! \brief polarBearingFromOrigin
+    //! \return
+    //!
+    double polarBearingFromOrigin() const override;    
 
     //!
     //! \brief distanceBetween2D
@@ -180,6 +192,7 @@ public:
     void applyPositionalShiftFromPolar(const double &distance, const double &bearing) override;
 
     void applyPositionalShiftFromCompass(const double &distance, const double &bearing) override;
+
 
 public:
     friend std::ostream& operator<<(std::ostream& os, const CartesianPosition_2D& t);
