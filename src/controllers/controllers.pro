@@ -6,7 +6,7 @@
 
 QT       -= gui
 
-TARGET = mace_controllers
+TARGET = controllers
 TEMPLATE = lib
 
 DEFINES += MACE_CONTROLLERS_LIBRARY

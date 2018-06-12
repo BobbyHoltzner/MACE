@@ -82,6 +82,10 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_generic_state_item_topic/debug/ -ldata_generic_state_item_topic
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_state_item_topic/ -ldata_generic_state_item_topic
 
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../maps/release/ -lmaps
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../maps/debug/ -lmaps
+else:unix: LIBS += -L$$OUT_PWD/../maps/ -lmaps
+
 unix {
 exists(/opt/ros/kinetic/lib/) {
     DEFINES += ROS_EXISTS
