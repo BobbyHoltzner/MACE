@@ -209,3 +209,8 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctoma
 INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
 
 
+
+unix:!macx|win32: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann_s
+
+INCLUDEPATH += $$PWD/../../tools/flann/src/cpp
+DEPENDPATH += $$PWD/../../tools/flann/src/cpp

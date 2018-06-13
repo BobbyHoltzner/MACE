@@ -158,12 +158,18 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
             if(componentsUpdated.at(i) == mace::poseTopic::Cartesian_2D_Topic::Name()){
                 std::shared_ptr<mace::poseTopic::Cartesian_2D_Topic> component = std::make_shared<mace::poseTopic::Cartesian_2D_Topic>();
                 m_PlanningStateTopic.GetComponent(component, read_topicDatagram);
+
+#ifdef ROS_EXISTS
                 this->renderState(component->getPose());
+#endif
             }
             else if(componentsUpdated.at(i) == mace::geometryTopic::Line_2DC_Topic::Name()) {
                 std::shared_ptr<mace::geometryTopic::Line_2DC_Topic> component = std::make_shared<mace::geometryTopic::Line_2DC_Topic>();
                 m_PlanningStateTopic.GetComponent(component, read_topicDatagram);
+
+#ifdef ROS_EXISTS
                 this->renderEdge(component->getLine());
+#endif
             }
         }
     }
@@ -220,13 +226,16 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 
 void ModuleROS::NewlyUpdated3DOccupancyMap()
 {
+#ifdef ROS_EXISTS
     octomap::OcTree tree = this->getDataObject()->getOccupancyGrid3D();
     this->renderOccupancyMap(&tree);
     this->NewlyCompressedOccupancyMap(this->getDataObject()->getCompressedOccupancyGrid2D());
+#endif
 }
 
 void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map)
 {
+#ifdef ROS_EXISTS
     m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","map"));
 
     nav_msgs::OccupancyGrid occupancyGrid;
@@ -269,10 +278,12 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
         }
     }
     compressedMapPub.publish(occupancyGrid);
+#endif
 }
 
 void ModuleROS::NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path)
 {
+#ifdef ROS_EXISTS
     geometry_msgs::Point startPoint;
     geometry_msgs::Point endPoint;
 
@@ -292,6 +303,7 @@ void ModuleROS::NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &p
         path_list.points.push_back(endPoint);
     }
     markerPub.publish(path_list);
+#endif
 }
 
 

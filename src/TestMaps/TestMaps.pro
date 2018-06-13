@@ -114,8 +114,8 @@ DEPENDPATH += $$PWD/../planners
 
 unix:!macx|win32: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann_s
 
-INCLUDEPATH += $$PWD/../../tools/flann/build
-DEPENDPATH += $$PWD/../../tools/flann/build
+INCLUDEPATH += $$PWD/../../tools/flann/src/cpp
+DEPENDPATH += $$PWD/../../tools/flann/src/cpp
 
 unix:!macx|win32: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann_s
 
