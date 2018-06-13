@@ -513,10 +513,10 @@ void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialH
 }
 
 
-void ModuleGroundStation::NewlyUpdatedGlobalOrigin()
+void ModuleGroundStation::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position)
 {
     std::cout << "Ground Control: New available global origin" << std::endl;
-    CommandItem::SpatialHome origin = this->getDataObject()->GetGlobalOrigin();
+    CommandItem::SpatialHome origin(position);
     m_toGUIHandler->sendGlobalOrigin(origin);
 }
 

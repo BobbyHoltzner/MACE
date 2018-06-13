@@ -41,10 +41,9 @@ public:
             NewlyUpdatedOccupancyMap();
         });
 
-        AddCommandLogic<int>(PathPlanningCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<mace::pose::GeodeticPosition_3D>(PathPlanningCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const mace::pose::GeodeticPosition_3D &position, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
-            UNUSED(vehicleID);
-            NewlyUpdatedGlobalOrigin();
+            NewlyUpdatedGlobalOrigin(position);
         });
 
         AddCommandLogic<int>(PathPlanningCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
@@ -74,7 +73,7 @@ public:
     //!
     //! \brief NewlyUpdatedGlobalOrigin
     //!
-    virtual void NewlyUpdatedGlobalOrigin() = 0;
+    virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 
 
     //!

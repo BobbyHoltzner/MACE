@@ -85,15 +85,15 @@ CartesianPosition_2D CartesianPosition_2D::newPositionFromCompass(const double &
 
 void CartesianPosition_2D::applyPositionalShiftFromPolar(const double &distance, const double &bearing)
 {
-    double changeX = distance * sin(bearing);
-    double changeY = distance * cos(bearing);
+    double changeX = distance * cos(bearing);
+    double changeY = distance * sin(bearing);
     this->setXPosition(getXPosition() + changeX);
     this->setYPosition(getYPosition() + changeY);
 }
 
 void CartesianPosition_2D::applyPositionalShiftFromCompass(const double &distance, const double &bearing)
 {
-    double polarBearing = wrapTo2Pi(-bearing + 90);
+    double polarBearing = compassToPolarBearing(bearing);
     applyPositionalShiftFromPolar(distance,polarBearing);
 }
 

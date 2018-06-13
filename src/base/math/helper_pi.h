@@ -62,14 +62,14 @@ inline T angDistance(T from, T to)
 template <class T>
 inline T compassToPolarBearing(const T &value)
 {
-    T newValue = M_PI_4 - value;
+    T newValue = -(value - M_PI_2);
     return wrapTo2Pi(newValue);
 }
 
 template <class T>
 inline T polarToCompassBearing(const T &value)
 {
-    T newValue = M_PI_4 - value;
+    T newValue = -value + M_PI_2;
     return wrapTo2Pi(newValue);
 }
 
@@ -83,7 +83,7 @@ inline T correctBearing(const T &value)
 template <class T>
 inline T reverseBearing(const T &value)
 {
-    T newValue = value + M_PI/2;
+    T newValue = value + M_PI;
     return wrapTo2Pi(newValue);
 }
 

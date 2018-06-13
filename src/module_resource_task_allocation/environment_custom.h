@@ -49,7 +49,7 @@ public:
      * @param gridSpacing Spacing between grid points
      * @param globalOrigin Global origin for environment
      */
-    Environment_Map(const Polygon_2DC &boundingPolygon, const double &gridSpacing, const CommandItem::SpatialHome &globalOrigin, const bool &globalInstance);
+    Environment_Map(const Polygon_2DC &boundingPolygon, const double &gridSpacing, const bool &globalInstance);
 
     ~Environment_Map()
     {

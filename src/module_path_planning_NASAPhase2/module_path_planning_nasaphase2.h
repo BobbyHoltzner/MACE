@@ -1,7 +1,6 @@
 #ifndef MODULE_PATH_PLANNING_NASAPHASE2_H
 #define MODULE_PATH_PLANNING_NASAPHASE2_H
 
-
 #include "module_path_planning_nasaphase2_global.h"
 
 #include "common/common.h"
@@ -28,6 +27,12 @@ using namespace octomap;
 #include "data_generic_state_item/positional_aid.h"
 #include "base/geometry/cell_2DC.h"
 
+#include "maps/data_2d_grid.h"
+#include "maps/occupancy_definition.h"
+
+#include "base/pose/dynamics_aid.h"
+#include "base/pose/cartesian_position_2D.h"
+#include "base/pose/geodetic_position_2D.h"
 
 using namespace mace ;
 using namespace geometry;
@@ -63,6 +68,7 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
+    void OnModulesStarted() override;
     //!
     //! \brief New non-spooled topic given
     //!
@@ -95,7 +101,7 @@ public:
 
     void NewlyUpdatedOccupancyMap() override;
 
-    void NewlyUpdatedGlobalOrigin() override;
+    void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) override;
 
     void NewlyUpdatedVehicleCells() override;
 
@@ -109,18 +115,17 @@ private:
      * @param unparsedVertices String to parse with delimiters
      * @param globalOrigin Global position to convert relative to
      * @param vertices Container for boundary vertices
-     * @return true denotes >= 3 vertices to make a polygon, false denotes invalid polygon
      */
-    bool parseBoundaryVertices(std::string unparsedVertices, const DataState::StateGlobalPosition globalOrigin, std::vector<Position<CartesianPosition_2D> > &vertices);
+    void parseBoundaryVertices(std::string unparsedVertices, const mace::pose::GeodeticPosition_3D globalOrigin, mace::geometry::Polygon_2DC &boundaryPolygon);
 
 private:
     mace::state_space::Cartesian2DSpacePtr m_Space;
 
-    std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
+    mace::pose::GeodeticPosition_3D m_globalOrigin;
 
     mace::geometry::Polygon_2DC m_OperationalBoundary;
 
-    std::map<int, mace::geometry::Cell_2DC> m_vehicleBoundary;
+    //maps::Data2DGrid<OccupiedResult> m_OccupiedVehicleMap;
 
     mace::maps::OctomapSensorDefinition m_OctomapSensorProperties;
 

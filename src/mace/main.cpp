@@ -207,8 +207,17 @@ int main(int argc, char *argv[])
             return 1;
         }
         }
+    }
 
-
+    for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
+    {
+        std::shared_ptr<MaceCore::ModuleBase> module = it->first;
+        /*
+         * This will notify all the modules that all of the other modules are ready
+         * at this time they should grab anything that another module may have defined
+         * in the core and begin operating.
+         */
+        module->OnModulesStarted();
 
     }
 

@@ -115,8 +115,8 @@ CartesianPosition_3D CartesianPosition_3D::newPositionFromCompass(const double &
 
 void CartesianPosition_3D::applyPositionalShiftFromPolar(const double &distance, const double &bearing)
 {
-    double changeX = distance * sin(bearing);
-    double changeY = distance * cos(bearing);
+    double changeX = distance * cos(bearing);
+    double changeY = distance * sin(bearing);
     this->setXPosition(getXPosition() + changeX);
     this->setYPosition(getYPosition() + changeY);
 }
@@ -132,7 +132,7 @@ void CartesianPosition_3D::applyPositionalShiftFromPolar(const double &distance,
 
 void CartesianPosition_3D::applyPositionalShiftFromCompass(const double &distance, const double &bearing)
 {
-    double polarBearing = wrapTo2Pi((-bearing + 90) * (M_PI/180.0));
+    double polarBearing = compassToPolarBearing(bearing);
     applyPositionalShiftFromPolar(distance,polarBearing);
 }
 

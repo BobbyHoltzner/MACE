@@ -9,6 +9,8 @@
 
 #include "data_generic_command_item/command_item_components.h"
 
+#include "base/pose/cartesian_position_3D.h"
+
 namespace MaceCore
 {
 
@@ -49,10 +51,9 @@ public:
             NewlyAvailableHomePosition(home, sender);
         });
 
-        AddCommandLogic<int>(GroundStationCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<mace::pose::GeodeticPosition_3D>(GroundStationCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const mace::pose::GeodeticPosition_3D &position, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
-            UNUSED(vehicleID);
-            NewlyUpdatedGlobalOrigin();
+            NewlyUpdatedGlobalOrigin(position);
         });
     }
 
@@ -73,7 +74,7 @@ public:
     //!
     //! \brief NewlyUpdatedGlobalOrigin
     //!
-    virtual void NewlyUpdatedGlobalOrigin() = 0;
+    virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 
     virtual bool StartTCPServer() = 0;
 

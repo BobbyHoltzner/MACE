@@ -37,10 +37,9 @@ public:
             TestFunction(vehicleID);
         });
 
-        AddCommandLogic<int>(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<mace::pose::GeodeticPosition_3D>(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const mace::pose::GeodeticPosition_3D &position, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
-            UNUSED(vehicleID);
-            NewlyUpdatedGlobalOrigin();
+            NewlyUpdatedGlobalOrigin(position);
         });
 
         AddCommandLogic<BoundaryItem::BoundaryList>(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, [this](const BoundaryItem::BoundaryList &boundary, const OptionalParameter<ModuleCharacteristic> &sender){
@@ -73,7 +72,7 @@ public:
     //!
     //! \brief NewlyUpdatedGlobalOrigin
     //!
-    virtual void NewlyUpdatedGlobalOrigin() = 0;
+    virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 
     //!
     //! \brief NewlyUpdatedBoundaryVertices

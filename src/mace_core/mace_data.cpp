@@ -318,6 +318,19 @@ mace::maps::Data2DGrid<mace::maps::OccupiedResult> MaceData::getCompressedOccupa
 /// MACE BOUNDARY METHODS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void MaceData::updateBoundary(const BoundaryItem::BoundaryList &boundary)
+{
+    BoundaryItem::BoundaryKey key = boundary.getBoundaryKey();
+
+    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
+    BoundaryItem::BoundaryMapPair mapPair(key.m_systemID,key.m_boundaryType);
+    m_EnvironmentalBoundaryMap[mapPair] = boundary;
+
+    if(key.m_systemID == 0) //we should set this for all of the vehicles
+    {
+
+    }
+}
 void MaceData::updateBoundariesNewOrigin(const double &distance, const double &bearing)
 {
     std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);

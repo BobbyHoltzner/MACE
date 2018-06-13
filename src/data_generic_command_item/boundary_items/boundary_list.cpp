@@ -24,7 +24,7 @@ BoundaryList::BoundaryList(const BoundaryList &rhs)
 
 void BoundaryList::initializeBoundary(const int &size)
 {
-    boundingPolygon.initializePolygon(size);
+    boundingPolygon->initializePolygon(size);
 }
 
 void BoundaryList::clearQueue()

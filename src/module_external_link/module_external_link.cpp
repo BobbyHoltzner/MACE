@@ -238,21 +238,22 @@ void ModuleExternalLink::cbiHeartbeatController_transmitCommand(const mace_heart
 }
 
 
+/*
 ///////////////////////////////////////////////////////////////////////////////////////
 /// The following are related to the Boundary Items
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void ModuleExternalLink::ReceivedBoundary(const BoundaryList &list)
+void ModuleExternalLink::ReceivedBoundary(const BoundaryItem::BoundaryList &list)
 {
     std::cout<<"The external link module now has received the entire boundary."<<std::endl;
 
-    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-        ptr->ExternalEvent_FinishedRXBoundaryList(this, list);
-    });
+//    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//        ptr->ExternalEvent_FinishedRXBoundaryList(this, list);
+//    });
 }
 
 
-Controllers::DataItem<BoundaryKey, BoundaryList>::FetchKeyReturn ModuleExternalLink::FetchBoundaryFromKey(const OptionalParameter<BoundaryKey> &key)
+Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::FetchKeyReturn ModuleExternalLink::FetchBoundaryFromKey(const OptionalParameter<BoundaryItem::BoundaryKey> &key)
 {
     if(key.IsSet() == false)
     {
@@ -271,7 +272,7 @@ Controllers::DataItem<BoundaryKey, BoundaryList>::FetchKeyReturn ModuleExternalL
     return rtn;
 }
 
-Controllers::DataItem<BoundaryKey, BoundaryList>::FetchModuleReturn ModuleExternalLink::FetchAllBoundariesFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module)
+Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::FetchModuleReturn ModuleExternalLink::FetchAllBoundariesFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module)
 {
     Controllers::DataItem<BoundaryKey, BoundaryList>::FetchModuleReturn rtn;
 
@@ -284,14 +285,14 @@ Controllers::DataItem<BoundaryKey, BoundaryList>::FetchModuleReturn ModuleExtern
             if(vehicle.ID == boundaryList.getBoundaryKey().m_creatorID)
             {
                 BoundaryKey key = boundaryList.getBoundaryKey();
-                std::vector<std::tuple<BoundaryKey, BoundaryList>> vec = {};
+                std::vector<std::tuple<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>> vec = {};
                 vec.push_back(std::make_tuple(key, boundaryList));
-                std::tuple<MaceCore::ModuleCharacteristic, std::vector<std::tuple<BoundaryKey, BoundaryList>>> tmp = std::make_tuple(vehicle, vec);
+                std::tuple<MaceCore::ModuleCharacteristic, std::vector<std::tuple<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>>> tmp = std::make_tuple(vehicle, vec);
                 rtn.push_back(tmp);
             }
             else
             {
-                rtn.push_back(std::make_tuple(vehicle, std::vector<std::tuple<BoundaryKey, BoundaryList>>()));
+                rtn.push_back(std::make_tuple(vehicle, std::vector<std::tuple<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>>()));
             }
         }
     };
@@ -316,7 +317,7 @@ Controllers::DataItem<BoundaryKey, BoundaryList>::FetchModuleReturn ModuleExtern
 
     return rtn;
 }
-
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////
 /// The following are related to the Mission Items

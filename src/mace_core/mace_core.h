@@ -123,7 +123,7 @@ public:
     virtual void Event_GetHomePosition(const void* sender, const int &vehicleID);
     virtual void Event_SetHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome);
 
-    virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome);
+    virtual void Event_SetGlobalOrigin(const void* sender, const mace::pose::GeodeticPosition_3D &position);
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing);
 
     //!

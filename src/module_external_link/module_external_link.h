@@ -146,9 +146,9 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
     void cbiHeartbeatController_transmitCommand(const mace_heartbeat_t &heartbeat);
 
-    void ReceivedBoundary(const BoundaryList &list);
-    Controllers::DataItem<BoundaryKey, BoundaryList>::FetchKeyReturn FetchBoundaryFromKey(const OptionalParameter<BoundaryKey> &key);
-    Controllers::DataItem<BoundaryKey, BoundaryList>::FetchModuleReturn FetchAllBoundariesFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
+//    void ReceivedBoundary(const BoundaryItem::BoundaryList &list);
+//    Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::FetchKeyReturn FetchBoundaryFromKey(const OptionalParameter<BoundaryItem::BoundaryKey> &key);
+//    Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::FetchModuleReturn FetchAllBoundariesFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
 
 
     void ReceivedMission(const MissionItem::MissionList &list);
@@ -383,8 +383,7 @@ private:
         ExternalLink::CommandMissionItem,
         ExternalLink::ControllerSystemMode,
         ExternalLink::ControllerHome,
-        ExternalLink::ControllerMission,
-        ExternalLink::ControllerBoundary
+        ExternalLink::ControllerMission
     > m_Controllers;
 
 private:

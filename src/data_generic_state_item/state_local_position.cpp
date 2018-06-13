@@ -15,6 +15,17 @@ StateLocalPosition::StateLocalPosition(const StateLocalPosition &localPosition):
 
 }
 
+StateLocalPosition::StateLocalPosition(const mace::pose::CartesianPosition_3D &position):
+    Base3DPosition(Data::CoordinateFrameType::CF_LOCAL_ENU)
+{
+    if(position.hasXBeenSet())
+        setX(position.getXPosition());
+    if(position.hasYBeenSet())
+        setY(position.getYPosition());
+    if(position.hasZBeenSet())
+        setY(position.getZPosition());
+}
+
 StateLocalPosition::StateLocalPosition(const Data::CoordinateFrameType &frame):
     Base3DPosition(frame)
 {

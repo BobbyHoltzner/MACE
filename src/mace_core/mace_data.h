@@ -140,11 +140,11 @@ public:
         return vehicleHome;
     }
 
-    CommandItem::SpatialHome GetGlobalOrigin() const
+
+    mace::pose::GeodeticPosition_3D GetGlobalOrigin() const
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        CommandItem::SpatialHome globalHome = m_GlobalOrigin;
-        return globalHome;
+        return m_GlobalOrigin;
     }
 
     double GetGridSpacing() const
@@ -189,40 +189,15 @@ private:
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_VehicleHomeMap[vehicleHome.getOriginatingSystem()] = vehicleHome;
-
-        if(m_GlobalOrigin.position->has2DPositionSet())
-        {
-            if(vehicleHome.position->getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
-            {
-                Eigen::Vector3f translation;
-                DataState::StateGlobalPosition origin(m_GlobalOrigin.position->getX(),m_GlobalOrigin.position->getY(),m_GlobalOrigin.position->getZ());
-                DataState::StateGlobalPosition home(vehicleHome.position->getX(),vehicleHome.position->getY(),vehicleHome.position->getZ());
-                home.translationTransformation3D(origin,translation);
-                m_VehicleToGlobalTranslation[vehicleHome.getOriginatingSystem()] = translation;
-            }
-        }
     }
 
-    void UpdateGlobalOrigin(const CommandItem::SpatialHome &globalOrigin)
+    void UpdateGlobalOrigin(const mace::pose::GeodeticPosition_3D &globalOrigin)
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-
-        CartesianPosition_3D originalOrigin(m_GlobalOrigin.getPosition().getX(),m_GlobalOrigin.getPosition().getY(),m_GlobalOrigin.getPosition().getZ());
-        CartesianPosition_3D newOrigin(globalOrigin.getPosition().getX(),globalOrigin.getPosition().getY(),globalOrigin.getPosition().getZ());
-        double bearingTo = newOrigin.polarBearingTo(originalOrigin);
-        double distanceTo = newOrigin.distanceBetween2D(originalOrigin); //in this case we need the 2D value since we are going to update only 2D position of boundaries
-        updateBoundariesNewOrigin(distanceTo, bearingTo);
-
+        double bearingTo = m_GlobalOrigin.polarBearingTo(globalOrigin);
+        double distanceTo = m_GlobalOrigin.distanceBetween2D(globalOrigin); //in this case we need the 2D value since we are going to update only 2D position of boundaries
         m_GlobalOrigin = globalOrigin;
-        for (std::map<int,CommandItem::SpatialHome>::iterator it = m_VehicleHomeMap.begin(); it != m_VehicleHomeMap.end(); ++it)
-        {
-            Eigen::Vector3f translation;
-            DataState::Base3DPosition *pos = it->second.position;
-            DataState::StateGlobalPosition home(pos->getX(),pos->getY(),pos->getZ());
-            DataState::StateGlobalPosition origin(m_GlobalOrigin.position->getX(),m_GlobalOrigin.position->getY(),m_GlobalOrigin.position->getZ());
-            home.translationTransformation3D(origin,translation);
-            m_VehicleToGlobalTranslation[it->first] = translation;
-        }
+        updateBoundariesNewOrigin(distanceTo, bearingTo);
     }
 
     void UpdateGridSpacing(const double &gridSpacing)
@@ -733,8 +708,7 @@ private:
 
     mutable std::mutex m_VehicleHomeMutex;
     std::map<int, CommandItem::SpatialHome> m_VehicleHomeMap;
-    std::map<int, Eigen::Vector3f> m_VehicleToGlobalTranslation;
-    CommandItem::SpatialHome m_GlobalOrigin;
+    mace::pose::GeodeticPosition_3D m_GlobalOrigin;
     double m_GridSpacing = -1;
 
     mutable std::mutex m_VehicleBoundaryMutex;
@@ -855,12 +829,14 @@ public:
       */
 
 public:
-    void updateBoundariesNewOrigin(const double &distance, const double &bearing);
+    void updateBoundary(const BoundaryItem::BoundaryList &boundary);
 
-public:
     void getOperationalBoundary(BoundaryItem::BoundaryList* operationBoundary, const int &vehicleID = 0) const;
 
     void getResourceBoundary(BoundaryItem::BoundaryList* resourceBoundary, const int &vehicleID);
+
+private:
+    void updateBoundariesNewOrigin(const double &distance, const double &bearing);
 
 private:
     mutable std::mutex m_EnvironmentalBoundaryMutex;

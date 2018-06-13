@@ -4,6 +4,7 @@
 #include "common/common.h"
 
 #include "base/geometry/polygon_2DC.h"
+#include "base/geometry/polygon_2DG.h"
 
 #include "boundary_key.h"
 
@@ -41,6 +42,8 @@ namespace std {
 }
 
 namespace BoundaryItem {
+
+template<class T>
 
 class BoundaryList
 {

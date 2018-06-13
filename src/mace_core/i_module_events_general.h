@@ -1,6 +1,8 @@
 #ifndef I_MODULE_EVENTS_GENERAL_H
 #define I_MODULE_EVENTS_GENERAL_H
 
+#include "base/pose/geodetic_position_3D.h"
+
 #include "data/system_description.h"
 #include "data_generic_command_item/command_item_components.h"
 #include "data_generic_state_item/state_global_position.h"
@@ -40,8 +42,10 @@ public:
     virtual void Event_GetHomePosition(const void* sender, const int &vehicleID) = 0;
     virtual void Event_SetHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome) = 0;
 
-    virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome) = 0;
+    virtual void Event_SetGlobalOrigin(const void* sender, const mace::pose::CartesianPosition_3D &globalHome) = 0;
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing) = 0;
+
+    virtual void Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) = 0;
 
     virtual void Event_SetEnvironmentVertices(const ModuleBase *sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) = 0;
 };

@@ -411,20 +411,18 @@ void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &v
 
 }
 
-void MaceCore::Event_SetGlobalOrigin(const void *sender, const CommandItem::SpatialHome &globalHome)
+void MaceCore::Event_SetGlobalOrigin(const void *sender, const GeodeticPosition_3D &position)
 {
-    UNUSED(sender);
-    m_DataFusion->UpdateGlobalOrigin(globalHome);
-    if(m_PathPlanning) {
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, 0); // TODO: Parse for vehicle ID
-    }
+    m_DataFusion->UpdateGlobalOrigin(position);
 
-    if(m_GroundStation) {
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, 0); // TODO: Parse for vehicle ID
+    if(m_PathPlanning && m_PathPlanning.get() != sender) {
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, position);
     }
-
+    if(m_GroundStation && m_GroundStation.get() != sender) {
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, position);
+    }
     if(m_RTA) {
-        m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, 0); // TODO: Parse for vehicle ID
+        m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, position);
     }
 }
 

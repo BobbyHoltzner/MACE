@@ -30,18 +30,21 @@ enum class GlobalFrameType{
 };
 
 enum class CoordinateFrame{
-    CF_GLOBAL=0, /* Global coordinate frame, WGS84 coordinate system. First value / x: latitude, second value / y: longitude, third value / z: positive altitude over mean sea level (MSL) | */
-    CF_LOCAL_NED=1, /* Local coordinate frame, Z-up (x: north, y: east, z: down). | */
-    CF_GLOBAL_RELATIVE_ALT=2, /* Global coordinate frame, WGS84 coordinate system, relative altitude over ground with respect to the home position. First value / x: latitude, second value / y: longitude, third value / z: positive altitude with 0 being at the altitude of the home location. | */
-    CF_LOCAL_ENU=3, /* Local coordinate frame, Z-down (x: east, y: north, z: up) | */
-    CF_GLOBAL_INT=4, /* Global coordinate frame, WGS84 coordinate system. First value / x: latitude in degrees*1.0e-7, second value / y: longitude in degrees*1.0e-7, third value / z: positive altitude over mean sea level (MSL) | */
-    CF_GLOBAL_RELATIVE_ALT_INT=5, /* Global coordinate frame, WGS84 coordinate system, relative altitude over ground with respect to the home position. First value / x: latitude in degrees*10e-7, second value / y: longitude in degrees*10e-7, third value / z: positive altitude with 0 being at the altitude of the home location. | */
-    CF_LOCAL_OFFSET_NED=6, /* Offset to the current local frame. Anything expressed in this frame should be added to the current local frame position. | */
-    CF_BODY_NED=7, /* Setpoint in body NED frame. This makes sense if all position control is externalized - e.g. useful to command 2 m/s^2 acceleration to the right. | */
-    CF_BODY_OFFSET_NED=8, /* Offset in body NED frame. This makes sense if adding setpoints to the current flight path, to avoid an obstacle - e.g. useful to command 2 m/s^2 acceleration to the east. | */
-    CF_GLOBAL_TERRAIN_ALT=9, /* Global coordinate frame with above terrain level altitude. WGS84 coordinate system, relative altitude over terrain with respect to the waypoint coordinate. First value / x: latitude in degrees, second value / y: longitude in degrees, third value / z: positive altitude in meters with 0 being at ground level in terrain model. | */
-    CF_GLOBAL_TERRAIN_ALT_INT=10, /* Global coordinate frame with above terrain level altitude. WGS84 coordinate system, relative altitude over terrain with respect to the waypoint coordinate. First value / x: latitude in degrees*10e-7, second value / y: longitude in degrees*10e-7, third value / z: positive altitude in meters with 0 being at ground level in terrain model. | */
-    CF_UNKNOWN = 11
+    GLOBAL_FRAMES,
+    LOCAL_FRAMES,
+    CF_UNKNOWN
+//    CF_GLOBAL=0, /* Global coordinate frame, WGS84 coordinate system. First value / x: latitude, second value / y: longitude, third value / z: positive altitude over mean sea level (MSL) | */
+//    CF_LOCAL_NED=1, /* Local coordinate frame, Z-up (x: north, y: east, z: down). | */
+//    CF_GLOBAL_RELATIVE_ALT=2, /* Global coordinate frame, WGS84 coordinate system, relative altitude over ground with respect to the home position. First value / x: latitude, second value / y: longitude, third value / z: positive altitude with 0 being at the altitude of the home location. | */
+//    CF_LOCAL_ENU=3, /* Local coordinate frame, Z-down (x: east, y: north, z: up) | */
+//    CF_GLOBAL_INT=4, /* Global coordinate frame, WGS84 coordinate system. First value / x: latitude in degrees*1.0e-7, second value / y: longitude in degrees*1.0e-7, third value / z: positive altitude over mean sea level (MSL) | */
+//    CF_GLOBAL_RELATIVE_ALT_INT=5, /* Global coordinate frame, WGS84 coordinate system, relative altitude over ground with respect to the home position. First value / x: latitude in degrees*10e-7, second value / y: longitude in degrees*10e-7, third value / z: positive altitude with 0 being at the altitude of the home location. | */
+//    CF_LOCAL_OFFSET_NED=6, /* Offset to the current local frame. Anything expressed in this frame should be added to the current local frame position. | */
+//    CF_BODY_NED=7, /* Setpoint in body NED frame. This makes sense if all position control is externalized - e.g. useful to command 2 m/s^2 acceleration to the right. | */
+//    CF_BODY_OFFSET_NED=8, /* Offset in body NED frame. This makes sense if adding setpoints to the current flight path, to avoid an obstacle - e.g. useful to command 2 m/s^2 acceleration to the east. | */
+//    CF_GLOBAL_TERRAIN_ALT=9, /* Global coordinate frame with above terrain level altitude. WGS84 coordinate system, relative altitude over terrain with respect to the waypoint coordinate. First value / x: latitude in degrees, second value / y: longitude in degrees, third value / z: positive altitude in meters with 0 being at ground level in terrain model. | */
+//    CF_GLOBAL_TERRAIN_ALT_INT=10, /* Global coordinate frame with above terrain level altitude. WGS84 coordinate system, relative altitude over terrain with respect to the waypoint coordinate. First value / x: latitude in degrees*10e-7, second value / y: longitude in degrees*10e-7, third value / z: positive altitude in meters with 0 being at ground level in terrain model. | */
+//    CF_UNKNOWN = 11
 };
 
 inline CoordinateFrame getCoordinateFrame(const LocalFrameType &frame)

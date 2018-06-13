@@ -9,6 +9,17 @@ StateGlobalPosition::StateGlobalPosition():
 
 }
 
+StateGlobalPosition::StateGlobalPosition(const mace::pose::GeodeticPosition_3D &position):
+    Base3DPosition(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
+{
+    if(position.hasLatitudeBeenSet())
+        setLatitude(position.getLatitude());
+    if(position.hasLongitudeBeenSet())
+        setLatitude(position.getLongitude());
+    if(position.hasAltitudeBeenSet())
+        setLatitude(position.getAltitude());
+}
+
 StateGlobalPosition::StateGlobalPosition(const StateGlobalPosition &globalPosition):
     Base3DPosition(globalPosition)
 {

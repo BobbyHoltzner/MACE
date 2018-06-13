@@ -9,6 +9,8 @@
 
 #include <memory>
 
+#include "base/pose/dynamics_aid.h"
+
 #include "mace_core/i_module_topic_events.h"
 #include "mace_core/i_module_command_ground_station.h"
 

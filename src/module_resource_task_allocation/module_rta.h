@@ -91,7 +91,7 @@ public:
     //!
     //! \brief NewlyUpdatedGlobalOrigin
     //!
-    void NewlyUpdatedGlobalOrigin() override;
+    void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) override;
 
     //! \brief NewlyUpdatedBoundaryVertices Function partitioning the space using the voronoi
     //! decomposition. The result of the function should be another boundary list notifying external
@@ -121,7 +121,7 @@ private:
      */
     void updateMACEMissions(std::map<int, Cell_2DC> updateCells, GridDirection direction);
 
-    void updateEnvironment();
+    void updateEnvironment(const BoundaryItem::BoundaryList &boundary);
 
 private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;

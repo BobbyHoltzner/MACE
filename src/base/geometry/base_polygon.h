@@ -21,10 +21,25 @@ class PolygonAbstract
 
     }
 
+    template <class T>
+    T *as()
+    {
+        return static_cast<T*>(this);
+    }
+
+    template <class T>
+    const T *as() const
+    {
+        return static_cast<const T*>(this);
+    }
+
     PolygonAbstract(const PolygonAbstract &copy)
     {
         this->name = copy.name;
     }
+
+    virtual mace::pose::CoordinateFrame getVertexCoordinateFrame() const = 0;
+
 public:
 
     //!
@@ -87,6 +102,11 @@ public:
         PolygonAbstract(copy)
     {
         this->replaceVector(copy.m_vertex);
+    }
+
+    bool isValidPolygon() const
+    {
+        return (m_vertex.size() >= 3);
     }
 
     void initializePolygon(const unsigned int &size)
@@ -165,8 +185,6 @@ public:
     virtual T getBottomRight() const = 0;
 
     virtual void getCorners(T &topLeft, T &bottomRight) const = 0;
-
-    virtual mace::pose::CoordinateFrame getVertexCoordinateFrame() const = 0;
 
     virtual std::vector<int> findUndefinedVertices() const = 0;
 
