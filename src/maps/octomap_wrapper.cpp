@@ -9,9 +9,7 @@ OctomapWrapper::OctomapWrapper(const double &treeResolution, const OctomapSensor
     m_sensorProperties(nullptr),
     m_projectionProperties(nullptr)
 {
-    OctomapSensorDefinition newSensorDefinition;
-
-    m_sensorProperties = new OctomapSensorDefinition();
+    m_sensorProperties = new OctomapSensorDefinition(sensorProperties);
     m_projectionProperties = new Octomap2DProjectionDefinition();
 
     m_Tree = new octomap::OcTree(treeResolution);
