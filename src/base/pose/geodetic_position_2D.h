@@ -1,12 +1,16 @@
 #ifndef GEODETIC_POSITION_2D_H
-#define CARTESIAN_POSITION_2D_H
+#define GEODETIC_POSITION_2D_H
 
 #include "base_position.h"
+#include "base/state_space/state.h"
 
-namespace mace{
+using namespace mace::math;
+
+namespace mace {
 namespace pose {
 
-class GeodeticPosition_2D : public AbstractPosition<GeodeticPosition_2D, misc::Data2D>
+class GeodeticPosition_2D : public AbstractPosition<GeodeticPosition_2D, misc::Data2D>, public GeodeticPosition,
+        public state_space::State
 {
 public:
     GeodeticPosition_2D():
@@ -16,15 +20,25 @@ public:
     }
 
     GeodeticPosition_2D(const GeodeticPosition_2D &copy):
-        AbstractPosition(copy)
+        AbstractPosition(copy), state_space::State(copy)
     {
 
     }
 
-    GeodeticPosition_2D(const double x, const double &y):
-        AbstractPosition(AbstractPosition::PositionType::CARTESIAN, CoordinateFrame::CF_LOCAL_ENU)
+    GeodeticPosition_2D(const double latitude, const double &longitude):
+        AbstractPosition(AbstractPosition::PositionType::CARTESIAN, CoordinateFrame::CF_GLOBAL_RELATIVE_ALT)
     {
-        this->data.setData(x,y);
+        this->data.setData(latitude,longitude);
+    }
+
+    State* getClone() const override
+    {
+        return (new GeodeticPosition_2D(*this));
+    }
+
+    void getClone(State** state) const override
+    {
+        *state = new GeodeticPosition_2D(*this);
     }
 
 public:
@@ -66,7 +80,7 @@ public:
 
     bool hasLongitudeBeenSet() const
     {
-        return this->data.getDataXFlag();
+        return this->data.getDataYFlag();
     }
 public:
     double deltaLatitude(const GeodeticPosition_2D &that) const;
@@ -106,12 +120,17 @@ public:
 
 
 public:
+
+    double distanceFromOrigin() const override;
+
+    double polarBearingFromOrigin() const override;
+
     //!
     //! \brief distanceBetween2D
     //! \param position
     //! \return
     //!
-    double distanceBetween2D(const GeodeticPosition_2D &pos) const override;
+    double distanceBetween2D(const GeodeticPosition_2D &position) const override;
 
     //!
     //! \brief distanceTo
@@ -149,6 +168,20 @@ public:
     //! \return
     //!
     GeodeticPosition_2D newPositionFromCompass(const double &distance, const double &bearing) const override;
+
+    //!
+    //! \brief applyPositionalShiftFromPolar
+    //! \param distance
+    //! \param bearing
+    //!
+    void applyPositionalShiftFromPolar(const double &distance, const double &bearing) override;
+
+    //!
+    //! \brief applyPositionalShiftFromCompass
+    //! \param distance
+    //! \param bearing
+    //!
+    void applyPositionalShiftFromCompass(const double &distance, const double &bearing) override;
 };
 
 } //end of namespace pose

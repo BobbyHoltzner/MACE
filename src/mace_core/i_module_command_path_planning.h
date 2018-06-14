@@ -16,6 +16,7 @@ namespace MaceCore
 enum class PathPlanningCommands
 {
     BASE_MODULE_LISTENER_ENUMS,
+    NEWLY_UPDATED_OPERATIONAL_FENCE,
     NEWLY_UPDATED_OCCUPANCY_MAP,
     NEWLY_UPDATE_VEHICLE_BOUNDARIES
 };
@@ -41,16 +42,14 @@ public:
             NewlyUpdatedOccupancyMap();
         });
 
-        AddCommandLogic<int>(PathPlanningCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<mace::pose::GeodeticPosition_3D>(PathPlanningCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const mace::pose::GeodeticPosition_3D &position, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
-            UNUSED(vehicleID);
-            NewlyUpdatedGlobalOrigin();
+            NewlyUpdatedGlobalOrigin(position);
         });
 
-        AddCommandLogic<int>(PathPlanningCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<BoundaryItem::BoundaryList>(PathPlanningCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, [this](const BoundaryItem::BoundaryList &boundary, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
-            UNUSED(vehicleID);
-            NewlyUpdatedVehicleCells();
+            NewlyUpdatedOperationalFence(boundary);
         });
     }
 
@@ -74,13 +73,13 @@ public:
     //!
     //! \brief NewlyUpdatedGlobalOrigin
     //!
-    virtual void NewlyUpdatedGlobalOrigin() = 0;
+    virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 
 
     //!
     //! \brief NewlyUpdateVehicleBoundaries
     //!
-    virtual void NewlyUpdatedVehicleCells() = 0;
+    virtual void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) = 0;
 
 //    //!
 //    //! \brief New targets have been assigned to the given vehicle

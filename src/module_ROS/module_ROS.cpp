@@ -281,6 +281,29 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
 #endif
 }
 
+void ModuleROS::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary)
+{
+#ifdef ROS_EXISTS
+    geometry_msgs::Point startPoint;
+    geometry_msgs::Point endPoint;
+
+    std::vector<mace::pose::CartesianPosition_2D> vertices = boundary.boundingPolygon.getVector();
+    for(int i = 1; i < vertices.size();i ++)
+    {
+        startPoint.x = vertices.at(i-1).getXPosition();
+        startPoint.y = vertices.at(i-1).getYPosition();
+
+        endPoint.x = vertices.at(i).getXPosition();
+        endPoint.y = vertices.at(i).getYPosition();
+
+        boundary_list.points.push_back(startPoint);
+        boundary_list.points.push_back(endPoint);
+    }
+    operationalBoundaryPub.publish(boundary_list);
+#else
+    UNUSED(boundary);
+#endif
+}
 void ModuleROS::NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path)
 {
 #ifdef ROS_EXISTS
@@ -426,6 +449,7 @@ void ModuleROS::setupROS() {
     occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",10);
     // END TESTING
     markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",10);
+    operationalBoundaryPub = nh.advertise<visualization_msgs::Marker>("operational_boundary_marker",10);
 
     // %Tag(MARKER_INIT)%
     points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = path_list.header.frame_id;
@@ -440,6 +464,7 @@ void ModuleROS::setupROS() {
     line_strip.id = 1;
     line_list.id = 2;
     path_list.id = 3;
+    boundary_list.id = 4;
     // %EndTag(ID)%
 
     // %Tag(TYPE)%
@@ -447,7 +472,7 @@ void ModuleROS::setupROS() {
     line_strip.type = visualization_msgs::Marker::LINE_STRIP;
     line_list.type = visualization_msgs::Marker::LINE_LIST;
     path_list.type = visualization_msgs::Marker::LINE_LIST;
-
+    boundary_list.type = visualization_msgs::Marker::LINE_LIST;
     // %EndTag(TYPE)%
 
     // %Tag(SCALE)%
@@ -459,6 +484,7 @@ void ModuleROS::setupROS() {
     line_strip.scale.x = 0.05;
     line_list.scale.x = 0.05;
     path_list.scale.x = 0.05;
+    boundary_list.scale.x = 0.05;
     // %EndTag(SCALE)%
 
     // %Tag(COLOR)%
@@ -473,9 +499,17 @@ void ModuleROS::setupROS() {
     // Line list is red
     line_list.color.r = 1.0;
     line_list.color.a = 1.0;
+
     // Path list is blue
     path_list.color.b= 1.0;
     path_list.color.a = 1.0;
+
+    // Boundary list is white
+    boundary_list.color.r = 1.0;
+    boundary_list.color.g = 1.0;
+    boundary_list.color.b = 1.0;
+    boundary_list.color.a = 1.0;
+
     // %EndTag(COLOR)%
 
     ros::spinOnce();

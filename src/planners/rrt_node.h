@@ -23,7 +23,6 @@ public:
     ~RootNode() = default; //we do not have to destroy anything here as we did not new the states
 
 public:
-
     void setCurrentState(state_space::State* state) { this->currentState = state; }
     void setParentNode(RootNode* node) { this->parentNode = node; }
 

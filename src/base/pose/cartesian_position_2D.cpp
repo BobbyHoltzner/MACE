@@ -13,6 +13,16 @@ double CartesianPosition_2D::deltaY(const CartesianPosition_2D &that) const
     return this->getYPosition() - that.getYPosition();
 }
 
+double CartesianPosition_2D::distanceFromOrigin() const
+{
+    return sqrt(pow(this->getXPosition(),2) + pow(this->getYPosition(),2));
+}
+
+double CartesianPosition_2D::polarBearingFromOrigin() const
+{
+    return atan2(this->getYPosition(),this->getXPosition());
+}
+
 double CartesianPosition_2D::distanceBetween2D(const CartesianPosition_2D &pos) const
 {
     double deltaX = this->data.getX() - pos.data.getX();
@@ -43,7 +53,7 @@ double CartesianPosition_2D::polarBearingTo(const CartesianPosition_2D &pos) con
 //!
 double CartesianPosition_2D::compassBearingTo(const CartesianPosition_2D &pos) const
 {
-    return math::correctBearing(atan2(deltaY(pos),deltaX(pos)));
+    return polarToCompassBearing(polarBearingTo(pos));
 }
 
 //!
@@ -54,11 +64,12 @@ double CartesianPosition_2D::compassBearingTo(const CartesianPosition_2D &pos) c
 //!
 CartesianPosition_2D CartesianPosition_2D::newPositionFromPolar(const double &distance, const double &bearing) const
 {
-    double newX = this->getXPosition() + cos(bearing) * distance;
-    double newY = this->getYPosition() + sin(bearing) * distance;
+    CartesianPosition_2D newPos;
 
-    CartesianPosition_2D pos(newX, newY);
-    return pos;
+    newPos.setXPosition(this->getXPosition() + cos(bearing) * distance);
+    newPos.setYPosition(this->getYPosition() + sin(bearing) * distance);
+
+    return newPos;
 }
 
 //!
@@ -69,8 +80,21 @@ CartesianPosition_2D CartesianPosition_2D::newPositionFromPolar(const double &di
 //!
 CartesianPosition_2D CartesianPosition_2D::newPositionFromCompass(const double &distance, const double &bearing) const
 {
-    double polarBearing = -bearing + 90;
-    return newPositionFromPolar(distance,polarBearing);
+    return newPositionFromPolar(distance,compassToPolarBearing(bearing));
+}
+
+void CartesianPosition_2D::applyPositionalShiftFromPolar(const double &distance, const double &bearing)
+{
+    double changeX = distance * cos(bearing);
+    double changeY = distance * sin(bearing);
+    this->setXPosition(getXPosition() + changeX);
+    this->setYPosition(getYPosition() + changeY);
+}
+
+void CartesianPosition_2D::applyPositionalShiftFromCompass(const double &distance, const double &bearing)
+{
+    double polarBearing = compassToPolarBearing(bearing);
+    applyPositionalShiftFromPolar(distance,polarBearing);
 }
 
 void CartesianPosition_2D::normalize()

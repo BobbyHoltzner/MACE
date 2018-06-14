@@ -2,7 +2,7 @@
 
 namespace ExternalLink{
 
-
+/*
     //!
     //! \brief Called when building mavlink packet initial request to a boundary
     //! \param data
@@ -383,5 +383,5 @@ namespace ExternalLink{
     {
         //Action_RequestCurrentBoundary_Initiate::Request(sender, target);
     }
-
+*/
 }

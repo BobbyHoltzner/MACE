@@ -5,13 +5,13 @@
 namespace BoundaryItem {
 
 BoundaryList::BoundaryList() :
-    boundaryKey(0,0,BOUNDARYTYPE::GENERIC_POLYGON)
+    boundaryKey(0,0,BOUNDARYTYPE::GENERIC_POLYGON), boundingPolygon(BoundaryTypeToString(BOUNDARYTYPE::GENERIC_POLYGON))
 {
 
 }
 
 BoundaryList::BoundaryList(const int &targetID, const int &generatorID, const BOUNDARYTYPE &boundaryType) :
-    boundaryKey(targetID,generatorID,boundaryType)
+    boundaryKey(targetID,generatorID,boundaryType), boundingPolygon(BoundaryTypeToString(boundaryType) + " for " + std::to_string(targetID))
 {
 
 }

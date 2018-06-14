@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 #Necessary header includes
 INCLUDEPATH += $$(MACE_ROOT)/include
+INCLUDEPATH += $$PWD/../../speedLog/
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 INCLUDEPATH += $$PWD/../../mavlink_cpp/V2/common
@@ -124,8 +125,4 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap
 else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
 
 INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/release/ -lmodule_resource_task_allocation
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_resource_task_allocation/debug/ -lmodule_resource_task_allocation
-else:unix:!macx: LIBS += -L$$OUT_PWD/../module_resource_task_allocation/ -lmodule_resource_task_allocation
 

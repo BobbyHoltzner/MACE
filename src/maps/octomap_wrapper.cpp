@@ -6,9 +6,12 @@ OctomapWrapper::OctomapWrapper(const double &treeResolution, const OctomapSensor
     treeResolution(treeResolution),
     m_Tree(nullptr),
     m_Map(nullptr),
-    m_sensorProperties(nullptr)
+    m_sensorProperties(nullptr),
+    m_projectionProperties(nullptr)
 {
     m_sensorProperties = new OctomapSensorDefinition(sensorProperties);
+    m_projectionProperties = new Octomap2DProjectionDefinition();
+
     m_Tree = new octomap::OcTree(treeResolution);
     m_Tree->enableChangeDetection(true);
 
@@ -201,6 +204,12 @@ bool OctomapWrapper::loadOctreeFromBT(const std::string &path)
     keyBBXMax[0] = m_Tree->coordToKey(maxX);
     keyBBXMax[1] = m_Tree->coordToKey(maxY);
     keyBBXMax[2] = m_Tree->coordToKey(maxZ);
+
+    if(enabled2DProjection){
+        this->updateMapContinuity();
+        this->updateEntireMapFromTree();
+    }
+
     return true;
 }
 
@@ -234,7 +243,12 @@ void OctomapWrapper::updateMapContinuity()
 
     double gridRes = m_Tree->getNodeSize(m_Tree->getTreeDepth());
 
-    bool resolutionChanged = m_Map->updateGridSize(minX,maxX,minY,maxY,gridRes,gridRes);
+    bool resolutionChanged = false;
+    if(m_projectionProperties->isMapLayerResolutionIndependent())
+        resolutionChanged = m_Map->updateGridSize(minX,maxX,minY,maxY,m_Map->getXResolution(),m_Map->getYResolution());
+    else
+        resolutionChanged = m_Map->updateGridSize(minX,maxX,minY,maxY,gridRes,gridRes);
+
     if(resolutionChanged)
         this->updateEntireMapFromTree();
 
@@ -350,7 +364,7 @@ void OctomapWrapper::updateMapOccupancyRecursiveCheck(const double &xPos, const 
         }
     }else
     {
-        std::cout<<"Somehow we made it into here where the depth does not equal maxTreeDepth of the updateMapOccupancyRecursiveCheck."<<std::endl;
+        //std::cout<<"Somehow we made it into here where the depth does not equal maxTreeDepth of the updateMapOccupancyRecursiveCheck."<<std::endl;
     }
 }
 
@@ -382,7 +396,6 @@ void OctomapWrapper::updateFreeNode(const octomap::OcTree::iterator &it)
 void OctomapWrapper::updateOccupiedNode(const octomap::OcTree::iterator &it)
 {
     updateMapOccupancyRecursiveCheck(it,true);
-
 }
 
 //void OctomapWrapper::filterGroundPlane(const octomap::Pointcloud& pc, octomap::Pointcloud& ground, octomap::Pointcloud& nonground) const

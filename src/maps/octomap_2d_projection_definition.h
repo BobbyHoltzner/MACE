@@ -51,7 +51,11 @@ public:
     }
 
 private:
+    bool independentMapSize = true;
     bool independentMapResolution = false;
     bool enabledCostMapLayer = false;
-}
+};
+
+} //end of namespace maps
+} //end of namespace mace
 #endif // OCTOMAP_2D_PROJECTION_DEFINITION_H

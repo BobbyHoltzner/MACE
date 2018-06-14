@@ -1,11 +1,45 @@
 #ifndef BOUNDARY_LIST_H
 #define BOUNDARY_LIST_H
 
+#include "common/common.h"
+
 #include "base/geometry/polygon_2DC.h"
+#include "base/geometry/polygon_2DG.h"
 
 #include "boundary_key.h"
 
 using namespace mace::pose;
+using namespace std;
+
+MACE_CLASS_FORWARD(BoundaryList);
+
+namespace BoundaryItem {
+
+typedef std::pair<int, BOUNDARYTYPE> BoundaryMapPair;
+
+}
+
+namespace std {
+
+  template <>
+  struct hash<BoundaryItem::BoundaryMapPair>
+  {
+    std::size_t operator()(const BoundaryItem::BoundaryMapPair& k) const
+    {
+      using std::size_t;
+      using std::hash;
+      using std::string;
+
+      // Compute individual hash values for first,
+      // second and third and combine them using XOR
+      // and bit shifting:
+
+      return ((hash<int>()(k.first)
+               ^ (hash<int>()((int)k.second) << 1)) >> 1);
+    }
+  };
+
+}
 
 namespace BoundaryItem {
 
@@ -103,6 +137,8 @@ public:
 
 private:
     BoundaryKey boundaryKey;
+
+public:
     mace::geometry::Polygon_2DC boundingPolygon;
 
 public:

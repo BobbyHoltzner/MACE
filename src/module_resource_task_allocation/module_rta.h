@@ -73,19 +73,45 @@ public:
     virtual void NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
 
-
     //! Virtual functions as defined by IModuleCommandRTA
 public:
 
+    //!
+    //! \brief NewlyAvailableVehicle
+    //! \param vehicleID
+    //!
     void NewlyAvailableVehicle(const int &vehicleID) override;
 
+    //!
+    //! \brief TestFunction
+    //! \param vehicleID
+    //!
     void TestFunction(const int &vehicleID) override;
 
+    //!
+    //! \brief NewlyUpdatedGlobalOrigin
+    //!
+    void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) override;
+
+    //! \brief NewlyUpdatedBoundaryVertices Function partitioning the space using the voronoi
+    //! decomposition. The result of the function should be another boundary list notifying external
+    //! agents of their appropriately newly assigned resource fence.
+    //! \param boundary obj defining the operational fence as defined by an external party. This
+    //! will be the space that is actually partitioned into voronoi cells.
+    //!
+    void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) override;
+
+    //!
+    //! \brief NewlyUpdatedResourceFence Function further generating targets for observation
+    //! via the associated agent. This function should only be called for vehicles that are
+    //! currently associated locally with the calling instance of MACE.
+    //!
+    void NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boundary) override;
+
+    //!
+    //! \brief NewlyUpdatedGridSpacing
+    //!
     void NewlyUpdatedGridSpacing() override;
-
-    void NewlyUpdatedGlobalOrigin() override;
-
-    void NewlyUpdatedBoundaryVertices() override;
 
 private:
     /**
@@ -95,7 +121,7 @@ private:
      */
     void updateMACEMissions(std::map<int, Cell_2DC> updateCells, GridDirection direction);
 
-    void updateEnvironment();
+    void updateEnvironment(const BoundaryItem::BoundaryList &boundary);
 
 private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;

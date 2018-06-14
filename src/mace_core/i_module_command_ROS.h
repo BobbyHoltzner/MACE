@@ -19,6 +19,7 @@ namespace MaceCore
 enum class ROSCommands
 {
     BASE_MODULE_LISTENER_ENUMS,
+    NEWLY_UPDATED_OPERATIONAL_FENCE,
     NEWLY_UPDATED_3D_OCCUPANCY_MAP,
     NEWLY_COMPRESSED_OCCUPANCY_MAP,
     NEWLY_FOUND_PATH,
@@ -43,6 +44,10 @@ public:
             UNUSED(sender);
             NewlyCompressedOccupancyMap(map);
         });
+        AddCommandLogic<BoundaryItem::BoundaryList>(ROSCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, [this](const BoundaryItem::BoundaryList &boundary, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            NewlyUpdatedOperationalFence(boundary);
+        });
         AddCommandLogic<std::vector<mace::state_space::StatePtr>>(ROSCommands::NEWLY_FOUND_PATH, [this](const std::vector<mace::state_space::StatePtr> &path, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyFoundPath(path);
@@ -65,6 +70,8 @@ public:
     virtual void NewlyUpdated3DOccupancyMap() = 0;
 
     virtual void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) = 0;
+
+    virtual void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) = 0;
 
     virtual void NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path) = 0;
 

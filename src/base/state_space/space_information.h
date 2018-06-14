@@ -90,6 +90,7 @@ public:
      */
     bool isValid(const State *state) const
     {
+        UNUSED(state);
         return true;
         //return m_stateValidCheck.isValid(state);
     }
@@ -153,6 +154,9 @@ public:
     void setStateValidityCheck(const AbstractStateValidityCheckPtr &stateChecker);
 
     void setMotionValidityCheck(const AbstractMotionValidityCheckPtr &motionChecker);
+
+    double getTraversalCost(const State *begin, const State *end, const bool &neighbor = false) const;
+
 
 private:
     /**

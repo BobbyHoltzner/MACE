@@ -301,6 +301,12 @@ bool MaceData::checkForCurrentMission(const MissionItem::MissionKey &missionKey)
 /// PATH PLANNING DATA
 /////////////////////////////////////////////////////////
 
+bool MaceData::loadOccupancyEnvironment(const string &filePath)
+{
+    std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
+    return m_OctomapWrapper->loadOctreeFromBT(filePath);
+}
+
 octomap::OcTree MaceData::getOccupancyGrid3D() const
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
@@ -312,5 +318,78 @@ mace::maps::Data2DGrid<mace::maps::OccupiedResult> MaceData::getCompressedOccupa
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
     return *m_OctomapWrapper->get2DOccupancyMap();
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// MACE BOUNDARY METHODS
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void MaceData::updateBoundary(const BoundaryItem::BoundaryList &boundary)
+{
+    BoundaryItem::BoundaryKey key = boundary.getBoundaryKey();
+
+    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
+    BoundaryItem::BoundaryMapPair mapPair(key.m_systemID,key.m_boundaryType);
+    m_EnvironmentalBoundaryMap[mapPair] = boundary;
+
+    if(key.m_systemID == 0) //we should set this for all of the vehicles
+    {
+
+    }
+}
+void MaceData::updateBoundariesNewOrigin(const double &distance, const double &bearing)
+{
+    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
+    std::map<BoundaryItem::BoundaryMapPair,BoundaryItem::BoundaryList>::iterator it = m_EnvironmentalBoundaryMap.begin();
+
+    for(; it!=m_EnvironmentalBoundaryMap.end(); ++it)
+    {
+        BoundaryItem::BoundaryList list = it->second;
+        list.boundingPolygon.applyCoordinateShift(distance, bearing);
+    }
+}
+
+bool MaceData::getBoundary(BoundaryItem::BoundaryList *operationBoundary, const BoundaryItem::BoundaryKey &key) const
+{
+    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
+    try{
+        BoundaryItem::BoundaryMapPair mapPair(key.m_systemID,key.m_boundaryType);
+        *operationBoundary = m_EnvironmentalBoundaryMap.at(mapPair);
+    }catch(const std::exception& error)
+    {
+        std::cout<<"An exception was raised during getBoundary: "<<error.what()<<std::endl;
+        operationBoundary = nullptr;
+        return false;
+    }
+
+    return true;
+}
+
+void MaceData::getOperationalBoundary(BoundaryItem::BoundaryList* operationBoundary, const int &vehicleID) const
+{
+    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
+    try{
+        BoundaryItem::BoundaryMapPair mapPair(vehicleID,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+        *operationBoundary = m_EnvironmentalBoundaryMap.at(mapPair);
+    }catch(const std::exception& error)
+    {
+        std::cout<<"An exception was raised during getOperationalBoundary: "<<error.what()<<std::endl;
+        operationBoundary = nullptr;
+    }
+}
+
+void MaceData::getResourceBoundary(BoundaryItem::BoundaryList* resourceBoundary, const int &vehicleID)
+{
+    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
+    try{
+        BoundaryItem::BoundaryMapPair mapPair(vehicleID,BoundaryItem::BOUNDARYTYPE::RESOURCE_FENCE);
+        *resourceBoundary = m_EnvironmentalBoundaryMap.at(mapPair);
+    }catch(const std::exception& error)
+    {
+        std::cout<<"An exception was raised during getResourceBoundary: "<<error.what()<<std::endl;
+        resourceBoundary = nullptr;
+    }
+}
+
 
 } //end of namespace MaceCore

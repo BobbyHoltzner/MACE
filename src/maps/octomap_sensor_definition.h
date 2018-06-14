@@ -2,6 +2,7 @@
 #define OCTOMAP_SENSOR_DEFINITION_H
 
 #include <limits>
+#include <string>
 
 namespace mace{
 namespace maps{
@@ -11,6 +12,8 @@ class OctomapSensorDefinition
 public:
 
     OctomapSensorDefinition() :
+        m_set_InitialLoad(false),
+        m_set_Resolution(false),
         m_set_MinRange(false),
         m_set_MaxRange(false),
         m_set_occupancyThresh(false),
@@ -24,6 +27,12 @@ public:
 
     OctomapSensorDefinition(const OctomapSensorDefinition &copy)
     {
+        this->m_set_InitialLoad = copy.m_set_InitialLoad;
+        this->m_initialOctomapLoad = copy.m_initialOctomapLoad;
+
+        this->m_set_Resolution = copy.m_set_Resolution;
+        this->m_TreeResolution = copy.m_TreeResolution;
+
         this->m_set_MinRange = copy.m_set_MinRange;
         this->m_MinRange = copy.m_MinRange;
 
@@ -44,6 +53,34 @@ public:
 
         this->m_set_ThreshMax = copy.m_set_ThreshMax;
         this->m_ThreshMax = copy.m_ThreshMax;
+    }
+
+    void setInitialLoadFile(const std::string &file)
+    {
+        m_initialOctomapLoad = file;
+        m_set_InitialLoad = true;
+    }
+    bool isInitalLoadFileSet() const
+    {
+        return m_set_InitialLoad;
+    }
+    std::string getInitialLoadFile() const
+    {
+        return m_initialOctomapLoad;
+    }
+
+    void setTreeResolution(const double &resolution)
+    {
+        m_TreeResolution = resolution;
+        m_set_Resolution = true;
+    }
+    bool isTreeResolutionSet() const
+    {
+        return m_set_Resolution;
+    }
+    double getTreeResolution() const
+    {
+        return m_TreeResolution;
     }
 
     void setMinRange(const double minRange)
@@ -167,6 +204,12 @@ public:
 public:
     OctomapSensorDefinition& operator = (const OctomapSensorDefinition &rhs)
     {
+        this->m_set_InitialLoad = rhs.m_set_InitialLoad;
+        this->m_initialOctomapLoad = rhs.m_initialOctomapLoad;
+
+        this->m_set_Resolution = rhs.m_set_Resolution;
+        this->m_TreeResolution = rhs.m_TreeResolution;
+
         this->m_set_MinRange = rhs.m_set_MinRange;
         this->m_MinRange = rhs.m_MinRange;
 
@@ -192,9 +235,14 @@ public:
 
 private:
 
+    bool m_set_InitialLoad;
+    std::string m_initialOctomapLoad = "";
+
+    bool m_set_Resolution;
+    double m_TreeResolution = 0.5;
 
     bool   m_set_MinRange;
-    double m_MinRange = 0.5;
+    double m_MinRange = 0.25;
 
     bool   m_set_MaxRange;
     double m_MaxRange = -1;

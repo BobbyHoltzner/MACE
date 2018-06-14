@@ -12,6 +12,7 @@
 #include "abstract_3d_position.h"
 #include "base_3d_position.h"
 
+#include "base/pose/geodetic_position_3D.h"
 
 namespace DataState {
 //!
@@ -25,6 +26,8 @@ public:
     //! \brief StateGlobalPosition
     //!
     StateGlobalPosition();
+
+    StateGlobalPosition(const mace::pose::GeodeticPosition_3D &position);
 
     //!
     //! \brief StateGlobalPosition

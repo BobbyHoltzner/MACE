@@ -11,9 +11,12 @@
 
 #include "data_generic_command_item/command_item_type.h"
 
+#include "base/pose/geodetic_position_3D.h"
 #include "data_generic_state_item/base_3d_position.h"
 
 #include "data_generic_command_item/abstract_command_item.h"
+
+using namespace mace;
 
 namespace CommandItem {
 
@@ -29,6 +32,8 @@ public:
     //! a global relative alt coordinate frame definition.
     //!
     SpatialHome();
+
+    SpatialHome(const pose::GeodeticPosition_3D &position);
 
     ~SpatialHome();
 

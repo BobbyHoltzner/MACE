@@ -1,6 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include <string>
 #include "base/base_global.h"
 
 #include "common/class_forward.h"
@@ -24,6 +25,13 @@ public:
     /**
       */
     virtual ~State() = default;
+
+public:
+    virtual std::string printInfo() const
+    {
+        std::string rtn = "";
+        return rtn;
+    }
 
 public:
     /**

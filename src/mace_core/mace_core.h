@@ -123,15 +123,12 @@ public:
     virtual void Event_GetHomePosition(const void* sender, const int &vehicleID);
     virtual void Event_SetHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome);
 
-    virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome);
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing);
 
-    //!
-    //! \brief Event_SetEnvironmentVertices This event should be emitted by the External Link, Ground Station
-    //! \param sender
-    //! \param boundaryVerts
-    //!
-    virtual void Event_SetEnvironmentVertices(const ModuleBase *sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts);
+
+    void Event_SetGlobalOrigin(const void* sender, const mace::pose::GeodeticPosition_3D &globalHome) override;
+
+    void Event_SetBoundary(const ModuleBase* sender, const BoundaryItem::BoundaryList &boundary) override;
 
 public:
 
@@ -186,12 +183,7 @@ public:
     /// RTA EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    //!
-    //! \brief Event_SetVehicleBoundaryVertices
-    //! \param sender
-    //! \param vehicleMap
-    //!
-    virtual void Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const std::map<int, mace::geometry::Cell_2DC> &vehicleMap);
+    void Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
 
 public:
 
@@ -225,6 +217,9 @@ public:
     /// PATH PLANNING EVENTS
     /////////////////////////////////////////////////////////////////////////
 
+    void EventPP_LoadOccupancyEnvironment(const ModuleBase* sender, const std::string &filePath) override;
+
+    void Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
 
     //!
     //! \brief Event fired to indicate what planning horizon is being utilized by the path planning module

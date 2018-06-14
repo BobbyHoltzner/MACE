@@ -29,7 +29,7 @@ enum class ExternalLinkCommands
     NEW_MISSION_EXE_STATE,
     NEWLY_AVAILABLE_HOME_POSITION,
     NEWLY_AVAILABLE_MODULE,
-    NEW_OPERATIONAL_BOUNDARY,
+    NEWLY_AVAILABLE_BOUNDARY,
     RECEIVED_MISSION_ACK
 };
 
@@ -49,8 +49,8 @@ public:
         AbstractModule_VehicleListener()
     {
 
-        AddCommandLogic<int>(ExternalLinkCommands::NEW_OPERATIONAL_BOUNDARY, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
-            NewOperationalBoundary(vehicleID, sender);
+        AddCommandLogic<BoundaryItem::BoundaryKey>(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY, [this](const BoundaryItem::BoundaryKey &key, const OptionalParameter<ModuleCharacteristic> &sender){
+            NewlyAvailableBoundary(key, sender);
         });
 
         AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender){
@@ -85,7 +85,7 @@ public:
 
 public:
 
-    virtual void NewOperationalBoundary(const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>()) = 0;
+    virtual void NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &boundary, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>()) = 0;
 
     virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>()) = 0;
 

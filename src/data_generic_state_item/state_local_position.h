@@ -10,12 +10,16 @@
 #include "abstract_3d_position.h"
 #include "base_3d_position.h"
 
+#include "base/pose/cartesian_position_3D.h"
+
 namespace DataState {
 
 class StateLocalPosition : public Abstract3DPosition<StateLocalPosition>, public Base3DPosition
 {
 public:
     StateLocalPosition();
+
+    StateLocalPosition(const mace::pose::CartesianPosition_3D &position);
 
     StateLocalPosition(const StateLocalPosition &localPosition);
 

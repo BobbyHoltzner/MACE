@@ -9,6 +9,7 @@
 
 #include "data_2d_grid.h"
 #include "octomap_sensor_definition.h"
+#include "octomap_2d_projection_definition.h"
 #include "occupancy_definition.h"
 
 #include <iostream>
@@ -89,8 +90,10 @@ private:
     octomap::OcTreeKey paddedMaxKey;
 
     maps::Data2DGrid<OccupiedResult>* m_Map;
+    maps::Data2DGrid<unsigned int>* m_InflatedMap;
 
     OctomapSensorDefinition* m_sensorProperties;
+    Octomap2DProjectionDefinition* m_projectionProperties;
 
 };
 

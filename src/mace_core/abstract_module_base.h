@@ -114,6 +114,11 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<ModuleParameterValue> &params) = 0;
 
+    virtual void OnModulesStarted()
+    {
+
+    }
+
     //!
     //! \brief AssignLoggingDirectory
     //! \param path

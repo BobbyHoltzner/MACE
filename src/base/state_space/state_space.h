@@ -57,6 +57,7 @@ public:
 public:
     virtual double distanceBetween(const State* lhs, const State* rhs) const = 0;
 
+
     /** The purpose of the following functions is to handle the state definition
         from the state space is that sampled. We allow for the space to handle
         the memory allocation in the event there are specifics unaware to the
@@ -68,28 +69,32 @@ public:
     //! \brief getNewState
     //! \return
     //!
-    virtual State* getNewState() const = 0;
+    virtual State* getNewState() const;
 
     //!
     //! \brief removeState
     //! \param state
     //!
-    virtual void removeState(State* state) const = 0;
+    virtual void removeState(State* state) const;
 
     //!
     //! \brief copyState
     //! \param state
     //! \return
     //!
-    virtual State* copyState(const State* state) const = 0;
+    virtual State* copyState(const State* state) const;
 
     //!
     //! \brief removeStates
     //! \param states
     //!
-    virtual void removeStates(std::vector<State*> states) const = 0;
+    virtual void removeStates(std::vector<State*> states) const;
 
     virtual bool interpolateStates(const State* begin, const State* end, const double & percentage, State** interState);
+
+    virtual double traversalCost(const State* begin, const State* end);
+
+    virtual std::vector<State*> getNeighboringStates(const State *currentState) const;
 
 protected:
     StateSpaceTypes m_type;

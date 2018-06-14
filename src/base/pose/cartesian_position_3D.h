@@ -2,23 +2,28 @@
 #define CARTESIAN_POSITION_3D_H
 
 #include "base_position.h"
+#include "cartesian_position_2D.h"
+#include "base/state_space/state.h"
 
-namespace mace{
+using namespace mace::math;
+
+namespace mace {
 namespace pose {
 
-class CartesianPosition_3D : public AbstractPosition<CartesianPosition_3D, misc::Data3D>, public CartesianPosition
+class CartesianPosition_3D: public AbstractPosition<CartesianPosition_3D, misc::Data3D>, public CartesianPosition,
+        public state_space::State
 {
 public:
     CartesianPosition_3D():
         AbstractPosition(AbstractPosition::PositionType::CARTESIAN, CoordinateFrame::CF_LOCAL_ENU)
     {
-        //std::cout<<"Default cartesian position 3d constructor"<<std::endl;
+
     }
 
     ~CartesianPosition_3D() = default;
 
     CartesianPosition_3D(const CartesianPosition_3D &copy):
-        AbstractPosition(copy)
+        AbstractPosition(copy), state_space::State(copy)
     {
 
     }
@@ -27,6 +32,16 @@ public:
         AbstractPosition(AbstractPosition::PositionType::CARTESIAN, CoordinateFrame::CF_LOCAL_ENU)
     {
         this->data.setData(x,y,z);
+    }
+
+    State* getClone() const override
+    {
+        return (new CartesianPosition_3D(*this));
+    }
+
+    void getClone(State** state) const override
+    {
+        *state = new CartesianPosition_3D(*this);
     }
 
 public:
@@ -78,7 +93,7 @@ public:
 
     bool hasYBeenSet() const
     {
-        return this->data.getDataXFlag();
+        return this->data.getDataYFlag();
     }
 
     bool hasZBeenSet() const
@@ -127,6 +142,39 @@ public:
 public:
 
     //!
+    //! \brief distanceFromOrigin
+    //! \return
+    //!
+    double distanceFromOrigin() const override;
+
+    //!
+    //! \brief polarBearingFromOrigin
+    //! \return
+    //!
+    double polarBearingFromOrigin() const override;
+
+    //!
+    //! \brief elevationFromOrigin
+    //! \return
+    //!
+    double elevationFromOrigin() const override;
+
+    //!
+    //! \brief polarAzimuthTo
+    //! \param position
+    //! \return
+    //!
+    double elevationAngleTo(const CartesianPosition_3D &position) const;
+
+    //!
+    //! \brief deltaAltitude
+    //! \param position
+    //! \return
+    //!
+    double deltaAltitude(const CartesianPosition_3D &position) const;
+
+
+    //!
     //! \brief distanceBetween2D
     //! \param position
     //! \return
@@ -134,11 +182,18 @@ public:
     virtual double distanceBetween2D(const CartesianPosition_3D &pos) const override;
 
     //!
+    //! \brief distanceBetween3D
+    //! \param position
+    //! \return
+    //!
+    double distanceBetween3D(const CartesianPosition_3D &position) const;
+
+    //!
     //! \brief distanceTo
     //! \param position
     //! \return
     //!
-    virtual double distanceTo(const CartesianPosition_3D &pos) const override;
+    double distanceTo(const CartesianPosition_3D &pos) const override;
 
     //!
     //! \brief polarBearingTo
@@ -169,6 +224,14 @@ public:
     //! \return
     //!
     CartesianPosition_3D newPositionFromCompass(const double &distance, const double &bearing) const override;
+
+    void applyPositionalShiftFromPolar(const double &distance, const double &bearing) override;
+
+    void applyPositionalShiftFromPolar(const double &distance, const double &bearing, const double &elevation);
+
+    void applyPositionalShiftFromCompass(const double &distance, const double &bearing) override;
+
+    void applyPositionalShiftFromCompass(const double &distance, const double &bearing, const double &elevation);
 
 };
 

@@ -6,24 +6,45 @@
       <Parameter Name="Version">V2</Parameter>	  
     </Parameter>
 	<Parameter Name="UDPParameters">
-      <Parameter Name="ListenAddress">192.168.1.20</Parameter>
+      <Parameter Name="ListenAddress">192.168.1.217</Parameter>
       <Parameter Name="ListenPortNumber">14550</Parameter>
     </Parameter>
 	<Parameter Name="ModuleParameters">
       <Parameter Name="AirborneInstance">true</Parameter>
     </Parameter>
     </Module>
-    <Module Class="ROS" Type="NASAPhase2">
-    <Parameter Name="ModuleParameters">
-      <Parameter Name="AirborneInstance">false</Parameter>
-    </Parameter>
-    <Parameter Name="LaserSensor">
-      <Parameter Name="Name">laser</Parameter>
-      <Parameter Name="Type">lidar_scan</Parameter>
-    </Parameter>
-    <Parameter Name="CameraSensor">
-      <Parameter Name="Name">camera</Parameter>
-      <Parameter Name="Type">rgb</Parameter>
-    </Parameter>
+ <Module Class="PathPlanning" Type="NASAPhase2">
+	<Parameter Name="GlobalOrigin">
+	  <Parameter Name="Latitude">37.8890204</Parameter>
+	  <Parameter Name="Longitude">-76.8117070</Parameter>
+	</Parameter>
+	<Parameter Name="EnvironmentParameters">
+	  <Parameter Name="Vertices">
+	    37.8897740, -76.8139172;
+	    37.8899349, -76.8097115;
+	    37.8884785, -76.8092930;
+	    37.8882584, -76.8137884;
+	  </Parameter>
+	</Parameter>
+	<Parameter Name="OctomapParameters">
+	  <Parameter Name="Filename">simple_field.bt</Parameter>
+	  <Parameter Name="Resolution">0.5</Parameter>
+	  <Parameter Name="Project2D">true</Parameter>
+	  <Parameter Name="MinRange">0.0</Parameter>
+	  <Parameter Name="MaxRange">9999</Parameter>
+	  <Parameter Name="OccupancyThreshold">1</Parameter>
+	  <Parameter Name="ProbabilityOfHit">0.7</Parameter>
+	  <Parameter Name="ProbabilityOfMiss">0.4</Parameter>
+	  <Parameter Name="MinThreshold">0.12</Parameter>
+	  <Parameter Name="MaxThreshold">0.97</Parameter>
+	</Parameter>
+  </Module>
+    <Module Class="GroundStation" Type="NASAPhase2">
+	<Parameter Name="ID">1</Parameter>
+	<Parameter Name="MACEComms">
+		<Parameter Name="GUIHostAddress">192.168.1.217</Parameter>
+		<Parameter Name="ListenPort">5678</Parameter>
+		<Parameter Name="SendPort">1234</Parameter>
+	</Parameter>
   </Module>
 </ModuleConfigurations>

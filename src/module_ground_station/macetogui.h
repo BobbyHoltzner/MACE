@@ -181,7 +181,7 @@ public:
     //! \brief sendEnvironmentVertices Send environment boundary vertices to the MACE GUI
     //! \param component Environment boundary component
     //!
-    void sendEnvironmentVertices(const std::shared_ptr<DataStateTopic::StateItemTopic_Boundary> &component);
+    void sendEnvironmentVertices(const std::vector<GeodeticPosition_3D> &component);
 
     //!
     //! \brief sendCurrentMissionItem Send vehicle mission to the MACE GUI
