@@ -137,7 +137,7 @@ public:
     //!
     //! \brief NewlyAvailableGlobalOrigin Subscriber to a new global origin
     //!
-    void NewlyUpdatedGlobalOrigin() override;
+    void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) override;
 
 
     // ============================================================================= //

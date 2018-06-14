@@ -79,7 +79,7 @@ void GUItoMACE::getGlobalOrigin()
     json["lat"] = globalOrigin.getLatitude();
     json["lng"] = globalOrigin.getLongitude();
     json["alt"] = globalOrigin.getAltitude();
-    json["gridSpacing"] = data->GetGridSpacing();
+    json["gridSpacing"] = m_parent->getDataObject()->GetGridSpacing();
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());

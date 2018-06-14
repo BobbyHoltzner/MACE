@@ -411,6 +411,13 @@ void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &v
 
 }
 
+void MaceCore::Event_SetGridSpacing(const void *sender, const double &gridSpacing)
+{
+    UNUSED(sender);
+    m_DataFusion->UpdateGridSpacing(gridSpacing);
+}
+
+
 void MaceCore::Event_SetGlobalOrigin(const void *sender, const GeodeticPosition_3D &position)
 {
     m_DataFusion->UpdateGlobalOrigin(position);
@@ -426,25 +433,47 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const GeodeticPosition_
     }
 }
 
-void MaceCore::Event_SetGridSpacing(const void *sender, const double &gridSpacing)
+
+void MaceCore::Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
 {
-    UNUSED(sender);
-    m_DataFusion->UpdateGridSpacing(gridSpacing);
-}
+    m_DataFusion->updateBoundary(boundary);
 
+    if(sender->ModuleClass() != ModuleClasses::PATH_PLANNING) {
+        if(m_PathPlanning) {
+            m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
+        }
+    }
 
-void MaceCore::Event_SetEnvironmentVertices(const ModuleBase *sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
-//    UNUSED(sender);
-    m_DataFusion->UpdateEnvironmentVertices(boundaryVerts);
-
-    if(sender->ModuleClass() != ModuleClasses::RTA) {
+    if(sender->ModuleClass() != ModuleClasses::PATH_PLANNING) {
         if(m_RTA) {
-            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, 0);
+            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
         }
     }
 }
 
+void MaceCore::Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
+{
+    m_DataFusion->updateBoundary(boundary);
 
+    if(sender->ModuleClass() != ModuleClasses::RTA) {
+        if(m_RTA)
+            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_RESOURCE_FENCE, boundary);
+    }
+    else if(m_ExternalLink.size() > 0)
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            if(it->get() == sender)
+            {
+                continue;
+            }
+
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY,boundary.getBoundaryKey(), sender->GetCharacteristic());
+        }
+    }
+}
+
+/*
 void MaceCore::Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const std::map<int, mace::geometry::Cell_2DC> &vehicleMap) {
     m_DataFusion->UpdateVehicleCellMap(vehicleMap);
 
@@ -517,7 +546,7 @@ void MaceCore::Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const 
         //        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, 0);
     }
 }
-
+*/
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// SPECIFIC VEHICLE EVENTS: These events are associated from IModuleEventsVehicleVehicle

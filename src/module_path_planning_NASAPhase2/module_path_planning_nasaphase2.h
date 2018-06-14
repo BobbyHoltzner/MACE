@@ -103,7 +103,7 @@ public:
 
     void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) override;
 
-    void NewlyUpdatedVehicleCells() override;
+    void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) override;
 
 public:
     void cbiPlanner_SampledState(const mace::state_space::State* sampleState) override;

@@ -42,12 +42,18 @@ public:
     virtual void Event_GetHomePosition(const void* sender, const int &vehicleID) = 0;
     virtual void Event_SetHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome) = 0;
 
-    virtual void Event_SetGlobalOrigin(const void* sender, const mace::pose::CartesianPosition_3D &globalHome) = 0;
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing) = 0;
+
+    /*
+     * The following 3 virtual functions are highly dependent currently since they are all going to use the
+     * global origin to determine and decipher the local position that are in the boundary lists. This needs to be
+     * generalized and fixed.
+     */
+    virtual void Event_SetGlobalOrigin(const void* sender, const mace::pose::GeodeticPosition_3D &globalHome) = 0;
 
     virtual void Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) = 0;
 
-    virtual void Event_SetEnvironmentVertices(const ModuleBase *sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) = 0;
+    virtual void Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) = 0;
 };
 
 } //End MaceCore Namespace

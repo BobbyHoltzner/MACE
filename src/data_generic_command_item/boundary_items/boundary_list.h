@@ -43,8 +43,6 @@ namespace std {
 
 namespace BoundaryItem {
 
-template<class T>
-
 class BoundaryList
 {
 public:
@@ -137,11 +135,11 @@ public:
         return !(*this == rhs);
     }
 
-public:
-    mace::geometry::Polygon_2DC boundingPolygon;
-
 private:
     BoundaryKey boundaryKey;
+
+public:
+    mace::geometry::Polygon_2DC boundingPolygon;
 
 public:
     friend std::ostream& operator<<(std::ostream& os, const BoundaryList& t);

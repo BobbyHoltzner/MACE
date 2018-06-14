@@ -51,6 +51,9 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModulePathPlanningNASAPhase2
 void ModulePathPlanningNASAPhase2::OnModulesStarted()
 {
     std::cout<<"All of the modules have been started."<<std::endl;
+    ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
+        ptr->Event_SetGlobalOrigin(this, m_globalOrigin);
+    });
 }
 
 //!
@@ -251,7 +254,7 @@ void ModulePathPlanningNASAPhase2::NewlyUpdatedGlobalOrigin(const GeodeticPositi
     //std::cout << "New global origin received (PP): (" << m_globalOrigin->getPosition().getX() << " , " << m_globalOrigin->getPosition().getY() << ")" << std::endl;
 }
 
-void ModulePathPlanningNASAPhase2::NewlyUpdatedVehicleCells()
+void ModulePathPlanningNASAPhase2::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary)
 {
     //Cell will contain a boundary and a list of target locations
 }
