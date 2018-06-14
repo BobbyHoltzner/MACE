@@ -17,6 +17,7 @@ namespace MaceCore
 enum class GroundStationCommands
 {
     BASE_MODULE_LISTENER_ENUMS,
+    NEWLY_AVAILABLE_BOUNDARY,
     NEWLY_AVAILABLE_CURRENT_MISSION,
     NEW_MISSION_EXE_STATE,
     NEWLY_AVAILABLE_HOME_POSITION
@@ -35,6 +36,11 @@ public:
         AddCommandLogic<int>(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
+        });
+
+        AddCommandLogic<BoundaryItem::BoundaryKey>(GroundStationCommands::NEWLY_AVAILABLE_BOUNDARY, [this](const BoundaryItem::BoundaryKey &key, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            NewlyAvailableBoundary(key);
         });
 
         AddCommandLogic<MissionItem::MissionKey>(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION, [this](const MissionItem::MissionKey &missionKey, const OptionalParameter<ModuleCharacteristic> &sender){
@@ -64,6 +70,8 @@ public:
 
 public:
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
+
+    virtual void NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key) = 0;
 
     virtual void NewlyAvailableCurrentMission(const MissionItem::MissionKey &missionKey) = 0;
 

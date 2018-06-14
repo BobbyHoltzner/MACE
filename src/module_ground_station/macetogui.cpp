@@ -459,16 +459,14 @@ void MACEtoGUI::sendSensorFootprint(const int &vehicleID, const std::shared_ptr<
 //! \brief sendEnvironmentVertices Send environment boundary vertices to the MACE GUI
 //! \param component Environment boundary component
 //!
-void MACEtoGUI::sendEnvironmentVertices(const std::shared_ptr<DataStateTopic::StateItemTopic_Boundary> &component) {
+void MACEtoGUI::sendEnvironmentVertices(const std::vector<mace::pose::GeodeticPosition_3D> &component) {
 
     QJsonObject json;
     json["dataType"] = "EnvironmentBoundary";
     json["vehicleID"] = 0;
 
-    std::vector<DataState::StateGlobalPosition> environmentVertices = component->getEnvironmentVertices();
-
     QJsonArray verticies;
-    for(auto&& vertex : environmentVertices) {
+    for(auto&& vertex : component) {
         QJsonObject obj;
         obj["lat"] = vertex.getLatitude();
         obj["lng"] = vertex.getLongitude();

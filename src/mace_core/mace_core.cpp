@@ -433,33 +433,24 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const GeodeticPosition_
     }
 }
 
-
-void MaceCore::Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
+void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
 {
     m_DataFusion->updateBoundary(boundary);
 
-    if(sender->ModuleClass() != ModuleClasses::PATH_PLANNING) {
+    if((sender->ModuleClass() != ModuleClasses::PATH_PLANNING) &&
+            (boundary.getBoundaryType() == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE)) {
         if(m_PathPlanning) {
             m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
         }
     }
-
-    if(sender->ModuleClass() != ModuleClasses::PATH_PLANNING) {
+    if((sender->ModuleClass() != ModuleClasses::RTA) &&
+            (boundary.getBoundaryType() == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE)){
         if(m_RTA) {
             m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
         }
     }
-}
 
-void MaceCore::Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
-{
-    m_DataFusion->updateBoundary(boundary);
-
-    if(sender->ModuleClass() != ModuleClasses::RTA) {
-        if(m_RTA)
-            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_RESOURCE_FENCE, boundary);
-    }
-    else if(m_ExternalLink.size() > 0)
+    if(m_ExternalLink.size() > 0)
     {
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
         {
@@ -830,6 +821,23 @@ void MaceCore::ExternalEvent_FinishedRXBoundaryList(const void *sender, const Bo
 /// RTA EVENTS
 /////////////////////////////////////////////////////////////////////////
 
+void MaceCore::Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
+{
+    m_DataFusion->updateBoundary(boundary);
+
+    if(m_ExternalLink.size() > 0)
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            if(it->get() == sender)
+            {
+                continue;
+            }
+
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY,boundary.getBoundaryKey(), sender->GetCharacteristic());
+        }
+    }
+}
 
 /////////////////////////////////////////////////////////////////////////
 /// GROUND STATION EVENTS
@@ -891,6 +899,29 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
 /////////////////////////////////////////////////////////////////////////
 /// PATH PLANNING EVENTS
 /////////////////////////////////////////////////////////////////////////
+
+void MaceCore::EventPP_LoadOccupancyEnvironment(const ModuleBase *sender, const string &filePath)
+{
+    if(m_DataFusion->loadOccupancyEnvironment(filePath))
+    {
+        //we dont have to check if PP exists here because we know it has to as it is the caller
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP,0);
+    }
+}
+
+void MaceCore::Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
+{
+    m_DataFusion->updateBoundary(boundary);
+
+    if(m_RTA) {
+        m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
+    }
+
+    if(m_GroundStation) {
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_BOUNDARY, boundary.getBoundaryKey());
+    }
+}
+
 
 //!
 //! \brief Event fired to indicate what planning horizon is being utilized by the path planning module

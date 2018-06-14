@@ -15,6 +15,10 @@ class IModuleEventsPathPlanning  : public IModuleEventsGeneral
 
 public:
 
+    virtual void EventPP_LoadOccupancyEnvironment(const ModuleBase* sender, const std::string &filePath) = 0;
+
+    virtual void Event_SetOperationalBoundary(const ModuleBase* sender, const BoundaryItem::BoundaryList &boundary) = 0;
+
     virtual void EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) = 0;
 
     virtual void EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path) = 0;

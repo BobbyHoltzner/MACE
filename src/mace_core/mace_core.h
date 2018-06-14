@@ -128,9 +128,7 @@ public:
 
     void Event_SetGlobalOrigin(const void* sender, const mace::pose::GeodeticPosition_3D &globalHome) override;
 
-    void Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
-
-    void Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
+    void Event_SetBoundary(const ModuleBase* sender, const BoundaryItem::BoundaryList &boundary) override;
 
 public:
 
@@ -185,6 +183,7 @@ public:
     /// RTA EVENTS
     /////////////////////////////////////////////////////////////////////////
 
+    void Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
 
 public:
 
@@ -218,6 +217,9 @@ public:
     /// PATH PLANNING EVENTS
     /////////////////////////////////////////////////////////////////////////
 
+    void EventPP_LoadOccupancyEnvironment(const ModuleBase* sender, const std::string &filePath) override;
+
+    void Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
 
     //!
     //! \brief Event fired to indicate what planning horizon is being utilized by the path planning module

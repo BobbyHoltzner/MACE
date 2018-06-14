@@ -143,6 +143,8 @@ public:
 
     void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
 
+    void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) override;
+
     void NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path) override;
 
 
@@ -299,6 +301,11 @@ private:
     //!
     ros::Publisher markerPub;
 
+    //!
+    //! \brief operationalBoundaryPub Publisher for operational boundary to be rendered in RViz
+    //!
+    ros::Publisher operationalBoundaryPub;
+
     ros::Publisher compressedMapPub;
 
     ros::Publisher testTransformedCloud;
@@ -310,7 +317,7 @@ private:
     //!
     //! \brief points Marker containers
     //!
-    visualization_msgs::Marker points, line_strip, line_list, path_list;
+    visualization_msgs::Marker points, line_strip, line_list, path_list, boundary_list;
 
     //!
     //! \brief m_client Service client for publishing update model state service to Gazebo

@@ -743,6 +743,7 @@ private:
     mace::maps::OctomapWrapper* m_OctomapWrapper;
 
 public:
+    bool loadOccupancyEnvironment(const std::string &filePath);
     octomap::OcTree getOccupancyGrid3D() const;
     mace::maps::Data2DGrid<mace::maps::OccupiedResult> getCompressedOccupancyGrid2D() const;
 
@@ -830,6 +831,8 @@ public:
 
 public:
     void updateBoundary(const BoundaryItem::BoundaryList &boundary);
+
+    bool getBoundary(BoundaryItem::BoundaryList* operationBoundary, const BoundaryItem::BoundaryKey &key) const;
 
     void getOperationalBoundary(BoundaryItem::BoundaryList* operationBoundary, const int &vehicleID = 0) const;
 

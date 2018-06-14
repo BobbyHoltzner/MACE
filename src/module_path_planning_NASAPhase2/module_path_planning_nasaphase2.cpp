@@ -10,8 +10,11 @@ ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
     m_PlanningStateTopic("planningState"),
     m_MapTopic("mappingData"),
     originSent(false),
+    m_OccupiedVehicleMap(nullptr),
     m_OctomapSensorProperties()
 {
+    OccupiedResult fillValue = OccupiedResult::NOT_OCCUPIED;
+    m_OccupiedVehicleMap = new maps::Data2DGrid<OccupiedResult>(&fillValue);
 }
 
 
@@ -53,6 +56,12 @@ void ModulePathPlanningNASAPhase2::OnModulesStarted()
     std::cout<<"All of the modules have been started."<<std::endl;
     ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
         ptr->Event_SetGlobalOrigin(this, m_globalOrigin);
+    });
+
+    ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
+        BoundaryItem::BoundaryList boundary(0,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+        boundary.setBoundary(m_LocalOperationalBoundary);
+        ptr->Event_SetOperationalBoundary(this, boundary);
     });
 }
 
@@ -101,10 +110,24 @@ void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCor
     }
 
     // Set up environment:
-    mace::geometry::Polygon_2DC boundaryPolygon;
-    parseBoundaryVertices(vertsStr, m_globalOrigin, boundaryPolygon);
+    mace::geometry::Polygon_2DG boundaryPolygon;
+    parseBoundaryVertices(vertsStr, boundaryPolygon);
     if(boundaryPolygon.isValidPolygon())
-        m_OperationalBoundary = boundaryPolygon;
+    {
+        m_GlobalOperationalBoundary = boundaryPolygon;
+        m_LocalOperationalBoundary.clearPolygon();
+        for(size_t i = 0; i < boundaryPolygon.polygonSize(); i++)
+        {
+            mace::pose::GeodeticPosition_3D vertex(boundaryPolygon.at(i).getLatitude(),boundaryPolygon.at(i).getLongitude(),0.0);
+            mace::pose::CartesianPosition_3D localVertex;
+            mace::pose::DynamicsAid::GlobalPositionToLocal(m_globalOrigin,vertex,localVertex);
+            m_LocalOperationalBoundary.appendVertex(mace::pose::CartesianPosition_2D(localVertex.getXPosition(),localVertex.getYPosition()));
+        }
+
+        m_OccupiedVehicleMap->updateGridSize(m_LocalOperationalBoundary.getXMin(),m_LocalOperationalBoundary.getXMax(),
+                                             m_LocalOperationalBoundary.getYMin(),m_LocalOperationalBoundary.getYMax(),
+                                             m_OctomapSensorProperties.getTreeResolution(),m_OctomapSensorProperties.getTreeResolution());
+    }
 }
 
 //!
@@ -298,9 +321,8 @@ void ModulePathPlanningNASAPhase2::cbiPlanner_NewConnection(const mace::state_sp
  * @param unparsedVertices String to parse with delimiters
  * @param globalOrigin Global position to convert relative to
  * @param vertices Container for boundary vertices
- * @return true denotes >= 3 vertices to make a polygon, false denotes invalid polygon
  */
-void ModulePathPlanningNASAPhase2::parseBoundaryVertices(std::string unparsedVertices, const mace::pose::GeodeticPosition_3D globalOrigin, mace::geometry::Polygon_2DC &boundaryPolygon)
+void ModulePathPlanningNASAPhase2::parseBoundaryVertices(std::string unparsedVertices, mace::geometry::Polygon_2DG &boundaryPolygon)
 {
     std::string nextVert;
     std::vector<std::string> verts;
@@ -328,11 +350,7 @@ void ModulePathPlanningNASAPhase2::parseBoundaryVertices(std::string unparsedVer
         std::string latStr = str.substr(0, pos);
         double latitude = std::stod(latStr);
         double longitude = std::stod(lonStr);
-
-        mace::pose::GeodeticPosition_3D vertex(latitude,longitude,0.0);
-        mace::pose::CartesianPosition_3D localVertex;
-        mace::pose::DynamicsAid::GlobalPositionToLocal(globalOrigin,vertex,localVertex);
-        boundaryPolygon.appendVertex(mace::pose::CartesianPosition_2D(localVertex.getXPosition(),localVertex.getYPosition()));
+        boundaryPolygon.appendVertex(mace::pose::GeodeticPosition_2D(latitude,longitude));
     }
 }
 

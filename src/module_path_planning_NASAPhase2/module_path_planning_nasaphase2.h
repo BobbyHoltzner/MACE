@@ -116,16 +116,17 @@ private:
      * @param globalOrigin Global position to convert relative to
      * @param vertices Container for boundary vertices
      */
-    void parseBoundaryVertices(std::string unparsedVertices, const mace::pose::GeodeticPosition_3D globalOrigin, mace::geometry::Polygon_2DC &boundaryPolygon);
+    void parseBoundaryVertices(std::string unparsedVertices, Polygon_2DG &boundaryPolygon);
 
 private:
     mace::state_space::Cartesian2DSpacePtr m_Space;
 
     mace::pose::GeodeticPosition_3D m_globalOrigin;
 
-    mace::geometry::Polygon_2DC m_OperationalBoundary;
+    mace::geometry::Polygon_2DG m_GlobalOperationalBoundary;
+    mace::geometry::Polygon_2DC m_LocalOperationalBoundary;
 
-    //maps::Data2DGrid<OccupiedResult> m_OccupiedVehicleMap;
+    maps::Data2DGrid<OccupiedResult>* m_OccupiedVehicleMap;
 
     mace::maps::OctomapSensorDefinition m_OctomapSensorProperties;
 

@@ -301,6 +301,12 @@ bool MaceData::checkForCurrentMission(const MissionItem::MissionKey &missionKey)
 /// PATH PLANNING DATA
 /////////////////////////////////////////////////////////
 
+bool MaceData::loadOccupancyEnvironment(const string &filePath)
+{
+    std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
+    return m_OctomapWrapper->loadOctreeFromBT(filePath);
+}
+
 octomap::OcTree MaceData::getOccupancyGrid3D() const
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
@@ -341,6 +347,22 @@ void MaceData::updateBoundariesNewOrigin(const double &distance, const double &b
         BoundaryItem::BoundaryList list = it->second;
         list.boundingPolygon.applyCoordinateShift(distance, bearing);
     }
+}
+
+bool MaceData::getBoundary(BoundaryItem::BoundaryList *operationBoundary, const BoundaryItem::BoundaryKey &key) const
+{
+    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
+    try{
+        BoundaryItem::BoundaryMapPair mapPair(key.m_systemID,key.m_boundaryType);
+        *operationBoundary = m_EnvironmentalBoundaryMap.at(mapPair);
+    }catch(const std::exception& error)
+    {
+        std::cout<<"An exception was raised during getBoundary: "<<error.what()<<std::endl;
+        operationBoundary = nullptr;
+        return false;
+    }
+
+    return true;
 }
 
 void MaceData::getOperationalBoundary(BoundaryItem::BoundaryList* operationBoundary, const int &vehicleID) const
