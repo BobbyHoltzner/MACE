@@ -13,8 +13,6 @@ DEFINES += MODULE_GROUND_STATION_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-QMAKE_CXXFLAGS += -Wa,-mbig-obj
-
 SOURCES += module_ground_station.cpp \
     guitimer.cpp \
     macetogui.cpp \
