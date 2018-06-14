@@ -15,15 +15,15 @@
     </Module>
  <Module Class="PathPlanning" Type="NASAPhase2">
 	<Parameter Name="GlobalOrigin">
-	  <Parameter Name="Latitude">37.8890204</Parameter>
-	  <Parameter Name="Longitude">-76.8117070</Parameter>
+	  <Parameter Name="Latitude">37.8895814</Parameter>
+	  <Parameter Name="Longitude">-76.8122140</Parameter>
 	</Parameter>
 	<Parameter Name="EnvironmentParameters">
 	  <Parameter Name="Vertices">
-	    37.8897740, -76.8139172;
-	    37.8899349, -76.8097115;
-	    37.8884785, -76.8092930;
-	    37.8882584, -76.8137884;
+	    37.8897105, -76.8123722;
+	    37.8897178, -76.8120315;
+	    37.8894491, -76.8120249;
+	    37.8894417, -76.8123668;
 	  </Parameter>
 	</Parameter>
 	<Parameter Name="OctomapParameters">

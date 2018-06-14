@@ -288,7 +288,7 @@ void ModuleROS::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
     geometry_msgs::Point endPoint;
 
     std::vector<Position<CartesianPosition_2D>> vertices = boundary.boundingPolygon.getVector();
-    for(int i = 1; i < vertices.size();i ++)
+    for(size_t i = 1; i < vertices.size();i ++)
     {
         startPoint.x = vertices.at(i-1).getXPosition();
         startPoint.y = vertices.at(i-1).getYPosition();
@@ -449,14 +449,14 @@ void ModuleROS::setupROS() {
     occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",10);
     // END TESTING
     markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",10);
-    operationalBoundaryPub = nh.advertise<visualization_msgs::Marker>("operational_boundary_marker",10);
+    operationalBoundaryPub = nh.advertise<visualization_msgs::Marker>("operational_boundary_marker",1);
 
     // %Tag(MARKER_INIT)%
-    points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = path_list.header.frame_id;
-    points.header.stamp = line_strip.header.stamp = line_list.header.stamp = path_list.header.stamp = ros::Time::now();
-    points.ns = line_strip.ns = line_list.ns =  path_list.ns = "points_and_lines";
-    points.action = line_strip.action = line_list.action = path_list.action = visualization_msgs::Marker::ADD;
-    points.pose.orientation.w = line_strip.pose.orientation.w = line_list.pose.orientation.w = path_list.pose.orientation.w = 1.0;
+    points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = path_list.header.frame_id=boundary_list.header.frame_id = "world";
+    points.header.stamp = line_strip.header.stamp = line_list.header.stamp = path_list.header.stamp = boundary_list.header.stamp = ros::Time::now();
+    points.ns = line_strip.ns = line_list.ns =  path_list.ns = boundary_list.ns = "points_and_lines";
+    points.action = line_strip.action = line_list.action = path_list.action = boundary_list.action = visualization_msgs::Marker::ADD;
+    points.pose.orientation.w = line_strip.pose.orientation.w = line_list.pose.orientation.w = path_list.pose.orientation.w = boundary_list.pose.orientation.w = 1.0;
     // %EndTag(MARKER_INIT)%
 
     // %Tag(ID)%
@@ -484,7 +484,7 @@ void ModuleROS::setupROS() {
     line_strip.scale.x = 0.05;
     line_list.scale.x = 0.05;
     path_list.scale.x = 0.05;
-    boundary_list.scale.x = 0.05;
+    boundary_list.scale.x = 0.5;
     // %EndTag(SCALE)%
 
     // %Tag(COLOR)%
@@ -506,8 +506,6 @@ void ModuleROS::setupROS() {
 
     // Boundary list is white
     boundary_list.color.r = 1.0;
-    boundary_list.color.g = 1.0;
-    boundary_list.color.b = 1.0;
     boundary_list.color.a = 1.0;
 
     // %EndTag(COLOR)%
