@@ -917,6 +917,11 @@ void MaceCore::Event_SetOperationalBoundary(const ModuleBase *sender, const Boun
         m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
     }
 
+    if(m_ROS)
+    {
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
+    }
+
     if(m_GroundStation) {
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_BOUNDARY, boundary.getBoundaryKey());
     }

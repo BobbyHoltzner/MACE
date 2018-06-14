@@ -287,7 +287,7 @@ void ModuleROS::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
     geometry_msgs::Point startPoint;
     geometry_msgs::Point endPoint;
 
-    std::vector<mace::pose::CartesianPosition_2D> vertices = boundary.boundingPolygon.getVector();
+    std::vector<Position<CartesianPosition_2D>> vertices = boundary.boundingPolygon.getVector();
     for(int i = 1; i < vertices.size();i ++)
     {
         startPoint.x = vertices.at(i-1).getXPosition();

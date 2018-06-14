@@ -11,16 +11,7 @@ class OctomapSensorDefinition
 {
 public:
 
-    OctomapSensorDefinition() :
-        m_set_InitialLoad(false),
-        m_set_Resolution(false),
-        m_set_MinRange(false),
-        m_set_MaxRange(false),
-        m_set_occupancyThresh(false),
-        m_set_probHit(false),
-        m_set_probMiss(false),
-        m_set_ThreshMin(false),
-        m_set_ThreshMax(false)
+    OctomapSensorDefinition()
     {
 
     }
@@ -235,31 +226,31 @@ public:
 
 private:
 
-    bool m_set_InitialLoad;
+    bool m_set_InitialLoad = false;
     std::string m_initialOctomapLoad = "";
 
-    bool m_set_Resolution;
+    bool m_set_Resolution = false;
     double m_TreeResolution = 0.5;
 
-    bool   m_set_MinRange;
+    bool   m_set_MinRange = false;
     double m_MinRange = 0.25;
 
-    bool   m_set_MaxRange;
+    bool   m_set_MaxRange = false;
     double m_MaxRange = -1;
 
-    bool   m_set_occupancyThresh;
-    double m_occupancyThresh;
+    bool   m_set_occupancyThresh = false;
+    double m_occupancyThresh = 0.8;
 
-    bool   m_set_probHit;
+    bool   m_set_probHit = false;
     double m_probHit = 0.7;
 
-    bool   m_set_probMiss;
+    bool   m_set_probMiss = false;
     double m_probMiss = 0.4;
 
-    bool   m_set_ThreshMin;
+    bool   m_set_ThreshMin = false;
     double m_ThreshMin = 0.12;
 
-    bool   m_set_ThreshMax;
+    bool   m_set_ThreshMax = false;
     double m_ThreshMax = 0.97;
 
     double minSizeX = 0.0;
