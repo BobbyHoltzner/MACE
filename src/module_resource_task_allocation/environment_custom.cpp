@@ -19,7 +19,6 @@ double rnd() {return double(rand())/RAND_MAX;}
  * @brief Environment_Map constructor
  * @param verts Vector of vertices that make up the environment boundary
  * @param gridSpacing Spacing between grid points
- * @param globalOrigin Global origin for environment
  */
 Environment_Map::Environment_Map(const Polygon_2DC &boundingPolygon, const double &gridSpacing, const bool &globalInstance) :
     m_boundary(boundingPolygon), m_globalInstance(globalInstance) {
@@ -28,8 +27,6 @@ Environment_Map::Environment_Map(const Polygon_2DC &boundingPolygon, const doubl
     if(!globalInstance) {
         m_dataGrid = new mace::maps::Bounded2DGrid(m_boundary, gridSpacing, gridSpacing);
     }
-
-//    m_globalOrigin = std::make_shared<CommandItem::SpatialHome>(globalOrigin);
 }
 
 /**

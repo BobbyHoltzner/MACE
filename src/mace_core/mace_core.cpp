@@ -827,17 +827,21 @@ void MaceCore::Event_SetResourceBoundary(const ModuleBase *sender, const Boundar
 
     if(m_ExternalLink.size() > 0)
     {
-        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it = m_ExternalLink.begin(); it != m_ExternalLink.end(); ++it)
         {
             if(it->get() == sender)
             {
                 continue;
             }
 
-            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY,boundary.getBoundaryKey(), sender->GetCharacteristic());
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY, boundary.getBoundaryKey(), sender->GetCharacteristic());
         }
     }
+
+    // TODO: Pat - Else, publish to local.
 }
+
+// TODO: Pat/Ken - Event_SetVehicleTargets or whatever
 
 /////////////////////////////////////////////////////////////////////////
 /// GROUND STATION EVENTS

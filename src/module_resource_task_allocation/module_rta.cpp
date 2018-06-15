@@ -214,10 +214,24 @@ void ModuleRTA::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
     updateEnvironment(boundary);
 
     if(m_globalInstance) {
-        //      b) Publish topic to core with new boundary data
-//        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-//            ptr->Event_SetVehicleBoundaryVertices(this, m_vehicleCells);
-//        });
+        // If global, loop over all vehicles and send their ResourceFence
+        for(auto vehicleCell : m_vehicleCells) {
+            int vehicleID = vehicleCell.first;
+            BoundaryItem::BoundaryList resourceFence;
+            resourceFence.setVehicleID(vehicleID);
+            resourceFence.setBoundaryType(BoundaryItem::BOUNDARYTYPE::RESOURCE_FENCE);
+            resourceFence.setCreatorID(this->GetID()); // TODO-PAT: Not sure if this is right
+            mace::geometry::Polygon_2DC polyBoundary;
+            for(auto vertex : vehicleCell.second.getVector()) {
+                polyBoundary.appendVertex(vertex);
+            }
+            resourceFence.setBoundary(polyBoundary);
+
+            ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+                ptr->Event_SetResourceBoundary(this, resourceFence);
+            });
+        }
+
     }
 
 }
@@ -226,10 +240,9 @@ void ModuleRTA::NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boun
 {
     updateEnvironment(boundary);
     //in this instance we would want to publish more of the required resource points
-    //      b) Publish topic to core with new boundary data
-    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-        //ptr->Event_SetVehicleBoundaryVertices(this, m_vehicleCells);
-    });
+//    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+        //ptr->SOMETHING ABOUT TARGETS(this, m_vehicleCells);
+//    });
 }
 
 
@@ -240,12 +253,12 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
     m_VehicleDataTopic.GetComponent(globalPositionData, read_topicDatagram);
 
     // Set vehicle and compute Voronoi:
-    if(environment->getGlobalOrigin()->getPosition().has2DPositionSet()) {
+    if(m_globalOrigin->getPosition().has2DPositionSet()) {
         DataState::StateLocalPosition localPositionData;
         DataState::StateGlobalPosition tmpGlobalOrigin;
-        tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getPosition().getX());
-        tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getPosition().getY());
-        tmpGlobalOrigin.setAltitude(environment->getGlobalOrigin()->getPosition().getZ());
+        tmpGlobalOrigin.setLatitude(m_globalOrigin->getPosition().getX());
+        tmpGlobalOrigin.setLongitude(m_globalOrigin->getPosition().getY());
+        tmpGlobalOrigin.setAltitude(m_globalOrigin->getPosition().getZ());
 
         DataState::StateGlobalPosition tmpGlobalPosition;
         tmpGlobalPosition.setLatitude(globalPositionData->getLatitude());
@@ -347,45 +360,45 @@ void ModuleRTA::TestFunction(const int &vehicleID) {
     //        environment->printCellInfo(cell.second);
     //    }
 
-    DataState::StateGlobalPosition tmpGlobalOrigin;
-    if(environment->getGlobalOrigin()->getPosition().has2DPositionSet()) {
-        tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getPosition().getX());
-        tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getPosition().getY());
-        tmpGlobalOrigin.setAltitude(environment->getGlobalOrigin()->getPosition().getZ());
-    }
-    else {
-        std::cout << "No global origin set. Cannot update missions for MACE" << std::endl;
-        return;
-    }
+//    DataState::StateGlobalPosition tmpGlobalOrigin;
+//    if(environment->getGlobalOrigin()->getPosition().has2DPositionSet()) {
+//        tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getPosition().getX());
+//        tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getPosition().getY());
+//        tmpGlobalOrigin.setAltitude(environment->getGlobalOrigin()->getPosition().getZ());
+//    }
+//    else {
+//        std::cout << "No global origin set. Cannot update missions for MACE" << std::endl;
+//        return;
+//    }
 
 
-    std::vector<Position<CartesianPosition_2D> > pts;
-    Position<CartesianPosition_2D> pt1; pt1.setXPosition(0.0); pt1.setYPosition(0.0);
-    Position<CartesianPosition_2D> pt2; pt2.setXPosition(10.0); pt2.setYPosition(0.0);
-    Position<CartesianPosition_2D> pt3; pt3.setXPosition(30.0); pt3.setYPosition(0.0);
-    Position<CartesianPosition_2D> pt4; pt4.setXPosition(80.0); pt4.setYPosition(0.0);
-    pts.push_back(pt1); pts.push_back(pt2); pts.push_back(pt3); pts.push_back(pt4);
+//    std::vector<Position<CartesianPosition_2D> > pts;
+//    Position<CartesianPosition_2D> pt1; pt1.setXPosition(0.0); pt1.setYPosition(0.0);
+//    Position<CartesianPosition_2D> pt2; pt2.setXPosition(10.0); pt2.setYPosition(0.0);
+//    Position<CartesianPosition_2D> pt3; pt3.setXPosition(30.0); pt3.setYPosition(0.0);
+//    Position<CartesianPosition_2D> pt4; pt4.setXPosition(80.0); pt4.setYPosition(0.0);
+//    pts.push_back(pt1); pts.push_back(pt2); pts.push_back(pt3); pts.push_back(pt4);
 
-    MissionItem::MissionList missionList;
-    missionList.setMissionTXState(MissionItem::MISSIONSTATE::PROPOSED);
-    missionList.setMissionType(MissionItem::MISSIONTYPE::AUTO);
-    missionList.setVehicleID(2);
+//    MissionItem::MissionList missionList;
+//    missionList.setMissionTXState(MissionItem::MISSIONSTATE::PROPOSED);
+//    missionList.setMissionType(MissionItem::MISSIONTYPE::AUTO);
+//    missionList.setVehicleID(2);
 
-    for(auto point : pts) {
-        std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
-        newWP->setTargetSystem(vehicleID);
+//    for(auto point : pts) {
+//        std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
+//        newWP->setTargetSystem(vehicleID);
 
-        DataState::StateLocalPosition tmpLocalPoint;
-        tmpLocalPoint.setX(point.getXPosition());
-        tmpLocalPoint.setY(point.getYPosition());
-        tmpLocalPoint.setZ(10);
+//        DataState::StateLocalPosition tmpLocalPoint;
+//        tmpLocalPoint.setX(point.getXPosition());
+//        tmpLocalPoint.setY(point.getYPosition());
+//        tmpLocalPoint.setZ(10);
 
-        DataState::StateGlobalPosition tmpGlobalPoint;
-        DataState::PositionalAid::LocalPositionToGlobal(tmpGlobalOrigin, tmpLocalPoint, tmpGlobalPoint);
-        newWP->setPosition(tmpGlobalPoint);
+//        DataState::StateGlobalPosition tmpGlobalPoint;
+//        DataState::PositionalAid::LocalPositionToGlobal(tmpGlobalOrigin, tmpLocalPoint, tmpGlobalPoint);
+//        newWP->setPosition(tmpGlobalPoint);
 
-        missionList.insertMissionItem(newWP);
-    }
+//        missionList.insertMissionItem(newWP);
+//    }
 
     //    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr){
     //        ptr->GSEvent_UploadMission(this, missionList);
