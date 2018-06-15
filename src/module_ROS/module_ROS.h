@@ -134,17 +134,32 @@ public:
 public:
 
     //!
-    //! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
+    //! \brief NewlyAvailableVehicle Subscriber to a newly available vehicle topic
     //! \param vehicleID Vehilce ID of the newly available vehicle
     //!
     void NewlyAvailableVehicle(const int &vehicleID) override;
 
+    //!
+    //! \brief NewlyUpdated3DOccupancyMap Subscriber to a newly available 3D occupancy map
+    //!
     void NewlyUpdated3DOccupancyMap() override;
 
+    //!
+    //! \brief NewlyCompressedOccupancyMap Subscriber to a newly available compressed occupancy map
+    //! \param map Compressed occupancy map
+    //!
     void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
 
+    //!
+    //! \brief NewlyUpdatedOperationalFence Subscriber to a new operational fence (i.e. global boundary)
+    //! \param boundary Boundary list object in Cartesian space
+    //!
     void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) override;
 
+    //!
+    //! \brief NewlyFoundPath Subscriber to a new path for a vehicle
+    //! \param path Path object
+    //!
     void NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path) override;
 
 
@@ -196,8 +211,11 @@ public:
     //!
     void newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
 
+    //!
+    //! \brief newGlobalPointCloud Point cloud callback for ROS PointCloud2 message (converted to global frame)
+    //! \param msg PointCloud2 message
+    //!
     void newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
-
 
     //!
     //! \brief convertToGazeboCartesian Convert position in local frame to Gazebo's world frame
@@ -220,18 +238,22 @@ public:
     // ============================================================================= //
 #ifdef ROS_EXISTS
 
+    //!
+    //! \brief generateColorHeight Assign a RGBA color based on data height for rendering
+    //! \param height Height of data point
+    //! \return ROS ColorRGBA value
+    //!
     std_msgs::ColorRGBA generateColorHeight(double height);
 
-
-    //! \brief renderOccupancyMap
+    //!
+    //! \brief renderOccupancyMap Render occupancy map in RViz
+    //! \param tree OcTree to render
     //!
     void renderOccupancyMap(const octomap::OcTree *tree);
 
     //!
     //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz
     //! \param state 2D Cartesian Position to render
-    //! \brief convertToGazeboCartesian Convert position in local frame to Gazebo's world frame
-    //! \param localPos MACE local position
     //!
     void renderState(const mace::pose::CartesianPosition_2D &state);
 
@@ -306,9 +328,11 @@ private:
     //!
     ros::Publisher operationalBoundaryPub;
 
+    //!
+    //! \brief compressedMapPub Publisher for the compressed map to be rendered in RViz
+    //!
     ros::Publisher compressedMapPub;
 
-    ros::Publisher testTransformedCloud;
     //!
     //! \brief octomapPub Publisher handling the occupied voxels of the octomap
     //!
@@ -340,9 +364,15 @@ private:
     //!
     gazebo_msgs::SetModelState m_srv;
 
+    //!
+    //! \brief m_tfBuffer Container for a tf2 buffer
+    //!
     tf2_ros::Buffer m_tfBuffer;
-      tf::TransformListener m_tfListener;
-    //std::shared_ptr<tf2_ros::TransformListener> m_tfListener;
+
+    //!
+    //! \brief m_tfListener Container for a tf transform listener for coordinate frame transformations
+    //!
+    tf::TransformListener m_tfListener;
 
     // TESTING:
     ros::Publisher cloudInPub;

@@ -25,6 +25,9 @@ class MODULE_RESOURCE_TASK_ALLOCATIONSHARED_EXPORT ModuleRTA : public MaceCore::
 {
 
 public:
+    //!
+    //! \brief ModuleRTA Default constructor
+    //!
     ModuleRTA();
 
     ~ModuleRTA();
@@ -40,7 +43,6 @@ public:
     //! \return Strucure
     //!
     virtual std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleConfigurationStructure() const;
-
 
     //!
     //! \brief Provides object contains parameters values to configure module with
@@ -58,7 +60,6 @@ public:
     //! \param target Target module (or broadcasted)
     //!
     virtual void NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target);
-
 
     //!
     //! \brief New Spooled topic given
@@ -114,28 +115,38 @@ public:
     void NewlyUpdatedGridSpacing() override;
 
 private:
-    /**
-     * @brief updateMACEMissions Sends new missions to MACE for each vehicle in the provided list
-     * @param updateCells Map of cells that contain node lists to send to MACE
-     * @param direction Grid direction for missions (NORTH_SOUTH, EAST_WEST, or CLOSEST_POINT)
-     */
+    //!
+    //! \brief updateMACEMissions Sends new missions to MACE for each vehicle in the provided list
+    //! \param updateCells Map of cells that contain node lists to send to MACE
+    //! \param direction Grid direction for missions (NORTH_SOUTH, EAST_WEST, or CLOSEST_POINT)
+    //!
     void updateMACEMissions(std::map<int, Cell_2DC> updateCells, GridDirection direction);
 
+    /**
+     * @brief updateEnvironment Given a new boundary, update the environment and Voronoi partitions
+     * @param boundary New boundary to partition/generate targets for
+     */
     void updateEnvironment(const BoundaryItem::BoundaryList &boundary);
 
 private:
-    Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
-
-    Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
-    Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;
-
-    // Environment
+    //!
+    //! \brief environment Container for the RTA environment (containing boundary, partitions, and targets)
+    //!
     std::shared_ptr<Environment_Map> environment;
 
+    //!
+    //! \brief m_globalOrigin Global origin used for conversions to/from local coordinate frame
+    //!
     std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
+
+    //!
+    //! \brief m_gridSpacing Grid spacing/resolution used for generating targets/nodes in the boundary
+    //!
     double m_gridSpacing;
-//    std::string m_vertsStr;
-    std::vector<Position<CartesianPosition_2D> > m_boundaryVerts;
+
+    //!
+    //! \brief m_vehicles Map
+    //!
     std::map<int, Position<CartesianPosition_2D> > m_vehicles;
     std::map<int, mace::geometry::Cell_2DC> m_vehicleCells;
 
@@ -143,6 +154,12 @@ private:
     bool m_globalInstance;
     bool gridSpacingSent;
     bool environmentBoundarySent;
+
+
+private:
+    Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;
+    Data::TopicDataObjectCollection<DATA_VEHICLE_SENSOR_FOOTPRINT> m_SensorFootprintDataTopic;
 
 };
 

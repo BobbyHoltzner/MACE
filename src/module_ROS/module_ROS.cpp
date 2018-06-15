@@ -224,6 +224,9 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
     insertVehicleIfNotExist(vehicleID);
 }
 
+//!
+//! \brief NewlyUpdated3DOccupancyMap Subscriber to a newly available 3D occupancy map
+//!
 void ModuleROS::NewlyUpdated3DOccupancyMap()
 {
 #ifdef ROS_EXISTS
@@ -233,6 +236,10 @@ void ModuleROS::NewlyUpdated3DOccupancyMap()
 #endif
 }
 
+//!
+//! \brief NewlyCompressedOccupancyMap Subscriber to a newly available compressed occupancy map
+//! \param map Compressed occupancy map
+//!
 void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map)
 {
 #ifdef ROS_EXISTS
@@ -281,13 +288,17 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
 #endif
 }
 
+//!
+//! \brief NewlyUpdatedOperationalFence Subscriber to a new operational fence (i.e. global boundary)
+//! \param boundary Boundary list object in Cartesian space
+//!
 void ModuleROS::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary)
 {
 #ifdef ROS_EXISTS
     geometry_msgs::Point startPoint;
     geometry_msgs::Point endPoint;
 
-    std::vector<mace::pose::CartesianPosition_2D> vertices = boundary.boundingPolygon.getVector();
+    auto vertices = boundary.boundingPolygon.getVector();
     for(int i = 1; i < vertices.size();i ++)
     {
         startPoint.x = vertices.at(i-1).getXPosition();
@@ -304,6 +315,11 @@ void ModuleROS::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
     UNUSED(boundary);
 #endif
 }
+
+//!
+//! \brief NewlyFoundPath Subscriber to a new path for a vehicle
+//! \param path Path object
+//!
 void ModuleROS::NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path)
 {
 #ifdef ROS_EXISTS
@@ -329,7 +345,10 @@ void ModuleROS::NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &p
 #endif
 }
 
-
+//!
+//! \brief insertVehicleIfNotExist Insert a new vehicle into the map if it does not exist
+//! \param vehicleID ID of vehicle to check against current vehicle map
+//!
 void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
 #ifdef ROS_EXISTS
     if(m_vehicleMap.find(vehicleID) == m_vehicleMap.end()) {
@@ -547,6 +566,10 @@ void ModuleROS::newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan cons
     std::cout << "  Loop range min: " << minDistance << std::endl;
 }
 
+//!
+//! \brief newPointCloud Point cloud callback for ROS PointCloud2 message
+//! \param msg PointCloud2 message
+//!
 void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     // Convert to Octomap Point Cloud:
     octomap::Pointcloud octoPointCloud;
@@ -618,7 +641,7 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
 }
 
 //!
-//! \brief newPointCloud Point cloud callback for ROS PointCloud2 message
+//! \brief newGlobalPointCloud Point cloud callback for ROS PointCloud2 message (converted to global frame)
 //! \param msg PointCloud2 message
 //!
 void ModuleROS::newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
@@ -660,7 +683,10 @@ void ModuleROS::newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& ms
     }); //this one explicitly calls mace_core and its up to you to handle in core
 }
 
-
+//!
+//! \brief renderOccupancyMap Render occupancy map in RViz
+//! \param tree OcTree to render
+//!
 void ModuleROS::renderOccupancyMap(const octomap::OcTree* tree)
 {
     if(tree->size() > 0)
@@ -737,6 +763,11 @@ void ModuleROS::renderEdge(const mace::geometry::Line_2DC &edge) {
     markerPub.publish(line_list);
 }
 
+//!
+//! \brief generateColorHeight Assign a RGBA color based on data height for rendering
+//! \param height Height of data point
+//! \return ROS ColorRGBA value
+//!
 std_msgs::ColorRGBA ModuleROS::generateColorHeight(double height)
 {
     std_msgs::ColorRGBA color;
