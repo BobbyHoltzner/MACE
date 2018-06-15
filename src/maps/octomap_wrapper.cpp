@@ -235,8 +235,8 @@ bool OctomapWrapper::loadOctreeFromBT(const std::string &path)
 
 void OctomapWrapper::getTreeDimensions(double &minX, double &maxX, double &minY, double &maxY, double &minZ, double &maxZ)
 {
-    m_Tree->getMetricMin(minX, minZ, minZ);
-    m_Tree->getMetricMax(maxX, maxZ, maxZ);
+    m_Tree->getMetricMin(minX, minY, minZ);
+    m_Tree->getMetricMax(maxX, maxY, maxZ);
 }
 
 void OctomapWrapper::updateMapContinuity()

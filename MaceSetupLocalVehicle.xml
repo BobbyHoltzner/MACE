@@ -27,7 +27,8 @@
 	  </Parameter>
 	</Parameter>
 	<Parameter Name="OctomapParameters">
-	  <Parameter Name="Filename">simple_field.bt</Parameter>
+	  <Parameter Name="Filename">/home/majorpr13/MACE/simple_test_000_303030.bt</Parameter>
+	  <Parameter Name="OctomapOperationalBoundary">true</Parameter>
 	  <Parameter Name="Resolution">0.5</Parameter>
 	  <Parameter Name="Project2D">true</Parameter>
 	  <Parameter Name="MinRange">0.0</Parameter>
@@ -38,19 +39,6 @@
 	  <Parameter Name="MinThreshold">0.12</Parameter>
 	  <Parameter Name="MaxThreshold">0.97</Parameter>
 	</Parameter>
-  </Module>
-  <Module Class="ROS" Type="NASAPhase2">
-    <Parameter Name="ModuleParameters">
-      <Parameter Name="AirborneInstance">false</Parameter>
-    </Parameter>
-    <Parameter Name="LaserSensor">
-      <Parameter Name="Name">laser</Parameter>
-      <Parameter Name="Type">lidar_scan</Parameter>
-    </Parameter>
-    <Parameter Name="CameraSensor">
-      <Parameter Name="Name">camera</Parameter>
-      <Parameter Name="Type">rgb</Parameter>
-    </Parameter>
   </Module>
 </ModuleConfigurations>
 
