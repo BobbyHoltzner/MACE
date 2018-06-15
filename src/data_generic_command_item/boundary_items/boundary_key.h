@@ -21,7 +21,7 @@ public:
     int m_creatorID;
 
     //!
-    //! \brief m_missionID This descriptor is a unique identifier for the vehicle to reference to
+    //! \brief m_boundaryID This descriptor is a unique identifier for the vehicle to reference to
     //! the transmitter of the information in the exchange. This should help handle ack events
     //! to stations that may/may not have lost sync with vehicle. More robust methods should be
     //! investigated in the future such as timestamping etc.

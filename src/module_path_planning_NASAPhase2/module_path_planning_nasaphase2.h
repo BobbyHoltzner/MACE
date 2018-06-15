@@ -99,6 +99,8 @@ public:
 
     void NewlyAvailableVehicle(const int &vehicleID) override;
 
+    void NewlyLoadedOccupancyMap() override;
+
     void NewlyUpdatedOccupancyMap() override;
 
     void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) override;

@@ -36,6 +36,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModulePathPlanningNASAPhase2
 
     std::shared_ptr<MaceCore::ModuleParameterStructure> octomapParams = std::make_shared<MaceCore::ModuleParameterStructure>();
     octomapParams->AddTerminalParameters("Filename", MaceCore::ModuleParameterTerminalTypes::STRING, false);
+    octomapParams->AddTerminalParameters("OctomapOperationalBoundary", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, false);
     octomapParams->AddTerminalParameters("Resolution", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
     octomapParams->AddTerminalParameters("Project2D", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, false);
     octomapParams->AddTerminalParameters("MinRange", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
@@ -58,11 +59,20 @@ void ModulePathPlanningNASAPhase2::OnModulesStarted()
         ptr->Event_SetGlobalOrigin(this, m_globalOrigin);
     });
 
+    if(m_LocalOperationalBoundary.isValidPolygon() && !m_OctomapSensorProperties.isOctomapOperationalBoundary())
+    {
+        ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
+            BoundaryItem::BoundaryList boundary(0,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+            boundary.setBoundary(m_LocalOperationalBoundary);
+            ptr->Event_SetOperationalBoundary(this, boundary);
+        });
+    }
+
     ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
-        BoundaryItem::BoundaryList boundary(0,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
-        boundary.setBoundary(m_LocalOperationalBoundary);
-        ptr->Event_SetOperationalBoundary(this, boundary);
+        ptr->EventPP_LoadOctomapProperties(this, m_OctomapSensorProperties);
     });
+
+
 }
 
 //!
@@ -80,9 +90,9 @@ void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCor
         m_globalOrigin = mace::pose::GeodeticPosition_3D(globalLat, globalLon, 0.0);
 
         // TODO: Figure out a way to send to the core (to fix github issue #126: )
-        ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
+/*        ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
             ptr->Event_SetGlobalOrigin(this, m_globalOrigin);
-        }); //this one explicitly calls mace_core and its up to you to handle in core
+        }); *///this one explicitly calls mace_core and its up to you to handle in core
 
         /*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
                 ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
@@ -92,10 +102,39 @@ void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCor
     if(params->HasNonTerminal("EnvironmentParameters")) {
         std::shared_ptr<MaceCore::ModuleParameterValue> environmentParams = params->GetNonTerminalValue("EnvironmentParameters");
         vertsStr = environmentParams->GetTerminalValue<std::string>("Vertices");
+
+        // Set up environment:
+        mace::geometry::Polygon_2DG boundaryPolygon;
+        parseBoundaryVertices(vertsStr, boundaryPolygon);
+
+        if(boundaryPolygon.isValidPolygon())
+        {
+            if(!m_globalOrigin.hasBeenSet()) //if a global origin had not been assigned from above and we have a boundary let us choose one
+            {
+                m_globalOrigin.setLatitude(boundaryPolygon.at(0).getLatitude());
+                m_globalOrigin.setLongitude(boundaryPolygon.at(0).getLongitude());
+            }
+
+            m_GlobalOperationalBoundary = boundaryPolygon;
+            m_LocalOperationalBoundary.clearPolygon();
+            for(size_t i = 0; i < boundaryPolygon.polygonSize(); i++)
+            {
+                mace::pose::GeodeticPosition_3D vertex(boundaryPolygon.at(i).getLatitude(),boundaryPolygon.at(i).getLongitude(),0.0);
+                mace::pose::CartesianPosition_3D localVertex;
+                mace::pose::DynamicsAid::GlobalPositionToLocal(m_globalOrigin,vertex,localVertex);
+                m_LocalOperationalBoundary.appendVertex(mace::pose::CartesianPosition_2D(localVertex.getXPosition(),localVertex.getYPosition()));
+            }
+
+            m_OccupiedVehicleMap->updateGridSize(m_LocalOperationalBoundary.getXMin(),m_LocalOperationalBoundary.getXMax(),
+                                                 m_LocalOperationalBoundary.getYMin(),m_LocalOperationalBoundary.getYMax(),
+                                                 m_OctomapSensorProperties.getTreeResolution(),m_OctomapSensorProperties.getTreeResolution());
+        }
+
     }
     if(params->HasNonTerminal("OctomapParameters")) {
         std::shared_ptr<MaceCore::ModuleParameterValue> octomapParams = params->GetNonTerminalValue("OctomapParameters");
         m_OctomapSensorProperties.setInitialLoadFile(octomapParams->GetTerminalValue<std::string>("Filename"));
+        m_OctomapSensorProperties.setOctomapAsOperationalBoundary(octomapParams->GetTerminalValue<bool>("OctomapOperationalBoundary"));
         m_OctomapSensorProperties.setTreeResolution(octomapParams->GetTerminalValue<double>("Resolution"));
         m_OctomapSensorProperties.setMaxRange(octomapParams->GetTerminalValue<double>("MaxRange"));
         m_OctomapSensorProperties.setMinRange(octomapParams->GetTerminalValue<double>("MinRange"));
@@ -107,26 +146,6 @@ void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCor
     }
     else {
         throw std::runtime_error("Unkown Path Planning parameters encountered");
-    }
-
-    // Set up environment:
-    mace::geometry::Polygon_2DG boundaryPolygon;
-    parseBoundaryVertices(vertsStr, boundaryPolygon);
-    if(boundaryPolygon.isValidPolygon())
-    {
-        m_GlobalOperationalBoundary = boundaryPolygon;
-        m_LocalOperationalBoundary.clearPolygon();
-        for(size_t i = 0; i < boundaryPolygon.polygonSize(); i++)
-        {
-            mace::pose::GeodeticPosition_3D vertex(boundaryPolygon.at(i).getLatitude(),boundaryPolygon.at(i).getLongitude(),0.0);
-            mace::pose::CartesianPosition_3D localVertex;
-            mace::pose::DynamicsAid::GlobalPositionToLocal(m_globalOrigin,vertex,localVertex);
-            m_LocalOperationalBoundary.appendVertex(mace::pose::CartesianPosition_2D(localVertex.getXPosition(),localVertex.getYPosition()));
-        }
-
-        m_OccupiedVehicleMap->updateGridSize(m_LocalOperationalBoundary.getXMin(),m_LocalOperationalBoundary.getXMax(),
-                                             m_LocalOperationalBoundary.getYMin(),m_LocalOperationalBoundary.getYMax(),
-                                             m_OctomapSensorProperties.getTreeResolution(),m_OctomapSensorProperties.getTreeResolution());
     }
 }
 
@@ -262,6 +281,30 @@ void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
     */
 }
 
+
+void ModulePathPlanningNASAPhase2::NewlyLoadedOccupancyMap()
+{
+    if(m_OctomapSensorProperties.isOctomapOperationalBoundary())
+    {
+        double minX, maxX, minY, maxY, minZ, maxZ;
+        this->getDataObject()->getOctomapDimensions(minX, maxX, minY, maxY, minZ, maxZ);
+
+        BoundaryItem::BoundaryList loadedBoundary(0,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+        loadedBoundary.appendVertexItem(Position<CartesianPosition_2D>("Lower Left",minX,minY));
+        loadedBoundary.appendVertexItem(Position<CartesianPosition_2D>("Upper Left",minX,maxY));
+        loadedBoundary.appendVertexItem(Position<CartesianPosition_2D>("Upper Right",maxX,maxY));
+        loadedBoundary.appendVertexItem(Position<CartesianPosition_2D>("Lower Right",maxX,minY));
+
+        NewlyUpdatedOperationalFence(loadedBoundary);
+
+        ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
+            BoundaryItem::BoundaryList boundary(0,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+            boundary.setBoundary(m_LocalOperationalBoundary);
+            ptr->Event_SetOperationalBoundary(this, boundary);
+        });
+    }
+}
+
 void ModulePathPlanningNASAPhase2::NewlyUpdatedOccupancyMap()
 {
     //octomap::OcTree occupancyMap = this->getDataObject()->OccupancyMap_GetCopy();
@@ -279,7 +322,25 @@ void ModulePathPlanningNASAPhase2::NewlyUpdatedGlobalOrigin(const GeodeticPositi
 
 void ModulePathPlanningNASAPhase2::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary)
 {
-    //Cell will contain a boundary and a list of target locations
+    m_LocalOperationalBoundary.clearPolygon();
+    m_LocalOperationalBoundary = boundary.boundingPolygon;
+
+    if(m_globalOrigin.hasBeenSet()) //if a global origin had not been assigned from above and we have a boundary let us choose one
+    {
+        m_GlobalOperationalBoundary.clearPolygon();
+        for(size_t i = 0; i < m_LocalOperationalBoundary.polygonSize(); i++)
+        {
+            CartesianPosition_3D vertex(m_LocalOperationalBoundary.at(i).getXPosition(),m_LocalOperationalBoundary.at(i).getYPosition(),0.0);
+            GeodeticPosition_3D globalVertex;
+            mace::pose::DynamicsAid::LocalPositionToGlobal(m_globalOrigin,vertex,globalVertex);
+            GeodeticPosition_2D globalVertex2D(globalVertex.getLatitude(),globalVertex.getLongitude());
+            m_GlobalOperationalBoundary.appendVertex(globalVertex2D);
+        }
+    }
+
+    m_OccupiedVehicleMap->updateGridSize(m_LocalOperationalBoundary.getXMin(),m_LocalOperationalBoundary.getXMax(),
+                                         m_LocalOperationalBoundary.getYMin(),m_LocalOperationalBoundary.getYMax(),
+                                         m_OctomapSensorProperties.getTreeResolution(),m_OctomapSensorProperties.getTreeResolution());
 }
 
 

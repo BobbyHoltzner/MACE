@@ -219,6 +219,10 @@ public:
 
     void EventPP_LoadOccupancyEnvironment(const ModuleBase* sender, const std::string &filePath) override;
 
+    void EventPP_LoadOctomapProperties(const ModuleBase* sender, const mace::maps::OctomapSensorDefinition &properties) override;
+
+    void EventPP_LoadMappingProjectionProperties(const ModuleBase* sender, const mace::maps::Octomap2DProjectionDefinition &properties) override;
+
     void Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
 
     //!

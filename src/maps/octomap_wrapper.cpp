@@ -9,23 +9,43 @@ OctomapWrapper::OctomapWrapper(const double &treeResolution, const OctomapSensor
     m_sensorProperties(nullptr),
     m_projectionProperties(nullptr)
 {
-    m_sensorProperties = new OctomapSensorDefinition(sensorProperties);
+    m_sensorProperties = new OctomapSensorDefinition();
     m_projectionProperties = new Octomap2DProjectionDefinition();
 
-    m_Tree = new octomap::OcTree(treeResolution);
+    m_Tree = new octomap::OcTree(sensorProperties.getTreeResolution());
     m_Tree->enableChangeDetection(true);
 
     OccupiedResult fillValue = OccupiedResult::NO_DATA;
     m_Map = new maps::Data2DGrid<OccupiedResult>(&fillValue);
+
+    updateSensorProperties(*m_sensorProperties);
 }
 
-void OctomapWrapper::updateSensorProperties(const OctomapSensorDefinition &sensorProperties)
+bool OctomapWrapper::updateSensorProperties(const OctomapSensorDefinition &sensorProperties)
 {
-    m_sensorProperties = new OctomapSensorDefinition(sensorProperties);
-    m_Tree->setProbHit(m_sensorProperties->getProbHit());
-    m_Tree->setProbMiss(m_sensorProperties->getProbMiss());
-    m_Tree->setClampingThresMax(m_sensorProperties->getThreshMax());
-    m_Tree->setClampingThresMin(m_sensorProperties->getThreshMin());
+    m_Tree->setResolution(sensorProperties.getTreeResolution());
+    m_Tree->setProbHit(sensorProperties.getProbHit());
+    m_Tree->setProbMiss(sensorProperties.getProbMiss());
+    m_Tree->setClampingThresMax(sensorProperties.getThreshMax());
+    m_Tree->setClampingThresMin(sensorProperties.getThreshMin());
+
+    std::string oldLoad = m_sensorProperties->getInitialLoadFile();
+
+    m_sensorProperties->updateProperties(sensorProperties);
+
+    if((sensorProperties.getInitialLoadFile() != oldLoad) && (!sensorProperties.getInitialLoadFile().empty()))
+    {
+        //this implies that there is a different file we have been told to load, let us handle that
+        loadOctreeFromBT(m_sensorProperties->getInitialLoadFile());
+        return true;
+    }
+
+    return false;
+}
+
+bool OctomapWrapper::updateProjectionProperties(const Octomap2DProjectionDefinition &projectionProperties)
+{
+
 }
 
 void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<pose::CartesianPosition_3D> &position)
@@ -211,6 +231,12 @@ bool OctomapWrapper::loadOctreeFromBT(const std::string &path)
     }
 
     return true;
+}
+
+void OctomapWrapper::getTreeDimensions(double &minX, double &maxX, double &minY, double &maxY, double &minZ, double &maxZ)
+{
+    m_Tree->getMetricMin(minX, minZ, minZ);
+    m_Tree->getMetricMax(maxX, maxZ, maxZ);
 }
 
 void OctomapWrapper::updateMapContinuity()
@@ -492,5 +518,10 @@ void OctomapWrapper::updateOccupiedNode(const octomap::OcTree::iterator &it)
 //  }
 //}
 
+
+OctomapSensorDefinition OctomapWrapper::getCurrentOctomapProperies() const
+{
+    return *this->m_sensorProperties;
+}
 } //end of namespace maps
 } //end of namespace mace

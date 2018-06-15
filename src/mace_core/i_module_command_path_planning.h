@@ -17,6 +17,7 @@ enum class PathPlanningCommands
 {
     BASE_MODULE_LISTENER_ENUMS,
     NEWLY_UPDATED_OPERATIONAL_FENCE,
+    NEWLY_LOADED_OCCUPANCY_MAP,
     NEWLY_UPDATED_OCCUPANCY_MAP,
     NEWLY_UPDATE_VEHICLE_BOUNDARIES
 };
@@ -34,6 +35,11 @@ public:
         AddCommandLogic<int>(PathPlanningCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
+        });
+
+        AddCommandLogic(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP, [this](const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            NewlyLoadedOccupancyMap();
         });
 
         AddCommandLogic<int>(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
@@ -64,6 +70,11 @@ public:
     //! \param vehicleID
     //!
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
+
+    //!
+    //! \brief NewlyLoadedOccupancyMap
+    //!
+    virtual void NewlyLoadedOccupancyMap() = 0;
 
     //!
     //! \brief NewlyUpdatedOccupancyMap

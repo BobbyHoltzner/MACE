@@ -79,6 +79,8 @@ public:
         return false;
     }
 
+    virtual bool hasBeenSet() const = 0;
+
     //!
     //! \brief distanceFromOrigin
     //! \return

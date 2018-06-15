@@ -904,9 +904,27 @@ void MaceCore::EventPP_LoadOccupancyEnvironment(const ModuleBase *sender, const 
 {
     if(m_DataFusion->loadOccupancyEnvironment(filePath))
     {
+        //we have loaded a new map which means we need to notify everyone
+
         //we dont have to check if PP exists here because we know it has to as it is the caller
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP,0);
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP);
     }
+}
+
+void MaceCore::EventPP_LoadOctomapProperties(const ModuleBase *sender, const maps::OctomapSensorDefinition &properties)
+{
+    if(m_DataFusion->updateOctomapProperties(properties))
+    {
+        //we have loaded a new map which means we need to notify everyone
+
+        //we dont have to check if PP exists here because we know it has to as it is the caller
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP);
+    }
+}
+
+void MaceCore::EventPP_LoadMappingProjectionProperties(const ModuleBase *sender, const maps::Octomap2DProjectionDefinition &properties)
+{
+
 }
 
 void MaceCore::Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
