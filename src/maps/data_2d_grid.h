@@ -140,7 +140,7 @@ public:
 
     bool findIndex(const T* find, int &index)
     {
-        for (int i = 0; i < getSize(); i++)
+        for (size_t i = 0; i < getSize(); i++)
             if(find == &m_dataMap.at(i))
             {
                 index = i;

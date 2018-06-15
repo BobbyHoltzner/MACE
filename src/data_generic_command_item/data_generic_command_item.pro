@@ -45,7 +45,9 @@ SOURCES += \
     mission_items/mission_item_achieved.cpp \
     mission_items/mission_item_current.cpp \
     mission_items/mission_key.cpp \
-    mission_items/mission_key_change.cpp
+    mission_items/mission_key_change.cpp \
+    boundary_items/boundary_key.cpp \
+    boundary_items/boundary_list.cpp
 HEADERS +=\
     do_items/action_arm.h \
     do_items/action_change_mode.h \
@@ -75,7 +77,10 @@ HEADERS +=\
     mission_items/mission_key.h \
     mission_items/mission_key_change.h \
     spatial_items/abstract_spatial_position.h \
-    command_item_type.h
+    command_item_type.h \
+    boundary_items/boundary_key.h \
+    boundary_items/boundary_type.h \
+    boundary_items/boundary_list.h
 
 # Unix lib Install
 unix:!symbian {
@@ -99,10 +104,13 @@ include(../headerinstall.pri)
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../
 
-
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../common/release/ -lcommon
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../common/debug/ -lcommon
 else:unix:!macx: LIBS += -L$$OUT_PWD/../common/ -lcommon
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
+else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata

@@ -116,6 +116,8 @@ public:
     //!
     void NewlyAvailableVehicle(const int &vehicleID) override;
 
+    void NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key) override;
+
     //!
     //! \brief NewlyAvailableCurrentMission Subscriber to a new vehicle mission topic
     //! \param missionKey Key denoting which mission is available
@@ -137,7 +139,7 @@ public:
     //!
     //! \brief NewlyAvailableGlobalOrigin Subscriber to a new global origin
     //!
-    void NewlyUpdatedGlobalOrigin() override;
+    void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) override;
 
 
     // ============================================================================= //

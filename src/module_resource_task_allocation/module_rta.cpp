@@ -2,8 +2,17 @@
 
 ModuleRTA::ModuleRTA():
     m_VehicleDataTopic("vehicleData"), m_SensorDataTopic("sensorData"),
-    m_SensorFootprintDataTopic("sensorFootprint"), originSent(false), environmentBoundarySent(false)
+    m_SensorFootprintDataTopic("sensorFootprint"), gridSpacingSent(false), environmentBoundarySent(false),
+    m_globalInstance(true), m_gridSpacing(1)
 {
+    std::vector<Position<CartesianPosition_2D> > localBoundaryVerts;
+    Polygon_2DC poly(localBoundaryVerts);
+
+    environment = std::make_shared<Environment_Map>(poly, m_gridSpacing, m_globalInstance);
+}
+
+ModuleRTA::~ModuleRTA(){
+
 }
 
 //!
@@ -24,15 +33,14 @@ void ModuleRTA::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurationStructure() const
 {
     MaceCore::ModuleParameterStructure structure;
+
+    std::shared_ptr<MaceCore::ModuleParameterStructure> moduleSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
+    moduleSettings->AddTerminalParameters("GlobalInstance", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
+    structure.AddNonTerminal("ModuleParameters", moduleSettings, true);
+
     std::shared_ptr<MaceCore::ModuleParameterStructure> environmentParams = std::make_shared<MaceCore::ModuleParameterStructure>();
-    environmentParams->AddTerminalParameters("Vertices", MaceCore::ModuleParameterTerminalTypes::STRING, true);
     environmentParams->AddTerminalParameters("GridSpacing", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
     structure.AddNonTerminal("EnvironmentParameters", environmentParams, true);
-
-    std::shared_ptr<MaceCore::ModuleParameterStructure> globalOrigin = std::make_shared<MaceCore::ModuleParameterStructure>();
-    globalOrigin->AddTerminalParameters("Latitude", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    globalOrigin->AddTerminalParameters("Longitude", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    structure.AddNonTerminal("GlobalOrigin", globalOrigin, true);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -44,120 +52,26 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurati
 //!
 void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-    double globalLat = 0 , globalLon = 0, gridSpacing = 1;
-    DataState::StateGlobalPosition globalOrigin;
-    std::string vertsStr;
-    if(params->HasNonTerminal("GlobalOrigin")) {
-        std::shared_ptr<MaceCore::ModuleParameterValue> globalOriginXML = params->GetNonTerminalValue("GlobalOrigin");
-        globalLat = globalOriginXML->GetTerminalValue<double>("Latitude");
-        globalLon = globalOriginXML->GetTerminalValue<double>("Longitude");
 
-        // Set global origin for MACE:
-        CommandItem::SpatialHome tmpGlobalOrigin;
-        tmpGlobalOrigin.position->setX(globalLat);
-        tmpGlobalOrigin.position->setY(globalLon);
-        tmpGlobalOrigin.position->setZ(0);
-        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-            ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
-        });
-
-        globalOrigin.setLatitude(globalLat);
-        globalOrigin.setLongitude(globalLon);
-        globalOrigin.setAltitude(0);
-
+    if(params->HasNonTerminal("ModuleParameters"))
+    {
+        std::shared_ptr<MaceCore::ModuleParameterValue> moduleSettings = params->GetNonTerminalValue("ModuleParameters");
+        m_globalInstance = moduleSettings->GetTerminalValue<bool>("GlobalInstance");
     }
+
     if(params->HasNonTerminal("EnvironmentParameters")) {
         std::shared_ptr<MaceCore::ModuleParameterValue> environmentParams = params->GetNonTerminalValue("EnvironmentParameters");
-        gridSpacing = environmentParams->GetTerminalValue<double>("GridSpacing");
-        vertsStr = environmentParams->GetTerminalValue<std::string>("Vertices");
+        m_gridSpacing = environmentParams->GetTerminalValue<double>("GridSpacing");
 
-        // Set grid spacing in MACE:
-        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-            ptr->Event_SetGridSpacing(this, gridSpacing);
-        });
+        //        // Set grid spacing in MACE:
+        //        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+        //            ptr->Event_SetGridSpacing(this, gridSpacing);
+        //        });
     }
     else {
         throw std::runtime_error("Unkown RTA parameters encountered");
     }
 
-    // Set up environment:
-    if(globalOrigin.has2DPositionSet()) {
-        std::vector<Position<CartesianPosition_2D> > verts;
-        parseBoundaryVertices(vertsStr, globalOrigin, verts);
-        Polygon_2DC poly(verts);
-        environment = std::make_shared<Environment_Map>(poly, gridSpacing, globalOrigin);
-    }
-    else {
-        std::cout << "No global origin in config. Cannot set up RTA environment." << std::endl;
-    }
-}
-
-
-/**
- * @brief parseBoundaryVertices Given a string of delimited (lat, lon) pairs, parse into a vector of points
- * @param unparsedVertices String to parse with delimiters
- * @param globalOrigin Global position to convert relative to
- * @param vertices Container for boundary vertices
- * @return true denotes >= 3 vertices to make a polygon, false denotes invalid polygon
- */
-bool ModuleRTA::parseBoundaryVertices(std::string unparsedVertices, const DataState::StateGlobalPosition globalOrigin, std::vector<Position<CartesianPosition_2D> > &vertices) {
-    bool validPolygon = false;
-
-    std::cout << "Unparsed vertices string: " << unparsedVertices << std::endl;
-
-    std::string nextVert;
-    std::vector<std::string> verts;
-    // For each character in the string
-    for (std::string::const_iterator it = unparsedVertices.begin(); it != unparsedVertices.end(); it++) {
-        // If we've hit the ';' terminal character
-        if (*it == ';') {
-            // If we have some characters accumulated
-            if (!nextVert.empty()) {
-                // Add them to the result vector
-                verts.push_back(nextVert);
-                nextVert.clear();
-            }
-        } else {
-            // Accumulate the next character into the sequence
-            nextVert += *it;
-        }
-    }
-    if (!nextVert.empty())
-         verts.push_back(nextVert);
-
-    // Now parse each string in the vector for each lat/lon to be inserted into our vertices vector:
-    for(auto str : verts) {
-        std::cout << "Vertex: " << str << std::endl;
-        int pos = str.find_first_of(',');
-        std::string lonStr = str.substr(pos+1);
-        std::string latStr = str.substr(0, pos);
-        double latitude = std::stod(latStr);
-        double longitude = std::stod(lonStr);
-
-        DataState::StateGlobalPosition vertexToConvert;
-        vertexToConvert.setLatitude(latitude);
-        vertexToConvert.setLongitude(longitude);
-        vertexToConvert.setAltitude(0);
-
-        // Convert to local x,y:
-        DataState::StateLocalPosition localPos;
-        DataState::StateGlobalPosition tmpGlobal(globalOrigin.getX(), globalOrigin.getY(), globalOrigin.getZ());
-        DataState::PositionalAid::GlobalPositionToLocal(tmpGlobal, vertexToConvert, localPos);
-
-        // Add to our vector:
-        Position<CartesianPosition_2D> tmp;
-        tmp.setXPosition(localPos.getX());
-        tmp.setYPosition(localPos.getY());
-        vertices.push_back(tmp);
-    }
-
-
-    // Check if we have enough vertices for a valid polygon:
-    if(vertices.size() >= 3){
-        validPolygon = true;
-    }
-
-    return validPolygon;
 }
 
 
@@ -188,72 +102,136 @@ void ModuleRTA::NewTopicData(const std::string &topicName, const MaceCore::Modul
 //!
 void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
-    int senderID = sender.ID;
-    if(!originSent) {
-        CommandItem::SpatialHome tmpGlobalOrigin;
-        tmpGlobalOrigin.position->setX(environment->getGlobalOrigin()->getLatitude());
-        tmpGlobalOrigin.position->setY(environment->getGlobalOrigin()->getLongitude());
-        tmpGlobalOrigin.position->setZ(0);
+    if(!gridSpacingSent) {
         ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-            ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
-        });
-//        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-//            ptr->Event_SetGridSpacing(this, environment->getGridSpacing());
-//        });
-
-        originSent = true;
-    }
-    if(!environmentBoundarySent) {
-        std::vector<Position<CartesianPosition_2D> > boundary = environment->getBoundaryVerts();
-        std::vector<DataState::StateGlobalPosition> globalBoundary;
-        for(auto pt : boundary) {
-            DataState::StateGlobalPosition globalPos;
-            DataState::StateGlobalPosition origin;
-            origin.setX(environment->getGlobalOrigin()->getX());
-            origin.setY(environment->getGlobalOrigin()->getY());
-            origin.setZ(environment->getGlobalOrigin()->getZ());
-            // TODO: figure out what we want to do with the z-coordinate
-            DataState::PositionalAid::LocalPositionToGlobal(origin, DataState::StateLocalPosition(pt.getXPosition(), pt.getYPosition(), origin.getZ()), globalPos);
-            globalBoundary.push_back(globalPos);
-        }
-
-        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-            ptr->Event_SetEnvironmentVertices(this, globalBoundary);
+            ptr->Event_SetGridSpacing(this, m_gridSpacing);
         });
 
-        environmentBoundarySent = true;
+        gridSpacingSent = true;
     }
 
 
     //example read of vehicle data
+    int senderID = sender.ID;
     if(topicName == m_VehicleDataTopic.Name())
     {
         MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
+
+            if(componentsUpdated.at(i) == DataStateTopic::StateLocalPositionTopic::Name())
+            {
+                std::shared_ptr<DataStateTopic::StateLocalPositionTopic> localPositionData = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
+                m_VehicleDataTopic.GetComponent(localPositionData, read_topicDatagram);
+                Position<CartesianPosition_2D> vehiclePosition;
+                vehiclePosition.setXPosition(localPositionData.get()->getX());
+                vehiclePosition.setYPosition(localPositionData.get()->getY());
+                m_vehicles[senderID] = vehiclePosition;
+            }
+            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> globalPositionData = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(globalPositionData, read_topicDatagram);
+
+                // Update vehicle position:
+                Position<CartesianPosition_2D> tmpPos;
+                DataState::StateLocalPosition localPositionData;
+                DataState::StateGlobalPosition tmpGlobalOrigin;
+                mace::pose::GeodeticPosition_3D origin = this->getDataObject()->GetGlobalOrigin();
+                CommandItem::SpatialHome tmpSpatialHome(origin);
+
+                tmpGlobalOrigin.setLatitude(tmpSpatialHome.getPosition().getX());
+                tmpGlobalOrigin.setLongitude(tmpSpatialHome.getPosition().getY());
+                tmpGlobalOrigin.setAltitude(tmpSpatialHome.getPosition().getZ());
+
+                DataState::PositionalAid::GlobalPositionToLocal(tmpGlobalOrigin, *globalPositionData, localPositionData);
+                tmpPos.setXPosition(localPositionData.getX());
+                tmpPos.setYPosition(localPositionData.getY());
+                // Insert/update into map
+                m_vehicles[senderID] = tmpPos;
+
             }else if(componentsUpdated.at(i) == DataStateTopic::StateLocalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateLocalPositionTopic> localPositionData = std::make_shared<DataStateTopic::StateLocalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(localPositionData, read_topicDatagram);
-
             }
         }
     }else if(topicName == m_SensorFootprintDataTopic.Name())
     {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_SensorFootprintDataTopic.Name(), senderID);
-        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-            if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
-                std::shared_ptr<DataVehicleSensors::SensorVertices_Global> sensorVerticesGlobal = std::make_shared<DataVehicleSensors::SensorVertices_Global>();
-                m_SensorFootprintDataTopic.GetComponent(sensorVerticesGlobal, read_topicDatagram);
-            }
-//            }else if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
-//                std::shared_ptr<DataVehicleSensors::SensorVertices_Local> sensorVerticesLocal = std::make_shared<DataVehicleSensors::SensorVertices_Local>("TestM");
-//                m_SensorFootprintDataTopic.GetComponent(sensorVerticesLocal, read_topicDatagram);
+//        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_SensorFootprintDataTopic.Name(), senderID);
+//        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+//            if(componentsUpdated.at(i) == DataVehicleSensors::SensorVertices_Global::Name()) {
+//                std::shared_ptr<DataVehicleSensors::SensorVertices_Global> sensorVerticesGlobal = std::make_shared<DataVehicleSensors::SensorVertices_Global>();
+//                m_SensorFootprintDataTopic.GetComponent(sensorVerticesGlobal, read_topicDatagram);
 //            }
-        }
+//        }
     }
 }
+
+void ModuleRTA::updateEnvironment(const BoundaryItem::BoundaryList &boundary)
+{
+    std::cout<<"Update environment (RTA)."<<std::endl;
+
+    Polygon_2DC poly = boundary.boundingPolygon;
+    m_gridSpacing = this->getDataObject()->GetGridSpacing();
+
+    environment = std::make_shared<Environment_Map>(poly, m_gridSpacing, m_globalInstance);
+
+    m_globalOrigin = std::make_shared<CommandItem::SpatialHome>(this->getDataObject()->GetGlobalOrigin());
+
+
+
+    //  2) Re-partition space
+    environment->computeBalancedVoronoi(m_vehicles);
+    m_vehicleCells.clear();
+    m_vehicleCells = environment->getCells();
+}
+
+void ModuleRTA::NewlyUpdatedGridSpacing() {
+    //There is no way this can happen on the local instance
+    //updateEnvironment();
+
+    //    if(m_globalInstance) {
+    //        //      b) Publish topic to core with new boundary data
+    //        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+    //            ptr->Event_SetVehicleBoundaryVertices(this, m_vehicleCells);
+    //        });
+    //    }
+}
+
+void ModuleRTA::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) {
+    UNUSED(position);
+    //I dont think we have to do this here
+    //updateEnvironment();
+
+    //    if(m_globalInstance) {
+    //        //      b) Publish topic to core with new boundary data
+    //        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+    //            ptr->Event_SetVehicleBoundaryVertices(this, m_vehicleCells);
+    //        });
+    //    }
+}
+
+void ModuleRTA::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary)
+{
+    updateEnvironment(boundary);
+
+    if(m_globalInstance) {
+        //      b) Publish topic to core with new boundary data
+//        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+//            ptr->Event_SetVehicleBoundaryVertices(this, m_vehicleCells);
+//        });
+    }
+
+}
+
+void ModuleRTA::NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boundary)
+{
+    updateEnvironment(boundary);
+    //in this instance we would want to publish more of the required resource points
+    //      b) Publish topic to core with new boundary data
+    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+        //ptr->Event_SetVehicleBoundaryVertices(this, m_vehicleCells);
+    });
+}
+
 
 void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
 {
@@ -262,12 +240,12 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
     m_VehicleDataTopic.GetComponent(globalPositionData, read_topicDatagram);
 
     // Set vehicle and compute Voronoi:
-    if(environment->getGlobalOrigin()->has2DPositionSet()) {
+    if(environment->getGlobalOrigin()->getPosition().has2DPositionSet()) {
         DataState::StateLocalPosition localPositionData;
         DataState::StateGlobalPosition tmpGlobalOrigin;
-        tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getLatitude());
-        tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getLongitude());
-        tmpGlobalOrigin.setAltitude(environment->getGlobalOrigin()->getAltitude());
+        tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getPosition().getX());
+        tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getPosition().getY());
+        tmpGlobalOrigin.setAltitude(environment->getGlobalOrigin()->getPosition().getZ());
 
         DataState::StateGlobalPosition tmpGlobalPosition;
         tmpGlobalPosition.setLatitude(globalPositionData->getLatitude());
@@ -276,11 +254,11 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
 
         DataState::PositionalAid::GlobalPositionToLocal(tmpGlobalOrigin, tmpGlobalPosition, localPositionData);
 
-//        Point localPosition(localPositionData.getX(), localPositionData.getY(), localPositionData.getZ());
-//        bool updateMaceCore = environment->updateVehiclePosition(vehicleID, localPosition, true); // True for recomputing voronoi, false for adding to the vehicle map
-//        if(updateMaceCore){
-////            updateMACEMissions(environment->getCells());
-//        }
+        //        Point localPosition(localPositionData.getX(), localPositionData.getY(), localPositionData.getZ());
+        //        bool updateMaceCore = environment->updateVehiclePosition(vehicleID, localPosition, true); // True for recomputing voronoi, false for adding to the vehicle map
+        //        if(updateMaceCore){
+        ////            updateMACEMissions(environment->getCells());
+        //        }
     }
     else {
         std::cout << "No global origin set. Cannot update missions for MACE" << std::endl;
@@ -294,86 +272,86 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
  * @param direction Grid direction for missions (NORTH_SOUTH, EAST_WEST, or CLOSEST_POINT)
  */
 void ModuleRTA::updateMACEMissions(std::map<int, Cell_2DC> updateCells, GridDirection direction) {
-    DataState::StateGlobalPosition tmpGlobalOrigin;
-    if(environment->getGlobalOrigin()->has2DPositionSet()) {
-        tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getLatitude());
-        tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getLongitude());
-        tmpGlobalOrigin.setAltitude(environment->getGlobalOrigin()->getAltitude());
-    }
-    else {
-        std::cout << "No global origin set. Cannot update missions for MACE" << std::endl;
-        return;
-    }
+    //    DataState::StateGlobalPosition tmpGlobalOrigin;
+    //    if(environment->getGlobalOrigin()->has2DPositionSet()) {
+    //        tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getLatitude());
+    //        tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getLongitude());
+    //        tmpGlobalOrigin.setAltitude(environment->getGlobalOrigin()->getAltitude());
+    //    }
+    //    else {
+    //        std::cout << "No global origin set. Cannot update missions for MACE" << std::endl;
+    //        return;
+    //    }
 
-    // For every cell, send to MACE its node list:
-    if(tmpGlobalOrigin.has2DPositionSet()) {
-        if(updateCells.size() > 0) {
-            for(auto cell : updateCells) {
-                int vehicleID = cell.first;
+    //    // For every cell, send to MACE its node list:
+    //    if(tmpGlobalOrigin.has2DPositionSet()) {
+    //        if(updateCells.size() > 0) {
+    //            for(auto cell : updateCells) {
+    //                int vehicleID = cell.first;
 
-                MissionItem::MissionList missionList;
-                missionList.setMissionTXState(MissionItem::MISSIONSTATE::PROPOSED);
-                missionList.setMissionType(MissionItem::MISSIONTYPE::AUTO);
-                missionList.setVehicleID(vehicleID);
+    //                MissionItem::MissionList missionList;
+    //                missionList.setMissionTXState(MissionItem::MISSIONSTATE::PROPOSED);
+    //                missionList.setMissionType(MissionItem::MISSIONTYPE::AUTO);
+    //                missionList.setVehicleID(vehicleID);
 
-                // Grab the sorted points from the cell:
-                // Loop over sorted points and insert into a mission:
-                for(auto point : cell.second.getNodes()) {
-                    std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
-                    newWP->setTargetSystem(vehicleID);
+    //                // Grab the sorted points from the cell:
+    //                // Loop over sorted points and insert into a mission:
+    //                for(auto point : cell.second.getNodes()) {
+    //                    std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
+    //                    newWP->setTargetSystem(vehicleID);
 
-                    DataState::StateLocalPosition tmpLocalPoint;
-                    tmpLocalPoint.setX(point->getXPosition());
-                    tmpLocalPoint.setY(point->getYPosition());
-                    tmpLocalPoint.setZ(10);
+    //                    DataState::StateLocalPosition tmpLocalPoint;
+    //                    tmpLocalPoint.setX(point->getXPosition());
+    //                    tmpLocalPoint.setY(point->getYPosition());
+    //                    tmpLocalPoint.setZ(10);
 
-                    DataState::StateGlobalPosition tmpGlobalPoint;
-                    DataState::PositionalAid::LocalPositionToGlobal(tmpGlobalOrigin, tmpLocalPoint, tmpGlobalPoint);
-                    newWP->setPosition(tmpGlobalPoint);
+    //                    DataState::StateGlobalPosition tmpGlobalPoint;
+    //                    DataState::PositionalAid::LocalPositionToGlobal(tmpGlobalOrigin, tmpLocalPoint, tmpGlobalPoint);
+    //                    newWP->setPosition(tmpGlobalPoint);
 
-                    missionList.insertMissionItem(newWP);
-                }
+    //                    missionList.insertMissionItem(newWP);
+    //                }
 
-                ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr){
-                    ptr->GSEvent_UploadMission(this, missionList);
-                });
-            }
-        }
-        else {
-            std::cout << "No cells in environment to update." << std::endl;
-        }
-    }
-    else {
-        std::cout << "No global origin set. Cannot update MACE missions via RTA." << std::endl;
-    }
+    //                ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr){
+    //                    ptr->GSEvent_UploadMission(this, missionList);
+    //                });
+    //            }
+    //        }
+    //        else {
+    //            std::cout << "No cells in environment to update." << std::endl;
+    //        }
+    //    }
+    //    else {
+    //        std::cout << "No global origin set. Cannot update MACE missions via RTA." << std::endl;
+    //    }
 }
 
 
 
 void ModuleRTA::TestFunction(const int &vehicleID) {
-//    GridDirection direction = GridDirection::EAST_WEST;
-//    std::map<int, Position<CartesianPosition_2D> > vehicles;
-//    Position<CartesianPosition_2D> pt1, pt2;
-//    pt1.setXPosition(5); pt1.setYPosition(5);
-//    pt2.setXPosition(-5); pt2.setYPosition(-5);
-//    vehicles.insert(std::make_pair(1, pt1));
-//    vehicles.insert(std::make_pair(2, pt2));
+    //    GridDirection direction = GridDirection::EAST_WEST;
+    //    std::map<int, Position<CartesianPosition_2D> > vehicles;
+    //    Position<CartesianPosition_2D> pt1, pt2;
+    //    pt1.setXPosition(5); pt1.setYPosition(5);
+    //    pt2.setXPosition(-5); pt2.setYPosition(-5);
+    //    vehicles.insert(std::make_pair(1, pt1));
+    //    vehicles.insert(std::make_pair(2, pt2));
 
-//    bool updateMaceCore = environment->computeBalancedVoronoi(vehicles);
-//    if(updateMaceCore) {
-//        updateMACEMissions(environment->getCells(), direction);
-//    }
+    //    bool updateMaceCore = environment->computeBalancedVoronoi(vehicles);
+    //    if(updateMaceCore) {
+    //        updateMACEMissions(environment->getCells(), direction);
+    //    }
 
-//    std::map<int, Cell_2DC> cells = environment->getCells();
-//    for(auto cell : cells) {
-//        environment->printCellInfo(cell.second);
-//    }
+    //    std::map<int, Cell_2DC> cells = environment->getCells();
+    //    for(auto cell : cells) {
+    //        environment->printCellInfo(cell.second);
+    //    }
 
     DataState::StateGlobalPosition tmpGlobalOrigin;
-    if(environment->getGlobalOrigin()->has2DPositionSet()) {
-        tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getLatitude());
-        tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getLongitude());
-        tmpGlobalOrigin.setAltitude(environment->getGlobalOrigin()->getAltitude());
+    if(environment->getGlobalOrigin()->getPosition().has2DPositionSet()) {
+        tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getPosition().getX());
+        tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getPosition().getY());
+        tmpGlobalOrigin.setAltitude(environment->getGlobalOrigin()->getPosition().getZ());
     }
     else {
         std::cout << "No global origin set. Cannot update missions for MACE" << std::endl;
@@ -409,8 +387,8 @@ void ModuleRTA::TestFunction(const int &vehicleID) {
         missionList.insertMissionItem(newWP);
     }
 
-    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr){
-        ptr->GSEvent_UploadMission(this, missionList);
-    });
+    //    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr){
+    //        ptr->GSEvent_UploadMission(this, missionList);
+    //    });
 
 }

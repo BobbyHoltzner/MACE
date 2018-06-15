@@ -12,7 +12,10 @@ namespace MaceCore
 enum class RTACommands
 {
     BASE_MODULE_LISTENER_ENUMS,
-    TEST_FUNCTION
+    TEST_FUNCTION,
+    NEWLY_UPDATED_OPERATIONAL_FENCE,
+    NEWLY_UPDATED_RESOURCE_FENCE,
+    NEWLY_UPDATED_GRID_SPACING
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandRTA : public AbstractModule_EventListeners<Metadata_RTA, IModuleEventsRTA, RTACommands>
@@ -33,6 +36,27 @@ public:
             UNUSED(sender);
             TestFunction(vehicleID);
         });
+
+        AddCommandLogic<mace::pose::GeodeticPosition_3D>(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const mace::pose::GeodeticPosition_3D &position, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            NewlyUpdatedGlobalOrigin(position);
+        });
+
+        AddCommandLogic<BoundaryItem::BoundaryList>(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, [this](const BoundaryItem::BoundaryList &boundary, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            NewlyUpdatedOperationalFence(boundary);
+        });
+
+        AddCommandLogic<BoundaryItem::BoundaryList>(RTACommands::NEWLY_UPDATED_RESOURCE_FENCE, [this](const BoundaryItem::BoundaryList &boundary, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            NewlyUpdatedResourceFence(boundary);
+        });
+
+        AddCommandLogic<int>(RTACommands::NEWLY_UPDATED_GRID_SPACING, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            UNUSED(vehicleID);
+            NewlyUpdatedGridSpacing();
+        });
     }
 
     virtual ModuleClasses ModuleClass() const
@@ -45,6 +69,25 @@ public:
 
     virtual void TestFunction(const int &vehicleID) = 0;
 
+    //!
+    //! \brief NewlyUpdatedGlobalOrigin
+    //!
+    virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
+
+    //!
+    //! \brief NewlyUpdatedBoundaryVertices
+    //!
+    virtual void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) = 0;
+
+    //!
+    //! \brief NewlyUpdatedResourceFence
+    //!
+    virtual void NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boundary) = 0;
+
+    //!
+    //! \brief NewlyUpdatedGridSpacing
+    //!
+    virtual void NewlyUpdatedGridSpacing() = 0;
 };
 
 } //End MaceCore Namespace

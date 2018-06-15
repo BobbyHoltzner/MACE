@@ -400,13 +400,6 @@ void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const Ma
                 // Write heartbeat data to the GUI:
                 m_toGUIHandler->sendVehicleHeartbeat(sender.ID, component);
             }
-            else if(componentsUpdated.at(i) == DataStateTopic::StateItemTopic_Boundary::Name()){
-                std::shared_ptr<DataStateTopic::StateItemTopic_Boundary> component = std::make_shared<DataStateTopic::StateItemTopic_Boundary>();
-                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-
-                // Write environment boundaries to the GUI:
-                m_toGUIHandler->sendEnvironmentVertices(component);
-            }
         }
     }
     else if(topicName == m_MissionDataTopic.Name())
@@ -513,10 +506,10 @@ void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialH
 }
 
 
-void ModuleGroundStation::NewlyUpdatedGlobalOrigin()
+void ModuleGroundStation::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position)
 {
     std::cout << "Ground Control: New available global origin" << std::endl;
-    CommandItem::SpatialHome origin = this->getDataObject()->GetGlobalOrigin();
+    CommandItem::SpatialHome origin(position);
     m_toGUIHandler->sendGlobalOrigin(origin);
 }
 
@@ -554,6 +547,27 @@ void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
 
     if(!bytesWritten){
         std::cout << "Write ConnectedVehicles failed..." << std::endl;
+    }
+}
+
+void ModuleGroundStation::NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key)
+{
+    BoundaryItem::BoundaryList boundary;
+    if(this->getDataObject()->getBoundary(&boundary, key))
+    {
+        GeodeticPosition_3D origin = this->getDataObject()->GetGlobalOrigin();
+
+        std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> lVertices = boundary.boundingPolygon.getVector();
+        std::vector<mace::pose::GeodeticPosition_3D> gVertices;
+        for(size_t i = 0; i < lVertices.size(); i++)
+        {
+            GeodeticPosition_3D gPos3D;
+            CartesianPosition_3D lpos3D(lVertices.at(i).getXPosition(),lVertices.at(i).getYPosition(),0.0);
+            mace::pose::DynamicsAid::LocalPositionToGlobal(origin,lpos3D,gPos3D);
+            gVertices.push_back(gPos3D);
+        }
+        //Write to the GUI
+        m_toGUIHandler->sendEnvironmentVertices(gVertices);
     }
 }
 

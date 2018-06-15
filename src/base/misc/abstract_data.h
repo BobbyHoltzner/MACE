@@ -8,18 +8,25 @@ namespace misc {
 
 namespace details {
 
-template<class DATABASE>
+template<class POSITIONBASE, class DIMBASE>
 struct DataTypeHelper;
 
-template<>
-struct DataTypeHelper<Data2D>
+template<class POSITIONBASE>
+struct DataTypeHelper<POSITIONBASE, Data1D>
+{
+public:
+    static const int static_size = 1;
+};
+
+template<class POSITIONBASE>
+struct DataTypeHelper<POSITIONBASE, Data2D>
 {
 public:
     static const int static_size = 2;
 };
 
-template <>
-struct DataTypeHelper<Data3D>
+template<class POSITIONBASE>
+struct DataTypeHelper<POSITIONBASE, Data3D>
 {
 public:
     static const int static_size = 3;

@@ -46,6 +46,7 @@
 #include "controllers/controller_system_mode.h"
 #include "controllers/controller_home.h"
 #include "controllers/controller_mission.h"
+#include "controllers/controller_boundary.h"
 
 
 #include "mace_core/module_characteristics.h"
@@ -144,6 +145,10 @@ public:
     /// Interface via callback functionality.
     ///////////////////////////////////////////////////////////////////////////////////////
     void cbiHeartbeatController_transmitCommand(const mace_heartbeat_t &heartbeat);
+
+//    void ReceivedBoundary(const BoundaryItem::BoundaryList &list);
+//    Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::FetchKeyReturn FetchBoundaryFromKey(const OptionalParameter<BoundaryItem::BoundaryKey> &key);
+//    Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::FetchModuleReturn FetchAllBoundariesFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
 
 
     void ReceivedMission(const MissionItem::MissionList &list);
@@ -360,7 +365,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from IModuleCommandExternalLink.
     ///////////////////////////////////////////////////////////////////////////////////////
-
+    void NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) override;
     virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey);
@@ -371,14 +376,14 @@ private:
     ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
 
     PointerCollection<
-        Controllers::CommandTakeoff<mace_message_t>,
-        Controllers::CommandLand<mace_message_t>,
-        Controllers::CommandARM<mace_message_t>,
-        Controllers::CommandRTL<mace_message_t>,
-        Controllers::CommandMissionItem<mace_message_t>,
-        Controllers::ControllerSystemMode<mace_message_t>,
-        Controllers::ControllerHome<mace_message_t>,
-        Controllers::ControllerMission<mace_message_t>
+        ExternalLink::CommandTakeoff,
+        ExternalLink::CommandLand,
+        ExternalLink::CommandARM,
+        ExternalLink::CommandRTL,
+        ExternalLink::CommandMissionItem,
+        ExternalLink::ControllerSystemMode,
+        ExternalLink::ControllerHome,
+        ExternalLink::ControllerMission
     > m_Controllers;
 
 private:

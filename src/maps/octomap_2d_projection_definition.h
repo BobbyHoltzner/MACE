@@ -51,6 +51,7 @@ public:
     }
 
 private:
+    bool independentMapSize = true;
     bool independentMapResolution = false;
     bool enabledCostMapLayer = false;
 };

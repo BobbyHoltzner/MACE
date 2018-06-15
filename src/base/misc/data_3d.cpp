@@ -6,7 +6,6 @@ namespace misc{
 Data3D::Data3D(const Data3D &copy):
     Data2D(copy)
 {
-    std::cout<<"copy constructor Data3D"<<std::endl;
     this->z = copy.z;
     this->dataZFlag = copy.dataZFlag;
 }

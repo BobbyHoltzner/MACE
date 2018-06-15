@@ -6,7 +6,7 @@
 
 QT       -= gui
 
-TARGET = mace_controllers
+TARGET = controllers
 TEMPLATE = lib
 
 DEFINES += MACE_CONTROLLERS_LIBRARY
@@ -37,20 +37,10 @@ HEADERS += \
     actions/action_intermediate.h \
     actions/action_request.h \
     actions/action_send.h \
-    controller_home.h \
-    controller_mission.h \
-    controller_system_mode.h \
     controllers_global.h \
     I_controller.h \
     generic_controller.h \
-    commands/command_land.h \
-    commands/command_takeoff.h \
-    commands/generic_long_command.h \
-    commands/generic_short_command.h \
     generic_controller_queue_data_with_module.h \
-    commands/command_arm.h \
-    commands/command_rtl.h \
-    commands/command_mission_item.h \
     I_message_notifier.h \
     base_data_item.h \
     base_module_queue.h \

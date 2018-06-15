@@ -9,6 +9,7 @@
 #include "mace_core/i_module_command_RTA.h"
 
 #include "data_generic_state_item_topic/state_topic_components.h"
+#include "data_generic_command_item/command_item_components.h"
 #include "data_vehicle_sensors/components.h"
 #include "data_generic_state_item/positional_aid.h"
 
@@ -25,6 +26,8 @@ class MODULE_RESOURCE_TASK_ALLOCATIONSHARED_EXPORT ModuleRTA : public MaceCore::
 
 public:
     ModuleRTA();
+
+    ~ModuleRTA();
 
     //!
     //! \brief This module as been attached as a module
@@ -70,13 +73,45 @@ public:
     virtual void NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
 
-
     //! Virtual functions as defined by IModuleCommandRTA
 public:
 
-    virtual void NewlyAvailableVehicle(const int &vehicleID);
+    //!
+    //! \brief NewlyAvailableVehicle
+    //! \param vehicleID
+    //!
+    void NewlyAvailableVehicle(const int &vehicleID) override;
 
-    virtual void TestFunction(const int &vehicleID);
+    //!
+    //! \brief TestFunction
+    //! \param vehicleID
+    //!
+    void TestFunction(const int &vehicleID) override;
+
+    //!
+    //! \brief NewlyUpdatedGlobalOrigin
+    //!
+    void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) override;
+
+    //! \brief NewlyUpdatedBoundaryVertices Function partitioning the space using the voronoi
+    //! decomposition. The result of the function should be another boundary list notifying external
+    //! agents of their appropriately newly assigned resource fence.
+    //! \param boundary obj defining the operational fence as defined by an external party. This
+    //! will be the space that is actually partitioned into voronoi cells.
+    //!
+    void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) override;
+
+    //!
+    //! \brief NewlyUpdatedResourceFence Function further generating targets for observation
+    //! via the associated agent. This function should only be called for vehicles that are
+    //! currently associated locally with the calling instance of MACE.
+    //!
+    void NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boundary) override;
+
+    //!
+    //! \brief NewlyUpdatedGridSpacing
+    //!
+    void NewlyUpdatedGridSpacing() override;
 
 private:
     /**
@@ -86,14 +121,7 @@ private:
      */
     void updateMACEMissions(std::map<int, Cell_2DC> updateCells, GridDirection direction);
 
-    /**
-     * @brief parseBoundaryVertices Given a string of delimited (lat, lon) pairs, parse into a vector of points
-     * @param unparsedVertices String to parse with delimiters
-     * @param globalOrigin Global position to convert relative to
-     * @param vertices Container for boundary vertices
-     * @return true denotes >= 3 vertices to make a polygon, false denotes invalid polygon
-     */
-    bool parseBoundaryVertices(std::string unparsedVertices, const DataState::StateGlobalPosition globalOrigin, std::vector<Position<CartesianPosition_2D> > &vertices);
+    void updateEnvironment(const BoundaryItem::BoundaryList &boundary);
 
 private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
@@ -104,9 +132,18 @@ private:
     // Environment
     std::shared_ptr<Environment_Map> environment;
 
+    std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
+    double m_gridSpacing;
+//    std::string m_vertsStr;
+    std::vector<Position<CartesianPosition_2D> > m_boundaryVerts;
+    std::map<int, Position<CartesianPosition_2D> > m_vehicles;
+    std::map<int, mace::geometry::Cell_2DC> m_vehicleCells;
+
     // Flags:
-    bool originSent;
+    bool m_globalInstance;
+    bool gridSpacingSent;
     bool environmentBoundarySent;
+
 };
 
 #endif // MODULE_RTA_H

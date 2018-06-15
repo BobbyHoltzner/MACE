@@ -14,6 +14,7 @@
 #include "voropp/c_loops.hh"
 #include <tuple>
 
+#include "data_generic_command_item_topic/command_item_topic_components.h"
 #include "data_generic_state_item_topic/state_topic_components.h"
 #include "base/pose/cartesian_position_2D.h"
 #include "base/geometry/cell_2DC.h"
@@ -48,12 +49,11 @@ public:
      * @param gridSpacing Spacing between grid points
      * @param globalOrigin Global origin for environment
      */
-    Environment_Map(const Polygon_2DC &boundingPolygon, double &gridSpacing, const DataState::StateGlobalPosition &globalOrigin);
+    Environment_Map(const Polygon_2DC &boundingPolygon, const double &gridSpacing, const bool &globalInstance);
 
     ~Environment_Map()
     {
-        delete m_dataGrid;
-        m_dataGrid = NULL;
+        clearDataGrid();
     }
 
     /**
@@ -93,7 +93,7 @@ public:
      * @brief getGlobalOrigin Get the current global origin
      * @return Current global origin
      */
-    std::shared_ptr<DataState::StateGlobalPosition> getGlobalOrigin() { return m_globalOrigin; }
+    std::shared_ptr<CommandItem::SpatialHome> getGlobalOrigin() { return m_globalOrigin; }
 
 
     /**
@@ -116,8 +116,10 @@ private:
      */
     void clearDataGrid()
     {
-        delete m_dataGrid;
-        m_dataGrid = NULL;
+        if(!m_globalInstance) {
+            delete m_dataGrid;
+            m_dataGrid = NULL;
+        }
     }
 
 private:
@@ -150,7 +152,9 @@ private:
     /**
      * @brief m_globalOrigin Global origin for the environment
      */
-    std::shared_ptr<DataState::StateGlobalPosition> m_globalOrigin;
+    std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
+
+    bool m_globalInstance;
 };
 
 

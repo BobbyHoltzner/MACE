@@ -1,7 +1,5 @@
 #include <QCoreApplication>
 
-#include "base/state_space/cartesian_2D_space.h"
-
 #include "base/geometry/polygon_2DC.h"
 
 #include "base/state_space/discrete_motion_validity_check.h"
@@ -27,6 +25,8 @@
 #include "maps/octomap_wrapper.h"
 
 using namespace octomap;
+using namespace mace ;
+using namespace geometry;
 
 const char kPathSeparator =
         #ifdef _WIN32
@@ -98,14 +98,6 @@ class TestPointer
 {
 public:
     TestPointer() = default;
-
-    double* testApp(const double *fill_value)
-    {
-        store = *fill_value;
-        return &store;
-    }
-
-    double store;
 };
 
 

@@ -18,12 +18,46 @@ double CartesianPosition_3D::deltaZ(const CartesianPosition_3D &that) const
     return this->getZPosition() - that.getZPosition();
 }
 
+double CartesianPosition_3D::distanceFromOrigin() const
+{
+    return sqrt(pow(this->getXPosition(),2) + pow(this->getYPosition(),2) + pow(this->getZPosition(),2));
+}
+
+double CartesianPosition_3D::polarBearingFromOrigin() const
+{
+    return atan2(this->getYPosition(),this->getXPosition());
+}
+
+double CartesianPosition_3D::elevationFromOrigin() const
+{
+    CartesianPosition_3D origin;
+    double distanceXY = distanceBetween2D(origin);
+    return atan2(this->getZPosition(),distanceXY); //we should check here for the discontinuity if they are both 0
+}
+
+double CartesianPosition_3D::elevationAngleTo(const CartesianPosition_3D &position) const
+{
+    double distance2D = distanceBetween2D(position);
+    return atan2(deltaAltitude(position),distance2D);
+}
+
+double CartesianPosition_3D::deltaAltitude(const CartesianPosition_3D &pos) const
+{
+    return this->deltaZ(pos);
+}
+
+
 double CartesianPosition_3D::distanceBetween2D(const CartesianPosition_3D &pos) const
 {
-    double deltaX = this->data.getX() - pos.data.getX();
-    double deltaY = this->data.getY() - pos.data.getY();
+    double deltaX = this->deltaX(pos);
+    double deltaY = this->deltaY(pos);
     double distance = sqrt(pow(deltaX,2) + pow(deltaY,2));
     return distance;
+}
+
+double CartesianPosition_3D::distanceBetween3D(const CartesianPosition_3D &pos) const
+{
+    return sqrt(pow(this->distanceBetween2D(pos),2) + pow(this->deltaAltitude(pos),2));
 }
 
 double CartesianPosition_3D::distanceTo(const CartesianPosition_3D &pos) const
@@ -48,7 +82,7 @@ double CartesianPosition_3D::polarBearingTo(const CartesianPosition_3D &pos) con
 //!
 double CartesianPosition_3D::compassBearingTo(const CartesianPosition_3D &pos) const
 {
-    return math::correctBearing(atan2(deltaY(pos),deltaX(pos)));
+    return polarToCompassBearing(polarBearingTo(pos));
 }
 
 //!
@@ -59,12 +93,14 @@ double CartesianPosition_3D::compassBearingTo(const CartesianPosition_3D &pos) c
 //!
 CartesianPosition_3D CartesianPosition_3D::newPositionFromPolar(const double &distance, const double &bearing) const
 {
-    double newX = this->getXPosition() + cos(bearing) * distance;
-    double newY = this->getYPosition() + sin(bearing) * distance;
+    CartesianPosition_3D newPos;
 
-    CartesianPosition_3D pos(newX, newY,this->getZPosition());
-    return pos;
+    newPos.setXPosition(this->getXPosition() + cos(bearing) * distance);
+    newPos.setYPosition(this->getYPosition() + sin(bearing) * distance);
+    newPos.setZPosition(this->getZPosition());
+    return newPos;
 }
+
 
 //!
 //! \brief CartesianPosition_3D::newPositionFromCompass
@@ -74,8 +110,35 @@ CartesianPosition_3D CartesianPosition_3D::newPositionFromPolar(const double &di
 //!
 CartesianPosition_3D CartesianPosition_3D::newPositionFromCompass(const double &distance, const double &bearing) const
 {
-    double polarBearing = -bearing + 90;
-    return newPositionFromPolar(distance,polarBearing);
+    return newPositionFromPolar(distance,compassToPolarBearing(bearing));
+}
+
+void CartesianPosition_3D::applyPositionalShiftFromPolar(const double &distance, const double &bearing)
+{
+    double changeX = distance * cos(bearing);
+    double changeY = distance * sin(bearing);
+    this->setXPosition(getXPosition() + changeX);
+    this->setYPosition(getYPosition() + changeY);
+}
+
+void CartesianPosition_3D::applyPositionalShiftFromPolar(const double &distance, const double &bearing, const double &elevation)
+{
+    double changeZ = distance * sin(elevation);
+    this->setZPosition(changeZ + this->getZPosition());
+
+    double changeXY = distance * cos(elevation);
+    applyPositionalShiftFromPolar(changeXY,bearing);
+}
+
+void CartesianPosition_3D::applyPositionalShiftFromCompass(const double &distance, const double &bearing)
+{
+    double polarBearing = compassToPolarBearing(bearing);
+    applyPositionalShiftFromPolar(distance,polarBearing);
+}
+
+void CartesianPosition_3D::applyPositionalShiftFromCompass(const double &distance, const double &bearing, const double &elevation)
+{
+    applyPositionalShiftFromPolar(distance,compassToPolarBearing(bearing),elevation);
 }
 
 } //end of namespace pose

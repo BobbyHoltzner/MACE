@@ -9,14 +9,16 @@ OctomapWrapper::OctomapWrapper(const double &treeResolution, const OctomapSensor
     m_sensorProperties(nullptr),
     m_projectionProperties(nullptr)
 {
-    m_sensorProperties = new OctomapSensorDefinition(sensorProperties);
+    m_sensorProperties = new OctomapSensorDefinition();
     m_projectionProperties = new Octomap2DProjectionDefinition();
 
-    m_Tree = new octomap::OcTree(treeResolution);
+    m_Tree = new octomap::OcTree(sensorProperties.getTreeResolution());
     m_Tree->enableChangeDetection(true);
 
     OccupiedResult fillValue = OccupiedResult::NO_DATA;
     m_Map = new maps::Data2DGrid<OccupiedResult>(&fillValue);
+
+    updateSensorProperties(*m_sensorProperties);
 }
 
 OctomapWrapper::~OctomapWrapper()
@@ -28,18 +30,38 @@ OctomapWrapper::~OctomapWrapper()
     delete m_Map;
 }
 
-void OctomapWrapper::updateSensorProperties(const OctomapSensorDefinition &sensorProperties)
+bool OctomapWrapper::updateSensorProperties(const OctomapSensorDefinition &sensorProperties)
 {
-    m_sensorProperties = new OctomapSensorDefinition(sensorProperties);
-    m_Tree->setProbHit(m_sensorProperties->getProbHit());
-    m_Tree->setProbMiss(m_sensorProperties->getProbMiss());
-    m_Tree->setClampingThresMax(m_sensorProperties->getThreshMax());
-    m_Tree->setClampingThresMin(m_sensorProperties->getThreshMin());
+    m_Tree->setResolution(sensorProperties.getTreeResolution());
+    m_Tree->setProbHit(sensorProperties.getProbHit());
+    m_Tree->setProbMiss(sensorProperties.getProbMiss());
+    m_Tree->setClampingThresMax(sensorProperties.getThreshMax());
+    m_Tree->setClampingThresMin(sensorProperties.getThreshMin());
+
+    std::string oldLoad = m_sensorProperties->getInitialLoadFile();
+
+    m_sensorProperties->updateProperties(sensorProperties);
+
+    if((sensorProperties.getInitialLoadFile() != oldLoad) && (!sensorProperties.getInitialLoadFile().empty()))
+    {
+        //this implies that there is a different file we have been told to load, let us handle that
+        loadOctreeFromBT(m_sensorProperties->getInitialLoadFile());
+        return true;
+    }
+
+    return false;
 }
 
-void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const octomap::pose6d &origin)
+bool OctomapWrapper::updateProjectionProperties(const Octomap2DProjectionDefinition &projectionProperties)
 {
-    m_Tree->insertPointCloud(*pc,origin.trans(),m_sensorProperties->getMaxRange());
+
+}
+
+void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<pose::CartesianPosition_3D> &position)
+{
+    octomap::point3d sensorOrigin(position.getXPosition(),position.getYPosition(),position.getZPosition());
+
+    m_Tree->insertPointCloud(*pc,sensorOrigin);
 
     //Update the depth of the tree
     treeDepth = m_Tree->getTreeDepth();
@@ -66,7 +88,42 @@ void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const octomap
     }
 }
 
-void OctomapWrapper::updateFromLaserScan(octomap::Pointcloud *pc, const octomap::pose6d &origin)
+void OctomapWrapper::updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<pose::CartesianPosition_3D> &position, const pose::Orientation_3D &orientation)
+{
+    octomap::pose6d origin(position.getXPosition(),position.getYPosition(),position.getZPosition(),
+                           orientation.getRoll(),orientation.getPitch(),orientation.getYaw());
+
+    octomap::point3d sensorOrigin;
+
+    m_Tree->insertPointCloud(*pc,sensorOrigin,origin);
+    //m_Tree->insertPointCloud(*pc,sensorOrigin,origin,m_sensorProperties->getMaxRange());
+
+    //Update the depth of the tree
+    treeDepth = m_Tree->getTreeDepth();
+    maxTreeDepth = treeDepth;
+
+    //The following function is already called when calling the insertPointCloud function, this would be inefficient
+    //As it would perform the ray trace operation twice. It may be better at some future date to modify the octomap
+    //library to merely deliver the changed values and keys on insertion and/or store as members.
+    //m_Tree->computeUpdate(*pc,origin.trans(),freeKeySet,occupiedKeySet,m_sensorProperties->getMaxRange());
+    if(m_Tree->numChangesDetected() > 0)
+    {
+        if(enabled2DProjection)
+        {
+            updateMapContinuity();
+            for (octomap::KeyBoolMap::const_iterator it = m_Tree->changedKeysBegin(), end = m_Tree->changedKeysEnd(); it != end; ++it)
+            {
+                octomap::OcTreeKey key = it->first;
+                octomap::point3d point = m_Tree->keyToCoord(key,maxTreeDepth);
+                bool occupied = m_Tree->isNodeOccupied(m_Tree->search(key,m_Tree->getTreeDepth()));
+                updateMapOccupancyRecursiveCheck(point.x(),point.y(),maxTreeDepth,occupied);
+            }
+        }
+        m_Tree->resetChangeDetection();
+    }
+}
+
+void OctomapWrapper::updateFromLaserScan(octomap::Pointcloud *pc, const mace::pose::Position<pose::CartesianPosition_3D> &position, const pose::Orientation_3D &orientation)
 {
     //Update the depth of the tree
     treeDepth = m_Tree->getTreeDepth();
@@ -74,6 +131,9 @@ void OctomapWrapper::updateFromLaserScan(octomap::Pointcloud *pc, const octomap:
 
     if(pc->size() > 0)
     {
+        octomap::pose6d origin(position.getXPosition(),position.getYPosition(),position.getZPosition(),
+                               orientation.getRoll(),orientation.getPitch(),orientation.getYaw());
+
         octomap::Pointcloud* copy = new octomap::Pointcloud(*pc);
         octomap::ScanGraph scan;
         scan.addNode(copy,origin);
@@ -180,6 +240,12 @@ bool OctomapWrapper::loadOctreeFromBT(const std::string &path)
     }
 
     return true;
+}
+
+void OctomapWrapper::getTreeDimensions(double &minX, double &maxX, double &minY, double &maxY, double &minZ, double &maxZ)
+{
+    m_Tree->getMetricMin(minX, minY, minZ);
+    m_Tree->getMetricMax(maxX, maxY, maxZ);
 }
 
 void OctomapWrapper::updateMapContinuity()
@@ -365,7 +431,6 @@ void OctomapWrapper::updateFreeNode(const octomap::OcTree::iterator &it)
 void OctomapWrapper::updateOccupiedNode(const octomap::OcTree::iterator &it)
 {
     updateMapOccupancyRecursiveCheck(it,true);
-
 }
 
 //void OctomapWrapper::filterGroundPlane(const octomap::Pointcloud& pc, octomap::Pointcloud& ground, octomap::Pointcloud& nonground) const
@@ -462,5 +527,10 @@ void OctomapWrapper::updateOccupiedNode(const octomap::OcTree::iterator &it)
 //  }
 //}
 
+
+OctomapSensorDefinition OctomapWrapper::getCurrentOctomapProperies() const
+{
+    return *this->m_sensorProperties;
+}
 } //end of namespace maps
 } //end of namespace mace

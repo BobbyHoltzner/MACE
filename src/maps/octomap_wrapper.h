@@ -1,6 +1,8 @@
 #ifndef OCTOMAP_WRAPPER_H
 #define OCTOMAP_WRAPPER_H
 
+#include "base/pose/cartesian_position_3D.h"
+#include "base/pose/orientation_3D.h"
 
 #include "octomap/OcTree.h"
 #include "octomap/OcTreeIterator.hxx"
@@ -33,11 +35,19 @@ public:
 public:
     bool loadOctreeFromBT(const std::string &path);
 
-    void updateSensorProperties(const OctomapSensorDefinition &sensorProperties);
+    void getTreeDimensions(double &minX, double &maxX, double &minY, double &maxY, double &minZ, double &maxZ);
 
-    void updateFromPointCloud(octomap::Pointcloud *pc, const octomap::pose6d &origin = octomap::pose6d());
+    bool updateSensorProperties(const OctomapSensorDefinition &sensorProperties);
 
-    void updateFromLaserScan(octomap::Pointcloud* pc, const octomap::pose6d &origin = octomap::pose6d());
+    bool updateProjectionProperties(const Octomap2DProjectionDefinition &projectionProperties);
+
+    void updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position);
+
+    void updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position, const mace::pose::Orientation_3D &orientation);
+
+    void updateFromLaserScan(octomap::Pointcloud* pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position = mace::pose::Position<mace::pose::CartesianPosition_3D>(), const mace::pose::Orientation_3D &orientation = mace::pose::Orientation_3D());
+
+    OctomapSensorDefinition getCurrentOctomapProperies() const;
 
 public:
     maps::Data2DGrid<OccupiedResult>* get2DOccupancyMap();
@@ -88,6 +98,7 @@ private:
     octomap::OcTreeKey paddedMaxKey;
 
     maps::Data2DGrid<OccupiedResult>* m_Map;
+    maps::Data2DGrid<unsigned int>* m_InflatedMap;
 
     OctomapSensorDefinition* m_sensorProperties;
     Octomap2DProjectionDefinition* m_projectionProperties;

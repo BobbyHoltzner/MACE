@@ -30,9 +30,9 @@ public:
     //!
     uint64_t m_missionID;
 
-    MISSIONTYPE m_missionType;
+    Data::MISSIONTYPE m_missionType;
 
-    MISSIONSTATE m_missionState;
+    Data::MISSIONSTATE m_missionState;
 
 public:
     virtual MaceCore::TopicDatagram GenerateDatagram() const;

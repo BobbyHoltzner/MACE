@@ -49,7 +49,7 @@ public:
      * @brief updateStateSpace
      * @param space
      */
-    const void updateStateSpace(const StateSpacePtr &space)
+    void updateStateSpace(const StateSpacePtr &space)
     {
         m_stateSpace = space.get();
     }

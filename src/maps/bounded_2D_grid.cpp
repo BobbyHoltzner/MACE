@@ -51,7 +51,7 @@ std::list<Position<CartesianPosition_2D> *> Bounded2DGrid::getBoundedDataList() 
 {
     std::list<Position<CartesianPosition_2D> *> returnList;
     size_t size = m_constrainedData.size();
-    for(int i = 0; i < size; i++)
+    for(size_t i = 0; i < size; i++)
     {
         returnList.push_back(m_constrainedData[i]);
     }
@@ -62,7 +62,7 @@ std::list<Position<CartesianPosition_2D> *> Bounded2DGrid::getBoundedDataList() 
 void Bounded2DGrid::print() const
 {
     size_t size = m_constrainedData.size();
-    for(int i = 0; i < size; i++)
+    for(size_t i = 0; i < size; i++)
     {
         std::cout<<"Value at "<<i<<" X:"<<m_constrainedData[i]->getXPosition()<<" Y:"<<m_constrainedData[i]->getYPosition()<<std::endl;
     }

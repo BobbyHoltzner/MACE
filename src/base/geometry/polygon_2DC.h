@@ -30,7 +30,7 @@ public:
     Polygon_2DC getBoundingRect() const;
 
 
-    void getBoundingValues(double &xMin, double &yMin, double &xMax, double &yMax) const;
+    void getBoundingValues(double &xMin, double &minY, double &maxX, double &maxY) const;
 
     //!
     //! \brief contains
@@ -61,7 +61,22 @@ public:
     //! \brief getCenter
     //! \return
     //!
-    Position<CartesianPosition_2D> getCenter() const;
+    Position<CartesianPosition_2D> getCenter() const;    
+
+    std::vector<int> findUndefinedVertices() const override
+    {
+        int index = 0;
+        std::vector<int> nullItems;
+        for(std::vector<Position<CartesianPosition_2D>>::const_iterator it = m_vertex.begin(); it != m_vertex.end(); ++it) {
+            if(!it->hasXBeenSet() && !it->hasYBeenSet())
+            {
+                //This should see that the value is null
+                nullItems.push_back(index);
+            }
+            index++;
+        }
+        return nullItems;
+    }
 
 public:
     Position<CartesianPosition_2D> getTopLeft() const override;
@@ -71,6 +86,10 @@ public:
     Position<CartesianPosition_2D> getBottomRight() const override;
 
     void getCorners(Position<CartesianPosition_2D> &topLeft, Position<CartesianPosition_2D> &bottomRight) const override;
+
+    mace::pose::CoordinateFrame getVertexCoordinateFrame() const override;
+
+    void applyCoordinateShift(const double &distance, const double &bearing);
 
 public:
     double getXMin() const
@@ -96,7 +115,24 @@ public:
 protected:
     void updateBoundingBox() override;
 
+    /** Assignment Operators **/
 public:
+
+    //!
+    //! \brief operator =
+    //! \param rhs
+    //! \return
+    //!
+    Polygon_2DC& operator = (const Polygon_2DC &rhs)
+    {
+        PolygonBase::operator =(rhs);
+        this->xMin = rhs.xMin;
+        this->yMin = rhs.yMin;
+        this->xMax = rhs.xMax;
+        this->yMax = rhs.yMax;
+        return *this;
+    }
+
     //!
     //! \brief operator ==
     //! \param rhs

@@ -13,17 +13,32 @@
       <Parameter Name="AirborneInstance">true</Parameter>
     </Parameter>
     </Module>
-    <Module Class="ROS" Type="NASAPhase2">
-    <Parameter Name="ModuleParameters">
-      <Parameter Name="AirborneInstance">false</Parameter>
-    </Parameter>
-    <Parameter Name="LaserSensor">
-      <Parameter Name="Name">laser</Parameter>
-      <Parameter Name="Type">lidar_scan</Parameter>
-    </Parameter>
-    <Parameter Name="CameraSensor">
-      <Parameter Name="Name">camera</Parameter>
-      <Parameter Name="Type">rgb</Parameter>
-    </Parameter>
+ <Module Class="PathPlanning" Type="NASAPhase2">
+	<Parameter Name="GlobalOrigin">
+	  <Parameter Name="Latitude">37.8895814</Parameter>
+	  <Parameter Name="Longitude">-76.8122140</Parameter>
+	</Parameter>
+	<Parameter Name="EnvironmentParameters">
+	  <Parameter Name="Vertices">
+	    37.8897105, -76.8123722;
+	    37.8897178, -76.8120315;
+	    37.8894491, -76.8120249;
+	    37.8894417, -76.8123668;
+	  </Parameter>
+	</Parameter>
+	<Parameter Name="OctomapParameters">
+	  <Parameter Name="Filename">/home/majorpr13/MACE/simple_test_000_303030.bt</Parameter>
+	  <Parameter Name="OctomapOperationalBoundary">true</Parameter>
+	  <Parameter Name="Resolution">0.5</Parameter>
+	  <Parameter Name="Project2D">true</Parameter>
+	  <Parameter Name="MinRange">0.0</Parameter>
+	  <Parameter Name="MaxRange">9999</Parameter>
+	  <Parameter Name="OccupancyThreshold">1</Parameter>
+	  <Parameter Name="ProbabilityOfHit">0.7</Parameter>
+	  <Parameter Name="ProbabilityOfMiss">0.4</Parameter>
+	  <Parameter Name="MinThreshold">0.12</Parameter>
+	  <Parameter Name="MaxThreshold">0.97</Parameter>
+	</Parameter>
   </Module>
 </ModuleConfigurations>
+

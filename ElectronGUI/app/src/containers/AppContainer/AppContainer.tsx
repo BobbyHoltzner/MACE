@@ -266,6 +266,11 @@ export default class AppContainer extends React.Component<Props, State> {
     this.appHelper.pauseMACEComms = true;
   }
 
+  handleSubmitBoundary = () => {
+    this.appHelper.maceCommsHelper.makeTCPRequest(0, "SET_ENVIRONMENT_VERTICES", JSON.stringify({boundary: this.polygonHelper.drawPolygonPts}));
+    this.polygonHelper.handleSubmitBoundary();    
+  }
+
   render() {
 
     const ToolbarRight = () => (
@@ -379,7 +384,7 @@ export default class AppContainer extends React.Component<Props, State> {
               <DrawButtonsContainer
                 onDeleteLastPolygonPt={this.polygonHelper.handleDeleteLastPolygonPt}
                 onDisableDraw={this.polygonHelper.handleDisableDraw}
-                onSubmitBoundary={this.polygonHelper.handleSubmitBoundary}
+                onSubmitBoundary={this.handleSubmitBoundary}
                 onClearAllPts={this.polygonHelper.handleClearPts}
                 handleChangeGridSpacing={this.polygonHelper.handleChangeGridSpacing}
                 openEnvironmentSettings={this.handleOpenEnvironmentSettings}

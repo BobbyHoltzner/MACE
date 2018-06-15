@@ -12,6 +12,7 @@
 
 #include "mace_core_global.h"
 #include "mace_data.h"
+#include "base/geometry/cell_2DC.h"
 
 #include "i_module_command_external_link.h"
 #include "i_module_command_ground_station.h"
@@ -33,9 +34,14 @@
 
 #include "topic.h"
 
-
 #include "octomap/octomap.h"
 #include "octomap/OcTree.h"
+
+#include "data_generic_state_item/positional_aid.h"
+#include "data_generic_command_item/command_item_components.h"
+//#include "data_generic_command_item/boundary_items/boundary_key.h"
+//#include "data_generic_command_item/boundary_items/boundary_type.h"
+//#include "data_generic_command_item/boundary_items/boundary_list.h"
 
 namespace MaceCore
 {
@@ -117,10 +123,12 @@ public:
     virtual void Event_GetHomePosition(const void* sender, const int &vehicleID);
     virtual void Event_SetHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome);
 
-    virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome);
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing);
 
-    virtual void Event_SetEnvironmentVertices(const void* sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts);
+
+    void Event_SetGlobalOrigin(const void* sender, const mace::pose::GeodeticPosition_3D &globalHome) override;
+
+    void Event_SetBoundary(const ModuleBase* sender, const BoundaryItem::BoundaryList &boundary) override;
 
 public:
 
@@ -167,20 +175,15 @@ public:
 
     virtual void ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission);
 
+    virtual void ExternalEvent_FinishedRXBoundaryList(const void *sender, const BoundaryItem::BoundaryList &boundaryList);
+
 public:
 
     /////////////////////////////////////////////////////////////////////////
     /// RTA EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-
-    //!
-    //! \brief Event fired when a new list of targets are produced for a specific vehicle
-    //! \param vehicleID Vechile new targets are to be applied to
-    //! \param target List of positional targets
-    //!
-    virtual void NewVehicleTargets(const std::string &vehicleID, const std::vector<Eigen::Vector3d> &target);
-
+    void Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
 
 public:
 
@@ -214,6 +217,13 @@ public:
     /// PATH PLANNING EVENTS
     /////////////////////////////////////////////////////////////////////////
 
+    void EventPP_LoadOccupancyEnvironment(const ModuleBase* sender, const std::string &filePath) override;
+
+    void EventPP_LoadOctomapProperties(const ModuleBase* sender, const mace::maps::OctomapSensorDefinition &properties) override;
+
+    void EventPP_LoadMappingProjectionProperties(const ModuleBase* sender, const mace::maps::Octomap2DProjectionDefinition &properties) override;
+
+    void Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
 
     //!
     //! \brief Event fired to indicate what planning horizon is being utilized by the path planning module
@@ -252,7 +262,9 @@ public:
     /////////////////////////////////////////////////////////////////////////
     /// SENSOR MODULE EVENTS
     /////////////////////////////////////////////////////////////////////////
-    void ROS_NewLaserScan(const octomap::Pointcloud &obj) override;
+    void ROS_NewLaserScan(const octomap::Pointcloud &obj, const mace::pose::Position<mace::pose::CartesianPosition_3D>& position) override;
+
+    void ROS_NewLaserScan(const octomap::Pointcloud &obj, const mace::pose::Position<mace::pose::CartesianPosition_3D>& position, const mace::pose::Orientation_3D& orientation) override;
 public:
 
     /////////////////////////////////////////////////////////////////////////
@@ -332,8 +344,6 @@ private:
 
     std::list<std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
     std::map<int, IModuleCommandExternalLink*> m_ExternalLinkIDToPort;
-
-    //std::map<int, std::shared_ptr<IModuleCommandExternalLink>> m_ExternalLink;
 
     std::shared_ptr<IModuleCommandGroundStation> m_GroundStation;
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;
