@@ -109,6 +109,7 @@ int main(int argc, char *argv[])
     std::string rootPath(MACEPath);
     std::string btFile = rootPath + kPathSeparator + "simple_test_000_303030_newOrigin.bt";
     mace::maps::OctomapWrapper octomap;
+
     octomap.loadOctreeFromBT(btFile);
     mace::maps::Data2DGrid<mace::maps::OccupiedResult>* compressedMap = octomap.get2DOccupancyMap();
 
@@ -138,16 +139,24 @@ int main(int argc, char *argv[])
     spaceInfo->setMotionValidityCheck(motionCheck);
 
     mace::planners_sampling::RRTBase rrt(spaceInfo);
-    mace::state_space::GoalState* begin = new mace::state_space::GoalState(space);
-    begin->setState(new mace::pose::CartesianPosition_2D(14,-14.75));
-    mace::state_space::GoalState* end = new mace::state_space::GoalState(space,1.0);
-    end->setState(new mace::pose::CartesianPosition_2D(14,7.5));
-    end->setRadialRegion(1.0);
 
-    rrt.setPlanningParameters(begin,end);
+    mace::pose::CartesianPosition_2D beginPose(14, -14.75);
+    mace::pose::CartesianPosition_2D endPose(14, 7.5);
+
+    mace::state_space::GoalState begin(space);
+    begin.setState(&beginPose);
+
+    mace::state_space::GoalState end(space, 1.0);
+    end.setState(&endPose);
+    end.setRadialRegion(1.0);
+
+
+
+    rrt.setPlanningParameters(&begin, &end);
 
     rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
     //rrt.setCallbackFunction(this);
+
     std::vector<mace::state_space::State*> solution = rrt.solve();
     std::vector<mace::state_space::StatePtr> smartSolution;
     smartSolution.resize(solution.size());
@@ -159,5 +168,11 @@ int main(int argc, char *argv[])
         smartSolution.at(i) = state;
         std::cout<<"X: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
     }
-    return a.exec();
+
+    for (int i = 0; i < solution.size(); i++)
+    {
+        delete solution.at(i);
+    }
+
+    return 0;
 }

@@ -21,6 +21,15 @@ OctomapWrapper::OctomapWrapper(const double &treeResolution, const OctomapSensor
     updateSensorProperties(*m_sensorProperties);
 }
 
+OctomapWrapper::~OctomapWrapper()
+{
+    delete m_sensorProperties;
+    delete m_projectionProperties;
+
+    delete m_Tree;
+    delete m_Map;
+}
+
 bool OctomapWrapper::updateSensorProperties(const OctomapSensorDefinition &sensorProperties)
 {
     m_Tree->setResolution(sensorProperties.getTreeResolution());
