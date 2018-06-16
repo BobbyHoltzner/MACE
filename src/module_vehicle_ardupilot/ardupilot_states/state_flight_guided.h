@@ -2,6 +2,7 @@
 #define STATE_FLIGHT_GUIDED_H
 
 #include "abstract_state_ardupilot.h"
+#include "module_vehicle_MAVLINK/controllers/controller_guided_target_item.h"
 
 namespace ardupilot{
 namespace state{

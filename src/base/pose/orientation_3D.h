@@ -5,6 +5,8 @@
 
 #include "Eigen/Core"
 
+#include "abstract_orientation.h"
+
 namespace mace {
 namespace pose {
 
