@@ -19,6 +19,7 @@ struct TargetControllerStruct
     uint8_t targetID;
     TargetItem::DynamicTargetList::DynamicTarget target;
 };
+
 template <typename T>
 using GuidedTGTSend = Controllers::ActionSend<
     mavlink_message_t,
@@ -26,7 +27,7 @@ using GuidedTGTSend = Controllers::ActionSend<
     MaceCore::ModuleCharacteristic,
     T,
     mavlink_set_position_target_local_ned_t,
-    MAVLINK_MSG_ID_POSITION_TARGET_LOCAL_NED
+    MAVLINK_MSG_ID_COMMAND_ACK
 >;
 
 template <typename T>
@@ -35,8 +36,8 @@ using GuidedTGTFinish = Controllers::ActionFinish<
     Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
     MaceCore::ModuleCharacteristic,
     uint8_t,
-    mavlink_position_target_local_ned_t,
-    MAVLINK_MSG_ID_POSITION_TARGET_LOCAL_NED
+    mavlink_command_ack_t,
+    MAVLINK_MSG_ID_COMMAND_ACK
 >;
 
 template <typename TARGETITEM>
@@ -67,11 +68,11 @@ protected:
     }
 
 
-    virtual bool Finish_Receive(const mavlink_position_target_local_ned_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Finish_Receive(const mavlink_command_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(msg);
         queueObj = sender;
-        ack = msg.x; //this is MAV_COMMAND_RESULT
+        ack = msg.result; //this is MAV_COMMAND_RESULT
         return true;
     }
 
@@ -104,7 +105,7 @@ public:
     ControllerGuidedTargetItem(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
         Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, TARGETITEM>(cb, queue, linkChan),
         GuidedTGTSend<TARGETITEM>(this, mavlink_msg_set_position_target_local_ned_encode_chan),
-        GuidedTGTFinish<TARGETITEM>(this, mavlink_msg_position_target_local_ned_decode)
+        GuidedTGTFinish<TARGETITEM>(this, mavlink_msg_command_ack_decode)
     {
 
     }
