@@ -6,6 +6,9 @@
 #include "common/common.h"
 #include "mace_core/i_module_command_path_planning.h"
 
+#include "data_generic_mission_item_topic/mission_item_topic_components.h"
+#include "data_generic_state_item_topic/state_topic_components.h"
+
 #include "data/topic_data_object_collection.h"
 #include "base_topic/base_topic_components.h"
 
@@ -99,11 +102,15 @@ public:
 
     void NewlyAvailableVehicle(const int &vehicleID) override;
 
+    void NewlyLoadedOccupancyMap() override;
+
     void NewlyUpdatedOccupancyMap() override;
 
     void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) override;
 
     void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) override;
+
+    void NewlyAvailableMission(const MissionItem::MissionList &mission) override;
 
 public:
     void cbiPlanner_SampledState(const mace::state_space::State* sampleState) override;
@@ -119,6 +126,9 @@ private:
     void parseBoundaryVertices(std::string unparsedVertices, Polygon_2DG &boundaryPolygon);
 
 private:
+
+    MissionItem::MissionList missionList;
+
     mace::state_space::Cartesian2DSpacePtr m_Space;
 
     mace::pose::GeodeticPosition_3D m_globalOrigin;
@@ -134,7 +144,24 @@ private:
     bool originSent;
 
 private:
+    //!
+    //! \brief m_VehicleDataTopic Vehicle data topic collection
+    //!
+    Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
+
+    //!
+    //! \brief m_MissionDataTopic Mission data topic collection
+    //!
+    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
+
+    //!
+    //! \brief m_PlanningStateTopic
+    //!
     Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;
+
+    //!
+    //! \brief m_MapTopic
+    //!
     Data::TopicDataObjectCollection<MAP_DATA_TOPICS> m_MapTopic;
 
 

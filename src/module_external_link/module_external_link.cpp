@@ -855,12 +855,10 @@ void ModuleExternalLink::NewlyAvailableBoundary(const BoundaryItem::BoundaryKey 
             target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
             // m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->Send(key, sender(), target);
-
             mace_new_boundary_object_t boundaryObj;
             boundaryObj.boundary_creator = boundary.getBoundaryKey().m_creatorID;
             boundaryObj.boundary_system = boundary.getBoundaryKey().m_systemID; // Is this correct?
             boundaryObj.boundary_type = (uint8_t)boundary.getBoundaryKey().m_boundaryType;
-
             mace_message_t msg;
             mace_msg_new_boundary_object_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &boundaryObj);
             //mace_msg_operational_boundary(sender().ID, (int)sender().Class, m_LinkChan,&msg,&boundary);

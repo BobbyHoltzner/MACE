@@ -43,6 +43,11 @@ public:
         }
     }
 
+    bool hasBeenSet() const
+    {
+        return m_BeenSet;
+    }
+
     bool set(const T &data) {
         //std::lock_guard<std::mutex> guardData(m_AccessMutex);
         m_AccessMutex.lock();

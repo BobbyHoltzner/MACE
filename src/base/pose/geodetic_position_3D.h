@@ -142,6 +142,10 @@ public:
 
 public:
 
+    bool hasBeenSet() const override
+    {
+        return hasLatitudeBeenSet() || hasLongitudeBeenSet() || hasAltitudeBeenSet();
+    }
     //!
     //! \brief deltaAltitude
     //! \param position

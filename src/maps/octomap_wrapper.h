@@ -22,6 +22,8 @@ class OctomapWrapper
 public:
     OctomapWrapper(const double &treeResolution = 0.05, const OctomapSensorDefinition &sensorProperties = OctomapSensorDefinition());
 
+    ~OctomapWrapper();
+
     bool is2DProjectionEnabled() const;
 
     bool is2DTrackingChanges() const;
@@ -33,13 +35,19 @@ public:
 public:
     bool loadOctreeFromBT(const std::string &path);
 
-    void updateSensorProperties(const OctomapSensorDefinition &sensorProperties);
+    void getTreeDimensions(double &minX, double &maxX, double &minY, double &maxY, double &minZ, double &maxZ);
+
+    bool updateSensorProperties(const OctomapSensorDefinition &sensorProperties);
+
+    bool updateProjectionProperties(const Octomap2DProjectionDefinition &projectionProperties);
 
     void updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position);
 
     void updateFromPointCloud(octomap::Pointcloud *pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position, const mace::pose::Orientation_3D &orientation);
 
     void updateFromLaserScan(octomap::Pointcloud* pc, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position = mace::pose::Position<mace::pose::CartesianPosition_3D>(), const mace::pose::Orientation_3D &orientation = mace::pose::Orientation_3D());
+
+    OctomapSensorDefinition getCurrentOctomapProperies() const;
 
 public:
     maps::Data2DGrid<OccupiedResult>* get2DOccupancyMap();

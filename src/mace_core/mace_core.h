@@ -219,7 +219,17 @@ public:
 
     void EventPP_LoadOccupancyEnvironment(const ModuleBase* sender, const std::string &filePath) override;
 
+    void EventPP_LoadOctomapProperties(const ModuleBase* sender, const mace::maps::OctomapSensorDefinition &properties) override;
+
+    void EventPP_LoadMappingProjectionProperties(const ModuleBase* sender, const mace::maps::Octomap2DProjectionDefinition &properties) override;
+
     void Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
+
+    void EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
+
+    void EventPP_NewDynamicMissionQueue(const ModuleBase* sender, const TargetItem::DynamicMissionQueue &queue) override;
+
+    void EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path) override;
 
     //!
     //! \brief Event fired to indicate what planning horizon is being utilized by the path planning module
@@ -233,9 +243,6 @@ public:
 
     virtual void AppendVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands);
 
-    void EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
-
-    void EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path) override;
 
     //!
     //! \brief Event fired when a new occupancy map to be invoked when PathPlanning module generates a new occupancy map.

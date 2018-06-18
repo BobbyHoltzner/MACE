@@ -315,6 +315,16 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         }
         break;
     }
+    case MAVLINK_MSG_ID_POSITION_TARGET_GLOBAL_INT:
+    {
+        std::cout<<"I have received a target global int message."<<std::endl;
+        break;
+    }
+    case MAVLINK_MSG_ID_POSITION_TARGET_LOCAL_NED:
+    {
+        std::cout<<"I have received a target local int message."<<std::endl;
+        break;
+    }
 
     default:
     {

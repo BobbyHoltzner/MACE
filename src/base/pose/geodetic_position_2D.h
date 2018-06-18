@@ -121,6 +121,11 @@ public:
 
 public:
 
+    bool hasBeenSet() const override
+    {
+        return hasLatitudeBeenSet() || hasLongitudeBeenSet();
+    }
+
     double distanceFromOrigin() const override;
 
     double polarBearingFromOrigin() const override;

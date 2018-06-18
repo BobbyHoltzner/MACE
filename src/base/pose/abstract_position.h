@@ -10,7 +10,7 @@ namespace mace{
 namespace pose{
 
 template <class T, class DIM>
-class AbstractPosition: public DataTypeHelper<T,DIM>
+class AbstractPosition: public PositionTypeHelper<T,DIM>
 {
 public:
     enum class PositionType{
@@ -74,10 +74,12 @@ public:
     //!
     bool is3D() const
     {
-        if(mace::misc::details::DataTypeHelper<T,DIM>::static_size > 2)
+        if(mace::misc::details::PositionTypeHelper<T,DIM>::static_size > 2)
             return true;
         return false;
     }
+
+    virtual bool hasBeenSet() const = 0;
 
     //!
     //! \brief distanceFromOrigin

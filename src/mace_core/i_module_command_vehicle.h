@@ -16,7 +16,8 @@ enum class VehicleCommands
 {
     BASE_MODULE_VEHICLE_LISTENER_ENUMS,
     REQUEST_DUMMY_FUNCTION,
-    UPDATE_MISSION_KEY
+    UPDATE_MISSION_KEY,
+    UPDATED_DYNAMIC_MISSION_QUEUE
 };
 
 
@@ -43,6 +44,12 @@ public:
             UpdateMissionKey(key);
         });
 
+        this->template AddCommandLogic<TargetItem::DynamicMissionQueue>(VehicleCommands::UPDATED_DYNAMIC_MISSION_QUEUE, [this](const TargetItem::DynamicMissionQueue &queue, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            UpdateDynamicMissionQueue(queue);
+        });
+
+
     }
 
     virtual ModuleClasses ModuleClass() const
@@ -54,6 +61,8 @@ public:
 public:
     virtual void RequestDummyFunction(const int &vehicleID) = 0;
     virtual void UpdateMissionKey(const MissionItem::MissionKeyChange &key) = 0;
+    virtual void UpdateDynamicMissionQueue(const TargetItem::DynamicMissionQueue &queue) = 0;
+
 };
 
 

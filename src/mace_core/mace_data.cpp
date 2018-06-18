@@ -301,6 +301,23 @@ bool MaceData::checkForCurrentMission(const MissionItem::MissionKey &missionKey)
 /// PATH PLANNING DATA
 /////////////////////////////////////////////////////////
 
+void MaceData::getOctomapDimensions(double &minX, double &maxX, double &minY, double &maxY, double &minZ, double &maxZ) const
+{
+    std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
+    m_OctomapWrapper->getTreeDimensions(minX,maxX,minY,maxY,minZ,maxZ);
+}
+
+bool MaceData::updateOctomapProperties(const mace::maps::OctomapSensorDefinition &properties)
+{
+    std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
+    return m_OctomapWrapper->updateSensorProperties(properties);
+}
+
+bool MaceData::updateMappingProjectionProperties(const mace::maps::Octomap2DProjectionDefinition &properties)
+{
+    std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
+}
+
 bool MaceData::loadOccupancyEnvironment(const string &filePath)
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);

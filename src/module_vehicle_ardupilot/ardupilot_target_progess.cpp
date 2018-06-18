@@ -2,7 +2,7 @@
 
 ArdupilotTargetProgess::ArdupilotTargetProgess()
 {
-    distanceThresholdAchieved = 3.0;
+    distanceThresholdAchieved = 1.0;
     distanceThresholdHunting = 20.0;
     maxDuration_Hunting = 20.0;
     maxDuration_Routing = std::numeric_limits<double>::max();
