@@ -7,6 +7,8 @@
 
 ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
     MaceCore::IModuleCommandPathPlanning(),
+    m_VehicleDataTopic("vehicleData"),
+    m_MissionDataTopic("vehicleMission"),
     m_PlanningStateTopic("planningState"),
     m_MapTopic("mappingData"),
     originSent(false),
@@ -160,10 +162,7 @@ void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCor
 //!
 void ModulePathPlanningNASAPhase2::NewTopicData(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const MaceCore::TopicDatagram &data, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
-    UNUSED(topicName);
-    UNUSED(sender);
-    UNUSED(data);
-    UNUSED(target);
+
 }
 
 
@@ -179,22 +178,43 @@ void ModulePathPlanningNASAPhase2::NewTopicData(const std::string &topicName, co
 //!
 void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
-    UNUSED(topicName);
-    UNUSED(sender);
-    UNUSED(componentsUpdated);
-    UNUSED(target);
+    //example read of vehicle data
+    if(topicName == m_VehicleDataTopic.Name())
+    {
+        //get latest datagram from mace_data
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender.ID);
 
-    if(!originSent) {
-        // TODO: This is a workaround for github issue #126:
-/*        ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
-            ptr->Event_SetGlobalOrigin(this, *m_globalOrigin);
-        });*/ //this one explicitly calls mace_core and its up to you to handle in core
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+            if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
 
-        /*    ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-                ptr->NewTopicDataValues(this, m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
-            }); */ //this is a general publication event, however, no one knows explicitly how to handle
+            }
+            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
 
-        originSent = true;
+            }
+            else if(componentsUpdated.at(i) == DataStateTopic::StateLocalPositionTopic::Name())
+            {
+
+            }
+        }
+    }
+    else if(topicName == m_MissionDataTopic.Name())
+    {
+        //get latest datagram from mace_data
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), sender.ID);
+
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+            if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
+                std::cout<<"I have seen a misson item reached topic"<<std::endl;
+                std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
+                m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+            }
+            else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
+                std::cout<<"Path planner has seen a "<<std::endl;
+                std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
+                m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+
+            }
+        }
     }
 }
 
@@ -343,6 +363,10 @@ void ModulePathPlanningNASAPhase2::NewlyUpdatedOperationalFence(const BoundaryIt
                                          m_OctomapSensorProperties.getTreeResolution(),m_OctomapSensorProperties.getTreeResolution());
 }
 
+void ModulePathPlanningNASAPhase2::NewlyAvailableMission(const MissionItem::MissionList &mission)
+{
+    missionList = mission;
+}
 
 void ModulePathPlanningNASAPhase2::cbiPlanner_SampledState(const mace::state_space::State *sampleState)
 {

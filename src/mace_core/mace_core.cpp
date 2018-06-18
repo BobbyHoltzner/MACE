@@ -910,6 +910,14 @@ void MaceCore::EventPP_New2DOccupancyMap(const void* sender, const mace::maps::D
         m_ROS->MarshalCommand(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, map);
 }
 
+void MaceCore::EventPP_NewDynamicMissionQueue(const ModuleBase *sender, const TargetItem::DynamicMissionQueue &queue)
+{
+    UNUSED(sender);
+
+    int vehicleID = queue.missionKey.m_systemID;
+    //m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::UPDATED_DYNAMIC_MISSION_QUEUE, queue);
+}
+
 void MaceCore::EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path)
 {
     UNUSED(sender);

@@ -108,9 +108,15 @@ public:
     void replaceTargetAtIndex(const unsigned int &index, const DynamicTarget &target, const TargetCompletion &state = TargetCompletion::INCOMPLETE);
     void spliceTargetListAtIndex(const unsigned int &index, const std::list<DynamicTargetStorage> &list);
 
+    bool isCompleted() const;
+
+    unsigned int getActiveTargetItem() const;
+
+
 public:
     const DynamicTargetStorage* getTargetStorageAtIndex(const unsigned int &index) const;
-    const DynamicTarget* getTargetAtIndex(const unsigned int &index) const;
+    DynamicTarget getTargetAtIndex(const unsigned int &index) const;
+    const DynamicTarget* getTargetPointerAtIndex(const unsigned int &index) const;
     const DynamicTarget* getNextIncomplete() const;
     const DynamicTarget* markCompletionState(const unsigned int &index, const TargetCompletion &state);
 
@@ -139,9 +145,8 @@ public:
 
 private:
 
-    int activeTargetItem;
-
     std::list<DynamicTargetStorage> targetList;
+    unsigned int activeTargetItem = 0;
 
 public:
     friend std::ostream& operator<<(std::ostream& os, const DynamicTargetList& t);

@@ -6,7 +6,7 @@ namespace TargetItem {
 
 DynamicTargetList::DynamicTargetList()
 {
-
+    this->activeTargetItem = 0;
 }
 
 DynamicTargetList::DynamicTargetList(const DynamicTargetList &rhs)
@@ -54,6 +54,18 @@ void DynamicTargetList::spliceTargetListAtIndex(const unsigned int &index, const
     targetList.splice(it,listCopy);
 }
 
+bool DynamicTargetList::isCompleted() const
+{
+    if(getNextIncomplete() != nullptr)
+        return false;
+    return true;
+}
+
+unsigned int DynamicTargetList::getActiveTargetItem() const
+{
+    return this->activeTargetItem;
+}
+
 const DynamicTargetList::DynamicTargetStorage* DynamicTargetList::getTargetStorageAtIndex(const unsigned int &index) const
 {
     std::list<DynamicTargetStorage>::const_iterator it = targetList.begin();
@@ -61,7 +73,14 @@ const DynamicTargetList::DynamicTargetStorage* DynamicTargetList::getTargetStora
     return &(*it);
 }
 
-const DynamicTargetList::DynamicTarget* DynamicTargetList::getTargetAtIndex(const unsigned int &index) const
+DynamicTargetList::DynamicTarget DynamicTargetList::getTargetAtIndex(const unsigned int &index) const
+{
+    std::list<DynamicTargetStorage>::const_iterator it = targetList.begin();
+    std::advance(it,index);
+    return (*it).target;
+}
+
+const DynamicTargetList::DynamicTarget* DynamicTargetList::getTargetPointerAtIndex(const unsigned int &index) const
 {
     std::list<DynamicTargetStorage>::const_iterator it = targetList.begin();
     std::advance(it,index);
@@ -90,6 +109,7 @@ const DynamicTargetList::DynamicTarget* DynamicTargetList::markCompletionState(c
     {
         if((*it).state == TargetCompletion::INCOMPLETE)
             return &(*it).target;
+        activeTargetItem++;
     }
     return nullptr;
 }

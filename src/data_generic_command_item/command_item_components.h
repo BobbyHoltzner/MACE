@@ -30,6 +30,10 @@
 #include "data_generic_command_item/mission_items/mission_state.h"
 #include "data_generic_command_item/mission_items/mission_type.h"
 
+
+#include "data_generic_command_item/target_items/dynamic_mission_queue.h"
+#include "data_generic_command_item/target_items/dynamic_target_list.h"
+
 #include "command_item_type.h"
 
 #endif // COMMAND_ITEM_COMPONENTS_H

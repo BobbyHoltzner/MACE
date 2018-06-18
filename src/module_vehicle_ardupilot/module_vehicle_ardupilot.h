@@ -208,7 +208,7 @@ public:
     //! \brief UpdateMissionKey
     //! \param key
     //!
-    virtual void UpdateMissionKey(const MissionItem::MissionKeyChange &key);
+    void UpdateMissionKey(const MissionItem::MissionKeyChange &key) override;
 
 
     /////////////////////////////////////////////////////////////////////////////

@@ -8,10 +8,6 @@
 
 #include "data_generic_mission_item_topic/vehicle_target_topic.h"
 
-
-
-
-
 typedef void(*CallbackFunctionPtr_VehicleTarget)(void*, MissionTopic::VehicleTargetTopic&);
 
 class ArdupilotVehicleObject : public MavlinkVehicleObject

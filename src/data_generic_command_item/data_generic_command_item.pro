@@ -48,7 +48,8 @@ SOURCES += \
     mission_items/mission_key_change.cpp \
     boundary_items/boundary_key.cpp \
     boundary_items/boundary_list.cpp \
-    target_items/dynamic_target_list.cpp
+    target_items/dynamic_target_list.cpp \
+    target_items/dynamic_mission_queue.cpp
 HEADERS +=\
     do_items/action_arm.h \
     do_items/action_change_mode.h \
@@ -82,7 +83,8 @@ HEADERS +=\
     boundary_items/boundary_key.h \
     boundary_items/boundary_type.h \
     boundary_items/boundary_list.h \
-    target_items/dynamic_target_list.h
+    target_items/dynamic_target_list.h \
+    target_items/dynamic_mission_queue.h
 
 # Unix lib Install
 unix:!symbian {

@@ -28,7 +28,7 @@ class CallbackInterface_MAVLINKVehicleObject
 {
 public:
     virtual void cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data) = 0;
-    virtual void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data) = 0;
+    virtual void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data) const = 0;
 
     virtual void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home) = 0;
     virtual void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList) = 0;
@@ -73,6 +73,12 @@ public:
     Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *GetControllerQueue()
     {
         return controllerQueue;
+    }
+
+    const CallbackInterface_MAVLINKVehicleObject* getCallbackInterface() const
+    {
+        if(m_CB != nullptr)
+            return m_CB;
     }
 
     bool handleMAVLINKMessage(const mavlink_message_t &msg);
