@@ -20,7 +20,7 @@ namespace ardupilot{
 
 MACE_CLASS_FORWARD(GuidedTimeoutController);
 
-typedef void(*CallbackFunctionPtr_TransmitDynamicTarget)(void*, TargetItem::DynamicTargetList::DynamicTarget&);
+typedef void(*CallbackFunctionPtr_TransmitDynamicTarget)(void*, TargetItem::DynamicTarget&);
 
 namespace state{
 
@@ -61,10 +61,10 @@ private:
 
     ArdupilotTargetProgess guidedProgress;
 
-    static void staticCallbackFunction_VehicleTarget(void *p, TargetItem::DynamicTargetList::DynamicTarget &target)
+    void staticCallbackFunction_VehicleTarget(void *p, TargetItem::DynamicTarget &target)
     {
-        std::cout<<"We are in the static callback getting ready to transmit: "<<target.position.getXPosition()<<" "<<target.position.getYPosition()<<" "<<target.position.getZPosition()<<std::endl;
-        /*
+        std::cout<<"We are in the static callback getting ready to transmit: "<<target.getPosition().getXPosition()<<" "<<target.getPosition().getYPosition()<<" "<<target.getPosition().getZPosition()<<std::endl;
+
         Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
 
         auto controllerGuided = new MAVLINKVehicleControllers::ControllerGuidedTargetItem<MAVLINKVehicleControllers::TargetControllerStruct>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
@@ -83,30 +83,20 @@ private:
             delete ptr;
         });
 
-        MaceCore::ModuleCharacteristic target;
-        target.ID = Owner().getMAVLINKID();
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MaceCore::ModuleCharacteristic targetCharacter;
+        targetCharacter.ID = Owner().getMAVLINKID();
+        targetCharacter.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
         MaceCore::ModuleCharacteristic sender;
         sender.ID = 255;
         sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-        TargetItem::DynamicTargetList::DynamicTarget dynamicTarget;
-        dynamicTarget.position.setXPosition(-10);
-        dynamicTarget.position.setYPosition(-10);
-        dynamicTarget.position.setZPosition(-20);
-
-
         MAVLINKVehicleControllers::TargetControllerStruct action;
-        action.targetID = target.ID;
-        action.target = dynamicTarget;
+        action.targetID = targetCharacter.ID;
+        action.target = target;
 
-
-        controllerGuided->Send(action, sender, target);
+        controllerGuided->Send(action, sender, targetCharacter);
         collection->Insert("guidedController", controllerGuided);
 
-
-        ((State_FlightGuided *)p)->callbackFunction_VehicleTarget(target);
-        */
     }
 };
 
@@ -120,7 +110,8 @@ namespace ardupilot{
 class GuidedTimeoutController : public Thread
 {
 public:
-    GuidedTimeoutController(const unsigned int &timeout)
+    GuidedTimeoutController(const unsigned int &timeout):
+        currentTarget(nullptr)
     {
         this->timeout = timeout;
     }
@@ -128,6 +119,12 @@ public:
     ~GuidedTimeoutController() {
         std::cout << "Destructor on guided timeout controller" << std::endl;
         mToExit = true;
+    }
+
+    void start() override
+    {
+        this->m_Timeout.start();
+        Thread::start();
     }
 
     void run()
@@ -150,7 +147,8 @@ public:
 
             if(timeElapsed >= timeout)
             {
-                callTargetCallback(currentTarget);
+                if(currentTarget != nullptr)
+                    callTargetCallback(*currentTarget);
                 m_Timeout.reset();
             }
 
@@ -158,11 +156,17 @@ public:
         }
     }
 
-    void updateTarget(const TargetItem::DynamicTargetList::DynamicTarget &target)
+    void updateTarget(const TargetItem::DynamicTarget &target)
     {
         m_LambdasToRun.push_back([this, target]{
-            currentTarget = target;
+            currentTarget = new TargetItem::DynamicTarget(target);
         });
+    }
+
+    void clearTarget()
+    {
+        delete currentTarget;
+        currentTarget = nullptr;
     }
 
     void connectTargetCallback(CallbackFunctionPtr_TransmitDynamicTarget cb, void *p)
@@ -171,7 +175,7 @@ public:
         m_FunctionTarget = p;
     }
 
-    void callTargetCallback(TargetItem::DynamicTargetList::DynamicTarget &target)
+    void callTargetCallback(TargetItem::DynamicTarget &target)
     {
         m_CBTarget(m_FunctionTarget,target);
     }
@@ -180,16 +184,12 @@ protected:
     CallbackFunctionPtr_TransmitDynamicTarget m_CBTarget;
     void *m_FunctionTarget;
 
-protected:
-    //FLAGS for the thread:
-    bool mToExit;
-
 private:
     Timer m_Timeout;
     unsigned int timeout;
 
 protected:
-    TargetItem::DynamicTargetList::DynamicTarget currentTarget;
+    TargetItem::DynamicTarget* currentTarget;
 
 protected:
     std::list<std::function<void()>> m_LambdasToRun;

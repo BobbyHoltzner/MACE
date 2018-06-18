@@ -136,36 +136,13 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
     mLogs->debug("Receieved a command to change mission state.");
 
     int systemID = commandWithTarget.getTargetSystem();
-    /*
-    if((vehicleData) && (vehicleData->getSystemID() == systemID))
-    {
-        if(commandWithTarget.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_PAUSE)
-        {
-            DataGenericItem::DataGenericItem_Heartbeat heartbeat = vehicleData->state->vehicleHeartbeat.get();
-            if(Data::isSystemTypeRotary(heartbeat.getType()))
-            {
-                DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleMode.get();
-                int mode = tmp.getFlightModeFromString("BRAKE");
-                //vehicleData->m_CommandController->setNewMode(mode);
-            }
-            else{
-                DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleMode.get();
-                int mode = tmp.getFlightModeFromString("LOITER");
-                //vehicleData->m_CommandController->setNewMode(mode);
-            }
-        }else if(commandWithTarget.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_START)
-        {
-            DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleMode.get();
-            int mode = tmp.getFlightModeFromString("AUTO");
-//            vehicleData->m_CommandController->setNewMode(mode);
 
-//            MissionItem::MissionKey key = tmpData->data->currentAutoMission.get().getMissionKey();
-//            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-//                ptr->GVEvents_MissionExeStateUpdated(this, key, Data::MissionExecutionState::MESTATE_EXECUTING);
-//            });
-        }
+    if((vehicleData) && (vehicleData->getMAVLINKID() == systemID))
+    {
+        ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+        currentOuterState->handleCommand(&commandWithTarget);
+        ProgressStateMachineStates();
     }
-    */
 }
 
 void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)

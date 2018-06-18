@@ -259,7 +259,7 @@ public:
         this->cbi_VehicleMissionData(systemID,missionTopic);
     }
 
-    virtual void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent &current)
+    virtual void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent &current) const
     {
     //    std::stringstream buffer;
     //    buffer << current.getMissionKey();

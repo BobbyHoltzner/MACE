@@ -6,9 +6,6 @@
 namespace ExternalLink {
 
 
-
-
-
     //!
     //! \brief Called when building mavlink packet initial request to a mission
     //! \param data

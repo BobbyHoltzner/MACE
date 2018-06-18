@@ -2,7 +2,7 @@
 
 namespace ExternalLink{
 
-/*
+
     //!
     //! \brief Called when building mavlink packet initial request to a boundary
     //! \param data
@@ -45,7 +45,7 @@ namespace ExternalLink{
         vehicleObj.ID = key.m_systemID;
         vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-        std::vector<std::tuple<BoundaryKey, BoundaryList>> boundaries;
+        std::vector<std::tuple<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>> boundaries;
         CONTROLLER_BOUNDARY_TYPE::FetchDataFromKey(key, boundaries);
 
         if(boundaries.size() == 0)
@@ -67,7 +67,7 @@ namespace ExternalLink{
             std::cout << "Boundary Upload Progress: The boundary that was requested to be transmitted is already being transmitted" << std::endl;
             return false;
         }
-        BoundaryList boundary = std::get<1>(boundaries.at(0));
+        BoundaryItem::BoundaryList boundary = std::get<1>(boundaries.at(0));
         m_BoundariesUploading.insert({key, boundary});
 
 
@@ -383,5 +383,5 @@ namespace ExternalLink{
     {
         //Action_RequestCurrentBoundary_Initiate::Request(sender, target);
     }
-*/
+
 }

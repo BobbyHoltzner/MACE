@@ -15,6 +15,9 @@ public:
 
     DynamicMissionQueue(const DynamicMissionQueue &copy);
 
+    ~DynamicMissionQueue();
+
+
     TargetItem::DynamicTargetList* getDynamicTargetList()
     {
         return &this->m_TargetList;

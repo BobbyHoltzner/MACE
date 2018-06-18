@@ -83,16 +83,24 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
-
-    TargetItem::DynamicMissionQueue availableQueue(testKey,1);
+    std::list<TargetItem::DynamicTargetStorage> targetList;
 
     TargetItem::DynamicTarget target;
     mace::pose::CartesianPosition_3D targetPos(1000,1000,-10);
     target.setPosition(targetPos);
 
+    TargetItem::DynamicTargetStorage targetNew(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+    targetList.push_back(targetNew);
+
+    MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
+
+    TargetItem::DynamicMissionQueue availableQueue(testKey,1);
+
+
+
     TargetItem::DynamicTargetList* newList = availableQueue.getDynamicTargetList();
     newList->appendDynamicTarget(target);
+    std::cout<<"New queue available"<<std::endl;
     //availableQueue.getAssociatedMissionItem();
     //availableQueue.getDynamicTargetList()->appendDynamicTarget(target);
 

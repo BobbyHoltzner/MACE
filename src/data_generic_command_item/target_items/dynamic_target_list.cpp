@@ -7,6 +7,7 @@ namespace TargetItem {
 DynamicTargetList::DynamicTargetList()
 {
     this->activeTargetItem = 0;
+    this->targetList.clear();
 }
 
 DynamicTargetList::DynamicTargetList(const DynamicTargetList &rhs)

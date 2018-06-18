@@ -839,23 +839,21 @@ void ModuleExternalLink::Command_ClearOnboardGuided(const int &targetSystem)
 
 void ModuleExternalLink::NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    /*
     std::vector<BoundaryItem::BoundaryList> boundaryList = this->getDataObject()->GetVehicleBoundaryList();
     // TODO: @Ken - Do we want send boundary for every vehicle in the list? Or do we use the senderID here to only send that vehicle's boundary?
-    for(auto boundary : boundaryList) {
-        if(vehicleID == boundary.getVehicleID()){
+    BoundaryItem::BoundaryList boundary;
+    if(this->getDataObject()->getBoundary(&boundary, key)) {
+        if(key.m_systemID == boundary.getVehicleID()){
             mace_new_boundary_object_t boundaryObj;
             boundaryObj.boundary_creator = boundary.getBoundaryKey().m_creatorID;
             boundaryObj.boundary_system = boundary.getBoundaryKey().m_systemID; // Is this correct?
             boundaryObj.boundary_type = (uint8_t)boundary.getBoundaryKey().m_boundaryType;
-
             mace_message_t msg;
             mace_msg_new_boundary_object_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &boundaryObj);
             //mace_msg_operational_boundary(sender().ID, (int)sender().Class, m_LinkChan,&msg,&boundary);
             m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
         }
     }
-    */
 }
 
 void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)

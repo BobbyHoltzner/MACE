@@ -5,16 +5,19 @@ namespace MAVLINKVehicleControllers {
     template <>
     void ControllerGuidedTargetItem<TargetControllerStruct>::FillTargetItem(const TargetControllerStruct &targetStruct, mavlink_set_position_target_local_ned_t &mavlinkItem)
     {
-        TargetItem::DynamicTargetList::DynamicTarget targetItem = targetStruct.target;
+        TargetItem::DynamicTarget targetItem = targetStruct.target;
 
-        mavlinkItem.x = targetItem.position.getXPosition();
-        mavlinkItem.y = targetItem.position.getYPosition();
-        mavlinkItem.z = targetItem.position.getZPosition();
-        mavlinkItem.vx = targetItem.velocity.getXVelocity();
-        mavlinkItem.vy = targetItem.velocity.getYVelocity();
-        mavlinkItem.vz = targetItem.velocity.getZVelocity();
-        mavlinkItem.yaw = targetItem.yaw;
-        mavlinkItem.yaw_rate = targetItem.yawRate;
+        mace::pose::CartesianPosition_3D targetPosition = targetItem.getPosition();
+        mace::pose::CartesianVelocity_3D targetVelocity = targetItem.getVelocity();
+
+        mavlinkItem.x = targetPosition.getXPosition();
+        mavlinkItem.y = targetPosition.getYPosition();
+        mavlinkItem.z = -targetPosition.getZPosition();
+        mavlinkItem.vx = targetVelocity.getXVelocity();
+        mavlinkItem.vy = targetVelocity.getYVelocity();
+        mavlinkItem.vz = targetVelocity.getZVelocity();
+        mavlinkItem.yaw = targetItem.getYaw();
+        mavlinkItem.yaw_rate = targetItem.getYawRate();
         //now we need to update the bitmask to the appropriate values
         //If bit 10 is set the floats afx afy afz should be interpreted as force instead of acceleration.
         /*
@@ -26,30 +29,30 @@ namespace MAVLINKVehicleControllers {
 
         uint16_t bitArray = 65535;
         uint16_t mask = 1<<0; // set the mask for a x position
-        if(targetItem.position.hasXBeenSet())
+        if(targetPosition.hasXBeenSet())
             bitArray = (bitArray & (~mask)) | ((int)0<<0);
         mask = 1<<1;
-        if(targetItem.position.hasYBeenSet())
+        if(targetPosition.hasYBeenSet())
             bitArray = (bitArray & (~mask)) | ((int)0<<1);
         mask = 1<<2;
-        if(targetItem.position.hasZBeenSet())
+        if(targetPosition.hasZBeenSet())
             bitArray = (bitArray & (~mask)) | ((int)0<<2);
 
         mask = 1<<3;
-        if(targetItem.velocity.hasXVelocityBeenSet())
+        if(targetVelocity.hasXVelocityBeenSet())
             bitArray = (bitArray & (~mask)) | ((int)0<<3);
         mask = 1<<4;
-        if(targetItem.velocity.hasYVelocityBeenSet())
+        if(targetVelocity.hasYVelocityBeenSet())
             bitArray = (bitArray & (~mask)) | ((int)0<<4);
         mask = 1<<5;
-        if(targetItem.velocity.hasZVelocityBeenSet())
+        if(targetVelocity.hasZVelocityBeenSet())
             bitArray = (bitArray & (~mask)) | ((int)0<<5);
 
         mask = 1<<10;
-        if(std::abs(targetItem.yaw) > 0.001) //KEN FIX THIS
+        if(std::abs(targetItem.getYaw()) > 0.001) //KEN FIX THIS
             bitArray = (bitArray & (~mask)) | ((int)0<<10);
         mask = 1<<11;
-        if(std::abs(targetItem.yawRate) > 0.001) //KEN FIX THIS
+        if(std::abs(targetItem.getYawRate()) > 0.001) //KEN FIX THIS
             bitArray = (bitArray & (~mask)) | ((int)0<<11);
 
         mavlinkItem.type_mask = bitArray;

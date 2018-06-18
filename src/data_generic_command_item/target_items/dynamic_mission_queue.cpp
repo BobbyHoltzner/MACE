@@ -17,8 +17,14 @@ DynamicMissionQueue::DynamicMissionQueue(const DynamicMissionQueue &copy)
 {
     this->describingMissionItem = copy.describingMissionItem;
     this->missionKey = copy.missionKey;
-    //this->m_TargetList = copy.m_TargetList;
+    this->m_TargetList = copy.m_TargetList;
 }
+
+DynamicMissionQueue::~DynamicMissionQueue()
+{
+
+}
+
 
 
 } //end of namespace TargetItem

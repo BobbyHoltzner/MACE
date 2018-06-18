@@ -67,7 +67,6 @@ public:
     }
 
 private:
-
     std::list<DynamicTargetStorage> targetList;
     unsigned int activeTargetItem = 0;
 
