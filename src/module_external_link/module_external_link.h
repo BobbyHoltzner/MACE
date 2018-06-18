@@ -373,6 +373,9 @@ public:
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
 
 private:
+
+    void RequestBoundary(const BoundaryItem::BoundaryKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
+
     ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
 
     PointerCollection<

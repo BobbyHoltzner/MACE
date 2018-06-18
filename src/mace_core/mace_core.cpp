@@ -437,18 +437,18 @@ void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::B
 {
     m_DataFusion->updateBoundary(boundary);
 
-    if((sender->ModuleClass() != ModuleClasses::PATH_PLANNING) &&
-            (boundary.getBoundaryType() == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE)) {
-        if(m_PathPlanning) {
-            m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
-        }
-    }
-    if((sender->ModuleClass() != ModuleClasses::RTA) &&
-            (boundary.getBoundaryType() == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE)){
-        if(m_RTA) {
-            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
-        }
-    }
+//    if((sender->ModuleClass() != ModuleClasses::PATH_PLANNING) &&
+//            (boundary.getBoundaryType() == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE)) {
+//        if(m_PathPlanning) {
+//            m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
+//        }
+//    }
+//    if((sender->ModuleClass() != ModuleClasses::RTA) &&
+//            (boundary.getBoundaryType() == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE)){
+//        if(m_RTA) {
+//            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
+//        }
+//    }
 
     if(m_ExternalLink.size() > 0)
     {
