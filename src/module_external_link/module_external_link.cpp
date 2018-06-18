@@ -260,6 +260,8 @@ Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::Fe
         throw std::runtime_error("Key not set in FetchBoundaryFromKey function");
     }
 
+    std::cout << "Fetch boundary from key **** " << std::endl;
+
     Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::FetchKeyReturn rtn;
 
     std::vector<BoundaryItem::BoundaryList> boundaryListVec = this->getDataObject()->GetVehicleBoundaryList();
@@ -275,6 +277,10 @@ Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::Fe
 Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::FetchModuleReturn ModuleExternalLink::FetchAllBoundariesFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module)
 {
     Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::FetchModuleReturn rtn;
+
+
+    std::cout << "Fetch all boundaries from module **** " << std::endl;
+
 
     //Function to fetch missions for given module
     auto func = [this, &rtn](MaceCore::ModuleCharacteristic vehicle)
@@ -838,24 +844,29 @@ void ModuleExternalLink::Command_ClearOnboardGuided(const int &targetSystem)
 }
 
 void ModuleExternalLink::NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
-{   
-    /*
-    std::vector<BoundaryItem::BoundaryList> boundaryList = this->getDataObject()->GetVehicleBoundaryList();
-    // TODO: @Ken - Do we want send boundary for every vehicle in the list? Or do we use the senderID here to only send that vehicle's boundary?
-    for(auto boundary : boundaryList) {
+{      
+    std::cout << "External link: Newly available boundary" << std::endl;
+    BoundaryItem::BoundaryList boundary;
+    if(this->getDataObject()->getBoundary(&boundary, key)) {
+        // TODO: @Ken - Do we want send boundary for every vehicle in the list? Or do we use the senderID here to only send that vehicle's boundary?
         if(key.m_systemID == boundary.getVehicleID()){
-            mace_new_boundary_object_t boundaryObj;
-            boundaryObj.boundary_creator = boundary.getBoundaryKey().m_creatorID;
-            boundaryObj.boundary_system = boundary.getBoundaryKey().m_systemID; // Is this correct?
-            boundaryObj.boundary_type = (uint8_t)boundary.getBoundaryKey().m_boundaryType;
+            MaceCore::ModuleCharacteristic target;
+            target.ID = boundary.getVehicleID();
+            target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-            mace_message_t msg;
-            mace_msg_new_boundary_object_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &boundaryObj);
-            //mace_msg_operational_boundary(sender().ID, (int)sender().Class, m_LinkChan,&msg,&boundary);
-            m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+            m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->Send(key, sender(), target);
+
+//            mace_new_boundary_object_t boundaryObj;
+//            boundaryObj.boundary_creator = boundary.getBoundaryKey().m_creatorID;
+//            boundaryObj.boundary_system = boundary.getBoundaryKey().m_systemID; // Is this correct?
+//            boundaryObj.boundary_type = (uint8_t)boundary.getBoundaryKey().m_boundaryType;
+
+//            mace_message_t msg;
+//            mace_msg_new_boundary_object_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &boundaryObj);
+//            //mace_msg_operational_boundary(sender().ID, (int)sender().Class, m_LinkChan,&msg,&boundary);
+//            m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
         }
-    }    
-    */
+    }
 }
 
 void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
@@ -1076,3 +1087,11 @@ void ModuleExternalLink::NewTopicSpooled(const std::string &topicName, const Mac
     }//end of if airborne instance
 }
 
+void ModuleExternalLink::RequestBoundary(const BoundaryKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender) {
+    MaceCore::ModuleCharacteristic target;
+    target.ID = key.m_creatorID;
+    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+//    m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->Send(key, sender(), target);
+    m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->RequestBoundary(key, sender(), target);
+}

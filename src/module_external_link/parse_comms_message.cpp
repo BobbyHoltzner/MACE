@@ -177,6 +177,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         MaceCore::ModuleCharacteristic sender;
         sender.ID = key.m_systemID;
         sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        std::cout << "Got to other side before request boundary" << std::endl;
         this->RequestBoundary(key, sender);
         break;
     }
