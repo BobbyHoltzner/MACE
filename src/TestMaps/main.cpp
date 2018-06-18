@@ -1,30 +1,8 @@
 #include <QCoreApplication>
 
-#include "base/geometry/polygon_2DC.h"
+#include "data_generic_command_item/command_item_components.h"
 
-#include "base/state_space/discrete_motion_validity_check.h"
-#include "base/state_space/special_validity_check.h"
-#include "base/state_space/cartesian_2D_space.h"
-
-#include "maps/iterators/grid_map_iterator.h"
-#include "maps/iterators/circle_map_iterator.h"
-#include "maps/iterators/polygon_map_iterator.h"
-#include "maps/occupancy_definition.h"
-#include "maps/data_2d_grid.h"
-
-#include <iostream>
-#include <QFile>
-#include <QTextStream>
-#include <QStringList>
-
-#include "planners/rrt_base.h"
-#include "planners/nearest_neighbor_flann.h"
-
-#include "octomap/OcTree.h"
-
-#include "maps/octomap_wrapper.h"
-
-using namespace octomap;
+#include "data_generic_command_item/target_items/dynamic_target_list.h"
 using namespace mace ;
 using namespace geometry;
 
@@ -105,6 +83,20 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
+    MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
+
+    TargetItem::DynamicMissionQueue availableQueue(testKey,1);
+
+    TargetItem::DynamicTarget target;
+    mace::pose::CartesianPosition_3D targetPos(1000,1000,-10);
+    target.setPosition(targetPos);
+
+    TargetItem::DynamicTargetList* newList = availableQueue.getDynamicTargetList();
+    newList->appendDynamicTarget(target);
+    //availableQueue.getAssociatedMissionItem();
+    //availableQueue.getDynamicTargetList()->appendDynamicTarget(target);
+
+    /*
     char* MACEPath = getenv("MACE_ROOT");
     std::string rootPath(MACEPath);
     std::string btFile = rootPath + kPathSeparator + "simple_test_000_303030_newOrigin.bt";
@@ -173,6 +165,6 @@ int main(int argc, char *argv[])
     {
         delete solution.at(i);
     }
-
+    */
     return 0;
 }

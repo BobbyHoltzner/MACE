@@ -15,6 +15,20 @@ public:
 
     DynamicMissionQueue(const DynamicMissionQueue &copy);
 
+    TargetItem::DynamicTargetList* getDynamicTargetList()
+    {
+        return &this->m_TargetList;
+    }
+
+    MissionItem::MissionKey getAssociatedMissionKey() const
+    {
+        return this->missionKey;
+    }
+
+    unsigned int getAssociatedMissionItem() const
+    {
+        return this->describingMissionItem;
+    }
 
 public:
     DynamicMissionQueue& operator = (const DynamicMissionQueue &rhs)
@@ -42,7 +56,7 @@ public:
         return !(*this == rhs);
     }
 
-public:
+private:
     MissionItem::MissionKey missionKey;
     unsigned int describingMissionItem = 0;
 

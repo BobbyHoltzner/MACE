@@ -11,88 +11,11 @@
 #include "base/pose/cartesian_position_3D.h"
 #include "base/pose/cartesian_velocity_3D.h"
 
+#include "dynamic_target_storage.h"
+
 namespace TargetItem {
 
-class DynamicTargetList
-{
-public:
-    struct DynamicTarget{
-        mace::pose::CartesianPosition_3D  position;
-        mace::pose::CartesianVelocity_3D  velocity;
-        double yaw = 0.0;
-        double yawRate = 0.0;
-
-        DynamicTarget& operator = (const DynamicTarget &rhs)
-        {
-            this->position = rhs.position;
-            this->velocity = rhs.velocity;
-            this->yaw = rhs.yaw;
-            this->yawRate = rhs.yawRate;
-            return *this;
-        }
-
-        bool operator == (const DynamicTarget &rhs) const{
-            if(this->position != rhs.position){
-                return false;
-            }
-            if(this->velocity != rhs.velocity){
-                return false;
-            }
-            if(this->yaw != rhs.yaw){
-                return false;
-            }
-            if(this->yawRate != rhs.yawRate){
-                return false;
-            }
-            return true;
-        }
-
-        bool operator != (const DynamicTarget &rhs) const{
-            return !(*this == rhs);
-        }
-    };
-
-public:
-    enum TargetCompletion{
-        COMPLETE,
-        ACTIVE,
-        INCOMPLETE
-    };
-
-public:
-    struct DynamicTargetStorage
-    {
-        DynamicTargetStorage(const DynamicTarget &target, const TargetCompletion &state)
-        {
-            this->target = target;
-            this->state = state;
-        }
-
-        DynamicTargetStorage& operator = (const DynamicTargetStorage &rhs)
-        {
-            this->target = rhs.target;
-            this->state = rhs.state;
-            return *this;
-        }
-
-        bool operator == (const DynamicTargetStorage &rhs) const{
-            if(this->target != rhs.target){
-                return false;
-            }
-            if(this->state != rhs.state){
-                return false;
-            }
-            return true;
-        }
-
-        bool operator != (const DynamicTargetStorage &rhs) const{
-            return !(*this == rhs);
-        }
-
-
-        DynamicTarget target;
-        TargetCompletion state;
-    };
+class DynamicTargetList{
 
 public:
     DynamicTargetList();
@@ -102,10 +25,10 @@ public:
     size_t listSize() const;
     void clearList();
 
-    void appendDynamicTarget(const DynamicTarget &target, const TargetCompletion &state = TargetCompletion::INCOMPLETE);
+    void appendDynamicTarget(const DynamicTarget &target, const DynamicTargetStorage::TargetCompletion &state = DynamicTargetStorage::TargetCompletion::INCOMPLETE);
     void removeTargetAtIndex(const unsigned int &index);
 
-    void replaceTargetAtIndex(const unsigned int &index, const DynamicTarget &target, const TargetCompletion &state = TargetCompletion::INCOMPLETE);
+    void replaceTargetAtIndex(const unsigned int &index, const DynamicTarget &target, const DynamicTargetStorage::TargetCompletion &state = DynamicTargetStorage::TargetCompletion::INCOMPLETE);
     void spliceTargetListAtIndex(const unsigned int &index, const std::list<DynamicTargetStorage> &list);
 
     bool isCompleted() const;
@@ -118,7 +41,7 @@ public:
     DynamicTarget getTargetAtIndex(const unsigned int &index) const;
     const DynamicTarget* getTargetPointerAtIndex(const unsigned int &index) const;
     const DynamicTarget* getNextIncomplete() const;
-    const DynamicTarget* markCompletionState(const unsigned int &index, const TargetCompletion &state);
+    const DynamicTarget* markCompletionState(const unsigned int &index, const DynamicTargetStorage::TargetCompletion &state);
 
 public:
 

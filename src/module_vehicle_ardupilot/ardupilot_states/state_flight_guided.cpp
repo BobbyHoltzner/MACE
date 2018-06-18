@@ -72,12 +72,12 @@ void State_FlightGuided::OnEnter()
     MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
     availableQueue.missionKey = testKey;
 
-    TargetItem::DynamicTargetList::DynamicTarget target;
+    TargetItem::DynamicTarget target;
     target.position.setXPosition(1000);
     target.position.setYPosition(1000);
     target.position.setZPosition(-100);
 
-    availableQueue.m_TargetList.appendDynamicTarget(target,TargetItem::DynamicTargetList::INCOMPLETE);
+    availableQueue.m_TargetList.appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
 
     //    Owner().mission->currentDynamicQueue.set(availableQueue);
 
@@ -118,7 +118,7 @@ void State_FlightGuided::handleGuidedState(const mace::pose::CartesianPosition_3
     if(state == Data::ControllerState::ACHIEVED)
     {
 
-        const TargetItem::DynamicTargetList::DynamicTarget* newTarget = currentQueue->m_TargetList.markCompletionState(currentTargetIndex,TargetItem::DynamicTargetList::TargetCompletion::COMPLETE);
+        const TargetItem::DynamicTargetList::DynamicTarget* newTarget = currentQueue->m_TargetList.markCompletionState(currentTargetIndex,TargetItem::DynamicTargetList::DynamicTargetStorage::TargetCompletion::COMPLETE);
         if(newTarget == nullptr)
         {
             //if there are no more points in the queue this mission item is completed
