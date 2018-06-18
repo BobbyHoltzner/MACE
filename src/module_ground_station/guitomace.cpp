@@ -137,7 +137,8 @@ void GUItoMACE::setGlobalOrigin(const QJsonObject &jsonObj)
 //!
 void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
 {
-    BoundaryItem::BoundaryList operationalBoundary(0,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+    BoundaryItem::BoundaryList operationalBoundary(1,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+//    BoundaryItem::BoundaryList operationalBoundary(0,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
 
     mace::pose::GeodeticPosition_3D origin = m_parent->getDataObject()->GetGlobalOrigin();
 

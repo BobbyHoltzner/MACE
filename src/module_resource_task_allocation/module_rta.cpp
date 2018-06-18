@@ -282,12 +282,13 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
     m_VehicleDataTopic.GetComponent(globalPositionData, read_topicDatagram);
 
     // Set vehicle and compute Voronoi:
-    if(m_globalOrigin->getPosition().has2DPositionSet()) {
+    CommandItem::SpatialHome globalOrigin = this->getDataObject()->GetGlobalOrigin();
+    if(globalOrigin.getPosition().has2DPositionSet()) {
         DataState::StateLocalPosition localPositionData;
         DataState::StateGlobalPosition tmpGlobalOrigin;
-        tmpGlobalOrigin.setLatitude(m_globalOrigin->getPosition().getX());
-        tmpGlobalOrigin.setLongitude(m_globalOrigin->getPosition().getY());
-        tmpGlobalOrigin.setAltitude(m_globalOrigin->getPosition().getZ());
+        tmpGlobalOrigin.setLatitude(globalOrigin.getPosition().getX());
+        tmpGlobalOrigin.setLongitude(globalOrigin.getPosition().getY());
+        tmpGlobalOrigin.setAltitude(globalOrigin.getPosition().getZ());
 
         DataState::StateGlobalPosition tmpGlobalPosition;
         tmpGlobalPosition.setLatitude(globalPositionData->getLatitude());
