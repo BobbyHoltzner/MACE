@@ -78,8 +78,8 @@ public:
 public:
 
     //!
-    //! \brief NewlyAvailableVehicle
-    //! \param vehicleID
+    //! \brief NewlyAvailableVehicle Subscriber for a new vehicle topic
+    //! \param vehicleID Vehicle ID of the new vehicle
     //!
     void NewlyAvailableVehicle(const int &vehicleID) override;
 
@@ -90,7 +90,8 @@ public:
     void TestFunction(const int &vehicleID) override;
 
     //!
-    //! \brief NewlyUpdatedGlobalOrigin
+    //! \brief NewlyUpdatedGlobalOrigin Subsciber for a new global origin position
+    //! \param position Geodetic 3D position
     //!
     void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) override;
 
@@ -106,11 +107,12 @@ public:
     //! \brief NewlyUpdatedResourceFence Function further generating targets for observation
     //! via the associated agent. This function should only be called for vehicles that are
     //! currently associated locally with the calling instance of MACE.
+    //! \param boundary Updated resource fence boundary
     //!
     void NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boundary) override;
 
     //!
-    //! \brief NewlyUpdatedGridSpacing
+    //! \brief NewlyUpdatedGridSpacing Grid spacing subscriber to update nodes within the environment
     //!
     void NewlyUpdatedGridSpacing() override;
 
@@ -145,14 +147,29 @@ private:
     double m_gridSpacing;
 
     //!
-    //! \brief m_vehicles Map
+    //! \brief m_vehicles Map of vehicle IDs and corresponding 2D cartesian position
     //!
     std::map<int, Position<CartesianPosition_2D> > m_vehicles;
+
+    //!
+    //! \brief m_vehicleCells Map of vehicle IDs and corresponding vehicle cells (boundary, and environment nodes)
+    //!
     std::map<int, mace::geometry::Cell_2DC> m_vehicleCells;
 
     // Flags:
+    //!
+    //! \brief m_globalInstance Denotes a global or local instance, used to determine if targets should be generated
+    //!
     bool m_globalInstance;
+
+    //!
+    //! \brief gridSpacingSent Deprecated
+    //!
     bool gridSpacingSent;
+
+    //!
+    //! \brief environmentBoundarySent Deprecated
+    //!
     bool environmentBoundarySent;
 
 

@@ -1,5 +1,8 @@
 #include "module_rta.h"
 
+//!
+//! \brief ModuleRTA Default constructor
+//!
 ModuleRTA::ModuleRTA():
     m_VehicleDataTopic("vehicleData"), m_SensorDataTopic("sensorData"),
     m_SensorFootprintDataTopic("sensorFootprint"), gridSpacingSent(false), environmentBoundarySent(false),
@@ -102,13 +105,13 @@ void ModuleRTA::NewTopicData(const std::string &topicName, const MaceCore::Modul
 //!
 void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
-    if(!gridSpacingSent) {
-        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-            ptr->Event_SetGridSpacing(this, m_gridSpacing);
-        });
+//    if(!gridSpacingSent) {
+//        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+//            ptr->Event_SetGridSpacing(this, m_gridSpacing);
+//        });
 
-        gridSpacingSent = true;
-    }
+//        gridSpacingSent = true;
+//    }
 
 
     //example read of vehicle data
@@ -165,6 +168,10 @@ void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
     }
 }
 
+/**
+ * @brief updateEnvironment Given a new boundary, update the environment and Voronoi partitions
+ * @param boundary New boundary to partition/generate targets for
+ */
 void ModuleRTA::updateEnvironment(const BoundaryItem::BoundaryList &boundary)
 {
     std::cout<<"Update environment (RTA)."<<std::endl;
@@ -184,6 +191,9 @@ void ModuleRTA::updateEnvironment(const BoundaryItem::BoundaryList &boundary)
     m_vehicleCells = environment->getCells();
 }
 
+//!
+//! \brief NewlyUpdatedGridSpacing Grid spacing subscriber to update nodes within the environment
+//!
 void ModuleRTA::NewlyUpdatedGridSpacing() {
     //There is no way this can happen on the local instance
     //updateEnvironment();
@@ -196,6 +206,10 @@ void ModuleRTA::NewlyUpdatedGridSpacing() {
     //    }
 }
 
+//!
+//! \brief NewlyUpdatedGlobalOrigin Subsciber for a new global origin position
+//! \param position Geodetic 3D position
+//!
 void ModuleRTA::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) {
     UNUSED(position);
     //I dont think we have to do this here
@@ -209,6 +223,12 @@ void ModuleRTA::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &
     //    }
 }
 
+//! \brief NewlyUpdatedBoundaryVertices Function partitioning the space using the voronoi
+//! decomposition. The result of the function should be another boundary list notifying external
+//! agents of their appropriately newly assigned resource fence.
+//! \param boundary obj defining the operational fence as defined by an external party. This
+//! will be the space that is actually partitioned into voronoi cells.
+//!
 void ModuleRTA::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary)
 {
     updateEnvironment(boundary);
@@ -236,6 +256,12 @@ void ModuleRTA::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
 
 }
 
+//!
+//! \brief NewlyUpdatedResourceFence Function further generating targets for observation
+//! via the associated agent. This function should only be called for vehicles that are
+//! currently associated locally with the calling instance of MACE.
+//! \param boundary Updated resource fence boundary
+//!
 void ModuleRTA::NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boundary)
 {
     updateEnvironment(boundary);
@@ -245,7 +271,10 @@ void ModuleRTA::NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boun
 //    });
 }
 
-
+//!
+//! \brief NewlyAvailableVehicle Subscriber for a new vehicle topic
+//! \param vehicleID Vehicle ID of the new vehicle
+//!
 void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
 {
     MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), vehicleID);

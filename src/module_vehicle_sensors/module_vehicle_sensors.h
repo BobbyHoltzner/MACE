@@ -69,16 +69,30 @@ public:
     //!
     virtual void NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
-
+    //!
+    //! \brief computeVehicleFootprint Compute the vertices of the camera footprint and notify listeners of updated footprint
+    //! \param systemID Generating system ID
+    //! \param camera Camera properties
+    //! \param globalPosition Position of the vehicle/sensor
+    //! \param attitude Attitude of the vehicle/sensor
+    //!
     void computeVehicleFootprint(const int &systemID, const DataVehicleSensors::SensorCamera &camera, const DataState::StateGlobalPositionEx &globalPosition, const DataState::StateAttitude &attitude);
 
     //! Virtual functions as defined by IModuleCommandSensors
 public:
 
+    //!
+    //! \brief NewlyAvailableVehicle Subscriber to a newly available vehicle topic
+    //! \param vehicleID Vehilce ID of the newly available vehicle
+    //!
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
 private:
+    //!
+    //! \brief cameraSensor Container for camera parameters
+    //!
     DataVehicleSensors::SensorCamera* cameraSensor;
+
 private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<DATA_VEHICLE_SENSORS> m_SensorDataTopic;

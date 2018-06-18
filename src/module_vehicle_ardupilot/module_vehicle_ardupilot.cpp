@@ -24,12 +24,20 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 }
 
 
-
+//!
+//! \brief Provides object contains parameters values to configure module with
+//! \param params Parameters to configure
+//!
 void ModuleVehicleArdupilot::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
     ModuleVehicleMAVLINK::ConfigureModule(params);
 }
 
+//!
+//! \brief MissionAcknowledgement Generate acknowledgement based on mission result
+//! \param missionResult Mission result
+//! \param publishResult Acknowledgement to publish out
+//!
 void ModuleVehicleArdupilot::createLog(const int &systemID)
 {
     std::string logname = this->loggingPath + "/VehicleModule_" + std::to_string(systemID) + ".txt";
@@ -61,6 +69,10 @@ void ModuleVehicleArdupilot::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 /// acknowledgement or an event to take place when calling these items.
 ////////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief Request_FullDataSync Request all data from all systems
+//! \param targetSystem Destination of the data dump receiver
+//!
 void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> objectData = vehicleData->state->GetTopicData();
@@ -68,6 +80,11 @@ void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem, const
     //vehicleData->m_MissionController->requestMission();
 }
 
+//!
+//! \brief Command_SystemArm Command an ARM/DISARM action
+//! \param command ARM/DISARM command
+//! \param sender Generating system
+//!
 void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
@@ -84,6 +101,11 @@ void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &com
     ProgressStateMachineStates();
 }
 
+//!
+//! \brief Command_VehicleTakeoff Command a takeoff action
+//! \param command Takeoff altitude and location
+//! \param sender Generating system
+//!
 void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
@@ -100,6 +122,11 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
     ProgressStateMachineStates();
 }
 
+//!
+//! \brief Command_Land Command a LAND action
+//! \param command Land command
+//! \param sender Generating system
+//!
 void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
@@ -116,6 +143,11 @@ void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &comman
     ProgressStateMachineStates();
 }
 
+//!
+//! \brief Command_ReturnToLaunch command a return to launch action
+//! \param command RTL command
+//! \param sender Generating system
+//!
 void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
@@ -128,6 +160,11 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
     ProgressStateMachineStates();
 }
 
+//!
+//! \brief Command_MissionState Command a mission state request
+//! \param command Mission state request command
+//! \param sender Generating system
+//!
 void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
@@ -168,6 +205,11 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
     */
 }
 
+//!
+//! \brief Command_ChangeSystemMode Command a system mode change
+//! \param command Change mode command
+//! \param sender Generating system
+//!
 void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
@@ -184,6 +226,10 @@ void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionC
     ProgressStateMachineStates();
 }
 
+//!
+//! \brief Command_IssueGeneralCommand Command a general command
+//! \param command General command
+//!
 void ModuleVehicleArdupilot::Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
 {
 
@@ -195,12 +241,20 @@ void ModuleVehicleArdupilot::Command_IssueGeneralCommand(const std::shared_ptr<C
 /// mission queue should prepend this position. Just the way ardupilot works.
 /////////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief Command_GetHomePosition Request a vehicle's home position
+//! \param vehicleID Vehicle ID corresponding to the home position
+//!
 void ModuleVehicleArdupilot::Command_GetHomePosition(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
 //    if((vehicleData) && (vehicleData->getSystemID() == vehicleID))
 //        vehicleData->command->getSystemHome();
 }
 
+//!
+//! \brief Command_SetHomePosition Set a vehicle's home position
+//! \param vehicleHome Vehicle home data
+//!
 void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::stringstream buffer;
@@ -221,6 +275,10 @@ void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialH
 /// direct MACE hardware module.
 /////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief UpdateMissionKey Update the current mission's key
+//! \param key New mission key
+//!
 void ModuleVehicleArdupilot::UpdateMissionKey(const MissionItem::MissionKeyChange &key)
 {
 //    std::shared_ptr<DataARDUPILOT::VehicleObject_ARDUPILOT> tmpData = getArducopterData(key.oldKey.m_systemID);
@@ -232,6 +290,10 @@ void ModuleVehicleArdupilot::UpdateMissionKey(const MissionItem::MissionKeyChang
 //    }
 }
 
+//!
+//! \brief Command_UploadMission Command a mission upload
+//! \param missionList Mission list to upload
+//!
 void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionList &missionList)
 {
     std::stringstream buffer;
@@ -268,12 +330,19 @@ void ModuleVehicleArdupilot::Command_UploadMission(const MissionItem::MissionLis
     }
 }
 
-
+//!
+//! \brief Command_SetCurrentMission Issue a set current mission command
+//! \param key Mission key to set as current mission
+//!
 void ModuleVehicleArdupilot::Command_SetCurrentMission(const MissionItem::MissionKey &key)
 {
     UNUSED(key);
 }
 
+//!
+//! \brief Command_GetCurrentMission Issue a get current mission command
+//! \param targetSystem System asking for the current mission
+//!
 void ModuleVehicleArdupilot::Command_GetCurrentMission(const int &targetSystem)
 {
 //    mavlink_message_t msg;
@@ -281,11 +350,20 @@ void ModuleVehicleArdupilot::Command_GetCurrentMission(const int &targetSystem)
 //    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
+//!
+//! \brief Command_GetMission Request a mission by mission key
+//! \param key Mission key
+//! \param sender System asking for the mission
+//!
 void ModuleVehicleArdupilot::Command_GetMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     UNUSED(key);
 }
 
+//!
+//! \brief Command_ClearCurrentMission Clear the current mission
+//! \param targetSystem System asking for mission cleared
+//!
 void ModuleVehicleArdupilot::Command_ClearCurrentMission(const int &targetSystem)
 {
     UNUSED(targetSystem);
@@ -297,6 +375,10 @@ void ModuleVehicleArdupilot::Command_ClearCurrentMission(const int &targetSystem
 /// MACE HW module, or, vehicles that have timely or ever updating changes.
 ////////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief Command_GetOnboardAuto Request the current onboard auto mission and state
+//! \param targetSystem System asking for auto info
+//!
 void ModuleVehicleArdupilot::Command_GetOnboardAuto(const int &targetSystem)
 {
 //    mavlink_message_t msg;
@@ -304,6 +386,10 @@ void ModuleVehicleArdupilot::Command_GetOnboardAuto(const int &targetSystem)
 //    m_LinkMarshaler->SendMessage<mavlink_message_t>(m_LinkName, msg);
 }
 
+//!
+//! \brief Command_ClearOnboardAuto Clear the current onboard auto mission and state
+//! \param targetSystem System to clear auto info
+//!
 void ModuleVehicleArdupilot::Command_ClearOnboardAuto(const int &targetSystem)
 {
 //    mavlink_message_t msg;
@@ -317,11 +403,19 @@ void ModuleVehicleArdupilot::Command_ClearOnboardAuto(const int &targetSystem)
 /// MACE HW module, or, vehicles that have timely or ever updating changes.
 /////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief Command_GetOnboardGuided Request the current onboard guided state
+//! \param targetSystem System asking for guided info
+//!
 void ModuleVehicleArdupilot::Command_GetOnboardGuided(const int &targetSystem)
 {
     UNUSED(targetSystem);
 }
 
+//!
+//! \brief Command_ClearOnboardGuided Clear the current onboard guided state
+//! \param targetSystem System to clear guided state
+//!
 void ModuleVehicleArdupilot::Command_ClearOnboardGuided(const int &targetSystem)
 {
     UNUSED(targetSystem);
@@ -359,7 +453,12 @@ bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
     return consumed;
 }
 
-
+//!
+//! \brief VehicleHeartbeatInfo Heartbeat message from vehicle
+//! \param linkName Comms link name
+//! \param systemID Vehicle ID generating heartbeat
+//! \param heartbeatMSG Heartbeat message
+//!
 void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
     UNUSED(linkName);
@@ -486,6 +585,11 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     ProgressStateMachineStates();
 }
 
+//!
+//! \brief PublishVehicleData Parent publisher for vehicle data
+//! \param systemID Vehicle ID generating vehicle data
+//! \param components Data components to publish
+//!
 void ModuleVehicleArdupilot::PublishVehicleData(const int &systemID, const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &components)
 {
     if(components.size() > 0)

@@ -116,6 +116,10 @@ public:
     //!
     void NewlyAvailableVehicle(const int &vehicleID) override;
 
+    //!
+    //! \brief NewlyAvailableBoundary Subscriber to a new boundary
+    //! \param key Key corresponding to the updated boundary in the core
+    //!
     void NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key) override;
 
     //!
@@ -177,6 +181,9 @@ private:
     //!
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 
+    //!
+    //! \brief m_VehicleTopics Container for vehicle topics
+    //!
     BaseTopic::VehicleTopics m_VehicleTopics;
 
     // ============================================================================= //

@@ -126,11 +126,19 @@ public:
     ///              MACE COMMANDS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //!
+    //! \brief Command_SystemArm Command an ARM/DISARM action
+    //! \param vehicleArm Arm action
+    //!
     virtual void Command_SystemArm(const CommandItem::ActionArm &vehicleArm)
     {
         UNUSED(vehicleArm);
     }
 
+    //!
+    //!= \brief Command_ChangeSystemMode Command a CHANGE MODE action
+    //! \param vehicleMode Mode to change to
+    //!
     virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode)
     {
         UNUSED(vehicleMode);
@@ -140,6 +148,13 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///              COMM EVENTS
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //!
+    //! \brief VehicleHeartbeatInfo Heartbeat message from vehicle
+    //! \param linkName Comms link name
+    //! \param systemID Vehicle ID generating heartbeat
+    //! \param heartbeatMSG Heartbeat message
+    //!
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
     {
         UNUSED(linkName);
@@ -147,6 +162,12 @@ public:
         UNUSED(heartbeatMSG);
     }
 
+    //!
+    //! \brief MAVLINKCommandAck Acknowledge a MAVLINK command
+    //! \param linkName Comms link name
+    //! \param systemID Vehicle ID generating the ACK
+    //! \param cmdACK ACK message
+    //!
     virtual void MAVLINKCommandAck(const std::string &linkName, const int systemID, const mavlink_command_ack_t &cmdACK)
     {
         UNUSED(linkName);
@@ -196,6 +217,11 @@ public:
     ///Functional Interface required from CallbackInterface_MAVLINKVehicleObject
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //!
+    //! \brief cbi_VehicleStateData Callback tied to Vehicle State Data updates
+    //! \param systemID Vehicle ID generating the state data
+    //! \param data State data
+    //!
     virtual void cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)
     {
         MaceCore::TopicDatagram topicDatagram;
@@ -205,6 +231,11 @@ public:
         });
     }
 
+    //!
+    //! \brief cbi_VehicleMissionData Callback tied to Vehicle Mission data updates
+    //! \param systemID Vehicle ID generating the mission data
+    //! \param data Mission data
+    //!
     virtual void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)
     {
         MaceCore::TopicDatagram topicDatagram;
@@ -214,6 +245,11 @@ public:
         });
     }
 
+    //!
+    //! \brief cbi_VehicleHome Callback tied to Vehicle Home data
+    //! \param systemID Vehicle ID generating the vehicle home data
+    //! \param home Vehicle home position data
+    //!
     virtual void cbi_VehicleHome(const int &systemID, const CommandItem::SpatialHome &home)
     {
     //    std::stringstream buffer;
@@ -235,6 +271,11 @@ public:
         this->cbi_VehicleMissionData(systemID,homeTopic);
     }
 
+    //!
+    //! \brief cbi_VehicleMission Callback tied to vehicle mission updates
+    //! \param systemID Vehicle ID generating the mission
+    //! \param missionList Mission list
+    //!
     virtual void cbi_VehicleMission(const int &systemID, const MissionItem::MissionList &missionList)
     {
     //    std::stringstream buffer;
@@ -255,6 +296,10 @@ public:
         this->cbi_VehicleMissionData(systemID,missionTopic);
     }
 
+    //!
+    //! \brief cbi_VehicleMissionItemCurrent Callback tied to current mission item updates
+    //! \param current Current mission item
+    //!
     virtual void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent &current)
     {
     //    std::stringstream buffer;
@@ -278,6 +323,9 @@ protected:
     BaseTopic::VehicleTopics m_VehicleTopics;
 
 protected:
+    //!
+    //! \brief airborneInstance Flag denoting airborne or ground instance
+    //!
     bool airborneInstance;
 
 //    PointerCollection<

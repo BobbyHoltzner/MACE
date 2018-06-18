@@ -505,7 +505,9 @@ void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialH
     m_toGUIHandler->sendVehicleHome(home.getOriginatingSystem(), home);
 }
 
-
+//!
+//! \brief NewlyAvailableGlobalOrigin Subscriber to a new global origin
+//!
 void ModuleGroundStation::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position)
 {
     std::cout << "Ground Control: New available global origin" << std::endl;
@@ -550,6 +552,10 @@ void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
     }
 }
 
+//!
+//! \brief NewlyAvailableBoundary Subscriber to a new boundary
+//! \param key Key corresponding to the updated boundary in the core
+//!
 void ModuleGroundStation::NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key)
 {
     BoundaryItem::BoundaryList boundary;
