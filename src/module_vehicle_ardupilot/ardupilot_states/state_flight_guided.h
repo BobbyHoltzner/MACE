@@ -61,41 +61,41 @@ private:
 
     ArdupilotTargetProgess guidedProgress;
 
-    void staticCallbackFunction_VehicleTarget(void *p, TargetItem::DynamicTarget &target)
+    static void staticCallbackFunction_VehicleTarget(void *p, TargetItem::DynamicTarget &target)
     {
         std::cout<<"We are in the static callback getting ready to transmit: "<<target.getPosition().getXPosition()<<" "<<target.getPosition().getYPosition()<<" "<<target.getPosition().getZPosition()<<std::endl;
 
-        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+//        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
 
-        auto controllerGuided = new MAVLINKVehicleControllers::ControllerGuidedTargetItem<MAVLINKVehicleControllers::TargetControllerStruct>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
-        controllerGuided->AddLambda_Finished(this, [this, controllerGuided](const bool completed, const uint8_t finishCode){
-            controllerGuided->Shutdown();
+//        auto controllerGuided = new MAVLINKVehicleControllers::ControllerGuidedTargetItem<MAVLINKVehicleControllers::TargetControllerStruct>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+//        controllerGuided->AddLambda_Finished(this, [this, controllerGuided](const bool completed, const uint8_t finishCode){
+//            controllerGuided->Shutdown();
 
-    //        if(!completed || (finishCode != MAV_RESULT_ACCEPTED))
-    //        {
-    //            std::cout<<"The ardupilot rejected this command"<<std::endl;
-    //        }
-        });
+//    //        if(!completed || (finishCode != MAV_RESULT_ACCEPTED))
+//    //        {
+//    //            std::cout<<"The ardupilot rejected this command"<<std::endl;
+//    //        }
+//        });
 
-        controllerGuided->setLambda_Shutdown([this, collection]()
-        {
-            auto ptr = collection->Remove("guidedController");
-            delete ptr;
-        });
+//        controllerGuided->setLambda_Shutdown([this, collection]()
+//        {
+//            auto ptr = collection->Remove("guidedController");
+//            delete ptr;
+//        });
 
-        MaceCore::ModuleCharacteristic targetCharacter;
-        targetCharacter.ID = Owner().getMAVLINKID();
-        targetCharacter.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-        MaceCore::ModuleCharacteristic sender;
-        sender.ID = 255;
-        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+//        MaceCore::ModuleCharacteristic targetCharacter;
+//        targetCharacter.ID = Owner().getMAVLINKID();
+//        targetCharacter.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+//        MaceCore::ModuleCharacteristic sender;
+//        sender.ID = 255;
+//        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-        MAVLINKVehicleControllers::TargetControllerStruct action;
-        action.targetID = targetCharacter.ID;
-        action.target = target;
+//        MAVLINKVehicleControllers::TargetControllerStruct action;
+//        action.targetID = targetCharacter.ID;
+//        action.target = target;
 
-        controllerGuided->Send(action, sender, targetCharacter);
-        collection->Insert("guidedController", controllerGuided);
+//        controllerGuided->Send(action, sender, targetCharacter);
+//        collection->Insert("guidedController", controllerGuided);
 
     }
 };
