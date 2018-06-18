@@ -71,9 +71,6 @@ private:
     std::list<DynamicTargetStorage> targetList;
     unsigned int activeTargetItem = 0;
 
-public:
-    friend std::ostream& operator<<(std::ostream& os, const DynamicTargetList& t);
-
 };
 
 } //end of namespace MissionItem
