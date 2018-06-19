@@ -464,81 +464,6 @@ void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::B
     }
 }
 
-/*
-void MaceCore::Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const std::map<int, mace::geometry::Cell_2DC> &vehicleMap) {
-    m_DataFusion->UpdateVehicleCellMap(vehicleMap);
-
-    std::vector<BoundaryItem::BoundaryList> boundaryList;
-    std::map<int, mace::geometry::Cell_2DC>::const_iterator it = vehicleMap.begin();
-    for(; it!=vehicleMap.end(); ++it)
-    {
-        //this function should check whether the communication module is via external or via direct connect
-        std::map<int, IModuleCommandVehicle*>::iterator portIT = m_VehicleIDToPort.find(it->first);
-        if(portIT != m_VehicleIDToPort.end()){
-            std::map<int, IModuleCommandExternalLink*>::iterator externalLinkIT = m_ExternalLinkIDToPort.find(it->first);
-            if(externalLinkIT != m_ExternalLinkIDToPort.end()) //that mean this exists and there is an external link talking to that ID
-            {
-                IModuleCommandExternalLink* externalModule = externalLinkIT->second;
-                externalModule->MarshalCommand(ExternalLinkCommands::NEW_OPERATIONAL_BOUNDARY, it->first);
-            }
-            else //check the local map or could assume an else coniditon
-            {
-                BoundaryItem::BoundaryList tmpList;
-                tmpList.setCreatorID(sender->GetID()); // Is this correct?
-                tmpList.setVehicleID(it->first);
-                mace::geometry::Cell_2DC tmp;
-                mace::geometry::Polygon_2DC tmpPoly;
-                std::vector<mace::geometry::Position<mace::geometry::CartesianPosition_2D> > cartesianVerts = it->second.getVector();
-                std::vector<DataState::StateGlobalPosition> globalVerts;
-                for(auto&& vertex : cartesianVerts) {
-                    DataState::StateLocalPosition localPositionData;
-                    localPositionData.setX(vertex.getXPosition());
-                    localPositionData.setY(vertex.getYPosition());
-                    DataState::StateGlobalPosition tmpGlobalOrigin;
-                    CommandItem::SpatialHome globalOrigin = m_DataFusion->GetGlobalOrigin();
-
-                    if(globalOrigin.getPosition().has2DPositionSet()) {
-                        tmpGlobalOrigin.setLatitude(globalOrigin.getPosition().getX());
-                        tmpGlobalOrigin.setLongitude(globalOrigin.getPosition().getY());
-                        tmpGlobalOrigin.setAltitude(globalOrigin.getPosition().getZ());
-
-                        DataState::StateGlobalPosition globalPositionData;
-                        DataState::PositionalAid::LocalPositionToGlobal(tmpGlobalOrigin, localPositionData, globalPositionData);
-                        globalVerts.push_back(globalPositionData);
-                    }
-                    else {
-                        std::cout << "No global origin set. Cannot set vehicle boundary vertices." << std::endl;
-                    }
-
-                    tmpPoly.appendVertex(vertex);
-                }
-
-                tmpList.setBoundary(tmpPoly);
-                boundaryList.push_back(tmpList);
-
-                if(globalVerts.size() > 0) {
-                    Event_SetEnvironmentVertices(sender, globalVerts);
-                    //implies that this is local and we need to do something with the nodes
-                    //generate mission and notify new mission
-                }
-            }
-        }
-    }
-
-
-    m_DataFusion->UpdateVehicleBoundaryList(boundaryList);
-
-
-    if(m_PathPlanning) {
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, 0);
-    }
-
-    if(m_GroundStation) {
-        //        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, 0);
-    }
-}
-*/
-
 /////////////////////////////////////////////////////////////////////////////////////////
 /// SPECIFIC VEHICLE EVENTS: These events are associated from IModuleEventsVehicleVehicle
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -928,9 +853,27 @@ void MaceCore::EventPP_LoadOccupancyEnvironment(const ModuleBase *sender, const 
 {
     if(m_DataFusion->loadOccupancyEnvironment(filePath))
     {
+        //we have loaded a new map which means we need to notify everyone
+
         //we dont have to check if PP exists here because we know it has to as it is the caller
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OCCUPANCY_MAP,0);
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP);
     }
+}
+
+void MaceCore::EventPP_LoadOctomapProperties(const ModuleBase *sender, const maps::OctomapSensorDefinition &properties)
+{
+    if(m_DataFusion->updateOctomapProperties(properties))
+    {
+        //we have loaded a new map which means we need to notify everyone
+
+        //we dont have to check if PP exists here because we know it has to as it is the caller
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP);
+    }
+}
+
+void MaceCore::EventPP_LoadMappingProjectionProperties(const ModuleBase *sender, const maps::Octomap2DProjectionDefinition &properties)
+{
+
 }
 
 void MaceCore::Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
@@ -939,6 +882,11 @@ void MaceCore::Event_SetOperationalBoundary(const ModuleBase *sender, const Boun
 
     if(m_RTA) {
         m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
+    }
+
+    if(m_ROS)
+    {
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
     }
 
     if(m_GroundStation) {
@@ -984,6 +932,14 @@ void MaceCore::EventPP_New2DOccupancyMap(const void* sender, const mace::maps::D
 {
     if(m_ROS)
         m_ROS->MarshalCommand(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, map);
+}
+
+void MaceCore::EventPP_NewDynamicMissionQueue(const ModuleBase *sender, const TargetItem::DynamicMissionQueue &queue)
+{
+    UNUSED(sender);
+
+    //int vehicleID = queue.missionKey.m_systemID;
+    //m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::UPDATED_DYNAMIC_MISSION_QUEUE, queue);
 }
 
 void MaceCore::EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path)

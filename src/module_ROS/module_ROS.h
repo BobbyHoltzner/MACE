@@ -8,6 +8,7 @@
 #include <thread>
 
 #include "common/common.h"
+#include "common/background_tasks.h"
 #include "module_ROS_global.h"
 
 #include "mace_core/i_module_command_ROS.h"
@@ -148,7 +149,7 @@ public:
     //! \brief NewlyCompressedOccupancyMap Subscriber to a newly available compressed occupancy map
     //! \param map Compressed occupancy map
     //!
-    void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
+    void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<OccupiedResult> &map) override;
 
     //!
     //! \brief NewlyUpdatedOperationalFence Subscriber to a new operational fence (i.e. global boundary)
@@ -249,7 +250,7 @@ public:
     //! \brief renderOccupancyMap Render occupancy map in RViz
     //! \param tree OcTree to render
     //!
-    void renderOccupancyMap(const octomap::OcTree *tree);
+    void renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree);
 
     //!
     //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz
@@ -383,6 +384,9 @@ private:
     Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;
     Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<MAP_DATA_TOPICS> m_MapTopic;
+
+    BackgroundTasks<std::shared_ptr<mace::maps::Data2DGrid<OccupiedResult> >> m_CompressedMapCalculation;
+    BackgroundTasks<std::shared_ptr<octomap::OcTree>> m_OccupancyMapCalculation;
 };
 
 #endif // MODULE_ROS_H

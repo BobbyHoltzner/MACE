@@ -858,7 +858,7 @@ void ModuleExternalLink::Command_ClearOnboardGuided(const int &targetSystem)
 }
 
 void ModuleExternalLink::NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
-{      
+{
     std::cout << "External link: Newly available boundary" << std::endl;
     BoundaryItem::BoundaryList boundary;
     if(this->getDataObject()->getBoundary(&boundary, key)) {
@@ -868,17 +868,15 @@ void ModuleExternalLink::NewlyAvailableBoundary(const BoundaryItem::BoundaryKey 
             target.ID = boundary.getVehicleID();
             target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-            m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->Send(key, sender(), target);
-
-//            mace_new_boundary_object_t boundaryObj;
-//            boundaryObj.boundary_creator = boundary.getBoundaryKey().m_creatorID;
-//            boundaryObj.boundary_system = boundary.getBoundaryKey().m_systemID; // Is this correct?
-//            boundaryObj.boundary_type = (uint8_t)boundary.getBoundaryKey().m_boundaryType;
-
-//            mace_message_t msg;
-//            mace_msg_new_boundary_object_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &boundaryObj);
-//            //mace_msg_operational_boundary(sender().ID, (int)sender().Class, m_LinkChan,&msg,&boundary);
-//            m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
+            // m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->Send(key, sender(), target);
+            mace_new_boundary_object_t boundaryObj;
+            boundaryObj.boundary_creator = boundary.getBoundaryKey().m_creatorID;
+            boundaryObj.boundary_system = boundary.getBoundaryKey().m_systemID; // Is this correct?
+            boundaryObj.boundary_type = (uint8_t)boundary.getBoundaryKey().m_boundaryType;
+            mace_message_t msg;
+            mace_msg_new_boundary_object_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &boundaryObj);
+            //mace_msg_operational_boundary(sender().ID, (int)sender().Class, m_LinkChan,&msg,&boundary);
+            m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
         }
     }
 }

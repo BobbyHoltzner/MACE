@@ -1,30 +1,8 @@
 #include <QCoreApplication>
 
-#include "base/geometry/polygon_2DC.h"
+#include "data_generic_command_item/command_item_components.h"
 
-#include "base/state_space/discrete_motion_validity_check.h"
-#include "base/state_space/special_validity_check.h"
-#include "base/state_space/cartesian_2D_space.h"
-
-#include "maps/iterators/grid_map_iterator.h"
-#include "maps/iterators/circle_map_iterator.h"
-#include "maps/iterators/polygon_map_iterator.h"
-#include "maps/occupancy_definition.h"
-#include "maps/data_2d_grid.h"
-
-#include <iostream>
-#include <QFile>
-#include <QTextStream>
-#include <QStringList>
-
-#include "planners/rrt_base.h"
-#include "planners/nearest_neighbor_flann.h"
-
-#include "octomap/OcTree.h"
-
-#include "maps/octomap_wrapper.h"
-
-using namespace octomap;
+#include "data_generic_command_item/target_items/dynamic_target_list.h"
 using namespace mace ;
 using namespace geometry;
 
@@ -105,10 +83,33 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
+    std::list<TargetItem::DynamicTargetStorage> targetList;
+
+    TargetItem::DynamicTarget target;
+    mace::pose::CartesianPosition_3D targetPos(1000,1000,-10);
+    target.setPosition(targetPos);
+
+    TargetItem::DynamicTargetStorage targetNew(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+    targetList.push_back(targetNew);
+
+    MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
+
+    TargetItem::DynamicMissionQueue availableQueue(testKey,1);
+
+
+
+    TargetItem::DynamicTargetList* newList = availableQueue.getDynamicTargetList();
+    newList->appendDynamicTarget(target);
+    std::cout<<"New queue available"<<std::endl;
+    //availableQueue.getAssociatedMissionItem();
+    //availableQueue.getDynamicTargetList()->appendDynamicTarget(target);
+
+    /*
     char* MACEPath = getenv("MACE_ROOT");
     std::string rootPath(MACEPath);
     std::string btFile = rootPath + kPathSeparator + "simple_test_000_303030_newOrigin.bt";
     mace::maps::OctomapWrapper octomap;
+
     octomap.loadOctreeFromBT(btFile);
     mace::maps::Data2DGrid<mace::maps::OccupiedResult>* compressedMap = octomap.get2DOccupancyMap();
 
@@ -138,16 +139,24 @@ int main(int argc, char *argv[])
     spaceInfo->setMotionValidityCheck(motionCheck);
 
     mace::planners_sampling::RRTBase rrt(spaceInfo);
-    mace::state_space::GoalState* begin = new mace::state_space::GoalState(space);
-    begin->setState(new mace::pose::CartesianPosition_2D(14,-14.75));
-    mace::state_space::GoalState* end = new mace::state_space::GoalState(space,1.0);
-    end->setState(new mace::pose::CartesianPosition_2D(14,7.5));
-    end->setRadialRegion(1.0);
 
-    rrt.setPlanningParameters(begin,end);
+    mace::pose::CartesianPosition_2D beginPose(14, -14.75);
+    mace::pose::CartesianPosition_2D endPose(14, 7.5);
+
+    mace::state_space::GoalState begin(space);
+    begin.setState(&beginPose);
+
+    mace::state_space::GoalState end(space, 1.0);
+    end.setState(&endPose);
+    end.setRadialRegion(1.0);
+
+
+
+    rrt.setPlanningParameters(&begin, &end);
 
     rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
     //rrt.setCallbackFunction(this);
+
     std::vector<mace::state_space::State*> solution = rrt.solve();
     std::vector<mace::state_space::StatePtr> smartSolution;
     smartSolution.resize(solution.size());
@@ -159,5 +168,11 @@ int main(int argc, char *argv[])
         smartSolution.at(i) = state;
         std::cout<<"X: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
     }
-    return a.exec();
+
+    for (int i = 0; i < solution.size(); i++)
+    {
+        delete solution.at(i);
+    }
+    */
+    return 0;
 }

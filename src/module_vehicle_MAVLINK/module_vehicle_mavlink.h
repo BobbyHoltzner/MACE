@@ -213,6 +213,10 @@ public:
         UNUSED(vehicleID);
     }
 
+    virtual void UpdateDynamicMissionQueue(const TargetItem::DynamicMissionQueue &queue)
+    {
+        UNUSED(queue);
+    }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///Functional Interface required from CallbackInterface_MAVLINKVehicleObject
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -236,7 +240,7 @@ public:
     //! \param systemID Vehicle ID generating the mission data
     //! \param data Mission data
     //!
-    virtual void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)
+    virtual void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data) const
     {
         MaceCore::TopicDatagram topicDatagram;
         m_VehicleMissionTopic.SetComponent(data, topicDatagram);
@@ -300,7 +304,7 @@ public:
     //! \brief cbi_VehicleMissionItemCurrent Callback tied to current mission item updates
     //! \param current Current mission item
     //!
-    virtual void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent &current)
+    virtual void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent &current) const
     {
     //    std::stringstream buffer;
     //    buffer << current.getMissionKey();

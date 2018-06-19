@@ -25,9 +25,15 @@ bool DiscreteMotionValidityCheck::isValid(const State *begin, const State *end) 
 
     for(double i = interval; i < 1.0; i=i+interval)
     {
-        m_stateSpace->interpolateStates(begin,end,i,&intervalState);
+        //building new interval state, so delete old one
+        m_stateSpace->removeState(intervalState);
+
+        m_stateSpace->interpolateStates(begin, end, i, &intervalState);
         if(!m_StateCheck->isValid(intervalState))
+        {
+            m_stateSpace->removeState(intervalState);
             return false;
+        }
     }
     m_stateSpace->removeState(intervalState);
     return true;

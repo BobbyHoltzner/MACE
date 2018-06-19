@@ -42,6 +42,7 @@ namespace ExternalLink{
         receiveQueueObj = key;
         respondQueueObj = key;
 
+        //MTB - set vehicleObj to module containing the boundary. Should be encoded in the boundary key.
         vehicleObj.ID = key.m_systemID;
         vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 

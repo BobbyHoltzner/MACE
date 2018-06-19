@@ -133,6 +133,11 @@ public:
 
     void scale(const double &value);
 
+    bool hasBeenSet() const override
+    {
+        return hasXBeenSet() || hasYBeenSet();
+    }
+
     //!
     //! \brief distanceFromOrigin
     //! \return

@@ -271,7 +271,7 @@ public:
     //! \brief UpdateMissionKey Update the current mission's key
     //! \param key New mission key
     //!
-    virtual void UpdateMissionKey(const MissionItem::MissionKeyChange &key);
+    void UpdateMissionKey(const MissionItem::MissionKeyChange &key) override;
 
 
     /////////////////////////////////////////////////////////////////////////////

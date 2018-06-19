@@ -5,25 +5,51 @@
 namespace mace {
 namespace planners_sampling{
 
+//!
+//! \brief A Node in a tree
+//! The node contains a state and a pointer to a parent.
+//!
 class RootNode
 {
 public:
+
+    //!
+    //! \brief Constructor that creates a new State
+    //! \param stateSpace Space that states can exists in
+    //!
     RootNode(const state_space::StateSpacePtr &stateSpace):
         currentState(stateSpace->getNewState()), parentNode(nullptr)
     {
 
     }
 
-    RootNode(state_space::State* state):
-        currentState(state), parentNode(nullptr)
+    //!
+    //! \brief Contructor that copies an existing state
+    //! \param state State to copy
+    //!
+    RootNode(const state_space::State &state):
+        currentState(state.getClone()), parentNode(nullptr)
     {
 
     }
 
-    ~RootNode() = default; //we do not have to destroy anything here as we did not new the states
+    ~RootNode()
+    {
+        delete currentState;
+    }
 
 public:
-    void setCurrentState(state_space::State* state) { this->currentState = state; }
+
+    //!
+    //! \brief Sets a new current state for this node.
+    //! \param state State to copy and assign
+    //!
+    void setCurrentState(const state_space::State &state) {
+
+        state_space::State* tmp = this->currentState;
+        this->currentState = state.getClone();
+        delete tmp;
+    }
     void setParentNode(RootNode* node) { this->parentNode = node; }
 
     state_space::State* getCurrentState()const { return this->currentState; }

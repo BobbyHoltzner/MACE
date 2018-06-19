@@ -17,6 +17,8 @@
 
 #include <limits>
 
+#include <ctime>
+
 
 //!
 //! \brief ModuleROS Default constructor
@@ -25,7 +27,11 @@ ModuleROS::ModuleROS() :
     MaceCore::IModuleCommandROS(),
     m_PlanningStateTopic("planningState"),
     m_VehicleDataTopic("vehicleData"),
-    m_MapTopic("mappingData")
+    m_MapTopic("mappingData"),
+    #ifdef ROS_EXISTS
+        m_OccupancyMapCalculation([this](const std::shared_ptr<octomap::OcTree> &tree){this->renderOccupancyMap(tree);}),
+    #endif
+    m_CompressedMapCalculation([this](const std::shared_ptr<mace::maps::Data2DGrid<mace::maps::OccupiedResult>> &map){this->NewlyCompressedOccupancyMap(*map);})
 {
     //m_tfListener = std::make_shared<tf2_ros::TransformListener>(m_tfBuffer);
 }
@@ -230,9 +236,11 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 void ModuleROS::NewlyUpdated3DOccupancyMap()
 {
 #ifdef ROS_EXISTS
-    octomap::OcTree tree = this->getDataObject()->getOccupancyGrid3D();
-    this->renderOccupancyMap(&tree);
-    this->NewlyCompressedOccupancyMap(this->getDataObject()->getCompressedOccupancyGrid2D());
+    std::shared_ptr<octomap::OcTree> tree = std::make_shared<octomap::OcTree>(this->getDataObject()->getOccupancyGrid3D());
+    m_OccupancyMapCalculation.NewTasks(tree);
+
+    std::shared_ptr<mace::maps::Data2DGrid<OccupiedResult> > data = std::make_shared<mace::maps::Data2DGrid<OccupiedResult>>(this->getDataObject()->getCompressedOccupancyGrid2D());
+    m_CompressedMapCalculation.NewTasks(data);
 #endif
 }
 
@@ -468,14 +476,14 @@ void ModuleROS::setupROS() {
     occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",10);
     // END TESTING
     markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",10);
-    operationalBoundaryPub = nh.advertise<visualization_msgs::Marker>("operational_boundary_marker",10);
+    operationalBoundaryPub = nh.advertise<visualization_msgs::Marker>("operational_boundary_marker",1);
 
     // %Tag(MARKER_INIT)%
-    points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = path_list.header.frame_id;
-    points.header.stamp = line_strip.header.stamp = line_list.header.stamp = path_list.header.stamp = ros::Time::now();
-    points.ns = line_strip.ns = line_list.ns =  path_list.ns = "points_and_lines";
-    points.action = line_strip.action = line_list.action = path_list.action = visualization_msgs::Marker::ADD;
-    points.pose.orientation.w = line_strip.pose.orientation.w = line_list.pose.orientation.w = path_list.pose.orientation.w = 1.0;
+    points.header.frame_id = line_strip.header.frame_id = line_list.header.frame_id = path_list.header.frame_id=boundary_list.header.frame_id = "world";
+    points.header.stamp = line_strip.header.stamp = line_list.header.stamp = path_list.header.stamp = boundary_list.header.stamp = ros::Time::now();
+    points.ns = line_strip.ns = line_list.ns =  path_list.ns = boundary_list.ns = "points_and_lines";
+    points.action = line_strip.action = line_list.action = path_list.action = boundary_list.action = visualization_msgs::Marker::ADD;
+    points.pose.orientation.w = line_strip.pose.orientation.w = line_list.pose.orientation.w = path_list.pose.orientation.w = boundary_list.pose.orientation.w = 1.0;
     // %EndTag(MARKER_INIT)%
 
     // %Tag(ID)%
@@ -503,7 +511,7 @@ void ModuleROS::setupROS() {
     line_strip.scale.x = 0.05;
     line_list.scale.x = 0.05;
     path_list.scale.x = 0.05;
-    boundary_list.scale.x = 0.05;
+    boundary_list.scale.x = 0.5;
     // %EndTag(SCALE)%
 
     // %Tag(COLOR)%
@@ -525,8 +533,6 @@ void ModuleROS::setupROS() {
 
     // Boundary list is white
     boundary_list.color.r = 1.0;
-    boundary_list.color.g = 1.0;
-    boundary_list.color.b = 1.0;
     boundary_list.color.a = 1.0;
 
     // %EndTag(COLOR)%
@@ -687,10 +693,15 @@ void ModuleROS::newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& ms
 //! \brief renderOccupancyMap Render occupancy map in RViz
 //! \param tree OcTree to render
 //!
-void ModuleROS::renderOccupancyMap(const octomap::OcTree* tree)
+void ModuleROS::renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree)
 {
     if(tree->size() > 0)
     {
+        double minX, minY, minZ, maxX, maxY, maxZ;
+
+        tree->getMetricMin(minX, minY, minZ);
+        tree->getMetricMax(maxX, maxY, maxZ);
+
         visualization_msgs::MarkerArray occupiedVoxels;
         occupiedVoxels.markers.resize(tree->getTreeDepth() + 1);
         for (octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end(); it != end; ++it)
@@ -699,12 +710,6 @@ void ModuleROS::renderOccupancyMap(const octomap::OcTree* tree)
             {
                 unsigned int leafIndex = it.getDepth();
 
-                double size = it.getSize();
-
-                double minX, minY, minZ, maxX, maxY, maxZ;
-
-                tree->getMetricMin(minX, minY, minZ);
-                tree->getMetricMax(maxX, maxY, maxZ);
                 geometry_msgs::Point cube;
                 cube.x = it.getX();
                 cube.y = it.getY();
@@ -729,6 +734,7 @@ void ModuleROS::renderOccupancyMap(const octomap::OcTree* tree)
         occupancyMapPub.publish(occupiedVoxels);
     }
 }
+
 
 //!
 //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz

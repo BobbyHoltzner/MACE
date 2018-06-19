@@ -141,6 +141,11 @@ public:
 
 public:
 
+    bool hasBeenSet() const override
+    {
+        return hasXBeenSet() || hasYBeenSet() || hasZBeenSet();
+    }
+
     //!
     //! \brief distanceFromOrigin
     //! \return

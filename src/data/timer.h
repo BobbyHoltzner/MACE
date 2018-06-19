@@ -21,6 +21,12 @@ public:
         m_bRunning = false;
     }
 
+    void reset()
+    {
+        m_StartTime = std::chrono::system_clock::now();
+        m_bRunning = true;
+    }
+
     double elapsedMilliseconds()
     {
         std::chrono::time_point<std::chrono::system_clock> endTime;

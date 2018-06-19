@@ -16,7 +16,7 @@ public:
 
     virtual void run() = 0;
 
-    void start() {
+    virtual void start() {
         stop();
         mToExit = false;
         mThread = new std::thread([this]()
