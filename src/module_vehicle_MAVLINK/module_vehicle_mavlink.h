@@ -235,16 +235,12 @@ public:
         });
     }
 
-<<<<<<< HEAD
     //!
     //! \brief cbi_VehicleMissionData Callback tied to Vehicle Mission data updates
     //! \param systemID Vehicle ID generating the mission data
     //! \param data Mission data
     //!
-    virtual void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data)
-=======
     virtual void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data) const
->>>>>>> origin/A_Star
     {
         MaceCore::TopicDatagram topicDatagram;
         m_VehicleMissionTopic.SetComponent(data, topicDatagram);
@@ -304,15 +300,11 @@ public:
         this->cbi_VehicleMissionData(systemID,missionTopic);
     }
 
-<<<<<<< HEAD
     //!
     //! \brief cbi_VehicleMissionItemCurrent Callback tied to current mission item updates
     //! \param current Current mission item
     //!
-    virtual void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent &current)
-=======
     virtual void cbi_VehicleMissionItemCurrent(const MissionItem::MissionItemCurrent &current) const
->>>>>>> origin/A_Star
     {
     //    std::stringstream buffer;
     //    buffer << current.getMissionKey();

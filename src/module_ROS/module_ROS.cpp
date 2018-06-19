@@ -28,7 +28,9 @@ ModuleROS::ModuleROS() :
     m_PlanningStateTopic("planningState"),
     m_VehicleDataTopic("vehicleData"),
     m_MapTopic("mappingData"),
-    m_OccupancyMapCalculation([this](const std::shared_ptr<octomap::OcTree> &tree){this->renderOccupancyMap(tree);}),
+    #ifdef ROS_EXISTS
+        m_OccupancyMapCalculation([this](const std::shared_ptr<octomap::OcTree> &tree){this->renderOccupancyMap(tree);}),
+    #endif
     m_CompressedMapCalculation([this](const std::shared_ptr<mace::maps::Data2DGrid<mace::maps::OccupiedResult>> &map){this->NewlyCompressedOccupancyMap(*map);})
 {
     //m_tfListener = std::make_shared<tf2_ros::TransformListener>(m_tfBuffer);
