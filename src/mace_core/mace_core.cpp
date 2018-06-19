@@ -435,7 +435,7 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const GeodeticPosition_
 
 void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
 {
-    m_DataFusion->updateBoundary(boundary);
+//    m_DataFusion->updateBoundary(boundary);
 
 //    if((sender->ModuleClass() != ModuleClasses::PATH_PLANNING) &&
 //            (boundary.getBoundaryType() == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE)) {
@@ -450,18 +450,23 @@ void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::B
 //        }
 //    }
 
-    if(m_ExternalLink.size() > 0)
-    {
-        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
-        {
-            if(it->get() == sender)
-            {
-                continue;
-            }
-
-            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY, boundary.getBoundaryKey(), sender->GetCharacteristic());
-        }
+    if(m_GroundStation && m_GroundStation.get() == sender) {
+        // If GCS, call Event_SetOperationalBoundary
+        this->Event_SetOperationalBoundary(sender, boundary);
     }
+
+//    if(m_ExternalLink.size() > 0)
+//    {
+//        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+//        {
+//            if(it->get() == sender)
+//            {
+//                continue;
+//            }
+
+//            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY, boundary.getBoundaryKey(), sender->GetCharacteristic());
+//        }
+//    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
