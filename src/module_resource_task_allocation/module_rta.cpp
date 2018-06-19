@@ -45,6 +45,8 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurati
     environmentParams->AddTerminalParameters("GridSpacing", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
     structure.AddNonTerminal("EnvironmentParameters", environmentParams, true);
 
+    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, true);
+
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
 
@@ -55,6 +57,8 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleRTA::ModuleConfigurati
 //!
 void ModuleRTA::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
+
+    this->SetID(params->GetTerminalValue<int>("ID"));
 
     if(params->HasNonTerminal("ModuleParameters"))
     {
