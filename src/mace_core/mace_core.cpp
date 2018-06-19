@@ -763,10 +763,19 @@ void MaceCore::ExternalEvent_FinishedRXBoundaryList(const void *sender, const Bo
 
     if(m_PathPlanning) {
         // Marshal command for new boundary list
+        if(type == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE) {
+            m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundaryList);
+        }
     }
 
     if(m_RTA) {
         // Marshal command for new boundary list
+        if(type == BoundaryItem::BOUNDARYTYPE::RESOURCE_FENCE) {
+            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_RESOURCE_FENCE, boundaryList);
+        }
+        if(type == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE) {
+            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundaryList);
+        }
     }
 }
 

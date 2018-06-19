@@ -267,6 +267,9 @@ void ModuleRTA::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
 void ModuleRTA::NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boundary)
 {
     updateEnvironment(boundary);
+
+    std::cout << "Update MACE core with targets from RTA" << std::endl;
+
     //in this instance we would want to publish more of the required resource points
 //    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
         //ptr->SOMETHING ABOUT TARGETS(this, m_vehicleCells);
