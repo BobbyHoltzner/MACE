@@ -174,11 +174,14 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_new_boundary_object_t decodedMSG;
         mace_msg_new_boundary_object_decode(message,&decodedMSG);
         BoundaryItem::BoundaryKey key(decodedMSG.boundary_system, decodedMSG.boundary_creator, (BoundaryItem::BOUNDARYTYPE)decodedMSG.boundary_type);
-        MaceCore::ModuleCharacteristic sender;
-        sender.ID = key.m_systemID;
-        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
         std::cout << "Got to other side before request boundary" << std::endl;
-        this->RequestBoundary(key, sender);
+        ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+            ptr->ExternalEvent_NewBoundary(this, key);
+        });
+
+
+
         break;
     }
     case MACE_MSG_ID_STATUSTEXT:

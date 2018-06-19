@@ -175,6 +175,8 @@ public:
 
     virtual void ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission);
 
+    virtual void ExternalEvent_NewBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryKey &key);
+
     virtual void ExternalEvent_FinishedRXBoundaryList(const void *sender, const BoundaryItem::BoundaryList &boundaryList);
 
 public:

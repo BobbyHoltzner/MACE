@@ -25,6 +25,7 @@ namespace MaceCore
 enum class ExternalLinkCommands
 {
     BASE_MODULE_VEHICLE_LISTENER_ENUMS,
+    REQUEST_BOUNDARY,
     NEWLY_AVAILABLE_ONBOARD_MISSION,
     NEW_MISSION_EXE_STATE,
     NEWLY_AVAILABLE_HOME_POSITION,
@@ -76,6 +77,10 @@ public:
             ReceivedMissionACK(ack);
         });
 
+        AddCommandLogic<BoundaryItem::BoundaryKey>(ExternalLinkCommands::REQUEST_BOUNDARY, [this](const BoundaryItem::BoundaryKey &key, const OptionalParameter<ModuleCharacteristic> &sender){
+            Command_GetBoundary(key, sender);
+        });
+
     }
 
     virtual ModuleClasses ModuleClass() const
@@ -96,6 +101,9 @@ public:
     virtual void NewlyAvailableModule(const ModuleCharacteristic &module) = 0;
 
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack) = 0;
+
+    virtual void Command_GetBoundary(const BoundaryItem::BoundaryKey &key, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
+
 
 };
 

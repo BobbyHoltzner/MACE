@@ -798,6 +798,20 @@ void ModuleExternalLink::Command_GetMission(const MissionItem::MissionKey &key, 
     m_Controllers.Retreive<ExternalLink::ControllerMission>()->RequestMission(key, sender(), target);
 }
 
+
+void ModuleExternalLink::Command_GetBoundary(const BoundaryItem::BoundaryKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
+{
+    //MTB - TEMPORARY
+    //read the target module from key
+    //In this case I know that the RTA module that is interested in the same computer with this GS module
+    MaceCore::ModuleCharacteristic target;
+    target.ID = 1;
+    target.Class = MaceCore::ModuleClasses::GROUND_STATION;
+
+//    m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->Send(key, sender(), target);
+    m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->RequestBoundary(key, sender(), target);
+}
+
 void ModuleExternalLink::Command_SetCurrentMission(const MissionItem::MissionKey &key)
 {
     //    mace_message_t msg;
@@ -1085,13 +1099,4 @@ void ModuleExternalLink::NewTopicSpooled(const std::string &topicName, const Mac
             }
         }
     }//end of if airborne instance
-}
-
-void ModuleExternalLink::RequestBoundary(const BoundaryKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender) {
-    MaceCore::ModuleCharacteristic target;
-    target.ID = key.m_creatorID;
-    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-
-//    m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->Send(key, sender(), target);
-    m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->RequestBoundary(key, sender(), target);
 }

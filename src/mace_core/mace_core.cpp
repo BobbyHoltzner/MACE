@@ -755,6 +755,7 @@ void MaceCore::ExternalEvent_MissionACK(const void* sender, const MissionItem::M
 
 void MaceCore::ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission)
 {
+    //If we have an GS module, assume it is interested in downloading mission and request external link to download mission from aircraft
     if(m_GroundStation != NULL)
     {
         ModuleCharacteristic requestFrom;
@@ -764,6 +765,25 @@ void MaceCore::ExternalEvent_NewOnboardMission(const ModuleBase *sender, const M
         if(sender->ModuleClass() == ModuleClasses::EXTERNAL_LINK)
         {
             ((IModuleCommandExternalLink*)sender)->MarshalCommand(ExternalLinkCommands::REQUEST_MISSION, mission, requestFrom);
+        }
+    }
+}
+
+void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryKey &key)
+{
+    //If we have an RTA module, assume it is interested in downloading the boundary and request external link for boundary
+    if(m_RTA != NULL)
+    {
+        //TEMPORARY
+        //pull from key, this should probably be the key to the RTA module. i.e. m_RTA->GetCharacterisic()
+        //In this case I know that the RTA module that is interested in the same computer with this vehicle.
+        ModuleCharacteristic requestFrom;
+        requestFrom.ID = 1;
+        requestFrom.Class = ModuleClasses::VEHICLE_COMMS;
+
+        if(sender->ModuleClass() == ModuleClasses::EXTERNAL_LINK)
+        {
+            ((IModuleCommandExternalLink*)sender)->MarshalCommand(ExternalLinkCommands::REQUEST_BOUNDARY, key, requestFrom);
         }
     }
 }

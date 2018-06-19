@@ -371,10 +371,9 @@ public:
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey);
     virtual void NewlyAvailableModule(const MaceCore::ModuleCharacteristic &module);
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
+    virtual void Command_GetBoundary(const BoundaryItem::BoundaryKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
 private:
-
-    void RequestBoundary(const BoundaryItem::BoundaryKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
 
