@@ -108,6 +108,7 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         localPosition.setPositionX(decodedMSG.x);
         localPosition.setPositionY(decodedMSG.y);
         localPosition.setPositionZ(decodedMSG.z);
+        localPosition.setCoordinateFrame(Data::CoordinateFrameType::CF_LOCAL_NED);
 
         if(state->vehicleLocalPosition.set(localPosition))
         {

@@ -80,6 +80,12 @@ bool State_FlightGuided::handleCommand(const AbstractCommandItem* command)
             {
                 //std::lock_guard<std::mutex> guard(MUTEXTargetQueue);
                 DataState::StateLocalPosition CP = Owner().state->vehicleLocalPosition.get();
+                //first we need to rotate this if it is applicable
+                if(CP.getCoordinateFrame() == Data::CoordinateFrameType::CF_LOCAL_NED)
+                {
+                    CP.setPosition(CP.getY(),CP.getX(),-CP.getZ());
+                    CP.setCoordinateFrame(Data::CoordinateFrameType::CF_LOCAL_ENU);
+                }
                 mace::pose::CartesianPosition_3D currentPosition(CP.getPositionX(),CP.getPositionY(),CP.getPositionZ());
                 //std::cout<<"The current position here is: "<<CP.getPositionX()<<" "<<CP.getPositionY()<<std::endl;
                 unsigned int currentTargetIndex = currentQueue->getDynamicTargetList()->getActiveTargetItem();
@@ -97,9 +103,21 @@ bool State_FlightGuided::handleCommand(const AbstractCommandItem* command)
         TargetItem::DynamicMissionQueue availableQueue(testKey,1);
 
         TargetItem::CartesianDynamicTarget target;
-        target.setPosition(mace::pose::CartesianPosition_3D(1000,1000,100));
-
+        target.setPosition(mace::pose::CartesianPosition_3D(0,100,15));
         availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+        target.setPosition(mace::pose::CartesianPosition_3D(100,100,15));
+        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+        target.setPosition(mace::pose::CartesianPosition_3D(100,-100,15));
+        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+        target.setPosition(mace::pose::CartesianPosition_3D(-100,-100,15));
+        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+        target.setPosition(mace::pose::CartesianPosition_3D(-100,100,15));
+        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
         Owner().mission->currentDynamicQueue.set(availableQueue);
 
         break;
@@ -185,6 +203,7 @@ void State_FlightGuided::handleGuidedState(const mace::pose::CartesianPosition_3
         const TargetItem::CartesianDynamicTarget* newTarget = currentQueue->getDynamicTargetList()->markCompletionState(currentTargetIndex,TargetItem::DynamicTargetStorage::TargetCompletion::COMPLETE);
         if(newTarget == nullptr)
         {
+            std::cout<<"The are no more points in the queue"<<std::endl;
             //if there are no more points in the queue this mission item is completed
             MissionItem::MissionItemAchieved achievement(currentQueue->getAssociatedMissionKey(),currentQueue->getAssociatedMissionItem());
             std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>(achievement);
@@ -192,8 +211,14 @@ void State_FlightGuided::handleGuidedState(const mace::pose::CartesianPosition_3
         }
         else //there is a new target
         {
+            std::cout<<"The is another point in the queue"<<std::endl;
             unsigned int currentTargetIndex = currentQueue->getDynamicTargetList()->getActiveTargetItem();
             const TargetItem::CartesianDynamicTarget* target = currentQueue->getDynamicTargetList()->getTargetPointerAtIndex(currentTargetIndex);
+
+            //update the people that we have a new target
+            guidedTimeout->updateTarget(*target);
+            this->cbiArdupilotTimeout_TargetLocal(*target);
+
             double distance = currentPosition.distanceBetween3D(target->getPosition());
             Data::ControllerState guidedState = guidedProgress.newTargetItem(distance);
             handleGuidedState(currentPosition, currentTargetIndex, guidedState, distance);

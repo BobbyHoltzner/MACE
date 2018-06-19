@@ -8,11 +8,21 @@ namespace MAVLINKVehicleControllers {
         TargetItem::CartesianDynamicTarget targetItem = targetStruct.target;
 
         mace::pose::CartesianPosition_3D targetPosition = targetItem.getPosition();
+        if(targetPosition.getCoordinateFrame() == CoordinateFrame::CF_LOCAL_ENU)
+        {
+            mavlinkItem.x = targetPosition.getYPosition();
+            mavlinkItem.y = targetPosition.getXPosition();
+            mavlinkItem.z = -targetPosition.getZPosition();
+        }
+        else if(targetPosition.getCoordinateFrame() == CoordinateFrame::CF_LOCAL_NED)
+        {
+            mavlinkItem.x = targetPosition.getXPosition();
+            mavlinkItem.y = targetPosition.getYPosition();
+            mavlinkItem.z = targetPosition.getZPosition();
+        }
         mace::pose::CartesianVelocity_3D targetVelocity = targetItem.getVelocity();
 
-        mavlinkItem.x = targetPosition.getXPosition();
-        mavlinkItem.y = targetPosition.getYPosition();
-        mavlinkItem.z = -targetPosition.getZPosition();
+
         mavlinkItem.vx = targetVelocity.getXVelocity();
         mavlinkItem.vy = targetVelocity.getYVelocity();
         mavlinkItem.vz = targetVelocity.getZVelocity();
