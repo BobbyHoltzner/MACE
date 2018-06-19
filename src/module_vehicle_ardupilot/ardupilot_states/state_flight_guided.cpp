@@ -6,7 +6,7 @@ namespace state{
 State_FlightGuided::State_FlightGuided():
     AbstractStateArdupilot(), guidedTimeout(nullptr), currentQueue(nullptr)
 {
-    guidedTimeout = new GuidedTimeoutController(this, 10000);
+    guidedTimeout = new GuidedTimeoutController(this, 1000);
     std::cout<<"We are in the constructor of STATE_FLIGHT_GUIDED"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_FLIGHT_GUIDED;
     desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_GUIDED;
@@ -14,11 +14,19 @@ State_FlightGuided::State_FlightGuided():
 
 void State_FlightGuided::OnExit()
 {
+    guidedTimeout->stop();
+    delete guidedTimeout;
+
     Owner().state->vehicleLocalPosition.RemoveNotifier(this);
     Owner().mission->currentDynamicQueue.RemoveNotifier(this);
 
-    guidedTimeout->stop();
-    delete guidedTimeout;
+    Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+//    auto globalPtr = static_cast<MAVLINKVehicleControllers::ControllerGuidedTargetItem_Global<MAVLINKVehicleControllers::TargetControllerStructGlobal>*>(collection->At("globalGuidedController"));
+//    if(globalPtr != nullptr)
+//        globalPtr->Shutdown();
+    auto localPtr = static_cast<MAVLINKVehicleControllers::ControllerGuidedTargetItem_Local<MAVLINKVehicleControllers::TargetControllerStructLocal>*>(collection->At("localGuidedController"));
+    if(localPtr != nullptr)
+        localPtr->Shutdown();
 
     delete currentQueue;
 }
@@ -108,6 +116,43 @@ void State_FlightGuided::Update()
 
 void State_FlightGuided::OnEnter()
 {
+    Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+
+    //The following code is how we eventaully would like this to perform
+    //However, there are current inconsistencies in the ardupilot branch
+    //about what/how this functions and as well as the report of it
+    //For now we are going to take a different route here
+
+    //let us get the controllers ready for transmitting
+//    auto controllerGuided_Global = new MAVLINKVehicleControllers::ControllerGuidedTargetItem_Global<MAVLINKVehicleControllers::TargetControllerStructGlobal>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+//    controllerGuided_Global->AddLambda_Finished(this, [this, controllerGuided_Global](const bool completed, const uint8_t finishCode){
+//        if(!completed)
+//        {
+//            std::cout<<"The ardupilot rejected this command."<<std::endl;
+//        }
+//        else
+//        {
+//            std::cout<<"The ardupilot is heading towards the target."<<std::endl;
+//        }
+//    });
+
+//    controllerGuided_Global->setLambda_Shutdown([this, collection]()
+//    {
+//        auto ptr = collection->Remove("globalGuidedController");
+//        delete ptr;
+//    });
+
+//    collection->Insert("globalGuidedController", controllerGuided_Global);
+
+    auto controllerGuided_Local = new MAVLINKVehicleControllers::ControllerGuidedTargetItem_Local<MAVLINKVehicleControllers::TargetControllerStructLocal>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+    controllerGuided_Local->setLambda_Shutdown([this, collection]()
+    {
+        auto ptr = collection->Remove("localGuidedController");
+        delete ptr;
+    });
+
+    collection->Insert("localGuidedController", controllerGuided_Local);
+
 
 }
 
@@ -126,7 +171,9 @@ void State_FlightGuided::initializeNewTargetList()
 
     unsigned int activeTargetIndex = currentQueue->getDynamicTargetList()->getActiveTargetItem();
     const TargetItem::CartesianDynamicTarget target = *currentQueue->getDynamicTargetList()->getNextIncomplete();
+
     guidedTimeout->updateTarget(target);
+    this->cbiArdupilotTimeout_TargetLocal(target);
 }
 
 void State_FlightGuided::handleGuidedState(const mace::pose::CartesianPosition_3D currentPosition, const unsigned int currentTargetIndex,
@@ -143,7 +190,7 @@ void State_FlightGuided::handleGuidedState(const mace::pose::CartesianPosition_3
             std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>(achievement);
             Owner().getCallbackInterface()->cbi_VehicleMissionData(Owner().getMAVLINKID(),ptrMissionTopic);
         }
-        else
+        else //there is a new target
         {
             unsigned int currentTargetIndex = currentQueue->getDynamicTargetList()->getActiveTargetItem();
             const TargetItem::CartesianDynamicTarget* target = currentQueue->getDynamicTargetList()->getTargetPointerAtIndex(currentTargetIndex);
@@ -157,20 +204,24 @@ void State_FlightGuided::handleGuidedState(const mace::pose::CartesianPosition_3
     {
         if(Owner().mission->vehicleHomePosition.hasBeenSet())
         {
-            //these items are going to be in the local coordinate frame relative to the vehicle home
-            CommandItem::SpatialHome home = Owner().mission->vehicleHomePosition.get();
-            mace::pose::GeodeticPosition_3D homePos(home.getPosition().getX(),home.getPosition().getY(),home.getPosition().getZ());
             const TargetItem::CartesianDynamicTarget* target = currentQueue->getDynamicTargetList()->getTargetPointerAtIndex(currentTargetIndex);
-
-            GeodeticPosition_3D targetPosition;
-            DynamicsAid::LocalPositionToGlobal(homePos,target->getPosition(),targetPosition);
-            Base3DPosition targetPositionCast(targetPosition.getLatitude(),targetPosition.getLongitude(),targetPosition.getAltitude());
-            targetPositionCast.setCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT);
-            MissionTopic::VehicleTargetTopic currentTarget(Owner().getMAVLINKID(),targetPositionCast, targetDistance);
-            Owner().callTargetCallback(currentTarget);
+            announceTargetState(*target,targetDistance);
         }
 
     }
+}
+
+void State_FlightGuided::announceTargetState(const TargetItem::CartesianDynamicTarget &target, const double &targetDistance)
+{
+    CommandItem::SpatialHome home = Owner().mission->vehicleHomePosition.get();
+    mace::pose::GeodeticPosition_3D homePos(home.getPosition().getX(),home.getPosition().getY(),home.getPosition().getZ());
+    mace::pose::GeodeticPosition_3D targetPos;
+    DynamicsAid::LocalPositionToGlobal(homePos,target.getPosition(),targetPos);
+
+    Base3DPosition targetPositionCast(targetPos.getLatitude(),targetPos.getLongitude(),targetPos.getAltitude());
+    targetPositionCast.setCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT);
+    MissionTopic::VehicleTargetTopic currentTarget(Owner().getMAVLINKID(),targetPositionCast, targetDistance);
+    Owner().callTargetCallback(currentTarget);
 }
 
 } //end of namespace ardupilot

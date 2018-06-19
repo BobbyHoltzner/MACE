@@ -74,6 +74,7 @@ protected:
 
     virtual bool Finish_Receive(const mavlink_position_target_global_int_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, MaceCore::ModuleCharacteristic &queueObj)
     {
+        std::cout<<"We has finished recieving the message."<<std::endl;
         UNUSED(msg);
         queueObj = sender;
         ack = 0;
@@ -83,7 +84,7 @@ protected:
 protected:
     void FillTargetItem(const TargetControllerStructGlobal &targetItem, mavlink_set_position_target_global_int_t &mavlinkItem);
 
-    mavlink_set_position_target_local_ned_t initializeMAVLINKTargetItem()
+    mavlink_set_position_target_global_int_t initializeMAVLINKTargetItem()
     {
         mavlink_set_position_target_global_int_t targetItem;
         targetItem.afx = 0.0;

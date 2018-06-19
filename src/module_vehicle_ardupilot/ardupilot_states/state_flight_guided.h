@@ -10,6 +10,8 @@
 #include "../ardupilot_target_progess.h"
 
 #include "module_vehicle_MAVLINK/controllers/controller_guided_target_item_local.h"
+#include "module_vehicle_MAVLINK/controllers/controller_guided_target_item_global.h"
+#include "module_vehicle_MAVLINK/controllers/controller_guided_mission_item.h"
 
 #include "data_generic_command_item/command_item_components.h"
 
@@ -23,7 +25,8 @@ MACE_CLASS_FORWARD(GuidedTimeoutController);
 class ArdupilotTimeout_Interface
 {
 public:
-    virtual void cbiArdupilotTimeout_TargetLocal(const TargetItem::DynamicTarget<CartesianPosition_3D,CartesianVelocity_3D> &target) = 0;
+    virtual void cbiArdupilotTimeout_TargetLocal(const TargetItem::CartesianDynamicTarget &target) = 0;
+    virtual void cbiArdupilotTimeout_TargetGlobal(const TargetItem::GeodeticDynamicTarget &target) = 0;
 };
 
 namespace state{
@@ -57,6 +60,8 @@ private:
 
     void handleGuidedState(const CartesianPosition_3D currentPosition, const unsigned int currentTargetIndex, const Data::ControllerState &state, const double targetDistance);
 
+    void announceTargetState(const TargetItem::CartesianDynamicTarget &target, const double &targetDistance);
+
 private:
 
     GuidedTimeoutController* guidedTimeout;
@@ -68,44 +73,49 @@ private:
 public:
     void cbiArdupilotTimeout_TargetLocal(const TargetItem::CartesianDynamicTarget &target) override
     {
-
         Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
-
-        auto controllerGuided = new MAVLINKVehicleControllers::ControllerGuidedTargetItem_Local<MAVLINKVehicleControllers::TargetControllerStructLocal>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
-//        controllerGuided->AddLambda_Finished(this, [this, controllerGuided](const bool completed, const uint8_t finishCode){
-//            controllerGuided->Shutdown();
-
-//            //        if(!completed || (finishCode != MAV_RESULT_ACCEPTED))
-//            //        {
-//            //            std::cout<<"The ardupilot rejected this command"<<std::endl;
-//            //        }
-//        });
-
-        controllerGuided->setLambda_Shutdown([this, collection]()
+        auto ptr = static_cast<MAVLINKVehicleControllers::ControllerGuidedTargetItem_Local<MAVLINKVehicleControllers::TargetControllerStructLocal>*>(collection->At("localGuidedController"));
+        if(ptr != nullptr)
         {
-            auto ptr = collection->Remove("guidedController");
-            delete ptr;
-        });
+            MaceCore::ModuleCharacteristic sender;
+            sender.ID = 255;
+            sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-        MaceCore::ModuleCharacteristic targetCharacter;
-        targetCharacter.ID = Owner().getMAVLINKID();
-        targetCharacter.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-        MaceCore::ModuleCharacteristic sender;
-        sender.ID = 255;
-        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            MAVLINKVehicleControllers::TargetControllerStructLocal action;
+            action.targetID = Owner().getMAVLINKID();
+            action.target = target;
 
-        MAVLINKVehicleControllers::TargetControllerStructLocal action;
-        action.targetID = targetCharacter.ID;
-        action.target = target;
-
-        controllerGuided->Send(action, sender, targetCharacter);
-        collection->Insert("guidedController", controllerGuided);
+            ptr->Broadcast(action, sender);
+        }
     }
 
+    void cbiArdupilotTimeout_TargetGlobal(const TargetItem::GeodeticDynamicTarget &target) override
+    {
+
+        //        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        //        auto ptr = static_cast<MAVLINKVehicleControllers::ControllerGuidedTargetItem_Global<MAVLINKVehicleControllers::TargetControllerStructGlobal>*>(collection->At("globalGuidedController"));
+        //        if(ptr != nullptr)
+        //        {
+        //            MaceCore::ModuleCharacteristic targetCharacter;
+        //            targetCharacter.ID = Owner().getMAVLINKID();
+        //            targetCharacter.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        //            MaceCore::ModuleCharacteristic sender;
+        //            sender.ID = 255;
+        //            sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+        //            MAVLINKVehicleControllers::TargetControllerStructGlobal action;
+        //            action.targetID = targetCharacter.ID;
+        //            action.target = target;
+
+        //            ptr->Send(action, sender, targetCharacter);
+        //        }
+        //    }
+
+    }
 };
 
-} //end of namespace ardupilot
 } //end of namespace state
+} //end of namespace arudpilot
 
 #include "common/thread_manager.h"
 
@@ -152,6 +162,7 @@ public:
 
             if(timeElapsed >= timeout)
             {
+                //For the moment we are removing the callback timeout
                 if((currentTarget != nullptr) && (m_CB != nullptr))
                     m_CB->cbiArdupilotTimeout_TargetLocal(*currentTarget);
                 m_Timeout.reset();
