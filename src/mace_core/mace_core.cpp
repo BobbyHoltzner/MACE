@@ -697,6 +697,7 @@ void MaceCore::ExternalEvent_NewOnboardMission(const ModuleBase *sender, const M
 void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryKey &key)
 {
     //If we have an RTA module, assume it is interested in downloading the boundary and request external link for boundary
+    std::cout << "ExternalEvent_NewBoundary" << std::endl;
     if(m_RTA != NULL)
     {
         //TEMPORARY

@@ -85,7 +85,7 @@ namespace ExternalLink{
     bool ControllerBoundary::BuildData_Send(const mace_boundary_count_t &boundary, const MaceCore::ModuleCharacteristic &sender, mace_boundary_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, BoundaryItem::BoundaryKey &receiveQueueObj, BoundaryItem::BoundaryKey &respondQueueObj)
     {
         UNUSED(sender);
-        BoundaryItem::BoundaryKey key(boundary.boundary_system,boundary.boundary_creator,static_cast<BoundaryItem::BOUNDARYTYPE>(boundary.boundary_type));
+        BoundaryItem::BoundaryKey key(boundary.boundary_system, boundary.boundary_creator, static_cast<BoundaryItem::BOUNDARYTYPE>(boundary.boundary_type));
         receiveQueueObj = key;
         respondQueueObj = key;
 
