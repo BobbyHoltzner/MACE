@@ -162,7 +162,8 @@ void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
     }
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->Event_SetBoundary(m_parent, operationalBoundary);
+//        ptr->Event_SetBoundary(m_parent, operationalBoundary);
+        ptr->Event_SetOperationalBoundary(m_parent, operationalBoundary);
     });
 
     // Get and send vertices to the GUI:

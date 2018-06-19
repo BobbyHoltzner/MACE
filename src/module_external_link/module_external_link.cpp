@@ -805,14 +805,14 @@ void ModuleExternalLink::Command_GetMission(const MissionItem::MissionKey &key, 
 
 void ModuleExternalLink::Command_GetBoundary(const BoundaryItem::BoundaryKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    std::cout << "Command_GetBoundary" << std::endl;
     //MTB - TEMPORARY
     //read the target module from key
     //In this case I know that the RTA module that is interested in the same computer with this GS module
     MaceCore::ModuleCharacteristic target;
-    target.ID = 1;
+    target.ID = key.m_systemID;
     target.Class = MaceCore::ModuleClasses::GROUND_STATION;
 
-//    m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->Send(key, sender(), target);
     m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->RequestBoundary(key, sender(), target);
 }
 
@@ -868,11 +868,6 @@ void ModuleExternalLink::NewlyAvailableBoundary(const BoundaryItem::BoundaryKey 
     if(this->getDataObject()->getBoundary(&boundary, key)) {
         // TODO: @Ken - Do we want send boundary for every vehicle in the list? Or do we use the senderID here to only send that vehicle's boundary?
         if(key.m_systemID == boundary.getVehicleID()){
-            MaceCore::ModuleCharacteristic target;
-            target.ID = boundary.getVehicleID();
-            target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-
-            // m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->Send(key, sender(), target);
             mace_new_boundary_object_t boundaryObj;
             boundaryObj.boundary_creator = boundary.getBoundaryKey().m_creatorID;
             boundaryObj.boundary_system = boundary.getBoundaryKey().m_systemID; // Is this correct?

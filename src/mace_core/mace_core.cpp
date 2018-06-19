@@ -459,7 +459,7 @@ void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::B
                 continue;
             }
 
-            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY,boundary.getBoundaryKey(), sender->GetCharacteristic());
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY, boundary.getBoundaryKey(), sender->GetCharacteristic());
         }
     }
 }
@@ -704,7 +704,9 @@ void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const Boundar
         //pull from key, this should probably be the key to the RTA module. i.e. m_RTA->GetCharacterisic()
         //In this case I know that the RTA module that is interested in the same computer with this vehicle.
         ModuleCharacteristic requestFrom;
-        requestFrom.ID = 1;
+//        requestFrom.ID = 1;
+//        requestFrom.Class = ModuleClasses::VEHICLE_COMMS;
+        requestFrom.ID = key.m_systemID;
         requestFrom.Class = ModuleClasses::VEHICLE_COMMS;
 
         if(sender->ModuleClass() == ModuleClasses::EXTERNAL_LINK)
