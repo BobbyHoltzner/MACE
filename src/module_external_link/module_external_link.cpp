@@ -264,12 +264,16 @@ Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::Fe
 
     Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::FetchKeyReturn rtn;
 
-    std::vector<BoundaryItem::BoundaryList> boundaryListVec = this->getDataObject()->GetVehicleBoundaryList();
-    for(auto boundaryList : boundaryListVec) {
-        if(boundaryList.getBoundaryKey() == key()) {
-            rtn.push_back(std::make_tuple(key(), boundaryList));
-        }
+    BoundaryItem:: BoundaryList boundary;
+    if(this->getDataObject()->getBoundary(&boundary, key())) {
+        rtn.push_back(std::make_tuple(key(), boundary));
     }
+
+//    for(auto boundaryList : boundaryListVec) {
+//        if(boundaryList.getBoundaryKey() == key()) {
+//            rtn.push_back(std::make_tuple(key(), boundaryList));
+//        }
+//    }
 
     return rtn;
 }
