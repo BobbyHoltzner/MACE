@@ -181,7 +181,7 @@ void ModuleRTA::updateEnvironment(const BoundaryItem::BoundaryList &boundary)
     std::cout<<"Update environment (RTA)."<<std::endl;
 
     Polygon_2DC poly = boundary.boundingPolygon;
-    m_gridSpacing = this->getDataObject()->GetGridSpacing();
+//    m_gridSpacing = this->getDataObject()->GetGridSpacing();
 
     environment = std::make_shared<Environment_Map>(poly, m_gridSpacing, m_globalInstance);
 
