@@ -1,5 +1,5 @@
-#ifndef CONTROLLER_GUIDED_TARGET_ITEM_H
-#define CONTROLLER_GUIDED_TARGET_ITEM_H
+#ifndef CONTROLLER_GUIDED_TARGET_ITEM_GLOBAL_H
+#define CONTROLLER_GUIDED_TARGET_ITEM_GLOBAL_H
 
 #include "common/common.h"
 
@@ -10,40 +10,44 @@
 #include "controllers/actions/action_send.h"
 #include "controllers/actions/action_finish.h"
 
+#include "base/pose/geodetic_position_3D.h"
+
 #include "mavlink.h"
 
 namespace MAVLINKVehicleControllers {
 
-struct TargetControllerStruct
+using namespace mace::pose;
+
+struct TargetControllerStructGlobal
 {
     uint8_t targetID;
-    TargetItem::DynamicTarget target;
+    TargetItem::GeodeticDynamicTarget target;
 };
 
 template <typename T>
-using GuidedTGTSend = Controllers::ActionSend<
+using GuidedTGTGlobalSend = Controllers::ActionSend<
     mavlink_message_t,
     Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
     MaceCore::ModuleCharacteristic,
     T,
-    mavlink_set_position_target_local_ned_t,
-    MAVLINK_MSG_ID_COMMAND_ACK
+    mavlink_set_position_target_global_int_t,
+    MAVLINK_MSG_ID_SET_POSITION_TARGET_GLOBAL_INT
 >;
 
 template <typename T>
-using GuidedTGTFinish = Controllers::ActionFinish<
+using GuidedTGTGlobalFinish = Controllers::ActionFinish<
     mavlink_message_t,
     Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
     MaceCore::ModuleCharacteristic,
     uint8_t,
-    mavlink_command_ack_t,
-    MAVLINK_MSG_ID_COMMAND_ACK
+    mavlink_position_target_global_int_t,
+    MAVLINK_MSG_ID_POSITION_TARGET_GLOBAL_INT
 >;
 
 template <typename TARGETITEM>
-class ControllerGuidedTargetItem : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, TARGETITEM>,
-        public GuidedTGTSend<TARGETITEM>,
-        public GuidedTGTFinish<TARGETITEM>
+class ControllerGuidedTargetItem_Global : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, TARGETITEM>,
+        public GuidedTGTGlobalSend<TARGETITEM>,
+        public GuidedTGTGlobalFinish<TARGETITEM>
 {
 private:
 
@@ -51,7 +55,7 @@ private:
 
 protected:
 
-    virtual bool Construct_Send(const TARGETITEM &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_set_position_target_local_ned_t &targetItem, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_Send(const TARGETITEM &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_set_position_target_global_int_t &targetItem, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
         UNUSED(target);
@@ -68,24 +72,24 @@ protected:
     }
 
 
-    virtual bool Finish_Receive(const mavlink_command_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Finish_Receive(const mavlink_position_target_global_int_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(msg);
         queueObj = sender;
-        ack = msg.result; //this is MAV_COMMAND_RESULT
+        ack = 0;
         return true;
     }
 
 protected:
-    void FillTargetItem(const TargetControllerStruct &targetItem, mavlink_set_position_target_local_ned_t &mavlinkItem);
+    void FillTargetItem(const TargetControllerStructGlobal &targetItem, mavlink_set_position_target_global_int_t &mavlinkItem);
 
     mavlink_set_position_target_local_ned_t initializeMAVLINKTargetItem()
     {
-        mavlink_set_position_target_local_ned_t targetItem;
+        mavlink_set_position_target_global_int_t targetItem;
         targetItem.afx = 0.0;
         targetItem.afy = 0.0;
         targetItem.afz = 0.0;
-        targetItem.coordinate_frame = MAV_FRAME_LOCAL_NED;
+        targetItem.coordinate_frame = MAV_FRAME_GLOBAL_RELATIVE_ALT;
         targetItem.target_component =0;
         targetItem.target_system = 0;
         targetItem.time_boot_ms = 0;
@@ -93,19 +97,19 @@ protected:
         targetItem.vx = 0.0;
         targetItem.vy = 0.0;
         targetItem.vz = 0.0;
-        targetItem.x = 0.0;
-        targetItem.y = 0.0;
+        targetItem.lat_int = 0;
+        targetItem.lon_int = 0;
         targetItem.yaw_rate = 0.0;
-        targetItem.z = 0.0;
+        targetItem.alt = 0.0;
 
         return targetItem;
     }
 
 public:
-    ControllerGuidedTargetItem(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+    ControllerGuidedTargetItem_Global(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
         Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, TARGETITEM>(cb, queue, linkChan),
-        GuidedTGTSend<TARGETITEM>(this, mavlink_msg_set_position_target_local_ned_encode_chan),
-        GuidedTGTFinish<TARGETITEM>(this, mavlink_msg_command_ack_decode)
+        GuidedTGTGlobalSend<TARGETITEM>(this, mavlink_msg_set_position_target_global_int_encode_chan),
+        GuidedTGTGlobalFinish<TARGETITEM>(this, mavlink_msg_position_target_global_int_decode)
     {
 
     }
@@ -115,4 +119,4 @@ public:
 } //end of namespace MAVLINKVehicleControllers
 
 
-#endif // CONTROLLER_GUIDED_TARGET_ITEM_H
+#endif // CONTROLLER_GUIDED_TARGET_ITEM_GLOBAL_H

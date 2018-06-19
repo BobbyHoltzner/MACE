@@ -325,11 +325,10 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         std::cout<<"I have received a target local int message."<<std::endl;
         break;
     }
-
     default:
     {
         consumed = false;
-        //std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
+        //std::cout<<"I received an unknown supported message with the ID "<<(int)msg->msgid<<std::endl;
     }
     } //end of switch statement
     return consumed;

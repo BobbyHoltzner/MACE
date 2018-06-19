@@ -25,10 +25,10 @@ public:
     size_t listSize() const;
     void clearList();
 
-    void appendDynamicTarget(const DynamicTarget &target, const DynamicTargetStorage::TargetCompletion &state = DynamicTargetStorage::TargetCompletion::INCOMPLETE);
+    void appendDynamicTarget(const CartesianDynamicTarget &target, const DynamicTargetStorage::TargetCompletion &state = DynamicTargetStorage::TargetCompletion::INCOMPLETE);
     void removeTargetAtIndex(const unsigned int &index);
 
-    void replaceTargetAtIndex(const unsigned int &index, const DynamicTarget &target, const DynamicTargetStorage::TargetCompletion &state = DynamicTargetStorage::TargetCompletion::INCOMPLETE);
+    void replaceTargetAtIndex(const unsigned int &index, const CartesianDynamicTarget &target, const DynamicTargetStorage::TargetCompletion &state = DynamicTargetStorage::TargetCompletion::INCOMPLETE);
     void spliceTargetListAtIndex(const unsigned int &index, const std::list<DynamicTargetStorage> &list);
 
     bool isCompleted() const;
@@ -38,10 +38,10 @@ public:
 
 public:
     const DynamicTargetStorage* getTargetStorageAtIndex(const unsigned int &index) const;
-    DynamicTarget getTargetAtIndex(const unsigned int &index) const;
-    const DynamicTarget* getTargetPointerAtIndex(const unsigned int &index) const;
-    const DynamicTarget* getNextIncomplete() const;
-    const DynamicTarget* markCompletionState(const unsigned int &index, const DynamicTargetStorage::TargetCompletion &state);
+    CartesianDynamicTarget getTargetAtIndex(const unsigned int &index) const;
+    const CartesianDynamicTarget* getTargetPointerAtIndex(const unsigned int &index) const;
+    const CartesianDynamicTarget* getNextIncomplete() const;
+    const CartesianDynamicTarget* markCompletionState(const unsigned int &index, const DynamicTargetStorage::TargetCompletion &state);
 
 public:
 

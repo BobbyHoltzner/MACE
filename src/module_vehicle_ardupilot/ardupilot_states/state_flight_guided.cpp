@@ -6,12 +6,10 @@ namespace state{
 State_FlightGuided::State_FlightGuided():
     AbstractStateArdupilot(), guidedTimeout(nullptr), currentQueue(nullptr)
 {
-    guidedTimeout = new GuidedTimeoutController(1000);
+    guidedTimeout = new GuidedTimeoutController(this, 10000);
     std::cout<<"We are in the constructor of STATE_FLIGHT_GUIDED"<<std::endl;
     currentStateEnum = ArdupilotFlightState::STATE_FLIGHT_GUIDED;
     desiredStateEnum = ArdupilotFlightState::STATE_FLIGHT_GUIDED;
-
-    guidedTimeout->connectTargetCallback(State_FlightGuided::staticCallbackFunction_VehicleTarget,this);
 }
 
 void State_FlightGuided::OnExit()
@@ -78,7 +76,7 @@ bool State_FlightGuided::handleCommand(const AbstractCommandItem* command)
                 //std::cout<<"The current position here is: "<<CP.getPositionX()<<" "<<CP.getPositionY()<<std::endl;
                 unsigned int currentTargetIndex = currentQueue->getDynamicTargetList()->getActiveTargetItem();
                 //std::cout<<"The active target item here is: "<<currentTargetIndex<<std::endl;
-                const TargetItem::DynamicTarget* target = currentQueue->getDynamicTargetList()->getTargetPointerAtIndex(currentTargetIndex);
+                const TargetItem::CartesianDynamicTarget* target = currentQueue->getDynamicTargetList()->getTargetPointerAtIndex(currentTargetIndex);
                 double distance = currentPosition.distanceBetween3D(target->getPosition());
                 //std::cout<<"The current target position here is: "<<target->getPosition().getXPosition()<<" "<<target->getPosition().getYPosition()<<" "<<target->getPosition().getZPosition()<<std::endl;
 
@@ -90,7 +88,7 @@ bool State_FlightGuided::handleCommand(const AbstractCommandItem* command)
         MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
         TargetItem::DynamicMissionQueue availableQueue(testKey,1);
 
-        TargetItem::DynamicTarget target;
+        TargetItem::CartesianDynamicTarget target;
         target.setPosition(mace::pose::CartesianPosition_3D(1000,1000,100));
 
         availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
@@ -127,7 +125,7 @@ void State_FlightGuided::initializeNewTargetList()
     Owner().getCallbackInterface()->cbi_VehicleMissionItemCurrent(currentMissionItem);
 
     unsigned int activeTargetIndex = currentQueue->getDynamicTargetList()->getActiveTargetItem();
-    const TargetItem::DynamicTarget target = *currentQueue->getDynamicTargetList()->getNextIncomplete();
+    const TargetItem::CartesianDynamicTarget target = *currentQueue->getDynamicTargetList()->getNextIncomplete();
     guidedTimeout->updateTarget(target);
 }
 
@@ -137,7 +135,7 @@ void State_FlightGuided::handleGuidedState(const mace::pose::CartesianPosition_3
     if(state == Data::ControllerState::ACHIEVED)
     {
 
-        const TargetItem::DynamicTarget* newTarget = currentQueue->getDynamicTargetList()->markCompletionState(currentTargetIndex,TargetItem::DynamicTargetStorage::TargetCompletion::COMPLETE);
+        const TargetItem::CartesianDynamicTarget* newTarget = currentQueue->getDynamicTargetList()->markCompletionState(currentTargetIndex,TargetItem::DynamicTargetStorage::TargetCompletion::COMPLETE);
         if(newTarget == nullptr)
         {
             //if there are no more points in the queue this mission item is completed
@@ -148,7 +146,7 @@ void State_FlightGuided::handleGuidedState(const mace::pose::CartesianPosition_3
         else
         {
             unsigned int currentTargetIndex = currentQueue->getDynamicTargetList()->getActiveTargetItem();
-            const TargetItem::DynamicTarget* target = currentQueue->getDynamicTargetList()->getTargetPointerAtIndex(currentTargetIndex);
+            const TargetItem::CartesianDynamicTarget* target = currentQueue->getDynamicTargetList()->getTargetPointerAtIndex(currentTargetIndex);
             double distance = currentPosition.distanceBetween3D(target->getPosition());
             Data::ControllerState guidedState = guidedProgress.newTargetItem(distance);
             handleGuidedState(currentPosition, currentTargetIndex, guidedState, distance);
@@ -162,7 +160,7 @@ void State_FlightGuided::handleGuidedState(const mace::pose::CartesianPosition_3
             //these items are going to be in the local coordinate frame relative to the vehicle home
             CommandItem::SpatialHome home = Owner().mission->vehicleHomePosition.get();
             mace::pose::GeodeticPosition_3D homePos(home.getPosition().getX(),home.getPosition().getY(),home.getPosition().getZ());
-            const TargetItem::DynamicTarget* target = currentQueue->getDynamicTargetList()->getTargetPointerAtIndex(currentTargetIndex);
+            const TargetItem::CartesianDynamicTarget* target = currentQueue->getDynamicTargetList()->getTargetPointerAtIndex(currentTargetIndex);
 
             GeodeticPosition_3D targetPosition;
             DynamicsAid::LocalPositionToGlobal(homePos,target->getPosition(),targetPosition);

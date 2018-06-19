@@ -1,11 +1,11 @@
-#include "controller_guided_target_item.h"
+#include "controller_guided_target_item_local.h"
 
 namespace MAVLINKVehicleControllers {
 
     template <>
-    void ControllerGuidedTargetItem<TargetControllerStruct>::FillTargetItem(const TargetControllerStruct &targetStruct, mavlink_set_position_target_local_ned_t &mavlinkItem)
+    void ControllerGuidedTargetItem_Local<TargetControllerStructLocal>::FillTargetItem(const TargetControllerStructLocal &targetStruct, mavlink_set_position_target_local_ned_t &mavlinkItem)
     {
-        TargetItem::DynamicTarget targetItem = targetStruct.target;
+        TargetItem::CartesianDynamicTarget targetItem = targetStruct.target;
 
         mace::pose::CartesianPosition_3D targetPosition = targetItem.getPosition();
         mace::pose::CartesianVelocity_3D targetVelocity = targetItem.getVelocity();
