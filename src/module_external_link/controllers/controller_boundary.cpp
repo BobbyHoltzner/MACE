@@ -44,7 +44,7 @@ namespace ExternalLink{
 
         //MTB - set vehicleObj to module containing the boundary. Should be encoded in the boundary key.
         vehicleObj.ID = key.m_systemID;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        vehicleObj.Class = MaceCore::ModuleClasses::GROUND_STATION;
 
         std::vector<std::tuple<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>> boundaries;
         CONTROLLER_BOUNDARY_TYPE::FetchDataFromKey(key, boundaries);
@@ -158,8 +158,9 @@ namespace ExternalLink{
         receiveQueueObj = key;
         respondQueueObj = key;
 
+        //MTB - set vehicleObj to module containing the boundary. Should be encoded in the boundary key.
         vehicleObj.ID = key.m_systemID;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        vehicleObj.Class = MaceCore::ModuleClasses::GROUND_STATION;
 
         if(m_BoundariesUploading.find(key) == m_BoundariesUploading.cend())
         {
