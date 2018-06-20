@@ -58,10 +58,34 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Position<Cartes
             std::cout << "Balanced Voronoi: Number of vehicles does not match number of available polygons." << std::endl;
         }
         else {
-            // Step 2): Compute voronoi partition based on centroids of each split polygon
             std::vector<Cell_2DC> cellsVec;
-            success = computeVoronoi(cellsVec, centroids);
+            std::vector<Polygon_2DC> polygons = polygon.getPolygons();
+            for(auto polygon : polygons) {
+                std::vector<Position<CartesianPosition_2D> > coords;
+                std::vector<Position<CartesianPosition_2D> > vertices = polygon.getVector();
+                for(auto vertex : vertices) {
+                    Position<CartesianPosition_2D> tmp;
+                    tmp.setXPosition(vertex.getXPosition());
+                    tmp.setYPosition(vertex.getYPosition());
+                    coords.push_back(tmp);
+                }
 
+                // Create cell and add to list:
+                Cell_2DC cell(coords, "2D Cartesian Polygon");
+                // Sort the cell vertices:
+                sortCellVerticesCCW(cell); // TODO: Optimize
+                // Only generated and insert nodes if the RTA instance is a local instance (i.e. onboard a vehicle that needs to generate nodes)
+                if(!m_globalInstance) {
+                    std::list<mace::pose::Position<mace::pose::CartesianPosition_2D>*> nodeList = m_dataGrid->getBoundedDataList();
+                    cell.insertNodes(nodeList, true);
+                }
+
+                cellsVec.push_back(cell);
+            }
+
+            if(cellsVec.size() > 0) {
+                success = true;
+            }
 
             // Step 3): Assign cells to vehicle IDs based on distance to vehicle/site
             std::vector<int> usedCellIndices;
@@ -82,9 +106,15 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Position<Cartes
                 }
                 usedCellIndices.push_back(index);
                 cells.insert(std::make_pair(vehicle.first, tmpCell));
+
+
+                printCellInfo(cells.at(1));
+                printCellInfo(cells.at(1));
+
             }
         }
     }
+
 
     // Return success or failure:
     return success;
