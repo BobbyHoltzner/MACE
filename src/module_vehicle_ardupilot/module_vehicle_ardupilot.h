@@ -26,6 +26,8 @@
 #include "ardupilot_states/state_components.h"
 #include "vehicle_object/ardupilot_vehicle_object.h"
 
+#include "mace_core/abstract_module_base.h"
+
 //__________________
 #include "data_interface_MAVLINK/callback_interface_data_mavlink.h"
 
@@ -52,6 +54,8 @@ public:
 
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
+public:
+    void UpdateDynamicMissionQueue(const TargetItem::DynamicMissionQueue &queue) override;
 
 public:
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);

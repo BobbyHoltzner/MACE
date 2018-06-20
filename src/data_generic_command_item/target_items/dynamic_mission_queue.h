@@ -17,6 +17,15 @@ public:
 
     ~DynamicMissionQueue();
 
+    void setDynamicTargetList(const TargetItem::DynamicTargetList &list)
+    {
+        this->m_TargetList = list;
+    }
+
+    const TargetItem::DynamicTargetList* getDynamicTargetList() const
+    {
+        return &this->m_TargetList;
+    }
 
     TargetItem::DynamicTargetList* getDynamicTargetList()
     {

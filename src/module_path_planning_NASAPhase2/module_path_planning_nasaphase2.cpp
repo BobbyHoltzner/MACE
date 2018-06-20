@@ -207,6 +207,7 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
                 std::cout<<"I have seen a misson item reached topic"<<std::endl;
                 std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
+                //For now we will use this event to plan a route to the next valid mission item
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
                 std::cout<<"Path planner has seen a "<<std::endl;

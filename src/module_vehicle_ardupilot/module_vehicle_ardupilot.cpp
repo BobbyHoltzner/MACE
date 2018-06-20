@@ -548,3 +548,34 @@ void ModuleVehicleArdupilot::ProgressStateMachineStates()
     stateMachine->UpdateStates();
     m_Mutex_StateMachine.unlock();
 }
+
+void ModuleVehicleArdupilot::UpdateDynamicMissionQueue(const TargetItem::DynamicMissionQueue &queue)
+{
+    TargetItem::DynamicTargetList targetList;
+
+    //the sent queue will be in the local frame relative to the global origin
+    //we therefore have to transform this data into the local frame relative
+    //to the vehicles origin/home position
+
+    mace::pose::GeodeticPosition_3D globalOrigin = this->getDataObject()->GetGlobalOrigin();
+
+    CommandItem::SpatialHome home = this->vehicleData->mission->vehicleHomePosition.get();
+    mace::pose::GeodeticPosition_3D vehicleOrigin(home.getPosition().getX(),home.getPosition().getY(),home.getPosition().getZ());
+
+    double compassBearing = globalOrigin.compassBearingTo(vehicleOrigin); //this is degrees not radians
+    double distanceBetween = globalOrigin.distanceBetween2D(vehicleOrigin);
+    double elevationDifference = globalOrigin.deltaAltitude(vehicleOrigin);
+
+    for(size_t i = 0; i < queue.getDynamicTargetList()->listSize(); i++)
+    {
+        TargetItem::CartesianDynamicTarget target = queue.getDynamicTargetList()->getTargetAtIndex(i);
+        mace::pose::CartesianPosition_3D position = target.getPosition();
+        position.applyPositionalShiftFromCompass(distanceBetween,mace::math::reverseBearing(mace::math::convertDegreesToRadians(compassBearing)));
+        position.setZPosition(position.getZPosition() - elevationDifference);
+        target.setPosition(position);
+        targetList.appendDynamicTarget(target);
+    }
+
+    TargetItem::DynamicMissionQueue transformedQueue(queue.getAssociatedMissionKey(),queue.getAssociatedMissionItem());
+    transformedQueue.setDynamicTargetList(targetList);
+}
