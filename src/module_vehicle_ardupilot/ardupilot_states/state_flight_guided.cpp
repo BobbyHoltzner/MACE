@@ -99,26 +99,29 @@ bool State_FlightGuided::handleCommand(const AbstractCommandItem* command)
             }
         });
 
-        MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
-        TargetItem::DynamicMissionQueue availableQueue(testKey,1);
+        currentQueue = new TargetItem::DynamicMissionQueue(Owner().mission->currentDynamicQueue.get());
+        this->initializeNewTargetList();
 
-        TargetItem::CartesianDynamicTarget target;
-        target.setPosition(mace::pose::CartesianPosition_3D(0,100,15));
-        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+//        MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
+//        TargetItem::DynamicMissionQueue availableQueue(testKey,1);
 
-        target.setPosition(mace::pose::CartesianPosition_3D(100,100,15));
-        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+//        TargetItem::CartesianDynamicTarget target;
+//        target.setPosition(mace::pose::CartesianPosition_3D(0,100,15));
+//        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
 
-        target.setPosition(mace::pose::CartesianPosition_3D(100,-100,15));
-        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+//        target.setPosition(mace::pose::CartesianPosition_3D(100,100,15));
+//        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
 
-        target.setPosition(mace::pose::CartesianPosition_3D(-100,-100,15));
-        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+//        target.setPosition(mace::pose::CartesianPosition_3D(100,-100,15));
+//        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
 
-        target.setPosition(mace::pose::CartesianPosition_3D(-100,100,15));
-        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+//        target.setPosition(mace::pose::CartesianPosition_3D(-100,-100,15));
+//        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
 
-        Owner().mission->currentDynamicQueue.set(availableQueue);
+//        target.setPosition(mace::pose::CartesianPosition_3D(-100,100,15));
+//        availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+//        Owner().mission->currentDynamicQueue.set(availableQueue);
 
         break;
     }

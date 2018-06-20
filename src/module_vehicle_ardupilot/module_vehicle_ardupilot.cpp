@@ -130,10 +130,31 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
 
 void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
+    TargetItem::DynamicMissionQueue availableQueue(testKey,1);
+
+    TargetItem::CartesianDynamicTarget target;
+    target.setPosition(mace::pose::CartesianPosition_3D(0,100,15));
+    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+    target.setPosition(mace::pose::CartesianPosition_3D(100,100,15));
+    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+    target.setPosition(mace::pose::CartesianPosition_3D(100,-100,15));
+    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+    target.setPosition(mace::pose::CartesianPosition_3D(-100,-100,15));
+    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+    target.setPosition(mace::pose::CartesianPosition_3D(-100,100,15));
+    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+    UpdateDynamicMissionQueue(availableQueue);
+
     //Temporary solution to solve boadcasting until rework of commands can be done
     CommandItem::ActionMissionCommand commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionMissionCommand>(command, this->GetCharacteristic().ID);
 
-    mLogs->debug("Receieved a command to change mission state.");
+    //mLogs->debug("Receieved a command to change mission state.");
 
     int systemID = commandWithTarget.getTargetSystem();
 
@@ -578,4 +599,5 @@ void ModuleVehicleArdupilot::UpdateDynamicMissionQueue(const TargetItem::Dynamic
 
     TargetItem::DynamicMissionQueue transformedQueue(queue.getAssociatedMissionKey(),queue.getAssociatedMissionItem());
     transformedQueue.setDynamicTargetList(targetList);
+    this->vehicleData->mission->currentDynamicQueue.set(transformedQueue);
 }
