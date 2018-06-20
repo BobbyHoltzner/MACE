@@ -165,7 +165,7 @@ void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
     if(operationalBoundary.getQueueSize() > 0) {
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
             ptr->Event_SetOperationalBoundary(m_parent, operationalBoundary);
-    //        ptr->Event_SetOperationalBoundary(m_parent, operationalBoundary);
+    //        ptr->Event_SetBoundary(m_parent, operationalBoundary);
         });
     }
 

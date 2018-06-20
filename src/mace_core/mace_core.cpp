@@ -712,7 +712,7 @@ void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const Boundar
 //        requestFrom.ID = 1;
 //        requestFrom.Class = ModuleClasses::VEHICLE_COMMS;
         requestFrom.ID = key.m_systemID;
-        requestFrom.Class = ModuleClasses::VEHICLE_COMMS;
+        requestFrom.Class = ModuleClasses::RTA;
 
         if(sender->ModuleClass() == ModuleClasses::EXTERNAL_LINK)
         {
@@ -900,6 +900,11 @@ void MaceCore::Event_SetOperationalBoundary(const ModuleBase *sender, const Boun
     if(m_RTA) {
         m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
     }
+
+    // TODO-@Ken: Does the PP module need the operational fence?
+//    if(m_PathPlanning) {
+//        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
+//    }
 
     if(m_ROS)
     {

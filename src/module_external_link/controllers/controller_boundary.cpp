@@ -37,14 +37,16 @@ namespace ExternalLink{
 
     bool ControllerBoundary::BuildData_Send(const mace_boundary_request_list_t &cmd, const MaceCore::ModuleCharacteristic &sender, mace_boundary_count_t &rtn, MaceCore::ModuleCharacteristic &vehicleObj, BoundaryItem::BoundaryKey &receiveQueueObj, BoundaryItem::BoundaryKey &respondQueueObj)
     {
-        UNUSED(sender);
+//        UNUSED(sender);
         BoundaryItem::BoundaryKey key(cmd.boundary_system, cmd.boundary_creator, static_cast<BoundaryItem::BOUNDARYTYPE>(cmd.boundary_type));
         receiveQueueObj = key;
         respondQueueObj = key;
 
         //MTB - set vehicleObj to module containing the boundary. Should be encoded in the boundary key.
         vehicleObj.ID = key.m_systemID;
-        vehicleObj.Class = MaceCore::ModuleClasses::GROUND_STATION;
+//        vehicleObj.Class = MaceCore::ModuleClasses::GROUND_STATION;
+//        vehicleObj.Class = sender.Class;
+        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         std::vector<std::tuple<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>> boundaries;
         CONTROLLER_BOUNDARY_TYPE::FetchDataFromKey(key, boundaries);
@@ -89,6 +91,7 @@ namespace ExternalLink{
         receiveQueueObj = key;
         respondQueueObj = key;
 
+        std::cout << "RECEIVED COUNT" << std::endl;
 
         if(m_BoundariesBeingFetching.find(key) == m_BoundariesBeingFetching.cend())
         {
@@ -160,7 +163,8 @@ namespace ExternalLink{
 
         //MTB - set vehicleObj to module containing the boundary. Should be encoded in the boundary key.
         vehicleObj.ID = key.m_systemID;
-        vehicleObj.Class = MaceCore::ModuleClasses::GROUND_STATION;
+//        vehicleObj.Class = MaceCore::ModuleClasses::GROUND_STATION;
+        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         if(m_BoundariesUploading.find(key) == m_BoundariesUploading.cend())
         {

@@ -5,6 +5,8 @@ namespace CommsMACE
 
 char VEHICLE_STR[] = "Vehicle";
 char GROUNDSTATION_STR[] = "GroundStation";
+char RTA_STR[] = "RTA";
+char EXTERNAL_LINK_STR[] = "ExternalLink";
 
 DigiMeshLink::DigiMeshLink(const DigiMeshConfiguration &config) :
     _config(config),
@@ -71,7 +73,7 @@ uint64_t DigiMeshLink::getConnectionSpeed() const
 
 bool DigiMeshLink::Connect()
 {
-    m_Link = new MACEDigiMeshWrapper<VEHICLE_STR, GROUNDSTATION_STR>(_config.portName(), _config.baud());
+    m_Link = new MACEDigiMeshWrapper<VEHICLE_STR, GROUNDSTATION_STR, RTA_STR, EXTERNAL_LINK_STR>(_config.portName(), _config.baud());
 
     m_Link->AddHandler_NewRemoteComponentItem_Generic([this](const char* resourceName, int ID, uint64_t addr){
         UNUSED(addr);

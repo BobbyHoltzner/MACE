@@ -180,8 +180,6 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
             ptr->ExternalEvent_NewBoundary(this, key);
         });
 
-
-
         break;
     }
     case MACE_MSG_ID_STATUSTEXT:

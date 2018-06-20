@@ -174,8 +174,17 @@ void ModuleExternalLink::ExternalModuleAdded(const char* resourceName, int ID)
     {
         module.Class = MaceCore::ModuleClasses::GROUND_STATION;
     }
+    else if(strcmp(resourceName, CommsMACE::RTA_STR) == 0)
+    {
+        module.Class = MaceCore::ModuleClasses::RTA;
+    }
+    else if(strcmp(resourceName, CommsMACE::EXTERNAL_LINK_STR) == 0)
+    {
+        module.Class = MaceCore::ModuleClasses::EXTERNAL_LINK;
+    }
     else {
-        printf("%s\n", CommsMACE::GROUNDSTATION_STR);
+//        printf("%s\n", CommsMACE::GROUNDSTATION_STR);
+        printf("In ExternalModuleAdded - Unknown module class: %s\n", resourceName);
         throw std::runtime_error("Unknown module class received");
     }
 
@@ -220,6 +229,14 @@ void ModuleExternalLink::TransmitMessage(const mace_message_t &msg, const Option
     else if(target().Class == MaceCore::ModuleClasses::GROUND_STATION)
     {
         m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, std::make_tuple<const char*, int>(CommsMACE::GROUNDSTATION_STR, target.Value().ID));
+    }
+    else if(target().Class == MaceCore::ModuleClasses::RTA)
+    {
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, std::make_tuple<const char*, int>(CommsMACE::RTA_STR, target.Value().ID));
+    }
+    else if(target().Class == MaceCore::ModuleClasses::EXTERNAL_LINK)
+    {
+        m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, std::make_tuple<const char*, int>(CommsMACE::EXTERNAL_LINK_STR, target.Value().ID));
     }
     else {
         throw std::runtime_error("Unknown target given");
@@ -811,7 +828,9 @@ void ModuleExternalLink::Command_GetBoundary(const BoundaryItem::BoundaryKey &ke
     //In this case I know that the RTA module that is interested in the same computer with this GS module
     MaceCore::ModuleCharacteristic target;
     target.ID = key.m_systemID;
-    target.Class = MaceCore::ModuleClasses::GROUND_STATION;
+    target.Class = MaceCore::ModuleClasses::EXTERNAL_LINK;
+//    target.Class = MaceCore::ModuleClasses::GROUND_STATION;
+//    target.Class = sender().Class;
 
     m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->RequestBoundary(key, sender(), target);
 }
@@ -929,6 +948,14 @@ void ModuleExternalLink::NewlyAvailableModule(const MaceCore::ModuleCharacterist
     if(module.Class == MaceCore::ModuleClasses::GROUND_STATION)
     {
         m_LinkMarshaler->AddResource(m_LinkName, CommsMACE::GROUNDSTATION_STR, module.ID);
+    }
+    if(module.Class == MaceCore::ModuleClasses::RTA)
+    {
+        m_LinkMarshaler->AddResource(m_LinkName, CommsMACE::RTA_STR, module.ID);
+    }
+    if(module.Class == MaceCore::ModuleClasses::EXTERNAL_LINK)
+    {
+        m_LinkMarshaler->AddResource(m_LinkName, CommsMACE::EXTERNAL_LINK_STR, module.ID);
     }
 
     if(airborneInstance)

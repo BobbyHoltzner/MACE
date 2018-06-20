@@ -247,8 +247,7 @@ void ModuleRTA::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
             for(auto vertex : vehicleCell.second.getVector()) {
                 polyBoundary.appendVertex(vertex);
             }
-            resourceFence.setBoundary(polyBoundary);
-
+            resourceFence.setBoundary(polyBoundary);            
             ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
                 ptr->Event_SetResourceBoundary(this, resourceFence);
             });

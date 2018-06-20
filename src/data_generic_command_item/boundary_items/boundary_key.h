@@ -8,6 +8,8 @@
 
 #include "boundary_type.h"
 
+#include "mace_core/module_characteristics.h"
+
 namespace BoundaryItem {
 
 class BoundaryKey
