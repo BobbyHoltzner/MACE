@@ -87,6 +87,13 @@ public:
     //!
     bool ConnectToLink(const std::string &linkName);
 
+    //!
+    //! \brief DisconnectFromLink
+    //! \param linkName Name of link to disconnect from
+    //! \return
+    //!
+    bool DisconnectFromLink(const std::string &linkName);
+
 
     //////////////////////////////////////////////////////////////
     /// Query

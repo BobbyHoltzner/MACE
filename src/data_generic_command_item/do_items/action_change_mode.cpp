@@ -17,14 +17,14 @@ bool ActionChangeMode::hasSpatialInfluence() const
     return false;
 }
 
-AbstractCommandItem* ActionChangeMode::getClone() const
+std::shared_ptr<AbstractCommandItem> ActionChangeMode::getClone() const
 {
-    return (new ActionChangeMode(*this));
+    return std::make_shared<ActionChangeMode>(*this);
 }
 
-void ActionChangeMode::getClone(AbstractCommandItem** command) const
+void ActionChangeMode::getClone(std::shared_ptr<AbstractCommandItem> &command) const
 {
-    *command = new ActionChangeMode(*this);
+    command = std::make_shared<ActionChangeMode>(*this);
 }
 
 ActionChangeMode::ActionChangeMode()

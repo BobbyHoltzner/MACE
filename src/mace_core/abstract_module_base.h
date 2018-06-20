@@ -102,6 +102,12 @@ public:
 
 
     //!
+    //! \brief Shutdown the module
+    //!
+    virtual void shutdown() = 0;
+
+
+    //!
     //! \brief Describes the strucure of the parameters for this module
     //! \return Strucure
     //!

@@ -39,7 +39,7 @@ hsm::Transition State_FlightRTL::GetTransition()
     return rtn;
 }
 
-bool State_FlightRTL::handleCommand(const AbstractCommandItem* command)
+bool State_FlightRTL::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
 
 }
@@ -54,7 +54,7 @@ void State_FlightRTL::OnEnter()
 
 }
 
-void State_FlightRTL::OnEnter(const AbstractCommandItem *command)
+void State_FlightRTL::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     this->OnEnter();
 }

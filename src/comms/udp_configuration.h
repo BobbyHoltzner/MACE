@@ -39,16 +39,14 @@ public:
     //void        updateSettings  ();
     //QString     settingsURL     () { return "SerialSettings.qml"; }
 
-
-    void listenForPort(const int &listenPortNumber);
-
 private:
     int _listenPortNumber;
     std::string _listenAddress;
     int _senderPortNumber;
     std::string _senderAddress;
 
-    QUdpSocket *m_socket;
+    //mtb - configuration only mean to hold parmaters, not the object itself
+    //QUdpSocket *m_socket;
 };
 
 }

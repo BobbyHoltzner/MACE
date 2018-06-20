@@ -427,6 +427,8 @@ public:
         m_MissionDownloadCount = -1;
     }
 
+    virtual ~ControllerMission() = default;
+
 
     void GetMissions(MaceCore::ModuleCharacteristic &vehicle)
     {

@@ -131,6 +131,20 @@ bool CommsMarshaler::ConnectToLink(const std::string &linkName)
 }
 
 
+bool CommsMarshaler::DisconnectFromLink(const std::string &linkName)
+{
+    if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
+        throw std::runtime_error("The provided link name does not exists");
+
+    std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(linkName);
+    link->Disconnect();
+
+    m_CreatedLinksNameToPtr.erase(linkName);
+
+    return true;
+}
+
+
 
 
 

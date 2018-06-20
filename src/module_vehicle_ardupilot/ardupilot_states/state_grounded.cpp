@@ -67,7 +67,7 @@ hsm::Transition State_Grounded::GetTransition()
     return rtn;
 }
 
-bool State_Grounded::handleCommand(const AbstractCommandItem* command)
+bool State_Grounded::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
     COMMANDITEM commandType = command->getCommandType();
     switch (commandType) {
@@ -103,7 +103,7 @@ void State_Grounded::OnEnter()
     }
 }
 
-void State_Grounded::OnEnter(const AbstractCommandItem *command)
+void State_Grounded::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     this->OnEnter();
 }

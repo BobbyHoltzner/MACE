@@ -17,14 +17,14 @@ bool ActionArm::hasSpatialInfluence() const
     return false;
 }
 
-AbstractCommandItem* ActionArm::getClone() const
+std::shared_ptr<AbstractCommandItem> ActionArm::getClone() const
 {
-    return (new ActionArm(*this));
+    return std::make_shared<ActionArm>(*this);
 }
 
-void ActionArm::getClone(AbstractCommandItem** command) const
+void ActionArm::getClone(std::shared_ptr<AbstractCommandItem> &command) const
 {
-    *command = new ActionArm(*this);
+    command = std::make_shared<ActionArm>(*this);
 }
 
 

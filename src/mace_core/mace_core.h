@@ -299,10 +299,10 @@ private:
                 }
                 /*
                 T *Copy = new T(data);
-                if(((CommandItem::AbstractCommandItem *)Copy)->getTargetSystem() == 0)
+                if(((CommandItem::std::shared_ptr<AbstractCommandItem>)Copy)->getTargetSystem() == 0)
                 {
                     int ID = it->second->GetCharacteristic().ID;
-                    ((CommandItem::AbstractCommandItem *)Copy)->setTargetSystem(ID);
+                    ((CommandItem::std::shared_ptr<AbstractCommandItem>)Copy)->setTargetSystem(ID);
                 }
                 */
                 it->second->MarshalCommand(vehicleCommand, data);
