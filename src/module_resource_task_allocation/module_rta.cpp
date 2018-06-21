@@ -214,22 +214,38 @@ void ModuleRTA::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
     updateEnvironment(boundary);
 
     if(m_globalInstance) {
-        //      b) Publish topic to core with new boundary data
-//        ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-//            ptr->Event_SetVehicleBoundaryVertices(this, m_vehicleCells);
-//        });
-    }
+        // If global, loop over all vehicles and send their ResourceFence
+        for(auto vehicleCell : m_vehicleCells) {
+            int vehicleID = vehicleCell.first;
+            BoundaryItem::BoundaryList resourceFence;
+            resourceFence.setVehicleID(vehicleID);
+            resourceFence.setBoundaryType(BoundaryItem::BOUNDARYTYPE::RESOURCE_FENCE);
+            resourceFence.setCreatorID(this->GetID()); // TODO-PAT: Not sure if this is right
+            mace::geometry::Polygon_2DC polyBoundary;
+            for(auto vertex : vehicleCell.second.getVector()) {
+                polyBoundary.appendVertex(vertex);
+            }
+            resourceFence.setBoundary(polyBoundary);
+            ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+                ptr->Event_SetResourceBoundary(this, resourceFence);
+            });
+        }
 
+    }
 }
 
 void ModuleRTA::NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boundary)
 {
     updateEnvironment(boundary);
+
+    std::cout << "Update MACE core with targets from RTA" << std::endl;
+
+
     //in this instance we would want to publish more of the required resource points
     //      b) Publish topic to core with new boundary data
-    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+//    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
         //ptr->Event_SetVehicleBoundaryVertices(this, m_vehicleCells);
-    });
+//    });
 }
 
 
@@ -240,12 +256,14 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
     m_VehicleDataTopic.GetComponent(globalPositionData, read_topicDatagram);
 
     // Set vehicle and compute Voronoi:
-    if(environment->getGlobalOrigin()->getPosition().has2DPositionSet()) {
+    mace::pose::GeodeticPosition_3D globalOrigin = this->getDataObject()->GetGlobalOrigin();
+    CommandItem::SpatialHome origin(globalOrigin);
+    if(origin.getPosition().has2DPositionSet()) {
         DataState::StateLocalPosition localPositionData;
         DataState::StateGlobalPosition tmpGlobalOrigin;
-        tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getPosition().getX());
-        tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getPosition().getY());
-        tmpGlobalOrigin.setAltitude(environment->getGlobalOrigin()->getPosition().getZ());
+        tmpGlobalOrigin.setLatitude(origin.getPosition().getX());
+        tmpGlobalOrigin.setLongitude(origin.getPosition().getY());
+        tmpGlobalOrigin.setAltitude(origin.getPosition().getZ());
 
         DataState::StateGlobalPosition tmpGlobalPosition;
         tmpGlobalPosition.setLatitude(globalPositionData->getLatitude());
@@ -348,10 +366,12 @@ void ModuleRTA::TestFunction(const int &vehicleID) {
     //    }
 
     DataState::StateGlobalPosition tmpGlobalOrigin;
-    if(environment->getGlobalOrigin()->getPosition().has2DPositionSet()) {
-        tmpGlobalOrigin.setLatitude(environment->getGlobalOrigin()->getPosition().getX());
-        tmpGlobalOrigin.setLongitude(environment->getGlobalOrigin()->getPosition().getY());
-        tmpGlobalOrigin.setAltitude(environment->getGlobalOrigin()->getPosition().getZ());
+    mace::pose::GeodeticPosition_3D origin = this->getDataObject()->GetGlobalOrigin();
+    CommandItem::SpatialHome globalHome(origin);
+    if(globalHome.getPosition().has2DPositionSet()) {
+        tmpGlobalOrigin.setLatitude(globalHome.getPosition().getX());
+        tmpGlobalOrigin.setLongitude(globalHome.getPosition().getY());
+        tmpGlobalOrigin.setAltitude(globalHome.getPosition().getZ());
     }
     else {
         std::cout << "No global origin set. Cannot update missions for MACE" << std::endl;

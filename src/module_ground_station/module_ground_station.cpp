@@ -580,7 +580,7 @@ void ModuleGroundStation::NewlyAvailableBoundary(const BoundaryItem::BoundaryKey
             gVertices.push_back(gPos3D);
         }
         //Write to the GUI
-        m_toGUIHandler->sendEnvironmentVertices(gVertices);
+        m_toGUIHandler->sendEnvironmentVertices(gVertices, key.m_systemID); // TODO: make sure system ID matches with vehicle ID
     }
 }
 

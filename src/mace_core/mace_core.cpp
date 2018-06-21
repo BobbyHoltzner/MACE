@@ -825,6 +825,10 @@ void MaceCore::Event_SetResourceBoundary(const ModuleBase *sender, const Boundar
 {
     m_DataFusion->updateBoundary(boundary);
 
+    if(m_GroundStation) {
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_BOUNDARY, boundary.getBoundaryKey());
+    }
+
     if(m_ExternalLink.size() > 0)
     {
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)

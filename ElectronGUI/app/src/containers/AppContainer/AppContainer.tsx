@@ -83,6 +83,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
     this.appHelper = new AppHelper(this.state);
     this.polygonHelper = new PolygonHelper();
+    this.polygonHelper.showDraw = true;
   }
 
   componentDidMount(){
