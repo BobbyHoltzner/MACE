@@ -40,7 +40,15 @@ hsm::Transition State_LandingDescent::GetTransition()
         switch (desiredStateEnum) {
         case ArdupilotFlightState::STATE_LANDING_COMPLETE:
         {
-            rtn = hsm::SiblingTransition<State_LandingComplete>(currentCommand);
+            if(currentCommand == nullptr)
+            {
+
+                rtn = hsm::SiblingTransition<State_LandingComplete>();
+            }
+            else
+            {
+                rtn = hsm::SiblingTransition<State_LandingComplete>(currentCommand);
+            }
             break;
         }
         default:
@@ -51,7 +59,7 @@ hsm::Transition State_LandingDescent::GetTransition()
     return rtn;
 }
 
-bool State_LandingDescent::handleCommand(const AbstractCommandItem* command)
+bool State_LandingDescent::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
     clearCommand();
     switch (command->getCommandType()) {
@@ -119,12 +127,11 @@ void State_LandingDescent::OnEnter()
 
 }
 
-void State_LandingDescent::OnEnter(const AbstractCommandItem *command)
+void State_LandingDescent::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     if(command != nullptr)
     {
         handleCommand(command);
-        delete command;
     }
     else
         OnEnter();

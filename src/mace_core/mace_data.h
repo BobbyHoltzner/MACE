@@ -74,13 +74,18 @@ public:
     MaceData() :
         m_MSTOKEEP(DEFAULT_MS_RECORD_TO_KEEP), flagBoundaryVerts(false)
     {
-        m_OctomapWrapper = new mace::maps::OctomapWrapper();
+        //m_OctomapWrapper = new mace::maps::OctomapWrapper();
     }
 
     MaceData(uint64_t historyToKeepInms) :
         m_MSTOKEEP(historyToKeepInms), flagBoundaryVerts(false)
     {
-        m_OctomapWrapper = new mace::maps::OctomapWrapper();
+        //m_OctomapWrapper = new mace::maps::OctomapWrapper();
+    }
+
+    ~MaceData()
+    {
+        //delete m_OctomapWrapper;
     }
 
     /////////////////////////////////////////////////////////

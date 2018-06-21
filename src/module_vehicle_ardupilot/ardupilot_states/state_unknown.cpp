@@ -59,7 +59,7 @@ hsm::Transition State_Unknown::GetTransition()
     return rtn;
 }
 
-bool State_Unknown::handleCommand(const AbstractCommandItem* command)
+bool State_Unknown::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
 
 }
@@ -79,7 +79,7 @@ void State_Unknown::OnEnter()
 
 }
 
-void State_Unknown::OnEnter(const AbstractCommandItem *command)
+void State_Unknown::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     this->OnEnter();
 }

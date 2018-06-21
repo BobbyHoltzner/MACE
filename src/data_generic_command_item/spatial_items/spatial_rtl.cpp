@@ -17,14 +17,14 @@ bool SpatialRTL::hasSpatialInfluence() const
     return true;
 }
 
-AbstractCommandItem* SpatialRTL::getClone() const
+std::shared_ptr<AbstractCommandItem> SpatialRTL::getClone() const
 {
-    return (new SpatialRTL(*this));
+    return std::make_shared<SpatialRTL>(*this);
 }
 
-void SpatialRTL::getClone(AbstractCommandItem** command) const
+void SpatialRTL::getClone(std::shared_ptr<AbstractCommandItem> &command) const
 {
-    *command = new SpatialRTL(*this);
+    command = std::make_shared<SpatialRTL>(*this);
 }
 
 SpatialRTL::SpatialRTL():

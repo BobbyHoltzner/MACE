@@ -222,11 +222,30 @@ int main(int argc, char *argv[])
     }
 
 
+    //////
+    ///// Madison Memory Testing : Force shutdown of all modules after some time
+    /////
+    /*
+    static const int TIME_TO_SHUTDOWN = 90;
+    printf("!!!!!!!!!!!WARNING!!!!!!!!!!!\n  -- Debug code will be forcing shutdown of MACE after %d seconds  -- \n", TIME_TO_SHUTDOWN);
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIME_TO_SHUTDOWN* 1000));
+    for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
+    {
+        it->first->shutdown();
+    }
+    */
+    /// End Madison Testing
+
     //wait for all threads to complete
     for(std::thread* thread: threads)
     {
         thread->join();
+        delete thread;
     }
+
+
+
+    delete factory;
 
     return 0;
 }

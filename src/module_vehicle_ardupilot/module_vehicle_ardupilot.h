@@ -46,6 +46,8 @@ class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public Modu
 public:
     ModuleVehicleArdupilot();
 
+    ~ModuleVehicleArdupilot();
+
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
     void createLog(const int &systemID);
@@ -282,6 +284,8 @@ private:
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> m_TopicToControllers;
 
     MAVLINKVehicleControllers::ControllerMission * m_MissionController;
+
+    Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *m_TransmissionQueue;
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H

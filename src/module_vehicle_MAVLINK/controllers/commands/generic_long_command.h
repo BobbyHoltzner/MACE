@@ -88,6 +88,8 @@ public:
 
     }
 
+    virtual ~Controller_GenericLongCommand() = default;
+
 
     mavlink_command_long_t initializeCommandLong()
     {

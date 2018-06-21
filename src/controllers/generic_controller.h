@@ -193,9 +193,15 @@ private:
         m_MessageBehaviorsMutex.unlock();
 
 
+        std::vector<std::function<void()>> lambdasToCall = {};
         for(auto it = m_ShutdownLambda.cbegin() ; it != m_ShutdownLambda.cend() ; ++it)
         {
-            it->second();
+            lambdasToCall.push_back(it->second);
+        }
+
+        for(auto it = lambdasToCall.cbegin() ; it != lambdasToCall.cend() ; ++it)
+        {
+            (*it)();
         }
     }
 

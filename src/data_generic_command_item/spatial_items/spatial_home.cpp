@@ -17,14 +17,14 @@ bool SpatialHome::hasSpatialInfluence() const
     return true;
 }
 
-AbstractCommandItem* SpatialHome::getClone() const
+std::shared_ptr<AbstractCommandItem> SpatialHome::getClone() const
 {
-    return (new SpatialHome(*this));
+    return std::make_shared<SpatialHome>(*this);
 }
 
-void SpatialHome::getClone(AbstractCommandItem** command) const
+void SpatialHome::getClone(std::shared_ptr<AbstractCommandItem> &command) const
 {
-    *command = new SpatialHome(*this);
+    command = std::make_shared<SpatialHome>(*this);
 }
 
 SpatialHome::SpatialHome():

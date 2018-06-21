@@ -38,9 +38,9 @@ public:
 class MavlinkVehicleObject : public Controllers::IMessageNotifier<mavlink_message_t>
 {
 public:
-    MavlinkVehicleObject(CommsMAVLINK *commsObj, const int &ID = 1);
+    MavlinkVehicleObject(CommsMAVLINK *commsObj, const int &ID, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue);
 
-    ~MavlinkVehicleObject() = default;
+    ~MavlinkVehicleObject();
 
     int getMAVLINKID() const;
 

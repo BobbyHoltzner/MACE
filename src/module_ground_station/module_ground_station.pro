@@ -13,8 +13,6 @@ DEFINES += MODULE_GROUND_STATION_LIBRARY
 
 QMAKE_CXXFLAGS += -std=c++11
 
-QMAKE_CXXFLAGS += -Wa,-mbig-obj
-
 SOURCES += module_ground_station.cpp \
     guitimer.cpp \
     macetogui.cpp \
@@ -103,9 +101,3 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../data_generic_mission_item_topic/ -ldata_
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base_topic/release/ -lbase_topic
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base_topic/debug/ -lbase_topic
 else:unix:!macx: LIBS += -L$$OUT_PWD/../base_topic/ -lbase_topic
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
-else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
-
-INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include

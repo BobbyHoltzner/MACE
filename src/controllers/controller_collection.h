@@ -16,11 +16,30 @@ class ControllerCollection
 {
 public:
 
+    ~ControllerCollection()
+    {
+        controllerMutex.lock();
+        for(auto it = controllers.cbegin() ; it != controllers.cend() ; ++it)
+        {
+            controllers.erase(it->first);
+            delete it->second;
+        }
+        controllerMutex.unlock();
+    }
+
     IController<MessageType>* At(const std::string &name)
     {
         return controllers.at(name);
     }
 
+
+    //!
+    //! \brief Insert a pointer to controller
+    //!
+    //! When giving this object a pointer to a controller this object is taking responsibility for that pointer.
+    //! \param name
+    //! \param ptr
+    //!
     void Insert(const std::string &name, IController<MessageType>* ptr)
     {
         controllers.insert({name, ptr});

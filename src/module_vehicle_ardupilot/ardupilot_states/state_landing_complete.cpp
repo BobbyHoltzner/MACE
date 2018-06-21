@@ -40,7 +40,7 @@ hsm::Transition State_LandingComplete::GetTransition()
     return rtn;
 }
 
-bool State_LandingComplete::handleCommand(const AbstractCommandItem* command)
+bool State_LandingComplete::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
 
 }
@@ -55,7 +55,7 @@ void State_LandingComplete::OnEnter()
 
 }
 
-void State_LandingComplete::OnEnter(const AbstractCommandItem *command)
+void State_LandingComplete::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     if(command != nullptr)
     {

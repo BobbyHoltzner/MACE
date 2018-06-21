@@ -17,7 +17,9 @@ public:
 
     }
 
-    protected:
+    virtual ~CommandRTL() = default;
+
+protected:
 
     virtual void FillCommand(const CommandItem::SpatialRTL &commandItem, mavlink_command_long_t &cmd) const
     {

@@ -186,9 +186,3 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../base_topic/ -lbase_topic
 
 INCLUDEPATH += $$PWD/../base_topic
 DEPENDPATH += $$PWD/../base_topic
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
-else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
-
-INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include

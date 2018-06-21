@@ -17,14 +17,14 @@ bool SpatialLoiter_Time::hasSpatialInfluence() const
     return true;
 }
 
-AbstractCommandItem* SpatialLoiter_Time::getClone() const
+std::shared_ptr<AbstractCommandItem> SpatialLoiter_Time::getClone() const
 {
-    return (new SpatialLoiter_Time(*this));
+    return std::make_shared<SpatialLoiter_Time>(*this);
 }
 
-void SpatialLoiter_Time::getClone(AbstractCommandItem** command) const
+void SpatialLoiter_Time::getClone(std::shared_ptr<AbstractCommandItem> &command) const
 {
-    *command = new SpatialLoiter_Time(*this);
+    command = std::make_shared<SpatialLoiter_Time>(*this);
 }
 
 SpatialLoiter_Time::SpatialLoiter_Time():

@@ -65,7 +65,7 @@ hsm::Transition State_Takeoff::GetTransition()
     return rtn;
 }
 
-bool State_Takeoff::handleCommand(const AbstractCommandItem* command)
+bool State_Takeoff::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
     this->clearCommand();
 
@@ -150,13 +150,12 @@ void State_Takeoff::OnEnter()
 
 
 
-void State_Takeoff::OnEnter(const AbstractCommandItem *command)
+void State_Takeoff::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     if(command != nullptr)
     {
         this->OnEnter();
         this->handleCommand(command);
-        delete command;
     }
 }
 

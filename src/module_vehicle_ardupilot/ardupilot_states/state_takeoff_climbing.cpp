@@ -56,7 +56,7 @@ hsm::Transition State_TakeoffClimbing::GetTransition()
     return rtn;
 }
 
-bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
+bool State_TakeoffClimbing::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
     clearCommand();
     switch (command->getCommandType()) {
@@ -86,7 +86,7 @@ bool State_TakeoffClimbing::handleCommand(const AbstractCommandItem* command)
                     {
                         if(cmd->getPosition().has3DPositionSet())
                         {
-                            this->currentCommand = cmd;
+                            this->currentCommand = cmd->getClone();
                             desiredStateEnum = ArdupilotFlightState::STATE_TAKEOFF_TRANSITIONING;
                         }
                         else
@@ -140,13 +140,12 @@ void State_TakeoffClimbing::OnEnter()
     //By default I dont think there are any actions that we need to do
 }
 
-void State_TakeoffClimbing::OnEnter(const AbstractCommandItem *command)
+void State_TakeoffClimbing::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     this->OnEnter();
     if(command != nullptr)
     {
         handleCommand(command);
-        delete command;
     }
 }
 

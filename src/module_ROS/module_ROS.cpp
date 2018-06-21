@@ -17,6 +17,8 @@
 
 #include <limits>
 
+#include <ctime>
+
 
 //!
 //! \brief ModuleROS Default constructor
@@ -25,7 +27,9 @@ ModuleROS::ModuleROS() :
     MaceCore::IModuleCommandROS(),
     m_PlanningStateTopic("planningState"),
     m_VehicleDataTopic("vehicleData"),
-    m_MapTopic("mappingData")
+    m_MapTopic("mappingData"),
+    m_OccupancyMapCalculation([this](const std::shared_ptr<octomap::OcTree> &tree){this->renderOccupancyMap(tree);}),
+    m_CompressedMapCalculation([this](const std::shared_ptr<mace::maps::Data2DGrid<mace::maps::OccupiedResult>> &map){this->NewlyCompressedOccupancyMap(*map);})
 {
     //m_tfListener = std::make_shared<tf2_ros::TransformListener>(m_tfBuffer);
 }
@@ -227,9 +231,11 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
 void ModuleROS::NewlyUpdated3DOccupancyMap()
 {
 #ifdef ROS_EXISTS
-    octomap::OcTree tree = this->getDataObject()->getOccupancyGrid3D();
-    this->renderOccupancyMap(&tree);
-    this->NewlyCompressedOccupancyMap(this->getDataObject()->getCompressedOccupancyGrid2D());
+    std::shared_ptr<octomap::OcTree> tree = std::make_shared<octomap::OcTree>(this->getDataObject()->getOccupancyGrid3D());
+    m_OccupancyMapCalculation.NewTasks(tree);
+
+    std::shared_ptr<mace::maps::Data2DGrid<OccupiedResult> > data = std::make_shared<mace::maps::Data2DGrid<OccupiedResult>>(this->getDataObject()->getCompressedOccupancyGrid2D());
+    m_CompressedMapCalculation.NewTasks(data);
 #endif
 }
 
@@ -661,10 +667,15 @@ void ModuleROS::newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& ms
 }
 
 
-void ModuleROS::renderOccupancyMap(const octomap::OcTree* tree)
+void ModuleROS::renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree)
 {
     if(tree->size() > 0)
     {
+        double minX, minY, minZ, maxX, maxY, maxZ;
+
+        tree->getMetricMin(minX, minY, minZ);
+        tree->getMetricMax(maxX, maxY, maxZ);
+
         visualization_msgs::MarkerArray occupiedVoxels;
         occupiedVoxels.markers.resize(tree->getTreeDepth() + 1);
         for (octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end(); it != end; ++it)
@@ -673,12 +684,6 @@ void ModuleROS::renderOccupancyMap(const octomap::OcTree* tree)
             {
                 unsigned int leafIndex = it.getDepth();
 
-                double size = it.getSize();
-
-                double minX, minY, minZ, maxX, maxY, maxZ;
-
-                tree->getMetricMin(minX, minY, minZ);
-                tree->getMetricMax(maxX, maxY, maxZ);
                 geometry_msgs::Point cube;
                 cube.x = it.getX();
                 cube.y = it.getY();
@@ -703,6 +708,7 @@ void ModuleROS::renderOccupancyMap(const octomap::OcTree* tree)
         occupancyMapPub.publish(occupiedVoxels);
     }
 }
+
 
 //!
 //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz

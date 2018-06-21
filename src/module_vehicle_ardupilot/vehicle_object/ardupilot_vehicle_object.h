@@ -8,7 +8,7 @@
 
 #include "data_generic_mission_item_topic/vehicle_target_topic.h"
 
-
+#include "controllers/base_module_queue.h"
 
 
 
@@ -17,7 +17,7 @@ typedef void(*CallbackFunctionPtr_VehicleTarget)(void*, MissionTopic::VehicleTar
 class ArdupilotVehicleObject : public MavlinkVehicleObject
 {
 public:
-    ArdupilotVehicleObject(CommsMAVLINK* commsObj, const int &ID = 1);
+    ArdupilotVehicleObject(CommsMAVLINK* commsObj, const int &ID, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue);
 
     CallbackInterface_MAVLINKVehicleObject* getMAVLINKCallback()
     {

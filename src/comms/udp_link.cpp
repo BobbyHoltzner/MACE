@@ -12,7 +12,8 @@ class ReceiverThread : public QThread
 {
 public:
     ReceiverThread(const std::function<void(void)> &func):
-        m_func(func)
+        m_func(func),
+        m_Shutdown(false)
     {
         if(QCoreApplication::instance() == NULL)
         {
@@ -26,15 +27,27 @@ public:
     {
         while(true)
         {
+            if(m_Shutdown == true)
+            {
+                break;
+            }
+
             QCoreApplication::processEvents();
             m_func();
         }
+    }
+
+    virtual void shutdown()
+    {
+        m_Shutdown = true;
+        this->wait();
     }
 
 private:
 
     std::function<void(void)> m_func;
     QCoreApplication *pApp;
+    bool m_Shutdown;
 };
 
 
@@ -94,7 +107,12 @@ bool UdpLink::Connect(void)
 void UdpLink::Disconnect(void)
 {
     if (m_socket) {
+
+        ((ReceiverThread*)m_ListenThread)->shutdown();
+        delete m_ListenThread;
+
         m_socket->close();
+
         delete m_socket;
         m_socket = NULL;
     }

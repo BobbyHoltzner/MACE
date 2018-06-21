@@ -23,7 +23,8 @@ public:
     AbstractModule_EventListeners() :
         m_LoopSleepTime(std::chrono::milliseconds(10)),
         m_DefaultMarshalCommandOnEventLoop(true),
-        m_Started(false)
+        m_Started(false),
+        m_Shutdown(false)
     {
 
     }
@@ -35,10 +36,20 @@ public:
         m_Started = true;
         while(true)
         {
+            if(m_Shutdown == true)
+            {
+                break;
+            }
+
             m_CommandDispatcher.ExecuteQueuedCommands();
 
             std::this_thread::sleep_for (m_LoopSleepTime);
         }
+    }
+
+    virtual void shutdown()
+    {
+        m_Shutdown = true;
     }
 
     void setModuleMetaData(const T &data)
@@ -289,6 +300,7 @@ private:
     CommandMarshler<CT> m_CommandDispatcher;
 
     bool m_Started;
+    bool m_Shutdown;
 
 };
 

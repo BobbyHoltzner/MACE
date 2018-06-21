@@ -17,14 +17,14 @@ bool SpatialWaypoint::hasSpatialInfluence() const
     return true;
 }
 
-AbstractCommandItem* SpatialWaypoint::getClone() const
+std::shared_ptr<AbstractCommandItem> SpatialWaypoint::getClone() const
 {
-    return (new SpatialWaypoint(*this));
+    return std::make_shared<SpatialWaypoint>(*this);
 }
 
-void SpatialWaypoint::getClone(AbstractCommandItem** command) const
+void SpatialWaypoint::getClone(std::shared_ptr<AbstractCommandItem> &command) const
 {
-    *command = new SpatialWaypoint(*this);
+    command = std::make_shared<SpatialWaypoint>(*this);
 }
 
 SpatialWaypoint::SpatialWaypoint():
