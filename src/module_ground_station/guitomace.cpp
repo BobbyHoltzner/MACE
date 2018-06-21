@@ -533,6 +533,24 @@ bool GUItoMACE::writeTCPData(QByteArray data)
 
 void GUItoMACE::testFunction1(const int &vehicleID)
 {
+
+    BoundaryItem::BoundaryList operationalBoundary(1,2,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+
+    Position<CartesianPosition_2D> vertex1("First",-100,-100);
+    Position<CartesianPosition_2D> vertex2("Second",-100,100);
+    Position<CartesianPosition_2D> vertex3("Third",100,100);
+    Position<CartesianPosition_2D> vertex4("Fourth",100,-100);
+
+    operationalBoundary.appendVertexItem(vertex1);
+    operationalBoundary.appendVertexItem(vertex2);
+    operationalBoundary.appendVertexItem(vertex3);
+    operationalBoundary.appendVertexItem(vertex4);
+
+    m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
+        ptr->Event_SetOperationalBoundary(m_parent, operationalBoundary);
+//        ptr->Event_SetBoundary(m_parent, operationalBoundary);
+    });
+
 //    mLogs->debug("Module Ground Station saw a request on test function 1.");
 
 //    MissionItem::MissionList missionList;
