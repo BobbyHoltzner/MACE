@@ -127,9 +127,15 @@ private:
 
 private:
 
-    MissionItem::MissionList missionList;
+    MissionItem::MissionList m_MissionList;
+    TargetItem::DynamicMissionQueue m_DynamicPlan;
+
 
     mace::state_space::Cartesian2DSpacePtr m_Space;
+    mace::state_space::Cartesian2DSpace_SamplerPtr sampler;
+    mace::state_space::DiscreteMotionValidityCheckPtr motionCheck;
+    mace::state_space::SpecialValidityCheckPtr stateCheck;
+    mace::state_space::SpaceInformationPtr spaceInfo;
 
     mace::pose::GeodeticPosition_3D m_globalOrigin;
 

@@ -17,14 +17,14 @@ bool SpatialTakeoff::hasSpatialInfluence() const
     return true;
 }
 
-AbstractCommandItem* SpatialTakeoff::getClone() const
+std::shared_ptr<AbstractCommandItem> SpatialTakeoff::getClone() const
 {
-    return (new SpatialTakeoff(*this));
+    return std::make_shared<SpatialTakeoff>(*this);
 }
 
-void SpatialTakeoff::getClone(AbstractCommandItem** command) const
+void SpatialTakeoff::getClone(std::shared_ptr<AbstractCommandItem> &command) const
 {
-    *command = new SpatialTakeoff(*this);
+    command = std::make_shared<SpatialTakeoff>(*this);
 }
 
 SpatialTakeoff::SpatialTakeoff():

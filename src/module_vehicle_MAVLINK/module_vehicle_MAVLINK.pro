@@ -153,9 +153,3 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_vehicle_g
 else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_generic/ -lmodule_vehicle_generic
 
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
-
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
-else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
-
-INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include

@@ -6,7 +6,7 @@
       <Parameter Name="Version">V2</Parameter>
     </Parameter>
     <Parameter Name="DigiMeshParameters">
-      <Parameter Name="PortName">COM4</Parameter>
+      <Parameter Name="PortName">COM5</Parameter>
       <Parameter Name="BaudRate">9600</Parameter>
     </Parameter>
 		<Parameter Name="ModuleParameters">

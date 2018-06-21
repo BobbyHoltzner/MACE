@@ -3,85 +3,15 @@
 #include "data_generic_command_item/command_item_components.h"
 
 #include "data_generic_command_item/target_items/dynamic_target_list.h"
+#include "maps/octomap_wrapper.h"
+
 using namespace mace ;
 using namespace geometry;
-
-const char kPathSeparator =
-        #ifdef _WIN32
-        '\\';
-#else
-        '/';
-#endif
-
-
-class StateData{
-public:
-
-    StateData():
-        value(4.5)
-    {
-
-    }
-    StateData(const StateData &copy)
-    {
-        std::cout<<"The copy constructor of StateData is being called"<<std::endl;
-        this->value = copy.value;
-    }
-
-    StateData& operator =(const StateData &rhs)
-    {
-        this->value = rhs.value;
-        return *this;
-    }
-
-    double getValue() const {
-        this->value;
-    }
-
-    void setValue(const double &newValue){
-        this->value = newValue;
-    }
-
-private:
-    double value;
-};
-
-class TestCopy
-{
-public:
-
-    TestCopy()
-    {
-        data = new StateData();
-    }
-
-    TestCopy(const TestCopy &copy)
-    {
-        data = new StateData(*copy.data);
-    }
-
-
-    StateData getStateData() const
-    {
-        return *data;
-    }
-
-
-private:
-    StateData* data;
-};
-
-
-class TestPointer
-{
-public:
-    TestPointer() = default;
-};
 
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
+    mace::maps::OctomapWrapper *wrapper = new mace::maps::OctomapWrapper();
 
     std::list<TargetItem::DynamicTargetStorage> targetList;
 
@@ -174,5 +104,7 @@ int main(int argc, char *argv[])
         delete solution.at(i);
     }
     */
+    delete wrapper;
+
     return 0;
 }

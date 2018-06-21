@@ -91,7 +91,7 @@ hsm::Transition State_Flight::GetTransition()
     return rtn;
 }
 
-bool State_Flight::handleCommand(const AbstractCommandItem* command)
+bool State_Flight::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
     COMMANDITEM commandType = command->getCommandType();
     switch (commandType) {
@@ -162,7 +162,7 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
     }
     case COMMANDITEM::CI_NAV_LAND:
     {
-        currentCommand = command->getClone();
+        currentCommand = command;
         desiredStateEnum = ArdupilotFlightState::STATE_LANDING;
         break;
     }
@@ -225,13 +225,12 @@ void State_Flight::OnEnter()
     checkTransitionFromMode(currentModeString);
 }
 
-void State_Flight::OnEnter(const AbstractCommandItem *command)
+void State_Flight::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     this->OnEnter();
     if(command != nullptr)
     {
         handleCommand(command);
-        delete command;//we handle this deletion as we know it had to come from previous command of state
     }
 }
 

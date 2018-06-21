@@ -35,6 +35,8 @@ public:
     //!
     virtual bool ReceiveMessage(const MESSAGETYPE* message, const MaceCore::ModuleCharacteristic &sender) = 0;
 
+    virtual ~IController() = default;
+
     //!
     //! \brief Query to be given to determin if controller has the given action
     //! \param action Action to ask if controller contains

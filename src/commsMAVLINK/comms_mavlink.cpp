@@ -6,6 +6,11 @@ CommsMAVLINK::CommsMAVLINK() :
     m_LinkMarshaler->AddSubscriber(this);
 }
 
+CommsMAVLINK::~CommsMAVLINK()
+{
+    delete m_LinkMarshaler;
+}
+
 uint8_t CommsMAVLINK::getLinkChannel() const
 {
     return this->m_LinkChan;
@@ -231,4 +236,10 @@ void CommsMAVLINK::ConfigureComms(const std::shared_ptr<MaceCore::ModuleParamete
         throw std::runtime_error("No Link has been configured for the vehicle MAVLINK module");
     }
 
+}
+
+
+void CommsMAVLINK::Shutdown()
+{
+    m_LinkMarshaler->DisconnectFromLink(m_LinkName);
 }

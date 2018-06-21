@@ -20,7 +20,22 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
     vehicleData(nullptr), stateMachine(nullptr)
 {
 
+    m_TransmissionQueue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>(2000, 3);
+}
 
+ModuleVehicleArdupilot::~ModuleVehicleArdupilot()
+{
+    if(stateMachine)
+    {
+        delete stateMachine;
+    }
+
+    if(m_MissionController)
+    {
+        delete m_MissionController;
+    }
+
+    delete m_TransmissionQueue;
 }
 
 
@@ -79,7 +94,7 @@ void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &com
     mLogs->debug("Receieved a command system arm.");
     mLogs->info(buffer.str());
     ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
-    currentOuterState->handleCommand(&command);
+    currentOuterState->handleCommand(command.getClone());
 
     ProgressStateMachineStates();
 }
@@ -96,7 +111,7 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
     mLogs->info(buffer.str());
 
     ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
-    currentOuterState->handleCommand(&commandWithTarget);
+    currentOuterState->handleCommand(commandWithTarget.getClone());
     ProgressStateMachineStates();
 }
 
@@ -112,7 +127,7 @@ void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &comman
     mLogs->info(buffer.str());
 
     ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
-    currentOuterState->handleCommand(&commandWithTarget);
+    currentOuterState->handleCommand(commandWithTarget.getClone());
     ProgressStateMachineStates();
 }
 
@@ -124,7 +139,7 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
     mLogs->debug("Receieved a command RTL.");
 
     ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
-    currentOuterState->handleCommand(&commandWithTarget);
+    currentOuterState->handleCommand(commandWithTarget.getClone());
     ProgressStateMachineStates();
 }
 
@@ -178,7 +193,7 @@ void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionC
     mLogs->info(buffer.str());
 
     ardupilot::state::AbstractStateArdupilot* outerState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
-    outerState->handleCommand(&commandWithTarget);
+    outerState->handleCommand(commandWithTarget.getClone());
     ProgressStateMachineStates();
 }
 
@@ -208,7 +223,7 @@ void ModuleVehicleArdupilot::Command_SetHomePosition(const CommandItem::SpatialH
     mLogs->info(buffer.str());
 
     ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
-    currentOuterState->handleCommand(&vehicleHome);
+    currentOuterState->handleCommand(vehicleHome.getClone());
     ProgressStateMachineStates();
 }
 
@@ -365,7 +380,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     {
         createLog(systemID);
         //this is the first time we have seen this heartbeat or the data was destroyed for some reason
-        vehicleData = std::make_shared<ArdupilotVehicleObject>(this,systemID);
+        vehicleData = std::make_shared<ArdupilotVehicleObject>(this, systemID, m_TransmissionQueue);
         vehicleData->connectCallback(this);
         vehicleData->connectTargetCallback(ModuleVehicleArdupilot::staticCallbackFunction_VehicleTarget, this);
 
@@ -373,8 +388,8 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
 
 
         //create "stateless" mission controller
-        Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
-        m_MissionController = new MAVLINKVehicleControllers::ControllerMission(vehicleData.get(), queue, m_LinkChan);
+
+        m_MissionController = new MAVLINKVehicleControllers::ControllerMission(vehicleData.get(), m_TransmissionQueue, m_LinkChan);
         m_MissionController->setLambda_DataReceived([this](const void* key, const std::shared_ptr<MAVLINKVehicleControllers::MissionDownloadResult> &data){
 
             //////////////////////////////

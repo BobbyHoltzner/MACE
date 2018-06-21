@@ -17,7 +17,9 @@ public:
 
     }
 
-    protected:
+    virtual ~CommandARM() = default;
+
+protected:
 
     virtual void FillCommand(const CommandItem::ActionArm &commandItem, mavlink_command_long_t &cmd) const
     {

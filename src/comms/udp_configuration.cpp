@@ -11,17 +11,22 @@ UdpConfiguration::UdpConfiguration(const std::string& listenAddress, const int &
     _listenPortNumber    = listenPort;
 //    _senderAddress       = senderAddress;
 //    _senderPortNumber    = senderPort;
-    m_socket = new QUdpSocket();
+
+    //mtb - configuration only mean to hold parmaters, not tehe object itself
+    //m_socket = new QUdpSocket();
 }
 
 UdpConfiguration::~UdpConfiguration()
 {
+    //mtb - configuration only mean to hold parmaters, not tehe object itself
     // Delete socket and break out of this loop:
+    /*
     if (m_socket) {
         m_socket->close();
         delete m_socket;
         m_socket = NULL;
     }
+    */
 }
 
 UdpConfiguration::UdpConfiguration(const std::string& listenAddress, const int &listenPort, const std::string& senderAddress, const int &senderPort)
@@ -72,7 +77,9 @@ void UdpConfiguration::setSenderPortNumber(int portNumber)
 }
 
 
-
+/*
+ * mtb - configuration only mean to hold parmaters, not tehe object itself
+ *
 // Set up a UDP socket to listen for UDP messages on, and set the sender address and port
 void UdpConfiguration::listenForPort(const int &listenPortNumber)
 {
@@ -112,6 +119,7 @@ void UdpConfiguration::listenForPort(const int &listenPortNumber)
     }
 
 }
+*/
 
 
 }

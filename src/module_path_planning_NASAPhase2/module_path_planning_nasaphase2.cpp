@@ -17,6 +17,30 @@ ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
 {
     OccupiedResult fillValue = OccupiedResult::NOT_OCCUPIED;
     m_OccupiedVehicleMap = new maps::Data2DGrid<OccupiedResult>(&fillValue);
+
+    m_Space = std::make_shared<mace::state_space::Cartesian2DSpace>();
+
+    sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(m_Space);
+    motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(m_Space);
+    stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(m_Space);
+
+
+//    auto stateValidityCheck = ([this,compressedMap](const mace::state_space::State *state){
+//        const mace::pose::CartesianPosition_2D* castState = state->as<const mace::pose::CartesianPosition_2D>();
+//        mace::maps::OctomapWrapper::OccupiedResult* result = compressedMap->getCellByPos(castState->getXPosition(),castState->getYPosition());
+//        if(*result == mace::maps::OctomapWrapper::OccupiedResult::NOT_OCCUPIED)
+//            return true;
+//        return false;
+//    });
+
+    //stateCheck->setLambda_Validity(stateValidityCheck);
+    motionCheck->setStateValidityCheck(stateCheck);
+    motionCheck->setMinCheckDistance(0.5);
+
+    spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(m_Space);
+    spaceInfo->setStateSampler(sampler);
+    spaceInfo->setStateValidityCheck(stateCheck);
+    spaceInfo->setMotionValidityCheck(motionCheck);
 }
 
 
@@ -193,6 +217,8 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateLocalPositionTopic::Name())
             {
+                //Let us see how the vehicle is tracking
+                //This should already be announced in the local frame relative to the global origin
 
             }
         }
@@ -204,13 +230,15 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
 
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
-                std::cout<<"I have seen a misson item reached topic"<<std::endl;
+                std::cout<<"Path planner has seen that a mission item has been reached and will plan for the next one."<<std::endl;
+
                 std::shared_ptr<MissionTopic::MissionItemReachedTopic> component = std::make_shared<MissionTopic::MissionItemReachedTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
                 //For now we will use this event to plan a route to the next valid mission item
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
-                std::cout<<"Path planner has seen a "<<std::endl;
+                std::cout<<"Path planner has seen that a mission item is the current item and should make sure this matches his formulated plan."<<std::endl;
+
                 std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
@@ -221,45 +249,12 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
 
 void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 {
-    /*
     UNUSED(vehicleID);
-    char* MACEPath = getenv("MACE_ROOT");
-    std::string rootPath(MACEPath);
-    std::string btFile = rootPath + kPathSeparator + "simple_test_000_303030_newOrigin.bt";
-    mace::maps::OctomapWrapper octomap;
-    octomap.loadOctreeFromBT(btFile);
-    octomap.updateMapContinuity();
-    octomap.updateMapFromTree();
-    mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult>* compressedMap = octomap.get2DOccupancyMap();
 
-    compressedMap->updatePosition(mace::pose::CartesianPosition_2D(-15,-15));
-
-    ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr){
-        ptr->EventPP_New2DOccupancyMap(this, *compressedMap);
-    });
+    //This function should add an occupancy item to the layers map capturing current vehicle position
 
     m_Space = std::make_shared<mace::state_space::Cartesian2DSpace>();
     m_Space->bounds.setBounds(-15,15,-15,15);
-
-    mace::state_space::Cartesian2DSpace_SamplerPtr sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(m_Space);
-    mace::state_space::DiscreteMotionValidityCheckPtr motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(m_Space);
-    mace::state_space::SpecialValidityCheckPtr stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(m_Space);
-    auto stateValidityCheck = ([this,compressedMap](const mace::state_space::State *state){
-        const mace::pose::CartesianPosition_2D* castState = state->as<const mace::pose::CartesianPosition_2D>();
-        mace::maps::OctomapWrapper::OccupiedResult* result = compressedMap->getCellByPos(castState->getXPosition(),castState->getYPosition());
-        if(*result == mace::maps::OctomapWrapper::OccupiedResult::NOT_OCCUPIED)
-            return true;
-        return false;
-    });
-    stateCheck->setLambda_Validity(stateValidityCheck);
-
-    motionCheck->setStateValidityCheck(stateCheck);
-    motionCheck->setMinCheckDistance(0.125);
-
-    mace::state_space::SpaceInformationPtr spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(m_Space);
-    spaceInfo->setStateSampler(sampler);
-    spaceInfo->setStateValidityCheck(stateCheck);
-    spaceInfo->setMotionValidityCheck(motionCheck);
 
     mace::planners_sampling::RRTBase rrt(spaceInfo);
     mace::state_space::GoalState* begin = new mace::state_space::GoalState(m_Space);
@@ -284,22 +279,21 @@ void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
         std::cout<<"X: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
     }
 
-    ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr){
-        ptr->EventPP_NewPathFound(this, smartSolution);
-    });
+//    ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr){
+//        ptr->EventPP_NewPathFound(this, smartSolution);
+//    });
 
-    std::shared_ptr<MapItemTopics::Occupancy2DGrid_Topic> ptrMap= std::make_shared<MapItemTopics::Occupancy2DGrid_Topic>();
-    ptrMap->setMap(std::shared_ptr<mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult>>(compressedMap));
+//    std::shared_ptr<MapItemTopics::Occupancy2DGrid_Topic> ptrMap= std::make_shared<MapItemTopics::Occupancy2DGrid_Topic>();
+//    ptrMap->setMap(std::shared_ptr<mace::maps::Data2DGrid<mace::maps::OctomapWrapper::OccupiedResult>>(compressedMap));
 
-    MaceCore::TopicDatagram topicDatagram;
-    m_MapTopic.SetComponent(ptrMap, topicDatagram);
+//    MaceCore::TopicDatagram topicDatagram;
+//    m_MapTopic.SetComponent(ptrMap, topicDatagram);
 
-    ModulePathPlanningNASAPhase2::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
-        ptr->NewTopicDataValues(this, m_MapTopic.Name(), 0, MaceCore::TIME(), topicDatagram);
-    });
+//    ModulePathPlanningNASAPhase2::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+//        ptr->NewTopicDataValues(this, m_MapTopic.Name(), 0, MaceCore::TIME(), topicDatagram);
+//    });
 
-    std::cout<<"The event is right before firing"<<std::endl;
-    */
+//    std::cout<<"The event is right before firing"<<std::endl;
 }
 
 
@@ -366,7 +360,12 @@ void ModulePathPlanningNASAPhase2::NewlyUpdatedOperationalFence(const BoundaryIt
 
 void ModulePathPlanningNASAPhase2::NewlyAvailableMission(const MissionItem::MissionList &mission)
 {
-    missionList = mission;
+    if(mission.getMissionType() == MISSIONTYPE::GUIDED) //we should only be handling guided mission types, auto can go direct to vehicle or explored later
+    {
+        m_MissionList = mission;
+        //at this point we would want to start preplanning the route based on beginning to ending nodes
+
+    }
 }
 
 void ModulePathPlanningNASAPhase2::cbiPlanner_SampledState(const mace::state_space::State *sampleState)

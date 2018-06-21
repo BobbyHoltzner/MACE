@@ -16,6 +16,8 @@ public:
 
     }
 
+    virtual ~CommandTakeoff() = default;
+
 protected:
 
     virtual void FillCommand(const CommandItem::SpatialTakeoff &commandItem, mavlink_command_long_t &cmd) const

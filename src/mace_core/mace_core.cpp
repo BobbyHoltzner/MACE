@@ -914,7 +914,9 @@ void MaceCore::EventPP_NewDynamicMissionQueue(const ModuleBase *sender, const Ta
 {
     UNUSED(sender);
 
-    //int vehicleID = queue.missionKey.m_systemID;
+    //Find who the queue is intended for
+    //int vehicleID = queue.getAssociatedMissionKey().m_systemID;
+    //Marshal the command to that vehicle
     //m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::UPDATED_DYNAMIC_MISSION_QUEUE, queue);
 }
 

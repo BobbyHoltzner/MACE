@@ -44,7 +44,7 @@ hsm::Transition State_GroundedIdle::GetTransition()
     return rtn;
 }
 
-bool State_GroundedIdle::handleCommand(const AbstractCommandItem* command)
+bool State_GroundedIdle::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
     COMMANDITEM type = command->getCommandType();
 
@@ -60,7 +60,7 @@ bool State_GroundedIdle::handleCommand(const AbstractCommandItem* command)
         //This is a case where we want to walk all the way through arming to takeoff
         desiredStateEnum = ArdupilotFlightState::STATE_GROUNDED_ARMING;
         this->clearCommand();
-        currentCommand = command->getClone();
+        currentCommand = command;
     }
     default:
         break;
@@ -83,7 +83,7 @@ void State_GroundedIdle::OnExit()
     AbstractStateArdupilot::OnExit();
 }
 
-void State_GroundedIdle::OnEnter(const AbstractCommandItem *command)
+void State_GroundedIdle::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     this->OnEnter();
 

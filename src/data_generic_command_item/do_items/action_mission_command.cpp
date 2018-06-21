@@ -16,14 +16,14 @@ bool ActionMissionCommand::hasSpatialInfluence() const
     return false;
 }
 
-AbstractCommandItem* ActionMissionCommand::getClone() const
+std::shared_ptr<AbstractCommandItem> ActionMissionCommand::getClone() const
 {
-    return (new ActionMissionCommand(*this));
+    return std::make_shared<ActionMissionCommand>(*this);
 }
 
-void ActionMissionCommand::getClone(AbstractCommandItem** command) const
+void ActionMissionCommand::getClone(std::shared_ptr<AbstractCommandItem> &command) const
 {
-    *command = new ActionMissionCommand(*this);
+    command = std::make_shared<ActionMissionCommand>(*this);
 }
 
 ActionMissionCommand::ActionMissionCommand()

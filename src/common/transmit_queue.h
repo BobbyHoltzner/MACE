@@ -61,9 +61,7 @@ public:
         start();
     }
 
-    ~TransmitQueue()
-    {
-    }
+    virtual ~TransmitQueue() = default;
 
 
     int QueueTransmission(std::function<void()> transmitAction, const std::function<void()> onFailure = [](){})
@@ -224,6 +222,8 @@ protected:
     Queue* m_Queue;
 
 public:
+
+    virtual ~TransmitQueueWithKeys() = default;
 
     void SetQueue(Queue* queue) {
         m_Queue = queue;

@@ -19,7 +19,9 @@ public:
 
     }
 
-    protected:
+    virtual ~CommandLand() = default;
+
+protected:
 
     virtual void FillCommand(const CommandItem::SpatialLand &commandItem, mavlink_command_long_t &cmd) const
     {

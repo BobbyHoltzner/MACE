@@ -14,7 +14,8 @@ class ServerThread : public QThread
 {
 public:
     ServerThread(const std::function<void(void)> &func):
-        m_func(func)
+        m_func(func),
+        m_Shutdown(false)
     {
         if(QCoreApplication::instance() == NULL)
         {
@@ -28,15 +29,26 @@ public:
     {
         while(true)
         {
+            if(m_Shutdown == true)
+            {
+                break;
+            }
             QCoreApplication::processEvents();
             m_func();
         }
+    }
+
+    virtual void shutdown()
+    {
+        m_Shutdown = true;
+        this->wait();
     }
 
 private:
 
     std::function<void(void)> m_func;
     QCoreApplication *pApp;
+    bool m_Shutdown;
 };
 
 ModuleGroundStation::ModuleGroundStation() :
@@ -85,6 +97,7 @@ ModuleGroundStation::~ModuleGroundStation()
 {
     if(m_ListenThread != NULL)
     {
+        ((ServerThread*)m_ListenThread)->shutdown();
         delete m_ListenThread;
     }
 

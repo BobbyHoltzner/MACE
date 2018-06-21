@@ -850,6 +850,7 @@ void ModuleExternalLink::NewlyAvailableBoundary(const BoundaryItem::BoundaryKey 
             boundaryObj.boundary_type = (uint8_t)boundary.getBoundaryKey().m_boundaryType;
             mace_message_t msg;
             mace_msg_new_boundary_object_encode_chan(sender().ID, (int)sender().Class, m_LinkChan, &msg, &boundaryObj);
+            std::cout<<"The boundary contents: "<<msg.sysid<<" "<<msg.compid<<" "<<boundaryObj.boundary_creator<<" "<<boundaryObj.boundary_system<<" "<<boundaryObj.boundary_type<<std::endl;
             //mace_msg_operational_boundary(sender().ID, (int)sender().Class, m_LinkChan,&msg,&boundary);
             m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
         }
