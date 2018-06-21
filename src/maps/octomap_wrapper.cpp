@@ -21,6 +21,7 @@ OctomapWrapper::OctomapWrapper(const double &treeResolution, const OctomapSensor
     updateSensorProperties(*m_sensorProperties);
 }
 
+
 OctomapWrapper::~OctomapWrapper()
 {
     delete m_sensorProperties;
@@ -52,18 +53,7 @@ bool OctomapWrapper::updateSensorProperties(const OctomapSensorDefinition &senso
     return false;
 }
 
-<<<<<<< HEAD
 bool OctomapWrapper::updateProjectionProperties(const Octomap2DProjectionDefinition &projectionProperties)
-=======
-OctomapWrapper::~OctomapWrapper()
-{
-    delete m_sensorProperties;
-    delete m_Tree;
-    delete m_Map;
-}
-
-void OctomapWrapper::updateSensorProperties(const OctomapSensorDefinition &sensorProperties)
->>>>>>> master
 {
 
 }

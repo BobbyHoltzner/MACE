@@ -176,7 +176,7 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
     if((vehicleData) && (vehicleData->getMAVLINKID() == systemID))
     {
         ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
-        currentOuterState->handleCommand(&commandWithTarget);
+        currentOuterState->handleCommand(commandWithTarget.getClone());
         ProgressStateMachineStates();
     }
 }

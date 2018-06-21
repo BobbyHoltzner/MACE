@@ -436,6 +436,52 @@ void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<D
 #endif
 }
 
+void ModuleROS::renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree)
+{
+#ifdef ROS_EXISTS
+
+    if(tree->size() > 0)
+    {
+        double minX, minY, minZ, maxX, maxY, maxZ;
+
+        tree->getMetricMin(minX, minY, minZ);
+        tree->getMetricMax(maxX, maxY, maxZ);
+
+        visualization_msgs::MarkerArray occupiedVoxels;
+        occupiedVoxels.markers.resize(tree->getTreeDepth() + 1);
+        for (octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end(); it != end; ++it)
+        {
+            if(tree->isNodeOccupied(*it))
+            {
+                unsigned int leafIndex = it.getDepth();
+
+                geometry_msgs::Point cube;
+                cube.x = it.getX();
+                cube.y = it.getY();
+                cube.z = it.getZ();
+                double height = (1-std::min(std::max((it.getZ() - minZ)/(maxZ - minZ),0.0),1.0));
+                occupiedVoxels.markers[leafIndex].points.push_back(cube);
+                occupiedVoxels.markers[leafIndex].colors.push_back(generateColorHeight(height));
+            }
+        }
+        for(unsigned int i = 0; i < occupiedVoxels.markers.size(); i++)
+        {
+            double size = tree->getNodeSize(i);
+            occupiedVoxels.markers[i].header.frame_id = "/map";
+            occupiedVoxels.markers[i].header.stamp = ros::Time::now();
+            occupiedVoxels.markers[i].type = visualization_msgs::Marker::CUBE_LIST;
+            occupiedVoxels.markers[i].scale.x = size;
+            occupiedVoxels.markers[i].scale.y = size;
+            occupiedVoxels.markers[i].scale.z = size;
+            occupiedVoxels.markers[i].action = visualization_msgs::Marker::ADD;
+        }
+
+        occupancyMapPub.publish(occupiedVoxels);
+    }
+#endif
+}
+
+
 #ifdef ROS_EXISTS
 //!
 //! \brief setupROS Setup ROS subscribers, publishers, and node handler
@@ -662,49 +708,6 @@ void ModuleROS::newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& ms
     ModuleROS::NotifyListeners([&](MaceCore::IModuleEventsROS* ptr){
         ptr->ROS_NewLaserScan(octoPointCloud, transform_position); // TODO: Include transform as arguments (convert to MACE data structures first - Orientation 3D)
     }); //this one explicitly calls mace_core and its up to you to handle in core
-}
-
-
-void ModuleROS::renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree)
-{
-    if(tree->size() > 0)
-    {
-        double minX, minY, minZ, maxX, maxY, maxZ;
-
-        tree->getMetricMin(minX, minY, minZ);
-        tree->getMetricMax(maxX, maxY, maxZ);
-
-        visualization_msgs::MarkerArray occupiedVoxels;
-        occupiedVoxels.markers.resize(tree->getTreeDepth() + 1);
-        for (octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end(); it != end; ++it)
-        {
-            if(tree->isNodeOccupied(*it))
-            {
-                unsigned int leafIndex = it.getDepth();
-
-                geometry_msgs::Point cube;
-                cube.x = it.getX();
-                cube.y = it.getY();
-                cube.z = it.getZ();
-                double height = (1-std::min(std::max((it.getZ() - minZ)/(maxZ - minZ),0.0),1.0));
-                occupiedVoxels.markers[leafIndex].points.push_back(cube);
-                occupiedVoxels.markers[leafIndex].colors.push_back(generateColorHeight(height));
-            }
-        }
-        for(unsigned int i = 0; i < occupiedVoxels.markers.size(); i++)
-        {
-            double size = tree->getNodeSize(i);
-            occupiedVoxels.markers[i].header.frame_id = "/map";
-            occupiedVoxels.markers[i].header.stamp = ros::Time::now();
-            occupiedVoxels.markers[i].type = visualization_msgs::Marker::CUBE_LIST;
-            occupiedVoxels.markers[i].scale.x = size;
-            occupiedVoxels.markers[i].scale.y = size;
-            occupiedVoxels.markers[i].scale.z = size;
-            occupiedVoxels.markers[i].action = visualization_msgs::Marker::ADD;
-        }
-
-        occupancyMapPub.publish(occupiedVoxels);
-    }
 }
 
 
