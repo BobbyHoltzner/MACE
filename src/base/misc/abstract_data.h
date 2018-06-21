@@ -9,24 +9,35 @@ namespace misc {
 namespace details {
 
 template<class POSITIONBASE, class DIMBASE>
-struct DataTypeHelper;
+struct PositionTypeHelper;
 
 template<class POSITIONBASE>
-struct DataTypeHelper<POSITIONBASE, Data1D>
+struct PositionTypeHelper<POSITIONBASE, Data1D>
 {
 public:
     static const int static_size = 1;
 };
 
 template<class POSITIONBASE>
-struct DataTypeHelper<POSITIONBASE, Data2D>
+struct PositionTypeHelper<POSITIONBASE, Data2D>
 {
 public:
     static const int static_size = 2;
 };
 
 template<class POSITIONBASE>
-struct DataTypeHelper<POSITIONBASE, Data3D>
+struct PositionTypeHelper<POSITIONBASE, Data3D>
+{
+public:
+    static const int static_size = 3;
+};
+
+
+template<class DIMBASE>
+struct OrientationTypeHelper;
+
+template<>
+struct OrientationTypeHelper<Data3D>
 {
 public:
     static const int static_size = 3;

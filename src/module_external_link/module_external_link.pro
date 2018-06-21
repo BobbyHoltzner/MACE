@@ -139,6 +139,7 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../module_generic_MAVL
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../module_generic_MAVLINK/debug/ -lmodule_generic_MAVLINK
 else:unix:!macx: LIBS += -L$$OUT_PWD/../module_generic_MAVLINK/ -lmodule_generic_MAVLINK
 
+
 unix {
     exists(/opt/ros/kinetic/lib/) {
         DEFINES += ROS_EXISTS

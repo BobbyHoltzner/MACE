@@ -145,42 +145,40 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
 
 void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
+    TargetItem::DynamicMissionQueue availableQueue(testKey,1);
+
+    TargetItem::CartesianDynamicTarget target;
+    target.setPosition(mace::pose::CartesianPosition_3D(0,100,15));
+    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+    target.setPosition(mace::pose::CartesianPosition_3D(100,100,15));
+    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+    target.setPosition(mace::pose::CartesianPosition_3D(100,-100,15));
+    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+    target.setPosition(mace::pose::CartesianPosition_3D(-100,-100,15));
+    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+    target.setPosition(mace::pose::CartesianPosition_3D(-100,100,15));
+    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+
+    UpdateDynamicMissionQueue(availableQueue);
+
     //Temporary solution to solve boadcasting until rework of commands can be done
     CommandItem::ActionMissionCommand commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionMissionCommand>(command, this->GetCharacteristic().ID);
 
-    mLogs->debug("Receieved a command to change mission state.");
+    //mLogs->debug("Receieved a command to change mission state.");
 
     int systemID = commandWithTarget.getTargetSystem();
-    /*
-    if((vehicleData) && (vehicleData->getSystemID() == systemID))
-    {
-        if(commandWithTarget.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_PAUSE)
-        {
-            DataGenericItem::DataGenericItem_Heartbeat heartbeat = vehicleData->state->vehicleHeartbeat.get();
-            if(Data::isSystemTypeRotary(heartbeat.getType()))
-            {
-                DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleMode.get();
-                int mode = tmp.getFlightModeFromString("BRAKE");
-                //vehicleData->m_CommandController->setNewMode(mode);
-            }
-            else{
-                DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleMode.get();
-                int mode = tmp.getFlightModeFromString("LOITER");
-                //vehicleData->m_CommandController->setNewMode(mode);
-            }
-        }else if(commandWithTarget.getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_START)
-        {
-            DataARDUPILOT::ARDUPILOTComponent_FlightMode tmp = vehicleData->state->vehicleMode.get();
-            int mode = tmp.getFlightModeFromString("AUTO");
-//            vehicleData->m_CommandController->setNewMode(mode);
 
-//            MissionItem::MissionKey key = tmpData->data->currentAutoMission.get().getMissionKey();
-//            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-//                ptr->GVEvents_MissionExeStateUpdated(this, key, Data::MissionExecutionState::MESTATE_EXECUTING);
-//            });
-        }
+    if((vehicleData) && (vehicleData->getMAVLINKID() == systemID))
+    {
+        ardupilot::state::AbstractStateArdupilot* currentOuterState = static_cast<ardupilot::state::AbstractStateArdupilot*>(stateMachine->getCurrentOuterState());
+        currentOuterState->handleCommand(commandWithTarget.getClone());
+        ProgressStateMachineStates();
     }
-    */
 }
 
 void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
@@ -585,4 +583,36 @@ void ModuleVehicleArdupilot::ProgressStateMachineStates()
     stateMachine->ProcessStateTransitions();
     stateMachine->UpdateStates();
     m_Mutex_StateMachine.unlock();
+}
+
+void ModuleVehicleArdupilot::UpdateDynamicMissionQueue(const TargetItem::DynamicMissionQueue &queue)
+{
+    TargetItem::DynamicTargetList targetList;
+
+    //the sent queue will be in the local frame relative to the global origin
+    //we therefore have to transform this data into the local frame relative
+    //to the vehicles origin/home position
+
+    mace::pose::GeodeticPosition_3D globalOrigin = this->getDataObject()->GetGlobalOrigin();
+
+    CommandItem::SpatialHome home = this->vehicleData->mission->vehicleHomePosition.get();
+    mace::pose::GeodeticPosition_3D vehicleOrigin(home.getPosition().getX(),home.getPosition().getY(),home.getPosition().getZ());
+
+    double compassBearing = globalOrigin.compassBearingTo(vehicleOrigin); //this is degrees not radians
+    double distanceBetween = globalOrigin.distanceBetween2D(vehicleOrigin);
+    double elevationDifference = globalOrigin.deltaAltitude(vehicleOrigin);
+
+    for(size_t i = 0; i < queue.getDynamicTargetList()->listSize(); i++)
+    {
+        TargetItem::CartesianDynamicTarget target = queue.getDynamicTargetList()->getTargetAtIndex(i);
+        mace::pose::CartesianPosition_3D position = target.getPosition();
+        position.applyPositionalShiftFromCompass(distanceBetween,mace::math::reverseBearing(mace::math::convertDegreesToRadians(compassBearing)));
+        position.setZPosition(position.getZPosition() - elevationDifference);
+        target.setPosition(position);
+        targetList.appendDynamicTarget(target);
+    }
+
+    TargetItem::DynamicMissionQueue transformedQueue(queue.getAssociatedMissionKey(),queue.getAssociatedMissionItem());
+    transformedQueue.setDynamicTargetList(targetList);
+    this->vehicleData->mission->currentDynamicQueue.set(transformedQueue);
 }

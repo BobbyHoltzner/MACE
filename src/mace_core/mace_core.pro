@@ -108,6 +108,13 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../maps/ -lmaps
 INCLUDEPATH += $$PWD/../maps
 DEPENDPATH += $$PWD/../maps
 
+<<<<<<< HEAD
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+
+INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
+=======
 unix {
     exists(/opt/ros/kinetic/lib/) {
         DEFINES += ROS_EXISTS
@@ -123,3 +130,4 @@ unix {
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
 win32:INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
+>>>>>>> master

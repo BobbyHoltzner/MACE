@@ -748,6 +748,13 @@ private:
     mace::maps::OctomapWrapper* m_OctomapWrapper;
 
 public:
+
+    void getOctomapDimensions(double &minX, double &maxX, double &minY, double &maxY, double &minZ, double &maxZ) const;
+
+    bool updateOctomapProperties(const mace::maps::OctomapSensorDefinition &properties);
+
+    bool updateMappingProjectionProperties(const mace::maps::Octomap2DProjectionDefinition &properties);
+
     bool loadOccupancyEnvironment(const std::string &filePath);
     octomap::OcTree getOccupancyGrid3D() const;
     mace::maps::Data2DGrid<mace::maps::OccupiedResult> getCompressedOccupancyGrid2D() const;

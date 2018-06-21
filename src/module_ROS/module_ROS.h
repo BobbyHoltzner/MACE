@@ -179,6 +179,10 @@ public:
     // ============================================================================= //
 public:
 
+    //! \brief renderOccupancyMap
+    //!
+    void renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree);
+
 #ifdef ROS_EXISTS
     //!
     //! \brief setupROS Setup ROS subscribers, publishers, and node handler
@@ -222,11 +226,6 @@ public:
 #ifdef ROS_EXISTS
 
     std_msgs::ColorRGBA generateColorHeight(double height);
-
-
-    //! \brief renderOccupancyMap
-    //!
-    void renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree);
 
     //!
     //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz

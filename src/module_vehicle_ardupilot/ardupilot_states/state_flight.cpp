@@ -95,14 +95,69 @@ bool State_Flight::handleCommand(const std::shared_ptr<AbstractCommandItem> comm
 {
     COMMANDITEM commandType = command->getCommandType();
     switch (commandType) {
+    case COMMANDITEM::CI_ACT_MISSIONCOMMAND:
+    {
+        int vehicleMode = 0;
+        bool executeModeChange = false;
+        const CommandItem::ActionMissionCommand* cmd = command->as<CommandItem::ActionMissionCommand>();
+        if(cmd->getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_PAUSE)
+        {
+            executeModeChange = true;
+            if(Data::isSystemTypeRotary(Owner().state->vehicleHeartbeat.get().getType()))
+            {
+                vehicleMode = Owner().ardupilotMode.getFlightModeFromString("BRAKE");
+            }
+            else{
+                vehicleMode = Owner().ardupilotMode.getFlightModeFromString("LOITER");
+            }
+        }
+        else if(cmd->getMissionCommandAction() == Data::MissionCommandAction::MISSIONCA_START)
+        {
+            if(!this->IsInState<State_FlightGuided>())
+            {
+                executeModeChange = true;
+                vehicleMode = Owner().ardupilotMode.getFlightModeFromString("AUTO");
+            }
+        }
+
+        if(executeModeChange)
+        {
+            Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+            auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+            controllerSystemMode->AddLambda_Finished(this, [this,controllerSystemMode](const bool completed, const uint8_t finishCode){
+
+                controllerSystemMode->Shutdown();
+            });
+
+            controllerSystemMode->setLambda_Shutdown([this, collection]()
+            {
+                auto ptr = collection->Remove("modeController");
+                delete ptr;
+            });
+
+            MaceCore::ModuleCharacteristic target;
+            target.ID = Owner().getMAVLINKID();
+            target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            MaceCore::ModuleCharacteristic sender;
+            sender.ID = 255;
+            sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            MAVLINKVehicleControllers::MAVLINKModeStruct commandMode;
+            commandMode.targetID = target.ID;
+            commandMode.vehicleMode = vehicleMode;
+            controllerSystemMode->Send(commandMode,sender,target);
+            collection->Insert("modeController",controllerSystemMode);
+        }
+        else
+        {
+            ardupilot::state::AbstractStateArdupilot* currentInnerState = static_cast<ardupilot::state::AbstractStateArdupilot*>(GetImmediateInnerState());
+            currentInnerState->handleCommand(command);
+        }
+        break;
+    }
     case COMMANDITEM::CI_NAV_HOME:
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
         AbstractRootState::handleCommand(command);
-        break;
-    }
-    case COMMANDITEM::CI_ACT_MISSIONCOMMAND:
-    {
         break;
     }
     case COMMANDITEM::CI_NAV_LAND:
@@ -145,7 +200,7 @@ bool State_Flight::handleCommand(const std::shared_ptr<AbstractCommandItem> comm
         currentInnerState->handleCommand(command);
         break;
     }
-    } //end of switch statement
+} //end of switch statement
 }
 
 void State_Flight::Update()

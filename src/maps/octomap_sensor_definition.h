@@ -11,16 +11,7 @@ class OctomapSensorDefinition
 {
 public:
 
-    OctomapSensorDefinition() :
-        m_set_InitialLoad(false),
-        m_set_Resolution(false),
-        m_set_MinRange(false),
-        m_set_MaxRange(false),
-        m_set_occupancyThresh(false),
-        m_set_probHit(false),
-        m_set_probMiss(false),
-        m_set_ThreshMin(false),
-        m_set_ThreshMax(false)
+    OctomapSensorDefinition()
     {
 
     }
@@ -29,6 +20,9 @@ public:
     {
         this->m_set_InitialLoad = copy.m_set_InitialLoad;
         this->m_initialOctomapLoad = copy.m_initialOctomapLoad;
+
+        this->m_set_UseAsOperationalBoundary = copy.m_set_UseAsOperationalBoundary;
+        this->m_useAsOperationalBoundary = copy.m_useAsOperationalBoundary;
 
         this->m_set_Resolution = copy.m_set_Resolution;
         this->m_TreeResolution = copy.m_TreeResolution;
@@ -55,6 +49,39 @@ public:
         this->m_ThreshMax = copy.m_ThreshMax;
     }
 
+    void updateProperties(const OctomapSensorDefinition &update)
+    {
+        this->m_set_InitialLoad = update.m_set_InitialLoad;
+        this->m_initialOctomapLoad = update.m_initialOctomapLoad;
+
+        this->m_set_UseAsOperationalBoundary = update.m_set_UseAsOperationalBoundary;
+        this->m_useAsOperationalBoundary = update.m_useAsOperationalBoundary;
+
+        this->m_set_Resolution = update.m_set_Resolution;
+        this->m_TreeResolution = update.m_TreeResolution;
+
+        this->m_set_MinRange = update.m_set_MinRange;
+        this->m_MinRange = update.m_MinRange;
+
+        this->m_set_MaxRange = update.m_set_MaxRange;
+        this->m_MaxRange = update.m_MaxRange;
+
+        this->m_set_occupancyThresh = update.m_set_occupancyThresh;
+        this->m_occupancyThresh = update.m_occupancyThresh;
+
+        this->m_set_probHit = update.m_set_probHit;
+        this->m_probHit = update.m_probHit;
+
+        this->m_set_probMiss = update.m_set_probMiss;
+        this->m_probMiss = update.m_probMiss;
+
+        this->m_set_ThreshMin = update.m_set_ThreshMin;
+        this->m_ThreshMin = update.m_ThreshMin;
+
+        this->m_set_ThreshMax = update.m_set_ThreshMax;
+        this->m_ThreshMax = update.m_ThreshMax;
+    }
+
     void setInitialLoadFile(const std::string &file)
     {
         m_initialOctomapLoad = file;
@@ -67,6 +94,22 @@ public:
     std::string getInitialLoadFile() const
     {
         return m_initialOctomapLoad;
+    }
+
+    void setOctomapAsOperationalBoundary(const bool &useAsBoundary)
+    {
+        m_set_UseAsOperationalBoundary = true;
+        m_useAsOperationalBoundary = useAsBoundary;
+    }
+
+    bool isOctomapOperationalBoundary() const
+    {
+        return m_useAsOperationalBoundary;
+    }
+
+    bool isUseAsBoundarySet() const
+    {
+        return m_set_UseAsOperationalBoundary;
     }
 
     void setTreeResolution(const double &resolution)
@@ -207,6 +250,9 @@ public:
         this->m_set_InitialLoad = rhs.m_set_InitialLoad;
         this->m_initialOctomapLoad = rhs.m_initialOctomapLoad;
 
+        this->m_set_UseAsOperationalBoundary = rhs.m_set_UseAsOperationalBoundary;
+        this->m_useAsOperationalBoundary = rhs.m_useAsOperationalBoundary;
+
         this->m_set_Resolution = rhs.m_set_Resolution;
         this->m_TreeResolution = rhs.m_TreeResolution;
 
@@ -235,31 +281,34 @@ public:
 
 private:
 
-    bool m_set_InitialLoad;
+    bool m_set_InitialLoad = false;
     std::string m_initialOctomapLoad = "";
 
-    bool m_set_Resolution;
+    bool m_set_UseAsOperationalBoundary = false;
+    bool m_useAsOperationalBoundary = false;
+
+    bool m_set_Resolution = false;
     double m_TreeResolution = 0.5;
 
-    bool   m_set_MinRange;
+    bool   m_set_MinRange = false;
     double m_MinRange = 0.25;
 
-    bool   m_set_MaxRange;
+    bool   m_set_MaxRange = false;
     double m_MaxRange = -1;
 
-    bool   m_set_occupancyThresh;
-    double m_occupancyThresh;
+    bool   m_set_occupancyThresh = false;
+    double m_occupancyThresh = 0.8;
 
-    bool   m_set_probHit;
+    bool   m_set_probHit = false;
     double m_probHit = 0.7;
 
-    bool   m_set_probMiss;
+    bool   m_set_probMiss = false;
     double m_probMiss = 0.4;
 
-    bool   m_set_ThreshMin;
+    bool   m_set_ThreshMin = false;
     double m_ThreshMin = 0.12;
 
-    bool   m_set_ThreshMax;
+    bool   m_set_ThreshMax = false;
     double m_ThreshMax = 0.97;
 
     double minSizeX = 0.0;

@@ -87,3 +87,4 @@ unix {
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
 win32:INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
+

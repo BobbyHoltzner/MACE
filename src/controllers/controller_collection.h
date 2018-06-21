@@ -29,7 +29,16 @@ public:
 
     IController<MessageType>* At(const std::string &name)
     {
-        return controllers.at(name);
+        try
+        {
+            return controllers.at(name);
+        }
+        catch (const std::out_of_range& e)
+        {
+            std::cerr <<"Inside the at of IController: "<< e.what() << std::endl;
+            return nullptr;
+        }
+
     }
 
 
@@ -69,11 +78,19 @@ public:
     //!
     IController<MessageType>* Remove(const std::string &name)
     {
-        IController<MessageType>* ptr = controllers.at(name);
+        IController<MessageType>* ptr = nullptr;
+        try
+        {
+            ptr = controllers.at(name);
 
-        controllerMutex.lock();
-        controllers.erase(name);
-        controllerMutex.unlock();
+            controllerMutex.lock();
+            controllers.erase(name);
+            controllerMutex.unlock();
+        }
+        catch (const std::out_of_range& e)
+        {
+            std::cerr <<"Inside the remove of IController: "<< e.what() << std::endl;
+        }
 
         return ptr;
     }

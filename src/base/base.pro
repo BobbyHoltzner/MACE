@@ -49,7 +49,8 @@ SOURCES += \
     state_space/start_state.cpp \
     pose/geodetic_position_3D.cpp \
     pose/dynamics_aid.cpp \
-    geometry/polygon_2DG.cpp
+    geometry/polygon_2DG.cpp \
+    pose/cartesian_velocity_3D.cpp
 
 HEADERS +=\
     base_global.h \
@@ -98,7 +99,9 @@ HEADERS +=\
     state_space/generic_start.h \
     pose/geodetic_position_3D.h \
     pose/dynamics_aid.h \
-    geometry/polygon_2DG.h
+    geometry/polygon_2DG.h \
+    pose/cartesian_velocity_3D.h \
+    pose/abstract_orientation.h
 
 # Unix lib Install
 unix:!symbian {

@@ -187,7 +187,6 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../base_topic/ -lbase_topic
 INCLUDEPATH += $$PWD/../base_topic
 DEPENDPATH += $$PWD/../base_topic
 
-
 unix {
     exists(/opt/ros/kinetic/lib/) {
         DEFINES += ROS_EXISTS
