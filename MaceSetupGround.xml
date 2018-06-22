@@ -7,7 +7,7 @@
     </Parameter>
     <Parameter Name="DigiMeshParameters">
       <Parameter Name="PortName">COM4</Parameter>
-      <Parameter Name="BaudRate">9600</Parameter>
+      <Parameter Name="BaudRate">57600</Parameter>
     </Parameter>
 		<Parameter Name="ModuleParameters">
       <Parameter Name="AirborneInstance">false</Parameter>

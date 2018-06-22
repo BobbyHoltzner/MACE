@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModuleConfigurations>
+  <Module Class="PathPlanning" Type="NASAPhase2">
+	<Parameter Name="GlobalOrigin">
+	  <Parameter Name="Latitude">37.888308</Parameter>
+	  <Parameter Name="Longitude">-76.813251</Parameter>
+	</Parameter>
+	<Parameter Name="EnvironmentParameters">
+	  <Parameter Name="Vertices">
+	    37.889246, -76.814084;
+	    37.890564, -76.810450;
+	    37.888726, -76.809343;
+	    37.887531, -76.812949
+	  </Parameter>
+	</Parameter>
+	<Parameter Name="OctomapParameters">
+	  <Parameter Name="Filename">C:\Github\MACE\load_303030.bt</Parameter>
+	  <Parameter Name="OctomapOperationalBoundary">false</Parameter>
+	  <Parameter Name="Resolution">0.5</Parameter>
+	  <Parameter Name="Project2D">true</Parameter>
+	  <Parameter Name="MinRange">0.25</Parameter>
+	  <Parameter Name="MaxRange">-1</Parameter>
+	  <Parameter Name="OccupancyThreshold">0.8</Parameter>
+	  <Parameter Name="ProbabilityOfHit">0.7</Parameter>
+	  <Parameter Name="ProbabilityOfMiss">0.4</Parameter>
+	  <Parameter Name="MinThreshold">0.12</Parameter>
+	  <Parameter Name="MaxThreshold">0.97</Parameter>
+	</Parameter>
+  </Module>
+</ModuleConfigurations>

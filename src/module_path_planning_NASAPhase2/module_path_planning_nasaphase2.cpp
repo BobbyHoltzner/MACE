@@ -14,11 +14,11 @@ ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
     originSent(false),
     m_OccupiedVehicleMap(nullptr),
     m_OctomapSensorProperties()
-{
+{    
     OccupiedResult fillValue = OccupiedResult::NOT_OCCUPIED;
     m_OccupiedVehicleMap = new maps::Data2DGrid<OccupiedResult>(&fillValue);
 
-    m_Space = std::make_shared<mace::state_space::Cartesian2DSpace>();
+    m_Space = std::make_shared<state_space::Cartesian2DSpace>();
 
     sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(m_Space);
     motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(m_Space);
@@ -72,7 +72,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModulePathPlanningNASAPhase2
     octomapParams->AddTerminalParameters("ProbabilityOfMiss", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
     octomapParams->AddTerminalParameters("MinThreshold", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
     octomapParams->AddTerminalParameters("MaxThreshold", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
-    structure.AddNonTerminal("OctomapParameters", octomapParams, true);
+    structure.AddNonTerminal("OctomapParameters", octomapParams, false);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }

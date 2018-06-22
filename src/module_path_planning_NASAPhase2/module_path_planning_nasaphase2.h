@@ -39,6 +39,7 @@ using namespace octomap;
 
 using namespace mace ;
 using namespace geometry;
+using namespace maps;
 
 class MODULE_PATH_PLANNING_NASAPHASE2SHARED_EXPORT ModulePathPlanningNASAPhase2 : public MaceCore::IModuleCommandPathPlanning, public mace::planners::Planner_Interface
 {
