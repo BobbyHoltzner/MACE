@@ -4,6 +4,7 @@ const lightMuiTheme = getMuiTheme();
 import * as React from 'react';
 import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
+import Divider from 'material-ui/Divider';
 // import { styles } from "./styles";
 
 // import * as colors from 'material-ui/styles/colors';
@@ -72,10 +73,9 @@ export class ContextMenu extends React.Component<Props, State> {
                     <MenuItem primaryText="Set home location" onClick={this.handleSetHome} />
                     <MenuItem primaryText="Set global origin" onClick={this.handleSetGlobal} />
                     <MenuItem primaryText="Set takeoff position" onClick={this.handleSetTakeoff} />
-                    {/*
                     <Divider />
                     <MenuItem primaryText='"Go-to" here' onClick={this.handleGoHere} />
-                    */}
+                    
                 </Menu>
             </MuiThemeProvider>
         )

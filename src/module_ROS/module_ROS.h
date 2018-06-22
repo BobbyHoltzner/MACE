@@ -197,7 +197,7 @@ public:
     //!
     void newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
 
-    void newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg);
+    void newGlobalPointCloud(const ros::MessageEvent<sensor_msgs::PointCloud2 const>& event);
 
 
     //!

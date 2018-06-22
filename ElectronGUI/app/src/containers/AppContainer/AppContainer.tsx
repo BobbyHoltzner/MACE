@@ -206,6 +206,7 @@ export default class AppContainer extends React.Component<Props, State> {
       lat: this.state.contextAnchor.latlng.lat,
       lon: this.state.contextAnchor.latlng.lng
     };
+    console.log(goHere);
     this.handleAircraftCommand(this.state.selectedVehicleID, "SET_GO_HERE", JSON.stringify(goHere));
   }
 
