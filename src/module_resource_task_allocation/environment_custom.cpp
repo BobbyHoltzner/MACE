@@ -40,15 +40,15 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Position<Cartes
         // Step 1): Use the number of vehicles to create evenly spaced points in environment
         int numVehicles = vehicles.size();
 
-        if(numVehicles > 1 && !m_globalInstance) {
-            //TODO Pat: Address issue of global and local instance
-            numVehicles = 1;
-            std::cout << "*_*_*_*_*_*_*_* TESTING: IN RTA - Local instance with multiple vehicles *_*_*_*_*_*_*_*" << std::endl;
-            // TODO: If this fires (i.e. local instances somehow have knowledge of multiple vehicles), then we need logic
-            //          to handle this. Basically, local instances should only have knowledge of their own position for RTA
-            //          positions. Local instances should only have knowledge of their operational boundary, so there's no
-            //          need to partition the received boundaries
-        }
+//        if(numVehicles > 1 && !m_globalInstance) {
+//            //TODO Pat: Address issue of global and local instance
+//            numVehicles = 1;
+//            std::cout << "*_*_*_*_*_*_*_* TESTING: IN RTA - Local instance with multiple vehicles *_*_*_*_*_*_*_*" << std::endl;
+//            // TODO: If this fires (i.e. local instances somehow have knowledge of multiple vehicles), then we need logic
+//            //          to handle this. Basically, local instances should only have knowledge of their own position for RTA
+//            //          positions. Local instances should only have knowledge of their operational boundary, so there's no
+//            //          need to partition the received boundaries
+//        }
 
         PolySplit polygon;
         polygon.initPolygon(m_boundary, numVehicles);

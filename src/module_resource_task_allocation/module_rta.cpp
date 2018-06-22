@@ -282,6 +282,13 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
         std::cout << "No global origin set. Cannot update missions for MACE" << std::endl;
         return;
     }
+
+    // TODO-PAT: Maybe wait until we get a position from all vehicles before assigning partitions?
+    Position<CartesianPosition_2D> vehiclePosition;
+    m_vehicles[vehicleID] = vehiclePosition;
+    BoundaryItem::BoundaryList boundary;
+    this->getDataObject()->getOperationalBoundary(&boundary);
+    NewlyUpdatedOperationalFence(boundary);
 }
 
 /**
