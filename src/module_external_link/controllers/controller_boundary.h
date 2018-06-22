@@ -14,7 +14,7 @@
 #include "controllers/actions/action_finish.h"
 #include "controllers/actions/action_request.h"
 
-/*
+
 using namespace BoundaryItem;
 
 namespace ExternalLink{
@@ -23,7 +23,7 @@ using CONTROLLER_BOUNDARY_TYPE = Controllers::GenericController<
     mace_message_t,
     TransmitQueueWithKeys<Controllers::MessageModuleTransmissionQueue<mace_message_t>, ObjectIntTuple<MaceCore::ModuleCharacteristic>, ObjectIntTuple<BoundaryItem::BoundaryKey>>,
     uint8_t,
-    Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryList>
+    Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>
 >;
 
 using SendBoundaryHelper_RequestDownload = Controllers::ActionSend<
@@ -178,6 +178,6 @@ public:
 };
 
 }
-*/
+
 
 #endif // CONTROLLER_BOUNDARY_H

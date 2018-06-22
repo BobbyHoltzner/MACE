@@ -32,7 +32,7 @@ Orientation_3D::Orientation_3D(const double &roll, const double &pitch, const do
 /** Set functions for all rotation angle information **/
 
 void Orientation_3D::setEuler(const double &roll, const double &pitch, const double &yaw)
-{
+{    
     this->theta = roll;
     this->psi = pitch;
     this->phi = yaw;

@@ -109,6 +109,7 @@ double GeodeticPosition_3D::compassBearingTo(const GeodeticPosition_3D &pos) con
 
 double GeodeticPosition_3D::elevationAngleTo(const GeodeticPosition_3D &position) const
 {
+    //Ken we need to be careful here as there is a discontinuity
     double distance2D = distanceBetween2D(position);
     return atan2(deltaAltitude(position),distance2D);
 }

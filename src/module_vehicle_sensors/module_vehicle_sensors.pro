@@ -107,3 +107,19 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data_vehicle_sen
 else:unix:!macx: LIBS += -L$$OUT_PWD/../data_vehicle_sensors/ -ldata_vehicle_sensors
 
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
+
+unix {
+    exists(/opt/ros/kinetic/lib/) {
+        DEFINES += ROS_EXISTS
+        INCLUDEPATH += /opt/ros/kinetic/include
+        INCLUDEPATH += /opt/ros/kinetic/lib
+        LIBS += -L/opt/ros/kinetic/lib -loctomath
+        LIBS += -L/opt/ros/kinetic/lib -loctomap
+    } else {
+        INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
+        LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+    }
+}
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+win32:INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include

@@ -108,6 +108,7 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         localPosition.setPositionX(decodedMSG.x);
         localPosition.setPositionY(decodedMSG.y);
         localPosition.setPositionZ(decodedMSG.z);
+        localPosition.setCoordinateFrame(Data::CoordinateFrameType::CF_LOCAL_NED);
 
         if(state->vehicleLocalPosition.set(localPosition))
         {
@@ -315,11 +316,20 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         }
         break;
     }
-
+    case MAVLINK_MSG_ID_POSITION_TARGET_GLOBAL_INT:
+    {
+        std::cout<<"I have received a target global int message."<<std::endl;
+        break;
+    }
+    case MAVLINK_MSG_ID_POSITION_TARGET_LOCAL_NED:
+    {
+        std::cout<<"I have received a target local int message."<<std::endl;
+        break;
+    }
     default:
     {
         consumed = false;
-        //std::cout<<"I received an unknown supported message with the ID "<<(int)message->msgid<<std::endl;
+        //std::cout<<"I received an unknown supported message with the ID "<<(int)msg->msgid<<std::endl;
     }
     } //end of switch statement
     return consumed;

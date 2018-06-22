@@ -10,8 +10,6 @@
 
 #include "controllers/base_module_queue.h"
 
-
-
 typedef void(*CallbackFunctionPtr_VehicleTarget)(void*, MissionTopic::VehicleTargetTopic&);
 
 class ArdupilotVehicleObject : public MavlinkVehicleObject
