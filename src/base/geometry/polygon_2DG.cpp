@@ -78,22 +78,22 @@ void Polygon_2DG::updateBoundingBox()
 
     if (m_vertex.size() >= 3)
     {
-        xMax = m_vertex[0].getLatitude();
+        xMax = m_vertex[0].getLongitude();
         xMin = xMax;
-        yMax = m_vertex[0].getLongitude();
+        yMax = m_vertex[0].getLatitude();
         yMin = yMax;
 
         const size_t num = this->m_vertex.size();
         for(size_t i = 1; i < num; i++)
         {
-            if(m_vertex[i].getLatitude() > xMax)
-                xMax = m_vertex[i].getLatitude();
-            else if(m_vertex[i].getLatitude() < xMin)
-                xMin = m_vertex[i].getLatitude();
-            if(m_vertex[i].getLongitude() > yMax)
-                yMax = m_vertex[i].getLongitude();
-            else if(m_vertex[i].getLongitude() < yMin)
-                yMin = m_vertex[i].getLongitude();
+            if(m_vertex[i].getLongitude() > xMax)
+                xMax = m_vertex[i].getLongitude();
+            else if(m_vertex[i].getLongitude() < xMin)
+                xMin = m_vertex[i].getLongitude();
+            if(m_vertex[i].getLatitude() > yMax)
+                yMax = m_vertex[i].getLatitude();
+            else if(m_vertex[i].getLatitude() < yMin)
+                yMin = m_vertex[i].getLatitude();
         }
     }
 }

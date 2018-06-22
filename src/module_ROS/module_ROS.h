@@ -335,6 +335,7 @@ private:
     //!
     tf::Transform m_transform;
 
+    tf::Transform m_WorldToMap;
     //!
     //! \brief m_srv Container for the Gazebo send model state message
     //!

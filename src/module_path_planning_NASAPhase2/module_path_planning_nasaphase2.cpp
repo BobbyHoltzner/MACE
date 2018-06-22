@@ -12,6 +12,7 @@ ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
     m_PlanningStateTopic("planningState"),
     m_MapTopic("mappingData"),
     originSent(false),
+    m_ProjectedOccupancyMap(nullptr),
     m_OccupiedVehicleMap(nullptr),
     m_OctomapSensorProperties()
 {    
@@ -156,20 +157,22 @@ void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCor
                                                  m_OctomapSensorProperties.getTreeResolution(),m_OctomapSensorProperties.getTreeResolution());
         }
 
+        if(params->HasNonTerminal("OctomapParameters")) {
+            std::shared_ptr<MaceCore::ModuleParameterValue> octomapParams = params->GetNonTerminalValue("OctomapParameters");
+            m_OctomapSensorProperties.setInitialLoadFile(octomapParams->GetTerminalValue<std::string>("Filename"));
+            m_OctomapSensorProperties.setOctomapAsOperationalBoundary(octomapParams->GetTerminalValue<bool>("OctomapOperationalBoundary"));
+            m_OctomapSensorProperties.setTreeResolution(octomapParams->GetTerminalValue<double>("Resolution"));
+            m_OctomapSensorProperties.setMaxRange(octomapParams->GetTerminalValue<double>("MaxRange"));
+            m_OctomapSensorProperties.setMinRange(octomapParams->GetTerminalValue<double>("MinRange"));
+            m_OctomapSensorProperties.setOccupancyThreshold(octomapParams->GetTerminalValue<double>("OccupancyThreshold"));
+            m_OctomapSensorProperties.setProbHit(octomapParams->GetTerminalValue<double>("ProbabilityOfHit"));
+            m_OctomapSensorProperties.setProbMiss(octomapParams->GetTerminalValue<double>("ProbabilityOfMiss"));
+            m_OctomapSensorProperties.setThreshMax(octomapParams->GetTerminalValue<double>("MaxThreshold"));
+            m_OctomapSensorProperties.setThreshMin(octomapParams->GetTerminalValue<double>("MinThreshold"));
+        }
+
     }
-    if(params->HasNonTerminal("OctomapParameters")) {
-        std::shared_ptr<MaceCore::ModuleParameterValue> octomapParams = params->GetNonTerminalValue("OctomapParameters");
-        m_OctomapSensorProperties.setInitialLoadFile(octomapParams->GetTerminalValue<std::string>("Filename"));
-        m_OctomapSensorProperties.setOctomapAsOperationalBoundary(octomapParams->GetTerminalValue<bool>("OctomapOperationalBoundary"));
-        m_OctomapSensorProperties.setTreeResolution(octomapParams->GetTerminalValue<double>("Resolution"));
-        m_OctomapSensorProperties.setMaxRange(octomapParams->GetTerminalValue<double>("MaxRange"));
-        m_OctomapSensorProperties.setMinRange(octomapParams->GetTerminalValue<double>("MinRange"));
-        m_OctomapSensorProperties.setOccupancyThreshold(octomapParams->GetTerminalValue<double>("OccupancyThreshold"));
-        m_OctomapSensorProperties.setProbHit(octomapParams->GetTerminalValue<double>("ProbabilityOfHit"));
-        m_OctomapSensorProperties.setProbMiss(octomapParams->GetTerminalValue<double>("ProbabilityOfMiss"));
-        m_OctomapSensorProperties.setThreshMax(octomapParams->GetTerminalValue<double>("MaxThreshold"));
-        m_OctomapSensorProperties.setThreshMin(octomapParams->GetTerminalValue<double>("MinThreshold"));
-    }
+
     else {
         throw std::runtime_error("Unkown Path Planning parameters encountered");
     }
@@ -253,31 +256,31 @@ void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 
     //This function should add an occupancy item to the layers map capturing current vehicle position
 
-    m_Space = std::make_shared<mace::state_space::Cartesian2DSpace>();
-    m_Space->bounds.setBounds(-15,15,-15,15);
+//    m_Space = std::make_shared<mace::state_space::Cartesian2DSpace>();
+//    m_Space->bounds.setBounds(-15,15,-15,15);
 
-    mace::planners_sampling::RRTBase rrt(spaceInfo);
-    mace::state_space::GoalState* begin = new mace::state_space::GoalState(m_Space);
-    begin->setState(new mace::pose::CartesianPosition_2D(14,-14.75));
-    mace::state_space::GoalState* end = new mace::state_space::GoalState(m_Space,1.0);
-    end->setState(new mace::pose::CartesianPosition_2D(14,7.5));
-    end->setRadialRegion(1.0);
+//    mace::planners_sampling::RRTBase rrt(spaceInfo);
+//    mace::state_space::GoalState* begin = new mace::state_space::GoalState(m_Space);
+//    begin->setState(new mace::pose::CartesianPosition_2D(14,-14.75));
+//    mace::state_space::GoalState* end = new mace::state_space::GoalState(m_Space,1.0);
+//    end->setState(new mace::pose::CartesianPosition_2D(14,7.5));
+//    end->setRadialRegion(1.0);
 
-    rrt.setPlanningParameters(begin,end);
+//    rrt.setPlanningParameters(begin,end);
 
-    rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
-    rrt.setCallbackFunction(this);
-    std::vector<mace::state_space::State*> solution = rrt.solve();
-    std::vector<mace::state_space::StatePtr> smartSolution;
-    smartSolution.resize(solution.size());
+//    rrt.setNearestNeighbor<mace::nn::NearestNeighbor_FLANNLinear<mace::planners_sampling::RootNode*>>();
+//    rrt.setCallbackFunction(this);
+//    std::vector<mace::state_space::State*> solution = rrt.solve();
+//    std::vector<mace::state_space::StatePtr> smartSolution;
+//    smartSolution.resize(solution.size());
 
-    std::cout<<"The solution looks like this: "<<std::endl;
-    for (int i = 0; i < solution.size(); i++)
-    {
-        mace::state_space::StatePtr state(solution[i]->getClone());
-        smartSolution.at(i) = state;
-        std::cout<<"X: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
-    }
+//    std::cout<<"The solution looks like this: "<<std::endl;
+//    for (int i = 0; i < solution.size(); i++)
+//    {
+//        mace::state_space::StatePtr state(solution[i]->getClone());
+//        smartSolution.at(i) = state;
+//        std::cout<<"X: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
+//    }
 
 //    ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr){
 //        ptr->EventPP_NewPathFound(this, smartSolution);
@@ -299,7 +302,8 @@ void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 
 void ModulePathPlanningNASAPhase2::NewlyLoadedOccupancyMap()
 {
-    if(m_OctomapSensorProperties.isOctomapOperationalBoundary())
+    //this should probably be something that is driven via the core, however for now we will chcek operational boundary here
+    if(m_OctomapSensorProperties.isOctomapOperationalBoundary()) //if the octomap is to be an operational boundary let us get the details for it
     {
         double minX, maxX, minY, maxY, minZ, maxZ;
         this->getDataObject()->getOctomapDimensions(minX, maxX, minY, maxY, minZ, maxZ);
@@ -318,6 +322,8 @@ void ModulePathPlanningNASAPhase2::NewlyLoadedOccupancyMap()
             ptr->Event_SetOperationalBoundary(this, boundary);
         });
     }
+    //let us load the current static load octomap here so that if planning is required we have it ready to go
+    m_ProjectedOccupancyMap = new maps::Data2DGrid<OccupiedResult>(this->getDataObject()->getCompressedOccupancyGrid2D());
 }
 
 void ModulePathPlanningNASAPhase2::NewlyUpdatedOccupancyMap()

@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModuleConfigurations>
+  <Module Class="VehicleComms" Type="Ardupilot">
+    <Parameter Name="ProtocolParameters">
+      <Parameter Name="Name">Mavlink</Parameter>
+      <Parameter Name="Version">V2</Parameter>
+    </Parameter>
+    <Parameter Name="UDPParameters">
+      <Parameter Name="ListenAddress">192.168.1.20</Parameter>
+      <Parameter Name="ListenPortNumber">14550</Parameter>
+    </Parameter>
+    <Parameter Name="ModuleParameters">
+      <Parameter Name="AirborneInstance">false</Parameter>
+    </Parameter>
+  </Module>
   <Module Class="PathPlanning" Type="NASAPhase2">
 	<Parameter Name="GlobalOrigin">
-	  <Parameter Name="Latitude">37.888308</Parameter>
-	  <Parameter Name="Longitude">-76.813251</Parameter>
+	  <Parameter Name="Latitude">37.890425</Parameter>
+	  <Parameter Name="Longitude">-76.811910</Parameter>
 	</Parameter>
 	<Parameter Name="EnvironmentParameters">
 	  <Parameter Name="Vertices">
@@ -14,8 +27,8 @@
 	  </Parameter>
 	</Parameter>
 	<Parameter Name="OctomapParameters">
-	  <Parameter Name="Filename">C:\Github\MACE\load_303030.bt</Parameter>
-	  <Parameter Name="OctomapOperationalBoundary">false</Parameter>
+	  <Parameter Name="Filename">/home/majorpr13/MACE/load_303030.bt</Parameter>
+	  <Parameter Name="OctomapOperationalBoundary">true</Parameter>
 	  <Parameter Name="Resolution">0.5</Parameter>
 	  <Parameter Name="Project2D">true</Parameter>
 	  <Parameter Name="MinRange">0.25</Parameter>
@@ -25,6 +38,27 @@
 	  <Parameter Name="ProbabilityOfMiss">0.4</Parameter>
 	  <Parameter Name="MinThreshold">0.12</Parameter>
 	  <Parameter Name="MaxThreshold">0.97</Parameter>
+	</Parameter>
+  </Module>
+  <Module Class="ROS" Type="NASAPhase2">
+    <Parameter Name="ModuleParameters">
+      <Parameter Name="AirborneInstance">false</Parameter>
+    </Parameter>
+    <Parameter Name="LaserSensor">
+      <Parameter Name="Name">laser</Parameter>
+      <Parameter Name="Type">lidar_scan</Parameter>
+    </Parameter>
+    <Parameter Name="CameraSensor">
+      <Parameter Name="Name">camera</Parameter>
+      <Parameter Name="Type">rgb</Parameter>
+    </Parameter>
+  </Module>
+  <Module Class="GroundStation" Type="NASAPhase2">
+	<Parameter Name="ID">1</Parameter>
+	<Parameter Name="MACEComms">
+		<Parameter Name="GUIHostAddress">192.168.1.217</Parameter>
+		<Parameter Name="ListenPort">5678</Parameter>
+		<Parameter Name="SendPort">1234</Parameter>
 	</Parameter>
   </Module>
 </ModuleConfigurations>

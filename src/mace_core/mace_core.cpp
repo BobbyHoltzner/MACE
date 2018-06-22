@@ -827,23 +827,32 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
 
 void MaceCore::EventPP_LoadOccupancyEnvironment(const ModuleBase *sender, const string &filePath)
 {
+    std::cout<<"Somehow load occupancy environment is being called"<<std::endl;
     if(m_DataFusion->loadOccupancyEnvironment(filePath))
     {
         //we have loaded a new map which means we need to notify everyone
 
         //we dont have to check if PP exists here because we know it has to as it is the caller
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP);
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP,0);
     }
 }
 
 void MaceCore::EventPP_LoadOctomapProperties(const ModuleBase *sender, const maps::OctomapSensorDefinition &properties)
 {
+    std::cout<<"Somehow load octomap properties is being called"<<std::endl;
     if(m_DataFusion->updateOctomapProperties(properties))
     {
         //we have loaded a new map which means we need to notify everyone
 
         //we dont have to check if PP exists here because we know it has to as it is the caller
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP);
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP,0);
+
+        if(m_ROS)
+        {
+            //m_ROS->MarshalCommand(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, map);
+            m_ROS->MarshalCommand(ROSCommands::NEWLY_UPDATED_3D_OCCUPANCY_MAP, 0); // TODO: Parse for vehicle ID
+
+        }
     }
 }
 

@@ -143,9 +143,12 @@ private:
     mace::geometry::Polygon_2DG m_GlobalOperationalBoundary;
     mace::geometry::Polygon_2DC m_LocalOperationalBoundary;
 
+
+    maps::Data2DGrid<OccupiedResult>* m_ProjectedOccupancyMap;
     maps::Data2DGrid<OccupiedResult>* m_OccupiedVehicleMap;
 
     mace::maps::OctomapSensorDefinition m_OctomapSensorProperties;
+
 
     // Flags:
     bool originSent;

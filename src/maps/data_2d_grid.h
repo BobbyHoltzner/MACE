@@ -47,7 +47,8 @@ public:
         for(;!it.isPastEnd();++it)
         {
             T* ptr = this->getCellByIndex(*it);
-            *ptr = *copy.getCellByIndex(*it);
+            if(ptr != nullptr)
+                *ptr = *copy.getCellByIndex(*it);
         }
     }
 
@@ -203,8 +204,8 @@ public:
     {
         int cx = indexFromXPos(x);
         int cy = indexFromYPos(y);
-        if (cx < 0 || cx >= static_cast<int>(xSize)) return nullptr;
-        if (cy < 0 || cy >= static_cast<int>(ySize)) return nullptr;
+        if (cx < 0 || cx >= static_cast<int>(xSize)) return nullptr; //implies something greater than the X range was asked for
+        if (cy < 0 || cy >= static_cast<int>(ySize)) return nullptr; //implies something greater than the Y range was asked for
         return &m_dataMap[cx + cy * xSize];
     }
 
