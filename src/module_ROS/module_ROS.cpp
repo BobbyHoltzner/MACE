@@ -28,7 +28,7 @@ ModuleROS::ModuleROS() :
     m_PlanningStateTopic("planningState"),
     m_VehicleDataTopic("vehicleData"),
     m_MapTopic("mappingData"),
-    m_OccupancyMapCalculation([this](const std::shared_ptr<octomap::OcTree> &tree){this->renderOccupancyMap(tree);}),
+    //m_OccupancyMapCalculation([this](const std::shared_ptr<octomap::OcTree> &tree){this->renderOccupancyMap(tree);}),
     m_CompressedMapCalculation([this](const std::shared_ptr<mace::maps::Data2DGrid<mace::maps::OccupiedResult>> &map){this->NewlyCompressedOccupancyMap(*map);})
 {
     //m_tfListener = std::make_shared<tf2_ros::TransformListener>(m_tfBuffer);
@@ -232,7 +232,8 @@ void ModuleROS::NewlyUpdated3DOccupancyMap()
 {
 #ifdef ROS_EXISTS
     std::shared_ptr<octomap::OcTree> tree = std::make_shared<octomap::OcTree>(this->getDataObject()->getOccupancyGrid3D());
-    m_OccupancyMapCalculation.NewTasks(tree);
+    renderOccupancyMap(tree);
+    //m_OccupancyMapCalculation.NewTasks(tree);
 
     std::shared_ptr<mace::maps::Data2DGrid<OccupiedResult> > data = std::make_shared<mace::maps::Data2DGrid<OccupiedResult>>(this->getDataObject()->getCompressedOccupancyGrid2D());
     m_CompressedMapCalculation.NewTasks(data);
@@ -242,7 +243,6 @@ void ModuleROS::NewlyUpdated3DOccupancyMap()
 void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map)
 {
 #ifdef ROS_EXISTS
-    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","map"));
 
     nav_msgs::OccupancyGrid occupancyGrid;
     occupancyGrid.info.resolution = map.getXResolution();
@@ -283,7 +283,12 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
         }
         }
     }
-    compressedMapPub.publish(occupancyGrid);
+    for(int i = 0; i < 10; i++)
+    {
+        m_broadcaster.sendTransform(tf::StampedTransform(m_WorldToMap,ros::Time::now(),"world","/map"));
+        compressedMapPub.publish(occupancyGrid);
+    }
+
 #endif
 }
 
@@ -305,7 +310,8 @@ void ModuleROS::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
         boundary_list.points.push_back(startPoint);
         boundary_list.points.push_back(endPoint);
     }
-    operationalBoundaryPub.publish(boundary_list);
+    for(int i = 0; i < 10; i++)
+        operationalBoundaryPub.publish(boundary_list);
 #else
     UNUSED(boundary);
 #endif
@@ -440,6 +446,8 @@ void ModuleROS::renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree)
 {
 #ifdef ROS_EXISTS
 
+    m_broadcaster.sendTransform(tf::StampedTransform(m_WorldToMap,ros::Time::now(),"world","/map"));
+
     if(tree->size() > 0)
     {
         double minX, minY, minZ, maxX, maxY, maxZ;
@@ -492,15 +500,19 @@ void ModuleROS::setupROS() {
     m_transform.setOrigin(tf::Vector3(0.0,0.0,0.0));
     m_transform.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
 
+
+    m_WorldToMap.setOrigin(tf::Vector3(0.0,0.0,0.0));
+    m_WorldToMap.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
+
     // TODO: Do I need to send this transform before I do anything else? And should I send it for every basic_quadrotor_ID?
     //    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","basic_quadrotor/base_link"));
 
     // TESTING:
 //    cloudInPub = nh.advertise<sensor_msgs::PointCloud2>("cloud_in", 50);
-    compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",10);
-    occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",10);
+    compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",1);
+    occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",1);
     // END TESTING
-    markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",10);
+    markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",1);
     operationalBoundaryPub = nh.advertise<visualization_msgs::Marker>("operational_boundary_marker",1);
 
     // %Tag(MARKER_INIT)%
@@ -558,6 +570,8 @@ void ModuleROS::setupROS() {
 
     // Boundary list is white
     boundary_list.color.r = 1.0;
+    boundary_list.color.g = 1.0;
+    boundary_list.color.b = 1.0;
     boundary_list.color.a = 1.0;
 
     // %EndTag(COLOR)%

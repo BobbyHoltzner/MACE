@@ -34,7 +34,7 @@ SUBDIRS += \
     module_resource_task_allocation \
     module_ROS \
     mace \
-    TestMaps \
+#    TestMaps \
     module_generic_MAVLINK
 
 
