@@ -19,29 +19,36 @@ ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
     OccupiedResult fillValue = OccupiedResult::NOT_OCCUPIED;
     m_OccupiedVehicleMap = new maps::Data2DGrid<OccupiedResult>(&fillValue);
 
-    m_Space = std::make_shared<state_space::Cartesian2DSpace>();
+//    m_Space = std::make_shared<state_space::Cartesian2DSpace>();
 
-    sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(m_Space);
-    motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(m_Space);
-    stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(m_Space);
+//    sampler = std::make_shared<mace::state_space::Cartesian2DSpace_Sampler>(m_Space);
+//    motionCheck = std::make_shared<mace::state_space::DiscreteMotionValidityCheck>(m_Space);
+//    stateCheck = std::make_shared<mace::state_space::SpecialValidityCheck>(m_Space);
 
 
-//    auto stateValidityCheck = ([this,compressedMap](const mace::state_space::State *state){
-//        const mace::pose::CartesianPosition_2D* castState = state->as<const mace::pose::CartesianPosition_2D>();
-//        mace::maps::OctomapWrapper::OccupiedResult* result = compressedMap->getCellByPos(castState->getXPosition(),castState->getYPosition());
-//        if(*result == mace::maps::OctomapWrapper::OccupiedResult::NOT_OCCUPIED)
-//            return true;
+//    auto stateValidityCheck = ([this](const mace::state_space::State *state){
+//        if(m_ProjectedOccupancyMap != nullptr)
+//        {
+//            const mace::pose::CartesianPosition_2D* castState = state->as<const mace::pose::CartesianPosition_2D>();
+//            OccupiedResult* result = m_ProjectedOccupancyMap->getCellByPos(castState->getXPosition(),castState->getYPosition());
+//            if(*result == OccupiedResult::NOT_OCCUPIED)
+//                return true;
+//        }
 //        return false;
 //    });
 
-    //stateCheck->setLambda_Validity(stateValidityCheck);
-    motionCheck->setStateValidityCheck(stateCheck);
-    motionCheck->setMinCheckDistance(0.5);
+//    stateCheck->setLambda_Validity(stateValidityCheck);
+//    motionCheck->setStateValidityCheck(stateCheck);
+//    motionCheck->setMinCheckDistance(0.5);
 
-    spaceInfo = std::make_shared<mace::state_space::SpaceInformation>(m_Space);
-    spaceInfo->setStateSampler(sampler);
-    spaceInfo->setStateValidityCheck(stateCheck);
-    spaceInfo->setMotionValidityCheck(motionCheck);
+//    spaceInfo = std::make_shared<state_space::SpaceInformation>(m_Space);
+//    spaceInfo->setStateSampler(sampler);
+//    spaceInfo->setStateValidityCheck(stateCheck);
+//    spaceInfo->setMotionValidityCheck(motionCheck);
+
+//    m_PlannerRRT = std::make_shared<planners_sampling::RRTBase>(spaceInfo);
+//    m_PlannerRRT->setNearestNeighbor<nn::NearestNeighbor_FLANNLinear<planners_sampling::RootNode*>>();
+//    m_PlannerRRT->setCallbackFunction(this);
 }
 
 
@@ -256,10 +263,6 @@ void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 
     //This function should add an occupancy item to the layers map capturing current vehicle position
 
-//    m_Space = std::make_shared<mace::state_space::Cartesian2DSpace>();
-//    m_Space->bounds.setBounds(-15,15,-15,15);
-
-//    mace::planners_sampling::RRTBase rrt(spaceInfo);
 //    mace::state_space::GoalState* begin = new mace::state_space::GoalState(m_Space);
 //    begin->setState(new mace::pose::CartesianPosition_2D(14,-14.75));
 //    mace::state_space::GoalState* end = new mace::state_space::GoalState(m_Space,1.0);
@@ -324,6 +327,8 @@ void ModulePathPlanningNASAPhase2::NewlyLoadedOccupancyMap()
     }
     //let us load the current static load octomap here so that if planning is required we have it ready to go
     m_ProjectedOccupancyMap = new maps::Data2DGrid<OccupiedResult>(this->getDataObject()->getCompressedOccupancyGrid2D());
+    m_Space->setBounds(state_space::Cartesian2DSpaceBounds(m_ProjectedOccupancyMap->getXMin(), m_ProjectedOccupancyMap->getXMax(),
+                                                           m_ProjectedOccupancyMap->getYMin(), m_ProjectedOccupancyMap->getYMax()));
 }
 
 void ModulePathPlanningNASAPhase2::NewlyUpdatedOccupancyMap()
@@ -362,6 +367,31 @@ void ModulePathPlanningNASAPhase2::NewlyUpdatedOperationalFence(const BoundaryIt
     m_OccupiedVehicleMap->updateGridSize(m_LocalOperationalBoundary.getXMin(),m_LocalOperationalBoundary.getXMax(),
                                          m_LocalOperationalBoundary.getYMin(),m_LocalOperationalBoundary.getYMax(),
                                          m_OctomapSensorProperties.getTreeResolution(),m_OctomapSensorProperties.getTreeResolution());
+
+    m_Space->setBounds(state_space::Cartesian2DSpaceBounds(m_LocalOperationalBoundary.getXMin(), m_LocalOperationalBoundary.getXMax(),
+                                                           m_LocalOperationalBoundary.getYMin(), m_LocalOperationalBoundary.getYMax()));
+
+
+//        mace::state_space::GoalState* begin = new mace::state_space::GoalState(m_Space);
+//        begin->setState(new mace::pose::CartesianPosition_2D(14,-14.75));
+//        mace::state_space::GoalState* end = new mace::state_space::GoalState(m_Space,1.0);
+//        end->setState(new mace::pose::CartesianPosition_2D(14,7.5));
+//        end->setRadialRegion(1.0);
+
+//        m_PlannerRRT->setPlanningParameters(begin,end);
+
+//        std::vector<mace::state_space::State*> solution = m_PlannerRRT->solve();
+//        std::vector<mace::state_space::StatePtr> smartSolution;
+//        smartSolution.resize(solution.size());
+
+//        std::cout<<"The solution looks like this: "<<std::endl;
+//        for (int i = 0; i < solution.size(); i++)
+//        {
+//            mace::state_space::StatePtr state(solution[i]->getClone());
+//            smartSolution.at(i) = state;
+//            std::cout<<"X: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getXPosition()<<"Y: "<<smartSolution[i]->as<mace::pose::CartesianPosition_2D>()->getYPosition()<<std::endl;
+//        }
+
 }
 
 void ModulePathPlanningNASAPhase2::NewlyAvailableMission(const MissionItem::MissionList &mission)

@@ -17,14 +17,19 @@
 #include "base/pose/cartesian_position_2D.h"
 
 #include "planners/path_reduction.h"
+
+#include "nearest_neighbor_flann.h"
+
 namespace mace {
 namespace planners_sampling{
+
+MACE_CLASS_FORWARD(RRTBase);
 
 class RRTBase : public planners::Planners{
 
 public:
     RRTBase(const state_space::SpaceInformationPtr &spaceInfo):
-        Planners(spaceInfo), goalProbability(0.1), maxBranchLength(1.0)
+        Planners(spaceInfo), goalProbability(0.1), maxBranchLength(1.0), m_nnStrategy(nullptr)
     {
         m_samplingStrategy = spaceInfo->getStateSampler();
     }
@@ -35,16 +40,15 @@ public:
     std::vector<state_space::State*> solve() override;
 
 public:
-
     template <class T>
-    void setNearestNeighbor()
-    {
-        m_nnStrategy = std::make_shared<T>();
-        m_nnStrategy->setDistanceFunction([this](const RootNode* lhs, const RootNode *rhs)
-        {
-            return distanceFunction(lhs,rhs);
-        });
-    }
+     void setNearestNeighbor()
+     {
+         m_nnStrategy = std::make_shared<T>();
+         m_nnStrategy->setDistanceFunction([this](const RootNode* lhs, const RootNode *rhs)
+         {
+             return distanceFunction(lhs,rhs);
+         });
+     }
 
     /** The basis for the following functions is that these are base paramters
         required for any tree based search. */

@@ -28,7 +28,7 @@ ModuleROS::ModuleROS() :
     m_PlanningStateTopic("planningState"),
     m_VehicleDataTopic("vehicleData"),
     m_MapTopic("mappingData"),
-    //m_OccupancyMapCalculation([this](const std::shared_ptr<octomap::OcTree> &tree){this->renderOccupancyMap(tree);}),
+    m_OccupancyMapCalculation([this](const std::shared_ptr<octomap::OcTree> &tree){this->renderOccupancyMap(tree);}),
     m_CompressedMapCalculation([this](const std::shared_ptr<mace::maps::Data2DGrid<mace::maps::OccupiedResult>> &map){this->NewlyCompressedOccupancyMap(*map);})
 {
     //m_tfListener = std::make_shared<tf2_ros::TransformListener>(m_tfBuffer);
@@ -232,8 +232,7 @@ void ModuleROS::NewlyUpdated3DOccupancyMap()
 {
 #ifdef ROS_EXISTS
     std::shared_ptr<octomap::OcTree> tree = std::make_shared<octomap::OcTree>(this->getDataObject()->getOccupancyGrid3D());
-    renderOccupancyMap(tree);
-    //m_OccupancyMapCalculation.NewTasks(tree);
+    m_OccupancyMapCalculation.NewTasks(tree);
 
     std::shared_ptr<mace::maps::Data2DGrid<OccupiedResult> > data = std::make_shared<mace::maps::Data2DGrid<OccupiedResult>>(this->getDataObject()->getCompressedOccupancyGrid2D());
     m_CompressedMapCalculation.NewTasks(data);
@@ -283,11 +282,9 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
         }
         }
     }
-    for(int i = 0; i < 10; i++)
-    {
-        m_broadcaster.sendTransform(tf::StampedTransform(m_WorldToMap,ros::Time::now(),"world","/map"));
-        compressedMapPub.publish(occupancyGrid);
-    }
+
+    m_broadcaster.sendTransform(tf::StampedTransform(m_WorldToMap,ros::Time::now(),"world","/map"));
+    compressedMapPub.publish(occupancyGrid);
 
 #endif
 }
@@ -310,8 +307,8 @@ void ModuleROS::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
         boundary_list.points.push_back(startPoint);
         boundary_list.points.push_back(endPoint);
     }
-    for(int i = 0; i < 10; i++)
-        operationalBoundaryPub.publish(boundary_list);
+
+    operationalBoundaryPub.publish(boundary_list);
 #else
     UNUSED(boundary);
 #endif

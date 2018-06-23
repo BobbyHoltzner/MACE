@@ -138,6 +138,8 @@ private:
     mace::state_space::SpecialValidityCheckPtr stateCheck;
     mace::state_space::SpaceInformationPtr spaceInfo;
 
+    mace::planners_sampling::RRTBasePtr m_PlannerRRT;
+
     mace::pose::GeodeticPosition_3D m_globalOrigin;
 
     mace::geometry::Polygon_2DG m_GlobalOperationalBoundary;
