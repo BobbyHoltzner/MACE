@@ -14,7 +14,13 @@ ModulePathPlanningNASAPhase2::ModulePathPlanningNASAPhase2() :
     originSent(false),
     m_ProjectedOccupancyMap(nullptr),
     m_OccupiedVehicleMap(nullptr),
-    m_OctomapSensorProperties()
+    m_OctomapSensorProperties(),
+    m_Space(nullptr),
+    sampler(nullptr),
+    motionCheck(nullptr),
+    stateCheck(nullptr),
+    spaceInfo(nullptr),
+    m_PlannerRRT(nullptr)
 {    
     OccupiedResult fillValue = OccupiedResult::NOT_OCCUPIED;
     m_OccupiedVehicleMap = new maps::Data2DGrid<OccupiedResult>(&fillValue);
@@ -327,8 +333,8 @@ void ModulePathPlanningNASAPhase2::NewlyLoadedOccupancyMap()
     }
     //let us load the current static load octomap here so that if planning is required we have it ready to go
     m_ProjectedOccupancyMap = new maps::Data2DGrid<OccupiedResult>(this->getDataObject()->getCompressedOccupancyGrid2D());
-    m_Space->setBounds(state_space::Cartesian2DSpaceBounds(m_ProjectedOccupancyMap->getXMin(), m_ProjectedOccupancyMap->getXMax(),
-                                                           m_ProjectedOccupancyMap->getYMin(), m_ProjectedOccupancyMap->getYMax()));
+//    m_Space->setBounds(state_space::Cartesian2DSpaceBounds(m_ProjectedOccupancyMap->getXMin(), m_ProjectedOccupancyMap->getXMax(),
+//                                                           m_ProjectedOccupancyMap->getYMin(), m_ProjectedOccupancyMap->getYMax()));
 }
 
 void ModulePathPlanningNASAPhase2::NewlyUpdatedOccupancyMap()
@@ -368,8 +374,8 @@ void ModulePathPlanningNASAPhase2::NewlyUpdatedOperationalFence(const BoundaryIt
                                          m_LocalOperationalBoundary.getYMin(),m_LocalOperationalBoundary.getYMax(),
                                          m_OctomapSensorProperties.getTreeResolution(),m_OctomapSensorProperties.getTreeResolution());
 
-    m_Space->setBounds(state_space::Cartesian2DSpaceBounds(m_LocalOperationalBoundary.getXMin(), m_LocalOperationalBoundary.getXMax(),
-                                                           m_LocalOperationalBoundary.getYMin(), m_LocalOperationalBoundary.getYMax()));
+//    m_Space->setBounds(state_space::Cartesian2DSpaceBounds(m_LocalOperationalBoundary.getXMin(), m_LocalOperationalBoundary.getXMax(),
+//                                                           m_LocalOperationalBoundary.getYMin(), m_LocalOperationalBoundary.getYMax()));
 
 
 //        mace::state_space::GoalState* begin = new mace::state_space::GoalState(m_Space);
