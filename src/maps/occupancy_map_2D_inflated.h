@@ -13,6 +13,19 @@
 namespace mace {
 namespace maps {
 
+enum OccupancyInflationMetric {
+    NO_DATA,
+    TRUE_OCCUPANCY,
+    INFLATION_OCCUPANCY,
+    NOT_OCCUPIED
+};
+
+struct OccupancyInflationStructure
+{
+        unsigned int count;
+        OccupancyInflationMetric metric;
+};
+
 class OccupancyMap_InflationParameters
 {
 public:
@@ -61,7 +74,7 @@ private:
     void updateMapInflation(const std::map<unsigned int, OccupiedResult> &updates);
 
 private:
-    Data2DGrid<unsigned int>* inflatedMap;
+    Data2DGrid<OccupancyInflationStructure>* inflatedMap;
     OccupancyMap_InflationParameters parameters;
 };
 

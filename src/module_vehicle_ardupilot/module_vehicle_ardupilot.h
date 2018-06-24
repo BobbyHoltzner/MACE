@@ -273,10 +273,14 @@ private:
     //!
     void ProgressStateMachineStates();
 
+    void TransformDynamicMissionQueue();
+
+
 private:
     std::shared_ptr<spdlog::logger> mLogs;
 
 private:
+    std::mutex m_Mutex_VehicleData;
     std::shared_ptr<ArdupilotVehicleObject> vehicleData;
 
 private:

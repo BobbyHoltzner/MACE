@@ -318,7 +318,10 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
     }
     case MAVLINK_MSG_ID_POSITION_TARGET_GLOBAL_INT:
     {
-        std::cout<<"I have received a target global int message."<<std::endl;
+        //KEN: This is now getting called and we could use this as a function.
+        //Only was in latest arducopter branch so may not work with everyones
+        //sim or vehicle environments, be sure to keep updated.
+        //std::cout<<"I have received a target global int message."<<std::endl;
         break;
     }
     case MAVLINK_MSG_ID_POSITION_TARGET_LOCAL_NED:

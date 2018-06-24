@@ -731,7 +731,7 @@ void MaceCore::ExternalEvent_FinishedRXBoundaryList(const void *sender, const Bo
 
     std::cout << "External event finished RX boundary list" << std::endl;
 
-//    m_DataFusion->receivedNewBoundaryList(boundaryList);
+    //    m_DataFusion->receivedNewBoundaryList(boundaryList);
 
     if(m_PathPlanning) {
         // Marshal command for new boundary list
@@ -809,15 +809,24 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
             MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
         }
     }else{ //transmit the mission to a specific vehicle
-        try{
-            MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
-            MissionItem::MissionList correctedMission = missionList;
-            correctedMission.setMissionKey(key);
-            MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
+        MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
+        MissionItem::MissionList correctedMission = missionList;
+        correctedMission.setMissionKey(key);
 
-        }catch(const std::out_of_range &oor){
+        if(m_PathPlanning)
+        {
+            m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_AVAILABLE_MISSION,correctedMission);
+        }else
+        {
+            try{
+                MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
+            }catch(const std::out_of_range &oor){
+
+            }
+
 
         }
+
     }
 }
 
@@ -924,9 +933,14 @@ void MaceCore::EventPP_NewDynamicMissionQueue(const ModuleBase *sender, const Ta
     UNUSED(sender);
 
     //Find who the queue is intended for
-    //int vehicleID = queue.getAssociatedMissionKey().m_systemID;
-    //Marshal the command to that vehicle
-    //m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::UPDATED_DYNAMIC_MISSION_QUEUE, queue);
+    int vehicleID = queue.getAssociatedMissionKey().m_systemID;
+    try{
+        //Marshal the command to that vehicle
+        m_VehicleIDToPtr.at(std::to_string(vehicleID))->MarshalCommand(VehicleCommands::UPDATED_DYNAMIC_MISSION_QUEUE, queue);
+    }catch(const std::out_of_range &oor)
+    {
+
+    }
 }
 
 void MaceCore::EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path)

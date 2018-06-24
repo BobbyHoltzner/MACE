@@ -17,6 +17,11 @@ public:
 
     ~DynamicMissionQueue();
 
+    void setMissionKey(const MissionItem::MissionKey &key)
+    {
+        this->missionKey = key;
+    }
+
     void setDynamicTargetList(const TargetItem::DynamicTargetList &list)
     {
         this->m_TargetList = list;
@@ -35,6 +40,11 @@ public:
     MissionItem::MissionKey getAssociatedMissionKey() const
     {
         return this->missionKey;
+    }
+
+    void setAssociatedMissionItem(const unsigned int &itemIndex)
+    {
+        this->describingMissionItem = itemIndex;
     }
 
     unsigned int getAssociatedMissionItem() const

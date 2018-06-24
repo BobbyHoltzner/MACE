@@ -16,7 +16,8 @@ public:
     Data::DataGetSetNotifier<MissionItem::MissionList> currentAutoMission;
 
     Data::DataGetSetNotifier<MissionItem::MissionList> currentGuidedMission;
-    Data::DataGetSetNotifier<TargetItem::DynamicMissionQueue> currentDynamicQueue;
+    Data::DataGetSetNotifier<TargetItem::DynamicMissionQueue> currentDynamicQueue_LocalCartesian;
+    Data::DataGetSetNotifier<TargetItem::DynamicMissionQueue> currentDynamicQueue_GlobalCartesian;
 
 public:
     Data::DataGetSetNotifier<CommandItem::SpatialHome> vehicleHomePosition;

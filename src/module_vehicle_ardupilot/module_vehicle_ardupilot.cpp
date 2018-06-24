@@ -21,6 +21,7 @@ ModuleVehicleArdupilot::ModuleVehicleArdupilot() :
 {
 
     m_TransmissionQueue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>(2000, 3);
+
 }
 
 ModuleVehicleArdupilot::~ModuleVehicleArdupilot()
@@ -145,26 +146,26 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
 
 void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
-    MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
-    TargetItem::DynamicMissionQueue availableQueue(testKey,1);
+//    MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
+//    TargetItem::DynamicMissionQueue availableQueue(testKey,1);
 
-    TargetItem::CartesianDynamicTarget target;
-    target.setPosition(mace::pose::CartesianPosition_3D(0,100,15));
-    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+//    TargetItem::CartesianDynamicTarget target;
+//    target.setPosition(mace::pose::CartesianPosition_3D(0,100,15));
+//    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
 
-    target.setPosition(mace::pose::CartesianPosition_3D(100,100,15));
-    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+//    target.setPosition(mace::pose::CartesianPosition_3D(100,100,15));
+//    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
 
-    target.setPosition(mace::pose::CartesianPosition_3D(100,-100,15));
-    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+//    target.setPosition(mace::pose::CartesianPosition_3D(100,-100,15));
+//    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
 
-    target.setPosition(mace::pose::CartesianPosition_3D(-100,-100,15));
-    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+//    target.setPosition(mace::pose::CartesianPosition_3D(-100,-100,15));
+//    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
 
-    target.setPosition(mace::pose::CartesianPosition_3D(-100,100,15));
-    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
+//    target.setPosition(mace::pose::CartesianPosition_3D(-100,100,15));
+//    availableQueue.getDynamicTargetList()->appendDynamicTarget(target,TargetItem::DynamicTargetStorage::INCOMPLETE);
 
-    UpdateDynamicMissionQueue(availableQueue);
+//    UpdateDynamicMissionQueue(availableQueue);
 
     //Temporary solution to solve boadcasting until rework of commands can be done
     CommandItem::ActionMissionCommand commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionMissionCommand>(command, this->GetCharacteristic().ID);
@@ -384,6 +385,10 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         vehicleData->connectCallback(this);
         vehicleData->connectTargetCallback(ModuleVehicleArdupilot::staticCallbackFunction_VehicleTarget, this);
 
+        this->vehicleData->mission->vehicleHomePosition.AddNotifier(this,[this]{
+            TransformDynamicMissionQueue();
+        });
+
         //vehicleData->updateCommsInfo(m_LinkMarshaler,m_LinkName,m_LinkChan);
 
 
@@ -587,32 +592,47 @@ void ModuleVehicleArdupilot::ProgressStateMachineStates()
 
 void ModuleVehicleArdupilot::UpdateDynamicMissionQueue(const TargetItem::DynamicMissionQueue &queue)
 {
-    TargetItem::DynamicTargetList targetList;
-
-    //the sent queue will be in the local frame relative to the global origin
-    //we therefore have to transform this data into the local frame relative
-    //to the vehicles origin/home position
-
-    mace::pose::GeodeticPosition_3D globalOrigin = this->getDataObject()->GetGlobalOrigin();
-
-    CommandItem::SpatialHome home = this->vehicleData->mission->vehicleHomePosition.get();
-    mace::pose::GeodeticPosition_3D vehicleOrigin(home.getPosition().getX(),home.getPosition().getY(),home.getPosition().getZ());
-
-    double compassBearing = globalOrigin.compassBearingTo(vehicleOrigin); //this is degrees not radians
-    double distanceBetween = globalOrigin.distanceBetween2D(vehicleOrigin);
-    double elevationDifference = globalOrigin.deltaAltitude(vehicleOrigin);
-
-    for(size_t i = 0; i < queue.getDynamicTargetList()->listSize(); i++)
+    if(this->vehicleData != nullptr)
     {
-        TargetItem::CartesianDynamicTarget target = queue.getDynamicTargetList()->getTargetAtIndex(i);
-        mace::pose::CartesianPosition_3D position = target.getPosition();
-        position.applyPositionalShiftFromCompass(distanceBetween,mace::math::reverseBearing(mace::math::convertDegreesToRadians(compassBearing)));
-        position.setZPosition(position.getZPosition() - elevationDifference);
-        target.setPosition(position);
-        targetList.appendDynamicTarget(target);
+        this->vehicleData->mission->currentDynamicQueue_GlobalCartesian.set(queue);
+        //Transform the data into the frame we need
+        this->TransformDynamicMissionQueue();
     }
+}
 
-    TargetItem::DynamicMissionQueue transformedQueue(queue.getAssociatedMissionKey(),queue.getAssociatedMissionItem());
-    transformedQueue.setDynamicTargetList(targetList);
-    this->vehicleData->mission->currentDynamicQueue.set(transformedQueue);
+void ModuleVehicleArdupilot::TransformDynamicMissionQueue()
+{
+    CommandItem::SpatialHome home = this->vehicleData->mission->vehicleHomePosition.get();
+    if(home.getPosition().has2DPositionSet() && (this->vehicleData->mission->currentDynamicQueue_GlobalCartesian.hasBeenSet())) //if the position has been set we can transform the data
+    {
+        TargetItem::DynamicMissionQueue queue = this->vehicleData->mission->currentDynamicQueue_GlobalCartesian.get();
+
+        //the sent queue will be in the local frame relative to the global origin
+        //we therefore have to transform this data into the local frame relative
+        //to the vehicles origin/home position
+
+        mace::pose::GeodeticPosition_3D globalOrigin = this->getDataObject()->GetGlobalOrigin();
+
+        mace::pose::GeodeticPosition_3D vehicleOrigin(home.getPosition().getX(),home.getPosition().getY(),home.getPosition().getZ());
+
+        double compassBearing = globalOrigin.compassBearingTo(vehicleOrigin); //this is degrees not radians
+        double distanceBetween = globalOrigin.distanceBetween2D(vehicleOrigin);
+        double elevationDifference = globalOrigin.deltaAltitude(vehicleOrigin);
+
+        TargetItem::DynamicTargetList targetList;
+
+        for(size_t i = 0; i < queue.getDynamicTargetList()->listSize(); i++)
+        {
+            TargetItem::CartesianDynamicTarget target = queue.getDynamicTargetList()->getTargetAtIndex(i);
+            mace::pose::CartesianPosition_3D position = target.getPosition();
+            position.applyPositionalShiftFromCompass(distanceBetween,mace::math::reverseBearing(mace::math::convertDegreesToRadians(compassBearing)));
+            position.setZPosition(position.getZPosition() - elevationDifference);
+            target.setPosition(position);
+            targetList.appendDynamicTarget(target);
+        }
+
+        TargetItem::DynamicMissionQueue transformedQueue(queue.getAssociatedMissionKey(),queue.getAssociatedMissionItem());
+        transformedQueue.setDynamicTargetList(targetList);
+        this->vehicleData->mission->currentDynamicQueue_LocalCartesian.set(transformedQueue);
+    }
 }
