@@ -93,7 +93,7 @@ public:
      * @brief getGlobalOrigin Get the current global origin
      * @return Current global origin
      */
-    std::shared_ptr<CommandItem::SpatialHome> getGlobalOrigin() { return m_globalOrigin; }
+//    std::shared_ptr<CommandItem::SpatialHome> getGlobalOrigin() { return m_globalOrigin; }
 
 
     /**
@@ -152,7 +152,7 @@ private:
     /**
      * @brief m_globalOrigin Global origin for the environment
      */
-    std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
+//    std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
 
     bool m_globalInstance;
 };

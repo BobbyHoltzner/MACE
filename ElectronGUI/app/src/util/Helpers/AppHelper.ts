@@ -228,15 +228,16 @@ export class AppHelper {
   }
 
   contextGoHere = () => {
-    this.state.showEditGlobalHomeDialog = false;
-    this.state.allowVehicleSelect = false;
-    this.state.showEditVehicleHomeDialog = false;
-    this.state.useContext = true;
-    let goHere = {
-      lat: this.state.contextAnchor.latlng.lat,
-      lon: this.state.contextAnchor.latlng.lng
-    };
-    this.handleAircraftCommand(this.state.selectedVehicleID, "SET_GO_HERE", JSON.stringify(goHere));
+    // this.state.showEditGlobalHomeDialog = false;
+    // this.state.allowVehicleSelect = false;
+    // this.state.showEditVehicleHomeDialog = false;
+    // this.state.useContext = true;
+    // let goHere = {
+    //   lat: this.state.contextAnchor.latlng.lat,
+    //   lon: this.state.contextAnchor.latlng.lng
+    // };
+    // console.log(goHere);
+    // this.handleAircraftCommand(this.state.selectedVehicleID, "SET_GO_HERE", JSON.stringify(goHere));
   }
 
   handleSaveMessagingPreferences = (preferences: MessagePreferencesType) => {

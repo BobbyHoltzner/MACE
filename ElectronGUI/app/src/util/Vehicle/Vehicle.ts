@@ -27,7 +27,8 @@ export class Vehicle{
     highlightColor: string;
     opaqueHighlightColor: string;
     currentTarget: {distanceToTarget: number, targetPosition: PositionType, icon: L.DivIcon, active: boolean};
-    availableModes: string[]
+    availableModes: string[];
+    resourceBoundary: PositionType[];
 
 
     constructor(vehicleId: number, position?: PositionType, attitude?: AttitudeType){
@@ -125,6 +126,8 @@ export class Vehicle{
         }
 
         this.availableModes = [];
+
+        this.resourceBoundary = [];
     }
 
     setAvailableVehicleModes() {

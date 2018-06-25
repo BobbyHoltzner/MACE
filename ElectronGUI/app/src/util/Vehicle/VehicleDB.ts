@@ -78,7 +78,14 @@ export class VehicleDB {
         }
         else if(jsonData.dataType === 'EnvironmentBoundary') {
             let jsonBoundary = jsonData as TCPEnvironmentBoundaryType;
-            this.environmentBoundary = jsonBoundary.environmentBoundary;
+            console.log(jsonBoundary);
+            if(jsonBoundary.vehicleID === 0) {
+                this.environmentBoundary = jsonBoundary.environmentBoundary;
+            }
+            else {
+                stateCopy[jsonBoundary.vehicleID].resourceBoundary = jsonBoundary.environmentBoundary;
+                this.vehicles = stateCopy;
+            }
         }
         // Vehicle specific data:
         else {

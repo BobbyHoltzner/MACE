@@ -196,7 +196,14 @@ export default class MACEMap extends React.Component<Props, State> {
                     })}
 
                     {/* EnvironmentBoundary */}
-                    <Polygon positions={this.props.environmentBoundary} color={colors.white} fillColor={colors.green300} />
+                    <Polygon positions={this.props.environmentBoundary} color={colors.white} />
+
+                    {/* Resource Boundaries */}
+                    {Object.keys(this.props.connectedVehicles).map((key: string) => {
+                      return (
+                        <Polygon key={key} positions={this.props.connectedVehicles[key].resourceBoundary} color={this.props.selectedVehicleID === key ? this.props.connectedVehicles[key].highlightColor : this.props.connectedVehicles[key].opaqueHighlightColor} fillColor={this.props.connectedVehicles[key].highlightColor} />
+                      );
+                    })}
 
                     {/* Guided target */}
                     {Object.keys(this.props.connectedVehicles).map((key: string) => {

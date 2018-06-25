@@ -19,7 +19,6 @@ double rnd() {return double(rand())/RAND_MAX;}
  * @brief Environment_Map constructor
  * @param verts Vector of vertices that make up the environment boundary
  * @param gridSpacing Spacing between grid points
- * @param globalOrigin Global origin for environment
  */
 Environment_Map::Environment_Map(const Polygon_2DC &boundingPolygon, const double &gridSpacing, const bool &globalInstance) :
     m_boundary(boundingPolygon), m_globalInstance(globalInstance) {
@@ -28,8 +27,6 @@ Environment_Map::Environment_Map(const Polygon_2DC &boundingPolygon, const doubl
     if(!globalInstance) {
         m_dataGrid = new mace::maps::Bounded2DGrid(m_boundary, gridSpacing, gridSpacing);
     }
-
-//    m_globalOrigin = std::make_shared<CommandItem::SpatialHome>(globalOrigin);
 }
 
 /**
@@ -43,15 +40,15 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Position<Cartes
         // Step 1): Use the number of vehicles to create evenly spaced points in environment
         int numVehicles = vehicles.size();
 
-        if(numVehicles > 1 && !m_globalInstance) {
-            //TODO Pat: Address issue of global and local instance
-            numVehicles = 1;
-            std::cout << "*_*_*_*_*_*_*_* TESTING: IN RTA - Local instance with multiple vehicles *_*_*_*_*_*_*_*" << std::endl;
-            // TODO: If this fires (i.e. local instances somehow have knowledge of multiple vehicles), then we need logic
-            //          to handle this. Basically, local instances should only have knowledge of their own position for RTA
-            //          positions. Local instances should only have knowledge of their operational boundary, so there's no
-            //          need to partition the received boundaries
-        }
+//        if(numVehicles > 1 && !m_globalInstance) {
+//            //TODO Pat: Address issue of global and local instance
+//            numVehicles = 1;
+//            std::cout << "*_*_*_*_*_*_*_* TESTING: IN RTA - Local instance with multiple vehicles *_*_*_*_*_*_*_*" << std::endl;
+//            // TODO: If this fires (i.e. local instances somehow have knowledge of multiple vehicles), then we need logic
+//            //          to handle this. Basically, local instances should only have knowledge of their own position for RTA
+//            //          positions. Local instances should only have knowledge of their operational boundary, so there's no
+//            //          need to partition the received boundaries
+//        }
 
         PolySplit polygon;
         polygon.initPolygon(m_boundary, numVehicles);
@@ -61,10 +58,34 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Position<Cartes
             std::cout << "Balanced Voronoi: Number of vehicles does not match number of available polygons." << std::endl;
         }
         else {
-            // Step 2): Compute voronoi partition based on centroids of each split polygon
             std::vector<Cell_2DC> cellsVec;
-            success = computeVoronoi(cellsVec, centroids);
+            std::vector<Polygon_2DC> polygons = polygon.getPolygons();
+            for(auto polygon : polygons) {
+                std::vector<Position<CartesianPosition_2D> > coords;
+                std::vector<Position<CartesianPosition_2D> > vertices = polygon.getVector();
+                for(auto vertex : vertices) {
+                    Position<CartesianPosition_2D> tmp;
+                    tmp.setXPosition(vertex.getXPosition());
+                    tmp.setYPosition(vertex.getYPosition());
+                    coords.push_back(tmp);
+                }
 
+                // Create cell and add to list:
+                Cell_2DC cell(coords, "2D Cartesian Polygon");
+                // Sort the cell vertices:
+                sortCellVerticesCCW(cell); // TODO: Optimize
+                // Only generated and insert nodes if the RTA instance is a local instance (i.e. onboard a vehicle that needs to generate nodes)
+                if(!m_globalInstance) {
+                    std::list<mace::pose::Position<mace::pose::CartesianPosition_2D>*> nodeList = m_dataGrid->getBoundedDataList();
+                    cell.insertNodes(nodeList, true);
+                }
+
+                cellsVec.push_back(cell);
+            }
+
+            if(cellsVec.size() > 0) {
+                success = true;
+            }
 
             // Step 3): Assign cells to vehicle IDs based on distance to vehicle/site
             std::vector<int> usedCellIndices;
@@ -85,9 +106,15 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Position<Cartes
                 }
                 usedCellIndices.push_back(index);
                 cells.insert(std::make_pair(vehicle.first, tmpCell));
+
+
+//                printCellInfo(cells.at(0));
+//                printCellInfo(cells.at(1));
+
             }
         }
     }
+
 
     // Return success or failure:
     return success;

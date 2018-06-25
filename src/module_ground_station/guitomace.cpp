@@ -161,11 +161,12 @@ void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
     }
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->Event_SetBoundary(m_parent, operationalBoundary);
+//        ptr->Event_SetBoundary(m_parent, operationalBoundary);
+        ptr->Event_SetOperationalBoundary(m_parent, operationalBoundary);
     });
 
     // Get and send vertices to the GUI:
-    getEnvironmentBoundary();
+//    getEnvironmentBoundary();
 }
 
 //!
@@ -177,6 +178,8 @@ void GUItoMACE::setGoHere(const int &vehicleID, const QJsonObject &jsonObj)
 {
     // TODO:
     std::cout << "Go here command issued" << std::endl;
+    QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
+    std::cout << position.value("lat").toDouble() << " / " << position.value("lon").toDouble() << std::endl;
 }
 
 //!

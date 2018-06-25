@@ -180,8 +180,9 @@ public:
     //!
     //! \brief sendEnvironmentVertices Send environment boundary vertices to the MACE GUI
     //! \param component Environment boundary component
+    //! \param vehicleID Vehicle ID corresponding to boundary. ID of 0 implies global/operational fence, ID =/= 0 implies resource boundary
     //!
-    void sendEnvironmentVertices(const std::vector<GeodeticPosition_3D> &component);
+    void sendEnvironmentVertices(const std::vector<GeodeticPosition_3D> &component, const int &vehicleID);
 
     //!
     //! \brief sendCurrentMissionItem Send vehicle mission to the MACE GUI

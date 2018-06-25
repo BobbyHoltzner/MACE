@@ -295,8 +295,8 @@ void ModuleROS::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
     geometry_msgs::Point startPoint;
     geometry_msgs::Point endPoint;
 
-    std::vector<Position<CartesianPosition_2D>> vertices = boundary.boundingPolygon.getVector();
-    for(size_t i = 1; i < vertices.size();i ++)
+    auto vertices = boundary.boundingPolygon.getVector();
+    for(int i = 1; i < vertices.size();i ++)
     {
         startPoint.x = vertices.at(i-1).getXPosition();
         startPoint.y = vertices.at(i-1).getYPosition();
@@ -409,7 +409,7 @@ void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<D
 
     // Send gazebo model state:
 #ifdef ROS_EXISTS
-    //sendGazeboModelState(vehicleID);
+    sendGazeboModelState(vehicleID);
 #endif
 }
 
@@ -435,7 +435,7 @@ void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<D
 
     // Send gazebo model state:
 #ifdef ROS_EXISTS
-    //sendGazeboModelState(vehicleID);
+    sendGazeboModelState(vehicleID);
 #endif
 }
 
@@ -622,7 +622,7 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     Eigen::Matrix4f sensorToWorld;
 
     try {
-      m_tfListener.lookupTransform("world",msg->header.frame_id, msg->header.stamp, sensorToWorldTf);
+      m_tfListener.lookupTransform("world", msg->header.frame_id, msg->header.stamp, sensorToWorldTf);
 
       double mv[12];
       sensorToWorldTf.getBasis().getOpenGLSubMatrix(mv);
@@ -645,7 +645,7 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     // Lookup transform, set into MACE data structures, and publish along with octomap point cloud
     geometry_msgs::TransformStamped transform;
     try{
-        transform = m_tfBuffer.lookupTransform("world",msg->header.frame_id, msg->header.stamp);
+        transform = m_tfBuffer.lookupTransform("world", msg->header.frame_id, msg->header.stamp);
     }
     catch (tf::TransformException ex){
         ROS_ERROR("%s",ex.what());
@@ -682,7 +682,34 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
 //! \brief newPointCloud Point cloud callback for ROS PointCloud2 message
 //! \param msg PointCloud2 message
 //!
-void ModuleROS::newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
+void ModuleROS::newGlobalPointCloud(const ros::MessageEvent<sensor_msgs::PointCloud2 const>& event) {
+    const std::string& publisher_name = event.getPublisherName();
+    const ros::M_string& header = event.getConnectionHeader();
+    std::string topic = header.at("topic");
+    ros::Time receipt_time = event.getReceiptTime();
+
+//    std::cout << "**** Message Event ****" << std::endl;
+//    std::cout << "  Publisher name: " << publisher_name << std::endl;
+//    std::cout << "  Header -- topic: " << topic << std::endl; // /MACE/basic_quadrotor_6/scan/cloud_global
+//    std::cout << "  receipt_time: " << receipt_time << std::endl;
+//    std::cout << "**** **** ****" << std::endl;
+
+    // Find model name from topic:
+    std::string modelName;
+    std::string delimiter = "/";
+    std::size_t pos = 0;
+    std::string token;
+    while ((pos = topic.find(delimiter)) != std::string::npos) {
+        token = topic.substr(0, pos);
+        topic.erase(0, pos + delimiter.length());
+        if(token.find("basic_quadrotor_") != std::string::npos) {
+            modelName = token;
+            break;
+        }
+    }
+
+    // ** Get Point Cloud message from message event:
+    const sensor_msgs::PointCloud2::ConstPtr& msg = event.getMessage();
     // Convert to Octomap Point Cloud:
     octomap::Pointcloud octoPointCloud;
     octomap::pointCloud2ToOctomap(*msg, octoPointCloud);
@@ -691,24 +718,25 @@ void ModuleROS::newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& ms
     Eigen::Matrix4f worldToSensor;
 
     try {
-      m_tfListener.lookupTransform(msg->header.frame_id, "basic_quadrotor_1/base_link", msg->header.stamp, worldToSensorTF);
+//        m_tfListener.lookupTransform(msg->header.frame_id, "basic_quadrotor_1/base_link", msg->header.stamp, worldToSensorTF);
+        m_tfListener.lookupTransform(msg->header.frame_id, modelName + "/base_link", msg->header.stamp, worldToSensorTF);
 
-      double mv[12];
-      worldToSensorTF.getBasis().getOpenGLSubMatrix(mv);
-      tf::Vector3 origin = worldToSensorTF.getOrigin();
+        double mv[12];
+        worldToSensorTF.getBasis().getOpenGLSubMatrix(mv);
+        tf::Vector3 origin = worldToSensorTF.getOrigin();
 
-      worldToSensor (0, 0) = mv[0]; worldToSensor (0, 1) = mv[4]; worldToSensor (0, 2) = mv[8];
-      worldToSensor (1, 0) = mv[1]; worldToSensor (1, 1) = mv[5]; worldToSensor (1, 2) = mv[9];
-      worldToSensor (2, 0) = mv[2]; worldToSensor (2, 1) = mv[6]; worldToSensor (2, 2) = mv[10];
+        worldToSensor (0, 0) = mv[0]; worldToSensor (0, 1) = mv[4]; worldToSensor (0, 2) = mv[8];
+        worldToSensor (1, 0) = mv[1]; worldToSensor (1, 1) = mv[5]; worldToSensor (1, 2) = mv[9];
+        worldToSensor (2, 0) = mv[2]; worldToSensor (2, 1) = mv[6]; worldToSensor (2, 2) = mv[10];
 
-      worldToSensor (3, 0) = worldToSensor (3, 1) = worldToSensor (3, 2) = 0; worldToSensor (3, 3) = 1;
-      worldToSensor (0, 3) = origin.x ();
-      worldToSensor (1, 3) = origin.y ();
-      worldToSensor (2, 3) = origin.z ();
+        worldToSensor (3, 0) = worldToSensor (3, 1) = worldToSensor (3, 2) = 0; worldToSensor (3, 3) = 1;
+        worldToSensor (0, 3) = origin.x ();
+        worldToSensor (1, 3) = origin.y ();
+        worldToSensor (2, 3) = origin.z ();
 
     } catch(tf::TransformException& ex){
-      ROS_ERROR_STREAM( "Transform error of sensor data: " << ex.what() << ", quitting callback");
-      return;
+        ROS_ERROR_STREAM( "Transform error of sensor data: " << ex.what() << ", quitting callback");
+        return;
     }
 
     mace::pose::Position<mace::pose::CartesianPosition_3D> transform_position;
@@ -821,7 +849,7 @@ void ModuleROS::convertToGazeboCartesian(DataState::StateLocalPosition& localPos
         // TODO:
         break;
     case Data::CoordinateFrameType::CF_LOCAL_ENU:
-        // TODO:
+        localPos.setZ(-localPos.getZ());
         break;
     case Data::CoordinateFrameType::CF_GLOBAL_INT:
         // TODO:

@@ -11,18 +11,20 @@ void PolySplit::initPolygon(const mace::geometry::Polygon_2DC &boundary, const i
     std::vector<mace::pose::Position<mace::pose::CartesianPosition_2D>> boundaryVector = boundary.getVector();
 
     for(auto vertex : boundaryVector) {
-        polygon.push_back(Vector(vertex.getXPosition(), vertex.getYPosition()));        
+        polygon.push_back(Vector(vertex.getXPosition(), vertex.getYPosition()));
     }
 
     Polygon polygonToSplit = polygon;
     for(int i = 0; i < numVehicles; i++) {
         Polygon poly1, poly2;
         Line cut;
-        double squareToCut = polygonToSplit.countSquare() / (boundaryVector.size()-i);
+//        double squareToCut = polygonToSplit.countSquare() / (boundaryVector.size()-i);
+        double squareToCut = polygonToSplit.countSquare() / (numVehicles-i);
         polygonToSplit.split(squareToCut, poly1, poly2, cut);
 
         // Set polygon to keep based on areas::
-        if(poly1.countSquare() <= poly2.countSquare() || (boundaryVector.size() - i) == 1) {
+//        if(poly1.countSquare() <= poly2.countSquare() || (boundaryVector.size() - i) == 1) {
+        if(poly1.countSquare() <= poly2.countSquare() || (numVehicles - i) == 1) {
             splitPolygons.push_back(poly1);
             // Push centroid:
             splitCentroids.push_back(poly1.countCenter());
@@ -73,6 +75,7 @@ std::vector<mace::geometry::Polygon_2DC> PolySplit::getPolygons() const {
             verts.push_back(tmpPos);
         }
         tmpPoly.replaceVector(verts);
+        polygons.push_back(tmpPoly);
     }
 
     return polygons;
