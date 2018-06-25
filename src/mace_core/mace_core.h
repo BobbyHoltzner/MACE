@@ -123,15 +123,12 @@ public:
     virtual void Event_GetHomePosition(const void* sender, const int &vehicleID);
     virtual void Event_SetHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome);
 
-    virtual void Event_SetGlobalOrigin(const void* sender, const CommandItem::SpatialHome &globalHome);
     virtual void Event_SetGridSpacing(const void* sender, const double &gridSpacing);
 
-    //!
-    //! \brief Event_SetEnvironmentVertices This event should be emitted by the External Link, Ground Station
-    //! \param sender
-    //! \param boundaryVerts
-    //!
-    virtual void Event_SetEnvironmentVertices(const ModuleBase *sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts);
+
+    void Event_SetGlobalOrigin(const void* sender, const mace::pose::GeodeticPosition_3D &globalHome) override;
+
+    void Event_SetBoundary(const ModuleBase* sender, const BoundaryItem::BoundaryList &boundary) override;
 
 public:
 
@@ -186,12 +183,7 @@ public:
     /// RTA EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    //!
-    //! \brief Event_SetVehicleBoundaryVertices
-    //! \param sender
-    //! \param vehicleMap
-    //!
-    virtual void Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const std::map<int, mace::geometry::Cell_2DC> &vehicleMap);
+    void Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
 
 public:
 
@@ -225,6 +217,19 @@ public:
     /// PATH PLANNING EVENTS
     /////////////////////////////////////////////////////////////////////////
 
+    void EventPP_LoadOccupancyEnvironment(const ModuleBase* sender, const std::string &filePath) override;
+
+    void EventPP_LoadOctomapProperties(const ModuleBase* sender, const mace::maps::OctomapSensorDefinition &properties) override;
+
+    void EventPP_LoadMappingProjectionProperties(const ModuleBase* sender, const mace::maps::Octomap2DProjectionDefinition &properties) override;
+
+    void Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
+
+    void EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
+
+    void EventPP_NewDynamicMissionQueue(const ModuleBase* sender, const TargetItem::DynamicMissionQueue &queue) override;
+
+    void EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path) override;
 
     //!
     //! \brief Event fired to indicate what planning horizon is being utilized by the path planning module
@@ -238,9 +243,6 @@ public:
 
     virtual void AppendVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands);
 
-    void EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
-
-    void EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path) override;
 
     //!
     //! \brief Event fired when a new occupancy map to be invoked when PathPlanning module generates a new occupancy map.

@@ -2,6 +2,7 @@
 #define ABSTRACT_STATE_VALIDITY_CHECK_H
 
 #include "base/base_global.h"
+#include "common/common.h"
 #include "common/class_forward.h"
 
 #include "common/optional_parameter.h"
@@ -50,7 +51,7 @@ public:
      * @brief updateStateSpace
      * @param space
      */
-    const void updateStateSpace(const StateSpacePtr &space)
+    void updateStateSpace(const StateSpacePtr &space)
     {
         m_stateSpace = space.get();
     }
@@ -93,6 +94,7 @@ public:
 
     bool isValid(const State *state) const override
     {
+        UNUSED(state);
         return true;
     }
 

@@ -4,6 +4,8 @@
 #include "base_position.h"
 #include "base/state_space/state.h"
 
+using namespace mace::math;
+
 namespace mace{
 namespace pose {
 
@@ -41,7 +43,11 @@ public:
         *state = new CartesianPosition_2D(*this);
     }
 
-
+    std::string printInfo() const override
+    {
+        std::string rtn = "Cartesian Position 2D: " + std::to_string(getXPosition()) + ", " + std::to_string(getYPosition()) + ".";
+        return rtn;
+    }
 
 public:
     void updatePosition(const double &x, const double &y)
@@ -82,7 +88,7 @@ public:
 
     bool hasYBeenSet() const
     {
-        return this->data.getDataXFlag();
+        return this->data.getDataYFlag();
     }
 public:
     double deltaX(const CartesianPosition_2D &that) const;
@@ -127,6 +133,23 @@ public:
 
     void scale(const double &value);
 
+    bool hasBeenSet() const override
+    {
+        return hasXBeenSet() || hasYBeenSet();
+    }
+
+    //!
+    //! \brief distanceFromOrigin
+    //! \return
+    //!
+    double distanceFromOrigin() const override;
+
+    //!
+    //! \brief polarBearingFromOrigin
+    //! \return
+    //!
+    double polarBearingFromOrigin() const override;    
+
     //!
     //! \brief distanceBetween2D
     //! \param position
@@ -170,6 +193,11 @@ public:
     //! \return
     //!
     CartesianPosition_2D newPositionFromCompass(const double &distance, const double &bearing) const override;
+
+    void applyPositionalShiftFromPolar(const double &distance, const double &bearing) override;
+
+    void applyPositionalShiftFromCompass(const double &distance, const double &bearing) override;
+
 
 public:
     friend std::ostream& operator<<(std::ostream& os, const CartesianPosition_2D& t);

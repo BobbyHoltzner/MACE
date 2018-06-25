@@ -13,17 +13,13 @@
       <Parameter Name="AirborneInstance">true</Parameter>
     </Parameter>
     </Module>
-    <Module Class="ROS" Type="NASAPhase2">
-    <Parameter Name="ModuleParameters">
-      <Parameter Name="AirborneInstance">false</Parameter>
-    </Parameter>
-    <Parameter Name="LaserSensor">
-      <Parameter Name="Name">laser</Parameter>
-      <Parameter Name="Type">lidar_scan</Parameter>
-    </Parameter>
-    <Parameter Name="CameraSensor">
-      <Parameter Name="Name">camera</Parameter>
-      <Parameter Name="Type">rgb</Parameter>
-    </Parameter>
+	    <Module Class="GroundStation" Type="NASAPhase2">
+	<Parameter Name="ID">8</Parameter>
+	<Parameter Name="MACEComms">
+		<Parameter Name="GUIHostAddress">192.168.1.217</Parameter>
+		<Parameter Name="ListenPort">5678</Parameter>
+		<Parameter Name="SendPort">1234</Parameter>
+	</Parameter>	
   </Module>
 </ModuleConfigurations>
+

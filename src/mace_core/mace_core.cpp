@@ -411,114 +411,58 @@ void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &v
 
 }
 
-void MaceCore::Event_SetGlobalOrigin(const void *sender, const CommandItem::SpatialHome &globalHome)
-{
-    UNUSED(sender);
-    m_DataFusion->UpdateGlobalOrigin(globalHome);
-    if(m_PathPlanning) {
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, 0); // TODO: Parse for vehicle ID
-    }
-
-    if(m_GroundStation) {
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, 0); // TODO: Parse for vehicle ID
-    }
-
-    if(m_RTA) {
-        m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, 0); // TODO: Parse for vehicle ID
-    }
-}
-
 void MaceCore::Event_SetGridSpacing(const void *sender, const double &gridSpacing)
 {
     UNUSED(sender);
     m_DataFusion->UpdateGridSpacing(gridSpacing);
 }
 
-void MaceCore::Event_SetEnvironmentVertices(const ModuleBase *sender, const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
-//    UNUSED(sender);
-    m_DataFusion->UpdateEnvironmentVertices(boundaryVerts);
 
-    if(sender->ModuleClass() != ModuleClasses::RTA) {
+void MaceCore::Event_SetGlobalOrigin(const void *sender, const GeodeticPosition_3D &position)
+{
+    m_DataFusion->UpdateGlobalOrigin(position);
+
+    if(m_PathPlanning && m_PathPlanning.get() != sender) {
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, position);
+    }
+    if(m_GroundStation && m_GroundStation.get() != sender) {
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, position);
+    }
+    if(m_RTA) {
+        m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, position);
+    }
+}
+
+void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
+{
+    m_DataFusion->updateBoundary(boundary);
+
+    if((sender->ModuleClass() != ModuleClasses::PATH_PLANNING) &&
+            (boundary.getBoundaryType() == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE)) {
+        if(m_PathPlanning) {
+            m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
+        }
+    }
+    if((sender->ModuleClass() != ModuleClasses::RTA) &&
+            (boundary.getBoundaryType() == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE)){
         if(m_RTA) {
-            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_BOUNDARY_VERTICES, 0);
+            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
         }
     }
-}
 
-
-void MaceCore::Event_SetVehicleBoundaryVertices(const ModuleBase *sender, const std::map<int, mace::geometry::Cell_2DC> &vehicleMap) {
-    m_DataFusion->UpdateVehicleCellMap(vehicleMap);
-
-    std::vector<BoundaryItem::BoundaryList> boundaryList;
-    std::map<int, mace::geometry::Cell_2DC>::const_iterator it = vehicleMap.begin();
-    for(; it!=vehicleMap.end(); ++it)
+    if(m_ExternalLink.size() > 0)
     {
-        //this function should check whether the communication module is via external or via direct connect
-        std::map<int, IModuleCommandVehicle*>::iterator portIT = m_VehicleIDToPort.find(it->first);
-        if(portIT != m_VehicleIDToPort.end()){
-            std::map<int, IModuleCommandExternalLink*>::iterator externalLinkIT = m_ExternalLinkIDToPort.find(it->first);
-            if(externalLinkIT != m_ExternalLinkIDToPort.end()) //that mean this exists and there is an external link talking to that ID
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            if(it->get() == sender)
             {
-                IModuleCommandExternalLink* externalModule = externalLinkIT->second;
-                externalModule->MarshalCommand(ExternalLinkCommands::NEW_OPERATIONAL_BOUNDARY, it->first);
+                continue;
             }
-            else //check the local map or could assume an else coniditon
-            {
-                BoundaryItem::BoundaryList tmpList;
-                tmpList.setCreatorID(sender->GetID()); // Is this correct?
-                tmpList.setVehicleID(it->first);
-                mace::geometry::Cell_2DC tmp;
-                mace::geometry::Polygon_2DC tmpPoly;
-                std::vector<mace::geometry::Position<mace::geometry::CartesianPosition_2D> > cartesianVerts = it->second.getVector();
-                std::vector<DataState::StateGlobalPosition> globalVerts;
-                for(auto&& vertex : cartesianVerts) {
-                    DataState::StateLocalPosition localPositionData;
-                    localPositionData.setX(vertex.getXPosition());
-                    localPositionData.setY(vertex.getYPosition());
-                    DataState::StateGlobalPosition tmpGlobalOrigin;
-                    CommandItem::SpatialHome globalOrigin = m_DataFusion->GetGlobalOrigin();
 
-                    if(globalOrigin.getPosition().has2DPositionSet()) {
-                        tmpGlobalOrigin.setLatitude(globalOrigin.getPosition().getX());
-                        tmpGlobalOrigin.setLongitude(globalOrigin.getPosition().getY());
-                        tmpGlobalOrigin.setAltitude(globalOrigin.getPosition().getZ());
-
-                        DataState::StateGlobalPosition globalPositionData;
-                        DataState::PositionalAid::LocalPositionToGlobal(tmpGlobalOrigin, localPositionData, globalPositionData);
-                        globalVerts.push_back(globalPositionData);
-                    }
-                    else {
-                        std::cout << "No global origin set. Cannot set vehicle boundary vertices." << std::endl;
-                    }
-
-                    tmpPoly.appendVertex(vertex);
-                }
-
-                tmpList.setBoundary(tmpPoly);
-                boundaryList.push_back(tmpList);
-
-                if(globalVerts.size() > 0) {
-                    Event_SetEnvironmentVertices(sender, globalVerts);
-                    //implies that this is local and we need to do something with the nodes
-                    //generate mission and notify new mission
-                }
-            }
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY,boundary.getBoundaryKey(), sender->GetCharacteristic());
         }
     }
-
-
-    m_DataFusion->UpdateVehicleBoundaryList(boundaryList);
-
-
-    if(m_PathPlanning) {
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, 0);
-    }
-
-    if(m_GroundStation) {
-        //        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATE_VEHICLE_BOUNDARIES, 0);
-    }
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// SPECIFIC VEHICLE EVENTS: These events are associated from IModuleEventsVehicleVehicle
@@ -802,6 +746,23 @@ void MaceCore::ExternalEvent_FinishedRXBoundaryList(const void *sender, const Bo
 /// RTA EVENTS
 /////////////////////////////////////////////////////////////////////////
 
+void MaceCore::Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
+{
+    m_DataFusion->updateBoundary(boundary);
+
+    if(m_ExternalLink.size() > 0)
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            if(it->get() == sender)
+            {
+                continue;
+            }
+
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY,boundary.getBoundaryKey(), sender->GetCharacteristic());
+        }
+    }
+}
 
 /////////////////////////////////////////////////////////////////////////
 /// GROUND STATION EVENTS
@@ -864,6 +825,61 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
 /// PATH PLANNING EVENTS
 /////////////////////////////////////////////////////////////////////////
 
+void MaceCore::EventPP_LoadOccupancyEnvironment(const ModuleBase *sender, const string &filePath)
+{
+    std::cout<<"Somehow load occupancy environment is being called"<<std::endl;
+    if(m_DataFusion->loadOccupancyEnvironment(filePath))
+    {
+        //we have loaded a new map which means we need to notify everyone
+
+        //we dont have to check if PP exists here because we know it has to as it is the caller
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP,0);
+    }
+}
+
+void MaceCore::EventPP_LoadOctomapProperties(const ModuleBase *sender, const maps::OctomapSensorDefinition &properties)
+{
+    std::cout<<"Somehow load octomap properties is being called"<<std::endl;
+    if(m_DataFusion->updateOctomapProperties(properties))
+    {
+        //we have loaded a new map which means we need to notify everyone
+
+        //we dont have to check if PP exists here because we know it has to as it is the caller
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP,0);
+
+        if(m_ROS)
+        {
+            //m_ROS->MarshalCommand(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, map);
+            m_ROS->MarshalCommand(ROSCommands::NEWLY_UPDATED_3D_OCCUPANCY_MAP, 0); // TODO: Parse for vehicle ID
+
+        }
+    }
+}
+
+void MaceCore::EventPP_LoadMappingProjectionProperties(const ModuleBase *sender, const maps::Octomap2DProjectionDefinition &properties)
+{
+
+}
+
+void MaceCore::Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
+{
+    m_DataFusion->updateBoundary(boundary);
+
+    if(m_RTA) {
+        m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
+    }
+
+    if(m_ROS)
+    {
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
+    }
+
+    if(m_GroundStation) {
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_BOUNDARY, boundary.getBoundaryKey());
+    }
+}
+
+
 //!
 //! \brief Event fired to indicate what planning horizon is being utilized by the path planning module
 //! \param horizon ID of the horizon being utilized
@@ -901,6 +917,16 @@ void MaceCore::EventPP_New2DOccupancyMap(const void* sender, const mace::maps::D
 {
     if(m_ROS)
         m_ROS->MarshalCommand(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, map);
+}
+
+void MaceCore::EventPP_NewDynamicMissionQueue(const ModuleBase *sender, const TargetItem::DynamicMissionQueue &queue)
+{
+    UNUSED(sender);
+
+    //Find who the queue is intended for
+    //int vehicleID = queue.getAssociatedMissionKey().m_systemID;
+    //Marshal the command to that vehicle
+    //m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::UPDATED_DYNAMIC_MISSION_QUEUE, queue);
 }
 
 void MaceCore::EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path)

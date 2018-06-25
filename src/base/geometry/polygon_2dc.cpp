@@ -186,6 +186,19 @@ void Polygon_2DC::getCorners(Position<CartesianPosition_2D> &topLeft, Position<C
     bottomRight = getBottomRight();
 }
 
+CoordinateFrame Polygon_2DC::getVertexCoordinateFrame() const
+{
+    return CoordinateFrame::CF_LOCAL_ENU;
+}
+
+void Polygon_2DC::applyCoordinateShift(const double &distance, const double &bearing)
+{
+    for (size_t i = 0; i < polygonSize(); i++)
+    {
+        m_vertex.at(i).applyPositionalShiftFromPolar(distance,bearing);
+    }
+    updateBoundingBox();
+}
 
 
 } //end of namespace geometry

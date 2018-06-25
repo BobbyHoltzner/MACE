@@ -21,7 +21,7 @@ double rnd() {return double(rand())/RAND_MAX;}
  * @param gridSpacing Spacing between grid points
  * @param globalOrigin Global origin for environment
  */
-Environment_Map::Environment_Map(const Polygon_2DC &boundingPolygon, const double &gridSpacing, const CommandItem::SpatialHome &globalOrigin, const bool &globalInstance) :
+Environment_Map::Environment_Map(const Polygon_2DC &boundingPolygon, const double &gridSpacing, const bool &globalInstance) :
     m_boundary(boundingPolygon), m_globalInstance(globalInstance) {
 
     // Only generated and insert nodes if the RTA instance is a local instance (i.e. onboard a vehicle that needs to generate nodes)
@@ -29,7 +29,7 @@ Environment_Map::Environment_Map(const Polygon_2DC &boundingPolygon, const doubl
         m_dataGrid = new mace::maps::Bounded2DGrid(m_boundary, gridSpacing, gridSpacing);
     }
 
-    m_globalOrigin = std::make_shared<CommandItem::SpatialHome>(globalOrigin);
+//    m_globalOrigin = std::make_shared<CommandItem::SpatialHome>(globalOrigin);
 }
 
 /**
@@ -44,6 +44,8 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Position<Cartes
         int numVehicles = vehicles.size();
 
         if(numVehicles > 1 && !m_globalInstance) {
+            //TODO Pat: Address issue of global and local instance
+            numVehicles = 1;
             std::cout << "*_*_*_*_*_*_*_* TESTING: IN RTA - Local instance with multiple vehicles *_*_*_*_*_*_*_*" << std::endl;
             // TODO: If this fires (i.e. local instances somehow have knowledge of multiple vehicles), then we need logic
             //          to handle this. Basically, local instances should only have knowledge of their own position for RTA

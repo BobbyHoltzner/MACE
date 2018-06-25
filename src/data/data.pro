@@ -24,8 +24,7 @@ SOURCES += \
     topic_components/position_local.cpp \
     topic_prototypes/position_cartesian_3d.cpp \
     topic_components/topic_component_string.cpp \
-    topic_components/topic_component_void.cpp \
-    topic_components/mission_key.cpp
+    topic_components/topic_component_void.cpp
 
 HEADERS += data_global.h \
     i_topic_component_data_object.h \

@@ -71,16 +71,15 @@ void GUItoMACE::getEnvironmentBoundary() {
 //!
 void GUItoMACE::getGlobalOrigin()
 {
-    std::shared_ptr<const MaceCore::MaceData> data = m_parent->getDataObject();
-    CommandItem::SpatialHome globalOrigin = data->GetGlobalOrigin();
+    mace::pose::GeodeticPosition_3D globalOrigin = m_parent->getDataObject()->GetGlobalOrigin();
 
     QJsonObject json;
     json["dataType"] = "GlobalOrigin";
     json["vehicleID"] = 0;
-    json["lat"] = globalOrigin.position->getX();
-    json["lng"] = globalOrigin.position->getY();
-    json["alt"] = globalOrigin.position->getZ();
-    json["gridSpacing"] = data->GetGridSpacing();
+    json["lat"] = globalOrigin.getLatitude();
+    json["lng"] = globalOrigin.getLongitude();
+    json["alt"] = globalOrigin.getAltitude();
+    json["gridSpacing"] = m_parent->getDataObject()->GetGridSpacing();
 
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
@@ -120,14 +119,15 @@ void GUItoMACE::setVehicleHome(const int &vehicleID, const QJsonObject &jsonObj)
 //!
 void GUItoMACE::setGlobalOrigin(const QJsonObject &jsonObj)
 {
-    CommandItem::SpatialHome tmpGlobalOrigin;
     QJsonObject position = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
-    tmpGlobalOrigin.position->setX(position.value("lat").toDouble());
-    tmpGlobalOrigin.position->setY(position.value("lng").toDouble());
-    tmpGlobalOrigin.position->setZ(position.value("alt").toDouble());
+
+    mace::pose::GeodeticPosition_3D origin;
+    origin.setLatitude(position.value("lat").toDouble());
+    origin.setLongitude(position.value("lng").toDouble());
+    origin.setAltitude(position.value("alt").toDouble());
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->Event_SetGlobalOrigin(this, tmpGlobalOrigin);
+        ptr->Event_SetGlobalOrigin(this, origin);
     });
 }
 
@@ -137,6 +137,10 @@ void GUItoMACE::setGlobalOrigin(const QJsonObject &jsonObj)
 //!
 void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
 {
+    BoundaryItem::BoundaryList operationalBoundary(0,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+
+    mace::pose::GeodeticPosition_3D origin = m_parent->getDataObject()->GetGlobalOrigin();
+
     QJsonObject tmpBoundaryObj = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
     QJsonArray boundary = tmpBoundaryObj.value("boundary").toArray();
 
@@ -147,15 +151,17 @@ void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
         double tmpLon = v.toObject().value("lng").toDouble();
         double tmpAlt = v.toObject().value("alt").toDouble();
 
-        DataState::StateGlobalPosition globalPos;
-        globalPos.setLatitude(tmpLat);
-        globalPos.setLongitude(tmpLon);
-        globalPos.setAltitude(tmpAlt);
-        globalBoundary.push_back(globalPos);
+        mace::pose::GeodeticPosition_3D vertexGlobal(tmpLat,tmpLon,tmpAlt);
+        mace::pose::CartesianPosition_3D vertexLocal3D;
+
+        mace::pose::DynamicsAid::GlobalPositionToLocal(origin,vertexGlobal,vertexLocal3D);
+        mace::pose::CartesianPosition_2D vertexLocal2D(vertexLocal3D.getXPosition(),vertexLocal3D.getYPosition());
+
+        operationalBoundary.appendVertexItem(vertexLocal2D);
     }
 
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->Event_SetEnvironmentVertices(m_parent, globalBoundary);
+        ptr->Event_SetBoundary(m_parent, operationalBoundary);
     });
 
     // Get and send vertices to the GUI:

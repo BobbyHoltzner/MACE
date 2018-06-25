@@ -144,6 +144,8 @@ public:
 
     void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<OccupiedResult> &map) override;
 
+    void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) override;
+
     void NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path) override;
 
 
@@ -176,6 +178,10 @@ public:
     // ========================  ROS Specific functions:  ========================== //
     // ============================================================================= //
 public:
+
+    //! \brief renderOccupancyMap
+    //!
+    void renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree);
 
 #ifdef ROS_EXISTS
     //!
@@ -220,11 +226,6 @@ public:
 #ifdef ROS_EXISTS
 
     std_msgs::ColorRGBA generateColorHeight(double height);
-
-
-    //! \brief renderOccupancyMap
-    //!
-    void renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree);
 
     //!
     //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz
@@ -300,6 +301,11 @@ private:
     //!
     ros::Publisher markerPub;
 
+    //!
+    //! \brief operationalBoundaryPub Publisher for operational boundary to be rendered in RViz
+    //!
+    ros::Publisher operationalBoundaryPub;
+
     ros::Publisher compressedMapPub;
 
     ros::Publisher testTransformedCloud;
@@ -311,7 +317,7 @@ private:
     //!
     //! \brief points Marker containers
     //!
-    visualization_msgs::Marker points, line_strip, line_list, path_list;
+    visualization_msgs::Marker points, line_strip, line_list, path_list, boundary_list;
 
     //!
     //! \brief m_client Service client for publishing update model state service to Gazebo
@@ -329,6 +335,7 @@ private:
     //!
     tf::Transform m_transform;
 
+    tf::Transform m_WorldToMap;
     //!
     //! \brief m_srv Container for the Gazebo send model state message
     //!

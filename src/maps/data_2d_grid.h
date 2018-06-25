@@ -47,7 +47,8 @@ public:
         for(;!it.isPastEnd();++it)
         {
             T* ptr = this->getCellByIndex(*it);
-            *ptr = *copy.getCellByIndex(*it);
+            if(ptr != nullptr)
+                *ptr = *copy.getCellByIndex(*it);
         }
     }
 
@@ -98,14 +99,14 @@ public:
                 T* currentValue = this->getCellByPos(xPos,yPos);
                 if(currentValue != nullptr)
                 {
-                    if(*currentValue != this->getFill())
-                    {
-                        clone->getPositionFromIndex(*it,xPos,yPos);
-                        int thisIndex = this->indexFromPos(xPos,yPos);
-                        int otherIndex = *it;
-                        std::cout<<"I was already assigned a value."<<std::endl;
+//                    if(*currentValue != this->getFill())
+//                    {
+//                        clone->getPositionFromIndex(*it,xPos,yPos);
+//                        int thisIndex = this->indexFromPos(xPos,yPos);
+//                        int otherIndex = *it;
+//                        std::cout<<"I was already assigned a value."<<std::endl;
 
-                    }
+//                    }
 
                     *currentValue = *ptr;
 
@@ -138,6 +139,39 @@ public:
             *it = value;
     }
 
+    bool findIndex(const T* find, int &index)
+    {
+        for (size_t i = 0; i < getSize(); i++)
+            if(find == &m_dataMap.at(i))
+            {
+                index = i;
+                return true;
+            }
+        return false;
+    }
+
+    std::vector<T*> getCellNeighbors(const unsigned int &index)
+    {
+        std::vector<T*> rtnCells;
+
+        unsigned int indexX, indexY;
+        getIndexDecomposed(index,indexX,indexY);
+
+        int startY = (((int)indexY + 1) >= ((int)ySize - 1)) ? (ySize - 1) : (int)indexY + 1;
+        int endY = (((int)indexY - 1) >= 0) ? (indexY - 1) : 0;
+
+        for(int i = startY; i >= endY; i--)
+        {
+            int startX = (((int)indexX - 1) >= 0) ? (indexX - 1) : 0;
+            for(int j = startX; j <= (int)indexX + 1; j++)
+            {
+                if((j > (int)xSize - 1) || ((i == (int)indexY) && (j == (int)indexX)))
+                    continue;
+                rtnCells.push_back(this->getCellByPosIndex(j,i));
+            }
+        }
+        return rtnCells;
+    }
 
     T getFill() const
     {
@@ -170,8 +204,8 @@ public:
     {
         int cx = indexFromXPos(x);
         int cy = indexFromYPos(y);
-        if (cx < 0 || cx >= static_cast<int>(xSize)) return nullptr;
-        if (cy < 0 || cy >= static_cast<int>(ySize)) return nullptr;
+        if (cx < 0 || cx >= static_cast<int>(xSize)) return nullptr; //implies something greater than the X range was asked for
+        if (cy < 0 || cy >= static_cast<int>(ySize)) return nullptr; //implies something greater than the Y range was asked for
         return &m_dataMap[cx + cy * xSize];
     }
 

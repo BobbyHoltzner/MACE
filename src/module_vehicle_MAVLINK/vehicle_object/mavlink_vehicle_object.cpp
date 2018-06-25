@@ -45,4 +45,5 @@ bool MavlinkVehicleObject::handleMAVLINKMessage(const mavlink_message_t &msg)
     }
     m_ControllersCollection.controllerMutex.unlock();
 
+    return consumed;
 }

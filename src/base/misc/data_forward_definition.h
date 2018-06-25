@@ -4,6 +4,7 @@
 namespace mace {
 namespace misc {
 
+class Data1D;
 class Data2D;
 class Data3D;
 

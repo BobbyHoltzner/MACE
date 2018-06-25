@@ -33,6 +33,14 @@ SpatialHome::SpatialHome():
 
 }
 
+SpatialHome::SpatialHome(const pose::GeodeticPosition_3D &position):
+    AbstractCommandItem(0,0), AbstractSpatialPosition()
+{
+    this->position->setX(position.getLatitude());
+    this->position->setY(position.getLongitude());
+    this->position->setZ(position.getAltitude());
+}
+
 SpatialHome::~SpatialHome()
 {
 

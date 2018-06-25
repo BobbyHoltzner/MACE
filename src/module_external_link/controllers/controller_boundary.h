@@ -14,6 +14,7 @@
 #include "controllers/actions/action_finish.h"
 #include "controllers/actions/action_request.h"
 
+
 using namespace BoundaryItem;
 
 namespace ExternalLink{
@@ -22,7 +23,7 @@ using CONTROLLER_BOUNDARY_TYPE = Controllers::GenericController<
     mace_message_t,
     TransmitQueueWithKeys<Controllers::MessageModuleTransmissionQueue<mace_message_t>, ObjectIntTuple<MaceCore::ModuleCharacteristic>, ObjectIntTuple<BoundaryItem::BoundaryKey>>,
     uint8_t,
-    Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryList>
+    Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>
 >;
 
 using SendBoundaryHelper_RequestDownload = Controllers::ActionSend<
@@ -112,38 +113,6 @@ using SendBoundaryHelper_FinalFinal = Controllers::ActionFinish<
     MACE_MSG_ID_BOUNDARY_ACK
 >;
 
-//template <typename MESSAGETYPE>
-//using Action_RequestCurrentBoundary_Initiate = ActionRequest<
-//    MESSAGETYPE,
-//    CONTROLLER_BOUNDARY_TYPE,
-//    MaceCore::ModuleCharacteristic,
-//    mace_boundary_request_list_t,
-//    MACE_MSG_ID_BOUNDARY_COUNT,
-//    MACE_MSG_ID_BOUNDARY_ACK
-//>;
-
-//template <typename MESSAGETYPE>
-//using Action_RequestCurrentBoundary_Response = ActionIntermediateReceive<
-//    MESSAGETYPE,
-//    CONTROLLER_BOUNDARY_TYPE,
-//    BoundaryItem::BoundaryKey,
-//    BoundaryItem::BoundaryKey,
-//    mace_boundary_request_list_t,
-//    MACE_MSG_ID_BOUNDARY_REQUEST_LIST,
-//    mace_boundary_count_t
-//>;
-
-//template <typename MESSAGETYPE>
-//using Action_RequestCurrentBoundary_NoBoundaryResponse = ActionIntermediateReceive<
-//    MESSAGETYPE,
-//    CONTROLLER_BOUNDARY_TYPE,
-//    BoundaryItem::BoundaryKey,
-//    BoundaryItem::BoundaryKey,
-//    mace_boundary_request_list_t,
-//    MACE_MSG_ID_BOUNDARY_REQUEST_LIST,
-//    mace_boundary_ack_t
-//>;
-
 class ControllerBoundary : public CONTROLLER_BOUNDARY_TYPE,
         public SendBoundaryHelper_RequestDownload,
         public SendBoundaryHelper_RequestList,
@@ -209,5 +178,6 @@ public:
 };
 
 }
+
 
 #endif // CONTROLLER_BOUNDARY_H

@@ -38,9 +38,8 @@ inline T wrapToPi(T a)
 
 
 /** Computes the shortest angular increment (or distance) between two planar
- * orientations,
-  * such that it is constrained to [-pi,pi] and is correct for any combination
- * of angles (e.g. near +-pi)
+ * orientations, such that it is constrained to [-pi,pi] and is correct for
+ * any combination of angles (e.g. near +-pi)
   * Examples: angDistance(0,pi) -> +pi; angDistance(pi,0) -> -pi;
   *           angDistance(-3.1,3.1) -> -0.08; angDistance(3.1,-3.1) -> +0.08;
   * \note Take care of not instancing this template for integer numbers, since
@@ -61,12 +60,57 @@ inline T angDistance(T from, T to)
 }
 
 template <class T>
+inline T compassToPolarBearing(const T &value)
+{
+    T newValue = -(value - M_PI_2);
+    return wrapTo2Pi(newValue);
+}
+
+template <class T>
+inline T polarToCompassBearing(const T &value)
+{
+    T newValue = -value + M_PI_2;
+    return wrapTo2Pi(newValue);
+}
+
+
+template <class T>
 inline T correctBearing(const T &value)
 {
     return fmod((value * 180.0/M_PI) + 360.0,360.0);
 }
 
-}  // End of MATH namespace
+template <class T>
+inline T reverseBearing(const T &value)
+{
+    T newValue = value + M_PI;
+    return wrapTo2Pi(newValue);
+}
+
+
+/**
+ * @brief Position::convertDegreesToRadians
+ * @param degrees
+ * @return
+ */
+inline double convertDegreesToRadians(const double &degrees)
+{
+    double radians = degrees * (M_PI/180.0);
+    return radians;
+}
+
+/**
+ * @brief Position::convertRadiansToDegrees
+ * @param radians
+ * @return
+ */
+inline double convertRadiansToDegrees(const double &radians)
+{
+    double degrees = radians * (180.0/M_PI);
+    return degrees;
+}
+
+}  // End of math namespace
 }  // End of namespace
 
 #endif
