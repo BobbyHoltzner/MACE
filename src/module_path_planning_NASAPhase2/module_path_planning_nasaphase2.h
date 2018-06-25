@@ -53,10 +53,7 @@ public:
     //! \brief This module as been attached as a module
     //! \param ptr pointer to object that attached this instance to itself
     //!
-    virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
-    {
-        UNUSED(ptr);
-    }
+    void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr) override;
 
 
     //!
@@ -113,11 +110,15 @@ public:
 
     void NewlyAvailableMission(const MissionItem::MissionList &mission) override;
 
+
 public:
     void cbiPlanner_SampledState(const mace::state_space::State* sampleState) override;
     void cbiPlanner_NewConnection(const mace::state_space::State* beginState, const mace::state_space::State* secondState) override;
 
 private:
+
+    void replanRRT();
+
     /**
      * @brief parseBoundaryVertices Given a string of delimited (lat, lon) pairs, parse into a vector of points
      * @param unparsedVertices String to parse with delimiters
@@ -127,7 +128,9 @@ private:
     void parseBoundaryVertices(std::string unparsedVertices, Polygon_2DG &boundaryPolygon);
 
 private:
-
+    unsigned int localVehicleID;
+    double localVehicleSize = 0.01;
+    std::map<int,mace::pose::CartesianPosition_3D> map_CurrentPosition;
     MissionItem::MissionList m_MissionList;
     TargetItem::DynamicMissionQueue m_DynamicPlan;
 

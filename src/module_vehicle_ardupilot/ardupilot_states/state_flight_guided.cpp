@@ -18,7 +18,7 @@ void State_FlightGuided::OnExit()
     delete guidedTimeout;
 
     Owner().state->vehicleLocalPosition.RemoveNotifier(this);
-    Owner().mission->currentDynamicQueue.RemoveNotifier(this);
+    Owner().mission->currentDynamicQueue_LocalCartesian.RemoveNotifier(this);
 
     Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
 //    auto globalPtr = static_cast<MAVLINKVehicleControllers::ControllerGuidedTargetItem_Global<MAVLINKVehicleControllers::TargetControllerStructGlobal>*>(collection->At("globalGuidedController"));
@@ -68,9 +68,9 @@ bool State_FlightGuided::handleCommand(const std::shared_ptr<AbstractCommandItem
         guidedTimeout->start();
         //Once we get the command that we can go, we need to announce the current mission item
 
-        Owner().mission->currentDynamicQueue.AddNotifier(this,[this]{
+        Owner().mission->currentDynamicQueue_LocalCartesian.AddNotifier(this,[this]{
     //        std::lock_guard<std::mutex> guard(MUTEXTargetQueue);
-            currentQueue = new TargetItem::DynamicMissionQueue(Owner().mission->currentDynamicQueue.get());
+            currentQueue = new TargetItem::DynamicMissionQueue(Owner().mission->currentDynamicQueue_LocalCartesian.get());
             this->initializeNewTargetList();
         });
 
@@ -99,7 +99,7 @@ bool State_FlightGuided::handleCommand(const std::shared_ptr<AbstractCommandItem
             }
         });
 
-        currentQueue = new TargetItem::DynamicMissionQueue(Owner().mission->currentDynamicQueue.get());
+        currentQueue = new TargetItem::DynamicMissionQueue(Owner().mission->currentDynamicQueue_LocalCartesian.get());
         this->initializeNewTargetList();
 
 //        MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
