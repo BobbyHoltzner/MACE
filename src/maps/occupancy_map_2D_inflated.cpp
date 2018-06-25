@@ -32,18 +32,28 @@ void OccupancyMap_2DInflated::updateMapInflation(const std::map<unsigned int, Oc
             for(;!circleIt.isPastEnd();++circleIt)
             {
                 //const unsigned int indexPosition = *circleIt;
-                unsigned int* ptr = this->inflatedMap->getCellByIndex(*circleIt);
-                *ptr = *ptr++;
+                OccupancyInflationStructure* ptr = this->inflatedMap->getCellByIndex(*circleIt);
+                ptr->metric = OccupancyInflationMetric::INFLATION_OCCUPANCY;
+                ptr->count++;
             }
+            //this avoids having an if else statement every loop iteration and we know we need to
+            //mark the cell as being actually occupied
+            OccupancyInflationStructure* ptr = this->inflatedMap->getCellByIndex(it->first);
+            ptr->metric = OccupancyInflationMetric::TRUE_OCCUPANCY;
+
         }
         else if(it->second == OccupiedResult::NOT_OCCUPIED)
         {
             for(;!circleIt.isPastEnd();++circleIt)
             {
                 //const unsigned int indexPosition = *circleIt;
-                unsigned int* ptr = this->inflatedMap->getCellByIndex(*circleIt);
-                *ptr = (*ptr <= 0) ? 0 : *ptr--;
+                OccupancyInflationStructure* ptr = this->inflatedMap->getCellByIndex(*circleIt);
+                //*ptr = (*ptr <= 0) ? 0 : *ptr--;
             }
+            //Since we know this explicit cell is not occupied, we can mark it as such and clear count
+            OccupancyInflationStructure* ptr = this->inflatedMap->getCellByIndex(it->first);
+            ptr->count = 0;
+            ptr->metric = OccupancyInflationMetric::NOT_OCCUPIED;
         }
 
     }
