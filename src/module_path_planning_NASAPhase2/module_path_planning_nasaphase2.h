@@ -19,6 +19,7 @@
 
 #include "base/state_space/discrete_motion_validity_check.h"
 #include "base/state_space/special_validity_check.h"
+#include "base/state_space/space_information.h"
 
 
 #include "maps/octomap_wrapper.h"

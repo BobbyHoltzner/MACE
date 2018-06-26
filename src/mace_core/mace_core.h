@@ -233,6 +233,8 @@ public:
 
     void EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path) override;
 
+    void EventPP_NewVehicleOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
+
     //!
     //! \brief Event fired to indicate what planning horizon is being utilized by the path planning module
     //! \param horizon ID of the horizon being utilized

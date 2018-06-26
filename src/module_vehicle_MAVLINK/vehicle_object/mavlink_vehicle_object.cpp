@@ -25,6 +25,33 @@ CommsMAVLINK* MavlinkVehicleObject::getCommsObject() const
 {
     return this->commsLink;
 }
+void MavlinkVehicleObject::updatedOrigins()
+{
+    if(mission->globalOrigin.hasBeenSet() && mission->vehicleHomePosition.hasBeenSet())
+    {
+        CommandItem::SpatialHome vehicleHome = mission->vehicleHomePosition.get();
+        mace::pose::GeodeticPosition_3D homeCast(vehicleHome.getPosition().getX(),vehicleHome.getPosition().getY(),vehicleHome.getPosition().getZ());
+        mace::pose::GeodeticPosition_3D origin = mission->globalOrigin.get();
+        bearingShift = origin.polarBearingTo(homeCast);
+        distanceShift = origin.distanceBetween2D(homeCast);
+    }
+}
+
+void MavlinkVehicleObject::updateGlobalOrigin(const GeodeticPosition_3D &refOrigin)
+{
+    if(mission->globalOrigin.set(refOrigin))
+    {
+        this->updatedOrigins();
+    }
+}
+
+void MavlinkVehicleObject::updateVehicleHomePosition(const SpatialHome &refOrigin)
+{
+    if(mission->vehicleHomePosition.set(refOrigin))
+    {
+        this->updatedOrigins();
+    }
+}
 
 bool MavlinkVehicleObject::handleMAVLINKMessage(const mavlink_message_t &msg)
 {

@@ -431,6 +431,7 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const GeodeticPosition_
     if(m_RTA) {
         m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, position);
     }
+
 }
 
 void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
@@ -996,6 +997,12 @@ void MaceCore::EventPP_NewPathFound(const void* sender, const std::vector<mace::
         m_ROS->MarshalCommand(ROSCommands::NEWLY_FOUND_PATH, path);
 }
 
+void MaceCore::EventPP_NewVehicleOccupancyMap(const void *sender, const mace::maps::Data2DGrid<maps::OccupiedResult> &map)
+{
+    UNUSED(sender);
+    if(m_ROS)
+        m_ROS->MarshalCommand(ROSCommands::NEW_VEHICLE_OCCUPANCY_MAP,map);
+}
 //!
 //! \brief Event fired when a new occupancy map to be invoked when PathPlanning module generates a new occupancy map.
 //! \param occupancyMap New occupancy map

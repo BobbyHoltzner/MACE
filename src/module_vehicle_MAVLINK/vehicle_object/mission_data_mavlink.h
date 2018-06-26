@@ -13,9 +13,11 @@ public:
     MissionData_MAVLINK();
 
 public:
-    Data::DataGetSetNotifier<MissionItem::MissionList> currentAutoMission;
+    Data::DataGetSetNotifier<mace::pose::GeodeticPosition_3D> globalOrigin;
 
+    Data::DataGetSetNotifier<MissionItem::MissionList> currentAutoMission;
     Data::DataGetSetNotifier<MissionItem::MissionList> currentGuidedMission;
+
     Data::DataGetSetNotifier<TargetItem::DynamicMissionQueue> currentDynamicQueue_LocalCartesian;
     Data::DataGetSetNotifier<TargetItem::DynamicMissionQueue> currentDynamicQueue_GlobalCartesian;
 

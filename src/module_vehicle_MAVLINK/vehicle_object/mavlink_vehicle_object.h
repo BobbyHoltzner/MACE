@@ -83,9 +83,18 @@ public:
 
     bool handleMAVLINKMessage(const mavlink_message_t &msg);
 
+    void updatedOrigins();
+
+    void updateGlobalOrigin(const mace::pose::GeodeticPosition_3D &refOrigin);
+
+    void updateVehicleHomePosition(const CommandItem::SpatialHome &refOrigin);
+
 public:
     StateData_MAVLINK *state;
     MissionData_MAVLINK *mission;
+
+    double bearingShift = 0.0;
+    double distanceShift = 0.0;
 
 protected:
     int mavlinkID;

@@ -28,7 +28,9 @@ ModuleROS::ModuleROS() :
     m_PlanningStateTopic("planningState"),
     m_VehicleDataTopic("vehicleData"),
     m_MapTopic("mappingData"),
+    m_MissionDataTopic("vehicleMission"),
     m_OccupancyMapCalculation([this](const std::shared_ptr<octomap::OcTree> &tree){this->renderOccupancyMap(tree);}),
+    m_vehicleOccupancyMapCalculation([this](const std::shared_ptr<mace::maps::Data2DGrid<mace::maps::OccupiedResult>> &map){this->NewVehicleOccupancyMap(*map);}),
     m_CompressedMapCalculation([this](const std::shared_ptr<mace::maps::Data2DGrid<mace::maps::OccupiedResult>> &map){this->NewlyCompressedOccupancyMap(*map);})
 {
     //m_tfListener = std::make_shared<tf2_ros::TransformListener>(m_tfBuffer);
@@ -187,7 +189,6 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
 
                 // If vehicle does not exist in our map, insert into the map
                 insertVehicleIfNotExist(senderID);
-
                 // Write Attitude data to the GUI:
                 updateAttitudeData(senderID, component);
             }
@@ -212,6 +213,24 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
                 m_MapTopic.GetComponent(component, read_topicDatagram);
                 std::shared_ptr<Data2DGrid<OccupiedResult>> map = component->getOccupancyMap();
                 NewlyCompressedOccupancyMap(*map.get());
+            }
+        }
+    }
+
+    else if(topicName == m_MissionDataTopic.Name())
+    {
+        //get latest datagram from mace_data
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), sender.ID);
+
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+            if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
+                //clear the current markers
+                points.action = line_strip.action = line_list.action = path_list.action = visualization_msgs::Marker::DELETEALL;
+                markerPub.publish(points);
+                markerPub.publish(line_strip);
+                markerPub.publish(line_list);
+                markerPub.publish(path_list);
+                points.action = line_strip.action = line_list.action = path_list.action = visualization_msgs::Marker::ADD;
             }
         }
     }
@@ -285,6 +304,56 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
 
     m_broadcaster.sendTransform(tf::StampedTransform(m_WorldToMap,ros::Time::now(),"world","/map"));
     compressedMapPub.publish(occupancyGrid);
+
+#endif
+}
+
+void ModuleROS::NewVehicleOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map)
+{
+#ifdef ROS_EXISTS
+
+    nav_msgs::OccupancyGrid occupancyGrid;
+    occupancyGrid.info.resolution = map.getXResolution();
+    occupancyGrid.info.origin.position.x = map.getOriginPosition().getXPosition();
+    occupancyGrid.info.origin.position.y = map.getOriginPosition().getYPosition();
+    occupancyGrid.info.origin.position.z = 0.0;
+    occupancyGrid.info.width = map.getSizeX();
+    occupancyGrid.info.height = map.getSizeY();
+    occupancyGrid.info.origin.orientation.x = 0.0;
+    occupancyGrid.info.origin.orientation.y = 0.0;
+    occupancyGrid.info.origin.orientation.z = 0.0;
+    occupancyGrid.info.origin.orientation.w = 1.0;
+
+    occupancyGrid.data.resize(map.getNodeCount());
+    const float cellMin = 0;
+    const float cellMax = 100;
+    const float cellRange = cellMax - cellMin;
+    mace::maps::GridMapIterator it(&map);
+    for(;!it.isPastEnd();++it)
+    {
+        const mace::maps::OccupiedResult* ptr = map.getCellByIndex(*it);
+        switch(*ptr)
+        {
+        case mace::maps::OccupiedResult::OCCUPIED:
+        {
+            occupancyGrid.data[*it] = 100;
+            break;
+        }
+        case mace::maps::OccupiedResult::NOT_OCCUPIED:
+        {
+            occupancyGrid.data[*it] = 0;
+            break;
+        }
+        default:
+        {
+            occupancyGrid.data[*it] = -1;
+            break;
+        }
+        }
+    }
+
+    m_broadcaster.sendTransform(tf::StampedTransform(m_WorldToMap,ros::Time::now(),"world","/map"));
+    vehicleOccupancyMapPub.publish(occupancyGrid);
 
 #endif
 }
@@ -396,7 +465,8 @@ void ModuleROS::updateAttitudeData(const int &vehicleID, const std::shared_ptr<D
 {
     double roll = component->roll;
     double pitch = component->pitch;
-    double yaw = component->yaw;
+    //double yaw = component->yaw;
+    double yaw = mace::math::polarToCompassBearing(component->yaw);
 
     if(m_vehicleMap.find(vehicleID) != m_vehicleMap.end()) {
         std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple;
@@ -507,6 +577,8 @@ void ModuleROS::setupROS() {
     // TESTING:
 //    cloudInPub = nh.advertise<sensor_msgs::PointCloud2>("cloud_in", 50);
     compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",1);
+    vehicleOccupancyMapPub = nh.advertise<nav_msgs::OccupancyGrid>("vehicleOccupancyMap",1);
+
     occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",1);
     // END TESTING
     markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",1);
@@ -849,7 +921,7 @@ void ModuleROS::convertToGazeboCartesian(DataState::StateLocalPosition& localPos
         // TODO:
         break;
     case Data::CoordinateFrameType::CF_LOCAL_ENU:
-        localPos.setZ(-localPos.getZ());
+        localPos.setZ(localPos.getZ());
         break;
     case Data::CoordinateFrameType::CF_GLOBAL_INT:
         // TODO:

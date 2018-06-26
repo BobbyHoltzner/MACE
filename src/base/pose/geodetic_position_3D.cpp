@@ -82,7 +82,7 @@ double GeodeticPosition_3D::distanceTo(const GeodeticPosition_3D &pos) const
 double GeodeticPosition_3D::polarBearingTo(const GeodeticPosition_3D &pos) const
 {
     double bearing = compassBearingTo(pos);
-    return compassToPolarBearing(bearing);
+    return compassToPolarBearing(convertDegreesToRadians(bearing));
 }
 
 //!

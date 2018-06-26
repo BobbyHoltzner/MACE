@@ -12,7 +12,7 @@
     
     <!-- Hokuyo UTM-30LX mounted upside down below the quadrotor body -->
     <xacro:include filename="$(find sim_sensors_description)/urdf/hokuyo_utm30lx.urdf.xacro" />
-    <xacro:hokuyo_utm30lx name="laser0" parent="base_link" ros_topic="scan" update_rate="40" ray_count="1081" min_angle="-10" max_angle="10">
+    <xacro:hokuyo_utm30lx name="laser0" parent="base_link" ros_topic="scan" update_rate="10" ray_count="1080" min_angle="-150" max_angle="150">
       <origin xyz="0.0 0.0 0.070" rpy="${M_PI} 0 0"/>
     </xacro:hokuyo_utm30lx>
     

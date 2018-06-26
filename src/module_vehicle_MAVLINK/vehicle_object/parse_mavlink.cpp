@@ -105,14 +105,19 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         mavlink_msg_local_position_ned_decode(msg,&decodedMSG);
 
         DataState::StateLocalPosition localPosition;
-        localPosition.setPositionX(decodedMSG.x);
-        localPosition.setPositionY(decodedMSG.y);
-        localPosition.setPositionZ(decodedMSG.z);
-        localPosition.setCoordinateFrame(Data::CoordinateFrameType::CF_LOCAL_NED);
+        localPosition.setPositionX(decodedMSG.y);
+        localPosition.setPositionY(decodedMSG.x);
+        localPosition.setPositionZ(-decodedMSG.z);
+        localPosition.setCoordinateFrame(Data::CoordinateFrameType::CF_LOCAL_ENU);
 
         if(state->vehicleLocalPosition.set(localPosition))
         {
-            std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(localPosition);
+            //we should transform this data before sending it out to be relative to the global frame
+            mace::pose::CartesianPosition_3D localPositionGlobalFrame(localPosition.getPositionX(),localPosition.getPositionY(),localPosition.getPositionZ());
+            localPositionGlobalFrame.applyPositionalShiftFromPolar(distanceShift,bearingShift,0);
+            DataState::StateLocalPosition transformedPosition(localPositionGlobalFrame.getXPosition(),localPositionGlobalFrame.getYPosition(),localPositionGlobalFrame.getZPosition());
+
+            std::shared_ptr<DataStateTopic::StateLocalPositionTopic> ptrLocalPosition = std::make_shared<DataStateTopic::StateLocalPositionTopic>(transformedPosition);
             if(this->m_CB)
                 this->m_CB->cbi_VehicleStateData(systemID,ptrLocalPosition);
         }
@@ -310,7 +315,6 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         //check that something has actually changed
         if(mission->vehicleHomePosition.set(home))
         {
-            std::shared_ptr<CommandItem::SpatialHome> ptrHome = std::make_shared<CommandItem::SpatialHome>(home);
             if(this->m_CB)
                 this->m_CB->cbi_VehicleHome(systemID,home);
         }

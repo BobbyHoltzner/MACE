@@ -22,9 +22,12 @@
 #include "data_generic_item/data_generic_item_components.h"
 #include "data_generic_item_topic/data_generic_item_topic_components.h"
 
+#include "data_generic_mission_item_topic/mission_item_topic_components.h"
+
 #include "maps/map_topic_components.h"
 
 #include "base/pose/orientation_3D.h"
+#include "base/math/helper_pi.h"
 
 #include <memory>
 
@@ -143,6 +146,8 @@ public:
     void NewlyUpdated3DOccupancyMap() override;
 
     void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<OccupiedResult> &map) override;
+
+    void NewVehicleOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
 
     void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) override;
 
@@ -308,6 +313,8 @@ private:
 
     ros::Publisher compressedMapPub;
 
+    ros::Publisher vehicleOccupancyMapPub;
+
     ros::Publisher testTransformedCloud;
     //!
     //! \brief octomapPub Publisher handling the occupied voxels of the octomap
@@ -354,7 +361,9 @@ private:
     Data::TopicDataObjectCollection<BASE_GEOMETRY_TOPICS, BASE_POSE_TOPICS> m_PlanningStateTopic;
     Data::TopicDataObjectCollection<DATA_GENERIC_VEHICLE_ITEM_TOPICS, DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
     Data::TopicDataObjectCollection<MAP_DATA_TOPICS> m_MapTopic;
+    Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_MissionDataTopic;
 
+    BackgroundTasks<std::shared_ptr<mace::maps::Data2DGrid<OccupiedResult> >> m_vehicleOccupancyMapCalculation;
     BackgroundTasks<std::shared_ptr<mace::maps::Data2DGrid<OccupiedResult> >> m_CompressedMapCalculation;
     BackgroundTasks<std::shared_ptr<octomap::OcTree>> m_OccupancyMapCalculation;
 };

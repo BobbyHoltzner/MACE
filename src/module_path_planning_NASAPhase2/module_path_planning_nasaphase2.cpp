@@ -271,7 +271,34 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
                     vehiclePosition.setYPosition(localPositionData.get()->getY());
                     vehiclePosition.setZPosition(localPositionData.get()->getZ());
                 }
+                try
+                {
+                    CartesianPosition_3D pos = map_CurrentPosition.at(sender.ID);
+                    CartesianPosition_2D pos2DOld(pos.getXPosition(), pos.getYPosition());
+
+                    CircleMapIterator circleItU(m_OccupiedVehicleMap,pos2DOld,2.0);
+                    for(;!circleItU.isPastEnd();++circleItU)
+                    {
+                        OccupiedResult* ptr = m_OccupiedVehicleMap->getCellByIndex(*circleItU);
+                        *ptr = OccupiedResult::NOT_OCCUPIED;
+                    }
+
+                }catch(const std::out_of_range& oor)
+                {
+                    //means there was nothing there previously
+                }
+                CartesianPosition_2D pos2DNew(vehiclePosition.getXPosition(), vehiclePosition.getYPosition());
+                CircleMapIterator circleItO(m_OccupiedVehicleMap,pos2DNew,2.0);
+                for(;!circleItO.isPastEnd();++circleItO)
+                {
+                    OccupiedResult* ptr = m_OccupiedVehicleMap->getCellByIndex(*circleItO);
+                    *ptr = OccupiedResult::OCCUPIED;
+                }
                 map_CurrentPosition[sender.ID] = vehiclePosition;
+
+                ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
+                    ptr->EventPP_NewVehicleOccupancyMap(this, *m_OccupiedVehicleMap);
+                });
             }
         }
     }
@@ -349,6 +376,7 @@ void ModulePathPlanningNASAPhase2::NewlyLoadedOccupancyMap()
         loadedBoundary.appendVertexItem(Position<CartesianPosition_2D>("Lower Right",maxX,minY));
 
         NewlyUpdatedOperationalFence(loadedBoundary);
+        m_OccupiedVehicleMap->updatePosition(m_ProjectedOccupancyMap->getOriginPosition());
 
         ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
             BoundaryItem::BoundaryList boundary(0,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);

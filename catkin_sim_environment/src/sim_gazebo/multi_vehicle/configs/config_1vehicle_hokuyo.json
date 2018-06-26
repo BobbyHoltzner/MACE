@@ -12,7 +12,7 @@
         "enabled": true,
         "gui": true,
         "pause": false,
-        "worldName": "small_indoor_scenario",
+        "worldName": "MACE_simple_test",
         "octomap": true
     },
     "MACEParams": {

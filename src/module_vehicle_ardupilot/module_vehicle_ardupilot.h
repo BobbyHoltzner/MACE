@@ -273,6 +273,8 @@ private:
     //!
     void ProgressStateMachineStates();
 
+    TargetItem::DynamicMissionQueue TransformDynamicMissionQueue_Local(const TargetItem::DynamicMissionQueue &queue);
+
     void TransformDynamicMissionQueue();
 
 

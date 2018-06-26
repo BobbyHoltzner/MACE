@@ -40,7 +40,8 @@ void PathReduction::recursiveShortening(std::vector<state_space::State*> &path)
                 dV.erase(dV.begin() + outerCount + 1, dV.begin() + innerCount);
                 for(it = path.begin() + outerCount + 1; it != path.begin() + innerCount; ++it)
                 {
-                    delete *it;
+                    //memory leaking here
+                    //delete *it;
                     path.erase(it);
                 }
             }

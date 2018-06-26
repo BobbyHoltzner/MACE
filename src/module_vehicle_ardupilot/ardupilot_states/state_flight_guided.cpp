@@ -68,6 +68,9 @@ bool State_FlightGuided::handleCommand(const std::shared_ptr<AbstractCommandItem
         guidedTimeout->start();
         //Once we get the command that we can go, we need to announce the current mission item
 
+        currentQueue = new TargetItem::DynamicMissionQueue(Owner().mission->currentDynamicQueue_LocalCartesian.get());
+        this->initializeNewTargetList();
+
         Owner().mission->currentDynamicQueue_LocalCartesian.AddNotifier(this,[this]{
     //        std::lock_guard<std::mutex> guard(MUTEXTargetQueue);
             currentQueue = new TargetItem::DynamicMissionQueue(Owner().mission->currentDynamicQueue_LocalCartesian.get());
@@ -99,8 +102,6 @@ bool State_FlightGuided::handleCommand(const std::shared_ptr<AbstractCommandItem
             }
         });
 
-        currentQueue = new TargetItem::DynamicMissionQueue(Owner().mission->currentDynamicQueue_LocalCartesian.get());
-        this->initializeNewTargetList();
 
 //        MissionItem::MissionKey testKey(1,1,1,MissionItem::MISSIONTYPE::GUIDED);
 //        TargetItem::DynamicMissionQueue availableQueue(testKey,1);
@@ -191,10 +192,19 @@ void State_FlightGuided::initializeNewTargetList()
     Owner().getCallbackInterface()->cbi_VehicleMissionItemCurrent(currentMissionItem);
 
     unsigned int activeTargetIndex = currentQueue->getDynamicTargetList()->getActiveTargetItem();
-    const TargetItem::CartesianDynamicTarget target = *currentQueue->getDynamicTargetList()->getNextIncomplete();
+    const TargetItem::CartesianDynamicTarget* target = currentQueue->getDynamicTargetList()->getNextIncomplete();
 
-    guidedTimeout->updateTarget(target);
-    this->cbiArdupilotTimeout_TargetLocal(target);
+    if(target != nullptr)
+    {
+        guidedTimeout->updateTarget(*target);
+        this->cbiArdupilotTimeout_TargetLocal(*target);
+    }
+    else
+    {
+        MissionItem::MissionItemAchieved achievement(currentQueue->getAssociatedMissionKey(),currentQueue->getAssociatedMissionItem());
+        std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemReachedTopic>(achievement);
+        Owner().getCallbackInterface()->cbi_VehicleMissionData(Owner().getMAVLINKID(),ptrMissionTopic);
+    }
 }
 
 void State_FlightGuided::handleGuidedState(const mace::pose::CartesianPosition_3D currentPosition, const unsigned int currentTargetIndex,
@@ -245,7 +255,8 @@ void State_FlightGuided::announceTargetState(const TargetItem::CartesianDynamicT
     mace::pose::GeodeticPosition_3D homePos(home.getPosition().getX(),home.getPosition().getY(),home.getPosition().getZ());
     mace::pose::GeodeticPosition_3D targetPos;
     DynamicsAid::LocalPositionToGlobal(homePos,target.getPosition(),targetPos);
-
+    if(targetPos.getAltitude() < 1)
+        std::cout<<"We need to check this."<<std::endl;
     Base3DPosition targetPositionCast(targetPos.getLatitude(),targetPos.getLongitude(),targetPos.getAltitude());
     targetPositionCast.setCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT);
     MissionTopic::VehicleTargetTopic currentTarget(Owner().getMAVLINKID(),targetPositionCast, targetDistance);

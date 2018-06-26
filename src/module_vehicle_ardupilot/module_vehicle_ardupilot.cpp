@@ -399,9 +399,14 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
 
             //////////////////////////////
             ///Update about Home position
+            //////////////////////////////
+
             CommandItem::SpatialHome home = std::get<0>(*data);
-            vehicleData->mission->vehicleHomePosition.set(home);
+            this->vehicleData->updateVehicleHomePosition(home);
+            this->vehicleData->updateGlobalOrigin(this->getDataObject()->GetGlobalOrigin());
+            //vehicleData->mission->vehicleHomePosition.set(home);
             this->cbi_VehicleHome(home.getOriginatingSystem(),home);
+
             //notify the core of the change
 //            ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
 //                ptr->GVEvents_NewHomePosition(this, home);
@@ -598,14 +603,36 @@ void ModuleVehicleArdupilot::UpdateDynamicMissionQueue(const TargetItem::Dynamic
         {
             if(queue.getDynamicTargetList()->getTargetAtIndex(0).getPositionalCoordinateFrame() == mace::pose::CoordinateFrame::CF_LOCAL_ENU)
             {
-                this->vehicleData->mission->currentDynamicQueue_LocalCartesian.set(queue);
+                //when we get this here, it is in the global frmae, we therefore need to transform it back to our vehicle frame
+                this->vehicleData->mission->currentDynamicQueue_LocalCartesian.set(TransformDynamicMissionQueue_Local(queue));
             }
             else if(queue.getDynamicTargetList()->getTargetAtIndex(0).getPositionalCoordinateFrame() == mace::pose::CoordinateFrame::CF_GLOBAL_RELATIVE_ALT)
             {
                 this->vehicleData->mission->currentDynamicQueue_GlobalCartesian.set(queue);
+                TransformDynamicMissionQueue();
             }
         }
     }
+}
+
+TargetItem::DynamicMissionQueue ModuleVehicleArdupilot::TransformDynamicMissionQueue_Local(const TargetItem::DynamicMissionQueue &queue)
+{
+    TargetItem::DynamicMissionQueue newQueue = queue;
+    if(this->vehicleData->mission->globalOrigin.hasBeenSet() && this->vehicleData->mission->vehicleHomePosition.hasBeenSet())
+    {
+        CommandItem::SpatialHome vehicleHome = this->vehicleData->mission->vehicleHomePosition.get();
+        mace::pose::GeodeticPosition_3D homeCast(vehicleHome.getPosition().getX(),vehicleHome.getPosition().getY(),vehicleHome.getPosition().getZ());
+        mace::pose::GeodeticPosition_3D origin = this->vehicleData->mission->globalOrigin.get();
+        double bearingShift = origin.polarBearingTo(homeCast);
+        double distanceShift = origin.distanceBetween2D(homeCast);
+
+        TargetItem::DynamicTargetList* list = newQueue.getDynamicTargetList();
+        for(size_t i = 0; i < list->listSize(); i++)
+        {
+            list->getTargetAtIndex(i).getPosition().applyPositionalShiftFromPolar(distanceShift,bearingShift);
+        }
+    }
+    return newQueue;
 }
 
 void ModuleVehicleArdupilot::TransformDynamicMissionQueue()
