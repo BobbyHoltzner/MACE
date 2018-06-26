@@ -848,6 +848,7 @@ void MaceCore::RTAEvent_UploadMission(const ModuleBase *sender, const MissionIte
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,missionList.getMissionKey());
 
+    /*
     int vehicleID = missionList.getVehicleID();
     if(vehicleID == 0) //transmit this mission to all vehicles
     {
@@ -875,6 +876,7 @@ void MaceCore::RTAEvent_UploadMission(const ModuleBase *sender, const MissionIte
             }
         }
     }
+    */
 }
 
 /////////////////////////////////////////////////////////////////////////

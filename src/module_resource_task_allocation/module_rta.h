@@ -139,8 +139,8 @@ private:
     double m_gridSpacing;
 //    std::string m_vertsStr;
     BoundaryItem::BoundaryList m_boundaryVerts;
+
     std::map<int, Position<CartesianPosition_2D> > m_vehicles;
-    std::map<int,int> KennyMap;
     std::map<int, mace::geometry::Cell_2DC> m_vehicleCells;
 
     // Flags:

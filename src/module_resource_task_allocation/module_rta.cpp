@@ -8,7 +8,16 @@ ModuleRTA::ModuleRTA():
     std::vector<Position<CartesianPosition_2D> > localBoundaryVerts;
     Polygon_2DC poly(localBoundaryVerts);
 
-    environment = std::make_shared<Environment_Map>(poly, m_gridSpacing, m_globalInstance);    
+    environment = std::make_shared<Environment_Map>(poly, m_gridSpacing, m_globalInstance);
+
+    Position<CartesianPosition_2D> vehicle10Pos("",-5,-35);
+    Position<CartesianPosition_2D> vehicle1Pos("",0,-35);
+    Position<CartesianPosition_2D> vehicle11Pos("",5,-35);
+
+
+    m_vehicles[1] = vehicle10Pos;
+    m_vehicles[2] = vehicle1Pos;
+    //m_vehicles[11] = vehicle11Pos;
 }
 
 ModuleRTA::~ModuleRTA(){
@@ -117,7 +126,7 @@ void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
                 Position<CartesianPosition_2D> vehiclePosition;
                 vehiclePosition.setXPosition(localPositionData.get()->getX());
                 vehiclePosition.setYPosition(localPositionData.get()->getY());
-                m_vehicles[senderID] = vehiclePosition;
+                //m_vehicles[senderID] = vehiclePosition;
             }
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> globalPositionData = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
@@ -138,7 +147,7 @@ void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
                 tmpPos.setXPosition(localPositionData.getX());
                 tmpPos.setYPosition(localPositionData.getY());
                 // Insert/update into map
-                m_vehicles[senderID] = tmpPos;
+                //m_vehicles[senderID] = tmpPos;
 
             }
         }
@@ -297,7 +306,7 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
 {
     // TODO-PAT: Maybe wait until we get a position from all vehicles before assigning partitions?
     Position<CartesianPosition_2D> vehiclePosition;
-    m_vehicles[vehicleID] = vehiclePosition;
+    //m_vehicles[vehicleID] = vehiclePosition;
 //    BoundaryItem::BoundaryList boundary;
 //    this->getDataObject()->getOperationalBoundary(&boundary);
 //    NewlyUpdatedOperationalFence(boundary);
@@ -366,5 +375,16 @@ void ModuleRTA::updateMACEMissions(std::map<int, Cell_2DC> updateCells, GridDire
 
 
 void ModuleRTA::TestFunction(const int &vehicleID) {
-    updateEnvironment(m_boundaryVerts);
+
+    BoundaryItem::BoundaryList newBoundary(0,255,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+    pose::Position<pose::CartesianPosition_2D> pos1("",-60,40);
+    pose::Position<pose::CartesianPosition_2D> pos2("",60,40);
+    pose::Position<pose::CartesianPosition_2D> pos3("",60,-40);
+    pose::Position<pose::CartesianPosition_2D> pos4("",-60,-40);
+
+    newBoundary.appendVertexItem(pos1);
+    newBoundary.appendVertexItem(pos2);
+    newBoundary.appendVertexItem(pos3);
+    newBoundary.appendVertexItem(pos4);
+    updateEnvironment(newBoundary);
 }
