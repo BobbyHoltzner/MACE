@@ -68,7 +68,7 @@ private:
 class OccupancyMap_2DInflated
 {
 public:
-    OccupancyMap_2DInflated(const Data2DGrid<OccupiedResult>* originalMap, const OccupancyMap_InflationParameters &parameters);
+    OccupancyMap_2DInflated(const Data2DGrid<OccupiedResult>* originalMap, const OccupancyMap_InflationParameters &parameters = OccupancyMap_InflationParameters());
 
 private:
     void updateMapInflation(const std::map<unsigned int, OccupiedResult> &updates);

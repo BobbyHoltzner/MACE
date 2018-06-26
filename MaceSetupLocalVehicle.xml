@@ -52,5 +52,28 @@
 		<Parameter Name="SendPort">1234</Parameter>
 	</Parameter>	
   </Module>
+<Module Class="RTA" Type="NASAPhase2">
+	<Parameter Name="ID">9</Parameter>
+	<Parameter Name="ModuleParameters">
+		<Parameter Name="GlobalInstance">false</Parameter>
+	</Parameter>
+	<Parameter Name="EnvironmentParameters">
+		<Parameter Name="GridSpacing">10</Parameter>
+	</Parameter>
+   </Module>
+
+  <Module Class="ROS" Type="NASAPhase2">
+    <Parameter Name="ModuleParameters">
+      <Parameter Name="AirborneInstance">false</Parameter>
+    </Parameter>
+    <Parameter Name="LaserSensor">
+      <Parameter Name="Name">laser</Parameter>
+      <Parameter Name="Type">lidar_scan</Parameter>
+    </Parameter>
+    <Parameter Name="CameraSensor">
+      <Parameter Name="Name">camera</Parameter>
+      <Parameter Name="Type">rgb</Parameter>
+    </Parameter>
+  </Module>
 </ModuleConfigurations>
 

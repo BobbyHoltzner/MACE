@@ -22,6 +22,8 @@
 
 
 #include "maps/octomap_wrapper.h"
+#include "maps/occupancy_map_2D_inflated.h"
+
 #include "maps/map_topic_components.h"
 
 using namespace octomap;
@@ -151,6 +153,9 @@ private:
 
     maps::Data2DGrid<OccupiedResult>* m_ProjectedOccupancyMap;
     maps::Data2DGrid<OccupiedResult>* m_OccupiedVehicleMap;
+    //maps::OccupancyMap_2DInflated* m_InflatedOccupancyMap;
+
+    std::map<int,CartesianPosition_2D> map_VehiclePosition;
 
     mace::maps::OctomapSensorDefinition m_OctomapSensorProperties;
 

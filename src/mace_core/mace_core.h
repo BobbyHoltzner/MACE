@@ -185,6 +185,8 @@ public:
 
     void Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
 
+    void RTAEvent_UploadMission(const ModuleBase *sender, const MissionItem::MissionList &missionList) override;
+
 public:
 
     /////////////////////////////////////////////////////////////////////////

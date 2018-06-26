@@ -13,7 +13,7 @@ void DynamicsAid::GlobalPositionToLocal(const GeodeticPosition_3D &origin, const
 {
     double distance = origin.distanceBetween2D(position);
     double bearing = origin.compassBearingTo(position);
-    double deltaAltitude = origin.deltaAltitude(position);
+    double deltaAltitude = position.deltaAltitude(origin);
     local.applyPositionalShiftFromCompass(distance,convertDegreesToRadians(bearing));
     local.setZPosition(local.getZPosition() + deltaAltitude);
 }

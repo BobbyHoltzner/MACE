@@ -749,6 +749,8 @@ private:
 
 public:
 
+    std::vector<mace::maps::OccupancyChangeStruct> getRecentOctomapChanges();
+
     void getOctomapDimensions(double &minX, double &maxX, double &minY, double &maxY, double &minZ, double &maxZ) const;
 
     bool updateOctomapProperties(const mace::maps::OctomapSensorDefinition &properties);

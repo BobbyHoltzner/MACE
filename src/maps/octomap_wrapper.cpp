@@ -355,16 +355,26 @@ void OctomapWrapper::updateMapOccupancyRecursiveCheck(const double &xPos, const 
             {
                 *newPtr = OccupiedResult::OCCUPIED;
                 if(enabled2DTrackingChanges)
-                    this->changesIn2DMap.push_back(currentIndex);
+                {
+                    OccupancyChangeStruct obj;
+                    obj.index = currentIndex;
+                    obj.occupancy = OccupiedResult::OCCUPIED;
+                    this->changesIn2DMap.push_back(obj);
+                }
             }
         }
         else //means we now want to mark the data as unoccupied
         {
             if((newPtr == nullptr) || (*newPtr == OccupiedResult::NO_DATA))  //if we had no data before or the cell was null we can go ahead and immediately mark the space as unoccupied
             {
-                if(enabled2DTrackingChanges)
-                    this->changesIn2DMap.push_back(currentIndex);
                 *newPtr = OccupiedResult::NOT_OCCUPIED;
+                if(enabled2DTrackingChanges)
+                {
+                    OccupancyChangeStruct obj;
+                    obj.index = currentIndex;
+                    obj.occupancy = OccupiedResult::NOT_OCCUPIED;
+                    this->changesIn2DMap.push_back(obj);
+                }
             }
             else if(*newPtr == OccupiedResult::NOT_OCCUPIED)
             {
@@ -394,9 +404,14 @@ void OctomapWrapper::updateMapOccupancyRecursiveCheck(const double &xPos, const 
                 }
                 //if we have reached here, there are no nodes in the bbx that are occupied and therefore the node can be marked as free
                 //and therefore as a result of this case condition we must mark the cell as having been changed
-                if(enabled2DTrackingChanges)
-                    this->changesIn2DMap.push_back(currentIndex);
                 *newPtr = OccupiedResult::NOT_OCCUPIED;
+                if(enabled2DTrackingChanges)
+                {
+                    OccupancyChangeStruct obj;
+                    obj.index = currentIndex;
+                    obj.occupancy = OccupiedResult::NOT_OCCUPIED;
+                    this->changesIn2DMap.push_back(obj);
+                }
             }
 
         }
@@ -416,7 +431,7 @@ octomap::OcTree* OctomapWrapper::get3DOccupancyMap()
     return this->m_Tree;
 }
 
-std::vector<unsigned int> OctomapWrapper::getChanged2DIndices() const
+std::vector<OccupancyChangeStruct> OctomapWrapper::getChanged2DIndices() const
 {
     return this->changesIn2DMap;
 }

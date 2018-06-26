@@ -25,11 +25,18 @@ class PLANNERSSHARED_EXPORT Planners
 public:
     Planners(const state_space::SpaceInformationPtr &spaceInfo = nullptr);
 
-    virtual std::vector<state_space::State*> solve() = 0;
+    virtual std::vector<state_space::State*> solve()
+    {
+        std::vector<state_space::State*> rtn;
+        return rtn;
+    }
 
     virtual void setPlanningSpaceInfo(const state_space::SpaceInformationPtr spaceInfo);
 
-    virtual void setPlanningParameters(state_space::GoalState* begin, state_space::GoalState* end) = 0;
+    virtual void setPlanningParameters(state_space::GoalState* begin, state_space::GoalState* end)
+    {
+
+    }
 
     void setCallbackFunction(Planner_Interface* callback)
     {

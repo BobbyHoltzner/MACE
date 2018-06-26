@@ -17,6 +17,12 @@
 namespace mace{
 namespace maps{
 
+struct OccupancyChangeStruct
+{
+    unsigned int index;
+    OccupiedResult occupancy;
+};
+
 class OctomapWrapper
 {
 public:
@@ -53,7 +59,7 @@ public:
     maps::Data2DGrid<OccupiedResult>* get2DOccupancyMap();
     octomap::OcTree* get3DOccupancyMap();
 
-    std::vector<unsigned int> getChanged2DIndices() const;
+    std::vector<OccupancyChangeStruct> getChanged2DIndices() const;
     void reset2DChanges();
 
 private:
@@ -80,10 +86,10 @@ private:
 
 private:
     bool enabled2DProjection = true;
-    bool enabled2DTrackingChanges = false;
+    bool enabled2DTrackingChanges = true;
     bool enabledIndependentMapResolution = false;
 
-    std::vector<unsigned int> changesIn2DMap;
+    std::vector<OccupancyChangeStruct> changesIn2DMap;
 
     double treeResolution = 0.05;
     unsigned int treeDepth = 0;
@@ -98,7 +104,6 @@ private:
     octomap::OcTreeKey paddedMaxKey;
 
     maps::Data2DGrid<OccupiedResult>* m_Map;
-    maps::Data2DGrid<unsigned int>* m_InflatedMap;
 
     OctomapSensorDefinition* m_sensorProperties;
     Octomap2DProjectionDefinition* m_projectionProperties;

@@ -133,8 +133,8 @@ void ModuleGroundStation::initiateLogs()
     size_t q_size = 8192; //queue size must be power of 2
     spdlog::set_async_mode(q_size,spdlog::async_overflow_policy::discard_log_msg,nullptr,std::chrono::seconds(2));
 
-//    mLogs = spdlog::basic_logger_mt("MACE_Module_GCS", logname);
-//    mLogs->set_level(spdlog::level::debug);
+    //    mLogs = spdlog::basic_logger_mt("MACE_Module_GCS", logname);
+    //    mLogs->set_level(spdlog::level::debug);
 }
 
 //!
@@ -261,7 +261,7 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
         if(maceCommsXML->HasTerminal("GUIHostAddress")) {
             std::string hostAddress = maceCommsXML->GetTerminalValue<std::string>("GUIHostAddress");
             guiHostAddress = QHostAddress(QString::fromStdString(hostAddress));
-//            sendAddress = QHostAddress(QString::fromStdString(hostAddress));
+            //            sendAddress = QHostAddress(QString::fromStdString(hostAddress));
         }
         if(maceCommsXML->HasTerminal("ListenPort")) {
             listenPort = maceCommsXML->GetTerminalValue<int>("ListenPort");
@@ -275,7 +275,7 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
 
     m_guiHostAddress = guiHostAddress;
     m_listenPort = listenPort;
-  
+
     m_toGUIHandler->setSendAddress(guiHostAddress);
     m_toGUIHandler->setSendPort(sendPort);
     m_toMACEHandler->setSendAddress(guiHostAddress);
@@ -426,7 +426,7 @@ void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const Ma
                 m_MissionDataTopic.GetComponent(component, read_topicDatagram);
 
                 // Write mission items to the GUI:
-                m_toGUIHandler->sendVehicleMission(sender.ID, component->getMissionList());
+                //m_toGUIHandler->sendVehicleMission(sender.ID, component->getMissionList());
             }
             else if(componentsUpdated.at(i) == MissionTopic::MissionHomeTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionHomeTopic> component = std::make_shared<MissionTopic::MissionHomeTopic>();
@@ -486,9 +486,30 @@ void ModuleGroundStation::NewlyAvailableCurrentMission(const MissionItem::Missio
 {
     std::cout<<"Ground Control: New available mission"<<std::endl;
     MissionItem::MissionList newList;
-    bool valid = this->getDataObject()->getMissionList(missionKey,newList);
-    if(valid)
+    if(missionKey.m_missionType == MissionItem::MISSIONTYPE::GUIDED)
     {
+        bool valid = this->getDataObject()->getMissionList(missionKey,newList);
+        if(valid)
+        {
+            mace::pose::GeodeticPosition_3D origin = this->getDataObject()->GetGlobalOrigin();
+
+            for(size_t i = 0; i < newList.getQueueSize(); i++)
+            {
+                std::shared_ptr<CommandItem::AbstractCommandItem> waypoint = newList.getMissionItem(i);
+
+                CommandItem::SpatialWaypoint* waypointPtr = waypoint->as<CommandItem::SpatialWaypoint>();
+                DataState::Base3DPosition waypointPos = waypointPtr->getPosition();
+
+                CartesianPosition_3D waypointCast(waypointPos.getX(),waypointPos.getY(),waypointPos.getZ());
+                GeodeticPosition_3D waypointGlobal;
+                mace::pose::DynamicsAid::LocalPositionToGlobal(origin,waypointCast,waypointGlobal);
+                waypointPos.setX(waypointGlobal.getLatitude());
+                waypointPos.setY(waypointGlobal.getLongitude());
+                waypointPos.setZ(waypointGlobal.getAltitude());
+                waypointPos.setCoordinateFrame(Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT);
+                waypointPtr->setPosition(waypointPos);
+            }
+        }
         m_toGUIHandler->sendVehicleMission(missionKey.m_systemID,newList);
     }
 }

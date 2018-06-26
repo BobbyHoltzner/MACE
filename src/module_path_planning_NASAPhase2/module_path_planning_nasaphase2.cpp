@@ -326,8 +326,13 @@ void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
 
 void ModulePathPlanningNASAPhase2::NewlyLoadedOccupancyMap()
 {
+    if(m_ProjectedOccupancyMap != nullptr)
+        delete m_ProjectedOccupancyMap;
+
     //let us load the current static load octomap here so that if planning is required we have it ready to go
     m_ProjectedOccupancyMap = new maps::Data2DGrid<OccupiedResult>(this->getDataObject()->getCompressedOccupancyGrid2D());
+    //m_InflatedOccupancyMap = new maps::OccupancyMap_2DInflated(m_ProjectedOccupancyMap);
+
     m_Space->setBounds(state_space::Cartesian2DSpaceBounds(m_ProjectedOccupancyMap->getXMin(), m_ProjectedOccupancyMap->getXMax(),
                                                            m_ProjectedOccupancyMap->getYMin(), m_ProjectedOccupancyMap->getYMax()));
 
@@ -398,7 +403,26 @@ void ModulePathPlanningNASAPhase2::NewlyAvailableMission(const MissionItem::Miss
 {
     if(mission.getMissionType() == MISSIONTYPE::GUIDED) //we should only be handling guided mission types, auto can go direct to vehicle or explored later
     {
+        //update our local copy of the mission
         m_MissionList = mission;
+
+        //check the coordinate frame and transform as necessary
+        for(int i = 0; i < m_MissionList.getQueueSize(); i++)
+        {
+           CommandItem::SpatialWaypoint* item = m_MissionList.getMissionItem(i)->as<CommandItem::SpatialWaypoint>();
+           Base3DPosition pos = item->getPosition();
+           if(pos.getCoordinateFrame() == Data::CoordinateFrameType::CF_GLOBAL_RELATIVE_ALT)
+           {
+               mace::pose::GeodeticPosition_3D vertexGlobal(pos.getX(),pos.getY(),pos.getZ());
+               mace::pose::CartesianPosition_3D vertexLocal3D;
+               mace::pose::DynamicsAid::GlobalPositionToLocal(m_globalOrigin,vertexGlobal,vertexLocal3D);
+               pos.setCoordinateFrame(Data::CoordinateFrameType::CF_LOCAL_ENU);
+               pos.setX(vertexLocal3D.getXPosition());
+               pos.setY(vertexLocal3D.getYPosition());
+               pos.setZ(vertexLocal3D.getZPosition());
+               item->setPosition(pos);
+           }
+        }
         replanRRT();
         //at this point we would want to start preplanning the route based on beginning to ending nodes
     }
@@ -466,7 +490,8 @@ void ModulePathPlanningNASAPhase2::replanRRT()
             if(stateCheck->isValid(&goal2D)) //we have found a valid goal, let us plan on this
                 break;
 
-            m_MissionList.setActiveIndex(activeIndex++);
+            activeIndex = activeIndex + 1;
+            m_MissionList.setActiveIndex(activeIndex);
         }
 
             mace::state_space::GoalState goalState(m_Space);

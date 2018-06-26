@@ -827,10 +827,52 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
             }catch(const std::out_of_range &oor){
 
             }
-
-
         }
 
+    }
+}
+
+
+void MaceCore::RTAEvent_UploadMission(const ModuleBase *sender, const MissionItem::MissionList &missionList)
+{
+    UNUSED(sender);
+
+    MissionItem::MissionList::MissionListStatus status = missionList.getMissionListStatus();
+
+    if(status.state == MissionItem::MissionList::INCOMPLETE) //this checks to make sure the list is fully populated
+        return;
+
+    m_DataFusion->receivedNewMission(missionList);
+    //This may not be the place to do this
+    if(m_GroundStation)
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,missionList.getMissionKey());
+
+    int vehicleID = missionList.getVehicleID();
+    if(vehicleID == 0) //transmit this mission to all vehicles
+    {
+        for (std::map<int, IModuleCommandVehicle*>::iterator it=m_VehicleIDToPort.begin(); it!=m_VehicleIDToPort.end(); ++it){
+            int nextSystemID = it->first;
+            MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(nextSystemID,missionList);
+            MissionItem::MissionList correctedMission = missionList;
+            correctedMission.setMissionKey(key);
+            MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
+        }
+    }else{ //transmit the mission to a specific vehicle
+        MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
+        MissionItem::MissionList correctedMission = missionList;
+        correctedMission.setMissionKey(key);
+
+        if(m_PathPlanning)
+        {
+            m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_AVAILABLE_MISSION,correctedMission);
+        }else
+        {
+            try{
+                MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
+            }catch(const std::out_of_range &oor){
+
+            }
+        }
     }
 }
 

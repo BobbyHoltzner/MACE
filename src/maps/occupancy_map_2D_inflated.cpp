@@ -11,6 +11,17 @@ OccupancyMap_InflationParameters::OccupancyMap_InflationParameters(const double 
 OccupancyMap_2DInflated::OccupancyMap_2DInflated(const Data2DGrid<OccupiedResult> *originalMap, const OccupancyMap_InflationParameters &parameters)
 {
     this->parameters = parameters;
+    GridMapIterator mapIt(originalMap);
+    this->inflatedMap->updateGridSize(originalMap->getXMin(),originalMap->getXMax(),
+                                      originalMap->getYMin(),originalMap->getYMax(),
+                                      originalMap->getXResolution(),originalMap->getYResolution());
+
+    for(;!mapIt.isPastEnd();++mapIt)
+    {
+        std::map<unsigned int, OccupiedResult> mapResult;
+        mapResult[*mapIt] = *originalMap->getCellByIndex(*mapIt);
+        updateMapInflation(mapResult);
+    }
 }
 
 void OccupancyMap_2DInflated::updateMapInflation(const std::map<unsigned int, OccupiedResult> &updates)

@@ -17,6 +17,7 @@
 //#include "environment.h"
 #include "environment_custom.h"
 
+#include "planners/tsp_2opt.h"
 
 using namespace mace ;
 using namespace geometry;
@@ -47,6 +48,8 @@ public:
     //! \param params Parameters to configure
     //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
+
+    void OnModulesStarted() override;
 
     //!
     //! \brief New non-spooled topic given
@@ -135,15 +138,14 @@ private:
     std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
     double m_gridSpacing;
 //    std::string m_vertsStr;
-    std::vector<Position<CartesianPosition_2D> > m_boundaryVerts;
+    BoundaryItem::BoundaryList m_boundaryVerts;
     std::map<int, Position<CartesianPosition_2D> > m_vehicles;
+    std::map<int,int> KennyMap;
     std::map<int, mace::geometry::Cell_2DC> m_vehicleCells;
 
     // Flags:
     bool m_globalInstance;
-    bool gridSpacingSent;
     bool environmentBoundarySent;
-
 };
 
 #endif // MODULE_RTA_H

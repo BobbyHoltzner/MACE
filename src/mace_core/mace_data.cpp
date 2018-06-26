@@ -301,6 +301,15 @@ bool MaceData::checkForCurrentMission(const MissionItem::MissionKey &missionKey)
 /// PATH PLANNING DATA
 /////////////////////////////////////////////////////////
 
+std::vector<mace::maps::OccupancyChangeStruct> MaceData::getRecentOctomapChanges()
+{
+    std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
+    std::vector<mace::maps::OccupancyChangeStruct> rtn;
+    rtn = m_OctomapWrapper->getChanged2DIndices();
+    m_OctomapWrapper->reset2DChanges();
+    return rtn;
+}
+
 void MaceData::getOctomapDimensions(double &minX, double &maxX, double &minY, double &maxY, double &minZ, double &maxZ) const
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);

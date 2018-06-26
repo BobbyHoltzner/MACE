@@ -7,7 +7,7 @@ namespace planners {
 Planners::Planners(const state_space::SpaceInformationPtr &spaceInfo):
     m_spaceInfo(std::move(spaceInfo)), m_stateBegin(nullptr), m_stateEnd(nullptr), m_CB(nullptr)
 {
-    createLog();
+    //createLog();
 }
 
 void Planners::setPlanningSpaceInfo(const state_space::SpaceInformationPtr spaceInfo)

@@ -73,6 +73,8 @@ double TSP_GreedyNearestNeighbor<T>::executeTSP(const T &start, std::vector<T> &
         tour.push_back(*siteList[currentMinIndex]);
         siteList.erase(siteList.begin() + currentMinIndex);
     }
+
+    tour.erase(tour.begin());
     return tourCost;
 }
 
@@ -80,15 +82,15 @@ double TSP_GreedyNearestNeighbor<T>::executeTSP(const T &start, std::vector<T> &
 template <class T>
 void TSP_GreedyNearestNeighbor<T>::logTour(const std::vector<T*> tour)
 {
-    mLog->debug("Logging the tour");
+//    mLog->debug("Logging the tour");
 
-    size_t size = tour.size();
-    for(unsigned int i = 0; i < size; i++)
-    {
-        std::stringstream buffer;
-        buffer << *tour[i];
-        mLog->info(buffer.str());
-    }
+//    size_t size = tour.size();
+//    for(unsigned int i = 0; i < size; i++)
+//    {
+//        std::stringstream buffer;
+//        buffer << *tour[i];
+//        mLog->info(buffer.str());
+//    }
 }
 
 template <class T>

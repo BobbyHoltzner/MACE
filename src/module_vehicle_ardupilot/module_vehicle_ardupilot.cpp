@@ -594,9 +594,17 @@ void ModuleVehicleArdupilot::UpdateDynamicMissionQueue(const TargetItem::Dynamic
 {
     if(this->vehicleData != nullptr)
     {
-        this->vehicleData->mission->currentDynamicQueue_GlobalCartesian.set(queue);
-        //Transform the data into the frame we need
-        this->TransformDynamicMissionQueue();
+        if(queue.getDynamicTargetList()->listSize() > 0)
+        {
+            if(queue.getDynamicTargetList()->getTargetAtIndex(0).getPositionalCoordinateFrame() == mace::pose::CoordinateFrame::CF_LOCAL_ENU)
+            {
+                this->vehicleData->mission->currentDynamicQueue_LocalCartesian.set(queue);
+            }
+            else if(queue.getDynamicTargetList()->getTargetAtIndex(0).getPositionalCoordinateFrame() == mace::pose::CoordinateFrame::CF_GLOBAL_RELATIVE_ALT)
+            {
+                this->vehicleData->mission->currentDynamicQueue_GlobalCartesian.set(queue);
+            }
+        }
     }
 }
 
