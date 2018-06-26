@@ -23,17 +23,32 @@ public:
     }
 
     template <typename T>
+    //!
+    //! \brief AddTerminal Add a terminal string for configuration file parsing
+    //! \param str Terminal string
+    //!
     void AddTerminal(const std::string &str)
     {
 
         m_TerminalDataFields.insert({str, typeid(T).name()});
     }
 
+    //!
+    //! \brief AddNonTerminal Add a non terminal string for configuration file parsing
+    //! \param str Non-temrinal string
+    //! \param fields Structure of the non-terminal parameter
+    //!
     void AddNonTerminal(const std::string &str, const TopicComponentStructure &fields)
     {
         m_NonTerminalDataFields.insert({str, std::make_shared<TopicComponentStructure>(fields)});
     }
 
+    //!
+    //! \brief Merge Merge two topic structures
+    //! \param merge1 First topic to merge
+    //! \param merge2 Second topic to merge
+    //! \return
+    //!
     static TopicComponentStructure Merge(const TopicComponentStructure &merge1, const TopicComponentStructure &merge2)
     {
         TopicComponentStructure newStructure;
