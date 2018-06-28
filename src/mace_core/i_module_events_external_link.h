@@ -43,9 +43,18 @@ public:
     //!
     virtual void ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList) = 0;
 
-
+    //!
+    //! \brief ExternalEvent_NewOnboardMission New onboard mission event
+    //! \param sender Sender module
+    //! \param mission New mission key
+    //!
     virtual void ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission) = 0;
 
+    //!
+    //! \brief ExternalEvent_FinishedRXBoundaryList Event signaling the receipt of a boundary list
+    //! \param sender Sender module
+    //! \param boundaryList New boundary list
+    //!
     virtual void ExternalEvent_FinishedRXBoundaryList(const void *sender, const BoundaryItem::BoundaryList &boundaryList) = 0;
 };
 

@@ -6,6 +6,11 @@ namespace MaceCore{
 /// MISSION METHODS | PUSHING TO MACE DATA
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief appendAssociatedMissionMap Append a mission list
+//! \param missionList Mission list
+//! \return Key of new mission list
+//!
 MissionItem::MissionKey MaceData::appendAssociatedMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList)
 {
     MissionItem::MissionList correctedMissionList = missionList;
@@ -18,6 +23,12 @@ MissionItem::MissionKey MaceData::appendAssociatedMissionMap(const int &newSyste
     return correctedMissionList.getMissionKey();
 }
 
+//!
+//! \brief appendAssociatedMissionMap Append a mission list with a new system ID
+//! \param newSystemID New system ID
+//! \param missionList Mission list
+//! \return Key of new mission list
+//!
 MissionItem::MissionKey MaceData::appendAssociatedMissionMap(const MissionItem::MissionList &missionList)
 {
     MissionItem::MissionList correctedMissionList = missionList;
@@ -30,6 +41,11 @@ MissionItem::MissionKey MaceData::appendAssociatedMissionMap(const MissionItem::
     return correctedMissionList.getMissionKey();
 }
 
+//!
+//! \brief getAvailableMissionID Get mission ID based on mission key
+//! \param key Key to query
+//! \return Mission ID
+//!
 int MaceData::getAvailableMissionID(const MissionItem::MissionKey &key)
 {
     int prevID = 0;
@@ -66,6 +82,11 @@ int MaceData::getAvailableMissionID(const MissionItem::MissionKey &key)
 The following methods aid getting the mission list from the mace data class. The following methods aid getting
 the current mission object and keys.
 */
+//!
+//! \brief updateCurrentMissionItem Update the current mission item
+//! \param current Current mission item
+//! \return
+//!
 bool MaceData::updateCurrentMissionItem(const MissionItem::MissionItemCurrent &current)
 {
     MissionItem::MissionKey key = current.getMissionKey();
@@ -75,6 +96,14 @@ bool MaceData::updateCurrentMissionItem(const MissionItem::MissionItemCurrent &c
     mapMissions.find(key)->second.setActiveIndex(index);
 }
 
+//!
+//! \brief getMissionList Get mission list corresponding to the system ID, mission type, mission state
+//! \param systemID System ID
+//! \param type Mission type
+//! \param state Mission state
+//! \param missionList Container for the mission list
+//! \return True if mission list exists
+//!
 bool MaceData::getMissionList(const int &systemID, const MissionItem::MISSIONTYPE &type, const MissionItem::MISSIONSTATE &state, MissionItem::MissionList &missionList) const
 {
     return false;
@@ -115,6 +144,12 @@ bool MaceData::getMissionList(const int &systemID, const MissionItem::MISSIONTYP
     //    return rtnValue;
 }
 
+//!
+//! \brief getMissionList Get mission list based on mission key
+//! \param missionKey Mission key to query
+//! \param missionList Container for the mission list
+//! \return True if mission list exists
+//!
 bool MaceData::getMissionList(const MissionItem::MissionKey &missionKey, MissionItem::MissionList &missionList) const
 {
     //this will search through the proposed mission queue for the mission key
@@ -130,6 +165,12 @@ bool MaceData::getMissionList(const MissionItem::MissionKey &missionKey, Mission
     return false;
 }
 
+//!
+//! \brief getCurrentMissionKey Get current mission key for the specified system ID
+//! \param systemID System ID to query
+//! \param key Container for the mission key
+//! \return True if mission key exists
+//!
 bool MaceData::getCurrentMissionKey(const int &systemID, MissionItem::MissionKey &key) const
 {
     bool returnVal = true;
@@ -143,6 +184,12 @@ bool MaceData::getCurrentMissionKey(const int &systemID, MissionItem::MissionKey
     return returnVal;
 }
 
+//!
+//! \brief getCurrentMission Get current mission for the specified system ID
+//! \param systemID System ID to query
+//! \param cpyMission Container for the mission list
+//! \return  True if mission exists
+//!
 bool MaceData::getCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission) const
 {
     bool returnVal = true;
@@ -157,6 +204,11 @@ bool MaceData::getCurrentMission(const int &systemID, MissionItem::MissionList &
     return returnVal;
 }
 
+//!
+//! \brief getCurrentMissionValidity Get current mission validity for the specified system ID
+//! \param systemID System ID to query
+//! \return True if current mission exists
+//!
 bool MaceData::getCurrentMissionValidity(const int &systemID) const
 {
     bool returnVal = true;
@@ -170,6 +222,11 @@ bool MaceData::getCurrentMissionValidity(const int &systemID) const
     return returnVal;
 }
 
+//!
+//! \brief getMissionKeyValidity Get current mission key validity
+//! \param key Key to query
+//! \return True if mission key exists
+//!
 bool MaceData::getMissionKeyValidity(const MissionItem::MissionKey &key) const
 {
     std::lock_guard<std::mutex> guard(MUTEXMissions);
@@ -180,7 +237,11 @@ bool MaceData::getMissionKeyValidity(const MissionItem::MissionKey &key) const
 The following methods aid getting the mission list from the mace data class. The following methods aid getting
 the current mission object and keys.
 */
-
+//!
+//! \brief getOnboardMissionKeys Get a list of mission keys for the specified system ID
+//! \param systemID System ID to query
+//! \return Vector of mission keys
+//!
 std::vector<MissionItem::MissionKey> MaceData::getOnboardMissionKeys(const int &systemID)
 {
     std::vector<MissionItem::MissionKey> keyVector;
@@ -199,12 +260,22 @@ std::vector<MissionItem::MissionKey> MaceData::getOnboardMissionKeys(const int &
     return keyVector;
 }
 
+//!
+//! \brief removeFromMissionMap Remove a mission with the corresponding key from the map
+//! \param missionKey Mission key to remove
+//!
 void MaceData::removeFromMissionMap(const MissionItem::MissionKey &missionKey)
 {
     std::lock_guard<std::mutex> guard(MUTEXMissions);
     mapMissions.erase(missionKey);
 }
 
+//!
+//! \brief receivedMissionACKKey Handle a received mission ACK key
+//! \param key Key of the mission
+//! \param newState New misison state
+//! \return Key for the current mission in its current state
+//!
 MissionItem::MissionKey MaceData::receivedMissionACKKey(const MissionItem::MissionKey &missionKey, const MissionItem::MISSIONSTATE &newState)
 {
     std::lock_guard<std::mutex> guard(MUTEXMissions);
@@ -222,6 +293,10 @@ MissionItem::MissionKey MaceData::receivedMissionACKKey(const MissionItem::Missi
     return missionKey;
 }
 
+//!
+//! \brief receivedNewMission Received the full mission
+//! \param missionList Received mission list
+//!
 void MaceData::receivedNewMission(const MissionItem::MissionList &missionList)
 {
     std::lock_guard<std::mutex> guard(MUTEXMissions);
@@ -237,6 +312,11 @@ void MaceData::receivedNewMission(const MissionItem::MissionList &missionList)
 The following methods update the mission type state of the appropriate mission items.
 */
 
+//!
+//! \brief updateMissionExeState Update the execution state of the mission with the corresponding key
+//! \param missionKey Mission key to update
+//! \param state New execution state
+//!
 void MaceData::updateMissionExeState(const MissionItem::MissionKey &missionKey, const Data::MissionExecutionState &state)
 {
     std::lock_guard<std::mutex> guard(MUTEXMissions);
@@ -250,6 +330,11 @@ void MaceData::updateMissionExeState(const MissionItem::MissionKey &missionKey, 
     }
 }
 
+//!
+//! \brief updateOnboardMission Update the onboard mission with the new mission key
+//! \param missionKey New mission key
+//! \return True if update successful
+//!
 bool MaceData::updateOnboardMission(const MissionItem::MissionKey &missionKey)
 {
     int systemID = missionKey.m_systemID;
@@ -271,6 +356,11 @@ bool MaceData::updateOnboardMission(const MissionItem::MissionKey &missionKey)
     return false;
 }
 
+//!
+//! \brief checkForCurrentMission Check for the current mission corresponding to the key
+//! \param missionKey Mission key to query
+//! \return True if current mission exists
+//!
 bool MaceData::checkForCurrentMission(const MissionItem::MissionKey &missionKey)
 {
     int systemID = missionKey.m_systemID;
@@ -300,36 +390,67 @@ bool MaceData::checkForCurrentMission(const MissionItem::MissionKey &missionKey)
 /////////////////////////////////////////////////////////
 /// PATH PLANNING DATA
 /////////////////////////////////////////////////////////
-
+//!
+//! \brief getOctomapDimensions Get the current octomap dimensions
+//! \param minX Minimum x value of the bounding box
+//! \param maxX Maximum x value of the bounding box
+//! \param minY Minimum y value of the bounding box
+//! \param maxY Maximum y value of the bounding box
+//! \param minZ Minimum z value of the bounding box
+//! \param maxZ Maximum z value of the bounding box
+//!
 void MaceData::getOctomapDimensions(double &minX, double &maxX, double &minY, double &maxY, double &minZ, double &maxZ) const
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
     m_OctomapWrapper->getTreeDimensions(minX,maxX,minY,maxY,minZ,maxZ);
 }
 
+//!
+//! \brief updateOctomapProperties Update the octomap properties
+//! \param properties New octomap properties
+//! \return True if successful
+//!
 bool MaceData::updateOctomapProperties(const mace::maps::OctomapSensorDefinition &properties)
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
     return m_OctomapWrapper->updateSensorProperties(properties);
 }
 
+//!
+//! \brief updateMappingProjectionProperties Update octomap projection properties
+//! \param properties New octomap projection properties
+//! \return True if successful
+//!
 bool MaceData::updateMappingProjectionProperties(const mace::maps::Octomap2DProjectionDefinition &properties)
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
 }
 
+//!
+//! \brief loadOccupancyEnvironment Load an occupancy map from a file
+//! \param filePath File path
+//! \return True if successful
+//!
 bool MaceData::loadOccupancyEnvironment(const string &filePath)
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
     return m_OctomapWrapper->loadOctreeFromBT(filePath);
 }
 
+//!
+//! \brief getOccupancyGrid3D Get the current 3D occupancy map
+//! \return True if successful
+//!
 octomap::OcTree MaceData::getOccupancyGrid3D() const
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
     return *m_OctomapWrapper->get3DOccupancyMap();
 }
 
+//!
+//! \brief getCompressedOccupancyGrid2D Get the current compressed 2D occupancy map
+//! \return True if successful
+//!
 mace::maps::Data2DGrid<mace::maps::OccupiedResult> MaceData::getCompressedOccupancyGrid2D() const
 {
     std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
@@ -340,7 +461,10 @@ mace::maps::Data2DGrid<mace::maps::OccupiedResult> MaceData::getCompressedOccupa
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// MACE BOUNDARY METHODS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//!
+//! \brief updateBoundary Update the boundary list with new boundary list
+//! \param boundary Boundary to update (based on boundary list key)
+//!
 void MaceData::updateBoundary(const BoundaryItem::BoundaryList &boundary)
 {
     BoundaryItem::BoundaryKey key = boundary.getBoundaryKey();
@@ -354,6 +478,12 @@ void MaceData::updateBoundary(const BoundaryItem::BoundaryList &boundary)
 
     }
 }
+
+//!
+//! \brief updateBoundariesNewOrigin
+//! \param distance
+//! \param bearing
+//!
 void MaceData::updateBoundariesNewOrigin(const double &distance, const double &bearing)
 {
     std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
@@ -366,6 +496,12 @@ void MaceData::updateBoundariesNewOrigin(const double &distance, const double &b
     }
 }
 
+//!
+//! \brief getBoundary Get the boundary based on boundary key
+//! \param operationBoundary Container for the operational boundary
+//! \param key Boundary key
+//! \return True if successful
+//!
 bool MaceData::getBoundary(BoundaryItem::BoundaryList *operationBoundary, const BoundaryItem::BoundaryKey &key) const
 {
     std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
@@ -382,6 +518,11 @@ bool MaceData::getBoundary(BoundaryItem::BoundaryList *operationBoundary, const 
     return true;
 }
 
+//!
+//! \brief getOperationalBoundary Get the operational boundary
+//! \param operationBoundary Container for the operational boundary
+//! \param vehicleID
+//!
 void MaceData::getOperationalBoundary(BoundaryItem::BoundaryList* operationBoundary, const int &vehicleID) const
 {
     std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
@@ -395,6 +536,11 @@ void MaceData::getOperationalBoundary(BoundaryItem::BoundaryList* operationBound
     }
 }
 
+//!
+//! \brief getResourceBoundary Get the resource boundary for a specified vehicle
+//! \param resourceBoundary Container for the resource boundary
+//! \param vehicleID Vehicle ID to grab the resource boundary for
+//!
 void MaceData::getResourceBoundary(BoundaryItem::BoundaryList* resourceBoundary, const int &vehicleID)
 {
     std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);

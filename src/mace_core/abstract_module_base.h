@@ -27,6 +27,11 @@ class ModuleBase
 {
 public:
 
+    //!
+    //! \brief ModuleTypeToString Get the corresponding string from module type
+    //! \param type Module type
+    //! \return Module type string
+    //!
     static std::string ModuleTypeToString(const ModuleClasses &type)
     {
         switch (type) {
@@ -49,7 +54,11 @@ public:
         }
     }
 
-
+    //!
+    //! \brief StringToModuleClass Convert a string to module class enum
+    //! \param string Module string
+    //! \return Module class enum
+    //!
     static ModuleClasses StringToModuleClass(const std::string &string)
     {
         if(string == "ExternalLink")
@@ -120,6 +129,9 @@ public:
     //!
     virtual void ConfigureModule(const std::shared_ptr<ModuleParameterValue> &params) = 0;
 
+    //!
+    //! \brief OnModulesStarted Fired when all modules have started, indicates the core is ready to marshal data
+    //!
     virtual void OnModulesStarted()
     {
 
@@ -168,12 +180,19 @@ public:
         return {};
     }
 
-
+    //!
+    //! \brief setDataObject Replace the data object
+    //! \param data New data object to set
+    //!
     void setDataObject(const std::shared_ptr<MaceData> &data)
     {
         m_Data = data;
     }
 
+    //!
+    //! \brief getDataObject Get the data object
+    //! \return Data object
+    //!
     std::shared_ptr<const MaceData> getDataObject() const
     {
         return m_Data;

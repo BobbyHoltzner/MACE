@@ -27,6 +27,11 @@ public:
 
 
     template<typename T>
+    //!
+    //! \brief ConvertFromString Convert parameter from string
+    //! \param string String to convert
+    //! \return Returned parameter
+    //!
     static T ConvertFromString(const std::string &string)
     {
         T value;
@@ -41,7 +46,12 @@ public:
 
 private:
 
-
+    //!
+    //! \brief FromString Get integer value from string
+    //! \param string String to query
+    //! \param value Value to return
+    //! \return Success/failure
+    //!
     static bool FromString(const std::string &string, int &value)
     {
         try
@@ -55,6 +65,12 @@ private:
         }
     }
 
+    //!
+    //! \brief FromString Get double value from string
+    //! \param string String to query
+    //! \param value Value to return
+    //! \return Success/failure
+    //!
     static bool FromString(const std::string &string, double &value)
     {
         try
@@ -68,12 +84,24 @@ private:
         }
     }
 
+    //!
+    //! \brief FromString Get string value from string
+    //! \param string String to query
+    //! \param value Value to return
+    //! \return Success/failure
+    //!
     static bool FromString(const std::string &string, std::string &value)
     {
         value = string;
         return true;
     }
 
+    //!
+    //! \brief FromString Get bool value from string
+    //! \param string String to query
+    //! \param value Value to return
+    //! \return Success/failure
+    //!
     static bool FromString(const std::string &string, bool &value)
     {
         if(string == "true" || string == "True" || string == "TRUE")
@@ -107,18 +135,29 @@ private:
     class SingleParameterValue
     {
     public:
-
+        //!
+        //! \brief SingleParameterValue Single parameter value class
+        //! \param value Value of parameter
+        //!
         SingleParameterValue(const T &value) :
             m_Type(typeid(T))
         {
             m_Value = value;
         }
 
+        //!
+        //! \brief GetValue Get value of parameter
+        //! \return Value (templated) of parameter
+        //!
         T GetValue() const
         {
             return m_Value;
         }
 
+        //!
+        //! \brief GetType Get type of parameter
+        //! \return Type
+        //!
         const std::type_info& GetType() const
         {
             return m_Type;
@@ -132,6 +171,12 @@ private:
 
 public:
 
+    //!
+    //! \brief AddTerminalValueFromString
+    //! \param name Terminal name
+    //! \param valueStr Terminal string
+    //! \param type Terminal type
+    //!
     void AddTerminalValueFromString(const std::string &name, const std::string &valueStr, const ModuleParameterTerminalTypes &type)
     {
         switch(type)
@@ -163,26 +208,51 @@ public:
         }
     }
 
+    //!
+    //! \brief AddTerminalValue Add int terminal value
+    //! \param name Terminal name
+    //! \param value Terminal value
+    //!
     void AddTerminalValue(const std::string &name, const int &value)
     {
         m_TerminalValues.insert({name, std::make_shared<SingleParameterValue<int> >(SingleParameterValue<int>(value))});
     }
 
+    //!
+    //! \brief AddTerminalValue Add double terminal value
+    //! \param name Terminal name
+    //! \param value Terminal value
+    //!
     void AddTerminalValue(const std::string &name, const double &value)
     {
         m_TerminalValues.insert({name, std::make_shared<SingleParameterValue<double> >(SingleParameterValue<double>(value))});
     }
 
+    //!
+    //! \brief AddTerminalValue Add string terminal value
+    //! \param name Terminal name
+    //! \param value Terminal value
+    //!
     void AddTerminalValue(const std::string &name, const std::string &value)
     {
         m_TerminalValues.insert({name, std::make_shared<SingleParameterValue<std::string> >(SingleParameterValue<std::string>(value))});;
     }
 
+    //!
+    //! \brief AddTerminalValue Add bool terminal value
+    //! \param name Terminal name
+    //! \param value Terminal value
+    //!
     void AddTerminalValue(const std::string &name, const bool &value)
     {
         m_TerminalValues.insert({name, std::make_shared<SingleParameterValue<bool> >(SingleParameterValue<bool>(value))});;
     }
 
+    //!
+    //! \brief AddNonTerminal Add module parameter by value
+    //! \param name Terminal name
+    //! \param value Terminal value
+    //!
     void AddNonTerminal(const std::string &name, const std::shared_ptr<ModuleParameterValue> &value)
     {
         m_NonTerminalValues.insert({name, value});
@@ -242,6 +312,11 @@ public:
 
 
     template<typename T>
+    //!
+    //! \brief GetNonTerminalValue Get value of non temrinal parameter
+    //! \param name Name of parameter
+    //! \return Value
+    //!
     T GetNonTerminalValue(const std::string &name) const
     {
         //check that given parameter exists
@@ -349,7 +424,10 @@ public:
         m_MutuallyExclusiveSets.push_back(name_Vec);
     }
 
-
+    //!
+    //! \brief getTerminalNames Get list of terminal names
+    //! \return Terminal names
+    //!
     std::vector<std::string> getTerminalNames() const
     {
         std::vector<std::string> keys;
@@ -358,6 +436,11 @@ public:
         return keys;
     }
 
+    //!
+    //! \brief getTerminalType Get terminal type
+    //! \param parameterName Terminal name
+    //! \return Terminal type
+    //!
     ModuleParameterTerminalTypes getTerminalType(const std::string &parameterName) const
     {
         if(m_TerminalParams.find(parameterName) == m_TerminalParams.cend())
@@ -366,7 +449,11 @@ public:
         return m_TerminalParams.at(parameterName);
     }
 
-
+    //!
+    //! \brief getDefaultTerminalValue Get default terminal value of parameter
+    //! \param parameterName Terminal name
+    //! \return Default terminal value
+    //!
     std::string getDefaultTerminalValue(const std::string &parameterName) const
     {
         if(m_TerminalDefaultValue.find(parameterName) == m_TerminalDefaultValue.cend())
@@ -389,7 +476,10 @@ public:
         return m_TerminalAllowedEntries.at(parameterName);
     }
 
-
+    //!
+    //! \brief getNonTerminalNames Return a list of non terminal names
+    //! \return List of non terminal names
+    //!
     std::vector<std::string> getNonTerminalNames() const
     {
         std::vector<std::string> keys;
@@ -398,6 +488,11 @@ public:
         return keys;
     }
 
+    //!
+    //! \brief getNonTerminalStructure Get non terminal structure
+    //! \param parameterName Non terminal name
+    //! \return Structure of non terminal
+    //!
     const std::shared_ptr<ModuleParameterStructure> getNonTerminalStructure(const std::string &parameterName) const
     {
         if(m_NonTerminalParams.find(parameterName) == m_NonTerminalParams.cend())
@@ -406,7 +501,11 @@ public:
         return m_NonTerminalParams.at(parameterName);
     }
 
-
+    //!
+    //! \brief getDefaultNonTerminalValue Get non terminal default value
+    //! \param parameterName Non terminal name
+    //! \return Default parameter value
+    //!
     std::shared_ptr<ModuleParameterValue> getDefaultNonTerminalValue(const std::string &parameterName) const
     {
         if(m_NonTerminalDefaultValue.find(parameterName) == m_NonTerminalDefaultValue.cend())
@@ -415,6 +514,11 @@ public:
         return m_NonTerminalDefaultValue.at(parameterName);
     }
 
+    //!
+    //! \brief getNonTerminalMultipleEntriesAllowed Returns if multiple entries are allowed on a parameter
+    //! \param parameterName Non terminal name
+    //! \return True: multiple entries allowed
+    //!
     bool getNonTerminalMultipleEntriesAllowed(const std::string &parameterName) const
     {
         if(m_NonTerminalMultipleAllowed.find(parameterName) == m_NonTerminalMultipleAllowed.cend())

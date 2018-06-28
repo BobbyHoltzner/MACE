@@ -71,34 +71,36 @@ public:
 
 public:
     //!
-    //! \brief NewlyAvailableVehicle
-    //! \param vehicleID
+    //! \brief NewlyAvailableVehicle New available vehicle subscriber
+    //! \param vehicleID New vehicle ID
     //!
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
     //!
-    //! \brief NewlyLoadedOccupancyMap
+    //! \brief NewlyLoadedOccupancyMap New occupancy map loaded subscriber
     //!
     virtual void NewlyLoadedOccupancyMap() = 0;
 
     //!
-    //! \brief NewlyUpdatedOccupancyMap
+    //! \brief NewlyUpdatedOccupancyMap New updated occupancy map subscriber
     //!
     virtual void NewlyUpdatedOccupancyMap() = 0;
 
     //!
-    //! \brief NewlyUpdatedGlobalOrigin
+    //! \brief NewlyUpdatedGlobalOrigin New global origin available
+    //! \param position New global origin
     //!
     virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 
     //!
-    //! \brief NewlyUpdateVehicleBoundaries
+    //! \brief NewlyUpdatedOperationalFence New operational fence subscriber
+    //! \param boundary New operational fence
     //!
     virtual void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) = 0;
 
     //!
-    //! \brief NewlyAvailableMission
-    //! \param mission
+    //! \brief NewlyAvailableMission New mission available subscriber
+    //! \param mission New mission
     //!
     virtual void NewlyAvailableMission(const MissionItem::MissionList &mission) = 0;
 

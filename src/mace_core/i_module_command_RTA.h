@@ -65,27 +65,38 @@ public:
     }
 
 public:
+    //!
+    //! \brief NewlyAvailableVehicle New available vehicle subscriber
+    //! \param vehicleID New vehicle ID
+    //!
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
+    //!
+    //! \brief TestFunction
+    //! \param vehicleID
+    //!
     virtual void TestFunction(const int &vehicleID) = 0;
 
     //!
-    //! \brief NewlyUpdatedGlobalOrigin
+    //! \brief NewlyUpdatedGlobalOrigin New global origin subscriber
+    //! \param position New global origin position
     //!
     virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 
     //!
-    //! \brief NewlyUpdatedBoundaryVertices
+    //! \brief NewlyUpdatedOperationalFence New operational fence subscriber
+    //! \param boundary New operational boundary list
     //!
     virtual void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) = 0;
 
     //!
-    //! \brief NewlyUpdatedResourceFence
+    //! \brief NewlyUpdatedResourceFence New resource fence subscriber
+    //! \param boundary New resource boundary list
     //!
     virtual void NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boundary) = 0;
 
     //!
-    //! \brief NewlyUpdatedGridSpacing
+    //! \brief NewlyUpdatedGridSpacing New grid spacing value available
     //!
     virtual void NewlyUpdatedGridSpacing() = 0;
 };

@@ -21,12 +21,19 @@ MaceCore::MaceCore() :
 /// CONFIGURE CORE
 /////////////////////////////////////////////////////////////////////////
 
-
+//!
+//! \brief AddDataFusion Add MACE data pointer
+//! \param dataFusion Data fusion to add
+//!
 void MaceCore::AddDataFusion(const std::shared_ptr<MaceData> dataFusion)
 {
     m_DataFusion = dataFusion;
 }
 
+//!
+//! \brief AddModule Add module to data fusion
+//! \param module Module to add
+//!
 void MaceCore::AddModule(const std::shared_ptr<ModuleBase> &module)
 {
     std::vector<TopicCharacteristic> topics = module->GetEmittedTopics();
@@ -35,6 +42,11 @@ void MaceCore::AddModule(const std::shared_ptr<ModuleBase> &module)
     }
 }
 
+//!
+//! \brief AddVehicle Add vehicle to data fusion
+//! \param ID Vehicle ID to add
+//! \param vehicle Vehicle module pointer
+//!
 void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle)
 {
     std::lock_guard<std::mutex> guard(m_VehicleMutex);
@@ -53,7 +65,10 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
 
 }
 
-
+//!
+//! \brief RemoveVehicle Remove vehicle from data fusion
+//! \param ID Vehicle ID to remove
+//!
 void MaceCore::RemoveVehicle(const std::string &ID)
 {
     if(m_VehicleIDToPtr.find(ID) == m_VehicleIDToPtr.cend())
@@ -68,6 +83,10 @@ void MaceCore::RemoveVehicle(const std::string &ID)
 
 
 //The following add the appropriate modules to the core
+//!
+//! \brief AddExternalLink Add external link module
+//! \param externalLink External link module setup
+//!
 void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink)
 {
     AddModule(externalLink);
@@ -85,6 +104,10 @@ void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink>
 
 }
 
+//!
+//! \brief AddGroundStationModule Add ground station module
+//! \param groundStation Ground station module setup
+//!
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
 {
     groundStation->addListener(this);
@@ -105,6 +128,10 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
     AddModule(groundStation);
 }
 
+//!
+//! \brief AddPathPlanningModule Add path planning module
+//! \param pathPlanning Path planning module setup
+//!
 void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning)
 {
     pathPlanning->addListener(this);
@@ -114,6 +141,10 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
     AddModule(pathPlanning);
 }
 
+//!
+//! \brief AddROSModule Add ROS module
+//! \param ros ROS module setup
+//!
 void MaceCore::AddROSModule(const std::shared_ptr<IModuleCommandROS> &ros)
 {
     ros->addListener(this);
@@ -123,6 +154,10 @@ void MaceCore::AddROSModule(const std::shared_ptr<IModuleCommandROS> &ros)
     AddModule(ros);
 }
 
+//!
+//! \brief AddRTAModule Add RTA module
+//! \param rta RTA module setup
+//!
 void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
 {
     rta->addListener(this);
@@ -132,6 +167,10 @@ void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
     AddModule(rta);
 }
 
+//!
+//! \brief AddSensorsModule Add sensors module
+//! \param sensors Sensors module setup
+//!
 void MaceCore::AddSensorsModule(const std::shared_ptr<IModuleCommandSensors> &sensors)
 {
     sensors->addListener(this);
@@ -143,7 +182,11 @@ void MaceCore::AddSensorsModule(const std::shared_ptr<IModuleCommandSensors> &se
 
 //This ends the functions adding appropriate modules
 
-
+//!
+//! \brief Add a module's topic chacteristic to the mace core
+//! \param sender Module that will be using topic
+//! \param topic Characteristic of topic
+//!
 void MaceCore::AddTopicCharacteristic(const ModuleBase *sender, const TopicCharacteristic &topic) {
 
     if(m_TopicsToReceive.find(sender) == m_TopicsToReceive.cend())
@@ -157,6 +200,13 @@ void MaceCore::AddTopicCharacteristic(const ModuleBase *sender, const TopicChara
     }
 }
 
+//!
+//! \brief Subscribe Subscribe to a topic
+//! \param sender Module that will be using the topic
+//! \param topicName Topic name to subscribe to
+//! \param senderIDs Vector of IDs to subscribe
+//! \param components Vector of component names to subscribe
+//!
 void MaceCore::Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &senderIDs, const std::vector<std::string> &components)
 {
     UNUSED(senderIDs);
@@ -168,6 +218,15 @@ void MaceCore::Subscribe(ModuleBase* sender, const std::string &topicName, const
     m_TopicNotifier[topicName].push_back(sender);
 }
 
+//!
+//! \brief NewTopicDataValues Subscriber to new topic data values
+//! \param moduleFrom Module sending the new data values
+//! \param topicName Topic over which new values are present
+//! \param sender Sender module characteristic
+//! \param time Timestamp
+//! \param value Value of the new topic datagram
+//! \param target Target of the new topic datagram
+//!
 void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const ModuleCharacteristic &sender, const TIME &time, const TopicDatagram &value, const OptionalParameter<ModuleCharacteristic> &target)
 {
     if(this->m_TopicsToReceive.at(moduleFrom).find(topicName) == m_TopicsToReceive.at(moduleFrom).cend())
@@ -205,6 +264,14 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 
 }
 
+//!
+//! \brief NewTopicDataValues Subscriber to new topic data values
+//! \param moduleFrom Module sending the new data values
+//! \param topicName Topic over which the new values are present
+//! \param senderID Sender module ID
+//! \param time Timestamp
+//! \param value Value of the new topic datagram
+//!
 void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
 
     //printf("Deprecated!\n");
@@ -233,6 +300,11 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 /// GENERAL MODULE EVENTS
 /////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief RequestDummyFunction Test function
+//! \param sender Sender module
+//! \param vehicleID Vehicle ID
+//!
 void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
 {
     UNUSED(sender);
@@ -249,11 +321,21 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
     }
 }
 
+//!
+//! \brief Event_ForceVehicleDataSync Event to force a data dump of everything available to a vehicle
+//! \param sender Sender module
+//! \param targetSystemID Target ID of event
+//!
 void MaceCore::Event_ForceVehicleDataSync(const ModuleBase *sender, const int &targetSystemID)
 {
     MarshalCommandToVehicle<int>(targetSystemID, VehicleCommands::REQUEST_DATA_SYNC, ExternalLinkCommands::REQUEST_DATA_SYNC, targetSystemID, sender->GetCharacteristic());
 }
 
+//!
+//! \brief Event_IssueCommandSystemArm Event to trigger and ARM command
+//! \param sender Sender module
+//! \param command Arm/Disarm action
+//!
 void MaceCore::Event_IssueCommandSystemArm(const ModuleBase* sender, const CommandItem::ActionArm &command)
 {
     UNUSED(sender);
@@ -261,6 +343,11 @@ void MaceCore::Event_IssueCommandSystemArm(const ModuleBase* sender, const Comma
     MarshalCommandToVehicle<CommandItem::ActionArm>(vehicleID, VehicleCommands::CHANGE_VEHICLE_ARM, ExternalLinkCommands::CHANGE_VEHICLE_ARM, command, sender->GetCharacteristic());
 }
 
+//!
+//! \brief Event_IssueCommandTakeoff Event to trigger a TAKEOFF command
+//! \param sender Sender module
+//! \param command Takeoff command
+//!
 void MaceCore::Event_IssueCommandTakeoff(const ModuleBase* sender, const CommandItem::SpatialTakeoff &command)
 {
     UNUSED(sender);
@@ -268,6 +355,11 @@ void MaceCore::Event_IssueCommandTakeoff(const ModuleBase* sender, const Command
     MarshalCommandToVehicle<CommandItem::SpatialTakeoff>(vehicleID, VehicleCommands::REQUEST_VEHICLE_TAKEOFF, ExternalLinkCommands::REQUEST_VEHICLE_TAKEOFF, command, sender->GetCharacteristic());
 }
 
+//!
+//! \brief Event_IssueCommandLand Event to trigger a LAND command
+//! \param sender Sender module
+//! \param command Land command
+//!
 void MaceCore::Event_IssueCommandLand(const ModuleBase* sender, const CommandItem::SpatialLand &command)
 {
     UNUSED(sender);
@@ -275,6 +367,11 @@ void MaceCore::Event_IssueCommandLand(const ModuleBase* sender, const CommandIte
     MarshalCommandToVehicle<CommandItem::SpatialLand>(vehicleID, VehicleCommands::REQUEST_VEHICLE_LAND, ExternalLinkCommands::REQUEST_VEHICLE_LAND, command, sender->GetCharacteristic());
 }
 
+//!
+//! \brief Event_IssueCommandRTL Event to trigger an RTL command
+//! \param sender Sender module
+//! \param command RTL command
+//!
 void MaceCore::Event_IssueCommandRTL(const ModuleBase* sender, const CommandItem::SpatialRTL &command)
 {
     UNUSED(sender);
@@ -282,6 +379,11 @@ void MaceCore::Event_IssueCommandRTL(const ModuleBase* sender, const CommandItem
     MarshalCommandToVehicle<CommandItem::SpatialRTL>(vehicleID, VehicleCommands::REQUEST_VEHICLE_RTL, ExternalLinkCommands::REQUEST_VEHICLE_RTL, command, sender->GetCharacteristic());
 }
 
+//!
+//! \brief Event_IssueMissionCommand Event to trigger a mission command
+//! \param sender Sender module
+//! \param command Mission command
+//!
 void MaceCore::Event_IssueMissionCommand(const ModuleBase* sender, const CommandItem::ActionMissionCommand &command)
 {
     UNUSED(sender);
@@ -289,6 +391,11 @@ void MaceCore::Event_IssueMissionCommand(const ModuleBase* sender, const Command
     MarshalCommandToVehicle<CommandItem::ActionMissionCommand>(vehicleID, VehicleCommands::SET_MISSION_STATE, ExternalLinkCommands::SET_MISSION_STATE, command, sender->GetCharacteristic());
 }
 
+//!
+//! \brief Event_ChangeSystemMode Event to trigger a mode change
+//! \param sender Sender module
+//! \param command Mode change command
+//!
 void MaceCore::Event_ChangeSystemMode(const ModuleBase *sender, const CommandItem::ActionChangeMode &command)
 {
     UNUSED(sender);
@@ -296,6 +403,11 @@ void MaceCore::Event_ChangeSystemMode(const ModuleBase *sender, const CommandIte
     MarshalCommandToVehicle<CommandItem::ActionChangeMode>(vehicleID, VehicleCommands::CHANGE_VEHICLE_MODE, ExternalLinkCommands::CHANGE_VEHICLE_MODE, command, sender->GetCharacteristic());
 }
 
+//!
+//! \brief Event_IssueGeneralCommand Event to trigger a general command
+//! \param sender Sender module
+//! \param command General command
+//!
 void MaceCore::Event_IssueGeneralCommand(const ModuleBase* sender, const std::shared_ptr<CommandItem::AbstractCommandItem> &command)
 {
     switch(command->getCommandType())
@@ -331,6 +443,11 @@ void MaceCore::Event_IssueGeneralCommand(const ModuleBase* sender, const std::sh
     }
 }
 
+//!
+//! \brief Event_GetMission Event to trigger a "get mission" action
+//! \param sender Sender module
+//! \param key Mission key to fetch
+//!
 void MaceCore::Event_GetMission(const void *sender, const MissionItem::MissionKey &key)
 {
     UNUSED(sender);
@@ -348,6 +465,12 @@ void MaceCore::Event_GetMission(const void *sender, const MissionItem::MissionKe
     }
 }
 
+//!
+//! \brief Event_GetOnboardMission Event to trigger a fetch of the current onboard mission for a vehicle
+//! \param sender Sender module
+//! \param systemID Vehicle ID whose mission we are asking for
+//! \param type Mission type
+//!
 void MaceCore::Event_GetOnboardMission(const void *sender, const int &systemID, const MissionItem::MISSIONTYPE &type)
 {
     UNUSED(sender);
@@ -377,25 +500,44 @@ void MaceCore::Event_GetOnboardMission(const void *sender, const int &systemID, 
     }
 }
 
+//!
+//! \brief Event_GetCurrentMission Event to trigger a "get current mission" action
+//! \param sender Sender module
+//! \param systemID Vehicle ID whose mission we are asking for
+//!
 void MaceCore::Event_GetCurrentMission(const void *sender, const int &systemID)
 {
     UNUSED(sender);
     MarshalCommandToVehicle<int>(systemID, VehicleCommands::REQUEST_CURRENT_MISSION, ExternalLinkCommands::REQUEST_CURRENT_MISSION, systemID);
 }
 
+//!
+//! \brief RequestClearVehicleMission Request a vehicle clear its onboard mission
+//! \param sender Sender module
+//! \param systemID Vehicle ID whose mission we want to clear
+//!
 void MaceCore::RequestClearVehicleMission(const void* sender, const Data::SystemDescription &systemID)
 {
     UNUSED(sender);
     MarshalCommandToVehicle<Data::SystemDescription>(systemID.getSystemID(), VehicleCommands::CLEAR_CURRENT_MISSION, ExternalLinkCommands::CLEAR_CURRENT_MISSION, systemID.getSystemID());
 }
 
-
+//!
+//! \brief Event_GetHomePosition Event to trigger a fetch of a vehicle's home position
+//! \param sender Sender module
+//! \param vehicleID Vehicle ID whose home position we want
+//!
 void MaceCore::Event_GetHomePosition(const void* sender, const int &vehicleID)
 {
     UNUSED(sender);
     MarshalCommandToVehicle<int>(vehicleID, VehicleCommands::REQUEST_VEHICLE_HOME, ExternalLinkCommands::REQUEST_VEHICLE_HOME, vehicleID);
 }
 
+//!
+//! \brief Event_SetHomePosition Event to trigger a set home position action
+//! \param sender Sender module
+//! \param vehicleHome New vehicle home position
+//!
 void MaceCore::Event_SetHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome)
 {
     UNUSED(sender);
@@ -403,6 +545,11 @@ void MaceCore::Event_SetHomePosition(const ModuleBase *sender, const CommandItem
     MarshalCommandToVehicle<CommandItem::SpatialHome>(vehicleID, VehicleCommands::SET_VEHICLE_HOME, ExternalLinkCommands::SET_VEHICLE_HOME, vehicleHome, sender->GetCharacteristic());
 }
 
+//!
+//! \brief RequestVehicleClearGuidedMission Request to clear a vehicle's guided mission
+//! \param sender Sender module
+//! \param vehicleID Vehicle ID whose guided mission we want to clear
+//!
 void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &vehicleID)
 {
     UNUSED(sender);
@@ -411,13 +558,22 @@ void MaceCore::RequestVehicleClearGuidedMission(const void* sender, const int &v
 
 }
 
+//!
+//! \brief Event_SetGridSpacing Event to set a new grid spacing
+//! \param sender Sender module
+//! \param gridSpacing New grid spacing
+//!
 void MaceCore::Event_SetGridSpacing(const void *sender, const double &gridSpacing)
 {
     UNUSED(sender);
     m_DataFusion->UpdateGridSpacing(gridSpacing);
 }
 
-
+//!
+//! \brief Event_SetGlobalOrigin Event to set a new global origin
+//! \param sender Sender module
+//! \param globalHome New global origin position
+//!
 void MaceCore::Event_SetGlobalOrigin(const void *sender, const GeodeticPosition_3D &position)
 {
     m_DataFusion->UpdateGlobalOrigin(position);
@@ -433,6 +589,11 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const GeodeticPosition_
     }
 }
 
+//!
+//! \brief Event_SetBoundary Event to set a new boundary (boundary key determines type of boundary)
+//! \param sender Sender module
+//! \param boundary New boundary list
+//!
 void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
 {
     m_DataFusion->updateBoundary(boundary);
@@ -468,6 +629,11 @@ void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::B
 /// SPECIFIC VEHICLE EVENTS: These events are associated from IModuleEventsVehicleVehicle
 /////////////////////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief EventVehicle_NewOnboardVehicleMission New onboard mission
+//! \param sender Sender module
+//! \param missionList New missionlist
+//!
 void MaceCore::EventVehicle_NewOnboardVehicleMission(const ModuleBase *sender, const MissionItem::MissionList &missionList)
 {
     UNUSED(sender);
@@ -492,6 +658,11 @@ void MaceCore::EventVehicle_NewOnboardVehicleMission(const ModuleBase *sender, c
     }
 }
 
+//!
+//! \brief EventVehicle_MissionACK New mission ACK event
+//! \param sender Sender module
+//! \param ack Mission ack
+//!
 void MaceCore::EventVehicle_MissionACK(const void *sender, const MissionItem::MissionACK &ack)
 {
     UNUSED(sender);
@@ -512,12 +683,22 @@ void MaceCore::EventVehicle_MissionACK(const void *sender, const MissionItem::Mi
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
 }
 
+//!
+//! \brief EventVehicle_REJECTProposedMission Event to trigger a rejected mission action
+//! \param sender Sender module
+//! \param key Rejected mission key
+//!
 void MaceCore::EventVehicle_REJECTProposedMission(const void *sender, const MissionItem::MissionKey &key)
 {
     UNUSED(sender);
     UNUSED(key);
 }
 
+//!
+//! \brief ExternalEvent_UpdateRemoteID Update remote ID external event
+//! \param sender Sender module
+//! \param remoteID New remote ID
+//!
 void MaceCore::ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID)
 {
     //KEN FIX THIS
@@ -525,6 +706,11 @@ void MaceCore::ExternalEvent_UpdateRemoteID(const void *sender, const int &remot
     m_ExternalLinkIDToPort.insert({remoteID,externalLink});
 }
 
+//!
+//! \brief ExternalEvent_NewModule New module available to external link
+//! \param sender Sender module
+//! \param newModule New module
+//!
 void MaceCore::ExternalEvent_NewModule(const void *sender, const ModuleCharacteristic &newModule)
 {
     std::lock_guard<std::mutex> guard(m_VehicleMutex);
@@ -548,6 +734,11 @@ void MaceCore::ExternalEvent_NewModule(const void *sender, const ModuleCharacter
     }
 }
 
+//!
+//! \brief EventVehicle_NewConstructedVehicle New vehicle has been constructed
+//! \param sender Sender module
+//! \param newVehicleObserved New vehicle ID
+//!
 void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
 {
     std::lock_guard<std::mutex> guard(m_VehicleMutex);
@@ -584,6 +775,11 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief GVEvents_NewHomePosition New home position
+//! \param sender Sender module
+//! \param vehicleHome New vehicle home
+//!
 void MaceCore::GVEvents_NewHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome)
 {
     UNUSED(sender);
@@ -613,6 +809,12 @@ void MaceCore::GVEvents_NewHomePosition(const ModuleBase *sender, const CommandI
     }
 }
 
+//!
+//! \brief GVEvents_MissionExeStateUpdated New mission EXE state event
+//! \param sender Sender module
+//! \param missionKey Mission key corresponding to the new EXE state
+//! \param missionExeState New EXE state
+//!
 void MaceCore::GVEvents_MissionExeStateUpdated(const void *sender, const MissionItem::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState)
 {
     UNUSED(sender);
@@ -631,6 +833,11 @@ void MaceCore::GVEvents_MissionExeStateUpdated(const void *sender, const Mission
     }
 }
 
+//!
+//! \brief GVEvents_MissionItemAchieved Mission item achieved event
+//! \param sender Sender module
+//! \param achieved Mission item achieved data
+//!
 void MaceCore::GVEvents_MissionItemAchieved(const void *sender, const MissionItem::MissionItemAchieved &achieved)
 {
     UNUSED(sender);
@@ -638,12 +845,22 @@ void MaceCore::GVEvents_MissionItemAchieved(const void *sender, const MissionIte
     //I dont know if we need to do anything with this?
 }
 
+//!
+//! \brief GVEvents_MissionItemCurrent New current mission item event
+//! \param sender Sender module
+//! \param current New current mission item
+//!
 void MaceCore::GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current)
 {
     UNUSED(sender);
     m_DataFusion->updateCurrentMissionItem(current);
 }
 
+//!
+//! \brief ConfirmedOnboardVehicleMission Confirm onboard mission event
+//! \param sender Sender module
+//! \param missionKey Mission key to confirm
+//!
 void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const MissionItem::MissionKey &missionKey)
 {
     UNUSED(sender);
@@ -651,6 +868,11 @@ void MaceCore::ConfirmedOnboardVehicleMission(const void *sender, const MissionI
     //m_DataFusion->updateOnboardMissions(missionKey);
 }
 
+//!
+//! \brief NewCurrentVehicleMission New current mission event
+//! \param sender Sender module
+//! \param missionKey New mission key
+//!
 void MaceCore::NewCurrentVehicleMission(const void *sender, const MissionItem::MissionKey &missionKey)
 {
     UNUSED(sender);
@@ -664,6 +886,11 @@ void MaceCore::NewCurrentVehicleMission(const void *sender, const MissionItem::M
 /// EXTERNAL LINK EVENTS
 /////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief ExternalEvent_MissionACK Event signaling a mission ACK
+//! \param sender Sender module
+//! \param missionACK Mission ACK
+//!
 void MaceCore::ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK)
 {
     UNUSED(sender);
@@ -678,6 +905,11 @@ void MaceCore::ExternalEvent_MissionACK(const void* sender, const MissionItem::M
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_CURRENT_MISSION,key);
 }
 
+//!
+//! \brief ExternalEvent_NewOnboardMission New onboard mission event
+//! \param sender Sender module
+//! \param mission New mission key
+//!
 void MaceCore::ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission)
 {
     if(m_GroundStation != NULL)
@@ -693,6 +925,11 @@ void MaceCore::ExternalEvent_NewOnboardMission(const ModuleBase *sender, const M
     }
 }
 
+//!
+//! \brief ExternalEvent_RequestingDataSync Request data sync of target's data
+//! \param sender Sender module
+//! \param targetID Target ID
+//!
 void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const int &targetID)
 {
     std::unordered_map<std::string, TopicDatagram> topicMap = m_DataFusion->getAllLatestTopics(targetID);
@@ -704,6 +941,11 @@ void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const int &t
     }
 }
 
+//!
+//! \brief ExternalEvent_FinishedRXMissionList Event signaling the receipt of a mission list
+//! \param sender Sender module
+//! \param missionList Received mission list
+//!
 void MaceCore::ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList)
 {
     UNUSED(sender);
@@ -723,6 +965,11 @@ void MaceCore::ExternalEvent_FinishedRXMissionList(const void *sender, const Mis
     }
 }
 
+//!
+//! \brief ExternalEvent_FinishedRXBoundaryList Event signaling the receipt of a boundary list
+//! \param sender Sender module
+//! \param boundaryList New boundary list
+//!
 void MaceCore::ExternalEvent_FinishedRXBoundaryList(const void *sender, const BoundaryItem::BoundaryList &boundaryList)
 {
     UNUSED(sender);
@@ -746,6 +993,11 @@ void MaceCore::ExternalEvent_FinishedRXBoundaryList(const void *sender, const Bo
 /// RTA EVENTS
 /////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief Event_SetResourceBoundary Set resource boundary event
+//! \param sender Sender module
+//! \param boundary New resource boundary list
+//!
 void MaceCore::Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
 {
     m_DataFusion->updateBoundary(boundary);
@@ -778,6 +1030,10 @@ void MaceCore::GroundStationEvent()
 {
 }
 
+//!
+//! \brief CommandNewVehicleMode Command a new vehicle mode change
+//! \param vehicleMode New vehicle mode string
+//!
 void MaceCore::CommandNewVehicleMode(const std::string &vehicleMode)
 {
     UNUSED(vehicleMode);
@@ -834,6 +1090,11 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
 /// PATH PLANNING EVENTS
 /////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief EventPP_LoadOccupancyEnvironment Load a new occupancy map
+//! \param sender Sender module
+//! \param filePath Occupancy map file path
+//!
 void MaceCore::EventPP_LoadOccupancyEnvironment(const ModuleBase *sender, const string &filePath)
 {
     std::cout<<"Somehow load occupancy environment is being called"<<std::endl;
@@ -846,6 +1107,11 @@ void MaceCore::EventPP_LoadOccupancyEnvironment(const ModuleBase *sender, const 
     }
 }
 
+//!
+//! \brief EventPP_LoadOctomapProperties Load octomap properties
+//! \param sender Sender module
+//! \param properties Octomap properties
+//!
 void MaceCore::EventPP_LoadOctomapProperties(const ModuleBase *sender, const maps::OctomapSensorDefinition &properties)
 {
     std::cout<<"Somehow load octomap properties is being called"<<std::endl;
@@ -865,11 +1131,21 @@ void MaceCore::EventPP_LoadOctomapProperties(const ModuleBase *sender, const map
     }
 }
 
+//!
+//! \brief EventPP_LoadMappingProjectionProperties Load map projection properties
+//! \param sender Sender module
+//! \param properties Map projection properties
+//!
 void MaceCore::EventPP_LoadMappingProjectionProperties(const ModuleBase *sender, const maps::Octomap2DProjectionDefinition &properties)
 {
 
 }
 
+//!
+//! \brief Event_SetOperationalBoundary Set operation boundary event
+//! \param sender Sender module
+//! \param boundary New operational boundary
+//!
 void MaceCore::Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
 {
     m_DataFusion->updateBoundary(boundary);
@@ -899,6 +1175,11 @@ void MaceCore::PlanningHorizon(const std::string &horizon)
     throw std::runtime_error("Not Implemented");
 }
 
+//!
+//! \brief ReplaceVehicleCommands Replace vehicle commands with new commands
+//! \param vehicleID Target vehicle ID
+//! \param movementCommands New commands
+//!
 void MaceCore::ReplaceVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands)
 {
     m_DataFusion->setVehicleDynamicsCommands(vehicleID, movementCommands);
@@ -906,6 +1187,11 @@ void MaceCore::ReplaceVehicleCommands(const std::string &vehicleID, const std::v
     m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::FOLLOW_NEW_COMMANDS);
 }
 
+//!
+//! \brief ReplaceAfterCurrentVehicleCommands Append vehicle commands after current vehicle commands
+//! \param vehicleID Target vehicle ID
+//! \param movementCommands New commands
+//!
 void MaceCore::ReplaceAfterCurrentVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands)
 {
     m_DataFusion->setVehicleDynamicsCommands(vehicleID, movementCommands);
@@ -913,6 +1199,11 @@ void MaceCore::ReplaceAfterCurrentVehicleCommands(const std::string &vehicleID, 
     m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::FINISH_AND_FOLLOW_COMMANDS);
 }
 
+//!
+//! \brief AppendVehicleCommands Append vehicle commands to current vehicle commands
+//! \param vehicleID Target vehicle ID
+//! \param movementCommands New commands
+//!
 void MaceCore::AppendVehicleCommands(const std::string &vehicleID, const std::vector<FullVehicleDynamics> &movementCommands)
 {
     std::vector<FullVehicleDynamics> commands = m_DataFusion->getVehicleDynamicsCommands(vehicleID);
@@ -922,12 +1213,22 @@ void MaceCore::AppendVehicleCommands(const std::string &vehicleID, const std::ve
     m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::COMMANDS_APPENDED);
 }
 
+//!
+//! \brief EventPP_New2DOccupancyMap New compressed 2D occupancy map event
+//! \param sender Sender module
+//! \param map Occupancy map
+//!
 void MaceCore::EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map)
 {
     if(m_ROS)
         m_ROS->MarshalCommand(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, map);
 }
 
+//!
+//! \brief EventPP_NewDynamicMissionQueue New dynamic mission queue event
+//! \param sender Sender module
+//! \param queue New mission queue
+//!
 void MaceCore::EventPP_NewDynamicMissionQueue(const ModuleBase *sender, const TargetItem::DynamicMissionQueue &queue)
 {
     UNUSED(sender);
@@ -943,6 +1244,11 @@ void MaceCore::EventPP_NewDynamicMissionQueue(const ModuleBase *sender, const Ta
     }
 }
 
+//!
+//! \brief EventPP_NewPathFound New path found event
+//! \param sender Sender module
+//! \param path Path vector
+//!
 void MaceCore::EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path)
 {
     UNUSED(sender);
@@ -981,6 +1287,11 @@ void MaceCore::ReplaceOccupancyMapCells(const std::vector<MatrixCellData<double>
 /// SENSOR MODULE EVENTS
 /////////////////////////////////////////////////////////////////////////
 
+//!
+//! \brief ROS_NewLaserScan New laser scan from ROS/Gazebo
+//! \param obj Point cloud object
+//! \param position Position of sensor
+//!
 void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud &obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position)
 {
     octomap::Pointcloud copyObj = obj;
@@ -989,6 +1300,12 @@ void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud &obj, const mace::pose
         m_ROS->MarshalCommand(ROSCommands::NEWLY_UPDATED_3D_OCCUPANCY_MAP, 0); // TODO: Parse for vehicle ID
 }
 
+//!
+//! \brief ROS_NewLaserScan New laser scan from ROS/Gazebo
+//! \param obj Point cloud object
+//! \param position Position of sensor
+//! \param orientation Orientation of sensor
+//!
 void MaceCore::ROS_NewLaserScan(const octomap::Pointcloud &obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position, const mace::pose::Orientation_3D &orientation)
 {
     octomap::Pointcloud copyObj = obj;
