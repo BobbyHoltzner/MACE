@@ -1,6 +1,7 @@
 ## Table of Contents
 - [Description](#description)
 - [Quick Start](#quick-start)
+- [Documentation](#documentation)
 - [Acknowledgements](#acknowledgements)
 - [LICENSE](#license)
 
@@ -46,6 +47,21 @@ If successful, the MACE GUI will run, and you should see a vehicle connected sim
 
 ![QuickStartGUI](https://github.com/heronsystems/MACE/blob/master/docs/images/quickStartGUI.png)
 
+
+# <a name="documentation"></a> Doxygen Documentation
+
+If any changes are made to the source code, please document them and re-run the Doxygen documentation generation. To do so, simply change into the `docs/` directory and run:
+
+```
+$ cd docs/
+$ doxygen Doxyfile
+```
+
+If Doxygen is not installed, you can install on Ubuntu using
+
+`sudo apt-get install doxygen`
+
+For Windows users, you can try to use the [Doxywizard](https://www.stack.nl/~dimitri/doxygen/manual/doxywizard_usage.html). However, it is recommended to generate documentation using Linux.
 
 # <a name="acknowledgements"></a> Acknowledgments
 Heron Systems would like to akcnowledge the following individuals for their contributions on this software:
