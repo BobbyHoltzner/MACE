@@ -1,7 +1,7 @@
 ## Table of Contents
 - [Description](#description)
 - [Quick Start](#quick-start)
-- [Documentation](#documentation)
+- [Doxygen Documentation](#documentation)
 - [Acknowledgements](#acknowledgements)
 - [LICENSE](#license)
 
@@ -54,10 +54,10 @@ If any changes are made to the source code, please document them and re-run the 
 
 ```
 $ cd docs/
-$ doxygen Doxyfile
+$ doxygen Doxyfile_default
 ```
 
-If Doxygen is not installed, you can install on Ubuntu using
+There are also Bootstrap and Material design templates for styling the pages (`Doxyfile_bootstrap` and `Doxygile_material`, respectively). However, they are not as full-featured as the default documentation setup. If Doxygen is not installed, you can install on Ubuntu using
 
 `sudo apt-get install doxygen`
 
