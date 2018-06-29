@@ -10,6 +10,11 @@ namespace MaceCore
 class IModuleEventsRTA  : public IModuleEventsGeneral
 {
 public:
+    //!
+    //! \brief Event_SetResourceBoundary Set resource boundary event
+    //! \param sender Sender module
+    //! \param boundary New resource boundary list
+    //!
     virtual void Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) = 0;
 
 };

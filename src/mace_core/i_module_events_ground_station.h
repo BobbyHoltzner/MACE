@@ -9,8 +9,19 @@ namespace MaceCore
 class IModuleEventsGroundStation : public IModuleEventsGeneral
 {
 public:
+    //!
+    //! \brief RequestDummyFunction Test function
+    //! \param sender Sender module
+    //! \param vehicleID Vehicle ID
+    //!
     virtual void RequestDummyFunction(const void* sender, const int &vehicleID) = 0;
 
+    //!
+    //! \brief Event_UploadMission method calls the appropriate handling operations to migrate the proposed
+    //! mission list to the appropriate vehicle module for handling.
+    //! \param sender
+    //! \param missionList
+    //!
     virtual void GSEvent_UploadMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
 
 };

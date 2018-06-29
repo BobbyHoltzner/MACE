@@ -65,14 +65,33 @@ public:
     }
 
 public:
+    //!
+    //! \brief NewlyAvailableVehicle New available vehicle subscriber
+    //! \param vehicleID New vehicle ID
+    //!
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
+    //!
+    //! \brief NewlyUpdated3DOccupancyMap New 3D occupancy map subscriber
+    //!
     virtual void NewlyUpdated3DOccupancyMap() = 0;
 
+    //!
+    //! \brief NewlyCompressedOccupancyMap New compressed occupancy map subscriber
+    //! \param map Compressed occupancy map
+    //!
     virtual void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) = 0;
 
+    //!
+    //! \brief NewlyUpdatedOperationalFence New operational fence subscriber
+    //! \param boundary New operationl fence
+    //!
     virtual void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) = 0;
 
+    //!
+    //! \brief NewlyFoundPath New path subscriber
+    //! \param path New path
+    //!
     virtual void NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path) = 0;
 
     //    //!

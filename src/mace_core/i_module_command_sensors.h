@@ -39,6 +39,10 @@ class MACE_CORESHARED_EXPORT IModuleCommandSensors : public AbstractModule_Event
     }
 
 public:
+    //!
+    //! \brief NewlyAvailableVehicle New available vehicle subscriber
+    //! \param vehicleID New vehicle ID
+    //!
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
 

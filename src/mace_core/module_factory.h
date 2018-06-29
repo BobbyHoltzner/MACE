@@ -23,6 +23,13 @@ public:
     {
     }
 
+    //!
+    //! \brief RegisterFactory Register module factory
+    //! \param type Module type
+    //! \param moduleName Module name
+    //! \param createExpression Method of creation (e.g. std::make_shared<T>())
+    //! \return True if successful
+    //!
     bool RegisterFactory(const ModuleClasses &type, const std::string &moduleName, std::function<std::shared_ptr<ModuleBase>()> createExpression)
     {
         if(_factories.find(type) == _factories.cend())
@@ -33,6 +40,12 @@ public:
         return true;
     }
 
+    //!
+    //! \brief Create Create module
+    //! \param type Module type
+    //! \param moduleName Module name
+    //! \return Module pointer
+    //!
     std::shared_ptr<ModuleBase> Create(const ModuleClasses &type, const std::string &moduleName) const
     {
 
@@ -46,7 +59,11 @@ public:
         return _factories.at(type).at(moduleName)();
     }
 
-
+    //!
+    //! \brief GetTypes Get list of modules of a certain type
+    //! \param type Module type
+    //! \return List of module names with the given type
+    //!
     std::list<std::string> GetTypes(const ModuleClasses &type) const
     {
         std::list<std::string> result;

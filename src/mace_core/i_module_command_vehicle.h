@@ -59,8 +59,22 @@ public:
 
 
 public:
+    //!
+    //! \brief RequestDummyFunction Test function
+    //! \param vehicleID Vehicle ID
+    //!
     virtual void RequestDummyFunction(const int &vehicleID) = 0;
+
+    //!
+    //! \brief UpdateMissionKey Update mission key command
+    //! \param key Mission key to update
+    //!
     virtual void UpdateMissionKey(const MissionItem::MissionKeyChange &key) = 0;
+
+    //!
+    //! \brief UpdateDynamicMissionQueue Update dynamic missio queue command
+    //! \param queue Mission queue
+    //!
     virtual void UpdateDynamicMissionQueue(const TargetItem::DynamicMissionQueue &queue) = 0;
 
 };
