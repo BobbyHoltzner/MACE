@@ -67,8 +67,6 @@ For Windows users, you can try to use the [Doxywizard](https://www.stack.nl/~dim
 Heron Systems would like to akcnowledge the following individuals for their contributions on this software:
 - Dr. Derek Paley, University of Marlyand, College Park
   - Dr. Paley provided subject matter expertise and algorithm development pertaining to resource and task allocations. Iterations of the algorithms developed with Dr. Paley's guidance were demonstrated both in simulation and onboard COTS platforms
-- Robert Waring, VA Department of Conservation and Recreation
-  - Mr. Waring was instrumental in providing opportunities to flight test our software while we provided precision agriculture assistance
 
 # <a name="license"></a> LICENSE
 **TODO**
