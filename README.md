@@ -69,4 +69,4 @@ Heron Systems would like to akcnowledge the following individuals for their cont
   - Dr. Paley provided subject matter expertise and algorithm development pertaining to resource and task allocations. Iterations of the algorithms developed with Dr. Paley's guidance were demonstrated both in simulation and onboard COTS platforms
 
 # <a name="license"></a> LICENSE
-**TODO**
+This project is under the [GNU GPL v3 License](https://github.com/heronsystems/MACE/blob/master/LICENSE)
