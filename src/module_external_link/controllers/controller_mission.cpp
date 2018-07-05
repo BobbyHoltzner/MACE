@@ -33,6 +33,7 @@ namespace ExternalLink {
         MissionRequestStruct newItem;
         newItem.mission = newList;
         newItem.requester = sender;
+
         m_MissionsBeingFetching.insert({data, newItem});
 
         std::cout << "Mission Controller: Sending Mission Request List" << std::endl;
@@ -233,7 +234,6 @@ namespace ExternalLink {
         receiveQueueObj = key;
         respondQueueObj = key;
 
-        vehicleObj = m_MissionsBeingFetching[key].requester;
 
         //check if mission item received is part of a mission we are activly downloading
         if(this->m_MissionsBeingFetching.find(key) == m_MissionsBeingFetching.cend())
@@ -256,6 +256,8 @@ namespace ExternalLink {
         {
             return false;
         }
+
+        vehicleObj = m_MissionsBeingFetching[key].requester;
 
         std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = DataInterface_MACE::Helper_MissionCOMMStoMACE::Convert_COMMSTOMACE(missionItem, target);
         m_MissionsBeingFetching[key].mission.replaceMissionItemAtIndex(newMissionItem, seqReceived);
@@ -302,8 +304,9 @@ namespace ExternalLink {
         //check if mission item received is part of a mission we are activly downloading
         if(this->m_MissionsBeingFetching.find(key) == m_MissionsBeingFetching.cend())
         {
-            if(CONTROLLER_MISSION_TYPE::mLog)
+            if(CONTROLLER_MISSION_TYPE::mLog) {
                 CONTROLLER_MISSION_TYPE::mLog->error("Mission controller received a mission item with a key that is not equal to the one we were originally told.");
+            }
             return false;
         }
 
@@ -311,8 +314,9 @@ namespace ExternalLink {
         if(seqReceived > (m_MissionsBeingFetching[key].mission.getQueueSize() - 1)) //this should never happen
         {
             std::cout << "Mission download Error: received a mission item with an index greater than available in the queue" << std::endl;
-            if(CONTROLLER_MISSION_TYPE::mLog)
+            if(CONTROLLER_MISSION_TYPE::mLog) {
                 CONTROLLER_MISSION_TYPE::mLog->error("Mission controller received a mission item with an index greater than available in the queue.");
+            }
             return false;
         }
 
