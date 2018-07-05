@@ -140,7 +140,7 @@ private:
 protected:
 
 
-    virtual void Construct_Broadcast(const CommandItem::SpatialHome &data, const MaceCore::ModuleCharacteristic &sender, mace_home_position_t &msg);
+    virtual void Construct_Broadcast(const CommandItem::SpatialHome &data, const MaceCore::ModuleCharacteristic &sender, std::vector<mace_home_position_t> &vec);
 
 
     /**

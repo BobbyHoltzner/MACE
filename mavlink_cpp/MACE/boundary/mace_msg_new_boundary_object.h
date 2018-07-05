@@ -8,12 +8,15 @@ typedef struct __mace_new_boundary_object_t {
  uint8_t boundary_system; /*< System ID*/
  uint8_t boundary_creator; /*< Creator ID*/
  uint8_t boundary_type; /*< Boundary type, see BOUNDARY_TYPE*/
+ uint8_t boundary_identifier; /*<Number to identifiy boundary on host*/
+ uint8_t vehicle_aplicable; /*<The vehicle that boundary applies to*/
+ uint8_t num_vehicles; /*<Number of vehicles that the boundary contains */
 }) mace_new_boundary_object_t;
 
-#define MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN 3
-#define MACE_MSG_ID_NEW_BOUNDARY_OBJECT_MIN_LEN 3
-#define MACE_MSG_ID_130_LEN 3
-#define MACE_MSG_ID_130_MIN_LEN 3
+#define MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN 6
+#define MACE_MSG_ID_NEW_BOUNDARY_OBJECT_MIN_LEN 6
+#define MACE_MSG_ID_130_LEN 6
+#define MACE_MSG_ID_130_MIN_LEN 6
 
 #define MACE_MSG_ID_NEW_BOUNDARY_OBJECT_CRC 154
 #define MACE_MSG_ID_130_CRC 154
@@ -24,19 +27,25 @@ typedef struct __mace_new_boundary_object_t {
 #define MACE_MESSAGE_INFO_NEW_BOUNDARY_OBJECT { \
     130, \
     "NEW_BOUNDARY_OBJECT", \
-    3, \
+    4, \
     {  { "boundary_system", NULL, MACE_TYPE_UINT8_T, 0, 0, offsetof(mace_new_boundary_object_t, boundary_system) }, \
          { "boundary_creator", NULL, MACE_TYPE_UINT8_T, 0, 1, offsetof(mace_new_boundary_object_t, boundary_creator) }, \
          { "boundary_type", NULL, MACE_TYPE_UINT8_T, 0, 2, offsetof(mace_new_boundary_object_t, boundary_type) }, \
+         { "boundary_identifier", NULL, MACE_TYPE_UINT8_T, 0, 3, offsetof(mace_new_boundary_object_t, boundary_identifier) }, \
+         { "vehicle_aplicable", NULL, MACE_TYPE_UINT8_T, 0, 4, offsetof(mace_new_boundary_object_t, vehicle_aplicable) }, \
+         { "num_vehicles", NULL, MACE_TYPE_UINT8_T, 0, 4, offsetof(mace_new_boundary_object_t, num_vehicles) }, \
          } \
 }
 #else
 #define MACE_MESSAGE_INFO_NEW_BOUNDARY_OBJECT { \
     "NEW_BOUNDARY_OBJECT", \
-    3, \
+    4, \
     {  { "boundary_system", NULL, MACE_TYPE_UINT8_T, 0, 0, offsetof(mace_new_boundary_object_t, boundary_system) }, \
          { "boundary_creator", NULL, MACE_TYPE_UINT8_T, 0, 1, offsetof(mace_new_boundary_object_t, boundary_creator) }, \
          { "boundary_type", NULL, MACE_TYPE_UINT8_T, 0, 2, offsetof(mace_new_boundary_object_t, boundary_type) }, \
+         { "boundary_identifier", NULL, MACE_TYPE_UINT8_T, 0, 3, offsetof(mace_new_boundary_object_t, boundary_identifier) }, \
+         { "vehicle_aplicable", NULL, MACE_TYPE_UINT8_T, 0, 4, offsetof(mace_new_boundary_object_t, vehicle_aplicable) }, \
+         { "num_vehicles", NULL, MACE_TYPE_UINT8_T, 0, 4, offsetof(mace_new_boundary_object_t, num_vehicles) }, \
          } \
 }
 #endif
@@ -53,13 +62,17 @@ typedef struct __mace_new_boundary_object_t {
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mace_msg_new_boundary_object_pack(uint8_t system_id, uint8_t component_id, mace_message_t* msg,
-                               uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_type)
+                               uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_type, uint8_t boundary_identifier, uint8_t vehicle_aplicable, uint8_t num_vehicles)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN];
     _mace_put_uint8_t(buf, 0, boundary_system);
     _mace_put_uint8_t(buf, 1, boundary_creator);
     _mace_put_uint8_t(buf, 2, boundary_type);
+    _mace_put_uint8_t(buf, 3, boundary_identifier);
+    _mace_put_uint8_t(buf, 4, vehicle_aplicable);
+    _mace_put_uint8_t(buf, 5, num_vehicles);
+
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), buf, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN);
 #else
@@ -67,6 +80,9 @@ static inline uint16_t mace_msg_new_boundary_object_pack(uint8_t system_id, uint
     packet.boundary_system = boundary_system;
     packet.boundary_creator = boundary_creator;
     packet.boundary_type = boundary_type;
+    packet.boundary_identifier = boundary_identifier;
+    packet.vehicle_aplicable = vehicle_aplicable;
+    packet.num_vehicles = num_vehicles;
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), &packet, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN);
 #endif
@@ -88,13 +104,16 @@ static inline uint16_t mace_msg_new_boundary_object_pack(uint8_t system_id, uint
  */
 static inline uint16_t mace_msg_new_boundary_object_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
                                mace_message_t* msg,
-                                   uint8_t boundary_system,uint8_t boundary_creator,uint8_t boundary_type)
+                                   uint8_t boundary_system,uint8_t boundary_creator,uint8_t boundary_type, uint8_t boundary_identifier, uint8_t vehicle_aplicable, uint8_t num_vehicles)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN];
     _mace_put_uint8_t(buf, 0, boundary_system);
     _mace_put_uint8_t(buf, 1, boundary_creator);
     _mace_put_uint8_t(buf, 2, boundary_type);
+    _mace_put_uint8_t(buf, 3, boundary_identifier);
+    _mace_put_uint8_t(buf, 4, vehicle_aplicable);
+    _mace_put_uint8_t(buf, 5, num_vehicles);
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), buf, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN);
 #else
@@ -102,6 +121,9 @@ static inline uint16_t mace_msg_new_boundary_object_pack_chan(uint8_t system_id,
     packet.boundary_system = boundary_system;
     packet.boundary_creator = boundary_creator;
     packet.boundary_type = boundary_type;
+    packet.boundary_identifier = boundary_identifier;
+    packet.vehicle_aplicable = vehicle_aplicable;
+    packet.num_vehicles = num_vehicles;
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), &packet, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN);
 #endif
@@ -120,7 +142,7 @@ static inline uint16_t mace_msg_new_boundary_object_pack_chan(uint8_t system_id,
  */
 static inline uint16_t mace_msg_new_boundary_object_encode(uint8_t system_id, uint8_t component_id, mace_message_t* msg, const mace_new_boundary_object_t* new_boundary_object)
 {
-    return mace_msg_new_boundary_object_pack(system_id, component_id, msg, new_boundary_object->boundary_system, new_boundary_object->boundary_creator, new_boundary_object->boundary_type);
+    return mace_msg_new_boundary_object_pack(system_id, component_id, msg, new_boundary_object->boundary_system, new_boundary_object->boundary_creator, new_boundary_object->boundary_type, new_boundary_object->boundary_identifier, new_boundary_object->vehicle_aplicable, new_boundary_object->num_vehicles);
 }
 
 /**
@@ -134,7 +156,7 @@ static inline uint16_t mace_msg_new_boundary_object_encode(uint8_t system_id, ui
  */
 static inline uint16_t mace_msg_new_boundary_object_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mace_message_t* msg, const mace_new_boundary_object_t* new_boundary_object)
 {
-    return mace_msg_new_boundary_object_pack_chan(system_id, component_id, chan, msg, new_boundary_object->boundary_system, new_boundary_object->boundary_creator, new_boundary_object->boundary_type);
+    return mace_msg_new_boundary_object_pack_chan(system_id, component_id, chan, msg, new_boundary_object->boundary_system, new_boundary_object->boundary_creator, new_boundary_object->boundary_type, new_boundary_object->boundary_identifier, new_boundary_object->vehicle_aplicable, new_boundary_object->num_vehicles);
 }
 
 /**
@@ -147,13 +169,16 @@ static inline uint16_t mace_msg_new_boundary_object_encode_chan(uint8_t system_i
  */
 #ifdef MACE_USE_CONVENIENCE_FUNCTIONS
 
-static inline void mace_msg_new_boundary_object_send(mace_channel_t chan, uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_type)
+static inline void mace_msg_new_boundary_object_send(mace_channel_t chan, uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_type, uint8_t boundary_idenfier, uint8_t vehicle_aplicable, uint8_t num_vehicles)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN];
     _mace_put_uint8_t(buf, 0, boundary_system);
     _mace_put_uint8_t(buf, 1, boundary_creator);
     _mace_put_uint8_t(buf, 2, boundary_type);
+    _mace_put_uint8_t(buf, 3, boundary_identifier);
+    _mace_put_uint8_t(buf, 4, vehicle_aplicable);
+    _mace_put_uint8_t(buf, 5, num_vehicles);
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_NEW_BOUNDARY_OBJECT, buf, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_MIN_LEN, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_CRC);
 #else
@@ -161,6 +186,9 @@ static inline void mace_msg_new_boundary_object_send(mace_channel_t chan, uint8_
     packet.boundary_system = boundary_system;
     packet.boundary_creator = boundary_creator;
     packet.boundary_type = boundary_type;
+    packet.boundary_identifier = boundary_identifier;
+    packet.vehicle_aplicable = vehicle_aplicable;
+    packet->num_vehicles = num_vehicles;
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_NEW_BOUNDARY_OBJECT, (const char *)&packet, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_MIN_LEN, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_CRC);
 #endif
@@ -174,7 +202,7 @@ static inline void mace_msg_new_boundary_object_send(mace_channel_t chan, uint8_
 static inline void mace_msg_new_boundary_object_send_struct(mace_channel_t chan, const mace_new_boundary_object_t* new_boundary_object)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
-    mace_msg_new_boundary_object_send(chan, new_boundary_object->boundary_system, new_boundary_object->boundary_creator, new_boundary_object->boundary_type);
+    mace_msg_new_boundary_object_send(chan, new_boundary_object->boundary_system, new_boundary_object->boundary_creator, new_boundary_object->boundary_type, new_boundary_object->boundary_identifier, new_boundary_object->vehicle_aplicable, new_boundary_object->num_vehicles);
 #else
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_NEW_BOUNDARY_OBJECT, (const char *)new_boundary_object, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_MIN_LEN, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_CRC);
 #endif
@@ -188,13 +216,16 @@ static inline void mace_msg_new_boundary_object_send_struct(mace_channel_t chan,
   is usually the receive buffer for the channel, and allows a reply to an
   incoming message with minimum stack space usage.
  */
-static inline void mace_msg_new_boundary_object_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_type)
+static inline void mace_msg_new_boundary_object_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_type, uint8_t boundary_identifier, uint8_t vehicle_aplicable, uint8_t num_vehicles)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char *buf = (char *)msgbuf;
     _mace_put_uint8_t(buf, 0, boundary_system);
     _mace_put_uint8_t(buf, 1, boundary_creator);
     _mace_put_uint8_t(buf, 2, boundary_type);
+    _mace_put_uint8_t(buf, 3, boundary_identifier);
+    _mace_put_uint8_t(buf, 4, vehicle_aplicable);
+    _mace_put_uint8_t(buf, 5, num_vehicles);
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_NEW_BOUNDARY_OBJECT, buf, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_MIN_LEN, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_CRC);
 #else
@@ -202,6 +233,9 @@ static inline void mace_msg_new_boundary_object_send_buf(mace_message_t *msgbuf,
     packet->boundary_system = boundary_system;
     packet->boundary_creator = boundary_creator;
     packet->boundary_type = boundary_type;
+    packet->boundary_identifier = boundary_identifier;
+    packet->vehicle_aplicable = vehicle_aplicable;
+    packet->num_vehicles = num_vehicles;
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_NEW_BOUNDARY_OBJECT, (const char *)packet, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_MIN_LEN, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_CRC);
 #endif
@@ -243,6 +277,23 @@ static inline uint8_t mace_msg_new_boundary_object_get_boundary_type(const mace_
     return _MACE_RETURN_uint8_t(msg,  2);
 }
 
+static inline uint8_t mace_msg_new_boundary_object_get_boundary_identifier(const mace_message_t * msg)
+{
+    return _MACE_RETURN_uint8_t(msg, 3);
+}
+
+static inline uint8_t mace_msg_new_boundary_object_get_vehicle_aplicable(const mace_message_t * msg)
+{
+    return _MACE_RETURN_uint8_t(msg, 4);
+}
+
+static inline uint8_t mace_msg_new_boundary_object_get_num_vehicles(const mace_message_t * msg)
+{
+    return _MACE_RETURN_uint8_t(msg, 5);
+}
+
+
+
 /**
  * @brief Decode a new_boundary_object message into a struct
  *
@@ -255,6 +306,10 @@ static inline void mace_msg_new_boundary_object_decode(const mace_message_t* msg
     new_boundary_object->boundary_system = mace_msg_new_boundary_object_get_boundary_system(msg);
     new_boundary_object->boundary_creator = mace_msg_new_boundary_object_get_boundary_creator(msg);
     new_boundary_object->boundary_type = mace_msg_new_boundary_object_get_boundary_type(msg);
+    new_boundary_object->boundary_identifier = mace_msg_new_boundary_object_get_boundary_identifier(msg);
+    new_boundary_object->vehicle_aplicable = mace_msg_new_boundary_object_get_vehicle_aplicable(msg);
+    new_boundary_object->num_vehicles = mace_msg_new_boundary_object_get_num_vehicles(msg);
+
 #else
         uint8_t len = msg->len < MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN? msg->len : MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN;
         memset(new_boundary_object, 0, MACE_MSG_ID_NEW_BOUNDARY_OBJECT_LEN);

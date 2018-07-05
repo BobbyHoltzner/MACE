@@ -37,8 +37,12 @@
 #include "base/pose/orientation_3D.h"
 #include "base/geometry/cell_2DC.h"
 
+#include "data_generic_command_item/boundary_items/boundary_type.h"
+
 namespace MaceCore
 {
+
+using BoundaryIdentifierType = uint8_t;
 
 class MaceCore;
 
@@ -837,21 +841,38 @@ public:
       */
 
 public:
-    void updateBoundary(const BoundaryItem::BoundaryList &boundary);
 
-    bool getBoundary(BoundaryItem::BoundaryList* operationBoundary, const BoundaryItem::BoundaryKey &key) const;
+    BoundaryIdentifierType setBoundaryByKey(const BoundaryItem::BoundaryCharacterisic &key, const BoundaryItem::BoundaryList &boundary);
 
-    void getOperationalBoundary(BoundaryItem::BoundaryList* operationBoundary, const int &vehicleID = 0) const;
 
-    void getResourceBoundary(BoundaryItem::BoundaryList* resourceBoundary, const int &vehicleID);
+    //!
+    //! \brief Fetch all the boundaries of the given typ efor the given vehicle
+    //! \param vehicleID ID of vehicle to get boundaries of
+    //! \param type Type of boundaries to get
+    //! \return List of boundaries, empty if no boundary exists for given criteria
+    //!
+    std::vector<uint8_t> getBoundaryForVehicle(const int &vehicleID, const BoundaryItem::BOUNDARYTYPE &type);
+
+
+    //!
+    //! \brief Given a known boundary key, get the boundary for that key.
+    //! \param key Key to fetch boundary of
+    //! \param boundary Object to put boundary into
+    //! \return True if boundary exists for the key, false otherwise.
+    //!
+    bool getBoundaryFromIdentifier(const BoundaryIdentifierType &ID, BoundaryItem::BoundaryList &boundary) const;
+
+
+    bool getCharactersticFromIdentifier(const BoundaryIdentifierType ID, BoundaryItem::BoundaryCharacterisic &characteristic) const;
+
 
 private:
     void updateBoundariesNewOrigin(const double &distance, const double &bearing);
 
+
 private:
     mutable std::mutex m_EnvironmentalBoundaryMutex;
-    std::map<BoundaryItem::BoundaryMapPair,BoundaryItem::BoundaryList> m_EnvironmentalBoundaryMap;
-
+    std::unordered_map<uint8_t, std::tuple<BoundaryItem::BoundaryCharacterisic, BoundaryItem::BoundaryList>> m_Boundaries;
 };
 
 } //END MaceCore Namespace

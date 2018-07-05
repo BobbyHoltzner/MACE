@@ -82,6 +82,12 @@ void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink>
         externalLink->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic());
     }
 
+    //if there is an RTA module, notify this new external link about the existance of the rta module
+    if(m_RTA != NULL)
+    {
+        externalLink->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_RTA->GetCharacteristic());
+    }
+
 
 }
 
@@ -128,6 +134,15 @@ void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
     rta->addListener(this);
     rta->addTopicListener(this);
     m_RTA = rta;
+
+    //notify all existing external links about new RTA module
+    if(m_ExternalLink.size() > 0)
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_RTA->GetCharacteristic());
+        }
+    }
 
     AddModule(rta);
 }
@@ -433,41 +448,6 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const GeodeticPosition_
     }
 }
 
-void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
-{
-//    m_DataFusion->updateBoundary(boundary);
-
-//    if((sender->ModuleClass() != ModuleClasses::PATH_PLANNING) &&
-//            (boundary.getBoundaryType() == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE)) {
-//        if(m_PathPlanning) {
-//            m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
-//        }
-//    }
-//    if((sender->ModuleClass() != ModuleClasses::RTA) &&
-//            (boundary.getBoundaryType() == BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE)){
-//        if(m_RTA) {
-//            m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
-//        }
-//    }
-
-    if(m_GroundStation && m_GroundStation.get() == sender) {
-        // If GCS, call Event_SetOperationalBoundary
-        this->Event_SetOperationalBoundary(sender, boundary);
-    }
-
-//    if(m_ExternalLink.size() > 0)
-//    {
-//        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
-//        {
-//            if(it->get() == sender)
-//            {
-//                continue;
-//            }
-
-//            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY, boundary.getBoundaryKey(), sender->GetCharacteristic());
-//        }
-//    }
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// SPECIFIC VEHICLE EVENTS: These events are associated from IModuleEventsVehicleVehicle
@@ -699,10 +679,80 @@ void MaceCore::ExternalEvent_NewOnboardMission(const ModuleBase *sender, const M
     }
 }
 
-void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryKey &key)
+
+//!
+//! \brief MaceCore has been notified that a new boundary exists on a remote module.
+//!
+//!
+//! \param sender Module that is communicating with remote module
+//! \param data Data about boundary
+//!
+void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const NewBoundaryData &data)
 {
-    //If we have an RTA module, assume it is interested in downloading the boundary and request external link for boundary
-    std::cout << "ExternalEvent_NewBoundary" << std::endl;
+    std::cout << "A Remote boundary was detected" << std::endl;
+
+    ///////////////////////
+    ///MTB Logic goes here to decide if this mace instance is interested in the boundary recevied.
+    ///    For now I am going to consult if it contains a vehicle attached to this instance.
+    ///    Other things could be done here, the RTA or PP module can be consulted and asked if interested.
+    ///////////////////////
+
+    //! Set to true if this instance is interested in module
+    bool interestedInBoundary = false;
+
+    //! A module making request for the boundary.
+    //! This is needed so the remote instance knows where to send the boundary.
+    //! If multiple modules on this instance are interested in the boundary, only one of them needs to be set
+    //!   Each module of interest will have a chance to access the downloaded boundary later.
+    ModuleCharacteristic requestor;
+
+
+    // pull list of all vehicles in the boundary
+    std::vector<int> vehicles = data.Characteistic.List();
+
+    //If global boundary and at least has a module attached then make interested
+    if(vehicles.size() == 0)
+    {
+        if(m_RTA != nullptr)
+        {
+            requestor = m_RTA->GetCharacteristic();
+            interestedInBoundary = true;
+        }
+        if(m_PathPlanning != nullptr)
+        {
+            requestor = m_PathPlanning->GetCharacteristic();
+            interestedInBoundary = true;
+        }
+        if(m_VehicleIDToPort.size() > 0)
+        {
+
+            requestor = m_VehicleIDToPtr.cbegin()->second->GetCharacteristic();
+            interestedInBoundary = true;
+        }
+    }
+
+    //Check if an attached vehicle is part of vehicles in the boundary
+    for(auto it = m_VehicleIDToPort.cbegin() ; it != m_VehicleIDToPort.cend() ; ++it)
+    {
+        int attachedVehicleID = it->first;
+        if(std::find(vehicles.begin(), vehicles.end(), attachedVehicleID) != vehicles.end())
+        {
+            requestor = it->second->GetCharacteristic();
+            interestedInBoundary = true;
+        }
+    }
+
+
+    //if interested issue a download request
+    if(interestedInBoundary == true)
+    {
+        if(sender->ModuleClass() == ModuleClasses::EXTERNAL_LINK)
+        {
+            ((IModuleCommandExternalLink*)sender)->MarshalCommand(ExternalLinkCommands::REQUEST_REMOTE_BOUNDARY, std::make_tuple(data.Sender, data.RemoteIdentifier), requestor);
+        }
+    }
+
+    /*
     if(m_RTA != NULL)
     {
         //TEMPORARY
@@ -719,6 +769,7 @@ void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const Boundar
             ((IModuleCommandExternalLink*)sender)->MarshalCommand(ExternalLinkCommands::REQUEST_BOUNDARY, key, requestFrom);
         }
     }
+    */
 }
 
 void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const int &targetID)
@@ -754,6 +805,11 @@ void MaceCore::ExternalEvent_FinishedRXMissionList(const void *sender, const Mis
 void MaceCore::ExternalEvent_FinishedRXBoundaryList(const void *sender, const BoundaryItem::BoundaryList &boundaryList)
 {
     UNUSED(sender);
+
+    throw std::runtime_error("External Link Finished Receiving boundary list not implimented");
+
+    /*
+
     BoundaryItem::BOUNDARYTYPE type = boundaryList.getBoundaryType();
     BoundaryItem::BoundaryKey key = boundaryList.getBoundaryKey();
 
@@ -777,31 +833,10 @@ void MaceCore::ExternalEvent_FinishedRXBoundaryList(const void *sender, const Bo
             m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundaryList);
         }
     }
+    */
 }
 
-/////////////////////////////////////////////////////////////////////////
-/// RTA EVENTS
-/////////////////////////////////////////////////////////////////////////
 
-void MaceCore::Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
-{
-    m_DataFusion->updateBoundary(boundary);
-
-    if(m_ExternalLink.size() > 0)
-    {
-        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it = m_ExternalLink.begin(); it != m_ExternalLink.end(); ++it)
-        {
-            if(it->get() == sender)
-            {
-                continue;
-            }
-
-            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY, boundary.getBoundaryKey(), sender->GetCharacteristic());
-        }
-    }
-
-    // TODO: Pat - Else, publish to local.
-}
 
 // TODO: Pat/Ken - Event_SetVehicleTargets or whatever
 
@@ -893,26 +928,62 @@ void MaceCore::EventPP_LoadMappingProjectionProperties(const ModuleBase *sender,
 
 }
 
-void MaceCore::Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary)
+//!
+//! \brief Function to fire when a new boundary of some kind was generated by a module
+//! \param sender Module that generated the boundary
+//! \param key Key indicating the characteristics of the boundary
+//! \param boundary Data for the boundary
+//!
+void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryCharacterisic &characterstic, const BoundaryItem::BoundaryList &boundary)
 {
-    m_DataFusion->updateBoundary(boundary);
+    std::string list_str = "";
+    if(characterstic.List().size() == 0)
+    {
+        list_str = "global";
+    }
+    std::vector<int> list = characterstic.List();
+    for(auto it = list.cbegin() ; it != list.cend() ; ++it)
+    {
+        list_str += std::to_string(*it) + " ";
+    }
+    printf("Mace Core: Received a new Boundary\n  verticies: %d\n  Type: %s\n  Vehicles: %s\n", boundary.getQueueSize(), BoundaryItem::BoundaryTypeToString(characterstic.Type()).c_str(), list_str.c_str());
 
-    if(m_RTA) {
-        m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
+    //Update the underalying data object
+    uint8_t key = m_DataFusion->setBoundaryByKey(characterstic, boundary);
+
+    if(m_GroundStation.get() == sender)
+    {
+        printf("!!!!!!MADISON TESTING!!!!! - RTA module isn't full developed, so restricting transmission of boundary only when boundary came from GS\n");
+        if(m_RTA && sender != m_RTA.get()) {
+            m_RTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_BOUNDARY, key);
+        }
     }
 
     // TODO-@Ken: Does the PP module need the operational fence?
-//    if(m_PathPlanning) {
+//    if(m_PathPlanning && sender != m_PathPlanning) {
 //        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
 //    }
 
-    if(m_ROS)
+    if(m_ROS && sender != m_ROS.get())
     {
-        m_ROS->MarshalCommand(ROSCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, boundary);
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_BOUNDARY, key);
     }
 
-    if(m_GroundStation) {
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_BOUNDARY, boundary.getBoundaryKey());
+    if(m_GroundStation && sender != m_GroundStation.get()) {
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_BOUNDARY, key);
+    }
+
+    if(m_ExternalLink.size() > 0)
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it = m_ExternalLink.begin(); it != m_ExternalLink.end(); ++it)
+        {
+            if(it->get() == sender)
+            {
+                continue;
+            }
+
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY, key, sender->GetCharacteristic());
+        }
     }
 }
 

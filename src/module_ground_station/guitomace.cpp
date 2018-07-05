@@ -137,8 +137,7 @@ void GUItoMACE::setGlobalOrigin(const QJsonObject &jsonObj)
 //!
 void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
 {
-    BoundaryItem::BoundaryList operationalBoundary(1,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
-//    BoundaryItem::BoundaryList operationalBoundary(0,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+    BoundaryItem::BoundaryList operationalBoundary;
 
     mace::pose::GeodeticPosition_3D origin = m_parent->getDataObject()->GetGlobalOrigin();
 
@@ -162,10 +161,11 @@ void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
         }
     }
 
+    BoundaryItem::BoundaryCharacterisic key(BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+
     if(operationalBoundary.getQueueSize() > 0) {
         m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-            ptr->Event_SetOperationalBoundary(m_parent, operationalBoundary);
-    //        ptr->Event_SetBoundary(m_parent, operationalBoundary);
+            ptr->Event_SetBoundary(m_parent, key, operationalBoundary);
         });
     }
 
@@ -534,7 +534,7 @@ bool GUItoMACE::writeTCPData(QByteArray data)
 void GUItoMACE::testFunction1(const int &vehicleID)
 {
 
-    BoundaryItem::BoundaryList operationalBoundary(1,2,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+    BoundaryItem::BoundaryList operationalBoundary;
 
     Position<CartesianPosition_2D> vertex1("First",-100,-100);
     Position<CartesianPosition_2D> vertex2("Second",-100,100);
@@ -546,9 +546,10 @@ void GUItoMACE::testFunction1(const int &vehicleID)
     operationalBoundary.appendVertexItem(vertex3);
     operationalBoundary.appendVertexItem(vertex4);
 
+    BoundaryItem::BoundaryCharacterisic key(BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+
     m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->Event_SetOperationalBoundary(m_parent, operationalBoundary);
-//        ptr->Event_SetBoundary(m_parent, operationalBoundary);
+        ptr->Event_SetBoundary(m_parent, key, operationalBoundary);
     });
 
 //    mLogs->debug("Module Ground Station saw a request on test function 1.");

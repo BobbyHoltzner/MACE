@@ -128,6 +128,19 @@ public:
     virtual void NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
 
+    // ============================================================================= //
+    // ======== Virtual functions as defined by IModuleCommandGenericBoundaries ==== //
+    // ============================================================================= //
+
+public:
+
+    //!
+    //! \brief NewlyAvailableBoundary Subscriber to a new boundary
+    //! \param key Key corresponding to the updated boundary in the core
+    //!
+    void NewlyAvailableBoundary(const uint8_t &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) override;
+
+
 
     // ============================================================================= //
     // ======== Virtual functions as defined by IModuleCommandGroundStation ======== //
@@ -151,11 +164,6 @@ public:
     //!
     void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<OccupiedResult> &map) override;
 
-    //!
-    //! \brief NewlyUpdatedOperationalFence Subscriber to a new operational fence (i.e. global boundary)
-    //! \param boundary Boundary list object in Cartesian space
-    //!
-    void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) override;
 
     //!
     //! \brief NewlyFoundPath Subscriber to a new path for a vehicle

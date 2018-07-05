@@ -2,41 +2,106 @@
 
 namespace BoundaryItem {
 
-BoundaryKey::BoundaryKey():
-    m_systemID(0),m_creatorID(0),m_boundaryType(BOUNDARYTYPE::GENERIC_POLYGON)
+BoundaryCharacterisic::BoundaryCharacterisic():
+    BoundaryCharacterisic(std::vector<int>(), BOUNDARYTYPE::GENERIC_POLYGON)
 {
 
 }
 
-BoundaryKey::BoundaryKey(const int &systemID, const int &creatorID, const BOUNDARYTYPE &boundaryType):
-    m_systemID(systemID),m_creatorID(creatorID),m_boundaryType(boundaryType)
+//!
+//! \brief Constructor for global boundary
+//!
+//! A global boundary is true for all vehicles
+//! \param boundaryType Type of boundary
+//!
+BoundaryCharacterisic::BoundaryCharacterisic(const BOUNDARYTYPE &boundaryType) :
+    BoundaryCharacterisic(std::vector<int>(), boundaryType)
 {
 
 }
 
-BoundaryKey::BoundaryKey(const BoundaryKey &obj)
+//!
+//! \brief Constructor for single vehicle
+//! \param associatedVehicles Cehicles that is associated with this boundary.
+//! \param boundaryType Type of boundary
+//!
+BoundaryCharacterisic::BoundaryCharacterisic(const int &associatedVehicle, const BOUNDARYTYPE &boundaryType) :
+    BoundaryCharacterisic(std::vector<int>({associatedVehicle}), boundaryType)
 {
-    this->m_systemID = obj.m_systemID;
-    this->m_creatorID =obj.m_creatorID;
+
+}
+
+BoundaryCharacterisic::BoundaryCharacterisic(const std::vector<int> &associatedVehicles, const BOUNDARYTYPE &boundaryType):
+    m_associatedVehicles(associatedVehicles), m_boundaryType(boundaryType)
+{
+    if(boundaryType == BOUNDARYTYPE::RESOURCE_FENCE)
+    {
+        if(associatedVehicles.size() != 1)
+        {
+            throw std::runtime_error("A Resource fence can only be associated with a single vehicle");
+        }
+    }
+}
+
+BoundaryCharacterisic::BoundaryCharacterisic(const BoundaryCharacterisic &obj)
+{
+    this->m_associatedVehicles = obj.m_associatedVehicles;
     this->m_boundaryType = obj.m_boundaryType;
 }
 
-BoundaryKey& BoundaryKey::operator =(const BoundaryKey &rhs)
+
+
+BOUNDARYTYPE BoundaryCharacterisic::Type() const
 {
-    this->m_systemID = rhs.m_systemID;
-    this->m_creatorID =rhs.m_creatorID;
+    return m_boundaryType;
+}
+
+std::vector<int> BoundaryCharacterisic::List() const
+{
+    return m_associatedVehicles;
+}
+
+//!
+//! \brief Determine if the given vehicle is part of this key
+//!
+//! If the key has no vehicles associated with it, then it is assumed to be global.
+//!
+//! \param vehicleID Given vehicle ID.
+//! \return True if contained
+//!
+bool BoundaryCharacterisic::ContainsVehicle(const int vehicleID)
+{
+    if(m_associatedVehicles.size() == 0)
+    {
+        return true;
+    }
+
+    for(auto it = m_associatedVehicles.cbegin() ; it != m_associatedVehicles.cend() ; ++it)
+    {
+        if(*it == vehicleID)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+BoundaryCharacterisic& BoundaryCharacterisic::operator =(const BoundaryCharacterisic &rhs)
+{
+    this->m_associatedVehicles = rhs.m_associatedVehicles;
     this->m_boundaryType = rhs.m_boundaryType;
     return *this;
 }
 
-bool BoundaryKey::operator <(const BoundaryKey &rhs) const
+bool BoundaryCharacterisic::operator <(const BoundaryCharacterisic &rhs) const
 {
     if(*this == rhs)
         return false;
 
-    if(this->m_systemID > rhs.m_systemID)
-        return false;
-    if(this->m_creatorID > rhs.m_creatorID)
+
+    if(this->m_associatedVehicles > rhs.m_associatedVehicles)
         return false;
     if(this->m_boundaryType > rhs.m_boundaryType)
         return false;
@@ -44,27 +109,24 @@ bool BoundaryKey::operator <(const BoundaryKey &rhs) const
     return true;
 }
 
-bool BoundaryKey::operator ==(const BoundaryKey &rhs) const
+bool BoundaryCharacterisic::operator ==(const BoundaryCharacterisic &rhs) const
 {
-    if(this->m_systemID != rhs.m_systemID)
-        return false;
-    if(this->m_creatorID != rhs.m_creatorID)
+    if(this->m_associatedVehicles != rhs.m_associatedVehicles)
         return false;
     if(this->m_boundaryType != rhs.m_boundaryType)
         return false;
     return true;
 }
 
-bool BoundaryKey::operator !=(const BoundaryKey &rhs) const
+bool BoundaryCharacterisic::operator !=(const BoundaryCharacterisic &rhs) const
 {
     return !((*this) == rhs);
 }
 
-std::ostream& operator<<(std::ostream& os, const BoundaryKey& t)
+std::ostream& operator<<(std::ostream& os, const BoundaryCharacterisic& t)
 {
     std::stringstream stream;
-    stream << std::fixed << "Boundary Key: System ID " << std::to_string(t.m_systemID)
-           << ", Creator ID"<< std::to_string(t.m_creatorID)
+    stream << std::fixed
            << ", Boundary Type" << BoundaryTypeToString(t.m_boundaryType) << ".";
     os << stream.str();
 

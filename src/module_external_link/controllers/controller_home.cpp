@@ -4,9 +4,10 @@ namespace ExternalLink {
 
 
 
-    void ControllerHome::Construct_Broadcast(const CommandItem::SpatialHome &data, const MaceCore::ModuleCharacteristic &sender, mace_home_position_t &msg)
+    void ControllerHome::Construct_Broadcast(const CommandItem::SpatialHome &data, const MaceCore::ModuleCharacteristic &sender, std::vector<mace_home_position_t> &vec)
     {
         UNUSED(sender);
+        mace_home_position_t msg;
         msg.latitude = data.position->getX() * pow(10,7);
         msg.longitude = data.position->getY()* pow(10,7);
         msg.altitude = data.position->getZ() * 1000.0;
@@ -21,6 +22,8 @@ namespace ExternalLink {
         msg.approach_y = 0;
         msg.approach_z = 0;
         msg.validity = 0;
+
+        vec.push_back(msg);
 
         std::cout << "Home Controller: Broadcasting Home" << std::endl;
     }

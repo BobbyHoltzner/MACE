@@ -50,8 +50,6 @@ public:
      * generalized and fixed.
      */
     virtual void Event_SetGlobalOrigin(const void* sender, const mace::pose::GeodeticPosition_3D &globalHome) = 0;
-
-    virtual void Event_SetBoundary(const ModuleBase* sender, const BoundaryItem::BoundaryList &boundary) = 0;
 };
 
 } //End MaceCore Namespace

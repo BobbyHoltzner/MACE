@@ -1,111 +1,140 @@
 #include "controller_boundary.h"
 
+#include <algorithm>
+
 namespace ExternalLink{
 
 
     //!
-    //! \brief Called when building mavlink packet initial request to a boundary
-    //! \param data
-    //! \param cmd
+    //! \brief Download Action - Initiate download with a request list message
+    //! \param data Data given to send.
+    //! \param sender Module sending data
+    //! \param target Module targeting
+    //! \param cmd Message to contruct
+    //! \param queueObj Queue object to contruct identifitying this transmission
+    //! \return True if transmission should continue
     //!
-    bool ControllerBoundary::Construct_Send(const BoundaryItem::BoundaryKey &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_boundary_request_list_t &cmd, BoundaryItem::BoundaryKey &queueObj)
+    bool ControllerBoundary::Construct_Send(const uint8_t &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_boundary_request_list_t &cmd, ModuleBoundaryIdentifier &queueObj)
     {
-        queueObj = data;
+        queueObj = ModuleBoundaryIdentifier(target, data);
 
-        cmd.boundary_creator = data.m_creatorID;
-        cmd.boundary_system = data.m_systemID;
-        cmd.boundary_type = (uint8_t)data.m_boundaryType;
+        cmd.boundary_creator = target.ID;
+        cmd.boundary_system = (uint8_t)target.Class;
+        cmd.boundary_identifier = data;
 
-        if(m_BoundariesBeingFetching.find(data) != m_BoundariesBeingFetching.cend())
+        if(m_BoundariesBeingFetching.find(queueObj) != m_BoundariesBeingFetching.cend())
         {
             throw std::runtime_error("Boundary is already being downloaded");
             return false;
         }
 
         BoundaryItem::BoundaryList newList;
-        newList.setBoundaryKey(data);
         newList.clearQueue();
-        BoundaryRequestStruct newItem;
-        newItem.boundary = newList;
-        newItem.requester = sender;
-        m_BoundariesBeingFetching.insert({data, newItem});
+        m_BoundariesBeingFetching.insert({queueObj, std::make_tuple(sender, newList)});
 
         std::cout << "Boundary Controller: Sending Boundary Request List" << std::endl;
 
         return true;
     }
 
-    bool ControllerBoundary::BuildData_Send(const mace_boundary_request_list_t &cmd, const MaceCore::ModuleCharacteristic &sender, mace_boundary_count_t &rtn, MaceCore::ModuleCharacteristic &vehicleObj, BoundaryItem::BoundaryKey &receiveQueueObj, BoundaryItem::BoundaryKey &respondQueueObj)
+
+    //!
+    //! \brief Upload Action - Receive request list and respond with count
+    //! \param cmd Message received asking for count of a boundary
+    //! \param sender Module that sent request
+    //! \param rtn Message to construct containing count
+    //! \param moduleUploadingFrom Module to contruct that contains the boundary to upload
+    //! \param respondQueueObj Object to to construct that indicates how the message should be queued
+    //! \return True if transmission should continue
+    //!
+    bool ControllerBoundary::IntermediateUnsolicitedReceive(const mace_boundary_request_list_t &cmd, const MaceCore::ModuleCharacteristic &sender, mace_boundary_count_t &rtn, MaceCore::ModuleCharacteristic &moduleUploadingFrom, ModuleBoundaryIdentifier &respondQueueObj)
     {
-//        UNUSED(sender);
-        BoundaryItem::BoundaryKey key(cmd.boundary_system, cmd.boundary_creator, static_cast<BoundaryItem::BOUNDARYTYPE>(cmd.boundary_type));
-        receiveQueueObj = key;
-        respondQueueObj = key;
+        //Set up the object to identity who is receiving the boundary
+        ModuleBoundaryIdentifier pair = ModuleBoundaryIdentifier(sender, cmd.boundary_identifier);
 
-        //MTB - set vehicleObj to module containing the boundary. Should be encoded in the boundary key.
-        vehicleObj.ID = key.m_systemID;
-//        vehicleObj.Class = MaceCore::ModuleClasses::GROUND_STATION;
-//        vehicleObj.Class = sender.Class;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        // Establish the module that has the boundary
+        moduleUploadingFrom.ID = cmd.boundary_creator;
+        moduleUploadingFrom.Class = (MaceCore::ModuleClasses)cmd.boundary_system;
 
-        std::vector<std::tuple<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>> boundaries;
-        CONTROLLER_BOUNDARY_TYPE::FetchDataFromKey(key, boundaries);
-
+        // Ask for the boundary and make sure it all makes sense
+        std::vector<std::tuple<ModuleBoundaryIdentifier, BoundaryItem::BoundaryList>> boundaries;
+        Controllers::DataItem<ModuleBoundaryIdentifier, BoundaryItem::BoundaryList>::FetchDataFromKey(pair, boundaries);
         if(boundaries.size() == 0)
         {
+            printf("ERROR!  No Boundary found for given key\n");
             return false;
         }
         if(boundaries.size() > 1)
         {
             throw std::runtime_error("Multiple boundaries assigned to the same key returned, This is a non-op");
         }
-        if(std::get<0>(boundaries.at(0)) != key)
+        if(std::get<0>(boundaries.at(0)).BoundaryIdentifier() != cmd.boundary_identifier)
         {
             throw std::runtime_error("Requesting a specific boundary key did not return the same key, This is a non-op");
         }
 
 
-        if(m_BoundariesUploading.find(key) != m_BoundariesUploading.cend())
+        // set up the receiver and establish queue objects
+        respondQueueObj = pair;
+
+
+        // Add boundaries upload. If already added then must be a retransmitt from a lost packet
+        if(m_BoundariesUploading.find(pair) == m_BoundariesUploading.cend())
         {
-            std::cout << "Boundary Upload Progress: The boundary that was requested to be transmitted is already being transmitted" << std::endl;
-            return false;
+            BoundaryItem::BoundaryList boundary = std::get<1>(boundaries.at(0));
+            m_BoundariesUploading.insert({pair, boundary});
         }
-        BoundaryItem::BoundaryList boundary = std::get<1>(boundaries.at(0));
-        m_BoundariesUploading.insert({key, boundary});
 
 
-        rtn.count = m_BoundariesUploading.at(key).getQueueSize();
-        rtn.boundary_creator = key.m_creatorID;
-        rtn.boundary_system = key.m_systemID;
-        rtn.boundary_type = static_cast<BOUNDARY_TYPE>(key.m_boundaryType);
+        //construct packet
+        rtn.count = m_BoundariesUploading.at(pair).getQueueSize();
+        rtn.boundary_creator = cmd.boundary_creator;
+        rtn.boundary_system = cmd.boundary_system;
+        rtn.boundary_identifier = cmd.boundary_identifier;
+
 
         std::cout << "Boundary Controller: Sending Boundary Count" << std::endl;
-
         return true;
     }
 
-    bool ControllerBoundary::BuildData_Send(const mace_boundary_count_t &boundary, const MaceCore::ModuleCharacteristic &sender, mace_boundary_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, BoundaryItem::BoundaryKey &receiveQueueObj, BoundaryItem::BoundaryKey &respondQueueObj)
+
+    //!
+    //! \brief Download Action - Function on downloading side that receives a count and makes request for first item
+    //! \param msg Count message received
+    //! \param sender Module that contains the boundary
+    //! \param rtn Object to set containing message to send after following up.
+    //! \param moduleDownloadingTo Object to set indicating what module requested the boundary
+    //! \param receiveQueueObj Object to set that will remove any queued transmission
+    //! \param respondQueueObj Object to set to queue next transmission
+    //! \return True if message is to be used
+    //!
+    bool ControllerBoundary::BuildData_Send(const mace_boundary_count_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_boundary_request_item_t &rtn, MaceCore::ModuleCharacteristic &moduleDownloadingTo, ModuleBoundaryIdentifier &receiveQueueObj, ModuleBoundaryIdentifier &respondQueueObj)
     {
-        UNUSED(sender);
-        BoundaryItem::BoundaryKey key(boundary.boundary_system, boundary.boundary_creator, static_cast<BoundaryItem::BOUNDARYTYPE>(boundary.boundary_type));
-        receiveQueueObj = key;
-        respondQueueObj = key;
+        // Set up the object to identity who is receiving the boundary
+        ModuleBoundaryIdentifier pair = ModuleBoundaryIdentifier(sender, msg.boundary_identifier);
 
-        std::cout << "RECEIVED COUNT" << std::endl;
+        // set up the receiver and establish queue objects
+        receiveQueueObj = pair;
+        respondQueueObj = pair;
 
-        if(m_BoundariesBeingFetching.find(key) == m_BoundariesBeingFetching.cend())
+
+        // check if boundary is being downloaded and inizialize the boundary
+        if(m_BoundariesBeingFetching.find(pair) == m_BoundariesBeingFetching.cend())
         {
             return false;
         }
 
-        vehicleObj = m_BoundariesBeingFetching[key].requester;
+        // Establish the module that is requesting boundary (so other side knows where to send response to)
+        moduleDownloadingTo = std::get<0>(m_BoundariesBeingFetching.at(pair));
 
-        m_BoundariesBeingFetching.at(key).boundary.initializeBoundary(boundary.count);
+        std::get<1>(m_BoundariesBeingFetching.at(pair)).initializeBoundary(msg.count);
 
-        request.boundary_creator = boundary.boundary_creator;
-        request.boundary_system = boundary.boundary_system;
-        request.boundary_type = boundary.boundary_type;
-        request.seq = 0;
+
+        // establish return message
+        rtn.boundary_creator = msg.boundary_creator;
+        rtn.boundary_system = msg.boundary_system;
+        rtn.boundary_identifier = msg.boundary_identifier;
+        rtn.seq = 0;
 
         std::cout << "Boundary Controller: Requesting Item " << 0 << std::endl;
 
@@ -113,70 +142,47 @@ namespace ExternalLink{
     }
 
 
-    bool ControllerBoundary::BuildData_Send(const mace_boundary_count_t &boundary, const MaceCore::ModuleCharacteristic &sender, mace_boundary_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &receiveQueueObj, BoundaryItem::BoundaryKey &respondQueueObj)
+    //!
+    //! \brief Upload Action - Receive a item request and respond with item
+    //! \param msg Request Item message received
+    //! \param sender Module that sent message
+    //! \param boundaryItem Message to construct to send back
+    //! \param moduleUploadingFrom Object to construct indicating what module boundary is downloading from
+    //! \param receiveQueueObj Object to set that will remove any queued transmission
+    //! \param respondQueueObj Object to set to queue next transmission
+    //! \return True if message should be used
+    //!
+    bool ControllerBoundary::BuildData_Send(const mace_boundary_request_item_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_boundary_item_t &boundaryItem, MaceCore::ModuleCharacteristic &moduleUploadingFrom, ModuleBoundaryIdentifier &receiveQueueObj, ModuleBoundaryIdentifier &respondQueueObj)
     {
-        UNUSED(sender);
-        BoundaryItem::BoundaryKey key(boundary.boundary_system,boundary.boundary_creator,static_cast<BoundaryItem::BOUNDARYTYPE>(boundary.boundary_type));
-        receiveQueueObj = sender;
-        respondQueueObj = key;
+        // Set up the object to identity who is receiving the boundary
+        ModuleBoundaryIdentifier pair = ModuleBoundaryIdentifier(sender, msg.boundary_identifier);
+
+        // Establish the module that has the boundary
+        moduleUploadingFrom.ID = msg.boundary_creator;
+        moduleUploadingFrom.Class = (MaceCore::ModuleClasses)msg.boundary_system;
+
+        // set up the receiver and establish queue objects
+        receiveQueueObj = pair;
+        respondQueueObj = pair;
 
 
-        if(m_BoundariesBeingFetching.find(key) != m_BoundariesBeingFetching.cend())
+        //check that the given boundary has been initiated for an upload
+        if(m_BoundariesUploading.find(pair) == m_BoundariesUploading.cend())
         {
-            return false;
-        }
-
-        if(m_GenericRequester.IsSet() == false) {
-            throw std::runtime_error("Do not know what module requested a boundary");
-        }
-
-        BoundaryItem::BoundaryList newList;
-        newList.setBoundaryKey(key);
-        newList.clearQueue();
-        BoundaryRequestStruct newItem;
-        newItem.boundary = newList;
-        newItem.requester = m_GenericRequester();
-        m_BoundariesBeingFetching.insert({key, newItem});
-
-        m_GenericRequester = OptionalParameter<MaceCore::ModuleCharacteristic>();
-
-        vehicleObj = m_BoundariesBeingFetching[key].requester;
-
-        m_BoundariesBeingFetching.at(key).boundary.initializeBoundary(boundary.count);
-
-        request.boundary_creator = boundary.boundary_creator;
-        request.boundary_system = boundary.boundary_system;
-        request.boundary_type = boundary.boundary_type;
-        request.seq = 0;
-
-        std::cout << "Boundary Controller: Requesting Item " << 0 << std::endl;
-
-        return true;
-    }
-
-    bool ControllerBoundary::BuildData_Send(const mace_boundary_request_item_t &boundaryRequest, const MaceCore::ModuleCharacteristic &sender, mace_boundary_item_t &boundaryItem, MaceCore::ModuleCharacteristic &vehicleObj, BoundaryItem::BoundaryKey &receiveQueueObj, BoundaryItem::BoundaryKey &respondQueueObj)
-    {
-        UNUSED(sender);
-        BoundaryItem::BoundaryKey key(boundaryRequest.boundary_system,boundaryRequest.boundary_creator,static_cast<BoundaryItem::BOUNDARYTYPE>(boundaryRequest.boundary_type));
-        receiveQueueObj = key;
-        respondQueueObj = key;
-
-        //MTB - set vehicleObj to module containing the boundary. Should be encoded in the boundary key.
-        vehicleObj.ID = key.m_systemID;
-//        vehicleObj.Class = MaceCore::ModuleClasses::GROUND_STATION;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-
-        if(m_BoundariesUploading.find(key) == m_BoundariesUploading.cend())
-        {
+            printf("ERROR!!!!!!!!!!!!\N  -- Boundary Controller was asked to send a item to a boundary it doesn't have knowledge of\n");
             if(CONTROLLER_BOUNDARY_TYPE::mLog)
                 CONTROLLER_BOUNDARY_TYPE::mLog->error("BoundaryController_ExternalLink has been told to transmit a boundary item from a boundary which keys dont match the contained.");
             return false;
         }
 
-        int index = boundaryRequest.seq;
-        if(index >= m_BoundariesUploading[key].getQueueSize())
+
+        //pull index we need to fetch
+        int index = msg.seq;
+
+        //ensure the requested index is within the expected range
+        if(index >= m_BoundariesUploading[pair].getQueueSize())
         {
-            //this indicates that RX system requested something OOR
+            printf("ERROR!!!!!!!!!!!!\N  -- Boundary Controller was asked to send a item whoose sequence is larger than what the boundary it knows about has\n");
             if(CONTROLLER_BOUNDARY_TYPE::mLog)
                 CONTROLLER_BOUNDARY_TYPE::mLog->error("BoundaryController_ExternalLink has been told to transmit a boundary item with index " + std::to_string(index) + " which is greater than the size of the list contained.");
             return false;
@@ -185,11 +191,12 @@ namespace ExternalLink{
         if(CONTROLLER_BOUNDARY_TYPE::mLog)
             CONTROLLER_BOUNDARY_TYPE::mLog->info("BoundaryController_ExternalLink has been told to transmit a boundary item with index " + std::to_string(index) + ".");
 
-        mace::pose::Position<mace::pose::CartesianPosition_2D> ptrItem = this->m_BoundariesUploading[key].getBoundaryItemAtIndex(index);
 
-        boundaryItem.boundary_creator = key.m_creatorID;
-        boundaryItem.boundary_system = key.m_systemID;
-        boundaryItem.boundary_type = (uint8_t)key.m_boundaryType;
+        //construct return message
+        mace::pose::Position<mace::pose::CartesianPosition_2D> ptrItem = this->m_BoundariesUploading[pair].getBoundaryItemAtIndex(index);
+        boundaryItem.boundary_creator = msg.boundary_creator;
+        boundaryItem.boundary_system = msg.boundary_system;
+        boundaryItem.boundary_identifier = msg.boundary_identifier;
         boundaryItem.frame = MAV_FRAME_LOCAL_ENU;
         boundaryItem.seq = index;
         boundaryItem.x = ptrItem.getXPosition();
@@ -197,52 +204,68 @@ namespace ExternalLink{
         boundaryItem.z = 0.0;
 
         std::cout << "Boundary Controller: Sending Item " << index << std::endl;
-
         return true;
     }
 
-    bool ControllerBoundary::BuildData_Send(const mace_boundary_item_t &boundaryItem, const MaceCore::ModuleCharacteristic &sender, mace_boundary_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, BoundaryItem::BoundaryKey &receiveQueueObj, BoundaryItem::BoundaryKey &respondQueueObj)
+
+    //!
+    //! \brief Download Action - Receive an item and make request for next item.
+    //!
+    //! This action will NOT be used for the final action
+    //! \param msg Item message received
+    //! \param sender Module that sent message
+    //! \param request Message to construct requesting next item
+    //! \param moduleDownloadingTo Module that boundary is downloading to
+    //! \param receiveQueueObj Object to set that will remove any queued transmission
+    //! \param respondQueueObj Object to set to queue next transmission
+    //! \return True if message should be used
+    //!
+    bool ControllerBoundary::BuildData_Send(const mace_boundary_item_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_boundary_request_item_t &request, MaceCore::ModuleCharacteristic &moduleDownloadingTo, ModuleBoundaryIdentifier &receiveQueueObj, ModuleBoundaryIdentifier &respondQueueObj)
     {
-        UNUSED(sender);
-        MaceCore::ModuleCharacteristic target;
-        target.ID = boundaryItem.boundary_system;
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        // Set up the object to identity who is receiving the boundary
+        ModuleBoundaryIdentifier pair = ModuleBoundaryIdentifier(sender, msg.boundary_identifier);
 
-        BoundaryItem::BoundaryKey key(boundaryItem.boundary_system,boundaryItem.boundary_creator,static_cast<BoundaryItem::BOUNDARYTYPE>(boundaryItem.boundary_type));
-        receiveQueueObj = key;
-        respondQueueObj = key;
-
-        vehicleObj = m_BoundariesBeingFetching[key].requester;
+        // set up the receiver and establish queue objects
+        receiveQueueObj = pair;
+        respondQueueObj = pair;
 
         //check if boundary item received is part of a boundary we are activly downloading
-        if(this->m_BoundariesBeingFetching.find(key) == m_BoundariesBeingFetching.cend())
+        if(this->m_BoundariesBeingFetching.find(pair) == m_BoundariesBeingFetching.cend())
         {
+            printf("ERROR!!!!!!!!!\N  --Not Activly downloading boundary for key received\n");
             if(CONTROLLER_BOUNDARY_TYPE::mLog)
                 CONTROLLER_BOUNDARY_TYPE::mLog->error("Boundary controller received a boundary item with a key that is not equal to the one we were originally told.");
             return false;
         }
 
-        int seqReceived = boundaryItem.seq;
-        if(seqReceived > (m_BoundariesBeingFetching[key].boundary.getQueueSize() - 1)) //this should never happen
+
+        //check that the sequence received is less than the previous COUNT message indicated earlier
+        int seqReceived = msg.seq;
+        if(seqReceived > (std::get<1>(m_BoundariesBeingFetching[pair]).getQueueSize() - 1)) //this should never happen
         {
             std::cout << "Boundary download Error: received a boundary item with an index greater than available in the queue" << std::endl;
             if(CONTROLLER_BOUNDARY_TYPE::mLog)
                 CONTROLLER_BOUNDARY_TYPE::mLog->error("Boundary controller received a boundary item with an index greater than available in the queue.");
             return false;
         }
+
+        // Establish the module that is requesting boundary (so other side knows where to send response to)
+        moduleDownloadingTo = std::get<0>(m_BoundariesBeingFetching.at(pair));
+
         //execution will only continue if not last item
-        if(seqReceived == (m_BoundariesBeingFetching[key].boundary.getQueueSize() - 1))
+        //If it is the last item then it should go to another action
+        if(seqReceived == (std::get<1>(m_BoundariesBeingFetching[pair]).getQueueSize() - 1))
         {
             return false;
         }
 
         Position<CartesianPosition_2D> newVertex;
-        newVertex.setXPosition(boundaryItem.x);
-        newVertex.setYPosition(boundaryItem.y);
+        newVertex.setXPosition(msg.x);
+        newVertex.setYPosition(msg.y);
 
-        m_BoundariesBeingFetching[key].boundary.replaceVertexItemAtIndex(newVertex, seqReceived);
+        std::get<1>(m_BoundariesBeingFetching[pair]).replaceVertexItemAtIndex(newVertex, seqReceived);
 
-        BoundaryItem::BoundaryList::BoundaryListStatus status = m_BoundariesBeingFetching[key].boundary.getBoundaryListStatus();
+        BoundaryItem::BoundaryList::BoundaryListStatus status = std::get<1>(m_BoundariesBeingFetching[pair]).getBoundaryListStatus();
         if(status.state == BoundaryItem::BoundaryList::COMPLETE)
         {
             throw std::runtime_error("Still have more items to request, but boundary is full");
@@ -251,39 +274,50 @@ namespace ExternalLink{
 
         int indexRequest = status.remainingItems.at(0);
 
-        request.boundary_creator = key.m_creatorID;
-        request.boundary_system = key.m_systemID;
-        request.boundary_type = (uint8_t)key.m_boundaryType;
+        request.boundary_creator = msg.boundary_creator;
+        request.boundary_system = msg.boundary_system;
+        request.boundary_identifier = msg.boundary_identifier;
         request.seq = indexRequest;
 
         std::cout << "Boundary Controller: Requesting Item " << indexRequest << std::endl;
-
         return true;
     }
 
-    bool ControllerBoundary::Construct_FinalObjectAndResponse(const mace_boundary_item_t &boundaryItem, const MaceCore::ModuleCharacteristic &sender, mace_boundary_ack_t &ackBoundary, std::shared_ptr<BoundaryItem::BoundaryList> &finalList, MaceCore::ModuleCharacteristic &vehicleObj, BoundaryItem::BoundaryKey &queueObj)
+
+    //!
+    //! \brief Download Action - Receive final item and configure ack
+    //!
+    //! This action will ONLY be used on last item
+    //! \param msg Item message recieved
+    //! \param sender Module that sent message
+    //! \param ackBoundary Ack to construct to indicate the success/failure of boundary transmission
+    //! \param finalList Final boundary downloaded to be returned to module
+    //! \param moduleDownloadingTo Module boundary is being downloaded to
+    //! \param queueObj Object to set that will remove any queued transmission
+    //! \return True if message should be used
+    //!
+    bool ControllerBoundary::Construct_FinalObjectAndResponse(const mace_boundary_item_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_boundary_ack_t &ackBoundary, std::shared_ptr<BoundaryItem::BoundaryList> &finalList, MaceCore::ModuleCharacteristic &moduleDownloadingTo, ModuleBoundaryIdentifier &queueObj)
     {
-        UNUSED(sender);
-        MaceCore::ModuleCharacteristic target;
-        target.ID = boundaryItem.boundary_system;
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
-        BoundaryItem::BoundaryKey key(boundaryItem.boundary_system,boundaryItem.boundary_creator,static_cast<BoundaryItem::BOUNDARYTYPE>(boundaryItem.boundary_type));
-        queueObj = key;
+        // Set up the object to identity who is receiving the boundary
+        ModuleBoundaryIdentifier pair = ModuleBoundaryIdentifier(sender, msg.boundary_identifier);
 
-        vehicleObj.ID = key.m_systemID;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        // set queue so previous transmission can be removed
+        queueObj = pair;
 
         //check if boundary item received is part of a boundary we are activly downloading
-        if(this->m_BoundariesBeingFetching.find(key) == m_BoundariesBeingFetching.cend())
+        if(this->m_BoundariesBeingFetching.find(pair) == m_BoundariesBeingFetching.cend())
         {
+            printf("ERROR!!!!!!!!!\N  --Not Activly downloading boundary for key received\n");
             if(CONTROLLER_BOUNDARY_TYPE::mLog)
                 CONTROLLER_BOUNDARY_TYPE::mLog->error("Boundary controller received a boundary item with a key that is not equal to the one we were originally told.");
             return false;
         }
 
-        int seqReceived = boundaryItem.seq;
-        if(seqReceived > (m_BoundariesBeingFetching[key].boundary.getQueueSize() - 1)) //this should never happen
+
+        //check that the sequence received is less than the previous COUNT message indicated earlier
+        int seqReceived = msg.seq;
+        if(seqReceived > (std::get<1>(m_BoundariesBeingFetching[pair]).getQueueSize() - 1)) //this should never happen
         {
             std::cout << "Boundary download Error: received a boundary item with an index greater than available in the queue" << std::endl;
             if(CONTROLLER_BOUNDARY_TYPE::mLog)
@@ -291,19 +325,22 @@ namespace ExternalLink{
             return false;
         }
 
+        // Establish the module that is requesting boundary (so other side knows where to send response to)
+        moduleDownloadingTo = std::get<0>(m_BoundariesBeingFetching.at(pair));
+
         //execution will only continue if last item
-        if(seqReceived < (m_BoundariesBeingFetching[key].boundary.getQueueSize() - 1))
+        if(seqReceived < (std::get<1>(m_BoundariesBeingFetching[pair]).getQueueSize() - 1))
         {
             return false;
         }
 
         Position<CartesianPosition_2D> newVertex;
-        newVertex.setXPosition(boundaryItem.x);
-        newVertex.setYPosition(boundaryItem.y);
+        newVertex.setXPosition(msg.x);
+        newVertex.setYPosition(msg.y);
 
-        m_BoundariesBeingFetching[key].boundary.replaceVertexItemAtIndex(newVertex, seqReceived);
+        std::get<1>(m_BoundariesBeingFetching[pair]).replaceVertexItemAtIndex(newVertex, seqReceived);
 
-        BoundaryItem::BoundaryList::BoundaryListStatus status = m_BoundariesBeingFetching[key].boundary.getBoundaryListStatus();
+        BoundaryItem::BoundaryList::BoundaryListStatus status = std::get<1>(m_BoundariesBeingFetching[pair]).getBoundaryListStatus();
         if(status.state == BoundaryItem::BoundaryList::INCOMPLETE)
         {
             throw std::runtime_error("Reached end of request but boundaries are not completed");
@@ -311,63 +348,175 @@ namespace ExternalLink{
 
         if(CONTROLLER_BOUNDARY_TYPE::mLog)
         {
-            std::stringstream buffer;
-            buffer << key;
-            CONTROLLER_BOUNDARY_TYPE::mLog->info("Boundary Controller has received the entire boundary of " + std::to_string(m_BoundariesBeingFetching[key].boundary.getQueueSize()) + " for mission " + buffer.str() + ".");
+            CONTROLLER_BOUNDARY_TYPE::mLog->info("Boundary Controller has received the entire boundary");
         }
 
-        ackBoundary.boundary_system = key.m_systemID;
-        ackBoundary.boundary_creator = key.m_creatorID;
-        ackBoundary.boundary_type = (uint8_t)key.m_boundaryType;
+        ackBoundary.boundary_system = msg.boundary_system;
+        ackBoundary.boundary_creator = msg.boundary_creator;
+        ackBoundary.boundary_identifier = msg.boundary_identifier;
         ackBoundary.boundary_result = BOUNDARY_ACCEPTED;
 
-        finalList = std::make_shared<BoundaryItem::BoundaryList>(m_BoundariesBeingFetching[key].boundary);
-        m_BoundariesBeingFetching.erase(key);
+        finalList = std::make_shared<BoundaryItem::BoundaryList>(std::get<1>(m_BoundariesBeingFetching[pair]));
+        m_BoundariesBeingFetching.erase(pair);
 
         std::cout << "Boundary Controller: Sending Final ACK" << std::endl;
 
         return true;
     }
 
-    bool ControllerBoundary::Finish_Receive(const mace_boundary_ack_t &boundaryItem, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, BoundaryItem::BoundaryKey &queueObj)
+
+    //!
+    //! \brief Upload Action - Receive final ACK and end the previous transmission
+    //! \param msg Ack message received
+    //! \param sender Module that sent message
+    //! \param ack Ack code to return
+    //! \param queueObj Object to set that will remove any queued transmission
+    //! \return
+    //!
+    bool ControllerBoundary::Finish_Receive(const mace_boundary_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, ModuleBoundaryIdentifier &queueObj)
     {
-        UNUSED(sender);
+        // Set up the object to identity who is receiving the boundary
+        ModuleBoundaryIdentifier pair = ModuleBoundaryIdentifier(sender, msg.boundary_identifier);
 
-        BoundaryItem::BoundaryKey key(boundaryItem.boundary_system, boundaryItem.boundary_creator, static_cast<BoundaryItem::BOUNDARYTYPE>(boundaryItem.boundary_type));
-        queueObj = key;
+        // set queue so previous transmission can be removed
+        queueObj = pair;
 
-        ack = boundaryItem.boundary_result;
+        ack = msg.boundary_result;
 
-        std::cout << "Boundary Controller: Received Final ACK" << std::endl;
+        m_BoundariesUploading.erase(pair);
 
         return true;
     }
 
-    void ControllerBoundary::Request_Construct(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_boundary_request_list_t &msg, MaceCore::ModuleCharacteristic &queueObj)
+
+    //!
+    //! \brief Notify Broadcast - Construct messages broadcast presence of a boundary
+    //! \param data Data about boundary
+    //! \param sender Module that generated the boundary
+    //! \param vec Vector of messages to send, one message for each vehicle.
+    //!
+    void ControllerBoundary::Construct_Broadcast(const BoundaryNotificationData &data, const MaceCore::ModuleCharacteristic &sender, std::vector<mace_new_boundary_object_t> &vec)
     {
-        UNUSED(sender);
-        msg.boundary_system = target.ID;
-        msg.boundary_creator = sender.ID;
-        msg.boundary_type = 0;
-        m_GenericRequester = sender;
 
-        queueObj = target;
+        std::vector<int> vehicles = data.characteristic.List();
+        if(vehicles.size() == 0)
+        {
+            mace_new_boundary_object_t msg;
+            msg.boundary_creator = sender.ID;
+            msg.boundary_system = (int)sender.Class;
+            msg.boundary_type = (uint8_t)data.characteristic.Type();
+            msg.boundary_identifier = data.uniqueIdentifier;
+            msg.vehicle_aplicable = 0;
+            msg.num_vehicles = 0;
 
-        std::cout << "Boundary Controller: Sending boundary request" << std::endl;
+            vec.push_back(msg);
+        }
+
+
+
+        for(auto it = vehicles.cbegin() ; it != vehicles.cend() ; ++it)
+        {
+            mace_new_boundary_object_t msg;
+            msg.boundary_creator = sender.ID;
+            msg.boundary_system = (int)sender.Class;
+            msg.boundary_type = (uint8_t)data.characteristic.Type();
+            msg.boundary_identifier = data.uniqueIdentifier;
+            msg.vehicle_aplicable = *it;
+            msg.num_vehicles = vehicles.size();
+
+            vec.push_back(msg);
+        }
     }
+
+
+    //!
+    //! \brief Notify Receive - Receive the notification of a new boundary
+    //!
+    //! When being notified of a boundary, a seperate message will be received for each vehicle.
+    //! This function is to receive those and assemble them into a single BoundaryCharacterstic.
+    //!
+    //! A watchdog is kicked off to re-request if a full BoundaryCharacterstic isn't received.
+    //!
+    //! \param msg Message received indicating a new boundary was received
+    //! \param sender Module that generated the boundary on the remote machine
+    //! \param data Data to return to local instance when boundary is fully received
+    //! \return True if boundary is fully received, false otherwise
+    //!
+    bool ControllerBoundary::Construct_FinalObject(const mace_new_boundary_object_t &msg, const MaceCore::ModuleCharacteristic &sender, std::shared_ptr<BoundaryNotificationData> &data)
+    {
+        /////////
+        /// A global boundary. No need to wait for any other messages
+        /////////
+        if(msg.num_vehicles == 0)
+        {
+            data = std::make_shared<BoundaryNotificationData>();
+            data->characteristic = BoundaryItem::BoundaryCharacterisic((BoundaryItem::BOUNDARYTYPE)msg.boundary_type);
+            data->uniqueIdentifier = msg.boundary_identifier;
+            return true;
+        }
+
+
+        /////////
+        /// A boundary with one vehicle. No need to wait for any other messages
+        /////////
+        if(msg.num_vehicles == 1)
+        {
+            data = std::make_shared<BoundaryNotificationData>();
+            data->characteristic = BoundaryItem::BoundaryCharacterisic(msg.vehicle_aplicable, (BoundaryItem::BOUNDARYTYPE)msg.boundary_type);
+            data->uniqueIdentifier = msg.boundary_identifier;
+            return true;
+        }
+
+
+        /////////
+        /// A boundary with 2+ vehicles. Must wait for additional messages and set up failsafes for lost messages
+        /////////
+
+        //Setup variables to host the boundary being constructed.
+        //Setup watchdog to issue retransmissions if needed
+        ModuleBoundaryIdentifier pair = ModuleBoundaryIdentifier(sender, msg.boundary_identifier);
+        if(m_VehiclesInBoundary.find(pair) == m_VehiclesInBoundary.cend())
+        {
+            m_VehiclesInBoundary.insert({pair, {}});
+            m_BoundaryBuilderWatchdogs.insert({pair, std::make_shared<Watchdog>(std::chrono::seconds(2), [this, pair](){ BoundaryBuilderWatchdogExpired(pair); })});
+        }
+
+        //Update with known vehicle if new
+        //Kick the dog, so we don't timeout waiting for the other mace_new_boundary_object_t messages
+        if(std::find(m_VehiclesInBoundary.at(pair).begin(), m_VehiclesInBoundary.at(pair).end(), msg.vehicle_aplicable) == m_VehiclesInBoundary.at(pair).end()) {
+            m_VehiclesInBoundary[pair].push_back(msg.vehicle_aplicable);
+            m_BoundaryBuilderWatchdogs.at(pair)->Kick();
+        }
+
+        //if total number of vehicles received then return indicating we are done
+        if(m_VehiclesInBoundary.size() == msg.num_vehicles)
+        {
+            m_BoundaryBuilderWatchdogs.erase(pair);
+            data = std::make_shared<BoundaryNotificationData>();
+            data->characteristic = BoundaryItem::BoundaryCharacterisic(m_VehiclesInBoundary.at(pair), (BoundaryItem::BOUNDARYTYPE)msg.boundary_type);
+            data->uniqueIdentifier = msg.boundary_identifier;
+            return true;
+        }
+
+        //otherwise not done so return false such that the action doesn't invoke a return.
+        return false;
+    }
+
 
     ControllerBoundary::ControllerBoundary(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
         CONTROLLER_BOUNDARY_TYPE(cb, queue, linkChan),
         SendBoundaryHelper_RequestDownload(this, mace_msg_boundary_request_list_encode_chan),
-        SendBoundaryHelper_RequestList(this, mace_msg_boundary_request_list_decode, mace_msg_boundary_count_encode_chan),
+        BoundaryControllerAction_ReceiveUnsolicitedRequestList_SendCount(this, mace_msg_boundary_request_list_decode, mace_msg_boundary_count_encode_chan),
         SendBoundaryHelper_ReceiveCountRespondItemRequest(this, mace_msg_boundary_count_decode, mace_msg_boundary_request_item_encode_chan),
-        SendBoundaryHelper_ReceiveCountRespondItemRequest_FromRequest(this, mace_msg_boundary_count_decode, mace_msg_boundary_request_item_encode_chan),
         SendBoundaryHelper_RequestItem(this, mace_msg_boundary_request_item_decode, mace_msg_boundary_item_encode_chan),
         SendBoundaryHelper_ReceiveItem(this,
-                                                    [this](const mace_boundary_request_item_t &A, const MaceCore::ModuleCharacteristic &B, const BoundaryItem::BoundaryKey &C, const MaceCore::ModuleCharacteristic &D){SendBoundaryHelper_ReceiveCountRespondItemRequest::NextTransmission(A,B,C,D);},
-    mace_msg_boundary_item_decode),
+                                       [this](const mace_boundary_request_item_t &A, const MaceCore::ModuleCharacteristic &B, const ModuleBoundaryIdentifier &C, const MaceCore::ModuleCharacteristic &D){SendBoundaryHelper_ReceiveCountRespondItemRequest::NextTransmission(A,B,C,D);},
+                                        mace_msg_boundary_item_decode),
         SendBoundaryHelper_Final(this, mace_msg_boundary_item_decode, mace_msg_boundary_ack_encode_chan),
-        SendBoundaryHelper_FinalFinal(this, mace_msg_boundary_ack_decode)
+        SendBoundaryHelper_FinalFinal(this, mace_msg_boundary_ack_decode),
+
+        BroadcastNewBoundaryNotification(this, mace_msg_new_boundary_object_encode_chan),
+        UsolicitedReceiveNewBoundaryNotification(this, mace_msg_new_boundary_object_decode)
 //        Action_RequestCurrentBoundary_Initiate(this, mace_msg_boundary_request_list_encode_chan),
 //        Action_RequestCurrentBoundary_Response(this,
 //                                [this](const mace_boundary_count_t &A, const MaceCore::ModuleCharacteristic &B, const BoundaryItem::BoundaryKey &C, const MaceCore::ModuleCharacteristic &D){SendHelper_RequestList::NextTransmission(A,B,C,D);},
@@ -380,14 +529,30 @@ namespace ExternalLink{
     }
 
 
-    void ControllerBoundary::RequestBoundary(const BoundaryItem::BoundaryKey &key, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
+    //!
+    //! \brief Request a boundary from a remote instance
+    //! \param key Boundary identifer on remote
+    //! \param sender Module making request
+    //! \param target Target module that contains the boundary to download
+    //!
+    void ControllerBoundary::RequestBoundary(const uint8_t &key, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
     {
         SendBoundaryHelper_RequestDownload::Send(key, sender, target);
     }
 
-    void ControllerBoundary::RequestCurrentBoundary(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
+
+    //!
+    //! \brief Function to be called when the watchdog for receiving vehicles in a boundary expires
+    //!
+    //! This would indicates that messages where lost on transmission.
+    //! \param pair Details on whom and what boundary was incomplete
+    //!
+    void ControllerBoundary::BoundaryBuilderWatchdogExpired(const ModuleBoundaryIdentifier &pair)
     {
-        //Action_RequestCurrentBoundary_Initiate::Request(sender, target);
+        m_BoundaryBuilderWatchdogs.erase(pair);
+
+        printf("ERROR!!! Boundary watchdog expired. All expected vehicles in a boundary where not received\n");
+        throw std::runtime_error("Boundary watchdown expired. Perhaps some messages where lost?");
     }
 
 }

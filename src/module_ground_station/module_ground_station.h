@@ -106,6 +106,17 @@ public:
 
 
     // ============================================================================= //
+    // ======== Virtual functions as defined by IModuleCommandGenericBoundaries ==== //
+    // ============================================================================= //
+
+    //!
+    //! \brief NewlyAvailableBoundary Subscriber to a new boundary
+    //! \param key Key corresponding to the updated boundary in the core
+    //!
+    void NewlyAvailableBoundary(const uint8_t &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) override;
+
+
+    // ============================================================================= //
     // ======== Virtual functions as defined by IModuleCommandGroundStation ======== //
     // ============================================================================= //
 public:
@@ -116,11 +127,6 @@ public:
     //!
     void NewlyAvailableVehicle(const int &vehicleID) override;
 
-    //!
-    //! \brief NewlyAvailableBoundary Subscriber to a new boundary
-    //! \param key Key corresponding to the updated boundary in the core
-    //!
-    void NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key) override;
 
     //!
     //! \brief NewlyAvailableCurrentMission Subscriber to a new vehicle mission topic

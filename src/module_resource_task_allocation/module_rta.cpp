@@ -231,8 +231,11 @@ void ModuleRTA::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &
 //! \param boundary obj defining the operational fence as defined by an external party. This
 //! will be the space that is actually partitioned into voronoi cells.
 //!
-void ModuleRTA::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary)
+void ModuleRTA::NewlyAvailableBoundary(const uint8_t &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    BoundaryItem::BoundaryList boundary;
+    this->getDataObject()->getBoundaryFromIdentifier(key, boundary);
+
     updateEnvironment(boundary);
 
     if(m_globalInstance) {
@@ -240,16 +243,16 @@ void ModuleRTA::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
         for(auto vehicleCell : m_vehicleCells) {
             int vehicleID = vehicleCell.first;
             BoundaryItem::BoundaryList resourceFence;
-            resourceFence.setVehicleID(vehicleID);
-            resourceFence.setBoundaryType(BoundaryItem::BOUNDARYTYPE::RESOURCE_FENCE);
-            resourceFence.setCreatorID(this->GetID()); // TODO-PAT: Not sure if this is right
             mace::geometry::Polygon_2DC polyBoundary;
             for(auto vertex : vehicleCell.second.getVector()) {
                 polyBoundary.appendVertex(vertex);
             }
-            resourceFence.setBoundary(polyBoundary);            
+            resourceFence.setBoundary(polyBoundary);
+
+            const BoundaryItem::BoundaryCharacterisic key({vehicleID}, BoundaryItem::BOUNDARYTYPE::RESOURCE_FENCE);
+
             ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-                ptr->Event_SetResourceBoundary(this, resourceFence);
+                ptr->Event_SetBoundary(this, key, resourceFence);
             });
         }
 
@@ -257,23 +260,6 @@ void ModuleRTA::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
 
 }
 
-//!
-//! \brief NewlyUpdatedResourceFence Function further generating targets for observation
-//! via the associated agent. This function should only be called for vehicles that are
-//! currently associated locally with the calling instance of MACE.
-//! \param boundary Updated resource fence boundary
-//!
-void ModuleRTA::NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boundary)
-{
-    updateEnvironment(boundary);
-
-    std::cout << "Update MACE core with targets from RTA" << std::endl;
-
-    //in this instance we would want to publish more of the required resource points
-//    ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-        //ptr->SOMETHING ABOUT TARGETS(this, m_vehicleCells);
-//    });
-}
 
 //!
 //! \brief NewlyAvailableVehicle Subscriber for a new vehicle topic
@@ -281,6 +267,14 @@ void ModuleRTA::NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boun
 //!
 void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
 {
+    /* MTB - Removing 7/2/2018
+     * @pnolan Issue: 137
+     *
+     * NewlyAvailableVehicle my get called before the first vehicleData topic gets transmitted
+     * Should split functionality between this method and ModuleRTA::NewTopicSpooled
+     *
+     * This code currently performs no side-effects, so I am removing
+     *
     MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), vehicleID);
     std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> globalPositionData = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
     m_VehicleDataTopic.GetComponent(globalPositionData, read_topicDatagram);
@@ -311,6 +305,7 @@ void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
         std::cout << "No global origin set. Cannot update missions for MACE" << std::endl;
         return;
     }
+    */
 }
 
 /**

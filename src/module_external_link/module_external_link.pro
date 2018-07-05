@@ -28,7 +28,8 @@ SOURCES += module_external_link.cpp \
     controllers/commands/command_land.cpp \
     controllers/commands/command_mission_item.cpp \
     controllers/commands/command_rtl.cpp \
-    controllers/commands/command_takeoff.cpp
+    controllers/commands/command_takeoff.cpp \
+    pair_module_boundary_identifier.cpp
 
 HEADERS += module_external_link.h\
         module_external_link_global.h \
@@ -43,7 +44,8 @@ HEADERS += module_external_link.h\
     controllers/commands/command_rtl.h \
     controllers/commands/command_takeoff.h \
     controllers/commands/generic_long_command.h \
-    controllers/commands/generic_short_command.h
+    controllers/commands/generic_short_command.h \
+    pair_module_boundary_identifier.h
 
 
 # Unix lib Install

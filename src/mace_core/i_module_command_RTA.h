@@ -6,19 +6,22 @@
 #include "i_module_topic_events.h"
 #include "i_module_events_rta.h"
 
+#include "i_module_command_generic_boundaries.h"
+
 namespace MaceCore
 {
 
 enum class RTACommands
 {
     BASE_MODULE_LISTENER_ENUMS,
+    GENERIC_MODULE_BOUNDARY_LISTENER_ENUMS,
     TEST_FUNCTION,
-    NEWLY_UPDATED_OPERATIONAL_FENCE,
-    NEWLY_UPDATED_RESOURCE_FENCE,
     NEWLY_UPDATED_GRID_SPACING
 };
 
-class MACE_CORESHARED_EXPORT IModuleCommandRTA : public AbstractModule_EventListeners<Metadata_RTA, IModuleEventsRTA, RTACommands>
+class MACE_CORESHARED_EXPORT IModuleCommandRTA :
+        public AbstractModule_EventListeners<Metadata_RTA, IModuleEventsRTA, RTACommands>,
+        public IModuleGenericBoundaries
 {
     friend class MaceCore;
 public:
@@ -28,6 +31,9 @@ public:
     IModuleCommandRTA():
         AbstractModule_EventListeners()
     {
+        IModuleGenericBoundaries::SetUp<Metadata_RTA, IModuleEventsRTA, RTACommands>(this);
+
+
         AddCommandLogic<int>(RTACommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
@@ -40,16 +46,6 @@ public:
         AddCommandLogic<mace::pose::GeodeticPosition_3D>(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const mace::pose::GeodeticPosition_3D &position, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyUpdatedGlobalOrigin(position);
-        });
-
-        AddCommandLogic<BoundaryItem::BoundaryList>(RTACommands::NEWLY_UPDATED_OPERATIONAL_FENCE, [this](const BoundaryItem::BoundaryList &boundary, const OptionalParameter<ModuleCharacteristic> &sender){
-            UNUSED(sender);
-            NewlyUpdatedOperationalFence(boundary);
-        });
-
-        AddCommandLogic<BoundaryItem::BoundaryList>(RTACommands::NEWLY_UPDATED_RESOURCE_FENCE, [this](const BoundaryItem::BoundaryList &boundary, const OptionalParameter<ModuleCharacteristic> &sender){
-            UNUSED(sender);
-            NewlyUpdatedResourceFence(boundary);
         });
 
         AddCommandLogic<int>(RTACommands::NEWLY_UPDATED_GRID_SPACING, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
@@ -74,15 +70,6 @@ public:
     //!
     virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 
-    //!
-    //! \brief NewlyUpdatedBoundaryVertices
-    //!
-    virtual void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) = 0;
-
-    //!
-    //! \brief NewlyUpdatedResourceFence
-    //!
-    virtual void NewlyUpdatedResourceFence(const BoundaryItem::BoundaryList &boundary) = 0;
 
     //!
     //! \brief NewlyUpdatedGridSpacing

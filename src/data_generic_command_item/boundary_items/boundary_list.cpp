@@ -5,20 +5,14 @@
 namespace BoundaryItem {
 
 BoundaryList::BoundaryList() :
-    boundaryKey(0,0,BOUNDARYTYPE::GENERIC_POLYGON), boundingPolygon(BoundaryTypeToString(BOUNDARYTYPE::GENERIC_POLYGON))
+    boundingPolygon(BoundaryTypeToString(BOUNDARYTYPE::GENERIC_POLYGON))
 {
 
 }
 
-BoundaryList::BoundaryList(const int &targetID, const int &generatorID, const BOUNDARYTYPE &boundaryType) :
-    boundaryKey(targetID,generatorID,boundaryType), boundingPolygon(BoundaryTypeToString(boundaryType) + " for " + std::to_string(targetID))
-{
-
-}
 
 BoundaryList::BoundaryList(const BoundaryList &rhs)
 {
-    this->boundaryKey = rhs.boundaryKey;
     this->boundingPolygon = rhs.boundingPolygon;
 }
 
@@ -72,7 +66,7 @@ std::ostream& operator<<(std::ostream& os, const BoundaryList& t)
 {
     std::stringstream stream;
     stream.precision(6);
-    stream << std::fixed << "Boundary List Key" << t.getBoundaryKey()
+    stream << std::fixed
            <<", Size: " << std::to_string(t.getQueueSize()) << ".";
     os << stream.str();
 

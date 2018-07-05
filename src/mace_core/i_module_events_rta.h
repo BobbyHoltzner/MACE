@@ -2,15 +2,17 @@
 #define I_RTA_EVENTS_H
 
 #include "i_module_events_general.h"
+#include "i_module_events_boundary_generator.h"
+
+#include "module_characteristics.h"
 
 
 namespace MaceCore
 {
 
-class IModuleEventsRTA  : public IModuleEventsGeneral
+class IModuleEventsRTA  : public IModuleEventsBoundaryGenerator, public IModuleEventsGeneral
 {
 public:
-    virtual void Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) = 0;
 
 };
 

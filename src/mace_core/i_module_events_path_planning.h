@@ -2,6 +2,7 @@
 #define I_MODULE_EVENTS_PATH_PLANNING_H
 
 #include "i_module_events_general.h"
+#include "i_module_events_boundary_generator.h"
 
 #include "maps/data_2d_grid.h"
 #include "maps/octomap_wrapper.h"
@@ -12,7 +13,7 @@
 namespace MaceCore
 {
 
-class IModuleEventsPathPlanning  : public IModuleEventsGeneral
+class IModuleEventsPathPlanning  : public IModuleEventsBoundaryGenerator, public IModuleEventsGeneral
 {
 public:
 
@@ -21,8 +22,6 @@ public:
     virtual void EventPP_LoadOctomapProperties(const ModuleBase* sender, const mace::maps::OctomapSensorDefinition &properties) = 0;
 
     virtual void EventPP_LoadMappingProjectionProperties(const ModuleBase* sender, const mace::maps::Octomap2DProjectionDefinition &properties) = 0;
-
-    virtual void Event_SetOperationalBoundary(const ModuleBase* sender, const BoundaryItem::BoundaryList &boundary) = 0;
 
     virtual void EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) = 0;
 

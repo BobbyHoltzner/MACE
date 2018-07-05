@@ -108,8 +108,11 @@ bool Environment_Map::computeBalancedVoronoi(const std::map<int, Position<Cartes
                 cells.insert(std::make_pair(vehicle.first, tmpCell));
 
 
-                printCellInfo(cells.at(1));
-                printCellInfo(cells.at(1));
+                //! MTB - Removing
+                //! @pnolan Issue 139
+                //!printCellInfo(cells.at(1));
+                //!printCellInfo(cells.at(1));
+                //!
 
             }
         }

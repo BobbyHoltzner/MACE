@@ -128,8 +128,6 @@ public:
 
     void Event_SetGlobalOrigin(const void* sender, const mace::pose::GeodeticPosition_3D &globalHome) override;
 
-    void Event_SetBoundary(const ModuleBase* sender, const BoundaryItem::BoundaryList &boundary) override;
-
 public:
 
     /////////////////////////////////////////////////////////////////////////
@@ -175,17 +173,17 @@ public:
 
     virtual void ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission);
 
-    virtual void ExternalEvent_NewBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryKey &key);
+    virtual void ExternalEvent_NewBoundary(const ModuleBase *sender, const NewBoundaryData &data);
 
     virtual void ExternalEvent_FinishedRXBoundaryList(const void *sender, const BoundaryItem::BoundaryList &boundaryList);
 
 public:
 
     /////////////////////////////////////////////////////////////////////////
-    /// RTA EVENTS
+    /// BOUNDARY EVENTS
     /////////////////////////////////////////////////////////////////////////
 
-    void Event_SetResourceBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
+    void Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryCharacterisic &key, const BoundaryItem::BoundaryList &boundary) override;
 
 public:
 
@@ -224,8 +222,6 @@ public:
     void EventPP_LoadOctomapProperties(const ModuleBase* sender, const mace::maps::OctomapSensorDefinition &properties) override;
 
     void EventPP_LoadMappingProjectionProperties(const ModuleBase* sender, const mace::maps::Octomap2DProjectionDefinition &properties) override;
-
-    void Event_SetOperationalBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryList &boundary) override;
 
     void EventPP_New2DOccupancyMap(const void* sender, const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) override;
 

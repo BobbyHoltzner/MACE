@@ -300,11 +300,14 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
 //! \brief NewlyUpdatedOperationalFence Subscriber to a new operational fence (i.e. global boundary)
 //! \param boundary Boundary list object in Cartesian space
 //!
-void ModuleROS::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary)
+void ModuleROS::NewlyAvailableBoundary(const uint8_t &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
 #ifdef ROS_EXISTS
     geometry_msgs::Point startPoint;
     geometry_msgs::Point endPoint;
+
+    BoundaryItem::BoundaryList boundary;
+    this->getDataObject()->getBoundaryFromIdentifier(key, boundary);
 
     auto vertices = boundary.boundingPolygon.getVector();
     for(int i = 1; i < vertices.size();i ++)

@@ -5,10 +5,37 @@
 #include "i_module_events_vehicle.h"
 #include "i_module_events_general_vehicle.h"
 
+#include "i_module_events_boundary_generator.h"
+
 namespace MaceCore
 {
-class IModuleEventsExternalLink : public IModuleEventsGeneral, public IModuleEventsGeneralVehicle
+struct NewBoundaryData
 {
+public:
+    NewBoundaryData(const ModuleCharacteristic &sender, const uint8_t remoteIdentifier, const BoundaryItem::BoundaryCharacterisic &characteistic) :
+        Sender(sender),
+        RemoteIdentifier(remoteIdentifier),
+        Characteistic(characteistic)
+    {
+
+    }
+
+    NewBoundaryData(const NewBoundaryData &that) :
+        Sender(that.Sender),
+        RemoteIdentifier(that.RemoteIdentifier),
+        Characteistic(that.Characteistic)
+    {
+
+    }
+
+    ModuleCharacteristic Sender;
+    uint8_t RemoteIdentifier;
+    BoundaryItem::BoundaryCharacterisic Characteistic;
+};
+
+class IModuleEventsExternalLink : public IModuleEventsGeneral, public IModuleEventsGeneralVehicle, public IModuleEventsBoundaryGenerator
+{
+
 public:
 
     virtual void ExternalEvent_RequestingDataSync(const void *sender, const int &targetID) = 0;
@@ -46,10 +73,7 @@ public:
 
     virtual void ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission) = 0;
 
-    virtual void ExternalEvent_NewBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryKey &key) = 0;
-
-
-    virtual void ExternalEvent_FinishedRXBoundaryList(const void *sender, const BoundaryItem::BoundaryList &boundaryList) = 0;
+    virtual void ExternalEvent_NewBoundary(const ModuleBase *sender, const NewBoundaryData &data) = 0;
 };
 
 } //End MaceCore Namespace

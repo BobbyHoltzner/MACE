@@ -7,7 +7,7 @@ MACEPACKED(
 typedef struct __mace_boundary_request_list_t {
  uint8_t boundary_system; /*< System ID*/
  uint8_t boundary_creator; /*< Creator ID*/
- uint8_t boundary_type; /*< Boundary type, see BOUNDARY_TYPE*/
+ uint8_t boundary_identifier; /*< number on remote instance that identifies the boundary*/
 }) mace_boundary_request_list_t;
 
 #define MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN 3
@@ -27,7 +27,7 @@ typedef struct __mace_boundary_request_list_t {
     3, \
     {  { "boundary_system", NULL, MACE_TYPE_UINT8_T, 0, 0, offsetof(mace_boundary_request_list_t, boundary_system) }, \
          { "boundary_creator", NULL, MACE_TYPE_UINT8_T, 0, 1, offsetof(mace_boundary_request_list_t, boundary_creator) }, \
-         { "boundary_type", NULL, MACE_TYPE_UINT8_T, 0, 2, offsetof(mace_boundary_request_list_t, boundary_type) }, \
+         { "boundary_identifier", NULL, MACE_TYPE_UINT8_T, 0, 2, offsetof(mace_boundary_request_list_t, boundary_identifier) }, \
          } \
 }
 #else
@@ -36,7 +36,7 @@ typedef struct __mace_boundary_request_list_t {
     3, \
     {  { "boundary_system", NULL, MACE_TYPE_UINT8_T, 0, 0, offsetof(mace_boundary_request_list_t, boundary_system) }, \
          { "boundary_creator", NULL, MACE_TYPE_UINT8_T, 0, 1, offsetof(mace_boundary_request_list_t, boundary_creator) }, \
-         { "boundary_type", NULL, MACE_TYPE_UINT8_T, 0, 2, offsetof(mace_boundary_request_list_t, boundary_type) }, \
+         { "boundary_identifier", NULL, MACE_TYPE_UINT8_T, 0, 2, offsetof(mace_boundary_request_list_t, boundary_identifier) }, \
          } \
 }
 #endif
@@ -49,24 +49,24 @@ typedef struct __mace_boundary_request_list_t {
  *
  * @param boundary_system System ID
  * @param boundary_creator Creator ID
- * @param boundary_type Boundary type, see BOUNDARY_TYPE
+ * @param boundary_identifier Boundary type, see boundary_identifier
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mace_msg_boundary_request_list_pack(uint8_t system_id, uint8_t component_id, mace_message_t* msg,
-                               uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_type)
+                               uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_identifier)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN];
     _mace_put_uint8_t(buf, 0, boundary_system);
     _mace_put_uint8_t(buf, 1, boundary_creator);
-    _mace_put_uint8_t(buf, 2, boundary_type);
+    _mace_put_uint8_t(buf, 2, boundary_identifier);
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), buf, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN);
 #else
     mace_boundary_request_list_t packet;
     packet.boundary_system = boundary_system;
     packet.boundary_creator = boundary_creator;
-    packet.boundary_type = boundary_type;
+    packet.boundary_identifier = boundary_identifier;
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), &packet, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN);
 #endif
@@ -83,25 +83,25 @@ static inline uint16_t mace_msg_boundary_request_list_pack(uint8_t system_id, ui
  * @param msg The MAVLink message to compress the data into
  * @param boundary_system System ID
  * @param boundary_creator Creator ID
- * @param boundary_type Boundary type, see BOUNDARY_TYPE
+ * @param boundary_identifier Boundary type, see boundary_identifier
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mace_msg_boundary_request_list_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
                                mace_message_t* msg,
-                                   uint8_t boundary_system,uint8_t boundary_creator,uint8_t boundary_type)
+                                   uint8_t boundary_system,uint8_t boundary_creator,uint8_t boundary_identifier)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN];
     _mace_put_uint8_t(buf, 0, boundary_system);
     _mace_put_uint8_t(buf, 1, boundary_creator);
-    _mace_put_uint8_t(buf, 2, boundary_type);
+    _mace_put_uint8_t(buf, 2, boundary_identifier);
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), buf, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN);
 #else
     mace_boundary_request_list_t packet;
     packet.boundary_system = boundary_system;
     packet.boundary_creator = boundary_creator;
-    packet.boundary_type = boundary_type;
+    packet.boundary_identifier = boundary_identifier;
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), &packet, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN);
 #endif
@@ -120,7 +120,7 @@ static inline uint16_t mace_msg_boundary_request_list_pack_chan(uint8_t system_i
  */
 static inline uint16_t mace_msg_boundary_request_list_encode(uint8_t system_id, uint8_t component_id, mace_message_t* msg, const mace_boundary_request_list_t* boundary_request_list)
 {
-    return mace_msg_boundary_request_list_pack(system_id, component_id, msg, boundary_request_list->boundary_system, boundary_request_list->boundary_creator, boundary_request_list->boundary_type);
+    return mace_msg_boundary_request_list_pack(system_id, component_id, msg, boundary_request_list->boundary_system, boundary_request_list->boundary_creator, boundary_request_list->boundary_identifier);
 }
 
 /**
@@ -134,7 +134,7 @@ static inline uint16_t mace_msg_boundary_request_list_encode(uint8_t system_id, 
  */
 static inline uint16_t mace_msg_boundary_request_list_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mace_message_t* msg, const mace_boundary_request_list_t* boundary_request_list)
 {
-    return mace_msg_boundary_request_list_pack_chan(system_id, component_id, chan, msg, boundary_request_list->boundary_system, boundary_request_list->boundary_creator, boundary_request_list->boundary_type);
+    return mace_msg_boundary_request_list_pack_chan(system_id, component_id, chan, msg, boundary_request_list->boundary_system, boundary_request_list->boundary_creator, boundary_request_list->boundary_identifier);
 }
 
 /**
@@ -143,24 +143,24 @@ static inline uint16_t mace_msg_boundary_request_list_encode_chan(uint8_t system
  *
  * @param boundary_system System ID
  * @param boundary_creator Creator ID
- * @param boundary_type Boundary type, see BOUNDARY_TYPE
+ * @param boundary_identifier Boundary type, see boundary_identifier
  */
 #ifdef MACE_USE_CONVENIENCE_FUNCTIONS
 
-static inline void mace_msg_boundary_request_list_send(mace_channel_t chan, uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_type)
+static inline void mace_msg_boundary_request_list_send(mace_channel_t chan, uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_identifier)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN];
     _mace_put_uint8_t(buf, 0, boundary_system);
     _mace_put_uint8_t(buf, 1, boundary_creator);
-    _mace_put_uint8_t(buf, 2, boundary_type);
+    _mace_put_uint8_t(buf, 2, boundary_identifier);
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_BOUNDARY_REQUEST_LIST, buf, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_MIN_LEN, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_CRC);
 #else
     mace_boundary_request_list_t packet;
     packet.boundary_system = boundary_system;
     packet.boundary_creator = boundary_creator;
-    packet.boundary_type = boundary_type;
+    packet.boundary_identifier = boundary_identifier;
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_BOUNDARY_REQUEST_LIST, (const char *)&packet, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_MIN_LEN, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_CRC);
 #endif
@@ -174,7 +174,7 @@ static inline void mace_msg_boundary_request_list_send(mace_channel_t chan, uint
 static inline void mace_msg_boundary_request_list_send_struct(mace_channel_t chan, const mace_boundary_request_list_t* boundary_request_list)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
-    mace_msg_boundary_request_list_send(chan, boundary_request_list->boundary_system, boundary_request_list->boundary_creator, boundary_request_list->boundary_type);
+    mace_msg_boundary_request_list_send(chan, boundary_request_list->boundary_system, boundary_request_list->boundary_creator, boundary_request_list->boundary_identifier);
 #else
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_BOUNDARY_REQUEST_LIST, (const char *)boundary_request_list, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_MIN_LEN, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_CRC);
 #endif
@@ -188,20 +188,20 @@ static inline void mace_msg_boundary_request_list_send_struct(mace_channel_t cha
   is usually the receive buffer for the channel, and allows a reply to an
   incoming message with minimum stack space usage.
  */
-static inline void mace_msg_boundary_request_list_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_type)
+static inline void mace_msg_boundary_request_list_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_identifier)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char *buf = (char *)msgbuf;
     _mace_put_uint8_t(buf, 0, boundary_system);
     _mace_put_uint8_t(buf, 1, boundary_creator);
-    _mace_put_uint8_t(buf, 2, boundary_type);
+    _mace_put_uint8_t(buf, 2, boundary_identifier);
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_BOUNDARY_REQUEST_LIST, buf, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_MIN_LEN, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_CRC);
 #else
     mace_boundary_request_list_t *packet = (mace_boundary_request_list_t *)msgbuf;
     packet->boundary_system = boundary_system;
     packet->boundary_creator = boundary_creator;
-    packet->boundary_type = boundary_type;
+    packet->boundary_identifier = boundary_identifier;
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_BOUNDARY_REQUEST_LIST, (const char *)packet, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_MIN_LEN, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_CRC);
 #endif
@@ -234,11 +234,11 @@ static inline uint8_t mace_msg_boundary_request_list_get_boundary_creator(const 
 }
 
 /**
- * @brief Get field boundary_type from boundary_request_list message
+ * @brief Get field boundary_identifier from boundary_request_list message
  *
- * @return Boundary type, see BOUNDARY_TYPE
+ * @return Boundary type, see boundary_identifier
  */
-static inline uint8_t mace_msg_boundary_request_list_get_boundary_type(const mace_message_t* msg)
+static inline uint8_t mace_msg_boundary_request_list_get_boundary_identifier(const mace_message_t* msg)
 {
     return _MACE_RETURN_uint8_t(msg,  2);
 }
@@ -254,7 +254,7 @@ static inline void mace_msg_boundary_request_list_decode(const mace_message_t* m
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     boundary_request_list->boundary_system = mace_msg_boundary_request_list_get_boundary_system(msg);
     boundary_request_list->boundary_creator = mace_msg_boundary_request_list_get_boundary_creator(msg);
-    boundary_request_list->boundary_type = mace_msg_boundary_request_list_get_boundary_type(msg);
+    boundary_request_list->boundary_identifier = mace_msg_boundary_request_list_get_boundary_identifier(msg);
 #else
         uint8_t len = msg->len < MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN? msg->len : MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN;
         memset(boundary_request_list, 0, MACE_MSG_ID_BOUNDARY_REQUEST_LIST_LEN);

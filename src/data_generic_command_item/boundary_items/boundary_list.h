@@ -58,7 +58,6 @@ public:
 
 public:
     BoundaryList();
-    BoundaryList(const int &targetID, const int &generatorID, const BOUNDARYTYPE &boundaryType);
     BoundaryList(const BoundaryList &rhs);
 
 public:
@@ -73,38 +72,6 @@ public:
 
 public:
 
-    BoundaryKey getBoundaryKey() const{
-        return this->boundaryKey;
-    }
-
-    void setBoundaryKey(const BoundaryKey &key){
-        this->boundaryKey = key;
-    }
-
-    void setVehicleID(const int &vehicleID){
-        this->boundaryKey.m_systemID = vehicleID;
-    }
-
-    int getVehicleID() const{
-        return this->boundaryKey.m_systemID;
-    }
-
-    void setCreatorID(const int &creatorID){
-        this->boundaryKey.m_creatorID = creatorID;
-    }
-
-    int getCreatorID() const {
-        return this->boundaryKey.m_creatorID;
-    }
-
-    void setBoundaryType(const BOUNDARYTYPE &boundaryType){
-        this->boundaryKey.m_boundaryType = boundaryType;
-    }
-
-    BOUNDARYTYPE getBoundaryType() const{
-        return this->boundaryKey.m_boundaryType;
-    }
-
     mace::geometry::Polygon_2DC getBoundary() {
         return boundingPolygon;
     }
@@ -116,15 +83,11 @@ public:
 public:
     BoundaryList& operator = (const BoundaryList &rhs)
     {
-        this->boundaryKey = rhs.boundaryKey;
         this->boundingPolygon = rhs.boundingPolygon;
         return *this;
     }
 
     bool operator == (const BoundaryList &rhs) const{
-        if(this->boundaryKey != rhs.boundaryKey){
-            return false;
-        }
         if(this->boundingPolygon != rhs.boundingPolygon){
             return false;
         }
@@ -136,7 +99,6 @@ public:
     }
 
 private:
-    BoundaryKey boundaryKey;
 
 public:
     mace::geometry::Polygon_2DC boundingPolygon;

@@ -13,20 +13,24 @@
 #include "maps/data_2d_grid.h"
 #include "maps/octomap_wrapper.h"
 
+#include "i_module_command_generic_boundaries.h"
+
 namespace MaceCore
 {
 
 enum class ROSCommands
 {
     BASE_MODULE_LISTENER_ENUMS,
-    NEWLY_UPDATED_OPERATIONAL_FENCE,
+    GENERIC_MODULE_BOUNDARY_LISTENER_ENUMS,
     NEWLY_UPDATED_3D_OCCUPANCY_MAP,
     NEWLY_COMPRESSED_OCCUPANCY_MAP,
     NEWLY_FOUND_PATH,
     TEST_FIRE
 };
 
-class MACE_CORESHARED_EXPORT IModuleCommandROS  : public AbstractModule_EventListeners<MetadataROS, IModuleEventsROS, ROSCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandROS  :
+        public AbstractModule_EventListeners<MetadataROS, IModuleEventsROS, ROSCommands>,
+        public IModuleGenericBoundaries
 {
     friend class MaceCore;
 public:
@@ -36,6 +40,9 @@ public:
     IModuleCommandROS():
         AbstractModule_EventListeners()
     {
+        IModuleGenericBoundaries::SetUp<MetadataROS, IModuleEventsROS, ROSCommands>(this);
+
+
         AddCommandLogic<int>(ROSCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
@@ -43,10 +50,6 @@ public:
         AddCommandLogic<mace::maps::Data2DGrid<mace::maps::OccupiedResult>>(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, [this](const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyCompressedOccupancyMap(map);
-        });
-        AddCommandLogic<BoundaryItem::BoundaryList>(ROSCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, [this](const BoundaryItem::BoundaryList &boundary, const OptionalParameter<ModuleCharacteristic> &sender){
-            UNUSED(sender);
-            NewlyUpdatedOperationalFence(boundary);
         });
         AddCommandLogic<std::vector<mace::state_space::StatePtr>>(ROSCommands::NEWLY_FOUND_PATH, [this](const std::vector<mace::state_space::StatePtr> &path, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
@@ -70,8 +73,6 @@ public:
     virtual void NewlyUpdated3DOccupancyMap() = 0;
 
     virtual void NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map) = 0;
-
-    virtual void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) = 0;
 
     virtual void NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path) = 0;
 

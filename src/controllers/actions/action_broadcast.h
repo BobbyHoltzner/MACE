@@ -2,6 +2,7 @@
 #define ACTION_BROADCAST_H
 
 #include "action_base.h"
+#include <vector>
 
 #include "common/optional_parameter.h"
 
@@ -42,7 +43,7 @@ protected:
     //! \param sender Module emitting this action, given in the Send function
     //! \param msg Communications message to send to comms interface
     //!
-    virtual void Construct_Broadcast(const DATA_TYPE &data, const MaceCore::ModuleCharacteristic &sender, MSG_TYPE &msg) = 0;
+    virtual void Construct_Broadcast(const DATA_TYPE &data, const MaceCore::ModuleCharacteristic &sender, std::vector<MSG_TYPE> &vec) = 0;
 
 public:
 
@@ -62,10 +63,13 @@ public:
      */
     virtual void Broadcast(const DATA_TYPE &commandItem, const MaceCore::ModuleCharacteristic &sender)
     {
-        MSG_TYPE cmd;
-        Construct_Broadcast(commandItem, sender, cmd);
+        std::vector<MSG_TYPE> vec;
+        Construct_Broadcast(commandItem, sender, vec);
 
-        BASE::m_Controller-> template EncodeMessage(BASE::m_EncodeChanFunc, cmd, sender);
+        for(auto it = vec.cbegin() ; it != vec.cend() ; ++it)
+        {
+            BASE::m_Controller-> template EncodeMessage(BASE::m_EncodeChanFunc, *it, sender);
+        }
     }
 };
 
