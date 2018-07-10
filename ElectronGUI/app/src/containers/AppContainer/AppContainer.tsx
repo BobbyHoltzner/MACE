@@ -268,7 +268,12 @@ export default class AppContainer extends React.Component<Props, State> {
 
   handleSubmitBoundary = () => {
     this.appHelper.maceCommsHelper.makeTCPRequest(0, "SET_ENVIRONMENT_VERTICES", JSON.stringify({boundary: this.polygonHelper.drawPolygonPts}));
-    this.polygonHelper.handleSubmitBoundary();    
+    this.polygonHelper.handleSubmitBoundary();
+  }
+
+  handleDisconnectedVehicle = (vehicleID: string) => {
+    // Delete vehicle from DB:
+    delete this.appHelper.maceCommsHelper.vehicleDB.vehicles[vehicleID];
   }
 
   render() {
@@ -306,6 +311,7 @@ export default class AppContainer extends React.Component<Props, State> {
               onAircraftCommand={this.handleAircraftCommand}
               handleChangeSelectedVehicle={this.handleSelectedAircraftUpdate}
               selectedVehicleID={this.state.selectedVehicleID}
+              onDisconnectedVehicle={this.handleDisconnectedVehicle}
             />
 
             <VehicleCommandsContainer

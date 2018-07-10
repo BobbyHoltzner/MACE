@@ -29,7 +29,8 @@ type State = {
     batteryText?: string,
     showHUDMessage?: boolean,
     vehicleModeText?: string,
-    openVehicleMode?: boolean
+    openVehicleMode?: boolean,
+    heartbeatSyncRequested?: boolean
 }
 
 export class VehicleHUD extends React.Component<Props, State> {
@@ -42,7 +43,8 @@ export class VehicleHUD extends React.Component<Props, State> {
             batteryText: this.props.aircraft.fuel.batteryVoltage + " V",
             showHUDMessage: false,
             vehicleModeText: this.props.aircraft.vehicleMode,
-            openVehicleMode: false
+            openVehicleMode: false,
+            heartbeatSyncRequested: false
         }
     }
 
@@ -63,6 +65,21 @@ export class VehicleHUD extends React.Component<Props, State> {
 
         if(nextProps.aircraft.vehicleMode !== this.props.aircraft.vehicleMode) {
             this.setState({vehicleModeText: nextProps.aircraft.vehicleMode});
+        }
+
+
+        let now = new Date();
+        const lastHeardSeconds = (now.getTime() - this.props.aircraft.general.lastHeard.getTime())/1000; // Time in seconds
+        if(lastHeardSeconds <= 10) {
+            if(this.state.heartbeatSyncRequested === true) {
+                this.setState({heartbeatSyncRequested: false});
+            }
+        }
+        else if(lastHeardSeconds > 30) {
+            if(this.state.heartbeatSyncRequested === false) {
+                this.syncVehicle();
+                this.setState({heartbeatSyncRequested: true});
+            }
         }
 
     }
@@ -121,11 +138,14 @@ export class VehicleHUD extends React.Component<Props, State> {
         let now = new Date();
         const lastHeardSeconds = (now.getTime() - this.props.aircraft.general.lastHeard.getTime())/1000; // Time in seconds
         let heartbeatColor = MUIColors.green500;
-        if(lastHeardSeconds > 10 && lastHeardSeconds <= 20) {
+        if(lastHeardSeconds > 10 && lastHeardSeconds <= 30) {
             heartbeatColor = MUIColors.orange500;
         }
-        else if(lastHeardSeconds > 20) {
+        else if(lastHeardSeconds > 30) {
             heartbeatColor = MUIColors.red500;
+            if(this.state.heartbeatSyncRequested === false) {
+                this.syncVehicle();
+            }
         }
 
         let modeMenuItems = [];
