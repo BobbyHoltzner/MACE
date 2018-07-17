@@ -70,11 +70,6 @@ export class VehicleDB {
             let jsonOrigin = jsonData as TCPOriginType;
             let origin = {lat: jsonOrigin.lat, lng: jsonOrigin.lng, alt: jsonOrigin.alt};
             this.globalOrigin = origin;
-
-            /* TODO-PAT: Update PolygonHelper class with this data: */
-            // let settings = deepcopy(this.environmentSettings);
-            // settings.gridSpacing = jsonOrigin.gridSpacing;
-            // this.environmentSettings = settings;
         }
         else if(jsonData.dataType === 'EnvironmentBoundary') {
             let jsonBoundary = jsonData as TCPEnvironmentBoundaryType;

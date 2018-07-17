@@ -210,9 +210,9 @@ private:
     std::shared_ptr<GUITimer> m_timer;
 
     //!
-    //! \brief m_guiHostAddress TCP listen address for GUI-to-MACE connection
+    //! \brief m_listenAddress TCP listen address for GUI-to-MACE connection
     //!
-    QHostAddress m_guiHostAddress;
+    QHostAddress m_listenAddress;
 
     //!
     //! \brief m_listenPort TCP listen port for GUI-to-MACE connection
