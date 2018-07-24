@@ -35,6 +35,7 @@ RUN apt-get install -y qt5-default cmake
 RUN apt-get install -y git
 RUN apt-get install -y libqt5serialport5-dev
 RUN apt-get install -y build-essential
+RUN apt-get install -y nano
 
 # Install things in order of least likely to change
 
@@ -47,9 +48,10 @@ RUN make install
 WORKDIR /
 
 ### MACE deps
-# RUN git clone https://github.com/heronsystems/MACE
-RUN git clone https://github.com/heronsystems/MACE/tree/DockerNetworking
+RUN git clone https://github.com/heronsystems/MACE
 WORKDIR /MACE
+RUN git checkout DockerNetworking
+RUN git pull origin DockerNetworking
 RUN git submodule init
 RUN git submodule update
 ## FLANN
@@ -73,7 +75,3 @@ RUN echo "/MACEDigiWrapper/lib" > /etc/ld.so.conf.d/MACEDigiMeshWrapper.conf
 ## Build mace
 RUN mkdir build && cd ./build && qmake ../src/src.pro && make && make install
 RUN ldconfig
-
-
-## MOVE UP AFTER TESTING
-RUN apt-get install -y nano
