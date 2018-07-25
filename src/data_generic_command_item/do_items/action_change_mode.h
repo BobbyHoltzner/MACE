@@ -83,7 +83,7 @@ public:
 
     friend std::ostream &operator<<(std::ostream &out, const ActionChangeMode &obj)
     {
-        out<<"Command Change Mode( Target ID: "<<obj.targetSystem<<", Generating ID: "<<obj.originatingSystem<<", Mode: "<<obj.vehicleMode<<")";
+        out<<"Command Change Mode( Mode: "<<obj.vehicleMode<<")";
         return out;
     }
 

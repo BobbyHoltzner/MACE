@@ -77,8 +77,7 @@ namespace ExternalLink {
         receiveQueueObj = sender;
         respondQueueObj = receiveQueueObj;
 
-        vehicleObj.ID = msg.target_system;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        vehicleObj = GetModuleFromMAVLINKVehicleID(msg.target_system);
 
 
         std::vector<std::tuple<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>> homes;
@@ -147,8 +146,7 @@ namespace ExternalLink {
         msg.longitude = data.position->getY()* pow(10,7);
         msg.altitude = data.position->getZ() * 1000.0;
 
-        queueObj.ID = data.getTargetSystem();
-        queueObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        queueObj = GetModuleFromMAVLINKVehicleID(data.getTargetSystem());
 
         std::cout << "Home Controller: Sending set home position" << std::endl;
 
@@ -157,8 +155,7 @@ namespace ExternalLink {
 
     bool ControllerHome::Construct_FinalObjectAndResponse(const mace_set_home_position_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_home_position_ack_t &ack, std::shared_ptr<CommandItem::SpatialHome> &data, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &queueObj)
     {
-        vehicleObj.ID = msg.target_system;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        vehicleObj = GetModuleFromMAVLINKVehicleID(msg.target_system);
 
         queueObj = sender;
 
@@ -180,8 +177,8 @@ namespace ExternalLink {
         return true;
     }
 
-    ControllerHome::ControllerHome(const Controllers::IMessageNotifier<mace_message_t>* cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> * queue, int linkChan) :
-        Controllers::GenericControllerQueueDataWithModule<mace_message_t, CommandItem::SpatialHome>(cb, queue, linkChan),
+    ControllerHome::ControllerHome(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> * queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>(cb, queue, linkChan),
         ControllerHome_Step_BroadcastHome(this, mace_msg_home_position_encode_chan),
         ControllerHome_Step_ReceiveBroadcastedHome(this, mace_msg_home_position_decode),
         ControllerHome_Step_RequestHome(this, mace_msg_mission_request_home_encode_chan),

@@ -18,6 +18,7 @@
 #include "controllers/actions/action_request.h"
 
 #include "controllers/actions/action_broadcast.h"
+#include "controllers/actions/action_broadcast_reliable.h"
 #include "controllers/actions/action_unsolicited_receive.h"
 
 #include "../pair_module_boundary_identifier.h"
@@ -46,8 +47,8 @@ struct BoundaryNotificationData
 namespace ExternalLink{
 
 using CONTROLLER_BOUNDARY_TYPE = Controllers::GenericController<
-    mace_message_t,
-    TransmitQueueWithKeys<Controllers::MessageModuleTransmissionQueue<mace_message_t>, ObjectIntTuple<ModuleBoundaryIdentifier>>,
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    TransmitQueueWithKeys<Controllers::MessageModuleTransmissionQueue<mace_message_t>, ObjectIntTuple<ModuleBoundaryIdentifier>, ObjectIntTuple<ObjectIntTuple<MaceCore::ModuleCharacteristic>>>,
     uint8_t,
     Controllers::DataItem<MaceCore::ModuleCharacteristic, BoundaryNotificationData>,
     Controllers::DataItem<ModuleBoundaryIdentifier, BoundaryItem::BoundaryList>
@@ -55,7 +56,7 @@ using CONTROLLER_BOUNDARY_TYPE = Controllers::GenericController<
 >;
 
 using SendBoundaryHelper_RequestDownload = Controllers::ActionSend<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_BOUNDARY_TYPE,
     ModuleBoundaryIdentifier,
     uint8_t,
@@ -65,7 +66,7 @@ using SendBoundaryHelper_RequestDownload = Controllers::ActionSend<
 
 
 using BoundaryControllerAction_ReceiveUnsolicitedRequestList_SendCount = Controllers::ActionIntermediateUnsolicited<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_BOUNDARY_TYPE,
     ModuleBoundaryIdentifier,
     mace_boundary_request_list_t,
@@ -76,7 +77,7 @@ using BoundaryControllerAction_ReceiveUnsolicitedRequestList_SendCount = Control
 
 
 using SendBoundaryHelper_ReceiveCountRespondItemRequest = Controllers::ActionIntermediate<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_BOUNDARY_TYPE,
     ModuleBoundaryIdentifier,
     ModuleBoundaryIdentifier,
@@ -88,7 +89,7 @@ using SendBoundaryHelper_ReceiveCountRespondItemRequest = Controllers::ActionInt
 
 
 using SendBoundaryHelper_RequestItem = Controllers::ActionIntermediate<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_BOUNDARY_TYPE,
     ModuleBoundaryIdentifier,
     ModuleBoundaryIdentifier,
@@ -101,7 +102,7 @@ using SendBoundaryHelper_RequestItem = Controllers::ActionIntermediate<
 
 
 using SendBoundaryHelper_ReceiveItem = Controllers::ActionIntermediateReceive<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_BOUNDARY_TYPE,
     ModuleBoundaryIdentifier,
     ModuleBoundaryIdentifier,
@@ -111,7 +112,7 @@ using SendBoundaryHelper_ReceiveItem = Controllers::ActionIntermediateReceive<
 >;
 
 using SendBoundaryHelper_Final = Controllers::ActionFinalReceiveRespond<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_BOUNDARY_TYPE,
     ModuleBoundaryIdentifier,
     BoundaryItem::BoundaryList,
@@ -121,7 +122,7 @@ using SendBoundaryHelper_Final = Controllers::ActionFinalReceiveRespond<
 >;
 
 using SendBoundaryHelper_FinalFinal = Controllers::ActionFinish<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_BOUNDARY_TYPE,
     ModuleBoundaryIdentifier,
     uint8_t,
@@ -131,15 +132,16 @@ using SendBoundaryHelper_FinalFinal = Controllers::ActionFinish<
 
 
 
-using BroadcastNewBoundaryNotification = Controllers::ActionBroadcast<
-    mace_message_t,
+using BroadcastNewBoundaryNotification = Controllers::ActionBroadcastReliable<
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_BOUNDARY_TYPE,
     BoundaryNotificationData,
-    mace_new_boundary_object_t
+    mace_new_boundary_object_t,
+    MACE_MSG_ID_BOUNDARY_ACK
 >;
 
 using UsolicitedReceiveNewBoundaryNotification = Controllers::ActionUnsolicitedReceive<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_BOUNDARY_TYPE,
     BoundaryNotificationData,
     mace_new_boundary_object_t,
@@ -269,13 +271,7 @@ protected:
     virtual bool Finish_Receive(const mace_boundary_ack_t &boundaryItem, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, ModuleBoundaryIdentifier &queueObj);
 
 
-    //!
-    //! \brief Notify Broadcast - Construct messages broadcast presence of a boundary
-    //! \param data Data about boundary
-    //! \param sender Module that generated the boundary
-    //! \param vec Vector of messages to send, one message for each vehicle.
-    //!
-    virtual void Construct_Broadcast(const BoundaryNotificationData &data, const MaceCore::ModuleCharacteristic &sender, std::vector<mace_new_boundary_object_t> &msg);
+    virtual void Construct_BroadcastReliable(const BoundaryNotificationData &data, const MaceCore::ModuleCharacteristic &sender, std::vector<mace_new_boundary_object_t> &vec);
 
 
     //!
@@ -295,7 +291,7 @@ protected:
 
 public:
 
-    ControllerBoundary(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan);
+    ControllerBoundary(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan);
 
 
     //!

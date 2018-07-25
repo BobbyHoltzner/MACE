@@ -519,7 +519,7 @@ void ModuleGroundStation::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPos
 //! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
 //! \param vehicleID Vehilce ID of the newly available vehicle
 //!
-void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
+void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     UNUSED(vehicleID);
     // TODO-PAT: Instead of grabbing all vehicles, only send the one thats added to the GUI

@@ -62,18 +62,18 @@ public:
 
     void AddDataFusion(const std::shared_ptr<MaceData> dataFusion);
 
-    void AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle);
+    void AddLocalModule_Vehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle);
 
-    void RemoveVehicle(const std::string &ID);
+    void RemoveLocalModule_Vehicle(const std::string &ID);
 
 
 public: //The following functions add specific modules to connect to mace core
 
-    void AddModule(const std::shared_ptr<ModuleBase> &module);
+    void AddLocalModule(const std::shared_ptr<ModuleBase> &module);
 
     void AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation);
 
-    void AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink);
+    void AddLocalModule_ExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink);
 
     void AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning);
 
@@ -103,6 +103,23 @@ public:
     /////////////////////////////////////////////////////////////////////////
     /// GENERAL MODULE EVENTS
     /////////////////////////////////////////////////////////////////////////
+
+    //!
+    //! \brief Event to notify the core that a new module has been attached to some MACE instance.
+    //! \param sender Module that generated the new module. May be different than the module itself (Like and External Link)
+    //! \param characterstic Characterstic that uniquly identifies the module on the MACE topology
+    //! \param type Type of module
+    //!
+    virtual void Event_NewModule(const ModuleBase* sender, const ModuleCharacteristic &characterstic, const ModuleClasses &type);
+
+
+    //!
+    //! \brief Event to signify that a new vehicle is available
+    //! \param sender Module that generated the vehicle. May be different than the vehicle itself if the vehicle came in over External Link
+    //! \param publicID Public ID of vehicle, may be different of MACE's internal address
+    //! \param vehicleModule MACE internal address of vehicle Module
+    //!
+    virtual void Events_NewVehicle(const ModuleBase *sender, const uint8_t publicID, const ModuleCharacteristic &vehicleModule);
 
     virtual void Event_ForceVehicleDataSync(const ModuleBase *sender, const int &targetSystemID);
     virtual void Event_IssueCommandSystemArm(const ModuleBase* sender, const CommandItem::ActionArm &command);
@@ -139,8 +156,6 @@ public:
     /// SPECIFIC VEHICLE EVENTS: These events are associated from IModuleEventsVehicleVehicle
     /////////////////////////////////////////////////////////////////////////////////////////
 
-    virtual void EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved);
-
     virtual void EventVehicle_NewOnboardVehicleMission(const ModuleBase *sender, const MissionItem::MissionList &missionList);
 
     virtual void EventVehicle_MissionACK(const void *sender, const MissionItem::MissionACK &ack);
@@ -152,6 +167,9 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////
     /// GENERAL VEHICLE EVENTS: These events are associated from IModuleEventsGeneralVehicle
     ////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     virtual void GVEvents_NewHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome);
     virtual void GVEvents_MissionExeStateUpdated(const void *sender, const MissionItem::MissionKey &missionKey, const Data::MissionExecutionState &missionExeState);
     virtual void GVEvents_MissionItemAchieved(const void *sender, const MissionItem::MissionItemAchieved &achieved);
@@ -163,8 +181,6 @@ public:
     /// EXTERNAL LINK EVENTS
     /////////////////////////////////////////////////////////////////////////
     virtual void ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID);
-    virtual void ExternalEvent_NewModule(const void *sender, const ModuleCharacteristic &newModule);
-
 
     virtual void ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList);
 
@@ -332,6 +348,25 @@ private:
         }
     }
 
+
+public:
+
+    ///MTB MODULE AUTO ASSIGN
+    void setMaceInstanceID(const uint8_t ID)
+    {
+        m_MaceInstanceID = ID;
+        m_MaceInstanceIDSet = true;
+    }
+
+    uint8_t getMaceInstanceID() const
+    {
+        if(m_MaceInstanceIDSet == false)
+            throw std::runtime_error("No MACE Instance ID set!");
+
+        return m_MaceInstanceID;
+    }
+    ///
+
 private:
     mutable std::mutex m_VehicleMutex;
 
@@ -351,6 +386,12 @@ private:
     std::shared_ptr<IModuleCommandROS> m_ROS;
     std::shared_ptr<IModuleCommandSensors> m_Sensors;
     std::shared_ptr<IModuleCommandRTA> m_RTA;
+
+    ///MTB MODULE AUTO ASSIGN
+    std::unordered_map<uint32_t, std::shared_ptr<ModuleBase>> m_Modules;
+    uint8_t m_MaceInstanceID;
+    bool m_MaceInstanceIDSet;
+    ///
 
     std::shared_ptr<MaceData> m_DataFusion;
 };

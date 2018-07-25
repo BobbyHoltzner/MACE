@@ -111,7 +111,7 @@ public:
     void NewlyAvailableBoundary(const uint8_t &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) override;
 
 
-    void NewlyAvailableVehicle(const int &vehicleID) override;
+    virtual void NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     void NewlyLoadedOccupancyMap() override;
 

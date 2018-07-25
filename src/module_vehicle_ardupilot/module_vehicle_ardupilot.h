@@ -330,6 +330,8 @@ private:
     //!
     void ProgressStateMachineStates();
 
+
+
 private:
     std::shared_ptr<spdlog::logger> mLogs;
 
@@ -338,11 +340,13 @@ private:
 
 private:
 
+    uint8_t m_PublicVehicleID;
+
     std::mutex m_Mutex_StateMachine;
     hsm::StateMachine* stateMachine; /**< Member variable containing a pointer to the state
  machine. This state machine evolves the state per event updates and/or external commands. */
 
-    std::unordered_map<std::string, Controllers::IController<mavlink_message_t>*> m_TopicToControllers;
+    std::unordered_map<std::string, Controllers::IController<mavlink_message_t, int>*> m_TopicToControllers;
 
     MAVLINKVehicleControllers::ControllerMission * m_MissionController;
 };

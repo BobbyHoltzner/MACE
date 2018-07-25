@@ -11,6 +11,7 @@
 #include "controllers/actions/action_finish.h"
 
 #include "mavlink.h"
+#include "module_vehicle_MAVLINK/mavlink_entity_key.h"
 
 namespace MAVLINKVehicleControllers {
 
@@ -22,8 +23,9 @@ struct MAVLINKModeStruct
 
 using SystemModeSend = Controllers::ActionSend<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MAVLINKModeStruct>,
-    MaceCore::ModuleCharacteristic,
+    MavlinkEntityKey,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, MAVLINKModeStruct>,
+    MavlinkEntityKey,
     MAVLINKModeStruct,
     mavlink_set_mode_t,
     MAVLINK_MSG_ID_COMMAND_ACK
@@ -31,24 +33,25 @@ using SystemModeSend = Controllers::ActionSend<
 
 using SystemModeFinish = Controllers::ActionFinish<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MAVLINKModeStruct>,
-    MaceCore::ModuleCharacteristic,
+    MavlinkEntityKey,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, MAVLINKModeStruct>,
+    MavlinkEntityKey,
     uint8_t,
     mavlink_command_ack_t,
     MAVLINK_MSG_ID_COMMAND_ACK
 >;
 
-class ControllerSystemMode : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MAVLINKModeStruct>,
+class ControllerSystemMode : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, MAVLINKModeStruct>,
         public SystemModeSend,
         public SystemModeFinish
 {
 private:
 
-    std::unordered_map<MaceCore::ModuleCharacteristic, MaceCore::ModuleCharacteristic> m_CommandRequestedFrom;
+    std::unordered_map<int, int> m_CommandRequestedFrom;
 
 protected:
 
-    virtual bool Construct_Send(const MAVLINKModeStruct &commandMode, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_set_mode_t &mode, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_Send(const MAVLINKModeStruct &commandMode, const MavlinkEntityKey &sender, const MavlinkEntityKey &target, mavlink_set_mode_t &mode, MavlinkEntityKey &queueObj)
     {
         UNUSED(sender);
         queueObj = target;
@@ -61,7 +64,7 @@ protected:
     }
 
 
-    virtual bool Finish_Receive(const mavlink_command_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Finish_Receive(const mavlink_command_ack_t &msg, const MavlinkEntityKey &sender, uint8_t & ack, MavlinkEntityKey &queueObj)
     {
         UNUSED(msg);
         queueObj = sender;
@@ -71,8 +74,8 @@ protected:
 
 public:
 
-    ControllerSystemMode(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
-        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MAVLINKModeStruct>(cb, queue, linkChan),
+    ControllerSystemMode(const Controllers::IMessageNotifier<mavlink_message_t, MavlinkEntityKey> *cb, TransmitQueue<mavlink_message_t, MavlinkEntityKey> *queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, MAVLINKModeStruct>(cb, queue, linkChan),
         SystemModeSend(this, mavlink_msg_set_mode_encode_chan),
         SystemModeFinish(this, mavlink_msg_command_ack_decode)
     {

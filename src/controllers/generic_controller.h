@@ -41,22 +41,22 @@ namespace Controllers {
 //! \template TransmitQueueType Queue object the controller is to use when sending messages
 //! \template DataItems Data items the controller is to transmit
 //!
-template<typename MESSAGETYPE, typename TransmitQueueType, typename FINISH_CODE, typename ...DataItems>
-class GenericController : public IController<MESSAGETYPE>, public TransmitQueueType, public ChainInheritance<DataItems...>
+template<typename MESSAGETYPE, typename COMPONENT_KEY, typename TransmitQueueType, typename FINISH_CODE, typename ...DataItems>
+class GenericController : public IController<MESSAGETYPE, COMPONENT_KEY>, public TransmitQueueType, public ChainInheritance<DataItems...>
 {
 private:
 
     int m_LinkChan;
 
-    const IMessageNotifier<MESSAGETYPE>* m_CB;
+    const IMessageNotifier<MESSAGETYPE, COMPONENT_KEY>* m_CB;
 
 protected:
 
     std::shared_ptr<spdlog::logger> mLog;
 
     std::vector<std::tuple<
-        std::function<bool(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)>,
-        std::function<void(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)>
+        std::function<bool(COMPONENT_KEY, const MESSAGETYPE*)>,
+        std::function<void(COMPONENT_KEY, const MESSAGETYPE*)>
     >> m_MessageBehaviors;
 
     std::mutex m_MessageBehaviorsMutex;
@@ -69,7 +69,7 @@ protected:
 
 public:
 
-    GenericController(const IMessageNotifier<MESSAGETYPE>* cb, MessageModuleTransmissionQueue<MESSAGETYPE>* queue, int linkChan) :
+    GenericController(const IMessageNotifier<MESSAGETYPE, COMPONENT_KEY>* cb, TransmitQueue<MESSAGETYPE, COMPONENT_KEY>* queue, int linkChan) :
         m_LinkChan(linkChan),
         m_CB(cb)
     {
@@ -255,11 +255,11 @@ public:
     //! \param action Action to partake with message.
     //!
     template <const int I, typename KEY, typename DECODE_TYPE, typename DECODE_FUNC>
-    void AddResponseLogic(DECODE_FUNC func, const std::function<KEY(const DECODE_TYPE&, const MaceCore::ModuleCharacteristic &sender)> &keyExtractor, const std::function<void(const DECODE_TYPE &msg, KEY &key, const MaceCore::ModuleCharacteristic &sender)> &action)
+    void AddResponseLogic(DECODE_FUNC func, const std::function<KEY(const DECODE_TYPE&, const COMPONENT_KEY &sender)> &keyExtractor, const std::function<void(const DECODE_TYPE &msg, KEY &key, const COMPONENT_KEY &sender)> &action)
     {
 
         auto newItem = std::make_tuple(MaceMessageIDEq<I>(),
-                                       MaceProcessFSMState<DECODE_TYPE>(func, [this, action, keyExtractor](const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)
+                                       MaceProcessFSMState<DECODE_TYPE>(func, [this, action, keyExtractor](const DECODE_TYPE &msg, const COMPONENT_KEY &sender)
                                         {
                                             KEY key = keyExtractor(msg, sender);
                                             TransmitQueueType::RemoveTransmission(ObjectIntTuple<KEY>(key, I));
@@ -284,11 +284,11 @@ public:
     //! \param action Action to partake with message.
     //!
     template <const int I, typename DECODE_TYPE, typename DECODE_FUNC>
-    void AddTriggeredLogic(DECODE_FUNC func, const std::function<void(const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)> &action)
+    void AddTriggeredLogic(DECODE_FUNC func, const std::function<void(const DECODE_TYPE &msg, const COMPONENT_KEY &sender)> &action)
     {
 
         auto newItem = std::make_tuple(MaceMessageIDEq<I>(),
-                                       MaceProcessFSMState<DECODE_TYPE>(func, [this, action](const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)
+                                       MaceProcessFSMState<DECODE_TYPE>(func, [this, action](const DECODE_TYPE &msg, const COMPONENT_KEY &sender)
                                         {
                                             action(msg, sender);
                                         }));
@@ -299,7 +299,7 @@ public:
 
 
 
-    virtual bool ReceiveMessage(const MESSAGETYPE *message, const MaceCore::ModuleCharacteristic &sender)
+    virtual bool ReceiveMessage(const MESSAGETYPE *message, const COMPONENT_KEY &sender)
     {
         std::lock_guard<std::mutex> lock(m_MessageBehaviorsMutex);
         bool usedMessage = false;
@@ -322,28 +322,43 @@ public:
 
 
     template <typename FUNC, typename TT>
-    void EncodeMessage(FUNC func, TT requestItem, const MaceCore::ModuleCharacteristic &sender, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>())
+    void EncodeMessage(FUNC func, TT requestItem, const COMPONENT_KEY &sender, const OptionalParameter<COMPONENT_KEY> &target = OptionalParameter<COMPONENT_KEY>())
     {
+
+        std::tuple<int, int> keys = m_CB->GetSysIDAndCompIDFromComponentKey(sender);
+        int sysid = std::get<0>(keys);
+        int compid = std::get<1>(keys);
+
         MESSAGETYPE msg;
-        func(sender.ID, (int)sender.Class, m_LinkChan, &msg, &requestItem);
+        func(sysid, compid, m_LinkChan, &msg, &requestItem);
         m_CB->TransmitMessage(msg, target);
+    }
+
+    std::vector<COMPONENT_KEY> GetAllTargets() const
+    {
+        return m_CB->GetAllTargets();
+    }
+
+    COMPONENT_KEY GetModuleFromMAVLINKVehicleID(int ID) const
+    {
+        return m_CB->GetModuleFromMAVLINKVehicleID(ID);
     }
 
 private:
 
     template <const int I>
-    static std::function<bool(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)> MaceMessageIDEq()
+    static std::function<bool(COMPONENT_KEY, const MESSAGETYPE*)> MaceMessageIDEq()
     {
-        return [](MaceCore::ModuleCharacteristic sender, const MESSAGETYPE* message){
+        return [](COMPONENT_KEY sender, const MESSAGETYPE* message){
             UNUSED(sender);
             return message->msgid ==I;
         };
     }
 
     template <typename DECODE_TYPE, typename DECODE_FUNC>
-    static std::function<void(MaceCore::ModuleCharacteristic, const MESSAGETYPE*)> MaceProcessFSMState(DECODE_FUNC decode_func, const std::function<void(const DECODE_TYPE &msg, const MaceCore::ModuleCharacteristic &sender)> &func)
+    static std::function<void(COMPONENT_KEY, const MESSAGETYPE*)> MaceProcessFSMState(DECODE_FUNC decode_func, const std::function<void(const DECODE_TYPE &msg, const COMPONENT_KEY &sender)> &func)
     {
-        return [decode_func, func](MaceCore::ModuleCharacteristic sender, const MESSAGETYPE* message)
+        return [decode_func, func](COMPONENT_KEY sender, const MESSAGETYPE* message)
         {
             DECODE_TYPE decodedMSG;
             decode_func(message, &decodedMSG);

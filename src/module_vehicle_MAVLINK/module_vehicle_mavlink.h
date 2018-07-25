@@ -40,6 +40,8 @@
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 #include "vehicle_object/mavlink_vehicle_object.h"
 
+#include "mavlink_entity_key.h"
+
 /*
  *
  * USAGE:
@@ -78,7 +80,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     ModuleVehicleMAVLINK():
         ModuleVehicleGeneric<VehicleTopicAdditionalComponents..., DataMAVLINK::EmptyMAVLINK>(),
-        airborneInstance(false), m_VehicleMissionTopic("vehicleMission")
+        airborneInstance(false), m_VehicleMissionTopic("vehicleMission"), m_IsAttachedMavlinkEntitySet(false)
     {
 
     }
@@ -320,6 +322,29 @@ public:
         std::shared_ptr<MissionTopic::MissionItemCurrentTopic> ptrMissionTopic = std::make_shared<MissionTopic::MissionItemCurrentTopic>(current);
         cbi_VehicleMissionData(current.getMissionKey().m_systemID,ptrMissionTopic);
     }
+
+
+public:
+
+    void SetAttachedMavlinkEntity(const MavlinkEntityKey &key)
+    {
+        m_AttachedMavlinkEntity = key;
+        m_IsAttachedMavlinkEntitySet = true;
+    }
+
+    MavlinkEntityKey GetAttachedMavlinkEntity() const
+    {
+        if(m_IsAttachedMavlinkEntitySet == false)
+        {
+            throw std::runtime_error("Contained MAVLINK entitiy has yet to be set!");
+        }
+        return m_AttachedMavlinkEntity;
+    }
+
+private:
+
+    MavlinkEntityKey m_AttachedMavlinkEntity;
+    bool m_IsAttachedMavlinkEntitySet;
 
 protected:
     Data::TopicDataObjectCollection<DATA_MISSION_GENERIC_TOPICS> m_VehicleMissionTopic;

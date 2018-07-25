@@ -20,7 +20,7 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
     switch (command->getCommandType()) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
-        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        Controllers::ControllerCollection<mavlink_message_t, MavlinkEntityKey> *collection = Owner().ControllersCollection();
         auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
         controllerSystemMode->AddLambda_Finished(this, [this,controllerSystemMode](const bool completed, const uint8_t finishCode){
 
@@ -33,14 +33,11 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
             delete ptr;
         });
 
-        MaceCore::ModuleCharacteristic target;
-        target.ID = Owner().getMAVLINKID();
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-        MaceCore::ModuleCharacteristic sender;
-        sender.ID = 255;
-        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MavlinkEntityKey target = Owner().getMAVLINKID();
+        MavlinkEntityKey sender = 255;
+
         MAVLINKVehicleControllers::MAVLINKModeStruct commandMode;
-        commandMode.targetID = target.ID;
+        commandMode.targetID = Owner().getMAVLINKID();
         commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString(command->as<CommandItem::ActionChangeMode>()->getRequestMode());
         controllerSystemMode->Send(commandMode,sender,target);
         collection->Insert("modeController",controllerSystemMode);
@@ -50,7 +47,7 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
     case COMMANDITEM::CI_NAV_HOME:
     {
         const CommandItem::SpatialHome* cmd = command->as<CommandItem::SpatialHome>();
-        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        Controllers::ControllerCollection<mavlink_message_t, MavlinkEntityKey> *collection = Owner().ControllersCollection();
         auto controllerSystemHome = new MAVLINKVehicleControllers::Command_SetHomeInt(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
         controllerSystemHome->AddLambda_Finished(this, [this,controllerSystemHome,cmd](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
@@ -66,12 +63,8 @@ bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
             delete ptr;
         });
 
-        MaceCore::ModuleCharacteristic target;
-        target.ID = Owner().getMAVLINKID();
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-        MaceCore::ModuleCharacteristic sender;
-        sender.ID = 255;
-        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MavlinkEntityKey target = Owner().getMAVLINKID();
+        MavlinkEntityKey sender = 255;
 
         controllerSystemHome->Send(*cmd,sender,target);
         collection->Insert("setHomeController",controllerSystemHome);

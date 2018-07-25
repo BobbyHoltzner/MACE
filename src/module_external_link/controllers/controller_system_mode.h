@@ -14,8 +14,8 @@ namespace ExternalLink {
 
 
 using SystemModeSend = Controllers::ActionSend<
-    mace_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, CommandItem::ActionChangeMode>,
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
     CommandItem::ActionChangeMode,
     mace_command_system_mode_t,
@@ -23,8 +23,8 @@ using SystemModeSend = Controllers::ActionSend<
 >;
 
 using SystemMode_FinalReceiveRespond = Controllers::ActionFinalReceiveRespond<
-    mace_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, CommandItem::ActionChangeMode>,
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
     CommandItem::ActionChangeMode,
     mace_command_system_mode_t,
@@ -33,8 +33,8 @@ using SystemMode_FinalReceiveRespond = Controllers::ActionFinalReceiveRespond<
 >;
 
 using SystemModeFinish = Controllers::ActionFinish<
-    mace_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, CommandItem::ActionChangeMode>,
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::ActionChangeMode>,
     MaceCore::ModuleCharacteristic,
     uint8_t,
     mace_system_mode_ack_t,
@@ -42,7 +42,7 @@ using SystemModeFinish = Controllers::ActionFinish<
 >;
 
 
-class ControllerSystemMode : public Controllers::GenericControllerQueueDataWithModule<mace_message_t, CommandItem::ActionChangeMode>,
+class ControllerSystemMode : public Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::ActionChangeMode>,
 
         public SystemModeSend,
         public SystemMode_FinalReceiveRespond,
@@ -66,7 +66,7 @@ protected:
 
 public:
 
-    ControllerSystemMode(const Controllers::IMessageNotifier<mace_message_t>* cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> * queue, int linkChan);
+    ControllerSystemMode(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic>* cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> * queue, int linkChan);
 
 };
 

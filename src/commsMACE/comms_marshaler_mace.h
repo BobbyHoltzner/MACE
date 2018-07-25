@@ -47,8 +47,8 @@ class COMMSMACESHARED_EXPORT CommsMarshaler : public Publisher<CommsEvents>, pri
 {
 private:
 
-    std::unordered_map<const ILink*, std::function<void(const char* resourceName, int vehicleID)>> m_AddedModuleAction;
-    std::unordered_map<const ILink*, std::function<void(const char* resourceName, int vehicleID)>> m_RemovedModuleAction;
+    std::unordered_map<const ILink*, std::function<void(const Resource &resource)>> m_AddedModuleAction;
+    std::unordered_map<const ILink*, std::function<void(const Resource &resource)>> m_RemovedModuleAction;
 
 public:
 
@@ -58,12 +58,12 @@ public:
 
     CommsMarshaler();
 
-    void SpecifyAddedModuleAction(const std::string &linkName, const std::function<void(const char* resourceName, int vehicleID)> &lambda)
+    void SpecifyAddedModuleAction(const std::string &linkName, const std::function<void(const Resource &resource)> &lambda)
     {
         m_AddedModuleAction.insert({m_CreatedLinksNameToPtr.at(linkName).get(), lambda});
     }
 
-    void SpecifyRemovedModuleAction(const std::string &linkName, const std::function<void(const char* resourceName, int vehicleID)> &lambda)
+    void SpecifyRemovedModuleAction(const std::string &linkName, const std::function<void(const Resource &resource)> &lambda)
     {
         m_RemovedModuleAction.insert({m_CreatedLinksNameToPtr.at(linkName).get(), lambda});
     }
@@ -104,7 +104,7 @@ public:
     //! \param name Name of link
     //! \param vehicleID ID of vehicle
     //!
-    void AddResource(const std::string &name, const char *resourceName, int vehicleID);
+    void AddResource(const std::string &name, const Resource &resource);
 
 
     //!
@@ -143,7 +143,7 @@ public:
     //! \param message Message to send
     //!
     template <typename T>
-    void SendMACEMessage(const std::string &linkName, const T& message, OptionalParameter<std::tuple<const char *, int> > target = OptionalParameter<std::tuple<const char *, int> >());
+    void SendMACEMessage(const std::string &linkName, const T& message, const OptionalParameter<Resource> &target = OptionalParameter<Resource>());
 
 
 
@@ -153,9 +153,9 @@ private:
     /// React to Link Events
     //////////////////////////////////////////////////////////////
 
-    virtual void AddedExternalResource(ILink *link_ptr, const char* resourceName, int vehicleID) const;
+    virtual void AddedExternalResource(ILink *link_ptr, const Resource &resource) const;
 
-    virtual void RemovedExternalResource(ILink *link_ptr, const char* resourceName, int vehicleID) const;
+    virtual void RemovedExternalResource(ILink *link_ptr, const Resource &resource) const;
 
     virtual void ReceiveData(ILink *link_ptr, const std::vector<uint8_t> &buffer) const;
 

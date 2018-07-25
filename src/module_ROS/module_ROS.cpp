@@ -223,7 +223,7 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
 //! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
 //! \param vehicleID Vehilce ID of the newly available vehicle
 //!
-void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
+void ModuleROS::NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     std::cout<<"The ROS module is going to see a new vehicle"<<std::endl;
     // If vehicle does not exist in our map, insert into the map

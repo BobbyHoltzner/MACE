@@ -45,12 +45,15 @@ using SystemModeFinish = ActionFinish<
 */
 
 
-template<typename MESSAGETYPE, typename DATA, typename SET_TYPE, typename ACK_TYPE, const int SET_ID, const int ACK_ID>
-class GenericControllerSetRequest : public Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, DATA>,
+/*
+ * MTB - pretty sure this is all unsured. Removing.
+
+template<typename MESSAGETYPE, typename COMPONENT_KEY, typename DATA, typename SET_TYPE, typename ACK_TYPE, const int SET_ID, const int ACK_ID>
+class GenericControllerSetRequest : public Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, COMPONENT_KEY, DATA>,
 
         public Controllers::ActionSend<
             MESSAGETYPE,
-            Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, DATA>,
+            Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, COMPONENT_KEY, DATA>,
             MaceCore::ModuleCharacteristic,
             DATA,
             SET_TYPE,
@@ -58,7 +61,7 @@ class GenericControllerSetRequest : public Controllers::GenericControllerQueueDa
         >,
         public Controllers::ActionFinish<
             MESSAGETYPE,
-            Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, DATA>,
+            Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, COMPONENT_KEY, DATA>,
             MaceCore::ModuleCharacteristic,
             uint8_t,
             ACK_TYPE,
@@ -126,24 +129,25 @@ protected:
 
 public:
 
-    GenericControllerSetRequest(const Controllers::IMessageNotifier<MESSAGETYPE>* cb,
-                         Controllers::MessageModuleTransmissionQueue<MESSAGETYPE> * queue,
+    GenericControllerSetRequest(const Controllers::IMessageNotifier<MESSAGETYPE, COMPONENT_KEY>* cb,
+                         TransmitQueue<MESSAGETYPE, COMPONENT_KEY> * queue,
                          int linkChan,
                          const std::function<void(uint8_t system_id, uint8_t, uint8_t, MESSAGETYPE*, const SET_TYPE*)> &encode_chan,
                          const std::function<void(const MESSAGETYPE*, ACK_TYPE*)> &decode_ack) :
-        Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, DATA>(cb, queue, linkChan),
+        Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, COMPONENT_KEY, DATA>(cb, queue, linkChan),
         Controllers::ActionSend<
                     MESSAGETYPE,
-                    Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, DATA>,
-                    MaceCore::ModuleCharacteristic,
+                    COMPONENT_KEY,
+                    Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, COMPONENT_KEY, DATA>,
+                    COMPONENT_KEY,
                     DATA,
                     SET_TYPE,
                     ACK_ID
                 >(this, encode_chan),
         Controllers::ActionFinish<
                     MESSAGETYPE,
-                    Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, DATA>,
-                    MaceCore::ModuleCharacteristic,
+                    Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, COMPONENT_KEY, DATA>,
+                    COMPONENT_KEY,
                     uint8_t,
                     ACK_TYPE,
                     ACK_ID
@@ -156,14 +160,15 @@ public:
 
 
 
-template<typename MESSAGETYPE, typename DATA, typename SET_TYPE, typename ACK_TYPE, const int SET_ID, const int ACK_ID>
+template<typename MESSAGETYPE, typename COMPONENT_KEY, typename DATA, typename SET_TYPE, typename ACK_TYPE, const int SET_ID, const int ACK_ID>
 class GenericControllerSetRequestRespond :
-        public GenericControllerSetRequest<MESSAGETYPE, DATA, SET_TYPE, ACK_TYPE, SET_ID, ACK_ID>,
+        public GenericControllerSetRequest<MESSAGETYPE, COMPONENT_KEY, DATA, SET_TYPE, ACK_TYPE, SET_ID, ACK_ID>,
 
         public Controllers::ActionFinalReceiveRespond<
             MESSAGETYPE,
-            Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, DATA>,
-            MaceCore::ModuleCharacteristic,
+            COMPONENT_KEY,
+            Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, COMPONENT_KEY, DATA>,
+            COMPONENT_KEY,
             DATA,
             SET_TYPE,
             ACK_TYPE,
@@ -190,7 +195,7 @@ public:
     //!
     bool ContainsAction(const Controllers::Actions action)
     {
-        return GenericControllerSetRequest<MESSAGETYPE, DATA, SET_TYPE, ACK_TYPE, SET_ID, ACK_ID>::ContainsAction(action);
+        return GenericControllerSetRequest<MESSAGETYPE, COMPONENT_KEY, DATA, SET_TYPE, ACK_TYPE, SET_ID, ACK_ID>::ContainsAction(action);
     }
 
 
@@ -210,7 +215,7 @@ protected:
     {
         UNUSED(sender);
         vehicleObj.ID = msg.target_system;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        vehicleObj.MaceInstance = msg.target_component;
 
         queueObj = vehicleObj;
 
@@ -228,10 +233,10 @@ public:
                          const std::function<void(const MESSAGETYPE*, SET_TYPE*)> &decode,
                          const std::function<void(uint8_t system_id, uint8_t, uint8_t, MESSAGETYPE*, const ACK_TYPE*)> &encode_ack_chan,
                          const std::function<void(const MESSAGETYPE*, ACK_TYPE*)> &decode_ack) :
-        GenericControllerSetRequest<MESSAGETYPE, DATA, SET_TYPE, ACK_TYPE, SET_ID, ACK_ID>(cb, queue, linkChan, encode_chan, decode_ack),
+        GenericControllerSetRequest<MESSAGETYPE, COMPONENT_KEY, DATA, SET_TYPE, ACK_TYPE, SET_ID, ACK_ID>(cb, queue, linkChan, encode_chan, decode_ack),
         Controllers::ActionFinalReceiveRespond<
                     MESSAGETYPE,
-                    Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, DATA>,
+                    Controllers::GenericControllerQueueDataWithModule<MESSAGETYPE, COMPONENT_KEY, DATA>,
                     MaceCore::ModuleCharacteristic,
                     DATA,
                     SET_TYPE,
@@ -243,6 +248,8 @@ public:
     }
 
 };
+
+*/
 
 }
 

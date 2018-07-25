@@ -5,7 +5,7 @@
 
 namespace Controllers {
 
-template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename MSG_TYPE, const int ...MESSAGE_ACK_ID>
+template<typename MESSAGE_TYPE, typename COMPONENT_KEY, typename CONTROLLER_TYPE, typename MSG_TYPE, const int ...MESSAGE_ACK_ID>
 class ActionIntermediateRespond :
         public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>
 {
@@ -28,12 +28,8 @@ public:
 protected:
 
     template<typename QUEUE_TYPE>
-    void NextTransmission(const MSG_TYPE &cmd, const MaceCore::ModuleCharacteristic &sender, const QUEUE_TYPE &queueObj, const MaceCore::ModuleCharacteristic &target)
+    void NextTransmission(const MSG_TYPE &cmd, const COMPONENT_KEY &sender, const QUEUE_TYPE &queueObj, const COMPONENT_KEY &target)
     {
-        if(target.ID == 0)
-        {
-            throw std::runtime_error("Target ID is 0. This don't make sense when responding");
-        }
 
         std::vector<int> expectedResponses { { MESSAGE_ACK_ID... } };
         BASE::m_Controller-> template QueueTransmission<QUEUE_TYPE>(queueObj, expectedResponses, [this, cmd, sender, target](){

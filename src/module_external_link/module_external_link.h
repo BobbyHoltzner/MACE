@@ -64,7 +64,7 @@ class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public MaceCore::IModuleCommandExternalLink,
         public CommsMACEHelper,
         public ExternalLink::HeartbeatController_Interface,
-        public Controllers::IMessageNotifier<mace_message_t>
+        public Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic>
 {
 
 
@@ -132,13 +132,19 @@ public:
     //! \param resourceName Name of resource (module) added
     //! \param ID ID of module
     //!
-    void ExternalModuleAdded(const char* ResourceName, int ID);
+    void ExternalModuleAdded(const CommsMACE::Resource &resource);
 
-    void ExternalModuleRemoved(const char* ResourceName, int ID);
+    void ExternalModuleRemoved(const CommsMACE::Resource &resource);
 
     std::string createLog(const int &systemID);
 
     virtual void TransmitMessage(const mace_message_t &msg, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>()) const;
+
+    virtual std::vector<MaceCore::ModuleCharacteristic> GetAllTargets() const;
+
+    virtual MaceCore::ModuleCharacteristic GetModuleFromMAVLINKVehicleID(int ID) const;
+
+    virtual std::tuple<int, int> GetSysIDAndCompIDFromComponentKey(const MaceCore::ModuleCharacteristic &key) const;
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from the Heartbeat Controller
@@ -152,7 +158,7 @@ public:
     Controllers::DataItem<MissionKey, MissionList>::FetchModuleReturn FetchAllMissionFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
 
 
-    void ReceivedHome(const CommandItem::SpatialHome &home);
+    void ReceivedHome(const MaceCore::ModuleCharacteristic &moduleAppliedTo, const CommandItem::SpatialHome &home);
     Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchKeyReturn FetchHomeFromKey(const OptionalParameter<MaceCore::ModuleCharacteristic> &key);
     Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchModuleReturn FetchAllHomeFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
 
@@ -365,7 +371,7 @@ public:
     virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey);
-    virtual void NewlyAvailableModule(const MaceCore::ModuleCharacteristic &module);
+    virtual void NewlyAvailableModule(const MaceCore::ModuleCharacteristic &module, const MaceCore::ModuleClasses &type);
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
     virtual void Command_RequestBoundaryDownload(const std::tuple<MaceCore::ModuleCharacteristic, uint8_t> &remote, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
@@ -404,6 +410,7 @@ private:
         ExternalLink::ControllerBoundary
     > m_Controllers;
 
+
 private:
     bool airborneInstance;
     //!
@@ -423,7 +430,7 @@ private:
     BaseTopic::VehicleTopics m_VehicleTopics;
 
 
-    std::unordered_map<std::string, Controllers::IController<mace_message_t>*> m_TopicToControllers;
+    std::unordered_map<std::string, Controllers::IController<mace_message_t, MaceCore::ModuleCharacteristic>*> m_TopicToControllers;
 };
 
 #endif // MODULE_EXTERNAL_LINK_H

@@ -56,9 +56,9 @@ public:
 
     virtual void RequestReset() = 0;
 
-    virtual void WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target = OptionalParameter<std::tuple<const char*, int>>()) const = 0;
+    virtual void WriteBytes(const char *bytes, int length, const OptionalParameter<Resource> &target = OptionalParameter<Resource>()) const = 0;
 
-    virtual void AddResource(const char *resourceType, int ID) = 0;
+    virtual void AddResource(const Resource &resource) = 0;
 
 
     //!

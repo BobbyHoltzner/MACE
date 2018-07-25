@@ -32,6 +32,11 @@ public:
         }
         return true;
     }
+
+    bool operator != (const ObjectIntTuple &rhs) const
+    {
+        return !(*this == rhs);
+    }
 };
 
 

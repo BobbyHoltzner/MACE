@@ -13,7 +13,7 @@ namespace MAVLINKVehicleControllers {
 class CommandLand : public Controller_GenericLongCommand<CommandItem::SpatialLand, MAV_CMD_NAV_LAND>
 {
 public:
-    CommandLand(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+    CommandLand(const Controllers::IMessageNotifier<mavlink_message_t, MavlinkEntityKey> *cb, TransmitQueue<mavlink_message_t, MavlinkEntityKey> *queue, int linkChan) :
         Controller_GenericLongCommand<CommandItem::SpatialLand, MAV_CMD_NAV_LAND>(cb, queue, linkChan)
     {
 

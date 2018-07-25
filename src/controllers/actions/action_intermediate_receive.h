@@ -5,7 +5,7 @@
 
 namespace Controllers {
 
-template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename RECEIVE_QUEUE_TYPE, typename RESPOND_QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID, typename ACK_TYPE>
+template<typename MESSAGE_TYPE, typename COMPONENT_KEY, typename CONTROLLER_TYPE, typename RECEIVE_QUEUE_TYPE, typename RESPOND_QUEUE_TYPE, typename MSG_TYPE, const int MESSAGE_REQUEST_ID, typename ACK_TYPE>
 class ActionIntermediateReceive :
         public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>
 {
@@ -14,7 +14,7 @@ class ActionIntermediateReceive :
 
 protected:
 
-    virtual bool BuildData_Send(const MSG_TYPE &, const MaceCore::ModuleCharacteristic &sender, ACK_TYPE &, MaceCore::ModuleCharacteristic &vehicleObj, RECEIVE_QUEUE_TYPE &receiveQueueObj, RESPOND_QUEUE_TYPE &respondQueueObj)= 0;
+    virtual bool BuildData_Send(const MSG_TYPE &, const COMPONENT_KEY &sender, ACK_TYPE &, COMPONENT_KEY &vehicleObj, RECEIVE_QUEUE_TYPE &receiveQueueObj, RESPOND_QUEUE_TYPE &respondQueueObj)= 0;
 
 public:
 
@@ -24,18 +24,18 @@ public:
     }
 
     ActionIntermediateReceive(CONTROLLER_TYPE *controller,
-                                  const std::function<void(const ACK_TYPE &, const MaceCore::ModuleCharacteristic &, const RESPOND_QUEUE_TYPE &, const MaceCore::ModuleCharacteristic &)> &nextStep,
+                                  const std::function<void(const ACK_TYPE &, const COMPONENT_KEY &, const RESPOND_QUEUE_TYPE &, const COMPONENT_KEY &)> &nextStep,
                                   const std::function<void(const MESSAGE_TYPE*, MSG_TYPE*)> &decode) :
         ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>(controller, {}, decode)
     {
 
 
         BASE::m_Controller-> template AddTriggeredLogic<MESSAGE_REQUEST_ID, MSG_TYPE>( BASE::m_DecodeFunc,
-                [this, nextStep](const MSG_TYPE  &msg, const MaceCore::ModuleCharacteristic &sender){
+                [this, nextStep](const MSG_TYPE  &msg, const COMPONENT_KEY &sender){
 
-                    MaceCore::ModuleCharacteristic target = sender;
+                    COMPONENT_KEY target = sender;
 
-                    MaceCore::ModuleCharacteristic vehicleFrom;
+                    COMPONENT_KEY vehicleFrom;
                     ACK_TYPE ack;
                     RECEIVE_QUEUE_TYPE receiveQueueObj;
                     RESPOND_QUEUE_TYPE respondQueueObj;

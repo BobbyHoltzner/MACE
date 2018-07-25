@@ -11,7 +11,7 @@ namespace MAVLINKVehicleControllers {
 class CommandRTL : public Controller_GenericLongCommand<CommandItem::SpatialRTL, MAV_CMD_NAV_RETURN_TO_LAUNCH>
 {
 public:
-    CommandRTL(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+    CommandRTL(const Controllers::IMessageNotifier<mavlink_message_t, MavlinkEntityKey> *cb, TransmitQueue<mavlink_message_t, MavlinkEntityKey> *queue, int linkChan) :
         Controller_GenericLongCommand<CommandItem::SpatialRTL, MAV_CMD_NAV_RETURN_TO_LAUNCH>(cb, queue, linkChan)
     {
 

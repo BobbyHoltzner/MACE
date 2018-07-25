@@ -217,7 +217,7 @@ void ModuleVehicleSensors::computeVehicleFootprint(const int &systemID, const Da
 //! \brief NewlyAvailableVehicle Subscriber to a newly available vehicle topic
 //! \param vehicleID Vehilce ID of the newly available vehicle
 //!
-void ModuleVehicleSensors::NewlyAvailableVehicle(const int &vehicleID)
+void ModuleVehicleSensors::NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     UNUSED(vehicleID);
 }

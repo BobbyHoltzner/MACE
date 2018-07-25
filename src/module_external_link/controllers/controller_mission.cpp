@@ -48,8 +48,7 @@ namespace ExternalLink {
         receiveQueueObj = key;
         respondQueueObj = key;
 
-        vehicleObj.ID = key.m_systemID;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        vehicleObj = this->GetModuleFromMAVLINKVehicleID(cmd.mission_system);
 
         std::vector<std::tuple<MissionKey, MissionList>> missions;
         CONTROLLER_MISSION_TYPE::FetchDataFromKey(key, missions);
@@ -184,8 +183,7 @@ namespace ExternalLink {
         receiveQueueObj = key;
         respondQueueObj = key;
 
-        vehicleObj.ID = key.m_systemID;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        vehicleObj = this->GetModuleFromMAVLINKVehicleID(missionRequest.mission_system);
 
         if(m_MissionsUploading.find(key) == m_MissionsUploading.cend())
         {
@@ -226,9 +224,10 @@ namespace ExternalLink {
     bool ControllerMission::BuildData_Send(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
     {
         UNUSED(sender);
+        //MTB this isn't quite right, but I think it only effects more or less data fields that are not used.
         MaceCore::ModuleCharacteristic target;
         target.ID = missionItem.target_system;
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        target.MaceInstance = 0;
 
         MissionItem::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionItem.mission_state));
         receiveQueueObj = key;
@@ -291,15 +290,15 @@ namespace ExternalLink {
     bool ControllerMission::Construct_FinalObjectAndResponse(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender, mace_mission_ack_t &ackMission, std::shared_ptr<MissionItem::MissionList> &finalList, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &queueObj)
     {
         UNUSED(sender);
+        //MTB this isn't quite right, but I think it only effects more or less data fields that are not used.
         MaceCore::ModuleCharacteristic target;
         target.ID = missionItem.target_system;
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        target.MaceInstance = 0;
 
         MissionItem::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionItem.mission_state));
         queueObj = key;
 
-        vehicleObj.ID = key.m_systemID;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        vehicleObj = this->GetModuleFromMAVLINKVehicleID(key.m_systemID);
 
         //check if mission item received is part of a mission we are activly downloading
         if(this->m_MissionsBeingFetching.find(key) == m_MissionsBeingFetching.cend())
@@ -402,8 +401,7 @@ namespace ExternalLink {
         {
             DataItem<MissionKey, MissionList>::FetchModuleReturn items;
 
-            vehicleObj.ID = msg.mission_system;
-            vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            vehicleObj  = this->GetModuleFromMAVLINKVehicleID(msg.mission_system);
 
             this->FetchFromModule(vehicleObj, items);
 
@@ -467,8 +465,7 @@ namespace ExternalLink {
         {
             DataItem<MissionKey, MissionList>::FetchModuleReturn items;
 
-            vehicleObj.ID = msg.mission_system;
-            vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            vehicleObj = this->GetModuleFromMAVLINKVehicleID(msg.mission_system);
 
             this->FetchFromModule(vehicleObj, items);
 
@@ -507,7 +504,7 @@ namespace ExternalLink {
         return false;
     }
 
-    ControllerMission::ControllerMission(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
+    ControllerMission::ControllerMission(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
         CONTROLLER_MISSION_TYPE(cb, queue, linkChan),
         SendHelper_RequestMissionDownload(this, mace_msg_mission_request_list_encode_chan),
         SendHelper_RequestList(this, mace_msg_mission_request_list_decode, mace_msg_mission_count_encode_chan),

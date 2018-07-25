@@ -56,7 +56,8 @@ HEADERS += mace_core.h\
     i_module_events_general_vehicle.h \
     module_characteristics.h \
     i_module_events_boundary_generator.h \
-    i_module_command_generic_boundaries.h
+    i_module_command_generic_boundaries.h \
+    i_module_command_generic_vehicle_listener.h
 # Unix lib Install
 unix:!symbian {
     target.path = $$(MACE_ROOT)/lib

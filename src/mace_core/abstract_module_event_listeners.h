@@ -146,6 +146,18 @@ public:
 
 
     //!
+    //! \brief Add two-parameter logic (in form of lambda function) to a command
+    //! \param command Command to add logic to
+    //! \param logic Lambda function to call when command is invoked.
+    //!
+    template<typename P1T, typename P2T>
+    void AddCommandLogic(const CT command, const std::function<void(const P1T&, const P2T&, const OptionalParameter<ModuleCharacteristic> &sender)> &lambda)
+    {
+        m_CommandDispatcher.AddLambda(command, lambda);
+    }
+
+
+    //!
     //! \brief Set the maximum rate which commands are to be called
     //!
     //! The maximum rate which all commands can be invoked, regardless of SetMaxRate_SpecificCommand settings.

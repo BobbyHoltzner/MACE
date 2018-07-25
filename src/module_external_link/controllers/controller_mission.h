@@ -21,6 +21,7 @@ namespace ExternalLink {
 
 using CONTROLLER_MISSION_TYPE = Controllers::GenericController<
     mace_message_t,
+    MaceCore::ModuleCharacteristic,
     TransmitQueueWithKeys<Controllers::MessageModuleTransmissionQueue<mace_message_t>, ObjectIntTuple<MaceCore::ModuleCharacteristic>, ObjectIntTuple<MissionItem::MissionKey>>,
     uint8_t,
     Controllers::DataItem<MissionKey, MissionList>
@@ -31,7 +32,7 @@ using CONTROLLER_MISSION_TYPE = Controllers::GenericController<
 
 
 using SendHelper_RequestMissionDownload = Controllers::ActionSend<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -42,7 +43,7 @@ using SendHelper_RequestMissionDownload = Controllers::ActionSend<
 
 
 using SendHelper_RequestList = Controllers::ActionIntermediate<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -55,7 +56,7 @@ using SendHelper_RequestList = Controllers::ActionIntermediate<
 
 
 using SendHelper_ReceiveCountRespondItemRequest = Controllers::ActionIntermediate<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -67,7 +68,7 @@ using SendHelper_ReceiveCountRespondItemRequest = Controllers::ActionIntermediat
 
 
 using SendHelper_ReceiveCountRespondItemRequest_FromRequest = Controllers::ActionIntermediate<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MaceCore::ModuleCharacteristic,
     MissionItem::MissionKey,
@@ -80,7 +81,7 @@ using SendHelper_ReceiveCountRespondItemRequest_FromRequest = Controllers::Actio
 
 
 using SendHelper_RequestItem = Controllers::ActionIntermediate<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -94,7 +95,7 @@ using SendHelper_RequestItem = Controllers::ActionIntermediate<
 
 
 using SendHelper_ReceiveItem = Controllers::ActionIntermediateReceive<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -117,7 +118,7 @@ typedef Controllers::ActionResponseIntermediate<
 
 
 using SendHelper_Final = Controllers::ActionFinalReceiveRespond<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionList,
@@ -129,7 +130,7 @@ using SendHelper_Final = Controllers::ActionFinalReceiveRespond<
 
 
 using SendHelper_FinalFinal = Controllers::ActionFinish<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     uint8_t,
@@ -140,7 +141,7 @@ using SendHelper_FinalFinal = Controllers::ActionFinish<
 
 
 using Action_RequestCurrentMission_Initiate = Controllers::ActionRequest<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MaceCore::ModuleCharacteristic,
     mace_mission_request_list_generic_t,
@@ -151,7 +152,7 @@ using Action_RequestCurrentMission_Initiate = Controllers::ActionRequest<
 
 
 using Action_RequestCurrentMission_Response = Controllers::ActionIntermediateReceive<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -162,7 +163,7 @@ using Action_RequestCurrentMission_Response = Controllers::ActionIntermediateRec
 
 
 using Action_RequestCurrentMission_NoMissionResponse = Controllers::ActionIntermediateReceive<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -259,7 +260,7 @@ protected:
 
 public:
 
-    ControllerMission(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan);
+    ControllerMission(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan);
 
 
     void RequestMission(const MissionItem::MissionKey &key, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target);

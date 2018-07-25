@@ -79,7 +79,7 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
                 }
             });
 
-            Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+            Controllers::ControllerCollection<mavlink_message_t, MavlinkEntityKey> *collection = Owner().ControllersCollection();
             auto takeoffTransition = new MAVLINKVehicleControllers::ControllerGuidedMissionItem<CommandItem::SpatialWaypoint>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
             takeoffTransition->AddLambda_Finished(this, [this,takeoffTransition](const bool completed, const uint8_t finishCode){
                 if(!completed && (finishCode != MAV_RESULT_ACCEPTED))
@@ -93,12 +93,9 @@ bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* comman
                 delete ptr;
             });
 
-            MaceCore::ModuleCharacteristic target;
-            target.ID = cmd->getTargetSystem();
-            target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-            MaceCore::ModuleCharacteristic sender;
-            sender.ID = 255;
-            sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            MavlinkEntityKey target = Owner().getMAVLINKID();
+            MavlinkEntityKey sender = 255;
+
             Base3DPosition cmdPosition = cmd->getPosition();
             CommandItem::SpatialWaypoint takeoffTarget(255,cmd->getTargetSystem());
             takeoffTarget.setPosition(cmdPosition);

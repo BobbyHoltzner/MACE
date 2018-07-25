@@ -132,6 +132,54 @@ private:
     };
 
 
+
+    template <typename FT1, typename FT2>
+    class TwoParamCaller : public FunctionCallerBase
+    {
+    public:
+        TwoParamCaller(const std::function<void(const FT1&, const FT2&, const OptionalParameter<MaceCore::ModuleCharacteristic>&)> &func) :
+            m_Func(func)
+        {
+
+        }
+
+        void AddParameter(const FT1& param1, const FT2& param2)
+        {
+            this->m_Mutex.lock();
+            m_Param1.push_back(std::make_tuple(param1, param2));
+            m_Param1.unique();
+            this->m_Mutex.unlock();
+        }
+
+        virtual int NumCalls() const
+        {
+            return m_Param1.size();
+        }
+
+        virtual void Call()
+        {
+            this->m_Mutex.lock();
+            std::list<std::tuple<FT1, FT2>> listCpy = m_Param1;
+            m_Param1.clear();
+            this->m_Mutex.unlock();
+
+            for(std::tuple<FT1, FT2> param : listCpy)
+                m_Func(std::get<0>(param), std::get<1>(param), this->m_Sender);
+        }
+
+        void InvokeOneInstance(const FT1& param1, const FT2& param2, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>())
+        {
+            m_Func(param1, param2, sender);
+        }
+
+    private:
+
+        const std::function<void(const FT1&, const FT2&, const OptionalParameter<MaceCore::ModuleCharacteristic>&)> m_Func;
+
+        std::list<std::tuple<FT1, FT2>> m_Param1;
+    };
+
+
 public:
 
 
@@ -159,6 +207,20 @@ public:
         m_CallRate.insert({event, std::chrono::milliseconds(0)});
         m_LastCallTime.insert({event, 0});
         m_EventProcedures.insert({event, std::make_shared<OneParamCaller<P1T>>(lambda)});
+    }
+
+
+    //!
+    //! \brief Add a 2 parameter function that gets fired when given command is issued
+    //! \param event Command to triger lambda on
+    //! \param lambda Lambda to trigger
+    //!
+    template<typename P1T, typename P2T>
+    void AddLambda(T event, const std::function<void(const P1T&, const P2T&, const OptionalParameter<MaceCore::ModuleCharacteristic>&)> &lambda)
+    {
+        m_CallRate.insert({event, std::chrono::milliseconds(0)});
+        m_LastCallTime.insert({event, 0});
+        m_EventProcedures.insert({event, std::make_shared<TwoParamCaller<P1T, P2T>>(lambda)});
     }
 
 

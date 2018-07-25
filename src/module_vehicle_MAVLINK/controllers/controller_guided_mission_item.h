@@ -11,14 +11,16 @@
 #include "controllers/actions/action_finish.h"
 
 #include "mavlink.h"
+#include "module_vehicle_MAVLINK/mavlink_entity_key.h"
 
 namespace MAVLINKVehicleControllers {
 
 template <typename T>
 using GuidedMISend = Controllers::ActionSend<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
-    MaceCore::ModuleCharacteristic,
+    MavlinkEntityKey,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, T>,
+    MavlinkEntityKey,
     T,
     mavlink_mission_item_t,
     MAVLINK_MSG_ID_MISSION_ACK
@@ -27,34 +29,34 @@ using GuidedMISend = Controllers::ActionSend<
 template <typename T>
 using GuidedMIFinish = Controllers::ActionFinish<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
-    MaceCore::ModuleCharacteristic,
+    MavlinkEntityKey,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, T>,
+    MavlinkEntityKey,
     uint8_t,
     mavlink_mission_ack_t,
     MAVLINK_MSG_ID_MISSION_ACK
 >;
 
 template <typename MISSIONITEM>
-class ControllerGuidedMissionItem : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MISSIONITEM>,
+class ControllerGuidedMissionItem : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, MISSIONITEM>,
         public GuidedMISend<MISSIONITEM>,
         public GuidedMIFinish<MISSIONITEM>
 {
 private:
 
-    std::unordered_map<MaceCore::ModuleCharacteristic, MaceCore::ModuleCharacteristic> m_CommandRequestedFrom;
+    std::unordered_map<MavlinkEntityKey, MavlinkEntityKey> m_CommandRequestedFrom;
 
 protected:
 
-    virtual bool Construct_Send(const MISSIONITEM &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_item_t &missionItem, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_Send(const MISSIONITEM &commandItem, const MavlinkEntityKey &sender, const MavlinkEntityKey &target, mavlink_mission_item_t &missionItem, MavlinkEntityKey &queueObj)
     {
         UNUSED(sender);
         UNUSED(target);
-        queueObj.ID = commandItem.getTargetSystem();
-        queueObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        queueObj = this->GetModuleFromMAVLINKVehicleID(commandItem.getTargetSystem());
 
         missionItem = initializeMAVLINKMissionItem();
         missionItem.target_system = commandItem.getTargetSystem();
-        missionItem.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
+        missionItem.target_component = 0;
 
         FillMissionItem(commandItem,missionItem);
 
@@ -62,7 +64,7 @@ protected:
     }
 
 
-    virtual bool Finish_Receive(const mavlink_mission_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Finish_Receive(const mavlink_mission_ack_t &msg, const MavlinkEntityKey &sender, uint8_t & ack, MavlinkEntityKey &queueObj)
     {
         UNUSED(msg);
         queueObj = sender;
@@ -96,8 +98,8 @@ protected:
     }
 
 public:
-    ControllerGuidedMissionItem(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
-        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MISSIONITEM>(cb, queue, linkChan),
+    ControllerGuidedMissionItem(const Controllers::IMessageNotifier<mavlink_message_t, MavlinkEntityKey> *cb, TransmitQueue<mavlink_message_t, MavlinkEntityKey> *queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, MISSIONITEM>(cb, queue, linkChan),
         GuidedMISend<MISSIONITEM>(this, mavlink_msg_mission_item_encode_chan),
         GuidedMIFinish<MISSIONITEM>(this, mavlink_msg_mission_ack_decode)
     {

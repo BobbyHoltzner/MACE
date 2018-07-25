@@ -92,7 +92,7 @@ public:
     //! \brief NewlyAvailableVehicle Subscriber for a new vehicle topic
     //! \param vehicleID Vehicle ID of the new vehicle
     //!
-    void NewlyAvailableVehicle(const int &vehicleID) override;
+    virtual void NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief TestFunction

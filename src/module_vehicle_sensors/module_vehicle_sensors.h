@@ -85,7 +85,7 @@ public:
     //! \brief NewlyAvailableVehicle Subscriber to a newly available vehicle topic
     //! \param vehicleID Vehilce ID of the newly available vehicle
     //!
-    virtual void NewlyAvailableVehicle(const int &vehicleID);
+    virtual void NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
 private:
     //!

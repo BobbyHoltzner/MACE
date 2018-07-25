@@ -265,7 +265,7 @@ void ModuleRTA::NewlyAvailableBoundary(const uint8_t &key, const OptionalParamet
 //! \brief NewlyAvailableVehicle Subscriber for a new vehicle topic
 //! \param vehicleID Vehicle ID of the new vehicle
 //!
-void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
+void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     /* MTB - Removing 7/2/2018
      * @pnolan Issue: 137

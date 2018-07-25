@@ -7,7 +7,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
     MaceCore::ModuleCharacteristic sender;
     sender.ID = systemID;
-    sender.Class = (MaceCore::ModuleClasses)compID;
+    sender.MaceInstance = compID;
 
     switch ((int)message->msgid) {
     case MACE_MSG_ID_HEARTBEAT:

@@ -137,6 +137,16 @@ public:
         vehicleIDs = m_LocalVehicles;
     }
 
+    //!
+    //! \brief GetVehicleFromMAVLINKID
+    //! \param MAVLINKID
+    //! \return
+    //!
+    ModuleCharacteristic GetVehicleFromMAVLINKID(const int MAVLINKID) const
+    {
+        return m_MAVLINKIDtoModule.at(MAVLINKID);
+    }
+
     CommandItem::SpatialHome GetVehicleHomePostion(const int &vehicleID) const
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
@@ -175,12 +185,14 @@ public:
 
 private:
 
-    void AddAvailableVehicle(const int &vehicleID, bool internal)
+    void AddAvailableVehicle(const int &vehicleID, bool internal, const ModuleCharacteristic &module)
     {
         std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
         m_AvailableVehicles.push_back(vehicleID);
         std::sort( m_AvailableVehicles.begin(), m_AvailableVehicles.end());
         m_AvailableVehicles.erase( unique( m_AvailableVehicles.begin(), m_AvailableVehicles.end() ), m_AvailableVehicles.end() );
+
+        m_MAVLINKIDtoModule.insert({vehicleID, module});
 
         if(internal == true)
         {
@@ -189,10 +201,10 @@ private:
         }
     }
 
-    void UpdateVehicleHomePosition(const CommandItem::SpatialHome &vehicleHome)
+    void UpdateVehicleHomePosition(const uint8_t vehicleID, const CommandItem::SpatialHome &vehicleHome)
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        m_VehicleHomeMap[vehicleHome.getOriginatingSystem()] = vehicleHome;
+        m_VehicleHomeMap[vehicleID] = vehicleHome;
     }
 
     void UpdateGlobalOrigin(const mace::pose::GeodeticPosition_3D &globalOrigin)
@@ -709,6 +721,7 @@ private:
     mutable std::mutex m_AvailableVehicleMutex;
     std::vector<int> m_AvailableVehicles;
     std::vector<int> m_LocalVehicles;
+    std::unordered_map<int, ModuleCharacteristic> m_MAVLINKIDtoModule;
 
     mutable std::mutex m_VehicleHomeMutex;
     std::map<int, CommandItem::SpatialHome> m_VehicleHomeMap;
@@ -873,6 +886,83 @@ private:
 private:
     mutable std::mutex m_EnvironmentalBoundaryMutex;
     std::unordered_map<uint8_t, std::tuple<BoundaryItem::BoundaryCharacterisic, BoundaryItem::BoundaryList>> m_Boundaries;
+
+
+
+
+
+
+
+
+
+
+
+public:
+
+
+    void AddLocalModule(const ModuleCharacteristic &characterstic, const ModuleClasses &type)
+    {
+        m_LocalModules.insert({characterstic, type});
+    }
+
+
+    void AddRemoteModule(const ModuleCharacteristic &characterstic, const ModuleClasses &type)
+    {
+        m_RemoteModules.insert({characterstic, type});
+    }
+
+
+    std::vector<ModuleCharacteristic> GetAllLocalModules() const
+    {
+        std::vector<ModuleCharacteristic> vec;
+        for(auto it = m_LocalModules.cbegin() ; it != m_LocalModules.cend() ; ++it)
+        {
+            vec.push_back(it->first);
+        }
+    }
+
+
+    std::vector<ModuleCharacteristic> GetAllRemoteModules() const
+    {
+        std::vector<ModuleCharacteristic> vec;
+        for(auto it = m_RemoteModules.cbegin() ; it != m_RemoteModules.cend() ; ++it)
+        {
+            vec.push_back(it->first);
+        }
+    }
+
+
+    std::vector<ModuleCharacteristic> GetAllModules() const
+    {
+        std::vector<ModuleCharacteristic> vec1 = GetAllLocalModules();
+        std::vector<ModuleCharacteristic> vec2 = GetAllRemoteModules();
+
+        vec1.insert(vec1.end(), vec2.begin(), vec2.end());
+
+        return vec1;
+    }
+
+
+    ModuleClasses getModuleType(const ModuleCharacteristic &characterstic) const
+    {
+        if(m_LocalModules.find(characterstic) != m_LocalModules.cend())
+        {
+            return m_LocalModules.at(characterstic);
+        }
+
+        if(m_RemoteModules.find(characterstic) != m_RemoteModules.cend())
+        {
+            return m_RemoteModules.at(characterstic);
+        }
+
+        throw std::runtime_error("Unknown module given");
+    }
+
+private:
+
+    std::unordered_map<ModuleCharacteristic, ModuleClasses> m_LocalModules;
+    std::unordered_map<ModuleCharacteristic, ModuleClasses> m_RemoteModules;
+
 };
 
 } //END MaceCore Namespace

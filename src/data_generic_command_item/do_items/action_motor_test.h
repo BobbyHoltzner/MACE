@@ -130,7 +130,7 @@ public:
 
     friend std::ostream &operator<<(std::ostream &out, const ActionMotorTest &obj)
     {
-        out<<"Command Motor Test( Target ID: "<<obj.targetSystem<<", Generating ID: "<<obj.originatingSystem<<", Power: "<<obj.power<<", Motor Number:"<<obj.motorNumber<<", Duration:"<<obj.duration<<")";
+        out<<"Command Motor Test( Power: "<<obj.power<<", Motor Number:"<<obj.motorNumber<<", Duration:"<<obj.duration<<")";
         return out;
     }
 

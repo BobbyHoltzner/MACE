@@ -72,7 +72,7 @@ void State_GroundedDisarming::OnEnter()
     //when calling this function that means our intent is to disarm the vehicle
     //first let us send this relevant command
     //issue command to controller here, and then setup a callback to handle the result
-    Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+    Controllers::ControllerCollection<mavlink_message_t, MavlinkEntityKey> *collection = Owner().ControllersCollection();
     auto controllerArm = new MAVLINKVehicleControllers::CommandARM(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
     controllerArm->AddLambda_Finished(this, [this,controllerArm](const bool completed, const uint8_t finishCode){
         controllerArm->Shutdown();
@@ -86,13 +86,10 @@ void State_GroundedDisarming::OnEnter()
         delete ptr;
     });
 
-    MaceCore::ModuleCharacteristic target;
-    target.ID = Owner().getMAVLINKID();
-    target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-    MaceCore::ModuleCharacteristic sender;
-    sender.ID = 255;
-    sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-    CommandItem::ActionArm action(255,target.ID);
+    MavlinkEntityKey target = Owner().getMAVLINKID();
+    MavlinkEntityKey sender = 255;
+
+    CommandItem::ActionArm action(255, Owner().getMAVLINKID());
     action.setVehicleArm(false);
     controllerArm->Send(action,sender,target);
     collection->Insert("armController",controllerArm);

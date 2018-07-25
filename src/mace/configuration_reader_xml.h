@@ -45,6 +45,11 @@ public:
     ConfigurationParseResult Parse(const std::string &filename);
 
 
+    bool HasStaticMaceInstanceID() const;
+
+    uint32_t GetStaticMaceInstanceID() const;
+
+
     //!
     //! \brief Get modules created after parsing
     //! \return List of created modules.
@@ -66,6 +71,9 @@ private:
     const MaceCore::ModuleFactory *m_Factory;
 
     std::vector<std::shared_ptr<MaceCore::ModuleBase> > m_Modules;
+
+    bool m_MaceInstanceIDSet;
+    uint32_t m_MaceInstance;
 
     std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string> m_ModuleTypes;
     std::map<std::shared_ptr<MaceCore::ModuleBase>, std::shared_ptr<MaceCore::ModuleParameterValue> > m_Parameters;

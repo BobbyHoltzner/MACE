@@ -151,7 +151,7 @@ public:
     //! \brief NewlyAvailableVehicle Subscriber to a newly available vehicle topic
     //! \param vehicleID Vehilce ID of the newly available vehicle
     //!
-    void NewlyAvailableVehicle(const int &vehicleID) override;
+    virtual void NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
     //! \brief NewlyUpdated3DOccupancyMap Subscriber to a newly available 3D occupancy map

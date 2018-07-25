@@ -5,13 +5,15 @@
 
 #include "common/optional_parameter.h"
 
+#include <vector>
+
 namespace Controllers {
 
-template<typename DATA_TYPE>
+template<typename DATA_TYPE, typename COMPONENT_KEY>
 class IActionSend
 {
 public:
-    virtual void Send(const DATA_TYPE &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target) = 0;
+    virtual void Send(const DATA_TYPE &commandItem, const COMPONENT_KEY &sender, const COMPONENT_KEY &target) = 0;
 };
 
 
@@ -22,6 +24,7 @@ public:
 //! When the given response type is heard by the expected object the queued transmission will be removed.
 //!
 //! \template MESSAGE_TYPE Underlaying generic message type that all communication is done through
+//! \template COMPONENT_KEY Type that identifies actors on the network
 //! \template CONTROLLER_TYPE Type of controller being used by this action, will be used to queue transmissions.
 //! \template QUEUE_TYPE Type of object that will establish uniqueness in the queue.
 //!   This ultimatly allows a controller to have two identical messages going out to two entities.
@@ -29,10 +32,10 @@ public:
 //! \template MSG_TYPE Type of communications messsage that is to be transmitted out
 //! \template MESSAGE_ACK_ID intenger ID that identifies the message that is to stop transmission
 //!
-template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename DATA_TYPE, typename MSG_TYPE, const int MESSAGE_ACK_ID>
+template<typename MESSAGE_TYPE, typename COMPONENT_KEY, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename DATA_TYPE, typename MSG_TYPE, const int MESSAGE_ACK_ID>
 class ActionSend :
         public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>,
-        public IActionSend<DATA_TYPE>
+        public IActionSend<DATA_TYPE, COMPONENT_KEY>
 {
 
     typedef ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE> BASE;
@@ -49,7 +52,7 @@ protected:
     //! \param queue Queue object to identifiy this tranmissions when ack is returned
     //! \return True is to procede with transmission
     //!
-    virtual bool Construct_Send(const DATA_TYPE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, MSG_TYPE &msg, QUEUE_TYPE &queue) = 0;
+    virtual bool Construct_Send(const DATA_TYPE &data, const COMPONENT_KEY &sender, const COMPONENT_KEY &target, MSG_TYPE &msg, QUEUE_TYPE &queue) = 0;
 
 public:
 
@@ -67,7 +70,7 @@ public:
     //! \param sender Module sending data
     //! \param target Module that is to receive the data
     //!
-    void Send(const DATA_TYPE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
+    void Send(const DATA_TYPE &data, const COMPONENT_KEY &sender, const COMPONENT_KEY &target)
     {
         MSG_TYPE cmd;
         QUEUE_TYPE queueObj;

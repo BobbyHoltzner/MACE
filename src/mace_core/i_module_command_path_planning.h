@@ -11,6 +11,7 @@
 #include "i_module_events_path_planning.h"
 
 #include "i_module_command_generic_boundaries.h"
+#include "i_module_command_generic_vehicle_listener.h"
 
 namespace MaceCore
 {
@@ -19,6 +20,7 @@ enum class PathPlanningCommands
 {
     BASE_MODULE_LISTENER_ENUMS,
     GENERIC_MODULE_BOUNDARY_LISTENER_ENUMS,
+    GENERIC_MODULE_VEHICLE_LISTENER_ENUMS,
     NEWLY_UPDATED_OPERATIONAL_FENCE,
     NEWLY_LOADED_OCCUPANCY_MAP,
     NEWLY_UPDATED_OCCUPANCY_MAP,
@@ -27,7 +29,8 @@ enum class PathPlanningCommands
 
 class MACE_CORESHARED_EXPORT IModuleCommandPathPlanning  :
         public AbstractModule_EventListeners<MetadataPathPlanning, IModuleEventsPathPlanning, PathPlanningCommands>,
-        public IModuleGenericBoundaries
+        public IModuleGenericBoundaries,
+        public IModuleGenericVehicleListener
 {
     friend class MaceCore;
 public:
@@ -38,12 +41,8 @@ public:
         AbstractModule_EventListeners()
     {
         IModuleGenericBoundaries::SetUp<MetadataPathPlanning, IModuleEventsPathPlanning, PathPlanningCommands>(this);
+        IModuleGenericVehicleListener::SetUp<MetadataPathPlanning, IModuleEventsPathPlanning, PathPlanningCommands>(this);
 
-
-        AddCommandLogic<int>(PathPlanningCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
-            UNUSED(sender);
-            NewlyAvailableVehicle(vehicleID);
-        });
 
         AddCommandLogic(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP, [this](const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
@@ -72,11 +71,6 @@ public:
     }
 
 public:
-    //!
-    //! \brief NewlyAvailableVehicle
-    //! \param vehicleID
-    //!
-    virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
     //!
     //! \brief NewlyLoadedOccupancyMap

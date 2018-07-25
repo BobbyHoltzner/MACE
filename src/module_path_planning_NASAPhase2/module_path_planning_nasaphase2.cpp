@@ -221,7 +221,7 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
     }
 }
 
-void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
+void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     /*
     UNUSED(vehicleID);

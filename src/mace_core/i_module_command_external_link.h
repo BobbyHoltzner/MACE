@@ -69,9 +69,9 @@ public:
             NewlyAvailableHomePosition(home, sender);
         });
 
-        AddCommandLogic<ModuleCharacteristic>(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, [this](const ModuleCharacteristic &module, const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<ModuleCharacteristic, ModuleClasses>(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, [this](const ModuleCharacteristic &module, const ModuleClasses type, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
-            NewlyAvailableModule(module);
+            NewlyAvailableModule(module, type);
         });
 
         AddCommandLogic<MissionItem::MissionACK>(ExternalLinkCommands::RECEIVED_MISSION_ACK, [this](const MissionItem::MissionACK &ack, const OptionalParameter<ModuleCharacteristic> &sender){
@@ -98,7 +98,7 @@ public:
 
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
 
-    virtual void NewlyAvailableModule(const ModuleCharacteristic &module) = 0;
+    virtual void NewlyAvailableModule(const ModuleCharacteristic &module, const ModuleClasses &type) = 0;
 
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack) = 0;
 

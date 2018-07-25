@@ -11,7 +11,7 @@ namespace MAVLINKVehicleControllers{
 class CommandARM : public Controller_GenericLongCommand<CommandItem::ActionArm, MAV_CMD_COMPONENT_ARM_DISARM>
 {
 public:
-    CommandARM(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+    CommandARM(const Controllers::IMessageNotifier<mavlink_message_t, MavlinkEntityKey> *cb, TransmitQueue<mavlink_message_t, MavlinkEntityKey> *queue, int linkChan) :
         Controller_GenericLongCommand<CommandItem::ActionArm, MAV_CMD_COMPONENT_ARM_DISARM>(cb, queue, linkChan)
     {
 

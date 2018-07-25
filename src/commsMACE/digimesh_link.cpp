@@ -3,6 +3,7 @@
 namespace CommsMACE
 {
 
+char MACE_INSTANCE_STR[] = "MaceInstance";
 char VEHICLE_STR[] = "Vehicle";
 char GROUNDSTATION_STR[] = "GroundStation";
 char RTA_STR[] = "RTA";
@@ -29,7 +30,7 @@ void DigiMeshLink::RequestReset()
 
 }
 
-void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target) const
+void DigiMeshLink::WriteBytes(const char *bytes, int length, const OptionalParameter<Resource> &target) const
 {
     //pack into std::vector
     std::vector<uint8_t> data;
@@ -39,16 +40,44 @@ void DigiMeshLink::WriteBytes(const char *bytes, int length, OptionalParameter<s
 
     //either broadcast or send to specific vehicle
     if(target.IsSet() == true) {
-        m_Link->SendData(std::get<0>(target.Value()), std::get<1>(target.Value()), data);
+
+        //convert the target into a datastructure that digimesh library can understand
+        ResourceKey key;
+        ResourceValue value;
+
+        for(std::size_t i = 0 ; i < target().Size() ; i++)
+        {
+            key.AddNameToResourceKey(target().NameAt(i));
+            value.AddValueToResourceKey(target().IDAt(i));
+        }
+
+        //std::srand(std::time(nullptr));
+        //if((std::rand() % 10) < 5)
+        //{
+        //    printf("!!!!Madison Testing!!! Causing a transmission failure\n");
+        //}
+        //else {
+            m_Link->SendData(data, key, value);
+        //}
     }
     else {
         m_Link->BroadcastData(data);
     }
 }
 
-void DigiMeshLink::AddResource(const char *resourceType, int ID)
+void DigiMeshLink::AddResource(const Resource &resource)
 {
-    m_Link->AddComponentItem(resourceType, ID);
+    //convert the target into a datastructure that digimesh library can understand
+    ResourceKey key;
+    ResourceValue value;
+
+    for(std::size_t i = 0 ; i < resource.Size() ; i++)
+    {
+        key.AddNameToResourceKey(resource.NameAt(i));
+        value.AddValueToResourceKey(resource.IDAt(i));
+    }
+
+    m_Link->AddResource(key, value);
 }
 
 
@@ -75,9 +104,16 @@ bool DigiMeshLink::Connect()
 {
     m_Link = new MACEDigiMeshWrapper<VEHICLE_STR, GROUNDSTATION_STR, RTA_STR, EXTERNAL_LINK_STR>(_config.portName(), _config.baud());
 
-    m_Link->AddHandler_NewRemoteComponentItem_Generic([this](const char* resourceName, int ID, uint64_t addr){
+    m_Link->AddHandler_NewRemoteComponentItem_Generic([this](const ResourceKey &resourceKey, const ResourceValue &resourceValue, uint64_t addr){
         UNUSED(addr);
-        EmitEvent([this, &resourceName, &ID](const ILinkEvents *ptr){ptr->AddedExternalResource(this, resourceName, ID);});
+
+        Resource r;
+        for(std::size_t i = 0 ; i < resourceKey.size() ; i++)
+        {
+            r.Add(resourceKey.at(i), resourceValue.at(i));
+        }
+
+        EmitEvent([this, &r](const ILinkEvents *ptr){ptr->AddedExternalResource(this, r);});
     });
 
     m_Link->AddHandler_Data([this](const std::vector<uint8_t> &data){

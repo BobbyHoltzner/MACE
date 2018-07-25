@@ -7,7 +7,7 @@
 
 namespace Controllers {
 
-template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename FINAL_TYPE, typename MSG_TYPE, typename ACK_TYPE, const int MESSAGE_REQUEST_ID>
+template<typename MESSAGE_TYPE, typename COMPONENT_KEY, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename FINAL_TYPE, typename MSG_TYPE, typename ACK_TYPE, const int MESSAGE_REQUEST_ID>
 class ActionFinalReceiveRespond :
         public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>
 {
@@ -18,7 +18,7 @@ class ActionFinalReceiveRespond :
 
 protected:
 
-    virtual bool Construct_FinalObjectAndResponse(const MSG_TYPE &, const MaceCore::ModuleCharacteristic &sender, ACK_TYPE &, std::shared_ptr<FINAL_TYPE> &, MaceCore::ModuleCharacteristic &vehicleObj, QUEUE_TYPE &queueObj)= 0;
+    virtual bool Construct_FinalObjectAndResponse(const MSG_TYPE &, const COMPONENT_KEY &sender, ACK_TYPE &, std::shared_ptr<FINAL_TYPE> &, COMPONENT_KEY &vehicleObj, QUEUE_TYPE &queueObj)= 0;
 
 public:
 
@@ -31,11 +31,11 @@ public:
 
 
         BASE::m_Controller-> template AddTriggeredLogic<MESSAGE_REQUEST_ID, MSG_TYPE>( BASE::m_DecodeFunc,
-                [this, encode_ack_chan](const MSG_TYPE  &msg, const MaceCore::ModuleCharacteristic &sender){
+                [this, encode_ack_chan](const MSG_TYPE  &msg, const COMPONENT_KEY &sender){
 
-                    MaceCore::ModuleCharacteristic target = sender;
+                    COMPONENT_KEY target = sender;
 
-                    MaceCore::ModuleCharacteristic vehicleFrom;
+                    COMPONENT_KEY vehicleFrom;
                     ACK_TYPE ack;
                     std::shared_ptr<FINAL_TYPE> finalObj;
                     QUEUE_TYPE queueObj;
@@ -51,7 +51,7 @@ public:
         );
     }
 
-    void FinalResponse(const ACK_TYPE &cmd, const MaceCore::ModuleCharacteristic &sender, const QUEUE_TYPE &queueObj, const MaceCore::ModuleCharacteristic &target)
+    void FinalResponse(const ACK_TYPE &cmd, const COMPONENT_KEY &sender, const QUEUE_TYPE &queueObj, const COMPONENT_KEY &target)
     {
         UNUSED(queueObj);
         BASE::m_Controller->template EncodeMessage(m_encode_ack_chan, cmd, sender, target);

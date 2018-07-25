@@ -12,7 +12,7 @@ namespace MAVLINKVehicleControllers{
 class Command_SetHomeLong : public Controller_GenericLongCommand<CommandItem::SpatialHome, MAV_CMD_DO_SET_HOME>
 {
 public:
-    Command_SetHomeLong(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+    Command_SetHomeLong(const Controllers::IMessageNotifier<mavlink_message_t, int> *cb, TransmitQueue<mavlink_message_t, int> *queue, int linkChan) :
         Controller_GenericLongCommand<CommandItem::SpatialHome, MAV_CMD_DO_SET_HOME>(cb, queue, linkChan)
     {
 
@@ -38,7 +38,7 @@ public:
 class Command_SetHomeInt : public Controller_GenericIntCommand<CommandItem::SpatialHome, MAV_CMD_DO_SET_HOME>
 {
 public:
-    Command_SetHomeInt(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+    Command_SetHomeInt(const Controllers::IMessageNotifier<mavlink_message_t, MavlinkEntityKey> *cb, TransmitQueue<mavlink_message_t, MavlinkEntityKey> *queue, int linkChan) :
         Controller_GenericIntCommand<CommandItem::SpatialHome, MAV_CMD_DO_SET_HOME>(cb, queue, linkChan)
     {
 

@@ -2,7 +2,7 @@
 
 namespace ExternalLink {
 
-    CommandLand::CommandLand(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
+    CommandLand::CommandLand(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
         Controller_GenericLongCommand<CommandItem::SpatialLand, (uint8_t)CommandItem::COMMANDITEM::CI_NAV_LAND>(cb, queue, linkChan)
     {
 

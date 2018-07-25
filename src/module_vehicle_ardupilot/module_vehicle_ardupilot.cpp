@@ -3,6 +3,8 @@
 
 #include "module_generic_MAVLINK/controllers/controller_mavlink_generic_set.h"
 
+#include "mace_core/i_module_events_general.h"
+
 template <typename T>
 T CopyCommandAndInsertTarget(const CommandItem::AbstractCommandItem &item, int targetSystem)
 {
@@ -88,7 +90,7 @@ void ModuleVehicleArdupilot::Request_FullDataSync(const int &targetSystem, const
 void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
-    CommandItem::ActionArm commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionArm>(command, this->GetCharacteristic().ID);
+    CommandItem::ActionArm commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionArm>(command, this->GetAttachedMavlinkEntity());
 
     std::stringstream buffer;
     buffer << commandWithTarget;
@@ -109,7 +111,7 @@ void ModuleVehicleArdupilot::Command_SystemArm(const CommandItem::ActionArm &com
 void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
-    CommandItem::SpatialTakeoff commandWithTarget = CopyCommandAndInsertTarget<CommandItem::SpatialTakeoff>(command, this->GetCharacteristic().ID);
+    CommandItem::SpatialTakeoff commandWithTarget = CopyCommandAndInsertTarget<CommandItem::SpatialTakeoff>(command, this->GetAttachedMavlinkEntity());
 
     std::stringstream buffer;
     buffer << commandWithTarget;
@@ -130,7 +132,7 @@ void ModuleVehicleArdupilot::Command_VehicleTakeoff(const CommandItem::SpatialTa
 void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
-    CommandItem::SpatialLand commandWithTarget = CopyCommandAndInsertTarget<CommandItem::SpatialLand>(command, this->GetCharacteristic().ID);
+    CommandItem::SpatialLand commandWithTarget = CopyCommandAndInsertTarget<CommandItem::SpatialLand>(command, this->GetAttachedMavlinkEntity());
 
     std::stringstream buffer;
     buffer << commandWithTarget;
@@ -151,7 +153,7 @@ void ModuleVehicleArdupilot::Command_Land(const CommandItem::SpatialLand &comman
 void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRTL &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
-    CommandItem::SpatialRTL commandWithTarget = CopyCommandAndInsertTarget<CommandItem::SpatialRTL>(command, this->GetCharacteristic().ID);
+    CommandItem::SpatialRTL commandWithTarget = CopyCommandAndInsertTarget<CommandItem::SpatialRTL>(command, this->GetAttachedMavlinkEntity());
 
     mLogs->debug("Receieved a command RTL.");
 
@@ -168,7 +170,7 @@ void ModuleVehicleArdupilot::Command_ReturnToLaunch(const CommandItem::SpatialRT
 void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
-    CommandItem::ActionMissionCommand commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionMissionCommand>(command, this->GetCharacteristic().ID);
+    CommandItem::ActionMissionCommand commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionMissionCommand>(command, this->GetAttachedMavlinkEntity());
 
     mLogs->debug("Receieved a command to change mission state.");
 
@@ -190,7 +192,7 @@ void ModuleVehicleArdupilot::Command_MissionState(const CommandItem::ActionMissi
 void ModuleVehicleArdupilot::Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     //Temporary solution to solve boadcasting until rework of commands can be done
-    CommandItem::ActionChangeMode commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionChangeMode>(command, this->GetCharacteristic().ID);
+    CommandItem::ActionChangeMode commandWithTarget = CopyCommandAndInsertTarget<CommandItem::ActionChangeMode>(command, this->GetAttachedMavlinkEntity());
 
     std::stringstream buffer;
     buffer << commandWithTarget;
@@ -411,7 +413,8 @@ bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
     //we have yet to form the vehicle object and accompanying state machine
     if(vehicleData)
     {
-        consumed = m_MissionController->ReceiveMessage(&message, this->GetCharacteristic());
+        MavlinkEntityKey sender = message.sysid;
+        consumed = m_MissionController->ReceiveMessage(&message, sender);
 
         if(!consumed)
             consumed = ModuleVehicleMAVLINK::MavlinkMessage(linkName, message);
@@ -441,9 +444,12 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     UNUSED(linkName);
     if(vehicleData == nullptr)
     {
+        MavlinkEntityKey key = systemID;
+        SetAttachedMavlinkEntity(key);
+
         createLog(systemID);
         //this is the first time we have seen this heartbeat or the data was destroyed for some reason
-        vehicleData = std::make_shared<ArdupilotVehicleObject>(this,systemID);
+        vehicleData = std::make_shared<ArdupilotVehicleObject>(this, this->GetCharacteristic(), systemID);
         vehicleData->connectCallback(this);
         vehicleData->connectTargetCallback(ModuleVehicleArdupilot::staticCallbackFunction_VehicleTarget, this);
 
@@ -451,7 +457,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
 
 
         //create "stateless" mission controller
-        Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>();
+        TransmitQueue<mavlink_message_t, int> *queue = new TransmitQueue<mavlink_message_t, int>();
         m_MissionController = new MAVLINKVehicleControllers::ControllerMission(vehicleData.get(), queue, m_LinkChan);
         m_MissionController->setLambda_DataReceived([this](const void* key, const std::shared_ptr<MAVLINKVehicleControllers::MissionDownloadResult> &data){
 
@@ -494,15 +500,13 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
         });
 
         //reqrest the missions on the vehicle
-        MaceCore::ModuleCharacteristic vehicle;
-        vehicle.ID = systemID;
-        vehicle.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-        m_MissionController->GetMissions(vehicle);
+        MaceCore::ModuleCharacteristic moduleCharacterstic = this->GetCharacteristic();
+        m_MissionController->GetMissions(systemID);
 
-        this->SetID(systemID);
+        m_PublicVehicleID = systemID;
 
         ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr){
-            ptr->EventVehicle_NewConstructedVehicle(this, systemID);
+            ptr->Events_NewVehicle(this, systemID, moduleCharacterstic);
         });
 
 
@@ -601,14 +605,14 @@ void ModuleVehicleArdupilot::NewTopicData(const std::string &topicName, const Ma
         throw std::runtime_error("Attempting to send a topic that the vehicle module link has no knowledge of");
     }
 
-    Controllers::IController<mavlink_message_t> *controller = m_TopicToControllers.at(topicName);
+    Controllers::IController<mavlink_message_t, int> *controller = m_TopicToControllers.at(topicName);
 
     if(controller->ContainsAction(Controllers::Actions::SEND) == false)
     {
         throw std::runtime_error("Attempting to send a topic to a controller that has no send action");
     }
-    Controllers::IActionSend<MaceCore::TopicDatagram> *sendAction = dynamic_cast<Controllers::IActionSend<MaceCore::TopicDatagram>*>(controller);
-    sendAction->Send(data, sender, this->GetCharacteristic());
+    Controllers::IActionSend<MaceCore::TopicDatagram, int> *sendAction = dynamic_cast<Controllers::IActionSend<MaceCore::TopicDatagram, int>*>(controller);
+    sendAction->Send(data, 255, this->GetAttachedMavlinkEntity());
 }
 
 

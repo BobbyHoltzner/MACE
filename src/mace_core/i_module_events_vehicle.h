@@ -8,17 +8,10 @@
 namespace MaceCore
 {
 
-class IModuleEventsVehicle : public IModuleEventsGeneralVehicle
+class IModuleEventsVehicle : public IModuleEventsGeneralVehicle ,public IModuleEventsGeneral
 {
 public:
     //A vehicle module can indicate something has happened
-
-    //!
-    //! \brief ExternalEvent_NewModule
-    //! \param sender
-    //! \param newVehicleObserved
-    //!
-    virtual void EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved) = 0;
 
     //!
     //! \brief EventVehcile_NewOnboardVehicleMission This virtual function event is used to indicate that a vehicle has a new

@@ -122,7 +122,7 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
 
         if(executeModeChange)
         {
-            Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+            Controllers::ControllerCollection<mavlink_message_t, MavlinkEntityKey> *collection = Owner().ControllersCollection();
             auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
             controllerSystemMode->AddLambda_Finished(this, [this,controllerSystemMode](const bool completed, const uint8_t finishCode){
 
@@ -135,14 +135,13 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
                 delete ptr;
             });
 
-            MaceCore::ModuleCharacteristic target;
-            target.ID = Owner().getMAVLINKID();
-            target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-            MaceCore::ModuleCharacteristic sender;
-            sender.ID = 255;
-            sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+
+            MavlinkEntityKey target = Owner().getMAVLINKID();
+            MavlinkEntityKey sender = 255;
+
             MAVLINKVehicleControllers::MAVLINKModeStruct commandMode;
-            commandMode.targetID = target.ID;
+            commandMode.targetID = Owner().getMAVLINKID();
             commandMode.vehicleMode = vehicleMode;
             controllerSystemMode->Send(commandMode,sender,target);
             collection->Insert("modeController",controllerSystemMode);
@@ -170,7 +169,7 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
     {
         const CommandItem::SpatialRTL* cmd = command->as<CommandItem::SpatialRTL>();
 
-        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        Controllers::ControllerCollection<mavlink_message_t, MavlinkEntityKey> *collection = Owner().ControllersCollection();
         auto controllerRTL = new MAVLINKVehicleControllers::CommandRTL(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
         controllerRTL->AddLambda_Finished(this, [this,controllerRTL](const bool completed, const uint8_t finishCode){
             if(completed && (finishCode == MAV_RESULT_ACCEPTED))
@@ -184,12 +183,8 @@ bool State_Flight::handleCommand(const AbstractCommandItem* command)
             delete ptr;
         });
 
-        MaceCore::ModuleCharacteristic target;
-        target.ID = Owner().getMAVLINKID();
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-        MaceCore::ModuleCharacteristic sender;
-        sender.ID = 255;
-        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MavlinkEntityKey target = Owner().getMAVLINKID();
+        MavlinkEntityKey sender = 255;
 
         controllerRTL->Send(*cmd,sender,target);
         collection->Insert("RTLController",controllerRTL);

@@ -15,7 +15,7 @@
 
 #include "module_characteristics.h"
 
-#define BASE_MODULE_LISTENER_ENUMS NEWLY_AVAILABLE_VEHICLE, NEWLY_UPDATED_GLOBAL_ORIGIN
+#define BASE_MODULE_LISTENER_ENUMS NEWLY_UPDATED_GLOBAL_ORIGIN
 
 namespace MaceCore
 {
@@ -90,7 +90,8 @@ public:
     {
         ModuleCharacteristic obj;
         obj.ID = m_ID;
-        obj.Class = ModuleClass();
+        //obj.Class = ModuleClass();
+        obj.MaceInstance = this->getParentMaceInstanceID();
         return obj;
     }
 
@@ -173,6 +174,24 @@ public:
         return m_Data;
     }
 
+
+    ///MTB MODULE AUTO ASSIGN
+    void setPararentMaceInstanceID(const uint32_t &ID)
+    {
+        m_ParentMaceInstanceIDSet = true;
+        m_ParentMaceInstanceID = ID;
+    }
+
+    uint32_t getParentMaceInstanceID() const
+    {
+        if(m_ParentMaceInstanceIDSet == false)
+        {
+            throw std::runtime_error("No Parent ID Set");
+        }
+        return m_ParentMaceInstanceID;
+    }
+    ///
+
 protected:
     std::string loggingPath;
     bool loggerCreated = false;
@@ -181,6 +200,11 @@ private:
     std::shared_ptr<const MaceData> m_Data;
 
     int m_ID;
+
+    ///MTB MODULE AUTO ASSIGN
+    bool m_ParentMaceInstanceIDSet = false;
+    uint32_t m_ParentMaceInstanceID;
+    ///
 };
 
 

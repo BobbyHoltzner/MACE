@@ -11,7 +11,7 @@ class CommandTakeoff : public Controller_GenericLongCommand<CommandItem::Spatial
 {
 public:
 
-    CommandTakeoff(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan);
+    CommandTakeoff(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan);
 
 protected:
 

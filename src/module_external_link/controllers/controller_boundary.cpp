@@ -18,8 +18,8 @@ namespace ExternalLink{
     {
         queueObj = ModuleBoundaryIdentifier(target, data);
 
-        cmd.boundary_creator = target.ID;
-        cmd.boundary_system = (uint8_t)target.Class;
+        cmd.boundary_system = sender.ID;
+        cmd.boundary_creator = sender.MaceInstance;
         cmd.boundary_identifier = data;
 
         if(m_BoundariesBeingFetching.find(queueObj) != m_BoundariesBeingFetching.cend())
@@ -53,8 +53,8 @@ namespace ExternalLink{
         ModuleBoundaryIdentifier pair = ModuleBoundaryIdentifier(sender, cmd.boundary_identifier);
 
         // Establish the module that has the boundary
-        moduleUploadingFrom.ID = cmd.boundary_creator;
-        moduleUploadingFrom.Class = (MaceCore::ModuleClasses)cmd.boundary_system;
+        moduleUploadingFrom.ID = cmd.boundary_system;
+        moduleUploadingFrom.MaceInstance = cmd.boundary_creator;
 
         // Ask for the boundary and make sure it all makes sense
         std::vector<std::tuple<ModuleBoundaryIdentifier, BoundaryItem::BoundaryList>> boundaries;
@@ -158,8 +158,8 @@ namespace ExternalLink{
         ModuleBoundaryIdentifier pair = ModuleBoundaryIdentifier(sender, msg.boundary_identifier);
 
         // Establish the module that has the boundary
-        moduleUploadingFrom.ID = msg.boundary_creator;
-        moduleUploadingFrom.Class = (MaceCore::ModuleClasses)msg.boundary_system;
+        moduleUploadingFrom.ID = msg.boundary_system;
+        moduleUploadingFrom.MaceInstance = msg.boundary_creator;
 
         // set up the receiver and establish queue objects
         receiveQueueObj = pair;
@@ -389,21 +389,14 @@ namespace ExternalLink{
     }
 
 
-    //!
-    //! \brief Notify Broadcast - Construct messages broadcast presence of a boundary
-    //! \param data Data about boundary
-    //! \param sender Module that generated the boundary
-    //! \param vec Vector of messages to send, one message for each vehicle.
-    //!
-    void ControllerBoundary::Construct_Broadcast(const BoundaryNotificationData &data, const MaceCore::ModuleCharacteristic &sender, std::vector<mace_new_boundary_object_t> &vec)
+    void ControllerBoundary::Construct_BroadcastReliable(const BoundaryNotificationData &data, const MaceCore::ModuleCharacteristic &sender, std::vector<mace_new_boundary_object_t> &vec)
     {
-
         std::vector<int> vehicles = data.characteristic.List();
         if(vehicles.size() == 0)
         {
             mace_new_boundary_object_t msg;
-            msg.boundary_creator = sender.ID;
-            msg.boundary_system = (int)sender.Class;
+            msg.boundary_system = sender.ID;
+            msg.boundary_creator = sender.MaceInstance;
             msg.boundary_type = (uint8_t)data.characteristic.Type();
             msg.boundary_identifier = data.uniqueIdentifier;
             msg.vehicle_aplicable = 0;
@@ -417,8 +410,8 @@ namespace ExternalLink{
         for(auto it = vehicles.cbegin() ; it != vehicles.cend() ; ++it)
         {
             mace_new_boundary_object_t msg;
-            msg.boundary_creator = sender.ID;
-            msg.boundary_system = (int)sender.Class;
+            msg.boundary_system = sender.ID;
+            msg.boundary_creator = sender.MaceInstance;
             msg.boundary_type = (uint8_t)data.characteristic.Type();
             msg.boundary_identifier = data.uniqueIdentifier;
             msg.vehicle_aplicable = *it;
@@ -503,7 +496,7 @@ namespace ExternalLink{
     }
 
 
-    ControllerBoundary::ControllerBoundary(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
+    ControllerBoundary::ControllerBoundary(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
         CONTROLLER_BOUNDARY_TYPE(cb, queue, linkChan),
         SendBoundaryHelper_RequestDownload(this, mace_msg_boundary_request_list_encode_chan),
         BoundaryControllerAction_ReceiveUnsolicitedRequestList_SendCount(this, mace_msg_boundary_request_list_decode, mace_msg_boundary_count_encode_chan),

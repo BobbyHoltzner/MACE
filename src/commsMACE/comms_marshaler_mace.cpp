@@ -89,14 +89,14 @@ void CommsMarshaler::AddDigiMeshLink(const std::string &name, const DigiMeshConf
 //! \brief Add a vechile that will be communicating out of this link
 //! \param vehicleID ID of vechile
 //!
-void CommsMarshaler::AddResource(const std::string &name, const char * resourceName, int vehicleID)
+void CommsMarshaler::AddResource(const std::string &name, const Resource &resource)
 {
     if(m_CreatedLinksNameToPtr.find(name) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
 
     std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(name);\
 
-    link->AddResource(resourceName, vehicleID);
+    link->AddResource(resource);
 }
 
 
@@ -202,7 +202,7 @@ uint8_t CommsMarshaler::GetProtocolChannel(const std::string &linkName) const
 //! \param message Message to send
 //!
 template <typename T>
-void CommsMarshaler::SendMACEMessage(const std::string &linkName, const T& message, OptionalParameter<std::tuple<const char *, int> > target)
+void CommsMarshaler::SendMACEMessage(const std::string &linkName, const T& message, const OptionalParameter<Resource> &target)
 {
     if(m_CreatedLinksNameToPtr.find(linkName) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
@@ -239,19 +239,19 @@ void CommsMarshaler::SendMACEMessage(const std::string &linkName, const T& messa
 /// React to Link Events
 //////////////////////////////////////////////////////////////
 
-void CommsMarshaler::AddedExternalResource(ILink *link_ptr, const char* resourceName, int vehicleID) const
+void CommsMarshaler::AddedExternalResource(ILink *link_ptr, const Resource &resource) const
 {
     if(m_AddedModuleAction.find(link_ptr) != m_AddedModuleAction.cend())
     {
-        m_AddedModuleAction.at(link_ptr)(resourceName, vehicleID);
+        m_AddedModuleAction.at(link_ptr)(resource);
     }
 }
 
-void CommsMarshaler::RemovedExternalResource(ILink *link, const char* resourceName, int vehicleID) const
+void CommsMarshaler::RemovedExternalResource(ILink *link, const Resource &resource) const
 {
     if(m_RemovedModuleAction.find(link) != m_RemovedModuleAction.cend())
     {
-        m_RemovedModuleAction.at(link)(resourceName, vehicleID);
+        m_RemovedModuleAction.at(link)(resource);
     }
 }
 
@@ -382,6 +382,6 @@ void CommsMarshaler::RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors
 
 
 
-template void CommsMarshaler::SendMACEMessage<mace_message_t>(const std::string &, const mace_message_t&, OptionalParameter<std::tuple<const char *, int> >);
+template void CommsMarshaler::SendMACEMessage<mace_message_t>(const std::string &, const mace_message_t&, const OptionalParameter<Resource> &target);
 
 }//END Comms
