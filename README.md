@@ -34,14 +34,14 @@ $ sim_vehicle.py
 ```
 
 ## <a name="mace-gui"></a> MACE GUI
-To run the MACE GUI, you will need [NodeJS](https://nodejs.org/en/) installed and configured. Once configured, navigate to `MACE/ElectronGUI/` and run `npm install`. Once the installer installs the required Node packages, run the following two commands in separate terminals:
+To run the MACE GUI, you will need [NodeJS](https://nodejs.org/en/) installed and configured as well as [Yarn](https://yarnpkg.com/en/docs/getting-started). Once configured, navigate to `MACE/ElectronGUI/` and run `yarn install`. Once the installer installs the required Node packages, run the following two commands in separate terminals:
 
 ```
 **Terminal 1:**
-$ npm run watch
+$ yarn run watch
 
 *** Terminal 2:**
-$ npm run start
+$ yarn run start
 ```
 If successful, the MACE GUI will run, and you should see a vehicle connected similar to below. Note: You may have to adjust the position of the map or the simulated vehicle.
 
