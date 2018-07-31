@@ -167,7 +167,7 @@ INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega/
 
 win32: LIBS += -limagehlp
 
-unix: LIBS += -lboost_system
+#unix: LIBS += -lboost_system
 
 unix {
     exists(/opt/ros/kinetic/lib/) {
