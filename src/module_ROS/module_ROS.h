@@ -202,10 +202,6 @@ public:
     // ============================================================================= //
 public:
 
-    //! \brief renderOccupancyMap
-    //!
-    void renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree);
-
 #ifdef ROS_EXISTS
     //!
     //! \brief setupROS Setup ROS subscribers, publishers, and node handler
