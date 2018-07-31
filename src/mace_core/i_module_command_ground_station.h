@@ -71,19 +71,47 @@ public:
     }
 
 public:
+    //!
+    //! \brief NewlyAvailableVehicle New available vehicle subscriber
+    //! \param vehicleID New vehicle ID
+    //!
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
+    //!
+    //! \brief NewlyAvailableBoundary New boundary available subscriber
+    //! \param key
+    //!
+    virtual void NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key) = 0;
+
+    //!
+    //! \brief NewlyAvailableCurrentMission New current mission available
+    //! \param missionKey Mission key of new mission
+    //!
     virtual void NewlyAvailableCurrentMission(const MissionItem::MissionKey &missionKey) = 0;
 
+    //!
+    //! \brief NewlyAvailableMissionExeState New mission EXE state available subscriber
+    //! \param missionKey Mission key for new exe state
+    //!
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey) = 0;
 
+    //!
+    //! \brief NewlyAvailableHomePosition New home position available subscriber
+    //! \param home Home position
+    //! \param sender Sender module
+    //!
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
 
     //!
-    //! \brief NewlyUpdatedGlobalOrigin
+    //! \brief NewlyUpdatedGlobalOrigin New global origin subscriber
+    //! \param position New global origin position
     //!
     virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 
+    //!
+    //! \brief StartTCPServer Start module TCP server for GUI communications
+    //! \return
+    //!
     virtual bool StartTCPServer() = 0;
 
 

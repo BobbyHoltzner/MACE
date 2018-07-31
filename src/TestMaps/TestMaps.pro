@@ -102,3 +102,25 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../voropp/release/ -lv
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../voropp/debug/ -lvoropp
 else:unix:!macx: LIBS += -L$$OUT_PWD/../voropp/ -lvoropp
 
+INCLUDEPATH += $$PWD/../maps
+DEPENDPATH += $$PWD/../maps
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../planners/release/ -lplanners
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../planners/debug/ -lplanners
+else:unix:!macx: LIBS += -L$$OUT_PWD/../planners/ -lplanners
+
+INCLUDEPATH += $$PWD/../planners
+DEPENDPATH += $$PWD/../planners
+
+unix:!macx|win32: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann_s
+
+INCLUDEPATH += $$PWD/../../tools/flann/src/cpp
+DEPENDPATH += $$PWD/../../tools/flann/src/cpp
+
+unix:!macx|win32: LIBS += -L$$PWD/../../tools/flann/build/lib/ -lflann_s
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+
+INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include

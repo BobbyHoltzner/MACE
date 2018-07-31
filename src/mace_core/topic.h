@@ -23,17 +23,32 @@ public:
     }
 
     template <typename T>
+    //!
+    //! \brief AddTerminal Add a terminal string for configuration file parsing
+    //! \param str Terminal string
+    //!
     void AddTerminal(const std::string &str)
     {
 
         m_TerminalDataFields.insert({str, typeid(T).name()});
     }
 
+    //!
+    //! \brief AddNonTerminal Add a non terminal string for configuration file parsing
+    //! \param str Non-temrinal string
+    //! \param fields Structure of the non-terminal parameter
+    //!
     void AddNonTerminal(const std::string &str, const TopicComponentStructure &fields)
     {
         m_NonTerminalDataFields.insert({str, std::make_shared<TopicComponentStructure>(fields)});
     }
 
+    //!
+    //! \brief Merge Merge two topic structures
+    //! \param merge1 First topic to merge
+    //! \param merge2 Second topic to merge
+    //! \return
+    //!
     static TopicComponentStructure Merge(const TopicComponentStructure &merge1, const TopicComponentStructure &merge2)
     {
         TopicComponentStructure newStructure;
@@ -106,6 +121,12 @@ private:
 
 public:
 
+    //!
+    //! \brief Merge Merge two topic datagrams
+    //! \param merge1 First topic to merge
+    //! \param merge2 Second topic to merge
+    //! \return Merged topic datagram
+    //!
     static TopicDatagram Merge(const TopicDatagram &merge1, const TopicDatagram &merge2)
     {
         TopicDatagram newStructure;
@@ -133,12 +154,22 @@ public:
     }
 
     template<typename T>
+    //!
+    //! \brief AddTerminal Add terminal to topic
+    //! \param str Name of the terminal
+    //! \param value Value of the terminal
+    //!
     void AddTerminal(const std::string &str, const T &value){
         std::shared_ptr<SingleParameterValue<T>> ptr = std::make_shared<SingleParameterValue<T>>(value);
         m_TerminalValues.insert({str, ptr});
     }
 
     template<typename T>
+    //!
+    //! \brief GetTerminal Get terminal based on terminal name
+    //! \param str Name of terminal
+    //! \return
+    //!
     T GetTerminal(const std::string &str) const {
         if(m_TerminalValues.find(str) == m_TerminalValues.cend()) {
             throw std::runtime_error("Given string does not exists as a value in this topic data");
@@ -154,20 +185,39 @@ public:
         return ptr->GetValue();
     }
 
-
+    //!
+    //! \brief AddNonTerminal Add non terminal to topic
+    //! \param str Name of non terminal
+    //! \param values Value(s) of the non terminal
+    //!
     void AddNonTerminal(const std::string &str, const TopicDatagram &values) {
         std::shared_ptr<TopicDatagram> ptr = std::make_shared<TopicDatagram>(values);
         m_NonTerminalValues.insert({str, ptr});
     }
 
+    //!
+    //! \brief AddNonTerminal Add non terminal to topic
+    //! \param str Name of non terminal
+    //! \param values Value(s) of the non terminal
+    //!
     void AddNonTerminal(const std::string &str, const std::shared_ptr<TopicDatagram> &values) {
         m_NonTerminalValues.insert({str, values});
     }
 
+    //!
+    //! \brief GetNonTerminal Get non terminal value(s) based on its name
+    //! \param str Non terminal name
+    //! \return  Terminal value(s)
+    //!
     std::shared_ptr<TopicDatagram> GetNonTerminal(const std::string &str) const {
         return m_NonTerminalValues.at(str);
     }
 
+    //!
+    //! \brief HasNonTerminal Check if a non terminal exists
+    //! \param str Name of non terminal
+    //! \return True if non terminal exists
+    //!
     bool HasNonTerminal(const std::string &str) const {
         if(m_NonTerminalValues.find(str) == m_NonTerminalValues.cend()){
             return false;
@@ -175,6 +225,10 @@ public:
         return true;
     }
 
+    //!
+    //! \brief ListTerminals Get a list of all terminals available
+    //! \return Vector of terminal names
+    //!
     std::vector<std::string> ListTerminals() const{
         std::vector<std::string> keys;
         for(auto it = m_TerminalValues.cbegin() ; it != m_TerminalValues.cend() ; ++it)
@@ -182,7 +236,10 @@ public:
         return keys;
     }
 
-
+    //!
+    //! \brief ListNonTerminals Get a list of all non terminals available
+    //! \return Vector of non terminal names
+    //!
     std::vector<std::string> ListNonTerminals() const{
         std::vector<std::string> keys;
         for(auto it = m_NonTerminalValues.cbegin() ; it != m_NonTerminalValues.cend() ; ++it)
@@ -190,6 +247,10 @@ public:
         return keys;
     }
 
+    //!
+    //! \brief MergeDatagram Merge topic datagram into existing datagram
+    //! \param dataToMerge Topic datagram to merge
+    //!
     void MergeDatagram(const TopicDatagram &dataToMerge){
         for(auto it = dataToMerge.m_TerminalValues.cbegin() ; it != dataToMerge.m_TerminalValues.cend() ; ++it) {
             if(m_TerminalValues.find(it->first) == m_TerminalValues.cend()) {
@@ -209,6 +270,10 @@ public:
         }
     }
 
+    //!
+    //! \brief isEmpty Check if topic has either Terminal or Non Terminal values
+    //! \return True if both Terminal and Non Terminal vectors are empty
+    //!
     bool isEmpty() {
         if(m_TerminalValues.size() == 0 && m_NonTerminalValues.size() == 0)
             return true;
@@ -225,8 +290,17 @@ private:
 
 class ITopicComponentPrototype {
 public:
+
+    //!
+    //! \brief GenerateDatagram Generate topic datagram
+    //! \return  Generated topic datagram
+    //!
     virtual MaceCore::TopicDatagram GenerateDatagram() const = 0;
 
+    //!
+    //! \brief CreateFromDatagram Create topic datagram from another datagram
+    //! \param datagram Datagram to create new datagram from
+    //!
     virtual void CreateFromDatagram(const MaceCore::TopicDatagram &datagram) = 0;
 };
 
@@ -246,11 +320,19 @@ public:
 
     }
 
+    //!
+    //! \brief Spooled Check if topic is spooled or not
+    //! \return True if topic is spooled
+    //!
     bool Spooled() const
     {
         return m_Spooled;
     }
 
+    //!
+    //! \brief Name Get topic name
+    //! \return Topic name
+    //!
     std::string Name() const
     {
         return m_Name;
@@ -281,7 +363,11 @@ public:
 //        UNUSED(list);
 //    }
 
-
+    //!
+    //! \brief SetComponent
+    //! \param ptr
+    //! \param datagram
+    //!
     void SetComponent(std::shared_ptr<ITopicComponentPrototype> ptr, MaceCore::TopicDatagram &datagram) const {
         //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
         UNUSED(ptr);
@@ -289,7 +375,12 @@ public:
         throw std::runtime_error("Unknown component passed to topic");
     }
 
-
+    //!
+    //! \brief GetComponent
+    //! \param ptr
+    //! \param datagram
+    //! \return
+    //!
     bool GetComponent(std::shared_ptr<ITopicComponentPrototype> ptr, const MaceCore::TopicDatagram &datagram) const {
         //TODO: WOULD PREFER THIS TO BE THROWN ON COMPILE INSTEAD OF RUNTIME
         UNUSED(ptr);
@@ -297,7 +388,10 @@ public:
         throw std::runtime_error("Unknown component passed to topic");
     }
 
-
+    //!
+    //! \brief Name Get topic name
+    //! \return Topic name
+    //!
     std::string Name() {
         return m_TopicName;
     }
@@ -323,11 +417,19 @@ public:
     {
     }
 
+    //!
+    //! \brief Name Get topic name
+    //! \return Topic name
+    //!
     std::string Name() const {
         return m_TopicName;
     }
 
-
+    //!
+    //! \brief SetComponent Set component datagram
+    //! \param ptr Component pointer
+    //! \param datagram Datagram to set
+    //!
     void SetComponent(std::shared_ptr<ITopicComponentPrototype> ptr, MaceCore::TopicDatagram &datagram) const {
         if(std::dynamic_pointer_cast<T>(ptr) != 0) {
             SetComponent(std::dynamic_pointer_cast<T>(ptr), datagram);
@@ -337,7 +439,12 @@ public:
         }
     }
 
-
+    //!
+    //! \brief GetComponent Get component from datagram
+    //! \param ptr Container for the component
+    //! \param datagram datagram to query
+    //! \return True if successful
+    //!
     bool GetComponent(std::shared_ptr<ITopicComponentPrototype> ptr, const MaceCore::TopicDatagram &datagram) const {
         if(std::dynamic_pointer_cast<T>(ptr) != 0) {
             return GetComponent(datagram, std::dynamic_pointer_cast<T>(ptr));
@@ -348,13 +455,22 @@ public:
 
     }
 
-
+    //!
+    //! \brief SetComponent Set component datagram
+    //! \param component Component to set
+    //! \param datagram Datagram to set
+    //!
     void SetComponent(const std::shared_ptr<T> &component, MaceCore::TopicDatagram &datagram) const {
         MaceCore::TopicDatagram dg = component->GenerateDatagram();
         datagram.AddNonTerminal(T::Name(), dg);
     }
 
-
+    //!
+    //! \brief GetComponent Get component terminal name
+    //! \param datagram Datagram to query
+    //! \param value Container for component created from datagram
+    //! \return True if successful
+    //!
     bool GetComponent(const MaceCore::TopicDatagram &datagram, std::shared_ptr<T> value) const{
         if(datagram.HasNonTerminal(T::Name()) == false) {
             return false;
@@ -382,10 +498,18 @@ public:
     {
     }
 
+    //!
+    //! \brief IsSpooled Flag to denote spooled topic
+    //! \return True
+    //!
     bool IsSpooled() const {
         return true;
     }
 
+    //!
+    //! \brief Characterisic Get the topic characteristic
+    //! \return Topic characteristic
+    //!
     TopicCharacteristic Characterisic() const
     {
         return TopicCharacteristic(IsSpooled(), _Topic<T...>::m_TopicName);
@@ -405,14 +529,26 @@ public:
     {
     }
 
+    //!
+    //! \brief IsSpooled Flag to denote spooled topic
+    //! \return False
+    //!
     bool IsSpooled() const {
         return false;
     }
 
+    //!
+    //! \brief Name Get topic name
+    //! \return Topic name
+    //!
     std::string Name() const {
         return _Topic<T...>::m_TopicName;
     }
 
+    //!
+    //! \brief Characterisic Get topic characteristic
+    //! \return Topic characteristic
+    //!
     TopicCharacteristic Characterisic() const
     {
         return TopicCharacteristic(IsSpooled(), _Topic<T...>::m_TopicName);

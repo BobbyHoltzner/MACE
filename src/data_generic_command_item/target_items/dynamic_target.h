@@ -7,6 +7,7 @@
 #include <list>
 #include <map>
 
+#include "base/pose/geodetic_position_3D.h"
 #include "base/pose/cartesian_position_3D.h"
 #include "base/pose/cartesian_velocity_3D.h"
 
@@ -14,17 +15,23 @@ using namespace mace::pose;
 
 namespace TargetItem {
 
+template <class POS, class VEL>
 class DynamicTarget{
 public:
     DynamicTarget() = default;
 
     ~DynamicTarget() = default;
 
-    void setPosition(const mace::pose::CartesianPosition_3D &pos)
+    CoordinateFrame getPositionalCoordinateFrame() const
+    {
+        return this->position.getCoordinateFrame();
+    }
+
+    void setPosition(const POS &pos)
     {
         this->position = pos;
     }
-    void setVelocity(const mace::pose::CartesianVelocity_3D &vel)
+    void setVelocity(const VEL &vel)
     {
         this->velocity = vel;
     }
@@ -34,12 +41,12 @@ public:
         this->yawRate = yawRate;
     }
 
-    mace::pose::CartesianPosition_3D getPosition() const
+    POS getPosition() const
     {
         return this->position;
     }
 
-    mace::pose::CartesianVelocity_3D getVelocity() const
+    VEL getVelocity() const
     {
         return this->velocity;
     }
@@ -84,11 +91,14 @@ public:
     }
 
 private:
-    mace::pose::CartesianPosition_3D  position;
-    mace::pose::CartesianVelocity_3D  velocity;
+    POS position;
+    VEL velocity;
     double yaw = 0.0;
     double yawRate = 0.0;
 };
+
+typedef DynamicTarget<CartesianPosition_3D,CartesianVelocity_3D> CartesianDynamicTarget;
+typedef DynamicTarget<GeodeticPosition_3D,CartesianVelocity_3D> GeodeticDynamicTarget;
 
 } //end of namespace TargetItem
 

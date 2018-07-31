@@ -1,13 +1,19 @@
 #include "mavlink_vehicle_object.h"
 
-MavlinkVehicleObject::MavlinkVehicleObject(CommsMAVLINK *commsObj, const int &ID):
+MavlinkVehicleObject::MavlinkVehicleObject(CommsMAVLINK *commsObj, const int &ID, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue):
     m_CB(nullptr), mavlinkID(ID)
 {
     this->commsLink = commsObj;
 
-    controllerQueue = new Controllers::MessageModuleTransmissionQueue<mavlink_message_t>(2000, 3);
+    controllerQueue = queue;
     state = new StateData_MAVLINK();
     mission = new MissionData_MAVLINK();
+}
+
+MavlinkVehicleObject::~MavlinkVehicleObject()
+{ 
+    delete state;
+    delete mission;
 }
 
 int MavlinkVehicleObject::getMAVLINKID() const

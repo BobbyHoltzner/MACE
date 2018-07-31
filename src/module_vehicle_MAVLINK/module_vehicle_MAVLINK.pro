@@ -21,7 +21,8 @@ SOURCES += module_vehicle_mavlink.cpp \
     vehicle_object/parse_mavlink.cpp \
     controllers/controller_guided_mission_item.cpp \
     vehicle_object/mission_data_mavlink.cpp \
-    controllers/controller_guided_target_item.cpp
+    controllers/controller_guided_target_item_local.cpp \
+    controllers/controller_guided_target_item_global.cpp
 
 HEADERS += module_vehicle_mavlink.h\
         module_vehicle_mavlink_global.h \
@@ -38,7 +39,8 @@ HEADERS += module_vehicle_mavlink.h\
     controllers/commands/command_set_home.h \
     vehicle_object/mission_data_mavlink.h \
     controllers/commands/generic_int_command.h \
-    controllers/controller_guided_target_item.h
+    controllers/controller_guided_target_item_local.h \
+    controllers/controller_guided_target_item_global.h
 
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MACE/mace_common/
 INCLUDEPATH += $$PWD/../../mavlink_cpp/MAVLINK_BASE/ardupilotmega
@@ -152,8 +154,18 @@ else:unix: LIBS += -L$$OUT_PWD/../module_vehicle_generic/ -lmodule_vehicle_gener
 
 INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 
+unix {
+    exists(/opt/ros/kinetic/lib/) {
+        DEFINES += ROS_EXISTS
+        INCLUDEPATH += /opt/ros/kinetic/include
+        INCLUDEPATH += /opt/ros/kinetic/lib
+        LIBS += -L/opt/ros/kinetic/lib -loctomath
+        LIBS += -L/opt/ros/kinetic/lib -loctomap
+    } else {
+        INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
+        LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+    }
+}
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
-else:unix:!macx: LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
-
-INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
+win32:INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include

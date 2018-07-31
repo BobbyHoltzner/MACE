@@ -14,14 +14,14 @@ public:
         INCOMPLETE
     };
 
-    DynamicTargetStorage(const DynamicTarget &target, const TargetCompletion &state)
+    DynamicTargetStorage(const DynamicTarget<CartesianPosition_3D,CartesianVelocity_3D> &target, const TargetCompletion &state)
     {
         this->target = target;
         this->state = state;
     }
 
 public:
-    void setDynamicTarget(const DynamicTarget &target)
+    void setDynamicTarget(const DynamicTarget<CartesianPosition_3D,CartesianVelocity_3D> &target)
     {
         this->target = target;
     }
@@ -31,12 +31,12 @@ public:
         this->state = state;
     }
 
-    const DynamicTarget* getDynamicTarget() const
+    const DynamicTarget<CartesianPosition_3D,CartesianVelocity_3D>* getDynamicTarget() const
     {
         return &this->target;
     }
 
-    DynamicTarget getDynamicTargetCopy() const
+    DynamicTarget<CartesianPosition_3D,CartesianVelocity_3D> getDynamicTargetCopy() const
     {
         return this->target;
     }
@@ -69,7 +69,7 @@ public:
     }
 
 private:
-    DynamicTarget target;
+    DynamicTarget<CartesianPosition_3D,CartesianVelocity_3D> target;
     TargetCompletion state;
 };
 

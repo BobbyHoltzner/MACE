@@ -18,7 +18,9 @@ public:
 
     }
 
-    protected:
+    virtual ~Command_SetHomeLong() = default;
+
+protected:
 
     virtual void FillCommand(const CommandItem::SpatialHome &commandItem, mavlink_command_long_t &cmd) const
     {

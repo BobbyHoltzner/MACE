@@ -79,6 +79,8 @@ public:
 
     }
 
+    virtual ~ControllerSystemMode() = default;
+
 
 };
 

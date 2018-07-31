@@ -51,13 +51,13 @@ hsm::Transition State_TakeoffTransitioning::GetTransition()
     return rtn;
 }
 
-bool State_TakeoffTransitioning::handleCommand(const AbstractCommandItem* command)
+bool State_TakeoffTransitioning::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
     clearCommand();
     switch (command->getCommandType()) {
     case COMMANDITEM::CI_NAV_TAKEOFF:
     {
-        const CommandItem::SpatialTakeoff* cmd = command->getClone()->as<CommandItem::SpatialTakeoff>();
+        const CommandItem::SpatialTakeoff* cmd = command->as<CommandItem::SpatialTakeoff>();
         if(cmd->getPosition().has3DPositionSet())
         {
             Owner().state->vehicleGlobalPosition.AddNotifier(this,[this,cmd]
@@ -122,13 +122,12 @@ void State_TakeoffTransitioning::OnEnter()
     //By default I dont think there are any actions that we need to do
 }
 
-void State_TakeoffTransitioning::OnEnter(const AbstractCommandItem *command)
+void State_TakeoffTransitioning::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     this->OnEnter();
     if(command != nullptr)
     {
         handleCommand(command);
-        delete command;
     }
 }
 

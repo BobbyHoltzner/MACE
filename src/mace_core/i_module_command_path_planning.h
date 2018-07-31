@@ -45,7 +45,8 @@ public:
             NewlyAvailableVehicle(vehicleID);
         });
 
-        AddCommandLogic(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP, [this](const OptionalParameter<ModuleCharacteristic> &sender){
+        AddCommandLogic<int>(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(vehicleID);
             UNUSED(sender);
             NewlyLoadedOccupancyMap();
         });
@@ -73,23 +74,24 @@ public:
 
 public:
     //!
-    //! \brief NewlyAvailableVehicle
-    //! \param vehicleID
+    //! \brief NewlyAvailableVehicle New available vehicle subscriber
+    //! \param vehicleID New vehicle ID
     //!
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
     //!
-    //! \brief NewlyLoadedOccupancyMap
+    //! \brief NewlyLoadedOccupancyMap New occupancy map loaded subscriber
     //!
     virtual void NewlyLoadedOccupancyMap() = 0;
 
     //!
-    //! \brief NewlyUpdatedOccupancyMap
+    //! \brief NewlyUpdatedOccupancyMap New updated occupancy map subscriber
     //!
     virtual void NewlyUpdatedOccupancyMap() = 0;
 
     //!
-    //! \brief NewlyUpdatedGlobalOrigin
+    //! \brief NewlyUpdatedGlobalOrigin New global origin available
+    //! \param position New global origin
     //!
     virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 

@@ -16,11 +16,39 @@ class ControllerCollection
 {
 public:
 
-    IController<MessageType>* At(const std::string &name)
+    ~ControllerCollection()
     {
-        return controllers.at(name);
+        controllerMutex.lock();
+        for(auto it = controllers.cbegin() ; it != controllers.cend() ; ++it)
+        {
+            controllers.erase(it->first);
+            delete it->second;
+        }
+        controllerMutex.unlock();
     }
 
+    IController<MessageType>* At(const std::string &name)
+    {
+        try
+        {
+            return controllers.at(name);
+        }
+        catch (const std::out_of_range& e)
+        {
+            std::cerr <<"Inside the at of IController: "<< e.what() << std::endl;
+            return nullptr;
+        }
+
+    }
+
+
+    //!
+    //! \brief Insert a pointer to controller
+    //!
+    //! When giving this object a pointer to a controller this object is taking responsibility for that pointer.
+    //! \param name
+    //! \param ptr
+    //!
     void Insert(const std::string &name, IController<MessageType>* ptr)
     {
         controllers.insert({name, ptr});
@@ -50,11 +78,19 @@ public:
     //!
     IController<MessageType>* Remove(const std::string &name)
     {
-        IController<MessageType>* ptr = controllers.at(name);
+        IController<MessageType>* ptr = nullptr;
+        try
+        {
+            ptr = controllers.at(name);
 
-        controllerMutex.lock();
-        controllers.erase(name);
-        controllerMutex.unlock();
+            controllerMutex.lock();
+            controllers.erase(name);
+            controllerMutex.unlock();
+        }
+        catch (const std::out_of_range& e)
+        {
+            std::cerr <<"Inside the remove of IController: "<< e.what() << std::endl;
+        }
 
         return ptr;
     }

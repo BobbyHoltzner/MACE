@@ -202,6 +202,10 @@ public:
     // ============================================================================= //
 public:
 
+    //! \brief renderOccupancyMap
+    //!
+    void renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree);
+
 #ifdef ROS_EXISTS
     //!
     //! \brief setupROS Setup ROS subscribers, publishers, and node handler
@@ -368,6 +372,7 @@ private:
     //!
     tf::Transform m_transform;
 
+    tf::Transform m_WorldToMap;
     //!
     //! \brief m_srv Container for the Gazebo send model state message
     //!

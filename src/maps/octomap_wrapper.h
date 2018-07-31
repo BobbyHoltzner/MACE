@@ -80,7 +80,7 @@ private:
 
 private:
     bool enabled2DProjection = true;
-    bool enabled2DTrackingChanges = true;
+    bool enabled2DTrackingChanges = false;
     bool enabledIndependentMapResolution = false;
 
     std::vector<unsigned int> changesIn2DMap;

@@ -17,14 +17,14 @@ bool ActionMotorTest::hasSpatialInfluence() const
     return false;
 }
 
-AbstractCommandItem* ActionMotorTest::getClone() const
+std::shared_ptr<AbstractCommandItem> ActionMotorTest::getClone() const
 {
-    return (new ActionMotorTest(*this));
+    return std::make_shared<ActionMotorTest>(*this);
 }
 
-void ActionMotorTest::getClone(AbstractCommandItem** command) const
+void ActionMotorTest::getClone(std::shared_ptr<AbstractCommandItem> &command) const
 {
-    *command = new ActionMotorTest(*this);
+    command = std::make_shared<ActionMotorTest>(*this);
 }
 
 ActionMotorTest::ActionMotorTest()

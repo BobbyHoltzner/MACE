@@ -14,7 +14,8 @@ type Props = {
     connectedVehicles: {[id: string]: Vehicle},
     onAircraftCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void,
     handleChangeSelectedVehicle: (vehicleID: string) => void
-    selectedVehicleID: string
+    selectedVehicleID: string,
+    onDisconnectedVehicle: (vehicleID: string) => void
 }
 
 type State = {
@@ -42,22 +43,29 @@ export class ConnectedVehiclesContainer extends React.Component<Props, State> {
         let vehicleMessages: JSX.Element[] = [];
         for( let key in this.props.connectedVehicles ){
             let vehicle = this.props.connectedVehicles[key];
-            vehicleHUDs.push(
-                <VehicleHUD key={key}
-                    vehicleID={key}
-                    aircraft={vehicle}
-                    handleAircraftCommand={this.handleAircraftCommand}
-                    handleChangeSelectedVehicle={this.props.handleChangeSelectedVehicle}
-                    highlightColor={this.props.connectedVehicles[key].highlightColor}
-                />
-            );
+            let now = new Date();
+            const lastHeardSeconds = (now.getTime() - vehicle.general.lastHeard.getTime())/1000; // Time in seconds
+            if(lastHeardSeconds <= 60) {
+                vehicleHUDs.push(
+                    <VehicleHUD key={key}
+                        vehicleID={key}
+                        aircraft={vehicle}
+                        handleAircraftCommand={this.handleAircraftCommand}
+                        handleChangeSelectedVehicle={this.props.handleChangeSelectedVehicle}
+                        highlightColor={this.props.connectedVehicles[key].highlightColor}
+                    />
+                );
 
-            vehicleMessages.push(
-                <VehicleMessages key={key}
-                    vehicleID={key}
-                    aircraft={vehicle}
-                />
-            )
+                vehicleMessages.push(
+                    <VehicleMessages key={key}
+                        vehicleID={key}
+                        aircraft={vehicle}
+                    />
+                )
+            }
+            else {
+                this.props.onDisconnectedVehicle(key);
+            }
         }
 
 

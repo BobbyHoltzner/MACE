@@ -251,7 +251,6 @@ void ModuleROS::NewlyUpdated3DOccupancyMap()
 void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map)
 {
 #ifdef ROS_EXISTS
-    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","map"));
 
     nav_msgs::OccupancyGrid occupancyGrid;
     occupancyGrid.info.resolution = map.getXResolution();
@@ -292,7 +291,10 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
         }
         }
     }
+
+    m_broadcaster.sendTransform(tf::StampedTransform(m_WorldToMap,ros::Time::now(),"world","/map"));
     compressedMapPub.publish(occupancyGrid);
+
 #endif
 }
 
@@ -321,6 +323,7 @@ void ModuleROS::NewlyAvailableBoundary(const uint8_t &key, const OptionalParamet
         boundary_list.points.push_back(startPoint);
         boundary_list.points.push_back(endPoint);
     }
+
     operationalBoundaryPub.publish(boundary_list);
 #else
     UNUSED(boundary);
@@ -460,6 +463,54 @@ void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<D
 #endif
 }
 
+void ModuleROS::renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree)
+{
+#ifdef ROS_EXISTS
+
+    m_broadcaster.sendTransform(tf::StampedTransform(m_WorldToMap,ros::Time::now(),"world","/map"));
+
+    if(tree->size() > 0)
+    {
+        double minX, minY, minZ, maxX, maxY, maxZ;
+
+        tree->getMetricMin(minX, minY, minZ);
+        tree->getMetricMax(maxX, maxY, maxZ);
+
+        visualization_msgs::MarkerArray occupiedVoxels;
+        occupiedVoxels.markers.resize(tree->getTreeDepth() + 1);
+        for (octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end(); it != end; ++it)
+        {
+            if(tree->isNodeOccupied(*it))
+            {
+                unsigned int leafIndex = it.getDepth();
+
+                geometry_msgs::Point cube;
+                cube.x = it.getX();
+                cube.y = it.getY();
+                cube.z = it.getZ();
+                double height = (1-std::min(std::max((it.getZ() - minZ)/(maxZ - minZ),0.0),1.0));
+                occupiedVoxels.markers[leafIndex].points.push_back(cube);
+                occupiedVoxels.markers[leafIndex].colors.push_back(generateColorHeight(height));
+            }
+        }
+        for(unsigned int i = 0; i < occupiedVoxels.markers.size(); i++)
+        {
+            double size = tree->getNodeSize(i);
+            occupiedVoxels.markers[i].header.frame_id = "/map";
+            occupiedVoxels.markers[i].header.stamp = ros::Time::now();
+            occupiedVoxels.markers[i].type = visualization_msgs::Marker::CUBE_LIST;
+            occupiedVoxels.markers[i].scale.x = size;
+            occupiedVoxels.markers[i].scale.y = size;
+            occupiedVoxels.markers[i].scale.z = size;
+            occupiedVoxels.markers[i].action = visualization_msgs::Marker::ADD;
+        }
+
+        occupancyMapPub.publish(occupiedVoxels);
+    }
+#endif
+}
+
+
 #ifdef ROS_EXISTS
 //!
 //! \brief setupROS Setup ROS subscribers, publishers, and node handler
@@ -470,15 +521,19 @@ void ModuleROS::setupROS() {
     m_transform.setOrigin(tf::Vector3(0.0,0.0,0.0));
     m_transform.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
 
+
+    m_WorldToMap.setOrigin(tf::Vector3(0.0,0.0,0.0));
+    m_WorldToMap.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
+
     // TODO: Do I need to send this transform before I do anything else? And should I send it for every basic_quadrotor_ID?
     //    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","basic_quadrotor/base_link"));
 
     // TESTING:
 //    cloudInPub = nh.advertise<sensor_msgs::PointCloud2>("cloud_in", 50);
-    compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",10);
-    occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",10);
+    compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",1);
+    occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",1);
     // END TESTING
-    markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",10);
+    markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",1);
     operationalBoundaryPub = nh.advertise<visualization_msgs::Marker>("operational_boundary_marker",1);
 
     // %Tag(MARKER_INIT)%
@@ -536,6 +591,8 @@ void ModuleROS::setupROS() {
 
     // Boundary list is white
     boundary_list.color.r = 1.0;
+    boundary_list.color.g = 1.0;
+    boundary_list.color.b = 1.0;
     boundary_list.color.a = 1.0;
 
     // %EndTag(COLOR)%

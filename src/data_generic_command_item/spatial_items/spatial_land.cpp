@@ -17,14 +17,14 @@ bool SpatialLand::hasSpatialInfluence() const
     return true;
 }
 
-AbstractCommandItem* SpatialLand::getClone() const
+std::shared_ptr<AbstractCommandItem> SpatialLand::getClone() const
 {
-    return (new SpatialLand(*this));
+    return std::make_shared<SpatialLand>(*this);
 }
 
-void SpatialLand::getClone(AbstractCommandItem** command) const
+void SpatialLand::getClone(std::shared_ptr<AbstractCommandItem> &command) const
 {
-    *command = new SpatialLand(*this);
+    command = std::make_shared<SpatialLand>(*this);
 }
 
 SpatialLand::SpatialLand():

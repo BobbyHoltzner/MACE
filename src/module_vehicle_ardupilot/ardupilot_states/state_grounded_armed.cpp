@@ -56,7 +56,7 @@ hsm::Transition State_GroundedArmed::GetTransition()
     return rtn;
 }
 
-bool State_GroundedArmed::handleCommand(const AbstractCommandItem* command)
+bool State_GroundedArmed::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
     this->clearCommand();
     switch (command->getCommandType()) {
@@ -89,7 +89,7 @@ void State_GroundedArmed::OnEnter()
 
 }
 
-void State_GroundedArmed::OnEnter(const AbstractCommandItem *command)
+void State_GroundedArmed::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     //When entering this case we will have already armed and therefore have no reason to enter the OnEnter() function
     if(command != nullptr)

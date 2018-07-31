@@ -104,6 +104,8 @@ public:
 
     }
 
+    virtual ~ControllerGuidedMissionItem() = default;
+
 };
 
 } //end of namespace MAVLINKVehicleControllers

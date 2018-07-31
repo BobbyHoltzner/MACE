@@ -27,7 +27,7 @@ public:
 
     /**
       */
-    virtual ~AbstractStateArdupilot() = default;
+    virtual ~AbstractStateArdupilot();
 
 public:
     /**
@@ -66,22 +66,23 @@ public:
 
     virtual bool handleMAVLINKMessage(const mavlink_message_t &msg);
 
-    void setCurrentCommand(const CommandItem::AbstractCommandItem* command);
+    void setCurrentCommand(const std::shared_ptr<AbstractCommandItem> command);
 
-    virtual bool handleCommand(const CommandItem::AbstractCommandItem* command);
+    virtual bool handleCommand(const std::shared_ptr<AbstractCommandItem> command);
 
 public:
     virtual void OnExit();
 
 public:
-    virtual void OnEnter(const CommandItem::AbstractCommandItem* command) = 0;
+    virtual void OnEnter(const std::shared_ptr<AbstractCommandItem> command) = 0;
 
 protected:
     void clearCommand();
 
 protected:
 
-    const CommandItem::AbstractCommandItem* currentCommand;
+    std::shared_ptr<CommandItem::AbstractCommandItem> currentCommand;
+    bool currentCommandSet;
 
 };
 

@@ -311,6 +311,57 @@ void GUItoMACE::issueCommand(const int &vehicleID, const QJsonObject &jsonObj)
 
 }
 
+void GUItoMACE::testFunction1(const int &vehicleID)
+{
+//    mLogs->debug("Module Ground Station saw a request on test function 1.");
+
+    MissionItem::MissionList missionList;
+    missionList.setMissionTXState(MissionItem::MISSIONSTATE::PROPOSED);
+    missionList.setMissionType(MissionItem::MISSIONTYPE::GUIDED);
+    missionList.setCreatorID(254);
+    missionList.setVehicleID(vehicleID);
+    missionList.initializeQueue(2);
+
+    std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
+    newWP->position->setPosition3D(14,7.5,20.0);
+    newWP->setTargetSystem(vehicleID);
+    newWP->position->setCoordinateFrame(Data::CoordinateFrameType::CF_LOCAL_ENU);
+
+    std::shared_ptr<CommandItem::SpatialWaypoint> newWP1 = std::make_shared<CommandItem::SpatialWaypoint>();
+    newWP1->position->setPosition3D(0,0,10.0);
+    newWP1->setTargetSystem(vehicleID);
+    newWP1->position->setCoordinateFrame(Data::CoordinateFrameType::CF_LOCAL_ENU);
+
+//    std::shared_ptr<CommandItem::SpatialWaypoint> newWP1 = std::make_shared<CommandItem::SpatialWaypoint>();
+//    newWP1->position->setPosition3D(37.8907477,-76.8152985,65.0);
+//    newWP1->setTargetSystem(vehicleID);
+
+//    std::shared_ptr<CommandItem::SpatialWaypoint> newWP2 = std::make_shared<CommandItem::SpatialWaypoint>();
+//    newWP2->position->setPosition3D(37.8904852,-76.8152341,75.0);
+//    newWP2->setTargetSystem(vehicleID);
+
+//    std::shared_ptr<CommandItem::SpatialWaypoint> newWP3 = std::make_shared<CommandItem::SpatialWaypoint>();
+//    newWP3->position->setPosition3D(37.8905170,-76.8144804,85.0);
+//    newWP3->setTargetSystem(vehicleID);
+
+    missionList.replaceMissionItemAtIndex(newWP,0);
+    missionList.replaceMissionItemAtIndex(newWP1,1);
+//    missionList.replaceMissionItemAtIndex(newWP2,2);
+//    missionList.replaceMissionItemAtIndex(newWP3,3);
+
+    m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+        ptr->GSEvent_UploadMission(this, missionList);
+    });
+
+}
+
+void GUItoMACE::testFunction2(const int &vehicleID)
+{
+    m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+        ptr->RequestDummyFunction(this, vehicleID);
+    });
+}
+
 //!
 //! \brief getConnectedVehicles Initiate a request to MACE Core for the list of currently connected vehicles
 //!

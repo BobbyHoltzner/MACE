@@ -29,8 +29,8 @@ void Dynamic2DGrid<T>::setGridSize(const double &x_min, const double &x_max, con
     m_yMax = m_yResolution * lrint(y_max / m_yResolution);
 
     // Now the number of cells should be integers:
-    m_xSize = round((m_xMax - m_yMin) / m_xResolution);
-    m_ySize = round((m_yMax - m_yMin) / m_yResolution);
+    m_xSize = round((m_xMax - m_xMin) / m_xResolution) + 1;
+    m_ySize = round((m_yMax - m_yMin) / m_yResolution) + 1;
 
     // Cells memory:
     if (fill_value)

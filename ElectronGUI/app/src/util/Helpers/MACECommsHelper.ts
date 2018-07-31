@@ -40,6 +40,10 @@ export class MACECommsHelper {
             socket.on('data', function (msg_sent: any) {
                 // console.log("Data from socket: " + msg_sent);
                 let jsonData: TCPReturnType = JSON.parse(msg_sent);
+                // if(jsonData.dataType === "VehicleMission") {
+                //     console.log("Data from socket: " + msg_sent);
+                //     console.log(jsonData);
+                // }
                 this.vehicleDB.parseJSONData(jsonData);
             }.bind(this));
             // Use splice to get rid of the socket that is ending.
@@ -56,7 +60,8 @@ export class MACECommsHelper {
         this.tcpServer = tcpServer;
 
         try{
-            this.tcpServer.listen(this.MACEconfig.config.MACEComms.listenPortNumber);
+            // this.tcpServer.listen(this.MACEconfig.config.MACEComms.listenPortNumber);
+            this.tcpServer.listen(this.MACEconfig.config.MACEComms.listenPortNumber, this.MACEconfig.config.MACEComms.ipAddress);
         }
         catch(e) {
         console.log(e);

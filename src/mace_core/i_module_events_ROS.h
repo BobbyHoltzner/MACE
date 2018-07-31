@@ -13,7 +13,19 @@ class IModuleEventsROS  : public IModuleEventsGeneral
 {
 
 public:
+    //!
+    //! \brief ROS_NewLaserScan New laser scan from ROS/Gazebo
+    //! \param obj Point cloud object
+    //! \param position Position of sensor
+    //!
     virtual void ROS_NewLaserScan(const octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D>& position) = 0;
+
+    //!
+    //! \brief ROS_NewLaserScan New laser scan from ROS/Gazebo
+    //! \param obj Point cloud object
+    //! \param position Position of sensor
+    //! \param orientation Orientation of sensor
+    //!
     virtual void ROS_NewLaserScan(const octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D>& position, const mace::pose::Orientation_3D& orientation) = 0;
 
 };
