@@ -321,7 +321,7 @@ private:
                     ((CommandItem::AbstractCommandItem *)Copy)->setTargetSystem(ID);
                 }
                 */
-                it->second->MarshalCommand(vehicleCommand, data);
+                it->second->MarshalCommand(vehicleCommand, data, sender);
             }
 
             for(auto it = m_ExternalLink.begin() ; it != m_ExternalLink.end() ; ++it)
@@ -336,7 +336,7 @@ private:
         }
         else {
             if(m_VehicleIDToPort.find(vehicleID) != m_VehicleIDToPort.cend()){
-                m_VehicleIDToPort.at(vehicleID)->MarshalCommand(vehicleCommand, data);
+                m_VehicleIDToPort.at(vehicleID)->MarshalCommand(vehicleCommand, data, sender);
             }
 
             else if(m_ExternalLinkIDToPort.find(vehicleID) != m_ExternalLinkIDToPort.cend()){

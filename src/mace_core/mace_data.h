@@ -137,6 +137,15 @@ public:
         vehicleIDs = m_LocalVehicles;
     }
 
+    bool HasMavlinkID(const int MAVLINKID) const
+    {
+        if(m_MAVLINKIDtoModule.find(MAVLINKID) == m_MAVLINKIDtoModule.cend())
+        {
+            return false;
+        }
+        return true;
+    }
+
     //!
     //! \brief GetVehicleFromMAVLINKID
     //! \param MAVLINKID
@@ -145,6 +154,20 @@ public:
     ModuleCharacteristic GetVehicleFromMAVLINKID(const int MAVLINKID) const
     {
         return m_MAVLINKIDtoModule.at(MAVLINKID);
+    }
+
+
+    uint8_t getMavlinkIDFromModule(const ModuleCharacteristic &characterstic) const
+    {
+        for(auto it = m_MAVLINKIDtoModule.cbegin() ; it != m_MAVLINKIDtoModule.cend() ; ++it)
+        {
+            if(it->second == characterstic)
+            {
+                return it->first;
+            }
+        }
+
+        throw std::runtime_error("Unknown module given to get key of");
     }
 
     CommandItem::SpatialHome GetVehicleHomePostion(const int &vehicleID) const
@@ -919,6 +942,8 @@ public:
         {
             vec.push_back(it->first);
         }
+
+        return vec;
     }
 
 
@@ -929,6 +954,7 @@ public:
         {
             vec.push_back(it->first);
         }
+        return vec;
     }
 
 
@@ -954,6 +980,11 @@ public:
         {
             return m_RemoteModules.at(characterstic);
         }
+
+        ///MTB TO DO MONDAY
+        /// READ THIS MONDAY
+        ///
+        /// FIGURE OUT HOW TO BROADCAST TO A MACE INSTANCE (WHEN ID = 0)
 
         throw std::runtime_error("Unknown module given");
     }

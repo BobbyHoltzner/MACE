@@ -344,6 +344,13 @@ public:
         return m_CB->GetModuleFromMAVLINKVehicleID(ID);
     }
 
+
+    COMPONENT_KEY GetHostKey() const
+    {
+        return m_CB->GetHostKey();
+    }
+
+
 private:
 
     template <const int I>

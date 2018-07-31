@@ -60,6 +60,8 @@ public:
 
     virtual void AddResource(const Resource &resource) = 0;
 
+    virtual bool HasResource(const Resource &resource) const = 0;
+
 
     //!
     //! \brief Determine the connection status

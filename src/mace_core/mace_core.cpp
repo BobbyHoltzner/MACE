@@ -30,8 +30,6 @@ void MaceCore::AddDataFusion(const std::shared_ptr<MaceData> dataFusion)
 
 void MaceCore::AddLocalModule(const std::shared_ptr<ModuleBase> &module)
 {
-
-    ///MTB MODULE AUTO ASSIGN
     uint8_t moduleID = 1;
     if(m_Modules.size() > 0)
     {
@@ -54,10 +52,8 @@ void MaceCore::AddLocalModule(const std::shared_ptr<ModuleBase> &module)
         moduleID++;
     }
 
-    printf("----------------------------------- %d\n", moduleID);
     module->setPararentMaceInstanceID(getMaceInstanceID());
     module->SetID(moduleID);
-    ///
 
     std::vector<TopicCharacteristic> topics = module->GetEmittedTopics();
     for(auto it = topics.cbegin() ; it != topics.cend() ; ++it) {
@@ -79,6 +75,16 @@ void MaceCore::AddLocalModule_Vehicle(const std::string &ID, const std::shared_p
 
     vehicle->addListener(this);
     vehicle->addTopicListener(this);
+
+
+    //notify all existing external links about new RTA module
+    if(m_ExternalLink.size() > 0)
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, vehicle->GetCharacteristic(), ModuleClasses::VEHICLE_COMMS);
+        }
+    }
 }
 
 
@@ -107,18 +113,26 @@ void MaceCore::AddLocalModule_ExternalLink(const std::shared_ptr<IModuleCommandE
     //if there is a ground station, notify this new external link about the existance of GS
     if(m_GroundStation != NULL)
     {
-        externalLink->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic());
+        externalLink->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic(), ModuleClasses::GROUND_STATION);
     }
 
     //if there is an RTA module, notify this new external link about the existance of the rta module
     if(m_RTA != NULL)
     {
-        externalLink->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_RTA->GetCharacteristic());
+        externalLink->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_RTA->GetCharacteristic(), ModuleClasses::RTA);
+    }
+
+    //If there are vehiclemodules, notify this new external link about each ones existance
+    for(auto it = m_VehicleIDToPtr.cbegin() ; it != m_VehicleIDToPtr.cend() ; ++it)
+    {
+        externalLink->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, it->second->GetCharacteristic(), ModuleClasses::VEHICLE_COMMS);
     }
 }
 
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
 {
+    AddLocalModule(groundStation);
+
     groundStation->addListener(this);
     groundStation->addTopicListener(this);
     groundStation->StartTCPServer();
@@ -130,11 +144,11 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
     {
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
         {
-            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic());
+            (*it)->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic(), ModuleClasses::GROUND_STATION);
         }
     }
 
-    AddLocalModule(groundStation);
+
 }
 
 void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPlanning> &pathPlanning)
@@ -157,6 +171,8 @@ void MaceCore::AddROSModule(const std::shared_ptr<IModuleCommandROS> &ros)
 
 void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
 {
+    AddLocalModule(rta);
+
     rta->addListener(this);
     rta->addTopicListener(this);
     m_RTA = rta;
@@ -166,11 +182,9 @@ void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
     {
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
         {
-            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_RTA->GetCharacteristic());
+            (*it)->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_RTA->GetCharacteristic(), ModuleClasses::RTA);
         }
     }
-
-    AddLocalModule(rta);
 }
 
 void MaceCore::AddSensorsModule(const std::shared_ptr<IModuleCommandSensors> &sensors)
@@ -302,7 +316,7 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
 void MaceCore::Event_NewModule(const ModuleBase* sender, const ModuleCharacteristic &characterstic, const ModuleClasses &type)
 {
     //if event came from external link then its a remote module, otherwise assume local
-    if(sender->ModuleClass() == ModuleClasses::EXTERNAL_LINK)
+    if(characterstic.MaceInstance != this->getMaceInstanceID())
     {
         this->m_DataFusion->AddRemoteModule(characterstic, type);
     }
@@ -352,16 +366,7 @@ void MaceCore::Events_NewVehicle(const ModuleBase *sender, const uint8_t publicI
     if(m_GroundStation.get() != NULL)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, publicID, vehicleModule);
 
-    else if(m_ExternalLink.size() > 0)
-    {
-        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
-        {
-            if((*it).get() != sender)
-            {
-                (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, vehicleModule);
-            }
-        }
-    }
+    //No mace_mavlink message exists to notify remote instances about the new vehicle. Relly on heartbeat instead.
 }
 
 
@@ -748,55 +753,50 @@ void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const NewBoun
     //! Set to true if this instance is interested in module
     bool interestedInBoundary = false;
 
-    //! A module making request for the boundary.
-    //! This is needed so the remote instance knows where to send the boundary.
-    //! If multiple modules on this instance are interested in the boundary, only one of them needs to be set
-    //!   Each module of interest will have a chance to access the downloaded boundary later.
-    ModuleCharacteristic requestor;
-
-
-    // pull list of all vehicles in the boundary
+    /// pull list of all vehicles in the boundary
     std::vector<int> vehicles = data.Characteistic.List();
 
-    //If global boundary and at least has a module attached then make interested
+    /// If global boundary and at least has a module attached then make interested
     if(vehicles.size() == 0)
     {
         if(m_RTA != nullptr)
         {
-            requestor = m_RTA->GetCharacteristic();
             interestedInBoundary = true;
         }
         if(m_PathPlanning != nullptr)
         {
-            requestor = m_PathPlanning->GetCharacteristic();
             interestedInBoundary = true;
         }
         if(m_VehicleIDToPort.size() > 0)
         {
-
-            requestor = m_VehicleIDToPtr.cbegin()->second->GetCharacteristic();
             interestedInBoundary = true;
         }
     }
 
-    //Check if an attached vehicle is part of vehicles in the boundary
+    /// Check if an attached vehicle is part of vehicles in the boundary
     for(auto it = m_VehicleIDToPort.cbegin() ; it != m_VehicleIDToPort.cend() ; ++it)
     {
         int attachedVehicleID = it->first;
         if(std::find(vehicles.begin(), vehicles.end(), attachedVehicleID) != vehicles.end())
         {
-            requestor = it->second->GetCharacteristic();
             interestedInBoundary = true;
         }
     }
 
+    ///////////////////////
+    /// END interst determination
+    ///////////////////////
 
-    //if interested issue a download request
+
+    /// if interested issue a download request
     if(interestedInBoundary == true)
     {
         if(sender->ModuleClass() == ModuleClasses::EXTERNAL_LINK)
         {
-            ((IModuleCommandExternalLink*)sender)->MarshalCommand(ExternalLinkCommands::REQUEST_REMOTE_BOUNDARY, std::make_tuple(data.Sender, data.RemoteIdentifier), requestor);
+            ModuleCharacteristic maceInstance;
+            maceInstance.MaceInstance = this->getMaceInstanceID();
+            maceInstance.ID = 0;
+            ((IModuleCommandExternalLink*)sender)->MarshalCommand(ExternalLinkCommands::REQUEST_REMOTE_BOUNDARY, std::make_tuple(data.Sender, data.RemoteIdentifier), maceInstance);
         }
     }
 

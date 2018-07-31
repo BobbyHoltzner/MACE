@@ -187,6 +187,11 @@ void UdpLink::AddResource(const Resource &resource)
     UNUSED(resource);
 }
 
+bool UdpLink::HasResource(const Resource &resource) const
+{
+    return true;
+}
+
 
 //!
 //! \brief Determine the connection status

@@ -262,6 +262,25 @@ public:
 
 
     //!
+    //! \brief Queue the fireing of a two-parameter command
+    //! \param event Command to queue the calling of internal lambda
+    //!
+    template<typename P1T,typename P2T>
+    void QueueCommand(T event, const P1T &param1, const P2T &param2, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>())
+    {
+        if(m_EventProcedures.find(event) == m_EventProcedures.cend())
+            throw std::runtime_error("Given command does not have a behavior defined");
+
+        TwoParamCaller<P1T, P2T> *caller = (TwoParamCaller<P1T, P2T>*)m_EventProcedures.at(event).get();
+        caller->AddParameter(param1, param2);
+        if(sender.IsSet() == true)
+        {
+            caller->AddSender(sender.Value());
+        }
+    }
+
+
+    //!
     //! \brief Immediatly invoke the command on the thread this method is called from
     //! \param event Command to immediatly invoke
     //!
@@ -287,6 +306,21 @@ public:
 
         OneParamCaller<P1T> *caller = (OneParamCaller<P1T>*)m_EventProcedures.at(event).get();
         caller->InvokeOneInstance(param1, sender);
+    }
+
+
+    //!
+    //! \brief Immediatly invoke the command on the thread this method is called from
+    //! \param event Command to immediatly invoke
+    //!
+    template<typename P1T, typename P2T>
+    void ImmediatlyCallCommand(T event, const P1T &param1, const P2T &param2, OptionalParameter<MaceCore::ModuleCharacteristic> sender = OptionalParameter<MaceCore::ModuleCharacteristic>())
+    {
+        if(m_EventProcedures.find(event) == m_EventProcedures.cend())
+            throw std::runtime_error("Given command does not have a behavior defined");
+
+        TwoParamCaller<P1T, P2T> *caller = (TwoParamCaller<P1T, P2T>*)m_EventProcedures.at(event).get();
+        caller->InvokeOneInstance(param1, param2, sender);
     }
 
 

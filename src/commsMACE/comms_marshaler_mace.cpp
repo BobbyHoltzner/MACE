@@ -99,6 +99,16 @@ void CommsMarshaler::AddResource(const std::string &name, const Resource &resour
     link->AddResource(resource);
 }
 
+bool CommsMarshaler::HasResource(const std::string &name, const Resource &resource) const
+{
+    if(m_CreatedLinksNameToPtr.find(name) == m_CreatedLinksNameToPtr.cend())
+        throw std::runtime_error("The provided link name does not exists");
+
+    std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(name);\
+
+    return link->HasResource(resource);
+}
+
 
 
 //!

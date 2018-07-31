@@ -279,6 +279,26 @@ protected:
             this->m_CommandDispatcher.ImmediatlyCallCommand(enumValue, value, sender);
     }
 
+    //!
+    //! \brief Execute a module's command with one parameters
+    //! \param enumValue Command to call.
+    //! \param value Value of first parameter
+    //!
+    template<typename P1T, typename P2T>
+    void MarshalCommandTwoParameter(CT enumValue, const P1T &value1, const P2T &value2, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>())
+    {
+        bool IssueOnModuleEventLoop;
+        if(m_MarshalCommandsOnEventLoop.find(enumValue) == m_MarshalCommandsOnEventLoop.cend())
+            IssueOnModuleEventLoop = m_DefaultMarshalCommandOnEventLoop;
+        else
+            IssueOnModuleEventLoop = m_MarshalCommandsOnEventLoop.at(enumValue);
+
+        if(IssueOnModuleEventLoop == true)
+            this->m_CommandDispatcher.QueueCommand(enumValue, value1, value2, sender);
+        else
+            this->m_CommandDispatcher.ImmediatlyCallCommand(enumValue, value1, value2, sender);
+    }
+
 
 
 private:

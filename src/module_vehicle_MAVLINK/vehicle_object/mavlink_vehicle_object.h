@@ -82,6 +82,12 @@ public:
     }
 
 
+    virtual int GetHostKey() const
+    {
+        return mavlinkID;
+    }
+
+
     virtual std::tuple<int, int> GetSysIDAndCompIDFromComponentKey(const int &key) const
     {
         return std::make_tuple(key, 0);

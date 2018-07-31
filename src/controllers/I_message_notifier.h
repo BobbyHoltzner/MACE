@@ -38,6 +38,8 @@ public:
     //!
     virtual COMPONENT_KEY GetModuleFromMAVLINKVehicleID(int ID) const = 0;
 
+    virtual COMPONENT_KEY GetHostKey() const = 0;
+
 
     virtual std::tuple<int, int> GetSysIDAndCompIDFromComponentKey(const COMPONENT_KEY &key) const = 0;
 };

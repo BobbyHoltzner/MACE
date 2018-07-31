@@ -144,6 +144,8 @@ public:
 
     virtual MaceCore::ModuleCharacteristic GetModuleFromMAVLINKVehicleID(int ID) const;
 
+    virtual MaceCore::ModuleCharacteristic GetHostKey() const;
+
     virtual std::tuple<int, int> GetSysIDAndCompIDFromComponentKey(const MaceCore::ModuleCharacteristic &key) const;
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -173,7 +175,7 @@ public:
     void ParseForData(const mace_message_t* message);
 
 
-    void PublishVehicleData(const int &systemID, const std::shared_ptr<Data::ITopicComponentDataObject> &component);
+    void PublishVehicleData(const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<Data::ITopicComponentDataObject> &component);
 
 
     //!
@@ -189,7 +191,7 @@ public:
     //! \param systemID
     //! \param heartbeatMSG
     //!
-    void HeartbeatInfo(const int &systemID, const mace_heartbeat_t &heartbeatMSG);
+    void HeartbeatInfo(const MaceCore::ModuleCharacteristic &sender, const mace_heartbeat_t &heartbeatMSG);
 
 
     //!

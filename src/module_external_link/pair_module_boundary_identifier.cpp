@@ -23,7 +23,8 @@ MaceCore::BoundaryIdentifierType ModuleBoundaryIdentifier::BoundaryIdentifier() 
 
 bool ModuleBoundaryIdentifier::operator==(const ModuleBoundaryIdentifier &rhs) const
 {
-    return this->m_data == rhs.m_data;
+    bool value = this->m_data == rhs.m_data;
+    return value;
 }
 
 

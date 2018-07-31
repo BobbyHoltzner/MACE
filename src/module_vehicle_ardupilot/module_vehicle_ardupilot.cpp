@@ -544,6 +544,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
     heartbeat.setAutopilot(Data::AutopilotType::AUTOPILOT_TYPE_ARDUPILOTMEGA);
     heartbeat.setCompanion(this->airborneInstance);
     heartbeat.setProtocol(Data::CommsProtocol::COMMS_MAVLINK);
+    heartbeat.setMavlinkID(systemID);
 
     switch(heartbeatMSG.type)
     {

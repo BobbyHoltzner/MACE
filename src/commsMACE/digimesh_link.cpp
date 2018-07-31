@@ -81,6 +81,22 @@ void DigiMeshLink::AddResource(const Resource &resource)
 }
 
 
+bool DigiMeshLink::HasResource(const Resource &resource) const
+{
+    //convert the target into a datastructure that digimesh library can understand
+    ResourceKey key;
+    ResourceValue value;
+
+    for(std::size_t i = 0 ; i < resource.Size() ; i++)
+    {
+        key.AddNameToResourceKey(resource.NameAt(i));
+        value.AddValueToResourceKey(resource.IDAt(i));
+    }
+
+    return m_Link->HasResource(key, value);
+}
+
+
 bool DigiMeshLink::isConnected() const
 {
     if(m_Link == NULL)

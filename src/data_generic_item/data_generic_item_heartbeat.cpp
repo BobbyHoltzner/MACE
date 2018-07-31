@@ -16,6 +16,7 @@ DataGenericItem_Heartbeat::DataGenericItem_Heartbeat(const DataGenericItem_Heart
     this->autopilot = copyObj.getAutopilot();
     this->missionState = copyObj.getMissionState();
     this->maceCompanion = copyObj.getCompanion();
+    this->mavlinkID = copyObj.getMavlinkID();
 }
 
 
@@ -27,6 +28,7 @@ mace_heartbeat_t DataGenericItem_Heartbeat::getMACECommsObject() const
     rtnObj.mace_companion = this->maceCompanion;
     rtnObj.protocol = (uint8_t)this->protocol;
     rtnObj.type = (uint8_t)this->type;
+    rtnObj.mavlinkID = this->mavlinkID;
 
     return rtnObj;
 }

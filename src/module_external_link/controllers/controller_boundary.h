@@ -20,6 +20,7 @@
 #include "controllers/actions/action_broadcast.h"
 #include "controllers/actions/action_broadcast_reliable.h"
 #include "controllers/actions/action_unsolicited_receive.h"
+#include "controllers/actions/action_unsolicited_receive_respond.h"
 
 #include "../pair_module_boundary_identifier.h"
 
@@ -132,22 +133,27 @@ using SendBoundaryHelper_FinalFinal = Controllers::ActionFinish<
 
 
 
-using BroadcastNewBoundaryNotification = Controllers::ActionBroadcastReliable<
+
+
+
+
+using NewBoundaryNotification = Controllers::ActionSend_Vector<
     mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_BOUNDARY_TYPE,
+    ModuleBoundaryIdentifier,
     BoundaryNotificationData,
     mace_new_boundary_object_t,
     MACE_MSG_ID_BOUNDARY_ACK
 >;
 
-using UsolicitedReceiveNewBoundaryNotification = Controllers::ActionUnsolicitedReceive<
+using UsolicitedReceiveNewBoundaryNotification = Controllers::ActionUnsolicitedReceiveRespond<
     mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_BOUNDARY_TYPE,
     BoundaryNotificationData,
     mace_new_boundary_object_t,
+    mace_boundary_ack_t,
     MACE_MSG_ID_NEW_BOUNDARY_OBJECT
 >;
-
 
 
 class ControllerBoundary : public CONTROLLER_BOUNDARY_TYPE,
@@ -158,7 +164,7 @@ class ControllerBoundary : public CONTROLLER_BOUNDARY_TYPE,
         public SendBoundaryHelper_ReceiveItem,
         public SendBoundaryHelper_Final,
         public SendBoundaryHelper_FinalFinal,
-        public BroadcastNewBoundaryNotification,
+        public NewBoundaryNotification,
         public UsolicitedReceiveNewBoundaryNotification
 //        public Action_RequestCurrentBoundary_Initiate,
 //        public Action_RequestCurrentBoundary_Response,
@@ -271,7 +277,9 @@ protected:
     virtual bool Finish_Receive(const mace_boundary_ack_t &boundaryItem, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, ModuleBoundaryIdentifier &queueObj);
 
 
-    virtual void Construct_BroadcastReliable(const BoundaryNotificationData &data, const MaceCore::ModuleCharacteristic &sender, std::vector<mace_new_boundary_object_t> &vec);
+
+
+    virtual bool Construct_Send_Vector(const BoundaryNotificationData &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, std::vector<mace_new_boundary_object_t> &vec, ModuleBoundaryIdentifier &queue);
 
 
     //!
@@ -287,7 +295,7 @@ protected:
     //! \param data Data to return to local instance when boundary is fully received
     //! \return True if boundary is fully received, false otherwise
     //!
-    virtual bool Construct_FinalObject(const mace_new_boundary_object_t &msg, const MaceCore::ModuleCharacteristic &sender, std::shared_ptr<BoundaryNotificationData> &data);
+    virtual bool Construct_FinalObjectAndResponse(const mace_new_boundary_object_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_boundary_ack_t &ack, MaceCore::ModuleCharacteristic &module_from, std::shared_ptr<BoundaryNotificationData> &data);
 
 public:
 
@@ -313,6 +321,19 @@ private:
     //! \param pair Details on whom and what boundary was incomplete
     //!
     void BoundaryBuilderWatchdogExpired(const ModuleBoundaryIdentifier &pair);
+
+
+public:
+
+    void Send(const uint8_t &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
+    {
+        SendBoundaryHelper_RequestDownload::Send(data, sender, target);
+    }
+
+    void Send(const BoundaryNotificationData &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
+    {
+        NewBoundaryNotification::Send(data, sender, target);
+    }
 
 };
 

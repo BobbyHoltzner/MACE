@@ -93,6 +93,10 @@ void SerialLink::AddResource(const Resource &resource)
     UNUSED(resource);
 }
 
+bool SerialLink::HasResource(const Resource &resource) const
+{
+    return true;
+}
 
 //!
 //! \brief Determine the connection status

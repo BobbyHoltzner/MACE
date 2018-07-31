@@ -107,6 +107,9 @@ public:
     void AddResource(const std::string &name, const Resource &resource);
 
 
+    bool HasResource(const std::string &name, const Resource &resource) const;
+
+
     //!
     //! \brief Set the protocol which a link is to use
     //! \param linkName Link name to set protocol of
