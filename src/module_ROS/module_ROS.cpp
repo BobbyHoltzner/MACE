@@ -326,7 +326,7 @@ void ModuleROS::NewlyAvailableBoundary(const uint8_t &key, const OptionalParamet
 
     operationalBoundaryPub.publish(boundary_list);
 #else
-    UNUSED(boundary);
+    UNUSED(key);
 #endif
 }
 

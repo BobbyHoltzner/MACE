@@ -97,7 +97,7 @@ public:
     //! \param boundary Key for new boundary
     //! \param sender Sender module
     //!
-    virtual void NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &boundary, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>()) = 0;
+    virtual void NewlyAvailableBoundary(const uint8_t &boundary, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>()) = 0;
 
     //!
     //! \brief NewlyAvailableOnboardMission New onboard mission available subscriber

@@ -1075,7 +1075,7 @@ void ModuleExternalLink::ReceivedRemoteBoundary(const MaceCore::ModuleCharacteri
     BoundaryItem::BoundaryCharacterisic characteristic = m_RemoteBoundaries.at(ModuleBoundaryIdentifier(remoteModule, remoteBoundaryID));
     std::cout<<"The external link module now has received the entire boundary with " << list.getQueueSize() << " verticies" << std::endl;
 
-    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-        ptr->Event_SetBoundary(this, characteristic, list);
-    });
+//    ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
+//        ptr->Event_SetBoundary(this, characteristic, list);
+//    });
 }

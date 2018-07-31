@@ -1214,27 +1214,28 @@ void MaceCore::EventPP_LoadMappingProjectionProperties(const ModuleBase *sender,
 //! \param key Key indicating the characteristics of the boundary
 //! \param boundary Data for the boundary
 //!
+void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryCharacterisic &key, const BoundaryItem::BoundaryList &boundary)
 {
     std::string list_str = "";
-    if(characterstic.List().size() == 0)
+    if(key.List().size() == 0)
     {
         list_str = "global";
     }
-    std::vector<int> list = characterstic.List();
+    std::vector<int> list = key.List();
     for(auto it = list.cbegin() ; it != list.cend() ; ++it)
     {
         list_str += std::to_string(*it) + " ";
     }
-    printf("Mace Core: Received a new Boundary\n  verticies: %d\n  Type: %s\n  Vehicles: %s\n", boundary.getQueueSize(), BoundaryItem::BoundaryTypeToString(characterstic.Type()).c_str(), list_str.c_str());
+    printf("Mace Core: Received a new Boundary\n  verticies: %d\n  Type: %s\n  Vehicles: %s\n", boundary.getQueueSize(), BoundaryItem::BoundaryTypeToString(key.Type()).c_str(), list_str.c_str());
 
     //Update the underalying data object
-    uint8_t key = m_DataFusion->setBoundaryByKey(characterstic, boundary);
+    uint8_t rtnKey = m_DataFusion->setBoundaryByKey(key, boundary);
 
     if(m_GroundStation.get() == sender)
     {
         printf("!!!!!!MADISON TESTING!!!!! - RTA module isn't full developed, so restricting transmission of boundary only when boundary came from GS\n");
         if(m_RTA && sender != m_RTA.get()) {
-            m_RTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_BOUNDARY, key);
+            m_RTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_BOUNDARY, rtnKey);
         }
     }
 
@@ -1245,11 +1246,11 @@ void MaceCore::EventPP_LoadMappingProjectionProperties(const ModuleBase *sender,
 
     if(m_ROS && sender != m_ROS.get())
     {
-        m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_BOUNDARY, key);
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_BOUNDARY, rtnKey);
     }
 
     if(m_GroundStation && sender != m_GroundStation.get()) {
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_BOUNDARY, key);
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_BOUNDARY, rtnKey);
     }
 
     if(m_ExternalLink.size() > 0)
@@ -1261,7 +1262,7 @@ void MaceCore::EventPP_LoadMappingProjectionProperties(const ModuleBase *sender,
                 continue;
             }
 
-            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY, key, sender->GetCharacteristic());
+            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY, rtnKey, sender->GetCharacteristic());
         }
     }
 }

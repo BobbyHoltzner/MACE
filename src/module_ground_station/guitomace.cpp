@@ -163,14 +163,15 @@ void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
 
     BoundaryItem::BoundaryCharacterisic key(BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
 
-    if(operationalBoundary.getQueueSize() > 0) {
-        m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-            ptr->Event_SetBoundary(m_parent, key, operationalBoundary);
-        });
-    }
+    std::cout << "TODO: Fix setEnvironmentVertices -- GUItoMACE" << std::endl;
+//    if(operationalBoundary.getQueueSize() > 0) {
+//        m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
+//            ptr->Event_SetBoundary(m_parent, key, operationalBoundary);
+//        });
+//    }
 
-    // Get and send vertices to the GUI:
-    getEnvironmentBoundary();
+//    // Get and send vertices to the GUI:
+//    getEnvironmentBoundary();
 }
 
 //!
@@ -582,66 +583,3 @@ bool GUItoMACE::writeTCPData(QByteArray data)
     }
 }
 
-void GUItoMACE::testFunction1(const int &vehicleID)
-{
-
-    BoundaryItem::BoundaryList operationalBoundary;
-
-    Position<CartesianPosition_2D> vertex1("First",-100,-100);
-    Position<CartesianPosition_2D> vertex2("Second",-100,100);
-    Position<CartesianPosition_2D> vertex3("Third",100,100);
-    Position<CartesianPosition_2D> vertex4("Fourth",100,-100);
-
-    operationalBoundary.appendVertexItem(vertex1);
-    operationalBoundary.appendVertexItem(vertex2);
-    operationalBoundary.appendVertexItem(vertex3);
-    operationalBoundary.appendVertexItem(vertex4);
-
-    BoundaryItem::BoundaryCharacterisic key(BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
-
-    m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->Event_SetBoundary(m_parent, key, operationalBoundary);
-    });
-
-//    mLogs->debug("Module Ground Station saw a request on test function 1.");
-
-//    MissionItem::MissionList missionList;
-//    missionList.setMissionTXState(MissionItem::MISSIONSTATE::PROPOSED);
-//    missionList.setMissionType(MissionItem::MISSIONTYPE::AUTO);
-//    missionList.setCreatorID(254);
-//    missionList.setVehicleID(vehicleID);
-//    missionList.initializeQueue(4);
-//    latitude = latitude + 0.01;
-//    std::shared_ptr<CommandItem::SpatialWaypoint> newWP = std::make_shared<CommandItem::SpatialWaypoint>();
-//    newWP->position->setPosition3D(latitude,-76.8153602,20.0);
-//    newWP->setTargetSystem(vehicleID);
-
-//    std::shared_ptr<CommandItem::SpatialWaypoint> newWP1 = std::make_shared<CommandItem::SpatialWaypoint>();
-//    newWP1->position->setPosition3D(37.8907477,-76.8152985,65.0);
-//    newWP1->setTargetSystem(vehicleID);
-
-//    std::shared_ptr<CommandItem::SpatialWaypoint> newWP2 = std::make_shared<CommandItem::SpatialWaypoint>();
-//    newWP2->position->setPosition3D(37.8904852,-76.8152341,75.0);
-//    newWP2->setTargetSystem(vehicleID);
-
-//    std::shared_ptr<CommandItem::SpatialWaypoint> newWP3 = std::make_shared<CommandItem::SpatialWaypoint>();
-//    newWP3->position->setPosition3D(37.8905170,-76.8144804,85.0);
-//    newWP3->setTargetSystem(vehicleID);
-
-//    missionList.replaceMissionItemAtIndex(newWP,0);
-//    missionList.replaceMissionItemAtIndex(newWP1,1);
-//    missionList.replaceMissionItemAtIndex(newWP2,2);
-//    missionList.replaceMissionItemAtIndex(newWP3,3);
-
-//    ModuleGroundStation::NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-//        ptr->GSEvent_UploadMission(this, missionList);
-//    });
-
-}
-
-void GUItoMACE::testFunction2(const int &vehicleID)
-{
-    m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestDummyFunction(this, vehicleID);
-    });
-}
