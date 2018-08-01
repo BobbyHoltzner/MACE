@@ -3,6 +3,8 @@
 
 #include "action_base.h"
 
+#include "../base_data_item.h"
+
 namespace Controllers {
 
 template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename FINAL_TYPE, typename MSG_TYPE, typename ACK_TYPE, const int MESSAGE_REQUEST_ID>
@@ -42,7 +44,7 @@ public:
                     if(valid == true)
                     {
                         BASE::m_Controller->RemoveTransmission(queueObj, MESSAGE_REQUEST_ID);
-                        BASE::m_Controller->onDataReceived(queueObj, finalObj);
+                        ((Controllers::DataItem<QUEUE_TYPE, FINAL_TYPE>*)BASE::m_Controller)->onDataReceived(queueObj, finalObj);
                         this->template FinalResponse(ack, vehicleFrom, queueObj, target);
                     }
                 }

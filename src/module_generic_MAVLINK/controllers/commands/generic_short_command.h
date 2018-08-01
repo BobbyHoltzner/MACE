@@ -80,16 +80,19 @@ protected:
 
 protected:
 
-    virtual void Construct_Broadcast(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, mace_command_short_t &cmd)
+    virtual void Construct_Broadcast(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, std::vector<mace_command_short_t> &vec)
     {
         std::cout << "!!!WARNING!!!: Broadcasting a command. Commands should be targeted" << std::endl;
 
+        mace_command_short_t cmd;
         cmd = initializeCommandShort();
         cmd.command = COMMANDTYPE;
         cmd.target_system = data.getTargetSystem();
         cmd.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
 
         FillCommand(data, cmd);
+
+        vec.push_back(cmd);
     }
 
     virtual void Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_command_short_t &cmd, MaceCore::ModuleCharacteristic &queueObj)

@@ -37,8 +37,12 @@
 #include "base/pose/orientation_3D.h"
 #include "base/geometry/cell_2DC.h"
 
+#include "data_generic_command_item/boundary_items/boundary_type.h"
+
 namespace MaceCore
 {
+
+using BoundaryIdentifierType = uint8_t;
 
 class MaceCore;
 
@@ -1094,46 +1098,48 @@ public:
 
 public:
 
-    //!
-    //! \brief updateBoundary Update the boundary list with new boundary list
-    //! \param boundary Boundary to update (based on boundary list key)
-    //!
-    void updateBoundary(const BoundaryItem::BoundaryList &boundary);
+    BoundaryIdentifierType setBoundaryByKey(const BoundaryItem::BoundaryCharacterisic &key, const BoundaryItem::BoundaryList &boundary);
+
 
     //!
-    //! \brief getBoundary Get the boundary based on boundary key
-    //! \param operationBoundary Container for the operational boundary
-    //! \param key Boundary key
-    //! \return True if successful
+    //! \brief Fetch all the boundaries of the given typ efor the given vehicle
+    //! \param vehicleID ID of vehicle to get boundaries of
+    //! \param type Type of boundaries to get
+    //! \return List of boundaries, empty if no boundary exists for given criteria
     //!
-    bool getBoundary(BoundaryItem::BoundaryList* operationBoundary, const BoundaryItem::BoundaryKey &key) const;
+    std::vector<uint8_t> getBoundaryForVehicle(const int &vehicleID, const BoundaryItem::BOUNDARYTYPE &type);
+
 
     //!
-    //! \brief getOperationalBoundary Get the operational boundary
-    //! \param operationBoundary Container for the operational boundary
-    //! \param vehicleID
+    //! \brief getBoundaryFromIdentifier Return the boundary corresponding to a specific ID
+    //! \param ID Boundary identifier
+    //! \param boundary Container for the requested boundary
+    //! \return True if boundary is found, False otherwise
     //!
-    void getOperationalBoundary(BoundaryItem::BoundaryList* operationBoundary, const int &vehicleID = 0) const;
+    bool getBoundaryFromIdentifier(const BoundaryIdentifierType &ID, BoundaryItem::BoundaryList &boundary) const;
+
 
     //!
-    //! \brief getResourceBoundary Get the resource boundary for a specified vehicle
-    //! \param resourceBoundary Container for the resource boundary
-    //! \param vehicleID Vehicle ID to grab the resource boundary for
+    //! \brief getCharactersticFromIdentifier Get boundary characteristic given a specific boundary identifier
+    //! \param ID Boundary identifier
+    //! \param characteristic Container for boundary characteristic
+    //! \return True if characteristic is found, False otherwise
     //!
-    void getResourceBoundary(BoundaryItem::BoundaryList* resourceBoundary, const int &vehicleID);
+    bool getCharactersticFromIdentifier(const BoundaryIdentifierType ID, BoundaryItem::BoundaryCharacterisic &characteristic) const;
+
 
 private:
     //!
-    //! \brief updateBoundariesNewOrigin
-    //! \param distance
-    //! \param bearing
+    //! \brief updateBoundariesNewOrigin Update the origin of the boundary points from a new distance/bearing relative to a new origin point
+    //! \param distance Distance to new origin point
+    //! \param bearing Bearing to new origin point
     //!
     void updateBoundariesNewOrigin(const double &distance, const double &bearing);
 
+
 private:
     mutable std::mutex m_EnvironmentalBoundaryMutex;
-    std::map<BoundaryItem::BoundaryMapPair,BoundaryItem::BoundaryList> m_EnvironmentalBoundaryMap;
-
+    std::unordered_map<uint8_t, std::tuple<BoundaryItem::BoundaryCharacterisic, BoundaryItem::BoundaryList>> m_Boundaries;
 };
 
 } //END MaceCore Namespace

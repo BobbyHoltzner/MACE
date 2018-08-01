@@ -8,7 +8,7 @@ typedef struct __mace_boundary_count_t {
  uint16_t count; /*< Number of items defining the boundary.*/
  uint8_t boundary_system; /*< System ID*/
  uint8_t boundary_creator; /*< Creator ID*/
- uint8_t boundary_type; /*< Boundary type, see BOUNDARY_TYPE*/
+ uint8_t boundary_identifier; /*< Boundary type, see boundary_identifier*/
 }) mace_boundary_count_t;
 
 #define MACE_MSG_ID_BOUNDARY_COUNT_LEN 5
@@ -29,7 +29,7 @@ typedef struct __mace_boundary_count_t {
     {  { "count", NULL, MACE_TYPE_UINT16_T, 0, 0, offsetof(mace_boundary_count_t, count) }, \
          { "boundary_system", NULL, MACE_TYPE_UINT8_T, 0, 2, offsetof(mace_boundary_count_t, boundary_system) }, \
          { "boundary_creator", NULL, MACE_TYPE_UINT8_T, 0, 3, offsetof(mace_boundary_count_t, boundary_creator) }, \
-         { "boundary_type", NULL, MACE_TYPE_UINT8_T, 0, 4, offsetof(mace_boundary_count_t, boundary_type) }, \
+         { "boundary_identifier", NULL, MACE_TYPE_UINT8_T, 0, 4, offsetof(mace_boundary_count_t, boundary_identifier) }, \
          } \
 }
 #else
@@ -39,7 +39,7 @@ typedef struct __mace_boundary_count_t {
     {  { "count", NULL, MACE_TYPE_UINT16_T, 0, 0, offsetof(mace_boundary_count_t, count) }, \
          { "boundary_system", NULL, MACE_TYPE_UINT8_T, 0, 2, offsetof(mace_boundary_count_t, boundary_system) }, \
          { "boundary_creator", NULL, MACE_TYPE_UINT8_T, 0, 3, offsetof(mace_boundary_count_t, boundary_creator) }, \
-         { "boundary_type", NULL, MACE_TYPE_UINT8_T, 0, 4, offsetof(mace_boundary_count_t, boundary_type) }, \
+         { "boundary_identifier", NULL, MACE_TYPE_UINT8_T, 0, 4, offsetof(mace_boundary_count_t, boundary_identifier) }, \
          } \
 }
 #endif
@@ -52,19 +52,19 @@ typedef struct __mace_boundary_count_t {
  *
  * @param boundary_system System ID
  * @param boundary_creator Creator ID
- * @param boundary_type Boundary type, see BOUNDARY_TYPE
+ * @param boundary_identifier Boundary type, see boundary_identifier
  * @param count Number of items defining the boundary.
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mace_msg_boundary_count_pack(uint8_t system_id, uint8_t component_id, mace_message_t* msg,
-                               uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_type, uint16_t count)
+                               uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_identifier, uint16_t count)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_BOUNDARY_COUNT_LEN];
     _mace_put_uint16_t(buf, 0, count);
     _mace_put_uint8_t(buf, 2, boundary_system);
     _mace_put_uint8_t(buf, 3, boundary_creator);
-    _mace_put_uint8_t(buf, 4, boundary_type);
+    _mace_put_uint8_t(buf, 4, boundary_identifier);
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), buf, MACE_MSG_ID_BOUNDARY_COUNT_LEN);
 #else
@@ -72,7 +72,7 @@ static inline uint16_t mace_msg_boundary_count_pack(uint8_t system_id, uint8_t c
     packet.count = count;
     packet.boundary_system = boundary_system;
     packet.boundary_creator = boundary_creator;
-    packet.boundary_type = boundary_type;
+    packet.boundary_identifier = boundary_identifier;
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), &packet, MACE_MSG_ID_BOUNDARY_COUNT_LEN);
 #endif
@@ -89,20 +89,20 @@ static inline uint16_t mace_msg_boundary_count_pack(uint8_t system_id, uint8_t c
  * @param msg The MAVLink message to compress the data into
  * @param boundary_system System ID
  * @param boundary_creator Creator ID
- * @param boundary_type Boundary type, see BOUNDARY_TYPE
+ * @param boundary_identifier Boundary type, see boundary_identifier
  * @param count Number of items defining the boundary.
  * @return length of the message in bytes (excluding serial stream start sign)
  */
 static inline uint16_t mace_msg_boundary_count_pack_chan(uint8_t system_id, uint8_t component_id, uint8_t chan,
                                mace_message_t* msg,
-                                   uint8_t boundary_system,uint8_t boundary_creator,uint8_t boundary_type,uint16_t count)
+                                   uint8_t boundary_system,uint8_t boundary_creator,uint8_t boundary_identifier,uint16_t count)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_BOUNDARY_COUNT_LEN];
     _mace_put_uint16_t(buf, 0, count);
     _mace_put_uint8_t(buf, 2, boundary_system);
     _mace_put_uint8_t(buf, 3, boundary_creator);
-    _mace_put_uint8_t(buf, 4, boundary_type);
+    _mace_put_uint8_t(buf, 4, boundary_identifier);
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), buf, MACE_MSG_ID_BOUNDARY_COUNT_LEN);
 #else
@@ -110,7 +110,7 @@ static inline uint16_t mace_msg_boundary_count_pack_chan(uint8_t system_id, uint
     packet.count = count;
     packet.boundary_system = boundary_system;
     packet.boundary_creator = boundary_creator;
-    packet.boundary_type = boundary_type;
+    packet.boundary_identifier = boundary_identifier;
 
         memcpy(_MACE_PAYLOAD_NON_CONST(msg), &packet, MACE_MSG_ID_BOUNDARY_COUNT_LEN);
 #endif
@@ -129,7 +129,7 @@ static inline uint16_t mace_msg_boundary_count_pack_chan(uint8_t system_id, uint
  */
 static inline uint16_t mace_msg_boundary_count_encode(uint8_t system_id, uint8_t component_id, mace_message_t* msg, const mace_boundary_count_t* boundary_count)
 {
-    return mace_msg_boundary_count_pack(system_id, component_id, msg, boundary_count->boundary_system, boundary_count->boundary_creator, boundary_count->boundary_type, boundary_count->count);
+    return mace_msg_boundary_count_pack(system_id, component_id, msg, boundary_count->boundary_system, boundary_count->boundary_creator, boundary_count->boundary_identifier, boundary_count->count);
 }
 
 /**
@@ -143,7 +143,7 @@ static inline uint16_t mace_msg_boundary_count_encode(uint8_t system_id, uint8_t
  */
 static inline uint16_t mace_msg_boundary_count_encode_chan(uint8_t system_id, uint8_t component_id, uint8_t chan, mace_message_t* msg, const mace_boundary_count_t* boundary_count)
 {
-    return mace_msg_boundary_count_pack_chan(system_id, component_id, chan, msg, boundary_count->boundary_system, boundary_count->boundary_creator, boundary_count->boundary_type, boundary_count->count);
+    return mace_msg_boundary_count_pack_chan(system_id, component_id, chan, msg, boundary_count->boundary_system, boundary_count->boundary_creator, boundary_count->boundary_identifier, boundary_count->count);
 }
 
 /**
@@ -152,19 +152,19 @@ static inline uint16_t mace_msg_boundary_count_encode_chan(uint8_t system_id, ui
  *
  * @param boundary_system System ID
  * @param boundary_creator Creator ID
- * @param boundary_type Boundary type, see BOUNDARY_TYPE
+ * @param boundary_identifier Boundary type, see boundary_identifier
  * @param count Number of items defining the boundary.
  */
 #ifdef MACE_USE_CONVENIENCE_FUNCTIONS
 
-static inline void mace_msg_boundary_count_send(mace_channel_t chan, uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_type, uint16_t count)
+static inline void mace_msg_boundary_count_send(mace_channel_t chan, uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_identifier, uint16_t count)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char buf[MACE_MSG_ID_BOUNDARY_COUNT_LEN];
     _mace_put_uint16_t(buf, 0, count);
     _mace_put_uint8_t(buf, 2, boundary_system);
     _mace_put_uint8_t(buf, 3, boundary_creator);
-    _mace_put_uint8_t(buf, 4, boundary_type);
+    _mace_put_uint8_t(buf, 4, boundary_identifier);
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_BOUNDARY_COUNT, buf, MACE_MSG_ID_BOUNDARY_COUNT_MIN_LEN, MACE_MSG_ID_BOUNDARY_COUNT_LEN, MACE_MSG_ID_BOUNDARY_COUNT_CRC);
 #else
@@ -172,7 +172,7 @@ static inline void mace_msg_boundary_count_send(mace_channel_t chan, uint8_t bou
     packet.count = count;
     packet.boundary_system = boundary_system;
     packet.boundary_creator = boundary_creator;
-    packet.boundary_type = boundary_type;
+    packet.boundary_identifier = boundary_identifier;
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_BOUNDARY_COUNT, (const char *)&packet, MACE_MSG_ID_BOUNDARY_COUNT_MIN_LEN, MACE_MSG_ID_BOUNDARY_COUNT_LEN, MACE_MSG_ID_BOUNDARY_COUNT_CRC);
 #endif
@@ -186,7 +186,7 @@ static inline void mace_msg_boundary_count_send(mace_channel_t chan, uint8_t bou
 static inline void mace_msg_boundary_count_send_struct(mace_channel_t chan, const mace_boundary_count_t* boundary_count)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
-    mace_msg_boundary_count_send(chan, boundary_count->boundary_system, boundary_count->boundary_creator, boundary_count->boundary_type, boundary_count->count);
+    mace_msg_boundary_count_send(chan, boundary_count->boundary_system, boundary_count->boundary_creator, boundary_count->boundary_identifier, boundary_count->count);
 #else
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_BOUNDARY_COUNT, (const char *)boundary_count, MACE_MSG_ID_BOUNDARY_COUNT_MIN_LEN, MACE_MSG_ID_BOUNDARY_COUNT_LEN, MACE_MSG_ID_BOUNDARY_COUNT_CRC);
 #endif
@@ -200,14 +200,14 @@ static inline void mace_msg_boundary_count_send_struct(mace_channel_t chan, cons
   is usually the receive buffer for the channel, and allows a reply to an
   incoming message with minimum stack space usage.
  */
-static inline void mace_msg_boundary_count_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_type, uint16_t count)
+static inline void mace_msg_boundary_count_send_buf(mace_message_t *msgbuf, mace_channel_t chan,  uint8_t boundary_system, uint8_t boundary_creator, uint8_t boundary_identifier, uint16_t count)
 {
 #if MACE_NEED_BYTE_SWAP || !MACE_ALIGNED_FIELDS
     char *buf = (char *)msgbuf;
     _mace_put_uint16_t(buf, 0, count);
     _mace_put_uint8_t(buf, 2, boundary_system);
     _mace_put_uint8_t(buf, 3, boundary_creator);
-    _mace_put_uint8_t(buf, 4, boundary_type);
+    _mace_put_uint8_t(buf, 4, boundary_identifier);
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_BOUNDARY_COUNT, buf, MACE_MSG_ID_BOUNDARY_COUNT_MIN_LEN, MACE_MSG_ID_BOUNDARY_COUNT_LEN, MACE_MSG_ID_BOUNDARY_COUNT_CRC);
 #else
@@ -215,7 +215,7 @@ static inline void mace_msg_boundary_count_send_buf(mace_message_t *msgbuf, mace
     packet->count = count;
     packet->boundary_system = boundary_system;
     packet->boundary_creator = boundary_creator;
-    packet->boundary_type = boundary_type;
+    packet->boundary_identifier = boundary_identifier;
 
     _mace_finalize_message_chan_send(chan, MACE_MSG_ID_BOUNDARY_COUNT, (const char *)packet, MACE_MSG_ID_BOUNDARY_COUNT_MIN_LEN, MACE_MSG_ID_BOUNDARY_COUNT_LEN, MACE_MSG_ID_BOUNDARY_COUNT_CRC);
 #endif
@@ -248,11 +248,11 @@ static inline uint8_t mace_msg_boundary_count_get_boundary_creator(const mace_me
 }
 
 /**
- * @brief Get field boundary_type from boundary_count message
+ * @brief Get field boundary_identifier from boundary_count message
  *
- * @return Boundary type, see BOUNDARY_TYPE
+ * @return Boundary type, see boundary_identifier
  */
-static inline uint8_t mace_msg_boundary_count_get_boundary_type(const mace_message_t* msg)
+static inline uint8_t mace_msg_boundary_count_get_boundary_identifier(const mace_message_t* msg)
 {
     return _MACE_RETURN_uint8_t(msg,  4);
 }
@@ -279,7 +279,7 @@ static inline void mace_msg_boundary_count_decode(const mace_message_t* msg, mac
     boundary_count->count = mace_msg_boundary_count_get_count(msg);
     boundary_count->boundary_system = mace_msg_boundary_count_get_boundary_system(msg);
     boundary_count->boundary_creator = mace_msg_boundary_count_get_boundary_creator(msg);
-    boundary_count->boundary_type = mace_msg_boundary_count_get_boundary_type(msg);
+    boundary_count->boundary_identifier = mace_msg_boundary_count_get_boundary_identifier(msg);
 #else
         uint8_t len = msg->len < MACE_MSG_ID_BOUNDARY_COUNT_LEN? msg->len : MACE_MSG_ID_BOUNDARY_COUNT_LEN;
         memset(boundary_count, 0, MACE_MSG_ID_BOUNDARY_COUNT_LEN);

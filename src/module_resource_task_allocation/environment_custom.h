@@ -89,12 +89,6 @@ public:
      */
     Polygon_2DC getBoundingPolygon() { return m_boundary; }
 
-    /**
-     * @brief getGlobalOrigin Get the current global origin
-     * @return Current global origin
-     */
-    std::shared_ptr<CommandItem::SpatialHome> getGlobalOrigin() { return m_globalOrigin; }
-
 
     /**
      * @brief printCellInfo Print stats about a cell to the console
@@ -147,12 +141,6 @@ private:
      * @brief cells Container for cells corresponding to each vehicle
      */
     std::map<int, Cell_2DC> cells;
-
-
-    /**
-     * @brief m_globalOrigin Global origin for the environment
-     */
-    std::shared_ptr<CommandItem::SpatialHome> m_globalOrigin;
 
     bool m_globalInstance;
 };

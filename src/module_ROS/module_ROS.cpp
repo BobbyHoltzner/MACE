@@ -28,7 +28,9 @@ ModuleROS::ModuleROS() :
     m_PlanningStateTopic("planningState"),
     m_VehicleDataTopic("vehicleData"),
     m_MapTopic("mappingData"),
-    m_OccupancyMapCalculation([this](const std::shared_ptr<octomap::OcTree> &tree){this->renderOccupancyMap(tree);}),
+    #ifdef ROS_EXISTS
+        m_OccupancyMapCalculation([this](const std::shared_ptr<octomap::OcTree> &tree){this->renderOccupancyMap(tree);}),
+    #endif
     m_CompressedMapCalculation([this](const std::shared_ptr<mace::maps::Data2DGrid<mace::maps::OccupiedResult>> &map){this->NewlyCompressedOccupancyMap(*map);})
 {
     //m_tfListener = std::make_shared<tf2_ros::TransformListener>(m_tfBuffer);
@@ -228,6 +230,9 @@ void ModuleROS::NewlyAvailableVehicle(const int &vehicleID)
     insertVehicleIfNotExist(vehicleID);
 }
 
+//!
+//! \brief NewlyUpdated3DOccupancyMap Subscriber to a newly available 3D occupancy map
+//!
 void ModuleROS::NewlyUpdated3DOccupancyMap()
 {
 #ifdef ROS_EXISTS
@@ -239,6 +244,10 @@ void ModuleROS::NewlyUpdated3DOccupancyMap()
 #endif
 }
 
+//!
+//! \brief NewlyCompressedOccupancyMap Subscriber to a newly available compressed occupancy map
+//! \param map Compressed occupancy map
+//!
 void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map)
 {
 #ifdef ROS_EXISTS
@@ -289,14 +298,21 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
 #endif
 }
 
-void ModuleROS::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary)
+//!
+//! \brief NewlyUpdatedOperationalFence Subscriber to a new operational fence (i.e. global boundary)
+//! \param boundary Boundary list object in Cartesian space
+//!
+void ModuleROS::NewlyAvailableBoundary(const uint8_t &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
 #ifdef ROS_EXISTS
     geometry_msgs::Point startPoint;
     geometry_msgs::Point endPoint;
 
-    std::vector<Position<CartesianPosition_2D>> vertices = boundary.boundingPolygon.getVector();
-    for(size_t i = 1; i < vertices.size();i ++)
+    BoundaryItem::BoundaryList boundary;
+    this->getDataObject()->getBoundaryFromIdentifier(key, boundary);
+
+    auto vertices = boundary.boundingPolygon.getVector();
+    for(int i = 1; i < vertices.size();i ++)
     {
         startPoint.x = vertices.at(i-1).getXPosition();
         startPoint.y = vertices.at(i-1).getYPosition();
@@ -310,9 +326,14 @@ void ModuleROS::NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &b
 
     operationalBoundaryPub.publish(boundary_list);
 #else
-    UNUSED(boundary);
+    UNUSED(key);
 #endif
 }
+
+//!
+//! \brief NewlyFoundPath Subscriber to a new path for a vehicle
+//! \param path Path object
+//!
 void ModuleROS::NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &path)
 {
 #ifdef ROS_EXISTS
@@ -338,7 +359,10 @@ void ModuleROS::NewlyFoundPath(const std::vector<mace::state_space::StatePtr> &p
 #endif
 }
 
-
+//!
+//! \brief insertVehicleIfNotExist Insert a new vehicle into the map if it does not exist
+//! \param vehicleID ID of vehicle to check against current vehicle map
+//!
 void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
 #ifdef ROS_EXISTS
     if(m_vehicleMap.find(vehicleID) == m_vehicleMap.end()) {
@@ -351,7 +375,6 @@ void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
         std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple = std::make_tuple(localPos, att);
         m_vehicleMap.insert(std::make_pair(vehicleID, tmpTuple));
 
-#ifdef ROS_EXISTS
         // Add subscriber(s) for vehicle sensor messages
         std::vector<ros::Subscriber> vehicleSensors;
         std::string modelName = "basic_quadrotor_" + std::to_string(vehicleID);
@@ -378,7 +401,6 @@ void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
         }
         // Add sensor list to sensor map:
         m_sensorVehicleMap.insert(std::make_pair(vehicleID, vehicleSensors));
-#endif
     }
 #endif
 }
@@ -436,53 +458,6 @@ void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<D
     // Send gazebo model state:
 #ifdef ROS_EXISTS
     //sendGazeboModelState(vehicleID);
-#endif
-}
-
-void ModuleROS::renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree)
-{
-#ifdef ROS_EXISTS
-
-    m_broadcaster.sendTransform(tf::StampedTransform(m_WorldToMap,ros::Time::now(),"world","/map"));
-
-    if(tree->size() > 0)
-    {
-        double minX, minY, minZ, maxX, maxY, maxZ;
-
-        tree->getMetricMin(minX, minY, minZ);
-        tree->getMetricMax(maxX, maxY, maxZ);
-
-        visualization_msgs::MarkerArray occupiedVoxels;
-        occupiedVoxels.markers.resize(tree->getTreeDepth() + 1);
-        for (octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end(); it != end; ++it)
-        {
-            if(tree->isNodeOccupied(*it))
-            {
-                unsigned int leafIndex = it.getDepth();
-
-                geometry_msgs::Point cube;
-                cube.x = it.getX();
-                cube.y = it.getY();
-                cube.z = it.getZ();
-                double height = (1-std::min(std::max((it.getZ() - minZ)/(maxZ - minZ),0.0),1.0));
-                occupiedVoxels.markers[leafIndex].points.push_back(cube);
-                occupiedVoxels.markers[leafIndex].colors.push_back(generateColorHeight(height));
-            }
-        }
-        for(unsigned int i = 0; i < occupiedVoxels.markers.size(); i++)
-        {
-            double size = tree->getNodeSize(i);
-            occupiedVoxels.markers[i].header.frame_id = "/map";
-            occupiedVoxels.markers[i].header.stamp = ros::Time::now();
-            occupiedVoxels.markers[i].type = visualization_msgs::Marker::CUBE_LIST;
-            occupiedVoxels.markers[i].scale.x = size;
-            occupiedVoxels.markers[i].scale.y = size;
-            occupiedVoxels.markers[i].scale.z = size;
-            occupiedVoxels.markers[i].action = visualization_msgs::Marker::ADD;
-        }
-
-        occupancyMapPub.publish(occupiedVoxels);
-    }
 #endif
 }
 
@@ -608,6 +583,10 @@ void ModuleROS::newLaserScan(const ros::MessageEvent<sensor_msgs::LaserScan cons
     std::cout << "  Loop range min: " << minDistance << std::endl;
 }
 
+//!
+//! \brief newPointCloud Point cloud callback for ROS PointCloud2 message
+//! \param msg PointCloud2 message
+//!
 void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
     // Convert to Octomap Point Cloud:
     octomap::Pointcloud octoPointCloud;
@@ -679,7 +658,7 @@ void ModuleROS::newPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
 }
 
 //!
-//! \brief newPointCloud Point cloud callback for ROS PointCloud2 message
+//! \brief newGlobalPointCloud Point cloud callback for ROS PointCloud2 message (converted to global frame)
 //! \param msg PointCloud2 message
 //!
 void ModuleROS::newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& msg) {
@@ -721,6 +700,52 @@ void ModuleROS::newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& ms
     }); //this one explicitly calls mace_core and its up to you to handle in core
 }
 
+//!
+//! \brief renderOccupancyMap Render occupancy map in RViz
+//! \param tree OcTree to render
+//!
+void ModuleROS::renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree)
+{
+    if(tree->size() > 0)
+    {
+        double minX, minY, minZ, maxX, maxY, maxZ;
+
+        tree->getMetricMin(minX, minY, minZ);
+        tree->getMetricMax(maxX, maxY, maxZ);
+
+        visualization_msgs::MarkerArray occupiedVoxels;
+        occupiedVoxels.markers.resize(tree->getTreeDepth() + 1);
+        for (octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end(); it != end; ++it)
+        {
+            if(tree->isNodeOccupied(*it))
+            {
+                unsigned int leafIndex = it.getDepth();
+
+                geometry_msgs::Point cube;
+                cube.x = it.getX();
+                cube.y = it.getY();
+                cube.z = it.getZ();
+                double height = (1-std::min(std::max((it.getZ() - minZ)/(maxZ - minZ),0.0),1.0));
+                occupiedVoxels.markers[leafIndex].points.push_back(cube);
+                occupiedVoxels.markers[leafIndex].colors.push_back(generateColorHeight(height));
+            }
+        }
+        for(unsigned int i = 0; i < occupiedVoxels.markers.size(); i++)
+        {
+            double size = tree->getNodeSize(i);
+            occupiedVoxels.markers[i].header.frame_id = "/map";
+            occupiedVoxels.markers[i].header.stamp = ros::Time::now();
+            occupiedVoxels.markers[i].type = visualization_msgs::Marker::CUBE_LIST;
+            occupiedVoxels.markers[i].scale.x = size;
+            occupiedVoxels.markers[i].scale.y = size;
+            occupiedVoxels.markers[i].scale.z = size;
+            occupiedVoxels.markers[i].action = visualization_msgs::Marker::ADD;
+        }
+
+        occupancyMapPub.publish(occupiedVoxels);
+    }
+}
+
 
 //!
 //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz
@@ -755,6 +780,11 @@ void ModuleROS::renderEdge(const mace::geometry::Line_2DC &edge) {
     markerPub.publish(line_list);
 }
 
+//!
+//! \brief generateColorHeight Assign a RGBA color based on data height for rendering
+//! \param height Height of data point
+//! \return ROS ColorRGBA value
+//!
 std_msgs::ColorRGBA ModuleROS::generateColorHeight(double height)
 {
     std_msgs::ColorRGBA color;

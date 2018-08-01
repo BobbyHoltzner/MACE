@@ -146,10 +146,6 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
     void cbiHeartbeatController_transmitCommand(const mace_heartbeat_t &heartbeat);
 
-//    void ReceivedBoundary(const BoundaryItem::BoundaryList &list);
-//    Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::FetchKeyReturn FetchBoundaryFromKey(const OptionalParameter<BoundaryItem::BoundaryKey> &key);
-//    Controllers::DataItem<BoundaryItem::BoundaryKey, BoundaryItem::BoundaryList>::FetchModuleReturn FetchAllBoundariesFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
-
 
     void ReceivedMission(const MissionItem::MissionList &list);
     Controllers::DataItem<MissionKey, MissionList>::FetchKeyReturn FetchMissionFromKey(const OptionalParameter<MissionKey> &key);
@@ -365,14 +361,35 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
     /// The following are public virtual functions imposed from IModuleCommandExternalLink.
     ///////////////////////////////////////////////////////////////////////////////////////
-    void NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) override;
+    void NewlyAvailableBoundary(const uint8_t &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) override;
     virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey);
     virtual void NewlyAvailableModule(const MaceCore::ModuleCharacteristic &module);
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack);
+    virtual void Command_RequestBoundaryDownload(const std::tuple<MaceCore::ModuleCharacteristic, uint8_t> &remote, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
 private:
+
+
+
+    //! A list of all known remote boundaries and their characterstic
+    std::unordered_map<ModuleBoundaryIdentifier, BoundaryItem::BoundaryCharacterisic> m_RemoteBoundaries;
+
+    //!
+    //! \brief Function to be called when a new remote boundary characteristic has been recevied by the controller
+    //! \param sender Module that contains the boundary
+    //! \param data Data about boundary
+    //!
+    void ReceivedRemoteBoundaryCharacterstic(const MaceCore::ModuleCharacteristic &remoteModule, const uint8_t remoteBoundaryID, const BoundaryItem::BoundaryCharacterisic &characteristic);
+
+    Controllers::DataItem<ModuleBoundaryIdentifier, BoundaryItem::BoundaryList>::FetchKeyReturn FetchBoundaryFromKey(const OptionalParameter<ModuleBoundaryIdentifier> &key);
+
+    void ReceivedRemoteBoundary(const MaceCore::ModuleCharacteristic &remoteModule, uint8_t remoteBoundaryID, const BoundaryItem::BoundaryList &list);
+
+
+private:
+
     ExternalLink::HeartbeatController_ExternalLink *m_HeartbeatController;
 
     PointerCollection<
@@ -383,7 +400,8 @@ private:
         ExternalLink::CommandMissionItem,
         ExternalLink::ControllerSystemMode,
         ExternalLink::ControllerHome,
-        ExternalLink::ControllerMission
+        ExternalLink::ControllerMission,
+        ExternalLink::ControllerBoundary
     > m_Controllers;
 
 private:

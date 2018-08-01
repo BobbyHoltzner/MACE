@@ -3,10 +3,12 @@
 
 #include "i_module_events_general.h"
 
+#include "i_module_events_boundary_generator.h"
+
 namespace MaceCore
 {
 
-class IModuleEventsGroundStation : public IModuleEventsGeneral
+class IModuleEventsGroundStation : public IModuleEventsGeneral, public IModuleEventsBoundaryGenerator
 {
 public:
     //!
@@ -23,7 +25,6 @@ public:
     //! \param missionList
     //!
     virtual void GSEvent_UploadMission(const void* sender, const MissionItem::MissionList &missionList) = 0;
-
 };
 
 } //End MaceCore Namespace

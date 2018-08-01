@@ -38,6 +38,15 @@ struct ModuleCharacteristic
     {
         return !(*this == rhs);
     }
+
+    bool operator < (const ModuleCharacteristic& rhs) const {
+        if(this->Class < rhs.Class)
+            return true;
+        if(this->ID < rhs.ID) {
+            return true;
+        }
+        return false;
+    }
 };
 
 
@@ -45,12 +54,8 @@ struct ModuleCharacteristic
 
 struct ModuleCharacteristicCmp {
     bool operator()(const ModuleCharacteristic& lhs, const ModuleCharacteristic& rhs) const {
-        if(lhs.Class < rhs.Class)
-            return true;
-        if(lhs.ID < rhs.ID) {
-            return true;
-        }
-        return false;
+
+        return lhs < rhs;
     }
 };
 

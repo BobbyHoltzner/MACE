@@ -519,7 +519,9 @@ void ModuleGroundStation::NewlyAvailableHomePosition(const CommandItem::SpatialH
     m_toGUIHandler->sendVehicleHome(home.getOriginatingSystem(), home);
 }
 
-
+//!
+//! \brief NewlyAvailableGlobalOrigin Subscriber to a new global origin
+//!
 void ModuleGroundStation::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position)
 {
     std::cout << "Ground Control: New available global origin" << std::endl;
@@ -564,10 +566,20 @@ void ModuleGroundStation::NewlyAvailableVehicle(const int &vehicleID)
     }
 }
 
-void ModuleGroundStation::NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &key)
+//!
+//! \brief NewlyAvailableBoundary Subscriber to a new boundary
+//! \param key Key corresponding to the updated boundary in the core
+//!
+void ModuleGroundStation::NewlyAvailableBoundary(const uint8_t &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
+    /* MTB - Removing 7/2/2018
+     * @pnolan Issue: 138
+     *
+     * GS rendering of a boundary needs finer tuning. It needs to check what boundaries it already knows about, and selectivly render resource fence vs operation boundary
+     *
+     * I am removing for now to avoid these issues hindering progress.
     BoundaryItem::BoundaryList boundary;
-    if(this->getDataObject()->getBoundary(&boundary, key))
+    if(this->getDataObject()->getBoundaryFromIdentifier(key, boundary))
     {
         GeodeticPosition_3D origin = this->getDataObject()->GetGlobalOrigin();
 
@@ -583,6 +595,7 @@ void ModuleGroundStation::NewlyAvailableBoundary(const BoundaryItem::BoundaryKey
         //Write to the GUI
         m_toGUIHandler->sendEnvironmentVertices(gVertices);
     }
+    */
 }
 
 

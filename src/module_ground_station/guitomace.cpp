@@ -137,14 +137,13 @@ void GUItoMACE::setGlobalOrigin(const QJsonObject &jsonObj)
 //!
 void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
 {
-    BoundaryItem::BoundaryList operationalBoundary(0,0,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+    BoundaryItem::BoundaryList operationalBoundary;
 
     mace::pose::GeodeticPosition_3D origin = m_parent->getDataObject()->GetGlobalOrigin();
 
     QJsonObject tmpBoundaryObj = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
     QJsonArray boundary = tmpBoundaryObj.value("boundary").toArray();
 
-    std::vector<DataState::StateGlobalPosition> globalBoundary;
     foreach(const QJsonValue & v, boundary) {
         std::cout << "Lat: " << v.toObject().value("lat").toDouble() << " / Lon: " << v.toObject().value("lng").toDouble() << std::endl;
         double tmpLat = v.toObject().value("lat").toDouble();
@@ -154,15 +153,21 @@ void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
         mace::pose::GeodeticPosition_3D vertexGlobal(tmpLat,tmpLon,tmpAlt);
         mace::pose::CartesianPosition_3D vertexLocal3D;
 
-        mace::pose::DynamicsAid::GlobalPositionToLocal(origin,vertexGlobal,vertexLocal3D);
-        mace::pose::CartesianPosition_2D vertexLocal2D(vertexLocal3D.getXPosition(),vertexLocal3D.getYPosition());
+        if(origin.hasBeenSet()) {
+            mace::pose::DynamicsAid::GlobalPositionToLocal(origin,vertexGlobal,vertexLocal3D);
+            mace::pose::CartesianPosition_2D vertexLocal2D(vertexLocal3D.getXPosition(),vertexLocal3D.getYPosition());
 
-        operationalBoundary.appendVertexItem(vertexLocal2D);
+            operationalBoundary.appendVertexItem(vertexLocal2D);
+        }
     }
 
-    m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-        ptr->Event_SetBoundary(m_parent, operationalBoundary);
-    });
+    BoundaryItem::BoundaryCharacterisic key(BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
+
+    if(operationalBoundary.getQueueSize() > 0) {
+        m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
+            ptr->Event_SetBoundary(m_parent, key, operationalBoundary);
+        });
+    }
 
     // Get and send vertices to the GUI:
     getEnvironmentBoundary();

@@ -3,6 +3,8 @@
 
 #include "action_base.h"
 
+#include "../base_data_item.h"
+
 namespace Controllers {
 
 //!
@@ -51,7 +53,7 @@ public:
                     bool valid = this-> template Construct_FinalObject(msg, sender, finalObj);
                     if(valid == true)
                     {
-                        BASE::m_Controller->onDataReceived(sender, finalObj);
+                        ((Controllers::DataItem<MaceCore::ModuleCharacteristic, FINAL_TYPE>*)BASE::m_Controller)->onDataReceived(sender, finalObj);
                     }
                 }
         );

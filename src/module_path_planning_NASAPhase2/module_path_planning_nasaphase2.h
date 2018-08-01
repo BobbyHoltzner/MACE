@@ -98,6 +98,17 @@ public:
     //! Virtual functions as defined by IModuleCommandPathPlanning
 public:
 
+    // ============================================================================= //
+    // ======== Virtual functions as defined by IModuleCommandGenericBoundaries ==== //
+    // ============================================================================= //
+
+    //!
+    //! \brief NewlyAvailableBoundary Subscriber to a new boundary
+    //! \param key Key corresponding to the updated boundary in the core
+    //!
+    void NewlyAvailableBoundary(const uint8_t &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>()) override;
+
+
     void NewlyAvailableVehicle(const int &vehicleID) override;
 
     void NewlyLoadedOccupancyMap() override;
@@ -105,8 +116,6 @@ public:
     void NewlyUpdatedOccupancyMap() override;
 
     void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) override;
-
-    void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) override;
 
     void NewlyAvailableMission(const MissionItem::MissionList &mission) override;
 
@@ -126,6 +135,13 @@ private:
      * @param vertices Container for boundary vertices
      */
     void parseBoundaryVertices(std::string unparsedVertices, Polygon_2DG &boundaryPolygon);
+
+
+    //!
+    //! \brief A new Operational boundary has been provided, configure internal variables as needed
+    //! \param boundary New operational boundary
+    //!
+    void NewOperationalBoundary(const BoundaryItem::BoundaryList &boundary);
 
 private:
     unsigned int localVehicleID;

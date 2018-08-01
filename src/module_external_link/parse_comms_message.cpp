@@ -168,6 +168,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         //This is message definition 125
         break;
     }
+
     case MACE_MSG_ID_STATUSTEXT:
     {
         //This is message definition 253

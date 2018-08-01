@@ -19,17 +19,20 @@
 
 #include "base/geometry/polygon_2DC.h"
 
+#include "i_module_command_generic_boundaries.h"
+
 namespace MaceCore
 {
 
 enum class ExternalLinkCommands
 {
     BASE_MODULE_VEHICLE_LISTENER_ENUMS,
+    GENERIC_MODULE_BOUNDARY_LISTENER_ENUMS,
+    REQUEST_REMOTE_BOUNDARY,
     NEWLY_AVAILABLE_ONBOARD_MISSION,
     NEW_MISSION_EXE_STATE,
     NEWLY_AVAILABLE_HOME_POSITION,
     NEWLY_AVAILABLE_MODULE,
-    NEWLY_AVAILABLE_BOUNDARY,
     RECEIVED_MISSION_ACK
 };
 
@@ -38,7 +41,9 @@ class Testing{
 
 };
 
-class MACE_CORESHARED_EXPORT IModuleCommandExternalLink : public AbstractModule_VehicleListener<Metadata_GroundStation, IModuleEventsExternalLink, ExternalLinkCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandExternalLink :
+        public AbstractModule_VehicleListener<Metadata_GroundStation, IModuleEventsExternalLink, ExternalLinkCommands>,
+        public IModuleGenericBoundaries
 {
     friend class MaceCore;
 public:
@@ -48,10 +53,8 @@ public:
     IModuleCommandExternalLink():
         AbstractModule_VehicleListener()
     {
+        IModuleGenericBoundaries::SetUp<Metadata_GroundStation, IModuleEventsExternalLink, ExternalLinkCommands>(this);
 
-        AddCommandLogic<BoundaryItem::BoundaryKey>(ExternalLinkCommands::NEWLY_AVAILABLE_BOUNDARY, [this](const BoundaryItem::BoundaryKey &key, const OptionalParameter<ModuleCharacteristic> &sender){
-            NewlyAvailableBoundary(key, sender);
-        });
 
         AddCommandLogic<MissionItem::MissionKey>(ExternalLinkCommands::NEWLY_AVAILABLE_ONBOARD_MISSION, [this](const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender){
             NewlyAvailableOnboardMission(key, sender);
@@ -76,6 +79,10 @@ public:
             ReceivedMissionACK(ack);
         });
 
+        AddCommandLogic<std::tuple<ModuleCharacteristic, uint8_t>>(ExternalLinkCommands::REQUEST_REMOTE_BOUNDARY, [this](const std::tuple<ModuleCharacteristic, uint8_t> &remote, const OptionalParameter<ModuleCharacteristic> &sender){
+            Command_RequestBoundaryDownload(remote, sender);
+        });
+
     }
 
     virtual ModuleClasses ModuleClass() const
@@ -90,7 +97,7 @@ public:
     //! \param boundary Key for new boundary
     //! \param sender Sender module
     //!
-    virtual void NewlyAvailableBoundary(const BoundaryItem::BoundaryKey &boundary, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>()) = 0;
+    virtual void NewlyAvailableBoundary(const uint8_t &boundary, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>()) = 0;
 
     //!
     //! \brief NewlyAvailableOnboardMission New onboard mission available subscriber
@@ -123,6 +130,9 @@ public:
     //! \param ack New mission ack
     //!
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack) = 0;
+
+    virtual void Command_RequestBoundaryDownload(const std::tuple<ModuleCharacteristic, uint8_t> &remote, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
+
 
 };
 

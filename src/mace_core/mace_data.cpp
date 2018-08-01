@@ -1,4 +1,5 @@
 #include "mace_data.h"
+#include <random>
 
 namespace MaceCore{
 
@@ -461,96 +462,107 @@ mace::maps::Data2DGrid<mace::maps::OccupiedResult> MaceData::getCompressedOccupa
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// MACE BOUNDARY METHODS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//!
-//! \brief updateBoundary Update the boundary list with new boundary list
-//! \param boundary Boundary to update (based on boundary list key)
-//!
-void MaceData::updateBoundary(const BoundaryItem::BoundaryList &boundary)
+
+BoundaryIdentifierType MaceData::setBoundaryByKey(const BoundaryItem::BoundaryCharacterisic &characteristic, const BoundaryItem::BoundaryList &boundary)
 {
-    BoundaryItem::BoundaryKey key = boundary.getBoundaryKey();
-
     std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
-    BoundaryItem::BoundaryMapPair mapPair(key.m_systemID,key.m_boundaryType);
-    m_EnvironmentalBoundaryMap[mapPair] = boundary;
 
-    if(key.m_systemID == 0) //we should set this for all of the vehicles
+    if(m_Boundaries.size() == std::numeric_limits<uint8_t>::max())
     {
+        throw std::runtime_error("More than boundaries have been set. This is the max allowed in current data paradigm");
+    }
 
+    BoundaryIdentifierType number = m_Boundaries.size();
+    while(m_Boundaries.find(number) != m_Boundaries.cend())
+    {
+        number++;
+    }
+
+    m_Boundaries.insert({number, std::make_tuple(characteristic, boundary)});
+
+    return number;
+
+}
+
+
+//!
+//! \brief Fetch all the boundaries of the given typ efor the given vehicle
+//! \param vehicleID ID of vehicle to get boundaries of
+//! \param type Type of boundaries to get
+//! \return List of boundaries, empty if no boundary exists for given criteria
+//!
+std::vector<BoundaryIdentifierType> MaceData::getBoundaryForVehicle(const int &vehicleID, const BoundaryItem::BOUNDARYTYPE &type)
+{
+    std::vector<BoundaryIdentifierType> boundaries = {};
+    for(auto it=m_Boundaries.cbegin() ; it!=m_Boundaries.end() ; ++it)
+    {
+        //if not the type we are looking for continue
+        if(std::get<0>(it->second).Type() != type)
+        {
+            continue;
+        }
+
+        std::vector<int> keys = std::get<0>(it->second).List();
+        //check if the vehicle ID is inside the key and add it to list if so
+        for(auto itt = keys.cbegin() ; itt != keys.cend() ; ++itt)
+        {
+            if(*itt == vehicleID)
+            {
+                boundaries.push_back(it->first);
+            }
+        }
+    }
+    return boundaries;
+}
+
+//!
+//! \brief getBoundaryFromIdentifier Return the boundary corresponding to a specific ID
+//! \param ID Boundary identifier
+//! \param boundary Container for the requested boundary
+//! \return True if boundary is found, False otherwise
+//!
+bool MaceData::getBoundaryFromIdentifier(const BoundaryIdentifierType &ID, BoundaryItem::BoundaryList &boundary) const
+{
+    if(m_Boundaries.find(ID) == m_Boundaries.cend())
+    {
+        return false;
+    }
+    else {
+        boundary = std::get<1>(m_Boundaries.at(ID));
+        return true;
     }
 }
 
 //!
-//! \brief updateBoundariesNewOrigin
-//! \param distance
-//! \param bearing
+//! \brief getCharactersticFromIdentifier Get boundary characteristic given a specific boundary identifier
+//! \param ID Boundary identifier
+//! \param characteristic Container for boundary characteristic
+//! \return True if characteristic is found, False otherwise
+//!
+bool MaceData::getCharactersticFromIdentifier(const BoundaryIdentifierType ID, BoundaryItem::BoundaryCharacterisic &characteristic) const
+{
+    if(m_Boundaries.find(ID) == m_Boundaries.cend())
+    {
+        return false;
+    }
+    else {
+        characteristic = std::get<0>(m_Boundaries.at(ID));
+        return true;
+    }
+}
+
+//!
+//! \brief updateBoundariesNewOrigin Update the origin of the boundary points from a new distance/bearing relative to a new origin point
+//! \param distance Distance to new origin point
+//! \param bearing Bearing to new origin point
 //!
 void MaceData::updateBoundariesNewOrigin(const double &distance, const double &bearing)
 {
     std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
-    std::map<BoundaryItem::BoundaryMapPair,BoundaryItem::BoundaryList>::iterator it = m_EnvironmentalBoundaryMap.begin();
 
-    for(; it!=m_EnvironmentalBoundaryMap.end(); ++it)
+    for(auto it=m_Boundaries.begin() ; it!=m_Boundaries.end() ; ++it)
     {
-        BoundaryItem::BoundaryList list = it->second;
-        list.boundingPolygon.applyCoordinateShift(distance, bearing);
-    }
-}
-
-//!
-//! \brief getBoundary Get the boundary based on boundary key
-//! \param operationBoundary Container for the operational boundary
-//! \param key Boundary key
-//! \return True if successful
-//!
-bool MaceData::getBoundary(BoundaryItem::BoundaryList *operationBoundary, const BoundaryItem::BoundaryKey &key) const
-{
-    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
-    try{
-        BoundaryItem::BoundaryMapPair mapPair(key.m_systemID,key.m_boundaryType);
-        *operationBoundary = m_EnvironmentalBoundaryMap.at(mapPair);
-    }catch(const std::exception& error)
-    {
-        std::cout<<"An exception was raised during getBoundary: "<<error.what()<<std::endl;
-        operationBoundary = nullptr;
-        return false;
-    }
-
-    return true;
-}
-
-//!
-//! \brief getOperationalBoundary Get the operational boundary
-//! \param operationBoundary Container for the operational boundary
-//! \param vehicleID
-//!
-void MaceData::getOperationalBoundary(BoundaryItem::BoundaryList* operationBoundary, const int &vehicleID) const
-{
-    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
-    try{
-        BoundaryItem::BoundaryMapPair mapPair(vehicleID,BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
-        *operationBoundary = m_EnvironmentalBoundaryMap.at(mapPair);
-    }catch(const std::exception& error)
-    {
-        std::cout<<"An exception was raised during getOperationalBoundary: "<<error.what()<<std::endl;
-        operationBoundary = nullptr;
-    }
-}
-
-//!
-//! \brief getResourceBoundary Get the resource boundary for a specified vehicle
-//! \param resourceBoundary Container for the resource boundary
-//! \param vehicleID Vehicle ID to grab the resource boundary for
-//!
-void MaceData::getResourceBoundary(BoundaryItem::BoundaryList* resourceBoundary, const int &vehicleID)
-{
-    std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
-    try{
-        BoundaryItem::BoundaryMapPair mapPair(vehicleID,BoundaryItem::BOUNDARYTYPE::RESOURCE_FENCE);
-        *resourceBoundary = m_EnvironmentalBoundaryMap.at(mapPair);
-    }catch(const std::exception& error)
-    {
-        std::cout<<"An exception was raised during getResourceBoundary: "<<error.what()<<std::endl;
-        resourceBoundary = nullptr;
+        std::get<1>(it->second).boundingPolygon.applyCoordinateShift(distance, bearing);
     }
 }
 

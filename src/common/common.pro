@@ -26,7 +26,8 @@ HEADERS += common.h\
     chain inheritance.h \
     chain_inheritance.h \
     object_int_tuple.h \
-    background_tasks.h
+    background_tasks.h \
+    watchdog.h
 
 
 #Header file copy

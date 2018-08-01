@@ -50,16 +50,35 @@ public:
 
     ~ModuleVehicleArdupilot();
 
+    //!
+    //! \brief Provides object contains parameters values to configure module with
+    //! \param params Parameters to configure
+    //!
     virtual void ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
 
+    //!
+    //! \brief createLog Create a log file for this vehicle
+    //! \param systemID Vehicle ID generating the log
+    //!
     void createLog(const int &systemID);
 
+    //!
+    //! \brief MissionAcknowledgement Generate acknowledgement based on mission result
+    //! \param missionResult Mission result
+    //! \param publishResult Acknowledgement to publish out
+    //!
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
 public:
     void UpdateDynamicMissionQueue(const TargetItem::DynamicMissionQueue &queue) override;
 
 public:
+    //!
+    //! \brief VehicleHeartbeatInfo Heartbeat message from vehicle
+    //! \param linkName Comms link name
+    //! \param systemID Vehicle ID generating heartbeat
+    //! \param heartbeatMSG Heartbeat message
+    //!
     virtual void VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG);
 
     //!
@@ -103,8 +122,9 @@ public:
 
 
     //!
-    //! \brief PublishVechicleData
-    //! \param components
+    //! \brief PublishVehicleData Parent publisher for vehicle data
+    //! \param systemID Vehicle ID generating vehicle data
+    //! \param components Data components to publish
     //!
     void PublishVehicleData(const int &systemID, const std::vector<std::shared_ptr<Data::ITopicComponentDataObject>> &components);
 
@@ -120,50 +140,56 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
     //!
-    //! \brief Request_FullDataSync
-    //! \param targetSystem
+    //! \brief Request_FullDataSync Request all data from all systems
+    //! \param targetSystem Destination of the data dump receiver
     //!
     virtual void Request_FullDataSync(const int &targetSystem, const OptionalParameter<MaceCore::ModuleCharacteristic>& = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     //!
-    //! \brief Command_SystemArm
-    //! \param vehicleArm
+    //! \brief Command_SystemArm Command an ARM/DISARM action
+    //! \param command ARM/DISARM command
+    //! \param sender Generating system
     //!
     virtual void Command_SystemArm(const CommandItem::ActionArm &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
-    //! \brief Command_VehicleTakeoff
-    //! \param vehicleTakeoff
+    //! \brief Command_VehicleTakeoff Command a takeoff action
+    //! \param command Takeoff altitude and location
+    //! \param sender Generating system
     //!
     virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
-    //! \brief Command_Land
-    //! \param command
+    //! \brief Command_Land Command a LAND action
+    //! \param command Land command
+    //! \param sender Generating system
     //!
     virtual void Command_Land(const CommandItem::SpatialLand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
-    //! \brief Command_ReturnToLaunch
-    //! \param command
+    //! \brief Command_ReturnToLaunch command a return to launch action
+    //! \param command RTL command
+    //! \param sender Generating system
     //!
     virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
-    //! \brief Command_MissionState
-    //! \param command
+    //! \brief Command_MissionState Command a mission state request
+    //! \param command Mission state request command
+    //! \param sender Generating system
     //!
     virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
-    //! \brief Command_ChangeSystemMode
-    //! \param vehicleMode
+    //! \brief Command_ChangeSystemMode Command a system mode change
+    //! \param command Change mode command
+    //! \param sender Generating system
     //!
     virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &command, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
     //!
-    //! \brief Command_IssueGeneralCommand
-    //! \param command
+    //! \brief Command_IssueGeneralCommand Command a general command
+    //! \param command General command
     //!
     virtual void Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command);
 
@@ -171,14 +197,35 @@ public:
     /// GENERAL MISSION EVENTS:
     ////////////////////////////////////////////////////////////////////////////
 
+    //!
+    //! \brief Command_UploadMission Command a mission upload
+    //! \param missionList Mission list to upload
+    //!
     virtual void Command_UploadMission(const MissionItem::MissionList &missionList);
 
+    //!
+    //! \brief Command_SetCurrentMission Issue a set current mission command
+    //! \param key Mission key to set as current mission
+    //!
     virtual void Command_SetCurrentMission(const MissionItem::MissionKey &key);
 
+    //!
+    //! \brief Command_GetCurrentMission Issue a get current mission command
+    //! \param targetSystem System asking for the current mission
+    //!
     virtual void Command_GetCurrentMission(const int &targetSystem);
 
+    //!
+    //! \brief Command_GetMission Request a mission by mission key
+    //! \param key Mission key
+    //! \param sender System asking for the mission
+    //!
     virtual void Command_GetMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
+    //!
+    //! \brief Command_ClearCurrentMission Clear the current mission
+    //! \param targetSystem System asking for mission cleared
+    //!
     virtual void Command_ClearCurrentMission(const int &targetSystem);
 
     ////////////////////////////////////////////////////////////////////////////
@@ -187,8 +234,16 @@ public:
     /// MACE HW module, or, vehicles that have timely or ever updating changes.
     ////////////////////////////////////////////////////////////////////////////
 
+    //!
+    //! \brief Command_GetOnboardAuto Request the current onboard auto mission and state
+    //! \param targetSystem System asking for auto info
+    //!
     virtual void Command_GetOnboardAuto(const int &targetSystem);
 
+    //!
+    //! \brief Command_ClearOnboardAuto Clear the current onboard auto mission and state
+    //! \param targetSystem System to clear auto info
+    //!
     virtual void Command_ClearOnboardAuto(const int &targetSystem);
 
     /////////////////////////////////////////////////////////////////////////
@@ -197,8 +252,16 @@ public:
     /// MACE HW module, or, vehicles that have timely or ever updating changes.
     /////////////////////////////////////////////////////////////////////////
 
+    //!
+    //! \brief Command_GetOnboardGuided Request the current onboard guided state
+    //! \param targetSystem System asking for guided info
+    //!
     virtual void Command_GetOnboardGuided(const int &targetSystem);
 
+    //!
+    //! \brief Command_ClearOnboardGuided Clear the current onboard guided state
+    //! \param targetSystem System to clear guided state
+    //!
     virtual void Command_ClearOnboardGuided(const int &targetSystem);
 
 
@@ -211,8 +274,8 @@ public:
 
 
     //!
-    //! \brief UpdateMissionKey
-    //! \param key
+    //! \brief UpdateMissionKey Update the current mission's key
+    //! \param key New mission key
     //!
     void UpdateMissionKey(const MissionItem::MissionKeyChange &key) override;
 
@@ -224,14 +287,14 @@ public:
     /////////////////////////////////////////////////////////////////////////////
 
     //!
-    //! \brief Command_GetHomePosition
-    //! \param vehicleID
+    //! \brief Command_GetHomePosition Request a vehicle's home position
+    //! \param vehicleID Vehicle ID corresponding to the home position
     //!
     virtual void Command_GetHomePosition (const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic>& = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
     //!
-    //! \brief Command_SetHomePosition
-    //! \param vehicleHome
+    //! \brief Command_SetHomePosition Set a vehicle's home position
+    //! \param vehicleHome Vehicle home data
     //!
     virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome, const OptionalParameter<MaceCore::ModuleCharacteristic>& = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
@@ -269,7 +332,7 @@ private:
 private:
 
     //!
-    //! \brief Cause the state machine to update it's states
+    //! \brief ProgressStateMachineStates Cause the state machine to update its states
     //!
     void ProgressStateMachineStates();
 

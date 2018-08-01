@@ -10,19 +10,24 @@
 #include "i_module_topic_events.h"
 #include "i_module_events_path_planning.h"
 
+#include "i_module_command_generic_boundaries.h"
+
 namespace MaceCore
 {
 
 enum class PathPlanningCommands
 {
     BASE_MODULE_LISTENER_ENUMS,
+    GENERIC_MODULE_BOUNDARY_LISTENER_ENUMS,
     NEWLY_UPDATED_OPERATIONAL_FENCE,
     NEWLY_LOADED_OCCUPANCY_MAP,
     NEWLY_UPDATED_OCCUPANCY_MAP,
     NEWLY_AVAILABLE_MISSION
 };
 
-class MACE_CORESHARED_EXPORT IModuleCommandPathPlanning  : public AbstractModule_EventListeners<MetadataPathPlanning, IModuleEventsPathPlanning, PathPlanningCommands>
+class MACE_CORESHARED_EXPORT IModuleCommandPathPlanning  :
+        public AbstractModule_EventListeners<MetadataPathPlanning, IModuleEventsPathPlanning, PathPlanningCommands>,
+        public IModuleGenericBoundaries
 {
     friend class MaceCore;
 public:
@@ -32,6 +37,9 @@ public:
     IModuleCommandPathPlanning():
         AbstractModule_EventListeners()
     {
+        IModuleGenericBoundaries::SetUp<MetadataPathPlanning, IModuleEventsPathPlanning, PathPlanningCommands>(this);
+
+
         AddCommandLogic<int>(PathPlanningCommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
@@ -51,11 +59,6 @@ public:
         AddCommandLogic<mace::pose::GeodeticPosition_3D>(PathPlanningCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const mace::pose::GeodeticPosition_3D &position, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             NewlyUpdatedGlobalOrigin(position);
-        });
-
-        AddCommandLogic<BoundaryItem::BoundaryList>(PathPlanningCommands::NEWLY_UPDATED_OPERATIONAL_FENCE, [this](const BoundaryItem::BoundaryList &boundary, const OptionalParameter<ModuleCharacteristic> &sender){
-            UNUSED(sender);
-            NewlyUpdatedOperationalFence(boundary);
         });
 
         AddCommandLogic<MissionItem::MissionList>(PathPlanningCommands::NEWLY_AVAILABLE_MISSION, [this](const MissionItem::MissionList &mission, const OptionalParameter<ModuleCharacteristic> &sender){
@@ -93,14 +96,8 @@ public:
     virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 
     //!
-    //! \brief NewlyUpdatedOperationalFence New operational fence subscriber
-    //! \param boundary New operational fence
-    //!
-    virtual void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) = 0;
-
-    //!
-    //! \brief NewlyAvailableMission New mission available subscriber
-    //! \param mission New mission
+    //! \brief NewlyAvailableMission
+    //! \param mission
     //!
     virtual void NewlyAvailableMission(const MissionItem::MissionList &mission) = 0;
 
