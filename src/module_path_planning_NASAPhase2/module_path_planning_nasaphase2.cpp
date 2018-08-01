@@ -113,8 +113,7 @@ void ModulePathPlanningNASAPhase2::OnModulesStarted()
 
             boundary.setBoundary(m_LocalOperationalBoundary);
 
-            std::cout << "TODO: Fix Event_SetBoundary call" << std::endl;
-//            ptr->Event_SetBoundary(this, key, boundary);
+            ptr->Event_SetBoundary(this, key, boundary);
         });
     }
 
@@ -355,8 +354,7 @@ void ModulePathPlanningNASAPhase2::NewlyLoadedOccupancyMap()
 
             boundary.setBoundary(m_LocalOperationalBoundary);
 
-            std::cout << "TODO: Fix Event_SetBoundary call" << std::endl;
-//            ptr->Event_SetBoundary(this, key, boundary);
+            ptr->Event_SetBoundary(this, key, boundary);
         });
     }
 }

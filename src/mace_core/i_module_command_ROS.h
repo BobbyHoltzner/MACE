@@ -89,7 +89,7 @@ public:
     //! \brief NewlyUpdatedOperationalFence New operational fence subscriber
     //! \param boundary New operationl fence
     //!
-    virtual void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) = 0;
+//    virtual void NewlyUpdatedOperationalFence(const BoundaryItem::BoundaryList &boundary) = 0;
 
     //!
     //! \brief NewlyFoundPath New path subscriber

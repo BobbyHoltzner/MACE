@@ -251,11 +251,9 @@ void ModuleRTA::NewlyAvailableBoundary(const uint8_t &key, const OptionalParamet
 
             const BoundaryItem::BoundaryCharacterisic key({vehicleID}, BoundaryItem::BOUNDARYTYPE::RESOURCE_FENCE);
 
-
-            std::cout << "TODO: Fix Event_SetBoundary call" << std::endl;
-//            ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
-//                ptr->Event_SetBoundary(this, key, resourceFence);
-//            });
+            ModuleRTA::NotifyListeners([&](MaceCore::IModuleEventsRTA* ptr) {
+                ptr->Event_SetBoundary(this, key, resourceFence);
+            });
         }
 
     }

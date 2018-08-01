@@ -163,15 +163,14 @@ void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
 
     BoundaryItem::BoundaryCharacterisic key(BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
 
-    std::cout << "TODO: Fix setEnvironmentVertices -- GUItoMACE" << std::endl;
-//    if(operationalBoundary.getQueueSize() > 0) {
-//        m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
-//            ptr->Event_SetBoundary(m_parent, key, operationalBoundary);
-//        });
-//    }
+    if(operationalBoundary.getQueueSize() > 0) {
+        m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr) {
+            ptr->Event_SetBoundary(m_parent, key, operationalBoundary);
+        });
+    }
 
-//    // Get and send vertices to the GUI:
-//    getEnvironmentBoundary();
+    // Get and send vertices to the GUI:
+    getEnvironmentBoundary();
 }
 
 //!

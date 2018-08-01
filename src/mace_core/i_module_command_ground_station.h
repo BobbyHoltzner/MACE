@@ -81,7 +81,7 @@ public:
     //! \brief NewlyAvailableBoundary New boundary available subscriber
     //! \param key
     //!
-    virtual void NewlyAvailableBoundary(const uint8_t &key) = 0;
+    virtual void NewlyAvailableBoundary(const uint8_t &key, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>()) = 0;
 
     //!
     //! \brief NewlyAvailableCurrentMission New current mission available

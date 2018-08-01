@@ -146,7 +146,7 @@ public:
     //! \param sender Sender module
     //! \param boundary New boundary list
     //!
-    virtual void Event_SetBoundary(const ModuleBase* sender, const BoundaryItem::BoundaryList &boundary) = 0;
+    virtual void Event_SetBoundary(const ModuleBase* sender, const BoundaryItem::BoundaryCharacterisic &characterstic, const BoundaryItem::BoundaryList &boundary) = 0;
 };
 
 } //End MaceCore Namespace
