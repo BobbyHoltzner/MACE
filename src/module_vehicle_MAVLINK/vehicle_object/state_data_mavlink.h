@@ -22,6 +22,7 @@ public:
     Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_Battery> vehicleFuel;
     Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_GPS> vehicleGPSStatus;
     Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_Text> vehicleTextAlert;
+    Data::DataGetSetNotifier<DataGenericItem::DataGenericItem_SystemTime> vehicleSystemTime;
 
 public:
     Data::DataGetSetNotifier<DataState::StateGlobalPosition> vehicleGlobalPosition;

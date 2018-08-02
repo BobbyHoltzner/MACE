@@ -255,6 +255,12 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 
         m_DataFusion->setTopicDatagram(topicName, sender.ID, time, value);
 
+        if(value.HasNonTerminal("systemTime")) {
+            std::shared_ptr<TopicDatagram> datagram = value.GetNonTerminal("systemTime");
+            uint64_t usec = datagram->GetTerminal<uint64_t>("usec_since_epoch");
+            m_DataFusion->setDeltaTime_MAVLINK(usec);
+        }
+
         //list through all interested parties and notify of new topic data
         if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
         {
@@ -275,8 +281,6 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
             }
         }
     }
-
-
 }
 
 //!
@@ -295,6 +299,12 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
     std::vector<std::string> components = value.ListNonTerminals();
 
     m_DataFusion->setTopicDatagram(topicName, senderID, time, value);
+
+    if(value.HasNonTerminal("systemTime")) {
+        std::shared_ptr<TopicDatagram> datagram = value.GetNonTerminal("systemTime");
+        uint64_t usec = datagram->GetTerminal<uint64_t>("usec_since_epoch");
+        m_DataFusion->setDeltaTime_MAVLINK(usec);
+    }
 
     ModuleCharacteristic sender;
     sender.ID = senderID;

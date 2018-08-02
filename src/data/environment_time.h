@@ -133,7 +133,7 @@ public:
 //     * \param rhs Right hand side of the addition
 //     * \return Microsecond addition between the two times
 //     */
-//    HSI_INT64 operator +( const SimulationTime& microseconds ) const;
+//    uint64_t operator +( const SimulationTime& microseconds ) const;
 
 
     /*!

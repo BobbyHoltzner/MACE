@@ -28,12 +28,30 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         }
         break;
     }
+    case MAVLINK_MSG_ID_SYSTEM_TIME:
+    {
+        //This is message definition 2
+        mavlink_system_time_t decodedMSG;
+        mavlink_msg_system_time_decode(msg, &decodedMSG);
+        DataGenericItem::DataGenericItem_SystemTime systemTime;
+        systemTime.setTimeSinceEpoch(decodedMSG.time_unix_usec);
+        systemTime.setTimeSinceBoot(decodedMSG.time_boot_ms);
+
+        if(state->vehicleSystemTime.set(systemTime)) {
+            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemTime> ptrSystemTime = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemTime>(systemTime);
+            if(this->m_CB){
+                this->m_CB->cbi_VehicleStateData(systemID, ptrSystemTime);
+            }
+        }
+
+        break;
+    }
     case MAVLINK_MSG_ID_GPS_RAW_INT:
     {
         //This is message definition 24
         //The global position, as returned by the Global Positioning System (GPS). This is NOT the global position estimate of the system, but rather a RAW sensor value. See message GLOBAL_POSITION for the global position estimate. Coordinate frame is right-handed, Z-axis up (GPS frame).
         mavlink_gps_raw_int_t decodedMSG;
-        mavlink_msg_gps_raw_int_decode(msg,&decodedMSG);
+        mavlink_msg_gps_raw_int_decode(msg, &decodedMSG);
         DataGenericItem::DataGenericItem_GPS gpsItem;
         gpsItem.setHDOP(decodedMSG.eph);
         gpsItem.setVDOP(decodedMSG.epv);
@@ -46,6 +64,8 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
             break;
         case GPS_FIX_TYPE_3D_FIX:
             gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_3D_FIX);
+//            //gpsItem.setTime();
+//            this->getCallbackInterface()-
             break;
         case GPS_FIX_TYPE_DGPS:
             gpsItem.setGPSFix(gpsItem.GPSFixType::GPS_FIX_DGPS);
@@ -74,7 +94,7 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         {
             std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPSStatus = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(gpsItem);
             if(this->m_CB)
-                this->m_CB->cbi_VehicleStateData(systemID,ptrGPSStatus);
+                this->m_CB->cbi_VehicleStateData(systemID, ptrGPSStatus);
         }
 
         break;

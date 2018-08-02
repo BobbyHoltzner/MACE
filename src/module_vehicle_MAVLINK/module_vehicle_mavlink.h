@@ -236,6 +236,7 @@ public:
     {
         MaceCore::TopicDatagram topicDatagram;
         this->m_VehicleDataTopic.SetComponent(data, topicDatagram);
+
         ModuleVehicleMavlinkBase::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
             ptr->NewTopicDataValues(this, this->m_VehicleDataTopic.Name(), systemID, MaceCore::TIME(), topicDatagram);
         });

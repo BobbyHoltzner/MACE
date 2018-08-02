@@ -27,6 +27,7 @@ T* Helper_CreateAndSetUp(TT* obj, Controllers::MessageModuleTransmissionQueue<ma
 class CallbackInterface_MAVLINKVehicleObject
 {
 public:
+//    virtuul void cbi_GPSData(const int &systemID, std::shared_ptr<> data) = 0;
     virtual void cbi_VehicleStateData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data) = 0;
     virtual void cbi_VehicleMissionData(const int &systemID, std::shared_ptr<Data::ITopicComponentDataObject> data) const = 0;
 

@@ -39,6 +39,8 @@
 
 #include "data_generic_command_item/boundary_items/boundary_type.h"
 
+#include "data/environment_time.h"
+
 namespace MaceCore
 {
 
@@ -1140,6 +1142,19 @@ private:
 private:
     mutable std::mutex m_EnvironmentalBoundaryMutex;
     std::unordered_map<uint8_t, std::tuple<BoundaryItem::BoundaryCharacterisic, BoundaryItem::BoundaryList>> m_Boundaries;
+
+
+    // Time sync
+public:
+    void setDeltaTime_MAVLINK(uint64_t microsecondsSinceEpoch);
+
+    Data::EnvironmentTime getMAVLINKAdjustedTime();
+
+    int getDeltaT_usec() { return deltaT_usec; }
+
+private:
+    int deltaT_usec;
+
 };
 
 } //END MaceCore Namespace

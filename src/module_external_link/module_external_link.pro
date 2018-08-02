@@ -5,7 +5,9 @@
 #-------------------------------------------------
 QT += serialport
 QT += network
-QT       -= core gui
+#QT       -= core gui
+QT      -= gui
+QT      += core
 
 TARGET = module_external_link
 TEMPLATE = lib

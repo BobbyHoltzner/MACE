@@ -414,6 +414,13 @@ void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const Ma
                 // Write heartbeat data to the GUI:
                 m_toGUIHandler->sendVehicleHeartbeat(sender.ID, component);
             }
+//            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemTime::Name()) {
+//                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemTime> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemTime>();
+//                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+//                // DO SOMETHING WITH TIME SINCE EPOCH OR TIME SINCE BOOT
+//                std::cout << "GROUND STATION -- TIME SICNE EPOCH / MSEC SINCE BOOT: " << component->getUsecSinceEpoch() << " / " << component->getMillisecondsSinceBoot() << std::endl;
+//            }
         }
     }
     else if(topicName == m_MissionDataTopic.Name())

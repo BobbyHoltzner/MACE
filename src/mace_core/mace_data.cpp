@@ -567,4 +567,38 @@ void MaceData::updateBoundariesNewOrigin(const double &distance, const double &b
 }
 
 
+// Time sync
+void MaceData::setDeltaTime_MAVLINK(uint64_t microsecondsSinceEpoch) {
+    Data::EnvironmentTime currentTime;
+    Data::EnvironmentTime::CurrentTime(Data::Devices::SYSTEMCLOCK, currentTime);
+
+    double secSinceEpoch = microsecondsSinceEpoch/1000000.0;
+    double diffSec = secSinceEpoch - currentTime.ToSecSinceEpoch();
+
+    double usecTest = diffSec * 1000000.0;
+    double roundTest = std::round(diffSec * 1000000.0);
+    int usec = (int)roundTest;
+    this->deltaT_usec = usec;
+
+    // TODO-PAT: Figure out if this deltaT is actually correct, or if I'm losing data in the double->int conversion
+    //              - Also test the getMAVLINKAdjustedTime() method returns correctly
+    printf("ROUND TEST: %f\n", roundTest);
+    printf("USEC: %f\n", usec);
+
+    // TEST:
+    this->getMAVLINKAdjustedTime();
+}
+
+Data::EnvironmentTime MaceData::getMAVLINKAdjustedTime() {
+    Data::EnvironmentTime currentTime;
+    Data::EnvironmentTime::CurrentTime(Data::Devices::SYSTEMCLOCK, currentTime);
+
+    int delta_usec = this->getDeltaT_usec();
+    int delta_sec = delta_usec / 1000000.0;
+    Data::EnvironmentTime rtnTime;
+    rtnTime = Data::EnvironmentTime::FromSecSinceEpoch(currentTime.ToSecSinceEpoch() + delta_sec);
+    return rtnTime;
+}
+
+
 } //end of namespace MaceCore

@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-#include <QDateTime>
-
 namespace  Data {
 
 const int EnvironmentTime::NonLeapDays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
