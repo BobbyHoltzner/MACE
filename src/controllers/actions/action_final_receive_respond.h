@@ -35,17 +35,17 @@ public:
 
                     COMPONENT_KEY target = sender;
 
-                    COMPONENT_KEY vehicleFrom;
+                    COMPONENT_KEY moduleFor;
                     ACK_TYPE ack;
                     std::shared_ptr<FINAL_TYPE> finalObj;
                     QUEUE_TYPE queueObj;
 
-                    bool valid = this-> template Construct_FinalObjectAndResponse(msg, sender, ack, finalObj, vehicleFrom, queueObj);
+                    bool valid = this-> template Construct_FinalObjectAndResponse(msg, sender, ack, finalObj, moduleFor, queueObj);
                     if(valid == true)
                     {
                         BASE::m_Controller->RemoveTransmission(queueObj, MESSAGE_REQUEST_ID);
                         ((Controllers::DataItem<QUEUE_TYPE, FINAL_TYPE>*)BASE::m_Controller)->onDataReceived(queueObj, finalObj);
-                        this->template FinalResponse(ack, vehicleFrom, queueObj, target);
+                        this->template FinalResponse(ack, moduleFor, queueObj, target);
                     }
                 }
         );

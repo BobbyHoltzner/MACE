@@ -185,7 +185,7 @@ public:
     virtual void ExternalEvent_FinishedRXMissionList(const void *sender, const MissionItem::MissionList &missionList);
 
     virtual void ExternalEvent_MissionACK(const void* sender, const MissionItem::MissionACK &missionACK);
-    virtual void ExternalEvent_RequestingDataSync(const void *sender, const int &targetID);
+    virtual void ExternalEvent_RequestingDataSync(const void *sender, const ModuleCharacteristic &module);
 
     virtual void ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission);
 
@@ -351,13 +351,22 @@ private:
 
 public:
 
-    ///MTB MODULE AUTO ASSIGN
+    //!
+    //! \brief Set the identifier for this MACE instance
+    //! \param ID Identifier
+    //!
     void setMaceInstanceID(const uint8_t ID)
     {
         m_MaceInstanceID = ID;
         m_MaceInstanceIDSet = true;
     }
 
+
+    //!
+    //! \brief Get the identifier for this MACE instance
+    //! \throws std::runtime_error Thrown if no identifier is given
+    //! \return Identifier
+    //!
     uint8_t getMaceInstanceID() const
     {
         if(m_MaceInstanceIDSet == false)
@@ -365,7 +374,6 @@ public:
 
         return m_MaceInstanceID;
     }
-    ///
 
 private:
     mutable std::mutex m_VehicleMutex;
@@ -387,11 +395,10 @@ private:
     std::shared_ptr<IModuleCommandSensors> m_Sensors;
     std::shared_ptr<IModuleCommandRTA> m_RTA;
 
-    ///MTB MODULE AUTO ASSIGN
+    //! Map of modules and the local key to identiy them.
     std::unordered_map<uint32_t, std::shared_ptr<ModuleBase>> m_Modules;
     uint8_t m_MaceInstanceID;
     bool m_MaceInstanceIDSet;
-    ///
 
     std::shared_ptr<MaceData> m_DataFusion;
 };

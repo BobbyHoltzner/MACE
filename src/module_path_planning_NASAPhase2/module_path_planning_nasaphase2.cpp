@@ -185,7 +185,7 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
     if(topicName == m_VehicleDataTopic.Name())
     {
         //get latest datagram from mace_data
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender.ID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
 
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
@@ -203,7 +203,7 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
     else if(topicName == m_MissionDataTopic.Name())
     {
         //get latest datagram from mace_data
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), sender.ID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), sender);
 
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {

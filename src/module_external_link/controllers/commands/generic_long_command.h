@@ -102,7 +102,7 @@ protected:
         cmd = initializeCommandLong();
         cmd.command = COMMANDTYPE;
         cmd.target_system = target.MaceInstance;
-        cmd.target_component = target.ID;
+        cmd.target_component = target.ModuleID;
 
         if(m_CommandRequestedFrom.find(target) != m_CommandRequestedFrom.cend())
         {
@@ -117,13 +117,13 @@ protected:
     }
 
 
-    virtual bool Construct_FinalObjectAndResponse(const mace_command_long_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_command_ack_t &ack, std::shared_ptr<COMMANDDATASTRUCTURE> &data, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_FinalObjectAndResponse(const mace_command_long_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_command_ack_t &ack, std::shared_ptr<COMMANDDATASTRUCTURE> &data, MaceCore::ModuleCharacteristic &moduleFor, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
-        vehicleObj.MaceInstance = msg.target_system;
-        vehicleObj.ID = msg.target_component;
+        moduleFor.MaceInstance = msg.target_system;
+        moduleFor.ModuleID = msg.target_component;
 
-        queueObj = vehicleObj;
+        queueObj = moduleFor;
 
         if(msg.command != COMMANDTYPE)
         {

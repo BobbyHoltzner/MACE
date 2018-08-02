@@ -226,7 +226,7 @@ namespace ExternalLink {
         UNUSED(sender);
         //MTB this isn't quite right, but I think it only effects more or less data fields that are not used.
         MaceCore::ModuleCharacteristic target;
-        target.ID = missionItem.target_system;
+        target.ModuleID = missionItem.target_system;
         target.MaceInstance = 0;
 
         MissionItem::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionItem.mission_state));
@@ -270,7 +270,7 @@ namespace ExternalLink {
 
         int indexRequest = status.remainingItems.at(0);
 
-        request.target_system = target.ID;
+        request.target_system = target.ModuleID;
         request.mission_creator = key.m_creatorID;
         request.mission_id = key.m_missionID;
         request.mission_system = key.m_systemID;
@@ -292,7 +292,7 @@ namespace ExternalLink {
         UNUSED(sender);
         //MTB this isn't quite right, but I think it only effects more or less data fields that are not used.
         MaceCore::ModuleCharacteristic target;
-        target.ID = missionItem.target_system;
+        target.ModuleID = missionItem.target_system;
         target.MaceInstance = 0;
 
         MissionItem::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionItem.mission_state));
@@ -383,7 +383,7 @@ namespace ExternalLink {
     void ControllerMission::Request_Construct(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_mission_request_list_generic_t &msg, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
-        msg.mission_system = target.ID;
+        msg.mission_system = target.ModuleID;
         msg.mission_type = (uint8_t)MissionItem::MISSIONSTATE::CURRENT;
         msg.mission_state = 0;
 

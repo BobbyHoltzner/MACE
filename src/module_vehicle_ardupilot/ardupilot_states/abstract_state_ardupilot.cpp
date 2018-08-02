@@ -11,7 +11,7 @@ AbstractStateArdupilot::AbstractStateArdupilot() :
 
 AbstractStateArdupilot::AbstractStateArdupilot(const AbstractStateArdupilot &copy)
 {
-    this->currentCommand = copy.currentCommand;
+    this->currentCommand = copy.currentCommand->getClone();
     currentStateEnum = copy.currentStateEnum;
     desiredStateEnum = copy.desiredStateEnum;
 }
@@ -80,7 +80,7 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
     int systemID = msg.sysid;
 
     MaceCore::ModuleCharacteristic sender;
-    sender.ID = systemID;
+    sender.ModuleID = systemID;
     sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
     bool consumed = false;

@@ -102,12 +102,12 @@ void ModuleVehicleSensors::NewTopicData(const std::string &topicName, const Mace
 //!
 void ModuleVehicleSensors::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
-    int senderID = sender.ID;
+    int senderID = sender.ModuleID;
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
         //get latest datagram from mace_data
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
         //example of how to get data and parse through the components that were updated
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {

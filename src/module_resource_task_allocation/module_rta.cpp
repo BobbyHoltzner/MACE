@@ -119,10 +119,15 @@ void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
 
 
     //example read of vehicle data
-    int senderID = sender.ID;
     if(topicName == m_VehicleDataTopic.Name())
     {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        if(this->getDataObject()->HasModuleAsVehicle(sender) == false)
+        {
+            return;
+        }
+        int senderID = this->getDataObject()->getMavlinkIDFromModule(sender);
+
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
 
             if(componentsUpdated.at(i) == DataStateTopic::StateLocalPositionTopic::Name())

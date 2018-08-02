@@ -156,10 +156,10 @@ void ModuleROS::NewTopicData(const std::string &topicName, const MaceCore::Modul
 //!
 void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
-    int senderID = sender.ID;
+    int senderID = sender.ModuleID;
     if(topicName == m_PlanningStateTopic.Name())
     {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_PlanningStateTopic.Name(), senderID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_PlanningStateTopic.Name(), sender);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
             if(componentsUpdated.at(i) == mace::poseTopic::Cartesian_2D_Topic::Name()){
                 std::shared_ptr<mace::poseTopic::Cartesian_2D_Topic> component = std::make_shared<mace::poseTopic::Cartesian_2D_Topic>();
@@ -181,7 +181,7 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
     }
     else if(topicName == m_VehicleDataTopic.Name())
     {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
@@ -207,7 +207,7 @@ void ModuleROS::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
     }
     else if(topicName == m_MapTopic.Name())
     {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
             if(componentsUpdated.at(i) == MapItemTopics::Occupancy2DGrid_Topic::Name()) {
                 std::shared_ptr<MapItemTopics::Occupancy2DGrid_Topic> component =  std::shared_ptr<MapItemTopics::Occupancy2DGrid_Topic>();

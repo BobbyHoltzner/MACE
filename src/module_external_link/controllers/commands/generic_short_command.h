@@ -107,7 +107,7 @@ protected:
         cmd = initializeCommandShort();
         cmd.command = COMMANDTYPE;
         cmd.target_system = target.MaceInstance;
-        cmd.target_component = target.ID;
+        cmd.target_component = target.ModuleID;
 
         if(m_CommandRequestedFrom.find(target) != m_CommandRequestedFrom.cend())
         {
@@ -126,7 +126,7 @@ protected:
     {
         UNUSED(sender);
         vehicleObj.MaceInstance = msg.target_system;
-        vehicleObj.ID = msg.target_component;
+        vehicleObj.ModuleID = msg.target_component;
 
         queueObj = vehicleObj;
 

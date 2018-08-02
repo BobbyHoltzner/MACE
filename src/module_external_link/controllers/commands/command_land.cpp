@@ -24,7 +24,8 @@ namespace ExternalLink {
 
     void CommandLand::BuildCommand(const mace_command_long_t &message, std::shared_ptr<CommandItem::SpatialLand> data) const
     {
-        data->setTargetSystem(message.target_system);
+
+        data->setTargetSystem(-1);
 
         if(message.param2 == 1)
         {

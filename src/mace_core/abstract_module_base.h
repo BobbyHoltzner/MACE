@@ -89,7 +89,7 @@ public:
     ModuleCharacteristic GetCharacteristic() const
     {
         ModuleCharacteristic obj;
-        obj.ID = m_ID;
+        obj.ModuleID = m_ID;
         //obj.Class = ModuleClass();
         obj.MaceInstance = this->getParentMaceInstanceID();
         return obj;
@@ -175,13 +175,22 @@ public:
     }
 
 
-    ///MTB MODULE AUTO ASSIGN
+    //!
+    //! \brief Set the host MACE instance ID
+    //! \param ID identifier for host MACE instance
+    //!
     void setPararentMaceInstanceID(const uint32_t &ID)
     {
         m_ParentMaceInstanceIDSet = true;
         m_ParentMaceInstanceID = ID;
     }
 
+
+    //!
+    //! \brief Get the host MACE instance ID
+    //! \throws std::runtime_error Thrown if no ID has been set.
+    //! \return Identifier for host MACE instance
+    //!
     uint32_t getParentMaceInstanceID() const
     {
         if(m_ParentMaceInstanceIDSet == false)
@@ -190,7 +199,6 @@ public:
         }
         return m_ParentMaceInstanceID;
     }
-    ///
 
 protected:
     std::string loggingPath;

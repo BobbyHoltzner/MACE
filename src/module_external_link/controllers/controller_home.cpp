@@ -50,8 +50,8 @@ namespace ExternalLink {
         data->position->setZ(msg.altitude / pow(10,3));
 
 
-        data->setTargetSystem(sender.ID);
-        data->setOriginatingSystem(sender.ID);
+        data->setTargetSystem(sender.ModuleID);
+        data->setOriginatingSystem(sender.ModuleID);
 
         std::cout << "Home Controller: Received broadcasted home" << std::endl;
 
@@ -62,7 +62,7 @@ namespace ExternalLink {
     void ControllerHome::Request_Construct(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_mission_request_home_t &msg, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
-        msg.target_system = target.ID;
+        msg.target_system = target.ModuleID;
 
         queueObj = target;
 
@@ -112,10 +112,10 @@ namespace ExternalLink {
         data->position->setZ(msg.altitude / pow(10,3));
 
 
-        data->setTargetSystem(sender.ID);
-        data->setOriginatingSystem(sender.ID);
+        data->setTargetSystem(sender.ModuleID);
+        data->setOriginatingSystem(sender.ModuleID);
 
-        response.target_system = sender.ID;
+        response.target_system = sender.ModuleID;
 
         std::cout << "Home Controller: Receive home position, sending ack" << std::endl;
 

@@ -5,7 +5,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
     MaceCore::ModuleCharacteristic sender;
     sender.MaceInstance = message->sysid;
-    sender.ID = message->compid;
+    sender.ModuleID = message->compid;
 
 
     switch ((int)message->msgid) {
@@ -29,9 +29,12 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         mace_msg_vehicle_sync_decode(message,&decodedMSG);
         if(mLog)
             mLog->debug("External link saw a request to sync its data to a remote instance.");
+
+        MaceCore::ModuleCharacteristic module = this->getDataObject()->GetVehicleFromMAVLINKID(decodedMSG.target_system);
+
         //We may not handle it this way anymore
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-            ptr->ExternalEvent_RequestingDataSync(this, decodedMSG.target_system);
+            ptr->ExternalEvent_RequestingDataSync(this, module);
         });
         break;
     }
@@ -300,7 +303,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
             ptr->GVEvents_MissionItemCurrent(this, current);
         });
 
-        PublishVehicleData(sender, ptrMissionCurrent);
+        PublishMissionData(sender, ptrMissionCurrent);
         break;
     }
     case MACE_MSG_ID_MISSION_CLEAR:
@@ -321,7 +324,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         achieved.setMissionAchievedIndex(decodedMSG.seq);
         std::shared_ptr<MissionTopic::MissionItemReachedTopic> ptrMissionReached = std::make_shared<MissionTopic::MissionItemReachedTopic>(achieved);
 
-        PublishVehicleData(sender, ptrMissionReached);
+        PublishMissionData(sender, ptrMissionReached);
         break;
     }
     case MACE_MSG_ID_MISSION_EXE_STATE:
@@ -346,7 +349,8 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
         std::shared_ptr<MissionTopic::VehicleTargetTopic> ptrTarget = std::make_shared<MissionTopic::VehicleTargetTopic>(decodedMSG);
 
-        PublishVehicleData(sender, ptrTarget);
+
+        PublishMissionData(sender, ptrTarget);
         break;
     }
     default:

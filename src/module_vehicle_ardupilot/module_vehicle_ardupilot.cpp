@@ -482,7 +482,7 @@ void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, c
             //////////////////////////////
             ///Update about mission list
             MissionItem::MissionList missionList = std::get<1>(*data);
-            missionList.setVehicleID(this->GetCharacteristic().ID);
+            missionList.setVehicleID(this->GetAttachedMavlinkEntity());
             vehicleData->mission->currentAutoMission.set(missionList);
             this->cbi_VehicleMission(missionList.getVehicleID(),missionList);
 
@@ -629,10 +629,9 @@ void ModuleVehicleArdupilot::NewTopicData(const std::string &topicName, const Ma
 //!
 void ModuleVehicleArdupilot::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
-    int senderID = sender.ID;
     if(topicName == m_VehicleMissionTopic.Name())
     {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleMissionTopic.Name(), senderID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleMissionTopic.Name(), sender);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++){
             if(componentsUpdated.at(i) == MissionTopic::MissionItemTopic::Name()) {
                 std::shared_ptr<MissionTopic::MissionItemTopic> component = std::make_shared<MissionTopic::MissionItemTopic>();

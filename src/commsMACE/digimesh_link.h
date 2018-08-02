@@ -83,7 +83,7 @@ private:
 private:
     DigiMeshConfiguration _config;
 
-    MACEDigiMeshWrapper<VEHICLE_STR, GROUNDSTATION_STR, RTA_STR, EXTERNAL_LINK_STR> *m_Link;
+    MACEDigiMeshWrapper<MACE_INSTANCE_STR, VEHICLE_STR, GROUNDSTATION_STR, RTA_STR, EXTERNAL_LINK_STR> *m_Link;
 };
 
 } //END MAVLINKComms

@@ -177,6 +177,9 @@ public:
 
     void PublishVehicleData(const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<Data::ITopicComponentDataObject> &component);
 
+    void PublishMissionData(const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<Data::ITopicComponentDataObject> &component);
+
+
 
     //!
     //! \brief New Mavlink message received over a link

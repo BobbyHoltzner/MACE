@@ -170,6 +170,19 @@ public:
         throw std::runtime_error("Unknown module given to get key of");
     }
 
+    bool HasModuleAsVehicle(const ModuleCharacteristic &characterstic) const
+    {
+        for(auto it = m_MAVLINKIDtoModule.cbegin() ; it != m_MAVLINKIDtoModule.cend() ; ++it)
+        {
+            if(it->second == characterstic)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     CommandItem::SpatialHome GetVehicleHomePostion(const int &vehicleID) const
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
@@ -315,36 +328,36 @@ private:
 
 public:
 
-    void setTopicDatagram(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
+    void setTopicDatagram(const std::string &topicName, const ModuleCharacteristic sender, const TIME &time, const TopicDatagram &value) {
 
         std::lock_guard<std::mutex> guard(m_TopicMutex);
 
         if(m_LatestTopic.find(topicName) == m_LatestTopic.cend()) {
             m_LatestTopic.insert({topicName, {}});
         }
-        if(m_LatestTopic[topicName].find(senderID) == m_LatestTopic[topicName].cend()) {
-            m_LatestTopic[topicName].insert({senderID, TopicDatagram()});
+        if(m_LatestTopic[topicName].find(sender) == m_LatestTopic[topicName].cend()) {
+            m_LatestTopic[topicName].insert({sender, TopicDatagram()});
         }
-        m_LatestTopic[topicName][senderID].MergeDatagram(value);
+        m_LatestTopic[topicName][sender].MergeDatagram(value);
 
         std::vector<std::string> terminalNames = value.ListTerminals();
         std::vector<std::string> nonTerminalNames = value.ListNonTerminals();
         for(size_t i = 0 ; i < terminalNames.size() ; i++) {
-            m_LatestTopicComponentUpdateTime[topicName][senderID][terminalNames.at(i)] = time;
+            m_LatestTopicComponentUpdateTime[topicName][sender][terminalNames.at(i)] = time;
         }
         for(size_t i = 0 ; i < nonTerminalNames.size() ; i++) {
-            m_LatestTopicComponentUpdateTime[topicName][senderID][nonTerminalNames.at(i)] = time;
+            m_LatestTopicComponentUpdateTime[topicName][sender][nonTerminalNames.at(i)] = time;
         }
     }
 
-    std::unordered_map<std::string, TopicDatagram> getAllLatestTopics(const int &targetID)
+    std::unordered_map<std::string, TopicDatagram> getAllLatestTopics(const ModuleCharacteristic sender)
     {
         std::lock_guard<std::mutex> guard(m_TopicMutex);
         std::unordered_map<std::string, TopicDatagram> topicMap;
         for(auto it = m_LatestTopic.cbegin() ; it != m_LatestTopic.cend() ; ++it) {
             for(auto local_it = m_LatestTopic[it->first].cbegin(); local_it != m_LatestTopic[it->first].cend(); ++local_it)
             {
-                if(local_it->first == targetID)
+                if(local_it->first == sender)
                 {
                     topicMap[it->first] = local_it->second;
                 }
@@ -354,9 +367,9 @@ public:
 
     }
 
-    TopicDatagram GetCurrentTopicDatagram(const std::string &topicName, const int senderID) const {
+    TopicDatagram GetCurrentTopicDatagram(const std::string &topicName, const ModuleCharacteristic sender) const {
         std::lock_guard<std::mutex> guard(m_TopicMutex);
-        return m_LatestTopic.at(topicName).at(senderID);
+        return m_LatestTopic.at(topicName).at(sender);
     }
 
 
@@ -738,8 +751,8 @@ private:
 
     //std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
 
-    std::unordered_map<std::string, std::unordered_map<int, TopicDatagram>> m_LatestTopic;
-    std::unordered_map<std::string, std::unordered_map<int, std::unordered_map<std::string, TIME>>> m_LatestTopicComponentUpdateTime;
+    std::unordered_map<std::string, std::unordered_map<ModuleCharacteristic, TopicDatagram>> m_LatestTopic;
+    std::unordered_map<std::string, std::unordered_map<ModuleCharacteristic, std::unordered_map<std::string, TIME>>> m_LatestTopicComponentUpdateTime;
 
     mutable std::mutex m_AvailableVehicleMutex;
     std::vector<int> m_AvailableVehicles;
@@ -980,11 +993,6 @@ public:
         {
             return m_RemoteModules.at(characterstic);
         }
-
-        ///MTB TO DO MONDAY
-        /// READ THIS MONDAY
-        ///
-        /// FIGURE OUT HOW TO BROADCAST TO A MACE INSTANCE (WHEN ID = 0)
 
         throw std::runtime_error("Unknown module given");
     }

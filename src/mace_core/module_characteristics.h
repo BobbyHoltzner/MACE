@@ -19,19 +19,21 @@ enum class ModuleClasses
 };
 
 
+//!
+//! \brief Object that "addresses" a module in the global MACE environment
+//!
+//! A module is addressed by two numbers:
+//!  - MaceInstance:    Identifies the MACE instance on the network.
+//!  - ModuleID:        Identifing the module on the host MACE instance.
+//!
 struct ModuleCharacteristic
 {
     int MaceInstance;
-    int ID;
-    //ModuleClasses Class;
+    int ModuleID;
 
     bool operator== (const ModuleCharacteristic &rhs) const
     {
-        /*
-        if(this->Class != rhs.Class)
-            return false;
-        */
-        if(this->ID != rhs.ID) {
+        if(this->ModuleID != rhs.ModuleID) {
             return false;
         }
         if(this->MaceInstance != rhs.MaceInstance) {
@@ -46,11 +48,7 @@ struct ModuleCharacteristic
     }
 
     bool operator < (const ModuleCharacteristic& rhs) const {
-        /*
-        if(this->Class < rhs.Class)
-            return true;
-        */
-        if(this->ID < rhs.ID) {
+        if(this->ModuleID < rhs.ModuleID) {
             return true;
         }
         if(this->MaceInstance < rhs.MaceInstance) {
@@ -90,10 +88,8 @@ struct hash<MaceCore::ModuleCharacteristic>
       // and bit shifting:
 
         std::size_t const h0 ( std::hash<int>{}(k.MaceInstance) );
-        std::size_t const h1 ( std::hash<int>{}(k.ID) );
-        //std::size_t const h2 ( std::hash<int>{}((int)k.Class) );
+        std::size_t const h1 ( std::hash<int>{}(k.ModuleID) );
         return h0 ^ (h1 << 1);
-        //return h0 ^ (h1 << 1) ^ (h2 << 2);
     }
 };
 }

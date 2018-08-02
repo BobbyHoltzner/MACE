@@ -87,7 +87,7 @@ private:
 //        targetCharacter.ID = Owner().getMAVLINKID();
 //        targetCharacter.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 //        MaceCore::ModuleCharacteristic sender;
-//        sender.ID = 255;
+//        sender.ModuleID = 255;
 //        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
 //        MAVLINKVehicleControllers::TargetControllerStruct action;

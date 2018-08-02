@@ -234,7 +234,7 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
     {
         std::vector<std::string> components = value.ListNonTerminals();
 
-        m_DataFusion->setTopicDatagram(topicName, sender.ID, time, value);
+        m_DataFusion->setTopicDatagram(topicName, sender, time, value);
 
         //list through all interested parties and notify of new topic data
         if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
@@ -267,11 +267,11 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 
     std::vector<std::string> components = value.ListNonTerminals();
 
-    m_DataFusion->setTopicDatagram(topicName, senderID, time, value);
+    ModuleCharacteristic senderModule = m_DataFusion->GetVehicleFromMAVLINKID(senderID);
 
-    ModuleCharacteristic sender;
-    sender.ID = senderID;
-    sender.MaceInstance = this->getMaceInstanceID();
+    m_DataFusion->setTopicDatagram(topicName, senderModule, time, value);
+
+    ModuleCharacteristic sender = m_DataFusion->GetVehicleFromMAVLINKID(senderID);
 
     //list through all interested parties and notify of new topic data
     if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
@@ -795,7 +795,7 @@ void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const NewBoun
         {
             ModuleCharacteristic maceInstance;
             maceInstance.MaceInstance = this->getMaceInstanceID();
-            maceInstance.ID = 0;
+            maceInstance.ModuleID = 0;
             ((IModuleCommandExternalLink*)sender)->MarshalCommand(ExternalLinkCommands::REQUEST_REMOTE_BOUNDARY, std::make_tuple(data.Sender, data.RemoteIdentifier), maceInstance);
         }
     }
@@ -820,9 +820,9 @@ void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const NewBoun
     */
 }
 
-void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const int &targetID)
+void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const ModuleCharacteristic &module)
 {
-    std::unordered_map<std::string, TopicDatagram> topicMap = m_DataFusion->getAllLatestTopics(targetID);
+    std::unordered_map<std::string, TopicDatagram> topicMap = m_DataFusion->getAllLatestTopics(module);
     for(auto it = topicMap.cbegin() ; it != topicMap.cend() ; ++it) {
         std::vector<std::string> components = it->second.ListNonTerminals();
         ModuleBase* base = (ModuleBase*)sender;

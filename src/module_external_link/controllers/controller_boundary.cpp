@@ -19,7 +19,7 @@ namespace ExternalLink{
         queueObj = ModuleBoundaryIdentifier(target, data);;
 
         cmd.boundary_host_sysid = target.MaceInstance;
-        cmd.boundary_host_compid = target.ID;
+        cmd.boundary_host_compid = target.ModuleID;
         cmd.boundary_identifier = data;
 
         if(m_BoundariesBeingFetching.find(queueObj) != m_BoundariesBeingFetching.cend())
@@ -54,7 +54,7 @@ namespace ExternalLink{
 
         /// Establish the module that has the boundary
         moduleUploadingFrom.MaceInstance = cmd.boundary_host_sysid;
-        moduleUploadingFrom.ID = cmd.boundary_host_compid;
+        moduleUploadingFrom.ModuleID = cmd.boundary_host_compid;
 
         /// Set up the object to identify the boundary on the local machine
         ModuleBoundaryIdentifier uniqueBoundaryIdentifier = ModuleBoundaryIdentifier(moduleUploadingFrom, cmd.boundary_identifier);
@@ -163,7 +163,7 @@ namespace ExternalLink{
 
         // Establish the module that has the boundary
         moduleUploadingFrom.MaceInstance = msg.boundary_host_sysid;
-        moduleUploadingFrom.ID = msg.boundary_host_compid;
+        moduleUploadingFrom.ModuleID = msg.boundary_host_compid;
 
         // set up the receiver and establish queue objects
         receiveQueueObj = pair;
@@ -410,7 +410,7 @@ namespace ExternalLink{
         {
             mace_new_boundary_object_t msg;
             msg.boundary_host_sysid = sender.MaceInstance;
-            msg.boundary_host_compid = sender.ID;
+            msg.boundary_host_compid = sender.ModuleID;
             msg.boundary_type = (uint8_t)data.characteristic.Type();
             msg.boundary_identifier = data.uniqueIdentifier;
             msg.vehicle_aplicable = 0;
@@ -425,7 +425,7 @@ namespace ExternalLink{
         {
             mace_new_boundary_object_t msg;
             msg.boundary_host_sysid = sender.MaceInstance;
-            msg.boundary_host_compid = sender.ID;
+            msg.boundary_host_compid = sender.ModuleID;
             msg.boundary_type = (uint8_t)data.characteristic.Type();
             msg.boundary_identifier = data.uniqueIdentifier;
             msg.vehicle_aplicable = *it;

@@ -22,7 +22,7 @@ template <typename T>
 T* Helper_CreateAndSetUp(ModuleExternalLink* obj, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, uint8_t chan)
 {
     T* newController = new T(obj, queue, chan);
-    newController->setLambda_DataReceived([obj](const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command){obj->ReceivedCommand(sender, command);});
+    newController->setLambda_DataReceived([obj](const MaceCore::ModuleCharacteristic &moduleFor, const std::shared_ptr<AbstractCommandItem> &command){obj->ReceivedCommand(moduleFor, command);});
     newController->setLambda_Finished(FinishedMessage);
     return newController;
 }
@@ -77,8 +77,16 @@ ModuleExternalLink::ModuleExternalLink() :
 
 }
 
-void ModuleExternalLink::ReceivedCommand(const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<AbstractCommandItem> &command)
+void ModuleExternalLink::ReceivedCommand(const MaceCore::ModuleCharacteristic &moduleFor, const std::shared_ptr<AbstractCommandItem> &command)
 {
+    int mavlinkID = 0;
+    if(moduleFor.MaceInstance != 0)
+    {
+        mavlinkID = this->getDataObject()->getMavlinkIDFromModule(moduleFor);
+    }
+
+    command->setTargetSystem(mavlinkID);
+
     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsGeneral* ptr){
         ptr->Event_IssueGeneralCommand(this, command);
     });
@@ -183,7 +191,7 @@ void ModuleExternalLink::ExternalModuleAdded(const CommsMACE::Resource &resource
 
     MaceCore::ModuleCharacteristic module;
     module.MaceInstance = resource.IDAt(0);
-    module.ID = resource.IDAt(1);
+    module.ModuleID = resource.IDAt(1);
 
     MaceCore::ModuleClasses type;
     const char* moduleTypeName = resource.NameAt(1).c_str();
@@ -246,7 +254,7 @@ void ModuleExternalLink::TransmitMessage(const mace_message_t &msg, const Option
 
     // If the ID is zero, then we are sending message to a generic MACE instance
     // otherwise we are sending to an individual module
-    if(target().ID == 0)
+    if(target().ModuleID == 0)
     {
         CommsMACE::Resource r;
         r.Set<CommsMACE::MACE_INSTANCE_STR>(target().MaceInstance);
@@ -261,25 +269,25 @@ void ModuleExternalLink::TransmitMessage(const mace_message_t &msg, const Option
         if(type == MaceCore::ModuleClasses::VEHICLE_COMMS)
         {
             CommsMACE::Resource r;
-            r.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::VEHICLE_STR>(target().MaceInstance, target().ID);
+            r.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::VEHICLE_STR>(target().MaceInstance, target().ModuleID);
             m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, r);
         }
         else if(type == MaceCore::ModuleClasses::GROUND_STATION)
         {
             CommsMACE::Resource r;
-            r.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::GROUNDSTATION_STR>(target().MaceInstance, target().ID);
+            r.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::GROUNDSTATION_STR>(target().MaceInstance, target().ModuleID);
             m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, r);
         }
         else if(type == MaceCore::ModuleClasses::RTA)
         {
             CommsMACE::Resource r;
-            r.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::RTA_STR>(target().MaceInstance, target().ID);
+            r.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::RTA_STR>(target().MaceInstance, target().ModuleID);
             m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, r);
         }
         else if(type == MaceCore::ModuleClasses::EXTERNAL_LINK)
         {
             CommsMACE::Resource r;
-            r.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::EXTERNAL_LINK_STR>(target().MaceInstance, target().ID);
+            r.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::EXTERNAL_LINK_STR>(target().MaceInstance, target().ModuleID);
             m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg, r);
         }
         else {
@@ -301,7 +309,7 @@ MaceCore::ModuleCharacteristic ModuleExternalLink::GetModuleFromMAVLINKVehicleID
 MaceCore::ModuleCharacteristic ModuleExternalLink::GetHostKey() const
 {
     MaceCore::ModuleCharacteristic key;
-    key.ID = 0;
+    key.ModuleID = 0;
     key.MaceInstance = this->getParentMaceInstanceID();
 
     return key;
@@ -309,7 +317,7 @@ MaceCore::ModuleCharacteristic ModuleExternalLink::GetHostKey() const
 
 std::tuple<int, int> ModuleExternalLink::GetSysIDAndCompIDFromComponentKey(const MaceCore::ModuleCharacteristic &key) const
 {
-    return std::make_tuple(key.MaceInstance, key.ID);
+    return std::make_tuple(key.MaceInstance, key.ModuleID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -363,7 +371,7 @@ Controllers::DataItem<MissionKey, MissionList>::FetchModuleReturn ModuleExternal
     {
         //fetch mission
         MissionItem::MissionList currentMission;
-        bool exists = this->getDataObject()->getCurrentMission(vehicle.ID, currentMission);
+        bool exists = this->getDataObject()->getCurrentMission(vehicle.ModuleID, currentMission);
 
         //if exists append, if it doesn't append empty
         if(exists)
@@ -382,7 +390,7 @@ Controllers::DataItem<MissionKey, MissionList>::FetchModuleReturn ModuleExternal
 
 
     //if no module is given then fetch all
-    if(module.IsSet() == false || module().ID == 0)
+    if(module.IsSet() == false || module().ModuleID == 0)
     {
         std::vector<int> vehicles;
         this->getDataObject()->GetLocalVehicles(vehicles);
@@ -431,7 +439,7 @@ Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>:
 
     Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchKeyReturn rtn;
 
-    CommandItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(key().ID);
+    CommandItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(key().ModuleID);
     rtn.push_back(std::make_tuple(key(), home));
     return rtn;
 }
@@ -445,7 +453,7 @@ Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>:
     auto func = [this, &rtn](MaceCore::ModuleCharacteristic vehicle)
     {
         //fetch mission
-        CommandItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(vehicle.ID);
+        CommandItem::SpatialHome home = this->getDataObject()->GetVehicleHomePostion(vehicle.ModuleID);
 
         std::vector<std::tuple<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>> vec = {};
         vec.push_back(std::make_tuple(vehicle, home));
@@ -455,7 +463,7 @@ Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>:
 
 
     //if no module is given then fetch all
-    if(module.IsSet() == false || module().ID == 0)
+    if(module.IsSet() == false || module().ModuleID == 0)
     {
         std::vector<int> vehicles;
         this->getDataObject()->GetLocalVehicles(vehicles);
@@ -482,7 +490,7 @@ void ModuleExternalLink::MACEMessage(const std::string &linkName, const mace_mes
     UNUSED(linkName);
     MaceCore::ModuleCharacteristic sender;
     sender.MaceInstance = message.sysid;
-    sender.ID = message.compid;
+    sender.ModuleID = message.compid;
 
     m_Controllers.ForEach<Controllers::IController<mace_message_t, MaceCore::ModuleCharacteristic>>([sender, message](Controllers::IController<mace_message_t, MaceCore::ModuleCharacteristic>* ptr) {
        ptr->ReceiveMessage(&message, sender);
@@ -529,6 +537,7 @@ void ModuleExternalLink::HeartbeatInfo(const MaceCore::ModuleCharacteristic &sen
     heartbeat.setProtocol(static_cast<Data::CommsProtocol>(heartbeatMSG.protocol));
     heartbeat.setExecutionState(static_cast<Data::MissionExecutionState>(heartbeatMSG.mission_state));
     heartbeat.setType(static_cast<Data::SystemType>(heartbeatMSG.type));
+    heartbeat.setMavlinkID(heartbeatMSG.mavlinkID);
     //heartbeat.setExecutionState(static_cast<Data::MissionExecutionState>(heartbeatMSG.missionState));
     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> ptrHeartbeat = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>(heartbeat);
     PublishVehicleData(sender, ptrHeartbeat);
@@ -580,6 +589,18 @@ void ModuleExternalLink::PublishVehicleData(const MaceCore::ModuleCharacteristic
     });
 }
 
+void ModuleExternalLink::PublishMissionData(const MaceCore::ModuleCharacteristic &sender, const std::shared_ptr<Data::ITopicComponentDataObject> &component)
+{
+    //construct datagram
+    MaceCore::TopicDatagram topicDatagram;
+    m_MissionDataTopic.SetComponent(component, topicDatagram);
+
+    //notify listeners of topic
+    ModuleExternalLink::NotifyListenersOfTopic([&](MaceCore::IModuleTopicEvents* ptr){
+        ptr->NewTopicDataValues(this, m_MissionDataTopic.Name(), sender, MaceCore::TIME(), topicDatagram);
+    });
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 /// The following are public virtual functions imposed from IModuleCommandExternalLink.
 //////////////////////////////////////////////////////////////////////////////////////
@@ -602,7 +623,7 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem, const Opt
     mace_message_t msg;
     mace_vehicle_sync_t sync;
     sync.target_system = targetSystem;
-    mace_msg_vehicle_sync_encode_chan(sender().MaceInstance, sender().ID, m_LinkChan, &msg, &sync);
+    mace_msg_vehicle_sync_encode_chan(sender().MaceInstance, sender().ModuleID, m_LinkChan, &msg, &sync);
 
     if(targetSystem == 0)
     {
@@ -686,7 +707,7 @@ void ModuleExternalLink::Command_MissionState(const CommandItem::ActionMissionCo
 {
     MaceCore::ModuleCharacteristic target = this->getDataObject()->GetVehicleFromMAVLINKID(command.getTargetSystem());
 
-    if(target.ID == 0)
+    if(target.ModuleID == 0)
     {
         m_Controllers.Retreive<ExternalLink::CommandMissionItem>()->Broadcast(command, sender());
     }
@@ -846,7 +867,7 @@ void ModuleExternalLink::NewlyAvailableBoundary(const uint8_t &boundaryKey, cons
 
             MaceCore::ModuleCharacteristic target;
             target.MaceInstance = remoteMACEInstance;
-            target.ID = 0;
+            target.ModuleID = 0;
 
             m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->Send(newBoundary, sender(), target);
         }
@@ -864,7 +885,7 @@ void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::Mission
     mission.mission_state = (uint8_t)key.m_missionState;
 
     mace_message_t msg;
-    mace_msg_new_onboard_mission_encode_chan(sender().MaceInstance, (int)sender().ID, m_LinkChan,&msg,&mission);
+    mace_msg_new_onboard_mission_encode_chan(sender().MaceInstance, sender().ModuleID, m_LinkChan,&msg,&mission);
     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
 }
 
@@ -907,19 +928,19 @@ void ModuleExternalLink::NewlyAvailableModule(const MaceCore::ModuleCharacterist
     CommsMACE::Resource resource;
     if(type == MaceCore::ModuleClasses::VEHICLE_COMMS)
     {
-        resource.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::VEHICLE_STR>(module.MaceInstance, module.ID);
+        resource.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::VEHICLE_STR>(module.MaceInstance, module.ModuleID);
     }
     if(type == MaceCore::ModuleClasses::GROUND_STATION)
     {
-        resource.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::GROUNDSTATION_STR>(module.MaceInstance, module.ID);
+        resource.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::GROUNDSTATION_STR>(module.MaceInstance, module.ModuleID);
     }
     if(type == MaceCore::ModuleClasses::RTA)
     {
-        resource.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::RTA_STR>(module.MaceInstance, module.ID);
+        resource.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::RTA_STR>(module.MaceInstance, module.ModuleID);
     }
     if(type == MaceCore::ModuleClasses::EXTERNAL_LINK)
     {
-        resource.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::EXTERNAL_LINK_STR>(module.MaceInstance, module.ID);
+        resource.Set<CommsMACE::MACE_INSTANCE_STR, CommsMACE::EXTERNAL_LINK_STR>(module.MaceInstance, module.ModuleID);
     }
 
 
@@ -927,7 +948,7 @@ void ModuleExternalLink::NewlyAvailableModule(const MaceCore::ModuleCharacterist
 
     if(airborneInstance)
     {
-        this->associatedSystemID = module.ID;
+        this->associatedSystemID = module.ModuleID;
 
         //this function should always be called by an external link connected to ground for now
         //KEN this is a hack...but it will function for now
@@ -1005,7 +1026,7 @@ void ModuleExternalLink::NewTopicData(const std::string &topicName, const MaceCo
 //!
 void ModuleExternalLink::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
-    int senderID = sender.ID;
+    int senderID = this->getDataObject()->getMavlinkIDFromModule(sender);
     if(airborneInstance)
     {
 
@@ -1015,7 +1036,7 @@ void ModuleExternalLink::NewTopicSpooled(const std::string &topicName, const Mac
         if(topicName == m_VehicleDataTopic.Name())
         {
             //get latest datagram from mace_data
-            MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+            MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
             //example of how to get data and parse through the components that were updated
             for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
                 if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Heartbeat::Name()) {
@@ -1023,49 +1044,49 @@ void ModuleExternalLink::NewTopicSpooled(const std::string &topicName, const Mac
                         createLog(senderID);
                     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Heartbeat> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Heartbeat>();
                     m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ID, m_LinkChan);
+                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ModuleID, m_LinkChan);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
                 }
                 else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_GPS::Name()) {
                     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>();
                     m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ID, m_LinkChan);
+                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ModuleID, m_LinkChan);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
                 }
                 else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_FlightMode::Name()) {
                     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_FlightMode> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_FlightMode>();
                     m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ID, m_LinkChan);
+                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ModuleID, m_LinkChan);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
                 }
                 else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemArm::Name()) {
                     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemArm> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemArm>();
                     m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ID, m_LinkChan);
+                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ModuleID, m_LinkChan);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
                 }
                 else if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
                     std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
                     m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = component->getMACEMsg_Full(sender.MaceInstance, sender.ID, m_LinkChan);
+                    mace_message_t msg = component->getMACEMsg_Full(sender.MaceInstance, sender.ModuleID, m_LinkChan);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
                 }
                 else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                     std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                     m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ID, m_LinkChan);
+                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ModuleID, m_LinkChan);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
                 }
                 else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Battery::Name()) {
                     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Battery> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Battery>();
                     m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ID, m_LinkChan);
+                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ModuleID, m_LinkChan);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
                 }
                 else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_Text::Name()) {
                     std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_Text> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_Text>();
                     m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ID, m_LinkChan);
+                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ModuleID, m_LinkChan);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
                 }
             }
@@ -1074,17 +1095,17 @@ void ModuleExternalLink::NewTopicSpooled(const std::string &topicName, const Mac
         {
             for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
                 //get latest datagram from mace_data
-                MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), senderID);
+                MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), sender);
                 if(componentsUpdated.at(i) == MissionTopic::MissionItemCurrentTopic::Name()) {
                     std::shared_ptr<MissionTopic::MissionItemCurrentTopic> component = std::make_shared<MissionTopic::MissionItemCurrentTopic>();
                     m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ID, m_LinkChan);
+                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ModuleID, m_LinkChan);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
                 }
                 else if(componentsUpdated.at(i) == MissionTopic::VehicleTargetTopic::Name()) {
                     std::shared_ptr<MissionTopic::VehicleTargetTopic> component = std::make_shared<MissionTopic::VehicleTargetTopic>();
                     m_MissionDataTopic.GetComponent(component, read_topicDatagram);
-                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ID, m_LinkChan);
+                    mace_message_t msg = component->getMACEMsg(sender.MaceInstance, sender.ModuleID, m_LinkChan);
                     m_LinkMarshaler->SendMACEMessage<mace_message_t>(m_LinkName, msg);
                 }
             }
