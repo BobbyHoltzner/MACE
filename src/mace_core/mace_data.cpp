@@ -567,7 +567,10 @@ void MaceData::updateBoundariesNewOrigin(const double &distance, const double &b
 }
 
 
-// Time sync
+//!
+//! \brief setDeltaTime_MAVLINK Given the microseconds since epoch (from MAVLINK SYSTEM_TIME message), set the delta between epoch and SYSTEMCLOCK (in milliseconds)
+//! \param microsecondsSinceEpoch Microseconds since epoch (from MALINK SYSTEM_TIME message)
+//!
 void MaceData::setDeltaTime_MAVLINK(uint64_t microsecondsSinceEpoch) {
     Data::EnvironmentTime currentTime;
     Data::EnvironmentTime::CurrentTime(Data::Devices::SYSTEMCLOCK, currentTime);
@@ -575,26 +578,23 @@ void MaceData::setDeltaTime_MAVLINK(uint64_t microsecondsSinceEpoch) {
     double secSinceEpoch = microsecondsSinceEpoch/1000000.0;
     double diffSec = secSinceEpoch - currentTime.ToSecSinceEpoch();
 
-    double usecTest = diffSec * 1000000.0;
-    double roundTest = std::round(diffSec * 1000000.0);
-    int usec = (int)roundTest;
-    this->deltaT_usec = usec;
-
-    // TODO-PAT: Figure out if this deltaT is actually correct, or if I'm losing data in the double->int conversion
-    //              - Also test the getMAVLINKAdjustedTime() method returns correctly
-    printf("ROUND TEST: %f\n", roundTest);
-    printf("USEC: %f\n", usec);
+    double msec = diffSec * 1000.0;
+    this->deltaT_msec = msec;
 
     // TEST:
     this->getMAVLINKAdjustedTime();
 }
 
+//!
+//! \brief MaceData::getMAVLINKAdjustedTime Get the current time adjusted with the delta time (between SYSTEMCLOCK and MAVLINK SYSTEM_TIME since epoch)
+//! \return EnvironmentTime container with time since epoch, adjusted with delta from MAVLINK SYSTEM_TIME
+//!
 Data::EnvironmentTime MaceData::getMAVLINKAdjustedTime() {
     Data::EnvironmentTime currentTime;
     Data::EnvironmentTime::CurrentTime(Data::Devices::SYSTEMCLOCK, currentTime);
 
-    int delta_usec = this->getDeltaT_usec();
-    int delta_sec = delta_usec / 1000000.0;
+    double delta_msec = this->getDeltaT_msec();
+    double delta_sec = delta_msec / 1000.0;
     Data::EnvironmentTime rtnTime;
     rtnTime = Data::EnvironmentTime::FromSecSinceEpoch(currentTime.ToSecSinceEpoch() + delta_sec);
     return rtnTime;

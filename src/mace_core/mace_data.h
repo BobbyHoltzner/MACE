@@ -1144,16 +1144,27 @@ private:
     std::unordered_map<uint8_t, std::tuple<BoundaryItem::BoundaryCharacterisic, BoundaryItem::BoundaryList>> m_Boundaries;
 
 
-    // Time sync
 public:
+    //!
+    //! \brief setDeltaTime_MAVLINK Given the microseconds since epoch (from MAVLINK SYSTEM_TIME message), set the delta between epoch and SYSTEMCLOCK (in milliseconds)
+    //! \param microsecondsSinceEpoch Microseconds since epoch (from MALINK SYSTEM_TIME message)
+    //!
     void setDeltaTime_MAVLINK(uint64_t microsecondsSinceEpoch);
 
+    //!
+    //! \brief MaceData::getMAVLINKAdjustedTime Get the current time adjusted with the delta time (between SYSTEMCLOCK and MAVLINK SYSTEM_TIME since epoch)
+    //! \return EnvironmentTime container with time since epoch, adjusted with delta from MAVLINK SYSTEM_TIME
+    //!
     Data::EnvironmentTime getMAVLINKAdjustedTime();
 
-    int getDeltaT_usec() { return deltaT_usec; }
+    //!
+    //! \brief getDeltaT_msec Get delta time between MAVLINK SYSTEM_TIME since epoch and SYSTEMCLOCK
+    //! \return Delta in milliseconds
+    //!
+    double getDeltaT_msec() { return deltaT_msec; }
 
 private:
-    int deltaT_usec;
+    double deltaT_msec;
 
 };
 
