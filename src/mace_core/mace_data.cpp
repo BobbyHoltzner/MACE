@@ -580,9 +580,6 @@ void MaceData::setDeltaTime_MAVLINK(uint64_t microsecondsSinceEpoch) {
 
     double msec = diffSec * 1000.0;
     this->deltaT_msec = msec;
-
-    // TEST:
-    this->getMAVLINKAdjustedTime();
 }
 
 //!
