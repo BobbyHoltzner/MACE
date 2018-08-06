@@ -110,6 +110,9 @@ public:
     bool HasResource(const std::string &name, const Resource &resource) const;
 
 
+    void RequestRemoteResources(const std::string &name);
+
+
     //!
     //! \brief Set the protocol which a link is to use
     //! \param linkName Link name to set protocol of
@@ -147,6 +150,7 @@ public:
     //!
     template <typename T>
     void SendMACEMessage(const std::string &linkName, const T& message, const OptionalParameter<Resource> &target = OptionalParameter<Resource>());
+
 
 
 

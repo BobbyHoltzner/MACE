@@ -98,6 +98,11 @@ bool SerialLink::HasResource(const Resource &resource) const
     return true;
 }
 
+void SerialLink::RequestRemoteResources() const
+{
+    return;
+}
+
 //!
 //! \brief Determine the connection status
 //! \return True if the connection is established, false otherwise

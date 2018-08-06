@@ -192,6 +192,11 @@ bool UdpLink::HasResource(const Resource &resource) const
     return true;
 }
 
+void UdpLink::RequestRemoteResources() const
+{
+    return;
+}
+
 
 //!
 //! \brief Determine the connection status

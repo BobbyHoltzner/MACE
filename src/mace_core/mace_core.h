@@ -380,6 +380,7 @@ private:
 
     std::unordered_map<const ModuleBase*, std::unordered_map<std::string, TopicCharacteristic>> m_TopicsToReceive;
     std::unordered_map<std::string, std::vector<ModuleBase*>> m_TopicNotifier;
+    std::mutex m_TopicNotifierMutex;
 
     std::map<int, IModuleCommandVehicle*> m_VehicleIDToPort;
 

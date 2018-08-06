@@ -96,6 +96,11 @@ bool DigiMeshLink::HasResource(const Resource &resource) const
     return m_Link->HasResource(key, value);
 }
 
+void DigiMeshLink::RequestRemoteResources() const
+{
+    return m_Link->RequestRemoteResources();
+}
+
 
 bool DigiMeshLink::isConnected() const
 {

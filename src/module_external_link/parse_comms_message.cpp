@@ -7,6 +7,13 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     sender.MaceInstance = message->sysid;
     sender.ModuleID = message->compid;
 
+    if(this->getDataObject()->HasModule(sender) == false)
+    {
+        printf("Received a %d message but sending Module is unknown, IGNORING\n", message->msgid);
+        this->RequestRemoteResources();
+        return;
+    }
+
 
     switch ((int)message->msgid) {
     case MACE_MSG_ID_HEARTBEAT:

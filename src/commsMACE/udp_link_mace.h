@@ -38,6 +38,8 @@ public:
 
     virtual bool HasResource(const Resource &resource) const;
 
+    virtual void RequestRemoteResources() const;
+
 
     //!
     //! \brief Determine the connection status

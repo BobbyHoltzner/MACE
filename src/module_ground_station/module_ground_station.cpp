@@ -329,7 +329,7 @@ void ModuleGroundStation::NewTopicData(const std::string &topicName, const MaceC
 void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
     //if vehicle hasn't been added yet then return. This can happen if a topic is sent before heartbeat is seen
-    if(this->getDataObject()->HasModuleAsVehicle(sender) == false)
+    if(this->getDataObject()->HasModuleAsMavlinkID(sender) == false)
     {
         return;
     }

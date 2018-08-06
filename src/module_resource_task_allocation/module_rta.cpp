@@ -121,7 +121,7 @@ void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
     //example read of vehicle data
     if(topicName == m_VehicleDataTopic.Name())
     {
-        if(this->getDataObject()->HasModuleAsVehicle(sender) == false)
+        if(this->getDataObject()->HasModuleAsMavlinkID(sender) == false)
         {
             return;
         }

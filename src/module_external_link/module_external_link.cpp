@@ -48,7 +48,7 @@ ModuleExternalLink::ModuleExternalLink() :
 
 
     auto homeController = new ExternalLink::ControllerHome(this, queue, m_LinkChan);
-    homeController->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &key, const std::shared_ptr<CommandItem::SpatialHome> &home){this->ReceivedHome(key, *home);});
+    homeController->setLambda_DataReceived([this](const MaceCore::ModuleCharacteristic &key, const std::shared_ptr<CommandItem::SpatialHome> &home){this->ReceivedHome(key, home);});
     homeController->setLambda_FetchDataFromKey([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &key){return this->FetchHomeFromKey(key);});
     homeController->setLambda_FetchAll([this](const OptionalParameter<MaceCore::ModuleCharacteristic> &module){return this->FetchAllHomeFromModule(module);});
     homeController->setLambda_Finished(FinishedMessage);
@@ -411,15 +411,22 @@ Controllers::DataItem<MissionKey, MissionList>::FetchModuleReturn ModuleExternal
 
 
 
-void ModuleExternalLink::ReceivedHome(const MaceCore::ModuleCharacteristic &moduleAppliedTo, const CommandItem::SpatialHome &home)
+void ModuleExternalLink::ReceivedHome(const MaceCore::ModuleCharacteristic &moduleAppliedTo, const std::shared_ptr<CommandItem::SpatialHome> &home)
 {
+    if(this->getDataObject()->HasModuleAsMavlinkID(moduleAppliedTo) == false)
+    {
+        printf("Received a home position from an unknown vehicle, IGNORING\n");
+        RequestRemoteResources();
+        return;
+    }
+    home->setTargetSystem(this->getDataObject()->getMavlinkIDFromModule(moduleAppliedTo));
+
     ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
-        ptr->GVEvents_NewHomePosition(this, home);
+        ptr->GVEvents_NewHomePosition(this, *home);
     });
 
-    std::shared_ptr<CommandItem::SpatialHome> homePtr = std::make_shared<CommandItem::SpatialHome>(home);
     std::shared_ptr<MissionTopic::MissionHomeTopic> missionTopic = std::make_shared<MissionTopic::MissionHomeTopic>();
-    missionTopic->setHome(homePtr);
+    missionTopic->setHome(home);
 
     MaceCore::TopicDatagram topicDatagram;
     m_MissionDataTopic.SetComponent(missionTopic, topicDatagram);

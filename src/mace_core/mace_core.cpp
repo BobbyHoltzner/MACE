@@ -217,10 +217,14 @@ void MaceCore::Subscribe(ModuleBase* sender, const std::string &topicName, const
     UNUSED(senderIDs);
     UNUSED(components);
 
+    m_TopicNotifierMutex.lock();
+
     if(m_TopicNotifier.find(topicName) == m_TopicNotifier.cend()) {
         m_TopicNotifier.insert({topicName, {}});
     }
     m_TopicNotifier[topicName].push_back(sender);
+
+    m_TopicNotifierMutex.unlock();
 }
 
 void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const ModuleCharacteristic &sender, const TIME &time, const TopicDatagram &value, const OptionalParameter<ModuleCharacteristic> &target)
@@ -237,6 +241,7 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
         m_DataFusion->setTopicDatagram(topicName, sender, time, value);
 
         //list through all interested parties and notify of new topic data
+        m_TopicNotifierMutex.lock();
         if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
         {
             for(std::vector<ModuleBase*>::const_iterator it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
@@ -244,9 +249,11 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
                 (*it)->NewTopicSpooled(topicName, sender, components, target);
             }
         }
+        m_TopicNotifierMutex.unlock();
     }
     else
     {
+        m_TopicNotifierMutex.lock();
         //list through all interested parties and notify of new topic data
         if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
         {
@@ -255,6 +262,7 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
                 (*it)->NewTopicData(topicName, sender, value, target);
             }
         }
+        m_TopicNotifierMutex.unlock();
     }
 
 
@@ -273,14 +281,17 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 
     ModuleCharacteristic sender = m_DataFusion->GetVehicleFromMAVLINKID(senderID);
 
+    m_TopicNotifierMutex.lock();
     //list through all interested parties and notify of new topic data
     if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
     {
         for(std::vector<ModuleBase*>::const_iterator it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
-            if((*it) == moduleFrom) continue;
-            (*it)->NewTopicSpooled(topicName, sender, components);
+            ModuleBase *caller = *it;
+            if(caller == moduleFrom) continue;
+            caller->NewTopicSpooled(topicName, sender, components);
         }
     }
+    m_TopicNotifierMutex.unlock();
 }
 
 
@@ -632,9 +643,11 @@ void MaceCore::GVEvents_NewHomePosition(const ModuleBase *sender, const CommandI
     uint8_t vehicleID = vehicleHome.getOriginatingSystem();
     m_DataFusion->UpdateVehicleHomePosition(vehicleID, vehicleHome);
 
+    //If there is a ground station, and it didn't generate the home; send the home position
     if(m_GroundStation && m_GroundStation.get() != sender)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome, sender->GetCharacteristic());
-    else if(m_ExternalLink.size() > 0)
+
+    if(m_ExternalLink.size() > 0)
     {
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
         {
@@ -720,6 +733,12 @@ void MaceCore::ExternalEvent_MissionACK(const void* sender, const MissionItem::M
 
 void MaceCore::ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission)
 {
+    if(m_DataFusion->HasMavlinkID(mission.m_systemID) == false)
+    {
+        printf("A new mission was received, but it belongs to an unknown module. IGNORING\n");
+        return;
+    }
+
     //If we have an GS module, assume it is interested in downloading mission and request external link to download mission from aircraft
     if(m_GroundStation != NULL)
     {

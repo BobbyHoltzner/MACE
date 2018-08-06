@@ -170,7 +170,12 @@ public:
         throw std::runtime_error("Unknown module given to get key of");
     }
 
-    bool HasModuleAsVehicle(const ModuleCharacteristic &characterstic) const
+    //!
+    //! \brief Determine if the given module has an associated ID on the MAVLINK network
+    //! \param characterstic Module to check
+    //! \return True if there is an ID on the MAVLINK network. Can be retreived with getMavlinkIDFromModule
+    //!
+    bool HasModuleAsMavlinkID(const ModuleCharacteristic &characterstic) const
     {
         for(auto it = m_MAVLINKIDtoModule.cbegin() ; it != m_MAVLINKIDtoModule.cend() ; ++it)
         {
@@ -995,6 +1000,27 @@ public:
         }
 
         throw std::runtime_error("Unknown module given");
+    }
+
+
+    //!
+    //! \brief Determine if the given module exists on the test environment
+    //! \param characterstic Characterstic to check
+    //! \return True if exists
+    //!
+    bool HasModule(const ModuleCharacteristic &characterstic) const
+    {
+        if(m_LocalModules.find(characterstic) != m_LocalModules.cend())
+        {
+            return true;
+        }
+
+        if(m_RemoteModules.find(characterstic) != m_RemoteModules.cend())
+        {
+            return true;
+        }
+
+        return false;
     }
 
 private:

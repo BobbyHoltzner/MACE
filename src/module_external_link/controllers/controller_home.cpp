@@ -49,10 +49,6 @@ namespace ExternalLink {
         data->position->setY(msg.longitude / pow(10,7));
         data->position->setZ(msg.altitude / pow(10,3));
 
-
-        data->setTargetSystem(sender.ModuleID);
-        data->setOriginatingSystem(sender.ModuleID);
-
         std::cout << "Home Controller: Received broadcasted home" << std::endl;
 
         return true;

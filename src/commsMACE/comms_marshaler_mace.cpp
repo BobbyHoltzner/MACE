@@ -109,6 +109,16 @@ bool CommsMarshaler::HasResource(const std::string &name, const Resource &resour
     return link->HasResource(resource);
 }
 
+void CommsMarshaler::RequestRemoteResources(const std::string &name)
+{
+    if(m_CreatedLinksNameToPtr.find(name) == m_CreatedLinksNameToPtr.cend())
+        throw std::runtime_error("The provided link name does not exists");
+
+    std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(name);\
+
+    return link->RequestRemoteResources();
+}
+
 
 
 //!
@@ -388,6 +398,8 @@ void CommsMarshaler::RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors
 
     Emit([&](const CommsEvents *ptr){ptr->RadioStatusChanged(m_CreatedLinksPtrToName.at(link_ptr), rxerrors, fixed, rssi, remrssi, txbuf, noise, remnoise);});
 }
+
+
 
 
 

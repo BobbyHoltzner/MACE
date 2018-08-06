@@ -160,7 +160,7 @@ public:
     Controllers::DataItem<MissionKey, MissionList>::FetchModuleReturn FetchAllMissionFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
 
 
-    void ReceivedHome(const MaceCore::ModuleCharacteristic &moduleAppliedTo, const CommandItem::SpatialHome &home);
+    void ReceivedHome(const MaceCore::ModuleCharacteristic &moduleAppliedTo, const std::shared_ptr<SpatialHome> &home);
     Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchKeyReturn FetchHomeFromKey(const OptionalParameter<MaceCore::ModuleCharacteristic> &key);
     Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>::FetchModuleReturn FetchAllHomeFromModule(const OptionalParameter<MaceCore::ModuleCharacteristic> &module);
 
@@ -398,6 +398,11 @@ private:
 
     void ReceivedRemoteBoundary(const MaceCore::ModuleCharacteristic &remoteModule, uint8_t remoteBoundaryID, const BoundaryItem::BoundaryList &list);
 
+
+    void RequestRemoteResources() const
+    {
+        this->m_LinkMarshaler->RequestRemoteResources(this->m_LinkName);
+    }
 
 private:
 
