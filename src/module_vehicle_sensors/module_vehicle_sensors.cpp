@@ -2,9 +2,10 @@
 
 ModuleVehicleSensors::ModuleVehicleSensors():
     m_VehicleDataTopic("vehicleData"), m_SensorDataTopic("sensorData"),
-    m_SensorFootprintDataTopic("sensorFootprint")
+    m_SensorFootprintDataTopic("sensorFootprint"), m_truthBTFile("")
 {
-    cameraSensor = new DataVehicleSensors::SensorCamera();
+//    cameraSensor = new DataVehicleSensors::SensorCamera();
+    m_circularCameraSensor = std::make_shared<DataVehicleSensors::SensorCircularCamera>();
 }
 
 //!
@@ -23,17 +24,24 @@ void ModuleVehicleSensors::AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
 std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleSensors::ModuleConfigurationStructure() const
 {
     MaceCore::ModuleParameterStructure structure;
-    std::shared_ptr<MaceCore::ModuleParameterStructure> cameraSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
-    cameraSettings->AddTerminalParameters("CameraName", MaceCore::ModuleParameterTerminalTypes::STRING, true);
-    cameraSettings->AddTerminalParameters("FocalLength", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    cameraSettings->AddTerminalParameters("SensorWidth", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    cameraSettings->AddTerminalParameters("SensorHeight", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
-    cameraSettings->AddTerminalParameters("FOVWidth", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
-    cameraSettings->AddTerminalParameters("FOVHeight", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
-    cameraSettings->AddTerminalParameters("ImageWidth", MaceCore::ModuleParameterTerminalTypes::INT, false);
-    cameraSettings->AddTerminalParameters("ImageHeight", MaceCore::ModuleParameterTerminalTypes::INT, false);
-    cameraSettings->AddTerminalParameters("Frequency", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
-    structure.AddNonTerminal("CameraParameters", cameraSettings, false);
+//    std::shared_ptr<MaceCore::ModuleParameterStructure> cameraSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
+//    cameraSettings->AddTerminalParameters("CameraName", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+//    cameraSettings->AddTerminalParameters("FocalLength", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+//    cameraSettings->AddTerminalParameters("SensorWidth", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+//    cameraSettings->AddTerminalParameters("SensorHeight", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+//    cameraSettings->AddTerminalParameters("FOVWidth", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+//    cameraSettings->AddTerminalParameters("FOVHeight", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+//    cameraSettings->AddTerminalParameters("ImageWidth", MaceCore::ModuleParameterTerminalTypes::INT, false);
+//    cameraSettings->AddTerminalParameters("ImageHeight", MaceCore::ModuleParameterTerminalTypes::INT, false);
+//    cameraSettings->AddTerminalParameters("Frequency", MaceCore::ModuleParameterTerminalTypes::DOUBLE, false);
+//    structure.AddNonTerminal("CameraParameters", cameraSettings, false);
+
+    std::shared_ptr<MaceCore::ModuleParameterStructure> circularCameraSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
+    circularCameraSettings->AddTerminalParameters("CameraName", MaceCore::ModuleParameterTerminalTypes::STRING, true);
+    circularCameraSettings->AddTerminalParameters("ViewHalfAngle", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    structure.AddNonTerminal("CircularCameraParameters", circularCameraSettings, false);
+
+    structure.AddTerminalParameters("TruthBTFile", MaceCore::ModuleParameterTerminalTypes::STRING, true);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -45,32 +53,57 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleSensors::Module
 //!
 void ModuleVehicleSensors::ConfigureModule(const std::shared_ptr<MaceCore::ModuleParameterValue> &params)
 {
-    if(params->HasNonTerminal("CameraParameters"))
+//    if(params->HasNonTerminal("CameraParameters"))
+//    {
+//        std::shared_ptr<MaceCore::ModuleParameterValue> protocolSettings = params->GetNonTerminalValue("CameraParameters");
+//        cameraSensor->setCameraName(protocolSettings->GetTerminalValue<std::string>("CameraName"));
+//        cameraSensor->setStabilization(true);
+//        cameraSensor->setFocalLength(protocolSettings->GetTerminalValue<double>("FocalLength"));
+//        cameraSensor->setSensorWidth(protocolSettings->GetTerminalValue<double>("SensorWidth"));
+//        cameraSensor->setSensorHeight(protocolSettings->GetTerminalValue<double>("SensorHeight"));
+//        cameraSensor->updateCameraProperties();
+////        if(protocolSettings->HasTerminal("FOVWidth") && protocolSettings->HasTerminal("FOVHeight"))
+////        {
+////            cameraSensor->setFOV_Horizontal(protocolSettings->GetTerminalValue<double>("FOVWidth"));
+////            cameraSensor->setFOV_Vertical(protocolSettings->GetTerminalValue<double>("FOVHeight"));
+////        }else{
+////            //update based on the sensor data
+////            cameraSensor->updateCameraProperties();
+////        }
+////
+//        if(protocolSettings->HasTerminal("ImageWidth"))
+//            cameraSensor->setImageWidth(protocolSettings->GetTerminalValue<int>("ImageWidth"));
+//        if(protocolSettings->HasTerminal("ImageHeight"))
+//            cameraSensor->setImageHeight(protocolSettings->GetTerminalValue<int>("ImageHeight"));
+//        if(protocolSettings->HasTerminal("Frequency"))
+//            cameraSensor->setImageRate(protocolSettings->GetTerminalValue<double>("Frequency"));
+//    }
+
+    if(params->HasNonTerminal("CircularCameraParameters"))
     {
-        std::shared_ptr<MaceCore::ModuleParameterValue> protocolSettings = params->GetNonTerminalValue("CameraParameters");
-        cameraSensor->setCameraName(protocolSettings->GetTerminalValue<std::string>("CameraName"));
-        cameraSensor->setStabilization(true);
-        cameraSensor->setFocalLength(protocolSettings->GetTerminalValue<double>("FocalLength"));
-        cameraSensor->setSensorWidth(protocolSettings->GetTerminalValue<double>("SensorWidth"));
-        cameraSensor->setSensorHeight(protocolSettings->GetTerminalValue<double>("SensorHeight"));
-        cameraSensor->updateCameraProperties();
-//        if(protocolSettings->HasTerminal("FOVWidth") && protocolSettings->HasTerminal("FOVHeight"))
-//        {
-//            cameraSensor->setFOV_Horizontal(protocolSettings->GetTerminalValue<double>("FOVWidth"));
-//            cameraSensor->setFOV_Vertical(protocolSettings->GetTerminalValue<double>("FOVHeight"));
-//        }else{
-//            //update based on the sensor data
-//            cameraSensor->updateCameraProperties();
-//        }
-//
-        if(protocolSettings->HasTerminal("ImageWidth"))
-            cameraSensor->setImageWidth(protocolSettings->GetTerminalValue<int>("ImageWidth"));
-        if(protocolSettings->HasTerminal("ImageHeight"))
-            cameraSensor->setImageHeight(protocolSettings->GetTerminalValue<int>("ImageHeight"));
-        if(protocolSettings->HasTerminal("Frequency"))
-            cameraSensor->setImageRate(protocolSettings->GetTerminalValue<double>("Frequency"));
-    }else
+        std::shared_ptr<MaceCore::ModuleParameterValue> protocolSettings = params->GetNonTerminalValue("CircularCameraParameters");
+        m_circularCameraSensor->setCameraName(protocolSettings->GetTerminalValue<std::string>("CameraName"));
+        m_circularCameraSensor->setViewHalfAngle(protocolSettings->GetTerminalValue<double>("ViewHalfAngle"));
+    }
+    if(params->HasTerminal("TruthBTFile"))
     {
+        char* MACEPath = getenv("MACE_ROOT");
+        std::string rootPath(MACEPath);
+        const char kPathSeperator =
+        #ifdef _WIN32
+                '\\';
+        #else
+                '/';
+        #endif
+        //    std::string btFile = rootPath + kPathSeperator + "load_303030.bt";
+        std::string btFile = params->GetTerminalValue<std::string>("TruthBTFile");
+        std::string truthBTFile = rootPath + kPathSeperator + btFile;
+        loadTruthMap(truthBTFile);
+    }
+
+
+
+    else {
         throw std::runtime_error("Unknown sensor parameters encountered");
     }
 }
@@ -102,27 +135,25 @@ void ModuleVehicleSensors::NewTopicData(const std::string &topicName, const Mace
 //!
 void ModuleVehicleSensors::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
-//    int senderID = sender.ID;
-//    //example read of vehicle data
-//    if(topicName == m_VehicleDataTopic.Name())
-//    {
-//        //get latest datagram from mace_data
-//        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
-//        //example of how to get data and parse through the components that were updated
-//        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+    int senderID = sender.ID;
+    if(topicName == m_VehicleDataTopic.Name())
+    {
+        //get latest datagram from mace_data
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        //example of how to get data and parse through the components that were updated
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
 //            if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
 //                std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
 //                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
 //            }
-//            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionExTopic::Name()) {
-//                std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>();
-//                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-//                DataState::StateGlobalPositionEx newPosition = *component.get();
-//                DataState::StateAttitude newAttitude;
-//                computeVehicleFootprint(senderID,*cameraSensor,newPosition,newAttitude);
-//            }
-//        }
-//    }
+            if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionExTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                DataState::StateGlobalPositionEx newPosition = *component.get();
+                updateDataInSensorFootprint_Circular(newPosition);
+            }
+        }
+    }
 }
 
 //!
@@ -213,6 +244,61 @@ void ModuleVehicleSensors::computeVehicleFootprint(const int &systemID, const Da
 //        });
 //    }
 }
+
+void ModuleVehicleSensors::loadTruthMap(const std::string &btFile) {
+    mace::maps::OctomapWrapper octomap;
+
+    // Load truth map from config file
+    octomap.loadOctreeFromBT(btFile);
+    m_compressedMapTruth = octomap.get2DOccupancyMap();
+}
+
+double ModuleVehicleSensors::computeVehicleFootprint_Circular(const DataVehicleSensors::SensorCircularCamera &camera, const CartesianPosition_3D &sensorOrigin) {
+    // Use position and altitude to determine circular sensor footprint
+    //  **  radius = height*tan(coneAngle)  **
+    //      - Cone angle is the half angle
+
+    double radius = sensorOrigin.getZPosition()*tan(camera.getViewHalfAngle());
+    return radius;
+}
+
+void ModuleVehicleSensors::updateDataInSensorFootprint_Circular(const DataState::StateGlobalPositionEx &sensorOriginGlobal) {
+    // 1) Use sensor footprint to get data from truth map (loaded at startup?)
+    //          - Use iterator
+    // 2) Use truth data to update data in local data map
+    //          - Use iterator? Update function?
+
+    if(m_compressedMapTruth->getNodeCount() > 0) {
+        mace::pose::GeodeticPosition_3D globalOrigin = this->getDataObject()->GetGlobalOrigin();
+        mace::pose::GeodeticPosition_3D originGlobal(sensorOriginGlobal.getLatitude(), sensorOriginGlobal.getLongitude(), sensorOriginGlobal.getAltitude());
+        mace::pose::CartesianPosition_3D sensorOriginLocal;
+        mace::pose::DynamicsAid::GlobalPositionToLocal(globalOrigin, originGlobal, sensorOriginLocal);
+        double radius = computeVehicleFootprint_Circular(*m_circularCameraSensor, sensorOriginLocal);
+
+        mace::pose::CartesianPosition_2D sensorOriginLocal_2D(sensorOriginLocal.getXPosition(), sensorOriginLocal.getYPosition());
+        mace::maps::CircleMapIterator circleIt_local(m_compressedMapLocal, sensorOriginLocal_2D, radius);
+        for(; !circleIt_local.isPastEnd(); ++circleIt_local)
+        {
+            std::cout << "CIRCLE ITERATOR: " << std::endl;
+    //        std::cout << circleIt_local->first
+
+    //        // 1) Get value from truth map at iterator position from local map
+    //        double xPos = circleIt_local;
+    //        double yPos = ;
+    //        mace::maps::OccupiedResult cellTruth = m_compressedMapTruth->getCellByIndex(circleIt_local);
+
+    //        // 2) Update local map with truth data
+    //        //      - TODO: Update based on log odds
+    //        m_compressedMapLocal->
+        }
+    }
+    else {
+        std::cout << "Truth map has no data. Nothing to do." << std::endl;
+    }
+
+}
+
+
 
 //!
 //! \brief NewlyAvailableVehicle Subscriber to a newly available vehicle topic

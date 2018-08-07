@@ -28,13 +28,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     components/sensor_camera.cpp \
     components/sensor_vertices_global.cpp \
-    components/sensor_vertices_local.cpp
+    components/sensor_vertices_local.cpp \
+    components/sensor_circular_camera.cpp
 
 HEADERS += data_vehicle_sensors_global.h \
     components.h \
     components/sensor_camera.h \
     components/sensor_vertices_global.h \
-    components/sensor_vertices_local.h
+    components/sensor_vertices_local.h \
+    components/sensor_circular_camera.h
 
 # Unix lib Install
 unix:!symbian {

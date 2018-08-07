@@ -19,6 +19,15 @@
 
 #include "data_generic_command_item/command_item_components.h"
 
+#include "maps/iterators/grid_map_iterator.h"
+#include "maps/iterators/circle_map_iterator.h"
+#include "maps/iterators/polygon_map_iterator.h"
+#include "maps/occupancy_definition.h"
+#include "maps/data_2d_grid.h"
+#include "maps/octomap_wrapper.h"
+
+#include "base/pose/dynamics_aid.h"
+
 class MODULE_VEHICLE_SENSORSSHARED_EXPORT ModuleVehicleSensors : public MaceCore::IModuleCommandSensors
 {
 
@@ -78,6 +87,12 @@ public:
     //!
     void computeVehicleFootprint(const int &systemID, const DataVehicleSensors::SensorCamera &camera, const DataState::StateGlobalPositionEx &globalPosition, const DataState::StateAttitude &attitude);
 
+    void loadTruthMap(const string &btFile);
+
+    double computeVehicleFootprint_Circular(const DataVehicleSensors::SensorCircularCamera &camera, const CartesianPosition_3D &sensorOrigin);
+
+    void updateDataInSensorFootprint_Circular(const DataState::StateGlobalPositionEx &sensorOriginGlobal);
+
     //! Virtual functions as defined by IModuleCommandSensors
 public:
 
@@ -91,7 +106,13 @@ private:
     //!
     //! \brief cameraSensor Container for camera parameters
     //!
-    DataVehicleSensors::SensorCamera* cameraSensor;
+//    DataVehicleSensors::SensorCamera* cameraSensor;
+    std::shared_ptr<DataVehicleSensors::SensorCircularCamera> m_circularCameraSensor;
+
+    mace::maps::Data2DGrid<mace::maps::OccupiedResult>* m_compressedMapTruth;
+    mace::maps::Data2DGrid<mace::maps::OccupiedResult>* m_compressedMapLocal;
+
+    std::string m_truthBTFile;
 
 private:
     Data::TopicDataObjectCollection<DATA_STATE_GENERIC_TOPICS> m_VehicleDataTopic;
