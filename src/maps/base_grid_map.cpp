@@ -83,7 +83,7 @@ void BaseGridMap::updateResolution(const double &x_res, const double &y_res)
     this->updateGridSize(this->xMin,this->xMax,this->yMin,this->yMax,x_res,y_res);
 }
 
-void BaseGridMap::updatePosition(const pose::CartesianPosition_2D &position)
+void BaseGridMap::updateOriginPosition(const pose::CartesianPosition_2D &position)
 {
     this->originPosition = position;
 }

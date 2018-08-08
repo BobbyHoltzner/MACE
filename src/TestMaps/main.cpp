@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     octomap.loadOctreeFromBT(btFile);
     mace::maps::Data2DGrid<mace::maps::OccupiedResult>* compressedMap = octomap.get2DOccupancyMap();
 
-    compressedMap->updatePosition(mace::pose::CartesianPosition_2D(-15,-15));
+    compressedMap->updateOriginPosition(mace::pose::CartesianPosition_2D(-15,-15));
 
     mace::state_space::Cartesian2DSpacePtr space = std::make_shared<mace::state_space::Cartesian2DSpace>();
     space->bounds.setBounds(-15,15,-15,15);

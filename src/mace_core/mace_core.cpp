@@ -602,6 +602,9 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const GeodeticPosition_
     if(m_RTA) {
         m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, position);
     }
+    if(m_Sensors) {
+        m_Sensors->MarshalCommand(SensorCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, position);
+    }
 }
 
 

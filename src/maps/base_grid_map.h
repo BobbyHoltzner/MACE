@@ -38,7 +38,7 @@ public:
     //!
     virtual ~BaseGridMap() = default;
 
-    void updatePosition(const pose::CartesianPosition_2D &position);
+    void updateOriginPosition(const pose::CartesianPosition_2D &position);
 
     void getPositionFromIndex(const unsigned int &index, double &x, double &y) const
     {

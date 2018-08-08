@@ -7,7 +7,6 @@ ModuleVehicleSensors::ModuleVehicleSensors():
 //    cameraSensor = new DataVehicleSensors::SensorCamera();
     m_circularCameraSensor = std::make_shared<DataVehicleSensors::SensorCircularCamera>();
 
-    // TESTING:
     double minX = -50.0; double maxX = 50.0;
     double minY = -50.0; double maxY = 50.0;
     double x_res = 10.0; double y_res = 10.0;
@@ -15,7 +14,6 @@ ModuleVehicleSensors::ModuleVehicleSensors():
     double fillDouble = 0.0;
     m_compressedMapTruth = new mace::maps::Data2DGrid<double>(&fillDouble, minX, maxX, minY, maxY, x_res, y_res, origin);
     m_compressedMapLocal = new mace::maps::Data2DGrid<double>(&fillDouble, minX, maxX, minY, maxY, x_res, y_res, origin);
-    // END TESTING (todo: initialize maps when not testing)
 }
 
 //!
@@ -262,17 +260,26 @@ void ModuleVehicleSensors::loadTruthMap(const std::string &btFile) {
     mace::maps::CircleMapIterator circleIt_truth(m_compressedMapTruth, sensorOriginLocal_2D, radius);
     for(; !circleIt_truth.isPastEnd(); ++circleIt_truth)
     {
-//        std::cout << "CIRCLE ITERATOR: " << std::endl;
+        std::cout << "CIRCLE ITERATOR: " << std::endl;
         double* value = m_compressedMapTruth->getCellByIndex(*circleIt_truth);
-//        std::cout << " Current val: " << *circleIt_truth << " -- " << *value << std::endl;
+        std::cout << " Current val: " << *circleIt_truth << " -- " << *value << std::endl;
         // Set new value:
         *value = 1.0;
 
-//        double xPos, yPos;
-//        m_compressedMapTruth->getPositionFromIndex(*circleIt_truth, xPos, yPos);
+        double xPos, yPos;
+        m_compressedMapTruth->getPositionFromIndex(*circleIt_truth, xPos, yPos);
 
-//        std::cout << "(x, y):  (" << xPos << ", " << yPos << ")" << std::endl;
+        std::cout << "(x, y):  (" << xPos << ", " << yPos << ")" << std::endl;
     }
+
+
+    mace::maps::CircleMapIterator testIt(m_compressedMapTruth, sensorOriginLocal_2D, radius);
+    for(; !testIt.isPastEnd(); ++testIt)
+    {
+        double* value = m_compressedMapTruth->getCellByIndex(*testIt);
+        std::cout << " Current val: " << *testIt << " -- " << *value << std::endl;
+    }
+
 
 /*
     mace::maps::OctomapWrapper octomap;
@@ -297,7 +304,7 @@ void ModuleVehicleSensors::updateDataInSensorFootprint_Circular(const DataState:
     //          - Use iterator
     // 2) Use truth data to update data in local data map
     //          - Use iterator? Update function?
-
+/*
     if(m_compressedMapTruth->getNodeCount() > 0) {
         mace::pose::GeodeticPosition_3D globalOrigin = this->getDataObject()->GetGlobalOrigin();
         mace::pose::GeodeticPosition_3D originGlobal(sensorOriginGlobal.getLatitude(), sensorOriginGlobal.getLongitude(), sensorOriginGlobal.getAltitude());
@@ -306,30 +313,26 @@ void ModuleVehicleSensors::updateDataInSensorFootprint_Circular(const DataState:
         double radius = computeVehicleFootprint_Circular(*m_circularCameraSensor, sensorOriginLocal);
 
         mace::pose::CartesianPosition_2D sensorOriginLocal_2D(sensorOriginLocal.getXPosition(), sensorOriginLocal.getYPosition());
-        mace::maps::CircleMapIterator circleIt_truth(m_compressedMapTruth, sensorOriginLocal_2D, radius);
-        int counter = 0;
-        for(; !circleIt_truth.isPastEnd(); ++circleIt_truth)
+        mace::maps::CircleMapIterator circleIt_local(m_compressedMapLocal, sensorOriginLocal_2D, radius);
+        for(; !circleIt_local.isPastEnd(); ++circleIt_local)
         {
-            // 1) Get value from truth map at iterator position from local map
-            double* truthVal = m_compressedMapTruth->getCellByIndex(*circleIt_truth);
-            double xPos, yPos;
-            m_compressedMapTruth->getPositionFromIndex(*circleIt_truth, xPos, yPos);
-//            std::cout << "(x, y) / value:  (" << xPos << ", " << yPos << ") / " << *truthVal << std::endl;
+            std::cout << "CIRCLE ITERATOR: " << std::endl;
+    //        std::cout << circleIt_local->first
 
-            // 2) Update local map with truth data
-            //      - TODO: Update based on log odds
-            double* localVal = m_compressedMapLocal->getCellByPos(xPos, yPos);
-            *localVal = *truthVal;
+    //        // 1) Get value from truth map at iterator position from local map
+    //        double xPos = circleIt_local;
+    //        double yPos = ;
+    //        mace::maps::OccupiedResult cellTruth = m_compressedMapTruth->getCellByIndex(circleIt_local);
 
-            counter++;
+    //        // 2) Update local map with truth data
+    //        //      - TODO: Update based on log odds
+    //        m_compressedMapLocal->
         }
-
-        std::cout << "Total number of nodes in circle: " << counter << std::endl;
     }
     else {
         std::cout << "Truth map has no data. Nothing to do." << std::endl;
     }
-
+*/
 }
 
 
@@ -341,12 +344,4 @@ void ModuleVehicleSensors::updateDataInSensorFootprint_Circular(const DataState:
 void ModuleVehicleSensors::NewlyAvailableVehicle(const int &vehicleID)
 {
     UNUSED(vehicleID);
-}
-
-//!
-//! \brief NewlyAvailableGlobalOrigin Subscriber to a new global origin
-//!
-void ModuleVehicleSensors::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &globalOrigin)
-{
-    std::cout << "Sensors: New available global origin" << std::endl;
 }

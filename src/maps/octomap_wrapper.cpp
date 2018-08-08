@@ -299,7 +299,7 @@ void OctomapWrapper::updateMapContinuity()
     //    m_projectCompleteMap = (!m_incrementalUpdate || (std::abs(gridRes-m_gridmap.info.resolution) > 1e-6));
     //    m_gridmap.info.resolution = gridRes;
     pose::CartesianPosition_2D transformedOrigin(origin.x() - gridRes*0.5, origin.y() - gridRes*0.5);
-    m_Map->updatePosition(transformedOrigin);
+    m_Map->updateOriginPosition(transformedOrigin);
 
     //if (maxTreeDepth != treeDepth){
     //    std::cout<<"Was this true"<<std::endl;

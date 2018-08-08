@@ -102,6 +102,11 @@ public:
     //!
     virtual void NewlyAvailableVehicle(const int &vehicleID);
 
+    //!
+    //! \brief NewlyAvailableGlobalOrigin Subscriber to a new global origin
+    //!
+    void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &globalOrigin) override;
+
 private:
     //!
     //! \brief cameraSensor Container for camera parameters
@@ -109,8 +114,8 @@ private:
 //    DataVehicleSensors::SensorCamera* cameraSensor;
     std::shared_ptr<DataVehicleSensors::SensorCircularCamera> m_circularCameraSensor;
 
-    mace::maps::Data2DGrid<mace::maps::OccupiedResult>* m_compressedMapTruth;
-    mace::maps::Data2DGrid<mace::maps::OccupiedResult>* m_compressedMapLocal;
+    mace::maps::Data2DGrid<double>* m_compressedMapTruth;
+    mace::maps::Data2DGrid<double>* m_compressedMapLocal;
 
     std::string m_truthBTFile;
 

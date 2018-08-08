@@ -31,6 +31,11 @@ class MACE_CORESHARED_EXPORT IModuleCommandSensors : public AbstractModule_Event
             UNUSED(sender);
             NewlyAvailableVehicle(vehicleID);
         });
+
+        AddCommandLogic<mace::pose::GeodeticPosition_3D>(SensorCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, [this](const mace::pose::GeodeticPosition_3D &position, const OptionalParameter<ModuleCharacteristic> &sender){
+            UNUSED(sender);
+            NewlyUpdatedGlobalOrigin(position);
+        });
     }
 
     virtual ModuleClasses ModuleClass() const
@@ -44,6 +49,13 @@ public:
     //! \param vehicleID New vehicle ID
     //!
     virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
+
+
+    //!
+    //! \brief NewlyUpdatedGlobalOrigin New global origin subscriber
+    //! \param position New global origin position
+    //!
+    virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 
 
 };
