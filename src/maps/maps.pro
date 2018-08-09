@@ -4,7 +4,8 @@
 #
 #-------------------------------------------------
 
-QT       -= core gui
+#QT       -= core gui
+QT       -= gui
 
 TARGET = maps
 TEMPLATE = lib
@@ -33,7 +34,8 @@ SOURCES += \
     iterators/generic_map_iterator.cpp \
     octomap_wrapper.cpp \
     occupancy_2d_grid_topic.cpp \
-    occupancy_map_2D_inflated.cpp
+    occupancy_map_2D_inflated.cpp \
+    map_cell.cpp
 
 HEADERS +=\
         maps_global.h \
@@ -52,7 +54,8 @@ HEADERS +=\
     map_topic_components.h \
     octomap_2d_projection_definition.h \
     occupancy_map_2D_inflated.h \
-    occupancy_definition.h
+    occupancy_definition.h \
+    map_cell.h
 
 #Header file copy
 INSTALL_PREFIX = $$(MACE_ROOT)/include/$$TARGET
@@ -85,6 +88,10 @@ INCLUDEPATH += $$(MACE_ROOT)/Eigen/include/eigen3
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../base/release/ -lbase
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../base/debug/ -lbase
 else:unix:!macx: LIBS += -L$$OUT_PWD/../base/ -lbase
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../data/release/ -ldata
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../data/debug/ -ldata
+else:unix: LIBS += -L$$OUT_PWD/../data/ -ldata
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath

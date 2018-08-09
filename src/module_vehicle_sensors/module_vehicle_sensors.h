@@ -23,6 +23,7 @@
 #include "maps/iterators/circle_map_iterator.h"
 #include "maps/iterators/polygon_map_iterator.h"
 #include "maps/occupancy_definition.h"
+#include "maps/map_cell.h"
 #include "maps/data_2d_grid.h"
 #include "maps/octomap_wrapper.h"
 
@@ -107,6 +108,9 @@ public:
     //!
     void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &globalOrigin) override;
 
+
+    void OnModulesStarted() override;
+
 private:
     //!
     //! \brief cameraSensor Container for camera parameters
@@ -114,8 +118,8 @@ private:
 //    DataVehicleSensors::SensorCamera* cameraSensor;
     std::shared_ptr<DataVehicleSensors::SensorCircularCamera> m_circularCameraSensor;
 
-    mace::maps::Data2DGrid<double>* m_compressedMapTruth;
-    mace::maps::Data2DGrid<double>* m_compressedMapLocal;
+    mace::maps::Data2DGrid<mace::maps::MapCell>* m_compressedMapTruth;
+    mace::maps::Data2DGrid<mace::maps::MapCell>* m_compressedMapLocal;
 
     std::string m_truthBTFile;
 

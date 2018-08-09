@@ -4,7 +4,8 @@
 #
 #-------------------------------------------------
 
-QT       -= core gui
+#QT       -= core gui
+QT      -= gui
 
 TARGET = module_vehicle_sensors
 TEMPLATE = lib

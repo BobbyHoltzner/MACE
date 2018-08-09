@@ -60,6 +60,7 @@ double CartesianPosition_3D::distanceBetween3D(const CartesianPosition_3D &pos) 
     return sqrt(pow(this->distanceBetween2D(pos),2) + pow(this->deltaAltitude(pos),2));
 }
 
+// ** DEPRECATED ** //
 double CartesianPosition_3D::distanceTo(const CartesianPosition_3D &pos) const
 {
     return this->distanceBetween2D(pos);

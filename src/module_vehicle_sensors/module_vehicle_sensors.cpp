@@ -11,10 +11,10 @@ ModuleVehicleSensors::ModuleVehicleSensors():
     double minX = -50.0; double maxX = 50.0;
     double minY = -50.0; double maxY = 50.0;
     double x_res = 10.0; double y_res = 10.0;
-    mace::pose::CartesianPosition_2D origin(0, 0);
-    double fillDouble = 0.0;
-    m_compressedMapTruth = new mace::maps::Data2DGrid<double>(&fillDouble, minX, maxX, minY, maxY, x_res, y_res, origin);
-    m_compressedMapLocal = new mace::maps::Data2DGrid<double>(&fillDouble, minX, maxX, minY, maxY, x_res, y_res, origin);
+    mace::maps::MapCell truthFill(mace::maps::OccupiedResult::NOT_OCCUPIED, 1.0, false);
+    mace::maps::MapCell localFill(mace::maps::OccupiedResult::NO_DATA, 0.5, false);
+    m_compressedMapTruth = new mace::maps::Data2DGrid<mace::maps::MapCell>(&truthFill, minX, maxX, minY, maxY, x_res, y_res);
+    m_compressedMapLocal = new mace::maps::Data2DGrid<mace::maps::MapCell>(&localFill, minX, maxX, minY, maxY, x_res, y_res);
     // END TESTING (todo: initialize maps when not testing)
 }
 
@@ -49,6 +49,11 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleVehicleSensors::Module
     std::shared_ptr<MaceCore::ModuleParameterStructure> circularCameraSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
     circularCameraSettings->AddTerminalParameters("CameraName", MaceCore::ModuleParameterTerminalTypes::STRING, true);
     circularCameraSettings->AddTerminalParameters("ViewHalfAngle", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    circularCameraSettings->AddTerminalParameters("AlphaAttenuation", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    circularCameraSettings->AddTerminalParameters("BetaAttenuation", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    circularCameraSettings->AddTerminalParameters("CertainRangePercent", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    circularCameraSettings->AddTerminalParameters("P_D", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
+    circularCameraSettings->AddTerminalParameters("P_FA", MaceCore::ModuleParameterTerminalTypes::DOUBLE, true);
     structure.AddNonTerminal("CircularCameraParameters", circularCameraSettings, false);
 
     structure.AddTerminalParameters("TruthBTFile", MaceCore::ModuleParameterTerminalTypes::STRING, true);
@@ -94,6 +99,11 @@ void ModuleVehicleSensors::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         std::shared_ptr<MaceCore::ModuleParameterValue> protocolSettings = params->GetNonTerminalValue("CircularCameraParameters");
         m_circularCameraSensor->setCameraName(protocolSettings->GetTerminalValue<std::string>("CameraName"));
         m_circularCameraSensor->setViewHalfAngle(protocolSettings->GetTerminalValue<double>("ViewHalfAngle"));
+        m_circularCameraSensor->setAlphaAttenuation(protocolSettings->GetTerminalValue<double>("AlphaAttenuation"));
+        m_circularCameraSensor->setBetaAttenuation(protocolSettings->GetTerminalValue<double>("BetaAttenuation"));
+        m_circularCameraSensor->setCertainRange(protocolSettings->GetTerminalValue<double>("CertainRangePercent"));
+        m_circularCameraSensor->setProbDetection(protocolSettings->GetTerminalValue<double>("P_D"));
+        m_circularCameraSensor->setProbFalseAlarm(protocolSettings->GetTerminalValue<double>("P_FA"));
     }
     if(params->HasTerminal("TruthBTFile"))
     {
@@ -107,8 +117,7 @@ void ModuleVehicleSensors::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         #endif
         //    std::string btFile = rootPath + kPathSeperator + "load_303030.bt";
         std::string btFile = params->GetTerminalValue<std::string>("TruthBTFile");
-        std::string truthBTFile = rootPath + kPathSeperator + btFile;
-        loadTruthMap(truthBTFile);
+        m_truthBTFile = rootPath + kPathSeperator + btFile;
     }
 
 
@@ -262,25 +271,16 @@ void ModuleVehicleSensors::loadTruthMap(const std::string &btFile) {
     mace::maps::CircleMapIterator circleIt_truth(m_compressedMapTruth, sensorOriginLocal_2D, radius);
     for(; !circleIt_truth.isPastEnd(); ++circleIt_truth)
     {
-//        std::cout << "CIRCLE ITERATOR: " << std::endl;
-        double* value = m_compressedMapTruth->getCellByIndex(*circleIt_truth);
+        mace::maps::MapCell* value = m_compressedMapTruth->getCellByIndex(*circleIt_truth);
 //        std::cout << " Current val: " << *circleIt_truth << " -- " << *value << std::endl;
         // Set new value:
-        *value = 1.0;
+        value->setCellValue(mace::maps::OccupiedResult::OCCUPIED);
+        value->setPotentialTaskFlag(true);
 
 //        double xPos, yPos;
 //        m_compressedMapTruth->getPositionFromIndex(*circleIt_truth, xPos, yPos);
-
 //        std::cout << "(x, y):  (" << xPos << ", " << yPos << ")" << std::endl;
     }
-
-/*
-    mace::maps::OctomapWrapper octomap;
-
-    // Load truth map from config file
-    octomap.loadOctreeFromBT(btFile);
-    m_compressedMapTruth = octomap.get2DOccupancyMap();
-*/
 }
 
 double ModuleVehicleSensors::computeVehicleFootprint_Circular(const DataVehicleSensors::SensorCircularCamera &camera, const CartesianPosition_3D &sensorOrigin) {
@@ -298,33 +298,43 @@ void ModuleVehicleSensors::updateDataInSensorFootprint_Circular(const DataState:
     // 2) Use truth data to update data in local data map
     //          - Use iterator? Update function?
 
+    // If we don't have any truth data, we can't update
     if(m_compressedMapTruth->getNodeCount() > 0) {
+        // Convert sensor global position to a Cartesian position:
         mace::pose::GeodeticPosition_3D globalOrigin = this->getDataObject()->GetGlobalOrigin();
         mace::pose::GeodeticPosition_3D originGlobal(sensorOriginGlobal.getLatitude(), sensorOriginGlobal.getLongitude(), sensorOriginGlobal.getAltitude());
         mace::pose::CartesianPosition_3D sensorOriginLocal;
         mace::pose::DynamicsAid::GlobalPositionToLocal(globalOrigin, originGlobal, sensorOriginLocal);
+
+        // Compute radius of sensor footprint based on sensor origin (altitude):
         double radius = computeVehicleFootprint_Circular(*m_circularCameraSensor, sensorOriginLocal);
 
+        // Iterate over a circular footprint of radius = vehicle_footprint_radius:
         mace::pose::CartesianPosition_2D sensorOriginLocal_2D(sensorOriginLocal.getXPosition(), sensorOriginLocal.getYPosition());
         mace::maps::CircleMapIterator circleIt_truth(m_compressedMapTruth, sensorOriginLocal_2D, radius);
-        int counter = 0;
         for(; !circleIt_truth.isPastEnd(); ++circleIt_truth)
         {
             // 1) Get value from truth map at iterator position from local map
-            double* truthVal = m_compressedMapTruth->getCellByIndex(*circleIt_truth);
+            mace::maps::MapCell* truthVal = m_compressedMapTruth->getCellByIndex(*circleIt_truth);
             double xPos, yPos;
             m_compressedMapTruth->getPositionFromIndex(*circleIt_truth, xPos, yPos);
-//            std::cout << "(x, y) / value:  (" << xPos << ", " << yPos << ") / " << *truthVal << std::endl;
 
-            // 2) Update local map with truth data
+            // 2) Calculate distance from sensor origin for attenuated disk:
+            double distanceToSensorOrigin = sensorOriginLocal.distanceBetween2D(CartesianPosition_3D(xPos, yPos, 0));
+            double sigma = m_circularCameraSensor->attenuatedDiskConfidence(distanceToSensorOrigin, radius);
+
+            // 3) Update local map with truth value and current time:
             //      - TODO: Update based on log odds
-            double* localVal = m_compressedMapLocal->getCellByPos(xPos, yPos);
-            *localVal = *truthVal;
+            mace::maps::MapCell* localVal = m_compressedMapLocal->getCellByPos(xPos, yPos);
+            Data::EnvironmentTime now;
+            Data::EnvironmentTime::CurrentTime(Data::Devices::SYSTEMCLOCK, now);
+            localVal->setCellValue(truthVal->getCellValue(), now);
 
-            counter++;
+            // 4) Get occupied value to update log odds and update our log odds probability:
+            mace::maps::OccupiedResult occupied = localVal->getCellValue();
+            std::cout << "Distance to origin before log odds: " << distanceToSensorOrigin << std::endl;
+            localVal->updateLogOddsProbability(occupied, m_circularCameraSensor->getProbDetection(), m_circularCameraSensor->getProbFalseAlarm(), sigma);
         }
-
-        std::cout << "Total number of nodes in circle: " << counter << std::endl;
     }
     else {
         std::cout << "Truth map has no data. Nothing to do." << std::endl;
@@ -349,4 +359,12 @@ void ModuleVehicleSensors::NewlyAvailableVehicle(const int &vehicleID)
 void ModuleVehicleSensors::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &globalOrigin)
 {
     std::cout << "Sensors: New available global origin" << std::endl;
+}
+
+
+void ModuleVehicleSensors::OnModulesStarted()
+{
+    std::cout << "All of the modules have been started." << std::endl;
+    // Load truth map:
+    loadTruthMap(m_truthBTFile);
 }
