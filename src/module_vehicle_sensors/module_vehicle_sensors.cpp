@@ -101,7 +101,7 @@ void ModuleVehicleSensors::ConfigureModule(const std::shared_ptr<MaceCore::Modul
         m_circularCameraSensor->setViewHalfAngle(protocolSettings->GetTerminalValue<double>("ViewHalfAngle"));
         m_circularCameraSensor->setAlphaAttenuation(protocolSettings->GetTerminalValue<double>("AlphaAttenuation"));
         m_circularCameraSensor->setBetaAttenuation(protocolSettings->GetTerminalValue<double>("BetaAttenuation"));
-        m_circularCameraSensor->setCertainRange(protocolSettings->GetTerminalValue<double>("CertainRangePercent"));
+        m_circularCameraSensor->setCertainRangePercent(protocolSettings->GetTerminalValue<double>("CertainRangePercent"));
         m_circularCameraSensor->setProbDetection(protocolSettings->GetTerminalValue<double>("P_D"));
         m_circularCameraSensor->setProbFalseAlarm(protocolSettings->GetTerminalValue<double>("P_FA"));
     }
@@ -264,6 +264,10 @@ void ModuleVehicleSensors::computeVehicleFootprint(const int &systemID, const Da
 //    }
 }
 
+//!
+//! \brief loadTruthMap Load the truth map from a file
+//! \param btFile Filename, relative to the root MACE path
+//!
 void ModuleVehicleSensors::loadTruthMap(const std::string &btFile) {
     // update middle of grid with a circular occupied space:
     mace::pose::CartesianPosition_2D sensorOriginLocal_2D(0, 0);
@@ -283,6 +287,13 @@ void ModuleVehicleSensors::loadTruthMap(const std::string &btFile) {
     }
 }
 
+//!
+//! \brief computeVehicleFootprint Compute the vertices of the camera footprint and notify listeners of updated footprint
+//! \param systemID Generating system ID
+//! \param camera Camera properties
+//! \param globalPosition Position of the vehicle/sensor
+//! \param attitude Attitude of the vehicle/sensor
+//!
 double ModuleVehicleSensors::computeVehicleFootprint_Circular(const DataVehicleSensors::SensorCircularCamera &camera, const CartesianPosition_3D &sensorOrigin) {
     // Use position and altitude to determine circular sensor footprint
     //  **  radius = height*tan(coneAngle)  **
@@ -292,6 +303,10 @@ double ModuleVehicleSensors::computeVehicleFootprint_Circular(const DataVehicleS
     return radius;
 }
 
+//!
+//! \brief updateDataInSensorFootprint_Circular Update the local map data from truth data in a circular footprint
+//! \param sensorOriginGlobal Sensor origin for footprint calculations
+//!
 void ModuleVehicleSensors::updateDataInSensorFootprint_Circular(const DataState::StateGlobalPositionEx &sensorOriginGlobal) {
     // 1) Use sensor footprint to get data from truth map (loaded at startup?)
     //          - Use iterator
@@ -361,7 +376,9 @@ void ModuleVehicleSensors::NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPo
     std::cout << "Sensors: New available global origin" << std::endl;
 }
 
-
+//!
+//! \brief OnModulesStarted Method that fires when all modules have started
+//!
 void ModuleVehicleSensors::OnModulesStarted()
 {
     std::cout << "All of the modules have been started." << std::endl;

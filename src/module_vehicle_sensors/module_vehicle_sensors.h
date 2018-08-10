@@ -88,10 +88,16 @@ public:
     //!
     void computeVehicleFootprint(const int &systemID, const DataVehicleSensors::SensorCamera &camera, const DataState::StateGlobalPositionEx &globalPosition, const DataState::StateAttitude &attitude);
 
+    //!
+    //! \brief loadTruthMap Load the truth map from a file
+    //! \param btFile Filename, relative to the root MACE path
+    //!
     void loadTruthMap(const string &btFile);
 
-    double computeVehicleFootprint_Circular(const DataVehicleSensors::SensorCircularCamera &camera, const CartesianPosition_3D &sensorOrigin);
-
+    //!
+    //! \brief updateDataInSensorFootprint_Circular Update the local map data from truth data in a circular footprint
+    //! \param sensorOriginGlobal Sensor origin for footprint calculations
+    //!
     void updateDataInSensorFootprint_Circular(const DataState::StateGlobalPositionEx &sensorOriginGlobal);
 
     //! Virtual functions as defined by IModuleCommandSensors
@@ -108,19 +114,45 @@ public:
     //!
     void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &globalOrigin) override;
 
-
+    //!
+    //! \brief OnModulesStarted Method that fires when all modules have started
+    //!
     void OnModulesStarted() override;
+
+private:
+
+    //!
+    //! \brief computeVehicleFootprint_Circular Compute the radius of the circular footprint created by a camera at a given cartesian position. (ignore skewing effects from attitude)
+    //! \param camera Camera sensor
+    //! \param sensorOrigin Current sensor origin
+    //! \return Radius of the sensor footprint
+    //!
+    double computeVehicleFootprint_Circular(const DataVehicleSensors::SensorCircularCamera &camera, const CartesianPosition_3D &sensorOrigin);
 
 private:
     //!
     //! \brief cameraSensor Container for camera parameters
     //!
 //    DataVehicleSensors::SensorCamera* cameraSensor;
+
+    //!
+    //! \brief m_circularCameraSensor Container for a camera with circular footprint
+    //!
     std::shared_ptr<DataVehicleSensors::SensorCircularCamera> m_circularCameraSensor;
 
+    //!
+    //! \brief m_compressedMapTruth Map/grid containing truth data. Typically loaded from a file
+    //!
     mace::maps::Data2DGrid<mace::maps::MapCell>* m_compressedMapTruth;
+
+    //!
+    //! \brief m_compressedMapLocal Map/grid containing local data measured by a vehicle
+    //!
     mace::maps::Data2DGrid<mace::maps::MapCell>* m_compressedMapLocal;
 
+    //!
+    //! \brief m_truthBTFile Filename for truth data file
+    //!
     std::string m_truthBTFile;
 
 private:

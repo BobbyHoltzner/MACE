@@ -39,6 +39,12 @@ void SensorCircularCamera::CreateFromDatagram(const MaceCore::TopicDatagram &dat
     p_fa = datagram.GetTerminal<double>("p_fa");
 }
 
+//!
+//! \brief attenuatedDiskConfidence Calculate the sigma value ("confidence") to augment our probability of detection/false alarm updates to the log-odds probabilty.
+//! \param distanceToSensorOrigin Distance to sensor origin
+//! \param radius Radius of sensor footprint
+//! \return Sigma ("confidence") value
+//!
 double SensorCircularCamera::attenuatedDiskConfidence(const double &distanceToSensorOrigin, const double &radius) {
     // TODO: Calculate attenuated disk confidence based on alpha/beta values:
     double confidence = 0.0;

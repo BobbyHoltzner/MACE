@@ -5,31 +5,55 @@
 namespace mace{
 namespace maps{
 
+//!
+//! \brief MapCell Default constructor
+//!
 MapCell::MapCell() :
     occupiedResult(mace::maps::OccupiedResult::NO_DATA), logOddsProbability(0.0), potentialTaskFlag(false)
 {
-    discoveryTime = std::make_shared<Data::EnvironmentTime>();
+    updatedAtTime = std::make_shared<Data::EnvironmentTime>();
 }
 
+//!
+//! \brief MapCell Constructor
+//! \param cellValue Default occupied result for the cell
+//!
 MapCell::MapCell(mace::maps::OccupiedResult occupiedResult) :
     occupiedResult(occupiedResult), logOddsProbability(0.0), potentialTaskFlag(false)
 {
-    discoveryTime = std::make_shared<Data::EnvironmentTime>();
+    updatedAtTime = std::make_shared<Data::EnvironmentTime>();
 }
 
+//!
+//! \brief MapCell Constructor
+//! \param cellValue Default occupied result for the cell
+//! \param logOddsProbability Initial log-odds probability value.
+//!
 MapCell::MapCell(mace::maps::OccupiedResult occupiedResult, double confidence) :
     occupiedResult(occupiedResult), logOddsProbability(confidence), potentialTaskFlag(false)
 {
-    discoveryTime = std::make_shared<Data::EnvironmentTime>();
+    updatedAtTime = std::make_shared<Data::EnvironmentTime>();
 }
 
+//!
+//! \brief MapCell Constructor
+//! \param cellValue Default occupied result for the cell
+//! \param logOddsProbability Initial log-odds probability value.
+//! \param potentialTaskFlag Initial task flag. True if this cell should trigger a task, false otherwise.
+//!
 MapCell::MapCell(mace::maps::OccupiedResult occupiedResult, double confidence, bool potentialTaskFlag) :
     occupiedResult(occupiedResult), logOddsProbability(confidence), potentialTaskFlag(potentialTaskFlag)
 {
-    discoveryTime = std::make_shared<Data::EnvironmentTime>();
+    updatedAtTime = std::make_shared<Data::EnvironmentTime>();
 }
 
-
+//!
+//! \brief updateLogOddsProbability Update the cell's log-odds probabilty value
+//! \param occupiedResult Measured occupied result from the sensor
+//! \param p_d Sensor's probability of detection value
+//! \param p_fa Sensor's probability of false alarm value
+//! \param sigma Confidence in sensor reading (e.g. attenuation based on distance from the sensor origin)
+//!
 void MapCell::updateLogOddsProbability(const OccupiedResult &occupiedResult, const double &p_d, const double &p_fa, const double &sigma) {
     double logOdds = 0.0;
 
