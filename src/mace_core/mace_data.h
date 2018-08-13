@@ -33,9 +33,11 @@
 #include "octomap/octomap.h"
 #include "octomap/OcTree.h"
 
+#include "base/pose/abstract_position.h"
 #include "base/pose/cartesian_position_3D.h"
 #include "base/pose/orientation_3D.h"
 #include "base/geometry/cell_2DC.h"
+#include "base/pose/dynamics_aid.h"
 
 #include "data_generic_command_item/boundary_items/boundary_type.h"
 
@@ -172,6 +174,133 @@ public:
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         return m_GlobalOrigin;
     }
+
+
+    // ============================================================================= //
+    // ============================ Conversion methods ============================= //
+    // ============================================================================= //
+
+    // **************************** //
+    // ********* 3D to 3D ********* //
+    // **************************** //
+    bool GlobalPositionToLocal(const GeodeticPosition_3D &globalPos, CartesianPosition_3D &localPos) const {
+        GeodeticPosition_3D origin = this->GetGlobalOrigin();
+        if(!origin.hasBeenSet()) {
+            printf("Origin has not been set. Cannot convert to local frame.\n");
+            return false;
+        }
+
+        // May need to switch case and cast input arguments properly...If so, do that in Dynamics aid and make the static members private to hide that switch case from the core
+        mace::pose::DynamicsAid::GlobalPositionToLocal(origin, globalPos, localPos);
+
+        return true;
+    }
+
+    bool LocalPositionToGlobal(const CartesianPosition_3D &localPos, GeodeticPosition_3D &globalPos) const {
+        GeodeticPosition_3D origin = this->GetGlobalOrigin();
+        if(!origin.hasBeenSet()) {
+            printf("Origin has not been set. Cannot convert to global frame.\n");
+            return false;
+        }
+
+        // May need to switch case and cast input arguments properly...If so, do that in Dynamics aid and make the static members private to hide that switch case from the core
+        mace::pose::DynamicsAid::LocalPositionToGlobal(origin, localPos, globalPos);
+
+        return true;
+    }
+
+    // **************************** //
+    // ********* 2D to 2D ********* //
+    // **************************** //
+    bool GlobalPositionToLocal(const GeodeticPosition_2D &globalPos, CartesianPosition_2D &localPos) const {
+        GeodeticPosition_3D origin = this->GetGlobalOrigin();
+        if(!origin.hasBeenSet()) {
+            printf("Origin has not been set. Cannot convert to local frame.\n");
+            return false;
+        }
+
+        // May need to switch case and cast input arguments properly...If so, do that in Dynamics aid and make the static members private to hide that switch case from the core
+        mace::pose::DynamicsAid::GlobalPositionToLocal(origin, globalPos, localPos);
+
+        return true;
+    }
+
+    bool LocalPositionToGlobal(const CartesianPosition_2D &localPos, GeodeticPosition_2D &globalPos) const {
+        GeodeticPosition_3D origin = this->GetGlobalOrigin();
+        if(!origin.hasBeenSet()) {
+            printf("Origin has not been set. Cannot convert to global frame.\n");
+            return false;
+        }
+
+        // May need to switch case and cast input arguments properly...If so, do that in Dynamics aid and make the static members private to hide that switch case from the core
+        mace::pose::DynamicsAid::LocalPositionToGlobal(origin, localPos, globalPos);
+
+        return true;
+    }
+
+    // **************************** //
+    // ********* 3D to 2D ********* //
+    // **************************** //
+    bool GlobalPositionToLocal(const GeodeticPosition_3D &globalPos, CartesianPosition_2D &localPos) const {
+        GeodeticPosition_3D origin = this->GetGlobalOrigin();
+        if(!origin.hasBeenSet()) {
+            printf("Origin has not been set. Cannot convert to local frame.\n");
+            return false;
+        }
+
+        // May need to switch case and cast input arguments properly...If so, do that in Dynamics aid and make the static members private to hide that switch case from the core
+        mace::pose::DynamicsAid::GlobalPositionToLocal(origin, globalPos, localPos);
+
+        return true;
+    }
+
+    bool LocalPositionToGlobal(const CartesianPosition_3D &localPos, GeodeticPosition_2D &globalPos) const {
+        GeodeticPosition_3D origin = this->GetGlobalOrigin();
+        if(!origin.hasBeenSet()) {
+            printf("Origin has not been set. Cannot convert to global frame.\n");
+            return false;
+        }
+
+        // May need to switch case and cast input arguments properly...If so, do that in Dynamics aid and make the static members private to hide that switch case from the core
+        mace::pose::DynamicsAid::LocalPositionToGlobal(origin, localPos, globalPos);
+
+        return true;
+    }
+
+    // **************************** //
+    // ********* 2D to 3D ********* //
+    // **************************** //
+    bool GlobalPositionToLocal(const GeodeticPosition_2D &globalPos, CartesianPosition_3D &localPos) const {
+        GeodeticPosition_3D origin = this->GetGlobalOrigin();
+        if(!origin.hasBeenSet()) {
+            printf("Origin has not been set. Cannot convert to local frame.\n");
+            return false;
+        }
+
+        // May need to switch case and cast input arguments properly...If so, do that in Dynamics aid and make the static members private to hide that switch case from the core
+        mace::pose::DynamicsAid::GlobalPositionToLocal(origin, globalPos, localPos);
+
+        return true;
+    }
+
+    bool LocalPositionToGlobal(const CartesianPosition_2D &localPos, GeodeticPosition_3D &globalPos) const {
+        GeodeticPosition_3D origin = this->GetGlobalOrigin();
+        if(!origin.hasBeenSet()) {
+            printf("Origin has not been set. Cannot convert to global frame.\n");
+            return false;
+        }
+
+        // May need to switch case and cast input arguments properly...If so, do that in Dynamics aid and make the static members private to hide that switch case from the core
+        mace::pose::DynamicsAid::LocalPositionToGlobal(origin, localPos, globalPos);
+
+        return true;
+    }
+
+
+    // ============================================================================= //
+    // ============================================================================= //
+
+
 
     //!
     //! \brief GetGridSpacing Get the grid spacing (used for RTA grid generation)

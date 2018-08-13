@@ -357,9 +357,23 @@ void GUItoMACE::testFunction1(const int &vehicleID)
 
 void GUItoMACE::testFunction2(const int &vehicleID)
 {
-    m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
-        ptr->RequestDummyFunction(this, vehicleID);
-    });
+//    m_parent->NotifyListeners([&](MaceCore::IModuleEventsGroundStation* ptr){
+//        ptr->RequestDummyFunction(this, vehicleID);
+//    });
+
+
+    Position<mace::pose::GeodeticPosition_3D> globalPos3D;
+    Position<mace::pose::CartesianPosition_3D> localPos3D(0,0,0);
+    Position<mace::pose::GeodeticPosition_2D> globalPos2D;
+    Position<mace::pose::CartesianPosition_2D> localPos2D(0,0);
+    // 3D to 3D
+    m_parent->getDataObject()->LocalPositionToGlobal(localPos3D, globalPos3D);
+    // 2D to 2D
+    m_parent->getDataObject()->LocalPositionToGlobal(localPos2D, globalPos2D);
+    // 3D to 2D
+    m_parent->getDataObject()->LocalPositionToGlobal(localPos3D, globalPos2D);
+    // 2D to 3D
+    m_parent->getDataObject()->LocalPositionToGlobal(localPos2D, globalPos3D);
 }
 
 //!
