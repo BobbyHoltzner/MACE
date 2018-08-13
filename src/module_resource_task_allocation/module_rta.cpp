@@ -137,23 +137,14 @@ void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
             else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateGlobalPositionTopic> globalPositionData = std::make_shared<DataStateTopic::StateGlobalPositionTopic>();
                 m_VehicleDataTopic.GetComponent(globalPositionData, read_topicDatagram);
+                Position<GeodeticPosition_3D> globalPos(globalPositionData->getX(), globalPositionData->getY(), globalPositionData->getZ());
 
                 // Update vehicle position:
-                Position<CartesianPosition_2D> tmpPos;
-                DataState::StateLocalPosition localPositionData;
-                DataState::StateGlobalPosition tmpGlobalOrigin;
-                mace::pose::GeodeticPosition_3D origin = this->getDataObject()->GetGlobalOrigin();
-                CommandItem::SpatialHome tmpSpatialHome(origin);
+                Position<CartesianPosition_2D> localPositionData;
+                this->getDataObject()->GlobalPositionToLocal(globalPos, localPositionData);
 
-                tmpGlobalOrigin.setLatitude(tmpSpatialHome.getPosition().getX());
-                tmpGlobalOrigin.setLongitude(tmpSpatialHome.getPosition().getY());
-                tmpGlobalOrigin.setAltitude(tmpSpatialHome.getPosition().getZ());
-
-                DataState::PositionalAid::GlobalPositionToLocal(tmpGlobalOrigin, *globalPositionData, localPositionData);
-                tmpPos.setXPosition(localPositionData.getX());
-                tmpPos.setYPosition(localPositionData.getY());
                 // Insert/update into map
-                m_vehicles[senderID] = tmpPos;
+                m_vehicles[senderID] = localPositionData;
 
             }else if(componentsUpdated.at(i) == DataStateTopic::StateLocalPositionTopic::Name()) {
                 std::shared_ptr<DataStateTopic::StateLocalPositionTopic> localPositionData = std::make_shared<DataStateTopic::StateLocalPositionTopic>();

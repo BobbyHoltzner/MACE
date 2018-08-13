@@ -172,9 +172,8 @@ void ModulePathPlanningNASAPhase2::ConfigureModule(const std::shared_ptr<MaceCor
             m_LocalOperationalBoundary.clearPolygon();
             for(size_t i = 0; i < boundaryPolygon.polygonSize(); i++)
             {
-                mace::pose::GeodeticPosition_3D vertex(boundaryPolygon.at(i).getLatitude(),boundaryPolygon.at(i).getLongitude(),0.0);
                 mace::pose::CartesianPosition_3D localVertex;
-                mace::pose::DynamicsAid::GlobalPositionToLocal(m_globalOrigin,vertex,localVertex);
+                mace::pose::DynamicsAid::GlobalPositionToLocal(m_globalOrigin, boundaryPolygon.at(i), localVertex);
                 m_LocalOperationalBoundary.appendVertex(mace::pose::CartesianPosition_2D(localVertex.getXPosition(),localVertex.getYPosition()));
             }
 

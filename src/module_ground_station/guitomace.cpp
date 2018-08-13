@@ -139,8 +139,6 @@ void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
 {
     BoundaryItem::BoundaryList operationalBoundary;
 
-    mace::pose::GeodeticPosition_3D origin = m_parent->getDataObject()->GetGlobalOrigin();
-
     QJsonObject tmpBoundaryObj = QJsonDocument::fromJson(jsonObj["vehicleCommand"].toString().toUtf8()).object();
     QJsonArray boundary = tmpBoundaryObj.value("boundary").toArray();
 
@@ -151,12 +149,9 @@ void GUItoMACE::setEnvironmentVertices(const QJsonObject &jsonObj)
         double tmpAlt = v.toObject().value("alt").toDouble();
 
         mace::pose::GeodeticPosition_3D vertexGlobal(tmpLat,tmpLon,tmpAlt);
-        mace::pose::CartesianPosition_3D vertexLocal3D;
 
-        if(origin.hasBeenSet()) {
-            mace::pose::DynamicsAid::GlobalPositionToLocal(origin,vertexGlobal,vertexLocal3D);
-            mace::pose::CartesianPosition_2D vertexLocal2D(vertexLocal3D.getXPosition(),vertexLocal3D.getYPosition());
-
+        mace::pose::CartesianPosition_2D vertexLocal2D;
+        if(m_parent->getDataObject()->GlobalPositionToLocal(vertexGlobal, vertexLocal2D)) {
             operationalBoundary.appendVertexItem(vertexLocal2D);
         }
     }
