@@ -6,6 +6,7 @@
 #include "data/mission_execution_state.h"
 #include "data_generic_state_item/state_item_components.h"
 #include "data_generic_command_item/command_item_components.h"
+#include "data_generic_item/data_generic_item_systemtime.h"
 
 //A vehicle module can indicate something has happened
 
@@ -60,6 +61,13 @@ public:
     //! \param current
     //!
     virtual void GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current) = 0;
+
+    //!
+    //! \brief GVEvents_NewSystemTime Emitted to alert the core that a module connected to a vehicle has an updated system time
+    //! \param sender Sender module
+    //! \param systemTime New system time
+    //!
+    virtual void GVEvents_NewSystemTime(const ModuleBase *sender, const DataGenericItem::DataGenericItem_SystemTime &systemTime) = 0;
 
 };
 

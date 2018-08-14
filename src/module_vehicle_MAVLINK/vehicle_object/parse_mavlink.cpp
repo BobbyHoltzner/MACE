@@ -37,10 +37,17 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         systemTime.setTimeSinceEpoch(decodedMSG.time_unix_usec);
         systemTime.setTimeSinceBoot(decodedMSG.time_boot_ms);
 
-        if(state->vehicleSystemTime.set(systemTime)) {
-            std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemTime> ptrSystemTime = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemTime>(systemTime);
-            if(this->m_CB){
-                this->m_CB->cbi_VehicleStateData(systemID, ptrSystemTime);
+        // Check the GPS fix is greater than 3D before updating system time
+        DataGenericItem::DataGenericItem_GPS gpsItem = state->vehicleGPSStatus.get();
+        if(gpsItem.is3DorGreater()) {
+            // Check our system time is different from prior data before setting system time:
+            if(systemTime != state->vehicleSystemTime.get()) {
+                if(state->vehicleSystemTime.set(systemTime)) {
+                    std::shared_ptr<DataGenericItem::DataGenericItem_SystemTime> ptrSystemTime = std::make_shared<DataGenericItem::DataGenericItem_SystemTime>(systemTime);
+                    if(this->m_CB){
+                        this->m_CB->cbi_VehicleSystemTime(systemID, ptrSystemTime);
+                    }
+                }
             }
         }
 

@@ -364,6 +364,13 @@ public:
     virtual void GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current);
 
     //!
+    //! \brief GVEvents_NewSystemTime Emitted to alert the core that a module connected to a vehicle has an updated system time
+    //! \param sender Sender module
+    //! \param systemTime New system time
+    //!
+    virtual void GVEvents_NewSystemTime(const ModuleBase *sender, const DataGenericItem::DataGenericItem_SystemTime &systemTime);
+
+    //!
     //! \brief ConfirmedOnboardVehicleMission Confirm onboard mission event
     //! \param sender Sender module
     //! \param missionKey Mission key to confirm

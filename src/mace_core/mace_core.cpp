@@ -255,12 +255,6 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 
         m_DataFusion->setTopicDatagram(topicName, sender.ID, time, value);
 
-        if(value.HasNonTerminal("systemTime")) {
-            std::shared_ptr<TopicDatagram> datagram = value.GetNonTerminal("systemTime");
-            uint64_t usec = datagram->GetTerminal<uint64_t>("usec_since_epoch");
-            m_DataFusion->updateCurrentSystemTime(usec);
-        }
-
         //list through all interested parties and notify of new topic data
         if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
         {
@@ -299,12 +293,6 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
     std::vector<std::string> components = value.ListNonTerminals();
 
     m_DataFusion->setTopicDatagram(topicName, senderID, time, value);
-
-    if(value.HasNonTerminal("systemTime")) {
-        std::shared_ptr<TopicDatagram> datagram = value.GetNonTerminal("systemTime");
-        uint64_t usec = datagram->GetTerminal<uint64_t>("usec_since_epoch");
-        m_DataFusion->updateCurrentSystemTime(usec);
-    }
 
     ModuleCharacteristic sender;
     sender.ID = senderID;
@@ -845,6 +833,18 @@ void MaceCore::GVEvents_MissionItemCurrent(const void *sender, const MissionItem
     UNUSED(sender);
     m_DataFusion->updateCurrentMissionItem(current);
 }
+
+//!
+//! \brief GVEvents_NewSystemTime Emitted to alert the core that a module connected to a vehicle has an updated system time
+//! \param sender Sender module
+//! \param systemTime New system time
+//!
+void MaceCore::GVEvents_NewSystemTime(const ModuleBase *sender, const DataGenericItem::DataGenericItem_SystemTime &systemTime)
+{
+    m_DataFusion->updateCurrentSystemTimeDelta(systemTime.getUsecSinceEpoch());
+}
+
+
 
 //!
 //! \brief ConfirmedOnboardVehicleMission Confirm onboard mission event

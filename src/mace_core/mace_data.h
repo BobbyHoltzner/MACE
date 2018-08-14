@@ -186,6 +186,7 @@ public:
         return gridSpacing;
     }
 
+
     //!
     //! \brief GetEnvironmentBoundary Get the environment boundary
     //! \return Vector of positions that make up the boundary
@@ -1152,16 +1153,16 @@ private:
 public:
 
     //!
-    //! \brief setDeltaTime_MAVLINK Given the microseconds since epoch (from MAVLINK SYSTEM_TIME message), set the delta between epoch and SYSTEMCLOCK (in milliseconds)
+    //! \brief updateCurrentSystemTimeDelta Given the microseconds since epoch (from MAVLINK SYSTEM_TIME message), set the delta between epoch and SYSTEMCLOCK (in milliseconds)
     //! \param microsecondsSinceEpoch Microseconds since epoch (from MALINK SYSTEM_TIME message)
     //!
-    void updateCurrentSystemTime(const uint64_t &microsecondsSinceEpoch);
+    void updateCurrentSystemTimeDelta(const uint64_t &microsecondsSinceEpoch);
 
     //!
-    //! \brief updateCurrentDeltaTime If the current offset time is known, set the current deltaT in milliseconds
+    //! \brief setCurrentDeltaTime If the current offset time is known, set the current deltaT in milliseconds
     //! \param millseconds Value to set the member variable storing offset time to
     //!
-    void updateCurrentDeltaTime(const double &millseconds);
+    void setCurrentDeltaTime(const double &millseconds);
 
     //!
     //! \brief MaceData::getMAVLINKAdjustedTime Get the current time adjusted with the delta time

@@ -74,7 +74,7 @@ void VehicleObject_MAVLINK::parseMessage(const mavlink_message_t *msg){
         {
             std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPSStatus = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(gpsItem);
             if(this->m_CB != NULL)
-                this->m_CB->cbi_VehicleStateData(systemID,ptrGPSStatus);
+                this->m_CB->cbi_VehicleStateData(systemID, ptrGPSStatus);
         }
 
         break;

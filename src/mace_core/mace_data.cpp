@@ -568,10 +568,10 @@ void MaceData::updateBoundariesNewOrigin(const double &distance, const double &b
 
 
 //!
-//! \brief updateCurrentSystemTime Given the microseconds since epoch (from MAVLINK SYSTEM_TIME message), set the delta between epoch and SYSTEMCLOCK (in milliseconds)
+//! \brief updateCurrentSystemTimeDelta Given the microseconds since epoch (from MAVLINK SYSTEM_TIME message), set the delta between epoch and SYSTEMCLOCK (in milliseconds)
 //! \param microsecondsSinceEpoch Microseconds since epoch (from MALINK SYSTEM_TIME message)
 //!
-void MaceData::updateCurrentSystemTime(const uint64_t &microsecondsSinceEpoch) {
+void MaceData::updateCurrentSystemTimeDelta(const uint64_t &microsecondsSinceEpoch) {
     Data::EnvironmentTime currentTime;
     Data::EnvironmentTime::CurrentTime(Data::Devices::SYSTEMCLOCK, currentTime);
 
@@ -580,10 +580,10 @@ void MaceData::updateCurrentSystemTime(const uint64_t &microsecondsSinceEpoch) {
 }
 
 //!
-//! \brief updateCurrentDeltaTime If the current offset time is known, set the current deltaT in milliseconds
+//! \brief setCurrentDeltaTime If the current offset time is known, set the current deltaT in milliseconds
 //! \param millseconds Value to set the member variable storing offset time to
 //!
-void MaceData::updateCurrentDeltaTime(const double &milliseconds) {
+void MaceData::setCurrentDeltaTime(const double &milliseconds) {
     this->deltaT_msec = milliseconds;
 }
 

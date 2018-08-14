@@ -103,6 +103,13 @@ public:
         return VDOP;
     }
 
+    bool is3DorGreater() {
+        if(this->getGPSFix() >= GPSFixType::GPS_FIX_3D_FIX) {
+            return true;
+        }
+        return false;
+    }
+
     mace_gps_raw_int_t getMACECommsObject() const;
     mace_message_t getMACEMsg(const uint8_t systemID, const uint8_t compID, const uint8_t chan) const;
 

@@ -243,6 +243,17 @@ public:
     }
 
     //!
+    //! \brief cbi_VehicleSystemTime Callback tied to Vehicle System Time updates
+    //! \param systemID Vehicle ID generating the system time update
+    //! \param systemTime System time
+    //!
+    virtual void cbi_VehicleSystemTime(const int &systemID, std::shared_ptr<DataGenericItem::DataGenericItem_SystemTime> systemTime) {
+        ModuleVehicleMavlinkBase::NotifyListeners([&](MaceCore::IModuleEventsVehicle* ptr) {
+            ptr->GVEvents_NewSystemTime(this, *systemTime);
+        });
+    }
+
+    //!
     //! \brief cbi_VehicleMissionData Callback tied to Vehicle Mission data updates
     //! \param systemID Vehicle ID generating the mission data
     //! \param data Mission data
