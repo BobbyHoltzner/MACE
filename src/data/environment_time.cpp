@@ -345,6 +345,25 @@ double EnvironmentTime::ToSecSinceEpoch() const
     return secDateSinceEpoch  + (this->microsecond/1000000.0);
 }
 
+//!
+//! \brief Returns the number of milliseconds from epoch
+//! \return Number of milleseconds from epoch
+//!
+double EnvironmentTime::ToMillisecondsSinceEpoch() const
+{
+    QDateTime datetime;
+    datetime.setMSecsSinceEpoch(0);
+    QDate date;
+    date.setDate(this->year, this->month, this->dayOfMonth);
+    datetime.setDate(date);
+
+    QTime time;
+    time.setHMS(this->hour, this->minute, this->second, this->millisecond);
+    datetime.setTime(time);
+
+    double mSecondsSinceEpoch = datetime.toMSecsSinceEpoch();
+    return mSecondsSinceEpoch  + (this->microsecond/1000.0);
+}
 
 //!
 //! \brief Construct time from seconds since epoch.

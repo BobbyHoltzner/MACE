@@ -162,6 +162,11 @@ public:
      */
     double ToSecSinceEpoch() const;
 
+    //!
+    //! \brief Returns the number of milliseconds from epoch
+    //! \return Number of milleseconds from epoch
+    //!
+    double ToMillisecondsSinceEpoch() const;
 
     //!
     //! \brief Construct time from seconds since epoch.

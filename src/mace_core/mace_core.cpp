@@ -258,7 +258,7 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
         if(value.HasNonTerminal("systemTime")) {
             std::shared_ptr<TopicDatagram> datagram = value.GetNonTerminal("systemTime");
             uint64_t usec = datagram->GetTerminal<uint64_t>("usec_since_epoch");
-            m_DataFusion->setDeltaTime_MAVLINK(usec);
+            m_DataFusion->updateCurrentSystemTime(usec);
         }
 
         //list through all interested parties and notify of new topic data
@@ -303,7 +303,7 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
     if(value.HasNonTerminal("systemTime")) {
         std::shared_ptr<TopicDatagram> datagram = value.GetNonTerminal("systemTime");
         uint64_t usec = datagram->GetTerminal<uint64_t>("usec_since_epoch");
-        m_DataFusion->setDeltaTime_MAVLINK(usec);
+        m_DataFusion->updateCurrentSystemTime(usec);
     }
 
     ModuleCharacteristic sender;

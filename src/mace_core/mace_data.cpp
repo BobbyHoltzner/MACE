@@ -568,30 +568,35 @@ void MaceData::updateBoundariesNewOrigin(const double &distance, const double &b
 
 
 //!
-//! \brief setDeltaTime_MAVLINK Given the microseconds since epoch (from MAVLINK SYSTEM_TIME message), set the delta between epoch and SYSTEMCLOCK (in milliseconds)
+//! \brief updateCurrentSystemTime Given the microseconds since epoch (from MAVLINK SYSTEM_TIME message), set the delta between epoch and SYSTEMCLOCK (in milliseconds)
 //! \param microsecondsSinceEpoch Microseconds since epoch (from MALINK SYSTEM_TIME message)
 //!
-void MaceData::setDeltaTime_MAVLINK(uint64_t microsecondsSinceEpoch) {
+void MaceData::updateCurrentSystemTime(const uint64_t &microsecondsSinceEpoch) {
     Data::EnvironmentTime currentTime;
     Data::EnvironmentTime::CurrentTime(Data::Devices::SYSTEMCLOCK, currentTime);
 
-    double secSinceEpoch = microsecondsSinceEpoch/1000000.0;
-    double diffSec = secSinceEpoch - currentTime.ToSecSinceEpoch();
-
-    double msec = diffSec * 1000.0;
-    this->deltaT_msec = msec;
+    double mSecSinceEpoch = microsecondsSinceEpoch/1000.0;
+    this->deltaT_msec = mSecSinceEpoch - currentTime.ToMillisecondsSinceEpoch();
 }
 
 //!
-//! \brief MaceData::getMAVLINKAdjustedTime Get the current time adjusted with the delta time (between SYSTEMCLOCK and MAVLINK SYSTEM_TIME since epoch)
-//! \return EnvironmentTime container with time since epoch, adjusted with delta from MAVLINK SYSTEM_TIME
+//! \brief updateCurrentDeltaTime If the current offset time is known, set the current deltaT in milliseconds
+//! \param millseconds Value to set the member variable storing offset time to
 //!
-Data::EnvironmentTime MaceData::getMAVLINKAdjustedTime() {
+void MaceData::updateCurrentDeltaTime(const double &milliseconds) {
+    this->deltaT_msec = milliseconds;
+}
+
+//!
+//! \brief MaceData::getCurrentSystemTime_Adjusted Get the current time adjusted with the most recent delta time
+//! \return EnvironmentTime container with time since epoch, adjusted with delta when calling updateCurrentSystemTime
+//!
+Data::EnvironmentTime MaceData::getCurrentSystemTime_Adjusted() const {
     Data::EnvironmentTime currentTime;
     Data::EnvironmentTime::CurrentTime(Data::Devices::SYSTEMCLOCK, currentTime);
 
     double delta_msec = this->getDeltaT_msec();
-    double delta_sec = delta_msec / 1000.0;
+    double delta_sec = this->getDeltaT_msec() / 1000.0;
     Data::EnvironmentTime rtnTime;
     rtnTime = Data::EnvironmentTime::FromSecSinceEpoch(currentTime.ToSecSinceEpoch() + delta_sec);
     return rtnTime;
