@@ -329,7 +329,10 @@ void MaceCore::Event_NewModule(const ModuleBase* sender, const ModuleCharacteris
     //if event came from external link then its a remote module, otherwise assume local
     if(characterstic.MaceInstance != this->getMaceInstanceID())
     {
-        this->m_DataFusion->AddRemoteModule(characterstic, type);
+        if(this->m_DataFusion->AddRemoteModule(characterstic, type) == true)
+        {
+            printf("New Remote Module. Mace: %d ID: %d Type: %s\n", characterstic.MaceInstance, characterstic.ModuleID, ModuleBase::ModuleTypeToString(type).c_str());
+        }
     }
     else {
         this->m_DataFusion->AddLocalModule(characterstic, type);
@@ -739,10 +742,30 @@ void MaceCore::ExternalEvent_NewOnboardMission(const ModuleBase *sender, const M
         return;
     }
 
+    ///////////////////////
+    ///MTB Logic goes here to decide if this mace instance is interested in the mission
+    ///    For now I am going to only assume interest if there is a GS present
+    ///    Other things could be done here, the RTA or PP module can be consulted and asked if interested.
+    ///////////////////////
+    ///
+    bool interest = false;
+
     //If we have an GS module, assume it is interested in downloading mission and request external link to download mission from aircraft
     if(m_GroundStation != NULL)
     {
-        ModuleCharacteristic requestFrom = m_GroundStation->GetCharacteristic();
+        interest = true;
+    }
+
+    ///////////////////////
+    /// END interst determination
+    ///////////////////////
+
+    //if there is interest ask for download from module that sent the mission notification.
+    if(interest == true)
+    {
+        ModuleCharacteristic requestFrom;
+        requestFrom.MaceInstance = this->getMaceInstanceID();
+        requestFrom.ModuleID = 0;
 
         if(sender->ModuleClass() == ModuleClasses::EXTERNAL_LINK)
         {
@@ -1008,10 +1031,15 @@ void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::B
     {
         list_str = "global";
     }
-    std::vector<int> list = characterstic.List();
-    for(auto it = list.cbegin() ; it != list.cend() ; ++it)
+    if(characterstic.List().size() > 0)
     {
-        list_str += std::to_string(*it) + " ";
+        list_str += "[ ";
+        std::vector<int> list = characterstic.List();
+        for(auto it = list.cbegin() ; it != list.cend() ; ++it)
+        {
+            list_str += std::to_string(*it) + " ";
+        }
+        list_str += "]";
     }
     printf("Mace Core: Received a new Boundary\n  verticies: %d\n  Type: %s\n  Vehicles: %s\n", boundary.getQueueSize(), BoundaryItem::BoundaryTypeToString(characterstic.Type()).c_str(), list_str.c_str());
 

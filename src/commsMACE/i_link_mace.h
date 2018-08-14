@@ -22,14 +22,14 @@ public:
 
     }
 
-    void AddListener(const ILinkEvents* ptr)
+    void AddListener(ILinkEvents* ptr)
     {
         m_Listeners.push_back(ptr);
     }
 
-    void EmitEvent(const std::function<void(const ILinkEvents*)> &func) const
+    void EmitEvent(const std::function<void(ILinkEvents*)> &func) const
     {
-        for(const ILinkEvents* listener : m_Listeners)
+        for(ILinkEvents* listener : m_Listeners)
         {
             func(listener);
         }
@@ -88,7 +88,7 @@ private:
 
     std::string m_LinkName;
 
-    std::vector<const ILinkEvents*> m_Listeners;
+    std::vector<ILinkEvents*> m_Listeners;
 };
 
 } //END Comms

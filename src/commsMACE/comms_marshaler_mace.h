@@ -2,6 +2,7 @@
 #define COMMS_MARSHALER_MACE_H
 
 #include "common/common.h"
+#include "common/watchdog.h"
 
 #include "commsmace_global.h"
 
@@ -110,7 +111,7 @@ public:
     bool HasResource(const std::string &name, const Resource &resource) const;
 
 
-    void RequestRemoteResources(const std::string &name);
+    void RequestRemoteResources(const std::string &name, const std::vector<Resource> &expected = {});
 
 
     //!
@@ -160,7 +161,7 @@ private:
     /// React to Link Events
     //////////////////////////////////////////////////////////////
 
-    virtual void AddedExternalResource(ILink *link_ptr, const Resource &resource) const;
+    virtual void AddedExternalResource(ILink *link_ptr, const Resource &resource);
 
     virtual void RemovedExternalResource(ILink *link_ptr, const Resource &resource) const;
 
@@ -236,6 +237,12 @@ private:
     int m_MavlinkChannelsUsedBitMask;
 
     std::unordered_map<ILink*, uint8_t> m_MavlinkChannels;
+
+    std::unordered_map<const ILink*, std::unordered_map<std::string, std::chrono::high_resolution_clock::time_point>> m_LastRemoteResourceRequestTime;
+
+    std::unordered_map<const ILink*, std::vector<std::tuple<Resource, uint8_t>>> m_ExpectedResource;
+
+    ContinuousWatchdog *m_ExpectedResourceWatchdog;
 
 };
 

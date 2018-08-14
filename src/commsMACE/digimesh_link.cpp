@@ -1,5 +1,14 @@
 #include "digimesh_link.h"
 
+//Set this flag to cause random failures on digimesh link. Usefull for testing communication
+//#define CAUSE_RANDOM_FAILURES
+
+#ifdef CAUSE_RANDOM_FAILURES
+    static const int G_FAILURETEST_CHANCE = 30;
+    int G_NUM_CONSECUTIVE_FAILURES = 0;
+    static const int G_MAX_CONSECUTIVE_FAILURES = 2;
+#endif
+
 namespace CommsMACE
 {
 
@@ -13,7 +22,9 @@ DigiMeshLink::DigiMeshLink(const DigiMeshConfiguration &config) :
     _config(config),
     m_Link(NULL)
 {
-
+#ifdef CAUSE_RANDOM_FAILURES
+    std::srand(std::time(nullptr));
+#endif
 }
 
 DigiMeshLink::~DigiMeshLink()
@@ -51,14 +62,19 @@ void DigiMeshLink::WriteBytes(const char *bytes, int length, const OptionalParam
             value.AddValueToResourceKey(target().IDAt(i));
         }
 
-        //std::srand(std::time(nullptr));
-        //if((std::rand() % 10) < 5)
-        //{
-        //    printf("!!!!Madison Testing!!! Causing a transmission failure\n");
-        //}
-        //else {
+#ifdef CAUSE_RANDOM_FAILURES
+        if((std::rand() % 100) < G_FAILURETEST_CHANCE && G_NUM_CONSECUTIVE_FAILURES <= G_MAX_CONSECUTIVE_FAILURES)
+        {
+            printf("!!!!Madison Testing!!! Causing a transmission failure. THIS SHOULD NOT HAPPEN IN MASTER, CHECK CAUSE_RANDOM_FAILURES VARIABLE IN DIGIMESH_LINK.CPP\n");
+            G_NUM_CONSECUTIVE_FAILURES++;
+        }
+        else {
+            G_NUM_CONSECUTIVE_FAILURES = 0;
             m_Link->SendData(data, key, value);
-        //}
+        }
+#else
+        m_Link->SendData(data, key, value);
+#endif
     }
     else {
         m_Link->BroadcastData(data);
@@ -134,7 +150,7 @@ bool DigiMeshLink::Connect()
             r.Add(resourceKey.at(i), resourceValue.at(i));
         }
 
-        EmitEvent([this, &r](const ILinkEvents *ptr){ptr->AddedExternalResource(this, r);});
+        EmitEvent([this, &r](ILinkEvents *ptr){ptr->AddedExternalResource(this, r);});
     });
 
     m_Link->AddHandler_Data([this](const std::vector<uint8_t> &data){

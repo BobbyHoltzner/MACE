@@ -7,13 +7,6 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
     sender.MaceInstance = message->sysid;
     sender.ModuleID = message->compid;
 
-    if(this->getDataObject()->HasModule(sender) == false)
-    {
-        printf("Received a %d message but sending Module is unknown, IGNORING\n", message->msgid);
-        this->RequestRemoteResources();
-        return;
-    }
-
 
     switch ((int)message->msgid) {
     case MACE_MSG_ID_HEARTBEAT:
@@ -261,6 +254,7 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
 
     case MACE_MSG_ID_NEW_ONBOARD_MISSION:
     {
+        /*
         mace_new_onboard_mission_t decodedMSG;
         mace_msg_new_onboard_mission_decode(message,&decodedMSG);
 
@@ -272,6 +266,10 @@ void ModuleExternalLink::ParseForData(const mace_message_t* message){
         ModuleExternalLink::NotifyListeners([&](MaceCore::IModuleEventsExternalLink* ptr){
             ptr->ExternalEvent_NewOnboardMission(this, key);
         });
+
+        printf("Notified of Remote Mission. S_ID: %d M_ID: %d\n", key.m_systemID, key.m_missionID);
+
+        */
 
         //m_MissionController->requestMission(key, sender);
 

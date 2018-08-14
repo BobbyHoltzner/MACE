@@ -23,7 +23,6 @@ namespace ExternalLink {
 
         if(m_MissionsBeingFetching.find(data) != m_MissionsBeingFetching.cend())
         {
-            throw std::runtime_error("Mission is already being downloaded");
             return false;
         }
 
@@ -36,7 +35,7 @@ namespace ExternalLink {
 
         m_MissionsBeingFetching.insert({data, newItem});
 
-        std::cout << "Mission Controller: Sending Mission Request List" << std::endl;
+        std::cout << "Mission Controller: Sending Mission Request List. " << "S_ID: " << (int)data.m_systemID << " M_ID: " << (int)data.m_missionID << std::endl;
 
         return true;
     }
@@ -50,41 +49,46 @@ namespace ExternalLink {
 
         vehicleObj = this->GetModuleFromMAVLINKVehicleID(cmd.mission_system);
 
-        std::vector<std::tuple<MissionKey, MissionList>> missions;
-        CONTROLLER_MISSION_TYPE::FetchDataFromKey(key, missions);
 
-        if(missions.size() == 0)
+
+        //if we don't know the mission being upload fetch it.
+        //These code is generally executed, the exception being when the receiver doesn't receive mace_mission_count_t message and resends mace_mission_request_list_t
+        if(m_MissionsUploading.find(sender) == m_MissionsUploading.cend())
         {
-            return false;
+            m_MissionsUploading.insert({sender, {}});
         }
-        if(missions.size() > 1)
+        if(m_MissionsUploading.at(sender).find(key) == m_MissionsUploading.at(sender).cend())
         {
-            throw std::runtime_error("Multiple missions assigned to the same key returned, This is a non-op");
+            std::vector<std::tuple<MissionKey, MissionList>> missions;
+            Controllers::DataItem<MissionItem::MissionKey, MissionItem::MissionList>::FetchDataFromKey(key, missions);
+
+            if(missions.size() == 0)
+            {
+                return false;
+            }
+            if(missions.size() > 1)
+            {
+                throw std::runtime_error("Multiple missions assigned to the same key returned, This is a non-op");
+            }
+            if(std::get<0>(missions.at(0)) != key)
+            {
+                throw std::runtime_error("Requesting a specific missionkey did not return the same key, This is a non-op");
+            }
+
+            MissionList mission = std::get<1>(missions.at(0));
+            m_MissionsUploading.at(sender).insert({key, mission});
         }
-        if(std::get<0>(missions.at(0)) != key)
-        {
-            throw std::runtime_error("Requesting a specific missionkey did not return the same key, This is a non-op");
-        }
 
 
-        if(m_MissionsUploading.find(key) != m_MissionsUploading.cend())
-        {
-            std::cout << "Mission Upload Progress: The mission that was requested to be transmitted is already being transmitted" << std::endl;
-            return false;
-        }
-        MissionList mission = std::get<1>(missions.at(0));
-        m_MissionsUploading.insert({key, mission});
-
-
-        rtn.count = m_MissionsUploading.at(key).getQueueSize();
-        rtn.target_system = m_MissionsUploading.at(key).getVehicleID();
+        rtn.count = m_MissionsUploading.at(sender).at(key).getQueueSize();
+        rtn.target_system = m_MissionsUploading.at(sender).at(key).getVehicleID();
         rtn.mission_system = key.m_systemID;
         rtn.mission_creator = key.m_creatorID;
         rtn.mission_id = key.m_missionID;
         rtn.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);
         rtn.mission_state = static_cast<MAV_MISSION_STATE>(key.m_missionState);
 
-        std::cout << "Mission Controller: Sending Mission Count" << std::endl;
+        std::cout << "Mission Controller: Sending Mission Count. " << "S_ID: " << (int)cmd.mission_system << " M_ID: " << (int)cmd.mission_id << std::endl;
 
         return true;
     }
@@ -121,7 +125,7 @@ namespace ExternalLink {
         request.target_system = mission.target_system;
         request.seq = 0;
 
-        std::cout << "Mission Controller: Requesting Item " << 0 << std::endl;
+        std::cout << "Mission Controller: Requesting Item " << 0 << " S_ID: " << (int)mission.mission_system << " M_ID: " << (int)mission.mission_id << std::endl;
 
         return true;
     }
@@ -166,7 +170,7 @@ namespace ExternalLink {
         request.target_system = mission.target_system;
         request.seq = 0;
 
-        std::cout << "Mission Controller: Requesting Item " << 0 << std::endl;
+        std::cout << "Mission Controller: Requesting Item " << 0 << " S_ID: " << (int)mission.mission_system << " M_ID: " << (int)mission.mission_id << std::endl;
 
         return true;
     }
@@ -176,16 +180,22 @@ namespace ExternalLink {
 
 
 
-    bool ControllerMission::BuildData_Send(const mace_mission_request_item_t &missionRequest, const MaceCore::ModuleCharacteristic &sender, mace_mission_item_t &missionItem, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
+    bool ControllerMission::BuildData_Send(const mace_mission_request_item_t &missionRequest, const MaceCore::ModuleCharacteristic &sender, mace_mission_item_t &missionItem, MaceCore::ModuleCharacteristic &moduleFrom, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
     {
         UNUSED(sender);
         MissionItem::MissionKey key(missionRequest.mission_system,missionRequest.mission_creator,missionRequest.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionRequest.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionRequest.mission_state));
         receiveQueueObj = key;
         respondQueueObj = key;
 
-        vehicleObj = this->GetModuleFromMAVLINKVehicleID(missionRequest.mission_system);
+        moduleFrom = this->GetModuleFromMAVLINKVehicleID(missionRequest.mission_system);
 
-        if(m_MissionsUploading.find(key) == m_MissionsUploading.cend())
+        if(m_MissionsUploading.find(sender) == m_MissionsUploading.cend())
+        {
+            if(CONTROLLER_MISSION_TYPE::mLog)
+                CONTROLLER_MISSION_TYPE::mLog->error("MissionController_ExternalLink has been told to transmit a mission item from a mission which keys dont match the contained.");
+            return false;
+        }
+        if(m_MissionsUploading.at(sender).find(key) == m_MissionsUploading.at(sender).cend())
         {
             if(CONTROLLER_MISSION_TYPE::mLog)
                 CONTROLLER_MISSION_TYPE::mLog->error("MissionController_ExternalLink has been told to transmit a mission item from a mission which keys dont match the contained.");
@@ -193,7 +203,7 @@ namespace ExternalLink {
         }
 
         int index = missionRequest.seq;
-        if(index >= m_MissionsUploading[key].getQueueSize())
+        if(index >= m_MissionsUploading.at(sender)[key].getQueueSize())
         {
             //this indicates that RX system requested something OOR
             if(CONTROLLER_MISSION_TYPE::mLog)
@@ -204,12 +214,12 @@ namespace ExternalLink {
         if(CONTROLLER_MISSION_TYPE::mLog)
             CONTROLLER_MISSION_TYPE::mLog->info("MissionController_ExternalLink has been told to transmit a mission item with index " + std::to_string(index) + ".");
 
-        std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = this->m_MissionsUploading[key].getMissionItem(index);
+        std::shared_ptr<CommandItem::AbstractCommandItem> ptrItem = this->m_MissionsUploading.at(sender)[key].getMissionItem(index);
 
         DataInterface_MACE::Helper_MissionMACEtoCOMMS::MACEMissionToCOMMSMission(ptrItem,index,missionItem);
         DataInterface_MACE::Helper_MissionMACEtoCOMMS::updateMissionKey(key,missionItem);
 
-        std::cout << "Mission Controller: Sending Item " << index << std::endl;
+        std::cout << "Mission Controller: Sending Item " << index << " S_ID: " << (int)missionRequest.mission_system << " M_ID: " << (int)missionRequest.mission_id << std::endl;
 
         return true;
     }
@@ -278,7 +288,7 @@ namespace ExternalLink {
         request.mission_state = (uint8_t)key.m_missionState;
         request.seq = indexRequest;
 
-        std::cout << "Mission Controller: Requesting Item " << indexRequest << std::endl;
+        std::cout << "Mission Controller: Requesting Item " << indexRequest << " S_ID: " << (int)missionItem.mission_system << " M_ID: " << (int)missionItem.mission_id << std::endl;
 
         return true;
     }
@@ -287,7 +297,7 @@ namespace ExternalLink {
 
 
 
-    bool ControllerMission::Construct_FinalObjectAndResponse(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender, mace_mission_ack_t &ackMission, std::shared_ptr<MissionItem::MissionList> &finalList, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &queueObj)
+    bool ControllerMission::Construct_FinalObjectAndResponse(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender, mace_mission_ack_t &ackMission, std::shared_ptr<MissionItem::MissionList> &finalList, MaceCore::ModuleCharacteristic &moduleFor, MissionItem::MissionKey &queueObj)
     {
         UNUSED(sender);
         //MTB this isn't quite right, but I think it only effects more or less data fields that are not used.
@@ -298,7 +308,7 @@ namespace ExternalLink {
         MissionItem::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionItem.mission_state));
         queueObj = key;
 
-        vehicleObj = this->GetModuleFromMAVLINKVehicleID(key.m_systemID);
+        moduleFor = m_MissionsBeingFetching[key].requester;
 
         //check if mission item received is part of a mission we are activly downloading
         if(this->m_MissionsBeingFetching.find(key) == m_MissionsBeingFetching.cend())
@@ -362,7 +372,7 @@ namespace ExternalLink {
         finalList = std::make_shared<MissionItem::MissionList>(m_MissionsBeingFetching[key].mission);
         m_MissionsBeingFetching.erase(key);
 
-        std::cout << "Mission Controller: Sending Final ACK" << std::endl;
+        std::cout << "Mission Controller: Sending Final ACK" << " S_ID: " << (int)missionItem.mission_system << " M_ID: " << (int)missionItem.mission_id << std::endl;
 
         return true;
     }
@@ -370,11 +380,22 @@ namespace ExternalLink {
     bool ControllerMission::Finish_Receive(const mace_mission_ack_t &missionItem, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MissionItem::MissionKey &queueObj)
     {
         MissionItem::MissionKey key(missionItem.mission_system, missionItem.mission_creator, missionItem.mission_id, static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type), static_cast<MissionItem::MISSIONSTATE>(missionItem.cur_mission_state));
+
+        //if we aren't uploading a mission then there is nothing to ack.
+        if(m_MissionsUploading.find(sender) == m_MissionsUploading.cend())
+        {
+            return false;
+        }
+        if(m_MissionsUploading.at(sender).find(key) == m_MissionsUploading.at(sender).cend())
+        {
+            return false;
+        }
+
         queueObj = key;
 
         ack = missionItem.mission_result;
 
-        std::cout << "Mission Controller: Received Final ACK" << std::endl;
+        std::cout << "Mission Controller: Received Final ACK" << " S_ID: " << (int)missionItem.mission_system << " M_ID: " << (int)missionItem.mission_id << std::endl;
 
         return true;
     }
@@ -382,6 +403,7 @@ namespace ExternalLink {
 
     void ControllerMission::Request_Construct(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_mission_request_list_generic_t &msg, MaceCore::ModuleCharacteristic &queueObj)
     {
+        throw std::runtime_error("No Longer supported, need to pull the correct mission_system");
         UNUSED(sender);
         msg.mission_system = target.ModuleID;
         msg.mission_type = (uint8_t)MissionItem::MISSIONSTATE::CURRENT;
@@ -391,7 +413,7 @@ namespace ExternalLink {
 
         queueObj = target;
 
-        std::cout << "Mission Controller: Sending mission request" << std::endl;
+        std::cout << "Mission Controller: Sending mission request" << " S_ID: " << (int)target.ModuleID << std::endl;
     }
 
     bool ControllerMission::BuildData_Send(const mace_mission_request_list_generic_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_mission_count_t &response, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &responseQueueObj)
@@ -403,7 +425,7 @@ namespace ExternalLink {
 
             vehicleObj  = this->GetModuleFromMAVLINKVehicleID(msg.mission_system);
 
-            this->FetchFromModule(vehicleObj, items);
+            Controllers::DataItem<MissionItem::MissionKey, MissionItem::MissionList>::FetchFromModule(vehicleObj, items);
 
             //no modules reported back!
             if(items.size() == 0)
@@ -428,24 +450,27 @@ namespace ExternalLink {
                 receiveQueueObj = key;
                 responseQueueObj = key;
 
-                if(m_MissionsUploading.find(key) != m_MissionsUploading.cend())
+                if(m_MissionsUploading.find(sender) != m_MissionsUploading.cend())
                 {
-                    std::cout << "Mission Upload Progress: The mission that was requested to be transmitted is already being transmitted" << std::endl;
-                    return false;
+                    if(m_MissionsUploading.at(sender).find(key) != m_MissionsUploading.at(sender).cend())
+                    {
+                        std::cout << "Mission Upload Progress: The mission that was requested to be transmitted is already being transmitted" << std::endl;
+                        return false;
+                    }
                 }
                 MissionList mission = std::get<1>(vec.at(0));
-                m_MissionsUploading.insert({key, mission});
+                m_MissionsUploading.at(sender).insert({key, mission});
 
 
-                response.count = m_MissionsUploading.at(key).getQueueSize();
-                response.target_system = m_MissionsUploading.at(key).getVehicleID();
+                response.count = m_MissionsUploading.at(sender).at(key).getQueueSize();
+                response.target_system = m_MissionsUploading.at(sender).at(key).getVehicleID();
                 response.mission_system = key.m_systemID;
                 response.mission_creator = key.m_creatorID;
                 response.mission_id = key.m_missionID;
                 response.mission_type = static_cast<MAV_MISSION_TYPE>(key.m_missionType);
                 response.mission_state = static_cast<MAV_MISSION_STATE>(key.m_missionState);
 
-                std::cout << "Mission Controller: Sending Mission Count" << std::endl;
+                std::cout << "Mission Controller: Sending Mission Count" << " S_ID: " << (int)key.m_systemID << " M_ID: " << (int)key.m_missionID << std::endl;
 
                 return true;
             }
@@ -467,7 +492,7 @@ namespace ExternalLink {
 
             vehicleObj = this->GetModuleFromMAVLINKVehicleID(msg.mission_system);
 
-            this->FetchFromModule(vehicleObj, items);
+            Controllers::DataItem<MissionItem::MissionKey, MissionItem::MissionList>::FetchFromModule(vehicleObj, items);
 
             //no modules reported back!
             if(items.size() == 0)
@@ -504,6 +529,69 @@ namespace ExternalLink {
         return false;
     }
 
+
+    bool ControllerMission::Construct_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_new_onboard_mission_t &msg, MaceCore::ModuleCharacteristic &queue)
+    {
+        queue = target;
+
+        msg.mission_creator = data.m_creatorID;
+        msg.mission_id = data.m_missionID;
+        msg.mission_type = (uint8_t)data.m_missionType;
+        msg.mission_system = data.m_systemID;
+        msg.mission_state = (uint8_t)data.m_missionState;
+
+        std::cout << "Mission Controller: Sending New Mission Notification" << " S_ID: " << (int)data.m_systemID << " M_ID: " << (int)data.m_missionID << std::endl;
+
+        return true;
+    }
+
+
+    bool ControllerMission::Construct_FinalObjectAndResponse(const mace_new_onboard_mission_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_mission_ack_t &ack, MaceCore::ModuleCharacteristic &module_from, std::shared_ptr<MissionItem::MissionKey> &data)
+    {        
+        MissionItem::MissionKey key(msg.mission_system, msg.mission_creator, msg.mission_id, static_cast<MissionItem::MISSIONTYPE>(msg.mission_type), static_cast<MissionItem::MISSIONSTATE>(msg.mission_state));
+
+        module_from = this->GetHostKey();
+
+        data = std::make_shared<MissionItem::MissionKey>(key);
+
+
+        ack.mission_system = key.m_systemID;
+        ack.mission_creator = key.m_creatorID;
+        ack.mission_id = key.m_missionID;
+        ack.mission_type = (uint8_t)key.m_missionType;
+        ack.prev_mission_state = (uint8_t)key.m_missionState;
+        ack.mission_result = MAV_MISSION_ACCEPTED;
+
+        std::cout << "Mission Controller: Received New Mission Notification" << " S_ID: " << (int)key.m_systemID << " M_ID: " << (int)key.m_missionID << std::endl;
+
+        return true;
+    }
+
+
+    bool ControllerMission::Finish_Receive(const mace_mission_ack_t &missionItem, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj)
+    {
+        MissionItem::MissionKey key(missionItem.mission_system, missionItem.mission_creator, missionItem.mission_id, static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type), static_cast<MissionItem::MISSIONSTATE>(missionItem.cur_mission_state));
+
+        //The final mission upload, and notificaiton of received mission notification use the same message
+        //So we must determine what we are doing
+        //if we are uploading a mission then there is nothing to ack. (This code is to only return true for an ack on notificaiton, not download)
+        if(m_MissionsUploading.find(sender) != m_MissionsUploading.cend())
+        {
+            if(m_MissionsUploading.at(sender).find(key) != m_MissionsUploading.at(sender).cend())
+            {
+                return false;
+            }
+        }
+
+        queueObj = sender;
+
+        ack = 0;
+
+        std::cout << "Mission Controller: Received Notification ACK" << " S_ID: " << (int)missionItem.mission_system << " M_ID: " << (int)missionItem.mission_id << std::endl;
+
+        return true;
+    }
+
     ControllerMission::ControllerMission(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
         CONTROLLER_MISSION_TYPE(cb, queue, linkChan),
         SendHelper_RequestMissionDownload(this, mace_msg_mission_request_list_encode_chan),
@@ -522,7 +610,17 @@ namespace ExternalLink {
                                 mace_msg_mission_request_list_generic_decode),
         Action_RequestCurrentMission_NoMissionResponse(this,
                                 [this](const mace_mission_ack_t &A, const MaceCore::ModuleCharacteristic &B, const MissionItem::MissionKey &C, const MaceCore::ModuleCharacteristic &D){SendHelper_Final::FinalResponse(A,B,C,D);},
-                                mace_msg_mission_request_list_generic_decode)
+                                mace_msg_mission_request_list_generic_decode),
+
+        NotifyRemoteOfMission(this,
+                                mace_msg_new_onboard_mission_encode_chan),
+
+        UsolicitedReceiveMissionNotification(this,
+                                             mace_msg_new_onboard_mission_decode,
+                                             mace_msg_mission_ack_encode_chan),
+        NotifyRemoteOfMissionFinish(this,
+                                    mace_msg_mission_ack_decode)
+
     {
 
     }
@@ -538,4 +636,8 @@ namespace ExternalLink {
         Action_RequestCurrentMission_Initiate::Request(sender, target);
     }
 
+    void ControllerMission::NotifyOfMission(const MissionItem::MissionKey &key, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
+    {
+        NotifyRemoteOfMission::Send(key, sender, target);
+    }
 }

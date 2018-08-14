@@ -58,6 +58,24 @@ public:
         return m_IDs.at(i);
     }
 
+    bool operator ==(const Resource &rhs)
+    {
+        if(this->m_IDs.size() != rhs.m_componentNames.size()) return false;
+        if(this->m_componentNames.size() != rhs.m_componentNames.size()) return false;
+
+        for(std::size_t i = 0 ; i < m_IDs.size() ; i++)
+        {
+            if(m_IDs.at(i) != rhs.m_IDs.at(i)) return false;
+        }
+
+        for(std::size_t i = 0 ; i < m_componentNames.size() ; i++)
+        {
+            if(m_componentNames.at(i) != rhs.m_componentNames.at(i)) return false;
+        }
+
+        return true;
+    }
+
 };
 
 
@@ -68,7 +86,7 @@ class ILinkEvents
 {
 public:
 
-    virtual void AddedExternalResource(ILink *link_ptr, const Resource &resource) const = 0;
+    virtual void AddedExternalResource(ILink *link_ptr, const Resource &resource) = 0;
 
     virtual void RemovedExternalResource(ILink *link_ptr, const Resource &resource) const = 0;
 

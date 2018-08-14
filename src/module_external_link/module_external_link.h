@@ -59,6 +59,10 @@
 
 #include "base_topic/vehicle_topics.h"
 
+#include <chrono>
+
+
+
 
 class MODULE_EXTERNAL_LINKSHARED_EXPORT ModuleExternalLink :
         public MaceCore::IModuleCommandExternalLink,
@@ -398,9 +402,29 @@ private:
 
     void ReceivedRemoteBoundary(const MaceCore::ModuleCharacteristic &remoteModule, uint8_t remoteBoundaryID, const BoundaryItem::BoundaryList &list);
 
+    void ReceivedRemoteMissionNotification(const MaceCore::ModuleCharacteristic &remoteModule, const MissionItem::MissionKey &key);
 
-    void RequestRemoteResources() const
+
+    //!
+    //! \brief Procedure to perform when a new MACE instance is added.
+    //!
+    //! This method will consult with data object and send out any relevant data to the remote MACE instance
+    //!
+    //! \param MaceInstanceID ID of new mace instance.
+    //!
+    void NewExternalMaceInstance(uint8_t MaceInstanceID);
+
+
+    //!
+    //! \brief Check if the given systemID is known. If unknown then do steps to add the vehicle to this MACE instance
+    //! \param sender
+    //! \param systemID
+    //!
+    void CheckAndAddVehicle(const MaceCore::ModuleCharacteristic &sender, int systemID);
+
+    void RequestRemoteResources()
     {
+        //make request
         this->m_LinkMarshaler->RequestRemoteResources(this->m_LinkName);
     }
 
@@ -441,6 +465,9 @@ private:
 
 
     std::unordered_map<std::string, Controllers::IController<mace_message_t, MaceCore::ModuleCharacteristic>*> m_TopicToControllers;
+
+
+    std::unordered_map<MaceCore::ModuleCharacteristic, std::vector<std::function<void()>>> m_TasksToDoWhenModuleComesOnline;
 };
 
 #endif // MODULE_EXTERNAL_LINK_H

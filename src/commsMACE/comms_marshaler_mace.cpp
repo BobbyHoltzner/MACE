@@ -3,13 +3,16 @@
 namespace CommsMACE
 {
 
+static const int TIME_INTERVAL_BETWEEN_CONSECUTIVE_REMOTE_RESOURCE_REQUEST_IN_MS = 5000;
+
 
 //////////////////////////////////////////////////////////////
 /// Setup
 //////////////////////////////////////////////////////////////
 
 CommsMarshaler::CommsMarshaler() :
-    m_MavlinkChannelsUsedBitMask(1)
+    m_MavlinkChannelsUsedBitMask(1),
+    m_ExpectedResourceWatchdog(NULL)
 {
 
 }
@@ -45,6 +48,8 @@ void CommsMarshaler::AddLink(const std::string &name, const SerialConfiguration 
 
     m_CreatedLinksNameToPtr.insert({name, link});
     m_CreatedLinksPtrToName.insert({link.get(), name});
+    m_LastRemoteResourceRequestTime.insert({link.get(), {}});
+    m_ExpectedResource.insert({link.get(), {}});
     link->AddListener(this);
 }
 
@@ -63,6 +68,8 @@ void CommsMarshaler::AddUDPLink(const std::string &name, const UdpConfiguration 
 
     m_CreatedLinksNameToPtr.insert({name, link});
     m_CreatedLinksPtrToName.insert({link.get(), name});
+    m_LastRemoteResourceRequestTime.insert({link.get(), {}});
+    m_ExpectedResource.insert({link.get(), {}});
     link->AddListener(this);
 }
 
@@ -81,6 +88,8 @@ void CommsMarshaler::AddDigiMeshLink(const std::string &name, const DigiMeshConf
 
     m_CreatedLinksNameToPtr.insert({name, link});
     m_CreatedLinksPtrToName.insert({link.get(), name});
+    m_LastRemoteResourceRequestTime.insert({link.get(), {}});
+    m_ExpectedResource.insert({link.get(), {}});
     link->AddListener(this);
 }
 
@@ -109,14 +118,87 @@ bool CommsMarshaler::HasResource(const std::string &name, const Resource &resour
     return link->HasResource(resource);
 }
 
-void CommsMarshaler::RequestRemoteResources(const std::string &name)
+void CommsMarshaler::RequestRemoteResources(const std::string &name, const std::vector<Resource> &expected)
 {
     if(m_CreatedLinksNameToPtr.find(name) == m_CreatedLinksNameToPtr.cend())
         throw std::runtime_error("The provided link name does not exists");
 
-    std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(name);\
+    std::shared_ptr<ILink> link = m_CreatedLinksNameToPtr.at(name);
+    const ILink* link_ptr = link.get();
 
-    return link->RequestRemoteResources();
+    auto LastRemoteResourceRequestTime = m_LastRemoteResourceRequestTime.at(link_ptr);
+
+    /// check if we have made a request recently. If so abandon this function
+    if(LastRemoteResourceRequestTime.find(name) != LastRemoteResourceRequestTime.cend())
+    {
+        std::chrono::high_resolution_clock::time_point prevTime = LastRemoteResourceRequestTime.at(name);
+        std::chrono::high_resolution_clock::time_point currTime = std::chrono::high_resolution_clock::now();
+
+        if(std::chrono::duration_cast<std::chrono::milliseconds>(currTime - prevTime).count() < TIME_INTERVAL_BETWEEN_CONSECUTIVE_REMOTE_RESOURCE_REQUEST_IN_MS)
+        {
+            printf("Ignoring Remote Resource Request because one was made recently\n");
+            return;
+        }
+    }
+
+
+    /// if we know of expected resources, set a timer and make sure they have been received
+    if(expected.size() > 0)
+    {
+        // if no expected resources then start a watchdog
+        // if is already expected resources then kick the watchdog to make sure the request gets a chance to get out.
+        if(m_ExpectedResource.at(link.get()).size() == 0)
+        {
+
+            m_ExpectedResourceWatchdog = new ContinuousWatchdog(std::chrono::seconds(4), [link_ptr, link, this](){
+
+                if(m_ExpectedResource.at(link_ptr).size() == 0)
+                {
+                    return false;
+                }
+
+                for(auto it = m_ExpectedResource.at(link_ptr).begin() ; it != m_ExpectedResource.at(link_ptr).end() ; ++it)
+                {
+                    if(std::get<1>(*it) >= 4)
+                    {
+                        throw std::runtime_error("Expected resource was unable to be retreived after 4 attempts");
+                    }
+                    std::get<1>(*it) = std::get<1>(*it) + 1;
+                    printf("%d\n", std::get<1>(*m_ExpectedResource.at(link_ptr).begin()));
+                }
+
+
+                printf("Expected resource has yet to be received, asking again\n");
+                link->RequestRemoteResources();
+                return true;
+            });
+        }
+        else {
+            m_ExpectedResourceWatchdog->Kick();
+        }
+
+        // Add new resource to what is expected
+        for(auto it = expected.cbegin() ; it != expected.cend() ; ++it)
+        {
+            m_ExpectedResource.at(link.get()).push_back(std::make_tuple(*it, 0));
+        }
+
+
+    }
+
+    /// make request
+    link->RequestRemoteResources();
+
+
+    /// update time we last made request
+    if(LastRemoteResourceRequestTime.find(name) == LastRemoteResourceRequestTime.cend())
+    {
+        LastRemoteResourceRequestTime.insert({name, std::chrono::high_resolution_clock::now()});
+    }
+    else
+    {
+        LastRemoteResourceRequestTime[name] = std::chrono::high_resolution_clock::now();
+    }
 }
 
 
@@ -259,8 +341,32 @@ void CommsMarshaler::SendMACEMessage(const std::string &linkName, const T& messa
 /// React to Link Events
 //////////////////////////////////////////////////////////////
 
-void CommsMarshaler::AddedExternalResource(ILink *link_ptr, const Resource &resource) const
+void CommsMarshaler::AddedExternalResource(ILink *link_ptr, const Resource &resource)
 {
+    if(m_ExpectedResource.find(link_ptr) != m_ExpectedResource.cend())
+    {
+        for(auto it = m_ExpectedResource.at(link_ptr).begin() ; it != m_ExpectedResource.at(link_ptr).end() ; )
+        {
+            if(std::get<0>(*it) == resource)
+            {
+                m_ExpectedResource[link_ptr].erase(it);
+            }
+            else{
+                ++it;
+            }
+        }
+
+        /// if no longer expecting any responses quit the watchdog and delete it.
+        if(m_ExpectedResource.at(link_ptr).size() == 0)
+        {
+            if(m_ExpectedResourceWatchdog != NULL)
+            {
+                delete m_ExpectedResourceWatchdog;
+                m_ExpectedResourceWatchdog = NULL;
+            }
+        }
+    }
+
     if(m_AddedModuleAction.find(link_ptr) != m_AddedModuleAction.cend())
     {
         m_AddedModuleAction.at(link_ptr)(resource);

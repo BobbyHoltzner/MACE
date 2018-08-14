@@ -137,6 +137,12 @@ public:
         vehicleIDs = m_LocalVehicles;
     }
 
+    std::vector<int> GetLocalVehicles() const
+    {
+        std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
+        return m_LocalVehicles;
+    }
+
     bool HasMavlinkID(const int MAVLINKID) const
     {
         if(m_MAVLINKIDtoModule.find(MAVLINKID) == m_MAVLINKIDtoModule.cend())
@@ -869,7 +875,8 @@ public:
     The following methods aid getting the mission list from the mace data class. The following methods aid getting
     the current mission object and keys.
     */
-    std::vector<MissionItem::MissionKey> getOnboardMissionKeys(const int &systemID);
+
+    std::vector<MissionItem::MissionKey> getMissionKeysForVehicle(const int &systemID) const;
     void removeFromMissionMap(const MissionItem::MissionKey &missionKey);
     MissionItem::MissionKey receivedMissionACKKey(const MissionItem::MissionKey &key, const MissionItem::MISSIONSTATE &newState);
 
@@ -947,9 +954,14 @@ public:
     }
 
 
-    void AddRemoteModule(const ModuleCharacteristic &characterstic, const ModuleClasses &type)
+    bool AddRemoteModule(const ModuleCharacteristic &characterstic, const ModuleClasses &type)
     {
-        m_RemoteModules.insert({characterstic, type});
+        if(m_RemoteModules.find(characterstic) == m_RemoteModules.cend())
+        {
+            m_RemoteModules.insert({characterstic, type});
+            return true;
+        }
+        return false;
     }
 
 
@@ -1018,6 +1030,28 @@ public:
         if(m_RemoteModules.find(characterstic) != m_RemoteModules.cend())
         {
             return true;
+        }
+
+        return false;
+    }
+
+
+    bool KnownMaceInstance(uint8_t MaceInstanceID) const
+    {
+        for(auto it = m_LocalModules.cbegin() ; it != m_LocalModules.cend() ; ++it)
+        {
+            if(it->first.MaceInstance == MaceInstanceID)
+            {
+                return true;
+            }
+        }
+
+        for(auto it = m_RemoteModules.cbegin() ; it != m_RemoteModules.cend() ; ++it)
+        {
+            if(it->first.MaceInstance == MaceInstanceID)
+            {
+                return true;
+            }
         }
 
         return false;
