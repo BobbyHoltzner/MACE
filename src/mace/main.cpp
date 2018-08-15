@@ -104,8 +104,20 @@ int main(int argc, char *argv[])
     bool addedSensors = false;
     int numVehicles = 1;
 
+    // If a static address is given in config then distribute out
+    int hostMaceInstance;
+    if(parser.HasStaticMaceInstanceID() == true)
+    {
+        hostMaceInstance = parser.GetStaticMaceInstanceID();;
+    }
+    else {
+        throw std::runtime_error("No Mace instance ID is given.");
+        //MTB - Unimplimented funcationalty. If no ID is given MACE can determine an ID to use. This would require coordination to avoid conflicts.
+    }
+    core.setMaceInstanceID(hostMaceInstance);
+
     std::map<std::shared_ptr<MaceCore::ModuleBase>, std::string > modules = parser.GetCreatedModules();
-    std::vector<std::thread*> threads;
+    std::vector<std::thread*> threads;    
 
     for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)
     {
@@ -121,19 +133,23 @@ int main(int argc, char *argv[])
         //configure module
         module->ConfigureModule(parser.GetModuleConfiguration(module));
 
-        //start thread
-        std::thread *thread = new std::thread([module]()
-        {
-            module->start();
-        });
-        threads.push_back(thread);
-
         //add to core (and check if too many have been added)
         MaceCore::ModuleClasses moduleClass = module->ModuleClass();
         switch (moduleClass) {
         case MaceCore::ModuleClasses::EXTERNAL_LINK:
         {
-            core.AddExternalLink(std::dynamic_pointer_cast<MaceCore::IModuleCommandExternalLink>(module));
+            const std::shared_ptr<MaceCore::IModuleCommandExternalLink> externalLink = std::dynamic_pointer_cast<MaceCore::IModuleCommandExternalLink>(module);
+
+            //notify external link of the attached mace instance
+            /*
+            MaceCore::ModuleCharacteristic hostMaceInstance;
+            hostMaceInstance.ID = MaceInstanceStaticID;
+            hostMaceInstance.Class = MaceCore::ModuleClasses::MACE_INSTANCE;
+            externalLink->MarshalCommand<MaceCore::ModuleCharacteristic>(MaceCore::ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, hostMaceInstance);
+            */
+
+            //add external link to core
+            core.AddLocalModule_ExternalLink(externalLink);
             break;
         }
         case  MaceCore::ModuleClasses::GROUND_STATION:
@@ -197,7 +213,7 @@ int main(int argc, char *argv[])
         }
         case MaceCore::ModuleClasses::VEHICLE_COMMS:
         {
-            core.AddVehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));
+            core.AddLocalModule_Vehicle(std::to_string(numVehicles), std::dynamic_pointer_cast<MaceCore::IModuleCommandVehicle>(module));
             numVehicles++;
             break;
         }
@@ -207,6 +223,15 @@ int main(int argc, char *argv[])
             return 1;
         }
         }
+
+        core.Event_NewModule(module.get(), module->GetCharacteristic(), moduleClass);
+
+        //start thread
+        std::thread *thread = new std::thread([module]()
+        {
+            module->start();
+        });
+        threads.push_back(thread);
     }
 
     for(auto it = modules.cbegin() ; it != modules.cend() ; ++it)

@@ -76,7 +76,7 @@ void SerialLink::RequestReset()
 }
 
 
-void SerialLink::WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target) const
+void SerialLink::WriteBytes(const char *bytes, int length, const OptionalParameter<Resource> &target) const
 {
     QByteArray data(bytes, length);
     if(m_port && m_port->isOpen()) {
@@ -88,12 +88,20 @@ void SerialLink::WriteBytes(const char *bytes, int length, OptionalParameter<std
     }
 }
 
-void SerialLink::AddResource(const char *resourceType, int ID)
+void SerialLink::AddResource(const Resource &resource)
 {
-    UNUSED(resourceType);
-    UNUSED(ID);
+    UNUSED(resource);
 }
 
+bool SerialLink::HasResource(const Resource &resource) const
+{
+    return true;
+}
+
+void SerialLink::RequestRemoteResources() const
+{
+    return;
+}
 
 //!
 //! \brief Determine the connection status

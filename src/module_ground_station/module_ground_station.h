@@ -125,7 +125,7 @@ public:
     //! \brief NewlyAvailableVehicle Subscriber to a newly available vehilce topic
     //! \param vehicleID Vehilce ID of the newly available vehicle
     //!
-    void NewlyAvailableVehicle(const int &vehicleID) override;
+    virtual void NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender);
 
 
     //!

@@ -102,27 +102,27 @@ void ModuleVehicleSensors::NewTopicData(const std::string &topicName, const Mace
 //!
 void ModuleVehicleSensors::NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target)
 {
-//    int senderID = sender.ID;
-//    //example read of vehicle data
-//    if(topicName == m_VehicleDataTopic.Name())
-//    {
-//        //get latest datagram from mace_data
-//        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
-//        //example of how to get data and parse through the components that were updated
-//        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
-//            if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
-//                std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
-//                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-//            }
-//            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionExTopic::Name()) {
-//                std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>();
-//                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
-//                DataState::StateGlobalPositionEx newPosition = *component.get();
-//                DataState::StateAttitude newAttitude;
-//                computeVehicleFootprint(senderID,*cameraSensor,newPosition,newAttitude);
-//            }
-//        }
-//    }
+    int senderID = sender.ModuleID;
+    //example read of vehicle data
+    if(topicName == m_VehicleDataTopic.Name())
+    {
+        //get latest datagram from mace_data
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
+        //example of how to get data and parse through the components that were updated
+        for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
+            if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateAttitudeTopic> component = std::make_shared<DataStateTopic::StateAttitudeTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+            }
+            else if(componentsUpdated.at(i) == DataStateTopic::StateGlobalPositionExTopic::Name()) {
+                std::shared_ptr<DataStateTopic::StateGlobalPositionExTopic> component = std::make_shared<DataStateTopic::StateGlobalPositionExTopic>();
+                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+                DataState::StateGlobalPositionEx newPosition = *component.get();
+                DataState::StateAttitude newAttitude;
+                computeVehicleFootprint(senderID,*cameraSensor,newPosition,newAttitude);
+            }
+        }
+    }
 }
 
 //!
@@ -218,7 +218,7 @@ void ModuleVehicleSensors::computeVehicleFootprint(const int &systemID, const Da
 //! \brief NewlyAvailableVehicle Subscriber to a newly available vehicle topic
 //! \param vehicleID Vehilce ID of the newly available vehicle
 //!
-void ModuleVehicleSensors::NewlyAvailableVehicle(const int &vehicleID)
+void ModuleVehicleSensors::NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     UNUSED(vehicleID);
 }

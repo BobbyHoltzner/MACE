@@ -20,7 +20,7 @@ void State_FlightGuided::OnExit()
     Owner().state->vehicleLocalPosition.RemoveNotifier(this);
     Owner().mission->currentDynamicQueue_LocalCartesian.RemoveNotifier(this);
 
-    Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+    Controllers::ControllerCollection<mavlink_message_t, MavlinkEntityKey> *collection = Owner().ControllersCollection();
 //    auto globalPtr = static_cast<MAVLINKVehicleControllers::ControllerGuidedTargetItem_Global<MAVLINKVehicleControllers::TargetControllerStructGlobal>*>(collection->At("globalGuidedController"));
 //    if(globalPtr != nullptr)
 //        globalPtr->Shutdown();
@@ -137,7 +137,7 @@ void State_FlightGuided::Update()
 
 void State_FlightGuided::OnEnter()
 {
-    Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+    Controllers::ControllerCollection<mavlink_message_t, MavlinkEntityKey> *collection = Owner().ControllersCollection();
 
     //The following code is how we eventaully would like this to perform
     //However, there are current inconsistencies in the ardupilot branch

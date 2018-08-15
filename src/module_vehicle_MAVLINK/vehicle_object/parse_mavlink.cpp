@@ -307,6 +307,8 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         position.setPosition(decodedMSG.latitude / pow(10,7), decodedMSG.longitude / pow(10,7), decodedMSG.altitude / 1000);
         home.setPosition(position);
 
+        home.setOriginatingSystem(msg->sysid);
+
         //check that something has actually changed
         if(mission->vehicleHomePosition.set(home))
         {

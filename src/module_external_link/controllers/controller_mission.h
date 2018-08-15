@@ -11,6 +11,7 @@
 #include "controllers/actions/action_final_receive_respond.h"
 #include "controllers/actions/action_finish.h"
 #include "controllers/actions/action_request.h"
+#include "controllers/actions/action_unsolicited_receive_respond.h"
 
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
@@ -21,8 +22,10 @@ namespace ExternalLink {
 
 using CONTROLLER_MISSION_TYPE = Controllers::GenericController<
     mace_message_t,
+    MaceCore::ModuleCharacteristic,
     TransmitQueueWithKeys<Controllers::MessageModuleTransmissionQueue<mace_message_t>, ObjectIntTuple<MaceCore::ModuleCharacteristic>, ObjectIntTuple<MissionItem::MissionKey>>,
     uint8_t,
+    Controllers::DataItem<MaceCore::ModuleCharacteristic, MissionKey>,
     Controllers::DataItem<MissionKey, MissionList>
     >;
 
@@ -31,7 +34,7 @@ using CONTROLLER_MISSION_TYPE = Controllers::GenericController<
 
 
 using SendHelper_RequestMissionDownload = Controllers::ActionSend<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -42,7 +45,7 @@ using SendHelper_RequestMissionDownload = Controllers::ActionSend<
 
 
 using SendHelper_RequestList = Controllers::ActionIntermediate<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -55,21 +58,9 @@ using SendHelper_RequestList = Controllers::ActionIntermediate<
 
 
 using SendHelper_ReceiveCountRespondItemRequest = Controllers::ActionIntermediate<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
-    MissionItem::MissionKey,
-    mace_mission_count_t,
-    MACE_MSG_ID_MISSION_COUNT,
-    mace_mission_request_item_t,
-    MACE_MSG_ID_MISSION_ITEM
->;
-
-
-using SendHelper_ReceiveCountRespondItemRequest_FromRequest = Controllers::ActionIntermediate<
-    mace_message_t,
-    CONTROLLER_MISSION_TYPE,
-    MaceCore::ModuleCharacteristic,
     MissionItem::MissionKey,
     mace_mission_count_t,
     MACE_MSG_ID_MISSION_COUNT,
@@ -80,7 +71,7 @@ using SendHelper_ReceiveCountRespondItemRequest_FromRequest = Controllers::Actio
 
 
 using SendHelper_RequestItem = Controllers::ActionIntermediate<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -94,7 +85,7 @@ using SendHelper_RequestItem = Controllers::ActionIntermediate<
 
 
 using SendHelper_ReceiveItem = Controllers::ActionIntermediateReceive<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -117,7 +108,7 @@ typedef Controllers::ActionResponseIntermediate<
 
 
 using SendHelper_Final = Controllers::ActionFinalReceiveRespond<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionList,
@@ -129,7 +120,7 @@ using SendHelper_Final = Controllers::ActionFinalReceiveRespond<
 
 
 using SendHelper_FinalFinal = Controllers::ActionFinish<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     uint8_t,
@@ -139,8 +130,12 @@ using SendHelper_FinalFinal = Controllers::ActionFinish<
 
 
 
+
+
+
+
 using Action_RequestCurrentMission_Initiate = Controllers::ActionRequest<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MaceCore::ModuleCharacteristic,
     mace_mission_request_list_generic_t,
@@ -151,7 +146,7 @@ using Action_RequestCurrentMission_Initiate = Controllers::ActionRequest<
 
 
 using Action_RequestCurrentMission_Response = Controllers::ActionIntermediateReceive<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -162,7 +157,7 @@ using Action_RequestCurrentMission_Response = Controllers::ActionIntermediateRec
 
 
 using Action_RequestCurrentMission_NoMissionResponse = Controllers::ActionIntermediateReceive<
-    mace_message_t,
+    mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
     MissionItem::MissionKey,
     MissionItem::MissionKey,
@@ -173,18 +168,57 @@ using Action_RequestCurrentMission_NoMissionResponse = Controllers::ActionInterm
 
 
 
+
+
+
+
+
+
+using NotifyRemoteOfMission = Controllers::ActionSend<
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    CONTROLLER_MISSION_TYPE,
+    MaceCore::ModuleCharacteristic,
+    MissionItem::MissionKey,
+    mace_new_onboard_mission_t,
+    MACE_MSG_ID_MISSION_ACK
+>;
+
+
+using UsolicitedReceiveMissionNotification = Controllers::ActionUnsolicitedReceiveRespond<
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    CONTROLLER_MISSION_TYPE,
+    MissionItem::MissionKey,
+    mace_new_onboard_mission_t,
+    mace_mission_ack_t,
+    MACE_MSG_ID_NEW_ONBOARD_MISSION
+>;
+
+using NotifyRemoteOfMissionFinish = Controllers::ActionFinish<
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    CONTROLLER_MISSION_TYPE,
+    MaceCore::ModuleCharacteristic,
+    uint8_t,
+    mace_mission_ack_t,
+    MACE_MSG_ID_MISSION_ACK
+>;
+
+
+
 class ControllerMission : public CONTROLLER_MISSION_TYPE,
         public SendHelper_RequestMissionDownload,
         public SendHelper_RequestList,
         public SendHelper_ReceiveCountRespondItemRequest,
-        public SendHelper_ReceiveCountRespondItemRequest_FromRequest,
         public SendHelper_RequestItem,
         public SendHelper_ReceiveItem,
         public SendHelper_Final,
         public SendHelper_FinalFinal,
         public Action_RequestCurrentMission_Initiate,
         public Action_RequestCurrentMission_Response,
-        public Action_RequestCurrentMission_NoMissionResponse
+        public Action_RequestCurrentMission_NoMissionResponse,
+
+        public NotifyRemoteOfMission,
+        public UsolicitedReceiveMissionNotification,
+        public NotifyRemoteOfMissionFinish
 {
 
 private:
@@ -198,7 +232,7 @@ private:
     OptionalParameter<MaceCore::ModuleCharacteristic> m_GenericRequester;
     std::unordered_map<MissionItem::MissionKey, MissionRequestStruct> m_MissionsBeingFetching;
 
-    std::unordered_map<MissionItem::MissionKey, MissionItem::MissionList> m_MissionsUploading;
+    std::unordered_map<MaceCore::ModuleCharacteristic, std::unordered_map<MissionItem::MissionKey, MissionItem::MissionList>> m_MissionsUploading;
 
 protected:
 
@@ -218,17 +252,13 @@ protected:
 
 
 
-    virtual bool BuildData_Send(const mace_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj);
-
-
-    virtual bool BuildData_Send(const mace_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &receiveQueueObj, MissionItem::MissionKey &respondQueueObj);
+    virtual bool BuildData_Send(const mace_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &moduleFor, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj);
 
 
 
 
 
-
-    virtual bool BuildData_Send(const mace_mission_request_item_t &missionRequest, const MaceCore::ModuleCharacteristic &sender, mace_mission_item_t &missionItem, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj);
+    virtual bool BuildData_Send(const mace_mission_request_item_t &missionRequest, const MaceCore::ModuleCharacteristic &sender, mace_mission_item_t &missionItem, MaceCore::ModuleCharacteristic &moduleFor, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj);
 
 
 
@@ -237,7 +267,7 @@ protected:
 
 
 
-    virtual bool BuildData_Send(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj);
+    virtual bool BuildData_Send(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &moduleFor, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj);
 
 
 
@@ -257,15 +287,28 @@ protected:
 
 
 
+
+
+    virtual bool Construct_Send(const MissionItem::MissionKey &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_new_onboard_mission_t &msg, MaceCore::ModuleCharacteristic &queue);
+
+
+    virtual bool Construct_FinalObjectAndResponse(const mace_new_onboard_mission_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_mission_ack_t &ack, MaceCore::ModuleCharacteristic &module_from, std::shared_ptr<MissionItem::MissionKey> &data);
+
+    virtual bool Finish_Receive(const mace_mission_ack_t &missionItem, const MaceCore::ModuleCharacteristic &sender, uint8_t & ack, MaceCore::ModuleCharacteristic &queueObj);
+
+
+
 public:
 
-    ControllerMission(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan);
+    ControllerMission(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan);
 
 
     void RequestMission(const MissionItem::MissionKey &key, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target);
 
     void RequestCurrentMission(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target);
 
+
+    void NotifyOfMission(const MissionItem::MissionKey &key, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target);
 };
 
 }

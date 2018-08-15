@@ -18,16 +18,16 @@ namespace ExternalLink {
 
 template <typename T>
 using ActionSend_CommandLong_Broadcast = Controllers::ActionBroadcast<
-    mace_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, T>,
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, T>,
     T,
     mace_command_long_t
 >;
 
 template <typename T>
 using ActionSend_Command_TargedWithResponse = Controllers::ActionSend<
-    mace_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, T>,
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, T>,
     MaceCore::ModuleCharacteristic,
     T,
     mace_command_long_t,
@@ -36,8 +36,8 @@ using ActionSend_Command_TargedWithResponse = Controllers::ActionSend<
 
 template <typename T>
 using ActionSend_Command_ReceiveRespond = Controllers::ActionFinalReceiveRespond<
-    mace_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, T>,
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, T>,
     MaceCore::ModuleCharacteristic,
     T,
     mace_command_long_t,
@@ -47,8 +47,8 @@ using ActionSend_Command_ReceiveRespond = Controllers::ActionFinalReceiveRespond
 
 template<typename T>
 using ActionFinish_Command = Controllers::ActionFinish<
-    mace_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, T>,
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, T>,
     MaceCore::ModuleCharacteristic,
     uint8_t,
     mace_command_ack_t,
@@ -60,7 +60,7 @@ using ActionFinish_Command = Controllers::ActionFinish<
 
 
 template <typename COMMANDDATASTRUCTURE, const int COMMANDTYPE>
-class Controller_GenericLongCommand : public Controllers::GenericControllerQueueDataWithModule<mace_message_t, COMMANDDATASTRUCTURE>,
+class Controller_GenericLongCommand : public Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, COMMANDDATASTRUCTURE>,
         public ActionSend_CommandLong_Broadcast<COMMANDDATASTRUCTURE>,
         public ActionSend_Command_TargedWithResponse<COMMANDDATASTRUCTURE>,
         public ActionSend_Command_ReceiveRespond<COMMANDDATASTRUCTURE>,
@@ -86,8 +86,8 @@ protected:
         mace_command_long_t cmd;
         cmd = initializeCommandLong();
         cmd.command = COMMANDTYPE;
-        cmd.target_system = data.getTargetSystem();
-        cmd.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
+        cmd.target_system = 0;
+        cmd.target_component = 0;
 
         FillCommand(data, cmd);
 
@@ -97,13 +97,12 @@ protected:
     virtual bool Construct_Send(const COMMANDDATASTRUCTURE &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mace_command_long_t &cmd, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
-        queueObj.ID = data.getTargetSystem();
-        queueObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        queueObj = target;
 
         cmd = initializeCommandLong();
         cmd.command = COMMANDTYPE;
-        cmd.target_system = data.getTargetSystem();
-        cmd.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
+        cmd.target_system = target.MaceInstance;
+        cmd.target_component = target.ModuleID;
 
         if(m_CommandRequestedFrom.find(target) != m_CommandRequestedFrom.cend())
         {
@@ -118,13 +117,13 @@ protected:
     }
 
 
-    virtual bool Construct_FinalObjectAndResponse(const mace_command_long_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_command_ack_t &ack, std::shared_ptr<COMMANDDATASTRUCTURE> &data, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_FinalObjectAndResponse(const mace_command_long_t &msg, const MaceCore::ModuleCharacteristic &sender, mace_command_ack_t &ack, std::shared_ptr<COMMANDDATASTRUCTURE> &data, MaceCore::ModuleCharacteristic &moduleFor, MaceCore::ModuleCharacteristic &queueObj)
     {
         UNUSED(sender);
-        vehicleObj.ID = msg.target_system;
-        vehicleObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        moduleFor.MaceInstance = msg.target_system;
+        moduleFor.ModuleID = msg.target_component;
 
-        queueObj = vehicleObj;
+        queueObj = moduleFor;
 
         if(msg.command != COMMANDTYPE)
         {
@@ -159,8 +158,8 @@ protected:
 
 public:
 
-    Controller_GenericLongCommand(const Controllers::IMessageNotifier<mace_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
-        Controllers::GenericControllerQueueDataWithModule<mace_message_t, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
+    Controller_GenericLongCommand(const Controllers::IMessageNotifier<mace_message_t, MaceCore::ModuleCharacteristic> *cb, Controllers::MessageModuleTransmissionQueue<mace_message_t> *queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, COMMANDDATASTRUCTURE>(cb, queue, linkChan),
         ActionSend_CommandLong_Broadcast<COMMANDDATASTRUCTURE>(this, mace_msg_command_long_encode_chan),
         ActionSend_Command_TargedWithResponse<COMMANDDATASTRUCTURE>(this, mace_msg_command_long_encode_chan),
         ActionSend_Command_ReceiveRespond<COMMANDDATASTRUCTURE>(this, mace_msg_command_long_decode, mace_msg_command_ack_encode_chan),

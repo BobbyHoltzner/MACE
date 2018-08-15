@@ -119,10 +119,15 @@ void ModuleRTA::NewTopicSpooled(const std::string &topicName, const MaceCore::Mo
 
 
     //example read of vehicle data
-    int senderID = sender.ID;
     if(topicName == m_VehicleDataTopic.Name())
     {
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), senderID);
+        if(this->getDataObject()->HasModuleAsMavlinkID(sender) == false)
+        {
+            return;
+        }
+        int senderID = this->getDataObject()->getMavlinkIDFromModule(sender);
+
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
 
             if(componentsUpdated.at(i) == DataStateTopic::StateLocalPositionTopic::Name())
@@ -265,7 +270,7 @@ void ModuleRTA::NewlyAvailableBoundary(const uint8_t &key, const OptionalParamet
 //! \brief NewlyAvailableVehicle Subscriber for a new vehicle topic
 //! \param vehicleID Vehicle ID of the new vehicle
 //!
-void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID)
+void ModuleRTA::NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     /* MTB - Removing 7/2/2018
      * @pnolan Issue: 137

@@ -81,7 +81,7 @@ public:
 
     friend std::ostream &operator<<(std::ostream &out, const ActionArm &obj)
     {
-        out<<"Command Arm( Target ID: "<<obj.targetSystem<<", Generating ID: "<<obj.originatingSystem<<", Request arm: "<<obj.actionArm<<")";
+        out<<"Command Arm( Request arm: "<<obj.actionArm<<")";
         return out;
     }
 

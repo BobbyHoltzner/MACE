@@ -157,6 +157,18 @@ public:
 
 
     //!
+    //! \brief Add two-parameter logic (in form of lambda function) to a command
+    //! \param command Command to add logic to
+    //! \param logic Lambda function to call when command is invoked.
+    //!
+    template<typename P1T, typename P2T>
+    void AddCommandLogic(const CT command, const std::function<void(const P1T&, const P2T&, const OptionalParameter<ModuleCharacteristic> &sender)> &lambda)
+    {
+        m_CommandDispatcher.AddLambda(command, lambda);
+    }
+
+
+    //!
     //! \brief Set the maximum rate which commands are to be called
     //!
     //! The maximum rate which all commands can be invoked, regardless of SetMaxRate_SpecificCommand settings.
@@ -276,6 +288,26 @@ protected:
             this->m_CommandDispatcher.QueueCommand(enumValue, value, sender);
         else
             this->m_CommandDispatcher.ImmediatlyCallCommand(enumValue, value, sender);
+    }
+
+    //!
+    //! \brief Execute a module's command with one parameters
+    //! \param enumValue Command to call.
+    //! \param value Value of first parameter
+    //!
+    template<typename P1T, typename P2T>
+    void MarshalCommandTwoParameter(CT enumValue, const P1T &value1, const P2T &value2, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>())
+    {
+        bool IssueOnModuleEventLoop;
+        if(m_MarshalCommandsOnEventLoop.find(enumValue) == m_MarshalCommandsOnEventLoop.cend())
+            IssueOnModuleEventLoop = m_DefaultMarshalCommandOnEventLoop;
+        else
+            IssueOnModuleEventLoop = m_MarshalCommandsOnEventLoop.at(enumValue);
+
+        if(IssueOnModuleEventLoop == true)
+            this->m_CommandDispatcher.QueueCommand(enumValue, value1, value2, sender);
+        else
+            this->m_CommandDispatcher.ImmediatlyCallCommand(enumValue, value1, value2, sender);
     }
 
 

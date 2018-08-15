@@ -83,8 +83,8 @@ std::shared_ptr<CommandItem::AbstractCommandItem> Helper_MissionCOMMStoMACE::Con
 
     if(newMissionItem)
     {
-        newMissionItem->setOriginatingSystem(target.ID);
-        newMissionItem->setTargetSystem(target.ID);
+        newMissionItem->setOriginatingSystem(target.ModuleID);
+        newMissionItem->setTargetSystem(target.ModuleID);
     }
     return newMissionItem;
 }
@@ -92,8 +92,8 @@ std::shared_ptr<CommandItem::AbstractCommandItem> Helper_MissionCOMMStoMACE::Con
 
 void Helper_MissionCOMMStoMACE::convertHome(const mace_set_home_position_t &maceItem, CommandItem::SpatialHome &missionItem, const MaceCore::ModuleCharacteristic &target)
 {
-    missionItem.setTargetSystem(target.ID);
-    missionItem.setOriginatingSystem(target.ID);
+    missionItem.setTargetSystem(target.ModuleID);
+    missionItem.setOriginatingSystem(target.ModuleID);
     missionItem.position->setX(maceItem.latitude / pow(10,7));
     missionItem.position->setY(maceItem.longitude / pow(10,7));
     missionItem.position->setZ(maceItem.altitude / pow(10,3));
@@ -101,8 +101,8 @@ void Helper_MissionCOMMStoMACE::convertHome(const mace_set_home_position_t &mace
 
 void Helper_MissionCOMMStoMACE::convertChangespeed(const mace_mission_item_t &maceItem, CommandItem::ActionChangeSpeed &missionItem, const MaceCore::ModuleCharacteristic &target)
 {
-    missionItem.setTargetSystem(target.ID);
-    missionItem.setOriginatingSystem(target.ID);
+    missionItem.setTargetSystem(target.ModuleID);
+    missionItem.setOriginatingSystem(target.ModuleID);
     if(maceItem.command == MAV_CMD_DO_CHANGE_SPEED){
         missionItem.setDesiredSpeed(maceItem.param2);
         if(maceItem.param1 > 0.0)
@@ -116,15 +116,15 @@ void Helper_MissionCOMMStoMACE::convertChangespeed(const mace_mission_item_t &ma
 
 void Helper_MissionCOMMStoMACE::convertLand(const mace_mission_item_t &maceItem, CommandItem::SpatialLand &missionItem, const MaceCore::ModuleCharacteristic &target)
 {
-    missionItem.setTargetSystem(target.ID);
-    missionItem.setOriginatingSystem(target.ID);
+    missionItem.setTargetSystem(target.ModuleID);
+    missionItem.setOriginatingSystem(target.ModuleID);
     missionItem.setPosition(Helper_MissionCOMMStoMACE::getBasePosition(maceItem, target));
 }
 
 void Helper_MissionCOMMStoMACE::convertLoiterTime(const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Time &missionItem, const MaceCore::ModuleCharacteristic &target)
 {
-    missionItem.setTargetSystem(target.ID);
-    missionItem.setOriginatingSystem(target.ID);
+    missionItem.setTargetSystem(target.ModuleID);
+    missionItem.setOriginatingSystem(target.ModuleID);
     missionItem.setPosition(Helper_MissionCOMMStoMACE::getBasePosition(maceItem, target));
     missionItem.duration = maceItem.param1;
     missionItem.radius = fabs(maceItem.param3);
@@ -133,8 +133,8 @@ void Helper_MissionCOMMStoMACE::convertLoiterTime(const mace_mission_item_t &mac
 
 void Helper_MissionCOMMStoMACE::convertLoiterTurns(const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Turns &missionItem, const MaceCore::ModuleCharacteristic &target)
 {
-    missionItem.setTargetSystem(target.ID);
-    missionItem.setOriginatingSystem(target.ID);
+    missionItem.setTargetSystem(target.ModuleID);
+    missionItem.setOriginatingSystem(target.ModuleID);
     missionItem.setPosition(Helper_MissionCOMMStoMACE::getBasePosition(maceItem, target));
     missionItem.turns = maceItem.param1;
     missionItem.radius = fabs(maceItem.param3);
@@ -143,8 +143,8 @@ void Helper_MissionCOMMStoMACE::convertLoiterTurns(const mace_mission_item_t &ma
 
 void Helper_MissionCOMMStoMACE::convertLoiterUnlimted(const mace_mission_item_t &maceItem, CommandItem::SpatialLoiter_Unlimited &missionItem, const MaceCore::ModuleCharacteristic &target)
 {
-    missionItem.setTargetSystem(target.ID);
-    missionItem.setOriginatingSystem(target.ID);
+    missionItem.setTargetSystem(target.ModuleID);
+    missionItem.setOriginatingSystem(target.ModuleID);
     if((maceItem.command == MAV_CMD_NAV_LOITER_UNLIM) && (maceItem.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT)){
         missionItem.setPosition(Helper_MissionCOMMStoMACE::getBasePosition(maceItem, target));
         missionItem.radius = fabs(maceItem.param3);
@@ -154,8 +154,8 @@ void Helper_MissionCOMMStoMACE::convertLoiterUnlimted(const mace_mission_item_t 
 
 void Helper_MissionCOMMStoMACE::convertRTL(const mace_mission_item_t &maceItem, CommandItem::SpatialRTL &missionItem, const MaceCore::ModuleCharacteristic &target)
 {
-    missionItem.setTargetSystem(target.ID);
-    missionItem.setOriginatingSystem(target.ID);
+    missionItem.setTargetSystem(target.ModuleID);
+    missionItem.setOriginatingSystem(target.ModuleID);
     UNUSED(missionItem);
     if(maceItem.command == MAV_CMD_NAV_RETURN_TO_LAUNCH){
 
@@ -164,15 +164,15 @@ void Helper_MissionCOMMStoMACE::convertRTL(const mace_mission_item_t &maceItem, 
 
 void Helper_MissionCOMMStoMACE::convertTakeoff(const mace_mission_item_t &maceItem, CommandItem::SpatialTakeoff &missionItem, const MaceCore::ModuleCharacteristic &target)
 {
-    missionItem.setTargetSystem(target.ID);
-    missionItem.setOriginatingSystem(target.ID);
+    missionItem.setTargetSystem(target.ModuleID);
+    missionItem.setOriginatingSystem(target.ModuleID);
     missionItem.setPosition(Helper_MissionCOMMStoMACE::getBasePosition(maceItem, target));
 }
 
 void Helper_MissionCOMMStoMACE::convertWaypoint(const mace_mission_item_t &maceItem, CommandItem::SpatialWaypoint &missionItem, const MaceCore::ModuleCharacteristic &target)
 {
-    missionItem.setTargetSystem(target.ID);
-    missionItem.setOriginatingSystem(target.ID);
+    missionItem.setTargetSystem(target.ModuleID);
+    missionItem.setOriginatingSystem(target.ModuleID);
     missionItem.setPosition(Helper_MissionCOMMStoMACE::getBasePosition(maceItem, target));
 }
 

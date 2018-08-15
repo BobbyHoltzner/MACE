@@ -151,6 +151,64 @@ public:
         vehicleIDs = m_LocalVehicles;
     }
 
+
+    std::vector<int> GetLocalVehicles() const
+    {
+        std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
+        return m_LocalVehicles;
+    }
+
+    bool HasMavlinkID(const int MAVLINKID) const
+    {
+        if(m_MAVLINKIDtoModule.find(MAVLINKID) == m_MAVLINKIDtoModule.cend())
+        {
+            return false;
+        }
+        return true;
+    }
+
+    //!
+    //! \brief GetVehicleFromMAVLINKID
+    //! \param MAVLINKID
+    //! \return
+    //!
+    ModuleCharacteristic GetVehicleFromMAVLINKID(const int MAVLINKID) const
+    {
+        return m_MAVLINKIDtoModule.at(MAVLINKID);
+    }
+
+
+    uint8_t getMavlinkIDFromModule(const ModuleCharacteristic &characterstic) const
+    {
+        for(auto it = m_MAVLINKIDtoModule.cbegin() ; it != m_MAVLINKIDtoModule.cend() ; ++it)
+        {
+            if(it->second == characterstic)
+            {
+                return it->first;
+            }
+        }
+
+        throw std::runtime_error("Unknown module given to get key of");
+    }
+
+    //!
+    //! \brief Determine if the given module has an associated ID on the MAVLINK network
+    //! \param characterstic Module to check
+    //! \return True if there is an ID on the MAVLINK network. Can be retreived with getMavlinkIDFromModule
+    //!
+    bool HasModuleAsMavlinkID(const ModuleCharacteristic &characterstic) const
+    {
+        for(auto it = m_MAVLINKIDtoModule.cbegin() ; it != m_MAVLINKIDtoModule.cend() ; ++it)
+        {
+            if(it->second == characterstic)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     //!
     //! \brief GetVehicleHomePostion Get the home position of the specified vehicle
     //! \param vehicleID Vehicle ID
@@ -208,17 +266,20 @@ public:
 
 private:
 
+
     //!
     //! \brief AddAvailableVehicle Add a new vehicle to the list of available vehicles
     //! \param vehicleID Vehicle ID to add
     //! \param internal If internal, the vehicle is attached to this MACE instance
     //!
-    void AddAvailableVehicle(const int &vehicleID, bool internal)
+    void AddAvailableVehicle(const int &vehicleID, bool internal, const ModuleCharacteristic &module)
     {
         std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
         m_AvailableVehicles.push_back(vehicleID);
         std::sort( m_AvailableVehicles.begin(), m_AvailableVehicles.end());
         m_AvailableVehicles.erase( unique( m_AvailableVehicles.begin(), m_AvailableVehicles.end() ), m_AvailableVehicles.end() );
+
+        m_MAVLINKIDtoModule.insert({vehicleID, module});
 
         if(internal == true)
         {
@@ -227,14 +288,15 @@ private:
         }
     }
 
+
     //!
     //! \brief UpdateVehicleHomePosition Update the vehicle home position
     //! \param vehicleHome New vehicle home
     //!
-    void UpdateVehicleHomePosition(const CommandItem::SpatialHome &vehicleHome)
+    void UpdateVehicleHomePosition(const uint8_t vehicleID, const CommandItem::SpatialHome &vehicleHome)
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
-        m_VehicleHomeMap[vehicleHome.getOriginatingSystem()] = vehicleHome;
+        m_VehicleHomeMap[vehicleID] = vehicleHome;
     }
 
     //!
@@ -349,6 +411,7 @@ private:
 
 public:
 
+
     //!
     //! \brief setTopicDatagram Set topic datagram
     //! \param topicName Topic name
@@ -356,41 +419,43 @@ public:
     //! \param time Timestamp
     //! \param value Topic datagram value
     //!
-    void setTopicDatagram(const std::string &topicName, const int senderID, const TIME &time, const TopicDatagram &value) {
+    void setTopicDatagram(const std::string &topicName, const ModuleCharacteristic sender, const TIME &time, const TopicDatagram &value)
+    {
 
         std::lock_guard<std::mutex> guard(m_TopicMutex);
 
         if(m_LatestTopic.find(topicName) == m_LatestTopic.cend()) {
             m_LatestTopic.insert({topicName, {}});
         }
-        if(m_LatestTopic[topicName].find(senderID) == m_LatestTopic[topicName].cend()) {
-            m_LatestTopic[topicName].insert({senderID, TopicDatagram()});
+        if(m_LatestTopic[topicName].find(sender) == m_LatestTopic[topicName].cend()) {
+            m_LatestTopic[topicName].insert({sender, TopicDatagram()});
         }
-        m_LatestTopic[topicName][senderID].MergeDatagram(value);
+        m_LatestTopic[topicName][sender].MergeDatagram(value);
 
         std::vector<std::string> terminalNames = value.ListTerminals();
         std::vector<std::string> nonTerminalNames = value.ListNonTerminals();
         for(size_t i = 0 ; i < terminalNames.size() ; i++) {
-            m_LatestTopicComponentUpdateTime[topicName][senderID][terminalNames.at(i)] = time;
+            m_LatestTopicComponentUpdateTime[topicName][sender][terminalNames.at(i)] = time;
         }
         for(size_t i = 0 ; i < nonTerminalNames.size() ; i++) {
-            m_LatestTopicComponentUpdateTime[topicName][senderID][nonTerminalNames.at(i)] = time;
+            m_LatestTopicComponentUpdateTime[topicName][sender][nonTerminalNames.at(i)] = time;
         }
     }
+
 
     //!
     //! \brief getAllLatestTopics Get all latest topics from the specified target
     //! \param targetID Target ID
     //! \return Map of the latest topic datagrams
     //!
-    std::unordered_map<std::string, TopicDatagram> getAllLatestTopics(const int &targetID)
+    std::unordered_map<std::string, TopicDatagram> getAllLatestTopics(const ModuleCharacteristic sender)
     {
         std::lock_guard<std::mutex> guard(m_TopicMutex);
         std::unordered_map<std::string, TopicDatagram> topicMap;
         for(auto it = m_LatestTopic.cbegin() ; it != m_LatestTopic.cend() ; ++it) {
             for(auto local_it = m_LatestTopic[it->first].cbegin(); local_it != m_LatestTopic[it->first].cend(); ++local_it)
             {
-                if(local_it->first == targetID)
+                if(local_it->first == sender)
                 {
                     topicMap[it->first] = local_it->second;
                 }
@@ -400,15 +465,17 @@ public:
 
     }
 
+
     //!
     //! \brief GetCurrentTopicDatagram Get the current topic datagram of a specified name and sender ID
     //! \param topicName Topic name
     //! \param senderID Sender ID
     //! \return Current topic datagram
     //!
-    TopicDatagram GetCurrentTopicDatagram(const std::string &topicName, const int senderID) const {
+    TopicDatagram GetCurrentTopicDatagram(const std::string &topicName, const ModuleCharacteristic sender) const
+    {
         std::lock_guard<std::mutex> guard(m_TopicMutex);
-        return m_LatestTopic.at(topicName).at(senderID);
+        return m_LatestTopic.at(topicName).at(sender);
     }
 
 
@@ -819,12 +886,13 @@ private:
 
     //std::map<int, std::shared_ptr<VehicleObject>> m_VehicleData;
 
-    std::unordered_map<std::string, std::unordered_map<int, TopicDatagram>> m_LatestTopic;
-    std::unordered_map<std::string, std::unordered_map<int, std::unordered_map<std::string, TIME>>> m_LatestTopicComponentUpdateTime;
+    std::unordered_map<std::string, std::unordered_map<ModuleCharacteristic, TopicDatagram>> m_LatestTopic;
+    std::unordered_map<std::string, std::unordered_map<ModuleCharacteristic, std::unordered_map<std::string, TIME>>> m_LatestTopicComponentUpdateTime;
 
     mutable std::mutex m_AvailableVehicleMutex;
     std::vector<int> m_AvailableVehicles;
     std::vector<int> m_LocalVehicles;
+    std::unordered_map<int, ModuleCharacteristic> m_MAVLINKIDtoModule;
 
     mutable std::mutex m_VehicleHomeMutex;
     std::map<int, CommandItem::SpatialHome> m_VehicleHomeMap;
@@ -1033,12 +1101,15 @@ public:
     The following methods aid getting the mission list from the mace data class. The following methods aid getting
     the current mission object and keys.
     */
+
+
     //!
     //! \brief getOnboardMissionKeys Get a list of mission keys for the specified system ID
     //! \param systemID System ID to query
     //! \return Vector of mission keys
     //!
-    std::vector<MissionItem::MissionKey> getOnboardMissionKeys(const int &systemID);
+    std::vector<MissionItem::MissionKey> getMissionKeysForVehicle(const int &systemID) const;
+
 
     //!
     //! \brief removeFromMissionMap Remove a mission with the corresponding key from the map
@@ -1140,6 +1211,134 @@ private:
 private:
     mutable std::mutex m_EnvironmentalBoundaryMutex;
     std::unordered_map<uint8_t, std::tuple<BoundaryItem::BoundaryCharacterisic, BoundaryItem::BoundaryList>> m_Boundaries;
+
+
+
+
+
+
+
+
+
+
+
+public:
+
+
+    void AddLocalModule(const ModuleCharacteristic &characterstic, const ModuleClasses &type)
+    {
+        m_LocalModules.insert({characterstic, type});
+    }
+
+
+    bool AddRemoteModule(const ModuleCharacteristic &characterstic, const ModuleClasses &type)
+    {
+        if(m_RemoteModules.find(characterstic) == m_RemoteModules.cend())
+        {
+            m_RemoteModules.insert({characterstic, type});
+            return true;
+        }
+        return false;
+    }
+
+
+    std::vector<ModuleCharacteristic> GetAllLocalModules() const
+    {
+        std::vector<ModuleCharacteristic> vec;
+        for(auto it = m_LocalModules.cbegin() ; it != m_LocalModules.cend() ; ++it)
+        {
+            vec.push_back(it->first);
+        }
+
+        return vec;
+    }
+
+
+    std::vector<ModuleCharacteristic> GetAllRemoteModules() const
+    {
+        std::vector<ModuleCharacteristic> vec;
+        for(auto it = m_RemoteModules.cbegin() ; it != m_RemoteModules.cend() ; ++it)
+        {
+            vec.push_back(it->first);
+        }
+        return vec;
+    }
+
+
+    std::vector<ModuleCharacteristic> GetAllModules() const
+    {
+        std::vector<ModuleCharacteristic> vec1 = GetAllLocalModules();
+        std::vector<ModuleCharacteristic> vec2 = GetAllRemoteModules();
+
+        vec1.insert(vec1.end(), vec2.begin(), vec2.end());
+
+        return vec1;
+    }
+
+
+    ModuleClasses getModuleType(const ModuleCharacteristic &characterstic) const
+    {
+        if(m_LocalModules.find(characterstic) != m_LocalModules.cend())
+        {
+            return m_LocalModules.at(characterstic);
+        }
+
+        if(m_RemoteModules.find(characterstic) != m_RemoteModules.cend())
+        {
+            return m_RemoteModules.at(characterstic);
+        }
+
+        throw std::runtime_error("Unknown module given");
+    }
+
+
+    //!
+    //! \brief Determine if the given module exists on the test environment
+    //! \param characterstic Characterstic to check
+    //! \return True if exists
+    //!
+    bool HasModule(const ModuleCharacteristic &characterstic) const
+    {
+        if(m_LocalModules.find(characterstic) != m_LocalModules.cend())
+        {
+            return true;
+        }
+
+        if(m_RemoteModules.find(characterstic) != m_RemoteModules.cend())
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    bool KnownMaceInstance(uint8_t MaceInstanceID) const
+    {
+        for(auto it = m_LocalModules.cbegin() ; it != m_LocalModules.cend() ; ++it)
+        {
+            if(it->first.MaceInstance == MaceInstanceID)
+            {
+                return true;
+            }
+        }
+
+        for(auto it = m_RemoteModules.cbegin() ; it != m_RemoteModules.cend() ; ++it)
+        {
+            if(it->first.MaceInstance == MaceInstanceID)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+private:
+
+    std::unordered_map<ModuleCharacteristic, ModuleClasses> m_LocalModules;
+    std::unordered_map<ModuleCharacteristic, ModuleClasses> m_RemoteModules;
+
 };
 
 } //END MaceCore Namespace

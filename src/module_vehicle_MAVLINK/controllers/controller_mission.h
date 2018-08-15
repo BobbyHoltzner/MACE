@@ -20,6 +20,8 @@
 #include "data_interface_MAVLINK/MAVLINK_to_MACE/helper_mission_mavlink_to_mace.h"
 #include "data_interface_MAVLINK/MACE_to_MAVLINK/helper_mission_mace_to_mavlink.h"
 
+#include "module_vehicle_MAVLINK/mavlink_entity_key.h"
+
 namespace MAVLINKVehicleControllers {
 
 /// Data that is to be downloaded from mission
@@ -45,7 +47,8 @@ using MissionDownloadResult = std::tuple<CommandItem::SpatialHome, MissionList>;
  */
 using CONTROLLER_MISSION_TYPE = Controllers::GenericController<
     mavlink_message_t,
-    TransmitQueueWithKeys<Controllers::MessageModuleTransmissionQueue<mavlink_message_t>, ObjectIntTuple<void*>, ObjectIntTuple<MissionItem::MissionKey>>,
+    MavlinkEntityKey,
+    TransmitQueueWithKeys<TransmitQueue<mavlink_message_t, MavlinkEntityKey>, ObjectIntTuple<void*>, ObjectIntTuple<MissionItem::MissionKey>>,
     uint8_t,
     Controllers::DataItem<void*, MissionDownloadResult>
 >;
@@ -60,6 +63,7 @@ using CONTROLLER_MISSION_TYPE = Controllers::GenericController<
  */
 using MissionAction_RequestCurrentMission_Initiate = Controllers::ActionRequest<
     mavlink_message_t,
+    MavlinkEntityKey,
     CONTROLLER_MISSION_TYPE,
     void*,
     mavlink_mission_request_list_t,
@@ -75,6 +79,7 @@ using MissionAction_RequestCurrentMission_Initiate = Controllers::ActionRequest<
  */
 using MissionAction_ReceiveAckDueToEmptyMission = Controllers::ActionFinish<
     mavlink_message_t,
+    MavlinkEntityKey,
     CONTROLLER_MISSION_TYPE,
     void*,
     uint8_t,
@@ -91,6 +96,7 @@ using MissionAction_ReceiveAckDueToEmptyMission = Controllers::ActionFinish<
  */
 using MissionAction_ReceiveCountRespondItemRequest = Controllers::ActionIntermediate<
     mavlink_message_t,
+    MavlinkEntityKey,
     CONTROLLER_MISSION_TYPE,
     void*,
     void*,
@@ -106,6 +112,7 @@ using MissionAction_ReceiveCountRespondItemRequest = Controllers::ActionIntermed
  */
 using MissionAction_ReceiveItemFollowUpNextItemRequest = Controllers::ActionIntermediate<
     mavlink_message_t,
+    MavlinkEntityKey,
     CONTROLLER_MISSION_TYPE,
     void*,
     void*,
@@ -121,6 +128,7 @@ using MissionAction_ReceiveItemFollowUpNextItemRequest = Controllers::ActionInte
  */
 using MissionAction_ReceiveFinalItem = Controllers::ActionFinalReceiveRespond<
     mavlink_message_t,
+    MavlinkEntityKey,
     CONTROLLER_MISSION_TYPE,
     void*,
     MissionDownloadResult,
@@ -137,6 +145,7 @@ using MissionAction_ReceiveFinalItem = Controllers::ActionFinalReceiveRespond<
 
 using MissionAction_Upload_Initiate = Controllers::ActionSend<
     mavlink_message_t,
+    MavlinkEntityKey,
     CONTROLLER_MISSION_TYPE,
     void*,
     MissionDownloadResult,
@@ -147,6 +156,7 @@ using MissionAction_Upload_Initiate = Controllers::ActionSend<
 
 using MissionAction_Upload_ReceiveRequestSendItem = Controllers::ActionIntermediate<
     mavlink_message_t,
+    MavlinkEntityKey,
     CONTROLLER_MISSION_TYPE,
     void*,
     void*,
@@ -160,6 +170,7 @@ using MissionAction_Upload_ReceiveRequestSendItem = Controllers::ActionIntermedi
 
 using MissionAction_Upload_Finish = Controllers::ActionFinish<
     mavlink_message_t,
+    MavlinkEntityKey,
     CONTROLLER_MISSION_TYPE,
     void*,
     uint8_t,
@@ -201,10 +212,10 @@ protected:
      * @param msg Message to send to vehicle
      * @param queue Unused for this module, set to zero
      */
-    void Request_Construct(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_request_list_t &msg, void* &queue)
+    void Request_Construct(const MavlinkEntityKey &sender, const MavlinkEntityKey &target, mavlink_mission_request_list_t &msg, void* &queue)
     {
         msg.mission_type = 0;
-        msg.target_system = target.ID;
+        msg.target_system = target;
         msg.target_component = 0;
         queue = 0;
 
@@ -224,7 +235,7 @@ protected:
      * @param queueObj Unused for this module, set to zero
      * @return True if count=0 and we are to stop download
      */
-    virtual bool Finish_Receive(const mavlink_mission_count_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, void* &queueObj)
+    virtual bool Finish_Receive(const mavlink_mission_count_t &msg, const MavlinkEntityKey &sender, uint8_t& ack, void* &queueObj)
     {
 
         if(msg.count == 0)
@@ -251,7 +262,7 @@ protected:
      * @param respondQueueObj Unused for this module, set to zero
      * @return
      */
-    virtual bool BuildData_Send(const mavlink_mission_count_t &msg, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_request_t &cmd, MaceCore::ModuleCharacteristic &vehicleObj, void* &receiveQueueObj, void* &respondQueueObj)
+    virtual bool BuildData_Send(const mavlink_mission_count_t &msg, const MavlinkEntityKey &sender, mavlink_mission_request_t &cmd, MavlinkEntityKey &vehicleObj, void* &receiveQueueObj, void* &respondQueueObj)
     {
         if(msg.count > 0)
         {
@@ -288,7 +299,7 @@ protected:
      * @param respondQueueObj Unused for this module, set to zero
      * @return True if a followup request is to be made. False if no request should be made
      */
-    virtual bool BuildData_Send(const mavlink_mission_item_t &msg, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_request_t &cmd, MaceCore::ModuleCharacteristic &vehicleObj, void* &receiveQueueObj, void* &respondQueueObj)
+    virtual bool BuildData_Send(const mavlink_mission_item_t &msg, const MavlinkEntityKey &sender, mavlink_mission_request_t &cmd, MavlinkEntityKey &vehicleObj, void* &receiveQueueObj, void* &respondQueueObj)
     {
         //check if activly downloading a mission.
         if(m_MissionDownloadCount == -1)
@@ -332,7 +343,7 @@ protected:
      * @param queueObj Unused for this module, set to zero
      * @return True if item received as last item.
      */
-    virtual bool Construct_FinalObjectAndResponse(const mavlink_mission_item_t &msg, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_ack_t &cmd, std::shared_ptr<MissionDownloadResult> &data, MaceCore::ModuleCharacteristic &vehicleObj, void* &queueObj)
+    virtual bool Construct_FinalObjectAndResponse(const mavlink_mission_item_t &msg, const MavlinkEntityKey &sender, mavlink_mission_ack_t &cmd, std::shared_ptr<MissionDownloadResult> &data, MavlinkEntityKey &vehicleObj, void* &queueObj)
     {
         if(msg.seq == m_MissionDownloadCount-1)
         {
@@ -361,7 +372,7 @@ protected:
 
 
 
-    virtual bool Construct_Send(const MissionDownloadResult &data, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_mission_count_t &msg, void* &queue)
+    virtual bool Construct_Send(const MissionDownloadResult &data, const MavlinkEntityKey &sender, const MavlinkEntityKey &target, mavlink_mission_count_t &msg, void* &queue)
     {
         m_MissionUploading = std::make_shared<MissionDownloadResult>(data);
 
@@ -369,14 +380,14 @@ protected:
 
         msg.count = std::get<1>(data).getQueueSize() + 1;
         msg.target_component = 0;
-        msg.target_system = target.ID;
+        msg.target_system = target;
         msg.mission_type = 0; //MAV_MISSION_TYPE_MISSION;
 
         return true;
     }
 
 
-    virtual bool BuildData_Send(const mavlink_mission_request_t &msg, const MaceCore::ModuleCharacteristic &sender, mavlink_mission_item_t &cmd, MaceCore::ModuleCharacteristic &vehicleObj, void* &receiveQueueObj, void* &respondQueueObj)
+    virtual bool BuildData_Send(const mavlink_mission_request_t &msg, const MavlinkEntityKey &sender, mavlink_mission_item_t &cmd, MavlinkEntityKey &vehicleObj, void* &receiveQueueObj, void* &respondQueueObj)
     {
         if(m_MissionUploading != NULL)
         {
@@ -401,7 +412,7 @@ protected:
         return false;
     }
 
-    virtual bool Finish_Receive(const mavlink_mission_ack_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, void* &queueObj)
+    virtual bool Finish_Receive(const mavlink_mission_ack_t &msg, const MavlinkEntityKey &sender, uint8_t& ack, void* &queueObj)
     {
         m_MissionUploading = NULL;
 
@@ -412,7 +423,7 @@ protected:
 
 public:
 
-    ControllerMission(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
+    ControllerMission(const Controllers::IMessageNotifier<mavlink_message_t, MavlinkEntityKey> *cb, TransmitQueue<mavlink_message_t, MavlinkEntityKey> *queue, int linkChan) :
         CONTROLLER_MISSION_TYPE(cb, queue, linkChan),
         MissionAction_RequestCurrentMission_Initiate(this, mavlink_msg_mission_request_list_encode_chan),
         MissionAction_ReceiveAckDueToEmptyMission(this, mavlink_msg_mission_count_decode),
@@ -430,12 +441,12 @@ public:
     virtual ~ControllerMission() = default;
 
 
-    void GetMissions(MaceCore::ModuleCharacteristic &vehicle)
+    void GetMissions(const MavlinkEntityKey &vehicle)
     {
         MissionAction_RequestCurrentMission_Initiate::Request(vehicle, vehicle);
     }
 
-    void UploadMission(const MissionItem::MissionList &mission, const CommandItem::SpatialHome &home, const MaceCore::ModuleCharacteristic &vehicle)
+    void UploadMission(const MissionItem::MissionList &mission, const CommandItem::SpatialHome &home, const MavlinkEntityKey &vehicle)
     {
         MissionDownloadResult homeMissionPair = std::make_tuple(home, mission);
         MissionAction_Upload_Initiate::Send(homeMissionPair, vehicle, vehicle);
@@ -450,19 +461,19 @@ private:
      * @param msg Mission Item
      * @param sender Vehicle that sent mission item
      */
-    void ReceiveMissionItem(const mavlink_mission_item_t &msg, const MaceCore::ModuleCharacteristic &sender)
+    void ReceiveMissionItem(const mavlink_mission_item_t &msg, const MavlinkEntityKey &sender)
     {
         if(msg.seq == 0)
         {
             std::get<0>(*m_MissionDownloading).position->setX(msg.x);
             std::get<0>(*m_MissionDownloading).position->setY(msg.y);
             std::get<0>(*m_MissionDownloading).position->setZ(msg.z);
-            std::get<0>(*m_MissionDownloading).setOriginatingSystem(sender.ID);
-            std::get<0>(*m_MissionDownloading).setTargetSystem(sender.ID);
+            std::get<0>(*m_MissionDownloading).setOriginatingSystem(sender);
+            std::get<0>(*m_MissionDownloading).setTargetSystem(sender);
         }
         else {
             int adjustedIndex = msg.seq - 1; //we decrement 1 only here because ardupilot references home as 0 and we 0 index in our mission queue
-            std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = DataMAVLINK::Helper_MissionMAVLINKtoMACE::Convert_MAVLINKTOMACE(sender.ID, msg);
+            std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = DataMAVLINK::Helper_MissionMAVLINKtoMACE::Convert_MAVLINKTOMACE(sender, msg);
             std::get<1>(*m_MissionDownloading).replaceMissionItemAtIndex(newMissionItem, adjustedIndex);
         }
     }

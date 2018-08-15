@@ -47,7 +47,9 @@ HEADERS += \
     actions/action_unsolicited_receive.h \
     controller_collection.h \
     actions/action_intermediate_unsolicited.h \
-    actions/action_intermediate_unsolicited_receive.h
+    actions/action_intermediate_unsolicited_receive.h \
+    actions/action_broadcast_reliable.h \
+    actions/action_unsolicited_receive_respond.h
 
 
 # Windows lib install

@@ -7,6 +7,7 @@
 #include "i_module_events_rta.h"
 
 #include "i_module_command_generic_boundaries.h"
+#include "i_module_command_generic_vehicle_listener.h"
 
 namespace MaceCore
 {
@@ -15,13 +16,15 @@ enum class RTACommands
 {
     BASE_MODULE_LISTENER_ENUMS,
     GENERIC_MODULE_BOUNDARY_LISTENER_ENUMS,
+    GENERIC_MODULE_VEHICLE_LISTENER_ENUMS,
     TEST_FUNCTION,
     NEWLY_UPDATED_GRID_SPACING
 };
 
 class MACE_CORESHARED_EXPORT IModuleCommandRTA :
         public AbstractModule_EventListeners<Metadata_RTA, IModuleEventsRTA, RTACommands>,
-        public IModuleGenericBoundaries
+        public IModuleGenericBoundaries,
+        public IModuleGenericVehicleListener
 {
     friend class MaceCore;
 public:
@@ -32,12 +35,9 @@ public:
         AbstractModule_EventListeners()
     {
         IModuleGenericBoundaries::SetUp<Metadata_RTA, IModuleEventsRTA, RTACommands>(this);
+        IModuleGenericVehicleListener::SetUp<Metadata_RTA, IModuleEventsRTA, RTACommands>(this);
 
 
-        AddCommandLogic<int>(RTACommands::NEWLY_AVAILABLE_VEHICLE, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
-            UNUSED(sender);
-            NewlyAvailableVehicle(vehicleID);
-        });
         AddCommandLogic<int>(RTACommands::TEST_FUNCTION, [this](const int &vehicleID, const OptionalParameter<ModuleCharacteristic> &sender){
             UNUSED(sender);
             TestFunction(vehicleID);
@@ -60,12 +60,6 @@ public:
         return moduleClass;
     }
 
-public:
-    //!
-    //! \brief NewlyAvailableVehicle New available vehicle subscriber
-    //! \param vehicleID New vehicle ID
-    //!
-    virtual void NewlyAvailableVehicle(const int &vehicleID) = 0;
 
     //!
     //! \brief TestFunction

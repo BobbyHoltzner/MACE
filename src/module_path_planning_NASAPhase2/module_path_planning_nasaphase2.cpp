@@ -246,7 +246,7 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
     if(topicName == m_VehicleDataTopic.Name())
     {
         //get latest datagram from mace_data
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender.ID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_VehicleDataTopic.Name(), sender);
 
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == DataStateTopic::StateAttitudeTopic::Name()) {
@@ -274,7 +274,7 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
                     vehiclePosition.setYPosition(localPositionData.get()->getY());
                     vehiclePosition.setZPosition(localPositionData.get()->getZ());
                 }
-                map_CurrentPosition[sender.ID] = vehiclePosition;
+                map_CurrentPosition[this->getDataObject()->getMavlinkIDFromModule(sender)] = vehiclePosition;
             }
         }
     }
@@ -282,7 +282,7 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
     else if(topicName == m_MissionDataTopic.Name())
     {
         //get latest datagram from mace_data
-        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), sender.ID);
+        MaceCore::TopicDatagram read_topicDatagram = this->getDataObject()->GetCurrentTopicDatagram(m_MissionDataTopic.Name(), sender);
 
         for(size_t i = 0 ; i < componentsUpdated.size() ; i++) {
             if(componentsUpdated.at(i) == MissionTopic::MissionItemReachedTopic::Name()) {
@@ -321,7 +321,7 @@ void ModulePathPlanningNASAPhase2::NewTopicSpooled(const std::string &topicName,
     }
 }
 
-void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID)
+void ModulePathPlanningNASAPhase2::NewlyAvailableVehicle(const int &vehicleID, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)
 {
     UNUSED(vehicleID);
 }
@@ -385,6 +385,14 @@ void ModulePathPlanningNASAPhase2::NewlyAvailableBoundary(const uint8_t &key, co
 
         NewOperationalBoundary(boundary);
     }
+
+
+    m_OccupiedVehicleMap->updateGridSize(m_LocalOperationalBoundary.getXMin(),m_LocalOperationalBoundary.getXMax(),
+                                         m_LocalOperationalBoundary.getYMin(),m_LocalOperationalBoundary.getYMax(),
+                                         m_OctomapSensorProperties.getTreeResolution(),m_OctomapSensorProperties.getTreeResolution());
+
+    m_Space->setBounds(state_space::Cartesian2DSpaceBounds(m_LocalOperationalBoundary.getXMin(), m_LocalOperationalBoundary.getXMax(),
+                                                           m_LocalOperationalBoundary.getYMin(), m_LocalOperationalBoundary.getYMax()));
 }
 
 

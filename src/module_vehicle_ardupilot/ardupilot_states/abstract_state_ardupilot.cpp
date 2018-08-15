@@ -12,8 +12,16 @@ AbstractStateArdupilot::AbstractStateArdupilot() :
 
 AbstractStateArdupilot::AbstractStateArdupilot(const AbstractStateArdupilot &copy)
 {
-    currentCommand = copy.currentCommand;
-    currentCommandSet = copy.currentCommandSet;
+
+    if(copy.currentCommandSet == true)
+    {
+        this->currentCommand = copy.currentCommand->getClone();
+        this->currentCommandSet = true;
+    }
+    else {
+        this->currentCommandSet = false;
+    }
+
     currentStateEnum = copy.currentStateEnum;
     desiredStateEnum = copy.desiredStateEnum;
 }
@@ -25,7 +33,7 @@ AbstractStateArdupilot::~AbstractStateArdupilot()
 
 void AbstractStateArdupilot::OnExit()
 {
-    Owner().ControllersCollection()->ForAll([this](Controllers::IController<mavlink_message_t>* controller){
+    Owner().ControllersCollection()->ForAll([this](Controllers::IController<mavlink_message_t, int>* controller){
         controller->RemoveHost(this);
     });
 
@@ -48,7 +56,7 @@ bool AbstractStateArdupilot::handleCommand(const std::shared_ptr<AbstractCommand
     switch (command->getCommandType()) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:
     {
-        Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+        Controllers::ControllerCollection<mavlink_message_t, int> *collection = Owner().ControllersCollection();
         auto controllerSystemMode = new MAVLINKVehicleControllers::ControllerSystemMode(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
         controllerSystemMode->AddLambda_Finished(this, [this, controllerSystemMode](const bool completed, const uint8_t finishCode){
 
@@ -61,16 +69,13 @@ bool AbstractStateArdupilot::handleCommand(const std::shared_ptr<AbstractCommand
             delete ptr;
         });
 
-        MaceCore::ModuleCharacteristic target;
-        target.ID = Owner().getMAVLINKID();
-        target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-        MaceCore::ModuleCharacteristic sender;
-        sender.ID = 255;
-        sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        MavlinkEntityKey target = Owner().getMAVLINKID();
+        MavlinkEntityKey sender = 255;
+
         MAVLINKVehicleControllers::MAVLINKModeStruct commandMode;
-        commandMode.targetID = target.ID;
+        commandMode.targetID = Owner().getMAVLINKID();
         commandMode.vehicleMode = Owner().ardupilotMode.getFlightModeFromString(command->as<CommandItem::ActionChangeMode>()->getRequestMode());
-        controllerSystemMode->Send(commandMode,sender,target);
+        controllerSystemMode->Send(commandMode, sender, target);
 
         collection->Insert("modeController", controllerSystemMode);
 
@@ -89,7 +94,7 @@ bool AbstractStateArdupilot::handleMAVLINKMessage(const mavlink_message_t &msg)
     int systemID = msg.sysid;
 
     MaceCore::ModuleCharacteristic sender;
-    sender.ID = systemID;
+    sender.ModuleID = systemID;
     sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
 
     bool consumed = false;

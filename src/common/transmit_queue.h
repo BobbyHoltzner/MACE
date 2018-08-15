@@ -179,6 +179,11 @@ public:
 
     void QueueTransmission(const Head &key, const std::function<void()> &transmitAction, const std::function<void()> onFailure = [](){})
     {
+        if(m_ActiveTransmissions.find(key) != m_ActiveTransmissions.cend())
+        {
+            printf("A Transmission with given end condition already queued. IGNORING\n");
+            return;
+        }
         int num = m_Queue->QueueTransmission(transmitAction, onFailure);
         m_ActiveTransmissions.insert({key, num});
         m_ActiveTransmissionsToKeyMap.insert({num, {key}});
@@ -187,6 +192,15 @@ public:
 
     void QueueTransmission(const std::vector<Head> &keys, const std::function<void()> &transmitAction, const std::function<void()> onFailure = [](){})
     {
+        for(auto it = keys.cbegin() ; it != keys.cend() ; ++it)
+        {
+            if(m_ActiveTransmissions.find(*it) != m_ActiveTransmissions.cend())
+            {
+                printf("A Transmission with given end condition already queued. IGNORING\n");
+                return;
+            }
+        }
+
         int num = m_Queue->QueueTransmission(transmitAction, onFailure);
         for(auto it = keys.cbegin() ; it != keys.cend() ; ++it)
         {
@@ -198,17 +212,22 @@ public:
 
     void RemoveTransmission(const Head &key)
     {
-        if(m_ActiveTransmissions.find(key) != m_ActiveTransmissions.cend())
+        while(true)
         {
-            int num = m_ActiveTransmissions.at(key);
-            //std::cout << "Transmission Removed: " << m_ActiveTransmissions.at(key) << std::endl;
-            m_Queue->RemoveTransmissionFromQueue(num);
-
-            for(auto it = m_ActiveTransmissionsToKeyMap.at(num).cbegin() ; it != m_ActiveTransmissionsToKeyMap.at(num).cend() ; ++it)
+            if(m_ActiveTransmissions.find(key) != m_ActiveTransmissions.cend())
             {
-                m_ActiveTransmissions.erase(*it);
+                int num = m_ActiveTransmissions.at(key);
+                //std::cout << "Transmission Removed: " << m_ActiveTransmissions.at(key) << std::endl;
+                m_Queue->RemoveTransmissionFromQueue(num);
+
+                for(auto it = m_ActiveTransmissionsToKeyMap.at(num).cbegin() ; it != m_ActiveTransmissionsToKeyMap.at(num).cend() ; ++it)
+                {
+                    m_ActiveTransmissions.erase(*it);
+                }
+                m_ActiveTransmissionsToKeyMap.erase(num);
+                continue;
             }
-            m_ActiveTransmissionsToKeyMap.erase(num);
+            break;
         }
     }
 

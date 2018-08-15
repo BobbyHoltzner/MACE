@@ -169,7 +169,7 @@ bool UdpLink::_hardwareConnect(QAbstractSocket::SocketError &error, QString& err
 }
 
 
-void UdpLink::WriteBytes(const char *bytes, int length, OptionalParameter<std::tuple<const char*, int>> target) const
+void UdpLink::WriteBytes(const char *bytes, int length, const OptionalParameter<Resource> &target) const
 {
     QByteArray data(bytes, length);
     if(m_socket && m_socket->isOpen()) {
@@ -182,10 +182,19 @@ void UdpLink::WriteBytes(const char *bytes, int length, OptionalParameter<std::t
     }
 }
 
-void UdpLink::AddResource(const char *resourceType, int ID)
+void UdpLink::AddResource(const Resource &resource)
 {
-    UNUSED(resourceType);
-    UNUSED(ID);
+    UNUSED(resource);
+}
+
+bool UdpLink::HasResource(const Resource &resource) const
+{
+    return true;
+}
+
+void UdpLink::RequestRemoteResources() const
+{
+    return;
 }
 
 

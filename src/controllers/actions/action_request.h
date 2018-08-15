@@ -15,13 +15,14 @@ namespace Controllers {
 //! When the given response type is heard by the expected object the queued transmission will be removed, this can be multiple message types.
 //!
 //! \template MESSAGE_TYPE Underlaying generic message type that all communication is done through
+//! \template COMPONENT_KEY Type that identifies actors on the network
 //! \template CONTROLLER_TYPE Type of controller being used by this action, will be used to queue transmissions.
 //! \template QUEUE_TYPE Type of object that will establish uniqueness in the queue.
 //!   This ultimatly allows a controller to have two identical messages going out to two entities.
 //! \template MSG_TYPE Type of communications messsage that is to be transmitted out
 //! \template MESSAGE_ACK_ID List of intenger ID that identifies the message that is to stop transmission
 //!
-template<typename MESSAGE_TYPE, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename MSG_TYPE, const int ...MESSAGE_ACK_ID>
+template<typename MESSAGE_TYPE, typename COMPONENT_KEY, typename CONTROLLER_TYPE, typename QUEUE_TYPE, typename MSG_TYPE, const int ...MESSAGE_ACK_ID>
 class ActionRequest :
         public ActionBase<MESSAGE_TYPE, CONTROLLER_TYPE, MSG_TYPE>
 {
@@ -39,7 +40,7 @@ protected:
     //! \param msg Communications message to send to comms interface
     //! \param queue Queue object to identifiy this tranmissions when ack is returned
     //!
-    virtual void Request_Construct(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, MSG_TYPE &msg, QUEUE_TYPE &queue) = 0;
+    virtual void Request_Construct(const COMPONENT_KEY &sender, const COMPONENT_KEY &target, MSG_TYPE &msg, QUEUE_TYPE &queue) = 0;
 
 public:
 
@@ -57,7 +58,7 @@ public:
     //! \param sender Module sender of this action
     //! \param target Module this action is targeting
     //!
-    void Request(const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target)
+    void Request(const COMPONENT_KEY &sender, const COMPONENT_KEY &target)
     {
         MSG_TYPE cmd;
         QUEUE_TYPE queueObj;

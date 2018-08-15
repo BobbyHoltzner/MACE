@@ -11,7 +11,8 @@ namespace MaceCore
 MaceCore::MaceCore() :
     m_GroundStation(NULL),
     m_PathPlanning(NULL),
-    m_RTA(NULL)
+    m_RTA(NULL),
+    m_MaceInstanceIDSet(false)
 {
 
 }
@@ -30,24 +31,47 @@ void MaceCore::AddDataFusion(const std::shared_ptr<MaceData> dataFusion)
     m_DataFusion = dataFusion;
 }
 
-//!
-//! \brief AddModule Add module to data fusion
-//! \param module Module to add
-//!
-void MaceCore::AddModule(const std::shared_ptr<ModuleBase> &module)
+
+void MaceCore::AddLocalModule(const std::shared_ptr<ModuleBase> &module)
 {
+    uint8_t moduleID = 1;
+    if(m_Modules.size() > 0)
+    {
+        moduleID = m_Modules.size()+1;
+    }
+
+    while(true)
+    {
+        // check for overflow
+        if(moduleID == 0)
+        {
+            throw std::runtime_error("Trying to find a module ID has overflowed. Have too many modules been added");
+        }
+
+        if(m_Modules.find(moduleID) == m_Modules.cend())
+        {
+            m_Modules.insert({moduleID, module});
+            break;
+        }
+        moduleID++;
+    }
+
+    module->setPararentMaceInstanceID(getMaceInstanceID());
+    module->SetID(moduleID);
+
     std::vector<TopicCharacteristic> topics = module->GetEmittedTopics();
     for(auto it = topics.cbegin() ; it != topics.cend() ; ++it) {
         this->AddTopicCharacteristic(module.get(), *it);
     }
 }
 
+
 //!
 //! \brief AddVehicle Add vehicle to data fusion
 //! \param ID Vehicle ID to add
 //! \param vehicle Vehicle module pointer
 //!
-void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle)
+void MaceCore::AddLocalModule_Vehicle(const std::string &ID, const std::shared_ptr<IModuleCommandVehicle> &vehicle)
 {
     std::lock_guard<std::mutex> guard(m_VehicleMutex);
 
@@ -57,19 +81,28 @@ void MaceCore::AddVehicle(const std::string &ID, const std::shared_ptr<IModuleCo
     m_VehicleIDToPtr.insert({ID, vehicle.get()});
     m_VehiclePTRToID.insert({vehicle.get(), ID});
 
-    AddModule(vehicle);
+    AddLocalModule(vehicle);
 
     vehicle->addListener(this);
     vehicle->addTopicListener(this);
 
 
+    //notify all existing external links about new RTA module
+    if(m_ExternalLink.size() > 0)
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, vehicle->GetCharacteristic(), ModuleClasses::VEHICLE_COMMS);
+        }
+    }
 }
+
 
 //!
 //! \brief RemoveVehicle Remove vehicle from data fusion
 //! \param ID Vehicle ID to remove
 //!
-void MaceCore::RemoveVehicle(const std::string &ID)
+void MaceCore::RemoveLocalModule_Vehicle(const std::string &ID)
 {
     if(m_VehicleIDToPtr.find(ID) == m_VehicleIDToPtr.cend())
         throw std::runtime_error("Vehicle does not exists");
@@ -82,14 +115,13 @@ void MaceCore::RemoveVehicle(const std::string &ID)
 }
 
 
-//The following add the appropriate modules to the core
 //!
 //! \brief AddExternalLink Add external link module
 //! \param externalLink External link module setup
 //!
-void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink)
+void MaceCore::AddLocalModule_ExternalLink(const std::shared_ptr<IModuleCommandExternalLink> &externalLink)
 {
-    AddModule(externalLink);
+    AddLocalModule(externalLink);
 
     externalLink->addListener(this);
     externalLink->addTopicListener(this);
@@ -98,16 +130,20 @@ void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink>
     //if there is a ground station, notify this new external link about the existance of GS
     if(m_GroundStation != NULL)
     {
-        externalLink->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic());
+        externalLink->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic(), ModuleClasses::GROUND_STATION);
     }
 
     //if there is an RTA module, notify this new external link about the existance of the rta module
     if(m_RTA != NULL)
     {
-        externalLink->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_RTA->GetCharacteristic());
+        externalLink->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_RTA->GetCharacteristic(), ModuleClasses::RTA);
     }
 
-
+    //If there are vehiclemodules, notify this new external link about each ones existance
+    for(auto it = m_VehicleIDToPtr.cbegin() ; it != m_VehicleIDToPtr.cend() ; ++it)
+    {
+        externalLink->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, it->second->GetCharacteristic(), ModuleClasses::VEHICLE_COMMS);
+    }
 }
 
 //!
@@ -116,6 +152,8 @@ void MaceCore::AddExternalLink(const std::shared_ptr<IModuleCommandExternalLink>
 //!
 void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGroundStation> &groundStation)
 {
+    AddLocalModule(groundStation);
+
     groundStation->addListener(this);
     groundStation->addTopicListener(this);
     groundStation->StartTCPServer();
@@ -127,11 +165,11 @@ void MaceCore::AddGroundStationModule(const std::shared_ptr<IModuleCommandGround
     {
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
         {
-            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic());
+            (*it)->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GroundStation->GetCharacteristic(), ModuleClasses::GROUND_STATION);
         }
     }
 
-    AddModule(groundStation);
+
 }
 
 //!
@@ -144,7 +182,7 @@ void MaceCore::AddPathPlanningModule(const std::shared_ptr<IModuleCommandPathPla
     pathPlanning->addTopicListener(this);
     m_PathPlanning = pathPlanning;
 
-    AddModule(pathPlanning);
+    AddLocalModule(pathPlanning);
 }
 
 //!
@@ -157,7 +195,7 @@ void MaceCore::AddROSModule(const std::shared_ptr<IModuleCommandROS> &ros)
     ros->addTopicListener(this);
     m_ROS = ros;
 
-    AddModule(ros);
+    AddLocalModule(ros);
 }
 
 //!
@@ -166,6 +204,8 @@ void MaceCore::AddROSModule(const std::shared_ptr<IModuleCommandROS> &ros)
 //!
 void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
 {
+    AddLocalModule(rta);
+
     rta->addListener(this);
     rta->addTopicListener(this);
     m_RTA = rta;
@@ -175,11 +215,9 @@ void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
     {
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
         {
-            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_RTA->GetCharacteristic());
+            (*it)->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_RTA->GetCharacteristic(), ModuleClasses::RTA);
         }
     }
-
-    AddModule(rta);
 }
 
 //!
@@ -192,7 +230,7 @@ void MaceCore::AddSensorsModule(const std::shared_ptr<IModuleCommandSensors> &se
     sensors->addTopicListener(this);
     m_Sensors = sensors;
 
-    AddModule(sensors);
+    AddLocalModule(sensors);
 }
 
 //This ends the functions adding appropriate modules
@@ -227,10 +265,14 @@ void MaceCore::Subscribe(ModuleBase* sender, const std::string &topicName, const
     UNUSED(senderIDs);
     UNUSED(components);
 
+    m_TopicNotifierMutex.lock();
+
     if(m_TopicNotifier.find(topicName) == m_TopicNotifier.cend()) {
         m_TopicNotifier.insert({topicName, {}});
     }
     m_TopicNotifier[topicName].push_back(sender);
+
+    m_TopicNotifierMutex.unlock();
 }
 
 //!
@@ -253,9 +295,10 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
     {
         std::vector<std::string> components = value.ListNonTerminals();
 
-        m_DataFusion->setTopicDatagram(topicName, sender.ID, time, value);
+        m_DataFusion->setTopicDatagram(topicName, sender, time, value);
 
         //list through all interested parties and notify of new topic data
+        m_TopicNotifierMutex.lock();
         if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
         {
             for(std::vector<ModuleBase*>::const_iterator it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
@@ -263,9 +306,11 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
                 (*it)->NewTopicSpooled(topicName, sender, components, target);
             }
         }
+        m_TopicNotifierMutex.unlock();
     }
     else
     {
+        m_TopicNotifierMutex.lock();
         //list through all interested parties and notify of new topic data
         if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
         {
@@ -274,6 +319,7 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
                 (*it)->NewTopicData(topicName, sender, value, target);
             }
         }
+        m_TopicNotifierMutex.unlock();
     }
 
 
@@ -294,26 +340,30 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
 
     std::vector<std::string> components = value.ListNonTerminals();
 
-    m_DataFusion->setTopicDatagram(topicName, senderID, time, value);
+    ModuleCharacteristic senderModule = m_DataFusion->GetVehicleFromMAVLINKID(senderID);
 
-    ModuleCharacteristic sender;
-    sender.ID = senderID;
-    sender.Class = ModuleClasses::VEHICLE_COMMS;
+    m_DataFusion->setTopicDatagram(topicName, senderModule, time, value);
 
+    ModuleCharacteristic sender = m_DataFusion->GetVehicleFromMAVLINKID(senderID);
+
+    m_TopicNotifierMutex.lock();
     //list through all interested parties and notify of new topic data
     if(m_TopicNotifier.find(topicName) != m_TopicNotifier.cend())
     {
         for(std::vector<ModuleBase*>::const_iterator it = m_TopicNotifier.at(topicName).cbegin() ; it != m_TopicNotifier.at(topicName).cend() ; ++it) {
-            if((*it) == moduleFrom) continue;
-            (*it)->NewTopicSpooled(topicName, sender, components);
+            ModuleBase *caller = *it;
+            if(caller == moduleFrom) continue;
+            caller->NewTopicSpooled(topicName, sender, components);
         }
     }
+    m_TopicNotifierMutex.unlock();
 }
 
 
 /////////////////////////////////////////////////////////////////////////
 /// GENERAL MODULE EVENTS
 /////////////////////////////////////////////////////////////////////////
+
 
 //!
 //! \brief RequestDummyFunction Test function
@@ -335,6 +385,73 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
         m_RTA->MarshalCommand(RTACommands::TEST_FUNCTION, vehicleID);
     }
 }
+
+
+//!
+//! \brief Event to notify the core that a new module has been attached to some MACE instance.
+//! \param sender Module that generated the new module. May be different than the module itself (Like and External Link)
+//! \param characterstic Characterstic that uniquly identifies the module on the MACE topology
+//! \param type Type of module
+//!
+void MaceCore::Event_NewModule(const ModuleBase* sender, const ModuleCharacteristic &characterstic, const ModuleClasses &type)
+{
+    //if event came from external link then its a remote module, otherwise assume local
+    if(characterstic.MaceInstance != this->getMaceInstanceID())
+    {
+        if(this->m_DataFusion->AddRemoteModule(characterstic, type) == true)
+        {
+            printf("New Remote Module. Mace: %d ID: %d Type: %s\n", characterstic.MaceInstance, characterstic.ModuleID, ModuleBase::ModuleTypeToString(type).c_str());
+        }
+    }
+    else {
+        this->m_DataFusion->AddLocalModule(characterstic, type);
+    }
+}
+
+
+//!
+//! \brief Event to signify that a new vehicle is available
+//! \param sender Module that generated the vehicle. May be different than the vehicle itself if the vehicle came in over External Link
+//! \param publicID Public ID of vehicle, may be different of MACE's internal address
+//! \param vehicleModule MACE internal address of vehicle Module
+//!
+void MaceCore::Events_NewVehicle(const ModuleBase *sender, const uint8_t publicID, const ModuleCharacteristic &vehicleModule)
+{
+    std::lock_guard<std::mutex> guard(m_VehicleMutex);
+
+    if(sender->ModuleClass() == ModuleClasses::EXTERNAL_LINK)
+    {
+        IModuleCommandExternalLink* externalLink = (IModuleCommandExternalLink*)sender;
+        m_ExternalLinkIDToPort.insert({publicID, externalLink});
+        m_DataFusion->AddAvailableVehicle(publicID, false, vehicleModule);
+    }
+    else if(sender->ModuleClass() == ModuleClasses::VEHICLE_COMMS)
+    {
+        IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
+        m_VehicleIDToPort.insert({publicID, vehicle});
+        m_DataFusion->AddAvailableVehicle(publicID, true, vehicleModule);
+    }
+    else {
+        throw std::runtime_error("Currently only an External Link or Vehicle can generate knowledge of a new vehicle");
+    }
+
+
+
+    if(m_GroundStation)
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, publicID, vehicleModule);
+
+    if(m_RTA)
+        m_RTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_VEHICLE, publicID, vehicleModule);
+
+    if(m_ROS)
+        m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_VEHICLE, publicID, vehicleModule);
+
+    if(m_GroundStation.get() != NULL)
+        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, publicID, vehicleModule);
+
+    //No mace_mavlink message exists to notify remote instances about the new vehicle. Relly on heartbeat instead.
+}
+
 
 //!
 //! \brief Event_ForceVehicleDataSync Event to force a data dump of everything available to a vehicle
@@ -686,74 +803,11 @@ void MaceCore::ExternalEvent_UpdateRemoteID(const void *sender, const int &remot
     m_ExternalLinkIDToPort.insert({remoteID,externalLink});
 }
 
-//!
-//! \brief ExternalEvent_NewModule New module available to external link
-//! \param sender Sender module
-//! \param newModule New module
-//!
-void MaceCore::ExternalEvent_NewModule(const void *sender, const ModuleCharacteristic &newModule)
-{
-    std::lock_guard<std::mutex> guard(m_VehicleMutex);
-
-    if(newModule.Class == ModuleClasses::VEHICLE_COMMS)
-    {
-
-        IModuleCommandExternalLink* externalLink = (IModuleCommandExternalLink*)sender;
-        m_ExternalLinkIDToPort.insert({newModule.ID, externalLink});
-
-        m_DataFusion->AddAvailableVehicle(newModule.ID, false);
-
-        if(m_GroundStation)
-            m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, newModule.ID);
-
-        if(m_RTA)
-            m_RTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_VEHICLE, newModule.ID);
-
-        if(m_ROS)
-            m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_VEHICLE, newModule.ID);
-    }
-}
-
-//!
-//! \brief EventVehicle_NewConstructedVehicle New vehicle has been constructed
-//! \param sender Sender module
-//! \param newVehicleObserved New vehicle ID
-//!
-void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int &newVehicleObserved)
-{
-    std::lock_guard<std::mutex> guard(m_VehicleMutex);
-
-    IModuleCommandVehicle* vehicle = (IModuleCommandVehicle*)sender;
-    m_VehicleIDToPort.insert({newVehicleObserved,vehicle});
-    m_DataFusion->AddAvailableVehicle(newVehicleObserved, true);
-
-
-    if(m_RTA)
-        m_RTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
-
-    if(m_PathPlanning)
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
-
-    if(m_ROS)
-        m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
-
-    if(m_GroundStation.get() != NULL)
-        m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, newVehicleObserved);
-    else if(m_ExternalLink.size() > 0)
-    {
-        ModuleCharacteristic module;
-        module.ID = newVehicleObserved;
-        module.Class = ModuleClasses::VEHICLE_COMMS;
-        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
-        {
-            (*it)->MarshalCommand(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, module);
-        }
-    }
-}
 
 /////////////////////////////////////////////////////////////////////////
 /// VEHICLE EVENTS
 /////////////////////////////////////////////////////////////////////////
+
 
 //!
 //! \brief GVEvents_NewHomePosition New home position
@@ -761,16 +815,20 @@ void MaceCore::EventVehicle_NewConstructedVehicle(const void *sender, const int 
 //! \param vehicleHome New vehicle home
 //!
 void MaceCore::GVEvents_NewHomePosition(const ModuleBase *sender, const CommandItem::SpatialHome &vehicleHome)
-{
+{    
     UNUSED(sender);
     //TODO FIX KEN: We should incorporate a method that shall exist to understand who wants to receive
     //specific methods and information. Otherwise we may be blasting to an unknown world.
     //This is also bad as we are assuming that the only item calling this would be a vehicle instance
-    m_DataFusion->UpdateVehicleHomePosition(vehicleHome);
 
+    uint8_t vehicleID = vehicleHome.getOriginatingSystem();
+    m_DataFusion->UpdateVehicleHomePosition(vehicleID, vehicleHome);
+
+    //If there is a ground station, and it didn't generate the home; send the home position
     if(m_GroundStation && m_GroundStation.get() != sender)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_HOME_POSITION,vehicleHome, sender->GetCharacteristic());
-    else if(m_ExternalLink.size() > 0)
+
+    if(m_ExternalLink.size() > 0)
     {
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
         {
@@ -892,12 +950,36 @@ void MaceCore::ExternalEvent_MissionACK(const void* sender, const MissionItem::M
 //!
 void MaceCore::ExternalEvent_NewOnboardMission(const ModuleBase *sender, const MissionItem::MissionKey &mission)
 {
+    if(m_DataFusion->HasMavlinkID(mission.m_systemID) == false)
+    {
+        printf("A new mission was received, but it belongs to an unknown module. IGNORING\n");
+        return;
+    }
+
+    ///////////////////////
+    ///MTB Logic goes here to decide if this mace instance is interested in the mission
+    ///    For now I am going to only assume interest if there is a GS present
+    ///    Other things could be done here, the RTA or PP module can be consulted and asked if interested.
+    ///////////////////////
+    ///
+    bool interest = false;
+
     //If we have an GS module, assume it is interested in downloading mission and request external link to download mission from aircraft
     if(m_GroundStation != NULL)
     {
+        interest = true;
+    }
+
+    ///////////////////////
+    /// END interst determination
+    ///////////////////////
+
+    //if there is interest ask for download from module that sent the mission notification.
+    if(interest == true)
+    {
         ModuleCharacteristic requestFrom;
-        requestFrom.ID = m_GroundStation->GetID();
-        requestFrom.Class = ModuleClasses::GROUND_STATION;
+        requestFrom.MaceInstance = this->getMaceInstanceID();
+        requestFrom.ModuleID = 0;
 
         if(sender->ModuleClass() == ModuleClasses::EXTERNAL_LINK)
         {
@@ -926,55 +1008,50 @@ void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const NewBoun
     //! Set to true if this instance is interested in module
     bool interestedInBoundary = false;
 
-    //! A module making request for the boundary.
-    //! This is needed so the remote instance knows where to send the boundary.
-    //! If multiple modules on this instance are interested in the boundary, only one of them needs to be set
-    //!   Each module of interest will have a chance to access the downloaded boundary later.
-    ModuleCharacteristic requestor;
-
-
-    // pull list of all vehicles in the boundary
+    /// pull list of all vehicles in the boundary
     std::vector<int> vehicles = data.Characteistic.List();
 
-    //If global boundary and at least has a module attached then make interested
+    /// If global boundary and at least has a module attached then make interested
     if(vehicles.size() == 0)
     {
         if(m_RTA != nullptr)
         {
-            requestor = m_RTA->GetCharacteristic();
             interestedInBoundary = true;
         }
         if(m_PathPlanning != nullptr)
         {
-            requestor = m_PathPlanning->GetCharacteristic();
             interestedInBoundary = true;
         }
         if(m_VehicleIDToPort.size() > 0)
         {
-
-            requestor = m_VehicleIDToPtr.cbegin()->second->GetCharacteristic();
             interestedInBoundary = true;
         }
     }
 
-    //Check if an attached vehicle is part of vehicles in the boundary
+    /// Check if an attached vehicle is part of vehicles in the boundary
     for(auto it = m_VehicleIDToPort.cbegin() ; it != m_VehicleIDToPort.cend() ; ++it)
     {
         int attachedVehicleID = it->first;
         if(std::find(vehicles.begin(), vehicles.end(), attachedVehicleID) != vehicles.end())
         {
-            requestor = it->second->GetCharacteristic();
             interestedInBoundary = true;
         }
     }
 
+    ///////////////////////
+    /// END interst determination
+    ///////////////////////
 
-    //if interested issue a download request
+
+    /// if interested issue a download request
     if(interestedInBoundary == true)
     {
         if(sender->ModuleClass() == ModuleClasses::EXTERNAL_LINK)
         {
-            ((IModuleCommandExternalLink*)sender)->MarshalCommand(ExternalLinkCommands::REQUEST_REMOTE_BOUNDARY, std::make_tuple(data.Sender, data.RemoteIdentifier), requestor);
+            ModuleCharacteristic maceInstance;
+            maceInstance.MaceInstance = this->getMaceInstanceID();
+            maceInstance.ModuleID = 0;
+            ((IModuleCommandExternalLink*)sender)->MarshalCommand(ExternalLinkCommands::REQUEST_REMOTE_BOUNDARY, std::make_tuple(data.Sender, data.RemoteIdentifier), maceInstance);
         }
     }
 
@@ -998,14 +1075,15 @@ void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const NewBoun
     */
 }
 
+
 //!
 //! \brief ExternalEvent_RequestingDataSync Request data sync of target's data
 //! \param sender Sender module
 //! \param targetID Target ID
 //!
-void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const int &targetID)
+void MaceCore::ExternalEvent_RequestingDataSync(const void *sender, const ModuleCharacteristic &module)
 {
-    std::unordered_map<std::string, TopicDatagram> topicMap = m_DataFusion->getAllLatestTopics(targetID);
+    std::unordered_map<std::string, TopicDatagram> topicMap = m_DataFusion->getAllLatestTopics(module);
     for(auto it = topicMap.cbegin() ; it != topicMap.cend() ; ++it) {
         std::vector<std::string> components = it->second.ListNonTerminals();
         ModuleBase* base = (ModuleBase*)sender;
@@ -1214,22 +1292,27 @@ void MaceCore::EventPP_LoadMappingProjectionProperties(const ModuleBase *sender,
 //! \param key Key indicating the characteristics of the boundary
 //! \param boundary Data for the boundary
 //!
-void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryCharacterisic &key, const BoundaryItem::BoundaryList &boundary)
+void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::BoundaryCharacterisic &characterstic, const BoundaryItem::BoundaryList &boundary)
 {
     std::string list_str = "";
-    if(key.List().size() == 0)
+    if(characterstic.List().size() == 0)
     {
         list_str = "global";
     }
-    std::vector<int> list = key.List();
-    for(auto it = list.cbegin() ; it != list.cend() ; ++it)
+    if(characterstic.List().size() > 0)
     {
-        list_str += std::to_string(*it) + " ";
+        list_str += "[ ";
+        std::vector<int> list = characterstic.List();
+        for(auto it = list.cbegin() ; it != list.cend() ; ++it)
+        {
+            list_str += std::to_string(*it) + " ";
+        }
+        list_str += "]";
     }
-    printf("Mace Core: Received a new Boundary\n  verticies: %d\n  Type: %s\n  Vehicles: %s\n", boundary.getQueueSize(), BoundaryItem::BoundaryTypeToString(key.Type()).c_str(), list_str.c_str());
+    printf("Mace Core: Received a new Boundary\n  verticies: %d\n  Type: %s\n  Vehicles: %s\n", boundary.getQueueSize(), BoundaryItem::BoundaryTypeToString(characterstic.Type()).c_str(), list_str.c_str());
 
     //Update the underalying data object
-    uint8_t rtnKey = m_DataFusion->setBoundaryByKey(key, boundary);
+    uint8_t rtnKey = m_DataFusion->setBoundaryByKey(characterstic, boundary);
 
     if(m_GroundStation.get() == sender)
     {

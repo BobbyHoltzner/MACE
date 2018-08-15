@@ -12,6 +12,7 @@
 #include "controllers/actions/action_finish.h"
 
 #include "mavlink.h"
+#include "module_vehicle_MAVLINK/mavlink_entity_key.h"
 
 using namespace mace::pose;
 
@@ -26,7 +27,8 @@ struct TargetControllerStructLocal
 template <typename T>
 using GuidedTGTLocalBroadcast = Controllers::ActionBroadcast<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
+    MavlinkEntityKey,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, T>,
     T,
     mavlink_set_position_target_local_ned_t
 >;
@@ -34,8 +36,9 @@ using GuidedTGTLocalBroadcast = Controllers::ActionBroadcast<
 template <typename T>
 using GuidedTGTLocalSend = Controllers::ActionSend<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
-    MaceCore::ModuleCharacteristic,
+    MavlinkEntityKey,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, T>,
+    MavlinkEntityKey,
     T,
     mavlink_set_position_target_local_ned_t,
     MAVLINK_MSG_ID_SET_POSITION_TARGET_LOCAL_NED
@@ -44,46 +47,50 @@ using GuidedTGTLocalSend = Controllers::ActionSend<
 template <typename T>
 using GuidedTGTLocalFinish = Controllers::ActionFinish<
     mavlink_message_t,
-    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, T>,
-    MaceCore::ModuleCharacteristic,
+    MavlinkEntityKey,
+    Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, T>,
+    MavlinkEntityKey,
     uint8_t,
     mavlink_position_target_local_ned_t,
     MAVLINK_MSG_ID_POSITION_TARGET_LOCAL_NED
 >;
 
 template <typename TARGETITEM>
-class ControllerGuidedTargetItem_Local : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, TARGETITEM>,
+class ControllerGuidedTargetItem_Local : public Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, TARGETITEM>,
         public GuidedTGTLocalBroadcast<TARGETITEM>,
         public GuidedTGTLocalSend<TARGETITEM>,
         public GuidedTGTLocalFinish<TARGETITEM>
 {
 private:
 
-    std::unordered_map<MaceCore::ModuleCharacteristic, MaceCore::ModuleCharacteristic> m_CommandRequestedFrom;
+    std::unordered_map<MavlinkEntityKey, MavlinkEntityKey> m_CommandRequestedFrom;
 
 protected:
 
-    virtual void Construct_Broadcast(const TARGETITEM &commandItem, const MaceCore::ModuleCharacteristic &sender, mavlink_set_position_target_local_ned_t &targetItem)
+
+    virtual void Construct_Broadcast(const TARGETITEM &commandItem, const MavlinkEntityKey &sender, std::vector<mavlink_set_position_target_local_ned_t> &vec)
     {
         UNUSED(sender);
 
+        mavlink_set_position_target_local_ned_t targetItem;
         targetItem = initializeMAVLINKTargetItem();
         targetItem.target_system = commandItem.targetID;
         targetItem.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
+
+        vec.push_back(targetItem);
 
         FillTargetItem(commandItem,targetItem);
     }
 
-    virtual bool Construct_Send(const TARGETITEM &commandItem, const MaceCore::ModuleCharacteristic &sender, const MaceCore::ModuleCharacteristic &target, mavlink_set_position_target_local_ned_t &targetItem, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Construct_Send(const TARGETITEM &commandItem, const MavlinkEntityKey &sender, const MavlinkEntityKey &target, mavlink_set_position_target_local_ned_t &targetItem, MavlinkEntityKey &queueObj)
     {
         UNUSED(sender);
         UNUSED(target);
-        queueObj.ID = commandItem.targetID;
-        queueObj.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+        queueObj = this->GetModuleFromMAVLINKVehicleID(commandItem.targetID);
 
         targetItem = initializeMAVLINKTargetItem();
         targetItem.target_system = commandItem.targetID;
-        targetItem.target_component = (int)MaceCore::ModuleClasses::VEHICLE_COMMS;
+        targetItem.target_component = 0;
 
         FillTargetItem(commandItem,targetItem);
 
@@ -91,7 +98,7 @@ protected:
     }
 
 
-    virtual bool Finish_Receive(const mavlink_position_target_local_ned_t &msg, const MaceCore::ModuleCharacteristic &sender, uint8_t& ack, MaceCore::ModuleCharacteristic &queueObj)
+    virtual bool Finish_Receive(const mavlink_position_target_local_ned_t &msg, const MavlinkEntityKey &sender, uint8_t& ack, MavlinkEntityKey &queueObj)
     {
         UNUSED(msg);
         queueObj = sender;
@@ -125,8 +132,8 @@ protected:
     }
 
 public:
-    ControllerGuidedTargetItem_Local(const Controllers::IMessageNotifier<mavlink_message_t> *cb, Controllers::MessageModuleTransmissionQueue<mavlink_message_t> *queue, int linkChan) :
-        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, TARGETITEM>(cb, queue, linkChan),
+    ControllerGuidedTargetItem_Local(const Controllers::IMessageNotifier<mavlink_message_t, MavlinkEntityKey> *cb, TransmitQueue<mavlink_message_t, MavlinkEntityKey> *queue, int linkChan) :
+        Controllers::GenericControllerQueueDataWithModule<mavlink_message_t, MavlinkEntityKey, TARGETITEM>(cb, queue, linkChan),
         GuidedTGTLocalBroadcast<TARGETITEM>(this, mavlink_msg_set_position_target_local_ned_encode_chan),
         GuidedTGTLocalSend<TARGETITEM>(this, mavlink_msg_set_position_target_local_ned_encode_chan),
         GuidedTGTLocalFinish<TARGETITEM>(this, mavlink_msg_position_target_local_ned_decode)

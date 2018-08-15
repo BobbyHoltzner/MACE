@@ -238,24 +238,26 @@ bool MaceData::getMissionKeyValidity(const MissionItem::MissionKey &key) const
 The following methods aid getting the mission list from the mace data class. The following methods aid getting
 the current mission object and keys.
 */
+
+
 //!
 //! \brief getOnboardMissionKeys Get a list of mission keys for the specified system ID
 //! \param systemID System ID to query
 //! \return Vector of mission keys
 //!
-std::vector<MissionItem::MissionKey> MaceData::getOnboardMissionKeys(const int &systemID)
+std::vector<MissionItem::MissionKey> MaceData::getMissionKeysForVehicle(const int &systemID) const
 {
     std::vector<MissionItem::MissionKey> keyVector;
     //loop through the onboard missions
 
     std::lock_guard<std::mutex> guard(MUTEXMissions);
-    std::map<MissionItem::MissionKey,MissionItem::MissionList>::iterator it;
+    std::map<MissionItem::MissionKey,MissionItem::MissionList>::const_iterator it;
 
-    for (it=mapMissions.begin(); it!=mapMissions.end(); ++it)
+    for (it=mapMissions.cbegin(); it!=mapMissions.cend(); ++it)
     {
         MissionItem::MissionList list;
         MissionItem::MissionKey key = it->first;
-        if((key.m_systemID == systemID) && (it->second.getMissionTXState() == MissionItem::MISSIONSTATE::ONBOARD))
+        if((key.m_systemID == systemID))
             keyVector.push_back(key);
     }
     return keyVector;

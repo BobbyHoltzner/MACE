@@ -15,7 +15,7 @@
 
 #include "module_characteristics.h"
 
-#define BASE_MODULE_LISTENER_ENUMS NEWLY_AVAILABLE_VEHICLE, NEWLY_UPDATED_GLOBAL_ORIGIN
+#define BASE_MODULE_LISTENER_ENUMS NEWLY_UPDATED_GLOBAL_ORIGIN
 
 namespace MaceCore
 {
@@ -98,8 +98,9 @@ public:
     ModuleCharacteristic GetCharacteristic() const
     {
         ModuleCharacteristic obj;
-        obj.ID = m_ID;
-        obj.Class = ModuleClass();
+        obj.ModuleID = m_ID;
+        //obj.Class = ModuleClass();
+        obj.MaceInstance = this->getParentMaceInstanceID();
         return obj;
     }
 
@@ -198,6 +199,32 @@ public:
         return m_Data;
     }
 
+
+    //!
+    //! \brief Set the host MACE instance ID
+    //! \param ID identifier for host MACE instance
+    //!
+    void setPararentMaceInstanceID(const uint32_t &ID)
+    {
+        m_ParentMaceInstanceIDSet = true;
+        m_ParentMaceInstanceID = ID;
+    }
+
+
+    //!
+    //! \brief Get the host MACE instance ID
+    //! \throws std::runtime_error Thrown if no ID has been set.
+    //! \return Identifier for host MACE instance
+    //!
+    uint32_t getParentMaceInstanceID() const
+    {
+        if(m_ParentMaceInstanceIDSet == false)
+        {
+            throw std::runtime_error("No Parent ID Set");
+        }
+        return m_ParentMaceInstanceID;
+    }
+
 protected:
     std::string loggingPath;
     bool loggerCreated = false;
@@ -206,6 +233,11 @@ private:
     std::shared_ptr<const MaceData> m_Data;
 
     int m_ID;
+
+    ///MTB MODULE AUTO ASSIGN
+    bool m_ParentMaceInstanceIDSet = false;
+    uint32_t m_ParentMaceInstanceID;
+    ///
 };
 
 

@@ -33,6 +33,7 @@ public:
         return commandItem;
     }
 
+    /*
     int getOriginatingSystem() const
     {
         return commandItem->getOriginatingSystem();
@@ -42,6 +43,7 @@ public:
     {
         return commandItem->getTargetSystem();
     }
+    */
 
     COMMANDITEM getCommandType() const
     {

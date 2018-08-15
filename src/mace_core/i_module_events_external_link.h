@@ -38,7 +38,7 @@ class IModuleEventsExternalLink : public IModuleEventsGeneral, public IModuleEve
 
 public:
 
-    virtual void ExternalEvent_RequestingDataSync(const void *sender, const int &targetID) = 0;
+    virtual void ExternalEvent_RequestingDataSync(const void *sender, const ModuleCharacteristic &module) = 0;
     //!
     //! \brief ExternalEvent_UpdateRemoteID
     //! \param sender
@@ -46,12 +46,6 @@ public:
     //!
     virtual void ExternalEvent_UpdateRemoteID(const void *sender, const int &remoteID) = 0;
 
-    //!
-    //! \brief ExternalEvent_NewModule
-    //! \param sender
-    //! \param newVehicleObserved
-    //!
-    virtual void ExternalEvent_NewModule(const void *sender, const ModuleCharacteristic &module) = 0;
 
     //!
     //! \brief ExternalEvent_MissionACK

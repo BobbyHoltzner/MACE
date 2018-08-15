@@ -98,7 +98,7 @@ bool State_TakeoffClimbing::handleCommand(const std::shared_ptr<AbstractCommandI
                 }
             });
 
-            Controllers::ControllerCollection<mavlink_message_t> *collection = Owner().ControllersCollection();
+            Controllers::ControllerCollection<mavlink_message_t, MavlinkEntityKey> *collection = Owner().ControllersCollection();
 
             auto controllerClimb = new MAVLINKVehicleControllers::CommandTakeoff(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
             controllerClimb->AddLambda_Finished(this, [this,controllerClimb](const bool completed, const uint8_t finishCode){
@@ -113,12 +113,8 @@ bool State_TakeoffClimbing::handleCommand(const std::shared_ptr<AbstractCommandI
                 delete ptr;
             });
 
-            MaceCore::ModuleCharacteristic target;
-            target.ID = Owner().getMAVLINKID();
-            target.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
-            MaceCore::ModuleCharacteristic sender;
-            sender.ID = 255;
-            sender.Class = MaceCore::ModuleClasses::VEHICLE_COMMS;
+            MavlinkEntityKey target  = Owner().getMAVLINKID();
+            MavlinkEntityKey sender = 255;
 
             controllerClimb->Send(*cmd,sender,target);
             collection->Insert("takeoffClimb", controllerClimb);
