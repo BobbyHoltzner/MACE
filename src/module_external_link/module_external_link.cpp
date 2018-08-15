@@ -661,8 +661,6 @@ void ModuleExternalLink::Request_FullDataSync(const int &targetSystem, const Opt
         TransmitMessage(msg, target);
 
         m_Controllers.Retreive<ExternalLink::ControllerHome>()->Request(sender(), target);
-
-        m_Controllers.Retreive<ExternalLink::ControllerMission>()->RequestCurrentMission(sender(), target);
     }
 }
 

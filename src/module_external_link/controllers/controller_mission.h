@@ -69,18 +69,6 @@ using SendHelper_ReceiveCountRespondItemRequest = Controllers::ActionIntermediat
 >;
 
 
-using SendHelper_ReceiveCountRespondItemRequest_FromRequest = Controllers::ActionIntermediate<
-    mace_message_t, MaceCore::ModuleCharacteristic,
-    CONTROLLER_MISSION_TYPE,
-    MaceCore::ModuleCharacteristic,
-    MissionItem::MissionKey,
-    mace_mission_count_t,
-    MACE_MSG_ID_MISSION_COUNT,
-    mace_mission_request_item_t,
-    MACE_MSG_ID_MISSION_ITEM
->;
-
-
 
 using SendHelper_RequestItem = Controllers::ActionIntermediate<
     mace_message_t, MaceCore::ModuleCharacteristic,
@@ -142,6 +130,10 @@ using SendHelper_FinalFinal = Controllers::ActionFinish<
 
 
 
+
+
+
+
 using Action_RequestCurrentMission_Initiate = Controllers::ActionRequest<
     mace_message_t, MaceCore::ModuleCharacteristic,
     CONTROLLER_MISSION_TYPE,
@@ -173,6 +165,9 @@ using Action_RequestCurrentMission_NoMissionResponse = Controllers::ActionInterm
     MACE_MSG_ID_MISSION_REQUEST_LIST_GENERIC,
     mace_mission_ack_t
 >;
+
+
+
 
 
 
@@ -213,7 +208,6 @@ class ControllerMission : public CONTROLLER_MISSION_TYPE,
         public SendHelper_RequestMissionDownload,
         public SendHelper_RequestList,
         public SendHelper_ReceiveCountRespondItemRequest,
-        public SendHelper_ReceiveCountRespondItemRequest_FromRequest,
         public SendHelper_RequestItem,
         public SendHelper_ReceiveItem,
         public SendHelper_Final,
@@ -258,11 +252,7 @@ protected:
 
 
 
-    virtual bool BuildData_Send(const mace_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj);
-
-
-    virtual bool BuildData_Send(const mace_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &receiveQueueObj, MissionItem::MissionKey &respondQueueObj);
-
+    virtual bool BuildData_Send(const mace_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &moduleFor, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj);
 
 
 
@@ -277,7 +267,7 @@ protected:
 
 
 
-    virtual bool BuildData_Send(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj);
+    virtual bool BuildData_Send(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &moduleFor, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj);
 
 
 

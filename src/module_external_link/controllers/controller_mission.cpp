@@ -100,7 +100,7 @@ namespace ExternalLink {
 
 
 
-    bool ControllerMission::BuildData_Send(const mace_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
+    bool ControllerMission::BuildData_Send(const mace_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &moduleFor, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
     {
         UNUSED(sender);
         MissionItem::MissionKey key(mission.mission_system,mission.mission_creator,mission.mission_id,static_cast<MissionItem::MISSIONTYPE>(mission.mission_type),static_cast<MissionItem::MISSIONSTATE>(mission.mission_state));
@@ -113,7 +113,7 @@ namespace ExternalLink {
             return false;
         }
 
-        vehicleObj = m_MissionsBeingFetching[key].requester;
+        moduleFor = this->GetHostKey();
 
         m_MissionsBeingFetching.at(key).mission.initializeQueue(mission.count);
 
@@ -129,54 +129,6 @@ namespace ExternalLink {
 
         return true;
     }
-
-
-    bool ControllerMission::BuildData_Send(const mace_mission_count_t &mission, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MaceCore::ModuleCharacteristic &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
-    {
-        UNUSED(sender);
-        MissionItem::MissionKey key(mission.mission_system,mission.mission_creator,mission.mission_id,static_cast<MissionItem::MISSIONTYPE>(mission.mission_type),static_cast<MissionItem::MISSIONSTATE>(mission.mission_state));
-        receiveQueueObj = sender;
-        respondQueueObj = key;
-
-
-        if(m_MissionsBeingFetching.find(key) != m_MissionsBeingFetching.cend())
-        {
-            return false;
-        }
-
-        if(m_GenericRequester.IsSet() == false) {
-            throw std::runtime_error("Do not know what module requested a mission");
-        }
-
-        MissionItem::MissionList newList;
-        newList.setMissionKey(key);
-        newList.clearQueue();
-        MissionRequestStruct newItem;
-        newItem.mission = newList;
-        newItem.requester = m_GenericRequester();
-        m_MissionsBeingFetching.insert({key, newItem});
-
-        m_GenericRequester = OptionalParameter<MaceCore::ModuleCharacteristic>();
-
-        vehicleObj = m_MissionsBeingFetching[key].requester;
-
-        m_MissionsBeingFetching.at(key).mission.initializeQueue(mission.count);
-
-        request.mission_creator = mission.mission_creator;
-        request.mission_id = mission.mission_id;
-        request.mission_system = mission.mission_system;
-        request.mission_type = mission.mission_type;
-        request.mission_state = mission.mission_state;
-        request.target_system = mission.target_system;
-        request.seq = 0;
-
-        std::cout << "Mission Controller: Requesting Item " << 0 << " S_ID: " << (int)mission.mission_system << " M_ID: " << (int)mission.mission_id << std::endl;
-
-        return true;
-    }
-
-
-
 
 
 
@@ -231,7 +183,7 @@ namespace ExternalLink {
 
 
 
-    bool ControllerMission::BuildData_Send(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &vehicleObj, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
+    bool ControllerMission::BuildData_Send(const mace_mission_item_t &missionItem, const MaceCore::ModuleCharacteristic &sender, mace_mission_request_item_t &request, MaceCore::ModuleCharacteristic &moduleFor, MissionItem::MissionKey &receiveQueueObj, MissionItem::MissionKey &respondQueueObj)
     {
         UNUSED(sender);
         //MTB this isn't quite right, but I think it only effects more or less data fields that are not used.
@@ -266,7 +218,7 @@ namespace ExternalLink {
             return false;
         }
 
-        vehicleObj = m_MissionsBeingFetching[key].requester;
+        moduleFor = this->GetHostKey();
 
         std::shared_ptr<CommandItem::AbstractCommandItem> newMissionItem = DataInterface_MACE::Helper_MissionCOMMStoMACE::Convert_COMMSTOMACE(missionItem, target);
         m_MissionsBeingFetching[key].mission.replaceMissionItemAtIndex(newMissionItem, seqReceived);
@@ -308,7 +260,7 @@ namespace ExternalLink {
         MissionItem::MissionKey key(missionItem.target_system,missionItem.mission_creator,missionItem.mission_id,static_cast<MissionItem::MISSIONTYPE>(missionItem.mission_type),static_cast<MissionItem::MISSIONSTATE>(missionItem.mission_state));
         queueObj = key;
 
-        moduleFor = m_MissionsBeingFetching[key].requester;
+        moduleFor = this->GetHostKey();
 
         //check if mission item received is part of a mission we are activly downloading
         if(this->m_MissionsBeingFetching.find(key) == m_MissionsBeingFetching.cend())
@@ -597,7 +549,6 @@ namespace ExternalLink {
         SendHelper_RequestMissionDownload(this, mace_msg_mission_request_list_encode_chan),
         SendHelper_RequestList(this, mace_msg_mission_request_list_decode, mace_msg_mission_count_encode_chan),
         SendHelper_ReceiveCountRespondItemRequest(this, mace_msg_mission_count_decode, mace_msg_mission_request_item_encode_chan),
-        SendHelper_ReceiveCountRespondItemRequest_FromRequest(this, mace_msg_mission_count_decode, mace_msg_mission_request_item_encode_chan),
         SendHelper_RequestItem(this, mace_msg_mission_request_item_decode, mace_msg_mission_item_encode_chan),
         SendHelper_ReceiveItem(this,
                                [this](const mace_mission_request_item_t &A, const MaceCore::ModuleCharacteristic &B, const MissionItem::MissionKey &C, const MaceCore::ModuleCharacteristic &D){SendHelper_ReceiveCountRespondItemRequest::NextTransmission(A,B,C,D);},
