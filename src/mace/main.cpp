@@ -63,9 +63,9 @@ int main(int argc, char *argv[])
         loggingPath = loggingDirectory.absolutePath().toStdString() + "/" + finalPath;
 
         std::cout << "The current MACE_ROOT path is: " << rootPath << std::endl;
-        filename = rootPath + kPathSeparator + "MaceSetup.xml";
+        filename = rootPath + kPathSeparator + "MaceSetup_Configs/Default.xml";
     }else{
-        filename = "MaceSetup2.xml";
+        filename = "MaceSetup_Configs/Default.xml";
     }
 
     if(argc >= 2){

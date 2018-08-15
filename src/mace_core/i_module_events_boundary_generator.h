@@ -14,7 +14,7 @@ class IModuleEventsBoundaryGenerator
 public:
 
 
-    virtual void Event_SetBoundary(const ModuleBase* sender, const BoundaryItem::BoundaryCharacterisic &key, const BoundaryItem::BoundaryList &boundary) = 0;
+//    virtual void Event_SetBoundary(const ModuleBase* sender, const BoundaryItem::BoundaryCharacterisic &key, const BoundaryItem::BoundaryList &boundary) = 0;
 
 };
 

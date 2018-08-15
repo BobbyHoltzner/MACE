@@ -898,7 +898,6 @@ void ModuleExternalLink::NewlyAvailableBoundary(const uint8_t &boundaryKey, cons
             m_Controllers.Retreive<ExternalLink::ControllerBoundary>()->Send(newBoundary, sender(), target);
         }
     }
-
 }
 
 void ModuleExternalLink::NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<MaceCore::ModuleCharacteristic> &sender)

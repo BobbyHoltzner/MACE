@@ -326,7 +326,7 @@ void ModuleROS::NewlyAvailableBoundary(const uint8_t &key, const OptionalParamet
 
     operationalBoundaryPub.publish(boundary_list);
 #else
-    UNUSED(boundary);
+    UNUSED(key);
 #endif
 }
 
@@ -375,7 +375,6 @@ void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
         std::tuple<DataState::StateLocalPosition, DataState::StateAttitude> tmpTuple = std::make_tuple(localPos, att);
         m_vehicleMap.insert(std::make_pair(vehicleID, tmpTuple));
 
-#ifdef ROS_EXISTS
         // Add subscriber(s) for vehicle sensor messages
         std::vector<ros::Subscriber> vehicleSensors;
         std::string modelName = "basic_quadrotor_" + std::to_string(vehicleID);
@@ -402,7 +401,6 @@ void ModuleROS::insertVehicleIfNotExist(const int &vehicleID) {
         }
         // Add sensor list to sensor map:
         m_sensorVehicleMap.insert(std::make_pair(vehicleID, vehicleSensors));
-#endif
     }
 #endif
 }

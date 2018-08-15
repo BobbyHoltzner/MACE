@@ -3,22 +3,32 @@
 This is the GUI for the ground side of the MACE software suite. The goal of this GUI is to link a user interface to the MACE modules/libraries for display and high-level control of multiple vehicles. 
 
 ## Install
-To build the GUI from source, you will need [npm](http://npmjs.com) installed.
+To build the GUI from source, you will need [Yarn](https://yarnpkg.com/en/docs/getting-started) installed.
 
 Open a new console and change directories into the `MACE/ElectronGUI` directory. Install Node dependencies and build the React project:
 
 ```bash
-npm i
-npm run build:prod
+yarn install
+yarn run build:prod
 ```
 If you delete the node_modules folder for whatever reason, re-run the above commands.
 
 Now start the GUI:
 
-In one terminal, run the watcher and the GUI
+In one terminal (Windows), run the watcher and the GUI
 ```bash
-npm run launch
+yarn run launch
 ```
+
+For Linux, open two terminals and run:
+```bash
+**Terminal 1**
+yarn run watch
+
+**Terminal 2**
+yarn run start
+```
+
 This will launch the GUI and the watcher. Give the GUI a minute to load as the watcher boots up. If any changes are made to the React project, the watcher should recompile the project and reload the GUI.
 
 **NOTE:** In the past, we have seen errors resembling the following 
@@ -30,8 +40,8 @@ Error: listen EACCES 127.0.0.1:8080
 ```
 If this happens, re-build the GUI and relaunch with a different port number:
 ```
-npm run build:prod --nasa_gui:port=<newport>
-npm run launch --nasa_gui:port=<newport>
+yarn run build:prod --nasa_gui:port=<newport>
+yarn run launch --nasa_gui:port=<newport>
 ```
 (Replace `<newport>` with the desired port number)
 

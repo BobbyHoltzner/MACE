@@ -78,7 +78,7 @@ export class GlobalOriginDialog extends React.Component<Props, State> {
 
         return(
             <MuiThemeProvider muiTheme={lightMuiTheme}>
-                <Dialog titleStyle={styles.dialogTitle} title="Set global home position" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose} contentStyle={styles.dialogContent}>
+                <Dialog titleStyle={styles.dialogTitle} title="Set global origin position" actions={actions} modal={false} open={this.props.open} onRequestClose={this.props.handleClose} contentStyle={styles.dialogContent}>
                     <Grid fluid>
                         <Col xs={12} md={12}>
                             <TextField

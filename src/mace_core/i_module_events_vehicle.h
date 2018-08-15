@@ -28,6 +28,11 @@ public:
     //!
     virtual void EventVehicle_MissionACK(const void *sender, const MissionItem::MissionACK &ack) = 0;
 
+    //!
+    //! \brief EventVehicle_REJECTProposedMission Event to trigger a rejected mission action
+    //! \param sender Sender module
+    //! \param key Rejected mission key
+    //!
     virtual void EventVehicle_REJECTProposedMission(const void *sender, const MissionItem::MissionKey &key) = 0;
 
     //virtual void EventVehicle_ACKProposedMissionWChanges(const void *sender, const MissionItem::MissionKey &originalKey, const Data::MissionACK &ackCode, const MissionItem::MissionKey &newKey) = 0;

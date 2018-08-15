@@ -152,6 +152,7 @@ bool ModuleGroundStation::StartTCPServer()
     // For some reason, listening on any other specific address (i.e. not Any) fails.
     //      - As a workaround, I check the incoming connection below for equality with the guiHostAddress before parsing
     m_TcpServer->listen(QHostAddress::Any, m_listenPort);
+//    m_TcpServer->listen(m_guiHostAddress, m_listenPort);
 
     m_TcpServer->moveToThread(m_ListenThread);
     m_ListenThread->start();

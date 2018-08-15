@@ -22,7 +22,15 @@ public:
     //!
     virtual void Subscribe(ModuleBase* sender, const std::string &topicName, const std::vector<int> &entityIDs = {}, const std::vector<std::string> &components = {}) = 0;
 
-
+    //!
+    //! \brief NewTopicDataValues New topic data values available
+    //! \param moduleFrom Module the new data is available from
+    //! \param topicName Topic name
+    //! \param sender Sender module characteristic
+    //! \param time Time stamp
+    //! \param value Topic datagram value
+    //! \param target Target module
+    //!
     virtual void NewTopicDataValues(const ModuleBase* moduleFrom, const std::string &topicName, const ModuleCharacteristic &sender, const TIME &time, const TopicDatagram &value, const OptionalParameter<ModuleCharacteristic> &target = OptionalParameter<ModuleCharacteristic>()) = 0;
 
     //!

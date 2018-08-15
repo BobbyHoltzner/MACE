@@ -73,18 +73,20 @@ public:
 
 public:
 
+
     //!
-    //! \brief NewlyLoadedOccupancyMap
+    //! \brief NewlyLoadedOccupancyMap New occupancy map loaded subscriber
     //!
     virtual void NewlyLoadedOccupancyMap() = 0;
 
     //!
-    //! \brief NewlyUpdatedOccupancyMap
+    //! \brief NewlyUpdatedOccupancyMap New updated occupancy map subscriber
     //!
     virtual void NewlyUpdatedOccupancyMap() = 0;
 
     //!
-    //! \brief NewlyUpdatedGlobalOrigin
+    //! \brief NewlyUpdatedGlobalOrigin New global origin available
+    //! \param position New global origin
     //!
     virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 

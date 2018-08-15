@@ -92,14 +92,45 @@ public:
 
 public:
 
+    //!
+    //! \brief NewlyAvailableBoundary New boundary available subscriber
+    //! \param boundary Key for new boundary
+    //! \param sender Sender module
+    //!
+    virtual void NewlyAvailableBoundary(const uint8_t &boundary, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>()) = 0;
+
+    //!
+    //! \brief NewlyAvailableOnboardMission New onboard mission available subscriber
+    //! \param key Key for new mission
+    //! \param sender Sender module
+    //!
     virtual void NewlyAvailableOnboardMission(const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic> &sender = OptionalParameter<ModuleCharacteristic>()) = 0;
 
+    //!
+    //! \brief NewlyAvailableMissionExeState New mission EXE state subscriber
+    //! \param missionKey Mission key for new EXE state
+    //!
     virtual void NewlyAvailableMissionExeState(const MissionItem::MissionKey &missionKey) = 0;
 
+    //!
+    //! \brief NewlyAvailableHomePosition New home position subscriber
+    //! \param home New home position
+    //! \param sender Sender module
+    //!
     virtual void NewlyAvailableHomePosition(const CommandItem::SpatialHome &home, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
 
+
+    //!
+    //! \brief NewlyAvailableModule New module available subscriber
+    //! \param module New module characteristic
+    //!
     virtual void NewlyAvailableModule(const ModuleCharacteristic &module, const ModuleClasses &type) = 0;
 
+
+    //!
+    //! \brief ReceivedMissionACK Mission ACK subscriber
+    //! \param ack New mission ack
+    //!
     virtual void ReceivedMissionACK(const MissionItem::MissionACK &ack) = 0;
 
     virtual void Command_RequestBoundaryDownload(const std::tuple<ModuleCharacteristic, uint8_t> &remote, const OptionalParameter<ModuleCharacteristic> &sender) = 0;

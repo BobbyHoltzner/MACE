@@ -60,17 +60,21 @@ public:
         return moduleClass;
     }
 
-public:
+
+    //!
+    //! \brief TestFunction
+    //! \param vehicleID
+    //!
     virtual void TestFunction(const int &vehicleID) = 0;
 
     //!
-    //! \brief NewlyUpdatedGlobalOrigin
+    //! \brief NewlyUpdatedGlobalOrigin New global origin subscriber
+    //! \param position New global origin position
     //!
     virtual void NewlyUpdatedGlobalOrigin(const mace::pose::GeodeticPosition_3D &position) = 0;
 
-
     //!
-    //! \brief NewlyUpdatedGridSpacing
+    //! \brief NewlyUpdatedGridSpacing New grid spacing value available
     //!
     virtual void NewlyUpdatedGridSpacing() = 0;
 };

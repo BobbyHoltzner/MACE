@@ -165,14 +165,17 @@ void State_FlightGuided::OnEnter()
 
 //    collection->Insert("globalGuidedController", controllerGuided_Global);
 
-    auto controllerGuided_Local = new MAVLINKVehicleControllers::ControllerGuidedTargetItem_Local<MAVLINKVehicleControllers::TargetControllerStructLocal>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
-    controllerGuided_Local->setLambda_Shutdown([this, collection]()
-    {
-        auto ptr = collection->Remove("localGuidedController");
-        delete ptr;
-    });
 
-    collection->Insert("localGuidedController", controllerGuided_Local);
+
+    std::cout << " TODO: Fix ControllerGuidedTargetItem_Local -- OnEnter() method" << std::endl;
+//    auto controllerGuided_Local = new MAVLINKVehicleControllers::ControllerGuidedTargetItem_Local<MAVLINKVehicleControllers::TargetControllerStructLocal>(&Owner(), Owner().GetControllerQueue(), Owner().getCommsObject()->getLinkChannel());
+//    controllerGuided_Local->setLambda_Shutdown([this, collection]()
+//    {
+//        auto ptr = collection->Remove("localGuidedController");
+//        delete ptr;
+//    });
+
+//    collection->Insert("localGuidedController", controllerGuided_Local);
 
 
 }

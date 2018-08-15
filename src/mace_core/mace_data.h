@@ -130,17 +130,27 @@ public:
     /////////////////////////////////////////////////////////
 
 public:
+
+    //!
+    //! \brief GetAvailableVehicles Get a list of vehicle IDs this instance has knowledge of
+    //! \param vehicleIDs Vector of vehicle IDs
+    //!
     void GetAvailableVehicles(std::vector<int> &vehicleIDs) const
     {
         std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
         vehicleIDs = m_AvailableVehicles;
     }
 
+    //!
+    //! \brief GetLocalVehicles Get a list of local vehicle IDs this instance has knowledge of
+    //! \param vehicleIDs Vector of vehicle IDs
+    //!
     void GetLocalVehicles(std::vector<int> &vehicleIDs) const
     {
         std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
         vehicleIDs = m_LocalVehicles;
     }
+
 
     std::vector<int> GetLocalVehicles() const
     {
@@ -199,6 +209,11 @@ public:
         return false;
     }
 
+    //!
+    //! \brief GetVehicleHomePostion Get the home position of the specified vehicle
+    //! \param vehicleID Vehicle ID
+    //! \return Vehicle home position
+    //!
     CommandItem::SpatialHome GetVehicleHomePostion(const int &vehicleID) const
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
@@ -206,13 +221,20 @@ public:
         return vehicleHome;
     }
 
-
+    //!
+    //! \brief GetGlobalOrigin Get the system wide global origin
+    //! \return Global origin
+    //!
     mace::pose::GeodeticPosition_3D GetGlobalOrigin() const
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         return m_GlobalOrigin;
     }
 
+    //!
+    //! \brief GetGridSpacing Get the grid spacing (used for RTA grid generation)
+    //! \return Grid spacing
+    //!
     double GetGridSpacing() const
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
@@ -220,7 +242,10 @@ public:
         return gridSpacing;
     }
 
-
+    //!
+    //! \brief GetEnvironmentBoundary Get the environment boundary
+    //! \return Vector of positions that make up the boundary
+    //!
     std::vector<DataState::StateGlobalPosition> GetEnvironmentBoundary() const
     {
         std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
@@ -228,6 +253,10 @@ public:
         return boundaryVerts;
     }
 
+    //!
+    //! \brief GetVehicleBoundaryList Get vehicle boundary list
+    //! \return Boundary list
+    //!
     std::vector<BoundaryItem::BoundaryList> GetVehicleBoundaryList() const
     {
         std::lock_guard<std::mutex> guard(m_VehicleBoundaryMutex);
@@ -237,6 +266,12 @@ public:
 
 private:
 
+
+    //!
+    //! \brief AddAvailableVehicle Add a new vehicle to the list of available vehicles
+    //! \param vehicleID Vehicle ID to add
+    //! \param internal If internal, the vehicle is attached to this MACE instance
+    //!
     void AddAvailableVehicle(const int &vehicleID, bool internal, const ModuleCharacteristic &module)
     {
         std::lock_guard<std::mutex> guard(m_AvailableVehicleMutex);
@@ -253,12 +288,21 @@ private:
         }
     }
 
+
+    //!
+    //! \brief UpdateVehicleHomePosition Update the vehicle home position
+    //! \param vehicleHome New vehicle home
+    //!
     void UpdateVehicleHomePosition(const uint8_t vehicleID, const CommandItem::SpatialHome &vehicleHome)
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
         m_VehicleHomeMap[vehicleID] = vehicleHome;
     }
 
+    //!
+    //! \brief UpdateGlobalOrigin Update the global origin
+    //! \param globalOrigin New global origin
+    //!
     void UpdateGlobalOrigin(const mace::pose::GeodeticPosition_3D &globalOrigin)
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
@@ -268,6 +312,10 @@ private:
         updateBoundariesNewOrigin(distanceTo, bearingTo);
     }
 
+    //!
+    //! \brief UpdateGridSpacing Update the grid spacing
+    //! \param gridSpacing New grid spacing value
+    //!
     void UpdateGridSpacing(const double &gridSpacing)
     {
         std::lock_guard<std::mutex> guard(m_VehicleHomeMutex);
@@ -276,6 +324,10 @@ private:
 
 
     //Gets called when you draw on the GUI
+    //!
+    //! \brief UpdateEnvironmentVertices Update environment vertices from the GCS module
+    //! \param boundaryVerts New boundary vertices vector
+    //!
     void UpdateEnvironmentVertices(const std::vector<DataState::StateGlobalPosition> &boundaryVerts) {
         std::lock_guard<std::mutex> guard(m_EnvironmentalBoundaryMutex);
         m_BoundaryVerts = boundaryVerts;
@@ -283,18 +335,29 @@ private:
     }
 
     //This is only called via RTA
+    //!
+    //! \brief UpdateVehicleCellMap Update the map of paritioned vehicle cells (from RTA module)
+    //! \param vehicleMap Map of new vehicle cells
+    //!
     void UpdateVehicleCellMap(const std::map<int, mace::geometry::Cell_2DC> &vehicleMap) {
         std::lock_guard<std::mutex> gaurd(m_VehicleBoundaryMutex);
         m_vehicleCellMap = vehicleMap;
     }
 
     //This is only called via RTA
+    //!
+    //! \brief UpdateVehicleBoundaryList Update the list vehicle of boundary lists
+    //! \param boundaryList Vector of vehicle boundary lists
+    //!
     void UpdateVehicleBoundaryList(const std::vector<BoundaryItem::BoundaryList> &boundaryList) {
         std::lock_guard<std::mutex> gaurd(m_VehicleBoundaryMutex);
         m_vehicleBoundaryList = boundaryList;
     }
 
-
+    //!
+    //! \brief RemoveVehicle Remove vehicle
+    //! \param rn Resource/vehicle name
+    //!
     void RemoveVehicle(const std::string &rn)
     {
         if(m_PositionDynamicsHistory.find(rn) == m_PositionDynamicsHistory.cend())
@@ -305,13 +368,18 @@ private:
         m_VehicleLifeHistory.erase(rn);
     }
 
+    //!
+    //! \brief AddVehicleLife Add vehicle life data
+    //! \param rn Resource name
+    //! \param time Timestamp
+    //! \param life Vehicle life
+    //!
     void AddVehicleLife(const std::string &rn, const TIME &time, const VehicleLife &life)
     {
         std::lock_guard<std::mutex> guard(m_VehicleDataMutex);
 
         m_VehicleLifeHistory.at(rn).InsertObservation(time, life);
     }
-
 
     //!
     //! \brief set the Target list of a specific vehicle
@@ -326,7 +394,6 @@ private:
 
         m_VehicleTargetPositionList[vehicleID] = targetPos;
     }
-
 
     //!
     //! \brief set the dynamics for a specific vehicle.
@@ -344,7 +411,16 @@ private:
 
 public:
 
-    void setTopicDatagram(const std::string &topicName, const ModuleCharacteristic sender, const TIME &time, const TopicDatagram &value) {
+
+    //!
+    //! \brief setTopicDatagram Set topic datagram
+    //! \param topicName Topic name
+    //! \param senderID Sender ID
+    //! \param time Timestamp
+    //! \param value Topic datagram value
+    //!
+    void setTopicDatagram(const std::string &topicName, const ModuleCharacteristic sender, const TIME &time, const TopicDatagram &value)
+    {
 
         std::lock_guard<std::mutex> guard(m_TopicMutex);
 
@@ -366,6 +442,12 @@ public:
         }
     }
 
+
+    //!
+    //! \brief getAllLatestTopics Get all latest topics from the specified target
+    //! \param targetID Target ID
+    //! \return Map of the latest topic datagrams
+    //!
     std::unordered_map<std::string, TopicDatagram> getAllLatestTopics(const ModuleCharacteristic sender)
     {
         std::lock_guard<std::mutex> guard(m_TopicMutex);
@@ -383,7 +465,15 @@ public:
 
     }
 
-    TopicDatagram GetCurrentTopicDatagram(const std::string &topicName, const ModuleCharacteristic sender) const {
+
+    //!
+    //! \brief GetCurrentTopicDatagram Get the current topic datagram of a specified name and sender ID
+    //! \param topicName Topic name
+    //! \param senderID Sender ID
+    //! \return Current topic datagram
+    //!
+    TopicDatagram GetCurrentTopicDatagram(const std::string &topicName, const ModuleCharacteristic sender) const
+    {
         std::lock_guard<std::mutex> guard(m_TopicMutex);
         return m_LatestTopic.at(topicName).at(sender);
     }
@@ -391,6 +481,14 @@ public:
 
 public:
 
+    //!
+    //! \brief GetPositionDynamics Get position and velocity of a specified resource at a specified time
+    //! \param rn Resource name
+    //! \param time Time to query
+    //! \param pos Position container
+    //! \param velocity Velocity container
+    //! \return True if successful
+    //!
     bool GetPositionDynamics(const std::string rn, const TIME &time, Eigen::Vector3d &pos, Eigen::Vector3d &velocity) const
     {
         UNUSED(pos);
@@ -405,6 +503,14 @@ public:
         return true;
     }
 
+    //!
+    //! \brief GetAttitudeDynamics Get attitude and attitude rates of a specified resource at a specified time
+    //! \param rn Resource name
+    //! \param time Time to query
+    //! \param att Attiude container
+    //! \param att_rates Attitude rates conatiner
+    //! \return True if successful
+    //!
     bool GetAttitudeDynamics(const std::string rn, const TIME &time, Eigen::Vector3d &att, Eigen::Vector3d &att_rates) const
     {
         UNUSED(att);
@@ -629,12 +735,23 @@ public:
         func(m_ResourceMap);
     }
 
+    //!
+    //! \brief insertGlobalObservation Insert a global point cloud into the current octomap
+    //! \param obj Point cloud in the global/inertial frame
+    //! \param position Position of the sensor taking the measurement
+    //!
     void insertGlobalObservation(octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position)
     {
         std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
         m_OctomapWrapper->updateFromPointCloud(&obj, position);
     }
 
+    //!
+    //! \brief insertObservation Insert a point cloud into the current octomap
+    //! \param obj Point cloud in the vehicle frame
+    //! \param position Position of the sensor taking the measurement
+    //! \param orientation Orientation of the sensor taking the measurement
+    //!
     void insertObservation(octomap::Pointcloud& obj, const mace::pose::Position<mace::pose::CartesianPosition_3D> &position, const mace::pose::Orientation_3D &orientation)
     {
         std::lock_guard<std::mutex> guard(m_Mutex_OccupancyMaps);
@@ -682,8 +799,6 @@ public:
     }
 
 
-
-
     //!
     //! \brief Retreive a copy of the Probibility map
     //!
@@ -697,7 +812,6 @@ public:
         return m_ProbabilityMap;
     }
 
-
     //!
     //! \brief Read specific cells from Probibility map
     //! \param cells Vector of cells to read
@@ -708,7 +822,6 @@ public:
 
         ReadCellsInMatrix(m_ProbabilityMap, cells);
     }
-
 
     //!
     //! \brief Call lambda to perform a generic const operation on Probibility map
@@ -726,12 +839,18 @@ public:
 
 
 
-
-
 private:
 
 
     template <typename T>
+    //!
+    //! \brief GetObservation
+    //! \param history
+    //! \param time
+    //! \param data
+    //! \param reckoning
+    //! \return
+    //!
     bool GetObservation(const ObservationHistory<TIME, T> &history, const TIME time, T &data, const std::function<T(const TIME&, const T&, const TIME&, const T&, const TIME&)> &reckoning) const
     {
         std::vector<TIME> prevTimes;
@@ -813,14 +932,48 @@ private:
 
 public:
 
+    //!
+    //! \brief getOctomapDimensions Get the current octomap dimensions
+    //! \param minX Minimum x value of the bounding box
+    //! \param maxX Maximum x value of the bounding box
+    //! \param minY Minimum y value of the bounding box
+    //! \param maxY Maximum y value of the bounding box
+    //! \param minZ Minimum z value of the bounding box
+    //! \param maxZ Maximum z value of the bounding box
+    //!
     void getOctomapDimensions(double &minX, double &maxX, double &minY, double &maxY, double &minZ, double &maxZ) const;
 
+    //!
+    //! \brief updateOctomapProperties Update the octomap properties
+    //! \param properties New octomap properties
+    //! \return True if successful
+    //!
     bool updateOctomapProperties(const mace::maps::OctomapSensorDefinition &properties);
 
+    //!
+    //! \brief updateMappingProjectionProperties Update octomap projection properties
+    //! \param properties New octomap projection properties
+    //! \return True if successful
+    //!
     bool updateMappingProjectionProperties(const mace::maps::Octomap2DProjectionDefinition &properties);
 
+    //!
+    //! \brief loadOccupancyEnvironment Load an occupancy map from a file
+    //! \param filePath File path
+    //! \return True if successful
+    //!
     bool loadOccupancyEnvironment(const std::string &filePath);
+
+    //!
+    //! \brief getOccupancyGrid3D Get the current 3D occupancy map
+    //! \return True if successful
+    //!
     octomap::OcTree getOccupancyGrid3D() const;
+
+    //!
+    //! \brief getCompressedOccupancyGrid2D Get the current compressed 2D occupancy map
+    //! \return True if successful
+    //!
     mace::maps::Data2DGrid<mace::maps::OccupiedResult> getCompressedOccupancyGrid2D() const;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -831,6 +984,7 @@ public:
     The data class is responsible for reporting an updated missionKey to the calling agent attempting to update
     the core data structure.
     */
+
     //variables
 private:
     mutable std::mutex MUTEXMissionID;
@@ -841,11 +995,31 @@ private:
     //! the missionID as the unique identifier associated with the actual mission.
     //!
     std::map<int,std::map<int,int>> mapMissionID;
+
     //methods
 public:
+
+    //!
+    //! \brief appendAssociatedMissionMap Append a mission list
+    //! \param missionList Mission list
+    //! \return Key of new mission list
+    //!
     MissionItem::MissionKey appendAssociatedMissionMap(const MissionItem::MissionList &missionList);
+
+    //!
+    //! \brief appendAssociatedMissionMap Append a mission list with a new system ID
+    //! \param newSystemID New system ID
+    //! \param missionList Mission list
+    //! \return Key of new mission list
+    //!
     MissionItem::MissionKey appendAssociatedMissionMap(const int &newSystemID, const MissionItem::MissionList &missionList);
+
 private:
+    //!
+    //! \brief getAvailableMissionID Get mission ID based on mission key
+    //! \param key Key to query
+    //! \return Mission ID
+    //!
     int getAvailableMissionID(const MissionItem::MissionKey &key);
 
     /*
@@ -856,23 +1030,70 @@ private:
     mutable std::mutex MUTEXMissions;
     std::map<MissionItem::MissionKey,MissionItem::MissionList> mapMissions;
     std::map<int,MissionItem::MissionKey> mapCurrentMission;
+
     //methods
 public:
     /*
     The following methods aid in handling the reception of a new mission over the external link. The items handled
     in here will be partial lists and should not migrate into the main mission queue.
     */
+    //!
+    //! \brief updateCurrentMissionItem Update the current mission item
+    //! \param current Current mission item
+    //! \return
+    //!
     bool updateCurrentMissionItem(const MissionItem::MissionItemCurrent &current);
 
     /*
     The following methods aid getting the mission list from the mace data class. The following methods aid getting
     the current mission object and keys.
     */
+    //!
+    //! \brief getMissionList Get mission list corresponding to the system ID, mission type, mission state
+    //! \param systemID System ID
+    //! \param type Mission type
+    //! \param state Mission state
+    //! \param missionList Container for the mission list
+    //! \return True if mission list exists
+    //!
     bool getMissionList(const int &systemID, const MissionItem::MISSIONTYPE &type, const MissionItem::MISSIONSTATE &state, MissionItem::MissionList &missionList) const;
+
+    //!
+    //! \brief getMissionList Get mission list based on mission key
+    //! \param missionKey Mission key to query
+    //! \param missionList Container for the mission list
+    //! \return True if mission list exists
+    //!
     bool getMissionList(const MissionItem::MissionKey &missionKey, MissionItem::MissionList &missionList) const;
+
+    //!
+    //! \brief getCurrentMissionKey Get current mission key for the specified system ID
+    //! \param systemID System ID to query
+    //! \param key Container for the mission key
+    //! \return True if mission key exists
+    //!
     bool getCurrentMissionKey(const int &systemID, MissionItem::MissionKey &key) const;
+
+    //!
+    //! \brief getCurrentMission Get current mission for the specified system ID
+    //! \param systemID System ID to query
+    //! \param cpyMission Container for the mission list
+    //! \return  True if mission exists
+    //!
     bool getCurrentMission(const int &systemID, MissionItem::MissionList &cpyMission) const;
+
+    //!
+    //! \brief getCurrentMissionValidity Get current mission validity for the specified system ID
+    //! \param systemID System ID to query
+    //! \return True if current mission exists
+    //!
     bool getCurrentMissionValidity(const int &systemID) const;
+
+    //!
+    //! \brief getMissionKeyValidity Get current mission key validity
+    //! \param key Key to query
+    //! \return True if mission key exists
+    //!
     bool getMissionKeyValidity(const MissionItem::MissionKey &key) const;
 
 
@@ -881,17 +1102,57 @@ public:
     the current mission object and keys.
     */
 
+
+    //!
+    //! \brief getOnboardMissionKeys Get a list of mission keys for the specified system ID
+    //! \param systemID System ID to query
+    //! \return Vector of mission keys
+    //!
     std::vector<MissionItem::MissionKey> getMissionKeysForVehicle(const int &systemID) const;
+
+
+    //!
+    //! \brief removeFromMissionMap Remove a mission with the corresponding key from the map
+    //! \param missionKey Mission key to remove
+    //!
     void removeFromMissionMap(const MissionItem::MissionKey &missionKey);
+
+    //!
+    //! \brief receivedMissionACKKey Handle a received mission ACK key
+    //! \param key Key of the mission
+    //! \param newState New misison state
+    //! \return Key for the current mission in its current state
+    //!
     MissionItem::MissionKey receivedMissionACKKey(const MissionItem::MissionKey &key, const MissionItem::MISSIONSTATE &newState);
 
+    //!
+    //! \brief receivedNewMission Received the full mission
+    //! \param missionList Received mission list
+    //!
     void receivedNewMission(const MissionItem::MissionList &missionList);
 
     /*
     The following methods update the mission type state of the appropriate mission items.
     */
+    //!
+    //! \brief updateMissionExeState Update the execution state of the mission with the corresponding key
+    //! \param missionKey Mission key to update
+    //! \param state New execution state
+    //!
     void updateMissionExeState(const MissionItem::MissionKey &missionKey, const Data::MissionExecutionState &state);
+
+    //!
+    //! \brief updateOnboardMission Update the onboard mission with the new mission key
+    //! \param missionKey New mission key
+    //! \return True if update successful
+    //!
     bool updateOnboardMission(const MissionItem::MissionKey &missionKey);
+
+    //!
+    //! \brief checkForCurrentMission Check for the current mission corresponding to the key
+    //! \param missionKey Mission key to query
+    //! \return True if current mission exists
+    //!
     bool checkForCurrentMission(const MissionItem::MissionKey &missionKey);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -921,18 +1182,29 @@ public:
 
 
     //!
-    //! \brief Given a known boundary key, get the boundary for that key.
-    //! \param key Key to fetch boundary of
-    //! \param boundary Object to put boundary into
-    //! \return True if boundary exists for the key, false otherwise.
+    //! \brief getBoundaryFromIdentifier Return the boundary corresponding to a specific ID
+    //! \param ID Boundary identifier
+    //! \param boundary Container for the requested boundary
+    //! \return True if boundary is found, False otherwise
     //!
     bool getBoundaryFromIdentifier(const BoundaryIdentifierType &ID, BoundaryItem::BoundaryList &boundary) const;
 
 
+    //!
+    //! \brief getCharactersticFromIdentifier Get boundary characteristic given a specific boundary identifier
+    //! \param ID Boundary identifier
+    //! \param characteristic Container for boundary characteristic
+    //! \return True if characteristic is found, False otherwise
+    //!
     bool getCharactersticFromIdentifier(const BoundaryIdentifierType ID, BoundaryItem::BoundaryCharacterisic &characteristic) const;
 
 
 private:
+    //!
+    //! \brief updateBoundariesNewOrigin Update the origin of the boundary points from a new distance/bearing relative to a new origin point
+    //! \param distance Distance to new origin point
+    //! \param bearing Bearing to new origin point
+    //!
     void updateBoundariesNewOrigin(const double &distance, const double &bearing);
 
 

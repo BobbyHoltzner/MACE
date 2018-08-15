@@ -157,30 +157,124 @@ public:
 
 public:
 
+    //!
+    //! \brief Request_FullDataSync Request full data sync of target system event
+    //! \param targetSystem Target system
+    //!
     virtual void Request_FullDataSync(const int &targetSystem, const OptionalParameter<ModuleCharacteristic>& = OptionalParameter<ModuleCharacteristic>()) = 0;
 
+    //!
+    //! \brief Command_SystemArm Command a systm arm
+    //! \param command Arm/Disarm command
+    //! \param sender Sender module
+    //!
     virtual void Command_SystemArm(const CommandItem::ActionArm &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
+
+    //!
+    //! \brief Command_VehicleTakeoff Command a vehicle takeoff
+    //! \param command Vehicle takeoff command
+    //! \param sender Sender module
+    //!
     virtual void Command_VehicleTakeoff(const CommandItem::SpatialTakeoff &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
+
+    //!
+    //! \brief Command_Land Issue a LAND command
+    //! \param command Land command
+    //! \param sender Sender module
+    //!
     virtual void Command_Land(const CommandItem::SpatialLand &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
+
+    //!
+    //! \brief Command_ReturnToLaunch Issue an RTL command
+    //! \param command RTL command
+    //! \param sender Sender module
+    //!
     virtual void Command_ReturnToLaunch(const CommandItem::SpatialRTL &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
+
+    //!
+    //! \brief Command_MissionState Issue a mission state update command
+    //! \param command Mission state command
+    //! \param sender Sender module
+    //!
     virtual void Command_MissionState(const CommandItem::ActionMissionCommand &command, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
+
+    //!
+    //! \brief Command_IssueGeneralCommand Issue a general command
+    //! \param command General command
+    //!
     virtual void Command_IssueGeneralCommand(const std::shared_ptr<CommandItem::AbstractCommandItem> &command) = 0;
 
+    //!
+    //! \brief Command_ChangeSystemMode Issue a mode change command
+    //! \param vehicleMode Mode change command
+    //! \param sender Sender module
+    //!
     virtual void Command_ChangeSystemMode(const CommandItem::ActionChangeMode &vehicleMode, const OptionalParameter<ModuleCharacteristic> &sender) = 0;
 
+    //!
+    //! \brief Command_UploadMission Issue an upload mission command
+    //! \param missionList Mission list to upload
+    //!
     virtual void Command_UploadMission(const MissionItem::MissionList &missionList) = 0;
+
+    //!
+    //! \brief Command_SetCurrentMission Set current mission command
+    //! \param key New current mission key
+    //!
     virtual void Command_SetCurrentMission(const MissionItem::MissionKey &key) = 0;
+
+    //!
+    //! \brief Command_GetCurrentMission Get current mission of the target system
+    //! \param targetSystem Target system ID
+    //!
     virtual void Command_GetCurrentMission(const int &targetSystem) = 0;
+
+    //!
+    //! \brief Command_GetMission Get mission based on the mission key
+    //! \param key Mission key to query
+    //!
     virtual void Command_GetMission(const MissionItem::MissionKey &key, const OptionalParameter<ModuleCharacteristic>& = OptionalParameter<ModuleCharacteristic>()) = 0;
+
+    //!
+    //! \brief Command_ClearCurrentMission Clear the current mission on the target system
+    //! \param targetSystem Target system ID
+    //!
     virtual void Command_ClearCurrentMission(const int &targetSystem) = 0;
 
+    //!
+    //! \brief Command_GetOnboardAuto Get the onboard auto mission on the target system
+    //! \param targetSystem Target system ID
+    //!
     virtual void Command_GetOnboardAuto(const int &targetSystem) = 0;
+
+    //!
+    //! \brief Command_ClearOnboardAuto Clear the auto mission onboard the target system
+    //! \param targetSystem Target system ID
+    //!
     virtual void Command_ClearOnboardAuto(const int &targetSystem) = 0;
 
+    //!
+    //! \brief Command_GetOnboardGuided Get the guided mission onboard the target system
+    //! \param targetSystem Target system ID
+    //!
     virtual void Command_GetOnboardGuided(const int &targetSystem) = 0;
+
+    //!
+    //! \brief Command_ClearOnboardGuided Clear the guided mission onboard the target system
+    //! \param targetSystem Target system ID
+    //!
     virtual void Command_ClearOnboardGuided(const int &targetSystem) = 0;
 
+    //!
+    //! \brief Command_GetHomePosition Get home position of the specified vehicle ID
+    //! \param vehicleID Vehicle ID
+    //!
     virtual void Command_GetHomePosition(const int &vehicleID, const OptionalParameter<ModuleCharacteristic>& = OptionalParameter<ModuleCharacteristic>()) = 0;
+
+    //!
+    //! \brief Command_SetHomePosition Set a new home position
+    //! \param vehicleHome New vehicle home position
+    //!
     virtual void Command_SetHomePosition(const CommandItem::SpatialHome &vehicleHome, const OptionalParameter<ModuleCharacteristic>& = OptionalParameter<ModuleCharacteristic>()) = 0;
 
 

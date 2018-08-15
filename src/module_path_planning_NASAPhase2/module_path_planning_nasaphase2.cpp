@@ -353,6 +353,7 @@ void ModulePathPlanningNASAPhase2::NewlyLoadedOccupancyMap()
             BoundaryItem::BoundaryCharacterisic key({}, BoundaryItem::BOUNDARYTYPE::OPERATIONAL_FENCE);
 
             boundary.setBoundary(m_LocalOperationalBoundary);
+
             ptr->Event_SetBoundary(this, key, boundary);
         });
     }
