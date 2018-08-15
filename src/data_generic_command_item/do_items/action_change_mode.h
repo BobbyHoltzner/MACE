@@ -35,13 +35,13 @@ public:
      * @brief getClone
      * @return
      */
-    AbstractCommandItem* getClone() const override;
+    std::shared_ptr<AbstractCommandItem> getClone() const override;
 
     /**
      * @brief getClone
      * @param state
      */
-    void getClone(AbstractCommandItem** command) const override;
+    void getClone(std::shared_ptr<AbstractCommandItem> &command) const override;
 
 public:
     ActionChangeMode();

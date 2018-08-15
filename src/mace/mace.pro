@@ -170,10 +170,10 @@ win32: LIBS += -limagehlp
 unix: LIBS += -lboost_system
 
 unix {
-exists(/opt/ros/kinetic/lib/) {
-    DEFINES += ROS_EXISTS
-    INCLUDEPATH += /opt/ros/kinetic/include
-    INCLUDEPATH += /opt/ros/kinetic/lib
+    exists(/opt/ros/kinetic/lib/) {
+        DEFINES += ROS_EXISTS
+        INCLUDEPATH += /opt/ros/kinetic/include
+        INCLUDEPATH += /opt/ros/kinetic/lib
 
         LIBS += -L/opt/ros/kinetic/lib -lroscpp
         LIBS += -L/opt/ros/kinetic/lib -lroscpp_serialization
@@ -194,10 +194,19 @@ exists(/opt/ros/kinetic/lib/) {
         LIBS += -L/opt/ros/kinetic/lib -ltf2
         LIBS += -L/opt/ros/kinetic/lib -ltf2_ros
         LIBS += -L/opt/ros/kinetic/lib -lactionlib
-        LIBS += -L/opt/ros/kinetic/lib -loctomap
         LIBS += -L/opt/ros/kinetic/lib -loctomap_ros
+        LIBS += -L/opt/ros/kinetic/lib -loctomap
+        LIBS += -L/opt/ros/kinetic/lib -loctomath
+
+    } else {
+        INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
+        LIBS += -L$$OUT_PWD/../../tools/octomap/lib/ -loctomap -loctomath
+    }
 }
-}
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../tools/octomap/bin/ -loctomap -loctomath
+win32:INCLUDEPATH += $$OUT_PWD/../../tools/octomap/octomap/include
+
 
 INCLUDEPATH += $$(MACE_DIGIMESH_WRAPPER)/include/
 LIBS += -L$$(MACE_DIGIMESH_WRAPPER)/lib/ -lMACEDigiMeshWrapper

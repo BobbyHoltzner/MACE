@@ -48,6 +48,8 @@ private:
 
     std::unordered_map<MavlinkEntityKey, MavlinkEntityKey> m_CommandRequestedFrom;
 
+public:
+
 protected:
 
     virtual void FillCommand(const COMMANDDATASTRUCTURE &, mavlink_command_int_t &) const = 0;

@@ -2,8 +2,8 @@
 
 ArdupilotTargetProgess::ArdupilotTargetProgess()
 {
-    distanceThresholdAchieved = 1.0;
-    distanceThresholdHunting = 20.0;
+    distanceThresholdAchieved = 0.5;
+    distanceThresholdHunting = 10.0;
     maxDuration_Hunting = 20.0;
     maxDuration_Routing = std::numeric_limits<double>::max();
     state = Data::ControllerState::TRACKING;

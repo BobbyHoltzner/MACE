@@ -39,6 +39,7 @@ using namespace octomap;
 
 using namespace mace ;
 using namespace geometry;
+using namespace maps;
 
 class MODULE_PATH_PLANNING_NASAPHASE2SHARED_EXPORT ModulePathPlanningNASAPhase2 : public MaceCore::IModuleCommandPathPlanning, public mace::planners::Planner_Interface
 {
@@ -52,10 +53,7 @@ public:
     //! \brief This module as been attached as a module
     //! \param ptr pointer to object that attached this instance to itself
     //!
-    virtual void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr)
-    {
-        UNUSED(ptr);
-    }
+    void AttachedAsModule(MaceCore::IModuleTopicEvents* ptr) override;
 
 
     //!
@@ -121,11 +119,15 @@ public:
 
     void NewlyAvailableMission(const MissionItem::MissionList &mission) override;
 
+
 public:
     void cbiPlanner_SampledState(const mace::state_space::State* sampleState) override;
     void cbiPlanner_NewConnection(const mace::state_space::State* beginState, const mace::state_space::State* secondState) override;
 
 private:
+
+    void replanRRT();
+
     /**
      * @brief parseBoundaryVertices Given a string of delimited (lat, lon) pairs, parse into a vector of points
      * @param unparsedVertices String to parse with delimiters
@@ -142,19 +144,32 @@ private:
     void NewOperationalBoundary(const BoundaryItem::BoundaryList &boundary);
 
 private:
+    unsigned int localVehicleID;
+    double localVehicleSize = 0.01;
+    std::map<int,mace::pose::CartesianPosition_3D> map_CurrentPosition;
+    MissionItem::MissionList m_MissionList;
+    TargetItem::DynamicMissionQueue m_DynamicPlan;
 
-    MissionItem::MissionList missionList;
 
     mace::state_space::Cartesian2DSpacePtr m_Space;
+    mace::state_space::Cartesian2DSpace_SamplerPtr sampler;
+    mace::state_space::DiscreteMotionValidityCheckPtr motionCheck;
+    mace::state_space::SpecialValidityCheckPtr stateCheck;
+    mace::state_space::SpaceInformationPtr spaceInfo;
+    mace::planners_sampling::RRTBasePtr m_PlannerRRT;
+
 
     mace::pose::GeodeticPosition_3D m_globalOrigin;
 
     mace::geometry::Polygon_2DG m_GlobalOperationalBoundary;
     mace::geometry::Polygon_2DC m_LocalOperationalBoundary;
 
+
+    maps::Data2DGrid<OccupiedResult>* m_ProjectedOccupancyMap;
     maps::Data2DGrid<OccupiedResult>* m_OccupiedVehicleMap;
 
     mace::maps::OctomapSensorDefinition m_OctomapSensorProperties;
+
 
     // Flags:
     bool originSent;

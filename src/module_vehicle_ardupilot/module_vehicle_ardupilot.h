@@ -26,6 +26,8 @@
 #include "ardupilot_states/state_components.h"
 #include "vehicle_object/ardupilot_vehicle_object.h"
 
+#include "mace_core/abstract_module_base.h"
+
 //__________________
 #include "data_interface_MAVLINK/callback_interface_data_mavlink.h"
 
@@ -46,6 +48,10 @@ class MODULE_VEHICLE_ARDUPILOTSHARED_EXPORT ModuleVehicleArdupilot : public Modu
 public:
     ModuleVehicleArdupilot();
 
+
+    ~ModuleVehicleArdupilot();
+
+
     //!
     //! \brief Provides object contains parameters values to configure module with
     //! \param params Parameters to configure
@@ -65,6 +71,8 @@ public:
     //!
     void MissionAcknowledgement(const MAV_MISSION_RESULT &missionResult, const bool &publishResult);
 
+public:
+    void UpdateDynamicMissionQueue(const TargetItem::DynamicMissionQueue &queue) override;
 
 public:
     //!
@@ -330,12 +338,14 @@ private:
     //!
     void ProgressStateMachineStates();
 
+    void TransformDynamicMissionQueue();
 
 
 private:
     std::shared_ptr<spdlog::logger> mLogs;
 
 private:
+    std::mutex m_Mutex_VehicleData;
     std::shared_ptr<ArdupilotVehicleObject> vehicleData;
 
 private:
@@ -349,6 +359,8 @@ private:
     std::unordered_map<std::string, Controllers::IController<mavlink_message_t, int>*> m_TopicToControllers;
 
     MAVLINKVehicleControllers::ControllerMission * m_MissionController;
+
+    TransmitQueue<mavlink_message_t, MavlinkEntityKey> *m_TransmissionQueue;
 };
 
 #endif // MODULE_VEHICLE_ARDUPILOT_H

@@ -21,6 +21,7 @@ OctomapWrapper::OctomapWrapper(const double &treeResolution, const OctomapSensor
     updateSensorProperties(*m_sensorProperties);
 }
 
+
 OctomapWrapper::~OctomapWrapper()
 {
     delete m_sensorProperties;
@@ -33,6 +34,8 @@ OctomapWrapper::~OctomapWrapper()
 bool OctomapWrapper::updateSensorProperties(const OctomapSensorDefinition &sensorProperties)
 {
     m_Tree->setResolution(sensorProperties.getTreeResolution());
+    treeResolution = m_Tree->getResolution();
+
     m_Tree->setProbHit(sensorProperties.getProbHit());
     m_Tree->setProbMiss(sensorProperties.getProbMiss());
     m_Tree->setClampingThresMax(sensorProperties.getThreshMax());

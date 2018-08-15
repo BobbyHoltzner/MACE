@@ -42,7 +42,7 @@ class MavlinkVehicleObject : public Controllers::IMessageNotifier<mavlink_messag
 public:
     MavlinkVehicleObject(CommsMAVLINK *commsObj, const MaceCore::ModuleCharacteristic &module, const int &mavlinkID);
 
-    ~MavlinkVehicleObject() = default;
+    ~MavlinkVehicleObject();
 
     int getMAVLINKID() const;
 

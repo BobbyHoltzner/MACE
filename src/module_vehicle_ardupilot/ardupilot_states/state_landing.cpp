@@ -67,7 +67,7 @@ hsm::Transition State_Landing::GetTransition()
     return rtn;
 }
 
-bool State_Landing::handleCommand(const AbstractCommandItem* command)
+bool State_Landing::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
     this->clearCommand();
 
@@ -136,7 +136,7 @@ void State_Landing::OnEnter()
 }
 
 //this function is only called from the GUI
-void State_Landing::OnEnter(const AbstractCommandItem *command)
+void State_Landing::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     if(command != nullptr)
     {
@@ -153,7 +153,6 @@ void State_Landing::OnEnter(const AbstractCommandItem *command)
         default:
             break;
         }
-        delete command;
     }
     else
     {

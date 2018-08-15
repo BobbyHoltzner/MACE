@@ -44,7 +44,7 @@ hsm::Transition State_GroundedDisarming::GetTransition()
     return rtn;
 }
 
-bool State_GroundedDisarming::handleCommand(const AbstractCommandItem* command)
+bool State_GroundedDisarming::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
     COMMANDITEM type = command->getCommandType();
     switch (type) {
@@ -82,7 +82,7 @@ void State_GroundedDisarming::OnEnter()
 
     controllerArm->setLambda_Shutdown([this, collection]()
     {
-        auto ptr = collection->Remove("armController");
+        auto ptr = collection->Remove("disarmController");
         delete ptr;
     });
 
@@ -92,16 +92,16 @@ void State_GroundedDisarming::OnEnter()
     CommandItem::ActionArm action(255, Owner().getMAVLINKID());
     action.setVehicleArm(false);
     controllerArm->Send(action,sender,target);
-    collection->Insert("armController",controllerArm);
+    printf("Adding disarmController %x\n", controllerArm);
+    collection->Insert("disarmController",controllerArm);
 }
 
-void State_GroundedDisarming::OnEnter(const AbstractCommandItem *command)
+void State_GroundedDisarming::OnEnter(const std::shared_ptr<AbstractCommandItem> command)
 {
     this->OnEnter();
     if(command != nullptr)
     {
         handleCommand(command);
-        delete command;
     }
 }
 

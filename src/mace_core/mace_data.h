@@ -87,6 +87,11 @@ public:
         m_OctomapWrapper = new mace::maps::OctomapWrapper();
     }
 
+    ~MaceData()
+    {
+        //delete m_OctomapWrapper;
+    }
+
     /////////////////////////////////////////////////////////
     /// DATA FUSION METHODS
     /////////////////////////////////////////////////////////

@@ -17,14 +17,14 @@ bool ActionChangeSpeed::hasSpatialInfluence() const
     return false;
 }
 
-AbstractCommandItem* ActionChangeSpeed::getClone() const
+std::shared_ptr<AbstractCommandItem> ActionChangeSpeed::getClone() const
 {
-    return (new ActionChangeSpeed(*this));
+    return std::make_shared<ActionChangeSpeed>(*this);
 }
 
-void ActionChangeSpeed::getClone(AbstractCommandItem** command) const
+void ActionChangeSpeed::getClone(std::shared_ptr<AbstractCommandItem> &command) const
 {
-    *command = new ActionChangeSpeed(*this);
+    command = std::make_shared<ActionChangeSpeed>(*this);
 }
 
 ActionChangeSpeed::ActionChangeSpeed()

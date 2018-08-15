@@ -254,11 +254,13 @@ public:
     //!
     std_msgs::ColorRGBA generateColorHeight(double height);
 
+
     //!
     //! \brief renderOccupancyMap Render occupancy map in RViz
     //! \param tree OcTree to render
     //!
     void renderOccupancyMap(const std::shared_ptr<octomap::OcTree> &tree);
+
 
     //!
     //! \brief renderState Publish the 2D Cartesian Position to ROS for rendering in RViz
@@ -368,6 +370,7 @@ private:
     //!
     tf::Transform m_transform;
 
+    tf::Transform m_WorldToMap;
     //!
     //! \brief m_srv Container for the Gazebo send model state message
     //!

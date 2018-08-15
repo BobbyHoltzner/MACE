@@ -905,7 +905,7 @@ void MaceCore::ExternalEvent_FinishedRXBoundaryList(const void *sender, const Bo
 
     std::cout << "External event finished RX boundary list" << std::endl;
 
-//    m_DataFusion->receivedNewBoundaryList(boundaryList);
+    //    m_DataFusion->receivedNewBoundaryList(boundaryList);
 
     if(m_PathPlanning) {
         // Marshal command for new boundary list
@@ -975,15 +975,24 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
             MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
         }
     }else{ //transmit the mission to a specific vehicle
-        try{
-            MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
-            MissionItem::MissionList correctedMission = missionList;
-            correctedMission.setMissionKey(key);
-            MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
+        MissionItem::MissionKey key = m_DataFusion->appendAssociatedMissionMap(missionList);
+        MissionItem::MissionList correctedMission = missionList;
+        correctedMission.setMissionKey(key);
 
-        }catch(const std::out_of_range &oor){
+        if(m_PathPlanning)
+        {
+            m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_AVAILABLE_MISSION,correctedMission);
+        }else
+        {
+            try{
+                MarshalCommandToVehicle<MissionItem::MissionList>(vehicleID, VehicleCommands::UPLOAD_MISSION, ExternalLinkCommands::UPLOAD_MISSION, correctedMission);
+            }catch(const std::out_of_range &oor){
+
+            }
+
 
         }
+
     }
 }
 
@@ -993,23 +1002,32 @@ void MaceCore::GSEvent_UploadMission(const void *sender, const MissionItem::Miss
 
 void MaceCore::EventPP_LoadOccupancyEnvironment(const ModuleBase *sender, const string &filePath)
 {
+    std::cout<<"Somehow load occupancy environment is being called"<<std::endl;
     if(m_DataFusion->loadOccupancyEnvironment(filePath))
     {
         //we have loaded a new map which means we need to notify everyone
 
         //we dont have to check if PP exists here because we know it has to as it is the caller
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP);
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP,0);
     }
 }
 
 void MaceCore::EventPP_LoadOctomapProperties(const ModuleBase *sender, const maps::OctomapSensorDefinition &properties)
 {
+    std::cout<<"Somehow load octomap properties is being called"<<std::endl;
     if(m_DataFusion->updateOctomapProperties(properties))
     {
         //we have loaded a new map which means we need to notify everyone
 
         //we dont have to check if PP exists here because we know it has to as it is the caller
-        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP);
+        m_PathPlanning->MarshalCommand(PathPlanningCommands::NEWLY_LOADED_OCCUPANCY_MAP,0);
+
+        if(m_ROS)
+        {
+            //m_ROS->MarshalCommand(ROSCommands::NEWLY_COMPRESSED_OCCUPANCY_MAP, map);
+            m_ROS->MarshalCommand(ROSCommands::NEWLY_UPDATED_3D_OCCUPANCY_MAP, 0); // TODO: Parse for vehicle ID
+
+        }
     }
 }
 
@@ -1126,8 +1144,15 @@ void MaceCore::EventPP_NewDynamicMissionQueue(const ModuleBase *sender, const Ta
 {
     UNUSED(sender);
 
-    //int vehicleID = queue.missionKey.m_systemID;
-    //m_VehicleIDToPtr.at(vehicleID)->MarshalCommand(VehicleCommands::UPDATED_DYNAMIC_MISSION_QUEUE, queue);
+    //Find who the queue is intended for
+    int vehicleID = queue.getAssociatedMissionKey().m_systemID;
+    try{
+        //Marshal the command to that vehicle
+        m_VehicleIDToPtr.at(std::to_string(vehicleID))->MarshalCommand(VehicleCommands::UPDATED_DYNAMIC_MISSION_QUEUE, queue);
+    }catch(const std::out_of_range &oor)
+    {
+
+    }
 }
 
 void MaceCore::EventPP_NewPathFound(const void* sender, const std::vector<mace::state_space::StatePtr> &path)

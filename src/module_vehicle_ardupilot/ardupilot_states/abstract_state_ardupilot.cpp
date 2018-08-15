@@ -4,16 +4,31 @@ namespace ardupilot{
 namespace state{
 
 AbstractStateArdupilot::AbstractStateArdupilot() :
-    currentCommand(nullptr)
+    currentCommand(nullptr),
+    currentCommandSet(false)
 
 {
 }
 
 AbstractStateArdupilot::AbstractStateArdupilot(const AbstractStateArdupilot &copy)
 {
-    this->currentCommand = copy.currentCommand->getClone();
+
+    if(copy.currentCommandSet == true)
+    {
+        this->currentCommand = copy.currentCommand->getClone();
+        this->currentCommandSet = true;
+    }
+    else {
+        this->currentCommandSet = false;
+    }
+
     currentStateEnum = copy.currentStateEnum;
     desiredStateEnum = copy.desiredStateEnum;
+}
+
+AbstractStateArdupilot::~AbstractStateArdupilot()
+{
+    clearCommand();
 }
 
 void AbstractStateArdupilot::OnExit()
@@ -21,23 +36,22 @@ void AbstractStateArdupilot::OnExit()
     Owner().ControllersCollection()->ForAll([this](Controllers::IController<mavlink_message_t, int>* controller){
         controller->RemoveHost(this);
     });
+
+    clearCommand();
 }
 
 void AbstractStateArdupilot::clearCommand()
 {
-    if(this->currentCommand != nullptr)
-    {
-        delete currentCommand;
-        currentCommand = nullptr;
-    }
+    currentCommandSet = false;
 }
 
-void AbstractStateArdupilot::setCurrentCommand(const CommandItem::AbstractCommandItem *command)
+void AbstractStateArdupilot::setCurrentCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
-    this->currentCommand = command->getClone();
+    clearCommand();
+    this->currentCommand = command;
 }
 
-bool AbstractStateArdupilot::handleCommand(const CommandItem::AbstractCommandItem *command)
+bool AbstractStateArdupilot::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
     switch (command->getCommandType()) {
     case COMMANDITEM::CI_ACT_CHANGEMODE:

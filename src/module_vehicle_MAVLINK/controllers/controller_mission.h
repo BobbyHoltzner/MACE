@@ -438,6 +438,8 @@ public:
         m_MissionDownloadCount = -1;
     }
 
+    virtual ~ControllerMission() = default;
+
 
     void GetMissions(const MavlinkEntityKey &vehicle)
     {

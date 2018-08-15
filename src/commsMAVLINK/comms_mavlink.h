@@ -27,11 +27,13 @@ class COMMSMAVLINKSHARED_EXPORT CommsMAVLINK :
 public:
     CommsMAVLINK();
 
-    virtual ~CommsMAVLINK() = default;
+    virtual ~CommsMAVLINK();
 
     virtual void ConfigureMAVLINKStructure(MaceCore::ModuleParameterStructure &structure) const;
 
     virtual void ConfigureComms(const std::shared_ptr<MaceCore::ModuleParameterValue> &params);
+
+    virtual void Shutdown();
 
     virtual bool MavlinkMessage(const std::string &linkName, const mavlink_message_t &message);
 

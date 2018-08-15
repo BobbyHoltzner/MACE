@@ -131,6 +131,7 @@ public:
     void insertVertexAtIndex(const T &vertex, const unsigned int &index)
     {
         m_vertex[index] = vertex;
+        updateBoundingBox();
     }
 
     void removeVertex(const int &index);

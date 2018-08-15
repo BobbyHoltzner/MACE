@@ -251,7 +251,6 @@ void ModuleROS::NewlyUpdated3DOccupancyMap()
 void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::maps::OccupiedResult> &map)
 {
 #ifdef ROS_EXISTS
-    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","map"));
 
     nav_msgs::OccupancyGrid occupancyGrid;
     occupancyGrid.info.resolution = map.getXResolution();
@@ -292,7 +291,10 @@ void ModuleROS::NewlyCompressedOccupancyMap(const mace::maps::Data2DGrid<mace::m
         }
         }
     }
+
+    m_broadcaster.sendTransform(tf::StampedTransform(m_WorldToMap,ros::Time::now(),"world","/map"));
     compressedMapPub.publish(occupancyGrid);
+
 #endif
 }
 
@@ -321,6 +323,7 @@ void ModuleROS::NewlyAvailableBoundary(const uint8_t &key, const OptionalParamet
         boundary_list.points.push_back(startPoint);
         boundary_list.points.push_back(endPoint);
     }
+
     operationalBoundaryPub.publish(boundary_list);
 #else
     UNUSED(boundary);
@@ -460,6 +463,7 @@ void ModuleROS::updatePositionData(const int &vehicleID, const std::shared_ptr<D
 #endif
 }
 
+
 #ifdef ROS_EXISTS
 //!
 //! \brief setupROS Setup ROS subscribers, publishers, and node handler
@@ -470,15 +474,19 @@ void ModuleROS::setupROS() {
     m_transform.setOrigin(tf::Vector3(0.0,0.0,0.0));
     m_transform.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
 
+
+    m_WorldToMap.setOrigin(tf::Vector3(0.0,0.0,0.0));
+    m_WorldToMap.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
+
     // TODO: Do I need to send this transform before I do anything else? And should I send it for every basic_quadrotor_ID?
     //    m_broadcaster.sendTransform(tf::StampedTransform(m_transform,ros::Time::now(),"world","basic_quadrotor/base_link"));
 
     // TESTING:
 //    cloudInPub = nh.advertise<sensor_msgs::PointCloud2>("cloud_in", 50);
-    compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",10);
-    occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",10);
+    compressedMapPub = nh.advertise<nav_msgs::OccupancyGrid>("compressedMap",1);
+    occupancyMapPub = nh.advertise<visualization_msgs::MarkerArray>("occupancy_cell_array",1);
     // END TESTING
-    markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",10);
+    markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker",1);
     operationalBoundaryPub = nh.advertise<visualization_msgs::Marker>("operational_boundary_marker",1);
 
     // %Tag(MARKER_INIT)%
@@ -536,6 +544,8 @@ void ModuleROS::setupROS() {
 
     // Boundary list is white
     boundary_list.color.r = 1.0;
+    boundary_list.color.g = 1.0;
+    boundary_list.color.b = 1.0;
     boundary_list.color.a = 1.0;
 
     // %EndTag(COLOR)%
@@ -691,6 +701,7 @@ void ModuleROS::newGlobalPointCloud(const sensor_msgs::PointCloud2::ConstPtr& ms
         ptr->ROS_NewLaserScan(octoPointCloud, transform_position); // TODO: Include transform as arguments (convert to MACE data structures first - Orientation 3D)
     }); //this one explicitly calls mace_core and its up to you to handle in core
 }
+
 
 //!
 //! \brief renderOccupancyMap Render occupancy map in RViz

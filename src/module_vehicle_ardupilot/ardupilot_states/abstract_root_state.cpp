@@ -14,7 +14,7 @@ AbstractRootState::AbstractRootState(const AbstractRootState &copy):
 
 }
 
-bool AbstractRootState::handleCommand(const AbstractCommandItem *command)
+bool AbstractRootState::handleCommand(const std::shared_ptr<AbstractCommandItem> command)
 {
 
     switch (command->getCommandType()) {

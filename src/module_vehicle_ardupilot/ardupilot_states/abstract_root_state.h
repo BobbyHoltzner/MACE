@@ -49,7 +49,7 @@ public:
 
 public:
 
-    bool handleCommand(const AbstractCommandItem* command);
+    bool handleCommand(const std::shared_ptr<AbstractCommandItem> command);
 
 };
 

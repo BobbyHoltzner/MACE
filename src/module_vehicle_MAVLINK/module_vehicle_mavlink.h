@@ -122,6 +122,12 @@ public:
         ModuleVehicleMavlinkBase::start();
     }
 
+    virtual void shutdown()
+    {
+        CommsMAVLINK::Shutdown();
+        ModuleVehicleMavlinkBase::shutdown();
+    }
+
    public:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////

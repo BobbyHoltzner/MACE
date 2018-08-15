@@ -45,6 +45,7 @@ private:
     OptionalParameter<std::function<FetchModuleReturn(const OptionalParameter<MaceCore::ModuleCharacteristic> &)>> m_lambda_FetchAll;
 public:
 
+    virtual ~DataItem() = default;
 
     void setLambda_DataReceived(const std::function<void(const Key &, const std::shared_ptr<Type> &)> &lambda){
         m_lambda_DataRecieved.insert({0, lambda});
