@@ -13,6 +13,8 @@
 #include "controllers/actions/action_request.h"
 #include "controllers/actions/action_unsolicited_receive_respond.h"
 
+#include "controllers/object_mace_msg_tuple.h"
+
 #include "data_generic_mission_item_topic/mission_item_topic_components.h"
 
 
@@ -23,7 +25,7 @@ namespace ExternalLink {
 using CONTROLLER_MISSION_TYPE = Controllers::GenericController<
     mace_message_t,
     MaceCore::ModuleCharacteristic,
-    TransmitQueueWithKeys<Controllers::MessageModuleTransmissionQueue<mace_message_t>, ObjectIntTuple<MaceCore::ModuleCharacteristic>, ObjectIntTuple<MissionItem::MissionKey>>,
+    TransmitQueueWithKeys<ObjectMaceMsgIDTuple<MaceCore::ModuleCharacteristic>, ObjectMaceMsgIDTuple<MissionItem::MissionKey>>,
     uint8_t,
     Controllers::DataItem<MaceCore::ModuleCharacteristic, MissionKey>,
     Controllers::DataItem<MissionKey, MissionList>

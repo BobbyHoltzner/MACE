@@ -45,7 +45,8 @@ HEADERS += module_external_link.h\
     controllers/commands/command_takeoff.h \
     controllers/commands/generic_long_command.h \
     controllers/commands/generic_short_command.h \
-    pair_module_boundary_identifier.h
+    pair_module_boundary_identifier.h \
+    controllers/object_mace_msg_tuple.h
 
 
 # Unix lib Install

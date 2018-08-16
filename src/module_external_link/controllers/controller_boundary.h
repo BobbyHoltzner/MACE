@@ -22,6 +22,8 @@
 #include "controllers/actions/action_unsolicited_receive.h"
 #include "controllers/actions/action_unsolicited_receive_respond.h"
 
+#include "controllers/object_mace_msg_tuple.h"
+
 #include "../pair_module_boundary_identifier.h"
 
 
@@ -49,7 +51,7 @@ namespace ExternalLink{
 
 using CONTROLLER_BOUNDARY_TYPE = Controllers::GenericController<
     mace_message_t, MaceCore::ModuleCharacteristic,
-    TransmitQueueWithKeys<Controllers::MessageModuleTransmissionQueue<mace_message_t>, ObjectIntTuple<ModuleBoundaryIdentifier>, ObjectIntTuple<ObjectIntTuple<MaceCore::ModuleCharacteristic>>>,
+    TransmitQueueWithKeys<ObjectMaceMsgIDTuple<ModuleBoundaryIdentifier>, ObjectIntTuple<ObjectMaceMsgIDTuple<MaceCore::ModuleCharacteristic>>>,
     uint8_t,
     Controllers::DataItem<MaceCore::ModuleCharacteristic, BoundaryNotificationData>,
     Controllers::DataItem<ModuleBoundaryIdentifier, BoundaryItem::BoundaryList>

@@ -10,12 +10,21 @@
 #include "controllers/actions/action_final_receive_respond.h"
 #include "controllers/actions/action_finish.h"
 
+#include "controllers/object_mace_msg_tuple.h"
+
 namespace ExternalLink {
+
+using CONTROLLER_SYSTEMMODE_TYPE = Controllers::GenericController<
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    TransmitQueueWithKeys<ObjectMaceMsgIDTuple<MaceCore::ModuleCharacteristic>>,
+    uint8_t,
+    Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::ActionChangeMode>
+>;
 
 
 using SystemModeSend = Controllers::ActionSend<
     mace_message_t, MaceCore::ModuleCharacteristic,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::ActionChangeMode>,
+    CONTROLLER_SYSTEMMODE_TYPE,
     MaceCore::ModuleCharacteristic,
     CommandItem::ActionChangeMode,
     mace_command_system_mode_t,
@@ -24,7 +33,7 @@ using SystemModeSend = Controllers::ActionSend<
 
 using SystemMode_FinalReceiveRespond = Controllers::ActionFinalReceiveRespond<
     mace_message_t, MaceCore::ModuleCharacteristic,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::ActionChangeMode>,
+    CONTROLLER_SYSTEMMODE_TYPE,
     MaceCore::ModuleCharacteristic,
     CommandItem::ActionChangeMode,
     mace_command_system_mode_t,
@@ -34,7 +43,7 @@ using SystemMode_FinalReceiveRespond = Controllers::ActionFinalReceiveRespond<
 
 using SystemModeFinish = Controllers::ActionFinish<
     mace_message_t, MaceCore::ModuleCharacteristic,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::ActionChangeMode>,
+    CONTROLLER_SYSTEMMODE_TYPE,
     MaceCore::ModuleCharacteristic,
     uint8_t,
     mace_system_mode_ack_t,

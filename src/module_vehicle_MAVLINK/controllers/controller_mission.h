@@ -48,7 +48,7 @@ using MissionDownloadResult = std::tuple<CommandItem::SpatialHome, MissionList>;
 using CONTROLLER_MISSION_TYPE = Controllers::GenericController<
     mavlink_message_t,
     MavlinkEntityKey,
-    TransmitQueueWithKeys<TransmitQueue<mavlink_message_t, MavlinkEntityKey>, ObjectIntTuple<void*>, ObjectIntTuple<MissionItem::MissionKey>>,
+    TransmitQueueWithKeys<ObjectIntTuple<void*>, ObjectIntTuple<MissionItem::MissionKey>>,
     uint8_t,
     Controllers::DataItem<void*, MissionDownloadResult>
 >;

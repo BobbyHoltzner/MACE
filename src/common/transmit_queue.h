@@ -8,7 +8,6 @@
 #include <unordered_map>
 #include <vector>
 
-template <typename ...TRANSMITARGS>
 class TransmitQueue : public Thread
 {
 private:
@@ -154,18 +153,29 @@ public:
 };
 
 
-
-template <typename Queue, typename ...T>
+//!
+//! \brief Sets up a transmit Queue that queues/deques transmissions indexed on an external object.
+//!
+//! This object is bascially a wrapper around TransmitQueue that uses objects as keys instead of individual numbers.
+//!
+//! Transmission can then be queued on that external object.
+//! When RemovedTransmission is called with that given object the transmissions will be dequied.
+//!
+//! For example a mission_request_item may be queued with object of {msgID:<mission_item_msg_id>, key:missionkey}
+//! Then when that the mission item is received that has the same missionkey, the transmission will be dequeued.
+//! If no such key is received then the transmission will be sent again according to the queue object.
+//!
+template <typename ...T>
 class TransmitQueueWithKeys;
 
 
-template <typename Queue, typename Head, typename ...T>
-class TransmitQueueWithKeys<Queue, Head, T...> : public TransmitQueueWithKeys<Queue, T...>
+template <typename Head, typename ...T>
+class TransmitQueueWithKeys<Head, T...> : public TransmitQueueWithKeys<T...>
 {
 public:
-    using TransmitQueueWithKeys<Queue, T...>::QueueTransmission;
-    using TransmitQueueWithKeys<Queue, T...>::RemoveTransmission;
-    using TransmitQueueWithKeys<Queue, T...>::m_Queue;
+    using TransmitQueueWithKeys<T...>::QueueTransmission;
+    using TransmitQueueWithKeys<T...>::RemoveTransmission;
+    using TransmitQueueWithKeys<T...>::m_Queue;
 
 private:
 
@@ -233,18 +243,18 @@ public:
 
 };
 
-template <typename Queue>
-class TransmitQueueWithKeys<Queue>
+template <>
+class TransmitQueueWithKeys<>
 {
 protected:
 
-    Queue* m_Queue;
+    TransmitQueue* m_Queue;
 
 public:
 
     virtual ~TransmitQueueWithKeys() = default;
 
-    void SetQueue(Queue* queue) {
+    void SetQueue(TransmitQueue* queue) {
         m_Queue = queue;
     }
 

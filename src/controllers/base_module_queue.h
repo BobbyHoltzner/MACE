@@ -11,7 +11,7 @@ namespace Controllers {
 //! \template MESSAGETYPE Message that are to be queued up
 //!
 template<typename MESSAGETYPE>
-using MessageModuleTransmissionQueue = TransmitQueue<MESSAGETYPE, MaceCore::ModuleCharacteristic>;
+using MessageModuleTransmissionQueue = TransmitQueue;
 
 
 }

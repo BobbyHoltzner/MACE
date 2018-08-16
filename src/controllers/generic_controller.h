@@ -69,7 +69,7 @@ protected:
 
 public:
 
-    GenericController(const IMessageNotifier<MESSAGETYPE, COMPONENT_KEY>* cb, TransmitQueue<MESSAGETYPE, COMPONENT_KEY>* queue, int linkChan) :
+    GenericController(const IMessageNotifier<MESSAGETYPE, COMPONENT_KEY>* cb, TransmitQueue* queue, int linkChan) :
         m_LinkChan(linkChan),
         m_CB(cb)
     {

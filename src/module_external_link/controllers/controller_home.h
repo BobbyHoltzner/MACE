@@ -16,12 +16,22 @@
 #include "controllers/actions/action_intermediate.h"
 #include "controllers/actions/action_unsolicited_receive.h"
 
+#include "controllers/object_mace_msg_tuple.h"
+
 namespace ExternalLink {
+
+
+using CONTROLLER_HOME_TYPE = Controllers::GenericController<
+    mace_message_t, MaceCore::ModuleCharacteristic,
+    TransmitQueueWithKeys<ObjectIntTuple<MaceCore::ModuleCharacteristic>>,
+    uint8_t,
+    Controllers::DataItem<MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>
+>;
 
 //Broadcast a home position out, send and finish. (No waiting for response)
 using ControllerHome_Step_BroadcastHome = Controllers::ActionBroadcast<
     mace_message_t, MaceCore::ModuleCharacteristic,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>,
+    CONTROLLER_HOME_TYPE,
     CommandItem::SpatialHome,
     mace_home_position_t
 >;
@@ -29,7 +39,7 @@ using ControllerHome_Step_BroadcastHome = Controllers::ActionBroadcast<
 //Receive a broadcasted home position, accept and finish (no response)
 using ControllerHome_Step_ReceiveBroadcastedHome = Controllers::ActionUnsolicitedReceive<
     mace_message_t, MaceCore::ModuleCharacteristic,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>,
+    CONTROLLER_HOME_TYPE,
     CommandItem::SpatialHome,
     mace_home_position_t,
     MACE_MSG_ID_HOME_POSITION
@@ -38,7 +48,7 @@ using ControllerHome_Step_ReceiveBroadcastedHome = Controllers::ActionUnsolicite
 //Request a home position, wait to receive the home position
 using ControllerHome_Step_RequestHome = Controllers::ActionRequest<
     mace_message_t, MaceCore::ModuleCharacteristic,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>,
+    CONTROLLER_HOME_TYPE,
     MaceCore::ModuleCharacteristic,
     mace_mission_request_home_t,
     MACE_MSG_ID_HOME_POSITION
@@ -47,7 +57,7 @@ using ControllerHome_Step_RequestHome = Controllers::ActionRequest<
 //Receive a request for home, send out the home position, and wait to receive ack
 using ControllerHome_Step_ReceiveHomeRequest = Controllers::ActionIntermediate<
     mace_message_t, MaceCore::ModuleCharacteristic,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>,
+    CONTROLLER_HOME_TYPE,
     MaceCore::ModuleCharacteristic,
     MaceCore::ModuleCharacteristic,
     mace_mission_request_home_t,
@@ -59,7 +69,7 @@ using ControllerHome_Step_ReceiveHomeRequest = Controllers::ActionIntermediate<
 //Receive home position after requesting for it, send ack out upon reception
 using ControllerHome_Step_ReceiveHomePositionSendAck = Controllers::ActionFinalReceiveRespond<
     mace_message_t, MaceCore::ModuleCharacteristic,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>,
+    CONTROLLER_HOME_TYPE,
     MaceCore::ModuleCharacteristic,
     CommandItem::SpatialHome,
     mace_home_position_t,
@@ -70,7 +80,7 @@ using ControllerHome_Step_ReceiveHomePositionSendAck = Controllers::ActionFinalR
 //Receive ack of home position received after sending it
 using ControllerHome_Step_ReceiveFinishingAck = Controllers::ActionFinish<
     mace_message_t, MaceCore::ModuleCharacteristic,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>,
+    CONTROLLER_HOME_TYPE,
     MaceCore::ModuleCharacteristic,
     uint8_t,
     mace_home_position_ack_t,
@@ -80,7 +90,7 @@ using ControllerHome_Step_ReceiveFinishingAck = Controllers::ActionFinish<
 //Set a home position on another controller
 using ControllerHome_Step_SendHomePosition = Controllers::ActionSend<
     mace_message_t, MaceCore::ModuleCharacteristic,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>,
+    CONTROLLER_HOME_TYPE,
     MaceCore::ModuleCharacteristic,
     CommandItem::SpatialHome,
     mace_set_home_position_t,
@@ -90,7 +100,7 @@ using ControllerHome_Step_SendHomePosition = Controllers::ActionSend<
 //Receive the set home and send an ack out.
 using ControllerHome_Step_ReceiveSetHomeSendACK = Controllers::ActionFinalReceiveRespond<
     mace_message_t, MaceCore::ModuleCharacteristic,
-    Controllers::GenericControllerQueueDataWithModule<mace_message_t, MaceCore::ModuleCharacteristic, CommandItem::SpatialHome>,
+    CONTROLLER_HOME_TYPE,
     MaceCore::ModuleCharacteristic,
     CommandItem::SpatialHome,
     mace_set_home_position_t,
