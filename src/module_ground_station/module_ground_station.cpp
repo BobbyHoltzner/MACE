@@ -243,7 +243,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleGroundStation::ModuleC
     maceCommsParams->AddTerminalParameters("ListenPort", MaceCore::ModuleParameterTerminalTypes::INT, false);
     maceCommsParams->AddTerminalParameters("SendPort", MaceCore::ModuleParameterTerminalTypes::INT, false);
     structure.AddNonTerminal("MACEComms", maceCommsParams, false);
-    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, true);
+    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, false);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -272,7 +272,10 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
         }
     }
 
-    this->SetID(params->GetTerminalValue<int>("ID"));
+    if(params->HasTerminal("ID"))
+    {
+        this->SetID(params->GetTerminalValue<int>("ID"));
+    }
 
     m_guiHostAddress = guiHostAddress;
     m_listenPort = listenPort;

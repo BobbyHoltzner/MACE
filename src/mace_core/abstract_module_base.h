@@ -80,6 +80,11 @@ public:
 
 public:
 
+    ModuleBase() :
+        m_HasID(false)
+    {
+
+    }
 
     const static ModuleClasses moduleClass;
 
@@ -88,6 +93,18 @@ public:
     void SetID(int ID)
     {
         m_ID = ID;
+        m_HasID = true;
+    }
+
+    //!
+    //! \brief Determine if ID has ben set.
+    //!
+    //! Used at startup when some modules may have a "static" ID while others will be dynamically assinged
+    //! \return True if module has an ID assigned to it.
+    //!
+    bool HasID() const
+    {
+        return m_HasID;
     }
 
     int GetID() const
@@ -232,6 +249,7 @@ protected:
 private:
     std::shared_ptr<const MaceData> m_Data;
 
+    bool m_HasID;
     int m_ID;
 
     ///MTB MODULE AUTO ASSIGN

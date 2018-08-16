@@ -98,6 +98,7 @@ public:
         std::shared_ptr<MaceCore::ModuleParameterStructure> moduleSettings = std::make_shared<MaceCore::ModuleParameterStructure>();
         moduleSettings->AddTerminalParameters("AirborneInstance", MaceCore::ModuleParameterTerminalTypes::BOOLEAN, true);
         structure.AddNonTerminal("ModuleParameters", moduleSettings, true);
+        structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, false);
 
         return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
     }
@@ -114,6 +115,11 @@ public:
         {
             std::shared_ptr<MaceCore::ModuleParameterValue> moduleSettings = params->GetNonTerminalValue("ModuleParameters");
             airborneInstance = moduleSettings->GetTerminalValue<bool>("AirborneInstance");
+        }
+
+        if(params->HasTerminal("ID"))
+        {
+            this->SetID(params->GetTerminalValue<int>("ID"));
         }
     }
 
