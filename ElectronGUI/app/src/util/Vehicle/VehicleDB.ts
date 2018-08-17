@@ -1,12 +1,13 @@
 import * as deepcopy from 'deepcopy';
 import { getRandomRGB } from '../misc/Colors';
 import { Vehicle } from '../Vehicle/Vehicle';
+import * as GlobalTypes from '../../types/globalTypings';
 
 export class VehicleDB {
     vehicles: {[id: string]: Vehicle};
-    globalOrigin: PositionType;
-    environmentBoundary?: PositionType[];
-    messagePreferences?: MessagePreferencesType;
+    globalOrigin: GlobalTypes.PositionType;
+    environmentBoundary?: GlobalTypes.PositionType[];
+    messagePreferences?: GlobalTypes.MessagePreferencesType;
 
     constructor(){
         this.vehicles = {};
@@ -25,13 +26,14 @@ export class VehicleDB {
     }
 
 
-    parseJSONData = (jsonData: TCPReturnType) => {
+    parseJSONData = (jsonData: GlobalTypes.TCPReturnType) => {
         let stateCopy = deepcopy(this.vehicles);
         // Log message:
         // this.logger.info("[MACE Data: " + JSON.stringify(jsonData) + "]");
-
-        if(jsonData.dataType === "ConnectedVehicles") {
-            let jsonVehicles = jsonData as ConnectedVehiclesType;
+        let dataType: string = jsonData.dataType;
+        let vehicleID: number = jsonData.vehicleID;
+        if(dataType === "ConnectedVehicles") {
+            let jsonVehicles = jsonData as GlobalTypes.ConnectedVehiclesType;
 
             console.log("Connected vehicles return: " + jsonVehicles.connectedVehicles);
 
@@ -66,8 +68,8 @@ export class VehicleDB {
 
             this.vehicles = stateCopy;
         }
-        else if(jsonData.dataType === 'GlobalOrigin') {
-            let jsonOrigin = jsonData as TCPOriginType;
+        else if(dataType === 'GlobalOrigin') {
+            let jsonOrigin = jsonData as GlobalTypes.TCPOriginType;
             let origin = {lat: jsonOrigin.lat, lng: jsonOrigin.lng, alt: jsonOrigin.alt};
             this.globalOrigin = origin;
 
@@ -76,60 +78,60 @@ export class VehicleDB {
             // settings.gridSpacing = jsonOrigin.gridSpacing;
             // this.environmentSettings = settings;
         }
-        else if(jsonData.dataType === 'EnvironmentBoundary') {
-            let jsonBoundary = jsonData as TCPEnvironmentBoundaryType;
+        else if(dataType === 'EnvironmentBoundary') {
+            let jsonBoundary = jsonData as GlobalTypes.TCPEnvironmentBoundaryType;
             this.environmentBoundary = jsonBoundary.environmentBoundary;
         }
         // Vehicle specific data:
         else {
             // Only process if we have the vehicle in the map:
             if(stateCopy[jsonData.vehicleID]) {
-                if(jsonData.dataType === "VehiclePosition"){
-                    let vehiclePosition = jsonData as TCPPositionType;
+                if(dataType === "VehiclePosition"){
+                    let vehiclePosition = jsonData as GlobalTypes.TCPPositionType;
 
-                    stateCopy[vehiclePosition.vehicleID].position.lat = vehiclePosition.lat;
-                    stateCopy[vehiclePosition.vehicleID].position.lng = vehiclePosition.lng;
-                    stateCopy[vehiclePosition.vehicleID].position.alt = vehiclePosition.alt;
-                    stateCopy[vehiclePosition.vehicleID].numSats = vehiclePosition.numSats;
-                    stateCopy[vehiclePosition.vehicleID].positionFix = vehiclePosition.positionFix;
+                    stateCopy[vehicleID].position.lat = vehiclePosition.lat;
+                    stateCopy[vehicleID].position.lng = vehiclePosition.lng;
+                    stateCopy[vehicleID].position.alt = vehiclePosition.alt;
+                    stateCopy[vehicleID].numSats = vehiclePosition.numSats;
+                    stateCopy[vehicleID].positionFix = vehiclePosition.positionFix;
 
-                    stateCopy[vehiclePosition.vehicleID].updateVehicleMarkerPosition(vehiclePosition);
+                    stateCopy[vehicleID].updateVehicleMarkerPosition(vehiclePosition);
 
-                    if(stateCopy[vehiclePosition.vehicleID].isNew &&
-                        (stateCopy[vehiclePosition.vehicleID].gps.gpsFix !== "NO GPS" || stateCopy[vehiclePosition.vehicleID].gps.gpsFix !== "GPS NO FIX") &&
+                    if(stateCopy[vehicleID].isNew &&
+                        (stateCopy[vehicleID].gps.gpsFix !== "NO GPS" || stateCopy[vehicleID].gps.gpsFix !== "GPS NO FIX") &&
                         // Object.keys(this.connectedVehicles).length === 1)
                         Object.keys(this.vehicles).length === 1){
-                            stateCopy[vehiclePosition.vehicleID].isNew = false;
+                            stateCopy[vehicleID].isNew = false;
                             // this.setState({mapCenter: [stateCopy[vehiclePosition.vehicleID].position.lat, stateCopy[vehiclePosition.vehicleID].position.lon], mapZoom: 19});
                         }
 
                     this.vehicles = stateCopy;
                 }
-                else if(jsonData.dataType === "VehicleAttitude"){
-                    let vehicleAttitude = jsonData as TCPAttitudeType;
+                else if(dataType === "VehicleAttitude"){
+                    let vehicleAttitude = jsonData as GlobalTypes.TCPAttitudeType;
 
-                    stateCopy[vehicleAttitude.vehicleID].attitude.roll = vehicleAttitude.roll;
-                    stateCopy[vehicleAttitude.vehicleID].attitude.pitch = vehicleAttitude.pitch;
-                    stateCopy[vehicleAttitude.vehicleID].attitude.yaw = vehicleAttitude.yaw;
+                    stateCopy[vehicleID].attitude.roll = vehicleAttitude.roll;
+                    stateCopy[vehicleID].attitude.pitch = vehicleAttitude.pitch;
+                    stateCopy[vehicleID].attitude.yaw = vehicleAttitude.yaw;
 
-                    stateCopy[vehicleAttitude.vehicleID].updateMarkerAttitude(vehicleAttitude);
+                    stateCopy[vehicleID].updateMarkerAttitude(vehicleAttitude);
 
                     this.vehicles = stateCopy;
                 }
-                else if(jsonData.dataType === "VehicleAirspeed"){
-                    let vehicleAirspeed = jsonData as TCPAirspeedType;
+                else if(dataType === "VehicleAirspeed"){
+                    let vehicleAirspeed = jsonData as GlobalTypes.TCPAirspeedType;
 
-                    stateCopy[vehicleAirspeed.vehicleID].airspeed = vehicleAirspeed.airspeed;
+                    stateCopy[vehicleID].airspeed = vehicleAirspeed.airspeed;
                     this.vehicles = stateCopy;
                 }
-                else if(jsonData.dataType === 'VehicleMission') {
-                    let vehicleMission = jsonData as TCPMissionType;
+                else if(dataType === 'VehicleMission') {
+                    let vehicleMission = jsonData as GlobalTypes.TCPMissionType;
                     let stateCopy = deepcopy(this.vehicles);
-                    stateCopy[vehicleMission.vehicleID].setVehicleMission(vehicleMission);
+                    stateCopy[vehicleID].setVehicleMission(vehicleMission);
                     this.vehicles = stateCopy;
                 }
-                else if(jsonData.dataType === 'VehicleHome') {
-                    let vehicleHome = jsonData as (TCPReturnType & MissionItemType);
+                else if(dataType === 'VehicleHome') {
+                    let vehicleHome = jsonData as (GlobalTypes.TCPReturnType & GlobalTypes.MissionItemType);
                     // let stateCopy = deepcopy(this.connectedVehicles);
                     let stateCopy = deepcopy(this.vehicles);
                     let tmpHome = {
@@ -137,25 +139,25 @@ export class VehicleDB {
                         lon: vehicleHome.lng,
                         alt: vehicleHome.alt
                     }
-                    stateCopy[vehicleHome.vehicleID].updateHomePosition(tmpHome);
+                    stateCopy[vehicleID].updateHomePosition(tmpHome);
                     this.vehicles = stateCopy;
                 }
-                else if(jsonData.dataType === 'VehicleFuel') {
-                    let vehicleFuel = jsonData as TCPFuelType;
+                else if(dataType === 'VehicleFuel') {
+                    let vehicleFuel = jsonData as GlobalTypes.TCPFuelType;
 
-                    stateCopy[vehicleFuel.vehicleID].fuel.batteryRemaining = vehicleFuel.batteryRemaining;
-                    stateCopy[vehicleFuel.vehicleID].fuel.batteryCurrent = vehicleFuel.batteryCurrent;
-                    stateCopy[vehicleFuel.vehicleID].fuel.batteryVoltage = vehicleFuel.batteryVoltage;
+                    stateCopy[vehicleID].fuel.batteryRemaining = vehicleFuel.batteryRemaining;
+                    stateCopy[vehicleID].fuel.batteryCurrent = vehicleFuel.batteryCurrent;
+                    stateCopy[vehicleID].fuel.batteryVoltage = vehicleFuel.batteryVoltage;
 
                     this.vehicles = stateCopy;
                 }
-                else if(jsonData.dataType === 'VehicleMode') {
-                    let vehicleMode = jsonData as TCPModeType;
-                    stateCopy[vehicleMode.vehicleID].vehicleMode = vehicleMode.vehicleMode;
+                else if(dataType === 'VehicleMode') {
+                    let vehicleMode = jsonData as GlobalTypes.TCPModeType;
+                    stateCopy[vehicleID].vehicleMode = vehicleMode.vehicleMode;
                     this.vehicles = stateCopy;
                 }
-                else if(jsonData.dataType === 'VehicleText') {
-                    let vehicleText = jsonData as TCPTextType;
+                else if(dataType === 'VehicleText') {
+                    let vehicleText = jsonData as GlobalTypes.TCPTextType;
                     let showMessage = false;
                     // let title = '';
                     // let level = 'info';
@@ -202,56 +204,56 @@ export class VehicleDB {
 
                     if(showMessage) {
                         // this.showNotification(title, vehicleText.text, level, 'bl', 'Got it');
-                        stateCopy[vehicleText.vehicleID].messages.unshift({severity: vehicleText.severity, text: vehicleText.text, timestamp: new Date()});
+                        stateCopy[vehicleID].messages.unshift({severity: vehicleText.severity, text: vehicleText.text, timestamp: new Date()});
                         this.vehicles = stateCopy;
                     }
                 }
-                else if(jsonData.dataType === 'SensorFootprint') {
-                    let jsonFootprint = jsonData as TCPSensorFootprintType;
-                    stateCopy[jsonFootprint.vehicleID].sensorFootprint = jsonFootprint.sensorFootprint;
+                else if(dataType === 'SensorFootprint') {
+                    let jsonFootprint = jsonData as GlobalTypes.TCPSensorFootprintType;
+                    stateCopy[vehicleID].sensorFootprint = jsonFootprint.sensorFootprint;
                     this.vehicles = stateCopy;
                 }
-                else if(jsonData.dataType === 'VehicleGPS') {
-                    let jsonGPS = jsonData as TCPGPSType;
-                    stateCopy[jsonGPS.vehicleID].gps.visibleSats = jsonGPS.visibleSats;
-                    stateCopy[jsonGPS.vehicleID].gps.gpsFix = jsonGPS.gpsFix;
-                    stateCopy[jsonGPS.vehicleID].gps.hdop = jsonGPS.hdop;
-                    stateCopy[jsonGPS.vehicleID].gps.vdop = jsonGPS.vdop;
+                else if(dataType === 'VehicleGPS') {
+                    let jsonGPS = jsonData as GlobalTypes.TCPGPSType;
+                    stateCopy[vehicleID].gps.visibleSats = jsonGPS.visibleSats;
+                    stateCopy[vehicleID].gps.gpsFix = jsonGPS.gpsFix;
+                    stateCopy[vehicleID].gps.hdop = jsonGPS.hdop;
+                    stateCopy[vehicleID].gps.vdop = jsonGPS.vdop;
                     this.vehicles = stateCopy;
                 }
-                else if(jsonData.dataType === 'CurrentMissionItem') {
-                    let jsonMissionItem = jsonData as TCPCurrentMissionItemType;
-                    stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.missionItemIndex, false);
+                else if(dataType === 'CurrentMissionItem') {
+                    let jsonMissionItem = jsonData as GlobalTypes.TCPCurrentMissionItemType;
+                    stateCopy[vehicleID].updateCurrentMissionItem(jsonMissionItem.missionItemIndex, false);
                     this.vehicles = stateCopy;
                 }
-                else if(jsonData.dataType === 'MissionItemReached') {
-                    let jsonMissionItem = jsonData as TCPMissionItemReachedType;
-                    if(jsonMissionItem.itemIndex === stateCopy[jsonMissionItem.vehicleID].vehicleMission.icons.length - 1) {
-                        stateCopy[jsonMissionItem.vehicleID].updateCurrentMissionItem(jsonMissionItem.itemIndex, true);
+                else if(dataType === 'MissionItemReached') {
+                    let jsonMissionItem = jsonData as GlobalTypes.TCPMissionItemReachedType;
+                    if(jsonMissionItem.itemIndex === stateCopy[vehicleID].vehicleMission.icons.length - 1) {
+                        stateCopy[vehicleID].updateCurrentMissionItem(jsonMissionItem.itemIndex, true);
                     }
                 }
-                else if(jsonData.dataType === 'VehicleHeartbeat') {
-                    let jsonHeartbeat = jsonData as TCPHeartbeatType;
-                    stateCopy[jsonHeartbeat.vehicleID].general.autopilot = jsonHeartbeat.autopilot;
-                    stateCopy[jsonHeartbeat.vehicleID].general.commsProtocol = jsonHeartbeat.commsProtocol;
-                    stateCopy[jsonHeartbeat.vehicleID].general.aircraftType = jsonHeartbeat.aircraftType;
-                    stateCopy[jsonHeartbeat.vehicleID].general.companion = jsonHeartbeat.companion;
-                    stateCopy[jsonHeartbeat.vehicleID].general.lastHeard = new Date();
-                    stateCopy[jsonHeartbeat.vehicleID].setAvailableVehicleModes();
+                else if(dataType === 'VehicleHeartbeat') {
+                    let jsonHeartbeat = jsonData as GlobalTypes.TCPHeartbeatType;
+                    stateCopy[vehicleID].general.autopilot = jsonHeartbeat.autopilot;
+                    stateCopy[vehicleID].general.commsProtocol = jsonHeartbeat.commsProtocol;
+                    stateCopy[vehicleID].general.aircraftType = jsonHeartbeat.aircraftType;
+                    stateCopy[vehicleID].general.companion = jsonHeartbeat.companion;
+                    stateCopy[vehicleID].general.lastHeard = new Date();
+                    stateCopy[vehicleID].setAvailableVehicleModes();
                     this.vehicles = stateCopy;
                 }
-                else if(jsonData.dataType === 'VehicleArm') {
-                    let jsonArm = jsonData as TCPVehicleArmType;
-                    stateCopy[jsonArm.vehicleID].isArmed = jsonArm.armed;
+                else if(dataType === 'VehicleArm') {
+                    let jsonArm = jsonData as GlobalTypes.TCPVehicleArmType;
+                    stateCopy[vehicleID].isArmed = jsonArm.armed;
                     this.vehicles = stateCopy;
                 }
-                else if(jsonData.dataType === 'CurrentVehicleTarget') {
-                    let jsonVehicleTarget = jsonData as TCPVehicleTargetType;
-                    stateCopy[jsonVehicleTarget.vehicleID].currentTarget.active = true;
-                    stateCopy[jsonVehicleTarget.vehicleID].currentTarget.distanceToTarget = jsonVehicleTarget.distanceToTarget;
-                    stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.lat = jsonVehicleTarget.lat;
-                    stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.lng = jsonVehicleTarget.lng;
-                    stateCopy[jsonVehicleTarget.vehicleID].currentTarget.targetPosition.alt = jsonVehicleTarget.alt;
+                else if(dataType === 'CurrentVehicleTarget') {
+                    let jsonVehicleTarget = jsonData as GlobalTypes.TCPVehicleTargetType;
+                    stateCopy[vehicleID].currentTarget.active = true;
+                    stateCopy[vehicleID].currentTarget.distanceToTarget = jsonVehicleTarget.distanceToTarget;
+                    stateCopy[vehicleID].currentTarget.targetPosition.lat = jsonVehicleTarget.lat;
+                    stateCopy[vehicleID].currentTarget.targetPosition.lng = jsonVehicleTarget.lng;
+                    stateCopy[vehicleID].currentTarget.targetPosition.alt = jsonVehicleTarget.alt;
                     this.vehicles = stateCopy;
                 }
             }

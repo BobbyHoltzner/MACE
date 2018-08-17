@@ -8,6 +8,7 @@ import TextField from 'material-ui/TextField';
 import { Grid, Col } from 'react-bootstrap';
 import {Tabs, Tab} from 'material-ui/Tabs';
 import * as deepcopy from 'deepcopy';
+import * as GlobalTypes from '../../../types/globalTypings';
 
 import { styles } from "./styles";
 
@@ -15,13 +16,13 @@ import { styles } from "./styles";
 type Props = {
     open: boolean,
     handleClose: () => void,
-    handleSave: (configSettings: ConfigSettingsType, reload: boolean) => void,
-    configSettings: ConfigSettingsType,
+    handleSave: (configSettings: GlobalTypes.ConfigSettingsType, reload: boolean) => void,
+    configSettings: GlobalTypes.ConfigSettingsType,
     handleParseJSON: (filename: string, restartServer: boolean) => void
 }
 
 type State = {
-    configSettings?: ConfigSettingsType,
+    configSettings?: GlobalTypes.ConfigSettingsType,
     activeTab?: string
 }
 
@@ -99,7 +100,7 @@ export class ConfigDialog extends React.Component<Props, State> {
     }
 
     handleTextChange = (event: any) => {
-        let config: ConfigSettingsType = deepcopy(this.state.configSettings);
+        let config: GlobalTypes.ConfigSettingsType = deepcopy(this.state.configSettings);
         // if(event.target.id === 'filename') {
         //     config.filename = event.target.value;
         // }
@@ -138,7 +139,7 @@ export class ConfigDialog extends React.Component<Props, State> {
     }
 
     chooseFileChange = (e: any) => {
-        let config: ConfigSettingsType = deepcopy(this.state.configSettings);
+        let config: GlobalTypes.ConfigSettingsType = deepcopy(this.state.configSettings);
         config.filename = e.target.files[0].path;
         this.setState({configSettings: config});
         this.props.handleParseJSON(config.filename, false);

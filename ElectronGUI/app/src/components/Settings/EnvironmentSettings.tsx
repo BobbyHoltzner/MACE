@@ -8,6 +8,7 @@ import Checkbox from 'material-ui/Checkbox';
 import { Grid, Col } from 'react-bootstrap';
 import * as deepcopy from 'deepcopy';
 import TextField from 'material-ui/TextField';
+import * as GlobalTypes from '../../types/globalTypings';
 
 import { styles } from "./styles";
 
@@ -15,12 +16,12 @@ import { styles } from "./styles";
 type Props = {
     open: boolean,
     handleClose: () => void,
-    handleSave: (sliderSettings: EnvironmentSettingsType) => void
-    environmentSettings: EnvironmentSettingsType
+    handleSave: (sliderSettings: GlobalTypes.EnvironmentSettingsType) => void
+    environmentSettings: GlobalTypes.EnvironmentSettingsType
 }
 
 type State = {
-    environmentSettings?: EnvironmentSettingsType,
+    environmentSettings?: GlobalTypes.EnvironmentSettingsType,
     minSliderVal?: number,
     maxSliderVal?: number,
     showBoundingBox?: boolean,
@@ -42,7 +43,7 @@ export class EnvironmentSettings extends React.Component<Props, State> {
     }
 
     handleSave = () => {
-        let settings: EnvironmentSettingsType = {
+        let settings: GlobalTypes.EnvironmentSettingsType = {
             minSliderVal: this.state.minSliderVal,
             maxSliderVal: this.state.maxSliderVal,
             showBoundingBox: this.state.showBoundingBox,

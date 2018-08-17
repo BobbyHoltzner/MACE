@@ -2,16 +2,17 @@ import * as deepcopy from 'deepcopy';
 var turf = require('@turf/turf');
 // var geometryHelper = require('leaflet-geometryutil');
 import * as L from 'leaflet';
+import * as GlobalTypes from '../../types/globalTypings';
 
 
 export class PolygonHelper {
-    drawPolygonPts: PositionType[];
+    drawPolygonPts: GlobalTypes.PositionType[];
     gridPts?: {inPoly: L.LatLng[], trimmedPts: L.LatLng[]};
     showEnvironmentSettings?: boolean;
-    environmentSettings?: EnvironmentSettingsType;
+    environmentSettings?: GlobalTypes.EnvironmentSettingsType;
     showDraw?: boolean;
-    envBoundingBox?: PositionType[];
-    globalOrigin: PositionType;
+    envBoundingBox?: GlobalTypes.PositionType[];
+    globalOrigin: GlobalTypes.PositionType;
 
     constructor(){
         this.drawPolygonPts = [];
@@ -103,7 +104,7 @@ export class PolygonHelper {
 
     updateGrid = () => {
         // let coordinatesArr: any = [];
-        // this.drawPolygonPts.forEach(function(coord: PositionType) {
+        // this.drawPolygonPts.forEach(function(coord: GlobalTypes.PositionType) {
         //     coordinatesArr.push([coord.lat, coord.lng]);
         // });
 
@@ -115,7 +116,7 @@ export class PolygonHelper {
 
         // let geoJsonLayer = L.geoJSON(geoJsonData);
         // let bounds: L.LatLngBounds = geoJsonLayer.getBounds();
-        // let boundingBox: PositionType[] = [];
+        // let boundingBox: GlobalTypes.PositionType[] = [];
         // boundingBox.push({lat: bounds.getSouthWest().lng, lng: bounds.getSouthWest().lat, alt: 0}); // Bottom Left
         // boundingBox.push({lat: bounds.getSouthWest().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Bottom Right
         // boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Top Right
@@ -126,7 +127,7 @@ export class PolygonHelper {
         // this.calculateGridPts(boundingBox);
     }
 
-    calculateGridPts = (boundingBox: PositionType[]) => {
+    calculateGridPts = (boundingBox: GlobalTypes.PositionType[]) => {
         // // Only if lat/lng are not at the origin and the grid spacing is greater than 0
         // if(this.globalOrigin.lat !== 0 && this.globalOrigin.lng !== 0) {
         // if(this.environmentSettings.gridSpacing > 0) {
@@ -177,7 +178,7 @@ export class PolygonHelper {
     }
 
 
-    isPtInPoly = (marker: L.LatLng, boundary: PositionType[]): boolean => {
+    isPtInPoly = (marker: L.LatLng, boundary: GlobalTypes.PositionType[]): boolean => {
         let polyPoints: L.LatLng[] = [];
         for(let i = 0; i < boundary.length; i++) {
         polyPoints.push(new L.LatLng(boundary[i].lat, boundary[i].lng));
@@ -198,7 +199,7 @@ export class PolygonHelper {
         return inside;
     };
 
-    saveEnvironmentSettings = (settings: EnvironmentSettingsType) => {
+    saveEnvironmentSettings = (settings: GlobalTypes.EnvironmentSettingsType) => {
             if(settings.gridSpacing >= settings.minSliderVal && settings.gridSpacing <= settings.maxSliderVal) {
             console.log("Settings: " + JSON.stringify(settings));
             this.environmentSettings = settings;

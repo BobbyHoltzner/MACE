@@ -13,6 +13,7 @@ import MenuItem from 'material-ui/MenuItem';
 import * as colors from 'material-ui/styles/colors';
 import * as L from 'leaflet';
 import { styles } from "./styles";
+import * as GlobalTypes from '../../../types/globalTypings';
 
 
 type Props = {
@@ -20,7 +21,7 @@ type Props = {
     selectedVehicleID: string,
     open: boolean,
     handleClose: () => void,
-    handleSave: (vehicleID: string, vehicleHome: PositionType) => void,
+    handleSave: (vehicleID: string, vehicleHome: GlobalTypes.PositionType) => void,
     contextAnchor: L.LeafletMouseEvent,
     useContext: boolean,
     allowVehicleSelect: boolean,
@@ -75,7 +76,7 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
 
     handleSave = () => {
         console.log("Selected vehicle ID: " + this.state.selectedVehicleID);
-        let vehicleHome: PositionType = {
+        let vehicleHome: GlobalTypes.PositionType = {
             lat: this.state.homeLat,
             lng: this.state.homeLon,
             alt: this.state.homeAlt

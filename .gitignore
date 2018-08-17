@@ -52,6 +52,8 @@ PrebuiltBinaries/*
 
 /logs/*
 ElectronGUI/yarn-error.log
+ElectronGUI/build
+ElectronGUI/yarn.lock
 
 /catkin_sim_environment/build/*
 /catkin_sim_environment/devel/*
