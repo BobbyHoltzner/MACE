@@ -1,4 +1,3 @@
-
 export const styles = {
     drawerItemLabelStyle: {
         fontSize: 18,

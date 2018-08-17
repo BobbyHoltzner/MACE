@@ -1,13 +1,13 @@
-import * as materialColors from 'material-ui/styles/colors';
+import * as materialColors from "material-ui/styles/colors"
 
 export const styles = {
     parentContainer: {
-        position: 'absolute' as 'absolute',
+        position: "absolute" as "absolute",
         top: 80,
         left: 26,
         display: "flex",
         justifyContent: "space-between" as "space-between",
-        flexDirection: "row" as "row",
+        flexDirection: "row" as "row"
     },
 
     buttonsContainer: {
@@ -19,7 +19,7 @@ export const styles = {
     },
 
     sliderContainer: {
-        position: 'relative' as 'relative',
+        position: "relative" as "relative",
         left: 26,
         width: 250,
         zIndex: 100
@@ -29,7 +29,7 @@ export const styles = {
         display: "flex",
         justifyContent: "space-between" as "space-between",
         alignItems: "center" as "center",
-        flexDirection: "row" as "row",
+        flexDirection: "row" as "row"
     },
 
     buttonStyle: {

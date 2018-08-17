@@ -1,45 +1,43 @@
-import * as materialColors from 'material-ui/styles/colors';
-import { Colors } from '../../util/misc/Colors';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import * as materialColors from "material-ui/styles/colors"
+import getMuiTheme from "material-ui/styles/getMuiTheme"
+import MuiThemeProvider from "material-ui/styles/MuiThemeProvider"
+import { Colors } from "../../util/misc/Colors"
 const lightMuiTheme = getMuiTheme({
-  slider: {
-    trackSize: 5,
-    handleSize: 20,
-    trackColor: materialColors.white,
-    trackColorSelected: materialColors.white,
-    selectionColor: Colors.Primary,
-    rippleColor: Colors.Primary
-  }
-});
-import * as React from 'react';
-import RaisedButton from 'material-ui/RaisedButton';
-import FontIcon from 'material-ui/FontIcon';
+    slider: {
+        trackSize: 5,
+        handleSize: 20,
+        trackColor: materialColors.white,
+        trackColorSelected: materialColors.white,
+        selectionColor: Colors.Primary,
+        rippleColor: Colors.Primary
+    }
+})
+import FontIcon from "material-ui/FontIcon"
+import RaisedButton from "material-ui/RaisedButton"
+import * as React from "react"
 // import Slider from 'material-ui/Slider';
 // import IconButton from 'material-ui/IconButton';
-import { styles } from "./styles";
-
+import { styles } from "./styles"
 
 type Props = {
-    onDeleteLastPolygonPt: () => void,
-    onDisableDraw: () => void,
-    onSubmitBoundary: () => void,
-    onClearAllPts: () => void,
-    handleChangeGridSpacing: (val: number) => void,
-    openEnvironmentSettings: () => void,
+    onDeleteLastPolygonPt: () => void
+    onDisableDraw: () => void
+    onSubmitBoundary: () => void
+    onClearAllPts: () => void
+    handleChangeGridSpacing: (val: number) => void
+    openEnvironmentSettings: () => void
     environmentSettings: EnvironmentSettingsType
 }
 
 type State = {
-    sliderVal?: number,
-    minSliderVal?: number,
+    sliderVal?: number
+    minSliderVal?: number
     maxSliderVal?: number
 }
 
 export class DrawButtonsContainer extends React.Component<Props, State> {
-
     constructor(props: Props) {
-        super(props);
+        super(props)
         this.state = {
             sliderVal: this.props.environmentSettings.gridSpacing,
             minSliderVal: this.props.environmentSettings.minSliderVal,
@@ -48,17 +46,16 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
     }
 
     componentWillReceiveProps(nextProps: Props) {
-        this.setState({sliderVal: nextProps.environmentSettings.gridSpacing});
+        this.setState({ sliderVal: nextProps.environmentSettings.gridSpacing })
     }
 
     handleChange = (event: any, newValue: number) => {
-        this.setState({sliderVal: newValue});
+        this.setState({ sliderVal: newValue })
     }
 
     onDragStop = (event: any) => {
-        this.props.handleChangeGridSpacing(this.state.sliderVal);
+        this.props.handleChangeGridSpacing(this.state.sliderVal)
     }
-
 
     // onMinValChange = (e: any) => {
     //     console.log(e.target.value);
@@ -70,21 +67,27 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
     // }
 
     openEnvSettings = () => {
-        console.log("Open settings...");
-        this.props.openEnvironmentSettings();
+        console.log("Open settings...")
+        this.props.openEnvironmentSettings()
     }
 
     render() {
-
         // <i className="material-icons">battery_charging_full</i>
 
-        return(
+        return (
             <div style={styles.parentContainer}>
                 <div style={styles.buttonsContainer}>
                     <MuiThemeProvider muiTheme={lightMuiTheme}>
                         <RaisedButton
                             onClick={this.props.onSubmitBoundary}
-                            icon={<FontIcon className="material-icons" color={materialColors.black}>check</FontIcon>}
+                            icon={
+                                <FontIcon
+                                    className="material-icons"
+                                    color={materialColors.black}
+                                >
+                                    check
+                                </FontIcon>
+                            }
                             label={"Submit"}
                             style={styles.buttonStyle}
                         />
@@ -92,7 +95,14 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                     <MuiThemeProvider muiTheme={lightMuiTheme}>
                         <RaisedButton
                             onClick={this.props.onDeleteLastPolygonPt}
-                            icon={<FontIcon className="material-icons" color={materialColors.black}>undo</FontIcon>}
+                            icon={
+                                <FontIcon
+                                    className="material-icons"
+                                    color={materialColors.black}
+                                >
+                                    undo
+                                </FontIcon>
+                            }
                             label={"Undo"}
                             style={styles.buttonStyle}
                         />
@@ -100,7 +110,14 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                     <MuiThemeProvider muiTheme={lightMuiTheme}>
                         <RaisedButton
                             onClick={this.props.onClearAllPts}
-                            icon={<FontIcon className="material-icons" color={materialColors.black}>delete</FontIcon>}
+                            icon={
+                                <FontIcon
+                                    className="material-icons"
+                                    color={materialColors.black}
+                                >
+                                    delete
+                                </FontIcon>
+                            }
                             label={"Clear"}
                             style={styles.buttonStyle}
                         />
@@ -108,7 +125,14 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                     <MuiThemeProvider muiTheme={lightMuiTheme}>
                         <RaisedButton
                             onClick={this.props.onDisableDraw}
-                            icon={<FontIcon className="material-icons" color={materialColors.black}>clear</FontIcon>}
+                            icon={
+                                <FontIcon
+                                    className="material-icons"
+                                    color={materialColors.black}
+                                >
+                                    clear
+                                </FontIcon>
+                            }
                             label={"Exit"}
                             style={styles.buttonStyle}
                         />
@@ -145,6 +169,5 @@ export class DrawButtonsContainer extends React.Component<Props, State> {
                 </div>
             </div>
         )
-
     }
 }

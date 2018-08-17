@@ -1,59 +1,61 @@
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-const lightMuiTheme = getMuiTheme();
-import * as React from 'react';
-import Menu from 'material-ui/Menu';
-import MenuItem from 'material-ui/MenuItem';
+import getMuiTheme from "material-ui/styles/getMuiTheme"
+import MuiThemeProvider from "material-ui/styles/MuiThemeProvider"
+const lightMuiTheme = getMuiTheme()
+import Menu from "material-ui/Menu"
+import MenuItem from "material-ui/MenuItem"
+import * as React from "react"
 // import { styles } from "./styles";
 
 // import * as colors from 'material-ui/styles/colors';
 
-import * as L from 'leaflet';
-
+import * as L from "leaflet"
 
 type Props = {
-    menuAnchor: L.LeafletMouseEvent,
-    handleClose: () => void,
-    handleSetHome: () => void,
-    handleSetGlobal: () => void,
-    handleGoHere: () => void,
+    menuAnchor: L.LeafletMouseEvent
+    handleClose: () => void
+    handleSetHome: () => void
+    handleSetGlobal: () => void
+    handleGoHere: () => void
     handleSetTakeoff: () => void
 }
 
 type State = {
-    xPos?: number,
+    xPos?: number
     yPos?: number
 }
 
 export class ContextMenu extends React.Component<Props, State> {
-
     constructor(props: Props) {
-        super(props);
+        super(props)
 
         this.state = {
-            xPos: this.props.menuAnchor ? this.props.menuAnchor.containerPoint.x : 0,
-            yPos: this.props.menuAnchor ? this.props.menuAnchor.containerPoint.y : 0
+            xPos: this.props.menuAnchor
+                ? this.props.menuAnchor.containerPoint.x
+                : 0,
+            yPos: this.props.menuAnchor
+                ? this.props.menuAnchor.containerPoint.y
+                : 0
         }
     }
 
     handleSetHome = () => {
-        this.props.handleSetHome();
-        this.props.handleClose();
+        this.props.handleSetHome()
+        this.props.handleClose()
     }
 
     handleSetGlobal = () => {
-        this.props.handleSetGlobal();
-        this.props.handleClose();
+        this.props.handleSetGlobal()
+        this.props.handleClose()
     }
 
     handleGoHere = () => {
-        this.props.handleGoHere();
-        this.props.handleClose();
+        this.props.handleGoHere()
+        this.props.handleClose()
     }
 
     handleSetTakeoff = () => {
-        this.props.handleSetTakeoff();
-        this.props.handleClose();
+        this.props.handleSetTakeoff()
+        this.props.handleClose()
     }
 
     render() {
@@ -61,17 +63,26 @@ export class ContextMenu extends React.Component<Props, State> {
         const menuStyle = {
             position: "absolute" as "absolute",
             left: this.state.xPos,
-            top: this.state.yPos+65,
+            top: this.state.yPos + 65,
             width: 200,
             backgroundColor: "#ffffff"
         }
 
-        return(
+        return (
             <MuiThemeProvider muiTheme={lightMuiTheme}>
                 <Menu style={menuStyle}>
-                    <MenuItem primaryText="Set home location" onClick={this.handleSetHome} />
-                    <MenuItem primaryText="Set global origin" onClick={this.handleSetGlobal} />
-                    <MenuItem primaryText="Set takeoff position" onClick={this.handleSetTakeoff} />
+                    <MenuItem
+                        primaryText="Set home location"
+                        onClick={this.handleSetHome}
+                    />
+                    <MenuItem
+                        primaryText="Set global origin"
+                        onClick={this.handleSetGlobal}
+                    />
+                    <MenuItem
+                        primaryText="Set takeoff position"
+                        onClick={this.handleSetTakeoff}
+                    />
                     {/*
                     <Divider />
                     <MenuItem primaryText='"Go-to" here' onClick={this.handleGoHere} />
@@ -79,6 +90,5 @@ export class ContextMenu extends React.Component<Props, State> {
                 </Menu>
             </MuiThemeProvider>
         )
-
     }
 }

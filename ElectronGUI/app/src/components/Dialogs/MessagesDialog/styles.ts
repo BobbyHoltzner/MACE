@@ -1,6 +1,5 @@
-
-import * as colors from 'material-ui/styles/colors';
-import { textSeverityToColor } from '../../../util/misc/Colors';
+import * as colors from "material-ui/styles/colors"
+import { textSeverityToColor } from "../../../util/misc/Colors"
 
 export const styles = {
     checkboxStyle: {
@@ -17,27 +16,27 @@ export const styles = {
         marginTop: 35
     },
     checkboxLabel_Emergency: {
-        color: textSeverityToColor('EMERGENCY')
+        color: textSeverityToColor("EMERGENCY")
     },
     checkboxLabel_Critical: {
-        color: textSeverityToColor('CRITICAL')
+        color: textSeverityToColor("CRITICAL")
     },
     checkboxLabel_Alert: {
-        color: textSeverityToColor('ALERT')
+        color: textSeverityToColor("ALERT")
     },
     checkboxLabel_Error: {
-        color: textSeverityToColor('ERROR')
+        color: textSeverityToColor("ERROR")
     },
     checkboxLabel_Warning: {
-        color: textSeverityToColor('WARNING')
+        color: textSeverityToColor("WARNING")
     },
     checkboxLabel_Notice: {
-        color: textSeverityToColor('NOTICE')
+        color: textSeverityToColor("NOTICE")
     },
     checkboxLabel_Info: {
-        color: textSeverityToColor('INFO')
+        color: textSeverityToColor("INFO")
     },
     checkboxLabel_Debug: {
-        color: textSeverityToColor('DEBUG')
+        color: textSeverityToColor("DEBUG")
     }
 }

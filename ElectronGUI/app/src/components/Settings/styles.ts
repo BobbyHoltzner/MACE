@@ -1,6 +1,5 @@
-
-import { Colors } from '../../util/misc/Colors';
-import * as colors from 'material-ui/styles/colors';
+import * as colors from "material-ui/styles/colors"
+import { Colors } from "../../util/misc/Colors"
 
 export const styles = {
     checkboxStyle: {
@@ -8,7 +7,7 @@ export const styles = {
     },
     checkboxLabelStyle: {
         color: Colors.Primary,
-        fontWeight: 'normal' as 'normal'
+        fontWeight: "normal" as "normal"
     },
     labelStyle: {
         color: colors.orange700
@@ -25,5 +24,5 @@ export const styles = {
     },
     gridStyle: {
         marginTop: 35
-    },
+    }
 }

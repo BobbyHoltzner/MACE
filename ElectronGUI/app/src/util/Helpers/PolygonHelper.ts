@@ -1,55 +1,67 @@
-import * as deepcopy from 'deepcopy';
-var turf = require('@turf/turf');
+import * as deepcopy from "deepcopy"
+const turf = require("@turf/turf")
 // var geometryHelper = require('leaflet-geometryutil');
-import * as L from 'leaflet';
-
+import * as L from "leaflet"
 
 export class PolygonHelper {
-    drawPolygonPts: PositionType[];
-    gridPts?: {inPoly: L.LatLng[], trimmedPts: L.LatLng[]};
-    showEnvironmentSettings?: boolean;
-    environmentSettings?: EnvironmentSettingsType;
-    showDraw?: boolean;
-    envBoundingBox?: PositionType[];
-    globalOrigin: PositionType;
+    drawPolygonPts: PositionType[]
+    gridPts?: { inPoly: L.LatLng[]; trimmedPts: L.LatLng[] }
+    showEnvironmentSettings?: boolean
+    environmentSettings?: EnvironmentSettingsType
+    showDraw?: boolean
+    envBoundingBox?: PositionType[]
+    globalOrigin: PositionType
 
-    constructor(){
-        this.drawPolygonPts = [];
-        this.gridPts = {inPoly: [], trimmedPts: []};
-        this.showEnvironmentSettings = false;
-        this.environmentSettings = {minSliderVal: 25, maxSliderVal: 100, showBoundingBox: false, gridSpacing: -1};
-        this.showDraw = false;
-        this.envBoundingBox = [];
-        this.globalOrigin =  {lat: 0, lng: 0, alt: 0};
+    constructor() {
+        this.drawPolygonPts = []
+        this.gridPts = { inPoly: [], trimmedPts: [] }
+        this.showEnvironmentSettings = false
+        this.environmentSettings = {
+            minSliderVal: 25,
+            maxSliderVal: 100,
+            showBoundingBox: false,
+            gridSpacing: -1
+        }
+        this.showDraw = false
+        this.envBoundingBox = []
+        this.globalOrigin = { lat: 0, lng: 0, alt: 0 }
     }
 
     handleAddPolygonPt = (e: L.LeafletMouseEvent) => {
-        if(this.showDraw) {
-            let tmpPts = this.drawPolygonPts;
+        if (this.showDraw) {
+            let tmpPts = this.drawPolygonPts
 
             // Make sure the new point is not causing an intersection with the existing polygon:
-            let intersection = false;
-            if(this.drawPolygonPts.length > 2) {
-                let prevPt = this.drawPolygonPts[this.drawPolygonPts.length-1];
-                let newLine = turf.lineString([[prevPt.lat, prevPt.lng], [e.latlng.lat, e.latlng.lng]]);
-                for(let i = 1; i < this.drawPolygonPts.length-1; i++) {
-                let pt1 = [this.drawPolygonPts[i-1].lat, this.drawPolygonPts[i-1].lng];
-                let pt2 = [this.drawPolygonPts[i].lat, this.drawPolygonPts[i].lng];
-                let tmpLine = turf.lineString([pt1, pt2]);
-                let intersects = turf.lineIntersect(tmpLine, newLine);
+            let intersection = false
+            if (this.drawPolygonPts.length > 2) {
+                let prevPt = this.drawPolygonPts[this.drawPolygonPts.length - 1]
+                let newLine = turf.lineString([
+                    [prevPt.lat, prevPt.lng],
+                    [e.latlng.lat, e.latlng.lng]
+                ])
+                for (let i = 1; i < this.drawPolygonPts.length - 1; i++) {
+                    let pt1 = [
+                        this.drawPolygonPts[i - 1].lat,
+                        this.drawPolygonPts[i - 1].lng
+                    ]
+                    let pt2 = [
+                        this.drawPolygonPts[i].lat,
+                        this.drawPolygonPts[i].lng
+                    ]
+                    let tmpLine = turf.lineString([pt1, pt2])
+                    let intersects = turf.lineIntersect(tmpLine, newLine)
 
-                if(intersects.features[0]) {
-                    intersection = true;
-                }
+                    if (intersects.features[0]) {
+                        intersection = true
+                    }
                 }
             }
 
-            if(!intersection) {
-                tmpPts.push({lat: e.latlng.lat, lng: e.latlng.lng, alt: 0});
-                this.drawPolygonPts = tmpPts;
-                this.updateGrid();
-            }
-            else {
+            if (!intersection) {
+                tmpPts.push({ lat: e.latlng.lat, lng: e.latlng.lng, alt: 0 })
+                this.drawPolygonPts = tmpPts
+                this.updateGrid()
+            } else {
                 // let title = 'Draw boundary';
                 // let level = 'warning';
                 // this.showNotification(title, 'Segment cannot intersect boundary.', level, 'tc', 'Got it');
@@ -58,16 +70,16 @@ export class PolygonHelper {
     }
 
     handleDeleteLastPolygonPt = () => {
-        let tmpPts = this.drawPolygonPts;
-        tmpPts.pop();
-        this.drawPolygonPts = tmpPts;
-        this.updateGrid();
+        let tmpPts = this.drawPolygonPts
+        tmpPts.pop()
+        this.drawPolygonPts = tmpPts
+        this.updateGrid()
     }
 
     handleDisableDraw = () => {
-        this.showDraw = false;
-        this.drawPolygonPts = [];
-        this.gridPts = {inPoly: [], trimmedPts: []};
+        this.showDraw = false
+        this.drawPolygonPts = []
+        this.gridPts = { inPoly: [], trimmedPts: [] }
         // this.pauseMACEComms = false;
     }
 
@@ -77,12 +89,11 @@ export class PolygonHelper {
 
         // TODO: Send to MACE:
 
-        if(this.drawPolygonPts.length > 2) {
-            this.showDraw = false;
-            this.drawPolygonPts = [];
+        if (this.drawPolygonPts.length > 2) {
+            this.showDraw = false
+            this.drawPolygonPts = []
             // this.makeTCPRequest(0, "SET_ENVIRONMENT_VERTICES", JSON.stringify({boundary: this.drawPolygonPts}));
-        }
-        else {
+        } else {
             // let title = 'Draw boundary';
             // let level = 'info';
             // this.showNotification(title, 'Boundary must have 3 or more vertices to be valid', level, 'tc', 'Got it');
@@ -90,14 +101,14 @@ export class PolygonHelper {
     }
 
     handleClearPts = () => {
-        this.drawPolygonPts = [];
-        this.gridPts = {inPoly: [], trimmedPts: []};
+        this.drawPolygonPts = []
+        this.gridPts = { inPoly: [], trimmedPts: [] }
     }
 
     handleChangeGridSpacing = (val: number) => {
-        let settings = deepcopy(this.environmentSettings);
-        settings.gridSpacing = val;
-        this.environmentSettings = settings;
+        let settings = deepcopy(this.environmentSettings)
+        settings.gridSpacing = val
+        this.environmentSettings = settings
         // this.updateGrid();
     }
 
@@ -106,13 +117,10 @@ export class PolygonHelper {
         // this.drawPolygonPts.forEach(function(coord: PositionType) {
         //     coordinatesArr.push([coord.lat, coord.lng]);
         // });
-
-
         // let geoJsonData: GeoJSON.GeoJsonObject = {
         //     type: "Feature",
         //     bbox: coordinatesArr
         // };
-
         // let geoJsonLayer = L.geoJSON(geoJsonData);
         // let bounds: L.LatLngBounds = geoJsonLayer.getBounds();
         // let boundingBox: PositionType[] = [];
@@ -121,7 +129,6 @@ export class PolygonHelper {
         // boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getNorthEast().lat, alt: 0}); // Top Right
         // boundingBox.push({lat: bounds.getNorthEast().lng, lng: bounds.getSouthWest().lat, alt: 0}); // Top Left
         // this.envBoundingBox = boundingBox;
-
         // Calculate grid lines based on global origin:
         // this.calculateGridPts(boundingBox);
     }
@@ -136,7 +143,6 @@ export class PolygonHelper {
         //     let topLeft = new L.LatLng(boundingBox[3].lat, boundingBox[3].lng);
         //     let horizDistance = geometryHelper.length([bottomLeft, bottomRight]); // distance between bottom two points
         //     let vertDistance = geometryHelper.length([bottomLeft, topLeft]); // distance between two left points
-
         //     let distanceToNextPt = this.environmentSettings.gridSpacing;
         //     let prevPt = bottomLeft;
         //     let tmpGridPts: L.LatLng[] = [];
@@ -155,7 +161,6 @@ export class PolygonHelper {
         //     for(let j = 0; j <= numXPts; j++) {
         //         // Move East to the next point and add to the map:
         //         tmpNewPt = geometryHelper.destination(tmpNewPt, 90, distanceToNextPt);;
-
         //         // Check if in the polygon or not:
         //         if(this.isPtInPoly(tmpNewPt, this.drawPolygonPts)) {
         //         tmpGridPts.push(tmpNewPt);
@@ -164,11 +169,9 @@ export class PolygonHelper {
         //         tmpTrimmedPts.push(tmpNewPt);
         //         }
         //     }
-
         //     // Move North to the next point:
         //     prevPt = geometryHelper.destination(prevPt, 0, distanceToNextPt);;
         //     }
-
         //     // Set the grid points to display:
         //     let pts = {inPoly: tmpGridPts, trimmedPts: tmpTrimmedPts};
         //     this.gridPts = pts;
@@ -176,39 +179,45 @@ export class PolygonHelper {
         // }
     }
 
-
     isPtInPoly = (marker: L.LatLng, boundary: PositionType[]): boolean => {
-        let polyPoints: L.LatLng[] = [];
-        for(let i = 0; i < boundary.length; i++) {
-        polyPoints.push(new L.LatLng(boundary[i].lat, boundary[i].lng));
+        let polyPoints: L.LatLng[] = []
+        for (let i = 0; i < boundary.length; i++) {
+            polyPoints.push(new L.LatLng(boundary[i].lat, boundary[i].lng))
         }
-        var x = marker.lat;
-        let y = marker.lng;
+        let x = marker.lat
+        let y = marker.lng
 
-        var inside = false;
-        for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
-        var xi = polyPoints[i].lat, yi = polyPoints[i].lng;
-        var xj = polyPoints[j].lat, yj = polyPoints[j].lng;
+        let inside = false
+        for (
+            let i = 0, j = polyPoints.length - 1;
+            i < polyPoints.length;
+            j = i++
+        ) {
+            let xi = polyPoints[i].lat,
+                yi = polyPoints[i].lng
+            let xj = polyPoints[j].lat,
+                yj = polyPoints[j].lng
 
-        var intersect = ((yi > y) != (yj > y))
-            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-        if (intersect) inside = !inside;
+            let intersect =
+                yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi
+            if (intersect) inside = !inside
         }
 
-        return inside;
-    };
-
-    saveEnvironmentSettings = (settings: EnvironmentSettingsType) => {
-            if(settings.gridSpacing >= settings.minSliderVal && settings.gridSpacing <= settings.maxSliderVal) {
-            console.log("Settings: " + JSON.stringify(settings));
-            this.environmentSettings = settings;
-            // this.updateGrid();
-        }
-        else {
-        // let title = 'Environment settings';
-        // let level = 'info';
-        // this.showNotification(title, 'Grid spacing must be within the minimum and maximum values.', level, 'tc', 'Got it');
-        }
+        return inside
     }
 
+    saveEnvironmentSettings = (settings: EnvironmentSettingsType) => {
+        if (
+            settings.gridSpacing >= settings.minSliderVal &&
+            settings.gridSpacing <= settings.maxSliderVal
+        ) {
+            console.log("Settings: " + JSON.stringify(settings))
+            this.environmentSettings = settings
+            // this.updateGrid();
+        } else {
+            // let title = 'Environment settings';
+            // let level = 'info';
+            // this.showNotification(title, 'Grid spacing must be within the minimum and maximum values.', level, 'tc', 'Got it');
+        }
+    }
 }

@@ -15,7 +15,8 @@
     "build:prod": "cross-env PORT=$npm_package_config_port webpack --env.prod -p",
     "prepare": "node ./node_modules/patch-package/index.js",
     "launch": "cross-env PORT=$npm_package_config_port parallel \"watch --nasa-gui:port=$npm_package_config_port\" \"start --nasa-gui:port=$npm_package_config_port\"",
-    "build:launch": "cross-env PORT=$npm_package_config_port parallel \"build:prod --nasa-gui:port=$npm_package_config_port\" \"launch --nasa-gui:port=$npm_package_config_port\""
+    "build:launch": "cross-env PORT=$npm_package_config_port parallel \"build:prod --nasa-gui:port=$npm_package_config_port\" \"launch --nasa-gui:port=$npm_package_config_port\"",
+    "lint": "tslint -c tslint.json -p tsconfig.json -t stylish"
   },
   "author": "Scotch",
   "license": "MIT",
@@ -68,8 +69,11 @@
     "gulp-typescript": "2.13.6",
     "npm-parallel": "^2.0.1",
     "patch-package": "^5.0.0",
+    "prettier": "^1.14.2",
     "react-addons-perf": "15.4.2",
     "tsify": "3.0.4",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.14.0",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.1.0",
     "watchify": "3.9.0",

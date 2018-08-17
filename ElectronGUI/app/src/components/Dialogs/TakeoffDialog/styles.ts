@@ -1,8 +1,6 @@
-
-import * as colors from 'material-ui/styles/colors';
+import * as colors from "material-ui/styles/colors"
 
 export const styles = {
-
     labelStyle: {
         color: colors.orange700
     },
@@ -11,7 +9,7 @@ export const styles = {
         color: colors.white
     },
     dialogContent: {
-        width: '20%'
+        width: "20%"
     },
     floatingLabelFocus: {
         color: colors.orange700

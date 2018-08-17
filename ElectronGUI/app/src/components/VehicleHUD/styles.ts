@@ -1,7 +1,6 @@
-
 export const styles = {
     avatar: {
-        borderRadius: 30+'%'
+        borderRadius: 30 + "%"
     },
     col_flat: {
         paddingTop: 0,
@@ -17,7 +16,7 @@ export const styles = {
         marginRight: 0
     },
     menuItem: {
-        color: 'rgba(0,0,0,0.7)',
+        color: "rgba(0,0,0,0.7)",
         width: -30,
         paddingLeft: 0,
         paddingRight: 0,
@@ -34,19 +33,19 @@ export const styles = {
         paddingRight: 0
     },
     col_icon: {
-        display: 'flex' as 'flex',
-        justifyContent: 'flex-end' as 'flex-end',
-        alignItems: 'center' as 'center',
+        display: "flex" as "flex",
+        justifyContent: "flex-end" as "flex-end",
+        alignItems: "center" as "center",
         paddingLeft: 0,
         paddingRight: 0
     },
     col_iconLabel: {
-        display: 'flex' as 'flex',
-        justifyContent: 'center' as 'center',
-        alignItems: 'center' as 'center',
+        display: "flex" as "flex",
+        justifyContent: "center" as "center",
+        alignItems: "center" as "center",
         paddingLeft: 0,
         paddingRight: 0,
-        paddingTop: 4+'px'
+        paddingTop: 4 + "px"
     },
     iconLabelText: {
         fontSize: 12
@@ -60,9 +59,9 @@ export const styles = {
         paddingBottom: 0
     },
     batteryContainer: {
-        display: 'flex' as 'flex',
-        justifyContent: 'flex-end' as 'flex-end',
-        alignItems: 'center' as 'center',
+        display: "flex" as "flex",
+        justifyContent: "flex-end" as "flex-end",
+        alignItems: "center" as "center",
         paddingLeft: 0,
         paddingRight: 0
     },
@@ -70,13 +69,13 @@ export const styles = {
         padding: 0
     },
     batteryText: {
-        fontSize: 18+'px',
-        display: 'flex' as 'flex',
-        justifyContent: 'flex-start' as 'flex-start',
-        alignItems: 'center' as 'center',
+        fontSize: 18 + "px",
+        display: "flex" as "flex",
+        justifyContent: "flex-start" as "flex-start",
+        alignItems: "center" as "center",
         paddingLeft: 0,
         paddingRight: 0,
-        paddingTop: 11+'px'
+        paddingTop: 11 + "px"
     },
     rpyText: {
         fontSize: 18,
@@ -84,13 +83,14 @@ export const styles = {
         paddingBottom: 0
     },
     messagesContainer: {
-        width: '100%',
-        height: '9px',
-        borderBottom: '1px solid #8c8b8b',
-        textAlign: 'center' as 'center'
+        width: "100%",
+        height: "9px",
+        borderBottom: "1px solid #8c8b8b",
+        textAlign: "center" as "center"
     },
     messagesTitle: {
-        backgroundColor: '#fff', padding: '0 10px'
+        backgroundColor: "#fff",
+        padding: "0 10px"
     },
     // cardText_messages: {
     //     color: textSeverityToColor(this.props.aircraft.messages[0].severity),
@@ -99,8 +99,8 @@ export const styles = {
     //     paddingBottom: 0
     // },
     borderLine: {
-        width: '100%',
-        borderBottom: '1px solid #8c8b8b'
+        width: "100%",
+        borderBottom: "1px solid #8c8b8b"
     },
     cardActions: {
         textAlign: "center" as "center"

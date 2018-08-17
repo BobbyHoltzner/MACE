@@ -1,12 +1,11 @@
-
-import * as colors from 'material-ui/styles/colors';
-const width = window.screen.width;
-const height = window.screen.height;
+import * as colors from "material-ui/styles/colors"
+const width = window.screen.width
+const height = window.screen.height
 
 export const styles = {
     parentStyle: {
-        height: height + 'px',
-        width: width + 'px'
+        height: height + "px",
+        width: width + "px"
     },
     flatButtonLabel: {
         color: colors.orange700
@@ -20,13 +19,13 @@ export const styles = {
     },
     colStyle_margin: {
         marginTop: 20,
-        display: 'flex',
-        justifyContent: 'center' as 'center'
+        display: "flex",
+        justifyContent: "center" as "center"
     },
     colStyle: {
         marginTop: 20,
-        display: 'flex',
-        justifyContent: 'center' as 'center'
+        display: "flex",
+        justifyContent: "center" as "center"
     },
     blackIcon: {
         color: "black"
@@ -42,7 +41,7 @@ export const styles = {
         borderColor: colors.orange700
     },
     contentStyle: {
-        width: '30%'
+        width: "30%"
     },
     textStyle: {
         width: "90%"
