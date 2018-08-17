@@ -9,14 +9,15 @@ import { Grid, Col } from 'react-bootstrap';
 
 import * as L from 'leaflet';
 import { styles } from "./styles";
+import * as GlobalTypes from '../../../types/globalTypings';
 
 
 type Props = {
     open: boolean,
     handleClose: () => void,
     onGlobalHomeCommand: (vehicleID: string, tcpCommand: string, vehicleCommand: string) => void,
-    globalOrigin: PositionType,
-    handleSave: (vehicleHome: PositionType) => void,
+    globalOrigin: GlobalTypes.PositionType,
+    handleSave: (vehicleHome: GlobalTypes.PositionType) => void,
     contextAnchor: L.LeafletMouseEvent,
     useContext: boolean
 }
@@ -54,7 +55,7 @@ export class GlobalOriginDialog extends React.Component<Props, State> {
     }
 
     handleSave = () => {
-        let globalHome: PositionType = {
+        let globalHome: GlobalTypes.PositionType = {
             lat: this.state.globalLat,
             lng: this.state.globalLon,
             alt: this.state.globalAlt

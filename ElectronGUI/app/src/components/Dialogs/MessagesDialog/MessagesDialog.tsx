@@ -7,6 +7,7 @@ import FlatButton from 'material-ui/FlatButton';
 import Checkbox from 'material-ui/Checkbox';
 import { Grid, Col } from 'react-bootstrap';
 import * as deepcopy from 'deepcopy';
+import * as GlobalTypes from '../../../types/globalTypings';
 
 import { styles } from "./styles";
 
@@ -14,12 +15,12 @@ import { styles } from "./styles";
 type Props = {
     open: boolean,
     handleClose: () => void,
-    handleSave: (preferences: MessagePreferencesType) => void
-    preferences: MessagePreferencesType
+    handleSave: (preferences: GlobalTypes.MessagePreferencesType) => void
+    preferences: GlobalTypes.MessagePreferencesType
 }
 
 type State = {
-    preferences?: MessagePreferencesType
+    preferences?: GlobalTypes.MessagePreferencesType
 }
 
 export class MessagesDialog extends React.Component<Props, State> {

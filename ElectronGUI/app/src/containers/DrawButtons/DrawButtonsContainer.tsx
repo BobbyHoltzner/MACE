@@ -18,6 +18,7 @@ import FontIcon from 'material-ui/FontIcon';
 // import Slider from 'material-ui/Slider';
 // import IconButton from 'material-ui/IconButton';
 import { styles } from "./styles";
+import * as GlobalTypes from '../../types/globalTypings';
 
 
 type Props = {
@@ -27,7 +28,7 @@ type Props = {
     onClearAllPts: () => void,
     handleChangeGridSpacing: (val: number) => void,
     openEnvironmentSettings: () => void,
-    environmentSettings: EnvironmentSettingsType
+    environmentSettings: GlobalTypes.EnvironmentSettingsType
 }
 
 type State = {

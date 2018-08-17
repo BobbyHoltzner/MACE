@@ -23,6 +23,7 @@ import { ConfigDialog } from '../../components/Dialogs/ConfigDialog/ConfigDialog
 import { TakeoffDialog } from '../../components/Dialogs/TakeoffDialog/TakeoffDialog';
 import MACEMap from '../../components/MACEMap/MACEMap';
 import FlatButton from 'material-ui/FlatButton';
+import * as GlobalTypes from '../../types/globalTypings';
 import * as deepcopy from 'deepcopy';
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
@@ -362,7 +363,7 @@ export default class AppContainer extends React.Component<Props, State> {
               <ConfigDialog
                 open={this.state.showConfigDialog}
                 handleClose={this.handleCloseDialogs}
-                handleSave={(configSettings: ConfigSettingsType, reload: boolean) => this.appHelper.handleSaveMACEConfig(configSettings, reload)}
+                handleSave={(configSettings: GlobalTypes.ConfigSettingsType, reload: boolean) => this.appHelper.handleSaveMACEConfig(configSettings, reload)}
                 configSettings={this.appHelper.MACEconfig}
                 handleParseJSON={(filename: string, restartServer: boolean) => this.appHelper.parseJSONConfig(filename, restartServer)}
               />

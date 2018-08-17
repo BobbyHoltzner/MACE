@@ -2,6 +2,7 @@ var fs = electronRequire('fs');
 import { Vehicle } from '../Vehicle/Vehicle';
 import * as L from 'leaflet';
 import { MACECommsHelper } from './MACECommsHelper';
+import * as GlobalTypes from '../../types/globalTypings';
 
 
 /*
@@ -12,7 +13,7 @@ import { MACECommsHelper } from './MACECommsHelper';
 
 export class AppHelper {
   state: any; // TODO: Figure out how to get State type in here...
-  MACEconfig: ConfigSettingsType;
+  MACEconfig: GlobalTypes.ConfigSettingsType;
   notificationSystem: any; // TODO: Figure out why I cant make this a NotificationSystem type...
   getVehiclesInterval: any;
   connectedVehicles: {[id: string]: Vehicle};
@@ -84,7 +85,7 @@ export class AppHelper {
 
   parseJSONConfig = (filename: string, restartServer: boolean = true) => {
     let jsonConfig = JSON.parse(fs.readFileSync(filename));
-    let MACEconfig: ConfigSettingsType = this.MACEconfig;
+    let MACEconfig: GlobalTypes.ConfigSettingsType = this.MACEconfig;
 
     MACEconfig.filename = filename;
     if(jsonConfig.MACEComms) {
@@ -192,11 +193,11 @@ export class AppHelper {
     }
   }
 
-  handleSaveVehicleHome = (vehicleID: string, vehicleHome: PositionType) => {
+  handleSaveVehicleHome = (vehicleID: string, vehicleHome: GlobalTypes.PositionType) => {
     this.handleAircraftCommand(vehicleID, "SET_VEHICLE_HOME", JSON.stringify(vehicleHome));
   }
 
-  handleSaveGlobalOrigin = (globalOrigin: PositionType) => {
+  handleSaveGlobalOrigin = (globalOrigin: GlobalTypes.PositionType) => {
     this.handleAircraftCommand("0", "SET_GLOBAL_ORIGIN", JSON.stringify(globalOrigin));
     // this.maceCommsHelper.vehicleDB.globalOrigin = globalOrigin;
   }
@@ -239,11 +240,11 @@ export class AppHelper {
     this.handleAircraftCommand(this.state.selectedVehicleID, "SET_GO_HERE", JSON.stringify(goHere));
   }
 
-  handleSaveMessagingPreferences = (preferences: MessagePreferencesType) => {
+  handleSaveMessagingPreferences = (preferences: GlobalTypes.MessagePreferencesType) => {
     this.maceCommsHelper.vehicleDB.messagePreferences = preferences;
   }
 
-  handleSaveMACEConfig = (config: ConfigSettingsType, reload: boolean = false) => {
+  handleSaveMACEConfig = (config: GlobalTypes.ConfigSettingsType, reload: boolean = false) => {
     this.MACEconfig = config;
     if(reload) {
       this.maceCommsHelper.setupTCPServer();
