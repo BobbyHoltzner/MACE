@@ -81,7 +81,8 @@ public:
 public:
 
     ModuleBase() :
-        m_HasID(false)
+        m_HasID(false),
+        m_Started(false)
     {
 
     }
@@ -152,7 +153,7 @@ public:
     //!
     virtual void OnModulesStarted()
     {
-
+        m_Started = true;
     }
 
     //!
@@ -243,6 +244,19 @@ public:
     }
 
 protected:
+
+
+    //!
+    //! \brief ModuleStarted Determine if the MACE has indicated that the module is capable of running
+    //! \return True if MACE instance has indicated the module is good to go
+    //!
+    bool ModuleStarted() const
+    {
+        return m_Started;
+    }
+
+
+protected:
     std::string loggingPath;
     bool loggerCreated = false;
 
@@ -256,6 +270,11 @@ private:
     bool m_ParentMaceInstanceIDSet = false;
     uint32_t m_ParentMaceInstanceID;
     ///
+
+    //!
+    //! \brief Variable to indicate if the MACE instance is ready for this module to start it's processing
+    //!
+    bool m_Started;
 };
 
 
