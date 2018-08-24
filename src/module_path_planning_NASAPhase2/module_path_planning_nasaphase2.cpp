@@ -100,6 +100,8 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModulePathPlanningNASAPhase2
 
 void ModulePathPlanningNASAPhase2::OnModulesStarted()
 {
+    MaceCore::ModuleBase::OnModulesStarted();
+
     std::cout<<"All of the modules have been started."<<std::endl;
     ModulePathPlanningNASAPhase2::NotifyListeners([&](MaceCore::IModuleEventsPathPlanning* ptr) {
         ptr->Event_SetGlobalOrigin(this, m_globalOrigin);

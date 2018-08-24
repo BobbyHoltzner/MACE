@@ -141,8 +141,11 @@ static std::shared_ptr<MaceCore::ModuleParameterValue> ParseParameters(const pug
             else
             {
                 std::string defaultValue = structure->getDefaultTerminalValue(it->first);
-                result.warnings.push_back(nestedName + " not set, using default value of " + defaultValue);
-                valueContainer->AddTerminalValueFromString(it->first, defaultValue, structure->getTerminalType(it->first));
+                if(defaultValue != "")
+                {
+                    result.warnings.push_back(nestedName + " not set, using default value of " + defaultValue);
+                    valueContainer->AddTerminalValueFromString(it->first, defaultValue, structure->getTerminalType(it->first));
+                }
             }
         }
     }

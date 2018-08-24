@@ -20,6 +20,9 @@
 
 #include "mace_core/module_factory.h"
 
+//need a single global object to marshal from
+extern Comms::CommsMarshaler g_CommsMarshaler;
+
 class COMMSMAVLINKSHARED_EXPORT CommsMAVLINK :
         public Comms::CommsEvents
 {
@@ -46,7 +49,6 @@ public:
     std::string getLinkName() const;
 
 protected:
-    Comms::CommsMarshaler *m_LinkMarshaler;
     std::string m_LinkName;
     uint8_t m_LinkChan;
 

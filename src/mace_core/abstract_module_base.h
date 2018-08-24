@@ -80,6 +80,12 @@ public:
 
 public:
 
+    ModuleBase() :
+        m_HasID(false),
+        m_Started(false)
+    {
+
+    }
 
     const static ModuleClasses moduleClass;
 
@@ -88,6 +94,18 @@ public:
     void SetID(int ID)
     {
         m_ID = ID;
+        m_HasID = true;
+    }
+
+    //!
+    //! \brief Determine if ID has ben set.
+    //!
+    //! Used at startup when some modules may have a "static" ID while others will be dynamically assinged
+    //! \return True if module has an ID assigned to it.
+    //!
+    bool HasID() const
+    {
+        return m_HasID;
     }
 
     int GetID() const
@@ -135,7 +153,7 @@ public:
     //!
     virtual void OnModulesStarted()
     {
-
+        m_Started = true;
     }
 
     //!
@@ -226,18 +244,37 @@ public:
     }
 
 protected:
+
+
+    //!
+    //! \brief ModuleStarted Determine if the MACE has indicated that the module is capable of running
+    //! \return True if MACE instance has indicated the module is good to go
+    //!
+    bool ModuleStarted() const
+    {
+        return m_Started;
+    }
+
+
+protected:
     std::string loggingPath;
     bool loggerCreated = false;
 
 private:
     std::shared_ptr<const MaceData> m_Data;
 
+    bool m_HasID;
     int m_ID;
 
     ///MTB MODULE AUTO ASSIGN
     bool m_ParentMaceInstanceIDSet = false;
     uint32_t m_ParentMaceInstanceID;
     ///
+
+    //!
+    //! \brief Variable to indicate if the MACE instance is ready for this module to start it's processing
+    //!
+    bool m_Started;
 };
 
 
