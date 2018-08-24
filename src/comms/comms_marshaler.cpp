@@ -22,7 +22,7 @@ CommsMarshaler::CommsMarshaler() :
 void CommsMarshaler::AddProtocol(const MavlinkConfiguration &config)
 {
     if(m_ProtocolObjects.find(Protocols::MAVLINK) != m_ProtocolObjects.cend())
-        throw std::runtime_error("Mavlink protocol has already been created");
+        return;
 
     std::shared_ptr<MavlinkProtocol> protocol = std::make_shared<MavlinkProtocol>(config);
     protocol->AddListner(this);
@@ -240,7 +240,8 @@ void CommsMarshaler::CommunicationError(const ILink* link_ptr, const std::string
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](const CommsEvents *ptr){ptr->LinkCommunicationError(m_CreatedLinksPtrToName.at(link_ptr), type, msg);});
+    std::string linkName = m_CreatedLinksPtrToName.at(link_ptr);
+    Emit([&](const CommsEvents *ptr){ptr->LinkCommunicationError(linkName, type, msg);}, linkName);
 }
 
 void CommsMarshaler::CommunicationUpdate(const ILink* link_ptr, const std::string &name, const std::string &msg) const
@@ -248,7 +249,8 @@ void CommsMarshaler::CommunicationUpdate(const ILink* link_ptr, const std::strin
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](const CommsEvents *ptr){ptr->LinkCommunicationUpdate(m_CreatedLinksPtrToName.at(link_ptr), name, msg);});
+    std::string linkName = m_CreatedLinksPtrToName.at(link_ptr);
+    Emit([&](const CommsEvents *ptr){ptr->LinkCommunicationUpdate(linkName, name, msg);}, linkName);
 }
 
 void CommsMarshaler::Connected(const ILink* link_ptr) const
@@ -256,7 +258,8 @@ void CommsMarshaler::Connected(const ILink* link_ptr) const
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](const CommsEvents *ptr){ptr->LinkConnected(m_CreatedLinksPtrToName.at(link_ptr));});
+    std::string linkName = m_CreatedLinksPtrToName.at(link_ptr);
+    Emit([&](const CommsEvents *ptr){ptr->LinkConnected(linkName);}, linkName);
 }
 
 void CommsMarshaler::ConnectionRemoved(const ILink* link_ptr) const
@@ -264,7 +267,8 @@ void CommsMarshaler::ConnectionRemoved(const ILink* link_ptr) const
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](const CommsEvents *ptr){ptr->LinkConnectionRemoved(m_CreatedLinksPtrToName.at(link_ptr));});
+    std::string linkName = m_CreatedLinksPtrToName.at(link_ptr);
+    Emit([&](const CommsEvents *ptr){ptr->LinkConnectionRemoved(linkName);}, linkName);
 }
 
 
@@ -285,7 +289,8 @@ void CommsMarshaler::ProtocolStatusMessage(const ILink* link_ptr, const std::str
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](const CommsEvents *ptr){ptr->ProtocolStatusMessage(m_CreatedLinksPtrToName.at(link_ptr), title, message);});
+    std::string linkName = m_CreatedLinksPtrToName.at(link_ptr);
+    Emit([&](const CommsEvents *ptr){ptr->ProtocolStatusMessage(linkName, title, message);}, linkName);
 }
 
 
@@ -294,7 +299,8 @@ void CommsMarshaler::ReceiveLossPercentChanged(const ILink* link_ptr, int uasId,
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](const CommsEvents *ptr){ptr->ReceiveLossPercentChanged(m_CreatedLinksPtrToName.at(link_ptr), uasId, lossPercent);});
+    std::string linkName = m_CreatedLinksPtrToName.at(link_ptr);
+    Emit([&](const CommsEvents *ptr){ptr->ReceiveLossPercentChanged(linkName, uasId, lossPercent);}, linkName);
 }
 
 void CommsMarshaler::ReceiveLossTotalChanged(const ILink* link_ptr, int uasId, int totalLoss) const
@@ -302,7 +308,8 @@ void CommsMarshaler::ReceiveLossTotalChanged(const ILink* link_ptr, int uasId, i
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](const CommsEvents *ptr){ptr->ReceiveLossTotalChanged(m_CreatedLinksPtrToName.at(link_ptr), uasId, totalLoss);});
+    std::string linkName = m_CreatedLinksPtrToName.at(link_ptr);
+    Emit([&](const CommsEvents *ptr){ptr->ReceiveLossTotalChanged(linkName, uasId, totalLoss);}, linkName);
 }
 
 
@@ -323,7 +330,8 @@ void CommsMarshaler::MessageReceived(const ILink* link_ptr, const mavlink_messag
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](CommsEvents *ptr){ptr->MavlinkMessage(m_CreatedLinksPtrToName.at(link_ptr), message);});
+    std::string linkName = m_CreatedLinksPtrToName.at(link_ptr);
+    Emit([&](CommsEvents *ptr){ptr->MavlinkMessage(linkName, message);}, linkName);
 }
 
 
@@ -340,7 +348,8 @@ void CommsMarshaler::VehicleHeartbeatInfo(const ILink* link_ptr, const int &syst
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](CommsEvents *ptr){ptr->VehicleHeartbeatInfo(m_CreatedLinksPtrToName.at(link_ptr), systemID, heartbeatMSG);});
+    std::string linkName = m_CreatedLinksPtrToName.at(link_ptr);
+    Emit([&](CommsEvents *ptr){ptr->VehicleHeartbeatInfo(linkName, systemID, heartbeatMSG);}, linkName);
 }
 
 //!
@@ -359,7 +368,8 @@ void CommsMarshaler::RadioStatusChanged(const ILink* link_ptr, unsigned rxerrors
     if(m_CreatedLinksPtrToName.find(link_ptr) == m_CreatedLinksPtrToName.cend())
         throw std::runtime_error("Provided link does not exists");
 
-    Emit([&](const CommsEvents *ptr){ptr->RadioStatusChanged(m_CreatedLinksPtrToName.at(link_ptr), rxerrors, fixed, rssi, remrssi, txbuf, noise, remnoise);});
+    std::string linkName = m_CreatedLinksPtrToName.at(link_ptr);
+    Emit([&](const CommsEvents *ptr){ptr->RadioStatusChanged(linkName, rxerrors, fixed, rssi, remrssi, txbuf, noise, remnoise);}, linkName);
 }
 
 
