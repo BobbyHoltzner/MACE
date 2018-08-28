@@ -387,8 +387,6 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
         }
         m_TopicNotifierMutex.unlock();
     }
-
-
 }
 
 //!
@@ -959,6 +957,18 @@ void MaceCore::GVEvents_MissionItemCurrent(const void *sender, const MissionItem
     UNUSED(sender);
     m_DataFusion->updateCurrentMissionItem(current);
 }
+
+//!
+//! \brief GVEvents_NewSystemTime Emitted to alert the core that a module connected to a vehicle has an updated system time
+//! \param sender Sender module
+//! \param systemTime New system time
+//!
+void MaceCore::GVEvents_NewSystemTime(const ModuleBase *sender, const DataGenericItem::DataGenericItem_SystemTime &systemTime)
+{
+    m_DataFusion->updateCurrentSystemTimeDelta(systemTime.getUsecSinceEpoch());
+}
+
+
 
 //!
 //! \brief ConfirmedOnboardVehicleMission Confirm onboard mission event

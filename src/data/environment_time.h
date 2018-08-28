@@ -133,7 +133,7 @@ public:
 //     * \param rhs Right hand side of the addition
 //     * \return Microsecond addition between the two times
 //     */
-//    HSI_INT64 operator +( const SimulationTime& microseconds ) const;
+//    uint64_t operator +( const SimulationTime& microseconds ) const;
 
 
     /*!
@@ -162,6 +162,11 @@ public:
      */
     double ToSecSinceEpoch() const;
 
+    //!
+    //! \brief Returns the number of milliseconds from epoch
+    //! \return Number of milleseconds from epoch
+    //!
+    double ToMillisecondsSinceEpoch() const;
 
     //!
     //! \brief Construct time from seconds since epoch.

@@ -30,7 +30,8 @@ SOURCES += \
     data_generic_item_text.cpp \
     data_generic_item_battery.cpp \
     data_generic_item_heartbeat.cpp \
-    data_generic_item_system_arm.cpp
+    data_generic_item_system_arm.cpp \
+    data_generic_item_systemtime.cpp
 
 HEADERS +=\
         data_generic_item_global.h \
@@ -40,7 +41,8 @@ HEADERS +=\
     data_generic_item_text.h \
     data_generic_item_battery.h \
     data_generic_item_heartbeat.h \
-    data_generic_item_system_arm.h
+    data_generic_item_system_arm.h \
+    data_generic_item_systemtime.h
 
 # Unix lib Install
 unix:!symbian {

@@ -327,6 +327,8 @@ void MACEtoGUI::sendVehicleGPS(const int &vehicleID, const std::shared_ptr<DataG
     QJsonDocument doc(json);
     bool bytesWritten = writeTCPData(doc.toJson());
 
+    mace_gps_raw_int_t tmp = component->getMACECommsObject();
+
     if(!bytesWritten){
         std::cout << "Write Vehicle GPS Data failed..." << std::endl;
     }
