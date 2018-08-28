@@ -39,6 +39,8 @@
 
 #include "data_generic_command_item/boundary_items/boundary_type.h"
 
+#include "data/environment_time.h"
+
 namespace MaceCore
 {
 
@@ -241,6 +243,7 @@ public:
         double gridSpacing = m_GridSpacing;
         return gridSpacing;
     }
+
 
     //!
     //! \brief GetEnvironmentBoundary Get the environment boundary
@@ -1212,15 +1215,45 @@ private:
     mutable std::mutex m_EnvironmentalBoundaryMutex;
     std::unordered_map<uint8_t, std::tuple<BoundaryItem::BoundaryCharacterisic, BoundaryItem::BoundaryList>> m_Boundaries;
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// SYSTEM TIME METHODS
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+public:
 
+    //!
+    //! \brief updateCurrentSystemTimeDelta Given the microseconds since epoch (from MAVLINK SYSTEM_TIME message), set the delta between epoch and SYSTEMCLOCK (in milliseconds)
+    //! \param microsecondsSinceEpoch Microseconds since epoch (from MALINK SYSTEM_TIME message)
+    //!
+    void updateCurrentSystemTimeDelta(const uint64_t &microsecondsSinceEpoch);
 
+    //!
+    //! \brief setCurrentDeltaTime If the current offset time is known, set the current deltaT in milliseconds
+    //! \param millseconds Value to set the member variable storing offset time to
+    //!
+    void setCurrentDeltaTime(const double &millseconds);
 
+    //!
+    //! \brief MaceData::getMAVLINKAdjustedTime Get the current time adjusted with the delta time
+    //! \return EnvironmentTime container with time since epoch, adjusted with delta
+    //!
+    Data::EnvironmentTime getCurrentSystemTime_Adjusted() const;
 
+    //!
+    //! \brief getDeltaT_msec Get delta time between MAVLINK SYSTEM_TIME since epoch and SYSTEMCLOCK
+    //! \return Delta in milliseconds
+    //!
+    double getDeltaT_msec() const
+    {
+        return deltaT_msec;
+    }
 
+private:
+    double deltaT_msec = 0.0;
 
-
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// LOCAL/REMOTE MODULE DEFINITION METHODS
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 public:
 

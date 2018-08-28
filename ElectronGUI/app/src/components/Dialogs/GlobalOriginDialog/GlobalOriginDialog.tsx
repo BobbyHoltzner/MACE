@@ -6,6 +6,7 @@ import FlatButton from "material-ui/FlatButton"
 import TextField from "material-ui/TextField"
 import * as React from "react"
 import { Col, Grid } from "react-bootstrap"
+import * as GlobalTypes from '../../../types/globalTypings';
 
 import * as L from "leaflet"
 import { styles } from "./styles"
@@ -59,7 +60,7 @@ export class GlobalOriginDialog extends React.Component<Props, State> {
     }
 
     handleSave = () => {
-        let globalHome: PositionType = {
+        let globalHome: GlobalTypes.PositionType = {
             lat: this.state.globalLat,
             lng: this.state.globalLon,
             alt: this.state.globalAlt

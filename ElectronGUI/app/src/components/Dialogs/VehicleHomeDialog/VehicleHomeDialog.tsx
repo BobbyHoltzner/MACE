@@ -12,6 +12,7 @@ import { Vehicle } from "../../../util/Vehicle/Vehicle"
 
 import * as L from "leaflet"
 import * as colors from "material-ui/styles/colors"
+import * as GlobalTypes from '../../types/globalTypings';
 import { styles } from "./styles"
 
 type Props = {
@@ -83,8 +84,8 @@ export class VehicleHomeDialog extends React.Component<Props, State> {
     }
 
     handleSave = () => {
-        console.log("Selected vehicle ID: " + this.state.selectedVehicleID)
-        let vehicleHome: PositionType = {
+        console.log("Selected vehicle ID: " + this.state.selectedVehicleID);
+        let vehicleHome: GlobalTypes.PositionType = {
             lat: this.state.homeLat,
             lng: this.state.homeLon,
             alt: this.state.homeAlt

@@ -478,6 +478,12 @@ bool ModuleVehicleArdupilot::MavlinkMessage(const std::string &linkName, const m
 //!
 void ModuleVehicleArdupilot::VehicleHeartbeatInfo(const std::string &linkName, const int &systemID, const mavlink_heartbeat_t &heartbeatMSG)
 {
+    //If module hasn't started yet, then ignore this message
+    if(this->ModuleStarted() == false)
+    {
+        return;
+    }
+
     UNUSED(linkName);
     if(vehicleData == nullptr)
     {

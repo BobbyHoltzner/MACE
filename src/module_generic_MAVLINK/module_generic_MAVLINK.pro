@@ -4,7 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       -= core gui
+#QT       -= core gui
+QT      -= gui
+QT      += core
 
 TARGET = module_generic_MAVLINK
 TEMPLATE = lib

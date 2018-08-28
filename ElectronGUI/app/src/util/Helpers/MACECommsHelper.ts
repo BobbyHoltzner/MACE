@@ -12,7 +12,6 @@ export class MACECommsHelper {
         this.MACEconfig = MACEconfig
         this.tcpServer = null
         this.tcpSockets = []
-
         this.vehicleDB = new VehicleDB()
     }
 

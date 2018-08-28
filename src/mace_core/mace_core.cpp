@@ -11,7 +11,7 @@ namespace MaceCore
 MaceCore::MaceCore() :
     m_GroundStation(NULL),
     m_PathPlanning(NULL),
-    m_RTA(NULL),
+    m_GlobalRTA(NULL),
     m_MaceInstanceIDSet(false)
 {
 
@@ -35,25 +35,43 @@ void MaceCore::AddDataFusion(const std::shared_ptr<MaceData> dataFusion)
 void MaceCore::AddLocalModule(const std::shared_ptr<ModuleBase> &module)
 {
     uint8_t moduleID = 1;
-    if(m_Modules.size() > 0)
+
+    /// If module already has an ID, use it.
+    /// If not then assign an ID
+    if(module->HasID())
     {
-        moduleID = m_Modules.size()+1;
+        moduleID = module->GetID();
     }
+    else{
 
-    while(true)
-    {
-        // check for overflow
-        if(moduleID == 0)
+        // start search for a suitable module ID by setting to size
+        if(m_Modules.size() > 0)
         {
-            throw std::runtime_error("Trying to find a module ID has overflowed. Have too many modules been added");
+            moduleID = m_Modules.size()+1;
         }
 
-        if(m_Modules.find(moduleID) == m_Modules.cend())
+        while(true)
         {
-            m_Modules.insert({moduleID, module});
-            break;
+            // check for overflow
+            if(moduleID == 0)
+            {
+                throw std::runtime_error("Trying to find a module ID has overflowed. Have too many modules been added");
+            }
+
+
+            // Don't use if proposed ID is reserved
+            if (std::find(m_ReservedModuleIDs.begin(), m_ReservedModuleIDs.end(), moduleID) == m_ReservedModuleIDs.end())
+            {
+                // Don't use if proposed ID has already been used
+                if(m_Modules.find(moduleID) == m_Modules.cend())
+                {
+                    // Proposed ID is good, add and exit
+                    m_Modules.insert({moduleID, module});
+                    break;
+                }
+            }
+            moduleID++;
         }
-        moduleID++;
     }
 
     module->setPararentMaceInstanceID(getMaceInstanceID());
@@ -134,9 +152,9 @@ void MaceCore::AddLocalModule_ExternalLink(const std::shared_ptr<IModuleCommandE
     }
 
     //if there is an RTA module, notify this new external link about the existance of the rta module
-    if(m_RTA != NULL)
+    if(m_GlobalRTA != NULL)
     {
-        externalLink->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_RTA->GetCharacteristic(), ModuleClasses::RTA);
+        externalLink->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GlobalRTA->GetCharacteristic(), ModuleClasses::RTA);
     }
 
     //If there are vehiclemodules, notify this new external link about each ones existance
@@ -198,24 +216,72 @@ void MaceCore::AddROSModule(const std::shared_ptr<IModuleCommandROS> &ros)
     AddLocalModule(ros);
 }
 
+
 //!
-//! \brief AddRTAModule Add RTA module
-//! \param rta RTA module setup
+//! \brief Add a generic RTA module to the MACE instance
 //!
-void MaceCore::AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta)
+//! This function simpy consults the module and calls either AddLocalModule_GlobalRTA or AddLocalModule_SpecializedRTA
+//! \param rta Module to add
+//!
+void MaceCore::AddLocalModule_GenericRTA(const std::shared_ptr<IModuleCommandRTA> &rta)
+{
+    if(rta->getModuleMetaData().IsGlobal())
+    {
+        AddLocalModule_GlobalRTA(rta);
+    }
+    else
+    {
+        AddLocalModule_SpecializedRTA(rta);
+    }
+}
+
+
+//!
+//! \brief Add a global RTA module
+//!
+//! A single global RTA module only exists on one MACE instance in the entire MACE network.
+//! \param rta RTA module
+//!
+void MaceCore::AddLocalModule_GlobalRTA(const std::shared_ptr<IModuleCommandRTA> &rta)
 {
     AddLocalModule(rta);
 
     rta->addListener(this);
     rta->addTopicListener(this);
-    m_RTA = rta;
+    m_GlobalRTA = rta;
 
     //notify all existing external links about new RTA module
     if(m_ExternalLink.size() > 0)
     {
         for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
         {
-            (*it)->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_RTA->GetCharacteristic(), ModuleClasses::RTA);
+            (*it)->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GlobalRTA->GetCharacteristic(), ModuleClasses::RTA);
+        }
+    }
+}
+
+
+//!
+//! \brief Add a specialized RTA module
+//!
+//! A specialized RTA module coordianates with a specific resource (vehicle).
+//! There may be multiple specalized RTA modules per MACE instance.
+//! \param rta RTA module
+//!
+void MaceCore::AddLocalModule_SpecializedRTA(const std::shared_ptr<IModuleCommandRTA> &rta)
+{
+    AddLocalModule(rta);
+
+    rta->addListener(this);
+    rta->addTopicListener(this);
+    m_SpecailizedRTA.push_back(rta);
+
+    //notify all existing external links about new RTA module
+    if(m_ExternalLink.size() > 0)
+    {
+        for (std::list<std::shared_ptr<IModuleCommandExternalLink>>::iterator it=m_ExternalLink.begin(); it!=m_ExternalLink.end(); ++it)
+        {
+            (*it)->MarshalCommandTwoParameter(ExternalLinkCommands::NEWLY_AVAILABLE_MODULE, m_GlobalRTA->GetCharacteristic(), ModuleClasses::RTA);
         }
     }
 }
@@ -321,8 +387,6 @@ void MaceCore::NewTopicDataValues(const ModuleBase* moduleFrom, const std::strin
         }
         m_TopicNotifierMutex.unlock();
     }
-
-
 }
 
 //!
@@ -381,8 +445,8 @@ void MaceCore::RequestDummyFunction(const void *sender, const int &vehicleID)
     //    }catch(const std::out_of_range &oor){
 
     //    }
-    if(m_RTA) {
-        m_RTA->MarshalCommand(RTACommands::TEST_FUNCTION, vehicleID);
+    if(m_GlobalRTA) {
+        m_GlobalRTA->MarshalCommand(RTACommands::TEST_FUNCTION, vehicleID);
     }
 }
 
@@ -440,8 +504,8 @@ void MaceCore::Events_NewVehicle(const ModuleBase *sender, const uint8_t publicI
     if(m_GroundStation)
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_AVAILABLE_VEHICLE, publicID, vehicleModule);
 
-    if(m_RTA)
-        m_RTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_VEHICLE, publicID, vehicleModule);
+    if(m_GlobalRTA)
+        m_GlobalRTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_VEHICLE, publicID, vehicleModule);
 
     if(m_ROS)
         m_ROS->MarshalCommand(ROSCommands::NEWLY_AVAILABLE_VEHICLE, publicID, vehicleModule);
@@ -716,8 +780,8 @@ void MaceCore::Event_SetGlobalOrigin(const void *sender, const GeodeticPosition_
     if(m_GroundStation && m_GroundStation.get() != sender) {
         m_GroundStation->MarshalCommand(GroundStationCommands::NEWLY_UPDATED_GLOBAL_ORIGIN, position);
     }
-    if(m_RTA) {
-        m_RTA->MarshalCommand(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, position);
+    if(m_GlobalRTA) {
+        m_GlobalRTA->MarshalCommand(RTACommands::NEWLY_UPDATED_GLOBAL_ORIGIN, position);
     }
 }
 
@@ -895,6 +959,18 @@ void MaceCore::GVEvents_MissionItemCurrent(const void *sender, const MissionItem
 }
 
 //!
+//! \brief GVEvents_NewSystemTime Emitted to alert the core that a module connected to a vehicle has an updated system time
+//! \param sender Sender module
+//! \param systemTime New system time
+//!
+void MaceCore::GVEvents_NewSystemTime(const ModuleBase *sender, const DataGenericItem::DataGenericItem_SystemTime &systemTime)
+{
+    m_DataFusion->updateCurrentSystemTimeDelta(systemTime.getUsecSinceEpoch());
+}
+
+
+
+//!
 //! \brief ConfirmedOnboardVehicleMission Confirm onboard mission event
 //! \param sender Sender module
 //! \param missionKey Mission key to confirm
@@ -1014,7 +1090,7 @@ void MaceCore::ExternalEvent_NewBoundary(const ModuleBase *sender, const NewBoun
     /// If global boundary and at least has a module attached then make interested
     if(vehicles.size() == 0)
     {
-        if(m_RTA != nullptr)
+        if(m_GlobalRTA != nullptr)
         {
             interestedInBoundary = true;
         }
@@ -1316,10 +1392,19 @@ void MaceCore::Event_SetBoundary(const ModuleBase *sender, const BoundaryItem::B
 
     if(m_GroundStation.get() == sender)
     {
-        printf("!!!!!!MADISON TESTING!!!!! - RTA module isn't full developed, so restricting transmission of boundary only when boundary came from GS\n");
-        if(m_RTA && sender != m_RTA.get()) {
-            m_RTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_BOUNDARY, rtnKey);
+        printf("!!!!!!MADISON TESTING!!!!! - RTA module isn't full developed, so restricting transmission of boundary to global RTA instance only when boundary came from GS\n");
+        if(m_GlobalRTA && sender != m_GlobalRTA.get()) {
+            m_GlobalRTA->MarshalCommand(RTACommands::NEWLY_AVAILABLE_BOUNDARY, rtnKey);
         }
+    }
+
+
+    // Iterate over all specialized RTA modules and notify of new boundary
+    for(std::vector<std::shared_ptr<IModuleCommandRTA>>::iterator it = m_SpecailizedRTA.begin() ; it != m_SpecailizedRTA.end() ; ++it)
+    {
+        if(it->get() == sender) continue;
+
+        (*it)->MarshalCommand(RTACommands::NEWLY_AVAILABLE_BOUNDARY, rtnKey, sender->GetCharacteristic());
     }
 
     // TODO-@Ken: Does the PP module need the operational fence?

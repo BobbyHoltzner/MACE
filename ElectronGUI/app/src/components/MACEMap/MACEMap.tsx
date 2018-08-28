@@ -19,6 +19,7 @@ import { Vehicle } from "../../util/Vehicle/Vehicle"
 import { Heatmap } from "../mapLayers/heatmap"
 import { styles } from "./styles"
 
+
 type Props = {
     handleSelectedAircraftUpdate: (id: string) => void
     connectedVehicles: { [id: string]: Vehicle }

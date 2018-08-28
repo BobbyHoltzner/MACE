@@ -7,6 +7,7 @@ import Dialog from "material-ui/Dialog"
 import FlatButton from "material-ui/FlatButton"
 import * as React from "react"
 import { Col, Grid } from "react-bootstrap"
+import * as GlobalTypes from '../../../types/globalTypings';
 
 import { styles } from "./styles"
 
@@ -18,7 +19,7 @@ type Props = {
 }
 
 type State = {
-    preferences?: MessagePreferencesType
+    preferences?: GlobalTypes.MessagePreferencesType
 }
 
 export class MessagesDialog extends React.Component<Props, State> {

@@ -28,12 +28,33 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         }
         break;
     }
+    case MAVLINK_MSG_ID_SYSTEM_TIME:
+    {
+        //This is message definition 2
+        mavlink_system_time_t decodedMSG;
+        mavlink_msg_system_time_decode(msg, &decodedMSG);
+        DataGenericItem::DataGenericItem_SystemTime systemTime;
+        systemTime.setTimeSinceEpoch(decodedMSG.time_unix_usec);
+        systemTime.setTimeSinceBoot(decodedMSG.time_boot_ms);
+
+        // Check the GPS fix is greater than 3D before updating system time
+        DataGenericItem::DataGenericItem_GPS gpsItem = state->vehicleGPSStatus.get();
+        // Check our system time is different from prior data before setting system time:
+        if(gpsItem.is3DorGreater() && (state->vehicleSystemTime.set(systemTime))) {
+            std::shared_ptr<DataGenericItem::DataGenericItem_SystemTime> ptrSystemTime = std::make_shared<DataGenericItem::DataGenericItem_SystemTime>(systemTime);
+            if(this->m_CB){
+                this->m_CB->cbi_VehicleSystemTime(systemID, ptrSystemTime);
+            }
+        }
+
+        break;
+    }
     case MAVLINK_MSG_ID_GPS_RAW_INT:
     {
         //This is message definition 24
         //The global position, as returned by the Global Positioning System (GPS). This is NOT the global position estimate of the system, but rather a RAW sensor value. See message GLOBAL_POSITION for the global position estimate. Coordinate frame is right-handed, Z-axis up (GPS frame).
         mavlink_gps_raw_int_t decodedMSG;
-        mavlink_msg_gps_raw_int_decode(msg,&decodedMSG);
+        mavlink_msg_gps_raw_int_decode(msg, &decodedMSG);
         DataGenericItem::DataGenericItem_GPS gpsItem;
         gpsItem.setHDOP(decodedMSG.eph);
         gpsItem.setVDOP(decodedMSG.epv);
@@ -74,7 +95,7 @@ bool MavlinkVehicleObject::parseMessage(const mavlink_message_t *msg){
         {
             std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_GPS> ptrGPSStatus = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_GPS>(gpsItem);
             if(this->m_CB)
-                this->m_CB->cbi_VehicleStateData(systemID,ptrGPSStatus);
+                this->m_CB->cbi_VehicleStateData(systemID, ptrGPSStatus);
         }
 
         break;

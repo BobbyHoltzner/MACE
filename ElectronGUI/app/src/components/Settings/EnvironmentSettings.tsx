@@ -8,6 +8,7 @@ import FlatButton from "material-ui/FlatButton"
 import TextField from "material-ui/TextField"
 import * as React from "react"
 import { Col, Grid } from "react-bootstrap"
+import * as GlobalTypes from '../../types/globalTypings';
 
 import { styles } from "./styles"
 
@@ -40,7 +41,7 @@ export class EnvironmentSettings extends React.Component<Props, State> {
     }
 
     handleSave = () => {
-        let settings: EnvironmentSettingsType = {
+        let settings: GlobalTypes.EnvironmentSettingsType = {
             minSliderVal: this.state.minSliderVal,
             maxSliderVal: this.state.maxSliderVal,
             showBoundingBox: this.state.showBoundingBox,

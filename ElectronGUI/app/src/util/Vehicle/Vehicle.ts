@@ -1,33 +1,34 @@
 import * as L from "leaflet"
 import { aircraftImgSrcFromType } from "../Helpers/VehicleHelper"
+import * as GlobalTypes from '../../types/globalTypings'
 
 export class Vehicle {
     isNew: boolean
     general: HeartbeatType & { lastHeard: Date }
     vehicleId: number
     isSelected: boolean
-    position: PositionType
-    attitude: AttitudeType
+    position: GlobalTypes.PositionType
+    attitude: GlobalTypes.AttitudeType
     fuel: FuelType
     numSats: number
     positionFix: number
-    vehicleMode: VehicleModeType
+    vehicleMode: GlobalTypes.VehicleModeType
     positionInterval: number
     attitudeInterval: number
-    vehicleMarker: MarkerType
-    vehicleMission: MissionLayerType
-    homePosition: MarkerType
+    vehicleMarker: GlobalTypes.MarkerType
+    vehicleMission: GlobalTypes.MissionLayerType
+    homePosition: GlobalTypes.MarkerType
     isArmed: boolean
     sensorFootprint: L.LatLng[]
     currentMissionItem: number
-    messages: TextType[]
+    messages: GlobalTypes.TextType[]
     airspeed: number
     gps: GPSType
     highlightColor: string
     opaqueHighlightColor: string
     currentTarget: {
         distanceToTarget: number
-        targetPosition: PositionType
+        targetPosition: GlobalTypes.PositionType
         icon: L.DivIcon
         active: boolean
     }
@@ -35,8 +36,8 @@ export class Vehicle {
 
     constructor(
         vehicleId: number,
-        position?: PositionType,
-        attitude?: AttitudeType
+        position?: GlobalTypes.PositionType,
+        attitude?: GlobalTypes.AttitudeType
     ) {
         this.isNew = true
         this.vehicleId = vehicleId
@@ -297,15 +298,15 @@ export class Vehicle {
         }
     }
 
-    setPosition(position: PositionType) {
+    setPosition(position: GlobalTypes.PositionType) {
         this.position = position
     }
 
-    setAttitude(attitude: AttitudeType) {
+    setAttitude(attitude: GlobalTypes.AttitudeType) {
         this.attitude = attitude
     }
 
-    setVehicleMode(vehicleMode: VehicleModeType) {
+    setVehicleMode(vehicleMode: GlobalTypes.VehicleModeType) {
         this.vehicleMode = vehicleMode
     }
 
@@ -317,7 +318,7 @@ export class Vehicle {
         this.positionFix = positionFix
     }
 
-    setVehicleMission(mission: TCPMissionType) {
+    setVehicleMission(mission: GlobalTypes.TCPMissionType) {
         let prevLatLng = this.homePosition.latLon
         // Clear old mission:
         this.vehicleMission = {
@@ -509,7 +510,7 @@ export class Vehicle {
         }
     }
 
-    updateVehicleMarkerPosition(newPos?: PositionType) {
+    updateVehicleMarkerPosition(newPos?: GlobalTypes.PositionType) {
         let posUpdate = this.position
         if (newPos) {
             posUpdate = newPos
@@ -551,7 +552,7 @@ export class Vehicle {
         }
     }
 
-    updateMarkerAttitude(newAtt?: AttitudeType) {
+    updateMarkerAttitude(newAtt?: GlobalTypes.AttitudeType) {
         let attUpdate = this.attitude
         if (newAtt) {
             attUpdate = newAtt
@@ -593,7 +594,7 @@ export class Vehicle {
         }
     }
 
-    updateSensorFootprint(newFootprint: PositionType[]) {
+    updateSensorFootprint(newFootprint: GlobalTypes.PositionType[]) {
         this.sensorFootprint = []
         for (let i = 0; i < newFootprint.length; i++) {
             let vertex = new L.LatLng(newFootprint[i].lat, newFootprint[i].lng)

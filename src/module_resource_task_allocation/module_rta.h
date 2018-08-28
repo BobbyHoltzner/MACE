@@ -73,6 +73,8 @@ public:
     //!
     virtual void NewTopicSpooled(const std::string &topicName, const MaceCore::ModuleCharacteristic &sender, const std::vector<std::string> &componentsUpdated, const OptionalParameter<MaceCore::ModuleCharacteristic> &target = OptionalParameter<MaceCore::ModuleCharacteristic>());
 
+public:
+
 
     // ============================================================================= //
     // ======== Virtual functions as defined by IModuleCommandGenericBoundaries ==== //

@@ -118,11 +118,32 @@ public: //The following functions add specific modules to connect to mace core
     //!
     void AddROSModule(const std::shared_ptr<IModuleCommandROS> &ros);
 
+
+    //!
+    //! \brief Add a generic RTA module to the MACE instance
+    //!
+    //! This function simpy consults the module and calls either AddLocalModule_GlobalRTA or AddLocalModule_SpecializedRTA
+    //! \param rta Module to add
+    //!
+    void AddLocalModule_GenericRTA(const std::shared_ptr<IModuleCommandRTA> &rta);
+
+
     //!
     //! \brief AddRTAModule Add RTA module
     //! \param rta RTA module setup
     //!
-    void AddRTAModule(const std::shared_ptr<IModuleCommandRTA> &rta);
+    void AddLocalModule_GlobalRTA(const std::shared_ptr<IModuleCommandRTA> &rta);
+
+
+    //!
+    //! \brief Add a specialized RTA module
+    //!
+    //! A specialized RTA module coordianates with a specific resource (vehicle).
+    //! There may be multiple specalized RTA modules per MACE instance.
+    //! \param rta RTA module
+    //!
+    void AddLocalModule_SpecializedRTA(const std::shared_ptr<IModuleCommandRTA> &rta);
+
 
     //!
     //! \brief AddSensorsModule Add sensors module
@@ -380,6 +401,13 @@ public:
     //! \param current New current mission item
     //!
     virtual void GVEvents_MissionItemCurrent(const void *sender, const MissionItem::MissionItemCurrent &current);
+
+    //!
+    //! \brief GVEvents_NewSystemTime Emitted to alert the core that a module connected to a vehicle has an updated system time
+    //! \param sender Sender module
+    //! \param systemTime New system time
+    //!
+    virtual void GVEvents_NewSystemTime(const ModuleBase *sender, const DataGenericItem::DataGenericItem_SystemTime &systemTime);
 
     //!
     //! \brief ConfirmedOnboardVehicleMission Confirm onboard mission event
@@ -707,6 +735,18 @@ public:
         return m_MaceInstanceID;
     }
 
+
+    //!
+    //! \brief Reserve Module IDs. This prevents the core from assigning this number
+    //!
+    //! Used in the case of statically assigned modules
+    //! \param IDs Vector of ID's to reserve, will replace current vector
+    //!
+    void setReservedIDs(const std::vector<int> &IDs)
+    {
+        m_ReservedModuleIDs = IDs;
+    }
+
 private:
     mutable std::mutex m_VehicleMutex;
 
@@ -726,12 +766,15 @@ private:
     std::shared_ptr<IModuleCommandPathPlanning> m_PathPlanning;
     std::shared_ptr<IModuleCommandROS> m_ROS;
     std::shared_ptr<IModuleCommandSensors> m_Sensors;
-    std::shared_ptr<IModuleCommandRTA> m_RTA;
+    std::shared_ptr<IModuleCommandRTA> m_GlobalRTA;
+    std::vector<std::shared_ptr<IModuleCommandRTA>> m_SpecailizedRTA;
 
     //! Map of modules and the local key to identiy them.
     std::unordered_map<uint32_t, std::shared_ptr<ModuleBase>> m_Modules;
     uint8_t m_MaceInstanceID;
     bool m_MaceInstanceIDSet;
+
+    std::vector<int> m_ReservedModuleIDs;
 
     std::shared_ptr<MaceData> m_DataFusion;
 };

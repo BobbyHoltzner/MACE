@@ -24,6 +24,7 @@ import { AppDrawer } from "../AppDrawer/AppDrawer"
 import { ConnectedVehiclesContainer } from "../ConnectedVehicles/ConnectedVehiclesContainer"
 import { DrawButtonsContainer } from "../DrawButtons/DrawButtonsContainer"
 import { VehicleCommandsContainer } from "../VehicleCommands/VehicleCommandsContainer"
+import * as GlobalTypes from '../../types/globalTypings';
 
 let injectTapEventPlugin = require("react-tap-event-plugin")
 injectTapEventPlugin()
@@ -292,7 +293,7 @@ export default class AppContainer extends React.Component<Props, State> {
 
     handleSaveTakeoff = (takeoffAlt: string) => {
         this.appHelper.handleSaveTakeoff(takeoffAlt)
-    }
+    }            
 
     handleTakeoff = () => {
         this.setState({

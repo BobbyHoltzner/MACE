@@ -8,6 +8,7 @@ import { Tab, Tabs } from "material-ui/Tabs"
 import TextField from "material-ui/TextField"
 import * as React from "react"
 import { Col, Grid } from "react-bootstrap"
+import * as GlobalTypes from '../../../types/globalTypings'
 
 import { styles } from "./styles"
 

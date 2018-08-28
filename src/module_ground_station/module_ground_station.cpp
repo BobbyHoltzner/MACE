@@ -243,7 +243,7 @@ std::shared_ptr<MaceCore::ModuleParameterStructure> ModuleGroundStation::ModuleC
     maceCommsParams->AddTerminalParameters("ListenPort", MaceCore::ModuleParameterTerminalTypes::INT, false);
     maceCommsParams->AddTerminalParameters("SendPort", MaceCore::ModuleParameterTerminalTypes::INT, false);
     structure.AddNonTerminal("MACEComms", maceCommsParams, false);
-    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, true);
+    structure.AddTerminalParameters("ID", MaceCore::ModuleParameterTerminalTypes::INT, false);
 
     return std::make_shared<MaceCore::ModuleParameterStructure>(structure);
 }
@@ -272,7 +272,10 @@ void ModuleGroundStation::ConfigureModule(const std::shared_ptr<MaceCore::Module
         }
     }
 
-    this->SetID(params->GetTerminalValue<int>("ID"));
+    if(params->HasTerminal("ID"))
+    {
+        this->SetID(params->GetTerminalValue<int>("ID"));
+    }
 
     m_guiHostAddress = guiHostAddress;
     m_listenPort = listenPort;
@@ -421,6 +424,13 @@ void ModuleGroundStation::NewTopicSpooled(const std::string &topicName, const Ma
                 // Write heartbeat data to the GUI:
                 m_toGUIHandler->sendVehicleHeartbeat(vehicleID, component);
             }
+//            else if(componentsUpdated.at(i) == DataGenericItemTopic::DataGenericItemTopic_SystemTime::Name()) {
+//                std::shared_ptr<DataGenericItemTopic::DataGenericItemTopic_SystemTime> component = std::make_shared<DataGenericItemTopic::DataGenericItemTopic_SystemTime>();
+//                m_VehicleDataTopic.GetComponent(component, read_topicDatagram);
+
+//                // DO SOMETHING WITH TIME SINCE EPOCH OR TIME SINCE BOOT
+//                std::cout << "GROUND STATION -- TIME SICNE EPOCH / MSEC SINCE BOOT: " << component->getUsecSinceEpoch() << " / " << component->getMillisecondsSinceBoot() << std::endl;
+//            }
         }
     }
     else if(topicName == m_MissionDataTopic.Name())
